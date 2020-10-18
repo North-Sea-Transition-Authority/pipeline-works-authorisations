@@ -43,7 +43,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadOrganisationRoleSer
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.PadPipelineHuooViewFactory;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.PipelineAndOrgRoleGroupViewsByRole;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.PipelineHuooValidationResult;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.viewfactories.PipelineAndIdentViewFactory;
 import uk.co.ogauthority.pwa.validators.pipelinehuoo.PickHuooPipelineValidationType;
 import uk.co.ogauthority.pwa.validators.pipelinehuoo.PickHuooPipelinesFormValidator;
 
@@ -56,7 +56,7 @@ public class PadPipelinesHuooService implements ApplicationFormSectionService {
   private final PadOrganisationRoleService padOrganisationRoleService;
   private final PickHuooPipelinesFormValidator pickHuooPipelinesFormValidator;
   private final PadPipelineOrganisationRoleLinkRepository padPipelineOrganisationRoleLinkRepository;
-  private final PadPipelineService padPipelineService;
+  private final PipelineAndIdentViewFactory pipelineAndIdentViewFactory;
   private final PadPipelineHuooViewFactory padPipelineHuooViewFactory;
 
   @Autowired
@@ -65,14 +65,14 @@ public class PadPipelinesHuooService implements ApplicationFormSectionService {
                                  PadOrganisationRoleService padOrganisationRoleService,
                                  PickHuooPipelinesFormValidator pickHuooPipelinesFormValidator,
                                  PadPipelineOrganisationRoleLinkRepository padPipelineOrganisationRoleLinkRepository,
-                                 PadPipelineService padPipelineService,
+                                 PipelineAndIdentViewFactory pipelineAndIdentViewFactory,
                                  PadPipelineHuooViewFactory padPipelineHuooViewFactory) {
     this.pickableHuooPipelineService = pickableHuooPipelineService;
     this.portalOrganisationsAccessor = portalOrganisationsAccessor;
     this.padOrganisationRoleService = padOrganisationRoleService;
     this.pickHuooPipelinesFormValidator = pickHuooPipelinesFormValidator;
     this.padPipelineOrganisationRoleLinkRepository = padPipelineOrganisationRoleLinkRepository;
-    this.padPipelineService = padPipelineService;
+    this.pipelineAndIdentViewFactory = pipelineAndIdentViewFactory;
     this.padPipelineHuooViewFactory = padPipelineHuooViewFactory;
   }
 
@@ -98,7 +98,7 @@ public class PadPipelinesHuooService implements ApplicationFormSectionService {
   }
 
   public List<PipelineOverview> getSplitablePipelinesForAppAndMasterPwa(PwaApplicationDetail pwaApplicationDetail) {
-    return padPipelineService.getAllPipelineOverviewsFromAppAndMasterPwa(pwaApplicationDetail)
+    return pipelineAndIdentViewFactory.getAllPipelineOverviewsFromAppAndMasterPwa(pwaApplicationDetail)
         .values()
         .stream()
         .filter(pipelineOverview -> pipelineOverview.getNumberOfIdents() >= 1)
@@ -325,7 +325,6 @@ public class PadPipelinesHuooService implements ApplicationFormSectionService {
         pwaApplicationDetail);
     return PipelineAndOrganisationRoleGroupSummaryDto.aggregateOrganisationPipelineRoleDtos(allPipelineRolesForApp);
   }
-
 
   public List<PadPipelineOrganisationRoleLink> replacePipelineSectionsForPipelineAndRole(PwaApplicationDetail pwaApplicationDetail,
                                                                                          HuooRole huooRole,

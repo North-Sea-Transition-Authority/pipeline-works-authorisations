@@ -15,6 +15,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -26,7 +27,9 @@ import org.springframework.security.util.FieldUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
+import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
+import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipelineIdent;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipelineIdentData;
@@ -40,18 +43,21 @@ import uk.co.ogauthority.pwa.model.location.LongitudeCoordinate;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.pipelines.PadPipelineIdentRepository;
 import uk.co.ogauthority.pwa.service.enums.location.LatitudeDirection;
 import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.pipelinedatautils.PipelineIdentViewCollectorService;
 import uk.co.ogauthority.pwa.util.CoordinateUtils;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PadPipelineIdentServiceTest {
 
-  @Mock
-  private PadPipelineIdentRepository repository;
+  private final static PipelineId PIPELINE_ID = new PipelineId(10);
 
   @Mock
-  private PadPipelineIdentDataService identDataService;
+  private PadPipelineIdentRepository padPipelineIdentRepository;
 
-  private PadPipelineIdentService identService;
+  @Mock
+  private PadPipelineIdentDataService padPipelineIdentDataService;
+
+  private PadPipelineIdentService padPipelineIdentService;
 
   @Mock
   private PadPipelinePersisterService padPipelinePersisterService;
@@ -59,30 +65,47 @@ public class PadPipelineIdentServiceTest {
   @Mock
   private PipelineIdentFormValidator pipelineIdentFormValidator;
 
+  // not a mock to allow full testing with labda params
+  private PipelineIdentViewCollectorService pipelineIdentViewCollectorService;
+
   @Captor
   private ArgumentCaptor<PadPipelineIdent> identCaptor;
 
   @Captor
   private ArgumentCaptor<PadPipelineIdentData> identDataCaptor;
 
-  private PadPipeline pipeline;
+  private Pipeline pipeline;
+  private PadPipeline padPipeline;
   private PadPipelineIdent ident;
+  private PadPipelineIdentData identData;
 
   @Before
   public void setUp() {
-    identService = new PadPipelineIdentService(repository, identDataService, padPipelinePersisterService,
-        pipelineIdentFormValidator);
-    pipeline = new PadPipeline();
-    pipeline.setPipelineType(PipelineType.CABLE);
+
+    pipelineIdentViewCollectorService = new PipelineIdentViewCollectorService();
+
+    padPipelineIdentService = new PadPipelineIdentService(
+        padPipelineIdentRepository,
+        padPipelineIdentDataService,
+        padPipelinePersisterService,
+        pipelineIdentFormValidator,
+        pipelineIdentViewCollectorService);
+    pipeline = new Pipeline();
+    pipeline.setId(PIPELINE_ID.asInt());
+    padPipeline = new PadPipeline();
+    padPipeline.setPipeline(pipeline);
+    padPipeline.setPipelineType(PipelineType.CABLE);
     ident = makeIdent(1, "from", "to");
-    ident.setPadPipeline(pipeline);
+    ident.setPadPipeline(padPipeline);
+    identData = makeIdentData(ident);
+
   }
 
   @Test
   public void addIdent() throws IllegalAccessException {
 
-    pipeline.setPipelineType(PipelineType.PRODUCTION_FLOWLINE);
-    pipeline.setPipelineInBundle(false);
+    padPipeline.setPipelineType(PipelineType.PRODUCTION_FLOWLINE);
+    padPipeline.setPipelineInBundle(false);
     var form = new PipelineIdentForm();
 
     form.setFromLocation("from");
@@ -117,15 +140,15 @@ public class PadPipelineIdentServiceTest {
     dataForm.setInsulationCoatingType("ins");
     form.setDataForm(dataForm);
 
-    identService.addIdent(pipeline, form);
+    padPipelineIdentService.addIdent(padPipeline, form);
 
-    verify(repository, times(1)).save(identCaptor.capture());
+    verify(padPipelineIdentRepository, times(1)).save(identCaptor.capture());
     var newIdent = identCaptor.getValue();
 
-    verify(identDataService, times(1)).addIdentData(newIdent, form.getDataForm());
-    verify(identDataService, never()).updateIdentData(any(), any());
+    verify(padPipelineIdentDataService, times(1)).addIdentData(newIdent, form.getDataForm());
+    verify(padPipelineIdentDataService, never()).updateIdentData(any(), any());
 
-    assertThat(newIdent.getPadPipeline()).isEqualTo(pipeline);
+    assertThat(newIdent.getPadPipeline()).isEqualTo(padPipeline);
     assertThat(newIdent.getFromLocation()).isEqualTo(form.getFromLocation());
     assertThat(FieldUtils.getFieldValue(newIdent, "fromLatitudeDegrees")).isEqualTo(
         form.getFromCoordinateForm().getLatitudeDegrees());
@@ -170,18 +193,17 @@ public class PadPipelineIdentServiceTest {
 
    var pipelineOverview = mock(PipelineOverview.class);
    when(pipelineOverview.getPadPipelineId()).thenReturn(null);
-    identService.getIdentViewsFromOverview(pipelineOverview);
+    padPipelineIdentService.getIdentViewsFromOverview(pipelineOverview);
 
   }
 
   @Test
   public void getIdentViewsFromOverview_whenIdentFoundMapsCorrectly(){
-    var identData = makeIdentData(ident);
     var pipelineOverview = mock(PipelineOverview.class);
-    when(repository.getAllByPadPipeline_IdIn(any())).thenReturn(List.of(ident));
-    when(identDataService.getDataFromIdentList(eq(List.of(ident)))).thenReturn(Map.of(ident, identData));
+    when(padPipelineIdentRepository.getAllByPadPipeline_IdIn(any())).thenReturn(List.of(ident));
+    when(padPipelineIdentDataService.getDataFromIdentList(eq(List.of(ident)))).thenReturn(Map.of(ident, identData));
 
-    List<IdentView> identViews =  identService.getIdentViewsFromOverview(pipelineOverview);
+    List<IdentView> identViews =  padPipelineIdentService.getIdentViewsFromOverview(pipelineOverview);
 
     var view = identViews.get(0);
     assertIdentViewMatchesIdent(view, ident, identData);
@@ -190,13 +212,10 @@ public class PadPipelineIdentServiceTest {
 
   @Test
   public void getIdentViews() {
-
-    var identData = makeIdentData(ident);
-
     var pipeline = new PadPipeline();
-    when(repository.getAllByPadPipeline(pipeline)).thenReturn(List.of(ident));
-    when(identDataService.getDataFromIdentList(eq(List.of(ident)))).thenReturn(Map.of(ident, identData));
-    List<IdentView> identViews = identService.getIdentViews(pipeline);
+    when(padPipelineIdentRepository.getAllByPadPipeline(pipeline)).thenReturn(List.of(ident));
+    when(padPipelineIdentDataService.getDataFromIdentList(eq(List.of(ident)))).thenReturn(Map.of(ident, identData));
+    List<IdentView> identViews = padPipelineIdentService.getIdentViews(pipeline);
 
     var view = identViews.get(0);
     assertIdentViewMatchesIdent(view, ident, identData);
@@ -231,14 +250,14 @@ public class PadPipelineIdentServiceTest {
     var identDataB = makeIdentData(identB);
 
     var pipeline = new PadPipeline();
-    when(repository.getAllByPadPipeline(pipeline)).thenReturn(List.of(identAStart, identAEnd, identB));
-    when(identDataService.getDataFromIdentList(eq(List.of(identAStart, identAEnd, identB))))
+    when(padPipelineIdentRepository.getAllByPadPipeline(pipeline)).thenReturn(List.of(identAStart, identAEnd, identB));
+    when(padPipelineIdentDataService.getDataFromIdentList(eq(List.of(identAStart, identAEnd, identB))))
         .thenReturn(new LinkedHashMap<>() {{
           put(identAStart, identDataAStart);
           put(identAEnd, identDataAEnd);
           put(identB, identDataB);
         }});
-    ConnectedPipelineIdentSummaryView summaryView = identService.getConnectedPipelineIdentSummaryView(pipeline);
+    ConnectedPipelineIdentSummaryView summaryView = padPipelineIdentService.getConnectedPipelineIdentSummaryView(pipeline);
     assertThat(summaryView.getConnectedPipelineIdents().size()).isEqualTo(2);
     assertThat(summaryView.getConnectedPipelineIdents().get(0).getIdentViews())
         .extracting(IdentView::getIdentNumber)
@@ -251,10 +270,10 @@ public class PadPipelineIdentServiceTest {
   @Test
   public void getConnectedPipelineIdentSummaryView_noIdents() {
 
-    when(repository.getAllByPadPipeline(pipeline)).thenReturn(List.of());
-    when(identDataService.getDataFromIdentList(eq(List.of())))
+    when(padPipelineIdentRepository.getAllByPadPipeline(padPipeline)).thenReturn(List.of());
+    when(padPipelineIdentDataService.getDataFromIdentList(eq(List.of())))
         .thenReturn(new LinkedHashMap<>());
-    ConnectedPipelineIdentSummaryView summaryView = identService.getConnectedPipelineIdentSummaryView(pipeline);
+    ConnectedPipelineIdentSummaryView summaryView = padPipelineIdentService.getConnectedPipelineIdentSummaryView(padPipeline);
     assertThat(summaryView.getConnectedPipelineIdents()).isEmpty();
   }
 
@@ -291,29 +310,29 @@ public class PadPipelineIdentServiceTest {
   @Test
   public void removeIdent() {
 
-    pipeline.setPipelineType(PipelineType.PRODUCTION_FLOWLINE);
-    pipeline.setPipelineInBundle(false);
+    padPipeline.setPipelineType(PipelineType.PRODUCTION_FLOWLINE);
+    padPipeline.setPipelineInBundle(false);
 
     var ident = new PadPipelineIdent();
-    ident.setPadPipeline(pipeline);
+    ident.setPadPipeline(padPipeline);
     ident.setIdentNo(1);
 
     var ident2 = new PadPipelineIdent();
-    ident2.setPadPipeline(pipeline);
+    ident2.setPadPipeline(padPipeline);
     ident2.setIdentNo(2);
 
     var ident3 = new PadPipelineIdent();
-    ident3.setPadPipeline(pipeline);
+    ident3.setPadPipeline(padPipeline);
     ident3.setIdentNo(3);
 
-    when(repository.getAllByPadPipeline(pipeline)).thenReturn(List.of(ident, ident3));
+    when(padPipelineIdentRepository.getAllByPadPipeline(padPipeline)).thenReturn(List.of(ident, ident3));
 
-    identService.removeIdent(ident2);
+    padPipelineIdentService.removeIdent(ident2);
 
-    verify(identDataService, times(1)).removeIdentData(ident2);
+    verify(padPipelineIdentDataService, times(1)).removeIdentData(ident2);
 
     var captor = ArgumentCaptor.forClass(Iterable.class);
-    verify(repository, times(1)).saveAll(captor.capture());
+    verify(padPipelineIdentRepository, times(1)).saveAll(captor.capture());
 
     assertThat((List<PadPipelineIdent>) captor.getValue()).extracting(PadPipelineIdent::getIdentNo)
         .containsExactly(1, 2);
@@ -339,16 +358,16 @@ public class PadPipelineIdentServiceTest {
     form.setDataForm(new PipelineIdentDataForm());
 
     var identData = new PadPipelineIdentData();
-    when(identDataService.getOptionalOfIdentData(ident)).thenReturn(Optional.of(identData));
+    when(padPipelineIdentDataService.getOptionalOfIdentData(ident)).thenReturn(Optional.of(identData));
 
-    pipeline.setPipelineType(PipelineType.PRODUCTION_FLOWLINE);
-    pipeline.setPipelineInBundle(false);
-    ident.setPadPipeline(pipeline);
+    padPipeline.setPipelineType(PipelineType.PRODUCTION_FLOWLINE);
+    padPipeline.setPipelineInBundle(false);
+    ident.setPadPipeline(padPipeline);
 
-    identService.updateIdent(ident, form);
-    verify(repository, times(1)).save(ident);
-    verify(identDataService, times(1)).updateIdentData(ident, form.getDataForm());
-    verify(identDataService, never()).addIdentData(any(), any());
+    padPipelineIdentService.updateIdent(ident, form);
+    verify(padPipelineIdentRepository, times(1)).save(ident);
+    verify(padPipelineIdentDataService, times(1)).updateIdentData(ident, form.getDataForm());
+    verify(padPipelineIdentDataService, never()).addIdentData(any(), any());
 
     assertThat(ident.getFromCoordinates()).isEqualTo(
         CoordinateUtils.coordinatePairFromForm(form.getFromCoordinateForm()));
@@ -377,7 +396,7 @@ public class PadPipelineIdentServiceTest {
     ));
     form.setDataForm(new PipelineIdentDataForm());
 
-    identService.mapEntityToForm(ident, form);
+    padPipelineIdentService.mapEntityToForm(ident, form);
 
     var coordinateFromForm = new CoordinateForm();
     CoordinateUtils.mapCoordinatePairToForm(ident.getFromCoordinates(), coordinateFromForm);
@@ -394,29 +413,29 @@ public class PadPipelineIdentServiceTest {
 
   @Test
   public void validateSection_valid() {
-    pipeline.setPipelineType(PipelineType.CABLE);
-    when(repository.getAllByPadPipeline(pipeline)).thenReturn(List.of(ident));
-    var valid = identService.isSectionValid(pipeline);
+    padPipeline.setPipelineType(PipelineType.CABLE);
+    when(padPipelineIdentRepository.getAllByPadPipeline(padPipeline)).thenReturn(List.of(ident));
+    var valid = padPipelineIdentService.isSectionValid(padPipeline);
     assertThat(valid).isTrue();
   }
 
   @Test
   public void validateSection_invalid() {
     ident.setId(1);
-    when(repository.getAllByPadPipeline(pipeline)).thenReturn(List.of(ident));
+    when(padPipelineIdentRepository.getAllByPadPipeline(padPipeline)).thenReturn(List.of(ident));
     doAnswer(invocation -> {
       var bindingResult = (BindingResult) invocation.getArgument(1);
       bindingResult.addError(new ObjectError("", ""));
       return null;
     }).when(pipelineIdentFormValidator).validate(any(), any(), any());
-    var valid = identService.isSectionValid(pipeline);
+    var valid = padPipelineIdentService.isSectionValid(padPipeline);
     assertThat(valid).isFalse();
   }
 
   @Test
   public void getIdentByIdentNumber_serviceInteraction() {
-    when(repository.getByPadPipelineAndAndIdentNo(pipeline, 1)).thenReturn(Optional.of(ident));
-    var result = identService.getIdentByIdentNumber(pipeline, 1);
+    when(padPipelineIdentRepository.getByPadPipelineAndAndIdentNo(padPipeline, 1)).thenReturn(Optional.of(ident));
+    var result = padPipelineIdentService.getIdentByIdentNumber(padPipeline, 1);
     assertThat(result).isPresent();
     assertThat(result.get()).isEqualTo(ident);
   }
@@ -455,26 +474,26 @@ public class PadPipelineIdentServiceTest {
     dataForm.setInsulationCoatingType("ins");
     form.setDataForm(dataForm);
 
-    pipeline.setPipelineType(PipelineType.PRODUCTION_FLOWLINE);
-    pipeline.setPipelineInBundle(false);
+    padPipeline.setPipelineType(PipelineType.PRODUCTION_FLOWLINE);
+    padPipeline.setPipelineInBundle(false);
 
-    when(repository.getAllByPadPipeline(pipeline)).thenReturn(List.of(ident));
+    when(padPipelineIdentRepository.getAllByPadPipeline(padPipeline)).thenReturn(List.of(ident));
 
-    identService.addIdentAtPosition(pipeline, form, 1);
+    padPipelineIdentService.addIdentAtPosition(padPipeline, form, 1);
 
     assertThat(ident.getIdentNo()).isEqualTo(2);
 
 
     var saveCaptor = ArgumentCaptor.forClass(PadPipelineIdent.class);
-    verify(repository, times(1)).save(saveCaptor.capture());
-    verify(repository, times(1)).saveAll(List.of(ident));
-    verify(identDataService, times(1)).addIdentData(saveCaptor.getValue(), form.getDataForm());
-    verify(identDataService, never()).updateIdentData(any(), any());
+    verify(padPipelineIdentRepository, times(1)).save(saveCaptor.capture());
+    verify(padPipelineIdentRepository, times(1)).saveAll(List.of(ident));
+    verify(padPipelineIdentDataService, times(1)).addIdentData(saveCaptor.getValue(), form.getDataForm());
+    verify(padPipelineIdentDataService, never()).updateIdentData(any(), any());
 
     var newIdent = saveCaptor.getValue();
 
     assertThat(newIdent.getIdentNo()).isEqualTo(1);
-    assertThat(newIdent.getPadPipeline()).isEqualTo(pipeline);
+    assertThat(newIdent.getPadPipeline()).isEqualTo(padPipeline);
     assertThat(newIdent.getFromLocation()).isEqualTo(form.getFromLocation());
     assertThat(FieldUtils.getFieldValue(newIdent, "fromLatitudeDegrees")).isEqualTo(
         form.getFromCoordinateForm().getLatitudeDegrees());
@@ -515,32 +534,32 @@ public class PadPipelineIdentServiceTest {
 
   @Test
   public void saveAll_serviceInteraction() {
-    identService.saveAll(List.of());
-    verify(repository, times(1)).saveAll(List.of());
+    padPipelineIdentService.saveAll(List.of());
+    verify(padPipelineIdentRepository, times(1)).saveAll(List.of());
   }
 
   @Test
   public void removeAllIdents_serviceInteraction() {
-    when(repository.getAllByPadPipeline(pipeline))
+    when(padPipelineIdentRepository.getAllByPadPipeline(padPipeline))
         .thenReturn(List.of(ident));
-    identService.removeAllIdents(pipeline);
-    verify(identDataService, times(1)).removeIdentDataForPipeline(pipeline);
-    verify(repository, times(1)).deleteAll(List.of(ident));
+    padPipelineIdentService.removeAllIdents(padPipeline);
+    verify(padPipelineIdentDataService, times(1)).removeIdentDataForPipeline(padPipeline);
+    verify(padPipelineIdentRepository, times(1)).deleteAll(List.of(ident));
   }
 
   @Test
   public void getAllIdents_serviceInteraction() {
-    when(repository.getAllByPadPipeline(pipeline))
+    when(padPipelineIdentRepository.getAllByPadPipeline(padPipeline))
         .thenReturn(List.of(ident));
-    var result = identService.getAllIdents(pipeline);
+    var result = padPipelineIdentService.getAllIdents(padPipeline);
     assertThat(result).isEqualTo(List.of(ident));
   }
 
   @Test
   public void getSummaryScreenValidationResult_sectionComplete() {
-    when(repository.getAllByPadPipeline(pipeline))
+    when(padPipelineIdentRepository.getAllByPadPipeline(padPipeline))
         .thenReturn(List.of(ident));
-    var result = identService.getSummaryScreenValidationResult(pipeline);
+    var result = padPipelineIdentService.getSummaryScreenValidationResult(padPipeline);
     assertThat(result.isSectionComplete()).isTrue();
   }
 
@@ -553,15 +572,15 @@ public class PadPipelineIdentServiceTest {
       bindingResult.addError(new ObjectError("", ""));
       return null;
     }).when(pipelineIdentFormValidator).validate(any(), any(), any());
-    when(repository.getAllByPadPipeline(pipeline))
+    when(padPipelineIdentRepository.getAllByPadPipeline(padPipeline))
         .thenReturn(List.of(ident));
-    var result = identService.getSummaryScreenValidationResult(pipeline);
+    var result = padPipelineIdentService.getSummaryScreenValidationResult(padPipeline);
     assertThat(result.isSectionComplete()).isFalse();
   }
 
   @Test
   public void isIdentValid_true() {
-    var result = identService.isIdentValid(pipeline, ident);
+    var result = padPipelineIdentService.isIdentValid(padPipeline, ident);
     assertThat(result).isTrue();
   }
 
@@ -572,38 +591,100 @@ public class PadPipelineIdentServiceTest {
       bindingResult.addError(new ObjectError("", ""));
       return null;
     }).when(pipelineIdentFormValidator).validate(any(), any(), any());
-    var result = identService.isIdentValid(pipeline, ident);
+    var result = padPipelineIdentService.isIdentValid(padPipeline, ident);
     assertThat(result).isFalse();
   }
 
   @Test
   public void isSectionValid_true() {
-    when(repository.getAllByPadPipeline(pipeline))
+    when(padPipelineIdentRepository.getAllByPadPipeline(padPipeline))
         .thenReturn(List.of(ident));
-    var result = identService.isSectionValid(pipeline);
+    var result = padPipelineIdentService.isSectionValid(padPipeline);
     assertThat(result).isTrue();
   }
 
   @Test
   public void isSectionValid_noIdents() {
-    when(repository.getAllByPadPipeline(pipeline))
+    when(padPipelineIdentRepository.getAllByPadPipeline(padPipeline))
         .thenReturn(List.of());
-    var result = identService.isSectionValid(pipeline);
+    var result = padPipelineIdentService.isSectionValid(padPipeline);
     assertThat(result).isFalse();
   }
 
   @Test
   public void isSectionValid_invalidIdent() {
     ident.setId(1);
-    when(repository.getAllByPadPipeline(pipeline))
+    when(padPipelineIdentRepository.getAllByPadPipeline(padPipeline))
         .thenReturn(List.of(ident));
     doAnswer(invocation -> {
       var bindingResult = (BindingResult) invocation.getArgument(1);
       bindingResult.addError(new ObjectError("", ""));
       return null;
     }).when(pipelineIdentFormValidator).validate(any(), any(), any());
-    var result = identService.isSectionValid(pipeline);
+    var result = padPipelineIdentService.isSectionValid(padPipeline);
     assertThat(result).isFalse();
+  }
+
+  @Test
+  public void getApplicationIdentViewsForPipelines_whenOnePipelineIdProvided_andIdentFound() {
+    when(padPipelineIdentRepository.getAllByPadPipeline_Pipeline_IdIn(Set.of(PIPELINE_ID.asInt())))
+        .thenReturn(List.of(ident));
+
+    when(padPipelineIdentDataService.getAllPadPipelineIdentDataForIdents(List.of(ident)))
+        .thenReturn(List.of(identData));
+
+    var result = padPipelineIdentService.getApplicationIdentViewsForPipelines(Set.of(PIPELINE_ID));
+
+    assertThat(result).containsOnlyKeys(PIPELINE_ID);
+    assertThat(result.get(PIPELINE_ID)).hasSize(1);
+    assertIdentViewMatchesIdent(result.get(PIPELINE_ID).get(0), ident, identData);
+  }
+
+  @Test
+  public void getApplicationIdentViewsForPipelines_whenMutliplePipelineIdsProvided_andIdentsFound() {
+    var pipelineId2 = new PipelineId(2);
+    var pipeline2 = new Pipeline();
+    pipeline2.setId(pipelineId2.asInt());
+    var padPipeline2 = new PadPipeline();
+    padPipeline2.setPipeline(pipeline2);
+    padPipeline2.setPipelineType(PipelineType.PRODUCTION_FLOWLINE);
+    var pipeline2Ident1 = makeIdent(1, "from1", "to1");
+    pipeline2Ident1.setPadPipeline(padPipeline2);
+    var pipeline2Ident2 = makeIdent(2, "from2", "to2");
+    pipeline2Ident2.setPadPipeline(padPipeline2);
+
+    var pipeline2Ident1Data = makeIdentData(pipeline2Ident1);
+    var pipeline2Ident2Data = makeIdentData(pipeline2Ident2);
+
+
+    var foundIdentList = List.of(ident, pipeline2Ident1, pipeline2Ident2);
+    when(padPipelineIdentRepository.getAllByPadPipeline_Pipeline_IdIn(
+        Set.of(PIPELINE_ID.asInt(), pipelineId2.asInt())))
+        .thenReturn(foundIdentList);
+
+    when(padPipelineIdentDataService.getAllPadPipelineIdentDataForIdents(foundIdentList))
+        .thenReturn(List.of(identData, pipeline2Ident1Data, pipeline2Ident2Data));
+
+    var result = padPipelineIdentService.getApplicationIdentViewsForPipelines(Set.of(PIPELINE_ID, pipelineId2));
+
+    assertThat(result).containsOnlyKeys(PIPELINE_ID, pipelineId2);
+    assertThat(result.get(PIPELINE_ID)).hasSize(1);
+    assertIdentViewMatchesIdent(result.get(PIPELINE_ID).get(0), ident, identData);
+
+    assertThat(result.get(pipelineId2)).hasSize(2);
+    assertIdentViewMatchesIdent(result.get(pipelineId2).get(0), pipeline2Ident1, pipeline2Ident1Data);
+    assertIdentViewMatchesIdent(result.get(pipelineId2).get(1), pipeline2Ident2, pipeline2Ident2Data);
+
+  }
+
+  @Test
+  public void getApplicationIdentViewsForPipelines_whenMutliplePipelineIdsProvided_andNoIdentsFound() {
+
+    var result = padPipelineIdentService.getApplicationIdentViewsForPipelines(
+        Set.of(new PipelineId(99), new PipelineId(100)));
+
+    assertThat(result).isEmpty();
+
   }
 
 

@@ -44,7 +44,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadOrganisationRoleTes
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.PadPipelineHuooViewFactory;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.PipelineAndOrgRoleGroupViewsByRoleTestUtil;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.PipelineHuooRoleSummaryViewTestUtil;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.viewfactories.PipelineAndIdentViewFactory;
 import uk.co.ogauthority.pwa.testutils.PortalOrganisationTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.validators.pipelinehuoo.PickHuooPipelineValidationType;
@@ -85,13 +85,13 @@ public class PadPipelinesHuooServiceTest {
   private PadPipelineOrganisationRoleLinkRepository padPipelineOrganisationRoleLinkRepository;
 
   @Mock
-  private PadPipelineService padPipelineService;
-
-  @Mock
   private PipelineOverview consentedPipelineOverview;
 
   @Mock
   private PadPipelineHuooViewFactory padPipelineHuooViewFactory;
+
+  @Mock
+  private PipelineAndIdentViewFactory pipelineAndIdentViewFactory;
 
   private PwaApplicationDetail pwaApplicationDetail;
   private PickHuooPipelinesForm form;
@@ -121,7 +121,7 @@ public class PadPipelinesHuooServiceTest {
         padOrganisationRoleService,
         pickHuooPipelinesFormValidator,
         padPipelineOrganisationRoleLinkRepository,
-        padPipelineService,
+        pipelineAndIdentViewFactory,
         padPipelineHuooViewFactory);
 
 
@@ -404,7 +404,7 @@ public class PadPipelinesHuooServiceTest {
     var overviewMap = new HashMap<PipelineId, PipelineOverview>();
     overviewMap.put(new PipelineId(CONSENTED_PIPELINE_ID), consentedPipelineOverview);
 
-    when(padPipelineService.getAllPipelineOverviewsFromAppAndMasterPwa(pwaApplicationDetail))
+    when(pipelineAndIdentViewFactory.getAllPipelineOverviewsFromAppAndMasterPwa(pwaApplicationDetail))
         .thenReturn(overviewMap);
 
 
@@ -425,7 +425,7 @@ public class PadPipelinesHuooServiceTest {
     var overviewMap = new HashMap<PipelineId, PipelineOverview>();
     overviewMap.put(new PipelineId(CONSENTED_PIPELINE_ID), consentedPipelineOverview);
 
-    when(padPipelineService.getAllPipelineOverviewsFromAppAndMasterPwa(pwaApplicationDetail))
+    when(pipelineAndIdentViewFactory.getAllPipelineOverviewsFromAppAndMasterPwa(pwaApplicationDetail))
         .thenReturn(overviewMap);
 
     var overviews = padPipelinesHuooService.getSplitablePipelinesForAppAndMasterPwa(pwaApplicationDetail);
@@ -439,7 +439,7 @@ public class PadPipelinesHuooServiceTest {
     var overviewMap = new HashMap<PipelineId, PipelineOverview>();
     overviewMap.put(new PipelineId(CONSENTED_PIPELINE_ID), consentedPipelineOverview);
 
-    when(padPipelineService.getAllPipelineOverviewsFromAppAndMasterPwa(pwaApplicationDetail))
+    when(pipelineAndIdentViewFactory.getAllPipelineOverviewsFromAppAndMasterPwa(pwaApplicationDetail))
         .thenReturn(overviewMap);
 
     var overviews = padPipelinesHuooService.getSplitablePipelinesForAppAndMasterPwa(pwaApplicationDetail);
@@ -452,7 +452,7 @@ public class PadPipelinesHuooServiceTest {
 
     var overviewMap = new HashMap<PipelineId, PipelineOverview>();
 
-    when(padPipelineService.getAllPipelineOverviewsFromAppAndMasterPwa(pwaApplicationDetail))
+    when(pipelineAndIdentViewFactory.getAllPipelineOverviewsFromAppAndMasterPwa(pwaApplicationDetail))
         .thenReturn(overviewMap);
 
 
@@ -469,7 +469,7 @@ public class PadPipelinesHuooServiceTest {
     var overviewMap = new HashMap<PipelineId, PipelineOverview>();
     overviewMap.put(new PipelineId(CONSENTED_PIPELINE_ID), consentedPipelineOverview);
 
-    when(padPipelineService.getAllPipelineOverviewsFromAppAndMasterPwa(pwaApplicationDetail))
+    when(pipelineAndIdentViewFactory.getAllPipelineOverviewsFromAppAndMasterPwa(pwaApplicationDetail))
         .thenReturn(overviewMap);
 
 

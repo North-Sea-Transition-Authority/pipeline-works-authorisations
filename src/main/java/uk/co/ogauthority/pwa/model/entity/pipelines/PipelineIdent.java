@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.model.entity.pipelines;
 
 import java.math.BigDecimal;
+import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineCoreType;
 import uk.co.ogauthority.pwa.model.location.CoordinatePair;
 
@@ -10,6 +11,8 @@ import uk.co.ogauthority.pwa.model.location.CoordinatePair;
 public interface PipelineIdent {
 
   Integer getPipelineIdentId();
+
+  PipelineId getPipelineId();
 
   int getIdentNo();
 

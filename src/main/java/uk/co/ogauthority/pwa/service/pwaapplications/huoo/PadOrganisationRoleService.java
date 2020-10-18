@@ -59,7 +59,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSect
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.huoosummary.AllOrgRolePipelineGroupsView;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.huoosummary.OrganisationRolePipelineGroupView;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.huoosummary.PipelineNumbersAndSplits;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.viewfactories.PipelineAndIdentViewFactory;
 import uk.co.ogauthority.pwa.validators.huoo.HuooValidationView;
 
 @Service
@@ -70,7 +70,7 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
   private final PadOrganisationRolesRepository padOrganisationRolesRepository;
   private final PadPipelineOrganisationRoleLinkRepository padPipelineOrganisationRoleLinkRepository;
   private final PortalOrganisationsAccessor portalOrganisationsAccessor;
-  private final PadPipelineService padPipelineService;
+  private final PipelineAndIdentViewFactory pipelineAndIdentViewFactory;
   private final PipelineNumberAndSplitsService pipelineNumberAndSplitsService;
   private final EntityManager entityManager;
   private final EntityCopyingService entityCopyingService;
@@ -80,14 +80,14 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
       PadOrganisationRolesRepository padOrganisationRolesRepository,
       PadPipelineOrganisationRoleLinkRepository padPipelineOrganisationRoleLinkRepository,
       PortalOrganisationsAccessor portalOrganisationsAccessor,
-      PadPipelineService padPipelineService,
+      PipelineAndIdentViewFactory pipelineAndIdentViewFactory,
       PipelineNumberAndSplitsService pipelineNumberAndSplitsService,
       EntityManager entityManager,
       EntityCopyingService entityCopyingService) {
     this.padOrganisationRolesRepository = padOrganisationRolesRepository;
     this.padPipelineOrganisationRoleLinkRepository = padPipelineOrganisationRoleLinkRepository;
     this.portalOrganisationsAccessor = portalOrganisationsAccessor;
-    this.padPipelineService = padPipelineService;
+    this.pipelineAndIdentViewFactory = pipelineAndIdentViewFactory;
     this.pipelineNumberAndSplitsService = pipelineNumberAndSplitsService;
     this.entityManager = entityManager;
     this.entityCopyingService = entityCopyingService;
@@ -553,7 +553,7 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
       HuooRole huooRole
   ) {
     return pipelineNumberAndSplitsService.getAllPipelineNumbersAndSplitsRole(
-        () -> padPipelineService.getAllPipelineOverviewsFromAppAndMasterPwa(pwaApplicationDetail),
+        () -> pipelineAndIdentViewFactory.getAllPipelineOverviewsFromAppAndMasterPwa(pwaApplicationDetail),
         () -> getPipelineSplitsForRole(pwaApplicationDetail, huooRole)
     );
   }
@@ -702,7 +702,7 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
       Set<OrganisationRolePipelineGroupDto> preComputedOrgRolePipelineGroups) {
 
     var allPipelineSplitInfoForRole = pipelineNumberAndSplitsService.getAllPipelineNumbersAndSplitsRole(
-        () -> padPipelineService.getAllPipelineOverviewsFromAppAndMasterPwa(pwaApplicationDetail),
+        () -> pipelineAndIdentViewFactory.getAllPipelineOverviewsFromAppAndMasterPwa(pwaApplicationDetail),
         () -> getPipelineSplitsForRole(pwaApplicationDetail, huooRole)
     );
 

@@ -11,6 +11,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.PostLoad;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineCoreType;
 import uk.co.ogauthority.pwa.model.location.CoordinatePair;
 import uk.co.ogauthority.pwa.model.location.LatitudeCoordinate;
@@ -124,6 +125,11 @@ public class PipelineDetailIdent implements PipelineIdent {
   @Override
   public Integer getPipelineIdentId() {
     return this.id;
+  }
+
+  @Override
+  public PipelineId getPipelineId() {
+    return this.pipelineDetail.getPipelineId();
   }
 
   @Override

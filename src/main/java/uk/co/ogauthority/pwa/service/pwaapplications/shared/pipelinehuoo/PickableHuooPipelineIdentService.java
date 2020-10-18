@@ -13,10 +13,7 @@ import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineIdentPoint;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineSection;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.IdentView;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineIdentService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
-import uk.co.ogauthority.pwa.service.pwaconsents.PipelineDetailIdentService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.viewfactories.PipelineAndIdentViewFactory;
 
 /**
  * Facilitates the definition of sections along a pipeline and interpretation of user input into pipeline sections.
@@ -24,42 +21,24 @@ import uk.co.ogauthority.pwa.service.pwaconsents.PipelineDetailIdentService;
 @Service
 public class PickableHuooPipelineIdentService {
 
-  private final PadPipelineService padPipelineService;
-  private final PadPipelineIdentService padPipelineIdentService;
-
-  private final PipelineDetailIdentService pipelineDetailIdentService;
+  private final PipelineAndIdentViewFactory pipelineAndIdentViewFactory;
 
   @Autowired
-  public PickableHuooPipelineIdentService(
-      PadPipelineService padPipelineService,
-      PadPipelineIdentService padPipelineIdentService,
-      PipelineDetailIdentService pipelineDetailIdentService) {
-    this.padPipelineService = padPipelineService;
-    this.padPipelineIdentService = padPipelineIdentService;
-    this.pipelineDetailIdentService = pipelineDetailIdentService;
-  }
-
-  // helper to provide ident views for pipeline from either the current application or consented model if not imported.
-  private List<IdentView> getPickablePipelineIdentViews(PwaApplicationDetail pwaApplicationDetail,
-                                                        PipelineId pipelineId) {
-    var padPipeline = padPipelineService.findByPwaApplicationDetailAndPipelineId(pwaApplicationDetail, pipelineId);
-    if (padPipeline.isPresent()) {
-      return padPipelineIdentService.getIdentViews(padPipeline.get());
-    }
-
-    return pipelineDetailIdentService.getSortedPipelineIdentViewsForPipeline(pipelineId);
+  public PickableHuooPipelineIdentService(PipelineAndIdentViewFactory pipelineAndIdentViewFactory) {
+    this.pipelineAndIdentViewFactory = pipelineAndIdentViewFactory;
   }
 
   /**
-   *  <p>This will return idents from either the application or consented model for a given pipeline ID.
-   *  If the application detail does not contain an application version of the pipeline, then the consented model
-   *  ident will be returned.</p>
+   * <p>This will return idents from either the application or consented model for a given pipeline ID.
+   * If the application detail does not contain an application version of the pipeline, then the consented model
+   * ident will be returned.</p>
    *
-   *  <p>It is not the responsibility of this method to check that the application detail is for the same masterPwa consented pipeline.</p>
+   * <p>It is not the responsibility of this method to check that the application detail is for the same masterPwa consented pipeline.</p>
    */
-  public List<PickableIdentLocationOption> getSortedPickableIdentLocationOptions(PwaApplicationDetail pwaApplicationDetail,
-                                                                                 PipelineId pipelineId) {
-    return getPickablePipelineIdentViews(pwaApplicationDetail, pipelineId)
+  public List<PickableIdentLocationOption> getSortedPickableIdentLocationOptions(
+      PwaApplicationDetail pwaApplicationDetail,
+      PipelineId pipelineId) {
+    return pipelineAndIdentViewFactory.getPipelineSortedIdentViews(pwaApplicationDetail, pipelineId)
         .stream()
         .flatMap(identView -> PickableIdentLocationOption.createIdentLocationOptionsFrom(identView).stream())
         .sorted(Comparator.comparing(PickableIdentLocationOption::getSortKey))
