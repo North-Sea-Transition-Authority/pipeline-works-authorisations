@@ -67,10 +67,11 @@ public class PipelineAndIdentViewFactory {
     var applicationPipelineIdToIdentViewListMap = padPipelineIdentService.getApplicationIdentViewsForPipelines(
         allAppAndMasterPwaPipelineIds
     );
+    var modifiableAppPipelineIdToIdentViewListMap = new HashMap<>(applicationPipelineIdToIdentViewListMap);
     // if pipeline added but no idents defined, add in empty entry to app pipelines ident lookup
     allAppAndMasterPwaPipelineOverviewLookup.forEach((pipelineId, pipelineOverview) -> {
       if (pipelineOverview.getPadPipelineId() != null) {
-        applicationPipelineIdToIdentViewListMap.putIfAbsent(pipelineId, List.of());
+        modifiableAppPipelineIdToIdentViewListMap.putIfAbsent(pipelineId, List.of());
       }
     });
 
@@ -79,7 +80,7 @@ public class PipelineAndIdentViewFactory {
     );
 
     var pipelineAndIdentViewListMap = new HashMap<PipelineId, List<IdentView>>();
-    pipelineAndIdentViewListMap.putAll(applicationPipelineIdToIdentViewListMap);
+    pipelineAndIdentViewListMap.putAll(modifiableAppPipelineIdToIdentViewListMap);
 
     // if app version of the pipeline doesnt exist, add in entry using consented version
     allConsentedPipelineIdtoIdentViewListMap.forEach(pipelineAndIdentViewListMap::putIfAbsent);
