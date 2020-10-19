@@ -25,8 +25,6 @@ import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 @RunWith(MockitoJUnitRunner.class)
 public class EnvironmentalDecomSummaryServiceTest {
 
-
-
   private final String TEMPLATE = "TEMPLATE";
 
   @Mock
@@ -71,14 +69,16 @@ public class EnvironmentalDecomSummaryServiceTest {
     var environmentalDecommView = new EnvironmentalDecommissioningView(
         null, null, null, null, null, null, Set.of(), Set.of());
     when(padEnvironmentalDecommissioningService.getEnvironmentalDecommissioningView(pwaApplicationDetail)).thenReturn(environmentalDecommView);
+    when(padEnvironmentalDecommissioningService.getAvailableQuestions(pwaApplicationDetail)).thenCallRealMethod();
 
     var appSummary = environmentalDecomSummaryService.summariseSection(pwaApplicationDetail, TEMPLATE);
     assertThat(appSummary.getTemplatePath()).isEqualTo(TEMPLATE);
-    assertThat(appSummary.getTemplateModel()).hasSize(4);
+    assertThat(appSummary.getTemplateModel()).hasSize(5);
     assertThat(appSummary.getTemplateModel()).contains(entry("environmentalDecommView", environmentalDecommView));
     assertThat(appSummary.getTemplateModel()).contains(entry("sectionDisplayText", ApplicationTask.ENVIRONMENTAL_DECOMMISSIONING.getDisplayName()));
     assertThat(appSummary.getTemplateModel()).containsKey("environmentalConditions");
     assertThat(appSummary.getTemplateModel()).containsKey("decommissioningConditions");
+    assertThat(appSummary.getTemplateModel().get("availableQuestions")).isEqualTo(padEnvironmentalDecommissioningService.getAvailableQuestions(pwaApplicationDetail));
 
     assertThat(appSummary.getSidebarSectionLinks()).containsExactly(
         SidebarSectionLink.createAnchorLink(ApplicationTask.ENVIRONMENTAL_DECOMMISSIONING.getDisplayName(), "#environmentalDecommDetails")

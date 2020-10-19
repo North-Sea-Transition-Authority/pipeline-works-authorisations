@@ -32,6 +32,7 @@ import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 @PwaApplicationTypeCheck(types = {
     PwaApplicationType.INITIAL,
     PwaApplicationType.CAT_1_VARIATION,
+    PwaApplicationType.CAT_2_VARIATION,
     PwaApplicationType.DECOMMISSIONING,
     PwaApplicationType.DEPOSIT_CONSENT
 })
@@ -57,6 +58,7 @@ public class EnvironmentalDecomController {
   }
 
   private ModelAndView getEnvDecomModelAndView(PwaApplicationDetail pwaApplicationDetail) {
+
     var modelAndView = new ModelAndView("pwaApplication/shared/environmentalAndDecommissioning")
         .addObject("hseSafetyZones", HseSafetyZone.stream()
             .sorted(Comparator.comparing(HseSafetyZone::getDisplayOrder))
@@ -66,9 +68,12 @@ public class EnvironmentalDecomController {
             .collect(StreamUtils.toLinkedHashMap(Enum::name, EnvironmentalCondition::getConditionText)))
         .addObject("decommissioningConditions", DecommissioningCondition.stream()
             .sorted(Comparator.comparing(DecommissioningCondition::getDisplayOrder))
-            .collect(StreamUtils.toLinkedHashMap(Enum::name, DecommissioningCondition::getConditionText)));
+            .collect(StreamUtils.toLinkedHashMap(Enum::name, DecommissioningCondition::getConditionText)))
+        .addObject("availableQuestions", padEnvironmentalDecommissioningService.getAvailableQuestions(pwaApplicationDetail));
+
     applicationBreadcrumbService.fromTaskList(pwaApplicationDetail.getPwaApplication(), modelAndView,
         "Environmental and decommissioning");
+
     return modelAndView;
   }
 
