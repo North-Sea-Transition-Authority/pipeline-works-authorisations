@@ -1113,7 +1113,7 @@ public class PadOrganisationRoleServiceTest {
   public void getAllAssignableAndNonAssignableOrgRolesForDetailByRole_doesNotOutFilterOutUnassignableRoles() {
     var org1HolderRole = PadOrganisationRoleTestUtil.createOrgRole(HuooRole.HOLDER, orgUnit1);
     var org1OwnerRole = PadOrganisationRoleTestUtil.createOrgRole(HuooRole.OWNER, orgUnit1);
-    var org2HolderRole = PadOrganisationRole.fromTreatyAgreement(detail, TreatyAgreement.BELGIUM, HuooRole.HOLDER);
+    var org2HolderRole = PadOrganisationRole.fromTreatyAgreement(detail, TreatyAgreement.ANY_TREATY_COUNTRY, HuooRole.HOLDER);
     var unassignableRole = PadOrganisationRole.forUnassignedSplitPipeline(detail, HuooRole.HOLDER);
 
     when(padOrganisationRolesRepository.getAllByPwaApplicationDetail(detail)).thenReturn(
@@ -1183,6 +1183,4 @@ public class PadOrganisationRoleServiceTest {
     assertThat(result).isFalse();
   }
 
-
-}
 }
