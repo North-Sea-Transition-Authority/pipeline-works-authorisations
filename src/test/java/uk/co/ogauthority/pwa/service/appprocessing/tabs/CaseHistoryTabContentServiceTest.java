@@ -8,7 +8,6 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.time.Instant;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -17,8 +16,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
-import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
@@ -36,7 +33,6 @@ public class CaseHistoryTabContentServiceTest {
   private CaseHistoryTabContentService caseHistoryTabContentService;
 
   private WebUserAccount wua;
-  private AuthenticatedUserAccount authenticatedUserAccount;
 
   @Before
   public void setUp() {
@@ -44,7 +40,6 @@ public class CaseHistoryTabContentServiceTest {
     caseHistoryTabContentService = new CaseHistoryTabContentService(caseHistoryService);
 
     wua = new WebUserAccount(1);
-    authenticatedUserAccount = new AuthenticatedUserAccount(wua, EnumSet.allOf(PwaUserPrivilege.class));
 
   }
 

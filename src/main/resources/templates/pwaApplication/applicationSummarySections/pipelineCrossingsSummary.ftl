@@ -27,11 +27,11 @@
 
             <@fdsCheckAnswers.checkAnswersRow keyText="Owners" actionUrl="" screenReaderActionText="" actionText="">
                 ${pipelineCrossingView.owners}
-            </@fdsCheckAnswers.checkAnswersRow>         
-            
+            </@fdsCheckAnswers.checkAnswersRow>
+
         </@fdsCheckAnswers.checkAnswers>
 
-    </#list> 
+    </#list>
 
     <#if !pipelineCrossingViews?has_content>
         <@fdsInsetText.insetText>
@@ -46,7 +46,7 @@
 
     <h3 class="govuk-heading-m">Pipeline crossing agreements</h3>
     <#if pipelineCrossingFiles?has_content>
-        <@fileUpload.uploadedFileList downloadUrl=springUrl(pipelineCrossingUrlFactory.getFileDownloadUrl()) existingFiles=pipelineCrossingFiles/>
+        <@pwaFiles.uploadedFileList downloadUrl=springUrl(pipelineCrossingUrlFactory.getFileDownloadUrl()) existingFiles=pipelineCrossingFiles/>
     <#else>
         <@fdsInsetText.insetText>
             No pipeline crossing agreement documents have been added to this application.

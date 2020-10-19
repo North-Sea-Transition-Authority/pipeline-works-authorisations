@@ -53,7 +53,7 @@
     </@fdsInsetText.insetText>
     <@fdsAction.link linkText="Add, edit or remove block crossing documents" linkUrl=springUrl(urlFactory.getBlockCrossingDocumentsUrl()) linkClass="govuk-button govuk-button--blue"/>
     <#if blockCrossingFileViews?has_content>
-        <@fileUpload.uploadedFileList downloadUrl=springUrl(urlFactory.getFileDownloadUrl()) existingFiles=blockCrossingFileViews/>
+        <@pwaFiles.uploadedFileList downloadUrl=springUrl(urlFactory.getFileDownloadUrl()) existingFiles=blockCrossingFileViews/>
     </#if>
 
 

@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
+import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import java.time.Instant;
 import java.util.List;
@@ -14,11 +15,13 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import uk.co.ogauthority.pwa.controller.pwaapplications.shared.supplementarydocs.SupplementaryDocumentsController;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.files.UploadedFileView;
 import uk.co.ogauthority.pwa.model.view.sidebarnav.SidebarSectionLink;
+import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTask;
 import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
@@ -89,8 +92,9 @@ public class SupplementaryDocumentsSummaryServiceTest {
 
     assertThat(appSummary.getTemplateModel()).contains(entry("sectionDisplayText", ApplicationTask.SUPPLEMENTARY_DOCUMENTS.getDisplayName()));
     assertThat(appSummary.getSidebarSectionLinks()).containsExactly(
-        SidebarSectionLink.createAnchorLink(ApplicationTask.SUPPLEMENTARY_DOCUMENTS.getDisplayName(), "#supplementaryDocuments")
-    );
+        SidebarSectionLink.createAnchorLink(ApplicationTask.SUPPLEMENTARY_DOCUMENTS.getDisplayName(), "#supplementaryDocuments"));
+    assertThat(appSummary.getTemplateModel().get("suppDocFileDownloadUrl")).isEqualTo(ReverseRouter.route(
+        on(SupplementaryDocumentsController.class).handleDownload(pwaApplicationDetail.getPwaApplicationType(), pwaApplicationDetail.getMasterPwaApplicationId(), null, null)));
 
   }
 

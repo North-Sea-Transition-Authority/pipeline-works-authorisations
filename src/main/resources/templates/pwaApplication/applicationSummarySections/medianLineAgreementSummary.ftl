@@ -25,18 +25,18 @@
             <#if medianLineAgreementView.agreementStatus?has_content>
                 ${medianLineAgreementView.agreementStatus.getDisplayText()!}
             </#if>
-        </@fdsCheckAnswers.checkAnswersRow>        
+        </@fdsCheckAnswers.checkAnswersRow>
 
         <#if medianLineAgreementView.agreementStatus?has_content && medianLineAgreementView.agreementStatus != "NOT_CROSSED">
             <@fdsCheckAnswers.checkAnswersRow keyText="Name of negotiator" actionUrl="" screenReaderActionText="" actionText="">
                 ${medianLineAgreementView.negotiatorName!}
-            </@fdsCheckAnswers.checkAnswersRow>    
+            </@fdsCheckAnswers.checkAnswersRow>
 
             <@fdsCheckAnswers.checkAnswersRow keyText="Contact email for negotiator" actionUrl="" screenReaderActionText="" actionText="">
                 ${medianLineAgreementView.negotiatorEmail!}
-            </@fdsCheckAnswers.checkAnswersRow>     
+            </@fdsCheckAnswers.checkAnswersRow>
         </#if>
-        
+
     </@fdsCheckAnswers.checkAnswers>
 
 </#macro>
@@ -46,7 +46,7 @@
 
     <h3 class="govuk-heading-m">Median line agreement documents</h3>
     <#if medianLineFiles?has_content>
-        <@fileUpload.uploadedFileList downloadUrl=springUrl(medianLineUrlFactory.getFileDownloadUrl()) existingFiles=medianLineFiles/>
+        <@pwaFiles.uploadedFileList downloadUrl=springUrl(medianLineUrlFactory.getFileDownloadUrl()) existingFiles=medianLineFiles/>
     <#else>
         <@fdsInsetText.insetText>
             No median line crossing agreement documents have been added to this application.

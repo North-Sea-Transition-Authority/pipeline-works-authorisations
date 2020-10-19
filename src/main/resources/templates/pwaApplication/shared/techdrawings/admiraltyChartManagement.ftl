@@ -12,7 +12,7 @@
   </h2>
     <#if admiraltyChartFileViews?has_content>
         <@fdsAction.link linkText="Add, edit or remove admiralty chart" linkUrl=springUrl(urlFactory.getAddDocumentsUrl()) linkClass="govuk-button govuk-button--blue"/>
-        <@fileUpload.uploadedFileList downloadUrl=springUrl(urlFactory.getDocumentsDownloadUrl()) existingFiles=admiraltyChartFileViews/>
+        <@pwaFiles.uploadedFileList downloadUrl=springUrl(urlFactory.getDocumentsDownloadUrl()) existingFiles=admiraltyChartFileViews/>
     <#else>
         <@fdsInsetText.insetText>
           No admiralty chart has been added to this application.

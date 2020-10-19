@@ -25,19 +25,19 @@
 
             <@fdsCheckAnswers.checkAnswersRow keyText="Cable name" actionUrl="" screenReaderActionText="" actionText="">
                 ${cableCrossingView.cableName}
-            </@fdsCheckAnswers.checkAnswersRow>        
+            </@fdsCheckAnswers.checkAnswersRow>
 
             <@fdsCheckAnswers.checkAnswersRow keyText="Cable owner" actionUrl="" screenReaderActionText="" actionText="">
                 ${cableCrossingView.owner}
-            </@fdsCheckAnswers.checkAnswersRow>    
+            </@fdsCheckAnswers.checkAnswersRow>
 
             <@fdsCheckAnswers.checkAnswersRow keyText="Location" actionUrl="" screenReaderActionText="" actionText="">
                 ${cableCrossingView.location}
-            </@fdsCheckAnswers.checkAnswersRow>     
-            
+            </@fdsCheckAnswers.checkAnswersRow>
+
         </@fdsCheckAnswers.checkAnswers>
 
-    </#list> 
+    </#list>
 
     <#if !cableCrossingViews?has_content>
         <@fdsInsetText.insetText>
@@ -52,7 +52,7 @@
 
     <h3 class="govuk-heading-m">Cable crossings agreements</h3>
     <#if cableCrossingFiles?has_content>
-        <@fileUpload.uploadedFileList downloadUrl=springUrl(cableCrossingUrlFactory.getFileDownloadUrl()) existingFiles=cableCrossingFiles/>
+        <@pwaFiles.uploadedFileList downloadUrl=springUrl(cableCrossingUrlFactory.getFileDownloadUrl()) existingFiles=cableCrossingFiles/>
     <#else>
         <@fdsInsetText.insetText>
             No cable crossings agreement documents have been added to this application.
@@ -61,4 +61,3 @@
 </#macro>
 
 
-	

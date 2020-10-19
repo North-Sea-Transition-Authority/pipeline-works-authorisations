@@ -41,7 +41,7 @@
   <h3 class="govuk-heading-m">Pipeline crossing agreement documents</h3>
     <#if pipelineCrossingFileViews?has_content>
         <@fdsAction.link linkText="Add, edit or remove pipeline crossing agreement documents" linkUrl=springUrl(urlFactory.getAddDocumentsUrl()) linkClass="govuk-button govuk-button--blue"/>
-        <@fileUpload.uploadedFileList downloadUrl=springUrl(urlFactory.getFileDownloadUrl()) existingFiles=pipelineCrossingFileViews/>
+        <@pwaFiles.uploadedFileList downloadUrl=springUrl(urlFactory.getFileDownloadUrl()) existingFiles=pipelineCrossingFileViews/>
     <#else>
         <@fdsInsetText.insetText>
           No pipeline crossing agreement documents have been added to this application.
