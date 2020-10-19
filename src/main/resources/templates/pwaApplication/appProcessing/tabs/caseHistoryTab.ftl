@@ -18,20 +18,24 @@
 
           <@fdsTimeline.timelineTimeStamp timeStampHeading=item.headerText nodeNumber=" " timeStampClass=stampClass >
 
-              <@fdsDataItems.dataItem dataItemListClasses="fds-data-items-list--tight">
-                  <@fdsDataItems.dataValues key="Date and time" value=item.dateTimeDisplay />
-                  <@fdsDataItems.dataValues key=item.personLabelText value=item.personName />
-              </@fdsDataItems.dataItem>
+              <@fdsTimeline.timelineEvent>
 
-              <@fdsDataItems.dataItem dataItemListClasses="fds-data-items-list--tight">
-                  <#list item.dataItems as key, value>
-                    <@fdsDataItems.dataValues key=key value=value />
-                  </#list>
-              </@fdsDataItems.dataItem>
+                  <@fdsDataItems.dataItem dataItemListClasses="fds-data-items-list--tight">
+                    <@fdsDataItems.dataValues key="Date and time" value=item.dateTimeDisplay />
+                    <@fdsDataItems.dataValues key=item.personLabelText value=item.personName />
+                </@fdsDataItems.dataItem>
+
+                <@fdsDataItems.dataItem dataItemListClasses="fds-data-items-list--tight">
+                    <#list item.dataItems as key, value>
+                      <@fdsDataItems.dataValues key=key value=value />
+                    </#list>
+                </@fdsDataItems.dataItem>
 
               <#if item.uploadedFileViews?has_content>
                 <@pwaFiles.uploadedFileList downloadUrl=springUrl(item.fileDownloadUrl) existingFiles=item.uploadedFileViews blockClass="case-history" />
               </#if>
+
+            </@fdsTimeline.timelineEvent>
 
           </@fdsTimeline.timelineTimeStamp>
 
