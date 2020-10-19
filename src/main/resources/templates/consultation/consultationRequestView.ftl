@@ -34,8 +34,8 @@
                 ${consultationRequestViewData.withdrawnByUser} &nbsp; ${consultationRequestViewData.endTimeStamp}
             </@fdsCheckAnswers.checkAnswersRow>
         <#else>         
-            <@fdsCheckAnswers.checkAnswersRow keyText=consultationRequestViewData.status.getDisplayName() actionText="" actionUrl="" screenReaderActionText="">       
-                Due: ${consultationRequestViewData.dueDateDisplay}
+            <@fdsCheckAnswers.checkAnswersRow keyText="Response due" actionText="" actionUrl="" screenReaderActionText="">       
+                ${consultationRequestViewData.dueDateDisplay}
             </@fdsCheckAnswers.checkAnswersRow>
         </#if>
 
