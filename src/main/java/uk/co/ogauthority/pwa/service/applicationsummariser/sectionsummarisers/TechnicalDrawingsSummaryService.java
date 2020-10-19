@@ -15,7 +15,9 @@ import uk.co.ogauthority.pwa.service.applicationsummariser.ApplicationSectionSum
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTask;
 import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskListService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.AdmiraltyChartFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.AdmiraltyChartUrlFactory;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.UmbilicalCrossSectionService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.UmbilicalCrossSectionUrlFactory;
 
 /**
@@ -26,13 +28,19 @@ public class TechnicalDrawingsSummaryService implements ApplicationSectionSummar
 
   private final TaskListService taskListService;
   private final PadFileService padFileService;
+  private final AdmiraltyChartFileService admiraltyChartFileService;
+  private final UmbilicalCrossSectionService umbilicalCrossSectionService;
 
   @Autowired
   public TechnicalDrawingsSummaryService(
       TaskListService taskListService,
-      PadFileService padFileService) {
+      PadFileService padFileService,
+      AdmiraltyChartFileService admiraltyChartFileService,
+      UmbilicalCrossSectionService umbilicalCrossSectionService) {
     this.taskListService = taskListService;
     this.padFileService = padFileService;
+    this.admiraltyChartFileService = admiraltyChartFileService;
+    this.umbilicalCrossSectionService = umbilicalCrossSectionService;
   }
 
   @Override
@@ -41,7 +49,9 @@ public class TechnicalDrawingsSummaryService implements ApplicationSectionSummar
     var taskFilter = Set.of(
         ApplicationTask.TECHNICAL_DRAWINGS);
 
-    return taskListService.anyTaskShownForApplication(taskFilter, pwaApplicationDetail);
+    return taskListService.anyTaskShownForApplication(taskFilter, pwaApplicationDetail)
+        && admiraltyChartFileService.canUploadDocuments(pwaApplicationDetail)
+        && umbilicalCrossSectionService.canUploadDocuments(pwaApplicationDetail);
   }
 
   @Override
@@ -59,6 +69,8 @@ public class TechnicalDrawingsSummaryService implements ApplicationSectionSummar
         padFileService.getUploadedFileViews(pwaApplicationDetail, ApplicationDetailFilePurpose.UMBILICAL_CROSS_SECTION,
             ApplicationFileLinkStatus.FULL));
     summaryModel.put("umbilicalUrlFactory", new UmbilicalCrossSectionUrlFactory(pwaApplicationDetail));
+    summaryModel.put("canShowAdmiraltyChart", admiraltyChartFileService.canUploadDocuments(pwaApplicationDetail));
+    summaryModel.put("canShowUmbilicalCrossSection", umbilicalCrossSectionService.canUploadDocuments(pwaApplicationDetail));
     return new ApplicationSectionSummary(
         templateName,
         List.of(SidebarSectionLink.createAnchorLink(
