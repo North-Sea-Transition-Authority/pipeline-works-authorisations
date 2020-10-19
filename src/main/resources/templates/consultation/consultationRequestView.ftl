@@ -31,6 +31,11 @@
             </@fdsCheckAnswers.checkAnswersRow>
         </#if>
 
+        <#if consultationRequestViewData.responseConfirmReason?has_content>
+          <@fdsCheckAnswers.checkAnswersRow keyText="Confirm conditions" actionText="" actionUrl="" screenReaderActionText="">
+            ${consultationRequestViewData.responseConfirmReason}
+          </@fdsCheckAnswers.checkAnswersRow>
+        </#if>
 
         <#if consultationRequestViewData.responseRejectionReason?has_content >
             <@fdsCheckAnswers.checkAnswersRow keyText="Rejection reason" actionText="" actionUrl="" screenReaderActionText="">

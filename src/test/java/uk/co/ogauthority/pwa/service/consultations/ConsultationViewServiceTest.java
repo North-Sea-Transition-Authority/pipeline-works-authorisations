@@ -20,15 +20,12 @@ import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationResponse;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.consultation.ConsultationRequestView;
 import uk.co.ogauthority.pwa.model.form.consultation.ConsulteeGroupRequestsView;
 import uk.co.ogauthority.pwa.model.form.enums.ConsultationResponseOption;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupDetailService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ConsultationRequestStatus;
-import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.teammanagement.TeamManagementService;
-import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 
 @RunWith(MockitoJUnitRunner.class)
@@ -45,17 +42,11 @@ public class ConsultationViewServiceTest {
   @Mock
   private TeamManagementService teamManagementService;
 
-  private PwaApplicationDetail pwaApplicationDetail;
-
-
   @Before
   public void setUp() {
     consultationViewService = new ConsultationViewService(consultationRequestService, consultationResponseService, consulteeGroupDetailService,
         teamManagementService);
-    pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL, 100);
   }
-
-
 
   //This tests that a list of consultation requests should result in a list of consultation request views grouped by their consultee group..
   // and ordered by the consultee group name.
@@ -278,6 +269,7 @@ public class ConsultationViewServiceTest {
 
     var consultationResponse2 = new ConsultationResponse();
     consultationResponse2.setResponseType(ConsultationResponseOption.CONFIRMED);
+    consultationResponse2.setResponseText("confirm text");
     consultationResponse2.setResponseTimestamp(instantTime.atZone(ZoneOffset.UTC)
         .withDayOfMonth(11).withMonth(2).withYear(2020).withHour(10).withMinute(9).toInstant().truncatedTo(ChronoUnit.SECONDS));
     consultationResponse2.setRespondingPersonId(2);
@@ -305,6 +297,7 @@ public class ConsultationViewServiceTest {
     assertThat(consultationRequestViews.get(0).getConsulteeGroupName()).isEqualTo("nameA");
     assertThat(consultationRequestViews.get(0).getRequestDateDisplay()).isEqualTo("08 February 2020 10:09");
     assertThat(consultationRequestViews.get(0).getResponseType()).isEqualTo(ConsultationResponseOption.CONFIRMED);
+    assertThat(consultationRequestViews.get(0).getResponseConfirmReason()).isEqualTo("confirm text");
     assertThat(consultationRequestViews.get(0).getResponseRejectionReason()).isNull();
     assertThat(consultationRequestViews.get(0).getResponseByPerson()).isEqualTo("fr2 sr2");
     assertThat(consultationRequestViews.get(0).getResponseDateDisplay()).isEqualTo("11 February 2020 10:09");
@@ -339,7 +332,7 @@ public class ConsultationViewServiceTest {
         instantTime.atZone(ZoneOffset.UTC).withDayOfMonth(5).withMonth(2).withYear(2020).withHour(10).withMinute(9).toInstant().truncatedTo(ChronoUnit.SECONDS),
         null, null,
         instantTime.atZone(ZoneOffset.UTC).withDayOfMonth(6).withMonth(2).withYear(2020).withHour(10).withMinute(9).toInstant().truncatedTo(ChronoUnit.SECONDS),
-        null, null, null, null);
+        null, null, null, null, null);
 
     assertThat(consulationRequest.getRequestDateDisplay()).isEqualTo("05 February 2020 10:09");
   }
@@ -361,7 +354,7 @@ public class ConsultationViewServiceTest {
         instantTime.atZone(ZoneOffset.UTC).withDayOfMonth(5).withMonth(2).withYear(2020).withHour(10).withMinute(9).toInstant().truncatedTo(ChronoUnit.SECONDS),
         null, null,
         instantTime.atZone(ZoneOffset.UTC).withDayOfMonth(6).withMonth(2).withYear(2020).withHour(10).withMinute(9).toInstant().truncatedTo(ChronoUnit.SECONDS),
-        null, null, null, null);
+        null, null, null, null, null);
 
     assertThat(consulationRequest.getResponseDateDisplay()).isEqualTo("06 February 2020 10:09");
   }

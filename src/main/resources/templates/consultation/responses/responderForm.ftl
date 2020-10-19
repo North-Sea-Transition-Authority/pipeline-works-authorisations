@@ -6,7 +6,6 @@
 <#include '../../layout.ftl'>
 <#include '../consultationRequestView.ftl'>
 
-
 <@defaultPage htmlTitle="Application response" pageHeading="${appRef} response" topNavigation=true>
 
   <@fdsForm.htmlForm>
@@ -15,6 +14,9 @@
       <#assign firstItem=true/>
       <#list responseOptions as  responseOption>
         <@fdsRadio.radioItem path="form.consultationResponseOption" itemMap={responseOption : responseOption.getDisplayText()} isFirstItem=firstItem>
+          <#if responseOption == "CONFIRMED">
+            <@fdsTextarea.textarea path="form.confirmedDescription" labelText="Provide consent conditions if they apply (optional)" nestingPath="form.consultationResponseOption" characterCount=true maxCharacterLength="4000"/>
+          </#if>
           <#if responseOption == "REJECTED">
             <@fdsTextarea.textarea path="form.rejectedDescription" labelText="Why are you rejecting this application?" nestingPath="form.consultationResponseOption" characterCount=true maxCharacterLength="4000"/>
 
@@ -37,11 +39,11 @@
 
     <#if previousResponses?has_content>
       <@fdsDetails.summaryDetails summaryTitle="Show my previous advice">
-            
+
           <#list previousResponses as previousResponse>
-              <@consultationRequestView previousResponse/> 
+              <@consultationRequestView previousResponse/>
           </#list>
-              
+
       </@fdsDetails.summaryDetails>
     </#if>
 

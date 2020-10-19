@@ -55,7 +55,7 @@ public class ConsultationResponseServiceTest {
   private ConsultationResponseService consultationResponseService;
 
   @Mock
-  ConsultationResponseRepository consultationResponseRepository;
+  private ConsultationResponseRepository consultationResponseRepository;
 
   @Mock
   private ConsultationResponseValidator validator;
@@ -77,6 +77,9 @@ public class ConsultationResponseServiceTest {
 
   @Mock
   private EmailCaseLinkService emailCaseLinkService;
+
+  @Captor
+  private ArgumentCaptor<ConsultationResponse> responseCaptor;
 
   @Captor
   private ArgumentCaptor<ConsultationResponseReceivedEmailProps> responseEmailPropsCaptor;
@@ -110,7 +113,7 @@ public class ConsultationResponseServiceTest {
 
 
   @Test
-  public void saveResponseAndCompleteWorkflow_caseOfficerAssigned() {
+  public void saveResponseAndCompleteWorkflow_confirmed_confirmedDescriptionNotProvided_caseOfficerAssigned() {
 
     ConsultationRequest consultationRequest = new ConsultationRequest();
     consultationRequest.setConsulteeGroup(groupDetail.getConsulteeGroup());
@@ -120,18 +123,19 @@ public class ConsultationResponseServiceTest {
     form.setConsultationResponseOption(ConsultationResponseOption.CONFIRMED);
     var user = new WebUserAccount(1, new Person(1, null, null, null, null));
 
-    ConsultationResponse expectedConsultationResponse = new ConsultationResponse();
-    expectedConsultationResponse.setConsultationRequest(consultationRequest);
-    expectedConsultationResponse.setResponseType(ConsultationResponseOption.CONFIRMED);
-    expectedConsultationResponse.setResponseTimestamp(Instant.now(clock));
-    expectedConsultationResponse.setRespondingPersonId(1);
-
     consultationResponseService.saveResponseAndCompleteWorkflow(form, consultationRequest, user);
 
     verify(camundaWorkflowService, times(1)).completeTask(eq(new WorkflowTaskInstance(consultationRequest, PwaApplicationConsultationWorkflowTask.RESPONSE)));
-    verify(consultationResponseRepository, times(1)).save(expectedConsultationResponse);
+    verify(consultationResponseRepository, times(1)).save(responseCaptor.capture());
     verify(consultationRequestService, times(1)).saveConsultationRequest(consultationRequest);
     assertThat(consultationRequest.getStatus()).isEqualTo(ConsultationRequestStatus.RESPONDED);
+
+    var response = responseCaptor.getValue();
+    assertThat(response.getConsultationRequest()).isEqualTo(consultationRequest);
+    assertThat(response.getResponseType()).isEqualTo(ConsultationResponseOption.CONFIRMED);
+    assertThat(response.getResponseText()).isNull();
+    assertThat(response.getResponseTimestamp()).isEqualTo(Instant.now(clock));
+    assertThat(response.getRespondingPersonId()).isEqualTo(1);
 
     verify(notifyService, times(1)).sendEmail(responseEmailPropsCaptor.capture(), eq(caseOfficerPerson.getEmailAddress()));
 
@@ -142,10 +146,34 @@ public class ConsultationResponseServiceTest {
         .contains(
             tuple("APPLICATION_REFERENCE", application.getAppReference()),
             tuple("CONSULTEE_GROUP", groupDetail.getName()),
-            tuple("CONSULTATION_RESPONSE", expectedConsultationResponse.getResponseType().getDisplayText()),
+            tuple("CONSULTATION_RESPONSE", response.getResponseType().getDisplayText()),
             tuple("CASE_MANAGEMENT_LINK", "http://case-link"),
             tuple("RECIPIENT_FULL_NAME", caseOfficerPerson.getFullName())
         );
+
+  }
+
+  @Test
+  public void saveResponseAndCompleteWorkflow_confirmed_confirmedDescriptionProvided() {
+
+    ConsultationRequest consultationRequest = new ConsultationRequest();
+    consultationRequest.setConsulteeGroup(groupDetail.getConsulteeGroup());
+    consultationRequest.setPwaApplication(application);
+
+    var form = new ConsultationResponseForm();
+    form.setConsultationResponseOption(ConsultationResponseOption.CONFIRMED);
+    form.setConfirmedDescription("some text");
+    var user = new WebUserAccount(1, new Person(1, null, null, null, null));
+
+    consultationResponseService.saveResponseAndCompleteWorkflow(form, consultationRequest, user);
+
+    verify(camundaWorkflowService, times(1)).completeTask(eq(new WorkflowTaskInstance(consultationRequest, PwaApplicationConsultationWorkflowTask.RESPONSE)));
+    verify(consultationResponseRepository, times(1)).save(responseCaptor.capture());
+    verify(consultationRequestService, times(1)).saveConsultationRequest(consultationRequest);
+
+    var response = responseCaptor.getValue();
+
+    assertThat(response.getResponseText()).isEqualTo("some text");
 
   }
 
@@ -161,19 +189,19 @@ public class ConsultationResponseServiceTest {
     form.setRejectedDescription("my reason");
     var user = new WebUserAccount(1, new Person(1, null, null, null, null));
 
-    ConsultationResponse expectedConsultationResponse = new ConsultationResponse();
-    expectedConsultationResponse.setConsultationRequest(consultationRequest);
-    expectedConsultationResponse.setResponseType(ConsultationResponseOption.REJECTED);
-    expectedConsultationResponse.setResponseText("my reason");
-    expectedConsultationResponse.setResponseTimestamp(Instant.now(clock));
-    expectedConsultationResponse.setRespondingPersonId(1);
-
     consultationResponseService.saveResponseAndCompleteWorkflow(form, consultationRequest, user);
 
     verify(camundaWorkflowService, times(1)).completeTask(eq(new WorkflowTaskInstance(consultationRequest, PwaApplicationConsultationWorkflowTask.RESPONSE)));
-    verify(consultationResponseRepository, times(1)).save(expectedConsultationResponse);
+    verify(consultationResponseRepository, times(1)).save(responseCaptor.capture());
     verify(consultationRequestService, times(1)).saveConsultationRequest(consultationRequest);
     assertThat(consultationRequest.getStatus()).isEqualTo(ConsultationRequestStatus.RESPONDED);
+
+    var response = responseCaptor.getValue();
+    assertThat(response.getConsultationRequest()).isEqualTo(consultationRequest);
+    assertThat(response.getResponseType()).isEqualTo(ConsultationResponseOption.REJECTED);
+    assertThat(response.getResponseText()).isEqualTo("my reason");
+    assertThat(response.getResponseTimestamp()).isEqualTo(Instant.now(clock));
+    assertThat(response.getRespondingPersonId()).isEqualTo(1);
 
     verify(notifyService, times(1)).sendEmail(responseEmailPropsCaptor.capture(), eq(caseOfficerPerson.getEmailAddress()));
 
@@ -184,7 +212,7 @@ public class ConsultationResponseServiceTest {
         .contains(
             tuple("APPLICATION_REFERENCE", application.getAppReference()),
             tuple("CONSULTEE_GROUP", groupDetail.getName()),
-            tuple("CONSULTATION_RESPONSE", expectedConsultationResponse.getResponseType().getDisplayText()),
+            tuple("CONSULTATION_RESPONSE", response.getResponseType().getDisplayText()),
             tuple("CASE_MANAGEMENT_LINK", "http://case-link"),
             tuple("RECIPIENT_FULL_NAME", caseOfficerPerson.getFullName())
         );
