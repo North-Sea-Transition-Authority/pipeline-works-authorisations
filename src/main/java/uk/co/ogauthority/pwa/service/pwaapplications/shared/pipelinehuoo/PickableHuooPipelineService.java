@@ -14,7 +14,7 @@ import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineIdentifier;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadOrganisationRoleService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.viewfactories.PipelineAndIdentViewFactory;
 
 /**
  * Get or resolve pipelineIdentifiers using the PickableHuooPipelineOption to translate from form or url arguments to
@@ -23,14 +23,14 @@ import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelin
 @Service
 public class PickableHuooPipelineService {
 
-  private final PadPipelineService padPipelineService;
+  private final PipelineAndIdentViewFactory pipelineAndIdentViewFactory;
   private final PadOrganisationRoleService padOrganisationRoleService;
 
   @Autowired
   public PickableHuooPipelineService(
-      PadPipelineService padPipelineService,
+      PipelineAndIdentViewFactory pipelineAndIdentViewFactory,
       PadOrganisationRoleService padOrganisationRoleService) {
-    this.padPipelineService = padPipelineService;
+    this.pipelineAndIdentViewFactory = pipelineAndIdentViewFactory;
     this.padOrganisationRoleService = padOrganisationRoleService;
   }
 
@@ -64,7 +64,7 @@ public class PickableHuooPipelineService {
    */
   private Map<PipelineId, PickableHuooPipelineOption> getWholePipelinePickableOptionsForAppAndMasterPwa(
       PwaApplicationDetail pwaApplicationDetail) {
-    return padPipelineService.getAllPipelineOverviewsFromAppAndMasterPwa(pwaApplicationDetail)
+    return pipelineAndIdentViewFactory.getAllPipelineOverviewsFromAppAndMasterPwa(pwaApplicationDetail)
         .entrySet()
         .stream()
         .collect(Collectors.toMap(

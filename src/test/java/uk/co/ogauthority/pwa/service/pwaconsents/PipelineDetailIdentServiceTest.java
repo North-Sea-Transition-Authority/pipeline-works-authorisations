@@ -20,6 +20,7 @@ import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetailIdent;
 import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetailIdentData;
 import uk.co.ogauthority.pwa.repository.pipelines.PipelineDetailIdentDataRepository;
 import uk.co.ogauthority.pwa.repository.pipelines.PipelineDetailIdentRepository;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.pipelinedatautils.PipelineIdentViewCollectorService;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PipelineDetailIdentServiceTest {
@@ -32,15 +33,20 @@ public class PipelineDetailIdentServiceTest {
   @Mock
   private PipelineDetailIdentRepository pipelineDetailIdentRepository;
 
+  // do not mock so we use real code
+  private PipelineIdentViewCollectorService pipelineIdentViewCollectorService;
+
   private PipelineDetailIdentService pipelineDetailIdentService;
 
   @Before
   public void setUp() throws Exception {
 
+    pipelineIdentViewCollectorService = new PipelineIdentViewCollectorService();
+
     pipelineDetailIdentService = new PipelineDetailIdentService(
         pipelineDetailIdentDataRepository,
-        pipelineDetailIdentRepository
-    );
+        pipelineDetailIdentRepository,
+        pipelineIdentViewCollectorService);
   }
 
   @Test

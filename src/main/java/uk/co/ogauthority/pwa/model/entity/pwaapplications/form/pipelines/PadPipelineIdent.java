@@ -13,6 +13,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.PostLoad;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineCoreType;
 import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineIdent;
 import uk.co.ogauthority.pwa.model.location.CoordinatePair;
@@ -120,6 +121,11 @@ public class PadPipelineIdent implements PipelineIdent, ChildEntity<Integer, Pad
   @Override
   public Integer getPipelineIdentId() {
     return this.id;
+  }
+
+  @Override
+  public PipelineId getPipelineId() {
+    return this.padPipeline.getPipelineId();
   }
 
   @Override

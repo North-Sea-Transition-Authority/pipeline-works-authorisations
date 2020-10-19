@@ -14,13 +14,16 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PadPipelineId;
+import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipelineIdent;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipelineIdentData;
 import uk.co.ogauthority.pwa.model.form.location.CoordinateForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.PipelineIdentForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.pipelines.PadPipelineIdentRepository;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.pipelinedatautils.PipelineIdentViewCollectorService;
 import uk.co.ogauthority.pwa.service.validation.SummaryScreenValidationResult;
 import uk.co.ogauthority.pwa.util.CoordinateUtils;
 import uk.co.ogauthority.pwa.util.StreamUtils;
@@ -32,16 +35,19 @@ public class PadPipelineIdentService {
   private final PadPipelineIdentDataService identDataService;
   private final PadPipelinePersisterService padPipelinePersisterService;
   private final PipelineIdentFormValidator pipelineIdentFormValidator;
+  private final PipelineIdentViewCollectorService pipelineIdentViewCollectorService;
 
   @Autowired
   public PadPipelineIdentService(PadPipelineIdentRepository padPipelineIdentRepository,
                                  PadPipelineIdentDataService identDataService,
                                  PadPipelinePersisterService padPipelinePersisterService,
-                                 PipelineIdentFormValidator pipelineIdentFormValidator) {
+                                 PipelineIdentFormValidator pipelineIdentFormValidator,
+                                 PipelineIdentViewCollectorService pipelineIdentViewCollectorService) {
     this.padPipelineIdentRepository = padPipelineIdentRepository;
     this.identDataService = identDataService;
     this.padPipelinePersisterService = padPipelinePersisterService;
     this.pipelineIdentFormValidator = pipelineIdentFormValidator;
+    this.pipelineIdentViewCollectorService = pipelineIdentViewCollectorService;
   }
 
   public PadPipelineIdent getIdent(PadPipeline pipeline, Integer identId) {
@@ -49,6 +55,19 @@ public class PadPipelineIdentService {
         .orElseThrow(() -> new PwaEntityNotFoundException(
             String.format("Couldn't find ident with id '%d' linked to pipeline with id '%d'", identId,
                 pipeline.getId())));
+  }
+
+  public Map<PipelineId, List<IdentView>> getApplicationIdentViewsForPipelines(Collection<PipelineId> pipelineIds) {
+    return pipelineIdentViewCollectorService.getPipelineIdToIdentVewsMap(
+        PadPipelineIdent.class,
+        PadPipelineIdentData.class,
+        () -> padPipelineIdentRepository.getAllByPadPipeline_Pipeline_IdIn(
+            pipelineIds.stream()
+                .map(PipelineId::asInt)
+            .collect(Collectors.toSet())
+        ),
+        identDataService::getAllPadPipelineIdentDataForIdents
+    );
   }
 
   public IdentView getIdentView(PadPipeline pipeline, Integer identId) {

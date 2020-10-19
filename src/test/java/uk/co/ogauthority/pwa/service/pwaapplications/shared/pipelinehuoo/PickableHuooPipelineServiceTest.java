@@ -24,7 +24,7 @@ import uk.co.ogauthority.pwa.service.enums.location.LatitudeDirection;
 import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadOrganisationRoleService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.viewfactories.PipelineAndIdentViewFactory;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -40,7 +40,7 @@ public class PickableHuooPipelineServiceTest {
 
 
   @Mock
-  private PadPipelineService padPipelineService;
+  private PipelineAndIdentViewFactory pipelineAndIdentViewFactory;
 
   @Mock
   private PadOrganisationRoleService padOrganisationRoleService;
@@ -91,14 +91,14 @@ public class PickableHuooPipelineServiceTest {
     setupApplicationPipelines();
 
     pickableHuooPipelineService = new PickableHuooPipelineService(
-        padPipelineService,
+        pipelineAndIdentViewFactory,
         padOrganisationRoleService
     );
 
     var allPipelineMap = new HashMap<PipelineId, PipelineOverview>();
     allPipelineMap.put(CONSENTED_PIPELINE_ID, consentedPipelineOverview);
     allPipelineMap.put(APPLICATION_NEW_PIPELINE_ID, applicationOnlyPipelineOverview);
-    when(padPipelineService.getAllPipelineOverviewsFromAppAndMasterPwa(pwaApplicationDetail))
+    when(pipelineAndIdentViewFactory.getAllPipelineOverviewsFromAppAndMasterPwa(pwaApplicationDetail))
         .thenReturn(allPipelineMap);
 
   }

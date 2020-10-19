@@ -45,6 +45,10 @@ public class PadPipelineIdentDataService {
         .collect(StreamUtils.toLinkedHashMap(PadPipelineIdentData::getPadPipelineIdent, data -> data));
   }
 
+  public List<PadPipelineIdentData> getAllPadPipelineIdentDataForIdents(List<PadPipelineIdent> identList) {
+    return repository.getAllByPadPipelineIdentIn(identList);
+  }
+
   public Optional<PadPipelineIdentData> getOptionalOfIdentData(PadPipelineIdent ident) {
     return repository.getByPadPipelineIdent(ident);
   }
