@@ -472,7 +472,7 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
 
     var holder = PadOrganisationRoleTestUtil.createOrgRole(HuooRole.HOLDER, portalOrganisationUnit1);
     holder.setPwaApplicationDetail(pwaApplicationDetail);
-    var user = PadOrganisationRoleTestUtil.createTreatyRole(HuooRole.USER, TreatyAgreement.NORWAY);
+    var user = PadOrganisationRoleTestUtil.createTreatyRole(HuooRole.USER, TreatyAgreement.ANY_TREATY_COUNTRY);
     user.setPwaApplicationDetail(pwaApplicationDetail);
     var operator = PadOrganisationRoleTestUtil.createOrgRole(HuooRole.OPERATOR, portalOrganisationUnit1);
     operator.setPwaApplicationDetail(pwaApplicationDetail);

@@ -76,7 +76,6 @@
           <td class="govuk-table__cell">${agreement.treatyAgreementText}</td>
           <td class="govuk-table__cell">${agreement.roles}</td>
           <td class="govuk-table__cell">
-              <@fdsAction.link linkText="Edit" linkUrl=springUrl(agreement.editUrl) linkClass="govuk-link" linkScreenReaderText="Edit ${agreement.country}"/>
               <#if agreement.removeUrl?has_content>
                   <@fdsForm.htmlForm actionUrl=springUrl(agreement.removeUrl)>
                       <@fdsAction.button buttonText="Remove" buttonClass="fds-link-button" buttonScreenReaderText="Remove ${agreement.country}"/>

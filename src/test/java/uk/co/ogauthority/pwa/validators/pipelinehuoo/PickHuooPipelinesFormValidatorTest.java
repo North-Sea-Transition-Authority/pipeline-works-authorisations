@@ -41,8 +41,7 @@ public class PickHuooPipelinesFormValidatorTest {
   private final HuooRole HUOO_ROLE = HuooRole.HOLDER;
   private final int VALID_ORG_UNIT_ID = 1;
   private final int INVALID_ORG_UNIT_ID = 2;
-  private final TreatyAgreement VALID_TREATY = TreatyAgreement.BELGIUM;
-  private final TreatyAgreement INVALID_TREATY = TreatyAgreement.NORWAY;
+  private final TreatyAgreement VALID_TREATY = TreatyAgreement.ANY_TREATY_COUNTRY;
   private final int VALID_PICKED_PIPELINE_ID = 10;
   private final String VALID_PICKED_PIPELINE_STRING = PickableHuooPipelineType.createPickableString(
       new PipelineId(VALID_PICKED_PIPELINE_ID));
@@ -213,61 +212,6 @@ public class PickHuooPipelinesFormValidatorTest {
 
   }
 
-  @Test
-  public void validate_whenFullValidationHint_andInvalidTreatyPicked() {
-
-    when(padOrganisationRoleService.hasTreatyRoleOwnersInRole(pwaApplicationDetail, HUOO_ROLE)).thenReturn(true);
-    when(padOrganisationRoleService.getAssignableOrgRolesForDetailByRole(pwaApplicationDetail, HUOO_ROLE))
-        .thenReturn(
-            List.of(
-                PadOrganisationRole.fromTreatyAgreement(
-                    pwaApplicationDetail,
-                    VALID_TREATY,
-                    HUOO_ROLE
-                )
-            )
-        );
-
-    form.setPickedPipelineStrings(Set.of(VALID_PICKED_PIPELINE_STRING));
-    form.setTreatyAgreements(Set.of(INVALID_TREATY));
-
-    bindingResult = new BeanPropertyBindingResult(form, "form");
-    ValidationUtils.invokeValidator( validator, form, bindingResult, pwaApplicationDetail, HUOO_ROLE, PickHuooPipelineValidationType.FULL);
-    var errorCodeMap = ValidatorTestUtils.extractErrors(bindingResult);
-
-    assertThat(errorCodeMap).contains(
-        entry(FORM_ORG_TREATY_ATTR, Set.of(FieldValidationErrorCodes.INVALID.errorCode(FORM_ORG_TREATY_ATTR)))
-    );
-
-  }
-
-  @Test
-  public void validate_whenFullValidationHint_andInvalidTreatyPicked_andValidTreatyAlsoPicked() {
-
-    when(padOrganisationRoleService.hasTreatyRoleOwnersInRole(pwaApplicationDetail, HUOO_ROLE)).thenReturn(true);
-    when(padOrganisationRoleService.getAssignableOrgRolesForDetailByRole(pwaApplicationDetail, HUOO_ROLE))
-        .thenReturn(
-            List.of(
-                PadOrganisationRole.fromTreatyAgreement(
-                    pwaApplicationDetail,
-                    VALID_TREATY,
-                    HUOO_ROLE
-                )
-            )
-        );
-
-    form.setPickedPipelineStrings(Set.of(VALID_PICKED_PIPELINE_STRING));
-    form.setTreatyAgreements(Set.of(INVALID_TREATY, VALID_TREATY));
-
-    bindingResult = new BeanPropertyBindingResult(form, "form");
-    ValidationUtils.invokeValidator( validator, form, bindingResult, pwaApplicationDetail, HUOO_ROLE, PickHuooPipelineValidationType.FULL);
-    var errorCodeMap = ValidatorTestUtils.extractErrors(bindingResult);
-
-    assertThat(errorCodeMap).contains(
-        entry(FORM_ORG_TREATY_ATTR, Set.of(FieldValidationErrorCodes.INVALID.errorCode(FORM_ORG_TREATY_ATTR)))
-    );
-
-  }
 
   @Test
   public void validate_whenFullValidationHint_andInvalidOrgUnitPicked() {

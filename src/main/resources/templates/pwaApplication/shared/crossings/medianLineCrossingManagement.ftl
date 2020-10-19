@@ -37,7 +37,7 @@
   <h3 class="govuk-heading-m">Median line agreement documents</h3>
     <#if medianLineFileViews?has_content>
         <@fdsAction.link linkText="Add, edit or remove median line agreement documents" linkUrl=springUrl(urlFactory.getMedianLineCrossingDocumentsUrl()) linkClass="govuk-button govuk-button--blue"/>
-        <@fileUpload.uploadedFileList downloadUrl=springUrl(urlFactory.getFileDownloadUrl()) existingFiles=medianLineFileViews/>
+        <@pwaFiles.uploadedFileList downloadUrl=springUrl(urlFactory.getFileDownloadUrl()) existingFiles=medianLineFileViews/>
     <#else>
         <@fdsInsetText.insetText>
           No median line crossing agreement documents have been added to this application.

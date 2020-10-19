@@ -59,6 +59,7 @@ public class EnvironmentalDecomSummaryService implements ApplicationSectionSumma
     summaryModel.put("decommissioningConditions", DecommissioningCondition.stream()
         .sorted(Comparator.comparing(DecommissioningCondition::getDisplayOrder))
         .collect(Collectors.toList()));
+    summaryModel.put("availableQuestions", padEnvironmentalDecommissioningService.getAvailableQuestions(pwaApplicationDetail));
 
     return new ApplicationSectionSummary(
         templateName,

@@ -189,6 +189,7 @@ public class TaskListServiceIntegrationTest {
                 ApplicationTask.FIELD_INFORMATION.getDisplayName(),
                 ApplicationTask.APPLICATION_USERS.getDisplayName(),
                 ApplicationTask.PROJECT_INFORMATION.getDisplayName(),
+                ApplicationTask.ENVIRONMENTAL_DECOMMISSIONING.getDisplayName(),
                 ApplicationTask.CROSSING_AGREEMENTS.getDisplayName(),
                 ApplicationTask.LOCATION_DETAILS.getDisplayName(),
                 ApplicationTask.HUOO.getDisplayName(),

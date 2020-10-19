@@ -31,7 +31,6 @@ public class PipelineAndOrganisationRoleGroupSummaryDtoTest {
   private OrganisationPipelineRoleInstanceDto userOrg1Pipeline1Role;
   private OrganisationPipelineRoleInstanceDto operatorOrg1Pipeline1Role;
   private OrganisationPipelineRoleInstanceDto ownerOrg1Pipeline1Role;
-  private OrganisationPipelineRoleInstanceDto ownerBelgiumPipeline1Role;
 
   @Before
   public void setup() {
@@ -39,11 +38,6 @@ public class PipelineAndOrganisationRoleGroupSummaryDtoTest {
     userOrg1Pipeline1Role = OrganisationRoleDtoTestUtil.createOrgUnitPipelineRoleInstance(HuooRole.USER, OU_ID1, PIPELINE_ID1);
     operatorOrg1Pipeline1Role = OrganisationRoleDtoTestUtil.createOrgUnitPipelineRoleInstance(HuooRole.OPERATOR, OU_ID1, PIPELINE_ID1);
     ownerOrg1Pipeline1Role = OrganisationRoleDtoTestUtil.createOrgUnitPipelineRoleInstance(HuooRole.OWNER, OU_ID1, PIPELINE_ID1);
-    ownerBelgiumPipeline1Role = OrganisationRoleDtoTestUtil.createTreatyOrgUnitPipelineRoleInstance(
-        HuooRole.OWNER,
-        TreatyAgreement.BELGIUM,
-        PIPELINE_ID1
-        );
   }
 
   @Test
@@ -53,7 +47,7 @@ public class PipelineAndOrganisationRoleGroupSummaryDtoTest {
       try {
         var pipelineOrgRole = OrganisationRoleDtoTestUtil.createTreatyOrgUnitPipelineRoleInstance(
             role,
-            TreatyAgreement.NETHERLANDS,
+            TreatyAgreement.ANY_TREATY_COUNTRY,
             PIPELINE_ID1);
         var summary = PipelineAndOrganisationRoleGroupSummaryDto.aggregateOrganisationPipelineRoleDtos(
             Set.of(pipelineOrgRole)
@@ -150,9 +144,9 @@ public class PipelineAndOrganisationRoleGroupSummaryDtoTest {
     var holder1Pipeline1 = OrganisationRoleDtoTestUtil.createOrgUnitPipelineRoleInstance(HuooRole.HOLDER, OU_ID1, PIPELINE_ID1);
     var holder1Pipeline2 = OrganisationRoleDtoTestUtil.createOrgUnitPipelineRoleInstance(HuooRole.HOLDER, OU_ID1, PIPELINE_ID2);
     var holder2Pipeline1 = OrganisationRoleDtoTestUtil.createTreatyOrgUnitPipelineRoleInstance(
-        HuooRole.HOLDER, TreatyAgreement.BELGIUM, PIPELINE_ID1);
+        HuooRole.HOLDER, TreatyAgreement.ANY_TREATY_COUNTRY, PIPELINE_ID1);
     var holder2Pipeline2 = OrganisationRoleDtoTestUtil.createTreatyOrgUnitPipelineRoleInstance(
-        HuooRole.HOLDER, TreatyAgreement.BELGIUM, PIPELINE_ID2);
+        HuooRole.HOLDER, TreatyAgreement.ANY_TREATY_COUNTRY, PIPELINE_ID2);
 
     var summary = PipelineAndOrganisationRoleGroupSummaryDto.aggregateOrganisationPipelineRoleDtos(
         Set.of(holder1Pipeline1,
@@ -186,9 +180,9 @@ public class PipelineAndOrganisationRoleGroupSummaryDtoTest {
     var holder1Pipeline2 = OrganisationRoleDtoTestUtil.createOrgUnitPipelineRoleInstance(HuooRole.HOLDER, OU_ID1, PIPELINE_ID2);
 
     var holder2Pipeline2 = OrganisationRoleDtoTestUtil.createTreatyOrgUnitPipelineRoleInstance(
-        HuooRole.HOLDER, TreatyAgreement.BELGIUM, PIPELINE_ID2);
+        HuooRole.HOLDER, TreatyAgreement.ANY_TREATY_COUNTRY, PIPELINE_ID2);
     var holder2Pipeline3 = OrganisationRoleDtoTestUtil.createTreatyOrgUnitPipelineRoleInstance(
-        HuooRole.HOLDER, TreatyAgreement.BELGIUM, PIPELINE_ID3);
+        HuooRole.HOLDER, TreatyAgreement.ANY_TREATY_COUNTRY, PIPELINE_ID3);
 
     var summary = PipelineAndOrganisationRoleGroupSummaryDto.aggregateOrganisationPipelineRoleDtos(
         Set.of(holder1Pipeline1,

@@ -5,6 +5,8 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
+import java.util.EnumSet;
+import java.util.Set;
 import javax.transaction.Transactional;
 import org.apache.commons.lang3.BooleanUtils;
 import org.slf4j.Logger;
@@ -13,9 +15,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadEnvironmentalDecommissioning;
+import uk.co.ogauthority.pwa.model.enums.pwaapplications.shared.EnvDecomQuestion;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.EnvironmentalDecommissioningForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.EnvironmentalDecommissioningView;
 import uk.co.ogauthority.pwa.repository.pwaapplications.initial.PadEnvironmentalDecommissioningRepository;
@@ -32,18 +34,14 @@ public class PadEnvironmentalDecommissioningService implements ApplicationFormSe
 
   private final PadEnvironmentalDecommissioningRepository padEnvironmentalDecommissioningRepository;
   private final EnvironmentalDecommissioningValidator environmentalDecommissioningValidator;
-  private final SpringValidatorAdapter groupValidator;
   private final EntityCopyingService entityCopyingService;
 
   @Autowired
-  public PadEnvironmentalDecommissioningService(
-      PadEnvironmentalDecommissioningRepository padEnvironmentalDecommissioningRepository,
-      EnvironmentalDecommissioningValidator environmentalDecommissioningValidator,
-      SpringValidatorAdapter groupValidator,
-      EntityCopyingService entityCopyingService) {
+  public PadEnvironmentalDecommissioningService(PadEnvironmentalDecommissioningRepository padEnvironmentalDecommissioningRepository,
+                                                EnvironmentalDecommissioningValidator environmentalDecommissioningValidator,
+                                                EntityCopyingService entityCopyingService) {
     this.padEnvironmentalDecommissioningRepository = padEnvironmentalDecommissioningRepository;
     this.environmentalDecommissioningValidator = environmentalDecommissioningValidator;
-    this.groupValidator = groupValidator;
     this.entityCopyingService = entityCopyingService;
   }
 
@@ -52,6 +50,16 @@ public class PadEnvironmentalDecommissioningService implements ApplicationFormSe
         .orElse(new PadEnvironmentalDecommissioning());
     adminDetail.setPwaApplicationDetail(pwaApplicationDetail);
     return adminDetail;
+  }
+
+  public Set<EnvDecomQuestion> getAvailableQuestions(PwaApplicationDetail detail) {
+
+    if (detail.getPwaApplicationType() == PwaApplicationType.CAT_2_VARIATION) {
+      return Set.of(EnvDecomQuestion.BEIS_EMT_PERMITS);
+    }
+
+    return EnumSet.allOf(EnvDecomQuestion.class);
+
   }
 
   @Transactional
@@ -137,7 +145,7 @@ public class PadEnvironmentalDecommissioningService implements ApplicationFormSe
     var environmentalDecommissioningForm = new EnvironmentalDecommissioningForm();
     mapEntityToForm(environmentalDecommissioning, environmentalDecommissioningForm);
     BindingResult bindingResult = new BeanPropertyBindingResult(environmentalDecommissioningForm, "form");
-    environmentalDecommissioningValidator.validate(environmentalDecommissioningForm, bindingResult);
+    validate(environmentalDecommissioningForm, bindingResult, ValidationType.FULL, detail);
 
     return !bindingResult.hasErrors();
 
@@ -148,15 +156,8 @@ public class PadEnvironmentalDecommissioningService implements ApplicationFormSe
                                 BindingResult bindingResult,
                                 ValidationType validationType,
                                 PwaApplicationDetail pwaApplicationDetail) {
-    if (validationType.equals(ValidationType.PARTIAL)) {
-      groupValidator.validate(form, bindingResult, EnvironmentalDecommissioningForm.Partial.class);
-      return bindingResult;
-    }
-
-    groupValidator.validate(form, bindingResult, EnvironmentalDecommissioningForm.Full.class);
-    environmentalDecommissioningValidator.validate(form, bindingResult);
+    environmentalDecommissioningValidator.validate(form, bindingResult, pwaApplicationDetail, validationType);
     return bindingResult;
-
   }
 
   @Override

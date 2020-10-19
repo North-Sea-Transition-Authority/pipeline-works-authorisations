@@ -176,6 +176,7 @@ public class ApplicationTaskServiceTest {
             ApplicationTask.FIELD_INFORMATION,
             ApplicationTask.APPLICATION_USERS,
             ApplicationTask.PROJECT_INFORMATION,
+            ApplicationTask.ENVIRONMENTAL_DECOMMISSIONING,
             ApplicationTask.FAST_TRACK,
             ApplicationTask.CROSSING_AGREEMENTS,
             ApplicationTask.LOCATION_DETAILS,

@@ -1,10 +1,8 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared;
 
-import static java.util.Map.entry;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.time.Instant;
@@ -12,26 +10,23 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.EnumSet;
 import java.util.Optional;
-import java.util.Set;
-import javax.validation.Validation;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.validation.BeanPropertyBindingResult;
-import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
 import uk.co.ogauthority.pwa.model.entity.enums.DecommissioningCondition;
 import uk.co.ogauthority.pwa.model.entity.enums.EnvironmentalCondition;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadEnvironmentalDecommissioning;
+import uk.co.ogauthority.pwa.model.enums.pwaapplications.shared.EnvDecomQuestion;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.EnvironmentalDecommissioningForm;
 import uk.co.ogauthority.pwa.repository.pwaapplications.initial.PadEnvironmentalDecommissioningRepository;
 import uk.co.ogauthority.pwa.service.entitycopier.EntityCopyingService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
-import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 import uk.co.ogauthority.pwa.util.DateUtils;
 import uk.co.ogauthority.pwa.validators.EnvironmentalDecommissioningValidator;
 
@@ -47,17 +42,14 @@ public class PadEnvironmentalDecommissioningServiceTest {
   @Mock
   private EntityCopyingService entityCopyingService;
 
-  private SpringValidatorAdapter groupValidator;
-
   private PadEnvironmentalDecommissioningService padEnvironmentalDecommissioningService;
   private PwaApplicationDetail pwaApplicationDetail;
   private Instant instant;
 
   @Before
   public void setUp() {
-    groupValidator = new SpringValidatorAdapter(Validation.buildDefaultValidatorFactory().getValidator());
     padEnvironmentalDecommissioningService = new PadEnvironmentalDecommissioningService(
-        padEnvironmentalDecommissioningRepository, validator, groupValidator, entityCopyingService);
+        padEnvironmentalDecommissioningRepository, validator, entityCopyingService);
     instant = Instant.now();
   }
 
@@ -165,89 +157,15 @@ public class PadEnvironmentalDecommissioningServiceTest {
   }
 
   @Test
-  public void validate_partial_fail() {
+  public void validate_serviceInteractions() {
 
     var form = new EnvironmentalDecommissioningForm();
-    form.setPermitsSubmitted(ValidatorTestUtils.over4000Chars());
-    form.setPermitsPendingSubmission(ValidatorTestUtils.over4000Chars());
-
     var bindingResult = new BeanPropertyBindingResult(form, "form");
+    var detail = new PwaApplicationDetail();
 
-    padEnvironmentalDecommissioningService.validate(form, bindingResult, ValidationType.PARTIAL, pwaApplicationDetail);
+    padEnvironmentalDecommissioningService.validate(form, bindingResult, ValidationType.FULL, detail);
 
-    var errors = ValidatorTestUtils.extractErrors(bindingResult);
-
-    assertThat(errors).containsOnly(
-        entry("permitsSubmitted", Set.of("Length")),
-        entry("permitsPendingSubmission", Set.of("Length"))
-    );
-
-    verifyNoInteractions(validator);
-
-  }
-
-  @Test
-  public void validate_partial_pass() {
-
-    var form = new EnvironmentalDecommissioningForm();
-    form.setPermitsSubmitted(ValidatorTestUtils.exactly4000chars());
-    form.setPermitsPendingSubmission(ValidatorTestUtils.exactly4000chars());
-
-    var bindingResult = new BeanPropertyBindingResult(form, "form");
-
-    padEnvironmentalDecommissioningService.validate(form, bindingResult, ValidationType.PARTIAL, pwaApplicationDetail);
-
-    var errors = ValidatorTestUtils.extractErrors(bindingResult);
-
-    assertThat(errors).isEmpty();
-
-    verifyNoInteractions(validator);
-
-  }
-
-  @Test
-  public void validate_full_fail() {
-
-    var form = new EnvironmentalDecommissioningForm();
-    form.setPermitsSubmitted(ValidatorTestUtils.over4000Chars());
-    form.setPermitsPendingSubmission(ValidatorTestUtils.over4000Chars());
-
-    var bindingResult = new BeanPropertyBindingResult(form, "form");
-
-    padEnvironmentalDecommissioningService.validate(form, bindingResult, ValidationType.FULL, pwaApplicationDetail);
-
-    var errors = ValidatorTestUtils.extractErrors(bindingResult);
-
-    assertThat(errors).containsOnly(
-        entry("transboundaryEffect", Set.of("NotNull")),
-        entry("emtHasSubmittedPermits", Set.of("NotNull")),
-        entry("permitsSubmitted", Set.of("Length")),
-        entry("emtHasOutstandingPermits", Set.of("NotNull")),
-        entry("permitsPendingSubmission", Set.of("Length"))
-    );
-
-    verify(validator, times(1)).validate(form, bindingResult);
-
-  }
-
-  @Test
-  public void validate_full_pass() {
-
-    var form = new EnvironmentalDecommissioningForm();
-    form.setTransboundaryEffect(true);
-    form.setEmtHasSubmittedPermits(false);
-    form.setEmtHasOutstandingPermits(true);
-    form.setPermitsPendingSubmission(ValidatorTestUtils.exactly4000chars());
-
-    var bindingResult = new BeanPropertyBindingResult(form, "form");
-
-    padEnvironmentalDecommissioningService.validate(form, bindingResult, ValidationType.FULL, pwaApplicationDetail);
-
-    var errors = ValidatorTestUtils.extractErrors(bindingResult);
-
-    assertThat(errors).isEmpty();
-
-    verify(validator, times(1)).validate(form, bindingResult);
+    verify(validator, times(1)).validate(form, bindingResult, detail, ValidationType.FULL);
 
   }
 
@@ -357,6 +275,38 @@ public class PadEnvironmentalDecommissioningServiceTest {
     detail.setPwaApplication(app);
 
     assertThat(padEnvironmentalDecommissioningService.canShowInTaskList(detail)).isFalse();
+
+  }
+
+  @Test
+  public void getAvailableQuestions_notCat2() {
+
+    var detail = new PwaApplicationDetail();
+    var app = new PwaApplication();
+    detail.setPwaApplication(app);
+
+    PwaApplicationType.stream()
+        .filter(applicationType -> applicationType != PwaApplicationType.CAT_2_VARIATION)
+        .forEach(applicationType -> {
+
+          app.setApplicationType(applicationType);
+          assertThat(padEnvironmentalDecommissioningService.getAvailableQuestions(detail))
+              .containsExactlyElementsOf(EnumSet.allOf(EnvDecomQuestion.class));
+
+        });
+
+  }
+
+  @Test
+  public void getAvailableQuestions_cat2() {
+
+    var detail = new PwaApplicationDetail();
+    var app = new PwaApplication();
+    app.setApplicationType(PwaApplicationType.CAT_2_VARIATION);
+    detail.setPwaApplication(app);
+
+    assertThat(padEnvironmentalDecommissioningService.getAvailableQuestions(detail))
+        .containsExactly(EnvDecomQuestion.BEIS_EMT_PERMITS);
 
   }
 

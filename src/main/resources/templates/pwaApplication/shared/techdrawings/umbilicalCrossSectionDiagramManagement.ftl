@@ -19,7 +19,7 @@
 
     <#if fileViews?has_content>
         <@fdsAction.link linkText="Add, edit or remove diagram" linkUrl=springUrl(urlFactory.getAddDocumentUrl()) linkClass="govuk-button govuk-button--blue"/>
-        <@fileUpload.uploadedFileList
+        <@pwaFiles.uploadedFileList
           downloadUrl=springUrl(urlFactory.getDocumentDownloadUrl())
           existingFiles=fileViews
         />

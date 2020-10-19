@@ -133,6 +133,8 @@ public class ConsultationViewService {
           consultationResponse.getResponseType(),
           false,
           teamManagementService.getPerson(consultationResponse.getRespondingPersonId()).getFullName(),
+          consultationResponse.getResponseType().equals(ConsultationResponseOption.CONFIRMED)
+              ? consultationResponse.getResponseText() : null,
           consultationResponse.getResponseType().equals(ConsultationResponseOption.REJECTED)
               ? consultationResponse.getResponseText() : null);
 
@@ -151,7 +153,6 @@ public class ConsultationViewService {
     }
   }
 
-  
   private Map<ConsultationRequest, ConsultationResponse> getRequestResponseMap(List<ConsultationRequest> consultationRequests) {
     List<ConsultationResponse> consultationResponses = consultationResponseService.getResponsesByConsultationRequests(consultationRequests);
     Map<ConsultationRequest, ConsultationResponse> requestResponseMap = new LinkedHashMap<>();

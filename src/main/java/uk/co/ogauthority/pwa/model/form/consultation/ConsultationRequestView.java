@@ -18,6 +18,7 @@ public class ConsultationRequestView {
   private final Instant responseDate;
   private final String responseDateDisplay;
   private final ConsultationResponseOption responseType;
+  private final String responseConfirmReason;
   private final String responseRejectionReason;
   private final String responseByPerson;
   private final Boolean canWithdraw;
@@ -41,6 +42,7 @@ public class ConsultationRequestView {
     this.responseDate = null;
     this.responseDateDisplay = null;
     this.responseType = null;
+    this.responseConfirmReason = null;
     this.responseRejectionReason = null;
     this.responseByPerson = null;
     this.canWithdraw = canWithdraw;
@@ -57,6 +59,7 @@ public class ConsultationRequestView {
                                  ConsultationResponseOption responseType,
                                  Boolean canWithdraw,
                                  String responseByPerson,
+                                 String responseConfirmReason,
                                  String responseRejectionReason) {
     this.consultationRequestId = consultationRequestId;
     this.consulteeGroupName = consulteeGroupName;
@@ -65,8 +68,9 @@ public class ConsultationRequestView {
     this.status = status;
     this.dueDateDisplay = dueDateDisplay;
     this.responseDate = responseDate;
-    this.responseDateDisplay =   DateUtils.formatDateTime(responseDate.truncatedTo(ChronoUnit.SECONDS));;
+    this.responseDateDisplay =   DateUtils.formatDateTime(responseDate.truncatedTo(ChronoUnit.SECONDS));
     this.responseType = responseType;
+    this.responseConfirmReason = responseConfirmReason;
     this.responseRejectionReason = responseRejectionReason;
     this.responseByPerson = responseByPerson;
     this.canWithdraw = canWithdraw;
@@ -108,6 +112,10 @@ public class ConsultationRequestView {
 
   public ConsultationResponseOption getResponseType() {
     return responseType;
+  }
+
+  public String getResponseConfirmReason() {
+    return responseConfirmReason;
   }
 
   public String getResponseRejectionReason() {

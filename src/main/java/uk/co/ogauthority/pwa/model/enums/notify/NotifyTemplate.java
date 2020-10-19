@@ -16,6 +16,11 @@ public enum NotifyTemplate {
 
   // Consultations
   CONSULTATION_RESPONSE_RECEIVED("CONSULTATION_RESPONSE_RECEIVED_V1"),
+
+  //Consultation request
+  CONSULTATION_REQUEST_RECEIVED("CONSULTATION_REQUEST_RECEIVED_V1"),
+
+  //Consultation withdrawn
   CONSULTATION_WITHDRAWN("CONSULTATION_WITHDRAWN_V1"),
 
   // Notify callbacks

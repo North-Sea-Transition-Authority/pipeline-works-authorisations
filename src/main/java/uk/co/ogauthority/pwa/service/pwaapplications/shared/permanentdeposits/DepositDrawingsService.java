@@ -117,16 +117,21 @@ public class DepositDrawingsService implements ApplicationFormSectionService {
   }
 
 
+  @Transactional
   public List<PermanentDepositDrawingView> getDepositDrawingSummaryViews(PwaApplicationDetail pwaApplicationDetail) {
+
+    // get all drawings for detail
     var drawings = padDepositDrawingRepository.getAllByPwaApplicationDetail(pwaApplicationDetail);
+
+    // get all links for the detail's drawings
     var links = padDepositDrawingLinkRepository.getAllByPadDepositDrawingIn(drawings);
+
+    // map drawings that have links to a list of their links
     Map<PadDepositDrawing, List<PadDepositDrawingLink>> linkMap = links.stream()
         .collect(Collectors.groupingBy(PadDepositDrawingLink::getPadDepositDrawing));
-    for (var drawing : drawings) {
-      if (!linkMap.containsKey(drawing)) {
-        linkMap.put(drawing, List.of());
-      }
-    }
+
+    // for each drawing that has no links, manually add it to the drawing map
+    drawings.forEach(d -> linkMap.putIfAbsent(d, List.of()));
 
     List<UploadedFileView> fileViews = padFileService.getUploadedFileViews(pwaApplicationDetail,
         FILE_PURPOSE,

@@ -58,10 +58,8 @@ public class AddHuooValidator implements SmartValidator {
         errors.rejectValue("organisationUnitId", "organisationUnitId.required",
             "You must select an organisation");
       }
-    } else if (form.getHuooType() == HuooType.TREATY_AGREEMENT && form.getTreatyAgreement() == null) {
-      errors.rejectValue("treatyAgreement", "treatyAgreement.required",
-          "You must select a treaty agreement");
     }
+
     var holderCount = roles.stream()
         .filter(padOrgRole -> padOrgRole.getRole().equals(HuooRole.HOLDER))
         .count();
@@ -82,9 +80,13 @@ public class AddHuooValidator implements SmartValidator {
           .filter(padOrganisationRole -> padOrganisationRole.getType().equals(HuooType.TREATY_AGREEMENT))
           .count();
       if (treatyCount > 0) {
-        errors.rejectValue("treatyAgreement", "treatyAgreement" + FieldValidationErrorCodes.TOO_MANY.getCode(),
+        errors.rejectValue("huooType", "huooType" + FieldValidationErrorCodes.TOO_MANY.getCode(),
             "You may only have one treaty agreement on an application");
       }
     }
   }
+
+
+
+
 }

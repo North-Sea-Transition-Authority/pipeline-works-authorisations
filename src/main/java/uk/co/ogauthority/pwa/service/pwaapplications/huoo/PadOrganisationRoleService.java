@@ -28,7 +28,6 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.huoo.AddHuooContr
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnitDetail;
 import uk.co.ogauthority.pwa.energyportal.service.organisations.PortalOrganisationsAccessor;
-import uk.co.ogauthority.pwa.exception.ActionNotAllowedException;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.dto.consents.OrganisationRoleInstanceDto;
 import uk.co.ogauthority.pwa.model.dto.huooaggregations.OrganisationRolePipelineGroupDto;
@@ -39,6 +38,7 @@ import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineIdentifier;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooType;
+import uk.co.ogauthority.pwa.model.entity.enums.TreatyAgreement;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelinehuoo.OrgRoleInstanceType;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
@@ -205,12 +205,6 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
             organisationUnit.getOuId(), null, null, null));
   }
 
-  private String getEditHuooUrl(PwaApplicationDetail detail, PadOrganisationRole organisationRole) {
-    return ReverseRouter.route(on(AddHuooController.class)
-        .renderEditTreatyHuoo(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(),
-            organisationRole.getId(), null, null, null));
-  }
-
   private String getRemoveHuooUrl(PwaApplicationDetail detail, PortalOrganisationUnit organisationUnit) {
     return ReverseRouter.route(on(AddHuooController.class)
         .postDeleteOrgHuoo(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(),
@@ -229,9 +223,8 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
         .filter(padOrganisationRole -> padOrganisationRole.getType().equals(HuooType.TREATY_AGREEMENT))
         .map(treatyRole -> new HuooTreatyAgreementView(
             treatyRole,
-            getEditHuooUrl(detail, treatyRole),
             getRemoveHuooUrl(detail, treatyRole)))
-        .sorted(Comparator.comparing(HuooTreatyAgreementView::getCountry))
+        .sorted(Comparator.comparing(HuooTreatyAgreementView::getRoles))
         .collect(toList());
   }
 
@@ -296,17 +289,6 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
     form.setOrganisationUnitId(role.getOrganisationUnit().getOuId());
   }
 
-  public void mapTreatyAgreementToForm(PwaApplicationDetail pwaApplicationDetail, PadOrganisationRole organisationRole,
-                                       HuooForm form) {
-    if (organisationRole.getAgreement() == null) {
-      throw new ActionNotAllowedException(
-          "Attempting to edit a non-treaty agreement org with ID: " + organisationRole.getId());
-    }
-    form.setHuooType(organisationRole.getType());
-    form.setHuooRoles(Set.of(organisationRole.getRole()));
-    form.setTreatyAgreement(organisationRole.getAgreement());
-  }
-
   /**
    * Removes existing linked entries of the organisationUnit, and creates the entries from the form information.
    *
@@ -352,7 +334,7 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
 
     } else if (form.getHuooType().equals(HuooType.TREATY_AGREEMENT)) {
       var padOrganisationRole = new PadOrganisationRole();
-      padOrganisationRole.setAgreement(form.getTreatyAgreement());
+      padOrganisationRole.setAgreement(TreatyAgreement.ANY_TREATY_COUNTRY);
       padOrganisationRole.setPwaApplicationDetail(detail);
       padOrganisationRole.setOrganisationUnit(null);
       padOrganisationRole.setRole(HuooRole.USER);
@@ -360,12 +342,6 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
       rolesToSave.add(padOrganisationRole);
     }
     padOrganisationRolesRepository.saveAll(rolesToSave);
-  }
-
-  @Transactional
-  public void updateEntityUsingForm(PadOrganisationRole organisationRole, HuooForm form) {
-    organisationRole.setAgreement(form.getTreatyAgreement());
-    padOrganisationRolesRepository.save(organisationRole);
   }
 
   @Transactional
@@ -419,7 +395,8 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
     return roleCountMap.get(HuooRole.HOLDER) > 0
         && roleCountMap.get(HuooRole.USER) > 0
         && roleCountMap.get(HuooRole.OPERATOR) > 0
-        && roleCountMap.get(HuooRole.OWNER) > 0;
+        && roleCountMap.get(HuooRole.OWNER) > 0
+        && doesApplicationHaveValidUsers(detail);
   }
 
   @Override
@@ -800,6 +777,21 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
         operatorOrgRolePipelineGroups,
         ownerOrgRolePipelineGroups
     );
+  }
+
+
+
+  public boolean doesApplicationHaveValidUsers(PwaApplicationDetail pwaApplicationDetail) {
+
+    var totalUserPortalOrgsOnApp = padOrganisationRolesRepository.countPadOrganisationRoleByPwaApplicationDetailAndRoleAndType(
+        pwaApplicationDetail, HuooRole.USER, HuooType.PORTAL_ORG);
+
+    var totalUserTreatiesOnApp = padOrganisationRolesRepository.countPadOrganisationRoleByPwaApplicationDetailAndRoleAndType(
+        pwaApplicationDetail, HuooRole.USER, HuooType.TREATY_AGREEMENT);
+
+    return totalUserPortalOrgsOnApp > 0 && totalUserTreatiesOnApp > 0 ? false : true;
+
+
   }
 
 }

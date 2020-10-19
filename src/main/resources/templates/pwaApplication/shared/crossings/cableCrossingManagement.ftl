@@ -42,7 +42,7 @@
   <h3 class="govuk-heading-m">Cable crossing agreement documents</h3>
     <#if cableCrossingFileViews?has_content>
         <@fdsAction.link linkText="Add, edit or remove cable crossing agreement documents" linkUrl=springUrl(urlFactory.getAddDocumentsUrl()) linkClass="govuk-button govuk-button--blue"/>
-        <@fileUpload.uploadedFileList downloadUrl=springUrl(urlFactory.getFileDownloadUrl()) existingFiles=cableCrossingFileViews/>
+        <@pwaFiles.uploadedFileList downloadUrl=springUrl(urlFactory.getFileDownloadUrl()) existingFiles=cableCrossingFileViews/>
     <#else>
         <@fdsInsetText.insetText>
           No cable crossing agreement documents have been added to this application.

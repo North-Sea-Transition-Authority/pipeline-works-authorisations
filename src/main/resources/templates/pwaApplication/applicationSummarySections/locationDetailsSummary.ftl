@@ -86,7 +86,7 @@
             ${locationDetailsView.surveyConcludedDate!}
         </@fdsCheckAnswers.checkAnswersRow>
 
-        <@fdsCheckAnswers.checkAnswersRow keyText="Pipeline route details" actionUrl="" screenReaderActionText="" actionText="">            
+        <@fdsCheckAnswers.checkAnswersRow keyText="Pipeline route details" actionUrl="" screenReaderActionText="" actionText="">
             <@multiLineText.multiLineText blockClass=multiLineTextBlockClass> ${locationDetailsView.pipelineRouteDetails!} </@multiLineText.multiLineText>
         </@fdsCheckAnswers.checkAnswersRow>
     </#if>
@@ -105,7 +105,7 @@
 
   <#if locationDetailsView.uploadedLetterFileViews?has_content>
     <h3 class="govuk-heading-m"> Pipeline route documents </h3>
-    <@fileUpload.uploadedFileList downloadUrl=springUrl(locationDetailsUrlFactory.getDocumentDownloadUrl()) existingFiles=locationDetailsView.uploadedLetterFileViews />
+    <@pwaFiles.uploadedFileList downloadUrl=springUrl(locationDetailsUrlFactory.getDocumentDownloadUrl()) existingFiles=locationDetailsView.uploadedLetterFileViews />
   <#else>
     <@fdsInsetText.insetText>
       No pipeline route documents have been added to this application.

@@ -34,11 +34,11 @@
     </#if>
 
   </@fdsCheckAnswers.checkAnswers>
-  
+
 
   <#if partnerLettersView.partnerLettersRequired?has_content && partnerLettersView.partnerLettersRequired && partnerLettersView.uploadedLetterFileViews?has_content>
     <h3 class="govuk-heading-m"> Uploaded letters </h3>
-    <@fileUpload.uploadedFileList downloadUrl=springUrl(partnerLettersUrlFactory.getDocumentDownloadUrl()) existingFiles=partnerLettersView.uploadedLetterFileViews />
+    <@pwaFiles.uploadedFileList downloadUrl=springUrl(partnerLettersUrlFactory.getDocumentDownloadUrl()) existingFiles=partnerLettersView.uploadedLetterFileViews />
   <#elseif partnerLettersView.partnerLettersRequired?has_content && partnerLettersView.partnerLettersRequired>
     <@fdsInsetText.insetText>
       No partner approval letters have been added to this application.

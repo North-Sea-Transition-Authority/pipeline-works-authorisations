@@ -29,7 +29,7 @@ public class PipelineHuooRoleSummaryViewTest {
   public void setup() {
 
     orgUnitRoleOwner = OrganisationRoleDtoTestUtil.createOrganisationUnitRoleOwnerDto(1);
-    orgTreatyRoleOwner = OrganisationRoleDtoTestUtil.createTreatyRoleOwnerDto(TreatyAgreement.BELGIUM);
+    orgTreatyRoleOwner = OrganisationRoleDtoTestUtil.createTreatyRoleOwnerDto(TreatyAgreement.ANY_TREATY_COUNTRY);
 
     group1 = new PipelinesAndOrgRoleGroupView(
         Set.of(new PipelineId(4)),
