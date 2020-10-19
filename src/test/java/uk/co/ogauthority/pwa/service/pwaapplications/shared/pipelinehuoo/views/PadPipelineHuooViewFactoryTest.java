@@ -153,7 +153,7 @@ public class PadPipelineHuooViewFactoryTest {
         pipelineAndOrganisationRoleGroupSummaryDto);
 
     assertThat(summaryView.getHolderRoleSummaryView()).isNotNull();
-    assertThat(summaryView.getUserRoleSumaryView()).isNotNull();
+    assertThat(summaryView.getUserRoleSummaryView()).isNotNull();
     assertThat(summaryView.getOperatorRoleSummaryView()).isNotNull();
     assertThat(summaryView.getOwnerRoleSummaryView()).isNotNull();
   }

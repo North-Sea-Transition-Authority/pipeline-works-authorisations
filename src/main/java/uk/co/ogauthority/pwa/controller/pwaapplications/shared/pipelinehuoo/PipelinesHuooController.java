@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelinehuoo;
 
+import javax.annotation.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,7 +19,9 @@ import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbServic
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.PadPipelinesHuooService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.PadPipelineHuooViewFactory;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.PipelineHuooScreenValidationResultFactory;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.PipelineAndOrgRoleGroupViewsByRole;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.PipelineHuooValidationResult;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
 @Controller
@@ -37,18 +40,18 @@ public class PipelinesHuooController {
   private final ApplicationBreadcrumbService breadcrumbService;
   private final PwaApplicationRedirectService pwaApplicationRedirectService;
   private final PadPipelinesHuooService padPipelinesHuooService;
-  private final PadPipelineHuooViewFactory padPipelineHuooViewFactory;
+  private final PipelineHuooScreenValidationResultFactory pipelineHuooScreenValidationResultFactory;
 
   @Autowired
   public PipelinesHuooController(
       ApplicationBreadcrumbService breadcrumbService,
       PwaApplicationRedirectService pwaApplicationRedirectService,
       PadPipelinesHuooService padPipelinesHuooService,
-      PadPipelineHuooViewFactory padPipelineHuooViewFactory) {
+      PipelineHuooScreenValidationResultFactory pipelineHuooScreenValidationResultFactory) {
     this.breadcrumbService = breadcrumbService;
     this.pwaApplicationRedirectService = pwaApplicationRedirectService;
     this.padPipelinesHuooService = padPipelinesHuooService;
-    this.padPipelineHuooViewFactory = padPipelineHuooViewFactory;
+    this.pipelineHuooScreenValidationResultFactory = pipelineHuooScreenValidationResultFactory;
   }
 
   @GetMapping
@@ -56,31 +59,31 @@ public class PipelinesHuooController {
                                     @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
                                     @PathVariable("applicationId") int applicationId,
                                     PwaApplicationContext applicationContext) {
-    return createSummaryModelAndView(applicationContext, false);
+    var pipelineHuooSummaryView = padPipelinesHuooService.getPadPipelinesHuooSummaryView(applicationContext.getApplicationDetail());
+    return createSummaryModelAndView(applicationContext, pipelineHuooSummaryView, null);
   }
 
-  private ModelAndView createSummaryModelAndView(PwaApplicationContext applicationContext, boolean doValidation) {
-
-    var pipelineAndOrgGroupAppSummary = padPipelinesHuooService.createPipelineAndOrganisationRoleGroupSummary(
-        applicationContext.getApplicationDetail());
-
-    var pipelineHuooSummaryView = padPipelineHuooViewFactory.createPipelineAndOrgGroupViewsByRole(
-        applicationContext.getApplicationDetail(),
-        pipelineAndOrgGroupAppSummary
-    );
+  private ModelAndView createSummaryModelAndView(PwaApplicationContext applicationContext,
+                                                 PipelineAndOrgRoleGroupViewsByRole pipelineHuooSummaryView,
+                                                 @Nullable PipelineHuooValidationResult pipelineHuooValidationResult) {
 
     var modelAndView = new ModelAndView("pwaApplication/shared/pipelinehuoo/pipelineHuooSummary")
         .addObject("holderSummary", pipelineHuooSummaryView.getHolderRoleSummaryView())
-        .addObject("userSummary", pipelineHuooSummaryView.getUserRoleSumaryView())
+        .addObject("userSummary", pipelineHuooSummaryView.getUserRoleSummaryView())
         .addObject("operatorSummary", pipelineHuooSummaryView.getOperatorRoleSummaryView())
         .addObject("ownerSummary", pipelineHuooSummaryView.getOwnerRoleSummaryView())
         .addObject("backUrl", pwaApplicationRedirectService.getTaskListRoute(applicationContext.getPwaApplication()))
         .addObject("pageHeading", ApplicationTask.PIPELINES_HUOO.getDisplayName() + " (HUOO)")
-        .addObject("markCompleteErrorMessage", doValidation ? "Please correct errors" : null)
         .addObject("urlFactory", new PipelineHuooUrlFactory(
             applicationContext.getMasterPwaApplicationId(),
             applicationContext.getApplicationType())
         );
+
+    if (pipelineHuooValidationResult != null) {
+      var screenResult =  pipelineHuooScreenValidationResultFactory.createFromValidationResult(pipelineHuooValidationResult);
+      modelAndView.addObject("summaryValidationResult", screenResult);
+    }
+
     breadcrumbService.fromTaskList(applicationContext.getPwaApplication(), modelAndView,
         ApplicationTask.PIPELINES_HUOO.getDisplayName());
 
@@ -92,7 +95,17 @@ public class PipelinesHuooController {
                                   @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
                                   @PathVariable("applicationId") int applicationId,
                                   PwaApplicationContext applicationContext) {
-    return createSummaryModelAndView(applicationContext, true);
+
+    var pipelineHuooSummaryView = padPipelinesHuooService.getPadPipelinesHuooSummaryView(
+        applicationContext.getApplicationDetail());
+    var validationResult = padPipelinesHuooService.generatePipelineHuooValidationResult(
+        applicationContext.getApplicationDetail(), pipelineHuooSummaryView
+    );
+    if (validationResult.isValid()) {
+      return pwaApplicationRedirectService.getTaskListRedirect(applicationContext.getPwaApplication());
+    } else {
+      return createSummaryModelAndView(applicationContext, pipelineHuooSummaryView, validationResult);
+    }
   }
 
 }
