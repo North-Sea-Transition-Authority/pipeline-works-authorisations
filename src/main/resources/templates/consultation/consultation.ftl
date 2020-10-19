@@ -22,14 +22,17 @@
     <@consultationRequestView consultationRequestViewData=consultationRequestViewData.currentRequest>
       <#if consultationRequestViewData.currentRequest.canWithdraw>
           <@fdsAction.link linkText="Withdraw consultation" linkUrl=springUrl(consultationsUrlFactory.getWithdrawConsultationUrl(consultationRequestViewData.currentRequest.consultationRequestId))
-          linkClass="govuk-link" linkScreenReaderText="Withdraw consultation" role=false start=false />
+          linkClass="govuk-link" linkScreenReaderText="for ${consultationRequestViewData.currentRequest.consulteeGroupName}" role=false start=false />
       </#if>
     </@consultationRequestView>
 
     <#if (consultationRequestViewData.historicalRequests)?has_content>
-      <@fdsDetails.summaryDetails summaryTitle="Show previous consultations">
+      <#assign screenreaderTitle>
+        <span class="govuk-visually-hidden">for ${consultationRequestViewData.currentRequest.consulteeGroupName}</span>
+      </#assign>
+      <@fdsDetails.summaryDetails summaryTitle="Show previous consultations ${screenreaderTitle}"> 
           <#list consultationRequestViewData.historicalRequests as consultationRequestHistoricalView>
-                <@consultationRequestView consultationRequestHistoricalView/>
+                <@consultationRequestView consultationRequestViewData=consultationRequestHistoricalView displayAsHistoricalRequest=true/>
           </#list>
       </@fdsDetails.summaryDetails>
     </#if>
@@ -39,7 +42,7 @@
   </#list>
 
   <#if canEditConsultations>
-    <@fdsAction.link linkText="Request consultations" linkUrl=springUrl(requestConsultationsUrl) linkClass="govuk-button"/>
+      <@fdsAction.link linkText="Request consultations" linkUrl=springUrl(requestConsultationsUrl) linkClass="govuk-button"/>
   </#if>
 
 </@defaultPage>

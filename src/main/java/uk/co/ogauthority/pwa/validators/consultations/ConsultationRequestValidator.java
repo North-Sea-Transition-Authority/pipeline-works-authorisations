@@ -28,7 +28,8 @@ public class ConsultationRequestValidator implements SmartValidator {
 
 
     if (form.getConsulteeGroupSelection().isEmpty()) {
-      errors.rejectValue("consulteeGroupSelection", "consulteeGroupSelection" + FieldValidationErrorCodes.REQUIRED.getCode(),
+      //using first index of consulteeGroupSelection in order for the fds banner error message to jump to the id of the first checkbox
+      errors.rejectValue("consulteeGroupSelection[1]", "consulteeGroupSelection" + FieldValidationErrorCodes.REQUIRED.getCode(),
           "Select at least one consultee group");
 
     } else {
