@@ -20,7 +20,8 @@ public class CaseHistoryItemView {
 
   private final Map<String, String> dataItems;
 
-  List<UploadedFileView> uploadedFileViews;
+  private List<UploadedFileView> uploadedFileViews;
+  private String fileDownloadUrl;
 
   public CaseHistoryItemView(String headerText,
                              Instant dateTime,
@@ -40,9 +41,11 @@ public class CaseHistoryItemView {
                              String personLabelText,
                              PersonId personId,
                              Map<String, String> dataItems,
-                             List<UploadedFileView> uploadedFileViews) {
+                             List<UploadedFileView> uploadedFileViews,
+                             String fileDownloadUrl) {
     this(headerText, dateTime, personLabelText, personId, dataItems);
     this.uploadedFileViews = uploadedFileViews;
+    this.fileDownloadUrl = fileDownloadUrl;
   }
 
   public String getHeaderText() {
@@ -80,4 +83,9 @@ public class CaseHistoryItemView {
   public List<UploadedFileView> getUploadedFileViews() {
     return uploadedFileViews;
   }
+
+  public String getFileDownloadUrl() {
+    return fileDownloadUrl;
+  }
+
 }

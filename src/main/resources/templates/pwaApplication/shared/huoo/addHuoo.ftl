@@ -11,8 +11,9 @@
 
     <@fdsForm.htmlForm>
         <@fdsRadio.radioGroup path="form.huooType" labelText="What type of holder, user, operator or owner is being added?" fieldsetHeadingSize="h1" fieldsetHeadingClass="govuk-fieldset__legend--xl" hiddenContent=true>
-            <@fdsDetails.details detailsTitle="When can I add a treaty agreement user?"
-                detailsText="When a treaty agreement is in place for a field development or pipeline(s) that crosses the UK Median line."/>
+            <@fdsInsetText.insetText>
+                Add a treaty agreement as the user if the application is regarding a transboundary pipeline. You cannot define both a treaty agreement and legal entities as users.
+            </@fdsInsetText.insetText>
 
             <#assign firstItem=false/>
             <#list huooTypes as name, displayText>
@@ -22,8 +23,6 @@
                         <@fdsDetails.details detailsTitle="I can’t find a legal entity"
                             detailsText="If you are unable to find the legal entity you are looking for then provide the OGA with the holder company name, address, postcode and companies house registration number to add to the PWA service: ${ogaServiceDeskEmail}"/>
                         <@fdsCheckbox.checkboxes path="form.huooRoles" checkboxes=huooRoles fieldsetHeadingText="Which roles will the legal entity have?" nestingPath="form.huooType"/>
-                    <#else>
-                        <@fdsRadio.radio path="form.treatyAgreement" labelText="Which country is the treaty agreement with?" radioItems=treatyAgreements nestingPath="form.huooType"/>
                     </#if>
                 </@fdsRadio.radioItem>
                 <#assign firstItem=true/>

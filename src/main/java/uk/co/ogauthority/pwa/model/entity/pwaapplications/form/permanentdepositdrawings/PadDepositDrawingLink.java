@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdepositdrawings;
 
+import java.util.Objects;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -74,5 +75,24 @@ public class PadDepositDrawingLink implements ChildEntity<Integer, PadPermanentD
 
   public void setPadDepositDrawing(PadDepositDrawing padDepositDrawing) {
     this.padDepositDrawing = padDepositDrawing;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    PadDepositDrawingLink that = (PadDepositDrawingLink) o;
+    return Objects.equals(id, that.id)
+        && Objects.equals(padPermanentDeposit, that.padPermanentDeposit)
+        && Objects.equals(padDepositDrawing, that.padDepositDrawing);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(id, padPermanentDeposit, padDepositDrawing);
   }
 }

@@ -46,7 +46,7 @@ public class PipelineHuooUrlFactoryTest {
   public void changeGroupPipelineOwnersUrl_expectedUrlProduced() {
     var pipelineId = new PipelineId(1);
     var orgUnitId = new OrganisationUnitId(2);
-    var treaty = TreatyAgreement.NORWAY;
+    var treaty = TreatyAgreement.ANY_TREATY_COUNTRY;
     var pipelinesAndOrgRoleGroupView = PipelineHuooViewTestUtil.createPipelineAndOrgRoleView(
         Set.of(pipelineId),
         Set.of(

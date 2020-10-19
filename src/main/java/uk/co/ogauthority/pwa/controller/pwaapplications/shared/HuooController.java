@@ -97,7 +97,12 @@ public class HuooController {
     if (bindingResult.hasErrors()) {
       return getHuooModelAndView(detail)
           .addObject("errorMessage", "You must have at least one holder, user, operator, and owner");
+
+    } else if (!padOrganisationRoleService.doesApplicationHaveValidUsers(detail)) {
+      return getHuooModelAndView(detail)
+          .addObject("errorMessage", "You cannot define both a treaty agreement and legal entities as users");
     }
+
     return pwaApplicationRedirectService.getTaskListRedirect(detail.getPwaApplication());
   }
 

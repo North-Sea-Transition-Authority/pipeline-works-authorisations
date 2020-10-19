@@ -12,7 +12,6 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTyp
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
-import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskListService;
 
@@ -23,13 +22,10 @@ import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskListService;
 @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.EDIT})
 public class Category2TaskListController {
 
-  private final PwaApplicationDetailService pwaApplicationDetailService;
   private final TaskListService taskListService;
 
   @Autowired
-  public Category2TaskListController(PwaApplicationDetailService pwaApplicationDetailService,
-                                     TaskListService taskListService) {
-    this.pwaApplicationDetailService = pwaApplicationDetailService;
+  public Category2TaskListController(TaskListService taskListService) {
     this.taskListService = taskListService;
   }
 
@@ -37,9 +33,6 @@ public class Category2TaskListController {
   public ModelAndView viewTaskList(@PathVariable("applicationId") Integer applicationId,
                                    PwaApplicationContext applicationContext) {
     return taskListService.getTaskListModelAndView(applicationContext.getApplicationDetail());
-
-
   }
-
 
 }

@@ -1,32 +1,19 @@
 package uk.co.ogauthority.pwa.model.form.pwaapplications.shared;
 
 import java.util.Set;
-import javax.validation.constraints.NotNull;
-import org.hibernate.validator.constraints.Length;
 import uk.co.ogauthority.pwa.model.entity.enums.DecommissioningCondition;
 import uk.co.ogauthority.pwa.model.entity.enums.EnvironmentalCondition;
 
 public class EnvironmentalDecommissioningForm {
 
-  public interface Full {
-  }
-
-  public interface Partial {
-  }
-
-  @NotNull(message = "Select yes if the development has significant trans-boundary effects", groups = Full.class)
   private Boolean transboundaryEffect;
 
-  @NotNull(message = "Select yes if any relevant environmental permits have been submitted to BEIS", groups = Full.class)
   private Boolean emtHasSubmittedPermits;
 
-  @Length(max = 4000, message = "Permits submitted to BEIS must be 4000 characters or less", groups = {Full.class, Partial.class})
   private String permitsSubmitted;
 
-  @NotNull(message = "Select yes if you have any relevant permits that haven't been submitted to BEIS", groups = Full.class)
   private Boolean emtHasOutstandingPermits;
 
-  @Length(max = 4000, message = "Permits pending BEIS submission must be 4000 characters or less", groups = {Full.class, Partial.class})
   private String permitsPendingSubmission;
 
   private Integer emtSubmissionDay;

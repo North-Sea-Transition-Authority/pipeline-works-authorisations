@@ -64,7 +64,6 @@ public class AddHuooValidatorTest {
 
     var form = new HuooForm();
     form.setHuooType(HuooType.TREATY_AGREEMENT);
-    form.setTreatyAgreement(TreatyAgreement.BELGIUM);
     var result = ValidatorTestUtils.getFormValidationErrors(validator, form, detail);
 
     verify(organisationRoleService, times(1)).getOrgRolesForDetail(detail);
@@ -99,18 +98,6 @@ public class AddHuooValidatorTest {
 
   }
 
-  @Test
-  public void invalid_mandatory_huooType_treaty() {
-
-    var form = new HuooForm();
-    form.setHuooType(HuooType.TREATY_AGREEMENT);
-    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, detail);
-
-    assertThat(result).containsOnly(
-        entry("treatyAgreement", Set.of("treatyAgreement.required"))
-    );
-
-  }
 
   @Test
   public void invalid_huooType_portalOrg_duplicate() {
@@ -138,11 +125,10 @@ public class AddHuooValidatorTest {
 
     var form = new HuooForm();
     form.setHuooType(HuooType.TREATY_AGREEMENT);
-    form.setTreatyAgreement(TreatyAgreement.BELGIUM);
 
     var orgRole = new PadOrganisationRole();
     orgRole.setType(HuooType.TREATY_AGREEMENT);
-    orgRole.setAgreement(TreatyAgreement.NORWAY);
+    orgRole.setAgreement(TreatyAgreement.ANY_TREATY_COUNTRY);
     orgRole.setRole(HuooRole.OWNER);
 
     when(organisationRoleService.getOrgRolesForDetail(detail)).thenReturn(List.of(orgRole));
@@ -150,7 +136,7 @@ public class AddHuooValidatorTest {
     var result = ValidatorTestUtils.getFormValidationErrors(validator, form, detail);
 
     assertThat(result).containsOnly(
-        entry("treatyAgreement", Set.of("treatyAgreement" + FieldValidationErrorCodes.TOO_MANY.getCode()))
+        entry("huooType", Set.of("huooType" + FieldValidationErrorCodes.TOO_MANY.getCode()))
     );
 
   }

@@ -8,6 +8,7 @@ import org.springframework.validation.ValidationUtils;
 import uk.co.ogauthority.pwa.model.form.consultation.ConsultationResponseForm;
 import uk.co.ogauthority.pwa.model.form.enums.ConsultationResponseOption;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
+import uk.co.ogauthority.pwa.util.ValidatorUtils;
 
 @Service
 public class ConsultationResponseValidator implements SmartValidator {
@@ -36,6 +37,19 @@ public class ConsultationResponseValidator implements SmartValidator {
       ValidationUtils.rejectIfEmpty(errors,"rejectedDescription", FieldValidationErrorCodes.REQUIRED.errorCode("rejectedDescription"),
           "You must provide a reason for rejecting this application");
     }
+
+    ValidatorUtils.validateDefaultStringLength(
+        errors,
+        "confirmedDescription",
+        form::getConfirmedDescription,
+        "Consent conditions");
+
+    ValidatorUtils.validateDefaultStringLength(
+        errors,
+        "rejectedDescription",
+        form::getRejectedDescription,
+        "Reason for rejecting the application");
+
   }
 
 

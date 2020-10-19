@@ -27,7 +27,7 @@
 
             <@fdsCheckAnswers.checkAnswersRow keyText="Licence" actionUrl="" screenReaderActionText="" actionText="">
                 ${blockCrossingView.licenceReference}
-            </@fdsCheckAnswers.checkAnswersRow>         
+            </@fdsCheckAnswers.checkAnswersRow>
 
             <@fdsCheckAnswers.checkAnswersRow keyText="Block operator" actionUrl="" screenReaderActionText="" actionText="">
                 <ul class="govuk-list">
@@ -39,13 +39,13 @@
                         <#list blockCrossingView.blockOperatorList as operator>
                             <li>${operator}</li>
                         </#list>
-                    </#if>                        
+                    </#if>
                 </ul>
-            </@fdsCheckAnswers.checkAnswersRow>       
+            </@fdsCheckAnswers.checkAnswersRow>
 
         </@fdsCheckAnswers.checkAnswers>
 
-    </#list> 
+    </#list>
 
     <#if !blockCrossingViews?has_content>
         <@fdsInsetText.insetText>
@@ -60,7 +60,7 @@
 
     <h3 class="govuk-heading-m">Block crossing agreements</h3>
     <#if blockCrossingFileViews?has_content>
-        <@fileUpload.uploadedFileList downloadUrl=springUrl(blockCrossingUrlFactory.getFileDownloadUrl()) existingFiles=blockCrossingFileViews/>
+        <@pwaFiles.uploadedFileList downloadUrl=springUrl(blockCrossingUrlFactory.getFileDownloadUrl()) existingFiles=blockCrossingFileViews/>
     <#else>
         <@fdsInsetText.insetText>
             No block crossing agreement documents have been added to this application.

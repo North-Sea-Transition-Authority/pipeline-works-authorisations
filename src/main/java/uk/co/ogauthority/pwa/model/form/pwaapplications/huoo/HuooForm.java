@@ -3,13 +3,11 @@ package uk.co.ogauthority.pwa.model.form.pwaapplications.huoo;
 import java.util.Set;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooType;
-import uk.co.ogauthority.pwa.model.entity.enums.TreatyAgreement;
 
 public class HuooForm {
 
   private Set<HuooRole> huooRoles;
   private HuooType huooType;
-  private TreatyAgreement treatyAgreement;
   private Integer organisationUnitId;
 
   public Set<HuooRole> getHuooRoles() {
@@ -26,14 +24,6 @@ public class HuooForm {
 
   public void setHuooType(HuooType huooType) {
     this.huooType = huooType;
-  }
-
-  public TreatyAgreement getTreatyAgreement() {
-    return treatyAgreement;
-  }
-
-  public void setTreatyAgreement(TreatyAgreement treatyAgreement) {
-    this.treatyAgreement = treatyAgreement;
   }
 
   public Integer getOrganisationUnitId() {

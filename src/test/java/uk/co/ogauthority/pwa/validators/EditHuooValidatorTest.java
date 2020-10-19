@@ -76,7 +76,7 @@ public class EditHuooValidatorTest {
     var treatyOrgRole = new PadOrganisationRole();
     treatyOrgRole.setType(HuooType.TREATY_AGREEMENT);
     treatyOrgRole.setRole(HuooRole.USER);
-    treatyOrgRole.setAgreement(TreatyAgreement.IRELAND);
+    treatyOrgRole.setAgreement(TreatyAgreement.ANY_TREATY_COUNTRY);
 
     portalOrgRoles = List.of(portalOrgRole);
     treatyOrgRoles = List.of(treatyOrgRole);
@@ -104,7 +104,6 @@ public class EditHuooValidatorTest {
 
     var form = new HuooForm();
     form.setHuooType(HuooType.TREATY_AGREEMENT);
-    form.setTreatyAgreement(TreatyAgreement.BELGIUM);
     var result = ValidatorTestUtils.getFormValidationErrors(validator, form, detail, getValidationView(treatyOrgRoles));
 
     verify(organisationRoleService, times(1)).getOrgRolesForDetail(detail);
@@ -128,18 +127,6 @@ public class EditHuooValidatorTest {
 
   }
 
-  @Test
-  public void invalid_mandatory_huooType_treaty() {
-
-    var form = new HuooForm();
-    form.setHuooType(HuooType.TREATY_AGREEMENT);
-    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, detail, getValidationView(treatyOrgRoles));
-
-    assertThat(result).containsOnly(
-        entry("treatyAgreement", Set.of("treatyAgreement.required"))
-    );
-
-  }
 
   @Test
   public void invalid_huooType_portalOrg_duplicate() {

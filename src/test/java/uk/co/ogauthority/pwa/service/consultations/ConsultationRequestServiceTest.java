@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.service.consultations;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -34,6 +35,7 @@ import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationResponse;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.consultation.ConsultationRequestForm;
+import uk.co.ogauthority.pwa.model.notify.emailproperties.ConsultationRequestReceivedEmailProps;
 import uk.co.ogauthority.pwa.model.notify.emailproperties.ConsultationWithdrawnEmailProps;
 import uk.co.ogauthority.pwa.repository.consultations.ConsultationRequestRepository;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupDetailService;
@@ -41,6 +43,7 @@ import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.Cons
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ConsultationRequestStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationConsultationWorkflowTask;
+import uk.co.ogauthority.pwa.service.notify.EmailCaseLinkService;
 import uk.co.ogauthority.pwa.service.notify.NotifyService;
 import uk.co.ogauthority.pwa.service.teammanagement.TeamManagementService;
 import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
@@ -66,6 +69,8 @@ public class ConsultationRequestServiceTest {
   private ConsulteeGroupTeamService consulteeGroupTeamService;
   @Mock
   private NotifyService notifyService;
+  @Mock
+  private EmailCaseLinkService emailCaseLinkService;
 
 
   @Captor
@@ -89,7 +94,7 @@ public class ConsultationRequestServiceTest {
     authenticatedUserAccount = new AuthenticatedUserAccount(webUserAccount, List.of());
     validator = new ConsultationRequestValidator();
     consultationRequestService = new ConsultationRequestService(consulteeGroupDetailService, consultationRequestRepository, validator, camundaWorkflowService,
-        teamManagementService, consulteeGroupTeamService, notifyService, clock);
+        teamManagementService, consulteeGroupTeamService, notifyService, clock, emailCaseLinkService);
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL, 100);
   }
 
@@ -107,6 +112,27 @@ public class ConsultationRequestServiceTest {
     groupDetail.setConsulteeGroup(consulteeGroup);
     when(consulteeGroupDetailService.getConsulteeGroupDetailById(1)).thenReturn(groupDetail);
 
+
+    //email
+    var consultationRequest = new ConsultationRequest();
+    consultationRequest.setStatus(ConsultationRequestStatus.ALLOCATION);
+    consultationRequest.setConsulteeGroup(consulteeGroup);
+    consultationRequest.setPwaApplication(pwaApplicationDetail.getPwaApplication());
+    consultationRequest.setEndTimestamp(Instant.now(clock));
+    when(consultationRequestRepository.save(any(ConsultationRequest.class))).thenReturn(consultationRequest);
+
+    ConsulteeGroupTeamMember teamMember1 = new ConsulteeGroupTeamMember(consultationRequest.getConsulteeGroup(),
+        new Person(1, "memberFirst1", "memberLast1", "member1@live.com", null),
+        Set.of(ConsulteeGroupMemberRole.RECIPIENT));
+    ConsulteeGroupTeamMember teamMember2 = new ConsulteeGroupTeamMember(consultationRequest.getConsulteeGroup(),
+        new Person(2, "memberFirst2", "memberLast2", "member2@live.com", null),
+        Set.of(ConsulteeGroupMemberRole.RECIPIENT));
+    when(consulteeGroupTeamService.getTeamMembersForGroup(consultationRequest.getConsulteeGroup())).thenReturn(List.of(teamMember1, teamMember2));
+
+    when(consulteeGroupDetailService.getConsulteeGroupDetailByGroupAndTipFlagIsTrue(consulteeGroup)).thenReturn(groupDetail);
+
+
+    //consultation request assertions
     consultationRequestService.saveEntitiesAndStartWorkflow(form, pwaApplicationDetail, authenticatedUserAccount);
     verify(consultationRequestRepository, times(1)).save(consultationRequestArgumentCaptor.capture());
 
@@ -115,6 +141,30 @@ public class ConsultationRequestServiceTest {
     assertThat(consultationRequestArgumentCaptor.getValue().getDeadlineDate().atZone(ZoneOffset.UTC).getDayOfYear()).isEqualTo(expectedDeadline.atZone(ZoneOffset.UTC).getDayOfYear());
     assertThat(consultationRequestArgumentCaptor.getValue().getStatus()).isEqualTo(
         ConsultationRequestStatus.ALLOCATION);
+
+
+    //email assertions
+    ArgumentCaptor<ConsultationRequestReceivedEmailProps> expectedEmailProps = ArgumentCaptor.forClass(ConsultationRequestReceivedEmailProps.class);
+    ArgumentCaptor<String> expectedToEmailAddress = ArgumentCaptor.forClass(String.class);
+    verify(notifyService, times(2)).sendEmail(expectedEmailProps.capture(), expectedToEmailAddress.capture());
+
+    var caseManagementLink = emailCaseLinkService.generateCaseManagementLink(pwaApplicationDetail.getPwaApplication());
+    List<ConsultationRequestReceivedEmailProps> expectedEmailPropsValues = expectedEmailProps.getAllValues();
+    assertTrue(expectedEmailPropsValues.contains(new ConsultationRequestReceivedEmailProps(
+        teamMember1.getPerson().getFullName(),
+        consultationRequest.getPwaApplication().getAppReference(),
+        groupDetail.getName(),
+        caseManagementLink)));
+
+    assertTrue(expectedEmailPropsValues.contains(new ConsultationRequestReceivedEmailProps(
+        teamMember2.getPerson().getFullName(),
+        consultationRequest.getPwaApplication().getAppReference(),
+        groupDetail.getName(),
+        caseManagementLink)));
+
+    List<String> expectedToEmailValues = expectedToEmailAddress.getAllValues();
+    assertTrue(expectedToEmailValues.contains(teamMember1.getPerson().getEmailAddress()));
+    assertTrue(expectedToEmailValues.contains(teamMember2.getPerson().getEmailAddress()));
   }
 
 

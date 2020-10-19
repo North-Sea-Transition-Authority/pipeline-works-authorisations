@@ -6,7 +6,7 @@
 <@defaultPage htmlTitle="Design and operating conditions" pageHeading="Design and operating conditions" breadcrumbs=true>
 
     <#if errorList?has_content>
-        <@fdsError.errorSummary errorItems=errorList errorTitle="Errors"/>
+        <@fdsError.errorSummary errorItems=errorList />
     </#if>
 
     <@fdsForm.htmlForm>

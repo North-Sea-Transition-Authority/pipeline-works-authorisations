@@ -89,7 +89,7 @@ public class PadPipelineHuooViewFactoryTest {
         PIPELINE_1_ID);
     ownerOrg1Pipeline1RoleDto = OrganisationRoleDtoTestUtil.createOrgUnitPipelineRoleInstance(HuooRole.OWNER, OU_ID1, PIPELINE_1_ID);
     ownerBelgiumPipeline2RoleDto = OrganisationRoleDtoTestUtil.createTreatyOrgUnitPipelineRoleInstance(
-        HuooRole.OWNER, TreatyAgreement.BELGIUM, PIPELINE_2_ID
+        HuooRole.OWNER, TreatyAgreement.ANY_TREATY_COUNTRY, PIPELINE_2_ID
     );
 
     var orgRoleDtos = Set.of(
@@ -221,7 +221,7 @@ public class PadPipelineHuooViewFactoryTest {
         entry(pipeline3Section2, "PL3 (from and including MID to and including END)")
     ));
     assertThat(ownerSummaryView.getUnassignedOrganisationRoleOwnerNameMapForRole()).containsExactly(
-        entry(OrganisationRoleDtoTestUtil.createTreatyRoleOwnerDto(TreatyAgreement.BELGIUM), TreatyAgreement.BELGIUM.getAgreementText())
+        entry(OrganisationRoleDtoTestUtil.createTreatyRoleOwnerDto(TreatyAgreement.ANY_TREATY_COUNTRY), TreatyAgreement.ANY_TREATY_COUNTRY.getAgreementText())
     );
   }
 
@@ -264,9 +264,9 @@ public class PadPipelineHuooViewFactoryTest {
         ),
         new PipelinesAndOrgRoleGroupView(
             Set.of(new PipelineId(PIPELINE_2_ID)),
-            Set.of(OrganisationRoleDtoTestUtil.createTreatyRoleOwnerDto(TreatyAgreement.BELGIUM)),
+            Set.of(OrganisationRoleDtoTestUtil.createTreatyRoleOwnerDto(TreatyAgreement.ANY_TREATY_COUNTRY)),
             List.of(PIPELINE_2_NUMBER),
-            List.of(TreatyAgreement.BELGIUM.getAgreementText())
+            List.of(TreatyAgreement.ANY_TREATY_COUNTRY.getAgreementText())
         )
     );
 

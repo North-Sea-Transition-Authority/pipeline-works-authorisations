@@ -92,15 +92,24 @@ public class ConsultationResponseService {
   private ConsultationResponse mapFormToResponse(ConsultationResponseForm form,
                                                  ConsultationRequest consultationRequest,
                                                  WebUserAccount user) {
+
     ConsultationResponse consultationResponse = new ConsultationResponse();
     consultationResponse.setConsultationRequest(consultationRequest);
     consultationResponse.setResponseType(form.getConsultationResponseOption());
+
+    if (form.getConsultationResponseOption().equals(ConsultationResponseOption.CONFIRMED)) {
+      consultationResponse.setResponseText(form.getConfirmedDescription());
+    }
+
     if (form.getConsultationResponseOption().equals(ConsultationResponseOption.REJECTED)) {
       consultationResponse.setResponseText(form.getRejectedDescription());
     }
+
     consultationResponse.setResponseTimestamp(Instant.now(clock));
     consultationResponse.setRespondingPersonId(user.getLinkedPerson().getId().asInt());
+
     return consultationResponse;
+
   }
 
   @Transactional

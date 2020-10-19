@@ -21,12 +21,14 @@ import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.consultation.ConsultationRequestForm;
+import uk.co.ogauthority.pwa.model.notify.emailproperties.ConsultationRequestReceivedEmailProps;
 import uk.co.ogauthority.pwa.model.notify.emailproperties.ConsultationWithdrawnEmailProps;
 import uk.co.ogauthority.pwa.repository.consultations.ConsultationRequestRepository;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupDetailService;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupTeamService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ConsultationRequestStatus;
 import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationConsultationWorkflowTask;
+import uk.co.ogauthority.pwa.service.notify.EmailCaseLinkService;
 import uk.co.ogauthority.pwa.service.notify.NotifyService;
 import uk.co.ogauthority.pwa.service.teammanagement.TeamManagementService;
 import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
@@ -48,6 +50,7 @@ public class ConsultationRequestService {
   private final ConsulteeGroupTeamService consulteeGroupTeamService;
   private final NotifyService notifyService;
   private final Clock clock;
+  private final EmailCaseLinkService emailCaseLinkService;
 
   @Autowired
   public ConsultationRequestService(
@@ -58,7 +61,8 @@ public class ConsultationRequestService {
       TeamManagementService teamManagementService,
       ConsulteeGroupTeamService consulteeGroupTeamService,
       NotifyService notifyService,
-      @Qualifier("utcClock") Clock clock) {
+      @Qualifier("utcClock") Clock clock,
+      EmailCaseLinkService emailCaseLinkService) {
     this.consulteeGroupDetailService = consulteeGroupDetailService;
     this.consultationRequestRepository = consultationRequestRepository;
     this.consultationRequestValidator = consultationRequestValidator;
@@ -67,6 +71,7 @@ public class ConsultationRequestService {
     this.consulteeGroupTeamService = consulteeGroupTeamService;
     this.notifyService = notifyService;
     this.clock = clock;
+    this.emailCaseLinkService = emailCaseLinkService;
   }
 
 
@@ -80,6 +85,18 @@ public class ConsultationRequestService {
   }
 
 
+  private void sendConsultationRequestReceivedEmail(ConsultationRequest consultationRequest) {
+
+    List<Person> emailRecipients = getEmailRecipients(consultationRequest, consultationRequest.getStatus(), null);
+    var consulteeGroupName = consulteeGroupDetailService.getConsulteeGroupDetailByGroupAndTipFlagIsTrue(
+        consultationRequest.getConsulteeGroup()).getName();
+
+    emailRecipients.forEach(recipient -> {
+      var caseManagementLink = emailCaseLinkService.generateCaseManagementLink(consultationRequest.getPwaApplication());
+      var emailProps = buildRequestReceivedEmailProps(recipient, consultationRequest, consulteeGroupName, caseManagementLink);
+      notifyService.sendEmail(emailProps, recipient.getEmailAddress());
+    });
+  }
 
   public void saveEntitiesAndStartWorkflow(ConsultationRequestForm form,
                                            PwaApplicationDetail applicationDetail, AuthenticatedUserAccount user) {
@@ -96,6 +113,7 @@ public class ConsultationRequestService {
 
       consultationRequest = consultationRequestRepository.save(consultationRequest);
       camundaWorkflowService.startWorkflow(consultationRequest);
+      sendConsultationRequestReceivedEmail(consultationRequest);
     }
   }
 
@@ -123,7 +141,7 @@ public class ConsultationRequestService {
     var consulteeGroupName = consulteeGroupDetailService.getConsulteeGroupDetailByGroupAndTipFlagIsTrue(
         consultationRequest.getConsulteeGroup()).getName();
     emailRecipients.forEach(recipient -> {
-      var emailProps = buildAssignedEmailProps(recipient, consultationRequest, consulteeGroupName, user.getLinkedPerson());
+      var emailProps = buildWithdrawnEmailProps(recipient, consultationRequest, consulteeGroupName, user.getLinkedPerson());
       notifyService.sendEmail(emailProps, recipient.getEmailAddress());
     });
   }
@@ -147,15 +165,26 @@ public class ConsultationRequestService {
     return emailRecipients;
   }
 
-  private ConsultationWithdrawnEmailProps buildAssignedEmailProps(Person recipient,
-                                                                  ConsultationRequest consultationRequest,
-                                                                  String consulteeGroupName,
-                                                                  Person withdrawnByUser) {
+  private ConsultationWithdrawnEmailProps buildWithdrawnEmailProps(Person recipient,
+                                                                   ConsultationRequest consultationRequest,
+                                                                   String consulteeGroupName,
+                                                                   Person withdrawnByUser) {
     return new ConsultationWithdrawnEmailProps(
         recipient.getFullName(),
         consultationRequest.getPwaApplication().getAppReference(),
         consulteeGroupName,
         withdrawnByUser.getFullName());
+  }
+
+  private ConsultationRequestReceivedEmailProps buildRequestReceivedEmailProps(Person recipient,
+                                                                               ConsultationRequest consultationRequest,
+                                                                               String consulteeGroupName,
+                                                                               String caseManagementLink) {
+    return new ConsultationRequestReceivedEmailProps(
+        recipient.getFullName(),
+        consultationRequest.getPwaApplication().getAppReference(),
+        consulteeGroupName,
+        caseManagementLink);
   }
 
 

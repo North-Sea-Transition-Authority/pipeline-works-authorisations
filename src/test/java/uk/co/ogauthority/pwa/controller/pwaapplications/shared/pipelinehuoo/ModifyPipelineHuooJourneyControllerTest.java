@@ -41,7 +41,6 @@ import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.PwaApplicationContextAbstractControllerTest;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
-import uk.co.ogauthority.pwa.model.dto.consents.OrganisationRoleOwnerDto;
 import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineIdentifier;
@@ -360,7 +359,7 @@ public class ModifyPipelineHuooJourneyControllerTest extends PwaApplicationConte
         .with(authenticatedUserAndSession(user))
         .with(csrf())
         .param(FORM_PICKED_ORG_ATTR, PICKED_ORG_STRING)
-        .param(FORM_PICKED_TREATY_ATTR, String.format("%s,%s", TreatyAgreement.BELGIUM, TreatyAgreement.IRELAND))
+        .param(FORM_PICKED_TREATY_ATTR, String.format("%s", TreatyAgreement.ANY_TREATY_COUNTRY))
     )
         .andExpect(status().is3xxRedirection());
 
@@ -374,7 +373,7 @@ public class ModifyPipelineHuooJourneyControllerTest extends PwaApplicationConte
             DEFAULT_ROLE,
             PICKED_ORG_IDS.stream().map(OrganisationUnitId::new)
                 .collect(Collectors.toSet()),
-            Set.of(TreatyAgreement.BELGIUM, TreatyAgreement.IRELAND)
+            Set.of(TreatyAgreement.ANY_TREATY_COUNTRY)
         );
 
   }
@@ -404,7 +403,7 @@ public class ModifyPipelineHuooJourneyControllerTest extends PwaApplicationConte
         .with(authenticatedUserAndSession(user))
         .with(csrf())
         .param(FORM_PICKED_ORG_ATTR, PICKED_ORG_STRING)
-        .param(FORM_PICKED_TREATY_ATTR, String.format("%s,%s", TreatyAgreement.BELGIUM, TreatyAgreement.IRELAND))
+        .param(FORM_PICKED_TREATY_ATTR, String.format("%s,%s", TreatyAgreement.ANY_TREATY_COUNTRY, TreatyAgreement.ANY_TREATY_COUNTRY))
     )
         .andExpect(status().is3xxRedirection());
 
@@ -489,7 +488,7 @@ public class ModifyPipelineHuooJourneyControllerTest extends PwaApplicationConte
         .with(authenticatedUserAndSession(user))
         .with(csrf())
         .param(FORM_PICKED_ORG_ATTR, PICKED_ORG_STRING)
-        .param(FORM_PICKED_TREATY_ATTR, TreatyAgreement.BELGIUM.name())
+        .param(FORM_PICKED_TREATY_ATTR, TreatyAgreement.ANY_TREATY_COUNTRY.name())
         .param(UPDATE_PIPELINE_ORG_ROLES_BACK_BUTTON_TEXT, "")
     )
         .andExpect(status().is3xxRedirection());
@@ -505,7 +504,7 @@ public class ModifyPipelineHuooJourneyControllerTest extends PwaApplicationConte
 
     PickHuooPipelinesForm form = (PickHuooPipelinesForm) result.getModelAndView().getModel().get("form");
     assertThat(form.getOrganisationUnitIds()).isEqualTo(PICKED_ORG_IDS);
-    assertThat(form.getTreatyAgreements()).containsExactly(TreatyAgreement.BELGIUM);
+    assertThat(form.getTreatyAgreements()).containsExactly(TreatyAgreement.ANY_TREATY_COUNTRY);
 
   }
 
@@ -620,66 +619,7 @@ public class ModifyPipelineHuooJourneyControllerTest extends PwaApplicationConte
 
   }
 
-  @Test
-  public void editGroupRouter_preventsInvalidDataPopulatingJourney() throws Exception {
-    var pipelineId = new PipelineId(1);
-    var pipelineIds = Set.of(
-        "DODGY String",
-        PickableHuooPipelineType.createPickableString(pipelineId)
-    );
-    var reconciledPipeline = PickablePipelineOptionTestUtil.createReconciledPickablePipeline(
-        pipelineId
-    );
 
-    var validOrgUnitRoleOwner = OrganisationRoleOwnerDto.fromOrganisationUnitId(new OrganisationUnitId(10));
-
-    var validTreaty = TreatyAgreement.NORWAY;
-    var invalidTreaty = TreatyAgreement.BELGIUM;
-
-    var paramOrgUnitSet = Set.of(validOrgUnitRoleOwner.getOrganisationUnitId().asInt(), 9999);
-    var paramTreatySet = Set.of(validTreaty, invalidTreaty);
-
-
-    var validRoleOwnerSet = Set.of(
-        validOrgUnitRoleOwner,
-        OrganisationRoleOwnerDto.fromTreaty(validTreaty)
-    );
-    when(padPipelinesHuooService.reconcileOrganisationRoleOwnersFrom(
-        pwaApplicationDetail,
-        DEFAULT_ROLE,
-        paramOrgUnitSet,
-        paramTreatySet
-    )).thenReturn(validRoleOwnerSet);
-
-    when(padPipelinesHuooService.reconcilePickablePipelinesFromPipelineIds(
-        pwaApplicationDetail,
-        DEFAULT_ROLE,
-        pipelineIds
-    )).thenReturn(Set.of(reconciledPipeline));
-
-    // check redirect target as expected
-    mockMvc.perform(post(ReverseRouter.route(on(ModifyPipelineHuooJourneyController.class)
-        .editGroupRouter(
-            PwaApplicationType.INITIAL,
-            pwaApplicationDetail.getMasterPwaApplicationId(),
-            DEFAULT_ROLE,
-            null,
-            ModifyPipelineHuooJourneyController.JourneyPage.PIPELINE_SELECTION,
-            encodeStringSet(pipelineIds),
-            paramOrgUnitSet,
-            paramTreatySet
-        )))
-        .with(authenticatedUserAndSession(user))
-        .with(csrf())
-    )
-        .andExpect(status().is3xxRedirection());
-
-    assertPreLoadedJourneyDataMatches(
-        Set.of(reconciledPipeline.getPickableHuooPipelineId().asString()),
-        Set.of(validOrgUnitRoleOwner.getOrganisationUnitId().asInt()),
-        Set.of(validTreaty));
-
-  }
 
   @Test
   public void editGroupRouter_pipelineJourneyPageParam_redirect() throws Exception {

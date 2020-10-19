@@ -4,7 +4,7 @@
 <#include 'fds/objects/layouts/generic.ftl'>
 <#import 'fds/objects/grid/grid.ftl' as grid>
 <#import 'header.ftl' as pipelinesHeader>
-<#import 'components/fileUpload/fileUpload.ftl' as fileUpload>
+<#import 'components/files/fileList.ftl' as pwaFiles>
 <#import 'components/completedTag/completedTag.ftl' as completedTag>
 <#import 'components/coordinates/locationInput.ftl' as pwaLocationInput>
 <#import 'components/coordinates/coordinateDisplay.ftl' as pwaCoordinate>
