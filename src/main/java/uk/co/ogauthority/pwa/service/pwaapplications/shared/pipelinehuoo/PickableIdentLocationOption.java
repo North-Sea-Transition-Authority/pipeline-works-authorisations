@@ -1,7 +1,10 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo;
 
+import java.util.Comparator;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.IdentView;
 
@@ -13,14 +16,18 @@ public class PickableIdentLocationOption implements Comparable<PickableIdentLoca
   private final String pickableString;
   private final String displayString;
   private final String locationName;
+  private final int identNumber;
+  private final IdentPoint identPoint;
 
   public PickableIdentLocationOption(int identNumber, IdentPoint identPoint, String location) {
     this.pickableString = String.format("%s-%s", identNumber, identPoint);
     this.displayString = String.format("Ident %s %s %s", identNumber, identPoint.getMidStringDisplay(), location);
     this.locationName = location;
+    this.identNumber = identNumber;
+    this.identPoint = identPoint;
   }
 
-  static Set<PickableIdentLocationOption> createIdentLocationOptionsFrom(IdentView identView) {
+  private static Set<PickableIdentLocationOption> createIdentLocationOptionsFrom(IdentView identView) {
     return Set.of(
         new PickableIdentLocationOption(identView.getIdentNumber(), IdentPoint.FROM_LOCATION,
             identView.getFromLocation()),
@@ -28,6 +35,14 @@ public class PickableIdentLocationOption implements Comparable<PickableIdentLoca
     );
 
   }
+
+  public static List<PickableIdentLocationOption> createSortedPickableIdentLocationOptionList(List<IdentView> identViews) {
+    return identViews.stream()
+        .flatMap(identView -> PickableIdentLocationOption.createIdentLocationOptionsFrom(identView).stream())
+        .sorted(Comparator.comparing(PickableIdentLocationOption::getSortKey))
+        .collect(Collectors.toUnmodifiableList());
+  }
+
 
   String getSortKey() {
     return StringUtils.leftPad(String.valueOf(getIdentNumber()), 3, "0") + "_" + getIdentPoint().getDisplayOrder();
@@ -38,7 +53,7 @@ public class PickableIdentLocationOption implements Comparable<PickableIdentLoca
   }
 
   public int getIdentNumber() {
-    return Integer.valueOf(pickableString.substring(0, pickableString.indexOf("-")));
+    return this.identNumber;
   }
 
   public String getDisplayString() {
@@ -50,7 +65,7 @@ public class PickableIdentLocationOption implements Comparable<PickableIdentLoca
   }
 
   public IdentPoint getIdentPoint() {
-    return IdentPoint.valueOf(pickableString.substring(pickableString.indexOf("-") + 1));
+    return this.identPoint;
   }
 
   @Override

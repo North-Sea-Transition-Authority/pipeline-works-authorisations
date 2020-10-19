@@ -31,6 +31,9 @@ public class PipelineHuooScreenValidationResultFactory {
           if (result.hasErrors() && result.getUnassignedRoleOwnerErrorMessage() != null) {
             errorMap.put(role.name() + "-UNASSIGNED-ROLES", result.getUnassignedRoleOwnerErrorMessage());
           }
+          if (result.hasErrors() && result.getInvalidSplitsErrorMessage() != null) {
+            errorMap.put(role.name() + "-INVALID-SPLITS", result.getInvalidSplitsErrorMessage());
+          }
         });
 
     return new SummaryScreenValidationResult(

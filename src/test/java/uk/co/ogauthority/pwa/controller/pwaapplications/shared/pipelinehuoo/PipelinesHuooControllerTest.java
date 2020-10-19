@@ -116,7 +116,7 @@ public class PipelinesHuooControllerTest extends PwaApplicationContextAbstractCo
 
     when(validationResult.getValidationResults()).thenReturn(
         Map.of(
-            HuooRole.HOLDER, PipelineHuooRoleValidationResultTestUtil.invalidResult("error1", "error2"),
+            HuooRole.HOLDER, PipelineHuooRoleValidationResultTestUtil.invalidResultAsUnassigned("error1", "error2"),
             HuooRole.USER, PipelineHuooRoleValidationResultTestUtil.validResult(),
             HuooRole.OPERATOR, PipelineHuooRoleValidationResultTestUtil.validResult(),
             HuooRole.OWNER, PipelineHuooRoleValidationResultTestUtil.validResult()

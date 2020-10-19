@@ -10,14 +10,14 @@ import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.IdentView;
 /**
  * General purpose class to hold all information about a pipeline.
  */
-public class PipelineAndIdentViews {
+public class PipelineAndIdentView {
 
   private final PipelineId pipelineId;
   private final PipelineOverview pipelineOverview;
   private final List<IdentView> sortedIdentViews;
 
-  public PipelineAndIdentViews(PipelineOverview pipelineOverview,
-                               List<IdentView> identViews) {
+  public PipelineAndIdentView(PipelineOverview pipelineOverview,
+                              List<IdentView> identViews) {
     this.pipelineId = PipelineId.from(pipelineOverview);
     this.pipelineOverview = pipelineOverview;
     this.sortedIdentViews = identViews.stream()

@@ -12,6 +12,13 @@
     <#local unassignedRoleCardId = validationResult.constructObjectId(summaryValidationResult!, (errorKeyPrefix + "-UNASSIGNED-ROLES")) />
     <#local unassignedRoleErrorMessage = validationResult.errorMessageOrEmptyString(summaryValidationResult!, unassignedRoleCardId) />
 
+    <#local invalidSplitErrorId = validationResult.constructObjectId(summaryValidationResult!, (errorKeyPrefix + "-INVALID-SPLITS")) />
+    <#local invalidSplitErrorMessage = validationResult.errorMessageOrEmptyString(summaryValidationResult!, invalidSplitErrorId)  />
+
+    <#if invalidSplitErrorId?has_content && invalidSplitErrorMessage?has_content>
+        <p id="${invalidSplitErrorId}" class="govuk-error-message">${invalidSplitErrorMessage}</p>
+    </#if>
+
     <#if summaryView.sortedUnassignedPipelineNumbers?has_content>
 
         <#local useAllPipelinesHeader=!summaryView.pipelinesAndOrgRoleGroupViews?has_content />

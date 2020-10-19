@@ -6,6 +6,7 @@ import static org.mockito.Mockito.when;
 import static uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.viewfactories.PipelineAndIdentViewFactoryTest.ConsentedPipelineImportedIntoApplication.CONSENTED_PIPELINE_IMPORTED;
 import static uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.viewfactories.PipelineAndIdentViewFactoryTest.ConsentedPipelineImportedIntoApplication.NO_CONSENTED_PIPELINE_IMPORTED;
 
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -102,6 +103,48 @@ public class PipelineAndIdentViewFactoryTest {
     when(ident1View.getIdentNumber()).thenReturn(1);
     when(ident2View.getIdentNumber()).thenReturn(2);
     when(ident3View.getIdentNumber()).thenReturn(3);
+  }
+
+  @Test
+  public void getAllAppAndMasterPwaPipelineAndIdentLocations_whenBothAppAndConsentedModelHavePipelineData_andNoAppIdentsExist() {
+    // Make sure that if a pipeline is imported into app, but has all idents removed, we still return app version of pipeline.
+    setupConsentedPipeline();
+    setupApplicationPipelines(CONSENTED_PIPELINE_IMPORTED);
+
+    var allAppAndMasterPwaPipelineIds = Set.of(APPLICATION_NEW_PIPELINE_ID, CONSENTED_PIPELINE_ID);
+
+    var importedConsentedPipelineIdentViews = List.of(ident1View, ident3View);
+    List<IdentView> applicationNewPipelineIdentViews = Collections.emptyList();
+    var appPipelineIdentMap = Map.ofEntries(
+        Map.entry(CONSENTED_PIPELINE_ID, importedConsentedPipelineIdentViews),
+        Map.entry(APPLICATION_NEW_PIPELINE_ID, applicationNewPipelineIdentViews)
+    );
+
+    when(padPipelineIdentService.getApplicationIdentViewsForPipelines(allAppAndMasterPwaPipelineIds))
+        .thenReturn(appPipelineIdentMap);
+
+    var consentedPipelineIdentMap = Map.ofEntries(
+        // pretend Ident has been removed within the app so theres a difference in the lists
+        Map.entry(CONSENTED_PIPELINE_ID, List.of(ident1View, ident2View, ident3View))
+    );
+    when(pipelineDetailIdentService.getSortedPipelineIdentViewsForPipelines(allAppAndMasterPwaPipelineIds))
+        .thenReturn(consentedPipelineIdentMap);
+
+
+    var sortedResult = pipelineAndIdentViewFactory.getAllAppAndMasterPwaPipelineAndIdentViews(detail).stream()
+        .sorted(
+            Comparator.comparing(pipelineAndIdentViews -> pipelineAndIdentViews.getPipelineId().getPipelineIdAsInt()))
+        .collect(Collectors.toList());
+
+
+    assertThat(sortedResult).hasSize(2);
+    assertThat(sortedResult.get(0).getPipelineId()).isEqualTo(CONSENTED_PIPELINE_ID);
+    assertThat(sortedResult.get(0).getPipelineOverview()).isEqualTo(importedConsentedPipelineSummary);
+    assertThat(sortedResult.get(0).getSortedIdentViews()).isEmpty();
+
+    assertThat(sortedResult.get(1).getPipelineId()).isEqualTo(APPLICATION_NEW_PIPELINE_ID);
+    assertThat(sortedResult.get(1).getPipelineOverview()).isEqualTo(applicationNewPipelineSummary);
+    assertThat(sortedResult.get(1).getSortedIdentViews()).isEqualTo(applicationNewPipelineIdentViews);
   }
 
   @Test

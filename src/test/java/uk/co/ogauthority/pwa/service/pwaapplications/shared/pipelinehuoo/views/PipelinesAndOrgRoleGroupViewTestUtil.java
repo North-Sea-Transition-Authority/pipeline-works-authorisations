@@ -20,4 +20,14 @@ public class PipelinesAndOrgRoleGroupViewTestUtil {
     return new PipelinesAndOrgRoleGroupView(Set.of(pipelineIdentifier), Set.of(organisationRoleOwnerDto),
         List.of(pipelineName), List.of(orgName));
   }
+
+  public static PipelinesAndOrgRoleGroupView createMultiPipelineSingleOrgGroupView(
+      Set<PipelineIdentifier> pipelineIdentifiers,
+      List<String> pipelineNames,
+      OrganisationRoleOwnerDto organisationRoleOwnerDto,
+      String orgName
+  ) {
+    return new PipelinesAndOrgRoleGroupView(pipelineIdentifiers, Set.of(organisationRoleOwnerDto),
+        pipelineNames, List.of(orgName));
+  }
 }
