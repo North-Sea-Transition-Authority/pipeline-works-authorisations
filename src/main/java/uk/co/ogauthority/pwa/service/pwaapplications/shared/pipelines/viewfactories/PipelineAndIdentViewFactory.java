@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview;
-import uk.co.ogauthority.pwa.model.view.PipelineAndIdentViews;
+import uk.co.ogauthority.pwa.model.view.PipelineAndIdentView;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.IdentView;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineIdentService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
@@ -53,7 +53,7 @@ public class PipelineAndIdentViewFactory {
    * <p>The returned List will have not have any pipeline splits represented as they only exist in the
    * context of an application's/Master PWA's HUOO roles and pipeline links.</p>
    */
-  public List<PipelineAndIdentViews> getAllAppAndMasterPwaPipelineAndIdentViews(
+  public List<PipelineAndIdentView> getAllAppAndMasterPwaPipelineAndIdentViews(
       PwaApplicationDetail pwaApplicationDetail) {
     // 1. get pipeline overviews for the PWA and application prioritising application data for pipelines
     // 2. Get a all Ident Views that we can from the application for every applicable pipeline.
@@ -64,16 +64,23 @@ public class PipelineAndIdentViewFactory {
         pwaApplicationDetail);
     var allAppAndMasterPwaPipelineIds = allAppAndMasterPwaPipelineOverviewLookup.keySet();
 
-    var pipelineIdToIdentViewListMap = padPipelineIdentService.getApplicationIdentViewsForPipelines(
+    var applicationPipelineIdToIdentViewListMap = padPipelineIdentService.getApplicationIdentViewsForPipelines(
         allAppAndMasterPwaPipelineIds
     );
+    var modifiableAppPipelineIdToIdentViewListMap = new HashMap<>(applicationPipelineIdToIdentViewListMap);
+    // if pipeline added but no idents defined, add in empty entry to app pipelines ident lookup
+    allAppAndMasterPwaPipelineOverviewLookup.forEach((pipelineId, pipelineOverview) -> {
+      if (pipelineOverview.getPadPipelineId() != null) {
+        modifiableAppPipelineIdToIdentViewListMap.putIfAbsent(pipelineId, List.of());
+      }
+    });
 
     var allConsentedPipelineIdtoIdentViewListMap = pipelineDetailIdentService.getSortedPipelineIdentViewsForPipelines(
         allAppAndMasterPwaPipelineIds
     );
 
     var pipelineAndIdentViewListMap = new HashMap<PipelineId, List<IdentView>>();
-    pipelineAndIdentViewListMap.putAll(pipelineIdToIdentViewListMap);
+    pipelineAndIdentViewListMap.putAll(modifiableAppPipelineIdToIdentViewListMap);
 
     // if app version of the pipeline doesnt exist, add in entry using consented version
     allConsentedPipelineIdtoIdentViewListMap.forEach(pipelineAndIdentViewListMap::putIfAbsent);
@@ -81,7 +88,7 @@ public class PipelineAndIdentViewFactory {
     // for each app and master pwa pipeline over, combine the relevant ident views and pipeline number to create output list.
     return allAppAndMasterPwaPipelineOverviewLookup.entrySet()
         .stream()
-        .map(pipelineIdPipelineOverviewEntry -> new PipelineAndIdentViews(
+        .map(pipelineIdPipelineOverviewEntry -> new PipelineAndIdentView(
                 pipelineIdPipelineOverviewEntry.getValue(),
                 pipelineAndIdentViewListMap.get(pipelineIdPipelineOverviewEntry.getKey())
             )

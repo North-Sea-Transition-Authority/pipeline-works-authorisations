@@ -83,9 +83,12 @@ public class PadPipelinesHuooService implements ApplicationFormSectionService {
 
   public PipelineHuooValidationResult generatePipelineHuooValidationResult(
       PwaApplicationDetail pwaApplicationDetail,
-      // TODO PWA-427 use detail later
       PipelineAndOrgRoleGroupViewsByRole pipelineAndOrgRoleGroupViewsByRole) {
-    return new PipelineHuooValidationResult(pipelineAndOrgRoleGroupViewsByRole);
+
+    return new PipelineHuooValidationResult(
+        pipelineAndOrgRoleGroupViewsByRole,
+        pipelineAndIdentViewFactory.getAllAppAndMasterPwaPipelineAndIdentViews(pwaApplicationDetail)
+    );
   }
 
   public Optional<PipelineOverview> getSplitablePipelineOverviewForApplication(

@@ -1,7 +1,6 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -38,11 +37,9 @@ public class PickableHuooPipelineIdentService {
   public List<PickableIdentLocationOption> getSortedPickableIdentLocationOptions(
       PwaApplicationDetail pwaApplicationDetail,
       PipelineId pipelineId) {
-    return pipelineAndIdentViewFactory.getPipelineSortedIdentViews(pwaApplicationDetail, pipelineId)
-        .stream()
-        .flatMap(identView -> PickableIdentLocationOption.createIdentLocationOptionsFrom(identView).stream())
-        .sorted(Comparator.comparing(PickableIdentLocationOption::getSortKey))
-        .collect(Collectors.toList());
+    return PickableIdentLocationOption.createSortedPickableIdentLocationOptionList(
+        pipelineAndIdentViewFactory.getPipelineSortedIdentViews(pwaApplicationDetail, pipelineId)
+    );
   }
 
   public List<PipelineSection> generatePipelineSectionsFromForm(PwaApplicationDetail pwaApplicationDetail,

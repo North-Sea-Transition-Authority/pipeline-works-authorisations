@@ -37,6 +37,7 @@ import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.huoo.PadOrganisationRole;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview;
+import uk.co.ogauthority.pwa.model.view.PipelineAndIdentView;
 import uk.co.ogauthority.pwa.repository.pwaapplications.pipelinehuoo.PadPipelineOrganisationRoleLinkRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadOrganisationRoleService;
@@ -44,6 +45,8 @@ import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadOrganisationRoleTes
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.PadPipelineHuooViewFactory;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.PipelineAndOrgRoleGroupViewsByRoleTestUtil;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.PipelineHuooRoleSummaryViewTestUtil;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.PipelinesAndOrgRoleGroupViewTestUtil;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.IdentView;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.viewfactories.PipelineAndIdentViewFactory;
 import uk.co.ogauthority.pwa.testutils.PortalOrganisationTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
@@ -53,6 +56,11 @@ import uk.co.ogauthority.pwa.validators.pipelinehuoo.PickHuooPipelinesFormValida
 @RunWith(MockitoJUnitRunner.class)
 public class PadPipelinesHuooServiceTest {
   private final HuooRole DEFAULT_ROLE = HuooRole.HOLDER;
+
+  private static final String POINT_A = "A";
+  private static final String POINT_B = "B";
+  private static final String POINT_C = "C";
+  private static final String POINT_D = "D";
 
   private final int CONSENTED_PIPELINE_ID = 10;
   private final int APPLICATION_PIPELINE_ID = 20;
@@ -65,6 +73,22 @@ public class PadPipelinesHuooServiceTest {
       "TEMP_1");
 
   private static final PipelineIdentifier PIPELINE_1_ID = new PipelineId(1);
+  private static final PipelineIdentifier PIPELINE_1_SECTION_1 = PipelineSection.from(
+      PIPELINE_1_ID.getPipelineId(), 1,
+      PipelineIdentPoint.inclusivePoint(POINT_A),
+      PipelineIdentPoint.exclusivePoint(POINT_B)
+  );
+  private static final PipelineIdentifier PIPELINE_1_SECTION_2 = PipelineSection.from(
+      PIPELINE_1_ID.getPipelineId(), 2,
+      PipelineIdentPoint.inclusivePoint(POINT_B),
+      PipelineIdentPoint.exclusivePoint(POINT_C)
+  );
+  private static final PipelineIdentifier PIPELINE_1_SECTION_3 = PipelineSection.from(
+      PIPELINE_1_ID.getPipelineId(), 3,
+      PipelineIdentPoint.inclusivePoint(POINT_C),
+      PipelineIdentPoint.inclusivePoint(POINT_D)
+  );
+
   private static final String PIPELINE_1_NUMBER = "PL1";
   private static final int ORGANISATION_UNIT_1_ID = 10;
   private static final String ORGANISATION_UNIT_1_NAME = "ORG1";
@@ -88,6 +112,19 @@ public class PadPipelinesHuooServiceTest {
   private PipelineOverview consentedPipelineOverview;
 
   @Mock
+  private PipelineOverview pipeline1Overview;
+
+  @Mock
+  private IdentView ident1View;
+
+  @Mock
+  private IdentView ident2View;
+
+  @Mock
+  private IdentView ident3View;
+
+
+  @Mock
   private PadPipelineHuooViewFactory padPipelineHuooViewFactory;
 
   @Mock
@@ -98,6 +135,8 @@ public class PadPipelinesHuooServiceTest {
 
   private PortalOrganisationUnit organisationUnit1;
   private PortalOrganisationUnit organisationUnit2;
+
+  private PipelineAndIdentView pipeline1AndIdents;
 
   private TreatyAgreement treatyAgreement = TreatyAgreement.ANY_TREATY_COUNTRY;
 
@@ -115,6 +154,10 @@ public class PadPipelinesHuooServiceTest {
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     form = new PickHuooPipelinesForm();
 
+    setupIdentViewMock(ident1View, POINT_A, POINT_B, 1);
+    setupIdentViewMock(ident2View, POINT_B, POINT_C, 2);
+    setupIdentViewMock(ident3View, POINT_C, POINT_D, 3);
+
     padPipelinesHuooService = new PadPipelinesHuooService(
         pickableHuooPipelineService,
         portalOrganisationsAccessor,
@@ -123,7 +166,6 @@ public class PadPipelinesHuooServiceTest {
         padPipelineOrganisationRoleLinkRepository,
         pipelineAndIdentViewFactory,
         padPipelineHuooViewFactory);
-
 
     when(pickableHuooPipelineService.getAllPickablePipelinesForApplicationAndRole(pwaApplicationDetail, DEFAULT_ROLE))
         .thenReturn(
@@ -143,6 +185,31 @@ public class PadPipelinesHuooServiceTest {
             )
         )
     );
+
+    setupIdentViewMock(ident1View, POINT_A, POINT_B, 1);
+    setupIdentViewMock(ident2View, POINT_B, POINT_C, 2);
+    setupIdentViewMock(ident3View, POINT_C, POINT_D, 3);
+
+
+  }
+
+  private void setupPipelineAndIdentView(){
+    when(pipeline1Overview.getPipelineNumber()).thenReturn(PIPELINE_1_NUMBER);
+    when(pipeline1Overview.getPipelineId()).thenReturn(PIPELINE_1_ID.getPipelineIdAsInt());
+    pipeline1AndIdents = new PipelineAndIdentView(pipeline1Overview, List.of(ident1View, ident2View, ident3View));
+    when(pipelineAndIdentViewFactory.getAllAppAndMasterPwaPipelineAndIdentViews(pwaApplicationDetail))
+        .thenReturn(List.of(pipeline1AndIdents));
+
+
+  }
+
+  private void setupIdentViewMock(IdentView mockIdentView,
+                                  String fromLocation,
+                                  String toLocation,
+                                  int identNumber) {
+    when(mockIdentView.getFromLocation()).thenReturn(fromLocation);
+    when(mockIdentView.getToLocation()).thenReturn(toLocation);
+    when(mockIdentView.getIdentNumber()).thenReturn(identNumber);
 
   }
 
@@ -685,6 +752,7 @@ public class PadPipelinesHuooServiceTest {
 
   @Test
   public void generatePipelineHuooValidationResult_whenHolderHasPipelineAndOrgRoleOwnersUnnassigned() {
+    setupPipelineAndIdentView();
     var organisationRoleOwnerDto1 = OrganisationRoleDtoTestUtil.createOrganisationUnitRoleOwnerDto(ORGANISATION_UNIT_1_ID);
 
     var rolesByView = PipelineAndOrgRoleGroupViewsByRoleTestUtil.createFrom(
@@ -706,12 +774,164 @@ public class PadPipelinesHuooServiceTest {
 
     assertThat(validationResult.getValidationResult(HuooRole.HOLDER).getUnassignedPipelineErrorMessage()).isNotNull();
     assertThat(validationResult.getValidationResult(HuooRole.HOLDER).getUnassignedRoleOwnerErrorMessage()).isNotNull();
+    assertThat(validationResult.getValidationResult(HuooRole.HOLDER).getInvalidSplitsErrorMessage()).isNull();
+  }
 
+  @Test
+  public void generatePipelineHuooValidationResult_whenUnassignedPipelineSections_andSectionsValid() {
+    setupPipelineAndIdentView();
+    var organisationRoleOwnerDto1 = OrganisationRoleDtoTestUtil.createOrganisationUnitRoleOwnerDto(ORGANISATION_UNIT_1_ID);
+
+    var rolesByView = PipelineAndOrgRoleGroupViewsByRoleTestUtil.createFrom(
+        PipelineHuooRoleSummaryViewTestUtil.createEmptyGroupWithUnassigned(HuooRole.HOLDER,
+            Map.ofEntries(
+                Map.entry(PIPELINE_1_SECTION_1, PIPELINE_1_NUMBER+"/1"),
+                Map.entry(PIPELINE_1_SECTION_2, PIPELINE_1_NUMBER+"/2"),
+                Map.entry(PIPELINE_1_SECTION_3, PIPELINE_1_NUMBER+"/3")
+            ),
+            Map.of(organisationRoleOwnerDto1, ORGANISATION_UNIT_1_NAME)),
+        PipelineHuooRoleSummaryViewTestUtil.createEmptyGroupWithNoUnassigned(HuooRole.USER),
+        PipelineHuooRoleSummaryViewTestUtil.createEmptyGroupWithNoUnassigned(HuooRole.OPERATOR),
+        PipelineHuooRoleSummaryViewTestUtil.createEmptyGroupWithNoUnassigned(HuooRole.OWNER)
+    );
+
+    var validationResult = padPipelinesHuooService.generatePipelineHuooValidationResult(pwaApplicationDetail, rolesByView);
+
+    assertThat(validationResult.isValid()).isFalse();
+    assertThat(validationResult.getValidationResult(HuooRole.HOLDER).hasErrors()).isTrue();
+
+    assertThat(validationResult.getValidationResult(HuooRole.HOLDER).getUnassignedPipelineErrorMessage()).isNotNull();
+    assertThat(validationResult.getValidationResult(HuooRole.HOLDER).getUnassignedRoleOwnerErrorMessage()).isNotNull();
+    assertThat(validationResult.getValidationResult(HuooRole.HOLDER).getInvalidSplitsErrorMessage()).isNull();
+  }
+
+  @Test
+  public void generatePipelineHuooValidationResult_whenUnassignedAndAssignedPipelineSections_andFinalSectionInvalid() {
+    setupPipelineAndIdentView();
+    var organisationRoleOwnerDto1 = OrganisationRoleDtoTestUtil.createOrganisationUnitRoleOwnerDto(ORGANISATION_UNIT_1_ID);
+
+    var rolesByView = PipelineAndOrgRoleGroupViewsByRoleTestUtil.createFrom(
+        PipelineHuooRoleSummaryViewTestUtil.createWithNoUnassignedPipelinesOrOrgs(HuooRole.HOLDER,
+            List.of(
+                PipelinesAndOrgRoleGroupViewTestUtil.createMultiPipelineSingleOrgGroupView(
+                    Set.of(
+                        PIPELINE_1_SECTION_1, PIPELINE_1_SECTION_2,
+                        // dodgy section
+                        PipelineSection.from(
+                            PIPELINE_1_ID.getPipelineId(),
+                            4,
+                            PipelineIdentPoint.inclusivePoint("POINT Y"),
+                            PipelineIdentPoint.inclusivePoint("POINT Y")
+                        )
+                    ),
+                    List.of(
+                        PIPELINE_1_NUMBER + "/1", PIPELINE_1_NUMBER + "/2", PIPELINE_1_NUMBER + "/4"
+                    ),
+                    organisationRoleOwnerDto1,
+                    ORGANISATION_UNIT_1_NAME
+                )
+              )
+        ),
+        PipelineHuooRoleSummaryViewTestUtil.createEmptyGroupWithNoUnassigned(HuooRole.USER),
+        PipelineHuooRoleSummaryViewTestUtil.createEmptyGroupWithNoUnassigned(HuooRole.OPERATOR),
+        PipelineHuooRoleSummaryViewTestUtil.createEmptyGroupWithNoUnassigned(HuooRole.OWNER)
+    );
+
+    var validationResult = padPipelinesHuooService.generatePipelineHuooValidationResult(pwaApplicationDetail, rolesByView);
+
+    assertThat(validationResult.isValid()).isFalse();
+    assertThat(validationResult.getValidationResult(HuooRole.HOLDER).hasErrors()).isTrue();
+    assertThat(validationResult.getValidationResult(HuooRole.HOLDER).getUnassignedPipelineErrorMessage()).isNull();
+    assertThat(validationResult.getValidationResult(HuooRole.HOLDER).getUnassignedRoleOwnerErrorMessage()).isNull();
+    assertThat(validationResult.getValidationResult(HuooRole.HOLDER).getInvalidSplitsErrorMessage()).contains(PIPELINE_1_NUMBER);
+  }
+
+  @Test
+  public void generatePipelineHuooValidationResult_whenUnassignedAndAssignedPipelineSections_andFirstSectionInvalid() {
+    setupPipelineAndIdentView();
+    var organisationRoleOwnerDto1 = OrganisationRoleDtoTestUtil.createOrganisationUnitRoleOwnerDto(ORGANISATION_UNIT_1_ID);
+
+    var rolesByView = PipelineAndOrgRoleGroupViewsByRoleTestUtil.createFrom(
+        PipelineHuooRoleSummaryViewTestUtil.createWithNoUnassignedPipelinesOrOrgs(HuooRole.HOLDER,
+            List.of(
+                PipelinesAndOrgRoleGroupViewTestUtil.createMultiPipelineSingleOrgGroupView(
+                    Set.of(
+                        PipelineSection.from(
+                            // dodgy section
+                            PIPELINE_1_ID.getPipelineId(),
+                            1,
+                            PipelineIdentPoint.inclusivePoint("POINT Y"),
+                            PipelineIdentPoint.inclusivePoint("POINT Y")
+                        ),
+                        PIPELINE_1_SECTION_2, PIPELINE_1_SECTION_3
+                    ),
+                    List.of(
+                        PIPELINE_1_NUMBER + "/1", PIPELINE_1_NUMBER + "/2", PIPELINE_1_NUMBER + "/3"
+                    ),
+                    organisationRoleOwnerDto1,
+                    ORGANISATION_UNIT_1_NAME
+                )
+            )
+        ),
+        PipelineHuooRoleSummaryViewTestUtil.createEmptyGroupWithNoUnassigned(HuooRole.USER),
+        PipelineHuooRoleSummaryViewTestUtil.createEmptyGroupWithNoUnassigned(HuooRole.OPERATOR),
+        PipelineHuooRoleSummaryViewTestUtil.createEmptyGroupWithNoUnassigned(HuooRole.OWNER)
+    );
+
+    var validationResult = padPipelinesHuooService.generatePipelineHuooValidationResult(pwaApplicationDetail, rolesByView);
+
+    assertThat(validationResult.isValid()).isFalse();
+    assertThat(validationResult.getValidationResult(HuooRole.HOLDER).hasErrors()).isTrue();
+    assertThat(validationResult.getValidationResult(HuooRole.HOLDER).getUnassignedPipelineErrorMessage()).isNull();
+    assertThat(validationResult.getValidationResult(HuooRole.HOLDER).getUnassignedRoleOwnerErrorMessage()).isNull();
+    assertThat(validationResult.getValidationResult(HuooRole.HOLDER).getInvalidSplitsErrorMessage()).contains(PIPELINE_1_NUMBER);
+  }
+
+  @Test
+  public void generatePipelineHuooValidationResult_whenUnassignedAndAssignedPipelineSections_andMiddleSectionInvalidLocationsForIdent() {
+    setupPipelineAndIdentView();
+    var organisationRoleOwnerDto1 = OrganisationRoleDtoTestUtil.createOrganisationUnitRoleOwnerDto(ORGANISATION_UNIT_1_ID);
+
+    var rolesByView = PipelineAndOrgRoleGroupViewsByRoleTestUtil.createFrom(
+        PipelineHuooRoleSummaryViewTestUtil.createWithNoUnassignedPipelinesOrOrgs(HuooRole.HOLDER,
+            List.of(
+                PipelinesAndOrgRoleGroupViewTestUtil.createMultiPipelineSingleOrgGroupView(
+                    Set.of(
+                        PIPELINE_1_SECTION_1,
+                        PipelineSection.from(
+                            // dodgy section
+                            PIPELINE_1_ID.getPipelineId(),
+                            2,
+                            PipelineIdentPoint.inclusivePoint(POINT_C),
+                            PipelineIdentPoint.inclusivePoint(POINT_B)
+                        ),
+                        PIPELINE_1_SECTION_3
+                    ),
+                    List.of(
+                        PIPELINE_1_NUMBER + "/1", PIPELINE_1_NUMBER + "/2", PIPELINE_1_NUMBER + "/3"
+                    ),
+                    organisationRoleOwnerDto1,
+                    ORGANISATION_UNIT_1_NAME
+                )
+            )
+        ),
+        PipelineHuooRoleSummaryViewTestUtil.createEmptyGroupWithNoUnassigned(HuooRole.USER),
+        PipelineHuooRoleSummaryViewTestUtil.createEmptyGroupWithNoUnassigned(HuooRole.OPERATOR),
+        PipelineHuooRoleSummaryViewTestUtil.createEmptyGroupWithNoUnassigned(HuooRole.OWNER)
+    );
+
+    var validationResult = padPipelinesHuooService.generatePipelineHuooValidationResult(pwaApplicationDetail, rolesByView);
+
+    assertThat(validationResult.isValid()).isFalse();
+    assertThat(validationResult.getValidationResult(HuooRole.HOLDER).hasErrors()).isTrue();
+    assertThat(validationResult.getValidationResult(HuooRole.HOLDER).getUnassignedPipelineErrorMessage()).isNull();
+    assertThat(validationResult.getValidationResult(HuooRole.HOLDER).getUnassignedRoleOwnerErrorMessage()).isNull();
+    assertThat(validationResult.getValidationResult(HuooRole.HOLDER).getInvalidSplitsErrorMessage()).contains(PIPELINE_1_NUMBER);
   }
 
   @Test
   public void generatePipelineHuooValidationResult_whenAllRolesAreValid() {
-
+    setupPipelineAndIdentView();
     var rolesByView = PipelineAndOrgRoleGroupViewsByRoleTestUtil.createFrom(
         PipelineHuooRoleSummaryViewTestUtil.createEmptyGroupWithNoUnassigned(HuooRole.HOLDER),
         PipelineHuooRoleSummaryViewTestUtil.createEmptyGroupWithNoUnassigned(HuooRole.USER),

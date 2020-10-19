@@ -2,8 +2,12 @@ package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views;
 
 import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
+import uk.co.ogauthority.pwa.model.view.PipelineAndIdentView;
 
 /**
  * Store all validation failure reasons about the pipeline huoo section.
@@ -14,23 +18,42 @@ public class PipelineHuooValidationResult {
 
   private boolean isValid;
 
-  public PipelineHuooValidationResult(PipelineAndOrgRoleGroupViewsByRole pipelineAndOrgRoleGroupViewsByRole) {
+  public PipelineHuooValidationResult(
+      PipelineAndOrgRoleGroupViewsByRole pipelineAndOrgRoleGroupViewsByRole,
+      List<PipelineAndIdentView> pipelineAndIdentViewList) {
+
+    var pipelineIdToPipelineAndView = pipelineAndIdentViewList
+        .stream()
+        .collect(Collectors.toMap(PipelineAndIdentView::getPipelineId, Function.identity()));
     // linked hash map to keep ordering of roles.
     this.validationResults = new LinkedHashMap<>();
     validationResults.put(
         HuooRole.HOLDER,
-        new PipelineHuooRoleValidationResult(pipelineAndOrgRoleGroupViewsByRole.getHolderRoleSummaryView()));
-    validationResults.put(
-        HuooRole.USER, new PipelineHuooRoleValidationResult(
-            pipelineAndOrgRoleGroupViewsByRole.getUserRoleSummaryView())
+        PipelineHuooRoleValidationResult.generateValidationResult(
+            pipelineAndOrgRoleGroupViewsByRole.getHolderRoleSummaryView(),
+            pipelineIdToPipelineAndView
+        )
     );
     validationResults.put(
-        HuooRole.OPERATOR, new PipelineHuooRoleValidationResult(
-            pipelineAndOrgRoleGroupViewsByRole.getOperatorRoleSummaryView())
+        HuooRole.USER,
+        PipelineHuooRoleValidationResult.generateValidationResult(
+            pipelineAndOrgRoleGroupViewsByRole.getUserRoleSummaryView(),
+            pipelineIdToPipelineAndView
+        )
     );
     validationResults.put(
-        HuooRole.OWNER, new PipelineHuooRoleValidationResult(
-            pipelineAndOrgRoleGroupViewsByRole.getOwnerRoleSummaryView())
+        HuooRole.OPERATOR,
+        PipelineHuooRoleValidationResult.generateValidationResult(
+            pipelineAndOrgRoleGroupViewsByRole.getOperatorRoleSummaryView(),
+            pipelineIdToPipelineAndView
+        )
+    );
+    validationResults.put(
+        HuooRole.OWNER,
+        PipelineHuooRoleValidationResult.generateValidationResult(
+            pipelineAndOrgRoleGroupViewsByRole.getOwnerRoleSummaryView(),
+            pipelineIdToPipelineAndView
+        )
     );
 
     this.isValid = validationResults.values().stream().noneMatch(PipelineHuooRoleValidationResult::hasErrors);

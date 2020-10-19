@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views;
 
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -50,6 +51,24 @@ public class PipelineHuooRoleSummaryView {
 
   public Set<PipelineIdentifier> getUnassignedPipelineIds() {
     return this.unassignedPipelineNumberMapForRole.keySet();
+  }
+
+  public Set<PipelineIdentifier> getAllPipelineIdentifiers() {
+    var pipelines = new HashSet<PipelineIdentifier>();
+    pipelines.addAll(this.getUnassignedPipelineIds());
+
+    this.pipelinesAndOrgRoleGroupViews.stream()
+        .flatMap(o -> o.getPipelineIdentifierSet().stream())
+        .collect(Collectors.toSet());
+
+    pipelines.addAll(
+        this.pipelinesAndOrgRoleGroupViews.stream()
+            .flatMap(o -> o.getPipelineIdentifierSet().stream())
+            .collect(Collectors.toSet())
+    );
+
+    return pipelines;
+
   }
 
   public Set<OrganisationUnitId> getUnassignedRoleOwnerOrganisationIds() {

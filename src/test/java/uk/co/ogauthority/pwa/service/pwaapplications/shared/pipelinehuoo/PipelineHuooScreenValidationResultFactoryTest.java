@@ -22,6 +22,7 @@ public class PipelineHuooScreenValidationResultFactoryTest {
 
   private static final String UNNASSIGNED_PIPELINE_ERROR = "pipeline_error";
   private static final String UNNASSIGNED_ROLE_ERROR = "role_error";
+  private static final String INVALID_SECTION_ERROR = "section_error";
 
   private PipelineHuooScreenValidationResultFactory factory;
 
@@ -71,16 +72,16 @@ public class PipelineHuooScreenValidationResultFactoryTest {
     var roleValidationResultMap = new LinkedHashMap<HuooRole, PipelineHuooRoleValidationResult>();
     roleValidationResultMap.put(
         HuooRole.HOLDER,
-        PipelineHuooRoleValidationResultTestUtil.invalidResult(UNNASSIGNED_PIPELINE_ERROR, UNNASSIGNED_ROLE_ERROR));
+        PipelineHuooRoleValidationResultTestUtil.invalidResultAsUnassigned(UNNASSIGNED_PIPELINE_ERROR, UNNASSIGNED_ROLE_ERROR));
     roleValidationResultMap.put(
         HuooRole.USER,
-        PipelineHuooRoleValidationResultTestUtil.invalidResult(UNNASSIGNED_PIPELINE_ERROR, UNNASSIGNED_ROLE_ERROR));
+        PipelineHuooRoleValidationResultTestUtil.invalidResultAsUnassigned(UNNASSIGNED_PIPELINE_ERROR, UNNASSIGNED_ROLE_ERROR));
     roleValidationResultMap.put(
         HuooRole.OPERATOR,
-        PipelineHuooRoleValidationResultTestUtil.invalidResult(UNNASSIGNED_PIPELINE_ERROR, UNNASSIGNED_ROLE_ERROR));
+        PipelineHuooRoleValidationResultTestUtil.invalidResultAsUnassigned(UNNASSIGNED_PIPELINE_ERROR, UNNASSIGNED_ROLE_ERROR));
     roleValidationResultMap.put(
         HuooRole.OWNER,
-        PipelineHuooRoleValidationResultTestUtil.invalidResult(UNNASSIGNED_PIPELINE_ERROR, UNNASSIGNED_ROLE_ERROR));
+        PipelineHuooRoleValidationResultTestUtil.invalidResultAsUnassigned(UNNASSIGNED_PIPELINE_ERROR, UNNASSIGNED_ROLE_ERROR));
 
     when(validationResult.getValidationResults()).thenReturn(roleValidationResultMap);
 
@@ -98,6 +99,39 @@ public class PipelineHuooScreenValidationResultFactoryTest {
 
         new ErrorItem(7, "huoo-OWNER-UNASSIGNED-PIPELINES", UNNASSIGNED_PIPELINE_ERROR + " "),
         new ErrorItem(8, "huoo-OWNER-UNASSIGNED-ROLES", UNNASSIGNED_ROLE_ERROR + " ")
+
+    );
+
+  }
+
+  @Test
+  public void createFromValidationResult_whenRoleInvalidDueToInvalidSections(){
+    var roleValidationResultMap = new LinkedHashMap<HuooRole, PipelineHuooRoleValidationResult>();
+    roleValidationResultMap.put(
+        HuooRole.HOLDER,
+        PipelineHuooRoleValidationResultTestUtil.invalidResultAsBadSection(INVALID_SECTION_ERROR));
+    roleValidationResultMap.put(
+        HuooRole.USER,
+        PipelineHuooRoleValidationResultTestUtil.invalidResultAsBadSection(INVALID_SECTION_ERROR));
+    roleValidationResultMap.put(
+        HuooRole.OPERATOR,
+        PipelineHuooRoleValidationResultTestUtil.invalidResultAsBadSection(INVALID_SECTION_ERROR));
+    roleValidationResultMap.put(
+        HuooRole.OWNER,
+        PipelineHuooRoleValidationResultTestUtil.invalidResultAsBadSection(INVALID_SECTION_ERROR));
+
+    when(validationResult.getValidationResults()).thenReturn(roleValidationResultMap);
+
+    var summary = factory.createFromValidationResult(validationResult);
+    assertThat(summary.getErrorItems()).containsExactly(
+        // these errors require ending space due to ErrorItem message having empty suffix attached by summary object constructor
+        new ErrorItem(1, "huoo-HOLDER-INVALID-SPLITS", INVALID_SECTION_ERROR + " "),
+
+        new ErrorItem(2, "huoo-USER-INVALID-SPLITS", INVALID_SECTION_ERROR + " "),
+
+        new ErrorItem(3, "huoo-OPERATOR-INVALID-SPLITS", INVALID_SECTION_ERROR + " "),
+
+        new ErrorItem(4, "huoo-OWNER-INVALID-SPLITS", INVALID_SECTION_ERROR + " ")
 
     );
 

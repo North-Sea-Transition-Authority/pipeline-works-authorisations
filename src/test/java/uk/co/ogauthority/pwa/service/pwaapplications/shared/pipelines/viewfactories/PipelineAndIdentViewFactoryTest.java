@@ -3,9 +3,12 @@ package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.viewfacto
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
-import static uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.viewfactories.PipelineAndIdentViewFactoryTest.ConsentedPipelineImportedIntoApplication.CONSENTED_PIPELINE_IMPORTED;
-import static uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.viewfactories.PipelineAndIdentViewFactoryTest.ConsentedPipelineImportedIntoApplication.NO_CONSENTED_PIPELINE_IMPORTED;
+import static uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.viewfactories.PipelineAndIdentViewFactoryTest.ConsentedPipelineImportedIntoApplication.CONSENTED_PIPELINE_EXISTS_AND_IMPORTED;
+import static uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.viewfactories.PipelineAndIdentViewFactoryTest.ConsentedPipelineImportedIntoApplication.CONSENTED_PIPELINE_EXISTS_NOT_IMPORTED;
+import static uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.viewfactories.PipelineAndIdentViewFactoryTest.ConsentedPipelineImportedIntoApplication.ONLY_APPLICATION_PIPELINE_EXISTS;
+import static uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.viewfactories.PipelineAndIdentViewFactoryTest.ConsentedPipelineImportedIntoApplication.ONLY_CONSENTED_PIPELINE_EXISTS;
 
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -36,19 +39,12 @@ public class PipelineAndIdentViewFactoryTest {
   private static final PipelineId PIPELINE_ID = new PipelineId(100);
 
   private static final PipelineId CONSENTED_PIPELINE_ID = new PipelineId(1);
-  private static final String CONSENTED_PIPELINE_NUMBER = "CONSENTED_PIPELINE";
   private static final PipelineId APPLICATION_NEW_PIPELINE_ID = new PipelineId(2);
-  private static final String APPLICATION_NEW_PIPELINE_NUMBER = "NEW_PIPELINE";
 
   private static final PipelineType CONSENTED_PIPELINE_TYPE = PipelineType.PRODUCTION_FLOWLINE;
   private static final PipelineType APPLICATION_NEW_PIPELINE_TYPE = PipelineType.GAS_LIFT_JUMPER;
 
   private static final PipelineType IMPORTED_CONSENTED_PIPELINE_TYPE = PipelineType.CONTROL_JUMPER;
-
-  private static final String POINT_A = "POINT A";
-  private static final String POINT_B = "POINT B";
-  private static final String POINT_C = "POINT C";
-  private static final String POINT_D = "POINT D";
 
   @Mock
   private PadPipelineService padPipelineService;
@@ -105,10 +101,51 @@ public class PipelineAndIdentViewFactoryTest {
   }
 
   @Test
+  public void getAllAppAndMasterPwaPipelineAndIdentLocations_whenBothAppAndConsentedModelHavePipelineData_andNoAppIdentsExist() {
+    // Make sure that if a pipeline is imported into app, but has all idents removed, we still return app version of pipeline.
+    setupPipelines(CONSENTED_PIPELINE_EXISTS_AND_IMPORTED);
+
+    var allAppAndMasterPwaPipelineIds = Set.of(APPLICATION_NEW_PIPELINE_ID, CONSENTED_PIPELINE_ID);
+
+    var consentedPipelineIdentViews = List.of(ident1View, ident2View, ident3View);
+    List<IdentView> importedConsentedPipelineIdentViews = Collections.emptyList();
+    List<IdentView> applicationNewPipelineIdentViews = Collections.emptyList();
+    var appPipelineIdentMap = Map.ofEntries(
+        Map.entry(CONSENTED_PIPELINE_ID, importedConsentedPipelineIdentViews),
+        Map.entry(APPLICATION_NEW_PIPELINE_ID, applicationNewPipelineIdentViews)
+    );
+
+    when(padPipelineIdentService.getApplicationIdentViewsForPipelines(allAppAndMasterPwaPipelineIds))
+        .thenReturn(appPipelineIdentMap);
+
+    var consentedPipelineIdentMap = Map.ofEntries(
+        // pretend Ident has been removed within the app so theres a difference in the lists
+        Map.entry(CONSENTED_PIPELINE_ID, consentedPipelineIdentViews)
+    );
+    when(pipelineDetailIdentService.getSortedPipelineIdentViewsForPipelines(allAppAndMasterPwaPipelineIds))
+        .thenReturn(consentedPipelineIdentMap);
+
+
+    var sortedResult = pipelineAndIdentViewFactory.getAllAppAndMasterPwaPipelineAndIdentViews(detail).stream()
+        .sorted(
+            Comparator.comparing(pipelineAndIdentViews -> pipelineAndIdentViews.getPipelineId().getPipelineIdAsInt()))
+        .collect(Collectors.toList());
+
+
+    assertThat(sortedResult).hasSize(2);
+    assertThat(sortedResult.get(0).getPipelineId()).isEqualTo(CONSENTED_PIPELINE_ID);
+    assertThat(sortedResult.get(0).getPipelineOverview()).isEqualTo(importedConsentedPipelineSummary);
+    assertThat(sortedResult.get(0).getSortedIdentViews()).isEmpty();
+
+    assertThat(sortedResult.get(1).getPipelineId()).isEqualTo(APPLICATION_NEW_PIPELINE_ID);
+    assertThat(sortedResult.get(1).getPipelineOverview()).isEqualTo(applicationNewPipelineSummary);
+    assertThat(sortedResult.get(1).getSortedIdentViews()).isEqualTo(applicationNewPipelineIdentViews);
+  }
+
+  @Test
   public void getAllAppAndMasterPwaPipelineAndIdentLocations_whenBothAppAndConsentedModelHavePipelineData() {
 
-    setupConsentedPipeline();
-    setupApplicationPipelines(CONSENTED_PIPELINE_IMPORTED);
+    setupPipelines(CONSENTED_PIPELINE_EXISTS_AND_IMPORTED);
 
     var allAppAndMasterPwaPipelineIds = Set.of(APPLICATION_NEW_PIPELINE_ID, CONSENTED_PIPELINE_ID);
 
@@ -149,8 +186,7 @@ public class PipelineAndIdentViewFactoryTest {
   @Test
   public void getAllAppAndMasterPwaPipelineAndIdentLocations_whenAppHasNoConsentedPipelineData() {
 
-    setupConsentedPipeline();
-    setupApplicationPipelines(NO_CONSENTED_PIPELINE_IMPORTED);
+    setupPipelines(CONSENTED_PIPELINE_EXISTS_NOT_IMPORTED);
 
     var allAppAndMasterPwaPipelineIds = Set.of(APPLICATION_NEW_PIPELINE_ID, CONSENTED_PIPELINE_ID);
 
@@ -189,7 +225,7 @@ public class PipelineAndIdentViewFactoryTest {
   @Test
   public void getAllAppAndMasterPwaPipelineAndIdentLocations_whenOnlyConsentedPipeline() {
 
-    setupConsentedPipeline();
+    setupPipelines(ONLY_CONSENTED_PIPELINE_EXISTS);
 
     var allAppAndMasterPwaPipelineIds = Set.of(CONSENTED_PIPELINE_ID);
 
@@ -215,8 +251,7 @@ public class PipelineAndIdentViewFactoryTest {
 
   @Test
   public void getAllPipelineOverviewsFromAppAndMasterPwa_returnsApplicationVersionOfImportedPipeline() {
-    setupApplicationPipelines(CONSENTED_PIPELINE_IMPORTED);
-    setupConsentedPipeline();
+    setupPipelines(CONSENTED_PIPELINE_EXISTS_AND_IMPORTED);
 
     var allPipelinesMap = pipelineAndIdentViewFactory.getAllPipelineOverviewsFromAppAndMasterPwa(detail);
 
@@ -234,7 +269,7 @@ public class PipelineAndIdentViewFactoryTest {
   @Test
   public void getAllPipelineOverviewsFromAppAndMasterPwa_containsConsentedPipelineDetails_whenNoAppPipeline_andNoImportedPipeline() {
 
-    setupConsentedPipeline();
+    setupPipelines(ONLY_CONSENTED_PIPELINE_EXISTS);
 
     var allPipelinesMap = pipelineAndIdentViewFactory.getAllPipelineOverviewsFromAppAndMasterPwa(detail);
 
@@ -249,7 +284,7 @@ public class PipelineAndIdentViewFactoryTest {
   @Test
   public void getAllPipelineOverviewsFromAppAndMasterPwa_containsAppPipelineDetails_whenNoConsentedPipeline() {
 
-    setupApplicationPipelines(NO_CONSENTED_PIPELINE_IMPORTED);
+    setupPipelines(ONLY_APPLICATION_PIPELINE_EXISTS);
 
     var allPipelinesMap = pipelineAndIdentViewFactory.getAllPipelineOverviewsFromAppAndMasterPwa(detail);
 
@@ -301,34 +336,55 @@ public class PipelineAndIdentViewFactoryTest {
     assertThat(options).isEmpty();
   }
 
-  private void setupConsentedPipeline() {
+  private void setupPipelines(ConsentedPipelineImportedIntoApplication consentedPipelineImportedIntoApplication) {
     when(consentedPipelineOverview.getPipelineId()).thenReturn(CONSENTED_PIPELINE_ID.asInt());
     when(consentedPipelineOverview.getPipelineType()).thenReturn(CONSENTED_PIPELINE_TYPE);
-    when(pipelineDetailService.getAllPipelineOverviewsForMasterPwa(detail.getPwaApplication().getMasterPwa()))
-        .thenReturn(List.of(consentedPipelineOverview));
+    when(consentedPipelineOverview.getPadPipelineId()).thenReturn(null);
 
-  }
-
-  private void setupApplicationPipelines(ConsentedPipelineImportedIntoApplication consentedPipelineImportedIntoApplication) {
     when(applicationNewPipelineSummary.getPipelineId()).thenReturn(APPLICATION_NEW_PIPELINE_ID.asInt());
     when(applicationNewPipelineSummary.getPipelineType()).thenReturn(APPLICATION_NEW_PIPELINE_TYPE);
+    when(applicationNewPipelineSummary.getPadPipelineId()).thenReturn(998);
 
     // same pipeline as consented pipeline but within the application with a different type
     when(importedConsentedPipelineSummary.getPipelineId()).thenReturn(CONSENTED_PIPELINE_ID.asInt());
     when(importedConsentedPipelineSummary.getPipelineType()).thenReturn(IMPORTED_CONSENTED_PIPELINE_TYPE);
+    when(importedConsentedPipelineSummary.getPadPipelineId()).thenReturn(999);
 
-    if (consentedPipelineImportedIntoApplication.equals(CONSENTED_PIPELINE_IMPORTED)) {
-      when(padPipelineService.getApplicationPipelineOverviews(detail))
-          .thenReturn(List.of(importedConsentedPipelineSummary, applicationNewPipelineSummary));
-    } else {
-      when(padPipelineService.getApplicationPipelineOverviews(detail))
-          .thenReturn(List.of(applicationNewPipelineSummary));
+
+    switch(consentedPipelineImportedIntoApplication){
+      case CONSENTED_PIPELINE_EXISTS_AND_IMPORTED:
+        when(padPipelineService.getApplicationPipelineOverviews(detail))
+            .thenReturn(List.of(importedConsentedPipelineSummary, applicationNewPipelineSummary));
+        when(pipelineDetailService.getAllPipelineOverviewsForMasterPwa(detail.getPwaApplication().getMasterPwa()))
+            .thenReturn(List.of(consentedPipelineOverview));
+        break;
+      case CONSENTED_PIPELINE_EXISTS_NOT_IMPORTED:
+        when(padPipelineService.getApplicationPipelineOverviews(detail))
+            .thenReturn(List.of(applicationNewPipelineSummary));
+        when(pipelineDetailService.getAllPipelineOverviewsForMasterPwa(detail.getPwaApplication().getMasterPwa()))
+            .thenReturn(List.of(consentedPipelineOverview));
+        break;
+      case ONLY_APPLICATION_PIPELINE_EXISTS:
+        when(padPipelineService.getApplicationPipelineOverviews(detail))
+            .thenReturn(List.of(applicationNewPipelineSummary));
+        when(pipelineDetailService.getAllPipelineOverviewsForMasterPwa(detail.getPwaApplication().getMasterPwa()))
+            .thenReturn(List.of());
+        break;
+      case ONLY_CONSENTED_PIPELINE_EXISTS:
+        when(padPipelineService.getApplicationPipelineOverviews(detail))
+            .thenReturn(List.of());
+        when(pipelineDetailService.getAllPipelineOverviewsForMasterPwa(detail.getPwaApplication().getMasterPwa()))
+            .thenReturn(List.of(consentedPipelineOverview));
+        break;
     }
+
   }
 
   enum ConsentedPipelineImportedIntoApplication {
-    CONSENTED_PIPELINE_IMPORTED,
-    NO_CONSENTED_PIPELINE_IMPORTED
+    CONSENTED_PIPELINE_EXISTS_AND_IMPORTED,
+    CONSENTED_PIPELINE_EXISTS_NOT_IMPORTED,
+    ONLY_CONSENTED_PIPELINE_EXISTS,
+    ONLY_APPLICATION_PIPELINE_EXISTS
   }
 
 }
