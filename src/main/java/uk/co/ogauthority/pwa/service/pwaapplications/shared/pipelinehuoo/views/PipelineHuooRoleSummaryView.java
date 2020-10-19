@@ -8,7 +8,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import uk.co.ogauthority.pwa.model.dto.consents.OrganisationRoleOwnerDto;
 import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
-import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
+import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineIdentifier;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooType;
 import uk.co.ogauthority.pwa.model.entity.enums.TreatyAgreement;
@@ -19,7 +19,7 @@ public class PipelineHuooRoleSummaryView {
 
   private final List<PipelinesAndOrgRoleGroupView> pipelinesAndOrgRoleGroupViews;
 
-  private final Map<PipelineId, String> unassignedPipelineNumberMapForRole;
+  private final Map<PipelineIdentifier, String> unassignedPipelineNumberMapForRole;
 
   private final Map<OrganisationRoleOwnerDto, String> unassignedOrganisationRoleOwnerNameMapForRole;
 
@@ -28,7 +28,7 @@ public class PipelineHuooRoleSummaryView {
 
   PipelineHuooRoleSummaryView(HuooRole huooRole,
                               List<PipelinesAndOrgRoleGroupView> pipelinesAndOrgRoleGroupViews,
-                              Map<PipelineId, String> unassignedPipelineNumberMapForRole,
+                              Map<PipelineIdentifier, String> unassignedPipelineNumberMapForRole,
                               Map<OrganisationRoleOwnerDto, String> unassignedOrganisationRoleOwnerNameMapForRole) {
     this.huooRole = huooRole;
     this.pipelinesAndOrgRoleGroupViews = pipelinesAndOrgRoleGroupViews.stream()
@@ -48,7 +48,7 @@ public class PipelineHuooRoleSummaryView {
         .collect(Collectors.toList());
   }
 
-  public Set<PipelineId> getUnassignedPipelineIds() {
+  public Set<PipelineIdentifier> getUnassignedPipelineIds() {
     return this.unassignedPipelineNumberMapForRole.keySet();
   }
 
@@ -78,7 +78,7 @@ public class PipelineHuooRoleSummaryView {
     return Collections.unmodifiableList(pipelinesAndOrgRoleGroupViews);
   }
 
-  Map<PipelineId, String> getUnassignedPipelineNumberMapForRole() {
+  Map<PipelineIdentifier, String> getUnassignedPipelineNumberMapForRole() {
     return Collections.unmodifiableMap(unassignedPipelineNumberMapForRole);
   }
 

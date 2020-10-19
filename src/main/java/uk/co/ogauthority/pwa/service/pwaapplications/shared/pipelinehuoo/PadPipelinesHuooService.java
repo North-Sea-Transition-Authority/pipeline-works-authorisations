@@ -156,7 +156,7 @@ public class PadPipelinesHuooService implements ApplicationFormSectionService {
                                                                          HuooRole huooRole,
                                                                          Set<OrganisationUnitId> organisationUnitIds,
                                                                          Set<TreatyAgreement> treatyAgreements) {
-    return padOrganisationRoleService.getOrgRolesForDetailByRole(
+    return padOrganisationRoleService.getAssignableOrgRolesForDetailByRole(
         pwaApplicationDetail,
         huooRole
     )
@@ -266,7 +266,7 @@ public class PadPipelinesHuooService implements ApplicationFormSectionService {
 
     var searchOrgRoleOwners = createRoleOwnersFrom(organisationUnitIds, treatyAgreements);
 
-    var allOrgRoleInstancesForRole = padOrganisationRoleService.getOrganisationRoleInstanceDtosByRole(
+    var allOrgRoleInstancesForRole = padOrganisationRoleService.getAssignableOrganisationRoleInstanceDtosByRole(
         pwaApplicationDetail, huooRole);
 
     return allOrgRoleInstancesForRole.stream()

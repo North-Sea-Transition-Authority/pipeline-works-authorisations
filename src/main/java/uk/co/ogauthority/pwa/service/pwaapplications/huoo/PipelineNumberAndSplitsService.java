@@ -14,11 +14,21 @@ import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineSummaryAndSplit;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.huoosummary.PipelineNumbersAndSplits;
 
+/**
+ * Contains the logical template for comparing whole pipelines and HUOO pipeline links to determine split pipelines.
+ */
 @Service
 public class PipelineNumberAndSplitsService {
 
-
-
+  /**
+   * <p>From some supplied map of potentially "split" pipeline Ids to pipeline overviews and some supplied set of
+   * PipelineIdentifiers describing split sections of pipelines in the first Map, return a new map from the PipelineIdentifier
+   * to the split information.</p>
+   *
+   * <p>For pipelinesIds in the first map which are not present in the supplied "split" pipelines set, there will be one entry.
+   * For pipelinesIds in the first map which are present in the supplied "split" pipelines set, there will only be entries for that pipeline
+   * in the result map for the individual sections.</p>
+   */
   public Map<PipelineIdentifier, PipelineNumbersAndSplits> getAllPipelineNumbersAndSplitsRole(
       Supplier<Map<PipelineId, PipelineOverview>> getSplittablePipelines,
       Supplier<Set<PipelineIdentifier>> getSplitPipelines) {

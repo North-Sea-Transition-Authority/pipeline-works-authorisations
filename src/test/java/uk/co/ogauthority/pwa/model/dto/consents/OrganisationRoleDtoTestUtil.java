@@ -162,4 +162,13 @@ public class OrganisationRoleDtoTestUtil {
         huooRole,
         HuooType.TREATY_AGREEMENT);
   }
+
+  public static OrganisationRoleInstanceDto createUnassignedPipelineSectionRoleInstance(HuooRole huooRole){
+    return new OrganisationRoleInstanceDto(
+        null,
+        null,
+        null,
+        huooRole,
+        HuooType.UNASSIGNED_PIPELINE_SPLIT);
+  }
 }

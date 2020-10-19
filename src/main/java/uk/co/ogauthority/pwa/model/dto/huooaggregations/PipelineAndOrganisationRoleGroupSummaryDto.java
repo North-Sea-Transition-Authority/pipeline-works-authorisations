@@ -13,6 +13,7 @@ import uk.co.ogauthority.pwa.model.dto.consents.OrganisationPipelineRoleInstance
 import uk.co.ogauthority.pwa.model.dto.consents.OrganisationRoleOwnerDto;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineIdentifier;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
+import uk.co.ogauthority.pwa.model.entity.enums.HuooType;
 
 /**
  * Summarises all the organisation roles for a pwa groups pipelines are organisations where the role relationships are the same
@@ -43,6 +44,7 @@ public class PipelineAndOrganisationRoleGroupSummaryDto {
 
     // Do an initial grouping of organisation role instances by HUOO role
     Map<HuooRole, Set<OrganisationPipelineRoleInstanceDto>> orgPipelineRolesByType = portalOrganisationPipelineRoleInstanceDtos.stream()
+        .filter(orgPipelineRoleInstanceDto -> !orgPipelineRoleInstanceDto.getHuooType().equals(HuooType.UNASSIGNED_PIPELINE_SPLIT))
         .collect(groupingBy(
             OrganisationPipelineRoleInstanceDto::getHuooRole,
             Collectors.mapping(o -> o, Collectors.toSet())
@@ -69,13 +71,16 @@ public class PipelineAndOrganisationRoleGroupSummaryDto {
 
     // loop through non-aggregated organisation roles for pipelines and extract distinct organisation units and
     // distinct top level pipeline ids.
-    portalOrganisationPipelineRoleInstanceDtos.forEach(o -> {
-      this.allPipelineIdentifiersInSummary.add(o.getPipelineIdentifier());
-      this.pipelinesByAssociatedRole.get(o.getHuooRole()).add(o.getPipelineIdentifier());
-      this.allOrganisationRoleOwnersInSummary.add(o.getOrganisationRoleInstanceDto().getOrganisationRoleOwnerDto());
-      this.organisationsRoleOwnersByAssociatedRole.get(o.getHuooRole()).add(
-          o.getOrganisationRoleInstanceDto().getOrganisationRoleOwnerDto());
-    });
+    portalOrganisationPipelineRoleInstanceDtos
+        .stream()
+        .filter(orgPipelineRoleInstanceDto -> !orgPipelineRoleInstanceDto.getHuooType().equals(HuooType.UNASSIGNED_PIPELINE_SPLIT))
+        .forEach(o -> {
+          this.allPipelineIdentifiersInSummary.add(o.getPipelineIdentifier());
+          this.pipelinesByAssociatedRole.get(o.getHuooRole()).add(o.getPipelineIdentifier());
+          this.allOrganisationRoleOwnersInSummary.add(o.getOrganisationRoleInstanceDto().getOrganisationRoleOwnerDto());
+          this.organisationsRoleOwnersByAssociatedRole.get(o.getHuooRole()).add(
+              o.getOrganisationRoleInstanceDto().getOrganisationRoleOwnerDto());
+        });
   }
 
   /**

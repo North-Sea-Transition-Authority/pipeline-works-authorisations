@@ -58,6 +58,7 @@ import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.huoosummary.AllOrgRolePipelineGroupsView;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.huoosummary.OrganisationRolePipelineGroupView;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.huoosummary.PipelineNumbersAndSplits;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
 import uk.co.ogauthority.pwa.validators.huoo.HuooValidationView;
 
@@ -96,12 +97,23 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
     return padOrganisationRolesRepository.getAllByPwaApplicationDetail(pwaApplicationDetail);
   }
 
-  public List<PadOrganisationRole> getOrgRolesForDetailByRole(
+  public List<PadOrganisationRole> getAllAssignableAndNonAssignableOrgRolesForDetailByRole(
       PwaApplicationDetail pwaApplicationDetail,
       HuooRole huooRole) {
     // performance is probably fine due to the relatively small numbers of roles expected per application on average
     return padOrganisationRolesRepository.getAllByPwaApplicationDetail(pwaApplicationDetail)
         .stream()
+        .filter(por -> por.getRole().equals(huooRole))
+        .collect(toList());
+  }
+
+  public List<PadOrganisationRole> getAssignableOrgRolesForDetailByRole(
+      PwaApplicationDetail pwaApplicationDetail,
+      HuooRole huooRole) {
+    // performance is probably fine due to the relatively small numbers of roles expected per application on average
+    return getAllAssignableAndNonAssignableOrgRolesForDetailByRole(pwaApplicationDetail, huooRole)
+        .stream()
+        .filter(por -> !por.getType().equals(HuooType.UNASSIGNED_PIPELINE_SPLIT))
         .filter(por -> por.getRole().equals(huooRole))
         .collect(toList());
   }
@@ -122,17 +134,19 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
         .orElseThrow(() -> new PwaEntityNotFoundException("Unable to find org role with ID: " + id));
   }
 
-  public Set<OrganisationRoleInstanceDto> getOrganisationRoleDtos(PwaApplicationDetail pwaApplicationDetail) {
-    return new HashSet<>(
-        padOrganisationRolesRepository.findOrganisationRoleDtoByPwaApplicationDetail(pwaApplicationDetail)
-    );
+  public Set<OrganisationRoleInstanceDto> getAssignableOrganisationRoleDtos(PwaApplicationDetail pwaApplicationDetail) {
+    return  padOrganisationRolesRepository.findOrganisationRoleDtoByPwaApplicationDetail(pwaApplicationDetail)
+        .stream()
+        .filter(o -> !o.getHuooType().equals(HuooType.UNASSIGNED_PIPELINE_SPLIT))
+        .collect(toSet());
+
 
   }
 
-  public Set<OrganisationRoleInstanceDto> getOrganisationRoleInstanceDtosByRole(
+  public Set<OrganisationRoleInstanceDto> getAssignableOrganisationRoleInstanceDtosByRole(
       PwaApplicationDetail pwaApplicationDetail,
       HuooRole huooRole) {
-    return getOrganisationRoleDtos(pwaApplicationDetail).stream()
+    return getAssignableOrganisationRoleDtos(pwaApplicationDetail).stream()
         .filter(o -> huooRole.equals(o.getHuooRole()))
         .collect(Collectors.toSet());
 
@@ -511,6 +525,39 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
         .collect(toSet());
   }
 
+  public Map<PipelineIdentifier, PipelineNumbersAndSplits> getAllPipelineNumbersAndSplitsForRole(
+      PwaApplicationDetail pwaApplicationDetail,
+      HuooRole huooRole
+  ) {
+    return pipelineNumberAndSplitsService.getAllPipelineNumbersAndSplitsRole(
+        () -> padPipelineService.getAllPipelineOverviewsFromAppAndMasterPwa(pwaApplicationDetail),
+        () -> getPipelineSplitsForRole(pwaApplicationDetail, huooRole)
+    );
+  }
+
+  public Set<PipelineIdentifier> getUnassignedPipelineIdentifiersForRole(PwaApplicationDetail pwaApplicationDetail,
+                                                                          HuooRole huooRole) {
+
+    var allPipelineSplitInfoForRole = getAllPipelineNumbersAndSplitsForRole(pwaApplicationDetail, huooRole);
+
+    var pipelineIdentifiersWithAssignedRoles = padPipelineOrganisationRoleLinkRepository
+        .findByPadOrgRole_pwaApplicationDetailAndPadOrgRole_Role(pwaApplicationDetail, huooRole)
+        .stream()
+        .filter(r -> !r.getPadOrgRole().getType().equals(HuooType.UNASSIGNED_PIPELINE_SPLIT))
+        .map(PadPipelineOrganisationRoleLink::getPipelineIdentifier)
+        .collect(toSet());
+
+    var unassignedPipelineIdentifierForRole = new HashSet<PipelineIdentifier>();
+    allPipelineSplitInfoForRole.keySet().forEach(pipelineIdentifier -> {
+      if (!pipelineIdentifiersWithAssignedRoles.contains(pipelineIdentifier)) {
+        unassignedPipelineIdentifierForRole.add(pipelineIdentifier);
+      }
+
+    });
+
+    return unassignedPipelineIdentifierForRole;
+  }
+
   public boolean canShowHolderGuidance(PwaApplicationDetail pwaApplicationDetail) {
     return pwaApplicationDetail.getPwaApplicationType().equals(PwaApplicationType.INITIAL);
   }
@@ -606,7 +653,7 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
   @Transactional
   public PadOrganisationRole getOrCreateUnassignedPipelineSplitRole(PwaApplicationDetail pwaApplicationDetail,
                                                                      HuooRole huooRole) {
-    var unassignedPipelineSplitRole =  getOrgRolesForDetailByRole(pwaApplicationDetail, huooRole)
+    var unassignedPipelineSplitRole =  getAllAssignableAndNonAssignableOrgRolesForDetailByRole(pwaApplicationDetail, huooRole)
         .stream()
         .filter(role -> HuooType.UNASSIGNED_PIPELINE_SPLIT.equals(role.getType()))
         .findFirst()
@@ -623,6 +670,7 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
         pwaApplicationDetail, huooRole, Set.of(pipelineId.asInt())
     );
   }
+
 
   private List<OrganisationRolePipelineGroupView> getOrgRolePipelineGroupView(
       PwaApplicationDetail pwaApplicationDetail,
