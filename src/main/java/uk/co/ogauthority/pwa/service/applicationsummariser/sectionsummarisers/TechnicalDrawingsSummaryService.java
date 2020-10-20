@@ -50,8 +50,8 @@ public class TechnicalDrawingsSummaryService implements ApplicationSectionSummar
         ApplicationTask.TECHNICAL_DRAWINGS);
 
     return taskListService.anyTaskShownForApplication(taskFilter, pwaApplicationDetail)
-        && admiraltyChartFileService.canUploadDocuments(pwaApplicationDetail)
-        && umbilicalCrossSectionService.canUploadDocuments(pwaApplicationDetail);
+        && (admiraltyChartFileService.canUploadDocuments(pwaApplicationDetail)
+        || umbilicalCrossSectionService.canUploadDocuments(pwaApplicationDetail));
   }
 
   @Override
