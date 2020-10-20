@@ -218,7 +218,7 @@ public class BlockCrossingControllerTest extends PwaApplicationContextAbstractCo
             .params(getValidAddBlockFormAsMap()))
         .andExpect(status().is3xxRedirection());
 
-    verify(addBlockCrossingFormValidator, times(1)).validate(any(), any());
+    verify(addBlockCrossingFormValidator, times(1)).validate(any(), any(), any(), any());
 
   }
 
@@ -238,7 +238,7 @@ public class BlockCrossingControllerTest extends PwaApplicationContextAbstractCo
             .with(csrf())
             .params(new LinkedMultiValueMap<>()))
         .andExpect(status().isOk());
-    verify(addBlockCrossingFormValidator, times(1)).validate(any(), any());
+    verify(addBlockCrossingFormValidator, times(1)).validate(any(), any(), any(), any());
 
   }
 

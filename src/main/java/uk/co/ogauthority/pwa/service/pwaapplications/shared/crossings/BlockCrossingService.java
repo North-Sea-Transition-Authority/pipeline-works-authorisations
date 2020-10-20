@@ -261,6 +261,13 @@ public class BlockCrossingService implements ApplicationFormSectionService {
     throw new ActionNotAllowedException("This service shouldn't be validated against yet");
   }
 
+  public boolean doesBlockExistOnApp(PwaApplicationDetail pwaApplicationDetail, String blockReference) {
+    var pearsBlock = pearsBlockService.getExtantOrUnlicensedOffshorePearsBlockByCompositeKeyOrError(
+        blockReference);
+    return padCrossedBlockRepository.countPadCrossedBlockByPwaApplicationDetailAndBlockReference(
+       pwaApplicationDetail, pearsBlock.getBlockReference()) > 0;
+  }
+
   @Transactional
   @Override
   public void copySectionInformation(PwaApplicationDetail fromDetail, PwaApplicationDetail toDetail) {

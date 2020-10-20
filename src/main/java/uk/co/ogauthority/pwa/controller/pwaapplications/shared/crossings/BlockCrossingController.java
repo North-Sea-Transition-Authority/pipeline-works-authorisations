@@ -146,7 +146,7 @@ public class BlockCrossingController {
       BindingResult bindingResult,
       PwaApplicationContext applicationContext) {
 
-    addBlockCrossingFormValidator.validate(form, bindingResult);
+    addBlockCrossingFormValidator.validate(form, bindingResult, applicationContext.getApplicationDetail(), blockCrossingService);
 
     return controllerHelperService.checkErrorsAndRedirect(
         bindingResult,
