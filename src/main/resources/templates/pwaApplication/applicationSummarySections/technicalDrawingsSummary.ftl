@@ -7,7 +7,7 @@
 
 
 <div class="pwa-application-summary-section">
-    <#if canShowAdmiraltyChart && canShowUmbilicalCrossSection>
+    <#if canShowAdmiraltyChart || canShowUmbilicalCrossSection>
         <h2 class="govuk-heading-l" id="technicalDrawings">${sectionDisplayText}</h2>
     
         <#if canShowAdmiraltyChart>
