@@ -386,26 +386,22 @@ public class BlockCrossingServiceTest {
   @Test
   public void doesBlockExistOnApp_exists() {
     var pearsBlock = new PearsBlock(null, null, "ref", null, null, null, null);
-    when(pearsBlockService.getExtantOrUnlicensedOffshorePearsBlockByCompositeKeyOrError(
-        "full-reference")).thenReturn(pearsBlock);
 
     when(padCrossedBlockRepository.countPadCrossedBlockByPwaApplicationDetailAndBlockReference(
         pwaApplicationDetail, pearsBlock.getBlockReference())).thenReturn(1);
 
-    var doesBlockExistOnApp = blockCrossingService.doesBlockExistOnApp(pwaApplicationDetail, "full-reference");
+    var doesBlockExistOnApp = blockCrossingService.doesBlockExistOnApp(pwaApplicationDetail, pearsBlock);
     assertThat(doesBlockExistOnApp).isTrue();
   }
 
   @Test
   public void doesBlockExistOnApp_doesNotExist() {
     var pearsBlock = new PearsBlock(null, null, "ref", null, null, null, null);
-    when(pearsBlockService.getExtantOrUnlicensedOffshorePearsBlockByCompositeKeyOrError(
-        "full-reference")).thenReturn(pearsBlock);
 
     when(padCrossedBlockRepository.countPadCrossedBlockByPwaApplicationDetailAndBlockReference(
         pwaApplicationDetail, pearsBlock.getBlockReference())).thenReturn(0);
 
-    var doesBlockExistOnApp = blockCrossingService.doesBlockExistOnApp(pwaApplicationDetail, "full-reference");
+    var doesBlockExistOnApp = blockCrossingService.doesBlockExistOnApp(pwaApplicationDetail, pearsBlock);
     assertThat(doesBlockExistOnApp).isFalse();
   }
 

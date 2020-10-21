@@ -22,6 +22,7 @@ import uk.co.ogauthority.pwa.exception.ActionNotAllowedException;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.files.ApplicationDetailFilePurpose;
+import uk.co.ogauthority.pwa.model.entity.licence.PearsBlock;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.CrossedBlockOwner;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.PadCrossedBlock;
@@ -261,9 +262,7 @@ public class BlockCrossingService implements ApplicationFormSectionService {
     throw new ActionNotAllowedException("This service shouldn't be validated against yet");
   }
 
-  public boolean doesBlockExistOnApp(PwaApplicationDetail pwaApplicationDetail, String blockReference) {
-    var pearsBlock = pearsBlockService.getExtantOrUnlicensedOffshorePearsBlockByCompositeKeyOrError(
-        blockReference);
+  public boolean doesBlockExistOnApp(PwaApplicationDetail pwaApplicationDetail, PearsBlock pearsBlock) {
     return padCrossedBlockRepository.countPadCrossedBlockByPwaApplicationDetailAndBlockReference(
        pwaApplicationDetail, pearsBlock.getBlockReference()) > 0;
   }
