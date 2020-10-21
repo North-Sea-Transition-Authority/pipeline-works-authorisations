@@ -23,6 +23,7 @@ import uk.co.ogauthority.pwa.model.form.consultation.AssignCaseOfficerForm;
 import uk.co.ogauthority.pwa.model.notify.emailproperties.CaseOfficerAssignedEmailProps;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationWorkflowTask;
 import uk.co.ogauthority.pwa.service.notify.NotifyService;
@@ -99,8 +100,8 @@ public class AssignCaseOfficerServiceTest {
 
   @Test
   public void canShowInTaskList_hasPermission() {
-
-    var processingContext = new PwaAppProcessingContext(null, null, Set.of(PwaAppProcessingPermission.ASSIGN_CASE_OFFICER), null);
+    appDetail.setStatus(PwaApplicationStatus.CASE_OFFICER_REVIEW);
+    var processingContext = new PwaAppProcessingContext(appDetail, null, Set.of(PwaAppProcessingPermission.ASSIGN_CASE_OFFICER), null);
 
     boolean canShow = assignCaseOfficerService.canShowInTaskList(processingContext);
 
@@ -112,6 +113,17 @@ public class AssignCaseOfficerServiceTest {
   public void canShowInTaskList_noPermission() {
 
     var processingContext = new PwaAppProcessingContext(null, null, Set.of(), null);
+
+    boolean canShow = assignCaseOfficerService.canShowInTaskList(processingContext);
+
+    assertThat(canShow).isFalse();
+
+  }
+
+  @Test
+  public void canShowInTaskList_hasPermissionWithIncorrectStatus() {
+    appDetail.setStatus(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW);
+    var processingContext = new PwaAppProcessingContext(appDetail, null, Set.of(PwaAppProcessingPermission.ASSIGN_CASE_OFFICER), null);
 
     boolean canShow = assignCaseOfficerService.canShowInTaskList(processingContext);
 
