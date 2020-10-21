@@ -8,6 +8,7 @@
 <#-- @ftlvariable name="screenActionType" type="uk.co.ogauthority.pwa.model.form.enums.ScreenActionType" -->
 <#-- @ftlvariable name="errorList" type="java.util.List<uk.co.ogauthority.pwa.model.form.fds.ErrorItem>" -->
 <#-- @ftlvariable name="pipelineNumber" type="String" -->
+<#-- @ftlvariable name="pipelineStatus" type="uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineStatus" -->
 
 <@defaultPage htmlTitle="${screenActionType.actionText} ${pipelineNumber!} pipeline" pageHeading="${screenActionType.actionText} ${pipelineNumber!} pipeline" breadcrumbs=true>
 
@@ -108,6 +109,10 @@
             </@fdsRadio.radioGroup>
 
         </@fdsFieldset.fieldset>
+
+        <#if pipelineStatus == "OUT_OF_USE_ON_SEABED">
+            <@fdsTextarea.textarea path="form.whyNotReturnedToShore" labelText="Why is the pipeline not being returned to shore?" characterCount=true maxCharacterLength="4000"/>
+        </#if>
 
         <@fdsAction.submitButtons linkSecondaryAction=true primaryButtonText="${screenActionType.submitButtonText} pipeline" secondaryLinkText="Cancel" linkSecondaryActionUrl=springUrl(cancelUrl)/>
 

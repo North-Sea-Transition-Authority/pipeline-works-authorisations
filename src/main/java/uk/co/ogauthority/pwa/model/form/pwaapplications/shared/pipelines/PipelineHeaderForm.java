@@ -37,6 +37,8 @@ public class PipelineHeaderForm {
   private Boolean pipelineInBundle;
   private String bundleName;
 
+  private String whyNotReturnedToShore;
+
 
 
   public PipelineHeaderForm() {
@@ -169,5 +171,13 @@ public class PipelineHeaderForm {
 
   public void setBundleName(String bundleName) {
     this.bundleName = bundleName;
+  }
+
+  public String getWhyNotReturnedToShore() {
+    return whyNotReturnedToShore;
+  }
+
+  public void setWhyNotReturnedToShore(String whyNotReturnedToShore) {
+    this.whyNotReturnedToShore = whyNotReturnedToShore;
   }
 }

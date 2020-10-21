@@ -265,6 +265,8 @@ public class PadPipelineService implements ApplicationFormSectionService {
       padPipeline.setBundleName(null);
     }
 
+    padPipeline.setPipelineStatusReason(form.getWhyNotReturnedToShore());
+
     padPipelinePersisterService.savePadPipelineAndMaterialiseIdentData(padPipeline);
   }
 
@@ -297,6 +299,9 @@ public class PadPipelineService implements ApplicationFormSectionService {
 
     form.setPipelineInBundle(pipeline.getPipelineInBundle());
     form.setBundleName(pipeline.getBundleName());
+    if (pipeline.getPipelineStatus().equals(PipelineStatus.OUT_OF_USE_ON_SEABED)) {
+      form.setWhyNotReturnedToShore(pipeline.getPipelineStatusReason());
+    }
 
   }
 

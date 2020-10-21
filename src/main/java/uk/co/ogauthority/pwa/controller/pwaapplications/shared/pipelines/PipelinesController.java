@@ -144,7 +144,8 @@ public class PipelinesController {
         .addObject("pipelineFlexibilityTypes", PipelineFlexibility.asList())
         .addObject("pipelineMaterialTypes", PipelineMaterial.asList())
         .addObject("bundleNameRestUrl", SearchSelectorService.route(on(PipelineRestController.class)
-            .searchBundleNames(detail.getMasterPwaApplicationId(), null, null)));
+            .searchBundleNames(detail.getMasterPwaApplicationId(), null, null)))
+        .addObject("pipelineStatus", pipeline.getPipelineStatus());
 
     breadcrumbService.fromPipelinesOverview(detail.getPwaApplication(), modelAndView,
         type.getSubmitButtonText() + " pipeline");
@@ -218,8 +219,8 @@ public class PipelinesController {
 
     return PipelineControllerRouteUtils.ifAllowedFromOverviewOrError(applicationContext, redirectAttributes, () -> {
 
-      pipelineHeaderFormValidator.validate(form, bindingResult, applicationContext);
       var pipeline = applicationContext.getPadPipeline();
+      pipelineHeaderFormValidator.validate(form, bindingResult, pipeline);
 
       return controllerHelperService.checkErrorsAndRedirect(bindingResult,
           getAddEditPipelineModelAndView(applicationContext.getApplicationDetail(), ScreenActionType.EDIT, pipeline),

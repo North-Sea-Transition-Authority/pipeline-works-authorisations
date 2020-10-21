@@ -103,6 +103,12 @@
             </@fdsCheckAnswers.checkAnswersRow>
         </#if>
 
+        <#if pipelineHeader.PipelineHeaderView_pipelineStatus?has_content && pipelineHeader.PipelineHeaderView_pipelineStatus.currentValue?lower_case == "out of use but left on the seabed">
+            <@fdsCheckAnswers.checkAnswersRow keyText="Why is the pipeline not being returned to shore?" actionUrl="" screenReaderActionText="" actionText="">
+                 <@diffChanges.renderDiff diffedField=pipelineHeader.PipelineHeaderView_pipelineStatusReason />
+            </@fdsCheckAnswers.checkAnswersRow>
+        </#if>
+
         <@fdsCheckAnswers.checkAnswersRow keyText="Schematic drawing" actionUrl="" screenReaderActionText="" actionText="">
             <#if drawingSummaryView?has_content>
                 <@fdsAction.link linkText=drawingSummaryView.fileName linkUrl=springUrl(urlFactory.getPipelineDrawingDownloadUrl(drawingSummaryView.fileId)) 
@@ -110,8 +116,7 @@
             <#else>
                 No drawing uploaded
             </#if>
-        </@fdsCheckAnswers.checkAnswersRow>
-
+        </@fdsCheckAnswers.checkAnswersRow>        
 
     </@fdsCheckAnswers.checkAnswers>
 
