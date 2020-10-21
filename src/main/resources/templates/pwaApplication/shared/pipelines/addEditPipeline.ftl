@@ -110,7 +110,7 @@
 
         </@fdsFieldset.fieldset>
 
-        <#if pipelineStatus == "OUT_OF_USE_ON_SEABED">
+        <#if pipelineStatus?has_content && pipelineStatus == "OUT_OF_USE_ON_SEABED">
             <@fdsTextarea.textarea path="form.whyNotReturnedToShore" labelText="Why is the pipeline not being returned to shore?" characterCount=true maxCharacterLength="4000"/>
         </#if>
 

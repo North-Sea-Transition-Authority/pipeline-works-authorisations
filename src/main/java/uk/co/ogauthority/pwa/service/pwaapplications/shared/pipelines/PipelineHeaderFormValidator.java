@@ -121,7 +121,7 @@ public class PipelineHeaderFormValidator implements SmartValidator {
 
     var padPipeline = validationHints[0] != null && validationHints[0] instanceof PadPipeline
         ? (PadPipeline) validationHints[0] : null;
-    
+
     if (padPipeline != null && padPipeline.getPipelineStatus().equals(PipelineStatus.OUT_OF_USE_ON_SEABED)) {
       ValidationUtils.rejectIfEmpty(errors, "whyNotReturnedToShore",
           "whyNotReturnedToShore" + FieldValidationErrorCodes.REQUIRED.getCode(),

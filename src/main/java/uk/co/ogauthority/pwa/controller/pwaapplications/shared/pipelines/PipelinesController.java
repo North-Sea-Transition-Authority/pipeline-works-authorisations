@@ -144,14 +144,14 @@ public class PipelinesController {
         .addObject("pipelineFlexibilityTypes", PipelineFlexibility.asList())
         .addObject("pipelineMaterialTypes", PipelineMaterial.asList())
         .addObject("bundleNameRestUrl", SearchSelectorService.route(on(PipelineRestController.class)
-            .searchBundleNames(detail.getMasterPwaApplicationId(), null, null)))
-        .addObject("pipelineStatus", pipeline.getPipelineStatus());
+            .searchBundleNames(detail.getMasterPwaApplicationId(), null, null)));
 
     breadcrumbService.fromPipelinesOverview(detail.getPwaApplication(), modelAndView,
         type.getSubmitButtonText() + " pipeline");
 
     if (pipeline != null) {
       modelAndView.addObject("pipelineNumber", pipeline.getPipelineRef());
+      modelAndView.addObject("pipelineStatus", pipeline.getPipelineStatus());
     }
 
     return modelAndView;
