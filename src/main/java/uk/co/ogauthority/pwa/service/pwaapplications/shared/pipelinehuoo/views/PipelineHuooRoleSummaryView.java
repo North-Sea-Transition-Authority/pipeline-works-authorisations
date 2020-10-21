@@ -24,6 +24,8 @@ public class PipelineHuooRoleSummaryView {
 
   private final Map<OrganisationRoleOwnerDto, String> unassignedOrganisationRoleOwnerNameMapForRole;
 
+  private final long totalOrganisationRoleOwners;
+
   private final List<String> sortedUnassignedOrganisationNames;
   private final List<String> sortedUnassignedPipelineNumbers;
 
@@ -38,15 +40,25 @@ public class PipelineHuooRoleSummaryView {
     this.unassignedPipelineNumberMapForRole = unassignedPipelineNumberMapForRole;
     this.unassignedOrganisationRoleOwnerNameMapForRole = unassignedOrganisationRoleOwnerNameMapForRole;
 
-    sortedUnassignedOrganisationNames = this.unassignedOrganisationRoleOwnerNameMapForRole.values()
+    this.sortedUnassignedOrganisationNames = this.unassignedOrganisationRoleOwnerNameMapForRole.values()
         .stream()
         .sorted(Comparator.comparing(String::toLowerCase))
         .collect(Collectors.toList());
 
-    sortedUnassignedPipelineNumbers = this.unassignedPipelineNumberMapForRole.values()
+    this.sortedUnassignedPipelineNumbers = this.unassignedPipelineNumberMapForRole.values()
         .stream()
         .sorted(Comparator.comparing(String::toLowerCase))
         .collect(Collectors.toList());
+
+    var assignedRoleOwnerDtoTotal = pipelinesAndOrgRoleGroupViews.stream()
+        .flatMap(pipelinesAndOrgRoleGroupView -> pipelinesAndOrgRoleGroupView.getOrganisationRoleOwnerSet().stream())
+        .distinct()
+        .count();
+
+    var unassignedRoleOwnerDtoTotal = unassignedOrganisationRoleOwnerNameMapForRole.size();
+
+    this.totalOrganisationRoleOwners = assignedRoleOwnerDtoTotal + unassignedRoleOwnerDtoTotal;
+
   }
 
   public Set<PipelineIdentifier> getUnassignedPipelineIds() {
@@ -91,6 +103,10 @@ public class PipelineHuooRoleSummaryView {
 
   public String getRoleDisplayText() {
     return this.huooRole.getDisplayText();
+  }
+
+  public long getTotalOrganisationRoleOwners() {
+    return totalOrganisationRoleOwners;
   }
 
   public List<PipelinesAndOrgRoleGroupView> getPipelinesAndOrgRoleGroupViews() {

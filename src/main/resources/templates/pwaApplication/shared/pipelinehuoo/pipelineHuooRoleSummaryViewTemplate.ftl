@@ -7,6 +7,7 @@
 
 <#macro pipelineHuooRoleSummary summaryView errorKeyPrefix summaryValidationResult urlFactory>
     <#local roleSingular=summaryView.getRoleDisplayText() />
+    <h2 class="govuk-heading-m">${summaryView.getRoleDisplayText()}s</h2>
 
     <#local unassignedPipelineCardId = validationResult.constructObjectId(summaryValidationResult!, (errorKeyPrefix + "-UNASSIGNED-PIPELINES")) />
     <#local unassignedRoleCardId = validationResult.constructObjectId(summaryValidationResult!, (errorKeyPrefix + "-UNASSIGNED-ROLES")) />
@@ -58,6 +59,28 @@
                 </#list>
             </ol>
         </@fdsCard.card>
+    </#if>
+
+    <#if summaryView.getHuooRole()=="HOLDER">
+        <#local addRoleUrl = urlFactory.getAddHolderPipelineRoleUrl()/>
+        <#local defineSplitUrl = urlFactory.getSplitHolderPipelineUrl()/>
+    </#if>
+    <#if summaryView.getHuooRole()=="USER">
+        <#local addRoleUrl = urlFactory.getAddUserPipelineRoleUrl()/>
+        <#local defineSplitUrl = urlFactory.getSplitUserPipelineUrl()/>
+    </#if>
+    <#if summaryView.getHuooRole()=="OPERATOR">
+        <#local addRoleUrl = urlFactory.getAddOperatorPipelineRoleUrl()/>
+        <#local defineSplitUrl = urlFactory.getSplitOperatorPipelineUrl()/>
+    </#if>
+    <#if summaryView.getHuooRole()=="OWNER">
+        <#local addRoleUrl = urlFactory.getAddOwnerPipelineRoleUrl()/>
+        <#local defineSplitUrl = urlFactory.getSplitOwnerPipelineUrl()/>
+    </#if>
+
+    <@fdsAction.link linkText="Select pipelines and assign ${roleSingular?lower_case}s"  linkUrl=springUrl(addRoleUrl) linkClass="govuk-button govuk-button--blue"/>
+    <#if (summaryView.totalOrganisationRoleOwners > 1 )>
+        <@fdsAction.link linkText="Define pipeline ${roleSingular?lower_case} split"  linkUrl=springUrl(defineSplitUrl) linkClass="govuk-button govuk-button--blue"/>
     </#if>
 
 </#macro>

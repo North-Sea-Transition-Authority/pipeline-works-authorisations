@@ -7,6 +7,8 @@
 <#-- @ftlvariable name="submitButtonText" type="java.lang.String" -->
 <#-- @ftlvariable name="pickableIdentOptions" type="java.util.Map<uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.PickableIdentLocationOption>" -->
 <#-- @ftlvariable name="form" type="uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelinehuoo.form.DefinePipelineHuooSectionsForm" -->
+<#-- @ftlvariable name="firstSectionStartDescription" type="java.lang.String" -->
+<#-- @ftlvariable name="lastSectionEndDescription" type="java.lang.String" -->
 
 <@defaultPage htmlTitle=pageHeading pageHeading=pageHeading breadcrumbs=false fullWidthColumn=true>
 
@@ -25,7 +27,8 @@
             listPath="form.pipelineSectionPoints"
             pickableIdentOptions=pickableIdentOptions
             sectionNumberIndex=sectionNumber
-            isLastSection=sectionNumber?is_last/>
+            isLastSection=sectionNumber?is_last
+            isFirstSection=sectionNumber==0/>
           </#list>
 
           <@fdsAction.submitButtons
@@ -42,25 +45,41 @@
 
 </@defaultPage>
 
-<#macro sectionStartPointOptions listPath pickableIdentOptions sectionNumberIndex isLastSection>
+<#macro sectionStartPointOptions listPath pickableIdentOptions sectionNumberIndex isLastSection isFirstSection>
   <#local identLocationOptionPath=createNestedFormPath(listPath, sectionNumberIndex, "pickedPipelineIdentString") />
   <#local identLocationIncludedInSectionPath=createNestedFormPath(listPath, sectionNumberIndex, "pointIncludedInSection") />
   <h2 class="govuk-heading-m">Section ${sectionNumberIndex+1}</h2>
-  <#if isLastSection>
-    <@fdsInsetText.insetText>This is the final section and ends at the final ident's end point.</@fdsInsetText.insetText>
-  </#if>
 
-  <@fdsSearchSelector.searchSelectorEnhanced path=identLocationOptionPath labelText="Where does the section start?" options=pickableIdentOptions />
+    <#if isFirstSection>
+        <@fdsInsetText.insetText>${firstSectionStartDescription}</@fdsInsetText.insetText>
+        <@hiddenInput path=identLocationOptionPath />
+        <@hiddenInput path=identLocationIncludedInSectionPath />
+    <#else>
+        <@fdsSearchSelector.searchSelectorEnhanced path=identLocationOptionPath labelText="Where does the section start?" options=pickableIdentOptions />
+        <@fdsRadio.radioGroup path=identLocationIncludedInSectionPath
+        labelText="Is the selected point located in this section?"
+        hintText="Answer 'Yes' if the previous section does not include this point"
+        fieldsetHeadingClass="govuk-fieldset__legend--s"
+        fieldsetHeadingSize="h3"
+        hiddenContent=true>
+            <@fdsRadio.radioYes path=identLocationIncludedInSectionPath/>
+            <@fdsRadio.radioNo path=identLocationIncludedInSectionPath/>
+        </@fdsRadio.radioGroup>
+    </#if>
 
-  <@fdsRadio.radioGroup path=identLocationIncludedInSectionPath
-    labelText="Is the selected point located in this section?"
-    hintText="Answer 'Yes' if the previous section does not include this point"
-    fieldsetHeadingClass="govuk-fieldset__legend--s"
-    fieldsetHeadingSize="h3"
-    hiddenContent=true>
-      <@fdsRadio.radioYes path=identLocationIncludedInSectionPath/>
-      <#-- First section must always include ident location -->
-        <@fdsRadio.radioNo path=identLocationIncludedInSectionPath/>
-    </@fdsRadio.radioGroup>
+    <#if isLastSection>
+        <@fdsInsetText.insetText>${lastSectionEndDescription}</@fdsInsetText.insetText>
+    </#if>
 
+
+
+</#macro>
+
+<#macro hiddenInput path>
+    <@spring.bind path/>
+    <#local id=spring.status.expression?replace('[','')?replace(']','')>
+    <#local name=spring.status.expression>
+    <#local value=spring.stringStatusValue>
+
+    <input type="hidden" id="${id}" name="${name}" value="${value}">
 </#macro>

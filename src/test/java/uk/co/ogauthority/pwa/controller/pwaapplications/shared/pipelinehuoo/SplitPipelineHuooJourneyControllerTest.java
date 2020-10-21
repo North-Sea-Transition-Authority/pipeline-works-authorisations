@@ -66,6 +66,7 @@ public class SplitPipelineHuooJourneyControllerTest extends PwaApplicationContex
   private final String PIPELINE_NAME = "PIPELINE";
 
   private final int NUMBER_OF_SECTIONS = 3;
+  private final long NUMBER_OF_ASSIGNABLE_ROLES = 3;
 
   @MockBean
   private PadPipelinesHuooService padPipelinesHuooService;
@@ -132,6 +133,8 @@ public class SplitPipelineHuooJourneyControllerTest extends PwaApplicationContex
         any(),
         eq(PIPELINE_ID)
     )).thenReturn(pipelineOverview);
+
+    when(padPipelinesHuooService.countDistinctRoleOwnersForRole(any(), any())).thenReturn(NUMBER_OF_ASSIGNABLE_ROLES);
   }
 
   @Test
@@ -334,6 +337,9 @@ public class SplitPipelineHuooJourneyControllerTest extends PwaApplicationContex
         .andReturn().getModelAndView();
 
     assertThat(modelAndView.getModel()).containsKey("pickableIdentOptions");
+    assertThat(modelAndView.getModel()).containsKey("firstSectionStartDescription");
+    assertThat(modelAndView.getModel()).containsKey("lastSectionEndDescription");
+
     assertThat(((Map<String, String>)modelAndView.getModel().get("pickableIdentOptions")))
         .containsExactly(
             entry(String.valueOf(identOption1.getPickableString()), identOption1.getDisplayString()),

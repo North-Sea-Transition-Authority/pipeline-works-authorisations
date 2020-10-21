@@ -177,9 +177,10 @@ public class SplitPipelineHuooJourneyController {
                                            PwaApplicationContext applicationContext,
                                            @ModelAttribute("form") DefinePipelineHuooSectionsForm form) {
 
-    return withSplitablePipeline(
+    return withSplitablePipelineAndRole(
         pipelineId,
         numberOfSections,
+        huooRole,
         applicationContext,
         (splitablePipelineOverview) -> {
 
@@ -213,9 +214,10 @@ public class SplitPipelineHuooJourneyController {
                                      BindingResult bindingResult,
                                      RedirectAttributes redirectAttributes) {
 
-    return withSplitablePipeline(
+    return withSplitablePipelineAndRole(
         pipelineId,
         numberOfSections,
+        huooRole,
         applicationContext,
         (splitablePipelineOverview) -> {
           var pipelineIdObj = PipelineId.from(splitablePipelineOverview);
@@ -282,6 +284,7 @@ public class SplitPipelineHuooJourneyController {
             PickableIdentLocationOption::getPickableString,
             PickableIdentLocationOption::getDisplayString
         ));
+
     return new ModelAndView("pwaApplication/shared/pipelinehuoo/splitPipelineHuooDefineSections")
         .addObject("pickableIdentOptions", optionsMap)
         .addObject("backUrl", ReverseRouter.route(on(SplitPipelineHuooJourneyController.class).renderSelectPipelineToSplit(
@@ -292,6 +295,18 @@ public class SplitPipelineHuooJourneyController {
             null
             )
         ))
+        .addObject(
+            "firstSectionStartDescription",
+            String.format("Section 1 is from and including %s", pickableIdentLocationOptions.get(0).getDisplayString())
+        )
+        .addObject(
+            "lastSectionEndDescription",
+            String.format(
+                "Section %s is to and including %s",
+                numberOfSections,
+                pickableIdentLocationOptions.get(pickableIdentLocationOptions.size() - 1).getDisplayString()
+            )
+        )
         .addObject("backLinkText", DEFINE_SECTIONS_BACK_LINK_TEXT)
         .addObject("pageHeading",
             String.format(
@@ -307,10 +322,11 @@ public class SplitPipelineHuooJourneyController {
    * Do belt and braces check on sanity of pipeline param.
    * Error when pipeline not "splittable" for app detail or sections < 2 as this doesnt make sense.
    */
-  private ModelAndView withSplitablePipeline(int pipelineId,
-                                             int numberOfSections,
-                                             PwaApplicationContext applicationContext,
-                                             Function<PipelineOverview, ModelAndView> modelAndViewFunction) {
+  private ModelAndView withSplitablePipelineAndRole(int pipelineId,
+                                                    int numberOfSections,
+                                                    HuooRole huooRole,
+                                                    PwaApplicationContext applicationContext,
+                                                    Function<PipelineOverview, ModelAndView> modelAndViewFunction) {
 
     var pipelineIdObj = new PipelineId(pipelineId);
     var splitablePipeline = padPipelinesHuooService.getSplitablePipelineForAppAndMasterPwaOrError(
@@ -318,8 +334,17 @@ public class SplitPipelineHuooJourneyController {
         pipelineIdObj
     );
 
+    var assignableRoles = padPipelinesHuooService.countDistinctRoleOwnersForRole(
+        applicationContext.getApplicationDetail(),
+        huooRole
+    );
+
     if (numberOfSections < 2) {
       throw new AccessDeniedException("Cannot define a pipeline split with less than 2 sections");
+    }
+
+    if (assignableRoles <= 1) {
+      throw new AccessDeniedException("Cannot define a pipeline split with fewer than 2 assignable role owners");
     }
 
     return modelAndViewFunction.apply(splitablePipeline);

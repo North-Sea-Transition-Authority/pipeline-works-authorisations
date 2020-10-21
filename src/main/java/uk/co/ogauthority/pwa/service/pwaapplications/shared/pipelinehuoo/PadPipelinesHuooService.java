@@ -116,6 +116,14 @@ public class PadPipelinesHuooService implements ApplicationFormSectionService {
         );
   }
 
+  public long countDistinctRoleOwnersForRole(PwaApplicationDetail pwaApplicationDetail, HuooRole huooRole) {
+    return padOrganisationRoleService.getAssignableOrganisationRoleInstanceDtosByRole(pwaApplicationDetail, huooRole)
+        .stream()
+        .map(OrganisationRoleInstanceDto::getOrganisationRoleOwnerDto)
+        .distinct()
+        .count();
+  }
+
   @Transactional
   public void removeSplitsForPipeline(PwaApplicationDetail pwaApplicationDetail, PipelineId pipelineId, HuooRole huooRole) {
 
