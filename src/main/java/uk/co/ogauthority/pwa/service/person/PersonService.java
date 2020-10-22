@@ -1,0 +1,45 @@
+package uk.co.ogauthority.pwa.service.person;
+
+import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
+import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
+import uk.co.ogauthority.pwa.energyportal.repository.PersonRepository;
+import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
+
+@Service
+public class PersonService {
+
+
+  private final PersonRepository personRepository;
+
+  @Autowired
+  public PersonService(PersonRepository personRepository) {
+    this.personRepository = personRepository;
+  }
+
+
+  public List<Person> findAllByIdIn(Collection<PersonId> personIds) {
+
+    return personRepository.findAllByIdIn(
+        personIds.stream()
+            .map(PersonId::asInt)
+            .collect(Collectors.toList())
+    );
+
+  }
+
+  public Person getPersonById(PersonId personId) {
+
+    return personRepository.findById(personId.asInt())
+        .orElseThrow(() -> new PwaEntityNotFoundException(
+            String.format("Person with Id:%s not found", personId.asInt()))
+        );
+
+  }
+
+
+}

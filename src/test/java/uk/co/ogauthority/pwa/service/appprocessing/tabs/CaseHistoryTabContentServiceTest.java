@@ -49,7 +49,7 @@ public class CaseHistoryTabContentServiceTest {
     var processingContext = createContextWithPermissions(PwaAppProcessingPermission.CASE_MANAGEMENT_OGA);
 
     var caseHistoryList = List.of(
-        new CaseHistoryItemView("Test header", Instant.now(), "Person label", new PersonId(1), Map.of())
+        new CaseHistoryItemView.Builder("Test header", Instant.now(), new PersonId(1)).build()
     );
     when(caseHistoryService.getCaseHistory(processingContext.getPwaApplication())).thenReturn(caseHistoryList);
 
