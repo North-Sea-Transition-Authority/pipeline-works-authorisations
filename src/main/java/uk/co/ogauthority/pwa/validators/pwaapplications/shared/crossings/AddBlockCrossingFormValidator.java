@@ -9,6 +9,7 @@ import uk.co.ogauthority.pwa.model.entity.licence.PearsBlock;
 import uk.co.ogauthority.pwa.model.entity.licence.PearsLicence;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.crossings.AddBlockCrossingForm;
+import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.service.licence.PearsBlockService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.BlockCrossingService;
 
@@ -53,7 +54,8 @@ public class AddBlockCrossingFormValidator implements SmartValidator {
         errors.rejectValue("pickedBlock", "pickedBlock.invalid", "Select a valid block");
 
       } else if (blockCrossingService.doesBlockExistOnApp(pwaApplicationDetail, optionalBlock.get())) {
-        errors.rejectValue("pickedBlock", "pickedBlock.invalid", "The selected block already exists on this application");
+        errors.rejectValue("pickedBlock", "pickedBlock" + FieldValidationErrorCodes.NOT_UNIQUE.getCode(),
+            "The selected block already exists on this application");
       }
 
       licence = optionalBlock.map(PearsBlock::getPearsLicence)
