@@ -12,8 +12,8 @@
       <#if prefixText?has_content>
         <span aria-hidden="true">${prefixText}</span>
       </#if>
-      <@link linkText=selectAllLinkText linkUrl="#" linkClass="${defaultLinkClass} table-selection-toggler__select-all-link" ariaDescribeBy=selectAllScreenReaderText ariaLabel=selectAllScreenReaderText/>
-      <@link linkText=selectNoneLinkText linkUrl="#" linkClass="${defaultLinkClass} table-selection-toggler__select-none-link" ariaDescribeBy=selectNoneScreenReaderText ariaLabel=selectNoneScreenReaderText/>
+      <@link linkText=selectAllLinkText linkUrl="#" linkClass="${defaultLinkClass} table-selection-toggler__select-all-link" ariaLabel=selectAllScreenReaderText/>
+      <@link linkText=selectNoneLinkText linkUrl="#" linkClass="${defaultLinkClass} table-selection-toggler__select-none-link" ariaLabel=selectNoneScreenReaderText/>
     </div>
 </#macro>
 
