@@ -63,7 +63,7 @@ public class SplitPipelineHuooJourneyController {
   private static final String DEFINE_SECTIONS_BACK_LINK_TEXT = "Back to select pipeline";
 
   private static final String SELECT_PIPELINE_HINT_FORMAT =
-      "This will replace any existing splits and remove the %s defined for the selected pipeline";
+      "This will replace any existing splits and remove the %ss defined for the selected pipeline";
 
   private final PadPipelinesHuooService padPipelinesHuooService;
   private final ControllerHelperService controllerHelperService;

@@ -47,7 +47,7 @@ public class WorkAreaTabServiceTest {
     var orgTeam = TeamTestingUtils.getOrganisationTeam(TeamTestingUtils.generateOrganisationGroup(1, "Test", "TEST"));
     when(teamService.getOrganisationTeamsPersonIsMemberOf(person)).thenReturn(List.of(orgTeam));
     when(teamService.getMembershipOfPersonInTeam(teamService.getRegulatorTeam(), person)).thenReturn(Optional.of(regTeamMember));
-    when(consulteeGroupTeamService.getTeamMembersByPerson(person)).thenReturn(List.of(consulteeTeamMember));
+    when(consulteeGroupTeamService.getTeamMemberByPerson(person)).thenReturn(Optional.of(consulteeTeamMember));
 
     workAreaTabService = new WorkAreaTabService(teamService, consulteeGroupTeamService);
 
@@ -70,7 +70,7 @@ public class WorkAreaTabServiceTest {
 
     when(teamService.getOrganisationTeamsPersonIsMemberOf(person)).thenReturn(List.of());
     when(teamService.getMembershipOfPersonInTeam(teamService.getRegulatorTeam(), person)).thenReturn(Optional.empty());
-    when(consulteeGroupTeamService.getTeamMembersByPerson(person)).thenReturn(List.of());
+    when(consulteeGroupTeamService.getTeamMemberByPerson(person)).thenReturn(Optional.empty());
 
     var defaultTabOpt = workAreaTabService.getDefaultTabForPerson(person);
 
@@ -91,7 +91,7 @@ public class WorkAreaTabServiceTest {
   public void getTabsAvailableToPerson_industryOnly() {
 
     when(teamService.getMembershipOfPersonInTeam(teamService.getRegulatorTeam(), person)).thenReturn(Optional.empty());
-    when(consulteeGroupTeamService.getTeamMembersByPerson(person)).thenReturn(List.of());
+    when(consulteeGroupTeamService.getTeamMemberByPerson(person)).thenReturn(Optional.empty());
 
     var tabs = workAreaTabService.getTabsAvailableToPerson(person);
 
@@ -103,7 +103,7 @@ public class WorkAreaTabServiceTest {
   public void getTabsAvailableToPerson_regulatorOnly() {
 
     when(teamService.getOrganisationTeamsPersonIsMemberOf(person)).thenReturn(List.of());
-    when(consulteeGroupTeamService.getTeamMembersByPerson(person)).thenReturn(List.of());
+    when(consulteeGroupTeamService.getTeamMemberByPerson(person)).thenReturn(Optional.empty());
 
     var tabs = workAreaTabService.getTabsAvailableToPerson(person);
 
@@ -132,7 +132,7 @@ public class WorkAreaTabServiceTest {
     var accessManagerTeamMember = new ConsulteeGroupTeamMember(new ConsulteeGroup(), person, Set.of(
         ConsulteeGroupMemberRole.ACCESS_MANAGER));
 
-    when(consulteeGroupTeamService.getTeamMembersByPerson(person)).thenReturn(List.of(accessManagerTeamMember));
+    when(consulteeGroupTeamService.getTeamMemberByPerson(person)).thenReturn(Optional.of((accessManagerTeamMember)));
 
     var tabs = workAreaTabService.getTabsAvailableToPerson(person);
 
@@ -145,7 +145,7 @@ public class WorkAreaTabServiceTest {
 
     when(teamService.getOrganisationTeamsPersonIsMemberOf(person)).thenReturn(List.of());
     when(teamService.getMembershipOfPersonInTeam(teamService.getRegulatorTeam(), person)).thenReturn(Optional.empty());
-    when(consulteeGroupTeamService.getTeamMembersByPerson(person)).thenReturn(List.of());
+    when(consulteeGroupTeamService.getTeamMemberByPerson(person)).thenReturn(Optional.empty());
 
     var tabs = workAreaTabService.getTabsAvailableToPerson(person);
 

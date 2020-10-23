@@ -29,7 +29,7 @@
         path="form.numberOfSections"
         suffix="sections"
         labelText="How many sections do you want to split the pipeline into?"
-        hintText="Specify 1 section to merge a split pipeline"
+        hintText="Specify 1 section to remove previously defined sections from the pipeline"
         inputClass="govuk-input--width-2"
       />
 

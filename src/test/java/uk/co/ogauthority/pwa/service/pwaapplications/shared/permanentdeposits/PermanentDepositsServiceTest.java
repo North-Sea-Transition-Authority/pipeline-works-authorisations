@@ -229,7 +229,7 @@ public class PermanentDepositsServiceTest {
   public void isPermanentDepositMade_depcon() {
     PadProjectInformation projectInformation = new PadProjectInformation();
     projectInformation.setPermanentDepositsMade(false);
-    var pwaApplicationDetail = PwaApplicationTestUtil.createApplicationDetail(null, PwaApplicationType.DEPOSIT_CONSENT, null, 0, 0);
+    var pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.DEPOSIT_CONSENT);
     when(padProjectInformationRepository.findByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(Optional.of(projectInformation));
     assertThat(service.permanentDepositsAreToBeMadeOnApp(pwaApplicationDetail)).isEqualTo(true);
   }

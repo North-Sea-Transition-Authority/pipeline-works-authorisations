@@ -24,7 +24,7 @@ public class PwaUserPrivilegeService {
    */
   public Set<PwaUserPrivilege> getPwaUserPrivilegesForPerson(Person person) {
 
-    var teamMemberList = consulteeGroupTeamService.getTeamMembersByPerson(person);
+    var teamMemberList = consulteeGroupTeamService.getTeamMemberByPerson(person);
 
     var privSet = new HashSet<PwaUserPrivilege>();
 

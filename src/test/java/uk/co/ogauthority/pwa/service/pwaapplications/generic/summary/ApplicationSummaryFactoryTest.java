@@ -1,7 +1,6 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.generic.summary;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -15,25 +14,26 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
+import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
+import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
-import uk.co.ogauthority.pwa.service.users.UserAccountService;
+import uk.co.ogauthority.pwa.service.person.PersonService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ApplicationSummaryFactoryTest {
 
-  private static final String NAME = "A NAME";
-  private static final int SUBMITTER_WUA_ID = 10;
+  private static final String FORENAME = "FORENAME";
+  private static final String SURNAME = "SURNAME";
+  private static final PersonId SUBMITTER_PERSON_ID = new PersonId(10);
 
   @Mock
-  private UserAccountService userAccountService;
+  private PersonService personService;
 
   private ApplicationSummaryFactory applicationSummaryFactory;
 
-  @Mock
-  private WebUserAccount webUserAccount;
+  private Person person;
 
   private PwaApplicationDetail detail;
 
@@ -42,15 +42,16 @@ public class ApplicationSummaryFactoryTest {
 
   @Before
   public void setup() {
-    applicationSummaryFactory = new ApplicationSummaryFactory(userAccountService);
-    when(webUserAccount.getFullName()).thenReturn(NAME);
-    when(userAccountService.getWebUserAccount(anyInt())).thenReturn(webUserAccount);
+    person = new Person(SUBMITTER_PERSON_ID.asInt(), FORENAME, SURNAME, "email", "tel");
+    applicationSummaryFactory = new ApplicationSummaryFactory(personService);
+
+    when(personService.getPersonById(SUBMITTER_PERSON_ID)).thenReturn(person);
 
     submitDateTime = LocalDateTime.of(2020, Month.JANUARY, 1, 11, 59, 0);
     submitInstant = submitDateTime.toInstant(ZoneOffset.UTC);
     detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     detail.setSubmittedTimestamp(submitInstant);
-    detail.setSubmittedByWuaId(SUBMITTER_WUA_ID);
+    detail.setSubmittedByPersonId(SUBMITTER_PERSON_ID);
 
 
   }
@@ -59,7 +60,7 @@ public class ApplicationSummaryFactoryTest {
   @Test
   public void createSubmissionSummary_verifyServiceInteractions_() {
     var summary = applicationSummaryFactory.createSubmissionSummary(detail);
-    verify(userAccountService, times(1)).getWebUserAccount(SUBMITTER_WUA_ID);
+    verify(personService, times(1)).getPersonById(SUBMITTER_PERSON_ID);
 
   }
 
@@ -69,7 +70,7 @@ public class ApplicationSummaryFactoryTest {
     assertThat(summary.getApplicationReference()).isEqualTo(detail.getPwaApplicationRef());
     assertThat(summary.getIsFirstVersion()).isEqualTo(true);
     assertThat(summary.getSubmissionDateTime()).isEqualTo(submitDateTime);
-    assertThat(summary.getSubmittedBy()).isEqualTo(NAME);
+    assertThat(summary.getSubmittedBy()).isEqualTo(FORENAME + " " + SURNAME);
 
   }
 }

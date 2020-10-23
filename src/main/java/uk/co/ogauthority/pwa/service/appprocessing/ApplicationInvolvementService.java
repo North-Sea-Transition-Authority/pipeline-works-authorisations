@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.service.appprocessing;
 
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -77,27 +78,32 @@ public class ApplicationInvolvementService {
 
   private Set<ConsulteeGroupMemberRole> getConsulteeRoles(PwaApplication application, AuthenticatedUserAccount user) {
 
-    //TODO PWA-893 restrict consultees to one group only
-    var consulteeGroupTeamMembers = consulteeGroupTeamService.getTeamMembersByPerson(user.getLinkedPerson());
+    var consulteeGroupTeamMemberOpt = consulteeGroupTeamService.getTeamMemberByPerson(user.getLinkedPerson());
 
-    var consulteeGroups = consulteeGroupTeamMembers.stream()
+    var consulteeGroup = consulteeGroupTeamMemberOpt
         .map(ConsulteeGroupTeamMember::getConsulteeGroup)
-        .collect(Collectors.toList());
-
-    // user has consulted on app if any group they are part of has a consultation request for the application
-    ConsultationRequest consultationRequest = consultationRequestService.getAllRequestsByApplication(application).stream()
-        .filter(r -> consulteeGroups.contains(r.getConsulteeGroup()))
-        .findFirst()
         .orElse(null);
 
-    if (consultationRequest == null) {
-      return Set.of();
+    if (consulteeGroup != null) {
+
+      // user has consulted on app if group they are part of has a consultation request for the application
+      ConsultationRequest consultationRequest = consultationRequestService.getAllRequestsByApplication(application).stream()
+          .filter(r -> Objects.equals(consulteeGroup, r.getConsulteeGroup()))
+          .findFirst()
+          .orElse(null);
+
+      if (consultationRequest == null) {
+        return Set.of();
+      }
+
+      return consulteeGroupTeamMemberOpt.stream()
+          .filter(member -> member.getConsulteeGroup().equals(consultationRequest.getConsulteeGroup()))
+          .flatMap(member -> member.getRoles().stream())
+          .collect(Collectors.toSet());
+
     }
 
-    return consulteeGroupTeamMembers.stream()
-        .filter(member -> member.getConsulteeGroup().equals(consultationRequest.getConsulteeGroup()))
-        .flatMap(member -> member.getRoles().stream())
-        .collect(Collectors.toSet());
+    return Set.of();
 
   }
 

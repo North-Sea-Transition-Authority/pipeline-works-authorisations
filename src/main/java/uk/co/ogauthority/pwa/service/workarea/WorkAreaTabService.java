@@ -47,7 +47,7 @@ public class WorkAreaTabService {
       tabs.add(WorkAreaTab.OPEN_APPLICATIONS);
     }
 
-    boolean consulteeUser = consulteeGroupTeamService.getTeamMembersByPerson(person).stream()
+    boolean consulteeUser = consulteeGroupTeamService.getTeamMemberByPerson(person).stream()
         .flatMap(groupTeamMember -> groupTeamMember.getRoles().stream())
         .anyMatch(role -> role == ConsulteeGroupMemberRole.RECIPIENT || role == ConsulteeGroupMemberRole.RESPONDER);
 

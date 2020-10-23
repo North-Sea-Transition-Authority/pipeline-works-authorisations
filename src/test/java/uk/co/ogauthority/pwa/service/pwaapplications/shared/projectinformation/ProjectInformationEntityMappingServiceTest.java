@@ -30,7 +30,7 @@ public class ProjectInformationEntityMappingServiceTest {
   @Before
   public void setUp() {
     projectInformationEntityMappingService = new ProjectInformationEntityMappingService();
-    baseDate = LocalDate.now();
+    baseDate = LocalDate.of(2020, 12, 1);
 
     form = new ProjectInformationForm();
     expectedForm = ProjectInformationTestUtils.buildForm(baseDate);

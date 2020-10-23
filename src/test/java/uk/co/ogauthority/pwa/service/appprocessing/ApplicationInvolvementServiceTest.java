@@ -137,7 +137,7 @@ public class ApplicationInvolvementServiceTest {
     var groupDetail = ConsulteeGroupTestingUtils.createConsulteeGroup("name", "abb");
 
     when(userTypeService.getUserType(user)).thenReturn(UserType.CONSULTEE);
-    when(consulteeGroupTeamService.getTeamMembersByPerson(any())).thenReturn(List.of(
+    when(consulteeGroupTeamService.getTeamMemberByPerson(any())).thenReturn(Optional.of(
         new ConsulteeGroupTeamMember(
             groupDetail.getConsulteeGroup(),
             new Person(2, null, null, null, null),
@@ -162,7 +162,7 @@ public class ApplicationInvolvementServiceTest {
     var groupDetail = ConsulteeGroupTestingUtils.createConsulteeGroup("name", "abb");
 
     when(userTypeService.getUserType(user)).thenReturn(UserType.CONSULTEE);
-    when(consulteeGroupTeamService.getTeamMembersByPerson(any())).thenReturn(List.of(
+    when(consulteeGroupTeamService.getTeamMemberByPerson(any())).thenReturn(Optional.of(
         new ConsulteeGroupTeamMember(
             groupDetail.getConsulteeGroup(),
             new Person(2, null, null, null, null),

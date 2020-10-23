@@ -11,7 +11,7 @@ import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees
 public interface ConsulteeGroupTeamMemberRepository extends CrudRepository<ConsulteeGroupTeamMember, Integer> {
 
   @EntityGraph(attributePaths = "consulteeGroup")
-  List<ConsulteeGroupTeamMember> findAllByPerson(Person person);
+  Optional<ConsulteeGroupTeamMember> findByPerson(Person person);
 
   @EntityGraph(attributePaths = {"consulteeGroup", "person"})
   List<ConsulteeGroupTeamMember> findAllByConsulteeGroup(ConsulteeGroup consulteeGroup);

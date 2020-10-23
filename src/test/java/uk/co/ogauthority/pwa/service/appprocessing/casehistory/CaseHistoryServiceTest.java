@@ -9,8 +9,8 @@ import static org.mockito.Mockito.when;
 
 import java.time.Instant;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,13 +21,13 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
-import uk.co.ogauthority.pwa.energyportal.repository.PersonRepository;
-import uk.co.ogauthority.pwa.model.entity.appprocessing.casenotes.CaseNote;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.form.files.UploadedFileView;
 import uk.co.ogauthority.pwa.model.view.appprocessing.casehistory.CaseHistoryItemView;
 import uk.co.ogauthority.pwa.service.appprocessing.casenotes.CaseNoteService;
-import uk.co.ogauthority.pwa.util.DateUtils;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.service.person.PersonService;
+import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -36,59 +36,149 @@ import uk.co.ogauthority.pwa.util.DateUtils;
 @ActiveProfiles("integration-test")
 public class CaseHistoryServiceTest {
 
+  public static String HISTORY_ITEM_HEADER = "HEADER";
+  public static String NOTE_LABEL = "Note label";
+  public static String NOTE_WITH_FILES_DOWNLOAD_URL = "www.some.url.com";
+  public static String NOTE_WITH_FILES_TEXT = "note with Files";
+  public static String NOTE_NO_FILES_TEXT = "note no Files";
+
   @MockBean
   private CaseNoteService caseNoteService;
 
   @MockBean
-  private PersonRepository personRepository;
+  private PersonService personService;
 
   @Autowired
   private CaseHistoryService caseHistoryService;
 
-  private CaseNote caseNote1, caseNote2;
+  @MockBean
+  private ApplicationSubmissionCaseHistoryItemService applicationSubmissionCaseHistoryItemService;
 
-  @Test
-  public void getCaseHistory() {
+  private CaseHistoryItemView firstCaseHistory, secondCaseHistoryWithFiles;
 
-    var app = new PwaApplication();
-    var person1 = new Person(1, "fore", "sur", null, null);
-    var person2 = new Person(2, "fore2", "sur2", null, null);
+  private PwaApplication pwaApplication;
 
-    caseNote1 = new CaseNote(new PwaApplication(), person1.getId(), Instant.now(), "note1");
-    caseNote2 = new CaseNote(new PwaApplication(), person2.getId(), Instant.now().minusSeconds(100), "note2");
+  private Instant firstCaseHistoryInstant;
+  private Instant secondCaseHistoryInstant;
+
+  private Person person1;
+  private Person person2;
+
+  @Before
+  public void setup(){
+    pwaApplication = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL)
+        .getPwaApplication();
+
+    person1 = new Person(1, "fore", "sur", null, null);
+    person2 = new Person(2, "fore2", "sur2", null, null);
 
     var fileView = new UploadedFileView("id", "name", 1L, "desc", Instant.now(), "#");
 
+    firstCaseHistoryInstant = Instant.now();
+    secondCaseHistoryInstant = Instant.now().minusSeconds(100);
+
+    firstCaseHistory = new CaseHistoryItemView.Builder(HISTORY_ITEM_HEADER, firstCaseHistoryInstant, person1.getId())
+        .addDataItem(NOTE_LABEL, NOTE_NO_FILES_TEXT)
+        .build();
+
+    secondCaseHistoryWithFiles = new CaseHistoryItemView.Builder(
+        HISTORY_ITEM_HEADER,
+        secondCaseHistoryInstant,
+        person2.getId()
+    )
+        .setUploadedFileViews(List.of(fileView), NOTE_WITH_FILES_DOWNLOAD_URL)
+        .addDataItem(NOTE_LABEL, NOTE_WITH_FILES_TEXT)
+        .build();
+
     when(caseNoteService.getCaseHistoryItemViews(any())).thenReturn(List.of(
-        CaseHistoryItemViewFactory.create(caseNote1, List.of(fileView)),
-        CaseHistoryItemViewFactory.create(caseNote2, List.of())
+        secondCaseHistoryWithFiles
     ));
 
-    when(personRepository.findAllByIdIn(any())).thenReturn(List.of(person1, person2));
+    when(applicationSubmissionCaseHistoryItemService.getCaseHistoryItemViews(any())).thenReturn(List.of(
+        firstCaseHistory
+    ));
 
-    var caseHistoryItemViews = caseHistoryService.getCaseHistory(app);
+    when(personService.findAllByIdIn(any())).thenReturn(List.of(person1, person2));
+  }
 
-    verify(caseNoteService, times(1)).getCaseHistoryItemViews(app);
+  @Test
+  public void getCaseHistory_whenHistoryItemsReturned_verifyServiceInteractions() {
 
-    verify(personRepository, times(1)).findAllByIdIn(Set.of(1, 2));
+    var caseHistoryItemViews = caseHistoryService.getCaseHistory(pwaApplication);
+
+    verify(caseNoteService, times(1)).getCaseHistoryItemViews(pwaApplication);
+    verify(applicationSubmissionCaseHistoryItemService, times(1)).getCaseHistoryItemViews(pwaApplication);
+
+    verify(personService, times(1)).findAllByIdIn(Set.of(person1.getId(), person2.getId()));
+
+  }
+
+  @Test
+  public void getCaseHistory_whenHistoryItemsReturned_thenPersonNameIsSet_andNotesInOrderOfDate() {
+
+    var caseHistoryItemViews = caseHistoryService.getCaseHistory(pwaApplication);
 
     assertThat(caseHistoryItemViews)
         .extracting(
             CaseHistoryItemView::getDateTime,
-            CaseHistoryItemView::getDateTimeDisplay,
-            CaseHistoryItemView::getHeaderText,
             CaseHistoryItemView::getPersonId,
-            CaseHistoryItemView::getPersonLabelText,
-            CaseHistoryItemView::getPersonName,
-            CaseHistoryItemView::getDataItems,
-            CaseHistoryItemView::getUploadedFileViews)
+            CaseHistoryItemView::getPersonName
+)
         .containsExactly(
-            tuple(caseNote1.getDateTime(), DateUtils.formatDateTime(caseNote1.getDateTime()), "Case note", caseNote1.getPersonId(), "Created by", person1.getFullName(), Map.of("Note text", caseNote1.getNoteText()), List.of(fileView)),
-            tuple(caseNote2.getDateTime(), DateUtils.formatDateTime(caseNote2.getDateTime()), "Case note", caseNote2.getPersonId(), "Created by", person2.getFullName(), Map.of("Note text", caseNote2.getNoteText()), List.of())
+            tuple(firstCaseHistory.getDateTime(),  person1.getId(),  person1.getFullName()),
+            tuple(secondCaseHistoryWithFiles.getDateTime(),  person2.getId(),  person2.getFullName())
         );
+  }
+
+  @Test
+  public void getCaseHistory_whenHistoryItemsReturned_andPersonEmailLabelIsSet() {
+    firstCaseHistory = new CaseHistoryItemView.Builder(HISTORY_ITEM_HEADER, firstCaseHistoryInstant, person1.getId())
+        .setPersonEmailLabel("Email")
+        .addDataItem(NOTE_LABEL, NOTE_NO_FILES_TEXT)
+        .build();
+
+    when(caseNoteService.getCaseHistoryItemViews(any())).thenReturn(List.of(firstCaseHistory));
+
+    when(applicationSubmissionCaseHistoryItemService.getCaseHistoryItemViews(any())).thenReturn(List.of());
 
 
+    var caseHistoryItemViews = caseHistoryService.getCaseHistory(pwaApplication);
 
+    assertThat(caseHistoryItemViews)
+        .extracting(
+            CaseHistoryItemView::getDateTime,
+            CaseHistoryItemView::getPersonId,
+            CaseHistoryItemView::getPersonName,
+            CaseHistoryItemView::getPersonEmail
+        )
+        .containsExactly(
+            tuple(firstCaseHistory.getDateTime(),  person1.getId(),  person1.getFullName(), person1.getEmailAddress())
+        );
+  }
+
+  @Test
+  public void getCaseHistory_whenHistoryItemsReturned_andPersonEmailLabelIsNotSet() {
+    firstCaseHistory = new CaseHistoryItemView.Builder(HISTORY_ITEM_HEADER, firstCaseHistoryInstant, person1.getId())
+        .addDataItem(NOTE_LABEL, NOTE_NO_FILES_TEXT)
+        .build();
+
+    when(caseNoteService.getCaseHistoryItemViews(any())).thenReturn(List.of(firstCaseHistory));
+
+    when(applicationSubmissionCaseHistoryItemService.getCaseHistoryItemViews(any())).thenReturn(List.of());
+
+
+    var caseHistoryItemViews = caseHistoryService.getCaseHistory(pwaApplication);
+
+    assertThat(caseHistoryItemViews)
+        .extracting(
+            CaseHistoryItemView::getDateTime,
+            CaseHistoryItemView::getPersonId,
+            CaseHistoryItemView::getPersonName,
+            CaseHistoryItemView::getPersonEmail
+        )
+        .containsExactly(
+            tuple(firstCaseHistory.getDateTime(),  person1.getId(),  person1.getFullName(), null)
+        );
   }
 
 }

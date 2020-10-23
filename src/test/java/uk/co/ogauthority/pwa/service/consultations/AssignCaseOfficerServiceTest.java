@@ -23,11 +23,12 @@ import uk.co.ogauthority.pwa.model.form.consultation.AssignCaseOfficerForm;
 import uk.co.ogauthority.pwa.model.notify.emailproperties.CaseOfficerAssignedEmailProps;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationWorkflowTask;
 import uk.co.ogauthority.pwa.service.notify.NotifyService;
+import uk.co.ogauthority.pwa.service.person.PersonService;
 import uk.co.ogauthority.pwa.service.teammanagement.TeamManagementService;
-import uk.co.ogauthority.pwa.service.users.UserAccountService;
 import uk.co.ogauthority.pwa.service.workflow.assignment.WorkflowAssignmentService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.validators.consultations.AssignCaseOfficerValidator;
@@ -45,7 +46,7 @@ public class AssignCaseOfficerServiceTest {
   @Mock
   private NotifyService notifyService;
   @Mock
-  private UserAccountService userAccountService;
+  private PersonService personService;
   @Mock
   private AssignCaseOfficerValidator assignCaseOfficerValidator;
 
@@ -57,8 +58,12 @@ public class AssignCaseOfficerServiceTest {
 
   @Before
   public void setUp() {
-    assignCaseOfficerService = new AssignCaseOfficerService(workflowAssignmentService, teamManagementService, notifyService,
-        userAccountService, assignCaseOfficerValidator);
+    assignCaseOfficerService = new AssignCaseOfficerService(
+        workflowAssignmentService,
+        teamManagementService,
+        notifyService,
+        personService,
+        assignCaseOfficerValidator);
     appDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL, 1, 1);
   }
 
@@ -70,14 +75,15 @@ public class AssignCaseOfficerServiceTest {
     var form = new AssignCaseOfficerForm();
     form.setCaseOfficerPersonId(2);
 
+    var assigningPerson = new Person(1, "m", "assign", "assign@assign.com", null);
     var assigningUser = new AuthenticatedUserAccount(
-        new WebUserAccount(1, new Person(1, "m", "assign", "assign@assign.com", null)), null);
+        new WebUserAccount(1, assigningPerson), null);
 
     var caseOfficerPerson = new Person(2, "fore", "sur", "fore@sur.com", null);
     when(teamManagementService.getPerson(2)).thenReturn(caseOfficerPerson);
 
-    appDetail.setSubmittedByWuaId(1);
-    when(userAccountService.getWebUserAccount(appDetail.getSubmittedByWuaId())).thenReturn(assigningUser);
+    appDetail.setSubmittedByPersonId(assigningPerson.getId());
+    when(personService.getPersonById(appDetail.getSubmittedByPersonId())).thenReturn(assigningPerson);
 
     assignCaseOfficerService.assignCaseOfficer(form.getCaseOfficerPerson(), appDetail, assigningUser);
 
@@ -99,8 +105,8 @@ public class AssignCaseOfficerServiceTest {
 
   @Test
   public void canShowInTaskList_hasPermission() {
-
-    var processingContext = new PwaAppProcessingContext(null, null, Set.of(PwaAppProcessingPermission.ASSIGN_CASE_OFFICER), null);
+    appDetail.setStatus(PwaApplicationStatus.CASE_OFFICER_REVIEW);
+    var processingContext = new PwaAppProcessingContext(appDetail, null, Set.of(PwaAppProcessingPermission.ASSIGN_CASE_OFFICER), null);
 
     boolean canShow = assignCaseOfficerService.canShowInTaskList(processingContext);
 
@@ -112,6 +118,17 @@ public class AssignCaseOfficerServiceTest {
   public void canShowInTaskList_noPermission() {
 
     var processingContext = new PwaAppProcessingContext(null, null, Set.of(), null);
+
+    boolean canShow = assignCaseOfficerService.canShowInTaskList(processingContext);
+
+    assertThat(canShow).isFalse();
+
+  }
+
+  @Test
+  public void canShowInTaskList_hasPermissionWithIncorrectStatus() {
+    appDetail.setStatus(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW);
+    var processingContext = new PwaAppProcessingContext(appDetail, null, Set.of(PwaAppProcessingPermission.ASSIGN_CASE_OFFICER), null);
 
     boolean canShow = assignCaseOfficerService.canShowInTaskList(processingContext);
 
