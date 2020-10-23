@@ -91,7 +91,7 @@ public class ConsulteeGroupTeamServiceTest {
         user.getLinkedPerson(),
         Set.of(ConsulteeGroupMemberRole.ACCESS_MANAGER));
 
-    when(groupTeamMemberRepository.findAllByPerson(user.getLinkedPerson())).thenReturn(List.of(consulteeGroupTeamMember));
+    when(groupTeamMemberRepository.findByPerson(user.getLinkedPerson())).thenReturn(Optional.of(consulteeGroupTeamMember));
     when(groupDetailRepository.findAllByConsulteeGroupInAndEndTimestampIsNull(any())).thenReturn(List.of(emtGroupDetail));
 
     assertThat(groupTeamService.getManageableGroupDetailsForUser(authenticatedUserAccount)).containsExactly(emtGroupDetail);
@@ -122,7 +122,7 @@ public class ConsulteeGroupTeamServiceTest {
         user.getLinkedPerson(),
         Set.of(ConsulteeGroupMemberRole.ACCESS_MANAGER));
 
-    when(groupTeamMemberRepository.findAllByPerson(user.getLinkedPerson())).thenReturn(List.of(consulteeGroupTeamMember));
+    when(groupTeamMemberRepository.findByPerson(user.getLinkedPerson())).thenReturn(Optional.of(consulteeGroupTeamMember));
     when(groupDetailRepository.findAllByConsulteeGroupInAndEndTimestampIsNull(any())).thenReturn(List.of(emtGroupDetail));
 
     assertThat(groupTeamService.getManageableGroupTeamViewsForUser(authenticatedUserAccount))
@@ -131,27 +131,6 @@ public class ConsulteeGroupTeamServiceTest {
             tuple(emtGroupDetail.getConsulteeGroupId(), emtGroupDetail.getName(), ReverseRouter
                 .route(on(ConsulteeGroupTeamManagementController.class).renderTeamMembers(emtGroupDetail.getConsulteeGroupId(), null)))
         );
-
-  }
-
-  @Test
-  public void getGroupsUserHasRoleFor_groupsSplitProperly() {
-
-    var emtAccessManager = new ConsulteeGroupTeamMember(
-        emtGroupDetail.getConsulteeGroup(),
-        user.getLinkedPerson(),
-        Set.of(ConsulteeGroupMemberRole.ACCESS_MANAGER));
-
-    var oduRecipient = new ConsulteeGroupTeamMember(
-        oduGroupDetail.getConsulteeGroup(),
-        user.getLinkedPerson(),
-        Set.of(ConsulteeGroupMemberRole.RECIPIENT));
-
-    when(groupTeamMemberRepository.findAllByPerson(user.getLinkedPerson())).thenReturn(List.of(emtAccessManager, oduRecipient));
-
-    assertThat(groupTeamService.getGroupsUserHasRoleFor(user, ConsulteeGroupMemberRole.ACCESS_MANAGER)).containsOnly(emtGroupDetail.getConsulteeGroup());
-
-    assertThat(groupTeamService.getGroupsUserHasRoleFor(user, ConsulteeGroupMemberRole.RECIPIENT)).containsOnly(oduRecipient.getConsulteeGroup());
 
   }
 

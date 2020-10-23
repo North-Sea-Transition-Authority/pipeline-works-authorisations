@@ -132,14 +132,11 @@ public class AssignResponderService implements AppProcessingService {
 
 
   public boolean isUserMemberOfRequestGroup(WebUserAccount user, ConsultationRequest consultationRequest) {
-    for (var member: consulteeGroupTeamService.getTeamMembersByPerson(user.getLinkedPerson())) {
-      if ((member.getRoles().contains(ConsulteeGroupMemberRole.RECIPIENT)
-          || member.getRoles().contains(ConsulteeGroupMemberRole.RESPONDER))
-          &&  member.getConsulteeGroup().equals(consultationRequest.getConsulteeGroup())) {
-        return true;
-      }
-    }
-    return false;
+    return consulteeGroupTeamService.getTeamMemberByPerson(user.getLinkedPerson())
+        .filter(member -> member.getConsulteeGroup().equals(consultationRequest.getConsulteeGroup()))
+        .map(member -> member.getRoles().contains(ConsulteeGroupMemberRole.RECIPIENT)
+            || member.getRoles().contains(ConsulteeGroupMemberRole.RESPONDER))
+        .orElse(false);
   }
 
   public BindingResult validate(AssignResponderForm form, BindingResult bindingResult, ConsultationRequest consultationRequest) {
