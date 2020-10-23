@@ -19,10 +19,14 @@
       <thead class="govuk-table__head">
       <tr class="govuk-table__row">
 
-        <th class="govuk-table__header ${readOnlySelected?then("govuk-visually-hidden", "")}" scope="col"></th>
-        <th class="govuk-table__header" scope="col">Company name</th>
-        <th class="govuk-table__header" scope="col">Registered number</th>
-        <th class="govuk-table__header" scope="col">Address</th>
+        <th class="govuk-table__header ${readOnlySelected?then("govuk-visually-hidden", "")}" scope="col">
+            <@pwaTableSelectionToggler.linksToggler tableId=id
+            selectAllText="Select all" selectAllScreenReaderText=" available organisations"
+            selectNoneText="Select none" selectNoneScreenReaderText=" of the available organisations" />
+        </th>
+        <th class="govuk-table__header govuk-!-width-one-third" scope="col">Company name</th>
+        <th class="govuk-table__header govuk-!-width-one-quarter" scope="col">Registered number</th>
+        <th class="govuk-table__header govuk-!-width-one-third" scope="col">Address</th>
       </tr>
       </thead>
       <tbody class="govuk-table__body">
@@ -54,7 +58,9 @@
 
               <td class="govuk-table__cell">${orgDetail.getCompanyName()}</td>
               <td class="govuk-table__cell">${orgDetail.getRegisteredNumber()!""}</td>
-              <td class="govuk-table__cell">${orgDetail.getCompanyAddress()!""}</td>
+              <td class="govuk-table__cell">
+                  <@multiLineText.multiLineText blockClass="govuk-table">${orgDetail.getCompanyAddress()!""}</@multiLineText.multiLineText>
+              </td>
             </tr>
           </#if>
       </#list>
