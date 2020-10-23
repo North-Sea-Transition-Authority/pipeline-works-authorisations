@@ -151,7 +151,8 @@ public class PipelinesController {
 
     if (pipeline != null) {
       modelAndView.addObject("pipelineNumber", pipeline.getPipelineRef());
-      modelAndView.addObject("pipelineStatus", pipeline.getPipelineStatus());
+      modelAndView.addObject("canShowOutOfUseQuestion", padPipelineService.canShowOutOfUseQuestionForPipelineHeader(
+          pipeline.getPipelineStatus()));
     }
 
     return modelAndView;
@@ -220,7 +221,8 @@ public class PipelinesController {
     return PipelineControllerRouteUtils.ifAllowedFromOverviewOrError(applicationContext, redirectAttributes, () -> {
 
       var pipeline = applicationContext.getPadPipeline();
-      pipelineHeaderFormValidator.validate(form, bindingResult, pipeline);
+      var canShowOutOfUseQuestion = padPipelineService.canShowOutOfUseQuestionForPipelineHeader(pipeline.getPipelineStatus());
+      pipelineHeaderFormValidator.validate(form, bindingResult, canShowOutOfUseQuestion);
 
       return controllerHelperService.checkErrorsAndRedirect(bindingResult,
           getAddEditPipelineModelAndView(applicationContext.getApplicationDetail(), ScreenActionType.EDIT, pipeline),

@@ -246,9 +246,7 @@ public class PipelineHeaderFormValidatorTest {
   @Test
   public void failed_whyNotReturnedToShoreRequired() {
     var form = buildForm();
-    var padPipeline = new PadPipeline();
-    padPipeline.setPipelineStatus(PipelineStatus.OUT_OF_USE_ON_SEABED);
-    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, padPipeline);
+    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, true);
     assertThat(result).contains(
         entry("whyNotReturnedToShore", Set.of("whyNotReturnedToShore" + FieldValidationErrorCodes.REQUIRED.getCode())));
   }
@@ -257,9 +255,7 @@ public class PipelineHeaderFormValidatorTest {
   public void invalid_whyNotReturnedToShore_tooLong() {
     var form = buildForm();
     form.setWhyNotReturnedToShore("a".repeat(5000));
-    var padPipeline = new PadPipeline();
-    padPipeline.setPipelineStatus(PipelineStatus.OUT_OF_USE_ON_SEABED);
-    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, padPipeline);
+    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, true);
     assertThat(result).containsOnly(
         entry("whyNotReturnedToShore", Set.of("whyNotReturnedToShore" + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode())));
   }

@@ -38,12 +38,12 @@
         </@fdsCheckAnswers.checkAnswersRow>
 
         <@fdsCheckAnswers.checkAnswersRow keyText="Pipeline status" actionUrl="" screenReaderActionText="" actionText="">
-            <@diffChanges.renderDiff pipelineHeader.PipelineHeaderView_pipelineStatus />
+            <@diffChanges.renderDiff pipelineHeader.PipelineHeaderView_pipelineStatusDisplayStr />
         </@fdsCheckAnswers.checkAnswersRow>
 
-        <#if pipelineHeader.PipelineHeaderView_pipelineStatus.currentValue?lower_case == "out_of_use_on_seabed">
-            <@fdsCheckAnswers.checkAnswersRow keyText="Reason for leaving on seabed" actionUrl="" screenReaderActionText="" actionText="">
-                 <@diffChanges.renderDiff pipelineHeader.PipelineHeaderView_pipelineStatusReason />
+        <#if pipelineHeader.canShowOutOfUseQuestion == true>
+            <@fdsCheckAnswers.checkAnswersRow keyText="Why is the pipeline not being returned to shore?" actionUrl="" screenReaderActionText="" actionText="">
+                 <@diffChanges.renderDiff diffedField=pipelineHeader.PipelineHeaderView_pipelineStatusReason />
             </@fdsCheckAnswers.checkAnswersRow>
         </#if>
 
@@ -100,12 +100,6 @@
         <#if pipelineHeader.PipelineHeaderView_pipelineMaterial?has_content && pipelineHeader.PipelineHeaderView_pipelineMaterial.currentValue?lower_case == "other">
             <@fdsCheckAnswers.checkAnswersRow keyText="Other material used" actionUrl="" screenReaderActionText="" actionText="">
                 <@diffChanges.renderDiff diffedField=pipelineHeader.PipelineHeaderView_otherPipelineMaterialUsed multiLineTextBlockClass="govuk-summary-list"/>
-            </@fdsCheckAnswers.checkAnswersRow>
-        </#if>
-
-        <#if pipelineHeader.PipelineHeaderView_pipelineStatus?has_content && pipelineHeader.PipelineHeaderView_pipelineStatus.currentValue?lower_case == "out of use but left on the seabed">
-            <@fdsCheckAnswers.checkAnswersRow keyText="Why is the pipeline not being returned to shore?" actionUrl="" screenReaderActionText="" actionText="">
-                 <@diffChanges.renderDiff diffedField=pipelineHeader.PipelineHeaderView_pipelineStatusReason />
             </@fdsCheckAnswers.checkAnswersRow>
         </#if>
 

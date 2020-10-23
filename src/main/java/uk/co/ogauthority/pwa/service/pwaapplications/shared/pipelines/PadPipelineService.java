@@ -435,6 +435,11 @@ public class PadPipelineService implements ApplicationFormSectionService {
         .collect(Collectors.toMap(Pair::getKey, Pair::getValue));
   }
 
+  public boolean canShowOutOfUseQuestionForPipelineHeader(PipelineStatus pipelineStatus) {
+    return PipelineStatus.OUT_OF_USE_ON_SEABED.equals(pipelineStatus);
+  }
+
+
   @Transactional
   public PadPipeline copyDataToNewPadPipeline(PwaApplicationDetail detail, PipelineDetail pipelineDetail,
                                               ModifyPipelineForm form) {

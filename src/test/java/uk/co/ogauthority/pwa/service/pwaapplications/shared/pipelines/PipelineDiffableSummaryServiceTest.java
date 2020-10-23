@@ -12,6 +12,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineStatus;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
@@ -76,6 +77,7 @@ public class PipelineDiffableSummaryServiceTest {
 
     when(padPipelineOverview.getPipelineName()).thenReturn(PAD_PIPELINE_NAME);
     when(padPipelineOverview.getPipelineId()).thenReturn(PIPELINE_ID);
+    when(padPipelineOverview.getPipelineStatus()).thenReturn(PipelineStatus.IN_SERVICE);
 
     IdentViewTestUtil.setupSingleCoreIdentViewMock(identStart, PIPELINE_POINT_1, PIPELINE_POINT_2, 1);
     IdentViewTestUtil.setupSingleCoreIdentViewMock(identMid, PIPELINE_POINT_2, PIPELINE_POINT_3, 2);
@@ -103,6 +105,9 @@ public class PipelineDiffableSummaryServiceTest {
     when(padPipelineService.getApplicationPipelineOverviews(pwaApplicationDetail))
         .thenReturn(List.of(padPipelineOverview));
 
+    when(padPipelineService.canShowOutOfUseQuestionForPipelineHeader(padPipelineOverview.getPipelineStatus()))
+        .thenReturn(true);
+
     var summaryList = pipelineDiffableSummaryService.getApplicationDetailPipelines(pwaApplicationDetail);
 
     assertThat(summaryList).hasSize(1);
@@ -122,6 +127,9 @@ public class PipelineDiffableSummaryServiceTest {
         .thenReturn(List.of(padPipelineOverview));
     when(padPipelineIdentService.getIdentViewsFromOverview(padPipelineOverview))
         .thenReturn(List.of(identStart, identMid, identEnd));
+
+    when(padPipelineService.canShowOutOfUseQuestionForPipelineHeader(padPipelineOverview.getPipelineStatus()))
+        .thenReturn(true);
 
     var summaryList = pipelineDiffableSummaryService.getApplicationDetailPipelines(pwaApplicationDetail);
     var summary = summaryList.get(0);
@@ -190,6 +198,7 @@ public class PipelineDiffableSummaryServiceTest {
     var pipelineDetail = new PipelineDetail(pipeline);
     pipelineDetail.setPipelineType(pipelineType);
     pipelineDetail.setMaxExternalDiameter(maxExternalDiameter);
+    pipelineDetail.setPipelineStatus(PipelineStatus.IN_SERVICE);
     return pipelineDetail;
   }
 

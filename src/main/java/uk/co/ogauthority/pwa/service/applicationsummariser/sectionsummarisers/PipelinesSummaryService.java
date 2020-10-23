@@ -115,10 +115,12 @@ public class PipelinesSummaryService implements ApplicationSectionSummariser {
       diffedPipelineSummaryList.add(pipelineDiffMap);
       // we need to ignore the nested complex list of idents so we can do this diff separately
       // the diff service does not handle nested complex properties natively.
-      pipelineDiffMap.put("pipelineHeader", diffService.diff(
+      Map<String, Object> pipelineHeaderMap = new HashMap<>(diffService.diff(
           pipelineSummaryPair.getLeft().getPipelineHeaderView(), pipelineSummaryPair.getRight().getPipelineHeaderView(),
-          Set.of("identViews")
-      ));
+          Set.of("identViews", "pipelineStatus", "canShowOutOfUseQuestion")));
+      pipelineHeaderMap.put("canShowOutOfUseQuestion", pipelineSummaryPair.getLeft().getCanShowOutOfUseQuestion());
+
+      pipelineDiffMap.put("pipelineHeader", pipelineHeaderMap);
       pipelineDiffMap.put("pipelineIdents",
           diffService.diffComplexLists(
               pipelineSummaryPair.getLeft().getIdentViews(),

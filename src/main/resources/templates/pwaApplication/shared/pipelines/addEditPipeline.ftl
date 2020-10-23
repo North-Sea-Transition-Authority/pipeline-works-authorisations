@@ -8,7 +8,7 @@
 <#-- @ftlvariable name="screenActionType" type="uk.co.ogauthority.pwa.model.form.enums.ScreenActionType" -->
 <#-- @ftlvariable name="errorList" type="java.util.List<uk.co.ogauthority.pwa.model.form.fds.ErrorItem>" -->
 <#-- @ftlvariable name="pipelineNumber" type="String" -->
-<#-- @ftlvariable name="pipelineStatus" type="uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineStatus" -->
+<#-- @ftlvariable name="canShowOutOfUseQuestion" type="java.lang.Boolean" -->
 
 <@defaultPage htmlTitle="${screenActionType.actionText} ${pipelineNumber!} pipeline" pageHeading="${screenActionType.actionText} ${pipelineNumber!} pipeline" breadcrumbs=true>
 
@@ -110,7 +110,7 @@
 
         </@fdsFieldset.fieldset>
 
-        <#if pipelineStatus?has_content && pipelineStatus == "OUT_OF_USE_ON_SEABED">
+        <#if canShowOutOfUseQuestion?has_content && canShowOutOfUseQuestion == true>
             <@fdsTextarea.textarea path="form.whyNotReturnedToShore" labelText="Why is the pipeline not being returned to shore?" characterCount=true maxCharacterLength="4000"/>
         </#if>
 

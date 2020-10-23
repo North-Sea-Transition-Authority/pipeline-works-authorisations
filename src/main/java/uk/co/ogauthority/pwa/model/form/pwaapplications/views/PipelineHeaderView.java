@@ -35,7 +35,9 @@ public class PipelineHeaderView implements PipelineOverview {
   private final Boolean trenchedBuriedBackfilled;
   private final String trenchingMethodsDescription;
   private final PipelineStatus pipelineStatus;
+  private final String pipelineStatusDisplayStr;
   private final String pipelineStatusReason;
+  private final Boolean canShowOutOfUseQuestion;
 
 
   public PipelineHeaderView() {
@@ -61,10 +63,12 @@ public class PipelineHeaderView implements PipelineOverview {
     this.trenchedBuriedBackfilled = null;
     this.trenchingMethodsDescription = null;
     this.pipelineStatus = null;
+    this.pipelineStatusDisplayStr = null;
     this.pipelineStatusReason = null;
+    this.canShowOutOfUseQuestion = null;
   }
 
-  public PipelineHeaderView(PipelineOverview pipelineOverview) {
+  public PipelineHeaderView(PipelineOverview pipelineOverview, Boolean canShowOutOfUseQuestion) {
     this.pipelineId = pipelineOverview.getPipelineId();
     this.pipelineName = pipelineOverview.getPipelineName();
     this.padPipelineId = pipelineOverview.getPadPipelineId();
@@ -87,11 +91,13 @@ public class PipelineHeaderView implements PipelineOverview {
     this.trenchedBuriedBackfilled = pipelineOverview.getTrenchedBuriedBackfilled();
     this.trenchingMethodsDescription = pipelineOverview.getTrenchingMethodsDescription();
     this.pipelineStatus = pipelineOverview.getPipelineStatus();
+    this.pipelineStatusDisplayStr = pipelineOverview.getPipelineStatus().getDisplayText();
     this.pipelineStatusReason = pipelineOverview.getPipelineStatusReason();
+    this.canShowOutOfUseQuestion = canShowOutOfUseQuestion;
   }
 
 
-  public PipelineHeaderView(PipelineDetail pipelineDetail) {
+  public PipelineHeaderView(PipelineDetail pipelineDetail, Boolean canShowOutOfUseQuestion) {
     this.padPipelineId = null;
     this.pipelineName = null;
     this.pipelineId = pipelineDetail.getPipelineId().asInt();
@@ -108,6 +114,7 @@ public class PipelineHeaderView implements PipelineOverview {
     this.pipelineInBundle = pipelineDetail.getPipelineInBundle();
     this.bundleName = pipelineDetail.getBundleName();
     this.pipelineStatus = pipelineDetail.getPipelineStatus();
+    this.pipelineStatusDisplayStr = pipelineDetail.getPipelineStatus().getDisplayText();
     this.pipelineStatusReason = pipelineDetail.getPipelineStatusReason();
     this.numberOfIdents = null;
     this.pipelineFlexibility = null;
@@ -115,6 +122,7 @@ public class PipelineHeaderView implements PipelineOverview {
     this.otherPipelineMaterialUsed = null;
     this.trenchedBuriedBackfilled = null;
     this.trenchingMethodsDescription = null;
+    this.canShowOutOfUseQuestion = canShowOutOfUseQuestion;
   }
 
 
@@ -229,10 +237,19 @@ public class PipelineHeaderView implements PipelineOverview {
     return pipelineStatus;
   }
 
+  public String getPipelineStatusDisplayStr() {
+    return pipelineStatusDisplayStr;
+  }
+
   @Override
   public String getPipelineStatusReason() {
     return pipelineStatusReason;
   }
+
+  public Boolean getCanShowOutOfUseQuestion() {
+    return canShowOutOfUseQuestion;
+  }
+
 
 
   @Override
@@ -266,7 +283,9 @@ public class PipelineHeaderView implements PipelineOverview {
         && Objects.equals(trenchedBuriedBackfilled, that.trenchedBuriedBackfilled)
         && Objects.equals(trenchingMethodsDescription, that.trenchingMethodsDescription)
         && pipelineStatus == that.pipelineStatus
-        && Objects.equals(pipelineStatusReason, that.pipelineStatusReason);
+        && pipelineStatusDisplayStr == that.pipelineStatusDisplayStr
+        && Objects.equals(pipelineStatusReason, that.pipelineStatusReason)
+        && canShowOutOfUseQuestion == that.canShowOutOfUseQuestion;
   }
 
   @Override
@@ -275,6 +294,7 @@ public class PipelineHeaderView implements PipelineOverview {
         toCoordinates,
         pipelineNumber, pipelineType, componentParts, length, productsToBeConveyed, numberOfIdents, maxExternalDiameter,
         pipelineInBundle, bundleName, pipelineFlexibility, pipelineMaterial, otherPipelineMaterialUsed,
-        trenchedBuriedBackfilled, trenchingMethodsDescription, pipelineStatus, pipelineStatusReason);
+        trenchedBuriedBackfilled, trenchingMethodsDescription, pipelineStatus, pipelineStatusDisplayStr,
+        pipelineStatusReason, canShowOutOfUseQuestion);
   }
 }

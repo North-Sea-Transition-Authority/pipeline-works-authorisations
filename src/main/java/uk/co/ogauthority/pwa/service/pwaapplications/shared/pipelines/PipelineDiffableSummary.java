@@ -76,6 +76,10 @@ public final class PipelineDiffableSummary {
     return drawingSummaryView;
   }
 
+  public Boolean getCanShowOutOfUseQuestion() {
+    return pipelineHeaderView.getCanShowOutOfUseQuestion();
+  }
+
 
 
   @Override
