@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.model.entity.pwaapplications;
 import java.time.Instant;
 import java.util.Objects;
 import java.util.Set;
+import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Entity;
@@ -14,6 +15,8 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
+import uk.co.ogauthority.pwa.model.entity.converters.PersonIdConverter;
 import uk.co.ogauthority.pwa.model.entity.converters.PipelinePropertyPhaseConverter;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelineotherproperties.PropertyPhase;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
@@ -48,7 +51,10 @@ public class PwaApplicationDetail implements ParentEntity {
 
   private Instant createdTimestamp;
 
-  private Integer submittedByWuaId;
+  @Basic
+  @Convert(converter = PersonIdConverter.class)
+  @Column(name = "submitted_by_person_id")
+  private PersonId submittedByPersonId;
 
   private Instant submittedTimestamp;
 
@@ -161,12 +167,12 @@ public class PwaApplicationDetail implements ParentEntity {
     this.createdTimestamp = createdTimestamp;
   }
 
-  public Integer getSubmittedByWuaId() {
-    return submittedByWuaId;
+  public PersonId getSubmittedByPersonId() {
+    return submittedByPersonId;
   }
 
-  public void setSubmittedByWuaId(Integer submittedByWuaId) {
-    this.submittedByWuaId = submittedByWuaId;
+  public void setSubmittedByPersonId(PersonId submittedByPersonId) {
+    this.submittedByPersonId = submittedByPersonId;
   }
 
   public Instant getSubmittedTimestamp() {
@@ -344,7 +350,7 @@ public class PwaApplicationDetail implements ParentEntity {
         && Objects.equals(statusLastModifiedByWuaId, that.statusLastModifiedByWuaId)
         && Objects.equals(createdByWuaId, that.createdByWuaId)
         && Objects.equals(createdTimestamp, that.createdTimestamp)
-        && Objects.equals(submittedByWuaId, that.submittedByWuaId)
+        && Objects.equals(submittedByPersonId, that.submittedByPersonId)
         && Objects.equals(submittedTimestamp, that.submittedTimestamp)
         && Objects.equals(initialReviewApprovedByWuaId, that.initialReviewApprovedByWuaId)
         && Objects.equals(initialReviewApprovedTimestamp, that.initialReviewApprovedTimestamp)
@@ -365,7 +371,7 @@ public class PwaApplicationDetail implements ParentEntity {
   @Override
   public int hashCode() {
     return Objects.hash(id, pwaApplication, tipFlag, versionNo, status, statusLastModifiedTimestamp,
-        statusLastModifiedByWuaId, createdByWuaId, createdTimestamp, submittedByWuaId, submittedTimestamp,
+        statusLastModifiedByWuaId, createdByWuaId, createdTimestamp, submittedByPersonId, submittedTimestamp,
         initialReviewApprovedByWuaId, initialReviewApprovedTimestamp, isLinkedToField, notLinkedDescription,
         pipelinesCrossed, cablesCrossed, medianLineCrossed, submittedAsFastTrackFlag, numOfHolders,
         pipelinePhaseProperties, otherPhaseDescription, partnerLettersRequired, partnerLettersConfirmed,

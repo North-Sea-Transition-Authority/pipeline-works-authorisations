@@ -15,7 +15,8 @@ public class PwaApplicationTestUtil {
                                                              PwaApplicationType applicationType,
                                                              PwaApplicationStatus pwaApplicationStatus,
                                                               int appId,
-                                                             int appDetailId) {
+                                                             int appDetailId,
+                                                             int versionNumber) {
     var masterApp = new PwaApplication();
     masterApp.setMasterPwa(masterPwa);
     masterApp.setApplicationType(applicationType);
@@ -27,11 +28,10 @@ public class PwaApplicationTestUtil {
     detail.setId(appDetailId);
     detail.setStatus(pwaApplicationStatus);
     detail.setTipFlag(true);
-    detail.setVersionNo(1);
+    detail.setVersionNo(versionNumber);
     detail.setSubmittedAsFastTrackFlag(false);
 
     return detail;
-
   }
 
   public static PwaApplicationDetail createDefaultApplicationDetail(PwaApplicationType applicationType) {
@@ -39,22 +39,20 @@ public class PwaApplicationTestUtil {
   }
 
   public static PwaApplicationDetail createDefaultApplicationDetail(PwaApplicationType applicationType, int appId) {
-    var masterPwa = new MasterPwa(Instant.now());
-    masterPwa.setId(10);
-
     return createDefaultApplicationDetail(applicationType, appId, 30);
 
   }
 
   public static PwaApplicationDetail createDefaultApplicationDetail(PwaApplicationType applicationType, int appId, int appDetailId) {
+    return createDefaultApplicationDetail(applicationType, appId, appDetailId, 1);
+  }
+
+  public static PwaApplicationDetail createDefaultApplicationDetail(PwaApplicationType applicationType, int appId, int appDetailId, int versionNumber) {
     var masterPwa = new MasterPwa(Instant.now());
     masterPwa.setId(10);
 
-    return createApplicationDetail(masterPwa, applicationType, PwaApplicationStatus.DRAFT, appId, appDetailId);
-
+    return createApplicationDetail(masterPwa, applicationType, PwaApplicationStatus.DRAFT, appId, appDetailId, versionNumber);
   }
-
-
 
   public static void tryAssertionWithStatus(PwaApplicationStatus status, Consumer<PwaApplicationStatus> tryBlock){
     try{

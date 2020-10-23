@@ -28,9 +28,9 @@ import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingConte
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationWorkflowTask;
 import uk.co.ogauthority.pwa.service.notify.NotifyService;
+import uk.co.ogauthority.pwa.service.person.PersonService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.teammanagement.TeamManagementService;
-import uk.co.ogauthority.pwa.service.users.UserAccountService;
 import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
 import uk.co.ogauthority.pwa.service.workflow.assignment.WorkflowAssignmentService;
 import uk.co.ogauthority.pwa.service.workflow.task.WorkflowTaskInstance;
@@ -54,7 +54,7 @@ public class InitialReviewServiceTest {
   private NotifyService notifyService;
 
   @Mock
-  private UserAccountService userAccountService;
+  private PersonService personService;
 
   @Captor
   private ArgumentCaptor<EmailProperties> emailPropertiesArgumentCaptor;
@@ -83,15 +83,21 @@ public class InitialReviewServiceTest {
     detail = new PwaApplicationDetail();
     detail.setPwaApplication(app);
     detail.setStatus(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW);
-    detail.setSubmittedByWuaId(industryUser.getWuaId());
+    detail.setSubmittedByPersonId(industryPerson.getId());
 
     caseOfficerPerson = new Person(555, "Test", "CO", "case-officer@pwa.co.uk", null);
 
-    when(userAccountService.getWebUserAccount(industryUser.getWuaId())).thenReturn(industryUser);
+    when(personService.getPersonById(industryPerson.getId())).thenReturn(industryPerson);
 
     when(teamManagementService.getPerson(caseOfficerPerson.getId().asInt())).thenReturn(caseOfficerPerson);
 
-    initialReviewService = new InitialReviewService(detailService, camundaWorkflowService, assignmentService, teamManagementService, notifyService, userAccountService);
+    initialReviewService = new InitialReviewService(
+        detailService,
+        camundaWorkflowService,
+        assignmentService,
+        teamManagementService,
+        notifyService,
+        personService);
 
   }
 

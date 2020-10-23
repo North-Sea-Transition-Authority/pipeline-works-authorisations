@@ -34,6 +34,8 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
+import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelineotherproperties.PropertyPhase;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
@@ -51,6 +53,8 @@ public class PwaApplicationDetailServiceTest {
 
   private static final int WUA_ID_1 = 1;
   private static final int WUA_ID_2 = 2;
+  private static final PersonId WUA_1_PERSON_ID = new PersonId(10);
+  private static final PersonId WUA_2_PERSON_ID = new PersonId(20);
   private static int APP_ID = 1;
 
   @Mock
@@ -64,7 +68,10 @@ public class PwaApplicationDetailServiceTest {
 
   private PwaApplicationDetailService pwaApplicationDetailService;
   private PwaApplicationDetail pwaApplicationDetail;
-  private WebUserAccount webUserAccount;
+  private WebUserAccount webUserAccount1;
+  private WebUserAccount webUserAccount2;
+  private Person wua1Person = new Person(WUA_1_PERSON_ID.asInt(), "Industry", "Person", "industry@pwa.co.uk", null);
+  private Person wua2Person = new Person(WUA_2_PERSON_ID.asInt(), "Industry2", "Person2", "industry@pwa.co.uk", null);
   private AuthenticatedUserAccount user;
 
   private Clock clock;
@@ -72,8 +79,9 @@ public class PwaApplicationDetailServiceTest {
   @Before
   public void setUp() {
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL, APP_ID);
-    webUserAccount = new WebUserAccount(WUA_ID_1);
-    user = new AuthenticatedUserAccount(webUserAccount, List.of());
+    webUserAccount1 = new WebUserAccount(WUA_ID_1, wua1Person);
+    webUserAccount2 = new WebUserAccount(WUA_ID_2, wua2Person);
+    user = new AuthenticatedUserAccount(webUserAccount1, List.of());
 
     var fixedInstant = LocalDate
         .of(2020, 2, 6)
@@ -140,7 +148,7 @@ public class PwaApplicationDetailServiceTest {
     assertThat(detail.getVersionNo()).isEqualTo(1);
     assertThat(detail.getCreatedByWuaId()).isEqualTo(user.getWuaId());
     assertThat(detail.getCreatedTimestamp()).isEqualTo(clock.instant());
-    assertThat(detail.getSubmittedByWuaId()).isNull();
+    assertThat(detail.getSubmittedByPersonId()).isNull();
     assertThat(detail.getSubmittedTimestamp()).isNull();
     assertThat(detail.getStatusLastModifiedByWuaId()).isEqualTo(user.getWuaId());
     assertThat(detail.getStatusLastModifiedTimestamp()).isEqualTo(clock.instant());
@@ -171,7 +179,7 @@ public class PwaApplicationDetailServiceTest {
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.CAT_1_VARIATION);
     detail.setStatus(PwaApplicationStatus.DRAFT);
 
-    var alternativeWua = new WebUserAccount(1000);
+    var alternativeWua = new WebUserAccount(1000, wua2Person);
 
     when(fastTrackService.isFastTrackRequired(detail)).thenReturn(true);
 
@@ -184,7 +192,7 @@ public class PwaApplicationDetailServiceTest {
     assertThat(submittedDetail.getStatusLastModifiedByWuaId()).isEqualTo(alternativeWua.getWuaId());
     assertThat(submittedDetail.getStatus()).isEqualTo(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW);
     assertThat(submittedDetail.getSubmittedTimestamp()).isEqualTo(clock.instant());
-    assertThat(submittedDetail.getSubmittedByWuaId()).isEqualTo(alternativeWua.getWuaId());
+    assertThat(submittedDetail.getSubmittedByPersonId()).isEqualTo(wua2Person.getId());
 
     assertThat(submittedDetail.getSubmittedAsFastTrackFlag()).isTrue();
 
@@ -241,7 +249,7 @@ public class PwaApplicationDetailServiceTest {
   @Test
   public void createNewTipDetail_setsOldValueAsNotTip_andSetsAttributesOnNewDetailAsExpected() {
 
-    setAllPwaAppDetailFields(pwaApplicationDetail, PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW, WUA_ID_2);
+    setAllPwaAppDetailFields(pwaApplicationDetail, PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW, webUserAccount2);
     pwaApplicationDetail.setStatus(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW);
 
     var newDetail = pwaApplicationDetailService.createNewTipDetail(pwaApplicationDetail, user);
@@ -264,7 +272,7 @@ public class PwaApplicationDetailServiceTest {
 
     var ignoredFields = List.of("id", "status", "tipFlag", "versionNo", "createdTimestamp", "statusLastModifiedTimestamp", "statusLastModifiedByWuaId", "createdByWuaId");
 
-    var nullFields = List.of("id", "submittedByWuaId", "submittedTimestamp", "initialReviewApprovedByWuaId", "initialReviewApprovedTimestamp", "submittedAsFastTrackFlag");
+    var nullFields = List.of("id", "submittedByPersonId", "submittedTimestamp", "initialReviewApprovedByWuaId", "initialReviewApprovedTimestamp", "submittedAsFastTrackFlag");
 
     var ignoredForEqualsComparison = new ArrayList<String>();
     ignoredForEqualsComparison.addAll(ignoredFields);
@@ -307,7 +315,7 @@ public class PwaApplicationDetailServiceTest {
 
   }
 
-  private void setAllPwaAppDetailFields(PwaApplicationDetail detail, PwaApplicationStatus status, Integer wuaId) {
+  private void setAllPwaAppDetailFields(PwaApplicationDetail detail, PwaApplicationStatus status, WebUserAccount wua) {
     // This should not be setting any value as null. That will defeat the purpose of this method.
     var baseTime = Instant.ofEpochSecond(
         LocalDateTime.of(2000, 12, 31, 0, 59).toEpochSecond(ZoneOffset.UTC)
@@ -323,13 +331,13 @@ public class PwaApplicationDetailServiceTest {
     detail.setOtherPhaseDescription("OTHER PHASE DESC");
     detail.setPartnerLettersRequired(true);
     detail.setPartnerLettersConfirmed(true);
-    detail.setCreatedByWuaId(wuaId);
+    detail.setCreatedByWuaId(wua.getWuaId());
     detail.setCreatedTimestamp(baseTime);
-    detail.setSubmittedByWuaId(wuaId);
+    detail.setSubmittedByPersonId(wua.getLinkedPerson().getId());
     detail.setSubmittedTimestamp(baseTime);
-    detail.setStatusLastModifiedByWuaId(wuaId);
+    detail.setStatusLastModifiedByWuaId(wua.getWuaId());
     detail.setStatusLastModifiedTimestamp(baseTime);
-    detail.setInitialReviewApprovedByWuaId(wuaId);
+    detail.setInitialReviewApprovedByWuaId(wua.getWuaId());
     detail.setInitialReviewApprovedTimestamp(baseTime);
     detail.setSupplementaryDocumentsFlag(true);
 

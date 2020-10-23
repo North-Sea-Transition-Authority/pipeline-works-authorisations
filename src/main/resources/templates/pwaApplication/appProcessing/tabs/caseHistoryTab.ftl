@@ -21,8 +21,11 @@
               <@fdsTimeline.timelineEvent>
 
                   <@fdsDataItems.dataItem dataItemListClasses="fds-data-items-list--tight">
-                    <@fdsDataItems.dataValues key="Date and time" value=item.dateTimeDisplay />
-                    <@fdsDataItems.dataValues key=item.personLabelText value=item.personName />
+                      <@fdsDataItems.dataValues key="Date and time" value=item.dateTimeDisplay />
+                      <@fdsDataItems.dataValues key=item.personLabelText value=item.personName />
+                      <#if item.personEmailLabel?has_content>
+                          <@fdsDataItems.dataValues key=item.personEmailLabel value=item.personEmail />
+                      </#if>
                 </@fdsDataItems.dataItem>
 
                 <@fdsDataItems.dataItem dataItemListClasses="fds-data-items-list--tight">

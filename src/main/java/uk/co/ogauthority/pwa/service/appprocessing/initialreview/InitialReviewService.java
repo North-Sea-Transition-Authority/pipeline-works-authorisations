@@ -14,9 +14,9 @@ import uk.co.ogauthority.pwa.service.enums.appprocessing.TaskStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationWorkflowTask;
 import uk.co.ogauthority.pwa.service.notify.NotifyService;
+import uk.co.ogauthority.pwa.service.person.PersonService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.teammanagement.TeamManagementService;
-import uk.co.ogauthority.pwa.service.users.UserAccountService;
 import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
 import uk.co.ogauthority.pwa.service.workflow.assignment.WorkflowAssignmentService;
 import uk.co.ogauthority.pwa.service.workflow.task.WorkflowTaskInstance;
@@ -32,7 +32,7 @@ public class InitialReviewService implements AppProcessingService {
   private final WorkflowAssignmentService workflowAssignmentService;
   private final TeamManagementService teamManagementService;
   private final NotifyService notifyService;
-  private final UserAccountService userAccountService;
+  private final PersonService personService;
 
   @Autowired
   public InitialReviewService(PwaApplicationDetailService applicationDetailService,
@@ -40,13 +40,13 @@ public class InitialReviewService implements AppProcessingService {
                               WorkflowAssignmentService workflowAssignmentService,
                               TeamManagementService teamManagementService,
                               NotifyService notifyService,
-                              UserAccountService userAccountService) {
+                              PersonService personService) {
     this.applicationDetailService = applicationDetailService;
     this.workflowService = workflowService;
     this.workflowAssignmentService = workflowAssignmentService;
     this.teamManagementService = teamManagementService;
     this.notifyService = notifyService;
-    this.userAccountService = userAccountService;
+    this.personService = personService;
   }
 
   @Transactional
@@ -76,8 +76,7 @@ public class InitialReviewService implements AppProcessingService {
 
   private void sendCaseOfficerAssignedEmail(PwaApplicationDetail applicationDetail, String caseOfficerName) {
 
-    var submitterPerson = userAccountService.getWebUserAccount(applicationDetail.getSubmittedByWuaId())
-        .getLinkedPerson();
+    var submitterPerson = personService.getPersonById(applicationDetail.getSubmittedByPersonId());
 
     var props = new CaseOfficerAssignedEmailProps(submitterPerson.getFullName(), applicationDetail.getPwaApplicationRef(), caseOfficerName);
 

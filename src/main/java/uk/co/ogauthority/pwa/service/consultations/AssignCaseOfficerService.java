@@ -15,8 +15,8 @@ import uk.co.ogauthority.pwa.service.appprocessing.tasks.AppProcessingService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationWorkflowTask;
 import uk.co.ogauthority.pwa.service.notify.NotifyService;
+import uk.co.ogauthority.pwa.service.person.PersonService;
 import uk.co.ogauthority.pwa.service.teammanagement.TeamManagementService;
-import uk.co.ogauthority.pwa.service.users.UserAccountService;
 import uk.co.ogauthority.pwa.service.workflow.assignment.WorkflowAssignmentService;
 import uk.co.ogauthority.pwa.validators.consultations.AssignCaseOfficerValidator;
 
@@ -26,7 +26,7 @@ public class AssignCaseOfficerService implements AppProcessingService {
   private final WorkflowAssignmentService workflowAssignmentService;
   private final TeamManagementService teamManagementService;
   private final NotifyService notifyService;
-  private final UserAccountService userAccountService;
+  private final PersonService personService;
   private final AssignCaseOfficerValidator assignCaseOfficerValidator;
 
   @Autowired
@@ -34,12 +34,12 @@ public class AssignCaseOfficerService implements AppProcessingService {
       WorkflowAssignmentService workflowAssignmentService,
       TeamManagementService teamManagementService,
       NotifyService notifyService,
-      UserAccountService userAccountService,
+      PersonService personService,
       AssignCaseOfficerValidator assignCaseOfficerValidator) {
     this.workflowAssignmentService = workflowAssignmentService;
     this.teamManagementService = teamManagementService;
     this.notifyService = notifyService;
-    this.userAccountService = userAccountService;
+    this.personService = personService;
     this.assignCaseOfficerValidator = assignCaseOfficerValidator;
   }
 
@@ -59,8 +59,7 @@ public class AssignCaseOfficerService implements AppProcessingService {
   }
 
   private void sendCaseOfficerAssignedEmail(PwaApplicationDetail applicationDetail, Person caseOfficer) {
-    var submitterPerson = userAccountService.getWebUserAccount(applicationDetail.getSubmittedByWuaId())
-        .getLinkedPerson();
+    var submitterPerson = personService.getPersonById(applicationDetail.getSubmittedByPersonId());
 
     var props = new CaseOfficerAssignedEmailProps(
         submitterPerson.getFullName(), applicationDetail.getPwaApplicationRef(), caseOfficer.getFullName());
