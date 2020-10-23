@@ -1,32 +1,28 @@
 package uk.co.ogauthority.pwa.service.workarea;
 
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
-import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupMemberRole;
-import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupTeamService;
-import uk.co.ogauthority.pwa.service.teams.TeamService;
+import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.service.users.UserTypeService;
 
 @Service
 public class WorkAreaTabService {
 
-  private final TeamService teamService;
-  private final ConsulteeGroupTeamService consulteeGroupTeamService;
+  private final UserTypeService userTypeService;
 
   @Autowired
-  public WorkAreaTabService(TeamService teamService,
-                            ConsulteeGroupTeamService consulteeGroupTeamService) {
-    this.teamService = teamService;
-    this.consulteeGroupTeamService = consulteeGroupTeamService;
+  public WorkAreaTabService(UserTypeService userTypeService) {
+
+    this.userTypeService = userTypeService;
   }
 
-  public Optional<WorkAreaTab> getDefaultTabForPerson(Person person) {
+  public Optional<WorkAreaTab> getDefaultTabForUser(AuthenticatedUserAccount user) {
 
-    var availableTabs = getTabsAvailableToPerson(person);
+    var availableTabs = getTabsAvailableToUser(user);
 
     if (availableTabs.isEmpty()) {
       return Optional.empty();
@@ -36,29 +32,13 @@ public class WorkAreaTabService {
 
   }
 
-  public List<WorkAreaTab> getTabsAvailableToPerson(Person person) {
+  public List<WorkAreaTab> getTabsAvailableToUser(AuthenticatedUserAccount authenticatedUserAccount) {
+    var userType = userTypeService.getUserType(authenticatedUserAccount);
 
-    var tabs = new ArrayList<WorkAreaTab>();
-
-    var orgTeams = teamService.getOrganisationTeamsPersonIsMemberOf(person);
-    boolean isRegulatorUser = teamService.getMembershipOfPersonInTeam(teamService.getRegulatorTeam(), person).isPresent();
-
-    if (!orgTeams.isEmpty() || isRegulatorUser) {
-      tabs.add(WorkAreaTab.OPEN_APPLICATIONS);
-    }
-
-    boolean consulteeUser = consulteeGroupTeamService.getTeamMembersByPerson(person).stream()
-        .flatMap(groupTeamMember -> groupTeamMember.getRoles().stream())
-        .anyMatch(role -> role == ConsulteeGroupMemberRole.RECIPIENT || role == ConsulteeGroupMemberRole.RESPONDER);
-
-    if (consulteeUser) {
-      tabs.add(WorkAreaTab.OPEN_CONSULTATIONS);
-    }
-
-    tabs.sort(Comparator.comparing(WorkAreaTab::getDisplayOrder));
-
-    return tabs;
-
+    return WorkAreaTab.stream()
+        .filter(tab -> tab.getUserType().equals(userType))
+        .sorted(Comparator.comparing(WorkAreaTab::getDisplayOrder))
+        .collect(Collectors.toUnmodifiableList());
   }
 
 }

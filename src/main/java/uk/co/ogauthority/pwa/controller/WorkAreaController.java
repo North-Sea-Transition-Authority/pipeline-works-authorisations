@@ -46,7 +46,7 @@ public class WorkAreaController {
                                      AuthenticatedUserAccount authenticatedUserAccount,
                                      RedirectAttributes redirectAttributes) {
 
-    Optional<WorkAreaTab> tab = workAreaTabService.getDefaultTabForPerson(authenticatedUserAccount.getLinkedPerson());
+    Optional<WorkAreaTab> tab = workAreaTabService.getDefaultTabForUser(authenticatedUserAccount);
 
     if (tab.isPresent()) {
 
@@ -72,7 +72,7 @@ public class WorkAreaController {
                                         @PathVariable("tabKey") WorkAreaTab tab,
                                         @RequestParam(defaultValue = "0", name = "page") Integer page) {
 
-    var tabs = workAreaTabService.getTabsAvailableToPerson(authenticatedUserAccount.getLinkedPerson());
+    var tabs = workAreaTabService.getTabsAvailableToUser(authenticatedUserAccount);
 
     if (!tabs.contains(tab)) {
       throw new AccessDeniedException(String.format(

@@ -23,12 +23,10 @@
 
             <@fdsBackendTabs.tabContent tabAnchor=tab.anchor currentTab=currentWorkAreaTab.value tabValue=tab.value>
 
-                <#if tab == "OPEN_APPLICATIONS">
-                    <@applicationsTab.tab workAreaPageView=workAreaResult.getApplicationsTabPages()! />
-                </#if>
-
                 <#if tab == "OPEN_CONSULTATIONS">
                     <@consultationsTab.tab workAreaPageView=workAreaResult.getConsultationsTabPages()! />
+                 <#else>
+                     <@applicationsTab.tab workAreaPageView=workAreaResult.getApplicationsTabPages()! />
                 </#if>
 
             </@fdsBackendTabs.tabContent>

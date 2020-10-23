@@ -66,7 +66,7 @@ public class ApplicationWorkAreaPageService {
                                                           int page) {
 
     var workAreaUri = ReverseRouter.route(
-        on(WorkAreaController.class).renderWorkAreaTab(null, WorkAreaTab.OPEN_APPLICATIONS, page));
+        on(WorkAreaController.class).renderWorkAreaTab(null, WorkAreaTab.REGULATOR_OPEN_APPLICATIONS, page));
 
     return PageView.fromPage(
         getApplicationSearchResults(authenticatedUserAccount, applicationIds, page),

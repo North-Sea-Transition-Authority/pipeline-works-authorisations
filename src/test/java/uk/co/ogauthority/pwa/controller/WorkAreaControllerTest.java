@@ -60,8 +60,8 @@ public class WorkAreaControllerTest extends AbstractControllerTest {
   public void setup() {
 
     var emptyResultPageView = setupFakeWorkAreaResultPageView(0);
-    when(workAreaService.getWorkAreaResult(any(), eq(WorkAreaTab.OPEN_APPLICATIONS), anyInt())).thenReturn(new WorkAreaResult(emptyResultPageView, null));
-    when(workAreaTabService.getTabsAvailableToPerson(any())).thenReturn(List.of(WorkAreaTab.values()));
+    when(workAreaService.getWorkAreaResult(any(), eq(WorkAreaTab.REGULATOR_OPEN_APPLICATIONS), anyInt())).thenReturn(new WorkAreaResult(emptyResultPageView, null));
+    when(workAreaTabService.getTabsAvailableToUser(any())).thenReturn(List.of(WorkAreaTab.values()));
 
   }
 
@@ -79,7 +79,7 @@ public class WorkAreaControllerTest extends AbstractControllerTest {
   @Test
   public void renderWorkArea_noDefaultTab() throws Exception {
 
-    when(workAreaTabService.getDefaultTabForPerson(authenticatedUserAccount.getLinkedPerson())).thenReturn(Optional.empty());
+    when(workAreaTabService.getDefaultTabForUser(authenticatedUserAccount)).thenReturn(Optional.empty());
 
     mockMvc.perform(get(ReverseRouter.route(on(WorkAreaController.class).renderWorkArea(null, null, null)))
         .with(authenticatedUserAndSession(authenticatedUserAccount)))
@@ -90,7 +90,7 @@ public class WorkAreaControllerTest extends AbstractControllerTest {
   @Test
   public void renderWorkArea_defaultTab() throws Exception {
 
-    when(workAreaTabService.getDefaultTabForPerson(authenticatedUserAccount.getLinkedPerson())).thenReturn(Optional.of(WorkAreaTab.OPEN_APPLICATIONS));
+    when(workAreaTabService.getDefaultTabForUser(authenticatedUserAccount)).thenReturn(Optional.of(WorkAreaTab.REGULATOR_OPEN_APPLICATIONS));
 
     mockMvc.perform(get(ReverseRouter.route(on(WorkAreaController.class).renderWorkArea(null, null, null)))
         .with(authenticatedUserAndSession(authenticatedUserAccount)))
@@ -112,33 +112,33 @@ public class WorkAreaControllerTest extends AbstractControllerTest {
 
   @Test
   public void renderWorkAreaTab_WhenNoPageParamProvided_defaultsApplied() throws Exception {
-    mockMvc.perform(get(ReverseRouter.route(on(WorkAreaController.class).renderWorkAreaTab(null, WorkAreaTab.OPEN_APPLICATIONS, null)))
+    mockMvc.perform(get(ReverseRouter.route(on(WorkAreaController.class).renderWorkAreaTab(null, WorkAreaTab.REGULATOR_OPEN_APPLICATIONS, null)))
         .with(authenticatedUserAndSession(authenticatedUserAccount)))
         .andExpect(status().isOk());
 
     verify(workAreaService, times(1))
-        .getWorkAreaResult(authenticatedUserAccount, WorkAreaTab.OPEN_APPLICATIONS, 0);
+        .getWorkAreaResult(authenticatedUserAccount, WorkAreaTab.REGULATOR_OPEN_APPLICATIONS, 0);
   }
 
 
   @Test
   public void renderWorkAreaTab_whenPageParamProvided() throws Exception {
     mockMvc.perform(get(ReverseRouter.route(on(WorkAreaController.class)
-        .renderWorkAreaTab(null, WorkAreaTab.OPEN_APPLICATIONS, 100)))
+        .renderWorkAreaTab(null, WorkAreaTab.REGULATOR_OPEN_APPLICATIONS, 100)))
         .with(authenticatedUserAndSession(authenticatedUserAccount)))
         .andExpect(status().isOk());
 
     verify(workAreaService, times(1))
-        .getWorkAreaResult(authenticatedUserAccount, WorkAreaTab.OPEN_APPLICATIONS, 100);
+        .getWorkAreaResult(authenticatedUserAccount, WorkAreaTab.REGULATOR_OPEN_APPLICATIONS, 100);
   }
 
   @Test
   public void renderWorkAreaTab_notAllowedToAccessTab() throws Exception {
 
-    when(workAreaTabService.getTabsAvailableToPerson(authenticatedUserAccount.getLinkedPerson())).thenReturn(List.of());
+    when(workAreaTabService.getTabsAvailableToUser(authenticatedUserAccount)).thenReturn(List.of());
 
     mockMvc.perform(get(ReverseRouter.route(on(WorkAreaController.class)
-        .renderWorkAreaTab(null, WorkAreaTab.OPEN_APPLICATIONS, null)))
+        .renderWorkAreaTab(null, WorkAreaTab.REGULATOR_OPEN_APPLICATIONS, null)))
         .with(authenticatedUserAndSession(authenticatedUserAccount)))
         .andExpect(status().isForbidden());
 

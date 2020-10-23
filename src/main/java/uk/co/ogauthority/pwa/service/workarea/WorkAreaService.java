@@ -47,7 +47,15 @@ public class WorkAreaService {
 
     switch (workAreaTab) {
 
-      case OPEN_APPLICATIONS:
+      case INDUSTRY_OPEN_APPLICATIONS:
+        businessKeys = getBusinessKeysFromWorkflowToTaskMap(workflowTypeToTaskMap, WorkflowType.PWA_APPLICATION);
+        return new WorkAreaResult(applicationWorkAreaPageService.getPageView(authenticatedUserAccount, businessKeys, page), null);
+
+      case INDUSTRY_SUBMITTED_APPLICATIONS:
+        businessKeys = getBusinessKeysFromWorkflowToTaskMap(workflowTypeToTaskMap, WorkflowType.PWA_APPLICATION);
+        return new WorkAreaResult(applicationWorkAreaPageService.getPageView(authenticatedUserAccount, businessKeys, page), null);
+
+      case REGULATOR_OPEN_APPLICATIONS:
         businessKeys = getBusinessKeysFromWorkflowToTaskMap(workflowTypeToTaskMap, WorkflowType.PWA_APPLICATION);
         return new WorkAreaResult(applicationWorkAreaPageService.getPageView(authenticatedUserAccount, businessKeys, page), null);
 
