@@ -19,7 +19,6 @@
 <#import 'components/caseSummary/caseSummary.ftl' as pwaCaseSummary>
 <#import 'components/clauseList/clauseList.ftl' as pwaClauseList>
 <#import 'components/appUpdateRequest/updateRequestView.ftl' as pwaUpdateRequestView/>
-<#import 'components/hideableCheckAnswersRow/hideableCheckAnswersRow.ftl' as pwaHideableCheckAnswersRow/>
 <#import 'components/appSummary/appSummary.ftl' as pwaAppSummary>
 <#import 'components/sidebarSectionLink/sidebarSectionLink.ftl' as pwaSidebarSectionLink>
 <#import 'components/tableSelectorToggler/tableSelectorToggler.ftl' as pwaTableSelectionToggler>

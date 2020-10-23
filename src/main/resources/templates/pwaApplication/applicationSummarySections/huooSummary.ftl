@@ -32,28 +32,28 @@
             <#assign hasCompanyData = diffedHuoo.DiffableOrgRolePipelineGroup_hasCompanyData.currentValue?upper_case == "YES"/>
 
             <#if hasCompanyData>
-                <@pwaHideableCheckAnswersRow.hideableCheckAnswersRow keyText="Company number" actionUrl="" screenReaderActionText="" actionText="" rowClass=(hasCompanyData == false)?then(diffHideGroup, "")>
+                <@fdsCheckAnswers.checkAnswersRowNoAction keyText="Company number" rowClass=(hasCompanyData == false)?then(diffHideGroup, "")>
                     <@diffChanges.renderDiff diffedField=diffedHuoo.DiffableOrgRolePipelineGroup_companyNumber/>
-                </@pwaHideableCheckAnswersRow.hideableCheckAnswersRow>
+                </@fdsCheckAnswers.checkAnswersRowNoAction>
 
-                <@pwaHideableCheckAnswersRow.hideableCheckAnswersRow keyText="Legal entity address" actionUrl="" screenReaderActionText="" actionText="" rowClass=(hasCompanyData == false)?then(diffHideGroup, "")>
+                <@fdsCheckAnswers.checkAnswersRowNoAction keyText="Legal entity address" rowClass=(hasCompanyData == false)?then(diffHideGroup, "")>
                     <@diffChanges.renderDiff diffedField=diffedHuoo.DiffableOrgRolePipelineGroup_companyAddress/>
-                </@pwaHideableCheckAnswersRow.hideableCheckAnswersRow>
+                </@fdsCheckAnswers.checkAnswersRowNoAction>
 
             <#elseif diffedHuoo.DiffableOrgRolePipelineGroup_isManuallyEnteredName.currentValue?upper_case == "NO">
-                <@pwaHideableCheckAnswersRow.hideableCheckAnswersRow keyText="Treaty agreement text" actionUrl="" screenReaderActionText="" actionText="" rowClass=hasCompanyData?then(diffHideGroup, "")>
+                <@fdsCheckAnswers.checkAnswersRowNoAction keyText="Treaty agreement text" rowClass=hasCompanyData?then(diffHideGroup, "")>
                     <@diffChanges.renderDiff diffedField=diffedHuoo.DiffableOrgRolePipelineGroup_treatyAgreementText/>
-                </@pwaHideableCheckAnswersRow.hideableCheckAnswersRow>
+                </@fdsCheckAnswers.checkAnswersRowNoAction>
             </#if>
 
 
-            <@pwaHideableCheckAnswersRow.hideableCheckAnswersRow keyText="Pipelines" actionUrl="" screenReaderActionText="" actionText="" rowClass=isRemovedOrg?then(diffHideGroup, "")>
+            <@fdsCheckAnswers.checkAnswersRowNoAction keyText="Pipelines" rowClass=isRemovedOrg?then(diffHideGroup, "")>
                 <ul class="govuk-list">
                     <#list diffedHuoo.DiffableOrgRolePipelineGroup_pipelineAndSplitsList as diffedPipelineNumber>
                         <li><@diffChanges.renderDiff diffedField=diffedPipelineNumber /></li>
                     </#list>
                 </ul>
-            </@pwaHideableCheckAnswersRow.hideableCheckAnswersRow>
+            </@fdsCheckAnswers.checkAnswersRowNoAction>
 
         </@fdsCheckAnswers.checkAnswers>
 

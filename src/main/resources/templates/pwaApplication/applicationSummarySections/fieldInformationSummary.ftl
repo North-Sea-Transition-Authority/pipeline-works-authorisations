@@ -19,22 +19,13 @@
       <#assign diffHideGroup = "hide-when-diff-disabled"/>
 
       <#if showPwaLinkedToDesc>
-        <@pwaHideableCheckAnswersRow.hideableCheckAnswersRow keyText="What is this PWA in relation to?"
-          actionUrl=""
-          screenReaderActionText=""
-          actionText=""
-          rowClass=hidePwaLinkedToDescOnLoad?then(diffHideGroup, "")>
+        <@fdsCheckAnswers.checkAnswersRowNoAction keyText="What is this PWA in relation to?" rowClass=hidePwaLinkedToDescOnLoad?then(diffHideGroup, "")>
           <@diffChanges.renderDiff diffedField=fieldLinkQuestions.PwaFieldLinksView_pwaLinkedToDescription multiLineTextBlockClass="govuk-summary-list"/>
-        </@pwaHideableCheckAnswersRow.hideableCheckAnswersRow>
+        </@fdsCheckAnswers.checkAnswersRowNoAction>
       </#if>
 
       <#if showFieldNames>
-        <@pwaHideableCheckAnswersRow.hideableCheckAnswersRow
-          keyText="Linked fields"
-          actionUrl=""
-          screenReaderActionText=""
-          actionText=""
-          rowClass=hideFieldNamesOnLoad?then(diffHideGroup, "")>
+        <@fdsCheckAnswers.checkAnswersRowNoAction keyText="Linked fields" rowClass=hideFieldNamesOnLoad?then(diffHideGroup, "")>
           <ul class="govuk-list">
           <#list fieldLinks as field>
 
@@ -42,7 +33,7 @@
 
           </#list>
           </ul>
-        </@pwaHideableCheckAnswersRow.hideableCheckAnswersRow>
+        </@fdsCheckAnswers.checkAnswersRowNoAction>
       </#if>
 
     </@fdsCheckAnswers.checkAnswers>
