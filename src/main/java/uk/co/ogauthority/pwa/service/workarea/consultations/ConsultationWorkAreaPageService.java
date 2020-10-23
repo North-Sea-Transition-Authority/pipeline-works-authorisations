@@ -2,9 +2,8 @@ package uk.co.ogauthority.pwa.service.workarea.consultations;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
-import java.util.List;
+import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
@@ -55,18 +54,18 @@ public class ConsultationWorkAreaPageService {
                                                                            Set<Integer> consultationRequestIdList,
                                                                            int pageRequest) {
 
-    List<ConsulteeGroupTeamMember> userConsulteeGroupMembershipList = consulteeGroupTeamService
-        .getTeamMembersByPerson(userAccount.getLinkedPerson());
+    Optional<ConsulteeGroupTeamMember> userConsulteeGroupMembership = consulteeGroupTeamService
+        .getTeamMemberByPerson(userAccount.getLinkedPerson());
 
-    Set<Integer> consulteeGroupIdsToGetAllocationRequestsFor = userConsulteeGroupMembershipList.stream()
+    Integer consulteeGroupIdToGetAllocationRequestsFor = userConsulteeGroupMembership
         .filter(member -> member.getRoles().contains(ConsulteeGroupMemberRole.RECIPIENT))
         .map(member -> member.getConsulteeGroup().getId())
-        .collect(Collectors.toSet());
+        .orElse(null);
 
     return consultationRequestSearcher.searchByStatusForGroupIdsOrConsultationRequestIds(
         WorkAreaUtils.getWorkAreaPageRequest(pageRequest, ConsultationWorkAreaSort.DEADLINE_DATE_DESC),
         ConsultationRequestStatus.ALLOCATION,
-        consulteeGroupIdsToGetAllocationRequestsFor,
+        consulteeGroupIdToGetAllocationRequestsFor,
         consultationRequestIdList
     );
 

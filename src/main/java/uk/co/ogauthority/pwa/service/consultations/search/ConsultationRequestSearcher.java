@@ -20,17 +20,17 @@ public class ConsultationRequestSearcher {
 
   public Page<ConsultationRequestSearchItem> searchByStatusForGroupIdsOrConsultationRequestIds(Pageable pageable,
                                                                                                ConsultationRequestStatus requestStatus,
-                                                                                               Set<Integer> cgIdsToGetStatusRequestsFor,
+                                                                                               Integer cgIdToGetStatusRequestsFor,
                                                                                                Set<Integer> consultationRequestIdList) {
 
-    if (cgIdsToGetStatusRequestsFor.isEmpty() && consultationRequestIdList.isEmpty()) {
+    if (cgIdToGetStatusRequestsFor == null && consultationRequestIdList.isEmpty()) {
       return Page.empty(pageable);
     }
 
-    return consultationRequestSearchItemRepository.getAllByConsultationRequestStatusIsAndConsulteeGroupIdIsInOrConsultationRequestIdIn(
+    return consultationRequestSearchItemRepository.getAllByConsultationRequestStatusIsAndConsulteeGroupIdEqualsOrConsultationRequestIdIn(
         pageable,
         requestStatus,
-        cgIdsToGetStatusRequestsFor,
+        cgIdToGetStatusRequestsFor,
         consultationRequestIdList
     );
 

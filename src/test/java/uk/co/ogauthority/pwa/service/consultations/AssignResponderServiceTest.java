@@ -14,6 +14,7 @@ import static org.mockito.Mockito.when;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
@@ -283,7 +284,7 @@ public class AssignResponderServiceTest {
     var consultationRequest = new ConsultationRequest();
     consultationRequest.setConsulteeGroup(usersGroup);
 
-    when(consulteeGroupTeamService.getTeamMembersByPerson(user.getLinkedPerson())).thenReturn(List.of(consulteeGroupTeamMember));
+    when(consulteeGroupTeamService.getTeamMemberByPerson(user.getLinkedPerson())).thenReturn(Optional.of(consulteeGroupTeamMember));
     boolean isMemberOfRequestGroup = assignResponderService.isUserMemberOfRequestGroup(user, consultationRequest);
 
     assertTrue(isMemberOfRequestGroup);
@@ -304,7 +305,7 @@ public class AssignResponderServiceTest {
     requestGroup.setId(2);
     consultationRequest.setConsulteeGroup(requestGroup);
 
-    when(consulteeGroupTeamService.getTeamMembersByPerson(user.getLinkedPerson())).thenReturn(List.of(consulteeGroupTeamMember));
+    when(consulteeGroupTeamService.getTeamMemberByPerson(user.getLinkedPerson())).thenReturn(Optional.of(consulteeGroupTeamMember));
     boolean isMemberOfRequestGroup = assignResponderService.isUserMemberOfRequestGroup(user, consultationRequest);
 
     assertFalse(isMemberOfRequestGroup);

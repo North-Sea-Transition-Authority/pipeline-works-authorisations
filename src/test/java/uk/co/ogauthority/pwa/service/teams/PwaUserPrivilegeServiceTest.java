@@ -3,7 +3,7 @@ package uk.co.ogauthority.pwa.service.teams;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
@@ -38,7 +38,7 @@ public class PwaUserPrivilegeServiceTest {
   @Test
   public void getPwaUserPrivilegesForPerson_noConsulteeGroupMembership() {
 
-    when(groupTeamService.getTeamMembersByPerson(person)).thenReturn(List.of());
+    when(groupTeamService.getTeamMemberByPerson(person)).thenReturn(Optional.empty());
 
     var privSet = userPrivilegeService.getPwaUserPrivilegesForPerson(person);
 
@@ -51,7 +51,7 @@ public class PwaUserPrivilegeServiceTest {
 
     var member = new ConsulteeGroupTeamMember(groupDetail.getConsulteeGroup(), person, Set.of(ConsulteeGroupMemberRole.RECIPIENT));
 
-    when(groupTeamService.getTeamMembersByPerson(person)).thenReturn(List.of(member));
+    when(groupTeamService.getTeamMemberByPerson(person)).thenReturn(Optional.of(member));
 
     var privSet = userPrivilegeService.getPwaUserPrivilegesForPerson(person);
 
@@ -64,7 +64,7 @@ public class PwaUserPrivilegeServiceTest {
 
     var member = new ConsulteeGroupTeamMember(groupDetail.getConsulteeGroup(), person, Set.of(ConsulteeGroupMemberRole.ACCESS_MANAGER));
 
-    when(groupTeamService.getTeamMembersByPerson(person)).thenReturn(List.of(member));
+    when(groupTeamService.getTeamMemberByPerson(person)).thenReturn(Optional.of(member));
 
     var privSet = userPrivilegeService.getPwaUserPrivilegesForPerson(person);
 

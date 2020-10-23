@@ -70,7 +70,7 @@ public class ConsulteeGroupTeamService {
   }
 
   public Set<ConsulteeGroup> getGroupsUserHasRoleFor(WebUserAccount user, ConsulteeGroupMemberRole role) {
-    return getTeamMembersByPerson(user.getLinkedPerson()).stream()
+    return getTeamMemberByPerson(user.getLinkedPerson()).stream()
         .filter(member -> member.getRoles().contains(role))
         .map(ConsulteeGroupTeamMember::getConsulteeGroup)
         .collect(Collectors.toSet());
@@ -209,8 +209,8 @@ public class ConsulteeGroupTeamService {
 
   }
 
-  public List<ConsulteeGroupTeamMember> getTeamMembersByPerson(Person person) {
-    return groupTeamMemberRepository.findAllByPerson(person);
+  public Optional<ConsulteeGroupTeamMember> getTeamMemberByPerson(Person person) {
+    return groupTeamMemberRepository.findByPerson(person);
   }
 
 }

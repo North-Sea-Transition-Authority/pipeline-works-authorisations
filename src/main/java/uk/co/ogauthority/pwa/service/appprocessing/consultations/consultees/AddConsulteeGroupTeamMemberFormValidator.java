@@ -11,6 +11,7 @@ import org.springframework.validation.ValidationUtils;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupDetail;
 import uk.co.ogauthority.pwa.model.form.appprocessing.consultations.consultees.AddConsulteeGroupTeamMemberForm;
+import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.service.teammanagement.TeamManagementService;
 
 @Service
@@ -54,13 +55,22 @@ public class AddConsulteeGroupTeamMemberFormValidator implements SmartValidator 
         errors.rejectValue("userIdentifier", "userIdentifier.userNotFound", "User not found");
       } else {
 
-        // check if the person is already a member of the team
-        boolean alreadyMember = groupTeamService.getTeamMembersForGroup(consulteeGroupDetail.getConsulteeGroup()).stream()
-            .anyMatch(teamMember -> Objects.equals(teamMember.getPerson(), person.get()));
+        // check that person isn't in any other groups or already part of this group
+        groupTeamService.getTeamMemberByPerson(person.get())
+            .ifPresent(groupTeamMember -> {
 
-        if (alreadyMember) {
-          errors.rejectValue("userIdentifier", "userIdentifier.userAlreadyExists", "This person is already a member of this team");
-        }
+              if (Objects.equals(groupTeamMember.getConsulteeGroup(), consulteeGroupDetail.getConsulteeGroup())) {
+
+                errors.rejectValue("userIdentifier", "userIdentifier.userAlreadyExists", "This person is already a member of this team");
+
+              } else {
+
+                errors.rejectValue("userIdentifier",
+                    FieldValidationErrorCodes.INVALID.errorCode("userIdentifier"), "This person cannot be added to this team");
+
+              }
+
+            });
 
       }
     }

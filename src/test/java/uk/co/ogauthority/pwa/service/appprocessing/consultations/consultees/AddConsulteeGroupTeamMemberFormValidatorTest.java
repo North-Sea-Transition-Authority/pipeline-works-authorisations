@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -96,14 +95,33 @@ public class AddConsulteeGroupTeamMemberFormValidatorTest {
         ConsulteeGroupMemberRole.ACCESS_MANAGER));
 
     when(teamManagementService.getPersonByEmailAddressOrLoginId("userId")).thenReturn(Optional.of(person));
-    when(consulteeGroupTeamService.getTeamMembersForGroup(groupDetail.getConsulteeGroup()))
-        .thenReturn(List.of(existingMember));
+    when(consulteeGroupTeamService.getTeamMemberByPerson(person)).thenReturn(Optional.of(existingMember));
 
     memberForm.setUserIdentifier("userId");
 
     Map<String, Set<String>> errors = ValidatorTestUtils.getFormValidationErrors(memberFormValidator, memberForm, groupDetail);
 
     assertThat(errors).containsOnly(entry("userIdentifier", Set.of("userIdentifier.userAlreadyExists")));
+
+  }
+
+  @Test
+  public void validate_userIdentifier_partOfAnotherConsulteeGroupTeam() {
+
+    var person = new Person();
+    var newGroup = ConsulteeGroupTestingUtils.createConsulteeGroup("group2", "g2").getConsulteeGroup();
+
+    var existingMember = new ConsulteeGroupTeamMember(newGroup, person, Set.of(
+        ConsulteeGroupMemberRole.ACCESS_MANAGER));
+
+    when(teamManagementService.getPersonByEmailAddressOrLoginId("userId")).thenReturn(Optional.of(person));
+    when(consulteeGroupTeamService.getTeamMemberByPerson(person)).thenReturn(Optional.of(existingMember));
+
+    memberForm.setUserIdentifier("userId");
+
+    Map<String, Set<String>> errors = ValidatorTestUtils.getFormValidationErrors(memberFormValidator, memberForm, groupDetail);
+
+    assertThat(errors).containsOnly(entry("userIdentifier", Set.of("userIdentifier.invalid")));
 
   }
 
