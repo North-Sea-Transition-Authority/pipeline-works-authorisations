@@ -383,4 +383,49 @@ public class BlockCrossingServiceTest {
     blockCrossingService.getCrossedBlockView(pwaApplicationDetail, 2);
   }
 
+  @Test
+  public void isDocumentsRequired_notRequired() {
+    when(padCrossedBlockRepository.countPadCrossedBlockByPwaApplicationDetailAndBlockOwnerNot(
+        pwaApplicationDetail, CrossedBlockOwner.HOLDER)).thenReturn(0);
+    assertThat(blockCrossingService.isDocumentsRequired(pwaApplicationDetail)).isFalse();
+  }
+
+  @Test
+  public void isDocumentsRequired_required() {
+    when(padCrossedBlockRepository.countPadCrossedBlockByPwaApplicationDetailAndBlockOwnerNot(
+        pwaApplicationDetail, CrossedBlockOwner.HOLDER)).thenReturn(1);
+    assertThat(blockCrossingService.isDocumentsRequired(pwaApplicationDetail)).isTrue();
+  }
+
+  @Test
+  public void isComplete_noDocsRequired_valid() {
+    when(padCrossedBlockRepository.countPadCrossedBlockByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(1);
+    when(padCrossedBlockRepository.countPadCrossedBlockByPwaApplicationDetailAndBlockOwnerNot(
+        pwaApplicationDetail, CrossedBlockOwner.HOLDER)).thenReturn(0);
+    assertThat(blockCrossingService.isComplete(pwaApplicationDetail)).isTrue();
+  }
+
+  @Test
+  public void isComplete_docsRequired_valid() {
+    when(padCrossedBlockRepository.countPadCrossedBlockByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(1);
+    when(padCrossedBlockRepository.countPadCrossedBlockByPwaApplicationDetailAndBlockOwnerNot(
+        pwaApplicationDetail, CrossedBlockOwner.HOLDER)).thenReturn(1);
+    when(blockCrossingFileService.isComplete(pwaApplicationDetail)).thenReturn(true);
+    assertThat(blockCrossingService.isComplete(pwaApplicationDetail)).isTrue();
+  }
+
+  @Test
+  public void isComplete_noBlocks_invalid() {
+    when(padCrossedBlockRepository.countPadCrossedBlockByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(0);
+    assertThat(blockCrossingService.isComplete(pwaApplicationDetail)).isFalse();
+  }
+
+  @Test
+  public void isComplete_docsRequiredAndNotProvided_invalid() {
+    when(padCrossedBlockRepository.countPadCrossedBlockByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(1);
+    when(padCrossedBlockRepository.countPadCrossedBlockByPwaApplicationDetailAndBlockOwnerNot(
+        pwaApplicationDetail, CrossedBlockOwner.HOLDER)).thenReturn(1);
+    assertThat(blockCrossingService.isComplete(pwaApplicationDetail)).isFalse();
+  }
+
 }

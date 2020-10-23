@@ -30,7 +30,7 @@ public class PearsRestController {
   @ResponseBody
   public RestSearchResult searchBlocks(@RequestParam("term") String searchTerm) {
     if (StringUtils.length(searchTerm) >= 3) {
-      var searchableList = pearsBlockService.findOffshorePickablePearsBlocks(searchTerm, PageRequest.of(0, 10));
+      var searchableList = pearsBlockService.findOffshorePickablePearsBlocks(searchTerm, PageRequest.of(0, Integer.MAX_VALUE));
       List<RestSearchItem> results = searchSelectorService.search(searchTerm, searchableList);
       return new RestSearchResult(results);
     }

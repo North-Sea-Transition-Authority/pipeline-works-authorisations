@@ -10,7 +10,8 @@
     <@fdsError.errorSummary errorItems=errorList />
 
     <@fdsForm.htmlForm>
-        <@fdsSearchSelector.searchSelectorRest path="form.pickedBlock" restUrl=springUrl(blockSelectorUrl) labelText="What block is the pipeline located in or crossing?" selectorMinInputLength=3 preselectedItems=preselectedBlock/>
+        <@fdsSearchSelector.searchSelectorRest path="form.pickedBlock" restUrl=springUrl(blockSelectorUrl) labelText="What block is the pipeline located in or crossing?" selectorMinInputLength=3 preselectedItems=preselectedBlock
+        hintText="For example, 44/22a"/>
         <@fdsRadio.radioGroup
         path="form.crossedBlockOwner"
         labelText="Who owns the block?"
@@ -26,6 +27,6 @@
                 <#assign firstItem=false/>
             </#list>
         </@fdsRadio.radioGroup>
-        <@fdsAction.submitButtons linkSecondaryAction=true primaryButtonText="Add block crossing" secondaryLinkText="Back to licence and blocks" linkSecondaryActionUrl=springUrl(backUrl) />
+        <@fdsAction.submitButtons linkSecondaryAction=true primaryButtonText="Add block" secondaryLinkText="Back to licence and blocks" linkSecondaryActionUrl=springUrl(backUrl) />
     </@fdsForm.htmlForm>
 </@defaultPage>

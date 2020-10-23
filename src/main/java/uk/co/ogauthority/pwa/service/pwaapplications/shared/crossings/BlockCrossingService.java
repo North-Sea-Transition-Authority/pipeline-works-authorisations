@@ -248,10 +248,15 @@ public class BlockCrossingService implements ApplicationFormSectionService {
     );
   }
 
+  public boolean isDocumentsRequired(PwaApplicationDetail pwaApplicationDetail) {
+    return padCrossedBlockRepository.countPadCrossedBlockByPwaApplicationDetailAndBlockOwnerNot(
+        pwaApplicationDetail, CrossedBlockOwner.HOLDER) > 0;
+  }
+
   @Override
   public boolean isComplete(PwaApplicationDetail detail) {
     return padCrossedBlockRepository.countPadCrossedBlockByPwaApplicationDetail(detail) > 0
-        && blockCrossingFileService.isComplete(detail);
+        && (!isDocumentsRequired(detail) || blockCrossingFileService.isComplete(detail));
   }
 
   @Override
@@ -259,6 +264,13 @@ public class BlockCrossingService implements ApplicationFormSectionService {
                                 PwaApplicationDetail pwaApplicationDetail) {
     // TODO: PWA-502 - Ensure validation works on this service.
     throw new ActionNotAllowedException("This service shouldn't be validated against yet");
+  }
+
+  @Override
+  public void cleanupData(PwaApplicationDetail detail) {
+    if (!isDocumentsRequired(detail)) {
+      padFileService.cleanupFiles(detail, ApplicationDetailFilePurpose.BLOCK_CROSSINGS, List.of());
+    }
   }
 
   @Transactional
