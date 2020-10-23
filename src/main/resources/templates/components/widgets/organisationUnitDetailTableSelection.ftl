@@ -20,9 +20,10 @@
       <tr class="govuk-table__row">
 
         <th class="govuk-table__header ${readOnlySelected?then("govuk-visually-hidden", "")}" scope="col">
-            <@pwaTableSelectionToggler.linksToggler tableId=id
-            selectAllText="Select all" selectAllScreenReaderText=" available organisations"
-            selectNoneText="Select none" selectNoneScreenReaderText=" of the available organisations" />
+          <@pwaTableSelectionToggler.linksToggler tableId=id
+            prefixText="Select"
+            selectAllLinkText="All" selectAllScreenReaderText="Select all available organisations"
+            selectNoneLinkText="None" selectNoneScreenReaderText=" of the available organisations" />
         </th>
         <th class="govuk-table__header govuk-!-width-one-third" scope="col">Company name</th>
         <th class="govuk-table__header govuk-!-width-one-quarter" scope="col">Registered number</th>
