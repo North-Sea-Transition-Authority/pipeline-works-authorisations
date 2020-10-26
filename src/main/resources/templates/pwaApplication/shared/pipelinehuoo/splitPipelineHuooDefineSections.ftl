@@ -57,8 +57,8 @@
     <#else>
         <@fdsSearchSelector.searchSelectorEnhanced path=identLocationOptionPath labelText="Where does the section start?" options=pickableIdentOptions />
         <@fdsRadio.radioGroup path=identLocationIncludedInSectionPath
-        labelText="Is the selected point located in this section?"
-        hintText="Answer 'Yes' if the previous section does not include this point"
+        labelText="Is the selected point included in this section?"
+        hintText="If 'No' this point will be included in the previous section"
         fieldsetHeadingClass="govuk-fieldset__legend--s"
         fieldsetHeadingSize="h3"
         hiddenContent=true>

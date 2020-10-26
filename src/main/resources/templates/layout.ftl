@@ -142,6 +142,8 @@ headerIcon=true>
         <@fdsFooter.footer wrapperWidth=wrapperWidth/>
 
     <#--Custom scripts go here-->
+        <script src="<@spring.url '/assets/static/js/pwa/tableSelectionToggler.js'/>"></script>
+
       <script src="<@spring.url '/assets/static/js/vendor/jquery/jquery.iframe-transport.min.js'/>"></script>
       <!-- TODO remove jquery UI dependency, investigate impact on modals -->
       <script src="<@spring.url '/assets/static/js/vendor/jquery/jquery-ui.min.js'/>"></script>

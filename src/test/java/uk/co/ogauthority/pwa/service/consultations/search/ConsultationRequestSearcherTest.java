@@ -46,7 +46,7 @@ public class ConsultationRequestSearcherTest {
   @Test
   public void searchByAllocationForGroupIdsOrConsultationRequestIds_whenNoIds() {
     var resultPage = consultationRequestSearcher.searchByStatusForGroupIdsOrConsultationRequestIds(pageable,
-        ConsultationRequestStatus.ALLOCATION, Set.of(), Set.of());
+        ConsultationRequestStatus.ALLOCATION, null, Set.of());
     assertThat(resultPage).isEqualTo(Page.empty(PageRequest.of(PAGE_REQUESTED, PAGE_SIZE)));
   }
 
@@ -63,20 +63,20 @@ public class ConsultationRequestSearcherTest {
     var groupDetail = ConsulteeGroupTestingUtils.createConsulteeGroup("test", "t");
     var cgId = groupDetail.getConsulteeGroupId();
 
-    when(consultationRequestSearchItemRepository.getAllByConsultationRequestStatusIsAndConsulteeGroupIdIsInOrConsultationRequestIdIn(
+    when(consultationRequestSearchItemRepository.getAllByConsultationRequestStatusIsAndConsulteeGroupIdEqualsOrConsultationRequestIdIn(
         any(),
         eq(ConsultationRequestStatus.ALLOCATION),
-        eq(Set.of(groupDetail.getConsulteeGroupId())),
+        eq(groupDetail.getConsulteeGroupId()),
         eq(Set.of(APP_ID)))).thenReturn(fakePageResult);
 
     var resultPage = consultationRequestSearcher.searchByStatusForGroupIdsOrConsultationRequestIds(pageable,
-        ConsultationRequestStatus.ALLOCATION, Set.of(cgId), Set.of(APP_ID));
+        ConsultationRequestStatus.ALLOCATION, cgId, Set.of(APP_ID));
 
     verify(consultationRequestSearchItemRepository, times(1))
-        .getAllByConsultationRequestStatusIsAndConsulteeGroupIdIsInOrConsultationRequestIdIn(
+        .getAllByConsultationRequestStatusIsAndConsulteeGroupIdEqualsOrConsultationRequestIdIn(
             pageable,
             ConsultationRequestStatus.ALLOCATION,
-            Set.of(cgId),
+            cgId,
             Set.of(APP_ID));
 
     assertThat(resultPage).isEqualTo(fakePageResult);

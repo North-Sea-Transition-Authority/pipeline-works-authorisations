@@ -18,9 +18,10 @@
     <@validationResult.errorSummary summaryValidationResult=summaryValidationResult! />
 
     <@fdsInsetText.insetText>
-      <p>Use the change/assign link shown for each group of pipelines to assign or update HUOOs for those pipelines.</p>
-      <p>If the group of pipelines you want to assign HUOOs for is not shown then use the "Select pipelines and assign" button to choose which pipelines to assign.</p>
-      <p>If you have a pipeline that has different HUOOs responsible for different parts of it you can use the "Define pipeline split" button to define each section with different HUOOs.</p>
+      <p>Groups of pipelines with associated HUOOs are shown below.</p>
+      <p>Use the change/assign link for a group of pipelines to update associated HUOOs for those pipelines.</p>
+      <p>Use the "Select pipelines and assign" button to choose specific pipelines to assign to HUOOs.</p>
+      <p>Use the "Define pipeline split" button to define or remove sections of a pipeline associated with different HUOOs.</p>
     </@fdsInsetText.insetText>
 
     <@pwaPipelineHuooSummaryView.pipelineHuooRoleSummary summaryView=holderSummary urlFactory=urlFactory errorKeyPrefix="HOLDER" summaryValidationResult=summaryValidationResult!  />

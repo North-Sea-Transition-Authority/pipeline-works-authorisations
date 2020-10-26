@@ -14,17 +14,23 @@
       <#if hasError>
           <@fdsError.inputError inputId="${id}"/>
       </#if>
+
     <table id="${id}" class="govuk-table">
         <#if caption?has_content>
           <caption class="govuk-table__caption ${captionClass!""}">${caption}</caption>
         </#if>
       <thead class="govuk-table__head">
       <tr class="govuk-table__row">
-        <th class="govuk-table__header ${readOnlySelected?then("govuk-visually-hidden", "")}" scope="col"></th>
-        <th class="govuk-table__header" scope="col">Pipeline number / <br>Pipeline split details</th>
+        <th class="govuk-table__header ${readOnlySelected?then("govuk-visually-hidden", "")}" scope="col">
+          <@pwaTableSelectionToggler.linksToggler tableId=id
+            prefixText="Select"
+            selectAllLinkText="All" selectAllScreenReaderText="Select all available pipelines"
+            selectNoneLinkText="None" selectNoneScreenReaderText="Select none of the available pipelines" />
+        </th>
+        <th class="govuk-table__header govuk-!-width-one-third" scope="col" >Pipeline number / <br>Pipeline split details</th>
         <th class="govuk-table__header" scope="col">Pipeline type</th>
-        <th class="govuk-table__header" scope="col">Pipeline start</th>
-        <th class="govuk-table__header" scope="col">Pipeline end</th>
+        <th class="govuk-table__header govuk-!-width-one-quarter" scope="col">Pipeline start</th>
+        <th class="govuk-table__header govuk-!-width-one-quarter" scope="col">Pipeline end</th>
         <th class="govuk-table__header" scope="col">Length</th>
       </tr>
       </thead>
@@ -50,7 +56,7 @@
                            name="${spring.status.expression}" type="checkbox" value="${pipeline.pickableString}"
                            <#if isSelected>checked</#if>>
                     <label class="govuk-label govuk-checkboxes__label" for="pipeline-checkbox-${checkboxId}"><span
-                        class="govuk-visually-hidden">Select or de-select ${pipeline.pipelineNumber}</span>&nbsp;</label>
+                        class="govuk-visually-hidden">Select or de-select ${pipeline.pipelineNumber} ${pipeline.splitInfo?has_content?then("section " + pipeline.splitInfo, "")}</span>&nbsp;</label>
                   </div>
                 </div>
               </td>

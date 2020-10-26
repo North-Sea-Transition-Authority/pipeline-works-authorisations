@@ -184,7 +184,7 @@ public class DefinePipelineHuooSectionsFormValidator implements SmartValidator {
           errors.rejectValue(
               getSectionPointInputAttributePath(i, SECTION_POINT_IDENT_STRING_ATTR),
               FieldValidationErrorCodes.INVALID.errorCode(SECTION_POINT_IDENT_STRING_ATTR),
-              String.format("Section %s cannot start at and include a point before %s",
+              String.format("Section %s cannot include a point before %s",
                   i + 1,
                   minimumIncludingIdentLocation.getDisplayString())
           );
@@ -204,7 +204,7 @@ public class DefinePipelineHuooSectionsFormValidator implements SmartValidator {
           errors.rejectValue(
               getSectionPointInputAttributePath(i, SECTION_POINT_IDENT_INCLUDED_IN_SECTION_ATTR),
               FieldValidationErrorCodes.NOT_UNIQUE.errorCode(SECTION_POINT_IDENT_INCLUDED_IN_SECTION_ATTR),
-              String.format("Section %s cannot start at and include the same point as section %s",
+              String.format("Section %s cannot include this point as it is included in section %s",
                   i + 1,
                   sectionsStartingAtAndIncludingIdentLocationLookup.get(selectedIdentLocation))
           );

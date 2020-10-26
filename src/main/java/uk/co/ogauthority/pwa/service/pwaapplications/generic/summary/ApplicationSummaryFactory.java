@@ -4,7 +4,7 @@ import java.time.ZoneId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.service.users.UserAccountService;
+import uk.co.ogauthority.pwa.service.person.PersonService;
 
 /**
  * Construct summary data objects for pwa applications.
@@ -13,15 +13,15 @@ import uk.co.ogauthority.pwa.service.users.UserAccountService;
 public class ApplicationSummaryFactory {
 
 
-  private final UserAccountService userAccountService;
+  private final PersonService personService;
 
   @Autowired
-  public ApplicationSummaryFactory(UserAccountService userAccountService) {
-    this.userAccountService = userAccountService;
+  public ApplicationSummaryFactory(PersonService personService) {
+    this.personService = personService;
   }
 
   public ApplicationSubmissionSummary createSubmissionSummary(PwaApplicationDetail detail) {
-    var submittedBy = userAccountService.getWebUserAccount(detail.getSubmittedByWuaId()).getFullName();
+    var submittedBy = personService.getPersonById(detail.getSubmittedByPersonId()).getFullName();
     var submittedDateTime = detail.getSubmittedTimestamp().atZone(ZoneId.systemDefault()).toLocalDateTime();
     return new ApplicationSubmissionSummary(
         detail.getPwaApplication(),

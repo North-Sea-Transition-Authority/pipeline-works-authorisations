@@ -9,6 +9,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
@@ -73,17 +74,17 @@ public class ConsultationWorkAreaPageServiceTest {
     when(consultationRequestSearcher.searchByStatusForGroupIdsOrConsultationRequestIds(any(),
         eq(ConsultationRequestStatus.ALLOCATION), any(), any())).thenReturn(fakePage);
 
-    when(consulteeGroupTeamService.getTeamMembersByPerson(user.getLinkedPerson())).thenReturn(List.of());
+    when(consulteeGroupTeamService.getTeamMemberByPerson(user.getLinkedPerson())).thenReturn(Optional.empty());
 
     var workareaPage = consultationWorkAreaPageService.getPageView(user, Set.of(), REQUESTED_PAGE);
     assertThat(workareaPage.getTotalElements()).isEqualTo(0);
 
-    verify(consulteeGroupTeamService, times(1)).getTeamMembersByPerson(user.getLinkedPerson());
+    verify(consulteeGroupTeamService, times(1)).getTeamMemberByPerson(user.getLinkedPerson());
 
     verify(consultationRequestSearcher, times(1)).searchByStatusForGroupIdsOrConsultationRequestIds(
         getDefaultWorkAreaViewPageable(REQUESTED_PAGE),
         ConsultationRequestStatus.ALLOCATION,
-        Set.of(),
+        null,
         Set.of()
     );
 
@@ -99,7 +100,7 @@ public class ConsultationWorkAreaPageServiceTest {
 
     setupFakeConsultationSearchResultPage(List.of(), REQUESTED_PAGE);
 
-    when(consulteeGroupTeamService.getTeamMembersByPerson(user.getLinkedPerson())).thenReturn(List.of(
+    when(consulteeGroupTeamService.getTeamMemberByPerson(user.getLinkedPerson())).thenReturn(Optional.of(
         new ConsulteeGroupTeamMember(groupDetail.getConsulteeGroup(), user.getLinkedPerson(), Set.of(ConsulteeGroupMemberRole.RECIPIENT))
     ));
 
@@ -108,7 +109,7 @@ public class ConsultationWorkAreaPageServiceTest {
     verify(consultationRequestSearcher, times(1)).searchByStatusForGroupIdsOrConsultationRequestIds(
         getDefaultWorkAreaViewPageable(REQUESTED_PAGE),
         ConsultationRequestStatus.ALLOCATION,
-        Set.of(groupDetail.getConsulteeGroupId()),
+        groupDetail.getConsulteeGroupId(),
         Set.of()
     );
 
@@ -128,7 +129,7 @@ public class ConsultationWorkAreaPageServiceTest {
     verify(consultationRequestSearcher, times(1)).searchByStatusForGroupIdsOrConsultationRequestIds(
         getDefaultWorkAreaViewPageable(REQUESTED_PAGE),
         ConsultationRequestStatus.ALLOCATION,
-        Set.of(),
+        null,
         Set.of(assignedTask.getBusinessKey(), assignedTask2.getBusinessKey())
     );
 
@@ -139,7 +140,7 @@ public class ConsultationWorkAreaPageServiceTest {
 
     setupFakeConsultationSearchResultPage(List.of(), REQUESTED_PAGE);
 
-    when(consulteeGroupTeamService.getTeamMembersByPerson(user.getLinkedPerson())).thenReturn(List.of(
+    when(consulteeGroupTeamService.getTeamMemberByPerson(user.getLinkedPerson())).thenReturn(Optional.of(
         new ConsulteeGroupTeamMember(groupDetail.getConsulteeGroup(), user.getLinkedPerson(), Set.of(ConsulteeGroupMemberRole.RECIPIENT))
     ));
 
@@ -153,7 +154,7 @@ public class ConsultationWorkAreaPageServiceTest {
     verify(consultationRequestSearcher, times(1)).searchByStatusForGroupIdsOrConsultationRequestIds(
         getDefaultWorkAreaViewPageable(REQUESTED_PAGE),
         ConsultationRequestStatus.ALLOCATION,
-        Set.of(groupDetail.getConsulteeGroupId()),
+        groupDetail.getConsulteeGroupId(),
         Set.of(assignedTask.getBusinessKey(), assignedTask2.getBusinessKey())
     );
 

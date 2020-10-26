@@ -17,4 +17,6 @@ public interface PadCrossedBlockRepository extends CrudRepository<PadCrossedBloc
 
   int countPadCrossedBlockByPwaApplicationDetail(PwaApplicationDetail pwaApplicationDetail);
 
+  int countPadCrossedBlockByPwaApplicationDetailAndBlockReference(PwaApplicationDetail pwaApplicationDetail, String blockReference);
+
 }

@@ -1,5 +1,7 @@
 package uk.co.ogauthority.pwa.service.appprocessing.casenotes;
 
+import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
+
 import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -12,6 +14,7 @@ import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import uk.co.ogauthority.pwa.controller.appprocessing.casenotes.CaseNoteController;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.casenotes.CaseNote;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.casenotes.CaseNoteDocumentLink;
@@ -23,10 +26,10 @@ import uk.co.ogauthority.pwa.model.form.appprocessing.casenotes.AddCaseNoteForm;
 import uk.co.ogauthority.pwa.model.form.files.UploadFileWithDescriptionForm;
 import uk.co.ogauthority.pwa.model.form.files.UploadedFileView;
 import uk.co.ogauthority.pwa.model.view.appprocessing.casehistory.CaseHistoryItemView;
+import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.repository.appprocessing.casenotes.CaseNoteDocumentLinkRepository;
 import uk.co.ogauthority.pwa.repository.appprocessing.casenotes.CaseNoteRepository;
 import uk.co.ogauthority.pwa.service.appprocessing.casehistory.CaseHistoryItemService;
-import uk.co.ogauthority.pwa.service.appprocessing.casehistory.CaseHistoryItemViewFactory;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.service.appprocessing.tasks.AppProcessingService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
@@ -115,6 +118,10 @@ public class CaseNoteService implements AppProcessingService, CaseHistoryItemSer
     var caseNoteIdToDocLinksMap = caseNoteDocumentLinkRepository.findAllByCaseNoteIn(caseNotes).stream()
         .collect(Collectors.groupingBy(docLink -> docLink.getCaseNote().getId()));
 
+    var caseNoteFileDownloadUrl = ReverseRouter.route(on(CaseNoteController.class)
+        .handleDownload(pwaApplication.getApplicationType(), pwaApplication.getId(), null, null)
+    );
+
     return caseNotes.stream()
         .map(caseNote -> {
 
@@ -123,7 +130,10 @@ public class CaseNoteService implements AppProcessingService, CaseHistoryItemSer
               .sorted(Comparator.comparing(UploadedFileView::getFileName))
               .collect(Collectors.toList());
 
-          return CaseHistoryItemViewFactory.create(caseNote, caseNoteFileViews);
+          return new CaseHistoryItemView.Builder("Case note", caseNote.getDateTime(), caseNote.getPersonId())
+              .setUploadedFileViews(caseNoteFileViews, caseNoteFileDownloadUrl)
+              .addDataItem("Note text", caseNote.getNoteText())
+              .build();
 
         })
         .collect(Collectors.toList());

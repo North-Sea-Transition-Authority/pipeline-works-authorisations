@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.service.pwaapplications;
 
 import java.time.Clock;
 import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
@@ -125,7 +126,7 @@ public class PwaApplicationDetailService {
   @Transactional
   public PwaApplicationDetail setSubmitted(PwaApplicationDetail pwaApplicationDetail, WebUserAccount webUserAccount) {
 
-    pwaApplicationDetail.setSubmittedByWuaId(webUserAccount.getWuaId());
+    pwaApplicationDetail.setSubmittedByPersonId(webUserAccount.getLinkedPerson().getId());
     pwaApplicationDetail.setSubmittedTimestamp(clock.instant());
 
     boolean fastTrackFlag = padFastTrackService.isFastTrackRequired(pwaApplicationDetail);
@@ -241,5 +242,9 @@ public class PwaApplicationDetailService {
   public void setSupplementaryDocumentsFlag(PwaApplicationDetail detail, Boolean filesToUpload) {
     detail.setSupplementaryDocumentsFlag(filesToUpload);
     pwaApplicationDetailRepository.save(detail);
+  }
+
+  public List<PwaApplicationDetail> getAllSubmittedApplicationDetailsForApplication(PwaApplication pwaApplication) {
+    return pwaApplicationDetailRepository.findByPwaApplicationAndSubmittedTimestampIsNotNull(pwaApplication);
   }
 }
