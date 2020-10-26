@@ -4,7 +4,7 @@
 <#-- @ftlvariable name="blockCrossingFileViews" type="java.util.List<uk.co.ogauthority.pwa.model.form.files.UploadedFileView>" -->
 <#-- @ftlvariable name="urlFactory" type="uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.BlockCrossingUrlFactory" -->
 
-<#macro blockCrossingManagement urlFactory blockCrossings=[] blockCrossingFileViews=[]>
+<#macro blockCrossingManagement urlFactory isDocumentsRequired blockCrossings=[] blockCrossingFileViews=[]>
   <h2 class="govuk-heading-l">Blocks</h2>
     <@fdsInsetText.insetText>
       <span>Add each block the pipelines are located in or will cross.</span>
@@ -47,14 +47,16 @@
       </table>
     </#if>
 
-  <h3 class="govuk-heading-m">Block crossing agreement documents</h3>
-    <@fdsInsetText.insetText>
-      <span>Any crossed block not 100% owned by the PWA holder(s) requires a block crossing agreement document to be uploaded.</span>
-    </@fdsInsetText.insetText>
-    <@fdsAction.link linkText="Add, edit or remove block crossing documents" linkUrl=springUrl(urlFactory.getBlockCrossingDocumentsUrl()) linkClass="govuk-button govuk-button--blue"/>
-    <#if blockCrossingFileViews?has_content>
-        <@pwaFiles.uploadedFileList downloadUrl=springUrl(urlFactory.getFileDownloadUrl()) existingFiles=blockCrossingFileViews/>
-    </#if>
+  <#if isDocumentsRequired>
+    <h3 class="govuk-heading-m">Block crossing agreement documents</h3>
+      <@fdsInsetText.insetText>
+        <span>Any crossed block not 100% owned by the PWA holder(s) requires a block crossing agreement document to be uploaded.</span>
+      </@fdsInsetText.insetText>
+      <@fdsAction.link linkText="Add, edit or remove block crossing documents" linkUrl=springUrl(urlFactory.getBlockCrossingDocumentsUrl()) linkClass="govuk-button govuk-button--blue"/>
+      <#if blockCrossingFileViews?has_content>
+          <@pwaFiles.uploadedFileList downloadUrl=springUrl(urlFactory.getFileDownloadUrl()) existingFiles=blockCrossingFileViews/>
+      </#if>
+  </#if>
 
 
 

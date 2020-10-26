@@ -262,7 +262,8 @@ public class BlockCrossingController {
                 ApplicationFileLinkStatus.FULL))
         .addObject("backUrl", ReverseRouter.route(on(CrossingAgreementsController.class)
             .renderCrossingAgreementsOverview(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null,
-                null)));
+                null)))
+        .addObject("isDocumentsRequired", blockCrossingService.isDocumentsRequired(detail));
     breadcrumbService.fromCrossings(detail.getPwaApplication(), modelAndView, "Licence and blocks");
     return modelAndView;
   }

@@ -82,13 +82,16 @@ public class LicenceBlockSummaryServiceTest {
     when(padFileService.getUploadedFileViews(pwaApplicationDetail, ApplicationDetailFilePurpose.BLOCK_CROSSINGS,
         ApplicationFileLinkStatus.FULL)).thenReturn(List.of(fileView));
 
+    when(blockCrossingService.isDocumentsRequired(pwaApplicationDetail)).thenReturn(true);
+
     var appSummary = licenceBlockSummaryService.summariseSection(pwaApplicationDetail, TEMPLATE);
     assertThat(appSummary.getTemplatePath()).isEqualTo(TEMPLATE);
-    assertThat(appSummary.getTemplateModel()).hasSize(4);
+    assertThat(appSummary.getTemplateModel()).hasSize(5);
     assertThat(appSummary.getTemplateModel()).contains(entry("blockCrossingViews", List.of(blockCrossingView)));
     assertThat(appSummary.getTemplateModel()).contains(entry("sectionDisplayText", CrossingAgreementTask.LICENCE_AND_BLOCKS.getDisplayText()));
     assertThat(appSummary.getTemplateModel()).contains(entry("blockCrossingFileViews", List.of(fileView)));
     assertThat(appSummary.getTemplateModel()).containsKey("blockCrossingUrlFactory");
+    assertThat(appSummary.getTemplateModel()).contains(entry("isDocumentsRequired", true));
 
     assertThat(appSummary.getSidebarSectionLinks()).containsExactly(
         SidebarSectionLink.createAnchorLink(CrossingAgreementTask.LICENCE_AND_BLOCKS.getDisplayText(), "#licenceBlockDetails")
