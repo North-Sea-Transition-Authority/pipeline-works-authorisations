@@ -118,7 +118,7 @@ public class PipelinesSummaryService implements ApplicationSectionSummariser {
       Map<String, Object> pipelineHeaderMap = new HashMap<>(diffService.diff(
           pipelineSummaryPair.getLeft().getPipelineHeaderView(), pipelineSummaryPair.getRight().getPipelineHeaderView(),
           Set.of("identViews", "pipelineStatus", "questionsForPipelineStatus")));
-      pipelineHeaderMap.put("questionsForPipelineStatus", pipelineSummaryPair.getLeft().getQuestionsForPipelineStatus()); //not found on summary model !!!
+      pipelineHeaderMap.put("questionsForPipelineStatus", pipelineSummaryPair.getLeft().getQuestionsForPipelineStatus());
 
       pipelineDiffMap.put("pipelineHeader", pipelineHeaderMap);
       pipelineDiffMap.put("pipelineIdents",
