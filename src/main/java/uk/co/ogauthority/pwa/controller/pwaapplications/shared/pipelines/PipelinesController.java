@@ -19,6 +19,7 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationPer
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationStatusCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTypeCheck;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineFlexibility;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineHeaderConditionalQuestion;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineMaterial;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
@@ -151,7 +152,7 @@ public class PipelinesController {
 
     if (pipeline != null) {
       modelAndView.addObject("pipelineNumber", pipeline.getPipelineRef());
-      modelAndView.addObject("canShowOutOfUseQuestion", padPipelineService.canShowOutOfUseQuestionForPipelineHeader(
+      modelAndView.addObject("questionsForPipelineStatus", PipelineHeaderConditionalQuestion.getQuestionsForStatus(
           pipeline.getPipelineStatus()));
     }
 
@@ -221,8 +222,8 @@ public class PipelinesController {
     return PipelineControllerRouteUtils.ifAllowedFromOverviewOrError(applicationContext, redirectAttributes, () -> {
 
       var pipeline = applicationContext.getPadPipeline();
-      var canShowOutOfUseQuestion = padPipelineService.canShowOutOfUseQuestionForPipelineHeader(pipeline.getPipelineStatus());
-      pipelineHeaderFormValidator.validate(form, bindingResult, canShowOutOfUseQuestion);
+      var questionsForPipelineStatus = PipelineHeaderConditionalQuestion.getQuestionsForStatus(pipeline.getPipelineStatus());
+      pipelineHeaderFormValidator.validate(form, bindingResult, questionsForPipelineStatus);
 
       return controllerHelperService.checkErrorsAndRedirect(bindingResult,
           getAddEditPipelineModelAndView(applicationContext.getApplicationDetail(), ScreenActionType.EDIT, pipeline),

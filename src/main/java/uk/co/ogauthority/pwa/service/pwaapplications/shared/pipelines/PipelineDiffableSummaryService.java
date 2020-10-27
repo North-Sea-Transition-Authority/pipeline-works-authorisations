@@ -45,8 +45,7 @@ public class PipelineDiffableSummaryService {
     var pipelineIdDrawingViewMap = padTechnicalDrawingService.getPipelineDrawingViewsMap(pwaApplicationDetail);
     return pipelineOverviews.stream()
         .map(pipelineOverview -> PipelineDiffableSummary.from(
-                new PipelineHeaderView(
-                    pipelineOverview, padPipelineService.canShowOutOfUseQuestionForPipelineHeader(pipelineOverview.getPipelineStatus())),
+                new PipelineHeaderView(pipelineOverview),
                 padPipelineIdentService.getIdentViewsFromOverview(pipelineOverview),
                 pipelineIdDrawingViewMap.get(new PipelineId(pipelineOverview.getPipelineId())))
         )
@@ -64,8 +63,7 @@ public class PipelineDiffableSummaryService {
     return consentedPipelineDetails.stream()
         .map(pipelineDetail ->  {
           var identViews = pipelineDetailIdentService.getSortedPipelineIdentViewsForPipeline(pipelineDetail.getPipelineId());
-          PipelineHeaderView pipelineHeaderView = new PipelineHeaderView(
-              pipelineDetail, padPipelineService.canShowOutOfUseQuestionForPipelineHeader(pipelineDetail.getPipelineStatus()));
+          PipelineHeaderView pipelineHeaderView = new PipelineHeaderView(pipelineDetail);
           return PipelineDiffableSummary.from(pipelineHeaderView, identViews, null);
         })
         .collect(Collectors.toList());

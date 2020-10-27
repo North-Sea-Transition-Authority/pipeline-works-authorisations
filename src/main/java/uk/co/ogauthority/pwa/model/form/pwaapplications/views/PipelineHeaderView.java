@@ -2,7 +2,9 @@ package uk.co.ogauthority.pwa.model.form.pwaapplications.views;
 
 import java.math.BigDecimal;
 import java.util.Objects;
+import java.util.Set;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineFlexibility;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineHeaderConditionalQuestion;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineMaterial;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineStatus;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
@@ -37,7 +39,7 @@ public class PipelineHeaderView implements PipelineOverview {
   private final PipelineStatus pipelineStatus;
   private final String pipelineStatusDisplayStr;
   private final String pipelineStatusReason;
-  private final Boolean canShowOutOfUseQuestion;
+  private final Set<PipelineHeaderConditionalQuestion> questionsForPipelineStatus;
 
 
   public PipelineHeaderView() {
@@ -65,10 +67,10 @@ public class PipelineHeaderView implements PipelineOverview {
     this.pipelineStatus = null;
     this.pipelineStatusDisplayStr = null;
     this.pipelineStatusReason = null;
-    this.canShowOutOfUseQuestion = null;
+    this.questionsForPipelineStatus = null;
   }
 
-  public PipelineHeaderView(PipelineOverview pipelineOverview, Boolean canShowOutOfUseQuestion) {
+  public PipelineHeaderView(PipelineOverview pipelineOverview) {
     this.pipelineId = pipelineOverview.getPipelineId();
     this.pipelineName = pipelineOverview.getPipelineName();
     this.padPipelineId = pipelineOverview.getPadPipelineId();
@@ -93,11 +95,11 @@ public class PipelineHeaderView implements PipelineOverview {
     this.pipelineStatus = pipelineOverview.getPipelineStatus();
     this.pipelineStatusDisplayStr = pipelineOverview.getPipelineStatus().getDisplayText();
     this.pipelineStatusReason = pipelineOverview.getPipelineStatusReason();
-    this.canShowOutOfUseQuestion = canShowOutOfUseQuestion;
+    this.questionsForPipelineStatus = PipelineHeaderConditionalQuestion.getQuestionsForStatus(pipelineOverview.getPipelineStatus());
   }
 
 
-  public PipelineHeaderView(PipelineDetail pipelineDetail, Boolean canShowOutOfUseQuestion) {
+  public PipelineHeaderView(PipelineDetail pipelineDetail) {
     this.padPipelineId = null;
     this.pipelineName = null;
     this.pipelineId = pipelineDetail.getPipelineId().asInt();
@@ -122,7 +124,7 @@ public class PipelineHeaderView implements PipelineOverview {
     this.otherPipelineMaterialUsed = null;
     this.trenchedBuriedBackfilled = null;
     this.trenchingMethodsDescription = null;
-    this.canShowOutOfUseQuestion = canShowOutOfUseQuestion;
+    this.questionsForPipelineStatus = PipelineHeaderConditionalQuestion.getQuestionsForStatus(pipelineDetail.getPipelineStatus());
   }
 
 
@@ -246,11 +248,9 @@ public class PipelineHeaderView implements PipelineOverview {
     return pipelineStatusReason;
   }
 
-  public Boolean getCanShowOutOfUseQuestion() {
-    return canShowOutOfUseQuestion;
+  public Set<PipelineHeaderConditionalQuestion> getQuestionsForPipelineStatus() {
+    return questionsForPipelineStatus;
   }
-
-
 
   @Override
   public boolean equals(Object o) {
@@ -285,7 +285,7 @@ public class PipelineHeaderView implements PipelineOverview {
         && pipelineStatus == that.pipelineStatus
         && pipelineStatusDisplayStr == that.pipelineStatusDisplayStr
         && Objects.equals(pipelineStatusReason, that.pipelineStatusReason)
-        && canShowOutOfUseQuestion == that.canShowOutOfUseQuestion;
+        && questionsForPipelineStatus == that.questionsForPipelineStatus;
   }
 
   @Override
@@ -295,6 +295,6 @@ public class PipelineHeaderView implements PipelineOverview {
         pipelineNumber, pipelineType, componentParts, length, productsToBeConveyed, numberOfIdents, maxExternalDiameter,
         pipelineInBundle, bundleName, pipelineFlexibility, pipelineMaterial, otherPipelineMaterialUsed,
         trenchedBuriedBackfilled, trenchingMethodsDescription, pipelineStatus, pipelineStatusDisplayStr,
-        pipelineStatusReason, canShowOutOfUseQuestion);
+        pipelineStatusReason, questionsForPipelineStatus);
   }
 }

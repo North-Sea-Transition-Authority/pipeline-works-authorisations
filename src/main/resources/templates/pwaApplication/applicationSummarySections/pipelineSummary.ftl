@@ -1,7 +1,6 @@
 <#include '../../pwaLayoutImports.ftl'>
 
 <#-- @ftlvariable name="sectionDisplayText" type="java.lang.String" -->
-
 <#-- @ftlvariable name="unitMeasurements" type="java.util.Map<java.lang.String, uk.co.ogauthority.pwa.model.entity.enums.measurements.UnitMeasurement>" -->
 
 
@@ -41,11 +40,13 @@
             <@diffChanges.renderDiff pipelineHeader.PipelineHeaderView_pipelineStatusDisplayStr />
         </@fdsCheckAnswers.checkAnswersRow>
 
-        <#if pipelineHeader.canShowOutOfUseQuestion == true>
-            <@fdsCheckAnswers.checkAnswersRow keyText="Why is the pipeline not being returned to shore?" actionUrl="" screenReaderActionText="" actionText="">
-                 <@diffChanges.renderDiff diffedField=pipelineHeader.PipelineHeaderView_pipelineStatusReason />
-            </@fdsCheckAnswers.checkAnswersRow>
-        </#if>
+        <#list pipelineHeader.questionsForPipelineStatus as question>
+            <#if question == "OUT_OF_USE_ON_SEABED_REASON">
+                <@fdsCheckAnswers.checkAnswersRow keyText="Why is the pipeline not being returned to shore?" actionUrl="" screenReaderActionText="" actionText="">
+                    <@diffChanges.renderDiff diffedField=pipelineHeader.PipelineHeaderView_pipelineStatusReason />
+                </@fdsCheckAnswers.checkAnswersRow>
+            </#if>
+        </#list>
 
         <@fdsCheckAnswers.checkAnswersRow keyText="Number of idents" actionUrl="" screenReaderActionText="" actionText="">
              ${pipelineIdentsSize}

@@ -117,8 +117,8 @@ public class PipelinesSummaryService implements ApplicationSectionSummariser {
       // the diff service does not handle nested complex properties natively.
       Map<String, Object> pipelineHeaderMap = new HashMap<>(diffService.diff(
           pipelineSummaryPair.getLeft().getPipelineHeaderView(), pipelineSummaryPair.getRight().getPipelineHeaderView(),
-          Set.of("identViews", "pipelineStatus", "canShowOutOfUseQuestion")));
-      pipelineHeaderMap.put("canShowOutOfUseQuestion", pipelineSummaryPair.getLeft().getCanShowOutOfUseQuestion());
+          Set.of("identViews", "pipelineStatus", "questionsForPipelineStatus")));
+      pipelineHeaderMap.put("questionsForPipelineStatus", pipelineSummaryPair.getLeft().getQuestionsForPipelineStatus()); //not found on summary model !!!
 
       pipelineDiffMap.put("pipelineHeader", pipelineHeaderMap);
       pipelineDiffMap.put("pipelineIdents",

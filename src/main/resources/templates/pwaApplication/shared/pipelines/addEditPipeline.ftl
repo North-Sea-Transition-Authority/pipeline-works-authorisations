@@ -8,7 +8,7 @@
 <#-- @ftlvariable name="screenActionType" type="uk.co.ogauthority.pwa.model.form.enums.ScreenActionType" -->
 <#-- @ftlvariable name="errorList" type="java.util.List<uk.co.ogauthority.pwa.model.form.fds.ErrorItem>" -->
 <#-- @ftlvariable name="pipelineNumber" type="String" -->
-<#-- @ftlvariable name="canShowOutOfUseQuestion" type="java.lang.Boolean" -->
+<#-- @ftlvariable name="questionsForPipelineStatus" type="java.util.Set<uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineHeaderConditionalQuestion>" -->
 
 <@defaultPage htmlTitle="${screenActionType.actionText} ${pipelineNumber!} pipeline" pageHeading="${screenActionType.actionText} ${pipelineNumber!} pipeline" breadcrumbs=true>
 
@@ -110,8 +110,12 @@
 
         </@fdsFieldset.fieldset>
 
-        <#if canShowOutOfUseQuestion?has_content && canShowOutOfUseQuestion == true>
-            <@fdsTextarea.textarea path="form.whyNotReturnedToShore" labelText="Why is the pipeline not being returned to shore?" characterCount=true maxCharacterLength="4000"/>
+        <#if questionsForPipelineStatus?has_content>
+            <#list questionsForPipelineStatus as question>
+                <#if question == "OUT_OF_USE_ON_SEABED_REASON">
+                    <@fdsTextarea.textarea path="form.whyNotReturnedToShore" labelText=question.getDisplayText() characterCount=true maxCharacterLength="4000"/>
+                </#if>
+            </#list>
         </#if>
 
         <@fdsAction.submitButtons linkSecondaryAction=true primaryButtonText="${screenActionType.submitButtonText} pipeline" secondaryLinkText="Cancel" linkSecondaryActionUrl=springUrl(cancelUrl)/>

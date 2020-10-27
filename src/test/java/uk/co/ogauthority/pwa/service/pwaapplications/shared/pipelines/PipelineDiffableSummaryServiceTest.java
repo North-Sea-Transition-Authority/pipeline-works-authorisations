@@ -105,9 +105,6 @@ public class PipelineDiffableSummaryServiceTest {
     when(padPipelineService.getApplicationPipelineOverviews(pwaApplicationDetail))
         .thenReturn(List.of(padPipelineOverview));
 
-    when(padPipelineService.canShowOutOfUseQuestionForPipelineHeader(padPipelineOverview.getPipelineStatus()))
-        .thenReturn(true);
-
     var summaryList = pipelineDiffableSummaryService.getApplicationDetailPipelines(pwaApplicationDetail);
 
     assertThat(summaryList).hasSize(1);
@@ -127,9 +124,6 @@ public class PipelineDiffableSummaryServiceTest {
         .thenReturn(List.of(padPipelineOverview));
     when(padPipelineIdentService.getIdentViewsFromOverview(padPipelineOverview))
         .thenReturn(List.of(identStart, identMid, identEnd));
-
-    when(padPipelineService.canShowOutOfUseQuestionForPipelineHeader(padPipelineOverview.getPipelineStatus()))
-        .thenReturn(true);
 
     var summaryList = pipelineDiffableSummaryService.getApplicationDetailPipelines(pwaApplicationDetail);
     var summary = summaryList.get(0);
