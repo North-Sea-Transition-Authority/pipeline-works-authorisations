@@ -23,8 +23,9 @@ import uk.co.ogauthority.pwa.mvc.PageView;
 import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationConsultationWorkflowTask;
 import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationWorkflowTask;
 import uk.co.ogauthority.pwa.service.enums.workflow.WorkflowType;
-import uk.co.ogauthority.pwa.service.workarea.applications.ApplicationWorkAreaPageService;
+import uk.co.ogauthority.pwa.service.workarea.applications.IndustryWorkAreaPageService;
 import uk.co.ogauthority.pwa.service.workarea.applications.PwaApplicationWorkAreaItem;
+import uk.co.ogauthority.pwa.service.workarea.applications.RegulatorWorkAreaPageService;
 import uk.co.ogauthority.pwa.service.workarea.consultations.ConsultationRequestWorkAreaItem;
 import uk.co.ogauthority.pwa.service.workarea.consultations.ConsultationWorkAreaPageService;
 import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
@@ -39,10 +40,13 @@ public class WorkAreaServiceTest {
   private CamundaWorkflowService camundaWorkflowService;
 
   @Mock
-  private ApplicationWorkAreaPageService applicationWorkAreaPageService;
+  private IndustryWorkAreaPageService industryWorkAreaPageService;
 
   @Mock
   private ConsultationWorkAreaPageService consultationWorkAreaPageService;
+
+  @Mock
+  private RegulatorWorkAreaPageService regulatorWorkAreaPageService;
 
   private WorkAreaService workAreaService;
 
@@ -54,14 +58,18 @@ public class WorkAreaServiceTest {
   @Before
   public void setUp() {
 
-    this.workAreaService = new WorkAreaService(camundaWorkflowService, applicationWorkAreaPageService, consultationWorkAreaPageService);
+    this.workAreaService = new WorkAreaService(
+        camundaWorkflowService,
+        industryWorkAreaPageService,
+        consultationWorkAreaPageService,
+        regulatorWorkAreaPageService);
 
     appPageView = WorkAreaTestUtils.setUpFakeAppPageView(0);
-    when(applicationWorkAreaPageService.getPageView(any(), any(), anyInt())).thenReturn(appPageView);
+    when(industryWorkAreaPageService.getOpenApplicationsPageView(any(), anyInt())).thenReturn(appPageView);
+    when(regulatorWorkAreaPageService.getPageView(any(), any(), anyInt())).thenReturn(appPageView);
 
     consultationPageView = WorkAreaTestUtils.setUpFakeConsultationPageView(0);
     when(consultationWorkAreaPageService.getPageView(any(), any(), anyInt())).thenReturn(consultationPageView);
-
   }
 
   @Test
@@ -79,7 +87,7 @@ public class WorkAreaServiceTest {
 
     var workAreaResult = workAreaService.getWorkAreaResult(authenticatedUserAccount, WorkAreaTab.REGULATOR_OPEN_APPLICATIONS, 0);
 
-    verify(applicationWorkAreaPageService, times(1)).getPageView(eq(authenticatedUserAccount), eq(Set.of(1,2)), eq(0));
+    verify(regulatorWorkAreaPageService, times(1)).getPageView(eq(authenticatedUserAccount), eq(Set.of(1,2)), eq(0));
 
     assertThat(workAreaResult.getApplicationsTabPages()).isEqualTo(appPageView);
     assertThat(workAreaResult.getConsultationsTabPages()).isNull();
@@ -93,7 +101,7 @@ public class WorkAreaServiceTest {
 
     var workAreaResult = workAreaService.getWorkAreaResult(authenticatedUserAccount, WorkAreaTab.REGULATOR_OPEN_APPLICATIONS, 1);
 
-    verify(applicationWorkAreaPageService, times(1)).getPageView(eq(authenticatedUserAccount), eq(Set.of()), eq(1));
+    verify(regulatorWorkAreaPageService, times(1)).getPageView(eq(authenticatedUserAccount), eq(Set.of()), eq(1));
 
     assertThat(workAreaResult.getApplicationsTabPages()).isEqualTo(appPageView);
     assertThat(workAreaResult.getConsultationsTabPages()).isNull();
@@ -115,7 +123,7 @@ public class WorkAreaServiceTest {
 
     var workAreaResult = workAreaService.getWorkAreaResult(authenticatedUserAccount, WorkAreaTab.INDUSTRY_OPEN_APPLICATIONS, 0);
 
-    verify(applicationWorkAreaPageService, times(1)).getPageView(eq(authenticatedUserAccount), eq(Set.of(1,2)), eq(0));
+    verify(industryWorkAreaPageService, times(1)).getOpenApplicationsPageView(eq(authenticatedUserAccount), eq(0));
 
     assertThat(workAreaResult.getApplicationsTabPages()).isEqualTo(appPageView);
     assertThat(workAreaResult.getConsultationsTabPages()).isNull();
@@ -129,7 +137,7 @@ public class WorkAreaServiceTest {
 
     var workAreaResult = workAreaService.getWorkAreaResult(authenticatedUserAccount, WorkAreaTab.INDUSTRY_OPEN_APPLICATIONS, 1);
 
-    verify(applicationWorkAreaPageService, times(1)).getPageView(eq(authenticatedUserAccount), eq(Set.of()), eq(1));
+    verify(industryWorkAreaPageService, times(1)).getOpenApplicationsPageView(eq(authenticatedUserAccount), eq(1));
 
     assertThat(workAreaResult.getApplicationsTabPages()).isEqualTo(appPageView);
     assertThat(workAreaResult.getConsultationsTabPages()).isNull();

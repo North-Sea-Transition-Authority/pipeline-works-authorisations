@@ -35,7 +35,7 @@ public class TaskListEntryFactory {
 
   TaskListEntry createApplicationTaskListEntry(PwaApplicationDetail pwaApplicationDetail,
                                                GeneralPurposeApplicationTask applicationTask) {
-    LOGGER.info(String.format("Creating Task List Entry: %s", applicationTask));
+    LOGGER.info(String.format("Creating Task List Entry: %s", applicationTask.getShortenedDisplayName()));
     return new TaskListEntry(
         applicationTask.getDisplayName(),
         applicationTask.getTaskLandingPageRoute(pwaApplicationDetail.getPwaApplication()),

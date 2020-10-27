@@ -22,6 +22,12 @@ public interface ApplicationDetailSearchItemRepository extends CrudRepository<Ap
                                                                              Collection<PwaApplicationStatus> statusFilter,
                                                                              Collection<Integer> applicationIdFilter);
 
+  Page<ApplicationDetailSearchItem> findAllByPwaApplicationIdInAndPadStatusInAndOpenUpdateRequestFlag(
+      Pageable pageable,
+      Collection<Integer> applicationIdFilter,
+      Collection<PwaApplicationStatus> statusFilter,
+      Boolean openUpdateRequestFlag);
+
   Optional<ApplicationDetailSearchItem> findByPwaApplicationDetailIdEquals(Integer pwaApplicationDetailId);
 
 }

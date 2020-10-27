@@ -9,10 +9,16 @@ public enum ConsultationWorkAreaSort implements WorkAreaSort {
 
   private final String sortAttribute;
   private final Sort.Direction sortDirection;
+  private final Sort.NullHandling nullHandling;
 
-  ConsultationWorkAreaSort(String sortAttribute, Sort.Direction sortDirection) {
+  ConsultationWorkAreaSort(String sortAttribute, Sort.Direction sortDirection, Sort.NullHandling nullHandling) {
     this.sortAttribute = sortAttribute;
     this.sortDirection = sortDirection;
+    this.nullHandling = nullHandling;
+  }
+
+  ConsultationWorkAreaSort(String sortAttribute, Sort.Direction sortDirection) {
+    this(sortAttribute, sortDirection, Sort.NullHandling.NULLS_LAST);
   }
 
   @Override
@@ -24,6 +30,12 @@ public enum ConsultationWorkAreaSort implements WorkAreaSort {
   public Sort.Direction getSortDirection() {
     return sortDirection;
   }
+
+  @Override
+  public Sort.NullHandling getNullHandling() {
+    return this.nullHandling;
+  }
+
 
   @Override
   public String toString() {
