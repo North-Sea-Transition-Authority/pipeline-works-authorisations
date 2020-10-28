@@ -63,7 +63,7 @@ public class ConsultationWorkAreaPageService {
         .orElse(null);
 
     return consultationRequestSearcher.searchByStatusForGroupIdsOrConsultationRequestIds(
-        WorkAreaUtils.getWorkAreaPageRequest(pageRequest, ConsultationWorkAreaSort.DEADLINE_DATE_DESC),
+        WorkAreaUtils.getWorkAreaPageRequest(pageRequest, ConsultationWorkAreaSort.DEADLINE_DATE_ASC),
         ConsultationRequestStatus.ALLOCATION,
         consulteeGroupIdToGetAllocationRequestsFor,
         consultationRequestIdList

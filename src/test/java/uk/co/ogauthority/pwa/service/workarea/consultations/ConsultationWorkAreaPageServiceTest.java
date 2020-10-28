@@ -91,7 +91,7 @@ public class ConsultationWorkAreaPageServiceTest {
 
   private Pageable getDefaultWorkAreaViewPageable(int requestedPage) {
     return PageRequest.of(requestedPage, WorkAreaService.PAGE_SIZE,
-        ConsultationWorkAreaSort.DEADLINE_DATE_DESC.getSort());
+        ConsultationWorkAreaSort.DEADLINE_DATE_ASC.getSort());
   }
 
   @Test

@@ -5,7 +5,7 @@ import uk.co.ogauthority.pwa.service.workarea.WorkAreaSort;
 
 public enum ConsultationWorkAreaSort implements WorkAreaSort {
 
-  DEADLINE_DATE_DESC("deadlineDate", Sort.Direction.DESC);
+  DEADLINE_DATE_ASC("deadlineDate", Sort.Direction.ASC);
 
   private final String sortAttribute;
   private final Sort.Direction sortDirection;
