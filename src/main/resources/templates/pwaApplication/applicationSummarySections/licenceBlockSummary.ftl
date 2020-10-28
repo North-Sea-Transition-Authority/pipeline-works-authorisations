@@ -3,14 +3,17 @@
 <#-- @ftlvariable name="sectionDisplayText" type="java.lang.String" -->
 <#-- @ftlvariable name="blockCrossingViews" type="java.util.List<uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.BlockCrossingView>" -->
 <#-- @ftlvariable name="blockCrossingFileViews" type="java.util.List<uk.co.ogauthority.pwa.model.form.files.UploadedFileView>" -->
-<#-- @ftlvariable name="blockCrossingUrlFactory" type="uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.BlockCrossingUrlFactory" -->
+<#-- @ftlvariable name="blockCrossingFileViews" type="java.util.List<uk.co.ogauthority.pwa.model.form.files.UploadedFileView>" -->
+<#-- @ftlvariable name="isDocumentsRequired" type="java.lang.boolean" -->
 
 
 <div class="pwa-application-summary-section">
     <h2 class="govuk-heading-l" id="licenceBlockDetails">${sectionDisplayText}</h2>
 
     <@licenceBlockDetails blockCrossingViews/>
-    <@crossingAgreementDetails blockCrossingFileViews/>
+    <#if isDocumentsRequired>
+        <@crossingAgreementDetails blockCrossingFileViews/>
+    </#if>
 
 </div>
 

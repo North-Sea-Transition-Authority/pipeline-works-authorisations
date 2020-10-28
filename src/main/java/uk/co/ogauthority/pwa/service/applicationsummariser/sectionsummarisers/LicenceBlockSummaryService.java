@@ -59,6 +59,7 @@ public class LicenceBlockSummaryService implements ApplicationSectionSummariser 
         padFileService.getUploadedFileViews(pwaApplicationDetail, ApplicationDetailFilePurpose.BLOCK_CROSSINGS,
             ApplicationFileLinkStatus.FULL));
     summaryModel.put("blockCrossingUrlFactory", new BlockCrossingUrlFactory(pwaApplicationDetail));
+    summaryModel.put("isDocumentsRequired", blockCrossingService.isDocumentsRequired(pwaApplicationDetail));
 
     return new ApplicationSectionSummary(
         templateName,

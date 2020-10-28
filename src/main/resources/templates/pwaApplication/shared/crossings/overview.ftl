@@ -9,6 +9,7 @@
 <#-- @ftlvariable name="blockCrossings" type="java.util.List<uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.BlockCrossingView>" -->
 <#-- @ftlvariable name="blockCrossingUrlFactory" type="uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.BlockCrossingUrlFactory" -->
 <#-- @ftlvariable name="blockCrossingFiles" type="java.util.List<uk.co.ogauthority.pwa.model.form.files.UploadedFileView>" -->
+<#-- @ftlvariable name="isDocumentsRequired" type="java.lang.boolean" -->
 
 <#-- @ftlvariable name="cableCrossings" type="java.util.List<uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CableCrossingView>" -->
 <#-- @ftlvariable name="cableCrossingUrlFactory" type="uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CableCrossingUrlFactory" -->
@@ -35,7 +36,8 @@
         <@blockCrossingManagement.blockCrossingManagement
         blockCrossings=blockCrossings
         blockCrossingFileViews=blockCrossingFiles
-        urlFactory=blockCrossingUrlFactory/>
+        urlFactory=blockCrossingUrlFactory
+        isDocumentsRequired=isDocumentsRequired/>
     <#elseif overview == "PIPELINE_CROSSINGS">
         <@pipelineCrossingManagement.pipelineCrossingManagement
         urlFactory=pipelineCrossingUrlFactory
