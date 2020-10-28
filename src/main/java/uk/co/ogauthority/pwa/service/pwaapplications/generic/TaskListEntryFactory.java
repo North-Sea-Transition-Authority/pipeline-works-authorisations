@@ -2,6 +2,8 @@ package uk.co.ogauthority.pwa.service.pwaapplications.generic;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.submission.ReviewAndSubmitController;
@@ -17,6 +19,9 @@ import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectServi
 @Service
 public class TaskListEntryFactory {
 
+  private static final Logger LOGGER = LoggerFactory.getLogger(TaskListEntryFactory.class);
+
+
   private final ApplicationTaskService applicationTaskService;
   private final PwaApplicationRedirectService pwaApplicationRedirectService;
 
@@ -30,6 +35,7 @@ public class TaskListEntryFactory {
 
   TaskListEntry createApplicationTaskListEntry(PwaApplicationDetail pwaApplicationDetail,
                                                GeneralPurposeApplicationTask applicationTask) {
+    LOGGER.info(String.format("Creating Task List Entry: %s", applicationTask.getShortenedDisplayName()));
     return new TaskListEntry(
         applicationTask.getDisplayName(),
         applicationTask.getTaskLandingPageRoute(pwaApplicationDetail.getPwaApplication()),

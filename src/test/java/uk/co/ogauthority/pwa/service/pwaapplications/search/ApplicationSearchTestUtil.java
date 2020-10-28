@@ -1,11 +1,13 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.search;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailSearchItem;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
@@ -16,6 +18,20 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 public class ApplicationSearchTestUtil {
 
   public static ApplicationDetailSearchItem getSearchDetailItem(PwaApplicationStatus status) {
+    return getSearchDetailItem(status, LocalDateTime.of(2020, 1, 2, 3, 4, 5)
+        .toInstant(ZoneOffset.ofTotalSeconds(0)));
+  }
+
+  public static ApplicationDetailSearchItem getSearchDetailItem(PwaApplicationDetail pwaApplicationDetail, Instant proposedStartDate) {
+
+    var searchItem = getSearchDetailItem(pwaApplicationDetail.getStatus(), proposedStartDate);
+    searchItem.setPwaApplicationDetailId(pwaApplicationDetail.getId());
+    searchItem.setPwaApplicationId(pwaApplicationDetail.getMasterPwaApplicationId());
+    return searchItem;
+
+  }
+
+  public static ApplicationDetailSearchItem getSearchDetailItem(PwaApplicationStatus status, Instant proposedStartDate) {
     var applicationDetailSearchItem = new ApplicationDetailSearchItem();
 
     applicationDetailSearchItem.setPadStatus(status);
@@ -27,9 +43,7 @@ public class ApplicationSearchTestUtil {
     applicationDetailSearchItem.setPadHolderNameList(List.of("PAD HOLDER 1", "PAD HOLDER 2"));
     applicationDetailSearchItem.setPwaHolderNameList(List.of("PWA HOLDER 1", "PWA HOLDER 2"));
     applicationDetailSearchItem.setPadProjectName("PROJECT_NAME");
-    applicationDetailSearchItem.setPadProposedStart(
-        LocalDateTime.of(2020, 1, 2, 3, 4, 5)
-            .toInstant(ZoneOffset.ofTotalSeconds(0)));
+    applicationDetailSearchItem.setPadProposedStart(proposedStartDate);
     applicationDetailSearchItem.setPadStatusTimestamp(
         LocalDateTime.of(2020, 2, 3, 4, 5, 6)
             .toInstant(ZoneOffset.ofTotalSeconds(0)));

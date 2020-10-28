@@ -10,6 +10,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Set;
+import javax.persistence.EntityManager;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -31,6 +32,9 @@ public class ApplicationDetailSearcherTest {
   private static final int PAGE_SIZE = 10;
 
   @Mock
+  private EntityManager entityManager;
+
+  @Mock
   private ApplicationDetailSearchItemRepository applicationDetailSearchItemRepository;
 
   private ApplicationDetailSearcher applicationDetailSearcher;
@@ -39,7 +43,7 @@ public class ApplicationDetailSearcherTest {
   @Before
   public void setup() {
 
-    applicationDetailSearcher = new ApplicationDetailSearcher(applicationDetailSearchItemRepository);
+    applicationDetailSearcher = new ApplicationDetailSearcher(entityManager, applicationDetailSearchItemRepository);
     pageable = PageRequest.of(PAGE_REQUESTED, PAGE_SIZE);
   }
 

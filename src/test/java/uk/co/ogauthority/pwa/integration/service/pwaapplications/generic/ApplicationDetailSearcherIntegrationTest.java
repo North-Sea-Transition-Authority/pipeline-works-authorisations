@@ -1,0 +1,173 @@
+package uk.co.ogauthority.pwa.integration.service.pwaapplications.generic;
+
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.Set;
+import javax.persistence.EntityManager;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureDataJpa;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.transaction.annotation.Transactional;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailSearchItem;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.service.pwaapplications.search.ApplicationDetailSearcher;
+import uk.co.ogauthority.pwa.service.pwaapplications.search.ApplicationSearchTestUtil;
+import uk.co.ogauthority.pwa.service.workarea.applications.ApplicationWorkAreaSort;
+import uk.co.ogauthority.pwa.service.workarea.applications.WorkAreaPageServiceTestUtil;
+import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
+
+@RunWith(SpringRunner.class)
+@SpringBootTest
+@AutoConfigureTestDatabase
+@AutoConfigureDataJpa
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
+@ActiveProfiles("integration-test")
+@SuppressWarnings({"JpaQueryApiInspection", "SqlNoDataSourceInspection"})
+// IJ seems to give spurious warnings when running with embedded H2
+public class ApplicationDetailSearcherIntegrationTest {
+
+  private PwaApplicationDetail detail1;
+  private PwaApplicationDetail detail2;
+  private PwaApplicationDetail detail3;
+  private PwaApplicationDetail detail4;
+
+  private ApplicationDetailSearchItem detail1SearchItem;
+  private ApplicationDetailSearchItem detail2SearchItem;
+  private ApplicationDetailSearchItem detail3SearchItem;
+  private ApplicationDetailSearchItem detail4SearchItem;
+
+
+  @Autowired
+  private ApplicationDetailSearcher applicationDetailSearcher;
+
+  @Autowired
+  private EntityManager entityManager;
+
+
+  public void setupSearchItems() {
+    detail1 = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL, 1, 10);
+    detail2 = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.CAT_1_VARIATION, 2, 20);
+    detail3 = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.CAT_2_VARIATION, 3, 30);
+    detail4 = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.HUOO_VARIATION, 4, 40);
+
+    detail1SearchItem = ApplicationSearchTestUtil.getSearchDetailItem(detail1, Instant.now().minus(4, ChronoUnit.DAYS));
+    detail2SearchItem = ApplicationSearchTestUtil.getSearchDetailItem(detail2, Instant.now().minus(3, ChronoUnit.DAYS));
+    detail3SearchItem = ApplicationSearchTestUtil.getSearchDetailItem(detail3, Instant.now().minus(2, ChronoUnit.DAYS));
+    detail4SearchItem = ApplicationSearchTestUtil.getSearchDetailItem(detail4, Instant.now().minus(1, ChronoUnit.DAYS));
+
+  }
+
+  public void persistSearchItems() {
+
+    entityManager.persist(detail1SearchItem);
+    entityManager.persist(detail2SearchItem);
+    entityManager.persist(detail3SearchItem);
+    entityManager.persist(detail4SearchItem);
+  }
+
+  @Transactional
+  @Test
+  public void searchWhereApplicationIdInAndWhereStatusInOrOpenUpdateRequest_whenAllMatchStatus_andHaveNonNullProposedStartDate() {
+
+    setupSearchItems();
+    detail4SearchItem = ApplicationSearchTestUtil.getSearchDetailItem(detail4, null);
+
+    persistSearchItems();
+
+    var result = applicationDetailSearcher.searchWhereApplicationIdInAndWhereStatusInOrOpenUpdateRequest(
+        WorkAreaPageServiceTestUtil.getWorkAreaViewPageable(0, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
+        Set.of(1, 2, 3, 4),
+        Set.of(PwaApplicationStatus.DRAFT),
+        true
+    );
+
+    //assert null start date item is first
+    assertThat(result.get()).containsExactly(
+        detail4SearchItem,
+        detail1SearchItem,
+        detail2SearchItem,
+        detail3SearchItem
+    );
+
+
+  }
+
+  @Transactional
+  @Test
+  public void searchWhereApplicationIdInAndWhereStatusInOrOpenUpdateRequest_whenAllMatchStatus_andNullProposedStartDateExists() {
+
+    setupSearchItems();
+
+    persistSearchItems();
+
+    var result = applicationDetailSearcher.searchWhereApplicationIdInAndWhereStatusInOrOpenUpdateRequest(
+        WorkAreaPageServiceTestUtil.getWorkAreaViewPageable(0, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
+        Set.of(1, 2, 3, 4),
+        Set.of(PwaApplicationStatus.DRAFT),
+        true
+    );
+
+    assertThat(result.get()).containsExactly(
+        detail1SearchItem,
+        detail2SearchItem,
+        detail3SearchItem,
+        detail4SearchItem
+    );
+
+
+  }
+
+  @Transactional
+  @Test
+  public void searchWhereApplicationIdInAndWhereStatusInOrOpenUpdateRequest_whenDoesNotMatchStatus_andOpenUpdateFlagSet() {
+
+    setupSearchItems();
+    detail4.setStatus(PwaApplicationStatus.CASE_OFFICER_REVIEW);
+    detail4SearchItem = ApplicationSearchTestUtil.getSearchDetailItem(detail4, Instant.now().minus(1, ChronoUnit.DAYS));
+    detail4SearchItem.setOpenUpdateRequestFlag(true);
+    persistSearchItems();
+
+    var result = applicationDetailSearcher.searchWhereApplicationIdInAndWhereStatusInOrOpenUpdateRequest(
+        WorkAreaPageServiceTestUtil.getWorkAreaViewPageable(0, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
+        Set.of(4),
+        Set.of(PwaApplicationStatus.DRAFT),
+        true
+    );
+
+    assertThat(result.get()).containsExactly(
+        detail4SearchItem
+    );
+
+  }
+
+  @Transactional
+  @Test
+  public void searchWhereApplicationIdInAndWhereStatusInOrOpenUpdateRequest_whenDoesNotMatchStatus_andOpenUpdateFlagNotSet() {
+
+    setupSearchItems();
+    detail4.setStatus(PwaApplicationStatus.CASE_OFFICER_REVIEW);
+    detail4SearchItem = ApplicationSearchTestUtil.getSearchDetailItem(detail4, Instant.now().minus(1, ChronoUnit.DAYS));
+    detail4SearchItem.setOpenUpdateRequestFlag(false);
+    persistSearchItems();
+
+    var result = applicationDetailSearcher.searchWhereApplicationIdInAndWhereStatusInOrOpenUpdateRequest(
+        WorkAreaPageServiceTestUtil.getWorkAreaViewPageable(0, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
+        Set.of(4),
+        Set.of(PwaApplicationStatus.DRAFT),
+        true
+    );
+
+    assertThat(result.get()).isEmpty();
+  }
+}

@@ -3,151 +3,117 @@ package uk.co.ogauthority.pwa.service.workarea;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.Arrays;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
-import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroup;
-import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupMemberRole;
-import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupTeamMember;
-import uk.co.ogauthority.pwa.model.teams.PwaRegulatorRole;
-import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupTeamService;
-import uk.co.ogauthority.pwa.service.teams.TeamService;
-import uk.co.ogauthority.pwa.testutils.TeamTestingUtils;
+import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
+import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
+import uk.co.ogauthority.pwa.service.enums.users.UserType;
+import uk.co.ogauthority.pwa.service.users.UserTypeService;
 
 @RunWith(MockitoJUnitRunner.class)
 public class WorkAreaTabServiceTest {
 
-  @Mock
-  private TeamService teamService;
-
-  @Mock
-  private ConsulteeGroupTeamService consulteeGroupTeamService;
-
   private WorkAreaTabService workAreaTabService;
 
-  private Person person = new Person(1, null, null, null, null);
+  private WebUserAccount wua= new WebUserAccount(1);
+  private AuthenticatedUserAccount user = new AuthenticatedUserAccount(wua, Arrays.asList(PwaUserPrivilege.values()));
 
+  @Mock
+  private UserTypeService userTypeService;
+  
   @Before
   public void setUp() {
 
-    var regTeamMember = TeamTestingUtils.createRegulatorTeamMember(teamService.getRegulatorTeam(),
-        person,
-        Set.of(PwaRegulatorRole.PWA_MANAGER));
-
-    var consulteeTeamMember = new ConsulteeGroupTeamMember(new ConsulteeGroup(), person, Set.of(
-        ConsulteeGroupMemberRole.RECIPIENT, ConsulteeGroupMemberRole.RESPONDER));
-
-    // default everything returned
-    var orgTeam = TeamTestingUtils.getOrganisationTeam(TeamTestingUtils.generateOrganisationGroup(1, "Test", "TEST"));
-    when(teamService.getOrganisationTeamsPersonIsMemberOf(person)).thenReturn(List.of(orgTeam));
-    when(teamService.getMembershipOfPersonInTeam(teamService.getRegulatorTeam(), person)).thenReturn(Optional.of(regTeamMember));
-    when(consulteeGroupTeamService.getTeamMemberByPerson(person)).thenReturn(Optional.of(consulteeTeamMember));
-
-    workAreaTabService = new WorkAreaTabService(teamService, consulteeGroupTeamService);
-
+    workAreaTabService = new WorkAreaTabService(userTypeService);
 
   }
 
   @Test
-  public void getDefaultTabForPerson_allTabsAvailable() {
+  public void getDefaultTabForUser_regulator() {
+    when(userTypeService.getUserType(user)).thenReturn(UserType.OGA);
 
-    var defaultTabOpt = workAreaTabService.getDefaultTabForPerson(person);
+    var defaultTabOpt = workAreaTabService.getDefaultTabForUser(user);
 
     assertThat(defaultTabOpt).isPresent();
 
-    assertThat(defaultTabOpt.get()).isEqualTo(WorkAreaTab.OPEN_APPLICATIONS);
+    assertThat(defaultTabOpt.get()).isEqualTo(WorkAreaTab.REGULATOR_OPEN_APPLICATIONS);
 
   }
 
   @Test
-  public void getDefaultTabForPerson_noTabs() {
+  public void getDefaultTabForUser_industry() {
+    when(userTypeService.getUserType(user)).thenReturn(UserType.INDUSTRY);
 
-    when(teamService.getOrganisationTeamsPersonIsMemberOf(person)).thenReturn(List.of());
-    when(teamService.getMembershipOfPersonInTeam(teamService.getRegulatorTeam(), person)).thenReturn(Optional.empty());
-    when(consulteeGroupTeamService.getTeamMemberByPerson(person)).thenReturn(Optional.empty());
+    var defaultTabOpt = workAreaTabService.getDefaultTabForUser(user);
 
-    var defaultTabOpt = workAreaTabService.getDefaultTabForPerson(person);
+    assertThat(defaultTabOpt).isPresent();
+
+    assertThat(defaultTabOpt.get()).isEqualTo(WorkAreaTab.INDUSTRY_OPEN_APPLICATIONS);
+
+  }
+
+  @Test
+  public void getDefaultTabForUser_consultee() {
+    when(userTypeService.getUserType(user)).thenReturn(UserType.CONSULTEE);
+
+    var defaultTabOpt = workAreaTabService.getDefaultTabForUser(user);
+
+    assertThat(defaultTabOpt).isPresent();
+
+    assertThat(defaultTabOpt.get()).isEqualTo(WorkAreaTab.OPEN_CONSULTATIONS);
+
+  }
+
+  @Test
+  public void getDefaultTabForUser_noTabs() {
+    
+    var defaultTabOpt = workAreaTabService.getDefaultTabForUser(user);
 
     assertThat(defaultTabOpt).isEmpty();
 
   }
 
   @Test
-  public void getTabsAvailableToPerson_allTabs() {
+  public void getTabsAvailableToUser_regulatorOnly() {
+    when(userTypeService.getUserType(user)).thenReturn(UserType.OGA);
+    var tabs = workAreaTabService.getTabsAvailableToUser(user);
 
-    var tabs = workAreaTabService.getTabsAvailableToPerson(person);
-
-    assertThat(tabs).containsExactly(WorkAreaTab.OPEN_APPLICATIONS, WorkAreaTab.OPEN_CONSULTATIONS);
-
-  }
-
-  @Test
-  public void getTabsAvailableToPerson_industryOnly() {
-
-    when(teamService.getMembershipOfPersonInTeam(teamService.getRegulatorTeam(), person)).thenReturn(Optional.empty());
-    when(consulteeGroupTeamService.getTeamMemberByPerson(person)).thenReturn(Optional.empty());
-
-    var tabs = workAreaTabService.getTabsAvailableToPerson(person);
-
-    assertThat(tabs).containsExactly(WorkAreaTab.OPEN_APPLICATIONS);
+    assertThat(tabs).containsExactly(WorkAreaTab.REGULATOR_OPEN_APPLICATIONS);
 
   }
 
   @Test
-  public void getTabsAvailableToPerson_regulatorOnly() {
+  public void getTabsAvailableToUser_industryOnly() {
 
-    when(teamService.getOrganisationTeamsPersonIsMemberOf(person)).thenReturn(List.of());
-    when(consulteeGroupTeamService.getTeamMemberByPerson(person)).thenReturn(Optional.empty());
+    when(userTypeService.getUserType(user)).thenReturn(UserType.INDUSTRY);
 
-    var tabs = workAreaTabService.getTabsAvailableToPerson(person);
+    var tabs = workAreaTabService.getTabsAvailableToUser(user);
 
-    assertThat(tabs).containsExactly(WorkAreaTab.OPEN_APPLICATIONS);
+    assertThat(tabs).containsExactly(WorkAreaTab.INDUSTRY_OPEN_APPLICATIONS, WorkAreaTab.INDUSTRY_SUBMITTED_APPLICATIONS);
 
   }
 
   @Test
-  public void getTabsAvailableToPerson_consulteeOnly_recipientResponder() {
+  public void getTabsAvailableToUser_consulteeOnly() {
 
-    when(teamService.getOrganisationTeamsPersonIsMemberOf(person)).thenReturn(List.of());
-    when(teamService.getMembershipOfPersonInTeam(teamService.getRegulatorTeam(), person)).thenReturn(Optional.empty());
+    when(userTypeService.getUserType(user)).thenReturn(UserType.CONSULTEE);
 
-    var tabs = workAreaTabService.getTabsAvailableToPerson(person);
+    var tabs = workAreaTabService.getTabsAvailableToUser(user);
 
     assertThat(tabs).containsExactly(WorkAreaTab.OPEN_CONSULTATIONS);
 
   }
 
-  @Test
-  public void getTabsAvailableToPerson_consulteeOnly_accessManagerOnly() {
-
-    when(teamService.getOrganisationTeamsPersonIsMemberOf(person)).thenReturn(List.of());
-    when(teamService.getMembershipOfPersonInTeam(teamService.getRegulatorTeam(), person)).thenReturn(Optional.empty());
-
-    var accessManagerTeamMember = new ConsulteeGroupTeamMember(new ConsulteeGroup(), person, Set.of(
-        ConsulteeGroupMemberRole.ACCESS_MANAGER));
-
-    when(consulteeGroupTeamService.getTeamMemberByPerson(person)).thenReturn(Optional.of((accessManagerTeamMember)));
-
-    var tabs = workAreaTabService.getTabsAvailableToPerson(person);
-
-    assertThat(tabs).isEmpty();
-
-  }
 
   @Test
-  public void getTabsAvailableToPerson_noTabs() {
+  public void getTabsAvailableToUser_noTabs() {
 
-    when(teamService.getOrganisationTeamsPersonIsMemberOf(person)).thenReturn(List.of());
-    when(teamService.getMembershipOfPersonInTeam(teamService.getRegulatorTeam(), person)).thenReturn(Optional.empty());
-    when(consulteeGroupTeamService.getTeamMemberByPerson(person)).thenReturn(Optional.empty());
-
-    var tabs = workAreaTabService.getTabsAvailableToPerson(person);
+    var tabs = workAreaTabService.getTabsAvailableToUser(user);
 
     assertThat(tabs).isEmpty();
 
