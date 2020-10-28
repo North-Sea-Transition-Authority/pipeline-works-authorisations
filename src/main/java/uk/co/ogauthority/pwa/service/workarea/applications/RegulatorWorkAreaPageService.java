@@ -2,7 +2,7 @@ package uk.co.ogauthority.pwa.service.workarea.applications;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
-import java.util.HashSet;
+import java.util.EnumSet;
 import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -35,34 +35,60 @@ public class RegulatorWorkAreaPageService {
     this.applicationDetailSearcher = applicationDetailSearcher;
   }
 
-  public PageView<PwaApplicationWorkAreaItem> getPageView(AuthenticatedUserAccount authenticatedUserAccount,
-                                                          Set<Integer> applicationIds,
-                                                          int page) {
+  public PageView<PwaApplicationWorkAreaItem> getRequiresAttentionPageView(
+      AuthenticatedUserAccount authenticatedUserAccount,
+      Set<Integer> applicationIds,
+      int page) {
 
     var workAreaUri = ReverseRouter.route(
-        on(WorkAreaController.class).renderWorkAreaTab(null, WorkAreaTab.REGULATOR_OPEN_APPLICATIONS, page));
+        on(WorkAreaController.class).renderWorkAreaTab(null, WorkAreaTab.REGULATOR_REQUIRES_ATTENTION, page));
 
     return PageView.fromPage(
-        getOpenApplicationsPage(authenticatedUserAccount, applicationIds, page),
+        getRequiresAttentionPage(authenticatedUserAccount, applicationIds, page),
         workAreaUri,
         sr -> new PwaApplicationWorkAreaItem(sr, this::viewApplicationUrlProducer)
     );
 
   }
 
-  private Page<ApplicationDetailSearchItem> getOpenApplicationsPage(AuthenticatedUserAccount userAccount,
-                                                                    Set<Integer> applicationIdList,
-                                                                    int pageRequest) {
+  public PageView<PwaApplicationWorkAreaItem> getWaitingOnOthersPageView(
+      AuthenticatedUserAccount authenticatedUserAccount,
+      Set<Integer> applicationIds,
+      int page) {
 
-    var searchStatuses = new HashSet<PwaApplicationStatus>();
+    var workAreaUri = ReverseRouter.route(
+        on(WorkAreaController.class).renderWorkAreaTab(null, WorkAreaTab.REGULATOR_REQUIRES_ATTENTION, page));
 
-    var processingPermissions = appProcessingPermissionService.getGenericProcessingPermissions(userAccount);
+    return PageView.fromPage(
+        getWaitingOnOthersPage(authenticatedUserAccount, applicationIds, page),
+        workAreaUri,
+        sr -> new PwaApplicationWorkAreaItem(sr, this::viewApplicationUrlProducer)
+    );
+
+  }
+
+  private Set<PwaApplicationStatus> getAdditionalStatusFilterForUser(AuthenticatedUserAccount user) {
+
+    var searchStatuses = EnumSet.noneOf(PwaApplicationStatus.class);
+
+    var processingPermissions = appProcessingPermissionService.getGenericProcessingPermissions(user);
 
     if (processingPermissions.contains(PwaAppProcessingPermission.ACCEPT_INITIAL_REVIEW)) {
       searchStatuses.add(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW);
     }
 
-    return applicationDetailSearcher.searchByStatusOrApplicationIds(
+    return searchStatuses;
+
+  }
+
+
+  private Page<ApplicationDetailSearchItem> getRequiresAttentionPage(AuthenticatedUserAccount userAccount,
+                                                                     Set<Integer> applicationIdList,
+                                                                     int pageRequest) {
+
+    var searchStatuses = getAdditionalStatusFilterForUser(userAccount);
+
+    return applicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereAllProcessingWaitFlagsFalse(
         WorkAreaUtils.getWorkAreaPageRequest(pageRequest, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
         searchStatuses,
         applicationIdList
@@ -70,6 +96,19 @@ public class RegulatorWorkAreaPageService {
 
   }
 
+  private Page<ApplicationDetailSearchItem> getWaitingOnOthersPage(AuthenticatedUserAccount userAccount,
+                                                                   Set<Integer> applicationIdList,
+                                                                   int pageRequest) {
+
+    var searchStatuses = getAdditionalStatusFilterForUser(userAccount);
+
+    return applicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereAnyProcessingWaitFlagTrue(
+        WorkAreaUtils.getWorkAreaPageRequest(pageRequest, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
+        searchStatuses,
+        applicationIdList
+    );
+
+  }
 
   private String viewApplicationUrlProducer(ApplicationDetailSearchItem applicationDetailSearchItem) {
 
@@ -77,7 +116,6 @@ public class RegulatorWorkAreaPageService {
     var applicationType = applicationDetailSearchItem.getApplicationType();
     return ReverseRouter.route(on(CaseManagementController.class)
         .renderCaseManagement(applicationId, applicationType, AppProcessingTab.TASKS, null, null));
-
   }
 
 }

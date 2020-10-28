@@ -9,11 +9,18 @@ import uk.co.ogauthority.pwa.service.enums.users.UserType;
  */
 public enum WorkAreaTab {
 
-  REGULATOR_OPEN_APPLICATIONS(
-      "My open applications",
-      "open-reg-apps",
-      "openRegApplications",
+  REGULATOR_REQUIRES_ATTENTION(
+      "Applications for my attention",
+      "attention-reg-apps",
+      "attentionRegApplications",
       10,
+      UserType.OGA),
+
+  REGULATOR_WAITING_ON_OTHERS(
+      "Applications waiting on others",
+      "waiting-reg-apps",
+      "waitingRegApplications",
+      15,
       UserType.OGA),
 
   INDUSTRY_OPEN_APPLICATIONS(

@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.EnumSet;
@@ -16,43 +15,33 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailSearchItem;
-import uk.co.ogauthority.pwa.model.workflow.GenericWorkflowSubject;
 import uk.co.ogauthority.pwa.service.appprocessing.PwaAppProcessingPermissionService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
-import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationWorkflowTask;
-import uk.co.ogauthority.pwa.service.enums.workflow.UserWorkflowTask;
-import uk.co.ogauthority.pwa.service.enums.workflow.WorkflowType;
-import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.service.pwaapplications.search.ApplicationDetailSearcher;
 import uk.co.ogauthority.pwa.service.pwaapplications.search.ApplicationSearchTestUtil;
-import uk.co.ogauthority.pwa.service.workarea.WorkAreaService;
-import uk.co.ogauthority.pwa.service.workflow.task.AssignedTaskInstance;
-import uk.co.ogauthority.pwa.service.workflow.task.WorkflowTaskInstance;
 
 @RunWith(MockitoJUnitRunner.class)
 public class RegulatorWorkAreaPageServiceTest {
 
   private static final int REQUESTED_PAGE = 0;
 
-  @Mock
-  private ApplicationDetailSearcher applicationDetailSearcher;
+  private static final int APP_ID_1 = 1;
+  private static final int APP_ID_2 = 2;
 
   @Mock
-  private PwaApplicationRedirectService pwaApplicationRedirectService;
+  private ApplicationDetailSearcher applicationDetailSearcher;
 
   @Mock
   private PwaAppProcessingPermissionService appProcessingPermissionService;
 
   private RegulatorWorkAreaPageService appWorkAreaPageService;
+
+  private Page<ApplicationDetailSearchItem> fakeResultPage;
 
   private AuthenticatedUserAccount pwaManager = new AuthenticatedUserAccount(
       new WebUserAccount(10),
@@ -66,85 +55,86 @@ public class RegulatorWorkAreaPageServiceTest {
         applicationDetailSearcher
     );
 
+    fakeResultPage = WorkAreaPageServiceTestUtil.getFakeApplicationSearchResultPage(List.of(), REQUESTED_PAGE);
+
     when(appProcessingPermissionService.getGenericProcessingPermissions(pwaManager)).thenReturn(Set.of(
         PwaAppProcessingPermission.ACCEPT_INITIAL_REVIEW));
 
   }
 
   @Test
-  public void getPageView_zeroAssignedCases() {
-    setupFakeApplicationSearchResultPage(List.of(), REQUESTED_PAGE);
+  public void getRequiresAttentionPageView_zeroAssignedCases() {
+    when(applicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereAllProcessingWaitFlagsFalse(any(), any(), any()))
+        .thenReturn(fakeResultPage);
 
-    var workareaPage = appWorkAreaPageService.getPageView(pwaManager, Set.of(), REQUESTED_PAGE);
+    var workareaPage = appWorkAreaPageService.getRequiresAttentionPageView(pwaManager, Set.of(), REQUESTED_PAGE);
     assertThat(workareaPage.getTotalElements()).isEqualTo(0);
 
-    verify(applicationDetailSearcher, times(1)).searchByStatusOrApplicationIds(
+    verify(applicationDetailSearcher, times(1)).searchByStatusOrApplicationIdsAndWhereAllProcessingWaitFlagsFalse(
         WorkAreaPageServiceTestUtil.getWorkAreaViewPageable(REQUESTED_PAGE, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
         Set.of(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW),
         Set.of()
     );
 
-    verifyNoInteractions(pwaApplicationRedirectService);
   }
 
   @Test
-  public void getPageView_hasAssignedApps() {
+  public void getRequiresAttentionPageView_hasAssignedApps() {
+    fakeResultPage = WorkAreaPageServiceTestUtil.getFakeApplicationSearchResultPage(
+        List.of(ApplicationSearchTestUtil.getSearchDetailItem(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW)),
+        REQUESTED_PAGE);
 
-    setupFakeApplicationSearchResultPage(List.of(), REQUESTED_PAGE);
-    var assignedTask = new AssignedTaskInstance(getAppWorkflowTaskInstance(999, PwaApplicationWorkflowTask.CASE_OFFICER_REVIEW), pwaManager.getLinkedPerson());
-    var assignedTask2 = new AssignedTaskInstance(getAppWorkflowTaskInstance(9999, PwaApplicationWorkflowTask.CASE_OFFICER_REVIEW), pwaManager.getLinkedPerson());
+    when(applicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereAllProcessingWaitFlagsFalse(any(), any(), any()))
+        .thenReturn(fakeResultPage);
 
-    var workAreaPage = appWorkAreaPageService.getPageView(pwaManager, Set.of(assignedTask.getBusinessKey(), assignedTask2.getBusinessKey()), REQUESTED_PAGE);
+    var workAreaPage = appWorkAreaPageService.getRequiresAttentionPageView(pwaManager, Set.of(APP_ID_1, APP_ID_2), REQUESTED_PAGE);
 
-    verify(applicationDetailSearcher, times(1)).searchByStatusOrApplicationIds(
+    verify(applicationDetailSearcher, times(1)).searchByStatusOrApplicationIdsAndWhereAllProcessingWaitFlagsFalse(
         WorkAreaPageServiceTestUtil.getWorkAreaViewPageable(REQUESTED_PAGE, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
         Set.of(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW),
-        Set.of(assignedTask.getBusinessKey(), assignedTask2.getBusinessKey())
+        Set.of(APP_ID_1, APP_ID_2)
     );
 
+    assertThat(workAreaPage.getPageContent()).allSatisfy(pwaApplicationWorkAreaItem ->
+        assertThat(pwaApplicationWorkAreaItem.getAccessUrl()).isNotNull()
+    );
   }
 
   @Test
-  public void getPageView_viewUrlWhenApplicationStatusInitialSubmission() {
+  public void getWaitingOnOthersPageView_zeroAssignedCases() {
+    when(applicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereAnyProcessingWaitFlagTrue(any(), any(), any()))
+        .thenReturn(fakeResultPage);
 
-    var searchItem = ApplicationSearchTestUtil.getSearchDetailItem(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW);
+    var workareaPage = appWorkAreaPageService.getWaitingOnOthersPageView(pwaManager, Set.of(), REQUESTED_PAGE);
+    assertThat(workareaPage.getTotalElements()).isEqualTo(0);
 
-    setupFakeApplicationSearchResultPage(List.of(searchItem), REQUESTED_PAGE);
-
-    var workareaPage = appWorkAreaPageService.getPageView(pwaManager, Set.of(), REQUESTED_PAGE);
-    assertThat(workareaPage.getTotalElements()).isEqualTo(1);
-
-    verify(applicationDetailSearcher, times(1)).searchByStatusOrApplicationIds(
+    verify(applicationDetailSearcher, times(1)).searchByStatusOrApplicationIdsAndWhereAnyProcessingWaitFlagTrue(
         WorkAreaPageServiceTestUtil.getWorkAreaViewPageable(REQUESTED_PAGE, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
         Set.of(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW),
         Set.of()
     );
 
-    verifyNoInteractions(pwaApplicationRedirectService);
 
   }
 
-  private Pageable getDefaultWorkAreaViewPageable(int requestedPage) {
-    return PageRequest.of(requestedPage, WorkAreaService.PAGE_SIZE,
-        Sort.by(Sort.Direction.DESC, "padCreatedTimestamp"));
+  @Test
+  public void getWaitingOnOthersPageView_hasAssignedApps() {
+    when(applicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereAnyProcessingWaitFlagTrue(any(), any(), any()))
+        .thenReturn(fakeResultPage);
+
+    var workAreaPage = appWorkAreaPageService.getWaitingOnOthersPageView(pwaManager, Set.of(APP_ID_1, APP_ID_2), REQUESTED_PAGE);
+
+    verify(applicationDetailSearcher, times(1)).searchByStatusOrApplicationIdsAndWhereAnyProcessingWaitFlagTrue(
+        WorkAreaPageServiceTestUtil.getWorkAreaViewPageable(REQUESTED_PAGE, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
+        Set.of(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW),
+        Set.of(APP_ID_1, APP_ID_2)
+    );
+
+    assertThat(workAreaPage.getPageContent()).allSatisfy(pwaApplicationWorkAreaItem ->
+        assertThat(pwaApplicationWorkAreaItem.getAccessUrl()).isNotNull()
+    );
+
   }
 
-
-  private Page<ApplicationDetailSearchItem> setupFakeApplicationSearchResultPage(List<ApplicationDetailSearchItem> results, int page) {
-
-    var fakePage = new PageImpl<>(
-        results,
-        getDefaultWorkAreaViewPageable(page),
-        results.size());
-
-    when(applicationDetailSearcher.searchByStatusOrApplicationIds(any(), any(), any())).thenReturn(fakePage);
-
-    return fakePage;
-
-  }
-
-  private WorkflowTaskInstance getAppWorkflowTaskInstance(Integer businessKey, UserWorkflowTask task) {
-    return new WorkflowTaskInstance(new GenericWorkflowSubject(businessKey, WorkflowType.PWA_APPLICATION), task);
-  }
 
 }

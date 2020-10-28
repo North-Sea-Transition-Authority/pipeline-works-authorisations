@@ -52,18 +52,36 @@ public class WorkAreaService {
     switch (workAreaTab) {
 
       case INDUSTRY_OPEN_APPLICATIONS:
-        return new WorkAreaResult(industryWorkAreaPageService.getOpenApplicationsPageView(authenticatedUserAccount, page), null);
+        return new WorkAreaResult(
+            industryWorkAreaPageService.getOpenApplicationsPageView(authenticatedUserAccount, page),
+            null
+        );
 
       case INDUSTRY_SUBMITTED_APPLICATIONS:
-        return new WorkAreaResult(industryWorkAreaPageService.getSubmittedApplicationsPageView(authenticatedUserAccount, page), null);
+        return new WorkAreaResult(
+            industryWorkAreaPageService.getSubmittedApplicationsPageView(authenticatedUserAccount, page),
+            null
+        );
 
-      case REGULATOR_OPEN_APPLICATIONS:
+      case REGULATOR_REQUIRES_ATTENTION:
         businessKeys = getBusinessKeysFromWorkflowToTaskMap(workflowTypeToTaskMap, WorkflowType.PWA_APPLICATION);
-        return new WorkAreaResult(regulatorWorkAreaPageService.getPageView(authenticatedUserAccount, businessKeys, page), null);
+        return new WorkAreaResult(
+            regulatorWorkAreaPageService.getRequiresAttentionPageView(authenticatedUserAccount, businessKeys, page),
+            null
+        );
+
+      case REGULATOR_WAITING_ON_OTHERS:
+        businessKeys = getBusinessKeysFromWorkflowToTaskMap(workflowTypeToTaskMap, WorkflowType.PWA_APPLICATION);
+        return new WorkAreaResult(
+            regulatorWorkAreaPageService.getWaitingOnOthersPageView(authenticatedUserAccount, businessKeys, page),
+            null
+        );
 
       case OPEN_CONSULTATIONS:
-        businessKeys = getBusinessKeysFromWorkflowToTaskMap(workflowTypeToTaskMap, WorkflowType.PWA_APPLICATION_CONSULTATION);
-        return new WorkAreaResult(null, consultationWorkAreaPageService.getPageView(authenticatedUserAccount, businessKeys, page));
+        businessKeys = getBusinessKeysFromWorkflowToTaskMap(workflowTypeToTaskMap,
+            WorkflowType.PWA_APPLICATION_CONSULTATION);
+        return new WorkAreaResult(null,
+            consultationWorkAreaPageService.getPageView(authenticatedUserAccount, businessKeys, page));
 
       default:
         throw new RuntimeException(String.format(
@@ -76,8 +94,9 @@ public class WorkAreaService {
   /**
    * Retrieve business keys for assigned tasks that are in the requested workflow type.
    */
-  private Set<Integer> getBusinessKeysFromWorkflowToTaskMap(Map<WorkflowType, List<AssignedTaskInstance>> workflowToTaskMap,
-                                                            WorkflowType workflowType) {
+  private Set<Integer> getBusinessKeysFromWorkflowToTaskMap(
+      Map<WorkflowType, List<AssignedTaskInstance>> workflowToTaskMap,
+      WorkflowType workflowType) {
 
     return workflowToTaskMap.entrySet().stream()
         .filter(entry -> entry.getKey().equals(workflowType))

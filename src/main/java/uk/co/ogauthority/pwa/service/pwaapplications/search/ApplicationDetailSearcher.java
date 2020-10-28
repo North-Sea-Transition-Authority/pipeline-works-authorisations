@@ -179,18 +179,44 @@ public class ApplicationDetailSearcher {
 
   }
 
-  public Page<ApplicationDetailSearchItem> searchByStatusOrApplicationIds(Pageable pageable,
-                                                                          Set<PwaApplicationStatus> statusFilter,
-                                                                          Set<Integer> pwaApplicationIdFilter) {
+  public Page<ApplicationDetailSearchItem> searchByStatusOrApplicationIdsAndWhereAllProcessingWaitFlagsFalse(
+      Pageable pageable,
+      Set<PwaApplicationStatus> statusFilter,
+      Set<Integer> pwaApplicationIdFilter) {
 
     if (statusFilter.isEmpty() && pwaApplicationIdFilter.isEmpty()) {
       return Page.empty(pageable);
     }
 
-    return applicationDetailSearchItemRepository.findAllByPadStatusInOrPwaApplicationIdIn(
+    return applicationDetailSearchItemRepository.findAllByPadStatusInOrPwaApplicationIdInAndWhereAllProcessingWaitFlagsMatch(
         pageable,
-        statusFilter,
-        pwaApplicationIdFilter
+        // passing null when empty is required or else spring produces invalid sql for the IN condition.
+        statusFilter.isEmpty() ? null : statusFilter,
+        pwaApplicationIdFilter.isEmpty() ? null : pwaApplicationIdFilter,
+        false,
+        false,
+        false
+    );
+
+  }
+
+  public Page<ApplicationDetailSearchItem> searchByStatusOrApplicationIdsAndWhereAnyProcessingWaitFlagTrue(
+      Pageable pageable,
+      Set<PwaApplicationStatus> statusFilter,
+      Set<Integer> pwaApplicationIdFilter) {
+
+    if (statusFilter.isEmpty() && pwaApplicationIdFilter.isEmpty()) {
+      return Page.empty(pageable);
+    }
+
+    return applicationDetailSearchItemRepository.findAllByPadStatusInOrPwaApplicationIdInAndWhereAnyWaitFlagsMatch(
+        pageable,
+        // passing null when empty is required or else spring produces invalid sql for the IN condition.
+        statusFilter.isEmpty() ? null : statusFilter,
+        pwaApplicationIdFilter.isEmpty() ? null : pwaApplicationIdFilter,
+        true,
+        true,
+        true
     );
 
   }

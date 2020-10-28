@@ -170,4 +170,25 @@ public class ApplicationDetailSearcherIntegrationTest {
 
     assertThat(result.get()).isEmpty();
   }
+
+
+  @Transactional
+  @Test
+  public void searchWhereApplicationIdInAndWhereStatusInOrOpenUpdateRequest_zeroApps() {
+
+    setupSearchItems();
+    detail4.setStatus(PwaApplicationStatus.CASE_OFFICER_REVIEW);
+    detail4SearchItem = ApplicationSearchTestUtil.getSearchDetailItem(detail4, Instant.now().minus(1, ChronoUnit.DAYS));
+    detail4SearchItem.setOpenUpdateRequestFlag(false);
+    persistSearchItems();
+
+    var result = applicationDetailSearcher.searchWhereApplicationIdInAndWhereStatusInOrOpenUpdateRequest(
+        WorkAreaPageServiceTestUtil.getWorkAreaViewPageable(0, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
+        Set.of(),
+        Set.of(PwaApplicationStatus.DRAFT),
+        true
+    );
+
+    assertThat(result.get()).isEmpty();
+  }
 }
