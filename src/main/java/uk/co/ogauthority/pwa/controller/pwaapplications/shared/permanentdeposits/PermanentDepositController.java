@@ -2,7 +2,7 @@ package uk.co.ogauthority.pwa.controller.pwaapplications.shared.permanentdeposit
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -207,7 +207,7 @@ public class PermanentDepositController {
   private ModelAndView getAddEditPermanentDepositsModelAndView(PwaApplicationDetail pwaApplicationDetail,
                                                                PermanentDepositsForm form, ScreenActionType type) {
 
-    Map<String, String> pipelinesIdAndNameMap = new HashMap<>();
+    Map<String, String> pipelinesIdAndNameMap = new LinkedHashMap<>();
     pipelineAndIdentViewFactory.getAllPipelineOverviewsFromAppAndMasterPwa(pwaApplicationDetail)
         .forEach((pipelineId, pipelineOverview) ->
             pipelinesIdAndNameMap.put(String.valueOf(pipelineId.getPipelineIdAsInt()), pipelineOverview.getPipelineName()));
