@@ -83,7 +83,7 @@ public class WorkAreaTabServiceTest {
     when(userTypeService.getUserType(user)).thenReturn(UserType.OGA);
     var tabs = workAreaTabService.getTabsAvailableToUser(user);
 
-    assertThat(tabs).containsExactly(WorkAreaTab.REGULATOR_REQUIRES_ATTENTION);
+    assertThat(tabs).containsExactly(WorkAreaTab.REGULATOR_REQUIRES_ATTENTION, WorkAreaTab.REGULATOR_WAITING_ON_OTHERS);
 
   }
 
