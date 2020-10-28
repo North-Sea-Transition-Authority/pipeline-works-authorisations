@@ -296,6 +296,23 @@ public class PipelineAndIdentViewFactoryTest {
 
   }
 
+
+  @Test
+  public void getAllPipelineOverviewsFromAppAndMasterPwaByPipelineIds() {
+
+    setupPipelines(CONSENTED_PIPELINE_EXISTS_AND_IMPORTED);
+
+    var allPipelinesMap = pipelineAndIdentViewFactory.getAllPipelineOverviewsFromAppAndMasterPwaByPipelineIds(
+        detail, List.of(new PipelineId(2)));
+
+    assertThat(allPipelinesMap).hasSize(1);
+
+    // check that the type is the changed pipeline type
+    assertThat(allPipelinesMap.get(APPLICATION_NEW_PIPELINE_ID).getPipelineType())
+        .isEqualTo(APPLICATION_NEW_PIPELINE_TYPE);
+
+  }
+
   @Test
   public void getPipelineSortedIdentViews_whenApplicationPipelineFound() {
     when(padPipelineService.findByPwaApplicationDetailAndPipelineId(detail, PIPELINE_ID))

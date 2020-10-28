@@ -21,9 +21,11 @@ import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.permanentdeposits.PermanentDepositController;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
+import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.files.PadFile;
+import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdepositdrawings.PadDepositDrawing;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdepositdrawings.PadDepositDrawingLink;
@@ -43,7 +45,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.appdetailreconciliation.PadPipelineReconcilerService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.viewfactories.PipelineAndIdentViewFactory;
 import uk.co.ogauthority.pwa.util.CleanupUtils;
 import uk.co.ogauthority.pwa.util.validationgroups.FullValidation;
 import uk.co.ogauthority.pwa.util.validationgroups.PartialValidation;
@@ -64,7 +66,7 @@ public class PermanentDepositService implements ApplicationFormSectionService {
   private final PadProjectInformationRepository padProjectInformationRepository;
   private final DepositDrawingsService depositDrawingsService;
   private final EntityCopyingService entityCopyingService;
-  private final PadPipelineReconcilerService padPipelineReconcilerService;
+  private final PipelineAndIdentViewFactory pipelineAndIdentViewFactory;
   private final PadFileService padFileService;
 
   @Autowired
@@ -78,7 +80,7 @@ public class PermanentDepositService implements ApplicationFormSectionService {
       PadDepositPipelineRepository padDepositPipelineRepository,
       PadProjectInformationRepository padProjectInformationRepository,
       EntityCopyingService entityCopyingService,
-      PadPipelineReconcilerService padPipelineReconcilerService,
+      PipelineAndIdentViewFactory pipelineAndIdentViewFactory,
       PadFileService padFileService) {
     this.permanentDepositRepository = permanentDepositRepository;
     this.depositDrawingsService = depositDrawingsService;
@@ -89,7 +91,7 @@ public class PermanentDepositService implements ApplicationFormSectionService {
     this.padDepositPipelineRepository = padDepositPipelineRepository;
     this.padProjectInformationRepository = padProjectInformationRepository;
     this.entityCopyingService = entityCopyingService;
-    this.padPipelineReconcilerService = padPipelineReconcilerService;
+    this.pipelineAndIdentViewFactory = pipelineAndIdentViewFactory;
     this.padFileService = padFileService;
   }
 
@@ -105,7 +107,7 @@ public class PermanentDepositService implements ApplicationFormSectionService {
     permanentDepositEntityMappingService.mapDepositInformationDataToForm(padPermanentDeposit, form);
     var depositsForPipelines = padDepositPipelineRepository.findAllByPadPermanentDeposit(padPermanentDeposit);
     var pipelineIds = depositsForPipelines.stream().map(
-        depositsForPipeline -> String.valueOf(depositsForPipeline.getPadPipeline().getId()))
+        depositsForPipeline -> String.valueOf(depositsForPipeline.getPipeline().getId()))
         .collect(Collectors.toSet());
     form.setSelectedPipelines(pipelineIds);
   }
@@ -120,7 +122,9 @@ public class PermanentDepositService implements ApplicationFormSectionService {
   }
 
   public PermanentDepositOverview createViewFromEntity(PadPermanentDeposit padPermanentDeposit) {
-    return permanentDepositEntityMappingService.createPermanentDepositOverview(padPermanentDeposit);
+    var pipelineIdAndOverviewMap = pipelineAndIdentViewFactory.getAllPipelineOverviewsFromAppAndMasterPwa(
+        padPermanentDeposit.getPwaApplicationDetail());
+    return permanentDepositEntityMappingService.createPermanentDepositOverview(padPermanentDeposit, pipelineIdAndOverviewMap);
   }
 
   /**
@@ -130,21 +134,26 @@ public class PermanentDepositService implements ApplicationFormSectionService {
   public void saveEntityUsingForm(PwaApplicationDetail detail,
                                   PermanentDepositsForm form,
                                   WebUserAccount user) {
-    var permanentDepositInformation = new PadPermanentDeposit();
-    permanentDepositInformation.setPwaApplicationDetail(detail);
-    permanentDepositEntityMappingService.setEntityValuesUsingForm(permanentDepositInformation, form);
-    permanentDepositInformation = permanentDepositRepository.save(permanentDepositInformation);
-    var existingDepositPipelines = padDepositPipelineRepository.findAllByPadPermanentDeposit(permanentDepositInformation);
+    var permanentDeposit = new PadPermanentDeposit();
+    permanentDeposit.setPwaApplicationDetail(detail);
+    permanentDepositEntityMappingService.setEntityValuesUsingForm(permanentDeposit, form);
+    permanentDeposit = permanentDepositRepository.save(permanentDeposit);
+
+    var existingDepositPipelines = padDepositPipelineRepository.findAllByPadPermanentDeposit(permanentDeposit);
     padDepositPipelineRepository.deleteAll(existingDepositPipelines);
-    for (String padPipelineId : form.getSelectedPipelines()) {
-      if (padPipelineId != "") {
-        var padPipeline = padPipelineRepository.findById(Integer.valueOf(padPipelineId))
-            .orElseThrow(() -> new PwaEntityNotFoundException(
-                String.format("Couldn't find PadPipeline with ID: %s", padPipelineId)));
-        var depositsForPipelines = new PadDepositPipeline(permanentDepositInformation, padPipeline);
-        padDepositPipelineRepository.save(depositsForPipelines);
+
+    if (form.getSelectedPipelines() != null) {
+      for (String pipelineId : form.getSelectedPipelines()) {
+        if (!pipelineId.equals("")) {
+          var pipeline = new Pipeline();
+          pipeline.setMasterPwa(detail.getMasterPwaApplication());
+          pipeline.setId(Integer.parseInt(pipelineId));
+          var depositsForPipelines = new PadDepositPipeline(permanentDeposit, pipeline);
+          padDepositPipelineRepository.save(depositsForPipelines);
+        }
       }
     }
+
   }
 
   @Transactional
@@ -211,14 +220,27 @@ public class PermanentDepositService implements ApplicationFormSectionService {
   public List<PermanentDepositOverview> getPermanentDepositViews(PwaApplicationDetail pwaApplicationDetail) {
     return permanentDepositRepository.findByPwaApplicationDetailOrderByReferenceAsc(pwaApplicationDetail)
         .stream()
-        .map(permanentDepositEntityMappingService::createPermanentDepositOverview)
+        .map(deposit -> {
+          var pipelineIdAndOverviewMap = pipelineAndIdentViewFactory.getAllPipelineOverviewsFromAppAndMasterPwaByPipelineIds(
+              pwaApplicationDetail, getPipelineIdsForDeposit(deposit));
+          return permanentDepositEntityMappingService.createPermanentDepositOverview(deposit, pipelineIdAndOverviewMap);
+        })
+        .collect(Collectors.toList());
+  }
+
+  private List<PipelineId> getPipelineIdsForDeposit(PadPermanentDeposit deposit) {
+    return padDepositPipelineRepository.findAllByPadPermanentDeposit(deposit)
+        .stream()
+        .map(link -> link.getPipeline().getPipelineId())
         .collect(Collectors.toList());
   }
 
   public PermanentDepositOverview createViewFromDepositId(Integer depositId) {
     var permanentDeposit = permanentDepositRepository.findById(depositId)
         .orElseThrow(() -> new PwaEntityNotFoundException(String.format("Couldn't find permanent deposit with ID: %s", depositId)));
-    return permanentDepositEntityMappingService.createPermanentDepositOverview(permanentDeposit);
+    var pipelineIdAndOverviewMap = pipelineAndIdentViewFactory.getAllPipelineOverviewsFromAppAndMasterPwa(
+        permanentDeposit.getPwaApplicationDetail());
+    return permanentDepositEntityMappingService.createPermanentDepositOverview(permanentDeposit, pipelineIdAndOverviewMap);
 
   }
 
@@ -283,7 +305,7 @@ public class PermanentDepositService implements ApplicationFormSectionService {
 
   @VisibleForTesting
   public void removePadPipelineDepositLinks(PadPipeline padPipeline) {
-    var depositPipelineLinks = padDepositPipelineRepository.getAllByPadPipeline(padPipeline);
+    var depositPipelineLinks = padDepositPipelineRepository.getAllByPipeline(padPipeline.getPipeline());
     padDepositPipelineRepository.deleteAll(depositPipelineLinks);
   }
 
@@ -295,7 +317,7 @@ public class PermanentDepositService implements ApplicationFormSectionService {
     var pwaApplicationDetail = padPipeline.getPwaApplicationDetail();
     var deposits = permanentDepositRepository.getAllByPwaApplicationDetail(pwaApplicationDetail);
     Map<PadPermanentDeposit, List<PadDepositPipeline>> depositMap =
-        padDepositPipelineRepository.getAllByPadPipeline_PwaApplicationDetail(pwaApplicationDetail)
+        padDepositPipelineRepository.getAllByPipeline_MasterPwa(pwaApplicationDetail.getMasterPwaApplication())
             .stream()
             .collect(Collectors.groupingBy(PadDepositPipeline::getPadPermanentDeposit));
 
@@ -339,6 +361,7 @@ public class PermanentDepositService implements ApplicationFormSectionService {
               break;
           }
 
+          cleanupPipelines(deposit);
         })
         .collect(Collectors.toList());
 
@@ -364,32 +387,14 @@ public class PermanentDepositService implements ApplicationFormSectionService {
         PadDepositPipeline.class
     );
 
-    // 3. update deposit pipeline links to match pipelines to the new versions duplicates
-    var reconciledPadPipelines = padPipelineReconcilerService.reconcileApplicationDetailPadPipelines(
-        fromDetail,
-        toDetail
-    );
-
-    var toDetailPermanentDepositPipelines = padDepositPipelineRepository.getAllByPadPermanentDeposit_PwaApplicationDetail(toDetail);
-
-    toDetailPermanentDepositPipelines.forEach(padDepositPipeline -> {
-      padDepositPipeline.setPadPipeline(
-          reconciledPadPipelines.findByPipelineIdOrError(
-            padDepositPipeline.getPadPipeline().getPipelineId()
-          ).getReconciledPadPipeline()
-      );
-    });
-
-    padDepositPipelineRepository.saveAll(toDetailPermanentDepositPipelines);
-
-    // 4. duplicate all deposits drawing
+    // 3. duplicate all deposits drawing
     var copiedDepositDrawingEntityIds = entityCopyingService.duplicateEntitiesAndSetParent(
         () -> depositDrawingsService.getAllDepositDrawingsForDetail(fromDetail),
         toDetail,
         PadDepositDrawing.class
     );
 
-    //5. duplicate all drawing files and point duplicated drawings at new versions
+    //4. duplicate all drawing files and point duplicated drawings at new versions
     var copiedDrawingPadFileEntityIds = padFileService.copyPadFilesToPwaApplicationDetail(
         fromDetail, toDetail, ApplicationDetailFilePurpose.DEPOSIT_DRAWINGS, ApplicationFileLinkStatus.FULL
     );
@@ -455,6 +460,16 @@ public class PermanentDepositService implements ApplicationFormSectionService {
 
   private void cleanupOtherMaterial(PadPermanentDeposit deposit) {
     deposit.setOtherMaterialType(null);
+  }
+
+  private void cleanupPipelines(PadPermanentDeposit deposit) {
+    if (deposit.getDepositForConsentedPipeline() == null || !deposit.getDepositForConsentedPipeline()) {
+      var depositPipelineLinks = padDepositPipelineRepository.findAllByPadPermanentDeposit(deposit);
+      padDepositPipelineRepository.deleteAll(depositPipelineLinks);
+    }
+    if (deposit.getDepositIsForPipelinesOnOtherApp() == null || !deposit.getDepositIsForPipelinesOnOtherApp()) {
+      deposit.setAppRefAndPipelineNum(null);
+    }
   }
 
 }

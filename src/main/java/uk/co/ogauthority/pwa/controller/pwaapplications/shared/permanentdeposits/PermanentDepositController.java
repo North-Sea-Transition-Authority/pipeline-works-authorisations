@@ -2,6 +2,8 @@ package uk.co.ogauthority.pwa.controller.pwaapplications.shared.permanentdeposit
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
+import java.util.HashMap;
+import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -19,7 +21,6 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.enums.ScreenActionType;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.PermanentDepositsForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PermanentDepositOverview;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
@@ -31,7 +32,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbServic
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits.PermanentDepositService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.viewfactories.PipelineAndIdentViewFactory;
 import uk.co.ogauthority.pwa.util.StreamUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
@@ -53,19 +54,19 @@ public class PermanentDepositController {
   private final ApplicationBreadcrumbService applicationBreadcrumbService;
   private final PwaApplicationRedirectService pwaApplicationRedirectService;
   private final PermanentDepositService permanentDepositService;
-  private final PadPipelineService padPipelineService;
+  private final PipelineAndIdentViewFactory pipelineAndIdentViewFactory;
   private final ControllerHelperService controllerHelperService;
 
   @Autowired
   public PermanentDepositController(ApplicationBreadcrumbService applicationBreadcrumbService,
                                     PwaApplicationRedirectService pwaApplicationRedirectService,
                                     PermanentDepositService permanentDepositService,
-                                    PadPipelineService padPipelineService,
+                                    PipelineAndIdentViewFactory pipelineAndIdentViewFactory,
                                     ControllerHelperService controllerHelperService) {
     this.applicationBreadcrumbService = applicationBreadcrumbService;
     this.pwaApplicationRedirectService = pwaApplicationRedirectService;
     this.permanentDepositService = permanentDepositService;
-    this.padPipelineService = padPipelineService;
+    this.pipelineAndIdentViewFactory = pipelineAndIdentViewFactory;
     this.controllerHelperService = controllerHelperService;
   }
 
@@ -204,11 +205,15 @@ public class PermanentDepositController {
 
 
   private ModelAndView getAddEditPermanentDepositsModelAndView(PwaApplicationDetail pwaApplicationDetail,
-                                                        PermanentDepositsForm form, ScreenActionType type) {
+                                                               PermanentDepositsForm form, ScreenActionType type) {
+
+    Map<String, String> pipelinesIdAndNameMap = new HashMap<>();
+    pipelineAndIdentViewFactory.getAllPipelineOverviewsFromAppAndMasterPwa(pwaApplicationDetail)
+        .forEach((pipelineId, pipelineOverview) ->
+            pipelinesIdAndNameMap.put(String.valueOf(pipelineId.getPipelineIdAsInt()), pipelineOverview.getPipelineName()));
+
     var modelAndView = new ModelAndView("pwaApplication/shared/permanentdeposits/permanentDepositsForm");
-    modelAndView.addObject("pipelines", padPipelineService.getApplicationPipelineOverviews(pwaApplicationDetail)
-          .stream().collect(StreamUtils.toLinkedHashMap(
-              overview -> String.valueOf(overview.getPadPipelineId()), PipelineOverview::getPipelineName)))
+    modelAndView.addObject("pipelines", pipelinesIdAndNameMap)
         .addObject("materialTypes", MaterialType.asList())
         .addObject("longDirections", LongitudeDirection.stream()
             .collect(StreamUtils.toLinkedHashMap(Enum::name, LongitudeDirection::getDisplayText)))

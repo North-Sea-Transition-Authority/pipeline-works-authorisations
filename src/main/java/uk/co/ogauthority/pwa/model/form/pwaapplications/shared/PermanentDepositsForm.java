@@ -11,8 +11,11 @@ import uk.co.ogauthority.pwa.util.forminputs.twofielddate.TwoFieldDateInput;
 public class PermanentDepositsForm extends UploadMultipleFilesWithDescriptionForm {
 
   private Integer entityID;
+  private Boolean depositIsForConsentedPipeline;
   private String depositReference;
   private Set<String> selectedPipelines;
+  private Boolean depositIsForPipelinesOnOtherApp;
+  private String appRefAndPipelineNum;
   private TwoFieldDateInput fromDate;
   private TwoFieldDateInput toDate;
 
@@ -243,7 +246,29 @@ public class PermanentDepositsForm extends UploadMultipleFilesWithDescriptionFor
     this.toCoordinateForm = toCoordinateForm;
   }
 
+  public Boolean getDepositIsForConsentedPipeline() {
+    return depositIsForConsentedPipeline;
+  }
 
+  public void setDepositIsForConsentedPipeline(Boolean depositIsForConsentedPipeline) {
+    this.depositIsForConsentedPipeline = depositIsForConsentedPipeline;
+  }
+
+  public Boolean getDepositIsForPipelinesOnOtherApp() {
+    return depositIsForPipelinesOnOtherApp;
+  }
+
+  public void setDepositIsForPipelinesOnOtherApp(Boolean depositIsForPipelinesOnOtherApp) {
+    this.depositIsForPipelinesOnOtherApp = depositIsForPipelinesOnOtherApp;
+  }
+
+  public String getAppRefAndPipelineNum() {
+    return appRefAndPipelineNum;
+  }
+
+  public void setAppRefAndPipelineNum(String appRefAndPipelineNum) {
+    this.appRefAndPipelineNum = appRefAndPipelineNum;
+  }
 
 
   @Override
@@ -256,8 +281,11 @@ public class PermanentDepositsForm extends UploadMultipleFilesWithDescriptionFor
     }
     PermanentDepositsForm that = (PermanentDepositsForm) o;
     return Objects.equals(entityID, that.entityID)
+        && Objects.equals(depositIsForConsentedPipeline, that.depositIsForConsentedPipeline)
         && Objects.equals(depositReference, that.depositReference)
         && Objects.equals(selectedPipelines, that.selectedPipelines)
+        && Objects.equals(depositIsForPipelinesOnOtherApp, that.depositIsForPipelinesOnOtherApp)
+        && Objects.equals(appRefAndPipelineNum, that.appRefAndPipelineNum)
         && Objects.equals(fromDate, that.fromDate)
         && Objects.equals(toDate, that.toDate)
         && materialType == that.materialType
@@ -284,7 +312,8 @@ public class PermanentDepositsForm extends UploadMultipleFilesWithDescriptionFor
 
   @Override
   public int hashCode() {
-    return Objects.hash(entityID, depositReference, selectedPipelines, fromDate,
+    return Objects.hash(entityID, depositIsForConsentedPipeline, depositReference, selectedPipelines,
+        depositIsForPipelinesOnOtherApp, appRefAndPipelineNum, fromDate,
         toDate, materialType, otherMaterialType, rocksSize, groutBagsSize,
         otherMaterialSize, concreteMattressLength, concreteMattressWidth, concreteMattressDepth, groutBagsBioDegradable,
         bioGroutBagsNotUsedDescription, quantityConcrete, quantityRocks, quantityGroutBags, quantityOther,

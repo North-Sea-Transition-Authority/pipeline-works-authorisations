@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.text.DecimalFormat;
 import java.time.LocalDate;
+import java.util.HashMap;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -54,7 +55,10 @@ public class PermanentDepositViewMappingServiceTest {
   private PadPermanentDeposit getConcreteDeposit(int id, String reference) {
     return PadPermanentDepositTestUtil.createConcreteMattressPadDeposit(
         id,
+        true,
         reference,
+        true,
+        "ref",
         pwaApplicationDetail,
         C_LENGTH,
         C_WIDTH,
@@ -123,7 +127,7 @@ public class PermanentDepositViewMappingServiceTest {
   public void createPermanentDepositOverview_materialTypeConcrete() {
     PadPermanentDeposit entity = getConcreteDeposit(20, "TEST");
 
-    var actualView = permanentDepositEntityMappingService.createPermanentDepositOverview(entity);
+    var actualView = permanentDepositEntityMappingService.createPermanentDepositOverview(entity, new HashMap<>());
 
     assertThat(actualView.getEntityID()).isEqualTo(20);
     assertThat(actualView.getMaterialTypeLookup()).isEqualTo(MaterialType.CONCRETE_MATTRESSES);
@@ -138,7 +142,7 @@ public class PermanentDepositViewMappingServiceTest {
   public void createPermanentDepositOverview_materialTypeRocks() {
     PadPermanentDeposit entity = getRockDeposit(30, "TEST1");
 
-    var actualView = permanentDepositEntityMappingService.createPermanentDepositOverview(entity);
+    var actualView = permanentDepositEntityMappingService.createPermanentDepositOverview(entity, new HashMap<>());
     assertThat(actualView.getEntityID()).isEqualTo(30);
     assertThat(actualView.getMaterialTypeLookup()).isEqualTo(MaterialType.ROCK);
     assertThat(actualView.getDepositReference()).isEqualTo("TEST1");
@@ -151,7 +155,7 @@ public class PermanentDepositViewMappingServiceTest {
   @Test
   public void createPermanentDepositOverview_materialTypeGroutBags_withNonBioBags() {
     PadPermanentDeposit entity = getGroutBagDeposit(40, "TEST2", "some reason");
-    var actualView = permanentDepositEntityMappingService.createPermanentDepositOverview(entity);
+    var actualView = permanentDepositEntityMappingService.createPermanentDepositOverview(entity, new HashMap<>());
 
     assertThat(actualView.getEntityID()).isEqualTo(40);
     assertThat(actualView.getDepositReference()).isEqualTo("TEST2");
@@ -166,7 +170,7 @@ public class PermanentDepositViewMappingServiceTest {
   @Test
   public void createPermanentDepositOverview_materialTypeGroutBags_withBioBags() {
     PadPermanentDeposit entity = getGroutBagDeposit(40, "TEST2", null);
-    var actualView = permanentDepositEntityMappingService.createPermanentDepositOverview(entity);
+    var actualView = permanentDepositEntityMappingService.createPermanentDepositOverview(entity, new HashMap<>());
 
     assertThat(actualView.getEntityID()).isEqualTo(40);
     assertThat(actualView.getDepositReference()).isEqualTo("TEST2");
@@ -181,7 +185,7 @@ public class PermanentDepositViewMappingServiceTest {
   @Test
   public void createPermanentDepositOverview_materialTypeOther() {
     PadPermanentDeposit entity = getOtherTypeDeposit(50, "TEST3", "SOME_TYPE");
-    var actualView = permanentDepositEntityMappingService.createPermanentDepositOverview(entity);
+    var actualView = permanentDepositEntityMappingService.createPermanentDepositOverview(entity, new HashMap<>());
     assertThat(actualView.getEntityID()).isEqualTo(50);
     assertThat(actualView.getMaterialTypeLookup()).isEqualTo(MaterialType.OTHER);
     assertThat(actualView.getDepositReference()).isEqualTo("TEST3");

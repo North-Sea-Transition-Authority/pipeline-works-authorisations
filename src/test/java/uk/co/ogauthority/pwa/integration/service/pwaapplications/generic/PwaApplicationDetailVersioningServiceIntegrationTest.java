@@ -409,7 +409,7 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
 
     var depositPipeline = PadPermanentDepositTestUtil.createDepositPipeline(
         permanentDeposit,
-        simplePadPipelineContainer.getPadPipeline());
+        simplePadPipelineContainer.getPadPipeline().getPipeline());
     entityManager.persist(depositPipeline);
   }
 
@@ -696,11 +696,8 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
         Set.of(PadPermanentDeposit_.ID, PadPermanentDeposit_.PWA_APPLICATION_DETAIL)
     );
 
-    assertThat(firstVersionApplicationContainer.getPadDepositPipeline().getPadPipeline().getPipelineId())
-        .isEqualTo(newVersionContainer.getPadDepositPipeline().getPadPipeline().getPipelineId());
-
-    assertThat(newVersionContainer.getPadDepositPipeline().getPadPipeline())
-        .isEqualTo(newVersionContainer.getSimplePadPipelineContainer().getPadPipeline());
+    assertThat(firstVersionApplicationContainer.getPadDepositPipeline().getPipeline().getPipelineId())
+        .isEqualTo(newVersionContainer.getPadDepositPipeline().getPipeline().getPipelineId());
 
     // make sure drawing link to perm deposits match
     assertThat(newVersionContainer.getPadDepositDrawingLink().getPadPermanentDeposit())

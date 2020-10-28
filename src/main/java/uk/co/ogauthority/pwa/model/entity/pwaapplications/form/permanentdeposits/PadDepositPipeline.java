@@ -8,7 +8,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
+import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.service.entitycopier.ChildEntity;
 
 @Entity
@@ -26,15 +26,15 @@ public class PadDepositPipeline implements ChildEntity<Integer, PadPermanentDepo
 
   @NotNull
   @OneToOne
-  @JoinColumn(name = "pad_pipeline_id")
-  private PadPipeline padPipeline;
+  @JoinColumn(name = "pipeline_id")
+  private Pipeline pipeline;
 
   public PadDepositPipeline() {
   }
 
-  public PadDepositPipeline(PadPermanentDeposit padPermanentDeposit, PadPipeline padPipeline) {
+  public PadDepositPipeline(PadPermanentDeposit padPermanentDeposit, Pipeline pipeline) {
     this.padPermanentDeposit = padPermanentDeposit;
-    this.padPipeline = padPipeline;
+    this.pipeline = pipeline;
   }
 
   //ChildEntity
@@ -69,11 +69,11 @@ public class PadDepositPipeline implements ChildEntity<Integer, PadPermanentDepo
     this.padPermanentDeposit = permanentDepositInfo;
   }
 
-  public PadPipeline getPadPipeline() {
-    return padPipeline;
+  public Pipeline getPipeline() {
+    return pipeline;
   }
 
-  public void setPadPipeline(PadPipeline padPipelineId) {
-    this.padPipeline = padPipelineId;
+  public void setPipeline(Pipeline pipeline) {
+    this.pipeline = pipeline;
   }
 }

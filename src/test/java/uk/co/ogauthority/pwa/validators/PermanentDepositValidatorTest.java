@@ -70,6 +70,54 @@ public class PermanentDepositValidatorTest {
   }
 
   @Test
+  public void validate_consentedPipelinesAndOtherAppQuestionsBothBlank() {
+    var form = getPermanentDepositsFormWithMaterialType();
+    Map<String, Set<String>> errorsMap = getErrorMap(form);
+    assertThat(errorsMap).contains(entry("depositIsForConsentedPipeline", Set.of("depositIsForConsentedPipeline" + FieldValidationErrorCodes.REQUIRED.getCode())));
+  }
+
+  @Test
+  public void validate_consentedPipelinesAndOtherAppQuestionsBothAnsweredNo() {
+    var form = getPermanentDepositsFormWithMaterialType();
+    form.setDepositIsForConsentedPipeline(false);
+    form.setDepositIsForPipelinesOnOtherApp(false);
+    Map<String, Set<String>> errorsMap = getErrorMap(form);
+    assertThat(errorsMap).contains(entry("depositIsForConsentedPipeline", Set.of("depositIsForConsentedPipeline" + FieldValidationErrorCodes.REQUIRED.getCode())));
+  }
+
+  @Test
+  public void validate_consentedPipelinesAnsweredNo_otherAppQuestionBlank() {
+    var form = getPermanentDepositsFormWithMaterialType();
+    form.setDepositIsForConsentedPipeline(false);
+    Map<String, Set<String>> errorsMap = getErrorMap(form);
+    assertThat(errorsMap).contains(entry("depositIsForPipelinesOnOtherApp", Set.of("depositIsForPipelinesOnOtherApp" + FieldValidationErrorCodes.REQUIRED.getCode())));
+  }
+
+  @Test
+  public void validate_otherAppQuestionAnsweredNo_consentedPipelinesQuestionBlank() {
+    var form = getPermanentDepositsFormWithMaterialType();
+    form.setDepositIsForPipelinesOnOtherApp(false);
+    Map<String, Set<String>> errorsMap = getErrorMap(form);
+    assertThat(errorsMap).contains(entry("depositIsForConsentedPipeline", Set.of("depositIsForConsentedPipeline" + FieldValidationErrorCodes.REQUIRED.getCode())));
+  }
+
+  @Test
+  public void validate_consentedPipelinesAnsweredYes_pipelinesNotProvided() {
+    var form = getPermanentDepositsFormWithMaterialType();
+    form.setDepositIsForConsentedPipeline(true);
+    Map<String, Set<String>> errorsMap = getErrorMap(form);
+    assertThat(errorsMap).contains(entry("selectedPipelines", Set.of("selectedPipelines" + FieldValidationErrorCodes.REQUIRED.getCode())));
+  }
+
+  @Test
+  public void validate_otherAppQuestionAnsweredYes_appRefAndNumNotProvided() {
+    var form = getPermanentDepositsFormWithMaterialType();
+    form.setDepositIsForPipelinesOnOtherApp(true);
+    Map<String, Set<String>> errorsMap = getErrorMap(form);
+    assertThat(errorsMap).contains(entry("appRefAndPipelineNum", Set.of("appRefAndPipelineNum" + FieldValidationErrorCodes.REQUIRED.getCode())));
+  }
+
+  @Test
   public void validate_reference_blank() {
     var form = getPermanentDepositsFormWithMaterialType();
     Map<String, Set<String>> errorsMap = getErrorMap(form);
