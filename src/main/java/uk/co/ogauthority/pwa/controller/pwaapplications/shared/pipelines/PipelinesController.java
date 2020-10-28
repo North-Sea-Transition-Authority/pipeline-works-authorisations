@@ -21,6 +21,7 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTyp
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineFlexibility;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineHeaderConditionalQuestion;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineMaterial;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineStatus;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
@@ -176,7 +177,7 @@ public class PipelinesController {
                                       @ModelAttribute("form") PipelineHeaderForm form,
                                       BindingResult bindingResult) {
 
-    pipelineHeaderFormValidator.validate(form, bindingResult, applicationContext);
+    pipelineHeaderFormValidator.validate(form, bindingResult, PipelineStatus.IN_SERVICE);
 
     return controllerHelperService.checkErrorsAndRedirect(bindingResult,
         getAddEditPipelineModelAndView(applicationContext.getApplicationDetail(), ScreenActionType.ADD, null), () -> {
@@ -222,8 +223,7 @@ public class PipelinesController {
     return PipelineControllerRouteUtils.ifAllowedFromOverviewOrError(applicationContext, redirectAttributes, () -> {
 
       var pipeline = applicationContext.getPadPipeline();
-      var questionsForPipelineStatus = PipelineHeaderConditionalQuestion.getQuestionsForStatus(pipeline.getPipelineStatus());
-      pipelineHeaderFormValidator.validate(form, bindingResult, questionsForPipelineStatus);
+      pipelineHeaderFormValidator.validate(form, bindingResult, pipeline.getPipelineStatus());
 
       return controllerHelperService.checkErrorsAndRedirect(bindingResult,
           getAddEditPipelineModelAndView(applicationContext.getApplicationDetail(), ScreenActionType.EDIT, pipeline),

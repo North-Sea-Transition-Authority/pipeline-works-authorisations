@@ -1,8 +1,6 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines;
 
-import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +10,7 @@ import org.springframework.validation.SmartValidator;
 import org.springframework.validation.ValidationUtils;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineHeaderConditionalQuestion;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineMaterial;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineStatus;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
 import uk.co.ogauthority.pwa.model.form.enums.ValueRequirement;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.PipelineHeaderForm;
@@ -121,10 +120,10 @@ public class PipelineHeaderFormValidator implements SmartValidator {
       }
     }
 
-    var questionsForPipelineStatus = validationHints[0] != null && validationHints[0] instanceof Set ? (Set) validationHints[0] : Set.of();
+    var pipelineStatus = (PipelineStatus) validationHints[0];
+    var questionsForPipelineStatus = PipelineHeaderConditionalQuestion.getQuestionsForStatus(pipelineStatus);
     for (var question: questionsForPipelineStatus) {
-      if (question instanceof PipelineHeaderConditionalQuestion
-          && PipelineHeaderConditionalQuestion.OUT_OF_USE_ON_SEABED_REASON.equals(question)) {
+      if (PipelineHeaderConditionalQuestion.OUT_OF_USE_ON_SEABED_REASON.equals(question)) {
         ValidationUtils.rejectIfEmpty(errors, "whyNotReturnedToShore",
             "whyNotReturnedToShore" + FieldValidationErrorCodes.REQUIRED.getCode(),
             "Provide a reason for why the pipeline is not being returned to shore");
@@ -134,6 +133,7 @@ public class PipelineHeaderFormValidator implements SmartValidator {
             "The pipeline not being returned to shore reason must be 4000 characters or fewer");
       }
     }
+
 
   }
 

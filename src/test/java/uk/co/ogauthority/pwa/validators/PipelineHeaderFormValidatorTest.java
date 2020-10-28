@@ -13,7 +13,6 @@ import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineHeaderConditio
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineMaterial;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineStatus;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.model.form.location.CoordinateForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.PipelineHeaderForm;
 import uk.co.ogauthority.pwa.model.location.CoordinatePair;
@@ -247,7 +246,7 @@ public class PipelineHeaderFormValidatorTest {
   @Test
   public void failed_whyNotReturnedToShoreRequired() {
     var form = buildForm();
-    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, Set.of(PipelineHeaderConditionalQuestion.OUT_OF_USE_ON_SEABED_REASON));
+    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, PipelineStatus.OUT_OF_USE_ON_SEABED);
     assertThat(result).contains(
         entry("whyNotReturnedToShore", Set.of("whyNotReturnedToShore" + FieldValidationErrorCodes.REQUIRED.getCode())));
   }
@@ -256,7 +255,7 @@ public class PipelineHeaderFormValidatorTest {
   public void invalid_whyNotReturnedToShore_tooLong() {
     var form = buildForm();
     form.setWhyNotReturnedToShore("a".repeat(5000));
-    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, Set.of(PipelineHeaderConditionalQuestion.OUT_OF_USE_ON_SEABED_REASON));
+    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, PipelineStatus.OUT_OF_USE_ON_SEABED);
     assertThat(result).containsOnly(
         entry("whyNotReturnedToShore", Set.of("whyNotReturnedToShore" + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode())));
   }

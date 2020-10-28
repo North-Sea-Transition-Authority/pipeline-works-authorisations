@@ -187,7 +187,7 @@ public class PadPipelineService implements ApplicationFormSectionService {
       var form = new PipelineHeaderForm();
       mapEntityToForm(form, padPipeline);
       var bindingResult = new BeanPropertyBindingResult(form, "form");
-      pipelineHeaderFormValidator.validate(form, bindingResult, padPipeline);
+      pipelineHeaderFormValidator.validate(form, bindingResult, padPipeline.getPipelineStatus());
       return !bindingResult.hasErrors();
     }
     return true;
