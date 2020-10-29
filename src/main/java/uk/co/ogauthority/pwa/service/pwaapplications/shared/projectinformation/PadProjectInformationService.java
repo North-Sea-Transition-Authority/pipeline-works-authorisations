@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.EnumSet;
 import java.util.Optional;
+import java.util.Set;
 import javax.transaction.Transactional;
 import org.apache.commons.lang3.BooleanUtils;
 import org.slf4j.Logger;
@@ -13,9 +14,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
+import uk.co.ogauthority.pwa.model.entity.enums.ProjectInformationQuestion;
 import uk.co.ogauthority.pwa.model.entity.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadProjectInformation;
@@ -29,9 +30,6 @@ import uk.co.ogauthority.pwa.service.fileupload.FileUpdateMode;
 import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
 import uk.co.ogauthority.pwa.util.DateUtils;
-import uk.co.ogauthority.pwa.util.validationgroups.FullValidation;
-import uk.co.ogauthority.pwa.util.validationgroups.MandatoryUploadValidation;
-import uk.co.ogauthority.pwa.util.validationgroups.PartialValidation;
 import uk.co.ogauthority.pwa.validators.ProjectInformationFormValidationHints;
 import uk.co.ogauthority.pwa.validators.ProjectInformationValidator;
 
@@ -44,7 +42,6 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
   private final PadProjectInformationRepository padProjectInformationRepository;
   private final ProjectInformationEntityMappingService projectInformationEntityMappingService;
   private final ProjectInformationValidator projectInformationValidator;
-  private final SpringValidatorAdapter groupValidator;
   private final PadFileService padFileService;
   private final EntityCopyingService entityCopyingService;
 
@@ -55,13 +52,11 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
       PadProjectInformationRepository padProjectInformationRepository,
       ProjectInformationEntityMappingService projectInformationEntityMappingService,
       ProjectInformationValidator projectInformationValidator,
-      SpringValidatorAdapter groupValidator,
       PadFileService padFileService,
       EntityCopyingService entityCopyingService) {
     this.padProjectInformationRepository = padProjectInformationRepository;
     this.projectInformationEntityMappingService = projectInformationEntityMappingService;
     this.projectInformationValidator = projectInformationValidator;
-    this.groupValidator = groupValidator;
     this.padFileService = padFileService;
     this.entityCopyingService = entityCopyingService;
   }
@@ -139,19 +134,14 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
                                 BindingResult bindingResult,
                                 ValidationType validationType,
                                 PwaApplicationDetail pwaApplicationDetail) {
-    if (validationType.equals(ValidationType.PARTIAL)) {
-      groupValidator.validate(form, bindingResult, PartialValidation.class);
-    } else {
-      groupValidator.validate(form, bindingResult, FullValidation.class, MandatoryUploadValidation.class);
-      var projectInfoValidationHints = new ProjectInformationFormValidationHints(
-          getIsAnyDepositQuestionRequired(pwaApplicationDetail),
-          getIsPermanentDepositQuestionRequired(pwaApplicationDetail),
-          isFdpQuestionRequired(pwaApplicationDetail));
-      projectInformationValidator.validate(form, bindingResult, projectInfoValidationHints);
-    }
+
+    var projectInfoValidationHints = new ProjectInformationFormValidationHints(
+        validationType,
+        getRequiredQuestions(pwaApplicationDetail.getPwaApplicationType()),
+        isFdpQuestionRequired(pwaApplicationDetail));
+    projectInformationValidator.validate(form, bindingResult, projectInfoValidationHints);
 
     return bindingResult;
-
   }
 
   public boolean getIsPermanentDepositQuestionRequired(PwaApplicationDetail pwaApplicationDetail) {
@@ -176,6 +166,33 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
   public Optional<Instant> getProposedStartDate(PwaApplicationDetail pwaApplicationDetail) {
     var projectInformation = getPadProjectInformationData(pwaApplicationDetail);
     return Optional.ofNullable(projectInformation.getProposedStartTimestamp());
+  }
+
+  public Set<ProjectInformationQuestion> getRequiredQuestions(PwaApplicationType pwaApplicationType) {
+
+    if (pwaApplicationType == PwaApplicationType.DEPOSIT_CONSENT) {
+      return Set.of(
+          ProjectInformationQuestion.PROJECT_NAME,
+          ProjectInformationQuestion.PROJECT_OVERVIEW,
+          ProjectInformationQuestion.PROPOSED_START_DATE,
+          ProjectInformationQuestion.MOBILISATION_DATE,
+          ProjectInformationQuestion.EARLIEST_COMPLETION_DATE,
+          ProjectInformationQuestion.LATEST_COMPLETION_DATE,
+          ProjectInformationQuestion.COMMERCIAL_AGREEMENT_DATE,
+          ProjectInformationQuestion.TEMPORARY_DEPOSITS_BEING_MADE
+      );
+
+    } else if (pwaApplicationType == PwaApplicationType.HUOO_VARIATION) {
+      return Set.of(
+          ProjectInformationQuestion.PROJECT_NAME,
+          ProjectInformationQuestion.PROPOSED_START_DATE,
+          ProjectInformationQuestion.LICENCE_TRANSFER_PLANNED,
+          ProjectInformationQuestion.LICENCE_TRANSFER_DATE,
+          ProjectInformationQuestion.COMMERCIAL_AGREEMENT_DATE
+      );
+    }
+
+    return EnumSet.allOf(ProjectInformationQuestion.class);
   }
 
   @Override

@@ -1,23 +1,18 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation;
 
-import static java.util.Map.entry;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.List;
+import java.util.EnumSet;
 import java.util.Optional;
-import java.util.Set;
-import javax.validation.Validation;
-import org.apache.commons.lang3.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -25,14 +20,13 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.validation.BeanPropertyBindingResult;
-import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
+import uk.co.ogauthority.pwa.model.entity.enums.ProjectInformationQuestion;
 import uk.co.ogauthority.pwa.model.entity.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadProjectInformation;
-import uk.co.ogauthority.pwa.model.form.files.UploadFileWithDescriptionForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.ProjectInformationForm;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadProjectInformationRepository;
 import uk.co.ogauthority.pwa.service.entitycopier.EntityCopyingService;
@@ -41,7 +35,6 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationTyp
 import uk.co.ogauthority.pwa.service.fileupload.FileUpdateMode;
 import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
-import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 import uk.co.ogauthority.pwa.validators.ProjectInformationFormValidationHints;
 import uk.co.ogauthority.pwa.validators.ProjectInformationValidator;
 
@@ -66,8 +59,6 @@ public class PadProjectInformationServiceTest {
   @Mock
   private EntityCopyingService entityCopyingService;
 
-  private SpringValidatorAdapter groupValidator;
-
   private PadProjectInformationService service;
   private PadProjectInformation padProjectInformation;
   private ProjectInformationForm form;
@@ -78,13 +69,10 @@ public class PadProjectInformationServiceTest {
   @Before
   public void setUp() {
 
-    groupValidator = new SpringValidatorAdapter(Validation.buildDefaultValidatorFactory().getValidator());
-
     service = new PadProjectInformationService(
         padProjectInformationRepository,
         projectInformationEntityMappingService,
         validator,
-        groupValidator,
         padFileService,
         entityCopyingService);
 
@@ -150,131 +138,11 @@ public class PadProjectInformationServiceTest {
   }
 
   @Test
-  public void validate_partial_whenHuooVariationType_andInvalidData() {
-    pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.HUOO_VARIATION);
-
-    var tooBig = StringUtils.repeat("a", 4001);
-    var form = new ProjectInformationForm();
-    form.setProjectOverview(tooBig);
-    form.setProjectName(tooBig);
-    form.setMethodOfPipelineDeployment(tooBig);
+  public void validate() {
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-
-    service.validate(form, bindingResult, ValidationType.PARTIAL, pwaApplicationDetail);
-
-    var errors = ValidatorTestUtils.extractErrors(bindingResult);
-
-    assertThat(errors).containsOnly(
-        entry("projectOverview", Set.of("Length")),
-        entry("projectName", Set.of("Length")),
-        entry("methodOfPipelineDeployment", Set.of("Length"))
-    );
-
-    verifyNoInteractions(validator);
-
-  }
-
-  @Test
-  public void validate_partial_whenHuooVariation_andValidData() {
-    pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.HUOO_VARIATION);
-
-    var ok = StringUtils.repeat("a", 4000);
-    var form = new ProjectInformationForm();
-    form.setProjectOverview(ok);
-    form.setProjectName(ok);
-    form.setMethodOfPipelineDeployment(ok);
-    var bindingResult = new BeanPropertyBindingResult(form, "form");
-
-    service.validate(form, bindingResult, ValidationType.PARTIAL, pwaApplicationDetail);
-
-    var errors = ValidatorTestUtils.extractErrors(bindingResult);
-
-    assertThat(errors).isEmpty();
-
-    verifyNoInteractions(validator);
-
-  }
-
-  @Test
-  public void validate_full_whenHuooVariationType_andInvalidData() {
-    pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.HUOO_VARIATION);
-    var tooBig = StringUtils.repeat("a", 4001);
-    var form = new ProjectInformationForm();
-    form.setProjectOverview(tooBig);
-    form.setProjectName(tooBig);
-    form.setMethodOfPipelineDeployment(tooBig);
-    var bindingResult = new BeanPropertyBindingResult(form, "form");
-
     service.validate(form, bindingResult, ValidationType.FULL, pwaApplicationDetail);
-
-    verify(validator, times(1)).validate(form, bindingResult, new ProjectInformationFormValidationHints(false, false,
-        false));
-
-    var errors = ValidatorTestUtils.extractErrors(bindingResult);
-
-    assertThat(errors).containsOnly(
-        entry("projectOverview", Set.of("Length")),
-        entry("projectName", Set.of("Length")),
-        entry("methodOfPipelineDeployment", Set.of("Length")),
-        entry("usingCampaignApproach", Set.of("NotNull")), // only required when full
-        entry("licenceTransferPlanned", Set.of("NotNull")), // only required when full
-        entry("uploadedFileWithDescriptionForms", Set.of("NotEmpty"))
-    );
-
-  }
-
-  @Test
-  public void validate_full_whenHuooVariationType_andValidData() {
-    pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.HUOO_VARIATION);
-
-    var ok = StringUtils.repeat("a", 4000);
-    var form = new ProjectInformationForm();
-    form.setProjectOverview(ok);
-    form.setProjectName(ok);
-    form.setMethodOfPipelineDeployment(ok);
-    form.setUsingCampaignApproach(false);
-    form.setLicenceTransferPlanned(false);
-    form.setUploadedFileWithDescriptionForms(List.of(new UploadFileWithDescriptionForm("id", "desc", Instant.now())));
-    var bindingResult = new BeanPropertyBindingResult(form, "form");
-
-    service.validate(form, bindingResult, ValidationType.FULL, pwaApplicationDetail);
-
-    verify(validator, times(1)).validate(form, bindingResult, new ProjectInformationFormValidationHints(false, false,
-        false));
-
-    var errors = ValidatorTestUtils.extractErrors(bindingResult);
-
-    assertThat(errors).isEmpty();
-
-  }
-
-  public PwaApplicationDetail getAppDetailForDepositTest(PwaApplicationType pwaApplicationType){
-    PwaApplication pwaApplication = new PwaApplication(null, pwaApplicationType, null);
-    return new PwaApplicationDetail(pwaApplication, null, null, null);
-  }
-
-  @Test
-  public void getIsPermanentDepositRequired_depCon(){
-    PwaApplicationDetail pwaApplicationDetail = getAppDetailForDepositTest(PwaApplicationType.DEPOSIT_CONSENT);
-    assertThat(service.getIsPermanentDepositQuestionRequired(pwaApplicationDetail)).isEqualTo(false);
-  }
-
-  @Test
-  public void getIsPermanentDepositRequired_init(){
-    PwaApplicationDetail pwaApplicationDetail = getAppDetailForDepositTest(PwaApplicationType.INITIAL);
-    assertThat(service.getIsPermanentDepositQuestionRequired(pwaApplicationDetail)).isEqualTo(true);
-  }
-
-  @Test
-  public void getIsAnyDepositQuestionRequired_HUOO(){
-    PwaApplicationDetail pwaApplicationDetail = getAppDetailForDepositTest(PwaApplicationType.HUOO_VARIATION);
-    assertThat(service.getIsAnyDepositQuestionRequired(pwaApplicationDetail)).isEqualTo(false);
-  }
-
-  @Test
-  public void getIsAnyDepositQuestionRequired_init(){
-    PwaApplicationDetail pwaApplicationDetail = getAppDetailForDepositTest(PwaApplicationType.INITIAL);
-    assertThat(service.getIsAnyDepositQuestionRequired(pwaApplicationDetail)).isEqualTo(true);
+    verify(validator, times(1)).validate(form, bindingResult,
+        new ProjectInformationFormValidationHints(ValidationType.FULL, EnumSet.allOf(ProjectInformationQuestion.class), false));
   }
 
   @Test
@@ -287,6 +155,42 @@ public class PadProjectInformationServiceTest {
     when(padProjectInformationRepository.findByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(Optional.of(projectInformation));
 
     assertThat(service.getFormattedProposedStartDate(pwaApplicationDetail)).isEqualTo("15 May 2017");
+  }
+
+  @Test
+  public void getAvailableQuestions_depositConsentAppType() {
+    var requiredQuestions = service.getRequiredQuestions(PwaApplicationType.DEPOSIT_CONSENT);
+    assertThat(requiredQuestions).containsOnly(ProjectInformationQuestion.PROJECT_NAME,
+        ProjectInformationQuestion.PROJECT_OVERVIEW,
+        ProjectInformationQuestion.PROPOSED_START_DATE,
+        ProjectInformationQuestion.MOBILISATION_DATE,
+        ProjectInformationQuestion.EARLIEST_COMPLETION_DATE,
+        ProjectInformationQuestion.LATEST_COMPLETION_DATE,
+        ProjectInformationQuestion.COMMERCIAL_AGREEMENT_DATE,
+        ProjectInformationQuestion.TEMPORARY_DEPOSITS_BEING_MADE
+    );
+  }
+
+  @Test
+  public void getAvailableQuestions_huooVariationAppType() {
+    var requiredQuestions = service.getRequiredQuestions(PwaApplicationType.HUOO_VARIATION);
+    assertThat(requiredQuestions).containsOnly(ProjectInformationQuestion.PROJECT_NAME,
+        ProjectInformationQuestion.PROJECT_NAME,
+        ProjectInformationQuestion.PROPOSED_START_DATE,
+        ProjectInformationQuestion.LICENCE_TRANSFER_PLANNED,
+        ProjectInformationQuestion.LICENCE_TRANSFER_DATE,
+        ProjectInformationQuestion.COMMERCIAL_AGREEMENT_DATE
+    );
+  }
+
+  @Test
+  public void getAvailableQuestions_allAppTypesExceptDepConAndHuoo() {
+    PwaApplicationType.stream()
+        .filter(appType -> appType != PwaApplicationType.HUOO_VARIATION && appType != PwaApplicationType.DEPOSIT_CONSENT)
+        .forEach(appType -> {
+          var requiredQuestions = service.getRequiredQuestions(appType);
+          assertThat(requiredQuestions).isEqualTo(EnumSet.allOf(ProjectInformationQuestion.class));
+        });
   }
 
   @Test
