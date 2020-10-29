@@ -807,6 +807,7 @@ public class PadPipelineServiceTest {
         padPipeline.getPipeline().getId(),
         padPipeline.getPipelineType(),
         padPipeline.getPipelineRef(),
+        padPipeline.getTemporaryRef(),
         padPipeline.getLength(),
         padPipeline.getComponentPartsDescription(),
         padPipeline.getProductsToBeConveyed(),

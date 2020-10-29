@@ -31,6 +31,7 @@ public class PadPipelineDtoRepositoryImpl implements PadPipelineDtoRepository {
             ", p.id " +
             ", pp.pipelineType " +
             ", pp.pipelineRef " +
+            ", pp.temporaryRef" +
             ", pp.length " +
             ", pp.componentPartsDescription " +
             ", pp.productsToBeConveyed " +
@@ -66,9 +67,9 @@ public class PadPipelineDtoRepositoryImpl implements PadPipelineDtoRepository {
             ", pp.pipelineStatus" +
             ", pp.pipelineStatusReason " +
             ") " +
-            "FROM uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline pp " +
-            "JOIN uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline p ON pp.pipeline = p " +
-            "LEFT JOIN uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipelineIdent ppi " +
+            "FROM PadPipeline pp " +
+            "JOIN Pipeline p ON pp.pipeline = p " +
+            "LEFT JOIN PadPipelineIdent ppi " +
             "ON pp.id = ppi.padPipeline.id " +
             "WHERE pp.pwaApplicationDetail = :detail " +
             "AND (:padPipelineLineFilter IS NULL OR pp = :padPipelineLineFilter) " +
@@ -77,6 +78,7 @@ public class PadPipelineDtoRepositoryImpl implements PadPipelineDtoRepository {
             ", p.id " +
             ", pp.pipelineType " +
             ", pp.pipelineRef " +
+            ", pp.temporaryRef " +
             ", pp.length " +
             ", pp.componentPartsDescription " +
             ", pp.productsToBeConveyed " +
@@ -134,8 +136,8 @@ public class PadPipelineDtoRepositoryImpl implements PadPipelineDtoRepository {
   public Long countAllWithNoIdentsByPwaApplicationDetail(PwaApplicationDetail pwaApplicationDetail) {
     return entityManager.createQuery("" +
         "SELECT COUNT(pp) " +
-        "FROM uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline pp " +
-        "LEFT JOIN uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipelineIdent ppi " +
+        "FROM PadPipeline pp " +
+        "LEFT JOIN PadPipelineIdent ppi " +
         "ON pp.id = ppi.padPipeline.id " +
         "WHERE pp.pwaApplicationDetail = :detail " +
         "AND ppi IS NULL", Long.class)
