@@ -21,6 +21,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
+import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
@@ -551,6 +552,29 @@ public class PadOrganisationRoleServiceTest {
     verify(padPipelineOrganisationRoleLinkRepository, times(1)).deleteAll(List.of());
   }
 
+  @Test
+  public void removeRoleOfTreatyAgreement_roleLinkedtoMultiplePipelines(){
+
+    var pipeline1 = new Pipeline();
+    pipeline1.setId(1);
+    var pipeline2 = new Pipeline();
+    pipeline1.setId(2);
+
+    var roleLink1 = new PadPipelineOrganisationRoleLink(padAnyTreatyCountryRole, pipeline1);
+    var roleLink2 = new PadPipelineOrganisationRoleLink(padAnyTreatyCountryRole, pipeline2);
+
+    when(padPipelineOrganisationRoleLinkRepository.findAllByPadOrgRoleInAndPadOrgRole_PwaApplicationDetail(
+        List.of(padAnyTreatyCountryRole), detail)).thenReturn(List.of(roleLink1, roleLink2));
+
+    padOrganisationRoleService.removeRoleOfTreatyAgreement(padAnyTreatyCountryRole);
+    InOrder verifyOrder = Mockito.inOrder(padPipelineOrganisationRoleLinkRepository, padOrganisationRolesRepository);
+    verifyOrder.verify(padPipelineOrganisationRoleLinkRepository)
+        .findAllByPadOrgRoleInAndPadOrgRole_PwaApplicationDetail(List.of(padAnyTreatyCountryRole), detail);
+    verifyOrder.verify(padPipelineOrganisationRoleLinkRepository)
+        .deleteAll(List.of(roleLink1, roleLink2));
+    verifyOrder.verify(padOrganisationRolesRepository).delete(padAnyTreatyCountryRole);
+    verifyOrder.verifyNoMoreInteractions();
+  }
 
   @Test
   public void createApplicationOrganisationRolesFromSummary_createsApplicationLevelAndPipelineLinkOrganisationRoles() {
