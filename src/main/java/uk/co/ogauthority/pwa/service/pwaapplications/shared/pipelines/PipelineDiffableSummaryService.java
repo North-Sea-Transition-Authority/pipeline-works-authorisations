@@ -45,9 +45,9 @@ public class PipelineDiffableSummaryService {
     var pipelineIdDrawingViewMap = padTechnicalDrawingService.getPipelineDrawingViewsMap(pwaApplicationDetail);
     return pipelineOverviews.stream()
         .map(pipelineOverview -> PipelineDiffableSummary.from(
-            new PipelineHeaderView(pipelineOverview),
-            padPipelineIdentService.getIdentViewsFromOverview(pipelineOverview),
-            pipelineIdDrawingViewMap.get(new PipelineId(pipelineOverview.getPipelineId())))
+                new PipelineHeaderView(pipelineOverview),
+                padPipelineIdentService.getIdentViewsFromOverview(pipelineOverview),
+                pipelineIdDrawingViewMap.get(new PipelineId(pipelineOverview.getPipelineId())))
         )
         .collect(Collectors.toList());
 

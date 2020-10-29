@@ -19,7 +19,9 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationPer
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationStatusCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTypeCheck;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineFlexibility;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineHeaderConditionalQuestion;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineMaterial;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineStatus;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
@@ -151,6 +153,8 @@ public class PipelinesController {
 
     if (pipeline != null) {
       modelAndView.addObject("pipelineNumber", pipeline.getPipelineRef());
+      modelAndView.addObject("questionsForPipelineStatus", PipelineHeaderConditionalQuestion.getQuestionsForStatus(
+          pipeline.getPipelineStatus()));
     }
 
     return modelAndView;
@@ -173,7 +177,7 @@ public class PipelinesController {
                                       @ModelAttribute("form") PipelineHeaderForm form,
                                       BindingResult bindingResult) {
 
-    pipelineHeaderFormValidator.validate(form, bindingResult, applicationContext);
+    pipelineHeaderFormValidator.validate(form, bindingResult, PipelineStatus.IN_SERVICE);
 
     return controllerHelperService.checkErrorsAndRedirect(bindingResult,
         getAddEditPipelineModelAndView(applicationContext.getApplicationDetail(), ScreenActionType.ADD, null), () -> {
@@ -218,8 +222,8 @@ public class PipelinesController {
 
     return PipelineControllerRouteUtils.ifAllowedFromOverviewOrError(applicationContext, redirectAttributes, () -> {
 
-      pipelineHeaderFormValidator.validate(form, bindingResult, applicationContext);
       var pipeline = applicationContext.getPadPipeline();
+      pipelineHeaderFormValidator.validate(form, bindingResult, pipeline.getPipelineStatus());
 
       return controllerHelperService.checkErrorsAndRedirect(bindingResult,
           getAddEditPipelineModelAndView(applicationContext.getApplicationDetail(), ScreenActionType.EDIT, pipeline),

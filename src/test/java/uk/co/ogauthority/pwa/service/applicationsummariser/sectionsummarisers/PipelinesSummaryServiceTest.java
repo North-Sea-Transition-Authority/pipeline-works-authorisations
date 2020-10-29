@@ -145,7 +145,7 @@ public class PipelinesSummaryServiceTest {
     verify(diffService, times(1)).diff(
         eq(appPipelineSummary.getPipelineHeaderView()),
         eq(new PipelineHeaderView()),
-        eq(Set.of("identViews")));
+        eq(Set.of("identViews", "pipelineStatus", "questionsForPipelineStatus")));
 
     verify(diffService, times(1)).diffComplexLists(
         eq(appPipelineSummary.getIdentViews()),

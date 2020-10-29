@@ -285,6 +285,24 @@ public class PadPipelineServiceTest {
     assertThat(padPipeline.getPipelineRef()).isEqualTo("TEMPORARY 3");
   }
 
+
+  @Test
+  public void updatePipeline_whenStatusIsOutOfUse() {
+    var form = new PipelineHeaderForm();
+    form.setWhyNotReturnedToShore("reason");
+    form.setFromCoordinateForm(new CoordinateForm());
+    form.setToCoordinateForm(new CoordinateForm());
+    form.setTrenchedBuriedBackfilled(false);
+    form.setPipelineMaterial(PipelineMaterial.DUPLEX);
+    form.setPipelineInBundle(false);
+
+    var padPipeline = new PadPipeline();
+    padPipeline.setPipelineStatus(PipelineStatus.OUT_OF_USE_ON_SEABED);
+
+    padPipelineService.updatePipeline(padPipeline, form);
+    assertThat(padPipeline.getPipelineStatusReason()).isEqualTo("reason");
+  }
+
   @Test
   public void isComplete() {
 
