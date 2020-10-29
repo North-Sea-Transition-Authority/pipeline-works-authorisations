@@ -1,5 +1,8 @@
 package uk.co.ogauthority.pwa.validators;
 
+import static uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes.MAX_DP_EXCEEDED;
+import static uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes.REQUIRED;
+
 import io.micrometer.core.instrument.util.StringUtils;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -17,6 +20,7 @@ import uk.co.ogauthority.pwa.model.form.enums.ValueRequirement;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.PermanentDepositsForm;
 import uk.co.ogauthority.pwa.service.location.CoordinateFormValidator;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits.PermanentDepositService;
+import uk.co.ogauthority.pwa.util.PwaNumberUtils;
 import uk.co.ogauthority.pwa.util.ValidatorUtils;
 import uk.co.ogauthority.pwa.util.forminputs.FormInputLabel;
 import uk.co.ogauthority.pwa.util.forminputs.twofielddate.DateWithinRangeHint;
@@ -26,6 +30,8 @@ import uk.co.ogauthority.pwa.util.forminputs.twofielddate.TwoFieldDateInputValid
 
 @Service
 public class PermanentDepositsValidator implements SmartValidator {
+
+  private static final int CONCRETE_MATTRESS_DIMENSION_MAX_DECIMAL_PLACES = 2;
 
   private final TwoFieldDateInputValidator twoFieldDateInputValidator;
   private final CoordinateFormValidator coordinateFormValidator;
@@ -44,6 +50,7 @@ public class PermanentDepositsValidator implements SmartValidator {
 
   @Override
   public void validate(Object target, Errors errors) {
+    validate(target, errors, new Object[0]);
   }
 
   @Override
@@ -84,15 +91,47 @@ public class PermanentDepositsValidator implements SmartValidator {
   }
 
 
-
   private void validateMaterialTypes(PermanentDepositsForm form, Errors errors) {
+
     if (form.getMaterialType().equals(MaterialType.CONCRETE_MATTRESSES)) {
-      ValidationUtils.rejectIfEmptyOrWhitespace(errors, "concreteMattressLength", "concreteMattressLength.invalid",
-          "Enter a valid length for the material type");
-      ValidationUtils.rejectIfEmptyOrWhitespace(errors, "concreteMattressWidth", "concreteMattressWidth.invalid",
-          "Enter a valid width for the material type");
-      ValidationUtils.rejectIfEmptyOrWhitespace(errors, "concreteMattressDepth", "concreteMattressDepth.invalid",
-          "Enter a valid depth for the material type");
+      ValidationUtils.rejectIfEmptyOrWhitespace(errors, "concreteMattressLength", REQUIRED.errorCode("concreteMattressLength"),
+          "Enter a concrete mattress length");
+      ValidationUtils.rejectIfEmptyOrWhitespace(errors, "concreteMattressWidth", REQUIRED.errorCode("concreteMattressWidth"),
+          "Enter a concrete mattress width");
+      ValidationUtils.rejectIfEmptyOrWhitespace(errors, "concreteMattressDepth", REQUIRED.errorCode("concreteMattressDepth"),
+          "Enter a concrete mattress depth");
+
+      if (!PwaNumberUtils.numberOfDecimalPlacesLessThanOrEqual(
+          form.getConcreteMattressLength(),
+          CONCRETE_MATTRESS_DIMENSION_MAX_DECIMAL_PLACES,
+          true)
+      ) {
+        errors.rejectValue("concreteMattressLength",
+            MAX_DP_EXCEEDED.errorCode("concreteMattressLength"),
+            "Enter a maximum of 2 decimal places for concrete mattress length");
+      }
+
+      if (!PwaNumberUtils.numberOfDecimalPlacesLessThanOrEqual(
+          form.getConcreteMattressWidth(),
+          CONCRETE_MATTRESS_DIMENSION_MAX_DECIMAL_PLACES,
+          true)
+      ) {
+        errors.rejectValue("concreteMattressWidth",
+            MAX_DP_EXCEEDED.errorCode("concreteMattressWidth"),
+            "Enter a maximum of 2 decimal places for concrete mattress width");
+      }
+
+      if (!PwaNumberUtils.numberOfDecimalPlacesLessThanOrEqual(
+          form.getConcreteMattressDepth(),
+          CONCRETE_MATTRESS_DIMENSION_MAX_DECIMAL_PLACES,
+          true)
+      ) {
+        errors.rejectValue("concreteMattressDepth",
+            MAX_DP_EXCEEDED.errorCode("concreteMattressDepth"),
+            "Enter a maximum of 2 decimal places for concrete mattress depth");
+      }
+
+
       if (!NumberUtils.isCreatable(form.getQuantityConcrete())) {
         errors.rejectValue("quantityConcrete", "quantityConcrete.invalid",
             "Enter a valid quantity for the material type");

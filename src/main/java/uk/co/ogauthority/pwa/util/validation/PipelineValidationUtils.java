@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
-import uk.co.ogauthority.pwa.util.NumberUtils;
+import uk.co.ogauthority.pwa.util.PwaNumberUtils;
 
 public class PipelineValidationUtils {
 
@@ -48,7 +48,7 @@ public class PipelineValidationUtils {
                                     String fieldName,
                                     String fieldLabel) {
 
-    if (NumberUtils.getNumberOfDp(length) > 2) {
+    if (PwaNumberUtils.getNumberOfDp(length) > 2) {
       errors.rejectValue(fieldName, FieldValidationErrorCodes.MAX_DP_EXCEEDED.errorCode(fieldName),
           String.format("%s cannot have more than 2dp", fieldLabel));
     }
