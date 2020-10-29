@@ -187,7 +187,7 @@ public class PadPipelineService implements ApplicationFormSectionService {
       var form = new PipelineHeaderForm();
       mapEntityToForm(form, padPipeline);
       var bindingResult = new BeanPropertyBindingResult(form, "form");
-      pipelineHeaderFormValidator.validate(form, bindingResult, padPipeline);
+      pipelineHeaderFormValidator.validate(form, bindingResult, padPipeline.getPipelineStatus());
       return !bindingResult.hasErrors();
     }
     return true;
@@ -265,6 +265,8 @@ public class PadPipelineService implements ApplicationFormSectionService {
       padPipeline.setBundleName(null);
     }
 
+    padPipeline.setPipelineStatusReason(form.getWhyNotReturnedToShore());
+
     padPipelinePersisterService.savePadPipelineAndMaterialiseIdentData(padPipeline);
   }
 
@@ -297,6 +299,9 @@ public class PadPipelineService implements ApplicationFormSectionService {
 
     form.setPipelineInBundle(pipeline.getPipelineInBundle());
     form.setBundleName(pipeline.getBundleName());
+    if (pipeline.getPipelineStatus().equals(PipelineStatus.OUT_OF_USE_ON_SEABED)) {
+      form.setWhyNotReturnedToShore(pipeline.getPipelineStatusReason());
+    }
 
   }
 
@@ -429,6 +434,7 @@ public class PadPipelineService implements ApplicationFormSectionService {
         })
         .collect(Collectors.toMap(Pair::getKey, Pair::getValue));
   }
+
 
   @Transactional
   public PadPipeline copyDataToNewPadPipeline(PwaApplicationDetail detail, PipelineDetail pipelineDetail,

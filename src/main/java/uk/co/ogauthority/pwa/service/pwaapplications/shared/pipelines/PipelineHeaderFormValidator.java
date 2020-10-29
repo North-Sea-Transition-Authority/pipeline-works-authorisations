@@ -8,12 +8,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import org.springframework.validation.SmartValidator;
 import org.springframework.validation.ValidationUtils;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineHeaderConditionalQuestion;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineMaterial;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineStatus;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
 import uk.co.ogauthority.pwa.model.form.enums.ValueRequirement;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.PipelineHeaderForm;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.service.location.CoordinateFormValidator;
+import uk.co.ogauthority.pwa.util.ValidatorUtils;
 import uk.co.ogauthority.pwa.util.validation.PipelineValidationUtils;
 
 @Service
@@ -116,6 +119,22 @@ public class PipelineHeaderFormValidator implements SmartValidator {
             "Bundle name must be 4000 characters or fewer");
       }
     }
+
+    var pipelineStatus = (PipelineStatus) validationHints[0];
+    var questionsForPipelineStatus = PipelineHeaderConditionalQuestion.getQuestionsForStatus(pipelineStatus);
+    for (var question: questionsForPipelineStatus) {
+      if (PipelineHeaderConditionalQuestion.OUT_OF_USE_ON_SEABED_REASON.equals(question)) {
+        ValidationUtils.rejectIfEmpty(errors, "whyNotReturnedToShore",
+            "whyNotReturnedToShore" + FieldValidationErrorCodes.REQUIRED.getCode(),
+            "Provide a reason for why the pipeline is not being returned to shore");
+
+        ValidatorUtils.validateDefaultStringLength(
+            errors, "whyNotReturnedToShore", form::getWhyNotReturnedToShore,
+            "The pipeline not being returned to shore reason must be 4000 characters or fewer");
+      }
+    }
+
+
   }
 
 }
