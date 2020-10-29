@@ -29,7 +29,6 @@ import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSect
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskInfo;
 import uk.co.ogauthority.pwa.service.search.SearchSelectorService;
 import uk.co.ogauthority.pwa.util.StreamUtils;
-import uk.co.ogauthority.pwa.util.StringDisplayUtils;
 
 @Service
 public class PadPipelineCrossingService implements ApplicationFormSectionService {
@@ -140,9 +139,8 @@ public class PadPipelineCrossingService implements ApplicationFormSectionService
   @Override
   public List<TaskInfo> getTaskInfoList(PwaApplicationDetail pwaApplicationDetail) {
     var pipelineCrossingCount = padPipelineCrossingRepository.countAllByPwaApplicationDetail(pwaApplicationDetail);
-    var crossingPluralised = StringDisplayUtils.pluralise("pipeline", pipelineCrossingCount);
     return List.of(
-        new TaskInfo(crossingPluralised, (long) pipelineCrossingCount)
+        new TaskInfo("PIPELINE", (long) pipelineCrossingCount)
     );
   }
 

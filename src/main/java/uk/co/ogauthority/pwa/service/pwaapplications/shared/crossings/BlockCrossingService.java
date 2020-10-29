@@ -38,7 +38,6 @@ import uk.co.ogauthority.pwa.service.licence.PearsBlockService;
 import uk.co.ogauthority.pwa.service.licence.PickablePearsBlock;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskInfo;
-import uk.co.ogauthority.pwa.util.StringDisplayUtils;
 
 @Service
 public class BlockCrossingService implements ApplicationFormSectionService {
@@ -243,9 +242,8 @@ public class BlockCrossingService implements ApplicationFormSectionService {
   @Override
   public List<TaskInfo> getTaskInfoList(PwaApplicationDetail pwaApplicationDetail) {
     var blockCount = padCrossedBlockRepository.countPadCrossedBlockByPwaApplicationDetail(pwaApplicationDetail);
-    String blocksText = StringDisplayUtils.pluralise("block", blockCount);
     return List.of(
-        new TaskInfo(blocksText, (long) blockCount)
+        new TaskInfo("BLOCK", (long) blockCount)
     );
   }
 
