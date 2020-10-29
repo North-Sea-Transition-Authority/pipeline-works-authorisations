@@ -2,7 +2,9 @@ package uk.co.ogauthority.pwa.model.form.pwaapplications.views;
 
 import java.math.BigDecimal;
 import java.util.Objects;
+import java.util.Set;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineFlexibility;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineHeaderConditionalQuestion;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineMaterial;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineStatus;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
@@ -35,7 +37,9 @@ public class PipelineHeaderView implements PipelineOverview {
   private final Boolean trenchedBuriedBackfilled;
   private final String trenchingMethodsDescription;
   private final PipelineStatus pipelineStatus;
+  private final String pipelineStatusDisplayStr;
   private final String pipelineStatusReason;
+  private final Set<PipelineHeaderConditionalQuestion> questionsForPipelineStatus;
 
 
   public PipelineHeaderView() {
@@ -61,7 +65,9 @@ public class PipelineHeaderView implements PipelineOverview {
     this.trenchedBuriedBackfilled = null;
     this.trenchingMethodsDescription = null;
     this.pipelineStatus = null;
+    this.pipelineStatusDisplayStr = null;
     this.pipelineStatusReason = null;
+    this.questionsForPipelineStatus = null;
   }
 
   public PipelineHeaderView(PipelineOverview pipelineOverview) {
@@ -87,7 +93,9 @@ public class PipelineHeaderView implements PipelineOverview {
     this.trenchedBuriedBackfilled = pipelineOverview.getTrenchedBuriedBackfilled();
     this.trenchingMethodsDescription = pipelineOverview.getTrenchingMethodsDescription();
     this.pipelineStatus = pipelineOverview.getPipelineStatus();
+    this.pipelineStatusDisplayStr = pipelineOverview.getPipelineStatus().getDisplayText();
     this.pipelineStatusReason = pipelineOverview.getPipelineStatusReason();
+    this.questionsForPipelineStatus = PipelineHeaderConditionalQuestion.getQuestionsForStatus(pipelineOverview.getPipelineStatus());
   }
 
 
@@ -108,6 +116,7 @@ public class PipelineHeaderView implements PipelineOverview {
     this.pipelineInBundle = pipelineDetail.getPipelineInBundle();
     this.bundleName = pipelineDetail.getBundleName();
     this.pipelineStatus = pipelineDetail.getPipelineStatus();
+    this.pipelineStatusDisplayStr = pipelineDetail.getPipelineStatus().getDisplayText();
     this.pipelineStatusReason = pipelineDetail.getPipelineStatusReason();
     this.numberOfIdents = null;
     this.pipelineFlexibility = null;
@@ -115,6 +124,7 @@ public class PipelineHeaderView implements PipelineOverview {
     this.otherPipelineMaterialUsed = null;
     this.trenchedBuriedBackfilled = null;
     this.trenchingMethodsDescription = null;
+    this.questionsForPipelineStatus = PipelineHeaderConditionalQuestion.getQuestionsForStatus(pipelineDetail.getPipelineStatus());
   }
 
 
@@ -229,11 +239,18 @@ public class PipelineHeaderView implements PipelineOverview {
     return pipelineStatus;
   }
 
+  public String getPipelineStatusDisplayStr() {
+    return pipelineStatusDisplayStr;
+  }
+
   @Override
   public String getPipelineStatusReason() {
     return pipelineStatusReason;
   }
 
+  public Set<PipelineHeaderConditionalQuestion> getQuestionsForPipelineStatus() {
+    return questionsForPipelineStatus;
+  }
 
   @Override
   public boolean equals(Object o) {
@@ -266,7 +283,9 @@ public class PipelineHeaderView implements PipelineOverview {
         && Objects.equals(trenchedBuriedBackfilled, that.trenchedBuriedBackfilled)
         && Objects.equals(trenchingMethodsDescription, that.trenchingMethodsDescription)
         && pipelineStatus == that.pipelineStatus
-        && Objects.equals(pipelineStatusReason, that.pipelineStatusReason);
+        && pipelineStatusDisplayStr == that.pipelineStatusDisplayStr
+        && Objects.equals(pipelineStatusReason, that.pipelineStatusReason)
+        && questionsForPipelineStatus == that.questionsForPipelineStatus;
   }
 
   @Override
@@ -275,6 +294,7 @@ public class PipelineHeaderView implements PipelineOverview {
         toCoordinates,
         pipelineNumber, pipelineType, componentParts, length, productsToBeConveyed, numberOfIdents, maxExternalDiameter,
         pipelineInBundle, bundleName, pipelineFlexibility, pipelineMaterial, otherPipelineMaterialUsed,
-        trenchedBuriedBackfilled, trenchingMethodsDescription, pipelineStatus, pipelineStatusReason);
+        trenchedBuriedBackfilled, trenchingMethodsDescription, pipelineStatus, pipelineStatusDisplayStr,
+        pipelineStatusReason, questionsForPipelineStatus);
   }
 }

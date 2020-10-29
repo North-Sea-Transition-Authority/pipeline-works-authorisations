@@ -22,7 +22,6 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationTyp
 import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskInfo;
-import uk.co.ogauthority.pwa.util.StringDisplayUtils;
 
 @Service
 public class PadCableCrossingService implements ApplicationFormSectionService {
@@ -110,9 +109,8 @@ public class PadCableCrossingService implements ApplicationFormSectionService {
   @Override
   public List<TaskInfo> getTaskInfoList(PwaApplicationDetail pwaApplicationDetail) {
     var cableCount = padCableCrossingRepository.countAllByPwaApplicationDetail(pwaApplicationDetail);
-    String crossingsText = StringDisplayUtils.pluralise("cable", cableCount);
     return List.of(
-        new TaskInfo(crossingsText, (long) cableCount)
+        new TaskInfo("CABLE", (long) cableCount)
     );
   }
 
