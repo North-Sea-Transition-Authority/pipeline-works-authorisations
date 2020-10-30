@@ -49,6 +49,7 @@ public class ProjectInformationSummaryService implements ApplicationSectionSumma
     Map<String, Object> summaryModel = new HashMap<>();
     summaryModel.put("sectionDisplayText", sectionDisplayText);
     summaryModel.put("projectInfoView", padProjectInformationService.getProjectInformationView(pwaApplicationDetail));
+    summaryModel.put("requiredQuestions", padProjectInformationService.getRequiredQuestions(pwaApplicationDetail.getPwaApplicationType()));
 
     return new ApplicationSectionSummary(
         templateName,
