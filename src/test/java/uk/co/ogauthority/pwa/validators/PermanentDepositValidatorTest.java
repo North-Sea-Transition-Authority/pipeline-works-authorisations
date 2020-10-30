@@ -70,35 +70,28 @@ public class PermanentDepositValidatorTest {
   }
 
   @Test
-  public void validate_consentedPipelinesAndOtherAppQuestionsBothBlank() {
-    var form = getPermanentDepositsFormWithMaterialType();
-    Map<String, Set<String>> errorsMap = getErrorMap(form);
-    assertThat(errorsMap).contains(entry("depositIsForConsentedPipeline", Set.of("depositIsForConsentedPipeline" + FieldValidationErrorCodes.REQUIRED.getCode())));
-  }
-
-  @Test
   public void validate_consentedPipelinesAndOtherAppQuestionsBothAnsweredNo() {
     var form = getPermanentDepositsFormWithMaterialType();
     form.setDepositIsForConsentedPipeline(false);
     form.setDepositIsForPipelinesOnOtherApp(false);
     Map<String, Set<String>> errorsMap = getErrorMap(form);
+    assertThat(errorsMap).contains(
+        entry("depositIsForConsentedPipeline", Set.of("depositIsForConsentedPipeline" + FieldValidationErrorCodes.INVALID.getCode())),
+        entry("depositIsForPipelinesOnOtherApp", Set.of("depositIsForPipelinesOnOtherApp" + FieldValidationErrorCodes.INVALID.getCode())));
+  }
+
+  @Test
+  public void validate_consentedPipelinesNull() {
+    var form = getPermanentDepositsFormWithMaterialType();
+    Map<String, Set<String>> errorsMap = getErrorMap(form);
     assertThat(errorsMap).contains(entry("depositIsForConsentedPipeline", Set.of("depositIsForConsentedPipeline" + FieldValidationErrorCodes.REQUIRED.getCode())));
   }
 
   @Test
-  public void validate_consentedPipelinesAnsweredNo_otherAppQuestionBlank() {
+  public void validate_otherAppQuestionNull() {
     var form = getPermanentDepositsFormWithMaterialType();
-    form.setDepositIsForConsentedPipeline(false);
     Map<String, Set<String>> errorsMap = getErrorMap(form);
     assertThat(errorsMap).contains(entry("depositIsForPipelinesOnOtherApp", Set.of("depositIsForPipelinesOnOtherApp" + FieldValidationErrorCodes.REQUIRED.getCode())));
-  }
-
-  @Test
-  public void validate_otherAppQuestionAnsweredNo_consentedPipelinesQuestionBlank() {
-    var form = getPermanentDepositsFormWithMaterialType();
-    form.setDepositIsForPipelinesOnOtherApp(false);
-    Map<String, Set<String>> errorsMap = getErrorMap(form);
-    assertThat(errorsMap).contains(entry("depositIsForConsentedPipeline", Set.of("depositIsForConsentedPipeline" + FieldValidationErrorCodes.REQUIRED.getCode())));
   }
 
   @Test

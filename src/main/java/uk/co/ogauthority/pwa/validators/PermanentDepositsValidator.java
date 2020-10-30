@@ -51,22 +51,20 @@ public class PermanentDepositsValidator implements SmartValidator {
   public void validate(Object o, Errors errors, Object... validationHints) {
     var form = (PermanentDepositsForm) o;
 
-    if ((form.getDepositIsForConsentedPipeline() == null && form.getDepositIsForPipelinesOnOtherApp() == null)
-        || (BooleanUtils.isFalse(form.getDepositIsForConsentedPipeline())
-        && BooleanUtils.isFalse(form.getDepositIsForPipelinesOnOtherApp()))) {
-      errors.rejectValue("depositIsForConsentedPipeline", "depositIsForConsentedPipeline" + FieldValidationErrorCodes.REQUIRED.getCode(),
-          "You must select 'Yes' if deposit is for a consented pipeline and/or " +
-              "to the below question if deposit is for proposed pipelines that haven’t been consented");
-
-    } else if (BooleanUtils.isFalse(form.getDepositIsForConsentedPipeline()) && form.getDepositIsForPipelinesOnOtherApp() == null) {
-      errors.rejectValue("depositIsForPipelinesOnOtherApp", "" +
-              "depositIsForPipelinesOnOtherApp" + FieldValidationErrorCodes.REQUIRED.getCode(),
-          "Select 'Yes' if deposit is for proposed pipelines on other applications that haven’t been consented");
-
-    }  else if (BooleanUtils.isFalse(form.getDepositIsForPipelinesOnOtherApp()) && form.getDepositIsForConsentedPipeline() == null) {
-      errors.rejectValue("depositIsForConsentedPipeline", "depositIsForConsentedPipeline" + FieldValidationErrorCodes.REQUIRED.getCode(),
-          "Select 'Yes' if deposit is for a consented pipeline or a pipeline that is on this application");
+    if (BooleanUtils.isFalse(form.getDepositIsForConsentedPipeline()) && BooleanUtils.isFalse(form.getDepositIsForPipelinesOnOtherApp())) {
+      errors.rejectValue("depositIsForConsentedPipeline", "depositIsForConsentedPipeline" + FieldValidationErrorCodes.INVALID.getCode(),
+          "Select 'Yes' to one or both of the pipeline linking questions.");
+      errors.rejectValue("depositIsForPipelinesOnOtherApp", "depositIsForPipelinesOnOtherApp" + FieldValidationErrorCodes.INVALID.getCode(),
+          "Select 'Yes' to one or both of the pipeline linking questions.");
     }
+
+    ValidationUtils.rejectIfEmptyOrWhitespace(errors, "depositIsForConsentedPipeline",
+        "depositIsForConsentedPipeline" + FieldValidationErrorCodes.REQUIRED.getCode(),
+        "Select 'Yes' if deposit is for a consented pipeline or a pipeline that is on this application");
+
+    ValidationUtils.rejectIfEmptyOrWhitespace(errors, "depositIsForPipelinesOnOtherApp",
+        "depositIsForPipelinesOnOtherApp" + FieldValidationErrorCodes.REQUIRED.getCode(),
+        "Select 'Yes' if deposit is for proposed pipelines on other applications that haven’t been consented");
 
     if (BooleanUtils.isTrue(form.getDepositIsForConsentedPipeline())) {
       ValidationUtils.rejectIfEmptyOrWhitespace(errors, "selectedPipelines", "selectedPipelines.required",

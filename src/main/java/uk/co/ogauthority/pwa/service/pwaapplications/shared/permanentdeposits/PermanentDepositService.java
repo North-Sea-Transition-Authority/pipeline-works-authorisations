@@ -2,7 +2,7 @@ package uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
-import com.google.common.annotations.VisibleForTesting;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -46,7 +46,6 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationTyp
 import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.viewfactories.PipelineAndIdentViewFactory;
-import uk.co.ogauthority.pwa.util.CleanupUtils;
 import uk.co.ogauthority.pwa.util.validationgroups.FullValidation;
 import uk.co.ogauthority.pwa.util.validationgroups.PartialValidation;
 import uk.co.ogauthority.pwa.validators.PermanentDepositsValidator;
@@ -303,70 +302,67 @@ public class PermanentDepositService implements ApplicationFormSectionService {
     return permanentDepositRepository.countByPwaApplicationDetail(pwaApplicationDetail) > 0;
   }
 
-  @VisibleForTesting
-  public void removePadPipelineDepositLinks(PadPipeline padPipeline) {
-    var depositPipelineLinks = padDepositPipelineRepository.getAllByPipeline(padPipeline.getPipeline());
-    padDepositPipelineRepository.deleteAll(depositPipelineLinks);
-  }
 
   @Transactional
   public void removePadPipelineFromDeposits(PadPipeline padPipeline) {
 
-    this.removePadPipelineDepositLinks(padPipeline);
+    List<PadPermanentDeposit> depositsToRemove = new ArrayList<>();
+    var depositsLinksForPipelineAndApp = padDepositPipelineRepository.getAllByPadPermanentDeposit_PwaApplicationDetailAndPipeline(
+        padPipeline.getPwaApplicationDetail(), padPipeline.getPipeline());
 
-    var pwaApplicationDetail = padPipeline.getPwaApplicationDetail();
-    var deposits = permanentDepositRepository.getAllByPwaApplicationDetail(pwaApplicationDetail);
-    Map<PadPermanentDeposit, List<PadDepositPipeline>> depositMap =
-        padDepositPipelineRepository.getAllByPipeline_MasterPwa(pwaApplicationDetail.getMasterPwaApplication())
-            .stream()
-            .collect(Collectors.groupingBy(PadDepositPipeline::getPadPermanentDeposit));
+    for (var depositsLinkForPipelineAndApp : depositsLinksForPipelineAndApp) {
+      var deposit = depositsLinkForPipelineAndApp.getPadPermanentDeposit();
+      var totalPipelinesLinkedToDeposit = padDepositPipelineRepository.countAllByPadPermanentDeposit(deposit);
+      if (totalPipelinesLinkedToDeposit == 1 && !deposit.getDepositIsForPipelinesOnOtherApp()) {
+        depositsToRemove.add(deposit);
+      }
+    }
 
-    var depositsToRemove = CleanupUtils.getUnlinkedKeys(deposits, depositMap,
-        (key, value) -> key.getId().equals(value.getId()));
-
+    padDepositPipelineRepository.deleteAll(depositsLinksForPipelineAndApp);
     if (!depositsToRemove.isEmpty()) {
       depositDrawingsService.removeDepositsFromDrawings(depositsToRemove);
       permanentDepositRepository.deleteAll(depositsToRemove);
     }
   }
 
+
+
   @Override
   public void cleanupData(PwaApplicationDetail detail) {
 
-    var updatedDepositsList = getPermanentDeposits(detail).stream()
-        .filter(deposit -> deposit.getMaterialType() != null)
-        .peek(deposit -> {
+    var deposits = getPermanentDeposits(detail);
 
-          switch (deposit.getMaterialType()) {
+    for (var deposit : deposits) {
+      if (deposit.getMaterialType() != null) {
+        switch (deposit.getMaterialType()) {
 
-            case CONCRETE_MATTRESSES:
-              deposit.setMaterialSize(null);
-              cleanupOtherMaterial(deposit);
-              cleanupGroutBags(deposit);
-              break;
-            case ROCK:
-              cleanupMattresses(deposit);
-              cleanupGroutBags(deposit);
-              cleanupOtherMaterial(deposit);
-              break;
-            case GROUT_BAGS:
-              cleanupMattresses(deposit);
-              cleanupOtherMaterial(deposit);
-              break;
-            case OTHER:
-              cleanupMattresses(deposit);
-              cleanupGroutBags(deposit);
-              break;
-            default:
-              break;
-          }
+          case CONCRETE_MATTRESSES:
+            deposit.setMaterialSize(null);
+            cleanupOtherMaterial(deposit);
+            cleanupGroutBags(deposit);
+            break;
+          case ROCK:
+            cleanupMattresses(deposit);
+            cleanupGroutBags(deposit);
+            cleanupOtherMaterial(deposit);
+            break;
+          case GROUT_BAGS:
+            cleanupMattresses(deposit);
+            cleanupOtherMaterial(deposit);
+            break;
+          case OTHER:
+            cleanupMattresses(deposit);
+            cleanupGroutBags(deposit);
+            break;
+          default:
+            break;
+        }
+      }
 
-          cleanupPipelines(deposit);
-        })
-        .collect(Collectors.toList());
+      cleanupPipelines(deposit);
+    }
 
-    permanentDepositRepository.saveAll(updatedDepositsList);
-
+    permanentDepositRepository.saveAll(deposits);
   }
 
   @Transactional
