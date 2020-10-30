@@ -160,33 +160,43 @@ public class PadProjectInformationServiceTest {
   @Test
   public void getAvailableQuestions_depositConsentAppType() {
     var requiredQuestions = service.getRequiredQuestions(PwaApplicationType.DEPOSIT_CONSENT);
-    assertThat(requiredQuestions).containsOnly(ProjectInformationQuestion.PROJECT_NAME,
-        ProjectInformationQuestion.PROJECT_OVERVIEW,
-        ProjectInformationQuestion.PROPOSED_START_DATE,
-        ProjectInformationQuestion.MOBILISATION_DATE,
-        ProjectInformationQuestion.EARLIEST_COMPLETION_DATE,
-        ProjectInformationQuestion.LATEST_COMPLETION_DATE,
-        ProjectInformationQuestion.COMMERCIAL_AGREEMENT_DATE,
-        ProjectInformationQuestion.TEMPORARY_DEPOSITS_BEING_MADE
-    );
+    assertThat(requiredQuestions).containsOnlyElementsOf(EnumSet.complementOf(EnumSet.of(
+        ProjectInformationQuestion.LICENCE_TRANSFER_DATE,
+        ProjectInformationQuestion.METHOD_OF_PIPELINE_DEPLOYMENT,
+        ProjectInformationQuestion.USING_CAMPAIGN_APPROACH,
+        ProjectInformationQuestion.FIELD_DEVELOPMENT_PLAN,
+        ProjectInformationQuestion.PROJECT_LAYOUT_DIAGRAM
+    )));
   }
 
   @Test
   public void getAvailableQuestions_huooVariationAppType() {
     var requiredQuestions = service.getRequiredQuestions(PwaApplicationType.HUOO_VARIATION);
-    assertThat(requiredQuestions).containsOnly(ProjectInformationQuestion.PROJECT_NAME,
-        ProjectInformationQuestion.PROJECT_NAME,
-        ProjectInformationQuestion.PROPOSED_START_DATE,
-        ProjectInformationQuestion.LICENCE_TRANSFER_PLANNED,
-        ProjectInformationQuestion.LICENCE_TRANSFER_DATE,
-        ProjectInformationQuestion.COMMERCIAL_AGREEMENT_DATE
-    );
+    assertThat(requiredQuestions).containsOnlyElementsOf(EnumSet.complementOf(EnumSet.of(
+        ProjectInformationQuestion.PROJECT_OVERVIEW,
+        ProjectInformationQuestion.METHOD_OF_PIPELINE_DEPLOYMENT,
+        ProjectInformationQuestion.MOBILISATION_DATE,
+        ProjectInformationQuestion.EARLIEST_COMPLETION_DATE,
+        ProjectInformationQuestion.LATEST_COMPLETION_DATE,
+        ProjectInformationQuestion.USING_CAMPAIGN_APPROACH,
+        ProjectInformationQuestion.FIELD_DEVELOPMENT_PLAN,
+        ProjectInformationQuestion.PROJECT_LAYOUT_DIAGRAM
+    )));
   }
 
   @Test
-  public void getAvailableQuestions_allAppTypesExceptDepConAndHuoo() {
+  public void getAvailableQuestions_decomAppType() {
+    var requiredQuestions = service.getRequiredQuestions(PwaApplicationType.DECOMMISSIONING);
+    assertThat(requiredQuestions).containsOnlyElementsOf(EnumSet.complementOf(
+        EnumSet.of(ProjectInformationQuestion.METHOD_OF_PIPELINE_DEPLOYMENT)));
+  }
+
+  @Test
+  public void getAvailableQuestions_allAppTypesExceptDepConAndHuooAndDecom() {
     PwaApplicationType.stream()
-        .filter(appType -> appType != PwaApplicationType.HUOO_VARIATION && appType != PwaApplicationType.DEPOSIT_CONSENT)
+        .filter(appType -> appType != PwaApplicationType.HUOO_VARIATION
+            && appType != PwaApplicationType.DEPOSIT_CONSENT
+            && appType != PwaApplicationType.DECOMMISSIONING)
         .forEach(appType -> {
           var requiredQuestions = service.getRequiredQuestions(appType);
           assertThat(requiredQuestions).isEqualTo(EnumSet.allOf(ProjectInformationQuestion.class));
