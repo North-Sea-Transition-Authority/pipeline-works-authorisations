@@ -41,7 +41,7 @@ public class WorkAreaTabServiceTest {
 
     assertThat(defaultTabOpt).isPresent();
 
-    assertThat(defaultTabOpt.get()).isEqualTo(WorkAreaTab.REGULATOR_OPEN_APPLICATIONS);
+    assertThat(defaultTabOpt.get()).isEqualTo(WorkAreaTab.REGULATOR_REQUIRES_ATTENTION);
 
   }
 
@@ -83,7 +83,7 @@ public class WorkAreaTabServiceTest {
     when(userTypeService.getUserType(user)).thenReturn(UserType.OGA);
     var tabs = workAreaTabService.getTabsAvailableToUser(user);
 
-    assertThat(tabs).containsExactly(WorkAreaTab.REGULATOR_OPEN_APPLICATIONS);
+    assertThat(tabs).containsExactly(WorkAreaTab.REGULATOR_REQUIRES_ATTENTION, WorkAreaTab.REGULATOR_WAITING_ON_OTHERS);
 
   }
 
