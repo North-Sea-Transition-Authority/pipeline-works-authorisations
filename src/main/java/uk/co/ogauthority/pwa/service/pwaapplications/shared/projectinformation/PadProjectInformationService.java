@@ -194,7 +194,8 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
           ProjectInformationQuestion.USING_CAMPAIGN_APPROACH,
           ProjectInformationQuestion.FIELD_DEVELOPMENT_PLAN,
           ProjectInformationQuestion.PROJECT_LAYOUT_DIAGRAM,
-          ProjectInformationQuestion.PERMANENT_DEPOSITS_BEING_MADE
+          ProjectInformationQuestion.PERMANENT_DEPOSITS_BEING_MADE,
+          ProjectInformationQuestion.TEMPORARY_DEPOSITS_BEING_MADE
       );
 
     } else if (pwaApplicationType == PwaApplicationType.DECOMMISSIONING) {
