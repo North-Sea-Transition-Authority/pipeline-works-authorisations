@@ -209,4 +209,5 @@ public class PipelineDetailSummaryDto {
   public String getPipelineStatusReason() {
     return pipelineStatusReason;
   }
+
 }

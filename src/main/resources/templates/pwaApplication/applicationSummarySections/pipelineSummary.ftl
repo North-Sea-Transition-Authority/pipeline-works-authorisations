@@ -36,6 +36,13 @@
            <@diffChanges.renderDiff pipelineHeader.PipelineHeaderView_pipelineName />
         </@fdsCheckAnswers.checkAnswersRow>
 
+        <#if pipelineHeader.hasTemporaryPipelineNumber>
+            <@fdsCheckAnswers.checkAnswersRow keyText="Reference used in drawing" actionUrl="" screenReaderActionText="" actionText="">
+                <@diffChanges.renderDiff pipelineHeader.PipelineHeaderView_temporaryPipelineNumber />
+            </@fdsCheckAnswers.checkAnswersRow>
+        </#if>
+
+
         <@fdsCheckAnswers.checkAnswersRow keyText="Pipeline status" actionUrl="" screenReaderActionText="" actionText="">
             <@diffChanges.renderDiff pipelineHeader.PipelineHeaderView_pipelineStatusDisplayStr />
         </@fdsCheckAnswers.checkAnswersRow>

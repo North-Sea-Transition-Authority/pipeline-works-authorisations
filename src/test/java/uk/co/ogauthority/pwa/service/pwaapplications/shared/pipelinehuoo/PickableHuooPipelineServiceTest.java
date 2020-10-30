@@ -211,6 +211,7 @@ public class PickableHuooPipelineServiceTest {
         padPipeline.getPipeline().getId(),
         padPipeline.getPipelineType(),
         padPipeline.toString(),
+        padPipeline.getTemporaryRef(),
         BigDecimal.TEN,
         "OIL",
         "PRODUCTS",

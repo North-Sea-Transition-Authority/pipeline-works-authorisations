@@ -24,6 +24,7 @@ public class PadPipelineOverview implements PipelineOverview {
   private String toLocation;
   private CoordinatePair toCoordinates;
   private String pipelineNumber;
+  private String temporaryPipelineNumber;
   private PipelineType pipelineType;
   private String componentParts;
   private BigDecimal length;
@@ -39,6 +40,9 @@ public class PadPipelineOverview implements PipelineOverview {
   private String trenchingMethodsDescription;
   private PipelineStatus pipelineStatus;
   private String pipelineStatusReason;
+
+  // TODO PWA-890. Remove this attribute and refactor.
+  //   Its a rubbish method of determining if tasks apply to a pipeline on the pipeline task-list.
   private Boolean hasTasks;
 
   private PadPipelineOverview(Integer padPipelineId,
@@ -48,6 +52,7 @@ public class PadPipelineOverview implements PipelineOverview {
                               String toLocation,
                               CoordinatePair toCoordinates,
                               String pipelineNumber,
+                              String temporaryPipelineNumber,
                               PipelineType pipelineType,
                               String componentParts,
                               BigDecimal length,
@@ -71,6 +76,7 @@ public class PadPipelineOverview implements PipelineOverview {
     this.toLocation = toLocation;
     this.toCoordinates = toCoordinates;
     this.pipelineNumber = pipelineNumber;
+    this.temporaryPipelineNumber = temporaryPipelineNumber;
     this.pipelineType = pipelineType;
     this.componentParts = componentParts;
     this.length = length;
@@ -99,6 +105,7 @@ public class PadPipelineOverview implements PipelineOverview {
     this.toLocation = padPipeline.getToLocation();
     this.toCoordinates = padPipeline.getToCoordinates();
     this.pipelineNumber = padPipeline.getPipelineRef();
+    this.temporaryPipelineNumber = padPipeline.getTemporaryRef();
     this.pipelineType = padPipeline.getPipelineType();
     this.componentParts = padPipeline.getComponentPartsDescription();
     this.length = padPipeline.getLength();
@@ -116,6 +123,7 @@ public class PadPipelineOverview implements PipelineOverview {
   public PadPipelineOverview(PadPipeline padPipeline) {
     this.padPipelineId = padPipeline.getId();
     this.pipelineNumber = padPipeline.getPipelineRef();
+    this.temporaryPipelineNumber = padPipeline.getTemporaryRef();
     this.pipelineType = padPipeline.getPipelineType();
     this.maxExternalDiameter = padPipeline.getMaxExternalDiameter();
     this.pipelineInBundle = padPipeline.getPipelineInBundle();
@@ -128,30 +136,31 @@ public class PadPipelineOverview implements PipelineOverview {
     this.length = padPipeline.getLength();
   }
 
-  public static PadPipelineOverview from(PipelineDetailSummaryDto padPipelineSummaryDto) {
+  public static PadPipelineOverview from(PipelineDetailSummaryDto pipelineDetailSummaryDto) {
     return new PadPipelineOverview(
         null,
-        padPipelineSummaryDto.getPipelineId().asInt(),
-        padPipelineSummaryDto.getFromLocation(),
-        padPipelineSummaryDto.getFromCoordinates(),
-        padPipelineSummaryDto.getToLocation(),
-        padPipelineSummaryDto.getToCoordinates(),
-        padPipelineSummaryDto.getPipelineNumber(),
-        padPipelineSummaryDto.getPipelineType(),
-        padPipelineSummaryDto.getComponentParts(),
-        padPipelineSummaryDto.getLength(),
-        padPipelineSummaryDto.getProductsToBeConveyed(),
-        padPipelineSummaryDto.getNumberOfIdents(),
-        padPipelineSummaryDto.getMaxExternalDiameter(),
-        padPipelineSummaryDto.getPipelineInBundle(),
-        padPipelineSummaryDto.getBundleName(),
-        padPipelineSummaryDto.getPipelineFlexibility(),
-        padPipelineSummaryDto.getPipelineMaterial(),
-        padPipelineSummaryDto.getOtherPipelineMaterialUsed(),
-        padPipelineSummaryDto.getTrenchedBuriedBackfilled(),
-        padPipelineSummaryDto.getTrenchingMethodsDescription(),
-        padPipelineSummaryDto.getPipelineStatus(),
-        padPipelineSummaryDto.getPipelineStatusReason(),
+        pipelineDetailSummaryDto.getPipelineId().asInt(),
+        pipelineDetailSummaryDto.getFromLocation(),
+        pipelineDetailSummaryDto.getFromCoordinates(),
+        pipelineDetailSummaryDto.getToLocation(),
+        pipelineDetailSummaryDto.getToCoordinates(),
+        pipelineDetailSummaryDto.getPipelineNumber(),
+        null, // temporary number never relevant for consented pipelines
+        pipelineDetailSummaryDto.getPipelineType(),
+        pipelineDetailSummaryDto.getComponentParts(),
+        pipelineDetailSummaryDto.getLength(),
+        pipelineDetailSummaryDto.getProductsToBeConveyed(),
+        pipelineDetailSummaryDto.getNumberOfIdents(),
+        pipelineDetailSummaryDto.getMaxExternalDiameter(),
+        pipelineDetailSummaryDto.getPipelineInBundle(),
+        pipelineDetailSummaryDto.getBundleName(),
+        pipelineDetailSummaryDto.getPipelineFlexibility(),
+        pipelineDetailSummaryDto.getPipelineMaterial(),
+        pipelineDetailSummaryDto.getOtherPipelineMaterialUsed(),
+        pipelineDetailSummaryDto.getTrenchedBuriedBackfilled(),
+        pipelineDetailSummaryDto.getTrenchingMethodsDescription(),
+        pipelineDetailSummaryDto.getPipelineStatus(),
+        pipelineDetailSummaryDto.getPipelineStatusReason(),
         false
     );
   }
@@ -166,6 +175,7 @@ public class PadPipelineOverview implements PipelineOverview {
         padPipelineSummaryDto.getToLocation(),
         padPipelineSummaryDto.getToCoordinates(),
         padPipelineSummaryDto.getPipelineNumber(),
+        padPipelineSummaryDto.getTemporaryPipelineNumber(),
         padPipelineSummaryDto.getPipelineType(),
         padPipelineSummaryDto.getComponentParts(),
         padPipelineSummaryDto.getLength(),
@@ -293,6 +303,11 @@ public class PadPipelineOverview implements PipelineOverview {
   @Override
   public String getPipelineStatusReason() {
     return pipelineStatusReason;
+  }
+
+  @Override
+  public String getTemporaryPipelineNumber() {
+    return this.temporaryPipelineNumber;
   }
 
   public Boolean getHasTasks() {

@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers;
 import static java.util.stream.Collectors.toMap;
 
 import com.google.common.annotations.VisibleForTesting;
+import io.micrometer.core.instrument.util.StringUtils;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -115,10 +116,13 @@ public class PipelinesSummaryService implements ApplicationSectionSummariser {
       diffedPipelineSummaryList.add(pipelineDiffMap);
       // we need to ignore the nested complex list of idents so we can do this diff separately
       // the diff service does not handle nested complex properties natively.
+      var currentPipelineHeader = pipelineSummaryPair.getLeft().getPipelineHeaderView();
+      var consentedPipelineHeader = pipelineSummaryPair.getRight().getPipelineHeaderView();
       Map<String, Object> pipelineHeaderMap = new HashMap<>(diffService.diff(
-          pipelineSummaryPair.getLeft().getPipelineHeaderView(), pipelineSummaryPair.getRight().getPipelineHeaderView(),
+          currentPipelineHeader, consentedPipelineHeader,
           Set.of("identViews", "pipelineStatus", "questionsForPipelineStatus")));
       pipelineHeaderMap.put("questionsForPipelineStatus", pipelineSummaryPair.getLeft().getQuestionsForPipelineStatus());
+      pipelineHeaderMap.put("hasTemporaryPipelineNumber", StringUtils.isNotEmpty(currentPipelineHeader.getTemporaryPipelineNumber()));
 
       pipelineDiffMap.put("pipelineHeader", pipelineHeaderMap);
       pipelineDiffMap.put("pipelineIdents",

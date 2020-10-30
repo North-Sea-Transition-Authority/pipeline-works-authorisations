@@ -50,4 +50,6 @@ public interface PipelineOverview extends NamedPipeline {
 
   String getPipelineStatusReason();
 
+  String getTemporaryPipelineNumber();
+
 }

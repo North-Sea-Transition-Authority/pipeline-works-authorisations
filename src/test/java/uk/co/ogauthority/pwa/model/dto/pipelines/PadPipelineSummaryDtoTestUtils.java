@@ -19,6 +19,7 @@ public class PadPipelineSummaryDtoTestUtils {
         padPipeline.getPipeline().getId(),
         PipelineType.PRODUCTION_FLOWLINE,
         padPipeline.getPipelineRef(),
+        padPipeline.getTemporaryRef(),
         BigDecimal.TEN,
         "OIL",
         "PRODUCTS",
