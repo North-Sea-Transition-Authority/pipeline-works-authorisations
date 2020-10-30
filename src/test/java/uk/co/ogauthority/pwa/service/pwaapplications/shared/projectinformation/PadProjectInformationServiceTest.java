@@ -161,11 +161,14 @@ public class PadProjectInformationServiceTest {
   public void getAvailableQuestions_depositConsentAppType() {
     var requiredQuestions = service.getRequiredQuestions(PwaApplicationType.DEPOSIT_CONSENT);
     assertThat(requiredQuestions).containsOnlyElementsOf(EnumSet.complementOf(EnumSet.of(
+        ProjectInformationQuestion.LICENCE_TRANSFER_PLANNED,
         ProjectInformationQuestion.LICENCE_TRANSFER_DATE,
+        ProjectInformationQuestion.COMMERCIAL_AGREEMENT_DATE,
         ProjectInformationQuestion.METHOD_OF_PIPELINE_DEPLOYMENT,
         ProjectInformationQuestion.USING_CAMPAIGN_APPROACH,
         ProjectInformationQuestion.FIELD_DEVELOPMENT_PLAN,
-        ProjectInformationQuestion.PROJECT_LAYOUT_DIAGRAM
+        ProjectInformationQuestion.PROJECT_LAYOUT_DIAGRAM,
+        ProjectInformationQuestion.PERMANENT_DEPOSITS_BEING_MADE
     )));
   }
 
@@ -180,7 +183,8 @@ public class PadProjectInformationServiceTest {
         ProjectInformationQuestion.LATEST_COMPLETION_DATE,
         ProjectInformationQuestion.USING_CAMPAIGN_APPROACH,
         ProjectInformationQuestion.FIELD_DEVELOPMENT_PLAN,
-        ProjectInformationQuestion.PROJECT_LAYOUT_DIAGRAM
+        ProjectInformationQuestion.PROJECT_LAYOUT_DIAGRAM,
+        ProjectInformationQuestion.PERMANENT_DEPOSITS_BEING_MADE
     )));
   }
 

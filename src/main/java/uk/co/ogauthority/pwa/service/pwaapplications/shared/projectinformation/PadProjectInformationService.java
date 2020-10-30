@@ -180,7 +180,8 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
           ProjectInformationQuestion.METHOD_OF_PIPELINE_DEPLOYMENT,
           ProjectInformationQuestion.USING_CAMPAIGN_APPROACH,
           ProjectInformationQuestion.FIELD_DEVELOPMENT_PLAN,
-          ProjectInformationQuestion.PROJECT_LAYOUT_DIAGRAM
+          ProjectInformationQuestion.PROJECT_LAYOUT_DIAGRAM,
+          ProjectInformationQuestion.PERMANENT_DEPOSITS_BEING_MADE
       );
 
     } else if (pwaApplicationType == PwaApplicationType.HUOO_VARIATION) {
@@ -192,7 +193,8 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
           ProjectInformationQuestion.LATEST_COMPLETION_DATE,
           ProjectInformationQuestion.USING_CAMPAIGN_APPROACH,
           ProjectInformationQuestion.FIELD_DEVELOPMENT_PLAN,
-          ProjectInformationQuestion.PROJECT_LAYOUT_DIAGRAM
+          ProjectInformationQuestion.PROJECT_LAYOUT_DIAGRAM,
+          ProjectInformationQuestion.PERMANENT_DEPOSITS_BEING_MADE
       );
 
     } else if (pwaApplicationType == PwaApplicationType.DECOMMISSIONING) {
