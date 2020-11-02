@@ -17,17 +17,29 @@
     <li>Submitted by ${submissionSummary.submittedBy}</li>
   </ul>
 
-  <p class="govuk-body">We have sent you a confirmation email.</p>
+  <p class="govuk-body">
+    <#if submissionSummary.isFirstVersion>
+      We have sent you a confirmation email.
+    <#else>
+      An email notification has been sent to the OGA
+    </#if>
+  </p>
 
   <h2 class="govuk-heading-m">What happens next</h2>
 
   <p class="govuk-body">
-    Your application has been sent for review.
+    <#if submissionSummary.isFirstVersion>
+      Your application has been sent for review.
+    <#else>
+      Your application remains under review.
+    </#if>
   </p>
 
-  <p class="govuk-body">
-    Any new pipelines with temporary references have been assigned pipeline numbers.
-  </p>
+  <#if submissionSummary.isFirstVersion>
+    <p class="govuk-body">
+      Any new pipelines with temporary references have been assigned pipeline numbers.
+    </p>
+  </#if>
 
   <@fdsAction.link linkClass="govuk-link govuk-!-font-size-19" linkText="Go back to work area" linkUrl="${springUrl(workAreaUrl)}"/>
 
