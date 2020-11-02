@@ -61,12 +61,18 @@ public class ProjectInformationValidator implements SmartValidator {
     }
 
     if (requiredQuestions.contains(ProjectInformationQuestion.METHOD_OF_PIPELINE_DEPLOYMENT)) {
-      ValidationUtils.rejectIfEmptyOrWhitespace(errors, "methodOfPipelineDeployment",
-          "methodOfPipelineDeployment" + FieldValidationErrorCodes.REQUIRED.getCode(),
-          "Enter the pipeline installation method");
-      ValidatorUtils.validateDefaultStringLength(
-          errors, "methodOfPipelineDeployment", form::getMethodOfPipelineDeployment,
-          "Pipeline installation method must be 4000 characters or fewer");
+
+      if (!ProjectInformationQuestion.METHOD_OF_PIPELINE_DEPLOYMENT.isOptionalForType(projectInfoValidationHints.getPwaApplicationType())) {
+        ValidationUtils.rejectIfEmptyOrWhitespace(errors, "methodOfPipelineDeployment",
+            "methodOfPipelineDeployment" + FieldValidationErrorCodes.REQUIRED.getCode(),
+            "Enter the pipeline installation method");
+      }
+
+      if (form.getMethodOfPipelineDeployment() != null) {
+        ValidatorUtils.validateDefaultStringLength(
+            errors, "methodOfPipelineDeployment", form::getMethodOfPipelineDeployment,
+            "Pipeline installation method must be 4000 characters or fewer");
+      }
     }
 
 

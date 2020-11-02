@@ -17,6 +17,7 @@ import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.config.fileupload.FileDeleteResult;
 import uk.co.ogauthority.pwa.config.fileupload.FileUploadResult;
 import uk.co.ogauthority.pwa.controller.files.PwaApplicationDetailDataFileUploadAndDownloadController;
+import uk.co.ogauthority.pwa.model.entity.enums.ProjectInformationQuestion;
 import uk.co.ogauthority.pwa.model.entity.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.ProjectInformationForm;
@@ -118,7 +119,9 @@ public class ProjectInformationController extends PwaApplicationDetailDataFileUp
     modelAndView.addObject("permanentDepositsMadeOptions", PermanentDepositRadioOption.asList())
             .addObject("isFdpQuestionRequiredBasedOnField", padProjectInformationService.isFdpQuestionRequired(pwaApplicationDetail))
             .addObject("requiredQuestions", padProjectInformationService.getRequiredQuestions(
-                pwaApplicationDetail.getPwaApplicationType()));
+                pwaApplicationDetail.getPwaApplicationType()))
+            .addObject("isPipelineDeploymentQuestionOptional",
+                ProjectInformationQuestion.METHOD_OF_PIPELINE_DEPLOYMENT.isOptionalForType(pwaApplicationDetail.getPwaApplicationType()));
 
     applicationBreadcrumbService.fromTaskList(pwaApplicationDetail.getPwaApplication(), modelAndView,
         "Project information");
