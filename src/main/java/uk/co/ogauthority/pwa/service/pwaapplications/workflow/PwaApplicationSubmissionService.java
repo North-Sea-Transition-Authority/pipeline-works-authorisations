@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
+import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationSubmitResult;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.PwaApplicationDataCleanupService;
 import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
@@ -57,13 +58,9 @@ public class PwaApplicationSubmissionService {
 
     pwaApplicationDataCleanupService.cleanupData(detail);
 
-    submissionService.getSubmissionWorkflowResult()
-        .ifPresent(pwaApplicationSubmitResult ->
-            camundaWorkflowService.setWorkflowProperty(
-                detail.getPwaApplication(),
-                pwaApplicationSubmitResult
-            )
-        );
+    submissionService.getSubmissionWorkflowResult().ifPresent(
+        pwaApplicationSubmitResult -> setWorkFlowProperty(detail, pwaApplicationSubmitResult)
+    );
 
     camundaWorkflowService.completeTask(
         new WorkflowTaskInstance(detail.getPwaApplication(), submissionService.getTaskToComplete())
@@ -74,6 +71,14 @@ public class PwaApplicationSubmissionService {
 
     submissionService.doAfterSubmit(detail);
 
+  }
+
+  // this is a workaround to avoid crap checkstyle false positive build failures.
+  private void setWorkFlowProperty(PwaApplicationDetail detail, PwaApplicationSubmitResult pwaApplicationSubmitResult) {
+    camundaWorkflowService.setWorkflowProperty(
+        detail.getPwaApplication(),
+        pwaApplicationSubmitResult
+    );
   }
 
 }
