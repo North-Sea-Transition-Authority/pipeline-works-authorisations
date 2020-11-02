@@ -101,9 +101,9 @@ public class PermanentDepositEntityMappingServiceTest {
   //Unique Properties
   public void setEntityConcreteProperties(PadPermanentDeposit entity){
     entity.setMaterialType(MaterialType.CONCRETE_MATTRESSES);
-    entity.setConcreteMattressLength(13);
-    entity.setConcreteMattressWidth(22);
-    entity.setConcreteMattressDepth(32);
+    entity.setConcreteMattressLength(BigDecimal.valueOf(13));
+    entity.setConcreteMattressWidth(BigDecimal.valueOf(22));
+    entity.setConcreteMattressDepth(BigDecimal.valueOf(32));
   }
 
   public void setEntityGroutBagProperties(PadPermanentDeposit entity){

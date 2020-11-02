@@ -32,7 +32,13 @@ import uk.co.ogauthority.pwa.util.forminputs.twofielddate.TwoFieldDateInput;
 import uk.co.ogauthority.pwa.util.forminputs.twofielddate.TwoFieldDateInputValidator;
 
 @RunWith(MockitoJUnitRunner.class)
-public class PermanentDepositValidatorTest {
+public class PermanentDepositsValidatorTest {
+
+
+  private final String CONCRETE_MATTRESS_LENGTH_ATTR = "concreteMattressLength";
+  private final String CONCRETE_MATTRESS_WIDTH_ATTR = "concreteMattressWidth";
+  private final String CONCRETE_MATTRESS_DEPTH_ATTR = "concreteMattressDepth";
+
 
   private PermanentDepositsValidator validator;
   @Mock
@@ -67,6 +73,16 @@ public class PermanentDepositValidatorTest {
     validator.validate(form, errors, service, new PwaApplicationDetail());
     return errors.getFieldErrors().stream()
         .collect(Collectors.groupingBy(FieldError::getField, Collectors.mapping(FieldError::getCode, Collectors.toSet())));
+  }
+
+  @Test
+  public void supports_whenSupported() {
+    assertThat(validator.supports(PermanentDepositsForm.class)).isTrue();
+  }
+
+  @Test
+  public void supports_whenNotSupported() {
+    assertThat(validator.supports(Object.class)).isFalse();
   }
 
   @Test
@@ -170,13 +186,58 @@ public class PermanentDepositValidatorTest {
 
 
   @Test
-  public void validate_concrete_noSizeData() {
+  public void validate_whenConcreteMattress_andNullData() {
     var form = getPermanentDepositsFormWithCoordinates();
     form.setMaterialType(MaterialType.CONCRETE_MATTRESSES);
-    Map<String, Set<String>> errorsMap = getErrorMap(form);
-    assertThat(errorsMap).contains(entry("concreteMattressLength", Set.of("concreteMattressLength.invalid")),
-        entry("concreteMattressWidth", Set.of("concreteMattressWidth.invalid")),
-        entry("concreteMattressDepth", Set.of("concreteMattressDepth.invalid")));
+    var errors = ValidatorTestUtils.getFormValidationErrors(validator, form);
+
+    assertThat(errors).contains(
+        entry(CONCRETE_MATTRESS_LENGTH_ATTR,
+            Set.of(FieldValidationErrorCodes.REQUIRED.errorCode(CONCRETE_MATTRESS_LENGTH_ATTR))),
+        entry(CONCRETE_MATTRESS_WIDTH_ATTR,
+            Set.of(FieldValidationErrorCodes.REQUIRED.errorCode(CONCRETE_MATTRESS_WIDTH_ATTR))),
+        entry(CONCRETE_MATTRESS_DEPTH_ATTR,
+            Set.of(FieldValidationErrorCodes.REQUIRED.errorCode(CONCRETE_MATTRESS_DEPTH_ATTR)))
+    );
+
+  }
+
+  @Test
+  public void validate_whenConcreteMattress_andValidData() {
+
+    var form = getPermanentDepositsFormWithCoordinates();
+    form.setMaterialType(MaterialType.CONCRETE_MATTRESSES);
+    form.setConcreteMattressLength(BigDecimal.ONE);
+    form.setConcreteMattressWidth(BigDecimal.TEN);
+    form.setConcreteMattressDepth(BigDecimal.TEN);
+    var errors = ValidatorTestUtils.getFormValidationErrors(validator, form);
+
+    assertThat(errors).doesNotContainKeys(
+        CONCRETE_MATTRESS_LENGTH_ATTR,
+        CONCRETE_MATTRESS_WIDTH_ATTR,
+        CONCRETE_MATTRESS_DEPTH_ATTR
+    );
+
+  }
+
+  @Test
+  public void validate_whenConcreteMattress_andMaxDpExceeded() {
+    var form = getPermanentDepositsFormWithCoordinates();
+    form.setMaterialType(MaterialType.CONCRETE_MATTRESSES);
+    form.setConcreteMattressLength(BigDecimal.valueOf(1.111));
+    form.setConcreteMattressWidth(BigDecimal.valueOf(1.111));
+    form.setConcreteMattressDepth(BigDecimal.valueOf(1.111));
+    var errors = ValidatorTestUtils.getFormValidationErrors(validator, form);
+
+    assertThat(errors).contains(
+        entry(CONCRETE_MATTRESS_LENGTH_ATTR,
+            Set.of(FieldValidationErrorCodes.MAX_DP_EXCEEDED.errorCode(CONCRETE_MATTRESS_LENGTH_ATTR))),
+        entry(CONCRETE_MATTRESS_WIDTH_ATTR,
+            Set.of(FieldValidationErrorCodes.MAX_DP_EXCEEDED.errorCode(CONCRETE_MATTRESS_WIDTH_ATTR))),
+        entry(CONCRETE_MATTRESS_DEPTH_ATTR,
+            Set.of(FieldValidationErrorCodes.MAX_DP_EXCEEDED.errorCode(CONCRETE_MATTRESS_DEPTH_ATTR)))
+    );
+
   }
 
   @Test

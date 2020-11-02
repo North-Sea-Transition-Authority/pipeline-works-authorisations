@@ -46,9 +46,9 @@ public class PadPermanentDeposit implements ChildEntity<Integer, PwaApplicationD
   private MaterialType materialType;
   private String otherMaterialType;
   private String materialSize;
-  private Integer concreteMattressLength;
-  private Integer concreteMattressWidth;
-  private Integer concreteMattressDepth;
+  private BigDecimal concreteMattressLength;
+  private BigDecimal concreteMattressWidth;
+  private BigDecimal concreteMattressDepth;
 
   private Boolean groutBagsBioDegradable;
   private String bagsNotUsedDescription;
@@ -220,27 +220,27 @@ public class PadPermanentDeposit implements ChildEntity<Integer, PwaApplicationD
     this.materialSize = materialSize;
   }
 
-  public Integer getConcreteMattressLength() {
+  public BigDecimal getConcreteMattressLength() {
     return concreteMattressLength;
   }
 
-  public void setConcreteMattressLength(Integer concreteMattressLength) {
+  public void setConcreteMattressLength(BigDecimal concreteMattressLength) {
     this.concreteMattressLength = concreteMattressLength;
   }
 
-  public Integer getConcreteMattressWidth() {
+  public BigDecimal getConcreteMattressWidth() {
     return concreteMattressWidth;
   }
 
-  public void setConcreteMattressWidth(Integer concreteMattressWidth) {
+  public void setConcreteMattressWidth(BigDecimal concreteMattressWidth) {
     this.concreteMattressWidth = concreteMattressWidth;
   }
 
-  public Integer getConcreteMattressDepth() {
+  public BigDecimal getConcreteMattressDepth() {
     return concreteMattressDepth;
   }
 
-  public void setConcreteMattressDepth(Integer concreteMattressDepth) {
+  public void setConcreteMattressDepth(BigDecimal concreteMattressDepth) {
     this.concreteMattressDepth = concreteMattressDepth;
   }
 
