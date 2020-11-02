@@ -8,12 +8,12 @@ import org.apache.commons.lang3.RandomUtils;
 import org.junit.platform.commons.util.StringUtils;
 import uk.co.ogauthority.pwa.model.entity.enums.permanentdeposits.MaterialType;
 import uk.co.ogauthority.pwa.model.entity.files.PadFile;
+import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdepositdrawings.PadDepositDrawing;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdepositdrawings.PadDepositDrawingLink;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdepositdrawings.PadDepositDrawingLink_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdepositdrawings.PadDepositDrawing_;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.model.location.CoordinatePair;
 import uk.co.ogauthority.pwa.model.location.CoordinatePairTestUtil;
 import uk.co.ogauthority.pwa.testutils.ObjectTestUtils;
@@ -52,7 +52,10 @@ public final class PadPermanentDepositTestUtil {
   public static PadPermanentDeposit createPadDepositWithAllFieldsPopulated(PwaApplicationDetail pwaApplicationDetail) {
     var pd = createConcreteMattressPadDeposit(
         null,
+        true,
         "REFERENCE",
+        true,
+        "ref",
         pwaApplicationDetail,
         1,
         2,
@@ -108,7 +111,10 @@ public final class PadPermanentDepositTestUtil {
 
   public static PadPermanentDeposit createConcreteMattressPadDeposit(
       Integer entityId,
+      Boolean depositForConsentedPipeline,
       String reference,
+      Boolean depositIsForPipelinesOnOtherApp,
+      String appRefAndPipelineNum,
       PwaApplicationDetail pwaApplicationDetail,
       double length, double width, double depth,
       double quantity,
@@ -119,7 +125,10 @@ public final class PadPermanentDepositTestUtil {
       CoordinatePair toCoordPair
   ) {
     var pd = new PadPermanentDeposit();
+    pd.setDepositForConsentedPipeline(depositForConsentedPipeline);
     pd.setReference(reference);
+    pd.setDepositIsForPipelinesOnOtherApp(depositIsForPipelinesOnOtherApp);
+    pd.setAppRefAndPipelineNum(appRefAndPipelineNum);
     pd.setId(entityId);
     pd.setPwaApplicationDetail(pwaApplicationDetail);
     pd.setMaterialType(MaterialType.CONCRETE_MATTRESSES);
@@ -201,8 +210,8 @@ public final class PadPermanentDepositTestUtil {
   }
 
   public static PadDepositPipeline createDepositPipeline(PadPermanentDeposit padPermanentDeposit,
-                                                         PadPipeline padPipeline) {
-    var pdp = new PadDepositPipeline(padPermanentDeposit, padPipeline);
+                                                         Pipeline pipeline) {
+    var pdp = new PadDepositPipeline(padPermanentDeposit, pipeline);
     return pdp;
   }
 

@@ -94,10 +94,10 @@ public class PermanentDepositSummaryServiceTest {
   private PermanentDepositOverview getOverview(int id, String reference, String type) {
 
     return new PermanentDepositOverview(id,
-        MaterialType.OTHER,
+        true, MaterialType.OTHER,
         reference,
         List.of("PL1", "PL2"),
-        "FROM DATE",
+        true, "refs and plnum", "FROM DATE",
         "TO_DATE",
         new StringWithTag(type, Tag.NOT_FROM_PORTAL),
         "1",

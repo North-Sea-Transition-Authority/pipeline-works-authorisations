@@ -31,7 +31,11 @@ public class PadPermanentDeposit implements ChildEntity<Integer, PwaApplicationD
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Integer id;
+  private Boolean depositForConsentedPipeline;
   private String reference;
+  @Column(name = "dep_for_other_app_pipelines")
+  private Boolean depositIsForPipelinesOnOtherApp;
+  private String appRefAndPipelineNum;
 
   @JoinColumn(name = "application_detail_id")
   @OneToOne
@@ -422,6 +426,30 @@ public class PadPermanentDeposit implements ChildEntity<Integer, PwaApplicationD
     updateToCoordinateValues();
   }
 
+  public Boolean getDepositForConsentedPipeline() {
+    return depositForConsentedPipeline;
+  }
+
+  public void setDepositForConsentedPipeline(Boolean depositForConsentedPipeline) {
+    this.depositForConsentedPipeline = depositForConsentedPipeline;
+  }
+
+  public Boolean getDepositIsForPipelinesOnOtherApp() {
+    return depositIsForPipelinesOnOtherApp;
+  }
+
+  public void setDepositIsForPipelinesOnOtherApp(Boolean depositIsForPipelinesOnOtherApp) {
+    this.depositIsForPipelinesOnOtherApp = depositIsForPipelinesOnOtherApp;
+  }
+
+  public String getAppRefAndPipelineNum() {
+    return appRefAndPipelineNum;
+  }
+
+  public void setAppRefAndPipelineNum(String appRefAndPipelineNum) {
+    this.appRefAndPipelineNum = appRefAndPipelineNum;
+  }
+
   @Override
   public Integer getFromLatDeg() {
     return this.fromLatitudeDegrees;
@@ -543,7 +571,10 @@ public class PadPermanentDeposit implements ChildEntity<Integer, PwaApplicationD
     PadPermanentDeposit that = (PadPermanentDeposit) o;
     return Double.compare(that.quantity, quantity) == 0
         && Objects.equals(id, that.id)
+        && Objects.equals(depositForConsentedPipeline, that.depositForConsentedPipeline)
         && Objects.equals(reference, that.reference)
+        && Objects.equals(depositIsForPipelinesOnOtherApp, that.depositIsForPipelinesOnOtherApp)
+        && Objects.equals(appRefAndPipelineNum, that.appRefAndPipelineNum)
         && Objects.equals(pwaApplicationDetail, that.pwaApplicationDetail)
         && Objects.equals(fromMonth, that.fromMonth)
         && Objects.equals(fromYear, that.fromYear)
@@ -580,11 +611,12 @@ public class PadPermanentDeposit implements ChildEntity<Integer, PwaApplicationD
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, reference, pwaApplicationDetail, fromMonth, fromYear, toMonth,
-        toYear, materialType, otherMaterialType, materialSize, concreteMattressLength,
-        concreteMattressWidth, concreteMattressDepth, groutBagsBioDegradable, bagsNotUsedDescription, quantity,
-        contingencyAmount, fromCoordinates, toCoordinates, fromLatitudeDegrees, fromLatitudeMinutes, fromLatitudeSeconds,
-        fromLatitudeDirection, fromLongitudeDegrees, fromLongitudeMinutes, fromLongitudeSeconds, fromLongitudeDirection, toLatitudeDegrees,
+    return Objects.hash(id, depositForConsentedPipeline, reference, depositIsForPipelinesOnOtherApp, appRefAndPipelineNum,
+        pwaApplicationDetail, fromMonth, fromYear, toMonth, toYear, materialType, otherMaterialType,
+        materialSize, concreteMattressLength, concreteMattressWidth, concreteMattressDepth, groutBagsBioDegradable,
+        bagsNotUsedDescription, quantity, contingencyAmount, fromCoordinates, toCoordinates,
+        fromLatitudeDegrees, fromLatitudeMinutes, fromLatitudeSeconds, fromLatitudeDirection, fromLongitudeDegrees,
+        fromLongitudeMinutes, fromLongitudeSeconds, fromLongitudeDirection, toLatitudeDegrees,
         toLatitudeMinutes, toLatitudeSeconds, toLatitudeDirection, toLongitudeDegrees,
         toLongitudeMinutes, toLongitudeSeconds, toLongitudeDirection);
   }

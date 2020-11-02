@@ -2,18 +2,18 @@ package uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits;
 
 import java.text.DecimalFormat;
 import java.util.Comparator;
+import java.util.Map;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.entity.enums.measurements.UnitMeasurement;
 import uk.co.ogauthority.pwa.model.entity.enums.permanentdeposits.MaterialType;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PadDepositPipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PadPermanentDeposit;
 import uk.co.ogauthority.pwa.model.form.location.CoordinateForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.PermanentDepositsForm;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.views.NamedPipeline;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.views.NamedPipelineDto;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PermanentDepositOverview;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview;
 import uk.co.ogauthority.pwa.model.view.StringWithTag;
 import uk.co.ogauthority.pwa.model.view.Tag;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadDepositPipelineRepository;
@@ -42,7 +42,10 @@ public class PermanentDepositEntityMappingService {
   void mapDepositInformationDataToForm(PadPermanentDeposit entity, PermanentDepositsForm form) {
 
     form.setEntityID(entity.getId());
+    form.setDepositIsForConsentedPipeline(entity.getDepositForConsentedPipeline());
     form.setDepositReference(entity.getReference());
+    form.setDepositIsForPipelinesOnOtherApp(entity.getDepositIsForPipelinesOnOtherApp());
+    form.setAppRefAndPipelineNum(entity.getAppRefAndPipelineNum());
     form.setFromDate(new TwoFieldDateInput(entity.getFromYear(), entity.getFromMonth()));
     form.setToDate(new TwoFieldDateInput(entity.getToYear(), entity.getToMonth()));
 
@@ -91,7 +94,10 @@ public class PermanentDepositEntityMappingService {
   void setEntityValuesUsingForm(PadPermanentDeposit entity, PermanentDepositsForm form) {
 
     entity.setId(form.getEntityID());
+    entity.setDepositForConsentedPipeline(form.getDepositIsForConsentedPipeline());
     entity.setReference(form.getDepositReference());
+    entity.setDepositIsForPipelinesOnOtherApp(form.getDepositIsForPipelinesOnOtherApp());
+    entity.setAppRefAndPipelineNum(form.getAppRefAndPipelineNum());
     entity.setFromMonth(Integer.parseInt(form.getFromDate().getMonth()));
     entity.setFromYear(Integer.parseInt(form.getFromDate().getYear()));
     entity.setToMonth(Integer.parseInt(form.getToDate().getMonth()));
@@ -133,21 +139,23 @@ public class PermanentDepositEntityMappingService {
   /**
    * Map Permanent Deposits stored data to view object.
    */
-  PermanentDepositOverview createPermanentDepositOverview(PadPermanentDeposit entity) {
+  PermanentDepositOverview createPermanentDepositOverview(
+      PadPermanentDeposit entity, Map<PipelineId, PipelineOverview> pipelineIdAndOverviewMap) {
 
-    var sortedLinkedPipelineNames = padDepositPipelineRepository.findAllByPadPermanentDeposit(entity)
-        .stream()
-        .map(PadDepositPipeline::getPadPipeline)
-        .map(NamedPipelineDto::fromPadPipeline)
-        .map(NamedPipeline::getPipelineName)
+    var sortedLinkedPipelineNames = pipelineIdAndOverviewMap.entrySet().stream()
+        .map(entry -> entry.getValue().getPipelineName())
         .sorted(Comparator.comparing(String::toLowerCase))
         .collect(Collectors.toList());
 
+
     return new PermanentDepositOverview(
         entity.getId(),
+        entity.getDepositForConsentedPipeline(),
         entity.getMaterialType(),
         entity.getReference(),
         sortedLinkedPipelineNames,
+        entity.getDepositIsForPipelinesOnOtherApp(),
+        entity.getAppRefAndPipelineNum(),
         DateUtils.createDateEstimateString(entity.getFromMonth(), entity.getFromYear()),
         DateUtils.createDateEstimateString(entity.getToMonth(), entity.getToYear()),
         entity.getMaterialType().equals(MaterialType.OTHER)

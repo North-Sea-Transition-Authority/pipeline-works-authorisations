@@ -18,6 +18,7 @@ import uk.co.ogauthority.pwa.model.entity.enums.permanentdeposits.MaterialType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.enums.ValueRequirement;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.PermanentDepositsForm;
+import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.service.location.CoordinateFormValidator;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits.PermanentDepositService;
 import uk.co.ogauthority.pwa.util.PwaNumberUtils;
@@ -57,8 +58,31 @@ public class PermanentDepositsValidator implements SmartValidator {
   public void validate(Object o, Errors errors, Object... validationHints) {
     var form = (PermanentDepositsForm) o;
 
-    ValidationUtils.rejectIfEmptyOrWhitespace(errors, "selectedPipelines", "selectedPipelines.required",
-        "Select at least one pipeline");
+    if (BooleanUtils.isFalse(form.getDepositIsForConsentedPipeline()) && BooleanUtils.isFalse(form.getDepositIsForPipelinesOnOtherApp())) {
+      errors.rejectValue("depositIsForConsentedPipeline", "depositIsForConsentedPipeline" + FieldValidationErrorCodes.INVALID.getCode(),
+          "Select 'Yes' to one or both of the pipeline linking questions.");
+      errors.rejectValue("depositIsForPipelinesOnOtherApp", "depositIsForPipelinesOnOtherApp" + FieldValidationErrorCodes.INVALID.getCode(),
+          "Select 'Yes' to one or both of the pipeline linking questions.");
+    }
+
+    ValidationUtils.rejectIfEmptyOrWhitespace(errors, "depositIsForConsentedPipeline",
+        "depositIsForConsentedPipeline" + FieldValidationErrorCodes.REQUIRED.getCode(),
+        "Select 'Yes' if deposit is for a consented pipeline or a pipeline that is on this application");
+
+    ValidationUtils.rejectIfEmptyOrWhitespace(errors, "depositIsForPipelinesOnOtherApp",
+        "depositIsForPipelinesOnOtherApp" + FieldValidationErrorCodes.REQUIRED.getCode(),
+        "Select 'Yes' if deposit is for proposed pipelines on other applications that haven’t been consented");
+
+    if (BooleanUtils.isTrue(form.getDepositIsForConsentedPipeline())) {
+      ValidationUtils.rejectIfEmptyOrWhitespace(errors, "selectedPipelines", "selectedPipelines.required",
+          "Select at least one pipeline");
+    }
+    if (BooleanUtils.isTrue(form.getDepositIsForPipelinesOnOtherApp())) {
+      ValidationUtils.rejectIfEmptyOrWhitespace(errors, "appRefAndPipelineNum",
+          "appRefAndPipelineNum" + FieldValidationErrorCodes.REQUIRED.getCode(),
+          "You must enter the application reference and proposed pipeline number for each pipeline");
+    }
+
 
     ValidationUtils.rejectIfEmptyOrWhitespace(errors, "depositReference", "depositReference.required",
         "You must enter a deposit reference");

@@ -30,6 +30,7 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.permanentdeposits
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.entity.enums.permanentdeposits.MaterialType;
+import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadProjectInformation;
@@ -49,7 +50,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
 import uk.co.ogauthority.pwa.service.location.CoordinateFormValidator;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.appdetailreconciliation.PadPipelineReconcilerService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.viewfactories.PipelineAndIdentViewFactory;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 import uk.co.ogauthority.pwa.validators.PermanentDepositsValidator;
@@ -87,7 +88,7 @@ public class PermanentDepositsServiceTest {
   private EntityCopyingService entityCopyingService;
 
   @Mock
-  private PadPipelineReconcilerService padPipelineReconcilerService;
+  private PipelineAndIdentViewFactory pipelineAndIdentViewFactory;
 
   @Mock
   private PadFileService padFileService;
@@ -117,7 +118,7 @@ public class PermanentDepositsServiceTest {
         padDepositPipelineRepository,
         padProjectInformationRepository,
         entityCopyingService,
-        padPipelineReconcilerService,
+        pipelineAndIdentViewFactory,
         padFileService);
 
     date = LocalDate.now();
@@ -133,13 +134,6 @@ public class PermanentDepositsServiceTest {
     pwaApplicationDetail.setId(1);
     padPermanentDeposit.setPwaApplicationDetail(pwaApplicationDetail);
     when(permanentDepositInformationRepository.save(padPermanentDeposit)).thenReturn(padPermanentDeposit);
-
-    var padPipeLine = new PadPipeline();
-    padPipeLine.setId(1);
-    when(padPipelineRepository.findById(1)).thenReturn(Optional.of(padPipeLine));
-    padPipeLine = new PadPipeline();
-    padPipeLine.setId(2);
-    when(padPipelineRepository.findById(2)).thenReturn(Optional.of(padPipeLine));
 
     service.saveEntityUsingForm(pwaApplicationDetail, form, user);
     verify(permanentDepositEntityMappingService, times(1)).setEntityValuesUsingForm(padPermanentDeposit, form);
@@ -241,14 +235,14 @@ public class PermanentDepositsServiceTest {
     when(permanentDepositInformationRepository.findByPwaApplicationDetailOrderByReferenceAsc(pwaApplicationDetail))
         .thenReturn(List.of(permDeposit));
     assertThat(service.getPermanentDepositViews(pwaApplicationDetail)).isNotNull();
-    verify(permanentDepositEntityMappingService, times(1)).createPermanentDepositOverview(permDeposit);
+    verify(permanentDepositEntityMappingService, times(1)).createPermanentDepositOverview(permDeposit, new HashMap<>());
   }
 
   @Test
   public void createViewFromEntity_serviceInteractions(){
     var deposit = getPadPermanentDeposit();
     service.createViewFromEntity(getPadPermanentDeposit());
-    verify(permanentDepositEntityMappingService, times(1)).createPermanentDepositOverview(deposit);
+    verify(permanentDepositEntityMappingService, times(1)).createPermanentDepositOverview(deposit, new HashMap<>());
   }
 
 
@@ -357,7 +351,12 @@ public class PermanentDepositsServiceTest {
     other.setMaterialType(MaterialType.OTHER);
     setAllMaterialData(other);
 
-    when(permanentDepositInformationRepository.findByPwaApplicationDetailOrderByReferenceAsc(pwaApplicationDetail)).thenReturn(List.of(mattress, rock, grout, other));
+    var depositWithPipelines = new PadPermanentDeposit();
+    var depositPipelineLinks = List.of(new PadDepositPipeline());
+    when(padDepositPipelineRepository.findAllByPadPermanentDeposit(depositWithPipelines)).thenReturn(depositPipelineLinks);
+
+    when(permanentDepositInformationRepository.findByPwaApplicationDetailOrderByReferenceAsc(pwaApplicationDetail)).thenReturn(List.of(mattress, rock, grout, other, depositWithPipelines));
+
 
     service.cleanupData(pwaApplicationDetail);
 
@@ -401,46 +400,75 @@ public class PermanentDepositsServiceTest {
     assertThat(other.getConcreteMattressWidth()).isNull();
     assertThat(other.getConcreteMattressLength()).isNull();
 
-    verify(permanentDepositInformationRepository, times(1)).saveAll(eq(List.of(mattress, rock, grout, other)));
+    verify(permanentDepositInformationRepository, times(1)).saveAll(eq(List.of(mattress, rock, grout, other, depositWithPipelines)));
+    verify(padDepositPipelineRepository, times(1)).deleteAll(depositPipelineLinks);
 
   }
 
-  @Test
-  public void removePipelineFromDeposits_serviceInteraction() {
-    var depositPipeline = new PadDepositPipeline();
-    var padPipeline = new PadPipeline();
-    when(padDepositPipelineRepository.getAllByPadPipeline(padPipeline))
-        .thenReturn(List.of(depositPipeline));
-    service.removePadPipelineDepositLinks(padPipeline);
-    verify(padDepositPipelineRepository, times(1)).deleteAll(List.of(depositPipeline));
-  }
 
   @Test
-  public void removePadPipelineFromDeposits_serviceInteraction_noLinks() {
+  public void removePadPipelineFromDeposits_removeOnlyLinks() {
+
+    var pipeline = new Pipeline();
     var padPipeline = new PadPipeline(pwaApplicationDetail);
-    when(permanentDepositInformationRepository.getAllByPwaApplicationDetail(pwaApplicationDetail))
-        .thenReturn(List.of(padPermanentDeposit));
-    when(padDepositPipelineRepository.getAllByPadPipeline_PwaApplicationDetail(pwaApplicationDetail))
-        .thenReturn(List.of());
+    padPipeline.setPipeline(pipeline);
+
+    var deposit1 = new PadPermanentDeposit();
+    var depositPipelineLink1 = new PadDepositPipeline();
+    depositPipelineLink1.setPadPermanentDeposit(deposit1);
+
+    var deposit2 = new PadPermanentDeposit();
+    var depositPipelineLink2 = new PadDepositPipeline();
+    depositPipelineLink2.setPadPermanentDeposit(deposit2);
+
+    when(padDepositPipelineRepository.getAllByPadPermanentDeposit_PwaApplicationDetailAndPipeline(
+        pwaApplicationDetail, padPipeline.getPipeline())).thenReturn(List.of(depositPipelineLink1, depositPipelineLink2));
+
+    when(padDepositPipelineRepository.countAllByPadPermanentDeposit(deposit1)).thenReturn(3L);
+    when(padDepositPipelineRepository.countAllByPadPermanentDeposit(deposit2)).thenReturn(3L);
+
     service.removePadPipelineFromDeposits(padPipeline);
-    verify(permanentDepositInformationRepository, times(1)).deleteAll(List.of(padPermanentDeposit));
-    verify(depositDrawingsService, times(1)).removeDepositsFromDrawings(List.of(padPermanentDeposit));
+
+    verify(padDepositPipelineRepository, times(1)).deleteAll(
+        List.of(depositPipelineLink1, depositPipelineLink2));
+
+    verifyNoInteractions(permanentDepositInformationRepository);
+    verifyNoInteractions(depositDrawingsService);
   }
 
   @Test
-  public void removePadPipelineFromDeposits_serviceInteraction_remainingLinks() {
+  public void removePadPipelineFromDeposits_removeLinksAndDeposits() {
+
+    var pipeline = new Pipeline();
     var padPipeline = new PadPipeline(pwaApplicationDetail);
-    var depositPipeline = new PadDepositPipeline();
-    depositPipeline.setPadPermanentDeposit(padPermanentDeposit);
-    padPermanentDeposit.setId(1);
-    when(permanentDepositInformationRepository.getAllByPwaApplicationDetail(pwaApplicationDetail))
-        .thenReturn(List.of(padPermanentDeposit));
-    when(padDepositPipelineRepository.getAllByPadPipeline_PwaApplicationDetail(pwaApplicationDetail))
-        .thenReturn(List.of(depositPipeline));
+    padPipeline.setPipeline(pipeline);
+
+    var deposit1 = new PadPermanentDeposit();
+    deposit1.setDepositIsForPipelinesOnOtherApp(false);
+    var depositPipelineLink1 = new PadDepositPipeline();
+    depositPipelineLink1.setPadPermanentDeposit(deposit1);
+
+    var deposit2 = new PadPermanentDeposit();
+    deposit2.setDepositIsForPipelinesOnOtherApp(true);
+    var depositPipelineLink2 = new PadDepositPipeline();
+    depositPipelineLink2.setPadPermanentDeposit(deposit2);
+
+    when(padDepositPipelineRepository.getAllByPadPermanentDeposit_PwaApplicationDetailAndPipeline(
+        pwaApplicationDetail, padPipeline.getPipeline())).thenReturn(List.of(depositPipelineLink1, depositPipelineLink2));
+
+    when(padDepositPipelineRepository.countAllByPadPermanentDeposit(deposit1)).thenReturn(1L);
+    when(padDepositPipelineRepository.countAllByPadPermanentDeposit(deposit2)).thenReturn(1L);
+
     service.removePadPipelineFromDeposits(padPipeline);
-    verify(permanentDepositInformationRepository, never()).deleteAll(any());
-    verify(depositDrawingsService, never()).removeDepositsFromDrawings(any());
+
+    verify(padDepositPipelineRepository, times(1)).deleteAll(
+        List.of(depositPipelineLink1, depositPipelineLink2));
+    verify(permanentDepositInformationRepository, times(1)).deleteAll(
+        List.of(deposit1));
+    verify(depositDrawingsService, times(1)).removeDepositsFromDrawings(
+        List.of(deposit1));
   }
+
 
   private void setAllMaterialData(PadPermanentDeposit deposit) {
     deposit.setMaterialSize("1");

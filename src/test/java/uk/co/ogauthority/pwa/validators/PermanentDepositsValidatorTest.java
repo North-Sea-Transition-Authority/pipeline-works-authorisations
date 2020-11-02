@@ -76,6 +76,47 @@ public class PermanentDepositsValidatorTest {
   }
 
   @Test
+  public void validate_consentedPipelinesAndOtherAppQuestionsBothAnsweredNo() {
+    var form = getPermanentDepositsFormWithMaterialType();
+    form.setDepositIsForConsentedPipeline(false);
+    form.setDepositIsForPipelinesOnOtherApp(false);
+    Map<String, Set<String>> errorsMap = getErrorMap(form);
+    assertThat(errorsMap).contains(
+        entry("depositIsForConsentedPipeline", Set.of("depositIsForConsentedPipeline" + FieldValidationErrorCodes.INVALID.getCode())),
+        entry("depositIsForPipelinesOnOtherApp", Set.of("depositIsForPipelinesOnOtherApp" + FieldValidationErrorCodes.INVALID.getCode())));
+  }
+
+  @Test
+  public void validate_consentedPipelinesNull() {
+    var form = getPermanentDepositsFormWithMaterialType();
+    Map<String, Set<String>> errorsMap = getErrorMap(form);
+    assertThat(errorsMap).contains(entry("depositIsForConsentedPipeline", Set.of("depositIsForConsentedPipeline" + FieldValidationErrorCodes.REQUIRED.getCode())));
+  }
+
+  @Test
+  public void validate_otherAppQuestionNull() {
+    var form = getPermanentDepositsFormWithMaterialType();
+    Map<String, Set<String>> errorsMap = getErrorMap(form);
+    assertThat(errorsMap).contains(entry("depositIsForPipelinesOnOtherApp", Set.of("depositIsForPipelinesOnOtherApp" + FieldValidationErrorCodes.REQUIRED.getCode())));
+  }
+
+  @Test
+  public void validate_consentedPipelinesAnsweredYes_pipelinesNotProvided() {
+    var form = getPermanentDepositsFormWithMaterialType();
+    form.setDepositIsForConsentedPipeline(true);
+    Map<String, Set<String>> errorsMap = getErrorMap(form);
+    assertThat(errorsMap).contains(entry("selectedPipelines", Set.of("selectedPipelines" + FieldValidationErrorCodes.REQUIRED.getCode())));
+  }
+
+  @Test
+  public void validate_otherAppQuestionAnsweredYes_appRefAndNumNotProvided() {
+    var form = getPermanentDepositsFormWithMaterialType();
+    form.setDepositIsForPipelinesOnOtherApp(true);
+    Map<String, Set<String>> errorsMap = getErrorMap(form);
+    assertThat(errorsMap).contains(
+        entry("appRefAndPipelineNum", Set.of("appRefAndPipelineNum" + FieldValidationErrorCodes.REQUIRED.getCode())));
+  }
+
   public void supports_whenSupported() {
     assertThat(validator.supports(PermanentDepositsForm.class)).isTrue();
   }
@@ -99,7 +140,6 @@ public class PermanentDepositsValidatorTest {
     Map<String, Set<String>> errorsMap = getErrorMap(form);
     assertThat(errorsMap).contains(entry("depositReference", Set.of("depositReference" + FieldValidationErrorCodes.REQUIRED.getCode())));
   }
-
 
 
   @Test

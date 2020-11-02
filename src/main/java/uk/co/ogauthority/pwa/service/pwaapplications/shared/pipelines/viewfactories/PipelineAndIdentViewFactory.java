@@ -8,6 +8,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -133,6 +134,16 @@ public class PipelineAndIdentViewFactory {
     pipelineOverviewSummary.putAll(applicationPipelineIds);
 
     return Collections.unmodifiableMap(pipelineOverviewSummary);
+  }
+
+  public Map<PipelineId, PipelineOverview> getAllPipelineOverviewsFromAppAndMasterPwaByPipelineIds(
+      PwaApplicationDetail pwaApplicationDetail, List<PipelineId> pipelineIds) {
+
+    var pipelineOverviews = getAllPipelineOverviewsFromAppAndMasterPwa(pwaApplicationDetail);
+
+    return pipelineIds.stream()
+        .filter(pipelineId -> pipelineOverviews.get(pipelineId) != null)
+        .collect(Collectors.toMap(Function.identity(), pipelineOverviews::get));
   }
 
 
