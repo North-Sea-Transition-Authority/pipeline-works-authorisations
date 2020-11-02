@@ -7,6 +7,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
+import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -75,7 +76,10 @@ public class ProjectInformationSummaryServiceTest {
   public void summariseSection_verifyServiceInteractions() {
 
     when(padProjectInformationService.getProjectInformationView(pwaApplicationDetail)).thenReturn(
-        new ProjectInformationView(new PadProjectInformation(), false, false, false, null));
+        new ProjectInformationView(new PadProjectInformation(), false, null));
+
+    when(padProjectInformationService.getRequiredQuestions(pwaApplicationDetail.getPwaApplicationType()))
+        .thenReturn(Set.of());
 
     var appSummary = projectInformationSummaryService.summariseSection(pwaApplicationDetail, TEMPLATE);
 
@@ -83,6 +87,7 @@ public class ProjectInformationSummaryServiceTest {
     assertThat(appSummary.getTemplateModel()).containsKey("projectInfoView");
     assertThat(appSummary.getTemplateModel().get("projectInfoView") instanceof ProjectInformationView).isTrue();
     assertThat(appSummary.getTemplateModel()).contains(entry("sectionDisplayText", ApplicationTask.PROJECT_INFORMATION.getDisplayName()));
+    assertThat(appSummary.getTemplateModel()).contains(entry("requiredQuestions", Set.of()));
     assertThat(appSummary.getSidebarSectionLinks()).containsExactly(
         SidebarSectionLink.createAnchorLink(ApplicationTask.PROJECT_INFORMATION.getDisplayName(), "#projectInformation")
     );

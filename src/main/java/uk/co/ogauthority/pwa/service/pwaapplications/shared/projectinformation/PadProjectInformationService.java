@@ -88,8 +88,6 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
 
     return new ProjectInformationView(
         getPadProjectInformationData(pwaApplicationDetail),
-        getIsAnyDepositQuestionRequired(pwaApplicationDetail),
-        getIsPermanentDepositQuestionRequired(pwaApplicationDetail),
         isFdpQuestionRequired(pwaApplicationDetail),
         !layoutDiagramFileViews.isEmpty() ? layoutDiagramFileViews.get(0) : null);
   }
@@ -142,15 +140,6 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
     projectInformationValidator.validate(form, bindingResult, projectInfoValidationHints);
 
     return bindingResult;
-  }
-
-  public boolean getIsPermanentDepositQuestionRequired(PwaApplicationDetail pwaApplicationDetail) {
-    return !EnumSet.of(PwaApplicationType.DEPOSIT_CONSENT, PwaApplicationType.HUOO_VARIATION)
-        .contains(pwaApplicationDetail.getPwaApplicationType());
-  }
-
-  public boolean getIsAnyDepositQuestionRequired(PwaApplicationDetail pwaApplicationDetail) {
-    return !pwaApplicationDetail.getPwaApplicationType().equals(PwaApplicationType.HUOO_VARIATION);
   }
 
   public boolean isFdpQuestionRequired(PwaApplicationDetail pwaApplicationDetail) {
@@ -219,20 +208,20 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
       projectInformation.setCommercialAgreementTimestamp(null);
     }
 
-    var anyDepositQuestionShown = getIsAnyDepositQuestionRequired(detail);
-    var permDepositsQuestionShown = getIsPermanentDepositQuestionRequired(detail);
+    var requiredQuestions = getRequiredQuestions(detail.getPwaApplicationType());
 
-    if (anyDepositQuestionShown) {
-
-      // null out permanent deposit month and year if not "part of later application"
-      if (permDepositsQuestionShown && !projectInformation.getPermanentDepositsMade()) {
-        projectInformation.setFutureAppSubmissionMonth(null);
-        projectInformation.setFutureAppSubmissionYear(null);
-      }
-
+    if (requiredQuestions.contains(ProjectInformationQuestion.TEMPORARY_DEPOSITS_BEING_MADE)) {
       // null out temporary deposit description if temporary deposits not made
       if (!projectInformation.getTemporaryDepositsMade()) {
         projectInformation.setTemporaryDepDescription(null);
+      }
+    }
+
+    if (requiredQuestions.contains(ProjectInformationQuestion.PERMANENT_DEPOSITS_BEING_MADE)) {
+      // null out permanent deposit month and year if not "part of later application"
+      if (!projectInformation.getPermanentDepositsMade()) {
+        projectInformation.setFutureAppSubmissionMonth(null);
+        projectInformation.setFutureAppSubmissionYear(null);
       }
     }
 
