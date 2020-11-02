@@ -82,7 +82,7 @@ public class ReviewAndSubmitController {
       PwaApplicationContext applicationContext) {
 
     pwaApplicationSubmissionService.submitApplication(applicationContext.getUser(),
-        applicationContext.getApplicationDetail(), "String describing submission.");
+        applicationContext.getApplicationDetail(), null);
     return ReverseRouter.redirect(
         on(SubmitConfirmationController.class).confirmation(applicationType, applicationId, null));
 
