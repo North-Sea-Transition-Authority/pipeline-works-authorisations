@@ -58,8 +58,10 @@ public class PwaApplicationSubmissionService {
     pwaApplicationDataCleanupService.cleanupData(detail);
 
     submissionService.getSubmissionWorkflowResult()
-        .ifPresent(pwaApplicationSubmitResult ->
-            camundaWorkflowService.setWorkflowProperty(detail.getPwaApplication(), pwaApplicationSubmitResult)
+        .ifPresent(pwaApplicationSubmitResult -> camundaWorkflowService.setWorkflowProperty(
+            detail.getPwaApplication(),
+            pwaApplicationSubmitResult
+            )
         );
 
     camundaWorkflowService.completeTask(
