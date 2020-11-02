@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import uk.co.ogauthority.pwa.model.tasklist.TaskListEntry;
 import uk.co.ogauthority.pwa.model.tasklist.TaskListGroup;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingTask;
@@ -34,11 +33,7 @@ public class PwaAppProcessingTaskListService {
       if (!tasks.isEmpty()) {
 
         var entryList = tasks.stream()
-            .map(task -> new TaskListEntry(
-                task.getTaskName(),
-                task.getRoute(pwaAppProcessingContext.getApplicationDetail()),
-                false,
-                task.getDisplayOrder()))
+            .map(task -> pwaAppProcessingTaskService.getTaskListEntry(task, pwaAppProcessingContext))
             .collect(Collectors.toList());
 
         groupList.add(new TaskListGroup(

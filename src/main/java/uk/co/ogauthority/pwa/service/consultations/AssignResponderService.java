@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
+import uk.co.ogauthority.pwa.exception.WorkflowException;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupMemberRole;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
 import uk.co.ogauthority.pwa.model.form.consultation.AssignResponderForm;
@@ -23,7 +24,6 @@ import uk.co.ogauthority.pwa.service.notify.NotifyService;
 import uk.co.ogauthority.pwa.service.teammanagement.TeamManagementService;
 import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
 import uk.co.ogauthority.pwa.service.workflow.assignment.WorkflowAssignmentService;
-import uk.co.ogauthority.pwa.service.workflow.task.WorkflowTaskInstance;
 import uk.co.ogauthority.pwa.util.DateUtils;
 import uk.co.ogauthority.pwa.validators.consultations.AssignResponderValidationHints;
 import uk.co.ogauthority.pwa.validators.consultations.AssignResponderValidator;
@@ -65,23 +65,34 @@ public class AssignResponderService implements AppProcessingService {
         .collect(Collectors.toList());
   }
 
-  public void assignUserAndCompleteWorkflow(AssignResponderForm form,
-                                            ConsultationRequest consultationRequest,
-                                            WebUserAccount assigningUser) {
-
-    camundaWorkflowService.completeTask(new WorkflowTaskInstance(consultationRequest, PwaApplicationConsultationWorkflowTask.ALLOCATION));
+  public void assignResponder(AssignResponderForm form,
+                              ConsultationRequest consultationRequest,
+                              WebUserAccount assigningUser) {
 
     var responderPerson = teamManagementService.getPerson(form.getResponderPersonId());
     var assigningPerson = assigningUser.getLinkedPerson();
+
+    var workflowTask = camundaWorkflowService.getAllActiveWorkflowTasks(consultationRequest).stream()
+        .findFirst()
+        .orElseThrow(() -> new WorkflowException(
+            String.format("Couldn't find active task for consultation request with id %s", consultationRequest.getId())));
+
+    // move workflow on if assigning for first time
+    var taskType = PwaApplicationConsultationWorkflowTask.getByTaskKey(workflowTask.getTaskKey());
+    if (taskType == PwaApplicationConsultationWorkflowTask.ALLOCATION) {
+
+      camundaWorkflowService.completeTask(workflowTask);
+
+      consultationRequest.setStatus(ConsultationRequestStatus.AWAITING_RESPONSE);
+      consultationRequestService.saveConsultationRequest(consultationRequest);
+
+    }
 
     workflowAssignmentService.assign(
         consultationRequest,
         PwaApplicationConsultationWorkflowTask.RESPONSE,
         responderPerson,
         assigningPerson);
-
-    consultationRequest.setStatus(ConsultationRequestStatus.AWAITING_RESPONSE);
-    consultationRequestService.saveConsultationRequest(consultationRequest);
 
     // if user didn't assign to themselves, email the assigned responder
     if (!Objects.equals(responderPerson, assigningPerson)) {
@@ -92,27 +103,6 @@ public class AssignResponderService implements AppProcessingService {
     }
 
   }
-
-  public void reassignUser(AssignResponderForm form,
-                           ConsultationRequest consultationRequest,
-                           WebUserAccount assigningUser) {
-
-    var responderPerson = teamManagementService.getPerson(form.getResponderPersonId());
-    var assigningPerson = assigningUser.getLinkedPerson();
-
-    workflowAssignmentService.assign(
-        consultationRequest,
-        PwaApplicationConsultationWorkflowTask.RESPONSE,
-        responderPerson,
-        assigningPerson);
-
-    // if user didn't assign to themselves, email the assigned responder
-    if (!Objects.equals(responderPerson, assigningPerson)) {
-      var emailProps = buildAssignedEmailProps(responderPerson, consultationRequest, assigningPerson);
-      notifyService.sendEmail(emailProps, responderPerson.getEmailAddress());
-    }
-  }
-
 
   private ConsultationAssignedToYouEmailProps buildAssignedEmailProps(Person assignee,
                                                                       ConsultationRequest consultationRequest,
@@ -129,7 +119,6 @@ public class AssignResponderService implements AppProcessingService {
     );
 
   }
-
 
   public boolean isUserMemberOfRequestGroup(WebUserAccount user, ConsultationRequest consultationRequest) {
     return consulteeGroupTeamService.getTeamMemberByPerson(user.getLinkedPerson())

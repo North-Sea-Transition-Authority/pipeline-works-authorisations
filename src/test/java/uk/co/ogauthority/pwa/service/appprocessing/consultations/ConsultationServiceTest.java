@@ -23,7 +23,8 @@ public class ConsultationServiceTest {
   @Test
   public void canShowInTaskList_viewAllConsultations() {
 
-    var processingContext = new PwaAppProcessingContext(null, null, Set.of(PwaAppProcessingPermission.VIEW_ALL_CONSULTATIONS), null);
+    var processingContext = new PwaAppProcessingContext(null, null, Set.of(PwaAppProcessingPermission.VIEW_ALL_CONSULTATIONS), null,
+        null);
 
     boolean canShow = consultationService.canShowInTaskList(processingContext);
 
@@ -34,7 +35,8 @@ public class ConsultationServiceTest {
   @Test
   public void canShowInTaskList_industry() {
 
-    var processingContext = new PwaAppProcessingContext(null, null, Set.of(PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY), null);
+    var processingContext = new PwaAppProcessingContext(null, null, Set.of(PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY), null,
+        null);
 
     boolean canShow = consultationService.canShowInTaskList(processingContext);
 
@@ -45,7 +47,7 @@ public class ConsultationServiceTest {
   @Test
   public void canShowInTaskList_noPermissions() {
 
-    var processingContext = new PwaAppProcessingContext(null, null, Set.of(), null);
+    var processingContext = new PwaAppProcessingContext(null, null, Set.of(), null, null);
 
     boolean canShow = consultationService.canShowInTaskList(processingContext);
 

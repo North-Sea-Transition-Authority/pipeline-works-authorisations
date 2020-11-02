@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.service.appprocessing;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
@@ -25,9 +26,11 @@ import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.Cons
 import uk.co.ogauthority.pwa.service.consultations.ConsultationRequestService;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 import uk.co.ogauthority.pwa.service.enums.users.UserType;
+import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationConsultationWorkflowTask;
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
 import uk.co.ogauthority.pwa.service.users.UserTypeService;
 import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
+import uk.co.ogauthority.pwa.service.workflow.task.WorkflowTaskInstance;
 import uk.co.ogauthority.pwa.testutils.ConsulteeGroupTestingUtils;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -140,7 +143,7 @@ public class ApplicationInvolvementServiceTest {
     when(consulteeGroupTeamService.getTeamMemberByPerson(any())).thenReturn(Optional.of(
         new ConsulteeGroupTeamMember(
             groupDetail.getConsulteeGroup(),
-            new Person(2, null, null, null, null),
+            user.getLinkedPerson(),
             Set.of(ConsulteeGroupMemberRole.RECIPIENT))
     ));
     when(consultationRequestService.getAllRequestsByApplication(application)).thenReturn(List.of());
@@ -157,7 +160,7 @@ public class ApplicationInvolvementServiceTest {
   }
 
   @Test
-  public void getApplicationInvolvementDto_consulteeUser_wasConsulted_onlyRelevantInteractionsAndDataPopulated() {
+  public void getApplicationInvolvementDto_consulteeUser_wasConsulted_notAssignedResponder_onlyRelevantInteractionsAndDataPopulated() {
 
     var groupDetail = ConsulteeGroupTestingUtils.createConsulteeGroup("name", "abb");
 
@@ -165,7 +168,7 @@ public class ApplicationInvolvementServiceTest {
     when(consulteeGroupTeamService.getTeamMemberByPerson(any())).thenReturn(Optional.of(
         new ConsulteeGroupTeamMember(
             groupDetail.getConsulteeGroup(),
-            new Person(2, null, null, null, null),
+            user.getLinkedPerson(),
             Set.of(ConsulteeGroupMemberRole.RECIPIENT))
     ));
 
@@ -174,17 +177,52 @@ public class ApplicationInvolvementServiceTest {
 
     when(consultationRequestService.getAllRequestsByApplication(application)).thenReturn(List.of(request));
 
+    when(camundaWorkflowService.getAssignedPersonId(eq(new WorkflowTaskInstance(request,
+        PwaApplicationConsultationWorkflowTask.RESPONSE)))).thenReturn(Optional.of(new PersonId(99)));
+
     var involvement = applicationInvolvementService.getApplicationInvolvementDto(application, user);
 
-    verifyNoInteractions(camundaWorkflowService, pwaContactService);
+    verifyNoInteractions(pwaContactService);
 
     assertThat(involvement.getPwaApplication()).isEqualTo(application);
     assertThat(involvement.getContactRoles()).isEmpty();
+    assertThat(involvement.isAssignedAtResponderStage()).isFalse();
     assertThat(involvement.getConsulteeRoles()).containsExactly(ConsulteeGroupMemberRole.RECIPIENT);
     assertThat(involvement.isCaseOfficerStageAndUserAssigned()).isFalse();
 
   }
 
+  @Test
+  public void getApplicationInvolvementDto_consulteeUser_wasConsulted_isAssignedResponder_onlyRelevantInteractionsAndDataPopulated() {
 
+    var groupDetail = ConsulteeGroupTestingUtils.createConsulteeGroup("name", "abb");
+
+    when(userTypeService.getUserType(user)).thenReturn(UserType.CONSULTEE);
+    when(consulteeGroupTeamService.getTeamMemberByPerson(any())).thenReturn(Optional.of(
+        new ConsulteeGroupTeamMember(
+            groupDetail.getConsulteeGroup(),
+            user.getLinkedPerson(),
+            Set.of(ConsulteeGroupMemberRole.RECIPIENT))
+    ));
+
+    var request = new ConsultationRequest();
+    request.setConsulteeGroup(groupDetail.getConsulteeGroup());
+
+    when(consultationRequestService.getAllRequestsByApplication(application)).thenReturn(List.of(request));
+
+    when(camundaWorkflowService.getAssignedPersonId(eq(new WorkflowTaskInstance(request,
+        PwaApplicationConsultationWorkflowTask.RESPONSE)))).thenReturn(Optional.of(new PersonId(user.getLinkedPerson().getId().asInt())));
+
+    var involvement = applicationInvolvementService.getApplicationInvolvementDto(application, user);
+
+    verifyNoInteractions(pwaContactService);
+
+    assertThat(involvement.getPwaApplication()).isEqualTo(application);
+    assertThat(involvement.getContactRoles()).isEmpty();
+    assertThat(involvement.isAssignedAtResponderStage()).isTrue();
+    assertThat(involvement.getConsulteeRoles()).containsExactly(ConsulteeGroupMemberRole.RECIPIENT);
+    assertThat(involvement.isCaseOfficerStageAndUserAssigned()).isFalse();
+
+  }
 
 }

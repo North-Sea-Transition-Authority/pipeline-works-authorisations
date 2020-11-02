@@ -98,7 +98,7 @@ public class AssignResponderServiceTest {
   }
 
   @Test
-  public void assignUserAndCompleteWorkflow_assignToDifferentUser_emailSent() {
+  public void assignUserAndCompleteWorkflow_allocation_workflowProgressed_assignToDifferentUser_emailSent() {
 
     ConsultationRequest consultationRequest = new ConsultationRequest();
     var app = new PwaApplication();
@@ -106,6 +106,7 @@ public class AssignResponderServiceTest {
     consultationRequest.setPwaApplication(app);
     var deadline = Instant.now().plusSeconds(86400);
     consultationRequest.setDeadlineDate(deadline);
+    consultationRequest.setStatus(ConsultationRequestStatus.ALLOCATION);
 
     var form = new AssignResponderForm();
     form.setResponderPersonId(2);
@@ -115,9 +116,13 @@ public class AssignResponderServiceTest {
     var responderPerson = new Person(2, "fore", "sur", "fore@sur.com", null);
     when(teamManagementService.getPerson(2)).thenReturn(responderPerson);
 
-    assignResponderService.assignUserAndCompleteWorkflow(form, consultationRequest, assigningUser);
+    var task = new WorkflowTaskInstance(consultationRequest, PwaApplicationConsultationWorkflowTask.ALLOCATION);
+    when(camundaWorkflowService.getAllActiveWorkflowTasks(consultationRequest))
+        .thenReturn(Set.of(task));
 
-    verify(camundaWorkflowService, times(1)).completeTask(eq(new WorkflowTaskInstance(consultationRequest, PwaApplicationConsultationWorkflowTask.ALLOCATION)));
+    assignResponderService.assignResponder(form, consultationRequest, assigningUser);
+
+    verify(camundaWorkflowService, times(1)).completeTask(eq(task));
 
     verify(workflowAssignmentService, times(1)).assign(
         consultationRequest,
@@ -145,7 +150,7 @@ public class AssignResponderServiceTest {
   }
 
   @Test
-  public void assignUserAndCompleteWorkflow_assigningToSelf_noEmailSent() {
+  public void assignUserAndCompleteWorkflow_allocation_workflowProgressed_assigningToSelf_noEmailSent() {
 
     ConsultationRequest consultationRequest = new ConsultationRequest();
     var app = new PwaApplication();
@@ -153,6 +158,7 @@ public class AssignResponderServiceTest {
     consultationRequest.setPwaApplication(app);
     var deadline = Instant.now().plusSeconds(86400);
     consultationRequest.setDeadlineDate(deadline);
+    consultationRequest.setStatus(ConsultationRequestStatus.ALLOCATION);
 
     var form = new AssignResponderForm();
     form.setResponderPersonId(1);
@@ -161,9 +167,13 @@ public class AssignResponderServiceTest {
 
     when(teamManagementService.getPerson(1)).thenReturn(assigningUser.getLinkedPerson());
 
-    assignResponderService.assignUserAndCompleteWorkflow(form, consultationRequest, assigningUser);
+    var task = new WorkflowTaskInstance(consultationRequest, PwaApplicationConsultationWorkflowTask.ALLOCATION);
+    when(camundaWorkflowService.getAllActiveWorkflowTasks(consultationRequest))
+        .thenReturn(Set.of(task));
 
-    verify(camundaWorkflowService, times(1)).completeTask(eq(new WorkflowTaskInstance(consultationRequest, PwaApplicationConsultationWorkflowTask.ALLOCATION)));
+    assignResponderService.assignResponder(form, consultationRequest, assigningUser);
+
+    verify(camundaWorkflowService, times(1)).completeTask(task);
 
     verify(workflowAssignmentService, times(1)).assign(
         consultationRequest,
@@ -173,6 +183,99 @@ public class AssignResponderServiceTest {
     );
 
     verify(consultationRequestService, times(1)).saveConsultationRequest(consultationRequest);
+
+    verifyNoInteractions(notifyService);
+
+    assertThat(consultationRequest.getStatus()).isEqualTo(ConsultationRequestStatus.AWAITING_RESPONSE);
+
+  }
+
+  @Test
+  public void assignUserAndCompleteWorkflow_response_workflowStageDoesntChange_assignToDifferentUser_emailSent() {
+
+    ConsultationRequest consultationRequest = new ConsultationRequest();
+    var app = new PwaApplication();
+    app.setAppReference("PA/2/2");
+    consultationRequest.setPwaApplication(app);
+    var deadline = Instant.now().plusSeconds(86400);
+    consultationRequest.setDeadlineDate(deadline);
+    consultationRequest.setStatus(ConsultationRequestStatus.AWAITING_RESPONSE);
+
+    var form = new AssignResponderForm();
+    form.setResponderPersonId(2);
+
+    var assigningUser = new WebUserAccount(1, new Person(1, "m", "assign", "assign@assign.com", null));
+
+    var responderPerson = new Person(2, "fore", "sur", "fore@sur.com", null);
+    when(teamManagementService.getPerson(2)).thenReturn(responderPerson);
+
+    var task = new WorkflowTaskInstance(consultationRequest, PwaApplicationConsultationWorkflowTask.RESPONSE);
+    when(camundaWorkflowService.getAllActiveWorkflowTasks(consultationRequest))
+        .thenReturn(Set.of(task));
+
+    assignResponderService.assignResponder(form, consultationRequest, assigningUser);
+
+    verify(camundaWorkflowService, times(0)).completeTask(eq(task));
+
+    verify(workflowAssignmentService, times(1)).assign(
+        consultationRequest,
+        PwaApplicationConsultationWorkflowTask.RESPONSE,
+        responderPerson,
+        assigningUser.getLinkedPerson()
+    );
+
+    verify(consultationRequestService, times(0)).saveConsultationRequest(consultationRequest);
+
+    verify(notifyService, times(1)).sendEmail(emailPropsCaptor.capture(), eq(responderPerson.getEmailAddress()));
+
+    var emailProps = emailPropsCaptor.getValue();
+
+    assertThat(emailProps.getEmailPersonalisation().entrySet())
+        .extracting(Map.Entry::getKey, Map.Entry::getValue)
+        .contains(
+            tuple("RECIPIENT_FULL_NAME", responderPerson.getFullName()),
+            tuple("APPLICATION_REFERENCE", app.getAppReference()),
+            tuple("ASSIGNER_FULL_NAME", assigningUser.getLinkedPerson().getFullName()),
+            tuple("DUE_DATE", DateUtils.formatDateTime(deadline))
+        );
+
+    assertThat(consultationRequest.getStatus()).isEqualTo(ConsultationRequestStatus.AWAITING_RESPONSE);
+  }
+
+  @Test
+  public void assignUserAndCompleteWorkflow_response_workflowStageDoesntChange_assigningToSelf_noEmailSent() {
+
+    ConsultationRequest consultationRequest = new ConsultationRequest();
+    var app = new PwaApplication();
+    app.setAppReference("PA/2/2");
+    consultationRequest.setPwaApplication(app);
+    var deadline = Instant.now().plusSeconds(86400);
+    consultationRequest.setDeadlineDate(deadline);
+    consultationRequest.setStatus(ConsultationRequestStatus.AWAITING_RESPONSE);
+
+    var form = new AssignResponderForm();
+    form.setResponderPersonId(1);
+
+    var assigningUser = new WebUserAccount(1, new Person(1, "m", "assign", "assign@assign.com", null));
+
+    when(teamManagementService.getPerson(1)).thenReturn(assigningUser.getLinkedPerson());
+
+    var task = new WorkflowTaskInstance(consultationRequest, PwaApplicationConsultationWorkflowTask.RESPONSE);
+    when(camundaWorkflowService.getAllActiveWorkflowTasks(consultationRequest))
+        .thenReturn(Set.of(task));
+
+    assignResponderService.assignResponder(form, consultationRequest, assigningUser);
+
+    verify(camundaWorkflowService, times(0)).completeTask(eq(task));
+
+    verify(workflowAssignmentService, times(1)).assign(
+        consultationRequest,
+        PwaApplicationConsultationWorkflowTask.RESPONSE,
+        assigningUser.getLinkedPerson(),
+        assigningUser.getLinkedPerson()
+    );
+
+    verify(consultationRequestService, times(0)).saveConsultationRequest(consultationRequest);
 
     verifyNoInteractions(notifyService);
 
@@ -188,80 +291,8 @@ public class AssignResponderServiceTest {
     var form = new AssignResponderForm();
     form.setResponderPersonId(5);
 
-    assignResponderService.assignUserAndCompleteWorkflow(form, new ConsultationRequest(), new WebUserAccount());
+    assignResponderService.assignResponder(form, new ConsultationRequest(), new WebUserAccount());
   }
-
-  @Test
-  public void reassignUser_assignToDifferentUser_emailSent() {
-    ConsultationRequest consultationRequest = new ConsultationRequest();
-    var app = new PwaApplication();
-    app.setAppReference("PA/2/2");
-    consultationRequest.setPwaApplication(app);
-    var deadline = Instant.now().plusSeconds(86400);
-    consultationRequest.setDeadlineDate(deadline);
-    consultationRequest.setStatus(ConsultationRequestStatus.AWAITING_RESPONSE);
-
-    var form = new AssignResponderForm();
-    form.setResponderPersonId(2);
-
-    var assigningUser = new WebUserAccount(1, new Person(1, "m", "assign", "assign@assign.com", null));
-
-    var responderPerson = new Person(2, "fore", "sur", "fore@sur.com", null);
-    when(teamManagementService.getPerson(2)).thenReturn(responderPerson);
-
-    assignResponderService.reassignUser(form, consultationRequest, assigningUser);
-
-    verify(workflowAssignmentService, times(1)).assign(
-        consultationRequest,
-        PwaApplicationConsultationWorkflowTask.RESPONSE,
-        responderPerson,
-        assigningUser.getLinkedPerson()
-    );
-
-    verify(notifyService, times(1)).sendEmail(emailPropsCaptor.capture(), eq(responderPerson.getEmailAddress()));
-
-    var emailProps = emailPropsCaptor.getValue();
-
-    assertThat(emailProps.getEmailPersonalisation().entrySet())
-        .extracting(Map.Entry::getKey, Map.Entry::getValue)
-        .contains(
-            tuple("RECIPIENT_FULL_NAME", responderPerson.getFullName()),
-            tuple("APPLICATION_REFERENCE", app.getAppReference()),
-            tuple("ASSIGNER_FULL_NAME", assigningUser.getLinkedPerson().getFullName()),
-            tuple("DUE_DATE", DateUtils.formatDateTime(deadline))
-        );
-  }
-
-  @Test
-  public void reassignUser_assigningToSelf_noEmailSent() {
-
-    ConsultationRequest consultationRequest = new ConsultationRequest();
-    var app = new PwaApplication();
-    app.setAppReference("PA/2/2");
-    consultationRequest.setPwaApplication(app);
-    var deadline = Instant.now().plusSeconds(86400);
-    consultationRequest.setDeadlineDate(deadline);
-    consultationRequest.setStatus(ConsultationRequestStatus.AWAITING_RESPONSE);
-
-    var form = new AssignResponderForm();
-    form.setResponderPersonId(1);
-
-    var assigningUser = new WebUserAccount(1, new Person(1, "m", "assign", "assign@assign.com", null));
-
-    when(teamManagementService.getPerson(1)).thenReturn(assigningUser.getLinkedPerson());
-
-    assignResponderService.reassignUser(form, consultationRequest, assigningUser);
-
-    verify(workflowAssignmentService, times(1)).assign(
-        consultationRequest,
-        PwaApplicationConsultationWorkflowTask.RESPONSE,
-        assigningUser.getLinkedPerson(),
-        assigningUser.getLinkedPerson()
-    );
-
-    verifyNoInteractions(notifyService);
-  }
-
 
   @Test
   public void validate() {
@@ -314,7 +345,8 @@ public class AssignResponderServiceTest {
   @Test
   public void canShowInTaskList_hasPermission() {
 
-    var processingContext = new PwaAppProcessingContext(null, null, Set.of(PwaAppProcessingPermission.ASSIGN_RESPONDER), null);
+    var processingContext = new PwaAppProcessingContext(null, null, Set.of(PwaAppProcessingPermission.ASSIGN_RESPONDER), null,
+        null);
 
     boolean canShow = assignResponderService.canShowInTaskList(processingContext);
 
@@ -325,7 +357,7 @@ public class AssignResponderServiceTest {
   @Test
   public void canShowInTaskList_noPermission() {
 
-    var processingContext = new PwaAppProcessingContext(null, null, Set.of(), null);
+    var processingContext = new PwaAppProcessingContext(null, null, Set.of(), null, null);
 
     boolean canShow = assignResponderService.canShowInTaskList(processingContext);
 

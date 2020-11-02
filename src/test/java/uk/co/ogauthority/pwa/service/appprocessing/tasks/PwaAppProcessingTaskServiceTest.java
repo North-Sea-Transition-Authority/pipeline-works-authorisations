@@ -53,8 +53,8 @@ public class PwaAppProcessingTaskServiceTest {
         pwaApplicationDetail,
         new WebUserAccount(1),
         EnumSet.allOf(PwaAppProcessingPermission.class),
-        null
-    );
+        null,
+        null);
 
     processingTaskService = new PwaAppProcessingTaskService(springApplicationContext);
 
@@ -66,6 +66,22 @@ public class PwaAppProcessingTaskServiceTest {
     PwaAppProcessingTask.stream().forEach(task -> {
       when(processingTaskService.canShowTask(task, processingContext)).thenReturn(true);
       assertThat(processingTaskService.canShowTask(task, processingContext)).isTrue();
+    });
+
+  }
+
+  @Test
+  public void getTaskListEntry() {
+
+    PwaAppProcessingTask.stream().forEach(task -> {
+
+      when(processingTaskService.getTaskListEntry(task, processingContext)).thenCallRealMethod();
+
+      var taskListEntry = processingTaskService.getTaskListEntry(task, processingContext);
+
+      assertThat(taskListEntry.getTaskName()).isEqualTo(task.getTaskName());
+      assertThat(taskListEntry.getRoute()).isEqualTo(task.getRoute(processingContext));
+
     });
 
   }

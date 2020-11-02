@@ -9,14 +9,14 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.controller.WorkAreaController;
-import uk.co.ogauthority.pwa.controller.consultations.responses.AssignResponderController;
-import uk.co.ogauthority.pwa.controller.consultations.responses.ConsultationResponseController;
+import uk.co.ogauthority.pwa.controller.appprocessing.CaseManagementController;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupMemberRole;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupTeamMember;
 import uk.co.ogauthority.pwa.mvc.PageView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupTeamService;
+import uk.co.ogauthority.pwa.service.appprocessing.tabs.AppProcessingTab;
 import uk.co.ogauthority.pwa.service.consultations.search.ConsultationRequestSearchItem;
 import uk.co.ogauthority.pwa.service.consultations.search.ConsultationRequestSearcher;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ConsultationRequestStatus;
@@ -73,20 +73,14 @@ public class ConsultationWorkAreaPageService {
 
   private String consultationUrlProducer(ConsultationRequestSearchItem consultationRequestSearchItem) {
 
-    if (consultationRequestSearchItem.getConsultationRequestStatus().equals(ConsultationRequestStatus.ALLOCATION)) {
-      return ReverseRouter.route(on(AssignResponderController.class).renderAssignResponder(
-          consultationRequestSearchItem.getApplicationDetailSearchItem().getPwaApplicationId(),
-          consultationRequestSearchItem.getApplicationDetailSearchItem().getApplicationType(),
-          consultationRequestSearchItem.getConsultationRequestId(), null, null, null));
+    return ReverseRouter.route(on(CaseManagementController.class).renderCaseManagement(
+        consultationRequestSearchItem.getApplicationDetailSearchItem().getPwaApplicationId(),
+        consultationRequestSearchItem.getApplicationDetailSearchItem().getApplicationType(),
+        AppProcessingTab.TASKS,
+        null,
+        null
+    ));
 
-    } else {
-      return ReverseRouter.route(on(ConsultationResponseController.class).renderResponder(
-          consultationRequestSearchItem.getApplicationDetailSearchItem().getPwaApplicationId(),
-          consultationRequestSearchItem.getApplicationDetailSearchItem().getApplicationType(),
-          consultationRequestSearchItem.getConsultationRequestId(), null, null, null));
-    }
   }
-
-
 
 }

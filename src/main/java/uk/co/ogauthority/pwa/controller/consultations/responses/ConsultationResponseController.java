@@ -1,7 +1,7 @@
 package uk.co.ogauthority.pwa.controller.consultations.responses;
 
-import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
-
+import java.util.Objects;
+import java.util.function.Supplier;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -12,21 +12,18 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
-import uk.co.ogauthority.pwa.controller.WorkAreaController;
 import uk.co.ogauthority.pwa.controller.appprocessing.shared.PwaAppProcessingPermissionCheck;
 import uk.co.ogauthority.pwa.exception.AccessDeniedException;
-import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.form.consultation.ConsultationResponseForm;
 import uk.co.ogauthority.pwa.model.form.enums.ConsultationResponseOption;
-import uk.co.ogauthority.pwa.mvc.ReverseRouter;
+import uk.co.ogauthority.pwa.service.appprocessing.AppProcessingBreadcrumbService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
-import uk.co.ogauthority.pwa.service.consultations.ConsultationRequestService;
 import uk.co.ogauthority.pwa.service.consultations.ConsultationResponseService;
 import uk.co.ogauthority.pwa.service.consultations.ConsultationViewService;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.util.CaseManagementUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
 @Controller
@@ -35,19 +32,19 @@ import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 public class ConsultationResponseController {
 
   private final ConsultationResponseService consultationResponseService;
-  private final ConsultationRequestService consultationRequestService;
   private final ConsultationViewService consultationViewService;
   private final ControllerHelperService controllerHelperService;
+  private final AppProcessingBreadcrumbService breadcrumbService;
 
   @Autowired
   public ConsultationResponseController(ConsultationResponseService consultationResponseService,
-                                        ConsultationRequestService consultationRequestService,
                                         ConsultationViewService consultationViewService,
-                                        ControllerHelperService controllerHelperService) {
+                                        ControllerHelperService controllerHelperService,
+                                        AppProcessingBreadcrumbService breadcrumbService) {
     this.consultationResponseService = consultationResponseService;
-    this.consultationRequestService = consultationRequestService;
     this.consultationViewService = consultationViewService;
     this.controllerHelperService = controllerHelperService;
+    this.breadcrumbService = breadcrumbService;
   }
 
   @GetMapping
@@ -56,21 +53,10 @@ public class ConsultationResponseController {
                                       @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
                                       @PathVariable("consultationRequestId") Integer consultationRequestId,
                                       PwaAppProcessingContext processingContext,
-                                      AuthenticatedUserAccount authenticatedUserAccount,
                                       @ModelAttribute("form") ConsultationResponseForm form) {
 
-    var consultationRequest = consultationRequestService.getConsultationRequestById(consultationRequestId);
-
-    if (consultationResponseService.isUserAssignedResponderForConsultation(authenticatedUserAccount, consultationRequest)) {
-      return getResponderModelAndView(authenticatedUserAccount,
-          processingContext.getPwaApplication().getAppReference(), processingContext.getPwaApplication(), consultationRequest);
-    }
-
-    throw new AccessDeniedException(
-        String.format("User with WUA ID: %s cannot access the Responder page as they either do not have the " +
-            "CONSULTATION_RESPONDER permission and/or they are not the assigned responder for the consultation request with id %s",
-            processingContext.getUser().getWuaId(),
-            consultationRequestId));
+    return withAccessibleConsultation(processingContext, consultationRequestId, () ->
+      getResponderModelAndView(processingContext));
 
   }
 
@@ -84,36 +70,58 @@ public class ConsultationResponseController {
                                     @ModelAttribute("form") ConsultationResponseForm form,
                                     BindingResult bindingResult) {
 
-    var consultationRequest = consultationRequestService.getConsultationRequestById(consultationRequestId);
+    return withAccessibleConsultation(processingContext, consultationRequestId, () -> {
 
-    if (!consultationResponseService.isUserAssignedResponderForConsultation(authenticatedUserAccount, consultationRequest)) {
-      throw new AccessDeniedException(
-          String.format("User with wua id [%s] can't respond to consultation request with id [%s] as they are not the assigned responder.",
-          authenticatedUserAccount.getWuaId(),
-          consultationRequestId));
-    }
+      var validatedBindingResult = consultationResponseService.validate(form, bindingResult);
 
-    bindingResult = consultationResponseService.validate(form, bindingResult);
+      var request = processingContext.getActiveConsultationRequest().getConsultationRequest();
 
-    return controllerHelperService.checkErrorsAndRedirect(bindingResult,
-        getResponderModelAndView(authenticatedUserAccount, processingContext.getPwaApplication().getAppReference(),
-            processingContext.getPwaApplication(), consultationRequest), () -> {
-          consultationResponseService.saveResponseAndCompleteWorkflow(form, consultationRequest, authenticatedUserAccount);
-          return ReverseRouter.redirect(on(WorkAreaController.class).renderWorkArea(null, authenticatedUserAccount, null));
-        });
+      return controllerHelperService.checkErrorsAndRedirect(validatedBindingResult,
+          getResponderModelAndView(processingContext), () -> {
+            consultationResponseService.saveResponseAndCompleteWorkflow(form, request, authenticatedUserAccount);
+            return CaseManagementUtils.redirectCaseManagement(processingContext);
+          });
+
+    });
 
   }
 
-  private ModelAndView getResponderModelAndView(AuthenticatedUserAccount authenticatedUserAccount,
-                                                String appReference, PwaApplication pwaApplication,
-                                                ConsultationRequest consultationRequest) {
-    return new ModelAndView("consultation/responses/responderForm")
-        .addObject("cancelUrl",
-                ReverseRouter.route(on(WorkAreaController.class).renderWorkArea(null, authenticatedUserAccount, null)))
+  private ModelAndView withAccessibleConsultation(PwaAppProcessingContext processingContext,
+                                                  Integer consultationRequestId,
+                                                  Supplier<ModelAndView> successSupplier) {
+
+    // if consultation request linked to user on context is equal to the one we are hitting in the URL, ok to continue
+    if (Objects.equals(processingContext.getConsultationRequestId(), consultationRequestId)) {
+      return successSupplier.get();
+    }
+
+    // otherwise error
+    throw new AccessDeniedException(
+        String.format("User with WUA ID: %s cannot respond to consultation request with id [%s] as they are not the assigned responder",
+            processingContext.getUser().getWuaId(),
+            consultationRequestId));
+
+
+  }
+
+  private ModelAndView getResponderModelAndView(PwaAppProcessingContext processingContext) {
+
+    var application = processingContext.getPwaApplication();
+    var request = processingContext.getActiveConsultationRequest().getConsultationRequest();
+
+    var modelAndView = new ModelAndView("consultation/responses/responderForm")
+        .addObject("cancelUrl", CaseManagementUtils.routeCaseManagement(application))
         .addObject("responseOptions", ConsultationResponseOption.asList())
-        .addObject("appRef", appReference)
-        .addObject("previousResponses",
-            consultationViewService.getConsultationRequestViewsRespondedOnly(pwaApplication, consultationRequest));
+        .addObject("appRef", processingContext.getPwaApplication().getAppReference())
+        .addObject("previousResponses", consultationViewService
+            .getConsultationRequestViewsRespondedOnly(application, request))
+        .addObject("caseSummaryView", processingContext.getCaseSummaryView())
+        .addObject("consulteeGroupName", processingContext.getActiveConsultationRequest().getConsulteeGroupName());
+
+    breadcrumbService.fromCaseManagement(processingContext.getPwaApplication(), modelAndView, "Consultation response");
+
+    return modelAndView;
+
   }
 
 }

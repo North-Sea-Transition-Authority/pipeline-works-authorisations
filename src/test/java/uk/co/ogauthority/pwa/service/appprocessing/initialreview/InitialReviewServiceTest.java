@@ -25,6 +25,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.notify.emailproperties.EmailProperties;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
+import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationWorkflowTask;
 import uk.co.ogauthority.pwa.service.notify.NotifyService;
@@ -145,13 +146,35 @@ public class InitialReviewServiceTest {
   }
 
   @Test
-  public void canShowInTaskList() {
+  public void canShowInTaskList_initialReviewPermission_true() {
 
-    var processingContext = new PwaAppProcessingContext(null, null, Set.of(), null);
+    var processingContext = new PwaAppProcessingContext(null, null, Set.of(PwaAppProcessingPermission.ACCEPT_INITIAL_REVIEW), null, null);
 
     boolean canShow = initialReviewService.canShowInTaskList(processingContext);
 
     assertThat(canShow).isTrue();
+
+  }
+
+  @Test
+  public void canShowInTaskList_caseManagementIndustryPermission_true() {
+
+    var processingContext = new PwaAppProcessingContext(null, null, Set.of(PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY), null, null);
+
+    boolean canShow = initialReviewService.canShowInTaskList(processingContext);
+
+    assertThat(canShow).isTrue();
+
+  }
+
+  @Test
+  public void canShowInTaskList_noPermissions_false() {
+
+    var processingContext = new PwaAppProcessingContext(null, null, Set.of(), null, null);
+
+    boolean canShow = initialReviewService.canShowInTaskList(processingContext);
+
+    assertThat(canShow).isFalse();
 
   }
 

@@ -29,6 +29,7 @@ import uk.co.ogauthority.pwa.service.appprocessing.AppProcessingBreadcrumbServic
 import uk.co.ogauthority.pwa.service.appprocessing.PwaAppProcessingPermissionService;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupTeamService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContextService;
+import uk.co.ogauthority.pwa.service.consultations.ConsultationRequestService;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.fileupload.AppFileService;
@@ -39,6 +40,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationConte
 import uk.co.ogauthority.pwa.service.pwaapplications.search.ApplicationDetailSearcher;
 import uk.co.ogauthority.pwa.service.tasklist.CrossingAgreementsTaskListService;
 import uk.co.ogauthority.pwa.service.teams.TeamService;
+import uk.co.ogauthority.pwa.service.users.UserTypeService;
 
 @Import(PwaAppProcessingContextAbstractControllerTest.AbstractControllerTestConfiguration.class)
 public abstract class PwaAppProcessingContextAbstractControllerTest {
@@ -95,6 +97,12 @@ public abstract class PwaAppProcessingContextAbstractControllerTest {
 
   @MockBean
   private AppFileService appFileService;
+
+  @SpyBean
+  protected UserTypeService userTypeService;
+
+  @MockBean
+  protected ConsultationRequestService consultationRequestService;
 
   @Before
   public void abstractControllerTestSetup() {

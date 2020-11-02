@@ -17,17 +17,22 @@ import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.exception.AccessDeniedException;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
+import uk.co.ogauthority.pwa.model.dto.consultations.ConsultationRequestDto;
+import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
 import uk.co.ogauthority.pwa.model.entity.files.AppFile;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailSearchItem;
 import uk.co.ogauthority.pwa.service.appprocessing.PwaAppProcessingPermissionService;
+import uk.co.ogauthority.pwa.service.consultations.ConsultationRequestService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.service.enums.users.UserType;
 import uk.co.ogauthority.pwa.service.fileupload.AppFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaapplications.search.ApplicationDetailSearcher;
+import uk.co.ogauthority.pwa.service.users.UserTypeService;
 import uk.co.ogauthority.pwa.util.DateUtils;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -44,6 +49,12 @@ public class PwaAppProcessingContextServiceTest {
 
   @Mock
   private AppFileService appFileService;
+
+  @Mock
+  private UserTypeService userTypeService;
+
+  @Mock
+  private ConsultationRequestService consultationRequestService;
 
   private PwaAppProcessingContextService contextService;
 
@@ -65,7 +76,7 @@ public class PwaAppProcessingContextServiceTest {
     detail = new PwaApplicationDetail(application, 1, 1, Instant.now());
     detail.setStatus(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW);
 
-    contextService = new PwaAppProcessingContextService(detailService, appProcessingPermissionService, applicationDetailSearcher, appFileService);
+    contextService = new PwaAppProcessingContextService(detailService, appProcessingPermissionService, applicationDetailSearcher, appFileService, userTypeService, consultationRequestService);
 
     when(detailService.getLastSubmittedApplicationDetail(detail.getMasterPwaApplicationId()))
         .thenReturn(Optional.of(detail));
@@ -281,6 +292,51 @@ public class PwaAppProcessingContextServiceTest {
         .withFileId("other-file");
 
     contextService.validateAndCreate(builder);
+
+  }
+
+  @Test
+  public void validateAndCreate_activeConsultationRequest_consultee_present() {
+
+    var builder = new PwaAppProcessingContextParams(1, user);
+
+    when(userTypeService.getUserType(user)).thenReturn(UserType.CONSULTEE);
+
+    var request = new ConsultationRequest();
+    var dto = new ConsultationRequestDto("name", request);
+
+    when(consultationRequestService.getActiveConsultationRequestByApplicationAndConsulteePerson(any(), any()))
+        .thenReturn(Optional.of(dto));
+
+    var context = contextService.validateAndCreate(builder);
+
+    assertThat(context.getActiveConsultationRequest()).isEqualTo(dto);
+
+  }
+
+  @Test
+  public void validateAndCreate_noActiveConsultationRequest_consultee_notPresent() {
+
+    var builder = new PwaAppProcessingContextParams(1, user);
+
+    when(userTypeService.getUserType(user)).thenReturn(UserType.INDUSTRY);
+
+    var context = contextService.validateAndCreate(builder);
+
+    assertThat(context.getActiveConsultationRequest()).isNull();
+
+  }
+
+  @Test
+  public void validateAndCreate_activeConsultationRequest_notConsultee_notPresent() {
+
+    var builder = new PwaAppProcessingContextParams(1, user);
+
+    when(userTypeService.getUserType(user)).thenReturn(UserType.INDUSTRY);
+
+    var context = contextService.validateAndCreate(builder);
+
+    assertThat(context.getActiveConsultationRequest()).isNull();
 
   }
 

@@ -20,6 +20,9 @@ import uk.co.ogauthority.pwa.model.form.enums.ConsultationResponseOption;
 import uk.co.ogauthority.pwa.model.notify.emailproperties.ConsultationResponseReceivedEmailProps;
 import uk.co.ogauthority.pwa.repository.consultations.ConsultationResponseRepository;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupDetailService;
+import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
+import uk.co.ogauthority.pwa.service.appprocessing.tasks.AppProcessingService;
+import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ConsultationRequestStatus;
 import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationConsultationWorkflowTask;
 import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationWorkflowTask;
@@ -34,7 +37,7 @@ import uk.co.ogauthority.pwa.validators.consultations.ConsultationResponseValida
  A service to  create response /assign response to consultation request
  */
 @Service
-public class ConsultationResponseService {
+public class ConsultationResponseService implements AppProcessingService {
 
   private final ConsultationRequestService consultationRequestService;
   private final ConsultationResponseRepository consultationResponseRepository;
@@ -157,6 +160,11 @@ public class ConsultationResponseService {
 
     notifyService.sendEmail(emailProps, caseOfficerEmail);
 
+  }
+
+  @Override
+  public boolean canShowInTaskList(PwaAppProcessingContext processingContext) {
+    return processingContext.getAppProcessingPermissions().contains(PwaAppProcessingPermission.CONSULTATION_RESPONDER);
   }
 
 }

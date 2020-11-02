@@ -29,6 +29,7 @@ import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.PwaAppProcessingContextAbstractControllerTest;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
+import uk.co.ogauthority.pwa.model.dto.consultations.ConsultationRequestDto;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.consultation.AssignResponderForm;
@@ -36,7 +37,6 @@ import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.PwaAppProcessingPermissionService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContextService;
 import uk.co.ogauthority.pwa.service.consultations.AssignResponderService;
-import uk.co.ogauthority.pwa.service.consultations.ConsultationRequestService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
@@ -45,9 +45,6 @@ import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 @RunWith(SpringRunner.class)
 @WebMvcTest(controllers = AssignResponderController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {PwaAppProcessingContextService.class}))
 public class AssignResponderControllerTest extends PwaAppProcessingContextAbstractControllerTest {
-
-  @MockBean
-  private ConsultationRequestService consultationRequestService;
 
   @MockBean
   private AssignResponderService assignResponderService;
@@ -66,17 +63,22 @@ public class AssignResponderControllerTest extends PwaAppProcessingContextAbstra
 
     user = new AuthenticatedUserAccount(
         new WebUserAccount(1),
-        EnumSet.allOf(PwaUserPrivilege.class));
+        EnumSet.of(PwaUserPrivilege.PWA_CONSULTEE));
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL, 1);
     when(pwaApplicationDetailService.getLastSubmittedApplicationDetail(pwaApplicationDetail.getMasterPwaApplicationId()))
         .thenReturn(Optional.of(pwaApplicationDetail));
 
     consultationRequest = new ConsultationRequest();
+    consultationRequest.setId(1);
     when(consultationRequestService.getConsultationRequestById(any())).thenReturn(consultationRequest);
     when(assignResponderService.isUserMemberOfRequestGroup(any(), any())).thenReturn(true);
 
+    var requestDto = new ConsultationRequestDto("group", consultationRequest);
+    when(consultationRequestService.getActiveConsultationRequestByApplicationAndConsulteePerson(any(), any())).thenReturn(Optional.of(requestDto));
+
     endpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaApplicationDetailService, pwaAppProcessingPermissionService)
+        .setUserPrivileges(PwaUserPrivilege.PWA_CONSULTEE)
         .setAllowedProcessingPermissions(PwaAppProcessingPermission.ASSIGN_RESPONDER);
 
   }
@@ -87,7 +89,7 @@ public class AssignResponderControllerTest extends PwaAppProcessingContextAbstra
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(AssignResponderController.class)
-                .renderAssignResponder(applicationDetail.getMasterPwaApplicationId(), type, 1, null, null, null)));
+                .renderAssignResponder(applicationDetail.getMasterPwaApplicationId(), type, 1, null, null)));
 
     endpointTester.performProcessingPermissionCheck(status().isOk(), status().isForbidden());
 
@@ -120,7 +122,7 @@ public class AssignResponderControllerTest extends PwaAppProcessingContextAbstra
         .with(csrf()))
         .andExpect(status().is3xxRedirection());
 
-    verify(assignResponderService, times(1)).assignUserAndCompleteWorkflow(any(), eq(consultationRequest), eq(user));
+    verify(assignResponderService, times(1)).assignResponder(any(), eq(consultationRequest), eq(user));
 
   }
 
@@ -134,67 +136,6 @@ public class AssignResponderControllerTest extends PwaAppProcessingContextAbstra
     when(pwaAppProcessingPermissionService.getProcessingPermissions(pwaApplicationDetail.getPwaApplication(), user)).thenReturn(EnumSet.allOf(PwaAppProcessingPermission.class));
 
     mockMvc.perform(post(ReverseRouter.route(on(AssignResponderController.class).postAssignResponder(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), 1, null, null, null, null, null)))
-        .with(authenticatedUserAndSession(user))
-        .param("responderPersonId", "5")
-        .with(csrf()))
-        .andExpect(status().isOk())
-        .andExpect(view().name("consultation/responses/assignResponder"));
-
-  }
-
-  @Test
-  public void renderReAssignResponder_permissionSmokeTest() {
-
-    endpointTester.setRequestMethod(HttpMethod.GET)
-        .setEndpointUrlProducer((applicationDetail, type) ->
-            ReverseRouter.route(on(AssignResponderController.class)
-                .renderReAssignResponder(applicationDetail.getMasterPwaApplicationId(), type, 1, null, null, null)));
-
-    endpointTester.performProcessingPermissionCheck(status().isOk(), status().isForbidden());
-
-  }
-
-  @Test
-  public void postReAssignResponder_permissionSmokeTest() {
-
-    when(assignResponderService.validate(any(), any(), any())).thenReturn(new BeanPropertyBindingResult(new AssignResponderForm(), "form"));
-
-    endpointTester.setRequestMethod(HttpMethod.POST)
-        .setEndpointUrlProducer((applicationDetail, type) ->
-            ReverseRouter.route(on(AssignResponderController.class)
-                .postReAssignResponder(applicationDetail.getMasterPwaApplicationId(), type, 1, null, null, null, null, null)));
-
-    endpointTester.performProcessingPermissionCheck(status().is3xxRedirection(), status().isForbidden());
-
-  }
-
-  @Test
-  public void postReAssignResponder() throws Exception {
-
-    when(assignResponderService.validate(any(), any(), any())).thenReturn(new BeanPropertyBindingResult(new AssignResponderForm(), "form"));
-
-    when(pwaAppProcessingPermissionService.getProcessingPermissions(pwaApplicationDetail.getPwaApplication(), user)).thenReturn(EnumSet.allOf(PwaAppProcessingPermission.class));
-
-    mockMvc.perform(post(ReverseRouter.route(on(AssignResponderController.class).postReAssignResponder(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), 1, null, null, null, null, null)))
-        .with(authenticatedUserAndSession(user))
-        .param("responderPersonId", "5")
-        .with(csrf()))
-        .andExpect(status().is3xxRedirection());
-
-    verify(assignResponderService, times(1)).reassignUser(any(), eq(consultationRequest), eq(user));
-
-  }
-
-  @Test
-  public void postReAssignResponder_validationFail() throws Exception {
-
-    var failedBindingResult = new BeanPropertyBindingResult(new AssignResponderForm(), "form");
-    failedBindingResult.addError(new ObjectError("fake", "fake"));
-    when(assignResponderService.validate(any(), any(), any())).thenReturn(failedBindingResult);
-
-    when(pwaAppProcessingPermissionService.getProcessingPermissions(pwaApplicationDetail.getPwaApplication(), user)).thenReturn(EnumSet.allOf(PwaAppProcessingPermission.class));
-
-    mockMvc.perform(post(ReverseRouter.route(on(AssignResponderController.class).postReAssignResponder(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), 1, null, null, null, null, null)))
         .with(authenticatedUserAndSession(user))
         .param("responderPersonId", "5")
         .with(csrf()))

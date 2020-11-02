@@ -33,7 +33,6 @@ import uk.co.ogauthority.pwa.service.appprocessing.casehistory.CaseHistoryItemSe
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.service.appprocessing.tasks.AppProcessingService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
-import uk.co.ogauthority.pwa.service.enums.appprocessing.TaskStatus;
 import uk.co.ogauthority.pwa.service.fileupload.AppFileService;
 import uk.co.ogauthority.pwa.service.fileupload.FileUpdateMode;
 
@@ -61,11 +60,6 @@ public class CaseNoteService implements AppProcessingService, CaseHistoryItemSer
   @Override
   public boolean canShowInTaskList(PwaAppProcessingContext processingContext) {
     return processingContext.getAppProcessingPermissions().contains(PwaAppProcessingPermission.ADD_CASE_NOTE);
-  }
-
-  @Override
-  public Optional<TaskStatus> getTaskStatus(PwaAppProcessingContext processingContext) {
-    return Optional.empty();
   }
 
   @Transactional

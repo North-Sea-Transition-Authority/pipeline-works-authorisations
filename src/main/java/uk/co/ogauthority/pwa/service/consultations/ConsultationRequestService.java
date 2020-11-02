@@ -6,6 +6,7 @@ import java.time.Period;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Optional;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -14,6 +15,7 @@ import org.springframework.validation.BindingResult;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
+import uk.co.ogauthority.pwa.model.dto.consultations.ConsultationRequestDto;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroup;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupDetail;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupMemberRole;
@@ -36,8 +38,8 @@ import uk.co.ogauthority.pwa.service.workflow.task.WorkflowTaskInstance;
 import uk.co.ogauthority.pwa.validators.consultations.ConsultationRequestValidationHints;
 import uk.co.ogauthority.pwa.validators.consultations.ConsultationRequestValidator;
 
-/*
- A service to create/withdraw consultation requests from application
+/**
+ A service to create/withdraw consultation requests from application.
  */
 @Service
 public class ConsultationRequestService {
@@ -228,4 +230,24 @@ public class ConsultationRequestService {
         consulteeGroup, pwaApplication, ConsultationRequestStatus.RESPONDED);
   }
 
+  public Optional<ConsultationRequestDto> getActiveConsultationRequestByApplicationAndConsulteePerson(PwaApplication pwaApplication,
+                                                                                                      Person person) {
+
+    var groupMembershipOpt = consulteeGroupTeamService.getTeamMemberByPerson(person);
+
+    // should be only one consultation request for the group that is at the allocation or response stage
+    return groupMembershipOpt
+        .flatMap(groupTeamMember -> consultationRequestRepository.findByConsulteeGroupAndPwaApplicationAndStatusNotIn(
+            groupTeamMember.getConsulteeGroup(),
+            pwaApplication,
+            List.of(ConsultationRequestStatus.RESPONDED, ConsultationRequestStatus.WITHDRAWN)).stream()
+            .findFirst())
+        .map(request -> {
+
+          var tipDetail = consulteeGroupDetailService.getConsulteeGroupDetailByGroupAndTipFlagIsTrue(request.getConsulteeGroup());
+          return new ConsultationRequestDto(tipDetail.getName(), request);
+
+        });
+
+  }
 }

@@ -6,6 +6,7 @@ import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.controller.appprocessing.CaseManagementController;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
+import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.service.appprocessing.tabs.AppProcessingTab;
 
 public class CaseManagementUtils {
@@ -26,6 +27,10 @@ public class CaseManagementUtils {
     return ReverseRouter.redirect(on(CaseManagementController.class)
         .renderCaseManagement(pwaApplication.getId(), pwaApplication.getApplicationType(), AppProcessingTab.TASKS, null, null));
 
+  }
+
+  public static ModelAndView redirectCaseManagement(PwaAppProcessingContext processingContext) {
+    return redirectCaseManagement(processingContext.getPwaApplication());
   }
 
 }

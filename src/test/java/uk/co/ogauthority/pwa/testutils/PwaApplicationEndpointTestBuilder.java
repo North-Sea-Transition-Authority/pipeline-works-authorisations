@@ -11,6 +11,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
@@ -18,6 +19,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 import org.springframework.http.HttpMethod;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultMatcher;
@@ -67,6 +69,7 @@ public class PwaApplicationEndpointTestBuilder {
 
   private WebUserAccount userWua;
   private AuthenticatedUserAccount user;
+  private Set<PwaUserPrivilege> userPrivileges;
   private PwaApplicationDetail detail;
   private PadPipeline padPipeline;
 
@@ -137,6 +140,10 @@ public class PwaApplicationEndpointTestBuilder {
     return this;
   }
 
+  public PwaApplicationEndpointTestBuilder setUserPrivileges(PwaUserPrivilege... privileges) {
+    this.userPrivileges = Arrays.stream(privileges).collect(Collectors.toSet());
+    return this;
+  }
 
   public PwaApplicationEndpointTestBuilder setRequestMethod(HttpMethod requestMethod) {
     if (!EnumSet.of(HttpMethod.GET, HttpMethod.POST).contains(requestMethod)) {
@@ -233,7 +240,10 @@ public class PwaApplicationEndpointTestBuilder {
     var defaultType = this.allowedTypes.stream().findAny().orElse(PwaApplicationType.INITIAL);
 
     this.userWua = new WebUserAccount(1);
-    this.user = new AuthenticatedUserAccount(userWua, EnumSet.allOf(PwaUserPrivilege.class));
+
+    var privs = Optional.ofNullable(userPrivileges).orElse(EnumSet.allOf(PwaUserPrivilege.class));
+    this.user = new AuthenticatedUserAccount(userWua, privs);
+
     this.detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     this.padPipeline = new PadPipeline();
     padPipeline.setId(99);
