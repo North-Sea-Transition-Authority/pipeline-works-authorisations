@@ -12,7 +12,7 @@
 
     <@fdsCheckAnswers.checkAnswers>
 
-      <@fdsCheckAnswers.checkAnswersRow keyText="PWA is linked to field" actionUrl="" screenReaderActionText="" actionText="">
+      <@fdsCheckAnswers.checkAnswersRow keyText="Fields covered by this PWA" actionUrl="" screenReaderActionText="" actionText="">
         <@diffChanges.renderDiff fieldLinkQuestions.PwaFieldLinksView_isLinkedToFields />
       </@fdsCheckAnswers.checkAnswersRow>
 
