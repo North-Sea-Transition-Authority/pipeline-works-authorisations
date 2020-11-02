@@ -58,14 +58,16 @@ public class PwaApplicationSubmissionService {
     pwaApplicationDataCleanupService.cleanupData(detail);
 
     submissionService.getSubmissionWorkflowResult()
-        .ifPresent(pwaApplicationSubmitResult -> camundaWorkflowService.setWorkflowProperty(
-            detail.getPwaApplication(),
-            pwaApplicationSubmitResult
+        .ifPresent(pwaApplicationSubmitResult ->
+            camundaWorkflowService.setWorkflowProperty(
+                detail.getPwaApplication(),
+                pwaApplicationSubmitResult
             )
         );
 
     camundaWorkflowService.completeTask(
-        new WorkflowTaskInstance(detail.getPwaApplication(), submissionService.getTaskToComplete()));
+        new WorkflowTaskInstance(detail.getPwaApplication(), submissionService.getTaskToComplete())
+    );
 
     var newStatus = submissionService.getSubmittedApplicationDetailStatus(detail);
     pwaApplicationDetailService.setSubmitted(detail, submittedByUser, newStatus);
