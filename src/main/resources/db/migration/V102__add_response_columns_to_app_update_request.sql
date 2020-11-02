@@ -14,6 +14,14 @@ ALTER TABLE ${datasource.user}.application_update_requests ADD (
   )
 );
 
+ALTER TABLE ${datasource.user}.application_update_requests ADD (
+  CONSTRAINT aur_response_pad_fk FOREIGN KEY(response_pad_id) REFERENCES ${datasource.user}.pwa_application_details(id)
+);
+
+CREATE INDEX ${datasource.user}.aur_response_pad_fk_idx ON ${datasource.user}.application_update_requests(response_pad_id);
+
+
+
 
 
 
