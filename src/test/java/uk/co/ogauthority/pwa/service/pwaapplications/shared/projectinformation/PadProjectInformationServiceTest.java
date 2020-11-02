@@ -142,7 +142,7 @@ public class PadProjectInformationServiceTest {
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     service.validate(form, bindingResult, ValidationType.FULL, pwaApplicationDetail);
     verify(validator, times(1)).validate(form, bindingResult,
-        new ProjectInformationFormValidationHints(ValidationType.FULL, EnumSet.allOf(ProjectInformationQuestion.class), false));
+        new ProjectInformationFormValidationHints(pwaApplicationDetail.getPwaApplicationType(), ValidationType.FULL, EnumSet.allOf(ProjectInformationQuestion.class), false));
   }
 
   @Test

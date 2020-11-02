@@ -20,6 +20,7 @@ import uk.co.ogauthority.pwa.model.entity.enums.ProjectInformationQuestion;
 import uk.co.ogauthority.pwa.model.form.files.UploadFileWithDescriptionForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.ProjectInformationForm;
 import uk.co.ogauthority.pwa.service.enums.projectinformation.PermanentDepositRadioOption;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
@@ -41,7 +42,7 @@ public class ProjectInformationValidatorTest {
   public void validate_projectName_null() {
     var form = new ProjectInformationForm();
     var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form,
-        new ProjectInformationFormValidationHints(ValidationType.FULL, Set.of(ProjectInformationQuestion.PROJECT_NAME), false));
+        new ProjectInformationFormValidationHints(PwaApplicationType.INITIAL, ValidationType.FULL, Set.of(ProjectInformationQuestion.PROJECT_NAME), false));
     assertThat(errorsMap).contains(
         entry("projectName", Set.of("projectName" + FieldValidationErrorCodes.REQUIRED.getCode())));
   }
@@ -50,18 +51,52 @@ public class ProjectInformationValidatorTest {
   public void validate_projectOverview_null() {
     var form = new ProjectInformationForm();
     var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form,
-        new ProjectInformationFormValidationHints(ValidationType.FULL, Set.of(ProjectInformationQuestion.PROJECT_OVERVIEW), false));
+        new ProjectInformationFormValidationHints(PwaApplicationType.INITIAL, ValidationType.FULL, Set.of(ProjectInformationQuestion.PROJECT_OVERVIEW), false));
     assertThat(errorsMap).contains(
         entry("projectOverview", Set.of("projectOverview" + FieldValidationErrorCodes.REQUIRED.getCode())));
   }
 
   @Test
-  public void validate_methodOfPipelineDeployment_null() {
+  public void validate_methodOfPipelineDeployment_null_mandatory() {
     var form = new ProjectInformationForm();
     var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form,
-        new ProjectInformationFormValidationHints(ValidationType.FULL, Set.of(ProjectInformationQuestion.METHOD_OF_PIPELINE_DEPLOYMENT), false));
+        new ProjectInformationFormValidationHints(PwaApplicationType.INITIAL, ValidationType.FULL, Set.of(ProjectInformationQuestion.METHOD_OF_PIPELINE_DEPLOYMENT), false));
     assertThat(errorsMap).contains(
         entry("methodOfPipelineDeployment", Set.of("methodOfPipelineDeployment" + FieldValidationErrorCodes.REQUIRED.getCode())));
+
+    errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form,
+        new ProjectInformationFormValidationHints(PwaApplicationType.CAT_1_VARIATION, ValidationType.FULL, Set.of(ProjectInformationQuestion.METHOD_OF_PIPELINE_DEPLOYMENT), false));
+    assertThat(errorsMap).contains(
+        entry("methodOfPipelineDeployment", Set.of("methodOfPipelineDeployment" + FieldValidationErrorCodes.REQUIRED.getCode())));
+  }
+
+  @Test
+  public void validate_methodOfPipelineDeployment_null_optional() {
+    var form = new ProjectInformationForm();
+    var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form,
+        new ProjectInformationFormValidationHints(PwaApplicationType.CAT_2_VARIATION, ValidationType.FULL, Set.of(ProjectInformationQuestion.METHOD_OF_PIPELINE_DEPLOYMENT), false));
+    assertThat(errorsMap).doesNotContain(
+        entry("methodOfPipelineDeployment", Set.of("methodOfPipelineDeployment" + FieldValidationErrorCodes.REQUIRED.getCode())));
+
+    errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form,
+        new ProjectInformationFormValidationHints(PwaApplicationType.OPTIONS_VARIATION, ValidationType.FULL, Set.of(ProjectInformationQuestion.METHOD_OF_PIPELINE_DEPLOYMENT), false));
+    assertThat(errorsMap).doesNotContain(
+        entry("methodOfPipelineDeployment", Set.of("methodOfPipelineDeployment" + FieldValidationErrorCodes.REQUIRED.getCode())));
+  }
+
+  @Test
+  public void validate_methodOfPipelineDeployment_tooLong_optional() {
+    var form = new ProjectInformationForm();
+    form.setMethodOfPipelineDeployment(ValidatorTestUtils.over4000Chars());
+    var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form,
+        new ProjectInformationFormValidationHints(PwaApplicationType.CAT_2_VARIATION, ValidationType.FULL, Set.of(ProjectInformationQuestion.METHOD_OF_PIPELINE_DEPLOYMENT), false));
+    assertThat(errorsMap).contains(
+        entry("methodOfPipelineDeployment", Set.of("methodOfPipelineDeployment" + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode())));
+
+    errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form,
+        new ProjectInformationFormValidationHints(PwaApplicationType.OPTIONS_VARIATION, ValidationType.FULL, Set.of(ProjectInformationQuestion.METHOD_OF_PIPELINE_DEPLOYMENT), false));
+    assertThat(errorsMap).contains(
+        entry("methodOfPipelineDeployment", Set.of("methodOfPipelineDeployment" + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode())));
   }
 
 
@@ -69,7 +104,7 @@ public class ProjectInformationValidatorTest {
   public void validate_ProposedStartNull() {
     var form = new ProjectInformationForm();
     var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form,
-        new ProjectInformationFormValidationHints(ValidationType.FULL, Set.of(ProjectInformationQuestion.PROPOSED_START_DATE), false));
+        new ProjectInformationFormValidationHints(PwaApplicationType.INITIAL, ValidationType.FULL, Set.of(ProjectInformationQuestion.PROPOSED_START_DATE), false));
     assertThat(errorsMap).containsKeys("proposedStartDay", "proposedStartMonth", "proposedStartYear");
   }
 
@@ -81,7 +116,7 @@ public class ProjectInformationValidatorTest {
     form.setProposedStartMonth(date.getMonthValue());
     form.setProposedStartYear(date.getYear());
     var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form,
-        new ProjectInformationFormValidationHints(ValidationType.FULL, Set.of(ProjectInformationQuestion.PROPOSED_START_DATE), false));
+        new ProjectInformationFormValidationHints(PwaApplicationType.INITIAL, ValidationType.FULL, Set.of(ProjectInformationQuestion.PROPOSED_START_DATE), false));
     assertThat(errorsMap).containsKeys("proposedStartDay", "proposedStartMonth", "proposedStartYear");
   }
 
@@ -93,7 +128,7 @@ public class ProjectInformationValidatorTest {
     form.setProposedStartMonth(date.getMonthValue());
     form.setProposedStartYear(date.getYear());
     var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form,
-        new ProjectInformationFormValidationHints(ValidationType.FULL, Set.of(ProjectInformationQuestion.PROPOSED_START_DATE), false));
+        new ProjectInformationFormValidationHints(PwaApplicationType.INITIAL, ValidationType.FULL, Set.of(ProjectInformationQuestion.PROPOSED_START_DATE), false));
     assertThat(errorsMap).doesNotContainKeys("proposedStartDay", "proposedStartMonth", "proposedStartYear");
   }
 
@@ -101,7 +136,7 @@ public class ProjectInformationValidatorTest {
   public void validate_MobilisationNull() {
     var form = new ProjectInformationForm();
     var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form,
-        new ProjectInformationFormValidationHints(ValidationType.FULL, Set.of(ProjectInformationQuestion.MOBILISATION_DATE), false));
+        new ProjectInformationFormValidationHints(PwaApplicationType.INITIAL, ValidationType.FULL, Set.of(ProjectInformationQuestion.MOBILISATION_DATE), false));
     assertThat(errorsMap).containsKeys("mobilisationDay", "mobilisationMonth", "mobilisationYear");
   }
 
@@ -113,7 +148,7 @@ public class ProjectInformationValidatorTest {
     form.setMobilisationMonth(date.getMonthValue());
     form.setMobilisationYear(date.getYear());
     var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form,
-        new ProjectInformationFormValidationHints(ValidationType.FULL, Set.of(ProjectInformationQuestion.MOBILISATION_DATE), false));
+        new ProjectInformationFormValidationHints(PwaApplicationType.INITIAL, ValidationType.FULL, Set.of(ProjectInformationQuestion.MOBILISATION_DATE), false));
     assertThat(errorsMap).containsKeys("mobilisationDay", "mobilisationMonth", "mobilisationYear");
   }
 
@@ -125,7 +160,7 @@ public class ProjectInformationValidatorTest {
     form.setMobilisationMonth(date.getMonthValue());
     form.setMobilisationYear(date.getYear());
     var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form,
-        new ProjectInformationFormValidationHints(ValidationType.FULL, Set.of(ProjectInformationQuestion.MOBILISATION_DATE), false));
+        new ProjectInformationFormValidationHints(PwaApplicationType.INITIAL, ValidationType.FULL, Set.of(ProjectInformationQuestion.MOBILISATION_DATE), false));
     assertThat(errorsMap).doesNotContainKeys("mobilisationDay", "mobilisationMonth", "mobilisationYear");
   }
 
@@ -133,7 +168,7 @@ public class ProjectInformationValidatorTest {
   public void validate_EarliestCompletionNull() {
     var form = new ProjectInformationForm();
     var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form,
-        new ProjectInformationFormValidationHints(ValidationType.FULL, Set.of(ProjectInformationQuestion.EARLIEST_COMPLETION_DATE), false));
+        new ProjectInformationFormValidationHints(PwaApplicationType.INITIAL, ValidationType.FULL, Set.of(ProjectInformationQuestion.EARLIEST_COMPLETION_DATE), false));
     assertThat(errorsMap).containsKeys("earliestCompletionDay", "earliestCompletionMonth", "earliestCompletionYear");
   }
 
@@ -145,7 +180,7 @@ public class ProjectInformationValidatorTest {
     form.setEarliestCompletionMonth(date.getMonthValue());
     form.setEarliestCompletionYear(date.getYear());
     var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form,
-        new ProjectInformationFormValidationHints(ValidationType.FULL, Set.of(ProjectInformationQuestion.EARLIEST_COMPLETION_DATE), false));
+        new ProjectInformationFormValidationHints(PwaApplicationType.INITIAL, ValidationType.FULL, Set.of(ProjectInformationQuestion.EARLIEST_COMPLETION_DATE), false));
     assertThat(errorsMap).containsKeys("earliestCompletionDay", "earliestCompletionMonth", "earliestCompletionYear");
   }
 
@@ -157,7 +192,7 @@ public class ProjectInformationValidatorTest {
     form.setEarliestCompletionMonth(date.getMonthValue());
     form.setEarliestCompletionYear(date.getYear());
     var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form,
-        new ProjectInformationFormValidationHints(ValidationType.FULL, Set.of(ProjectInformationQuestion.EARLIEST_COMPLETION_DATE), false));
+        new ProjectInformationFormValidationHints(PwaApplicationType.INITIAL, ValidationType.FULL, Set.of(ProjectInformationQuestion.EARLIEST_COMPLETION_DATE), false));
     assertThat(errorsMap).doesNotContainKeys("earliestCompletionDay", "earliestCompletionMonth", "earliestCompletionYear");
   }
 
@@ -165,7 +200,7 @@ public class ProjectInformationValidatorTest {
   public void validate_LatestCompletionNull() {
     var form = new ProjectInformationForm();
     var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form,
-        new ProjectInformationFormValidationHints(ValidationType.FULL, Set.of(ProjectInformationQuestion.LATEST_COMPLETION_DATE), false));
+        new ProjectInformationFormValidationHints(PwaApplicationType.INITIAL, ValidationType.FULL, Set.of(ProjectInformationQuestion.LATEST_COMPLETION_DATE), false));
     assertThat(errorsMap).containsKeys("latestCompletionDay", "latestCompletionMonth", "latestCompletionYear");
   }
 
@@ -177,7 +212,7 @@ public class ProjectInformationValidatorTest {
     form.setLatestCompletionMonth(date.getMonthValue());
     form.setLatestCompletionYear(date.getYear());
     var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form,
-        new ProjectInformationFormValidationHints(ValidationType.FULL, Set.of(ProjectInformationQuestion.LATEST_COMPLETION_DATE), false));
+        new ProjectInformationFormValidationHints(PwaApplicationType.INITIAL, ValidationType.FULL, Set.of(ProjectInformationQuestion.LATEST_COMPLETION_DATE), false));
     assertThat(errorsMap).containsKeys("latestCompletionDay", "latestCompletionMonth", "latestCompletionYear");
   }
 
@@ -189,7 +224,7 @@ public class ProjectInformationValidatorTest {
     form.setLatestCompletionMonth(date.getMonthValue());
     form.setLatestCompletionYear(date.getYear());
     var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form,
-        new ProjectInformationFormValidationHints(ValidationType.FULL, Set.of(ProjectInformationQuestion.LATEST_COMPLETION_DATE), false));
+        new ProjectInformationFormValidationHints(PwaApplicationType.INITIAL, ValidationType.FULL, Set.of(ProjectInformationQuestion.LATEST_COMPLETION_DATE), false));
     assertThat(errorsMap).doesNotContainKeys("latestCompletionDay", "latestCompletionMonth", "latestCompletionYear");
   }
 
@@ -207,7 +242,7 @@ public class ProjectInformationValidatorTest {
     form.setLatestCompletionYear(date.getYear());
 
     var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form,
-        new ProjectInformationFormValidationHints(ValidationType.FULL,
+        new ProjectInformationFormValidationHints(PwaApplicationType.INITIAL, ValidationType.FULL,
             Set.of(ProjectInformationQuestion.EARLIEST_COMPLETION_DATE, ProjectInformationQuestion.LATEST_COMPLETION_DATE), false));
     assertThat(errorsMap).containsValues(
         Set.of("latestCompletionDay.beforeStart"),
@@ -224,7 +259,7 @@ public class ProjectInformationValidatorTest {
     form.setLicenceTransferPlanned(true);
 
     var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form,
-        new ProjectInformationFormValidationHints(ValidationType.FULL,
+        new ProjectInformationFormValidationHints(PwaApplicationType.INITIAL, ValidationType.FULL,
             Set.of(ProjectInformationQuestion.LICENCE_TRANSFER_PLANNED, ProjectInformationQuestion.LICENCE_TRANSFER_DATE, ProjectInformationQuestion.COMMERCIAL_AGREEMENT_DATE), false));
 
     assertThat(errorsMap).contains(
@@ -248,7 +283,8 @@ public class ProjectInformationValidatorTest {
     form.setCommercialAgreementMonth(2);
     form.setCommercialAgreementYear(2020);
     var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form,
-        new ProjectInformationFormValidationHints(ValidationType.FULL, Set.of(ProjectInformationQuestion.LICENCE_TRANSFER_PLANNED, ProjectInformationQuestion.COMMERCIAL_AGREEMENT_DATE), false));
+        new ProjectInformationFormValidationHints(PwaApplicationType.INITIAL,
+            ValidationType.FULL, Set.of(ProjectInformationQuestion.LICENCE_TRANSFER_PLANNED, ProjectInformationQuestion.COMMERCIAL_AGREEMENT_DATE), false));
 
     assertThat(errorsMap).doesNotContainKeys(
         "commercialAgreementDay",
@@ -267,7 +303,8 @@ public class ProjectInformationValidatorTest {
     form.setCommercialAgreementMonth(100);
     form.setCommercialAgreementYear(2020);
     var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form,
-        new ProjectInformationFormValidationHints(ValidationType.FULL, Set.of(ProjectInformationQuestion.LICENCE_TRANSFER_PLANNED, ProjectInformationQuestion.COMMERCIAL_AGREEMENT_DATE), false));
+        new ProjectInformationFormValidationHints(PwaApplicationType.INITIAL,
+            ValidationType.FULL, Set.of(ProjectInformationQuestion.LICENCE_TRANSFER_PLANNED, ProjectInformationQuestion.COMMERCIAL_AGREEMENT_DATE), false));
 
     assertThat(errorsMap).contains(
         entry("commercialAgreementDay", Set.of("commercialAgreementDay.invalid")),
@@ -286,7 +323,7 @@ public class ProjectInformationValidatorTest {
     form.setLicenceTransferMonth(2);
     form.setLicenceTransferYear(2020);
     var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form,
-        new ProjectInformationFormValidationHints(ValidationType.FULL,
+        new ProjectInformationFormValidationHints(PwaApplicationType.INITIAL, ValidationType.FULL,
             Set.of(ProjectInformationQuestion.LICENCE_TRANSFER_PLANNED, ProjectInformationQuestion.LICENCE_TRANSFER_DATE), false));
 
     assertThat(errorsMap).doesNotContainKeys(
@@ -306,7 +343,7 @@ public class ProjectInformationValidatorTest {
     form.setLicenceTransferMonth(100);
     form.setLicenceTransferYear(2020);
     var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form,
-        new ProjectInformationFormValidationHints(ValidationType.FULL,
+        new ProjectInformationFormValidationHints(PwaApplicationType.INITIAL, ValidationType.FULL,
             Set.of(ProjectInformationQuestion.LICENCE_TRANSFER_PLANNED, ProjectInformationQuestion.LICENCE_TRANSFER_DATE), false));
 
     assertThat(errorsMap).contains(
@@ -331,7 +368,7 @@ public class ProjectInformationValidatorTest {
   public void validate_permanentDepositType_noValidationRequired() {
     var form = new ProjectInformationForm();
     Map<String, Set<String>> errorsMap = getErrorMap(form, new ProjectInformationFormValidationHints(
-        ValidationType.FULL, Set.of(), false));
+        PwaApplicationType.INITIAL, ValidationType.FULL, Set.of(), false));
     assertThat(errorsMap).doesNotContainKey("permanentDepositsMadeType");
   }
 
@@ -339,7 +376,7 @@ public class ProjectInformationValidatorTest {
   public void validate_permanentDepositType_Null() {
     var form = new ProjectInformationForm();
     Map<String, Set<String>> errorsMap = getErrorMap(form, new ProjectInformationFormValidationHints(
-        ValidationType.FULL, Set.of(ProjectInformationQuestion.PERMANENT_DEPOSITS_BEING_MADE), false));
+        PwaApplicationType.INITIAL, ValidationType.FULL, Set.of(ProjectInformationQuestion.PERMANENT_DEPOSITS_BEING_MADE), false));
     assertThat(errorsMap).contains(
         entry("permanentDepositsMadeType", Set.of("permanentDepositsMadeType.notSelected"))
     );
@@ -351,7 +388,7 @@ public class ProjectInformationValidatorTest {
     form.setPermanentDepositsMadeType(PermanentDepositRadioOption.LATER_APP);
     form.setFutureSubmissionDate(new TwoFieldDateInput());
     Map<String, Set<String>> errorsMap = getErrorMap(form, new ProjectInformationFormValidationHints(
-        ValidationType.FULL, Set.of(ProjectInformationQuestion.PERMANENT_DEPOSITS_BEING_MADE), false));
+        PwaApplicationType.INITIAL, ValidationType.FULL, Set.of(ProjectInformationQuestion.PERMANENT_DEPOSITS_BEING_MADE), false));
     assertThat(errorsMap).contains(
         entry("futureSubmissionDate.month", Set.of("month.required")),
         entry("futureSubmissionDate.year", Set.of("year.required"))
@@ -364,7 +401,7 @@ public class ProjectInformationValidatorTest {
     form.setPermanentDepositsMadeType(PermanentDepositRadioOption.LATER_APP);
     form.setFutureSubmissionDate(new TwoFieldDateInput(2020, 2));
     Map<String, Set<String>> errorsMap = getErrorMap(form, new ProjectInformationFormValidationHints(
-        ValidationType.FULL, Set.of(ProjectInformationQuestion.PERMANENT_DEPOSITS_BEING_MADE), false));
+        PwaApplicationType.INITIAL, ValidationType.FULL, Set.of(ProjectInformationQuestion.PERMANENT_DEPOSITS_BEING_MADE), false));
     assertThat(errorsMap).contains(
         entry("futureSubmissionDate.month", Set.of("month.afterDate")),
         entry("futureSubmissionDate.year", Set.of("year.afterDate"))
@@ -376,7 +413,7 @@ public class ProjectInformationValidatorTest {
     var form = new ProjectInformationForm();
     form.setTemporaryDepositsMade(true);
     Map<String, Set<String>> errorsMap = getErrorMap(form, new ProjectInformationFormValidationHints(
-        ValidationType.FULL, Set.of(ProjectInformationQuestion.TEMPORARY_DEPOSITS_BEING_MADE), false));
+        PwaApplicationType.INITIAL, ValidationType.FULL, Set.of(ProjectInformationQuestion.TEMPORARY_DEPOSITS_BEING_MADE), false));
     assertThat(errorsMap).contains(
         entry("temporaryDepDescription", Set.of("temporaryDepDescription.empty"))
     );
@@ -387,7 +424,7 @@ public class ProjectInformationValidatorTest {
   public void validate_temporaryDeposit_Null() {
     var form = new ProjectInformationForm();
     Map<String, Set<String>> errorsMap = getErrorMap(form, new ProjectInformationFormValidationHints(
-        ValidationType.FULL, Set.of(ProjectInformationQuestion.TEMPORARY_DEPOSITS_BEING_MADE), false));
+        PwaApplicationType.INITIAL, ValidationType.FULL, Set.of(ProjectInformationQuestion.TEMPORARY_DEPOSITS_BEING_MADE), false));
     assertThat(errorsMap).contains(
         entry("temporaryDepositsMade", Set.of("temporaryDepositsMade.notSelected"))
     );
@@ -398,7 +435,7 @@ public class ProjectInformationValidatorTest {
   public void validate_noFdpQuestionRequired() {
     var form = new ProjectInformationForm();
     Map<String, Set<String>> errorsMap = getErrorMap(form, new ProjectInformationFormValidationHints(
-        ValidationType.FULL, Set.of(), false));
+        PwaApplicationType.INITIAL, ValidationType.FULL, Set.of(), false));
     assertThat(errorsMap).doesNotContain(
         entry("fdpOptionSelected", Set.of("fdpOptionSelected" + FieldValidationErrorCodes.REQUIRED.getCode())),
         entry("fdpConfirmationFlag", Set.of("fdpConfirmationFlag" + FieldValidationErrorCodes.REQUIRED.getCode())),
@@ -412,7 +449,7 @@ public class ProjectInformationValidatorTest {
     form.setFdpOptionSelected(true);
     form.setFdpConfirmationFlag(true);
     Map<String, Set<String>> errorsMap = getErrorMap(form, new ProjectInformationFormValidationHints(
-        ValidationType.FULL, Set.of(ProjectInformationQuestion.FIELD_DEVELOPMENT_PLAN), true));
+        PwaApplicationType.INITIAL, ValidationType.FULL, Set.of(ProjectInformationQuestion.FIELD_DEVELOPMENT_PLAN), true));
     assertThat(errorsMap).doesNotContain(
         entry("fdpOptionSelected", Set.of("fdpOptionSelected" + FieldValidationErrorCodes.REQUIRED.getCode())),
         entry("fdpConfirmationFlag", Set.of("fdpConfirmationFlag" + FieldValidationErrorCodes.REQUIRED.getCode())),
@@ -424,7 +461,7 @@ public class ProjectInformationValidatorTest {
   public void validate_fdpQuestionRequired_noFdpOptionSelected() {
     var form = new ProjectInformationForm();
     Map<String, Set<String>> errorsMap = getErrorMap(form, new ProjectInformationFormValidationHints(
-        ValidationType.FULL, Set.of(ProjectInformationQuestion.FIELD_DEVELOPMENT_PLAN), true));
+        PwaApplicationType.INITIAL, ValidationType.FULL, Set.of(ProjectInformationQuestion.FIELD_DEVELOPMENT_PLAN), true));
     assertThat(errorsMap).contains(
         entry("fdpOptionSelected", Set.of("fdpOptionSelected" + FieldValidationErrorCodes.REQUIRED.getCode()))
     );
@@ -435,7 +472,7 @@ public class ProjectInformationValidatorTest {
     var form = new ProjectInformationForm();
     form.setFdpOptionSelected(true);
     Map<String, Set<String>> errorsMap = getErrorMap(form, new ProjectInformationFormValidationHints(
-        ValidationType.FULL, Set.of(ProjectInformationQuestion.FIELD_DEVELOPMENT_PLAN), true));
+        PwaApplicationType.INITIAL, ValidationType.FULL, Set.of(ProjectInformationQuestion.FIELD_DEVELOPMENT_PLAN), true));
     assertThat(errorsMap).contains(
         entry("fdpConfirmationFlag", Set.of("fdpConfirmationFlag" + FieldValidationErrorCodes.REQUIRED.getCode()))
     );
@@ -446,7 +483,7 @@ public class ProjectInformationValidatorTest {
     var form = new ProjectInformationForm();
     form.setFdpOptionSelected(false);
     Map<String, Set<String>> errorsMap = getErrorMap(form, new ProjectInformationFormValidationHints(
-        ValidationType.FULL, Set.of(ProjectInformationQuestion.FIELD_DEVELOPMENT_PLAN), true));
+        PwaApplicationType.INITIAL, ValidationType.FULL, Set.of(ProjectInformationQuestion.FIELD_DEVELOPMENT_PLAN), true));
     assertThat(errorsMap).contains(
         entry("fdpNotSelectedReason", Set.of("fdpNotSelectedReason" + FieldValidationErrorCodes.REQUIRED.getCode()))
     );
@@ -459,7 +496,7 @@ public class ProjectInformationValidatorTest {
         new UploadFileWithDescriptionForm("1", "2", Instant.now())
     ));
     var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form,
-        new ProjectInformationFormValidationHints(ValidationType.FULL, Set.of(ProjectInformationQuestion.PROJECT_LAYOUT_DIAGRAM), false));
+        new ProjectInformationFormValidationHints(PwaApplicationType.INITIAL, ValidationType.FULL, Set.of(ProjectInformationQuestion.PROJECT_LAYOUT_DIAGRAM), false));
     assertThat(errorsMap).doesNotContainKeys("uploadedFileWithDescriptionForms");
   }
 
@@ -471,7 +508,7 @@ public class ProjectInformationValidatorTest {
         new UploadFileWithDescriptionForm("3", "4", Instant.now())
     ));
     var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form,
-        new ProjectInformationFormValidationHints(ValidationType.FULL, Set.of(ProjectInformationQuestion.PROJECT_LAYOUT_DIAGRAM), false));
+        new ProjectInformationFormValidationHints(PwaApplicationType.INITIAL, ValidationType.FULL, Set.of(ProjectInformationQuestion.PROJECT_LAYOUT_DIAGRAM), false));
     assertThat(errorsMap).containsKeys("uploadedFileWithDescriptionForms");
   }
 
@@ -479,7 +516,7 @@ public class ProjectInformationValidatorTest {
   public void validate_partialValidation_noFullValidationErrorsPresent() {
     var form = new ProjectInformationForm();
     var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form,
-        new ProjectInformationFormValidationHints(ValidationType.PARTIAL, EnumSet.allOf(ProjectInformationQuestion.class), false));
+        new ProjectInformationFormValidationHints(PwaApplicationType.INITIAL, ValidationType.PARTIAL, EnumSet.allOf(ProjectInformationQuestion.class), false));
     assertThat(errorsMap).containsOnlyKeys("projectName", "projectOverview", "methodOfPipelineDeployment");
   }
 
@@ -487,7 +524,7 @@ public class ProjectInformationValidatorTest {
   public void validate_validationNotRequired_whenQuestionNotProvided() {
     var form = new ProjectInformationForm();
     var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form,
-        new ProjectInformationFormValidationHints(ValidationType.FULL, Set.of(), false));
+        new ProjectInformationFormValidationHints(PwaApplicationType.INITIAL, ValidationType.FULL, Set.of(), false));
     assertThat(errorsMap).isEmpty();
   }
 

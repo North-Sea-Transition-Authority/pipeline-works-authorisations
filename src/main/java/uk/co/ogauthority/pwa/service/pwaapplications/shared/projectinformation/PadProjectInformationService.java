@@ -134,7 +134,7 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
                                 PwaApplicationDetail pwaApplicationDetail) {
 
     var projectInfoValidationHints = new ProjectInformationFormValidationHints(
-        validationType,
+        pwaApplicationDetail.getPwaApplicationType(), validationType,
         getRequiredQuestions(pwaApplicationDetail.getPwaApplicationType()),
         isFdpQuestionRequired(pwaApplicationDetail));
     projectInformationValidator.validate(form, bindingResult, projectInfoValidationHints);
