@@ -12,6 +12,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
@@ -23,6 +24,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
+import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.applicationupdates.ApplicationUpdateRequest;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.enums.appprocessing.applicationupdates.ApplicationUpdateRequestStatus;
@@ -37,6 +39,7 @@ import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationWorkflowMessag
 import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationWorkflowTask;
 import uk.co.ogauthority.pwa.service.enums.workflow.WorkflowMessageEvent;
 import uk.co.ogauthority.pwa.service.notify.NotifyService;
+import uk.co.ogauthority.pwa.service.person.PersonService;
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.PwaApplicationDetailVersioningService;
 import uk.co.ogauthority.pwa.service.workflow.assignment.WorkflowAssignmentService;
@@ -60,7 +63,9 @@ public class ApplicationUpdateRequestServiceTest {
   private static final String PREPARER_2_EMAIL = "PREP_2@email.com";
 
   private static final String REASON = "REASON";
-  private static final int PERSON_ID = 1;
+
+  private static final PersonId REQUESTER_PERSON_ID = new PersonId(10);
+  private static final PersonId RESPONDER_PERSON_ID = new PersonId(20);
 
   @Mock
   private ApplicationUpdateRequestRepository applicationUpdateRequestRepository;
@@ -76,6 +81,9 @@ public class ApplicationUpdateRequestServiceTest {
 
   @Mock
   private WorkflowAssignmentService workflowAssignmentService;
+
+  @Mock
+  private PersonService personService;
 
   private Clock clock = Clock.fixed(Instant.now(), ZoneId.systemDefault());
 
@@ -93,7 +101,8 @@ public class ApplicationUpdateRequestServiceTest {
   @Captor
   private ArgumentCaptor<WorkflowMessageEvent> messageEventArgumentCaptor;
 
-  private Person person;
+  private Person responderPerson;
+  private Person requesterPerson;
   private WebUserAccount user;
 
   private Person preparer1;
@@ -101,10 +110,13 @@ public class ApplicationUpdateRequestServiceTest {
 
   private PwaApplicationDetail pwaApplicationDetail;
 
+  private ApplicationUpdateRequest defaultUpdateRequest;
+
   @Before
   public void setUp() throws Exception {
-    person = new Person(PERSON_ID, "test", "person", "email", TELEPHONE);
-    user = new WebUserAccount(99, person);
+    responderPerson = new Person(RESPONDER_PERSON_ID.asInt(), "test", "person", "email", TELEPHONE);
+    requesterPerson = new Person(REQUESTER_PERSON_ID.asInt(), "test1", "person1", "email1", TELEPHONE);
+    user = new WebUserAccount(99, responderPerson);
     preparer1 = new Person(PREPARER_1_ID, PREPARER_FORENAME, PREPARER_1_SURNAME, PREPARER_1_EMAIL, TELEPHONE);
     preparer2 = new Person(PREPARER_2_ID, PREPARER_FORENAME, PREPARER_2_SURNAME, PREPARER_2_EMAIL, TELEPHONE);
 
@@ -116,21 +128,27 @@ public class ApplicationUpdateRequestServiceTest {
         notifyService,
         pwaContactService,
         pwaApplicationDetailVersioningService,
-        workflowAssignmentService
+        workflowAssignmentService,
+        personService
     );
+
+    defaultUpdateRequest = new ApplicationUpdateRequest();
+    defaultUpdateRequest.setRequestedByPersonId(REQUESTER_PERSON_ID);
+
+    when(personService.getPersonById(REQUESTER_PERSON_ID)).thenReturn(requesterPerson);
   }
 
   @Test
   public void createApplicationUpdateRequest_savedRequestHasExpectedAttributes() {
 
-    applicationUpdateRequestService.createApplicationUpdateRequest(pwaApplicationDetail, person, REASON);
+    applicationUpdateRequestService.createApplicationUpdateRequest(pwaApplicationDetail, responderPerson, REASON);
 
     verify(applicationUpdateRequestRepository, times(1)).save(appUpdateArgCapture.capture());
 
     var updateRequest = appUpdateArgCapture.getValue();
 
     assertThat(updateRequest.getRequestReason()).isEqualTo(REASON);
-    assertThat(updateRequest.getRequestedByPersonId()).isEqualTo(new PersonId(PERSON_ID));
+    assertThat(updateRequest.getRequestedByPersonId()).isEqualTo(RESPONDER_PERSON_ID);
     assertThat(updateRequest.getRequestedTimestamp()).isEqualTo(clock.instant());
     assertThat(updateRequest.getPwaApplicationDetail()).isEqualTo(pwaApplicationDetail);
     assertThat(updateRequest.getStatus()).isEqualTo(ApplicationUpdateRequestStatus.OPEN);
@@ -138,9 +156,23 @@ public class ApplicationUpdateRequestServiceTest {
   }
 
   @Test
-  public void applicationDetailHasOpenUpdateRequest_serviceInteraction() {
-    when(applicationUpdateRequestRepository.existsByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(true);
+  public void applicationDetailHasOpenUpdateRequest_whenOpenUpdateRequest() {
+    when(applicationUpdateRequestRepository.findByPwaApplicationDetail_pwaApplicationAndStatus(
+        pwaApplicationDetail.getPwaApplication(), ApplicationUpdateRequestStatus.OPEN
+    ))
+        .thenReturn(Optional.of(defaultUpdateRequest));
     assertThat(applicationUpdateRequestService.applicationDetailHasOpenUpdateRequest(pwaApplicationDetail)).isTrue();
+
+  }
+
+  @Test
+  public void applicationDetailHasOpenUpdateRequest_whenNoOpenUpdateRequest() {
+    when(applicationUpdateRequestRepository.findByPwaApplicationDetail_pwaApplicationAndStatus(
+        pwaApplicationDetail.getPwaApplication(), ApplicationUpdateRequestStatus.OPEN
+    ))
+        .thenReturn(Optional.empty());
+    assertThat(applicationUpdateRequestService.applicationDetailHasOpenUpdateRequest(pwaApplicationDetail)).isFalse();
+
   }
 
   @Test
@@ -150,7 +182,7 @@ public class ApplicationUpdateRequestServiceTest {
         PwaContactRole.PREPARER))
         .thenReturn(List.of(preparer1, preparer2));
 
-    applicationUpdateRequestService.sendApplicationUpdateRequestedEmail(pwaApplicationDetail, person);
+    applicationUpdateRequestService.sendApplicationUpdateRequestedEmail(pwaApplicationDetail, responderPerson);
 
     verify(notifyService, times(2)).sendEmail(emailPropertiesArgumentCaptor.capture(), stringArgCaptor.capture());
 
@@ -174,7 +206,7 @@ public class ApplicationUpdateRequestServiceTest {
   @Test
   public void sendApplicationUpdateRequestedEmail_wheZeroPreparers() {
 
-    applicationUpdateRequestService.sendApplicationUpdateRequestedEmail(pwaApplicationDetail, person);
+    applicationUpdateRequestService.sendApplicationUpdateRequestedEmail(pwaApplicationDetail, responderPerson);
 
     verify(notifyService, times(0)).sendEmail(any(), any());
   }
@@ -209,7 +241,7 @@ public class ApplicationUpdateRequestServiceTest {
                                                String recipientFullName) {
 
     assertThat(emailProperties.getEmailPersonalisation()).contains(
-        entry("CASE_OFFICER_NAME", person.getFullName()),
+        entry("CASE_OFFICER_NAME", responderPerson.getFullName()),
         entry("APPLICATION_REFERENCE", pwaApplicationDetail.getPwaApplicationRef())
     );
     assertThat(emailProperties.getRecipientFullName()).isEqualTo(recipientFullName);
@@ -238,4 +270,42 @@ public class ApplicationUpdateRequestServiceTest {
 
   }
 
+  @Test
+  public void respondToApplicationOpenUpdateRequest_happyPath() {
+
+    when(applicationUpdateRequestRepository.findByPwaApplicationDetail_pwaApplicationAndStatus(
+        pwaApplicationDetail.getPwaApplication(), ApplicationUpdateRequestStatus.OPEN
+    ))
+        .thenReturn(Optional.of(defaultUpdateRequest));
+
+    applicationUpdateRequestService.respondToApplicationOpenUpdateRequest(pwaApplicationDetail, responderPerson, "RESPONSE");
+
+    verify(applicationUpdateRequestRepository, times(1)).save(appUpdateArgCapture.capture());
+
+
+    assertThat(appUpdateArgCapture.getValue()).satisfies(applicationUpdateRequest -> {
+      assertThat(applicationUpdateRequest.getResponseTimestamp()).isEqualTo(clock.instant());
+      assertThat(applicationUpdateRequest.getResponseOtherChanges()).isEqualTo("RESPONSE");
+      assertThat(applicationUpdateRequest.getResponseByPersonId()).isEqualTo(RESPONDER_PERSON_ID);
+      assertThat(applicationUpdateRequest.getResponsePwaApplicationDetail()).isEqualTo(pwaApplicationDetail);
+    });
+
+    verify(personService, times(1)).getPersonById(REQUESTER_PERSON_ID);
+
+    verify(notifyService, times(1)).sendEmail(emailPropertiesArgumentCaptor.capture(), eq(requesterPerson.getEmailAddress()));
+
+    assertThat(emailPropertiesArgumentCaptor.getValue()).satisfies(emailProperties -> {
+      assertThat(emailProperties.getRecipientFullName()).isEqualTo(requesterPerson.getFullName());
+      assertThat(emailProperties.getTemplate()).isEqualTo(NotifyTemplate.APPLICATION_UPDATE_RESPONDED);
+      assertThat(emailProperties.getEmailPersonalisation().get("APPLICATION_REFERENCE"))
+          .isEqualTo(pwaApplicationDetail.getPwaApplicationRef());
+    });
+
+  }
+
+  @Test(expected = PwaEntityNotFoundException.class)
+  public void respondToApplicationOpenUpdateRequest_noOpenUpdateRequest() {
+    applicationUpdateRequestService.respondToApplicationOpenUpdateRequest(pwaApplicationDetail, responderPerson, "RESPONSE");
+
+  }
 }

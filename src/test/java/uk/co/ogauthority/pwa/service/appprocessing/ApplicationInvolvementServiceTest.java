@@ -25,13 +25,17 @@ import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.Cons
 import uk.co.ogauthority.pwa.service.consultations.ConsultationRequestService;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 import uk.co.ogauthority.pwa.service.enums.users.UserType;
+import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationWorkflowTask;
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
 import uk.co.ogauthority.pwa.service.users.UserTypeService;
 import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
+import uk.co.ogauthority.pwa.service.workflow.task.WorkflowTaskInstance;
 import uk.co.ogauthority.pwa.testutils.ConsulteeGroupTestingUtils;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ApplicationInvolvementServiceTest {
+
+  private static final PersonId PERSON_ID = new PersonId(10);
 
   @Mock
   private PwaContactService pwaContactService;
@@ -56,7 +60,8 @@ public class ApplicationInvolvementServiceTest {
   @Before
   public void setUp() {
 
-    applicationInvolvementService = new ApplicationInvolvementService(consulteeGroupTeamService, pwaContactService, consultationRequestService, camundaWorkflowService, userTypeService);
+    applicationInvolvementService = new ApplicationInvolvementService(consulteeGroupTeamService, pwaContactService,
+        consultationRequestService, camundaWorkflowService, userTypeService);
 
     application = new PwaApplication();
     user = new AuthenticatedUserAccount(new WebUserAccount(1, new Person(1, null, null, null, null)), Set.of());
@@ -67,7 +72,8 @@ public class ApplicationInvolvementServiceTest {
   public void getApplicationInvolvementDto_industryUser_isContact_onlyRelevantInteractionsAndDataPopulated() {
 
     when(userTypeService.getUserType(user)).thenReturn(UserType.INDUSTRY);
-    when(pwaContactService.getContactRoles(application, user.getLinkedPerson())).thenReturn(Set.of(PwaContactRole.PREPARER));
+    when(pwaContactService.getContactRoles(application, user.getLinkedPerson())).thenReturn(
+        Set.of(PwaContactRole.PREPARER));
 
     var involvement = applicationInvolvementService.getApplicationInvolvementDto(application, user);
 
@@ -185,6 +191,26 @@ public class ApplicationInvolvementServiceTest {
 
   }
 
+  @Test
+  public void getCaseOfficerPersonId_whenAssigned() {
+    when(camundaWorkflowService.getAssignedPersonId(
+        new WorkflowTaskInstance(application, PwaApplicationWorkflowTask.CASE_OFFICER_REVIEW))
+    ).thenReturn(Optional.of(PERSON_ID));
+
+    var caseOfficerPersonIdOpt = applicationInvolvementService.getCaseOfficerPersonId(application);
+
+    assertThat(caseOfficerPersonIdOpt).contains(PERSON_ID);
+
+  }
+
+  @Test
+  public void getCaseOfficerPersonId_whenNot() {
+
+    var caseOfficerPersonIdOpt = applicationInvolvementService.getCaseOfficerPersonId(application);
+
+    assertThat(caseOfficerPersonIdOpt).isEmpty();
+
+  }
 
 
 }

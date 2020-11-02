@@ -1,11 +1,13 @@
 package uk.co.ogauthority.pwa.service.appprocessing;
 
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
 import uk.co.ogauthority.pwa.model.dto.appprocessing.ApplicationInvolvementDto;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupMemberRole;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupTeamMember;
@@ -47,7 +49,8 @@ public class ApplicationInvolvementService {
     this.userTypeService = userTypeService;
   }
 
-  public ApplicationInvolvementDto getApplicationInvolvementDto(PwaApplication application, AuthenticatedUserAccount user) {
+  public ApplicationInvolvementDto getApplicationInvolvementDto(PwaApplication application,
+                                                                AuthenticatedUserAccount user) {
 
     var userType = userTypeService.getUserType(user);
 
@@ -62,10 +65,9 @@ public class ApplicationInvolvementService {
     boolean caseOfficerStageAndUserAssigned = false;
 
     if (userType == UserType.OGA) {
-      caseOfficerStageAndUserAssigned = camundaWorkflowService
-          .getAssignedPersonId(new WorkflowTaskInstance(application, PwaApplicationWorkflowTask.CASE_OFFICER_REVIEW))
-          .map(personId -> user.getLinkedPerson().getId().equals(personId))
-          .orElse(false);
+      caseOfficerStageAndUserAssigned = getCaseOfficerPersonId(application)
+          .filter(personId -> personId.equals(user.getLinkedPerson().getId()))
+          .isPresent();
     }
 
     return new ApplicationInvolvementDto(
@@ -74,6 +76,12 @@ public class ApplicationInvolvementService {
         consulteeRoles,
         caseOfficerStageAndUserAssigned);
 
+  }
+
+  public Optional<PersonId> getCaseOfficerPersonId(PwaApplication pwaApplication) {
+    return camundaWorkflowService.getAssignedPersonId(
+        new WorkflowTaskInstance(pwaApplication, PwaApplicationWorkflowTask.CASE_OFFICER_REVIEW)
+    );
   }
 
   private Set<ConsulteeGroupMemberRole> getConsulteeRoles(PwaApplication application, AuthenticatedUserAccount user) {
@@ -87,7 +95,8 @@ public class ApplicationInvolvementService {
     if (consulteeGroup != null) {
 
       // user has consulted on app if group they are part of has a consultation request for the application
-      ConsultationRequest consultationRequest = consultationRequestService.getAllRequestsByApplication(application).stream()
+      ConsultationRequest consultationRequest = consultationRequestService.getAllRequestsByApplication(
+          application).stream()
           .filter(r -> Objects.equals(consulteeGroup, r.getConsulteeGroup()))
           .findFirst()
           .orElse(null);

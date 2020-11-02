@@ -43,6 +43,19 @@ public class ApplicationUpdateRequest {
   @Enumerated(EnumType.STRING)
   private ApplicationUpdateRequestStatus status;
 
+  @Basic
+  @Convert(converter = PersonIdConverter.class)
+  private PersonId responseByPersonId;
+
+  private Instant responseTimestamp;
+
+  private String responseOtherChanges;
+
+  @ManyToOne
+  @JoinColumn(name = "response_pad_id")
+  private PwaApplicationDetail responsePwaApplicationDetail;
+
+
   public static ApplicationUpdateRequest createRequest(PwaApplicationDetail pwaApplicationDetail,
                                          Person creatorPerson,
                                          Clock clock,
@@ -103,5 +116,38 @@ public class ApplicationUpdateRequest {
 
   public void setStatus(ApplicationUpdateRequestStatus status) {
     this.status = status;
+  }
+
+  public PersonId getResponseByPersonId() {
+    return responseByPersonId;
+  }
+
+  public void setResponseByPersonId(PersonId responseByPersonId) {
+    this.responseByPersonId = responseByPersonId;
+  }
+
+  public Instant getResponseTimestamp() {
+    return responseTimestamp;
+  }
+
+  public void setResponseTimestamp(Instant responseTimestamp) {
+    this.responseTimestamp = responseTimestamp;
+  }
+
+  public String getResponseOtherChanges() {
+    return responseOtherChanges;
+  }
+
+  public void setResponseOtherChanges(String responseOtherChanges) {
+    this.responseOtherChanges = responseOtherChanges;
+  }
+
+  public PwaApplicationDetail getResponsePwaApplicationDetail() {
+    return responsePwaApplicationDetail;
+  }
+
+  public void setResponsePwaApplicationDetail(
+      PwaApplicationDetail responsePwaApplicationDetail) {
+    this.responsePwaApplicationDetail = responsePwaApplicationDetail;
   }
 }

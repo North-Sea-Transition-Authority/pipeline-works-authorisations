@@ -11,19 +11,21 @@ import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.enums.appprocessing.applicationupdates.ApplicationUpdateRequestStatus;
-import uk.co.ogauthority.pwa.repository.appprocessing.applicationupdates.ApplicationUpdateRequestRepository;
+import uk.co.ogauthority.pwa.repository.appprocessing.applicationupdates.ApplicationUpdateRequestViewRepository;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ApplicationUpdateRequestViewServiceTest {
 
   @Mock
-  private ApplicationUpdateRequestRepository applicationUpdateRequestRepository;
+  private ApplicationUpdateRequestViewRepository applicationUpdateRequestViewRepository;
 
   private ApplicationUpdateRequestViewService applicationUpdateRequestViewService;
 
   @Before
   public void setUp() {
-    applicationUpdateRequestViewService = new ApplicationUpdateRequestViewService(applicationUpdateRequestRepository);
+    applicationUpdateRequestViewService = new ApplicationUpdateRequestViewService(
+        applicationUpdateRequestViewRepository
+    );
   }
 
   @Test
@@ -33,7 +35,7 @@ public class ApplicationUpdateRequestViewServiceTest {
 
     applicationUpdateRequestViewService.getOpenRequestView(detail);
 
-    verify(applicationUpdateRequestRepository, times(1))
+    verify(applicationUpdateRequestViewRepository, times(1))
         .findByPwaApplicationDetailAndStatus(detail, ApplicationUpdateRequestStatus.OPEN);
 
   }
@@ -45,7 +47,7 @@ public class ApplicationUpdateRequestViewServiceTest {
 
     applicationUpdateRequestViewService.getOpenRequestView(app);
 
-    verify(applicationUpdateRequestRepository, times(1))
+    verify(applicationUpdateRequestViewRepository, times(1))
         .findByPwaApplicationDetail_pwaApplicationAndStatus(app, ApplicationUpdateRequestStatus.OPEN);
 
   }

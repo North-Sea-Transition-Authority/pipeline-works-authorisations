@@ -55,7 +55,9 @@ public class PwaApplicationDetailServiceTest {
   private static final int WUA_ID_2 = 2;
   private static final PersonId WUA_1_PERSON_ID = new PersonId(10);
   private static final PersonId WUA_2_PERSON_ID = new PersonId(20);
-  private static int APP_ID = 1;
+  private static final int APP_ID = 1;
+
+  private static final PwaApplicationStatus DEFAULT_SUBMISSION_STATUS = PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW;
 
   @Mock
   private PwaApplicationDetailRepository applicationDetailRepository;
@@ -185,7 +187,8 @@ public class PwaApplicationDetailServiceTest {
 
     var submittedDetail = pwaApplicationDetailService.setSubmitted(
         detail,
-        alternativeWua
+        alternativeWua,
+        DEFAULT_SUBMISSION_STATUS
     );
 
     assertThat(submittedDetail.getStatusLastModifiedTimestamp()).isEqualTo(clock.instant());

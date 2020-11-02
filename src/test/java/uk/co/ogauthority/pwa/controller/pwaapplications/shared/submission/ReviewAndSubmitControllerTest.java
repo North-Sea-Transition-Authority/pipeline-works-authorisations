@@ -46,6 +46,7 @@ import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 public class ReviewAndSubmitControllerTest extends PwaApplicationContextAbstractControllerTest {
 
   private static final int APP_ID = 99;
+  private static final String SUBMISSION_DESC = "MY SUBMISSION";
   // mocked redirect service gets injected into spyBean, not mockBean
   @SpyBean
   private ApplicationBreadcrumbService breadcrumbService;
@@ -216,7 +217,7 @@ public class ReviewAndSubmitControllerTest extends PwaApplicationContextAbstract
         .andExpect(result -> result.getModelAndView().getViewName().equals(
             "pwaApplication/shared/submission/submitConfirmation"));
 
-    verify(pwaApplicationSubmissionService, times(1)).submitApplication(user, detail);
+    verify(pwaApplicationSubmissionService, times(1)).submitApplication(user, detail, SUBMISSION_DESC);
   }
 
 }

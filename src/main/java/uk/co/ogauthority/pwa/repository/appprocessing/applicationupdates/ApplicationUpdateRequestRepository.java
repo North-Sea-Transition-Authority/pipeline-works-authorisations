@@ -8,17 +8,14 @@ import uk.co.ogauthority.pwa.model.entity.appprocessing.applicationupdates.Appli
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.enums.appprocessing.applicationupdates.ApplicationUpdateRequestStatus;
-import uk.co.ogauthority.pwa.model.view.appprocessing.applicationupdates.ApplicationUpdateRequestView;
 
 @Repository
 public interface ApplicationUpdateRequestRepository extends CrudRepository<ApplicationUpdateRequest, Integer> {
 
   boolean existsByPwaApplicationDetail(PwaApplicationDetail pwaApplicationDetail);
 
-  Optional<ApplicationUpdateRequestView> findByPwaApplicationDetailAndStatus(PwaApplicationDetail pwaApplicationDetail,
-                                                                             ApplicationUpdateRequestStatus status);
+  Optional<ApplicationUpdateRequest> findByPwaApplicationDetail_pwaApplicationAndStatus(PwaApplication pwaApplication,
+                                                                                        ApplicationUpdateRequestStatus status);
 
-  Optional<ApplicationUpdateRequestView> findByPwaApplicationDetail_pwaApplicationAndStatus(PwaApplication pwaApplication,
-                                                                                            ApplicationUpdateRequestStatus status);
 
 }

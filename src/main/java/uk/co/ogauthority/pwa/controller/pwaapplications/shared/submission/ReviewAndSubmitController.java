@@ -14,6 +14,7 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationSta
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTypeCheck;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.applicationsummariser.ApplicationSummaryViewService;
+import uk.co.ogauthority.pwa.service.appprocessing.applicationupdate.ApplicationUpdateRequestService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
@@ -40,14 +41,17 @@ public class ReviewAndSubmitController {
   private final PwaApplicationRedirectService pwaApplicationRedirectService;
   private final PwaApplicationSubmissionService pwaApplicationSubmissionService;
   private final ApplicationSummaryViewService applicationSummaryViewService;
+  private final ApplicationUpdateRequestService applicationUpdateRequestService;
 
   @Autowired
   public ReviewAndSubmitController(PwaApplicationRedirectService pwaApplicationRedirectService,
                                    PwaApplicationSubmissionService pwaApplicationSubmissionService,
-                                   ApplicationSummaryViewService applicationSummaryViewService) {
+                                   ApplicationSummaryViewService applicationSummaryViewService,
+                                   ApplicationUpdateRequestService applicationUpdateRequestService) {
     this.pwaApplicationRedirectService = pwaApplicationRedirectService;
     this.pwaApplicationSubmissionService = pwaApplicationSubmissionService;
     this.applicationSummaryViewService = applicationSummaryViewService;
+    this.applicationUpdateRequestService = applicationUpdateRequestService;
   }
 
   @GetMapping
@@ -78,7 +82,7 @@ public class ReviewAndSubmitController {
       PwaApplicationContext applicationContext) {
 
     pwaApplicationSubmissionService.submitApplication(applicationContext.getUser(),
-        applicationContext.getApplicationDetail());
+        applicationContext.getApplicationDetail(), "String describing submission.");
     return ReverseRouter.redirect(
         on(SubmitConfirmationController.class).confirmation(applicationType, applicationId, null));
 
