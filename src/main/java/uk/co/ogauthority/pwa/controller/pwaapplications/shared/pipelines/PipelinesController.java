@@ -80,7 +80,7 @@ public class PipelinesController {
     this.controllerHelperService = controllerHelperService;
   }
 
-  private ModelAndView getOverviewModelAndView(PwaApplicationDetail detail, PadPipeline pipeline) {
+  private ModelAndView getOverviewModelAndView(PwaApplicationDetail detail) {
 
     var modelAndView = new ModelAndView("pwaApplication/shared/pipelines/overview")
         .addObject("pipelineTaskListItems", padPipelineService.getPipelineTaskListItems(detail).stream()
@@ -110,7 +110,7 @@ public class PipelinesController {
                                               @PathVariable("applicationType")
                                               @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
                                               PwaApplicationContext applicationContext) {
-    return getOverviewModelAndView(applicationContext.getApplicationDetail(), applicationContext.getPadPipeline());
+    return getOverviewModelAndView(applicationContext.getApplicationDetail());
   }
 
   @PostMapping
@@ -124,7 +124,7 @@ public class PipelinesController {
     var pipelineSummaryValidationResult = padPipelineService.getValidationResult(detail);
 
     if (!pipelineSummaryValidationResult.isSectionComplete()) {
-      return getOverviewModelAndView(applicationContext.getApplicationDetail(), applicationContext.getPadPipeline())
+      return getOverviewModelAndView(applicationContext.getApplicationDetail())
           .addObject("pipelineSummaryValidationResult", pipelineSummaryValidationResult);
     }
 

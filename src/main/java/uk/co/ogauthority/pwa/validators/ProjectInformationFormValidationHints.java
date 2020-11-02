@@ -1,32 +1,47 @@
 package uk.co.ogauthority.pwa.validators;
 
 import java.util.Objects;
+import java.util.Set;
+import uk.co.ogauthority.pwa.model.entity.enums.ProjectInformationQuestion;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 
 public class ProjectInformationFormValidationHints {
 
-  private final boolean isAnyDepositQuestionRequired;
-  private final boolean isPermanentDepositQuestionRequired;
-  private final Boolean isFdpQuestionRequired;
+  private final PwaApplicationType pwaApplicationType;
+  private final ValidationType validationType;
+  private final Set<ProjectInformationQuestion> requiredQuestions;
+  private final Boolean isFdpQuestionRequiredBasedOnField;
 
-  public ProjectInformationFormValidationHints(boolean isAnyDepositQuestionRequired,
-                                               boolean isPermanentDepositQuestionRequired, Boolean isFdpQuestionRequired) {
-    this.isAnyDepositQuestionRequired = isAnyDepositQuestionRequired;
-    this.isPermanentDepositQuestionRequired = isPermanentDepositQuestionRequired;
-    this.isFdpQuestionRequired = isFdpQuestionRequired;
+  public ProjectInformationFormValidationHints(
+      PwaApplicationType pwaApplicationType,
+      ValidationType validationType,
+      Set<ProjectInformationQuestion> requiredQuestions,
+      Boolean isFdpQuestionRequiredBasedOnField) {
+    this.pwaApplicationType = pwaApplicationType;
+    this.validationType = validationType;
+    this.requiredQuestions = requiredQuestions;
+    this.isFdpQuestionRequiredBasedOnField = isFdpQuestionRequiredBasedOnField;
   }
 
-  public boolean isAnyDepositQuestionRequired() {
-    return isAnyDepositQuestionRequired;
+  public PwaApplicationType getPwaApplicationType() {
+    return pwaApplicationType;
   }
 
-  public boolean isPermanentDepositQuestionRequired() {
-    return isPermanentDepositQuestionRequired;
+  public ValidationType getValidationType() {
+    return validationType;
+  }
+
+  public Set<ProjectInformationQuestion> getRequiredQuestions() {
+    return requiredQuestions;
   }
 
   public Boolean isFdpQuestionRequired() {
-    return isFdpQuestionRequired;
+    return isFdpQuestionRequiredBasedOnField;
   }
 
+
+  //add app type..
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -36,13 +51,14 @@ public class ProjectInformationFormValidationHints {
       return false;
     }
     ProjectInformationFormValidationHints that = (ProjectInformationFormValidationHints) o;
-    return isAnyDepositQuestionRequired == that.isAnyDepositQuestionRequired
-        && isPermanentDepositQuestionRequired == that.isPermanentDepositQuestionRequired
-        && isFdpQuestionRequired == that.isFdpQuestionRequired;
+    return Objects.equals(pwaApplicationType, that.pwaApplicationType)
+        && validationType == that.validationType
+        && Objects.equals(requiredQuestions, that.requiredQuestions)
+        && Objects.equals(isFdpQuestionRequiredBasedOnField, that.isFdpQuestionRequiredBasedOnField);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(isAnyDepositQuestionRequired, isPermanentDepositQuestionRequired, isFdpQuestionRequired);
+    return Objects.hash(pwaApplicationType, validationType, requiredQuestions, isFdpQuestionRequiredBasedOnField);
   }
 }

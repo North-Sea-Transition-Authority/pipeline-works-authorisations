@@ -25,6 +25,7 @@ public class PadPipelineSummaryDto {
   private final String toLocation;
   private final CoordinatePair toCoordinates;
   private final String pipelineNumber;
+  private final String temporaryPipelineNumber;
   private final PipelineType pipelineType;
   private final String componentParts;
   private final BigDecimal length;
@@ -45,6 +46,7 @@ public class PadPipelineSummaryDto {
                                Integer pipelineId,
                                PipelineType pipelineType,
                                String pipelineNumber,
+                               String temporaryPipelineNumber,
                                BigDecimal length,
                                String componentParts,
                                String productsToBeConveyed,
@@ -117,6 +119,7 @@ public class PadPipelineSummaryDto {
     this.toCoordinates = new CoordinatePair(toLat, toLong);
 
     this.pipelineNumber = pipelineNumber;
+    this.temporaryPipelineNumber = temporaryPipelineNumber;
     this.pipelineType = pipelineType;
     this.componentParts = componentParts;
     this.length = length;
@@ -135,6 +138,7 @@ public class PadPipelineSummaryDto {
         null, null,
         pipelineDetail.getPipelineType(),
         pipelineDetail.getPipelineNumber(),
+        null, // temporary pipeline number never exists for consented pipelines
         pipelineDetail.getLength(),
         null, null, null,
         // From info.
@@ -257,5 +261,9 @@ public class PadPipelineSummaryDto {
 
   public String getPipelineStatusReason() {
     return pipelineStatusReason;
+  }
+
+  public String getTemporaryPipelineNumber() {
+    return temporaryPipelineNumber;
   }
 }

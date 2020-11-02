@@ -25,7 +25,7 @@ public class WorkAreaTabServiceTest {
 
   @Mock
   private UserTypeService userTypeService;
-  
+
   @Before
   public void setUp() {
 
@@ -71,7 +71,7 @@ public class WorkAreaTabServiceTest {
 
   @Test
   public void getDefaultTabForUser_noTabs() {
-    
+
     var defaultTabOpt = workAreaTabService.getDefaultTabForUser(user);
 
     assertThat(defaultTabOpt).isEmpty();

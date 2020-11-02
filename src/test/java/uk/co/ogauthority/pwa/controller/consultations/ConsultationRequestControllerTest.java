@@ -40,7 +40,6 @@ import uk.co.ogauthority.pwa.service.appprocessing.AppProcessingBreadcrumbServic
 import uk.co.ogauthority.pwa.service.appprocessing.PwaAppProcessingPermissionService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContextService;
-import uk.co.ogauthority.pwa.service.consultations.ConsultationRequestService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
@@ -50,9 +49,6 @@ import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 @RunWith(SpringRunner.class)
 @WebMvcTest(controllers = ConsultationRequestController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {PwaAppProcessingContextService.class}))
 public class ConsultationRequestControllerTest extends PwaAppProcessingContextAbstractControllerTest {
-
-  @MockBean
-  private ConsultationRequestService consultationRequestService;
 
   @MockBean
   private PwaAppProcessingPermissionService pwaAppProcessingPermissionService;
@@ -86,7 +82,8 @@ public class ConsultationRequestControllerTest extends PwaAppProcessingContextAb
   @Test
   public void renderRequestConsultation_getConsulteeGroups_sorted() {
 
-    var processingContext = new PwaAppProcessingContext(pwaApplicationDetail, null, Set.of(PwaAppProcessingPermission.ASSIGN_CASE_OFFICER), null);
+    var processingContext = new PwaAppProcessingContext(pwaApplicationDetail, null, Set.of(PwaAppProcessingPermission.ASSIGN_CASE_OFFICER), null,
+        null);
     var consulteeGroupDetail1 = new ConsulteeGroupDetail();
     consulteeGroupDetail1.setName("second consultee");
     consulteeGroupDetail1.setDisplayOrder(2);

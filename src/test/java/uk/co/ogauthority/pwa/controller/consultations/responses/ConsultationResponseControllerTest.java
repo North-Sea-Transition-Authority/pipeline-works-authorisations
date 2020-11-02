@@ -29,13 +29,13 @@ import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.PwaAppProcessingContextAbstractControllerTest;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
+import uk.co.ogauthority.pwa.model.dto.consultations.ConsultationRequestDto;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.consultation.ConsultationResponseForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.PwaAppProcessingPermissionService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContextService;
-import uk.co.ogauthority.pwa.service.consultations.ConsultationRequestService;
 import uk.co.ogauthority.pwa.service.consultations.ConsultationResponseService;
 import uk.co.ogauthority.pwa.service.consultations.ConsultationViewService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
@@ -49,9 +49,6 @@ public class ConsultationResponseControllerTest extends PwaAppProcessingContextA
 
   @MockBean
   private ConsultationResponseService consultationResponseService;
-
-  @MockBean
-  private ConsultationRequestService consultationRequestService;
 
   @MockBean
   private PwaAppProcessingPermissionService pwaAppProcessingPermissionService;
@@ -70,7 +67,7 @@ public class ConsultationResponseControllerTest extends PwaAppProcessingContextA
 
     user = new AuthenticatedUserAccount(
         new WebUserAccount(1),
-        EnumSet.allOf(PwaUserPrivilege.class));
+        EnumSet.of(PwaUserPrivilege.PWA_CONSULTEE));
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     pwaApplicationDetail.getPwaApplication().setId(1);
@@ -78,10 +75,14 @@ public class ConsultationResponseControllerTest extends PwaAppProcessingContextA
         .thenReturn(Optional.of(pwaApplicationDetail));
 
     consultationRequest = new ConsultationRequest();
+    consultationRequest.setId(1);
     when(consultationRequestService.getConsultationRequestById(any())).thenReturn(consultationRequest);
     when(consultationResponseService.isUserAssignedResponderForConsultation(any(), any())).thenReturn(true);
+    when(consultationRequestService.getActiveConsultationRequestByApplicationAndConsulteePerson(any(), any()))
+        .thenReturn(Optional.of(new ConsultationRequestDto("nme", consultationRequest)));
 
     endpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaApplicationDetailService, pwaAppProcessingPermissionService)
+        .setUserPrivileges(PwaUserPrivilege.PWA_CONSULTEE)
         .setAllowedProcessingPermissions(PwaAppProcessingPermission.CONSULTATION_RESPONDER);
 
   }
@@ -92,7 +93,7 @@ public class ConsultationResponseControllerTest extends PwaAppProcessingContextA
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(ConsultationResponseController.class)
-                .renderResponder(applicationDetail.getMasterPwaApplicationId(), type, 1, null, null, null)));
+                .renderResponder(applicationDetail.getMasterPwaApplicationId(), type, 1, null, null)));
 
     endpointTester.performProcessingPermissionCheck(status().isOk(), status().isForbidden());
 

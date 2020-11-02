@@ -1,6 +1,5 @@
 package uk.co.ogauthority.pwa.service.appprocessing.initialreview;
 
-import java.util.Optional;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -10,7 +9,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.notify.emailproperties.CaseOfficerAssignedEmailProps;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.service.appprocessing.tasks.AppProcessingService;
-import uk.co.ogauthority.pwa.service.enums.appprocessing.TaskStatus;
+import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationWorkflowTask;
 import uk.co.ogauthority.pwa.service.notify.NotifyService;
@@ -86,12 +85,8 @@ public class InitialReviewService implements AppProcessingService {
 
   @Override
   public boolean canShowInTaskList(PwaAppProcessingContext processingContext) {
-    return true;
+    return processingContext.getAppProcessingPermissions().contains(PwaAppProcessingPermission.ACCEPT_INITIAL_REVIEW)
+        || processingContext.getAppProcessingPermissions().contains(PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY);
   }
 
-  @Override
-  public Optional<TaskStatus> getTaskStatus(PwaAppProcessingContext processingContext) {
-    return applicationDetailService.isInitialReviewApproved(processingContext.getApplicationDetail())
-        ? Optional.of(TaskStatus.COMPLETED) : Optional.of(TaskStatus.NOT_STARTED);
-  }
 }

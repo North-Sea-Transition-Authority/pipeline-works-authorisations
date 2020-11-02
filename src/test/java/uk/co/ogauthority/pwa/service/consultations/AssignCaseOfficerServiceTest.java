@@ -106,7 +106,8 @@ public class AssignCaseOfficerServiceTest {
   @Test
   public void canShowInTaskList_hasPermission() {
     appDetail.setStatus(PwaApplicationStatus.CASE_OFFICER_REVIEW);
-    var processingContext = new PwaAppProcessingContext(appDetail, null, Set.of(PwaAppProcessingPermission.ASSIGN_CASE_OFFICER), null);
+    var processingContext = new PwaAppProcessingContext(appDetail, null, Set.of(PwaAppProcessingPermission.ASSIGN_CASE_OFFICER), null,
+        null);
 
     boolean canShow = assignCaseOfficerService.canShowInTaskList(processingContext);
 
@@ -117,7 +118,7 @@ public class AssignCaseOfficerServiceTest {
   @Test
   public void canShowInTaskList_noPermission() {
 
-    var processingContext = new PwaAppProcessingContext(null, null, Set.of(), null);
+    var processingContext = new PwaAppProcessingContext(null, null, Set.of(), null, null);
 
     boolean canShow = assignCaseOfficerService.canShowInTaskList(processingContext);
 
@@ -128,7 +129,8 @@ public class AssignCaseOfficerServiceTest {
   @Test
   public void canShowInTaskList_hasPermissionWithIncorrectStatus() {
     appDetail.setStatus(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW);
-    var processingContext = new PwaAppProcessingContext(appDetail, null, Set.of(PwaAppProcessingPermission.ASSIGN_CASE_OFFICER), null);
+    var processingContext = new PwaAppProcessingContext(appDetail, null, Set.of(PwaAppProcessingPermission.ASSIGN_CASE_OFFICER), null,
+        null);
 
     boolean canShow = assignCaseOfficerService.canShowInTaskList(processingContext);
 

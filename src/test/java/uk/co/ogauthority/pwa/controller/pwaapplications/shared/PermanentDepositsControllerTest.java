@@ -14,6 +14,7 @@ import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSe
 
 import java.math.BigDecimal;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Optional;
@@ -32,6 +33,7 @@ import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.PwaApplicationContextAbstractControllerTest;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.permanentdeposits.PermanentDepositController;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
+import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PadPermanentDeposit;
@@ -39,6 +41,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipe
 import uk.co.ogauthority.pwa.model.form.location.CoordinateForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.PermanentDepositsForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PadPipelineOverview;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview;
 import uk.co.ogauthority.pwa.model.location.CoordinatePair;
 import uk.co.ogauthority.pwa.model.location.LatitudeCoordinate;
 import uk.co.ogauthority.pwa.model.location.LongitudeCoordinate;
@@ -54,6 +57,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbServic
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits.PermanentDepositService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.viewfactories.PipelineAndIdentViewFactory;
 import uk.co.ogauthority.pwa.testutils.ControllerTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
@@ -80,6 +84,9 @@ public class PermanentDepositsControllerTest extends PwaApplicationContextAbstra
 
   @MockBean
   private PermanentDepositsValidator validator;
+
+  @MockBean
+  private PipelineAndIdentViewFactory pipelineAndIdentViewFactory;
 
   private PwaApplicationEndpointTestBuilder endpointTester;
 
@@ -154,13 +161,15 @@ public class PermanentDepositsControllerTest extends PwaApplicationContextAbstra
     pipeline.setPipelineRef("my ref");
     pipeline.setPipelineType(PipelineType.HYDRAULIC_JUMPER);
     pipeline.setPipelineInBundle(false);
-    when(padPipelineService.getApplicationPipelineOverviews(any())).thenReturn(List.of(new PadPipelineOverview(pipeline)));
+    var pipelineIdAndOverViewMap = new HashMap<PipelineId, PipelineOverview>();
+    pipelineIdAndOverViewMap.put(new PipelineId(1), new PadPipelineOverview(pipeline));
+    when(pipelineAndIdentViewFactory.getAllPipelineOverviewsFromAppAndMasterPwa(any())).thenReturn(pipelineIdAndOverViewMap);
 
     var controller = new PermanentDepositController(applicationBreadcrumbService, pwaApplicationRedirectService, permanentDepositService,
-        padPipelineService, null);
+        pipelineAndIdentViewFactory, null);
     var modelAndView = controller.renderAddPermanentDeposits(PwaApplicationType.INITIAL, 1, new PwaApplicationContext(pwaApplicationDetail, user, null), null);
     var pipelinesMap = (LinkedHashMap<String, String>) modelAndView.getModel().get("pipelines");
-    assertThat(pipelinesMap.get("null")).isEqualTo("my ref - " + PipelineType.HYDRAULIC_JUMPER.getDisplayName());
+    assertThat(pipelinesMap.get("1")).isEqualTo("my ref - " + PipelineType.HYDRAULIC_JUMPER.getDisplayName());
   }
 
   @Test

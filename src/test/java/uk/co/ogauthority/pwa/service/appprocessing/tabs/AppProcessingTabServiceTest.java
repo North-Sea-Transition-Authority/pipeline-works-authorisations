@@ -89,17 +89,14 @@ public class AppProcessingTabServiceTest {
 
     var tabs = tabService.getTabsAvailableToUser(authenticatedUserAccount);
 
-    assertThat(tabs).containsExactly(
-        AppProcessingTab.TASKS,
-        AppProcessingTab.CASE_HISTORY
-    );
+    assertThat(tabs).containsExactly(AppProcessingTab.TASKS);
 
   }
 
   @Test
   public void getTabContentModelMap_allTabContentRetrieved() {
 
-    var context = new PwaAppProcessingContext(null, null, null, null);
+    var context = new PwaAppProcessingContext(null, null, null, null, null);
 
     tabService.getTabContentModelMap(context, AppProcessingTab.TASKS);
 

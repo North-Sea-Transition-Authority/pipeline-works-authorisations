@@ -107,8 +107,8 @@ public class TasksTabContentServiceTest {
         new PwaApplicationDetail(),
         wua,
         Set.of(permissions),
-        null
-    );
+        null,
+        null);
   }
 
 }

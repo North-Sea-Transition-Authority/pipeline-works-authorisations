@@ -23,7 +23,8 @@ public class CaseSetupServiceTest {
   @Test
   public void canShowInTaskList() {
 
-    var processingContext = new PwaAppProcessingContext(null, null, Set.of(PwaAppProcessingPermission.CASE_OFFICER_REVIEW), null);
+    var processingContext = new PwaAppProcessingContext(null, null, Set.of(PwaAppProcessingPermission.CASE_OFFICER_REVIEW), null,
+        null);
 
     boolean canShow = caseSetupService.canShowInTaskList(processingContext);
 
@@ -34,7 +35,8 @@ public class CaseSetupServiceTest {
   @Test
   public void canShowInTaskList_industry() {
 
-    var processingContext = new PwaAppProcessingContext(null, null, Set.of(PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY), null);
+    var processingContext = new PwaAppProcessingContext(null, null, Set.of(PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY), null,
+        null);
 
     boolean canShow = caseSetupService.canShowInTaskList(processingContext);
 

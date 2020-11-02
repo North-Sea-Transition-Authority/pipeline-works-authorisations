@@ -1,29 +1,14 @@
 package uk.co.ogauthority.pwa.model.form.pwaapplications.shared;
 
-import javax.validation.constraints.NotNull;
-import org.hibernate.validator.constraints.Length;
 import uk.co.ogauthority.pwa.model.form.files.UploadMultipleFilesWithDescriptionForm;
 import uk.co.ogauthority.pwa.service.enums.projectinformation.PermanentDepositRadioOption;
 import uk.co.ogauthority.pwa.util.forminputs.twofielddate.TwoFieldDateInput;
-import uk.co.ogauthority.pwa.util.validationgroups.FullValidation;
-import uk.co.ogauthority.pwa.util.validationgroups.PartialValidation;
 
 public class ProjectInformationForm extends UploadMultipleFilesWithDescriptionForm {
 
 
-  @NotNull(message = "Enter the project name", groups = {FullValidation.class})
-  @Length(max = 4000, message = "Project name must be 4000 characters or fewer",
-      groups = {FullValidation.class, PartialValidation.class})
   private String projectName;
-
-  @NotNull(message = "Enter the project overview", groups = {FullValidation.class})
-  @Length(max = 4000, message = "Project overview must be 4000 characters or fewer",
-      groups = {FullValidation.class, PartialValidation.class})
   private String projectOverview;
-
-  @NotNull(message = "Enter the pipeline installation method", groups = {FullValidation.class})
-  @Length(max = 4000, message = "Pipeline installation method must be 4000 characters or fewer",
-      groups = {FullValidation.class, PartialValidation.class})
   private String methodOfPipelineDeployment;
 
   private Integer proposedStartDay;
@@ -42,7 +27,6 @@ public class ProjectInformationForm extends UploadMultipleFilesWithDescriptionFo
   private Integer latestCompletionMonth;
   private Integer latestCompletionYear;
 
-  @NotNull(message = "Select yes if a licence transfer is planned", groups = {FullValidation.class})
   private Boolean licenceTransferPlanned;
 
   private Integer licenceTransferDay;
@@ -53,7 +37,6 @@ public class ProjectInformationForm extends UploadMultipleFilesWithDescriptionFo
   private Integer commercialAgreementMonth;
   private Integer commercialAgreementYear;
 
-  @NotNull(message = "Select yes if using a campaign approach", groups = {FullValidation.class})
   private Boolean usingCampaignApproach;
 
   private PermanentDepositRadioOption permanentDepositsMadeType;

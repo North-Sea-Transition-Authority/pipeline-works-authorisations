@@ -12,16 +12,20 @@ public class ApplicationInvolvementDto {
 
   private final Set<PwaContactRole> contactRoles;
 
+  private final boolean assignedAtResponderStage;
+
   private final Set<ConsulteeGroupMemberRole> consulteeRoles;
 
   private final boolean caseOfficerStageAndUserAssigned;
 
   public ApplicationInvolvementDto(PwaApplication pwaApplication,
                                    Set<PwaContactRole> contactRoles,
+                                   boolean assignedAtResponderStage,
                                    Set<ConsulteeGroupMemberRole> consulteeRoles,
                                    boolean caseOfficerStageAndUserAssigned) {
     this.pwaApplication = pwaApplication;
     this.contactRoles = contactRoles;
+    this.assignedAtResponderStage = assignedAtResponderStage;
     this.consulteeRoles = consulteeRoles;
     this.caseOfficerStageAndUserAssigned = caseOfficerStageAndUserAssigned;
   }
@@ -32,6 +36,10 @@ public class ApplicationInvolvementDto {
 
   public Set<PwaContactRole> getContactRoles() {
     return contactRoles;
+  }
+
+  public boolean isAssignedAtResponderStage() {
+    return assignedAtResponderStage;
   }
 
   public Set<ConsulteeGroupMemberRole> getConsulteeRoles() {

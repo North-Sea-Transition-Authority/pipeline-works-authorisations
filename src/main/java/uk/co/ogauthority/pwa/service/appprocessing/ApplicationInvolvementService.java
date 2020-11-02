@@ -4,6 +4,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
@@ -17,6 +18,7 @@ import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.Cons
 import uk.co.ogauthority.pwa.service.consultations.ConsultationRequestService;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 import uk.co.ogauthority.pwa.service.enums.users.UserType;
+import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationConsultationWorkflowTask;
 import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationWorkflowTask;
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
 import uk.co.ogauthority.pwa.service.users.UserTypeService;
@@ -54,14 +56,23 @@ public class ApplicationInvolvementService {
 
     var userType = userTypeService.getUserType(user);
 
+    // INDUSTRY data
     Set<PwaContactRole> appContactRoles = userType == UserType.INDUSTRY
         ? pwaContactService.getContactRoles(application, user.getLinkedPerson())
         : Set.of();
 
-    Set<ConsulteeGroupMemberRole> consulteeRoles = userType == UserType.CONSULTEE
-        ? getConsulteeRoles(application, user)
-        : Set.of();
+    // CONSULTEE data
+    boolean assignedToResponderStage = false;
+    Set<ConsulteeGroupMemberRole> consulteeRoles = Set.of();
+    if (userType == UserType.CONSULTEE) {
 
+      var assignedResponderAndGroupRolesPair = getAssignedResponderAndConsulteeRoles(application, user);
+      assignedToResponderStage = assignedResponderAndGroupRolesPair.getLeft();
+      consulteeRoles = assignedResponderAndGroupRolesPair.getRight();
+
+    }
+
+    // OGA data
     boolean caseOfficerStageAndUserAssigned = false;
 
     if (userType == UserType.OGA) {
@@ -73,6 +84,7 @@ public class ApplicationInvolvementService {
     return new ApplicationInvolvementDto(
         application,
         appContactRoles,
+        assignedToResponderStage,
         consulteeRoles,
         caseOfficerStageAndUserAssigned);
 
@@ -84,13 +96,17 @@ public class ApplicationInvolvementService {
     );
   }
 
-  private Set<ConsulteeGroupMemberRole> getConsulteeRoles(PwaApplication application, AuthenticatedUserAccount user) {
+  private Pair<Boolean, Set<ConsulteeGroupMemberRole>> getAssignedResponderAndConsulteeRoles(PwaApplication application,
+                                                                                             AuthenticatedUserAccount user) {
 
     var consulteeGroupTeamMemberOpt = consulteeGroupTeamService.getTeamMemberByPerson(user.getLinkedPerson());
 
     var consulteeGroup = consulteeGroupTeamMemberOpt
         .map(ConsulteeGroupTeamMember::getConsulteeGroup)
         .orElse(null);
+
+    boolean assignedToResponderStage = false;
+    Set<ConsulteeGroupMemberRole> consulteeRoles = Set.of();
 
     if (consulteeGroup != null) {
 
@@ -101,18 +117,23 @@ public class ApplicationInvolvementService {
           .findFirst()
           .orElse(null);
 
-      if (consultationRequest == null) {
-        return Set.of();
-      }
+      if (consultationRequest != null) {
 
-      return consulteeGroupTeamMemberOpt.stream()
-          .filter(member -> member.getConsulteeGroup().equals(consultationRequest.getConsulteeGroup()))
-          .flatMap(member -> member.getRoles().stream())
-          .collect(Collectors.toSet());
+        assignedToResponderStage = camundaWorkflowService
+            .getAssignedPersonId(new WorkflowTaskInstance(consultationRequest, PwaApplicationConsultationWorkflowTask.RESPONSE))
+            .map(personId -> user.getLinkedPerson().getId().equals(personId))
+            .orElse(false);
+
+        consulteeRoles = consulteeGroupTeamMemberOpt.stream()
+            .filter(member -> member.getConsulteeGroup().equals(consultationRequest.getConsulteeGroup()))
+            .flatMap(member -> member.getRoles().stream())
+            .collect(Collectors.toSet());
+
+      }
 
     }
 
-    return Set.of();
+    return Pair.of(assignedToResponderStage, consulteeRoles);
 
   }
 

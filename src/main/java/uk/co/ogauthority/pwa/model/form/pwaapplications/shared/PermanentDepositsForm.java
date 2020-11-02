@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.model.form.pwaapplications.shared;
 
+import java.math.BigDecimal;
 import java.util.Objects;
 import java.util.Set;
 import uk.co.ogauthority.pwa.model.entity.enums.permanentdeposits.MaterialType;
@@ -11,8 +12,11 @@ import uk.co.ogauthority.pwa.util.forminputs.twofielddate.TwoFieldDateInput;
 public class PermanentDepositsForm extends UploadMultipleFilesWithDescriptionForm {
 
   private Integer entityID;
+  private Boolean depositIsForConsentedPipeline;
   private String depositReference;
   private Set<String> selectedPipelines;
+  private Boolean depositIsForPipelinesOnOtherApp;
+  private String appRefAndPipelineNum;
   private TwoFieldDateInput fromDate;
   private TwoFieldDateInput toDate;
 
@@ -22,9 +26,9 @@ public class PermanentDepositsForm extends UploadMultipleFilesWithDescriptionFor
   private String rocksSize;
   private Integer groutBagsSize;
   private String otherMaterialSize;
-  private Integer concreteMattressLength;
-  private Integer concreteMattressWidth;
-  private Integer concreteMattressDepth;
+  private BigDecimal concreteMattressLength;
+  private BigDecimal concreteMattressWidth;
+  private BigDecimal concreteMattressDepth;
 
   private Boolean groutBagsBioDegradable;
   private String bioGroutBagsNotUsedDescription;
@@ -123,27 +127,27 @@ public class PermanentDepositsForm extends UploadMultipleFilesWithDescriptionFor
     this.otherMaterialSize = otherMaterialSize;
   }
 
-  public Integer getConcreteMattressLength() {
+  public BigDecimal getConcreteMattressLength() {
     return concreteMattressLength;
   }
 
-  public void setConcreteMattressLength(Integer concreteMattressLength) {
+  public void setConcreteMattressLength(BigDecimal concreteMattressLength) {
     this.concreteMattressLength = concreteMattressLength;
   }
 
-  public Integer getConcreteMattressWidth() {
+  public BigDecimal getConcreteMattressWidth() {
     return concreteMattressWidth;
   }
 
-  public void setConcreteMattressWidth(Integer concreteMattressWidth) {
+  public void setConcreteMattressWidth(BigDecimal concreteMattressWidth) {
     this.concreteMattressWidth = concreteMattressWidth;
   }
 
-  public Integer getConcreteMattressDepth() {
+  public BigDecimal getConcreteMattressDepth() {
     return concreteMattressDepth;
   }
 
-  public void setConcreteMattressDepth(Integer concreteMattressDepth) {
+  public void setConcreteMattressDepth(BigDecimal concreteMattressDepth) {
     this.concreteMattressDepth = concreteMattressDepth;
   }
 
@@ -243,7 +247,29 @@ public class PermanentDepositsForm extends UploadMultipleFilesWithDescriptionFor
     this.toCoordinateForm = toCoordinateForm;
   }
 
+  public Boolean getDepositIsForConsentedPipeline() {
+    return depositIsForConsentedPipeline;
+  }
 
+  public void setDepositIsForConsentedPipeline(Boolean depositIsForConsentedPipeline) {
+    this.depositIsForConsentedPipeline = depositIsForConsentedPipeline;
+  }
+
+  public Boolean getDepositIsForPipelinesOnOtherApp() {
+    return depositIsForPipelinesOnOtherApp;
+  }
+
+  public void setDepositIsForPipelinesOnOtherApp(Boolean depositIsForPipelinesOnOtherApp) {
+    this.depositIsForPipelinesOnOtherApp = depositIsForPipelinesOnOtherApp;
+  }
+
+  public String getAppRefAndPipelineNum() {
+    return appRefAndPipelineNum;
+  }
+
+  public void setAppRefAndPipelineNum(String appRefAndPipelineNum) {
+    this.appRefAndPipelineNum = appRefAndPipelineNum;
+  }
 
 
   @Override
@@ -256,8 +282,11 @@ public class PermanentDepositsForm extends UploadMultipleFilesWithDescriptionFor
     }
     PermanentDepositsForm that = (PermanentDepositsForm) o;
     return Objects.equals(entityID, that.entityID)
+        && Objects.equals(depositIsForConsentedPipeline, that.depositIsForConsentedPipeline)
         && Objects.equals(depositReference, that.depositReference)
         && Objects.equals(selectedPipelines, that.selectedPipelines)
+        && Objects.equals(depositIsForPipelinesOnOtherApp, that.depositIsForPipelinesOnOtherApp)
+        && Objects.equals(appRefAndPipelineNum, that.appRefAndPipelineNum)
         && Objects.equals(fromDate, that.fromDate)
         && Objects.equals(toDate, that.toDate)
         && materialType == that.materialType
@@ -284,7 +313,8 @@ public class PermanentDepositsForm extends UploadMultipleFilesWithDescriptionFor
 
   @Override
   public int hashCode() {
-    return Objects.hash(entityID, depositReference, selectedPipelines, fromDate,
+    return Objects.hash(entityID, depositIsForConsentedPipeline, depositReference, selectedPipelines,
+        depositIsForPipelinesOnOtherApp, appRefAndPipelineNum, fromDate,
         toDate, materialType, otherMaterialType, rocksSize, groutBagsSize,
         otherMaterialSize, concreteMattressLength, concreteMattressWidth, concreteMattressDepth, groutBagsBioDegradable,
         bioGroutBagsNotUsedDescription, quantityConcrete, quantityRocks, quantityGroutBags, quantityOther,

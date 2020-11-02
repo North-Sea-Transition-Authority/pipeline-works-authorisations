@@ -27,15 +27,13 @@ public class ProjectInformationView {
 
   private final Boolean usingCampaignApproach;
 
-  private final Boolean anyDepQuestionRequired;
-  private final Boolean permDepQuestionRequired;
   private final PermanentDepositRadioOption permanentDepositsMadeType;
   private final String futureSubmissionDate;
 
   private final Boolean temporaryDepositsMade;
   private final String temporaryDepDescription;
 
-  private final Boolean fdpQuestionRequired;
+  private final Boolean isFdpQuestionRequiredBasedOnField;
   private final Boolean fdpOptionSelected;
   private final Boolean fdpConfirmationFlag;
   private final String fdpNotSelectedReason;
@@ -44,7 +42,7 @@ public class ProjectInformationView {
 
 
   public ProjectInformationView(PadProjectInformation padProjectInformation,
-                                boolean anyDepQuestionRequired, boolean permDepQuestionRequired, boolean fdpQuestionRequired,
+                                boolean isFdpQuestionRequiredBasedOnField,
                                 UploadedFileView layoutDiagramFileView) {
 
     this.projectName = padProjectInformation.getProjectName();
@@ -74,8 +72,6 @@ public class ProjectInformationView {
     this.usingCampaignApproach = padProjectInformation.getUsingCampaignApproach();
 
 
-    this.anyDepQuestionRequired = anyDepQuestionRequired;
-    this.permDepQuestionRequired = permDepQuestionRequired;
     if (padProjectInformation.getPermanentDepositsMade() != null) {
 
       if (BooleanUtils.isFalse(padProjectInformation.getPermanentDepositsMade())) {
@@ -103,7 +99,7 @@ public class ProjectInformationView {
     this.temporaryDepDescription = padProjectInformation.getTemporaryDepDescription();
 
 
-    this.fdpQuestionRequired = fdpQuestionRequired;
+    this.isFdpQuestionRequiredBasedOnField = isFdpQuestionRequiredBasedOnField;
     this.fdpOptionSelected = padProjectInformation.getFdpOptionSelected();
     this.fdpConfirmationFlag = padProjectInformation.getFdpConfirmationFlag();
     this.fdpNotSelectedReason = padProjectInformation.getFdpNotSelectedReason();
@@ -157,14 +153,6 @@ public class ProjectInformationView {
     return usingCampaignApproach;
   }
 
-  public Boolean getAnyDepQuestionRequired() {
-    return anyDepQuestionRequired;
-  }
-
-  public Boolean getPermDepQuestionRequired() {
-    return permDepQuestionRequired;
-  }
-
   public PermanentDepositRadioOption getPermanentDepositsMadeType() {
     return permanentDepositsMadeType;
   }
@@ -181,8 +169,8 @@ public class ProjectInformationView {
     return temporaryDepDescription;
   }
 
-  public Boolean getFdpQuestionRequired() {
-    return fdpQuestionRequired;
+  public Boolean getIsFdpQuestionRequiredBasedOnField() {
+    return isFdpQuestionRequiredBasedOnField;
   }
 
   public Boolean getFdpOptionSelected() {

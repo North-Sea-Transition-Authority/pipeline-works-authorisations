@@ -27,7 +27,7 @@ public class AppProcessingTabService {
 
     var userPrivs = webUserAccount.getUserPrivileges();
 
-    if (userPrivs.contains(PwaUserPrivilege.PWA_REGULATOR) || userPrivs.contains(PwaUserPrivilege.PWA_CONSULTEE)) {
+    if (userPrivs.contains(PwaUserPrivilege.PWA_REGULATOR)) {
       tabList.add(AppProcessingTab.CASE_HISTORY);
     }
 

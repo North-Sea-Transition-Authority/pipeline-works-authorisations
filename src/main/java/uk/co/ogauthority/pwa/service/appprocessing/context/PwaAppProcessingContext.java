@@ -1,8 +1,10 @@
 package uk.co.ogauthority.pwa.service.appprocessing.context;
 
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
+import uk.co.ogauthority.pwa.model.dto.consultations.ConsultationRequestDto;
 import uk.co.ogauthority.pwa.model.entity.files.AppFile;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
@@ -22,16 +24,20 @@ public class PwaAppProcessingContext {
 
   private final CaseSummaryView caseSummaryView;
 
+  private final ConsultationRequestDto activeConsultationRequest;
+
   private AppFile appFile;
 
   public PwaAppProcessingContext(PwaApplicationDetail applicationDetail,
                                  WebUserAccount user,
                                  Set<PwaAppProcessingPermission> appProcessingPermissions,
-                                 CaseSummaryView caseSummaryView) {
+                                 CaseSummaryView caseSummaryView,
+                                 ConsultationRequestDto activeConsultationRequest) {
     this.applicationDetail = applicationDetail;
     this.user = user;
     this.appProcessingPermissions = appProcessingPermissions;
     this.caseSummaryView = caseSummaryView;
+    this.activeConsultationRequest = activeConsultationRequest;
   }
 
   public PwaApplicationDetail getApplicationDetail() {
@@ -58,12 +64,26 @@ public class PwaAppProcessingContext {
     return caseSummaryView;
   }
 
+  public ConsultationRequestDto getActiveConsultationRequest() {
+    return activeConsultationRequest;
+  }
+
+  public Integer getConsultationRequestId() {
+    return Optional.ofNullable(activeConsultationRequest)
+        .map(dto -> dto.getConsultationRequest().getId())
+        .orElse(null);
+  }
+
   public AppFile getAppFile() {
     return appFile;
   }
 
   public void setAppFile(AppFile appFile) {
     this.appFile = appFile;
+  }
+
+  public Integer getMasterPwaApplicationId() {
+    return applicationDetail.getMasterPwaApplicationId();
   }
 
   @Override

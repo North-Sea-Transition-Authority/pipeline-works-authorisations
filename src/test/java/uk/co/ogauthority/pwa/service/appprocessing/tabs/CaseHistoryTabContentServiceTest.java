@@ -83,8 +83,8 @@ public class CaseHistoryTabContentServiceTest {
         new PwaApplicationDetail(),
         wua,
         Set.of(permissions),
-        null
-    );
+        null,
+        null);
   }
 
 }

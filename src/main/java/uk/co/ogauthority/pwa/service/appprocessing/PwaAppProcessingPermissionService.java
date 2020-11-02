@@ -44,11 +44,10 @@ public class PwaAppProcessingPermissionService {
             case CASE_MANAGEMENT_OGA:
               return userPrivileges.contains(PwaUserPrivilege.PWA_REGULATOR);
             case ASSIGN_RESPONDER:
-              // TODO PWA-893 create consultation permissions to ensure can only assign responder for their own consultation
               return appInvolvement.hasAnyOfTheseConsulteeRoles(ConsulteeGroupMemberRole.RECIPIENT, ConsulteeGroupMemberRole.RESPONDER);
             case CONSULTATION_RESPONDER:
-              // TODO PWA-893 create consultation permissions to ensure only assigned responder responds
-              return appInvolvement.hasAnyOfTheseConsulteeRoles(ConsulteeGroupMemberRole.RESPONDER);
+              return appInvolvement.hasAnyOfTheseConsulteeRoles(ConsulteeGroupMemberRole.RESPONDER)
+                  && appInvolvement.isAssignedAtResponderStage();
             case CASE_OFFICER_REVIEW:
             case EDIT_CONSULTATIONS:
             case WITHDRAW_CONSULTATION:

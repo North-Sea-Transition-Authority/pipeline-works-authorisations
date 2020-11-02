@@ -251,7 +251,8 @@ public class ApplicationUpdateRequestServiceTest {
   @Test
   public void canShowInTaskList_hasPermission() {
 
-    var processingContext = new PwaAppProcessingContext(null, null, Set.of(PwaAppProcessingPermission.REQUEST_APPLICATION_UPDATE), null);
+    var processingContext = new PwaAppProcessingContext(null, null, Set.of(PwaAppProcessingPermission.REQUEST_APPLICATION_UPDATE), null,
+        null);
 
     boolean canShow = applicationUpdateRequestService.canShowInTaskList(processingContext);
 
@@ -262,7 +263,7 @@ public class ApplicationUpdateRequestServiceTest {
   @Test
   public void canShowInTaskList_noPermission() {
 
-    var processingContext = new PwaAppProcessingContext(null, null, Set.of(), null);
+    var processingContext = new PwaAppProcessingContext(null, null, Set.of(), null, null);
 
     boolean canShow = applicationUpdateRequestService.canShowInTaskList(processingContext);
 

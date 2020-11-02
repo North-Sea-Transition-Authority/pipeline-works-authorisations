@@ -38,7 +38,10 @@ public class PermanentDepositEntityMappingServiceTest {
   public PadPermanentDeposit buildBaseEntity() {
     PadPermanentDeposit baseEntity = new PadPermanentDeposit();
     baseEntity.setId(1);
+    baseEntity.setDepositForConsentedPipeline(true);
     baseEntity.setReference("my ref");
+    baseEntity.setDepositIsForPipelinesOnOtherApp(true);
+    baseEntity.setAppRefAndPipelineNum("ref pl");
     baseEntity.setFromMonth(2);
     baseEntity.setFromYear(2020);
     baseEntity.setToMonth(3);
@@ -71,7 +74,10 @@ public class PermanentDepositEntityMappingServiceTest {
   public PermanentDepositsForm buildBaseForm(PadPermanentDeposit baseEntity) {
     PermanentDepositsForm baseForm = new PermanentDepositsForm();
     baseForm.setEntityID(baseEntity.getId());
+    baseForm.setDepositIsForConsentedPipeline(baseEntity.getDepositForConsentedPipeline());
     baseForm.setDepositReference(baseEntity.getReference());
+    baseForm.setDepositIsForPipelinesOnOtherApp(baseEntity.getDepositIsForPipelinesOnOtherApp());
+    baseForm.setAppRefAndPipelineNum(baseEntity.getAppRefAndPipelineNum());
     baseForm.setFromDate(new TwoFieldDateInput(baseEntity.getFromYear(), baseEntity.getFromMonth()));
     baseForm.setToDate(new TwoFieldDateInput(baseEntity.getToYear(), baseEntity.getToMonth()));
 
@@ -101,9 +107,9 @@ public class PermanentDepositEntityMappingServiceTest {
   //Unique Properties
   public void setEntityConcreteProperties(PadPermanentDeposit entity){
     entity.setMaterialType(MaterialType.CONCRETE_MATTRESSES);
-    entity.setConcreteMattressLength(13);
-    entity.setConcreteMattressWidth(22);
-    entity.setConcreteMattressDepth(32);
+    entity.setConcreteMattressLength(BigDecimal.valueOf(13));
+    entity.setConcreteMattressWidth(BigDecimal.valueOf(22));
+    entity.setConcreteMattressDepth(BigDecimal.valueOf(32));
   }
 
   public void setEntityGroutBagProperties(PadPermanentDeposit entity){

@@ -2,7 +2,6 @@ package uk.co.ogauthority.pwa.service.appprocessing.applicationupdate;
 
 import com.google.common.annotations.VisibleForTesting;
 import java.time.Clock;
-import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +21,6 @@ import uk.co.ogauthority.pwa.repository.appprocessing.applicationupdates.Applica
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.service.appprocessing.tasks.AppProcessingService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
-import uk.co.ogauthority.pwa.service.enums.appprocessing.TaskStatus;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationWorkflowMessageEvents;
 import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationWorkflowTask;
@@ -172,11 +170,6 @@ public class ApplicationUpdateRequestService implements AppProcessingService {
   public boolean canShowInTaskList(PwaAppProcessingContext processingContext) {
     return processingContext.getAppProcessingPermissions().contains(
         PwaAppProcessingPermission.REQUEST_APPLICATION_UPDATE);
-  }
-
-  @Override
-  public Optional<TaskStatus> getTaskStatus(PwaAppProcessingContext processingContext) {
-    return Optional.empty();
   }
 
 }

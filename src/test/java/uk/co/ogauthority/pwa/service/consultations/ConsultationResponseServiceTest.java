@@ -15,6 +15,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -36,6 +37,8 @@ import uk.co.ogauthority.pwa.model.form.enums.ConsultationResponseOption;
 import uk.co.ogauthority.pwa.model.notify.emailproperties.ConsultationResponseReceivedEmailProps;
 import uk.co.ogauthority.pwa.repository.consultations.ConsultationResponseRepository;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupDetailService;
+import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
+import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ConsultationRequestStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationConsultationWorkflowTask;
@@ -273,6 +276,42 @@ public class ConsultationResponseServiceTest {
     boolean isMemberOfRequestGroup = consultationResponseService.isUserAssignedResponderForConsultation(user, consultationRequest);
 
     assertFalse(isMemberOfRequestGroup);
+
+  }
+
+  @Test
+  public void canShowInTaskList() {
+
+    var processingContext = new PwaAppProcessingContext(null, null, Set.of(PwaAppProcessingPermission.CONSULTATION_RESPONDER), null,
+        null);
+
+    boolean canShow = consultationResponseService.canShowInTaskList(processingContext);
+
+    assertThat(canShow).isTrue();
+
+  }
+
+  @Test
+  public void canShowInTaskList_caseOfficer() {
+
+    var processingContext = new PwaAppProcessingContext(null, null, Set.of(PwaAppProcessingPermission.CASE_OFFICER_REVIEW), null,
+        null);
+
+    boolean canShow = consultationResponseService.canShowInTaskList(processingContext);
+
+    assertThat(canShow).isFalse();
+
+  }
+
+  @Test
+  public void canShowInTaskList_industry() {
+
+    var processingContext = new PwaAppProcessingContext(null, null, Set.of(PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY), null,
+        null);
+
+    boolean canShow = consultationResponseService.canShowInTaskList(processingContext);
+
+    assertThat(canShow).isFalse();
 
   }
 

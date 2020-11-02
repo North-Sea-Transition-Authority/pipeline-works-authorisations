@@ -14,17 +14,44 @@
 
   <dl class="govuk-summary-list govuk-!-margin-bottom-9">
     <h3 class="govuk-heading-m">${deposit.depositReference}</h3>
-    <div class="govuk-summary-list__row">
-      <dt class="govuk-summary-list__key">Pipelines</dt>
-      <dd class="govuk-summary-list__value">
-        <ol class="govuk-list">
-          <#list deposit.pipelineRefs as pipelineRef>
-            <li>${pipelineRef}</li>
-          </#list>
-        </ol>
 
+    <div class="govuk-summary-list__row">
+      <dt class="govuk-summary-list__key">Is the deposit for a consented pipeline or a pipeline that is on this application?</dt>
+      <dd class="govuk-summary-list__value">
+        ${deposit.depositIsForConsentedPipeline?then('Yes', 'No')}
       </dd>
     </div>
+    
+    <#if deposit.depositIsForConsentedPipeline?has_content && deposit.depositIsForConsentedPipeline == true>
+      <div class="govuk-summary-list__row">
+        <dt class="govuk-summary-list__key">Pipelines</dt>
+        <dd class="govuk-summary-list__value">
+          <ol class="govuk-list">
+            <#list deposit.pipelineRefs as pipelineRef>
+              <li>${pipelineRef}</li>
+            </#list>
+          </ol>
+
+        </dd>
+      </div>
+    </#if>
+
+    <div class="govuk-summary-list__row">
+      <dt class="govuk-summary-list__key">Is the deposit for proposed pipelines on other applications that haven’t yet been consented?</dt>
+      <dd class="govuk-summary-list__value">
+        ${deposit.depositIsForPipelinesOnOtherApp?then('Yes', 'No')}
+      </dd>
+    </div>
+
+    <#if deposit.depositIsForPipelinesOnOtherApp?has_content && deposit.depositIsForPipelinesOnOtherApp == true>
+      <div class="govuk-summary-list__row">
+        <dt class="govuk-summary-list__key">Application reference and proposed pipeline number of each pipeline</dt>
+        <dd class="govuk-summary-list__value">
+          ${deposit.appRefAndPipelineNum!}
+        </dd>
+      </div>
+    </#if>
+
     <div class="govuk-summary-list__row">
       <dt class="govuk-summary-list__key">Proposed start date</dt>
       <dd class="govuk-summary-list__value">${deposit.fromDateEstimate} </dd>

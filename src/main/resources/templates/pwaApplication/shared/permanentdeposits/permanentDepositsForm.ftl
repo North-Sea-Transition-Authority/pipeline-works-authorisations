@@ -15,10 +15,23 @@
 
     <@fdsForm.htmlForm>
         <@fdsTextInput.textInput path="form.depositReference" labelText="Deposit reference" hintText="Uniquely identifies this deposit on this application, e.g. PL1234 grout bags"/>
+        
+        <@fdsRadio.radioGroup path="form.depositIsForConsentedPipeline" labelText="Is the deposit for a consented pipeline or a pipeline that is on this application?" hiddenContent=true>
+            <@fdsRadio.radioYes path="form.depositIsForConsentedPipeline">
+                <@fdsSearchSelector.searchSelectorEnhanced path="form.selectedPipelines" options=pipelines labelText="Pipelines" multiSelect=true
+                    hintText="Only add more than one pipeline on the same deposit if they’re within the same trench or piggy-backed." nestingPath="form.depositIsForConsentedPipeline"/>
+            </@fdsRadio.radioYes>
+            <@fdsRadio.radioNo path="form.depositIsForConsentedPipeline"/>
+        </@fdsRadio.radioGroup>
 
-        <@fdsSearchSelector.searchSelectorEnhanced path="form.selectedPipelines" options=pipelines labelText="Pipelines" multiSelect=true
-            hintText="Only add more than one pipeline on the same deposit if they’re within the same trench or piggy-backed."/>
-
+        <@fdsRadio.radioGroup path="form.depositIsForPipelinesOnOtherApp" labelText="Is the deposit for proposed pipelines on other applications that haven’t yet been consented?" 
+                hintText="You can only add pipelines submitted on applications for the same master PWA" hiddenContent=true>
+            <@fdsRadio.radioYes path="form.depositIsForPipelinesOnOtherApp">
+                <@fdsTextarea.textarea path="form.appRefAndPipelineNum" labelText="Enter the application reference and proposed pipeline number for each pipeline" characterCount=true maxCharacterLength="4000" nestingPath="form.depositIsForPipelinesOnOtherApp"/>
+            </@fdsRadio.radioYes>
+            <@fdsRadio.radioNo path="form.depositIsForPipelinesOnOtherApp"/>
+        </@fdsRadio.radioGroup>
+        
         <@fdsNumberInput.twoNumberInputs pathOne="form.fromDate.month" pathTwo="form.fromDate.year" labelText="Month and year of deposit start" formId="from-month-year">
             <@fdsNumberInput.numberInputItem path="form.fromDate.month" labelText="Month" inputClass="govuk-input--width-2"/>
             <@fdsNumberInput.numberInputItem path="form.fromDate.year" labelText="Year" inputClass="govuk-input--width-4"/>
