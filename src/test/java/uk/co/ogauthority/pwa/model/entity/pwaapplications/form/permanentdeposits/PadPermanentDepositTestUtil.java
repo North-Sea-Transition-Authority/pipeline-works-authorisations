@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Set;
@@ -115,7 +116,7 @@ public final class PadPermanentDepositTestUtil {
       Boolean depositIsForPipelinesOnOtherApp,
       String appRefAndPipelineNum,
       PwaApplicationDetail pwaApplicationDetail,
-      int length, int width, int depth,
+      double length, double width, double depth,
       double quantity,
       String contingency,
       LocalDate fromDate,
@@ -133,9 +134,9 @@ public final class PadPermanentDepositTestUtil {
     pd.setMaterialType(MaterialType.CONCRETE_MATTRESSES);
     pd.setQuantity(quantity);
     pd.setContingencyAmount(contingency);
-    pd.setConcreteMattressLength(length);
-    pd.setConcreteMattressWidth(width);
-    pd.setConcreteMattressDepth(depth);
+    pd.setConcreteMattressLength(BigDecimal.valueOf(length));
+    pd.setConcreteMattressWidth(BigDecimal.valueOf(width));
+    pd.setConcreteMattressDepth(BigDecimal.valueOf(depth));
     pd.setFromCoordinates(fromCoordPair);
     pd.setToCoordinates(toCoordPair);
     pd.setToMonth(toDate.getMonthValue());

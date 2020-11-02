@@ -1,7 +1,6 @@
 <#include '../../pwaLayoutImports.ftl'>
 
 <#-- @ftlvariable name="sectionDisplayText" type="java.lang.String" -->
-
 <#-- @ftlvariable name="unitMeasurements" type="java.util.Map<java.lang.String, uk.co.ogauthority.pwa.model.entity.enums.measurements.UnitMeasurement>" -->
 
 
@@ -37,15 +36,24 @@
            <@diffChanges.renderDiff pipelineHeader.PipelineHeaderView_pipelineName />
         </@fdsCheckAnswers.checkAnswersRow>
 
-        <@fdsCheckAnswers.checkAnswersRow keyText="Pipeline status" actionUrl="" screenReaderActionText="" actionText="">
-            <@diffChanges.renderDiff pipelineHeader.PipelineHeaderView_pipelineStatus />
-        </@fdsCheckAnswers.checkAnswersRow>
-
-        <#if pipelineHeader.PipelineHeaderView_pipelineStatus.currentValue?lower_case == "out_of_use_on_seabed">
-            <@fdsCheckAnswers.checkAnswersRow keyText="Reason for leaving on seabed" actionUrl="" screenReaderActionText="" actionText="">
-                 <@diffChanges.renderDiff pipelineHeader.PipelineHeaderView_pipelineStatusReason />
+        <#if pipelineHeader.hasTemporaryPipelineNumber>
+            <@fdsCheckAnswers.checkAnswersRow keyText="Reference used in drawing" actionUrl="" screenReaderActionText="" actionText="">
+                <@diffChanges.renderDiff pipelineHeader.PipelineHeaderView_temporaryPipelineNumber />
             </@fdsCheckAnswers.checkAnswersRow>
         </#if>
+
+
+        <@fdsCheckAnswers.checkAnswersRow keyText="Pipeline status" actionUrl="" screenReaderActionText="" actionText="">
+            <@diffChanges.renderDiff pipelineHeader.PipelineHeaderView_pipelineStatusDisplayStr />
+        </@fdsCheckAnswers.checkAnswersRow>
+
+        <#list pipelineHeader.questionsForPipelineStatus as question>
+            <#if question == "OUT_OF_USE_ON_SEABED_REASON">
+                <@fdsCheckAnswers.checkAnswersRow keyText="Why is the pipeline not being returned to shore?" actionUrl="" screenReaderActionText="" actionText="">
+                    <@diffChanges.renderDiff diffedField=pipelineHeader.PipelineHeaderView_pipelineStatusReason />
+                </@fdsCheckAnswers.checkAnswersRow>
+            </#if>
+        </#list>
 
         <@fdsCheckAnswers.checkAnswersRow keyText="Number of idents" actionUrl="" screenReaderActionText="" actionText="">
              ${pipelineIdentsSize}
@@ -110,8 +118,7 @@
             <#else>
                 No drawing uploaded
             </#if>
-        </@fdsCheckAnswers.checkAnswersRow>
-
+        </@fdsCheckAnswers.checkAnswersRow>        
 
     </@fdsCheckAnswers.checkAnswers>
 

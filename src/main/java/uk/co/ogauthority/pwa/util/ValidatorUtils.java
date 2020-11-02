@@ -35,7 +35,7 @@ public class ValidatorUtils {
   /**
    * invoke validator on a nested object while safely pushing and popping the nested object path.
    */
-  public static void invokeNestedValidator(Errors errors,
+  public static void  invokeNestedValidator(Errors errors,
                                            Validator validator,
                                            String targetPath,
                                            Object targetObject,
@@ -253,7 +253,7 @@ public class ValidatorUtils {
           String.format("%s seconds should be between 0 and 59.99", messagePrefix));
     }
 
-    if (NumberUtils.getNumberOfDp(seconds.getValue()) != CoordinateUtils.DECIMAL_SECONDS_DP) {
+    if (PwaNumberUtils.getNumberOfDp(seconds.getValue()) != CoordinateUtils.DECIMAL_SECONDS_DP) {
       errors.rejectValue(seconds.getKey(), seconds.getKey() + INVALID.getCode(),
           String.format("%s seconds should have exactly %sdp", messagePrefix, CoordinateUtils.DECIMAL_SECONDS_DP));
     }

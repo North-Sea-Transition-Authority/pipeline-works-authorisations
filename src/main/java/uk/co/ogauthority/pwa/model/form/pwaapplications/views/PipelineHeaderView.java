@@ -2,7 +2,9 @@ package uk.co.ogauthority.pwa.model.form.pwaapplications.views;
 
 import java.math.BigDecimal;
 import java.util.Objects;
+import java.util.Set;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineFlexibility;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineHeaderConditionalQuestion;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineMaterial;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineStatus;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
@@ -21,6 +23,7 @@ public class PipelineHeaderView implements PipelineOverview {
   private final String toLocation;
   private final CoordinatePair toCoordinates;
   private final String pipelineNumber;
+  private final String temporaryPipelineNumber;
   private final PipelineType pipelineType;
   private final String componentParts;
   private final String length;
@@ -35,7 +38,9 @@ public class PipelineHeaderView implements PipelineOverview {
   private final Boolean trenchedBuriedBackfilled;
   private final String trenchingMethodsDescription;
   private final PipelineStatus pipelineStatus;
+  private final String pipelineStatusDisplayStr;
   private final String pipelineStatusReason;
+  private final Set<PipelineHeaderConditionalQuestion> questionsForPipelineStatus;
 
 
   public PipelineHeaderView() {
@@ -47,6 +52,7 @@ public class PipelineHeaderView implements PipelineOverview {
     this.toLocation = null;
     this.toCoordinates = null;
     this.pipelineNumber = null;
+    this.temporaryPipelineNumber = null;
     this.pipelineType = null;
     this.componentParts = null;
     this.length = null;
@@ -61,7 +67,9 @@ public class PipelineHeaderView implements PipelineOverview {
     this.trenchedBuriedBackfilled = null;
     this.trenchingMethodsDescription = null;
     this.pipelineStatus = null;
+    this.pipelineStatusDisplayStr = null;
     this.pipelineStatusReason = null;
+    this.questionsForPipelineStatus = null;
   }
 
   public PipelineHeaderView(PipelineOverview pipelineOverview) {
@@ -73,6 +81,7 @@ public class PipelineHeaderView implements PipelineOverview {
     this.toLocation = pipelineOverview.getToLocation();
     this.toCoordinates = pipelineOverview.getToCoordinates();
     this.pipelineNumber = pipelineOverview.getPipelineNumber();
+    this.temporaryPipelineNumber = pipelineOverview.getTemporaryPipelineNumber();
     this.pipelineType = pipelineOverview.getPipelineType();
     this.componentParts = pipelineOverview.getComponentParts();
     this.length = String.valueOf(pipelineOverview.getLength());
@@ -87,9 +96,11 @@ public class PipelineHeaderView implements PipelineOverview {
     this.trenchedBuriedBackfilled = pipelineOverview.getTrenchedBuriedBackfilled();
     this.trenchingMethodsDescription = pipelineOverview.getTrenchingMethodsDescription();
     this.pipelineStatus = pipelineOverview.getPipelineStatus();
+    this.pipelineStatusDisplayStr = pipelineOverview.getPipelineStatus().getDisplayText();
     this.pipelineStatusReason = pipelineOverview.getPipelineStatusReason();
+    this.questionsForPipelineStatus = PipelineHeaderConditionalQuestion.getQuestionsForStatus(
+        pipelineOverview.getPipelineStatus());
   }
-
 
   public PipelineHeaderView(PipelineDetail pipelineDetail) {
     this.padPipelineId = null;
@@ -100,6 +111,7 @@ public class PipelineHeaderView implements PipelineOverview {
     this.toLocation = pipelineDetail.getToLocation();
     this.toCoordinates = pipelineDetail.getToCoordinates();
     this.pipelineNumber = pipelineDetail.getPipelineNumber();
+    this.temporaryPipelineNumber = null; // never makes sense for this to have value here
     this.pipelineType = pipelineDetail.getPipelineType();
     this.componentParts = pipelineDetail.getComponentPartsDesc();
     this.length = String.valueOf(pipelineDetail.getLength());
@@ -108,6 +120,7 @@ public class PipelineHeaderView implements PipelineOverview {
     this.pipelineInBundle = pipelineDetail.getPipelineInBundle();
     this.bundleName = pipelineDetail.getBundleName();
     this.pipelineStatus = pipelineDetail.getPipelineStatus();
+    this.pipelineStatusDisplayStr = pipelineDetail.getPipelineStatus().getDisplayText();
     this.pipelineStatusReason = pipelineDetail.getPipelineStatusReason();
     this.numberOfIdents = null;
     this.pipelineFlexibility = null;
@@ -115,8 +128,9 @@ public class PipelineHeaderView implements PipelineOverview {
     this.otherPipelineMaterialUsed = null;
     this.trenchedBuriedBackfilled = null;
     this.trenchingMethodsDescription = null;
+    this.questionsForPipelineStatus = PipelineHeaderConditionalQuestion.getQuestionsForStatus(
+        pipelineDetail.getPipelineStatus());
   }
-
 
 
   @Override
@@ -229,11 +243,23 @@ public class PipelineHeaderView implements PipelineOverview {
     return pipelineStatus;
   }
 
+  public String getPipelineStatusDisplayStr() {
+    return pipelineStatusDisplayStr;
+  }
+
   @Override
   public String getPipelineStatusReason() {
     return pipelineStatusReason;
   }
 
+  @Override
+  public String getTemporaryPipelineNumber() {
+    return this.temporaryPipelineNumber;
+  }
+
+  public Set<PipelineHeaderConditionalQuestion> getQuestionsForPipelineStatus() {
+    return questionsForPipelineStatus;
+  }
 
   @Override
   public boolean equals(Object o) {
@@ -252,6 +278,7 @@ public class PipelineHeaderView implements PipelineOverview {
         && Objects.equals(toLocation, that.toLocation)
         && Objects.equals(toCoordinates, that.toCoordinates)
         && Objects.equals(pipelineNumber, that.pipelineNumber)
+        && Objects.equals(temporaryPipelineNumber, that.temporaryPipelineNumber)
         && pipelineType == that.pipelineType
         && Objects.equals(componentParts, that.componentParts)
         && Objects.equals(length, that.length)
@@ -266,15 +293,18 @@ public class PipelineHeaderView implements PipelineOverview {
         && Objects.equals(trenchedBuriedBackfilled, that.trenchedBuriedBackfilled)
         && Objects.equals(trenchingMethodsDescription, that.trenchingMethodsDescription)
         && pipelineStatus == that.pipelineStatus
-        && Objects.equals(pipelineStatusReason, that.pipelineStatusReason);
+        && Objects.equals(pipelineStatusDisplayStr, that.pipelineStatusDisplayStr)
+        && Objects.equals(pipelineStatusReason, that.pipelineStatusReason)
+        && Objects.equals(questionsForPipelineStatus, that.questionsForPipelineStatus);
   }
 
   @Override
   public int hashCode() {
     return Objects.hash(padPipelineId, pipelineName, pipelineId, fromLocation, fromCoordinates, toLocation,
         toCoordinates,
-        pipelineNumber, pipelineType, componentParts, length, productsToBeConveyed, numberOfIdents, maxExternalDiameter,
-        pipelineInBundle, bundleName, pipelineFlexibility, pipelineMaterial, otherPipelineMaterialUsed,
-        trenchedBuriedBackfilled, trenchingMethodsDescription, pipelineStatus, pipelineStatusReason);
+        pipelineNumber, temporaryPipelineNumber, pipelineType, componentParts, length, productsToBeConveyed,
+        numberOfIdents, maxExternalDiameter, pipelineInBundle, bundleName, pipelineFlexibility, pipelineMaterial,
+        otherPipelineMaterialUsed, trenchedBuriedBackfilled, trenchingMethodsDescription, pipelineStatus,
+        pipelineStatusDisplayStr, pipelineStatusReason, questionsForPipelineStatus);
   }
 }

@@ -133,7 +133,7 @@ public class PermanentDepositViewMappingServiceTest {
     assertThat(actualView.getMaterialTypeLookup()).isEqualTo(MaterialType.CONCRETE_MATTRESSES);
     assertThat(actualView.getDepositReference()).isEqualTo("TEST");
     assertThat(actualView.getBioGroutBagsNotUsedDescription()).isNull();
-    assertThat(actualView.getMaterialSize()).isEqualTo("1 metre × 2 metre × 3 metre");
+    assertThat(actualView.getMaterialSize()).isEqualTo("1.0 metre × 2.0 metre × 3.0 metre");
     assertThat(actualView.getContingencyAmount()).isEqualTo(CONTINGENCY);
     assertThat(actualView.getQuantity()).isEqualTo(new DecimalFormat("##.####").format(QUANTITY));
   }

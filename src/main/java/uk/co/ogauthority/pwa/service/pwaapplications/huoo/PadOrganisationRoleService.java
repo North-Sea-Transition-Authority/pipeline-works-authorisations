@@ -256,8 +256,8 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
     padOrganisationRolesRepository.deleteAll(roles);
   }
 
-  @Transactional
-  public void removePipelineLinksForOrgsWithRoles(PwaApplicationDetail detail, Collection<PadOrganisationRole> roles) {
+  @VisibleForTesting
+  void removePipelineLinksForOrgsWithRoles(PwaApplicationDetail detail, Collection<PadOrganisationRole> roles) {
     List<PadPipelineOrganisationRoleLink> pipelineLinks =
         padPipelineOrganisationRoleLinkRepository.findAllByPadOrgRoleInAndPadOrgRole_PwaApplicationDetail(
             roles, detail).stream()
@@ -271,6 +271,7 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
 
   @Transactional
   public void removeRoleOfTreatyAgreement(PadOrganisationRole organisationRole) {
+    removePipelineLinksForOrgsWithRoles(organisationRole.getPwaApplicationDetail(), List.of(organisationRole));
     padOrganisationRolesRepository.delete(organisationRole);
   }
 

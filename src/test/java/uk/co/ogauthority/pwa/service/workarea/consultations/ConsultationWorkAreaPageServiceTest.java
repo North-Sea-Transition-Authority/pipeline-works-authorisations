@@ -19,7 +19,6 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
@@ -92,7 +91,7 @@ public class ConsultationWorkAreaPageServiceTest {
 
   private Pageable getDefaultWorkAreaViewPageable(int requestedPage) {
     return PageRequest.of(requestedPage, WorkAreaService.PAGE_SIZE,
-        Sort.by(Sort.Direction.DESC, "deadlineDate"));
+        ConsultationWorkAreaSort.DEADLINE_DATE_ASC.getSort());
   }
 
   @Test

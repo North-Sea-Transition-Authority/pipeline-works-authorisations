@@ -23,8 +23,9 @@ import uk.co.ogauthority.pwa.mvc.PageView;
 import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationConsultationWorkflowTask;
 import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationWorkflowTask;
 import uk.co.ogauthority.pwa.service.enums.workflow.WorkflowType;
-import uk.co.ogauthority.pwa.service.workarea.applications.ApplicationWorkAreaPageService;
+import uk.co.ogauthority.pwa.service.workarea.applications.IndustryWorkAreaPageService;
 import uk.co.ogauthority.pwa.service.workarea.applications.PwaApplicationWorkAreaItem;
+import uk.co.ogauthority.pwa.service.workarea.applications.RegulatorWorkAreaPageService;
 import uk.co.ogauthority.pwa.service.workarea.consultations.ConsultationRequestWorkAreaItem;
 import uk.co.ogauthority.pwa.service.workarea.consultations.ConsultationWorkAreaPageService;
 import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
@@ -39,10 +40,13 @@ public class WorkAreaServiceTest {
   private CamundaWorkflowService camundaWorkflowService;
 
   @Mock
-  private ApplicationWorkAreaPageService applicationWorkAreaPageService;
+  private IndustryWorkAreaPageService industryWorkAreaPageService;
 
   @Mock
   private ConsultationWorkAreaPageService consultationWorkAreaPageService;
+
+  @Mock
+  private RegulatorWorkAreaPageService regulatorWorkAreaPageService;
 
   private WorkAreaService workAreaService;
 
@@ -54,18 +58,24 @@ public class WorkAreaServiceTest {
   @Before
   public void setUp() {
 
-    this.workAreaService = new WorkAreaService(camundaWorkflowService, applicationWorkAreaPageService, consultationWorkAreaPageService);
+    this.workAreaService = new WorkAreaService(
+        camundaWorkflowService,
+        industryWorkAreaPageService,
+        consultationWorkAreaPageService,
+        regulatorWorkAreaPageService);
 
     appPageView = WorkAreaTestUtils.setUpFakeAppPageView(0);
-    when(applicationWorkAreaPageService.getPageView(any(), any(), anyInt())).thenReturn(appPageView);
+    when(industryWorkAreaPageService.getOpenApplicationsPageView(any(), anyInt())).thenReturn(appPageView);
+    when(industryWorkAreaPageService.getSubmittedApplicationsPageView(any(), anyInt())).thenReturn(appPageView);
+    when(regulatorWorkAreaPageService.getRequiresAttentionPageView(any(), any(), anyInt())).thenReturn(appPageView);
+    when(regulatorWorkAreaPageService.getWaitingOnOthersPageView(any(), any(), anyInt())).thenReturn(appPageView);
 
     consultationPageView = WorkAreaTestUtils.setUpFakeConsultationPageView(0);
     when(consultationWorkAreaPageService.getPageView(any(), any(), anyInt())).thenReturn(consultationPageView);
-
   }
 
   @Test
-  public void getWorkAreaResult_applicationsTab_resultsExist() {
+  public void getWorkAreaResult_regAttentionTab_resultsExist() {
 
     var appWorkflowSubject = new GenericWorkflowSubject(1, WorkflowType.PWA_APPLICATION);
     var appWorkflowSubject2 = new GenericWorkflowSubject(2, WorkflowType.PWA_APPLICATION);
@@ -77,9 +87,9 @@ public class WorkAreaServiceTest {
       new AssignedTaskInstance(new WorkflowTaskInstance(consultationWorkflowSubject, PwaApplicationConsultationWorkflowTask.ALLOCATION), authenticatedUserAccount.getLinkedPerson())
     ));
 
-    var workAreaResult = workAreaService.getWorkAreaResult(authenticatedUserAccount, WorkAreaTab.OPEN_APPLICATIONS, 0);
+    var workAreaResult = workAreaService.getWorkAreaResult(authenticatedUserAccount, WorkAreaTab.REGULATOR_REQUIRES_ATTENTION, 0);
 
-    verify(applicationWorkAreaPageService, times(1)).getPageView(eq(authenticatedUserAccount), eq(Set.of(1,2)), eq(0));
+    verify(regulatorWorkAreaPageService, times(1)).getRequiresAttentionPageView(eq(authenticatedUserAccount), eq(Set.of(1,2)), eq(0));
 
     assertThat(workAreaResult.getApplicationsTabPages()).isEqualTo(appPageView);
     assertThat(workAreaResult.getConsultationsTabPages()).isNull();
@@ -87,13 +97,121 @@ public class WorkAreaServiceTest {
   }
 
   @Test
-  public void getWorkAreaResult_applicationsTab_noAssignedTasks() {
+  public void getWorkAreaResult_regAttentionTab_noAssignedTasks() {
 
     when(camundaWorkflowService.getAssignedTasks(authenticatedUserAccount.getLinkedPerson())).thenReturn(Set.of());
 
-    var workAreaResult = workAreaService.getWorkAreaResult(authenticatedUserAccount, WorkAreaTab.OPEN_APPLICATIONS, 1);
+    var workAreaResult = workAreaService.getWorkAreaResult(authenticatedUserAccount, WorkAreaTab.REGULATOR_REQUIRES_ATTENTION, 1);
 
-    verify(applicationWorkAreaPageService, times(1)).getPageView(eq(authenticatedUserAccount), eq(Set.of()), eq(1));
+    verify(regulatorWorkAreaPageService, times(1)).getRequiresAttentionPageView(eq(authenticatedUserAccount), eq(Set.of()), eq(1));
+
+    assertThat(workAreaResult.getApplicationsTabPages()).isEqualTo(appPageView);
+    assertThat(workAreaResult.getConsultationsTabPages()).isNull();
+
+  }
+
+  @Test
+  public void getWorkAreaResult_regWaitingTab_resultsExist() {
+
+    var appWorkflowSubject = new GenericWorkflowSubject(1, WorkflowType.PWA_APPLICATION);
+    var appWorkflowSubject2 = new GenericWorkflowSubject(2, WorkflowType.PWA_APPLICATION);
+    var consultationWorkflowSubject = new GenericWorkflowSubject(3, WorkflowType.PWA_APPLICATION_CONSULTATION);
+
+    when(camundaWorkflowService.getAssignedTasks(authenticatedUserAccount.getLinkedPerson())).thenReturn(Set.of(
+        new AssignedTaskInstance(new WorkflowTaskInstance(appWorkflowSubject, PwaApplicationWorkflowTask.PREPARE_APPLICATION), authenticatedUserAccount.getLinkedPerson()),
+        new AssignedTaskInstance(new WorkflowTaskInstance(appWorkflowSubject2, PwaApplicationWorkflowTask.PREPARE_APPLICATION), authenticatedUserAccount.getLinkedPerson()),
+        new AssignedTaskInstance(new WorkflowTaskInstance(consultationWorkflowSubject, PwaApplicationConsultationWorkflowTask.ALLOCATION), authenticatedUserAccount.getLinkedPerson())
+    ));
+
+    var workAreaResult = workAreaService.getWorkAreaResult(authenticatedUserAccount, WorkAreaTab.REGULATOR_WAITING_ON_OTHERS, 0);
+
+    verify(regulatorWorkAreaPageService, times(1)).getWaitingOnOthersPageView(eq(authenticatedUserAccount), eq(Set.of(1,2)), eq(0));
+
+    assertThat(workAreaResult.getApplicationsTabPages()).isEqualTo(appPageView);
+    assertThat(workAreaResult.getConsultationsTabPages()).isNull();
+
+  }
+
+  @Test
+  public void getWorkAreaResult_regWaitingTab_noAssignedTasks() {
+
+    when(camundaWorkflowService.getAssignedTasks(authenticatedUserAccount.getLinkedPerson())).thenReturn(Set.of());
+
+    var workAreaResult = workAreaService.getWorkAreaResult(authenticatedUserAccount, WorkAreaTab.REGULATOR_WAITING_ON_OTHERS, 1);
+
+    verify(regulatorWorkAreaPageService, times(1)).getWaitingOnOthersPageView(eq(authenticatedUserAccount), eq(Set.of()), eq(1));
+
+    assertThat(workAreaResult.getApplicationsTabPages()).isEqualTo(appPageView);
+    assertThat(workAreaResult.getConsultationsTabPages()).isNull();
+
+  }
+
+  @Test
+  public void getWorkAreaResult_openIndustryApplicationsTab_resultsExist() {
+
+    var appWorkflowSubject = new GenericWorkflowSubject(1, WorkflowType.PWA_APPLICATION);
+    var appWorkflowSubject2 = new GenericWorkflowSubject(2, WorkflowType.PWA_APPLICATION);
+    var consultationWorkflowSubject = new GenericWorkflowSubject(3, WorkflowType.PWA_APPLICATION_CONSULTATION);
+
+    when(camundaWorkflowService.getAssignedTasks(authenticatedUserAccount.getLinkedPerson())).thenReturn(Set.of(
+        new AssignedTaskInstance(new WorkflowTaskInstance(appWorkflowSubject, PwaApplicationWorkflowTask.PREPARE_APPLICATION), authenticatedUserAccount.getLinkedPerson()),
+        new AssignedTaskInstance(new WorkflowTaskInstance(appWorkflowSubject2, PwaApplicationWorkflowTask.PREPARE_APPLICATION), authenticatedUserAccount.getLinkedPerson()),
+        new AssignedTaskInstance(new WorkflowTaskInstance(consultationWorkflowSubject, PwaApplicationConsultationWorkflowTask.ALLOCATION), authenticatedUserAccount.getLinkedPerson())
+    ));
+
+    var workAreaResult = workAreaService.getWorkAreaResult(authenticatedUserAccount, WorkAreaTab.INDUSTRY_OPEN_APPLICATIONS, 0);
+
+    verify(industryWorkAreaPageService, times(1)).getOpenApplicationsPageView(eq(authenticatedUserAccount), eq(0));
+
+    assertThat(workAreaResult.getApplicationsTabPages()).isEqualTo(appPageView);
+    assertThat(workAreaResult.getConsultationsTabPages()).isNull();
+
+  }
+
+  @Test
+  public void getWorkAreaResult_openIndustryApplicationsTab_noAssignedTasks() {
+
+    when(camundaWorkflowService.getAssignedTasks(authenticatedUserAccount.getLinkedPerson())).thenReturn(Set.of());
+
+    var workAreaResult = workAreaService.getWorkAreaResult(authenticatedUserAccount, WorkAreaTab.INDUSTRY_OPEN_APPLICATIONS, 1);
+
+    verify(industryWorkAreaPageService, times(1)).getOpenApplicationsPageView(eq(authenticatedUserAccount), eq(1));
+
+    assertThat(workAreaResult.getApplicationsTabPages()).isEqualTo(appPageView);
+    assertThat(workAreaResult.getConsultationsTabPages()).isNull();
+
+  }
+
+  @Test
+  public void getWorkAreaResult_industrySubmittedApplicationsTab_resultsExist() {
+
+    var appWorkflowSubject = new GenericWorkflowSubject(1, WorkflowType.PWA_APPLICATION);
+    var appWorkflowSubject2 = new GenericWorkflowSubject(2, WorkflowType.PWA_APPLICATION);
+    var consultationWorkflowSubject = new GenericWorkflowSubject(3, WorkflowType.PWA_APPLICATION_CONSULTATION);
+
+    when(camundaWorkflowService.getAssignedTasks(authenticatedUserAccount.getLinkedPerson())).thenReturn(Set.of(
+        new AssignedTaskInstance(new WorkflowTaskInstance(appWorkflowSubject, PwaApplicationWorkflowTask.PREPARE_APPLICATION), authenticatedUserAccount.getLinkedPerson()),
+        new AssignedTaskInstance(new WorkflowTaskInstance(appWorkflowSubject2, PwaApplicationWorkflowTask.PREPARE_APPLICATION), authenticatedUserAccount.getLinkedPerson()),
+        new AssignedTaskInstance(new WorkflowTaskInstance(consultationWorkflowSubject, PwaApplicationConsultationWorkflowTask.ALLOCATION), authenticatedUserAccount.getLinkedPerson())
+    ));
+
+    var workAreaResult = workAreaService.getWorkAreaResult(authenticatedUserAccount, WorkAreaTab.INDUSTRY_SUBMITTED_APPLICATIONS, 0);
+
+    verify(industryWorkAreaPageService, times(1)).getSubmittedApplicationsPageView(eq(authenticatedUserAccount), eq(0));
+
+    assertThat(workAreaResult.getApplicationsTabPages()).isEqualTo(appPageView);
+    assertThat(workAreaResult.getConsultationsTabPages()).isNull();
+
+  }
+
+  @Test
+  public void getWorkAreaResult_industrySubmittedApplicationsTab_noAssignedTasks() {
+
+    when(camundaWorkflowService.getAssignedTasks(authenticatedUserAccount.getLinkedPerson())).thenReturn(Set.of());
+
+    var workAreaResult = workAreaService.getWorkAreaResult(authenticatedUserAccount, WorkAreaTab.INDUSTRY_SUBMITTED_APPLICATIONS, 1);
+
+    verify(industryWorkAreaPageService, times(1)).getSubmittedApplicationsPageView(eq(authenticatedUserAccount), eq(1));
 
     assertThat(workAreaResult.getApplicationsTabPages()).isEqualTo(appPageView);
     assertThat(workAreaResult.getConsultationsTabPages()).isNull();

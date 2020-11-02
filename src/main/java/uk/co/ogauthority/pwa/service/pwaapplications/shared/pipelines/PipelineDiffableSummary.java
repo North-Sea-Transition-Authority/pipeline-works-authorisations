@@ -3,7 +3,9 @@ package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineHeaderConditionalQuestion;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineHeaderView;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.techdrawings.PipelineDrawingSummaryView;
 
@@ -74,6 +76,10 @@ public final class PipelineDiffableSummary {
 
   public PipelineDrawingSummaryView getDrawingSummaryView() {
     return drawingSummaryView;
+  }
+
+  public Set<PipelineHeaderConditionalQuestion> getQuestionsForPipelineStatus() {
+    return pipelineHeaderView.getQuestionsForPipelineStatus();
   }
 
 

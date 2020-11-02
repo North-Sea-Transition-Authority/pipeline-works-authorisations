@@ -76,6 +76,11 @@ public class ApplicationDetailSearchItem {
 
   private boolean openUpdateRequestFlag;
 
+  @Column(name = "open_consultation_req_flag")
+  private boolean openConsultationRequestFlag;
+
+  private boolean openPublicNoticeFlag;
+
   public int getPwaApplicationDetailId() {
     return pwaApplicationDetailId;
   }
@@ -250,5 +255,21 @@ public class ApplicationDetailSearchItem {
 
   public void setOpenUpdateRequestFlag(Boolean openUpdateRequestFlag) {
     this.openUpdateRequestFlag = openUpdateRequestFlag;
+  }
+
+  public boolean isOpenConsultationRequestFlag() {
+    return openConsultationRequestFlag;
+  }
+
+  public void setOpenConsultationRequestFlag(boolean openConsultationRequestFlag) {
+    this.openConsultationRequestFlag = openConsultationRequestFlag;
+  }
+
+  public boolean isOpenPublicNoticeFlag() {
+    return openPublicNoticeFlag;
+  }
+
+  public void setOpenPublicNoticeFlag(boolean openPublicNoticeFlag) {
+    this.openPublicNoticeFlag = openPublicNoticeFlag;
   }
 }

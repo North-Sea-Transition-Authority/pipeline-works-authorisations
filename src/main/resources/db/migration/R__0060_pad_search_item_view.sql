@@ -49,6 +49,16 @@ SELECT
   WHERE por.application_detail_id = pad.id
   AND por.role = 'HOLDER'
 ) pad_holder_name_list
+
+, CASE WHEN (
+      SELECT COUNT(*)
+      FROM ${datasource.user}.consultation_requests creq
+      WHERE creq.status NOT IN ('WITHDRAWN', 'RESPONDED')
+      AND creq.application_id = pad.pwa_application_id
+    ) > 0 THEN 1
+    ELSE 0
+  END open_consultation_req_flag
+, 0 open_public_notice_flag -- TODO PWA-931
 , CASE WHEN aur.id IS NOT NULL THEN 1 ELSE 0 END open_update_request_flag
 FROM ${datasource.user}.pwa_application_details pad -- want 1 row per detail for maximum query flexibility. intended to be the only introduced cardinality
 JOIN ${datasource.user}.pwa_applications pa ON pad.pwa_application_id = pa.id

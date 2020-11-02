@@ -10,6 +10,7 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -476,9 +477,9 @@ public class PermanentDepositsServiceTest {
     deposit.setBagsNotUsedDescription("bag");
     deposit.setContingencyAmount("contingency");
     deposit.setQuantity(1);
-    deposit.setConcreteMattressWidth(1);
-    deposit.setConcreteMattressLength(2);
-    deposit.setConcreteMattressDepth(3);
+    deposit.setConcreteMattressWidth(BigDecimal.valueOf(1));
+    deposit.setConcreteMattressLength(BigDecimal.valueOf(2));
+    deposit.setConcreteMattressDepth(BigDecimal.valueOf(3));
   }
 
 }
