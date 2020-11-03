@@ -17,4 +17,6 @@ public interface ApplicationUpdateRequestView {
     return DateUtils.formatDateTime(getRequestedTimestamp());
   }
 
+
+
 }

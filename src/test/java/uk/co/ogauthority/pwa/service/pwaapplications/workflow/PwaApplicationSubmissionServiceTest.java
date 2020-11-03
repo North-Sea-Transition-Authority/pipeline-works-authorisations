@@ -1,46 +1,37 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.workflow;
 
-import static java.util.Map.entry;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.EnumSet;
-import java.util.List;
-import java.util.Set;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
+import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
-import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.enums.notify.NotifyTemplate;
-import uk.co.ogauthority.pwa.model.notify.emailproperties.EmailProperties;
-import uk.co.ogauthority.pwa.model.teams.PwaRegulatorRole;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationSubmitResult;
 import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationWorkflowTask;
-import uk.co.ogauthority.pwa.service.notify.NotifyService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.PwaApplicationDataCleanupService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.submission.PadPipelineNumberingService;
-import uk.co.ogauthority.pwa.service.teams.TeamService;
 import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
 import uk.co.ogauthority.pwa.service.workflow.task.WorkflowTaskInstance;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
-import uk.co.ogauthority.pwa.testutils.TeamTestingUtils;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PwaApplicationSubmissionServiceTest {
+
+
+  private static final String SUBMISSION_DESC = "desc;";
+  private static final PwaApplicationWorkflowTask DEFAULT_COMPLETE_WORKFLOW_TASK = PwaApplicationWorkflowTask.PREPARE_APPLICATION;
+  private static final PwaApplicationSubmitResult SUBMISSION_RESULT = PwaApplicationSubmitResult.SUBMIT_PREPARED_APPLICATION;
+  private static final PwaApplicationStatus DEFAULT_STATUS = PwaApplicationStatus.CASE_OFFICER_REVIEW;
 
   @Mock
   private PwaApplicationDetailService pwaApplicationDetailService;
@@ -49,37 +40,44 @@ public class PwaApplicationSubmissionServiceTest {
   private CamundaWorkflowService camundaWorkflowService;
 
   @Mock
-  private NotifyService notifyService;
-
-  @Mock
-  private TeamService teamService;
-
-  @Mock
   private PwaApplicationDataCleanupService dataCleanupService;
 
   @Mock
-  private PadPipelineNumberingService padPipelineNumberingService;
+  private ApplicationSubmissionServiceProvider applicationSubmissionServiceProvider;
 
-  @Captor
-  private ArgumentCaptor<EmailProperties> emailPropsCaptor;
+  @Mock
+  private ApplicationSubmissionService applicationSubmissionService;
 
   private PwaApplicationSubmissionService pwaApplicationSubmissionService;
 
   private PwaApplicationDetail pwaApplicationDetail;
   private WebUserAccount user = new WebUserAccount(1);
 
+  private InOrder verifyOrder;
+
   @Before
   public void setup() {
     pwaApplicationSubmissionService = new PwaApplicationSubmissionService(
         pwaApplicationDetailService,
         camundaWorkflowService,
-        notifyService,
-        teamService,
         dataCleanupService,
-        padPipelineNumberingService);
+        applicationSubmissionServiceProvider
+    );
+
+    verifyOrder = Mockito.inOrder(
+        pwaApplicationDetailService,
+        camundaWorkflowService,
+        dataCleanupService,
+        applicationSubmissionServiceProvider,
+        // also test calls on provided submission service
+        applicationSubmissionService
+    );
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
-
+    when(applicationSubmissionServiceProvider.getSubmissionService(pwaApplicationDetail))
+        .thenReturn(applicationSubmissionService);
+    when(applicationSubmissionService.getTaskToComplete()).thenReturn(DEFAULT_COMPLETE_WORKFLOW_TASK);
+    when(applicationSubmissionService.getSubmittedApplicationDetailStatus(pwaApplicationDetail)).thenReturn(DEFAULT_STATUS);
 
   }
 
@@ -87,13 +85,12 @@ public class PwaApplicationSubmissionServiceTest {
   @Test(expected = IllegalArgumentException.class)
   public void submitApplication_whenDetailIsNotTip() {
     pwaApplicationDetail.setTipFlag(false);
-    pwaApplicationSubmissionService.submitApplication(user, pwaApplicationDetail);
-
+    pwaApplicationSubmissionService.submitApplication(user, pwaApplicationDetail, SUBMISSION_DESC);
   }
 
 
   @Test
-  public void submitApplication_whenDetailIsNotDraft() {
+  public void submitApplication_throwsErrorWhenNotDraft() {
     var invalidSubmitStatuses = EnumSet.allOf(PwaApplicationStatus.class);
     invalidSubmitStatuses.remove(PwaApplicationStatus.DRAFT);
 
@@ -105,7 +102,7 @@ public class PwaApplicationSubmissionServiceTest {
           (status) -> {
             pwaApplicationDetail.setStatus(status);
             assertThatThrownBy(() ->
-                pwaApplicationSubmissionService.submitApplication(user, pwaApplicationDetail)).isInstanceOf(
+                pwaApplicationSubmissionService.submitApplication(user, pwaApplicationDetail, SUBMISSION_DESC)).isInstanceOf(
                 IllegalArgumentException.class);
           }
       );
@@ -114,55 +111,46 @@ public class PwaApplicationSubmissionServiceTest {
 
 
   @Test
-  public void submitApplication_whenDetailIsTipDraft() {
+  public void submitApplication_whenDetailIsTipDraft_serviceInteractions_whenNoSubmitResultProvided() {
 
-    var teamMemberList = List.of(
-        TeamTestingUtils.createRegulatorTeamMember(teamService.getRegulatorTeam(),
-            new Person(1, "PWA", "Manager1", "manager1@pwa.co.uk", null),
-            Set.of(PwaRegulatorRole.PWA_MANAGER)),
-        TeamTestingUtils.createRegulatorTeamMember(teamService.getRegulatorTeam(),
-            new Person(2, "PWA", "Manager2", "manager2@pwa.co.uk", null),
-            Set.of(PwaRegulatorRole.PWA_MANAGER)),
-        TeamTestingUtils.createRegulatorTeamMember(teamService.getRegulatorTeam(),
-            new Person(3, "PWA", "Case officer", "co@pwa.co.uk", null),
-            Set.of(PwaRegulatorRole.CASE_OFFICER))
+    pwaApplicationSubmissionService.submitApplication(user, pwaApplicationDetail, SUBMISSION_DESC);
+
+    verifyOrder.verify(applicationSubmissionServiceProvider).getSubmissionService(pwaApplicationDetail);
+    verifyOrder.verify(applicationSubmissionService).doBeforeSubmit(pwaApplicationDetail, user.getLinkedPerson(), SUBMISSION_DESC);
+    verifyOrder.verify(dataCleanupService).cleanupData(pwaApplicationDetail);
+
+    verifyOrder.verify(camundaWorkflowService).completeTask(
+        new WorkflowTaskInstance(pwaApplicationDetail.getPwaApplication(), DEFAULT_COMPLETE_WORKFLOW_TASK)
     );
 
-    when(teamService.getTeamMembers(teamService.getRegulatorTeam())).thenReturn(teamMemberList);
+    verifyOrder.verify(pwaApplicationDetailService).setSubmitted(pwaApplicationDetail, user, DEFAULT_STATUS);
+    verifyOrder.verify(applicationSubmissionService).doAfterSubmit(pwaApplicationDetail);
 
-    pwaApplicationSubmissionService.submitApplication(user, pwaApplicationDetail);
+    verifyOrder.verifyNoMoreInteractions();
+  }
 
-    verify(padPipelineNumberingService, times(1)).assignPipelineReferences(pwaApplicationDetail);
 
-    verify(dataCleanupService, times(1)).cleanupData(pwaApplicationDetail);
+  @Test
+  public void submitApplication_whenDetailIsTipDraft_serviceInteractions_whenSubmitResultProvided() {
 
-    verify(pwaApplicationDetailService, times(1)).setSubmitted(pwaApplicationDetail, user);
-    var camundaServiceOrderVerifier = Mockito.inOrder(camundaWorkflowService);
-    camundaServiceOrderVerifier.verify(camundaWorkflowService, times(1))
-        .setWorkflowProperty(eq(pwaApplicationDetail.getPwaApplication()), eq(PwaApplicationSubmitResult.SUBMIT_PREPARED_APPLICATION));
-    camundaServiceOrderVerifier.verify(camundaWorkflowService, times(1)).completeTask(
-        eq(new WorkflowTaskInstance(pwaApplicationDetail.getPwaApplication(),
-            PwaApplicationWorkflowTask.PREPARE_APPLICATION)));
-    camundaServiceOrderVerifier.verifyNoMoreInteractions();
+    when(applicationSubmissionService.getSubmissionWorkflowResult())
+        .thenReturn(Optional.of(SUBMISSION_RESULT));
 
-    verify(notifyService, times(1)).sendEmail(emailPropsCaptor.capture(), eq("manager1@pwa.co.uk"));
-    assertThat(emailPropsCaptor.getValue().getEmailPersonalisation().get("RECIPIENT_FULL_NAME")).isEqualTo(
-        "PWA Manager1");
+    pwaApplicationSubmissionService.submitApplication(user, pwaApplicationDetail, SUBMISSION_DESC);
 
-    verify(notifyService, times(1)).sendEmail(emailPropsCaptor.capture(), eq("manager2@pwa.co.uk"));
-    assertThat(emailPropsCaptor.getValue().getEmailPersonalisation().get("RECIPIENT_FULL_NAME")).isEqualTo(
-        "PWA Manager2");
+    verifyOrder.verify(applicationSubmissionServiceProvider).getSubmissionService(pwaApplicationDetail);
+    verifyOrder.verify(applicationSubmissionService).doBeforeSubmit(pwaApplicationDetail, user.getLinkedPerson(), SUBMISSION_DESC);
+    verifyOrder.verify(dataCleanupService).cleanupData(pwaApplicationDetail);
 
-    emailPropsCaptor.getAllValues().forEach(emailProps -> {
+    verifyOrder.verify(camundaWorkflowService).setWorkflowProperty(pwaApplicationDetail.getPwaApplication(), SUBMISSION_RESULT);
+    verifyOrder.verify(camundaWorkflowService).completeTask(
+        new WorkflowTaskInstance(pwaApplicationDetail.getPwaApplication(), DEFAULT_COMPLETE_WORKFLOW_TASK)
+    );
 
-      assertThat(emailProps.getTemplate()).isEqualTo(NotifyTemplate.APPLICATION_SUBMITTED);
-      assertThat(emailProps.getEmailPersonalisation()).contains(
-          entry("APPLICATION_REFERENCE", pwaApplicationDetail.getPwaApplicationRef()),
-          entry("APPLICATION_TYPE", pwaApplicationDetail.getPwaApplicationType().getDisplayName())
-      );
+    verifyOrder.verify(pwaApplicationDetailService).setSubmitted(pwaApplicationDetail, user, DEFAULT_STATUS);
+    verifyOrder.verify(applicationSubmissionService).doAfterSubmit(pwaApplicationDetail);
 
-    });
-
+    verifyOrder.verifyNoMoreInteractions();
   }
 
 

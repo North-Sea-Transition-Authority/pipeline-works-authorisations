@@ -31,6 +31,7 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.applicationsummariser.ApplicationSummaryViewService;
+import uk.co.ogauthority.pwa.service.appprocessing.applicationupdate.ApplicationUpdateRequestService;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
@@ -46,6 +47,7 @@ import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 public class ReviewAndSubmitControllerTest extends PwaApplicationContextAbstractControllerTest {
 
   private static final int APP_ID = 99;
+  private static final String SUBMISSION_DESC = "MY SUBMISSION";
   // mocked redirect service gets injected into spyBean, not mockBean
   @SpyBean
   private ApplicationBreadcrumbService breadcrumbService;
@@ -55,6 +57,9 @@ public class ReviewAndSubmitControllerTest extends PwaApplicationContextAbstract
 
   @MockBean
   private ApplicationSummaryViewService applicationSummaryViewService;
+
+  @MockBean
+  private ApplicationUpdateRequestService applicationUpdateRequestService;
 
   private PwaApplicationEndpointTestBuilder endpointTester;
 
@@ -216,7 +221,7 @@ public class ReviewAndSubmitControllerTest extends PwaApplicationContextAbstract
         .andExpect(result -> result.getModelAndView().getViewName().equals(
             "pwaApplication/shared/submission/submitConfirmation"));
 
-    verify(pwaApplicationSubmissionService, times(1)).submitApplication(user, detail);
+    verify(pwaApplicationSubmissionService, times(1)).submitApplication(user, detail, null);
   }
 
 }

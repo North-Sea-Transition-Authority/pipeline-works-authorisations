@@ -124,7 +124,9 @@ public class PwaApplicationDetailService {
    * @return Saved app detail.
    */
   @Transactional
-  public PwaApplicationDetail setSubmitted(PwaApplicationDetail pwaApplicationDetail, WebUserAccount webUserAccount) {
+  public PwaApplicationDetail setSubmitted(PwaApplicationDetail pwaApplicationDetail,
+                                           WebUserAccount webUserAccount,
+                                           PwaApplicationStatus pwaApplicationStatus) {
 
     pwaApplicationDetail.setSubmittedByPersonId(webUserAccount.getLinkedPerson().getId());
     pwaApplicationDetail.setSubmittedTimestamp(clock.instant());
@@ -134,7 +136,7 @@ public class PwaApplicationDetailService {
 
     return updateStatus(
         pwaApplicationDetail,
-        PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW,
+        pwaApplicationStatus,
         webUserAccount
     );
 

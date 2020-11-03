@@ -1,56 +1,47 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.workflow;
 
-import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.notify.emailproperties.ApplicationSubmittedEmailProps;
-import uk.co.ogauthority.pwa.model.teams.PwaRegulatorRole;
-import uk.co.ogauthority.pwa.model.teams.PwaRole;
-import uk.co.ogauthority.pwa.model.teams.PwaTeamMember;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationSubmitResult;
-import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationWorkflowTask;
-import uk.co.ogauthority.pwa.service.notify.NotifyService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.PwaApplicationDataCleanupService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.submission.PadPipelineNumberingService;
-import uk.co.ogauthority.pwa.service.teams.TeamService;
 import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
 import uk.co.ogauthority.pwa.service.workflow.task.WorkflowTaskInstance;
 
 /**
- * Service to perform all submission business logic for pwa applications.
+ * Service to define and perform standardised application submission.
  */
 @Service
 public class PwaApplicationSubmissionService {
 
   private final PwaApplicationDetailService pwaApplicationDetailService;
   private final CamundaWorkflowService camundaWorkflowService;
-  private final NotifyService notifyService;
-  private final TeamService teamService;
   private final PwaApplicationDataCleanupService pwaApplicationDataCleanupService;
-  private final PadPipelineNumberingService padPipelineNumberingService;
+
+
+  private final ApplicationSubmissionServiceProvider applicationSubmissionServiceProvider;
 
   @Autowired
   public PwaApplicationSubmissionService(PwaApplicationDetailService pwaApplicationDetailService,
                                          CamundaWorkflowService camundaWorkflowService,
-                                         NotifyService notifyService,
-                                         TeamService teamService,
                                          PwaApplicationDataCleanupService pwaApplicationDataCleanupService,
-                                         PadPipelineNumberingService padPipelineNumberingService) {
+                                         ApplicationSubmissionServiceProvider applicationSubmissionServiceProvider) {
     this.pwaApplicationDetailService = pwaApplicationDetailService;
     this.camundaWorkflowService = camundaWorkflowService;
-    this.notifyService = notifyService;
-    this.teamService = teamService;
     this.pwaApplicationDataCleanupService = pwaApplicationDataCleanupService;
-    this.padPipelineNumberingService = padPipelineNumberingService;
+    this.applicationSubmissionServiceProvider = applicationSubmissionServiceProvider;
+
   }
 
   @Transactional
-  public void submitApplication(WebUserAccount submittedByUser, PwaApplicationDetail detail) {
+  public void submitApplication(WebUserAccount submittedByUser,
+                                PwaApplicationDetail detail,
+                                @Nullable String submissionDescription) {
 
     if (!detail.isTipFlag()) {
       throw new IllegalArgumentException(String.format("Application Detail not tip! id: %s", detail.getId()));
@@ -61,40 +52,33 @@ public class PwaApplicationSubmissionService {
           String.format("Application Detail not draft! id: %s status: %s", detail.getId(), detail.getStatus()));
     }
 
-    padPipelineNumberingService.assignPipelineReferences(detail);
+    var submissionService = applicationSubmissionServiceProvider.getSubmissionService(detail);
+
+    submissionService.doBeforeSubmit(detail, submittedByUser.getLinkedPerson(), submissionDescription);
 
     pwaApplicationDataCleanupService.cleanupData(detail);
 
-    camundaWorkflowService.setWorkflowProperty(detail.getPwaApplication(), PwaApplicationSubmitResult.SUBMIT_PREPARED_APPLICATION);
+    submissionService.getSubmissionWorkflowResult().ifPresent(
+        pwaApplicationSubmitResult -> setWorkFlowProperty(detail, pwaApplicationSubmitResult)
+    );
+
     camundaWorkflowService.completeTask(
-        new WorkflowTaskInstance(detail.getPwaApplication(), PwaApplicationWorkflowTask.PREPARE_APPLICATION));
+        new WorkflowTaskInstance(detail.getPwaApplication(), submissionService.getTaskToComplete())
+    );
 
-    pwaApplicationDetailService.setSubmitted(detail, submittedByUser);
+    var newStatus = submissionService.getSubmittedApplicationDetailStatus(detail);
+    pwaApplicationDetailService.setSubmitted(detail, submittedByUser, newStatus);
 
-    sendApplicationSubmittedEmail(detail);
+    submissionService.doAfterSubmit(detail);
 
   }
 
-  private void sendApplicationSubmittedEmail(PwaApplicationDetail detail) {
-
-    var pwaManagers = teamService.getTeamMembers(teamService.getRegulatorTeam()).stream()
-        .filter(member -> member.getRoleSet().stream()
-            .map(PwaRole::getName)
-            .anyMatch(roleName -> roleName.equals(PwaRegulatorRole.PWA_MANAGER.getPortalTeamRoleName())))
-        .map(PwaTeamMember::getPerson)
-        .collect(Collectors.toSet());
-
-    pwaManagers.forEach(pwaManager -> {
-
-      var submittedEmailProps = new ApplicationSubmittedEmailProps(
-          pwaManager.getFullName(),
-          detail.getPwaApplicationRef(),
-          detail.getPwaApplicationType().getDisplayName());
-
-      notifyService.sendEmail(submittedEmailProps, pwaManager.getEmailAddress());
-
-    });
-
+  // this is a workaround to avoid crap checkstyle false positive build failures.
+  private void setWorkFlowProperty(PwaApplicationDetail detail, PwaApplicationSubmitResult pwaApplicationSubmitResult) {
+    camundaWorkflowService.setWorkflowProperty(
+        detail.getPwaApplication(),
+        pwaApplicationSubmitResult
+    );
   }
 
 }

@@ -7,25 +7,25 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.enums.appprocessing.applicationupdates.ApplicationUpdateRequestStatus;
 import uk.co.ogauthority.pwa.model.view.appprocessing.applicationupdates.ApplicationUpdateRequestView;
-import uk.co.ogauthority.pwa.repository.appprocessing.applicationupdates.ApplicationUpdateRequestRepository;
+import uk.co.ogauthority.pwa.repository.appprocessing.applicationupdates.ApplicationUpdateRequestViewRepository;
 
 @Service
 public class ApplicationUpdateRequestViewService {
 
-  private final ApplicationUpdateRequestRepository applicationUpdateRequestRepository;
+  private final ApplicationUpdateRequestViewRepository applicationUpdateRequestViewRepository;
 
   @Autowired
-  public ApplicationUpdateRequestViewService(ApplicationUpdateRequestRepository applicationUpdateRequestRepository) {
-    this.applicationUpdateRequestRepository = applicationUpdateRequestRepository;
+  public ApplicationUpdateRequestViewService(ApplicationUpdateRequestViewRepository applicationUpdateRequestViewRepository) {
+    this.applicationUpdateRequestViewRepository = applicationUpdateRequestViewRepository;
   }
 
   public Optional<ApplicationUpdateRequestView> getOpenRequestView(PwaApplicationDetail pwaApplicationDetail) {
-    return applicationUpdateRequestRepository
+    return applicationUpdateRequestViewRepository
         .findByPwaApplicationDetailAndStatus(pwaApplicationDetail, ApplicationUpdateRequestStatus.OPEN);
   }
 
   public Optional<ApplicationUpdateRequestView> getOpenRequestView(PwaApplication pwaApplication) {
-    return applicationUpdateRequestRepository
+    return applicationUpdateRequestViewRepository
         .findByPwaApplicationDetail_pwaApplicationAndStatus(pwaApplication, ApplicationUpdateRequestStatus.OPEN);
   }
 

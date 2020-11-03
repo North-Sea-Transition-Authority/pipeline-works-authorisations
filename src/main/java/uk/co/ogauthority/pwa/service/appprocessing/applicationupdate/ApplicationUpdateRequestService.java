@@ -10,9 +10,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
+import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.applicationupdates.ApplicationUpdateRequest;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.enums.appprocessing.applicationupdates.ApplicationUpdateRequestStatus;
 import uk.co.ogauthority.pwa.model.notify.emailproperties.ApplicationUpdateRequestEmailProps;
+import uk.co.ogauthority.pwa.model.notify.emailproperties.ApplicationUpdateResponseEmailProps;
 import uk.co.ogauthority.pwa.model.workflow.GenericMessageEvent;
 import uk.co.ogauthority.pwa.repository.appprocessing.applicationupdates.ApplicationUpdateRequestRepository;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
@@ -22,6 +25,7 @@ import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationWorkflowMessageEvents;
 import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationWorkflowTask;
 import uk.co.ogauthority.pwa.service.notify.NotifyService;
+import uk.co.ogauthority.pwa.service.person.PersonService;
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.PwaApplicationDetailVersioningService;
 import uk.co.ogauthority.pwa.service.workflow.assignment.WorkflowAssignmentService;
@@ -37,6 +41,7 @@ public class ApplicationUpdateRequestService implements AppProcessingService {
   private final PwaContactService pwaContactService;
   private final PwaApplicationDetailVersioningService pwaApplicationDetailVersioningService;
   private final WorkflowAssignmentService workflowAssignmentService;
+  private final PersonService personService;
 
   @Autowired
   public ApplicationUpdateRequestService(ApplicationUpdateRequestRepository applicationUpdateRequestRepository,
@@ -44,13 +49,15 @@ public class ApplicationUpdateRequestService implements AppProcessingService {
                                          NotifyService notifyService,
                                          PwaContactService pwaContactService,
                                          PwaApplicationDetailVersioningService pwaApplicationDetailVersioningService,
-                                         WorkflowAssignmentService workflowAssignmentService) {
+                                         WorkflowAssignmentService workflowAssignmentService,
+                                         PersonService personService) {
     this.applicationUpdateRequestRepository = applicationUpdateRequestRepository;
     this.clock = clock;
     this.notifyService = notifyService;
     this.pwaContactService = pwaContactService;
     this.pwaApplicationDetailVersioningService = pwaApplicationDetailVersioningService;
     this.workflowAssignmentService = workflowAssignmentService;
+    this.personService = personService;
   }
 
 
@@ -61,7 +68,8 @@ public class ApplicationUpdateRequestService implements AppProcessingService {
     // The update request was made for a specific version, so the original is linked.
     createApplicationUpdateRequest(pwaApplicationDetail, requestingUser.getLinkedPerson(), requestReason);
     // then a new detail is created which is what the will be resubmitted with any changes.
-    var newTipDetail = pwaApplicationDetailVersioningService.createNewApplicationVersion(pwaApplicationDetail, requestingUser);
+    var newTipDetail = pwaApplicationDetailVersioningService.createNewApplicationVersion(pwaApplicationDetail,
+        requestingUser);
     // then we attempt to send an email to alert the application preparers that changes are required.
     sendApplicationUpdateRequestedEmail(newTipDetail, requestingUser.getLinkedPerson());
     // update workflow
@@ -72,6 +80,27 @@ public class ApplicationUpdateRequestService implements AppProcessingService {
         ),
         PwaApplicationWorkflowTask.UPDATE_APPLICATION
     );
+  }
+
+  @Transactional
+  public void respondToApplicationOpenUpdateRequest(PwaApplicationDetail pwaApplicationDetail,
+                                                    Person respondingPerson,
+                                                    String response) {
+    var openUpdateRequest = applicationUpdateRequestRepository.findByPwaApplicationDetail_pwaApplicationAndStatus(
+        pwaApplicationDetail.getPwaApplication(), ApplicationUpdateRequestStatus.OPEN)
+        .orElseThrow(() -> new PwaEntityNotFoundException(
+            "Expected to find open update request for pad_id:" + pwaApplicationDetail.getId()));
+
+    openUpdateRequest.setResponseOtherChanges(response);
+    openUpdateRequest.setResponseTimestamp(clock.instant());
+    openUpdateRequest.setResponseByPersonId(respondingPerson.getId());
+    openUpdateRequest.setResponsePwaApplicationDetail(pwaApplicationDetail);
+    openUpdateRequest.setStatus(ApplicationUpdateRequestStatus.RESPONDED);
+    applicationUpdateRequestRepository.save(openUpdateRequest);
+
+    var requestedByPerson = personService.getPersonById(openUpdateRequest.getRequestedByPersonId());
+    sendApplicationUpdateRespondedEmail(pwaApplicationDetail, requestedByPerson);
+
   }
 
 
@@ -117,15 +146,30 @@ public class ApplicationUpdateRequestService implements AppProcessingService {
 
   }
 
+  private void sendApplicationUpdateRespondedEmail(PwaApplicationDetail pwaApplicationDetail, Person requestedByperson) {
 
-  // TODO PWA-161 implements submission of app updates and therefore should determine how update requests go from opened to closed.
+    notifyService.sendEmail(
+        new ApplicationUpdateResponseEmailProps(
+            requestedByperson.getFullName(),
+            pwaApplicationDetail.getPwaApplicationRef()
+        ),
+        requestedByperson.getEmailAddress()
+    );
+
+
+  }
+
   public boolean applicationDetailHasOpenUpdateRequest(PwaApplicationDetail pwaApplicationDetail) {
-    return applicationUpdateRequestRepository.existsByPwaApplicationDetail(pwaApplicationDetail);
+    return applicationUpdateRequestRepository.findByPwaApplicationDetail_pwaApplicationAndStatus(
+        pwaApplicationDetail.getPwaApplication(),
+        ApplicationUpdateRequestStatus.OPEN
+    ).isPresent();
   }
 
   @Override
   public boolean canShowInTaskList(PwaAppProcessingContext processingContext) {
-    return processingContext.getAppProcessingPermissions().contains(PwaAppProcessingPermission.REQUEST_APPLICATION_UPDATE);
+    return processingContext.getAppProcessingPermissions().contains(
+        PwaAppProcessingPermission.REQUEST_APPLICATION_UPDATE);
   }
 
 }
