@@ -61,7 +61,6 @@ public class TaskListEntryFactoryTest {
     assertThat(taskListEntry.getRoute()).isEqualTo(DEFAULT_APP_TASK_ROUTE);
     assertThat(taskListEntry.getTaskInfoList()).isEmpty();
 
-
   }
 
   @Test
@@ -110,7 +109,7 @@ public class TaskListEntryFactoryTest {
             .review(
                 pwaApplicationDetail.getPwaApplicationType(),
                 pwaApplicationDetail.getMasterPwaApplicationId(),
-                null)
+                null, null)
         )
     );
     assertThat(taskListEntry.getTaskInfoList()).isEmpty();

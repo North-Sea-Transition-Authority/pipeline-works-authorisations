@@ -10,11 +10,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.controller.WorkAreaController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationPermissionCheck;
-import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationStatusCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTypeCheck;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
-import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.summary.ApplicationSummaryFactory;
@@ -31,7 +29,6 @@ import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
     PwaApplicationType.OPTIONS_VARIATION,
     PwaApplicationType.HUOO_VARIATION
 })
-@PwaApplicationStatusCheck(status = PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW)
 @PwaApplicationPermissionCheck(permissions = PwaApplicationPermission.SUBMIT)
 public class SubmitConfirmationController {
 
@@ -53,7 +50,8 @@ public class SubmitConfirmationController {
         applicationContext.getApplicationDetail());
     var modelAndView = new ModelAndView("pwaApplication/shared/submission/submitConfirmation")
         .addObject("workAreaUrl", ReverseRouter.route(on(WorkAreaController.class).renderWorkArea(null, null, null)))
-        .addObject("submissionSummary", submissionSummary);
+        .addObject("submissionSummary", submissionSummary)
+        .addObject("isFirstVersion", applicationContext.getApplicationDetail().isFirstVersion());
 
     return modelAndView;
 

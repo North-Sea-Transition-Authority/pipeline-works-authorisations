@@ -57,7 +57,7 @@ public class TaskListEntryFactory {
     return new TaskListEntry(
         "Review and submit application",
         ReverseRouter.route(on(ReviewAndSubmitController.class)
-            .review(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null)),
+            .review(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null, null)),
         false,
         999);
   }

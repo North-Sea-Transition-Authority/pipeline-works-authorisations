@@ -18,7 +18,7 @@
     <div class="govuk-summary-list__row">
       <dt class="govuk-summary-list__key">Is the deposit for a consented pipeline or a pipeline that is on this application?</dt>
       <dd class="govuk-summary-list__value">
-        ${deposit.depositIsForConsentedPipeline?then('Yes', 'No')}
+        <#if deposit.depositIsForConsentedPipeline?has_content>${deposit.depositIsForConsentedPipeline?then('Yes', 'No')}</#if>
       </dd>
     </div>
     
@@ -39,7 +39,7 @@
     <div class="govuk-summary-list__row">
       <dt class="govuk-summary-list__key">Is the deposit for proposed pipelines on other applications that haven’t yet been consented?</dt>
       <dd class="govuk-summary-list__value">
-        ${deposit.depositIsForPipelinesOnOtherApp?then('Yes', 'No')}
+         <#if deposit.depositIsForPipelinesOnOtherApp?has_content>${deposit.depositIsForPipelinesOnOtherApp?then('Yes', 'No')}</#if>
       </dd>
     </div>
 

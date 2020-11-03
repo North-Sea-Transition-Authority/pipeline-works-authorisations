@@ -2,7 +2,7 @@
 
 <#-- @ftlvariable name="appSummaryView" type="uk.co.ogauthority.pwa.model.view.appsummary.ApplicationSummaryView" -->
 
-<#macro summary pageHeading appSummaryView sidebarHeading caseSummaryView=[]>
+<#macro summary pageHeading appSummaryView sidebarHeading caseSummaryView=[] errorList="">
 
     <@defaultPagePaneSubNav>
         <@fdsSubNavigation.subNavigation>
@@ -19,6 +19,10 @@
     </@defaultPagePaneSubNav>
 
     <@defaultPagePaneContent pageHeading=pageHeading>
+
+        <#if errorList?has_content>
+            <@fdsError.errorSummary errorItems=errorList errorTitle="Errors"/>
+        </#if>
 
         <#if caseSummaryView?has_content>
             <@pwaCaseSummary.summary caseSummaryView=caseSummaryView showAppSummaryLink=false />

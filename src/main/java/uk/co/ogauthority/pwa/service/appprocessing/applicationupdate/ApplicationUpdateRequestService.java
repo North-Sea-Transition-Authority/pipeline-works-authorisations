@@ -156,7 +156,6 @@ public class ApplicationUpdateRequestService implements AppProcessingService {
         requestedByperson.getEmailAddress()
     );
 
-
   }
 
   public boolean applicationDetailHasOpenUpdateRequest(PwaApplicationDetail pwaApplicationDetail) {
