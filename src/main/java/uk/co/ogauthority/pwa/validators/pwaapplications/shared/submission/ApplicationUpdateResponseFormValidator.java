@@ -25,7 +25,7 @@ public class ApplicationUpdateResponseFormValidator implements Validator {
         errors,
         "madeOnlyRequestedChanges",
         REQUIRED.errorCode("madeOnlyRequestedChanges"),
-        "Select other changes to describe additional updates"
+        "Select the option which describes your update"
     );
 
     if (BooleanUtils.isFalse(form.getMadeOnlyRequestedChanges())) {
