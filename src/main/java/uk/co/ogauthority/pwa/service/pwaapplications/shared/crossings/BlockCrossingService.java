@@ -32,6 +32,7 @@ import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.crossings.EditBlo
 import uk.co.ogauthority.pwa.repository.licence.PadCrossedBlockOwnerRepository;
 import uk.co.ogauthority.pwa.repository.licence.PadCrossedBlockRepository;
 import uk.co.ogauthority.pwa.service.entitycopier.EntityCopyingService;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
 import uk.co.ogauthority.pwa.service.licence.PearsBlockService;
@@ -248,8 +249,9 @@ public class BlockCrossingService implements ApplicationFormSectionService {
   }
 
   public boolean isDocumentsRequired(PwaApplicationDetail pwaApplicationDetail) {
-    return padCrossedBlockRepository.countPadCrossedBlockByPwaApplicationDetailAndBlockOwnerNot(
-        pwaApplicationDetail, CrossedBlockOwner.HOLDER) > 0;
+    return !pwaApplicationDetail.getPwaApplicationType().equals(PwaApplicationType.DEPOSIT_CONSENT)
+        && padCrossedBlockRepository.countPadCrossedBlockByPwaApplicationDetailAndBlockOwnerNot(
+            pwaApplicationDetail, CrossedBlockOwner.HOLDER) > 0;
   }
 
   @Override

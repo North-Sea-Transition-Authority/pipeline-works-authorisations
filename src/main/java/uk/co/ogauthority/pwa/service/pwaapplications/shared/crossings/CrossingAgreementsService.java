@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.tasklist.TaskListEntry;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.crossings.CrossingAgreementTask;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
@@ -76,8 +77,13 @@ public class CrossingAgreementsService implements ApplicationFormSectionService 
   }
 
   public List<TaskListEntry> getTaskListItems(PwaApplicationDetail pwaApplicationDetail) {
+
+    var appType = pwaApplicationDetail.getPwaApplicationType();
+
     return CrossingAgreementTask.stream()
         .sorted(Comparator.comparing(CrossingAgreementTask::getDisplayOrder))
+        .filter(crossingAgreementTask -> appType != PwaApplicationType.DEPOSIT_CONSENT
+            || !crossingAgreementTask.equals(CrossingAgreementTask.CROSSING_TYPES))
         .map(crossingAgreementTask -> createTaskListEntry(pwaApplicationDetail, crossingAgreementTask))
         .filter(Optional::isPresent)
         .map(Optional::get)
