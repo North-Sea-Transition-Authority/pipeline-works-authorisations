@@ -32,6 +32,8 @@
 
           <@fdsAction.link linkText="Reload document" linkUrl=springUrl(consentDocumentUrlFactory.reloadDocumentUrl) linkClass="govuk-button govuk-button--blue" />
 
+          <@fdsAction.link linkText="Download test document" linkUrl=springUrl(downloadUrl) linkClass="govuk-button govuk-button--secondary" />
+
       </#if>
 
       <#if docView?has_content>
