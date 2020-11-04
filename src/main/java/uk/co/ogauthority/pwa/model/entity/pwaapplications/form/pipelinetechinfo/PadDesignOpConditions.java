@@ -36,12 +36,12 @@ public class PadDesignOpConditions implements ChildEntity<Integer, PwaApplicatio
   @Column(name = "temperature_design_max")
   private BigDecimal temperatureDesignMaxValue;
 
-  @Column(name = "pressure_op_intl")
+  @Column(name = "pressure_op_min")
   private BigDecimal pressureOpMinValue;
-  @Column(name = "pressure_op_extl")
+  @Column(name = "pressure_op_max")
   private BigDecimal pressureOpMaxValue;
 
-  @Column(name = "pressure_design_extl")
+  @Column(name = "pressure_design_max")
   private BigDecimal pressureDesignMaxValue;
 
   @Column(name = "flowrate_op_min")
