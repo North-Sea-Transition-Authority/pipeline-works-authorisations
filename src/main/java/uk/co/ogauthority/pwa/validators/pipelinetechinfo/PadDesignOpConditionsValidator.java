@@ -54,32 +54,25 @@ public class PadDesignOpConditionsValidator implements SmartValidator {
       ValidatorUtils.invokeNestedValidator(errors, minMaxInputValidator, "temperatureDesignMinMax",
           form.getTemperatureDesignMinMax(), "temperature design conditions", List.of(), List.of(new IntegerHint()));
 
-      ValidatorUtils.invokeNestedValidator(errors, minMaxInputValidator, "pressureOpInternalExternal",
-          form.getPressureOpInternalExternal(), "pressure operating conditions",
-          List.of(DefaultValidationRule.MIN_SMALLER_THAN_MAX), List.of(new PositiveNumberHint(), new IntegerHint()),
-          "internal", "external");
+      ValidatorUtils.invokeNestedValidator(errors, minMaxInputValidator, "pressureOpMinMax",
+          form.getPressureOpMinMax(), "pressure operating conditions",
+          List.of(DefaultValidationRule.MIN_SMALLER_THAN_MAX), List.of(new PositiveNumberHint(), new IntegerHint()));
 
-      ValidatorUtils.invokeNestedValidator(errors, minMaxInputValidator, "pressureDesignInternalExternal",
-          form.getPressureDesignInternalExternal(), "pressure design conditions",
-          List.of(DefaultValidationRule.MIN_SMALLER_THAN_MAX), List.of(new PositiveNumberHint(), new IntegerHint()),
-          "internal", "external");
+      var pressureDesignMax = createBigDecimal(form.getPressureDesignMax());
+      if (pressureDesignMax.isEmpty()) {
+        errors.rejectValue("pressureDesignMax", "pressureDesignMax" + FieldValidationErrorCodes.REQUIRED.getCode(),
+            "Enter a valid value for pressure design conditions");
+      } else {
+        validatePositiveNumber(errors, pressureDesignMax.get(), "pressureDesignMax", "pressure design conditions");
+      }
 
       ValidatorUtils.invokeNestedValidator(errors, minMaxInputValidator, "flowrateOpMinMax",
           form.getFlowrateOpMinMax(), "flowrate operating conditions",
-          List.of(), List.of(new PositiveNumberHint(), new DecimalPlacesHint(2)));
+          List.of(), List.of(new DecimalPlacesHint(2)));
 
       ValidatorUtils.invokeNestedValidator(errors, minMaxInputValidator, "flowrateDesignMinMax",
           form.getFlowrateDesignMinMax(), "flowrate design conditions",
-          List.of(), List.of(new PositiveNumberHint(), new DecimalPlacesHint(2)));
-
-      var uvalueOp = createBigDecimal(form.getUvalueOp());
-      if (uvalueOp.isEmpty()) {
-        errors.rejectValue("uvalueOp", "uvalueOp" + FieldValidationErrorCodes.REQUIRED.getCode(),
-            "Enter a valid value for U-value operating conditions");
-      } else {
-        validatePositiveNumber(errors, uvalueOp.get(), "uvalueOp", "U-value operating conditions");
-        validateDecimalPlaces(errors, uvalueOp.get(), "uvalueOp", "U-value operating conditions", 1);
-      }
+          List.of(), List.of(new DecimalPlacesHint(2)));
 
       var uvalueDesign = createBigDecimal(form.getUvalueDesign());
       if (uvalueDesign.isEmpty()) {
@@ -121,7 +114,6 @@ public class PadDesignOpConditionsValidator implements SmartValidator {
           "The value should not have more than " + maxDecimalPlaces + "dp for " +  inputRef);
     }
   }
-
 
 
 }

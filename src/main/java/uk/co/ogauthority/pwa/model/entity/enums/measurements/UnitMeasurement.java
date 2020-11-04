@@ -20,7 +20,9 @@ public enum UnitMeasurement {
   WM2K("W/m2K", "in watts per metre square Kelvin"),
   BAR_G("barg", "in gauge pressure"),
   MULTIPLICATION_SYMBOL("×", "times"),
-  ROCK_GRADE("grade", "grade");
+  ROCK_GRADE("grade", "grade"),
+  CENTIPOISE("cP", "in centipoise");
+
   private final String suffixDisplay;
   private final String suffixScreenReaderDisplay;
 

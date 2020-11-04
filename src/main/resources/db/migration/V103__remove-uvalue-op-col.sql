@@ -1,0 +1,1 @@
+ALTER TABLE ${datasource.user}.pad_design_op_conditions DROP COLUMN uvalue_op;

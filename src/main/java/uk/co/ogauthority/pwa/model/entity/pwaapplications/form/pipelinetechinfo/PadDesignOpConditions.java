@@ -37,14 +37,12 @@ public class PadDesignOpConditions implements ChildEntity<Integer, PwaApplicatio
   private BigDecimal temperatureDesignMaxValue;
 
   @Column(name = "pressure_op_intl")
-  private BigDecimal pressureOpInternalValue;
+  private BigDecimal pressureOpMinValue;
   @Column(name = "pressure_op_extl")
-  private BigDecimal pressureOpExternalValue;
+  private BigDecimal pressureOpMaxValue;
 
-  @Column(name = "pressure_design_intl")
-  private BigDecimal pressureDesignInternalValue;
   @Column(name = "pressure_design_extl")
-  private BigDecimal pressureDesignExternalValue;
+  private BigDecimal pressureDesignMaxValue;
 
   @Column(name = "flowrate_op_min")
   private BigDecimal flowrateOpMinValue;
@@ -56,7 +54,6 @@ public class PadDesignOpConditions implements ChildEntity<Integer, PwaApplicatio
   @Column(name = "flowrate_design_max")
   private BigDecimal flowrateDesignMaxValue;
 
-  private BigDecimal uvalueOp;
   private BigDecimal uvalueDesign;
 
   public PadDesignOpConditions(
@@ -132,36 +129,28 @@ public class PadDesignOpConditions implements ChildEntity<Integer, PwaApplicatio
     this.temperatureDesignMaxValue = temperatureDesignMaxValue;
   }
 
-  public BigDecimal getPressureOpInternalValue() {
-    return pressureOpInternalValue;
+  public BigDecimal getPressureOpMinValue() {
+    return pressureOpMinValue;
   }
 
-  public void setPressureOpInternalValue(BigDecimal pressureOpInternalValue) {
-    this.pressureOpInternalValue = pressureOpInternalValue;
+  public void setPressureOpMinValue(BigDecimal pressureOpMinValue) {
+    this.pressureOpMinValue = pressureOpMinValue;
   }
 
-  public BigDecimal getPressureOpExternalValue() {
-    return pressureOpExternalValue;
+  public BigDecimal getPressureOpMaxValue() {
+    return pressureOpMaxValue;
   }
 
-  public void setPressureOpExternalValue(BigDecimal pressureOpExternalValue) {
-    this.pressureOpExternalValue = pressureOpExternalValue;
+  public void setPressureOpMaxValue(BigDecimal pressureOpMaxValue) {
+    this.pressureOpMaxValue = pressureOpMaxValue;
   }
 
-  public BigDecimal getPressureDesignInternalValue() {
-    return pressureDesignInternalValue;
+  public BigDecimal getPressureDesignMaxValue() {
+    return pressureDesignMaxValue;
   }
 
-  public void setPressureDesignInternalValue(BigDecimal pressureDesignInternalValue) {
-    this.pressureDesignInternalValue = pressureDesignInternalValue;
-  }
-
-  public BigDecimal getPressureDesignExternalValue() {
-    return pressureDesignExternalValue;
-  }
-
-  public void setPressureDesignExternalValue(BigDecimal pressureDesignExternalValue) {
-    this.pressureDesignExternalValue = pressureDesignExternalValue;
+  public void setPressureDesignMaxValue(BigDecimal pressureDesignMaxValue) {
+    this.pressureDesignMaxValue = pressureDesignMaxValue;
   }
 
   public BigDecimal getFlowrateOpMinValue() {
@@ -196,14 +185,6 @@ public class PadDesignOpConditions implements ChildEntity<Integer, PwaApplicatio
     this.flowrateDesignMaxValue = flowrateDesignMaxValue;
   }
 
-  public BigDecimal getUvalueOp() {
-    return uvalueOp;
-  }
-
-  public void setUvalueOp(BigDecimal uvalueOp) {
-    this.uvalueOp = uvalueOp;
-  }
-
   public BigDecimal getUvalueDesign() {
     return uvalueDesign;
   }
@@ -229,15 +210,13 @@ public class PadDesignOpConditions implements ChildEntity<Integer, PwaApplicatio
         && Objects.equals(temperatureOpMaxValue, that.temperatureOpMaxValue)
         && Objects.equals(temperatureDesignMinValue, that.temperatureDesignMinValue)
         && Objects.equals(temperatureDesignMaxValue, that.temperatureDesignMaxValue)
-        && Objects.equals(pressureOpInternalValue, that.pressureOpInternalValue)
-        && Objects.equals(pressureOpExternalValue, that.pressureOpExternalValue)
-        && Objects.equals(pressureDesignInternalValue, that.pressureDesignInternalValue)
-        && Objects.equals(pressureDesignExternalValue, that.pressureDesignExternalValue)
+        && Objects.equals(pressureOpMinValue, that.pressureOpMinValue)
+        && Objects.equals(pressureOpMaxValue, that.pressureOpMaxValue)
+        && Objects.equals(pressureDesignMaxValue, that.pressureDesignMaxValue)
         && Objects.equals(flowrateOpMinValue, that.flowrateOpMinValue)
         && Objects.equals(flowrateOpMaxValue, that.flowrateOpMaxValue)
         && Objects.equals(flowrateDesignMinValue, that.flowrateDesignMinValue)
         && Objects.equals(flowrateDesignMaxValue, that.flowrateDesignMaxValue)
-        && Objects.equals(uvalueOp, that.uvalueOp)
         && Objects.equals(uvalueDesign, that.uvalueDesign);
   }
 
@@ -245,9 +224,9 @@ public class PadDesignOpConditions implements ChildEntity<Integer, PwaApplicatio
   public int hashCode() {
     return Objects.hash(id, pwaApplicationDetail, temperatureOpMinValue, temperatureOpMaxValue,
         temperatureDesignMinValue,
-        temperatureDesignMaxValue, pressureOpInternalValue, pressureOpExternalValue, pressureDesignInternalValue,
-        pressureDesignExternalValue, flowrateOpMinValue, flowrateOpMaxValue, flowrateDesignMinValue,
-        flowrateDesignMaxValue, uvalueOp, uvalueDesign);
+        temperatureDesignMaxValue, pressureOpMinValue, pressureOpMaxValue,
+        pressureDesignMaxValue, flowrateOpMinValue, flowrateOpMaxValue, flowrateDesignMinValue,
+        flowrateDesignMaxValue, uvalueDesign);
   }
 }
 
