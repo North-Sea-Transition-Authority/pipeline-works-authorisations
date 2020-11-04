@@ -116,7 +116,7 @@ public class BlockCrossingController {
 
     var detail = applicationContext.getApplicationDetail();
 
-    if (!blockCrossingFileService.isComplete(detail)) {
+    if (blockCrossingService.isDocumentsRequired(detail) && !blockCrossingFileService.isComplete(detail)) {
       return createOverviewModelAndView(detail)
           .addObject("errorMessage", "You must add at least one document");
     } else if (!blockCrossingService.isComplete(detail)) {
