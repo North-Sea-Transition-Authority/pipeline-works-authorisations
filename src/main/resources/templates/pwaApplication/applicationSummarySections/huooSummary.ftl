@@ -28,7 +28,7 @@
             <@diffChanges.renderDiff diffedField=diffedHuoo.DiffableOrgRolePipelineGroup_roleOwnerName/>
         </h4>
         
-        <@fdsCheckAnswers.checkAnswers>
+        <@fdsCheckAnswers.checkAnswers summaryListClass=isRemovedOrg?then(diffHideGroup, "")>
             <#assign hasCompanyData = diffedHuoo.DiffableOrgRolePipelineGroup_hasCompanyData.currentValue?upper_case == "YES"/>
 
             <#if hasCompanyData>
