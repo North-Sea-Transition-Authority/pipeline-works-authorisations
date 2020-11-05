@@ -6,12 +6,14 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineStatus;
+import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.repository.pipelines.PipelineDetailRepository;
@@ -55,6 +57,25 @@ public class PipelineDetailServiceTest {
     pipelineDetailService.getActivePipelineDetailsForApplicationMasterPwa(detail.getPwaApplication());
     verify(pipelineDetailRepository, times(1)).findAllByPipeline_MasterPwaAndEndTimestampIsNull(
         detail.getPwaApplication().getMasterPwa());
+  }
+
+  @Test
+  public void isPipelineConsented_consented() {
+    var pipelineDetail = new PipelineDetail();
+    var pipeline = new Pipeline();
+    pipeline.setId(1);
+    when(pipelineDetailRepository.getByPipeline_IdAndTipFlagIsTrue(pipeline.getId())).thenReturn(Optional.of(pipelineDetail));
+
+    assertThat(pipelineDetailService.isPipelineConsented(pipeline)).isTrue();
+  }
+
+  @Test
+  public void isPipelineConsented_notConsented() {
+    var pipeline = new Pipeline();
+    pipeline.setId(1);
+    when(pipelineDetailRepository.getByPipeline_IdAndTipFlagIsTrue(pipeline.getId())).thenReturn(Optional.empty());
+
+    assertThat(pipelineDetailService.isPipelineConsented(pipeline)).isFalse();
   }
 
 }
