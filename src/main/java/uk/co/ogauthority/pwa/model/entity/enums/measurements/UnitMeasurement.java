@@ -17,10 +17,12 @@ public enum UnitMeasurement {
   MICROGRAM_METRE_CUBED("μg/m³", "in micrograms per metre cubed"),
   PARTS_PER_MILLION("ppm", "in parts per million"),
   KSCM_D("kscm/d", "in kilo standard cubic meters per hour"),
-  WM2K("W/m2K", "in watts per metre square Kelvin"),
+  WM2K("W/m²K", "in watts per metre square Kelvin"),
   BAR_G("barg", "in gauge pressure"),
   MULTIPLICATION_SYMBOL("×", "times"),
-  ROCK_GRADE("grade", "grade");
+  ROCK_GRADE("grade", "grade"),
+  CENTIPOISE("cP", "in centipoise");
+
   private final String suffixDisplay;
   private final String suffixScreenReaderDisplay;
 

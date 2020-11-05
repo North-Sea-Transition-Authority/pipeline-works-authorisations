@@ -8,18 +8,16 @@ public class DesignOpConditionsForm {
 
   private MinMaxInput temperatureOpMinMax;
   private MinMaxInput temperatureDesignMinMax;
-  private MinMaxInput pressureOpInternalExternal;
-  private MinMaxInput pressureDesignInternalExternal;
+  private MinMaxInput pressureOpMinMax;
+  private String pressureDesignMax;
   private MinMaxInput flowrateOpMinMax;
   private MinMaxInput flowrateDesignMinMax;
-  private String uvalueOp;
   private String uvalueDesign;
 
   public DesignOpConditionsForm() {
     this.temperatureOpMinMax = new MinMaxInput();
     this.temperatureDesignMinMax = new MinMaxInput();
-    this.pressureOpInternalExternal = new MinMaxInput();
-    this.pressureDesignInternalExternal = new MinMaxInput();
+    this.pressureOpMinMax = new MinMaxInput();
     this.flowrateOpMinMax = new MinMaxInput();
     this.flowrateDesignMinMax = new MinMaxInput();
   }
@@ -40,20 +38,20 @@ public class DesignOpConditionsForm {
     this.temperatureDesignMinMax = temperatureDesignMinMax;
   }
 
-  public MinMaxInput getPressureOpInternalExternal() {
-    return pressureOpInternalExternal;
+  public MinMaxInput getPressureOpMinMax() {
+    return pressureOpMinMax;
   }
 
-  public void setPressureOpInternalExternal(MinMaxInput pressureOpInternalExternal) {
-    this.pressureOpInternalExternal = pressureOpInternalExternal;
+  public void setPressureOpMinMax(MinMaxInput pressureOpMinMax) {
+    this.pressureOpMinMax = pressureOpMinMax;
   }
 
-  public MinMaxInput getPressureDesignInternalExternal() {
-    return pressureDesignInternalExternal;
+  public String getPressureDesignMax() {
+    return pressureDesignMax;
   }
 
-  public void setPressureDesignInternalExternal(MinMaxInput pressureDesignInternalExternal) {
-    this.pressureDesignInternalExternal = pressureDesignInternalExternal;
+  public void setPressureDesignMax(String pressureDesignMax) {
+    this.pressureDesignMax = pressureDesignMax;
   }
 
   public MinMaxInput getFlowrateOpMinMax() {
@@ -70,14 +68,6 @@ public class DesignOpConditionsForm {
 
   public void setFlowrateDesignMinMax(MinMaxInput flowrateDesignMinMax) {
     this.flowrateDesignMinMax = flowrateDesignMinMax;
-  }
-
-  public String getUvalueOp() {
-    return uvalueOp;
-  }
-
-  public void setUvalueOp(String uvalueOp) {
-    this.uvalueOp = uvalueOp;
   }
 
   public String getUvalueDesign() {
@@ -100,19 +90,17 @@ public class DesignOpConditionsForm {
     DesignOpConditionsForm that = (DesignOpConditionsForm) o;
     return Objects.equals(temperatureOpMinMax, that.temperatureOpMinMax)
         && Objects.equals(temperatureDesignMinMax, that.temperatureDesignMinMax)
-        && Objects.equals(pressureOpInternalExternal, that.pressureOpInternalExternal)
-        && Objects.equals(pressureDesignInternalExternal, that.pressureDesignInternalExternal)
+        && Objects.equals(pressureOpMinMax, that.pressureOpMinMax)
+        && Objects.equals(pressureDesignMax, that.pressureDesignMax)
         && Objects.equals(flowrateOpMinMax, that.flowrateOpMinMax)
         && Objects.equals(flowrateDesignMinMax, that.flowrateDesignMinMax)
-        && Objects.equals(uvalueOp, that.uvalueOp)
         && Objects.equals(uvalueDesign, that.uvalueDesign);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(temperatureOpMinMax, temperatureDesignMinMax, pressureOpInternalExternal,
-        pressureDesignInternalExternal,
-        flowrateOpMinMax, flowrateDesignMinMax, uvalueOp, uvalueDesign);
+    return Objects.hash(temperatureOpMinMax, temperatureDesignMinMax, pressureOpMinMax,
+        pressureDesignMax, flowrateOpMinMax, flowrateDesignMinMax, uvalueDesign);
   }
 
 

@@ -9,10 +9,9 @@ public class DesignOpConditionsView {
   private MinMaxView temperatureOpMinMaxView;
   private MinMaxView temperatureDesignMinMaxView;
   private MinMaxView pressureOpMinMaxView;
-  private MinMaxView pressureDesignMinMaxView;
+  private String pressureDesignMax;
   private MinMaxView flowrateOpMinMaxView;
   private MinMaxView flowrateDesignMinMaxView;
-  private String uvalueOp;
   private String uvalueDesign;
 
 
@@ -28,15 +27,12 @@ public class DesignOpConditionsView {
         getStringValue(padDesignOpConditions.getTemperatureDesignMaxValue()),
         UnitMeasurement.DEGREES_CELSIUS);
 
-    this.pressureOpMinMaxView = MinMaxView.createInternalExternalView(
-        getStringValue(padDesignOpConditions.getPressureOpInternalValue()),
-        getStringValue(padDesignOpConditions.getPressureOpExternalValue()),
+    this.pressureOpMinMaxView = MinMaxView.createMinMaxView(
+        getStringValue(padDesignOpConditions.getPressureOpMinValue()),
+        getStringValue(padDesignOpConditions.getPressureOpMaxValue()),
         UnitMeasurement.BAR_G);
 
-    this.pressureDesignMinMaxView = MinMaxView.createInternalExternalView(
-        getStringValue(padDesignOpConditions.getPressureDesignInternalValue()),
-        getStringValue(padDesignOpConditions.getPressureDesignExternalValue()),
-        UnitMeasurement.BAR_G);
+    this.pressureDesignMax = getStringValue(padDesignOpConditions.getPressureDesignMaxValue());
 
     this.flowrateOpMinMaxView = MinMaxView.createMinMaxView(
         getStringValue(padDesignOpConditions.getFlowrateOpMinValue()),
@@ -48,7 +44,6 @@ public class DesignOpConditionsView {
         getStringValue(padDesignOpConditions.getFlowrateDesignMaxValue()),
         UnitMeasurement.KSCM_D);
 
-    this.uvalueOp = getStringValue(padDesignOpConditions.getUvalueOp());
     this.uvalueDesign = getStringValue(padDesignOpConditions.getUvalueDesign());
   }
 
@@ -65,8 +60,8 @@ public class DesignOpConditionsView {
     return pressureOpMinMaxView;
   }
 
-  public MinMaxView getPressureDesignMinMaxView() {
-    return pressureDesignMinMaxView;
+  public String getPressureDesignMax() {
+    return pressureDesignMax;
   }
 
   public MinMaxView getFlowrateOpMinMaxView() {
@@ -75,10 +70,6 @@ public class DesignOpConditionsView {
 
   public MinMaxView getFlowrateDesignMinMaxView() {
     return flowrateDesignMinMaxView;
-  }
-
-  public String getUvalueOp() {
-    return uvalueOp;
   }
 
   public String getUvalueDesign() {

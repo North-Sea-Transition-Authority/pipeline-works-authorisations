@@ -9,7 +9,7 @@ public enum OtherPipelineProperty {
     WAX_CONTENT("Wax content", UnitMeasurement.PERCENTAGE_WEIGHT),
     WAX_APPEARANCE_TEMPERATURE("Wax appearance temperature", UnitMeasurement.DEGREES_CELSIUS),
     ACID_NUM("Acid number (TAN)", UnitMeasurement.ACID_NUMBER),
-    VISCOSITY("Viscosity", UnitMeasurement.BAR_A),
+    VISCOSITY("Viscosity", UnitMeasurement.CENTIPOISE),
     DENSITY_GRAVITY("Density/gravity", UnitMeasurement.KG_METRE_CUBED),
     SULPHUR_CONTENT("Sulphur content", UnitMeasurement.PERCENTAGE_WEIGHT),
     POUR_POINT("Pour point", UnitMeasurement.DEGREES_CELSIUS),

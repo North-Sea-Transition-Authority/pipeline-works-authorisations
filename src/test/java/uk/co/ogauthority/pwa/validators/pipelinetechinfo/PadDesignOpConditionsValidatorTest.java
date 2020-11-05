@@ -39,9 +39,9 @@ public class PadDesignOpConditionsValidatorTest {
     var result = ValidatorTestUtils.getFormValidationErrors(validator, form, ValidationType.FULL);
     assertThat(result).containsOnlyKeys("flowrateDesignMinMax.maxValue", "flowrateDesignMinMax.minValue",
         "flowrateOpMinMax.maxValue",
-        "flowrateOpMinMax.minValue", "pressureDesignInternalExternal.maxValue",
-        "pressureDesignInternalExternal.minValue", "pressureOpInternalExternal.maxValue",
-        "pressureOpInternalExternal.minValue", "temperatureDesignMinMax.maxValue", "temperatureDesignMinMax.minValue",
-        "temperatureOpMinMax.maxValue", "temperatureOpMinMax.minValue", "uvalueDesign", "uvalueOp");
+        "flowrateOpMinMax.minValue", "pressureDesignMax",
+        "pressureOpMinMax.maxValue", "pressureOpMinMax.minValue",
+        "temperatureDesignMinMax.maxValue", "temperatureDesignMinMax.minValue",
+        "temperatureOpMinMax.maxValue", "temperatureOpMinMax.minValue", "uvalueDesign");
   }
 }

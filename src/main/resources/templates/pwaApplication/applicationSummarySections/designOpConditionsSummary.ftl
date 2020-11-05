@@ -30,7 +30,7 @@
     </@fdsCheckAnswers.checkAnswersRow>
 
     <@fdsCheckAnswers.checkAnswersRow keyText="Pressure design conditions" actionUrl="" screenReaderActionText="" actionText="">
-       <@minMaxView designOpConditionsView.pressureDesignMinMaxView/>
+       <#if designOpConditionsView.pressureDesignMax?has_content> ${designOpConditionsView.pressureDesignMax!} ${unitMeasurements.BAR_G.suffixDisplay} </#if>
     </@fdsCheckAnswers.checkAnswersRow>
 
     <@fdsCheckAnswers.checkAnswersRow keyText="Flowrate operating conditions" actionUrl="" screenReaderActionText="" actionText="">
@@ -39,10 +39,6 @@
 
     <@fdsCheckAnswers.checkAnswersRow keyText="Flowrate design conditions" actionUrl="" screenReaderActionText="" actionText="">
        <@minMaxView designOpConditionsView.flowrateDesignMinMaxView/>
-    </@fdsCheckAnswers.checkAnswersRow>
-
-    <@fdsCheckAnswers.checkAnswersRow keyText="U-value operating conditions" actionUrl="" screenReaderActionText="" actionText="">
-       <#if designOpConditionsView.uvalueOp?has_content> ${designOpConditionsView.uvalueOp} ${unitMeasurements.KSCM_D.suffixDisplay} </#if>
     </@fdsCheckAnswers.checkAnswersRow>
 
     <@fdsCheckAnswers.checkAnswersRow keyText="U-value design conditions" actionUrl="" screenReaderActionText="" actionText="">

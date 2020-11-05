@@ -95,11 +95,10 @@ public class PadDesignOpConditionsServiceTest {
 
     assertThat(actualView.getTemperatureOpMinMaxView()).isEqualTo(MinMaxView.createMinMaxView("1", "2", UnitMeasurement.DEGREES_CELSIUS));
     assertThat(actualView.getTemperatureDesignMinMaxView()).isEqualTo(MinMaxView.createMinMaxView("3", "4", UnitMeasurement.DEGREES_CELSIUS));
-    assertThat(actualView.getPressureOpMinMaxView()).isEqualTo(MinMaxView.createInternalExternalView("5", "6", UnitMeasurement.BAR_G));
-    assertThat(actualView.getPressureDesignMinMaxView()).isEqualTo(MinMaxView.createInternalExternalView("7", "8", UnitMeasurement.BAR_G));
+    assertThat(actualView.getPressureOpMinMaxView()).isEqualTo(MinMaxView.createMinMaxView("5", "6", UnitMeasurement.BAR_G));
+    assertThat(actualView.getPressureDesignMax()).isEqualTo("7");
     assertThat(actualView.getFlowrateOpMinMaxView()).isEqualTo(MinMaxView.createMinMaxView("9", "10", UnitMeasurement.KSCM_D));
     assertThat(actualView.getFlowrateDesignMinMaxView()).isEqualTo(MinMaxView.createMinMaxView("11", "12", UnitMeasurement.KSCM_D));
-    assertThat(actualView.getUvalueOp()).isEqualTo("13");
     assertThat(actualView.getUvalueDesign()).isEqualTo("14");
   }
 
