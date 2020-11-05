@@ -32,7 +32,7 @@
             labelText="What are the flowrate design conditions?" nestedPath="" unitMeasurement=unitMeasurements.KSCM_D />
 
         <@fdsFieldset.fieldset legendHeading="What is the U-value design condition?" legendHeadingSize="h2" legendHeadingClass="govuk-fieldset__legend govuk-fieldset__legend--s">
-            <@fdsTextInput.textInput path="form.uvalueDesign" labelText="" suffix=unitMeasurements.WM2K.suffixDisplay suffixScreenReaderPrompt=unitMeasurements.WM2K.suffixScreenReaderDisplay inputClass="govuk-input--width-5"/>
+            <@fdsTextInput.textInput path="form.uvalueDesign" labelText="" suffix=stringUtils.superscriptConverter(unitMeasurements.WM2K.suffixDisplay) suffixScreenReaderPrompt=unitMeasurements.WM2K.suffixScreenReaderDisplay inputClass="govuk-input--width-5"/>
         </@fdsFieldset.fieldset>
 
         <@fdsAction.submitButtons primaryButtonText=submitPrimaryButtonText secondaryButtonText=submitSecondaryButtonText/>
