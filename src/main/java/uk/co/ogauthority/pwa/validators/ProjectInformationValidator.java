@@ -12,6 +12,7 @@ import org.springframework.validation.ValidationUtils;
 import uk.co.ogauthority.pwa.model.entity.enums.ProjectInformationQuestion;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.ProjectInformationForm;
 import uk.co.ogauthority.pwa.service.enums.projectinformation.PermanentDepositRadioOption;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.util.ValidatorUtils;
@@ -44,7 +45,7 @@ public class ProjectInformationValidator implements SmartValidator {
     var form = (ProjectInformationForm) o;
     var projectInfoValidationHints = (ProjectInformationFormValidationHints) validationHints[0];
     var requiredQuestions = projectInfoValidationHints.getRequiredQuestions();
-
+    var applicationType = projectInfoValidationHints.getPwaApplicationType();
 
     if (requiredQuestions.contains(ProjectInformationQuestion.PROJECT_NAME)) {
       ValidationUtils.rejectIfEmptyOrWhitespace(errors, "projectName",
@@ -62,7 +63,7 @@ public class ProjectInformationValidator implements SmartValidator {
 
     if (requiredQuestions.contains(ProjectInformationQuestion.METHOD_OF_PIPELINE_DEPLOYMENT)) {
 
-      if (!ProjectInformationQuestion.METHOD_OF_PIPELINE_DEPLOYMENT.isOptionalForType(projectInfoValidationHints.getPwaApplicationType())) {
+      if (!ProjectInformationQuestion.METHOD_OF_PIPELINE_DEPLOYMENT.isOptionalForType(applicationType)) {
         ValidationUtils.rejectIfEmptyOrWhitespace(errors, "methodOfPipelineDeployment",
             "methodOfPipelineDeployment" + FieldValidationErrorCodes.REQUIRED.getCode(),
             "Enter the pipeline installation method");
@@ -77,16 +78,34 @@ public class ProjectInformationValidator implements SmartValidator {
 
 
     if (projectInfoValidationHints.getValidationType().equals(ValidationType.FULL)) {
+
+      var proposedStartDateValid = false;
       if (requiredQuestions.contains(ProjectInformationQuestion.PROPOSED_START_DATE)) {
-        ValidatorUtils.validateDateIsPresentOrFuture(
+        proposedStartDateValid = ValidatorUtils.validateDateIsPresentOrFuture(
             "proposedStart", "proposed start of works",
             form.getProposedStartDay(), form.getProposedStartMonth(), form.getProposedStartYear(), errors);
       }
 
       if (requiredQuestions.contains(ProjectInformationQuestion.MOBILISATION_DATE)) {
-        ValidatorUtils.validateDateIsPresentOrFuture(
+        var dateNotInPast = ValidatorUtils.validateDateIsPresentOrFuture(
             "mobilisation", "mobilisation",
             form.getMobilisationDay(), form.getMobilisationMonth(), form.getMobilisationYear(), errors);
+
+        if (dateNotInPast && proposedStartDateValid) {
+          var mobilisationDate = LocalDate.of(form.getMobilisationYear(), form.getMobilisationMonth(), form.getMobilisationDay());
+          var proposedStartDate = LocalDate.of(form.getProposedStartYear(), form.getProposedStartMonth(), form.getProposedStartDay());
+          var fieldPrefix = "mobilisation";
+
+          if (mobilisationDate.isBefore(proposedStartDate)) {
+            errors.rejectValue(fieldPrefix + "Day",
+                String.format("%sDay%s", fieldPrefix, FieldValidationErrorCodes.BEFORE_SOME_DATE.getCode()),
+                "Mobilisation date must be on or after proposed start date");
+            errors.rejectValue(fieldPrefix + "Month",
+                String.format("%sMonth%s", fieldPrefix, FieldValidationErrorCodes.BEFORE_SOME_DATE.getCode()), "");
+            errors.rejectValue(fieldPrefix + "Year",
+                String.format("%sYear%s", fieldPrefix, FieldValidationErrorCodes.BEFORE_SOME_DATE.getCode()), "");
+          }
+        }
       }
 
       boolean earliestCompletionDateValid = false;
@@ -95,13 +114,50 @@ public class ProjectInformationValidator implements SmartValidator {
             "earliestCompletion", "earliest completion",
             form.getEarliestCompletionDay(), form.getEarliestCompletionMonth(), form.getEarliestCompletionYear(),
             errors);
+
+        if (earliestCompletionDateValid && proposedStartDateValid) {
+          var earliestCompletionDate = LocalDate.of(
+              form.getEarliestCompletionYear(), form.getEarliestCompletionMonth(), form.getEarliestCompletionDay());
+          var proposedStartDate = LocalDate.of(form.getProposedStartYear(), form.getProposedStartMonth(), form.getProposedStartDay());
+          var fieldPrefix = "earliestCompletion";
+
+          if (earliestCompletionDate.isBefore(proposedStartDate)) {
+            errors.rejectValue(fieldPrefix + "Day",
+                String.format("%sDay%s", fieldPrefix, FieldValidationErrorCodes.BEFORE_SOME_DATE.getCode()),
+                "Earliest completion date must be on or after proposed start date");
+            errors.rejectValue(fieldPrefix + "Month",
+                String.format("%sMonth%s", fieldPrefix, FieldValidationErrorCodes.BEFORE_SOME_DATE.getCode()), "");
+            errors.rejectValue(fieldPrefix + "Year",
+                String.format("%sYear%s", fieldPrefix, FieldValidationErrorCodes.BEFORE_SOME_DATE.getCode()), "");
+          }
+        }
       }
 
       boolean latestCompletionDateValid = false;
       if (requiredQuestions.contains(ProjectInformationQuestion.LATEST_COMPLETION_DATE)) {
-        latestCompletionDateValid = ValidatorUtils.validateDateIsPresentOrFuture(
+        latestCompletionDateValid = ValidatorUtils.validateDate(
             "latestCompletion", "latest completion",
             form.getLatestCompletionDay(), form.getLatestCompletionMonth(), form.getLatestCompletionYear(), errors);
+
+        if (latestCompletionDateValid) {
+          var latestCompletionDate = LocalDate.of(
+              form.getLatestCompletionYear(), form.getLatestCompletionMonth(), form.getLatestCompletionDay());
+          var maxFutureDate = applicationType.equals(PwaApplicationType.OPTIONS_VARIATION) ? 6L : 12L;
+          var fieldPrefix = "latestCompletion";
+
+          if (latestCompletionDate.isBefore(LocalDate.now()) || latestCompletionDate.isAfter(LocalDate.now().plusMonths(maxFutureDate))) {
+            errors.rejectValue(fieldPrefix + "Day",
+                String.format("%sDay%s", fieldPrefix, FieldValidationErrorCodes.INVALID.getCode()),
+                "Latest completion must be within " + maxFutureDate + " months from now");
+            errors.rejectValue(fieldPrefix + "Month",
+                String.format("%sMonth%s", fieldPrefix, FieldValidationErrorCodes.INVALID.getCode()), "");
+            errors.rejectValue(fieldPrefix + "Year",
+                String.format("%sYear%s", fieldPrefix, FieldValidationErrorCodes.INVALID.getCode()), "");
+
+          } else {
+            latestCompletionDateValid = true;
+          }
+        }
       }
 
 
