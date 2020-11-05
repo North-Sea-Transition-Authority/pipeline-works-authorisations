@@ -149,17 +149,22 @@ public class BlockCrossingService implements ApplicationFormSectionService {
 
   public void mapBlockCrossingToEditForm(PadCrossedBlock padCrossedBlock,
                                          EditBlockCrossingForm form) {
+
     var ownerList = padCrossedBlockOwnerRepository.findByPadCrossedBlock(padCrossedBlock);
 
     if (CrossedBlockOwner.UNLICENSED.equals(padCrossedBlock.getBlockOwner())) {
+
       form.setBlockOwnersOuIdList(Collections.emptyList());
+
     } else if (CrossedBlockOwner.PORTAL_ORGANISATION.equals(padCrossedBlock.getBlockOwner())) {
-      form.setBlockOwnersOuIdList(
-          ownerList.stream()
-              .filter(o -> o.getOwnerOuId() != null)
-              .map(PadCrossedBlockOwner::getOwnerOuId)
-              .collect(Collectors.toList())
-      );
+
+      var ownerOuIdList = ownerList.stream()
+          .filter(o -> o.getOwnerOuId() != null)
+          .map(PadCrossedBlockOwner::getOwnerOuId)
+          .collect(Collectors.toList());
+
+      form.setBlockOwnersOuIdList(ownerOuIdList);
+
     }
 
     form.setCrossedBlockOwner(padCrossedBlock.getBlockOwner());
@@ -232,11 +237,8 @@ public class BlockCrossingService implements ApplicationFormSectionService {
   }
 
   public Optional<PickablePearsBlock> getPickablePearsBlockFromForm(AddBlockCrossingForm form) {
-    var block = pearsBlockService.getExtantOrUnlicensedOffshorePearsBlockByCompositeKey(form.getPickedBlock());
-    if (block.isEmpty()) {
-      return Optional.empty();
-    }
-    return Optional.of(new PickablePearsBlock(block.get()));
+    return pearsBlockService.getExtantOrUnlicensedOffshorePearsBlockByCompositeKey(form.getPickedBlock())
+        .map(PickablePearsBlock::new);
   }
 
   @Override

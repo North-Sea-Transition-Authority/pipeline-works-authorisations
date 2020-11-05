@@ -10,16 +10,9 @@ public class PickablePearsBlock implements SearchSelectable {
   private final String data;
 
   public PickablePearsBlock(PearsBlock pearsBlock) {
-
     this.data = pearsBlock.getCompositeKey();
     var keySuffix = pearsBlock.getPearsLicence() == null ? "(Unlicensed)" : "(" + pearsBlock.getPearsLicence().getLicenceName() + ")";
     this.key = pearsBlock.getBlockReference() + " " + keySuffix;
-  }
-
-  PickablePearsBlock(String key, String data) {
-
-    this.data = data;
-    this.key = key;
   }
 
   public String getKey() {

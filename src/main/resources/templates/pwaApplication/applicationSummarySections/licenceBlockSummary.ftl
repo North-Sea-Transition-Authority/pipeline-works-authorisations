@@ -32,7 +32,7 @@
                 ${blockCrossingView.licenceReference}
             </@fdsCheckAnswers.checkAnswersRow>
 
-            <@fdsCheckAnswers.checkAnswersRow keyText="Block operator" actionUrl="" screenReaderActionText="" actionText="">
+            <@fdsCheckAnswers.checkAnswersRow keyText="Block owner" actionUrl="" screenReaderActionText="" actionText="">
                 <ul class="govuk-list">
                     <#if blockCrossingView.blockOwnedCompletelyByHolder>
                         <li>Holder owned</li>

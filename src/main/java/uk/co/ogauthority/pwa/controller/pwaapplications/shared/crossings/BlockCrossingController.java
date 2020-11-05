@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -37,8 +36,6 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.crossings.CrossingAgreementTask;
 import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
-import uk.co.ogauthority.pwa.service.licence.PearsBlockService;
-import uk.co.ogauthority.pwa.service.licence.PickablePearsBlock;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.BlockCrossingFileService;
@@ -67,7 +64,6 @@ public class BlockCrossingController {
   private final PortalOrganisationsAccessor portalOrganisationsAccessor;
   private final AddBlockCrossingFormValidator addBlockCrossingFormValidator;
   private final EditBlockCrossingFormValidator editBlockCrossingFormValidator;
-  private final PearsBlockService pearsBlockService;
   private final BlockCrossingService blockCrossingService;
   private final BlockCrossingFileService blockCrossingFileService;
   private final CrossingAgreementsTaskListService crossingAgreementsTaskListService;
@@ -80,7 +76,6 @@ public class BlockCrossingController {
       PortalOrganisationsAccessor portalOrganisationsAccessor,
       AddBlockCrossingFormValidator addBlockCrossingFormValidator,
       EditBlockCrossingFormValidator editBlockCrossingFormValidator,
-      PearsBlockService pearsBlockService,
       BlockCrossingService blockCrossingService,
       BlockCrossingFileService blockCrossingFileService,
       CrossingAgreementsTaskListService crossingAgreementsTaskListService,
@@ -90,7 +85,6 @@ public class BlockCrossingController {
     this.portalOrganisationsAccessor = portalOrganisationsAccessor;
     this.addBlockCrossingFormValidator = addBlockCrossingFormValidator;
     this.editBlockCrossingFormValidator = editBlockCrossingFormValidator;
-    this.pearsBlockService = pearsBlockService;
     this.blockCrossingService = blockCrossingService;
     this.blockCrossingFileService = blockCrossingFileService;
     this.crossingAgreementsTaskListService = crossingAgreementsTaskListService;
@@ -167,12 +161,15 @@ public class BlockCrossingController {
       @PathVariable("blockCrossingId") Integer blockCrossingId,
       @ModelAttribute("form") EditBlockCrossingForm form,
       PwaApplicationContext applicationContext) {
+
     var crossedBlock = blockCrossingService.getCrossedBlockByIdAndApplicationDetail(
         blockCrossingId,
         applicationContext.getApplicationDetail()
     );
+
     blockCrossingService.mapBlockCrossingToEditForm(crossedBlock, form);
     return createEditBlockCrossingFormModelAndView(applicationContext, crossedBlock);
+
   }
 
   @PostMapping("/{blockCrossingId}/edit")
@@ -292,13 +289,7 @@ public class BlockCrossingController {
   private ModelAndView createEditBlockCrossingFormModelAndView(PwaApplicationContext applicationContext,
                                                                PadCrossedBlock crossedBlock) {
 
-    // TODO PWA-408 this eventually will be used by a search selector
-    var pickableBlocks = pearsBlockService.findOffshorePickablePearsBlocks("%", PageRequest.of(0, 50))
-        .stream()
-        .collect(StreamUtils.toLinkedHashMap(PickablePearsBlock::getData, PickablePearsBlock::getKey));
-
     var modelAndView = new ModelAndView("pwaApplication/shared/crossings/editBlockCrossing")
-        .addObject("pickableBlocks", pickableBlocks)
         .addObject("errorList", List.of())
         .addObject("blockReference", crossedBlock.getBlockReference())
         .addObject("licenceReference",

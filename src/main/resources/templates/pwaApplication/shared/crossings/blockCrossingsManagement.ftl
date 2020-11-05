@@ -17,7 +17,7 @@
         <tr class="govuk-table__row">
           <th class="govuk-table__header" scope="col">UK block reference</th>
           <th class="govuk-table__header" scope="col">Licence</th>
-          <th class="govuk-table__header" scope="col">Block operator</th>
+          <th class="govuk-table__header" scope="col">Block owner</th>
           <th class="govuk-table__header" scope="col">Actions</th>
         </tr>
         </thead>
@@ -37,9 +37,9 @@
               </ul>
             </td>
             <td class="govuk-table__cell">
-                <@fdsAction.link linkText="Edit" linkUrl=springUrl(urlFactory.getEditBlockCrossingUrl(crossing.id)) linkClass="govuk-link"/>
+                <@fdsAction.link linkText="Edit" linkUrl=springUrl(urlFactory.getEditBlockCrossingUrl(crossing.id)) linkClass="govuk-link" linkScreenReaderText="crossing for block ${crossing.blockReference}"/>
               <br/>
-                <@fdsAction.link linkText="Remove" linkUrl=springUrl(urlFactory.getRemoveBlockCrossingUrl(crossing.id)) linkClass="govuk-link"/>
+                <@fdsAction.link linkText="Remove" linkUrl=springUrl(urlFactory.getRemoveBlockCrossingUrl(crossing.id)) linkClass="govuk-link" linkScreenReaderText="crossing for block ${crossing.blockReference}"/>
             </td>
           </tr>
         </#list>
