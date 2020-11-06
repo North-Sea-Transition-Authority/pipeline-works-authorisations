@@ -49,6 +49,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationTyp
 import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
 import uk.co.ogauthority.pwa.service.location.CoordinateFormValidator;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.viewfactories.PipelineAndIdentViewFactory;
+import uk.co.ogauthority.pwa.service.pwaconsents.PipelineDetailService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 import uk.co.ogauthority.pwa.validators.PermanentDepositsValidator;
@@ -91,6 +92,10 @@ public class PermanentDepositsServiceTest {
   @Mock
   private PadFileService padFileService;
 
+  @Mock
+  private PipelineDetailService pipelineDetailService;
+
+
   private SpringValidatorAdapter groupValidator;
 
 
@@ -117,7 +122,7 @@ public class PermanentDepositsServiceTest {
         padProjectInformationRepository,
         entityCopyingService,
         pipelineAndIdentViewFactory,
-        padFileService);
+        padFileService, pipelineDetailService);
 
     date = LocalDate.now();
 
@@ -425,6 +430,8 @@ public class PermanentDepositsServiceTest {
     when(padDepositPipelineRepository.countAllByPadPermanentDeposit(deposit1)).thenReturn(3L);
     when(padDepositPipelineRepository.countAllByPadPermanentDeposit(deposit2)).thenReturn(3L);
 
+    when(pipelineDetailService.isPipelineConsented(padPipeline.getPipeline())).thenReturn(false);
+
     service.removePadPipelineFromDeposits(padPipeline);
 
     verify(padDepositPipelineRepository, times(1)).deleteAll(
@@ -457,6 +464,8 @@ public class PermanentDepositsServiceTest {
     when(padDepositPipelineRepository.countAllByPadPermanentDeposit(deposit1)).thenReturn(1L);
     when(padDepositPipelineRepository.countAllByPadPermanentDeposit(deposit2)).thenReturn(1L);
 
+    when(pipelineDetailService.isPipelineConsented(padPipeline.getPipeline())).thenReturn(false);
+
     service.removePadPipelineFromDeposits(padPipeline);
 
     verify(padDepositPipelineRepository, times(1)).deleteAll(
@@ -465,6 +474,16 @@ public class PermanentDepositsServiceTest {
         List.of(deposit1));
     verify(depositDrawingsService, times(1)).removeDepositsFromDrawings(
         List.of(deposit1));
+  }
+
+  @Test
+  public void removePadPipelineFromDeposits_pipelineConsented() {
+
+    var padPipeline = new PadPipeline(pwaApplicationDetail);
+
+    verifyNoInteractions(padDepositPipelineRepository);
+    verifyNoInteractions(permanentDepositInformationRepository);
+    verifyNoInteractions(depositDrawingsService);
   }
 
 

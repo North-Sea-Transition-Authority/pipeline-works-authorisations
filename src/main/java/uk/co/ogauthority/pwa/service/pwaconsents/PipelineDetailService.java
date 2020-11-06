@@ -11,6 +11,7 @@ import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineStatus;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
+import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
@@ -45,6 +46,10 @@ public class PipelineDetailService {
   public PipelineDetail getLatestByPipelineId(Integer id) {
     return pipelineDetailRepository.getByPipeline_IdAndTipFlagIsTrue(id)
         .orElseThrow(() -> new PwaEntityNotFoundException("Could not find PipelineDetail with Pipeline ID: " + id));
+  }
+
+  public boolean isPipelineConsented(Pipeline pipeline) {
+    return pipelineDetailRepository.getByPipeline_IdAndTipFlagIsTrue(pipeline.getId()).isPresent();
   }
 
   public List<PipelineDetail> getNonDeletedPipelineDetailsForApplicationMasterPwa(
