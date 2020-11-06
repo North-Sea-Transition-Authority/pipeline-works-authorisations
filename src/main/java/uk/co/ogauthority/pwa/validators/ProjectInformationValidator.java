@@ -148,7 +148,7 @@ public class ProjectInformationValidator implements SmartValidator {
           if (latestCompletionDate.isBefore(LocalDate.now()) || latestCompletionDate.isAfter(LocalDate.now().plusMonths(maxFutureDate))) {
             errors.rejectValue(fieldPrefix + "Day",
                 String.format("%sDay%s", fieldPrefix, FieldValidationErrorCodes.INVALID.getCode()),
-                "Latest completion must be within " + maxFutureDate + " months from now");
+                "Latest completion date must be within " + maxFutureDate + " months from now");
             errors.rejectValue(fieldPrefix + "Month",
                 String.format("%sMonth%s", fieldPrefix, FieldValidationErrorCodes.INVALID.getCode()), "");
             errors.rejectValue(fieldPrefix + "Year",
