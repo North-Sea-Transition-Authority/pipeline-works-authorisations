@@ -50,6 +50,7 @@ public class PwaAppProcessingPermissionService {
                   && appInvolvement.isAssignedAtResponderStage();
             case CASE_OFFICER_REVIEW:
             case EDIT_CONSULTATIONS:
+            case PUBLIC_NOTICE:
             case WITHDRAW_CONSULTATION:
             case REQUEST_APPLICATION_UPDATE:
             case EDIT_CONSENT_DOCUMENT:

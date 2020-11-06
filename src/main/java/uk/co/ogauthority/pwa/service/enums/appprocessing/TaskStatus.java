@@ -2,7 +2,7 @@ package uk.co.ogauthority.pwa.service.enums.appprocessing;
 
 public enum TaskStatus {
 
-  NOT_STARTED("Not started"),
+  NOT_STARTED("Not started", "govuk-tag--grey"),
   IN_PROGRESS("In progress"),
   NOT_REQUIRED("Not required"),
   COMPLETED("Completed", "fds-task-list__task-completed"),

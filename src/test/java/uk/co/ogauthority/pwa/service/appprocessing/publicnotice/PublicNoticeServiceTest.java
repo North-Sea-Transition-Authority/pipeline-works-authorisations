@@ -10,6 +10,10 @@ import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.service.appprocessing.PublicNoticeService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
+import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingTask;
+import uk.co.ogauthority.pwa.service.enums.appprocessing.TaskStatus;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PublicNoticeServiceTest {
@@ -51,6 +55,22 @@ public class PublicNoticeServiceTest {
     boolean canShow = publicNoticeService.canShowInTaskList(processingContext);
 
     assertThat(canShow).isFalse();
+
+  }
+
+  @Test
+  public void getTaskListEntry_publicNoticeNotStarted() {
+
+    var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
+
+    var processingContext = new PwaAppProcessingContext(detail, null, Set.of(), null, null);
+
+    var taskListEntry = publicNoticeService.getTaskListEntry(PwaAppProcessingTask.PUBLIC_NOTICE, processingContext);
+
+    assertThat(taskListEntry.getTaskName()).isEqualTo(PwaAppProcessingTask.PUBLIC_NOTICE.getTaskName());
+    assertThat(taskListEntry.getRoute()).isEqualTo(PwaAppProcessingTask.PUBLIC_NOTICE.getRoute(processingContext));
+    assertThat(taskListEntry.getTaskStatus()).isEqualTo(TaskStatus.NOT_STARTED);
+    assertThat(taskListEntry.getTaskInfoList()).isEmpty();
 
   }
 
