@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.tasklist.TaskListEntry;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.crossings.CrossingAgreementTask;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
@@ -49,35 +50,51 @@ public class CrossingAgreementsService implements ApplicationFormSectionService 
   }
 
   public CrossingAgreementsValidationResult getValidationResult(PwaApplicationDetail detail) {
-    var validSections = EnumSet.noneOf(CrossingAgreementsSection.class);
+    var validSections = EnumSet.allOf(CrossingAgreementsSection.class);
+    var sectionsRequiredForAppType = getSectionsRequiredForAppType(detail.getPwaApplicationType());
 
-    if (crossingTypesService.isComplete(detail)) {
-      validSections.add(CrossingAgreementsSection.CROSSING_TYPES);
+    if (sectionsRequiredForAppType.contains(CrossingAgreementsSection.CROSSING_TYPES) && !crossingTypesService.isComplete(detail)) {
+      validSections.remove(CrossingAgreementsSection.CROSSING_TYPES);
     }
 
-    if (blockCrossingService.isComplete(detail)) {
-      validSections.add(CrossingAgreementsSection.BLOCK_CROSSINGS);
+    if (sectionsRequiredForAppType.contains(CrossingAgreementsSection.BLOCK_CROSSINGS) && !blockCrossingService.isComplete(detail)) {
+      validSections.remove(CrossingAgreementsSection.BLOCK_CROSSINGS);
     }
 
-    if (padMedianLineAgreementService.isComplete(detail) || BooleanUtils.isFalse(detail.getMedianLineCrossed())) {
-      validSections.add(CrossingAgreementsSection.MEDIAN_LINE);
+    if (sectionsRequiredForAppType.contains(CrossingAgreementsSection.MEDIAN_LINE)
+        && (!padMedianLineAgreementService.isComplete(detail) && BooleanUtils.isTrue(detail.getMedianLineCrossed()))) {
+      validSections.remove(CrossingAgreementsSection.MEDIAN_LINE);
     }
 
-    if (padCableCrossingService.isComplete(detail) || BooleanUtils.isFalse(detail.getCablesCrossed())) {
-      validSections.add(CrossingAgreementsSection.CABLE_CROSSINGS);
+    if (sectionsRequiredForAppType.contains(CrossingAgreementsSection.CABLE_CROSSINGS)
+        && (!padCableCrossingService.isComplete(detail) && BooleanUtils.isTrue(detail.getCablesCrossed()))) {
+      validSections.remove(CrossingAgreementsSection.CABLE_CROSSINGS);
     }
 
-    if (padPipelineCrossingService.isComplete(detail) || BooleanUtils.isFalse(detail.getPipelinesCrossed())) {
-      validSections.add(CrossingAgreementsSection.PIPELINE_CROSSINGS);
+    if (sectionsRequiredForAppType.contains(CrossingAgreementsSection.PIPELINE_CROSSINGS)
+        && (!padPipelineCrossingService.isComplete(detail) && BooleanUtils.isTrue(detail.getPipelinesCrossed()))) {
+      validSections.remove(CrossingAgreementsSection.PIPELINE_CROSSINGS);
     }
 
     return new CrossingAgreementsValidationResult(validSections);
 
   }
 
+  private EnumSet<CrossingAgreementsSection> getSectionsRequiredForAppType(PwaApplicationType pwaApplicationType) {
+    if (pwaApplicationType.equals(PwaApplicationType.DEPOSIT_CONSENT)) {
+      return EnumSet.of(CrossingAgreementsSection.BLOCK_CROSSINGS);
+    }
+    return EnumSet.allOf(CrossingAgreementsSection.class);
+  }
+
   public List<TaskListEntry> getTaskListItems(PwaApplicationDetail pwaApplicationDetail) {
+
+    var appType = pwaApplicationDetail.getPwaApplicationType();
+
     return CrossingAgreementTask.stream()
         .sorted(Comparator.comparing(CrossingAgreementTask::getDisplayOrder))
+        .filter(crossingAgreementTask -> appType != PwaApplicationType.DEPOSIT_CONSENT
+            || !crossingAgreementTask.equals(CrossingAgreementTask.CROSSING_TYPES))
         .map(crossingAgreementTask -> createTaskListEntry(pwaApplicationDetail, crossingAgreementTask))
         .filter(Optional::isPresent)
         .map(Optional::get)

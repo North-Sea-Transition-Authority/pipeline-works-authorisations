@@ -1,15 +1,18 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings;
 
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.pipeline.PadPipelineCrossingService;
@@ -55,6 +58,47 @@ public class CrossingAgreementsServiceTest {
         crossingAgreementsTaskListService
     );
   }
+
+  @Test
+  public void getValidationResult_depcon_blocksComplete() {
+    var application = new PwaApplication(null, PwaApplicationType.DEPOSIT_CONSENT, null);
+    pwaApplicationDetail.setPwaApplication(application);
+
+    when(blockCrossingService.isComplete(pwaApplicationDetail)).thenReturn(true);
+    var validationResult =  crossingAgreementsService.getValidationResult(pwaApplicationDetail);
+    assertThat(validationResult.isCrossingAgreementsValid()).isTrue();
+  }
+
+  @Test
+  public void getValidationResult_depcon_blocksIncomplete() {
+    var application = new PwaApplication(null, PwaApplicationType.DEPOSIT_CONSENT, null);
+    pwaApplicationDetail.setPwaApplication(application);
+
+    when(blockCrossingService.isComplete(pwaApplicationDetail)).thenReturn(false);
+    var validationResult =  crossingAgreementsService.getValidationResult(pwaApplicationDetail);
+    assertThat(validationResult.isCrossingAgreementsValid()).isFalse();
+  }
+
+  @Test
+  public void getValidationResult_appTypesExceptDepcon_sectionsCrossedButIncomplete() {
+    when(crossingTypesService.isComplete(pwaApplicationDetail)).thenReturn(false);
+    var validationResult =  crossingAgreementsService.getValidationResult(pwaApplicationDetail);
+    assertThat(validationResult.isCrossingAgreementsValid()).isFalse();
+  }
+
+  @Test
+  public void getValidationResult_appTypesExceptDepcon_sectionsCrossedAndComplete() {
+    when(crossingTypesService.isComplete(pwaApplicationDetail)).thenReturn(true);
+    when(blockCrossingService.isComplete(pwaApplicationDetail)).thenReturn(true);
+    when(padMedianLineAgreementService.isComplete(pwaApplicationDetail)).thenReturn(true);
+    when(padCableCrossingService.isComplete(pwaApplicationDetail)).thenReturn(true);
+    when(padPipelineCrossingService.isComplete(pwaApplicationDetail)).thenReturn(true);
+
+    var validationResult =  crossingAgreementsService.getValidationResult(pwaApplicationDetail);
+    assertThat(validationResult.isCrossingAgreementsValid()).isTrue();
+  }
+
+
 
   @Test
   public void copySectionInformation_serviceInteractions_allConditionalCrossingsTasksShown() {
