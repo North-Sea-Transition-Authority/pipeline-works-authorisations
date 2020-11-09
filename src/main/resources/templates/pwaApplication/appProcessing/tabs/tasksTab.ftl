@@ -8,7 +8,7 @@
           <@fdsTaskList.taskListSection sectionHeadingText=industryFlag?then("Status", taskGroup.groupName)>
               <#list taskGroup.taskListEntries as task>
 
-                  <#assign taskUrl = industryFlag?then("", springUrl(task.route)) />
+                  <#assign taskUrl = industryFlag?then("", task.route?has_content?then(springUrl(task.route), "")) />
                   <#assign tagClass = task.taskStatus?has_content?then(task.taskStatus.tagClass!, "") />
                   <#assign displayText = task.taskStatus?has_content?then(task.taskStatus.displayText!, "") />
 

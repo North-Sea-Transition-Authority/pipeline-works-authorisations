@@ -16,11 +16,14 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.enums.appprocessing.applicationupdates.ApplicationUpdateRequestStatus;
 import uk.co.ogauthority.pwa.model.notify.emailproperties.ApplicationUpdateRequestEmailProps;
 import uk.co.ogauthority.pwa.model.notify.emailproperties.ApplicationUpdateResponseEmailProps;
+import uk.co.ogauthority.pwa.model.tasklist.TaskListEntry;
 import uk.co.ogauthority.pwa.model.workflow.GenericMessageEvent;
 import uk.co.ogauthority.pwa.repository.appprocessing.applicationupdates.ApplicationUpdateRequestRepository;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.service.appprocessing.tasks.AppProcessingService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
+import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingTask;
+import uk.co.ogauthority.pwa.service.enums.appprocessing.TaskStatus;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationWorkflowMessageEvents;
 import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationWorkflowTask;
@@ -171,4 +174,19 @@ public class ApplicationUpdateRequestService implements AppProcessingService {
         PwaAppProcessingPermission.REQUEST_APPLICATION_UPDATE);
   }
 
+  @Override
+  public TaskListEntry getTaskListEntry(PwaAppProcessingTask task, PwaAppProcessingContext processingContext) {
+
+    boolean openUpdateForDetail = applicationDetailHasOpenUpdateRequest(processingContext.getApplicationDetail());
+
+    String taskRoute = !openUpdateForDetail ? task.getRoute(processingContext) : null;
+    var taskStatus = openUpdateForDetail ? TaskStatus.IN_PROGRESS : null;
+
+    return new TaskListEntry(
+        task.getTaskName(),
+        taskRoute,
+        taskStatus,
+        task.getDisplayOrder());
+
+  }
 }
