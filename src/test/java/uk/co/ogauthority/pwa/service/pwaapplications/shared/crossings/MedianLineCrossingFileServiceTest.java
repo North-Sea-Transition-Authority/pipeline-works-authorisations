@@ -10,14 +10,12 @@ import static org.mockito.Mockito.when;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
-import javax.validation.Validation;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.validation.BeanPropertyBindingResult;
-import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
 import uk.co.ogauthority.pwa.model.entity.enums.MedianLineStatus;
 import uk.co.ogauthority.pwa.model.entity.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
@@ -35,11 +33,9 @@ public class MedianLineCrossingFileServiceTest {
 
   @Mock
   private PadMedianLineAgreementRepository padMedianLineAgreementRepository;
+
   @Mock
   private PadFileService padFileService;
-
-  private SpringValidatorAdapter springValidatorAdapter = new SpringValidatorAdapter(
-      Validation.buildDefaultValidatorFactory().getValidator());
 
   private MedianLineCrossingFileService medianLineCrossingFileService;
 
@@ -50,8 +46,7 @@ public class MedianLineCrossingFileServiceTest {
   @Before
   public void setUp() {
 
-    medianLineCrossingFileService = new MedianLineCrossingFileService(padMedianLineAgreementRepository,
-        springValidatorAdapter, padFileService);
+    medianLineCrossingFileService = new MedianLineCrossingFileService(padMedianLineAgreementRepository, padFileService);
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
   }
@@ -119,6 +114,34 @@ public class MedianLineCrossingFileServiceTest {
     medianLineCrossingFileService.validate(form, bindingResult, ValidationType.PARTIAL, pwaApplicationDetail);
 
     assertThat(bindingResult.hasErrors()).isFalse();
+  }
+
+  @Test
+  public void validate_full_existingDocumentDeleted_newDocumentAdded_noErrors() {
+
+    var existingDocumentDeleted = new UploadFileWithDescriptionForm(null, null, null);
+    var newDocAdded = new UploadFileWithDescriptionForm("1", "new", Instant.now());
+    form.setUploadedFileWithDescriptionForms(List.of(existingDocumentDeleted, newDocAdded));
+
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+    medianLineCrossingFileService.validate(form, bindingResult, ValidationType.FULL, pwaApplicationDetail);
+
+    assertThat(bindingResult.hasErrors()).isFalse();
+
+  }
+
+  @Test
+  public void validate_full_existingDocumentDeleted_newDocumentAdded_noDescription_error() {
+
+    var existingDocumentDeleted = new UploadFileWithDescriptionForm(null, null, null);
+    var newDocAdded = new UploadFileWithDescriptionForm("1", null, Instant.now());
+    form.setUploadedFileWithDescriptionForms(List.of(existingDocumentDeleted, newDocAdded));
+
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+    medianLineCrossingFileService.validate(form, bindingResult, ValidationType.FULL, pwaApplicationDetail);
+
+    assertThat(bindingResult.hasErrors()).isTrue();
+
   }
 
   @Test

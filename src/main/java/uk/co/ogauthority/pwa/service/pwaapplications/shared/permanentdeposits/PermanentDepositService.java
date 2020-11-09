@@ -46,6 +46,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationTyp
 import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.viewfactories.PipelineAndIdentViewFactory;
+import uk.co.ogauthority.pwa.service.pwaconsents.PipelineDetailService;
 import uk.co.ogauthority.pwa.util.validationgroups.FullValidation;
 import uk.co.ogauthority.pwa.util.validationgroups.PartialValidation;
 import uk.co.ogauthority.pwa.validators.PermanentDepositsValidator;
@@ -67,6 +68,7 @@ public class PermanentDepositService implements ApplicationFormSectionService {
   private final EntityCopyingService entityCopyingService;
   private final PipelineAndIdentViewFactory pipelineAndIdentViewFactory;
   private final PadFileService padFileService;
+  private final PipelineDetailService pipelineDetailService;
 
   @Autowired
   public PermanentDepositService(
@@ -80,7 +82,8 @@ public class PermanentDepositService implements ApplicationFormSectionService {
       PadProjectInformationRepository padProjectInformationRepository,
       EntityCopyingService entityCopyingService,
       PipelineAndIdentViewFactory pipelineAndIdentViewFactory,
-      PadFileService padFileService) {
+      PadFileService padFileService,
+      PipelineDetailService pipelineDetailService) {
     this.permanentDepositRepository = permanentDepositRepository;
     this.depositDrawingsService = depositDrawingsService;
     this.permanentDepositEntityMappingService = permanentDepositEntityMappingService;
@@ -92,6 +95,7 @@ public class PermanentDepositService implements ApplicationFormSectionService {
     this.entityCopyingService = entityCopyingService;
     this.pipelineAndIdentViewFactory = pipelineAndIdentViewFactory;
     this.padFileService = padFileService;
+    this.pipelineDetailService = pipelineDetailService;
   }
 
 
@@ -306,23 +310,28 @@ public class PermanentDepositService implements ApplicationFormSectionService {
   @Transactional
   public void removePadPipelineFromDeposits(PadPipeline padPipeline) {
 
-    List<PadPermanentDeposit> depositsToRemove = new ArrayList<>();
-    var depositsLinksForPipelineAndApp = padDepositPipelineRepository.getAllByPadPermanentDeposit_PwaApplicationDetailAndPipeline(
-        padPipeline.getPwaApplicationDetail(), padPipeline.getPipeline());
+    var isPipelineConsented = pipelineDetailService.isPipelineConsented(padPipeline.getPipeline());
 
-    for (var depositsLinkForPipelineAndApp : depositsLinksForPipelineAndApp) {
-      var deposit = depositsLinkForPipelineAndApp.getPadPermanentDeposit();
-      var totalPipelinesLinkedToDeposit = padDepositPipelineRepository.countAllByPadPermanentDeposit(deposit);
-      if (totalPipelinesLinkedToDeposit == 1 && !deposit.getDepositIsForPipelinesOnOtherApp()) {
-        depositsToRemove.add(deposit);
+    if (!isPipelineConsented) {
+      List<PadPermanentDeposit> depositsToRemove = new ArrayList<>();
+      var depositsLinksForPipelineAndApp = padDepositPipelineRepository.getAllByPadPermanentDeposit_PwaApplicationDetailAndPipeline(
+          padPipeline.getPwaApplicationDetail(), padPipeline.getPipeline());
+
+      for (var depositsLinkForPipelineAndApp : depositsLinksForPipelineAndApp) {
+        var deposit = depositsLinkForPipelineAndApp.getPadPermanentDeposit();
+        var totalPipelinesLinkedToDeposit = padDepositPipelineRepository.countAllByPadPermanentDeposit(deposit);
+        if (totalPipelinesLinkedToDeposit == 1 && !deposit.getDepositIsForPipelinesOnOtherApp()) {
+          depositsToRemove.add(deposit);
+        }
+      }
+
+      padDepositPipelineRepository.deleteAll(depositsLinksForPipelineAndApp);
+      if (!depositsToRemove.isEmpty()) {
+        depositDrawingsService.removeDepositsFromDrawings(depositsToRemove);
+        permanentDepositRepository.deleteAll(depositsToRemove);
       }
     }
 
-    padDepositPipelineRepository.deleteAll(depositsLinksForPipelineAndApp);
-    if (!depositsToRemove.isEmpty()) {
-      depositDrawingsService.removeDepositsFromDrawings(depositsToRemove);
-      permanentDepositRepository.deleteAll(depositsToRemove);
-    }
   }
 
 

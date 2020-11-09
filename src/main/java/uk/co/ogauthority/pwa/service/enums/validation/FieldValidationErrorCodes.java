@@ -13,7 +13,8 @@ public enum FieldValidationErrorCodes {
   NOT_UNIQUE(".notUnique"),
   EXCEEDED_MAXIMUM_FILE_UPLOAD_COUNT(".exceedsMaximumFileUploadCount"),
   TOO_MANY(".tooMany"),
-  MAX_DP_EXCEEDED(".maxDpExceeded");
+  MAX_DP_EXCEEDED(".maxDpExceeded"),
+  MIN_FILE_COUNT_NOT_REACHED(".minFileCountNotReached");
 
   private final String code;
 

@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.model.form.files;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
 import uk.co.ogauthority.pwa.util.validationgroups.MandatoryUploadValidation;
@@ -26,4 +27,14 @@ public abstract class UploadMultipleFilesWithDescriptionForm {
       List<UploadFileWithDescriptionForm> uploadedFileWithDescriptionForms) {
     this.uploadedFileWithDescriptionForms = uploadedFileWithDescriptionForms;
   }
+
+  /**
+   * Gets file forms for files that actually exist (i.e. have a file id) in order to validate.
+   */
+  public List<UploadFileWithDescriptionForm> getFileFormsForValidation() {
+    return uploadedFileWithDescriptionForms.stream()
+        .filter(f -> f.getUploadedFileId() != null)
+        .collect(Collectors.toList());
+  }
+
 }

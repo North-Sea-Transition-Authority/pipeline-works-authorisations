@@ -27,6 +27,7 @@ import uk.co.ogauthority.pwa.model.entity.enums.BlockLocation;
 import uk.co.ogauthority.pwa.model.entity.enums.LicenceStatus;
 import uk.co.ogauthority.pwa.model.entity.licence.PearsBlock;
 import uk.co.ogauthority.pwa.model.entity.licence.PearsLicence;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.CrossedBlockOwner;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.PadCrossedBlock;
@@ -384,9 +385,16 @@ public class BlockCrossingServiceTest {
   }
 
   @Test
-  public void isDocumentsRequired_notRequired() {
+  public void isDocumentsRequired_notRequiredHolderOwned() {
     when(padCrossedBlockRepository.countPadCrossedBlockByPwaApplicationDetailAndBlockOwnerNot(
         pwaApplicationDetail, CrossedBlockOwner.HOLDER)).thenReturn(0);
+    assertThat(blockCrossingService.isDocumentsRequired(pwaApplicationDetail)).isFalse();
+  }
+
+  @Test
+  public void isDocumentsRequired_notRequiredDepConType() {
+    var pwaApplication = new PwaApplication(null, PwaApplicationType.DEPOSIT_CONSENT, null);
+    pwaApplicationDetail.setPwaApplication(pwaApplication);
     assertThat(blockCrossingService.isDocumentsRequired(pwaApplicationDetail)).isFalse();
   }
 
