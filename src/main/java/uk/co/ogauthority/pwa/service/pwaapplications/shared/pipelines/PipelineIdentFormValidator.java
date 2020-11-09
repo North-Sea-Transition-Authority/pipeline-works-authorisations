@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines;
 
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
@@ -39,7 +40,6 @@ public class PipelineIdentFormValidator implements SmartValidator {
   public void validate(Object target, Errors errors, Object... validationHints) {
 
     var form = (PipelineIdentForm) target;
-    var coreType = (PipelineCoreType) validationHints[1];
 
     PipelineValidationUtils.validateFromToLocation(form.getFromLocation(), errors, "fromLocation", "Ident start structure");
 
@@ -51,14 +51,35 @@ public class PipelineIdentFormValidator implements SmartValidator {
     ValidationUtils.invokeValidator(coordinateFormValidator, form.getToCoordinateForm(), errors,
         "toCoordinateForm", ValueRequirement.OPTIONAL, "Finish point");
 
-    ValidationUtils.rejectIfEmptyOrWhitespace(errors, "length", "length" + FieldValidationErrorCodes.REQUIRED.getCode(),
-        "Enter the ident's length");
-
     if (form.getLength() != null) {
       PipelineValidationUtils.validateLength(form.getLength(), errors, "length", "Ident length");
     }
 
-    ValidationUtils.invokeValidator(dataFormValidator, form.getDataForm(), errors, "dataForm", coreType);
+    ValidationUtils.rejectIfEmptyOrWhitespace(errors, "definingStructure",
+        "definingStructure" + FieldValidationErrorCodes.REQUIRED.getCode(), "Select 'Yes' if the ident is defining a structure");
+
+    if (BooleanUtils.isTrue(form.getDefiningStructure())) {
+      if (form.getLengthOptional() != null) {
+        PipelineValidationUtils.validateLength(form.getLengthOptional(), errors, "lengthOptional", "Ident length");
+      }
+
+      if (form.getFromCoordinateForm() != null && !form.getFromCoordinateForm().equals(form.getToCoordinateForm())) {
+        errors.rejectValue("fromCoordinateForm.latitudeDegrees", FieldValidationErrorCodes.INVALID.getCode(),
+            "The start and finish ident co-ordinates must be the same.");
+      }
+
+      if (form.getFromLocation() != null && !form.getFromLocation().equals(form.getToLocation())) {
+        errors.rejectValue("fromLocation", FieldValidationErrorCodes.INVALID.getCode(),
+            "The start and finish ident structures must be the same.");
+      }
+
+    } else if (BooleanUtils.isFalse(form.getDefiningStructure())) {
+      ValidationUtils.rejectIfEmptyOrWhitespace(errors, "length", "length" + FieldValidationErrorCodes.REQUIRED.getCode(),
+          "Enter the ident's length");
+    }
+
+    var coreType = (PipelineCoreType) validationHints[1];
+    ValidationUtils.invokeValidator(dataFormValidator, form.getDataForm(), errors, "dataForm", coreType, form.getDefiningStructure());
 
   }
 

@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.transaction.Transactional;
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BeanPropertyBindingResult;
@@ -212,7 +213,8 @@ public class PadPipelineIdentService {
     ident.setFromCoordinates(CoordinateUtils.coordinatePairFromForm(form.getFromCoordinateForm()));
     ident.setToLocation(form.getToLocation());
     ident.setToCoordinates(CoordinateUtils.coordinatePairFromForm(form.getToCoordinateForm()));
-    ident.setLength(form.getLength());
+    ident.setLength(form.getDefiningStructure() ? form.getLengthOptional() : form.getLength());
+    ident.setDefiningStructure(form.getDefiningStructure());
 
     padPipelineIdentRepository.save(ident);
 
@@ -231,8 +233,13 @@ public class PadPipelineIdentService {
     form.setFromCoordinateForm(fromForm);
     form.setToCoordinateForm(toForm);
     form.setFromLocation(ident.getFromLocation());
-    form.setLength(ident.getLength());
     form.setToLocation(ident.getToLocation());
+    form.setDefiningStructure(ident.getIsDefiningStructure());
+    if (BooleanUtils.isTrue(ident.getIsDefiningStructure())) {
+      form.setLengthOptional(ident.getLength());
+    } else {
+      form.setLength(ident.getLength());
+    }
     var dataForm = identDataService.getDataFormOfIdent(ident);
     form.setDataForm(dataForm);
   }

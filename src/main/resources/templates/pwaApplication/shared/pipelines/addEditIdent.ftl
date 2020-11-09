@@ -72,15 +72,28 @@
 
         <@fdsFieldset.fieldset legendHeading="Ident information" legendHeadingSize="h2" legendHeadingClass="govuk-fieldset__legend--l">
 
-            <@fdsTextInput.textInput path="form.length" labelText="Length (m)" inputClass="govuk-input--width-5"/>
+            <@fdsRadio.radioGroup path="form.definingStructure" labelText="Is this ident defining a structure?" hiddenContent=true>
+                <@fdsRadio.radioYes path="form.definingStructure">       
+                    <@fdsTextInput.textInput path="form.lengthOptional" labelText="Length (m)" inputClass="govuk-input--width-5" optionalLabel=true nestingPath="form.definingStructure"/>
+                    <@fdsTextarea.textarea path="form.dataForm.componentPartsDescription" labelText="Description of component parts" nestingPath="form.definingStructure"
+                     hintText="e.g. 10\" production flowline, electrical lead d B, 2 x 6\" Production Jumper within a Wellhead Bundle, 6\" flexible gas lift flowline, control umbilical etc" characterCount=true maxCharacterLength="4000"/>
+                    <@identDataTextInput coreType=coreType textInputPath="form.dataForm.productsToBeConveyed" textAreaPath="form.dataForm.productsToBeConveyedMultiCore" useTextArea=true labelText="Products to be conveyed" nestingPath="form.definingStructure"/>
+                </@fdsRadio.radioYes>
 
-            <@fdsTextarea.textarea path="form.dataForm.componentPartsDescription" labelText="Description of component parts" hintText="e.g. 10\" production flowline, electrical lead d B, 2 x 6\" Production Jumper within a Wellhead Bundle, 6\" flexible gas lift flowline, control umbilical etc" characterCount=true maxCharacterLength="4000"/>
-            <@identDataTextInput coreType=coreType textInputPath="form.dataForm.externalDiameter" textAreaPath="form.dataForm.externalDiameterMultiCore" labelText="External diameter" suffix="mm" suffixScreenReaderPrompt="mm"/>
-            <@identDataTextInput coreType=coreType textInputPath="form.dataForm.internalDiameter" textAreaPath="form.dataForm.internalDiameterMultiCore" labelText="Internal diameter" suffix="mm" suffixScreenReaderPrompt="mm" multiCoreHintText="Provide for each of the cores"/>
-            <@identDataTextInput coreType=coreType textInputPath="form.dataForm.wallThickness" textAreaPath="form.dataForm.wallThicknessMultiCore" labelText="Wall thickness" suffix="mm" suffixScreenReaderPrompt="mm" multiCoreHintText="Provide for the outer casing not the internal casings"/>
-            <@identDataTextInput coreType=coreType textInputPath="form.dataForm.maop" textAreaPath="form.dataForm.maopMultiCore" labelText="MAOP" suffix="barg" suffixScreenReaderPrompt="barg" multiCoreHintText="Provide for each of the internal cores"/>
-            <@identDataTextInput coreType=coreType textInputPath="form.dataForm.insulationCoatingType" textAreaPath="form.dataForm.insulationCoatingTypeMultiCore" useTextArea=true labelText="Insulation / coating type" multiCoreHintText="Provide for the outer casing"/>
-            <@identDataTextInput coreType=coreType textInputPath="form.dataForm.productsToBeConveyed" textAreaPath="form.dataForm.productsToBeConveyedMultiCore" useTextArea=true labelText="Products to be conveyed"/>
+                <@fdsRadio.radioNo path="form.definingStructure">   
+                    <@fdsTextInput.textInput path="form.length" labelText="Length (m)" inputClass="govuk-input--width-5" nestingPath="form.definingStructure"/>
+                    <@fdsTextarea.textarea path="form.dataForm.componentPartsDescription" labelText="Description of component parts" nestingPath="form.definingStructure"
+                     hintText="e.g. 10\" production flowline, electrical lead d B, 2 x 6\" Production Jumper within a Wellhead Bundle, 6\" flexible gas lift flowline, control umbilical etc" characterCount=true maxCharacterLength="4000"/>
+                    <@identDataTextInput coreType=coreType textInputPath="form.dataForm.externalDiameter" textAreaPath="form.dataForm.externalDiameterMultiCore" labelText="External diameter" suffix="mm" suffixScreenReaderPrompt="mm" nestingPath="form.definingStructure"/>
+                    <@identDataTextInput coreType=coreType textInputPath="form.dataForm.internalDiameter" textAreaPath="form.dataForm.internalDiameterMultiCore" nestingPath="form.definingStructure"
+                     labelText="Internal diameter" suffix="mm" suffixScreenReaderPrompt="mm" multiCoreHintText="Provide for each of the cores" nestingPath="form.definingStructure"/>
+                    <@identDataTextInput coreType=coreType textInputPath="form.dataForm.wallThickness" textAreaPath="form.dataForm.wallThicknessMultiCore" nestingPath="form.definingStructure"
+                     labelText="Wall thickness" suffix="mm" suffixScreenReaderPrompt="mm" multiCoreHintText="Provide for the outer casing not the internal casings"/>
+                    <@identDataTextInput coreType=coreType textInputPath="form.dataForm.maop" textAreaPath="form.dataForm.maopMultiCore" labelText="MAOP" suffix="barg" nestingPath="form.definingStructure" suffixScreenReaderPrompt="barg" multiCoreHintText="Provide for each of the internal cores"/>
+                    <@identDataTextInput coreType=coreType textInputPath="form.dataForm.insulationCoatingType" textAreaPath="form.dataForm.insulationCoatingTypeMultiCore" nestingPath="form.definingStructure" useTextArea=true labelText="Insulation / coating type" multiCoreHintText="Provide for the outer casing"/>
+                    <@identDataTextInput coreType=coreType textInputPath="form.dataForm.productsToBeConveyed" textAreaPath="form.dataForm.productsToBeConveyedMultiCore" nestingPath="form.definingStructure" useTextArea=true labelText="Products to be conveyed"/>
+                </@fdsRadio.radioNo>
+            </@fdsRadio.radioGroup>           
 
         </@fdsFieldset.fieldset>
 
@@ -99,19 +112,20 @@
   suffix=""
   suffixScreenReaderPrompt=""
   useTextArea=false
-  multiCoreHintText="">
+  multiCoreHintText=""
+  nestingPath="">
     <#if coreType == "SINGLE_CORE">
         <#if useTextArea>
-            <@fdsTextarea.textarea path=textInputPath labelText="${labelText} ${suffix}" maxCharacterLength="4000" characterCount=true/>
+            <@fdsTextarea.textarea path=textInputPath labelText="${labelText} ${suffix}" maxCharacterLength="4000" characterCount=true nestingPath=nestingPath/>
         <#else>
-            <@fdsTextInput.textInput path=textInputPath labelText=labelText inputClass="govuk-input--width-5" suffix=suffix suffixScreenReaderPrompt=suffixScreenReaderPrompt/>
+            <@fdsTextInput.textInput path=textInputPath labelText=labelText inputClass="govuk-input--width-5" suffix=suffix suffixScreenReaderPrompt=suffixScreenReaderPrompt nestingPath=nestingPath/>
         </#if>
     <#else>
         <#assign unit = ""/>
         <#if suffix?has_content>
             <#assign unit = "(" + suffix + ")"/>
         </#if>
-        <@fdsTextarea.textarea path=textAreaPath labelText="${labelText} ${unit}" maxCharacterLength="4000" characterCount=true hintText=multiCoreHintText/>
+        <@fdsTextarea.textarea path=textAreaPath labelText="${labelText} ${unit}" maxCharacterLength="4000" characterCount=true hintText=multiCoreHintText nestingPath=nestingPath/>
     </#if>
 </#macro>
 
