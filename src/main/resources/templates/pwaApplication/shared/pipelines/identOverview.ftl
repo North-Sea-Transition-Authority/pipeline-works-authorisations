@@ -46,10 +46,7 @@
                             <@fdsDataItems.dataItem dataItemListClasses="fds-data-items-list--tight">
                                 <@fdsDataItems.dataValuesNumber smallNumber=true key="${identView.identNumber}" value="Ident number"/>
                                 <@fdsDataItems.dataValues key="Is this ident defining a structure?" value="${identView.definingStructure?then('Yes', 'No')}"/>
-                                <#assign lengthDisplay = ""/>
-                                <#if identView.length?has_content>
-                                    <#assign lengthDisplay = identView.length + "m"/>
-                                </#if>
+                                <#assign lengthDisplay = identView.length?has_content?then(identView.length + "m", "")/>
                                 <@fdsDataItems.dataValues key="Length" value=lengthDisplay/>
                                 <#assign from>
                                     <@pwaCoordinate.display coordinatePair=identView.fromCoordinates />
