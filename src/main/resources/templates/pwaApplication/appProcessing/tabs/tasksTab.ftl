@@ -9,14 +9,14 @@
               <#list taskGroup.taskListEntries as task>
 
                   <#assign taskUrl = industryFlag?then("", task.route?has_content?then(springUrl(task.route), "")) />
-                  <#assign tagClass = task.taskStatus?has_content?then(task.taskStatus.tagClass!, "") />
-                  <#assign displayText = task.taskStatus?has_content?then(task.taskStatus.displayText!, "") />
+                  <#assign tagText = task.taskTag?has_content?then(task.taskTag.tagText!, "") />
+                  <#assign tagClass = task.taskTag?has_content?then(task.taskTag.tagClass!, "") />
 
                   <@fdsTaskList.taskListItem
                     itemText=task.taskName
                     itemUrl=taskUrl
                     tagClass=tagClass
-                    tagText=displayText />
+                    tagText=tagText />
 
               </#list>
           </@fdsTaskList.taskListSection>

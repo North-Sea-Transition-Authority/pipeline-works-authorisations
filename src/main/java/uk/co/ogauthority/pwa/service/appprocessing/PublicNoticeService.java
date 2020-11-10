@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.service.appprocessing;
 
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.model.tasklist.TaskListEntry;
+import uk.co.ogauthority.pwa.model.tasklist.TaskTag;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.service.appprocessing.tasks.AppProcessingService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
@@ -23,7 +24,7 @@ public class PublicNoticeService implements AppProcessingService {
     return new TaskListEntry(
         task.getTaskName(),
         task.getRoute(processingContext),
-        TaskStatus.NOT_STARTED,
+        TaskTag.from(TaskStatus.NOT_STARTED),
         task.getDisplayOrder());
 
   }

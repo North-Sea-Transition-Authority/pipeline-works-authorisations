@@ -17,6 +17,7 @@ import uk.co.ogauthority.pwa.model.enums.appprocessing.applicationupdates.Applic
 import uk.co.ogauthority.pwa.model.notify.emailproperties.ApplicationUpdateRequestEmailProps;
 import uk.co.ogauthority.pwa.model.notify.emailproperties.ApplicationUpdateResponseEmailProps;
 import uk.co.ogauthority.pwa.model.tasklist.TaskListEntry;
+import uk.co.ogauthority.pwa.model.tasklist.TaskTag;
 import uk.co.ogauthority.pwa.model.workflow.GenericMessageEvent;
 import uk.co.ogauthority.pwa.repository.appprocessing.applicationupdates.ApplicationUpdateRequestRepository;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
@@ -180,12 +181,12 @@ public class ApplicationUpdateRequestService implements AppProcessingService {
     boolean openUpdateForDetail = applicationDetailHasOpenUpdateRequest(processingContext.getApplicationDetail());
 
     String taskRoute = !openUpdateForDetail ? task.getRoute(processingContext) : null;
-    var taskStatus = openUpdateForDetail ? TaskStatus.IN_PROGRESS : null;
+    var taskTag = openUpdateForDetail ? TaskTag.from(TaskStatus.IN_PROGRESS) : null;
 
     return new TaskListEntry(
         task.getTaskName(),
         taskRoute,
-        taskStatus,
+        taskTag,
         task.getDisplayOrder());
 
   }

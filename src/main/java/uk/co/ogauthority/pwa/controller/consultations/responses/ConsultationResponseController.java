@@ -74,7 +74,7 @@ public class ConsultationResponseController {
 
       var validatedBindingResult = consultationResponseService.validate(form, bindingResult);
 
-      var request = processingContext.getActiveConsultationRequest().getConsultationRequest();
+      var request = processingContext.getActiveConsultationRequestOrThrow().getConsultationRequest();
 
       return controllerHelperService.checkErrorsAndRedirect(validatedBindingResult,
           getResponderModelAndView(processingContext), () -> {
@@ -107,16 +107,16 @@ public class ConsultationResponseController {
   private ModelAndView getResponderModelAndView(PwaAppProcessingContext processingContext) {
 
     var application = processingContext.getPwaApplication();
-    var request = processingContext.getActiveConsultationRequest().getConsultationRequest();
+    var requestDto = processingContext.getActiveConsultationRequestOrThrow();
 
     var modelAndView = new ModelAndView("consultation/responses/responderForm")
         .addObject("cancelUrl", CaseManagementUtils.routeCaseManagement(application))
         .addObject("responseOptions", ConsultationResponseOption.asList())
         .addObject("appRef", processingContext.getPwaApplication().getAppReference())
         .addObject("previousResponses", consultationViewService
-            .getConsultationRequestViewsRespondedOnly(application, request))
+            .getConsultationRequestViewsRespondedOnly(application, requestDto.getConsultationRequest()))
         .addObject("caseSummaryView", processingContext.getCaseSummaryView())
-        .addObject("consulteeGroupName", processingContext.getActiveConsultationRequest().getConsulteeGroupName());
+        .addObject("consulteeGroupName", requestDto.getConsulteeGroupName());
 
     breadcrumbService.fromCaseManagement(processingContext.getPwaApplication(), modelAndView, "Consultation response");
 

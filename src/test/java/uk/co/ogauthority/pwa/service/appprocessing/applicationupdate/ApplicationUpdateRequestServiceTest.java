@@ -30,6 +30,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.enums.appprocessing.applicationupdates.ApplicationUpdateRequestStatus;
 import uk.co.ogauthority.pwa.model.enums.notify.NotifyTemplate;
 import uk.co.ogauthority.pwa.model.notify.emailproperties.EmailProperties;
+import uk.co.ogauthority.pwa.model.tasklist.TaskTag;
 import uk.co.ogauthority.pwa.repository.appprocessing.applicationupdates.ApplicationUpdateRequestRepository;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
@@ -326,7 +327,7 @@ public class ApplicationUpdateRequestServiceTest {
 
     assertThat(taskListEntry.getTaskName()).isEqualTo(PwaAppProcessingTask.RFI.getTaskName());
     assertThat(taskListEntry.getRoute()).isNull();
-    assertThat(taskListEntry.getTaskStatus()).isEqualTo(TaskStatus.IN_PROGRESS);
+    assertThat(taskListEntry.getTaskTag()).isEqualTo(TaskTag.from(TaskStatus.IN_PROGRESS));
     assertThat(taskListEntry.getTaskInfoList()).isEmpty();
 
   }
@@ -344,7 +345,7 @@ public class ApplicationUpdateRequestServiceTest {
 
     assertThat(taskListEntry.getTaskName()).isEqualTo(PwaAppProcessingTask.RFI.getTaskName());
     assertThat(taskListEntry.getRoute()).isEqualTo(PwaAppProcessingTask.RFI.getRoute(processingContext));
-    assertThat(taskListEntry.getTaskStatus()).isNull();
+    assertThat(taskListEntry.getTaskTag()).isNull();
     assertThat(taskListEntry.getTaskInfoList()).isEmpty();
 
   }

@@ -64,8 +64,15 @@ public class PwaAppProcessingContext {
     return caseSummaryView;
   }
 
-  public ConsultationRequestDto getActiveConsultationRequest() {
-    return activeConsultationRequest;
+  public Optional<ConsultationRequestDto> getActiveConsultationRequest() {
+    return Optional.ofNullable(activeConsultationRequest);
+  }
+
+  public ConsultationRequestDto getActiveConsultationRequestOrThrow() {
+    return Optional.ofNullable(activeConsultationRequest)
+        .orElseThrow(() -> new RuntimeException(String.format(
+            "Expected processing context to have active consultation request, it didn't. App ID: %s",
+            applicationDetail.getMasterPwaApplicationId())));
   }
 
   public Integer getConsultationRequestId() {

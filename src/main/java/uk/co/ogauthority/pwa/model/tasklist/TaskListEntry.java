@@ -1,7 +1,6 @@
 package uk.co.ogauthority.pwa.model.tasklist;
 
 import java.util.List;
-import uk.co.ogauthority.pwa.service.enums.appprocessing.TaskStatus;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskInfo;
 
 /**
@@ -13,7 +12,7 @@ public class TaskListEntry {
   private final String route;
   private final boolean completed;
 
-  private final TaskStatus taskStatus;
+  private final TaskTag taskTag;
 
   private final List<TaskInfo> taskInfoList;
   private final int displayOrder;
@@ -33,27 +32,27 @@ public class TaskListEntry {
     this.taskName = taskName;
     this.route = route;
     this.completed = completed;
-    this.taskStatus = null;
+    this.taskTag = null;
     this.taskInfoList = taskInfoList;
     this.displayOrder = displayOrder;
   }
 
   public TaskListEntry(String taskName,
                        String route,
-                       TaskStatus taskStatus,
+                       TaskTag taskTag,
                        int displayOrder) {
-    this(taskName, route, taskStatus, List.of(), displayOrder);
+    this(taskName, route, taskTag, List.of(), displayOrder);
   }
 
   public TaskListEntry(String taskName,
                        String route,
-                       TaskStatus taskStatus,
+                       TaskTag taskTag,
                        List<TaskInfo> taskInfoList,
                        int displayOrder) {
     this.taskName = taskName;
     this.route = route;
     this.completed = false;
-    this.taskStatus = taskStatus;
+    this.taskTag = taskTag;
     this.taskInfoList = taskInfoList;
     this.displayOrder = displayOrder;
   }
@@ -70,8 +69,8 @@ public class TaskListEntry {
     return completed;
   }
 
-  public TaskStatus getTaskStatus() {
-    return taskStatus;
+  public TaskTag getTaskTag() {
+    return taskTag;
   }
 
   public List<TaskInfo> getTaskInfoList() {

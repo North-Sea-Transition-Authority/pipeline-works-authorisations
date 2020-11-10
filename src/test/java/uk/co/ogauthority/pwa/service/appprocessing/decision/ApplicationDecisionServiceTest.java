@@ -81,7 +81,7 @@ public class ApplicationDecisionServiceTest {
 
     assertThat(taskListEntry.getTaskName()).isEqualTo(PwaAppProcessingTask.DECISION.getTaskName());
     assertThat(taskListEntry.getRoute()).isEqualTo(PwaAppProcessingTask.DECISION.getRoute(processingContext));
-    assertThat(taskListEntry.getTaskStatus()).isEqualTo(TaskStatus.NOT_STARTED);
+    assertThat(taskListEntry.getTaskTag()).isEqualTo(TaskStatus.NOT_STARTED);
     assertThat(taskListEntry.getTaskInfoList()).isEmpty();
 
   }
@@ -100,7 +100,7 @@ public class ApplicationDecisionServiceTest {
 
     assertThat(taskListEntry.getTaskName()).isEqualTo(PwaAppProcessingTask.DECISION.getTaskName());
     assertThat(taskListEntry.getRoute()).isEqualTo(PwaAppProcessingTask.DECISION.getRoute(processingContext));
-    assertThat(taskListEntry.getTaskStatus()).isEqualTo(TaskStatus.IN_PROGRESS);
+    assertThat(taskListEntry.getTaskTag()).isEqualTo(TaskStatus.IN_PROGRESS);
     assertThat(taskListEntry.getTaskInfoList()).isEmpty();
 
   }

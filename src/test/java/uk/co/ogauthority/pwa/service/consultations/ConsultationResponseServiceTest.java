@@ -28,6 +28,7 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.exception.WorkflowAssignmentException;
+import uk.co.ogauthority.pwa.model.dto.consultations.ConsultationRequestDto;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupDetail;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationResponse;
@@ -39,6 +40,7 @@ import uk.co.ogauthority.pwa.repository.consultations.ConsultationResponseReposi
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupDetailService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
+import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingTask;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ConsultationRequestStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationConsultationWorkflowTask;
@@ -280,14 +282,34 @@ public class ConsultationResponseServiceTest {
   }
 
   @Test
-  public void canShowInTaskList() {
+  public void canShowInTaskList_notRespondedYet() {
+
+    var request = new ConsultationRequest();
+    when(consultationResponseRepository.findByConsultationRequest(request)).thenReturn(Optional.empty());
 
     var processingContext = new PwaAppProcessingContext(null, null, Set.of(PwaAppProcessingPermission.CONSULTATION_RESPONDER), null,
-        null);
+        new ConsultationRequestDto("name", request));
 
     boolean canShow = consultationResponseService.canShowInTaskList(processingContext);
 
     assertThat(canShow).isTrue();
+
+  }
+
+  @Test
+  public void canShowInTaskList_alreadyResponded() {
+
+    var request = new ConsultationRequest();
+    var response = new ConsultationResponse();
+    response.setConsultationRequest(request);
+    when(consultationResponseRepository.findByConsultationRequest(request)).thenReturn(Optional.of(response));
+
+    var processingContext = new PwaAppProcessingContext(null, null, Set.of(PwaAppProcessingPermission.CONSULTATION_RESPONDER), null,
+        new ConsultationRequestDto("name", request));
+
+    boolean canShow = consultationResponseService.canShowInTaskList(processingContext);
+
+    assertThat(canShow).isFalse();
 
   }
 
@@ -315,6 +337,21 @@ public class ConsultationResponseServiceTest {
 
   }
 
+  @Test
+  public void getTaskListEntry() {
+
+    var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
+    var processingContext = new PwaAppProcessingContext(detail, null, Set.of(), null, null);
+
+    var taskListEntry = consultationResponseService.getTaskListEntry(PwaAppProcessingTask.CONSULTATION_RESPONSE, processingContext);
+
+    assertThat(taskListEntry.getTaskName()).isEqualTo(PwaAppProcessingTask.CONSULTATION_RESPONSE.getTaskName());
+    assertThat(taskListEntry.getRoute()).isEqualTo(PwaAppProcessingTask.CONSULTATION_RESPONSE.getRoute(processingContext));
+    assertThat(taskListEntry.isCompleted()).isFalse();
+    assertThat(taskListEntry.getTaskTag()).isNull();
+    assertThat(taskListEntry.getDisplayOrder()).isEqualTo(PwaAppProcessingTask.CONSULTATION_RESPONSE.getDisplayOrder());
+
+  }
 
 }
 

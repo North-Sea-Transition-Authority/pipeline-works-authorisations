@@ -68,7 +68,7 @@ public class AcceptApplicationServiceTest {
 
     assertThat(taskListEntry.getTaskName()).isEqualTo(PwaAppProcessingTask.ACCEPT_APPLICATION.getTaskName());
     assertThat(taskListEntry.getRoute()).isEqualTo(PwaAppProcessingTask.ACCEPT_APPLICATION.getRoute(processingContext));
-    assertThat(taskListEntry.getTaskStatus()).isEqualTo(TaskStatus.NOT_COMPLETED);
+    assertThat(taskListEntry.getTaskTag()).isEqualTo(TaskStatus.NOT_COMPLETED);
     assertThat(taskListEntry.getTaskInfoList()).isEmpty();
 
   }
