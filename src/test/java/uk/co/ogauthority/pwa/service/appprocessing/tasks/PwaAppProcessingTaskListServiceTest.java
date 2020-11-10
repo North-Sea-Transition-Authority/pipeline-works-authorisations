@@ -14,6 +14,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
+import uk.co.ogauthority.pwa.model.dto.consultations.ConsultationRequestDto;
+import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.tasklist.TaskListEntry;
 import uk.co.ogauthority.pwa.model.tasklist.TaskListGroup;
@@ -48,8 +50,13 @@ public class PwaAppProcessingTaskListServiceTest {
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
 
-    processingContext = new PwaAppProcessingContext(pwaApplicationDetail, null, EnumSet.allOf(
-        PwaAppProcessingPermission.class), null, null);
+    processingContext = new PwaAppProcessingContext(
+        pwaApplicationDetail,
+        null,
+        EnumSet.allOf(PwaAppProcessingPermission.class),
+        null,
+        new ConsultationRequestDto("name", new ConsultationRequest())
+    );
 
     taskListService = new PwaAppProcessingTaskListService(processingTaskService);
 
@@ -102,7 +109,8 @@ public class PwaAppProcessingTaskListServiceTest {
         PwaAppProcessingPermission.ASSIGN_RESPONDER,
         PwaAppProcessingPermission.CONSULTATION_RESPONDER),
         null,
-        null);
+        new ConsultationRequestDto("name", new ConsultationRequest())
+    );
 
     var taskListGroups = taskListService.getTaskListGroups(processingContext);
 

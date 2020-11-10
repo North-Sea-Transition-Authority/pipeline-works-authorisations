@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.model.tasklist;
 
 import java.util.List;
+import uk.co.ogauthority.pwa.service.enums.appprocessing.TaskStatus;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskInfo;
 
 /**
@@ -11,6 +12,9 @@ public class TaskListEntry {
   private final String taskName;
   private final String route;
   private final boolean completed;
+
+  private final TaskStatus taskStatus;
+
   private final List<TaskInfo> taskInfoList;
   private final int displayOrder;
 
@@ -29,6 +33,27 @@ public class TaskListEntry {
     this.taskName = taskName;
     this.route = route;
     this.completed = completed;
+    this.taskStatus = null;
+    this.taskInfoList = taskInfoList;
+    this.displayOrder = displayOrder;
+  }
+
+  public TaskListEntry(String taskName,
+                       String route,
+                       TaskStatus taskStatus,
+                       int displayOrder) {
+    this(taskName, route, taskStatus, List.of(), displayOrder);
+  }
+
+  public TaskListEntry(String taskName,
+                       String route,
+                       TaskStatus taskStatus,
+                       List<TaskInfo> taskInfoList,
+                       int displayOrder) {
+    this.taskName = taskName;
+    this.route = route;
+    this.completed = false;
+    this.taskStatus = taskStatus;
     this.taskInfoList = taskInfoList;
     this.displayOrder = displayOrder;
   }
@@ -45,6 +70,10 @@ public class TaskListEntry {
     return completed;
   }
 
+  public TaskStatus getTaskStatus() {
+    return taskStatus;
+  }
+
   public List<TaskInfo> getTaskInfoList() {
     return taskInfoList;
   }
@@ -52,4 +81,5 @@ public class TaskListEntry {
   public int getDisplayOrder() {
     return displayOrder;
   }
+
 }

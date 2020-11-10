@@ -136,7 +136,8 @@ public class AssignResponderService implements AppProcessingService {
 
   @Override
   public boolean canShowInTaskList(PwaAppProcessingContext processingContext) {
-    return processingContext.getAppProcessingPermissions().contains(PwaAppProcessingPermission.ASSIGN_RESPONDER);
+    return processingContext.getAppProcessingPermissions().contains(PwaAppProcessingPermission.ASSIGN_RESPONDER)
+        && processingContext.getActiveConsultationRequest() != null;
   }
 
 }
