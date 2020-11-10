@@ -51,10 +51,6 @@ public class PipelineIdentFormValidator implements SmartValidator {
     ValidationUtils.invokeValidator(coordinateFormValidator, form.getToCoordinateForm(), errors,
         "toCoordinateForm", ValueRequirement.OPTIONAL, "Finish point");
 
-    if (form.getLength() != null) {
-      PipelineValidationUtils.validateLength(form.getLength(), errors, "length", "Ident length");
-    }
-
     ValidationUtils.rejectIfEmptyOrWhitespace(errors, "definingStructure",
         "definingStructure" + FieldValidationErrorCodes.REQUIRED.getCode(), "Select 'Yes' if the ident is defining a structure");
 
@@ -64,18 +60,24 @@ public class PipelineIdentFormValidator implements SmartValidator {
       }
 
       if (form.getFromCoordinateForm() != null && !form.getFromCoordinateForm().equals(form.getToCoordinateForm())) {
-        errors.rejectValue("fromCoordinateForm.latitudeDegrees", FieldValidationErrorCodes.INVALID.getCode(),
+        errors.rejectValue("fromCoordinateForm.latitudeDegrees",
+            "fromCoordinateForm.latitudeDegrees" + FieldValidationErrorCodes.INVALID.getCode(),
             "The start and finish ident co-ordinates must be the same.");
       }
 
       if (form.getFromLocation() != null && !form.getFromLocation().equals(form.getToLocation())) {
-        errors.rejectValue("fromLocation", FieldValidationErrorCodes.INVALID.getCode(),
+        errors.rejectValue("fromLocation", "fromLocation" + FieldValidationErrorCodes.INVALID.getCode(),
             "The start and finish ident structures must be the same.");
       }
 
     } else if (BooleanUtils.isFalse(form.getDefiningStructure())) {
       ValidationUtils.rejectIfEmptyOrWhitespace(errors, "length", "length" + FieldValidationErrorCodes.REQUIRED.getCode(),
           "Enter the ident's length");
+
+      if (form.getLength() != null) {
+        PipelineValidationUtils.validateLength(form.getLength(), errors, "length", "Ident length");
+      }
+
     }
 
     var coreType = (PipelineCoreType) validationHints[1];

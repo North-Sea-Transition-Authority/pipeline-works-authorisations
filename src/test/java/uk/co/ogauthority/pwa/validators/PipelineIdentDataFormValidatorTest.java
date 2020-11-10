@@ -25,10 +25,10 @@ public class PipelineIdentDataFormValidatorTest {
   }
 
   @Test
-  public void valid_mandatory_dataPresent() {
+  public void valid_singleCore_mandatory_dataPresent() {
 
     var form = buildForm();
-    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, (Object) null, PipelineCoreType.SINGLE_CORE);
+    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, (Object) null, PipelineCoreType.SINGLE_CORE, false);
 
     assertThat(result).isEmpty();
 
@@ -45,7 +45,7 @@ public class PipelineIdentDataFormValidatorTest {
     form.setMaopMultiCore("text");
     form.setInsulationCoatingTypeMultiCore("text");
     form.setProductsToBeConveyedMultiCore("text");
-    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, (Object) null, PipelineCoreType.MULTI_CORE);
+    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, (Object) null, PipelineCoreType.MULTI_CORE, false);
 
     assertThat(result).isEmpty();
 
@@ -62,7 +62,7 @@ public class PipelineIdentDataFormValidatorTest {
     form.setMaopMultiCore(ValidatorTestUtils.over4000Chars());
     form.setInsulationCoatingTypeMultiCore(ValidatorTestUtils.over4000Chars());
     form.setProductsToBeConveyedMultiCore(ValidatorTestUtils.over4000Chars());
-    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, (Object) null, PipelineCoreType.MULTI_CORE);
+    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, (Object) null, PipelineCoreType.MULTI_CORE, false);
 
     assertThat(result).containsOnly(
         entry("componentPartsDescription", Set.of("componentPartsDescription.maxLengthExceeded")),
@@ -80,7 +80,7 @@ public class PipelineIdentDataFormValidatorTest {
   public void failed_mandatory_dataNotPresent() {
 
     var form = new PipelineIdentDataForm();
-    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, (Object) null, PipelineCoreType.SINGLE_CORE);
+    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, (Object) null, PipelineCoreType.SINGLE_CORE, false);
 
     assertThat(result).containsOnly(
         entry("componentPartsDescription", Set.of("componentPartsDescription.required")),
@@ -95,10 +95,23 @@ public class PipelineIdentDataFormValidatorTest {
   }
 
   @Test
-  public void failed_multiCore_mandatory_dataNotPresent() {
+  public void failed_multiCore_definingStructure_mandatory_dataNotPresent() {
 
     var form = new PipelineIdentDataForm();
-    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, (Object) null, PipelineCoreType.MULTI_CORE);
+    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, (Object) null, PipelineCoreType.MULTI_CORE, true);
+
+    assertThat(result).containsOnly(
+        entry("componentPartsDescription", Set.of("componentPartsDescription.required")),
+        entry("productsToBeConveyedMultiCore", Set.of("productsToBeConveyedMultiCore.required"))
+    );
+
+  }
+
+  @Test
+  public void failed_multiCore_notDefiningStructure_mandatory_dataNotPresent() {
+
+    var form = new PipelineIdentDataForm();
+    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, (Object) null, PipelineCoreType.MULTI_CORE, false);
 
     assertThat(result).containsOnly(
         entry("componentPartsDescription", Set.of("componentPartsDescription.required")),
@@ -108,6 +121,37 @@ public class PipelineIdentDataFormValidatorTest {
         entry("maopMultiCore", Set.of("maopMultiCore.required")),
         entry("insulationCoatingTypeMultiCore", Set.of("insulationCoatingTypeMultiCore.required")),
         entry("productsToBeConveyedMultiCore", Set.of("productsToBeConveyedMultiCore.required"))
+    );
+
+  }
+
+  @Test
+  public void failed_singleCore_definingStructure_mandatory_dataNotPresent() {
+
+    var form = new PipelineIdentDataForm();
+    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, (Object) null, PipelineCoreType.SINGLE_CORE, true);
+
+    assertThat(result).containsOnly(
+        entry("componentPartsDescription", Set.of("componentPartsDescription.required")),
+        entry("productsToBeConveyed", Set.of("productsToBeConveyed.required"))
+    );
+
+  }
+
+  @Test
+  public void failed_singleCore_notDefiningStructure_mandatory_dataNotPresent() {
+
+    var form = new PipelineIdentDataForm();
+    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, (Object) null, PipelineCoreType.SINGLE_CORE, false);
+
+    assertThat(result).containsOnly(
+        entry("componentPartsDescription", Set.of("componentPartsDescription.required")),
+        entry("externalDiameter", Set.of("externalDiameter.required")),
+        entry("internalDiameter", Set.of("internalDiameter.required")),
+        entry("wallThickness", Set.of("wallThickness.required")),
+        entry("maop", Set.of("maop.required")),
+        entry("insulationCoatingType", Set.of("insulationCoatingType.required")),
+        entry("productsToBeConveyed", Set.of("productsToBeConveyed.required"))
     );
 
   }
