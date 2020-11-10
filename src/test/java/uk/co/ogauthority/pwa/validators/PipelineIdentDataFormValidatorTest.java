@@ -12,6 +12,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineCoreType;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.PipelineIdentDataForm;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineIdentDataFormValidator;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineIdentDataValidationRule;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -28,7 +29,7 @@ public class PipelineIdentDataFormValidatorTest {
   public void valid_singleCore_mandatory_dataPresent() {
 
     var form = buildForm();
-    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, (Object) null, PipelineCoreType.SINGLE_CORE, false);
+    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, (Object) null, PipelineCoreType.SINGLE_CORE, PipelineIdentDataValidationRule.AS_SECTION);
 
     assertThat(result).isEmpty();
 
@@ -45,7 +46,7 @@ public class PipelineIdentDataFormValidatorTest {
     form.setMaopMultiCore("text");
     form.setInsulationCoatingTypeMultiCore("text");
     form.setProductsToBeConveyedMultiCore("text");
-    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, (Object) null, PipelineCoreType.MULTI_CORE, false);
+    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, (Object) null, PipelineCoreType.MULTI_CORE, PipelineIdentDataValidationRule.AS_SECTION);
 
     assertThat(result).isEmpty();
 
@@ -62,7 +63,7 @@ public class PipelineIdentDataFormValidatorTest {
     form.setMaopMultiCore(ValidatorTestUtils.over4000Chars());
     form.setInsulationCoatingTypeMultiCore(ValidatorTestUtils.over4000Chars());
     form.setProductsToBeConveyedMultiCore(ValidatorTestUtils.over4000Chars());
-    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, (Object) null, PipelineCoreType.MULTI_CORE, false);
+    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, (Object) null, PipelineCoreType.MULTI_CORE, PipelineIdentDataValidationRule.AS_SECTION);
 
     assertThat(result).containsOnly(
         entry("componentPartsDescription", Set.of("componentPartsDescription.maxLengthExceeded")),
@@ -80,7 +81,7 @@ public class PipelineIdentDataFormValidatorTest {
   public void failed_mandatory_dataNotPresent() {
 
     var form = new PipelineIdentDataForm();
-    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, (Object) null, PipelineCoreType.SINGLE_CORE, false);
+    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, (Object) null, PipelineCoreType.SINGLE_CORE, PipelineIdentDataValidationRule.AS_SECTION);
 
     assertThat(result).containsOnly(
         entry("componentPartsDescription", Set.of("componentPartsDescription.required")),
@@ -98,7 +99,7 @@ public class PipelineIdentDataFormValidatorTest {
   public void failed_multiCore_definingStructure_mandatory_dataNotPresent() {
 
     var form = new PipelineIdentDataForm();
-    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, (Object) null, PipelineCoreType.MULTI_CORE, true);
+    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, (Object) null, PipelineCoreType.MULTI_CORE, PipelineIdentDataValidationRule.AS_STRUCTURE);
 
     assertThat(result).containsOnly(
         entry("componentPartsDescription", Set.of("componentPartsDescription.required")),
@@ -111,7 +112,7 @@ public class PipelineIdentDataFormValidatorTest {
   public void failed_multiCore_notDefiningStructure_mandatory_dataNotPresent() {
 
     var form = new PipelineIdentDataForm();
-    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, (Object) null, PipelineCoreType.MULTI_CORE, false);
+    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, (Object) null, PipelineCoreType.MULTI_CORE, PipelineIdentDataValidationRule.AS_SECTION);
 
     assertThat(result).containsOnly(
         entry("componentPartsDescription", Set.of("componentPartsDescription.required")),
@@ -129,7 +130,7 @@ public class PipelineIdentDataFormValidatorTest {
   public void failed_singleCore_definingStructure_mandatory_dataNotPresent() {
 
     var form = new PipelineIdentDataForm();
-    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, (Object) null, PipelineCoreType.SINGLE_CORE, true);
+    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, (Object) null, PipelineCoreType.SINGLE_CORE, PipelineIdentDataValidationRule.AS_STRUCTURE);
 
     assertThat(result).containsOnly(
         entry("componentPartsDescription", Set.of("componentPartsDescription.required")),
@@ -142,7 +143,7 @@ public class PipelineIdentDataFormValidatorTest {
   public void failed_singleCore_notDefiningStructure_mandatory_dataNotPresent() {
 
     var form = new PipelineIdentDataForm();
-    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, (Object) null, PipelineCoreType.SINGLE_CORE, false);
+    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, (Object) null, PipelineCoreType.SINGLE_CORE, PipelineIdentDataValidationRule.AS_SECTION);
 
     assertThat(result).containsOnly(
         entry("componentPartsDescription", Set.of("componentPartsDescription.required")),

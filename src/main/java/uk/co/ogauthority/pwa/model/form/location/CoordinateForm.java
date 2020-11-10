@@ -88,6 +88,33 @@ public class CoordinateForm {
     this.longitudeDirection = longitudeDirection;
   }
 
+
+  public boolean compareFormLatitude(CoordinateForm coordinateForm) {
+    if (this == coordinateForm) {
+      return true;
+    }
+    if (coordinateForm == null || getClass() != coordinateForm.getClass()) {
+      return false;
+    }
+    return Objects.equals(latitudeDegrees, coordinateForm.latitudeDegrees)
+        && Objects.equals(latitudeMinutes, coordinateForm.latitudeMinutes)
+        && Objects.equals(latitudeSeconds, coordinateForm.latitudeSeconds)
+        && latitudeDirection == coordinateForm.latitudeDirection;
+  }
+
+  public boolean compareFormLongitude(CoordinateForm coordinateForm) {
+    if (this == coordinateForm) {
+      return true;
+    }
+    if (coordinateForm == null || getClass() != coordinateForm.getClass()) {
+      return false;
+    }
+    return Objects.equals(longitudeDegrees, coordinateForm.longitudeDegrees)
+        && Objects.equals(longitudeMinutes, coordinateForm.longitudeMinutes)
+        && Objects.equals(longitudeSeconds, coordinateForm.longitudeSeconds)
+        && longitudeDirection == coordinateForm.longitudeDirection;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -112,6 +139,7 @@ public class CoordinateForm {
     return Objects.hash(latitudeDegrees, latitudeMinutes, latitudeSeconds, latitudeDirection,
         longitudeDegrees, longitudeMinutes, longitudeSeconds, longitudeDirection);
   }
+
 }
 
 

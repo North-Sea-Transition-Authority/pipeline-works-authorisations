@@ -166,7 +166,7 @@ public class PipelineIdentFormValidatorTest {
   }
 
   @Test
-  public void fromCoordinatesNotEqualWithToCoordinates_definingStructure() {
+  public void fromLatitudeNotEqualWithToLatitude_definingStructure() {
 
     var form = buildForm();
     form.setDefiningStructure(true);
@@ -174,8 +174,31 @@ public class PipelineIdentFormValidatorTest {
     var result = ValidatorTestUtils.getFormValidationErrors(validator, form, (Object) null, PipelineCoreType.SINGLE_CORE);
 
     assertThat(result).contains(entry("fromCoordinateForm.latitudeDegrees", Set.of("fromCoordinateForm.latitudeDegrees.invalid")));
+    assertThat(result).contains(entry("fromCoordinateForm.latitudeMinutes", Set.of("fromCoordinateForm.latitudeMinutes.invalid")));
+    assertThat(result).contains(entry("fromCoordinateForm.latitudeSeconds", Set.of("fromCoordinateForm.latitudeSeconds.invalid")));
+    assertThat(result).contains(entry("toCoordinateForm.latitudeDegrees", Set.of("toCoordinateForm.latitudeDegrees.invalid")));
+    assertThat(result).contains(entry("toCoordinateForm.latitudeMinutes", Set.of("toCoordinateForm.latitudeMinutes.invalid")));
+    assertThat(result).contains(entry("toCoordinateForm.latitudeSeconds", Set.of("toCoordinateForm.latitudeSeconds.invalid")));
 
   }
+
+  @Test
+  public void fromLongitudeNotEqualWithToLongitude_definingStructure() {
+
+    var form = buildForm();
+    form.setDefiningStructure(true);
+
+    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, (Object) null, PipelineCoreType.SINGLE_CORE);
+
+    assertThat(result).contains(entry("fromCoordinateForm.longitudeDegrees", Set.of("fromCoordinateForm.longitudeDegrees.invalid")));
+    assertThat(result).contains(entry("fromCoordinateForm.longitudeMinutes", Set.of("fromCoordinateForm.longitudeMinutes.invalid")));
+    assertThat(result).contains(entry("fromCoordinateForm.longitudeSeconds", Set.of("fromCoordinateForm.longitudeSeconds.invalid")));
+    assertThat(result).contains(entry("toCoordinateForm.longitudeDegrees", Set.of("toCoordinateForm.longitudeDegrees.invalid")));
+    assertThat(result).contains(entry("toCoordinateForm.longitudeMinutes", Set.of("toCoordinateForm.longitudeMinutes.invalid")));
+    assertThat(result).contains(entry("toCoordinateForm.longitudeSeconds", Set.of("toCoordinateForm.longitudeSeconds.invalid")));
+
+  }
+
 
   @Test
   public void length_notPositive() {

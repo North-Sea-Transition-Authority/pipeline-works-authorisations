@@ -59,10 +59,40 @@ public class PipelineIdentFormValidator implements SmartValidator {
         PipelineValidationUtils.validateLength(form.getLengthOptional(), errors, "lengthOptional", "Ident length");
       }
 
-      if (form.getFromCoordinateForm() != null && !form.getFromCoordinateForm().equals(form.getToCoordinateForm())) {
+      if (form.getFromCoordinateForm() != null && !form.getFromCoordinateForm().compareFormLatitude(form.getToCoordinateForm())) {
         errors.rejectValue("fromCoordinateForm.latitudeDegrees",
             "fromCoordinateForm.latitudeDegrees" + FieldValidationErrorCodes.INVALID.getCode(),
-            "The start and finish ident co-ordinates must be the same.");
+            "The start point and end point latitudes must match when defining a structure");
+        errors.rejectValue("fromCoordinateForm.latitudeMinutes",
+            "fromCoordinateForm.latitudeMinutes" + FieldValidationErrorCodes.INVALID.getCode(), "");
+        errors.rejectValue("fromCoordinateForm.latitudeSeconds",
+            "fromCoordinateForm.latitudeSeconds" + FieldValidationErrorCodes.INVALID.getCode(), "");
+        errors.rejectValue("toCoordinateForm.latitudeDegrees",
+            "toCoordinateForm.latitudeDegrees" + FieldValidationErrorCodes.INVALID.getCode(),"");
+        errors.rejectValue("toCoordinateForm.latitudeMinutes",
+            "toCoordinateForm.latitudeMinutes" + FieldValidationErrorCodes.INVALID.getCode(), "");
+        errors.rejectValue("toCoordinateForm.latitudeSeconds",
+            "toCoordinateForm.latitudeSeconds" + FieldValidationErrorCodes.INVALID.getCode(), "");
+      }
+
+      if (form.getFromCoordinateForm() != null && !form.getFromCoordinateForm().compareFormLongitude(form.getToCoordinateForm())) {
+        errors.rejectValue("fromCoordinateForm.longitudeDegrees",
+            "fromCoordinateForm.longitudeDegrees" + FieldValidationErrorCodes.INVALID.getCode(),
+            "The start point and end point longitudes must match when defining a structure");
+        errors.rejectValue("fromCoordinateForm.longitudeMinutes",
+            "fromCoordinateForm.longitudeMinutes" + FieldValidationErrorCodes.INVALID.getCode(), "");
+        errors.rejectValue("fromCoordinateForm.longitudeSeconds",
+            "fromCoordinateForm.longitudeSeconds" + FieldValidationErrorCodes.INVALID.getCode(), "");
+        errors.rejectValue("fromCoordinateForm.longitudeDirection",
+            "fromCoordinateForm.longitudeDirection" + FieldValidationErrorCodes.INVALID.getCode(), "");
+        errors.rejectValue("toCoordinateForm.longitudeDegrees",
+            "toCoordinateForm.longitudeDegrees" + FieldValidationErrorCodes.INVALID.getCode(),"");
+        errors.rejectValue("toCoordinateForm.longitudeMinutes",
+            "toCoordinateForm.longitudeMinutes" + FieldValidationErrorCodes.INVALID.getCode(), "");
+        errors.rejectValue("toCoordinateForm.longitudeSeconds",
+            "toCoordinateForm.longitudeSeconds" + FieldValidationErrorCodes.INVALID.getCode(), "");
+        errors.rejectValue("toCoordinateForm.longitudeDirection",
+            "toCoordinateForm.longitudeDirection" + FieldValidationErrorCodes.INVALID.getCode(), "");
       }
 
       if (form.getFromLocation() != null && !form.getFromLocation().equals(form.getToLocation())) {
@@ -81,7 +111,13 @@ public class PipelineIdentFormValidator implements SmartValidator {
     }
 
     var coreType = (PipelineCoreType) validationHints[1];
-    ValidationUtils.invokeValidator(dataFormValidator, form.getDataForm(), errors, "dataForm", coreType, form.getDefiningStructure());
+    var definingStructureValidationRule = PipelineIdentDataValidationRule.UNKNOWN;
+    if (BooleanUtils.isTrue(form.getDefiningStructure())) {
+      definingStructureValidationRule = PipelineIdentDataValidationRule.AS_STRUCTURE;
+    } else if (BooleanUtils.isFalse(form.getDefiningStructure())) {
+      definingStructureValidationRule = PipelineIdentDataValidationRule.AS_SECTION;
+    }
+    ValidationUtils.invokeValidator(dataFormValidator, form.getDataForm(), errors, "dataForm", coreType, definingStructureValidationRule);
 
   }
 

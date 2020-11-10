@@ -161,20 +161,20 @@
 
         <@fdsDataItems.dataItem dataItemListClasses="fds-data-items-list--tight">
             <@fdsDataItems.dataValuesNumber smallNumber=true key="${identNumber}" value="Ident number"/>
-            <@fdsDataItems.dataValues key="Is this ident defining a structure?" value="${definingStructure!}"/>
             <@fdsDataItems.dataValues key="Length (${unitMeasurements.METRE.suffixDisplay})" value="${length!}"/>
             <@fdsDataItems.dataValues key="From (WGS 84)" value="${fromCoordinates}"/>
             <@fdsDataItems.dataValues key="To (WGS 84)" value="${toCoordinates}"/>
         </@fdsDataItems.dataItem>
 
         <@fdsDataItems.dataItem dataItemListClasses="fds-data-items-list--tight">
+            <@fdsDataItems.dataValues key="Is this ident defining a structure?" value="${definingStructure!}"/>
             <@fdsDataItems.dataValues key="External diameter (${unitMeasurements.MILLIMETRE.suffixDisplay})" value="${externalDiameter}" />
             <@fdsDataItems.dataValues key="Internal diameter (${unitMeasurements.MILLIMETRE.suffixDisplay})" value="${internalDiameter}"/>
             <@fdsDataItems.dataValues key="Wall thickness (${unitMeasurements.MILLIMETRE.suffixDisplay})" value="${wallThickness}" />
-            <@fdsDataItems.dataValues key="MAOP (${unitMeasurements.BAR_G.suffixDisplay})" value="${maop}" />
         </@fdsDataItems.dataItem>
 
         <@fdsDataItems.dataItem dataItemListClasses="fds-data-items-list--tight">
+            <@fdsDataItems.dataValues key="MAOP (${unitMeasurements.BAR_G.suffixDisplay})" value="${maop}" />
             <@fdsDataItems.dataValues key="Insulation / coating type" value="${insulationCoatingType}" />
             <@fdsDataItems.dataValues key="Products to be conveyed" value="${productsToBeConveyed}" />
         </@fdsDataItems.dataItem>

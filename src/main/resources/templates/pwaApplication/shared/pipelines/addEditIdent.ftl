@@ -78,11 +78,11 @@
             
             <@fdsRadio.radioGroup path="form.definingStructure" labelText="Is this ident defining a structure?" hiddenContent=true>
                 <@fdsRadio.radioYes path="form.definingStructure">       
-                    <@fdsTextInput.textInput path="form.lengthOptional" labelText="Length (m)" inputClass="govuk-input--width-5" optionalLabel=true nestingPath="form.definingStructure"/>                    
+                    <@fdsTextInput.textInput path="form.lengthOptional" labelText="Length" suffix="m" inputClass="govuk-input--width-5" optionalLabel=true nestingPath="form.definingStructure"/>                    
                 </@fdsRadio.radioYes>
 
                 <@fdsRadio.radioNo path="form.definingStructure">   
-                    <@fdsTextInput.textInput path="form.length" labelText="Length (m)" inputClass="govuk-input--width-5" nestingPath="form.definingStructure"/>                    
+                    <@fdsTextInput.textInput path="form.length" labelText="Length" suffix="m" inputClass="govuk-input--width-5" nestingPath="form.definingStructure"/>                    
                     <@identDataTextInput coreType=coreType textInputPath="form.dataForm.externalDiameter" textAreaPath="form.dataForm.externalDiameterMultiCore" labelText="External diameter" suffix="mm" suffixScreenReaderPrompt="mm" nestingPath="form.definingStructure"/>
                     <@identDataTextInput coreType=coreType textInputPath="form.dataForm.internalDiameter" textAreaPath="form.dataForm.internalDiameterMultiCore" nestingPath="form.definingStructure"
                      labelText="Internal diameter" suffix="mm" suffixScreenReaderPrompt="mm" multiCoreHintText="Provide for each of the cores" nestingPath="form.definingStructure"/>

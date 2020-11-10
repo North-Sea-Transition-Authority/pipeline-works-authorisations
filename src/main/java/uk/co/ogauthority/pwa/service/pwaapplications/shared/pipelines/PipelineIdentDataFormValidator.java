@@ -30,7 +30,7 @@ public class PipelineIdentDataFormValidator implements SmartValidator {
     var fieldPrefix = validationHints[0] != null ? validationHints[0] + "." : "";
     var form = (PipelineIdentDataForm) target;
     var coreType = (PipelineCoreType) validationHints[1];
-    var isDefiningStructure = (Boolean) validationHints[2];
+    var isDefiningStructure = (PipelineIdentDataValidationRule) validationHints[2];
 
 
     if (coreType.equals(PipelineCoreType.MULTI_CORE)) {
@@ -49,7 +49,7 @@ public class PipelineIdentDataFormValidator implements SmartValidator {
       ValidatorUtils.validateDefaultStringLength(
           errors, "productsToBeConveyedMultiCore", form::getProductsToBeConveyedMultiCore, "Products to be conveyed");
 
-      if (BooleanUtils.isFalse(isDefiningStructure)) {
+      if (isDefiningStructure.equals(PipelineIdentDataValidationRule.AS_SECTION)) {
         ValidationUtils.rejectIfEmptyOrWhitespace(errors, fieldPrefix + "externalDiameterMultiCore",
             "externalDiameterMultiCore" + FieldValidationErrorCodes.REQUIRED.getCode(),
             "Enter a description for the external diameter");
@@ -102,7 +102,7 @@ public class PipelineIdentDataFormValidator implements SmartValidator {
       ValidatorUtils.validateDefaultStringLength(
           errors, "componentPartsDescription", form::getComponentPartsDescription, "Description of component parts");
 
-      if (BooleanUtils.isFalse(isDefiningStructure)) {
+      if (isDefiningStructure.equals(PipelineIdentDataValidationRule.AS_SECTION)) {
 
         ValidationUtils.rejectIfEmptyOrWhitespace(errors, fieldPrefix + "externalDiameter",
             "externalDiameter" + FieldValidationErrorCodes.REQUIRED.getCode(), "Enter the external diameter");
