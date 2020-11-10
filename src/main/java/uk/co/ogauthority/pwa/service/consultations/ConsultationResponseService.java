@@ -20,12 +20,14 @@ import uk.co.ogauthority.pwa.model.form.consultation.ConsultationResponseForm;
 import uk.co.ogauthority.pwa.model.form.enums.ConsultationResponseOption;
 import uk.co.ogauthority.pwa.model.notify.emailproperties.ConsultationResponseReceivedEmailProps;
 import uk.co.ogauthority.pwa.model.tasklist.TaskListEntry;
+import uk.co.ogauthority.pwa.model.tasklist.TaskTag;
 import uk.co.ogauthority.pwa.repository.consultations.ConsultationResponseRepository;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupDetailService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.service.appprocessing.tasks.AppProcessingService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingTask;
+import uk.co.ogauthority.pwa.service.enums.appprocessing.TaskStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ConsultationRequestStatus;
 import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationConsultationWorkflowTask;
 import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationWorkflowTask;
@@ -185,7 +187,7 @@ public class ConsultationResponseService implements AppProcessingService {
     return new TaskListEntry(
         PwaAppProcessingTask.CONSULTATION_RESPONSE.getTaskName(),
         PwaAppProcessingTask.CONSULTATION_RESPONSE.getRoute(processingContext),
-        false,
+        TaskTag.from(TaskStatus.NOT_COMPLETED),
         PwaAppProcessingTask.CONSULTATION_RESPONSE.getDisplayOrder()
     );
 
