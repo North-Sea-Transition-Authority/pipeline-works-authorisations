@@ -50,6 +50,7 @@ public class ConsultationRequestService {
   private final CamundaWorkflowService camundaWorkflowService;
   private final TeamManagementService teamManagementService;
   private final ConsulteeGroupTeamService consulteeGroupTeamService;
+  private final ConsultationsStatusViewFactory consultationsStatusViewFactory;
   private final NotifyService notifyService;
   private final Clock clock;
   private final EmailCaseLinkService emailCaseLinkService;
@@ -62,6 +63,7 @@ public class ConsultationRequestService {
       CamundaWorkflowService camundaWorkflowService,
       TeamManagementService teamManagementService,
       ConsulteeGroupTeamService consulteeGroupTeamService,
+      ConsultationsStatusViewFactory consultationsStatusViewFactory,
       NotifyService notifyService,
       @Qualifier("utcClock") Clock clock,
       EmailCaseLinkService emailCaseLinkService) {
@@ -71,11 +73,11 @@ public class ConsultationRequestService {
     this.camundaWorkflowService = camundaWorkflowService;
     this.teamManagementService = teamManagementService;
     this.consulteeGroupTeamService = consulteeGroupTeamService;
+    this.consultationsStatusViewFactory = consultationsStatusViewFactory;
     this.notifyService = notifyService;
     this.clock = clock;
     this.emailCaseLinkService = emailCaseLinkService;
   }
-
 
 
   public List<ConsulteeGroupDetail> getConsulteeGroups(AuthenticatedUserAccount user) {
@@ -250,4 +252,9 @@ public class ConsultationRequestService {
         });
 
   }
+
+  public ApplicationConsultationStatusView getApplicationConsultationStatusView(PwaApplication pwaApplication) {
+    return consultationsStatusViewFactory.getApplicationStatusView(pwaApplication);
+  }
+
 }

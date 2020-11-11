@@ -60,18 +60,27 @@ public class ConsultationRequestServiceTest {
 
   @Mock
   private ConsultationRequestRepository consultationRequestRepository;
+
   @Mock
   private ConsulteeGroupDetailService consulteeGroupDetailService;
+
   @Mock
   CamundaWorkflowService camundaWorkflowService;
+
   @Mock
   private TeamManagementService teamManagementService;
+
   @Mock
   private ConsulteeGroupTeamService consulteeGroupTeamService;
+
   @Mock
   private NotifyService notifyService;
+
   @Mock
   private EmailCaseLinkService emailCaseLinkService;
+
+  @Mock
+  private ConsultationsStatusViewFactory consultationsStatusViewFactory;
 
   @Captor
   private ArgumentCaptor<ConsultationRequest> consultationRequestArgumentCaptor;
@@ -91,7 +100,7 @@ public class ConsultationRequestServiceTest {
     authenticatedUserAccount = new AuthenticatedUserAccount(webUserAccount, List.of());
     validator = new ConsultationRequestValidator();
     consultationRequestService = new ConsultationRequestService(consulteeGroupDetailService, consultationRequestRepository, validator, camundaWorkflowService,
-        teamManagementService, consulteeGroupTeamService, notifyService, clock, emailCaseLinkService);
+        teamManagementService, consulteeGroupTeamService, consultationsStatusViewFactory, notifyService, clock, emailCaseLinkService);
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL, 100);
   }
 
