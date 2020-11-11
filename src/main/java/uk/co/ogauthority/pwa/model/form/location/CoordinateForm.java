@@ -90,7 +90,7 @@ public class CoordinateForm {
 
 
   public boolean compareFormLatitude(CoordinateForm coordinateForm) {
-    if (this == coordinateForm) {
+    if (Objects.equals(this, coordinateForm)) {
       return true;
     }
     if (coordinateForm == null || getClass() != coordinateForm.getClass()) {
@@ -103,7 +103,7 @@ public class CoordinateForm {
   }
 
   public boolean compareFormLongitude(CoordinateForm coordinateForm) {
-    if (this == coordinateForm) {
+    if (Objects.equals(this, coordinateForm)) {
       return true;
     }
     if (coordinateForm == null || getClass() != coordinateForm.getClass()) {
