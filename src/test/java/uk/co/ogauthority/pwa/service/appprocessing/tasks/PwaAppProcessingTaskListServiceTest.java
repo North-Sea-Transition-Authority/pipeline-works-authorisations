@@ -90,6 +90,8 @@ public class PwaAppProcessingTaskListServiceTest {
             tuple(PwaAppProcessingTask.ACCEPT_APPLICATION.getTaskName(), PwaAppProcessingTask.ACCEPT_APPLICATION.getRoute(processingContext)),
             tuple(PwaAppProcessingTask.CASE_SETUP.getTaskName(), PwaAppProcessingTask.CASE_SETUP.getRoute(processingContext)),
             tuple(PwaAppProcessingTask.CONSULTATIONS.getTaskName(), PwaAppProcessingTask.CONSULTATIONS.getRoute(processingContext)),
+            // APPROVE_OPTIONS route has content based on independently tested specific conditions
+            tuple(PwaAppProcessingTask.APPROVE_OPTIONS.getTaskName(), null),
             tuple(PwaAppProcessingTask.PUBLIC_NOTICE.getTaskName(), PwaAppProcessingTask.PUBLIC_NOTICE.getRoute(processingContext)),
             tuple(PwaAppProcessingTask.DECISION.getTaskName(), PwaAppProcessingTask.DECISION.getRoute(processingContext)),
             tuple(PwaAppProcessingTask.ALLOCATE_RESPONDER.getTaskName(), PwaAppProcessingTask.ALLOCATE_RESPONDER.getRoute(processingContext)),
