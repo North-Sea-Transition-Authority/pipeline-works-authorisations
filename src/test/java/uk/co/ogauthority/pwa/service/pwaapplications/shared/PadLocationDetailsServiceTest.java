@@ -14,19 +14,19 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
-import javax.validation.Validation;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
 import uk.co.ogauthority.pwa.model.entity.devuk.DevukFacility;
 import uk.co.ogauthority.pwa.model.entity.devuk.PadFacility;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.enums.HseSafetyZone;
+import uk.co.ogauthority.pwa.model.entity.enums.LocationDetailsQuestion;
 import uk.co.ogauthority.pwa.model.entity.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
@@ -69,7 +69,6 @@ public class PadLocationDetailsServiceTest {
   @Mock
   private PadFileService padFileService;
 
-  private SpringValidatorAdapter groupValidator;
 
   private PadLocationDetailsService padLocationDetailsService;
   private PwaApplicationDetail pwaApplicationDetail;
@@ -78,14 +77,12 @@ public class PadLocationDetailsServiceTest {
 
   @Before
   public void setUp() {
-    groupValidator = new SpringValidatorAdapter(Validation.buildDefaultValidatorFactory().getValidator());
 
     padLocationDetailsService = new PadLocationDetailsService(
         padLocationDetailsRepository,
         facilityService,
         devukFacilityService,
         validator,
-        groupValidator,
         searchSelectorService,
         entityCopyingService,
         padFileService);
@@ -247,6 +244,24 @@ public class PadLocationDetailsServiceTest {
     assertThat(locationDetailsView.getWithinSafetyZone()).isEqualTo(HseSafetyZone.NO);
     assertThat(locationDetailsView.getFacilitiesIfYes()).isEmpty();
     assertThat(locationDetailsView.getFacilitiesIfPartially()).isEmpty();
+  }
+
+  @Test
+  public void getRequiredQuestions_depconAppType() {
+    var requiredQuestions = padLocationDetailsService.getRequiredQuestions(PwaApplicationType.DEPOSIT_CONSENT);
+    assertThat(requiredQuestions).containsOnly(
+        LocationDetailsQuestion.APPROXIMATE_PROJECT_LOCATION_FROM_SHORE,
+        LocationDetailsQuestion.WITHIN_SAFETY_ZONE
+    );
+  }
+
+  @Test
+  public void getRequiredQuestions_allAppTypesExceptDepcon() {
+    PwaApplicationType.stream().filter(appType -> !appType.equals(PwaApplicationType.DEPOSIT_CONSENT))
+      .forEach(appType -> {
+        var requiredQuestions = padLocationDetailsService.getRequiredQuestions(appType);
+        assertThat(requiredQuestions).containsAll(EnumSet.allOf(LocationDetailsQuestion.class));
+      });
   }
 
   @Test

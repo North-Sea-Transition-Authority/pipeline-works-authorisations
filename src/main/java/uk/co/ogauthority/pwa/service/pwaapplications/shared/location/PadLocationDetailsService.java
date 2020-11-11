@@ -1,7 +1,9 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.location;
 
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 import org.apache.commons.lang3.BooleanUtils;
@@ -11,11 +13,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
 import uk.co.ogauthority.pwa.model.entity.devuk.DevukFacility;
 import uk.co.ogauthority.pwa.model.entity.devuk.PadFacility;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.enums.HseSafetyZone;
+import uk.co.ogauthority.pwa.model.entity.enums.LocationDetailsQuestion;
 import uk.co.ogauthority.pwa.model.entity.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadLocationDetails;
@@ -33,7 +35,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSect
 import uk.co.ogauthority.pwa.service.search.SearchSelectorService;
 import uk.co.ogauthority.pwa.util.DateUtils;
 import uk.co.ogauthority.pwa.util.StreamUtils;
-import uk.co.ogauthority.pwa.util.validationgroups.PartialValidation;
+import uk.co.ogauthority.pwa.validators.LocationDetailsFormValidationHints;
 import uk.co.ogauthority.pwa.validators.LocationDetailsValidator;
 
 @Service
@@ -44,7 +46,6 @@ public class PadLocationDetailsService implements ApplicationFormSectionService 
   private final PadFacilityService padFacilityService;
   private final DevukFacilityService devukFacilityService;
   private final LocationDetailsValidator validator;
-  private final SpringValidatorAdapter groupValidator;
   private final SearchSelectorService searchSelectorService;
   private final EntityCopyingService entityCopyingService;
   private final PadFileService padFileService;
@@ -54,7 +55,6 @@ public class PadLocationDetailsService implements ApplicationFormSectionService 
                                    PadFacilityService padFacilityService,
                                    DevukFacilityService devukFacilityService,
                                    LocationDetailsValidator validator,
-                                   SpringValidatorAdapter groupValidator,
                                    SearchSelectorService searchSelectorService,
                                    EntityCopyingService entityCopyingService,
                                    PadFileService padFileService) {
@@ -62,7 +62,6 @@ public class PadLocationDetailsService implements ApplicationFormSectionService 
     this.padFacilityService = padFacilityService;
     this.devukFacilityService = devukFacilityService;
     this.validator = validator;
-    this.groupValidator = groupValidator;
     this.searchSelectorService = searchSelectorService;
     this.entityCopyingService = entityCopyingService;
     this.padFileService = padFileService;
@@ -171,6 +170,18 @@ public class PadLocationDetailsService implements ApplicationFormSectionService 
         .collect(Collectors.toList());
   }
 
+  public Set<LocationDetailsQuestion> getRequiredQuestions(PwaApplicationType pwaApplicationType) {
+
+    if (pwaApplicationType == PwaApplicationType.DEPOSIT_CONSENT) {
+      return Set.of(
+          LocationDetailsQuestion.APPROXIMATE_PROJECT_LOCATION_FROM_SHORE,
+          LocationDetailsQuestion.WITHIN_SAFETY_ZONE
+      );
+    }
+
+    return EnumSet.allOf(LocationDetailsQuestion.class);
+  }
+
   public Map<String, String> reapplyFacilitySelections(LocationDetailsForm form) {
     List<String> facilities = List.of();
     if (form.getWithinSafetyZone() == HseSafetyZone.PARTIALLY) {
@@ -222,7 +233,11 @@ public class PadLocationDetailsService implements ApplicationFormSectionService 
     }
 
     BindingResult bindingResult = new BeanPropertyBindingResult(locationDetailsForm, "form");
-    validator.validate(locationDetailsForm, bindingResult);
+    var validationHints = new LocationDetailsFormValidationHints(
+        ValidationType.FULL,
+        getRequiredQuestions(detail.getPwaApplicationType())
+    );
+    validator.validate(locationDetailsForm, bindingResult, validationHints);
 
     return !bindingResult.hasErrors();
 
@@ -234,16 +249,11 @@ public class PadLocationDetailsService implements ApplicationFormSectionService 
                                 ValidationType validationType,
                                 PwaApplicationDetail pwaApplicationDetail) {
 
-    if (validationType.equals(ValidationType.PARTIAL)) {
-      groupValidator.validate(form, bindingResult, PartialValidation.class);
-      validator.validatePartial(form, bindingResult);
-      return bindingResult;
-    }
+    var validationHints = new LocationDetailsFormValidationHints(
+        validationType, getRequiredQuestions(pwaApplicationDetail.getPwaApplicationType()));
 
-    groupValidator.validate(form, bindingResult, PartialValidation.class);
-    validator.validate(form, bindingResult);
+    validator.validate(form, bindingResult, validationHints);
     return bindingResult;
-
   }
 
   @Override

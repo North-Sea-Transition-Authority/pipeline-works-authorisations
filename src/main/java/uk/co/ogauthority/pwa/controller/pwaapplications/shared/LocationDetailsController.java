@@ -100,7 +100,8 @@ public class LocationDetailsController extends PwaApplicationDetailDataFileUploa
             .collect(
                 StreamUtils.toLinkedHashMap(facility -> facility.getId().toString(), DevukFacility::getFacilityName)))
         .addObject("facilityRestUrl",
-            SearchSelectorService.route(on(DevukRestController.class).searchFacilities(null)));
+            SearchSelectorService.route(on(DevukRestController.class).searchFacilities(null)))
+        .addObject("requiredQuestions", padLocationDetailsService.getRequiredQuestions(detail.getPwaApplicationType()));
 
     // Add preselection options in case validation fails
     if (form.getWithinSafetyZone() == HseSafetyZone.YES) {
