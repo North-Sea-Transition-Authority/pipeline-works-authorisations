@@ -31,22 +31,24 @@ public class IdentDiffableView {
   private final String productsToBeConveyed;
   private final String internalDiameter;
   private final String wallThickness;
+  private final Boolean definingStructure;
 
   private IdentDiffableView(Boolean connectedToNext,
-                           Boolean connectedToPrevious,
-                           CoordinatePair fromCoordinates,
-                           CoordinatePair toCoordinates,
-                           String fromLocation,
-                           String toLocation,
-                           Integer identNumber,
-                           String length,
-                           String componentPartsDescription,
-                           String externalDiameter,
-                           String insulationCoatingType,
-                           String maop,
-                           String productsToBeConveyed,
-                           String internalDiameter,
-                           String wallThickness) {
+                            Boolean connectedToPrevious,
+                            CoordinatePair fromCoordinates,
+                            CoordinatePair toCoordinates,
+                            String fromLocation,
+                            String toLocation,
+                            Integer identNumber,
+                            String length,
+                            String componentPartsDescription,
+                            String externalDiameter,
+                            String insulationCoatingType,
+                            String maop,
+                            String productsToBeConveyed,
+                            String internalDiameter,
+                            String wallThickness,
+                            Boolean definingStructure) {
     this.connectedToNext = connectedToNext;
     this.connectedToPrevious = connectedToPrevious;
     this.fromCoordinates = fromCoordinates;
@@ -62,6 +64,7 @@ public class IdentDiffableView {
     this.productsToBeConveyed = productsToBeConveyed;
     this.internalDiameter = internalDiameter;
     this.wallThickness = wallThickness;
+    this.definingStructure = definingStructure;
   }
 
 
@@ -110,8 +113,8 @@ public class IdentDiffableView {
         // Wall thickness
         identView.getPipelineCoreType().equals(PipelineCoreType.MULTI_CORE)
             ? identView.getWallThicknessMultiCore()
-            : StringDisplayUtils.formatDecimal2DpOrNull(identView.getWallThickness())
-    );
+            : StringDisplayUtils.formatDecimal2DpOrNull(identView.getWallThickness()),
+        identView.getDefiningStructure());
 
   }
   
@@ -174,5 +177,8 @@ public class IdentDiffableView {
   public String getWallThickness() {
     return wallThickness;
   }
-  
+
+  public Boolean getDefiningStructure() {
+    return definingStructure;
+  }
 }
