@@ -142,6 +142,7 @@
     <#local toLocation><@diffChanges.renderDiff identView.IdentDiffableView_toLocation /></#local>
 
     <#local identNumber><@diffChanges.renderDiff identView.IdentDiffableView_identNumber /></#local>
+    <#local definingStructure><@diffChanges.renderDiff identView.IdentDiffableView_definingStructure /></#local>
     <#local length><@diffChanges.renderDiff identView.IdentDiffableView_length /></#local>
     <#local fromCoordinates><@diffChanges.renderDiff diffedField=identView.IdentDiffableView_fromCoordinates multiLineTextBlockClass="fds-data-items-list" /></#local>
     <#local toCoordinates><@diffChanges.renderDiff diffedField=identView.IdentDiffableView_toCoordinates multiLineTextBlockClass="fds-data-items-list"/></#local>
@@ -166,13 +167,14 @@
         </@fdsDataItems.dataItem>
 
         <@fdsDataItems.dataItem dataItemListClasses="fds-data-items-list--tight">
+            <@fdsDataItems.dataValues key="Is this ident defining a structure?" value="${definingStructure!}"/>
             <@fdsDataItems.dataValues key="External diameter (${unitMeasurements.MILLIMETRE.suffixDisplay})" value="${externalDiameter}" />
             <@fdsDataItems.dataValues key="Internal diameter (${unitMeasurements.MILLIMETRE.suffixDisplay})" value="${internalDiameter}"/>
             <@fdsDataItems.dataValues key="Wall thickness (${unitMeasurements.MILLIMETRE.suffixDisplay})" value="${wallThickness}" />
-            <@fdsDataItems.dataValues key="MAOP (${unitMeasurements.BAR_G.suffixDisplay})" value="${maop}" />
         </@fdsDataItems.dataItem>
 
         <@fdsDataItems.dataItem dataItemListClasses="fds-data-items-list--tight">
+            <@fdsDataItems.dataValues key="MAOP (${unitMeasurements.BAR_G.suffixDisplay})" value="${maop}" />
             <@fdsDataItems.dataValues key="Insulation / coating type" value="${insulationCoatingType}" />
             <@fdsDataItems.dataValues key="Products to be conveyed" value="${productsToBeConveyed}" />
         </@fdsDataItems.dataItem>

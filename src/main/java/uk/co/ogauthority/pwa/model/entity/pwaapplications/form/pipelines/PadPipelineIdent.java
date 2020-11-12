@@ -96,6 +96,8 @@ public class PadPipelineIdent implements PipelineIdent, ChildEntity<Integer, Pad
 
   private BigDecimal length;
 
+  private Boolean isDefiningStructure;
+
   @Transient
   private CoordinatePair fromCoordinates;
 
@@ -146,6 +148,11 @@ public class PadPipelineIdent implements PipelineIdent, ChildEntity<Integer, Pad
   @Override
   public BigDecimal getLength() {
     return this.length;
+  }
+
+  @Override
+  public Boolean getIsDefiningStructure() {
+    return this.isDefiningStructure;
   }
 
   @Override
@@ -227,6 +234,10 @@ public class PadPipelineIdent implements PipelineIdent, ChildEntity<Integer, Pad
 
   public void setLength(BigDecimal length) {
     this.length = length;
+  }
+
+  public void setDefiningStructure(Boolean definingStructure) {
+    isDefiningStructure = definingStructure;
   }
 
   @Override

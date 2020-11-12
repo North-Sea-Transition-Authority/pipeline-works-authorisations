@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.transaction.Transactional;
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BeanPropertyBindingResult;
@@ -20,6 +21,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipe
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipelineIdent;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipelineIdentData;
 import uk.co.ogauthority.pwa.model.form.location.CoordinateForm;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.PipelineIdentDataForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.PipelineIdentForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.pipelines.PadPipelineIdentRepository;
@@ -212,14 +214,33 @@ public class PadPipelineIdentService {
     ident.setFromCoordinates(CoordinateUtils.coordinatePairFromForm(form.getFromCoordinateForm()));
     ident.setToLocation(form.getToLocation());
     ident.setToCoordinates(CoordinateUtils.coordinatePairFromForm(form.getToCoordinateForm()));
-    ident.setLength(form.getLength());
+    ident.setLength(form.getDefiningStructure() ? form.getLengthOptional() : form.getLength());
+    ident.setDefiningStructure(form.getDefiningStructure());
 
     padPipelineIdentRepository.save(ident);
 
+    var dataForm = form.getDataForm();
+    if (form.getDefiningStructure()) {
+      setNotDefiningStructureFieldsToBlank(dataForm);
+    }
+
     identDataService.getOptionalOfIdentData(ident)
         .ifPresentOrElse(
-            (padPipelineIdentData) -> identDataService.updateIdentData(ident, form.getDataForm()),
+            (padPipelineIdentData) -> identDataService.updateIdentData(ident, dataForm),
             () -> identDataService.addIdentData(ident, form.getDataForm()));
+  }
+
+  private void setNotDefiningStructureFieldsToBlank(PipelineIdentDataForm dataForm) {
+    dataForm.setExternalDiameter(null);
+    dataForm.setExternalDiameterMultiCore(null);
+    dataForm.setInternalDiameter(null);
+    dataForm.setInternalDiameterMultiCore(null);
+    dataForm.setInsulationCoatingType(null);
+    dataForm.setInsulationCoatingTypeMultiCore(null);
+    dataForm.setWallThickness(null);
+    dataForm.setWallThicknessMultiCore(null);
+    dataForm.setMaop(null);
+    dataForm.setMaopMultiCore(null);
   }
 
   public void mapEntityToForm(PadPipelineIdent ident, PipelineIdentForm form) {
@@ -231,8 +252,13 @@ public class PadPipelineIdentService {
     form.setFromCoordinateForm(fromForm);
     form.setToCoordinateForm(toForm);
     form.setFromLocation(ident.getFromLocation());
-    form.setLength(ident.getLength());
     form.setToLocation(ident.getToLocation());
+    form.setDefiningStructure(ident.getIsDefiningStructure());
+    if (BooleanUtils.isTrue(ident.getIsDefiningStructure())) {
+      form.setLengthOptional(ident.getLength());
+    } else {
+      form.setLength(ident.getLength());
+    }
     var dataForm = identDataService.getDataFormOfIdent(ident);
     form.setDataForm(dataForm);
   }
