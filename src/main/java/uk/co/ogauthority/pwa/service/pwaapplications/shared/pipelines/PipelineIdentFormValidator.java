@@ -59,40 +59,44 @@ public class PipelineIdentFormValidator implements SmartValidator {
         PipelineValidationUtils.validateLength(form.getLengthOptional(), errors, "lengthOptional", "Ident length");
       }
 
-      if (form.getFromCoordinateForm() != null && !form.getFromCoordinateForm().compareFormLatitude(form.getToCoordinateForm())) {
-        errors.rejectValue("fromCoordinateForm.latitudeDegrees",
-            "fromCoordinateForm.latitudeDegrees" + FieldValidationErrorCodes.INVALID.getCode(),
-            "The start point and end point latitudes must match when defining a structure");
-        errors.rejectValue("fromCoordinateForm.latitudeMinutes",
-            "fromCoordinateForm.latitudeMinutes" + FieldValidationErrorCodes.INVALID.getCode(), "");
-        errors.rejectValue("fromCoordinateForm.latitudeSeconds",
-            "fromCoordinateForm.latitudeSeconds" + FieldValidationErrorCodes.INVALID.getCode(), "");
-        errors.rejectValue("toCoordinateForm.latitudeDegrees",
-            "toCoordinateForm.latitudeDegrees" + FieldValidationErrorCodes.INVALID.getCode(),"");
-        errors.rejectValue("toCoordinateForm.latitudeMinutes",
-            "toCoordinateForm.latitudeMinutes" + FieldValidationErrorCodes.INVALID.getCode(), "");
-        errors.rejectValue("toCoordinateForm.latitudeSeconds",
-            "toCoordinateForm.latitudeSeconds" + FieldValidationErrorCodes.INVALID.getCode(), "");
-      }
+      if (form.getFromCoordinateForm() != null && form.getFromCoordinateForm().areAllFieldsNotNull()
+          && form.getToCoordinateForm() != null && form.getToCoordinateForm().areAllFieldsNotNull()) {
 
-      if (form.getFromCoordinateForm() != null && !form.getFromCoordinateForm().compareFormLongitude(form.getToCoordinateForm())) {
-        errors.rejectValue("fromCoordinateForm.longitudeDegrees",
-            "fromCoordinateForm.longitudeDegrees" + FieldValidationErrorCodes.INVALID.getCode(),
-            "The start point and end point longitudes must match when defining a structure");
-        errors.rejectValue("fromCoordinateForm.longitudeMinutes",
-            "fromCoordinateForm.longitudeMinutes" + FieldValidationErrorCodes.INVALID.getCode(), "");
-        errors.rejectValue("fromCoordinateForm.longitudeSeconds",
-            "fromCoordinateForm.longitudeSeconds" + FieldValidationErrorCodes.INVALID.getCode(), "");
-        errors.rejectValue("fromCoordinateForm.longitudeDirection",
-            "fromCoordinateForm.longitudeDirection" + FieldValidationErrorCodes.INVALID.getCode(), "");
-        errors.rejectValue("toCoordinateForm.longitudeDegrees",
-            "toCoordinateForm.longitudeDegrees" + FieldValidationErrorCodes.INVALID.getCode(),"");
-        errors.rejectValue("toCoordinateForm.longitudeMinutes",
-            "toCoordinateForm.longitudeMinutes" + FieldValidationErrorCodes.INVALID.getCode(), "");
-        errors.rejectValue("toCoordinateForm.longitudeSeconds",
-            "toCoordinateForm.longitudeSeconds" + FieldValidationErrorCodes.INVALID.getCode(), "");
-        errors.rejectValue("toCoordinateForm.longitudeDirection",
-            "toCoordinateForm.longitudeDirection" + FieldValidationErrorCodes.INVALID.getCode(), "");
+        if (!form.getFromCoordinateForm().compareFormLatitude(form.getToCoordinateForm())) {
+          errors.rejectValue("fromCoordinateForm.latitudeDegrees",
+              "fromCoordinateForm.latitudeDegrees" + FieldValidationErrorCodes.INVALID.getCode(),
+              "The start point and end point latitudes must match when defining a structure");
+          errors.rejectValue("fromCoordinateForm.latitudeMinutes",
+              "fromCoordinateForm.latitudeMinutes" + FieldValidationErrorCodes.INVALID.getCode(), "");
+          errors.rejectValue("fromCoordinateForm.latitudeSeconds",
+              "fromCoordinateForm.latitudeSeconds" + FieldValidationErrorCodes.INVALID.getCode(), "");
+          errors.rejectValue("toCoordinateForm.latitudeDegrees",
+              "toCoordinateForm.latitudeDegrees" + FieldValidationErrorCodes.INVALID.getCode(), "");
+          errors.rejectValue("toCoordinateForm.latitudeMinutes",
+              "toCoordinateForm.latitudeMinutes" + FieldValidationErrorCodes.INVALID.getCode(), "");
+          errors.rejectValue("toCoordinateForm.latitudeSeconds",
+              "toCoordinateForm.latitudeSeconds" + FieldValidationErrorCodes.INVALID.getCode(), "");
+        }
+
+        if (!form.getFromCoordinateForm().compareFormLongitude(form.getToCoordinateForm())) {
+          errors.rejectValue("fromCoordinateForm.longitudeDegrees",
+              "fromCoordinateForm.longitudeDegrees" + FieldValidationErrorCodes.INVALID.getCode(),
+              "The start point and end point longitudes must match when defining a structure");
+          errors.rejectValue("fromCoordinateForm.longitudeMinutes",
+              "fromCoordinateForm.longitudeMinutes" + FieldValidationErrorCodes.INVALID.getCode(), "");
+          errors.rejectValue("fromCoordinateForm.longitudeSeconds",
+              "fromCoordinateForm.longitudeSeconds" + FieldValidationErrorCodes.INVALID.getCode(), "");
+          errors.rejectValue("fromCoordinateForm.longitudeDirection",
+              "fromCoordinateForm.longitudeDirection" + FieldValidationErrorCodes.INVALID.getCode(), "");
+          errors.rejectValue("toCoordinateForm.longitudeDegrees",
+              "toCoordinateForm.longitudeDegrees" + FieldValidationErrorCodes.INVALID.getCode(), "");
+          errors.rejectValue("toCoordinateForm.longitudeMinutes",
+              "toCoordinateForm.longitudeMinutes" + FieldValidationErrorCodes.INVALID.getCode(), "");
+          errors.rejectValue("toCoordinateForm.longitudeSeconds",
+              "toCoordinateForm.longitudeSeconds" + FieldValidationErrorCodes.INVALID.getCode(), "");
+          errors.rejectValue("toCoordinateForm.longitudeDirection",
+              "toCoordinateForm.longitudeDirection" + FieldValidationErrorCodes.INVALID.getCode(), "");
+        }
       }
 
       if (form.getFromLocation() != null && !form.getFromLocation().equals(form.getToLocation())) {

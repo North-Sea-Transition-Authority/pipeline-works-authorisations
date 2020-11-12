@@ -166,6 +166,24 @@ public class PipelineIdentFormValidatorTest {
   }
 
   @Test
+  public void fromLatitudeNotEqualWithToLatitude_definingStructure_noEqualityErrorWhenCoordinatesInvalid() {
+
+    var form = buildForm();
+    form.setDefiningStructure(true);
+    form.getFromCoordinateForm().setLatitudeDegrees(null);
+
+    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, (Object) null, PipelineCoreType.SINGLE_CORE);
+
+    assertThat(result).doesNotContain(
+        entry("fromCoordinateForm.latitudeDegrees", Set.of("fromCoordinateForm.latitudeDegrees.invalid")),
+        entry("fromCoordinateForm.latitudeMinutes", Set.of("fromCoordinateForm.latitudeMinutes.invalid")),
+        entry("fromCoordinateForm.latitudeSeconds", Set.of("fromCoordinateForm.latitudeSeconds.invalid")),
+        entry("toCoordinateForm.latitudeDegrees", Set.of("toCoordinateForm.latitudeDegrees.invalid")),
+        entry("toCoordinateForm.latitudeMinutes", Set.of("toCoordinateForm.latitudeMinutes.invalid")),
+        entry("toCoordinateForm.latitudeSeconds", Set.of("toCoordinateForm.latitudeSeconds.invalid")));
+  }
+
+  @Test
   public void fromLatitudeNotEqualWithToLatitude_definingStructure() {
 
     var form = buildForm();
@@ -180,6 +198,24 @@ public class PipelineIdentFormValidatorTest {
     assertThat(result).contains(entry("toCoordinateForm.latitudeMinutes", Set.of("toCoordinateForm.latitudeMinutes.invalid")));
     assertThat(result).contains(entry("toCoordinateForm.latitudeSeconds", Set.of("toCoordinateForm.latitudeSeconds.invalid")));
 
+  }
+
+  @Test
+  public void fromLongitudeNotEqualWithToLongitude_definingStructure_noEqualityErrorWhenCoordinatesInvalid() {
+
+    var form = buildForm();
+    form.setDefiningStructure(true);
+    form.getFromCoordinateForm().setLongitudeDegrees(null);
+
+    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, (Object) null, PipelineCoreType.SINGLE_CORE);
+
+    assertThat(result).doesNotContain(
+        entry("fromCoordinateForm.longitudeDegrees", Set.of("fromCoordinateForm.longitudeDegrees.invalid")),
+        entry("fromCoordinateForm.longitudeMinutes", Set.of("fromCoordinateForm.longitudeMinutes.invalid")),
+        entry("fromCoordinateForm.longitudeSeconds", Set.of("fromCoordinateForm.longitudeSeconds.invalid")),
+        entry("toCoordinateForm.longitudeDegrees", Set.of("toCoordinateForm.longitudeDegrees.invalid")),
+        entry("toCoordinateForm.longitudeMinutes", Set.of("toCoordinateForm.longitudeMinutes.invalid")),
+        entry("toCoordinateForm.longitudeSeconds", Set.of("toCoordinateForm.longitudeSeconds.invalid")));
   }
 
   @Test

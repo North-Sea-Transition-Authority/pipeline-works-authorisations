@@ -88,6 +88,16 @@ public class CoordinateForm {
     this.longitudeDirection = longitudeDirection;
   }
 
+  public boolean areAllFieldsNotNull() {
+    return latitudeDegrees != null
+        && latitudeMinutes != null
+        && latitudeSeconds != null
+        && longitudeDegrees != null
+        && longitudeMinutes != null
+        && longitudeSeconds != null
+        && longitudeDirection != null;
+  }
+
 
   public boolean compareFormLatitude(CoordinateForm coordinateForm) {
     if (Objects.equals(this, coordinateForm)) {
