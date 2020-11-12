@@ -310,7 +310,7 @@ public class PwaAppProcessingContextServiceTest {
 
     var context = contextService.validateAndCreate(builder);
 
-    assertThat(context.getActiveConsultationRequest()).isEqualTo(dto);
+    assertThat(context.getActiveConsultationRequest()).contains(dto);
 
   }
 
@@ -323,7 +323,7 @@ public class PwaAppProcessingContextServiceTest {
 
     var context = contextService.validateAndCreate(builder);
 
-    assertThat(context.getActiveConsultationRequest()).isNull();
+    assertThat(context.getActiveConsultationRequest()).isEmpty();
 
   }
 
@@ -336,7 +336,7 @@ public class PwaAppProcessingContextServiceTest {
 
     var context = contextService.validateAndCreate(builder);
 
-    assertThat(context.getActiveConsultationRequest()).isNull();
+    assertThat(context.getActiveConsultationRequest()).isEmpty();
 
   }
 

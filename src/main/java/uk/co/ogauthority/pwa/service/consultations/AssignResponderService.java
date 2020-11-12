@@ -14,10 +14,14 @@ import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
 import uk.co.ogauthority.pwa.model.form.consultation.AssignResponderForm;
 import uk.co.ogauthority.pwa.model.notify.emailproperties.ConsultationAssignedToYouEmailProps;
+import uk.co.ogauthority.pwa.model.tasklist.TaskListEntry;
+import uk.co.ogauthority.pwa.model.tasklist.TaskTag;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupTeamService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.service.appprocessing.tasks.AppProcessingService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
+import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingTask;
+import uk.co.ogauthority.pwa.service.enums.appprocessing.TaskStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ConsultationRequestStatus;
 import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationConsultationWorkflowTask;
 import uk.co.ogauthority.pwa.service.notify.NotifyService;
@@ -40,14 +44,13 @@ public class AssignResponderService implements AppProcessingService {
   private final NotifyService notifyService;
 
   @Autowired
-  public AssignResponderService(
-      WorkflowAssignmentService workflowAssignmentService,
-      AssignResponderValidator assignResponderValidator,
-      ConsulteeGroupTeamService consulteeGroupTeamService,
-      TeamManagementService teamManagementService,
-      CamundaWorkflowService camundaWorkflowService,
-      ConsultationRequestService consultationRequestService,
-      NotifyService notifyService) {
+  public AssignResponderService(WorkflowAssignmentService workflowAssignmentService,
+                                AssignResponderValidator assignResponderValidator,
+                                ConsulteeGroupTeamService consulteeGroupTeamService,
+                                TeamManagementService teamManagementService,
+                                CamundaWorkflowService camundaWorkflowService,
+                                ConsultationRequestService consultationRequestService,
+                                NotifyService notifyService) {
     this.workflowAssignmentService = workflowAssignmentService;
     this.assignResponderValidator = assignResponderValidator;
     this.consulteeGroupTeamService = consulteeGroupTeamService;
@@ -56,7 +59,6 @@ public class AssignResponderService implements AppProcessingService {
     this.consultationRequestService = consultationRequestService;
     this.notifyService = notifyService;
   }
-
 
   public List<Person> getAllRespondersForRequest(ConsultationRequest consultationRequest) {
     return workflowAssignmentService.getAssignmentCandidates(consultationRequest,
@@ -137,7 +139,30 @@ public class AssignResponderService implements AppProcessingService {
   @Override
   public boolean canShowInTaskList(PwaAppProcessingContext processingContext) {
     return processingContext.getAppProcessingPermissions().contains(PwaAppProcessingPermission.ASSIGN_RESPONDER)
-        && processingContext.getActiveConsultationRequest() != null;
+        && processingContext.getActiveConsultationRequest().isPresent();
   }
 
+  @Override
+  public TaskListEntry getTaskListEntry(PwaAppProcessingTask task, PwaAppProcessingContext processingContext) {
+
+    var request = processingContext.getActiveConsultationRequestOrThrow().getConsultationRequest();
+
+    var assignedPerson = camundaWorkflowService
+        .getAllActiveWorkflowTasks(request)
+        .stream()
+        .findFirst()
+        .flatMap(workflowAssignmentService::getAssignee)
+        .orElse(null);
+
+    var taskTag = assignedPerson != null
+        ? new TaskTag(assignedPerson.getFullName(), "govuk-tag--purple")
+        : TaskTag.from(TaskStatus.NOT_COMPLETED);
+
+    return new TaskListEntry(
+        task.getTaskName(),
+        task.getRoute(processingContext),
+        taskTag,
+        task.getDisplayOrder());
+
+  }
 }

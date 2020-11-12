@@ -8,6 +8,7 @@ import uk.co.ogauthority.pwa.exception.ActionAlreadyPerformedException;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.notify.emailproperties.CaseOfficerAssignedEmailProps;
 import uk.co.ogauthority.pwa.model.tasklist.TaskListEntry;
+import uk.co.ogauthority.pwa.model.tasklist.TaskTag;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.service.appprocessing.tasks.AppProcessingService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
@@ -101,7 +102,7 @@ public class InitialReviewService implements AppProcessingService {
     return new TaskListEntry(
         task.getTaskName(),
         task.getRoute(processingContext),
-        taskStatus,
+        TaskTag.from(taskStatus),
         task.getDisplayOrder());
 
   }

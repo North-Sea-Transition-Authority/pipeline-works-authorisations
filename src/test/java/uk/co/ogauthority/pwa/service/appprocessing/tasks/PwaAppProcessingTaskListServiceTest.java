@@ -4,6 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 
 import java.util.EnumSet;
+import javax.persistence.EntityManager;
+import javax.transaction.Transactional;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -41,6 +43,9 @@ public class PwaAppProcessingTaskListServiceTest {
   @Autowired
   private PwaAppProcessingTaskListService taskListService;
 
+  @Autowired
+  private EntityManager entityManager;
+
   private PwaApplicationDetail pwaApplicationDetail;
 
   private PwaAppProcessingContext processingContext;
@@ -50,12 +55,15 @@ public class PwaAppProcessingTaskListServiceTest {
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
 
+    var request = new ConsultationRequest();
+    entityManager.persist(request);
+
     processingContext = new PwaAppProcessingContext(
         pwaApplicationDetail,
         null,
         EnumSet.allOf(PwaAppProcessingPermission.class),
         null,
-        new ConsultationRequestDto("name", new ConsultationRequest())
+        new ConsultationRequestDto("name", request)
     );
 
     taskListService = new PwaAppProcessingTaskListService(processingTaskService);
@@ -63,6 +71,7 @@ public class PwaAppProcessingTaskListServiceTest {
   }
 
   @Test
+  @Transactional
   public void getTaskListGroups() {
 
     var taskListGroups = taskListService.getTaskListGroups(processingContext);
@@ -99,7 +108,11 @@ public class PwaAppProcessingTaskListServiceTest {
   }
 
   @Test
+  @Transactional
   public void getTaskListGroups_noOptional() {
+
+    var request = new ConsultationRequest();
+    entityManager.persist(request);
 
     processingContext = new PwaAppProcessingContext(
         pwaApplicationDetail,
@@ -109,7 +122,7 @@ public class PwaAppProcessingTaskListServiceTest {
         PwaAppProcessingPermission.ASSIGN_RESPONDER,
         PwaAppProcessingPermission.CONSULTATION_RESPONDER),
         null,
-        new ConsultationRequestDto("name", new ConsultationRequest())
+        new ConsultationRequestDto("name", request)
     );
 
     var taskListGroups = taskListService.getTaskListGroups(processingContext);

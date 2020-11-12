@@ -7,8 +7,13 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
+import uk.co.ogauthority.pwa.model.tasklist.TaskTag;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
+import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingTask;
+import uk.co.ogauthority.pwa.service.enums.appprocessing.TaskStatus;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CaseSetupServiceTest {
@@ -41,6 +46,22 @@ public class CaseSetupServiceTest {
     boolean canShow = caseSetupService.canShowInTaskList(processingContext);
 
     assertThat(canShow).isFalse();
+
+  }
+
+  @Test
+  public void getTaskListEntry_caseSetup_notCompleted() {
+
+    var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
+
+    var processingContext = new PwaAppProcessingContext(detail, null, Set.of(), null, null);
+
+    var taskListEntry = caseSetupService.getTaskListEntry(PwaAppProcessingTask.CASE_SETUP, processingContext);
+
+    assertThat(taskListEntry.getTaskName()).isEqualTo(PwaAppProcessingTask.CASE_SETUP.getTaskName());
+    assertThat(taskListEntry.getRoute()).isEqualTo(PwaAppProcessingTask.CASE_SETUP.getRoute(processingContext));
+    assertThat(taskListEntry.getTaskTag()).isEqualTo(TaskTag.from(TaskStatus.NOT_COMPLETED));
+    assertThat(taskListEntry.getTaskInfoList()).isEmpty();
 
   }
 

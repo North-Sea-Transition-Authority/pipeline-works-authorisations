@@ -72,7 +72,7 @@ public class AssignResponderController {
 
     return withAccessibleConsultation(processingContext, consultationRequestId, () -> {
 
-      var consultationRequest = processingContext.getActiveConsultationRequest().getConsultationRequest();
+      var consultationRequest = processingContext.getActiveConsultationRequestOrThrow().getConsultationRequest();
 
       var validatedBindingResult = assignResponderService.validate(form, bindingResult, consultationRequest);
 
@@ -107,15 +107,16 @@ public class AssignResponderController {
 
   private ModelAndView getAssignResponderModelAndView(PwaAppProcessingContext processingContext) {
 
-    var request = processingContext.getActiveConsultationRequest().getConsultationRequest();
-    var responders = assignResponderService.getAllRespondersForRequest(request).stream()
+    var requestDto = processingContext.getActiveConsultationRequestOrThrow();
+
+    var responders = assignResponderService.getAllRespondersForRequest(requestDto.getConsultationRequest()).stream()
         .collect(StreamUtils.toLinkedHashMap(person -> String.valueOf(person.getId().asInt()), Person::getFullName));
 
     var modelAndView = new ModelAndView("consultation/responses/assignResponder")
         .addObject("responders", responders)
         .addObject("cancelUrl", CaseManagementUtils.routeCaseManagement(processingContext.getPwaApplication()))
         .addObject("caseSummaryView", processingContext.getCaseSummaryView())
-        .addObject("consulteeGroupName", processingContext.getActiveConsultationRequest().getConsulteeGroupName());
+        .addObject("consulteeGroupName", requestDto.getConsulteeGroupName());
 
     breadcrumbService.fromCaseManagement(processingContext.getPwaApplication(), modelAndView, "Assign responder");
 

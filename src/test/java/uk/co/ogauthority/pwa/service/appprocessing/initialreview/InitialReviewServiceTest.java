@@ -25,6 +25,7 @@ import uk.co.ogauthority.pwa.exception.WorkflowAssignmentException;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.notify.emailproperties.EmailProperties;
+import uk.co.ogauthority.pwa.model.tasklist.TaskTag;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingTask;
@@ -195,7 +196,7 @@ public class InitialReviewServiceTest {
 
     assertThat(taskListEntry.getTaskName()).isEqualTo(PwaAppProcessingTask.INITIAL_REVIEW.getTaskName());
     assertThat(taskListEntry.getRoute()).isEqualTo(PwaAppProcessingTask.INITIAL_REVIEW.getRoute(processingContext));
-    assertThat(taskListEntry.getTaskStatus()).isEqualTo(TaskStatus.COMPLETED);
+    assertThat(taskListEntry.getTaskTag()).isEqualTo(TaskTag.from(TaskStatus.COMPLETED));
     assertThat(taskListEntry.getTaskInfoList()).isEmpty();
 
   }
@@ -211,7 +212,7 @@ public class InitialReviewServiceTest {
 
     assertThat(taskListEntry.getTaskName()).isEqualTo(PwaAppProcessingTask.INITIAL_REVIEW.getTaskName());
     assertThat(taskListEntry.getRoute()).isEqualTo(PwaAppProcessingTask.INITIAL_REVIEW.getRoute(processingContext));
-    assertThat(taskListEntry.getTaskStatus()).isEqualTo(TaskStatus.NOT_COMPLETED);
+    assertThat(taskListEntry.getTaskTag()).isEqualTo(TaskTag.from(TaskStatus.NOT_COMPLETED));
     assertThat(taskListEntry.getTaskInfoList()).isEmpty();
 
   }
