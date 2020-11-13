@@ -127,7 +127,7 @@ public class ApproveOptionsService implements AppProcessingService {
     } else if (taskAccessible && !optionsApproved) {
       taskStatus = TaskStatus.NOT_COMPLETED;
     } else {
-      taskStatus = TaskStatus.LOCKED;
+      taskStatus = TaskStatus.CANNOT_START_YET;
     }
 
     String route;
