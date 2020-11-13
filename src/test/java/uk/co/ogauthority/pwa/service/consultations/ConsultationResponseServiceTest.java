@@ -28,7 +28,6 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.exception.WorkflowAssignmentException;
-import uk.co.ogauthority.pwa.model.dto.consultations.ConsultationRequestDto;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupDetail;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationResponse;
@@ -52,6 +51,7 @@ import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
 import uk.co.ogauthority.pwa.service.workflow.assignment.WorkflowAssignmentService;
 import uk.co.ogauthority.pwa.service.workflow.task.WorkflowTaskInstance;
 import uk.co.ogauthority.pwa.testutils.ConsulteeGroupTestingUtils;
+import uk.co.ogauthority.pwa.testutils.PwaAppProcessingContextDtoTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.validators.consultations.ConsultationResponseValidator;
 
@@ -289,8 +289,12 @@ public class ConsultationResponseServiceTest {
     var request = new ConsultationRequest();
     when(consultationResponseRepository.findByConsultationRequest(request)).thenReturn(Optional.empty());
 
-    var processingContext = new PwaAppProcessingContext(null, null, Set.of(PwaAppProcessingPermission.CONSULTATION_RESPONDER), null,
-        new ConsultationRequestDto("name", request));
+    var processingContext = new PwaAppProcessingContext(
+        null,
+        null,
+        Set.of(PwaAppProcessingPermission.CONSULTATION_RESPONDER),
+        null,
+        PwaAppProcessingContextDtoTestUtils.appInvolvementWithConsultationRequest("name", request));
 
     boolean canShow = consultationResponseService.canShowInTaskList(processingContext);
 
@@ -306,8 +310,12 @@ public class ConsultationResponseServiceTest {
     response.setConsultationRequest(request);
     when(consultationResponseRepository.findByConsultationRequest(request)).thenReturn(Optional.of(response));
 
-    var processingContext = new PwaAppProcessingContext(null, null, Set.of(PwaAppProcessingPermission.CONSULTATION_RESPONDER), null,
-        new ConsultationRequestDto("name", request));
+    var processingContext = new PwaAppProcessingContext(
+        null,
+        null,
+        Set.of(PwaAppProcessingPermission.CONSULTATION_RESPONDER),
+        null,
+        PwaAppProcessingContextDtoTestUtils.appInvolvementWithConsultationRequest("name", request));
 
     boolean canShow = consultationResponseService.canShowInTaskList(processingContext);
 
@@ -318,8 +326,12 @@ public class ConsultationResponseServiceTest {
   @Test
   public void canShowInTaskList_caseOfficer() {
 
-    var processingContext = new PwaAppProcessingContext(null, null, Set.of(PwaAppProcessingPermission.CASE_OFFICER_REVIEW), null,
-        null);
+    var processingContext = new PwaAppProcessingContext(
+        null,
+        null,
+        Set.of(PwaAppProcessingPermission.CASE_OFFICER_REVIEW),
+        null,
+        PwaAppProcessingContextDtoTestUtils.appInvolvementWithConsultationRequest("group", new ConsultationRequest()));
 
     boolean canShow = consultationResponseService.canShowInTaskList(processingContext);
 
@@ -330,8 +342,12 @@ public class ConsultationResponseServiceTest {
   @Test
   public void canShowInTaskList_industry() {
 
-    var processingContext = new PwaAppProcessingContext(null, null, Set.of(PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY), null,
-        null);
+    var processingContext = new PwaAppProcessingContext(
+        null,
+        null,
+        Set.of(PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY),
+        null,
+        PwaAppProcessingContextDtoTestUtils.appInvolvementWithConsultationRequest("group", new ConsultationRequest()));
 
     boolean canShow = consultationResponseService.canShowInTaskList(processingContext);
 
@@ -343,7 +359,12 @@ public class ConsultationResponseServiceTest {
   public void getTaskListEntry() {
 
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
-    var processingContext = new PwaAppProcessingContext(detail, null, Set.of(), null, null);
+    var processingContext = new PwaAppProcessingContext(
+        detail,
+        null,
+        Set.of(),
+        null,
+        PwaAppProcessingContextDtoTestUtils.appInvolvementWithConsultationRequest("group", new ConsultationRequest()));
 
     var taskListEntry = consultationResponseService.getTaskListEntry(PwaAppProcessingTask.CONSULTATION_RESPONSE, processingContext);
 

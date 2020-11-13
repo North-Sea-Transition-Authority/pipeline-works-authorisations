@@ -27,7 +27,8 @@ import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
-import uk.co.ogauthority.pwa.model.dto.consultations.ConsultationRequestDto;
+import uk.co.ogauthority.pwa.model.dto.appprocessing.ApplicationInvolvementDto;
+import uk.co.ogauthority.pwa.model.dto.appprocessing.ConsultationInvolvementDto;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroup;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupMemberRole;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupTeamMember;
@@ -49,6 +50,7 @@ import uk.co.ogauthority.pwa.service.teammanagement.TeamManagementService;
 import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
 import uk.co.ogauthority.pwa.service.workflow.assignment.WorkflowAssignmentService;
 import uk.co.ogauthority.pwa.service.workflow.task.WorkflowTaskInstance;
+import uk.co.ogauthority.pwa.testutils.PwaAppProcessingContextDtoTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.util.DateUtils;
 import uk.co.ogauthority.pwa.validators.consultations.AssignResponderValidationHints;
@@ -357,8 +359,12 @@ public class AssignResponderServiceTest {
   @Test
   public void canShowInTaskList_hasPermission_noActiveConsultation_notShown() {
 
-    var processingContext = new PwaAppProcessingContext(null, null, Set.of(PwaAppProcessingPermission.ASSIGN_RESPONDER), null,
-        null);
+    var processingContext = new PwaAppProcessingContext(
+        null,
+        null,
+        Set.of(PwaAppProcessingPermission.ASSIGN_RESPONDER),
+        null,
+        new ApplicationInvolvementDto(null, Set.of(), new ConsultationInvolvementDto(null, Set.of(), null, List.of(), false), false));
 
     boolean canShow = assignResponderService.canShowInTaskList(processingContext);
 
@@ -369,8 +375,12 @@ public class AssignResponderServiceTest {
   @Test
   public void canShowInTaskList_hasPermission_activeConsultation_shown() {
 
-    var processingContext = new PwaAppProcessingContext(null, null, Set.of(PwaAppProcessingPermission.ASSIGN_RESPONDER), null,
-        new ConsultationRequestDto("name", new ConsultationRequest()));
+    var processingContext = new PwaAppProcessingContext(
+        null,
+        null,
+        Set.of(PwaAppProcessingPermission.ASSIGN_RESPONDER),
+        null,
+        PwaAppProcessingContextDtoTestUtils.appInvolvementWithConsultationRequest("name", new ConsultationRequest()));
 
     boolean canShow = assignResponderService.canShowInTaskList(processingContext);
 
@@ -394,7 +404,12 @@ public class AssignResponderServiceTest {
 
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     var request = new ConsultationRequest();
-    var processingContext = new PwaAppProcessingContext(detail, null, Set.of(), null, new ConsultationRequestDto("name", request));
+    var processingContext = new PwaAppProcessingContext(
+        detail,
+        null,
+        Set.of(),
+        null,
+        PwaAppProcessingContextDtoTestUtils.appInvolvementWithConsultationRequest("name", request));
 
     var taskListEntry = assignResponderService.getTaskListEntry(PwaAppProcessingTask.ALLOCATE_RESPONDER, processingContext);
 
@@ -410,7 +425,12 @@ public class AssignResponderServiceTest {
 
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     var request = new ConsultationRequest();
-    var processingContext = new PwaAppProcessingContext(detail, null, Set.of(), null, new ConsultationRequestDto("name", request));
+    var processingContext = new PwaAppProcessingContext(
+        detail,
+        null,
+        Set.of(),
+        null,
+        PwaAppProcessingContextDtoTestUtils.appInvolvementWithConsultationRequest("name", request));
 
     var taskInstance = new WorkflowTaskInstance(request, PwaApplicationConsultationWorkflowTask.RESPONSE);
     when(camundaWorkflowService.getAllActiveWorkflowTasks(request)).thenReturn(Set.of(taskInstance));
@@ -431,7 +451,7 @@ public class AssignResponderServiceTest {
   @Test(expected = RuntimeException.class)
   public void getTaskListEntry_noActiveConsultationRequest() {
 
-    var processingContext = new PwaAppProcessingContext(null, null, Set.of(), null, null);
+    var processingContext = new PwaAppProcessingContext(null, null, null, null, null);
 
     assignResponderService.getTaskListEntry(PwaAppProcessingTask.ALLOCATE_RESPONDER, processingContext);
 

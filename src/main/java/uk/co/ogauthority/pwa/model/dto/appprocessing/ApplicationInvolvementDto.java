@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.model.dto.appprocessing;
 
 import java.util.Arrays;
+import java.util.Optional;
 import java.util.Set;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupMemberRole;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
@@ -12,21 +13,17 @@ public class ApplicationInvolvementDto {
 
   private final Set<PwaContactRole> contactRoles;
 
-  private final boolean assignedAtResponderStage;
-
-  private final Set<ConsulteeGroupMemberRole> consulteeRoles;
+  private final ConsultationInvolvementDto consultationInvolvement;
 
   private final boolean caseOfficerStageAndUserAssigned;
 
   public ApplicationInvolvementDto(PwaApplication pwaApplication,
                                    Set<PwaContactRole> contactRoles,
-                                   boolean assignedAtResponderStage,
-                                   Set<ConsulteeGroupMemberRole> consulteeRoles,
+                                   ConsultationInvolvementDto consultationInvolvement,
                                    boolean caseOfficerStageAndUserAssigned) {
     this.pwaApplication = pwaApplication;
     this.contactRoles = contactRoles;
-    this.assignedAtResponderStage = assignedAtResponderStage;
-    this.consulteeRoles = consulteeRoles;
+    this.consultationInvolvement = consultationInvolvement;
     this.caseOfficerStageAndUserAssigned = caseOfficerStageAndUserAssigned;
   }
 
@@ -38,12 +35,8 @@ public class ApplicationInvolvementDto {
     return contactRoles;
   }
 
-  public boolean isAssignedAtResponderStage() {
-    return assignedAtResponderStage;
-  }
-
-  public Set<ConsulteeGroupMemberRole> getConsulteeRoles() {
-    return consulteeRoles;
+  public Optional<ConsultationInvolvementDto> getConsultationInvolvement() {
+    return Optional.ofNullable(consultationInvolvement);
   }
 
   public boolean isCaseOfficerStageAndUserAssigned() {
@@ -56,8 +49,9 @@ public class ApplicationInvolvementDto {
   }
 
   public boolean hasAnyOfTheseConsulteeRoles(ConsulteeGroupMemberRole... roles) {
-    return Arrays.stream(roles)
-        .anyMatch(consulteeRoles::contains);
+    return getConsultationInvolvement()
+        .map(ci -> Arrays.stream(roles).anyMatch(ci.getConsulteeRoles()::contains))
+        .orElse(false);
   }
 
 }

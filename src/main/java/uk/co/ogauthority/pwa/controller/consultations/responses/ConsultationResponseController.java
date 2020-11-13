@@ -91,7 +91,7 @@ public class ConsultationResponseController {
                                                   Supplier<ModelAndView> successSupplier) {
 
     // if consultation request linked to user on context is equal to the one we are hitting in the URL, ok to continue
-    if (Objects.equals(processingContext.getConsultationRequestId(), consultationRequestId)) {
+    if (Objects.equals(processingContext.getActiveConsultationRequestId(), consultationRequestId)) {
       return successSupplier.get();
     }
 

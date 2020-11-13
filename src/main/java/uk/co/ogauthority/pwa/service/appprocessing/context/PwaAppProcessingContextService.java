@@ -2,18 +2,15 @@ package uk.co.ogauthority.pwa.service.appprocessing.context;
 
 import com.google.common.annotations.VisibleForTesting;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.exception.AccessDeniedException;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
-import uk.co.ogauthority.pwa.model.dto.consultations.ConsultationRequestDto;
 import uk.co.ogauthority.pwa.service.appprocessing.PwaAppProcessingPermissionService;
 import uk.co.ogauthority.pwa.service.consultations.ConsultationRequestService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
-import uk.co.ogauthority.pwa.service.enums.users.UserType;
 import uk.co.ogauthority.pwa.service.fileupload.AppFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaapplications.search.ApplicationDetailSearcher;
@@ -85,9 +82,10 @@ public class PwaAppProcessingContextService {
         .orElseThrow(() -> new PwaEntityNotFoundException(
             "Could not find last submitted version on applicationId:" + applicationId));
 
-    var processingPermissions = appProcessingPermissionService.getProcessingPermissions(detail.getPwaApplication(), authenticatedUser);
+    var processingPermissionsDto = appProcessingPermissionService
+        .getProcessingPermissionsDto(detail.getPwaApplication(), authenticatedUser);
 
-    if (processingPermissions.isEmpty()) {
+    if (processingPermissionsDto.getProcessingPermissions().isEmpty()) {
       throw new AccessDeniedException(
           String.format("User with WUA ID: %s has no app processing permissions", authenticatedUser.getWuaId()));
     }
@@ -96,21 +94,13 @@ public class PwaAppProcessingContextService {
         .map(CaseSummaryView::from)
         .orElse(null);
 
-    Optional<ConsultationRequestDto> consultationRequestOpt = Optional.empty();
-
-    if (userTypeService.getUserType(authenticatedUser) == UserType.CONSULTEE) {
-
-      consultationRequestOpt = consultationRequestService
-          .getActiveConsultationRequestByApplicationAndConsulteePerson(detail.getPwaApplication(), authenticatedUser.getLinkedPerson());
-
-    }
-
     return new PwaAppProcessingContext(
         detail,
         authenticatedUser,
-        processingPermissions,
+        processingPermissionsDto.getProcessingPermissions(),
         caseSummaryView,
-        consultationRequestOpt.orElse(null));
+        processingPermissionsDto.getApplicationInvolvement()
+    );
 
   }
 

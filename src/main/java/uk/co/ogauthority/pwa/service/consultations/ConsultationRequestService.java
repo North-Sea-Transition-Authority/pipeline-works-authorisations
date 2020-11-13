@@ -4,9 +4,8 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.Period;
 import java.util.ArrayList;
-import java.util.EnumSet;
 import java.util.List;
-import java.util.Optional;
+import java.util.Set;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -15,7 +14,6 @@ import org.springframework.validation.BindingResult;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
-import uk.co.ogauthority.pwa.model.dto.consultations.ConsultationRequestDto;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroup;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupDetail;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupMemberRole;
@@ -55,6 +53,9 @@ public class ConsultationRequestService {
   private final Clock clock;
   private final EmailCaseLinkService emailCaseLinkService;
 
+  private static final Set<ConsultationRequestStatus> ENDED_STATUSES =
+      Set.of(ConsultationRequestStatus.RESPONDED, ConsultationRequestStatus.WITHDRAWN);
+
   @Autowired
   public ConsultationRequestService(
       ConsulteeGroupDetailService consulteeGroupDetailService,
@@ -79,15 +80,13 @@ public class ConsultationRequestService {
     this.emailCaseLinkService = emailCaseLinkService;
   }
 
-
-  public List<ConsulteeGroupDetail> getConsulteeGroups(AuthenticatedUserAccount user) {
+  public List<ConsulteeGroupDetail> getAllConsulteeGroups() {
     return consulteeGroupDetailService.getAllConsulteeGroupDetails();
   }
 
   public void saveConsultationRequest(ConsultationRequest consultationRequest) {
     consultationRequestRepository.save(consultationRequest);
   }
-
 
   private void sendConsultationRequestReceivedEmail(ConsultationRequest consultationRequest) {
 
@@ -100,6 +99,7 @@ public class ConsultationRequestService {
       var emailProps = buildRequestReceivedEmailProps(recipient, consultationRequest, consulteeGroupName, caseManagementLink);
       notifyService.sendEmail(emailProps, recipient.getEmailAddress());
     });
+
   }
 
   public void saveEntitiesAndStartWorkflow(ConsultationRequestForm form,
@@ -207,14 +207,11 @@ public class ConsultationRequestService {
 
   public boolean isConsultationRequestOpen(ConsulteeGroup consulteeGroup, PwaApplication pwaApplication) {
     return consultationRequestRepository.findByConsulteeGroupAndPwaApplicationAndStatusNotIn(
-        consulteeGroup, pwaApplication, List.of(ConsultationRequestStatus.RESPONDED, ConsultationRequestStatus.WITHDRAWN)).isPresent();
+        consulteeGroup, pwaApplication, ENDED_STATUSES).isPresent();
   }
 
   public boolean canWithDrawConsultationRequest(ConsultationRequest consultationRequest) {
-    return !EnumSet.of(
-        ConsultationRequestStatus.WITHDRAWN,
-        ConsultationRequestStatus.RESPONDED)
-        .contains(consultationRequest.getStatus());
+    return !ENDED_STATUSES.contains(consultationRequest.getStatus());
   }
 
   public ConsultationRequest getConsultationRequestById(Integer consultationRequestId) {
@@ -232,25 +229,8 @@ public class ConsultationRequestService {
         consulteeGroup, pwaApplication, ConsultationRequestStatus.RESPONDED);
   }
 
-  public Optional<ConsultationRequestDto> getActiveConsultationRequestByApplicationAndConsulteePerson(PwaApplication pwaApplication,
-                                                                                                      Person person) {
-
-    var groupMembershipOpt = consulteeGroupTeamService.getTeamMemberByPerson(person);
-
-    // should be only one consultation request for the group that is at the allocation or response stage
-    return groupMembershipOpt
-        .flatMap(groupTeamMember -> consultationRequestRepository.findByConsulteeGroupAndPwaApplicationAndStatusNotIn(
-            groupTeamMember.getConsulteeGroup(),
-            pwaApplication,
-            List.of(ConsultationRequestStatus.RESPONDED, ConsultationRequestStatus.WITHDRAWN)).stream()
-            .findFirst())
-        .map(request -> {
-
-          var tipDetail = consulteeGroupDetailService.getConsulteeGroupDetailByGroupAndTipFlagIsTrue(request.getConsulteeGroup());
-          return new ConsultationRequestDto(tipDetail.getName(), request);
-
-        });
-
+  public boolean consultationRequestIsActive(ConsultationRequest consultationRequest) {
+    return !ENDED_STATUSES.contains(consultationRequest.getStatus());
   }
 
   public ApplicationConsultationStatusView getApplicationConsultationStatusView(PwaApplication pwaApplication) {

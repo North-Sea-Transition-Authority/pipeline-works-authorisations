@@ -33,6 +33,7 @@ import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.PwaAppProcessingContextAbstractControllerTest;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
+import uk.co.ogauthority.pwa.model.dto.appprocessing.ProcessingPermissionsDto;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.appprocessing.applicationupdate.ApplicationUpdateRequestForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
@@ -120,8 +121,9 @@ public class RequestApplicationUpdateControllerTest extends PwaAppProcessingCont
   @Test
   public void renderRequestUpdate_modelHasExpectedAttributes() throws Exception {
 
-    when(pwaAppProcessingPermissionService.getProcessingPermissions(pwaApplicationDetail.getPwaApplication(), user))
-        .thenReturn(Set.of(PwaAppProcessingPermission.REQUEST_APPLICATION_UPDATE));
+    var permissionsDto = new ProcessingPermissionsDto(null, Set.of(PwaAppProcessingPermission.REQUEST_APPLICATION_UPDATE));
+    when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail.getPwaApplication(), user))
+        .thenReturn(permissionsDto);
 
     var result = mockMvc.perform(
         get(ReverseRouter.route(on(RequestApplicationUpdateController.class)
@@ -142,9 +144,12 @@ public class RequestApplicationUpdateControllerTest extends PwaAppProcessingCont
 
   @Test
   public void renderRequestUpdate_whenApplicationHasOpenUpdateRequest() throws Exception {
+
     when(applicationUpdateRequestService.applicationDetailHasOpenUpdateRequest(pwaApplicationDetail)).thenReturn(true);
-    when(pwaAppProcessingPermissionService.getProcessingPermissions(pwaApplicationDetail.getPwaApplication(), user))
-        .thenReturn(Set.of(PwaAppProcessingPermission.REQUEST_APPLICATION_UPDATE));
+
+    var permissionsDto = new ProcessingPermissionsDto(null, Set.of(PwaAppProcessingPermission.REQUEST_APPLICATION_UPDATE));
+    when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail.getPwaApplication(), user))
+        .thenReturn(permissionsDto);
 
     var result = mockMvc.perform(
         get(ReverseRouter.route(on(RequestApplicationUpdateController.class)
@@ -184,8 +189,9 @@ public class RequestApplicationUpdateControllerTest extends PwaAppProcessingCont
   @Test
   public void requestUpdate_validationFailsWithNullRequestReason() throws Exception {
 
-    when(pwaAppProcessingPermissionService.getProcessingPermissions(pwaApplicationDetail.getPwaApplication(), user))
-        .thenReturn(Set.of(PwaAppProcessingPermission.REQUEST_APPLICATION_UPDATE));
+    var permissionsDto = new ProcessingPermissionsDto(null, Set.of(PwaAppProcessingPermission.REQUEST_APPLICATION_UPDATE));
+    when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail.getPwaApplication(), user))
+        .thenReturn(permissionsDto);
 
     mockMvc.perform(
         post(ReverseRouter.route(on(RequestApplicationUpdateController.class)
@@ -207,8 +213,9 @@ public class RequestApplicationUpdateControllerTest extends PwaAppProcessingCont
   @Test
   public void requestUpdate_validationFailsWithTooLongRequestReason() throws Exception {
 
-    when(pwaAppProcessingPermissionService.getProcessingPermissions(pwaApplicationDetail.getPwaApplication(), user))
-        .thenReturn(Set.of(PwaAppProcessingPermission.REQUEST_APPLICATION_UPDATE));
+    var permissionsDto = new ProcessingPermissionsDto(null, Set.of(PwaAppProcessingPermission.REQUEST_APPLICATION_UPDATE));
+    when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail.getPwaApplication(), user))
+        .thenReturn(permissionsDto);
 
     mockMvc.perform(
         post(ReverseRouter.route(on(RequestApplicationUpdateController.class)
@@ -230,8 +237,9 @@ public class RequestApplicationUpdateControllerTest extends PwaAppProcessingCont
   @Test
   public void requestUpdate_redirectsWhenFormValid() throws Exception {
 
-    when(pwaAppProcessingPermissionService.getProcessingPermissions(pwaApplicationDetail.getPwaApplication(), user))
-        .thenReturn(Set.of(PwaAppProcessingPermission.REQUEST_APPLICATION_UPDATE));
+    var permissionsDto = new ProcessingPermissionsDto(null, Set.of(PwaAppProcessingPermission.REQUEST_APPLICATION_UPDATE));
+    when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail.getPwaApplication(), user))
+        .thenReturn(permissionsDto);
 
     mockMvc.perform(
         post(ReverseRouter.route(on(RequestApplicationUpdateController.class)
@@ -252,9 +260,12 @@ public class RequestApplicationUpdateControllerTest extends PwaAppProcessingCont
 
   @Test
   public void requestUpdate_whenApplicationHasOpenUpdateRequest() throws Exception {
+
     when(applicationUpdateRequestService.applicationDetailHasOpenUpdateRequest(pwaApplicationDetail)).thenReturn(true);
-    when(pwaAppProcessingPermissionService.getProcessingPermissions(pwaApplicationDetail.getPwaApplication(), user))
-        .thenReturn(Set.of(PwaAppProcessingPermission.REQUEST_APPLICATION_UPDATE));
+
+    var permissionsDto = new ProcessingPermissionsDto(null, Set.of(PwaAppProcessingPermission.REQUEST_APPLICATION_UPDATE));
+    when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail.getPwaApplication(), user))
+        .thenReturn(permissionsDto);
 
     mockMvc.perform(
         post(ReverseRouter.route(on(RequestApplicationUpdateController.class)

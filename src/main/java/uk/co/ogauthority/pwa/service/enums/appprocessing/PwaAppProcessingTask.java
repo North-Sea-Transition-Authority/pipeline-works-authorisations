@@ -87,7 +87,7 @@ public enum PwaAppProcessingTask {
       TaskRequirement.REQUIRED,
       AssignResponderService.class, processingContext -> ReverseRouter.route(on(AssignResponderController.class)
               .renderAssignResponder(processingContext.getMasterPwaApplicationId(),
-                  processingContext.getApplicationType(), processingContext.getConsultationRequestId(), null, null)),
+                  processingContext.getApplicationType(), processingContext.getActiveConsultationRequestId(), null, null)),
       70),
 
   CONSULTATION_RESPONSE(
@@ -95,7 +95,7 @@ public enum PwaAppProcessingTask {
       TaskRequirement.REQUIRED,
       ConsultationResponseService.class, processingContext -> ReverseRouter.route(on(ConsultationResponseController.class)
               .renderResponder(processingContext.getMasterPwaApplicationId(),
-                  processingContext.getApplicationType(), processingContext.getConsultationRequestId(), null, null)),
+                  processingContext.getApplicationType(), processingContext.getActiveConsultationRequestId(), null, null)),
       80),
 
   ALLOCATE_CASE_OFFICER(

@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
+import uk.co.ogauthority.pwa.model.dto.appprocessing.ConsultationInvolvementDto;
+import uk.co.ogauthority.pwa.model.dto.appprocessing.ProcessingPermissionsDto;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupMemberRole;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
@@ -25,8 +27,8 @@ public class PwaAppProcessingPermissionService {
     this.applicationInvolvementService = applicationInvolvementService;
   }
 
-  public Set<PwaAppProcessingPermission> getProcessingPermissions(PwaApplication application,
-                                                                  AuthenticatedUserAccount user) {
+  public ProcessingPermissionsDto getProcessingPermissionsDto(PwaApplication application,
+                                                              AuthenticatedUserAccount user) {
 
     var appInvolvement = applicationInvolvementService.getApplicationInvolvementDto(application, user);
 
@@ -40,7 +42,10 @@ public class PwaAppProcessingPermissionService {
             case UPDATE_APPLICATION:
               return appInvolvement.hasAnyOfTheseContactRoles(PwaContactRole.PREPARER);
             case CASE_MANAGEMENT_CONSULTEE:
-              return !appInvolvement.getConsulteeRoles().isEmpty();
+              return !appInvolvement.getConsultationInvolvement()
+                  .map(ConsultationInvolvementDto::getConsulteeRoles)
+                  .orElse(Set.of())
+                  .isEmpty();
             case CASE_MANAGEMENT_INDUSTRY:
               return !appInvolvement.getContactRoles().isEmpty();
             case APPROVE_OPTIONS_VIEW:
@@ -53,7 +58,9 @@ public class PwaAppProcessingPermissionService {
                   ConsulteeGroupMemberRole.RESPONDER);
             case CONSULTATION_RESPONDER:
               return appInvolvement.hasAnyOfTheseConsulteeRoles(ConsulteeGroupMemberRole.RESPONDER)
-                  && appInvolvement.isAssignedAtResponderStage();
+                  && appInvolvement.getConsultationInvolvement()
+                  .map(ConsultationInvolvementDto::isAssignedToResponderStage)
+                  .orElse(false);
             case APPROVE_OPTIONS:
               return userPrivileges.contains(PwaUserPrivilege.PWA_CASE_OFFICER)
                   && appInvolvement.isCaseOfficerStageAndUserAssigned()
@@ -81,7 +88,7 @@ public class PwaAppProcessingPermissionService {
       appPermissions.add(PwaAppProcessingPermission.VIEW_APPLICATION_SUMMARY);
     }
 
-    return SetUtils.union(genericPermissions, appPermissions);
+    return new ProcessingPermissionsDto(appInvolvement, SetUtils.union(genericPermissions, appPermissions));
 
   }
 
