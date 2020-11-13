@@ -223,7 +223,7 @@ public class ApproveOptionsServiceTest {
     assertThat(taskListEntry.getRoute()).isNull();
     assertThat(taskListEntry.getDisplayOrder()).isEqualTo(APPROVE_OPTIONS.getDisplayOrder());
     assertThat(taskListEntry.getTaskName()).isEqualTo(APPROVE_OPTIONS.getTaskName());
-    assertThat(taskListEntry.getTaskTag().getTagText()).isEqualToIgnoringCase("locked");
+    assertThat(taskListEntry.getTaskTag().getTagText()).isEqualToIgnoringCase("cannot start yet");
 
   }
 

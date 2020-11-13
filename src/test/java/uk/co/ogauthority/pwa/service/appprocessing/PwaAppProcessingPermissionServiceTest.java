@@ -338,8 +338,7 @@ public class PwaAppProcessingPermissionServiceTest {
   @Test
   public void getAppPermissions_hasCaseManagementIndustryPermission_andViewApplicationSummary() {
 
-    var appInvolvement = new ApplicationInvolvementDto(application, Set.of(PwaContactRole.PREPARER), false, Set.of(), false);
-    when(applicationInvolvementService.getApplicationInvolvementDto(application, user)).thenReturn(appInvolvement);
+    setUserAsIndustryContactPreparer();
 
     var permissions = processingPermissionService.getProcessingPermissions(application, user);
     assertThat(permissions).contains(PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY);
@@ -350,8 +349,7 @@ public class PwaAppProcessingPermissionServiceTest {
   @Test
   public void getAppPermissions_industryUser_andOptionsAppType() {
     application.setApplicationType(PwaApplicationType.OPTIONS_VARIATION);
-    var appInvolvement = new ApplicationInvolvementDto(application, Set.of(PwaContactRole.PREPARER), false, Set.of(), false);
-    when(applicationInvolvementService.getApplicationInvolvementDto(application, user)).thenReturn(appInvolvement);
+    setUserAsIndustryContactPreparer();
 
     var permissions = processingPermissionService.getProcessingPermissions(application, user);
     assertThat(permissions).contains(PwaAppProcessingPermission.APPROVE_OPTIONS_VIEW);
@@ -359,10 +357,9 @@ public class PwaAppProcessingPermissionServiceTest {
   }
 
   @Test
-  public void getAppPermissions_regualtorUser_andOptionsAppType() {
+  public void getAppPermissions_regulatorUser_andOptionsAppType() {
     application.setApplicationType(PwaApplicationType.OPTIONS_VARIATION);
-    var appInvolvement = new ApplicationInvolvementDto(application, Set.of(PwaContactRole.PREPARER), false, Set.of(), false);
-    when(applicationInvolvementService.getApplicationInvolvementDto(application, user)).thenReturn(appInvolvement);
+    setUserAsCaseOfficer();
 
     var permissions = processingPermissionService.getProcessingPermissions(application, user);
     assertThat(permissions).doesNotContain(PwaAppProcessingPermission.APPROVE_OPTIONS_VIEW);
@@ -372,19 +369,28 @@ public class PwaAppProcessingPermissionServiceTest {
   @Test
   public void getAppPermissions_industryUser_andNotOptionsAppType() {
     application.setApplicationType(PwaApplicationType.INITIAL);
-    var appInvolvement = new ApplicationInvolvementDto(application, Set.of(PwaContactRole.PREPARER), false, Set.of(), false);
-    when(applicationInvolvementService.getApplicationInvolvementDto(application, user)).thenReturn(appInvolvement);
+    setUserAsIndustryContactPreparer();
 
     var permissions = processingPermissionService.getProcessingPermissions(application, user);
     assertThat(permissions).doesNotContain(PwaAppProcessingPermission.APPROVE_OPTIONS_VIEW);
     assertThat(permissions).doesNotContain(PwaAppProcessingPermission.APPROVE_OPTIONS);
   }
 
-  @Test
-  public void getAppPermissions_regualtorUser_andNotOptionsAppType() {
-    application.setApplicationType(PwaApplicationType.INITIAL);
+  private void setUserAsIndustryContactPreparer(){
     var appInvolvement = new ApplicationInvolvementDto(application, Set.of(PwaContactRole.PREPARER), false, Set.of(), false);
     when(applicationInvolvementService.getApplicationInvolvementDto(application, user)).thenReturn(appInvolvement);
+  }
+
+  private void setUserAsCaseOfficer(){
+    replacePrivileges(user, PwaUserPrivilege.PWA_CASE_OFFICER);
+    var appInvolvement = new ApplicationInvolvementDto(application, Set.of(), false, Set.of(), true);
+    when(applicationInvolvementService.getApplicationInvolvementDto(application, user)).thenReturn(appInvolvement);
+  }
+
+  @Test
+  public void getAppPermissions_regulatorUser_andNotOptionsAppType() {
+    application.setApplicationType(PwaApplicationType.INITIAL);
+    setUserAsCaseOfficer();
 
     var permissions = processingPermissionService.getProcessingPermissions(application, user);
     assertThat(permissions).doesNotContain(PwaAppProcessingPermission.APPROVE_OPTIONS_VIEW);
