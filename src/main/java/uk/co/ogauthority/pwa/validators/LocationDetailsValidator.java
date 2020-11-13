@@ -78,6 +78,12 @@ public class LocationDetailsValidator implements SmartValidator {
 
   private void validateFull(LocationDetailsForm form, Errors errors, Set<LocationDetailsQuestion> requiredQuestions) {
 
+
+    if (requiredQuestions.contains(LocationDetailsQuestion.APPROXIMATE_PROJECT_LOCATION_FROM_SHORE)) {
+      ValidationUtils.rejectIfEmpty(errors, "approximateProjectLocationFromShore",
+          "approximateProjectLocationFromShore.required", "You must provide approximate location information");
+    }
+
     if (requiredQuestions.contains(LocationDetailsQuestion.WITHIN_SAFETY_ZONE)) {
       if (form.getWithinSafetyZone() == null) {
         errors.rejectValue("withinSafetyZone", "withinSafetyZone.required",
@@ -100,11 +106,6 @@ public class LocationDetailsValidator implements SmartValidator {
             break;
         }
       }
-    }
-
-    if (requiredQuestions.contains(LocationDetailsQuestion.APPROXIMATE_PROJECT_LOCATION_FROM_SHORE)) {
-      ValidationUtils.rejectIfEmpty(errors, "approximateProjectLocationFromShore",
-          "approximateProjectLocationFromShore.required", "You must provide approximate location information");
     }
 
     if (requiredQuestions.contains(LocationDetailsQuestion.FACILITIES_OFFSHORE)) {

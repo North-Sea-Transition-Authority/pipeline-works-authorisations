@@ -260,6 +260,7 @@ public class PadLocationDetailsService implements ApplicationFormSectionService 
   public void cleanupData(PwaApplicationDetail detail) {
 
     var locationDetails = getLocationDetailsForDraft(detail);
+    var requiredQuestions = getRequiredQuestions(detail.getPwaApplicationType());
 
     // if no to HSE safety zone, clear facilities
     if (locationDetails.getWithinSafetyZone().equals(HseSafetyZone.NO)) {
@@ -267,17 +268,17 @@ public class PadLocationDetailsService implements ApplicationFormSectionService 
     }
 
     // if all offshore/subsea, clear ashore location
-    if (locationDetails.getFacilitiesOffshore()) {
+    if (requiredQuestions.contains(LocationDetailsQuestion.FACILITIES_OFFSHORE) && locationDetails.getFacilitiesOffshore()) {
       locationDetails.setPipelineAshoreLocation(null);
     }
 
     // if not transporting materials to shore, clear transportation method
-    if (!locationDetails.getTransportsMaterialsToShore()) {
+    if (requiredQuestions.contains(LocationDetailsQuestion.TRANSPORTS_MATERIALS_TO_SHORE) && !locationDetails.getTransportsMaterialsToShore()) {
       locationDetails.setTransportationMethod(null);
     }
 
     // if no to route survey, clear survey date
-    if (!locationDetails.getRouteSurveyUndertaken()) {
+    if (requiredQuestions.contains(LocationDetailsQuestion.ROUTE_SURVEY_UNDERTAKEN) && !locationDetails.getRouteSurveyUndertaken()) {
       locationDetails.setSurveyConcludedTimestamp(null);
     }
 
