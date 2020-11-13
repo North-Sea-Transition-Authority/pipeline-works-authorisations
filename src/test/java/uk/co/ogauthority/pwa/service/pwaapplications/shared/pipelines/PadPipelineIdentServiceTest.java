@@ -129,6 +129,7 @@ public class PadPipelineIdentServiceTest {
     form.setToCoordinateForm(toCoordinateForm);
 
     form.setLength(BigDecimal.valueOf(65.5));
+    form.setDefiningStructure(false);
 
     var dataForm = new PipelineIdentDataForm();
     dataForm.setExternalDiameter(BigDecimal.valueOf(12.1));
@@ -185,6 +186,7 @@ public class PadPipelineIdentServiceTest {
         form.getToCoordinateForm().getLongitudeDirection());
 
     assertThat(newIdent.getLength()).isEqualTo(form.getLength());
+    assertThat(newIdent.getIsDefiningStructure()).isEqualTo(form.getDefiningStructure());
 
   }
 
@@ -344,6 +346,7 @@ public class PadPipelineIdentServiceTest {
     form.setFromLocation("from");
     form.setToLocation("to");
     form.setLength(BigDecimal.ONE);
+    form.setDefiningStructure(false);
 
     form.setFromCoordinateForm(new CoordinateForm());
     form.setToCoordinateForm(new CoordinateForm());
@@ -376,16 +379,18 @@ public class PadPipelineIdentServiceTest {
     assertThat(ident.getFromLocation()).isEqualTo(form.getFromLocation());
     assertThat(ident.getToLocation()).isEqualTo(form.getToLocation());
     assertThat(ident.getLength()).isEqualTo(form.getLength());
+    assertThat(ident.getIsDefiningStructure()).isEqualTo(form.getDefiningStructure());
   }
 
   @Test
-  public void mapEntityToForm() {
+  public void mapEntityToForm_notDefiningStructure() {
     var form = new PipelineIdentForm();
     var ident = new PadPipelineIdent();
 
     ident.setFromLocation("from");
     ident.setToLocation("to");
     ident.setLength(BigDecimal.ONE);
+    ident.setDefiningStructure(false);
     ident.setFromCoordinates(new CoordinatePair(
         new LatitudeCoordinate(1, 1, BigDecimal.ZERO, LatitudeDirection.NORTH),
         new LongitudeCoordinate(1, 1, BigDecimal.ZERO, LongitudeDirection.EAST)
@@ -409,6 +414,23 @@ public class PadPipelineIdentServiceTest {
     assertThat(form.getFromLocation()).isEqualTo(ident.getFromLocation());
     assertThat(form.getToLocation()).isEqualTo(ident.getToLocation());
     assertThat(form.getLength()).isEqualTo(ident.getLength());
+    assertThat(form.getDefiningStructure()).isEqualTo(ident.getIsDefiningStructure());
+  }
+
+
+  @Test
+  public void mapEntityToForm_definingStructure() {
+    var form = new PipelineIdentForm();
+    var ident = new PadPipelineIdent();
+
+    ident.setLength(BigDecimal.ONE);
+    ident.setDefiningStructure(true);
+    form.setDataForm(new PipelineIdentDataForm());
+
+    padPipelineIdentService.mapEntityToForm(ident, form);
+
+    assertThat(form.getLengthOptional()).isEqualTo(ident.getLength());
+    assertThat(form.getDefiningStructure()).isEqualTo(ident.getIsDefiningStructure());
   }
 
   @Test
@@ -463,6 +485,7 @@ public class PadPipelineIdentServiceTest {
     );
     form.setToCoordinateForm(toCoordinateForm);
     form.setLength(BigDecimal.valueOf(65.5));
+    form.setDefiningStructure(false);
 
     var dataForm = new PipelineIdentDataForm();
     dataForm.setExternalDiameter(BigDecimal.valueOf(12.1));
@@ -530,6 +553,7 @@ public class PadPipelineIdentServiceTest {
         form.getToCoordinateForm().getLongitudeDirection());
 
     assertThat(newIdent.getLength()).isEqualTo(form.getLength());
+    assertThat(newIdent.getIsDefiningStructure()).isEqualTo(form.getDefiningStructure());
   }
 
   @Test

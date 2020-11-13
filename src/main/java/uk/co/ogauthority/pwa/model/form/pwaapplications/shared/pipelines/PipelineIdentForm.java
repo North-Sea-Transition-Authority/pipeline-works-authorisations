@@ -14,6 +14,8 @@ public class PipelineIdentForm {
   private CoordinateForm toCoordinateForm;
 
   private BigDecimal length;
+  private BigDecimal lengthOptional;
+  private Boolean definingStructure;
 
   private PipelineIdentDataForm dataForm;
 
@@ -66,5 +68,21 @@ public class PipelineIdentForm {
 
   public void setDataForm(PipelineIdentDataForm dataForm) {
     this.dataForm = dataForm;
+  }
+
+  public Boolean getDefiningStructure() {
+    return definingStructure;
+  }
+
+  public void setDefiningStructure(Boolean definingStructure) {
+    this.definingStructure = definingStructure;
+  }
+
+  public BigDecimal getLengthOptional() {
+    return lengthOptional;
+  }
+
+  public void setLengthOptional(BigDecimal lengthOptional) {
+    this.lengthOptional = lengthOptional;
   }
 }

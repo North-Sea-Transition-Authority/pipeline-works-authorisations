@@ -36,6 +36,7 @@ public class IdentView {
   private final String insulationCoatingTypeMultiCore;
   private final String maopMultiCore;
   private final String productsToBeConveyedMultiCore;
+  private final Boolean definingStructure;
 
 
   public IdentView(PipelineIdentData identData) {
@@ -49,6 +50,7 @@ public class IdentView {
     this.toLocation = ident.getToLocation();
     this.identNumber = ident.getIdentNo();
     this.length = ident.getLength();
+    this.definingStructure = ident.getIsDefiningStructure();
     this.componentPartsDescription = identData.getComponentPartsDesc();
     this.externalDiameter = identData.getExternalDiameter();
     this.insulationCoatingType = identData.getInsulationCoatingType();
@@ -92,6 +94,10 @@ public class IdentView {
 
   public BigDecimal getLength() {
     return length;
+  }
+
+  public Boolean getDefiningStructure() {
+    return definingStructure;
   }
 
   public String getComponentPartsDescription() {

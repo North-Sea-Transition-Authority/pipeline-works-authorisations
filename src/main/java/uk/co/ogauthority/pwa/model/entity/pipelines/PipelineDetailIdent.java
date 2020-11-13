@@ -90,6 +90,8 @@ public class PipelineDetailIdent implements PipelineIdent {
 
   private BigDecimal length;
 
+  private Boolean isDefiningStructure;
+
   @Transient
   private CoordinatePair fromCoordinates;
 
@@ -150,6 +152,11 @@ public class PipelineDetailIdent implements PipelineIdent {
   @Override
   public BigDecimal getLength() {
     return this.length;
+  }
+
+  @Override
+  public Boolean getIsDefiningStructure() {
+    return this.isDefiningStructure;
   }
 
   @Override
