@@ -28,13 +28,17 @@ public class ApproveOptionsService implements AppProcessingService {
 
   private final OptionsApplicationApprovalRepository optionsApplicationApprovalRepository;
 
+  private final OptionsCaseManagementEmailService optionsCaseManagementEmailService;
+
   @Autowired
   public ApproveOptionsService(ConsultationRequestService consultationRequestService,
                                OptionsApprovalPersister optionsApprovalPersister,
-                               OptionsApplicationApprovalRepository optionsApplicationApprovalRepository) {
+                               OptionsApplicationApprovalRepository optionsApplicationApprovalRepository,
+                               OptionsCaseManagementEmailService optionsCaseManagementEmailService) {
     this.consultationRequestService = consultationRequestService;
     this.optionsApprovalPersister = optionsApprovalPersister;
     this.optionsApplicationApprovalRepository = optionsApplicationApprovalRepository;
+    this.optionsCaseManagementEmailService = optionsCaseManagementEmailService;
   }
 
   @Override
@@ -78,7 +82,7 @@ public class ApproveOptionsService implements AppProcessingService {
         deadlineDate
     );
 
-    //TODO PWA-116 email holders
+    optionsCaseManagementEmailService.sendInitialOptionsApprovedEmail(pwaApplicationDetail);
 
   }
 

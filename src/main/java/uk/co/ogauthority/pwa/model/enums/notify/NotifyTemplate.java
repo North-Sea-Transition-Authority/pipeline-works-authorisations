@@ -24,6 +24,9 @@ public enum NotifyTemplate {
   //Consultation withdrawn
   CONSULTATION_WITHDRAWN("CONSULTATION_WITHDRAWN_V1"),
 
+  // Options approval
+  APPLICATION_OPTIONS_APPROVED("APPLICATION_OPTIONS_APPROVED_V1"),
+
   // Notify callbacks
   EMAIL_DELIVERY_FAILED("EMAIL_DELIVERY_FAILED_V1");
 

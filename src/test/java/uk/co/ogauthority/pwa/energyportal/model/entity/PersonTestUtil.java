@@ -17,5 +17,15 @@ public class PersonTestUtil {
     );
   }
 
+  public static Person createDefaultPerson() {
+    return new Person(
+        100,
+        "firstname",
+        "surname",
+        "email@email.com",
+        "0123456789"
+    );
+  }
+
 
 }
