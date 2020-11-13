@@ -3,13 +3,11 @@ package uk.co.ogauthority.pwa.model.form.pwaapplications.shared.location;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import org.hibernate.validator.constraints.Length;
 import uk.co.ogauthority.pwa.model.entity.enums.HseSafetyZone;
 import uk.co.ogauthority.pwa.model.form.files.UploadMultipleFilesWithDescriptionForm;
 
 public class LocationDetailsForm extends UploadMultipleFilesWithDescriptionForm {
 
-  @Length(max = 4000, message = "Approximate project location from shore must be 4000 characters or fewer")
   private String approximateProjectLocationFromShore;
   private HseSafetyZone withinSafetyZone;
   private List<String> facilitiesIfYes;
@@ -17,7 +15,6 @@ public class LocationDetailsForm extends UploadMultipleFilesWithDescriptionForm 
   private Boolean facilitiesOffshore;
   private Boolean transportsMaterialsToShore;
 
-  @Length(max = 4000, message = "Transportation method must be 4000 characters or fewer")
   private String transportationMethod;
 
   private String pipelineRouteDetails;
@@ -28,7 +25,6 @@ public class LocationDetailsForm extends UploadMultipleFilesWithDescriptionForm 
   private Integer surveyConcludedMonth;
   private Integer surveyConcludedYear;
 
-  @Length(max = 4000, message = "Pipeline ashore location must be 4000 characters or fewer")
   private String pipelineAshoreLocation;
 
   public LocationDetailsForm() {
