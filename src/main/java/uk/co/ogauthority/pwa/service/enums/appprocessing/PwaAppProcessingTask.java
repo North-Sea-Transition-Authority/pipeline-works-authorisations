@@ -66,7 +66,7 @@ public enum PwaAppProcessingTask {
       TaskRequirement.REQUIRED,
       ApproveOptionsService.class, processingContext -> ReverseRouter.route(on(ApproveOptionsController.class)
       .renderApproveOptions(processingContext.getMasterPwaApplicationId(),
-          processingContext.getApplicationType(), null, null)),
+          processingContext.getApplicationType(), null, null, null)),
       45),
 
   PUBLIC_NOTICE(

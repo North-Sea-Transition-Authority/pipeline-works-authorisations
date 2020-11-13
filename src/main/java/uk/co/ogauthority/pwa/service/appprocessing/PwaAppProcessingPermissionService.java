@@ -43,6 +43,9 @@ public class PwaAppProcessingPermissionService {
               return !appInvolvement.getConsulteeRoles().isEmpty();
             case CASE_MANAGEMENT_INDUSTRY:
               return !appInvolvement.getContactRoles().isEmpty();
+            case APPROVE_OPTIONS_VIEW:
+              return !appInvolvement.getContactRoles().isEmpty()
+                  && PwaApplicationType.OPTIONS_VARIATION.equals(application.getApplicationType());
             case CASE_MANAGEMENT_OGA:
               return userPrivileges.contains(PwaUserPrivilege.PWA_REGULATOR);
             case ASSIGN_RESPONDER:
@@ -55,6 +58,7 @@ public class PwaAppProcessingPermissionService {
               return userPrivileges.contains(PwaUserPrivilege.PWA_CASE_OFFICER)
                   && appInvolvement.isCaseOfficerStageAndUserAssigned()
                   && PwaApplicationType.OPTIONS_VARIATION.equals(application.getApplicationType());
+
             case CASE_OFFICER_REVIEW:
             case EDIT_CONSULTATIONS:
             case PUBLIC_NOTICE:

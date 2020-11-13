@@ -1,0 +1,90 @@
+package uk.co.ogauthority.pwa.service.appprocessing.options;
+
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneId;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
+import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
+import uk.co.ogauthority.pwa.energyportal.model.entity.PersonTestUtil;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.repository.appprocessing.options.OptionsApplicationApprovalRepository;
+import uk.co.ogauthority.pwa.repository.appprocessing.options.OptionsApprovalDeadlineHistoryRepository;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
+
+@RunWith(MockitoJUnitRunner.class)
+public class OptionsApprovalPersisterTest {
+
+  private static final PersonId PERSON_ID = new PersonId(1);
+
+  @Mock
+  private OptionsApplicationApprovalRepository optionsApplicationApprovalRepository;
+
+  @Mock
+  private OptionsApprovalDeadlineHistoryRepository optionsApprovalDeadlineHistoryRepository;
+
+  private OptionsApprovalPersister optionsApprovalPersister;
+
+  private Clock clock;
+
+  private Instant deadlineDate;
+
+  private PwaApplicationDetail pwaApplicationDetail;
+  private PwaApplication pwaApplication;
+
+  private Person person;
+
+  @Before
+  public void setUp() throws Exception {
+
+    pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.OPTIONS_VARIATION);
+    pwaApplication = pwaApplicationDetail.getPwaApplication();
+
+    person = PersonTestUtil.createPersonFrom(PERSON_ID);
+    deadlineDate = Instant.MAX;
+
+    clock = Clock.fixed(Instant.now(), ZoneId.systemDefault());
+
+    optionsApprovalPersister = new OptionsApprovalPersister(
+        optionsApplicationApprovalRepository,
+        optionsApprovalDeadlineHistoryRepository,
+        clock
+    );
+
+    when(optionsApplicationApprovalRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+    when(optionsApprovalDeadlineHistoryRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+  }
+
+  @Test
+  public void createInitialOptionsApproval_serviceInteractions_andAttributesSetAsExpected() {
+
+    var history = optionsApprovalPersister.createInitialOptionsApproval(pwaApplication, person, deadlineDate);
+    var approval = history.getOptionsApplicationApproval();
+
+    verify(optionsApplicationApprovalRepository, times(1)).save(any());
+    verify(optionsApprovalDeadlineHistoryRepository, times(1)).save(any());
+
+    assertThat(history.getCreatedByPersonId()).isEqualTo(PERSON_ID);
+    assertThat(history.getCreatedTimestamp()).isEqualTo(clock.instant());
+    assertThat(history.getNote()).isNull();
+    assertThat(history.getDeadlineDate()).isEqualTo(deadlineDate);
+    assertThat(history.getOptionsApplicationApproval()).isNotNull();
+
+    assertThat(approval.getCreatedByPersonId()).isEqualTo(PERSON_ID);
+    assertThat(approval.getCreatedTimestamp()).isEqualTo(clock.instant());
+    assertThat(approval.getPwaApplication()).isEqualTo(pwaApplication);
+  }
+}
