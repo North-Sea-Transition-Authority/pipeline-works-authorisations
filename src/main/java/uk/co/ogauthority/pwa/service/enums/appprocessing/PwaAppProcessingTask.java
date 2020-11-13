@@ -9,6 +9,7 @@ import uk.co.ogauthority.pwa.controller.appprocessing.applicationupdate.RequestA
 import uk.co.ogauthority.pwa.controller.appprocessing.casenotes.CaseNoteController;
 import uk.co.ogauthority.pwa.controller.appprocessing.decision.AppConsentDocController;
 import uk.co.ogauthority.pwa.controller.appprocessing.initialreview.InitialReviewController;
+import uk.co.ogauthority.pwa.controller.appprocessing.options.ApproveOptionsController;
 import uk.co.ogauthority.pwa.controller.consultations.ConsultationController;
 import uk.co.ogauthority.pwa.controller.consultations.responses.AssignResponderController;
 import uk.co.ogauthority.pwa.controller.consultations.responses.ConsultationResponseController;
@@ -23,6 +24,7 @@ import uk.co.ogauthority.pwa.service.appprocessing.consultations.ConsultationSer
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.service.appprocessing.decision.ApplicationDecisionService;
 import uk.co.ogauthority.pwa.service.appprocessing.initialreview.InitialReviewService;
+import uk.co.ogauthority.pwa.service.appprocessing.options.ApproveOptionsService;
 import uk.co.ogauthority.pwa.service.appprocessing.tasks.AppProcessingService;
 import uk.co.ogauthority.pwa.service.consultations.AssignCaseOfficerService;
 import uk.co.ogauthority.pwa.service.consultations.AssignResponderService;
@@ -58,6 +60,14 @@ public enum PwaAppProcessingTask {
       ConsultationService.class, processingContext -> ReverseRouter.route(on(ConsultationController.class)
             .renderConsultations(processingContext.getMasterPwaApplicationId(), processingContext.getApplicationType(), null, null)),
       40),
+
+  APPROVE_OPTIONS(
+      "Approve options",
+      TaskRequirement.REQUIRED,
+      ApproveOptionsService.class, processingContext -> ReverseRouter.route(on(ApproveOptionsController.class)
+      .renderApproveOptions(processingContext.getMasterPwaApplicationId(),
+          processingContext.getApplicationType(), null, null)),
+      45),
 
   PUBLIC_NOTICE(
       "Public notice",
