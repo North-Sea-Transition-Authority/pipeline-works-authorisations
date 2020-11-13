@@ -267,6 +267,9 @@ public class PadLocationDetailsServiceTest {
   @Test
   public void cleanupData_hiddenData() {
 
+    var pwaApplication = new PwaApplication(null, PwaApplicationType.INITIAL, null);
+    pwaApplicationDetail.setPwaApplication(pwaApplication);
+
     padLocationDetails.setWithinSafetyZone(HseSafetyZone.NO);
 
     padLocationDetails.setFacilitiesOffshore(true);
@@ -296,6 +299,9 @@ public class PadLocationDetailsServiceTest {
 
   @Test
   public void cleanupData_noHiddenData() {
+
+    var pwaApplication = new PwaApplication(null, PwaApplicationType.INITIAL, null);
+    pwaApplicationDetail.setPwaApplication(pwaApplication);
 
     padLocationDetails.setWithinSafetyZone(HseSafetyZone.YES);
 
