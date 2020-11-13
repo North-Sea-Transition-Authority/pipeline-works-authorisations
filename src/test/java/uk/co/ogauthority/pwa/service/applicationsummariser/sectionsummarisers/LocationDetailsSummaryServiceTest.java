@@ -8,6 +8,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
+import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -73,12 +74,16 @@ public class LocationDetailsSummaryServiceTest {
         null, null,null, null, null, null, null, null, null, null, null, null, List.of());
     when(padLocationDetailsService.getLocationDetailsView(pwaApplicationDetail)).thenReturn(locationDetailsView);
 
+    when(padLocationDetailsService.getRequiredQuestions(pwaApplicationDetail.getPwaApplicationType())).thenReturn(Set.of());
+
     var appSummary = locationDetailsSummaryService.summariseSection(pwaApplicationDetail, TEMPLATE);
     assertThat(appSummary.getTemplatePath()).isEqualTo(TEMPLATE);
-    assertThat(appSummary.getTemplateModel()).hasSize(3);
+    assertThat(appSummary.getTemplateModel()).hasSize(4);
     assertThat(appSummary.getTemplateModel()).contains(entry("locationDetailsView", locationDetailsView));
     assertThat(appSummary.getTemplateModel()).contains(entry("sectionDisplayText", ApplicationTask.LOCATION_DETAILS.getDisplayName()));
     assertThat(appSummary.getTemplateModel()).contains(entry("locationDetailsUrlFactory", new LocationDetailsUrlFactory(pwaApplicationDetail)));
+    assertThat(appSummary.getTemplateModel()).contains(entry("requiredQuestions", Set.of()));
+
 
     assertThat(appSummary.getSidebarSectionLinks()).containsExactly(
         SidebarSectionLink.createAnchorLink(ApplicationTask.LOCATION_DETAILS.getDisplayName(), "#locationDetails")
