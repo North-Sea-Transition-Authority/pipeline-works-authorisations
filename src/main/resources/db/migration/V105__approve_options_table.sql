@@ -20,4 +20,4 @@ CREATE TABLE ${datasource.user}.options_app_appr_deadline_hist (
 , CONSTRAINT oaahd_tip_ck CHECK(tip_flag IN (0, 1))
 );
 
-CREATE INDEX ${datasource.user}.oaahd_oaa_id_idx ON ${datasource.user}.options_app_appr_deadline_hist(options_app_approval_id);
+CREATE INDEX ${datasource.user}.oaadh_oaa_id_idx ON ${datasource.user}.options_app_appr_deadline_hist(options_app_approval_id);
