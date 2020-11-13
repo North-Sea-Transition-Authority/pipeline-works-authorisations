@@ -10,7 +10,6 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.ConsultationRequestSt
 
 public class ApplicationConsultationStatusViewTestUtil {
 
-
   private ApplicationConsultationStatusViewTestUtil() {
     // no-instantiation
   }
@@ -18,12 +17,6 @@ public class ApplicationConsultationStatusViewTestUtil {
   public static ApplicationConsultationStatusView noConsultationRequests(){
     return new ApplicationConsultationStatusView(Collections.emptyMap());
   }
-
-
-//  public static ApplicationConsultationStatusView of(Map.Entry<ConsultationRequestStatus, Long> ... entries){
-//
-//    return new ApplicationConsultationStatusView(Map.ofEntries(entries));
-//  }
 
   public static ApplicationConsultationStatusView from(List<Pair<ConsultationRequestStatus, Long>> entries){
       var map = entries.stream()
