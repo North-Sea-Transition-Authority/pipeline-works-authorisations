@@ -17,6 +17,9 @@ import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.exception.AccessDeniedException;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
+import uk.co.ogauthority.pwa.model.dto.appprocessing.ApplicationInvolvementDto;
+import uk.co.ogauthority.pwa.model.dto.appprocessing.ConsultationInvolvementDto;
+import uk.co.ogauthority.pwa.model.dto.appprocessing.ProcessingPermissionsDto;
 import uk.co.ogauthority.pwa.model.dto.consultations.ConsultationRequestDto;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
 import uk.co.ogauthority.pwa.model.entity.files.AppFile;
@@ -28,11 +31,12 @@ import uk.co.ogauthority.pwa.service.consultations.ConsultationRequestService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
-import uk.co.ogauthority.pwa.service.enums.users.UserType;
 import uk.co.ogauthority.pwa.service.fileupload.AppFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaapplications.search.ApplicationDetailSearcher;
 import uk.co.ogauthority.pwa.service.users.UserTypeService;
+import uk.co.ogauthority.pwa.testutils.ConsulteeGroupTestingUtils;
+import uk.co.ogauthority.pwa.testutils.PwaAppProcessingContextDtoTestUtils;
 import uk.co.ogauthority.pwa.util.DateUtils;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -80,7 +84,9 @@ public class PwaAppProcessingContextServiceTest {
 
     when(detailService.getLastSubmittedApplicationDetail(detail.getMasterPwaApplicationId()))
         .thenReturn(Optional.of(detail));
-    when(appProcessingPermissionService.getProcessingPermissions(application, user)).thenReturn(Set.of(PwaAppProcessingPermission.ACCEPT_INITIAL_REVIEW));
+
+    var permissionsDto = new ProcessingPermissionsDto(null, Set.of(PwaAppProcessingPermission.ACCEPT_INITIAL_REVIEW));
+    when(appProcessingPermissionService.getProcessingPermissionsDto(application, user)).thenReturn(permissionsDto);
 
     var searchItem = new ApplicationDetailSearchItem();
     startInstant = Instant.now();
@@ -116,7 +122,8 @@ public class PwaAppProcessingContextServiceTest {
 
   @Test(expected = AccessDeniedException.class)
   public void validateAndCreate_noChecks_userHasNoProcessingPermissions() {
-    when(appProcessingPermissionService.getProcessingPermissions(application, user)).thenReturn(Set.of());
+    when(appProcessingPermissionService.getProcessingPermissionsDto(application, user)).thenReturn(
+        PwaAppProcessingContextDtoTestUtils.empty());
     var contextBuilder = new PwaAppProcessingContextParams(1, user);
     contextService.validateAndCreate(contextBuilder);
   }
@@ -161,7 +168,8 @@ public class PwaAppProcessingContextServiceTest {
             PwaAppProcessingPermission.CASE_MANAGEMENT_CONSULTEE,
             PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY));
 
-    when(appProcessingPermissionService.getProcessingPermissions(application, user)).thenReturn(Set.of(PwaAppProcessingPermission.CASE_MANAGEMENT_OGA));
+    var permissionsDto = new ProcessingPermissionsDto(null, Set.of(PwaAppProcessingPermission.CASE_MANAGEMENT_OGA));
+    when(appProcessingPermissionService.getProcessingPermissionsDto(application, user)).thenReturn(permissionsDto);
     var appContext = contextService.validateAndCreate(builder);
 
     assertThat(appContext.getApplicationDetail()).isEqualTo(detail);
@@ -172,7 +180,8 @@ public class PwaAppProcessingContextServiceTest {
 
   @Test(expected = AccessDeniedException.class)
   public void validateAndCreate_permissionsCheck_invalid() {
-    when(appProcessingPermissionService.getProcessingPermissions(application, user)).thenReturn(Set.of(PwaAppProcessingPermission.CASE_OFFICER_REVIEW));
+    var permissionsDto = new ProcessingPermissionsDto(null, Set.of(PwaAppProcessingPermission.CASE_OFFICER_REVIEW));
+    when(appProcessingPermissionService.getProcessingPermissionsDto(application, user)).thenReturn(permissionsDto);
     var builder = new PwaAppProcessingContextParams(1, user)
         .requiredProcessingPermissions(Set.of(PwaAppProcessingPermission.ACCEPT_INITIAL_REVIEW));
     contextService.validateAndCreate(builder);
@@ -300,17 +309,29 @@ public class PwaAppProcessingContextServiceTest {
 
     var builder = new PwaAppProcessingContextParams(1, user);
 
-    when(userTypeService.getUserType(user)).thenReturn(UserType.CONSULTEE);
-
     var request = new ConsultationRequest();
-    var dto = new ConsultationRequestDto("name", request);
 
-    when(consultationRequestService.getActiveConsultationRequestByApplicationAndConsulteePerson(any(), any()))
-        .thenReturn(Optional.of(dto));
+    var consultationInvolvement = new ConsultationInvolvementDto(
+        ConsulteeGroupTestingUtils.createConsulteeGroup("n", "nn"),
+        Set.of(),
+        request,
+        List.of(),
+        false
+    );
+
+    var appInvolvement = new ApplicationInvolvementDto(application, Set.of(), consultationInvolvement, false);
+    var permissionsDto = new ProcessingPermissionsDto(appInvolvement, Set.of(PwaAppProcessingPermission.CASE_MANAGEMENT_CONSULTEE));
+    when(appProcessingPermissionService.getProcessingPermissionsDto(any(), any()))
+        .thenReturn(permissionsDto);
 
     var context = contextService.validateAndCreate(builder);
 
-    assertThat(context.getActiveConsultationRequest()).contains(dto);
+    var requestOpt = context.getActiveConsultationRequest();
+    assertThat(requestOpt).isPresent();
+
+    assertThat(requestOpt.get())
+        .extracting(ConsultationRequestDto::getConsulteeGroupName, ConsultationRequestDto::getConsultationRequest)
+        .contains(consultationInvolvement.getConsulteeGroupDetail().getName(), request);
 
   }
 
@@ -319,7 +340,10 @@ public class PwaAppProcessingContextServiceTest {
 
     var builder = new PwaAppProcessingContextParams(1, user);
 
-    when(userTypeService.getUserType(user)).thenReturn(UserType.INDUSTRY);
+    var appInvolvement = new ApplicationInvolvementDto(application, Set.of(), null, false);
+    var permissionsDto = new ProcessingPermissionsDto(appInvolvement, Set.of(PwaAppProcessingPermission.CASE_MANAGEMENT_CONSULTEE));
+    when(appProcessingPermissionService.getProcessingPermissionsDto(any(), any()))
+        .thenReturn(permissionsDto);
 
     var context = contextService.validateAndCreate(builder);
 
@@ -332,7 +356,10 @@ public class PwaAppProcessingContextServiceTest {
 
     var builder = new PwaAppProcessingContextParams(1, user);
 
-    when(userTypeService.getUserType(user)).thenReturn(UserType.INDUSTRY);
+    var appInvolvement = new ApplicationInvolvementDto(application, Set.of(), new ConsultationInvolvementDto(null, Set.of(), null, List.of(), false), false);
+    var permissionsDto = new ProcessingPermissionsDto(appInvolvement, Set.of(PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY));
+    when(appProcessingPermissionService.getProcessingPermissionsDto(any(), any()))
+        .thenReturn(permissionsDto);
 
     var context = contextService.validateAndCreate(builder);
 

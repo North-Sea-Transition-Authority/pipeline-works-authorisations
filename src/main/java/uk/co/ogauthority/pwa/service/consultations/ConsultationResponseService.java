@@ -55,16 +55,15 @@ public class ConsultationResponseService implements AppProcessingService {
   private final EmailCaseLinkService emailCaseLinkService;
 
   @Autowired
-  public ConsultationResponseService(
-      ConsultationRequestService consultationRequestService,
-      ConsultationResponseRepository consultationResponseRepository,
-      ConsultationResponseValidator consultationResponseValidator,
-      CamundaWorkflowService camundaWorkflowService,
-      @Qualifier("utcClock") Clock clock,
-      NotifyService notifyService,
-      ConsulteeGroupDetailService consulteeGroupDetailService,
-      WorkflowAssignmentService workflowAssignmentService,
-      EmailCaseLinkService emailCaseLinkService) {
+  public ConsultationResponseService(ConsultationRequestService consultationRequestService,
+                                     ConsultationResponseRepository consultationResponseRepository,
+                                     ConsultationResponseValidator consultationResponseValidator,
+                                     CamundaWorkflowService camundaWorkflowService,
+                                     @Qualifier("utcClock") Clock clock,
+                                     NotifyService notifyService,
+                                     ConsulteeGroupDetailService consulteeGroupDetailService,
+                                     WorkflowAssignmentService workflowAssignmentService,
+                                     EmailCaseLinkService emailCaseLinkService) {
     this.consultationRequestService = consultationRequestService;
     this.consultationResponseRepository = consultationResponseRepository;
     this.consultationResponseValidator = consultationResponseValidator;
@@ -75,7 +74,6 @@ public class ConsultationResponseService implements AppProcessingService {
     this.workflowAssignmentService = workflowAssignmentService;
     this.emailCaseLinkService = emailCaseLinkService;
   }
-
 
   public List<ConsultationResponse> getResponsesByConsultationRequests(List<ConsultationRequest> consultationRequests) {
     return consultationResponseRepository.getAllByConsultationRequestIn(consultationRequests);
@@ -95,7 +93,6 @@ public class ConsultationResponseService implements AppProcessingService {
         .orElse(false);
 
   }
-
 
   private ConsultationResponse mapFormToResponse(ConsultationResponseForm form,
                                                  ConsultationRequest consultationRequest,
@@ -192,4 +189,5 @@ public class ConsultationResponseService implements AppProcessingService {
     );
 
   }
+
 }

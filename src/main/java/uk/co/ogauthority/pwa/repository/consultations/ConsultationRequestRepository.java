@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.repository.consultations;
 
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.repository.CrudRepository;
@@ -12,8 +13,9 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.ConsultationRequestSt
 
 public interface ConsultationRequestRepository extends CrudRepository<ConsultationRequest, Integer> {
 
-  Optional<ConsultationRequest> findByConsulteeGroupAndPwaApplicationAndStatusNotIn(
-      ConsulteeGroup consulteeGroup, PwaApplication pwaApplication, List<ConsultationRequestStatus> statuses);
+  Optional<ConsultationRequest> findByConsulteeGroupAndPwaApplicationAndStatusNotIn(ConsulteeGroup consulteeGroup,
+                                                                                    PwaApplication pwaApplication,
+                                                                                    Collection<ConsultationRequestStatus> statuses);
 
   List<ConsultationRequest> findByConsulteeGroupAndPwaApplicationAndStatus(ConsulteeGroup consulteeGroup,
                                                                            PwaApplication pwaApplication, ConsultationRequestStatus status);

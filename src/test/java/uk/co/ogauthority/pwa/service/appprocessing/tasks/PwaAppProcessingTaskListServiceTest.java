@@ -16,7 +16,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
-import uk.co.ogauthority.pwa.model.dto.consultations.ConsultationRequestDto;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.tasklist.TaskListEntry;
@@ -26,6 +25,7 @@ import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermiss
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingTask;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.TaskRequirement;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.testutils.PwaAppProcessingContextDtoTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 @RunWith(SpringRunner.class)
@@ -63,7 +63,7 @@ public class PwaAppProcessingTaskListServiceTest {
         null,
         EnumSet.allOf(PwaAppProcessingPermission.class),
         null,
-        new ConsultationRequestDto("name", request)
+        PwaAppProcessingContextDtoTestUtils.appInvolvementWithConsultationRequest("name", request)
     );
 
     taskListService = new PwaAppProcessingTaskListService(processingTaskService);
@@ -120,11 +120,11 @@ public class PwaAppProcessingTaskListServiceTest {
         pwaApplicationDetail,
         null,
         EnumSet.of(
-        PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY,
-        PwaAppProcessingPermission.ASSIGN_RESPONDER,
-        PwaAppProcessingPermission.CONSULTATION_RESPONDER),
+            PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY,
+            PwaAppProcessingPermission.ASSIGN_RESPONDER,
+            PwaAppProcessingPermission.CONSULTATION_RESPONDER),
         null,
-        new ConsultationRequestDto("name", request)
+        PwaAppProcessingContextDtoTestUtils.appInvolvementWithConsultationRequest("name", request)
     );
 
     var taskListGroups = taskListService.getTaskListGroups(processingContext);

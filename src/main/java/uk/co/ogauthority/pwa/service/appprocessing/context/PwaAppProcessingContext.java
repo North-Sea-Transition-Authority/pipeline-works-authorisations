@@ -1,9 +1,10 @@
 package uk.co.ogauthority.pwa.service.appprocessing.context;
 
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
+import uk.co.ogauthority.pwa.model.dto.appprocessing.ApplicationInvolvementDto;
+import uk.co.ogauthority.pwa.model.dto.appprocessing.ConsultationInvolvementDto;
 import uk.co.ogauthority.pwa.model.dto.consultations.ConsultationRequestDto;
 import uk.co.ogauthority.pwa.model.entity.files.AppFile;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
@@ -20,11 +21,10 @@ public class PwaAppProcessingContext {
   private final PwaApplicationDetail applicationDetail;
 
   private final WebUserAccount user;
+
   private final Set<PwaAppProcessingPermission> appProcessingPermissions;
-
   private final CaseSummaryView caseSummaryView;
-
-  private final ConsultationRequestDto activeConsultationRequest;
+  private final ApplicationInvolvementDto applicationInvolvement;
 
   private AppFile appFile;
 
@@ -32,12 +32,12 @@ public class PwaAppProcessingContext {
                                  WebUserAccount user,
                                  Set<PwaAppProcessingPermission> appProcessingPermissions,
                                  CaseSummaryView caseSummaryView,
-                                 ConsultationRequestDto activeConsultationRequest) {
+                                 ApplicationInvolvementDto applicationInvolvement) {
     this.applicationDetail = applicationDetail;
     this.user = user;
     this.appProcessingPermissions = appProcessingPermissions;
     this.caseSummaryView = caseSummaryView;
-    this.activeConsultationRequest = activeConsultationRequest;
+    this.applicationInvolvement = applicationInvolvement;
   }
 
   public PwaApplicationDetail getApplicationDetail() {
@@ -64,19 +64,24 @@ public class PwaAppProcessingContext {
     return caseSummaryView;
   }
 
+  public ApplicationInvolvementDto getApplicationInvolvement() {
+    return applicationInvolvement;
+  }
+
   public Optional<ConsultationRequestDto> getActiveConsultationRequest() {
-    return Optional.ofNullable(activeConsultationRequest);
+    return applicationInvolvement.getConsultationInvolvement()
+        .flatMap(ConsultationInvolvementDto::getActiveRequestDto);
   }
 
   public ConsultationRequestDto getActiveConsultationRequestOrThrow() {
-    return Optional.ofNullable(activeConsultationRequest)
+    return getActiveConsultationRequest()
         .orElseThrow(() -> new RuntimeException(String.format(
             "Expected processing context to have active consultation request, it didn't. App ID: %s",
             applicationDetail.getMasterPwaApplicationId())));
   }
 
-  public Integer getConsultationRequestId() {
-    return Optional.ofNullable(activeConsultationRequest)
+  public Integer getActiveConsultationRequestId() {
+    return getActiveConsultationRequest()
         .map(dto -> dto.getConsultationRequest().getId())
         .orElse(null);
   }
@@ -93,24 +98,4 @@ public class PwaAppProcessingContext {
     return applicationDetail.getMasterPwaApplicationId();
   }
 
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-    PwaAppProcessingContext that = (PwaAppProcessingContext) o;
-    return Objects.equals(applicationDetail, that.applicationDetail)
-        && Objects.equals(user, that.user)
-        && Objects.equals(appProcessingPermissions, that.appProcessingPermissions)
-        && Objects.equals(caseSummaryView, that.caseSummaryView)
-        && Objects.equals(appFile, that.appFile);
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(applicationDetail, user, appProcessingPermissions, caseSummaryView, appFile);
-  }
 }

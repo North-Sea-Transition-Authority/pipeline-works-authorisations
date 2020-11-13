@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -318,7 +317,7 @@ public class ConsultationRequestServiceTest {
     consulteeGroup.setId(1);
     consultationRequestService.isConsultationRequestOpen(consulteeGroup, pwaApplicationDetail.getPwaApplication());
     verify(consultationRequestRepository, times(1)).findByConsulteeGroupAndPwaApplicationAndStatusNotIn(
-        consulteeGroup, pwaApplicationDetail.getPwaApplication(), List.of(ConsultationRequestStatus.RESPONDED, ConsultationRequestStatus.WITHDRAWN));
+        consulteeGroup, pwaApplicationDetail.getPwaApplication(), Set.of(ConsultationRequestStatus.RESPONDED, ConsultationRequestStatus.WITHDRAWN));
   }
 
 
@@ -358,68 +357,6 @@ public class ConsultationRequestServiceTest {
     consultationRequestService.getAllRequestsByAppAndGroupRespondedOnly(pwaApplicationDetail.getPwaApplication(), consulteeGroup);
     verify(consultationRequestRepository, times(1)).findByConsulteeGroupAndPwaApplicationAndStatus(
         consulteeGroup, pwaApplicationDetail.getPwaApplication(), ConsultationRequestStatus.RESPONDED);
-  }
-
-  @Test
-  public void getActiveConsultationRequestByApplicationAndConsulteePerson_activeRequest() {
-
-    var person = new Person();
-    var group = new ConsulteeGroup();
-
-    when(consulteeGroupTeamService.getTeamMemberByPerson(person)).thenReturn(Optional.of(
-        new ConsulteeGroupTeamMember(group, person, Set.of(ConsulteeGroupMemberRole.RESPONDER))
-    ));
-
-    var request = new ConsultationRequest();
-    request.setConsulteeGroup(group);
-    when(consultationRequestRepository.findByConsulteeGroupAndPwaApplicationAndStatusNotIn(eq(group), any(), eq(List.of(
-        ConsultationRequestStatus.RESPONDED, ConsultationRequestStatus.WITHDRAWN)))).thenReturn(Optional.of(request));
-
-    var detail = new ConsulteeGroupDetail();
-    detail.setName("name");
-    detail.setConsulteeGroup(group);
-    when(consulteeGroupDetailService.getConsulteeGroupDetailByGroupAndTipFlagIsTrue(request.getConsulteeGroup())).thenReturn(detail);
-
-    var dtoResult = consultationRequestService.getActiveConsultationRequestByApplicationAndConsulteePerson(pwaApplicationDetail.getPwaApplication(), person)
-        .orElseThrow();
-
-    assertThat(dtoResult.getConsulteeGroupName()).isEqualTo(detail.getName());
-    assertThat(dtoResult.getConsultationRequest()).isEqualTo(request);
-
-  }
-
-  @Test
-  public void getActiveConsultationRequestByApplicationAndConsulteePerson_member_noActiveRequest() {
-
-    var person = new Person();
-    var group = new ConsulteeGroup();
-
-    when(consulteeGroupTeamService.getTeamMemberByPerson(person)).thenReturn(Optional.of(
-        new ConsulteeGroupTeamMember(group, person, Set.of(ConsulteeGroupMemberRole.RESPONDER))
-    ));
-
-    var request = new ConsultationRequest();
-    request.setConsulteeGroup(group);
-    when(consultationRequestRepository.findByConsulteeGroupAndPwaApplicationAndStatusNotIn(eq(group), any(), eq(List.of(
-        ConsultationRequestStatus.RESPONDED, ConsultationRequestStatus.WITHDRAWN)))).thenReturn(Optional.empty());
-
-    var dtoResultOpt = consultationRequestService.getActiveConsultationRequestByApplicationAndConsulteePerson(pwaApplicationDetail.getPwaApplication(), person);
-
-    assertThat(dtoResultOpt.isEmpty());
-
-  }
-
-  @Test
-  public void getActiveConsultationRequestByApplicationAndConsulteePerson_notMember() {
-
-    var person = new Person();
-
-    when(consulteeGroupTeamService.getTeamMemberByPerson(person)).thenReturn(Optional.empty());
-
-    var dtoResultOpt = consultationRequestService.getActiveConsultationRequestByApplicationAndConsulteePerson(pwaApplicationDetail.getPwaApplication(), person);
-
-    assertThat(dtoResultOpt.isEmpty());
-
   }
 
 }

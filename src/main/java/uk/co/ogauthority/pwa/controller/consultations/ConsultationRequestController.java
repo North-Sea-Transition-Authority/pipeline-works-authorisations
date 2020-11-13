@@ -55,7 +55,7 @@ public class ConsultationRequestController {
                                          PwaAppProcessingContext processingContext,
                                          AuthenticatedUserAccount authenticatedUserAccount,
                                          @ModelAttribute("form") ConsultationRequestForm form) {
-    return getRequestConsultationModelAndView(processingContext, authenticatedUserAccount);
+    return getRequestConsultationModelAndView(processingContext);
   }
 
   @PostMapping
@@ -72,7 +72,7 @@ public class ConsultationRequestController {
     consultationRequestService.rebindFormCheckboxes(form);
 
     return controllerHelperService.checkErrorsAndRedirect(bindingResult,
-        getRequestConsultationModelAndView(processingContext, authenticatedUserAccount), () -> {
+        getRequestConsultationModelAndView(processingContext), () -> {
           consultationRequestService.saveEntitiesAndStartWorkflow(form, appDetail, authenticatedUserAccount);
           return ReverseRouter.redirect(on(ConsultationController.class).renderConsultations(
               appDetail.getMasterPwaApplicationId(), appDetail.getPwaApplicationType(), null, null));
@@ -80,15 +80,14 @@ public class ConsultationRequestController {
 
   }
 
-  private ModelAndView getRequestConsultationModelAndView(PwaAppProcessingContext processingContext,
-                                                          AuthenticatedUserAccount authenticatedUserAccount) {
+  private ModelAndView getRequestConsultationModelAndView(PwaAppProcessingContext processingContext) {
 
     var pwaApplicationDetail = processingContext.getApplicationDetail();
 
     var modelAndView = new ModelAndView("consultation/consultationRequest")
         .addObject("errorList", List.of())
         .addObject("caseSummaryView", processingContext.getCaseSummaryView())
-        .addObject("consulteeGroups", consultationRequestService.getConsulteeGroups(authenticatedUserAccount).stream()
+        .addObject("consulteeGroups", consultationRequestService.getAllConsulteeGroups().stream()
           .sorted(Comparator.comparing(ConsulteeGroupDetail::getDisplayOrder,  Comparator.nullsLast(Comparator.naturalOrder()))
               .thenComparing(ConsulteeGroupDetail::getName))
           .collect(Collectors.toList()))

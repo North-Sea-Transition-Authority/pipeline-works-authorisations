@@ -128,7 +128,6 @@ public class ConsultationRequest implements WorkflowSubject {
     this.endedReason = endedReason;
   }
 
-
   @Override
   public Integer getBusinessKey() {
     return id;
@@ -138,9 +137,6 @@ public class ConsultationRequest implements WorkflowSubject {
   public WorkflowType getWorkflowType() {
     return WorkflowType.PWA_APPLICATION_CONSULTATION;
   }
-
-
-
 
   @Override
   public boolean equals(Object o) {
