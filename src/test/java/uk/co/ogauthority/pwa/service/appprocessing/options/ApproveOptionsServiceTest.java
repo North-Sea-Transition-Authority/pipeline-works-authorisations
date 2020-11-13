@@ -27,6 +27,7 @@ import uk.co.ogauthority.pwa.model.entity.appprocessing.options.OptionsApplicati
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.repository.appprocessing.options.OptionsApplicationApprovalRepository;
+import uk.co.ogauthority.pwa.service.appprocessing.applicationupdate.ApplicationUpdateRequestService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContextTestUtil;
 import uk.co.ogauthority.pwa.service.consultations.ApplicationConsultationStatusViewTestUtil;
@@ -53,6 +54,9 @@ public class ApproveOptionsServiceTest {
   @Mock
   private OptionsCaseManagementEmailService optionsCaseManagementEmailService;
 
+  @Mock
+  private ApplicationUpdateRequestService applicationUpdateRequestService;
+
   private ApproveOptionsService approveOptionsService;
 
   private PwaApplicationDetail pwaApplicationDetail;
@@ -73,11 +77,15 @@ public class ApproveOptionsServiceTest {
         EnumSet.allOf(PwaAppProcessingPermission.class)
     );
 
+    when(applicationUpdateRequestService.applicationDetailHasOpenUpdateRequest(pwaApplicationDetail))
+        .thenReturn(false);
+
     approveOptionsService = new ApproveOptionsService(
         consultationRequestService,
         optionsApprovalPersister,
         optionsApplicationApprovalRepository,
-        optionsCaseManagementEmailService);
+        optionsCaseManagementEmailService,
+        applicationUpdateRequestService);
 
   }
 
@@ -129,10 +137,13 @@ public class ApproveOptionsServiceTest {
     verify(consultationRequestService, times(1))
         .getApplicationConsultationStatusView(pwaApplicationDetail.getPwaApplication());
 
+    verify(applicationUpdateRequestService, times(1))
+        .applicationDetailHasOpenUpdateRequest(pwaApplicationDetail);
+
   }
 
   @Test
-  public void taskAccessible_hasPermission_noConsultationRequest() {
+  public void taskAccessible_hasPermission_noConsultationRequest_andNoOpenUpdateRequest() {
 
     pwaAppProcessingContext = PwaAppProcessingContextTestUtil.withPermissions(
         pwaApplicationDetail,
@@ -149,7 +160,7 @@ public class ApproveOptionsServiceTest {
   }
 
   @Test
-  public void taskAccessible_hasPermission_hasRespondedRequests_hasUnrespondedRequests() {
+  public void taskAccessible_hasPermission_hasRespondedRequests_hasUnrespondedRequests_noOpenUpdateRequest() {
 
     pwaAppProcessingContext = PwaAppProcessingContextTestUtil.withPermissions(
         pwaApplicationDetail,
@@ -171,7 +182,7 @@ public class ApproveOptionsServiceTest {
   }
 
   @Test
-  public void taskAccessible_hasPermission_hasRespondedRequests_NoUnrespondedRequests() {
+  public void taskAccessible_hasPermission_hasRespondedRequests_noUnrespondedRequests_noOpenUpdateRequest() {
 
     pwaAppProcessingContext = PwaAppProcessingContextTestUtil.withPermissions(
         pwaApplicationDetail,
@@ -189,6 +200,31 @@ public class ApproveOptionsServiceTest {
     var taskAccessible = approveOptionsService.taskAccessible(pwaAppProcessingContext);
 
     assertThat(taskAccessible).isTrue();
+
+  }
+
+  @Test
+  public void taskAccessible_hasPermission_hasRespondedRequests_noUnrespondedRequests_OpenUpdateRequest() {
+
+    pwaAppProcessingContext = PwaAppProcessingContextTestUtil.withPermissions(
+        pwaApplicationDetail,
+        EnumSet.of(PwaAppProcessingPermission.APPROVE_OPTIONS)
+    );
+
+    var statusView = ApplicationConsultationStatusViewTestUtil.from(List.of(
+        ImmutablePair.of(ConsultationRequestStatus.RESPONDED, 1L),
+        ImmutablePair.of(ConsultationRequestStatus.WITHDRAWN, 1L)
+    ));
+
+    when(consultationRequestService.getApplicationConsultationStatusView(pwaApplicationDetail.getPwaApplication()))
+        .thenReturn(statusView);
+
+    when(applicationUpdateRequestService.applicationDetailHasOpenUpdateRequest(pwaApplicationDetail))
+        .thenReturn(true);
+
+    var taskAccessible = approveOptionsService.taskAccessible(pwaAppProcessingContext);
+
+    assertThat(taskAccessible).isFalse();
 
   }
 

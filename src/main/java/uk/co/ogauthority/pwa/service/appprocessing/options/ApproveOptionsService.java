@@ -12,6 +12,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.tasklist.TaskListEntry;
 import uk.co.ogauthority.pwa.model.tasklist.TaskTag;
 import uk.co.ogauthority.pwa.repository.appprocessing.options.OptionsApplicationApprovalRepository;
+import uk.co.ogauthority.pwa.service.appprocessing.applicationupdate.ApplicationUpdateRequestService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.service.appprocessing.tasks.AppProcessingService;
 import uk.co.ogauthority.pwa.service.consultations.ConsultationRequestService;
@@ -30,15 +31,19 @@ public class ApproveOptionsService implements AppProcessingService {
 
   private final OptionsCaseManagementEmailService optionsCaseManagementEmailService;
 
+  private final ApplicationUpdateRequestService applicationUpdateRequestService;
+
   @Autowired
   public ApproveOptionsService(ConsultationRequestService consultationRequestService,
                                OptionsApprovalPersister optionsApprovalPersister,
                                OptionsApplicationApprovalRepository optionsApplicationApprovalRepository,
-                               OptionsCaseManagementEmailService optionsCaseManagementEmailService) {
+                               OptionsCaseManagementEmailService optionsCaseManagementEmailService,
+                               ApplicationUpdateRequestService applicationUpdateRequestService) {
     this.consultationRequestService = consultationRequestService;
     this.optionsApprovalPersister = optionsApprovalPersister;
     this.optionsApplicationApprovalRepository = optionsApplicationApprovalRepository;
     this.optionsCaseManagementEmailService = optionsCaseManagementEmailService;
+    this.applicationUpdateRequestService = applicationUpdateRequestService;
   }
 
   @Override
@@ -69,7 +74,11 @@ public class ApproveOptionsService implements AppProcessingService {
     var openCount = appStatusCountView.sumFilteredStatusCounts(ConsultationRequestStatus::isRequestOpen);
     var respondedCount = appStatusCountView.getCountOfRequestsWithStatus(ConsultationRequestStatus.RESPONDED);
 
-    return openCount == 0 && respondedCount > 0;
+    var updateInProgress = applicationUpdateRequestService.applicationDetailHasOpenUpdateRequest(
+        pwaAppProcessingContext.getApplicationDetail()
+    );
+
+    return openCount == 0 && respondedCount > 0 && !updateInProgress;
 
   }
 
