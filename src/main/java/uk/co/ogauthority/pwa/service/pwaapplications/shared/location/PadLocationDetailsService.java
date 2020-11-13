@@ -273,7 +273,8 @@ public class PadLocationDetailsService implements ApplicationFormSectionService 
     }
 
     // if not transporting materials to shore, clear transportation method
-    if (requiredQuestions.contains(LocationDetailsQuestion.TRANSPORTS_MATERIALS_TO_SHORE) && !locationDetails.getTransportsMaterialsToShore()) {
+    if (requiredQuestions.contains(LocationDetailsQuestion.TRANSPORTS_MATERIALS_TO_SHORE)
+        && !locationDetails.getTransportsMaterialsToShore()) {
       locationDetails.setTransportationMethod(null);
     }
 
