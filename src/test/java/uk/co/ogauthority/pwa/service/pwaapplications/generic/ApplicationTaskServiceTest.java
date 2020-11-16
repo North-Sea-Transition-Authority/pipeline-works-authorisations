@@ -140,7 +140,6 @@ public class ApplicationTaskServiceTest {
             ApplicationTask.ENVIRONMENTAL_DECOMMISSIONING,
             ApplicationTask.CROSSING_AGREEMENTS,
             ApplicationTask.LOCATION_DETAILS,
-            ApplicationTask.HUOO,
             ApplicationTask.PERMANENT_DEPOSITS,
             ApplicationTask.PERMANENT_DEPOSIT_DRAWINGS
         );

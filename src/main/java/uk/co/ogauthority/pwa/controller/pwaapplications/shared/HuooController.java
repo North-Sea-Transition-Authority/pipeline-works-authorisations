@@ -33,7 +33,6 @@ import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
     PwaApplicationType.CAT_1_VARIATION,
     PwaApplicationType.CAT_2_VARIATION,
     PwaApplicationType.DECOMMISSIONING,
-    PwaApplicationType.DEPOSIT_CONSENT,
     PwaApplicationType.HUOO_VARIATION
 })
 @PwaApplicationStatusCheck(status = PwaApplicationStatus.DRAFT)
