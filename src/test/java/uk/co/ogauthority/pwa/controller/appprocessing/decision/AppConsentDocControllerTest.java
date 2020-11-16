@@ -33,11 +33,10 @@ import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.PwaAppProcessingPermissionService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContextService;
 import uk.co.ogauthority.pwa.service.documents.DocumentService;
-import uk.co.ogauthority.pwa.service.documents.pdf.PdfRenderingService;
+import uk.co.ogauthority.pwa.service.documents.generation.DocumentGenerationService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
-import uk.co.ogauthority.pwa.service.rendering.TemplateRenderingService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
@@ -52,10 +51,7 @@ public class AppConsentDocControllerTest extends PwaAppProcessingContextAbstract
   private DocumentService documentService;
 
   @MockBean
-  private TemplateRenderingService templateRenderingService;
-
-  @MockBean
-  private PdfRenderingService pdfRenderingService;
+  private DocumentGenerationService documentGenerationService;
 
   private PwaApplicationEndpointTestBuilder endpointTester;
 
