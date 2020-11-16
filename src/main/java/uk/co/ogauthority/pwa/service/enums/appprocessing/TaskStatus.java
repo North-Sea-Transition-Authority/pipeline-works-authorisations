@@ -5,7 +5,7 @@ public enum TaskStatus {
   NOT_STARTED("Not started", "govuk-tag--grey"),
   IN_PROGRESS("In progress"),
   NOT_REQUIRED("Not required"),
-  CANNOT_START_YET("Cannot start yet"),
+  CANNOT_START_YET("Cannot start yet", "govuk-tag--grey"),
   COMPLETED("Completed", "fds-task-list__task-completed"),
   NOT_COMPLETED("Not completed", "govuk-tag--grey fds-task-list__task-not-completed");
 
