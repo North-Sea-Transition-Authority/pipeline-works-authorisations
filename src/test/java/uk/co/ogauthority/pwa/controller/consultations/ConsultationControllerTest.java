@@ -73,7 +73,7 @@ public class ConsultationControllerTest extends PwaAppProcessingContextAbstractC
             ReverseRouter.route(on(ConsultationController.class)
                 .renderConsultations(applicationDetail.getMasterPwaApplicationId(), type, null, null)));
 
-    viewAllConsultationsEndpointTester.performAppStatusChecks(status().isOk(), status().isNotFound());
+    viewAllConsultationsEndpointTester.performProcessingPermissionCheck(status().isOk(), status().isForbidden());
 
   }
 

@@ -27,14 +27,14 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailSearchItem;
 import uk.co.ogauthority.pwa.service.appprocessing.PwaAppProcessingPermissionService;
-import uk.co.ogauthority.pwa.service.consultations.ConsultationRequestService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.fileupload.AppFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaapplications.search.ApplicationDetailSearcher;
-import uk.co.ogauthority.pwa.service.users.UserTypeService;
+import uk.co.ogauthority.pwa.testutils.ConsulteeGroupTestingUtils;
+import uk.co.ogauthority.pwa.testutils.PwaAppProcessingContextDtoTestUtils;
 import uk.co.ogauthority.pwa.testutils.ConsulteeGroupTestingUtils;
 import uk.co.ogauthority.pwa.testutils.PwaAppProcessingContextDtoTestUtils;
 import uk.co.ogauthority.pwa.util.DateUtils;
@@ -53,12 +53,6 @@ public class PwaAppProcessingContextServiceTest {
 
   @Mock
   private AppFileService appFileService;
-
-  @Mock
-  private UserTypeService userTypeService;
-
-  @Mock
-  private ConsultationRequestService consultationRequestService;
 
   private PwaAppProcessingContextService contextService;
 
@@ -80,7 +74,7 @@ public class PwaAppProcessingContextServiceTest {
     detail = new PwaApplicationDetail(application, 1, 1, Instant.now());
     detail.setStatus(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW);
 
-    contextService = new PwaAppProcessingContextService(detailService, appProcessingPermissionService, applicationDetailSearcher, appFileService, userTypeService, consultationRequestService);
+    contextService = new PwaAppProcessingContextService(detailService, appProcessingPermissionService, applicationDetailSearcher, appFileService);
 
     when(detailService.getLastSubmittedApplicationDetail(detail.getMasterPwaApplicationId()))
         .thenReturn(Optional.of(detail));
@@ -123,7 +117,7 @@ public class PwaAppProcessingContextServiceTest {
   @Test(expected = AccessDeniedException.class)
   public void validateAndCreate_noChecks_userHasNoProcessingPermissions() {
     when(appProcessingPermissionService.getProcessingPermissionsDto(application, user)).thenReturn(
-        PwaAppProcessingContextDtoTestUtils.empty());
+        PwaAppProcessingContextDtoTestUtils.emptyPermissionsDto());
     var contextBuilder = new PwaAppProcessingContextParams(1, user);
     contextService.validateAndCreate(contextBuilder);
   }

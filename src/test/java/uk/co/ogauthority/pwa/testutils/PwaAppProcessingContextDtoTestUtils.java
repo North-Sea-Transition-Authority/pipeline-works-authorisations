@@ -6,6 +6,7 @@ import uk.co.ogauthority.pwa.model.dto.appprocessing.ApplicationInvolvementDto;
 import uk.co.ogauthority.pwa.model.dto.appprocessing.ConsultationInvolvementDto;
 import uk.co.ogauthority.pwa.model.dto.appprocessing.ProcessingPermissionsDto;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 
 public class PwaAppProcessingContextDtoTestUtils {
 
@@ -25,8 +26,17 @@ public class PwaAppProcessingContextDtoTestUtils {
 
   }
 
-  public static ProcessingPermissionsDto empty() {
+  public static ProcessingPermissionsDto emptyPermissionsDto() {
     return EMPTY;
+  }
+
+  public static ApplicationInvolvementDto emptyAppInvolvement(PwaApplication application) {
+    return new ApplicationInvolvementDto(
+        application,
+        Set.of(),
+        new ConsultationInvolvementDto(null, Set.of(), null, List.of(), false),
+        false
+    );
   }
 
 }

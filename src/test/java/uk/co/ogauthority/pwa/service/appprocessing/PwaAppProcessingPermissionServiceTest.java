@@ -18,10 +18,12 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.dto.appprocessing.ApplicationInvolvementDto;
 import uk.co.ogauthority.pwa.model.dto.appprocessing.ConsultationInvolvementDto;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupMemberRole;
+import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.testutils.PwaAppProcessingContextDtoTestUtils;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PwaAppProcessingPermissionServiceTest {
@@ -459,6 +461,73 @@ public class PwaAppProcessingPermissionServiceTest {
     var permissions = processingPermissionService.getProcessingPermissionsDto(application, user).getProcessingPermissions();
     assertThat(permissions).doesNotContain(PwaAppProcessingPermission.CASE_MANAGEMENT_CONSULTEE);
     assertThat(permissions).doesNotContain(PwaAppProcessingPermission.VIEW_APPLICATION_SUMMARY);
+
+  }
+
+  @Test
+  public void getAppPermissions_consulteeAdvicePermission_whenConsultee_andHistoricRequest() {
+
+    replacePrivileges(user, PwaUserPrivilege.PWA_CONSULTEE);
+
+    var consultationInvolvement = new ConsultationInvolvementDto(null, Set.of(ConsulteeGroupMemberRole.RESPONDER), null, List.of(new ConsultationRequest()), false);
+    var appInvolvement = new ApplicationInvolvementDto(application, Set.of(), consultationInvolvement, false);
+    when(applicationInvolvementService.getApplicationInvolvementDto(application, user)).thenReturn(appInvolvement);
+
+    var permissions = processingPermissionService.getProcessingPermissionsDto(application, user).getProcessingPermissions();
+    assertThat(permissions).contains(PwaAppProcessingPermission.CONSULTEE_ADVICE);
+
+  }
+
+  @Test
+  public void getAppPermissions_noConsulteeAdvicePermission_whenConsultee_noHistoricRequest() {
+
+    replacePrivileges(user, PwaUserPrivilege.PWA_CONSULTEE);
+
+    var consultationInvolvement = new ConsultationInvolvementDto(null, Set.of(ConsulteeGroupMemberRole.RESPONDER), null, List.of(), false);
+    var appInvolvement = new ApplicationInvolvementDto(application, Set.of(), consultationInvolvement, false);
+    when(applicationInvolvementService.getApplicationInvolvementDto(application, user)).thenReturn(appInvolvement);
+
+    var permissions = processingPermissionService.getProcessingPermissionsDto(application, user).getProcessingPermissions();
+    assertThat(permissions).doesNotContain(PwaAppProcessingPermission.CONSULTEE_ADVICE);
+
+  }
+
+  @Test
+  public void getAppPermissions_noConsulteeAdvicePermission_whenConsultee_noInvolvement() {
+
+    replacePrivileges(user, PwaUserPrivilege.PWA_CONSULTEE);
+
+    var appInvolvement = PwaAppProcessingContextDtoTestUtils.emptyAppInvolvement(application);
+    when(applicationInvolvementService.getApplicationInvolvementDto(application, user)).thenReturn(appInvolvement);
+
+    var permissions = processingPermissionService.getProcessingPermissionsDto(application, user).getProcessingPermissions();
+    assertThat(permissions).doesNotContain(PwaAppProcessingPermission.CONSULTEE_ADVICE);
+
+  }
+
+  @Test
+  public void getAppPermissions_noConsulteeAdvicePermission_whenIndustry() {
+
+    replacePrivileges(user, PwaUserPrivilege.PWA_INDUSTRY);
+
+    var appInvolvement = PwaAppProcessingContextDtoTestUtils.emptyAppInvolvement(application);
+    when(applicationInvolvementService.getApplicationInvolvementDto(application, user)).thenReturn(appInvolvement);
+
+    var permissions = processingPermissionService.getProcessingPermissionsDto(application, user).getProcessingPermissions();
+    assertThat(permissions).doesNotContain(PwaAppProcessingPermission.CONSULTEE_ADVICE);
+
+  }
+
+  @Test
+  public void getAppPermissions_noConsulteeAdvicePermission_whenRegulator() {
+
+    replacePrivileges(user, PwaUserPrivilege.PWA_REGULATOR);
+
+    var appInvolvement = PwaAppProcessingContextDtoTestUtils.emptyAppInvolvement(application);
+    when(applicationInvolvementService.getApplicationInvolvementDto(application, user)).thenReturn(appInvolvement);
+
+    var permissions = processingPermissionService.getProcessingPermissionsDto(application, user).getProcessingPermissions();
+    assertThat(permissions).doesNotContain(PwaAppProcessingPermission.CONSULTEE_ADVICE);
 
   }
 

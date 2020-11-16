@@ -11,6 +11,7 @@ import uk.co.ogauthority.pwa.controller.appprocessing.decision.AppConsentDocCont
 import uk.co.ogauthority.pwa.controller.appprocessing.initialreview.InitialReviewController;
 import uk.co.ogauthority.pwa.controller.appprocessing.options.ApproveOptionsController;
 import uk.co.ogauthority.pwa.controller.consultations.ConsultationController;
+import uk.co.ogauthority.pwa.controller.consultations.ConsulteeAdviceController;
 import uk.co.ogauthority.pwa.controller.consultations.responses.AssignResponderController;
 import uk.co.ogauthority.pwa.controller.consultations.responses.ConsultationResponseController;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
@@ -29,6 +30,7 @@ import uk.co.ogauthority.pwa.service.appprocessing.tasks.AppProcessingService;
 import uk.co.ogauthority.pwa.service.consultations.AssignCaseOfficerService;
 import uk.co.ogauthority.pwa.service.consultations.AssignResponderService;
 import uk.co.ogauthority.pwa.service.consultations.ConsultationResponseService;
+import uk.co.ogauthority.pwa.service.consultations.ConsulteeAdviceService;
 
 /**
  * Enumeration of app processing-related tasks for all users.
@@ -89,6 +91,14 @@ public enum PwaAppProcessingTask {
               .renderAssignResponder(processingContext.getMasterPwaApplicationId(),
                   processingContext.getApplicationType(), processingContext.getActiveConsultationRequestId(), null, null)),
       70),
+
+  CONSULTEE_ADVICE(
+      "View consultations",
+      TaskRequirement.OPTIONAL,
+      ConsulteeAdviceService.class, processingContext -> ReverseRouter.route(on(ConsulteeAdviceController.class)
+              .renderConsulteeAdvice(processingContext.getMasterPwaApplicationId(), processingContext.getApplicationType(), null)),
+      75
+  ),
 
   CONSULTATION_RESPONSE(
       "Provide response",

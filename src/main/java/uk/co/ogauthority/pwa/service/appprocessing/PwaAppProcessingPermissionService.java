@@ -1,7 +1,7 @@
 package uk.co.ogauthority.pwa.service.appprocessing;
 
-
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.collections4.SetUtils;
@@ -15,6 +15,7 @@ import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 
 @Service
@@ -59,8 +60,13 @@ public class PwaAppProcessingPermissionService {
             case CONSULTATION_RESPONDER:
               return appInvolvement.hasAnyOfTheseConsulteeRoles(ConsulteeGroupMemberRole.RESPONDER)
                   && appInvolvement.getConsultationInvolvement()
-                  .map(ConsultationInvolvementDto::isAssignedToResponderStage)
-                  .orElse(false);
+                        .map(ConsultationInvolvementDto::isAssignedToResponderStage)
+                        .orElse(false);
+            case CONSULTEE_ADVICE:
+              return !appInvolvement.getConsultationInvolvement()
+                  .map(ConsultationInvolvementDto::getHistoricalRequests)
+                  .orElse(List.of())
+                  .isEmpty();
             case APPROVE_OPTIONS:
               return userPrivileges.contains(PwaUserPrivilege.PWA_CASE_OFFICER)
                   && appInvolvement.isCaseOfficerStageAndUserAssigned()

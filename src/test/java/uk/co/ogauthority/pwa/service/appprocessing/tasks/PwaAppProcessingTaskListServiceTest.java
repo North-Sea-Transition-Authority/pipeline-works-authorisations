@@ -101,6 +101,7 @@ public class PwaAppProcessingTaskListServiceTest {
     assertThat(taskListGroups.get(1).getTaskListEntries())
         .extracting(TaskListEntry::getTaskName, TaskListEntry::getRoute)
         .containsExactly(
+            tuple(PwaAppProcessingTask.CONSULTEE_ADVICE.getTaskName(), PwaAppProcessingTask.CONSULTEE_ADVICE.getRoute(processingContext)),
             tuple(PwaAppProcessingTask.ALLOCATE_CASE_OFFICER.getTaskName(), PwaAppProcessingTask.ALLOCATE_CASE_OFFICER.getRoute(processingContext)),
             tuple(PwaAppProcessingTask.RFI.getTaskName(), PwaAppProcessingTask.RFI.getRoute(processingContext)),
             tuple(PwaAppProcessingTask.ADD_NOTE_OR_DOCUMENT.getTaskName(), PwaAppProcessingTask.ADD_NOTE_OR_DOCUMENT.getRoute(processingContext)),

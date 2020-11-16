@@ -9,12 +9,10 @@ import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.exception.AccessDeniedException;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.service.appprocessing.PwaAppProcessingPermissionService;
-import uk.co.ogauthority.pwa.service.consultations.ConsultationRequestService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.fileupload.AppFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaapplications.search.ApplicationDetailSearcher;
-import uk.co.ogauthority.pwa.service.users.UserTypeService;
 import uk.co.ogauthority.pwa.util.ApplicationContextUtils;
 
 @Service
@@ -24,22 +22,16 @@ public class PwaAppProcessingContextService {
   private final PwaAppProcessingPermissionService appProcessingPermissionService;
   private final ApplicationDetailSearcher applicationDetailSearcher;
   private final AppFileService appFileService;
-  private final UserTypeService userTypeService;
-  private final ConsultationRequestService consultationRequestService;
 
   @Autowired
   public PwaAppProcessingContextService(PwaApplicationDetailService detailService,
                                         PwaAppProcessingPermissionService appProcessingPermissionService,
                                         ApplicationDetailSearcher applicationDetailSearcher,
-                                        AppFileService appFileService,
-                                        UserTypeService userTypeService,
-                                        ConsultationRequestService consultationRequestService) {
+                                        AppFileService appFileService) {
     this.detailService = detailService;
     this.appProcessingPermissionService = appProcessingPermissionService;
     this.applicationDetailSearcher = applicationDetailSearcher;
     this.appFileService = appFileService;
-    this.userTypeService = userTypeService;
-    this.consultationRequestService = consultationRequestService;
   }
 
   /**

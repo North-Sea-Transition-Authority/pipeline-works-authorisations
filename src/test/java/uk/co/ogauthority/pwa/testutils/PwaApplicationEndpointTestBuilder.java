@@ -412,7 +412,7 @@ public class PwaApplicationEndpointTestBuilder {
     // try when zero permissions
     try {
 
-      when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(any(), any())).thenReturn(PwaAppProcessingContextDtoTestUtils.empty());
+      when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(any(), any())).thenReturn(PwaAppProcessingContextDtoTestUtils.emptyPermissionsDto());
 
       performRequest(
           this.endpointUrlProducer.apply(detail, detail.getPwaApplicationType()),
