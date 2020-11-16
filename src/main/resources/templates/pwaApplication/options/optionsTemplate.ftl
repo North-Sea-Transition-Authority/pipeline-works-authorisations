@@ -15,6 +15,7 @@
             <@fdsAction.link
             linkText="the OGA website"
             linkUrl=ogaOptionsTemplateLink
+            openInNewTab=true
             linkClass="govuk-link"
             linkScreenReaderText="OGA options template link"/>
         </#assign>
