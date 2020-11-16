@@ -13,7 +13,7 @@
 
         <#assign optionsTemplateLink>
             <@fdsAction.link
-            linkText="here"
+            linkText="the OGA website"
             linkUrl=ogaOptionsTemplateLink
             linkClass="govuk-link"
             linkScreenReaderText="OGA options template link"/>
