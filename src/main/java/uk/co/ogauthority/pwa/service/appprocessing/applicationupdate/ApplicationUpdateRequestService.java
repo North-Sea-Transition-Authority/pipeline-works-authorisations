@@ -169,6 +169,8 @@ public class ApplicationUpdateRequestService implements AppProcessingService {
     ).isPresent();
   }
 
+
+
   @Override
   public boolean canShowInTaskList(PwaAppProcessingContext processingContext) {
     return processingContext.getAppProcessingPermissions().contains(
