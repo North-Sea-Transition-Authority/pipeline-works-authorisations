@@ -1,0 +1,32 @@
+package uk.co.ogauthority.pwa.model.notify.emailproperties;
+
+import java.util.Map;
+import uk.co.ogauthority.pwa.model.enums.notify.NotifyTemplate;
+
+public class ApplicationOptionsApprovedEmailProps extends EmailProperties {
+
+  private final String applicationReference;
+  private final String holders;
+  private final String caseManagementLink;
+
+  public ApplicationOptionsApprovedEmailProps(String recipientFullName,
+                                              String applicationReference,
+                                              String holder,
+                                              String caseManagementLink) {
+    super(NotifyTemplate.APPLICATION_OPTIONS_APPROVED, recipientFullName);
+    this.applicationReference = applicationReference;
+    this.holders = holder;
+
+    this.caseManagementLink = caseManagementLink;
+  }
+
+  @Override
+  public Map<String, String> getEmailPersonalisation() {
+    Map<String, String> emailPersonalisation = super.getEmailPersonalisation();
+    emailPersonalisation.put("APPLICATION_REFERENCE", applicationReference);
+    emailPersonalisation.put("HOLDER", holders);
+    emailPersonalisation.put("CASE_MANAGEMENT_LINK", caseManagementLink);
+    return emailPersonalisation;
+  }
+
+}

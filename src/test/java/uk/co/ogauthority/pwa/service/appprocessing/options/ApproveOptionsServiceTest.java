@@ -50,6 +50,9 @@ public class ApproveOptionsServiceTest {
   @Mock
   private OptionsApplicationApprovalRepository optionsApplicationApprovalRepository;
 
+  @Mock
+  private OptionsCaseManagementEmailService optionsCaseManagementEmailService;
+
   private ApproveOptionsService approveOptionsService;
 
   private PwaApplicationDetail pwaApplicationDetail;
@@ -73,8 +76,8 @@ public class ApproveOptionsServiceTest {
     approveOptionsService = new ApproveOptionsService(
         consultationRequestService,
         optionsApprovalPersister,
-        optionsApplicationApprovalRepository
-    );
+        optionsApplicationApprovalRepository,
+        optionsCaseManagementEmailService);
 
   }
 
@@ -198,6 +201,9 @@ public class ApproveOptionsServiceTest {
         pwaApplicationDetail.getPwaApplication(), person, instant
     );
 
+    verify(optionsCaseManagementEmailService, times(1)).sendInitialOptionsApprovedEmail(
+        pwaApplicationDetail
+    );
 
   }
 

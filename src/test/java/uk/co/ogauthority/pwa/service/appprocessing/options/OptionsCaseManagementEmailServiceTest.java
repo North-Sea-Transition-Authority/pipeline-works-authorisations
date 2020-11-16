@@ -1,0 +1,153 @@
+package uk.co.ogauthority.pwa.service.appprocessing.options;
+
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
+import uk.co.ogauthority.pwa.energyportal.model.entity.PersonTestUtil;
+import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
+import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
+import uk.co.ogauthority.pwa.model.notify.emailproperties.ApplicationOptionsApprovedEmailProps;
+import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.service.notify.EmailCaseLinkService;
+import uk.co.ogauthority.pwa.service.notify.NotifyService;
+import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
+import uk.co.ogauthority.pwa.service.pwaconsents.MasterPwaHolderDto;
+import uk.co.ogauthority.pwa.service.pwaconsents.PwaConsentOrganisationRoleService;
+import uk.co.ogauthority.pwa.testutils.PortalOrganisationTestUtils;
+import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
+
+@RunWith(MockitoJUnitRunner.class)
+public class OptionsCaseManagementEmailServiceTest {
+
+  private static final String CASE_LINK = "https://link.com";
+
+  @Mock
+  private EmailCaseLinkService emailCaseLinkService;
+
+  @Mock
+  private NotifyService notifyService;
+
+  @Mock
+  private PwaContactService pwaContactService;
+
+  @Mock
+  private PwaConsentOrganisationRoleService pwaConsentOrganisationRoleService;
+
+  @Captor
+  private ArgumentCaptor<ApplicationOptionsApprovedEmailProps> emailPropsCaptor;
+
+  private OptionsCaseManagementEmailService optionsCaseManagementEmailService;
+
+  private PwaApplicationDetail pwaApplicationDetail;
+  private MasterPwa masterPwa;
+
+  private Person preparerContactPerson;
+
+  private PortalOrganisationUnit organisationUnit;
+  private MasterPwaHolderDto masterPwaHolderDto;
+
+  @Before
+  public void setUp() throws Exception {
+
+    pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.OPTIONS_VARIATION);
+    masterPwa = pwaApplicationDetail.getPwaApplication().getMasterPwa();
+
+    preparerContactPerson = PersonTestUtil.createDefaultPerson();
+
+    organisationUnit = PortalOrganisationTestUtils.getOrganisationUnit();
+    var pwaConsent = new PwaConsent();
+    masterPwaHolderDto = new MasterPwaHolderDto(organisationUnit, pwaConsent);
+
+    when(pwaConsentOrganisationRoleService.getCurrentHoldersOrgRolesForMasterPwa(masterPwa))
+        .thenReturn(Set.of(masterPwaHolderDto));
+
+    when(emailCaseLinkService.generateCaseManagementLink(pwaApplicationDetail.getPwaApplication()))
+        .thenReturn(CASE_LINK);
+
+    when(pwaContactService.getPeopleInRoleForPwaApplication(
+        pwaApplicationDetail.getPwaApplication(),
+        PwaContactRole.PREPARER))
+        .thenReturn(List.of(preparerContactPerson));
+
+    optionsCaseManagementEmailService = new OptionsCaseManagementEmailService(
+        emailCaseLinkService,
+        notifyService,
+        pwaContactService,
+        pwaConsentOrganisationRoleService
+    );
+
+  }
+
+  @Test
+  public void sendInitialOptionsApprovedEmail_whenRecipientsFound_andSingleHoldersFound() {
+    optionsCaseManagementEmailService.sendInitialOptionsApprovedEmail(pwaApplicationDetail);
+
+    verify(notifyService, times(1)).sendEmail(emailPropsCaptor.capture(), eq(preparerContactPerson.getEmailAddress()));
+    verifyNoMoreInteractions(notifyService);
+
+    var emailProps = emailPropsCaptor.getValue();
+    assertThat(emailProps.getEmailPersonalisation()).containsOnly(
+        entry("APPLICATION_REFERENCE", pwaApplicationDetail.getPwaApplicationRef()),
+        entry("HOLDER", organisationUnit.getName()),
+        entry("CASE_MANAGEMENT_LINK", CASE_LINK),
+        entry("TEST_EMAIL", "no"),
+        entry("RECIPIENT_FULL_NAME", preparerContactPerson.getFullName())
+    );
+
+  }
+
+  @Test
+  public void sendInitialOptionsApprovedEmail_whenNoRecipientsFound() {
+    when(pwaContactService.getPeopleInRoleForPwaApplication(
+        pwaApplicationDetail.getPwaApplication(),
+        PwaContactRole.PREPARER
+    ))
+        .thenReturn(Collections.emptyList());
+
+    optionsCaseManagementEmailService.sendInitialOptionsApprovedEmail(pwaApplicationDetail);
+
+    verifyNoInteractions(notifyService);
+
+  }
+
+  @Test
+  public void sendInitialOptionsApprovedEmail_whenRecipientsFound_andMultipleHoldersFound(){
+    var organisationUnit2 = PortalOrganisationTestUtils.generateOrganisationUnit(9, "XXX", null);
+    var pwaConsent2 = new PwaConsent();
+    var masterPwaHolderDto2 = new MasterPwaHolderDto(organisationUnit2, pwaConsent2);
+
+    when(pwaConsentOrganisationRoleService.getCurrentHoldersOrgRolesForMasterPwa(masterPwa))
+        .thenReturn(Set.of(masterPwaHolderDto2, masterPwaHolderDto));
+
+    optionsCaseManagementEmailService.sendInitialOptionsApprovedEmail(pwaApplicationDetail);
+
+    verify(notifyService, times(1)).sendEmail(emailPropsCaptor.capture(), eq(preparerContactPerson.getEmailAddress()));
+
+    var emailProps = emailPropsCaptor.getValue();
+    assertThat(emailProps.getEmailPersonalisation()).containsEntry(
+        "HOLDER", String.format("%s, %s", organisationUnit.getName(), "XXX")
+    );
+
+  }
+}
