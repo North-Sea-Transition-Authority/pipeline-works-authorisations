@@ -95,6 +95,9 @@ public class PadPipelineServiceTest {
   @Captor
   private ArgumentCaptor<PadPipeline> padPipelineArgumentCaptor;
 
+  @Captor
+  private ArgumentCaptor<List<PadPipeline>> padPipelineListArgCaptor;
+
   @Mock
   private PipelineIdentFormValidator mockValidator;
 
@@ -577,12 +580,14 @@ public class PadPipelineServiceTest {
     pipeline1.setTrenchingMethodsDescription("desc");
     pipeline1.setPipelineMaterial(PipelineMaterial.CARBON_STEEL);
     pipeline1.setOtherPipelineMaterialUsed("other");
+    pipeline1.setPipelineStatus(PipelineStatus.IN_SERVICE);
 
     var pipeline2 = new PadPipeline();
     pipeline2.setTrenchedBuriedBackfilled(false);
     pipeline2.setTrenchingMethodsDescription("desc");
     pipeline2.setPipelineMaterial(PipelineMaterial.DUPLEX);
     pipeline2.setOtherPipelineMaterialUsed("other");
+    pipeline2.setPipelineStatus(PipelineStatus.OUT_OF_USE_ON_SEABED);
 
     when(padPipelineRepository.getAllByPwaApplicationDetail(detail)).thenReturn(List.of(pipeline1, pipeline2));
 
@@ -606,12 +611,14 @@ public class PadPipelineServiceTest {
     pipeline1.setTrenchingMethodsDescription("desc");
     pipeline1.setPipelineMaterial(PipelineMaterial.OTHER);
     pipeline1.setOtherPipelineMaterialUsed("other");
+    pipeline1.setPipelineStatus(PipelineStatus.IN_SERVICE);
 
     var pipeline2 = new PadPipeline();
     pipeline2.setTrenchedBuriedBackfilled(true);
     pipeline2.setTrenchingMethodsDescription("desc");
     pipeline2.setPipelineMaterial(PipelineMaterial.OTHER);
     pipeline2.setOtherPipelineMaterialUsed("other");
+    pipeline2.setPipelineStatus(PipelineStatus.OUT_OF_USE_ON_SEABED);
 
     when(padPipelineRepository.getAllByPwaApplicationDetail(detail)).thenReturn(List.of(pipeline1, pipeline2));
 
@@ -624,6 +631,27 @@ public class PadPipelineServiceTest {
     assertThat(pipeline2.getOtherPipelineMaterialUsed()).isNotNull();
 
     verify(padPipelineRepository, times(1)).saveAll(eq(List.of(pipeline1, pipeline2)));
+
+  }
+
+  @Test
+  public void cleanupData_dataNotRequired_notCleaned() {
+
+    var pipeline1 = new PadPipeline();
+    pipeline1.setPipelineStatus(PipelineStatus.RETURNED_TO_SHORE);
+
+    var pipeline2 = new PadPipeline();
+    pipeline2.setPipelineStatus(PipelineStatus.NEVER_LAID);
+
+    when(padPipelineRepository.getAllByPwaApplicationDetail(detail)).thenReturn(List.of(pipeline1, pipeline2));
+
+    padPipelineService.cleanupData(detail);
+
+    verify(padPipelineRepository, times(1)).saveAll(padPipelineListArgCaptor.capture());
+
+    var updatedPipeList = padPipelineListArgCaptor.getValue();
+
+    assertThat(updatedPipeList).isEmpty();
 
   }
 
@@ -733,14 +761,18 @@ public class PadPipelineServiceTest {
   }
 
   @Test
-  public void doesPipelineHaveTasks_true() {
+  public void doesPipelineHaveTasks() {
     var statusEnums = EnumSet.allOf(PipelineStatus.class);
-    statusEnums.removeAll(EnumSet.of(PipelineStatus.RETURNED_TO_SHORE, PipelineStatus.NEVER_LAID));
     statusEnums.forEach(pipelineStatus -> {
+
       padPipe1.setPipelineStatus(pipelineStatus);
       var dto = createPadPipelineSummaryDto(padPipe1);
       var result = padPipelineService.doesPipelineHaveTasks(dto);
-      assertThat(result).isTrue();
+
+      boolean expectedResult = List.of(PipelineStatus.IN_SERVICE, PipelineStatus.OUT_OF_USE_ON_SEABED).contains(pipelineStatus);
+
+      assertThat(result).isEqualTo(expectedResult);
+
     });
   }
 
@@ -760,12 +792,12 @@ public class PadPipelineServiceTest {
     PipelineStatus.streamInOrder().forEach(pipelineStatus -> {
       padPipe1.setPipelineStatus(pipelineStatus);
       switch (pipelineStatus) {
-        case NEVER_LAID:
-        case RETURNED_TO_SHORE:
-          assertThat(padPipelineService.isValidationRequired(padPipe1)).isFalse();
+        case IN_SERVICE:
+        case OUT_OF_USE_ON_SEABED:
+          assertThat(padPipelineService.isValidationRequired(padPipe1)).isTrue();
           break;
         default:
-          assertThat(padPipelineService.isValidationRequired(padPipe1)).isTrue();
+          assertThat(padPipelineService.isValidationRequired(padPipe1)).isFalse();
       }
     });
   }
@@ -779,7 +811,7 @@ public class PadPipelineServiceTest {
   }
 
   @Test
-  public void isPadPipelineValid_invalid() {
+  public void isPadPipelineValid_withError_invalid() {
 
     doAnswer(invocation -> {
       var bindingResult = (BindingResult) invocation.getArgument(1);
@@ -791,12 +823,12 @@ public class PadPipelineServiceTest {
       padPipe1.setPipelineStatus(pipelineStatus);
       var result = padPipelineService.isPadPipelineValid(padPipe1);
       switch (pipelineStatus) {
-        case RETURNED_TO_SHORE:
-        case NEVER_LAID:
-          assertThat(result).isTrue();
+        case IN_SERVICE:
+        case OUT_OF_USE_ON_SEABED:
+          assertThat(result).isFalse();
           break;
         default:
-          assertThat(result).isFalse();
+          assertThat(result).isTrue();
       }
     });
   }

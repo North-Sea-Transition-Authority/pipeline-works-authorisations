@@ -1,0 +1,1 @@
+ALTER TABLE ${datasource.user}.pad_pipeline_idents MODIFY is_defining_structure NULL;
