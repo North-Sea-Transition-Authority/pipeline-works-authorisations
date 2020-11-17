@@ -201,14 +201,14 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
   public void cleanupData(PwaApplicationDetail detail) {
 
     var projectInformation = getPadProjectInformationData(detail);
+    var requiredQuestions = getRequiredQuestions(detail.getPwaApplicationType());
 
-    // null out licence transfer info if no licence transfer
-    if (!projectInformation.getLicenceTransferPlanned()) {
+    if (requiredQuestions.contains(ProjectInformationQuestion.LICENCE_TRANSFER_PLANNED)
+        && !projectInformation.getLicenceTransferPlanned()) {
+      // null out licence transfer info if no licence transfer
       projectInformation.setLicenceTransferTimestamp(null);
       projectInformation.setCommercialAgreementTimestamp(null);
     }
-
-    var requiredQuestions = getRequiredQuestions(detail.getPwaApplicationType());
 
     if (requiredQuestions.contains(ProjectInformationQuestion.TEMPORARY_DEPOSITS_BEING_MADE)) {
       // null out temporary deposit description if temporary deposits not made
