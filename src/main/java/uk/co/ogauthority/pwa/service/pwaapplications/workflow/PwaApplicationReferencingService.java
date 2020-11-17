@@ -18,7 +18,7 @@ public class PwaApplicationReferencingService {
 
   protected String createAppReference() {
     long refSeq = pwaApplicationRepository.getNextRefNum();
-    String appRef = "PA/" + refSeq + "/1";
+    String appRef = "PA/" + refSeq;
     return appRef;
   }
 

@@ -28,6 +28,6 @@ public class PwaApplicationReferencingServiceTest {
 
   @Test
   public void createAppReference() {
-    assertThat(classUnderTest.createAppReference()).isEqualTo("PA/1/1");
+    assertThat(classUnderTest.createAppReference()).isEqualTo("PA/1");
   }
 }

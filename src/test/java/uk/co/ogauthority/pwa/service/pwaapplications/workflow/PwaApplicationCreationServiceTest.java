@@ -78,7 +78,7 @@ public class PwaApplicationCreationServiceTest {
 
   @Before
   public void setUp() {
-    when(pwaApplicationReferencingService.createAppReference()).thenReturn("PA/1/1");
+    when(pwaApplicationReferencingService.createAppReference()).thenReturn("PA/1");
 
     when(pwaApplicationDetailService.createFirstDetail(any(), any(), any()))
         .thenAnswer(invocation -> new PwaApplicationDetail(invocation.getArgument(0), 1, 1, Instant.now()));
@@ -121,7 +121,7 @@ public class PwaApplicationCreationServiceTest {
     // check application set up correctly
     assertThat(application.getMasterPwa()).isEqualTo(masterPwa);
     assertThat(application.getApplicationType()).isEqualTo(PwaApplicationType.INITIAL);
-    assertThat(application.getAppReference()).isEqualTo("PA/1/1");
+    assertThat(application.getAppReference()).isEqualTo("PA/1");
     assertThat(application.getConsentReference()).isNull();
     assertThat(application.getVariationNo()).isEqualTo(0);
     assertThat(application.getDecision()).isEmpty();
@@ -197,7 +197,7 @@ public class PwaApplicationCreationServiceTest {
     // check application set up correctly
     assertThat(application.getMasterPwa()).isEqualTo(masterPwa);
     assertThat(application.getApplicationType()).isEqualTo(pwaApplicationType);
-    assertThat(application.getAppReference()).isEqualTo("PA/1/1");
+    assertThat(application.getAppReference()).isEqualTo("PA/1");
     assertThat(application.getConsentReference()).isNull();
     assertThat(application.getVariationNo()).isEqualTo(0);
     assertThat(application.getDecision()).isEmpty();
