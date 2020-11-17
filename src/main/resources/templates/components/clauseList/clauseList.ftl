@@ -62,6 +62,11 @@
         linkUrl=springUrl(clauseActionsUrlFactory.getEditClauseRoute(clauseView.clauseId))
         linkClass="govuk-link clause-list__action clause-list__action--heading govuk-!-font-size-19"
         linkScreenReaderText=clauseView.name />
+        <@fdsAction.link
+        linkText="Remove"
+        linkUrl=springUrl(clauseActionsUrlFactory.getRemoveClauseRoute(clauseView.clauseId))
+        linkClass="govuk-link clause-list__action clause-list__action--heading govuk-!-font-size-19"
+        linkScreenReaderText=clauseView.name />
     </${headingSize}>
 
     <@multiLineText.multiLineText blockClass="clause-list__text">${clauseView.text}</@multiLineText.multiLineText>
