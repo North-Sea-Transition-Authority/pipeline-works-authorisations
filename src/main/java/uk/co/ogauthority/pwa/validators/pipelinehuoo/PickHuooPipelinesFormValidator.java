@@ -112,7 +112,7 @@ public class PickHuooPipelinesFormValidator implements SmartValidator {
       errors.rejectValue(
           "organisationUnitIds",
           "organisationUnitIds.required",
-          "You must select at least one organisation");
+          "Select at least one organisation");
       return;
     }
 
@@ -121,7 +121,7 @@ public class PickHuooPipelinesFormValidator implements SmartValidator {
       errors.rejectValue(
           "treatyAgreements",
           "treatyAgreements.required",
-          "You must select at least one treaty");
+          "Select at least one treaty");
       return;
     }
 
@@ -131,19 +131,19 @@ public class PickHuooPipelinesFormValidator implements SmartValidator {
       errors.rejectValue(
           "treatyAgreements",
           "treatyAgreements.required",
-          "You must select at least one treaty if no organisation selected");
+          "Select at least one treaty if no organisation selected");
 
       errors.rejectValue(
           "organisationUnitIds",
           "organisationUnitIds.required",
-          "You must select at least one organisation if no treaty selected");
+          "Select at least one organisation if no treaty selected");
     }
   }
 
   private void validatePipelinesBasic(PickHuooPipelinesForm form, Errors errors) {
     if (SetUtils.emptyIfNull(form.getPickedPipelineStrings()).isEmpty()) {
       errors.rejectValue("pickedPipelineStrings", "pickedPipelineStrings.required",
-          "You must select at least one pipeline");
+          "Select at least one pipeline");
 
     }
   }

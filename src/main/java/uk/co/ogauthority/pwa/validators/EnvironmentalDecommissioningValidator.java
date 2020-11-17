@@ -85,7 +85,7 @@ public class EnvironmentalDecommissioningValidator implements SmartValidator {
       if (form.getEnvironmentalConditions() == null
           || form.getEnvironmentalConditions().size() < EnvironmentalCondition.values().length) {
         errors.rejectValue("environmentalConditions", "environmentalConditions.requiresAll",
-            "You must agree to all environmental conditions");
+            "Confirm your agreement to all environmental conditions");
       }
 
     }
@@ -94,7 +94,7 @@ public class EnvironmentalDecommissioningValidator implements SmartValidator {
       if (form.getDecommissioningConditions() == null
           || form.getDecommissioningConditions().size() < DecommissioningCondition.values().length) {
         errors.rejectValue("decommissioningConditions", "decommissioningConditions.requiresAll",
-            "You must agree to all decommissioning conditions");
+            "Confirm your agreement to all decommissioning conditions");
       }
     }
 
@@ -132,12 +132,12 @@ public class EnvironmentalDecommissioningValidator implements SmartValidator {
           );
         } catch (NullPointerException npe) {
           errors.rejectValue("emtSubmissionDay", "emtSubmissionDay.notParsable",
-              "You must provide a submission date");
+              "Enter a submission date");
           errors.rejectValue("emtSubmissionMonth", "emtSubmissionMonth.notParsable", "");
           errors.rejectValue("emtSubmissionYear", "emtSubmissionYear.notParsable", "");
         } catch (DateTimeException dte) {
           errors.rejectValue("emtSubmissionDay", "emtSubmissionDay.invalidDate",
-              "You must provide a real date for submission");
+              "Enter a real date for submission");
           errors.rejectValue("emtSubmissionMonth", "emtSubmissionMonth.invalidDate", "");
           errors.rejectValue("emtSubmissionYear", "emtSubmissionYear.invalidDate", "");
         }

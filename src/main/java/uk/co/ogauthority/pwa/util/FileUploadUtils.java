@@ -66,7 +66,7 @@ public class FileUploadUtils {
         });
 
     if (mandatory) {
-      validateMinFileLimit(uploadForm, bindingResult, 1, "You must upload at least one file");
+      validateMinFileLimit(uploadForm, bindingResult, 1, "Upload at least one file");
     }
 
   }

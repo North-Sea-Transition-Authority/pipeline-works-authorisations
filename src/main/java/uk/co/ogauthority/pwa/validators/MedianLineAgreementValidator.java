@@ -15,8 +15,8 @@ import uk.co.ogauthority.pwa.util.validationgroups.PartialValidation;
 @Service
 public class MedianLineAgreementValidator implements SmartValidator {
 
-  private static String MISSING_NAME = "You must provide the name of the negotiator";
-  private static String MISSING_EMAIL = "You must provide a contact email for the negotiator";
+  private static String MISSING_NAME = "Enter the name of the negotiator";
+  private static String MISSING_EMAIL = "Enter a contact email for the negotiator";
 
   private static String NEGOTIATOR_NAME = "Negotiator name";
   private static String NEGOTIATOR_EMAIL = "Negotiator email";
@@ -49,7 +49,7 @@ public class MedianLineAgreementValidator implements SmartValidator {
         errors,
         "agreementStatus",
         "agreementStatus.required",
-        "You must select an agreement status");
+        "Select an agreement status");
 
     if (MedianLineStatus.NEGOTIATIONS_ONGOING.equals(form.getAgreementStatus())) {
       if (StringUtils.isBlank(form.getNegotiatorNameIfOngoing())) {

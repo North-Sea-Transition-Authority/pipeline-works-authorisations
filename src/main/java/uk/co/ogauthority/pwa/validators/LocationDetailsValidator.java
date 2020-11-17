@@ -81,25 +81,25 @@ public class LocationDetailsValidator implements SmartValidator {
 
     if (requiredQuestions.contains(LocationDetailsQuestion.APPROXIMATE_PROJECT_LOCATION_FROM_SHORE)) {
       ValidationUtils.rejectIfEmpty(errors, "approximateProjectLocationFromShore",
-          "approximateProjectLocationFromShore.required", "You must provide approximate location information");
+          "approximateProjectLocationFromShore.required", "Enter approximate location information");
     }
 
     if (requiredQuestions.contains(LocationDetailsQuestion.WITHIN_SAFETY_ZONE)) {
       if (form.getWithinSafetyZone() == null) {
         errors.rejectValue("withinSafetyZone", "withinSafetyZone.required",
-            "You must provide information on work carried out within 500m of a safety zone");
+            "Enter information on work carried out within 500m of a safety zone");
       } else {
         switch (form.getWithinSafetyZone()) {
           case YES:
             if (form.getFacilitiesIfYes().size() == 0) {
               errors.rejectValue("facilitiesIfYes", "facilitiesIfYes.required",
-                  "You must provide all structures within 500m");
+                  "Select all structures within 500m");
             }
             break;
           case PARTIALLY:
             if (form.getFacilitiesIfPartially().size() == 0) {
               errors.rejectValue("facilitiesIfPartially", "facilitiesIfPartially.required",
-                  "You must provide all structures within 500m");
+                  "Select all structures within 500m");
             }
             break;
           default:
@@ -115,7 +115,7 @@ public class LocationDetailsValidator implements SmartValidator {
       } else if (form.getFacilitiesOffshore().equals(false)) {
         ValidationUtils.rejectIfEmpty(errors, "pipelineAshoreLocation",
             "pipelineAshoreLocation" + FieldValidationErrorCodes.REQUIRED.getCode(),
-            "You must provide the location information detailing where the pipeline comes ashore");
+            "Enter the location information detailing where the pipeline comes ashore");
       }
     }
 
@@ -125,7 +125,7 @@ public class LocationDetailsValidator implements SmartValidator {
             "Select yes if the pipeline will be used to transport materials / facilitate the transportation of materials to shore");
       } else if (form.getTransportsMaterialsToShore().equals(true)) {
         ValidationUtils.rejectIfEmpty(errors, "transportationMethod", "transportationMethod.required",
-            "You must provide the method of transportation to shore");
+            "Enter the method of transportation to shore");
       }
     }
 
@@ -136,7 +136,7 @@ public class LocationDetailsValidator implements SmartValidator {
       } else {
         if (BooleanUtils.isTrue(form.getRouteSurveyUndertaken())) {
           ValidationUtils.rejectIfEmpty(errors, "pipelineRouteDetails",
-              "pipelineRouteDetails.required", "You must provide pipeline route details");
+              "pipelineRouteDetails.required", "Enter pipeline route details");
         }
       }
     }
@@ -145,7 +145,7 @@ public class LocationDetailsValidator implements SmartValidator {
       ValidatorUtils.validateBooleanTrue(errors,
           form.getWithinLimitsOfDeviation(),
           "withinLimitsOfDeviation",
-          "You must confirm that the limit of deviation during construction will be ±100m");
+          "Confirm that the limit of deviation during construction will be ±100m");
     }
   }
 

@@ -60,7 +60,7 @@ public class AdmiraltyChartFileService {
         (UploadMultipleFilesWithDescriptionForm) form,
         bindingResult,
         1,
-        "You must provide a single admiralty chart");
+        "Provide a single admiralty chart");
 
     return bindingResult;
   }

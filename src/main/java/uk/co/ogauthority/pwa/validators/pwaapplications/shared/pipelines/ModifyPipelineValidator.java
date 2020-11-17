@@ -33,11 +33,11 @@ public class ModifyPipelineValidator implements SmartValidator {
         .anyMatch(s -> String.valueOf(s.getPipelineId()).equals(form.getPipelineId()));
     if (!isValidPipeline) {
       errors.rejectValue("pipelineId", "pipelineId" + FieldValidationErrorCodes.INVALID.getCode(),
-          "You must select a valid pipeline");
+          "Select a valid pipeline");
     }
     ValidationUtils.rejectIfEmpty(errors, "pipelineStatus",
         "pipelineStatus" + FieldValidationErrorCodes.REQUIRED.getCode(),
-        "You must select the status of the pipeline after changes");
+        "Select the status of the pipeline after changes");
     if (form.getPipelineStatus() != null && form.getPipelineStatus().getHistorical()) {
       errors.rejectValue("pipelineStatus",
           "pipelineStatus" + FieldValidationErrorCodes.INVALID.getCode(),
@@ -46,7 +46,7 @@ public class ModifyPipelineValidator implements SmartValidator {
     if (form.getPipelineStatus() == PipelineStatus.OUT_OF_USE_ON_SEABED) {
       ValidationUtils.rejectIfEmpty(errors, "pipelineStatusReason",
           "pipelineStatusReason" + FieldValidationErrorCodes.REQUIRED.getCode(),
-          "You must provide a reason for leaving the pipeline on the seabed");
+          "Enter a reason for leaving the pipeline on the seabed");
       if (StringUtils.length(form.getPipelineStatusReason()) > 4000) {
         errors.rejectValue("pipelineStatusReason",
             "pipelineStatusReason" + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode(),

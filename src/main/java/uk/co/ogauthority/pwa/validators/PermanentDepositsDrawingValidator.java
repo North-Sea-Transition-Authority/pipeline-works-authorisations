@@ -31,7 +31,7 @@ public class PermanentDepositsDrawingValidator implements SmartValidator {
     var form = (PermanentDepositDrawingForm) o;
 
     ValidationUtils.rejectIfEmptyOrWhitespace(errors, "reference", "reference.required",
-        "You must enter a deposit reference");
+        "Enter a deposit reference");
 
     if (StringUtils.isNotBlank(form.getReference()) && validationHints[0] instanceof DepositDrawingsService) {
       var depositDrawingsService = (DepositDrawingsService) validationHints[0];
@@ -45,11 +45,11 @@ public class PermanentDepositsDrawingValidator implements SmartValidator {
     if (ListUtils.emptyIfNull(form.getUploadedFileWithDescriptionForms()).size() != 1) {
       errors.rejectValue("uploadedFileWithDescriptionForms",
           "uploadedFileWithDescriptionForms" + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode(),
-          "You must upload one drawing");
+          "Upload one drawing");
     }
 
     ValidationUtils.rejectIfEmptyOrWhitespace(errors, "selectedDeposits", "selectedDeposits.required",
-        "You must select at least one deposit");
+        "Select at least one deposit");
 
   }
 

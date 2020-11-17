@@ -106,7 +106,7 @@ public class PadPipelineIdentService {
         "ident",
         "is incomplete",
         allIdentsValid,
-        allIdentsValid ? null : "You must add at least one ident"
+        allIdentsValid ? null : "Add at least one ident"
     );
   }
 

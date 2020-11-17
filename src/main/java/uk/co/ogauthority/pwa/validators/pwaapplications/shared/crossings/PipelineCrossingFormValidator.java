@@ -20,7 +20,7 @@ public class PipelineCrossingFormValidator implements Validator {
   public void validate(Object target, Errors errors) {
     var form = (PipelineCrossingForm) target;
     ValidationUtils.rejectIfEmpty(errors, "pipelineCrossed", "pipelineCrossed" + FieldValidationErrorCodes.REQUIRED,
-        "You must enter a reference for the crossed pipeline");
+        "Enter a reference for the crossed pipeline");
     if (form.getPipelineFullyOwnedByOrganisation() == null) {
       errors.rejectValue("pipelineFullyOwnedByOrganisation",
           "pipelineFullyOwnedByOrganisation" + FieldValidationErrorCodes.REQUIRED,
@@ -28,7 +28,7 @@ public class PipelineCrossingFormValidator implements Validator {
     } else if (!BooleanUtils.toBooleanDefaultIfNull(form.getPipelineFullyOwnedByOrganisation(), false)
         && ListUtils.emptyIfNull(form.getPipelineOwners()).isEmpty()) {
       errors.rejectValue("pipelineOwners", "pipelineOwners" + FieldValidationErrorCodes.REQUIRED,
-          "You must select the owners of the pipeline");
+          "Select the owners of the pipeline");
     }
   }
 }

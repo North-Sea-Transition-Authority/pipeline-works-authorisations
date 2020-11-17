@@ -59,7 +59,7 @@ public class PipelineHeaderFormValidator implements SmartValidator {
 
     if (form.getPipelineType() == PipelineType.UNKNOWN) {
       errors.rejectValue("pipelineType", "pipelineType" + FieldValidationErrorCodes.INVALID.getCode(),
-          "You must select a valid pipeline type");
+          "Select a valid pipeline type");
     }
 
     ValidationUtils.rejectIfEmptyOrWhitespace(errors, "length", "length.required",

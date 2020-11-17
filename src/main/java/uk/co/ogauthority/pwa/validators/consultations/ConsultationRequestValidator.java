@@ -44,10 +44,10 @@ public class ConsultationRequestValidator implements SmartValidator {
     }
 
     ValidationUtils.rejectIfEmptyOrWhitespace(errors, "daysToRespond", "daysToRespond" + FieldValidationErrorCodes.REQUIRED.getCode(),
-        "You must enter the number of calendar days");
+        "Enter the number of calendar days");
     if (form.getDaysToRespond() != null && form.getDaysToRespond() < 1) {
       errors.rejectValue("daysToRespond", "daysToRespond" + FieldValidationErrorCodes.INVALID.getCode(),
-          "You must enter a valid amount of calendar days");
+          "Enter a valid amount of calendar days");
     }
 
 

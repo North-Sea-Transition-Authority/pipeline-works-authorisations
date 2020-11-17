@@ -129,7 +129,7 @@ public class WorkScheduleFormValidator implements SmartValidator {
   private void validatePipelines(Errors errors, WorkScheduleForm form, PwaApplicationDetail pwaApplicationDetail) {
 
     if (ListUtils.emptyIfNull(form.getPadPipelineIds()).isEmpty()) {
-      errors.rejectValue("padPipelineIds", "padPipelineIds.required", "You must select at least one pipeline");
+      errors.rejectValue("padPipelineIds", "padPipelineIds.required", "Select at least one pipeline");
     }
 
     if (form.getPadPipelineIds() != null

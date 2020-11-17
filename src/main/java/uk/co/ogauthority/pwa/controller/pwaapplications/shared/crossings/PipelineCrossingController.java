@@ -142,7 +142,7 @@ public class PipelineCrossingController {
             .addObject("errorMessage", "At least one document must be uploaded");
       } else {
         return createOverviewModelAndView(detail)
-            .addObject("errorMessage", "You must add at least one pipeline crossing");
+            .addObject("errorMessage", "Add at least one pipeline crossing");
       }
     }
     return ReverseRouter.redirect(on(CrossingAgreementsController.class)

@@ -249,11 +249,11 @@ public class ProjectInformationValidator implements SmartValidator {
             false)) {
           errors.rejectValue("fdpConfirmationFlag",
               "fdpConfirmationFlag" + FieldValidationErrorCodes.REQUIRED.getCode(),
-              "You must confirm the proposed works outlined in this application are consistent with the field development plan");
+              "Confirm the proposed works outlined in this application are consistent with the field development plan");
         } else if (!form.getFdpOptionSelected()) {
           ValidationUtils.rejectIfEmptyOrWhitespace(errors, "fdpNotSelectedReason",
               "fdpNotSelectedReason" + FieldValidationErrorCodes.REQUIRED.getCode(),
-              "You must enter a reason for not having an FDP for the fields");
+              "Enter a reason for not having an FDP for the fields");
         }
 
       }
@@ -262,7 +262,7 @@ public class ProjectInformationValidator implements SmartValidator {
           && ListUtils.emptyIfNull(form.getUploadedFileWithDescriptionForms()).size() > 1) {
         errors.rejectValue("uploadedFileWithDescriptionForms",
             "uploadedFileWithDescriptionForms" + FieldValidationErrorCodes.EXCEEDED_MAXIMUM_FILE_UPLOAD_COUNT.getCode(),
-            "You must upload a maximum of one file");
+            "Upload a maximum of one file");
       }
 
     }

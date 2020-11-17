@@ -41,7 +41,7 @@ public class AssignCaseOfficerValidator implements SmartValidator {
     var pwaApplication = (PwaApplication) validationHints[0];
 
     ValidationUtils.rejectIfEmptyOrWhitespace(errors, "caseOfficerPersonId",
-        "caseOfficerPersonId" + FieldValidationErrorCodes.REQUIRED.getCode(), "You must select a case officer");
+        "caseOfficerPersonId" + FieldValidationErrorCodes.REQUIRED.getCode(), "Select a case officer");
 
     if (form.getCaseOfficerPersonId() != null && !isPersonValidAssignmentCandidate(pwaApplication, form.getCaseOfficerPersonId())) {
       errors.rejectValue("caseOfficerPersonId", "caseOfficerPersonId" + FieldValidationErrorCodes.INVALID.getCode(),

@@ -43,7 +43,7 @@ public class PipelineOtherPropertiesValidator implements SmartValidator {
     }
     if (pipelineOtherPropertiesForm.getPhasesSelection().containsKey(PropertyPhase.OTHER)) {
       ValidationUtils.rejectIfEmptyOrWhitespace(errors, "otherPhaseDescription", "otherPhaseDescription.required",
-          "You must enter the other phase present");
+          "Enter the other phase present");
     }
   }
 
