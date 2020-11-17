@@ -65,7 +65,7 @@ public class OptionsTemplateService implements ApplicationFormSectionService {
         (UploadMultipleFilesWithDescriptionForm) form,
         bindingResult,
         1,
-        "You must provide a single template upload");
+        "Provide a single template upload");
 
     return bindingResult;
 

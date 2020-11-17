@@ -118,10 +118,9 @@ public class ConsultationViewService {
     return consulteeGroupRequestsView;
   }
 
-
-  private ConsultationRequestView mapConsultationRequestToView(ConsultationRequest consultationRequest,
-                                                               ConsultationResponse consultationResponse,
-                                                               ConsulteeGroupDetail consulteeGroupDetail) {
+  public ConsultationRequestView mapConsultationRequestToView(ConsultationRequest consultationRequest,
+                                                              ConsultationResponse consultationResponse,
+                                                              ConsulteeGroupDetail consulteeGroupDetail) {
     if (consultationResponse != null) {
       return new ConsultationRequestView(
           consultationRequest.getId(),

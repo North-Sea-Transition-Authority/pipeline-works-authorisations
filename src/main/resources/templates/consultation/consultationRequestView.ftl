@@ -31,10 +31,13 @@
             </@fdsCheckAnswers.checkAnswersRow>
         <#elseif consultationRequestViewData.status == "WITHDRAWN">
             <@fdsCheckAnswers.checkAnswersRow keyText="Withdrawn by" actionText="" actionUrl="" screenReaderActionText="">
-                ${consultationRequestViewData.withdrawnByUser} &nbsp; ${consultationRequestViewData.endTimeStamp}
+                ${consultationRequestViewData.withdrawnByUser}
             </@fdsCheckAnswers.checkAnswersRow>
-        <#else>         
-            <@fdsCheckAnswers.checkAnswersRow keyText="Response due" actionText="" actionUrl="" screenReaderActionText="">       
+            <@fdsCheckAnswers.checkAnswersRow keyText="Withdrawn on" actionText="" actionUrl="" screenReaderActionText="">
+                ${consultationRequestViewData.endTimeStamp}
+            </@fdsCheckAnswers.checkAnswersRow>
+        <#else>
+            <@fdsCheckAnswers.checkAnswersRow keyText="Response due" actionText="" actionUrl="" screenReaderActionText="">
                 ${consultationRequestViewData.dueDateDisplay}
             </@fdsCheckAnswers.checkAnswersRow>
         </#if>

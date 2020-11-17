@@ -80,12 +80,12 @@ public class PermanentDepositsValidator implements SmartValidator {
     if (BooleanUtils.isTrue(form.getDepositIsForPipelinesOnOtherApp())) {
       ValidationUtils.rejectIfEmptyOrWhitespace(errors, "appRefAndPipelineNum",
           "appRefAndPipelineNum" + FieldValidationErrorCodes.REQUIRED.getCode(),
-          "You must enter the application reference and proposed pipeline number for each pipeline");
+          "Enter the application reference and proposed pipeline number for each pipeline");
     }
 
 
     ValidationUtils.rejectIfEmptyOrWhitespace(errors, "depositReference", "depositReference.required",
-        "You must enter a deposit reference");
+        "Enter a deposit reference");
 
     if (StringUtils.isNotBlank(form.getDepositReference()) && validationHints[0] instanceof PermanentDepositService) {
       var permanentDepositsService = (PermanentDepositService) validationHints[0];
@@ -101,7 +101,7 @@ public class PermanentDepositsValidator implements SmartValidator {
 
     if (form.getMaterialType() == null) {
       errors.rejectValue("materialType", "materialType.required",
-          "You must select a material type.");
+          "Select a material type.");
     } else {
       validateMaterialTypes(form, errors);
     }

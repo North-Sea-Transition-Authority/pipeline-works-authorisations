@@ -28,6 +28,8 @@ import org.springframework.util.MultiValueMap;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
+import uk.co.ogauthority.pwa.model.dto.appprocessing.ProcessingPermissionsDto;
+import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineStatus;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
@@ -73,8 +75,9 @@ public class PwaApplicationEndpointTestBuilder {
   private PwaApplicationDetail detail;
   private PadPipeline padPipeline;
 
-  private HttpMethod requestMethod;
+  private ConsultationRequest consultationRequest;
 
+  private HttpMethod requestMethod;
 
   public PwaApplicationEndpointTestBuilder(MockMvc mockMvc,
                                            PwaContactService pwaContactService,
@@ -181,6 +184,11 @@ public class PwaApplicationEndpointTestBuilder {
     return this;
   }
 
+  public PwaApplicationEndpointTestBuilder setConsultationRequest(ConsultationRequest consultationRequest) {
+    this.consultationRequest = consultationRequest;
+    return this;
+  }
+
   /**
    * Generate request params from set builder values
    */
@@ -283,7 +291,8 @@ public class PwaApplicationEndpointTestBuilder {
 
     var defaultPermissions = EnumSet.allOf(PwaAppProcessingPermission.class);
     if (pwaAppProcessingPermissionService != null) {
-      when(pwaAppProcessingPermissionService.getProcessingPermissions(detail.getPwaApplication(), user)).thenReturn(defaultPermissions);
+      var permissionsDto = new ProcessingPermissionsDto(null, defaultPermissions);
+      when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(detail.getPwaApplication(), user)).thenReturn(permissionsDto);
     }
 
   }
@@ -375,9 +384,19 @@ public class PwaApplicationEndpointTestBuilder {
     setupTestObjects();
     for (PwaAppProcessingPermission permission : PwaAppProcessingPermission.values()) {
       try {
+
         var userPermissions = Set.of(permission);
         preTestSetup.accept(detail);
-        when(pwaAppProcessingPermissionService.getProcessingPermissions(detail.getPwaApplication(), user)).thenReturn(userPermissions);
+
+        var appInvolvement = Optional.ofNullable(consultationRequest)
+            .map(c -> PwaAppProcessingContextDtoTestUtils.appInvolvementWithConsultationRequest("group", c))
+            .orElse(null);
+
+        var permissionsDto = new ProcessingPermissionsDto(appInvolvement, userPermissions);
+
+        when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(detail.getPwaApplication(), user))
+            .thenReturn(permissionsDto);
+
         // Based on required permission for endpoint, if role under test grants required permission
         var expected = this.allowedProcessingPermissions.contains(permission);
 
@@ -392,7 +411,9 @@ public class PwaApplicationEndpointTestBuilder {
     }
     // try when zero permissions
     try {
-      when(pwaAppProcessingPermissionService.getProcessingPermissions(detail.getPwaApplication(), user)).thenReturn(Set.of());
+
+      when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(any(), any())).thenReturn(PwaAppProcessingContextDtoTestUtils.emptyPermissionsDto());
+
       performRequest(
           this.endpointUrlProducer.apply(detail, detail.getPwaApplicationType()),
           otherTypeResultMatcher

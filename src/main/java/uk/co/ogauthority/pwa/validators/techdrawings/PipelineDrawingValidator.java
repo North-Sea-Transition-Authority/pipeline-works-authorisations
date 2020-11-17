@@ -56,7 +56,7 @@ public class PipelineDrawingValidator implements SmartValidator {
     // Validate that the drawing reference is valid, and unique.
     ValidationUtils.rejectIfEmptyOrWhitespace(errors, "reference",
         "reference" + FieldValidationErrorCodes.REQUIRED.getCode(),
-        "You must enter a drawing reference");
+        "Enter a drawing reference");
 
     boolean referenceAlreadyInUse;
     switch (validatorMode) {
@@ -84,7 +84,7 @@ public class PipelineDrawingValidator implements SmartValidator {
     if (ListUtils.emptyIfNull(form.getUploadedFileWithDescriptionForms()).size() > 1) {
       errors.rejectValue("uploadedFileWithDescriptionForms",
           "uploadedFileWithDescriptionForms" + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode(),
-          "You must only upload a single drawing");
+          "Upload a single drawing only");
     }
 
     validatePipelines(errors, form, pipelineList, detail, existingDrawing, validatorMode);
@@ -96,7 +96,7 @@ public class PipelineDrawingValidator implements SmartValidator {
 
     ValidationUtils.rejectIfEmpty(errors, "padPipelineIds",
         "padPipelineIds" + FieldValidationErrorCodes.REQUIRED.getCode(),
-        "You must select at least one pipeline");
+        "Select at least one pipeline");
 
     // Check to see if a ID passed into the PadPipelineIds list is a valid selectable pipeline.
     boolean idNotLinkedToPipeline = ListUtils.emptyIfNull(form.getPadPipelineIds()).stream()

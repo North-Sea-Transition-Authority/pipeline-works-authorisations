@@ -52,7 +52,6 @@ import uk.co.ogauthority.pwa.validators.huoo.EditHuooValidator;
     PwaApplicationType.CAT_1_VARIATION,
     PwaApplicationType.CAT_2_VARIATION,
     PwaApplicationType.DECOMMISSIONING,
-    PwaApplicationType.DEPOSIT_CONSENT,
     PwaApplicationType.OPTIONS_VARIATION,
     PwaApplicationType.HUOO_VARIATION
 })

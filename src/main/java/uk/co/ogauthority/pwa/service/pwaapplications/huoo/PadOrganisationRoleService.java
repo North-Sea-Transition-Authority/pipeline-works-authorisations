@@ -97,6 +97,11 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
     return padOrganisationRolesRepository.getAllByPwaApplicationDetail(pwaApplicationDetail);
   }
 
+  public List<PadOrganisationRole> getOrgRolesForDetailAndRole(PwaApplicationDetail pwaApplicationDetail,
+                                                               HuooRole huooRole) {
+    return padOrganisationRolesRepository.getAllByPwaApplicationDetailAndRole(pwaApplicationDetail, huooRole);
+  }
+
   public List<PadOrganisationRole> getAllAssignableAndNonAssignableOrgRolesForDetailByRole(
       PwaApplicationDetail pwaApplicationDetail,
       HuooRole huooRole) {
@@ -637,7 +642,8 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
 
   @Override
   public boolean canShowInTaskList(PwaApplicationDetail pwaApplicationDetail) {
-    return !pwaApplicationDetail.getPwaApplicationType().equals(PwaApplicationType.OPTIONS_VARIATION);
+    return !pwaApplicationDetail.getPwaApplicationType().equals(PwaApplicationType.OPTIONS_VARIATION)
+        && !pwaApplicationDetail.getPwaApplicationType().equals(PwaApplicationType.DEPOSIT_CONSENT);
   }
 
   @Transactional

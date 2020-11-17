@@ -7,7 +7,17 @@
       <#list taskListGroups as taskGroup>
           <@fdsTaskList.taskListSection sectionHeadingText=industryFlag?then("Status", taskGroup.groupName)>
               <#list taskGroup.taskListEntries as task>
-                  <@pwaTaskListItem.taskInfoItem taskName=task.taskName taskInfoList=task.taskInfoList route=task.route isCompleted=task.completed/>
+
+                  <#assign taskUrl = industryFlag?then("", task.route?has_content?then(springUrl(task.route), "")) />
+                  <#assign tagText = task.taskTag?has_content?then(task.taskTag.tagText!, "") />
+                  <#assign tagClass = task.taskTag?has_content?then(task.taskTag.tagClass!, "") />
+
+                  <@fdsTaskList.taskListItem
+                    itemText=task.taskName
+                    itemUrl=taskUrl
+                    tagClass=tagClass
+                    tagText=tagText />
+
               </#list>
           </@fdsTaskList.taskListSection>
       </#list>

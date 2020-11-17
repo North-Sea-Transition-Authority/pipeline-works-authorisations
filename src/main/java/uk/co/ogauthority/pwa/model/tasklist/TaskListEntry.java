@@ -11,6 +11,9 @@ public class TaskListEntry {
   private final String taskName;
   private final String route;
   private final boolean completed;
+
+  private final TaskTag taskTag;
+
   private final List<TaskInfo> taskInfoList;
   private final int displayOrder;
 
@@ -29,6 +32,27 @@ public class TaskListEntry {
     this.taskName = taskName;
     this.route = route;
     this.completed = completed;
+    this.taskTag = null;
+    this.taskInfoList = taskInfoList;
+    this.displayOrder = displayOrder;
+  }
+
+  public TaskListEntry(String taskName,
+                       String route,
+                       TaskTag taskTag,
+                       int displayOrder) {
+    this(taskName, route, taskTag, List.of(), displayOrder);
+  }
+
+  public TaskListEntry(String taskName,
+                       String route,
+                       TaskTag taskTag,
+                       List<TaskInfo> taskInfoList,
+                       int displayOrder) {
+    this.taskName = taskName;
+    this.route = route;
+    this.completed = false;
+    this.taskTag = taskTag;
     this.taskInfoList = taskInfoList;
     this.displayOrder = displayOrder;
   }
@@ -45,6 +69,10 @@ public class TaskListEntry {
     return completed;
   }
 
+  public TaskTag getTaskTag() {
+    return taskTag;
+  }
+
   public List<TaskInfo> getTaskInfoList() {
     return taskInfoList;
   }
@@ -52,4 +80,5 @@ public class TaskListEntry {
   public int getDisplayOrder() {
     return displayOrder;
   }
+
 }

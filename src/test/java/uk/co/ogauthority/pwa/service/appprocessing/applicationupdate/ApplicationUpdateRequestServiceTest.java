@@ -30,9 +30,12 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.enums.appprocessing.applicationupdates.ApplicationUpdateRequestStatus;
 import uk.co.ogauthority.pwa.model.enums.notify.NotifyTemplate;
 import uk.co.ogauthority.pwa.model.notify.emailproperties.EmailProperties;
+import uk.co.ogauthority.pwa.model.tasklist.TaskTag;
 import uk.co.ogauthority.pwa.repository.appprocessing.applicationupdates.ApplicationUpdateRequestRepository;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
+import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingTask;
+import uk.co.ogauthority.pwa.service.enums.appprocessing.TaskStatus;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationWorkflowMessageEvents;
@@ -251,7 +254,11 @@ public class ApplicationUpdateRequestServiceTest {
   @Test
   public void canShowInTaskList_hasPermission() {
 
-    var processingContext = new PwaAppProcessingContext(null, null, Set.of(PwaAppProcessingPermission.REQUEST_APPLICATION_UPDATE), null,
+    var processingContext = new PwaAppProcessingContext(
+        null,
+        null,
+        Set.of(PwaAppProcessingPermission.REQUEST_APPLICATION_UPDATE),
+        null,
         null);
 
     boolean canShow = applicationUpdateRequestService.canShowInTaskList(processingContext);
@@ -309,4 +316,42 @@ public class ApplicationUpdateRequestServiceTest {
     applicationUpdateRequestService.respondToApplicationOpenUpdateRequest(pwaApplicationDetail, responderPerson, "RESPONSE");
 
   }
+
+  @Test
+  public void getTaskListEntry_appUpdate_inProgress() {
+
+    var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
+
+    var processingContext = new PwaAppProcessingContext(detail, null, Set.of(), null, null);
+
+    var updateRequest = new ApplicationUpdateRequest();
+    when(applicationUpdateRequestRepository.findByPwaApplicationDetail_pwaApplicationAndStatus(any(), any())).thenReturn(Optional.of(updateRequest));
+
+    var taskListEntry = applicationUpdateRequestService.getTaskListEntry(PwaAppProcessingTask.RFI, processingContext);
+
+    assertThat(taskListEntry.getTaskName()).isEqualTo(PwaAppProcessingTask.RFI.getTaskName());
+    assertThat(taskListEntry.getRoute()).isNull();
+    assertThat(taskListEntry.getTaskTag()).isEqualTo(TaskTag.from(TaskStatus.IN_PROGRESS));
+    assertThat(taskListEntry.getTaskInfoList()).isEmpty();
+
+  }
+
+  @Test
+  public void getTaskListEntry_appUpdate_notInProgress() {
+
+    var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
+
+    var processingContext = new PwaAppProcessingContext(detail, null, Set.of(), null, null);
+
+    when(applicationUpdateRequestRepository.findByPwaApplicationDetail_pwaApplicationAndStatus(any(), any())).thenReturn(Optional.empty());
+
+    var taskListEntry = applicationUpdateRequestService.getTaskListEntry(PwaAppProcessingTask.RFI, processingContext);
+
+    assertThat(taskListEntry.getTaskName()).isEqualTo(PwaAppProcessingTask.RFI.getTaskName());
+    assertThat(taskListEntry.getRoute()).isEqualTo(PwaAppProcessingTask.RFI.getRoute(processingContext));
+    assertThat(taskListEntry.getTaskTag()).isNull();
+    assertThat(taskListEntry.getTaskInfoList()).isEmpty();
+
+  }
+
 }

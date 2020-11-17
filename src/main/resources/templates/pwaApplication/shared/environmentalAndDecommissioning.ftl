@@ -33,7 +33,7 @@
 
               <@fdsRadio.radioGroup path="form.emtHasSubmittedPermits" labelText="Have you submitted any relevant environmental permits to BEIS EMT?" fieldsetHeadingSize="h4" hiddenContent=true>
                   <@fdsRadio.radioYes path="form.emtHasSubmittedPermits">
-                      <@fdsTextarea.textarea path="form.permitsSubmitted" nestingPath="form.permitsSubmitted" labelText="Which permits have you submitted to BEIS?" hintText="You must include the date submitted for each permit" characterCount=true maxCharacterLength="4000"/>
+                      <@fdsTextarea.textarea path="form.permitsSubmitted" nestingPath="form.permitsSubmitted" labelText="Which permits have you submitted to BEIS?" hintText="Include the date submitted for each permit" characterCount=true maxCharacterLength="4000"/>
                   </@fdsRadio.radioYes>
                   <@fdsRadio.radioNo path="form.emtHasSubmittedPermits"/>
               </@fdsRadio.radioGroup>

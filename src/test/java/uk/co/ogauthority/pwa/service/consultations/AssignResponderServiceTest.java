@@ -27,6 +27,8 @@ import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
+import uk.co.ogauthority.pwa.model.dto.appprocessing.ApplicationInvolvementDto;
+import uk.co.ogauthority.pwa.model.dto.appprocessing.ConsultationInvolvementDto;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroup;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupMemberRole;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupTeamMember;
@@ -34,16 +36,22 @@ import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.form.consultation.AssignResponderForm;
 import uk.co.ogauthority.pwa.model.notify.emailproperties.ConsultationAssignedToYouEmailProps;
+import uk.co.ogauthority.pwa.model.tasklist.TaskTag;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupTeamService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
+import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingTask;
+import uk.co.ogauthority.pwa.service.enums.appprocessing.TaskStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ConsultationRequestStatus;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationConsultationWorkflowTask;
 import uk.co.ogauthority.pwa.service.notify.NotifyService;
 import uk.co.ogauthority.pwa.service.teammanagement.TeamManagementService;
 import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
 import uk.co.ogauthority.pwa.service.workflow.assignment.WorkflowAssignmentService;
 import uk.co.ogauthority.pwa.service.workflow.task.WorkflowTaskInstance;
+import uk.co.ogauthority.pwa.testutils.PwaAppProcessingContextDtoTestUtils;
+import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.util.DateUtils;
 import uk.co.ogauthority.pwa.validators.consultations.AssignResponderValidationHints;
 import uk.co.ogauthority.pwa.validators.consultations.AssignResponderValidator;
@@ -80,8 +88,14 @@ public class AssignResponderServiceTest {
 
   @Before
   public void setUp() {
-    assignResponderService = new AssignResponderService(workflowAssignmentService, validator, consulteeGroupTeamService,
-        teamManagementService, camundaWorkflowService, consultationRequestService, notifyService);
+    assignResponderService = new AssignResponderService(
+        workflowAssignmentService,
+        validator,
+        consulteeGroupTeamService,
+        teamManagementService,
+        camundaWorkflowService,
+        consultationRequestService,
+        notifyService);
   }
 
   @Test
@@ -343,10 +357,30 @@ public class AssignResponderServiceTest {
   }
 
   @Test
-  public void canShowInTaskList_hasPermission() {
+  public void canShowInTaskList_hasPermission_noActiveConsultation_notShown() {
 
-    var processingContext = new PwaAppProcessingContext(null, null, Set.of(PwaAppProcessingPermission.ASSIGN_RESPONDER), null,
-        null);
+    var processingContext = new PwaAppProcessingContext(
+        null,
+        null,
+        Set.of(PwaAppProcessingPermission.ASSIGN_RESPONDER),
+        null,
+        new ApplicationInvolvementDto(null, Set.of(), new ConsultationInvolvementDto(null, Set.of(), null, List.of(), false), false));
+
+    boolean canShow = assignResponderService.canShowInTaskList(processingContext);
+
+    assertThat(canShow).isFalse();
+
+  }
+
+  @Test
+  public void canShowInTaskList_hasPermission_activeConsultation_shown() {
+
+    var processingContext = new PwaAppProcessingContext(
+        null,
+        null,
+        Set.of(PwaAppProcessingPermission.ASSIGN_RESPONDER),
+        null,
+        PwaAppProcessingContextDtoTestUtils.appInvolvementWithConsultationRequest("name", new ConsultationRequest()));
 
     boolean canShow = assignResponderService.canShowInTaskList(processingContext);
 
@@ -365,6 +399,63 @@ public class AssignResponderServiceTest {
 
   }
 
+  @Test
+  public void getTaskListEntry_noOneAssignedYet() {
+
+    var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
+    var request = new ConsultationRequest();
+    var processingContext = new PwaAppProcessingContext(
+        detail,
+        null,
+        Set.of(),
+        null,
+        PwaAppProcessingContextDtoTestUtils.appInvolvementWithConsultationRequest("name", request));
+
+    var taskListEntry = assignResponderService.getTaskListEntry(PwaAppProcessingTask.ALLOCATE_RESPONDER, processingContext);
+
+    assertThat(taskListEntry.getTaskName()).isEqualTo(PwaAppProcessingTask.ALLOCATE_RESPONDER.getTaskName());
+    assertThat(taskListEntry.getRoute()).isEqualTo(PwaAppProcessingTask.ALLOCATE_RESPONDER.getRoute(processingContext));
+    assertThat(taskListEntry.getTaskTag()).isEqualTo(TaskTag.from(TaskStatus.NOT_COMPLETED));
+    assertThat(taskListEntry.getDisplayOrder()).isEqualTo(PwaAppProcessingTask.ALLOCATE_RESPONDER.getDisplayOrder());
+
+  }
+
+  @Test
+  public void getTaskListEntry_personAssigned() {
+
+    var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
+    var request = new ConsultationRequest();
+    var processingContext = new PwaAppProcessingContext(
+        detail,
+        null,
+        Set.of(),
+        null,
+        PwaAppProcessingContextDtoTestUtils.appInvolvementWithConsultationRequest("name", request));
+
+    var taskInstance = new WorkflowTaskInstance(request, PwaApplicationConsultationWorkflowTask.RESPONSE);
+    when(camundaWorkflowService.getAllActiveWorkflowTasks(request)).thenReturn(Set.of(taskInstance));
+
+    var person = new Person(1, "fore", "sur", null, null);
+    when(workflowAssignmentService.getAssignee(taskInstance)).thenReturn(Optional.of(person));
+
+    var taskListEntry = assignResponderService.getTaskListEntry(PwaAppProcessingTask.ALLOCATE_RESPONDER, processingContext);
+
+    assertThat(taskListEntry.getTaskName()).isEqualTo(PwaAppProcessingTask.ALLOCATE_RESPONDER.getTaskName());
+    assertThat(taskListEntry.getRoute()).isEqualTo(PwaAppProcessingTask.ALLOCATE_RESPONDER.getRoute(processingContext));
+    assertThat(taskListEntry.getTaskTag().getTagText()).isEqualTo(person.getFullName());
+    assertThat(taskListEntry.getTaskTag().getTagClass()).isEqualTo("govuk-tag--purple");
+    assertThat(taskListEntry.getDisplayOrder()).isEqualTo(PwaAppProcessingTask.ALLOCATE_RESPONDER.getDisplayOrder());
+
+  }
+
+  @Test(expected = RuntimeException.class)
+  public void getTaskListEntry_noActiveConsultationRequest() {
+
+    var processingContext = new PwaAppProcessingContext(null, null, null, null, null);
+
+    assignResponderService.getTaskListEntry(PwaAppProcessingTask.ALLOCATE_RESPONDER, processingContext);
+
+  }
 
 }
 

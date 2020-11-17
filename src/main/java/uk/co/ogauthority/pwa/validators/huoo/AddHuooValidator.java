@@ -40,11 +40,11 @@ public class AddHuooValidator implements SmartValidator {
     var roles = padOrganisationRoleService.getOrgRolesForDetail(detail);
     if (form.getHuooType() == null) {
       errors.rejectValue("huooType", "huooType.required",
-          "You must select the entity type");
+          "Select the entity type");
     } else if (form.getHuooType() == HuooType.PORTAL_ORG) {
       if (SetUtils.emptyIfNull(form.getHuooRoles()).isEmpty()) {
         errors.rejectValue("huooRoles", "huooRoles.required",
-            "You must select one or more roles");
+            "Select one or more roles");
       }
       if (form.getOrganisationUnitId() != null) {
         roles.stream()
@@ -56,7 +56,7 @@ public class AddHuooValidator implements SmartValidator {
                 "The selected organisation is already added to the application"));
       } else {
         errors.rejectValue("organisationUnitId", "organisationUnitId.required",
-            "You must select an organisation");
+            "Select an organisation");
       }
     }
 

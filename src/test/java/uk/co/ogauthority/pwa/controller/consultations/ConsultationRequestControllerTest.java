@@ -32,6 +32,7 @@ import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.PwaAppProcessingContextAbstractControllerTest;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
+import uk.co.ogauthority.pwa.model.dto.appprocessing.ProcessingPermissionsDto;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.consultation.ConsultationRequestForm;
@@ -82,8 +83,13 @@ public class ConsultationRequestControllerTest extends PwaAppProcessingContextAb
   @Test
   public void renderRequestConsultation_getConsulteeGroups_sorted() {
 
-    var processingContext = new PwaAppProcessingContext(pwaApplicationDetail, null, Set.of(PwaAppProcessingPermission.ASSIGN_CASE_OFFICER), null,
+    var processingContext = new PwaAppProcessingContext(
+        pwaApplicationDetail,
+        null,
+        Set.of(PwaAppProcessingPermission.ASSIGN_CASE_OFFICER),
+        null,
         null);
+
     var consulteeGroupDetail1 = new ConsulteeGroupDetail();
     consulteeGroupDetail1.setName("second consultee");
     consulteeGroupDetail1.setDisplayOrder(2);
@@ -97,7 +103,7 @@ public class ConsultationRequestControllerTest extends PwaAppProcessingContextAb
     consulteeGroupDetail4.setName("first consultee");
     consulteeGroupDetail4.setDisplayOrder(1);
 
-    when(consultationRequestService.getConsulteeGroups(user)).thenReturn(
+    when(consultationRequestService.getAllConsulteeGroups()).thenReturn(
         List.of(consulteeGroupDetail1, consulteeGroupDetail2, consulteeGroupDetail3, consulteeGroupDetail4));
 
     var modelAndView = consultationRequestController.renderRequestConsultation(1, PwaApplicationType.INITIAL, processingContext, user, null);
@@ -163,7 +169,8 @@ public class ConsultationRequestControllerTest extends PwaAppProcessingContextAb
 
     when(consultationRequestService.validate(any(), any(), any())).thenReturn(new BeanPropertyBindingResult(new ConsultationRequestForm(), "form"));
 
-    when(pwaAppProcessingPermissionService.getProcessingPermissions(pwaApplicationDetail.getPwaApplication(), user)).thenReturn(EnumSet.allOf(PwaAppProcessingPermission.class));
+    var permissionsDto = new ProcessingPermissionsDto(null, EnumSet.allOf(PwaAppProcessingPermission.class));
+    when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail.getPwaApplication(), user)).thenReturn(permissionsDto);
 
     mockMvc.perform(post(ReverseRouter.route(on(ConsultationRequestController.class)
         .postRequestConsultation(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null)))
@@ -184,7 +191,8 @@ public class ConsultationRequestControllerTest extends PwaAppProcessingContextAb
     failedBindingResult.addError(new ObjectError("fake", "fake"));
     when(consultationRequestService.validate(any(), any(), any())).thenReturn(failedBindingResult);
 
-    when(pwaAppProcessingPermissionService.getProcessingPermissions(pwaApplicationDetail.getPwaApplication(), user)).thenReturn(EnumSet.allOf(PwaAppProcessingPermission.class));
+    var permissionsDto = new ProcessingPermissionsDto(null, EnumSet.allOf(PwaAppProcessingPermission.class));
+    when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail.getPwaApplication(), user)).thenReturn(permissionsDto);
 
     mockMvc.perform(post(ReverseRouter.route(on(ConsultationRequestController.class)
         .postRequestConsultation(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null)))

@@ -18,13 +18,16 @@ import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
+import uk.co.ogauthority.pwa.model.dto.appprocessing.ConsultationInvolvementDto;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupMemberRole;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupTeamMember;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
+import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupDetailService;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupTeamService;
 import uk.co.ogauthority.pwa.service.consultations.ConsultationRequestService;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.ConsultationRequestStatus;
 import uk.co.ogauthority.pwa.service.enums.users.UserType;
 import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationConsultationWorkflowTask;
 import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationWorkflowTask;
@@ -54,6 +57,9 @@ public class ApplicationInvolvementServiceTest {
   @Mock
   private UserTypeService userTypeService;
 
+  @Mock
+  private ConsulteeGroupDetailService consulteeGroupDetailService;
+
   private ApplicationInvolvementService applicationInvolvementService;
 
   private PwaApplication application;
@@ -62,11 +68,18 @@ public class ApplicationInvolvementServiceTest {
   @Before
   public void setUp() {
 
-    applicationInvolvementService = new ApplicationInvolvementService(consulteeGroupTeamService, pwaContactService,
-        consultationRequestService, camundaWorkflowService, userTypeService);
+    applicationInvolvementService = new ApplicationInvolvementService(
+        consulteeGroupTeamService,
+        pwaContactService,
+        consultationRequestService,
+        camundaWorkflowService,
+        userTypeService,
+        consulteeGroupDetailService);
 
     application = new PwaApplication();
     user = new AuthenticatedUserAccount(new WebUserAccount(1, new Person(1, null, null, null, null)), Set.of());
+
+    when(consultationRequestService.consultationRequestIsActive(any())).thenCallRealMethod();
 
   }
 
@@ -79,11 +92,11 @@ public class ApplicationInvolvementServiceTest {
 
     var involvement = applicationInvolvementService.getApplicationInvolvementDto(application, user);
 
-    verifyNoInteractions(consulteeGroupTeamService, camundaWorkflowService, consultationRequestService);
+    verifyNoInteractions(consulteeGroupTeamService, camundaWorkflowService, consultationRequestService, consulteeGroupDetailService);
 
     assertThat(involvement.getPwaApplication()).isEqualTo(application);
     assertThat(involvement.getContactRoles()).containsExactly(PwaContactRole.PREPARER);
-    assertThat(involvement.getConsulteeRoles()).isEmpty();
+    assertThat(involvement.getConsultationInvolvement()).isEmpty();
     assertThat(involvement.isCaseOfficerStageAndUserAssigned()).isFalse();
 
   }
@@ -96,11 +109,11 @@ public class ApplicationInvolvementServiceTest {
 
     var involvement = applicationInvolvementService.getApplicationInvolvementDto(application, user);
 
-    verifyNoInteractions(consulteeGroupTeamService, camundaWorkflowService, consultationRequestService);
+    verifyNoInteractions(consulteeGroupTeamService, camundaWorkflowService, consultationRequestService, consulteeGroupDetailService);
 
     assertThat(involvement.getPwaApplication()).isEqualTo(application);
     assertThat(involvement.getContactRoles()).isEmpty();
-    assertThat(involvement.getConsulteeRoles()).isEmpty();
+    assertThat(involvement.getConsultationInvolvement()).isEmpty();
     assertThat(involvement.isCaseOfficerStageAndUserAssigned()).isFalse();
 
   }
@@ -113,11 +126,11 @@ public class ApplicationInvolvementServiceTest {
 
     var involvement = applicationInvolvementService.getApplicationInvolvementDto(application, user);
 
-    verifyNoInteractions(consulteeGroupTeamService, pwaContactService, consultationRequestService);
+    verifyNoInteractions(consulteeGroupTeamService, pwaContactService, consultationRequestService, consulteeGroupDetailService);
 
     assertThat(involvement.getPwaApplication()).isEqualTo(application);
     assertThat(involvement.getContactRoles()).isEmpty();
-    assertThat(involvement.getConsulteeRoles()).isEmpty();
+    assertThat(involvement.getConsultationInvolvement()).isEmpty();
     assertThat(involvement.isCaseOfficerStageAndUserAssigned()).isTrue();
 
   }
@@ -130,11 +143,11 @@ public class ApplicationInvolvementServiceTest {
 
     var involvement = applicationInvolvementService.getApplicationInvolvementDto(application, user);
 
-    verifyNoInteractions(consulteeGroupTeamService, pwaContactService, consultationRequestService);
+    verifyNoInteractions(consulteeGroupTeamService, pwaContactService, consultationRequestService, consulteeGroupDetailService);
 
     assertThat(involvement.getPwaApplication()).isEqualTo(application);
     assertThat(involvement.getContactRoles()).isEmpty();
-    assertThat(involvement.getConsulteeRoles()).isEmpty();
+    assertThat(involvement.getConsultationInvolvement()).isEmpty();
     assertThat(involvement.isCaseOfficerStageAndUserAssigned()).isFalse();
 
   }
@@ -159,8 +172,18 @@ public class ApplicationInvolvementServiceTest {
 
     assertThat(involvement.getPwaApplication()).isEqualTo(application);
     assertThat(involvement.getContactRoles()).isEmpty();
-    assertThat(involvement.getConsulteeRoles()).isEmpty();
     assertThat(involvement.isCaseOfficerStageAndUserAssigned()).isFalse();
+
+    assertThat(involvement.getConsultationInvolvement()).isPresent();
+
+    var consultationInvolvement = involvement.getConsultationInvolvement().get();
+
+    assertThat(consultationInvolvement.getConsulteeGroupDetail()).isNull();
+    assertThat(consultationInvolvement.getConsulteeRoles()).isEmpty();
+    assertThat(consultationInvolvement.getActiveRequest()).isNull();
+    assertThat(consultationInvolvement.getHistoricalRequests()).isEmpty();
+    assertThat(consultationInvolvement.isAssignedToResponderStage()).isFalse();
+
 
   }
 
@@ -176,9 +199,11 @@ public class ApplicationInvolvementServiceTest {
             user.getLinkedPerson(),
             Set.of(ConsulteeGroupMemberRole.RECIPIENT))
     ));
+    when(consulteeGroupDetailService.getConsulteeGroupDetailByGroupAndTipFlagIsTrue(any())).thenReturn(groupDetail);
 
     var request = new ConsultationRequest();
     request.setConsulteeGroup(groupDetail.getConsulteeGroup());
+    request.setStatus(ConsultationRequestStatus.ALLOCATION);
 
     when(consultationRequestService.getAllRequestsByApplication(application)).thenReturn(List.of(request));
 
@@ -191,9 +216,20 @@ public class ApplicationInvolvementServiceTest {
 
     assertThat(involvement.getPwaApplication()).isEqualTo(application);
     assertThat(involvement.getContactRoles()).isEmpty();
-    assertThat(involvement.isAssignedAtResponderStage()).isFalse();
-    assertThat(involvement.getConsulteeRoles()).containsExactly(ConsulteeGroupMemberRole.RECIPIENT);
     assertThat(involvement.isCaseOfficerStageAndUserAssigned()).isFalse();
+
+    var consultationInvolvementOpt = involvement.getConsultationInvolvement();
+
+    assertThat(consultationInvolvementOpt).isPresent();
+    assertThat(consultationInvolvementOpt.get())
+        .extracting(
+            ConsultationInvolvementDto::getConsulteeGroupDetail,
+            ConsultationInvolvementDto::getConsulteeRoles,
+            ConsultationInvolvementDto::getActiveRequest,
+            ConsultationInvolvementDto::getHistoricalRequests,
+            ConsultationInvolvementDto::isAssignedToResponderStage
+        )
+        .containsExactly(groupDetail, Set.of(ConsulteeGroupMemberRole.RECIPIENT), request, List.of(), false);
 
   }
 
@@ -209,9 +245,11 @@ public class ApplicationInvolvementServiceTest {
             user.getLinkedPerson(),
             Set.of(ConsulteeGroupMemberRole.RECIPIENT))
     ));
+    when(consulteeGroupDetailService.getConsulteeGroupDetailByGroupAndTipFlagIsTrue(any())).thenReturn(groupDetail);
 
     var request = new ConsultationRequest();
     request.setConsulteeGroup(groupDetail.getConsulteeGroup());
+    request.setStatus(ConsultationRequestStatus.ALLOCATION);
 
     when(consultationRequestService.getAllRequestsByApplication(application)).thenReturn(List.of(request));
 
@@ -224,9 +262,20 @@ public class ApplicationInvolvementServiceTest {
 
     assertThat(involvement.getPwaApplication()).isEqualTo(application);
     assertThat(involvement.getContactRoles()).isEmpty();
-    assertThat(involvement.isAssignedAtResponderStage()).isTrue();
-    assertThat(involvement.getConsulteeRoles()).containsExactly(ConsulteeGroupMemberRole.RECIPIENT);
     assertThat(involvement.isCaseOfficerStageAndUserAssigned()).isFalse();
+
+    var consultationInvolvementOpt = involvement.getConsultationInvolvement();
+
+    assertThat(consultationInvolvementOpt).isPresent();
+
+    assertThat(consultationInvolvementOpt.get())
+        .extracting(
+            ConsultationInvolvementDto::getConsulteeGroupDetail,
+            ConsultationInvolvementDto::getConsulteeRoles,
+            ConsultationInvolvementDto::getActiveRequest,
+            ConsultationInvolvementDto::getHistoricalRequests,
+            ConsultationInvolvementDto::isAssignedToResponderStage
+        ).containsExactly(groupDetail, Set.of(ConsulteeGroupMemberRole.RECIPIENT), request, List.of(), true);
 
   }
 

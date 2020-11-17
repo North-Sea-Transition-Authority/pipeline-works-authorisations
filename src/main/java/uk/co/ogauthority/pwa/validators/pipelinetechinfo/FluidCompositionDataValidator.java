@@ -36,7 +36,7 @@ public class FluidCompositionDataValidator implements SmartValidator {
 
     } else if (form.getFluidCompositionOption().equals(FluidCompositionOption.HIGHER_AMOUNT)) {
       ValidationUtils.rejectIfEmptyOrWhitespace(errors, "moleValue", "moleValue" + FieldValidationErrorCodes.REQUIRED.getCode(),
-            "You must enter a mole percentage for " + chemical.getDisplayText());
+            "Enter a mole percentage for " + chemical.getDisplayText());
 
       if (form.getMoleValue() != null && form.getMoleValue().remainder(BigDecimal.ONE).precision() > 2) {
         errors.rejectValue("moleValue", "moleValue" + FieldValidationErrorCodes.INVALID.getCode(),

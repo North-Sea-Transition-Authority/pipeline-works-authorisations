@@ -13,16 +13,21 @@ import org.springframework.validation.BindingResult;
 import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.exception.WorkflowAssignmentException;
+import uk.co.ogauthority.pwa.model.dto.consultations.ConsultationRequestDto;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationResponse;
 import uk.co.ogauthority.pwa.model.form.consultation.ConsultationResponseForm;
 import uk.co.ogauthority.pwa.model.form.enums.ConsultationResponseOption;
 import uk.co.ogauthority.pwa.model.notify.emailproperties.ConsultationResponseReceivedEmailProps;
+import uk.co.ogauthority.pwa.model.tasklist.TaskListEntry;
+import uk.co.ogauthority.pwa.model.tasklist.TaskTag;
 import uk.co.ogauthority.pwa.repository.consultations.ConsultationResponseRepository;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupDetailService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.service.appprocessing.tasks.AppProcessingService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
+import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingTask;
+import uk.co.ogauthority.pwa.service.enums.appprocessing.TaskStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ConsultationRequestStatus;
 import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationConsultationWorkflowTask;
 import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationWorkflowTask;
@@ -50,16 +55,15 @@ public class ConsultationResponseService implements AppProcessingService {
   private final EmailCaseLinkService emailCaseLinkService;
 
   @Autowired
-  public ConsultationResponseService(
-      ConsultationRequestService consultationRequestService,
-      ConsultationResponseRepository consultationResponseRepository,
-      ConsultationResponseValidator consultationResponseValidator,
-      CamundaWorkflowService camundaWorkflowService,
-      @Qualifier("utcClock") Clock clock,
-      NotifyService notifyService,
-      ConsulteeGroupDetailService consulteeGroupDetailService,
-      WorkflowAssignmentService workflowAssignmentService,
-      EmailCaseLinkService emailCaseLinkService) {
+  public ConsultationResponseService(ConsultationRequestService consultationRequestService,
+                                     ConsultationResponseRepository consultationResponseRepository,
+                                     ConsultationResponseValidator consultationResponseValidator,
+                                     CamundaWorkflowService camundaWorkflowService,
+                                     @Qualifier("utcClock") Clock clock,
+                                     NotifyService notifyService,
+                                     ConsulteeGroupDetailService consulteeGroupDetailService,
+                                     WorkflowAssignmentService workflowAssignmentService,
+                                     EmailCaseLinkService emailCaseLinkService) {
     this.consultationRequestService = consultationRequestService;
     this.consultationResponseRepository = consultationResponseRepository;
     this.consultationResponseValidator = consultationResponseValidator;
@@ -70,7 +74,6 @@ public class ConsultationResponseService implements AppProcessingService {
     this.workflowAssignmentService = workflowAssignmentService;
     this.emailCaseLinkService = emailCaseLinkService;
   }
-
 
   public List<ConsultationResponse> getResponsesByConsultationRequests(List<ConsultationRequest> consultationRequests) {
     return consultationResponseRepository.getAllByConsultationRequestIn(consultationRequests);
@@ -90,7 +93,6 @@ public class ConsultationResponseService implements AppProcessingService {
         .orElse(false);
 
   }
-
 
   private ConsultationResponse mapFormToResponse(ConsultationResponseForm form,
                                                  ConsultationRequest consultationRequest,
@@ -164,7 +166,28 @@ public class ConsultationResponseService implements AppProcessingService {
 
   @Override
   public boolean canShowInTaskList(PwaAppProcessingContext processingContext) {
-    return processingContext.getAppProcessingPermissions().contains(PwaAppProcessingPermission.CONSULTATION_RESPONDER);
+
+    boolean responded = processingContext.getActiveConsultationRequest()
+        .map(ConsultationRequestDto::getConsultationRequest)
+        .flatMap(this::getResponseByConsultationRequest)
+        .isPresent();
+
+    return processingContext.getAppProcessingPermissions().contains(PwaAppProcessingPermission.CONSULTATION_RESPONDER)
+        && !responded;
+
+  }
+
+  @Override
+  public TaskListEntry getTaskListEntry(PwaAppProcessingTask task, PwaAppProcessingContext processingContext) {
+
+    // given show in task list rules, assumes not responded
+    return new TaskListEntry(
+        PwaAppProcessingTask.CONSULTATION_RESPONSE.getTaskName(),
+        PwaAppProcessingTask.CONSULTATION_RESPONSE.getRoute(processingContext),
+        TaskTag.from(TaskStatus.NOT_COMPLETED),
+        PwaAppProcessingTask.CONSULTATION_RESPONSE.getDisplayOrder()
+    );
+
   }
 
 }

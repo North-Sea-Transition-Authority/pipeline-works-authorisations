@@ -848,7 +848,8 @@ public class PadOrganisationRoleServiceTest {
     detail.setPwaApplication(app);
 
     PwaApplicationType.stream()
-        .filter(type -> !type.equals(PwaApplicationType.OPTIONS_VARIATION))
+        .filter(type -> !type.equals(PwaApplicationType.OPTIONS_VARIATION)
+            && !type.equals(PwaApplicationType.DEPOSIT_CONSENT))
         .forEach(applicationType -> {
 
           app.setApplicationType(applicationType);

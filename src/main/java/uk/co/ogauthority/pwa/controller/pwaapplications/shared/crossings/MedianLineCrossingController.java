@@ -134,7 +134,7 @@ public class MedianLineCrossingController {
       var agreement = padMedianLineAgreementService.getMedianLineAgreement(detail);
       if (agreement.getAgreementStatus() == null) {
         return getOverviewModelAndView(detail)
-            .addObject("errorMessage", "You must select the status of the agreement");
+            .addObject("errorMessage", "Select the status of the agreement");
       } else {
         return getOverviewModelAndView(detail)
             .addObject("errorMessage", "At least one document is required");

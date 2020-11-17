@@ -38,19 +38,19 @@ public class PartnerLettersValidator implements SmartValidator {
       if (ListUtils.emptyIfNull(form.getUploadedFileWithDescriptionForms()).isEmpty()) {
         errors.rejectValue("uploadedFileWithDescriptionForms",
             "uploadedFileWithDescriptionForms" + FieldValidationErrorCodes.REQUIRED.getCode(),
-            "You must upload at least one letter");
+            "Upload at least one letter");
 
       } else {
         for (int x = 0; x < form.getUploadedFileWithDescriptionForms().size(); x++) {
           ValidationUtils.rejectIfEmptyOrWhitespace(errors, "uploadedFileWithDescriptionForms[" + x + "].uploadedFileDescription",
               "uploadedFileWithDescriptionForms[" + x + "].uploadedFileDescription" + FieldValidationErrorCodes.REQUIRED.getCode(),
-              "You must enter a description for the uploaded letter");
+              "Enter a description for the uploaded letter");
         }
       }
 
       if (!BooleanUtils.isTrue(form.getPartnerLettersConfirmed())) {
         errors.rejectValue("partnerLettersConfirmed", "partnerLettersConfirmed" + FieldValidationErrorCodes.REQUIRED.getCode(),
-            "You must confirm that you have provided all required partner approval letters");
+            "Confirm that you have provided all required partner approval letters");
       }
     }
   }

@@ -29,7 +29,7 @@ import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.PwaAppProcessingContextAbstractControllerTest;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
-import uk.co.ogauthority.pwa.model.dto.consultations.ConsultationRequestDto;
+import uk.co.ogauthority.pwa.model.dto.appprocessing.ProcessingPermissionsDto;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.consultation.AssignResponderForm;
@@ -39,6 +39,7 @@ import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingConte
 import uk.co.ogauthority.pwa.service.consultations.AssignResponderService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.testutils.PwaAppProcessingContextDtoTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
@@ -58,6 +59,8 @@ public class AssignResponderControllerTest extends PwaAppProcessingContextAbstra
 
   private ConsultationRequest consultationRequest;
 
+  private ProcessingPermissionsDto permissionsDto;
+
   @Before
   public void setUp() {
 
@@ -74,12 +77,15 @@ public class AssignResponderControllerTest extends PwaAppProcessingContextAbstra
     when(consultationRequestService.getConsultationRequestById(any())).thenReturn(consultationRequest);
     when(assignResponderService.isUserMemberOfRequestGroup(any(), any())).thenReturn(true);
 
-    var requestDto = new ConsultationRequestDto("group", consultationRequest);
-    when(consultationRequestService.getActiveConsultationRequestByApplicationAndConsulteePerson(any(), any())).thenReturn(Optional.of(requestDto));
+    permissionsDto = new ProcessingPermissionsDto(
+        PwaAppProcessingContextDtoTestUtils.appInvolvementWithConsultationRequest("name", consultationRequest),
+        EnumSet.allOf(PwaAppProcessingPermission.class)
+    );
 
     endpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaApplicationDetailService, pwaAppProcessingPermissionService)
         .setUserPrivileges(PwaUserPrivilege.PWA_CONSULTEE)
-        .setAllowedProcessingPermissions(PwaAppProcessingPermission.ASSIGN_RESPONDER);
+        .setAllowedProcessingPermissions(PwaAppProcessingPermission.ASSIGN_RESPONDER)
+        .setConsultationRequest(consultationRequest);
 
   }
 
@@ -114,7 +120,7 @@ public class AssignResponderControllerTest extends PwaAppProcessingContextAbstra
 
     when(assignResponderService.validate(any(), any(), any())).thenReturn(new BeanPropertyBindingResult(new AssignResponderForm(), "form"));
 
-    when(pwaAppProcessingPermissionService.getProcessingPermissions(pwaApplicationDetail.getPwaApplication(), user)).thenReturn(EnumSet.allOf(PwaAppProcessingPermission.class));
+    when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail.getPwaApplication(), user)).thenReturn(permissionsDto);
 
     mockMvc.perform(post(ReverseRouter.route(on(AssignResponderController.class).postAssignResponder(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), 1, null, null, null, null, null)))
         .with(authenticatedUserAndSession(user))
@@ -133,7 +139,7 @@ public class AssignResponderControllerTest extends PwaAppProcessingContextAbstra
     failedBindingResult.addError(new ObjectError("fake", "fake"));
     when(assignResponderService.validate(any(), any(), any())).thenReturn(failedBindingResult);
 
-    when(pwaAppProcessingPermissionService.getProcessingPermissions(pwaApplicationDetail.getPwaApplication(), user)).thenReturn(EnumSet.allOf(PwaAppProcessingPermission.class));
+    when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail.getPwaApplication(), user)).thenReturn(permissionsDto);
 
     mockMvc.perform(post(ReverseRouter.route(on(AssignResponderController.class).postAssignResponder(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), 1, null, null, null, null, null)))
         .with(authenticatedUserAndSession(user))

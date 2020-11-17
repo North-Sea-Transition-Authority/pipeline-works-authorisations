@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.model.form.consultation;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.Objects;
 import uk.co.ogauthority.pwa.model.form.enums.ConsultationResponseOption;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ConsultationRequestStatus;
 import uk.co.ogauthority.pwa.util.DateUtils;
@@ -136,5 +137,38 @@ public class ConsultationRequestView {
 
   public String getEndTimeStamp() {
     return endTimeStamp;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    ConsultationRequestView that = (ConsultationRequestView) o;
+    return Objects.equals(consultationRequestId, that.consultationRequestId)
+        && Objects.equals(consulteeGroupName, that.consulteeGroupName)
+        && Objects.equals(requestDate, that.requestDate)
+        && Objects.equals(requestDateDisplay, that.requestDateDisplay)
+        && status == that.status
+        && Objects.equals(dueDateDisplay, that.dueDateDisplay)
+        && Objects.equals(responseDate, that.responseDate)
+        && Objects.equals(responseDateDisplay, that.responseDateDisplay)
+        && responseType == that.responseType
+        && Objects.equals(responseConfirmReason, that.responseConfirmReason)
+        && Objects.equals(responseRejectionReason, that.responseRejectionReason)
+        && Objects.equals(responseByPerson, that.responseByPerson)
+        && Objects.equals(canWithdraw, that.canWithdraw)
+        && Objects.equals(withdrawnByUser, that.withdrawnByUser)
+        && Objects.equals(endTimeStamp, that.endTimeStamp);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(consultationRequestId, consulteeGroupName, requestDate, requestDateDisplay, status,
+        dueDateDisplay, responseDate, responseDateDisplay, responseType, responseConfirmReason, responseRejectionReason,
+        responseByPerson, canWithdraw, withdrawnByUser, endTimeStamp);
   }
 }

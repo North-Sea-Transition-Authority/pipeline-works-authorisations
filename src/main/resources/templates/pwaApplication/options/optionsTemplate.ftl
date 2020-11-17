@@ -1,6 +1,7 @@
 <#include '../../layout.ftl'>
 
 <#-- @ftlvariable name="errorList" type="java.util.List<uk.co.ogauthority.pwa.model.form.fds.ErrorItem>" -->
+<#-- @ftlvariable name="ogaOptionsTemplateLink" type="java.lang.String" -->
 
 <@defaultPage htmlTitle="Options template" pageHeading="Options template" breadcrumbs=true>
 
@@ -10,8 +11,16 @@
 
     <@fdsForm.htmlForm>
 
-        <#--  TODO PWA-843 - Update OGA_LINK to options template link -->
-        <@fdsFieldset.fieldset legendHeading="Template document" legendHeadingClass="govuk-fieldset__legend--m" legendHeadingSize="h2" hintText="Upload a completed template from OGA_LINK">
+        <#assign optionsTemplateLink>
+            <@fdsAction.link
+            linkText="the OGA website"
+            linkUrl=ogaOptionsTemplateLink
+            openInNewTab=true
+            linkClass="govuk-link"
+            linkScreenReaderText="OGA options template link"/>
+        </#assign>
+
+        <@fdsFieldset.fieldset legendHeading="Template document" legendHeadingClass="govuk-fieldset__legend--m" legendHeadingSize="h2" hintText="Upload a completed template from ${optionsTemplateLink}">
             <@fdsFileUpload.fileUpload id="doc-upload-file-id" path="form.uploadedFileWithDescriptionForms" uploadUrl=uploadUrl deleteUrl=deleteUrl maxAllowedSize=fileuploadMaxUploadSize allowedExtensions=fileuploadAllowedExtensions downloadUrl=downloadUrl existingFiles=uploadedFileViewList dropzoneText="Drag and drop your documents here"/>
         </@fdsFieldset.fieldset>
 

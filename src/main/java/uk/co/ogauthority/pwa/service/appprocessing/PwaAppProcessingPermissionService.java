@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.service.appprocessing;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.collections4.SetUtils;
@@ -8,10 +9,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
+import uk.co.ogauthority.pwa.model.dto.appprocessing.ConsultationInvolvementDto;
+import uk.co.ogauthority.pwa.model.dto.appprocessing.ProcessingPermissionsDto;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupMemberRole;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 
 @Service
 public class PwaAppProcessingPermissionService {
@@ -23,8 +28,8 @@ public class PwaAppProcessingPermissionService {
     this.applicationInvolvementService = applicationInvolvementService;
   }
 
-  public Set<PwaAppProcessingPermission> getProcessingPermissions(PwaApplication application,
-                                                                  AuthenticatedUserAccount user) {
+  public ProcessingPermissionsDto getProcessingPermissionsDto(PwaApplication application,
+                                                              AuthenticatedUserAccount user) {
 
     var appInvolvement = applicationInvolvementService.getApplicationInvolvementDto(application, user);
 
@@ -38,22 +43,43 @@ public class PwaAppProcessingPermissionService {
             case UPDATE_APPLICATION:
               return appInvolvement.hasAnyOfTheseContactRoles(PwaContactRole.PREPARER);
             case CASE_MANAGEMENT_CONSULTEE:
-              return !appInvolvement.getConsulteeRoles().isEmpty();
+              return !appInvolvement.getConsultationInvolvement()
+                  .map(ConsultationInvolvementDto::getConsulteeRoles)
+                  .orElse(Set.of())
+                  .isEmpty();
             case CASE_MANAGEMENT_INDUSTRY:
               return !appInvolvement.getContactRoles().isEmpty();
+            case APPROVE_OPTIONS_VIEW:
+              return !appInvolvement.getContactRoles().isEmpty()
+                  && PwaApplicationType.OPTIONS_VARIATION.equals(application.getApplicationType());
             case CASE_MANAGEMENT_OGA:
               return userPrivileges.contains(PwaUserPrivilege.PWA_REGULATOR);
             case ASSIGN_RESPONDER:
-              return appInvolvement.hasAnyOfTheseConsulteeRoles(ConsulteeGroupMemberRole.RECIPIENT, ConsulteeGroupMemberRole.RESPONDER);
+              return appInvolvement.hasAnyOfTheseConsulteeRoles(ConsulteeGroupMemberRole.RECIPIENT,
+                  ConsulteeGroupMemberRole.RESPONDER);
             case CONSULTATION_RESPONDER:
               return appInvolvement.hasAnyOfTheseConsulteeRoles(ConsulteeGroupMemberRole.RESPONDER)
-                  && appInvolvement.isAssignedAtResponderStage();
+                  && appInvolvement.getConsultationInvolvement()
+                        .map(ConsultationInvolvementDto::isAssignedToResponderStage)
+                        .orElse(false);
+            case CONSULTEE_ADVICE:
+              return !appInvolvement.getConsultationInvolvement()
+                  .map(ConsultationInvolvementDto::getHistoricalRequests)
+                  .orElse(List.of())
+                  .isEmpty();
+            case APPROVE_OPTIONS:
+              return userPrivileges.contains(PwaUserPrivilege.PWA_CASE_OFFICER)
+                  && appInvolvement.isCaseOfficerStageAndUserAssigned()
+                  && PwaApplicationType.OPTIONS_VARIATION.equals(application.getApplicationType());
+
             case CASE_OFFICER_REVIEW:
             case EDIT_CONSULTATIONS:
+            case PUBLIC_NOTICE:
             case WITHDRAW_CONSULTATION:
             case REQUEST_APPLICATION_UPDATE:
             case EDIT_CONSENT_DOCUMENT:
-              return userPrivileges.contains(PwaUserPrivilege.PWA_CASE_OFFICER) && appInvolvement.isCaseOfficerStageAndUserAssigned();
+              return userPrivileges.contains(
+                  PwaUserPrivilege.PWA_CASE_OFFICER) && appInvolvement.isCaseOfficerStageAndUserAssigned();
             default:
               return false;
           }
@@ -68,7 +94,7 @@ public class PwaAppProcessingPermissionService {
       appPermissions.add(PwaAppProcessingPermission.VIEW_APPLICATION_SUMMARY);
     }
 
-    return SetUtils.union(genericPermissions, appPermissions);
+    return new ProcessingPermissionsDto(appInvolvement, SetUtils.union(genericPermissions, appPermissions));
 
   }
 

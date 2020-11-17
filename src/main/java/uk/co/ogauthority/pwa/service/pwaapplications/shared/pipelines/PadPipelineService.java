@@ -15,7 +15,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.transaction.Transactional;
-import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -73,6 +72,8 @@ public class PadPipelineService implements ApplicationFormSectionService {
   private final PadPipelinePersisterService padPipelinePersisterService;
   private final PipelineHeaderFormValidator pipelineHeaderFormValidator;
   private final PadPipelineDataCopierService padPipelineDataCopierService;
+
+  private static final Set<PipelineStatus> DATA_REQUIRED_STATUSES = Set.of(PipelineStatus.IN_SERVICE, PipelineStatus.OUT_OF_USE_ON_SEABED);
 
   @Autowired
   public PadPipelineService(PadPipelineRepository padPipelineRepository,
@@ -172,13 +173,7 @@ public class PadPipelineService implements ApplicationFormSectionService {
 
   @VisibleForTesting
   boolean isValidationRequired(PadPipeline padPipeline) {
-    switch (padPipeline.getPipelineStatus()) {
-      case NEVER_LAID:
-      case RETURNED_TO_SHORE:
-        return false;
-      default:
-        return true;
-    }
+    return DATA_REQUIRED_STATUSES.contains(padPipeline.getPipelineStatus());
   }
 
   @VisibleForTesting
@@ -330,10 +325,6 @@ public class PadPipelineService implements ApplicationFormSectionService {
     return List.of();
   }
 
-  public List<PadPipeline> getPadPipelinesByPadPipelineIds(Collection<Integer> padPipelineIds) {
-    return IterableUtils.toList(padPipelineRepository.findAllById(padPipelineIds));
-  }
-
   @VisibleForTesting
   public List<PipelineBundlePairDto> getPipelineBundleNamesByDetail(PwaApplicationDetail pwaApplicationDetail) {
     return padPipelineRepository.getBundleNamesByPwaApplicationDetail(pwaApplicationDetail);
@@ -478,19 +469,14 @@ public class PadPipelineService implements ApplicationFormSectionService {
 
   @VisibleForTesting
   boolean doesPipelineHaveTasks(PadPipelineSummaryDto padPipelineSummaryDto) {
-    switch (padPipelineSummaryDto.getPipelineStatus()) {
-      case RETURNED_TO_SHORE:
-      case NEVER_LAID:
-        return false;
-      default:
-        return true;
-    }
+    return DATA_REQUIRED_STATUSES.contains(padPipelineSummaryDto.getPipelineStatus());
   }
 
   @Override
   public void cleanupData(PwaApplicationDetail detail) {
 
     var updatedPipelinesList = getPipelines(detail).stream()
+        .filter(pipe -> DATA_REQUIRED_STATUSES.contains(pipe.getPipelineStatus()))
         .peek(padPipeline -> {
 
           if (!padPipeline.getTrenchedBuriedBackfilled()) {

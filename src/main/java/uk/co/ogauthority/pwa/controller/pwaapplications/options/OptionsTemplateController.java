@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.controller.pwaapplications.options;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -48,18 +49,22 @@ public class OptionsTemplateController extends PwaApplicationDetailDataFileUploa
   private final ControllerHelperService controllerHelperService;
   private final OptionsTemplateService optionsTemplateService;
   private final PwaApplicationRedirectService pwaApplicationRedirectService;
+  private final String ogaOptionsTemplateLink;
+
 
   @Autowired
   public OptionsTemplateController(PadFileService padFileService,
                                    ApplicationBreadcrumbService applicationBreadcrumbService,
                                    ControllerHelperService controllerHelperService,
                                    OptionsTemplateService optionsTemplateService,
-                                   PwaApplicationRedirectService pwaApplicationRedirectService) {
+                                   PwaApplicationRedirectService pwaApplicationRedirectService,
+                                   @Value("${oga.options.template.link}") String ogaOptionsTemplateLink) {
     super(padFileService);
     this.applicationBreadcrumbService = applicationBreadcrumbService;
     this.controllerHelperService = controllerHelperService;
     this.optionsTemplateService = optionsTemplateService;
     this.pwaApplicationRedirectService = pwaApplicationRedirectService;
+    this.ogaOptionsTemplateLink = ogaOptionsTemplateLink;
   }
 
   private ModelAndView getModelAndView(PwaApplicationContext applicationContext,
@@ -71,6 +76,7 @@ public class OptionsTemplateController extends PwaApplicationDetailDataFileUploa
         FILE_PURPOSE,
         form
     );
+    modelAndView.addObject("ogaOptionsTemplateLink", ogaOptionsTemplateLink);
 
     applicationBreadcrumbService.fromTaskList(applicationContext.getPwaApplication(), modelAndView, "Options template");
 

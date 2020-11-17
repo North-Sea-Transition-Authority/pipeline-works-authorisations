@@ -77,6 +77,7 @@ public class PadPipelineTestUtil {
     ident.setToCoordinates(CoordinatePairTestUtil.getDefaultCoordinate(46, 1));
     ident.setFromLocation("FROM_LOCATION");
     ident.setToLocation("TO_LOCATION");
+    ident.setDefiningStructure(false);
 
     ObjectTestUtils.assertAllFieldsNotNull(ident, PadPipelineIdent.class, Set.of(PadPipelineIdent_.ID));
     return ident;

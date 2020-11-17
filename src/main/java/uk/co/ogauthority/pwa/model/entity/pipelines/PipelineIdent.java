@@ -22,6 +22,8 @@ public interface PipelineIdent {
 
   BigDecimal getLength();
 
+  Boolean getIsDefiningStructure();
+
   CoordinatePair getFromCoordinates();
 
   CoordinatePair getToCoordinates();

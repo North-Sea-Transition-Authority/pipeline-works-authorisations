@@ -31,11 +31,11 @@ public class ConsultationResponseValidator implements SmartValidator {
 
     ValidationUtils.rejectIfEmpty(errors,"consultationResponseOption",
         FieldValidationErrorCodes.REQUIRED.errorCode("consultationResponseOption"),
-        "You must confirm or reject this application");
+        "Select a response decision");
 
     if (form.getConsultationResponseOption() == ConsultationResponseOption.REJECTED)  {
       ValidationUtils.rejectIfEmpty(errors,"rejectedDescription", FieldValidationErrorCodes.REQUIRED.errorCode("rejectedDescription"),
-          "You must provide a reason for rejecting this application");
+          "Enter a reason for rejecting this application");
     }
 
     ValidatorUtils.validateDefaultStringLength(

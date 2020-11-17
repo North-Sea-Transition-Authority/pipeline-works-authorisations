@@ -2,7 +2,6 @@ package uk.co.ogauthority.pwa.controller.appprocessing.decision;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
-import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
@@ -21,17 +20,17 @@ import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.controller.appprocessing.shared.PwaAppProcessingPermissionCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationStatusCheck;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.DocumentTemplateMnem;
+import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocGenType;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.AppProcessingBreadcrumbService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.service.appprocessing.decision.ConsentDocumentUrlFactory;
 import uk.co.ogauthority.pwa.service.documents.ClauseActionsUrlFactory;
 import uk.co.ogauthority.pwa.service.documents.DocumentService;
-import uk.co.ogauthority.pwa.service.documents.pdf.PdfRenderingService;
+import uk.co.ogauthority.pwa.service.documents.generation.DocumentGenerationService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
-import uk.co.ogauthority.pwa.service.rendering.TemplateRenderingService;
 import uk.co.ogauthority.pwa.util.FlashUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
@@ -43,18 +42,15 @@ public class AppConsentDocController {
 
   private final AppProcessingBreadcrumbService breadcrumbService;
   private final DocumentService documentService;
-  private final TemplateRenderingService templateRenderingService;
-  private final PdfRenderingService pdfRenderingService;
+  private final DocumentGenerationService documentGenerationService;
 
   @Autowired
   public AppConsentDocController(AppProcessingBreadcrumbService breadcrumbService,
                                  DocumentService documentService,
-                                 TemplateRenderingService templateRenderingService,
-                                 PdfRenderingService pdfRenderingService) {
+                                 DocumentGenerationService documentGenerationService) {
     this.breadcrumbService = breadcrumbService;
     this.documentService = documentService;
-    this.templateRenderingService = templateRenderingService;
-    this.pdfRenderingService = pdfRenderingService;
+    this.documentGenerationService = documentGenerationService;
   }
 
   @GetMapping
@@ -88,7 +84,6 @@ public class AppConsentDocController {
 
   @GetMapping("/download")
   @ResponseBody
-  // todo remove when doc framework implemented PWA-120
   public ResponseEntity<Resource> downloadPdf(@PathVariable("applicationId") Integer applicationId,
                                               @PathVariable("applicationType")
                                               @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
@@ -96,8 +91,8 @@ public class AppConsentDocController {
                                               AuthenticatedUserAccount authenticatedUserAccount) {
 
     try {
-      var html = templateRenderingService.render("documents/testDocument.ftl", Map.of("showWatermark", true), false);
-      var blob = pdfRenderingService.renderToBlob(html);
+
+      var blob = documentGenerationService.generateConsentDocument(processingContext.getApplicationDetail(), DocGenType.PREVIEW);
       var inputStream = blob.getBinaryStream();
 
       try {

@@ -1,4 +1,7 @@
 <#-- @ftlvariable name="showWatermark" type="java.lang.Boolean" -->
+<#-- @ftlvariable name="consentRef" type="String" -->
+<#-- @ftlvariable name="sectionHtml" type="String" -->
+
 <html>
 <head>
   <style>
@@ -13,6 +16,7 @@
       }
 
       @top-left {
+        /*content: element(myheader);*/
         content: element(watermark-ref);
       }
     }
@@ -49,17 +53,37 @@
       line-height: 90px;
     }
 
+    #myheader {
+      position: running(myheader);
+    }
+
+    #image {
+      background-image: url('document-assets/oga-logo.png');
+      height: 30px;
+    }
+
   </style>
 </head>
 <body>
 
-  <h1>Pipeline Works Authorisations document</h1>
+<#--  <div id="myheader">-->
+
+<#--    <div id="image"></div>-->
+
+<#--    <div id="header">-->
+<#--      <h1>${consentRef!"Pipeline Works Authorisations document"}</h1>-->
+<#--    </div>-->
+
+<#--  </div>-->
+
+  <img src="classpath:///document-assets/oga-logo.png"/>
+  <h1>${consentRef!"Pipeline Works Authorisations document"}</h1>
 
   <#if showWatermark>
     <watermark>TEST DOCUMENT</watermark>
   </#if>
 
-  <p>Content tbc</p>
+  ${sectionHtml?no_esc}
 
 </body>
 </html>

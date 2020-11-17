@@ -1,0 +1,17 @@
+package uk.co.ogauthority.pwa.model.entity.enums;
+
+
+
+public enum LocationDetailsQuestion {
+
+  APPROXIMATE_PROJECT_LOCATION_FROM_SHORE,
+  WITHIN_SAFETY_ZONE,
+  FACILITIES_OFFSHORE,
+  TRANSPORTS_MATERIALS_TO_SHORE,
+  ROUTE_SURVEY_UNDERTAKEN,
+  WITHIN_LIMITS_OF_DEVIATION,
+  ROUTE_DOCUMENTS;
+
+
+
+}

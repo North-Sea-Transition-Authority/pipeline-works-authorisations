@@ -112,10 +112,10 @@ public class BlockCrossingController {
 
     if (blockCrossingService.isDocumentsRequired(detail) && !blockCrossingFileService.isComplete(detail)) {
       return createOverviewModelAndView(detail)
-          .addObject("errorMessage", "You must add at least one document");
+          .addObject("errorMessage", "Add at least one document");
     } else if (!blockCrossingService.isComplete(detail)) {
       return createOverviewModelAndView(detail)
-          .addObject("errorMessage", "You must add at least one block");
+          .addObject("errorMessage", "Add at least one block");
     }
     return ReverseRouter.redirect(on(CrossingAgreementsController.class)
         .renderCrossingAgreementsOverview(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null,

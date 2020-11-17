@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
+import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.contacts.PwaContact;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
@@ -40,7 +41,6 @@ import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
 import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadOrganisationRoleService;
 import uk.co.ogauthority.pwa.service.teammanagement.LastAdministratorException;
 import uk.co.ogauthority.pwa.service.teammanagement.TeamManagementService;
-import uk.co.ogauthority.pwa.service.teams.TeamService;
 import uk.co.ogauthority.pwa.util.EnumUtils;
 import uk.co.ogauthority.pwa.util.StreamUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
@@ -55,7 +55,6 @@ public class PwaContactController {
   private final TeamManagementService teamManagementService;
   private final AddPwaContactFormValidator addPwaContactFormValidator;
   private final ControllerHelperService controllerHelperService;
-  private final TeamService teamService;
   private final PadOrganisationRoleService padOrganisationRoleService;
   private final PwaApplicationRedirectService pwaApplicationRedirectService;
 
@@ -70,7 +69,6 @@ public class PwaContactController {
                               TeamManagementService teamManagementService,
                               AddPwaContactFormValidator addPwaContactFormValidator,
                               ControllerHelperService controllerHelperService,
-                              TeamService teamService,
                               PadOrganisationRoleService padOrganisationRoleService,
                               PwaApplicationRedirectService pwaApplicationRedirectService,
                               @Value("${oga.registration.link}") String ogaRegistrationLink) {
@@ -80,7 +78,6 @@ public class PwaContactController {
     this.teamManagementService = teamManagementService;
     this.addPwaContactFormValidator = addPwaContactFormValidator;
     this.controllerHelperService = controllerHelperService;
-    this.teamService = teamService;
     this.padOrganisationRoleService = padOrganisationRoleService;
     this.pwaApplicationRedirectService = pwaApplicationRedirectService;
     this.ogaRegistrationLink = ogaRegistrationLink;
@@ -109,11 +106,10 @@ public class PwaContactController {
           .sorted(Comparator.comparing(TeamMemberView::getFullName))
           .collect(Collectors.toList());
 
-      List<String> orgGroupHolders = padOrganisationRoleService.getOrgRolesForDetail(detail).stream()
+      Set<String> orgGroupHolders = padOrganisationRoleService.getOrgRolesForDetailAndRole(detail, HuooRole.HOLDER).stream()
           .filter(orgRole -> orgRole.getOrganisationUnit() != null)
           .map(orgRole -> orgRole.getOrganisationUnit().getPortalOrganisationGroup().getName())
-          .collect(Collectors.toList());
-
+          .collect(Collectors.toSet());
 
       var modelAndView = new ModelAndView("teamManagement/teamMembers")
           .addObject("teamName", "Application users")

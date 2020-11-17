@@ -31,7 +31,7 @@ public class AssignResponderValidator implements SmartValidator {
     var consultationRequest = assignResponderValidationHints.getConsultationRequest();
 
     ValidationUtils.rejectIfEmpty(errors,"responderPersonId", FieldValidationErrorCodes.REQUIRED.errorCode("responderPersonId"),
-        "You must select a responder for the consultation");
+        "Select a responder for the consultation");
 
     if (form.getResponderPersonId() != null)  {
       List<Person> responders = assignResponderService.getAllRespondersForRequest(consultationRequest);
@@ -40,7 +40,7 @@ public class AssignResponderValidator implements SmartValidator {
           .collect(Collectors.toList());
       if (matchedResponders.isEmpty()) {
         errors.rejectValue("responderPersonId", "responderPersonId" + FieldValidationErrorCodes.INVALID.getCode(),
-            "You must select a valid responder for the consultation");
+            "Select a valid responder for the consultation");
       }
     }
 

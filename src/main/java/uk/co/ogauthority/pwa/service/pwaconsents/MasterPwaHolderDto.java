@@ -32,4 +32,8 @@ public class MasterPwaHolderDto {
     return Optional.ofNullable(this.organisationUnit.getPortalOrganisationGroup());
   }
 
+  public Optional<PortalOrganisationUnit> getHolderOrganisationUnit() {
+    return Optional.ofNullable(this.organisationUnit);
+  }
+
 }
