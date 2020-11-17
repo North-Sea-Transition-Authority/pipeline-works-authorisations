@@ -97,6 +97,11 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
     return padOrganisationRolesRepository.getAllByPwaApplicationDetail(pwaApplicationDetail);
   }
 
+  public List<PadOrganisationRole> getOrgRolesForDetailAndRole(PwaApplicationDetail pwaApplicationDetail,
+                                                               HuooRole huooRole) {
+    return padOrganisationRolesRepository.getAllByPwaApplicationDetailAndRole(pwaApplicationDetail, huooRole);
+  }
+
   public List<PadOrganisationRole> getAllAssignableAndNonAssignableOrgRolesForDetailByRole(
       PwaApplicationDetail pwaApplicationDetail,
       HuooRole huooRole) {

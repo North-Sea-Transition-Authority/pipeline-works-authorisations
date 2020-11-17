@@ -18,6 +18,10 @@ public interface PadOrganisationRolesRepository extends CrudRepository<PadOrgani
   @EntityGraph(attributePaths = "organisationUnit")
   List<PadOrganisationRole> getAllByPwaApplicationDetail(PwaApplicationDetail pwaApplicationDetail);
 
+  @EntityGraph(attributePaths = "organisationUnit")
+  List<PadOrganisationRole> getAllByPwaApplicationDetailAndRole(PwaApplicationDetail pwaApplicationDetail,
+                                                                HuooRole huooRole);
+
   @EntityGraph(attributePaths = {"organisationUnit", "organisationUnit.portalOrganisationGroup"})
   List<PadOrganisationRole> getAllByPwaApplicationDetailAndRoleAndType(PwaApplicationDetail pwaApplicationDetail,
                                                                        HuooRole role,
