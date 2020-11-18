@@ -266,8 +266,8 @@ public class PadProjectInformationServiceTest {
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.DEPOSIT_CONSENT);
 
     padProjectInformation = new PadProjectInformation();
+    padProjectInformation.setLicenceTransferPlanned(null);
     // cleanup data shown on all apps and safely assumed to have value
-    padProjectInformation.setLicenceTransferPlanned(false);
     // set answers on visible questions
     padProjectInformation.setTemporaryDepositsMade(false);
     padProjectInformation.setTemporaryDepDescription("Some content");
