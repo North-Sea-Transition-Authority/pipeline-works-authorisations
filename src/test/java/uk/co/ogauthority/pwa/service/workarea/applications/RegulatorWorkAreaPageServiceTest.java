@@ -5,6 +5,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import java.util.EnumSet;
 import java.util.List;
@@ -17,13 +18,16 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.data.domain.Page;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
+import uk.co.ogauthority.pwa.controller.WorkAreaController;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailSearchItem;
+import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.PwaAppProcessingPermissionService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.pwaapplications.search.ApplicationDetailSearcher;
 import uk.co.ogauthority.pwa.service.pwaapplications.search.ApplicationSearchTestUtil;
+import uk.co.ogauthority.pwa.service.workarea.WorkAreaTab;
 
 @RunWith(MockitoJUnitRunner.class)
 public class RegulatorWorkAreaPageServiceTest {
@@ -101,6 +105,18 @@ public class RegulatorWorkAreaPageServiceTest {
   }
 
   @Test
+  public void getRequiresAttentionPageView_pageableLinksToCorrectTab() {
+    when(applicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereAllProcessingWaitFlagsFalse(any(), any(), any()))
+        .thenReturn(fakeResultPage);
+
+    var workareaPage = appWorkAreaPageService.getRequiresAttentionPageView(pwaManager, Set.of(), REQUESTED_PAGE);
+
+    assertThat(workareaPage.urlForPage(0))
+        .isEqualTo(ReverseRouter.route(on(WorkAreaController.class)
+            .renderWorkAreaTab(null, WorkAreaTab.REGULATOR_REQUIRES_ATTENTION, 0)));
+  }
+
+  @Test
   public void getWaitingOnOthersPageView_zeroAssignedCases() {
     when(applicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereAnyProcessingWaitFlagTrue(any(), any(), any()))
         .thenReturn(fakeResultPage);
@@ -114,7 +130,18 @@ public class RegulatorWorkAreaPageServiceTest {
         Set.of()
     );
 
+  }
 
+  @Test
+  public void getWaitingOnOthersPageView_pageableLinksToCorrectTab() {
+    when(applicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereAnyProcessingWaitFlagTrue(any(), any(), any()))
+        .thenReturn(fakeResultPage);
+
+    var workareaPage = appWorkAreaPageService.getWaitingOnOthersPageView(pwaManager, Set.of(), REQUESTED_PAGE);
+
+    assertThat(workareaPage.urlForPage(0))
+        .isEqualTo(ReverseRouter.route(on(WorkAreaController.class)
+            .renderWorkAreaTab(null, WorkAreaTab.REGULATOR_WAITING_ON_OTHERS, 0)));
   }
 
   @Test
