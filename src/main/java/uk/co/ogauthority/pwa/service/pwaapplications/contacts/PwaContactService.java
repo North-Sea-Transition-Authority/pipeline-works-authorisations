@@ -176,10 +176,18 @@ public class PwaContactService implements ApplicationFormSectionService {
    */
   public Set<PwaApplicationContactRoleDto> getPwaContactRolesForWebUserAccount(WebUserAccount webUserAccount,
                                                                                Set<PwaContactRole> roleFilter) {
+    return getPwaContactRolesForPerson(webUserAccount.getLinkedPerson(), roleFilter);
+  }
+
+  /**
+   * get a collection of the Application contact roles for a given Person where each distinct role is an element.
+   */
+  public Set<PwaApplicationContactRoleDto> getPwaContactRolesForPerson(Person person,
+                                                                       Set<PwaContactRole> roleFilter) {
 
     var appContactRoles = new HashSet<PwaApplicationContactRoleDto>();
 
-    var contacts = pwaContactRepository.findAllAsDtoByPerson(webUserAccount.getLinkedPerson());
+    var contacts = pwaContactRepository.findAllAsDtoByPerson(person);
     for (PwaContactDto contact : contacts) {
       for (PwaContactRole pwaContactRole : contact.getRoles()) {
         if (roleFilter.contains(pwaContactRole)) {
