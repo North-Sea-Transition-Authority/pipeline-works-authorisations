@@ -10,6 +10,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelinetechinfo.PipelineTechInfoForm;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 import uk.co.ogauthority.pwa.validators.pipelinetechinfo.PipelineTechInfoValidator;
 
@@ -23,11 +24,10 @@ public class PipelineTechInfoValidatorTest {
     validator = new PipelineTechInfoValidator();
   }
 
-
   @Test
-  public void validate_form_empty() {
+  public void validate_full_empty() {
     var form = new PipelineTechInfoForm();
-    Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form);
+    Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, ValidationType.FULL);
     assertThat(errorsMap).contains(
         entry("estimatedFieldLife", Set.of("estimatedFieldLife.required")),
         entry("pipelineDesignedToStandards", Set.of("pipelineDesignedToStandards.required")),
@@ -37,7 +37,16 @@ public class PipelineTechInfoValidatorTest {
   }
 
   @Test
-  public void validate_form_valid() {
+  public void validate_full_valid() {
+
+    var form = getFullForm();
+
+    Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, ValidationType.FULL);
+    assertThat(errorsMap).isEmpty();
+
+  }
+
+  private PipelineTechInfoForm getFullForm() {
     var form = new PipelineTechInfoForm();
     form.setEstimatedFieldLife(5);
     form.setPipelineDesignedToStandards(true);
@@ -45,34 +54,87 @@ public class PipelineTechInfoValidatorTest {
     form.setCorrosionDescription("description");
     form.setPlannedPipelineTieInPoints(true);
     form.setTieInPointsDescription("description");
-
-    Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form);
-    assertThat(errorsMap).isEmpty();
+    return form;
   }
 
-
   @Test
-  public void pipelineStandardsDescription_notRequired() {
+  public void validate_full_pipelineStandardsDescription_notRequired() {
     var form = new PipelineTechInfoForm();
     form.setPipelineDesignedToStandards(false);
-    Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form);
+    Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, ValidationType.FULL);
     assertThat(errorsMap).doesNotContain(
         entry("pipelineDesignedToStandards", Set.of("pipelineDesignedToStandards.required"))
     );
   }
 
   @Test
-  public void tieInPointsDescription_notRequired() {
+  public void validate_full_tieInPointsDescription_notRequired() {
     var form = new PipelineTechInfoForm();
     form.setPlannedPipelineTieInPoints(false);
-    Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form);
+    Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, ValidationType.FULL);
     assertThat(errorsMap).doesNotContain(
         entry("tieInPointsDescription", Set.of("tieInPointsDescription.required"))
     );
   }
 
+  @Test
+  public void validate_partial_valid() {
 
+    var form = new PipelineTechInfoForm();
 
+    var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, ValidationType.PARTIAL);
 
+    assertThat(errorsMap).isEmpty();
+
+  }
+
+  @Test
+  public void validate_partial_someData_valid() {
+
+    var form = new PipelineTechInfoForm();
+    form.setPipelineDesignedToStandards(true);
+    form.setPlannedPipelineTieInPoints(true);
+
+    var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, ValidationType.PARTIAL);
+
+    assertThat(errorsMap).isEmpty();
+
+  }
+
+  @Test
+  public void validate_full_maxLength_invalid() {
+
+    var form = getFullForm();
+    form.setCorrosionDescription(ValidatorTestUtils.over4000Chars());
+    form.setPipelineStandardsDescription(ValidatorTestUtils.over4000Chars());
+    form.setTieInPointsDescription(ValidatorTestUtils.over4000Chars());
+
+    var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, ValidationType.FULL);
+
+    assertThat(errorsMap).containsOnly(
+        entry("pipelineStandardsDescription", Set.of("pipelineStandardsDescription.maxLengthExceeded")),
+        entry("corrosionDescription", Set.of("corrosionDescription.maxLengthExceeded")),
+        entry("tieInPointsDescription", Set.of("tieInPointsDescription.maxLengthExceeded"))
+    );
+
+  }
+
+  @Test
+  public void validate_partial_maxLength_invalid() {
+
+    var form = new PipelineTechInfoForm();
+    form.setCorrosionDescription(ValidatorTestUtils.over4000Chars());
+    form.setPipelineStandardsDescription(ValidatorTestUtils.over4000Chars());
+    form.setTieInPointsDescription(ValidatorTestUtils.over4000Chars());
+
+    var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, ValidationType.PARTIAL);
+
+    assertThat(errorsMap).containsOnly(
+        entry("pipelineStandardsDescription", Set.of("pipelineStandardsDescription.maxLengthExceeded")),
+        entry("corrosionDescription", Set.of("corrosionDescription.maxLengthExceeded")),
+        entry("tieInPointsDescription", Set.of("tieInPointsDescription.maxLengthExceeded"))
+    );
+
+  }
 
 }
