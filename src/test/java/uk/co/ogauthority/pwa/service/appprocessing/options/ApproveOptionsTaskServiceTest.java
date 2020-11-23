@@ -330,9 +330,8 @@ public class ApproveOptionsTaskServiceTest {
         EnumSet.of(PwaAppProcessingPermission.APPROVE_OPTIONS_VIEW)
     );
 
-    var approval = new OptionsApplicationApproval();
     when(optionsApplicationApprovalRepository.findByPwaApplication(pwaApplicationDetail.getPwaApplication()))
-        .thenReturn(Optional.of(approval));
+        .thenReturn(Optional.empty());
 
     var taskListEntry = approveOptionsTaskService.getTaskListEntry(
         APPROVE_OPTIONS,
