@@ -187,8 +187,8 @@ public class OptionsCaseManagementEmailServiceTest {
 
     var emailProps = optionsDeadlineChangedEmailCaptor.getAllValues();
     assertThat(emailProps).allSatisfy(applicationOptionsApprovedEmailProps -> {
-          assertThat(applicationOptionsApprovedEmailProps.getEmailPersonalisation()).containsEntry("DEADLINE_DATE", "APP_REFERENCE/20");
-          assertThat(applicationOptionsApprovedEmailProps.getEmailPersonalisation()).containsEntry("APPLICATION_REF", "01-February-2020");
+          assertThat(applicationOptionsApprovedEmailProps.getEmailPersonalisation()).containsEntry("DEADLINE_DATE","01-February-2020");
+          assertThat(applicationOptionsApprovedEmailProps.getEmailPersonalisation()).containsEntry("APPLICATION_REFERENCE", pwaApplicationDetail.getPwaApplicationRef());
           assertThat(applicationOptionsApprovedEmailProps.getEmailPersonalisation()).containsEntry("CASE_MANAGEMENT_LINK", CASE_LINK);
         }
     );
