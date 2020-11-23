@@ -21,11 +21,11 @@ import uk.co.ogauthority.pwa.controller.appprocessing.shared.PwaAppProcessingPer
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationStatusCheck;
 import uk.co.ogauthority.pwa.exception.AccessDeniedException;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.form.appprocessing.options.ApproveOptionsForm;
+import uk.co.ogauthority.pwa.model.form.appprocessing.options.ChangeOptionsApprovalDeadlineForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.service.appprocessing.options.ApproveOptionsService;
-import uk.co.ogauthority.pwa.service.appprocessing.options.ApproveOptionsTaskService;
+import uk.co.ogauthority.pwa.service.appprocessing.options.ChangeOptionsApprovalDeadlineTaskService;
 import uk.co.ogauthority.pwa.service.appprocessing.tabs.AppProcessingTab;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
@@ -33,64 +33,77 @@ import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingTask;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
+import uk.co.ogauthority.pwa.util.DateUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
-import uk.co.ogauthority.pwa.validators.appprocessing.options.ApproveOptionsFormValidator;
+import uk.co.ogauthority.pwa.validators.appprocessing.options.ChangeOptionsApprovalDeadlineFormValidator;
 
 @Controller
-@RequestMapping("/pwa-application/{applicationType}/{applicationId}/approve-options")
-@PwaAppProcessingPermissionCheck(permissions = {PwaAppProcessingPermission.APPROVE_OPTIONS})
+@RequestMapping("/pwa-application/{applicationType}/{applicationId}/change-options-approval-deadline")
+@PwaAppProcessingPermissionCheck(permissions = {PwaAppProcessingPermission.CHANGE_OPTIONS_APPROVAL_DEADLINE})
 @PwaApplicationStatusCheck(status = PwaApplicationStatus.CASE_OFFICER_REVIEW)
-public class ApproveOptionsController {
+public class ChangeOptionsApprovalDeadlineController {
 
   private final ApplicationBreadcrumbService breadcrumbService;
-  private final ApproveOptionsTaskService approveOptionsTaskService;
   private final ApproveOptionsService approveOptionsService;
-  private final ApproveOptionsFormValidator approveOptionsFormValidator;
+  private final ChangeOptionsApprovalDeadlineTaskService changeOptionsApprovalDeadlineTaskService;
+  private final ChangeOptionsApprovalDeadlineFormValidator changeOptionsApprovalDeadlineFormValidator;
   private final ControllerHelperService controllerHelperService;
 
   @Autowired
-  public ApproveOptionsController(ApplicationBreadcrumbService breadcrumbService,
-                                  ApproveOptionsTaskService approveOptionsTaskService,
-                                  ApproveOptionsService approveOptionsService,
-                                  ApproveOptionsFormValidator approveOptionsFormValidator,
-                                  ControllerHelperService controllerHelperService) {
+  public ChangeOptionsApprovalDeadlineController(ApplicationBreadcrumbService breadcrumbService,
+                                                 ApproveOptionsService approveOptionsService,
+                                                 ChangeOptionsApprovalDeadlineTaskService changeOptionsApprovalDeadlineTaskService,
+                                                 ChangeOptionsApprovalDeadlineFormValidator changeOptionsApprovalDeadlineFormValidator,
+                                                 ControllerHelperService controllerHelperService) {
     this.breadcrumbService = breadcrumbService;
-    this.approveOptionsTaskService = approveOptionsTaskService;
     this.approveOptionsService = approveOptionsService;
-    this.approveOptionsFormValidator = approveOptionsFormValidator;
+    this.changeOptionsApprovalDeadlineTaskService = changeOptionsApprovalDeadlineTaskService;
+    this.changeOptionsApprovalDeadlineFormValidator = changeOptionsApprovalDeadlineFormValidator;
     this.controllerHelperService = controllerHelperService;
   }
 
   @GetMapping
-  public ModelAndView renderApproveOptions(@PathVariable("applicationId") Integer applicationId,
+  public ModelAndView renderChangeDeadline(@PathVariable("applicationId") Integer applicationId,
                                            @PathVariable("applicationType")
                                            @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
                                            PwaAppProcessingContext processingContext,
                                            AuthenticatedUserAccount authenticatedUserAccount,
-                                           @ModelAttribute("form") ApproveOptionsForm form) {
-    return whenApprovable(
+                                           @ModelAttribute("form") ChangeOptionsApprovalDeadlineForm form) {
+
+    return whenDeadlineChangeable(
         processingContext,
-        () -> getModelAndView(processingContext)
+        () -> {
+          var view = approveOptionsService.getOptionsApprovalDeadlineViewOrError(processingContext.getPwaApplication());
+
+          DateUtils.setYearMonthDayFromInstant(
+              form::setDeadlineDateYear,
+              form::setDeadlineDateMonth,
+              form::setDeadlineDateDay,
+              view.getDeadlineInstant()
+          );
+
+          return getModelAndView(processingContext);
+        }
     );
   }
 
   @PostMapping
-  public ModelAndView approveOptions(@PathVariable("applicationId") Integer applicationId,
-                                     @PathVariable("applicationType")
-                                     @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
-                                     PwaAppProcessingContext processingContext,
-                                     AuthenticatedUserAccount authenticatedUserAccount,
-                                     @ModelAttribute("form") ApproveOptionsForm form,
-                                     BindingResult bindingResult) {
+  public ModelAndView changeOptionsApprovalDeadline(@PathVariable("applicationId") Integer applicationId,
+                                                    @PathVariable("applicationType")
+                                                    @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
+                                                    PwaAppProcessingContext processingContext,
+                                                    AuthenticatedUserAccount authenticatedUserAccount,
+                                                    @ModelAttribute("form") ChangeOptionsApprovalDeadlineForm form,
+                                                    BindingResult bindingResult) {
 
-    approveOptionsFormValidator.validate(form, bindingResult);
+    changeOptionsApprovalDeadlineFormValidator.validate(form, bindingResult);
 
-    return whenApprovable(
+    return whenDeadlineChangeable(
         processingContext,
         () -> controllerHelperService.checkErrorsAndRedirect(
             bindingResult,
             getModelAndView(processingContext),
-            () -> approveInitialOptionsAndRedirect(
+            () -> changeDeadlineAndRedirect(
                 processingContext.getApplicationDetail(), authenticatedUserAccount, form
             )
         )
@@ -98,18 +111,19 @@ public class ApproveOptionsController {
 
   }
 
-  private ModelAndView approveInitialOptionsAndRedirect(PwaApplicationDetail pwaApplicationDetail,
-                                                        AuthenticatedUserAccount userAccount,
-                                                        ApproveOptionsForm approveOptionsForm) {
+  private ModelAndView changeDeadlineAndRedirect(PwaApplicationDetail pwaApplicationDetail,
+                                                 AuthenticatedUserAccount userAccount,
+                                                 ChangeOptionsApprovalDeadlineForm form) {
     var deadlineDate = LocalDate.of(
-        approveOptionsForm.getDeadlineDateYear(),
-        approveOptionsForm.getDeadlineDateMonth(),
-        approveOptionsForm.getDeadlineDateDay()
+        form.getDeadlineDateYear(),
+        form.getDeadlineDateMonth(),
+        form.getDeadlineDateDay()
     );
 
     var deadlineInstant = deadlineDate.atStartOfDay(ZoneId.systemDefault()).toInstant();
 
-    approveOptionsService.approveOptions(pwaApplicationDetail, userAccount.getLinkedPerson(), deadlineInstant);
+    approveOptionsService.changeOptionsApprovalDeadline(pwaApplicationDetail, userAccount.getLinkedPerson(),
+        deadlineInstant, form.getNote());
 
     return ReverseRouter.redirect(on(CaseManagementController.class)
         .renderCaseManagement(
@@ -134,7 +148,7 @@ public class ApproveOptionsController {
             null,
             null));
 
-    var modelAndView = new ModelAndView("appprocessing/options/approveOptions")
+    var modelAndView = new ModelAndView("appprocessing/options/changeOptionsApprovalDeadline")
         .addObject("errorList", List.of())
         .addObject("cancelUrl", cancelUrl)
         .addObject("caseSummaryView", appProcessingContext.getCaseSummaryView());
@@ -147,16 +161,18 @@ public class ApproveOptionsController {
     return modelAndView;
   }
 
-  private ModelAndView whenApprovable(PwaAppProcessingContext context, Supplier<ModelAndView> modelAndViewSupplier) {
+  private ModelAndView whenDeadlineChangeable(PwaAppProcessingContext context,
+                                              Supplier<ModelAndView> modelAndViewSupplier) {
 
-    if (approveOptionsTaskService.taskAccessible(context)) {
+    if (changeOptionsApprovalDeadlineTaskService.taskAccessible(context)) {
       return modelAndViewSupplier.get();
     } else {
       throw new AccessDeniedException(
-          "Access denied as application not in options approve-able state. app_id:" + context.getMasterPwaApplicationId()
+          "Access denied as application cannot have deadline changed. app_id:" + context.getMasterPwaApplicationId()
       );
     }
 
   }
+
 
 }
