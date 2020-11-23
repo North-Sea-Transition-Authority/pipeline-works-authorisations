@@ -101,6 +101,8 @@ public class PwaAppProcessingTaskListServiceTest {
     assertThat(taskListGroups.get(1).getTaskListEntries())
         .extracting(TaskListEntry::getTaskName, TaskListEntry::getRoute)
         .containsExactly(
+            // CHANGE_OPTIONS_APPROVAL_DEADLINE route has content based on independently tested specific conditions
+            tuple(PwaAppProcessingTask.CHANGE_OPTIONS_APPROVAL_DEADLINE.getTaskName(), null),
             tuple(PwaAppProcessingTask.CONSULTEE_ADVICE.getTaskName(), PwaAppProcessingTask.CONSULTEE_ADVICE.getRoute(processingContext)),
             tuple(PwaAppProcessingTask.ALLOCATE_CASE_OFFICER.getTaskName(), PwaAppProcessingTask.ALLOCATE_CASE_OFFICER.getRoute(processingContext)),
             tuple(PwaAppProcessingTask.RFI.getTaskName(), PwaAppProcessingTask.RFI.getRoute(processingContext)),
@@ -142,8 +144,6 @@ public class PwaAppProcessingTaskListServiceTest {
             tuple(PwaAppProcessingTask.INITIAL_REVIEW.getTaskName(), PwaAppProcessingTask.INITIAL_REVIEW.getRoute(processingContext)),
             tuple(PwaAppProcessingTask.ACCEPT_APPLICATION.getTaskName(), PwaAppProcessingTask.ACCEPT_APPLICATION.getRoute(processingContext)),
             tuple(PwaAppProcessingTask.CONSULTATIONS.getTaskName(), PwaAppProcessingTask.CONSULTATIONS.getRoute(processingContext)),
-            // CHANGE_OPTIONS_APPROVAL_DEADLINE route has content based on independently tested specific conditions
-            tuple(PwaAppProcessingTask.CHANGE_OPTIONS_APPROVAL_DEADLINE.getTaskName(), null),
             tuple(PwaAppProcessingTask.PUBLIC_NOTICE.getTaskName(), PwaAppProcessingTask.PUBLIC_NOTICE.getRoute(processingContext)),
             tuple(PwaAppProcessingTask.DECISION.getTaskName(), PwaAppProcessingTask.DECISION.getRoute(processingContext)),
             tuple(PwaAppProcessingTask.ALLOCATE_RESPONDER.getTaskName(), PwaAppProcessingTask.ALLOCATE_RESPONDER.getRoute(processingContext)),
