@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.service.appprocessing.options;
 
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -89,12 +90,19 @@ public class ApproveOptionsServiceTest {
   @Test
   public void changeOptionsApprovalDeadline_serviceInteractions(){
 
+    var deadlineAsInstant = Instant.MAX;
+
     var approval = new OptionsApplicationApproval();
+    var fakeNewHistory = new OptionsApprovalDeadlineHistory();
+    fakeNewHistory.setDeadlineDate(deadlineAsInstant);
+
     when(optionsApplicationApprovalRepository.findByPwaApplication(pwaApplicationDetail.getPwaApplication()))
         .thenReturn(Optional.of(approval));
-    var instant = Instant.MAX;
 
-    approveOptionsService.changeOptionsApprovalDeadline(pwaApplicationDetail, person, instant, NOTE);
+    when(optionsApprovalPersister.createTipDeadlineHistoryItem(any(), any(), any(), any()))
+        .thenReturn(fakeNewHistory);
+
+    approveOptionsService.changeOptionsApprovalDeadline(pwaApplicationDetail, person, deadlineAsInstant, NOTE);
 
     InOrder verifyOrder = Mockito.inOrder(
         optionsApprovalPersister,
@@ -104,7 +112,10 @@ public class ApproveOptionsServiceTest {
     );
 
     verifyOrder.verify(optionsApprovalPersister, times(1)).endTipDeadlineHistoryItem(approval);
-    verifyOrder.verify(optionsApprovalPersister, times(1)).createTipDeadlineHistoryItem(approval, person, instant, NOTE);
+    verifyOrder.verify(optionsApprovalPersister, times(1)).createTipDeadlineHistoryItem(approval, person, deadlineAsInstant, NOTE);
+    verifyOrder.verify(optionsCaseManagementEmailService, times(1)).sendOptionsDeadlineChangedEmail(
+        pwaApplicationDetail, deadlineAsInstant
+    );
     verifyOrder.verifyNoMoreInteractions();
 
   }

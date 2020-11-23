@@ -10,8 +10,11 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
@@ -21,12 +24,15 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
+import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
 import uk.co.ogauthority.pwa.energyportal.model.entity.PersonTestUtil;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
+import uk.co.ogauthority.pwa.model.notify.emailproperties.ApplicationOptionsApprovalDeadlineChangedEmailProps;
 import uk.co.ogauthority.pwa.model.notify.emailproperties.ApplicationOptionsApprovedEmailProps;
+import uk.co.ogauthority.pwa.service.appprocessing.ApplicationInvolvementService;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.notify.EmailCaseLinkService;
@@ -42,6 +48,9 @@ public class OptionsCaseManagementEmailServiceTest {
 
   private static final String CASE_LINK = "https://link.com";
 
+  private static final PersonId PREPARER_PERSON_ID = new PersonId(1);
+  private static final PersonId CASE_OFFICER_PERSON_ID = new PersonId(2);
+
   @Mock
   private EmailCaseLinkService emailCaseLinkService;
 
@@ -54,8 +63,14 @@ public class OptionsCaseManagementEmailServiceTest {
   @Mock
   private PwaConsentOrganisationRoleService pwaConsentOrganisationRoleService;
 
+  @Mock
+  private ApplicationInvolvementService applicationInvolvementService;
+
   @Captor
-  private ArgumentCaptor<ApplicationOptionsApprovedEmailProps> emailPropsCaptor;
+  private ArgumentCaptor<ApplicationOptionsApprovedEmailProps> optionsApprovedEmailCaptor;
+
+  @Captor
+  private ArgumentCaptor<ApplicationOptionsApprovalDeadlineChangedEmailProps> optionsDeadlineChangedEmailCaptor;
 
   private OptionsCaseManagementEmailService optionsCaseManagementEmailService;
 
@@ -63,6 +78,8 @@ public class OptionsCaseManagementEmailServiceTest {
   private MasterPwa masterPwa;
 
   private Person preparerContactPerson;
+
+  private Person caseOfficerPerson;
 
   private PortalOrganisationUnit organisationUnit;
   private MasterPwaHolderDto masterPwaHolderDto;
@@ -73,7 +90,8 @@ public class OptionsCaseManagementEmailServiceTest {
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.OPTIONS_VARIATION);
     masterPwa = pwaApplicationDetail.getPwaApplication().getMasterPwa();
 
-    preparerContactPerson = PersonTestUtil.createDefaultPerson();
+    preparerContactPerson = PersonTestUtil.createPersonFrom(PREPARER_PERSON_ID, "contact@email.com");
+    caseOfficerPerson = PersonTestUtil.createPersonFrom(CASE_OFFICER_PERSON_ID, "caseOfficer@email.com");
 
     organisationUnit = PortalOrganisationTestUtils.getOrganisationUnit();
     var pwaConsent = new PwaConsent();
@@ -94,8 +112,8 @@ public class OptionsCaseManagementEmailServiceTest {
         emailCaseLinkService,
         notifyService,
         pwaContactService,
-        pwaConsentOrganisationRoleService
-    );
+        pwaConsentOrganisationRoleService,
+        applicationInvolvementService);
 
   }
 
@@ -103,10 +121,11 @@ public class OptionsCaseManagementEmailServiceTest {
   public void sendInitialOptionsApprovedEmail_whenRecipientsFound_andSingleHoldersFound() {
     optionsCaseManagementEmailService.sendInitialOptionsApprovedEmail(pwaApplicationDetail);
 
-    verify(notifyService, times(1)).sendEmail(emailPropsCaptor.capture(), eq(preparerContactPerson.getEmailAddress()));
+    verify(notifyService, times(1)).sendEmail(optionsApprovedEmailCaptor.capture(),
+        eq(preparerContactPerson.getEmailAddress()));
     verifyNoMoreInteractions(notifyService);
 
-    var emailProps = emailPropsCaptor.getValue();
+    var emailProps = optionsApprovedEmailCaptor.getValue();
     assertThat(emailProps.getEmailPersonalisation()).containsOnly(
         entry("APPLICATION_REFERENCE", pwaApplicationDetail.getPwaApplicationRef()),
         entry("HOLDER", organisationUnit.getName()),
@@ -132,7 +151,7 @@ public class OptionsCaseManagementEmailServiceTest {
   }
 
   @Test
-  public void sendInitialOptionsApprovedEmail_whenRecipientsFound_andMultipleHoldersFound(){
+  public void sendInitialOptionsApprovedEmail_whenRecipientsFound_andMultipleHoldersFound() {
     var organisationUnit2 = PortalOrganisationTestUtils.generateOrganisationUnit(9, "XXX", null);
     var pwaConsent2 = new PwaConsent();
     var masterPwaHolderDto2 = new MasterPwaHolderDto(organisationUnit2, pwaConsent2);
@@ -142,11 +161,36 @@ public class OptionsCaseManagementEmailServiceTest {
 
     optionsCaseManagementEmailService.sendInitialOptionsApprovedEmail(pwaApplicationDetail);
 
-    verify(notifyService, times(1)).sendEmail(emailPropsCaptor.capture(), eq(preparerContactPerson.getEmailAddress()));
+    verify(notifyService, times(1)).sendEmail(optionsApprovedEmailCaptor.capture(),
+        eq(preparerContactPerson.getEmailAddress()));
 
-    var emailProps = emailPropsCaptor.getValue();
+    var emailProps = optionsApprovedEmailCaptor.getValue();
     assertThat(emailProps.getEmailPersonalisation()).containsEntry(
         "HOLDER", String.format("%s, %s", organisationUnit.getName(), "XXX")
+    );
+
+  }
+
+  @Test
+  public void sendOptionsDeadlineChangedEmail_whenPwaContactsFound_andCaseOfficerFound() {
+    var instant = LocalDate.of(2020, 2, 1).atStartOfDay(ZoneId.systemDefault()).toInstant();
+
+    when(applicationInvolvementService.getCaseOfficerPerson(pwaApplicationDetail.getPwaApplication()))
+        .thenReturn(Optional.of(caseOfficerPerson));
+
+    optionsCaseManagementEmailService.sendOptionsDeadlineChangedEmail(pwaApplicationDetail, instant);
+
+    verify(notifyService, times(1)).sendEmail(optionsDeadlineChangedEmailCaptor.capture(),
+        eq(preparerContactPerson.getEmailAddress()));
+    verify(notifyService, times(1)).sendEmail(optionsDeadlineChangedEmailCaptor.capture(),
+        eq(caseOfficerPerson.getEmailAddress()));
+
+    var emailProps = optionsDeadlineChangedEmailCaptor.getAllValues();
+    assertThat(emailProps).allSatisfy(applicationOptionsApprovedEmailProps -> {
+          assertThat(applicationOptionsApprovedEmailProps.getEmailPersonalisation()).containsEntry("DEADLINE_DATE", "APP_REFERENCE/20");
+          assertThat(applicationOptionsApprovedEmailProps.getEmailPersonalisation()).containsEntry("APPLICATION_REF", "01-February-2020");
+          assertThat(applicationOptionsApprovedEmailProps.getEmailPersonalisation()).containsEntry("CASE_MANAGEMENT_LINK", CASE_LINK);
+        }
     );
 
   }
