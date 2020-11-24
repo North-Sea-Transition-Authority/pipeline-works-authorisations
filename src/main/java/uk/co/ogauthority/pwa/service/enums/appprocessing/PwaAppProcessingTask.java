@@ -5,6 +5,7 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 import java.util.function.Function;
 import java.util.stream.Stream;
 import uk.co.ogauthority.pwa.controller.appprocessing.AssignCaseOfficerController;
+import uk.co.ogauthority.pwa.controller.appprocessing.WithdrawApplicationController;
 import uk.co.ogauthority.pwa.controller.appprocessing.applicationupdate.RequestApplicationUpdateController;
 import uk.co.ogauthority.pwa.controller.appprocessing.casenotes.CaseNoteController;
 import uk.co.ogauthority.pwa.controller.appprocessing.decision.AppConsentDocController;
@@ -134,7 +135,9 @@ public enum PwaAppProcessingTask {
   WITHDRAW_APPLICATION(
       "Withdraw application",
       TaskRequirement.OPTIONAL,
-      WithdrawApplicationService.class, processingContext -> "#",
+      WithdrawApplicationService.class, processingContext -> ReverseRouter.route(on(WithdrawApplicationController.class)
+      .renderWithdrawApplication(processingContext.getMasterPwaApplicationId(),
+          processingContext.getApplicationType(), null, null, null)),
       120);
 
   private final String taskName;
