@@ -9,6 +9,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
@@ -34,6 +35,7 @@ import uk.co.ogauthority.pwa.model.dto.huooaggregations.OrganisationRolePipeline
 import uk.co.ogauthority.pwa.model.dto.huooaggregations.OrganisationRolesSummaryDto;
 import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitDetailDto;
 import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
+import uk.co.ogauthority.pwa.model.dto.pipelines.IdentLocationInclusionMode;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineIdentPoint;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineIdentifier;
@@ -343,6 +345,164 @@ public class PadOrganisationRoleServiceTest {
     assertThat(form.getHuooRoles()).containsExactlyInAnyOrderElementsOf(Set.of(padOrgUnit1UserRole.getRole()));
     assertThat(form.getOrganisationUnitId()).isEqualTo(padOrgUnit1UserRole.getOrganisationUnit().getOuId());
   }
+
+  @Test
+  public void updateOrgRolesUsingForm_updateHolderAndAddOperator_linksUnchanged() {
+
+    var form = new HuooForm();
+    form.setOrganisationUnitId(2);
+    form.setHuooRoles(Set.of(HuooRole.HOLDER, HuooRole.OPERATOR));
+
+    var existingOrgUnit = new PortalOrganisationUnit(1, "org name 1");
+    var existingOrgRole = new PadOrganisationRole(HuooRole.HOLDER);
+    existingOrgRole.setOrganisationUnit(existingOrgUnit);
+    when(padOrganisationRolesRepository.getAllByPwaApplicationDetailAndOrganisationUnit(detail, existingOrgUnit))
+        .thenReturn(List.of(existingOrgRole));
+
+    var orgUnitToAdd = new PortalOrganisationUnit(2, "org name 2");
+    when(portalOrganisationsAccessor.getOrganisationUnitById(form.getOrganisationUnitId())).thenReturn(Optional.of(orgUnitToAdd));
+
+    when(padPipelineOrganisationRoleLinkRepository.findAllByPadOrgRoleInAndPadOrgRole_PwaApplicationDetail(List.of(), detail))
+        .thenReturn(new ArrayList<>());
+
+    padOrganisationRoleService.updateOrgRolesUsingForm(detail, form, existingOrgUnit);
+
+    //verify org role has been updated
+    verify(padOrganisationRolesRepository, times(1)).saveAll(roleListCaptor.capture());
+    var updatedRole = roleListCaptor.getValue().get(0);
+    assertThat(updatedRole.getOrganisationUnit()).isEqualTo(orgUnitToAdd);
+    assertThat(updatedRole.getRole()).isEqualTo(HuooRole.HOLDER);
+    var addedRole = roleListCaptor.getValue().get(1);
+    assertThat(addedRole.getOrganisationUnit()).isEqualTo(orgUnitToAdd);
+    assertThat(addedRole.getRole()).isEqualTo(HuooRole.OPERATOR);
+
+    //verify pipeline links deletion
+    var pipelineOrgRoleLinkDeleteCaptor = ArgumentCaptor.forClass(List.class);
+    verify(padPipelineOrganisationRoleLinkRepository, times(1)).deleteAll(pipelineOrgRoleLinkDeleteCaptor.capture());
+    assertThat(pipelineOrgRoleLinkDeleteCaptor.getValue()).isEmpty();
+
+    //verify pipeline split links updated
+    var pipelineOrgRoleLinkSaveCaptor = ArgumentCaptor.forClass(List.class);
+    verify(padPipelineOrganisationRoleLinkRepository, times(1)).saveAll(pipelineOrgRoleLinkSaveCaptor.capture());
+    assertThat(pipelineOrgRoleLinkSaveCaptor.getValue()).isEmpty();
+
+    //verify existing org role deletion
+    verify(padOrganisationRolesRepository, times(1)).deleteAll(deletedRoleListCaptor.capture());
+    assertThat(deletedRoleListCaptor.getValue()).isEmpty();
+  }
+
+  @Test
+  public void updateOrgRolesUsingForm_updateHolderAndRemoveOwner_linkDeleted() {
+
+    var form = new HuooForm();
+    form.setOrganisationUnitId(2);
+    form.setHuooRoles(Set.of(HuooRole.HOLDER));
+
+    var existingOrgUnit = new PortalOrganisationUnit(1, "org name 1");
+    var existingOrgHolderRole = new PadOrganisationRole(HuooRole.HOLDER);
+    existingOrgHolderRole.setOrganisationUnit(existingOrgUnit);
+    var existingOrgOwnerRole = new PadOrganisationRole(HuooRole.OWNER);
+    existingOrgOwnerRole.setOrganisationUnit(existingOrgUnit);
+    when(padOrganisationRolesRepository.getAllByPwaApplicationDetailAndOrganisationUnit(detail, existingOrgUnit))
+        .thenReturn(List.of(existingOrgHolderRole, existingOrgOwnerRole));
+
+    var orgUnitToAdd = new PortalOrganisationUnit(2, "org name 2");
+    when(portalOrganisationsAccessor.getOrganisationUnitById(form.getOrganisationUnitId())).thenReturn(Optional.of(orgUnitToAdd));
+
+    var pipeline = new Pipeline();
+    var ownerOrgRoleLink = new PadPipelineOrganisationRoleLink(existingOrgOwnerRole, pipeline);
+    List<PadPipelineOrganisationRoleLink> orgRolePipelineLinks = new ArrayList<>();
+    orgRolePipelineLinks.add(ownerOrgRoleLink);
+    when(padPipelineOrganisationRoleLinkRepository.findAllByPadOrgRoleInAndPadOrgRole_PwaApplicationDetail(List.of(existingOrgOwnerRole), detail))
+        .thenReturn(orgRolePipelineLinks);
+
+    padOrganisationRoleService.updateOrgRolesUsingForm(detail, form, existingOrgUnit);
+
+    //verify org role has been updated
+    verify(padOrganisationRolesRepository, times(1)).saveAll(roleListCaptor.capture());
+    var updatedRole = roleListCaptor.getValue().get(0);
+    assertThat(updatedRole.getOrganisationUnit()).isEqualTo(orgUnitToAdd);
+    assertThat(updatedRole.getRole()).isEqualTo(HuooRole.HOLDER);
+    assertThat(roleListCaptor.getValue()).hasSize(1);
+
+    //verify pipeline links deletion
+    var pipelineOrgRoleLinkDeleteCaptor = ArgumentCaptor.forClass(List.class);
+    verify(padPipelineOrganisationRoleLinkRepository, times(1)).deleteAll(pipelineOrgRoleLinkDeleteCaptor.capture());
+    assertThat(pipelineOrgRoleLinkDeleteCaptor.getValue().get(0)).isEqualTo(ownerOrgRoleLink);
+
+    //verify pipeline split links updated
+    var pipelineOrgRoleLinkSaveCaptor = ArgumentCaptor.forClass(List.class);
+    verify(padPipelineOrganisationRoleLinkRepository, times(1)).saveAll(pipelineOrgRoleLinkSaveCaptor.capture());
+    assertThat(pipelineOrgRoleLinkSaveCaptor.getValue()).isEmpty();
+
+    //verify existing org role deletion
+    verify(padOrganisationRolesRepository, times(1)).deleteAll(deletedRoleListCaptor.capture());
+    assertThat(deletedRoleListCaptor.getValue().get(0)).isEqualTo(existingOrgOwnerRole);
+    assertThat(roleListCaptor.getValue()).hasSize(1);
+  }
+
+  @Test
+  public void updateOrgRolesUsingForm_updateHolderAndRemoveUser_pipelineSplitSetAsUnassigned() {
+
+    var form = new HuooForm();
+    form.setOrganisationUnitId(2);
+    form.setHuooRoles(Set.of(HuooRole.HOLDER));
+
+    var existingOrgUnit = new PortalOrganisationUnit(1, "org name 1");
+    var existingOrgHolderRole = new PadOrganisationRole(HuooRole.HOLDER);
+    existingOrgHolderRole.setOrganisationUnit(existingOrgUnit);
+    var existingOrgUserRole = new PadOrganisationRole(HuooRole.USER);
+    existingOrgUserRole.setOrganisationUnit(existingOrgUnit);
+    when(padOrganisationRolesRepository.getAllByPwaApplicationDetailAndOrganisationUnit(detail, existingOrgUnit))
+        .thenReturn(List.of(existingOrgHolderRole, existingOrgUserRole));
+
+    var orgUnitToAdd = new PortalOrganisationUnit(2, "org name 2");
+    when(portalOrganisationsAccessor.getOrganisationUnitById(form.getOrganisationUnitId())).thenReturn(Optional.of(orgUnitToAdd));
+
+    var pipeline = new Pipeline();
+    var ownerOrgRoleLink = new PadPipelineOrganisationRoleLink(existingOrgUserRole, pipeline);
+    ownerOrgRoleLink.setFromLocation("");
+    ownerOrgRoleLink.setFromLocationIdentInclusionMode(IdentLocationInclusionMode.INCLUSIVE);
+    ownerOrgRoleLink.setToLocation("");
+    ownerOrgRoleLink.setToLocationIdentInclusionMode(IdentLocationInclusionMode.INCLUSIVE);
+    List<PadPipelineOrganisationRoleLink> orgRolePipelineLinks = new ArrayList<>();
+    orgRolePipelineLinks.add(ownerOrgRoleLink);
+    when(padPipelineOrganisationRoleLinkRepository.findAllByPadOrgRoleInAndPadOrgRole_PwaApplicationDetail(List.of(existingOrgUserRole), detail))
+        .thenReturn(orgRolePipelineLinks);
+
+    padOrganisationRoleService.updateOrgRolesUsingForm(detail, form, existingOrgUnit);
+
+
+    //verify org role has been updated
+    verify(padOrganisationRolesRepository, times(1)).saveAll(roleListCaptor.capture());
+    var updatedHolderRole = roleListCaptor.getValue().get(0);
+    assertThat(updatedHolderRole.getOrganisationUnit()).isEqualTo(orgUnitToAdd);
+    assertThat(updatedHolderRole.getRole()).isEqualTo(HuooRole.HOLDER);
+    var updatedUserRole = roleListCaptor.getValue().get(1);
+    assertThat(updatedUserRole.getOrganisationUnit()).isEqualTo(null);
+    assertThat(updatedUserRole.getRole()).isEqualTo(HuooRole.USER);
+    assertThat(updatedUserRole.getOrganisationUnit()).isNull();
+    assertThat(updatedUserRole.getType()).isEqualTo(HuooType.UNASSIGNED_PIPELINE_SPLIT);
+    assertThat(roleListCaptor.getValue()).hasSize(2);
+
+    //verify pipeline links deletion
+    var pipelineOrgRoleLinkDeleteCaptor = ArgumentCaptor.forClass(List.class);
+    verify(padPipelineOrganisationRoleLinkRepository, times(1)).deleteAll(pipelineOrgRoleLinkDeleteCaptor.capture());
+    assertThat(pipelineOrgRoleLinkDeleteCaptor.getValue()).isEmpty();
+
+    //verify pipeline split links updated
+    var pipelineOrgRoleLinkSaveCaptor = ArgumentCaptor.forClass(List.class);
+    verify(padPipelineOrganisationRoleLinkRepository, times(1)).saveAll(pipelineOrgRoleLinkSaveCaptor.capture());
+    var actualOrgPipelineLink = (PadPipelineOrganisationRoleLink) pipelineOrgRoleLinkSaveCaptor.getValue().get(0);
+    assertThat(actualOrgPipelineLink.getPadOrgRole().getType()).isEqualTo(HuooType.UNASSIGNED_PIPELINE_SPLIT);
+
+    //verify existing org role deletion
+    verify(padOrganisationRolesRepository, times(1)).deleteAll(deletedRoleListCaptor.capture());
+    assertThat(deletedRoleListCaptor.getValue()).isEmpty();
+
+  }
+
+
 
   @Test
   public void saveEntityUsingForm_org() {
