@@ -96,7 +96,7 @@ public class WithdrawApplicationController {
             null));
 
     var modelAndView = new ModelAndView("appprocessing/withdrawApplication");
-    modelAndView .addObject("errorList", List.of())
+    modelAndView.addObject("errorList", List.of())
         .addObject("appRef", pwaApplicationDetail.getPwaApplicationRef())
         .addObject("cancelUrl", cancelUrl);
 
