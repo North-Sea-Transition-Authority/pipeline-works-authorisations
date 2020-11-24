@@ -27,10 +27,10 @@ public class WithdrawApplicationValidator implements SmartValidator {
     var form = (WithdrawApplicationForm) target;
 
     ValidationUtils.rejectIfEmptyOrWhitespace(errors, "withdrawalReason", "withdrawalReason.required",
-        "You must enter a reason for why you are withdrawing this application");
+        "Enter a reason for why you are withdrawing this application");
 
     ValidatorUtils.validateDefaultStringLength(
-        errors, "withdrawalReason", form::getWithdrawalReason, "reason");
+        errors, "withdrawalReason", form::getWithdrawalReason, "Reason");
 
   }
 

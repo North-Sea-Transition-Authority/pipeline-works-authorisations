@@ -15,7 +15,6 @@ import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.controller.appprocessing.shared.PwaAppProcessingPermissionCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationStatusCheck;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.withdraw.WithdrawApplicationForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.application.WithdrawApplicationService;
@@ -23,6 +22,7 @@ import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingConte
 import uk.co.ogauthority.pwa.service.appprocessing.tabs.AppProcessingTab;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
+import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingTask;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
@@ -57,7 +57,7 @@ public class WithdrawApplicationController {
                                                 AuthenticatedUserAccount authenticatedUserAccount,
                                                 @ModelAttribute("form") WithdrawApplicationForm form) {
 
-    return getWithdrawApplicationModelAndView(processingContext.getApplicationDetail());
+    return getWithdrawApplicationModelAndView(processingContext);
   }
 
 
@@ -73,7 +73,7 @@ public class WithdrawApplicationController {
     bindingResult = withdrawApplicationService.validate(form, bindingResult, processingContext.getApplicationDetail());
 
     return controllerHelperService.checkErrorsAndRedirect(bindingResult,
-        getWithdrawApplicationModelAndView(processingContext.getApplicationDetail()), () -> {
+        getWithdrawApplicationModelAndView(processingContext), () -> {
 
           withdrawApplicationService.withdrawApplication(form, processingContext.getApplicationDetail());
           return ReverseRouter.redirect(on(CaseManagementController.class).renderCaseManagement(
@@ -85,7 +85,9 @@ public class WithdrawApplicationController {
 
 
 
-  private ModelAndView getWithdrawApplicationModelAndView(PwaApplicationDetail pwaApplicationDetail) {
+  private ModelAndView getWithdrawApplicationModelAndView(PwaAppProcessingContext processingContext) {
+
+    var pwaApplicationDetail = processingContext.getApplicationDetail();
 
     String cancelUrl = ReverseRouter.route(on(CaseManagementController.class)
         .renderCaseManagement(
@@ -98,10 +100,14 @@ public class WithdrawApplicationController {
     var modelAndView = new ModelAndView("appprocessing/withdrawApplication");
     modelAndView.addObject("errorList", List.of())
         .addObject("appRef", pwaApplicationDetail.getPwaApplicationRef())
-        .addObject("cancelUrl", cancelUrl);
+        .addObject("cancelUrl", cancelUrl)
+        .addObject("caseSummaryView", processingContext.getCaseSummaryView());
 
-    applicationBreadcrumbService.fromTaskList(pwaApplicationDetail.getPwaApplication(), modelAndView,
-        "Withdraw application");
+    applicationBreadcrumbService.fromCaseManagement(
+        pwaApplicationDetail.getPwaApplication(),
+        modelAndView,
+        PwaAppProcessingTask.WITHDRAW_APPLICATION.getTaskName());
+
     return modelAndView;
   }
 
