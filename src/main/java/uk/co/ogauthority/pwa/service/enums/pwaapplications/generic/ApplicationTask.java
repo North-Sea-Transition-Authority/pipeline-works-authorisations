@@ -8,6 +8,7 @@ import java.util.Objects;
 import java.util.stream.Stream;
 import uk.co.ogauthority.pwa.controller.masterpwas.contacts.PwaContactController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.initial.fields.PadPwaFieldsController;
+import uk.co.ogauthority.pwa.controller.pwaapplications.options.ConfirmationOfOptionController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.options.OptionsTemplateController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.EnvironmentalDecomController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.FastTrackController;
@@ -35,6 +36,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSect
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.GeneralPurposeApplicationTask;
 import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadOrganisationRoleService;
 import uk.co.ogauthority.pwa.service.pwaapplications.options.OptionsTemplateService;
+import uk.co.ogauthority.pwa.service.pwaapplications.options.PadConfirmationOfOptionService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadEnvironmentalDecommissioningService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadFastTrackService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.campaignworks.CampaignWorksService;
@@ -87,11 +89,18 @@ public enum ApplicationTask implements GeneralPurposeApplicationTask {
       15, 15
   ),
 
+  CONFIRM_OPTIONS(
+      "Confirm completed option",
+      ConfirmationOfOptionController.class,
+      PadConfirmationOfOptionService.class,
+      16, 16
+  ),
+
   SUPPLEMENTARY_DOCUMENTS(
       "Supplementary documents",
       SupplementaryDocumentsController.class,
       SupplementaryDocumentsService.class,
-      16, 16
+      18, 18
   ),
 
   FAST_TRACK(
@@ -282,6 +291,9 @@ public enum ApplicationTask implements GeneralPurposeApplicationTask {
       case OPTIONS_TEMPLATE:
         return ReverseRouter.route(on(OptionsTemplateController.class)
             .renderOptionsTemplate(applicationId, applicationType, null, null, null));
+      case CONFIRM_OPTIONS:
+        return ReverseRouter.route(on(ConfirmationOfOptionController.class)
+            .renderConfirmOption(applicationType, applicationId, null, null));
       case SUPPLEMENTARY_DOCUMENTS:
         return ReverseRouter.route(on(SupplementaryDocumentsController.class)
             .renderSupplementaryDocuments(applicationId, applicationType, null, null, null));
