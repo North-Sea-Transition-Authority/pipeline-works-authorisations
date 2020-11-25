@@ -170,7 +170,7 @@ public class DocumentInstanceService {
     var clauses = instanceSectionClauseRepository.findAllByDocumentInstance(instance);
 
     var instanceClauseVersions = instanceSectionClauseVersionRepository
-        .findAllByDocumentInstanceSectionClauseInAndTipFlagIsTrue(clauses);
+        .findAllByDocumentInstanceSectionClauseIn(clauses);
 
     instanceSectionClauseVersionRepository.deleteAll(instanceClauseVersions);
     instanceSectionClauseRepository.deleteAll(clauses);

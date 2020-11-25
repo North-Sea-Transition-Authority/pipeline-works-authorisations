@@ -43,8 +43,6 @@ public class PadPipelineTechInfoMappingServiceTest {
     return entity;
   }
 
-
-
   @Test
   public void mapEntityToForm_full() {
     var actualForm = new PipelineTechInfoForm();

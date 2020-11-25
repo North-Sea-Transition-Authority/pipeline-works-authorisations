@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.controller.pwaapplications.initial.PwaHolderController;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.workflow.PwaApplicationCreationService;
@@ -42,10 +41,7 @@ public class StartInitialPwaController {
    */
   @PostMapping
   public ModelAndView startInitialPwa(AuthenticatedUserAccount user) {
-    PwaApplication pwaApplication = pwaApplicationCreationService.createInitialPwaApplication(user)
-        .getPwaApplication();
-    return ReverseRouter.redirect(on(PwaHolderController.class)
-        .renderHolderScreen(pwaApplication.getApplicationType(), pwaApplication.getId(), null, null, null));
+    return ReverseRouter.redirect(on(PwaHolderController.class).renderHolderScreen(null, null));
   }
 
 }

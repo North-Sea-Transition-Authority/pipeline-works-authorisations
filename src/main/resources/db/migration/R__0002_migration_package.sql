@@ -335,13 +335,15 @@ AS
                                               , ident_no
                                               , from_location
                                               , to_location
-                                              , length)
+                                              , length
+                                              , is_defining_structure)
     VALUES ( l_detail_id
             , 1 -- default ident number
             -- repeat pipeline header info so it can corrected "in app"
             , p_mig_pipeline_history.position_from
             , p_mig_pipeline_history.position_to
-            , l_length_metre)
+            , l_length_metre
+            , 0)
     RETURNING id INTO l_detail_ident_id;
 
     INSERT INTO ${datasource.user}.pipeline_detail_ident_data ( pipeline_detail_ident_id
