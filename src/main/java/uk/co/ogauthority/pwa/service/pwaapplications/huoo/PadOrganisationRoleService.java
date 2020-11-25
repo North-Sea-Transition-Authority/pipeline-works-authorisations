@@ -455,16 +455,21 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
 
           // create pipeline reference only when we dont have one in the same session.
           // at this point should we just get the pipeline object itself? cost is extra db hits.
-          var pipeline = pipelineLookup.getOrDefault(pipelineIdentifier,
-              //TODO PWA-676 need to handle pipeline splits
+          var pipeline = pipelineLookup.getOrDefault(
+              pipelineIdentifier,
               entityManager.getReference(Pipeline.class, pipelineIdentifier.getPipelineIdAsInt()));
+
           pipelineLookup.putIfAbsent(pipelineIdentifier, pipeline);
-          padPipelineOrgRoleLinks.add(
-              new PadPipelineOrganisationRoleLink(padOrganisationRole, pipeline)
-          );
+
+          var pipelineRoleLink = new PadPipelineOrganisationRoleLink(padOrganisationRole, pipeline);
+
+          // use the role link visitor to set the correct information based on the implementation of PipelineIdentifier
+          pipelineIdentifier.accept(pipelineRoleLink);
+
+          padPipelineOrgRoleLinks.add(pipelineRoleLink);
+
         });
       });
-
 
     }
 
