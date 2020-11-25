@@ -37,9 +37,11 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinehuoo.PadP
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.huoo.PadOrganisationRole;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview;
 import uk.co.ogauthority.pwa.repository.pwaapplications.pipelinehuoo.PadPipelineOrganisationRoleLinkRepository;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
 import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadOrganisationRoleService;
+import uk.co.ogauthority.pwa.service.pwaapplications.options.PadOptionsCompleteService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.PadPipelineHuooViewFactory;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.PipelineAndOrgRoleGroupViewsByRole;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.PipelineHuooValidationResult;
@@ -58,6 +60,7 @@ public class PadPipelinesHuooService implements ApplicationFormSectionService {
   private final PadPipelineOrganisationRoleLinkRepository padPipelineOrganisationRoleLinkRepository;
   private final PipelineAndIdentViewFactory pipelineAndIdentViewFactory;
   private final PadPipelineHuooViewFactory padPipelineHuooViewFactory;
+  private final PadOptionsCompleteService padOptionsCompleteService;
 
   @Autowired
   public PadPipelinesHuooService(PickableHuooPipelineService pickableHuooPipelineService,
@@ -66,7 +69,8 @@ public class PadPipelinesHuooService implements ApplicationFormSectionService {
                                  PickHuooPipelinesFormValidator pickHuooPipelinesFormValidator,
                                  PadPipelineOrganisationRoleLinkRepository padPipelineOrganisationRoleLinkRepository,
                                  PipelineAndIdentViewFactory pipelineAndIdentViewFactory,
-                                 PadPipelineHuooViewFactory padPipelineHuooViewFactory) {
+                                 PadPipelineHuooViewFactory padPipelineHuooViewFactory,
+                                 PadOptionsCompleteService padOptionsCompleteService) {
     this.pickableHuooPipelineService = pickableHuooPipelineService;
     this.portalOrganisationsAccessor = portalOrganisationsAccessor;
     this.padOrganisationRoleService = padOrganisationRoleService;
@@ -74,7 +78,16 @@ public class PadPipelinesHuooService implements ApplicationFormSectionService {
     this.padPipelineOrganisationRoleLinkRepository = padPipelineOrganisationRoleLinkRepository;
     this.pipelineAndIdentViewFactory = pipelineAndIdentViewFactory;
     this.padPipelineHuooViewFactory = padPipelineHuooViewFactory;
+    this.padOptionsCompleteService = padOptionsCompleteService;
   }
+
+  @Override
+  public boolean canShowInTaskList(PwaApplicationDetail pwaApplicationDetail) {
+    // do not do additional type checks as this is covered by the controller markup
+    return !PwaApplicationType.OPTIONS_VARIATION.equals(pwaApplicationDetail.getPwaApplicationType())
+        || padOptionsCompleteService.approvedOptionComplete(pwaApplicationDetail);
+  }
+
 
   public PipelineAndOrgRoleGroupViewsByRole getPadPipelinesHuooSummaryView(PwaApplicationDetail pwaApplicationDetail) {
     var pipelineAndOrgGroupAppSummary = createPipelineAndOrganisationRoleGroupSummary(pwaApplicationDetail);

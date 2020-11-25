@@ -56,6 +56,7 @@ import uk.co.ogauthority.pwa.service.enums.location.LatitudeDirection;
 import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.location.CoordinateFormValidator;
+import uk.co.ogauthority.pwa.service.pwaapplications.options.PadOptionsCompleteService;
 import uk.co.ogauthority.pwa.service.pwaconsents.PipelineDetailService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.util.CoordinateUtils;
@@ -82,6 +83,9 @@ public class PadPipelineServiceTest {
 
   @Mock
   private PipelineHeaderFormValidator pipelineHeaderFormValidator;
+
+  @Mock
+  private PadOptionsCompleteService padOptionsCompleteService;
 
   private PadPipelineService padPipelineService;
 
@@ -125,13 +129,19 @@ public class PadPipelineServiceTest {
     pipelineIdentFormValidator = new PipelineIdentFormValidator(new PipelineIdentDataFormValidator(),
         new CoordinateFormValidator());
 
-    padPipelineService = new PadPipelineService(padPipelineRepository, pipelineService, pipelineDetailService,
-        padPipelineIdentService, pipelineIdentFormValidator, padPipelinePersisterService, pipelineHeaderFormValidator,
-        padPipelineDataCopierService);
+    padPipelineService = new PadPipelineService(padPipelineRepository,
+        pipelineService,
+        pipelineDetailService,
+        padPipelineIdentService,
+        pipelineIdentFormValidator,
+        padPipelinePersisterService,
+        pipelineHeaderFormValidator,
+        padPipelineDataCopierService,
+        padOptionsCompleteService);
 
     mockValidatorPadPipelineService = new PadPipelineService(padPipelineRepository, pipelineService,
         pipelineDetailService, padPipelineIdentService, mockValidator, padPipelinePersisterService,
-        pipelineHeaderFormValidator, padPipelineDataCopierService);
+        pipelineHeaderFormValidator, padPipelineDataCopierService, padOptionsCompleteService);
 
     padPipe1 = new PadPipeline();
     padPipe1.setId(1);
@@ -864,11 +874,43 @@ public class PadPipelineServiceTest {
   }
 
   @Test
-  public void copySectionInformation_serviceInteractions(){
+  public void copySectionInformation_serviceInteractions() {
     var newDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL, 100, 100);
     padPipelineService.copySectionInformation(detail, newDetail);
     verify(padPipelineDataCopierService, times(1))
         .copyAllPadPipelineData(eq(detail), eq(newDetail), any());
+  }
+
+  @Test
+  public void canShowInTaskList_notOptionsVariation() {
+    var notOptions = EnumSet.allOf(PwaApplicationType.class);
+    notOptions.remove(PwaApplicationType.OPTIONS_VARIATION);
+
+    for (PwaApplicationType type : notOptions) {
+      detail.getPwaApplication().setApplicationType(type);
+      assertThat(padPipelineService.canShowInTaskList(detail)).isTrue();
+    }
+
+  }
+
+  @Test
+  public void canShowInTaskList_OptionsVariation_optionsNotComplete() {
+    when(padOptionsCompleteService.approvedOptionComplete(detail)).thenReturn(false);
+
+    detail.getPwaApplication().setApplicationType(PwaApplicationType.OPTIONS_VARIATION);
+
+    assertThat(padPipelineService.canShowInTaskList(detail)).isFalse();
+
+  }
+
+  @Test
+  public void canShowInTaskList_OptionsVariation_optionsComplete() {
+    when(padOptionsCompleteService.approvedOptionComplete(detail)).thenReturn(true);
+
+    detail.getPwaApplication().setApplicationType(PwaApplicationType.OPTIONS_VARIATION);
+
+    assertThat(padPipelineService.canShowInTaskList(detail)).isTrue();
+
   }
 
 }

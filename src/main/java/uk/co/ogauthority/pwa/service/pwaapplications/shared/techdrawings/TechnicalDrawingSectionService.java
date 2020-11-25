@@ -9,9 +9,11 @@ import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.techdetails.AdmiraltyChartDocumentForm;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
+import uk.co.ogauthority.pwa.service.pwaapplications.options.PadOptionsCompleteService;
 
 @Service
 public class TechnicalDrawingSectionService implements ApplicationFormSectionService {
@@ -22,17 +24,27 @@ public class TechnicalDrawingSectionService implements ApplicationFormSectionSer
   private final PadTechnicalDrawingService padTechnicalDrawingService;
   private final UmbilicalCrossSectionService umbilicalCrossSectionService;
   private final PadFileService padFileService;
+  private final PadOptionsCompleteService padOptionsCompleteService;
 
   @Autowired
   public TechnicalDrawingSectionService(
       AdmiraltyChartFileService admiraltyChartFileService,
       PadTechnicalDrawingService padTechnicalDrawingService,
       UmbilicalCrossSectionService umbilicalCrossSectionService,
-      PadFileService padFileService) {
+      PadFileService padFileService,
+      PadOptionsCompleteService padOptionsCompleteService) {
     this.admiraltyChartFileService = admiraltyChartFileService;
     this.padTechnicalDrawingService = padTechnicalDrawingService;
     this.umbilicalCrossSectionService = umbilicalCrossSectionService;
     this.padFileService = padFileService;
+    this.padOptionsCompleteService = padOptionsCompleteService;
+  }
+
+  @Override
+  public boolean canShowInTaskList(PwaApplicationDetail pwaApplicationDetail) {
+    // do not do additional type checks as this is covered by the controller markup
+    return !PwaApplicationType.OPTIONS_VARIATION.equals(pwaApplicationDetail.getPwaApplicationType())
+        || padOptionsCompleteService.approvedOptionComplete(pwaApplicationDetail);
   }
 
   @Override

@@ -8,6 +8,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,6 +43,7 @@ import uk.co.ogauthority.pwa.repository.pwaapplications.pipelinehuoo.PadPipeline
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadOrganisationRoleService;
 import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadOrganisationRoleTestUtil;
+import uk.co.ogauthority.pwa.service.pwaapplications.options.PadOptionsCompleteService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.PadPipelineHuooViewFactory;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.PipelineAndOrgRoleGroupViewsByRoleTestUtil;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.PipelineHuooRoleSummaryViewTestUtil;
@@ -130,6 +132,9 @@ public class PadPipelinesHuooServiceTest {
   @Mock
   private PipelineAndIdentViewFactory pipelineAndIdentViewFactory;
 
+  @Mock
+  private PadOptionsCompleteService padOptionsCompleteService;
+
   private PwaApplicationDetail pwaApplicationDetail;
   private PickHuooPipelinesForm form;
 
@@ -165,7 +170,8 @@ public class PadPipelinesHuooServiceTest {
         pickHuooPipelinesFormValidator,
         padPipelineOrganisationRoleLinkRepository,
         pipelineAndIdentViewFactory,
-        padPipelineHuooViewFactory);
+        padPipelineHuooViewFactory,
+        padOptionsCompleteService);
 
     when(pickableHuooPipelineService.getAllPickablePipelinesForApplicationAndRole(pwaApplicationDetail, DEFAULT_ROLE))
         .thenReturn(
@@ -947,6 +953,38 @@ public class PadPipelinesHuooServiceTest {
     assertThat(validationResult.getValidationResult(HuooRole.OPERATOR).hasErrors()).isFalse();
     assertThat(validationResult.getValidationResult(HuooRole.OWNER).hasErrors()).isFalse();
 
+
+  }
+
+  @Test
+  public void canShowInTaskList_notOptionsVariation() {
+    var notOptions = EnumSet.allOf(PwaApplicationType.class);
+    notOptions.remove(PwaApplicationType.OPTIONS_VARIATION);
+
+    for (PwaApplicationType type : notOptions) {
+      pwaApplicationDetail.getPwaApplication().setApplicationType(type);
+      assertThat(padPipelinesHuooService.canShowInTaskList(pwaApplicationDetail)).isTrue();
+    }
+
+  }
+
+  @Test
+  public void canShowInTaskList_OptionsVariation_optionsNotComplete() {
+    when(padOptionsCompleteService.approvedOptionComplete(pwaApplicationDetail)).thenReturn(false);
+
+    pwaApplicationDetail.getPwaApplication().setApplicationType(PwaApplicationType.OPTIONS_VARIATION);
+
+    assertThat(padPipelinesHuooService.canShowInTaskList(pwaApplicationDetail)).isFalse();
+
+  }
+
+  @Test
+  public void canShowInTaskList_OptionsVariation_optionsComplete() {
+    when(padOptionsCompleteService.approvedOptionComplete(pwaApplicationDetail)).thenReturn(true);
+
+    pwaApplicationDetail.getPwaApplication().setApplicationType(PwaApplicationType.OPTIONS_VARIATION);
+
+    assertThat(padPipelinesHuooService.canShowInTaskList(pwaApplicationDetail)).isTrue();
 
   }
 
