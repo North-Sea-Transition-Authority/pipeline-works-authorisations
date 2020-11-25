@@ -168,6 +168,7 @@ public class ApplicationTaskServiceTest {
             ApplicationTask.PROJECT_INFORMATION,
             ApplicationTask.FAST_TRACK,
             ApplicationTask.OPTIONS_TEMPLATE,
+            ApplicationTask.CONFIRM_OPTIONS,
             ApplicationTask.SUPPLEMENTARY_DOCUMENTS
         );
       case CAT_2_VARIATION:
