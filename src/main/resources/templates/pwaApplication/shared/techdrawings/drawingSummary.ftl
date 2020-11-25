@@ -11,8 +11,8 @@
           <span class="govuk-error-message">${validatorFactory.getErrorMessage(summary)}</span>
         </#if>
         <#if showActions>
-            <@fdsAction.link linkText="Edit" linkUrl=springUrl(urlFactory.getPipelineDrawingEditUrl(summary.drawingId)) linkClass="govuk-link govuk-!-font-size-19"/>&nbsp;
-            <@fdsAction.link linkText="Remove" linkUrl=springUrl(urlFactory.getPipelineDrawingRemoveUrl(summary.drawingId)) linkClass="govuk-link govuk-!-font-size-19"/>
+            <@fdsAction.link linkText="Edit" linkUrl=springUrl(urlFactory.getPipelineDrawingEditUrl(summary.drawingId)) linkClass="govuk-link govuk-!-font-size-19" linkScreenReaderText=summary.reference/>&nbsp;
+            <@fdsAction.link linkText="Remove" linkUrl=springUrl(urlFactory.getPipelineDrawingRemoveUrl(summary.drawingId)) linkClass="govuk-link govuk-!-font-size-19" linkScreenReaderText=summary.reference/>
         </#if>
     </#if>
     <@fdsCheckAnswers.checkAnswers>

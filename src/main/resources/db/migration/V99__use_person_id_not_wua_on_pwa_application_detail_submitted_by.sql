@@ -4,8 +4,8 @@ ALTER TABLE ${datasource.user}.pwa_application_details
 
 UPDATE ${datasource.user}.pwa_application_details pad
 SET pad.submitted_by_person_id = (
-  SELECT ua.person_id
-  FROM ${datasource.user}.user_accounts ua
-  WHERE ua.wua_id = pad.submitted_by_person_id
+  SELECT wua.resource_person_id
+  FROM securemgr.web_user_accounts wua
+  WHERE wua.id = pad.submitted_by_person_id
   )
 WHERE pad.submitted_by_person_id IS NOT NULL;

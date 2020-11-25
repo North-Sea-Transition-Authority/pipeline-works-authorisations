@@ -270,6 +270,10 @@ public class PipelineDetailIdent implements PipelineIdent {
     return toLongitudeDirection;
   }
 
+  public Boolean getDefiningStructure() {
+    return isDefiningStructure;
+  }
+
   // Setters
 
   public void setFromCoordinates(CoordinatePair fromCoordinates) {
@@ -368,5 +372,9 @@ public class PipelineDetailIdent implements PipelineIdent {
 
   public void setLength(BigDecimal length) {
     this.length = length;
+  }
+
+  public void setDefiningStructure(Boolean definingStructure) {
+    isDefiningStructure = definingStructure;
   }
 }

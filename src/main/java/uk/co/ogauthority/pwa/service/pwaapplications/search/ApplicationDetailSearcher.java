@@ -95,6 +95,9 @@ public class ApplicationDetailSearcher {
     CriteriaBuilder.In<Integer> appIdFilterPredicate = cb.in(
         root.get(ApplicationDetailSearchItem_.pwaApplicationId));
     pwaApplicationIdFilter.forEach(appIdFilterPredicate::value);
+    if (pwaApplicationIdFilter.isEmpty()) {
+      appIdFilterPredicate.value(cb.nullLiteral(Integer.class));
+    }
 
     CriteriaBuilder.In<PwaApplicationStatus> statusFilterPredicate = cb.in(
         root.get(ApplicationDetailSearchItem_.padStatus));

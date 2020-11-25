@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinehuoo;
 
+import java.util.Objects;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -58,7 +59,6 @@ public class PadPipelineOrganisationRoleLink implements PipelineIdentifierVisito
     this.pipeline = pipeline;
     this.padOrgRole = padOrganisationRole;
   }
-
 
   //ChildEntity methods
   @Override
@@ -144,7 +144,7 @@ public class PadPipelineOrganisationRoleLink implements PipelineIdentifierVisito
 
   public OrgRoleInstanceType getOrgRoleInstanceType() {
     if (ObjectUtils.allNotNull(
-        this.fromLocation, this.fromLocationIdentInclusionMode, this.toLocation, this.toLocationIdentInclusionMode)
+        this.fromLocation, this.fromLocationIdentInclusionMode, this.toLocation, this.toLocationIdentInclusionMode, this.sectionNumber)
     ) {
       return OrgRoleInstanceType.SPLIT_PIPELINE;
     }
@@ -171,7 +171,6 @@ public class PadPipelineOrganisationRoleLink implements PipelineIdentifierVisito
 
   @Override
   public void visit(PipelineId pipelineId) {
-    // TODO revisit if time, this might be shit.
     this.pipeline = new Pipeline();
     this.pipeline.setId(pipelineId.getPipelineIdAsInt());
     this.fromLocation = null;
@@ -183,7 +182,6 @@ public class PadPipelineOrganisationRoleLink implements PipelineIdentifierVisito
 
   @Override
   public void visit(PipelineSection pipelineSection) {
-    // TODO revisit if time, this might be shit.
     this.pipeline = new Pipeline();
     this.pipeline.setId(pipelineSection.getPipelineIdAsInt());
     this.fromLocation = pipelineSection.getFromPoint().getLocationName();
@@ -191,5 +189,30 @@ public class PadPipelineOrganisationRoleLink implements PipelineIdentifierVisito
     this.toLocation = pipelineSection.getToPoint().getLocationName();
     this.toLocationIdentInclusionMode = pipelineSection.getToPointMode();
     this.sectionNumber = pipelineSection.getSectionNumber();
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    PadPipelineOrganisationRoleLink that = (PadPipelineOrganisationRoleLink) o;
+    return Objects.equals(id, that.id)
+        && Objects.equals(pipeline, that.pipeline)
+        && Objects.equals(padOrgRole, that.padOrgRole)
+        && Objects.equals(fromLocation, that.fromLocation)
+        && fromLocationIdentInclusionMode == that.fromLocationIdentInclusionMode
+        && Objects.equals(toLocation, that.toLocation)
+        && toLocationIdentInclusionMode == that.toLocationIdentInclusionMode
+        && Objects.equals(sectionNumber, that.sectionNumber);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(id, pipeline, padOrgRole, fromLocation, fromLocationIdentInclusionMode, toLocation,
+        toLocationIdentInclusionMode, sectionNumber);
   }
 }

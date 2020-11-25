@@ -1,26 +1,22 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipielinetechinfo;
 
-import static java.util.Map.entry;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
-import java.util.Set;
-import javax.validation.Validation;
-import org.apache.commons.lang3.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.validation.BeanPropertyBindingResult;
-import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinetechinfo.PadPipelineTechInfo;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelinetechinfo.PipelineTechInfoForm;
@@ -30,8 +26,8 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinetechinfo.PadPipelineTechInfoService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinetechinfo.PipelineTechInfoMappingService;
+import uk.co.ogauthority.pwa.testutils.ControllerTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
-import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 import uk.co.ogauthority.pwa.validators.pipelinetechinfo.PipelineTechInfoValidator;
 
 
@@ -52,18 +48,13 @@ public class PadPipelineTechInfoServiceTest {
   @Mock
   private EntityCopyingService entityCopyingService;
 
-  private SpringValidatorAdapter springValidatorAdapter;
-
   private PwaApplicationDetail pwaApplicationDetail;
-
 
   @Before
   public void setUp() {
-    springValidatorAdapter = new SpringValidatorAdapter(Validation.buildDefaultValidatorFactory().getValidator());
     padPipelineTechInfoService = new PadPipelineTechInfoService(
         padPipelineTechInfoRepository,
         pipelineTechInfoMappingService,
-        springValidatorAdapter,
         validator,
         entityCopyingService);
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL, 100);
@@ -90,8 +81,6 @@ public class PadPipelineTechInfoServiceTest {
     entity.setTieInPointsDescription("description");
     return entity;
   }
-
-
 
   @Test
   public void getPipelineTechInfoEntity_existingNotFound() {
@@ -130,30 +119,28 @@ public class PadPipelineTechInfoServiceTest {
   }
 
   @Test
-  public void validate_fullValidation_valid() {
-    var bindingResult = new BeanPropertyBindingResult(null, "empty");
-    padPipelineTechInfoService.validate(createValidForm(), bindingResult, ValidationType.FULL, pwaApplicationDetail);
-    assertFalse(bindingResult.hasErrors());
+  public void validate_anyType_withErrors_bindingResultHasErrors() {
+
+    var bindingResult = new BeanPropertyBindingResult(new PipelineTechInfoForm(), "form");
+
+    ControllerTestUtils.mockSmartValidatorErrors(validator, List.of("estimatedFieldLife"));
+
+    Arrays.stream(ValidationType.values()).forEach(validationType -> {
+      padPipelineTechInfoService.validate(createValidForm(), bindingResult, validationType, pwaApplicationDetail);
+      assertTrue(bindingResult.hasErrors());
+    });
   }
 
   @Test
-  public void validate_textLength_invalid() {
-    var form = createValidForm();
-    var largeText = StringUtils.repeat("a", 5001);
-    form.setCorrosionDescription(largeText);
-    form.setPipelineStandardsDescription(largeText);
-    form.setTieInPointsDescription(largeText);
+  public void validate_anyType_noErrors_bindingResultHasNoErrors() {
 
-    var bindingResult = new BeanPropertyBindingResult(form, "form");
-    padPipelineTechInfoService.validate(form, bindingResult, ValidationType.PARTIAL, pwaApplicationDetail);
+    var bindingResult = new BeanPropertyBindingResult(new PipelineTechInfoForm(), "form");
 
-    var errors = ValidatorTestUtils.extractErrors(bindingResult);
-    assertThat(errors).containsOnly(
-        entry("pipelineStandardsDescription", Set.of("Length")),
-        entry("corrosionDescription", Set.of("Length")),
-        entry("tieInPointsDescription", Set.of("Length"))
-    );
-    verifyNoInteractions(validator);
+    Arrays.stream(ValidationType.values()).forEach(validationType -> {
+      padPipelineTechInfoService.validate(createValidForm(), bindingResult, validationType, pwaApplicationDetail);
+      assertFalse(bindingResult.hasErrors());
+    });
+
   }
 
   @Test

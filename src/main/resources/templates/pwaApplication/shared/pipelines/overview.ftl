@@ -50,7 +50,12 @@
                 </#if>
                 <@fdsTaskList.taskList>
                     <#list pipeline.getTaskList() as task>
-                        <@pwaTaskListItem.taskInfoItem taskName=task.taskName taskInfoList=task.taskInfoList route=task.route isCompleted=task.completed/>
+                        <@pwaTaskListItem.taskInfoItem
+                            taskName=task.taskName
+                            taskInfoList=task.taskInfoList
+                            route=task.route
+                            isCompleted=task.completed
+                            linkScreenReaderText="for ${pipeline.getPipelineName()}"/>
                     </#list>
                 </@fdsTaskList.taskList>
             </#if>
