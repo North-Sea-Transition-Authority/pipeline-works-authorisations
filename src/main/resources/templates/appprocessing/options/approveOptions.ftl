@@ -18,7 +18,7 @@
 
     <@fdsForm.htmlForm>
         <@fdsDateInput.dateInput
-        labelText="Provide a deadline for the holder to submit option"
+        labelText="Provide a deadline for the chosen option to be confirmed"
         fieldsetHeadingSize="h2"
         fieldsetHeadingClass="govuk-fieldset__legend--m"
         dayPath="form.deadlineDateDay" monthPath="form.deadlineDateMonth" yearPath="form.deadlineDateYear"

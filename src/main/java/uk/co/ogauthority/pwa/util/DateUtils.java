@@ -26,7 +26,11 @@ public class DateUtils {
   }
 
   public static String formatDate(Instant instant) {
-    return formatDate(LocalDate.ofInstant(instant, ZoneId.systemDefault()));
+    return formatDate(instantToLocalDate(instant));
+  }
+
+  public static LocalDate instantToLocalDate(Instant instant) {
+    return LocalDate.ofInstant(instant, ZoneId.systemDefault());
   }
 
   public static String createDateEstimateString(int month, int year) {

@@ -101,6 +101,8 @@ public class PwaAppProcessingTaskListServiceTest {
     assertThat(taskListGroups.get(1).getTaskListEntries())
         .extracting(TaskListEntry::getTaskName, TaskListEntry::getRoute)
         .containsExactly(
+            // CHANGE_OPTIONS_APPROVAL_DEADLINE route has content based on independently tested specific conditions
+            tuple(PwaAppProcessingTask.CHANGE_OPTIONS_APPROVAL_DEADLINE.getTaskName(), null),
             tuple(PwaAppProcessingTask.CONSULTEE_ADVICE.getTaskName(), PwaAppProcessingTask.CONSULTEE_ADVICE.getRoute(processingContext)),
             tuple(PwaAppProcessingTask.ALLOCATE_CASE_OFFICER.getTaskName(), PwaAppProcessingTask.ALLOCATE_CASE_OFFICER.getRoute(processingContext)),
             tuple(PwaAppProcessingTask.RFI.getTaskName(), PwaAppProcessingTask.RFI.getRoute(processingContext)),

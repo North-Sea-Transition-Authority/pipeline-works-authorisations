@@ -52,6 +52,10 @@ public class PwaAppProcessingContext {
     return appProcessingPermissions;
   }
 
+  public boolean hasProcessingPermission(PwaAppProcessingPermission pwaAppProcessingPermission) {
+    return appProcessingPermissions.contains(pwaAppProcessingPermission);
+  }
+
   public PwaApplication getPwaApplication() {
     return applicationDetail.getPwaApplication();
   }

@@ -16,7 +16,6 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
-import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 
 @Service
 public class PwaAppProcessingPermissionService {
@@ -71,7 +70,9 @@ public class PwaAppProcessingPermissionService {
               return userPrivileges.contains(PwaUserPrivilege.PWA_CASE_OFFICER)
                   && appInvolvement.isCaseOfficerStageAndUserAssigned()
                   && PwaApplicationType.OPTIONS_VARIATION.equals(application.getApplicationType());
-
+            case CHANGE_OPTIONS_APPROVAL_DEADLINE:
+              return userPrivileges.contains(PwaUserPrivilege.PWA_MANAGER)
+                  && PwaApplicationType.OPTIONS_VARIATION.equals(application.getApplicationType());
             case CASE_OFFICER_REVIEW:
             case EDIT_CONSULTATIONS:
             case PUBLIC_NOTICE:
