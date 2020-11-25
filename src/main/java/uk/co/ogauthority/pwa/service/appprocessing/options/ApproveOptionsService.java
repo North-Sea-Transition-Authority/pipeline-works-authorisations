@@ -112,7 +112,7 @@ public class ApproveOptionsService {
     optionsApprovalPersister.endTipDeadlineHistoryItem(approval);
     var newTipHistoryitem = optionsApprovalPersister.createTipDeadlineHistoryItem(approval, person, deadlineDate, note);
 
-    // TODO PWA-132 email CO and Preparers.
+    optionsCaseManagementEmailService.sendOptionsDeadlineChangedEmail(pwaApplicationDetail, newTipHistoryitem.getDeadlineDate());
   }
 
 }
