@@ -12,10 +12,11 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import uk.co.ogauthority.pwa.model.entity.enums.ConfirmedOptionType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.service.entitycopier.ChildEntity;
 
 @Entity
 @Table(name = "pad_confirmation_of_option")
-public class PadConfirmationOfOption {
+public class PadConfirmationOfOption implements ChildEntity<Integer, PwaApplicationDetail> {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -35,6 +36,23 @@ public class PadConfirmationOfOption {
     // hibernate
   }
 
+  // ChildEntity methods
+  @Override
+  public void clearId() {
+    this.id = null;
+  }
+
+  @Override
+  public void setParent(PwaApplicationDetail parentEntity) {
+    this.pwaApplicationDetail = parentEntity;
+  }
+
+  @Override
+  public PwaApplicationDetail getParent() {
+    return this.pwaApplicationDetail;
+  }
+
+  // Getters/Setters
   public PadConfirmationOfOption(PwaApplicationDetail pwaApplicationDetail) {
     this.pwaApplicationDetail = pwaApplicationDetail;
   }

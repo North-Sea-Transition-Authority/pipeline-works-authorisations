@@ -9,12 +9,14 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ValidationUtils;
+import uk.co.ogauthority.pwa.exception.EntityCopyingException;
 import uk.co.ogauthority.pwa.model.entity.enums.ConfirmedOptionType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.options.PadConfirmationOfOption;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.options.ConfirmOptionForm;
 import uk.co.ogauthority.pwa.repository.pwaapplications.options.PadConfirmationOfOptionRepository;
 import uk.co.ogauthority.pwa.service.appprocessing.options.ApproveOptionsService;
+import uk.co.ogauthority.pwa.service.entitycopier.EntityCopyingService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
 import uk.co.ogauthority.pwa.validators.options.ConfirmOptionFormValidator;
@@ -27,14 +29,17 @@ public class PadConfirmationOfOptionService implements ApplicationFormSectionSer
   private final ApproveOptionsService approveOptionsService;
   private final PadConfirmationOfOptionRepository padConfirmationOfOptionRepository;
   private final ConfirmOptionFormValidator confirmOptionFormValidator;
+  private final EntityCopyingService entityCopyingService;
 
   @Autowired
   public PadConfirmationOfOptionService(ApproveOptionsService approveOptionsService,
                                         PadConfirmationOfOptionRepository padConfirmationOfOptionRepository,
-                                        ConfirmOptionFormValidator confirmOptionFormValidator) {
+                                        ConfirmOptionFormValidator confirmOptionFormValidator,
+                                        EntityCopyingService entityCopyingService) {
     this.approveOptionsService = approveOptionsService;
     this.padConfirmationOfOptionRepository = padConfirmationOfOptionRepository;
     this.confirmOptionFormValidator = confirmOptionFormValidator;
+    this.entityCopyingService = entityCopyingService;
   }
 
   @Override
@@ -108,10 +113,15 @@ public class PadConfirmationOfOptionService implements ApplicationFormSectionSer
 
   }
 
+  @Transactional
   @Override
   public void copySectionInformation(PwaApplicationDetail fromDetail, PwaApplicationDetail toDetail) {
-    // TODO PWa-118
-    LOGGER.info("TODO PWA-118 copySectionInformation not implemented");
+    entityCopyingService.duplicateEntityAndSetParent(
+        () -> findPadConfirmationOfOption(fromDetail)
+            .orElseThrow(() -> new EntityCopyingException("Could not find padConfirmationOfOption for pad.id:" + fromDetail.getId())),
+        toDetail,
+        PadConfirmationOfOption.class
+    );
   }
 
 }
