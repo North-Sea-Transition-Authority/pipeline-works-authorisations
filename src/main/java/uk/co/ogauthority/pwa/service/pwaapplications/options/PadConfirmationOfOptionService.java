@@ -57,17 +57,26 @@ public class PadConfirmationOfOptionService implements ApplicationFormSectionSer
   public void mapEntityToForm(ConfirmOptionForm confirmOptionForm, PadConfirmationOfOption padConfirmationOfOption) {
 
     confirmOptionForm.setConfirmedOptionType(padConfirmationOfOption.getConfirmedOptionType());
-    confirmOptionForm.setOptionCompletedDescription(padConfirmationOfOption.getChosenOptionDesc());
+    confirmOptionForm.setOptionCompletedDescription(null);
+    confirmOptionForm.setOtherWorkDescription(null);
+
+    if (ConfirmedOptionType.WORK_COMPLETE_AS_PER_OPTIONS.equals(padConfirmationOfOption.getConfirmedOptionType())) {
+      confirmOptionForm.setOptionCompletedDescription(padConfirmationOfOption.getChosenOptionDesc());
+    } else if (ConfirmedOptionType.WORK_DONE_BUT_NOT_PRESENTED_AS_OPTION.equals(padConfirmationOfOption.getConfirmedOptionType())) {
+      confirmOptionForm.setOtherWorkDescription(padConfirmationOfOption.getChosenOptionDesc());
+    }
 
   }
 
   public void mapFormToEntity(ConfirmOptionForm confirmOptionForm, PadConfirmationOfOption padConfirmationOfOption) {
 
     padConfirmationOfOption.setConfirmedOptionType(confirmOptionForm.getConfirmedOptionType());
+    padConfirmationOfOption.setChosenOptionDesc(null);
+
     if (ConfirmedOptionType.WORK_COMPLETE_AS_PER_OPTIONS.equals(confirmOptionForm.getConfirmedOptionType())) {
       padConfirmationOfOption.setChosenOptionDesc(confirmOptionForm.getOptionCompletedDescription());
-    } else {
-      padConfirmationOfOption.setChosenOptionDesc(null);
+    } else if (ConfirmedOptionType.WORK_DONE_BUT_NOT_PRESENTED_AS_OPTION.equals(confirmOptionForm.getConfirmedOptionType())) {
+      padConfirmationOfOption.setChosenOptionDesc(confirmOptionForm.getOtherWorkDescription());
     }
 
   }

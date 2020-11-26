@@ -31,6 +31,14 @@
                         characterCount=true
                         maxCharacterLength="4000"
                         nestingPath="form.confirmedOptionType"/>
+
+                    <#elseif option == "WORK_DONE_BUT_NOT_PRESENTED_AS_OPTION">
+                        <@fdsTextarea.textarea
+                        path="form.otherWorkDescription"
+                        labelText="Describe the work undertaken"
+                        characterCount=true
+                        maxCharacterLength="4000"
+                        nestingPath="form.confirmedOptionType"/>
                     </#if>
 
                 </@fdsRadio.radioItem>

@@ -16,7 +16,10 @@ import uk.co.ogauthority.pwa.util.ValidatorUtils;
 public class ConfirmOptionFormValidator implements SmartValidator {
 
   private static final String OPTION_ATTR = "confirmedOptionType";
-  private static final String OPTION_DESC_ATTR = "optionCompletedDescription";
+  private static final String OPTION_WORK_DESC_ATTR = "optionCompletedDescription";
+  private static final String OTHER_WORK_DESC_ATTR = "otherWorkDescription";
+
+  private static final String DESCRIPTION_OF_OPTION_MESSAGE_PREFIX = "Description of work";
 
   @Override
   public void validate(Object target, Errors errors, Object... validationHints) {
@@ -39,9 +42,18 @@ public class ConfirmOptionFormValidator implements SmartValidator {
   private void validateOptionDescriptionLength(Errors errors, ConfirmOptionForm form) {
     ValidatorUtils.validateDefaultStringLength(
         errors,
-        OPTION_DESC_ATTR,
+        OPTION_WORK_DESC_ATTR,
         form::getOptionCompletedDescription,
-        "description of option"
+        DESCRIPTION_OF_OPTION_MESSAGE_PREFIX
+    );
+  }
+
+  private void validateOtherWorkDescriptionLength(Errors errors, ConfirmOptionForm form) {
+    ValidatorUtils.validateDefaultStringLength(
+        errors,
+        OTHER_WORK_DESC_ATTR,
+        form::getOtherWorkDescription,
+        DESCRIPTION_OF_OPTION_MESSAGE_PREFIX
     );
   }
 
@@ -57,12 +69,23 @@ public class ConfirmOptionFormValidator implements SmartValidator {
     if (ConfirmedOptionType.WORK_COMPLETE_AS_PER_OPTIONS.equals(form.getConfirmedOptionType())) {
       ValidationUtils.rejectIfEmptyOrWhitespace(
           errors,
-          OPTION_DESC_ATTR,
-          REQUIRED.errorCode(OPTION_DESC_ATTR),
+          OPTION_WORK_DESC_ATTR,
+          REQUIRED.errorCode(OPTION_WORK_DESC_ATTR),
           "Describe the completed option and work done"
       );
 
       validateOptionDescriptionLength(errors, form);
+    }
+
+    if (ConfirmedOptionType.WORK_DONE_BUT_NOT_PRESENTED_AS_OPTION.equals(form.getConfirmedOptionType())) {
+      ValidationUtils.rejectIfEmptyOrWhitespace(
+          errors,
+          OTHER_WORK_DESC_ATTR,
+          REQUIRED.errorCode(OTHER_WORK_DESC_ATTR),
+          "Describe the work done"
+      );
+
+      validateOtherWorkDescriptionLength(errors, form);
     }
 
 
@@ -71,6 +94,10 @@ public class ConfirmOptionFormValidator implements SmartValidator {
   private void validatePartial(Errors errors, ConfirmOptionForm form) {
     if (ConfirmedOptionType.WORK_COMPLETE_AS_PER_OPTIONS.equals(form.getConfirmedOptionType())) {
       validateOptionDescriptionLength(errors, form);
+    }
+
+    if (ConfirmedOptionType.WORK_DONE_BUT_NOT_PRESENTED_AS_OPTION.equals(form.getConfirmedOptionType())) {
+      validateOtherWorkDescriptionLength(errors, form);
     }
   }
 

@@ -8,6 +8,8 @@ public class ConfirmOptionForm {
 
   private String optionCompletedDescription;
 
+  private String otherWorkDescription;
+
   public ConfirmedOptionType getConfirmedOptionType() {
     return confirmedOptionType;
   }
@@ -22,5 +24,13 @@ public class ConfirmOptionForm {
 
   public void setOptionCompletedDescription(String optionCompletedDescription) {
     this.optionCompletedDescription = optionCompletedDescription;
+  }
+
+  public String getOtherWorkDescription() {
+    return otherWorkDescription;
+  }
+
+  public void setOtherWorkDescription(String otherWorkDescription) {
+    this.otherWorkDescription = otherWorkDescription;
   }
 }
