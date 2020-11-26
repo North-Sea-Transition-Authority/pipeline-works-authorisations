@@ -43,7 +43,7 @@ import uk.co.ogauthority.pwa.repository.pwaapplications.pipelinehuoo.PadPipeline
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadOrganisationRoleService;
 import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadOrganisationRoleTestUtil;
-import uk.co.ogauthority.pwa.service.pwaapplications.options.PadOptionsCompleteService;
+import uk.co.ogauthority.pwa.service.pwaapplications.options.PadOptionConfirmedService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.PadPipelineHuooViewFactory;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.PipelineAndOrgRoleGroupViewsByRoleTestUtil;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.PipelineHuooRoleSummaryViewTestUtil;
@@ -133,7 +133,7 @@ public class PadPipelinesHuooServiceTest {
   private PipelineAndIdentViewFactory pipelineAndIdentViewFactory;
 
   @Mock
-  private PadOptionsCompleteService padOptionsCompleteService;
+  private PadOptionConfirmedService padOptionConfirmedService;
 
   private PwaApplicationDetail pwaApplicationDetail;
   private PickHuooPipelinesForm form;
@@ -171,7 +171,7 @@ public class PadPipelinesHuooServiceTest {
         padPipelineOrganisationRoleLinkRepository,
         pipelineAndIdentViewFactory,
         padPipelineHuooViewFactory,
-        padOptionsCompleteService);
+        padOptionConfirmedService);
 
     when(pickableHuooPipelineService.getAllPickablePipelinesForApplicationAndRole(pwaApplicationDetail, DEFAULT_ROLE))
         .thenReturn(
@@ -970,7 +970,7 @@ public class PadPipelinesHuooServiceTest {
 
   @Test
   public void canShowInTaskList_OptionsVariation_optionsNotComplete() {
-    when(padOptionsCompleteService.approvedOptionComplete(pwaApplicationDetail)).thenReturn(false);
+    when(padOptionConfirmedService.approvedOptionConfirmed(pwaApplicationDetail)).thenReturn(false);
 
     pwaApplicationDetail.getPwaApplication().setApplicationType(PwaApplicationType.OPTIONS_VARIATION);
 
@@ -980,7 +980,7 @@ public class PadPipelinesHuooServiceTest {
 
   @Test
   public void canShowInTaskList_OptionsVariation_optionsComplete() {
-    when(padOptionsCompleteService.approvedOptionComplete(pwaApplicationDetail)).thenReturn(true);
+    when(padOptionConfirmedService.approvedOptionConfirmed(pwaApplicationDetail)).thenReturn(true);
 
     pwaApplicationDetail.getPwaApplication().setApplicationType(PwaApplicationType.OPTIONS_VARIATION);
 

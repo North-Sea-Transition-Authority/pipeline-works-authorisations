@@ -57,7 +57,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
-import uk.co.ogauthority.pwa.service.pwaapplications.options.PadOptionsCompleteService;
+import uk.co.ogauthority.pwa.service.pwaapplications.options.PadOptionConfirmedService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.huoosummary.AllOrgRolePipelineGroupsView;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.huoosummary.OrganisationRolePipelineGroupView;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.huoosummary.PipelineNumbersAndSplits;
@@ -77,7 +77,7 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
   private final EntityManager entityManager;
   private final EntityCopyingService entityCopyingService;
 
-  private final PadOptionsCompleteService padOptionsCompleteService;
+  private final PadOptionConfirmedService padOptionConfirmedService;
 
   @Autowired
   public PadOrganisationRoleService(
@@ -88,7 +88,7 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
       PipelineNumberAndSplitsService pipelineNumberAndSplitsService,
       EntityManager entityManager,
       EntityCopyingService entityCopyingService,
-      PadOptionsCompleteService padOptionsCompleteService) {
+      PadOptionConfirmedService padOptionConfirmedService) {
     this.padOrganisationRolesRepository = padOrganisationRolesRepository;
     this.padPipelineOrganisationRoleLinkRepository = padPipelineOrganisationRoleLinkRepository;
     this.portalOrganisationsAccessor = portalOrganisationsAccessor;
@@ -96,7 +96,7 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
     this.pipelineNumberAndSplitsService = pipelineNumberAndSplitsService;
     this.entityManager = entityManager;
     this.entityCopyingService = entityCopyingService;
-    this.padOptionsCompleteService = padOptionsCompleteService;
+    this.padOptionConfirmedService = padOptionConfirmedService;
   }
 
   public List<PadOrganisationRole> getOrgRolesForDetail(PwaApplicationDetail pwaApplicationDetail) {
@@ -656,7 +656,7 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
     var validTypes = EnumSet.complementOf(EnumSet.of(PwaApplicationType.DEPOSIT_CONSENT, PwaApplicationType.OPTIONS_VARIATION));
 
     return validTypes.contains(pwaApplicationDetail.getPwaApplicationType())
-        || padOptionsCompleteService.approvedOptionComplete(pwaApplicationDetail);
+        || padOptionConfirmedService.approvedOptionConfirmed(pwaApplicationDetail);
   }
 
   @Transactional

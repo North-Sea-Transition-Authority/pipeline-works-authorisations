@@ -45,7 +45,7 @@ import uk.co.ogauthority.pwa.service.entitycopier.EntityCopyingService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
-import uk.co.ogauthority.pwa.service.pwaapplications.options.PadOptionsCompleteService;
+import uk.co.ogauthority.pwa.service.pwaapplications.options.PadOptionConfirmedService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.viewfactories.PipelineAndIdentViewFactory;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation.PadProjectInformationService;
 import uk.co.ogauthority.pwa.service.pwaconsents.PipelineDetailService;
@@ -87,7 +87,7 @@ public class PermanentDepositsServiceTest {
   private PipelineDetailService pipelineDetailService;
 
   @Mock
-  private PadOptionsCompleteService padOptionsCompleteService;
+  private PadOptionConfirmedService padOptionConfirmedService;
 
 
   private SpringValidatorAdapter groupValidator;
@@ -117,7 +117,7 @@ public class PermanentDepositsServiceTest {
         pipelineAndIdentViewFactory,
         padFileService,
         pipelineDetailService,
-        padOptionsCompleteService);
+        padOptionConfirmedService);
 
     date = LocalDate.now();
 
@@ -485,7 +485,7 @@ public class PermanentDepositsServiceTest {
 
   @Test
   public void canShowInTaskList_OptionsVariation_optionsNotComplete() {
-    when(padOptionsCompleteService.approvedOptionComplete(pwaApplicationDetail)).thenReturn(false);
+    when(padOptionConfirmedService.approvedOptionConfirmed(pwaApplicationDetail)).thenReturn(false);
 
     pwaApplicationDetail.getPwaApplication().setApplicationType(PwaApplicationType.OPTIONS_VARIATION);
 
@@ -495,7 +495,7 @@ public class PermanentDepositsServiceTest {
 
   @Test
   public void canShowInTaskList_OptionsVariation_optionsComplete_andPermDepositsQuestionIsTrue() {
-    when(padOptionsCompleteService.approvedOptionComplete(pwaApplicationDetail)).thenReturn(true);
+    when(padOptionConfirmedService.approvedOptionConfirmed(pwaApplicationDetail)).thenReturn(true);
     when(padProjectInformationService.getPermanentDepositsOnApplication(pwaApplicationDetail)).thenReturn(true);
 
     pwaApplicationDetail.getPwaApplication().setApplicationType(PwaApplicationType.OPTIONS_VARIATION);
@@ -506,7 +506,7 @@ public class PermanentDepositsServiceTest {
 
   @Test
   public void canShowInTaskList_OptionsVariation_optionsComplete_andPermDepositsQuestionIsFalse() {
-    when(padOptionsCompleteService.approvedOptionComplete(pwaApplicationDetail)).thenReturn(true);
+    when(padOptionConfirmedService.approvedOptionConfirmed(pwaApplicationDetail)).thenReturn(true);
     when(padProjectInformationService.getPermanentDepositsOnApplication(pwaApplicationDetail)).thenReturn(false);
 
     pwaApplicationDetail.getPwaApplication().setApplicationType(PwaApplicationType.OPTIONS_VARIATION);

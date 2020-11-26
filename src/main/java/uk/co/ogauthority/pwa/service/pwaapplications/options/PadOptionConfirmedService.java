@@ -8,19 +8,19 @@ import uk.co.ogauthority.pwa.repository.pwaapplications.options.PadConfirmationO
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 
 /**
- * Simple Service which indicates whether an approved options application has been marked as completed.
+ * Simple service to indicate if an options variation application has one of its approved options confirmed.
  */
 @Service
-public class PadOptionsCompleteService {
+public class PadOptionConfirmedService {
 
   private final PadConfirmationOfOptionRepository padConfirmationOfOptionRepository;
 
   @Autowired
-  public PadOptionsCompleteService(PadConfirmationOfOptionRepository padConfirmationOfOptionRepository) {
+  public PadOptionConfirmedService(PadConfirmationOfOptionRepository padConfirmationOfOptionRepository) {
     this.padConfirmationOfOptionRepository = padConfirmationOfOptionRepository;
   }
 
-  public boolean approvedOptionComplete(PwaApplicationDetail pwaApplicationDetail) {
+  public boolean approvedOptionConfirmed(PwaApplicationDetail pwaApplicationDetail) {
     if (pwaApplicationDetail.getPwaApplicationType().equals(PwaApplicationType.OPTIONS_VARIATION)) {
       return padConfirmationOfOptionRepository.existsByPwaApplicationDetailAndConfirmedOptionType(
           pwaApplicationDetail,

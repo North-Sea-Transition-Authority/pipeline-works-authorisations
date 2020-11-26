@@ -42,7 +42,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
-import uk.co.ogauthority.pwa.service.pwaapplications.options.PadOptionsCompleteService;
+import uk.co.ogauthority.pwa.service.pwaapplications.options.PadOptionConfirmedService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.viewfactories.PipelineAndIdentViewFactory;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation.PadProjectInformationService;
 import uk.co.ogauthority.pwa.service.pwaconsents.PipelineDetailService;
@@ -67,7 +67,7 @@ public class PermanentDepositService implements ApplicationFormSectionService {
   private final PipelineAndIdentViewFactory pipelineAndIdentViewFactory;
   private final PadFileService padFileService;
   private final PipelineDetailService pipelineDetailService;
-  private final PadOptionsCompleteService padOptionsCompleteService;
+  private final PadOptionConfirmedService padOptionConfirmedService;
 
   @Autowired
   public PermanentDepositService(
@@ -82,7 +82,7 @@ public class PermanentDepositService implements ApplicationFormSectionService {
       PipelineAndIdentViewFactory pipelineAndIdentViewFactory,
       PadFileService padFileService,
       PipelineDetailService pipelineDetailService,
-      PadOptionsCompleteService padOptionsCompleteService) {
+      PadOptionConfirmedService padOptionConfirmedService) {
     this.permanentDepositRepository = permanentDepositRepository;
     this.depositDrawingsService = depositDrawingsService;
     this.permanentDepositEntityMappingService = permanentDepositEntityMappingService;
@@ -94,7 +94,7 @@ public class PermanentDepositService implements ApplicationFormSectionService {
     this.pipelineAndIdentViewFactory = pipelineAndIdentViewFactory;
     this.padFileService = padFileService;
     this.pipelineDetailService = pipelineDetailService;
-    this.padOptionsCompleteService = padOptionsCompleteService;
+    this.padOptionConfirmedService = padOptionConfirmedService;
   }
 
 
@@ -292,7 +292,7 @@ public class PermanentDepositService implements ApplicationFormSectionService {
   public boolean canShowInTaskList(PwaApplicationDetail pwaApplicationDetail) {
     var isNotOptionsOrIsOptionsAndOptionCompleted =
         !pwaApplicationDetail.getPwaApplicationType().equals(PwaApplicationType.OPTIONS_VARIATION)
-            || padOptionsCompleteService.approvedOptionComplete(pwaApplicationDetail);
+            || padOptionConfirmedService.approvedOptionConfirmed(pwaApplicationDetail);
 
     return isNotOptionsOrIsOptionsAndOptionCompleted
         && permanentDepositsAreToBeMadeOnApp(pwaApplicationDetail);

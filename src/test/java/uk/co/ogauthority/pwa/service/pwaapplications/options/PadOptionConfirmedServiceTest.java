@@ -21,12 +21,12 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 @RunWith(MockitoJUnitRunner.class)
-public class PadOptionsCompleteServiceTest {
+public class PadOptionConfirmedServiceTest {
 
   @Mock
   private PadConfirmationOfOptionRepository padConfirmationOfOptionRepository;
 
-  private PadOptionsCompleteService padOptionsCompleteService;
+  private PadOptionConfirmedService padOptionConfirmedService;
 
   private PwaApplicationDetail pwaApplicationDetail;
 
@@ -34,7 +34,7 @@ public class PadOptionsCompleteServiceTest {
   public void setUp() throws Exception {
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.OPTIONS_VARIATION);
-    padOptionsCompleteService = new PadOptionsCompleteService(padConfirmationOfOptionRepository);
+    padOptionConfirmedService = new PadOptionConfirmedService(padConfirmationOfOptionRepository);
   }
 
   @Test
@@ -45,7 +45,7 @@ public class PadOptionsCompleteServiceTest {
     for (PwaApplicationType type : notOptions) {
       pwaApplicationDetail.getPwaApplication().setApplicationType(type);
 
-      assertThat(padOptionsCompleteService.approvedOptionComplete(pwaApplicationDetail)).isFalse();
+      assertThat(padOptionConfirmedService.approvedOptionConfirmed(pwaApplicationDetail)).isFalse();
       verifyNoInteractions(padConfirmationOfOptionRepository);
 
     }
@@ -54,7 +54,7 @@ public class PadOptionsCompleteServiceTest {
   @Test
   public void approvedOptionComplete_whenOptionsVariation_notCompletedApprovedOption() {
 
-    assertThat(padOptionsCompleteService.approvedOptionComplete(pwaApplicationDetail)).isFalse();
+    assertThat(padOptionConfirmedService.approvedOptionConfirmed(pwaApplicationDetail)).isFalse();
 
     verify(padConfirmationOfOptionRepository, times(1))
         .existsByPwaApplicationDetailAndConfirmedOptionType(pwaApplicationDetail,
@@ -67,7 +67,7 @@ public class PadOptionsCompleteServiceTest {
     when(padConfirmationOfOptionRepository.existsByPwaApplicationDetailAndConfirmedOptionType(any(), any()))
         .thenReturn(true);
 
-    assertThat(padOptionsCompleteService.approvedOptionComplete(pwaApplicationDetail)).isTrue();
+    assertThat(padOptionConfirmedService.approvedOptionConfirmed(pwaApplicationDetail)).isTrue();
 
     verify(padConfirmationOfOptionRepository, times(1))
         .existsByPwaApplicationDetailAndConfirmedOptionType(pwaApplicationDetail,

@@ -20,7 +20,7 @@ import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.techdetails.Admir
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
-import uk.co.ogauthority.pwa.service.pwaapplications.options.PadOptionsCompleteService;
+import uk.co.ogauthority.pwa.service.pwaapplications.options.PadOptionConfirmedService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -39,7 +39,7 @@ public class TechnicalDrawingSectionServiceTest {
   private PadFileService padFileService;
 
   @Mock
-  private PadOptionsCompleteService padOptionsCompleteService;
+  private PadOptionConfirmedService padOptionConfirmedService;
 
   private TechnicalDrawingSectionService technicalDrawingSectionService;
   private PwaApplicationDetail detail;
@@ -51,7 +51,7 @@ public class TechnicalDrawingSectionServiceTest {
         padTechnicalDrawingService,
         umbilicalCrossSectionService,
         padFileService,
-        padOptionsCompleteService);
+        padOptionConfirmedService);
     detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
   }
 
@@ -98,7 +98,7 @@ public class TechnicalDrawingSectionServiceTest {
 
   @Test
   public void canShowInTaskList_OptionsVariation_optionsNotComplete() {
-    when(padOptionsCompleteService.approvedOptionComplete(detail)).thenReturn(false);
+    when(padOptionConfirmedService.approvedOptionConfirmed(detail)).thenReturn(false);
 
     detail.getPwaApplication().setApplicationType(PwaApplicationType.OPTIONS_VARIATION);
 
@@ -108,7 +108,7 @@ public class TechnicalDrawingSectionServiceTest {
 
   @Test
   public void canShowInTaskList_OptionsVariation_optionsComplete() {
-    when(padOptionsCompleteService.approvedOptionComplete(detail)).thenReturn(true);
+    when(padOptionConfirmedService.approvedOptionConfirmed(detail)).thenReturn(true);
 
     detail.getPwaApplication().setApplicationType(PwaApplicationType.OPTIONS_VARIATION);
 
