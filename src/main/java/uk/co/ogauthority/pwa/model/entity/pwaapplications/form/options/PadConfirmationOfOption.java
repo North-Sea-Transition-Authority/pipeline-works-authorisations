@@ -29,6 +29,8 @@ public class PadConfirmationOfOption {
   @Column(name = "confirmation_type")
   private ConfirmedOptionType confirmedOptionType;
 
+  private String chosenOptionDesc;
+
   public PadConfirmationOfOption() {
     // hibernate
   }
@@ -36,8 +38,6 @@ public class PadConfirmationOfOption {
   public PadConfirmationOfOption(PwaApplicationDetail pwaApplicationDetail) {
     this.pwaApplicationDetail = pwaApplicationDetail;
   }
-
-  private String chosenOptionDesc;
 
   public Integer getId() {
     return id;
