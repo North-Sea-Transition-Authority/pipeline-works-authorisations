@@ -37,6 +37,13 @@ public enum ApplicationTaskGroup {
           OrderedTaskGroupTask.from(ApplicationTask.SUPPLEMENTARY_DOCUMENTS, 20)
       )
   ),
+  CONFIRMATION_OF_WORK(
+      "Confirmation of work",
+      27,
+      List.of(
+          OrderedTaskGroupTask.from(ApplicationTask.CONFIRM_OPTIONS, 10)
+      )
+  ),
   LOCATION_DETAILS(
       "Location details",
       30,
