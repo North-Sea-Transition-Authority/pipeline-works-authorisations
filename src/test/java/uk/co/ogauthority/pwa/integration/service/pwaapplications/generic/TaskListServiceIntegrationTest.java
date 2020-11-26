@@ -234,7 +234,8 @@ public class TaskListServiceIntegrationTest {
         PwaApplicationType.DEPOSIT_CONSENT,
         PwaApplicationType.CAT_1_VARIATION,
         PwaApplicationType.CAT_2_VARIATION,
-        PwaApplicationType.DECOMMISSIONING);
+        PwaApplicationType.DECOMMISSIONING,
+        PwaApplicationType.OPTIONS_VARIATION);
   }
 
 
