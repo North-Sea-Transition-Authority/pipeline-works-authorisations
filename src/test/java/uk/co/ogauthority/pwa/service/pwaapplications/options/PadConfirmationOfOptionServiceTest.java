@@ -8,6 +8,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static uk.co.ogauthority.pwa.model.entity.enums.ConfirmedOptionType.WORK_COMPLETE_AS_PER_OPTIONS;
+import static uk.co.ogauthority.pwa.model.entity.enums.ConfirmedOptionType.WORK_DONE_BUT_NOT_PRESENTED_AS_OPTION;
 import static uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes.REQUIRED;
 
 import java.util.EnumSet;
@@ -138,8 +139,27 @@ public class PadConfirmationOfOptionServiceTest {
   }
 
   @Test
+  public void mapFormToEntity_whenOtherWorkDone() {
+    var confirmation = new PadConfirmationOfOption();
+    var form = new ConfirmOptionForm();
+    form.setOtherWorkDescription("SOMETHING");
+    form.setConfirmedOptionType(WORK_DONE_BUT_NOT_PRESENTED_AS_OPTION);
+
+    padConfirmationOfOptionService.mapFormToEntity(form, confirmation);
+
+    assertThat(confirmation.getChosenOptionDesc()).isEqualTo(form.getOtherWorkDescription());
+    assertThat(confirmation.getConfirmedOptionType()).isEqualTo(form.getConfirmedOptionType());
+
+  }
+
+  @Test
   public void mapFormToEntity_whenDescriptionNotCollected() {
-    var noDescriptionOptions = EnumSet.complementOf(EnumSet.of(ConfirmedOptionType.WORK_COMPLETE_AS_PER_OPTIONS));
+    var noDescriptionOptions = EnumSet.complementOf(
+        EnumSet.of(
+            ConfirmedOptionType.WORK_COMPLETE_AS_PER_OPTIONS,
+            ConfirmedOptionType.WORK_DONE_BUT_NOT_PRESENTED_AS_OPTION
+        )
+    );
 
     for(ConfirmedOptionType noDescOption : noDescriptionOptions){
       var confirmation = new PadConfirmationOfOption();
