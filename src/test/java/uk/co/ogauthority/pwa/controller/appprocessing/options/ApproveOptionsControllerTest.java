@@ -207,7 +207,7 @@ public class ApproveOptionsControllerTest extends PwaAppProcessingContextAbstrac
     var expectedDeadlineInstant = LocalDate.of(2020, 12, 1).atStartOfDay(ZoneId.systemDefault()).toInstant();
     verify(approveOptionsService, times(1)).approveOptions(
         pwaApplicationDetail,
-        person,
+        user,
         expectedDeadlineInstant
     );
   }

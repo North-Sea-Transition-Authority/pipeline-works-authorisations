@@ -1,5 +1,42 @@
-CREATE OR REPLACE VIEW ${datasource.user}.pad_search_items
-AS
+CREATE OR REPLACE VIEW ${datasource.user}.pad_search_items (
+  pwa_id
+, pwa_detail_id
+, pwa_application_id
+, pwa_application_detail_id
+, pwa_reference
+, pad_reference
+, application_type
+, pad_status
+, pad_created_timestamp
+, pad_submitted_timestamp
+, pad_init_review_approved_ts
+, pad_status_timestamp
+, tip_flag
+, submitted_as_fast_track_flag
+, case_officer_person_id
+, case_officer_name
+, pad_project_name
+, pad_proposed_start_timestamp
+, pad_field_name_list
+, pwa_holder_name_list
+, pad_holder_name_list
+, open_consultation_req_flag
+, open_public_notice_flag
+, open_update_request_flag
+) AS
+WITH open_update_app_details AS (
+  SELECT
+    pad.pwa_application_id
+  , pad.id pad_id
+  , aur.id aur_id
+  , pcoo.id pcoo_id
+  , CASE WHEN aur.id IS NOT NULL THEN 1 ELSE 0 END open_app_update
+  , CASE WHEN oaa.id IS NOT NULL AND pcoo.id IS NULL THEN 1 ELSE 0 END unresponded_option_approval
+  FROM ${datasource.user}.pwa_application_details pad
+  LEFT JOIN ${datasource.user}.application_update_requests aur ON aur.pad_id = pad.id AND aur.status = 'OPEN'
+  LEFT JOIN ${datasource.user}.options_application_approvals oaa ON oaa.pwa_application_id = pad.pwa_application_id
+  LEFT JOIN ${datasource.user}.pad_confirmation_of_option pcoo ON pcoo.application_detail_id = pad.id
+)
 SELECT
   p.id pwa_id
 , pd.id pwa_detail_id
@@ -59,7 +96,7 @@ SELECT
     ELSE 0
   END open_consultation_req_flag
 , 0 open_public_notice_flag -- TODO PWA-931
-, CASE WHEN aur.id IS NOT NULL THEN 1 ELSE 0 END open_update_request_flag
+, CASE WHEN ouad.pad_id IS NOT NULL THEN 1 ELSE 0 END open_update_request_flag
 FROM ${datasource.user}.pwa_application_details pad -- want 1 row per detail for maximum query flexibility. intended to be the only introduced cardinality
 JOIN ${datasource.user}.pwa_applications pa ON pad.pwa_application_id = pa.id
 JOIN ${datasource.user}.pad_status_versions psv ON pa.id = psv.pwa_application_id
@@ -67,7 +104,7 @@ JOIN ${datasource.user}.pwas p ON pa.pwa_id = p.id
 JOIN ${datasource.user}.pwa_details pd ON pd.pwa_id = p.id
 LEFT JOIN ${datasource.user}.pwa_app_assignments paa ON paa.pwa_application_id = pad.pwa_application_id AND paa.assignment = 'CASE_OFFICER'
 LEFT JOIN ${datasource.user}.pad_project_information ppi ON ppi.application_detail_id = pad.id
-LEFT JOIN ${datasource.user}.application_update_requests aur ON aur.pad_id = pad.id AND aur.status = 'OPEN'
+LEFT JOIN open_update_app_details ouad ON ouad.pad_id = pad.id AND (ouad.open_app_update = 1 OR ouad.unresponded_option_approval = 1)
 WHERE pd.end_timestamp IS NULL
 AND pad.version_no = CASE
   -- if a submitted version exists, always return the last submitted
@@ -76,6 +113,6 @@ AND pad.version_no = CASE
   WHEN psv.max_draft_version = pad.version_no THEN psv.max_draft_version
   ELSE NULL
 END;
-/
+
 
 

@@ -52,7 +52,7 @@ class OptionsCaseManagementEmailService {
     this.applicationInvolvementService = applicationInvolvementService;
   }
 
-  public void sendInitialOptionsApprovedEmail(PwaApplicationDetail pwaApplicationDetail) {
+  public void sendInitialOptionsApprovedEmail(PwaApplicationDetail pwaApplicationDetail, Instant deadlineDate) {
 
     var pwaApplication = pwaApplicationDetail.getPwaApplication();
 
@@ -62,7 +62,8 @@ class OptionsCaseManagementEmailService {
     );
 
     var holderNames = getPwaApplicationConsentedHolderNames(pwaApplication);
-
+    var formattedDeadlineDate = deadlineDateAsString(deadlineDate);
+    var holderCsv = String.join(", ", holderNames);
     var caseLink = emailCaseLinkService.generateCaseManagementLink(pwaApplication);
 
     if (!recipients.isEmpty()) {
@@ -71,7 +72,8 @@ class OptionsCaseManagementEmailService {
               new ApplicationOptionsApprovedEmailProps(
                   person.getFullName(),
                   pwaApplication.getAppReference(),
-                  String.join(", ", holderNames),
+                  holderCsv,
+                  formattedDeadlineDate,
                   caseLink
               ),
               person.getEmailAddress()
@@ -87,6 +89,10 @@ class OptionsCaseManagementEmailService {
 
   }
 
+  private String deadlineDateAsString(Instant deadlineDate) {
+    return DEADLINE_FORMATTER.format(DateUtils.instantToLocalDate(deadlineDate));
+  }
+
   public void sendOptionsDeadlineChangedEmail(PwaApplicationDetail pwaApplicationDetail, Instant deadlineDate) {
 
     var pwaApplication = pwaApplicationDetail.getPwaApplication();
@@ -94,7 +100,7 @@ class OptionsCaseManagementEmailService {
     var caseOfficerPersonOpt = applicationInvolvementService.getCaseOfficerPerson(pwaApplication);
 
     var caseLink = emailCaseLinkService.generateCaseManagementLink(pwaApplication);
-    var formattedDeadlineDate = DEADLINE_FORMATTER.format(DateUtils.instantToLocalDate(deadlineDate));
+    var formattedDeadlineDate = deadlineDateAsString(deadlineDate);
 
     var pwaContactRecipients = pwaContactService.getPeopleInRoleForPwaApplication(
         pwaApplication,

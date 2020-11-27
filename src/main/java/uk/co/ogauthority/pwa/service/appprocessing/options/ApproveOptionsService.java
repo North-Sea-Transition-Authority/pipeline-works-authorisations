@@ -6,14 +6,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
+import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.options.OptionsApplicationApproval;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.options.OptionsApprovalDeadlineHistory;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.view.appprocessing.options.OptionsApprovalDeadlineView;
+import uk.co.ogauthority.pwa.model.workflow.GenericMessageEvent;
 import uk.co.ogauthority.pwa.repository.appprocessing.options.OptionsApplicationApprovalRepository;
 import uk.co.ogauthority.pwa.repository.appprocessing.options.OptionsApprovalDeadlineHistoryRepository;
+import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationWorkflowMessageEvents;
+import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationWorkflowTask;
+import uk.co.ogauthority.pwa.service.pwaapplications.generic.PwaApplicationDetailVersioningService;
+import uk.co.ogauthority.pwa.service.workflow.assignment.WorkflowAssignmentService;
 
 @Service
 public class ApproveOptionsService {
@@ -26,15 +32,24 @@ public class ApproveOptionsService {
 
   private final OptionsCaseManagementEmailService optionsCaseManagementEmailService;
 
+  private final WorkflowAssignmentService workflowAssignmentService;
+
+  private final PwaApplicationDetailVersioningService pwaApplicationDetailVersioningService;
+
+
   @Autowired
   public ApproveOptionsService(OptionsApprovalPersister optionsApprovalPersister,
                                OptionsApplicationApprovalRepository optionsApplicationApprovalRepository,
                                OptionsApprovalDeadlineHistoryRepository optionsApprovalDeadlineHistoryRepository,
-                               OptionsCaseManagementEmailService optionsCaseManagementEmailService) {
+                               OptionsCaseManagementEmailService optionsCaseManagementEmailService,
+                               WorkflowAssignmentService workflowAssignmentService,
+                               PwaApplicationDetailVersioningService pwaApplicationDetailVersioningService) {
     this.optionsApprovalPersister = optionsApprovalPersister;
     this.optionsApplicationApprovalRepository = optionsApplicationApprovalRepository;
     this.optionsApprovalDeadlineHistoryRepository = optionsApprovalDeadlineHistoryRepository;
     this.optionsCaseManagementEmailService = optionsCaseManagementEmailService;
+    this.workflowAssignmentService = workflowAssignmentService;
+    this.pwaApplicationDetailVersioningService = pwaApplicationDetailVersioningService;
   }
 
   /**
@@ -67,15 +82,35 @@ public class ApproveOptionsService {
 
 
   @Transactional
-  public void approveOptions(PwaApplicationDetail pwaApplicationDetail, Person approverPerson, Instant deadlineDate) {
+  public void approveOptions(PwaApplicationDetail pwaApplicationDetail, WebUserAccount approverWua, Instant deadlineDate) {
+
+    // create a new detail that will be resubmitted with confirmed options.
+    // Important this is done first as doing it after creating the approval means versioning will try copy a confirmation
+    // that doesnt exist and error.
+    var newTipDetail = pwaApplicationDetailVersioningService.createNewApplicationVersion(
+        pwaApplicationDetail,
+        approverWua
+    );
 
     var initialApprovalDeadlineHistory = optionsApprovalPersister.createInitialOptionsApproval(
         pwaApplicationDetail.getPwaApplication(),
-        approverPerson,
+        approverWua.getLinkedPerson(),
         deadlineDate
     );
 
-    optionsCaseManagementEmailService.sendInitialOptionsApprovedEmail(pwaApplicationDetail);
+    optionsCaseManagementEmailService.sendInitialOptionsApprovedEmail(
+        pwaApplicationDetail,
+        initialApprovalDeadlineHistory.getDeadlineDate()
+    );
+
+    // update workflow
+    workflowAssignmentService.triggerWorkflowMessageAndAssertTaskExists(
+        GenericMessageEvent.from(
+            newTipDetail.getPwaApplication(),
+            PwaApplicationWorkflowMessageEvents.OPTIONS_APPROVED.getMessageEventName()
+        ),
+        PwaApplicationWorkflowTask.UPDATE_APPLICATION
+    );
 
   }
 
