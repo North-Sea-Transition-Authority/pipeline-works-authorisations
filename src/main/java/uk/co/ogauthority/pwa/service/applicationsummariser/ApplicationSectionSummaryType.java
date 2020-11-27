@@ -19,6 +19,7 @@ import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.Hu
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.LicenceBlockSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.LocationDetailsSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.MedianLineAgreementSummaryService;
+import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.OptionConfirmationSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.OptionsTemplateSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.OtherPropertiesSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.PartnerApprovalLettersSummaryService;
@@ -42,6 +43,11 @@ public enum ApplicationSectionSummaryType {
       10,
       "pwaApplication/applicationSummarySections/applicationContactsSummary.ftl",
       ApplicationContactsSummaryService.class),
+
+  OPTION_CONFIRMATION(
+      15,
+      "pwaApplication/applicationSummarySections/optionConfirmationSummary.ftl",
+      OptionConfirmationSummaryService.class),
 
   FIELD_INFORMATION(
       20,
