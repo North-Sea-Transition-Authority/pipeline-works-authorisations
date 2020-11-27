@@ -38,7 +38,8 @@ public class Category2TaskListControllerTest extends TaskListControllerTest {
 
     detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.CAT_2_VARIATION);
 
-    when(taskListService.getTaskListModelAndView(detail)).thenCallRealMethod();
+    when(taskListService.getTaskListGroups(detail)).thenCallRealMethod();
+when(taskListControllerModelAndViewCreator.getTaskListModelAndView(any(), any())).thenCallRealMethod();
 
     when(pwaApplicationDetailService.getTipDetail(anyInt())).thenReturn(detail);
     when(pwaContactService.getContactRoles(any(), any())).thenReturn(EnumSet.allOf(PwaContactRole.class));

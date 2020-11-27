@@ -38,7 +38,8 @@ public class HuooVariationTaskListControllerTest extends TaskListControllerTest 
 
     detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.HUOO_VARIATION);
 
-    when(taskListService.getTaskListModelAndView(detail)).thenCallRealMethod();
+    when(taskListService.getTaskListGroups(detail)).thenCallRealMethod();
+when(taskListControllerModelAndViewCreator.getTaskListModelAndView(any(), any())).thenCallRealMethod();
 
     when(pwaApplicationDetailService.getTipDetail(anyInt())).thenReturn(detail);
     when(pwaContactService.getContactRoles(any(), any())).thenReturn(EnumSet.allOf(PwaContactRole.class));

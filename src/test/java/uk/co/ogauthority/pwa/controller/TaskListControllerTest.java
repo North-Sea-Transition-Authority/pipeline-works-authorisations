@@ -12,6 +12,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.service.appprocessing.applicationupdate.ApplicationUpdateRequestViewService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContextService;
+import uk.co.ogauthority.pwa.service.appprocessing.options.ApproveOptionsService;
 import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
 import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaView;
 import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaViewService;
@@ -22,6 +23,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSect
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationTaskService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskListEntryFactory;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskListService;
+import uk.co.ogauthority.pwa.service.pwaapplications.generic.tasklist.TaskListControllerModelAndViewCreator;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
 
 public abstract class TaskListControllerTest extends AbstractControllerTest {
@@ -34,6 +36,9 @@ public abstract class TaskListControllerTest extends AbstractControllerTest {
 
   @MockBean
   protected TaskListService taskListService;
+
+  @MockBean
+  protected TaskListControllerModelAndViewCreator taskListControllerModelAndViewCreator;
 
   @MockBean
   protected TaskListEntryFactory taskListEntryFactory;
@@ -65,17 +70,18 @@ public abstract class TaskListControllerTest extends AbstractControllerTest {
   @Mock
   private ApplicationUpdateRequestViewService applicationUpdateRequestViewService;
 
+  @Mock
+  private ApproveOptionsService approveOptionsService;
+
   @Before
   public void taskListControllerTestSetup() {
     when(masterPwaView.getReference()).thenReturn("EXAMPLE_REFERENCE");
     when(masterPwaViewService.getCurrentMasterPwaView(any())).thenReturn(masterPwaView);
 
     taskListService = new TaskListService(
-        applicationBreadcrumbService,
         taskListEntryFactory,
-        applicationTaskService,
-        masterPwaViewService,
-        applicationUpdateRequestViewService);
+        applicationTaskService
+    );
 
 
     doCallRealMethod().when(applicationBreadcrumbService).fromWorkArea(any(ModelAndView.class), eq("Task list"));

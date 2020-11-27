@@ -38,7 +38,8 @@ public class DecommissioningTaskListControllerTest extends TaskListControllerTes
 
     detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.DECOMMISSIONING);
 
-    when(taskListService.getTaskListModelAndView(detail)).thenCallRealMethod();
+    when(taskListService.getTaskListGroups(detail)).thenCallRealMethod();
+when(taskListControllerModelAndViewCreator.getTaskListModelAndView(any(), any())).thenCallRealMethod();
 
     when(pwaApplicationDetailService.getTipDetail(anyInt())).thenReturn(detail);
     when(pwaContactService.getContactRoles(any(), any())).thenReturn(EnumSet.allOf(PwaContactRole.class));

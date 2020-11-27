@@ -34,6 +34,7 @@ import uk.co.ogauthority.pwa.repository.appprocessing.options.OptionsApprovalDea
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationWorkflowMessageEvents;
 import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationWorkflowTask;
+import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.PwaApplicationDetailVersioningService;
 import uk.co.ogauthority.pwa.service.pwaapplications.options.PadOptionConfirmedService;
 import uk.co.ogauthority.pwa.service.workflow.assignment.WorkflowAssignmentService;
@@ -67,6 +68,9 @@ public class ApproveOptionsServiceTest {
   @Mock
   private PadOptionConfirmedService padOptionConfirmedService;
 
+  @Mock
+  private PwaApplicationRedirectService pwaApplicationRedirectService;
+
 
   private ApproveOptionsService approveOptionsService;
 
@@ -90,7 +94,8 @@ public class ApproveOptionsServiceTest {
         optionsCaseManagementEmailService,
         padOptionConfirmedService,
         workflowAssignmentService,
-        pwaApplicationDetailVersioningService);
+        pwaApplicationDetailVersioningService,
+        pwaApplicationRedirectService);
 
   }
 

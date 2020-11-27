@@ -39,7 +39,8 @@ public class Category1TaskListControllerTest extends TaskListControllerTest {
         .setAllowedContactRoles(PwaContactRole.PREPARER)
         .setAllowedStatuses(PwaApplicationStatus.DRAFT)
         .setPreTestSetupMethod((detail) -> {
-          when(taskListService.getTaskListModelAndView(detail)).thenCallRealMethod();
+          when(taskListService.getTaskListGroups(detail)).thenCallRealMethod();
+          when(taskListControllerModelAndViewCreator.getTaskListModelAndView(any(), any())).thenCallRealMethod();
         });
   }
 
