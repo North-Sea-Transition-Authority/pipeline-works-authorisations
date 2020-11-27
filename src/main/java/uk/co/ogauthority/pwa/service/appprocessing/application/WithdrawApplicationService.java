@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.service.appprocessing.application;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
@@ -28,6 +29,7 @@ public class WithdrawApplicationService implements AppProcessingService {
   private final NotifyService notifyService;
   private final PwaContactService pwaContactService;
 
+  @Autowired
   public WithdrawApplicationService(
       WithdrawApplicationValidator withdrawApplicationValidator,
       PwaApplicationDetailService pwaApplicationDetailService,
