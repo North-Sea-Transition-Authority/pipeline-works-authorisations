@@ -4,7 +4,6 @@ package uk.co.ogauthority.pwa.service.appprocessing.options;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.Clock;
@@ -21,13 +20,19 @@ import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
 import uk.co.ogauthority.pwa.energyportal.model.entity.PersonTestUtil;
+import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.options.OptionsApplicationApproval;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.options.OptionsApprovalDeadlineHistory;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.workflow.GenericMessageEvent;
 import uk.co.ogauthority.pwa.repository.appprocessing.options.OptionsApplicationApprovalRepository;
 import uk.co.ogauthority.pwa.repository.appprocessing.options.OptionsApprovalDeadlineHistoryRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationWorkflowMessageEvents;
+import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationWorkflowTask;
+import uk.co.ogauthority.pwa.service.pwaapplications.generic.PwaApplicationDetailVersioningService;
+import uk.co.ogauthority.pwa.service.workflow.assignment.WorkflowAssignmentService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -49,12 +54,18 @@ public class ApproveOptionsServiceTest {
   @Mock
   private OptionsCaseManagementEmailService optionsCaseManagementEmailService;
 
+  @Mock
+  private WorkflowAssignmentService workflowAssignmentService;
+  @Mock
+  private PwaApplicationDetailVersioningService pwaApplicationDetailVersioningService;
+
 
   private ApproveOptionsService approveOptionsService;
 
   private PwaApplicationDetail pwaApplicationDetail;
 
   private Person person;
+  private WebUserAccount webUserAccount;
 
   @Before
   public void setUp() throws Exception {
@@ -62,27 +73,61 @@ public class ApproveOptionsServiceTest {
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.OPTIONS_VARIATION);
 
     person = PersonTestUtil.createPersonFrom(PERSON_ID);
+    webUserAccount = new WebUserAccount(1, person);
 
     approveOptionsService = new ApproveOptionsService(
         optionsApprovalPersister,
         optionsApplicationApprovalRepository,
         optionsApprovalDeadlineHistoryRepository,
-        optionsCaseManagementEmailService);
+        optionsCaseManagementEmailService,
+        workflowAssignmentService,
+        pwaApplicationDetailVersioningService);
 
   }
 
   @Test
   public void approveOptions_serviceInteractions() {
     var instant = Instant.MAX;
-    approveOptionsService.approveOptions(pwaApplicationDetail, person, instant);
+    var newHistory = new OptionsApprovalDeadlineHistory();
+    newHistory.setDeadlineDate(instant);
+    when(optionsApprovalPersister.createInitialOptionsApproval(pwaApplicationDetail.getPwaApplication(), person, instant))
+        .thenReturn(newHistory);
 
-    verify(optionsApprovalPersister, times(1)).createInitialOptionsApproval(
+    // fake new version and just return existing one.
+    when(pwaApplicationDetailVersioningService.createNewApplicationVersion(pwaApplicationDetail, webUserAccount))
+        .thenReturn(pwaApplicationDetail);
+
+    approveOptionsService.approveOptions(pwaApplicationDetail, webUserAccount, instant);
+
+
+    InOrder inOrder = Mockito.inOrder(
+        optionsApprovalPersister,
+        optionsApplicationApprovalRepository,
+        optionsApprovalDeadlineHistoryRepository,
+        optionsCaseManagementEmailService,
+        workflowAssignmentService,
+        pwaApplicationDetailVersioningService);
+
+    inOrder.verify(pwaApplicationDetailVersioningService, times(1))
+        .createNewApplicationVersion(pwaApplicationDetail, webUserAccount);
+
+    inOrder.verify(optionsApprovalPersister, times(1)).createInitialOptionsApproval(
         pwaApplicationDetail.getPwaApplication(), person, instant
     );
 
-    verify(optionsCaseManagementEmailService, times(1)).sendInitialOptionsApprovedEmail(
-        pwaApplicationDetail
+    inOrder.verify(optionsCaseManagementEmailService, times(1)).sendInitialOptionsApprovedEmail(
+        pwaApplicationDetail, instant
     );
+
+    inOrder.verify(workflowAssignmentService, times(1)).triggerWorkflowMessageAndAssertTaskExists(
+        GenericMessageEvent.from(
+            pwaApplicationDetail.getPwaApplication(),
+            PwaApplicationWorkflowMessageEvents.OPTIONS_APPROVED.getMessageEventName()
+        ),
+        PwaApplicationWorkflowTask.UPDATE_APPLICATION
+    );
+
+    inOrder.verifyNoMoreInteractions();
 
   }
 
