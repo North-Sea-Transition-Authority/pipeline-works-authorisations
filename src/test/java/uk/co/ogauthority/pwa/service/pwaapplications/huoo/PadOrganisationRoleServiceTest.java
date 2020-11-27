@@ -53,6 +53,7 @@ import uk.co.ogauthority.pwa.repository.pwaapplications.huoo.PadOrganisationRole
 import uk.co.ogauthority.pwa.repository.pwaapplications.pipelinehuoo.PadPipelineOrganisationRoleLinkRepository;
 import uk.co.ogauthority.pwa.service.entitycopier.EntityCopyingService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.service.pwaapplications.options.PadOptionConfirmedService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.huoosummary.PipelineNumbersAndSplits;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.viewfactories.PipelineAndIdentViewFactory;
 import uk.co.ogauthority.pwa.testutils.PortalOrganisationTestUtils;
@@ -81,6 +82,9 @@ public class PadOrganisationRoleServiceTest {
 
   @Mock
   private PipelineNumberAndSplitsService pipelineNumberAndSplitsService;
+
+  @Mock
+  private PadOptionConfirmedService padOptionConfirmedService;
 
   private PadOrganisationRoleService padOrganisationRoleService;
 
@@ -129,7 +133,8 @@ public class PadOrganisationRoleServiceTest {
         pipelineAndIdentViewFactory,
         pipelineNumberAndSplitsService,
         entityManager,
-        entityCopyingService);
+        entityCopyingService,
+        padOptionConfirmedService);
 
     detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
 
@@ -585,16 +590,17 @@ public class PadOrganisationRoleServiceTest {
             Set.of(OrganisationUnitId.from(orgUnit1), OrganisationUnitId.from(orgUnit2))
         );
 
+    var pipelineIdentifierSet = Set.of(pipelineId1, pipelineId2, pipeline2Section1, pipeline2Section2);
+
     var org1UserRolePipelineGroupDto = new OrganisationRolePipelineGroupDto(
-        new OrganisationRoleInstanceDto(padOrgUnit1UserRole), Set.of(pipelineId1, pipelineId2));
+        new OrganisationRoleInstanceDto(padOrgUnit1UserRole), pipelineIdentifierSet);
 
     when(summaryDto.getUserOrganisationUnitGroups()).thenReturn(Set.of(org1UserRolePipelineGroupDto));
     when(summaryDto.getOrganisationRolePipelineGroupBy(HuooRole.USER, OrganisationUnitId.from(orgUnit1)))
         .thenReturn(Optional.of(org1UserRolePipelineGroupDto));
 
     ArgumentCaptor<List<PadOrganisationRole>> padOrgRoleArgCapture = ArgumentCaptor.forClass(List.class);
-    ArgumentCaptor<List<PadPipelineOrganisationRoleLink>> padOrgRolePipelineLinkArgCapture = ArgumentCaptor
-        .forClass(List.class);
+    ArgumentCaptor<List<PadPipelineOrganisationRoleLink>> padOrgRolePipelineLinkArgCapture = ArgumentCaptor.forClass(List.class);
 
     padOrganisationRoleService.createApplicationOrganisationRolesFromSummary(detail, summaryDto);
 
@@ -619,19 +625,29 @@ public class PadOrganisationRoleServiceTest {
     });
 
     //Assert all pipelines in role group has link correctly created
-    assertThat(padOrgRolePipelineLinkArgCapture.getValue()).hasSize(2);
+    assertThat(padOrgRolePipelineLinkArgCapture.getValue()).hasSize(pipelineIdentifierSet.size());
 
     assertThat(padOrgRolePipelineLinkArgCapture.getValue()).allSatisfy(padOrgRolePipelineLink -> {
       // only one role created so all links must reference it
       assertThat(padOrgRolePipelineLink.getPadOrgRole()).isEqualTo(padOrgRoleArgCapture.getValue().get(0));
     });
 
+    // check that there's a pad org role pipeline link for the pipeline id pipeline identifiers
     assertThat(padOrgRolePipelineLinkArgCapture.getValue()).anySatisfy(padOrgRolePipelineLink -> {
       assertThat(padOrgRolePipelineLink.getPipeline().getId()).isEqualTo(pipelineId1.asInt());
     });
 
     assertThat(padOrgRolePipelineLinkArgCapture.getValue()).anySatisfy(padOrgRolePipelineLink -> {
       assertThat(padOrgRolePipelineLink.getPipeline().getId()).isEqualTo(pipelineId2.asInt());
+    });
+
+    // check that theres a pad org role pipeline link for the pipeline section pipeline identifiers
+    assertThat(padOrgRolePipelineLinkArgCapture.getValue()).anySatisfy(padOrgRolePipelineLink -> {
+      assertThat(padOrgRolePipelineLink.getPipelineIdentifier()).isEqualTo(pipeline2Section1);
+    });
+
+    assertThat(padOrgRolePipelineLinkArgCapture.getValue()).anySatisfy(padOrgRolePipelineLink -> {
+      assertThat(padOrgRolePipelineLink.getPipelineIdentifier()).isEqualTo(pipeline2Section2);
     });
 
   }
@@ -656,7 +672,6 @@ public class PadOrganisationRoleServiceTest {
 
     assertThat(padOrgRoleArgCapture.getValue()).isEmpty();
     assertThat(padOrgRolePipelineLinkArgCapture.getValue()).isEmpty();
-
 
   }
 

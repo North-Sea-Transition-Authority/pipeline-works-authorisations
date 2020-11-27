@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
 import uk.co.ogauthority.pwa.model.dto.appprocessing.ApplicationInvolvementDto;
 import uk.co.ogauthority.pwa.model.dto.appprocessing.ConsultationInvolvementDto;
@@ -21,6 +22,7 @@ import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 import uk.co.ogauthority.pwa.service.enums.users.UserType;
 import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationConsultationWorkflowTask;
 import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationWorkflowTask;
+import uk.co.ogauthority.pwa.service.person.PersonService;
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
 import uk.co.ogauthority.pwa.service.users.UserTypeService;
 import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
@@ -39,6 +41,7 @@ public class ApplicationInvolvementService {
   private final CamundaWorkflowService camundaWorkflowService;
   private final UserTypeService userTypeService;
   private final ConsulteeGroupDetailService consulteeGroupDetailService;
+  private final PersonService personService;
 
   @Autowired
   public ApplicationInvolvementService(ConsulteeGroupTeamService consulteeGroupTeamService,
@@ -46,13 +49,15 @@ public class ApplicationInvolvementService {
                                        ConsultationRequestService consultationRequestService,
                                        CamundaWorkflowService camundaWorkflowService,
                                        UserTypeService userTypeService,
-                                       ConsulteeGroupDetailService consulteeGroupDetailService) {
+                                       ConsulteeGroupDetailService consulteeGroupDetailService,
+                                       PersonService personService) {
     this.consulteeGroupTeamService = consulteeGroupTeamService;
     this.pwaContactService = pwaContactService;
     this.consultationRequestService = consultationRequestService;
     this.camundaWorkflowService = camundaWorkflowService;
     this.userTypeService = userTypeService;
     this.consulteeGroupDetailService = consulteeGroupDetailService;
+    this.personService = personService;
   }
 
   public ApplicationInvolvementDto getApplicationInvolvementDto(PwaApplication application,
@@ -92,6 +97,11 @@ public class ApplicationInvolvementService {
     return camundaWorkflowService.getAssignedPersonId(
         new WorkflowTaskInstance(pwaApplication, PwaApplicationWorkflowTask.CASE_OFFICER_REVIEW)
     );
+  }
+
+  public Optional<Person> getCaseOfficerPerson(PwaApplication pwaApplication) {
+    return getCaseOfficerPersonId(pwaApplication)
+        .map(personService::getPersonById);
   }
 
   private ConsultationInvolvementDto getConsultationInvolvement(PwaApplication application,

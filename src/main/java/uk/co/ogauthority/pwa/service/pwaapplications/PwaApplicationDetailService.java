@@ -264,4 +264,17 @@ public class PwaApplicationDetailService {
   public List<PwaApplicationDetail> getAllWithdrawnApplicationDetailsForApplication(PwaApplication pwaApplication) {
     return pwaApplicationDetailRepository.findByPwaApplicationAndStatus(pwaApplication, PwaApplicationStatus.WITHDRAWN);
   }
+
+  @Transactional
+  public void setConfirmedSatisfactoryData(PwaApplicationDetail applicationDetail,
+                                           String reason,
+                                           Person confirmingPerson) {
+
+    applicationDetail.setConfirmedSatisfactoryByPersonId(confirmingPerson.getId());
+    applicationDetail.setConfirmedSatisfactoryTimestamp(Instant.now(clock));
+    applicationDetail.setConfirmedSatisfactoryReason(reason);
+
+    pwaApplicationDetailRepository.save(applicationDetail);
+
+  }
 }

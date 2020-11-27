@@ -9,6 +9,7 @@ import com.google.common.annotations.VisibleForTesting;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -56,6 +57,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
+import uk.co.ogauthority.pwa.service.pwaapplications.options.PadOptionConfirmedService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.huoosummary.AllOrgRolePipelineGroupsView;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.huoosummary.OrganisationRolePipelineGroupView;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.huoosummary.PipelineNumbersAndSplits;
@@ -75,6 +77,8 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
   private final EntityManager entityManager;
   private final EntityCopyingService entityCopyingService;
 
+  private final PadOptionConfirmedService padOptionConfirmedService;
+
   @Autowired
   public PadOrganisationRoleService(
       PadOrganisationRolesRepository padOrganisationRolesRepository,
@@ -83,7 +87,8 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
       PipelineAndIdentViewFactory pipelineAndIdentViewFactory,
       PipelineNumberAndSplitsService pipelineNumberAndSplitsService,
       EntityManager entityManager,
-      EntityCopyingService entityCopyingService) {
+      EntityCopyingService entityCopyingService,
+      PadOptionConfirmedService padOptionConfirmedService) {
     this.padOrganisationRolesRepository = padOrganisationRolesRepository;
     this.padPipelineOrganisationRoleLinkRepository = padPipelineOrganisationRoleLinkRepository;
     this.portalOrganisationsAccessor = portalOrganisationsAccessor;
@@ -91,6 +96,7 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
     this.pipelineNumberAndSplitsService = pipelineNumberAndSplitsService;
     this.entityManager = entityManager;
     this.entityCopyingService = entityCopyingService;
+    this.padOptionConfirmedService = padOptionConfirmedService;
   }
 
   public List<PadOrganisationRole> getOrgRolesForDetail(PwaApplicationDetail pwaApplicationDetail) {
@@ -455,16 +461,21 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
 
           // create pipeline reference only when we dont have one in the same session.
           // at this point should we just get the pipeline object itself? cost is extra db hits.
-          var pipeline = pipelineLookup.getOrDefault(pipelineIdentifier,
-              //TODO PWA-676 need to handle pipeline splits
+          var pipeline = pipelineLookup.getOrDefault(
+              pipelineIdentifier,
               entityManager.getReference(Pipeline.class, pipelineIdentifier.getPipelineIdAsInt()));
+
           pipelineLookup.putIfAbsent(pipelineIdentifier, pipeline);
-          padPipelineOrgRoleLinks.add(
-              new PadPipelineOrganisationRoleLink(padOrganisationRole, pipeline)
-          );
+
+          var pipelineRoleLink = new PadPipelineOrganisationRoleLink(padOrganisationRole, pipeline);
+
+          // use the role link visitor to set the correct information based on the implementation of PipelineIdentifier
+          pipelineIdentifier.accept(pipelineRoleLink);
+
+          padPipelineOrgRoleLinks.add(pipelineRoleLink);
+
         });
       });
-
 
     }
 
@@ -642,8 +653,10 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
 
   @Override
   public boolean canShowInTaskList(PwaApplicationDetail pwaApplicationDetail) {
-    return !pwaApplicationDetail.getPwaApplicationType().equals(PwaApplicationType.OPTIONS_VARIATION)
-        && !pwaApplicationDetail.getPwaApplicationType().equals(PwaApplicationType.DEPOSIT_CONSENT);
+    var validTypes = EnumSet.complementOf(EnumSet.of(PwaApplicationType.DEPOSIT_CONSENT, PwaApplicationType.OPTIONS_VARIATION));
+
+    return validTypes.contains(pwaApplicationDetail.getPwaApplicationType())
+        || padOptionConfirmedService.approvedOptionConfirmed(pwaApplicationDetail);
   }
 
   @Transactional

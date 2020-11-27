@@ -21,6 +21,7 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.integration.PwaApplicationIntegrationTestHelper;
+import uk.co.ogauthority.pwa.model.entity.appprocessing.options.OptionsApplicationApproval;
 import uk.co.ogauthority.pwa.model.entity.devuk.DevukFacility;
 import uk.co.ogauthority.pwa.model.entity.devuk.DevukField;
 import uk.co.ogauthority.pwa.model.entity.devuk.PadFacility_;
@@ -51,6 +52,8 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.PadCros
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.PadCrossedBlock_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.pipelines.PadPipelineCrossingOwner_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.pipelines.PadPipelineCrossing_;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.options.PadConfirmationOfOptionTestUtil;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.options.PadConfirmationOfOption_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdepositdrawings.PadDepositDrawing_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PadPermanentDepositTestUtil;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PadPermanentDeposit_;
@@ -206,6 +209,7 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
     if (pwaApplicationDetail.getPwaApplicationType() == PwaApplicationType.OPTIONS_VARIATION) {
       createSupplementaryDocument(pwaApplicationDetail);
       createOptionsTemplateDocument(pwaApplicationDetail);
+      createPadConfirmationOfOption(pwaApplicationDetail);
     }
 
     createPipelineData(pwaApplicationDetail);
@@ -223,6 +227,16 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
 
 
     return testHelper.getApplicationDetailContainer(pwaApplicationDetail);
+  }
+
+  private void createPadConfirmationOfOption(PwaApplicationDetail pwaApplicationDetail){
+    // need to create approval in order get this task to show
+    var approval = new OptionsApplicationApproval();
+    approval.setPwaApplication(pwaApplicationDetail.getPwaApplication());
+    entityManager.persist(approval);
+
+    var confirmation = PadConfirmationOfOptionTestUtil.createConfirmationOfOption(pwaApplicationDetail);
+    entityManager.persist(confirmation);
   }
 
   private void createFastTrackData(PwaApplicationDetail pwaApplicationDetail){
@@ -1199,6 +1213,28 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
         firstVersionApplicationContainer.getPadFastTrack(),
         newVersionContainer.getPadFastTrack(),
         Set.of(PadFastTrack_.ID, PadFastTrack_.PWA_APPLICATION_DETAIL)
+    );
+
+  }
+
+  @Transactional
+  @Test
+  public void createNewApplicationVersion_padConfirmationOfOption() throws IllegalAccessException {
+    setup(PwaApplicationType.OPTIONS_VARIATION, true);
+
+    entityManager.persist(firstVersionApplicationContainer.getPwaApplicationDetail());
+
+    var newVersionDetail = pwaApplicationDetailVersioningService.createNewApplicationVersion(
+        firstVersionApplicationContainer.getPwaApplicationDetail(),
+        webUserAccount
+    );
+
+    var newVersionContainer = testHelper.getApplicationDetailContainer(newVersionDetail);
+
+    ObjectTestUtils.assertValuesEqual(
+        firstVersionApplicationContainer.getPadConfirmationOfOption(),
+        newVersionContainer.getPadConfirmationOfOption(),
+        Set.of(PadConfirmationOfOption_.ID, PadConfirmationOfOption_.PWA_APPLICATION_DETAIL)
     );
 
   }

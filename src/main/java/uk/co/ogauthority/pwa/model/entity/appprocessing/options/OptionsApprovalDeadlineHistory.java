@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.model.entity.appprocessing.options;
 
+import java.time.Clock;
 import java.time.Instant;
 import javax.persistence.Basic;
 import javax.persistence.Column;
@@ -40,12 +41,29 @@ public class OptionsApprovalDeadlineHistory {
 
   private Boolean tipFlag;
 
-  public static OptionsApprovalDeadlineHistory createInitialTipFrom(OptionsApplicationApproval optionsApplicationApproval,
-                                                                    Instant deadlineDate,
-                                                                    String note) {
+  public static OptionsApprovalDeadlineHistory createInitialTipFrom(
+      OptionsApplicationApproval optionsApplicationApproval,
+      Instant deadlineDate,
+      String note) {
     var history = new OptionsApprovalDeadlineHistory();
     history.setCreatedByPersonId(optionsApplicationApproval.getCreatedByPersonId());
     history.setCreatedTimestamp(optionsApplicationApproval.getCreatedTimestamp());
+    history.setOptionsApplicationApproval(optionsApplicationApproval);
+    history.setTipFlag(true);
+    history.setDeadlineDate(deadlineDate);
+    history.setNote(note);
+    return history;
+
+  }
+
+  public static OptionsApprovalDeadlineHistory createTipFrom(OptionsApplicationApproval optionsApplicationApproval,
+                                                             PersonId createdByPersonId,
+                                                             Clock clock,
+                                                             Instant deadlineDate,
+                                                             String note) {
+    var history = new OptionsApprovalDeadlineHistory();
+    history.setCreatedByPersonId(createdByPersonId);
+    history.setCreatedTimestamp(clock.instant());
     history.setOptionsApplicationApproval(optionsApplicationApproval);
     history.setTipFlag(true);
     history.setDeadlineDate(deadlineDate);

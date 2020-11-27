@@ -126,6 +126,7 @@ public abstract class PwaAppProcessingContextAbstractControllerTest {
     searchItem.setPadFields(List.of("CAPTAIN", "PENGUIN"));
     searchItem.setPadHolderNameList(List.of("ROYAL DUTCH SHELL"));
     searchItem.setPwaHolderNameList(List.of("ROYAL DUTCH SHELL"));
+    searchItem.setVersionNo(1);
 
     when(applicationDetailSearcher.searchByApplicationDetailId(any())).thenReturn(Optional.of(searchItem));
 

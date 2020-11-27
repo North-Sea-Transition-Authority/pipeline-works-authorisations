@@ -25,6 +25,7 @@ import uk.co.ogauthority.pwa.model.form.appprocessing.options.ApproveOptionsForm
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.service.appprocessing.options.ApproveOptionsService;
+import uk.co.ogauthority.pwa.service.appprocessing.options.ApproveOptionsTaskService;
 import uk.co.ogauthority.pwa.service.appprocessing.tabs.AppProcessingTab;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
@@ -42,18 +43,19 @@ import uk.co.ogauthority.pwa.validators.appprocessing.options.ApproveOptionsForm
 public class ApproveOptionsController {
 
   private final ApplicationBreadcrumbService breadcrumbService;
+  private final ApproveOptionsTaskService approveOptionsTaskService;
   private final ApproveOptionsService approveOptionsService;
-
   private final ApproveOptionsFormValidator approveOptionsFormValidator;
   private final ControllerHelperService controllerHelperService;
 
   @Autowired
   public ApproveOptionsController(ApplicationBreadcrumbService breadcrumbService,
+                                  ApproveOptionsTaskService approveOptionsTaskService,
                                   ApproveOptionsService approveOptionsService,
                                   ApproveOptionsFormValidator approveOptionsFormValidator,
                                   ControllerHelperService controllerHelperService) {
-
     this.breadcrumbService = breadcrumbService;
+    this.approveOptionsTaskService = approveOptionsTaskService;
     this.approveOptionsService = approveOptionsService;
     this.approveOptionsFormValidator = approveOptionsFormValidator;
     this.controllerHelperService = controllerHelperService;
@@ -99,7 +101,6 @@ public class ApproveOptionsController {
   private ModelAndView approveInitialOptionsAndRedirect(PwaApplicationDetail pwaApplicationDetail,
                                                         AuthenticatedUserAccount userAccount,
                                                         ApproveOptionsForm approveOptionsForm) {
-
     var deadlineDate = LocalDate.of(
         approveOptionsForm.getDeadlineDateYear(),
         approveOptionsForm.getDeadlineDateMonth(),
@@ -144,12 +145,11 @@ public class ApproveOptionsController {
         PwaAppProcessingTask.APPROVE_OPTIONS.getTaskName());
 
     return modelAndView;
-
   }
 
   private ModelAndView whenApprovable(PwaAppProcessingContext context, Supplier<ModelAndView> modelAndViewSupplier) {
 
-    if (approveOptionsService.taskAccessible(context)) {
+    if (approveOptionsTaskService.taskAccessible(context)) {
       return modelAndViewSupplier.get();
     } else {
       throw new AccessDeniedException(
@@ -158,6 +158,5 @@ public class ApproveOptionsController {
     }
 
   }
-
 
 }

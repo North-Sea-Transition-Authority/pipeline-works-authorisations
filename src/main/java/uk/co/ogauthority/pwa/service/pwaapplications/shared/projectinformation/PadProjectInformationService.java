@@ -255,4 +255,10 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
     );
 
   }
+
+  public boolean getPermanentDepositsOnApplication(PwaApplicationDetail pwaApplicationDetail) {
+    return padProjectInformationRepository.findByPwaApplicationDetail(pwaApplicationDetail)
+        .map(padProjectInformation -> BooleanUtils.isTrue(padProjectInformation.getPermanentDepositsMade()))
+        .orElse(false);
+  }
 }

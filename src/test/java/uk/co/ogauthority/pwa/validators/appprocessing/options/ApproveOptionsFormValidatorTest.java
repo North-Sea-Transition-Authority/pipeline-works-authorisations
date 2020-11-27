@@ -22,7 +22,6 @@ public class ApproveOptionsFormValidatorTest {
   private static final String MONTH_ATTR = "deadlineDateMonth";
   private static final String YEAR_ATTR = "deadlineDateYear";
 
-
   private ApproveOptionsFormValidator approveOptionsFormValidator;
 
   private ApproveOptionsForm form;

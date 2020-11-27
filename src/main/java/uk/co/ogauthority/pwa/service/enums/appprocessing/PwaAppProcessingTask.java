@@ -8,9 +8,11 @@ import uk.co.ogauthority.pwa.controller.appprocessing.AssignCaseOfficerControlle
 import uk.co.ogauthority.pwa.controller.appprocessing.WithdrawApplicationController;
 import uk.co.ogauthority.pwa.controller.appprocessing.applicationupdate.RequestApplicationUpdateController;
 import uk.co.ogauthority.pwa.controller.appprocessing.casenotes.CaseNoteController;
+import uk.co.ogauthority.pwa.controller.appprocessing.confirmsatisfactory.ConfirmSatisfactoryApplicationController;
 import uk.co.ogauthority.pwa.controller.appprocessing.decision.AppConsentDocController;
 import uk.co.ogauthority.pwa.controller.appprocessing.initialreview.InitialReviewController;
 import uk.co.ogauthority.pwa.controller.appprocessing.options.ApproveOptionsController;
+import uk.co.ogauthority.pwa.controller.appprocessing.options.ChangeOptionsApprovalDeadlineController;
 import uk.co.ogauthority.pwa.controller.consultations.ConsultationController;
 import uk.co.ogauthority.pwa.controller.consultations.ConsulteeAdviceController;
 import uk.co.ogauthority.pwa.controller.consultations.responses.AssignResponderController;
@@ -18,7 +20,7 @@ import uk.co.ogauthority.pwa.controller.consultations.responses.ConsultationResp
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.CaseSetupService;
 import uk.co.ogauthority.pwa.service.appprocessing.PublicNoticeService;
-import uk.co.ogauthority.pwa.service.appprocessing.application.AcceptApplicationService;
+import uk.co.ogauthority.pwa.service.appprocessing.application.ConfirmSatisfactoryApplicationService;
 import uk.co.ogauthority.pwa.service.appprocessing.application.WithdrawApplicationService;
 import uk.co.ogauthority.pwa.service.appprocessing.applicationupdate.ApplicationUpdateRequestService;
 import uk.co.ogauthority.pwa.service.appprocessing.casenotes.CaseNoteService;
@@ -26,7 +28,8 @@ import uk.co.ogauthority.pwa.service.appprocessing.consultations.ConsultationSer
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.service.appprocessing.decision.ApplicationDecisionService;
 import uk.co.ogauthority.pwa.service.appprocessing.initialreview.InitialReviewService;
-import uk.co.ogauthority.pwa.service.appprocessing.options.ApproveOptionsService;
+import uk.co.ogauthority.pwa.service.appprocessing.options.ApproveOptionsTaskService;
+import uk.co.ogauthority.pwa.service.appprocessing.options.ChangeOptionsApprovalDeadlineTaskService;
 import uk.co.ogauthority.pwa.service.appprocessing.tasks.AppProcessingService;
 import uk.co.ogauthority.pwa.service.consultations.AssignCaseOfficerService;
 import uk.co.ogauthority.pwa.service.consultations.AssignResponderService;
@@ -42,13 +45,17 @@ public enum PwaAppProcessingTask {
       "Initial review",
       TaskRequirement.REQUIRED,
       InitialReviewService.class, processingContext -> ReverseRouter.route(on(InitialReviewController.class)
-            .renderInitialReview(processingContext.getMasterPwaApplicationId(), processingContext.getApplicationType(), null, null, null)),
+      .renderInitialReview(processingContext.getMasterPwaApplicationId(), processingContext.getApplicationType(), null,
+          null, null)),
       10),
 
-  ACCEPT_APPLICATION(
-      "Accept application",
+  CONFIRM_SATISFACTORY_APPLICATION(
+      "Confirm satisfactory application",
       TaskRequirement.REQUIRED,
-      AcceptApplicationService.class, processingContext -> "#",
+      ConfirmSatisfactoryApplicationService.class, processingContext -> ReverseRouter.route(
+          on(ConfirmSatisfactoryApplicationController.class).renderConfirmSatisfactory(
+              processingContext.getMasterPwaApplicationId(), processingContext.getApplicationType(), null,
+          null, null)),
       20),
 
   CASE_SETUP(
@@ -61,16 +68,27 @@ public enum PwaAppProcessingTask {
       "Consultations",
       TaskRequirement.REQUIRED,
       ConsultationService.class, processingContext -> ReverseRouter.route(on(ConsultationController.class)
-            .renderConsultations(processingContext.getMasterPwaApplicationId(), processingContext.getApplicationType(), null, null)),
+      .renderConsultations(processingContext.getMasterPwaApplicationId(), processingContext.getApplicationType(), null,
+          null)),
       40),
 
   APPROVE_OPTIONS(
       "Approve options",
       TaskRequirement.REQUIRED,
-      ApproveOptionsService.class, processingContext -> ReverseRouter.route(on(ApproveOptionsController.class)
+      ApproveOptionsTaskService.class, processingContext -> ReverseRouter.route(on(ApproveOptionsController.class)
       .renderApproveOptions(processingContext.getMasterPwaApplicationId(),
           processingContext.getApplicationType(), null, null, null)),
       45),
+
+  CHANGE_OPTIONS_APPROVAL_DEADLINE(
+      "Change options approval deadline",
+      TaskRequirement.OPTIONAL,
+      ChangeOptionsApprovalDeadlineTaskService.class, processingContext ->
+      ReverseRouter.route(on(ChangeOptionsApprovalDeadlineController.class)
+          .renderChangeDeadline(processingContext.getMasterPwaApplicationId(),
+              processingContext.getApplicationType(), null, null, null)),
+      47
+  ),
 
   PUBLIC_NOTICE(
       "Public notice",
@@ -82,54 +100,59 @@ public enum PwaAppProcessingTask {
       "Decision",
       TaskRequirement.REQUIRED,
       ApplicationDecisionService.class, processingContext -> ReverseRouter.route(on(AppConsentDocController.class)
-              .renderConsentDocEditor(processingContext.getMasterPwaApplicationId(), processingContext.getApplicationType(), null, null)),
+      .renderConsentDocEditor(processingContext.getMasterPwaApplicationId(), processingContext.getApplicationType(),
+          null, null)),
       60),
 
   ALLOCATE_RESPONDER(
       "Allocate responder",
       TaskRequirement.REQUIRED,
       AssignResponderService.class, processingContext -> ReverseRouter.route(on(AssignResponderController.class)
-              .renderAssignResponder(processingContext.getMasterPwaApplicationId(),
-                  processingContext.getApplicationType(), processingContext.getActiveConsultationRequestId(), null, null)),
+      .renderAssignResponder(processingContext.getMasterPwaApplicationId(),
+          processingContext.getApplicationType(), processingContext.getActiveConsultationRequestId(), null, null)),
       70),
 
   CONSULTEE_ADVICE(
       "View consultations",
       TaskRequirement.OPTIONAL,
       ConsulteeAdviceService.class, processingContext -> ReverseRouter.route(on(ConsulteeAdviceController.class)
-              .renderConsulteeAdvice(processingContext.getMasterPwaApplicationId(), processingContext.getApplicationType(), null)),
+      .renderConsulteeAdvice(processingContext.getMasterPwaApplicationId(), processingContext.getApplicationType(),
+          null)),
       75
   ),
 
   CONSULTATION_RESPONSE(
       "Provide response",
       TaskRequirement.REQUIRED,
-      ConsultationResponseService.class, processingContext -> ReverseRouter.route(on(ConsultationResponseController.class)
-              .renderResponder(processingContext.getMasterPwaApplicationId(),
-                  processingContext.getApplicationType(), processingContext.getActiveConsultationRequestId(), null, null)),
+      ConsultationResponseService.class,      processingContext -> ReverseRouter.route(on(ConsultationResponseController.class)
+          .renderResponder(
+              processingContext.getMasterPwaApplicationId(),
+              processingContext.getApplicationType(), processingContext.getActiveConsultationRequestId(), null, null
+          )),
       80),
 
   ALLOCATE_CASE_OFFICER(
       "Allocate case officer",
       TaskRequirement.OPTIONAL,
       AssignCaseOfficerService.class, processingContext -> ReverseRouter.route(on(AssignCaseOfficerController.class)
-              .renderAssignCaseOfficer(processingContext.getMasterPwaApplicationId(),
-                  processingContext.getApplicationType(), null, null, null)),
+      .renderAssignCaseOfficer(processingContext.getMasterPwaApplicationId(),
+          processingContext.getApplicationType(), null, null, null)),
       90),
 
   RFI(
       "Request further information",
       TaskRequirement.OPTIONAL,
       ApplicationUpdateRequestService.class, processingContext -> ReverseRouter.route(on(RequestApplicationUpdateController.class)
-              .renderRequestUpdate(processingContext.getMasterPwaApplicationId(),
-                  processingContext.getApplicationType(), null, null, null)),
+          .renderRequestUpdate(processingContext.getMasterPwaApplicationId(), processingContext.getApplicationType(),
+              null, null, null)),
       100),
 
   ADD_NOTE_OR_DOCUMENT(
       "Add note/document",
       TaskRequirement.OPTIONAL,
       CaseNoteService.class, processingContext -> ReverseRouter.route(on(CaseNoteController.class)
-              .renderAddCaseNote(processingContext.getMasterPwaApplicationId(), processingContext.getApplicationType(), null, null, null)),
+      .renderAddCaseNote(processingContext.getMasterPwaApplicationId(), processingContext.getApplicationType(), null,
+          null, null)),
       110),
 
   WITHDRAW_APPLICATION(

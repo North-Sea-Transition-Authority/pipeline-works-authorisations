@@ -37,6 +37,15 @@ import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
 @RunWith(MockitoJUnitRunner.class)
 public class PwaApplicationCreationServiceTest {
 
+  private static final EnumSet<PwaApplicationType> EXPECTED_HUOO_ROLE_CREATION_TYPES = EnumSet.of(
+      PwaApplicationType.INITIAL,
+      PwaApplicationType.CAT_1_VARIATION,
+      PwaApplicationType.CAT_2_VARIATION,
+      PwaApplicationType.DECOMMISSIONING,
+      PwaApplicationType.HUOO_VARIATION,
+      PwaApplicationType.OPTIONS_VARIATION
+  );
+
   @Mock
   private MasterPwaManagementService masterPwaManagementService;
 
@@ -155,14 +164,23 @@ public class PwaApplicationCreationServiceTest {
   }
 
   @Test
-  public void createVariationPwaApplication_createsApplicationsAsExpected_noHuooOrgRolesExpectedToBeCreated() {
-    var expectedHuooRoleCreationTypes = EnumSet.of(
-        PwaApplicationType.CAT_1_VARIATION,
-        PwaApplicationType.CAT_2_VARIATION,
-        PwaApplicationType.HUOO_VARIATION
-    );
+  public void createVariationPwaApplication_createsApplicationsAsExpected_whenOptions() {
+    createVariationPwaApplication_assertUsingType(PwaApplicationType.OPTIONS_VARIATION);
+    assertThat(pwaConsentOrganisationRoleService.getOrganisationRoleSummary(masterPwa));
+    verify(padOrganisationRoleService, times(1)).createApplicationOrganisationRolesFromSummary(any(), any());
+  }
 
-    for(PwaApplicationType appType : EnumSet.complementOf(expectedHuooRoleCreationTypes)){
+  @Test
+  public void createVariationPwaApplication_createsApplicationsAsExpected_whenDecom() {
+    createVariationPwaApplication_assertUsingType(PwaApplicationType.DECOMMISSIONING);
+    assertThat(pwaConsentOrganisationRoleService.getOrganisationRoleSummary(masterPwa));
+    verify(padOrganisationRoleService, times(1)).createApplicationOrganisationRolesFromSummary(any(), any());
+  }
+
+  @Test
+  public void createVariationPwaApplication_createsApplicationsAsExpected_noHuooOrgRolesExpectedToBeCreated() {
+
+    for(PwaApplicationType appType : EnumSet.complementOf(EXPECTED_HUOO_ROLE_CREATION_TYPES)){
       pwaApplicationCreationService.createVariationPwaApplication(user, masterPwa, appType);
     }
 

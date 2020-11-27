@@ -79,9 +79,12 @@ public class PwaApplicationCreationService {
     camundaWorkflowService.startWorkflow(application);
 
     var createHuooDataForAppTypes = EnumSet.of(
+        PwaApplicationType.INITIAL,
         PwaApplicationType.CAT_1_VARIATION,
         PwaApplicationType.CAT_2_VARIATION,
-        PwaApplicationType.HUOO_VARIATION
+        PwaApplicationType.DECOMMISSIONING,
+        PwaApplicationType.HUOO_VARIATION,
+        PwaApplicationType.OPTIONS_VARIATION
     );
 
     // Its possible this can be done more cleverly if some simple link between app type and app task existed.

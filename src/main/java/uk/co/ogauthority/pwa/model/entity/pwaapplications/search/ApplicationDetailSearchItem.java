@@ -68,6 +68,8 @@ public class ApplicationDetailSearchItem {
 
   private boolean tipFlag;
 
+  private Integer versionNo;
+
   private boolean submittedAsFastTrackFlag;
 
   private Integer caseOfficerPersonId;
@@ -175,6 +177,14 @@ public class ApplicationDetailSearchItem {
 
   public void setTipFlag(boolean tipFlag) {
     this.tipFlag = tipFlag;
+  }
+
+  public Integer getVersionNo() {
+    return versionNo;
+  }
+
+  public void setVersionNo(Integer versionNo) {
+    this.versionNo = versionNo;
   }
 
   public List<String> getPadFields() {

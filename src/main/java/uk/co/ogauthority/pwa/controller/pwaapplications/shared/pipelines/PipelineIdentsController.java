@@ -44,7 +44,8 @@ import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
     PwaApplicationType.INITIAL,
     PwaApplicationType.CAT_1_VARIATION,
     PwaApplicationType.CAT_2_VARIATION,
-    PwaApplicationType.DECOMMISSIONING
+    PwaApplicationType.DECOMMISSIONING,
+    PwaApplicationType.OPTIONS_VARIATION
 })
 @PwaApplicationStatusCheck(status = PwaApplicationStatus.DRAFT)
 @PwaApplicationPermissionCheck(permissions = PwaApplicationPermission.EDIT)
@@ -55,7 +56,6 @@ public class PipelineIdentsController {
   private final PadPipelineIdentService padIdentService;
   private final PadPipelineService padPipelineService;
   private final ControllerHelperService controllerHelperService;
-
 
   @Autowired
   public PipelineIdentsController(ApplicationBreadcrumbService breadcrumbService,

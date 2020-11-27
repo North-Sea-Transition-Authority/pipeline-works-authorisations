@@ -24,6 +24,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.campaignworks.Pad
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.PadCableCrossing;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.PadCrossedBlockOwner;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.pipelines.PadPipelineCrossingOwner;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.options.PadConfirmationOfOption;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdepositdrawings.PadDepositDrawingLink;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PadDepositPipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinehuoo.PadPipelineOrganisationRoleLink;
@@ -85,6 +86,8 @@ public class PwaApplicationVersionContainer {
   private PadDesignOpConditions padDesignOpConditions;
 
   private PadFastTrack padFastTrack;
+
+  private PadConfirmationOfOption padConfirmationOfOption;
 
   public PwaApplicationVersionContainer(
       PwaApplicationDetail pwaApplicationDetail) {
@@ -304,5 +307,14 @@ public class PwaApplicationVersionContainer {
 
   public void setPadFastTrack(PadFastTrack padFastTrack) {
     this.padFastTrack = padFastTrack;
+  }
+
+  public PadConfirmationOfOption getPadConfirmationOfOption() {
+    return padConfirmationOfOption;
+  }
+
+  public void setPadConfirmationOfOption(
+      PadConfirmationOfOption padConfirmationOfOption) {
+    this.padConfirmationOfOption = padConfirmationOfOption;
   }
 }

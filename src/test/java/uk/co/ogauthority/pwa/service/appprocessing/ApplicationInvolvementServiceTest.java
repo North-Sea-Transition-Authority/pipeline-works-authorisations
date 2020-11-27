@@ -31,6 +31,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.ConsultationRequestSt
 import uk.co.ogauthority.pwa.service.enums.users.UserType;
 import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationConsultationWorkflowTask;
 import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationWorkflowTask;
+import uk.co.ogauthority.pwa.service.person.PersonService;
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
 import uk.co.ogauthority.pwa.service.users.UserTypeService;
 import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
@@ -60,6 +61,9 @@ public class ApplicationInvolvementServiceTest {
   @Mock
   private ConsulteeGroupDetailService consulteeGroupDetailService;
 
+  @Mock
+  private PersonService personService;
+
   private ApplicationInvolvementService applicationInvolvementService;
 
   private PwaApplication application;
@@ -74,7 +78,8 @@ public class ApplicationInvolvementServiceTest {
         consultationRequestService,
         camundaWorkflowService,
         userTypeService,
-        consulteeGroupDetailService);
+        consulteeGroupDetailService,
+        personService);
 
     application = new PwaApplication();
     user = new AuthenticatedUserAccount(new WebUserAccount(1, new Person(1, null, null, null, null)), Set.of());

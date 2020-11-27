@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
+import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.options.OptionsApplicationApproval;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.options.OptionsApprovalDeadlineHistory;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
@@ -53,5 +54,40 @@ class OptionsApprovalPersister {
 
   }
 
+  private OptionsApprovalDeadlineHistory getTipDeadlineHistoryItemOrError(
+      OptionsApplicationApproval optionsApplicationApproval) {
+    return optionsApprovalDeadlineHistoryRepository
+        .findByOptionsApplicationApprovalAndTipFlagIsTrue(optionsApplicationApproval)
+        .orElseThrow(() -> new PwaEntityNotFoundException(
+            "Could not find tip deadline for optionsApplicationApproval.id:" + optionsApplicationApproval.getId())
+        );
+  }
+
+  @Transactional
+  public void endTipDeadlineHistoryItem(OptionsApplicationApproval optionsApplicationApproval) {
+    var currentDeadline = getTipDeadlineHistoryItemOrError(optionsApplicationApproval);
+    currentDeadline.setTipFlag(false);
+    optionsApprovalDeadlineHistoryRepository.save(currentDeadline);
+  }
+
+
+  @Transactional
+  public OptionsApprovalDeadlineHistory createTipDeadlineHistoryItem(
+      OptionsApplicationApproval optionsApplicationApproval,
+      Person createdBy,
+      Instant deadlineDate,
+      String note) {
+
+    var newOptionsDeadline = OptionsApprovalDeadlineHistory.createTipFrom(
+        optionsApplicationApproval,
+        createdBy.getId(),
+        clock,
+        deadlineDate,
+        note
+    );
+
+    return optionsApprovalDeadlineHistoryRepository.save(newOptionsDeadline);
+
+  }
 
 }

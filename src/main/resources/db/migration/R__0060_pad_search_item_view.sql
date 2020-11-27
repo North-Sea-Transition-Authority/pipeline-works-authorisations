@@ -16,6 +16,7 @@ SELECT
 , pad.init_review_approved_timestamp pad_init_review_approved_ts
 , pad.status_last_modified_timestamp pad_status_timestamp
 , pad.tip_flag
+, pad.version_no
 , COALESCE(pad.submitted_as_fast_track_flag, 0) submitted_as_fast_track_flag
 
 , paa.assignee_person_id case_officer_person_id
