@@ -54,6 +54,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskInfo;
+import uk.co.ogauthority.pwa.service.pwaapplications.options.PadOptionConfirmedService;
 import uk.co.ogauthority.pwa.service.pwaconsents.PipelineDetailService;
 import uk.co.ogauthority.pwa.service.validation.SummaryScreenValidationResult;
 import uk.co.ogauthority.pwa.util.CoordinateUtils;
@@ -72,6 +73,7 @@ public class PadPipelineService implements ApplicationFormSectionService {
   private final PadPipelinePersisterService padPipelinePersisterService;
   private final PipelineHeaderFormValidator pipelineHeaderFormValidator;
   private final PadPipelineDataCopierService padPipelineDataCopierService;
+  private final PadOptionConfirmedService padOptionConfirmedService;
 
   private static final Set<PipelineStatus> DATA_REQUIRED_STATUSES = Set.of(PipelineStatus.IN_SERVICE, PipelineStatus.OUT_OF_USE_ON_SEABED);
 
@@ -83,7 +85,8 @@ public class PadPipelineService implements ApplicationFormSectionService {
                             PipelineIdentFormValidator pipelineIdentFormValidator,
                             PadPipelinePersisterService padPipelinePersisterService,
                             PipelineHeaderFormValidator pipelineHeaderFormValidator,
-                            PadPipelineDataCopierService padPipelineDataCopierService) {
+                            PadPipelineDataCopierService padPipelineDataCopierService,
+                            PadOptionConfirmedService padOptionConfirmedService) {
     this.padPipelineRepository = padPipelineRepository;
     this.pipelineService = pipelineService;
     this.pipelineDetailService = pipelineDetailService;
@@ -92,6 +95,14 @@ public class PadPipelineService implements ApplicationFormSectionService {
     this.padPipelinePersisterService = padPipelinePersisterService;
     this.pipelineHeaderFormValidator = pipelineHeaderFormValidator;
     this.padPipelineDataCopierService = padPipelineDataCopierService;
+    this.padOptionConfirmedService = padOptionConfirmedService;
+  }
+
+  @Override
+  public boolean canShowInTaskList(PwaApplicationDetail pwaApplicationDetail) {
+    // do not do additional type checks as this is covered by the controller markup
+    return !PwaApplicationType.OPTIONS_VARIATION.equals(pwaApplicationDetail.getPwaApplicationType())
+        || padOptionConfirmedService.approvedOptionConfirmed(pwaApplicationDetail);
   }
 
   public List<PadPipeline> getPipelines(PwaApplicationDetail detail) {

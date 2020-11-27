@@ -97,7 +97,8 @@ public class PipelinesHuooControllerTest extends PwaApplicationContextAbstractCo
             PwaApplicationType.CAT_1_VARIATION,
             PwaApplicationType.CAT_2_VARIATION,
             PwaApplicationType.HUOO_VARIATION,
-            PwaApplicationType.DECOMMISSIONING)
+            PwaApplicationType.DECOMMISSIONING,
+            PwaApplicationType.OPTIONS_VARIATION)
         .setAllowedContactRoles(PwaContactRole.PREPARER)
         .setAllowedStatuses(PwaApplicationStatus.DRAFT);
 

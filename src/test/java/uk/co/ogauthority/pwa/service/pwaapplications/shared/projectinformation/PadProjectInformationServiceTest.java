@@ -346,5 +346,35 @@ public class PadProjectInformationServiceTest {
 
   }
 
+  @Test
+  public void getPermanentDepositsOnApplication_depositMadeNull() {
+    PadProjectInformation projectInformation = new PadProjectInformation();
+    projectInformation.setPermanentDepositsMade(null);
+
+    when(padProjectInformationRepository.findByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(Optional.of(projectInformation));
+
+    assertThat(service.getPermanentDepositsOnApplication(pwaApplicationDetail)).isEqualTo(false);
+  }
+
+  @Test
+  public void getPermanentDepositsOnApplication_depositMadeFalse() {
+    PadProjectInformation projectInformation = new PadProjectInformation();
+    projectInformation.setPermanentDepositsMade(false);
+
+    when(padProjectInformationRepository.findByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(Optional.of(projectInformation));
+
+    assertThat(service.getPermanentDepositsOnApplication(pwaApplicationDetail)).isEqualTo(false);
+  }
+
+  @Test
+  public void getPermanentDepositsOnApplication_depositMadeTrue() {
+    PadProjectInformation projectInformation = new PadProjectInformation();
+    projectInformation.setPermanentDepositsMade(true);
+
+    when(padProjectInformationRepository.findByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(Optional.of(projectInformation));
+
+    assertThat(service.getPermanentDepositsOnApplication(pwaApplicationDetail)).isEqualTo(true);
+  }
+
 
 }
