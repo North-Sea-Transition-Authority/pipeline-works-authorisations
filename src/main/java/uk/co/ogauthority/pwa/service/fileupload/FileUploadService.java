@@ -1,7 +1,11 @@
 package uk.co.ogauthority.pwa.service.fileupload;
 
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.sql.Blob;
 import java.time.Instant;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -18,6 +22,7 @@ import uk.co.ogauthority.pwa.config.fileupload.FileUploadResult;
 import uk.co.ogauthority.pwa.config.fileupload.UploadErrorType;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
+import uk.co.ogauthority.pwa.exception.TempFileException;
 import uk.co.ogauthority.pwa.model.entity.files.FileUploadStatus;
 import uk.co.ogauthority.pwa.model.entity.files.UploadedFile;
 import uk.co.ogauthority.pwa.model.form.files.UploadFileWithDescriptionForm;
@@ -142,4 +147,33 @@ public class FileUploadService {
     file.setLastUpdatedByWuaId(lastUpdatedByWua.getWuaId());
     uploadedFileRepository.save(file);
   }
+
+  public List<UploadedFile> getFilesByIds(Collection<String> fileIds) {
+    return uploadedFileRepository.getAllByFileIdIn(fileIds);
+  }
+
+  /**
+   * Creates a temporary file from an UploadedFile object. Consumers must delete the
+   * temporary file after they have finished using it.
+   */
+  public File createTempFile(UploadedFile uploadedFile) {
+
+    String filename = uploadedFile.getFileName();
+    String extension = filename.substring(filename.lastIndexOf("."));
+
+    File tempFile = null;
+    try {
+      tempFile = File.createTempFile(uploadedFile.getFileId() + uploadedFile.getFileName(), extension);
+      Files.copy(uploadedFile.getFileData().getBinaryStream(), tempFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+      return tempFile;
+    } catch (Exception e) {
+      if (tempFile != null && !tempFile.delete()) {
+        LOGGER.error("Failed to delete temp file");
+      }
+      throw new TempFileException(String.format(
+          "Failed to create temporary file for UploadedFile with ID: [%s]", uploadedFile.getFileId()), e);
+    }
+
+  }
+
 }

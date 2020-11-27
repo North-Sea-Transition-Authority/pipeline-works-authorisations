@@ -21,5 +21,6 @@ public interface PadDepositDrawingRepository extends CrudRepository<PadDepositDr
 
   Optional<PadDepositDrawing> findByPwaApplicationDetailAndFile(PwaApplicationDetail pwaApplicationDetail, PadFile file);
 
+  @EntityGraph(attributePaths = "file")
   List<PadDepositDrawing> findByPwaApplicationDetail(PwaApplicationDetail pwaApplicationDetail);
 }

@@ -18,6 +18,8 @@
 
         <@fdsAction.link linkText="Add drawing" linkUrl=springUrl(depositDrawingUrlFactory.getAddPipelineDrawingUrl()) linkClass="govuk-button govuk-button--blue"/>
 
+        <hr class="govuk-section-break govuk-section-break--m">
+
         <#list depositDrawingSummaryViews as depositDrawingView>
             <h2 class="govuk-heading-m">${depositDrawingView.reference}</h2>
             <@fdsAction.link linkText="Edit" linkUrl=springUrl(depositDrawingUrlFactory.getEditDrawingUrl(depositDrawingView.depositDrawingId)) linkScreenReaderText="Edit ${depositDrawingView.reference}" linkClass="govuk-link govuk-!-font-size-19"/>&nbsp;
