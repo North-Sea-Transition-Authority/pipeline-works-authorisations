@@ -124,6 +124,14 @@ public class CamundaWorkflowServiceTest {
   }
 
   @Test
+  public void getTasksFromWorkflowTaskInstances() {
+    camundaWorkflowService.startWorkflow(application);
+    var taskInstance = new WorkflowTaskInstance(application, PwaApplicationWorkflowTask.PREPARE_APPLICATION);
+    var tasks = camundaWorkflowService.getTasksFromWorkflowTaskInstances(Set.of(taskInstance));
+    assertThat(tasks).isNotEmpty();
+  }
+
+  @Test
   public void assignTaskToUser_valid() {
 
     var person = new Person(111, null, null, null, null);

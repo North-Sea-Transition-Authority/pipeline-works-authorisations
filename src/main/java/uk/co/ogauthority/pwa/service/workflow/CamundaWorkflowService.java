@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.service.workflow;
 import static java.util.stream.Collectors.toList;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -139,6 +140,26 @@ public class CamundaWorkflowService {
 
   }
 
+  public void deleteProcessInstance(ProcessInstance processInstance) {
+    runtimeService.deleteProcessInstance(processInstance.getProcessInstanceId(), null);
+  }
+
+
+  public Set<Task> getTasksFromWorkflowTaskInstances(Set<WorkflowTaskInstance> workflowTaskInstances) {
+
+    Set<Task> tasks = new HashSet<>();
+    for (var workflowTaskInstance : workflowTaskInstances) {
+      getWorkflowTask(workflowTaskInstance).ifPresentOrElse(
+          tasks::add, () -> throwTaskNotFoundException(workflowTaskInstance)
+      );
+    }
+    return tasks;
+  }
+
+  public void deleteTasks(Set<Task> tasks) {
+    tasks.forEach(task -> taskService.deleteTask(task.getId()));
+  }
+
   public void assignTaskToUser(WorkflowTaskInstance workflowTaskInstance, Person person) {
 
     getWorkflowTask(workflowTaskInstance).ifPresentOrElse(
@@ -245,7 +266,7 @@ public class CamundaWorkflowService {
 
   }
 
-  private Optional<ProcessInstance> getProcessInstance(WorkflowSubject workflowSubject) {
+  public Optional<ProcessInstance> getProcessInstance(WorkflowSubject workflowSubject) {
     return Optional.ofNullable(runtimeService.createProcessInstanceQuery()
         .processDefinitionKey(workflowSubject.getWorkflowType().getProcessDefinitionKey())
         .processInstanceBusinessKey(String.valueOf(workflowSubject.getBusinessKey()))

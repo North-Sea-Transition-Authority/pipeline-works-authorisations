@@ -36,6 +36,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
+import uk.co.ogauthority.pwa.energyportal.model.entity.PersonTestUtil;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelineotherproperties.PropertyPhase;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
@@ -237,6 +238,25 @@ public class PwaApplicationDetailServiceTest {
   }
 
   @Test
+  public void setWithdrawn() {
+
+    var withdrawalTimestamp = Instant.now(clock);
+    pwaApplicationDetail.setWithdrawalTimestamp(withdrawalTimestamp);
+    Person withdrawingUser = PersonTestUtil.createDefaultPerson();
+    String withdrawalReason = "reason";
+
+    pwaApplicationDetailService.setWithdrawn(pwaApplicationDetail, withdrawingUser, withdrawalReason);
+
+    var captor = ArgumentCaptor.forClass(PwaApplicationDetail.class);
+    verify(applicationDetailRepository, times(1)).save(captor.capture());
+
+    assertThat(captor.getValue().getStatus()).isEqualTo(PwaApplicationStatus.WITHDRAWN);
+    assertThat(captor.getValue().getWithdrawalReason()).isEqualTo(withdrawalReason);
+    assertThat(captor.getValue().getWithdrawalTimestamp()).isEqualTo(withdrawalTimestamp);
+    assertThat(captor.getValue().getWithdrawingPersonId()).isEqualTo(withdrawingUser.getId());
+  }
+
+  @Test
   public void setNotLinkedFieldDescription() {
 
     assertThat(pwaApplicationDetail.getNotLinkedDescription()).isNull();
@@ -275,7 +295,8 @@ public class PwaApplicationDetailServiceTest {
 
     var ignoredFields = List.of("id", "status", "tipFlag", "versionNo", "createdTimestamp", "statusLastModifiedTimestamp", "statusLastModifiedByWuaId", "createdByWuaId");
 
-    var nullFields = List.of("id", "submittedByPersonId", "submittedTimestamp", "initialReviewApprovedByWuaId", "initialReviewApprovedTimestamp", "submittedAsFastTrackFlag");
+    var nullFields = List.of("id", "submittedByPersonId", "submittedTimestamp", "initialReviewApprovedByWuaId",
+        "initialReviewApprovedTimestamp", "submittedAsFastTrackFlag", "withdrawalTimestamp", "withdrawalReason", "withdrawingPersonId");
 
     var ignoredForEqualsComparison = new ArrayList<String>();
     ignoredForEqualsComparison.addAll(ignoredFields);
@@ -343,6 +364,9 @@ public class PwaApplicationDetailServiceTest {
     detail.setInitialReviewApprovedByWuaId(wua.getWuaId());
     detail.setInitialReviewApprovedTimestamp(baseTime);
     detail.setSupplementaryDocumentsFlag(true);
+    detail.setWithdrawingPersonId(wua.getLinkedPerson().getId());
+    detail.setWithdrawalTimestamp(baseTime);
+    detail.setWithdrawalReason("reason");
 
     // want to make sure that this method always gives every pwaApplicationDetail attribute a value.
     // This should ensure that tests are updated if attributes added later on.
@@ -379,5 +403,12 @@ public class PwaApplicationDetailServiceTest {
       throw new RuntimeException(
           String.format("Failed to access field '%s' on class '%s'", field.getName(), object.getClass()));
     }
+  }
+
+  @Test
+  public void getAllWithdrawnApplicationDetailsForApplication() {
+    pwaApplicationDetailService.getAllWithdrawnApplicationDetailsForApplication(pwaApplicationDetail.getPwaApplication());
+    verify(applicationDetailRepository, times(1))
+        .findByPwaApplicationAndStatus(pwaApplicationDetail.getPwaApplication(), PwaApplicationStatus.WITHDRAWN);
   }
 }
