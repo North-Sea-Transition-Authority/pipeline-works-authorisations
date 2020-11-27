@@ -220,7 +220,7 @@ public class IndustryWorkAreaPageServiceTest {
     verify(applicationDetailSearcher, times(1)).searchWhereApplicationIdInAndWhereStatusInAndOpenUpdateRequest(
         WorkAreaPageServiceTestUtil.getWorkAreaViewPageable(REQUESTED_PAGE, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
         Set.of(BUSINESS_KEY_INT),
-        Set.of(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW, PwaApplicationStatus.CASE_OFFICER_REVIEW),
+        Set.of(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW, PwaApplicationStatus.CASE_OFFICER_REVIEW, PwaApplicationStatus.WITHDRAWN),
         false
     );
 
@@ -247,7 +247,7 @@ public class IndustryWorkAreaPageServiceTest {
     verify(applicationDetailSearcher, times(1)).searchWhereApplicationIdInAndWhereStatusInAndOpenUpdateRequest(
         WorkAreaPageServiceTestUtil.getWorkAreaViewPageable(REQUESTED_PAGE, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
         Set.of(BUSINESS_KEY_INT),
-        Set.of(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW, PwaApplicationStatus.CASE_OFFICER_REVIEW),
+        Set.of(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW, PwaApplicationStatus.CASE_OFFICER_REVIEW, PwaApplicationStatus.WITHDRAWN),
         false
     );
 
