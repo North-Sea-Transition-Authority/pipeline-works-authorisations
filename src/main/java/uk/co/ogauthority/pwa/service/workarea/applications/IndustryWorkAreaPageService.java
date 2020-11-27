@@ -32,7 +32,7 @@ import uk.co.ogauthority.pwa.util.WorkAreaUtils;
 @Service
 public class IndustryWorkAreaPageService {
 
-  private static final EnumSet<PwaApplicationStatus> OPEN_PWA_APP_STATUSES = EnumSet.of(PwaApplicationStatus.DRAFT);
+  private static final EnumSet<PwaApplicationStatus> OPEN_PWA_APP_STATUSES = EnumSet.of(PwaApplicationStatus.DRAFT, PwaApplicationStatus.WITHDRAWN);
 
   private final ApplicationDetailSearcher applicationDetailSearcher;
   private final PwaContactService pwaContactService;
