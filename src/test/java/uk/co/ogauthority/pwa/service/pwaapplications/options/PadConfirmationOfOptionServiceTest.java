@@ -26,6 +26,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.options.PadConfir
 import uk.co.ogauthority.pwa.model.form.pwaapplications.options.ConfirmOptionForm;
 import uk.co.ogauthority.pwa.repository.pwaapplications.options.PadConfirmationOfOptionRepository;
 import uk.co.ogauthority.pwa.service.appprocessing.options.ApproveOptionsService;
+import uk.co.ogauthority.pwa.service.entitycopier.EntityCopyingService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
@@ -43,6 +44,9 @@ public class PadConfirmationOfOptionServiceTest {
   @Mock
   private ConfirmOptionFormValidator confirmOptionFormValidator;
 
+  @Mock
+  private EntityCopyingService entityCopyingService;
+
   private PadConfirmationOfOptionService padConfirmationOfOptionService;
 
   private PwaApplicationDetail pwaApplicationDetail;
@@ -55,8 +59,8 @@ public class PadConfirmationOfOptionServiceTest {
     padConfirmationOfOptionService = new PadConfirmationOfOptionService(
         approveOptionsService,
         padConfirmationOfOptionRepository,
-        confirmOptionFormValidator
-    );
+        confirmOptionFormValidator,
+        entityCopyingService);
 
     // always return input binding result
     doAnswer(invocation -> invocation.getArgument(1))
