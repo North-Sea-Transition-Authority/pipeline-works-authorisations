@@ -9,16 +9,11 @@ import java.util.stream.Collectors;
 import org.apache.commons.collections4.SetUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.tasklist.TaskListEntry;
 import uk.co.ogauthority.pwa.model.tasklist.TaskListGroup;
-import uk.co.ogauthority.pwa.service.appprocessing.applicationupdate.ApplicationUpdateRequestViewService;
-import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTask;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTaskGroup;
-import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaViewService;
-import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 
 /**
  * Service which is responsible for delivering the task list as a whole for a given application detail.
@@ -26,26 +21,14 @@ import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbServic
 @Service
 public class TaskListService {
 
-  @VisibleForTesting
-  static final String TASK_LIST_TEMPLATE_PATH = "pwaApplication/shared/taskList/taskList";
-
-  private final ApplicationBreadcrumbService breadcrumbService;
   private final TaskListEntryFactory taskListEntryFactory;
   private final ApplicationTaskService applicationTaskService;
-  private final MasterPwaViewService masterPwaViewService;
-  private final ApplicationUpdateRequestViewService applicationUpdateRequestViewService;
 
   @Autowired
-  public TaskListService(ApplicationBreadcrumbService breadcrumbService,
-                         TaskListEntryFactory taskListEntryFactory,
-                         ApplicationTaskService applicationTaskService,
-                         MasterPwaViewService masterPwaViewService,
-                         ApplicationUpdateRequestViewService applicationUpdateRequestViewService) {
+  public TaskListService(TaskListEntryFactory taskListEntryFactory,
+                         ApplicationTaskService applicationTaskService) {
     this.applicationTaskService = applicationTaskService;
-    this.breadcrumbService = breadcrumbService;
     this.taskListEntryFactory = taskListEntryFactory;
-    this.masterPwaViewService = masterPwaViewService;
-    this.applicationUpdateRequestViewService = applicationUpdateRequestViewService;
   }
 
   /**
@@ -116,38 +99,6 @@ public class TaskListService {
     return ApplicationTask.stream()
         .filter(task -> applicationTaskService.canShowTask(task, detail))
         .collect(Collectors.toList());
-
-  }
-
-  public ModelAndView getTaskListModelAndView(PwaApplicationDetail pwaApplicationDetail) {
-
-    var modelAndView = new ModelAndView(TASK_LIST_TEMPLATE_PATH)
-        .addObject("applicationType", pwaApplicationDetail.getPwaApplicationType().getDisplayName())
-        .addObject("applicationTaskGroups", getTaskListGroups(pwaApplicationDetail))
-        .addObject("submissionTask", taskListEntryFactory.createReviewAndSubmitTask(pwaApplicationDetail));
-
-    if (pwaApplicationDetail.getPwaApplicationType() != PwaApplicationType.INITIAL) {
-      modelAndView.addObject("masterPwaReference",
-          masterPwaViewService.getCurrentMasterPwaView(pwaApplicationDetail.getPwaApplication()).getReference());
-    }
-
-    // if first version, we'll have come from the work area, otherwise can only access via case management screen
-    if (pwaApplicationDetail.getVersionNo() == 1) {
-
-      breadcrumbService.fromWorkArea(modelAndView, "Task list");
-
-    } else {
-
-      breadcrumbService.fromCaseManagement(pwaApplicationDetail.getPwaApplication(), modelAndView, "Task list");
-
-      var updateRequestView = applicationUpdateRequestViewService.getOpenRequestView(pwaApplicationDetail.getPwaApplication())
-          .orElse(null);
-
-      modelAndView.addObject("updateRequestView", updateRequestView);
-
-    }
-
-    return modelAndView;
 
   }
 }
