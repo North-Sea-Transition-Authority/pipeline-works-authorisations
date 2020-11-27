@@ -78,6 +78,7 @@ public class PwaAppProcessingPermissionService {
             case EDIT_CONSULTATIONS:
             case PUBLIC_NOTICE:
             case WITHDRAW_CONSULTATION:
+            case WITHDRAW_APPLICATION:
             case REQUEST_APPLICATION_UPDATE:
             case EDIT_CONSENT_DOCUMENT:
               return userPrivileges.contains(
