@@ -4,6 +4,9 @@ package uk.co.ogauthority.pwa.service.appprocessing.options;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.time.Clock;
@@ -32,6 +35,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationWorkflowMessageEvents;
 import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationWorkflowTask;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.PwaApplicationDetailVersioningService;
+import uk.co.ogauthority.pwa.service.pwaapplications.options.PadOptionConfirmedService;
 import uk.co.ogauthority.pwa.service.workflow.assignment.WorkflowAssignmentService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
@@ -56,8 +60,12 @@ public class ApproveOptionsServiceTest {
 
   @Mock
   private WorkflowAssignmentService workflowAssignmentService;
+
   @Mock
   private PwaApplicationDetailVersioningService pwaApplicationDetailVersioningService;
+
+  @Mock
+  private PadOptionConfirmedService padOptionConfirmedService;
 
 
   private ApproveOptionsService approveOptionsService;
@@ -80,6 +88,7 @@ public class ApproveOptionsServiceTest {
         optionsApplicationApprovalRepository,
         optionsApprovalDeadlineHistoryRepository,
         optionsCaseManagementEmailService,
+        padOptionConfirmedService,
         workflowAssignmentService,
         pwaApplicationDetailVersioningService);
 
@@ -205,5 +214,97 @@ public class ApproveOptionsServiceTest {
 
     approveOptionsService.getOptionsApprovalDeadlineViewOrError(pwaApplicationDetail.getPwaApplication());
 
+  }
+
+  @Test
+  public void getOptionsApprovalStatus_whenNotOptions(){
+    var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
+
+    assertThat(approveOptionsService.getOptionsApprovalStatus(detail)).isEqualTo(OptionsApprovalStatus.NOT_APPLICABLE);
+
+    verifyNoInteractions(
+        optionsApprovalPersister,
+        optionsApplicationApprovalRepository,
+        optionsApprovalDeadlineHistoryRepository,
+        optionsCaseManagementEmailService,
+        padOptionConfirmedService,
+        workflowAssignmentService,
+        pwaApplicationDetailVersioningService);
+
+  }
+
+  @Test
+  public void getOptionsApprovalStatus_whenOptions_notApproved(){
+
+    assertThat(approveOptionsService.getOptionsApprovalStatus(pwaApplicationDetail))
+        .isEqualTo(OptionsApprovalStatus.NOT_APPROVED);
+
+    verify(optionsApplicationApprovalRepository, times(1))
+        .findByPwaApplication(pwaApplicationDetail.getPwaApplication());
+
+    verifyNoMoreInteractions(
+        optionsApprovalPersister,
+        optionsApplicationApprovalRepository,
+        optionsApprovalDeadlineHistoryRepository,
+        optionsCaseManagementEmailService,
+        padOptionConfirmedService,
+        workflowAssignmentService,
+        pwaApplicationDetailVersioningService);
+  }
+
+  @Test
+  public void getOptionsApprovalStatus_whenOptions_approved_notResponded(){
+    var approval = new OptionsApplicationApproval();
+
+    when(optionsApplicationApprovalRepository.findByPwaApplication(any())).thenReturn(
+        Optional.of(approval)
+    );
+
+    assertThat(approveOptionsService.getOptionsApprovalStatus(pwaApplicationDetail))
+        .isEqualTo(OptionsApprovalStatus.APPROVED_UNRESPONDED);
+
+    verify(optionsApplicationApprovalRepository, times(1))
+        .findByPwaApplication(pwaApplicationDetail.getPwaApplication());
+
+    verify(padOptionConfirmedService, times(1))
+        .optionConfirmationExists(pwaApplicationDetail);
+
+    verifyNoMoreInteractions(
+        optionsApprovalPersister,
+        optionsApplicationApprovalRepository,
+        optionsApprovalDeadlineHistoryRepository,
+        optionsCaseManagementEmailService,
+        padOptionConfirmedService,
+        workflowAssignmentService,
+        pwaApplicationDetailVersioningService);
+  }
+
+  @Test
+  public void getOptionsApprovalStatus_whenOptions_approved_responded(){
+    var approval = new OptionsApplicationApproval();
+
+    when(optionsApplicationApprovalRepository.findByPwaApplication(any())).thenReturn(
+        Optional.of(approval)
+    );
+
+    when(padOptionConfirmedService.optionConfirmationExists(any())).thenReturn(true);
+
+    assertThat(approveOptionsService.getOptionsApprovalStatus(pwaApplicationDetail))
+        .isEqualTo(OptionsApprovalStatus.APPROVED_RESPONDED);
+
+    verify(optionsApplicationApprovalRepository, times(1))
+        .findByPwaApplication(pwaApplicationDetail.getPwaApplication());
+
+    verify(padOptionConfirmedService, times(1))
+        .optionConfirmationExists(pwaApplicationDetail);
+
+    verifyNoMoreInteractions(
+        optionsApprovalPersister,
+        optionsApplicationApprovalRepository,
+        optionsApprovalDeadlineHistoryRepository,
+        optionsCaseManagementEmailService,
+        padOptionConfirmedService,
+        workflowAssignmentService,
+        pwaApplicationDetailVersioningService);
   }
 }

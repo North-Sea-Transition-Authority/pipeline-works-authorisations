@@ -16,9 +16,11 @@ import uk.co.ogauthority.pwa.model.view.appprocessing.options.OptionsApprovalDea
 import uk.co.ogauthority.pwa.model.workflow.GenericMessageEvent;
 import uk.co.ogauthority.pwa.repository.appprocessing.options.OptionsApplicationApprovalRepository;
 import uk.co.ogauthority.pwa.repository.appprocessing.options.OptionsApprovalDeadlineHistoryRepository;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationWorkflowMessageEvents;
 import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationWorkflowTask;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.PwaApplicationDetailVersioningService;
+import uk.co.ogauthority.pwa.service.pwaapplications.options.PadOptionConfirmedService;
 import uk.co.ogauthority.pwa.service.workflow.assignment.WorkflowAssignmentService;
 
 @Service
@@ -32,22 +34,25 @@ public class ApproveOptionsService {
 
   private final OptionsCaseManagementEmailService optionsCaseManagementEmailService;
 
+  private final PadOptionConfirmedService padOptionConfirmedService;
+
   private final WorkflowAssignmentService workflowAssignmentService;
 
   private final PwaApplicationDetailVersioningService pwaApplicationDetailVersioningService;
-
 
   @Autowired
   public ApproveOptionsService(OptionsApprovalPersister optionsApprovalPersister,
                                OptionsApplicationApprovalRepository optionsApplicationApprovalRepository,
                                OptionsApprovalDeadlineHistoryRepository optionsApprovalDeadlineHistoryRepository,
                                OptionsCaseManagementEmailService optionsCaseManagementEmailService,
+                               PadOptionConfirmedService padOptionConfirmedService,
                                WorkflowAssignmentService workflowAssignmentService,
                                PwaApplicationDetailVersioningService pwaApplicationDetailVersioningService) {
     this.optionsApprovalPersister = optionsApprovalPersister;
     this.optionsApplicationApprovalRepository = optionsApplicationApprovalRepository;
     this.optionsApprovalDeadlineHistoryRepository = optionsApprovalDeadlineHistoryRepository;
     this.optionsCaseManagementEmailService = optionsCaseManagementEmailService;
+    this.padOptionConfirmedService = padOptionConfirmedService;
     this.workflowAssignmentService = workflowAssignmentService;
     this.pwaApplicationDetailVersioningService = pwaApplicationDetailVersioningService;
   }
@@ -63,6 +68,23 @@ public class ApproveOptionsService {
     return optionsApplicationApprovalRepository.findByPwaApplication(
         pwaApplication
     );
+  }
+
+  public OptionsApprovalStatus getOptionsApprovalStatus(PwaApplicationDetail pwaApplicationDetail) {
+    if (!PwaApplicationType.OPTIONS_VARIATION.equals(pwaApplicationDetail.getPwaApplicationType())) {
+      return OptionsApprovalStatus.NOT_APPLICABLE;
+    }
+
+    if (!optionsApproved(pwaApplicationDetail.getPwaApplication())) {
+      return OptionsApprovalStatus.NOT_APPROVED;
+    }
+
+    if (padOptionConfirmedService.optionConfirmationExists(pwaApplicationDetail)) {
+      return OptionsApprovalStatus.APPROVED_RESPONDED;
+    }
+
+    return OptionsApprovalStatus.APPROVED_UNRESPONDED;
+
   }
 
   private OptionsApplicationApproval getOptionsApprovalOrError(PwaApplication pwaApplication) {
