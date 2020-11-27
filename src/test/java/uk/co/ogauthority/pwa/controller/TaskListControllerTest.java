@@ -78,11 +78,19 @@ public abstract class TaskListControllerTest extends AbstractControllerTest {
     when(masterPwaView.getReference()).thenReturn("EXAMPLE_REFERENCE");
     when(masterPwaViewService.getCurrentMasterPwaView(any())).thenReturn(masterPwaView);
 
-    taskListService = new TaskListService(
-        taskListEntryFactory,
-        applicationTaskService
-    );
 
+//    taskListService = new TaskListService(
+//        taskListEntryFactory,
+//        applicationTaskService
+//    );
+
+    taskListControllerModelAndViewCreator = new TaskListControllerModelAndViewCreator(
+        applicationBreadcrumbService,
+        taskListEntryFactory,
+        masterPwaViewService,
+        applicationUpdateRequestViewService,
+        approveOptionsService
+    );
 
     doCallRealMethod().when(applicationBreadcrumbService).fromWorkArea(any(ModelAndView.class), eq("Task list"));
 

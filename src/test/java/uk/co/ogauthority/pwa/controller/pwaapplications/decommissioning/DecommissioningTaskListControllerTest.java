@@ -7,6 +7,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import java.util.EnumSet;
+import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -17,6 +18,8 @@ import org.springframework.http.HttpMethod;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.ogauthority.pwa.controller.TaskListControllerTest;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.tasklist.TaskListEntry;
+import uk.co.ogauthority.pwa.model.tasklist.TaskListGroup;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
@@ -38,8 +41,14 @@ public class DecommissioningTaskListControllerTest extends TaskListControllerTes
 
     detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.DECOMMISSIONING);
 
-    when(taskListService.getTaskListGroups(detail)).thenCallRealMethod();
-when(taskListControllerModelAndViewCreator.getTaskListModelAndView(any(), any())).thenCallRealMethod();
+    var taskListGroupList = List.of(
+        new TaskListGroup("group", 1, List.of(
+            new TaskListEntry("task", "/route", true, 10)))
+    );
+
+    when(taskListService.getTaskListGroups(detail)).thenReturn(taskListGroupList);
+    when(taskListControllerModelAndViewCreator.getTaskListModelAndView(detail, taskListGroupList))
+        .thenCallRealMethod();
 
     when(pwaApplicationDetailService.getTipDetail(anyInt())).thenReturn(detail);
     when(pwaContactService.getContactRoles(any(), any())).thenReturn(EnumSet.allOf(PwaContactRole.class));
