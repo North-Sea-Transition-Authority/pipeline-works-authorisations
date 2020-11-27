@@ -2,10 +2,10 @@
 
 <#-- @ftlvariable name="caseSummaryView" type="uk.co.ogauthority.pwa.service.appprocessing.context.CaseSummaryView" -->
 
-<#macro summary caseSummaryView showAppSummaryLink=true>
+<#macro summary caseSummaryView showAppSummaryLink=true showAppVersionNo=false>
 
   <span class="govuk-caption-l">${caseSummaryView.pwaApplicationTypeDisplay}</span>
-  <h1 class="govuk-heading-xl">${caseSummaryView.pwaApplicationRef}
+  <h1 class="govuk-heading-xl">${caseSummaryView.pwaApplicationRef} ${showAppVersionNo?then(" - Version " + caseSummaryView.versionNo, "")}
     <#if showAppSummaryLink>
       <br/>
       <@fdsAction.link

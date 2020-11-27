@@ -64,6 +64,16 @@ public class PwaApplicationDetail implements ParentEntity {
   @Column(name = "init_review_approved_timestamp")
   private Instant initialReviewApprovedTimestamp;
 
+  @Basic
+  @Convert(converter = PersonIdConverter.class)
+  @Column(name = "confirmed_satisfactory_pers_id")
+  private PersonId confirmedSatisfactoryByPersonId;
+
+  @Column(name = "confirmed_satisfactory_ts")
+  private Instant confirmedSatisfactoryTimestamp;
+
+  private String confirmedSatisfactoryReason;
+
   private Boolean isLinkedToField;
 
   private String notLinkedDescription;
@@ -197,6 +207,30 @@ public class PwaApplicationDetail implements ParentEntity {
 
   public void setInitialReviewApprovedTimestamp(Instant approvedTimestamp) {
     this.initialReviewApprovedTimestamp = approvedTimestamp;
+  }
+
+  public PersonId getConfirmedSatisfactoryByPersonId() {
+    return confirmedSatisfactoryByPersonId;
+  }
+
+  public void setConfirmedSatisfactoryByPersonId(PersonId confirmedSatisfactoryByPersonId) {
+    this.confirmedSatisfactoryByPersonId = confirmedSatisfactoryByPersonId;
+  }
+
+  public Instant getConfirmedSatisfactoryTimestamp() {
+    return confirmedSatisfactoryTimestamp;
+  }
+
+  public void setConfirmedSatisfactoryTimestamp(Instant confirmedSatisfactoryTimestamp) {
+    this.confirmedSatisfactoryTimestamp = confirmedSatisfactoryTimestamp;
+  }
+
+  public String getConfirmedSatisfactoryReason() {
+    return confirmedSatisfactoryReason;
+  }
+
+  public void setConfirmedSatisfactoryReason(String confirmedSatisfactoryReason) {
+    this.confirmedSatisfactoryReason = confirmedSatisfactoryReason;
   }
 
   public Boolean getLinkedToField() {

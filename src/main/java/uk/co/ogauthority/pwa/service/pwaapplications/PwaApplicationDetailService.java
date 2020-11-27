@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.exception.ActionNotAllowedException;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
@@ -248,5 +249,18 @@ public class PwaApplicationDetailService {
 
   public List<PwaApplicationDetail> getAllSubmittedApplicationDetailsForApplication(PwaApplication pwaApplication) {
     return pwaApplicationDetailRepository.findByPwaApplicationAndSubmittedTimestampIsNotNull(pwaApplication);
+  }
+
+  @Transactional
+  public void setConfirmedSatisfactoryData(PwaApplicationDetail applicationDetail,
+                                           String reason,
+                                           Person confirmingPerson) {
+
+    applicationDetail.setConfirmedSatisfactoryByPersonId(confirmingPerson.getId());
+    applicationDetail.setConfirmedSatisfactoryTimestamp(Instant.now(clock));
+    applicationDetail.setConfirmedSatisfactoryReason(reason);
+
+    pwaApplicationDetailRepository.save(applicationDetail);
+
   }
 }

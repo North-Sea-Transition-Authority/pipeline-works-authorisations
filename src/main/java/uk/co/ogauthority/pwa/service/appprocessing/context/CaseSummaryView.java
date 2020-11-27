@@ -23,6 +23,7 @@ public class CaseSummaryView {
   private final String proposedStartDateDisplay;
   private final boolean fastTrackFlag;
   private final String caseOfficerName;
+  private final Integer versionNo;
 
   public CaseSummaryView(Integer pwaApplicationId,
                          PwaApplicationType pwaApplicationType,
@@ -31,7 +32,8 @@ public class CaseSummaryView {
                          String fieldNames,
                          String proposedStartDateDisplay,
                          boolean fastTrackFlag,
-                         String caseOfficerName) {
+                         String caseOfficerName,
+                         Integer versionNo) {
     this.pwaApplicationId = pwaApplicationId;
     this.pwaApplicationType = pwaApplicationType;
     this.pwaApplicationTypeDisplay = pwaApplicationType.getDisplayName();
@@ -41,11 +43,11 @@ public class CaseSummaryView {
     this.proposedStartDateDisplay = proposedStartDateDisplay;
     this.fastTrackFlag = fastTrackFlag;
     this.caseOfficerName = caseOfficerName;
+    this.versionNo = versionNo;
   }
 
   public static CaseSummaryView from(ApplicationDetailSearchItem detailSearchItem) {
 
-    // TODO PWA-835 link up app summary screen to case management
     var appWorkAreaItem = new PwaApplicationWorkAreaItem(detailSearchItem, (detailSearchItem1) -> "#");
 
     String holders = appWorkAreaItem.getHolderColumn().stream()
@@ -69,7 +71,8 @@ public class CaseSummaryView {
         fields,
         proposedStartDateDisplay,
         appWorkAreaItem.wasSubmittedAsFastTrack(),
-        appWorkAreaItem.getCaseOfficerName()
+        appWorkAreaItem.getCaseOfficerName(),
+        detailSearchItem.getVersionNo()
     );
 
   }
@@ -108,6 +111,10 @@ public class CaseSummaryView {
 
   public String getCaseOfficerName() {
     return caseOfficerName;
+  }
+
+  public Integer getVersionNo() {
+    return versionNo;
   }
 
   public String getAppSummaryUrl() {

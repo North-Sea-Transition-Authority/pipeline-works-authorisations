@@ -531,6 +531,45 @@ public class PwaAppProcessingPermissionServiceTest {
 
   }
 
+  @Test
+  public void getAppProcessingPermissions_hasConfirmSatisfactoryPermission_assignedCaseOfficer() {
+
+    replacePrivileges(user, PwaUserPrivilege.PWA_CASE_OFFICER);
+
+    var appInvolvement = new ApplicationInvolvementDto(application, Set.of(), null, true);
+    when(applicationInvolvementService.getApplicationInvolvementDto(application, user)).thenReturn(appInvolvement);
+
+    var permissions = processingPermissionService.getProcessingPermissionsDto(application, user).getProcessingPermissions();
+    assertThat(permissions).contains(PwaAppProcessingPermission.CONFIRM_SATISFACTORY_APPLICATION);
+
+  }
+
+  @Test
+  public void getAppProcessingPermissions_hasConfirmSatisfactoryPermission_notAssignedCaseOfficer() {
+
+    replacePrivileges(user, PwaUserPrivilege.PWA_CASE_OFFICER);
+
+    var appInvolvement = new ApplicationInvolvementDto(application, Set.of(), null, false);
+    when(applicationInvolvementService.getApplicationInvolvementDto(application, user)).thenReturn(appInvolvement);
+
+    var permissions = processingPermissionService.getProcessingPermissionsDto(application, user).getProcessingPermissions();
+    assertThat(permissions).doesNotContain(PwaAppProcessingPermission.CONFIRM_SATISFACTORY_APPLICATION);
+
+  }
+
+  @Test
+  public void getAppProcessingPermissions_noConfirmSatisfactoryPermission_notCaseOfficer() {
+
+    clearPrivileges(user);
+
+    var appInvolvement = new ApplicationInvolvementDto(application, Set.of(), null, false);
+    when(applicationInvolvementService.getApplicationInvolvementDto(application, user)).thenReturn(appInvolvement);
+
+    var permissions = processingPermissionService.getProcessingPermissionsDto(application, user).getProcessingPermissions();
+    assertThat(permissions).doesNotContain(PwaAppProcessingPermission.CONFIRM_SATISFACTORY_APPLICATION);
+
+  }
+
   private void clearPrivileges(AuthenticatedUserAccount userArg) {
     user = new AuthenticatedUserAccount(userArg, Set.of());
   }

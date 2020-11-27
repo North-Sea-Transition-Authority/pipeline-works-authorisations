@@ -22,6 +22,10 @@ public class CaseManagementUtils {
 
   }
 
+  public static String routeCaseManagement(PwaAppProcessingContext processingContext) {
+    return routeCaseManagement(processingContext.getPwaApplication());
+  }
+
   public static ModelAndView redirectCaseManagement(PwaApplication pwaApplication) {
 
     return ReverseRouter.redirect(on(CaseManagementController.class)

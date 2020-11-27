@@ -74,6 +74,7 @@ public class PwaAppProcessingPermissionService {
               return userPrivileges.contains(PwaUserPrivilege.PWA_MANAGER)
                   && PwaApplicationType.OPTIONS_VARIATION.equals(application.getApplicationType());
             case CASE_OFFICER_REVIEW:
+            case CONFIRM_SATISFACTORY_APPLICATION:
             case EDIT_CONSULTATIONS:
             case PUBLIC_NOTICE:
             case WITHDRAW_CONSULTATION:

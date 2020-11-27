@@ -7,6 +7,7 @@ import java.util.stream.Stream;
 import uk.co.ogauthority.pwa.controller.appprocessing.AssignCaseOfficerController;
 import uk.co.ogauthority.pwa.controller.appprocessing.applicationupdate.RequestApplicationUpdateController;
 import uk.co.ogauthority.pwa.controller.appprocessing.casenotes.CaseNoteController;
+import uk.co.ogauthority.pwa.controller.appprocessing.confirmsatisfactory.ConfirmSatisfactoryApplicationController;
 import uk.co.ogauthority.pwa.controller.appprocessing.decision.AppConsentDocController;
 import uk.co.ogauthority.pwa.controller.appprocessing.initialreview.InitialReviewController;
 import uk.co.ogauthority.pwa.controller.appprocessing.options.ApproveOptionsController;
@@ -18,7 +19,7 @@ import uk.co.ogauthority.pwa.controller.consultations.responses.ConsultationResp
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.CaseSetupService;
 import uk.co.ogauthority.pwa.service.appprocessing.PublicNoticeService;
-import uk.co.ogauthority.pwa.service.appprocessing.application.AcceptApplicationService;
+import uk.co.ogauthority.pwa.service.appprocessing.application.ConfirmSatisfactoryApplicationService;
 import uk.co.ogauthority.pwa.service.appprocessing.application.WithdrawApplicationService;
 import uk.co.ogauthority.pwa.service.appprocessing.applicationupdate.ApplicationUpdateRequestService;
 import uk.co.ogauthority.pwa.service.appprocessing.casenotes.CaseNoteService;
@@ -47,10 +48,13 @@ public enum PwaAppProcessingTask {
           null, null)),
       10),
 
-  ACCEPT_APPLICATION(
-      "Accept application",
+  CONFIRM_SATISFACTORY_APPLICATION(
+      "Confirm satisfactory application",
       TaskRequirement.REQUIRED,
-      AcceptApplicationService.class, processingContext -> "#",
+      ConfirmSatisfactoryApplicationService.class, processingContext -> ReverseRouter.route(
+          on(ConfirmSatisfactoryApplicationController.class).renderConfirmSatisfactory(
+              processingContext.getMasterPwaApplicationId(), processingContext.getApplicationType(), null,
+          null, null)),
       20),
 
   CASE_SETUP(

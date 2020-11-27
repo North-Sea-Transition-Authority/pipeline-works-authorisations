@@ -275,7 +275,15 @@ public class PwaApplicationDetailServiceTest {
 
     var ignoredFields = List.of("id", "status", "tipFlag", "versionNo", "createdTimestamp", "statusLastModifiedTimestamp", "statusLastModifiedByWuaId", "createdByWuaId");
 
-    var nullFields = List.of("id", "submittedByPersonId", "submittedTimestamp", "initialReviewApprovedByWuaId", "initialReviewApprovedTimestamp", "submittedAsFastTrackFlag");
+    var nullFields = List.of("id",
+        "submittedByPersonId",
+        "submittedTimestamp",
+        "initialReviewApprovedByWuaId",
+        "initialReviewApprovedTimestamp",
+        "submittedAsFastTrackFlag",
+        "confirmedSatisfactoryByPersonId",
+        "confirmedSatisfactoryReason",
+        "confirmedSatisfactoryTimestamp");
 
     var ignoredForEqualsComparison = new ArrayList<String>();
     ignoredForEqualsComparison.addAll(ignoredFields);
@@ -343,6 +351,9 @@ public class PwaApplicationDetailServiceTest {
     detail.setInitialReviewApprovedByWuaId(wua.getWuaId());
     detail.setInitialReviewApprovedTimestamp(baseTime);
     detail.setSupplementaryDocumentsFlag(true);
+    detail.setConfirmedSatisfactoryTimestamp(Instant.now());
+    detail.setConfirmedSatisfactoryReason("reason");
+    detail.setConfirmedSatisfactoryByPersonId(new PersonId(1));
 
     // want to make sure that this method always gives every pwaApplicationDetail attribute a value.
     // This should ensure that tests are updated if attributes added later on.
@@ -369,6 +380,39 @@ public class PwaApplicationDetailServiceTest {
   public void getLastSubmittedApplicationDetail_found(){
     when(applicationDetailRepository.findLastSubmittedApplicationDetail(APP_ID)).thenReturn(Optional.of(pwaApplicationDetail));
     assertThat(pwaApplicationDetailService.getLastSubmittedApplicationDetail(APP_ID)).contains(pwaApplicationDetail);
+  }
+
+  @Test
+  public void setConfirmedSatisfactoryData_allProvided() {
+
+    var detail = new PwaApplicationDetail();
+
+    pwaApplicationDetailService.setConfirmedSatisfactoryData(detail, "reason", wua1Person);
+
+    verify(applicationDetailRepository, times(1)).save(detailCaptor.capture());
+
+    var checkDetail = detailCaptor.getValue();
+
+    assertThat(checkDetail.getConfirmedSatisfactoryByPersonId()).isEqualTo(wua1Person.getId());
+    assertThat(checkDetail.getConfirmedSatisfactoryReason()).isEqualTo("reason");
+    assertThat(checkDetail.getConfirmedSatisfactoryTimestamp()).isEqualTo(clock.instant());
+
+  }
+
+  @Test
+  public void setConfirmedSatisfactoryData_noReason() {
+
+    var detail = new PwaApplicationDetail();
+
+    pwaApplicationDetailService.setConfirmedSatisfactoryData(detail, null, wua1Person);
+
+    verify(applicationDetailRepository, times(1)).save(detailCaptor.capture());
+
+    var checkDetail = detailCaptor.getValue();
+
+    assertThat(checkDetail.getConfirmedSatisfactoryByPersonId()).isEqualTo(wua1Person.getId());
+    assertThat(checkDetail.getConfirmedSatisfactoryReason()).isNull();
+    assertThat(checkDetail.getConfirmedSatisfactoryTimestamp()).isEqualTo(clock.instant());
 
   }
 

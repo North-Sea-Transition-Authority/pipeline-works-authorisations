@@ -87,7 +87,7 @@ public class PwaAppProcessingTaskListServiceTest {
         .extracting(TaskListEntry::getTaskName, TaskListEntry::getRoute)
         .containsExactly(
             tuple(PwaAppProcessingTask.INITIAL_REVIEW.getTaskName(), PwaAppProcessingTask.INITIAL_REVIEW.getRoute(processingContext)),
-            tuple(PwaAppProcessingTask.ACCEPT_APPLICATION.getTaskName(), PwaAppProcessingTask.ACCEPT_APPLICATION.getRoute(processingContext)),
+            tuple(PwaAppProcessingTask.CONFIRM_SATISFACTORY_APPLICATION.getTaskName(), PwaAppProcessingTask.CONFIRM_SATISFACTORY_APPLICATION.getRoute(processingContext)),
             tuple(PwaAppProcessingTask.CASE_SETUP.getTaskName(), PwaAppProcessingTask.CASE_SETUP.getRoute(processingContext)),
             tuple(PwaAppProcessingTask.CONSULTATIONS.getTaskName(), PwaAppProcessingTask.CONSULTATIONS.getRoute(processingContext)),
             // APPROVE_OPTIONS route has content based on independently tested specific conditions
@@ -142,7 +142,7 @@ public class PwaAppProcessingTaskListServiceTest {
         .extracting(TaskListEntry::getTaskName, TaskListEntry::getRoute)
         .containsExactly(
             tuple(PwaAppProcessingTask.INITIAL_REVIEW.getTaskName(), PwaAppProcessingTask.INITIAL_REVIEW.getRoute(processingContext)),
-            tuple(PwaAppProcessingTask.ACCEPT_APPLICATION.getTaskName(), PwaAppProcessingTask.ACCEPT_APPLICATION.getRoute(processingContext)),
+            tuple(PwaAppProcessingTask.CONFIRM_SATISFACTORY_APPLICATION.getTaskName(), PwaAppProcessingTask.CONFIRM_SATISFACTORY_APPLICATION.getRoute(processingContext)),
             tuple(PwaAppProcessingTask.CONSULTATIONS.getTaskName(), PwaAppProcessingTask.CONSULTATIONS.getRoute(processingContext)),
             tuple(PwaAppProcessingTask.PUBLIC_NOTICE.getTaskName(), PwaAppProcessingTask.PUBLIC_NOTICE.getRoute(processingContext)),
             tuple(PwaAppProcessingTask.DECISION.getTaskName(), PwaAppProcessingTask.DECISION.getRoute(processingContext)),
