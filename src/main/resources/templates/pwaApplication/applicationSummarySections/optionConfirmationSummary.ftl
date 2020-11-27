@@ -14,9 +14,12 @@
             ${view.workType!""}
         </@fdsCheckAnswers.checkAnswersRow>
 
-        <@fdsCheckAnswers.checkAnswersRow keyText="Description of work" actionUrl="" screenReaderActionText="" actionText="">
-            <@multiLineText.multiLineText blockClass=multiLineTextBlockClass>${view.workDescription!""}</@multiLineText.multiLineText>
-        </@fdsCheckAnswers.checkAnswersRow>
+        <#if view.workDescription?has_content>
+            <@fdsCheckAnswers.checkAnswersRow keyText="Description of work" actionUrl="" screenReaderActionText="" actionText="">
+                <@multiLineText.multiLineText blockClass=multiLineTextBlockClass>${view.workDescription!""}</@multiLineText.multiLineText>
+            </@fdsCheckAnswers.checkAnswersRow>
+        </#if>
+
 
     </@fdsCheckAnswers.checkAnswers>
 

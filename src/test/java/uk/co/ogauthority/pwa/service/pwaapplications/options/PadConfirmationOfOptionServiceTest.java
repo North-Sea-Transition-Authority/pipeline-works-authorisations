@@ -284,8 +284,8 @@ public class PadConfirmationOfOptionServiceTest {
 
     var view = padConfirmationOfOptionService.getPadConfirmationOfOptionView(pwaApplicationDetail);
 
-    assertThat(view.getWorkDescription()).isEqualTo(WORK_COMPLETE_AS_PER_OPTIONS.getDisplayName());
-    assertThat(view.getWorkType()).isEqualTo(confirmation.getChosenOptionDesc());
+    assertThat(view.getWorkType()).isEqualTo(WORK_COMPLETE_AS_PER_OPTIONS.getDisplayName());
+    assertThat(view.getWorkDescription()).isEqualTo(confirmation.getChosenOptionDesc());
 
   }
 }
