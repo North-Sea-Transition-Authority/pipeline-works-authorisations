@@ -25,8 +25,10 @@ import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingConte
 import uk.co.ogauthority.pwa.service.consultations.ConsultationRequestService;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
+import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingTask;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.util.CaseManagementUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
 @Controller
@@ -55,7 +57,12 @@ public class ConsultationRequestController {
                                          PwaAppProcessingContext processingContext,
                                          AuthenticatedUserAccount authenticatedUserAccount,
                                          @ModelAttribute("form") ConsultationRequestForm form) {
-    return getRequestConsultationModelAndView(processingContext);
+
+    return CaseManagementUtils.withAtLeastOneSatisfactoryVersion(
+        processingContext,
+        PwaAppProcessingTask.CONSULTATIONS,
+        () -> getRequestConsultationModelAndView(processingContext));
+
   }
 
   @PostMapping
@@ -67,15 +74,23 @@ public class ConsultationRequestController {
                                               @ModelAttribute("form") ConsultationRequestForm form,
                                               BindingResult bindingResult) {
 
-    bindingResult = consultationRequestService.validate(form, bindingResult, processingContext.getPwaApplication());
-    var appDetail = processingContext.getApplicationDetail();
-    consultationRequestService.rebindFormCheckboxes(form);
+    return CaseManagementUtils.withAtLeastOneSatisfactoryVersion(
+        processingContext,
+        PwaAppProcessingTask.CONSULTATIONS,
+        () -> {
 
-    return controllerHelperService.checkErrorsAndRedirect(bindingResult,
-        getRequestConsultationModelAndView(processingContext), () -> {
-          consultationRequestService.saveEntitiesAndStartWorkflow(form, appDetail, authenticatedUserAccount);
-          return ReverseRouter.redirect(on(ConsultationController.class).renderConsultations(
-              appDetail.getMasterPwaApplicationId(), appDetail.getPwaApplicationType(), null, null));
+          var validatedBindingResult = consultationRequestService.validate(form, bindingResult,
+              processingContext.getPwaApplication());
+          var appDetail = processingContext.getApplicationDetail();
+          consultationRequestService.rebindFormCheckboxes(form);
+
+          return controllerHelperService.checkErrorsAndRedirect(validatedBindingResult,
+              getRequestConsultationModelAndView(processingContext), () -> {
+                consultationRequestService.saveEntitiesAndStartWorkflow(form, appDetail, authenticatedUserAccount);
+                return ReverseRouter.redirect(on(ConsultationController.class).renderConsultations(
+                    appDetail.getMasterPwaApplicationId(), appDetail.getPwaApplicationType(), null, null));
+              });
+
         });
 
   }

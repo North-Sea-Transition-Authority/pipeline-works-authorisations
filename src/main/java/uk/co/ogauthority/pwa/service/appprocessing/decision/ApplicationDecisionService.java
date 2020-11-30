@@ -35,10 +35,12 @@ public class ApplicationDecisionService implements AppProcessingService {
         .map(i -> TaskStatus.IN_PROGRESS)
         .orElse(TaskStatus.NOT_STARTED);
 
+    boolean atLeastOneSatisfactoryVersion = processingContext.getApplicationInvolvement().hasAtLeastOneSatisfactoryVersion();
+
     return new TaskListEntry(
         task.getTaskName(),
-        task.getRoute(processingContext),
-        TaskTag.from(taskStatus),
+        atLeastOneSatisfactoryVersion ? task.getRoute(processingContext) : null,
+        atLeastOneSatisfactoryVersion ? TaskTag.from(taskStatus) : TaskTag.from(TaskStatus.CANNOT_START_YET),
         task.getDisplayOrder());
 
   }

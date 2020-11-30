@@ -302,6 +302,37 @@ public class ApproveOptionsTaskServiceTest {
   }
 
   @Test
+  public void getTaskListEntry_whenRegulator_noSatisfactoryVersions() {
+
+    pwaAppProcessingContext = PwaAppProcessingContextTestUtil.withPermissionsNoSatisfactoryVersions(
+        pwaApplicationDetail,
+        EnumSet.of(PwaAppProcessingPermission.APPROVE_OPTIONS)
+    );
+
+    var statusView = ApplicationConsultationStatusViewTestUtil.from(List.of(
+        ImmutablePair.of(ConsultationRequestStatus.WITHDRAWN, 1L),
+        ImmutablePair.of(ConsultationRequestStatus.RESPONDED, 1L)
+    ));
+
+    var approval = new OptionsApplicationApproval();
+    when(optionsApplicationApprovalRepository.findByPwaApplication(pwaApplicationDetail.getPwaApplication()))
+        .thenReturn(Optional.of(approval));
+
+    when(consultationRequestService.getApplicationConsultationStatusView(pwaApplicationDetail.getPwaApplication()))
+        .thenReturn(statusView);
+
+    var taskListEntry = approveOptionsTaskService.getTaskListEntry(
+        APPROVE_OPTIONS,
+        pwaAppProcessingContext
+    );
+
+    assertThat(taskListEntry.getRoute()).isNull();
+    assertThat(taskListEntry.getDisplayOrder()).isEqualTo(APPROVE_OPTIONS.getDisplayOrder());
+    assertThat(taskListEntry.getTaskName()).isEqualTo(APPROVE_OPTIONS.getTaskName());
+    assertThat(taskListEntry.getTaskTag().getTagText()).isEqualToIgnoringCase("cannot start yet");
+  }
+
+  @Test
   public void getTaskListEntry_whenIndustry_andOptionsApproved() {
     pwaAppProcessingContext = PwaAppProcessingContextTestUtil.withPermissions(
         pwaApplicationDetail,
@@ -343,4 +374,5 @@ public class ApproveOptionsTaskServiceTest {
     assertThat(taskListEntry.getTaskName()).isEqualTo(APPROVE_OPTIONS.getTaskName());
     assertThat(taskListEntry.getTaskTag().getTagText()).isEqualToIgnoringCase("not completed");
   }
+
 }

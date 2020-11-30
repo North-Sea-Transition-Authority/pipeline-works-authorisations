@@ -20,10 +20,12 @@ public class CaseSetupService implements AppProcessingService {
   @Override
   public TaskListEntry getTaskListEntry(PwaAppProcessingTask task, PwaAppProcessingContext processingContext) {
 
+    boolean atLeastOneSatisfactoryVersion = processingContext.getApplicationInvolvement().hasAtLeastOneSatisfactoryVersion();
+
     return new TaskListEntry(
         task.getTaskName(),
-        task.getRoute(processingContext),
-        TaskTag.from(TaskStatus.NOT_COMPLETED),
+        atLeastOneSatisfactoryVersion ? task.getRoute(processingContext) : null,
+        atLeastOneSatisfactoryVersion ? TaskTag.from(TaskStatus.NOT_COMPLETED) : TaskTag.from(TaskStatus.CANNOT_START_YET),
         task.getDisplayOrder());
 
   }

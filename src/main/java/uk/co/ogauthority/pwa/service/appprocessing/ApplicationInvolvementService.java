@@ -15,6 +15,7 @@ import uk.co.ogauthority.pwa.model.dto.appprocessing.ConsultationInvolvementDto;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupMemberRole;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
+import uk.co.ogauthority.pwa.service.appprocessing.application.ConfirmSatisfactoryApplicationService;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupDetailService;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupTeamService;
 import uk.co.ogauthority.pwa.service.consultations.ConsultationRequestService;
@@ -42,6 +43,7 @@ public class ApplicationInvolvementService {
   private final UserTypeService userTypeService;
   private final ConsulteeGroupDetailService consulteeGroupDetailService;
   private final PersonService personService;
+  private final ConfirmSatisfactoryApplicationService confirmSatisfactoryApplicationService;
 
   @Autowired
   public ApplicationInvolvementService(ConsulteeGroupTeamService consulteeGroupTeamService,
@@ -50,7 +52,8 @@ public class ApplicationInvolvementService {
                                        CamundaWorkflowService camundaWorkflowService,
                                        UserTypeService userTypeService,
                                        ConsulteeGroupDetailService consulteeGroupDetailService,
-                                       PersonService personService) {
+                                       PersonService personService,
+                                       ConfirmSatisfactoryApplicationService confirmSatisfactoryApplicationService) {
     this.consulteeGroupTeamService = consulteeGroupTeamService;
     this.pwaContactService = pwaContactService;
     this.consultationRequestService = consultationRequestService;
@@ -58,6 +61,7 @@ public class ApplicationInvolvementService {
     this.userTypeService = userTypeService;
     this.consulteeGroupDetailService = consulteeGroupDetailService;
     this.personService = personService;
+    this.confirmSatisfactoryApplicationService = confirmSatisfactoryApplicationService;
   }
 
   public ApplicationInvolvementDto getApplicationInvolvementDto(PwaApplication application,
@@ -85,11 +89,14 @@ public class ApplicationInvolvementService {
           .isPresent();
     }
 
+    boolean atLeastOneSatisfactoryVersion = confirmSatisfactoryApplicationService.atLeastOneSatisfactoryVersion(application);
+
     return new ApplicationInvolvementDto(
         application,
         appContactRoles,
         consultationInvolvement,
-        caseOfficerStageAndUserAssigned);
+        caseOfficerStageAndUserAssigned,
+        atLeastOneSatisfactoryVersion);
 
   }
 
