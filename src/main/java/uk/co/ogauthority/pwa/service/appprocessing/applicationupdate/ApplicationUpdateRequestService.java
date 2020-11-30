@@ -21,6 +21,8 @@ import uk.co.ogauthority.pwa.model.tasklist.TaskTag;
 import uk.co.ogauthority.pwa.model.workflow.GenericMessageEvent;
 import uk.co.ogauthority.pwa.repository.appprocessing.applicationupdates.ApplicationUpdateRequestRepository;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
+import uk.co.ogauthority.pwa.service.appprocessing.options.ApproveOptionsService;
+import uk.co.ogauthority.pwa.service.appprocessing.options.OptionsApprovalStatus;
 import uk.co.ogauthority.pwa.service.appprocessing.tasks.AppProcessingService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingTask;
@@ -46,6 +48,7 @@ public class ApplicationUpdateRequestService implements AppProcessingService {
   private final PwaApplicationDetailVersioningService pwaApplicationDetailVersioningService;
   private final WorkflowAssignmentService workflowAssignmentService;
   private final PersonService personService;
+  private final ApproveOptionsService approveOptionsService;
 
   @Autowired
   public ApplicationUpdateRequestService(ApplicationUpdateRequestRepository applicationUpdateRequestRepository,
@@ -54,7 +57,8 @@ public class ApplicationUpdateRequestService implements AppProcessingService {
                                          PwaContactService pwaContactService,
                                          PwaApplicationDetailVersioningService pwaApplicationDetailVersioningService,
                                          WorkflowAssignmentService workflowAssignmentService,
-                                         PersonService personService) {
+                                         PersonService personService,
+                                         ApproveOptionsService approveOptionsService) {
     this.applicationUpdateRequestRepository = applicationUpdateRequestRepository;
     this.clock = clock;
     this.notifyService = notifyService;
@@ -62,6 +66,7 @@ public class ApplicationUpdateRequestService implements AppProcessingService {
     this.pwaApplicationDetailVersioningService = pwaApplicationDetailVersioningService;
     this.workflowAssignmentService = workflowAssignmentService;
     this.personService = personService;
+    this.approveOptionsService = approveOptionsService;
   }
 
 
@@ -179,10 +184,15 @@ public class ApplicationUpdateRequestService implements AppProcessingService {
 
   @Override
   public TaskListEntry getTaskListEntry(PwaAppProcessingTask task, PwaAppProcessingContext processingContext) {
+    var optionsApprovalStatus = approveOptionsService.getOptionsApprovalStatus(processingContext.getApplicationDetail());
 
     boolean openUpdateForDetail = applicationDetailHasOpenUpdateRequest(processingContext.getApplicationDetail());
 
-    String taskRoute = !openUpdateForDetail ? task.getRoute(processingContext) : null;
+    // prevent access during initial options approval or in progress update request
+    String taskRoute = openUpdateForDetail || OptionsApprovalStatus.APPROVED_UNRESPONDED.equals(optionsApprovalStatus)
+        ? null
+        : task.getRoute(processingContext);
+
     var taskTag = openUpdateForDetail ? TaskTag.from(TaskStatus.IN_PROGRESS) : null;
 
     return new TaskListEntry(

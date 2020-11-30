@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.controller.appprocessing.shared.PwaAppProcessingPermissionCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationStatusCheck;
@@ -25,6 +26,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.util.CaseManagementUtils;
+import uk.co.ogauthority.pwa.util.FlashUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 import uk.co.ogauthority.pwa.validators.appprocessing.confirmsatisfactory.ConfirmSatisfactoryApplicationFormValidator;
 
@@ -70,7 +72,8 @@ public class ConfirmSatisfactoryApplicationController {
                                           PwaAppProcessingContext processingContext,
                                           AuthenticatedUserAccount authenticatedUserAccount,
                                           @ModelAttribute("form") ConfirmSatisfactoryApplicationForm form,
-                                          BindingResult bindingResult) {
+                                          BindingResult bindingResult,
+                                          RedirectAttributes redirectAttributes) {
 
     confirmSatisfactoryApplicationFormValidator.validate(form, bindingResult);
 
@@ -82,6 +85,8 @@ public class ConfirmSatisfactoryApplicationController {
                   processingContext.getApplicationDetail(),
                   form.getReason(),
                   authenticatedUserAccount.getLinkedPerson());
+
+              FlashUtils.success(redirectAttributes, "Application confirmed satisfactory.");
 
               return CaseManagementUtils.redirectCaseManagement(processingContext);
 

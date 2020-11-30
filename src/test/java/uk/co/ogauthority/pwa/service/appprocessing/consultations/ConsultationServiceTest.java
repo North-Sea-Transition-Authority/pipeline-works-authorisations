@@ -20,6 +20,7 @@ import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingTask;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.TaskStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ConsultationRequestStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.testutils.PwaAppProcessingContextDtoTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -69,10 +70,29 @@ public class ConsultationServiceTest {
   }
 
   @Test
+  public void getTaskListEntry_notSatisfactory() {
+
+    var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
+    var processingContext = new PwaAppProcessingContext(detail, null, Set.of(), null,
+        PwaAppProcessingContextDtoTestUtils.emptyAppInvolvement(detail.getPwaApplication()));
+
+    when(consultationRequestService.getAllRequestsByApplication(any())).thenReturn(List.of());
+
+    var taskListEntry = consultationService.getTaskListEntry(PwaAppProcessingTask.CONSULTATIONS, processingContext);
+
+    assertThat(taskListEntry.getTaskName()).isEqualTo(PwaAppProcessingTask.CONSULTATIONS.getTaskName());
+    assertThat(taskListEntry.getRoute()).isNull();
+    assertThat(taskListEntry.getTaskInfoList()).isEmpty();
+    assertThat(taskListEntry.getTaskTag()).isEqualTo(TaskTag.from(TaskStatus.CANNOT_START_YET));
+
+  }
+
+  @Test
   public void getTaskListEntry_noConsultations() {
 
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
-    var processingContext = new PwaAppProcessingContext(detail, null, Set.of(), null, null);
+    var processingContext = new PwaAppProcessingContext(detail, null, Set.of(), null,
+        PwaAppProcessingContextDtoTestUtils.appInvolvementSatisfactoryVersions(detail.getPwaApplication()));
 
     when(consultationRequestService.getAllRequestsByApplication(any())).thenReturn(List.of());
 
@@ -89,7 +109,8 @@ public class ConsultationServiceTest {
   public void getTaskListEntry_activeConsultations() {
 
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
-    var processingContext = new PwaAppProcessingContext(detail, null, Set.of(), null, null);
+    var processingContext = new PwaAppProcessingContext(detail, null, Set.of(), null,
+        PwaAppProcessingContextDtoTestUtils.appInvolvementSatisfactoryVersions(detail.getPwaApplication()));
 
     var activeRequest = new ConsultationRequest();
     activeRequest.setStatus(ConsultationRequestStatus.ALLOCATION);
@@ -108,7 +129,8 @@ public class ConsultationServiceTest {
   public void getTaskListEntry_allCompletedConsultations() {
 
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
-    var processingContext = new PwaAppProcessingContext(detail, null, Set.of(), null, null);
+    var processingContext = new PwaAppProcessingContext(detail, null, Set.of(), null,
+        PwaAppProcessingContextDtoTestUtils.appInvolvementSatisfactoryVersions(detail.getPwaApplication()));
 
     var respondedRequest = new ConsultationRequest();
     respondedRequest.setStatus(ConsultationRequestStatus.RESPONDED);

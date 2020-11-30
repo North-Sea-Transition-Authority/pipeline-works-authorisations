@@ -9,6 +9,8 @@
 
   <@pwaCaseSummary.summary caseSummaryView=caseSummaryView />
 
+  <h2 class="govuk-heading-l">Request further information</h2>
+
   <@fdsForm.htmlForm>
 
     <@fdsTextarea.textarea path="form.requestReason" labelText="Why is an update required?" characterCount=true maxCharacterLength="4000" inputClass="govuk-!-width-two-thirds"/>

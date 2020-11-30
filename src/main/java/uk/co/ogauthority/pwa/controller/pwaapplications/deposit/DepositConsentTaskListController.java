@@ -15,6 +15,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskListService;
+import uk.co.ogauthority.pwa.service.pwaapplications.generic.tasklist.TaskListControllerModelAndViewCreator;
 
 @Controller
 @RequestMapping("/pwa-application/dep/{applicationId}/tasks")
@@ -25,18 +26,25 @@ public class DepositConsentTaskListController {
 
   private final PwaApplicationDetailService pwaApplicationDetailService;
   private final TaskListService taskListService;
+  private final TaskListControllerModelAndViewCreator taskListControllerModelAndViewCreator;
 
   @Autowired
   public DepositConsentTaskListController(PwaApplicationDetailService pwaApplicationDetailService,
-                                          TaskListService taskListService) {
+                                          TaskListService taskListService,
+                                          TaskListControllerModelAndViewCreator taskListControllerModelAndViewCreator) {
     this.pwaApplicationDetailService = pwaApplicationDetailService;
     this.taskListService = taskListService;
+    this.taskListControllerModelAndViewCreator = taskListControllerModelAndViewCreator;
   }
 
   @GetMapping
   public ModelAndView viewTaskList(@PathVariable("applicationId") Integer applicationId,
                                    PwaApplicationContext applicationContext) {
-    return taskListService.getTaskListModelAndView(applicationContext.getApplicationDetail());
+    var taskGroups = taskListService.getTaskListGroups(applicationContext.getApplicationDetail());
+    return taskListControllerModelAndViewCreator.getTaskListModelAndView(
+        applicationContext.getApplicationDetail(),
+        taskGroups
+    );
 
 
   }

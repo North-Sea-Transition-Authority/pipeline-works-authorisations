@@ -14,6 +14,7 @@ import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermiss
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingTask;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.TaskStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.testutils.PwaAppProcessingContextDtoTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -60,11 +61,29 @@ public class PublicNoticeServiceTest {
   }
 
   @Test
+  public void getTaskListEntry_notSatisfactory() {
+
+    var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
+
+    var processingContext = new PwaAppProcessingContext(detail, null, Set.of(), null,
+        PwaAppProcessingContextDtoTestUtils.emptyAppInvolvement(detail.getPwaApplication()));
+
+    var taskListEntry = publicNoticeService.getTaskListEntry(PwaAppProcessingTask.PUBLIC_NOTICE, processingContext);
+
+    assertThat(taskListEntry.getTaskName()).isEqualTo(PwaAppProcessingTask.PUBLIC_NOTICE.getTaskName());
+    assertThat(taskListEntry.getRoute()).isNull();
+    assertThat(taskListEntry.getTaskTag()).isEqualTo(TaskTag.from(TaskStatus.CANNOT_START_YET));
+    assertThat(taskListEntry.getTaskInfoList()).isEmpty();
+
+  }
+
+  @Test
   public void getTaskListEntry_publicNoticeNotStarted() {
 
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
 
-    var processingContext = new PwaAppProcessingContext(detail, null, Set.of(), null, null);
+    var processingContext = new PwaAppProcessingContext(detail, null, Set.of(), null,
+        PwaAppProcessingContextDtoTestUtils.appInvolvementSatisfactoryVersions(detail.getPwaApplication()));
 
     var taskListEntry = publicNoticeService.getTaskListEntry(PwaAppProcessingTask.PUBLIC_NOTICE, processingContext);
 

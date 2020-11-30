@@ -109,7 +109,7 @@ public class ApproveOptionsController {
 
     var deadlineInstant = deadlineDate.atStartOfDay(ZoneId.systemDefault()).toInstant();
 
-    approveOptionsService.approveOptions(pwaApplicationDetail, userAccount.getLinkedPerson(), deadlineInstant);
+    approveOptionsService.approveOptions(pwaApplicationDetail, userAccount, deadlineInstant);
 
     return ReverseRouter.redirect(on(CaseManagementController.class)
         .renderCaseManagement(

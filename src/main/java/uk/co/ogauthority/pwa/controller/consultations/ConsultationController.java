@@ -24,6 +24,7 @@ import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermiss
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingTask;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.util.CaseManagementUtils;
 import uk.co.ogauthority.pwa.util.FlashUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
@@ -54,7 +55,10 @@ public class ConsultationController {
                                           @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
                                           PwaAppProcessingContext processingContext,
                                           AuthenticatedUserAccount authenticatedUserAccount) {
-    return getConsultationModelAndView(processingContext);
+    return CaseManagementUtils.withAtLeastOneSatisfactoryVersion(
+        processingContext,
+        PwaAppProcessingTask.CONSULTATIONS,
+        () -> getConsultationModelAndView(processingContext));
   }
 
   @GetMapping("/withdraw/{consultationRequestId}")
@@ -67,18 +71,22 @@ public class ConsultationController {
                                          AuthenticatedUserAccount authenticatedUserAccount,
                                          RedirectAttributes redirectAttributes) {
 
-    var consultationRequest = consultationRequestService.getConsultationRequestById(consultationRequestId);
-    if (!consultationRequestService.canWithDrawConsultationRequest(consultationRequest)) {
-      FlashUtils.error(
-          redirectAttributes, "Error", "The selected consultation request can no longer be withdrawn");
-      return ReverseRouter.redirect(on(ConsultationController.class).renderConsultations(
-          applicationId, pwaApplicationType, null, null));
-    }
-    return getWithdrawConsultationModelAndView(consultationRequest, applicationId, pwaApplicationType);
+    return CaseManagementUtils.withAtLeastOneSatisfactoryVersion(
+        processingContext,
+        PwaAppProcessingTask.CONSULTATIONS,
+        () -> {
+
+          var consultationRequest = consultationRequestService.getConsultationRequestById(consultationRequestId);
+          if (!consultationRequestService.canWithDrawConsultationRequest(consultationRequest)) {
+            FlashUtils.error(
+                redirectAttributes, "Error", "The selected consultation request can no longer be withdrawn");
+            return ReverseRouter.redirect(on(ConsultationController.class).renderConsultations(
+                applicationId, pwaApplicationType, null, null));
+          }
+          return getWithdrawConsultationModelAndView(consultationRequest, applicationId, pwaApplicationType);
+
+        });
   }
-
-
-
 
   @PostMapping("/withdraw/{consultationRequestId}")
   @PwaAppProcessingPermissionCheck(permissions = {PwaAppProcessingPermission.WITHDRAW_CONSULTATION})
@@ -89,16 +97,21 @@ public class ConsultationController {
                                                  PwaAppProcessingContext processingContext,
                                                  AuthenticatedUserAccount authenticatedUserAccount) {
 
-    var consultationRequest = consultationRequestService.getConsultationRequestById(consultationRequestId);
-    if (consultationRequestService.canWithDrawConsultationRequest(consultationRequest)) {
-      consultationRequestService.withdrawConsultationRequest(consultationRequest, authenticatedUserAccount);
-    }
-    return ReverseRouter.redirect(on(ConsultationController.class).renderConsultations(
-        applicationId, pwaApplicationType, null, null));
+    return CaseManagementUtils.withAtLeastOneSatisfactoryVersion(
+        processingContext,
+        PwaAppProcessingTask.CONSULTATIONS,
+        () -> {
+
+          var consultationRequest = consultationRequestService.getConsultationRequestById(consultationRequestId);
+          if (consultationRequestService.canWithDrawConsultationRequest(consultationRequest)) {
+            consultationRequestService.withdrawConsultationRequest(consultationRequest, authenticatedUserAccount);
+          }
+          return ReverseRouter.redirect(on(ConsultationController.class).renderConsultations(
+              applicationId, pwaApplicationType, null, null));
+
+        });
+
   }
-
-
-
 
   //Model//Views
   private ModelAndView getConsultationModelAndView(PwaAppProcessingContext pwaAppProcessingContext) {

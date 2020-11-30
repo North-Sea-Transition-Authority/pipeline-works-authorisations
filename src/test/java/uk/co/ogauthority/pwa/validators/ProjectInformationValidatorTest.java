@@ -280,9 +280,14 @@ public class ProjectInformationValidatorTest {
   public void validate_latestCompletionPastMaxFutureDate_allAppTypesExceptOptions() {
 
     var maxFutureDate = LocalDate.now().plusMonths(12);
+
     var form = new ProjectInformationForm();
-    form.setLatestCompletionDay(maxFutureDate.plusDays(1L).getDayOfMonth());
-    form.setLatestCompletionMonth(maxFutureDate.getMonthValue());
+
+    var nextDayOfMonth = maxFutureDate.plusDays(1L).getDayOfMonth();
+    form.setLatestCompletionDay(nextDayOfMonth);
+
+    var month = maxFutureDate.getMonthValue();
+    form.setLatestCompletionMonth(nextDayOfMonth == 1 ? month + 1 : month);
     form.setLatestCompletionYear(maxFutureDate.getYear());
     var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form,
         new ProjectInformationFormValidationHints(PwaApplicationType.INITIAL, ValidationType.FULL, Set.of(ProjectInformationQuestion.LATEST_COMPLETION_DATE), false));
