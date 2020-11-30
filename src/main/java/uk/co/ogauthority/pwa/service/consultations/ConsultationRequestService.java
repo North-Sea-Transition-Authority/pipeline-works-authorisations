@@ -5,7 +5,11 @@ import java.time.Instant;
 import java.time.Period;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -13,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
+import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroup;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupDetail;
@@ -169,6 +174,30 @@ public class ConsultationRequestService {
     return emailRecipients;
   }
 
+
+  public List<Person> getConsultationRecipients(ConsultationRequest consultationRequest) {
+
+    List<Person> emailRecipients =  new ArrayList<>();
+    consulteeGroupTeamService.getTeamMembersForGroup(consultationRequest.getConsulteeGroup()).forEach(
+        teamMember -> {
+        if (teamMember.getRoles().contains(ConsulteeGroupMemberRole.RECIPIENT)) {
+          emailRecipients.add(teamMember.getPerson());
+        }
+      });
+    return emailRecipients;
+  }
+
+  public Person getAssignedResponderForConsultation(ConsultationRequest consultationRequest) {
+
+    Optional<PersonId> assignedResponderPersonId = camundaWorkflowService
+        .getAssignedPersonId(new WorkflowTaskInstance(consultationRequest, PwaApplicationConsultationWorkflowTask.RESPONSE));
+
+    return assignedResponderPersonId.map(id -> teamManagementService.getPerson(id.asInt())).orElse(null);
+  }
+
+
+
+
   private ConsultationWithdrawnEmailProps buildWithdrawnEmailProps(Person recipient,
                                                                    ConsultationRequest consultationRequest,
                                                                    String consulteeGroupName,
@@ -222,6 +251,17 @@ public class ConsultationRequestService {
 
   public List<ConsultationRequest> getAllRequestsByApplication(PwaApplication pwaApplication) {
     return consultationRequestRepository.findByPwaApplicationOrderByConsulteeGroupDescStartTimestampDesc(pwaApplication);
+  }
+
+  public List<ConsultationRequest> getAllOpenRequestsByApplication(PwaApplication pwaApplication) {
+    return consultationRequestRepository.findByPwaApplicationAndStatusNotIn(pwaApplication, ENDED_STATUSES);
+  }
+
+  public Map<ConsulteeGroup, ConsulteeGroupDetail> getGroupDetailsForConsulteeGroups(List<ConsultationRequest> consultationRequests) {
+    var consulteeGroupDetails = consulteeGroupDetailService.getAllConsulteeGroupDetailsByGroup(
+        consultationRequests.stream().map(ConsultationRequest::getConsulteeGroup).collect(Collectors.toList()));
+    return consulteeGroupDetails.stream()
+        .collect(Collectors.toMap(ConsulteeGroupDetail::getConsulteeGroup, Function.identity()));
   }
 
   public List<ConsultationRequest> getAllRequestsByAppAndGroupRespondedOnly(PwaApplication pwaApplication, ConsulteeGroup consulteeGroup) {

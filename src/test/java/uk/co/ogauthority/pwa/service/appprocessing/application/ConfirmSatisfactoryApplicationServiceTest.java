@@ -2,26 +2,37 @@ package uk.co.ogauthority.pwa.service.appprocessing.application;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.Instant;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
 import uk.co.ogauthority.pwa.energyportal.model.entity.PersonTestUtil;
+import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroup;
+import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupDetail;
+import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
+import uk.co.ogauthority.pwa.model.notify.emailproperties.ApplicationUpdateAcceptedEmailProps;
 import uk.co.ogauthority.pwa.model.tasklist.TaskTag;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
+import uk.co.ogauthority.pwa.service.consultations.ConsultationRequestService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingTask;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.TaskStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.service.notify.EmailCaseLinkService;
+import uk.co.ogauthority.pwa.service.notify.NotifyService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
@@ -33,9 +44,17 @@ public class ConfirmSatisfactoryApplicationServiceTest {
 
   private ConfirmSatisfactoryApplicationService confirmSatisfactoryApplicationService;
 
+  @Mock
+  private ConsultationRequestService consultationRequestService;
+  @Mock
+  private EmailCaseLinkService emailCaseLinkService;
+  @Mock
+  private NotifyService notifyService;
+
   @Before
   public void setUp() {
-    confirmSatisfactoryApplicationService = new ConfirmSatisfactoryApplicationService(pwaApplicationDetailService);
+    confirmSatisfactoryApplicationService = new ConfirmSatisfactoryApplicationService(pwaApplicationDetailService,
+        consultationRequestService,  emailCaseLinkService, notifyService);
   }
 
   @Test
@@ -159,15 +178,88 @@ public class ConfirmSatisfactoryApplicationServiceTest {
   }
 
   @Test
-  public void confirmSatisfactory_notAlreadyCompleted_success() {
+  public void confirmSatisfactory_notAlreadyCompleted_success_hasAssignedResponder() {
 
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     var person = PersonTestUtil.createDefaultPerson();
+
+    var consulteeGroup = new ConsulteeGroup();
+    consulteeGroup.setId(1);
+    var consultationRequest = new ConsultationRequest();
+    consultationRequest.setConsulteeGroup(consulteeGroup);
+    consultationRequest.setPwaApplication(detail.getPwaApplication());
+    when(consultationRequestService.getAllOpenRequestsByApplication(detail.getPwaApplication()))
+        .thenReturn(List.of(consultationRequest));
+
+    var groupDetail = new ConsulteeGroupDetail();
+    groupDetail.setName("group");
+    Map<ConsulteeGroup, ConsulteeGroupDetail> consulteeGroupAndDetailMap = new HashMap<>();
+    consulteeGroupAndDetailMap.put(consulteeGroup, groupDetail);
+    when(consultationRequestService.getGroupDetailsForConsulteeGroups(List.of(consultationRequest)))
+        .thenReturn(consulteeGroupAndDetailMap);
+
+    var assignedResponder = PersonTestUtil.createPersonFrom(new PersonId(2), "myEmail@mail.com");
+    when(consultationRequestService.getAssignedResponderForConsultation(consultationRequest))
+        .thenReturn(assignedResponder);
+
+    var caseManagementLink = "link";
+    when(emailCaseLinkService.generateCaseManagementLink(consultationRequest.getPwaApplication())).thenReturn(caseManagementLink);
+
+    var emailProps = new ApplicationUpdateAcceptedEmailProps(
+        assignedResponder.getFullName(), detail.getPwaApplicationRef(), groupDetail.getName(), caseManagementLink);
 
     confirmSatisfactoryApplicationService.confirmSatisfactory(detail, "my reason", person);
 
     // actual behaviour tested in app detail service unit test
     verify(pwaApplicationDetailService, times(1)).setConfirmedSatisfactoryData(detail, "my reason", person);
+    verify(notifyService, times(1)).sendEmail(emailProps, assignedResponder.getEmailAddress());
+
+  }
+
+  @Test
+  public void confirmSatisfactory_notAlreadyCompleted_success_noAssignedResponder() {
+
+    var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
+    var person = PersonTestUtil.createDefaultPerson();
+
+    var consulteeGroup = new ConsulteeGroup();
+    consulteeGroup.setId(1);
+    var consultationRequest = new ConsultationRequest();
+    consultationRequest.setConsulteeGroup(consulteeGroup);
+    consultationRequest.setPwaApplication(detail.getPwaApplication());
+    when(consultationRequestService.getAllOpenRequestsByApplication(detail.getPwaApplication()))
+        .thenReturn(List.of(consultationRequest));
+
+    var groupDetail = new ConsulteeGroupDetail();
+    groupDetail.setName("group");
+    Map<ConsulteeGroup, ConsulteeGroupDetail> consulteeGroupAndDetailMap = new HashMap<>();
+    consulteeGroupAndDetailMap.put(consulteeGroup, groupDetail);
+    when(consultationRequestService.getGroupDetailsForConsulteeGroups(List.of(consultationRequest)))
+        .thenReturn(consulteeGroupAndDetailMap);
+
+    var consultationRecipient1 = PersonTestUtil.createPersonFrom(new PersonId(1), "myEmail@mail.com");
+    var consultationRecipient2 = PersonTestUtil.createPersonFrom(new PersonId(2), "myEmail2@mail.com");
+    when(consultationRequestService.getConsultationRecipients(consultationRequest))
+        .thenReturn(List.of(consultationRecipient1, consultationRecipient2));
+
+    var caseManagementLink = "link";
+    when(emailCaseLinkService.generateCaseManagementLink(consultationRequest.getPwaApplication())).thenReturn(caseManagementLink);
+
+    var emailPropsRecipient1 = new ApplicationUpdateAcceptedEmailProps(
+        consultationRecipient1.getFullName(), detail.getPwaApplicationRef(), groupDetail.getName(), caseManagementLink);
+
+    var emailPropsRecipient2 = new ApplicationUpdateAcceptedEmailProps(
+        consultationRecipient2.getFullName(), detail.getPwaApplicationRef(), groupDetail.getName(), caseManagementLink);
+
+    confirmSatisfactoryApplicationService.confirmSatisfactory(detail, "my reason", person);
+
+    // actual behaviour tested in app detail service unit test
+    verify(pwaApplicationDetailService, times(1)).setConfirmedSatisfactoryData(detail, "my reason", person);
+
+
+    verify(notifyService, times(2)).sendEmail(any(), any());
+    verify(notifyService, atLeastOnce()).sendEmail(emailPropsRecipient1, consultationRecipient1.getEmailAddress());
+    verify(notifyService, atLeastOnce()).sendEmail(emailPropsRecipient2, consultationRecipient2.getEmailAddress());
 
   }
 
@@ -182,5 +274,8 @@ public class ConfirmSatisfactoryApplicationServiceTest {
     confirmSatisfactoryApplicationService.confirmSatisfactory(detail, "my reason", person);
 
   }
+
+
+
 
 }
