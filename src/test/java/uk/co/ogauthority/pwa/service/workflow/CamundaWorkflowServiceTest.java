@@ -123,6 +123,11 @@ public class CamundaWorkflowServiceTest {
 
   }
 
+  @Test(expected = NullPointerException.class)
+  public void deleteProcessInstanceAndThenTasks_processInstanceNotFound() {
+    camundaWorkflowService.deleteProcessInstanceAndThenTasks(application);
+  }
+
   @Test
   public void getTasksFromWorkflowTaskInstances() {
     camundaWorkflowService.startWorkflow(application);

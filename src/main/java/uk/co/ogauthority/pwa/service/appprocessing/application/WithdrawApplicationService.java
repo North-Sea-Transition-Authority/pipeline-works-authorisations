@@ -50,25 +50,16 @@ public class WithdrawApplicationService implements AppProcessingService {
                                   PwaApplicationDetail pwaApplicationDetail, AuthenticatedUserAccount withdrawingUser) {
 
     pwaApplicationDetailService.setWithdrawn(pwaApplicationDetail, withdrawingUser.getLinkedPerson(), form.getWithdrawalReason());
-
-    var workflowTaskInstances = camundaWorkflowService.getAllActiveWorkflowTasks(pwaApplicationDetail.getPwaApplication());
-    var tasks = camundaWorkflowService.getTasksFromWorkflowTaskInstances(workflowTaskInstances);
-    var processInstance = camundaWorkflowService.getProcessInstance(pwaApplicationDetail.getPwaApplication())
-        .orElseThrow(() -> new NullPointerException("Process instance not found"));
-    camundaWorkflowService.deleteProcessInstance(processInstance);
-    camundaWorkflowService.deleteTasks(tasks);
+    camundaWorkflowService.deleteProcessInstanceAndThenTasks(pwaApplicationDetail.getPwaApplication());
 
     withdrawConsultationRequests(pwaApplicationDetail.getPwaApplication(), withdrawingUser);
     sendWithdrawalEmails(pwaApplicationDetail, withdrawingUser);
-
   }
 
   private void withdrawConsultationRequests(PwaApplication pwaApplication, AuthenticatedUserAccount withdrawingUser) {
-    var consultationRequests = consultationRequestService.getAllRequestsByApplication(pwaApplication);
+    var consultationRequests = consultationRequestService.getAllOpenRequestsByApplication(pwaApplication);
     for (var consultationRequest: consultationRequests) {
-      if (consultationRequestService.consultationRequestIsActive(consultationRequest)) {
-        consultationRequestService.withdrawConsultationRequest(consultationRequest, withdrawingUser);
-      }
+      consultationRequestService.withdrawConsultationRequest(consultationRequest, withdrawingUser);
     }
   }
 

@@ -224,6 +224,10 @@ public class ConsultationRequestService {
     return consultationRequestRepository.findByPwaApplicationOrderByConsulteeGroupDescStartTimestampDesc(pwaApplication);
   }
 
+  public List<ConsultationRequest> getAllOpenRequestsByApplication(PwaApplication pwaApplication) {
+    return consultationRequestRepository.findByPwaApplicationAndStatusNotIn(pwaApplication, ENDED_STATUSES);
+  }
+
   public List<ConsultationRequest> getAllRequestsByAppAndGroupRespondedOnly(PwaApplication pwaApplication, ConsulteeGroup consulteeGroup) {
     return consultationRequestRepository.findByConsulteeGroupAndPwaApplicationAndStatus(
         consulteeGroup, pwaApplication, ConsultationRequestStatus.RESPONDED);

@@ -140,8 +140,16 @@ public class CamundaWorkflowService {
 
   }
 
-  public void deleteProcessInstance(ProcessInstance processInstance) {
+  public void deleteProcessInstanceAndThenTasks(WorkflowSubject workflowSubject) {
+
+    var workflowTaskInstances = getAllActiveWorkflowTasks(workflowSubject);
+    var tasks = getTasksFromWorkflowTaskInstances(workflowTaskInstances);
+
+    var processInstance = getProcessInstance(workflowSubject)
+        .orElseThrow(() -> new NullPointerException("Process instance not found for " + workflowSubject.getDebugString()));
     runtimeService.deleteProcessInstance(processInstance.getProcessInstanceId(), null);
+
+    tasks.forEach(task -> taskService.deleteTask(task.getId()));
   }
 
 
@@ -154,10 +162,6 @@ public class CamundaWorkflowService {
       );
     }
     return tasks;
-  }
-
-  public void deleteTasks(Set<Task> tasks) {
-    tasks.forEach(task -> taskService.deleteTask(task.getId()));
   }
 
   public void assignTaskToUser(WorkflowTaskInstance workflowTaskInstance, Person person) {

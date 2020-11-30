@@ -8,9 +8,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
-import org.camunda.bpm.engine.task.Task;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -87,21 +85,9 @@ public class WithdrawApplicationServiceTest {
     when(camundaWorkflowService.getAllActiveWorkflowTasks(pwaApplicationDetail.getPwaApplication()))
         .thenReturn(Set.of(workflowTaskInstance));
 
-    var processInstance = new CamundaProcessInstance();
-    when(camundaWorkflowService.getProcessInstance(pwaApplicationDetail.getPwaApplication()))
-        .thenReturn(Optional.of(processInstance));
-
-    Set<Task> tasks = Set.of(new CamundaTask(), new CamundaTask());
-    when(camundaWorkflowService.getTasksFromWorkflowTaskInstances(Set.of(workflowTaskInstance)))
-        .thenReturn(tasks);
-
-
     var consultationRequest = new ConsultationRequest();
-    when(consultationRequestService.getAllRequestsByApplication(pwaApplicationDetail.getPwaApplication()))
+    when(consultationRequestService.getAllOpenRequestsByApplication(pwaApplicationDetail.getPwaApplication()))
         .thenReturn(List.of(consultationRequest));
-
-    when(consultationRequestService.consultationRequestIsActive(consultationRequest)).thenReturn(true);
-
 
     var appPerson = PersonTestUtil.createDefaultPerson();
     when(pwaContactService.getPeopleInRoleForPwaApplication(
@@ -115,8 +101,7 @@ public class WithdrawApplicationServiceTest {
 
     withdrawApplicationService.withdrawApplication(form, pwaApplicationDetail, withdrawingUser);
 
-    verify(camundaWorkflowService, times(1)).deleteProcessInstance(processInstance);
-    verify(camundaWorkflowService, times(1)).deleteTasks(tasks);
+    verify(camundaWorkflowService, times(1)).deleteProcessInstanceAndThenTasks(pwaApplicationDetail.getPwaApplication());
     verify(consultationRequestService, times(1)).withdrawConsultationRequest(consultationRequest, withdrawingUser);
     verify(notifyService, times(2)).sendEmail(any(), any());
     verify(notifyService, atLeastOnce()).sendEmail(emailProps, appPerson.getEmailAddress());

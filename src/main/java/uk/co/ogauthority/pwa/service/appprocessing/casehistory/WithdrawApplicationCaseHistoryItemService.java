@@ -30,7 +30,7 @@ public class WithdrawApplicationCaseHistoryItemService implements CaseHistoryIte
 
     return appDetails.stream()
         .map(pwaApplicationDetail -> new CaseHistoryItemView.Builder(
-                String.format("Application version %s withdrawn", pwaApplicationDetail.getVersionNo()),
+            "Application withdrawn",
                 pwaApplicationDetail.getWithdrawalTimestamp(),
                 pwaApplicationDetail.getWithdrawingPersonId()
             )
