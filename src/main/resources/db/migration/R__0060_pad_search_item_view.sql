@@ -24,6 +24,7 @@ CREATE OR REPLACE VIEW ${datasource.user}.pad_search_items (
 , open_consultation_req_flag
 , open_public_notice_flag
 , open_update_request_flag
+, tip_version_satisfactory_flag
 ) AS
 WITH open_update_app_details AS (
   SELECT
@@ -56,6 +57,7 @@ SELECT
 , pad.tip_flag
 , pad.version_no
 , COALESCE(pad.submitted_as_fast_track_flag, 0) submitted_as_fast_track_flag
+, CASE WHEN pad.tip_flag = 1 AND pad.confirmed_satisfactory_ts IS NOT NULL THEN 1 ELSE 0 END tip_version_satisfactory_flag
 
 , paa.assignee_person_id case_officer_person_id
 , paa.assignee_name case_officer_name
@@ -108,13 +110,17 @@ LEFT JOIN ${datasource.user}.pwa_app_assignments paa ON paa.pwa_application_id =
 LEFT JOIN ${datasource.user}.pad_project_information ppi ON ppi.application_detail_id = pad.id
 LEFT JOIN open_update_app_details ouad ON ouad.pad_id = pad.id AND (ouad.open_app_update = 1 OR ouad.unresponded_option_approval = 1)
 WHERE pd.end_timestamp IS NULL
-AND pad.version_no = CASE
-  -- if a submitted version exists, always return the last submitted
-  WHEN psv.last_submitted_version IS NOT NULL THEN psv.last_submitted_version
-  -- else if the detail is the current draft version return that version.
-  WHEN psv.max_draft_version = pad.version_no THEN psv.max_draft_version
-  ELSE NULL
-END;
+AND (
 
+  -- if there's a submitted version, always show the latest submitted version
+  (psv.latest_submission_ts IS NOT NULL AND pad.submitted_timestamp = psv.latest_submission_ts)
+
+  OR
+
+  -- otherwise there should be a draft version we can show instead
+  (psv.latest_submission_ts IS NULL AND pad.version_no = psv.latest_draft_v_no)
+
+);
+/
 
 

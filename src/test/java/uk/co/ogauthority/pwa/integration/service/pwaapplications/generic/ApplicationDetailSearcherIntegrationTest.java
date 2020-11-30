@@ -47,13 +47,11 @@ public class ApplicationDetailSearcherIntegrationTest {
   private ApplicationDetailSearchItem detail3SearchItem;
   private ApplicationDetailSearchItem detail4SearchItem;
 
-
   @Autowired
   private ApplicationDetailSearcher applicationDetailSearcher;
 
   @Autowired
   private EntityManager entityManager;
-
 
   public void setupSearchItems() {
     detail1 = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL, 1, 10);
@@ -191,4 +189,120 @@ public class ApplicationDetailSearcherIntegrationTest {
 
     assertThat(result.get()).isEmpty();
   }
+
+  @Transactional
+  @Test
+  public void searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagIsFalseOrAllProcessingWaitFlagsFalse_satisfactory_noWaitFlags_forAttention() {
+
+    setupSearchItems();
+
+    detail3SearchItem.setTipVersionSatisfactoryFlag(true);
+    persistSearchItems();
+
+    var result = applicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagIsFalseOrAllProcessingWaitFlagsFalse(
+        WorkAreaPageServiceTestUtil.getWorkAreaViewPageable(0, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
+        Set.of(),
+        Set.of(1, 2, 3, 4)
+    );
+
+    assertThat(result).containsOnly(detail1SearchItem, detail2SearchItem, detail3SearchItem, detail4SearchItem);
+
+  }
+
+  @Transactional
+  @Test
+  public void searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagIsFalseOrAllProcessingWaitFlagsFalse_notSatisfactory_available() {
+
+    setupSearchItems();
+    persistSearchItems();
+
+    var result = applicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagIsFalseOrAllProcessingWaitFlagsFalse(
+        WorkAreaPageServiceTestUtil.getWorkAreaViewPageable(0, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
+        Set.of(),
+        Set.of(1, 2, 3, 4)
+    );
+
+    assertThat(result).containsOnly(detail1SearchItem, detail2SearchItem, detail3SearchItem, detail4SearchItem);
+
+
+  }
+
+  @Transactional
+  @Test
+  public void searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagIsFalseOrAllProcessingWaitFlagsFalse_satisfactory_waitFlags_notAvailable() {
+
+    setupSearchItems();
+
+    detail3SearchItem.setOpenUpdateRequestFlag(true);
+    detail3SearchItem.setTipVersionSatisfactoryFlag(true);
+    persistSearchItems();
+
+    var result = applicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagIsFalseOrAllProcessingWaitFlagsFalse(
+        WorkAreaPageServiceTestUtil.getWorkAreaViewPageable(0, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
+        Set.of(),
+        Set.of(1, 2, 3, 4)
+    );
+
+    assertThat(result).containsOnly(detail1SearchItem, detail2SearchItem, detail4SearchItem);
+
+  }
+
+  @Transactional
+  @Test
+  public void searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagIsTrueAndAnyProcessingWaitFlagTrue_notSatisfactory_notAvailable() {
+
+    setupSearchItems();
+
+    detail3SearchItem.setTipVersionSatisfactoryFlag(false);
+    persistSearchItems();
+
+    var result = applicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagIsTrueAndAnyProcessingWaitFlagTrue(
+        WorkAreaPageServiceTestUtil.getWorkAreaViewPageable(0, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
+        Set.of(),
+        Set.of(1, 2, 3, 4)
+    );
+
+    assertThat(result).isEmpty();
+
+  }
+
+  @Transactional
+  @Test
+  public void searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagIsTrueAndAnyProcessingWaitFlagTrue_satisfactory_noWaitFlags_notAvailable() {
+
+    setupSearchItems();
+
+    detail3SearchItem.setTipVersionSatisfactoryFlag(true);
+    persistSearchItems();
+
+    var result = applicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagIsTrueAndAnyProcessingWaitFlagTrue(
+        WorkAreaPageServiceTestUtil.getWorkAreaViewPageable(0, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
+        Set.of(),
+        Set.of(1, 2, 3, 4)
+    );
+
+    assertThat(result).isEmpty();
+
+  }
+
+  @Transactional
+  @Test
+  public void searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagIsTrueAndAnyProcessingWaitFlagTrue_satisfactory_oneWaitFlag_available() {
+
+    setupSearchItems();
+
+    detail3SearchItem.setTipVersionSatisfactoryFlag(true);
+    detail3SearchItem.setOpenConsultationRequestFlag(true);
+    persistSearchItems();
+
+    var result = applicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagIsTrueAndAnyProcessingWaitFlagTrue(
+        WorkAreaPageServiceTestUtil.getWorkAreaViewPageable(0, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
+        Set.of(),
+        Set.of(1, 2, 3, 4)
+    );
+
+    assertThat(result).containsOnly(detail3SearchItem);
+
+  }
+
 }

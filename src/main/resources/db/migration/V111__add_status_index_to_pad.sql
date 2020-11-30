@@ -1,0 +1,1 @@
+CREATE INDEX ${datasource.user}.pad_status_idx ON ${datasource.user}.pwa_application_details (status);

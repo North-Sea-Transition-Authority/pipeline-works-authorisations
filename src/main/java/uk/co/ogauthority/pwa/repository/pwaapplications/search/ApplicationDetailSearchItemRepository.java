@@ -13,23 +13,27 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 
 public interface ApplicationDetailSearchItemRepository extends CrudRepository<ApplicationDetailSearchItem, Integer> {
 
-  String PADSTATUS_IN_OR_PWAAPPLICATION_ID_IN_AND_WHERE_ALL_WAIT_FLAGS_MATCH = "" +
+  String PADSTATUS_IN_OR_PWAAPPLICATION_ID_IN_AND_WHERE_TIP_SATISFACTORY_FLAG_MATCHES_OR_ALL_OTHER_WAIT_FLAGS_MATCH = "" +
       "FROM ApplicationDetailSearchItem adsi " +
       "WHERE ( adsi.pwaApplicationId IN :applicationIdFilter OR adsi.padStatus IN :statusFilter) " +
       "AND ( " +
-      "  adsi.openUpdateRequestFlag = :openForUpdateFlag " +
-      "  AND adsi.openPublicNoticeFlag = :openPublicNoticeFlag " +
-      "  AND adsi.openConsultationRequestFlag = :openConsultationRequestFlag" +
-      ") ";
+      "  (adsi.tipVersionSatisfactoryFlag = :tipVersionSatisfactoryFlag) OR ( " +
+      "    adsi.openUpdateRequestFlag = :openForUpdateFlag " +
+      "    AND adsi.openPublicNoticeFlag = :openPublicNoticeFlag " +
+      "    AND adsi.openConsultationRequestFlag = :openConsultationRequestFlag" +
+      "  ) " +
+      ")";
 
-  String PADSTATUS_IN_OR_PWAAPPLICATION_ID_IN_AND_WHERE_ANY_WAIT_FLAGS_MATCH = "" +
+  String PADSTATUS_IN_OR_PWAAPPLICATION_ID_IN_AND_WHERE_TIP_SATISFACTORY_FLAG_MATCHES_AND_ANY_OTHER_WAIT_FLAGS_MATCH = "" +
       "FROM ApplicationDetailSearchItem adsi " +
       "WHERE (adsi.pwaApplicationId IN :applicationIdFilter OR adsi.padStatus IN :statusFilter) " +
       "AND ( " +
-      "  adsi.openUpdateRequestFlag = :openForUpdateFlag " +
-      "  OR adsi.openPublicNoticeFlag = :openPublicNoticeFlag " +
-      "  OR adsi.openConsultationRequestFlag = :openConsultationRequestFlag" +
-      ") ";
+      "  (adsi.tipVersionSatisfactoryFlag = :tipVersionSatisfactoryFlag) AND ( " +
+      "    adsi.openUpdateRequestFlag = :openForUpdateFlag " +
+      "    OR adsi.openPublicNoticeFlag = :openPublicNoticeFlag " +
+      "    OR adsi.openConsultationRequestFlag = :openConsultationRequestFlag" +
+      "  ) " +
+      ")";
 
   Page<ApplicationDetailSearchItem> findAllByTipFlagIsTrueAndPadStatusIn(Pageable pageable,
                                                                          Collection<PwaApplicationStatus> statusFilter);
@@ -40,26 +44,30 @@ public interface ApplicationDetailSearchItemRepository extends CrudRepository<Ap
 
 
   // we can use standard JPQL + Pageable here as the sort values will never be null after submission.
-  @Query(value = PADSTATUS_IN_OR_PWAAPPLICATION_ID_IN_AND_WHERE_ALL_WAIT_FLAGS_MATCH,
-      countQuery = "SELECT COUNT(adsi) " + PADSTATUS_IN_OR_PWAAPPLICATION_ID_IN_AND_WHERE_ALL_WAIT_FLAGS_MATCH
+  @Query(value = PADSTATUS_IN_OR_PWAAPPLICATION_ID_IN_AND_WHERE_TIP_SATISFACTORY_FLAG_MATCHES_OR_ALL_OTHER_WAIT_FLAGS_MATCH,
+      countQuery = "SELECT COUNT(adsi) " +
+          PADSTATUS_IN_OR_PWAAPPLICATION_ID_IN_AND_WHERE_TIP_SATISFACTORY_FLAG_MATCHES_OR_ALL_OTHER_WAIT_FLAGS_MATCH
   )
-  Page<ApplicationDetailSearchItem> findAllByPadStatusInOrPwaApplicationIdInAndWhereAllProcessingWaitFlagsMatch(
+  Page<ApplicationDetailSearchItem> findAllByPadStatusInOrPwaApplicationIdInAndWhereTipSatisfactoryFlagEqualsOrAllWaitFlagsMatch(
       Pageable pageable,
       @Param("statusFilter") Collection<PwaApplicationStatus> statusFilter,
       @Param("applicationIdFilter") Collection<Integer> applicationIdFilter,
+      @Param("tipVersionSatisfactoryFlag") Boolean tipVersionSatisfactoryFlag,
       @Param("openForUpdateFlag") Boolean openForUpdateFlag,
       @Param("openPublicNoticeFlag") Boolean openPublicNoticeFlag,
       @Param("openConsultationRequestFlag") Boolean openConsultationRequestFlag
   );
 
   // we can use standard JPQL + Pageable here as the sort values will never be null after submission.
-  @Query(value = PADSTATUS_IN_OR_PWAAPPLICATION_ID_IN_AND_WHERE_ANY_WAIT_FLAGS_MATCH,
-      countQuery = "SELECT COUNT(adsi) " + PADSTATUS_IN_OR_PWAAPPLICATION_ID_IN_AND_WHERE_ANY_WAIT_FLAGS_MATCH
+  @Query(value = PADSTATUS_IN_OR_PWAAPPLICATION_ID_IN_AND_WHERE_TIP_SATISFACTORY_FLAG_MATCHES_AND_ANY_OTHER_WAIT_FLAGS_MATCH,
+      countQuery = "SELECT COUNT(adsi) " +
+          PADSTATUS_IN_OR_PWAAPPLICATION_ID_IN_AND_WHERE_TIP_SATISFACTORY_FLAG_MATCHES_AND_ANY_OTHER_WAIT_FLAGS_MATCH
   )
-  Page<ApplicationDetailSearchItem> findAllByPadStatusInOrPwaApplicationIdInAndWhereAnyWaitFlagsMatch(
+  Page<ApplicationDetailSearchItem> findAllByPadStatusInOrPwaApplicationIdInAndWhereTipSatisfactoryFlagEqualsAndAnyWaitFlagsMatch(
       Pageable pageable,
       @Param("statusFilter") Collection<PwaApplicationStatus> statusFilter,
       @Param("applicationIdFilter") Collection<Integer> applicationIdFilter,
+      @Param("tipVersionSatisfactoryFlag") Boolean tipVersionSatisfactoryFlag,
       @Param("openForUpdateFlag") Boolean openForUpdateFlag,
       @Param("openPublicNoticeFlag") Boolean openPublicNoticeFlag,
       @Param("openConsultationRequestFlag") Boolean openConsultationRequestFlag
