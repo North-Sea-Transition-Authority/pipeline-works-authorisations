@@ -12,6 +12,7 @@ CREATE OR REPLACE VIEW ${datasource.user}.pad_search_items (
 , pad_init_review_approved_ts
 , pad_status_timestamp
 , tip_flag
+, version_no
 , submitted_as_fast_track_flag
 , case_officer_person_id
 , case_officer_name
