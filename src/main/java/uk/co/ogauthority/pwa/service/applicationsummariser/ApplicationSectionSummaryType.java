@@ -5,6 +5,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.ApplicationContactsSummaryService;
+import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.ApplicationUpdateSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.CableCrossingsSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.CampaignWorkScheduleSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.CrossingTypesSummaryService;
@@ -37,6 +38,10 @@ import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.Te
  */
 public enum ApplicationSectionSummaryType {
 
+  PREVIOUS_UPDATE(
+      5,
+      "pwaApplication/applicationSummarySections/previousApplicationUpdateSummary.ftl",
+      ApplicationUpdateSummaryService.class),
 
   APPLICATION_USERS(
       10,

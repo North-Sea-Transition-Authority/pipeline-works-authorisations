@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.repository.appprocessing.applicationupdates;
 
 
+import java.util.List;
 import java.util.Optional;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
@@ -17,6 +18,10 @@ public interface ApplicationUpdateRequestViewRepository extends CrudRepository<A
                                                                              ApplicationUpdateRequestStatus status);
 
   Optional<ApplicationUpdateRequestView> findByPwaApplicationDetail_pwaApplicationAndStatus(
+      PwaApplication pwaApplication,
+      ApplicationUpdateRequestStatus status);
+
+  List<ApplicationUpdateRequestView> findAllByPwaApplicationDetail_pwaApplicationAndStatus(
       PwaApplication pwaApplication,
       ApplicationUpdateRequestStatus status);
 }
