@@ -82,8 +82,6 @@ public class ApplicationContactsSummaryServiceTest {
         SidebarSectionLink.createAnchorLink(ApplicationTask.APPLICATION_USERS.getDisplayName(), "#appContactDetails")
     );
 
-
-
   }
 
 
