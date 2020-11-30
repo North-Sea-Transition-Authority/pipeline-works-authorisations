@@ -5,16 +5,24 @@
 <#-- @ftlvariable name="taskListUrl" type="java.lang.String" -->
 <#-- @ftlvariable name="applicationReference" type="java.lang.String" -->
 <#-- @ftlvariable name="openUpdateRequest" type="java.lang.Boolean" -->
+<#-- @ftlvariable name="updateRequestView" type="uk.co.ogauthority.pwa.model.view.appprocessing.applicationupdates.ApplicationUpdateRequestView" -->
 
 <#assign pageHeading="Review and Submit Application ${applicationReference}"/>
 
 <@defaultPagePane htmlTitle=pageHeading phaseBanner=false>
 
+    <#if updateRequestView?has_content>
+        <#assign updateRequestBanner>
+            <@pwaUpdateRequestView.banner view=updateRequestView canUpdate=false taskListUrl=taskListUrl />
+        </#assign>
+    </#if>
+
     <@pwaAppSummary.summary
     pageHeading=pageHeading
     appSummaryView=appSummaryView
     sidebarHeading="Check your answers for all questions in the application"
-    errorList=errorList>
+    errorList=errorList
+    aboveSummaryInsert=updateRequestBanner!"">
 
         <@fdsForm.htmlForm>
           <!-- Submit button macro not used to allow for hiding of button when application is not valid. -->

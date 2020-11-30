@@ -83,16 +83,17 @@ public class ApplicationDetailSearcherTest {
   @Test
   public void searchByStatusOrApplicationIdsAndWhereAllProcessingWaitFlagsFalse_serviceInteractions_whenFiltersHaveContent() {
 
-    var resultPage = applicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereAllProcessingWaitFlagsFalse(
+    var resultPage = applicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagIsFalseOrAllProcessingWaitFlagsFalse(
         pageable,
         Set.of(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW),
         Set.of(1, 2, 3)
     );
 
-    verify(applicationDetailSearchItemRepository, times(1)).findAllByPadStatusInOrPwaApplicationIdInAndWhereAllProcessingWaitFlagsMatch(
+    verify(applicationDetailSearchItemRepository, times(1)).findAllByPadStatusInOrPwaApplicationIdInAndWhereTipSatisfactoryFlagEqualsOrAllWaitFlagsMatch(
         pageable,
         Set.of(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW),
         Set.of(1, 2, 3),
+        false,
         false,
         false,
         false
@@ -102,7 +103,7 @@ public class ApplicationDetailSearcherTest {
   @Test
   public void searchByStatusOrApplicationIdsAndWhereAllProcessingWaitFlagsFalse_serviceInteractions_whenFiltersHaveNoContent() {
 
-    var resultPage = applicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereAllProcessingWaitFlagsFalse(
+    var resultPage = applicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagIsFalseOrAllProcessingWaitFlagsFalse(
         pageable,
         Set.of(),
         Set.of()

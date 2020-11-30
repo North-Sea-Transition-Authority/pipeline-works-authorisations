@@ -15,6 +15,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskListService;
+import uk.co.ogauthority.pwa.service.pwaapplications.generic.tasklist.TaskListControllerModelAndViewCreator;
 
 @Controller
 @RequestMapping("/pwa-application/initial/{applicationId}/tasks")
@@ -25,19 +26,26 @@ public class InitialTaskListController {
 
   private final TaskListService taskListService;
   private final PwaApplicationDetailService pwaApplicationDetailService;
+  private final TaskListControllerModelAndViewCreator taskListControllerModelAndViewCreator;
 
   @Autowired
   public InitialTaskListController(TaskListService taskListService,
-                                   PwaApplicationDetailService pwaApplicationDetailService) {
+                                   PwaApplicationDetailService pwaApplicationDetailService,
+                                   TaskListControllerModelAndViewCreator taskListControllerModelAndViewCreator) {
     this.taskListService = taskListService;
     this.pwaApplicationDetailService = pwaApplicationDetailService;
+    this.taskListControllerModelAndViewCreator = taskListControllerModelAndViewCreator;
   }
 
   @GetMapping
   public ModelAndView viewTaskList(@PathVariable("applicationId") Integer applicationId,
                                    PwaApplicationContext applicationContext) {
 
-    return taskListService.getTaskListModelAndView(applicationContext.getApplicationDetail());
+    var taskGroups = taskListService.getTaskListGroups(applicationContext.getApplicationDetail());
+    return taskListControllerModelAndViewCreator.getTaskListModelAndView(
+        applicationContext.getApplicationDetail(),
+        taskGroups
+    );
 
 
   }

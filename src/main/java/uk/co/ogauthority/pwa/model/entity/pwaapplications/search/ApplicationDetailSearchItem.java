@@ -83,6 +83,8 @@ public class ApplicationDetailSearchItem {
 
   private boolean openPublicNoticeFlag;
 
+  private boolean tipVersionSatisfactoryFlag;
+
   public int getPwaApplicationDetailId() {
     return pwaApplicationDetailId;
   }
@@ -281,5 +283,17 @@ public class ApplicationDetailSearchItem {
 
   public void setOpenPublicNoticeFlag(boolean openPublicNoticeFlag) {
     this.openPublicNoticeFlag = openPublicNoticeFlag;
+  }
+
+  public boolean isSubmittedAsFastTrackFlag() {
+    return submittedAsFastTrackFlag;
+  }
+
+  public boolean isTipVersionSatisfactoryFlag() {
+    return tipVersionSatisfactoryFlag;
+  }
+
+  public void setTipVersionSatisfactoryFlag(boolean tipVersionSatisfactoryFlag) {
+    this.tipVersionSatisfactoryFlag = tipVersionSatisfactoryFlag;
   }
 }

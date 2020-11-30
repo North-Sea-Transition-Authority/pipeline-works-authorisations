@@ -14,10 +14,15 @@ JOIN ${datasource.user}.pwa_application_details pad ON pad.pwa_application_id = 
 JOIN ${datasource.user}.pad_status_versions psv ON pa.id = psv.pwa_application_id
 JOIN ${datasource.user}.consultee_group_details cgd ON cgd.cg_id = cr.consultee_group_id AND cgd.tip_flag = 1
 LEFT JOIN ${datasource.user}.consultation_assignments ca ON ca.consultation_request_id = cr.id AND ca.assignment = 'CONSULTATION_RESPONDER'
-WHERE pad.version_no = CASE
-  -- if a submitted version exists, always return the last submitted
-  WHEN psv.last_submitted_version IS NOT NULL THEN psv.last_submitted_version
-  -- else if the detail is the current draft version return that version.
-  WHEN psv.max_draft_version = pad.version_no THEN psv.max_draft_version
-  ELSE NULL
-END;
+-- TODO PWA-517 only show consultees accepted versions
+WHERE (
+
+  -- if there's a submitted version, always show the latest submitted version
+  (psv.latest_submission_ts IS NOT NULL AND pad.submitted_timestamp = psv.latest_submission_ts)
+
+  OR
+
+  -- otherwise there should be a draft version we can show instead
+  (psv.latest_submission_ts IS NULL AND pad.version_no = psv.latest_draft_v_no)
+
+);

@@ -46,7 +46,7 @@ public class TaskListEntryFactory {
         0);
   }
 
-  TaskListEntry createReviewAndSubmitTask(PwaApplicationDetail detail) {
+  public TaskListEntry createReviewAndSubmitTask(PwaApplicationDetail detail) {
     return new TaskListEntry(
         "Review and submit application",
         ReverseRouter.route(on(ReviewAndSubmitController.class)

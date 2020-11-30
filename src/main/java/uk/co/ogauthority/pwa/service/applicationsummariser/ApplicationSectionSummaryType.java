@@ -5,6 +5,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.ApplicationContactsSummaryService;
+import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.ApplicationUpdateSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.CableCrossingsSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.CampaignWorkScheduleSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.CrossingTypesSummaryService;
@@ -19,6 +20,7 @@ import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.Hu
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.LicenceBlockSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.LocationDetailsSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.MedianLineAgreementSummaryService;
+import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.OptionConfirmationSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.OptionsTemplateSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.OtherPropertiesSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.PartnerApprovalLettersSummaryService;
@@ -37,11 +39,20 @@ import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.Te
  */
 public enum ApplicationSectionSummaryType {
 
+  PREVIOUS_UPDATE(
+      5,
+      "pwaApplication/applicationSummarySections/previousApplicationUpdateSummary.ftl",
+      ApplicationUpdateSummaryService.class),
 
   APPLICATION_USERS(
       10,
       "pwaApplication/applicationSummarySections/applicationContactsSummary.ftl",
       ApplicationContactsSummaryService.class),
+
+  OPTION_CONFIRMATION(
+      15,
+      "pwaApplication/applicationSummarySections/optionConfirmationSummary.ftl",
+      OptionConfirmationSummaryService.class),
 
   FIELD_INFORMATION(
       20,

@@ -88,7 +88,7 @@ public class RegulatorWorkAreaPageService {
 
     var searchStatuses = getAdditionalStatusFilterForUser(userAccount);
 
-    return applicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereAllProcessingWaitFlagsFalse(
+    return applicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagIsFalseOrAllProcessingWaitFlagsFalse(
         WorkAreaUtils.getWorkAreaPageRequest(pageRequest, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
         searchStatuses,
         applicationIdList
@@ -102,7 +102,7 @@ public class RegulatorWorkAreaPageService {
 
     var searchStatuses = getAdditionalStatusFilterForUser(userAccount);
 
-    return applicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereAnyProcessingWaitFlagTrue(
+    return applicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagIsTrueAndAnyProcessingWaitFlagTrue(
         WorkAreaUtils.getWorkAreaPageRequest(pageRequest, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
         searchStatuses,
         applicationIdList

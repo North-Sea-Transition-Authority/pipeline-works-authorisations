@@ -14,6 +14,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskListService;
+import uk.co.ogauthority.pwa.service.pwaapplications.generic.tasklist.TaskListControllerModelAndViewCreator;
 
 @Controller
 @RequestMapping("/pwa-application/cat-2/{applicationId}/tasks")
@@ -23,16 +24,23 @@ import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskListService;
 public class Category2TaskListController {
 
   private final TaskListService taskListService;
+  private final TaskListControllerModelAndViewCreator taskListControllerModelAndViewCreator;
 
   @Autowired
-  public Category2TaskListController(TaskListService taskListService) {
+  public Category2TaskListController(TaskListService taskListService,
+                                     TaskListControllerModelAndViewCreator taskListControllerModelAndViewCreator) {
     this.taskListService = taskListService;
+    this.taskListControllerModelAndViewCreator = taskListControllerModelAndViewCreator;
   }
 
   @GetMapping
   public ModelAndView viewTaskList(@PathVariable("applicationId") Integer applicationId,
                                    PwaApplicationContext applicationContext) {
-    return taskListService.getTaskListModelAndView(applicationContext.getApplicationDetail());
+    var taskGroups = taskListService.getTaskListGroups(applicationContext.getApplicationDetail());
+    return taskListControllerModelAndViewCreator.getTaskListModelAndView(
+        applicationContext.getApplicationDetail(),
+        taskGroups
+    );
   }
 
 }

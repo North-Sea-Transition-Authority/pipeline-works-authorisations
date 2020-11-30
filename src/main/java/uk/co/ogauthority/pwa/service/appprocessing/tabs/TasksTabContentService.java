@@ -8,8 +8,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.model.tasklist.TaskListGroup;
 import uk.co.ogauthority.pwa.model.view.appprocessing.applicationupdates.ApplicationUpdateRequestView;
+import uk.co.ogauthority.pwa.model.view.banner.PageBannerView;
 import uk.co.ogauthority.pwa.service.appprocessing.applicationupdate.ApplicationUpdateRequestViewService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
+import uk.co.ogauthority.pwa.service.appprocessing.options.ApproveOptionsService;
 import uk.co.ogauthority.pwa.service.appprocessing.tasks.PwaAppProcessingTaskListService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
@@ -20,14 +22,17 @@ public class TasksTabContentService implements AppProcessingTabContentService {
   private final PwaAppProcessingTaskListService appProcessingTaskListService;
   private final ApplicationUpdateRequestViewService applicationUpdateRequestViewService;
   private final PwaApplicationRedirectService pwaApplicationRedirectService;
+  private final ApproveOptionsService approveOptionsService;
 
   @Autowired
   public TasksTabContentService(PwaAppProcessingTaskListService appProcessingTaskListService,
                                 ApplicationUpdateRequestViewService applicationUpdateRequestViewService,
-                                PwaApplicationRedirectService pwaApplicationRedirectService) {
+                                PwaApplicationRedirectService pwaApplicationRedirectService,
+                                ApproveOptionsService approveOptionsService) {
     this.appProcessingTaskListService = appProcessingTaskListService;
     this.applicationUpdateRequestViewService = applicationUpdateRequestViewService;
     this.pwaApplicationRedirectService = pwaApplicationRedirectService;
+    this.approveOptionsService = approveOptionsService;
   }
 
   @Override
@@ -35,6 +40,7 @@ public class TasksTabContentService implements AppProcessingTabContentService {
 
     List<TaskListGroup> taskListGroups = List.of();
     Optional<ApplicationUpdateRequestView> updateRequestViewOpt = Optional.empty();
+    Optional<PageBannerView> optionsApprovalPageBannerViewOpt = Optional.empty();
     String taskListUrl = "";
 
     boolean industryFlag = appProcessingContext.getAppProcessingPermissions().contains(PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY);
@@ -45,6 +51,10 @@ public class TasksTabContentService implements AppProcessingTabContentService {
       taskListGroups = appProcessingTaskListService.getTaskListGroups(appProcessingContext);
 
       updateRequestViewOpt = applicationUpdateRequestViewService.getOpenRequestView(appProcessingContext.getApplicationDetail());
+
+      optionsApprovalPageBannerViewOpt = approveOptionsService.getOptionsApprovalPageBannerView(
+          appProcessingContext.getApplicationDetail()
+      );
 
       taskListUrl = pwaApplicationRedirectService.getTaskListRoute(appProcessingContext.getPwaApplication());
 
@@ -57,6 +67,7 @@ public class TasksTabContentService implements AppProcessingTabContentService {
     ));
 
     updateRequestViewOpt.ifPresent(view -> modelMap.put("updateRequestView", view));
+    optionsApprovalPageBannerViewOpt.ifPresent(view -> modelMap.put("optionsApprovalPageBanner", view));
 
     return modelMap;
 
