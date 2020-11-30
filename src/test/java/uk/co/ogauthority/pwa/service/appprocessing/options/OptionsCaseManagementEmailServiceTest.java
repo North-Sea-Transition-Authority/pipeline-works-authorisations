@@ -10,6 +10,7 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Collections;
@@ -76,6 +77,7 @@ public class OptionsCaseManagementEmailServiceTest {
 
   private PwaApplicationDetail pwaApplicationDetail;
   private MasterPwa masterPwa;
+  private Instant deadline;
 
   private Person preparerContactPerson;
 
@@ -86,6 +88,7 @@ public class OptionsCaseManagementEmailServiceTest {
 
   @Before
   public void setUp() throws Exception {
+    deadline = LocalDate.of(2020, 2, 1).atStartOfDay(ZoneId.systemDefault()).toInstant();
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.OPTIONS_VARIATION);
     masterPwa = pwaApplicationDetail.getPwaApplication().getMasterPwa();
@@ -113,13 +116,13 @@ public class OptionsCaseManagementEmailServiceTest {
         notifyService,
         pwaContactService,
         pwaConsentOrganisationRoleService,
-        applicationInvolvementService);
-
+        applicationInvolvementService
+    );
   }
 
   @Test
   public void sendInitialOptionsApprovedEmail_whenRecipientsFound_andSingleHoldersFound() {
-    optionsCaseManagementEmailService.sendInitialOptionsApprovedEmail(pwaApplicationDetail);
+    optionsCaseManagementEmailService.sendInitialOptionsApprovedEmail(pwaApplicationDetail, deadline);
 
     verify(notifyService, times(1)).sendEmail(optionsApprovedEmailCaptor.capture(),
         eq(preparerContactPerson.getEmailAddress()));
@@ -130,10 +133,10 @@ public class OptionsCaseManagementEmailServiceTest {
         entry("APPLICATION_REFERENCE", pwaApplicationDetail.getPwaApplicationRef()),
         entry("HOLDER", organisationUnit.getName()),
         entry("CASE_MANAGEMENT_LINK", CASE_LINK),
+        entry("DEADLINE_DATE", "01-February-2020"),
         entry("TEST_EMAIL", "no"),
         entry("RECIPIENT_FULL_NAME", preparerContactPerson.getFullName())
     );
-
   }
 
   @Test
@@ -144,7 +147,7 @@ public class OptionsCaseManagementEmailServiceTest {
     ))
         .thenReturn(Collections.emptyList());
 
-    optionsCaseManagementEmailService.sendInitialOptionsApprovedEmail(pwaApplicationDetail);
+    optionsCaseManagementEmailService.sendInitialOptionsApprovedEmail(pwaApplicationDetail, deadline);
 
     verifyNoInteractions(notifyService);
 
@@ -159,7 +162,7 @@ public class OptionsCaseManagementEmailServiceTest {
     when(pwaConsentOrganisationRoleService.getCurrentHoldersOrgRolesForMasterPwa(masterPwa))
         .thenReturn(Set.of(masterPwaHolderDto2, masterPwaHolderDto));
 
-    optionsCaseManagementEmailService.sendInitialOptionsApprovedEmail(pwaApplicationDetail);
+    optionsCaseManagementEmailService.sendInitialOptionsApprovedEmail(pwaApplicationDetail, deadline);
 
     verify(notifyService, times(1)).sendEmail(optionsApprovedEmailCaptor.capture(),
         eq(preparerContactPerson.getEmailAddress()));
@@ -173,12 +176,10 @@ public class OptionsCaseManagementEmailServiceTest {
 
   @Test
   public void sendOptionsDeadlineChangedEmail_whenPwaContactsFound_andCaseOfficerFound() {
-    var instant = LocalDate.of(2020, 2, 1).atStartOfDay(ZoneId.systemDefault()).toInstant();
-
     when(applicationInvolvementService.getCaseOfficerPerson(pwaApplicationDetail.getPwaApplication()))
         .thenReturn(Optional.of(caseOfficerPerson));
 
-    optionsCaseManagementEmailService.sendOptionsDeadlineChangedEmail(pwaApplicationDetail, instant);
+    optionsCaseManagementEmailService.sendOptionsDeadlineChangedEmail(pwaApplicationDetail, deadline);
 
     verify(notifyService, times(1)).sendEmail(optionsDeadlineChangedEmailCaptor.capture(),
         eq(preparerContactPerson.getEmailAddress()));

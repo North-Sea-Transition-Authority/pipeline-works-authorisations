@@ -35,8 +35,6 @@ import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService
 import uk.co.ogauthority.pwa.service.pwaapplications.search.ApplicationDetailSearcher;
 import uk.co.ogauthority.pwa.testutils.ConsulteeGroupTestingUtils;
 import uk.co.ogauthority.pwa.testutils.PwaAppProcessingContextDtoTestUtils;
-import uk.co.ogauthority.pwa.testutils.ConsulteeGroupTestingUtils;
-import uk.co.ogauthority.pwa.testutils.PwaAppProcessingContextDtoTestUtils;
 import uk.co.ogauthority.pwa.util.DateUtils;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -313,7 +311,7 @@ public class PwaAppProcessingContextServiceTest {
         false
     );
 
-    var appInvolvement = new ApplicationInvolvementDto(application, Set.of(), consultationInvolvement, false);
+    var appInvolvement = new ApplicationInvolvementDto(application, Set.of(), consultationInvolvement, false, false);
     var permissionsDto = new ProcessingPermissionsDto(appInvolvement, Set.of(PwaAppProcessingPermission.CASE_MANAGEMENT_CONSULTEE));
     when(appProcessingPermissionService.getProcessingPermissionsDto(any(), any()))
         .thenReturn(permissionsDto);
@@ -334,7 +332,7 @@ public class PwaAppProcessingContextServiceTest {
 
     var builder = new PwaAppProcessingContextParams(1, user);
 
-    var appInvolvement = new ApplicationInvolvementDto(application, Set.of(), null, false);
+    var appInvolvement = new ApplicationInvolvementDto(application, Set.of(), null, false, false);
     var permissionsDto = new ProcessingPermissionsDto(appInvolvement, Set.of(PwaAppProcessingPermission.CASE_MANAGEMENT_CONSULTEE));
     when(appProcessingPermissionService.getProcessingPermissionsDto(any(), any()))
         .thenReturn(permissionsDto);
@@ -350,7 +348,8 @@ public class PwaAppProcessingContextServiceTest {
 
     var builder = new PwaAppProcessingContextParams(1, user);
 
-    var appInvolvement = new ApplicationInvolvementDto(application, Set.of(), new ConsultationInvolvementDto(null, Set.of(), null, List.of(), false), false);
+    var appInvolvement = new ApplicationInvolvementDto(application, Set.of(), new ConsultationInvolvementDto(null, Set.of(), null, List.of(), false), false,
+        false);
     var permissionsDto = new ProcessingPermissionsDto(appInvolvement, Set.of(PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY));
     when(appProcessingPermissionService.getProcessingPermissionsDto(any(), any()))
         .thenReturn(permissionsDto);

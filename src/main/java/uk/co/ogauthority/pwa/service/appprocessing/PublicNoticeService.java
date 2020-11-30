@@ -21,11 +21,14 @@ public class PublicNoticeService implements AppProcessingService {
   @Override
   public TaskListEntry getTaskListEntry(PwaAppProcessingTask task, PwaAppProcessingContext processingContext) {
 
+    boolean atLeastOneSatisfactoryVersion = processingContext.getApplicationInvolvement().hasAtLeastOneSatisfactoryVersion();
+
     return new TaskListEntry(
         task.getTaskName(),
-        task.getRoute(processingContext),
-        TaskTag.from(TaskStatus.NOT_STARTED),
+        atLeastOneSatisfactoryVersion ? task.getRoute(processingContext) : null,
+        atLeastOneSatisfactoryVersion ? TaskTag.from(TaskStatus.NOT_STARTED) : TaskTag.from(TaskStatus.CANNOT_START_YET),
         task.getDisplayOrder());
 
   }
+
 }

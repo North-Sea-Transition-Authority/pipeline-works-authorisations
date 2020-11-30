@@ -29,7 +29,6 @@ public interface PwaApplicationDetailRepository extends CrudRepository<PwaApplic
   )
   Optional<PwaApplicationDetail> findLastSubmittedApplicationDetail(Integer pwaApplicationId);
 
-
   List<PwaApplicationDetail> findByPwaApplicationAndSubmittedTimestampIsNotNull(PwaApplication pwaApplication);
 
 }

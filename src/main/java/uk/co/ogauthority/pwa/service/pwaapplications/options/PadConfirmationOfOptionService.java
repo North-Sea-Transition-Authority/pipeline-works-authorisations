@@ -95,6 +95,23 @@ public class PadConfirmationOfOptionService implements ApplicationFormSectionSer
         .orElse(new PadConfirmationOfOption(pwaApplicationDetail));
   }
 
+  public PadConfirmationOfOptionView getPadConfirmationOfOptionView(PwaApplicationDetail pwaApplicationDetail) {
+
+    var confirmation = findPadConfirmationOfOption(pwaApplicationDetail);
+
+    var workType = confirmation
+        .map(PadConfirmationOfOption::getConfirmedOptionType)
+        .map(ConfirmedOptionType::getDisplayName)
+        .orElse(null);
+
+    var workDesc = confirmation
+        .map(PadConfirmationOfOption::getChosenOptionDesc)
+        .orElse(null);
+
+    return new PadConfirmationOfOptionView(workType, workDesc);
+
+  }
+
 
   @Transactional
   public void savePadConfirmation(PadConfirmationOfOption padConfirmationOfOption) {

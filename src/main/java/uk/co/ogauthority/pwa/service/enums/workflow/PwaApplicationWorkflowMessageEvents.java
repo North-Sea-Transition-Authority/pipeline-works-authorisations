@@ -2,14 +2,15 @@ package uk.co.ogauthority.pwa.service.enums.workflow;
 
 public enum PwaApplicationWorkflowMessageEvents {
 
-  UPDATE_APPLICATION_REQUEST("updateApplicationRequest");
+  UPDATE_APPLICATION_REQUEST("updateApplicationRequest"),
+  // value with same event name as duplicate workflow requirements.
+  OPTIONS_APPROVED("updateApplicationRequest");
 
   private final String messageEventName;
 
   PwaApplicationWorkflowMessageEvents(String messageEventName) {
     this.messageEventName = messageEventName;
   }
-
 
   public String getMessageEventName() {
     return messageEventName;

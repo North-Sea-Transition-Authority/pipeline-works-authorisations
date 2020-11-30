@@ -291,7 +291,8 @@ public class PwaApplicationEndpointTestBuilder {
 
     var defaultPermissions = EnumSet.allOf(PwaAppProcessingPermission.class);
     if (pwaAppProcessingPermissionService != null) {
-      var permissionsDto = new ProcessingPermissionsDto(null, defaultPermissions);
+      var appInvolvementDto = PwaAppProcessingContextDtoTestUtils.appInvolvementSatisfactoryVersions(detail.getPwaApplication());
+      var permissionsDto = new ProcessingPermissionsDto(appInvolvementDto, defaultPermissions);
       when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(detail.getPwaApplication(), user)).thenReturn(permissionsDto);
     }
 
@@ -390,7 +391,7 @@ public class PwaApplicationEndpointTestBuilder {
 
         var appInvolvement = Optional.ofNullable(consultationRequest)
             .map(c -> PwaAppProcessingContextDtoTestUtils.appInvolvementWithConsultationRequest("group", c))
-            .orElse(null);
+            .orElse(PwaAppProcessingContextDtoTestUtils.appInvolvementSatisfactoryVersions(detail.getPwaApplication()));
 
         var permissionsDto = new ProcessingPermissionsDto(appInvolvement, userPermissions);
 

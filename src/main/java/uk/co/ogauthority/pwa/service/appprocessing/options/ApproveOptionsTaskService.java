@@ -127,10 +127,12 @@ public class ApproveOptionsTaskService implements AppProcessingService {
       route = null;
     }
 
+    boolean atLeastOneSatisfactoryVersion = processingContext.getApplicationInvolvement().hasAtLeastOneSatisfactoryVersion();
+
     return new TaskListEntry(
         task.getTaskName(),
-        route,
-        TaskTag.from(taskStatus),
+        atLeastOneSatisfactoryVersion ? route : null,
+        atLeastOneSatisfactoryVersion ? TaskTag.from(taskStatus) : TaskTag.from(TaskStatus.CANNOT_START_YET),
         task.getDisplayOrder());
   }
 }

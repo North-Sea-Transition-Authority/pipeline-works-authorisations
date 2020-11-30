@@ -17,6 +17,7 @@ public class ConsulteeGroupTestingUtils {
     group.setId(new Random().nextInt());
 
     var detail = new ConsulteeGroupDetail();
+    detail.setId(new Random().nextInt());
     detail.setName(name);
     detail.setAbbreviation(abbr);
     detail.setConsulteeGroup(group);

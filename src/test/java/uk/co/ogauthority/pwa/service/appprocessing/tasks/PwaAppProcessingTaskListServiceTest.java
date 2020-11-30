@@ -51,19 +51,21 @@ public class PwaAppProcessingTaskListServiceTest {
   private PwaAppProcessingContext processingContext;
 
   @Before
-  public void setUp() {
+  public void setUp() throws IllegalAccessException {
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
 
     var request = new ConsultationRequest();
     entityManager.persist(request);
 
+    var involvement = PwaAppProcessingContextDtoTestUtils.appInvolvementWithConsultationRequest("name", request, true);
+
     processingContext = new PwaAppProcessingContext(
         pwaApplicationDetail,
         null,
         EnumSet.allOf(PwaAppProcessingPermission.class),
         null,
-        PwaAppProcessingContextDtoTestUtils.appInvolvementWithConsultationRequest("name", request)
+        involvement
     );
 
     taskListService = new PwaAppProcessingTaskListService(processingTaskService);
@@ -127,7 +129,7 @@ public class PwaAppProcessingTaskListServiceTest {
             PwaAppProcessingPermission.ASSIGN_RESPONDER,
             PwaAppProcessingPermission.CONSULTATION_RESPONDER),
         null,
-        PwaAppProcessingContextDtoTestUtils.appInvolvementWithConsultationRequest("name", request)
+        PwaAppProcessingContextDtoTestUtils.appInvolvementWithConsultationRequest("name", request, true)
     );
 
     var taskListGroups = taskListService.getTaskListGroups(processingContext);
