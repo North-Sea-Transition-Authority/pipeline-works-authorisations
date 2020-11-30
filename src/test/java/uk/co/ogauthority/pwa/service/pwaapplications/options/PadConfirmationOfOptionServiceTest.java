@@ -254,4 +254,38 @@ public class PadConfirmationOfOptionServiceTest {
         .validate(eq(form), eq(sourceBindingResult), eq(ValidationType.FULL));
 
   }
+
+  @Test
+  public void getPadConfirmationOfOptionView_notApproved(){
+    var view = padConfirmationOfOptionService.getPadConfirmationOfOptionView(pwaApplicationDetail);
+
+    assertThat(view.getWorkDescription()).isNull();
+    assertThat(view.getWorkType()).isNull();
+
+  }
+
+  @Test
+  public void getPadConfirmationOfOptionView_noConfirmationFound(){
+    var view = padConfirmationOfOptionService.getPadConfirmationOfOptionView(pwaApplicationDetail);
+
+    assertThat(view.getWorkDescription()).isNull();
+    assertThat(view.getWorkType()).isNull();
+
+  }
+
+  @Test
+  public void getPadConfirmationOfOptionView_confirmationFound(){
+    var confirmation = new PadConfirmationOfOption();
+    confirmation.setConfirmedOptionType(WORK_COMPLETE_AS_PER_OPTIONS);
+    confirmation.setChosenOptionDesc("DESC");
+
+    when(padConfirmationOfOptionRepository.findByPwaApplicationDetail(pwaApplicationDetail))
+        .thenReturn(Optional.of(confirmation));
+
+    var view = padConfirmationOfOptionService.getPadConfirmationOfOptionView(pwaApplicationDetail);
+
+    assertThat(view.getWorkType()).isEqualTo(WORK_COMPLETE_AS_PER_OPTIONS.getDisplayName());
+    assertThat(view.getWorkDescription()).isEqualTo(confirmation.getChosenOptionDesc());
+
+  }
 }

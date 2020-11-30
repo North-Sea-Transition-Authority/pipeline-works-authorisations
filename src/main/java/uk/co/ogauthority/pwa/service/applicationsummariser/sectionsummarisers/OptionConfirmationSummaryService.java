@@ -1,43 +1,41 @@
 package uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers;
 
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.teammanagement.TeamMemberView;
 import uk.co.ogauthority.pwa.model.view.sidebarnav.SidebarSectionLink;
 import uk.co.ogauthority.pwa.service.applicationsummariser.ApplicationSectionSummariser;
 import uk.co.ogauthority.pwa.service.applicationsummariser.ApplicationSectionSummary;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTask;
-import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskListService;
+import uk.co.ogauthority.pwa.service.pwaapplications.options.PadConfirmationOfOptionService;
 
 /**
- * Construct summary of application contacts for a given application.
+ * Construct summary of confirmed option response for a given application.
  */
 @Service
-public class ApplicationContactsSummaryService implements ApplicationSectionSummariser {
+public class OptionConfirmationSummaryService implements ApplicationSectionSummariser {
 
   private final TaskListService taskListService;
-  private final PwaContactService pwaContactService;
+  private final PadConfirmationOfOptionService padConfirmationOfOptionService;
 
   @Autowired
-  public ApplicationContactsSummaryService(TaskListService taskListService,
-                                           PwaContactService pwaContactService) {
+  public OptionConfirmationSummaryService(TaskListService taskListService,
+                                          PadConfirmationOfOptionService padConfirmationOfOptionService) {
     this.taskListService = taskListService;
-    this.pwaContactService = pwaContactService;
+    this.padConfirmationOfOptionService = padConfirmationOfOptionService;
   }
 
   @Override
   public boolean canSummarise(PwaApplicationDetail pwaApplicationDetail) {
 
     var taskFilter = Set.of(
-        ApplicationTask.APPLICATION_USERS);
+        ApplicationTask.CONFIRM_OPTIONS
+    );
 
     return taskListService.anyTaskShownForApplication(taskFilter, pwaApplicationDetail);
   }
@@ -46,26 +44,24 @@ public class ApplicationContactsSummaryService implements ApplicationSectionSumm
   public ApplicationSectionSummary summariseSection(PwaApplicationDetail pwaApplicationDetail,
                                                     String templateName) {
 
-    List<TeamMemberView> teamMemberViews = pwaContactService.getContactsForPwaApplication(pwaApplicationDetail.getPwaApplication()).stream()
-        .map(contact -> pwaContactService.getTeamMemberView(pwaApplicationDetail.getPwaApplication(), contact))
-        .sorted(Comparator.comparing(TeamMemberView::getFullName))
-        .collect(Collectors.toList());
 
-    var sectionDisplayText = ApplicationTask.APPLICATION_USERS.getDisplayName();
+
+    var view = padConfirmationOfOptionService.getPadConfirmationOfOptionView(pwaApplicationDetail);
+
+    var sectionDisplayText = ApplicationTask.CONFIRM_OPTIONS.getDisplayName();
     Map<String, Object> summaryModel = new HashMap<>();
     summaryModel.put("sectionDisplayText", sectionDisplayText);
-    summaryModel.put("teamMemberViews", teamMemberViews);
+    summaryModel.put("view", view);
 
     return new ApplicationSectionSummary(
         templateName,
         List.of(SidebarSectionLink.createAnchorLink(
             sectionDisplayText,
-            "#appContactDetails"
+            "#optionConfirmation"
         )),
         summaryModel
     );
   }
-
 
 
 }

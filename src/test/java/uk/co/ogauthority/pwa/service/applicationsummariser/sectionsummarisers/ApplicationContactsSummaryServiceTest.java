@@ -24,7 +24,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskListService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ApplicationSummarySummaryServiceTest {
+public class ApplicationContactsSummaryServiceTest {
 
   private final String TEMPLATE = "TEMPLATE";
 
