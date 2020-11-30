@@ -14,6 +14,7 @@ CREATE OR REPLACE VIEW ${datasource.user}.pad_search_items (
 , tip_flag
 , version_no
 , submitted_as_fast_track_flag
+, tip_version_satisfactory_flag
 , case_officer_person_id
 , case_officer_name
 , pad_project_name
@@ -24,7 +25,6 @@ CREATE OR REPLACE VIEW ${datasource.user}.pad_search_items (
 , open_consultation_req_flag
 , open_public_notice_flag
 , open_update_request_flag
-, tip_version_satisfactory_flag
 ) AS
 WITH open_update_app_details AS (
   SELECT
@@ -121,6 +121,5 @@ AND (
   (psv.latest_submission_ts IS NULL AND pad.version_no = psv.latest_draft_v_no)
 
 );
-/
 
 

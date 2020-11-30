@@ -28,12 +28,10 @@ import uk.co.ogauthority.pwa.service.consultations.ConsultationRequestService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
-import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationWorkflowTask;
 import uk.co.ogauthority.pwa.service.notify.NotifyService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
 import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
-import uk.co.ogauthority.pwa.service.workflow.task.WorkflowTaskInstance;
 import uk.co.ogauthority.pwa.validators.WithdrawApplicationValidator;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -79,11 +77,6 @@ public class WithdrawApplicationServiceTest {
     var withdrawingUser = new AuthenticatedUserAccount(new WebUserAccount(1, withdrawingPerson), List.of());
     var form = new WithdrawApplicationForm();
     form.setWithdrawalReason("my reason");
-
-
-    var workflowTaskInstance = new WorkflowTaskInstance(pwaApplicationDetail.getPwaApplication(), PwaApplicationWorkflowTask.CASE_OFFICER_REVIEW);
-    when(camundaWorkflowService.getAllActiveWorkflowTasks(pwaApplicationDetail.getPwaApplication()))
-        .thenReturn(Set.of(workflowTaskInstance));
 
     var consultationRequest = new ConsultationRequest();
     when(consultationRequestService.getAllOpenRequestsByApplication(pwaApplicationDetail.getPwaApplication()))

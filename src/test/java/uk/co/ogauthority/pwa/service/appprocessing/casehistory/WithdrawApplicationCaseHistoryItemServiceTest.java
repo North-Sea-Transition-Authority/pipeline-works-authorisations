@@ -73,11 +73,11 @@ public class WithdrawApplicationCaseHistoryItemServiceTest {
     var historyItems = withdrawApplicationCaseHistoryItemService.getCaseHistoryItemViews(application);
 
     assertThat(historyItems).containsExactly(
-        new CaseHistoryItemView.Builder("Application version 1 withdrawn", APP_DETAIL_1_WITHDRAWN, PERSON_ID1)
+        new CaseHistoryItemView.Builder("Application withdrawn", APP_DETAIL_1_WITHDRAWN, PERSON_ID1)
             .setPersonLabelText("Withdrawn by")
             .setPersonEmailLabel("Contact email")
             .build(),
-        new CaseHistoryItemView.Builder("Application version 2 withdrawn", APP_DETAIL_2_WITHDRAWN, PERSON_ID2)
+        new CaseHistoryItemView.Builder("Application withdrawn", APP_DETAIL_2_WITHDRAWN, PERSON_ID2)
             .setPersonLabelText("Withdrawn by")
             .setPersonEmailLabel("Contact email")
             .build()
