@@ -123,6 +123,19 @@ public class CamundaWorkflowServiceTest {
 
   }
 
+  @Test(expected = NullPointerException.class)
+  public void deleteProcessInstanceAndThenTasks_processInstanceNotFound() {
+    camundaWorkflowService.deleteProcessInstanceAndThenTasks(application);
+  }
+
+  @Test
+  public void getTasksFromWorkflowTaskInstances() {
+    camundaWorkflowService.startWorkflow(application);
+    var taskInstance = new WorkflowTaskInstance(application, PwaApplicationWorkflowTask.PREPARE_APPLICATION);
+    var tasks = camundaWorkflowService.getTasksFromWorkflowTaskInstances(Set.of(taskInstance));
+    assertThat(tasks).isNotEmpty();
+  }
+
   @Test
   public void assignTaskToUser_valid() {
 

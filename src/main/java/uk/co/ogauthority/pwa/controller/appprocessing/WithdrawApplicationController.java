@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.controller.WorkAreaController;
 import uk.co.ogauthority.pwa.controller.appprocessing.shared.PwaAppProcessingPermissionCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationStatusCheck;
 import uk.co.ogauthority.pwa.model.form.withdraw.WithdrawApplicationForm;
@@ -75,9 +76,8 @@ public class WithdrawApplicationController {
     return controllerHelperService.checkErrorsAndRedirect(bindingResult,
         getWithdrawApplicationModelAndView(processingContext), () -> {
 
-          withdrawApplicationService.withdrawApplication(form, processingContext.getApplicationDetail());
-          return ReverseRouter.redirect(on(CaseManagementController.class).renderCaseManagement(
-              applicationId, pwaApplicationType, AppProcessingTab.TASKS, null, null));
+          withdrawApplicationService.withdrawApplication(form, processingContext.getApplicationDetail(), authenticatedUserAccount);
+          return ReverseRouter.redirect(on(WorkAreaController.class).renderWorkArea(null, null, null));
         });
 
   }

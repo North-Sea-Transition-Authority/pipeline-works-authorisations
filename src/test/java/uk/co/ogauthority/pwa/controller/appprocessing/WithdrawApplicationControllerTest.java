@@ -138,7 +138,7 @@ public class WithdrawApplicationControllerTest extends PwaAppProcessingContextAb
         .with(csrf()))
         .andExpect(status().is3xxRedirection());
 
-    verify(withdrawApplicationService, times(1)).withdrawApplication(any(), any());
+    verify(withdrawApplicationService, times(1)).withdrawApplication(any(), any(), any());
 
   }
 

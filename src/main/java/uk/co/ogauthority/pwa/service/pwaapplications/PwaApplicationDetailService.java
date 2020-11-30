@@ -234,6 +234,16 @@ public class PwaApplicationDetailService {
     pwaApplicationDetailRepository.save(applicationDetail);
   }
 
+  @Transactional
+  public void setWithdrawn(PwaApplicationDetail pwaApplicationDetail, Person withdrawingUser, String withdrawalReason) {
+    pwaApplicationDetail.setStatus(PwaApplicationStatus.WITHDRAWN);
+    pwaApplicationDetail.setWithdrawalReason(withdrawalReason);
+    pwaApplicationDetail.setWithdrawalTimestamp(Instant.now(clock));
+    pwaApplicationDetail.setWithdrawingPersonId(withdrawingUser.getId());
+    pwaApplicationDetailRepository.save(pwaApplicationDetail);
+  }
+
+
   public boolean isInitialReviewApproved(PwaApplicationDetail applicationDetail) {
     return applicationDetail.getInitialReviewApprovedByWuaId() != null && applicationDetail.getInitialReviewApprovedTimestamp() != null;
   }
@@ -249,6 +259,10 @@ public class PwaApplicationDetailService {
 
   public List<PwaApplicationDetail> getAllSubmittedApplicationDetailsForApplication(PwaApplication pwaApplication) {
     return pwaApplicationDetailRepository.findByPwaApplicationAndSubmittedTimestampIsNotNull(pwaApplication);
+  }
+
+  public List<PwaApplicationDetail> getAllWithdrawnApplicationDetailsForApplication(PwaApplication pwaApplication) {
+    return pwaApplicationDetailRepository.findByPwaApplicationAndStatus(pwaApplication, PwaApplicationStatus.WITHDRAWN);
   }
 
   @Transactional
