@@ -68,6 +68,8 @@ public class ApplicationDetailSearchItem {
 
   private boolean tipFlag;
 
+  private Integer versionNo;
+
   private boolean submittedAsFastTrackFlag;
 
   private Integer caseOfficerPersonId;
@@ -80,6 +82,8 @@ public class ApplicationDetailSearchItem {
   private boolean openConsultationRequestFlag;
 
   private boolean openPublicNoticeFlag;
+
+  private boolean tipVersionSatisfactoryFlag;
 
   public int getPwaApplicationDetailId() {
     return pwaApplicationDetailId;
@@ -177,6 +181,14 @@ public class ApplicationDetailSearchItem {
     this.tipFlag = tipFlag;
   }
 
+  public Integer getVersionNo() {
+    return versionNo;
+  }
+
+  public void setVersionNo(Integer versionNo) {
+    this.versionNo = versionNo;
+  }
+
   public List<String> getPadFields() {
     return padFields;
   }
@@ -271,5 +283,17 @@ public class ApplicationDetailSearchItem {
 
   public void setOpenPublicNoticeFlag(boolean openPublicNoticeFlag) {
     this.openPublicNoticeFlag = openPublicNoticeFlag;
+  }
+
+  public boolean isSubmittedAsFastTrackFlag() {
+    return submittedAsFastTrackFlag;
+  }
+
+  public boolean isTipVersionSatisfactoryFlag() {
+    return tipVersionSatisfactoryFlag;
+  }
+
+  public void setTipVersionSatisfactoryFlag(boolean tipVersionSatisfactoryFlag) {
+    this.tipVersionSatisfactoryFlag = tipVersionSatisfactoryFlag;
   }
 }

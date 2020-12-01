@@ -95,6 +95,9 @@ public class ApplicationDetailSearcher {
     CriteriaBuilder.In<Integer> appIdFilterPredicate = cb.in(
         root.get(ApplicationDetailSearchItem_.pwaApplicationId));
     pwaApplicationIdFilter.forEach(appIdFilterPredicate::value);
+    if (pwaApplicationIdFilter.isEmpty()) {
+      appIdFilterPredicate.value(cb.nullLiteral(Integer.class));
+    }
 
     CriteriaBuilder.In<PwaApplicationStatus> statusFilterPredicate = cb.in(
         root.get(ApplicationDetailSearchItem_.padStatus));
@@ -179,7 +182,12 @@ public class ApplicationDetailSearcher {
 
   }
 
-  public Page<ApplicationDetailSearchItem> searchByStatusOrApplicationIdsAndWhereAllProcessingWaitFlagsFalse(
+  /**
+   * Get app details where either/or:
+   * - the latest version hasn't been confirmed satisfactory
+   * - latest version is satisfactory, but no open update requests, consultation requests etc.
+   */
+  public Page<ApplicationDetailSearchItem> searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagIsFalseOrAllProcessingWaitFlagsFalse(
       Pageable pageable,
       Set<PwaApplicationStatus> statusFilter,
       Set<Integer> pwaApplicationIdFilter) {
@@ -188,11 +196,13 @@ public class ApplicationDetailSearcher {
       return Page.empty(pageable);
     }
 
-    return applicationDetailSearchItemRepository.findAllByPadStatusInOrPwaApplicationIdInAndWhereAllProcessingWaitFlagsMatch(
+    return applicationDetailSearchItemRepository
+        .findAllByPadStatusInOrPwaApplicationIdInAndWhereTipSatisfactoryFlagEqualsOrAllWaitFlagsMatch(
         pageable,
         // passing null when empty is required or else spring produces invalid sql for the IN condition.
         statusFilter.isEmpty() ? null : statusFilter,
         pwaApplicationIdFilter.isEmpty() ? null : pwaApplicationIdFilter,
+        false,
         false,
         false,
         false
@@ -200,7 +210,10 @@ public class ApplicationDetailSearcher {
 
   }
 
-  public Page<ApplicationDetailSearchItem> searchByStatusOrApplicationIdsAndWhereAnyProcessingWaitFlagTrue(
+  /**
+   * Get app details where the latest version is satisfactory and there is at least one open update request, consultation request etc.
+   */
+  public Page<ApplicationDetailSearchItem> searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagIsTrueAndAnyProcessingWaitFlagTrue(
       Pageable pageable,
       Set<PwaApplicationStatus> statusFilter,
       Set<Integer> pwaApplicationIdFilter) {
@@ -209,11 +222,13 @@ public class ApplicationDetailSearcher {
       return Page.empty(pageable);
     }
 
-    return applicationDetailSearchItemRepository.findAllByPadStatusInOrPwaApplicationIdInAndWhereAnyWaitFlagsMatch(
+    return applicationDetailSearchItemRepository
+        .findAllByPadStatusInOrPwaApplicationIdInAndWhereTipSatisfactoryFlagEqualsAndAnyWaitFlagsMatch(
         pageable,
         // passing null when empty is required or else spring produces invalid sql for the IN condition.
         statusFilter.isEmpty() ? null : statusFilter,
         pwaApplicationIdFilter.isEmpty() ? null : pwaApplicationIdFilter,
+        true,
         true,
         true,
         true

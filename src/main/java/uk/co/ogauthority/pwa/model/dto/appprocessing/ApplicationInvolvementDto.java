@@ -17,14 +17,18 @@ public class ApplicationInvolvementDto {
 
   private final boolean caseOfficerStageAndUserAssigned;
 
+  private final boolean atLeastOneSatisfactoryVersion;
+
   public ApplicationInvolvementDto(PwaApplication pwaApplication,
                                    Set<PwaContactRole> contactRoles,
                                    ConsultationInvolvementDto consultationInvolvement,
-                                   boolean caseOfficerStageAndUserAssigned) {
+                                   boolean caseOfficerStageAndUserAssigned,
+                                   boolean atLeastOneSatisfactoryVersion) {
     this.pwaApplication = pwaApplication;
     this.contactRoles = contactRoles;
     this.consultationInvolvement = consultationInvolvement;
     this.caseOfficerStageAndUserAssigned = caseOfficerStageAndUserAssigned;
+    this.atLeastOneSatisfactoryVersion = atLeastOneSatisfactoryVersion;
   }
 
   public PwaApplication getPwaApplication() {
@@ -52,6 +56,10 @@ public class ApplicationInvolvementDto {
     return getConsultationInvolvement()
         .map(ci -> Arrays.stream(roles).anyMatch(ci.getConsulteeRoles()::contains))
         .orElse(false);
+  }
+
+  public boolean hasAtLeastOneSatisfactoryVersion() {
+    return atLeastOneSatisfactoryVersion;
   }
 
 }

@@ -6,13 +6,11 @@
 <#-- @ftlvariable name="isCompleted" type="java.lang.Boolean" -->
 <#-- @ftlvariable name="taskInfoList" type="java.util.List<uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskInfo>" -->
 
-<#macro taskInfoItem taskName taskInfoList route isCompleted>
+<#macro taskInfoItem taskName taskInfoList route isCompleted linkScreenReaderText="">
 
   <li class="fds-task-list__item">
     <span class="fds-task-list__task-name">
-      <a class="govuk-link" href="${springUrl(route)}">
-        ${taskName}
-      </a>
+      <@fdsAction.link linkText=taskName linkUrl=springUrl(route) linkScreenReaderText=linkScreenReaderText />
     </span>
       <#list taskInfoList as taskInfo>
           <#if taskInfo.count gt 0>

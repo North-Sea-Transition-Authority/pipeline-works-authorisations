@@ -9,7 +9,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.transaction.Transactional;
-import org.apache.commons.lang3.BooleanUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,15 +36,15 @@ import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PermanentDepositOv
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadDepositPipelineRepository;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadPermanentDepositRepository;
-import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadProjectInformationRepository;
-import uk.co.ogauthority.pwa.repository.pwaapplications.shared.pipelines.PadPipelineRepository;
 import uk.co.ogauthority.pwa.service.entitycopier.CopiedEntityIdTuple;
 import uk.co.ogauthority.pwa.service.entitycopier.EntityCopyingService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
+import uk.co.ogauthority.pwa.service.pwaapplications.options.PadOptionConfirmedService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.viewfactories.PipelineAndIdentViewFactory;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation.PadProjectInformationService;
 import uk.co.ogauthority.pwa.service.pwaconsents.PipelineDetailService;
 import uk.co.ogauthority.pwa.util.validationgroups.FullValidation;
 import uk.co.ogauthority.pwa.util.validationgroups.PartialValidation;
@@ -61,14 +60,14 @@ public class PermanentDepositService implements ApplicationFormSectionService {
   private final PermanentDepositEntityMappingService permanentDepositEntityMappingService;
   private final PermanentDepositsValidator permanentDepositsValidator;
   private final SpringValidatorAdapter groupValidator;
-  private final PadPipelineRepository padPipelineRepository;
   private final PadDepositPipelineRepository padDepositPipelineRepository;
-  private final PadProjectInformationRepository padProjectInformationRepository;
+  private final PadProjectInformationService padProjectInformationService;
   private final DepositDrawingsService depositDrawingsService;
   private final EntityCopyingService entityCopyingService;
   private final PipelineAndIdentViewFactory pipelineAndIdentViewFactory;
   private final PadFileService padFileService;
   private final PipelineDetailService pipelineDetailService;
+  private final PadOptionConfirmedService padOptionConfirmedService;
 
   @Autowired
   public PermanentDepositService(
@@ -77,25 +76,25 @@ public class PermanentDepositService implements ApplicationFormSectionService {
       PermanentDepositEntityMappingService permanentDepositEntityMappingService,
       PermanentDepositsValidator permanentDepositsValidator,
       SpringValidatorAdapter groupValidator,
-      PadPipelineRepository padPipelineRepository,
       PadDepositPipelineRepository padDepositPipelineRepository,
-      PadProjectInformationRepository padProjectInformationRepository,
+      PadProjectInformationService padProjectInformationService,
       EntityCopyingService entityCopyingService,
       PipelineAndIdentViewFactory pipelineAndIdentViewFactory,
       PadFileService padFileService,
-      PipelineDetailService pipelineDetailService) {
+      PipelineDetailService pipelineDetailService,
+      PadOptionConfirmedService padOptionConfirmedService) {
     this.permanentDepositRepository = permanentDepositRepository;
     this.depositDrawingsService = depositDrawingsService;
     this.permanentDepositEntityMappingService = permanentDepositEntityMappingService;
     this.permanentDepositsValidator = permanentDepositsValidator;
     this.groupValidator = groupValidator;
-    this.padPipelineRepository = padPipelineRepository;
+    this.padProjectInformationService = padProjectInformationService;
     this.padDepositPipelineRepository = padDepositPipelineRepository;
-    this.padProjectInformationRepository = padProjectInformationRepository;
     this.entityCopyingService = entityCopyingService;
     this.pipelineAndIdentViewFactory = pipelineAndIdentViewFactory;
     this.padFileService = padFileService;
     this.pipelineDetailService = pipelineDetailService;
+    this.padOptionConfirmedService = padOptionConfirmedService;
   }
 
 
@@ -127,7 +126,8 @@ public class PermanentDepositService implements ApplicationFormSectionService {
   public PermanentDepositOverview createViewFromEntity(PadPermanentDeposit padPermanentDeposit) {
     var pipelineIdAndOverviewMap = pipelineAndIdentViewFactory.getAllPipelineOverviewsFromAppAndMasterPwa(
         padPermanentDeposit.getPwaApplicationDetail());
-    return permanentDepositEntityMappingService.createPermanentDepositOverview(padPermanentDeposit, pipelineIdAndOverviewMap);
+    return permanentDepositEntityMappingService.createPermanentDepositOverview(padPermanentDeposit,
+        pipelineIdAndOverviewMap);
   }
 
   /**
@@ -240,10 +240,12 @@ public class PermanentDepositService implements ApplicationFormSectionService {
 
   public PermanentDepositOverview createViewFromDepositId(Integer depositId) {
     var permanentDeposit = permanentDepositRepository.findById(depositId)
-        .orElseThrow(() -> new PwaEntityNotFoundException(String.format("Couldn't find permanent deposit with ID: %s", depositId)));
+        .orElseThrow(() -> new PwaEntityNotFoundException(
+            String.format("Couldn't find permanent deposit with ID: %s", depositId)));
     var pipelineIdAndOverviewMap = pipelineAndIdentViewFactory.getAllPipelineOverviewsFromAppAndMasterPwa(
         permanentDeposit.getPwaApplicationDetail());
-    return permanentDepositEntityMappingService.createPermanentDepositOverview(permanentDeposit, pipelineIdAndOverviewMap);
+    return permanentDepositEntityMappingService.createPermanentDepositOverview(permanentDeposit,
+        pipelineIdAndOverviewMap);
 
   }
 
@@ -288,18 +290,22 @@ public class PermanentDepositService implements ApplicationFormSectionService {
 
   @Override
   public boolean canShowInTaskList(PwaApplicationDetail pwaApplicationDetail) {
-    return !pwaApplicationDetail.getPwaApplicationType().equals(PwaApplicationType.OPTIONS_VARIATION)
+    var isNotOptionsOrIsOptionsAndOptionCompleted =
+        !pwaApplicationDetail.getPwaApplicationType().equals(PwaApplicationType.OPTIONS_VARIATION)
+            || padOptionConfirmedService.approvedOptionConfirmed(pwaApplicationDetail);
+
+    return isNotOptionsOrIsOptionsAndOptionCompleted
         && permanentDepositsAreToBeMadeOnApp(pwaApplicationDetail);
 
   }
 
   public boolean permanentDepositsAreToBeMadeOnApp(PwaApplicationDetail pwaApplicationDetail) {
-    var projectInformation = padProjectInformationRepository.findByPwaApplicationDetail(pwaApplicationDetail);
-    if (projectInformation.isPresent()) {
-      return BooleanUtils.isTrue(projectInformation.get().getPermanentDepositsMade())
-          || pwaApplicationDetail.getPwaApplicationType().equals(PwaApplicationType.DEPOSIT_CONSENT);
+    if (pwaApplicationDetail.getPwaApplicationType().equals(PwaApplicationType.DEPOSIT_CONSENT)) {
+      return true;
     }
-    return false;
+
+    return padProjectInformationService.getPermanentDepositsOnApplication(pwaApplicationDetail);
+
   }
 
   public boolean hasPermanentDepositBeenMade(PwaApplicationDetail pwaApplicationDetail) {
@@ -333,7 +339,6 @@ public class PermanentDepositService implements ApplicationFormSectionService {
     }
 
   }
-
 
 
   @Override
@@ -413,7 +418,8 @@ public class PermanentDepositService implements ApplicationFormSectionService {
     var duplicatedPadFileMap = copiedDrawingPadFileEntityIds.stream()
         .collect(Collectors.toMap(
             CopiedEntityIdTuple::getOriginalEntityId,
-            padFileCopiedEntityIdTuple -> toDetailDrawingPadFileLookup.get(padFileCopiedEntityIdTuple.getDuplicateEntityId()))
+            padFileCopiedEntityIdTuple -> toDetailDrawingPadFileLookup.get(
+                padFileCopiedEntityIdTuple.getDuplicateEntityId()))
         );
 
     // use map of original pad file id to duplicated pad file id to set correct padFile link on deposit drawing.

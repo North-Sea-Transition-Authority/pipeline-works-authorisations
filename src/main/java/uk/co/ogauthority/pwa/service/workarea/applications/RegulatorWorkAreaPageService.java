@@ -57,7 +57,7 @@ public class RegulatorWorkAreaPageService {
       int page) {
 
     var workAreaUri = ReverseRouter.route(
-        on(WorkAreaController.class).renderWorkAreaTab(null, WorkAreaTab.REGULATOR_REQUIRES_ATTENTION, page));
+        on(WorkAreaController.class).renderWorkAreaTab(null, WorkAreaTab.REGULATOR_WAITING_ON_OTHERS, page));
 
     return PageView.fromPage(
         getWaitingOnOthersPage(authenticatedUserAccount, applicationIds, page),
@@ -88,7 +88,7 @@ public class RegulatorWorkAreaPageService {
 
     var searchStatuses = getAdditionalStatusFilterForUser(userAccount);
 
-    return applicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereAllProcessingWaitFlagsFalse(
+    return applicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagIsFalseOrAllProcessingWaitFlagsFalse(
         WorkAreaUtils.getWorkAreaPageRequest(pageRequest, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
         searchStatuses,
         applicationIdList
@@ -102,7 +102,7 @@ public class RegulatorWorkAreaPageService {
 
     var searchStatuses = getAdditionalStatusFilterForUser(userAccount);
 
-    return applicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereAnyProcessingWaitFlagTrue(
+    return applicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagIsTrueAndAnyProcessingWaitFlagTrue(
         WorkAreaUtils.getWorkAreaPageRequest(pageRequest, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
         searchStatuses,
         applicationIdList

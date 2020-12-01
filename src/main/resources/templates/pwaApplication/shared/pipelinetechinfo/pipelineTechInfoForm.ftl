@@ -7,7 +7,7 @@
 <@defaultPage htmlTitle="General technical details" pageHeading="General technical details" breadcrumbs=true>
 
     <#if errorList?has_content>
-        <@fdsError.errorSummary errorItems=errorList errorTitle="Errors"/>
+        <@fdsError.errorSummary errorItems=errorList/>
     </#if>
 
     <@fdsForm.htmlForm>
@@ -31,7 +31,8 @@
             <@fdsRadio.radioNo path="form.plannedPipelineTieInPoints"/>
         </@fdsRadio.radioGroup>
 
-        <@fdsAction.submitButtons primaryButtonText=submitPrimaryButtonText linkSecondaryAction=true secondaryLinkText="Cancel" linkSecondaryActionUrl=springUrl(backUrl)/>
+        <@fdsAction.submitButtons primaryButtonText=submitPrimaryButtonText secondaryButtonText=submitSecondaryButtonText/>
+
     </@fdsForm.htmlForm>
 
 </@defaultPage>

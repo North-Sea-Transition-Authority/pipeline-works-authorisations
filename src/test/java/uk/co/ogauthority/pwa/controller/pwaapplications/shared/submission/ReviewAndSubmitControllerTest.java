@@ -35,6 +35,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.applicationsummariser.ApplicationSummaryViewService;
 import uk.co.ogauthority.pwa.service.appprocessing.applicationupdate.ApplicationUpdateRequestService;
+import uk.co.ogauthority.pwa.service.appprocessing.applicationupdate.ApplicationUpdateRequestViewService;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
@@ -64,6 +65,9 @@ public class ReviewAndSubmitControllerTest extends PwaApplicationContextAbstract
 
   @MockBean
   private ApplicationUpdateRequestService applicationUpdateRequestService;
+
+  @MockBean
+  private ApplicationUpdateRequestViewService applicationUpdateRequestViewService;
 
   @MockBean
   private ApplicationUpdateResponseFormValidator validator;
@@ -212,12 +216,13 @@ public class ReviewAndSubmitControllerTest extends PwaApplicationContextAbstract
 
     verify(applicationSummaryViewService, times(1)).getApplicationSummaryView(detail);
     verify(applicationUpdateRequestService, times(1)).applicationDetailHasOpenUpdateRequest(detail);
+    verify(applicationUpdateRequestViewService, times(1)).getOpenRequestView(detail.getPwaApplication());
 
   }
 
 
   @Test
-  public void submit__noOpenUpdate_doesSubmission_andRedirectsToConfirmation() throws Exception {
+  public void submit_noOpenUpdate_doesSubmission_andRedirectsToConfirmation() throws Exception {
     when(pwaApplicationDetailService.getTipDetail(detail.getMasterPwaApplicationId())).thenReturn(detail);
 
     mockMvc.perform(post(ReverseRouter.route(on(ReviewAndSubmitController.class)
@@ -236,7 +241,7 @@ public class ReviewAndSubmitControllerTest extends PwaApplicationContextAbstract
 
 
   @Test
-  public void submit__hasOpenUpdate_failsValidation() throws Exception {
+  public void submit_hasOpenUpdate_failsValidation() throws Exception {
 
     when(pwaApplicationDetailService.getTipDetail(detail.getMasterPwaApplicationId())).thenReturn(detail);
     when(applicationUpdateRequestService.applicationDetailHasOpenUpdateRequest(detail)).thenReturn(true);
@@ -258,7 +263,7 @@ public class ReviewAndSubmitControllerTest extends PwaApplicationContextAbstract
   }
 
   @Test
-  public void submit__hasOpenUpdate_validationPass_formDataPassedToSubmissionService() throws Exception {
+  public void submit_hasOpenUpdate_validationPass_formDataPassedToSubmissionService() throws Exception {
 
     var description = "OTHER DESC";
 
@@ -280,7 +285,7 @@ public class ReviewAndSubmitControllerTest extends PwaApplicationContextAbstract
   }
 
   @Test
-  public void submit__hasOpenUpdate_validationPass_doesNotPassDescriptionWhenHidden() throws Exception {
+  public void submit_hasOpenUpdate_validationPass_doesNotPassDescriptionWhenHidden() throws Exception {
 
     var description = "OTHER DESC";
 

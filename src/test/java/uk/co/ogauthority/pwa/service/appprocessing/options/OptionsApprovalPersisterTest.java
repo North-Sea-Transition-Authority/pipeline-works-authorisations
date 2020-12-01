@@ -10,14 +10,20 @@ import static org.mockito.Mockito.when;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
 import uk.co.ogauthority.pwa.energyportal.model.entity.PersonTestUtil;
+import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
+import uk.co.ogauthority.pwa.model.entity.appprocessing.options.OptionsApplicationApproval;
+import uk.co.ogauthority.pwa.model.entity.appprocessing.options.OptionsApprovalDeadlineHistory;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.repository.appprocessing.options.OptionsApplicationApprovalRepository;
@@ -27,7 +33,7 @@ import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 @RunWith(MockitoJUnitRunner.class)
 public class OptionsApprovalPersisterTest {
-
+  private static final String NOTE = "a note";
   private static final PersonId PERSON_ID = new PersonId(1);
 
   @Mock
@@ -35,6 +41,9 @@ public class OptionsApprovalPersisterTest {
 
   @Mock
   private OptionsApprovalDeadlineHistoryRepository optionsApprovalDeadlineHistoryRepository;
+
+  @Captor
+  private ArgumentCaptor<OptionsApprovalDeadlineHistory> deadlineCaptor;
 
   private OptionsApprovalPersister optionsApprovalPersister;
 
@@ -86,5 +95,48 @@ public class OptionsApprovalPersisterTest {
     assertThat(approval.getCreatedByPersonId()).isEqualTo(PERSON_ID);
     assertThat(approval.getCreatedTimestamp()).isEqualTo(clock.instant());
     assertThat(approval.getPwaApplication()).isEqualTo(pwaApplication);
+  }
+
+  @Test
+  public void endTipDeadlineHistoryItem_setsAndSavesTipFlagOfExistingDeadline() {
+    var approval = new OptionsApplicationApproval();
+    var deadline = new OptionsApprovalDeadlineHistory();
+    when(optionsApprovalDeadlineHistoryRepository.findByOptionsApplicationApprovalAndTipFlagIsTrue(approval))
+        .thenReturn(Optional.of(deadline));
+
+    optionsApprovalPersister.endTipDeadlineHistoryItem(approval);
+
+    verify(optionsApprovalDeadlineHistoryRepository, times(1)).save(deadlineCaptor.capture());
+
+    assertThat(deadlineCaptor.getValue().isTipFlag()).isFalse();
+
+  }
+
+  @Test(expected = PwaEntityNotFoundException.class)
+  public void endTipDeadlineHistoryItem_noTipDeadline() {
+    var approval = new OptionsApplicationApproval();
+
+    when(optionsApprovalDeadlineHistoryRepository.findByOptionsApplicationApprovalAndTipFlagIsTrue(approval))
+        .thenReturn(Optional.empty());
+
+    optionsApprovalPersister.endTipDeadlineHistoryItem(approval);
+
+  }
+
+  @Test
+  public void createTipDeadlineHistoryItem_createNewtipDeadlineItemAndSetsValues() {
+    var approval = new OptionsApplicationApproval();
+
+    optionsApprovalPersister.createTipDeadlineHistoryItem(approval, person, deadlineDate, NOTE);
+
+    verify(optionsApprovalDeadlineHistoryRepository, times(1)).save(deadlineCaptor.capture());
+    var deadline = deadlineCaptor.getValue();
+
+    assertThat(deadline.getOptionsApplicationApproval()).isSameAs(approval);
+    assertThat(deadline.getDeadlineDate()).isEqualTo(deadlineDate);
+    assertThat(deadline.getNote()).isEqualTo(NOTE);
+    assertThat(deadline.isTipFlag()).isTrue();
+    assertThat(deadline.getCreatedTimestamp()).isEqualTo(clock.instant());
+    assertThat(deadline.getCreatedByPersonId()).isEqualTo(person.getId());
   }
 }

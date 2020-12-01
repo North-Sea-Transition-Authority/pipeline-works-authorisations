@@ -42,6 +42,8 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.pipelin
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.pipelines.PadPipelineCrossingOwner;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.pipelines.PadPipelineCrossingOwner_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.pipelines.PadPipelineCrossing_;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.options.PadConfirmationOfOption;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.options.PadConfirmationOfOption_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdepositdrawings.PadDepositDrawingLink;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdepositdrawings.PadDepositDrawingLink_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PadDepositPipeline;
@@ -392,6 +394,21 @@ public class PwaApplicationIntegrationTestHelper {
     );
   }
 
+  public Optional<PadConfirmationOfOption> getPadConfirmationOfOption(PwaApplicationDetail pwaApplicationDetail){
+    CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+    CriteriaQuery<PadConfirmationOfOption> criteriaQuery = cb.createQuery(PadConfirmationOfOption.class);
+    Root<PadConfirmationOfOption> padConfirmationOfOptionRoot = criteriaQuery.from(PadConfirmationOfOption.class);
+
+    return getResultOrEmptyOptional(
+        PadConfirmationOfOption.class,
+        entityManager.createQuery(
+            criteriaQuery.where(
+                cb.equal(padConfirmationOfOptionRoot.get(PadConfirmationOfOption_.pwaApplicationDetail), pwaApplicationDetail)
+            )
+        )
+    );
+  }
+
 
   public PwaApplicationVersionContainer getApplicationDetailContainer(PwaApplicationDetail pwaApplicationDetail) {
 
@@ -429,6 +446,7 @@ public class PwaApplicationIntegrationTestHelper {
     container.setPadPipelineOtherProperties(getPadPipelineOtherProperties(pwaApplicationDetail));
     container.setPadDesignOpConditions(getPadDesignOpConditions(pwaApplicationDetail).orElse(null));
     container.setPadFastTrack(getPadFastTrack(pwaApplicationDetail).orElse(null));
+    container.setPadConfirmationOfOption(getPadConfirmationOfOption(pwaApplicationDetail).orElse(null));
 
     return container;
 

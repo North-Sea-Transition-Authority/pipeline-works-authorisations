@@ -62,6 +62,11 @@
       height: 30px;
     }
 
+    .deposit-image {
+      width: 100%;
+      height: 100%;
+    }
+
   </style>
 </head>
 <body>

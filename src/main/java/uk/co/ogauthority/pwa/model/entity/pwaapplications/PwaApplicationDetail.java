@@ -64,6 +64,16 @@ public class PwaApplicationDetail implements ParentEntity {
   @Column(name = "init_review_approved_timestamp")
   private Instant initialReviewApprovedTimestamp;
 
+  @Basic
+  @Convert(converter = PersonIdConverter.class)
+  @Column(name = "confirmed_satisfactory_pers_id")
+  private PersonId confirmedSatisfactoryByPersonId;
+
+  @Column(name = "confirmed_satisfactory_ts")
+  private Instant confirmedSatisfactoryTimestamp;
+
+  private String confirmedSatisfactoryReason;
+
   private Boolean isLinkedToField;
 
   private String notLinkedDescription;
@@ -88,6 +98,15 @@ public class PwaApplicationDetail implements ParentEntity {
   private Boolean partnerLettersConfirmed;
 
   private Boolean supplementaryDocumentsFlag;
+
+  private Instant withdrawalTimestamp;
+
+  private String withdrawalReason;
+
+  @Basic
+  @Convert(converter = PersonIdConverter.class)
+  private PersonId withdrawingPersonId;
+
 
   public PwaApplicationDetail() {
   }
@@ -197,6 +216,30 @@ public class PwaApplicationDetail implements ParentEntity {
 
   public void setInitialReviewApprovedTimestamp(Instant approvedTimestamp) {
     this.initialReviewApprovedTimestamp = approvedTimestamp;
+  }
+
+  public PersonId getConfirmedSatisfactoryByPersonId() {
+    return confirmedSatisfactoryByPersonId;
+  }
+
+  public void setConfirmedSatisfactoryByPersonId(PersonId confirmedSatisfactoryByPersonId) {
+    this.confirmedSatisfactoryByPersonId = confirmedSatisfactoryByPersonId;
+  }
+
+  public Instant getConfirmedSatisfactoryTimestamp() {
+    return confirmedSatisfactoryTimestamp;
+  }
+
+  public void setConfirmedSatisfactoryTimestamp(Instant confirmedSatisfactoryTimestamp) {
+    this.confirmedSatisfactoryTimestamp = confirmedSatisfactoryTimestamp;
+  }
+
+  public String getConfirmedSatisfactoryReason() {
+    return confirmedSatisfactoryReason;
+  }
+
+  public void setConfirmedSatisfactoryReason(String confirmedSatisfactoryReason) {
+    this.confirmedSatisfactoryReason = confirmedSatisfactoryReason;
   }
 
   public Boolean getLinkedToField() {
@@ -332,6 +375,30 @@ public class PwaApplicationDetail implements ParentEntity {
     this.supplementaryDocumentsFlag = supplementaryDocumentsFlag;
   }
 
+  public Instant getWithdrawalTimestamp() {
+    return withdrawalTimestamp;
+  }
+
+  public void setWithdrawalTimestamp(Instant withdrawalTimestamp) {
+    this.withdrawalTimestamp = withdrawalTimestamp;
+  }
+
+  public String getWithdrawalReason() {
+    return withdrawalReason;
+  }
+
+  public void setWithdrawalReason(String withdrawalReason) {
+    this.withdrawalReason = withdrawalReason;
+  }
+
+  public PersonId getWithdrawingPersonId() {
+    return withdrawingPersonId;
+  }
+
+  public void setWithdrawingPersonId(PersonId withdrawingPersonId) {
+    this.withdrawingPersonId = withdrawingPersonId;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -365,7 +432,10 @@ public class PwaApplicationDetail implements ParentEntity {
         && Objects.equals(otherPhaseDescription, that.otherPhaseDescription)
         && Objects.equals(partnerLettersRequired, that.partnerLettersRequired)
         && Objects.equals(partnerLettersConfirmed, that.partnerLettersConfirmed)
-        && Objects.equals(supplementaryDocumentsFlag, that.supplementaryDocumentsFlag);
+        && Objects.equals(supplementaryDocumentsFlag, that.supplementaryDocumentsFlag)
+        && Objects.equals(withdrawalTimestamp, that.withdrawalTimestamp)
+        && Objects.equals(withdrawalReason, that.withdrawalReason)
+        && Objects.equals(withdrawingPersonId, that.withdrawingPersonId);
   }
 
   @Override
@@ -375,6 +445,6 @@ public class PwaApplicationDetail implements ParentEntity {
         initialReviewApprovedByWuaId, initialReviewApprovedTimestamp, isLinkedToField, notLinkedDescription,
         pipelinesCrossed, cablesCrossed, medianLineCrossed, submittedAsFastTrackFlag, numOfHolders,
         pipelinePhaseProperties, otherPhaseDescription, partnerLettersRequired, partnerLettersConfirmed,
-        supplementaryDocumentsFlag);
+        supplementaryDocumentsFlag, withdrawalTimestamp, withdrawalReason, withdrawingPersonId);
   }
 }

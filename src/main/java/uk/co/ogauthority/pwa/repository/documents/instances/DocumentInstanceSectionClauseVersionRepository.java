@@ -23,7 +23,7 @@ public interface DocumentInstanceSectionClauseVersionRepository extends CrudRepo
       "parentDocumentInstanceSectionClause.documentTemplateSectionClause.documentTemplateSection.documentTemplate",
       "parentDocumentInstanceSectionClause.documentTemplateSection.documentTemplate",
   })
-  List<DocumentInstanceSectionClauseVersion> findAllByDocumentInstanceSectionClauseInAndTipFlagIsTrue(
+  List<DocumentInstanceSectionClauseVersion> findAllByDocumentInstanceSectionClauseIn(
       Collection<DocumentInstanceSectionClause> clauses);
 
   @EntityGraph(attributePaths = {

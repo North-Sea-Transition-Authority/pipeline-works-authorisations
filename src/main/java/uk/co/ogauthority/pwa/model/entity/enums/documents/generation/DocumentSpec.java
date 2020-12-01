@@ -12,6 +12,10 @@ public enum DocumentSpec {
     DocumentSection.DEPOSITS, 50,
     DocumentSection.DEPOSIT_DRAWINGS, 60,
     DocumentSection.ADMIRALTY_CHART, 70
+  )),
+
+  DEPOSIT_CONSENT_DOCUMENT(Map.of(
+      DocumentSection.DEPOSIT_DRAWINGS, 10
   ));
 
   private final Map<DocumentSection, Integer> documentSectionDisplayOrderMap;

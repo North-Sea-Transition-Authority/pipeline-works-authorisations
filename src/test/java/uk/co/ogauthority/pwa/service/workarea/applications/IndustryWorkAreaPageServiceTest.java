@@ -8,6 +8,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
+import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import java.util.EnumSet;
 import java.util.HashSet;
@@ -21,8 +22,10 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
+import uk.co.ogauthority.pwa.controller.WorkAreaController;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.workflow.WorkflowBusinessKey;
+import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.PwaAppProcessingPermissionService;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
@@ -33,6 +36,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
 import uk.co.ogauthority.pwa.service.pwaapplications.search.ApplicationDetailSearcher;
 import uk.co.ogauthority.pwa.service.pwaapplications.search.ApplicationSearchTestUtil;
 import uk.co.ogauthority.pwa.service.users.UserTypeService;
+import uk.co.ogauthority.pwa.service.workarea.WorkAreaTab;
 import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -120,6 +124,19 @@ public class IndustryWorkAreaPageServiceTest {
   }
 
   @Test
+  public void getOpenApplicationsPageView_pageableLinksToCorrectTab() {
+    var fakePage = WorkAreaPageServiceTestUtil.getFakeApplicationSearchResultPage(List.of(), REQUESTED_PAGE);
+    when(applicationDetailSearcher.searchWhereApplicationIdInAndWhereStatusInOrOpenUpdateRequest(any(), any(), any(), anyBoolean()))
+        .thenReturn(fakePage);
+
+    var workareaPage = industryWorkAreaPageService.getOpenApplicationsPageView(workAreaUser, REQUESTED_PAGE);
+
+    assertThat(workareaPage.urlForPage(0))
+        .isEqualTo(ReverseRouter.route(on(WorkAreaController.class)
+            .renderWorkAreaTab(null, WorkAreaTab.INDUSTRY_OPEN_APPLICATIONS, 0)));
+  }
+
+  @Test
   public void getOpenApplicationsPageView_viewUrlWhenApplicationStatusDraft() {
 
     var searchItem = ApplicationSearchTestUtil.getSearchDetailItem(PwaApplicationStatus.DRAFT);
@@ -172,7 +189,18 @@ public class IndustryWorkAreaPageServiceTest {
 
   }
 
-  //
+  @Test
+  public void getSubmittedApplicationsPageView_pageableLinksToCorrectTab() {
+    var fakePage = WorkAreaPageServiceTestUtil.getFakeApplicationSearchResultPage(List.of(), REQUESTED_PAGE);
+    when(applicationDetailSearcher.searchWhereApplicationIdInAndWhereStatusInAndOpenUpdateRequest(any(), any(), any(), anyBoolean()))
+        .thenReturn(fakePage);
+
+    var workareaPage = industryWorkAreaPageService.getSubmittedApplicationsPageView(workAreaUser, REQUESTED_PAGE);
+
+    assertThat(workareaPage.urlForPage(0))
+        .isEqualTo(ReverseRouter.route(on(WorkAreaController.class)
+            .renderWorkAreaTab(null, WorkAreaTab.INDUSTRY_SUBMITTED_APPLICATIONS, 0)));
+  }
 
   @Test
   public void getSubmittedApplicationsPageView_zeroResults() {
@@ -192,7 +220,7 @@ public class IndustryWorkAreaPageServiceTest {
     verify(applicationDetailSearcher, times(1)).searchWhereApplicationIdInAndWhereStatusInAndOpenUpdateRequest(
         WorkAreaPageServiceTestUtil.getWorkAreaViewPageable(REQUESTED_PAGE, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
         Set.of(BUSINESS_KEY_INT),
-        Set.of(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW, PwaApplicationStatus.CASE_OFFICER_REVIEW),
+        Set.of(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW, PwaApplicationStatus.CASE_OFFICER_REVIEW, PwaApplicationStatus.WITHDRAWN),
         false
     );
 
@@ -219,7 +247,7 @@ public class IndustryWorkAreaPageServiceTest {
     verify(applicationDetailSearcher, times(1)).searchWhereApplicationIdInAndWhereStatusInAndOpenUpdateRequest(
         WorkAreaPageServiceTestUtil.getWorkAreaViewPageable(REQUESTED_PAGE, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
         Set.of(BUSINESS_KEY_INT),
-        Set.of(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW, PwaApplicationStatus.CASE_OFFICER_REVIEW),
+        Set.of(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW, PwaApplicationStatus.CASE_OFFICER_REVIEW, PwaApplicationStatus.WITHDRAWN),
         false
     );
 

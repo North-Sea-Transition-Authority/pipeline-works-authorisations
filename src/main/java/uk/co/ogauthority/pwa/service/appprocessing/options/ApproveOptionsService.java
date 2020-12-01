@@ -1,159 +1,216 @@
 package uk.co.ogauthority.pwa.service.appprocessing.options;
 
-import static uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission.APPROVE_OPTIONS;
-import static uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission.APPROVE_OPTIONS_VIEW;
-
 import java.time.Instant;
+import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
+import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
+import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
+import uk.co.ogauthority.pwa.model.entity.appprocessing.options.OptionsApplicationApproval;
+import uk.co.ogauthority.pwa.model.entity.appprocessing.options.OptionsApprovalDeadlineHistory;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.tasklist.TaskListEntry;
-import uk.co.ogauthority.pwa.model.tasklist.TaskTag;
+import uk.co.ogauthority.pwa.model.view.appprocessing.options.OptionsApprovalDeadlineView;
+import uk.co.ogauthority.pwa.model.view.banner.BannerLink;
+import uk.co.ogauthority.pwa.model.view.banner.PageBannerView;
+import uk.co.ogauthority.pwa.model.workflow.GenericMessageEvent;
 import uk.co.ogauthority.pwa.repository.appprocessing.options.OptionsApplicationApprovalRepository;
-import uk.co.ogauthority.pwa.service.appprocessing.applicationupdate.ApplicationUpdateRequestService;
-import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
-import uk.co.ogauthority.pwa.service.appprocessing.tasks.AppProcessingService;
-import uk.co.ogauthority.pwa.service.consultations.ConsultationRequestService;
-import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingTask;
-import uk.co.ogauthority.pwa.service.enums.appprocessing.TaskStatus;
-import uk.co.ogauthority.pwa.service.enums.pwaapplications.ConsultationRequestStatus;
+import uk.co.ogauthority.pwa.repository.appprocessing.options.OptionsApprovalDeadlineHistoryRepository;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationWorkflowMessageEvents;
+import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationWorkflowTask;
+import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
+import uk.co.ogauthority.pwa.service.pwaapplications.generic.PwaApplicationDetailVersioningService;
+import uk.co.ogauthority.pwa.service.pwaapplications.options.PadOptionConfirmedService;
+import uk.co.ogauthority.pwa.service.workflow.assignment.WorkflowAssignmentService;
+import uk.co.ogauthority.pwa.util.DateUtils;
 
 @Service
-public class ApproveOptionsService implements AppProcessingService {
-
-  private final ConsultationRequestService consultationRequestService;
+public class ApproveOptionsService {
 
   private final OptionsApprovalPersister optionsApprovalPersister;
 
   private final OptionsApplicationApprovalRepository optionsApplicationApprovalRepository;
 
+  private final OptionsApprovalDeadlineHistoryRepository optionsApprovalDeadlineHistoryRepository;
+
   private final OptionsCaseManagementEmailService optionsCaseManagementEmailService;
 
-  private final ApplicationUpdateRequestService applicationUpdateRequestService;
+  private final PadOptionConfirmedService padOptionConfirmedService;
+
+  private final WorkflowAssignmentService workflowAssignmentService;
+
+  private final PwaApplicationDetailVersioningService pwaApplicationDetailVersioningService;
+
+  private final PwaApplicationRedirectService pwaApplicationRedirectService;
 
   @Autowired
-  public ApproveOptionsService(ConsultationRequestService consultationRequestService,
-                               OptionsApprovalPersister optionsApprovalPersister,
+  public ApproveOptionsService(OptionsApprovalPersister optionsApprovalPersister,
                                OptionsApplicationApprovalRepository optionsApplicationApprovalRepository,
+                               OptionsApprovalDeadlineHistoryRepository optionsApprovalDeadlineHistoryRepository,
                                OptionsCaseManagementEmailService optionsCaseManagementEmailService,
-                               ApplicationUpdateRequestService applicationUpdateRequestService) {
-    this.consultationRequestService = consultationRequestService;
+                               PadOptionConfirmedService padOptionConfirmedService,
+                               WorkflowAssignmentService workflowAssignmentService,
+                               PwaApplicationDetailVersioningService pwaApplicationDetailVersioningService,
+                               PwaApplicationRedirectService pwaApplicationRedirectService) {
     this.optionsApprovalPersister = optionsApprovalPersister;
     this.optionsApplicationApprovalRepository = optionsApplicationApprovalRepository;
+    this.optionsApprovalDeadlineHistoryRepository = optionsApprovalDeadlineHistoryRepository;
     this.optionsCaseManagementEmailService = optionsCaseManagementEmailService;
-    this.applicationUpdateRequestService = applicationUpdateRequestService;
+    this.padOptionConfirmedService = padOptionConfirmedService;
+    this.workflowAssignmentService = workflowAssignmentService;
+    this.pwaApplicationDetailVersioningService = pwaApplicationDetailVersioningService;
+    this.pwaApplicationRedirectService = pwaApplicationRedirectService;
   }
 
-  @Override
-  public boolean canShowInTaskList(PwaAppProcessingContext pwaAppProcessingContext) {
-    return hasEditAccessPermissions(pwaAppProcessingContext) || hasViewAccessPermissions(pwaAppProcessingContext);
+  /**
+   * Return true if an options approval has occurred.
+   */
+  public boolean optionsApproved(PwaApplication pwaApplication) {
+    return getOptionsApproval(pwaApplication).isPresent();
   }
 
-  private boolean hasEditAccessPermissions(PwaAppProcessingContext pwaAppProcessingContext) {
-    return pwaAppProcessingContext.getAppProcessingPermissions().contains(APPROVE_OPTIONS);
+  private Optional<OptionsApplicationApproval> getOptionsApproval(PwaApplication pwaApplication) {
+    return optionsApplicationApprovalRepository.findByPwaApplication(
+        pwaApplication
+    );
   }
 
-  private boolean hasViewAccessPermissions(PwaAppProcessingContext pwaAppProcessingContext) {
-    return pwaAppProcessingContext.getAppProcessingPermissions().contains(APPROVE_OPTIONS_VIEW);
-  }
-
-  public boolean taskAccessible(PwaAppProcessingContext pwaAppProcessingContext) {
-    var hasEditAccessPermission = hasEditAccessPermissions(pwaAppProcessingContext);
-
-    // dont need to query consultations if we know we dont have basic permission
-    if (!hasEditAccessPermission) {
-      return false;
+  public OptionsApprovalStatus getOptionsApprovalStatus(PwaApplicationDetail pwaApplicationDetail) {
+    if (!PwaApplicationType.OPTIONS_VARIATION.equals(pwaApplicationDetail.getPwaApplicationType())) {
+      return OptionsApprovalStatus.NOT_APPLICABLE;
     }
 
-    var appStatusCountView = consultationRequestService.getApplicationConsultationStatusView(
-        pwaAppProcessingContext.getPwaApplication()
-    );
+    if (!optionsApproved(pwaApplicationDetail.getPwaApplication())) {
+      return OptionsApprovalStatus.NOT_APPROVED;
+    }
 
-    var openCount = appStatusCountView.sumFilteredStatusCounts(ConsultationRequestStatus::isRequestOpen);
-    var respondedCount = appStatusCountView.getCountOfRequestsWithStatus(ConsultationRequestStatus.RESPONDED);
+    if (padOptionConfirmedService.optionConfirmationExists(pwaApplicationDetail)) {
+      return OptionsApprovalStatus.APPROVED_RESPONDED;
+    }
 
-    var updateInProgress = applicationUpdateRequestService.applicationDetailHasOpenUpdateRequest(
-        pwaAppProcessingContext.getApplicationDetail()
-    );
-
-    return openCount == 0 && respondedCount > 0 && !updateInProgress;
+    return OptionsApprovalStatus.APPROVED_UNRESPONDED;
 
   }
 
+  private OptionsApplicationApproval getOptionsApprovalOrError(PwaApplication pwaApplication) {
+    return getOptionsApproval(pwaApplication)
+        .orElseThrow(
+            () -> new PwaEntityNotFoundException(
+                "Could not find active options approval deadline for app.id:" + pwaApplication.getId()
+            )
+        );
+  }
+
+  private Optional<OptionsApprovalDeadlineHistory> getCurrentOptionsApprovalDeadline(PwaApplication pwaApplication) {
+    return optionsApprovalDeadlineHistoryRepository.findByOptionsApplicationApproval_PwaApplicationAndTipFlagIsTrue(
+        pwaApplication
+    );
+  }
+
+
   @Transactional
-  public void approveOptions(PwaApplicationDetail pwaApplicationDetail, Person approverPerson, Instant deadlineDate) {
+  public void approveOptions(PwaApplicationDetail pwaApplicationDetail, WebUserAccount approverWua, Instant deadlineDate) {
+
+    // create a new detail that will be resubmitted with confirmed options.
+    // Important this is done first as doing it after creating the approval means versioning will try copy a confirmation
+    // that doesnt exist and error.
+    var newTipDetail = pwaApplicationDetailVersioningService.createNewApplicationVersion(
+        pwaApplicationDetail,
+        approverWua
+    );
 
     var initialApprovalDeadlineHistory = optionsApprovalPersister.createInitialOptionsApproval(
         pwaApplicationDetail.getPwaApplication(),
-        approverPerson,
+        approverWua.getLinkedPerson(),
         deadlineDate
     );
 
-    optionsCaseManagementEmailService.sendInitialOptionsApprovedEmail(pwaApplicationDetail);
+    optionsCaseManagementEmailService.sendInitialOptionsApprovedEmail(
+        pwaApplicationDetail,
+        initialApprovalDeadlineHistory.getDeadlineDate()
+    );
+
+    // update workflow
+    workflowAssignmentService.triggerWorkflowMessageAndAssertTaskExists(
+        GenericMessageEvent.from(
+            newTipDetail.getPwaApplication(),
+            PwaApplicationWorkflowMessageEvents.OPTIONS_APPROVED.getMessageEventName()
+        ),
+        PwaApplicationWorkflowTask.UPDATE_APPLICATION
+    );
 
   }
 
-  @Override
-  public TaskListEntry getTaskListEntry(PwaAppProcessingTask task, PwaAppProcessingContext processingContext) {
-    var optionsApproved = optionsApplicationApprovalRepository.findByPwaApplication(
-        processingContext.getPwaApplication())
-        .isPresent();
-
-    if (!hasEditAccessPermissions(processingContext) && hasViewAccessPermissions(processingContext)) {
-      return getViewAccessTaskListEntry(task, optionsApproved);
-    }
-
-    return getEditAccessTaskListEntry(task, processingContext, optionsApproved);
+  private Optional<OptionsApprovalDeadlineView> getOptionsApprovalDeadlineView(PwaApplication pwaApplication) {
+    return getCurrentOptionsApprovalDeadline(pwaApplication)
+        .map(optionsApprovalDeadlineHistory -> new OptionsApprovalDeadlineView(
+            optionsApprovalDeadlineHistory.getOptionsApplicationApproval().getCreatedByPersonId(),
+            optionsApprovalDeadlineHistory.getOptionsApplicationApproval().getCreatedTimestamp(),
+            optionsApprovalDeadlineHistory.getCreatedByPersonId(),
+            optionsApprovalDeadlineHistory.getCreatedTimestamp(),
+            optionsApprovalDeadlineHistory.getDeadlineDate(),
+            optionsApprovalDeadlineHistory.getNote()
+        ));
 
   }
 
-
-  private TaskListEntry getViewAccessTaskListEntry(PwaAppProcessingTask task,
-                                                   boolean optionsApproved) {
-
-    TaskStatus taskStatus;
-    if (optionsApproved) {
-      taskStatus = TaskStatus.COMPLETED;
-    } else {
-      taskStatus = TaskStatus.NOT_COMPLETED;
-    }
-
-    return new TaskListEntry(
-        task.getTaskName(),
-        null,
-        TaskTag.from(taskStatus),
-        task.getDisplayOrder());
+  public OptionsApprovalDeadlineView getOptionsApprovalDeadlineViewOrError(PwaApplication pwaApplication) {
+    return getOptionsApprovalDeadlineView(pwaApplication)
+        .orElseThrow(() -> new PwaEntityNotFoundException(
+            "Cannot create Options approval deadline view for app.id:" + pwaApplication.getId())
+        );
   }
 
-  private TaskListEntry getEditAccessTaskListEntry(PwaAppProcessingTask task,
-                                                   PwaAppProcessingContext processingContext,
-                                                   boolean optionsApproved) {
 
-    var taskAccessible = taskAccessible(processingContext);
+  @Transactional
+  public void changeOptionsApprovalDeadline(PwaApplicationDetail pwaApplicationDetail,
+                                            Person person,
+                                            Instant deadlineDate,
+                                            String note) {
 
-    TaskStatus taskStatus;
+    var approval = getOptionsApprovalOrError(pwaApplicationDetail.getPwaApplication());
 
-    if (optionsApproved) {
-      taskStatus = TaskStatus.COMPLETED;
-    } else if (taskAccessible && !optionsApproved) {
-      taskStatus = TaskStatus.NOT_COMPLETED;
-    } else {
-      taskStatus = TaskStatus.CANNOT_START_YET;
-    }
 
-    String route;
-    if (taskStatus.equals(TaskStatus.NOT_COMPLETED)) {
-      route = taskAccessible ? task.getRoute(processingContext) : null;
-    } else {
-      route = null;
-    }
+    optionsApprovalPersister.endTipDeadlineHistoryItem(approval);
+    var newTipHistoryitem = optionsApprovalPersister.createTipDeadlineHistoryItem(approval, person, deadlineDate, note);
 
-    return new TaskListEntry(
-        task.getTaskName(),
-        route,
-        TaskTag.from(taskStatus),
-        task.getDisplayOrder());
+    optionsCaseManagementEmailService.sendOptionsDeadlineChangedEmail(pwaApplicationDetail, newTipHistoryitem.getDeadlineDate());
   }
+
+
+  public Optional<PageBannerView> getOptionsApprovalPageBannerView(
+      PwaApplicationDetail pwaApplicationDetail) {
+
+    var optionsApprovalStatus = getOptionsApprovalStatus(pwaApplicationDetail);
+
+    if (!OptionsApprovalStatus.APPROVED_UNRESPONDED.equals(optionsApprovalStatus)) {
+      return Optional.empty();
+    }
+
+    var deadlineHist = optionsApprovalDeadlineHistoryRepository.findByOptionsApplicationApproval_PwaApplicationAndTipFlagIsTrue(
+        pwaApplicationDetail.getPwaApplication()
+    );
+
+    return deadlineHist.map(optionsApprovalDeadlineHistory ->
+        new PageBannerView.PageBannerViewBuilder()
+            .setHeader("Options have been approved")
+            .setHeaderCaption("Approved " + DateUtils.formatDateTime(
+                optionsApprovalDeadlineHistory.getOptionsApplicationApproval().getCreatedTimestamp())
+            )
+            .setBodyHeader("Confirmation of works completed must be submitted by " + DateUtils.formatDate(
+                optionsApprovalDeadlineHistory.getDeadlineDate())
+            )
+        .setBannerLink(new BannerLink(
+            pwaApplicationRedirectService.getTaskListRoute(pwaApplicationDetail.getPwaApplication()),
+            "Confirm work completed"
+        ))
+        .build()
+
+    );
+
+  }
+
 }

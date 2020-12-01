@@ -24,13 +24,9 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.tasklist.TaskListEntry;
-import uk.co.ogauthority.pwa.service.appprocessing.applicationupdate.ApplicationUpdateRequestViewService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTask;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTaskGroup;
-import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaViewService;
-import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
-import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationTaskService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskListEntryFactory;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskListService;
@@ -59,12 +55,6 @@ public class TaskListServiceIntegrationTest {
   private PwaApplicationCreationService pwaApplicationCreationService;
 
   @Autowired
-  private PwaApplicationRedirectService pwaApplicationRedirectService;
-
-  @Autowired
-  private ApplicationBreadcrumbService breadcrumbService;
-
-  @Autowired
   private TaskListEntryFactory taskListEntryFactory;
 
   @Autowired
@@ -87,16 +77,10 @@ public class TaskListServiceIntegrationTest {
   private DepositDrawingsService depositDrawingsService;
 
   @MockBean
-  private MasterPwaViewService masterPwaViewService;
-
-  @MockBean
   private OptionsTemplateService optionsTemplateService;
 
   @MockBean
   private SupplementaryDocumentsService supplementaryDocumentsService;
-
-  @MockBean
-  private ApplicationUpdateRequestViewService applicationUpdateRequestViewService;
 
   private PwaApplication pwaApplication;
   private PwaApplicationDetail pwaApplicationDetail;
@@ -108,12 +92,10 @@ public class TaskListServiceIntegrationTest {
     pwaApplicationDetail = pwaApplicationCreationService.createInitialPwaApplication(new WebUserAccount(1));
     pwaApplication = pwaApplicationDetail.getPwaApplication();
     taskListService = new TaskListService(
-        breadcrumbService,
+
         taskListEntryFactory,
-        applicationTaskService,
-        masterPwaViewService,
-        applicationUpdateRequestViewService
-    );
+        applicationTaskService
+       );
 
     when(optionsTemplateService.canShowInTaskList(any())).thenReturn(true);
     when(supplementaryDocumentsService.canShowInTaskList(any())).thenReturn(true);
@@ -234,7 +216,8 @@ public class TaskListServiceIntegrationTest {
         PwaApplicationType.DEPOSIT_CONSENT,
         PwaApplicationType.CAT_1_VARIATION,
         PwaApplicationType.CAT_2_VARIATION,
-        PwaApplicationType.DECOMMISSIONING);
+        PwaApplicationType.DECOMMISSIONING,
+        PwaApplicationType.OPTIONS_VARIATION);
   }
 
 

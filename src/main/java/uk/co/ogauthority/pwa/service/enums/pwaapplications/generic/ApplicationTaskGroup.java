@@ -18,6 +18,21 @@ public enum ApplicationTaskGroup {
       List.of(
           OrderedTaskGroupTask.from(ApplicationTask.APPLICATION_USERS, 10)
       )),
+  CONFIRMATION_OF_WORK(
+      "Confirmation of work",
+      15,
+      List.of(
+          OrderedTaskGroupTask.from(ApplicationTask.CONFIRM_OPTIONS, 10)
+      )
+  ),
+  OPTIONS_INFORMATION(
+      "Options information",
+      25,
+      List.of(
+          OrderedTaskGroupTask.from(ApplicationTask.OPTIONS_TEMPLATE, 10),
+          OrderedTaskGroupTask.from(ApplicationTask.SUPPLEMENTARY_DOCUMENTS, 20)
+      )
+  ),
   ADMINISTRATIVE_DETAILS(
       "Administrative details",
       20,
@@ -29,14 +44,6 @@ public enum ApplicationTaskGroup {
           OrderedTaskGroupTask.from(ApplicationTask.HUOO, 50),
           OrderedTaskGroupTask.from(ApplicationTask.PARTNER_LETTERS, 60)
       )),
-  OPTIONS_INFORMATION(
-      "Options information",
-      25,
-      List.of(
-          OrderedTaskGroupTask.from(ApplicationTask.OPTIONS_TEMPLATE, 10),
-          OrderedTaskGroupTask.from(ApplicationTask.SUPPLEMENTARY_DOCUMENTS, 20)
-      )
-  ),
   LOCATION_DETAILS(
       "Location details",
       30,

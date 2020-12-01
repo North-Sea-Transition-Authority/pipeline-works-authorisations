@@ -80,7 +80,7 @@ public class IndustryWorkAreaPageService {
       int page) {
 
     var workAreaUri = ReverseRouter.route(
-        on(WorkAreaController.class).renderWorkAreaTab(null, WorkAreaTab.INDUSTRY_OPEN_APPLICATIONS, page));
+        on(WorkAreaController.class).renderWorkAreaTab(null, WorkAreaTab.INDUSTRY_SUBMITTED_APPLICATIONS, page));
 
     var applicationIdFilter = getIndustryUserApplicationIds(authenticatedUserAccount);
     // all enum values except those in given set.

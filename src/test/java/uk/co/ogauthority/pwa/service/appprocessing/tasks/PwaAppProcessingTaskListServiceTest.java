@@ -51,19 +51,21 @@ public class PwaAppProcessingTaskListServiceTest {
   private PwaAppProcessingContext processingContext;
 
   @Before
-  public void setUp() {
+  public void setUp() throws IllegalAccessException {
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
 
     var request = new ConsultationRequest();
     entityManager.persist(request);
 
+    var involvement = PwaAppProcessingContextDtoTestUtils.appInvolvementWithConsultationRequest("name", request, true);
+
     processingContext = new PwaAppProcessingContext(
         pwaApplicationDetail,
         null,
         EnumSet.allOf(PwaAppProcessingPermission.class),
         null,
-        PwaAppProcessingContextDtoTestUtils.appInvolvementWithConsultationRequest("name", request)
+        involvement
     );
 
     taskListService = new PwaAppProcessingTaskListService(processingTaskService);
@@ -87,7 +89,7 @@ public class PwaAppProcessingTaskListServiceTest {
         .extracting(TaskListEntry::getTaskName, TaskListEntry::getRoute)
         .containsExactly(
             tuple(PwaAppProcessingTask.INITIAL_REVIEW.getTaskName(), PwaAppProcessingTask.INITIAL_REVIEW.getRoute(processingContext)),
-            tuple(PwaAppProcessingTask.ACCEPT_APPLICATION.getTaskName(), PwaAppProcessingTask.ACCEPT_APPLICATION.getRoute(processingContext)),
+            tuple(PwaAppProcessingTask.CONFIRM_SATISFACTORY_APPLICATION.getTaskName(), PwaAppProcessingTask.CONFIRM_SATISFACTORY_APPLICATION.getRoute(processingContext)),
             tuple(PwaAppProcessingTask.CASE_SETUP.getTaskName(), PwaAppProcessingTask.CASE_SETUP.getRoute(processingContext)),
             tuple(PwaAppProcessingTask.CONSULTATIONS.getTaskName(), PwaAppProcessingTask.CONSULTATIONS.getRoute(processingContext)),
             // APPROVE_OPTIONS route has content based on independently tested specific conditions
@@ -101,6 +103,8 @@ public class PwaAppProcessingTaskListServiceTest {
     assertThat(taskListGroups.get(1).getTaskListEntries())
         .extracting(TaskListEntry::getTaskName, TaskListEntry::getRoute)
         .containsExactly(
+            // CHANGE_OPTIONS_APPROVAL_DEADLINE route has content based on independently tested specific conditions
+            tuple(PwaAppProcessingTask.CHANGE_OPTIONS_APPROVAL_DEADLINE.getTaskName(), null),
             tuple(PwaAppProcessingTask.CONSULTEE_ADVICE.getTaskName(), PwaAppProcessingTask.CONSULTEE_ADVICE.getRoute(processingContext)),
             tuple(PwaAppProcessingTask.ALLOCATE_CASE_OFFICER.getTaskName(), PwaAppProcessingTask.ALLOCATE_CASE_OFFICER.getRoute(processingContext)),
             tuple(PwaAppProcessingTask.RFI.getTaskName(), PwaAppProcessingTask.RFI.getRoute(processingContext)),
@@ -125,7 +129,7 @@ public class PwaAppProcessingTaskListServiceTest {
             PwaAppProcessingPermission.ASSIGN_RESPONDER,
             PwaAppProcessingPermission.CONSULTATION_RESPONDER),
         null,
-        PwaAppProcessingContextDtoTestUtils.appInvolvementWithConsultationRequest("name", request)
+        PwaAppProcessingContextDtoTestUtils.appInvolvementWithConsultationRequest("name", request, true)
     );
 
     var taskListGroups = taskListService.getTaskListGroups(processingContext);
@@ -140,7 +144,7 @@ public class PwaAppProcessingTaskListServiceTest {
         .extracting(TaskListEntry::getTaskName, TaskListEntry::getRoute)
         .containsExactly(
             tuple(PwaAppProcessingTask.INITIAL_REVIEW.getTaskName(), PwaAppProcessingTask.INITIAL_REVIEW.getRoute(processingContext)),
-            tuple(PwaAppProcessingTask.ACCEPT_APPLICATION.getTaskName(), PwaAppProcessingTask.ACCEPT_APPLICATION.getRoute(processingContext)),
+            tuple(PwaAppProcessingTask.CONFIRM_SATISFACTORY_APPLICATION.getTaskName(), PwaAppProcessingTask.CONFIRM_SATISFACTORY_APPLICATION.getRoute(processingContext)),
             tuple(PwaAppProcessingTask.CONSULTATIONS.getTaskName(), PwaAppProcessingTask.CONSULTATIONS.getRoute(processingContext)),
             tuple(PwaAppProcessingTask.PUBLIC_NOTICE.getTaskName(), PwaAppProcessingTask.PUBLIC_NOTICE.getRoute(processingContext)),
             tuple(PwaAppProcessingTask.DECISION.getTaskName(), PwaAppProcessingTask.DECISION.getRoute(processingContext)),

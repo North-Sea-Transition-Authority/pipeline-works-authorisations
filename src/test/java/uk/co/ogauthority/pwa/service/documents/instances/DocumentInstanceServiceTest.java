@@ -252,7 +252,7 @@ public class DocumentInstanceServiceTest {
 
     var versionList = List.of(clauseVersion1, clauseVersion2);
 
-    when(instanceSectionClauseVersionRepository.findAllByDocumentInstanceSectionClauseInAndTipFlagIsTrue(clauseList)).thenReturn(versionList);
+    when(instanceSectionClauseVersionRepository.findAllByDocumentInstanceSectionClauseIn(clauseList)).thenReturn(versionList);
 
     documentInstanceService.clearClauses(applicationDetail.getPwaApplication(), DocumentTemplateMnem.PWA_CONSENT_DOCUMENT);
 

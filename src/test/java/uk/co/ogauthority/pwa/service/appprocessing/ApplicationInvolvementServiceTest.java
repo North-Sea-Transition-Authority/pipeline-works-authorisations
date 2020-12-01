@@ -23,6 +23,7 @@ import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupTeamMember;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
+import uk.co.ogauthority.pwa.service.appprocessing.application.ConfirmSatisfactoryApplicationService;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupDetailService;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupTeamService;
 import uk.co.ogauthority.pwa.service.consultations.ConsultationRequestService;
@@ -31,6 +32,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.ConsultationRequestSt
 import uk.co.ogauthority.pwa.service.enums.users.UserType;
 import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationConsultationWorkflowTask;
 import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationWorkflowTask;
+import uk.co.ogauthority.pwa.service.person.PersonService;
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
 import uk.co.ogauthority.pwa.service.users.UserTypeService;
 import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
@@ -60,6 +62,12 @@ public class ApplicationInvolvementServiceTest {
   @Mock
   private ConsulteeGroupDetailService consulteeGroupDetailService;
 
+  @Mock
+  private PersonService personService;
+
+  @Mock
+  private ConfirmSatisfactoryApplicationService confirmSatisfactoryApplicationService;
+
   private ApplicationInvolvementService applicationInvolvementService;
 
   private PwaApplication application;
@@ -74,7 +82,9 @@ public class ApplicationInvolvementServiceTest {
         consultationRequestService,
         camundaWorkflowService,
         userTypeService,
-        consulteeGroupDetailService);
+        consulteeGroupDetailService,
+        personService,
+        confirmSatisfactoryApplicationService);
 
     application = new PwaApplication();
     user = new AuthenticatedUserAccount(new WebUserAccount(1, new Person(1, null, null, null, null)), Set.of());
@@ -183,7 +193,6 @@ public class ApplicationInvolvementServiceTest {
     assertThat(consultationInvolvement.getActiveRequest()).isNull();
     assertThat(consultationInvolvement.getHistoricalRequests()).isEmpty();
     assertThat(consultationInvolvement.isAssignedToResponderStage()).isFalse();
-
 
   }
 
@@ -300,5 +309,26 @@ public class ApplicationInvolvementServiceTest {
 
   }
 
+  @Test
+  public void atLeastOneSatisfactoryVersion_whenTrue() {
+
+    when(confirmSatisfactoryApplicationService.atLeastOneSatisfactoryVersion(application)).thenReturn(true);
+
+    var involvement = applicationInvolvementService.getApplicationInvolvementDto(application, user);
+
+    assertThat(involvement.hasAtLeastOneSatisfactoryVersion()).isTrue();
+
+  }
+
+  @Test
+  public void atLeastOneSatisfactoryVersion_whenFalse() {
+
+    when(confirmSatisfactoryApplicationService.atLeastOneSatisfactoryVersion(application)).thenReturn(false);
+
+    var involvement = applicationInvolvementService.getApplicationInvolvementDto(application, user);
+
+    assertThat(involvement.hasAtLeastOneSatisfactoryVersion()).isFalse();
+
+  }
 
 }

@@ -8,11 +8,18 @@ public class PersonTestUtil {
   }
 
   public static Person createPersonFrom(PersonId personId) {
+    return createPersonFrom(
+        personId,
+        "email@email.com"
+    );
+  }
+
+  public static Person createPersonFrom(PersonId personId, String email) {
     return new Person(
         personId.asInt(),
         "firstname",
         "surname",
-        "email@email.com",
+        email,
         "0123456789"
     );
   }

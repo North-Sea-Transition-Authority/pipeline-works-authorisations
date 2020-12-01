@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.service.workflow;
 import static java.util.stream.Collectors.toList;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -139,6 +140,30 @@ public class CamundaWorkflowService {
 
   }
 
+  public void deleteProcessInstanceAndThenTasks(WorkflowSubject workflowSubject) {
+
+    var workflowTaskInstances = getAllActiveWorkflowTasks(workflowSubject);
+    var tasks = getTasksFromWorkflowTaskInstances(workflowTaskInstances);
+
+    var processInstance = getProcessInstance(workflowSubject)
+        .orElseThrow(() -> new NullPointerException("Process instance not found for " + workflowSubject.getDebugString()));
+    runtimeService.deleteProcessInstance(processInstance.getProcessInstanceId(), null);
+
+    tasks.forEach(task -> taskService.deleteTask(task.getId()));
+  }
+
+
+  public Set<Task> getTasksFromWorkflowTaskInstances(Set<WorkflowTaskInstance> workflowTaskInstances) {
+
+    Set<Task> tasks = new HashSet<>();
+    for (var workflowTaskInstance : workflowTaskInstances) {
+      getWorkflowTask(workflowTaskInstance).ifPresentOrElse(
+          tasks::add, () -> throwTaskNotFoundException(workflowTaskInstance)
+      );
+    }
+    return tasks;
+  }
+
   public void assignTaskToUser(WorkflowTaskInstance workflowTaskInstance, Person person) {
 
     getWorkflowTask(workflowTaskInstance).ifPresentOrElse(
@@ -245,7 +270,7 @@ public class CamundaWorkflowService {
 
   }
 
-  private Optional<ProcessInstance> getProcessInstance(WorkflowSubject workflowSubject) {
+  public Optional<ProcessInstance> getProcessInstance(WorkflowSubject workflowSubject) {
     return Optional.ofNullable(runtimeService.createProcessInstanceQuery()
         .processDefinitionKey(workflowSubject.getWorkflowType().getProcessDefinitionKey())
         .processInstanceBusinessKey(String.valueOf(workflowSubject.getBusinessKey()))

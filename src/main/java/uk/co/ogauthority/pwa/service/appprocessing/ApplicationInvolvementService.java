@@ -8,12 +8,14 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
 import uk.co.ogauthority.pwa.model.dto.appprocessing.ApplicationInvolvementDto;
 import uk.co.ogauthority.pwa.model.dto.appprocessing.ConsultationInvolvementDto;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupMemberRole;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
+import uk.co.ogauthority.pwa.service.appprocessing.application.ConfirmSatisfactoryApplicationService;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupDetailService;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupTeamService;
 import uk.co.ogauthority.pwa.service.consultations.ConsultationRequestService;
@@ -21,6 +23,7 @@ import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 import uk.co.ogauthority.pwa.service.enums.users.UserType;
 import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationConsultationWorkflowTask;
 import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationWorkflowTask;
+import uk.co.ogauthority.pwa.service.person.PersonService;
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
 import uk.co.ogauthority.pwa.service.users.UserTypeService;
 import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
@@ -39,6 +42,8 @@ public class ApplicationInvolvementService {
   private final CamundaWorkflowService camundaWorkflowService;
   private final UserTypeService userTypeService;
   private final ConsulteeGroupDetailService consulteeGroupDetailService;
+  private final PersonService personService;
+  private final ConfirmSatisfactoryApplicationService confirmSatisfactoryApplicationService;
 
   @Autowired
   public ApplicationInvolvementService(ConsulteeGroupTeamService consulteeGroupTeamService,
@@ -46,13 +51,17 @@ public class ApplicationInvolvementService {
                                        ConsultationRequestService consultationRequestService,
                                        CamundaWorkflowService camundaWorkflowService,
                                        UserTypeService userTypeService,
-                                       ConsulteeGroupDetailService consulteeGroupDetailService) {
+                                       ConsulteeGroupDetailService consulteeGroupDetailService,
+                                       PersonService personService,
+                                       ConfirmSatisfactoryApplicationService confirmSatisfactoryApplicationService) {
     this.consulteeGroupTeamService = consulteeGroupTeamService;
     this.pwaContactService = pwaContactService;
     this.consultationRequestService = consultationRequestService;
     this.camundaWorkflowService = camundaWorkflowService;
     this.userTypeService = userTypeService;
     this.consulteeGroupDetailService = consulteeGroupDetailService;
+    this.personService = personService;
+    this.confirmSatisfactoryApplicationService = confirmSatisfactoryApplicationService;
   }
 
   public ApplicationInvolvementDto getApplicationInvolvementDto(PwaApplication application,
@@ -80,11 +89,14 @@ public class ApplicationInvolvementService {
           .isPresent();
     }
 
+    boolean atLeastOneSatisfactoryVersion = confirmSatisfactoryApplicationService.atLeastOneSatisfactoryVersion(application);
+
     return new ApplicationInvolvementDto(
         application,
         appContactRoles,
         consultationInvolvement,
-        caseOfficerStageAndUserAssigned);
+        caseOfficerStageAndUserAssigned,
+        atLeastOneSatisfactoryVersion);
 
   }
 
@@ -92,6 +104,11 @@ public class ApplicationInvolvementService {
     return camundaWorkflowService.getAssignedPersonId(
         new WorkflowTaskInstance(pwaApplication, PwaApplicationWorkflowTask.CASE_OFFICER_REVIEW)
     );
+  }
+
+  public Optional<Person> getCaseOfficerPerson(PwaApplication pwaApplication) {
+    return getCaseOfficerPersonId(pwaApplication)
+        .map(personService::getPersonById);
   }
 
   private ConsultationInvolvementDto getConsultationInvolvement(PwaApplication application,

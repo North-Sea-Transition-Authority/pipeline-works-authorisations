@@ -22,14 +22,16 @@ public interface PwaApplicationDetailRepository extends CrudRepository<PwaApplic
 
   @Query(
       "SELECT pad " +
-          "FROM PwaApplicationDetail pad " +
-          "JOIN PwaApplicationStatusCategoryLookup pascl ON pad.pwaApplication.id = pascl.pwaApplicationId " +
-          "AND pascl.lastSubmittedVersion = pad.versionNo " +
-          "WHERE pad.pwaApplication.id = :pwaApplicationId "
+      "FROM PwaApplicationDetail pad " +
+      "JOIN PadVersionLookup pvl ON pad.pwaApplication.id = pvl.pwaApplicationId " +
+      "AND pvl.latestSubmittedTimestamp = pad.submittedTimestamp " +
+      "WHERE pad.pwaApplication.id = :pwaApplicationId "
   )
   Optional<PwaApplicationDetail> findLastSubmittedApplicationDetail(Integer pwaApplicationId);
 
-
   List<PwaApplicationDetail> findByPwaApplicationAndSubmittedTimestampIsNotNull(PwaApplication pwaApplication);
+
+  List<PwaApplicationDetail> findByPwaApplicationAndStatus(PwaApplication pwaApplication, PwaApplicationStatus status);
+
 
 }

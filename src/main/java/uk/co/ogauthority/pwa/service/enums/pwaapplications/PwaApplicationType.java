@@ -25,7 +25,7 @@ public enum PwaApplicationType {
       Period.ofWeeks(6),
       Period.ofWeeks(8),
       MedianLineImplication.FALSE,
-      null),
+      DocumentSpec.DEPOSIT_CONSENT_DOCUMENT),
 
   CAT_1_VARIATION(
       "Cat. 1 Variation",
