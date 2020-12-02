@@ -342,6 +342,7 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
     List<PadOrganisationRole> existingOrgRoles = padOrganisationRolesRepository.getAllByPwaApplicationDetailAndOrganisationUnit(detail,
         existingOrgUnit);
 
+    //get organisations that need to be saved on the application
     List<PadOrganisationRole> orgRolesToSave = new ArrayList<>();
     Set<HuooRole> huooRolesRequired = form.getHuooRoles();
     Set<HuooRole> huooRolesNotRequired = EnumSet.complementOf(EnumSet.copyOf(huooRolesRequired));
@@ -362,6 +363,7 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
       }
     });
 
+    //save new orgs, remove old orgs, remove old pipeline links
     List<PadOrganisationRole> orgRolesToRemove = existingOrgRoles.stream()
         .filter(existingOrgRole -> huooRolesNotRequired.contains(existingOrgRole.getRole()))
         .collect(Collectors.toList());
