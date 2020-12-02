@@ -1,17 +1,26 @@
 package uk.co.ogauthority.pwa.model.form.pwaapplications.views;
 
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
 import uk.co.ogauthority.pwa.model.entity.enums.MedianLineStatus;
+import uk.co.ogauthority.pwa.model.form.files.UploadedFileView;
 
 public class MedianLineAgreementView {
 
-  private MedianLineStatus agreementStatus;
-  private String negotiatorName;
-  private String negotiatorEmail;
+  private final MedianLineStatus agreementStatus;
+  private final String negotiatorName;
+  private final String negotiatorEmail;
+  private final List<UploadedFileView> fileViews;
 
-  public MedianLineAgreementView(MedianLineStatus agreementStatus, String negotiatorName, String negotiatorEmail) {
+  public MedianLineAgreementView(MedianLineStatus agreementStatus,
+                                 String negotiatorName,
+                                 String negotiatorEmail,
+                                 List<UploadedFileView> fileViews) {
     this.agreementStatus = agreementStatus;
     this.negotiatorName = negotiatorName;
     this.negotiatorEmail = negotiatorEmail;
+    this.fileViews = fileViews;
   }
 
   public MedianLineStatus getAgreementStatus() {
@@ -24,5 +33,11 @@ public class MedianLineAgreementView {
 
   public String getNegotiatorEmail() {
     return negotiatorEmail;
+  }
+
+  public List<UploadedFileView> getSortedFileViews() {
+    return fileViews.stream()
+        .sorted(Comparator.comparing(UploadedFileView::getFileName))
+        .collect(Collectors.toList());
   }
 }

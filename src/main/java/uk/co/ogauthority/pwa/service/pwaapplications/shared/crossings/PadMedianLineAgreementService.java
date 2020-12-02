@@ -91,22 +91,35 @@ public class PadMedianLineAgreementService implements ApplicationFormSectionServ
   public MedianLineAgreementView getMedianLineCrossingView(PwaApplicationDetail pwaApplicationDetail) {
 
     var medianLineAgreement = getMedianLineAgreement(pwaApplicationDetail);
+
+    var fileViews =  padFileService.getUploadedFileViews(
+        pwaApplicationDetail,
+        ApplicationDetailFilePurpose.MEDIAN_LINE_CROSSING,
+        ApplicationFileLinkStatus.FULL
+    );
+
     return new MedianLineAgreementView(
         medianLineAgreement.getAgreementStatus(),
         medianLineAgreement.getNegotiatorName(),
-        medianLineAgreement.getNegotiatorEmail()
+        medianLineAgreement.getNegotiatorEmail(),
+        fileViews
     );
+
   }
 
   @Override
   public boolean isComplete(PwaApplicationDetail detail) {
+    return isMedianLineAgreementFormComplete(detail) && medianLineCrossingFileService.isComplete(detail);
+
+  }
+
+  public boolean isMedianLineAgreementFormComplete(PwaApplicationDetail detail) {
     var medianLineAgreement = getMedianLineAgreement(detail);
     var form = new MedianLineAgreementsForm();
     mapEntityToForm(medianLineAgreement, form);
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     validate(form, bindingResult, ValidationType.FULL, detail);
-    return !bindingResult.hasErrors() && medianLineCrossingFileService.isComplete(detail);
-
+    return !bindingResult.hasErrors();
   }
 
   @Override
