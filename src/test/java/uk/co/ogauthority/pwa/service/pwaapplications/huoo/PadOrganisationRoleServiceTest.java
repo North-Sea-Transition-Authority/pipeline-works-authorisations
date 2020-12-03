@@ -359,17 +359,13 @@ public class PadOrganisationRoleServiceTest {
     form.setOrganisationUnitId(2);
     form.setHuooRoles(Set.of(HuooRole.HOLDER, HuooRole.OPERATOR));
 
-    var existingOrgUnit = new PortalOrganisationUnit(1, "org name 1");
-    var existingOrgRole = new PadOrganisationRole(HuooRole.HOLDER);
-    existingOrgRole.setOrganisationUnit(existingOrgUnit);
+    var existingOrgUnit = PortalOrganisationTestUtils.getOrganisationUnit();
+    var existingOrgRole = PadOrganisationRoleTestUtil.createOrgRole(HuooRole.HOLDER, existingOrgUnit);
     when(padOrganisationRolesRepository.getAllByPwaApplicationDetailAndOrganisationUnit(detail, existingOrgUnit))
         .thenReturn(List.of(existingOrgRole));
 
-    var orgUnitToAdd = new PortalOrganisationUnit(2, "org name 2");
+    var orgUnitToAdd = PortalOrganisationTestUtils.getOrganisationUnit();
     when(portalOrganisationsAccessor.getOrganisationUnitById(form.getOrganisationUnitId())).thenReturn(Optional.of(orgUnitToAdd));
-
-    when(padPipelineOrganisationRoleLinkRepository.findAllByPadOrgRoleInAndPadOrgRole_PwaApplicationDetail(List.of(), detail))
-        .thenReturn(new ArrayList<>());
 
     padOrganisationRoleService.updateOrgRolesUsingForm(detail, form, existingOrgUnit);
 
@@ -402,19 +398,15 @@ public class PadOrganisationRoleServiceTest {
     form.setOrganisationUnitId(2);
     form.setHuooRoles(EnumSet.complementOf(EnumSet.of(HuooRole.OWNER)));
 
-    var existingOrgUnit = new PortalOrganisationUnit(1, "org name 1");
-    var existingOrgHolder = new PadOrganisationRole(HuooRole.HOLDER);
-    existingOrgHolder.setOrganisationUnit(existingOrgUnit);
-    var existingOrgUser = new PadOrganisationRole(HuooRole.USER);
-    existingOrgUser.setOrganisationUnit(existingOrgUnit);
-    var existingOrgOperator = new PadOrganisationRole(HuooRole.OPERATOR);
-    existingOrgOperator.setOrganisationUnit(existingOrgUnit);
-    var existingOrgOwner = new PadOrganisationRole(HuooRole.OWNER);
-    existingOrgOwner.setOrganisationUnit(existingOrgUnit);
+    var existingOrgUnit = PortalOrganisationTestUtils.getOrganisationUnit();
+    var existingOrgHolder = PadOrganisationRoleTestUtil.createOrgRole(HuooRole.HOLDER, existingOrgUnit);
+    var existingOrgUser = PadOrganisationRoleTestUtil.createOrgRole(HuooRole.USER, existingOrgUnit);
+    var existingOrgOperator = PadOrganisationRoleTestUtil.createOrgRole(HuooRole.OPERATOR, existingOrgUnit);
+    var existingOrgOwner = PadOrganisationRoleTestUtil.createOrgRole(HuooRole.OWNER, existingOrgUnit);
     when(padOrganisationRolesRepository.getAllByPwaApplicationDetailAndOrganisationUnit(detail, existingOrgUnit))
         .thenReturn(List.of(existingOrgHolder, existingOrgUser, existingOrgOperator, existingOrgOwner));
 
-    var orgUnitToAdd = new PortalOrganisationUnit(2, "org name 2");
+    var orgUnitToAdd = PortalOrganisationTestUtils.getOrganisationUnit();
     when(portalOrganisationsAccessor.getOrganisationUnitById(form.getOrganisationUnitId())).thenReturn(Optional.of(orgUnitToAdd));
 
     var pipeline = new Pipeline();
@@ -456,22 +448,19 @@ public class PadOrganisationRoleServiceTest {
     form.setOrganisationUnitId(2);
     form.setHuooRoles(EnumSet.complementOf(EnumSet.of(HuooRole.OWNER)));
 
-    var existingOrgUnit = new PortalOrganisationUnit(1, "org name 1");
-    var existingOrgHolder = new PadOrganisationRole(HuooRole.HOLDER);
-    existingOrgHolder.setOrganisationUnit(existingOrgUnit);
-    var existingOrgUser = new PadOrganisationRole(HuooRole.USER);
-    existingOrgUser.setOrganisationUnit(existingOrgUnit);
-    var existingOrgOperator = new PadOrganisationRole(HuooRole.OPERATOR);
-    existingOrgOperator.setOrganisationUnit(existingOrgUnit);
-    var existingOrgOwner = new PadOrganisationRole(HuooRole.OWNER);
-    existingOrgOwner.setOrganisationUnit(existingOrgUnit);
+    var existingOrgUnit = PortalOrganisationTestUtils.getOrganisationUnit();
+    var existingOrgHolder = PadOrganisationRoleTestUtil.createOrgRole(HuooRole.HOLDER, existingOrgUnit);
+    var existingOrgUser = PadOrganisationRoleTestUtil.createOrgRole(HuooRole.USER, existingOrgUnit);
+    var existingOrgOperator = PadOrganisationRoleTestUtil.createOrgRole(HuooRole.OPERATOR, existingOrgUnit);
+    var existingOrgOwner = PadOrganisationRoleTestUtil.createOrgRole(HuooRole.OWNER, existingOrgUnit);
     when(padOrganisationRolesRepository.getAllByPwaApplicationDetailAndOrganisationUnit(detail, existingOrgUnit))
         .thenReturn(List.of(existingOrgHolder, existingOrgUser, existingOrgOperator, existingOrgOwner));
 
-    var orgUnitToAdd = new PortalOrganisationUnit(2, "org name 2");
+    var orgUnitToAdd = PortalOrganisationTestUtils.getOrganisationUnit();
     when(portalOrganisationsAccessor.getOrganisationUnitById(form.getOrganisationUnitId())).thenReturn(Optional.of(orgUnitToAdd));
 
-    var ownerOrgRoleSplitLink = createSplitPipelineOrgRoleLink(existingOrgOwner, new Pipeline());
+    var ownerOrgRoleSplitLink = PadOrganisationRoleTestUtil.createOrgRoleInclusivePipelineSplitLink(
+        existingOrgOwner.getRole(), existingOrgOwner.getOrganisationUnit(), new Pipeline(), "from", "to", 1);
     List<PadPipelineOrganisationRoleLink> orgRolePipelineLinks = new ArrayList<>();
     orgRolePipelineLinks.add(ownerOrgRoleSplitLink);
     when(padPipelineOrganisationRoleLinkRepository.findAllByPadOrgRoleInAndPadOrgRole_PwaApplicationDetail(List.of(existingOrgOwner), detail))
@@ -511,16 +500,15 @@ public class PadOrganisationRoleServiceTest {
   @Test
   public void removePipelineLinksForOrgsWithRoles_fullPipeline_splitPipelinesWithSingleAndDuplicateLinks() {
 
-    var existingOrgUnit = new PortalOrganisationUnit(1, "org name 1");
-    var existingOrgHolder = new PadOrganisationRole(HuooRole.HOLDER);
-    existingOrgHolder.setOrganisationUnit(existingOrgUnit);
-    var existingOrgUser = new PadOrganisationRole(HuooRole.USER);
-    existingOrgUser.setOrganisationUnit(existingOrgUnit);
-    var existingOrgOperator = new PadOrganisationRole(HuooRole.OPERATOR);
-    existingOrgOperator.setOrganisationUnit(existingOrgUnit);
+    var existingOrgUnit = PortalOrganisationTestUtils.getOrganisationUnit();
+    var existingOrgHolder = PadOrganisationRoleTestUtil.createOrgRole(HuooRole.HOLDER, existingOrgUnit);
+    var existingOrgUser = PadOrganisationRoleTestUtil.createOrgRole(HuooRole.USER, existingOrgUnit);
+    var existingOrgOperator = PadOrganisationRoleTestUtil.createOrgRole(HuooRole.OPERATOR, existingOrgUnit);
 
-    var holderOrgRoleSplitLink = createSplitPipelineOrgRoleLink(existingOrgHolder, new Pipeline());
-    var userOrgRoleSplitLink = createSplitPipelineOrgRoleLink(existingOrgUser, new Pipeline());
+    var holderOrgRoleSplitLink = PadOrganisationRoleTestUtil.createOrgRoleInclusivePipelineSplitLink(
+        existingOrgHolder.getRole(), existingOrgHolder.getOrganisationUnit(), new Pipeline(), "from", "to", 1);
+    var userOrgRoleSplitLink = PadOrganisationRoleTestUtil.createOrgRoleInclusivePipelineSplitLink(
+        existingOrgUser.getRole(), existingOrgUser.getOrganisationUnit(), new Pipeline(), "from", "to", 1);
     var operatorOrgRoleFullLink = new PadPipelineOrganisationRoleLink(existingOrgOperator, new Pipeline());
     when(padPipelineOrganisationRoleLinkRepository.findAllByPadOrgRoleInAndPadOrgRole_PwaApplicationDetail(
         List.of(existingOrgHolder, existingOrgUser, existingOrgOperator), detail))
@@ -548,18 +536,6 @@ public class PadOrganisationRoleServiceTest {
     verify(padOrganisationRolesRepository, times(1)).save(roleCaptor.capture());
     assertThat(roleCaptor.getValue().getType()).isEqualTo(HuooType.UNASSIGNED_PIPELINE_SPLIT);
   }
-
-
-  private PadPipelineOrganisationRoleLink createSplitPipelineOrgRoleLink(PadOrganisationRole organisationRole, Pipeline pipeline) {
-    var ownerOrgRoleSplitLink = new PadPipelineOrganisationRoleLink(organisationRole, pipeline);
-    ownerOrgRoleSplitLink.setFromLocation("location");
-    ownerOrgRoleSplitLink.setFromLocationIdentInclusionMode(IdentLocationInclusionMode.INCLUSIVE);
-    ownerOrgRoleSplitLink.setToLocation("location");
-    ownerOrgRoleSplitLink.setToLocationIdentInclusionMode(IdentLocationInclusionMode.INCLUSIVE);
-    ownerOrgRoleSplitLink.setSectionNumber(1);
-    return ownerOrgRoleSplitLink;
-  }
-
 
   @Test
   public void saveEntityUsingForm_org() {

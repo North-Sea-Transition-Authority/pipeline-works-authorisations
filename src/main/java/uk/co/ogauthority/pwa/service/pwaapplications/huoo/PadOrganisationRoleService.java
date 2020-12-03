@@ -282,6 +282,9 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
     List<PadPipelineOrganisationRoleLink> pipelineLinksToRemove = new ArrayList<>();
     List<PadPipelineOrganisationRoleLink> pipelineLinksToUpdate = new ArrayList<>();
 
+    //To avoid removing the last instance of a previously defined section of a split pipeline,
+    //we need to find out if the specific section, identified by pipeline and section number, exists more than once.
+    //Section number is a safe proxy for pipeline sections and avoids a filter on each attribute that makes up a split
     pipelineLinks.forEach(link -> {
       if (link.getOrgRoleInstanceType().equals(OrgRoleInstanceType.SPLIT_PIPELINE)) {
         var duplicateSectionLinks = padPipelineOrganisationRoleLinkRepository
@@ -289,6 +292,9 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
                 detail, link.getPadOrgRole().getRole(), link.getPipeline(), link.getSectionNumber()
             );
 
+        //If the section exists more than once, we can delete as there still exists some other assigned instance.
+        //If the split section has only 1 instance, do not remove and instead assign it to the "Unassigned pipeline split" role so that ..
+        //we keep all sections of a split pipeline in the data.
         if (duplicateSectionLinks > 1) {
           pipelineLinksToRemove.add(link);
 
@@ -344,10 +350,10 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
 
     //get organisations that need to be saved on the application
     List<PadOrganisationRole> orgRolesToSave = new ArrayList<>();
-    Set<HuooRole> huooRolesRequired = form.getHuooRoles();
-    Set<HuooRole> huooRolesNotRequired = EnumSet.complementOf(EnumSet.copyOf(huooRolesRequired));
+    Set<HuooRole> newHuooRolesForOrg = form.getHuooRoles();
+    Set<HuooRole> huooRolesNotGivenToOrg = EnumSet.complementOf(EnumSet.copyOf(newHuooRolesForOrg));
 
-    huooRolesRequired.forEach(huooRole -> {
+    newHuooRolesForOrg.forEach(huooRole -> {
       var orgToUpdateOpt = existingOrgRoles.stream()
           .filter(existingOrgRole -> huooRole.equals(existingOrgRole.getRole()))
           .findFirst();
@@ -365,7 +371,7 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
 
     //save new orgs, remove old orgs, remove old pipeline links
     List<PadOrganisationRole> orgRolesToRemove = existingOrgRoles.stream()
-        .filter(existingOrgRole -> huooRolesNotRequired.contains(existingOrgRole.getRole()))
+        .filter(existingOrgRole -> huooRolesNotGivenToOrg.contains(existingOrgRole.getRole()))
         .collect(Collectors.toList());
 
     padOrganisationRolesRepository.saveAll(orgRolesToSave);
