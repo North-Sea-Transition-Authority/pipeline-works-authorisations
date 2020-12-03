@@ -88,7 +88,17 @@ public enum PwaAppProcessingTask {
       CloseOutOptionsTaskService.class, processingContext -> ReverseRouter.route(on(CloseOutOptionsController.class)
       .renderCloseOutOptions(processingContext.getMasterPwaApplicationId(),
           processingContext.getApplicationType(), null, null)),
-      45),
+      46),
+
+  CHANGE_OPTIONS_APPROVAL_DEADLINE(
+      "Change options approval deadline",
+      TaskRequirement.OPTIONAL,
+      ChangeOptionsApprovalDeadlineTaskService.class, processingContext ->
+      ReverseRouter.route(on(ChangeOptionsApprovalDeadlineController.class)
+          .renderChangeDeadline(processingContext.getMasterPwaApplicationId(),
+              processingContext.getApplicationType(), null, null, null)),
+      47
+  ),
 
   PUBLIC_NOTICE(
       "Public notice",
@@ -138,16 +148,6 @@ public enum PwaAppProcessingTask {
       .renderAssignCaseOfficer(processingContext.getMasterPwaApplicationId(),
           processingContext.getApplicationType(), null, null, null)),
       90),
-
-  CHANGE_OPTIONS_APPROVAL_DEADLINE(
-      "Change options approval deadline",
-      TaskRequirement.OPTIONAL,
-      ChangeOptionsApprovalDeadlineTaskService.class, processingContext ->
-      ReverseRouter.route(on(ChangeOptionsApprovalDeadlineController.class)
-          .renderChangeDeadline(processingContext.getMasterPwaApplicationId(),
-              processingContext.getApplicationType(), null, null, null)),
-      95
-  ),
 
   RFI(
       "Request further information",
