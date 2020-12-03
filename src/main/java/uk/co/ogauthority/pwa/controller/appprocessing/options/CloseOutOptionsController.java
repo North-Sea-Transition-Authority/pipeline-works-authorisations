@@ -25,6 +25,7 @@ import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingTask;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
+import uk.co.ogauthority.pwa.service.pwaapplications.options.PadConfirmationOfOptionService;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
 @Controller
@@ -36,14 +37,17 @@ public class CloseOutOptionsController {
   private final ApplicationBreadcrumbService breadcrumbService;
   private final CloseOutOptionsTaskService closeOutOptionsTaskService;
   private final ApproveOptionsService approveOptionsService;
+  private final PadConfirmationOfOptionService padConfirmationOfOptionService;
 
   @Autowired
   public CloseOutOptionsController(ApplicationBreadcrumbService breadcrumbService,
                                    CloseOutOptionsTaskService closeOutOptionsTaskService,
-                                   ApproveOptionsService approveOptionsService) {
+                                   ApproveOptionsService approveOptionsService,
+                                   PadConfirmationOfOptionService padConfirmationOfOptionService) {
     this.breadcrumbService = breadcrumbService;
     this.closeOutOptionsTaskService = closeOutOptionsTaskService;
     this.approveOptionsService = approveOptionsService;
+    this.padConfirmationOfOptionService = padConfirmationOfOptionService;
   }
 
   @GetMapping
@@ -85,7 +89,8 @@ public class CloseOutOptionsController {
 
     var modelAndView = new ModelAndView("appprocessing/options/closeOutOptions")
         .addObject("cancelUrl", cancelUrl)
-        .addObject("caseSummaryView", appProcessingContext.getCaseSummaryView());
+        .addObject("caseSummaryView", appProcessingContext.getCaseSummaryView())
+        .addObject("padConfirmationOfOptionView", padConfirmationOfOptionService.getPadConfirmationOfOptionView(pwaApplicationDetail));
 
     breadcrumbService.fromCaseManagement(
         pwaApplicationDetail.getPwaApplication(),

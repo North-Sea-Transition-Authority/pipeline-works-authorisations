@@ -15,6 +15,7 @@ import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
@@ -38,6 +39,8 @@ import uk.co.ogauthority.pwa.service.appprocessing.options.CloseOutOptionsTaskSe
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.service.pwaapplications.options.PadConfirmationOfOptionService;
+import uk.co.ogauthority.pwa.service.pwaapplications.options.PadConfirmationOfOptionView;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
@@ -57,6 +60,12 @@ public class CloseOutOptionsControllerTest extends PwaAppProcessingContextAbstra
 
   @MockBean
   private PwaAppProcessingPermissionService pwaAppProcessingPermissionService;
+
+  @MockBean
+  private PadConfirmationOfOptionService padConfirmationOfOptionService;
+
+  @Mock
+  private PadConfirmationOfOptionView padConfirmationOfOptionView;
 
   private PwaApplicationEndpointTestBuilder endpointTester;
 
@@ -88,6 +97,8 @@ public class CloseOutOptionsControllerTest extends PwaAppProcessingContextAbstra
         .thenReturn(Optional.of(pwaApplicationDetail));
 
     when(closeOutOptionsTaskService.taskAccessible(any())).thenReturn(true);
+
+    when(padConfirmationOfOptionService.getPadConfirmationOfOptionView(any())).thenReturn(padConfirmationOfOptionView);
 
     endpointTester = new PwaApplicationEndpointTestBuilder(
         mockMvc,
