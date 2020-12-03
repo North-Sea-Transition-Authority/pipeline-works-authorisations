@@ -3,12 +3,13 @@ package uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
-import java.util.EnumSet;
+import java.util.List;
 import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
@@ -16,9 +17,13 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.validation.BeanPropertyBindingResult;
+import org.springframework.validation.Errors;
+import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.enums.MedianLineStatus;
+import uk.co.ogauthority.pwa.model.entity.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadMedianLineAgreement;
+import uk.co.ogauthority.pwa.model.form.files.UploadedFileViewTestUtil;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.MedianLineAgreementsForm;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadMedianLineAgreementRepository;
 import uk.co.ogauthority.pwa.service.entitycopier.EntityCopyingService;
@@ -198,31 +203,63 @@ public class PadMedianLineAgreementServiceTest {
   }
 
   @Test
-  public void isComplete_notCrossedServiceInteractions() {
+  public void isComplete_serviceInteractions_whenAgreementValid() {
     var agreement = new PadMedianLineAgreement();
     when(padMedianLineAgreementRepository.findByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(
         Optional.of(agreement));
-    agreement.setAgreementStatus(MedianLineStatus.NOT_CROSSED);
+
     padMedianLineAgreementService.isComplete(pwaApplicationDetail);
+
     verify(medianLineAgreementValidator, times(1)).validate(any(), any(), eq(FullValidation.class));
     verify(medianLineCrossingFileService, times(1)).isComplete(pwaApplicationDetail);
   }
 
   @Test
-  public void isComplete_otherServiceInteractions() {
+  public void isComplete_serviceInteractions_whenAgreementInvalid() {
     var agreement = new PadMedianLineAgreement();
     when(padMedianLineAgreementRepository.findByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(
         Optional.of(agreement));
-    EnumSet.allOf(MedianLineStatus.class).stream()
-        .filter(medianLineStatus -> medianLineStatus != MedianLineStatus.NOT_CROSSED)
-        .forEach(medianLineStatus -> {
-          agreement.setAgreementStatus(medianLineStatus);
-          padMedianLineAgreementService.isComplete(pwaApplicationDetail);
-          // Have to use atLeastOnce() inside forEach, otherwise additional iterations increase times().
-          verify(medianLineAgreementValidator, atLeastOnce()).validate(any(), any(), eq(FullValidation.class));
-          verify(medianLineCrossingFileService, atLeastOnce()).isComplete(pwaApplicationDetail);
-        });
+
+    doAnswer(invocation -> {
+      var errors = (Errors) invocation.getArgument(1);
+      errors.rejectValue("agreementStatus", "agreementStatus.bad", "agreementStatus bad");
+      return invocation;
+    }).when(medianLineAgreementValidator).validate(any(), any(), any());
+
+    padMedianLineAgreementService.isComplete(pwaApplicationDetail);
+
+    verify(medianLineAgreementValidator, times(1)).validate(any(), any(), eq(FullValidation.class));
+    verify(medianLineCrossingFileService, times(0)).isComplete(pwaApplicationDetail);
   }
+
+  @Test
+  public void isMedianLineAgreementFormComplete_whenAgreementInvalid() {
+    var agreement = new PadMedianLineAgreement();
+    when(padMedianLineAgreementRepository.findByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(
+        Optional.of(agreement));
+
+    doAnswer(invocation -> {
+      var errors = (Errors) invocation.getArgument(1);
+      errors.rejectValue("agreementStatus", "agreementStatus.bad", "agreementStatus bad");
+      return invocation;
+    }).when(medianLineAgreementValidator).validate(any(), any(), any());
+
+    assertThat(padMedianLineAgreementService.isMedianLineAgreementFormComplete(pwaApplicationDetail)).isFalse();
+
+    verifyNoInteractions(medianLineCrossingFileService);
+  }
+
+  @Test
+  public void isMedianLineAgreementFormComplete_whenAgreementValid() {
+    var agreement = new PadMedianLineAgreement();
+    when(padMedianLineAgreementRepository.findByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(
+        Optional.of(agreement));
+
+    assertThat(padMedianLineAgreementService.isMedianLineAgreementFormComplete(pwaApplicationDetail)).isTrue();
+
+    verifyNoInteractions(medianLineCrossingFileService);
+  }
+
 
   @Test
   public void validate_serviceInteractions_whenFullValidation() {
@@ -240,5 +277,32 @@ public class PadMedianLineAgreementServiceTest {
     padMedianLineAgreementService.validate(form, errors, ValidationType.PARTIAL, pwaApplicationDetail);
 
     verify(medianLineAgreementValidator, times(1)).validate(any(), any());
+  }
+
+  @Test
+  public void getMedianLineCrossingView_whenPadMedianLineAgreementFound_mapsData() {
+
+    var agreement = new PadMedianLineAgreement();
+    agreement.setNegotiatorName("NAME");
+    agreement.setNegotiatorEmail("EMAIL");
+    agreement.setAgreementStatus(MedianLineStatus.NEGOTIATIONS_COMPLETED);
+
+    var fileViews = List.of(UploadedFileViewTestUtil.createDefaultFileView());
+    when(padFileService.getUploadedFileViews(
+        pwaApplicationDetail,
+        ApplicationDetailFilePurpose.MEDIAN_LINE_CROSSING,
+        ApplicationFileLinkStatus.FULL
+    )).thenReturn(fileViews);
+
+    when(padMedianLineAgreementRepository.findByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(
+        Optional.of(agreement));
+
+    var view = padMedianLineAgreementService.getMedianLineCrossingView(pwaApplicationDetail);
+
+    assertThat(view.getAgreementStatus()).isEqualTo(agreement.getAgreementStatus());
+    assertThat(view.getNegotiatorEmail()).isEqualTo(agreement.getNegotiatorEmail());
+    assertThat(view.getNegotiatorName()).isEqualTo(agreement.getNegotiatorName());
+    assertThat(view.getSortedFileViews()).isEqualTo(fileViews);
+
   }
 }

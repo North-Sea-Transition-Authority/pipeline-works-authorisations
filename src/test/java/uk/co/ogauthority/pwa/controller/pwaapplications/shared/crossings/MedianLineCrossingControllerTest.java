@@ -1,21 +1,24 @@
 package uk.co.ogauthority.pwa.controller.pwaapplications.shared.crossings;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
 
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
@@ -26,12 +29,9 @@ import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.controller.PwaApplicationContextAbstractControllerTest;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
-import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
-import uk.co.ogauthority.pwa.model.entity.enums.MedianLineStatus;
-import uk.co.ogauthority.pwa.model.entity.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadMedianLineAgreement;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.MedianLineAgreementsForm;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.views.MedianLineAgreementView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
@@ -39,23 +39,20 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CrossingAgreementsService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.MedianLineCrossingFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.PadMedianLineAgreementService;
 import uk.co.ogauthority.pwa.testutils.ControllerTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
-import uk.co.ogauthority.pwa.validators.MedianLineAgreementValidator;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(controllers = MedianLineCrossingController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = PwaApplicationContextService.class))
 public class MedianLineCrossingControllerTest extends PwaApplicationContextAbstractControllerTest {
+  private static final int APP_ID = 100;
+  private static final PwaApplicationType TYPE = PwaApplicationType.INITIAL;
 
   @MockBean
   private PadMedianLineAgreementService padMedianLineAgreementService;
-
-  @MockBean
-  private MedianLineAgreementValidator medianLineAgreementValidator;
 
   @SpyBean
   private ApplicationBreadcrumbService applicationBreadcrumbService;
@@ -63,22 +60,23 @@ public class MedianLineCrossingControllerTest extends PwaApplicationContextAbstr
   @MockBean
   private MedianLineCrossingFileService medianLineCrossingFileService;
 
-  @MockBean
-  private CrossingAgreementsService crossingAgreementsService;
+  @Mock
+  private MedianLineAgreementView medianLineAgreementView;
 
   private PwaApplicationDetail pwaApplicationDetail;
   private EnumSet<PwaApplicationType> allowedApplicationTypes;
   private AuthenticatedUserAccount user;
-  private PadMedianLineAgreement agreement;
 
   private PwaApplicationEndpointTestBuilder endpointTester;
 
-  private int APP_ID = 100;
 
   @Before
   public void setUp() {
 
-    pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL, APP_ID);
+    pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(TYPE, APP_ID);
+
+    when(medianLineAgreementView.getSortedFileViews()).thenReturn(List.of());
+    when(padMedianLineAgreementService.getMedianLineCrossingView(any())).thenReturn(medianLineAgreementView);
 
     allowedApplicationTypes = EnumSet.of(
         PwaApplicationType.INITIAL,
@@ -101,9 +99,6 @@ public class MedianLineCrossingControllerTest extends PwaApplicationContextAbstr
         .setAllowedContactRoles(PwaContactRole.PREPARER)
         .setAllowedStatuses(PwaApplicationStatus.DRAFT);
 
-    agreement = new PadMedianLineAgreement();
-    agreement.setAgreementStatus(MedianLineStatus.NOT_CROSSED);
-    when(padMedianLineAgreementService.getMedianLineAgreement(any())).thenReturn(agreement);
   }
 
   @Test
@@ -145,12 +140,10 @@ public class MedianLineCrossingControllerTest extends PwaApplicationContextAbstr
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(MedianLineCrossingController.class)
-                .renderMedianLineOverview(type, applicationDetail.getMasterPwaApplicationId(), null, null)));
+                .renderMedianLineOverview(type, applicationDetail.getMasterPwaApplicationId(), null)));
 
     endpointTester.performAppTypeChecks(status().isOk(), status().isForbidden());
 
-    verify(padFileService, times(endpointTester.getAllowedTypes().size())).getUploadedFileViews(any(),
-        eq(ApplicationDetailFilePurpose.MEDIAN_LINE_CROSSING), eq(ApplicationFileLinkStatus.FULL));
   }
 
   @Test
@@ -158,12 +151,10 @@ public class MedianLineCrossingControllerTest extends PwaApplicationContextAbstr
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(MedianLineCrossingController.class)
-                .renderMedianLineOverview(type, applicationDetail.getMasterPwaApplicationId(), null, null)));
+                .renderMedianLineOverview(type, applicationDetail.getMasterPwaApplicationId(), null)));
 
     endpointTester.performAppStatusChecks(status().isOk(), status().isNotFound());
 
-    verify(padFileService, times(endpointTester.getAllowedStatuses().size())).getUploadedFileViews(any(),
-        eq(ApplicationDetailFilePurpose.MEDIAN_LINE_CROSSING), eq(ApplicationFileLinkStatus.FULL));
   }
 
   @Test
@@ -171,12 +162,10 @@ public class MedianLineCrossingControllerTest extends PwaApplicationContextAbstr
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(MedianLineCrossingController.class)
-                .renderMedianLineOverview(type, applicationDetail.getMasterPwaApplicationId(), null, null)));
+                .renderMedianLineOverview(type, applicationDetail.getMasterPwaApplicationId(), null)));
 
     endpointTester.performAppContactRoleCheck(status().isOk(), status().isForbidden());
 
-    verify(padFileService, times(endpointTester.getContactRoles().size())).getUploadedFileViews(any(),
-        eq(ApplicationDetailFilePurpose.MEDIAN_LINE_CROSSING), eq(ApplicationFileLinkStatus.FULL));
   }
 
   @Test
@@ -184,7 +173,7 @@ public class MedianLineCrossingControllerTest extends PwaApplicationContextAbstr
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(MedianLineCrossingController.class)
-                .postOverview(type, applicationDetail.getMasterPwaApplicationId(), null, null)));
+                .postOverview(type, applicationDetail.getMasterPwaApplicationId(), null)));
 
     endpointTester.performAppTypeChecks(status().isOk(), status().isForbidden());
   }
@@ -194,7 +183,7 @@ public class MedianLineCrossingControllerTest extends PwaApplicationContextAbstr
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(MedianLineCrossingController.class)
-                .postOverview(type, applicationDetail.getMasterPwaApplicationId(), null, null)));
+                .postOverview(type, applicationDetail.getMasterPwaApplicationId(), null)));
 
     endpointTester.performAppStatusChecks(status().isOk(), status().isNotFound());
   }
@@ -204,9 +193,37 @@ public class MedianLineCrossingControllerTest extends PwaApplicationContextAbstr
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(MedianLineCrossingController.class)
-                .postOverview(type, applicationDetail.getMasterPwaApplicationId(), null, null)));
+                .postOverview(type, applicationDetail.getMasterPwaApplicationId(), null)));
 
     endpointTester.performAppContactRoleCheck(status().isOk(), status().isForbidden());
+  }
+
+  @Test
+  public void postOverview_notValid() throws Exception {
+    mockMvc.perform(post(ReverseRouter.route(on(MedianLineCrossingController.class)
+        .postOverview(TYPE, APP_ID, null)))
+        .with(authenticatedUserAndSession(user))
+        .param(ValidationType.FULL.getButtonText(), "")
+        .with(csrf()))
+        .andExpect(status().isOk())
+        .andExpect(model().attributeExists("errorMessage"));
+
+    verify(padMedianLineAgreementService, times(1)).getMedianLineCrossingView(pwaApplicationDetail);
+  }
+
+  @Test
+  public void postOverview_valid() throws Exception {
+    when(padMedianLineAgreementService.isMedianLineAgreementFormComplete(pwaApplicationDetail)).thenReturn(true);
+    when(medianLineCrossingFileService.isComplete(pwaApplicationDetail)).thenReturn(true);
+
+    mockMvc.perform(post(ReverseRouter.route(on(MedianLineCrossingController.class)
+        .postOverview(TYPE, APP_ID, null)))
+        .with(authenticatedUserAndSession(user))
+        .param(ValidationType.FULL.getButtonText(), "")
+        .with(csrf()))
+        .andExpect(status().is3xxRedirection());
+
+    verify(padMedianLineAgreementService, times(0)).getMedianLineCrossingView(any());
   }
 
   @Test
