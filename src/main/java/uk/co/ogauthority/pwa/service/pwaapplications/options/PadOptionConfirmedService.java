@@ -37,12 +37,4 @@ public class PadOptionConfirmedService {
         .map(PadConfirmationOfOption::getConfirmedOptionType);
   }
 
-  // todo remove
-  public boolean optionConfirmationExists(PwaApplicationDetail pwaApplicationDetail) {
-    if (pwaApplicationDetail.getPwaApplicationType().equals(PwaApplicationType.OPTIONS_VARIATION)) {
-      return padConfirmationOfOptionRepository.findByPwaApplicationDetail(pwaApplicationDetail)
-          .isPresent();
-    }
-    return false;
-  }
 }
