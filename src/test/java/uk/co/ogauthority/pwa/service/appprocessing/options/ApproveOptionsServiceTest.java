@@ -27,6 +27,7 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.options.OptionsApplicationApproval;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.options.OptionsApprovalDeadlineHistory;
+import uk.co.ogauthority.pwa.model.entity.enums.ConfirmedOptionType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.workflow.GenericMessageEvent;
 import uk.co.ogauthority.pwa.repository.appprocessing.options.OptionsApplicationApprovalRepository;
@@ -265,14 +266,16 @@ public class ApproveOptionsServiceTest {
         Optional.of(approval)
     );
 
+    when(padOptionConfirmedService.getConfirmedOptionType(any()))
+        .thenReturn(Optional.empty());
+
     assertThat(approveOptionsService.getOptionsApprovalStatus(pwaApplicationDetail))
         .isEqualTo(OptionsApprovalStatus.APPROVED_UNRESPONDED);
 
+    verify(padOptionConfirmedService, times(1)).getConfirmedOptionType(pwaApplicationDetail);
+
     verify(optionsApplicationApprovalRepository, times(1))
         .findByPwaApplication(pwaApplicationDetail.getPwaApplication());
-
-    verify(padOptionConfirmedService, times(1))
-        .optionConfirmationExists(pwaApplicationDetail);
 
     verifyNoMoreInteractions(
         optionsApprovalPersister,
@@ -285,23 +288,23 @@ public class ApproveOptionsServiceTest {
   }
 
   @Test
-  public void getOptionsApprovalStatus_whenOptions_approved_responded(){
+  public void getOptionsApprovalStatus_whenOptionsApproved_responded_andconsentewdOptionConfirmed(){
     var approval = new OptionsApplicationApproval();
 
     when(optionsApplicationApprovalRepository.findByPwaApplication(any())).thenReturn(
         Optional.of(approval)
     );
 
-    when(padOptionConfirmedService.optionConfirmationExists(any())).thenReturn(true);
+    when(padOptionConfirmedService.getConfirmedOptionType(any()))
+        .thenReturn(Optional.of(ConfirmedOptionType.WORK_COMPLETE_AS_PER_OPTIONS));
 
     assertThat(approveOptionsService.getOptionsApprovalStatus(pwaApplicationDetail))
-        .isEqualTo(OptionsApprovalStatus.APPROVED_RESPONDED);
+        .isEqualTo(OptionsApprovalStatus.APPROVED_CONSENTED_OPTION_CONFIRMED);
 
     verify(optionsApplicationApprovalRepository, times(1))
         .findByPwaApplication(pwaApplicationDetail.getPwaApplication());
 
-    verify(padOptionConfirmedService, times(1))
-        .optionConfirmationExists(pwaApplicationDetail);
+    verify(padOptionConfirmedService, times(1)).getConfirmedOptionType(pwaApplicationDetail);
 
     verifyNoMoreInteractions(
         optionsApprovalPersister,
@@ -310,6 +313,7 @@ public class ApproveOptionsServiceTest {
         optionsCaseManagementEmailService,
         padOptionConfirmedService,
         workflowAssignmentService,
-        pwaApplicationDetailVersioningService);
+        pwaApplicationDetailVersioningService
+    );
   }
 }

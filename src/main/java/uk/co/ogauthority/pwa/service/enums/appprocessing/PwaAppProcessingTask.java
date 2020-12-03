@@ -13,6 +13,7 @@ import uk.co.ogauthority.pwa.controller.appprocessing.decision.AppConsentDocCont
 import uk.co.ogauthority.pwa.controller.appprocessing.initialreview.InitialReviewController;
 import uk.co.ogauthority.pwa.controller.appprocessing.options.ApproveOptionsController;
 import uk.co.ogauthority.pwa.controller.appprocessing.options.ChangeOptionsApprovalDeadlineController;
+import uk.co.ogauthority.pwa.controller.appprocessing.options.CloseOutOptionsController;
 import uk.co.ogauthority.pwa.controller.consultations.ConsultationController;
 import uk.co.ogauthority.pwa.controller.consultations.ConsulteeAdviceController;
 import uk.co.ogauthority.pwa.controller.consultations.responses.AssignResponderController;
@@ -30,6 +31,7 @@ import uk.co.ogauthority.pwa.service.appprocessing.decision.ApplicationDecisionS
 import uk.co.ogauthority.pwa.service.appprocessing.initialreview.InitialReviewService;
 import uk.co.ogauthority.pwa.service.appprocessing.options.ApproveOptionsTaskService;
 import uk.co.ogauthority.pwa.service.appprocessing.options.ChangeOptionsApprovalDeadlineTaskService;
+import uk.co.ogauthority.pwa.service.appprocessing.options.CloseOutOptionsTaskService;
 import uk.co.ogauthority.pwa.service.appprocessing.tasks.AppProcessingService;
 import uk.co.ogauthority.pwa.service.consultations.AssignCaseOfficerService;
 import uk.co.ogauthority.pwa.service.consultations.AssignResponderService;
@@ -80,15 +82,13 @@ public enum PwaAppProcessingTask {
           processingContext.getApplicationType(), null, null, null)),
       45),
 
-  CHANGE_OPTIONS_APPROVAL_DEADLINE(
-      "Change options approval deadline",
-      TaskRequirement.OPTIONAL,
-      ChangeOptionsApprovalDeadlineTaskService.class, processingContext ->
-      ReverseRouter.route(on(ChangeOptionsApprovalDeadlineController.class)
-          .renderChangeDeadline(processingContext.getMasterPwaApplicationId(),
-              processingContext.getApplicationType(), null, null, null)),
-      47
-  ),
+  CLOSE_OUT_OPTIONS(
+      "Close options application without consent",
+      TaskRequirement.REQUIRED,
+      CloseOutOptionsTaskService.class, processingContext -> ReverseRouter.route(on(CloseOutOptionsController.class)
+      .renderCloseOutOptions(processingContext.getMasterPwaApplicationId(),
+          processingContext.getApplicationType(), null, null)),
+      45),
 
   PUBLIC_NOTICE(
       "Public notice",
@@ -138,6 +138,16 @@ public enum PwaAppProcessingTask {
       .renderAssignCaseOfficer(processingContext.getMasterPwaApplicationId(),
           processingContext.getApplicationType(), null, null, null)),
       90),
+
+  CHANGE_OPTIONS_APPROVAL_DEADLINE(
+      "Change options approval deadline",
+      TaskRequirement.OPTIONAL,
+      ChangeOptionsApprovalDeadlineTaskService.class, processingContext ->
+      ReverseRouter.route(on(ChangeOptionsApprovalDeadlineController.class)
+          .renderChangeDeadline(processingContext.getMasterPwaApplicationId(),
+              processingContext.getApplicationType(), null, null, null)),
+      95
+  ),
 
   RFI(
       "Request further information",

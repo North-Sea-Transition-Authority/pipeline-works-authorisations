@@ -167,6 +167,7 @@ public class ApplicationUpdateRequestService implements AppProcessingService {
 
   }
 
+  // TODO rename this method as it app level not app detail
   public boolean applicationDetailHasOpenUpdateRequest(PwaApplicationDetail pwaApplicationDetail) {
     return applicationUpdateRequestRepository.findByPwaApplicationDetail_pwaApplicationAndStatus(
         pwaApplicationDetail.getPwaApplication(),

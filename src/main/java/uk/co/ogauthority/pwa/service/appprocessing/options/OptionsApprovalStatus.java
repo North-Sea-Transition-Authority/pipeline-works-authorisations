@@ -5,18 +5,26 @@ package uk.co.ogauthority.pwa.service.appprocessing.options;
  */
 public enum OptionsApprovalStatus {
 
-  NOT_APPLICABLE(false),
-  NOT_APPROVED(false),
-  APPROVED_UNRESPONDED(true),
-  APPROVED_RESPONDED(true);
+  NOT_APPLICABLE(false, false),
+  NOT_APPROVED(false, false),
+  APPROVED_UNRESPONDED(true, false),
+  APPROVED_OTHER_CONFIRMED(true, false),
+  APPROVED_CONSENTED_OPTION_CONFIRMED(true, true);
 
   private final boolean optionsApproved;
 
-  OptionsApprovalStatus(boolean optionsApproved) {
+  private final boolean consentedOptionConfirmed;
+
+  OptionsApprovalStatus(boolean optionsApproved, boolean consentedOptionConfirmed) {
     this.optionsApproved = optionsApproved;
+    this.consentedOptionConfirmed = consentedOptionConfirmed;
   }
 
   public boolean isOptionsApproved() {
     return optionsApproved;
+  }
+
+  public boolean isConsentedOptionConfirmed() {
+    return consentedOptionConfirmed;
   }
 }
