@@ -2,6 +2,8 @@ package uk.co.ogauthority.pwa.controller.appprocessing.options;
 
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -143,11 +145,11 @@ public class CloseOutOptionsControllerTest extends PwaAppProcessingContextAbstra
   }
 
   @Test
-  public void approveOptions_whenNotCloseable() throws Exception {
+  public void closeOutOptions_whenNotCloseable() throws Exception {
     when(closeOutOptionsTaskService.taskAccessible(any())).thenReturn(false);
 
     mockMvc.perform(post(ReverseRouter.route(on(CloseOutOptionsController.class)
-        .approveOptions(APP_ID, APP_TYPE, null, null)))
+        .closeOutOptions(APP_ID, APP_TYPE, null, null, null)))
         .with(authenticatedUserAndSession(user))
         .with(csrf())
     )
@@ -156,35 +158,37 @@ public class CloseOutOptionsControllerTest extends PwaAppProcessingContextAbstra
   }
 
   @Test
-  public void approveOptions_whenCloseable() throws Exception {
+  public void closeOutOptions_whenCloseable() throws Exception {
     when(closeOutOptionsTaskService.taskAccessible(any())).thenReturn(true);
 
     mockMvc.perform(post(ReverseRouter.route(on(CloseOutOptionsController.class)
-        .approveOptions(APP_ID, APP_TYPE, null, null)))
+        .closeOutOptions(APP_ID, APP_TYPE, null, null, null)))
         .with(authenticatedUserAndSession(user))
         .with(csrf())
     )
-        .andExpect(status().isOk());
+        .andExpect(status().is3xxRedirection());
+
+    verify(approveOptionsService, times(1)).closeOutOptions(pwaApplicationDetail, user);
 
   }
 
   @Test
-  public void approveOptions_appStatusSmokeTest() {
+  public void closeOutOptions_appStatusSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(CloseOutOptionsController.class)
-                .approveOptions(applicationDetail.getMasterPwaApplicationId(), type, null, null)));
+                .closeOutOptions(applicationDetail.getMasterPwaApplicationId(), type, null, null, null)));
 
     endpointTester.performAppStatusChecks(status().isOk(), status().isNotFound());
   }
 
   @Test
-  public void approveOptions_processingPermissionSmokeTest() {
+  public void closeOutOptions_processingPermissionSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(CloseOutOptionsController.class)
-                .approveOptions(applicationDetail.getMasterPwaApplicationId(), type, null, null)));
+                .closeOutOptions(applicationDetail.getMasterPwaApplicationId(), type, null, null, null)));
 
     endpointTester.performProcessingPermissionCheck(status().isOk(), status().isForbidden());
   }

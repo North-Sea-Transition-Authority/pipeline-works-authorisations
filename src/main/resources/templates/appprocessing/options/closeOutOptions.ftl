@@ -6,7 +6,7 @@
 <#include '../../layout.ftl'>
 <#import '../../pwaApplication/shared/options/optionConfirmationSummary.ftl' as optionsConfirmationSummary>
 
-<@defaultPage htmlTitle="Close out options variation" pageHeading="TEST" topNavigation=true breadcrumbs=true fullWidthColumn=true>
+<@defaultPage htmlTitle="Close out options variation" topNavigation=true breadcrumbs=true fullWidthColumn=true>
 
     <@pwaCaseSummary.summary caseSummaryView=caseSummaryView />
 

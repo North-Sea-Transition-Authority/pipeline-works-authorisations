@@ -34,6 +34,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
 import uk.co.ogauthority.pwa.model.notify.emailproperties.ApplicationOptionsApprovalDeadlineChangedEmailProps;
 import uk.co.ogauthority.pwa.model.notify.emailproperties.ApplicationOptionsApprovedEmailProps;
 import uk.co.ogauthority.pwa.service.appprocessing.ApplicationInvolvementService;
+import uk.co.ogauthority.pwa.service.consultations.ConsultationRequestService;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.notify.EmailCaseLinkService;
@@ -66,6 +67,9 @@ public class OptionsCaseManagementEmailServiceTest {
 
   @Mock
   private ApplicationInvolvementService applicationInvolvementService;
+
+  @Mock
+  private ConsultationRequestService consultationRequestService;
 
   @Captor
   private ArgumentCaptor<ApplicationOptionsApprovedEmailProps> optionsApprovedEmailCaptor;
@@ -116,6 +120,7 @@ public class OptionsCaseManagementEmailServiceTest {
         notifyService,
         pwaContactService,
         pwaConsentOrganisationRoleService,
+        consultationRequestService,
         applicationInvolvementService
     );
   }

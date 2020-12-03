@@ -79,8 +79,6 @@ public class WithdrawApplicationServiceTest {
     form.setWithdrawalReason("my reason");
 
     var consultationRequest = new ConsultationRequest();
-    when(consultationRequestService.getAllOpenRequestsByApplication(pwaApplicationDetail.getPwaApplication()))
-        .thenReturn(List.of(consultationRequest));
 
     var appPerson = PersonTestUtil.createDefaultPerson();
     when(pwaContactService.getPeopleInRoleForPwaApplication(
@@ -95,7 +93,7 @@ public class WithdrawApplicationServiceTest {
     withdrawApplicationService.withdrawApplication(form, pwaApplicationDetail, withdrawingUser);
 
     verify(camundaWorkflowService, times(1)).deleteProcessInstanceAndThenTasks(pwaApplicationDetail.getPwaApplication());
-    verify(consultationRequestService, times(1)).withdrawConsultationRequest(consultationRequest, withdrawingUser);
+    verify(consultationRequestService, times(1)).withdrawAllOpenConsultationRequests(pwaApplicationDetail.getPwaApplication(), withdrawingUser);
     verify(notifyService, times(2)).sendEmail(any(), any());
     verify(notifyService, atLeastOnce()).sendEmail(emailProps, appPerson.getEmailAddress());
     verify(notifyService, atLeastOnce()).sendEmail(emailProps, withdrawingPerson.getEmailAddress());

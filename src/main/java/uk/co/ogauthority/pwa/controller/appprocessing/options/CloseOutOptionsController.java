@@ -10,7 +10,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.controller.WorkAreaController;
 import uk.co.ogauthority.pwa.controller.appprocessing.CaseManagementController;
 import uk.co.ogauthority.pwa.controller.appprocessing.shared.PwaAppProcessingPermissionCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationStatusCheck;
@@ -26,6 +28,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.options.PadConfirmationOfOptionService;
+import uk.co.ogauthority.pwa.util.FlashUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
 @Controller
@@ -53,7 +56,7 @@ public class CloseOutOptionsController {
   @GetMapping
   public ModelAndView renderCloseOutOptions(@PathVariable("applicationId") Integer applicationId,
                                             @PathVariable("applicationType")
-                                           @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
+                                            @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
                                             PwaAppProcessingContext processingContext,
                                             AuthenticatedUserAccount authenticatedUserAccount) {
     return whenCloseable(
@@ -63,15 +66,23 @@ public class CloseOutOptionsController {
   }
 
   @PostMapping
-  public ModelAndView approveOptions(@PathVariable("applicationId") Integer applicationId,
-                                     @PathVariable("applicationType")
-                                     @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
-                                     PwaAppProcessingContext processingContext,
-                                     AuthenticatedUserAccount authenticatedUserAccount) {
+  public ModelAndView closeOutOptions(@PathVariable("applicationId") Integer applicationId,
+                                      @PathVariable("applicationType")
+                                      @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
+                                      PwaAppProcessingContext processingContext,
+                                      AuthenticatedUserAccount authenticatedUserAccount,
+                                      RedirectAttributes redirectAttributes) {
     return whenCloseable(
         processingContext,
-        // TODO PWA-680 actually do something
-        () ->  getModelAndView(processingContext)
+        () -> {
+          approveOptionsService.closeOutOptions(processingContext.getApplicationDetail(), authenticatedUserAccount);
+          FlashUtils.success(
+              redirectAttributes,
+              String.format("Closed application %s", processingContext.getApplicationDetail().getPwaApplicationRef())
+          );
+          return ReverseRouter.redirect(on(WorkAreaController.class)
+              .renderWorkArea(null, null, null));
+        }
     );
   }
 
@@ -90,12 +101,13 @@ public class CloseOutOptionsController {
     var modelAndView = new ModelAndView("appprocessing/options/closeOutOptions")
         .addObject("cancelUrl", cancelUrl)
         .addObject("caseSummaryView", appProcessingContext.getCaseSummaryView())
-        .addObject("padConfirmationOfOptionView", padConfirmationOfOptionService.getPadConfirmationOfOptionView(pwaApplicationDetail));
+        .addObject("padConfirmationOfOptionView",
+            padConfirmationOfOptionService.getPadConfirmationOfOptionView(pwaApplicationDetail));
 
     breadcrumbService.fromCaseManagement(
         pwaApplicationDetail.getPwaApplication(),
         modelAndView,
-        PwaAppProcessingTask.APPROVE_OPTIONS.getTaskName());
+        PwaAppProcessingTask.CLOSE_OUT_OPTIONS.getTaskName());
 
     return modelAndView;
   }
