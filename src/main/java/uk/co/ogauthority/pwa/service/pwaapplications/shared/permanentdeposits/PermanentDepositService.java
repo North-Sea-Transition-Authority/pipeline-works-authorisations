@@ -238,6 +238,10 @@ public class PermanentDepositService implements ApplicationFormSectionService {
         .collect(Collectors.groupingBy(PadDepositPipeline::getPadPermanentDeposit));
   }
 
+  public List<PadPermanentDeposit> getAllDepositsWithPipelinesFromOtherApps(PwaApplicationDetail pwaApplicationDetail) {
+    return permanentDepositRepository.getAllByPwaApplicationDetailAndDepositIsForPipelinesOnOtherApp(pwaApplicationDetail, true);
+  }
+
   private List<PipelineId> getPipelineIdsForDeposit(PadPermanentDeposit deposit) {
     return padDepositPipelineRepository.findAllByPadPermanentDeposit(deposit)
         .stream()

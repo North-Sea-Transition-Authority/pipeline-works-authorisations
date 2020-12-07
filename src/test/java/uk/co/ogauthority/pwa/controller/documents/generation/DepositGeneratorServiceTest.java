@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,6 +14,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocumentSection;
+import uk.co.ogauthority.pwa.model.entity.enums.measurements.UnitMeasurement;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineStatus;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
@@ -62,7 +64,7 @@ public class DepositGeneratorServiceTest {
 
   private PadPermanentDeposit createDeposit(int id) {
     var deposit =  PadPermanentDepositTestUtil.createRockPadDeposit(
-        id, "ref " + id, pwaApplicationDetail, "3 grade", 5, null,
+        id, "ref " + id, pwaApplicationDetail, "3", 5, null,
         LocalDate.of(2020, 1, 1), LocalDate.of(2020, 1, 5),
         CoordinatePairTestUtil.getDefaultCoordinate(), CoordinatePairTestUtil.getDefaultCoordinate());
         deposit.setDepositIsForPipelinesOnOtherApp(false);
@@ -97,8 +99,11 @@ public class DepositGeneratorServiceTest {
 
     var deposit1 = createDeposit(1);
     var deposit2 = createDeposit(2);
+    var deposit3 = createDeposit(3);
     deposit2.setDepositIsForPipelinesOnOtherApp(true);
-    deposit2.setAppRefAndPipelineNum("App refs and pipeline numbers");
+    deposit2.setAppRefAndPipelineNum("App refs and pipeline numbers abc");
+    deposit3.setDepositIsForPipelinesOnOtherApp(true);
+    deposit3.setAppRefAndPipelineNum("App refs and pipeline numbers xyz");
 
     //deposits for pipelines
     var pipeline1 = createPipeline(1);
@@ -115,6 +120,10 @@ public class DepositGeneratorServiceTest {
     when(permanentDepositService.getDepositForDepositPipelinesMap(pwaApplicationDetail)).thenReturn(depositForPipelinesMap);
 
 
+    //deposits that have pipelines on other apps
+    when(permanentDepositService.getAllDepositsWithPipelinesFromOtherApps(pwaApplicationDetail)).thenReturn(List.of(deposit2, deposit3));
+
+
     //deposit drawings
     var drawing1 = createDepositDrawing(1);
     var drawing2 =  createDepositDrawing(2);
@@ -122,10 +131,16 @@ public class DepositGeneratorServiceTest {
     var deposit1drawingLink1 = PadPermanentDepositTestUtil.createPadDepositDrawingLink(deposit1, drawing1);
     var deposit1drawingLink2 = PadPermanentDepositTestUtil.createPadDepositDrawingLink(deposit1, drawing2);
     var deposit2drawingLink1 = PadPermanentDepositTestUtil.createPadDepositDrawingLink(deposit2, drawing1);
+    var deposit3drawingLink1 = PadPermanentDepositTestUtil.createPadDepositDrawingLink(deposit3, drawing1);
 
-    when(depositDrawingsService.getDepositAndDrawingLinksMapForDeposits(depositForPipelinesMap.keySet())).thenReturn(Map.of(
+    var allDeposits = new ArrayList<PadPermanentDeposit>();
+    allDeposits.addAll(List.of(deposit2, deposit3));
+    allDeposits.addAll(depositForPipelinesMap.keySet());
+
+    when(depositDrawingsService.getDepositAndDrawingLinksMapForDeposits(allDeposits)).thenReturn(Map.of(
         deposit1, List.of(deposit1drawingLink1, deposit1drawingLink2),
-        deposit2, List.of(deposit2drawingLink1)
+        deposit2, List.of(deposit2drawingLink1),
+        deposit3, List.of(deposit3drawingLink1)
     ));
 
 
@@ -152,7 +167,7 @@ public class DepositGeneratorServiceTest {
     var sectionName = documentSectionData.getTemplateModel().get("sectionName");
 
     assertThat(sectionName).isEqualTo(DocumentSection.DEPOSITS.getDisplayName());
-    assertThat(depositTableRowViews).hasSize(4);
+    assertThat(depositTableRowViews).hasSize(5);
 
     var expectedProposedStartDateDeposit1 = DateUtils.createDateEstimateString(deposit1.getFromMonth(), deposit1.getFromYear()) + "-" +
         DateUtils.createDateEstimateString(deposit1.getToMonth(), deposit1.getToYear());
@@ -160,7 +175,7 @@ public class DepositGeneratorServiceTest {
     var expectedTableRowViewForDep1AndPipeline1 = new DepositTableRowView(
         overviewForPipeline1.getPipelineNumber(),
         expectedProposedStartDateDeposit1,
-        deposit1.getMaterialType().getDisplayText() + ", " + deposit1.getMaterialSize(),
+        deposit1.getMaterialType().getDisplayText() + ", " + deposit1.getMaterialSize() + " " + UnitMeasurement.ROCK_GRADE.getSuffixDisplay(),
         String.valueOf(deposit1.getQuantity()),
         deposit1.getFromCoordinates(),
         deposit1.getToCoordinates(),
@@ -170,7 +185,7 @@ public class DepositGeneratorServiceTest {
     var expectedTableRowViewForDep1AndPipeline2 = new DepositTableRowView(
         overviewForPipeline2.getPipelineNumber(),
         expectedProposedStartDateDeposit1,
-        deposit1.getMaterialType().getDisplayText() + ", " + deposit1.getMaterialSize(),
+        deposit1.getMaterialType().getDisplayText() + ", " + deposit1.getMaterialSize() + " " + UnitMeasurement.ROCK_GRADE.getSuffixDisplay(),
         String.valueOf(deposit1.getQuantity()),
         deposit1.getFromCoordinates(),
         deposit1.getToCoordinates(),
@@ -184,7 +199,7 @@ public class DepositGeneratorServiceTest {
     var expectedTableRowViewForDep2AndPipeline1 = new DepositTableRowView(
         overviewForPipeline1.getPipelineNumber(),
         expectedProposedStartDateDeposit2,
-        deposit2.getMaterialType().getDisplayText() + ", " + deposit2.getMaterialSize(),
+        deposit2.getMaterialType().getDisplayText() + ", " + deposit2.getMaterialSize() + " " + UnitMeasurement.ROCK_GRADE.getSuffixDisplay(),
         String.valueOf(deposit2.getQuantity()),
         deposit2.getFromCoordinates(),
         deposit2.getToCoordinates(),
@@ -194,17 +209,28 @@ public class DepositGeneratorServiceTest {
     var expectedTableRowViewForDep2AndPipelineFreeText = new DepositTableRowView(
         deposit2.getAppRefAndPipelineNum(),
         expectedProposedStartDateDeposit2,
-        deposit2.getMaterialType().getDisplayText() + ", " + deposit2.getMaterialSize(),
+        deposit2.getMaterialType().getDisplayText() + ", " + deposit2.getMaterialSize() + " " + UnitMeasurement.ROCK_GRADE.getSuffixDisplay(),
         String.valueOf(deposit2.getQuantity()),
         deposit2.getFromCoordinates(),
         deposit2.getToCoordinates(),
         List.of(drawing1.getReference())
     );
 
+    var expectedTableRowViewForDep3AndPipelineFreeText = new DepositTableRowView(
+        deposit3.getAppRefAndPipelineNum(),
+        expectedProposedStartDateDeposit2,
+        deposit3.getMaterialType().getDisplayText() + ", " + deposit3.getMaterialSize() + " " + UnitMeasurement.ROCK_GRADE.getSuffixDisplay(),
+        String.valueOf(deposit3.getQuantity()),
+        deposit3.getFromCoordinates(),
+        deposit3.getToCoordinates(),
+        List.of(drawing1.getReference())
+    );
+
     assertThat(depositTableRowViews.get(0)).isEqualTo(expectedTableRowViewForDep2AndPipelineFreeText);
-    assertThat(depositTableRowViews.get(1)).isIn(expectedTableRowViewForDep1AndPipeline1, expectedTableRowViewForDep2AndPipeline1);
+    assertThat(depositTableRowViews.get(1)).isEqualTo(expectedTableRowViewForDep3AndPipelineFreeText);
     assertThat(depositTableRowViews.get(2)).isIn(expectedTableRowViewForDep1AndPipeline1, expectedTableRowViewForDep2AndPipeline1);
-    assertThat(depositTableRowViews.get(3)).isEqualTo(expectedTableRowViewForDep1AndPipeline2);
+    assertThat(depositTableRowViews.get(3)).isIn(expectedTableRowViewForDep1AndPipeline1, expectedTableRowViewForDep2AndPipeline1);
+    assertThat(depositTableRowViews.get(4)).isEqualTo(expectedTableRowViewForDep1AndPipeline2);
   }
 
 }
