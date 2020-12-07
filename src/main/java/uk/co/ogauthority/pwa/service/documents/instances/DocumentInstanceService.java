@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.service.documents.instances;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,6 +30,7 @@ import uk.co.ogauthority.pwa.model.entity.documents.instances.DocumentInstanceSe
 import uk.co.ogauthority.pwa.model.entity.documents.instances.DocumentInstanceSectionClauseVersion;
 import uk.co.ogauthority.pwa.model.entity.documents.templates.DocumentTemplateSection;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.DocumentTemplateMnem;
+import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocumentSection;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.enums.documents.PwaDocumentType;
 import uk.co.ogauthority.pwa.model.enums.documents.SectionClauseVersionStatus;
@@ -186,14 +188,30 @@ public class DocumentInstanceService {
 
     var clauseVersionDtos = sectionClauseVersionDtoRepository.findAllByDiId(instance.getId());
 
+    return buildDocumentViewFromClauseVersionDtos(instance, clauseVersionDtos);
+
+  }
+
+  public DocumentView getDocumentView(DocumentInstance instance,
+                                      DocumentSection documentSection) {
+
+    var clauseVersionDtos = sectionClauseVersionDtoRepository.findAllByDiId_AndSectionNameEquals(instance.getId(), documentSection.name());
+
+    return buildDocumentViewFromClauseVersionDtos(instance, clauseVersionDtos);
+
+  }
+
+  private DocumentView buildDocumentViewFromClauseVersionDtos(DocumentInstance documentInstance,
+                                                              Collection<DocumentInstanceSectionClauseVersionDto> clauseVersionDtos) {
+
     var sectionToClauseVersionMap = clauseVersionDtos.stream()
         .filter(dto -> !SectionClauseVersionStatus.DELETED.equals(SectionClauseVersionStatus.valueOf(dto.getStatus())))
         .collect(Collectors.groupingBy(DocumentInstanceSectionClauseVersionDto::getSectionName));
 
-    var docView = new DocumentView(PwaDocumentType.INSTANCE, instance.getDocumentTemplate().getMnem());
+    var docView = new DocumentView(PwaDocumentType.INSTANCE, documentInstance.getDocumentTemplate().getMnem());
 
     var sections = sectionToClauseVersionMap.entrySet().stream()
-        .map(entry -> createSectionView(entry.getKey(), entry.getValue()))
+        .map(entry -> createSectionView(DocumentSection.valueOf(entry.getKey()).getDisplayName(), entry.getValue()))
         .collect(Collectors.toList());
 
     docView.setSections(sections);

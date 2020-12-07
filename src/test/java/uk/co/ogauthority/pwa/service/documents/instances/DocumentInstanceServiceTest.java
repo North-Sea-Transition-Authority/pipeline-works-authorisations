@@ -38,6 +38,7 @@ import uk.co.ogauthority.pwa.model.entity.documents.templates.DocumentTemplate;
 import uk.co.ogauthority.pwa.model.entity.documents.templates.DocumentTemplateSection;
 import uk.co.ogauthority.pwa.model.entity.documents.templates.DocumentTemplateSectionClause;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.DocumentTemplateMnem;
+import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocumentSection;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.enums.documents.SectionClauseVersionStatus;
 import uk.co.ogauthority.pwa.model.form.documents.ClauseForm;
@@ -330,6 +331,20 @@ public class DocumentInstanceServiceTest {
   }
 
   @Test
+  public void getDocumentView_specificSectionOnly() {
+
+    var docInstance = new DocumentInstance();
+    docInstance.setPwaApplication(applicationDetail.getPwaApplication());
+    docInstance.setDocumentTemplate(documentTemplate);
+    docInstance.setId(1);
+
+    var docView = documentInstanceService.getDocumentView(docInstance, DocumentSection.SCHEDULE_1);
+
+    verify(documentInstanceSectionClauseVersionDtoRepository, times(1)).findAllByDiId_AndSectionNameEquals(1, DocumentSection.SCHEDULE_1.name());
+
+  }
+
+  @Test
   public void getSectionClauseView() {
 
     var clauseId = 1;
@@ -349,7 +364,7 @@ public class DocumentInstanceServiceTest {
         .thenReturn(Optional.of(documentInstanceSectionClauseVersion));
 
     var dto1 = new DocumentInstanceSectionClauseVersionDto();
-    var sectionName = "a section name";
+    var sectionName = DocumentSection.SCHEDULE_2.name();
     dto1.setStatus(SectionClauseVersionStatus.ACTIVE.name());
     dto1.setSectionName(sectionName);
     dto1.setName("name1");
@@ -705,7 +720,7 @@ public class DocumentInstanceServiceTest {
   private SectionClauseVersionView findClause(DocumentView documentView, DocumentInstanceSectionClauseVersionDto versionDto) {
 
     return documentView.getSections().stream()
-        .filter(section -> section.getName().equals(versionDto.getSectionName()))
+        .filter(section -> section.getName().equals(DocumentSection.valueOf(versionDto.getSectionName()).getDisplayName()))
         .map(section -> {
 
           switch (versionDto.getLevelNumber()) {
@@ -740,7 +755,7 @@ public class DocumentInstanceServiceTest {
   private Optional<SidebarSectionLink> findSidebarLink(DocumentView documentView, DocumentInstanceSectionClauseVersionDto versionDto) {
 
     return documentView.getSections().stream()
-        .filter(section -> section.getName().equals(versionDto.getSectionName()))
+        .filter(section -> section.getName().equals(DocumentSection.valueOf(versionDto.getSectionName()).getDisplayName()))
         .flatMap(section -> section.getSidebarSectionLinks().stream())
         .filter(link -> link.getLink().contains(versionDto.getDiscvId().toString()))
         .findFirst();
