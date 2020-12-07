@@ -81,7 +81,7 @@ public class ReviewAndSubmitController {
       @ModelAttribute("form") ApplicationUpdateResponseForm form) {
 
     var hasOpenUpdateRequest = applicationUpdateRequestService
-        .applicationDetailHasOpenUpdateRequest(applicationContext.getApplicationDetail());
+        .applicationHasOpenUpdateRequest(applicationContext.getApplicationDetail());
     return getModelAndView(applicationContext.getApplicationDetail(), hasOpenUpdateRequest);
 
   }
@@ -117,7 +117,7 @@ public class ReviewAndSubmitController {
       BindingResult bindingResult) {
 
     var hasOpenUpdateRequest = applicationUpdateRequestService
-        .applicationDetailHasOpenUpdateRequest(applicationContext.getApplicationDetail());
+        .applicationHasOpenUpdateRequest(applicationContext.getApplicationDetail());
 
     if (hasOpenUpdateRequest) {
       ValidationUtils.invokeValidator(validator, form, bindingResult);

@@ -59,7 +59,7 @@ public class CloseOutOptionsTaskService implements AppProcessingService {
         processingContext.getApplicationDetail()
     );
 
-    var openAppUpdate = applicationUpdateRequestService.applicationDetailHasOpenUpdateRequest(
+    var openAppUpdate = applicationUpdateRequestService.applicationHasOpenUpdateRequest(
         processingContext.getApplicationDetail()
     );
 
