@@ -5,26 +5,24 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.options.OptionsApplicationApproval;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.options.OptionsApprovalDeadlineHistory;
+import uk.co.ogauthority.pwa.model.entity.enums.ConfirmedOptionType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.view.appprocessing.options.OptionsApprovalDeadlineView;
 import uk.co.ogauthority.pwa.model.view.banner.BannerLink;
 import uk.co.ogauthority.pwa.model.view.banner.PageBannerView;
-import uk.co.ogauthority.pwa.model.workflow.GenericMessageEvent;
 import uk.co.ogauthority.pwa.repository.appprocessing.options.OptionsApplicationApprovalRepository;
 import uk.co.ogauthority.pwa.repository.appprocessing.options.OptionsApprovalDeadlineHistoryRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
-import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationWorkflowMessageEvents;
-import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationWorkflowTask;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.PwaApplicationDetailVersioningService;
 import uk.co.ogauthority.pwa.service.pwaapplications.options.PadOptionConfirmedService;
-import uk.co.ogauthority.pwa.service.workflow.assignment.WorkflowAssignmentService;
 import uk.co.ogauthority.pwa.util.DateUtils;
 
 @Service
@@ -40,7 +38,7 @@ public class ApproveOptionsService {
 
   private final PadOptionConfirmedService padOptionConfirmedService;
 
-  private final WorkflowAssignmentService workflowAssignmentService;
+  private final OptionsCaseManagementWorkflowService optionsCaseManagementWorkflowService;
 
   private final PwaApplicationDetailVersioningService pwaApplicationDetailVersioningService;
 
@@ -52,7 +50,7 @@ public class ApproveOptionsService {
                                OptionsApprovalDeadlineHistoryRepository optionsApprovalDeadlineHistoryRepository,
                                OptionsCaseManagementEmailService optionsCaseManagementEmailService,
                                PadOptionConfirmedService padOptionConfirmedService,
-                               WorkflowAssignmentService workflowAssignmentService,
+                               OptionsCaseManagementWorkflowService optionsCaseManagementWorkflowService,
                                PwaApplicationDetailVersioningService pwaApplicationDetailVersioningService,
                                PwaApplicationRedirectService pwaApplicationRedirectService) {
     this.optionsApprovalPersister = optionsApprovalPersister;
@@ -60,7 +58,7 @@ public class ApproveOptionsService {
     this.optionsApprovalDeadlineHistoryRepository = optionsApprovalDeadlineHistoryRepository;
     this.optionsCaseManagementEmailService = optionsCaseManagementEmailService;
     this.padOptionConfirmedService = padOptionConfirmedService;
-    this.workflowAssignmentService = workflowAssignmentService;
+    this.optionsCaseManagementWorkflowService = optionsCaseManagementWorkflowService;
     this.pwaApplicationDetailVersioningService = pwaApplicationDetailVersioningService;
     this.pwaApplicationRedirectService = pwaApplicationRedirectService;
   }
@@ -87,12 +85,15 @@ public class ApproveOptionsService {
       return OptionsApprovalStatus.NOT_APPROVED;
     }
 
-    if (padOptionConfirmedService.optionConfirmationExists(pwaApplicationDetail)) {
-      return OptionsApprovalStatus.APPROVED_RESPONDED;
+    var confirmedOption = padOptionConfirmedService.getConfirmedOptionType(pwaApplicationDetail);
+
+    if (confirmedOption.isEmpty()) {
+      return OptionsApprovalStatus.APPROVED_UNRESPONDED;
     }
 
-    return OptionsApprovalStatus.APPROVED_UNRESPONDED;
-
+    return confirmedOption.filter(ConfirmedOptionType.WORK_COMPLETE_AS_PER_OPTIONS::equals)
+        .map(o -> OptionsApprovalStatus.APPROVED_CONSENTED_OPTION_CONFIRMED)
+        .orElse(OptionsApprovalStatus.APPROVED_OTHER_CONFIRMED);
   }
 
   private OptionsApplicationApproval getOptionsApprovalOrError(PwaApplication pwaApplication) {
@@ -112,7 +113,17 @@ public class ApproveOptionsService {
 
 
   @Transactional
-  public void approveOptions(PwaApplicationDetail pwaApplicationDetail, WebUserAccount approverWua, Instant deadlineDate) {
+  public void closeOutOptions(PwaApplicationDetail pwaApplicationDetail, AuthenticatedUserAccount closingUser) {
+
+    optionsCaseManagementWorkflowService.doCloseOutWork(pwaApplicationDetail, closingUser);
+
+    optionsCaseManagementEmailService.sendOptionsCloseOutEmails(pwaApplicationDetail.getPwaApplication());
+
+  }
+
+  @Transactional
+  public void approveOptions(PwaApplicationDetail pwaApplicationDetail, WebUserAccount approverWua,
+                             Instant deadlineDate) {
 
     // create a new detail that will be resubmitted with confirmed options.
     // Important this is done first as doing it after creating the approval means versioning will try copy a confirmation
@@ -133,14 +144,7 @@ public class ApproveOptionsService {
         initialApprovalDeadlineHistory.getDeadlineDate()
     );
 
-    // update workflow
-    workflowAssignmentService.triggerWorkflowMessageAndAssertTaskExists(
-        GenericMessageEvent.from(
-            newTipDetail.getPwaApplication(),
-            PwaApplicationWorkflowMessageEvents.OPTIONS_APPROVED.getMessageEventName()
-        ),
-        PwaApplicationWorkflowTask.UPDATE_APPLICATION
-    );
+    optionsCaseManagementWorkflowService.doOptionsApprovalWork(newTipDetail);
 
   }
 
@@ -177,7 +181,8 @@ public class ApproveOptionsService {
     optionsApprovalPersister.endTipDeadlineHistoryItem(approval);
     var newTipHistoryitem = optionsApprovalPersister.createTipDeadlineHistoryItem(approval, person, deadlineDate, note);
 
-    optionsCaseManagementEmailService.sendOptionsDeadlineChangedEmail(pwaApplicationDetail, newTipHistoryitem.getDeadlineDate());
+    optionsCaseManagementEmailService.sendOptionsDeadlineChangedEmail(pwaApplicationDetail,
+        newTipHistoryitem.getDeadlineDate());
   }
 
 
@@ -203,11 +208,11 @@ public class ApproveOptionsService {
             .setBodyHeader("Confirmation of works completed must be submitted by " + DateUtils.formatDate(
                 optionsApprovalDeadlineHistory.getDeadlineDate())
             )
-        .setBannerLink(new BannerLink(
-            pwaApplicationRedirectService.getTaskListRoute(pwaApplicationDetail.getPwaApplication()),
-            "Confirm work completed"
-        ))
-        .build()
+            .setBannerLink(new BannerLink(
+                pwaApplicationRedirectService.getTaskListRoute(pwaApplicationDetail.getPwaApplication()),
+                "Confirm work completed"
+            ))
+            .build()
 
     );
 

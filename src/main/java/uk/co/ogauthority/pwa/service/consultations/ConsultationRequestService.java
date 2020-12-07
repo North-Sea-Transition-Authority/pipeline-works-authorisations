@@ -42,7 +42,7 @@ import uk.co.ogauthority.pwa.validators.consultations.ConsultationRequestValidat
 import uk.co.ogauthority.pwa.validators.consultations.ConsultationRequestValidator;
 
 /**
- A service to create/withdraw consultation requests from application.
+ * A service to create/withdraw consultation requests from application.
  */
 @Service
 public class ConsultationRequestService {
@@ -123,6 +123,16 @@ public class ConsultationRequestService {
       consultationRequest = consultationRequestRepository.save(consultationRequest);
       camundaWorkflowService.startWorkflow(consultationRequest);
       sendConsultationRequestReceivedEmail(consultationRequest);
+    }
+  }
+
+
+  @Transactional
+  public void withdrawAllOpenConsultationRequests(PwaApplication pwaApplication,
+                                                  AuthenticatedUserAccount withdrawingUser) {
+    var consultationRequests = getAllOpenRequestsByApplication(pwaApplication);
+    for (var consultationRequest : consultationRequests) {
+      withdrawConsultationRequest(consultationRequest, withdrawingUser);
     }
   }
 
