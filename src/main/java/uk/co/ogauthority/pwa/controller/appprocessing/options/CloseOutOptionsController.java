@@ -13,7 +13,6 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.controller.WorkAreaController;
-import uk.co.ogauthority.pwa.controller.appprocessing.CaseManagementController;
 import uk.co.ogauthority.pwa.controller.appprocessing.shared.PwaAppProcessingPermissionCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationStatusCheck;
 import uk.co.ogauthority.pwa.exception.AccessDeniedException;
@@ -21,13 +20,13 @@ import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.service.appprocessing.options.ApproveOptionsService;
 import uk.co.ogauthority.pwa.service.appprocessing.options.CloseOutOptionsTaskService;
-import uk.co.ogauthority.pwa.service.appprocessing.tabs.AppProcessingTab;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingTask;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.options.PadConfirmationOfOptionService;
+import uk.co.ogauthority.pwa.util.CaseManagementUtils;
 import uk.co.ogauthority.pwa.util.FlashUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
@@ -90,13 +89,7 @@ public class CloseOutOptionsController {
 
     var pwaApplicationDetail = appProcessingContext.getApplicationDetail();
 
-    String cancelUrl = ReverseRouter.route(on(CaseManagementController.class)
-        .renderCaseManagement(
-            pwaApplicationDetail.getMasterPwaApplicationId(),
-            pwaApplicationDetail.getPwaApplicationType(),
-            AppProcessingTab.TASKS,
-            null,
-            null));
+    String cancelUrl = CaseManagementUtils.routeCaseManagement(appProcessingContext);
 
     var modelAndView = new ModelAndView("appprocessing/options/closeOutOptions")
         .addObject("cancelUrl", cancelUrl)
@@ -118,7 +111,7 @@ public class CloseOutOptionsController {
       return modelAndViewSupplier.get();
     } else {
       throw new AccessDeniedException(
-          "Access denied as application not in options approve-able state. app_id:" + context.getMasterPwaApplicationId()
+          "Access denied as application not in options close-able state. app_id:" + context.getMasterPwaApplicationId()
       );
     }
 

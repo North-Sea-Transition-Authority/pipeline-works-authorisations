@@ -13,8 +13,8 @@
     <h2 class="govuk-heading-l"> Are you sure you want to close out this options variation?</h2>
 
     <@fdsInsetText.insetText >
-      <p>You may close out this application without processing a consent as the applicant has confirmed that an approved option has not been done.</p>
-      <p>Application update requests may be used to allow applicant to change their option confirmation.</p>
+      <p>You may close out this application without processing a consent as the applicant has confirmed that an approved option has not been completed.</p>
+      <p>Application update requests may be used to allow the applicant to change their option confirmation.</p>
     </@fdsInsetText.insetText>
 
     <@optionsConfirmationSummary.summary view=padConfirmationOfOptionView />
