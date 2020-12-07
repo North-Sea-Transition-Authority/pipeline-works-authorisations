@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.huoosummary;
 
 import java.util.List;
+import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 
 public class AllOrgRolePipelineGroupsView {
 
@@ -37,6 +38,38 @@ public class AllOrgRolePipelineGroupsView {
   public List<OrganisationRolePipelineGroupView> getOwnerOrgRolePipelineGroups() {
     return ownerOrgRolePipelineGroups;
   }
+
+  // helper to simplify api
+  public List<OrganisationRolePipelineGroupView> getOrgRolePipelineGroupView(HuooRole huooRole) {
+    switch (huooRole) {
+      case HOLDER:
+        return this.holderOrgRolePipelineGroups;
+      case USER:
+        return this.userOrgRolePipelineGroups;
+      case OPERATOR:
+        return this.operatorOrgRolePipelineGroups;
+      case OWNER:
+        return this.ownerOrgRolePipelineGroups;
+      default:
+        throw new RuntimeException("BAD");
+    }
+
+  }
+
+  // TODO PWA-917 quick tests
+  public boolean hasOnlyOneGroupOfPipelineIdentifiersForRole(HuooRole huooRole) {
+
+    var countDistinctPipelineGroups = getOrgRolePipelineGroupView(huooRole)
+        .stream()
+        .map(OrganisationRolePipelineGroupView::getPipelineIdentifiersInGroup)
+        .distinct()
+        .count();
+
+    return countDistinctPipelineGroups == 1;
+
+  }
+
+
 }
 
 

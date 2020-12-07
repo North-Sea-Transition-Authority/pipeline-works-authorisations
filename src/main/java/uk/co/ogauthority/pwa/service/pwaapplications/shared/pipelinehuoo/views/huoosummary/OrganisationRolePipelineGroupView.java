@@ -1,8 +1,11 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.huoosummary;
 
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 import uk.co.ogauthority.pwa.model.dto.consents.OrganisationRoleOwnerDto;
 import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitDetailDto;
+import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineIdentifier;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooType;
 import uk.co.ogauthority.pwa.model.entity.enums.TreatyAgreement;
 
@@ -18,8 +21,10 @@ public class OrganisationRolePipelineGroupView {
 
 
   public OrganisationRolePipelineGroupView(HuooType huooType,
-                                           OrganisationUnitDetailDto orgUnitDetailDto, Boolean isManuallyEnteredName,
-                                           String manuallyEnteredName, TreatyAgreement treatyAgreement,
+                                           OrganisationUnitDetailDto orgUnitDetailDto,
+                                           Boolean isManuallyEnteredName,
+                                           String manuallyEnteredName,
+                                           TreatyAgreement treatyAgreement,
                                            OrganisationRoleOwnerDto organisationRoleOwner,
                                            List<PipelineNumbersAndSplits> pipelineNumbersAndSplits) {
     this.huooType = huooType;
@@ -69,6 +74,12 @@ public class OrganisationRolePipelineGroupView {
 
   public String getRegisteredNumber() {
     return orgUnitDetailDto != null ? orgUnitDetailDto.getRegisteredNumber() : null;
+  }
+
+  public Set<PipelineIdentifier> getPipelineIdentifiersInGroup() {
+    return this.pipelineNumbersAndSplits.stream()
+        .map(PipelineNumbersAndSplits::getPipelineIdentifier)
+        .collect(Collectors.toSet());
   }
 
 }

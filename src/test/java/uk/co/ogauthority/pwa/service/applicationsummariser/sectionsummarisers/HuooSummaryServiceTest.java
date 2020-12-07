@@ -60,7 +60,7 @@ public class HuooSummaryServiceTest {
   public void setUp() {
     diffService = new DiffService();
     huooSummaryService = new HuooSummaryService(taskListService, padOrganisationRoleService,
-        pwaConsentOrganisationRoleService, diffService);
+        pwaConsentOrganisationRoleService, diffableOrgRolePipelineGroupCreator, diffService);
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL, 1, 2);
   }
 
