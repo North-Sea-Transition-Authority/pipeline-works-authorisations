@@ -4,7 +4,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.withdraw.WithdrawApplicationForm;
 import uk.co.ogauthority.pwa.model.notify.emailproperties.ApplicationWithdrawnEmailProps;
@@ -52,15 +51,8 @@ public class WithdrawApplicationService implements AppProcessingService {
     pwaApplicationDetailService.setWithdrawn(pwaApplicationDetail, withdrawingUser.getLinkedPerson(), form.getWithdrawalReason());
     camundaWorkflowService.deleteProcessInstanceAndThenTasks(pwaApplicationDetail.getPwaApplication());
 
-    withdrawConsultationRequests(pwaApplicationDetail.getPwaApplication(), withdrawingUser);
+    consultationRequestService.withdrawAllOpenConsultationRequests(pwaApplicationDetail.getPwaApplication(), withdrawingUser);
     sendWithdrawalEmails(pwaApplicationDetail, withdrawingUser);
-  }
-
-  private void withdrawConsultationRequests(PwaApplication pwaApplication, AuthenticatedUserAccount withdrawingUser) {
-    var consultationRequests = consultationRequestService.getAllOpenRequestsByApplication(pwaApplication);
-    for (var consultationRequest: consultationRequests) {
-      consultationRequestService.withdrawConsultationRequest(consultationRequest, withdrawingUser);
-    }
   }
 
   private void sendWithdrawalEmails(PwaApplicationDetail pwaApplicationDetail, AuthenticatedUserAccount withdrawingUser) {

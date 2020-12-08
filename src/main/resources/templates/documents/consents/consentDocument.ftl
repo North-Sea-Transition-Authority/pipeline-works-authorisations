@@ -94,7 +94,17 @@
       padding-left: 0;
     }
 
+    ol {
+      padding-left: 20px;
+    }
 
+    .govuk-list--lower-alpha {
+      list-style-type: lower-alpha;
+    }
+
+    .govuk-list--lower-roman {
+      list-style-type: lower-roman;
+    }
 
   </style>
 </head>

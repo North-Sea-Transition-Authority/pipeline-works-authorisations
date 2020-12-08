@@ -13,15 +13,12 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
-import uk.co.ogauthority.pwa.model.entity.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.form.files.UploadedFileView;
+import uk.co.ogauthority.pwa.model.form.files.UploadedFileViewTestUtil;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.MedianLineAgreementView;
 import uk.co.ogauthority.pwa.model.view.sidebarnav.SidebarSectionLink;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.crossings.CrossingAgreementTask;
-import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskListService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.PadMedianLineAgreementService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
@@ -39,16 +36,13 @@ public class MedianLineAgreementSummaryServiceTest {
   @Mock
   private PadMedianLineAgreementService padMedianLineAgreementService;
 
-  @Mock
-  private PadFileService padFileService;
-
   private MedianLineAgreementSummaryService medianLineAgreementSummaryService;
   private PwaApplicationDetail pwaApplicationDetail;
 
   @Before
   public void setUp() {
 
-    medianLineAgreementSummaryService = new MedianLineAgreementSummaryService(padMedianLineAgreementService, padFileService, taskListService);
+    medianLineAgreementSummaryService = new MedianLineAgreementSummaryService(padMedianLineAgreementService, taskListService);
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL, 1, 2);
   }
 
@@ -75,12 +69,9 @@ public class MedianLineAgreementSummaryServiceTest {
   @Test
   public void summariseSection_verifyServiceInteractions() {
 
-    var medianLineAgreementView = new MedianLineAgreementView(null, null, null);
+    var fileView = UploadedFileViewTestUtil.createDefaultFileView();
+    var medianLineAgreementView = new MedianLineAgreementView(null, null, null, List.of(fileView));
     when(padMedianLineAgreementService.getMedianLineCrossingView(pwaApplicationDetail)).thenReturn(medianLineAgreementView);
-
-    var fileView = new UploadedFileView(null, null, 1L, null, null, null);
-    when(padFileService.getUploadedFileViews(pwaApplicationDetail, ApplicationDetailFilePurpose.MEDIAN_LINE_CROSSING,
-        ApplicationFileLinkStatus.FULL)).thenReturn(List.of(fileView));
 
     var appSummary = medianLineAgreementSummaryService.summariseSection(pwaApplicationDetail, TEMPLATE);
     assertThat(appSummary.getTemplatePath()).isEqualTo(TEMPLATE);

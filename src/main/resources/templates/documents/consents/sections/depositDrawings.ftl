@@ -6,7 +6,7 @@
 
 <div>
 
-  <h2 class="govuk-heading-l">${sectionName}</h2>
+  <h2 class="govuk-heading-l" style="page-break-before: always">${sectionName}</h2>
 
   <#list drawingRefToFileIdMap as drawingRef, fileId>
     <p style="page-break-before: always">${drawingRef}</p>

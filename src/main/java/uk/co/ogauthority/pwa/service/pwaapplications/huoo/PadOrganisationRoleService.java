@@ -269,6 +269,7 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
 
   @VisibleForTesting
   void removePipelineLinksForOrgsWithRoles(PwaApplicationDetail detail, Collection<PadOrganisationRole> roles) {
+
     List<PadPipelineOrganisationRoleLink> pipelineLinks =
         padPipelineOrganisationRoleLinkRepository.findAllByPadOrgRoleInAndPadOrgRole_PwaApplicationDetail(
             roles, detail).stream()
@@ -277,8 +278,43 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
                     padOrganisationRole -> padOrganisationRole.getRole().equals(roleLink.getPadOrgRole().getRole())))
             .collect(Collectors.toUnmodifiableList());
 
-    padPipelineOrganisationRoleLinkRepository.deleteAll(pipelineLinks);
+
+    List<PadPipelineOrganisationRoleLink> pipelineLinksToRemove = new ArrayList<>();
+    List<PadPipelineOrganisationRoleLink> pipelineLinksToUpdate = new ArrayList<>();
+
+    //To avoid removing the last instance of a previously defined section of a split pipeline,
+    //we need to find out if the specific section, identified by pipeline and section number, exists more than once.
+    //Section number is a safe proxy for pipeline sections and avoids a filter on each attribute that makes up a split
+    pipelineLinks.forEach(link -> {
+      if (link.getOrgRoleInstanceType().equals(OrgRoleInstanceType.SPLIT_PIPELINE)) {
+        var duplicateSectionLinks = padPipelineOrganisationRoleLinkRepository
+            .countByPadOrgRole_PwaApplicationDetailAndPadOrgRole_RoleAndPipelineAndSectionNumber(
+                detail, link.getPadOrgRole().getRole(), link.getPipeline(), link.getSectionNumber()
+            );
+
+        //If the section exists more than once, we can delete as there still exists some other assigned instance.
+        //If the split section has only 1 instance, do not remove and instead assign it to the "Unassigned pipeline split" role so that ..
+        //we keep all sections of a split pipeline in the data.
+        if (duplicateSectionLinks > 1) {
+          pipelineLinksToRemove.add(link);
+
+        } else {
+          pipelineLinksToUpdate.add(link);
+        }
+
+      } else {
+        pipelineLinksToRemove.add(link);
+      }
+    });
+
+    for (PadPipelineOrganisationRoleLink pipelineLink : pipelineLinksToUpdate) {
+      var tempRoleForPipelineSplits = getOrCreateUnassignedPipelineSplitRole(detail, pipelineLink.getPadOrgRole().getRole());
+      pipelineLink.setPadOrgRole(tempRoleForPipelineSplits);
+    }
+    padPipelineOrganisationRoleLinkRepository.saveAll(pipelineLinksToUpdate);
+    padPipelineOrganisationRoleLinkRepository.deleteAll(pipelineLinksToRemove);
   }
+
 
   @Transactional
   public void removeRoleOfTreatyAgreement(PadOrganisationRole organisationRole) {
@@ -299,6 +335,49 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
     form.setHuooType(HuooType.PORTAL_ORG);
     form.setHuooRoles(roleSet);
     form.setOrganisationUnitId(role.getOrganisationUnit().getOuId());
+  }
+
+
+  @Transactional
+  public void updateOrgRolesUsingForm(PwaApplicationDetail detail, HuooForm form, PortalOrganisationUnit existingOrgUnit) {
+
+    var orgUnitToAdd = portalOrganisationsAccessor.getOrganisationUnitById(form.getOrganisationUnitId())
+        .orElseThrow(() -> new PwaEntityNotFoundException(
+            "Unable to find organisation unit with ID: " + form.getOrganisationUnitId()));
+
+    List<PadOrganisationRole> existingOrgRoles = padOrganisationRolesRepository.getAllByPwaApplicationDetailAndOrganisationUnit(detail,
+        existingOrgUnit);
+
+    //get organisations that need to be saved on the application
+    List<PadOrganisationRole> orgRolesToSave = new ArrayList<>();
+    Set<HuooRole> newHuooRolesForOrg = form.getHuooRoles();
+    Set<HuooRole> huooRolesNotGivenToOrg = EnumSet.complementOf(EnumSet.copyOf(newHuooRolesForOrg));
+
+    newHuooRolesForOrg.forEach(huooRole -> {
+      var orgToUpdateOpt = existingOrgRoles.stream()
+          .filter(existingOrgRole -> huooRole.equals(existingOrgRole.getRole()))
+          .findFirst();
+
+      if (orgToUpdateOpt.isEmpty()) {
+        var padOrganisationRole = PadOrganisationRole.fromOrganisationUnit(detail, orgUnitToAdd, huooRole);
+        orgRolesToSave.add(padOrganisationRole);
+
+      } else {
+        var orgToUpdate = orgToUpdateOpt.get();
+        orgToUpdate.setOrganisationUnit(orgUnitToAdd);
+        orgRolesToSave.add(orgToUpdate);
+      }
+    });
+
+    //save new orgs, remove old orgs, remove old pipeline links
+    List<PadOrganisationRole> orgRolesToRemove = existingOrgRoles.stream()
+        .filter(existingOrgRole -> huooRolesNotGivenToOrg.contains(existingOrgRole.getRole()))
+        .collect(Collectors.toList());
+
+    padOrganisationRolesRepository.saveAll(orgRolesToSave);
+    removePipelineLinksForOrgsWithRoles(detail, orgRolesToRemove);
+    padOrganisationRolesRepository.deleteAll(orgRolesToRemove);
+
   }
 
   /**
@@ -327,10 +406,20 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
           .collect(Collectors.toUnmodifiableSet());
 
       List<PadOrganisationRole> organisationRolesToRemove = currentRoles.stream()
-          .filter(padOrganisationRole -> !form.getHuooRoles().contains(padOrganisationRole.getRole()))
-          .collect(Collectors.toUnmodifiableList());
+          .filter(padOrganisationRole -> !form.getHuooRoles().contains(padOrganisationRole.getRole())).collect(
+              Collectors.toList());
 
       removePipelineLinksForOrgsWithRoles(detail, organisationRolesToRemove);
+
+
+      if (form.getHuooRoles().contains(HuooRole.HOLDER)) {
+        var existingHolderOrgs = padOrganisationRolesRepository.getAllByPwaApplicationDetailAndRole(detail, HuooRole.HOLDER);
+        if (!existingHolderOrgs.isEmpty() && !existingHolderOrgs.get(0).getOrganisationUnit().equals(orgUnit)) {
+          organisationRolesToRemove.addAll(existingHolderOrgs);
+
+        }
+      }
+
 
       padOrganisationRolesRepository.deleteAll(organisationRolesToRemove);
 

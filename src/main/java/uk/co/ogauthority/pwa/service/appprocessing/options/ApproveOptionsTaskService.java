@@ -63,7 +63,7 @@ public class ApproveOptionsTaskService implements AppProcessingService {
     var openCount = appStatusCountView.sumFilteredStatusCounts(ConsultationRequestStatus::isRequestOpen);
     var respondedCount = appStatusCountView.getCountOfRequestsWithStatus(ConsultationRequestStatus.RESPONDED);
 
-    var updateInProgress = applicationUpdateRequestService.applicationDetailHasOpenUpdateRequest(
+    var updateInProgress = applicationUpdateRequestService.applicationHasOpenUpdateRequest(
         pwaAppProcessingContext.getApplicationDetail()
     );
 

@@ -26,7 +26,6 @@ import uk.co.ogauthority.pwa.controller.WorkAreaController;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.workflow.WorkflowBusinessKey;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
-import uk.co.ogauthority.pwa.service.appprocessing.PwaAppProcessingPermissionService;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.workflow.WorkflowType;
@@ -35,7 +34,6 @@ import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaApplicationCont
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
 import uk.co.ogauthority.pwa.service.pwaapplications.search.ApplicationDetailSearcher;
 import uk.co.ogauthority.pwa.service.pwaapplications.search.ApplicationSearchTestUtil;
-import uk.co.ogauthority.pwa.service.users.UserTypeService;
 import uk.co.ogauthority.pwa.service.workarea.WorkAreaTab;
 import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
 
@@ -55,13 +53,8 @@ public class IndustryWorkAreaPageServiceTest {
   private PwaApplicationRedirectService pwaApplicationRedirectService;
 
   @Mock
-  private PwaAppProcessingPermissionService appProcessingPermissionService;
-
-  @Mock
   private CamundaWorkflowService camundaWorkflowService;
 
-  @Mock
-  private UserTypeService userTypeService;
 
   private IndustryWorkAreaPageService industryWorkAreaPageService;
 
@@ -220,7 +213,12 @@ public class IndustryWorkAreaPageServiceTest {
     verify(applicationDetailSearcher, times(1)).searchWhereApplicationIdInAndWhereStatusInAndOpenUpdateRequest(
         WorkAreaPageServiceTestUtil.getWorkAreaViewPageable(REQUESTED_PAGE, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
         Set.of(BUSINESS_KEY_INT),
-        Set.of(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW, PwaApplicationStatus.CASE_OFFICER_REVIEW, PwaApplicationStatus.WITHDRAWN),
+        Set.of(
+            PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW,
+            PwaApplicationStatus.CASE_OFFICER_REVIEW,
+            PwaApplicationStatus.WITHDRAWN,
+            PwaApplicationStatus.COMPLETE
+        ),
         false
     );
 
@@ -247,7 +245,12 @@ public class IndustryWorkAreaPageServiceTest {
     verify(applicationDetailSearcher, times(1)).searchWhereApplicationIdInAndWhereStatusInAndOpenUpdateRequest(
         WorkAreaPageServiceTestUtil.getWorkAreaViewPageable(REQUESTED_PAGE, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
         Set.of(BUSINESS_KEY_INT),
-        Set.of(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW, PwaApplicationStatus.CASE_OFFICER_REVIEW, PwaApplicationStatus.WITHDRAWN),
+        Set.of(
+            PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW,
+            PwaApplicationStatus.CASE_OFFICER_REVIEW,
+            PwaApplicationStatus.WITHDRAWN,
+            PwaApplicationStatus.COMPLETE
+        ),
         false
     );
 

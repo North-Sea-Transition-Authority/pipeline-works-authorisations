@@ -18,13 +18,15 @@
 
 </#macro>
 
-<#macro list documentView clauseActionsUrlFactory listClass="number" childListClass="lower-alpha">
+<#macro list documentView clauseActionsUrlFactory listClass="number" childListClass="lower-alpha" showSectionHeading=true>
 
   <div class="clause-list">
 
     <#list documentView.sections as section>
 
-      <h2 class="govuk-heading-l">${section.name}</h2>
+      <#if showSectionHeading>
+        <h2 class="govuk-heading-l">${section.name}</h2>
+      </#if>
 
       <ol class="govuk-list govuk-list--${listClass}">
 
@@ -48,30 +50,34 @@
   childHeadingClass="s"
   childListClass="lower-roman">
 
+  <#assign clauseActionsFlag = clauseActionsUrlFactory?has_content />
+
   <li id="clauseId-${clauseView.clauseId?c}">
 
     <${headingSize} class="govuk-heading-${headingClass}">
         ${clauseView.name}
-        <@fdsAction.link
-        linkText="Add clause above"
-        linkUrl=springUrl(clauseActionsUrlFactory.getAddClauseBeforeRoute(clauseView.clauseId))
-        linkClass="govuk-link clause-list__action clause-list__action--heading govuk-!-font-size-19"
-        linkScreenReaderText=clauseView.name />
-        <@fdsAction.link
-        linkText="Edit clause"
-        linkUrl=springUrl(clauseActionsUrlFactory.getEditClauseRoute(clauseView.clauseId))
-        linkClass="govuk-link clause-list__action clause-list__action--heading govuk-!-font-size-19"
-        linkScreenReaderText=clauseView.name />
-        <@fdsAction.link
-        linkText="Remove"
-        linkUrl=springUrl(clauseActionsUrlFactory.getRemoveClauseRoute(clauseView.clauseId))
-        linkClass="govuk-link clause-list__action clause-list__action--heading govuk-!-font-size-19"
-        linkScreenReaderText=clauseView.name />
+        <#if clauseActionsFlag>
+          <@fdsAction.link
+          linkText="Add clause above"
+          linkUrl=springUrl(clauseActionsUrlFactory.getAddClauseBeforeRoute(clauseView.clauseId))
+          linkClass="govuk-link clause-list__action clause-list__action--heading govuk-!-font-size-19"
+          linkScreenReaderText=clauseView.name />
+          <@fdsAction.link
+          linkText="Edit clause"
+          linkUrl=springUrl(clauseActionsUrlFactory.getEditClauseRoute(clauseView.clauseId))
+          linkClass="govuk-link clause-list__action clause-list__action--heading govuk-!-font-size-19"
+          linkScreenReaderText=clauseView.name />
+          <@fdsAction.link
+          linkText="Remove"
+          linkUrl=springUrl(clauseActionsUrlFactory.getRemoveClauseRoute(clauseView.clauseId))
+          linkClass="govuk-link clause-list__action clause-list__action--heading govuk-!-font-size-19"
+          linkScreenReaderText=clauseView.name />
+        </#if>
     </${headingSize}>
 
     <@multiLineText.multiLineText blockClass="clause-list__text">${clauseView.text}</@multiLineText.multiLineText>
 
-    <#if isLastInList>
+    <#if isLastInList && clauseActionsFlag>
         <@fdsAction.link
         linkText="Add clause"
         linkUrl=springUrl(clauseActionsUrlFactory.getAddClauseAfterRoute(clauseView.clauseId))
@@ -100,7 +106,7 @@
 
       </ol>
 
-      <#elseif clauseView.levelNumber == 1 || clauseView.levelNumber == 2>
+      <#elseif (clauseView.levelNumber == 1 || clauseView.levelNumber == 2) && clauseActionsFlag>
 
         <@fdsAction.link
         linkText="Add sub-clause"
