@@ -318,6 +318,32 @@ public class PermanentDepositsServiceTest {
     permanentDepositService.removeDeposit(5);
   }
 
+
+  @Test
+  public void getPermanentDepositForPipelinesMap() {
+
+    var deposit1 = new PadPermanentDeposit();
+    deposit1.setId(1);
+    var deposit2 = new PadPermanentDeposit();
+    deposit2.setId(2);
+
+    var pipeline1 = new Pipeline();
+    var pipeline2 = new Pipeline();
+
+    var deposit1AndPipeline1 = PadPermanentDepositTestUtil.createDepositPipeline(deposit1, pipeline1);
+    var deposit1AndPipeline2 = PadPermanentDepositTestUtil.createDepositPipeline(deposit1, pipeline2);
+    var deposit2AndPipeline1 = PadPermanentDepositTestUtil.createDepositPipeline(deposit2, pipeline1);
+
+    when(padDepositPipelineRepository.getAllByPadPermanentDeposit_PwaApplicationDetail(pwaApplicationDetail))
+        .thenReturn(List.of(deposit1AndPipeline1, deposit1AndPipeline2, deposit2AndPipeline1));
+
+    var depositForDepositPipelinesMap = permanentDepositService.getDepositForDepositPipelinesMap(pwaApplicationDetail);
+
+    assertThat(depositForDepositPipelinesMap.get(deposit1)).isEqualTo(List.of(deposit1AndPipeline1, deposit1AndPipeline2));
+    assertThat(depositForDepositPipelinesMap.get(deposit2)).isEqualTo(List.of(deposit2AndPipeline1));
+  }
+
+
   @Test
   public void cleanupData_hiddenData() {
 

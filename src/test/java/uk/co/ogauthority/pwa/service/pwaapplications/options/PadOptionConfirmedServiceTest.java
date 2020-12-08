@@ -9,7 +9,6 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.EnumSet;
-import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -17,7 +16,6 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.model.entity.enums.ConfirmedOptionType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.options.PadConfirmationOfOption;
 import uk.co.ogauthority.pwa.repository.pwaapplications.options.PadConfirmationOfOptionRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
@@ -76,32 +74,4 @@ public class PadOptionConfirmedServiceTest {
             ConfirmedOptionType.WORK_COMPLETE_AS_PER_OPTIONS);
   }
 
-  @Test
-  public void optionConfirmationExists_notOptions(){
-    var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
-
-    assertThat(padOptionConfirmedService.optionConfirmationExists(detail)).isFalse();
-
-    verifyNoInteractions(padConfirmationOfOptionRepository);
-  }
-
-  @Test
-  public void optionConfirmationExists_options_confirmationExists(){
-
-    var padConfirmation = new PadConfirmationOfOption(pwaApplicationDetail);
-
-    when(padConfirmationOfOptionRepository.findByPwaApplicationDetail(pwaApplicationDetail))
-        .thenReturn(Optional.of(padConfirmation));
-
-    assertThat(padOptionConfirmedService.optionConfirmationExists(pwaApplicationDetail)).isTrue();
-  }
-
-  @Test
-  public void optionConfirmationExists_options_confirmationNotExists(){
-
-     when(padConfirmationOfOptionRepository.findByPwaApplicationDetail(pwaApplicationDetail))
-        .thenReturn(Optional.empty());
-
-    assertThat(padOptionConfirmedService.optionConfirmationExists(pwaApplicationDetail)).isFalse();
-  }
 }
