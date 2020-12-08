@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.controller.appprocessing.decision;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
+import java.util.function.Supplier;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
@@ -19,11 +20,13 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.controller.appprocessing.shared.PwaAppProcessingPermissionCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationStatusCheck;
+import uk.co.ogauthority.pwa.exception.AccessDeniedException;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.DocumentTemplateMnem;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocGenType;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.AppProcessingBreadcrumbService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
+import uk.co.ogauthority.pwa.service.appprocessing.decision.ApplicationDecisionTaskService;
 import uk.co.ogauthority.pwa.service.appprocessing.decision.ConsentDocumentUrlFactory;
 import uk.co.ogauthority.pwa.service.documents.ClauseActionsUrlFactory;
 import uk.co.ogauthority.pwa.service.documents.DocumentService;
@@ -32,7 +35,6 @@ import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermiss
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingTask;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
-import uk.co.ogauthority.pwa.util.CaseManagementUtils;
 import uk.co.ogauthority.pwa.util.FlashUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
@@ -45,14 +47,17 @@ public class AppConsentDocController {
   private final AppProcessingBreadcrumbService breadcrumbService;
   private final DocumentService documentService;
   private final DocumentGenerationService documentGenerationService;
+  private final ApplicationDecisionTaskService applicationDecisionTaskService;
 
   @Autowired
   public AppConsentDocController(AppProcessingBreadcrumbService breadcrumbService,
                                  DocumentService documentService,
-                                 DocumentGenerationService documentGenerationService) {
+                                 DocumentGenerationService documentGenerationService,
+                                 ApplicationDecisionTaskService applicationDecisionTaskService) {
     this.breadcrumbService = breadcrumbService;
     this.documentService = documentService;
     this.documentGenerationService = documentGenerationService;
+    this.applicationDecisionTaskService = applicationDecisionTaskService;
   }
 
   @GetMapping
@@ -62,9 +67,8 @@ public class AppConsentDocController {
                                              PwaAppProcessingContext processingContext,
                                              AuthenticatedUserAccount authenticatedUserAccount) {
 
-    return CaseManagementUtils.withAtLeastOneSatisfactoryVersion(
+    return whenDecisionMakeable(
         processingContext,
-        PwaAppProcessingTask.DECISION,
         () -> {
 
           var docInstanceOpt = documentService
@@ -101,9 +105,8 @@ public class AppConsentDocController {
                                               PwaAppProcessingContext processingContext,
                                               AuthenticatedUserAccount authenticatedUserAccount) {
 
-    return CaseManagementUtils.resourceWithAtLeastOneSatisfactoryVersion(
+    return resourceWhenDecisionMakeable(
         processingContext,
-        PwaAppProcessingTask.DECISION,
         () -> {
 
           try {
@@ -133,15 +136,14 @@ public class AppConsentDocController {
 
   @PostMapping
   public ModelAndView postConsentDocEditor(@PathVariable("applicationId") Integer applicationId,
-                                   @PathVariable("applicationType")
-                                   @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
-                                   PwaAppProcessingContext processingContext,
-                                   AuthenticatedUserAccount authenticatedUserAccount,
-                                   RedirectAttributes redirectAttributes) {
+                                           @PathVariable("applicationType")
+                                           @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
+                                           PwaAppProcessingContext processingContext,
+                                           AuthenticatedUserAccount authenticatedUserAccount,
+                                           RedirectAttributes redirectAttributes) {
 
-    return CaseManagementUtils.withAtLeastOneSatisfactoryVersion(
+    return whenDecisionMakeable(
         processingContext,
-        PwaAppProcessingTask.DECISION,
         () -> {
 
           documentService.createDocumentInstance(
@@ -166,9 +168,8 @@ public class AppConsentDocController {
                                            AuthenticatedUserAccount authenticatedUserAccount,
                                            RedirectAttributes redirectAttributes) {
 
-    return CaseManagementUtils.withAtLeastOneSatisfactoryVersion(
+    return whenDecisionMakeable(
         processingContext,
-        PwaAppProcessingTask.DECISION,
         () -> {
 
           if (documentService.getDocumentInstance(processingContext.getPwaApplication(),
@@ -193,9 +194,8 @@ public class AppConsentDocController {
                                          AuthenticatedUserAccount authenticatedUserAccount,
                                          RedirectAttributes redirectAttributes) {
 
-    return CaseManagementUtils.withAtLeastOneSatisfactoryVersion(
+    return whenDecisionMakeable(
         processingContext,
-        PwaAppProcessingTask.DECISION,
         () -> {
 
           if (documentService.getDocumentInstance(processingContext.getPwaApplication(),
@@ -228,6 +228,38 @@ public class AppConsentDocController {
 
     return ReverseRouter.redirect(on(AppConsentDocController.class)
         .renderConsentDocEditor(applicationId, pwaApplicationType, null, null));
+  }
+
+
+  public ModelAndView whenDecisionMakeable(PwaAppProcessingContext processingContext,
+                                           Supplier<ModelAndView> modelAndViewSupplier) {
+
+    if (!applicationDecisionTaskService.taskAccessible(processingContext)) {
+      throwAccessDeniedException(processingContext);
+    }
+
+    return modelAndViewSupplier.get();
+
+  }
+
+
+  public ResponseEntity<Resource> resourceWhenDecisionMakeable(PwaAppProcessingContext processingContext,
+                                                               Supplier<ResponseEntity<Resource>> resourceSupplier) {
+
+    if (!applicationDecisionTaskService.taskAccessible(processingContext)) {
+      throwAccessDeniedException(processingContext);
+    }
+
+    return resourceSupplier.get();
+
+  }
+
+  private void throwAccessDeniedException(PwaAppProcessingContext processingContext) {
+    throw new AccessDeniedException(String.format(
+        "Can't access %s controller routes as application with id [%s] has invalid task state",
+        PwaAppProcessingTask.DECISION.name(),
+        processingContext.getMasterPwaApplicationId()));
+
   }
 
 }
