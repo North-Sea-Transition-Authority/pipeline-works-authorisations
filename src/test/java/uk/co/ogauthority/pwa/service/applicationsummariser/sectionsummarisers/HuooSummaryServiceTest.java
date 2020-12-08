@@ -15,12 +15,12 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
+import uk.co.ogauthority.pwa.model.diff.DiffedField;
 import uk.co.ogauthority.pwa.model.dto.consents.OrganisationRoleOwnerDto;
 import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitDetailDto;
 import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooType;
-import uk.co.ogauthority.pwa.model.entity.enums.TreatyAgreement;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.view.sidebarnav.SidebarSectionLink;
 import uk.co.ogauthority.pwa.service.diff.DiffService;
@@ -29,9 +29,11 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTa
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskListService;
 import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadOrganisationRoleService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.huoosummary.AllOrgRolePipelineGroupsView;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.huoosummary.DiffableOrgRolePipelineGroup;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.huoosummary.OrganisationRolePipelineGroupView;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.huoosummary.PipelineNumbersAndSplits;
 import uk.co.ogauthority.pwa.service.pwaconsents.PwaConsentOrganisationRoleService;
+import uk.co.ogauthority.pwa.service.pwaconsents.orgrolediffablepipelineservices.DiffableOrgRolePipelineGroupCreator;
 import uk.co.ogauthority.pwa.testutils.PortalOrganisationTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
@@ -48,6 +50,9 @@ public class HuooSummaryServiceTest {
 
   @Mock
   private PwaConsentOrganisationRoleService pwaConsentOrganisationRoleService;
+
+  @Mock
+  private DiffableOrgRolePipelineGroupCreator diffableOrgRolePipelineGroupCreator;
 
 
   private DiffService diffService;
@@ -107,22 +112,19 @@ public class HuooSummaryServiceTest {
 
 
   @Test
-  public void getDiffedViewUsingSummaryViews() {
-    var portalOrgUnitDetail1 = PortalOrganisationTestUtils.generateOrganisationUnitDetail(
-        new PortalOrganisationUnit(1, "company"), "address", "111");
-    var organisationUnitDetail1 = OrganisationUnitDetailDto.from(portalOrgUnitDetail1);
-    var organisationRoleOwnerDto1 = OrganisationRoleOwnerDto.fromOrganisationUnitId(new OrganisationUnitId(1));
-    var pipelineNumbersAndSplits1 = List.of(new PipelineNumbersAndSplits(new PipelineId(1), "ppl1", null));
-    var holderApp = new OrganisationRolePipelineGroupView(
-        HuooType.PORTAL_ORG, organisationUnitDetail1, false, null, null, organisationRoleOwnerDto1, pipelineNumbersAndSplits1);
+  public void getDiffedViewUsingSummaryViews_allPipelinesFlagIsTrue() {
 
-    var portalOrgUnitDetail2 = PortalOrganisationTestUtils.generateOrganisationUnitDetail(
-        new PortalOrganisationUnit(2, "company2"), "address2", "112");
-    var organisationUnitDetail2 = OrganisationUnitDetailDto.from(portalOrgUnitDetail2);
-    var organisationRoleOwnerDto2 = OrganisationRoleOwnerDto.fromOrganisationUnitId(new OrganisationUnitId(2));
-    var pipelineNumbersAndSplits2 = List.of(new PipelineNumbersAndSplits(new PipelineId(2), "ppl2", null));
-    var holderConsented = new OrganisationRolePipelineGroupView(
-        HuooType.PORTAL_ORG, organisationUnitDetail2, false, null, null, organisationRoleOwnerDto2, pipelineNumbersAndSplits2);
+    var allPipelinesLabelOverride = true;
+    var holderApp = createOrgRolePipelineGroupView(1);
+    var appDiffableOrgRolePipelineGroup = createDiffableOrgRolePipelineGroup(holderApp, allPipelinesLabelOverride);
+    when(diffableOrgRolePipelineGroupCreator.createDiffableView(holderApp, allPipelinesLabelOverride))
+        .thenReturn(appDiffableOrgRolePipelineGroup);
+
+    var holderConsented = createOrgRolePipelineGroupView(2);
+    var consentedDiffableOrgRolePipelineGroup = createDiffableOrgRolePipelineGroup(holderConsented, allPipelinesLabelOverride);
+    when(diffableOrgRolePipelineGroupCreator.createDiffableView(holderConsented, allPipelinesLabelOverride))
+        .thenReturn(consentedDiffableOrgRolePipelineGroup);
+
 
     var padView = new AllOrgRolePipelineGroupsView(List.of(holderApp), List.of(), List.of(), List.of());
     var consentedView = new AllOrgRolePipelineGroupsView(List.of(holderConsented), List.of(), List.of(), List.of());
@@ -138,100 +140,76 @@ public class HuooSummaryServiceTest {
     assertThat(diffedHolder).containsKey("DiffableOrgRolePipelineGroup_treatyAgreementText");
     assertThat(diffedHolder).containsKey("DiffableOrgRolePipelineGroup_pipelineAndSplitsList");
 
+    var actualAllPipelinesLabel = (List<DiffedField>) diffedHolder.get("DiffableOrgRolePipelineGroup_pipelineAndSplitsList");
+    assertThat(actualAllPipelinesLabel.get(0).getCurrentValue()).isEqualTo("All pipelines");
+
   }
 
 
   @Test
-  public void createDiffableView_orgRoleViewHasPortalOrgWithUnitDetail() {
+  public void getDiffedViewUsingSummaryViews_allPipelinesFlagIsFalse() {
 
+    var allPipelinesLabelOverride = false;
+    var operatorApp1 = createOrgRolePipelineGroupView(1);
+    var appDiffableOrgRolePipelineGroup = createDiffableOrgRolePipelineGroup(operatorApp1, allPipelinesLabelOverride);
+    when(diffableOrgRolePipelineGroupCreator.createDiffableView(operatorApp1, allPipelinesLabelOverride))
+        .thenReturn(appDiffableOrgRolePipelineGroup);
+
+    var operatorApp2 = createOrgRolePipelineGroupView(11);
+    var appDiffableOrgRolePipelineGroup2 = createDiffableOrgRolePipelineGroup(operatorApp2, allPipelinesLabelOverride);
+    when(diffableOrgRolePipelineGroupCreator.createDiffableView(operatorApp2, allPipelinesLabelOverride))
+        .thenReturn(appDiffableOrgRolePipelineGroup2);
+
+    var holderConsented = createOrgRolePipelineGroupView(2);
+    var consentedDiffableOrgRolePipelineGroup = createDiffableOrgRolePipelineGroup(holderConsented, allPipelinesLabelOverride);
+    when(diffableOrgRolePipelineGroupCreator.createDiffableView(holderConsented, allPipelinesLabelOverride))
+        .thenReturn(consentedDiffableOrgRolePipelineGroup);
+
+
+    var padView = new AllOrgRolePipelineGroupsView(List.of(), List.of(), List.of(operatorApp1, operatorApp2), List.of());
+    var consentedView = new AllOrgRolePipelineGroupsView(List.of(), List.of(), List.of(holderConsented), List.of());
+
+    var diffedAllOrgRolePipelineGroups = huooSummaryService.getDiffedViewUsingSummaryViews(padView, consentedView);
+
+    var diffedHolder = diffedAllOrgRolePipelineGroups.getOperatorOrgRolePipelineGroups().get(0);
+    assertThat(diffedHolder).containsKey("DiffableOrgRolePipelineGroup_roleOwner");
+    assertThat(diffedHolder).containsKey("DiffableOrgRolePipelineGroup_roleOwnerName");
+    assertThat(diffedHolder).containsKey("DiffableOrgRolePipelineGroup_companyNumber");
+    assertThat(diffedHolder).containsKey("DiffableOrgRolePipelineGroup_companyAddress");
+    assertThat(diffedHolder).containsKey("DiffableOrgRolePipelineGroup_hasCompanyData");
+    assertThat(diffedHolder).containsKey("DiffableOrgRolePipelineGroup_treatyAgreementText");
+    assertThat(diffedHolder).containsKey("DiffableOrgRolePipelineGroup_pipelineAndSplitsList");
+
+  }
+
+
+  private OrganisationRolePipelineGroupView createOrgRolePipelineGroupView(int id) {
     var portalOrgUnitDetail1 = PortalOrganisationTestUtils.generateOrganisationUnitDetail(
-        new PortalOrganisationUnit(1, "company"), "address", "111");
-    var organisationUnitDetail = OrganisationUnitDetailDto.from(portalOrgUnitDetail1);
+        new PortalOrganisationUnit(id, "company" + id), "address" + id, "11" + id);
+    var organisationUnitDetail1 = OrganisationUnitDetailDto.from(portalOrgUnitDetail1);
     var organisationRoleOwnerDto1 = OrganisationRoleOwnerDto.fromOrganisationUnitId(new OrganisationUnitId(1));
-    var pipelineNumbersAndSplits = List.of(new PipelineNumbersAndSplits(new PipelineId(1), "ppl1", null));
+    var pipelineNumbersAndSplits1 = List.of(new PipelineNumbersAndSplits(new PipelineId(id), "ppl" + id, null));
+    return new OrganisationRolePipelineGroupView(
+        HuooType.PORTAL_ORG, organisationUnitDetail1, false, null, null, organisationRoleOwnerDto1, pipelineNumbersAndSplits1);
 
-    var orgGroupView = new OrganisationRolePipelineGroupView(
-        HuooType.PORTAL_ORG,
-        organisationUnitDetail,
-        false,
+  }
+
+  private DiffableOrgRolePipelineGroup createDiffableOrgRolePipelineGroup(
+      OrganisationRolePipelineGroupView orgRolePipelineGroupView, boolean allPipelinesLabelOverride) {
+    return new DiffableOrgRolePipelineGroup(
+        orgRolePipelineGroupView.getOrganisationRoleOwner(),
+        orgRolePipelineGroupView.getOrgUnitDetailDto().getCompanyName(),
+        orgRolePipelineGroupView.getOrgUnitDetailDto().getCompanyAddress(),
+        orgRolePipelineGroupView.getOrgUnitDetailDto().getCompanyAddress(),
         null,
-        null,
-        organisationRoleOwnerDto1,
-        pipelineNumbersAndSplits
+        !orgRolePipelineGroupView.getIsManuallyEnteredName(),
+        orgRolePipelineGroupView.getIsManuallyEnteredName(),
+        allPipelinesLabelOverride ? List.of("All pipelines") :
+            orgRolePipelineGroupView.getPipelineNumbersAndSplits().stream().map(PipelineNumbersAndSplits::toString).collect(Collectors.toList())
     );
-
-    var diffableOrgRolePipelineGroup = huooSummaryService.createDiffableView(orgGroupView);
-
-    assertThat(diffableOrgRolePipelineGroup.getRoleOwner()).isEqualTo(organisationRoleOwnerDto1);
-    assertThat(diffableOrgRolePipelineGroup.getRoleOwnerName().getValue()).isEqualTo(organisationUnitDetail.getCompanyName());
-    assertThat(diffableOrgRolePipelineGroup.getCompanyAddress()).isEqualTo(organisationUnitDetail.getCompanyAddress());
-    assertThat(diffableOrgRolePipelineGroup.getCompanyNumber()).isEqualTo(organisationUnitDetail.getRegisteredNumber());
-    assertThat(diffableOrgRolePipelineGroup.getTreatyAgreementText()).isEqualTo("");
-    assertThat(diffableOrgRolePipelineGroup.hasCompanyData()).isTrue();
-    assertThat(diffableOrgRolePipelineGroup.isManuallyEnteredName()).isFalse();
-    assertThat(diffableOrgRolePipelineGroup.getPipelineAndSplitsList()).isEqualTo(
-        pipelineNumbersAndSplits.stream().map(PipelineNumbersAndSplits::toString).collect(Collectors.toList()));
   }
 
 
-  @Test
-  public void createDiffableView_orgRoleViewHasPortalOrgWithNoUnitDetail() {
-
-    var organisationRoleOwnerDto1 = OrganisationRoleOwnerDto.fromOrganisationUnitId(new OrganisationUnitId(1));
-    var pipelineNumbersAndSplits = List.of(new PipelineNumbersAndSplits(new PipelineId(1), "ppl1", null));
-
-    var orgGroupView = new OrganisationRolePipelineGroupView(
-        HuooType.PORTAL_ORG,
-        null,
-        false,
-        "manual name",
-        null,
-        organisationRoleOwnerDto1,
-        pipelineNumbersAndSplits
-    );
-
-    var diffableOrgRolePipelineGroup = huooSummaryService.createDiffableView(orgGroupView);
-
-    assertThat(diffableOrgRolePipelineGroup.getRoleOwner()).isEqualTo(organisationRoleOwnerDto1);
-    assertThat(diffableOrgRolePipelineGroup.getRoleOwnerName().getValue()).isEqualTo(orgGroupView.getManuallyEnteredName());
-    assertThat(diffableOrgRolePipelineGroup.getCompanyAddress()).isEqualTo("");
-    assertThat(diffableOrgRolePipelineGroup.getCompanyNumber()).isEqualTo("");
-    assertThat(diffableOrgRolePipelineGroup.getTreatyAgreementText()).isEqualTo("");
-    assertThat(diffableOrgRolePipelineGroup.hasCompanyData()).isFalse();
-    assertThat(diffableOrgRolePipelineGroup.isManuallyEnteredName()).isTrue();
-    assertThat(diffableOrgRolePipelineGroup.getPipelineAndSplitsList()).isEqualTo(
-        pipelineNumbersAndSplits.stream().map(PipelineNumbersAndSplits::toString).collect(Collectors.toList()));
-  }
-
-
-  @Test
-  public void createDiffableView_orgRoleViewHasTreaty() {
-
-    var organisationRoleOwnerDto1 = OrganisationRoleOwnerDto.fromTreaty(TreatyAgreement.ANY_TREATY_COUNTRY);
-    var pipelineNumbersAndSplits = List.of(new PipelineNumbersAndSplits(new PipelineId(1), "ppl1", null));
-
-    var orgGroupView = new OrganisationRolePipelineGroupView(
-        HuooType.TREATY_AGREEMENT,
-        null,
-        false,
-        null,
-        TreatyAgreement.ANY_TREATY_COUNTRY,
-        organisationRoleOwnerDto1,
-        pipelineNumbersAndSplits
-    );
-
-    var diffableOrgRolePipelineGroup = huooSummaryService.createDiffableView(orgGroupView);
-
-    assertThat(diffableOrgRolePipelineGroup.getRoleOwner()).isEqualTo(organisationRoleOwnerDto1);
-    assertThat(diffableOrgRolePipelineGroup.getRoleOwnerName().getValue()).isEqualTo(orgGroupView.getTreatyAgreement().getCountry());
-    assertThat(diffableOrgRolePipelineGroup.getCompanyAddress()).isEqualTo("");
-    assertThat(diffableOrgRolePipelineGroup.getCompanyNumber()).isEqualTo("");
-    assertThat(diffableOrgRolePipelineGroup.getTreatyAgreementText()).isEqualTo(orgGroupView.getTreatyAgreement().getAgreementText());
-    assertThat(diffableOrgRolePipelineGroup.hasCompanyData()).isFalse();
-    assertThat(diffableOrgRolePipelineGroup.isManuallyEnteredName()).isFalse();
-    assertThat(diffableOrgRolePipelineGroup.getPipelineAndSplitsList()).isEqualTo(
-        pipelineNumbersAndSplits.stream().map(PipelineNumbersAndSplits::toString).collect(Collectors.toList()));
-  }
 
 
 

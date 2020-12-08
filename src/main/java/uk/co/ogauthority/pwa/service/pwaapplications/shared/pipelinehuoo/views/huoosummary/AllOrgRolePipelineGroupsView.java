@@ -51,12 +51,12 @@ public class AllOrgRolePipelineGroupsView {
       case OWNER:
         return this.ownerOrgRolePipelineGroups;
       default:
-        throw new RuntimeException("BAD");
+        throw new RuntimeException("Invalid huoo role provided.");
     }
 
   }
 
-  // TODO PWA-917 quick tests
+
   public boolean hasOnlyOneGroupOfPipelineIdentifiersForRole(HuooRole huooRole) {
 
     var countDistinctPipelineGroups = getOrgRolePipelineGroupView(huooRole)

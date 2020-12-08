@@ -13,7 +13,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.view.sidebarnav.SidebarSectionLink;
 import uk.co.ogauthority.pwa.service.applicationsummariser.ApplicationSectionSummariser;
 import uk.co.ogauthority.pwa.service.applicationsummariser.ApplicationSectionSummary;
-import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.mh_debug_prototype.DiffableOrgRolePipelineGroupCreator;
+import uk.co.ogauthority.pwa.service.pwaconsents.orgrolediffablepipelineservices.DiffableOrgRolePipelineGroupCreator;
 import uk.co.ogauthority.pwa.service.diff.DiffService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTask;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskListService;
@@ -87,82 +87,39 @@ public class HuooSummaryService implements ApplicationSectionSummariser {
   private List<Map<String, ?>> getDiffedModelForAppAndConsentForRole(AllOrgRolePipelineGroupsView huooRolePipelineGroupsPadView,
                                                              AllOrgRolePipelineGroupsView huooRolePipelineGroupsConsentedView,
                                                               HuooRole role) {
-    var appGroupShowAllPipelineFlag = huooRolePipelineGroupsPadView.hasOnlyOneGroupOfPipelineIdentifiersForRole(
-        role) ;
 
-    var consentedGroupShowAllPipelineFlag = huooRolePipelineGroupsConsentedView.hasOnlyOneGroupOfPipelineIdentifiersForRole(
-        role);
+    var appGroupShowAllPipelineFlag = huooRolePipelineGroupsPadView.hasOnlyOneGroupOfPipelineIdentifiersForRole(role);
+
+    var consentedGroupShowAllPipelineFlag = huooRolePipelineGroupsConsentedView.hasOnlyOneGroupOfPipelineIdentifiersForRole(role);
 
     var allPipelinesLabelOverride = appGroupShowAllPipelineFlag && consentedGroupShowAllPipelineFlag;
 
     var appDiffedOrgRolePipelineGroup = huooRolePipelineGroupsPadView.getOrgRolePipelineGroupView(role)
         .stream()
-        .map( o -> diffableOrgRolePipelineGroupCreator.createDiffableView(o, allPipelinesLabelOverride))
+        .map(o -> diffableOrgRolePipelineGroupCreator.createDiffableView(o, allPipelinesLabelOverride))
         .collect(Collectors.toList());
 
     var consentedDiffedOrgRolePipelineGroup = huooRolePipelineGroupsConsentedView.getOrgRolePipelineGroupView(role)
         .stream()
-        .map( o -> diffableOrgRolePipelineGroupCreator.createDiffableView(o, allPipelinesLabelOverride))
+        .map(o -> diffableOrgRolePipelineGroupCreator.createDiffableView(o, allPipelinesLabelOverride))
         .collect(Collectors.toList());
 
-    return diffService.diffComplexLists(appDiffedOrgRolePipelineGroup, consentedDiffedOrgRolePipelineGroup, this::findOrgRoleOwner, this::findOrgRoleOwner);
-
-
+    return diffService.diffComplexLists(
+        appDiffedOrgRolePipelineGroup, consentedDiffedOrgRolePipelineGroup, this::findOrgRoleOwner, this::findOrgRoleOwner);
   }
 
 
   public DiffedAllOrgRolePipelineGroups getDiffedViewUsingSummaryViews(AllOrgRolePipelineGroupsView huooRolePipelineGroupsPadView,
                                                                        AllOrgRolePipelineGroupsView huooRolePipelineGroupsConsentedView) {
 
-
-    var diffedHolders = getDiffedModelForAppAndConsentForRole(huooRolePipelineGroupsPadView, huooRolePipelineGroupsConsentedView, HuooRole.HOLDER);
-    var diffedUsers = getDiffedModelForAppAndConsentForRole(huooRolePipelineGroupsPadView, huooRolePipelineGroupsConsentedView, HuooRole.USER);
-    var diffedOperators = getDiffedModelForAppAndConsentForRole(huooRolePipelineGroupsPadView, huooRolePipelineGroupsConsentedView, HuooRole.OPERATOR);
-    var diffedOwners = getDiffedModelForAppAndConsentForRole(huooRolePipelineGroupsPadView, huooRolePipelineGroupsConsentedView, HuooRole.OWNER);
-
-    //    var diffedUsers = diffService.diffComplexLists(appUsers, consentedUsers, this::findOrgRoleOwner, this::findOrgRoleOwner);
-
-//    var consentHoldersShowAllPipelineFlag = huooRolePipelineGroupsConsentedView.hasOnlyOneGroupOfPipelineIdentifiersForRole(
-//        HuooRole.HOLDER);
-//    var appHoldersShowAllPipelineFlag = huooRolePipelineGroupsPadView.hasOnlyOneGroupOfPipelineIdentifiersForRole(
-//        HuooRole.HOLDER);
-//
-//    var appHolders = huooRolePipelineGroupsPadView.getHolderOrgRolePipelineGroups().stream()
-//        .map( o -> diffableOrgRolePipelineGroupCreator.createDiffableView(o, appHoldersShowAllPipelineFlag && consentHoldersShowAllPipelineFlag))
-//        .collect(Collectors.toList());
-//
-//    var consentedHolders = huooRolePipelineGroupsConsentedView.getHolderOrgRolePipelineGroups().stream()
-//        .map( o -> createDiffableView(o, appHoldersShowAllPipelineFlag && consentHoldersShowAllPipelineFlag))
-//        .collect(Collectors.toList());
-//    var diffedHolders = diffService.diffComplexLists(appHolders, consentedHolders, this::findOrgRoleOwner, this::findOrgRoleOwner);
-
-
-//    var appUsers = huooRolePipelineGroupsPadView.getUserOrgRolePipelineGroups().stream()
-//        .map(this::createDiffableView)
-//        .collect(Collectors.toList());
-//    var consentedUsers = huooRolePipelineGroupsConsentedView.getUserOrgRolePipelineGroups().stream()
-//        .map(this::createDiffableView)
-//        .collect(Collectors.toList());
-//    var diffedUsers = diffService.diffComplexLists(appUsers, consentedUsers, this::findOrgRoleOwner, this::findOrgRoleOwner);
-
-//    var appOperators = huooRolePipelineGroupsPadView.getOperatorOrgRolePipelineGroups().stream()
-//        .map(this::createDiffableView)
-//        .collect(Collectors.toList());
-//
-//    var consentedOperators = huooRolePipelineGroupsConsentedView.getOperatorOrgRolePipelineGroups().stream()
-//        .map(this::createDiffableView)
-//        .collect(Collectors.toList());
-//    var diffedOperators = diffService.diffComplexLists(appOperators, consentedOperators, this::findOrgRoleOwner, this::findOrgRoleOwner);
-//
-//
-//    var appOwners = huooRolePipelineGroupsPadView.getOwnerOrgRolePipelineGroups().stream()
-//        .map(o-> createDiffableView(o, ap))
-//        .collect(Collectors.toList());
-//    var consentedOwners = huooRolePipelineGroupsConsentedView.getOwnerOrgRolePipelineGroups().stream()
-//        .map(this::createDiffableView)
-//        .collect(Collectors.toList());
-//    var diffedOwners = diffService.diffComplexLists(appOwners, consentedOwners, this::findOrgRoleOwner, this::findOrgRoleOwner);
-
+    var diffedHolders = getDiffedModelForAppAndConsentForRole(
+        huooRolePipelineGroupsPadView, huooRolePipelineGroupsConsentedView, HuooRole.HOLDER);
+    var diffedUsers = getDiffedModelForAppAndConsentForRole(
+        huooRolePipelineGroupsPadView, huooRolePipelineGroupsConsentedView, HuooRole.USER);
+    var diffedOperators = getDiffedModelForAppAndConsentForRole(
+        huooRolePipelineGroupsPadView, huooRolePipelineGroupsConsentedView, HuooRole.OPERATOR);
+    var diffedOwners = getDiffedModelForAppAndConsentForRole(
+        huooRolePipelineGroupsPadView, huooRolePipelineGroupsConsentedView, HuooRole.OWNER);
 
     return new DiffedAllOrgRolePipelineGroups(
         diffedHolders,
@@ -170,57 +127,6 @@ public class HuooSummaryService implements ApplicationSectionSummariser {
         diffedOperators,
         diffedOwners);
   }
-
-//
-//  @VisibleForTesting
-//  DiffableOrgRolePipelineGroup createDiffableView(OrganisationRolePipelineGroupView orgRolePipelineGroupView, boolean allPipelineOverrideFlag) {
-//
-//    var orgName = orgRolePipelineGroupView.getManuallyEnteredName();
-//    var hasCompanyData = false;
-//    var isManuallyEnteredName = false;
-//    var companyAddress = "";
-//    var companyNumber = "";
-//    var treatyAgreementText = "";
-//
-//    if (orgRolePipelineGroupView.getHuooType() == HuooType.PORTAL_ORG && orgRolePipelineGroupView.getOrgUnitDetailDto() != null) {
-//      orgName = orgRolePipelineGroupView.getCompanyName();
-//      hasCompanyData = true;
-//      var orgUnitDetail = orgRolePipelineGroupView.getOrgUnitDetailDto();
-//      companyAddress = orgUnitDetail.getCompanyAddress() != null ? orgUnitDetail.getCompanyAddress() : "";
-//      companyNumber = orgUnitDetail.getRegisteredNumber() != null ? orgUnitDetail.getRegisteredNumber() : "";
-//
-//    } else if (orgRolePipelineGroupView.getHuooType() == HuooType.PORTAL_ORG && orgRolePipelineGroupView.getOrgUnitDetailDto() == null) {
-//      orgName = orgRolePipelineGroupView.getManuallyEnteredName();
-//      isManuallyEnteredName = true;
-//
-//    } else if (orgRolePipelineGroupView.getHuooType() == HuooType.TREATY_AGREEMENT) {
-//      orgName = orgRolePipelineGroupView.getTreatyAgreement().getCountry();
-//      treatyAgreementText = orgRolePipelineGroupView.getTreatyAgreement().getAgreementText();
-//    }
-//
-//    List<String> pipelineNumbersAndSplitsStr;
-//
-//    if (allPipelineOverrideFlag) {
-//      pipelineNumbersAndSplitsStr = List.of("All pipelines");
-//    } else {
-//      pipelineNumbersAndSplitsStr = orgRolePipelineGroupView.getPipelineNumbersAndSplits()
-//          .stream()
-//          .filter(Objects::nonNull)
-//          .map(PipelineNumbersAndSplits::toString)
-//          .collect(Collectors.toList());
-//    }
-//
-//    return new DiffableOrgRolePipelineGroup(
-//        orgRolePipelineGroupView.getOrganisationRoleOwner(),
-//        orgName,
-//        companyAddress,
-//        companyNumber,
-//        treatyAgreementText,
-//        hasCompanyData,
-//        isManuallyEnteredName,
-//        pipelineNumbersAndSplitsStr
-//    );
-//  }
 
 
 

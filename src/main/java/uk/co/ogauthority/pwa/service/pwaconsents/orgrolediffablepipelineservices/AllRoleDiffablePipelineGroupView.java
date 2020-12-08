@@ -1,12 +1,12 @@
-package uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.mh_debug_prototype;
+package uk.co.ogauthority.pwa.service.pwaconsents.orgrolediffablepipelineservices;
 
 import java.util.List;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.huoosummary.DiffableOrgRolePipelineGroup;
 
 // mirrors AllOrgRolePipelineGroupsView but has done post processing of group views for template consumption
-// TODO PWA-917 (wishlist) this object and DiffableOrgRolePipelineGroup should be renamed so its more generic. Is not always required for Diff,
-// sometimes required on its own, so should no bake in "Diff" naming.
+// TODO PWA-917 (wishlist) this object and DiffableOrgRolePipelineGroup should be renamed so its more generic.
+//  Is not always required for Diff, sometimes required on its own, so should no bake in "Diff" naming.
 public class AllRoleDiffablePipelineGroupView {
 
 
@@ -39,12 +39,28 @@ public class AllRoleDiffablePipelineGroupView {
         return this.operatorOrgRolePipelineGroups;
       case OWNER:
         return this.ownerOrgRolePipelineGroups;
+      default:
+        throw new RuntimeException("Invalid huoo role provided");
     }
-    throw new RuntimeException("BAD");
   }
 
 
-  //TODO PWA-917 getters
+  public List<DiffableOrgRolePipelineGroup> getHolderOrgRolePipelineGroups() {
+    return holderOrgRolePipelineGroups;
+  }
+
+  public List<DiffableOrgRolePipelineGroup> getUserOrgRolePipelineGroups() {
+    return userOrgRolePipelineGroups;
+  }
+
+  public List<DiffableOrgRolePipelineGroup> getOperatorOrgRolePipelineGroups() {
+    return operatorOrgRolePipelineGroups;
+  }
+
+  public List<DiffableOrgRolePipelineGroup> getOwnerOrgRolePipelineGroups() {
+    return ownerOrgRolePipelineGroups;
+  }
+
 
 }
 
