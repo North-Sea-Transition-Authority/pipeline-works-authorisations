@@ -21,6 +21,11 @@
       }
     }
 
+    @page landscapePage {
+      size: A4 landscape;
+    }
+
+
     @font-face {
       font-family: "Arial-MT";
       src: url('document-assets/ArialMT.ttf');
@@ -65,6 +70,28 @@
     .deposit-image {
       width: 100%;
       height: 100%;
+    }
+
+    .sectionTable {
+      width: 100%;
+    }
+
+    .sectionTable, .sectionTable th, .sectionTable td {
+      border: 1px solid black;
+      border-collapse: collapse;
+    }
+    
+    .sectionTable td {
+      padding-left: 5px;
+    }
+
+    #depositsTableSection {
+      page: landscapePage;
+    }
+
+    .drawingNumberList {
+      list-style-type:none;
+      padding-left: 0;
     }
 
     ol {

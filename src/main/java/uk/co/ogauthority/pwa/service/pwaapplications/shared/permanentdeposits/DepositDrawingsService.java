@@ -323,6 +323,13 @@ public class DepositDrawingsService implements ApplicationFormSectionService {
     return padDepositDrawingRepository.findByPwaApplicationDetail(pwaApplicationDetail);
   }
 
+  public Map<PadPermanentDeposit, List<PadDepositDrawingLink>> getDepositAndDrawingLinksMapForDeposits(
+      Collection<PadPermanentDeposit> deposits) {
+    return padDepositDrawingLinkRepository.getAllByPadPermanentDepositIn(deposits)
+        .stream()
+        .collect(Collectors.groupingBy(PadDepositDrawingLink::getPadPermanentDeposit));
+  }
+
   void saveDepositDrawings(List<PadDepositDrawing> padDepositDrawings) {
     padDepositDrawingRepository.saveAll(padDepositDrawings);
   }

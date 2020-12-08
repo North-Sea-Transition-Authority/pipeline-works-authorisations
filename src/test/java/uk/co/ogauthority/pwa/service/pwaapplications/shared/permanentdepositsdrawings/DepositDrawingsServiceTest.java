@@ -28,6 +28,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdepositdrawings.PadDepositDrawing;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdepositdrawings.PadDepositDrawingLink;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PadPermanentDeposit;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PadPermanentDepositTestUtil;
 import uk.co.ogauthority.pwa.model.form.files.UploadFileWithDescriptionForm;
 import uk.co.ogauthority.pwa.model.form.files.UploadedFileView;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.PermanentDepositDrawingForm;
@@ -382,6 +383,29 @@ public class DepositDrawingsServiceTest {
 
     verify(padFileService, times(1)).cleanupFiles(eq(pwaApplicationDetail), eq(ApplicationDetailFilePurpose.DEPOSIT_DRAWINGS), eq(List.of(1, 2)));
 
+  }
+
+  @Test
+  public void getDepositAndDrawingMapForDeposits() {
+    var deposit1 = new PadPermanentDeposit();
+    deposit1.setId(1);
+    var deposit2 = new PadPermanentDeposit();
+    deposit2.setId(2);
+
+    var depositDrawing1 = new PadDepositDrawing();
+    var depositDrawing2 = new PadDepositDrawing();
+
+    var deposit1AndDrawing1 = PadPermanentDepositTestUtil.createPadDepositDrawingLink(deposit1, depositDrawing1);
+    var deposit1AndDrawing2 = PadPermanentDepositTestUtil.createPadDepositDrawingLink(deposit1, depositDrawing2);
+    var deposit2AndDrawing1 = PadPermanentDepositTestUtil.createPadDepositDrawingLink(deposit2, depositDrawing1);
+
+    when(padDepositDrawingLinkRepository.getAllByPadPermanentDepositIn(List.of(deposit1, deposit2)))
+        .thenReturn(List.of(deposit1AndDrawing1, deposit1AndDrawing2, deposit2AndDrawing1));
+
+    var depositForDepositDrawingsMap = depositDrawingsService.getDepositAndDrawingLinksMapForDeposits(List.of(deposit1, deposit2));
+
+    assertThat(depositForDepositDrawingsMap.get(deposit1)).isEqualTo(List.of(deposit1AndDrawing1,deposit1AndDrawing2));
+    assertThat(depositForDepositDrawingsMap.get(deposit2)).isEqualTo(List.of(deposit2AndDrawing1));
   }
 
   @Test
