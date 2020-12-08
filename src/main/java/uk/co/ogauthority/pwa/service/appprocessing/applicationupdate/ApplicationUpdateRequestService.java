@@ -167,15 +167,12 @@ public class ApplicationUpdateRequestService implements AppProcessingService {
 
   }
 
-  // TODO rename this method as it app level not app detail
-  public boolean applicationDetailHasOpenUpdateRequest(PwaApplicationDetail pwaApplicationDetail) {
+  public boolean applicationHasOpenUpdateRequest(PwaApplicationDetail pwaApplicationDetail) {
     return applicationUpdateRequestRepository.findByPwaApplicationDetail_pwaApplicationAndStatus(
         pwaApplicationDetail.getPwaApplication(),
         ApplicationUpdateRequestStatus.OPEN
     ).isPresent();
   }
-
-
 
   @Override
   public boolean canShowInTaskList(PwaAppProcessingContext processingContext) {
@@ -187,7 +184,7 @@ public class ApplicationUpdateRequestService implements AppProcessingService {
   public TaskListEntry getTaskListEntry(PwaAppProcessingTask task, PwaAppProcessingContext processingContext) {
     var optionsApprovalStatus = approveOptionsService.getOptionsApprovalStatus(processingContext.getApplicationDetail());
 
-    boolean openUpdateForDetail = applicationDetailHasOpenUpdateRequest(processingContext.getApplicationDetail());
+    boolean openUpdateForDetail = applicationHasOpenUpdateRequest(processingContext.getApplicationDetail());
 
     // prevent access during initial options approval or in progress update request
     String taskRoute = openUpdateForDetail || OptionsApprovalStatus.APPROVED_UNRESPONDED.equals(optionsApprovalStatus)

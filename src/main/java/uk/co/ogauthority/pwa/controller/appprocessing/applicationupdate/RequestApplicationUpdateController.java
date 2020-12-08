@@ -122,7 +122,7 @@ public class RequestApplicationUpdateController {
 
     var pwaApplicationDetail = processingContext.getApplicationDetail();
 
-    if (applicationUpdateRequestService.applicationDetailHasOpenUpdateRequest(pwaApplicationDetail)) {
+    if (applicationUpdateRequestService.applicationHasOpenUpdateRequest(pwaApplicationDetail)) {
       throw new AccessDeniedException(
           String.format("Pad_id: %s has open update request", pwaApplicationDetail.getId()));
     }

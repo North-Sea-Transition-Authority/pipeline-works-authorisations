@@ -64,7 +64,7 @@ public class ApproveOptionsTaskServiceTest {
         EnumSet.allOf(PwaAppProcessingPermission.class)
     );
 
-    when(applicationUpdateRequestService.applicationDetailHasOpenUpdateRequest(pwaApplicationDetail))
+    when(applicationUpdateRequestService.applicationHasOpenUpdateRequest(pwaApplicationDetail))
         .thenReturn(false);
 
     approveOptionsTaskService = new ApproveOptionsTaskService(
@@ -121,7 +121,7 @@ public class ApproveOptionsTaskServiceTest {
         .getApplicationConsultationStatusView(pwaApplicationDetail.getPwaApplication());
 
     verify(applicationUpdateRequestService, times(1))
-        .applicationDetailHasOpenUpdateRequest(pwaApplicationDetail);
+        .applicationHasOpenUpdateRequest(pwaApplicationDetail);
 
   }
 
@@ -202,7 +202,7 @@ public class ApproveOptionsTaskServiceTest {
     when(consultationRequestService.getApplicationConsultationStatusView(pwaApplicationDetail.getPwaApplication()))
         .thenReturn(statusView);
 
-    when(applicationUpdateRequestService.applicationDetailHasOpenUpdateRequest(pwaApplicationDetail))
+    when(applicationUpdateRequestService.applicationHasOpenUpdateRequest(pwaApplicationDetail))
         .thenReturn(true);
 
     var taskAccessible = approveOptionsTaskService.taskAccessible(pwaAppProcessingContext);

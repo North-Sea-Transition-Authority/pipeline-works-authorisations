@@ -164,22 +164,22 @@ public class ApplicationUpdateRequestServiceTest {
   }
 
   @Test
-  public void applicationDetailHasOpenUpdateRequest_whenOpenUpdateRequest() {
+  public void applicationHasOpenUpdateRequest_whenOpenUpdateRequest() {
     when(applicationUpdateRequestRepository.findByPwaApplicationDetail_pwaApplicationAndStatus(
         pwaApplicationDetail.getPwaApplication(), ApplicationUpdateRequestStatus.OPEN
     ))
         .thenReturn(Optional.of(defaultUpdateRequest));
-    assertThat(applicationUpdateRequestService.applicationDetailHasOpenUpdateRequest(pwaApplicationDetail)).isTrue();
+    assertThat(applicationUpdateRequestService.applicationHasOpenUpdateRequest(pwaApplicationDetail)).isTrue();
 
   }
 
   @Test
-  public void applicationDetailHasOpenUpdateRequest_whenNoOpenUpdateRequest() {
+  public void applicationHasOpenUpdateRequest_whenNoOpenUpdateRequest() {
     when(applicationUpdateRequestRepository.findByPwaApplicationDetail_pwaApplicationAndStatus(
         pwaApplicationDetail.getPwaApplication(), ApplicationUpdateRequestStatus.OPEN
     ))
         .thenReturn(Optional.empty());
-    assertThat(applicationUpdateRequestService.applicationDetailHasOpenUpdateRequest(pwaApplicationDetail)).isFalse();
+    assertThat(applicationUpdateRequestService.applicationHasOpenUpdateRequest(pwaApplicationDetail)).isFalse();
 
   }
 

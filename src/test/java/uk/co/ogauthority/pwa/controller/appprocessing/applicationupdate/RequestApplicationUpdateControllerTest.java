@@ -138,14 +138,14 @@ public class RequestApplicationUpdateControllerTest extends PwaAppProcessingCont
     assertThat(model).contains(entry("form", new ApplicationUpdateRequestForm()));
     assertThat(model).contains(entry("errorList", List.of()));
 
-    verify(applicationUpdateRequestService, times(1)).applicationDetailHasOpenUpdateRequest(pwaApplicationDetail);
+    verify(applicationUpdateRequestService, times(1)).applicationHasOpenUpdateRequest(pwaApplicationDetail);
     verify(applicationUpdateRequestService, times(0)).submitApplicationUpdateRequest(any(), any(), any());
   }
 
   @Test
   public void renderRequestUpdate_whenApplicationHasOpenUpdateRequest() throws Exception {
 
-    when(applicationUpdateRequestService.applicationDetailHasOpenUpdateRequest(pwaApplicationDetail)).thenReturn(true);
+    when(applicationUpdateRequestService.applicationHasOpenUpdateRequest(pwaApplicationDetail)).thenReturn(true);
 
     var permissionsDto = new ProcessingPermissionsDto(null, Set.of(PwaAppProcessingPermission.REQUEST_APPLICATION_UPDATE));
     when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail.getPwaApplication(), user))
@@ -205,7 +205,7 @@ public class RequestApplicationUpdateControllerTest extends PwaAppProcessingCont
         .andExpect(model().hasErrors())
         .andReturn();
 
-    verify(applicationUpdateRequestService, times(1)).applicationDetailHasOpenUpdateRequest(pwaApplicationDetail);
+    verify(applicationUpdateRequestService, times(1)).applicationHasOpenUpdateRequest(pwaApplicationDetail);
     verify(applicationUpdateRequestService, times(0)).submitApplicationUpdateRequest(any(), any(), any());
 
   }
@@ -229,7 +229,7 @@ public class RequestApplicationUpdateControllerTest extends PwaAppProcessingCont
         .andExpect(model().hasErrors())
         .andReturn();
 
-    verify(applicationUpdateRequestService, times(1)).applicationDetailHasOpenUpdateRequest(pwaApplicationDetail);
+    verify(applicationUpdateRequestService, times(1)).applicationHasOpenUpdateRequest(pwaApplicationDetail);
     verify(applicationUpdateRequestService, times(0)).submitApplicationUpdateRequest(any(), any(), any());
 
   }
@@ -252,7 +252,7 @@ public class RequestApplicationUpdateControllerTest extends PwaAppProcessingCont
     ).andExpect(status().is3xxRedirection())
         .andExpect(model().attributeHasNoErrors())
         .andReturn();
-    verify(applicationUpdateRequestService, times(1)).applicationDetailHasOpenUpdateRequest(pwaApplicationDetail);
+    verify(applicationUpdateRequestService, times(1)).applicationHasOpenUpdateRequest(pwaApplicationDetail);
     verify(applicationUpdateRequestService, times(1)).submitApplicationUpdateRequest(pwaApplicationDetail, user,
         REQUEST_REASON_VALID);
 
@@ -261,7 +261,7 @@ public class RequestApplicationUpdateControllerTest extends PwaAppProcessingCont
   @Test
   public void requestUpdate_whenApplicationHasOpenUpdateRequest() throws Exception {
 
-    when(applicationUpdateRequestService.applicationDetailHasOpenUpdateRequest(pwaApplicationDetail)).thenReturn(true);
+    when(applicationUpdateRequestService.applicationHasOpenUpdateRequest(pwaApplicationDetail)).thenReturn(true);
 
     var permissionsDto = new ProcessingPermissionsDto(null, Set.of(PwaAppProcessingPermission.REQUEST_APPLICATION_UPDATE));
     when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail.getPwaApplication(), user))

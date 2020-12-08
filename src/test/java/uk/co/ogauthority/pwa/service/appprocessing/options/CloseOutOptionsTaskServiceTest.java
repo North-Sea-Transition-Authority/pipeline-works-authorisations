@@ -91,7 +91,7 @@ public class CloseOutOptionsTaskServiceTest {
     when(approveOptionsService.getOptionsApprovalStatus(pwaApplicationDetail))
         .thenReturn(OptionsApprovalStatus.APPROVED_OTHER_CONFIRMED);
 
-    when(applicationUpdateRequestService.applicationDetailHasOpenUpdateRequest(pwaApplicationDetail))
+    when(applicationUpdateRequestService.applicationHasOpenUpdateRequest(pwaApplicationDetail))
         .thenReturn(false);
 
     assertThat(closeOutOptionsTaskService.taskAccessible(pwaAppProcessingContext)).isTrue();
@@ -103,7 +103,7 @@ public class CloseOutOptionsTaskServiceTest {
     when(approveOptionsService.getOptionsApprovalStatus(pwaApplicationDetail))
         .thenReturn(OptionsApprovalStatus.APPROVED_CONSENTED_OPTION_CONFIRMED);
 
-    when(applicationUpdateRequestService.applicationDetailHasOpenUpdateRequest(pwaApplicationDetail))
+    when(applicationUpdateRequestService.applicationHasOpenUpdateRequest(pwaApplicationDetail))
         .thenReturn(true);
 
     assertThat(closeOutOptionsTaskService.taskAccessible(pwaAppProcessingContext)).isFalse();
@@ -130,7 +130,7 @@ public class CloseOutOptionsTaskServiceTest {
     when(approveOptionsService.getOptionsApprovalStatus(pwaApplicationDetail))
         .thenReturn(OptionsApprovalStatus.APPROVED_CONSENTED_OPTION_CONFIRMED);
 
-    when(applicationUpdateRequestService.applicationDetailHasOpenUpdateRequest(pwaApplicationDetail))
+    when(applicationUpdateRequestService.applicationHasOpenUpdateRequest(pwaApplicationDetail))
         .thenReturn(false);
 
     var taskListEntry = closeOutOptionsTaskService.getTaskListEntry(
@@ -152,7 +152,7 @@ public class CloseOutOptionsTaskServiceTest {
     when(approveOptionsService.getOptionsApprovalStatus(pwaApplicationDetail))
         .thenReturn(OptionsApprovalStatus.APPROVED_CONSENTED_OPTION_CONFIRMED);
 
-    when(applicationUpdateRequestService.applicationDetailHasOpenUpdateRequest(pwaApplicationDetail))
+    when(applicationUpdateRequestService.applicationHasOpenUpdateRequest(pwaApplicationDetail))
         .thenReturn(false);
 
     var taskListEntry = closeOutOptionsTaskService.getTaskListEntry(
@@ -174,7 +174,7 @@ public class CloseOutOptionsTaskServiceTest {
     when(approveOptionsService.getOptionsApprovalStatus(pwaApplicationDetail))
         .thenReturn(OptionsApprovalStatus.APPROVED_OTHER_CONFIRMED);
 
-    when(applicationUpdateRequestService.applicationDetailHasOpenUpdateRequest(pwaApplicationDetail))
+    when(applicationUpdateRequestService.applicationHasOpenUpdateRequest(pwaApplicationDetail))
         .thenReturn(false);
 
     var taskListEntry = closeOutOptionsTaskService.getTaskListEntry(
@@ -195,7 +195,7 @@ public class CloseOutOptionsTaskServiceTest {
     when(approveOptionsService.getOptionsApprovalStatus(pwaApplicationDetail))
         .thenReturn(OptionsApprovalStatus.APPROVED_OTHER_CONFIRMED);
 
-    when(applicationUpdateRequestService.applicationDetailHasOpenUpdateRequest(pwaApplicationDetail))
+    when(applicationUpdateRequestService.applicationHasOpenUpdateRequest(pwaApplicationDetail))
         .thenReturn(true);
 
     var taskListEntry = closeOutOptionsTaskService.getTaskListEntry(

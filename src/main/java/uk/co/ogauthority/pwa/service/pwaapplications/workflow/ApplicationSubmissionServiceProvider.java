@@ -37,7 +37,7 @@ public class ApplicationSubmissionServiceProvider {
       return pwaApplicationFirstDraftSubmissionService;
     }
 
-    if (applicationUpdateRequestService.applicationDetailHasOpenUpdateRequest(pwaApplicationDetail)) {
+    if (applicationUpdateRequestService.applicationHasOpenUpdateRequest(pwaApplicationDetail)) {
       return pwaApplicationUpdateRequestedSubmissionService;
     }
 
