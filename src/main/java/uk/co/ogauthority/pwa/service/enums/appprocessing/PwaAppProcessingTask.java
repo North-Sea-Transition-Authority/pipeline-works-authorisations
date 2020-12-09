@@ -27,7 +27,7 @@ import uk.co.ogauthority.pwa.service.appprocessing.applicationupdate.Application
 import uk.co.ogauthority.pwa.service.appprocessing.casenotes.CaseNoteService;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.ConsultationService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
-import uk.co.ogauthority.pwa.service.appprocessing.decision.ApplicationDecisionService;
+import uk.co.ogauthority.pwa.service.appprocessing.decision.ApplicationDecisionTaskService;
 import uk.co.ogauthority.pwa.service.appprocessing.initialreview.InitialReviewService;
 import uk.co.ogauthority.pwa.service.appprocessing.options.ApproveOptionsTaskService;
 import uk.co.ogauthority.pwa.service.appprocessing.options.ChangeOptionsApprovalDeadlineTaskService;
@@ -109,7 +109,7 @@ public enum PwaAppProcessingTask {
   DECISION(
       "Decision",
       TaskRequirement.REQUIRED,
-      ApplicationDecisionService.class, processingContext -> ReverseRouter.route(on(AppConsentDocController.class)
+      ApplicationDecisionTaskService.class, processingContext -> ReverseRouter.route(on(AppConsentDocController.class)
       .renderConsentDocEditor(processingContext.getMasterPwaApplicationId(), processingContext.getApplicationType(),
           null, null)),
       60),

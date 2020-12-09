@@ -53,6 +53,7 @@ public class CloseOutOptionsTaskService implements AppProcessingService {
    */
   private TaskStatus getTaskStatus(PwaAppProcessingContext processingContext) {
 
+
     var appComplete = PwaApplicationStatus.COMPLETE.equals(processingContext.getApplicationDetail().getStatus());
 
     var optionsApprovalStatus = approveOptionsService.getOptionsApprovalStatus(
@@ -68,7 +69,8 @@ public class CloseOutOptionsTaskService implements AppProcessingService {
     if (!optionsApprovalStatus.isConsentedOptionConfirmed() && appComplete) {
       taskStatus = TaskStatus.COMPLETED;
     } else if (!optionsApprovalStatus.isConsentedOptionConfirmed()) {
-      if (openAppUpdate) {
+
+      if (openAppUpdate || !optionsApprovalStatus.isOptionsApproved()) {
         taskStatus = TaskStatus.CANNOT_START_YET;
       } else {
         taskStatus = TaskStatus.NOT_STARTED;
@@ -76,7 +78,6 @@ public class CloseOutOptionsTaskService implements AppProcessingService {
     } else {
       taskStatus = TaskStatus.NOT_REQUIRED;
     }
-
 
     return taskStatus;
 
