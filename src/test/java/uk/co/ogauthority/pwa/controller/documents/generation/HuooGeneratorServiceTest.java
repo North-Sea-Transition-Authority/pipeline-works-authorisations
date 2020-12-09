@@ -3,52 +3,24 @@ package uk.co.ogauthority.pwa.controller.documents.generation;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
-import uk.co.ogauthority.pwa.model.dto.consents.OrganisationRoleOwnerDto;
-import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitDetailDto;
-import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
-import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooType;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocumentSection;
-import uk.co.ogauthority.pwa.model.entity.enums.measurements.UnitMeasurement;
-import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineStatus;
-import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
-import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdepositdrawings.PadDepositDrawing;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PadDepositPipeline;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PadPermanentDeposit;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PadPermanentDepositTestUtil;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineHeaderView;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview;
-import uk.co.ogauthority.pwa.model.location.CoordinatePairTestUtil;
-import uk.co.ogauthority.pwa.service.documents.generation.DepositsGeneratorService;
 import uk.co.ogauthority.pwa.service.documents.generation.HuooGeneratorService;
-import uk.co.ogauthority.pwa.service.documents.views.DepositTableRowView;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadOrganisationRoleService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits.DepositDrawingsService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits.PermanentDepositService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.huoosummary.AllOrgRolePipelineGroupsView;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.huoosummary.DiffableOrgRolePipelineGroup;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.huoosummary.OrganisationRolePipelineGroupView;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.huoosummary.PipelineNumbersAndSplits;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.viewfactories.PipelineAndIdentViewFactory;
 import uk.co.ogauthority.pwa.service.pwaconsents.orgrolediffablepipelineservices.AllRoleDiffablePipelineGroupView;
 import uk.co.ogauthority.pwa.service.pwaconsents.orgrolediffablepipelineservices.DiffableOrgRolePipelineGroupCreator;
-import uk.co.ogauthority.pwa.testutils.PortalOrganisationTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
-import uk.co.ogauthority.pwa.util.DateUtils;
 
 @RunWith(MockitoJUnitRunner.class)
 public class HuooGeneratorServiceTest {
@@ -89,22 +61,21 @@ public class HuooGeneratorServiceTest {
 
 
   @Test
-  public void getDocumentSectionData_validSectionName_validGroupViewData() {
+  public void getDocumentSectionData_validSectionName_containsGroupViewData() {
 
-    var holderPipelineGroupViews = List.of(createOrgRolePipelineGroupView());
-    var userPipelineGroupViews = List.of(createOrgRolePipelineGroupView());
-    var operatorPipelineGroupViews = List.of(createOrgRolePipelineGroupView());
-    var ownerPipelineGroupViews = List.of(createOrgRolePipelineGroupView());
     var huooRolePipelineGroupsPadView = new AllOrgRolePipelineGroupsView(
-        holderPipelineGroupViews, userPipelineGroupViews, operatorPipelineGroupViews, ownerPipelineGroupViews);
+        List.of(createOrgRolePipelineGroupView()),
+        List.of(createOrgRolePipelineGroupView()),
+        List.of(createOrgRolePipelineGroupView()),
+        List.of(createOrgRolePipelineGroupView()));
     when(padOrganisationRoleService.getAllOrganisationRolePipelineGroupView(pwaApplicationDetail))
         .thenReturn(huooRolePipelineGroupsPadView);
 
-
     var allRoleDiffablePipelineGroupView = new AllRoleDiffablePipelineGroupView(
-        List.of(createDiffableOrgRolePipelineGroup()), List.of(createDiffableOrgRolePipelineGroup()), List.of(createDiffableOrgRolePipelineGroup()), List.of(createDiffableOrgRolePipelineGroup())
-      );
-
+        List.of(createDiffableOrgRolePipelineGroup()),
+        List.of(createDiffableOrgRolePipelineGroup()),
+        List.of(createDiffableOrgRolePipelineGroup()),
+        List.of(createDiffableOrgRolePipelineGroup()));
     when(diffableOrgRolePipelineGroupCreator.getAllRoleViewForApp(huooRolePipelineGroupsPadView))
         .thenReturn(allRoleDiffablePipelineGroupView);
 
