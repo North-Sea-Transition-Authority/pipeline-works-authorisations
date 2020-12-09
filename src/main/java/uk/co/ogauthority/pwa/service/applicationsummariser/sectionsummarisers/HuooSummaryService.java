@@ -88,27 +88,42 @@ public class HuooSummaryService implements ApplicationSectionSummariser {
                                                              AllOrgRolePipelineGroupsView huooRolePipelineGroupsConsentedView,
                                                               HuooRole role) {
 
+    //determine weather we need to show 'All pipelines' or each individual pipeline
     var appGroupShowAllPipelineFlag = huooRolePipelineGroupsPadView.hasOnlyOneGroupOfPipelineIdentifiersForRole(role);
-
     var consentedGroupShowAllPipelineFlag = huooRolePipelineGroupsConsentedView.hasOnlyOneGroupOfPipelineIdentifiersForRole(role);
 
-    var allPipelinesLabelOverride = appGroupShowAllPipelineFlag && consentedGroupShowAllPipelineFlag;
+    var appGroupHasPipelines = huooRolePipelineGroupsPadView.getOrgRolePipelineGroupView(role)
+        .stream().anyMatch(group -> !group.getPipelineNumbersAndSplits().isEmpty());
+    var consentedGroupHasPipelines = huooRolePipelineGroupsConsentedView.getOrgRolePipelineGroupView(role)
+        .stream().anyMatch(group -> !group.getPipelineNumbersAndSplits().isEmpty());
 
-    var appDiffedOrgRolePipelineGroup = huooRolePipelineGroupsPadView.getOrgRolePipelineGroupView(role)
+    var allPipelinesLabelOverride = appGroupShowAllPipelineFlag && consentedGroupShowAllPipelineFlag
+        && appGroupHasPipelines && consentedGroupHasPipelines;
+
+    //for the given role and for the app & consented versions, extract the org pipeline group view and create a diffable view from it
+    var appDiffableOrgRolePipelineGroup = huooRolePipelineGroupsPadView.getOrgRolePipelineGroupView(role)
         .stream()
         .map(o -> diffableOrgRolePipelineGroupCreator.createDiffableView(o, allPipelinesLabelOverride))
         .collect(Collectors.toList());
 
-    var consentedDiffedOrgRolePipelineGroup = huooRolePipelineGroupsConsentedView.getOrgRolePipelineGroupView(role)
+    var consentedDiffableOrgRolePipelineGroup = huooRolePipelineGroupsConsentedView.getOrgRolePipelineGroupView(role)
         .stream()
         .map(o -> diffableOrgRolePipelineGroupCreator.createDiffableView(o, allPipelinesLabelOverride))
         .collect(Collectors.toList());
 
+    //diff both the app and consented diffable views
     return diffService.diffComplexLists(
-        appDiffedOrgRolePipelineGroup, consentedDiffedOrgRolePipelineGroup, this::findOrgRoleOwner, this::findOrgRoleOwner);
+        appDiffableOrgRolePipelineGroup, consentedDiffableOrgRolePipelineGroup, this::findOrgRoleOwner, this::findOrgRoleOwner);
   }
 
 
+  /**
+   * This method takes pad and consented org pipeline groups and diffs them
+   * returning each diffed field in a map structure contained within a DiffedAllOrgRolePipelineGroups object.
+   * @param huooRolePipelineGroupsPadView the pad version of all the organisation pipeline groups
+   * @param huooRolePipelineGroupsConsentedView the consented version of all the organisation pipeline groups
+   * @return a diffed version of the pad and consented organisation pipeline groups
+   */
   public DiffedAllOrgRolePipelineGroups getDiffedViewUsingSummaryViews(AllOrgRolePipelineGroupsView huooRolePipelineGroupsPadView,
                                                                        AllOrgRolePipelineGroupsView huooRolePipelineGroupsConsentedView) {
 

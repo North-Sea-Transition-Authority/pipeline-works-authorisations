@@ -21,15 +21,20 @@ import uk.co.ogauthority.pwa.testutils.PortalOrganisationTestUtils;
 @RunWith(MockitoJUnitRunner.class)
 public class AllOrgRolePipelineGroupsViewTest {
 
+  private static int ORG_ID_1 = 1;
+  private static int ORG_ID_2 = 2;
+  private static int PIPELINE_ID_1 = 1;
+  private static int PIPELINE_ID_2 = 2;
 
 
 
-  private OrganisationRolePipelineGroupView createOrgRolePipelineGroupView(int id) {
+
+  private OrganisationRolePipelineGroupView createOrgRolePipelineGroupView(int orgId, int pipelineId) {
     var portalOrgUnitDetail = PortalOrganisationTestUtils.generateOrganisationUnitDetail(
-        new PortalOrganisationUnit(id, "company" + id), "address" + id, "11" + id);
+        new PortalOrganisationUnit(orgId, "company" + orgId), "address" + orgId, "11" + orgId);
     var organisationUnitDetail = OrganisationUnitDetailDto.from(portalOrgUnitDetail);
     var organisationRoleOwnerDto = OrganisationRoleOwnerDto.fromOrganisationUnitId(new OrganisationUnitId(1));
-    var pipelineNumbersAndSplits = List.of(new PipelineNumbersAndSplits(new PipelineId(id), "ppl" + id, null));
+    var pipelineNumbersAndSplits = List.of(new PipelineNumbersAndSplits(new PipelineId(pipelineId), "ppl" + pipelineId, null));
     return new OrganisationRolePipelineGroupView(
         HuooType.PORTAL_ORG, organisationUnitDetail, false, null, null, organisationRoleOwnerDto, pipelineNumbersAndSplits);
 
@@ -37,10 +42,10 @@ public class AllOrgRolePipelineGroupsViewTest {
 
 
   @Test
-  public void hasOnlyOneGroupOfPipelineIdentifiersForRole_false() {
+  public void hasOnlyOneGroupOfPipelineIdentifiersForRole_when2OrgRoleOwners_andDifferentPipelineGroups() {
 
-    var operatorPipelineGroupView1 = createOrgRolePipelineGroupView(1);
-    var operatorPipelineGroupView2 = createOrgRolePipelineGroupView(2);
+    var operatorPipelineGroupView1 = createOrgRolePipelineGroupView(ORG_ID_1, PIPELINE_ID_1);
+    var operatorPipelineGroupView2 = createOrgRolePipelineGroupView(ORG_ID_2, PIPELINE_ID_2);
     var operatorOrgRolePipelineGroups = List.of(operatorPipelineGroupView1, operatorPipelineGroupView2);
 
     AllOrgRolePipelineGroupsView allOrgRolePipelineGroupsView = new AllOrgRolePipelineGroupsView(
@@ -53,10 +58,10 @@ public class AllOrgRolePipelineGroupsViewTest {
 
 
   @Test
-  public void hasOnlyOneGroupOfPipelineIdentifiersForRole_true() {
+  public void hasOnlyOneGroupOfPipelineIdentifiersForRole_when2OrgRoleOwners_andSamePipelineGroups() {
 
-    var operatorPipelineGroupView1 = createOrgRolePipelineGroupView(1);
-    var operatorPipelineGroupView2 = createOrgRolePipelineGroupView(1);
+    var operatorPipelineGroupView1 = createOrgRolePipelineGroupView(ORG_ID_1, PIPELINE_ID_1);
+    var operatorPipelineGroupView2 = createOrgRolePipelineGroupView(ORG_ID_1, PIPELINE_ID_1);
     var operatorOrgRolePipelineGroups = List.of(operatorPipelineGroupView1, operatorPipelineGroupView2);
 
     AllOrgRolePipelineGroupsView allOrgRolePipelineGroupsView = new AllOrgRolePipelineGroupsView(

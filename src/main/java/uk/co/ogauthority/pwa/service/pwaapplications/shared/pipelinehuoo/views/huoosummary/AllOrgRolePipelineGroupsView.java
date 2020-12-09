@@ -57,6 +57,15 @@ public class AllOrgRolePipelineGroupsView {
   }
 
 
+
+  /**
+   * This method checks that if for a given role, all the OrgRolePipelineGroups have the same set of PipelineIdentifiers..
+   *  then it will return true which tells us it is ok to show 'All pipelines'.
+   *  Otherwise we then know that we would have to enumerate over each org and the specific pipelines they have linked to them.
+   *
+   * @param huooRole the role type to get the relevant organisation role pipeline group view
+   * @return true if there are only one group of pipeline identifiers for the given role
+   */
   public boolean hasOnlyOneGroupOfPipelineIdentifiersForRole(HuooRole huooRole) {
 
     var countDistinctPipelineGroups = getOrgRolePipelineGroupView(huooRole)
