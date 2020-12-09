@@ -59,7 +59,7 @@ public class ApplicationSubmissionServiceProviderTest {
   @Test
   public void getSubmissionService_whenDetailIsNotFirstVersion_andOpenUpdateRequest() {
 
-    when(applicationUpdateRequestService.applicationDetailHasOpenUpdateRequest(pwaApplicationDetail))
+    when(applicationUpdateRequestService.applicationHasOpenUpdateRequest(pwaApplicationDetail))
         .thenReturn(true);
 
     pwaApplicationDetail.setVersionNo(2);

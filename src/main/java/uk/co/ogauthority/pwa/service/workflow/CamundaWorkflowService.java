@@ -120,6 +120,7 @@ public class CamundaWorkflowService {
         .collect(Collectors.toSet());
   }
 
+  @Transactional
   public void completeTask(WorkflowTaskInstance workflowTaskInstance) {
 
     getWorkflowTask(workflowTaskInstance).ifPresentOrElse(
@@ -129,6 +130,7 @@ public class CamundaWorkflowService {
 
   }
 
+  @Transactional
   public void deleteProcessAndTask(WorkflowTaskInstance workflowTaskInstance) {
 
     getWorkflowTask(workflowTaskInstance).ifPresentOrElse(
@@ -140,6 +142,7 @@ public class CamundaWorkflowService {
 
   }
 
+  @Transactional
   public void deleteProcessInstanceAndThenTasks(WorkflowSubject workflowSubject) {
 
     var workflowTaskInstances = getAllActiveWorkflowTasks(workflowSubject);
@@ -164,6 +167,7 @@ public class CamundaWorkflowService {
     return tasks;
   }
 
+  @Transactional
   public void assignTaskToUser(WorkflowTaskInstance workflowTaskInstance, Person person) {
 
     getWorkflowTask(workflowTaskInstance).ifPresentOrElse(

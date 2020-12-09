@@ -42,4 +42,12 @@ public class TaskTag {
   public int hashCode() {
     return Objects.hash(tagText, tagClass);
   }
+
+  @Override
+  public String toString() {
+    return "TaskTag{" +
+        "tagText='" + tagText + '\'' +
+        ", tagClass='" + tagClass + '\'' +
+        '}';
+  }
 }

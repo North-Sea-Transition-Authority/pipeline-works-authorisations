@@ -1,9 +1,11 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.options;
 
+import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.model.entity.enums.ConfirmedOptionType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.options.PadConfirmationOfOption;
 import uk.co.ogauthority.pwa.repository.pwaapplications.options.PadConfirmationOfOptionRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 
@@ -30,11 +32,9 @@ public class PadOptionConfirmedService {
     return false;
   }
 
-  public boolean optionConfirmationExists(PwaApplicationDetail pwaApplicationDetail) {
-    if (pwaApplicationDetail.getPwaApplicationType().equals(PwaApplicationType.OPTIONS_VARIATION)) {
-      return padConfirmationOfOptionRepository.findByPwaApplicationDetail(pwaApplicationDetail)
-          .isPresent();
-    }
-    return false;
+  public Optional<ConfirmedOptionType> getConfirmedOptionType(PwaApplicationDetail pwaApplicationDetail) {
+    return padConfirmationOfOptionRepository.findByPwaApplicationDetail(pwaApplicationDetail)
+        .map(PadConfirmationOfOption::getConfirmedOptionType);
   }
+
 }

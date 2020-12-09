@@ -67,6 +67,7 @@ public class PwaAppProcessingPermissionService {
                   .orElse(List.of())
                   .isEmpty();
             case APPROVE_OPTIONS:
+            case CLOSE_OUT_OPTIONS:
               return userPrivileges.contains(PwaUserPrivilege.PWA_CASE_OFFICER)
                   && appInvolvement.isCaseOfficerStageAndUserAssigned()
                   && PwaApplicationType.OPTIONS_VARIATION.equals(application.getApplicationType());
