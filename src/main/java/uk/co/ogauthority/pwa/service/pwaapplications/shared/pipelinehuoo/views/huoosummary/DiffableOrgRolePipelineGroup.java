@@ -18,9 +18,12 @@ public class DiffableOrgRolePipelineGroup {
 
 
   public DiffableOrgRolePipelineGroup(OrganisationRoleOwnerDto roleOwner, String roleOwnerName,
-                                      String companyAddress, String companyNumber, String treatyAgreementText,
+                                      String companyAddress,
+                                      String companyNumber,
+                                      String treatyAgreementText,
                                       Boolean hasCompanyData,
-                                      Boolean isManuallyEnteredName, List<String> pipelineAndSplitsList) {
+                                      Boolean isManuallyEnteredName,
+                                      List<String> pipelineAndSplitsList) {
     this.roleOwner = roleOwner;
     this.roleOwnerName = isManuallyEnteredName ? new StringWithTag(roleOwnerName, Tag.NOT_FROM_PORTAL) : new StringWithTag(roleOwnerName);
     this.companyAddress = companyAddress;
