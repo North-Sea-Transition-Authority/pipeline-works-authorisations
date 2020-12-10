@@ -76,7 +76,7 @@ public class HuooGeneratorServiceTest {
         List.of(createDiffableOrgRolePipelineGroup()),
         List.of(createDiffableOrgRolePipelineGroup()),
         List.of(createDiffableOrgRolePipelineGroup()));
-    when(diffableOrgRolePipelineGroupCreator.getAllRoleViewForApp(huooRolePipelineGroupsPadView))
+    when(diffableOrgRolePipelineGroupCreator.getDiffableViewForAllOrgRolePipelineGroupView(huooRolePipelineGroupsPadView))
         .thenReturn(allRoleDiffablePipelineGroupView);
 
 

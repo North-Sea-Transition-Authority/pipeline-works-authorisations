@@ -29,7 +29,8 @@ public class HuooGeneratorService implements DocumentSectionGenerator {
   public DocumentSectionData getDocumentSectionData(PwaApplicationDetail pwaApplicationDetail) {
 
     var huooRolePipelineGroupsPadView = padOrganisationRoleService.getAllOrganisationRolePipelineGroupView(pwaApplicationDetail);
-    var allRolePipelineGroupView = diffableOrgRolePipelineGroupCreator.getAllRoleViewForApp(huooRolePipelineGroupsPadView);
+    var allRolePipelineGroupView = diffableOrgRolePipelineGroupCreator.getDiffableViewForAllOrgRolePipelineGroupView(
+        huooRolePipelineGroupsPadView);
 
     Map<String, Object> modelMap = Map.of(
         "sectionName", DocumentSection.HUOO.getDisplayName(),

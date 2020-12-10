@@ -23,7 +23,8 @@ public class DiffableOrgRolePipelineGroupCreator {
   }
 
   
-  public AllRoleDiffablePipelineGroupView getAllRoleViewForApp(AllOrgRolePipelineGroupsView huooRolePipelineGroupsPadView) {
+  public AllRoleDiffablePipelineGroupView getDiffableViewForAllOrgRolePipelineGroupView(
+      AllOrgRolePipelineGroupsView huooRolePipelineGroupsPadView) {
 
     Map<HuooRole, List<DiffableOrgRolePipelineGroup>> viewList = new HashMap<>();
 
