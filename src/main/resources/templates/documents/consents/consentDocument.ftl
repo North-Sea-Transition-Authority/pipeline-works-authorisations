@@ -112,6 +112,25 @@
       list-style-type: lower-roman;
     }
 
+    #huooSection {
+      text-align: center;
+    }
+
+    #huooSection .huooPipelines, #huooSection .roleTypeTxt {
+      font-weight: bold;
+      text-decoration: underline;
+    }
+
+    #huooSection .orgRoleAndPipelines {
+      margin-top: 40px;
+    }
+
+    @media print {
+      #huooSection, .huooRolePart {
+        page-break-before: always;
+      }
+    }
+
   </style>
 </head>
 <body>

@@ -15,6 +15,7 @@ public class DiffableOrgRolePipelineGroup {
   private final Boolean hasCompanyData;
   private final Boolean isManuallyEnteredName;
   private final List<String> pipelineAndSplitsList;
+  private final Boolean showEachPipeline;
 
 
   public DiffableOrgRolePipelineGroup(OrganisationRoleOwnerDto roleOwner, String roleOwnerName,
@@ -32,6 +33,7 @@ public class DiffableOrgRolePipelineGroup {
     this.hasCompanyData = hasCompanyData;
     this.isManuallyEnteredName = isManuallyEnteredName;
     this.pipelineAndSplitsList = pipelineAndSplitsList;
+    this.showEachPipeline = !List.of("All pipelines").equals(pipelineAndSplitsList);
   }
 
   public OrganisationRoleOwnerDto getRoleOwner() {
@@ -64,5 +66,9 @@ public class DiffableOrgRolePipelineGroup {
 
   public List<String> getPipelineAndSplitsList() {
     return pipelineAndSplitsList;
+  }
+
+  public Boolean getShowEachPipeline() {
+    return showEachPipeline;
   }
 }
