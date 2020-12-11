@@ -7,7 +7,7 @@
   <style>
     @page {
       size: A4;
-      margin: 50px;
+      margin: 135px 50px 50px;
 
       @bottom-right {
         content: counter(page);
@@ -15,10 +15,14 @@
         font-family: "Arial-MT";
       }
 
+      @top-left-corner {
+        content: element(header-content);
+      }
+
       @top-left {
-        /*content: element(myheader);*/
         content: element(watermark-ref);
       }
+
     }
 
     @page landscapePage {
@@ -42,11 +46,6 @@
       font-size: 16px;
     }
 
-    img {
-      width: 30%;
-      height: auto;
-    }
-
     watermark {
       position: running(watermark-ref);
       z-index: -999;
@@ -58,18 +57,25 @@
       line-height: 90px;
     }
 
-    #myheader {
-      position: running(myheader);
+    #header-content {
+      position: running(header-content);
+      padding-top: 50px;
+      height: auto;
+      padding-left: 55px
     }
 
-    #image {
-      background-image: url('document-assets/oga-logo.png');
-      height: 30px;
+    .logo-image {
+      width: 30%;
+      max-height: 30px;
     }
 
     .deposit-image {
       width: 100%;
       height: 100%;
+    }
+
+    .header-heading {
+      margin-top: 5px;
     }
 
     .sectionTable {
@@ -80,7 +86,7 @@
       border: 1px solid black;
       border-collapse: collapse;
     }
-    
+
     .sectionTable td {
       padding-left: 5px;
     }
@@ -110,18 +116,13 @@
 </head>
 <body>
 
-<#--  <div id="myheader">-->
+  <div id="header-content">
 
-<#--    <div id="image"></div>-->
+    <img class="logo-image" src="classpath:///document-assets/oga-logo.png"/>
 
-<#--    <div id="header">-->
-<#--      <h1>${consentRef!"Pipeline Works Authorisations document"}</h1>-->
-<#--    </div>-->
+    <h1 class="header-heading">${consentRef!"Pipeline Works Authorisations document"}</h1>
 
-<#--  </div>-->
-
-  <img src="classpath:///document-assets/oga-logo.png"/>
-  <h1>${consentRef!"Pipeline Works Authorisations document"}</h1>
+  </div>
 
   <#if showWatermark>
     <watermark>TEST DOCUMENT</watermark>
