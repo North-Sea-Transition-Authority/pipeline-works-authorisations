@@ -32,7 +32,6 @@ import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingConte
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.devuk.DevukFieldService;
 import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
-import uk.co.ogauthority.pwa.service.fileupload.PwaApplicationFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
@@ -72,9 +71,6 @@ public abstract class PwaApplicationContextAbstractControllerTest {
 
   @MockBean
   private TopMenuService topMenuService;
-
-  @MockBean
-  protected PwaApplicationFileService pwaApplicationFileService;
 
   @MockBean
   protected PadPipelineService padPipelineService;

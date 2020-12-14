@@ -8,6 +8,7 @@ import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 import javax.sql.rowset.serial.SerialBlob;
 import javax.transaction.Transactional;
@@ -28,6 +29,7 @@ import uk.co.ogauthority.pwa.model.entity.files.UploadedFile;
 import uk.co.ogauthority.pwa.model.form.files.UploadFileWithDescriptionForm;
 import uk.co.ogauthority.pwa.model.form.files.UploadedFileView;
 import uk.co.ogauthority.pwa.repository.files.UploadedFileRepository;
+import uk.co.ogauthority.pwa.service.images.ImageScalingService;
 
 @Service
 public class FileUploadService {
@@ -37,16 +39,19 @@ public class FileUploadService {
   private final FileUploadProperties fileUploadProperties;
   private final UploadedFileRepository uploadedFileRepository;
   private final VirusCheckService virusCheckService;
+  private final ImageScalingService imageScalingService;
   private final List<String> allowedExtensions;
 
   @Autowired
   public FileUploadService(FileUploadProperties fileUploadProperties,
                            UploadedFileRepository uploaded,
-                           VirusCheckService virusCheckService) {
+                           VirusCheckService virusCheckService,
+                           ImageScalingService imageScalingService) {
     this.fileUploadProperties = fileUploadProperties;
     this.uploadedFileRepository = uploaded;
     this.allowedExtensions = fileUploadProperties.getAllowedExtensions();
     this.virusCheckService = virusCheckService;
+    this.imageScalingService = imageScalingService;
   }
 
   public UploadFileWithDescriptionForm createUploadFileWithDescriptionFormFromView(UploadedFileView uploadedFileView) {
@@ -97,15 +102,29 @@ public class FileUploadService {
         user.getWuaId());
 
     try {
+
       Blob blob = new SerialBlob(file.getBytes());
       UploadedFile uploadedFile = new UploadedFile(fileId, filename, blob, file.getContentType(),
           file.getSize(), Instant.now(), user.getWuaId(), user.getWuaId(), FileUploadStatus.CURRENT);
-      uploadedFileRepository.save(uploadedFile);
+
+      if (uploadedFile.getContentType().contains("image")) {
+        var scaledImageBaos = imageScalingService.scaleImage(uploadedFile);
+        Blob scaledBlob = new SerialBlob(scaledImageBaos.toByteArray());
+        uploadedFile.setScaledImageData(scaledBlob);
+        uploadedFileRepository.save(uploadedFile);
+        scaledBlob.free();
+      } else {
+        uploadedFileRepository.save(uploadedFile);
+      }
+
       blob.free();
+
       LOGGER.debug("Completed upload of file: {} with fileId: {} Uploaded by User: {}", filename, fileId,
           user.getWuaId());
+
       return FileUploadResult.generateSuccessfulFileUploadResult(uploadedFile.getFileId(), filename, file.getSize(),
           file.getContentType());
+
     } catch (Exception e) {
       LOGGER.error("Failed to upload file: " + filename, e);
       return FileUploadResult.generateFailedFileUploadResult(filename, file, UploadErrorType.INTERNAL_SERVER_ERROR);
@@ -158,13 +177,15 @@ public class FileUploadService {
    */
   public File createTempFile(UploadedFile uploadedFile) {
 
-    String filename = uploadedFile.getFileName();
+    String filename = uploadedFile.getFileName().replace(" ", "");
     String extension = filename.substring(filename.lastIndexOf("."));
 
     File tempFile = null;
     try {
-      tempFile = File.createTempFile(uploadedFile.getFileId() + uploadedFile.getFileName(), extension);
-      Files.copy(uploadedFile.getFileData().getBinaryStream(), tempFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+      tempFile = File.createTempFile(uploadedFile.getFileId() + filename, extension);
+      var blobToSave = Optional.ofNullable(uploadedFile.getScaledImageData())
+          .orElse(uploadedFile.getFileData());
+      Files.copy(blobToSave.getBinaryStream(), tempFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
       return tempFile;
     } catch (Exception e) {
       if (tempFile != null && !tempFile.delete()) {
