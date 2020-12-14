@@ -10,27 +10,27 @@ import uk.co.ogauthority.pwa.model.diff.DiffableAsString;
 
 public enum PipelineStatus implements DiffableAsString {
 
-  IN_SERVICE("In service", 10, false, true),
-  RETURNED_TO_SHORE("Returned to shore", 20, false, false),
-  OUT_OF_USE_ON_SEABED("Out of use but left on the seabed", 30, false, true),
-  NEVER_LAID("Never laid and will not be laid", 40, false, false),
+  IN_SERVICE("In service", 10, false, PhysicalPipelineState.ON_SEABED),
+  RETURNED_TO_SHORE("Returned to shore", 20, false, PhysicalPipelineState.ONSHORE),
+  OUT_OF_USE_ON_SEABED("Out of use but left on the seabed", 30, false, PhysicalPipelineState.ON_SEABED),
+  NEVER_LAID("Never laid and will not be laid", 40, false, PhysicalPipelineState.NEVER_EXISTED),
 
-  DELETED("Deleted (legacy)", 70, true, false),
-  PENDING("Pending (legacy)", 90, true, false);
+  DELETED("Deleted (legacy)", 70, true, PhysicalPipelineState.NEVER_EXISTED),
+  PENDING("Pending (legacy)", 90, true, PhysicalPipelineState.NEVER_EXISTED);
 
   private final String displayText;
   private final Integer displayOrder;
   private final Boolean historical;
-  private final Boolean pipelineExistsOnSeabed;
+  private final PhysicalPipelineState physicalPipelineState;
 
   PipelineStatus(String displayText,
                  Integer displayOrder,
                  Boolean historical,
-                 Boolean pipelineExistsOnSeabed) {
+                 PhysicalPipelineState physicalPipelineState) {
     this.displayText = displayText;
     this.displayOrder = displayOrder;
     this.historical = historical;
-    this.pipelineExistsOnSeabed = pipelineExistsOnSeabed;
+    this.physicalPipelineState = physicalPipelineState;
   }
 
   public String getDisplayText() {
@@ -49,11 +49,8 @@ public enum PipelineStatus implements DiffableAsString {
     return historical;
   }
 
-  /**
-   * Does this status indicate that the which holds it exists as described on the seabed.
-   */
-  public Boolean pipelineExistsOnSeabed() {
-    return pipelineExistsOnSeabed;
+  public PhysicalPipelineState getPhysicalPipelineState() {
+    return physicalPipelineState;
   }
 
   public static Stream<PipelineStatus> stream() {
