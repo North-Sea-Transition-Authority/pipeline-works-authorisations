@@ -29,6 +29,7 @@ public class PipelineDetailService {
     this.pipelineDetailRepository = pipelineDetailRepository;
   }
 
+  // TODO PWA-1046 - this has a misleading name. No "similar" check is done.
   public List<PipelineBundlePairDto> getSimilarPipelineBundleNamesByDetail(PwaApplicationDetail detail) {
     return pipelineDetailRepository.getBundleNamesByPwaApplicationDetail(detail);
   }
@@ -55,9 +56,9 @@ public class PipelineDetailService {
   public List<PipelineDetail> getNonDeletedPipelineDetailsForApplicationMasterPwa(
       MasterPwa masterPwa) {
 
-    return pipelineDetailRepository.findAllByPipeline_MasterPwaAndPipelineStatusIsNotAndTipFlagIsTrue(
+    return pipelineDetailRepository.findAllByPipeline_MasterPwaAndPipelineStatusIsNotInAndTipFlagIsTrue(
         masterPwa,
-        PipelineStatus.DELETED
+        PipelineStatus.historicalStatusSet()
     );
   }
 

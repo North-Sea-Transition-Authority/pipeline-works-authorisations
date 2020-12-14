@@ -4,6 +4,7 @@ import java.util.List;
 import javax.persistence.EntityManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import uk.co.ogauthority.pwa.model.dto.consents.OrganisationPipelineRoleInstanceDto;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineStatus;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 
 public class PwaConsentOrganisationPipelineRoleDtoRepositoryImpl implements PwaConsentOrganisationPipelineRoleDtoRepository {
@@ -17,6 +18,8 @@ public class PwaConsentOrganisationPipelineRoleDtoRepositoryImpl implements PwaC
 
   @Override
   public List<OrganisationPipelineRoleInstanceDto> findActiveOrganisationPipelineRolesByMasterPwa(MasterPwa masterPwa) {
+    var importableHuooPipelineStatus = PipelineStatus.currentStatusSet();
+
     var query = entityManager.createQuery("" +
             "SELECT new uk.co.ogauthority.pwa.model.dto.consents.OrganisationPipelineRoleInstanceDto( " +
             "  cor.organisationUnitId, " +
@@ -32,13 +35,17 @@ public class PwaConsentOrganisationPipelineRoleDtoRepositoryImpl implements PwaC
             "  cporl.sectionNumber " +
             ") " +
             "FROM PwaConsentPipelineOrganisationRoleLink cporl " +
+            "JOIN PipelineDetail pd ON cporl.pipeline = pd.pipeline " +
             "JOIN PwaConsentOrganisationRole cor ON cporl.pwaConsentOrganisationRole = cor " +
             "JOIN PwaConsent pc ON cor.addedByPwaConsent = pc " +
             "WHERE pc.masterPwa  = :masterPwa " +
             "AND cor.endedByPwaConsent IS NULL " +
-            "AND cporl.endedByPwaConsent IS NULL ",
+            "AND cporl.endedByPwaConsent IS NULL " +
+            "AND pd.tipFlag = TRUE " +
+            "AND pd.pipelineStatus IN :importableHuooPipelineStatus ",
         OrganisationPipelineRoleInstanceDto.class)
-        .setParameter("masterPwa", masterPwa);
+        .setParameter("masterPwa", masterPwa)
+        .setParameter("importableHuooPipelineStatus", importableHuooPipelineStatus);
     return query.getResultList();
 
   }
