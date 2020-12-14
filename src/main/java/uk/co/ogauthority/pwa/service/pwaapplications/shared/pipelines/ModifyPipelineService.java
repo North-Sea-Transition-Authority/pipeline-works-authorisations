@@ -53,6 +53,7 @@ public class ModifyPipelineService {
 
   public List<NamedPipeline> getSelectableConsentedPipelines(PwaApplicationDetail pwaApplicationDetail) {
     return getConsentedPipelinesNotOnApplication(pwaApplicationDetail).stream()
+        .filter(o -> o.getPipelineStatus().pipelineExistsOnSeabed())
         .map(NamedPipelineDto::fromPipelineDetail)
         .collect(Collectors.toUnmodifiableList());
   }
