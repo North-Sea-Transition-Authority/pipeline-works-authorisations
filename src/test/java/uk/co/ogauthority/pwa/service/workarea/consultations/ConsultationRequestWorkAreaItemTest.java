@@ -43,7 +43,7 @@ public class ConsultationRequestWorkAreaItemTest {
     applicationDetailView = new ApplicationDetailView();
     consultationRequestSearchItem = new ConsultationRequestSearchItem();
     setApplicationDetailItemViewValues(applicationDetailView);
-    setConsultationRequestSearItemValues((ApplicationDetailView) applicationDetailView, consultationRequestSearchItem);
+    setConsultationRequestSearchItemValues((ApplicationDetailView) applicationDetailView, consultationRequestSearchItem);
 
     applicationDetailSearchItem = new ApplicationDetailSearchItem();
     setApplicationDetailItemViewValues(applicationDetailSearchItem);
@@ -71,8 +71,8 @@ public class ConsultationRequestWorkAreaItemTest {
     applicationDetailItemView.setSubmittedAsFastTrackFlag(false);
   }
 
-  private void setConsultationRequestSearItemValues(ApplicationDetailView applicationDetailItemView,
-                                                    ConsultationRequestSearchItem consultationRequestSearchItem) {
+  private void setConsultationRequestSearchItemValues(ApplicationDetailView applicationDetailItemView,
+                                                      ConsultationRequestSearchItem consultationRequestSearchItem) {
     consultationRequestSearchItem.setApplicationDetailView(applicationDetailItemView);
     consultationRequestSearchItem.setConsulteeGroupId(101);
     consultationRequestSearchItem.setConsulteeGroupName(CONSULTEE_GROUP_NAME);
