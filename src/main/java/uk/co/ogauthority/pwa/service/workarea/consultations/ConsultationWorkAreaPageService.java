@@ -74,8 +74,8 @@ public class ConsultationWorkAreaPageService {
   private String consultationUrlProducer(ConsultationRequestSearchItem consultationRequestSearchItem) {
 
     return ReverseRouter.route(on(CaseManagementController.class).renderCaseManagement(
-        consultationRequestSearchItem.getApplicationDetailSearchItem().getPwaApplicationId(),
-        consultationRequestSearchItem.getApplicationDetailSearchItem().getApplicationType(),
+        consultationRequestSearchItem.getApplicationDetailView().getPwaApplicationId(),
+        consultationRequestSearchItem.getApplicationDetailView().getApplicationType(),
         AppProcessingTab.TASKS,
         null,
         null

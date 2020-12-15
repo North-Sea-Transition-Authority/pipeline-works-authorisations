@@ -10,7 +10,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import org.hibernate.annotations.Immutable;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailSearchItem;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailView;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ConsultationRequestStatus;
 
 @Entity
@@ -23,7 +23,7 @@ public class ConsultationRequestSearchItem {
 
   @ManyToOne
   @JoinColumn(name = "tip_pad_id")
-  private ApplicationDetailSearchItem applicationDetailSearchItem;
+  private ApplicationDetailView applicationDetailView;
 
   private Integer consulteeGroupId;
 
@@ -42,8 +42,8 @@ public class ConsultationRequestSearchItem {
   public ConsultationRequestSearchItem() {
   }
 
-  public ApplicationDetailSearchItem getApplicationDetailSearchItem() {
-    return applicationDetailSearchItem;
+  public ApplicationDetailView getApplicationDetailView() {
+    return applicationDetailView;
   }
 
   public Integer getConsulteeGroupId() {
@@ -74,8 +74,8 @@ public class ConsultationRequestSearchItem {
     return assignedResponderName;
   }
 
-  public void setApplicationDetailSearchItem(ApplicationDetailSearchItem applicationDetailSearchItem) {
-    this.applicationDetailSearchItem = applicationDetailSearchItem;
+  public void setApplicationDetailView(ApplicationDetailView applicationDetailView) {
+    this.applicationDetailView = applicationDetailView;
   }
 
   public void setConsultationRequestId(Integer consultationRequestId) {

@@ -14,7 +14,6 @@ JOIN ${datasource.user}.pwa_application_details pad ON pad.pwa_application_id = 
 JOIN ${datasource.user}.pad_status_versions psv ON pa.id = psv.pwa_application_id
 JOIN ${datasource.user}.consultee_group_details cgd ON cgd.cg_id = cr.consultee_group_id AND cgd.tip_flag = 1
 LEFT JOIN ${datasource.user}.consultation_assignments ca ON ca.consultation_request_id = cr.id AND ca.assignment = 'CONSULTATION_RESPONDER'
--- TODO PWA-517 only show consultees accepted versions
 WHERE (
 
   -- if there's a submitted version, always show the latest submitted version
