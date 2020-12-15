@@ -87,7 +87,8 @@ public class PipelineHeaderView implements PipelineOverview {
     this.length = String.valueOf(pipelineOverview.getLength());
     this.productsToBeConveyed = pipelineOverview.getProductsToBeConveyed();
     this.numberOfIdents = (int) (long) pipelineOverview.getNumberOfIdents();
-    this.maxExternalDiameter = String.valueOf(pipelineOverview.getMaxExternalDiameter());
+    this.maxExternalDiameter = pipelineOverview.getMaxExternalDiameter() != null
+        ? String.valueOf(pipelineOverview.getMaxExternalDiameter()) : null;
     this.pipelineInBundle = pipelineOverview.getPipelineInBundle();
     this.bundleName = pipelineOverview.getBundleName();
     this.pipelineFlexibility = pipelineOverview.getPipelineFlexibility();
@@ -116,7 +117,8 @@ public class PipelineHeaderView implements PipelineOverview {
     this.componentParts = pipelineDetail.getComponentPartsDesc();
     this.length = String.valueOf(pipelineDetail.getLength());
     this.productsToBeConveyed = pipelineDetail.getProductsToBeConveyed();
-    this.maxExternalDiameter = String.valueOf(pipelineDetail.getMaxExternalDiameter());
+    this.maxExternalDiameter = pipelineDetail.getMaxExternalDiameter() != null
+        ? String.valueOf(pipelineDetail.getMaxExternalDiameter()) : null;
     this.pipelineInBundle = pipelineDetail.getPipelineInBundle();
     this.bundleName = pipelineDetail.getBundleName();
     this.pipelineStatus = pipelineDetail.getPipelineStatus();
@@ -200,7 +202,7 @@ public class PipelineHeaderView implements PipelineOverview {
 
   @Override
   public BigDecimal getMaxExternalDiameter() {
-    return new BigDecimal(maxExternalDiameter);
+    return maxExternalDiameter != null ? new BigDecimal(maxExternalDiameter) : null;
   }
 
   @Override
