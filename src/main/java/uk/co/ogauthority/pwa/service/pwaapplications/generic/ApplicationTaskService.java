@@ -61,11 +61,16 @@ public class ApplicationTaskService {
 
   /**
    * For a given Task, ask the associated service if copy of the section information is appropriate.
+   * Restricts based on controller type restrictions and then asks the service for consistency with canShowTask
+   * functionality.
    */
   @Transactional
   public boolean taskAllowsCopySectionInformation(ApplicationTask applicationTask,
-                                                         PwaApplicationDetail fromDetail) {
-    return getTaskService(applicationTask).allowCopyOfSectionInformation(fromDetail);
+                                                  PwaApplicationDetail pwaApplicationDetail) {
+    var taskAppTypes = getValidApplicationTypesForTask(applicationTask);
+
+    return taskAppTypes.contains(pwaApplicationDetail.getPwaApplicationType())
+        && getTaskService(applicationTask).allowCopyOfSectionInformation(pwaApplicationDetail);
 
   }
 
@@ -74,8 +79,8 @@ public class ApplicationTaskService {
    */
   @Transactional
   public void copyApplicationTaskDataToApplicationDetail(ApplicationTask applicationTask,
-                                              PwaApplicationDetail fromDetail,
-                                              PwaApplicationDetail toDetail) {
+                                                         PwaApplicationDetail fromDetail,
+                                                         PwaApplicationDetail toDetail) {
     getTaskService(applicationTask).copySectionInformation(fromDetail, toDetail);
 
   }
