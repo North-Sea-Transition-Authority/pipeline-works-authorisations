@@ -60,6 +60,16 @@ public class ApplicationTaskService {
   }
 
   /**
+   * For a given Task, ask the associated service if copy of the section information is appropriate.
+   */
+  @Transactional
+  public boolean taskAllowsCopySectionInformation(ApplicationTask applicationTask,
+                                                         PwaApplicationDetail fromDetail) {
+    return getTaskService(applicationTask).allowCopyOfSectionInformation(fromDetail);
+
+  }
+
+  /**
    * For a given Task, duplicate all task data for "fromDetail" to the "toDetail".
    */
   @Transactional
