@@ -149,6 +149,10 @@ public class PadPipeline implements ParentEntity, ChildEntity<Integer, PwaApplic
   private PipelineStatus pipelineStatus;
   private String pipelineStatusReason;
 
+  private Boolean alreadyExistsOnSeabed;
+  private Boolean pipelineInUse;
+
+
   public PadPipeline() {
   }
 
@@ -367,6 +371,30 @@ public class PadPipeline implements ParentEntity, ChildEntity<Integer, PwaApplic
     this.temporaryRef = temporaryRef;
   }
 
+  public Boolean getAlreadyExistsOnSeabed() {
+    return alreadyExistsOnSeabed;
+  }
+
+  public void setAlreadyExistsOnSeabed(Boolean alreadyExistsOnSeabed) {
+    this.alreadyExistsOnSeabed = alreadyExistsOnSeabed;
+  }
+
+  public Boolean getPipelineInUse() {
+    return pipelineInUse;
+  }
+
+  public void setPipelineInUse(Boolean pipelineInUse) {
+    this.pipelineInUse = pipelineInUse;
+  }
+
+  public Integer getFromLatitudeDegrees() {
+    return fromLatitudeDegrees;
+  }
+
+  public void setFromLatitudeDegrees(Integer fromLatitudeDegrees) {
+    this.fromLatitudeDegrees = fromLatitudeDegrees;
+  }
+
   @Override
   public Integer getFromLatDeg() {
     return this.fromLatitudeDegrees;
@@ -548,7 +576,9 @@ public class PadPipeline implements ParentEntity, ChildEntity<Integer, PwaApplic
         && Objects.equals(pipelineInBundle, that.pipelineInBundle)
         && Objects.equals(bundleName, that.bundleName)
         && Objects.equals(pipelineStatus, that.pipelineStatus)
-        && Objects.equals(pipelineStatusReason, that.pipelineStatusReason);
+        && Objects.equals(pipelineStatusReason, that.pipelineStatusReason)
+        && Objects.equals(alreadyExistsOnSeabed, that.alreadyExistsOnSeabed)
+        && Objects.equals(pipelineInUse, that.pipelineInUse);
   }
 
   @Override
@@ -560,6 +590,6 @@ public class PadPipeline implements ParentEntity, ChildEntity<Integer, PwaApplic
         toLatitudeDirection, toLongitudeDegrees, toLongitudeMinutes, toLongitudeSeconds, toLongitudeDirection,
         componentPartsDescription, length, productsToBeConveyed, trenchedBuriedBackfilled, trenchingMethodsDescription,
         pipelineRef, fromCoordinates, toCoordinates, pipelineFlexibility, pipelineMaterial, otherPipelineMaterialUsed,
-        pipelineDesignLife, pipelineInBundle, bundleName, pipelineStatus, pipelineStatusReason);
+        pipelineDesignLife, pipelineInBundle, bundleName, pipelineStatus, pipelineStatusReason, alreadyExistsOnSeabed, pipelineInUse);
   }
 }

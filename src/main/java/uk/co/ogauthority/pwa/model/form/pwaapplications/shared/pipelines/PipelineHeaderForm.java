@@ -39,6 +39,10 @@ public class PipelineHeaderForm {
 
   private String whyNotReturnedToShore;
 
+  private Boolean alreadyExistsOnSeabed;
+
+  private Boolean pipelineInUse;
+
 
 
   public PipelineHeaderForm() {
@@ -179,5 +183,21 @@ public class PipelineHeaderForm {
 
   public void setWhyNotReturnedToShore(String whyNotReturnedToShore) {
     this.whyNotReturnedToShore = whyNotReturnedToShore;
+  }
+
+  public Boolean getAlreadyExistsOnSeabed() {
+    return alreadyExistsOnSeabed;
+  }
+
+  public void setAlreadyExistsOnSeabed(Boolean alreadyExistsOnSeabed) {
+    this.alreadyExistsOnSeabed = alreadyExistsOnSeabed;
+  }
+
+  public Boolean getPipelineInUse() {
+    return pipelineInUse;
+  }
+
+  public void setPipelineInUse(Boolean pipelineInUse) {
+    this.pipelineInUse = pipelineInUse;
   }
 }

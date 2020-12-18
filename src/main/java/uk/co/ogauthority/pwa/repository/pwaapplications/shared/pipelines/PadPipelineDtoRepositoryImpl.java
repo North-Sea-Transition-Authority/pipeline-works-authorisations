@@ -66,6 +66,8 @@ public class PadPipelineDtoRepositoryImpl implements PadPipelineDtoRepository {
             ", pp.trenchingMethodsDescription " +
             ", pp.pipelineStatus" +
             ", pp.pipelineStatusReason " +
+            ", pp.alreadyExistsOnSeabed" +
+            ", pp.pipelineInUse" +
             ") " +
             "FROM PadPipeline pp " +
             "JOIN Pipeline p ON pp.pipeline = p " +
@@ -111,7 +113,9 @@ public class PadPipelineDtoRepositoryImpl implements PadPipelineDtoRepository {
             ", pp.trenchedBuriedBackfilled " +
             ", pp.trenchingMethodsDescription" +
             ", pp.pipelineStatus" +
-            ", pp.pipelineStatusReason ",
+            ", pp.pipelineStatusReason " +
+            ", pp.alreadyExistsOnSeabed" +
+            ", pp.pipelineInUse",
         PadPipelineSummaryDto.class)
         .setParameter("detail", detail)
         .setParameter("padPipelineLineFilter", padPipeline)
