@@ -737,7 +737,13 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
         PadPipelineOrganisationRoleLink.class
     );
 
+  }
 
+  @Override
+  public boolean allowCopyOfSectionInformation(PwaApplicationDetail pwaApplicationDetail) {
+    // Always copy huoo information when Options
+    return PwaApplicationType.OPTIONS_VARIATION.equals(pwaApplicationDetail.getPwaApplicationType())
+        || canShowInTaskList(pwaApplicationDetail);
   }
 
   @Override

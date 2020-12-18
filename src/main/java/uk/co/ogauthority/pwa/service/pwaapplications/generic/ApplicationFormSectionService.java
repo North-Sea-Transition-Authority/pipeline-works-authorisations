@@ -60,4 +60,8 @@ public interface ApplicationFormSectionService {
    */
   void copySectionInformation(PwaApplicationDetail fromDetail, PwaApplicationDetail toDetail);
 
+  default boolean allowCopyOfSectionInformation(PwaApplicationDetail pwaApplicationDetail) {
+    return canShowInTaskList(pwaApplicationDetail);
+  }
+
 }

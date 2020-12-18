@@ -68,9 +68,12 @@ public class CloseOutOptionsTaskService implements AppProcessingService {
 
     if (!optionsApprovalStatus.isConsentedOptionConfirmed() && appComplete) {
       taskStatus = TaskStatus.COMPLETED;
+
     } else if (!optionsApprovalStatus.isConsentedOptionConfirmed()) {
 
-      if (openAppUpdate || !optionsApprovalStatus.isOptionsApproved()) {
+      if (openAppUpdate || !optionsApprovalStatus.isOptionsApproved()
+          || OptionsApprovalStatus.APPROVED_UNRESPONDED.equals(optionsApprovalStatus)
+      ) {
         taskStatus = TaskStatus.CANNOT_START_YET;
       } else {
         taskStatus = TaskStatus.NOT_STARTED;
