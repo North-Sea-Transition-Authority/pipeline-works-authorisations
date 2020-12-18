@@ -90,6 +90,7 @@ public class ApplicationDetailSearchItem implements ApplicationDetailItemView {
     return pwaApplicationDetailId;
   }
 
+  @Override
   public void setPwaApplicationDetailId(int pwaApplicationDetailId) {
     this.pwaApplicationDetailId = pwaApplicationDetailId;
   }
@@ -99,6 +100,7 @@ public class ApplicationDetailSearchItem implements ApplicationDetailItemView {
     return pwaApplicationId;
   }
 
+  @Override
   public void setPwaApplicationId(int pwaApplicationId) {
     this.pwaApplicationId = pwaApplicationId;
   }
@@ -108,6 +110,7 @@ public class ApplicationDetailSearchItem implements ApplicationDetailItemView {
     return pwaId;
   }
 
+  @Override
   public void setPwaId(int pwaId) {
     this.pwaId = pwaId;
   }
@@ -117,6 +120,7 @@ public class ApplicationDetailSearchItem implements ApplicationDetailItemView {
     return pwaDetailId;
   }
 
+  @Override
   public void setPwaDetailId(int pwaDetailId) {
     this.pwaDetailId = pwaDetailId;
   }
@@ -126,6 +130,7 @@ public class ApplicationDetailSearchItem implements ApplicationDetailItemView {
     return pwaReference;
   }
 
+  @Override
   public void setPwaReference(String pwaReference) {
     this.pwaReference = pwaReference;
   }
@@ -135,6 +140,7 @@ public class ApplicationDetailSearchItem implements ApplicationDetailItemView {
     return padReference;
   }
 
+  @Override
   public void setPadReference(String padReference) {
     this.padReference = padReference;
   }
@@ -144,6 +150,7 @@ public class ApplicationDetailSearchItem implements ApplicationDetailItemView {
     return applicationType;
   }
 
+  @Override
   public void setApplicationType(PwaApplicationType applicationType) {
     this.applicationType = applicationType;
   }
@@ -153,6 +160,7 @@ public class ApplicationDetailSearchItem implements ApplicationDetailItemView {
     return padStatus;
   }
 
+  @Override
   public void setPadStatus(PwaApplicationStatus padStatus) {
     this.padStatus = padStatus;
   }
@@ -162,6 +170,7 @@ public class ApplicationDetailSearchItem implements ApplicationDetailItemView {
     return padCreatedTimestamp;
   }
 
+  @Override
   public void setPadCreatedTimestamp(Instant padCreatedTimestamp) {
     this.padCreatedTimestamp = padCreatedTimestamp;
   }
@@ -171,6 +180,7 @@ public class ApplicationDetailSearchItem implements ApplicationDetailItemView {
     return padSubmittedTimestamp;
   }
 
+  @Override
   public void setPadSubmittedTimestamp(Instant padSubmittedTimestamp) {
     this.padSubmittedTimestamp = padSubmittedTimestamp;
   }
@@ -180,6 +190,7 @@ public class ApplicationDetailSearchItem implements ApplicationDetailItemView {
     return padInitialReviewApprovedTimestamp;
   }
 
+  @Override
   public void setPadInitialReviewApprovedTimestamp(Instant padApprovedTimestamp) {
     this.padInitialReviewApprovedTimestamp = padApprovedTimestamp;
   }
@@ -189,6 +200,7 @@ public class ApplicationDetailSearchItem implements ApplicationDetailItemView {
     return tipFlag;
   }
 
+  @Override
   public void setTipFlag(boolean tipFlag) {
     this.tipFlag = tipFlag;
   }
@@ -198,6 +210,7 @@ public class ApplicationDetailSearchItem implements ApplicationDetailItemView {
     return versionNo;
   }
 
+  @Override
   public void setVersionNo(Integer versionNo) {
     this.versionNo = versionNo;
   }
@@ -207,6 +220,7 @@ public class ApplicationDetailSearchItem implements ApplicationDetailItemView {
     return padFields;
   }
 
+  @Override
   public void setPadFields(List<String> padFields) {
     this.padFields = padFields;
   }
@@ -216,6 +230,7 @@ public class ApplicationDetailSearchItem implements ApplicationDetailItemView {
     return padProjectName;
   }
 
+  @Override
   public void setPadProjectName(String padProjectName) {
     this.padProjectName = padProjectName;
   }
@@ -225,6 +240,7 @@ public class ApplicationDetailSearchItem implements ApplicationDetailItemView {
     return padProposedStart;
   }
 
+  @Override
   public void setPadProposedStart(Instant padProposedStart) {
     this.padProposedStart = padProposedStart;
   }
@@ -234,6 +250,7 @@ public class ApplicationDetailSearchItem implements ApplicationDetailItemView {
     return padStatusTimestamp;
   }
 
+  @Override
   public void setPadStatusTimestamp(Instant padStatusTimestamp) {
     this.padStatusTimestamp = padStatusTimestamp;
   }
@@ -243,6 +260,7 @@ public class ApplicationDetailSearchItem implements ApplicationDetailItemView {
     return submittedAsFastTrackFlag;
   }
 
+  @Override
   public void setSubmittedAsFastTrackFlag(boolean fastTrackFlag) {
     this.submittedAsFastTrackFlag = fastTrackFlag;
   }
@@ -252,6 +270,7 @@ public class ApplicationDetailSearchItem implements ApplicationDetailItemView {
     return caseOfficerPersonId;
   }
 
+  @Override
   public void setCaseOfficerPersonId(Integer caseOfficerPersonId) {
     this.caseOfficerPersonId = caseOfficerPersonId;
   }
@@ -261,6 +280,7 @@ public class ApplicationDetailSearchItem implements ApplicationDetailItemView {
     return caseOfficerName;
   }
 
+  @Override
   public void setCaseOfficerName(String caseOfficerName) {
     this.caseOfficerName = caseOfficerName;
   }
@@ -270,6 +290,7 @@ public class ApplicationDetailSearchItem implements ApplicationDetailItemView {
     return pwaHolderNameList;
   }
 
+  @Override
   public void setPwaHolderNameList(List<String> pwaHolderNameList) {
     this.pwaHolderNameList = pwaHolderNameList;
   }
@@ -279,6 +300,7 @@ public class ApplicationDetailSearchItem implements ApplicationDetailItemView {
     return padHolderNameList;
   }
 
+  @Override
   public void setPadHolderNameList(List<String> padHolderNameList) {
     this.padHolderNameList = padHolderNameList;
   }
@@ -288,6 +310,7 @@ public class ApplicationDetailSearchItem implements ApplicationDetailItemView {
     return openUpdateRequestFlag;
   }
 
+  @Override
   public void setOpenUpdateRequestFlag(Boolean openUpdateRequestFlag) {
     this.openUpdateRequestFlag = openUpdateRequestFlag;
   }
@@ -297,6 +320,7 @@ public class ApplicationDetailSearchItem implements ApplicationDetailItemView {
     return openConsultationRequestFlag;
   }
 
+  @Override
   public void setOpenConsultationRequestFlag(boolean openConsultationRequestFlag) {
     this.openConsultationRequestFlag = openConsultationRequestFlag;
   }
@@ -306,6 +330,7 @@ public class ApplicationDetailSearchItem implements ApplicationDetailItemView {
     return openPublicNoticeFlag;
   }
 
+  @Override
   public void setOpenPublicNoticeFlag(boolean openPublicNoticeFlag) {
     this.openPublicNoticeFlag = openPublicNoticeFlag;
   }
@@ -320,7 +345,9 @@ public class ApplicationDetailSearchItem implements ApplicationDetailItemView {
     return tipVersionSatisfactoryFlag;
   }
 
+  @Override
   public void setTipVersionSatisfactoryFlag(boolean tipVersionSatisfactoryFlag) {
     this.tipVersionSatisfactoryFlag = tipVersionSatisfactoryFlag;
   }
+
 }
