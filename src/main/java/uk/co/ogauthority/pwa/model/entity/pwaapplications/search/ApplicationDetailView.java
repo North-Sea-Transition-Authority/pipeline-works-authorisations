@@ -85,6 +85,7 @@ public class ApplicationDetailView implements ApplicationDetailItemView {
 
   private boolean tipVersionSatisfactoryFlag;
 
+  @Override
   public int getPwaApplicationDetailId() {
     return pwaApplicationDetailId;
   }
@@ -93,6 +94,7 @@ public class ApplicationDetailView implements ApplicationDetailItemView {
     this.pwaApplicationDetailId = pwaApplicationDetailId;
   }
 
+  @Override
   public int getPwaApplicationId() {
     return pwaApplicationId;
   }
@@ -101,6 +103,7 @@ public class ApplicationDetailView implements ApplicationDetailItemView {
     this.pwaApplicationId = pwaApplicationId;
   }
 
+  @Override
   public int getPwaId() {
     return pwaId;
   }
@@ -109,6 +112,7 @@ public class ApplicationDetailView implements ApplicationDetailItemView {
     this.pwaId = pwaId;
   }
 
+  @Override
   public int getPwaDetailId() {
     return pwaDetailId;
   }
@@ -117,6 +121,7 @@ public class ApplicationDetailView implements ApplicationDetailItemView {
     this.pwaDetailId = pwaDetailId;
   }
 
+  @Override
   public String getPwaReference() {
     return pwaReference;
   }
@@ -125,6 +130,7 @@ public class ApplicationDetailView implements ApplicationDetailItemView {
     this.pwaReference = pwaReference;
   }
 
+  @Override
   public String getPadReference() {
     return padReference;
   }
@@ -133,6 +139,7 @@ public class ApplicationDetailView implements ApplicationDetailItemView {
     this.padReference = padReference;
   }
 
+  @Override
   public PwaApplicationType getApplicationType() {
     return applicationType;
   }
@@ -141,6 +148,7 @@ public class ApplicationDetailView implements ApplicationDetailItemView {
     this.applicationType = applicationType;
   }
 
+  @Override
   public PwaApplicationStatus getPadStatus() {
     return padStatus;
   }
@@ -149,6 +157,7 @@ public class ApplicationDetailView implements ApplicationDetailItemView {
     this.padStatus = padStatus;
   }
 
+  @Override
   public Instant getPadCreatedTimestamp() {
     return padCreatedTimestamp;
   }
@@ -157,6 +166,7 @@ public class ApplicationDetailView implements ApplicationDetailItemView {
     this.padCreatedTimestamp = padCreatedTimestamp;
   }
 
+  @Override
   public Instant getPadSubmittedTimestamp() {
     return padSubmittedTimestamp;
   }
@@ -165,6 +175,7 @@ public class ApplicationDetailView implements ApplicationDetailItemView {
     this.padSubmittedTimestamp = padSubmittedTimestamp;
   }
 
+  @Override
   public Instant getPadInitialReviewApprovedTimestamp() {
     return padInitialReviewApprovedTimestamp;
   }
@@ -173,6 +184,7 @@ public class ApplicationDetailView implements ApplicationDetailItemView {
     this.padInitialReviewApprovedTimestamp = padApprovedTimestamp;
   }
 
+  @Override
   public boolean isTipFlag() {
     return tipFlag;
   }
@@ -181,6 +193,7 @@ public class ApplicationDetailView implements ApplicationDetailItemView {
     this.tipFlag = tipFlag;
   }
 
+  @Override
   public Integer getVersionNo() {
     return versionNo;
   }
@@ -189,6 +202,7 @@ public class ApplicationDetailView implements ApplicationDetailItemView {
     this.versionNo = versionNo;
   }
 
+  @Override
   public List<String> getPadFields() {
     return padFields;
   }
@@ -197,6 +211,7 @@ public class ApplicationDetailView implements ApplicationDetailItemView {
     this.padFields = padFields;
   }
 
+  @Override
   public String getPadProjectName() {
     return padProjectName;
   }
@@ -205,6 +220,7 @@ public class ApplicationDetailView implements ApplicationDetailItemView {
     this.padProjectName = padProjectName;
   }
 
+  @Override
   public Instant getPadProposedStart() {
     return padProposedStart;
   }
@@ -213,6 +229,7 @@ public class ApplicationDetailView implements ApplicationDetailItemView {
     this.padProposedStart = padProposedStart;
   }
 
+  @Override
   public Instant getPadStatusTimestamp() {
     return padStatusTimestamp;
   }
@@ -221,6 +238,7 @@ public class ApplicationDetailView implements ApplicationDetailItemView {
     this.padStatusTimestamp = padStatusTimestamp;
   }
 
+  @Override
   public boolean wasSubmittedAsFastTrack() {
     return submittedAsFastTrackFlag;
   }
@@ -229,6 +247,7 @@ public class ApplicationDetailView implements ApplicationDetailItemView {
     this.submittedAsFastTrackFlag = fastTrackFlag;
   }
 
+  @Override
   public Integer getCaseOfficerPersonId() {
     return caseOfficerPersonId;
   }
@@ -237,6 +256,7 @@ public class ApplicationDetailView implements ApplicationDetailItemView {
     this.caseOfficerPersonId = caseOfficerPersonId;
   }
 
+  @Override
   public String getCaseOfficerName() {
     return caseOfficerName;
   }
@@ -245,6 +265,7 @@ public class ApplicationDetailView implements ApplicationDetailItemView {
     this.caseOfficerName = caseOfficerName;
   }
 
+  @Override
   public List<String> getPwaHolderNameList() {
     return pwaHolderNameList;
   }
@@ -253,6 +274,7 @@ public class ApplicationDetailView implements ApplicationDetailItemView {
     this.pwaHolderNameList = pwaHolderNameList;
   }
 
+  @Override
   public List<String> getPadHolderNameList() {
     return padHolderNameList;
   }
@@ -261,6 +283,7 @@ public class ApplicationDetailView implements ApplicationDetailItemView {
     this.padHolderNameList = padHolderNameList;
   }
 
+  @Override
   public boolean getOpenUpdateRequestFlag() {
     return openUpdateRequestFlag;
   }
@@ -269,6 +292,7 @@ public class ApplicationDetailView implements ApplicationDetailItemView {
     this.openUpdateRequestFlag = openUpdateRequestFlag;
   }
 
+  @Override
   public boolean isOpenConsultationRequestFlag() {
     return openConsultationRequestFlag;
   }
@@ -277,6 +301,7 @@ public class ApplicationDetailView implements ApplicationDetailItemView {
     this.openConsultationRequestFlag = openConsultationRequestFlag;
   }
 
+  @Override
   public boolean isOpenPublicNoticeFlag() {
     return openPublicNoticeFlag;
   }
@@ -285,10 +310,12 @@ public class ApplicationDetailView implements ApplicationDetailItemView {
     this.openPublicNoticeFlag = openPublicNoticeFlag;
   }
 
+  @Override
   public boolean isSubmittedAsFastTrackFlag() {
     return submittedAsFastTrackFlag;
   }
 
+  @Override
   public boolean isTipVersionSatisfactoryFlag() {
     return tipVersionSatisfactoryFlag;
   }

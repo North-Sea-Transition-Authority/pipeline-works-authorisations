@@ -15,13 +15,6 @@ JOIN ${datasource.user}.pad_status_versions psv ON pa.id = psv.pwa_application_i
 JOIN ${datasource.user}.consultee_group_details cgd ON cgd.cg_id = cr.consultee_group_id AND cgd.tip_flag = 1
 LEFT JOIN ${datasource.user}.consultation_assignments ca ON ca.consultation_request_id = cr.id AND ca.assignment = 'CONSULTATION_RESPONDER'
 WHERE (
-
-  -- if there's a submitted version, always show the latest submitted version
-  (psv.latest_submission_ts IS NOT NULL AND pad.submitted_timestamp = psv.latest_submission_ts)
-
-  OR
-
-  -- otherwise there should be a draft version we can show instead
-  (psv.latest_submission_ts IS NULL AND pad.version_no = psv.latest_draft_v_no)
-
+  -- only show consultees satisfactory versions
+  pad.confirmed_satisfactory_ts = psv.latest_satisfactory_ts
 );
