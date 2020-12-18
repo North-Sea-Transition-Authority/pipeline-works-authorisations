@@ -208,7 +208,7 @@ public class PipelinesControllerTest extends PwaApplicationContextAbstractContro
         .andExpect(view().name("pwaApplication/shared/pipelines/addEditPipeline"))
         .andExpect(model().attributeHasErrors("form"));
 
-    verifyNoInteractions(padPipelineService);
+    verify(padPipelineService, times(0)).addPipeline(eq(pwaApplicationDetail), any());
 
   }
 
