@@ -28,10 +28,8 @@ public class ConsultationRequestWorkAreaItemTest {
 
   private ConsultationRequestWorkAreaItem consultationRequestWorkAreaItem;
 
-  private ApplicationDetailItemView applicationDetailView;
+  private ApplicationDetailView applicationDetailView;
   private ConsultationRequestSearchItem consultationRequestSearchItem;
-
-  private ApplicationDetailItemView applicationDetailSearchItem;
 
   private static final String VIEW_URL = "EXAMPLE_URL";
   private static final String CONSULTEE_GROUP_NAME = "LONG_NAME";
@@ -43,13 +41,10 @@ public class ConsultationRequestWorkAreaItemTest {
     applicationDetailView = new ApplicationDetailView();
     consultationRequestSearchItem = new ConsultationRequestSearchItem();
     setApplicationDetailItemViewValues(applicationDetailView);
-    setConsultationRequestSearchItemValues((ApplicationDetailView) applicationDetailView, consultationRequestSearchItem);
-
-    applicationDetailSearchItem = new ApplicationDetailSearchItem();
-    setApplicationDetailItemViewValues(applicationDetailSearchItem);
+    setConsultationRequestSearchItemValues(applicationDetailView, consultationRequestSearchItem);
   }
 
-  private void setApplicationDetailItemViewValues(ApplicationDetailItemView applicationDetailItemView) {
+  private void setApplicationDetailItemViewValues(ApplicationDetailView applicationDetailItemView) {
     applicationDetailItemView.setApplicationType(PwaApplicationType.INITIAL);
     applicationDetailItemView.setPwaApplicationId(100);
     applicationDetailItemView.setPadHolderNameList(List.of("PAD_HOLDER"));
@@ -252,21 +247,21 @@ public class ConsultationRequestWorkAreaItemTest {
   @Test
   public void getSummaryColumn_whenFieldsExist(){
     ApplicationWorkAreaItemTestUtil.test_getSummaryColumn_whenFieldsExist(
-        (ApplicationDetailSearchItem) applicationDetailSearchItem,
+        applicationDetailView,
         o -> new PwaApplicationWorkAreaItem(o , searchItem -> VIEW_URL));
   }
 
   @Test
   public void getSummaryColumn_whenNoFields(){
     ApplicationWorkAreaItemTestUtil.test_getSummaryColumn_whenNoFields(
-        (ApplicationDetailSearchItem) applicationDetailSearchItem,
+        applicationDetailView,
         o -> new PwaApplicationWorkAreaItem(o , searchItem -> VIEW_URL));
   }
 
   @Test
   public void getHolderColumn_whenInitialType(){
     ApplicationWorkAreaItemTestUtil.test_getHolderColumn_whenInitialType(
-        (ApplicationDetailSearchItem) applicationDetailSearchItem,
+        applicationDetailView,
         o -> new PwaApplicationWorkAreaItem(o , searchItem -> VIEW_URL));
 
   }
@@ -274,14 +269,14 @@ public class ConsultationRequestWorkAreaItemTest {
   @Test
   public void getHolderColumn_whenNotInitialType() {
     ApplicationWorkAreaItemTestUtil.test_getHolderColumn_whenNotInitialType(
-        (ApplicationDetailSearchItem) applicationDetailSearchItem,
+        applicationDetailView,
         o -> new PwaApplicationWorkAreaItem(o, searchItem -> VIEW_URL));
   }
 
   @Test
   public void getApplicationColumn_whenInitialType(){
     ApplicationWorkAreaItemTestUtil.test_getApplicationColumn_whenInitialType(
-        (ApplicationDetailSearchItem) applicationDetailSearchItem,
+        applicationDetailView,
         o -> new PwaApplicationWorkAreaItem(o , searchItem -> VIEW_URL));
 
   }
@@ -289,14 +284,14 @@ public class ConsultationRequestWorkAreaItemTest {
   @Test
   public void getApplicationColumn_whenNotInitialType() {
     ApplicationWorkAreaItemTestUtil.test_getApplicationColumn_whenNotInitialType(
-        (ApplicationDetailSearchItem) applicationDetailSearchItem,
+        applicationDetailView,
         o -> new PwaApplicationWorkAreaItem(o, searchItem -> VIEW_URL));
   }
 
   @Test
   public void getApplicationColumn_whenUpdate() {
     ApplicationWorkAreaItemTestUtil.test_getApplicationColumn_whenUpdateRequest(
-        (ApplicationDetailSearchItem) applicationDetailSearchItem,
+        applicationDetailView,
         o -> new PwaApplicationWorkAreaItem(o, searchItem -> VIEW_URL));
   }
 

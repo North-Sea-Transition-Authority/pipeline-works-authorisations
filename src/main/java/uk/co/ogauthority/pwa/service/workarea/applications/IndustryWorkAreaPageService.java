@@ -12,6 +12,7 @@ import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.controller.WorkAreaController;
 import uk.co.ogauthority.pwa.controller.appprocessing.CaseManagementController;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailItemView;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailSearchItem;
 import uk.co.ogauthority.pwa.model.workflow.WorkflowBusinessKey;
 import uk.co.ogauthority.pwa.mvc.PageView;
@@ -125,7 +126,7 @@ public class IndustryWorkAreaPageService {
 
   }
 
-  private String viewApplicationUrlProducer(ApplicationDetailSearchItem applicationDetailSearchItem) {
+  private String viewApplicationUrlProducer(ApplicationDetailItemView applicationDetailSearchItem) {
 
     var applicationId = applicationDetailSearchItem.getPwaApplicationId();
     var applicationType = applicationDetailSearchItem.getApplicationType();
