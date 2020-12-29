@@ -3,30 +3,34 @@ package uk.co.ogauthority.pwa.model.entity.enums.pipelines;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import uk.co.ogauthority.pwa.model.diff.DiffableAsString;
 
 public enum PipelineStatus implements DiffableAsString {
 
-  IN_SERVICE("In service", 10, false),
-  RETURNED_TO_SHORE("Returned to shore", 20, false),
-  OUT_OF_USE_ON_SEABED("Out of use but left on the seabed", 30, false),
-  NEVER_LAID("Never laid and will not be laid", 40, false),
-  AUTHORISED("Authorised (legacy)", 50, true),
-  CURRENT("Current (legacy)", 60, true),
-  DELETED("Deleted (legacy)", 70, true),
-  LEGACY("Legacy (legacy)", 80, true),
-  PENDING("Pending (legacy)", 90, true);
+  IN_SERVICE("In service", 10, false, PhysicalPipelineState.ON_SEABED),
+  RETURNED_TO_SHORE("Returned to shore", 20, false, PhysicalPipelineState.ONSHORE),
+  OUT_OF_USE_ON_SEABED("Out of use but left on the seabed", 30, false, PhysicalPipelineState.ON_SEABED),
+  NEVER_LAID("Never laid and will not be laid", 40, false, PhysicalPipelineState.NEVER_EXISTED),
+
+  DELETED("Deleted (legacy)", 70, true, PhysicalPipelineState.NEVER_EXISTED),
+  PENDING("Pending (legacy)", 90, true, PhysicalPipelineState.NEVER_EXISTED);
 
   private final String displayText;
   private final Integer displayOrder;
   private final Boolean historical;
+  private final PhysicalPipelineState physicalPipelineState;
 
-  PipelineStatus(String displayText, Integer displayOrder, Boolean historical) {
+  PipelineStatus(String displayText,
+                 Integer displayOrder,
+                 Boolean historical,
+                 PhysicalPipelineState physicalPipelineState) {
     this.displayText = displayText;
     this.displayOrder = displayOrder;
     this.historical = historical;
+    this.physicalPipelineState = physicalPipelineState;
   }
 
   public String getDisplayText() {
@@ -37,18 +41,41 @@ public enum PipelineStatus implements DiffableAsString {
     return displayOrder;
   }
 
-  public Boolean getHistorical() {
+  /**
+   * Does this status belongs to the previous system and therefore can be ignored while
+   * processing applications and consents within this application.
+   */
+  public Boolean isHistorical() {
     return historical;
   }
 
-  public static Stream<PipelineStatus> streamInOrder() {
+  public PhysicalPipelineState getPhysicalPipelineState() {
+    return physicalPipelineState;
+  }
+
+  public static Stream<PipelineStatus> stream() {
+    return Arrays.stream(PipelineStatus.values());
+  }
+
+  public static Stream<PipelineStatus> streamCurrentStatusesInOrder() {
     return Arrays.stream(PipelineStatus.values())
+        .filter(pipelineStatus -> !pipelineStatus.historical)
         .sorted(Comparator.comparing(PipelineStatus::getDisplayOrder));
   }
 
+  public static Set<PipelineStatus> currentStatusSet() {
+    return streamCurrentStatusesInOrder()
+        .collect(Collectors.toUnmodifiableSet());
+  }
+
+  public static Set<PipelineStatus> historicalStatusSet() {
+    return Arrays.stream(PipelineStatus.values())
+        .filter(PipelineStatus::isHistorical)
+        .collect(Collectors.toUnmodifiableSet());
+  }
+
   public static List<PipelineStatus> toOrderedListWithoutHistorical() {
-    return streamInOrder()
-        .filter(pipelineStatus -> !pipelineStatus.getHistorical())
+    return streamCurrentStatusesInOrder()
         .collect(Collectors.toList());
   }
 

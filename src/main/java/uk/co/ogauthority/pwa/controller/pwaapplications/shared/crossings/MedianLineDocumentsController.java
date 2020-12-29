@@ -35,7 +35,6 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.crossings.CrossingAgr
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.fileupload.FileUpdateMode;
 import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
-import uk.co.ogauthority.pwa.service.fileupload.PwaApplicationFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.MedianLineCrossingFileService;
@@ -54,7 +53,6 @@ import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 })
 public class MedianLineDocumentsController extends PwaApplicationDetailDataFileUploadAndDownloadController {
 
-  private final PwaApplicationFileService applicationFileService;
   private final MedianLineCrossingFileService medianLineCrossingFileService;
   private final ApplicationBreadcrumbService applicationBreadcrumbService;
   private final CrossingAgreementsTaskListService crossingAgreementsTaskListService;
@@ -63,14 +61,12 @@ public class MedianLineDocumentsController extends PwaApplicationDetailDataFileU
 
   @Autowired
   public MedianLineDocumentsController(
-      PwaApplicationFileService applicationFileService,
       MedianLineCrossingFileService medianLineCrossingFileService,
       ApplicationBreadcrumbService applicationBreadcrumbService,
       CrossingAgreementsTaskListService crossingAgreementsTaskListService,
       PadFileService padFileService,
       ControllerHelperService controllerHelperService) {
     super(padFileService);
-    this.applicationFileService = applicationFileService;
     this.medianLineCrossingFileService = medianLineCrossingFileService;
     this.applicationBreadcrumbService = applicationBreadcrumbService;
     this.crossingAgreementsTaskListService = crossingAgreementsTaskListService;

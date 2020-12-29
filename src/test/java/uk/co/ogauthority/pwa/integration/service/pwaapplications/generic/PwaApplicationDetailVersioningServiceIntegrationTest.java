@@ -626,7 +626,7 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
   @Transactional
   @Test
   public void createNewApplicationVersion_huooRoleLinksMappedAsExpected() throws IllegalAccessException {
-    setup(PwaApplicationType.INITIAL);
+    setup(PwaApplicationType.OPTIONS_VARIATION);
 
     var newVersionDetail = pwaApplicationDetailVersioningService.createNewApplicationVersion(
         firstVersionApplicationContainer.getPwaApplicationDetail(),

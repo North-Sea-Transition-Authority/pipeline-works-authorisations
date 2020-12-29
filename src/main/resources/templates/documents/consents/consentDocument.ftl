@@ -71,7 +71,7 @@
 
     .deposit-image {
       width: 100%;
-      height: 100%;
+      max-height: 875px;
     }
 
     .header-heading {
@@ -80,7 +80,7 @@
 
     .sectionTable {
       width: 100%;
-    }
+    }    
 
     .sectionTable, .sectionTable th, .sectionTable td {
       border: 1px solid black;
@@ -91,7 +91,18 @@
       padding-left: 5px;
     }
 
-    #depositsTableSection {
+    @media print {
+      #depositsTableSection, #tableAsSection, .tableAPage  {
+        page-break-before: always;
+      }
+    }
+
+    .sectionTable tr { 
+      page-break-inside:avoid; 
+      page-break-after:auto 
+    }
+
+    .sectionTable, #depositsTableSection, #tableAsSection {
       page: landscapePage;
     }
 
@@ -110,6 +121,18 @@
 
     .govuk-list--lower-roman {
       list-style-type: lower-roman;
+    }    
+
+    .tableA {
+      page-break-inside:auto
+    }
+
+    .tableA th {
+      text-align: center;
+    }
+
+    .tableA .headerRow {
+      vertical-align: top;
     }
 
     #huooSection {

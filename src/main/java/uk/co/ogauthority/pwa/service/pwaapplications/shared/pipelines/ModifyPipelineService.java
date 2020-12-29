@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PhysicalPipelineState;
 import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
@@ -53,6 +54,7 @@ public class ModifyPipelineService {
 
   public List<NamedPipeline> getSelectableConsentedPipelines(PwaApplicationDetail pwaApplicationDetail) {
     return getConsentedPipelinesNotOnApplication(pwaApplicationDetail).stream()
+        .filter(o -> PhysicalPipelineState.ON_SEABED.equals(o.getPipelineStatus().getPhysicalPipelineState()))
         .map(NamedPipelineDto::fromPipelineDetail)
         .collect(Collectors.toUnmodifiableList());
   }

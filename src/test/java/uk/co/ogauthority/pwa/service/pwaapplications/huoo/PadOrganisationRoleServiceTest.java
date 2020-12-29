@@ -35,7 +35,6 @@ import uk.co.ogauthority.pwa.model.dto.huooaggregations.OrganisationRolePipeline
 import uk.co.ogauthority.pwa.model.dto.huooaggregations.OrganisationRolesSummaryDto;
 import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitDetailDto;
 import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
-import uk.co.ogauthority.pwa.model.dto.pipelines.IdentLocationInclusionMode;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineIdentPoint;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineIdentifier;
@@ -63,6 +62,10 @@ import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PadOrganisationRoleServiceTest {
+
+  private static final EnumSet<PwaApplicationType> DEFAULT_CANNOT_SHOW_TASKS = EnumSet.of(
+      PwaApplicationType.OPTIONS_VARIATION, PwaApplicationType.DEPOSIT_CONSENT
+  );
 
   @Mock
   private PadOrganisationRolesRepository padOrganisationRolesRepository;
@@ -1051,8 +1054,7 @@ public class PadOrganisationRoleServiceTest {
     detail.setPwaApplication(app);
 
     PwaApplicationType.stream()
-        .filter(type -> !type.equals(PwaApplicationType.OPTIONS_VARIATION)
-            && !type.equals(PwaApplicationType.DEPOSIT_CONSENT))
+        .filter(pwaApplicationType -> !DEFAULT_CANNOT_SHOW_TASKS.contains(pwaApplicationType))
         .forEach(applicationType -> {
 
           app.setApplicationType(applicationType);
@@ -1071,8 +1073,44 @@ public class PadOrganisationRoleServiceTest {
     app.setApplicationType(PwaApplicationType.OPTIONS_VARIATION);
     detail.setPwaApplication(app);
 
-    assertThat(padOrganisationRoleService.canShowInTaskList(detail)).isFalse();
+    PwaApplicationType.stream()
+        .filter(pwaApplicationType -> DEFAULT_CANNOT_SHOW_TASKS.contains(pwaApplicationType))
+        .forEach(applicationType -> {
 
+          app.setApplicationType(applicationType);
+
+          assertThat(padOrganisationRoleService.canShowInTaskList(detail)).isFalse();
+
+        });
+
+  }
+
+  @Test
+  public void allowCopyOfSectionInformation_whenOptionsApp(){
+    var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.OPTIONS_VARIATION);
+
+    assertThat(padOrganisationRoleService.allowCopyOfSectionInformation(detail)).isTrue();
+  }
+
+  @Test
+  public void allowCopyOfSectionInformation_whenDepositApp(){
+
+    var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.DEPOSIT_CONSENT);
+
+    assertThat(padOrganisationRoleService.allowCopyOfSectionInformation(detail)).isFalse();
+  }
+
+  @Test
+  public void allowCopyOfSectionInformation_whenAppTypeNotHidden(){
+
+    EnumSet.complementOf(DEFAULT_CANNOT_SHOW_TASKS).forEach(
+        pwaApplicationType -> {
+          var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(pwaApplicationType);
+          assertThat(padOrganisationRoleService.allowCopyOfSectionInformation(detail)).isTrue();
+
+
+        }
+    );
   }
 
   @Test

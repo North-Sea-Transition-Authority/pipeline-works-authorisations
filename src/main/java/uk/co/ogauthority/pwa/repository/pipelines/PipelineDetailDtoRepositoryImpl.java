@@ -6,6 +6,7 @@ import javax.persistence.EntityManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineDetailSummaryDto;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineStatus;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PadPipelineOverview;
@@ -21,8 +22,11 @@ public class PipelineDetailDtoRepositoryImpl implements PipelineDetailDtoReposit
     this.entityManager = entityManager;
   }
 
+  // TODO PWA-1047 rename and accept Master PWa not application detail
   @Override
   public List<PipelineBundlePairDto> getBundleNamesByPwaApplicationDetail(PwaApplicationDetail pwaApplicationDetail) {
+    var statusFilter = PipelineStatus.currentStatusSet();
+
     return entityManager.createQuery("" +
         "SELECT new uk.co.ogauthority.pwa.repository.pipelines.PipelineBundlePairDto(" +
         "pd.pipeline.id, " +
@@ -30,16 +34,21 @@ public class PipelineDetailDtoRepositoryImpl implements PipelineDetailDtoReposit
         ") " +
         "FROM PipelineDetail pd " +
         "JOIN PwaConsent pc ON pd.pwaConsent = pc " +
-        "WHERE pd.tipFlag = 1 " +
+        "WHERE pd.tipFlag = TRUE " +
         "AND pc.masterPwa = :master_pwa " +
-        "AND pd.bundleName IS NOT NULL ", PipelineBundlePairDto.class)
+        "AND pd.bundleName IS NOT NULL " +
+        "AND pd.pipelineStatus IN :statusFilter ", PipelineBundlePairDto.class)
         .setParameter("master_pwa", pwaApplicationDetail.getMasterPwaApplication())
+        .setParameter("statusFilter", statusFilter)
         .getResultList();
   }
 
 
   @Override
   public List<PipelineOverview> getAllPipelineOverviewsForMasterPwa(MasterPwa masterPwa) {
+
+    var statusFilter = PipelineStatus.currentStatusSet();
+
     return entityManager.createQuery("" +
             "SELECT new uk.co.ogauthority.pwa.model.dto.pipelines.PipelineDetailSummaryDto(" +
             "  p.id " +
@@ -129,6 +138,11 @@ public class PipelineDetailDtoRepositoryImpl implements PipelineDetailDtoReposit
         .getResultList()
         .stream()
         .map(PadPipelineOverview::from)
+        // Filter left out of query itself to make extracting unfiltered query out later on easier
+        // eventually we need to be able to have this query run over non tip details and with no status restriction
+        // so makes sense to avoid building extra restrictions into the query string itself for now.
+        .filter(pipelineOverview -> statusFilter.contains(pipelineOverview.getPipelineStatus()))
         .collect(Collectors.toUnmodifiableList());
   }
+
 }

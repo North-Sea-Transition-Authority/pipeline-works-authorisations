@@ -50,7 +50,6 @@ public class PipelineDetail {
   private PipelineStatus pipelineStatus;
   private String pipelineStatusReason;
 
-  private String detailStatus;
   private String pipelineNumber;
   private BigDecimal maxExternalDiameter;
   private Boolean pipelineInBundle;
@@ -197,14 +196,6 @@ public class PipelineDetail {
 
   public void setPipelineStatus(PipelineStatus pipelineStatus) {
     this.pipelineStatus = pipelineStatus;
-  }
-
-  public String getDetailStatus() {
-    return detailStatus;
-  }
-
-  public void setDetailStatus(String detailStatus) {
-    this.detailStatus = detailStatus;
   }
 
   public String getPipelineNumber() {

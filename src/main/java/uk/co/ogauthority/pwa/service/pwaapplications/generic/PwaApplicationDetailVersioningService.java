@@ -31,7 +31,8 @@ public class PwaApplicationDetailVersioningService {
                                                           WebUserAccount webUserAccount) {
     var newTipDetail = pwaApplicationDetailService.createNewTipDetail(detail, webUserAccount);
 
-    taskListService.getShownApplicationTasksForDetail(detail).stream()
+    ApplicationTask.stream()
+        .filter(applicationTask -> applicationTaskService.taskAllowsCopySectionInformation(applicationTask, detail))
         .sorted(Comparator.comparing(ApplicationTask::getVersioningProcessingOrder))
         .forEachOrdered(applicationTask -> applicationTaskService.copyApplicationTaskDataToApplicationDetail(
             applicationTask,

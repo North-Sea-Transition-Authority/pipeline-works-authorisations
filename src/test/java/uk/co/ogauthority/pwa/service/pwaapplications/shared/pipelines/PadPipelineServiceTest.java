@@ -799,7 +799,7 @@ public class PadPipelineServiceTest {
 
   @Test
   public void isIdentValidationRequired() {
-    PipelineStatus.streamInOrder().forEach(pipelineStatus -> {
+    PipelineStatus.stream().forEach(pipelineStatus -> {
       padPipe1.setPipelineStatus(pipelineStatus);
       switch (pipelineStatus) {
         case IN_SERVICE:
@@ -814,7 +814,7 @@ public class PadPipelineServiceTest {
 
   @Test
   public void isPadPipelineValid_valid() {
-    PipelineStatus.streamInOrder().forEach(pipelineStatus -> {
+    PipelineStatus.stream().forEach(pipelineStatus -> {
       padPipe1.setPipelineStatus(pipelineStatus);
       assertThat(padPipelineService.isPadPipelineValid(padPipe1)).isTrue();
     });
@@ -829,7 +829,7 @@ public class PadPipelineServiceTest {
       return null;
     }).when(pipelineHeaderFormValidator).validate(any(), any(), any());
 
-    PipelineStatus.streamInOrder().forEach(pipelineStatus -> {
+    PipelineStatus.stream().forEach(pipelineStatus -> {
       padPipe1.setPipelineStatus(pipelineStatus);
       var result = padPipelineService.isPadPipelineValid(padPipe1);
       switch (pipelineStatus) {

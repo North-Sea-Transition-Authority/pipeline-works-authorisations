@@ -46,8 +46,7 @@ public class PipelineDetailServiceTest {
   public void getNonDeletedPipelineDetailsForApplicationMasterPwaWithTipFlag_serviceInteraction() {
     var master = detail.getMasterPwaApplication();
     var pipelineDetail = new PipelineDetail();
-    when(pipelineDetailRepository.findAllByPipeline_MasterPwaAndPipelineStatusIsNotAndTipFlagIsTrue(master, PipelineStatus.DELETED))
-        .thenReturn(List.of(pipelineDetail));
+    when(pipelineDetailRepository.findAllByPipeline_MasterPwaAndPipelineStatusIsNotInAndTipFlagIsTrue(master, PipelineStatus.historicalStatusSet()))        .thenReturn(List.of(pipelineDetail));
     var result = pipelineDetailService.getNonDeletedPipelineDetailsForApplicationMasterPwa(master);
     assertThat(result).containsExactly(pipelineDetail);
   }
