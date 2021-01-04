@@ -135,9 +135,9 @@ public class ValidatorUtilsTest {
         date.getDayOfMonth(), date.getMonthValue(), date.getYear(), errors);
     assertThat(errors.getAllErrors()).extracting(DefaultMessageSourceResolvable::getCode)
         .containsExactlyInAnyOrder(
-            "proposedStartDay.beforeToday",
-            "proposedStartMonth.beforeToday",
-            "proposedStartYear.beforeToday"
+            "proposedStartDay.beforeDate",
+            "proposedStartMonth.beforeDate",
+            "proposedStartYear.beforeDate"
         );
     assertThat(validationNoErrors).isFalse();
   }
@@ -183,9 +183,9 @@ public class ValidatorUtilsTest {
         date.getDayOfMonth(), date.getMonthValue(), date.getYear(), errors);
     assertThat(errors.getAllErrors()).extracting(DefaultMessageSourceResolvable::getCode)
         .containsExactlyInAnyOrder(
-            "proposedStartDay.afterToday",
-            "proposedStartMonth.afterToday",
-            "proposedStartYear.afterToday"
+            "proposedStartDay.afterDate",
+            "proposedStartMonth.afterDate",
+            "proposedStartYear.afterDate"
         );
     assertThat(validationNoErrors).isFalse();
   }

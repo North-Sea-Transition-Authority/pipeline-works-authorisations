@@ -2,7 +2,7 @@ package uk.co.ogauthority.pwa.validators.appprocessing.options;
 
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes.BEFORE_TODAY;
+import static uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes.BEFORE_SOME_DATE;
 import static uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED;
 import static uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes.REQUIRED;
 
@@ -67,9 +67,9 @@ public class ChangeOptionsApprovalDeadlineFormValidatorTest {
     var results = ValidatorTestUtils.getFormValidationErrors(changeOptionsApprovalDeadlineFormValidator, form);
 
     assertThat(results).containsOnly(
-        Map.entry(DAY_ATTR, Set.of(BEFORE_TODAY.errorCode(DAY_ATTR))),
-        Map.entry(MONTH_ATTR, Set.of(BEFORE_TODAY.errorCode(MONTH_ATTR))),
-        Map.entry(YEAR_ATTR, Set.of(BEFORE_TODAY.errorCode(YEAR_ATTR)))
+        Map.entry(DAY_ATTR, Set.of(BEFORE_SOME_DATE.errorCode(DAY_ATTR))),
+        Map.entry(MONTH_ATTR, Set.of(BEFORE_SOME_DATE.errorCode(MONTH_ATTR))),
+        Map.entry(YEAR_ATTR, Set.of(BEFORE_SOME_DATE.errorCode(YEAR_ATTR)))
     );
 
   }

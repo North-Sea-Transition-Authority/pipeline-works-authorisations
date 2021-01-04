@@ -170,7 +170,7 @@ public class ProjectInformationValidatorTest {
   }
 
   @Test
-  public void validate_MobilisationBeforeProposedStartDate() {
+  public void validate_MobilisationBeforeProposedStartDate_ok() {
 
     var form = new ProjectInformationForm();
     form.setProposedStartDay(5);
@@ -180,12 +180,53 @@ public class ProjectInformationValidatorTest {
     form.setMobilisationDay(4);
     form.setMobilisationMonth(11);
     form.setMobilisationYear(5020);
+
     var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, new ProjectInformationFormValidationHints(
             PwaApplicationType.INITIAL, ValidationType.FULL, Set.of(ProjectInformationQuestion.PROPOSED_START_DATE, ProjectInformationQuestion.MOBILISATION_DATE), false));
+
+    assertThat(errorsMap).isEmpty();
+
+  }
+
+  @Test
+  public void validate_MobilisationOnProposedStartDate_ok() {
+
+    var form = new ProjectInformationForm();
+    form.setProposedStartDay(5);
+    form.setProposedStartMonth(11);
+    form.setProposedStartYear(5020);
+
+    form.setMobilisationDay(5);
+    form.setMobilisationMonth(11);
+    form.setMobilisationYear(5020);
+
+    var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, new ProjectInformationFormValidationHints(
+        PwaApplicationType.INITIAL, ValidationType.FULL, Set.of(ProjectInformationQuestion.PROPOSED_START_DATE, ProjectInformationQuestion.MOBILISATION_DATE), false));
+
+    assertThat(errorsMap).isEmpty();
+
+  }
+
+  @Test
+  public void validate_MobilisationAfterProposedStartDate_invalid() {
+
+    var form = new ProjectInformationForm();
+    form.setProposedStartDay(5);
+    form.setProposedStartMonth(11);
+    form.setProposedStartYear(5020);
+
+    form.setMobilisationDay(6);
+    form.setMobilisationMonth(11);
+    form.setMobilisationYear(5020);
+
+    var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, new ProjectInformationFormValidationHints(
+        PwaApplicationType.INITIAL, ValidationType.FULL, Set.of(ProjectInformationQuestion.PROPOSED_START_DATE, ProjectInformationQuestion.MOBILISATION_DATE), false));
+
     assertThat(errorsMap).contains(
-        entry("mobilisationDay", Set.of("mobilisationDay" + FieldValidationErrorCodes.BEFORE_SOME_DATE.getCode())),
-        entry("mobilisationMonth", Set.of("mobilisationMonth" + FieldValidationErrorCodes.BEFORE_SOME_DATE.getCode())),
-        entry("mobilisationYear", Set.of("mobilisationYear" + FieldValidationErrorCodes.BEFORE_SOME_DATE.getCode())));
+        entry("mobilisationDay", Set.of("mobilisationDay" + FieldValidationErrorCodes.AFTER_SOME_DATE.getCode())),
+        entry("mobilisationMonth", Set.of("mobilisationMonth" + FieldValidationErrorCodes.AFTER_SOME_DATE.getCode())),
+        entry("mobilisationYear", Set.of("mobilisationYear" + FieldValidationErrorCodes.AFTER_SOME_DATE.getCode())));
+
   }
 
   @Test
@@ -226,7 +267,7 @@ public class ProjectInformationValidatorTest {
   }
 
   @Test
-  public void validate_EarliestCompletionBeforeProposedStartDate() {
+  public void validate_EarliestCompletionBeforeProposedStartDate_invalid() {
 
     var form = new ProjectInformationForm();
     form.setProposedStartDay(7);
@@ -242,6 +283,44 @@ public class ProjectInformationValidatorTest {
         entry("earliestCompletionDay", Set.of("earliestCompletionDay" + FieldValidationErrorCodes.BEFORE_SOME_DATE.getCode())),
         entry("earliestCompletionMonth", Set.of("earliestCompletionMonth" + FieldValidationErrorCodes.BEFORE_SOME_DATE.getCode())),
         entry("earliestCompletionYear", Set.of("earliestCompletionYear" + FieldValidationErrorCodes.BEFORE_SOME_DATE.getCode())));
+  }
+
+  @Test
+  public void validate_EarliestCompletionOnProposedStartDate_ok() {
+
+    var form = new ProjectInformationForm();
+    form.setProposedStartDay(7);
+    form.setProposedStartMonth(11);
+    form.setProposedStartYear(5020);
+
+    form.setEarliestCompletionDay(7);
+    form.setEarliestCompletionMonth(11);
+    form.setEarliestCompletionYear(5020);
+
+    var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, new ProjectInformationFormValidationHints(
+        PwaApplicationType.INITIAL, ValidationType.FULL, Set.of(ProjectInformationQuestion.PROPOSED_START_DATE, ProjectInformationQuestion.EARLIEST_COMPLETION_DATE), false));
+
+    assertThat(errorsMap).isEmpty();
+
+  }
+
+  @Test
+  public void validate_EarliestCompletionAfterProposedStartDate_ok() {
+
+    var form = new ProjectInformationForm();
+    form.setProposedStartDay(7);
+    form.setProposedStartMonth(11);
+    form.setProposedStartYear(5020);
+
+    form.setEarliestCompletionDay(8);
+    form.setEarliestCompletionMonth(11);
+    form.setEarliestCompletionYear(5020);
+
+    var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, new ProjectInformationFormValidationHints(
+        PwaApplicationType.INITIAL, ValidationType.FULL, Set.of(ProjectInformationQuestion.PROPOSED_START_DATE, ProjectInformationQuestion.EARLIEST_COMPLETION_DATE), false));
+
+    assertThat(errorsMap).isEmpty();
+
   }
 
   @Test
@@ -277,45 +356,192 @@ public class ProjectInformationValidatorTest {
   }
 
   @Test
-  public void validate_latestCompletionPastMaxFutureDate_allAppTypesExceptOptions() {
-
-    var maxFutureDate = LocalDate.now().plusMonths(12);
+  public void validate_latestCompletionPastMaxFutureDate_allAppTypesExceptOptions_invalid() {
 
     var form = new ProjectInformationForm();
+    var proposedStartDate = LocalDate.now().plusDays(5);
+    var earliestCompletionDate = proposedStartDate.plusDays(1);
+    form.setProposedStartDay(proposedStartDate.getDayOfMonth());
+    form.setProposedStartMonth(proposedStartDate.getMonthValue());
+    form.setProposedStartYear(proposedStartDate.getYear());
+    form.setEarliestCompletionDay(earliestCompletionDate.getDayOfMonth());
+    form.setEarliestCompletionMonth(earliestCompletionDate.getMonthValue());
+    form.setEarliestCompletionYear(earliestCompletionDate.getYear());
 
+    var maxFutureDate = proposedStartDate.plusMonths(12);
     var nextDayOfMonth = maxFutureDate.plusDays(1L).getDayOfMonth();
     form.setLatestCompletionDay(nextDayOfMonth);
 
     var month = maxFutureDate.getMonthValue();
     form.setLatestCompletionMonth(nextDayOfMonth == 1 ? month + 1 : month);
     form.setLatestCompletionYear(maxFutureDate.getYear());
+
     var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form,
-        new ProjectInformationFormValidationHints(PwaApplicationType.INITIAL, ValidationType.FULL, Set.of(ProjectInformationQuestion.LATEST_COMPLETION_DATE), false));
+        new ProjectInformationFormValidationHints(
+            PwaApplicationType.INITIAL,
+            ValidationType.FULL,
+            Set.of(ProjectInformationQuestion.PROPOSED_START_DATE,
+                ProjectInformationQuestion.EARLIEST_COMPLETION_DATE,
+                ProjectInformationQuestion.LATEST_COMPLETION_DATE), false));
+
     assertThat(errorsMap).contains(
-        entry("latestCompletionDay", Set.of("latestCompletionDay" + FieldValidationErrorCodes.INVALID.getCode())),
-        entry("latestCompletionMonth", Set.of("latestCompletionMonth" + FieldValidationErrorCodes.INVALID.getCode())),
-        entry("latestCompletionYear", Set.of("latestCompletionYear" + FieldValidationErrorCodes.INVALID.getCode())));
+        entry("latestCompletionDay", Set.of("latestCompletionDay" + FieldValidationErrorCodes.AFTER_SOME_DATE.getCode())),
+        entry("latestCompletionMonth", Set.of("latestCompletionMonth" + FieldValidationErrorCodes.AFTER_SOME_DATE.getCode())),
+        entry("latestCompletionYear", Set.of("latestCompletionYear" + FieldValidationErrorCodes.AFTER_SOME_DATE.getCode())));
+
   }
 
   @Test
-  public void validate_latestCompletionPastMaxFutureDate_optionsAppType() {
+  public void validate_latestCompletionOnMaxFutureDate_allAppTypesExceptOptions_ok() {
 
-    var maxFutureDate = LocalDate.now().plusMonths(6);
     var form = new ProjectInformationForm();
+    var proposedStartDate = LocalDate.now().plusDays(5);
+    var earliestCompletionDate = proposedStartDate.plusDays(1);
+    form.setProposedStartDay(proposedStartDate.getDayOfMonth());
+    form.setProposedStartMonth(proposedStartDate.getMonthValue());
+    form.setProposedStartYear(proposedStartDate.getYear());
+    form.setEarliestCompletionDay(earliestCompletionDate.getDayOfMonth());
+    form.setEarliestCompletionMonth(earliestCompletionDate.getMonthValue());
+    form.setEarliestCompletionYear(earliestCompletionDate.getYear());
 
-    var nextDayOfMonth = maxFutureDate.plusDays(1L).getDayOfMonth();
-    form.setLatestCompletionDay(nextDayOfMonth);
-
-    var month = maxFutureDate.getMonthValue();
-    form.setLatestCompletionMonth(nextDayOfMonth == 1 ? month + 1 : month);
+    var maxFutureDate = proposedStartDate.plusMonths(12);
+    form.setLatestCompletionDay(maxFutureDate.getDayOfMonth());
+    form.setLatestCompletionMonth(maxFutureDate.getMonthValue());
     form.setLatestCompletionYear(maxFutureDate.getYear());
 
     var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form,
-        new ProjectInformationFormValidationHints(PwaApplicationType.OPTIONS_VARIATION, ValidationType.FULL, Set.of(ProjectInformationQuestion.LATEST_COMPLETION_DATE), false));
+        new ProjectInformationFormValidationHints(
+            PwaApplicationType.INITIAL,
+            ValidationType.FULL,
+            Set.of(ProjectInformationQuestion.PROPOSED_START_DATE,
+                ProjectInformationQuestion.EARLIEST_COMPLETION_DATE,
+                ProjectInformationQuestion.LATEST_COMPLETION_DATE), false));
+
+    assertThat(errorsMap).isEmpty();
+
+  }
+
+  @Test
+  public void validate_latestCompletionBeforeMaxFutureDate_allAppTypesExceptOptions_ok() {
+
+    var form = new ProjectInformationForm();
+    var proposedStartDate = LocalDate.now().plusDays(5);
+    var earliestCompletionDate = proposedStartDate.plusDays(1);
+    form.setProposedStartDay(proposedStartDate.getDayOfMonth());
+    form.setProposedStartMonth(proposedStartDate.getMonthValue());
+    form.setProposedStartYear(proposedStartDate.getYear());
+    form.setEarliestCompletionDay(earliestCompletionDate.getDayOfMonth());
+    form.setEarliestCompletionMonth(earliestCompletionDate.getMonthValue());
+    form.setEarliestCompletionYear(earliestCompletionDate.getYear());
+
+    var maxFutureDate = proposedStartDate.plusMonths(12);
+    form.setLatestCompletionDay(maxFutureDate.getDayOfMonth() - 1);
+    form.setLatestCompletionMonth(maxFutureDate.getMonthValue());
+    form.setLatestCompletionYear(maxFutureDate.getYear());
+
+    var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form,
+        new ProjectInformationFormValidationHints(
+            PwaApplicationType.INITIAL,
+            ValidationType.FULL,
+            Set.of(ProjectInformationQuestion.PROPOSED_START_DATE,
+                ProjectInformationQuestion.EARLIEST_COMPLETION_DATE,
+                ProjectInformationQuestion.LATEST_COMPLETION_DATE), false));
+
+    assertThat(errorsMap).isEmpty();
+
+  }
+
+  @Test
+  public void validate_latestCompletionPastMaxFutureDate_optionsAppType_invalid() {
+
+    var form = new ProjectInformationForm();
+    var proposedStartDate = LocalDate.now().plusDays(5);
+    var earliestCompletionDate = proposedStartDate.plusDays(1);
+    form.setProposedStartDay(proposedStartDate.getDayOfMonth());
+    form.setProposedStartMonth(proposedStartDate.getMonthValue());
+    form.setProposedStartYear(proposedStartDate.getYear());
+    form.setEarliestCompletionDay(earliestCompletionDate.getDayOfMonth());
+    form.setEarliestCompletionMonth(earliestCompletionDate.getMonthValue());
+    form.setEarliestCompletionYear(earliestCompletionDate.getYear());
+
+    var maxFutureDate = proposedStartDate.plusMonths(6);
+    form.setLatestCompletionDay(maxFutureDate.plusDays(1L).getDayOfMonth());
+    form.setLatestCompletionMonth(maxFutureDate.getMonthValue());
+    form.setLatestCompletionYear(maxFutureDate.getYear());
+
+    var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form,
+        new ProjectInformationFormValidationHints(
+            PwaApplicationType.OPTIONS_VARIATION,
+            ValidationType.FULL,
+            Set.of(ProjectInformationQuestion.PROPOSED_START_DATE,
+                ProjectInformationQuestion.EARLIEST_COMPLETION_DATE,
+                ProjectInformationQuestion.LATEST_COMPLETION_DATE), false));
+
     assertThat(errorsMap).contains(
-        entry("latestCompletionDay", Set.of("latestCompletionDay" + FieldValidationErrorCodes.INVALID.getCode())),
-        entry("latestCompletionMonth", Set.of("latestCompletionMonth" + FieldValidationErrorCodes.INVALID.getCode())),
-        entry("latestCompletionYear", Set.of("latestCompletionYear" + FieldValidationErrorCodes.INVALID.getCode())));
+        entry("latestCompletionDay", Set.of("latestCompletionDay" + FieldValidationErrorCodes.AFTER_SOME_DATE.getCode())),
+        entry("latestCompletionMonth", Set.of("latestCompletionMonth" + FieldValidationErrorCodes.AFTER_SOME_DATE.getCode())),
+        entry("latestCompletionYear", Set.of("latestCompletionYear" + FieldValidationErrorCodes.AFTER_SOME_DATE.getCode())));
+
+  }
+
+  @Test
+  public void validate_latestCompletionOnMaxFutureDate_optionsAppType_ok() {
+
+    var form = new ProjectInformationForm();
+    var proposedStartDate = LocalDate.now().plusDays(5);
+    var earliestCompletionDate = proposedStartDate.plusDays(1);
+    form.setProposedStartDay(proposedStartDate.getDayOfMonth());
+    form.setProposedStartMonth(proposedStartDate.getMonthValue());
+    form.setProposedStartYear(proposedStartDate.getYear());
+    form.setEarliestCompletionDay(earliestCompletionDate.getDayOfMonth());
+    form.setEarliestCompletionMonth(earliestCompletionDate.getMonthValue());
+    form.setEarliestCompletionYear(earliestCompletionDate.getYear());
+
+    var maxFutureDate = proposedStartDate.plusMonths(6);
+    form.setLatestCompletionDay(maxFutureDate.getDayOfMonth());
+    form.setLatestCompletionMonth(maxFutureDate.getMonthValue());
+    form.setLatestCompletionYear(maxFutureDate.getYear());
+
+    var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form,
+        new ProjectInformationFormValidationHints(
+            PwaApplicationType.OPTIONS_VARIATION,
+            ValidationType.FULL,
+            Set.of(ProjectInformationQuestion.PROPOSED_START_DATE,
+                ProjectInformationQuestion.EARLIEST_COMPLETION_DATE,
+                ProjectInformationQuestion.LATEST_COMPLETION_DATE), false));
+
+    assertThat(errorsMap).isEmpty();
+
+  }
+
+  @Test
+  public void validate_latestCompletionBeforeMaxFutureDate_optionsAppType_ok() {
+
+    var form = new ProjectInformationForm();
+    var proposedStartDate = LocalDate.now().plusDays(5);
+    var earliestCompletionDate = proposedStartDate.plusDays(1);
+    form.setProposedStartDay(proposedStartDate.getDayOfMonth());
+    form.setProposedStartMonth(proposedStartDate.getMonthValue());
+    form.setProposedStartYear(proposedStartDate.getYear());
+    form.setEarliestCompletionDay(earliestCompletionDate.getDayOfMonth());
+    form.setEarliestCompletionMonth(earliestCompletionDate.getMonthValue());
+    form.setEarliestCompletionYear(earliestCompletionDate.getYear());
+
+    var maxFutureDate = proposedStartDate.plusMonths(6);
+    form.setLatestCompletionDay(maxFutureDate.getDayOfMonth() - 1);
+    form.setLatestCompletionMonth(maxFutureDate.getMonthValue());
+    form.setLatestCompletionYear(maxFutureDate.getYear());
+
+    var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form,
+        new ProjectInformationFormValidationHints(
+            PwaApplicationType.OPTIONS_VARIATION,
+            ValidationType.FULL,
+            Set.of(ProjectInformationQuestion.PROPOSED_START_DATE,
+                ProjectInformationQuestion.EARLIEST_COMPLETION_DATE,
+                ProjectInformationQuestion.LATEST_COMPLETION_DATE), false));
+
+    assertThat(errorsMap).isEmpty();
+
   }
 
   @Test
@@ -339,9 +565,9 @@ public class ProjectInformationValidatorTest {
         new ProjectInformationFormValidationHints(PwaApplicationType.INITIAL, ValidationType.FULL,
             Set.of(ProjectInformationQuestion.EARLIEST_COMPLETION_DATE, ProjectInformationQuestion.LATEST_COMPLETION_DATE), false));
     assertThat(errorsMap).containsValues(
-        Set.of("latestCompletionDay.beforeStart"),
-        Set.of("latestCompletionMonth.beforeStart"),
-        Set.of("latestCompletionYear.beforeStart")
+        Set.of("latestCompletionDay.beforeDate"),
+        Set.of("latestCompletionMonth.beforeDate"),
+        Set.of("latestCompletionYear.beforeDate")
     );
   }
 
