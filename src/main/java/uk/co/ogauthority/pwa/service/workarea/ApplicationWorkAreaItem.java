@@ -8,7 +8,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailSearchItem;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailItemView;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTask;
@@ -60,39 +60,39 @@ public abstract class ApplicationWorkAreaItem {
 
   private final String accessUrl;
 
-  public ApplicationWorkAreaItem(ApplicationDetailSearchItem applicationDetailSearchItem,
+  public ApplicationWorkAreaItem(ApplicationDetailItemView applicationDetailItemView,
                                  String accessUrl) {
-    this.pwaApplicationId = applicationDetailSearchItem.getPwaApplicationId();
-    this.pwaApplicationReference = applicationDetailSearchItem.getPadReference();
-    this.masterPwaReference = applicationDetailSearchItem.getPwaReference();
-    this.applicationType = applicationDetailSearchItem.getApplicationType();
-    this.applicationStatus = applicationDetailSearchItem.getPadStatus();
-    this.padStatusSetInstant = applicationDetailSearchItem.getPadStatusTimestamp();
-    this.tipFlag = applicationDetailSearchItem.isTipFlag();
-    this.projectName = applicationDetailSearchItem.getPadProjectName();
-    this.proposedStartInstant = applicationDetailSearchItem.getPadProposedStart();
-    this.orderedFieldList = applicationDetailSearchItem.getPadFields().stream()
+    this.pwaApplicationId = applicationDetailItemView.getPwaApplicationId();
+    this.pwaApplicationReference = applicationDetailItemView.getPadReference();
+    this.masterPwaReference = applicationDetailItemView.getPwaReference();
+    this.applicationType = applicationDetailItemView.getApplicationType();
+    this.applicationStatus = applicationDetailItemView.getPadStatus();
+    this.padStatusSetInstant = applicationDetailItemView.getPadStatusTimestamp();
+    this.tipFlag = applicationDetailItemView.isTipFlag();
+    this.projectName = applicationDetailItemView.getPadProjectName();
+    this.proposedStartInstant = applicationDetailItemView.getPadProposedStart();
+    this.orderedFieldList = applicationDetailItemView.getPadFields().stream()
         .sorted(Comparator.comparing(String::toLowerCase))
         .collect(Collectors.toList());
 
-    this.orderedPwaHolderList = applicationDetailSearchItem.getPwaHolderNameList().stream()
+    this.orderedPwaHolderList = applicationDetailItemView.getPwaHolderNameList().stream()
         .sorted(Comparator.comparing(String::toLowerCase))
         .collect(Collectors.toList());
 
-    this.orderedPadHolderList = applicationDetailSearchItem.getPadHolderNameList().stream()
+    this.orderedPadHolderList = applicationDetailItemView.getPadHolderNameList().stream()
         .sorted(Comparator.comparing(String::toLowerCase))
         .collect(Collectors.toList());
 
-    this.submittedAsFastTrackFlag = applicationDetailSearchItem.wasSubmittedAsFastTrack();
-    this.initialReviewApprovedInstant = applicationDetailSearchItem.getPadInitialReviewApprovedTimestamp();
+    this.submittedAsFastTrackFlag = applicationDetailItemView.wasSubmittedAsFastTrack();
+    this.initialReviewApprovedInstant = applicationDetailItemView.getPadInitialReviewApprovedTimestamp();
     this.accessUrl = accessUrl;
 
-    if (applicationDetailSearchItem.getCaseOfficerPersonId() != null) {
-      this.caseOfficerPersonId = new PersonId(applicationDetailSearchItem.getCaseOfficerPersonId());
-      this.caseOfficerName = applicationDetailSearchItem.getCaseOfficerName();
+    if (applicationDetailItemView.getCaseOfficerPersonId() != null) {
+      this.caseOfficerPersonId = new PersonId(applicationDetailItemView.getCaseOfficerPersonId());
+      this.caseOfficerName = applicationDetailItemView.getCaseOfficerName();
     }
 
-    this.openUpdateRequestFlag = applicationDetailSearchItem.getOpenUpdateRequestFlag();
+    this.openUpdateRequestFlag = applicationDetailItemView.getOpenUpdateRequestFlag();
 
   }
 

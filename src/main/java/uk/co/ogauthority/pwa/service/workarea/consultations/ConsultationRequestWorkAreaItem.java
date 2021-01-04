@@ -27,7 +27,7 @@ public class ConsultationRequestWorkAreaItem extends ApplicationWorkAreaItem {
   public ConsultationRequestWorkAreaItem(ConsultationRequestSearchItem requestSearchItem,
                                          Function<ConsultationRequestSearchItem, String> urlProducer) {
 
-    super(requestSearchItem.getApplicationDetailSearchItem(), urlProducer.apply(requestSearchItem));
+    super(requestSearchItem.getApplicationDetailView(), urlProducer.apply(requestSearchItem));
 
     this.consultationRequestId = requestSearchItem.getConsultationRequestId();
 

@@ -4,14 +4,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
 import java.util.function.Function;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailSearchItem;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailItemView;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 
 public class ApplicationWorkAreaItemTestUtil {
 
 
-  public static void test_getSummaryColumn_whenFieldsExist(ApplicationDetailSearchItem applicationDetailSearchItem,
-                                                           Function<ApplicationDetailSearchItem, ApplicationWorkAreaItem> workAreaItemFunction) {
+  public static void test_getSummaryColumn_whenFieldsExist(ApplicationDetailItemView applicationDetailSearchItem,
+                                                           Function<ApplicationDetailItemView, ApplicationWorkAreaItem> workAreaItemFunction) {
 
     applicationDetailSearchItem.setPadFields(List.of("FIELD 1", "FIELD 2"));
 
@@ -30,8 +30,8 @@ public class ApplicationWorkAreaItemTestUtil {
 
   }
 
-  public static void test_getSummaryColumn_whenNoFields(ApplicationDetailSearchItem applicationDetailSearchItem,
-                                                        Function<ApplicationDetailSearchItem, ApplicationWorkAreaItem> workAreaItemFunction) {
+  public static void test_getSummaryColumn_whenNoFields(ApplicationDetailItemView applicationDetailSearchItem,
+                                                        Function<ApplicationDetailItemView, ApplicationWorkAreaItem> workAreaItemFunction) {
 
     applicationDetailSearchItem.setPadFields(List.of());
 
@@ -47,8 +47,8 @@ public class ApplicationWorkAreaItemTestUtil {
 
   }
 
-  public static void test_getHolderColumn_whenInitialType(ApplicationDetailSearchItem applicationDetailSearchItem,
-                                                          Function<ApplicationDetailSearchItem, ApplicationWorkAreaItem> workAreaItemFunction) {
+  public static void test_getHolderColumn_whenInitialType(ApplicationDetailItemView applicationDetailSearchItem,
+                                                          Function<ApplicationDetailItemView, ApplicationWorkAreaItem> workAreaItemFunction) {
 
     applicationDetailSearchItem.setApplicationType(PwaApplicationType.INITIAL);
     applicationDetailSearchItem.setPadHolderNameList(List.of("PAD HOLDER 1", "PAD HOLDER 2"));
@@ -62,8 +62,8 @@ public class ApplicationWorkAreaItemTestUtil {
 
   }
 
-  public static void test_getHolderColumn_whenNotInitialType(ApplicationDetailSearchItem applicationDetailSearchItem,
-                                                             Function<ApplicationDetailSearchItem, ApplicationWorkAreaItem> workAreaItemFunction) {
+  public static void test_getHolderColumn_whenNotInitialType(ApplicationDetailItemView applicationDetailSearchItem,
+                                                             Function<ApplicationDetailItemView, ApplicationWorkAreaItem> workAreaItemFunction) {
 
     applicationDetailSearchItem.setApplicationType(PwaApplicationType.CAT_1_VARIATION);
     applicationDetailSearchItem.setPwaHolderNameList(List.of("PWA HOLDER 1", "PWA HOLDER 2"));
@@ -77,8 +77,8 @@ public class ApplicationWorkAreaItemTestUtil {
 
   }
 
-  public static void test_getApplicationColumn_whenInitialType(ApplicationDetailSearchItem applicationDetailSearchItem,
-                                                               Function<ApplicationDetailSearchItem, ApplicationWorkAreaItem> workAreaItemFunction) {
+  public static void test_getApplicationColumn_whenInitialType(ApplicationDetailItemView applicationDetailSearchItem,
+                                                               Function<ApplicationDetailItemView, ApplicationWorkAreaItem> workAreaItemFunction) {
 
 
     applicationDetailSearchItem.setApplicationType(PwaApplicationType.INITIAL);
@@ -94,8 +94,8 @@ public class ApplicationWorkAreaItemTestUtil {
 
   }
 
-  public static void test_getApplicationColumn_whenNotInitialType(ApplicationDetailSearchItem applicationDetailSearchItem,
-                                                               Function<ApplicationDetailSearchItem, ApplicationWorkAreaItem> workAreaItemFunction) {
+  public static void test_getApplicationColumn_whenNotInitialType(ApplicationDetailItemView applicationDetailSearchItem,
+                                                               Function<ApplicationDetailItemView, ApplicationWorkAreaItem> workAreaItemFunction) {
 
 
     applicationDetailSearchItem.setApplicationType(PwaApplicationType.CAT_1_VARIATION);
@@ -112,8 +112,8 @@ public class ApplicationWorkAreaItemTestUtil {
 
   }
 
-  public static void test_getApplicationColumn_whenUpdateRequest(ApplicationDetailSearchItem applicationDetailSearchItem,
-                                                                 Function<ApplicationDetailSearchItem, ApplicationWorkAreaItem> workAreaItemFunction) {
+  public static void test_getApplicationColumn_whenUpdateRequest(ApplicationDetailItemView applicationDetailSearchItem,
+                                                                 Function<ApplicationDetailItemView, ApplicationWorkAreaItem> workAreaItemFunction) {
 
     applicationDetailSearchItem.setApplicationType(PwaApplicationType.CAT_1_VARIATION);
     applicationDetailSearchItem.setOpenUpdateRequestFlag(true);

@@ -15,9 +15,9 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 
 @Entity
-@Table(name = "pad_search_items")
+@Table(name = "application_detail_view")
 @Immutable
-public class ApplicationDetailSearchItem implements ApplicationDetailItemView {
+public class ApplicationDetailView implements ApplicationDetailItemView {
 
   @Id
   private int pwaApplicationDetailId;
@@ -349,5 +349,4 @@ public class ApplicationDetailSearchItem implements ApplicationDetailItemView {
   public void setTipVersionSatisfactoryFlag(boolean tipVersionSatisfactoryFlag) {
     this.tipVersionSatisfactoryFlag = tipVersionSatisfactoryFlag;
   }
-
 }
