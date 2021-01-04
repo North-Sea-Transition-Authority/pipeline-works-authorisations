@@ -8,7 +8,6 @@
 
   <h2 class="govuk-heading-l">${sectionName}</h2>
 
-
   <#list drawingForTableAViews as drawingForTableAView>
 
     <#list drawingForTableAView.tableAViews as tableAView>
@@ -32,8 +31,6 @@
 
 </div>
 
-
-
 <#macro tableA tableAView>
   <table class="tableA sectionTable">
     <thead>
@@ -51,14 +48,14 @@
         <th> M.A.O.P. </th>
         <th> Product to be Conveyed </th>
       </tr>
-    </thead>    
+    </thead>
 
     <tbody>
-      <@tableARow tableARowView=tableAView.headerRow totalRows=tableAView.totalRows isHeaderRow=true/>      
+      <@tableARow tableARowView=tableAView.headerRow totalRows=tableAView.totalRows isHeaderRow=true/>
       <#list tableAView.identRows as identRow>
         <@tableARow identRow/>
       </#list>
-    </tbody>  
+    </tbody>
 
   </table>
 </#macro>
@@ -70,15 +67,15 @@
       <td class="headerRow" rowSpan="${totalRows}"> ${tableARowView.pipelineNumber!} </td>
     </#if>
     <td> ${tableARowView.identNumber!} </td>
-    <td> 
+    <td class="coordinateTableCell">
       ${tableARowView.fromLocation!} </br>
-      <@pwaCoordinate.display coordinatePair=tableARowView.fromCoordinates/> 
+      <@pwaCoordinate.display coordinatePair=tableARowView.fromCoordinates/>
     </td>
-    <td> 
+    <td class="coordinateTableCell">
       ${tableARowView.toLocation!} </br>
-      <@pwaCoordinate.display coordinatePair=tableARowView.toCoordinates/> 
+      <@pwaCoordinate.display coordinatePair=tableARowView.toCoordinates/>
     </td>
-    <td> ${tableARowView.componentParts!} </td>
+    <td style="width: 120px;"> ${tableARowView.componentParts!} </td>
     <td> ${tableARowView.length!} </td>
     <td> ${tableARowView.externalDiameter!} </td>
     <td> ${tableARowView.internalDiameter!} </td>

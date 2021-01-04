@@ -79,8 +79,8 @@
     }
 
     .sectionTable {
-      width: 100%;
-    }    
+      width: 1000px;
+    }
 
     .sectionTable, .sectionTable th, .sectionTable td {
       border: 1px solid black;
@@ -91,15 +91,19 @@
       padding-left: 5px;
     }
 
+    .coordinateTableCell {
+      width: 135px;
+    }
+
     @media print {
       #depositsTableSection, #tableAsSection, .tableAPage  {
         page-break-before: always;
       }
     }
 
-    .sectionTable tr { 
-      page-break-inside:avoid; 
-      page-break-after:auto 
+    .sectionTable tr {
+      page-break-inside:avoid;
+      page-break-after:auto
     }
 
     .sectionTable, #depositsTableSection, #tableAsSection {
@@ -121,7 +125,7 @@
 
     .govuk-list--lower-roman {
       list-style-type: lower-roman;
-    }    
+    }
 
     .tableA {
       page-break-inside:auto

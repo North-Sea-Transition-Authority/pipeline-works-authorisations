@@ -8,7 +8,6 @@
 
   <h2 class="govuk-heading-l">${sectionName}</h2>
 
-  
   <table class="sectionTable">
     <thead>
       <tr>
@@ -24,7 +23,6 @@
         <th> To: </th>
       </tr>
     </thead>
-    
 
     <tbody>
       <#list depositTableRowViews as depositTableRowView>
@@ -33,9 +31,9 @@
           <td> ${depositTableRowView.proposedDate} </td>
           <td> ${depositTableRowView.typeAndSizeOfMaterials} </td>
           <td> ${depositTableRowView.quantity} </td>
-          <td> <@pwaCoordinate.display coordinatePair=depositTableRowView.fromCoordinates/> </td>
-          <td> <@pwaCoordinate.display coordinatePair=depositTableRowView.toCoordinates/> </td>
-        
+          <td class="coordinateTableCell"> <@pwaCoordinate.display coordinatePair=depositTableRowView.fromCoordinates/> </td>
+          <td class="coordinateTableCell"> <@pwaCoordinate.display coordinatePair=depositTableRowView.toCoordinates/> </td>
+
           <td>
             <ul class="drawingNumberList">
               <#list depositTableRowView.drawingNumbers as drawingNumber>
@@ -45,7 +43,7 @@
           </td>
         </tr>
       </#list>
-    </tbody>  
+    </tbody>
   </table>
 
 </div>

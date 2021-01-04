@@ -14,8 +14,12 @@ public class DepositTableRowView {
   private final CoordinatePair toCoordinates;
   private final List<String> drawingNumbers;
 
-  public DepositTableRowView(String pipelineNumber, String proposedDate, String typeAndSizeOfMaterials,
-                             String quantity, CoordinatePair fromCoordinates, CoordinatePair toCoordinates,
+  public DepositTableRowView(String pipelineNumber,
+                             String proposedDate,
+                             String typeAndSizeOfMaterials,
+                             String quantity,
+                             CoordinatePair fromCoordinates,
+                             CoordinatePair toCoordinates,
                              List<String> drawingNumbers) {
     this.pipelineNumber = pipelineNumber;
     this.proposedDate = proposedDate;
