@@ -19,7 +19,7 @@
       <#assign diffHideGroup = "hide-when-diff-disabled"/>
 
       <#if showPwaLinkedToDesc>
-        <@fdsCheckAnswers.checkAnswersRowNoAction keyText="What is this PWA in relation to?" rowClass=hidePwaLinkedToDescOnLoad?then(diffHideGroup, "")>
+        <@fdsCheckAnswers.checkAnswersRowNoAction keyText="What is this PWA related to?" rowClass=hidePwaLinkedToDescOnLoad?then(diffHideGroup, "")>
           <@diffChanges.renderDiff diffedField=fieldLinkQuestions.PwaFieldLinksView_pwaLinkedToDescription multiLineTextBlockClass="govuk-summary-list"/>
         </@fdsCheckAnswers.checkAnswersRowNoAction>
       </#if>
