@@ -1,6 +1,7 @@
 <#include '../../../layout.ftl'>
 
 <#-- @ftlvariable name="errorList" type="java.util.List<uk.co.ogauthority.pwa.model.form.fds.ErrorItem>" -->
+<#-- @ftlvariable name="partnerLettersTemplateLink" type="String" -->
 
 <@defaultPage htmlTitle="Partner approval letters" pageHeading="Partner approval letters" breadcrumbs=true>
 
@@ -27,9 +28,13 @@
         <@fdsRadio.radioGroup path="form.partnerLettersRequired" labelText="Do you need to provide partner approval letters?" hiddenContent=true hintText="A partner is any holder, user, operator or owner that is not part of your corporate group">
 
             <@fdsRadio.radioYes path="form.partnerLettersRequired">
+
                 <@fdsFileUpload.fileUpload id="partner-letters-upload-file-id" path="form.uploadedFileWithDescriptionForms" uploadUrl=uploadUrl deleteUrl=deleteUrl maxAllowedSize=fileuploadMaxUploadSize allowedExtensions=fileuploadAllowedExtensions downloadUrl=downloadUrl existingFiles=uploadedFileViewList dropzoneText="Drag and drop your documents here"/>
-                <#--  TODO PWA-681 - OGA Link  -->
-                <@fdsDetails.details detailsText="Partner approval letters should be drafted as per the template at OGA_LINK. These can be the letters used in support of the FDP, if that is recent." detailsTitle="What information do I need to provide on the partner approval letter?"/>
+
+                <@fdsDetails.summaryDetails summaryTitle="What information do I need to provide on the partner approval letter?">
+                    Partner approval letters should be drafted as per the <@fdsAction.link linkUrl=partnerLettersTemplateLink linkText="template" linkClass="govuk-link govuk-link--no-visited-state" openInNewTab=true/>.
+                    These can be the letters used in support of the FDP, if that is recent.
+                </@fdsDetails.summaryDetails>
 
                 <@fdsCheckbox.checkboxGroup path="form.partnerLettersConfirmed" nestingPath="form.partnerLettersRequired">
                     <@fdsCheckbox.checkboxItem path="form.partnerLettersConfirmed" labelText="I have provided all required partner approval letters" />
