@@ -182,7 +182,7 @@ public class PipelinesController {
                                       BindingResult bindingResult) {
 
     var validationHints = new PipelineHeaderValidationHints(
-        PipelineStatus.IN_SERVICE, padPipelineService.canShowAlreadyExistsOnSeabedQuestions(null, pwaApplicationType));
+        PipelineStatus.IN_SERVICE, padPipelineService.canShowAlreadyExistsOnSeabedQuestions(pwaApplicationType));
 
     pipelineHeaderFormValidator.validate(form, bindingResult, validationHints);
 

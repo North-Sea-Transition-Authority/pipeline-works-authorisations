@@ -136,7 +136,7 @@ public class PipelineHeaderFormValidator implements SmartValidator {
 
     if (pipelineHeaderValidationHints.getValidateAlreadyExistsOnSeabedQuestion()) {
       ValidationUtils.rejectIfEmpty(errors, "alreadyExistsOnSeabed", "alreadyExistsOnSeabed" + FieldValidationErrorCodes.REQUIRED.getCode(),
-          "Select 'Yes' if this pipeline already exist on the seabed");
+          "Select 'Yes' if this pipeline already exists on the seabed");
 
       if (BooleanUtils.isTrue(form.getAlreadyExistsOnSeabed())) {
         ValidationUtils.rejectIfEmpty(errors, "pipelineInUse", "pipelineInUse" + FieldValidationErrorCodes.REQUIRED.getCode(),

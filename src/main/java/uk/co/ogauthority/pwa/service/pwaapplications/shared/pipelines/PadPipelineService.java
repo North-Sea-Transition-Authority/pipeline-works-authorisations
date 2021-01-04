@@ -221,10 +221,14 @@ public class PadPipelineService implements ApplicationFormSectionService {
         null));
   }
 
-  public Boolean canShowAlreadyExistsOnSeabedQuestions(PadPipeline padPipeline, PwaApplicationType pwaApplicationType) {
+  public boolean canShowAlreadyExistsOnSeabedQuestions(PadPipeline padPipeline, PwaApplicationType pwaApplicationType) {
     return (PwaApplicationType.CAT_2_VARIATION.equals(pwaApplicationType)
         || PwaApplicationType.DECOMMISSIONING.equals(pwaApplicationType))
         && PipelineHeaderFormContext.NON_CONSENTED_PIPELINE.equals(getPipelineHeaderFormContext(padPipeline));
+  }
+
+  public boolean canShowAlreadyExistsOnSeabedQuestions(PwaApplicationType pwaApplicationType) {
+    return canShowAlreadyExistsOnSeabedQuestions(null, pwaApplicationType);
   }
 
   public PipelineHeaderFormContext getPipelineHeaderFormContext(PadPipeline padPipeline) {

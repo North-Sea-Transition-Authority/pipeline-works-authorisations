@@ -138,8 +138,8 @@ public class PipelineHeaderView implements PipelineOverview {
     this.trenchingMethodsDescription = null;
     this.questionsForPipelineStatus = PipelineHeaderConditionalQuestion.getQuestionsForStatus(
         pipelineDetail.getPipelineStatus());
-    this.alreadyExistsOnSeabed = null;//pipelineDetail.getAlreadyExistsOnSeabed();
-    this.pipelineInUse = null;//pipelineDetail.getPipelineInUse();
+    this.alreadyExistsOnSeabed = null;
+    this.pipelineInUse = null;
   }
 
 
