@@ -51,21 +51,19 @@
     </thead>
 
     <tbody>
-      <@tableARow tableARowView=tableAView.headerRow totalRows=tableAView.totalRows isHeaderRow=true/>
+      <#local plNumber = tableAView.headerRow.pipelineNumber />
+      <@tableARow tableAView.headerRow plNumber/>
       <#list tableAView.identRows as identRow>
-        <@tableARow identRow/>
+        <@tableARow identRow plNumber/>
       </#list>
     </tbody>
 
   </table>
 </#macro>
 
-
-<#macro tableARow tableARowView totalRows=2 isHeaderRow=false>
+<#macro tableARow tableARowView plNumber>
   <tr>
-    <#if isHeaderRow>
-      <td class="headerRow" rowSpan="${totalRows}"> ${tableARowView.pipelineNumber!} </td>
-    </#if>
+    <td class="headerRow"> ${plNumber} </td>
     <td> ${tableARowView.identNumber!} </td>
     <td class="coordinateTableCell">
       ${tableARowView.fromLocation!} </br>
@@ -83,6 +81,5 @@
     <td> ${tableARowView.typeOfInsulation!} </td>
     <td> ${tableARowView.maop!} </td>
     <td> ${tableARowView.productsToBeConveyed!} </td>
-
   </tr>
 </#macro>

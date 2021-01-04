@@ -67,7 +67,7 @@ public class TableAGeneratorService implements DocumentSectionGenerator {
       String projectName,
       Map<PipelineDrawingSummaryView, List<PipelineDiffableSummary>> drawingForPipelineSummaryMap) {
 
-    var drawingForTableAViews = drawingForPipelineSummaryMap.entrySet()
+    return drawingForPipelineSummaryMap.entrySet()
         .stream().map(entry -> {
           var drawingSummary = entry.getKey();
           var pipelineSummaries = entry.getValue();
@@ -83,8 +83,6 @@ public class TableAGeneratorService implements DocumentSectionGenerator {
           );
         })
         .collect(Collectors.toList());
-
-    return drawingForTableAViews;
   }
 
 
