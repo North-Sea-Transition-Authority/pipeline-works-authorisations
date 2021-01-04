@@ -5,6 +5,10 @@
 
 <@defaultPage htmlTitle="Partner approval letters" pageHeading="Partner approval letters" breadcrumbs=true>
 
+    <#assign templateLinkHtml>
+        <@fdsAction.link linkUrl=partnerLettersTemplateLink linkText="template" linkClass="govuk-link govuk-link--no-visited-state" openInNewTab=true/>
+    </#assign>
+
     <#if errorList?has_content>
         <@fdsError.errorSummary errorItems=errorList errorTitle="Errors"/>
     </#if>
@@ -19,7 +23,7 @@
             For Category 2 and Decom applications partner approval letters are required if a new partner has an interest in the project and they have not supplied a letter as part of the initial PWA or any associated Category 1 Variations.
         </p>
         <p>
-            You must use the partner approval letter template at [link]
+            You must use the partner approval letter ${templateLinkHtml}.
         </p>
         </#assign>
 
@@ -32,7 +36,7 @@
                 <@fdsFileUpload.fileUpload id="partner-letters-upload-file-id" path="form.uploadedFileWithDescriptionForms" uploadUrl=uploadUrl deleteUrl=deleteUrl maxAllowedSize=fileuploadMaxUploadSize allowedExtensions=fileuploadAllowedExtensions downloadUrl=downloadUrl existingFiles=uploadedFileViewList dropzoneText="Drag and drop your documents here"/>
 
                 <@fdsDetails.summaryDetails summaryTitle="What information do I need to provide on the partner approval letter?">
-                    Partner approval letters should be drafted as per the <@fdsAction.link linkUrl=partnerLettersTemplateLink linkText="template" linkClass="govuk-link govuk-link--no-visited-state" openInNewTab=true/>.
+                    Partner approval letters should be drafted as per the ${templateLinkHtml}.
                     These can be the letters used in support of the FDP, if that is recent.
                 </@fdsDetails.summaryDetails>
 
