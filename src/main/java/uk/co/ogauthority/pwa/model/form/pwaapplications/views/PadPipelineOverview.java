@@ -45,6 +45,11 @@ public class PadPipelineOverview implements PipelineOverview {
   //   Its a rubbish method of determining if tasks apply to a pipeline on the pipeline task-list.
   private Boolean hasTasks;
 
+  private Boolean alreadyExistsOnSeabed;
+  private Boolean pipelineInUse;
+
+
+
   private PadPipelineOverview(Integer padPipelineId,
                               Integer pipelineId,
                               String fromLocation,
@@ -68,7 +73,9 @@ public class PadPipelineOverview implements PipelineOverview {
                               String trenchingMethodsDescription,
                               PipelineStatus pipelineStatus,
                               String pipelineStatusReason,
-                              Boolean hasTasks) {
+                              Boolean hasTasks,
+                              Boolean alreadyExistsOnSeabed,
+                              Boolean pipelineInUse) {
     this.padPipelineId = padPipelineId;
     this.pipelineId = pipelineId;
     this.fromLocation = fromLocation;
@@ -93,6 +100,8 @@ public class PadPipelineOverview implements PipelineOverview {
     this.pipelineStatus = pipelineStatus;
     this.pipelineStatusReason = pipelineStatusReason;
     this.hasTasks = hasTasks;
+    this.alreadyExistsOnSeabed = alreadyExistsOnSeabed;
+    this.pipelineInUse = pipelineInUse;
   }
 
   @VisibleForTesting
@@ -117,6 +126,8 @@ public class PadPipelineOverview implements PipelineOverview {
     this.trenchedBuriedBackfilled = padPipeline.getTrenchedBuriedBackfilled();
     this.trenchingMethodsDescription = padPipeline.getTrenchingMethodsDescription();
     this.pipelineStatus = padPipeline.getPipelineStatus();
+    this.alreadyExistsOnSeabed = padPipeline.getAlreadyExistsOnSeabed();
+    this.pipelineInUse = padPipeline.getPipelineInUse();
   }
 
   @VisibleForTesting
@@ -161,7 +172,9 @@ public class PadPipelineOverview implements PipelineOverview {
         pipelineDetailSummaryDto.getTrenchingMethodsDescription(),
         pipelineDetailSummaryDto.getPipelineStatus(),
         pipelineDetailSummaryDto.getPipelineStatusReason(),
-        false
+        false,
+        null,
+        null
     );
   }
 
@@ -191,7 +204,9 @@ public class PadPipelineOverview implements PipelineOverview {
         padPipelineSummaryDto.getTrenchingMethodsDescription(),
         padPipelineSummaryDto.getPipelineStatus(),
         padPipelineSummaryDto.getPipelineStatusReason(),
-        hasTasks
+        hasTasks,
+        padPipelineSummaryDto.getAlreadyExistsOnSeabed(),
+        padPipelineSummaryDto.getPipelineInUse()
     );
   }
 
@@ -308,6 +323,16 @@ public class PadPipelineOverview implements PipelineOverview {
   @Override
   public String getTemporaryPipelineNumber() {
     return this.temporaryPipelineNumber;
+  }
+
+  @Override
+  public Boolean getAlreadyExistsOnSeabed() {
+    return this.alreadyExistsOnSeabed;
+  }
+
+  @Override
+  public Boolean getPipelineInUse() {
+    return this.pipelineInUse;
   }
 
   public Boolean getHasTasks() {

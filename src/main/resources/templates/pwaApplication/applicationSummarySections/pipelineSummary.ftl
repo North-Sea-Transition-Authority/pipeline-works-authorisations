@@ -111,6 +111,20 @@
             </@fdsCheckAnswers.checkAnswersRow>
         </#if>
 
+        <#if pipelineHeader.canShowAlreadyExistsOnSeabed>
+            <@fdsCheckAnswers.checkAnswersRow keyText="Does the pipeline already exist on the seabed?" actionUrl="" screenReaderActionText="" actionText="">
+                <@diffChanges.renderDiff pipelineHeader.PipelineHeaderView_alreadyExistsOnSeabed />
+            </@fdsCheckAnswers.checkAnswersRow>
+            
+            <#if pipelineHeader.canShowPipelineInUse>
+                <@fdsCheckAnswers.checkAnswersRow keyText="Is the pipeline in use?" actionUrl="" screenReaderActionText="" actionText="">
+                    <@diffChanges.renderDiff pipelineHeader.PipelineHeaderView_pipelineInUse />
+                </@fdsCheckAnswers.checkAnswersRow>
+            </#if>
+
+        </#if>
+
+
         <@fdsCheckAnswers.checkAnswersRow keyText="Schematic drawing" actionUrl="" screenReaderActionText="" actionText="">
             <#if drawingSummaryView?has_content>
                 <@fdsAction.link linkText=drawingSummaryView.fileName linkUrl=springUrl(urlFactory.getPipelineDrawingDownloadUrl(drawingSummaryView.fileId)) 

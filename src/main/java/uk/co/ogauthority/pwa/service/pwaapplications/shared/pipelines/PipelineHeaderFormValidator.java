@@ -10,7 +10,6 @@ import org.springframework.validation.SmartValidator;
 import org.springframework.validation.ValidationUtils;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineHeaderConditionalQuestion;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineMaterial;
-import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineStatus;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
 import uk.co.ogauthority.pwa.model.form.enums.ValueRequirement;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.PipelineHeaderForm;
@@ -120,7 +119,8 @@ public class PipelineHeaderFormValidator implements SmartValidator {
       }
     }
 
-    var pipelineStatus = (PipelineStatus) validationHints[0];
+    var pipelineHeaderValidationHints = (PipelineHeaderValidationHints) validationHints[0];
+    var pipelineStatus = pipelineHeaderValidationHints.getPipelineStatus();
     var questionsForPipelineStatus = PipelineHeaderConditionalQuestion.getQuestionsForStatus(pipelineStatus);
     for (var question: questionsForPipelineStatus) {
       if (PipelineHeaderConditionalQuestion.OUT_OF_USE_ON_SEABED_REASON.equals(question)) {
@@ -131,6 +131,16 @@ public class PipelineHeaderFormValidator implements SmartValidator {
         ValidatorUtils.validateDefaultStringLength(
             errors, "whyNotReturnedToShore", form::getWhyNotReturnedToShore,
             "The pipeline not being returned to shore reason must be 4000 characters or fewer");
+      }
+    }
+
+    if (pipelineHeaderValidationHints.getValidateAlreadyExistsOnSeabedQuestion()) {
+      ValidationUtils.rejectIfEmpty(errors, "alreadyExistsOnSeabed", "alreadyExistsOnSeabed" + FieldValidationErrorCodes.REQUIRED.getCode(),
+          "Select 'Yes' if this pipeline already exists on the seabed");
+
+      if (BooleanUtils.isTrue(form.getAlreadyExistsOnSeabed())) {
+        ValidationUtils.rejectIfEmpty(errors, "pipelineInUse", "pipelineInUse" + FieldValidationErrorCodes.REQUIRED.getCode(),
+            "Select 'Yes' if this pipeline is in use");
       }
     }
 

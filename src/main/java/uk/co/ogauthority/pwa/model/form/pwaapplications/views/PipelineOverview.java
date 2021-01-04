@@ -52,4 +52,8 @@ public interface PipelineOverview extends NamedPipeline {
 
   String getTemporaryPipelineNumber();
 
+  Boolean getAlreadyExistsOnSeabed();
+
+  Boolean getPipelineInUse();
+
 }

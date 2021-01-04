@@ -41,6 +41,8 @@ public class PadPipelineSummaryDto {
   private final String trenchingMethodsDescription;
   private final PipelineStatus pipelineStatus;
   private final String pipelineStatusReason;
+  private final Boolean alreadyExistsOnSeabed;
+  private final Boolean pipelineInUse;
 
   public PadPipelineSummaryDto(Integer padPipelineId,
                                Integer pipelineId,
@@ -80,7 +82,9 @@ public class PadPipelineSummaryDto {
                                Boolean trenchedBuriedBackfilled,
                                String trenchingMethodsDescription,
                                PipelineStatus pipelineStatus,
-                               String pipelineStatusReason) {
+                               String pipelineStatusReason,
+                               Boolean alreadyExistsOnSeabed,
+                               Boolean pipelineInUse) {
     this.padPipelineId = padPipelineId;
     this.pipelineId = pipelineId;
     this.fromLocation = fromLocation;
@@ -131,6 +135,8 @@ public class PadPipelineSummaryDto {
     this.otherPipelineMaterialUsed = otherPipelineMaterialUsed;
     this.trenchedBuriedBackfilled = trenchedBuriedBackfilled;
     this.trenchingMethodsDescription = trenchingMethodsDescription;
+    this.alreadyExistsOnSeabed = alreadyExistsOnSeabed;
+    this.pipelineInUse = pipelineInUse;
   }
 
   public static PadPipelineSummaryDto from(PipelineDetail pipelineDetail) {
@@ -171,7 +177,9 @@ public class PadPipelineSummaryDto {
         pipelineDetail.getTrenchedBuriedFilledFlag(),
         pipelineDetail.getTrenchingMethodsDesc(),
         pipelineDetail.getPipelineStatus(),
-        pipelineDetail.getPipelineStatusReason()
+        pipelineDetail.getPipelineStatusReason(),
+        null,
+        null
     );
   }
 
@@ -265,5 +273,13 @@ public class PadPipelineSummaryDto {
 
   public String getTemporaryPipelineNumber() {
     return temporaryPipelineNumber;
+  }
+
+  public Boolean getAlreadyExistsOnSeabed() {
+    return alreadyExistsOnSeabed;
+  }
+
+  public Boolean getPipelineInUse() {
+    return pipelineInUse;
   }
 }

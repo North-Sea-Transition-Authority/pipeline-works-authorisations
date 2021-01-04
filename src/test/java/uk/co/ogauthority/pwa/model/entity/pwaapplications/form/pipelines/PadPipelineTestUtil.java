@@ -58,6 +58,8 @@ public class PadPipelineTestUtil {
     padPipeline.setToCoordinates(CoordinatePairTestUtil.getDefaultCoordinate(46, 1));
     padPipeline.setTrenchedBuriedBackfilled(true);
     padPipeline.setTrenchingMethodsDescription("TRENCHING");
+    padPipeline.setAlreadyExistsOnSeabed(true);
+    padPipeline.setPipelineInUse(false);
 
 
     ObjectTestUtils.assertAllFieldsNotNull(padPipeline, PadPipeline.class, Set.of(PadPipeline_.ID));
