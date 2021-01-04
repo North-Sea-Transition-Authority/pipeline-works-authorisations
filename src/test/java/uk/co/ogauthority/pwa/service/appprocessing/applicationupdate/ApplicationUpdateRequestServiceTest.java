@@ -249,7 +249,7 @@ public class ApplicationUpdateRequestServiceTest {
                                                String recipientFullName) {
 
     assertThat(emailProperties.getEmailPersonalisation()).contains(
-        entry("CASE_OFFICER_NAME", responderPerson.getFullName()),
+        entry("REQUESTER_NAME", responderPerson.getFullName()),
         entry("APPLICATION_REFERENCE", pwaApplicationDetail.getPwaApplicationRef())
     );
     assertThat(emailProperties.getRecipientFullName()).isEqualTo(recipientFullName);

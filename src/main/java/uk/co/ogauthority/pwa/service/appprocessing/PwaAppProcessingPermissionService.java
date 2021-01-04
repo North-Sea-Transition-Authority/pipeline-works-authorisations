@@ -79,11 +79,13 @@ public class PwaAppProcessingPermissionService {
             case EDIT_CONSULTATIONS:
             case PUBLIC_NOTICE:
             case WITHDRAW_CONSULTATION:
-            case WITHDRAW_APPLICATION:
-            case REQUEST_APPLICATION_UPDATE:
             case EDIT_CONSENT_DOCUMENT:
               return userPrivileges.contains(
                   PwaUserPrivilege.PWA_CASE_OFFICER) && appInvolvement.isCaseOfficerStageAndUserAssigned();
+            case REQUEST_APPLICATION_UPDATE:
+            case WITHDRAW_APPLICATION:
+              return (userPrivileges.contains(PwaUserPrivilege.PWA_CASE_OFFICER) && appInvolvement.isCaseOfficerStageAndUserAssigned())
+                  || (userPrivileges.contains(PwaUserPrivilege.PWA_MANAGER) && appInvolvement.isPwaManagerStage());
             default:
               return false;
           }

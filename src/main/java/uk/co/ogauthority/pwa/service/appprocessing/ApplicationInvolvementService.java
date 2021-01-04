@@ -82,11 +82,18 @@ public class ApplicationInvolvementService {
 
     // OGA data
     boolean caseOfficerStageAndUserAssigned = false;
+    boolean pwaManagerStage = false;
 
     if (userType == UserType.OGA) {
+
       caseOfficerStageAndUserAssigned = getCaseOfficerPersonId(application)
           .filter(personId -> personId.equals(user.getLinkedPerson().getId()))
           .isPresent();
+
+      pwaManagerStage = camundaWorkflowService.getAllActiveWorkflowTasks(application).stream()
+          .map(t -> PwaApplicationWorkflowTask.valueOf(t.getTaskName()))
+          .anyMatch(t -> t == PwaApplicationWorkflowTask.APPLICATION_REVIEW);
+
     }
 
     boolean atLeastOneSatisfactoryVersion = confirmSatisfactoryApplicationService.atLeastOneSatisfactoryVersion(application);
@@ -96,6 +103,7 @@ public class ApplicationInvolvementService {
         appContactRoles,
         consultationInvolvement,
         caseOfficerStageAndUserAssigned,
+        pwaManagerStage,
         atLeastOneSatisfactoryVersion);
 
   }

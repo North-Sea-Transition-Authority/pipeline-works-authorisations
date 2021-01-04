@@ -156,7 +156,7 @@ public class PwaAppProcessingPermissionServiceTest {
 
     replacePrivileges(user, PwaUserPrivilege.PWA_CASE_OFFICER);
 
-    var appInvolvement = new ApplicationInvolvementDto(application, Set.of(), null, true, false);
+    var appInvolvement = new ApplicationInvolvementDto(application, Set.of(), null, true, false, false);
     when(applicationInvolvementService.getApplicationInvolvementDto(application, user)).thenReturn(appInvolvement);
 
     var permissions = processingPermissionService.getProcessingPermissionsDto(application, user).getProcessingPermissions();
@@ -168,7 +168,7 @@ public class PwaAppProcessingPermissionServiceTest {
 
     replacePrivileges(user, PwaUserPrivilege.PWA_CASE_OFFICER);
 
-    var appInvolvement = new ApplicationInvolvementDto(application, Set.of(), null, false, false);
+    var appInvolvement = new ApplicationInvolvementDto(application, Set.of(), null, false, false, false);
     when(applicationInvolvementService.getApplicationInvolvementDto(application, user)).thenReturn(appInvolvement);
 
     var permissions = processingPermissionService.getProcessingPermissionsDto(application, user).getProcessingPermissions();
@@ -180,7 +180,7 @@ public class PwaAppProcessingPermissionServiceTest {
 
     clearPrivileges(user);
 
-    var appInvolvement = new ApplicationInvolvementDto(application, Set.of(), null, false, false);
+    var appInvolvement = new ApplicationInvolvementDto(application, Set.of(), null, false, false, false);
     when(applicationInvolvementService.getApplicationInvolvementDto(application, user)).thenReturn(appInvolvement);
 
     var permissions = processingPermissionService.getProcessingPermissionsDto(application, user).getProcessingPermissions();
@@ -194,7 +194,7 @@ public class PwaAppProcessingPermissionServiceTest {
     replacePrivileges(user, PwaUserPrivilege.PWA_CONSULTEE);
 
     var appInvolvement = new ApplicationInvolvementDto(application, Set.of(), getConsultationInvolvement(false, Set.of(ConsulteeGroupMemberRole.RECIPIENT)), false,
-        false);
+        false, false);
     when(applicationInvolvementService.getApplicationInvolvementDto(application, user)).thenReturn(appInvolvement);
 
     var permissions = processingPermissionService.getProcessingPermissionsDto(application, user).getProcessingPermissions();
@@ -208,7 +208,7 @@ public class PwaAppProcessingPermissionServiceTest {
     replacePrivileges(user, PwaUserPrivilege.PWA_CONSULTEE);
 
     var appInvolvement = new ApplicationInvolvementDto(application, Set.of(), getConsultationInvolvement(false, Set.of(ConsulteeGroupMemberRole.RESPONDER)), false,
-        false);
+        false, false);
     when(applicationInvolvementService.getApplicationInvolvementDto(application, user)).thenReturn(appInvolvement);
 
     var permissions = processingPermissionService.getProcessingPermissionsDto(application, user).getProcessingPermissions();
@@ -222,7 +222,7 @@ public class PwaAppProcessingPermissionServiceTest {
     replacePrivileges(user, PwaUserPrivilege.PWA_CONSULTEE);
 
     var appInvolvement = new ApplicationInvolvementDto(application, Set.of(), getConsultationInvolvement(false, Set.of(ConsulteeGroupMemberRole.ACCESS_MANAGER)), false,
-        false);
+        false, false);
     when(applicationInvolvementService.getApplicationInvolvementDto(application, user)).thenReturn(appInvolvement);
 
     var permissions = processingPermissionService.getProcessingPermissionsDto(application, user).getProcessingPermissions();
@@ -236,7 +236,7 @@ public class PwaAppProcessingPermissionServiceTest {
     replacePrivileges(user, PwaUserPrivilege.PWA_CONSULTEE);
 
     var appInvolvement = new ApplicationInvolvementDto(application, Set.of(), getConsultationInvolvement(true, Set.of(ConsulteeGroupMemberRole.RESPONDER)), false,
-        false);
+        false, false);
     when(applicationInvolvementService.getApplicationInvolvementDto(application, user)).thenReturn(appInvolvement);
 
     var permissions = processingPermissionService.getProcessingPermissionsDto(application, user).getProcessingPermissions();
@@ -249,7 +249,7 @@ public class PwaAppProcessingPermissionServiceTest {
     replacePrivileges(user, PwaUserPrivilege.PWA_CONSULTEE);
 
     var appInvolvement = new ApplicationInvolvementDto(application, Set.of(), getConsultationInvolvement(false, Set.of(ConsulteeGroupMemberRole.RESPONDER)), false,
-        false);
+        false, false);
     when(applicationInvolvementService.getApplicationInvolvementDto(application, user)).thenReturn(appInvolvement);
 
     var permissions = processingPermissionService.getProcessingPermissionsDto(application, user).getProcessingPermissions();
@@ -262,7 +262,7 @@ public class PwaAppProcessingPermissionServiceTest {
     replacePrivileges(user, PwaUserPrivilege.PWA_CONSULTEE);
 
     var appInvolvement = new ApplicationInvolvementDto(application, Set.of(), getConsultationInvolvement(false, Set.of(ConsulteeGroupMemberRole.RECIPIENT, ConsulteeGroupMemberRole.ACCESS_MANAGER)), false,
-        false);
+        false, false);
     when(applicationInvolvementService.getApplicationInvolvementDto(application, user)).thenReturn(appInvolvement);
 
     var permissions = processingPermissionService.getProcessingPermissionsDto(application, user).getProcessingPermissions();
@@ -274,7 +274,7 @@ public class PwaAppProcessingPermissionServiceTest {
 
     replacePrivileges(user, PwaUserPrivilege.PWA_CASE_OFFICER);
 
-    var appInvolvement = new ApplicationInvolvementDto(application, Set.of(), null, true, false);
+    var appInvolvement = new ApplicationInvolvementDto(application, Set.of(), null, true, false, false);
     when(applicationInvolvementService.getApplicationInvolvementDto(application, user)).thenReturn(appInvolvement);
 
     var permissions = processingPermissionService.getProcessingPermissionsDto(application, user).getProcessingPermissions();
@@ -287,7 +287,7 @@ public class PwaAppProcessingPermissionServiceTest {
 
     replacePrivileges(user, PwaUserPrivilege.PWA_CASE_OFFICER);
 
-    var appInvolvement = new ApplicationInvolvementDto(application, Set.of(), null, false, false);
+    var appInvolvement = new ApplicationInvolvementDto(application, Set.of(), null, false, false, false);
     when(applicationInvolvementService.getApplicationInvolvementDto(application, user)).thenReturn(appInvolvement);
 
     var permissions = processingPermissionService.getProcessingPermissionsDto(application, user).getProcessingPermissions();
@@ -300,7 +300,7 @@ public class PwaAppProcessingPermissionServiceTest {
 
     clearPrivileges(user);
 
-    var appInvolvement = new ApplicationInvolvementDto(application, Set.of(), null, false, false);
+    var appInvolvement = new ApplicationInvolvementDto(application, Set.of(), null, false, false, false);
     when(applicationInvolvementService.getApplicationInvolvementDto(application, user)).thenReturn(appInvolvement);
 
     var permissions = processingPermissionService.getProcessingPermissionsDto(application, user).getProcessingPermissions();
@@ -311,7 +311,8 @@ public class PwaAppProcessingPermissionServiceTest {
   @Test
   public void getAppPermissions_hasUpdateApplicationPermission_isContact_Preparer() {
 
-    var appInvolvement = new ApplicationInvolvementDto(application, Set.of(PwaContactRole.PREPARER), null, false, false);
+    var appInvolvement = new ApplicationInvolvementDto(application, Set.of(PwaContactRole.PREPARER), null, false, false,
+        false);
     when(applicationInvolvementService.getApplicationInvolvementDto(application, user)).thenReturn(appInvolvement);
 
     var permissions = processingPermissionService.getProcessingPermissionsDto(application, user).getProcessingPermissions();
@@ -323,7 +324,8 @@ public class PwaAppProcessingPermissionServiceTest {
   @Test
   public void getAppPermissions_noUpdateApplicationPermission_isContact_notPreparer() {
 
-    var appInvolvement = new ApplicationInvolvementDto(application, Set.of(PwaContactRole.VIEWER), null, false, false);
+    var appInvolvement = new ApplicationInvolvementDto(application, Set.of(PwaContactRole.VIEWER), null, false, false,
+        false);
     when(applicationInvolvementService.getApplicationInvolvementDto(application, user)).thenReturn(appInvolvement);
 
     var permissions = processingPermissionService.getProcessingPermissionsDto(application, user).getProcessingPermissions();
@@ -335,7 +337,7 @@ public class PwaAppProcessingPermissionServiceTest {
   @Test
   public void getAppPermissions_noUpdateApplicationPermission_notContact() {
 
-    var appInvolvement = new ApplicationInvolvementDto(application, Set.of(), null, false, false);
+    var appInvolvement = new ApplicationInvolvementDto(application, Set.of(), null, false, false, false);
     when(applicationInvolvementService.getApplicationInvolvementDto(application, user)).thenReturn(appInvolvement);
 
     var permissions = processingPermissionService.getProcessingPermissionsDto(application, user).getProcessingPermissions();
@@ -386,13 +388,14 @@ public class PwaAppProcessingPermissionServiceTest {
   }
 
   private void setUserAsIndustryContactPreparer(){
-    var appInvolvement = new ApplicationInvolvementDto(application, Set.of(PwaContactRole.PREPARER), null, false, false);
+    var appInvolvement = new ApplicationInvolvementDto(application, Set.of(PwaContactRole.PREPARER), null, false, false,
+        false);
     when(applicationInvolvementService.getApplicationInvolvementDto(application, user)).thenReturn(appInvolvement);
   }
 
   private void setUserAsCaseOfficer(){
     replacePrivileges(user, PwaUserPrivilege.PWA_CASE_OFFICER);
-    var appInvolvement = new ApplicationInvolvementDto(application, Set.of(), null, true, false);
+    var appInvolvement = new ApplicationInvolvementDto(application, Set.of(), null, true, false, false);
     when(applicationInvolvementService.getApplicationInvolvementDto(application, user)).thenReturn(appInvolvement);
   }
 
@@ -409,7 +412,7 @@ public class PwaAppProcessingPermissionServiceTest {
   @Test
   public void getAppPermissions_noCaseManagementIndustryPermission_andNoViewApplicationSummary() {
 
-    var appInvolvement = new ApplicationInvolvementDto(application, Set.of(), null, false, false);
+    var appInvolvement = new ApplicationInvolvementDto(application, Set.of(), null, false, false, false);
     when(applicationInvolvementService.getApplicationInvolvementDto(application, user)).thenReturn(appInvolvement);
 
     var permissions = processingPermissionService.getProcessingPermissionsDto(application, user).getProcessingPermissions();
@@ -423,7 +426,7 @@ public class PwaAppProcessingPermissionServiceTest {
 
     replacePrivileges(user, PwaUserPrivilege.PWA_REGULATOR);
 
-    var appInvolvement = new ApplicationInvolvementDto(application, Set.of(), null, false, false);
+    var appInvolvement = new ApplicationInvolvementDto(application, Set.of(), null, false, false, false);
     when(applicationInvolvementService.getApplicationInvolvementDto(application, user)).thenReturn(appInvolvement);
 
     var permissions = processingPermissionService.getProcessingPermissionsDto(application, user).getProcessingPermissions();
@@ -437,7 +440,7 @@ public class PwaAppProcessingPermissionServiceTest {
 
     clearPrivileges(user);
 
-    var appInvolvement = new ApplicationInvolvementDto(application, Set.of(), null, false, false);
+    var appInvolvement = new ApplicationInvolvementDto(application, Set.of(), null, false, false, false);
     when(applicationInvolvementService.getApplicationInvolvementDto(application, user)).thenReturn(appInvolvement);
 
     var permissions = processingPermissionService.getProcessingPermissionsDto(application, user).getProcessingPermissions();
@@ -450,7 +453,7 @@ public class PwaAppProcessingPermissionServiceTest {
   public void getAppPermissions_hasCaseManagementConsulteePermission_andViewApplicationSummary() {
 
     var appInvolvement = new ApplicationInvolvementDto(application, Set.of(), getConsultationInvolvement(false, Set.of(ConsulteeGroupMemberRole.RESPONDER)), false,
-        false);
+        false, false);
     when(applicationInvolvementService.getApplicationInvolvementDto(application, user)).thenReturn(appInvolvement);
 
     var permissions = processingPermissionService.getProcessingPermissionsDto(application, user).getProcessingPermissions();
@@ -462,7 +465,7 @@ public class PwaAppProcessingPermissionServiceTest {
   @Test
   public void getAppPermissions_noCaseManagementConsulteePermission_andnoViewApplicationSummary() {
 
-    var appInvolvement = new ApplicationInvolvementDto(application, Set.of(), null, false, false);
+    var appInvolvement = new ApplicationInvolvementDto(application, Set.of(), null, false, false, false);
     when(applicationInvolvementService.getApplicationInvolvementDto(application, user)).thenReturn(appInvolvement);
 
     var permissions = processingPermissionService.getProcessingPermissionsDto(application, user).getProcessingPermissions();
@@ -477,7 +480,8 @@ public class PwaAppProcessingPermissionServiceTest {
     replacePrivileges(user, PwaUserPrivilege.PWA_CONSULTEE);
 
     var consultationInvolvement = new ConsultationInvolvementDto(null, Set.of(ConsulteeGroupMemberRole.RESPONDER), null, List.of(new ConsultationRequest()), false);
-    var appInvolvement = new ApplicationInvolvementDto(application, Set.of(), consultationInvolvement, false, false);
+    var appInvolvement = new ApplicationInvolvementDto(application, Set.of(), consultationInvolvement, false, false,
+        false);
     when(applicationInvolvementService.getApplicationInvolvementDto(application, user)).thenReturn(appInvolvement);
 
     var permissions = processingPermissionService.getProcessingPermissionsDto(application, user).getProcessingPermissions();
@@ -491,7 +495,8 @@ public class PwaAppProcessingPermissionServiceTest {
     replacePrivileges(user, PwaUserPrivilege.PWA_CONSULTEE);
 
     var consultationInvolvement = new ConsultationInvolvementDto(null, Set.of(ConsulteeGroupMemberRole.RESPONDER), null, List.of(), false);
-    var appInvolvement = new ApplicationInvolvementDto(application, Set.of(), consultationInvolvement, false, false);
+    var appInvolvement = new ApplicationInvolvementDto(application, Set.of(), consultationInvolvement, false, false,
+        false);
     when(applicationInvolvementService.getApplicationInvolvementDto(application, user)).thenReturn(appInvolvement);
 
     var permissions = processingPermissionService.getProcessingPermissionsDto(application, user).getProcessingPermissions();
@@ -543,7 +548,7 @@ public class PwaAppProcessingPermissionServiceTest {
 
     replacePrivileges(user, PwaUserPrivilege.PWA_CASE_OFFICER);
 
-    var appInvolvement = new ApplicationInvolvementDto(application, Set.of(), null, true, false);
+    var appInvolvement = new ApplicationInvolvementDto(application, Set.of(), null, true, false, false);
     when(applicationInvolvementService.getApplicationInvolvementDto(application, user)).thenReturn(appInvolvement);
 
     var permissions = processingPermissionService.getProcessingPermissionsDto(application, user).getProcessingPermissions();
@@ -556,7 +561,7 @@ public class PwaAppProcessingPermissionServiceTest {
 
     replacePrivileges(user, PwaUserPrivilege.PWA_CASE_OFFICER);
 
-    var appInvolvement = new ApplicationInvolvementDto(application, Set.of(), null, false, false);
+    var appInvolvement = new ApplicationInvolvementDto(application, Set.of(), null, false, false, false);
     when(applicationInvolvementService.getApplicationInvolvementDto(application, user)).thenReturn(appInvolvement);
 
     var permissions = processingPermissionService.getProcessingPermissionsDto(application, user).getProcessingPermissions();
@@ -569,11 +574,107 @@ public class PwaAppProcessingPermissionServiceTest {
 
     clearPrivileges(user);
 
-    var appInvolvement = new ApplicationInvolvementDto(application, Set.of(), null, false, false);
+    var appInvolvement = new ApplicationInvolvementDto(application, Set.of(), null, false, false, false);
     when(applicationInvolvementService.getApplicationInvolvementDto(application, user)).thenReturn(appInvolvement);
 
     var permissions = processingPermissionService.getProcessingPermissionsDto(application, user).getProcessingPermissions();
     assertThat(permissions).doesNotContain(PwaAppProcessingPermission.CONFIRM_SATISFACTORY_APPLICATION);
+
+  }
+
+  @Test
+  public void getAppProcessingPermissions_requestUpdate_assignedCaseOfficer() {
+
+    replacePrivileges(user, PwaUserPrivilege.PWA_CASE_OFFICER);
+    var appInvolvement = new ApplicationInvolvementDto(application, Set.of(), null, true, false, false);
+    when(applicationInvolvementService.getApplicationInvolvementDto(application, user)).thenReturn(appInvolvement);
+
+    var permissions = processingPermissionService.getProcessingPermissionsDto(application, user).getProcessingPermissions();
+    assertThat(permissions).contains(PwaAppProcessingPermission.REQUEST_APPLICATION_UPDATE);
+
+  }
+
+  @Test
+  public void getAppProcessingPermissions_requestUpdate_notAssignedCaseOfficer() {
+
+    replacePrivileges(user, PwaUserPrivilege.PWA_CASE_OFFICER);
+    var appInvolvement = new ApplicationInvolvementDto(application, Set.of(), null, false, false, false);
+    when(applicationInvolvementService.getApplicationInvolvementDto(application, user)).thenReturn(appInvolvement);
+
+    var permissions = processingPermissionService.getProcessingPermissionsDto(application, user).getProcessingPermissions();
+    assertThat(permissions).doesNotContain(PwaAppProcessingPermission.REQUEST_APPLICATION_UPDATE);
+
+  }
+
+  @Test
+  public void getAppProcessingPermissions_requestUpdate_pwaManager_andPwaManagerStage() {
+
+    replacePrivileges(user, PwaUserPrivilege.PWA_MANAGER);
+    var appInvolvement = new ApplicationInvolvementDto(application, Set.of(), null, false, true, false);
+    when(applicationInvolvementService.getApplicationInvolvementDto(application, user)).thenReturn(appInvolvement);
+
+    var permissions = processingPermissionService.getProcessingPermissionsDto(application, user).getProcessingPermissions();
+    assertThat(permissions).contains(PwaAppProcessingPermission.REQUEST_APPLICATION_UPDATE);
+
+  }
+
+  @Test
+  public void getAppProcessingPermissions_requestUpdate_pwaManager_andNotPwaManagerStage() {
+
+    replacePrivileges(user, PwaUserPrivilege.PWA_MANAGER);
+    var appInvolvement = new ApplicationInvolvementDto(application, Set.of(), null, true, false, false);
+    when(applicationInvolvementService.getApplicationInvolvementDto(application, user)).thenReturn(appInvolvement);
+
+    var permissions = processingPermissionService.getProcessingPermissionsDto(application, user).getProcessingPermissions();
+    assertThat(permissions).doesNotContain(PwaAppProcessingPermission.REQUEST_APPLICATION_UPDATE);
+
+  }
+
+  @Test
+  public void getAppProcessingPermissions_withdrawApplication_assignedCaseOfficer() {
+
+    replacePrivileges(user, PwaUserPrivilege.PWA_CASE_OFFICER);
+    var appInvolvement = new ApplicationInvolvementDto(application, Set.of(), null, true, false, false);
+    when(applicationInvolvementService.getApplicationInvolvementDto(application, user)).thenReturn(appInvolvement);
+
+    var permissions = processingPermissionService.getProcessingPermissionsDto(application, user).getProcessingPermissions();
+    assertThat(permissions).contains(PwaAppProcessingPermission.WITHDRAW_APPLICATION);
+
+  }
+
+  @Test
+  public void getAppProcessingPermissions_withdrawApplication_notAssignedCaseOfficer() {
+
+    replacePrivileges(user, PwaUserPrivilege.PWA_CASE_OFFICER);
+    var appInvolvement = new ApplicationInvolvementDto(application, Set.of(), null, false, false, false);
+    when(applicationInvolvementService.getApplicationInvolvementDto(application, user)).thenReturn(appInvolvement);
+
+    var permissions = processingPermissionService.getProcessingPermissionsDto(application, user).getProcessingPermissions();
+    assertThat(permissions).doesNotContain(PwaAppProcessingPermission.WITHDRAW_APPLICATION);
+
+  }
+
+  @Test
+  public void getAppProcessingPermissions_withdrawApplication_pwaManager_andPwaManagerStage() {
+
+    replacePrivileges(user, PwaUserPrivilege.PWA_MANAGER);
+    var appInvolvement = new ApplicationInvolvementDto(application, Set.of(), null, false, true, false);
+    when(applicationInvolvementService.getApplicationInvolvementDto(application, user)).thenReturn(appInvolvement);
+
+    var permissions = processingPermissionService.getProcessingPermissionsDto(application, user).getProcessingPermissions();
+    assertThat(permissions).contains(PwaAppProcessingPermission.WITHDRAW_APPLICATION);
+
+  }
+
+  @Test
+  public void getAppProcessingPermissions_withdrawApplication_pwaManager_andNotPwaManagerStage() {
+
+    replacePrivileges(user, PwaUserPrivilege.PWA_MANAGER);
+    var appInvolvement = new ApplicationInvolvementDto(application, Set.of(), null, true, false, false);
+    when(applicationInvolvementService.getApplicationInvolvementDto(application, user)).thenReturn(appInvolvement);
+
+    var permissions = processingPermissionService.getProcessingPermissionsDto(application, user).getProcessingPermissions();
+    assertThat(permissions).doesNotContain(PwaAppProcessingPermission.WITHDRAW_APPLICATION);
 
   }
 

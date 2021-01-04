@@ -6,6 +6,7 @@
 <#-- @ftlvariable name="caseOfficerCandidates" type="java.util.Map<String, String>" -->
 <#-- @ftlvariable name="caseSummaryView" type="uk.co.ogauthority.pwa.service.appprocessing.context.CaseSummaryView" -->
 <#-- @ftlvariable name="errorList" type="java.util.List<uk.co.ogauthority.pwa.model.form.fds.ErrorItem>"-->
+<#-- @ftlvariable name="cancelUrl" type="String" -->
 
 <@defaultPage htmlTitle="Accept application ${appRef}" breadcrumbs=true fullWidthColumn=true>
 
@@ -42,7 +43,7 @@
 
               <@fdsSearchSelector.searchSelectorEnhanced path="form.caseOfficerPersonId" options=caseOfficerCandidates labelText="Case officer" />
 
-              <@fdsAction.submitButtons primaryButtonText="Accept application" linkSecondaryAction=true secondaryLinkText="Back to work area" linkSecondaryActionUrl=springUrl(workAreaUrl) />
+              <@fdsAction.submitButtons primaryButtonText="Accept application" linkSecondaryAction=true secondaryLinkText="Back to case management" linkSecondaryActionUrl=springUrl(cancelUrl) />
 
           </@fdsForm.htmlForm>
 

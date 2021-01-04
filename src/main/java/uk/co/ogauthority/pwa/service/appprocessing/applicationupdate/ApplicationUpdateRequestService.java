@@ -74,21 +74,24 @@ public class ApplicationUpdateRequestService implements AppProcessingService {
   public void submitApplicationUpdateRequest(PwaApplicationDetail pwaApplicationDetail,
                                              WebUserAccount requestingUser,
                                              String requestReason) {
+
     // The update request was made for a specific version, so the original is linked.
     createApplicationUpdateRequest(pwaApplicationDetail, requestingUser.getLinkedPerson(), requestReason);
-    // then a new detail is created which is what the will be resubmitted with any changes.
-    var newTipDetail = pwaApplicationDetailVersioningService.createNewApplicationVersion(pwaApplicationDetail,
-        requestingUser);
+
+    // then a new detail is created which is what will be resubmitted with any changes.
+    var newTipDetail = pwaApplicationDetailVersioningService
+        .createNewApplicationVersion(pwaApplicationDetail, requestingUser);
+
     // then we attempt to send an email to alert the application preparers that changes are required.
     sendApplicationUpdateRequestedEmail(newTipDetail, requestingUser.getLinkedPerson());
+
     // update workflow
     workflowAssignmentService.triggerWorkflowMessageAndAssertTaskExists(
         GenericMessageEvent.from(
             newTipDetail.getPwaApplication(),
-            PwaApplicationWorkflowMessageEvents.UPDATE_APPLICATION_REQUEST.getMessageEventName()
-        ),
-        PwaApplicationWorkflowTask.UPDATE_APPLICATION
-    );
+            PwaApplicationWorkflowMessageEvents.UPDATE_APPLICATION_REQUEST.getMessageEventName()),
+        PwaApplicationWorkflowTask.UPDATE_APPLICATION);
+
   }
 
   @Transactional
@@ -129,6 +132,7 @@ public class ApplicationUpdateRequestService implements AppProcessingService {
 
   @VisibleForTesting
   void sendApplicationUpdateRequestedEmail(PwaApplicationDetail pwaApplicationDetail, Person requestingPerson) {
+
     var recipients = pwaContactService.getPeopleInRoleForPwaApplication(
         pwaApplicationDetail.getPwaApplication(),
         PwaContactRole.PREPARER

@@ -73,17 +73,6 @@ public class WithdrawApplicationControllerTest extends PwaAppProcessingContextAb
         .setAllowedProcessingPermissions(PwaAppProcessingPermission.WITHDRAW_APPLICATION);
   }
 
-
-  @Test
-  public void renderWithdrawApplication_appStatusSmokeTest() {
-    endpointTester.setRequestMethod(HttpMethod.GET)
-        .setEndpointUrlProducer((applicationDetail, type) ->
-            ReverseRouter.route(on(WithdrawApplicationController.class)
-                .renderWithdrawApplication(applicationDetail.getMasterPwaApplicationId(), type, null, null, null)));
-
-    endpointTester.performAppStatusChecks(status().isOk(), status().isNotFound());
-  }
-
   @Test
   public void renderWithdrawApplication_processingPermissionSmokeTest() {
 
@@ -93,20 +82,6 @@ public class WithdrawApplicationControllerTest extends PwaAppProcessingContextAb
                 .renderWithdrawApplication(applicationDetail.getMasterPwaApplicationId(), type, null, null, null)));
 
     endpointTester.performProcessingPermissionCheck(status().isOk(), status().isForbidden());
-
-  }
-
-  @Test
-  public void postWithdrawApplication_appStatusSmokeTest() {
-
-    when(withdrawApplicationService.validate(any(), any(), any())).thenReturn(new BeanPropertyBindingResult(new WithdrawApplicationForm(), "form"));
-
-    endpointTester.setRequestMethod(HttpMethod.POST)
-        .setEndpointUrlProducer((applicationDetail, type) ->
-            ReverseRouter.route(on(WithdrawApplicationController.class)
-                .postWithdrawApplication(applicationDetail.getMasterPwaApplicationId(), type, null, null, null, null)));
-
-    endpointTester.performAppStatusChecks(status().is3xxRedirection(), status().isNotFound());
 
   }
 

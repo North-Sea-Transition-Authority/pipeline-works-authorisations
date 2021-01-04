@@ -15,7 +15,7 @@ public interface ApplicationDetailSearchItemRepository extends CrudRepository<Ap
 
   String PADSTATUS_IN_OR_PWAAPPLICATION_ID_IN_AND_WHERE_TIP_SATISFACTORY_FLAG_MATCHES_OR_ALL_OTHER_WAIT_FLAGS_MATCH = "" +
       "FROM ApplicationDetailSearchItem adsi " +
-      "WHERE ( adsi.pwaApplicationId IN :applicationIdFilter OR adsi.padStatus IN :statusFilter) " +
+      "WHERE ( adsi.pwaApplicationId IN :applicationIdFilter OR (adsi.padStatus IN :statusFilter AND adsi.tipFlag = 1)) " +
       "AND ( " +
       "  (adsi.tipVersionSatisfactoryFlag = :tipVersionSatisfactoryFlag) OR ( " +
       "    adsi.openUpdateRequestFlag = :openForUpdateFlag " +
@@ -26,7 +26,7 @@ public interface ApplicationDetailSearchItemRepository extends CrudRepository<Ap
 
   String PADSTATUS_IN_OR_PWAAPPLICATION_ID_IN_AND_WHERE_TIP_SATISFACTORY_FLAG_MATCHES_AND_ANY_OTHER_WAIT_FLAGS_MATCH = "" +
       "FROM ApplicationDetailSearchItem adsi " +
-      "WHERE (adsi.pwaApplicationId IN :applicationIdFilter OR adsi.padStatus IN :statusFilter) " +
+      "WHERE (adsi.pwaApplicationId IN :applicationIdFilter OR (adsi.padStatus IN :statusFilter AND adsi.tipFlag = 1)) " +
       "AND ( " +
       "  (adsi.tipVersionSatisfactoryFlag = :tipVersionSatisfactoryFlag) AND ( " +
       "    adsi.openUpdateRequestFlag = :openForUpdateFlag " +

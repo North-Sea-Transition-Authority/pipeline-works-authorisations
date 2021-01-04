@@ -97,16 +97,6 @@ public class RequestApplicationUpdateControllerTest extends PwaAppProcessingCont
   }
 
   @Test
-  public void renderRequestUpdate_appStatusSmokeTest() {
-    endpointTester.setRequestMethod(HttpMethod.GET)
-        .setEndpointUrlProducer((applicationDetail, type) ->
-            ReverseRouter.route(on(RequestApplicationUpdateController.class)
-                .renderRequestUpdate(applicationDetail.getMasterPwaApplicationId(), type, null, null, null)));
-
-    endpointTester.performAppStatusChecks(status().isOk(), status().isNotFound());
-  }
-
-  @Test
   public void renderRequestUpdate_processingPermissionSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.GET)
@@ -159,18 +149,6 @@ public class RequestApplicationUpdateControllerTest extends PwaAppProcessingCont
     ).andExpect(status().isForbidden())
         .andReturn();
 
-  }
-
-
-  @Test
-  public void requestUpdate_appStatusSmokeTest() {
-    endpointTester.setRequestMethod(HttpMethod.POST)
-        .addRequestParam(REQUEST_REASON_ATTR, REQUEST_REASON_VALID)
-        .setEndpointUrlProducer((applicationDetail, type) ->
-            ReverseRouter.route(on(RequestApplicationUpdateController.class)
-                .requestUpdate(applicationDetail.getMasterPwaApplicationId(), type, null, null, null, null)));
-
-    endpointTester.performAppStatusChecks(status().is3xxRedirection(), status().isNotFound());
   }
 
   @Test

@@ -6,21 +6,21 @@ import uk.co.ogauthority.pwa.model.enums.notify.NotifyTemplate;
 public class ApplicationUpdateRequestEmailProps extends EmailProperties {
 
   private final String applicationReference;
-  private final String caseOfficerName;
+  private final String requesterName;
 
   public ApplicationUpdateRequestEmailProps(String recipientFullName,
                                             String applicationReference,
-                                            String caseOfficerName) {
+                                            String requesterName) {
     super(NotifyTemplate.APPLICATION_UPDATE_REQUESTED, recipientFullName);
     this.applicationReference = applicationReference;
-    this.caseOfficerName = caseOfficerName;
+    this.requesterName = requesterName;
   }
 
   @Override
   public Map<String, String> getEmailPersonalisation() {
     Map<String, String> emailPersonalisation = super.getEmailPersonalisation();
     emailPersonalisation.put("APPLICATION_REFERENCE", applicationReference);
-    emailPersonalisation.put("CASE_OFFICER_NAME", caseOfficerName);
+    emailPersonalisation.put("REQUESTER_NAME", requesterName);
     return emailPersonalisation;
   }
 
@@ -28,7 +28,8 @@ public class ApplicationUpdateRequestEmailProps extends EmailProperties {
     return applicationReference;
   }
 
-  public String getCaseOfficerName() {
-    return caseOfficerName;
+  public String getRequesterName() {
+    return requesterName;
   }
+
 }

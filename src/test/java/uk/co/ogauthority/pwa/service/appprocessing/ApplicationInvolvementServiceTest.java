@@ -133,6 +133,8 @@ public class ApplicationInvolvementServiceTest {
 
     when(userTypeService.getUserType(user)).thenReturn(UserType.OGA);
     when(camundaWorkflowService.getAssignedPersonId(any())).thenReturn(Optional.of(new PersonId(1)));
+    when(camundaWorkflowService.getAllActiveWorkflowTasks(application)).thenReturn(
+        Set.of(new WorkflowTaskInstance(application, PwaApplicationWorkflowTask.CASE_OFFICER_REVIEW)));
 
     var involvement = applicationInvolvementService.getApplicationInvolvementDto(application, user);
 
@@ -142,6 +144,7 @@ public class ApplicationInvolvementServiceTest {
     assertThat(involvement.getContactRoles()).isEmpty();
     assertThat(involvement.getConsultationInvolvement()).isEmpty();
     assertThat(involvement.isCaseOfficerStageAndUserAssigned()).isTrue();
+    assertThat(involvement.isPwaManagerStage()).isFalse();
 
   }
 
@@ -150,6 +153,8 @@ public class ApplicationInvolvementServiceTest {
 
     when(userTypeService.getUserType(user)).thenReturn(UserType.OGA);
     when(camundaWorkflowService.getAssignedPersonId(any())).thenReturn(Optional.empty());
+    when(camundaWorkflowService.getAllActiveWorkflowTasks(application)).thenReturn(
+        Set.of(new WorkflowTaskInstance(application, PwaApplicationWorkflowTask.CASE_OFFICER_REVIEW)));
 
     var involvement = applicationInvolvementService.getApplicationInvolvementDto(application, user);
 
@@ -159,6 +164,27 @@ public class ApplicationInvolvementServiceTest {
     assertThat(involvement.getContactRoles()).isEmpty();
     assertThat(involvement.getConsultationInvolvement()).isEmpty();
     assertThat(involvement.isCaseOfficerStageAndUserAssigned()).isFalse();
+    assertThat(involvement.isPwaManagerStage()).isFalse();
+
+  }
+
+  @Test
+  public void getApplicationInvolvementDto_regulatorUser_pwaManagerStage_onlyRelevantInteractionsAndDataPopulated() {
+
+    when(userTypeService.getUserType(user)).thenReturn(UserType.OGA);
+    when(camundaWorkflowService.getAssignedPersonId(any())).thenReturn(Optional.empty());
+    when(camundaWorkflowService.getAllActiveWorkflowTasks(application)).thenReturn(
+        Set.of(new WorkflowTaskInstance(application, PwaApplicationWorkflowTask.APPLICATION_REVIEW)));
+
+    var involvement = applicationInvolvementService.getApplicationInvolvementDto(application, user);
+
+    verifyNoInteractions(consulteeGroupTeamService, pwaContactService, consultationRequestService, consulteeGroupDetailService);
+
+    assertThat(involvement.getPwaApplication()).isEqualTo(application);
+    assertThat(involvement.getContactRoles()).isEmpty();
+    assertThat(involvement.getConsultationInvolvement()).isEmpty();
+    assertThat(involvement.isCaseOfficerStageAndUserAssigned()).isFalse();
+    assertThat(involvement.isPwaManagerStage()).isTrue();
 
   }
 

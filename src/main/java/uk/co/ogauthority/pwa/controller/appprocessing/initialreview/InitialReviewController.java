@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.controller.appprocessing.initialreview;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import java.util.Comparator;
+import java.util.function.Supplier;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -18,18 +19,22 @@ import uk.co.ogauthority.pwa.controller.WorkAreaController;
 import uk.co.ogauthority.pwa.controller.appprocessing.shared.PwaAppProcessingPermissionCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationStatusCheck;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
+import uk.co.ogauthority.pwa.exception.AccessDeniedException;
 import uk.co.ogauthority.pwa.exception.ActionAlreadyPerformedException;
 import uk.co.ogauthority.pwa.model.form.appprocessing.initialreview.InitialReviewForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
+import uk.co.ogauthority.pwa.service.appprocessing.applicationupdate.ApplicationUpdateRequestService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.service.appprocessing.initialreview.InitialReviewService;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
+import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingTask;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationWorkflowTask;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.workflow.assignment.WorkflowAssignmentService;
+import uk.co.ogauthority.pwa.util.CaseManagementUtils;
 import uk.co.ogauthority.pwa.util.FlashUtils;
 import uk.co.ogauthority.pwa.util.StreamUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
@@ -45,18 +50,21 @@ public class InitialReviewController {
   private final WorkflowAssignmentService workflowAssignmentService;
   private final InitialReviewFormValidator initialReviewFormValidator;
   private final ControllerHelperService controllerHelperService;
+  private final ApplicationUpdateRequestService applicationUpdateRequestService;
 
   @Autowired
   public InitialReviewController(ApplicationBreadcrumbService breadcrumbService,
                                  InitialReviewService initialReviewService,
                                  WorkflowAssignmentService workflowAssignmentService,
                                  InitialReviewFormValidator initialReviewFormValidator,
-                                 ControllerHelperService controllerHelperService) {
+                                 ControllerHelperService controllerHelperService,
+                                 ApplicationUpdateRequestService applicationUpdateRequestService) {
     this.breadcrumbService = breadcrumbService;
     this.initialReviewService = initialReviewService;
     this.workflowAssignmentService = workflowAssignmentService;
     this.initialReviewFormValidator = initialReviewFormValidator;
     this.controllerHelperService = controllerHelperService;
+    this.applicationUpdateRequestService = applicationUpdateRequestService;
   }
 
   private ModelAndView getInitialReviewModelAndView(PwaAppProcessingContext appProcessingContext) {
@@ -74,11 +82,26 @@ public class InitialReviewController {
                 .sorted(Comparator.comparing(Person::getFullName))
                 .collect(StreamUtils.toLinkedHashMap(person -> String.valueOf(person.getId().asInt()),
                     Person::getFullName)))
-        .addObject("caseSummaryView", appProcessingContext.getCaseSummaryView());
+        .addObject("caseSummaryView", appProcessingContext.getCaseSummaryView())
+        .addObject("cancelUrl", CaseManagementUtils.routeCaseManagement(appProcessingContext));
 
     breadcrumbService.fromWorkArea(modelAndView, detail.getPwaApplicationRef());
 
     return modelAndView;
+
+  }
+
+  private ModelAndView whenReviewable(PwaAppProcessingContext processingContext,
+                                      Supplier<ModelAndView> modelAndViewSupplier) {
+
+    if (applicationUpdateRequestService.applicationHasOpenUpdateRequest(processingContext.getApplicationDetail())) {
+      throw new AccessDeniedException(String.format(
+          "Can't access %s controller routes as application with id [%s] has an open update request",
+          PwaAppProcessingTask.INITIAL_REVIEW.name(),
+          processingContext.getMasterPwaApplicationId()));
+    }
+
+    return modelAndViewSupplier.get();
 
   }
 
@@ -90,7 +113,7 @@ public class InitialReviewController {
                                           PwaAppProcessingContext processingContext,
                                           @ModelAttribute("form") InitialReviewForm form,
                                           AuthenticatedUserAccount user) {
-    return getInitialReviewModelAndView(processingContext);
+    return whenReviewable(processingContext, () -> getInitialReviewModelAndView(processingContext));
   }
 
   @PostMapping
@@ -103,25 +126,29 @@ public class InitialReviewController {
                                         AuthenticatedUserAccount user,
                                         RedirectAttributes redirectAttributes) {
 
-    initialReviewFormValidator.validate(form, bindingResult, processingContext.getPwaApplication());
+    return whenReviewable(processingContext, () -> {
 
-    return controllerHelperService.checkErrorsAndRedirect(bindingResult,
-        getInitialReviewModelAndView(processingContext),
-        () -> {
+      initialReviewFormValidator.validate(form, bindingResult, processingContext.getPwaApplication());
 
-          try {
-            initialReviewService.acceptApplication(processingContext.getApplicationDetail(),
-                form.getCaseOfficerPersonId(), user);
-            FlashUtils.success(redirectAttributes,
-                "Accepted initial review for " + processingContext.getApplicationDetail().getPwaApplicationRef());
-          } catch (ActionAlreadyPerformedException e) {
-            FlashUtils.error(redirectAttributes, String.format("Initial review for %s already accepted",
-                processingContext.getApplicationDetail().getPwaApplicationRef()));
-          }
+      return controllerHelperService.checkErrorsAndRedirect(bindingResult,
+          getInitialReviewModelAndView(processingContext),
+          () -> {
 
-          return ReverseRouter.redirect(on(WorkAreaController.class).renderWorkArea(null, null, null));
+            try {
+              initialReviewService.acceptApplication(processingContext.getApplicationDetail(),
+                  form.getCaseOfficerPersonId(), user);
+              FlashUtils.success(redirectAttributes,
+                  "Accepted initial review for " + processingContext.getApplicationDetail().getPwaApplicationRef());
+            } catch (ActionAlreadyPerformedException e) {
+              FlashUtils.error(redirectAttributes, String.format("Initial review for %s already accepted",
+                  processingContext.getApplicationDetail().getPwaApplicationRef()));
+            }
 
-        });
+            return ReverseRouter.redirect(on(WorkAreaController.class).renderWorkArea(null, null, null));
+
+          });
+
+    });
 
   }
 

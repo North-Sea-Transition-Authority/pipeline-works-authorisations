@@ -17,17 +17,21 @@ public class ApplicationInvolvementDto {
 
   private final boolean caseOfficerStageAndUserAssigned;
 
+  private final boolean pwaManagerStage;
+
   private final boolean atLeastOneSatisfactoryVersion;
 
   public ApplicationInvolvementDto(PwaApplication pwaApplication,
                                    Set<PwaContactRole> contactRoles,
                                    ConsultationInvolvementDto consultationInvolvement,
                                    boolean caseOfficerStageAndUserAssigned,
+                                   boolean pwaManagerStage,
                                    boolean atLeastOneSatisfactoryVersion) {
     this.pwaApplication = pwaApplication;
     this.contactRoles = contactRoles;
     this.consultationInvolvement = consultationInvolvement;
     this.caseOfficerStageAndUserAssigned = caseOfficerStageAndUserAssigned;
+    this.pwaManagerStage = pwaManagerStage;
     this.atLeastOneSatisfactoryVersion = atLeastOneSatisfactoryVersion;
   }
 
@@ -45,6 +49,10 @@ public class ApplicationInvolvementDto {
 
   public boolean isCaseOfficerStageAndUserAssigned() {
     return caseOfficerStageAndUserAssigned;
+  }
+
+  public boolean isPwaManagerStage() {
+    return pwaManagerStage;
   }
 
   public boolean hasAnyOfTheseContactRoles(PwaContactRole... roles) {
