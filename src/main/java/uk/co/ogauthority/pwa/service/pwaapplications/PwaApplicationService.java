@@ -16,7 +16,6 @@ public class PwaApplicationService {
 
   @Autowired
   public PwaApplicationService(PwaApplicationRepository pwaApplicationRepository) {
-
     this.pwaApplicationRepository = pwaApplicationRepository;
   }
 

@@ -51,6 +51,7 @@ import uk.co.ogauthority.pwa.service.teammanagement.TeamManagementService;
 import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
 import uk.co.ogauthority.pwa.service.workflow.task.WorkflowTaskInstance;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
+import uk.co.ogauthority.pwa.util.DateUtils;
 import uk.co.ogauthority.pwa.validators.consultations.ConsultationRequestValidator;
 
 
@@ -96,13 +97,29 @@ public class ConsultationRequestServiceTest {
 
   @Before
   public void setUp() {
+
     clock = Clock.fixed(Instant.parse(Instant.now().toString()), ZoneId.of("UTC"));
     var webUserAccount = new WebUserAccount(1, new Person(1, "", "", "", ""));
     authenticatedUserAccount = new AuthenticatedUserAccount(webUserAccount, List.of());
     validator = new ConsultationRequestValidator();
-    consultationRequestService = new ConsultationRequestService(consulteeGroupDetailService, consultationRequestRepository, validator, camundaWorkflowService,
-        teamManagementService, consulteeGroupTeamService, consultationsStatusViewFactory, notifyService, clock, emailCaseLinkService);
+
+    // return the object being saved upon saving
+    when(consultationRequestRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+
+    consultationRequestService = new ConsultationRequestService(
+        consulteeGroupDetailService,
+        consultationRequestRepository,
+        validator,
+        camundaWorkflowService,
+        teamManagementService,
+        consulteeGroupTeamService,
+        consultationsStatusViewFactory,
+        notifyService,
+        clock,
+        emailCaseLinkService);
+
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL, 100);
+
   }
 
 
@@ -119,25 +136,15 @@ public class ConsultationRequestServiceTest {
     groupDetail.setConsulteeGroup(consulteeGroup);
     when(consulteeGroupDetailService.getConsulteeGroupDetailById(1)).thenReturn(groupDetail);
 
-
-    //email
-    var consultationRequest = new ConsultationRequest();
-    consultationRequest.setStatus(ConsultationRequestStatus.ALLOCATION);
-    consultationRequest.setConsulteeGroup(consulteeGroup);
-    consultationRequest.setPwaApplication(pwaApplicationDetail.getPwaApplication());
-    consultationRequest.setEndTimestamp(Instant.now(clock));
-    when(consultationRequestRepository.save(any(ConsultationRequest.class))).thenReturn(consultationRequest);
-
-    ConsulteeGroupTeamMember teamMember1 = new ConsulteeGroupTeamMember(consultationRequest.getConsulteeGroup(),
+    ConsulteeGroupTeamMember teamMember1 = new ConsulteeGroupTeamMember(consulteeGroup,
         new Person(1, "memberFirst1", "memberLast1", "member1@live.com", null),
         Set.of(ConsulteeGroupMemberRole.RECIPIENT));
-    ConsulteeGroupTeamMember teamMember2 = new ConsulteeGroupTeamMember(consultationRequest.getConsulteeGroup(),
+    ConsulteeGroupTeamMember teamMember2 = new ConsulteeGroupTeamMember(consulteeGroup,
         new Person(2, "memberFirst2", "memberLast2", "member2@live.com", null),
         Set.of(ConsulteeGroupMemberRole.RECIPIENT));
-    when(consulteeGroupTeamService.getTeamMembersForGroup(consultationRequest.getConsulteeGroup())).thenReturn(List.of(teamMember1, teamMember2));
+    when(consulteeGroupTeamService.getTeamMembersForGroup(consulteeGroup)).thenReturn(List.of(teamMember1, teamMember2));
 
     when(consulteeGroupDetailService.getConsulteeGroupDetailByGroupAndTipFlagIsTrue(consulteeGroup)).thenReturn(groupDetail);
-
 
     //consultation request assertions
     consultationRequestService.saveEntitiesAndStartWorkflow(form, pwaApplicationDetail, authenticatedUserAccount);
@@ -149,6 +156,7 @@ public class ConsultationRequestServiceTest {
     assertThat(consultationRequestArgumentCaptor.getValue().getStatus()).isEqualTo(
         ConsultationRequestStatus.ALLOCATION);
 
+    var dueDate = consultationRequestArgumentCaptor.getValue().getDeadlineDate();
 
     //email assertions
     ArgumentCaptor<ConsultationRequestReceivedEmailProps> expectedEmailProps = ArgumentCaptor.forClass(ConsultationRequestReceivedEmailProps.class);
@@ -159,19 +167,22 @@ public class ConsultationRequestServiceTest {
     List<ConsultationRequestReceivedEmailProps> expectedEmailPropsValues = expectedEmailProps.getAllValues();
     assertTrue(expectedEmailPropsValues.contains(new ConsultationRequestReceivedEmailProps(
         teamMember1.getPerson().getFullName(),
-        consultationRequest.getPwaApplication().getAppReference(),
+        pwaApplicationDetail.getPwaApplication().getAppReference(),
         groupDetail.getName(),
+        DateUtils.formatDateTime(dueDate),
         caseManagementLink)));
 
     assertTrue(expectedEmailPropsValues.contains(new ConsultationRequestReceivedEmailProps(
         teamMember2.getPerson().getFullName(),
-        consultationRequest.getPwaApplication().getAppReference(),
+        pwaApplicationDetail.getPwaApplication().getAppReference(),
         groupDetail.getName(),
+        DateUtils.formatDateTime(dueDate),
         caseManagementLink)));
 
     List<String> expectedToEmailValues = expectedToEmailAddress.getAllValues();
     assertTrue(expectedToEmailValues.contains(teamMember1.getPerson().getEmailAddress()));
     assertTrue(expectedToEmailValues.contains(teamMember2.getPerson().getEmailAddress()));
+
   }
 
 

@@ -38,6 +38,7 @@ import uk.co.ogauthority.pwa.service.notify.NotifyService;
 import uk.co.ogauthority.pwa.service.teammanagement.TeamManagementService;
 import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
 import uk.co.ogauthority.pwa.service.workflow.task.WorkflowTaskInstance;
+import uk.co.ogauthority.pwa.util.DateUtils;
 import uk.co.ogauthority.pwa.validators.consultations.ConsultationRequestValidationHints;
 import uk.co.ogauthority.pwa.validators.consultations.ConsultationRequestValidator;
 
@@ -108,7 +109,8 @@ public class ConsultationRequestService {
   }
 
   public void saveEntitiesAndStartWorkflow(ConsultationRequestForm form,
-                                           PwaApplicationDetail applicationDetail, AuthenticatedUserAccount user) {
+                                           PwaApplicationDetail applicationDetail,
+                                           AuthenticatedUserAccount user) {
     for (var selectedGroupId: form.getConsulteeGroupSelection().keySet()) {
       var consultationRequest = new ConsultationRequest();
       consultationRequest.setConsulteeGroup(
@@ -223,13 +225,17 @@ public class ConsultationRequestService {
                                                                                ConsultationRequest consultationRequest,
                                                                                String consulteeGroupName,
                                                                                String caseManagementLink) {
+
+    String dueDateDisplay = DateUtils.formatDateTime(consultationRequest.getDeadlineDate());
+
     return new ConsultationRequestReceivedEmailProps(
         recipient.getFullName(),
         consultationRequest.getPwaApplication().getAppReference(),
         consulteeGroupName,
+        dueDateDisplay,
         caseManagementLink);
-  }
 
+  }
 
   public void rebindFormCheckboxes(ConsultationRequestForm form) {
     for (var entry: form.getConsulteeGroupSelection().entrySet()) {
