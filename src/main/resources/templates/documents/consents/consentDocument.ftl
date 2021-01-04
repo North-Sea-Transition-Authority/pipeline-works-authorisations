@@ -69,7 +69,7 @@
       max-height: 30px;
     }
 
-    .deposit-image {
+    .image {
       width: 100%;
       max-height: 875px;
     }

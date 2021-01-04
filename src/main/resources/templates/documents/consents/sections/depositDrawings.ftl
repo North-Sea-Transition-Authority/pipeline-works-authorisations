@@ -1,4 +1,5 @@
 <#include '../../../pwaLayoutImports.ftl'>
+<#import '../fragments/consentDocImage.ftl' as pwaConsentDocImage>
 
 <#-- @ftlvariable name="sectionName" type="String"-->
 <#-- @ftlvariable name="drawingRefToFileIdMap" type="java.util.Map<String, String>"-->
@@ -10,9 +11,7 @@
 
   <#list drawingRefToFileIdMap as drawingRef, fileId>
     <p style="page-break-before: always">${drawingRef}</p>
-    <div>
-      <img src="${fileIdToImgSourceMap[fileId]}" alt="some-alt" class="deposit-image"/>
-    </div>
+    <@pwaConsentDocImage.img src=fileIdToImgSourceMap[fileId] />
   </#list>
 
 </div>
