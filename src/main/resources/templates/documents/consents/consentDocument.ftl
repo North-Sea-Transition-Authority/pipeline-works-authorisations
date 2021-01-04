@@ -152,12 +152,6 @@
       margin-top: 40px;
     }
 
-    @media print {
-      #huooSection, .huooRolePart {
-        page-break-before: always;
-      }
-    }
-
   </style>
 </head>
 <body>
