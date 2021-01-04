@@ -14,6 +14,7 @@ import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSe
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
+import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -23,6 +24,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.ResultMatcher;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.AbstractControllerTest;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
@@ -63,6 +65,9 @@ public class PickExistingPwaControllerTest extends AbstractControllerTest {
 
 
   private AuthenticatedUserAccount user = new AuthenticatedUserAccount(new WebUserAccount(123),
+      Set.of(PwaUserPrivilege.PWA_APPLICATION_CREATE));
+
+  private AuthenticatedUserAccount userNoPrivs = new AuthenticatedUserAccount(new WebUserAccount(999),
       Collections.emptyList());
 
   private MasterPwa masterPwa = new MasterPwa();
@@ -117,6 +122,20 @@ public class PickExistingPwaControllerTest extends AbstractControllerTest {
   }
 
   @Test
+  public void renderPickPwaToStartApplication_noPrivileges() throws Exception {
+
+    for (PwaApplicationType appType : PwaApplicationType.values()) {
+      mockMvc.perform(
+          get(ReverseRouter.route(on(PickExistingPwaController.class)
+              .renderPickPwaToStartApplication(appType, null, null)))
+              .with(authenticatedUserAndSession(userNoPrivs))
+              .with(csrf()))
+          .andExpect(status().isForbidden());
+    }
+
+  }
+
+  @Test
   public void pickPwaAndStartApplication_onlySupportedTypesGetOkRedirectedToTaskList() throws Exception {
     var expectOkAppTypes = EnumSet.of(
         PwaApplicationType.CAT_1_VARIATION,
@@ -132,16 +151,31 @@ public class PickExistingPwaControllerTest extends AbstractControllerTest {
           ? status().is3xxRedirection() : status().isForbidden();
       try {
         mockMvc.perform(post(ReverseRouter.route(on(PickExistingPwaController.class)
-                .pickPwaAndStartApplication(appType, null, null, null))
-            )
+                .pickPwaAndStartApplication(appType, null, null, null)))
                 .with(authenticatedUserAndSession(user))
                 .with(csrf())
-                .param("pickablePwaString", validPickedString)
-        )
-            .andExpect(expectedStatus);
+                .param("pickablePwaString", validPickedString))
+                .andExpect(expectedStatus);
       } catch (AssertionError e) {
         throw new AssertionError("Failed! appType:" + appType + " Message:" + e.getMessage(), e);
       }
+    }
+
+  }
+
+  @Test
+  public void pickPwaAndStartApplication_post_noPrivileges() throws Exception {
+
+    var validPickedString = PickablePwaSource.MASTER.getPickableStringPrefix() + 1;
+
+    for (PwaApplicationType appType : PwaApplicationType.values()) {
+
+      mockMvc.perform(post(ReverseRouter.route(on(PickExistingPwaController.class)
+              .pickPwaAndStartApplication(appType, null, null, null)))
+              .with(authenticatedUserAndSession(userNoPrivs))
+              .with(csrf())
+              .param("pickablePwaString", validPickedString))
+              .andExpect(status().isForbidden());
     }
 
   }

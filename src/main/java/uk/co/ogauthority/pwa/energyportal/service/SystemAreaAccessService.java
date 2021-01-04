@@ -17,6 +17,8 @@ public class SystemAreaAccessService {
       PwaUserPrivilege.PWA_ORG_ADMIN,
       PwaUserPrivilege.PWA_CONSULTEE_GROUP_ADMIN);
 
+  public final Set<PwaUserPrivilege> validStartApplicationPrivileges = Set.of(PwaUserPrivilege.PWA_APPLICATION_CREATE);
+
   /**
    * For use in WebSecurityConfig. In other instances call canAccessTeamManagement
    */
@@ -45,5 +47,18 @@ public class SystemAreaAccessService {
         .anyMatch(validWorkAreaPrivs::contains);
   }
 
+  /**
+   * For use in WebSecurityConfig. In other instances call canAccessWorkArea
+   */
+  public String[] getStartApplicationGrantedAuthorities() {
+    return validStartApplicationPrivileges.stream()
+        .map(PwaUserPrivilege::name)
+        .toArray(String[]::new);
+  }
+
+  public boolean canStartApplication(AuthenticatedUserAccount user) {
+    return user.getUserPrivileges().stream()
+        .anyMatch(validStartApplicationPrivileges::contains);
+  }
 
 }

@@ -3,15 +3,17 @@
 <#import 'workarea/consultationsTab.ftl' as consultationsTab>
 
 <#-- @ftlvariable name="startPwaApplicationUrl" type="java.lang.String" -->
-<#--@ftlvariable name="workAreaResult" type="uk.co.ogauthority.pwa.service.workarea.WorkAreaResult" -->
-<#--@ftlvariable name="tabUrlFactory" type="uk.co.ogauthority.pwa.service.workarea.WorkAreaTabUrlFactory" -->
-<#--@ftlvariable name="currentWorkAreaTab" type="uk.co.ogauthority.pwa.service.workarea.WorkAreaTab" -->
-<#--@ftlvariable name="availableTabs" type="java.util.List<uk.co.ogauthority.pwa.service.workarea.WorkAreaTab>" -->
+<#-- @ftlvariable name="workAreaResult" type="uk.co.ogauthority.pwa.service.workarea.WorkAreaResult" -->
+<#-- @ftlvariable name="tabUrlFactory" type="uk.co.ogauthority.pwa.service.workarea.WorkAreaTabUrlFactory" -->
+<#-- @ftlvariable name="currentWorkAreaTab" type="uk.co.ogauthority.pwa.service.workarea.WorkAreaTab" -->
+<#-- @ftlvariable name="availableTabs" type="java.util.List<uk.co.ogauthority.pwa.service.workarea.WorkAreaTab>" -->
+<#-- @ftlvariable name="showStartButton" type="java.lang.Boolean" -->
 
 <@defaultPage htmlTitle="Work area" pageHeading="Work area" topNavigation=true fullWidthColumn=true>
 
-
-    <@fdsAction.link linkText="Start PWA application" linkUrl=springUrl(startPwaApplicationUrl) linkClass="govuk-button" role=true/>
+    <#if showStartButton>
+        <@fdsAction.link linkText="Start PWA application" linkUrl=springUrl(startPwaApplicationUrl) linkClass="govuk-button" role=true/>
+    </#if>
 
     <@fdsBackendTabs.tabs tabsHeading="Work area tabs">
         <@fdsBackendTabs.tabList>

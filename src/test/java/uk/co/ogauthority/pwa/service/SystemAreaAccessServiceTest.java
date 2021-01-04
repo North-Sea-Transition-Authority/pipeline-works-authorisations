@@ -8,7 +8,7 @@ import uk.co.ogauthority.pwa.testutils.AuthTestingUtils;
 
 public class SystemAreaAccessServiceTest {
 
-  private SystemAreaAccessService systemAreaAccessService = new SystemAreaAccessService();
+  private final SystemAreaAccessService systemAreaAccessService = new SystemAreaAccessService();
 
   @Test
   public void canAccessTeamManagement() {
@@ -24,6 +24,13 @@ public class SystemAreaAccessServiceTest {
         Set.of(PwaUserPrivilege.PWA_WORKAREA),
         systemAreaAccessService::canAccessWorkArea
     );
+  }
+
+  @Test
+  public void canStartApplication() {
+    AuthTestingUtils.testPrivilegeBasedAuthenticationFunction(
+        Set.of(PwaUserPrivilege.PWA_APPLICATION_CREATE),
+        systemAreaAccessService::canStartApplication);
   }
 
 }

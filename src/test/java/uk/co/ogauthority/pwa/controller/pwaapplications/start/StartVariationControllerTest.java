@@ -9,6 +9,7 @@ import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSe
 
 import java.util.Collections;
 import java.util.EnumSet;
+import java.util.Set;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -16,6 +17,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.ResultMatcher;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.AbstractControllerTest;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
@@ -34,6 +36,9 @@ public class StartVariationControllerTest extends AbstractControllerTest {
   private PwaAppProcessingContextService pwaAppProcessingContextService;
 
   private AuthenticatedUserAccount user = new AuthenticatedUserAccount(new WebUserAccount(123),
+      Set.of(PwaUserPrivilege.PWA_APPLICATION_CREATE));
+
+  private AuthenticatedUserAccount userNoPrivs = new AuthenticatedUserAccount(new WebUserAccount(999),
       Collections.emptyList());
 
   @Test
@@ -58,6 +63,21 @@ public class StartVariationControllerTest extends AbstractControllerTest {
       } catch (AssertionError e) {
         throw new AssertionError("Failed! appType:" + appType + " Message:" + e.getMessage(), e);
       }
+    }
+
+  }
+
+  @Test
+  public void renderVariationTypeStartPage_noPrivileges() throws Exception {
+
+    for (PwaApplicationType appType : PwaApplicationType.values()) {
+
+      mockMvc.perform(
+          get(ReverseRouter.route(on(StartVariationController.class).renderVariationTypeStartPage(appType)))
+              .with(authenticatedUserAndSession(userNoPrivs))
+              .with(csrf()))
+          .andExpect(status().isForbidden());
+
     }
 
   }
@@ -88,5 +108,19 @@ public class StartVariationControllerTest extends AbstractControllerTest {
 
   }
 
+  @Test
+  public void startVariation_noPrivileges() throws Exception {
+
+    for (PwaApplicationType appType : PwaApplicationType.values()) {
+
+      mockMvc.perform(
+          post(ReverseRouter.route(on(StartVariationController.class).startVariation(appType)))
+              .with(authenticatedUserAndSession(userNoPrivs))
+              .with(csrf()))
+          .andExpect(status().isForbidden());
+
+    }
+
+  }
 
 }

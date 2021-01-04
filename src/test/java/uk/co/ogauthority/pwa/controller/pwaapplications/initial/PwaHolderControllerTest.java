@@ -15,6 +15,7 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -22,6 +23,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.AbstractControllerTest;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
@@ -62,6 +64,9 @@ public class PwaHolderControllerTest extends AbstractControllerTest {
 
 
   private AuthenticatedUserAccount user = new AuthenticatedUserAccount(new WebUserAccount(123),
+      Set.of(PwaUserPrivilege.PWA_APPLICATION_CREATE));
+
+  private AuthenticatedUserAccount userNoPrivs = new AuthenticatedUserAccount(new WebUserAccount(999),
       Collections.emptyList());
 
   private PortalOrganisationUnit orgUnit;
@@ -97,6 +102,16 @@ public class PwaHolderControllerTest extends AbstractControllerTest {
   }
 
   @Test
+  public void renderHolderScreen_noPrivileges() throws Exception {
+
+    mockMvc.perform(get(ReverseRouter.route(on(PwaHolderController.class)
+        .renderHolderScreen(null, null)))
+        .with(authenticatedUserAndSession(userNoPrivs))
+    ).andExpect(status().isForbidden());
+
+  }
+
+  @Test
   public void postHolderScreen_withHolderOrgId() throws Exception {
 
     when(pwaApplicationCreationService.createInitialPwaApplication(user)).thenReturn(detail);
@@ -111,6 +126,20 @@ public class PwaHolderControllerTest extends AbstractControllerTest {
 
   }
 
+  @Test
+  public void postHolderScreen_withHolderOrgId_noPrivileges() throws Exception {
+
+    when(pwaApplicationCreationService.createInitialPwaApplication(user)).thenReturn(detail);
+    when(pwaApplicationDetailService.getTipDetail(detail.getPwaApplication().getId())).thenReturn(detail);
+
+    mockMvc.perform(post(ReverseRouter.route(on(PwaHolderController.class)
+        .postHolderScreen(null, null, userNoPrivs)))
+        .with(authenticatedUserAndSession(userNoPrivs))
+        .with(csrf())
+        .param("holderOuId", "111"))
+        .andExpect(status().isForbidden());
+
+  }
 
   @Test
   public void postHolderScreen_noHolderOrgSelected() throws Exception {
