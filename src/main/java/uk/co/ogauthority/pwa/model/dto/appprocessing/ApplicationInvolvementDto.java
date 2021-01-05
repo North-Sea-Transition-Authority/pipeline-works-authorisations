@@ -21,18 +21,22 @@ public class ApplicationInvolvementDto {
 
   private final boolean atLeastOneSatisfactoryVersion;
 
+  private final boolean userInHolderTeam;
+
   public ApplicationInvolvementDto(PwaApplication pwaApplication,
                                    Set<PwaContactRole> contactRoles,
                                    ConsultationInvolvementDto consultationInvolvement,
                                    boolean caseOfficerStageAndUserAssigned,
                                    boolean pwaManagerStage,
-                                   boolean atLeastOneSatisfactoryVersion) {
+                                   boolean atLeastOneSatisfactoryVersion,
+                                   boolean userInHolderTeam) {
     this.pwaApplication = pwaApplication;
     this.contactRoles = contactRoles;
     this.consultationInvolvement = consultationInvolvement;
     this.caseOfficerStageAndUserAssigned = caseOfficerStageAndUserAssigned;
     this.pwaManagerStage = pwaManagerStage;
     this.atLeastOneSatisfactoryVersion = atLeastOneSatisfactoryVersion;
+    this.userInHolderTeam = userInHolderTeam;
   }
 
   public PwaApplication getPwaApplication() {
@@ -70,4 +74,7 @@ public class ApplicationInvolvementDto {
     return atLeastOneSatisfactoryVersion;
   }
 
+  public boolean isUserInHolderTeam() {
+    return userInHolderTeam;
+  }
 }

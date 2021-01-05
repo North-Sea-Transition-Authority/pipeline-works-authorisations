@@ -105,7 +105,7 @@ public class WithdrawApplicationControllerTest extends PwaAppProcessingContextAb
     when(withdrawApplicationService.validate(any(), any(), any())).thenReturn(new BeanPropertyBindingResult(new WithdrawApplicationForm(), "form"));
 
     var permissionsDto = new ProcessingPermissionsDto(null, EnumSet.allOf(PwaAppProcessingPermission.class));
-    when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail.getPwaApplication(), user)).thenReturn(permissionsDto);
+    when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail, user)).thenReturn(permissionsDto);
 
     mockMvc.perform(post(ReverseRouter.route(on(WithdrawApplicationController.class)
         .postWithdrawApplication(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null)))
@@ -125,7 +125,7 @@ public class WithdrawApplicationControllerTest extends PwaAppProcessingContextAb
     when(withdrawApplicationService.validate(any(), any(), any())).thenReturn(failedBindingResult);
 
     var permissionsDto = new ProcessingPermissionsDto(null, EnumSet.allOf(PwaAppProcessingPermission.class));
-    when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail.getPwaApplication(), user)).thenReturn(permissionsDto);
+    when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail, user)).thenReturn(permissionsDto);
 
     mockMvc.perform(post(ReverseRouter.route(on(WithdrawApplicationController.class)
         .postWithdrawApplication(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null)))

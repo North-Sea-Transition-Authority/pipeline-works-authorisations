@@ -65,7 +65,7 @@ public class ConsulteeAdviceServiceTest {
 
     var consultationInvolvement = new ConsultationInvolvementDto(consulteeGroupDetail, Set.of(), null, List.of(), false);
     var appInvolvement = new ApplicationInvolvementDto(detail.getPwaApplication(), Set.of(), consultationInvolvement, false,
-        false, false);
+        false, false, false);
     var context = new PwaAppProcessingContext(detail, user, Set.of(PwaAppProcessingPermission.CASE_MANAGEMENT_CONSULTEE), null, appInvolvement);
 
     boolean canShow = consulteeAdviceService.canShowInTaskList(context);
@@ -79,7 +79,7 @@ public class ConsulteeAdviceServiceTest {
 
     var consultationInvolvement = new ConsultationInvolvementDto(consulteeGroupDetail, Set.of(), null, List.of(new ConsultationRequest()), false);
     var appInvolvement = new ApplicationInvolvementDto(detail.getPwaApplication(), Set.of(), consultationInvolvement, false,
-        false, false);
+        false, false, false);
     var context = new PwaAppProcessingContext(detail, user, Set.of(PwaAppProcessingPermission.CONSULTEE_ADVICE), null, appInvolvement);
 
     boolean canShow = consulteeAdviceService.canShowInTaskList(context);
@@ -142,7 +142,7 @@ public class ConsulteeAdviceServiceTest {
 
     var consultationInvolvement = new ConsultationInvolvementDto(consulteeGroupDetail, Set.of(), null, List.of(historicalRequest), false);
     var appInvolvement = new ApplicationInvolvementDto(detail.getPwaApplication(), Set.of(), consultationInvolvement, false,
-        false, false);
+        false, false, false);
     var context = new PwaAppProcessingContext(detail, user, Set.of(PwaAppProcessingPermission.CONSULTEE_ADVICE), null, appInvolvement);
 
     var requestView = new ConsultationRequestView(
@@ -183,7 +183,7 @@ public class ConsulteeAdviceServiceTest {
 
     var consultationInvolvement = new ConsultationInvolvementDto(consulteeGroupDetail, Set.of(), activeRequest, List.of(historicalRequest), false);
     var appInvolvement = new ApplicationInvolvementDto(detail.getPwaApplication(), Set.of(), consultationInvolvement, false,
-        false, false);
+        false, false, false);
     var context = new PwaAppProcessingContext(detail, user, Set.of(PwaAppProcessingPermission.CONSULTEE_ADVICE), null, appInvolvement);
 
     var historicRequestView = new ConsultationRequestView(

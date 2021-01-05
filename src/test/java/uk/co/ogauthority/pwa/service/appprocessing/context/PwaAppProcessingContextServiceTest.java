@@ -78,7 +78,7 @@ public class PwaAppProcessingContextServiceTest {
         .thenReturn(Optional.of(detail));
 
     var permissionsDto = new ProcessingPermissionsDto(null, Set.of(PwaAppProcessingPermission.ACCEPT_INITIAL_REVIEW));
-    when(appProcessingPermissionService.getProcessingPermissionsDto(application, user)).thenReturn(permissionsDto);
+    when(appProcessingPermissionService.getProcessingPermissionsDto(detail, user)).thenReturn(permissionsDto);
 
     var searchItem = new ApplicationDetailSearchItem();
     startInstant = Instant.now();
@@ -114,7 +114,7 @@ public class PwaAppProcessingContextServiceTest {
 
   @Test(expected = AccessDeniedException.class)
   public void validateAndCreate_noChecks_userHasNoProcessingPermissions() {
-    when(appProcessingPermissionService.getProcessingPermissionsDto(application, user)).thenReturn(
+    when(appProcessingPermissionService.getProcessingPermissionsDto(detail, user)).thenReturn(
         PwaAppProcessingContextDtoTestUtils.emptyPermissionsDto());
     var contextBuilder = new PwaAppProcessingContextParams(1, user);
     contextService.validateAndCreate(contextBuilder);
@@ -161,7 +161,7 @@ public class PwaAppProcessingContextServiceTest {
             PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY));
 
     var permissionsDto = new ProcessingPermissionsDto(null, Set.of(PwaAppProcessingPermission.CASE_MANAGEMENT_OGA));
-    when(appProcessingPermissionService.getProcessingPermissionsDto(application, user)).thenReturn(permissionsDto);
+    when(appProcessingPermissionService.getProcessingPermissionsDto(detail, user)).thenReturn(permissionsDto);
     var appContext = contextService.validateAndCreate(builder);
 
     assertThat(appContext.getApplicationDetail()).isEqualTo(detail);
@@ -173,7 +173,7 @@ public class PwaAppProcessingContextServiceTest {
   @Test(expected = AccessDeniedException.class)
   public void validateAndCreate_permissionsCheck_invalid() {
     var permissionsDto = new ProcessingPermissionsDto(null, Set.of(PwaAppProcessingPermission.CASE_OFFICER_REVIEW));
-    when(appProcessingPermissionService.getProcessingPermissionsDto(application, user)).thenReturn(permissionsDto);
+    when(appProcessingPermissionService.getProcessingPermissionsDto(detail, user)).thenReturn(permissionsDto);
     var builder = new PwaAppProcessingContextParams(1, user)
         .requiredProcessingPermissions(Set.of(PwaAppProcessingPermission.ACCEPT_INITIAL_REVIEW));
     contextService.validateAndCreate(builder);
@@ -312,7 +312,7 @@ public class PwaAppProcessingContextServiceTest {
     );
 
     var appInvolvement = new ApplicationInvolvementDto(application, Set.of(), consultationInvolvement, false, false,
-        false);
+        false, false);
     var permissionsDto = new ProcessingPermissionsDto(appInvolvement, Set.of(PwaAppProcessingPermission.CASE_MANAGEMENT_CONSULTEE));
     when(appProcessingPermissionService.getProcessingPermissionsDto(any(), any()))
         .thenReturn(permissionsDto);
@@ -333,7 +333,7 @@ public class PwaAppProcessingContextServiceTest {
 
     var builder = new PwaAppProcessingContextParams(1, user);
 
-    var appInvolvement = new ApplicationInvolvementDto(application, Set.of(), null, false, false, false);
+    var appInvolvement = new ApplicationInvolvementDto(application, Set.of(), null, false, false, false, false);
     var permissionsDto = new ProcessingPermissionsDto(appInvolvement, Set.of(PwaAppProcessingPermission.CASE_MANAGEMENT_CONSULTEE));
     when(appProcessingPermissionService.getProcessingPermissionsDto(any(), any()))
         .thenReturn(permissionsDto);
@@ -350,7 +350,7 @@ public class PwaAppProcessingContextServiceTest {
     var builder = new PwaAppProcessingContextParams(1, user);
 
     var appInvolvement = new ApplicationInvolvementDto(application, Set.of(), new ConsultationInvolvementDto(null, Set.of(), null, List.of(), false), false,
-        false, false);
+        false, false, false);
     var permissionsDto = new ProcessingPermissionsDto(appInvolvement, Set.of(PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY));
     when(appProcessingPermissionService.getProcessingPermissionsDto(any(), any()))
         .thenReturn(permissionsDto);

@@ -101,7 +101,7 @@ public class ChangeOptionsApprovalDeadlineControllerTest extends PwaAppProcessin
     optionsApprovalDeadlineView = OptionsApprovalDeadlineViewTestUtil.createWithDeadline(LocalDate.of(2020,12,1));
     when(approveOptionsService.getOptionsApprovalDeadlineViewOrError(any())).thenReturn(optionsApprovalDeadlineView);
 
-  when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail.getPwaApplication(), user))
+  when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail, user))
         .thenReturn(new ProcessingPermissionsDto(null, EnumSet.of(PwaAppProcessingPermission.CHANGE_OPTIONS_APPROVAL_DEADLINE)));
 
     when(pwaApplicationDetailService.getLastSubmittedApplicationDetail(APP_ID))

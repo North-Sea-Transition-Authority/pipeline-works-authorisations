@@ -293,7 +293,7 @@ public class PwaApplicationEndpointTestBuilder {
     if (pwaAppProcessingPermissionService != null) {
       var appInvolvementDto = PwaAppProcessingContextDtoTestUtils.appInvolvementSatisfactoryVersions(detail.getPwaApplication());
       var permissionsDto = new ProcessingPermissionsDto(appInvolvementDto, defaultPermissions);
-      when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(detail.getPwaApplication(), user)).thenReturn(permissionsDto);
+      when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(detail, user)).thenReturn(permissionsDto);
     }
 
   }
@@ -395,7 +395,7 @@ public class PwaApplicationEndpointTestBuilder {
 
         var permissionsDto = new ProcessingPermissionsDto(appInvolvement, userPermissions);
 
-        when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(detail.getPwaApplication(), user))
+        when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(detail, user))
             .thenReturn(permissionsDto);
 
         // Based on required permission for endpoint, if role under test grants required permission

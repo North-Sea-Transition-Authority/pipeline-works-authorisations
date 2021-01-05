@@ -365,7 +365,7 @@ public class AssignResponderServiceTest {
         Set.of(PwaAppProcessingPermission.ASSIGN_RESPONDER),
         null,
         new ApplicationInvolvementDto(null, Set.of(), new ConsultationInvolvementDto(null, Set.of(), null, List.of(), false), false,
-            false, false));
+            false, false, false));
 
     boolean canShow = assignResponderService.canShowInTaskList(processingContext);
 

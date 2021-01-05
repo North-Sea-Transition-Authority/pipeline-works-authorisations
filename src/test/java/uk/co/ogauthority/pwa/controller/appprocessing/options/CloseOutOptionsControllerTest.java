@@ -92,7 +92,7 @@ public class CloseOutOptionsControllerTest extends PwaAppProcessingContextAbstra
 
     pwaApplicationDetail.setStatus(PwaApplicationStatus.CASE_OFFICER_REVIEW);
 
-    when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail.getPwaApplication(), user))
+    when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail, user))
         .thenReturn(new ProcessingPermissionsDto(null, EnumSet.of(PwaAppProcessingPermission.CLOSE_OUT_OPTIONS)));
 
     when(pwaApplicationDetailService.getLastSubmittedApplicationDetail(APP_ID))

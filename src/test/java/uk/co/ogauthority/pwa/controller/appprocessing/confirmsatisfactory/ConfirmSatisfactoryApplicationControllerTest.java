@@ -80,7 +80,7 @@ public class ConfirmSatisfactoryApplicationControllerTest extends PwaAppProcessi
         APP_ID, APP_DETAIL_ID);
     pwaApplicationDetail.setStatus(PwaApplicationStatus.CASE_OFFICER_REVIEW);
 
-    when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail.getPwaApplication(), user))
+    when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail, user))
         .thenReturn(new ProcessingPermissionsDto(null, EnumSet.of(PwaAppProcessingPermission.CONFIRM_SATISFACTORY_APPLICATION)));
 
     when(pwaApplicationDetailService.getLastSubmittedApplicationDetail(APP_ID))

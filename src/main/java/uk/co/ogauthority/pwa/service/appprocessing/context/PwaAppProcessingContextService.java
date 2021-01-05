@@ -75,7 +75,7 @@ public class PwaAppProcessingContextService {
             "Could not find last submitted version on applicationId:" + applicationId));
 
     var processingPermissionsDto = appProcessingPermissionService
-        .getProcessingPermissionsDto(detail.getPwaApplication(), authenticatedUser);
+        .getProcessingPermissionsDto(detail, authenticatedUser);
 
     if (processingPermissionsDto.getProcessingPermissions().isEmpty()) {
       throw new AccessDeniedException(
