@@ -48,10 +48,15 @@ public class PadFacilityService {
   public void setFacilities(PwaApplicationDetail pwaApplicationDetail, LocationDetailsForm form) {
     getFacilities(pwaApplicationDetail).forEach(padFacilityRepository::delete);
     List<String> facilities;
-    if (form.getWithinSafetyZone() == HseSafetyZone.PARTIALLY && form.getFacilitiesIfPartially().size() > 0) {
-      facilities = form.getFacilitiesIfPartially();
-    } else if (form.getWithinSafetyZone() == HseSafetyZone.YES && form.getFacilitiesIfYes().size() > 0) {
-      facilities = form.getFacilitiesIfYes();
+
+    if (form.getSafetyZoneQuestionForm().getWithinSafetyZone() == HseSafetyZone.PARTIALLY
+        && form.getSafetyZoneQuestionForm().getFacilitiesIfPartially().size() > 0) {
+      facilities = form.getSafetyZoneQuestionForm().getFacilitiesIfPartially();
+
+    } else if (form.getSafetyZoneQuestionForm().getWithinSafetyZone() == HseSafetyZone.YES
+        && form.getSafetyZoneQuestionForm().getFacilitiesIfYes().size() > 0) {
+      facilities = form.getSafetyZoneQuestionForm().getFacilitiesIfYes();
+
     } else {
       return;
     }
@@ -77,7 +82,7 @@ public class PadFacilityService {
 
   public void mapFacilitiesToView(List<PadFacility> facilities, LocationDetailsForm locationDetailsForm,
                                          ModelAndView modelAndView) {
-    if (locationDetailsForm.getWithinSafetyZone() != null) {
+    if (locationDetailsForm.getSafetyZoneQuestionForm().getWithinSafetyZone() != null) {
       var devukFacilities = facilities.stream()
           .filter(PadFacility::isLinkedToDevukFacility)
           .map(PadFacility::getFacility)
@@ -96,7 +101,7 @@ public class PadFacilityService {
       joinedFacilities.putAll(devukFacilities);
       joinedFacilities.putAll(manualFacilities);
 
-      switch (locationDetailsForm.getWithinSafetyZone()) {
+      switch (locationDetailsForm.getSafetyZoneQuestionForm().getWithinSafetyZone()) {
         case PARTIALLY:
           modelAndView.addObject("preselectedFacilitiesIfPartially", joinedFacilities);
           break;

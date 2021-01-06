@@ -67,7 +67,7 @@ public class PadFacilityServiceTest {
   @Test
   public void setFacilities_WithinZone_No() {
     var form = new LocationDetailsForm();
-    form.setWithinSafetyZone(HseSafetyZone.NO);
+    form.getSafetyZoneQuestionForm().setWithinSafetyZone(HseSafetyZone.NO);
     padFacilityService.setFacilities(pwaApplicationDetail, form);
     verify(padFacilityRepository, never()).save(any());
   }
@@ -77,8 +77,8 @@ public class PadFacilityServiceTest {
     var facility = new DevukFacility();
     var facilityIds = List.of("1");
     var form = new LocationDetailsForm();
-    form.setWithinSafetyZone(HseSafetyZone.PARTIALLY);
-    form.setFacilitiesIfPartially(facilityIds);
+    form.getSafetyZoneQuestionForm().setWithinSafetyZone(HseSafetyZone.PARTIALLY);
+    form.getSafetyZoneQuestionForm().setFacilitiesIfPartially(facilityIds);
 
     when(devukFacilityService.getFacilitiesInIds(any())).thenReturn(List.of(facility));
 
@@ -95,8 +95,8 @@ public class PadFacilityServiceTest {
   public void setFacilities_WithinZone_Yes() {
     var facility = new DevukFacility();
     var form = new LocationDetailsForm();
-    form.setWithinSafetyZone(HseSafetyZone.YES);
-    form.setFacilitiesIfYes(List.of("1"));
+    form.getSafetyZoneQuestionForm().setWithinSafetyZone(HseSafetyZone.YES);
+    form.getSafetyZoneQuestionForm().setFacilitiesIfYes(List.of("1"));
 
     when(devukFacilityService.getFacilitiesInIds(any())).thenReturn(List.of(facility));
 
@@ -125,7 +125,7 @@ public class PadFacilityServiceTest {
     var devukFacility = new DevukFacility(1, "test");
     padFacility.setFacility(devukFacility);
     var form = new LocationDetailsForm();
-    form.setWithinSafetyZone(HseSafetyZone.NO);
+    form.getSafetyZoneQuestionForm().setWithinSafetyZone(HseSafetyZone.NO);
     var modelAndView = new ModelAndView();
     padFacilityService.mapFacilitiesToView(List.of(), form, modelAndView);
     assertThat((Map<String, String>) modelAndView.getModel().get("preselectedFacilitiesIfPartially")).isNull();
@@ -137,7 +137,7 @@ public class PadFacilityServiceTest {
     var devukFacility = new DevukFacility(1, "facility");
     padFacility.setFacility(devukFacility);
     var form = new LocationDetailsForm();
-    form.setWithinSafetyZone(HseSafetyZone.PARTIALLY);
+    form.getSafetyZoneQuestionForm().setWithinSafetyZone(HseSafetyZone.PARTIALLY);
     var modelAndView = new ModelAndView();
     padFacilityService.mapFacilitiesToView(List.of(padFacility), form, modelAndView);
     assertThat((Map<String, String>) modelAndView.getModel().get("preselectedFacilitiesIfPartially")).containsExactly(
@@ -151,7 +151,7 @@ public class PadFacilityServiceTest {
     var devukFacility = new DevukFacility(1, "facility");
     padFacility.setFacility(devukFacility);
     var form = new LocationDetailsForm();
-    form.setWithinSafetyZone(HseSafetyZone.YES);
+    form.getSafetyZoneQuestionForm().setWithinSafetyZone(HseSafetyZone.YES);
     var modelAndView = new ModelAndView();
     padFacilityService.mapFacilitiesToView(List.of(padFacility), form, modelAndView);
     assertThat((Map<String, String>) modelAndView.getModel().get("preselectedFacilitiesIfPartially")).isNull();
@@ -164,8 +164,8 @@ public class PadFacilityServiceTest {
   public void setFacilities_FreeText_WithinZone_Partially() {
     var facilityIds = List.of(SearchSelectable.FREE_TEXT_PREFIX + "1");
     var form = new LocationDetailsForm();
-    form.setWithinSafetyZone(HseSafetyZone.PARTIALLY);
-    form.setFacilitiesIfPartially(facilityIds);
+    form.getSafetyZoneQuestionForm().setWithinSafetyZone(HseSafetyZone.PARTIALLY);
+    form.getSafetyZoneQuestionForm().setFacilitiesIfPartially(facilityIds);
 
     padFacilityService.setFacilities(pwaApplicationDetail, form);
 
@@ -180,8 +180,8 @@ public class PadFacilityServiceTest {
   public void setFacilities__FreeText_WithinZone_Yes() {
     var facilityIds = List.of(SearchSelectable.FREE_TEXT_PREFIX + "1");
     var form = new LocationDetailsForm();
-    form.setWithinSafetyZone(HseSafetyZone.YES);
-    form.setFacilitiesIfYes(facilityIds);
+    form.getSafetyZoneQuestionForm().setWithinSafetyZone(HseSafetyZone.YES);
+    form.getSafetyZoneQuestionForm().setFacilitiesIfYes(facilityIds);
 
     padFacilityService.setFacilities(pwaApplicationDetail, form);
 
@@ -197,7 +197,7 @@ public class PadFacilityServiceTest {
     var devukFacility = new DevukFacility(1, "facility");
     padFacility.setFacilityNameManualEntry("freeText");
     var form = new LocationDetailsForm();
-    form.setWithinSafetyZone(HseSafetyZone.PARTIALLY);
+    form.getSafetyZoneQuestionForm().setWithinSafetyZone(HseSafetyZone.PARTIALLY);
     var modelAndView = new ModelAndView();
     padFacilityService.mapFacilitiesToView(List.of(padFacility), form, modelAndView);
     assertThat((Map<String, String>) modelAndView.getModel().get("preselectedFacilitiesIfPartially")).containsExactly(
@@ -212,7 +212,7 @@ public class PadFacilityServiceTest {
     var devukFacility = new DevukFacility(1, "facility");
     padFacility.setFacilityNameManualEntry("freeText");
     var form = new LocationDetailsForm();
-    form.setWithinSafetyZone(HseSafetyZone.YES);
+    form.getSafetyZoneQuestionForm().setWithinSafetyZone(HseSafetyZone.YES);
     var modelAndView = new ModelAndView();
     padFacilityService.mapFacilitiesToView(List.of(padFacility), form, modelAndView);
     assertThat((Map<String, String>) modelAndView.getModel().get("preselectedFacilitiesIfPartially")).isNull();

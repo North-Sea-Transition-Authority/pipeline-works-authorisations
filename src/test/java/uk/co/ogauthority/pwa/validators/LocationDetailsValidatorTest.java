@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 
 import java.util.EnumSet;
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.junit.Before;
@@ -21,10 +20,12 @@ import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 public class LocationDetailsValidatorTest {
 
   private LocationDetailsValidator locationDetailsValidator;
+  private LocationDetailsSafetyZoneValidator safetyZoneValidator;
 
   @Before
   public void setUp() {
-    locationDetailsValidator = new LocationDetailsValidator();
+    safetyZoneValidator = new LocationDetailsSafetyZoneValidator();
+    locationDetailsValidator = new LocationDetailsValidator(safetyZoneValidator);
   }
 
 
@@ -44,7 +45,7 @@ public class LocationDetailsValidatorTest {
     var result = ValidatorTestUtils.getFormValidationErrors(locationDetailsValidator, form,
         getValidationHints(EnumSet.allOf(LocationDetailsQuestion.class)));
     assertThat(result).containsOnly(
-        entry("withinSafetyZone", Set.of("withinSafetyZone" + FieldValidationErrorCodes.REQUIRED.getCode())),
+        entry("safetyZoneQuestionForm.withinSafetyZone", Set.of("withinSafetyZone" + FieldValidationErrorCodes.REQUIRED.getCode())),
         entry("transportsMaterialsToShore",
             Set.of("transportsMaterialsToShore" + FieldValidationErrorCodes.REQUIRED.getCode())),
         entry("approximateProjectLocationFromShore",
@@ -66,7 +67,7 @@ public class LocationDetailsValidatorTest {
     var result = ValidatorTestUtils.getFormValidationErrors(locationDetailsValidator, form,
         getValidationHints(EnumSet.allOf(LocationDetailsQuestion.class)));
     assertThat(result).containsOnly(
-        entry("withinSafetyZone", Set.of("withinSafetyZone" + FieldValidationErrorCodes.REQUIRED.getCode())),
+        entry("safetyZoneQuestionForm.withinSafetyZone", Set.of("withinSafetyZone" + FieldValidationErrorCodes.REQUIRED.getCode())),
         entry("transportationMethod", Set.of("transportationMethod" + FieldValidationErrorCodes.REQUIRED.getCode())),
         entry("approximateProjectLocationFromShore",
             Set.of("approximateProjectLocationFromShore" + FieldValidationErrorCodes.REQUIRED.getCode())),
@@ -75,55 +76,6 @@ public class LocationDetailsValidatorTest {
             Set.of("withinLimitsOfDeviation" + FieldValidationErrorCodes.REQUIRED.getCode())),
         entry("routeSurveyUndertaken", Set.of("routeSurveyUndertaken" + FieldValidationErrorCodes.REQUIRED.getCode()))
     );
-  }
-
-  @Test
-  public void validate_withinSafetyZone_no() {
-    var form = new LocationDetailsForm();
-    form.setWithinSafetyZone(HseSafetyZone.NO);
-    var result = ValidatorTestUtils.getFormValidationErrors(locationDetailsValidator, form,
-        getValidationHints(Set.of(LocationDetailsQuestion.WITHIN_SAFETY_ZONE)));
-    assertThat(result).doesNotContainKeys("withinSafetyZone");
-  }
-
-  @Test
-  public void validate_withinSafetyZone_partially_nullFacilities() {
-    var form = new LocationDetailsForm();
-    form.setWithinSafetyZone(HseSafetyZone.PARTIALLY);
-    var result = ValidatorTestUtils.getFormValidationErrors(locationDetailsValidator, form,
-        getValidationHints(Set.of(LocationDetailsQuestion.WITHIN_SAFETY_ZONE)));
-    assertThat(result).doesNotContainKeys("withinSafetyZone");
-    assertThat(result).containsKeys("facilitiesIfPartially");
-  }
-
-  @Test
-  public void validate_withinSafetyZone_partially_withFacilities() {
-    var form = new LocationDetailsForm();
-    form.setWithinSafetyZone(HseSafetyZone.PARTIALLY);
-    form.setFacilitiesIfPartially(List.of("1"));
-    var result = ValidatorTestUtils.getFormValidationErrors(locationDetailsValidator, form,
-        getValidationHints(Set.of(LocationDetailsQuestion.WITHIN_SAFETY_ZONE)));
-    assertThat(result).doesNotContainKeys("withinSafetyZone", "facilitiesIfPartially");
-  }
-
-  @Test
-  public void validate_withinSafetyZone_yes_nullFacilities() {
-    var form = new LocationDetailsForm();
-    form.setWithinSafetyZone(HseSafetyZone.YES);
-    var result = ValidatorTestUtils.getFormValidationErrors(locationDetailsValidator, form,
-        getValidationHints(Set.of(LocationDetailsQuestion.WITHIN_SAFETY_ZONE)));
-    assertThat(result).doesNotContainKeys("withinSafetyZone");
-    assertThat(result).containsKeys("facilitiesIfYes");
-  }
-
-  @Test
-  public void validate_withinSafetyZone_yes_withFacilities() {
-    var form = new LocationDetailsForm();
-    form.setWithinSafetyZone(HseSafetyZone.YES);
-    form.setFacilitiesIfYes(List.of("1"));
-    var result = ValidatorTestUtils.getFormValidationErrors(locationDetailsValidator, form,
-        getValidationHints(Set.of(LocationDetailsQuestion.WITHIN_SAFETY_ZONE)));
-    assertThat(result).doesNotContainKeys("withinSafetyZone", "facilitiesIfYes");
   }
 
   @Test
@@ -182,7 +134,7 @@ public class LocationDetailsValidatorTest {
   @Test
   public void validate_valid() {
     var form = new LocationDetailsForm();
-    form.setWithinSafetyZone(HseSafetyZone.NO);
+    form.getSafetyZoneQuestionForm().setWithinSafetyZone(HseSafetyZone.NO);
     form.setTransportsMaterialsToShore(true);
     form.setApproximateProjectLocationFromShore("Approx");
     form.setTransportationMethod("Method");

@@ -104,10 +104,10 @@ public class LocationDetailsController extends PwaApplicationDetailDataFileUploa
         .addObject("requiredQuestions", padLocationDetailsService.getRequiredQuestions(detail.getPwaApplicationType()));
 
     // Add preselection options in case validation fails
-    if (form.getWithinSafetyZone() == HseSafetyZone.YES) {
+    if (form.getSafetyZoneQuestionForm().getWithinSafetyZone() == HseSafetyZone.YES) {
       modelAndView.addObject("preselectedFacilitiesIfYes",
           padLocationDetailsService.reapplyFacilitySelections(form));
-    } else if (form.getWithinSafetyZone() == HseSafetyZone.PARTIALLY) {
+    } else if (form.getSafetyZoneQuestionForm().getWithinSafetyZone() == HseSafetyZone.PARTIALLY) {
       modelAndView.addObject("preselectedFacilitiesIfPartially",
           padLocationDetailsService.reapplyFacilitySelections(form));
     }

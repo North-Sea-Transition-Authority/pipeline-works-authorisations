@@ -119,7 +119,7 @@ public class PadLocationDetailsServiceTest {
     var form = new LocationDetailsForm();
     var entity = new PadLocationDetails();
     padLocationDetailsService.mapEntityToForm(entity, form);
-    assertThat(form.getWithinSafetyZone()).isNull();
+    assertThat(form.getSafetyZoneQuestionForm().getWithinSafetyZone()).isNull();
     assertThat(form.getApproximateProjectLocationFromShore()).isNull();
     assertThat(form.getFacilitiesOffshore()).isNull();
     assertThat(form.getTransportsMaterialsToShore()).isNull();
@@ -137,7 +137,7 @@ public class PadLocationDetailsServiceTest {
     var form = new LocationDetailsForm();
     padLocationDetails.setWithinSafetyZone(HseSafetyZone.NO);
     padLocationDetailsService.mapEntityToForm(padLocationDetails, form);
-    assertThat(form.getWithinSafetyZone()).isEqualTo(padLocationDetails.getWithinSafetyZone());
+    assertThat(form.getSafetyZoneQuestionForm().getWithinSafetyZone()).isEqualTo(padLocationDetails.getWithinSafetyZone());
     assertThat(form.getApproximateProjectLocationFromShore()).isEqualTo(
         padLocationDetails.getApproximateProjectLocationFromShore());
     assertThat(form.getFacilitiesOffshore()).isEqualTo(padLocationDetails.getFacilitiesOffshore());
@@ -173,7 +173,7 @@ public class PadLocationDetailsServiceTest {
     var form = buildForm();
     var entity = new PadLocationDetails();
     padLocationDetailsService.saveEntityUsingForm(entity, form);
-    assertThat(entity.getWithinSafetyZone()).isEqualTo(form.getWithinSafetyZone());
+    assertThat(entity.getWithinSafetyZone()).isEqualTo(form.getSafetyZoneQuestionForm().getWithinSafetyZone());
     assertThat(entity.getApproximateProjectLocationFromShore()).isEqualTo(
         form.getApproximateProjectLocationFromShore());
     assertThat(entity.getFacilitiesOffshore()).isEqualTo(form.getFacilitiesOffshore());
@@ -341,9 +341,9 @@ public class PadLocationDetailsServiceTest {
   @Test
   public void reapplyFacilitySelections_serviceInteraction_inSafetyZone_Yes() {
     var form = new LocationDetailsForm();
-    form.setWithinSafetyZone(HseSafetyZone.YES);
-    form.setFacilitiesIfYes(List.of("yes"));
-    form.setFacilitiesIfPartially(List.of("partially"));
+    form.getSafetyZoneQuestionForm().setWithinSafetyZone(HseSafetyZone.YES);
+    form.getSafetyZoneQuestionForm().setFacilitiesIfYes(List.of("yes"));
+    form.getSafetyZoneQuestionForm().setFacilitiesIfPartially(List.of("partially"));
     padLocationDetailsService.reapplyFacilitySelections(form);
     verify(devukFacilityService, times(1)).getFacilitiesInIds(List.of("yes"));
     verify(devukFacilityService, never()).getFacilitiesInIds(List.of("partially"));
@@ -353,9 +353,9 @@ public class PadLocationDetailsServiceTest {
   @Test
   public void reapplyFacilitySelections_serviceInteraction_inSafetyZone_Partially() {
     var form = new LocationDetailsForm();
-    form.setWithinSafetyZone(HseSafetyZone.PARTIALLY);
-    form.setFacilitiesIfYes(List.of("yes"));
-    form.setFacilitiesIfPartially(List.of("partially"));
+    form.getSafetyZoneQuestionForm().setWithinSafetyZone(HseSafetyZone.PARTIALLY);
+    form.getSafetyZoneQuestionForm().setFacilitiesIfYes(List.of("yes"));
+    form.getSafetyZoneQuestionForm().setFacilitiesIfPartially(List.of("partially"));
     padLocationDetailsService.reapplyFacilitySelections(form);
     verify(devukFacilityService, times(1)).getFacilitiesInIds(List.of("partially"));
     verify(devukFacilityService, never()).getFacilitiesInIds(List.of("yes"));
@@ -365,11 +365,11 @@ public class PadLocationDetailsServiceTest {
   @Test
   public void reapplyFacilitySelections_fullRun() {
     var form = new LocationDetailsForm();
-    form.setWithinSafetyZone(HseSafetyZone.YES);
-    form.setFacilitiesIfYes(List.of("1", SearchSelectable.FREE_TEXT_PREFIX + "yes"));
+    form.getSafetyZoneQuestionForm().setWithinSafetyZone(HseSafetyZone.YES);
+    form.getSafetyZoneQuestionForm().setFacilitiesIfYes(List.of("1", SearchSelectable.FREE_TEXT_PREFIX + "yes"));
 
     var devukFacility = new DevukFacility(1, "Test facility");
-    when(devukFacilityService.getFacilitiesInIds(form.getFacilitiesIfYes())).thenReturn(List.of(devukFacility));
+    when(devukFacilityService.getFacilitiesInIds(form.getSafetyZoneQuestionForm().getFacilitiesIfYes())).thenReturn(List.of(devukFacility));
     when(searchSelectorService.buildPrepopulatedSelections(any(), any())).thenCallRealMethod();
     when(searchSelectorService.removePrefix(any())).thenCallRealMethod();
     var result = padLocationDetailsService.reapplyFacilitySelections(form);
@@ -412,7 +412,7 @@ public class PadLocationDetailsServiceTest {
 
   private LocationDetailsForm buildForm() {
     var form = new LocationDetailsForm();
-    form.setWithinSafetyZone(HseSafetyZone.NO);
+    form.getSafetyZoneQuestionForm().setWithinSafetyZone(HseSafetyZone.NO);
     form.setApproximateProjectLocationFromShore("approx");
     form.setFacilitiesOffshore(true);
     form.setTransportsMaterialsToShore(true);

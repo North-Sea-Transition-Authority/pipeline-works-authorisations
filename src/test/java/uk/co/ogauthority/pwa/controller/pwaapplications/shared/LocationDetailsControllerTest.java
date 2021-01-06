@@ -50,6 +50,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.shared.location.PadLocation
 import uk.co.ogauthority.pwa.testutils.ControllerTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
+import uk.co.ogauthority.pwa.validators.LocationDetailsSafetyZoneValidator;
 import uk.co.ogauthority.pwa.validators.LocationDetailsValidator;
 
 @RunWith(SpringRunner.class)
@@ -70,6 +71,9 @@ public class LocationDetailsControllerTest extends PwaApplicationContextAbstract
 
   @SpyBean
   private LocationDetailsValidator locationDetailsValidator;
+
+  @SpyBean
+  private LocationDetailsSafetyZoneValidator locationDetailsSafetyZoneValidator;
 
   private WebUserAccount wua;
   private AuthenticatedUserAccount user;
