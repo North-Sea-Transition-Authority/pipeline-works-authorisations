@@ -76,6 +76,11 @@
 
     .header-heading {
       margin-top: 5px;
+    }    
+
+    table {
+      /* Repeats the header and footer on each page that the table is on. */
+      -fs-table-paginate: paginate;
     }
 
     .sectionTable {
