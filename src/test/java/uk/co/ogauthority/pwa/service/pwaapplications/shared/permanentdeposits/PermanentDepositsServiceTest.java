@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import javax.validation.Validation;
@@ -28,6 +29,7 @@ import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.permanentdeposits.PermanentDepositController;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
+import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.entity.enums.permanentdeposits.MaterialType;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
@@ -37,6 +39,8 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PadPermanentDepositTestUtil;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.PermanentDepositsForm;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineHeaderView;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview;
 import uk.co.ogauthority.pwa.model.location.CoordinatePairTestUtil;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadDepositPipelineRepository;
@@ -99,6 +103,8 @@ public class PermanentDepositsServiceTest {
   private PwaApplicationDetail pwaApplicationDetail;
   private LocalDate date;
   private WebUserAccount user = new WebUserAccount(1);
+
+  private static int DEPOSIT_ID_1 = 1;
 
   @Before
   public void setUp() {
@@ -251,6 +257,30 @@ public class PermanentDepositsServiceTest {
   public void mapEntityToFormById_noEntityExists() {
     var form = new PermanentDepositsForm();
     permanentDepositService.mapEntityToFormById(1, form);
+  }
+
+  @Test
+  public void createViewFromDepositId_onePipelineForDeposit() {
+
+    var deposit = getPadPermanentDeposit();
+    deposit.setId(DEPOSIT_ID_1);
+    when(permanentDepositInformationRepository.findById(DEPOSIT_ID_1)).thenReturn(Optional.of(deposit));
+
+    var pipeline = new Pipeline();
+    pipeline.setId(1);
+    var padDepositPipeline = new PadDepositPipeline();
+    padDepositPipeline.setPadPermanentDeposit(deposit);
+    padDepositPipeline.setPipeline(pipeline);
+    when(padDepositPipelineRepository.findAllByPadPermanentDeposit(deposit)).thenReturn(List.of(padDepositPipeline));
+
+    Map<PipelineId, PipelineOverview> pipelineIdAndOverviewMap = Map.of(pipeline.getPipelineId(), new PipelineHeaderView());
+    when(pipelineAndIdentViewFactory.getAllPipelineOverviewsFromAppAndMasterPwaByPipelineIds(
+        deposit.getPwaApplicationDetail(), List.of(pipeline.getPipelineId())))
+        .thenReturn(pipelineIdAndOverviewMap);
+
+    permanentDepositService.createViewFromDepositId(DEPOSIT_ID_1);
+    verify(permanentDepositEntityMappingService, times(1))
+        .createPermanentDepositOverview(deposit, pipelineIdAndOverviewMap);
   }
 
   @Test

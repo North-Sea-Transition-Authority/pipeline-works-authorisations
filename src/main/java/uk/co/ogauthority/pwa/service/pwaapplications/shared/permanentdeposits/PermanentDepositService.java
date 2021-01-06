@@ -253,8 +253,8 @@ public class PermanentDepositService implements ApplicationFormSectionService {
     var permanentDeposit = permanentDepositRepository.findById(depositId)
         .orElseThrow(() -> new PwaEntityNotFoundException(
             String.format("Couldn't find permanent deposit with ID: %s", depositId)));
-    var pipelineIdAndOverviewMap = pipelineAndIdentViewFactory.getAllPipelineOverviewsFromAppAndMasterPwa(
-        permanentDeposit.getPwaApplicationDetail());
+    var pipelineIdAndOverviewMap = pipelineAndIdentViewFactory.getAllPipelineOverviewsFromAppAndMasterPwaByPipelineIds(
+        permanentDeposit.getPwaApplicationDetail(), getPipelineIdsForDeposit(permanentDeposit));
     return permanentDepositEntityMappingService.createPermanentDepositOverview(permanentDeposit,
         pipelineIdAndOverviewMap);
 
