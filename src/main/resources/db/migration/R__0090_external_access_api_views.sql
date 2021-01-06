@@ -7,7 +7,7 @@ SELECT
 , CAST(pd.end_timestamp AS DATE) end_date
 , CASE WHEN pd.tip_flag = 1 THEN 'C' END status_control
 , pd.pipeline_number
-, pd.pipeline_status
+, pd.pipeline_status -- PENDING, DELETED, NEVER_LAID can all be ignored gnenerally
 , pd.from_location
 , pd.to_location
 , pd.max_external_diameter
@@ -22,6 +22,7 @@ SELECT
 , pc.reference pwa_consent_reference
 , CAST(pc.consent_timestamp AS DATE) consented_date
 , pc.pwa_id primary_pwa_id
+, pc.consent_type
 FROM ${datasource.user}.pwa_consents pc;
 
 
