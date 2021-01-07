@@ -82,8 +82,9 @@ public class PwaAppProcessingContextService {
           String.format("User with WUA ID: %s has no app processing permissions", authenticatedUser.getWuaId()));
     }
 
-    // TODO PWA-1099 - consultees should not see last submitted verson, but instead last accepted/satisfactory version in context.
-    //     Also service can only return 1 version of an app due to base sql View limitations, so might fail when using pad_id as search critiera.
+    // TODO PWA-1099 - consultees should not see last submitted version, but instead last accepted/satisfactory version in context.
+    //     Also service can only return 1 version of an app due to base sql View limitations
+    //     so might fail when using pad_id as search criteria.
     var caseSummaryView = workAreaApplicationDetailSearcher.searchByApplicationDetailId(detail.getId())
         .map(CaseSummaryView::from)
         .orElse(null);

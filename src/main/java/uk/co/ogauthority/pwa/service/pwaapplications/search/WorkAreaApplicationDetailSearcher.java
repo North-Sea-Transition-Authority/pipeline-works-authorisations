@@ -190,10 +190,11 @@ public class WorkAreaApplicationDetailSearcher {
    * - the latest version hasn't been confirmed satisfactory
    * - latest version is satisfactory, but no open update requests, consultation requests etc.
    */
-  public Page<WorkAreaApplicationDetailSearchItem> searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagIsFalseOrAllProcessingWaitFlagsFalse(
-      Pageable pageable,
-      Set<PwaApplicationStatus> statusFilter,
-      Set<Integer> pwaApplicationIdFilter) {
+  public Page<WorkAreaApplicationDetailSearchItem>
+        searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagIsFalseOrAllProcessingWaitFlagsFalse(
+          Pageable pageable,
+          Set<PwaApplicationStatus> statusFilter,
+          Set<Integer> pwaApplicationIdFilter) {
 
     if (statusFilter.isEmpty() && pwaApplicationIdFilter.isEmpty()) {
       return Page.empty(pageable);
@@ -216,10 +217,11 @@ public class WorkAreaApplicationDetailSearcher {
   /**
    * Get app details where the latest version is satisfactory and there is at least one open update request, consultation request etc.
    */
-  public Page<WorkAreaApplicationDetailSearchItem> searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagIsTrueAndAnyProcessingWaitFlagTrue(
-      Pageable pageable,
-      Set<PwaApplicationStatus> statusFilter,
-      Set<Integer> pwaApplicationIdFilter) {
+  public Page<WorkAreaApplicationDetailSearchItem>
+        searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagIsTrueAndAnyProcessingWaitFlagTrue(
+          Pageable pageable,
+          Set<PwaApplicationStatus> statusFilter,
+          Set<Integer> pwaApplicationIdFilter) {
 
     if (statusFilter.isEmpty() && pwaApplicationIdFilter.isEmpty()) {
       return Page.empty(pageable);
