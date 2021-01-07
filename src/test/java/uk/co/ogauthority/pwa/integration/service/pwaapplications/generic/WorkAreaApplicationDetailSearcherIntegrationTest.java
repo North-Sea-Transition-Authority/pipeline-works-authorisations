@@ -18,11 +18,11 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailSearchItem;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.WorkAreaApplicationDetailSearchItem;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
-import uk.co.ogauthority.pwa.service.pwaapplications.search.ApplicationDetailSearcher;
-import uk.co.ogauthority.pwa.service.pwaapplications.search.ApplicationSearchTestUtil;
+import uk.co.ogauthority.pwa.service.pwaapplications.search.WorkAreaApplicationDetailSearcher;
+import uk.co.ogauthority.pwa.service.pwaapplications.search.WorkAreaApplicationSearchTestUtil;
 import uk.co.ogauthority.pwa.service.workarea.applications.ApplicationWorkAreaSort;
 import uk.co.ogauthority.pwa.service.workarea.applications.WorkAreaPageServiceTestUtil;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
@@ -35,20 +35,20 @@ import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 @ActiveProfiles("integration-test")
 @SuppressWarnings({"JpaQueryApiInspection", "SqlNoDataSourceInspection"})
 // IJ seems to give spurious warnings when running with embedded H2
-public class ApplicationDetailSearcherIntegrationTest {
+public class WorkAreaApplicationDetailSearcherIntegrationTest {
 
   private PwaApplicationDetail detail1;
   private PwaApplicationDetail detail2;
   private PwaApplicationDetail detail3;
   private PwaApplicationDetail detail4;
 
-  private ApplicationDetailSearchItem detail1SearchItem;
-  private ApplicationDetailSearchItem detail2SearchItem;
-  private ApplicationDetailSearchItem detail3SearchItem;
-  private ApplicationDetailSearchItem detail4SearchItem;
+  private WorkAreaApplicationDetailSearchItem detail1SearchItem;
+  private WorkAreaApplicationDetailSearchItem detail2SearchItem;
+  private WorkAreaApplicationDetailSearchItem detail3SearchItem;
+  private WorkAreaApplicationDetailSearchItem detail4SearchItem;
 
   @Autowired
-  private ApplicationDetailSearcher applicationDetailSearcher;
+  private WorkAreaApplicationDetailSearcher workAreaApplicationDetailSearcher;
 
   @Autowired
   private EntityManager entityManager;
@@ -59,10 +59,10 @@ public class ApplicationDetailSearcherIntegrationTest {
     detail3 = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.CAT_2_VARIATION, 3, 30);
     detail4 = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.HUOO_VARIATION, 4, 40);
 
-    detail1SearchItem = ApplicationSearchTestUtil.getSearchDetailItem(detail1, Instant.now().minus(4, ChronoUnit.DAYS));
-    detail2SearchItem = ApplicationSearchTestUtil.getSearchDetailItem(detail2, Instant.now().minus(3, ChronoUnit.DAYS));
-    detail3SearchItem = ApplicationSearchTestUtil.getSearchDetailItem(detail3, Instant.now().minus(2, ChronoUnit.DAYS));
-    detail4SearchItem = ApplicationSearchTestUtil.getSearchDetailItem(detail4, Instant.now().minus(1, ChronoUnit.DAYS));
+    detail1SearchItem = WorkAreaApplicationSearchTestUtil.getSearchDetailItem(detail1, Instant.now().minus(4, ChronoUnit.DAYS));
+    detail2SearchItem = WorkAreaApplicationSearchTestUtil.getSearchDetailItem(detail2, Instant.now().minus(3, ChronoUnit.DAYS));
+    detail3SearchItem = WorkAreaApplicationSearchTestUtil.getSearchDetailItem(detail3, Instant.now().minus(2, ChronoUnit.DAYS));
+    detail4SearchItem = WorkAreaApplicationSearchTestUtil.getSearchDetailItem(detail4, Instant.now().minus(1, ChronoUnit.DAYS));
 
   }
 
@@ -79,11 +79,11 @@ public class ApplicationDetailSearcherIntegrationTest {
   public void searchWhereApplicationIdInAndWhereStatusInOrOpenUpdateRequest_whenAllMatchStatus_andHaveNonNullProposedStartDate() {
 
     setupSearchItems();
-    detail4SearchItem = ApplicationSearchTestUtil.getSearchDetailItem(detail4, null);
+    detail4SearchItem = WorkAreaApplicationSearchTestUtil.getSearchDetailItem(detail4, null);
 
     persistSearchItems();
 
-    var result = applicationDetailSearcher.searchWhereApplicationIdInAndWhereStatusInOrOpenUpdateRequest(
+    var result = workAreaApplicationDetailSearcher.searchWhereApplicationIdInAndWhereStatusInOrOpenUpdateRequest(
         WorkAreaPageServiceTestUtil.getWorkAreaViewPageable(0, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
         Set.of(1, 2, 3, 4),
         Set.of(PwaApplicationStatus.DRAFT),
@@ -109,7 +109,7 @@ public class ApplicationDetailSearcherIntegrationTest {
 
     persistSearchItems();
 
-    var result = applicationDetailSearcher.searchWhereApplicationIdInAndWhereStatusInOrOpenUpdateRequest(
+    var result = workAreaApplicationDetailSearcher.searchWhereApplicationIdInAndWhereStatusInOrOpenUpdateRequest(
         WorkAreaPageServiceTestUtil.getWorkAreaViewPageable(0, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
         Set.of(1, 2, 3, 4),
         Set.of(PwaApplicationStatus.DRAFT),
@@ -132,11 +132,11 @@ public class ApplicationDetailSearcherIntegrationTest {
 
     setupSearchItems();
     detail4.setStatus(PwaApplicationStatus.CASE_OFFICER_REVIEW);
-    detail4SearchItem = ApplicationSearchTestUtil.getSearchDetailItem(detail4, Instant.now().minus(1, ChronoUnit.DAYS));
+    detail4SearchItem = WorkAreaApplicationSearchTestUtil.getSearchDetailItem(detail4, Instant.now().minus(1, ChronoUnit.DAYS));
     detail4SearchItem.setOpenUpdateRequestFlag(true);
     persistSearchItems();
 
-    var result = applicationDetailSearcher.searchWhereApplicationIdInAndWhereStatusInOrOpenUpdateRequest(
+    var result = workAreaApplicationDetailSearcher.searchWhereApplicationIdInAndWhereStatusInOrOpenUpdateRequest(
         WorkAreaPageServiceTestUtil.getWorkAreaViewPageable(0, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
         Set.of(4),
         Set.of(PwaApplicationStatus.DRAFT),
@@ -155,11 +155,11 @@ public class ApplicationDetailSearcherIntegrationTest {
 
     setupSearchItems();
     detail4.setStatus(PwaApplicationStatus.CASE_OFFICER_REVIEW);
-    detail4SearchItem = ApplicationSearchTestUtil.getSearchDetailItem(detail4, Instant.now().minus(1, ChronoUnit.DAYS));
+    detail4SearchItem = WorkAreaApplicationSearchTestUtil.getSearchDetailItem(detail4, Instant.now().minus(1, ChronoUnit.DAYS));
     detail4SearchItem.setOpenUpdateRequestFlag(false);
     persistSearchItems();
 
-    var result = applicationDetailSearcher.searchWhereApplicationIdInAndWhereStatusInOrOpenUpdateRequest(
+    var result = workAreaApplicationDetailSearcher.searchWhereApplicationIdInAndWhereStatusInOrOpenUpdateRequest(
         WorkAreaPageServiceTestUtil.getWorkAreaViewPageable(0, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
         Set.of(4),
         Set.of(PwaApplicationStatus.DRAFT),
@@ -176,11 +176,11 @@ public class ApplicationDetailSearcherIntegrationTest {
 
     setupSearchItems();
     detail4.setStatus(PwaApplicationStatus.CASE_OFFICER_REVIEW);
-    detail4SearchItem = ApplicationSearchTestUtil.getSearchDetailItem(detail4, Instant.now().minus(1, ChronoUnit.DAYS));
+    detail4SearchItem = WorkAreaApplicationSearchTestUtil.getSearchDetailItem(detail4, Instant.now().minus(1, ChronoUnit.DAYS));
     detail4SearchItem.setOpenUpdateRequestFlag(false);
     persistSearchItems();
 
-    var result = applicationDetailSearcher.searchWhereApplicationIdInAndWhereStatusInOrOpenUpdateRequest(
+    var result = workAreaApplicationDetailSearcher.searchWhereApplicationIdInAndWhereStatusInOrOpenUpdateRequest(
         WorkAreaPageServiceTestUtil.getWorkAreaViewPageable(0, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
         Set.of(),
         Set.of(PwaApplicationStatus.DRAFT),
@@ -199,7 +199,7 @@ public class ApplicationDetailSearcherIntegrationTest {
     detail3SearchItem.setTipVersionSatisfactoryFlag(true);
     persistSearchItems();
 
-    var result = applicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagIsFalseOrAllProcessingWaitFlagsFalse(
+    var result = workAreaApplicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagIsFalseOrAllProcessingWaitFlagsFalse(
         WorkAreaPageServiceTestUtil.getWorkAreaViewPageable(0, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
         Set.of(),
         Set.of(1, 2, 3, 4)
@@ -216,7 +216,7 @@ public class ApplicationDetailSearcherIntegrationTest {
     setupSearchItems();
     persistSearchItems();
 
-    var result = applicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagIsFalseOrAllProcessingWaitFlagsFalse(
+    var result = workAreaApplicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagIsFalseOrAllProcessingWaitFlagsFalse(
         WorkAreaPageServiceTestUtil.getWorkAreaViewPageable(0, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
         Set.of(),
         Set.of(1, 2, 3, 4)
@@ -237,7 +237,7 @@ public class ApplicationDetailSearcherIntegrationTest {
     detail3SearchItem.setTipVersionSatisfactoryFlag(true);
     persistSearchItems();
 
-    var result = applicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagIsFalseOrAllProcessingWaitFlagsFalse(
+    var result = workAreaApplicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagIsFalseOrAllProcessingWaitFlagsFalse(
         WorkAreaPageServiceTestUtil.getWorkAreaViewPageable(0, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
         Set.of(),
         Set.of(1, 2, 3, 4)
@@ -256,7 +256,7 @@ public class ApplicationDetailSearcherIntegrationTest {
     detail3SearchItem.setTipVersionSatisfactoryFlag(false);
     persistSearchItems();
 
-    var result = applicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagIsTrueAndAnyProcessingWaitFlagTrue(
+    var result = workAreaApplicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagIsTrueAndAnyProcessingWaitFlagTrue(
         WorkAreaPageServiceTestUtil.getWorkAreaViewPageable(0, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
         Set.of(),
         Set.of(1, 2, 3, 4)
@@ -275,7 +275,7 @@ public class ApplicationDetailSearcherIntegrationTest {
     detail3SearchItem.setTipVersionSatisfactoryFlag(true);
     persistSearchItems();
 
-    var result = applicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagIsTrueAndAnyProcessingWaitFlagTrue(
+    var result = workAreaApplicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagIsTrueAndAnyProcessingWaitFlagTrue(
         WorkAreaPageServiceTestUtil.getWorkAreaViewPageable(0, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
         Set.of(),
         Set.of(1, 2, 3, 4)
@@ -295,7 +295,7 @@ public class ApplicationDetailSearcherIntegrationTest {
     detail3SearchItem.setOpenConsultationRequestFlag(true);
     persistSearchItems();
 
-    var result = applicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagIsTrueAndAnyProcessingWaitFlagTrue(
+    var result = workAreaApplicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagIsTrueAndAnyProcessingWaitFlagTrue(
         WorkAreaPageServiceTestUtil.getWorkAreaViewPageable(0, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
         Set.of(),
         Set.of(1, 2, 3, 4)

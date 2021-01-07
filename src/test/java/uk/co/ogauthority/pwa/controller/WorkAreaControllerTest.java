@@ -29,7 +29,7 @@ import uk.co.ogauthority.pwa.mvc.PageView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContextService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
-import uk.co.ogauthority.pwa.service.pwaapplications.search.ApplicationSearchTestUtil;
+import uk.co.ogauthority.pwa.service.pwaapplications.search.WorkAreaApplicationSearchTestUtil;
 import uk.co.ogauthority.pwa.service.workarea.WorkAreaResult;
 import uk.co.ogauthority.pwa.service.workarea.WorkAreaService;
 import uk.co.ogauthority.pwa.service.workarea.WorkAreaTab;
@@ -145,7 +145,7 @@ public class WorkAreaControllerTest extends AbstractControllerTest {
   }
 
   private PageView<PwaApplicationWorkAreaItem> setupFakeWorkAreaResultPageView(int page) {
-    var fakePage = ApplicationSearchTestUtil.setupFakeApplicationSearchResultPage(
+    var fakePage = WorkAreaApplicationSearchTestUtil.setupFakeApplicationSearchResultPage(
         List.of(),
         PageRequest.of(page, 10)
     );

@@ -21,47 +21,47 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailSearchItem;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailSearchItem_;
-import uk.co.ogauthority.pwa.repository.pwaapplications.search.ApplicationDetailSearchItemRepository;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.WorkAreaApplicationDetailSearchItem;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.WorkAreaApplicationDetailSearchItem_;
+import uk.co.ogauthority.pwa.repository.pwaapplications.search.WorkAreaApplicationDetailSearchItemRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 
 @Service
-public class ApplicationDetailSearcher {
+public class WorkAreaApplicationDetailSearcher {
 
   private static final Instant MIN_SORT_INSTANT = LocalDateTime.of(0, 1, 1, 1, 1).toInstant(ZoneOffset.UTC);
   private static final Instant MAX_SORT_INSTANT = LocalDateTime.of(4000, 1, 1, 1, 1).toInstant(ZoneOffset.UTC);
 
   private final EntityManager entityManager;
-  private final ApplicationDetailSearchItemRepository applicationDetailSearchItemRepository;
+  private final WorkAreaApplicationDetailSearchItemRepository workAreaApplicationDetailSearchItemRepository;
 
   @Autowired
-  public ApplicationDetailSearcher(EntityManager entityManager,
-                                   ApplicationDetailSearchItemRepository applicationDetailSearchItemRepository) {
+  public WorkAreaApplicationDetailSearcher(EntityManager entityManager,
+                                           WorkAreaApplicationDetailSearchItemRepository workAreaApplicationDetailSearchItemRepository) {
     this.entityManager = entityManager;
-    this.applicationDetailSearchItemRepository = applicationDetailSearchItemRepository;
+    this.workAreaApplicationDetailSearchItemRepository = workAreaApplicationDetailSearchItemRepository;
   }
 
-  public Page<ApplicationDetailSearchItem> searchByStatus(Pageable pageable,
-                                                          Set<PwaApplicationStatus> statusFilter) {
+  public Page<WorkAreaApplicationDetailSearchItem> searchByStatus(Pageable pageable,
+                                                                  Set<PwaApplicationStatus> statusFilter) {
     if (statusFilter.isEmpty()) {
       return Page.empty(pageable);
     }
 
-    return applicationDetailSearchItemRepository.findAllByTipFlagIsTrueAndPadStatusIn(
+    return workAreaApplicationDetailSearchItemRepository.findAllByTipFlagIsTrueAndPadStatusIn(
         pageable,
         statusFilter
     );
   }
 
 
-  public Page<ApplicationDetailSearchItem> searchWhereApplicationIdInAndWhereStatusInAndOpenUpdateRequest(
+  public Page<WorkAreaApplicationDetailSearchItem> searchWhereApplicationIdInAndWhereStatusInAndOpenUpdateRequest(
       Pageable pageable,
       Set<Integer> pwaApplicationIdFilter,
       Set<PwaApplicationStatus> statusFilter,
       boolean openUpdateRequestFilter) {
 
-    return applicationDetailSearchItemRepository.findAllByPwaApplicationIdInAndPadStatusInAndOpenUpdateRequestFlag(
+    return workAreaApplicationDetailSearchItemRepository.findAllByPwaApplicationIdInAndPadStatusInAndOpenUpdateRequestFlag(
         pageable,
         pwaApplicationIdFilter,
         statusFilter,
@@ -70,7 +70,7 @@ public class ApplicationDetailSearcher {
 
   }
 
-  public Page<ApplicationDetailSearchItem> searchWhereApplicationIdInAndWhereStatusInOrOpenUpdateRequest(
+  public Page<WorkAreaApplicationDetailSearchItem> searchWhereApplicationIdInAndWhereStatusInOrOpenUpdateRequest(
       Pageable pageable,
       Set<Integer> pwaApplicationIdFilter,
       Set<PwaApplicationStatus> statusFilter,
@@ -85,7 +85,7 @@ public class ApplicationDetailSearcher {
   }
 
   private Predicate getPredicateWhereApplicationIdInAndWhereStatusInOrOpenUpdateRequestIs(
-      Root<ApplicationDetailSearchItem> root,
+      Root<WorkAreaApplicationDetailSearchItem> root,
       Set<Integer> pwaApplicationIdFilter,
       Set<PwaApplicationStatus> statusFilter,
       boolean openUpdateRequestFilter) {
@@ -93,18 +93,18 @@ public class ApplicationDetailSearcher {
     CriteriaBuilder cb = entityManager.getCriteriaBuilder();
 
     CriteriaBuilder.In<Integer> appIdFilterPredicate = cb.in(
-        root.get(ApplicationDetailSearchItem_.pwaApplicationId));
+        root.get(WorkAreaApplicationDetailSearchItem_.pwaApplicationId));
     pwaApplicationIdFilter.forEach(appIdFilterPredicate::value);
     if (pwaApplicationIdFilter.isEmpty()) {
       appIdFilterPredicate.value(cb.nullLiteral(Integer.class));
     }
 
     CriteriaBuilder.In<PwaApplicationStatus> statusFilterPredicate = cb.in(
-        root.get(ApplicationDetailSearchItem_.padStatus));
+        root.get(WorkAreaApplicationDetailSearchItem_.padStatus));
     statusFilter.forEach(statusFilterPredicate::value);
 
     Predicate openRequestForUpdatePredicate = cb.equal(
-        root.get(ApplicationDetailSearchItem_.openUpdateRequestFlag), openUpdateRequestFilter);
+        root.get(WorkAreaApplicationDetailSearchItem_.openUpdateRequestFlag), openUpdateRequestFilter);
 
     Predicate statusOrOpenUpdatePredicate = cb.or(statusFilterPredicate, openRequestForUpdatePredicate);
 
@@ -115,30 +115,33 @@ public class ApplicationDetailSearcher {
   }
 
 
-  private Page<ApplicationDetailSearchItem> createPagedQueryWithPredicate(
-      Function<Root<ApplicationDetailSearchItem>, Predicate> createAndApplyPredicateToRoot,
+  private Page<WorkAreaApplicationDetailSearchItem> createPagedQueryWithPredicate(
+      Function<Root<WorkAreaApplicationDetailSearchItem>, Predicate> createAndApplyPredicateToRoot,
       Pageable pageable) {
     var cb = entityManager.getCriteriaBuilder();
 
     // have to work out total results by doing a count query based off the search query predicate,
     // 1. get count of app possible results given the predicate
     CriteriaQuery<Long> countResultsQuery = cb.createQuery(Long.class);
-    Root<ApplicationDetailSearchItem> countResultsRoot = countResultsQuery.from(ApplicationDetailSearchItem.class);
+    Root<WorkAreaApplicationDetailSearchItem> countResultsRoot = countResultsQuery.from(
+        WorkAreaApplicationDetailSearchItem.class);
     countResultsQuery
         .select(cb.count(countResultsRoot))
         .where(createAndApplyPredicateToRoot.apply(countResultsRoot));
     var totalResults = entityManager.createQuery(countResultsQuery).getSingleResult();
 
     // 2. Create results query using predicate
-    CriteriaQuery<ApplicationDetailSearchItem> searchResultsQuery = cb.createQuery(ApplicationDetailSearchItem.class);
-    Root<ApplicationDetailSearchItem> searchResultsRoot = searchResultsQuery.from(ApplicationDetailSearchItem.class);
+    CriteriaQuery<WorkAreaApplicationDetailSearchItem> searchResultsQuery = cb.createQuery(
+        WorkAreaApplicationDetailSearchItem.class);
+    Root<WorkAreaApplicationDetailSearchItem> searchResultsRoot = searchResultsQuery.from(
+        WorkAreaApplicationDetailSearchItem.class);
     searchResultsQuery.where(createAndApplyPredicateToRoot.apply(searchResultsRoot));
 
     //3. apply sort from pagebable to query
     searchResultsQuery.orderBy(getOrderListFromPageable(cb, searchResultsRoot, pageable));
 
     // 4. Limits search results to requested page
-    TypedQuery<ApplicationDetailSearchItem> typedQuery = entityManager.createQuery(searchResultsQuery);
+    TypedQuery<WorkAreaApplicationDetailSearchItem> typedQuery = entityManager.createQuery(searchResultsQuery);
 
     // limits results based on pageable args
     typedQuery.setFirstResult(pageable.getPageSize() * pageable.getPageNumber());
@@ -149,7 +152,7 @@ public class ApplicationDetailSearcher {
     return new PageImpl<>(results, pageable, totalResults);
   }
 
-  private List<Order> getOrderListFromPageable(CriteriaBuilder cb, Root<ApplicationDetailSearchItem> root, Pageable pageable) {
+  private List<Order> getOrderListFromPageable(CriteriaBuilder cb, Root<WorkAreaApplicationDetailSearchItem> root, Pageable pageable) {
 
     List<Order> orderList = new ArrayList<>();
 
@@ -187,7 +190,7 @@ public class ApplicationDetailSearcher {
    * - the latest version hasn't been confirmed satisfactory
    * - latest version is satisfactory, but no open update requests, consultation requests etc.
    */
-  public Page<ApplicationDetailSearchItem> searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagIsFalseOrAllProcessingWaitFlagsFalse(
+  public Page<WorkAreaApplicationDetailSearchItem> searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagIsFalseOrAllProcessingWaitFlagsFalse(
       Pageable pageable,
       Set<PwaApplicationStatus> statusFilter,
       Set<Integer> pwaApplicationIdFilter) {
@@ -196,7 +199,7 @@ public class ApplicationDetailSearcher {
       return Page.empty(pageable);
     }
 
-    return applicationDetailSearchItemRepository
+    return workAreaApplicationDetailSearchItemRepository
         .findAllByPadStatusInOrPwaApplicationIdInAndWhereTipSatisfactoryFlagEqualsOrAllWaitFlagsMatch(
         pageable,
         // passing null when empty is required or else spring produces invalid sql for the IN condition.
@@ -213,7 +216,7 @@ public class ApplicationDetailSearcher {
   /**
    * Get app details where the latest version is satisfactory and there is at least one open update request, consultation request etc.
    */
-  public Page<ApplicationDetailSearchItem> searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagIsTrueAndAnyProcessingWaitFlagTrue(
+  public Page<WorkAreaApplicationDetailSearchItem> searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagIsTrueAndAnyProcessingWaitFlagTrue(
       Pageable pageable,
       Set<PwaApplicationStatus> statusFilter,
       Set<Integer> pwaApplicationIdFilter) {
@@ -222,7 +225,7 @@ public class ApplicationDetailSearcher {
       return Page.empty(pageable);
     }
 
-    return applicationDetailSearchItemRepository
+    return workAreaApplicationDetailSearchItemRepository
         .findAllByPadStatusInOrPwaApplicationIdInAndWhereTipSatisfactoryFlagEqualsAndAnyWaitFlagsMatch(
         pageable,
         // passing null when empty is required or else spring produces invalid sql for the IN condition.
@@ -236,8 +239,8 @@ public class ApplicationDetailSearcher {
 
   }
 
-  public Optional<ApplicationDetailSearchItem> searchByApplicationDetailId(Integer pwaApplicationDetailId) {
-    return applicationDetailSearchItemRepository.findByPwaApplicationDetailIdEquals(pwaApplicationDetailId);
+  public Optional<WorkAreaApplicationDetailSearchItem> searchByApplicationDetailId(Integer pwaApplicationDetailId) {
+    return workAreaApplicationDetailSearchItemRepository.findByPwaApplicationDetailIdEquals(pwaApplicationDetailId);
   }
 
 

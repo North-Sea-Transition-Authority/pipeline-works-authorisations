@@ -12,7 +12,7 @@ import uk.co.ogauthority.pwa.service.appprocessing.PwaAppProcessingPermissionSer
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.fileupload.AppFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
-import uk.co.ogauthority.pwa.service.pwaapplications.search.ApplicationDetailSearcher;
+import uk.co.ogauthority.pwa.service.pwaapplications.search.WorkAreaApplicationDetailSearcher;
 import uk.co.ogauthority.pwa.util.ApplicationContextUtils;
 
 @Service
@@ -20,17 +20,17 @@ public class PwaAppProcessingContextService {
 
   private final PwaApplicationDetailService detailService;
   private final PwaAppProcessingPermissionService appProcessingPermissionService;
-  private final ApplicationDetailSearcher applicationDetailSearcher;
+  private final WorkAreaApplicationDetailSearcher workAreaApplicationDetailSearcher;
   private final AppFileService appFileService;
 
   @Autowired
   public PwaAppProcessingContextService(PwaApplicationDetailService detailService,
                                         PwaAppProcessingPermissionService appProcessingPermissionService,
-                                        ApplicationDetailSearcher applicationDetailSearcher,
+                                        WorkAreaApplicationDetailSearcher workAreaApplicationDetailSearcher,
                                         AppFileService appFileService) {
     this.detailService = detailService;
     this.appProcessingPermissionService = appProcessingPermissionService;
-    this.applicationDetailSearcher = applicationDetailSearcher;
+    this.workAreaApplicationDetailSearcher = workAreaApplicationDetailSearcher;
     this.appFileService = appFileService;
   }
 
@@ -82,7 +82,9 @@ public class PwaAppProcessingContextService {
           String.format("User with WUA ID: %s has no app processing permissions", authenticatedUser.getWuaId()));
     }
 
-    var caseSummaryView = applicationDetailSearcher.searchByApplicationDetailId(detail.getId())
+    // TODO PWA-1099 - consultees should not see last submitted verson, but instead last accepted/satisfactory version in context.
+    //     Also service can only return 1 version of an app due to base sql View limitations, so might fail when using pad_id as search critiera.
+    var caseSummaryView = workAreaApplicationDetailSearcher.searchByApplicationDetailId(detail.getId())
         .map(CaseSummaryView::from)
         .orElse(null);
 
