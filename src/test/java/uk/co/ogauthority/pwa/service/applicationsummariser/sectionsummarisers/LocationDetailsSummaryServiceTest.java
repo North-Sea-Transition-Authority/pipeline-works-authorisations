@@ -71,7 +71,7 @@ public class LocationDetailsSummaryServiceTest {
   public void summariseSection_verifyServiceInteractions() {
 
     var locationDetailsView = new LocationDetailsView(
-        null, null,null, null, null, null, null, null, null, null, null, null, List.of());
+        null, null,null, null, null, null, null, null, null, null, null, null, null, List.of());
     when(padLocationDetailsService.getLocationDetailsView(pwaApplicationDetail)).thenReturn(locationDetailsView);
 
     when(padLocationDetailsService.getRequiredQuestions(pwaApplicationDetail.getPwaApplicationType())).thenReturn(Set.of());

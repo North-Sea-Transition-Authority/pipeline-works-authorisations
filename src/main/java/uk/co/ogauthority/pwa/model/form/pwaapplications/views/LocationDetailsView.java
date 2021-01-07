@@ -17,6 +17,7 @@ public class LocationDetailsView {
 
   private final String pipelineRouteDetails;
   private final Boolean routeSurveyUndertaken;
+  private final String routeSurveyNotUndertakenReason;
   private final Boolean withinLimitsOfDeviation;
 
   private final String surveyConcludedDate;
@@ -28,11 +29,16 @@ public class LocationDetailsView {
 
   public LocationDetailsView(String approximateProjectLocationFromShore,
                              HseSafetyZone withinSafetyZone,
-                             List<String> facilitiesIfYes, List<String> facilitiesIfPartially,
+                             List<String> facilitiesIfYes,
+                             List<String> facilitiesIfPartially,
                              Boolean facilitiesOffshore,
-                             Boolean transportsMaterialsToShore, String transportationMethod,
-                             String pipelineRouteDetails, Boolean routeSurveyUndertaken,
-                             Boolean withinLimitsOfDeviation, String surveyConcludedDate,
+                             Boolean transportsMaterialsToShore,
+                             String transportationMethod,
+                             String pipelineRouteDetails,
+                             Boolean routeSurveyUndertaken,
+                             String routeSurveyNotUndertakenReason,
+                             Boolean withinLimitsOfDeviation,
+                             String surveyConcludedDate,
                              String pipelineAshoreLocation,
                              List<UploadedFileView> uploadedLetterFileViews) {
     this.approximateProjectLocationFromShore = approximateProjectLocationFromShore;
@@ -44,6 +50,7 @@ public class LocationDetailsView {
     this.transportationMethod = transportationMethod;
     this.pipelineRouteDetails = pipelineRouteDetails;
     this.routeSurveyUndertaken = routeSurveyUndertaken;
+    this.routeSurveyNotUndertakenReason = routeSurveyNotUndertakenReason;
     this.withinLimitsOfDeviation = withinLimitsOfDeviation;
     this.surveyConcludedDate = surveyConcludedDate;
     this.pipelineAshoreLocation = pipelineAshoreLocation;
@@ -88,6 +95,10 @@ public class LocationDetailsView {
 
   public Boolean getRouteSurveyUndertaken() {
     return routeSurveyUndertaken;
+  }
+
+  public String getRouteSurveyNotUndertakenReason() {
+    return routeSurveyNotUndertakenReason;
   }
 
   public Boolean getWithinLimitsOfDeviation() {

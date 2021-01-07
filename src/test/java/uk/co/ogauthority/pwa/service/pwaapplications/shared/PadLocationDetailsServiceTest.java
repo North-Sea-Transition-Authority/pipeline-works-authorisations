@@ -129,6 +129,7 @@ public class PadLocationDetailsServiceTest {
     assertThat(form.getSurveyConcludedMonth()).isNull();
     assertThat(form.getSurveyConcludedYear()).isNull();
     assertThat(form.getRouteSurveyUndertaken()).isNull();
+    assertThat(form.getRouteSurveyNotUndertakenReason()).isNull();
     assertThat(form.getWithinLimitsOfDeviation()).isNull();
   }
 
@@ -165,6 +166,7 @@ public class PadLocationDetailsServiceTest {
     assertThat(entity.getPipelineRouteDetails()).isNull();
     assertThat(entity.getSurveyConcludedTimestamp()).isNull();
     assertThat(entity.getRouteSurveyUndertaken()).isNull();
+    assertThat(entity.getRouteSurveyNotUndertakenReason()).isNull();
     assertThat(entity.getWithinLimitsOfDeviation()).isNull();
   }
 
@@ -203,6 +205,16 @@ public class PadLocationDetailsServiceTest {
     var entity = new PadLocationDetails();
     padLocationDetailsService.saveEntityUsingForm(entity, form);
     assertThat(entity.getPipelineAshoreLocation()).isEqualTo(null);
+  }
+
+  @Test
+  public void saveEntityUsingForm_routeSurveyUndertakenAnsweredNo() {
+    var form = new LocationDetailsForm();
+    form.setRouteSurveyUndertaken(false);
+    form.setRouteSurveyNotUndertakenReason("test");
+    var entity = new PadLocationDetails();
+    padLocationDetailsService.saveEntityUsingForm(entity, form);
+    assertThat(entity.getRouteSurveyNotUndertakenReason()).isEqualTo(form.getRouteSurveyNotUndertakenReason());
   }
 
   @Test
