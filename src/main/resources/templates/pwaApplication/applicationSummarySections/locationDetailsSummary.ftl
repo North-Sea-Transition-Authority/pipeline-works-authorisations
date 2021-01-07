@@ -100,6 +100,11 @@
                 <@fdsCheckAnswers.checkAnswersRow keyText="Pipeline route details" actionUrl="" screenReaderActionText="" actionText="">
                     <@multiLineText.multiLineText blockClass=multiLineTextBlockClass> ${locationDetailsView.pipelineRouteDetails!} </@multiLineText.multiLineText>
                 </@fdsCheckAnswers.checkAnswersRow>
+
+            <#elseif locationDetailsView.routeSurveyUndertaken?has_content && !locationDetailsView.routeSurveyUndertaken>
+                <@fdsCheckAnswers.checkAnswersRow keyText="Why has a pipeline route survey not been undertaken?" actionUrl="" screenReaderActionText="" actionText="">
+                    <@multiLineText.multiLineText blockClass=multiLineTextBlockClass> ${locationDetailsView.routeSurveyNotUndertakenReason!} </@multiLineText.multiLineText>
+                </@fdsCheckAnswers.checkAnswersRow>
             </#if>
         </#if>
 

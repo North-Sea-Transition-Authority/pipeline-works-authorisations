@@ -137,6 +137,13 @@ public class LocationDetailsValidator implements SmartValidator {
         if (BooleanUtils.isTrue(form.getRouteSurveyUndertaken())) {
           ValidationUtils.rejectIfEmpty(errors, "pipelineRouteDetails",
               "pipelineRouteDetails.required", "Enter pipeline route details");
+        } else {
+          ValidationUtils.rejectIfEmpty(errors, "routeSurveyNotUndertakenReason",
+              "routeSurveyNotUndertakenReason" + FieldValidationErrorCodes.REQUIRED.getCode(),
+              "Enter the reason for why a pipeline route survey has not been undertaken");
+          ValidatorUtils.validateDefaultStringLength(
+              errors, "routeSurveyNotUndertakenReason", form::getRouteSurveyNotUndertakenReason,
+              "The reason for why a pipeline route survey has not been undertaken");
         }
       }
     }
