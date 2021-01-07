@@ -19,6 +19,7 @@ public class LocationDetailsForm extends UploadMultipleFilesWithDescriptionForm 
 
   private String pipelineRouteDetails;
   private Boolean routeSurveyUndertaken;
+  private String routeSurveyNotUndertakenReason;
   private Boolean withinLimitsOfDeviation;
 
   private Integer surveyConcludedDay;
@@ -104,6 +105,14 @@ public class LocationDetailsForm extends UploadMultipleFilesWithDescriptionForm 
     this.routeSurveyUndertaken = routeSurveyUndertaken;
   }
 
+  public String getRouteSurveyNotUndertakenReason() {
+    return routeSurveyNotUndertakenReason;
+  }
+
+  public void setRouteSurveyNotUndertakenReason(String routeSurveyNotUndertakenReason) {
+    this.routeSurveyNotUndertakenReason = routeSurveyNotUndertakenReason;
+  }
+
   public Boolean getWithinLimitsOfDeviation() {
     return withinLimitsOfDeviation;
   }
@@ -162,6 +171,7 @@ public class LocationDetailsForm extends UploadMultipleFilesWithDescriptionForm 
         && Objects.equals(transportationMethod, that.transportationMethod)
         && Objects.equals(pipelineRouteDetails, that.pipelineRouteDetails)
         && Objects.equals(routeSurveyUndertaken, that.routeSurveyUndertaken)
+        && Objects.equals(routeSurveyNotUndertakenReason, that.routeSurveyNotUndertakenReason)
         && Objects.equals(withinLimitsOfDeviation, that.withinLimitsOfDeviation)
         && Objects.equals(surveyConcludedDay, that.surveyConcludedDay)
         && Objects.equals(surveyConcludedMonth, that.surveyConcludedMonth)
@@ -173,7 +183,7 @@ public class LocationDetailsForm extends UploadMultipleFilesWithDescriptionForm 
   public int hashCode() {
     return Objects.hash(approximateProjectLocationFromShore, withinSafetyZone, facilitiesIfYes, facilitiesIfPartially,
         facilitiesOffshore, transportsMaterialsToShore, transportationMethod, pipelineRouteDetails,
-        routeSurveyUndertaken,
+        routeSurveyUndertaken, routeSurveyNotUndertakenReason,
         withinLimitsOfDeviation, surveyConcludedDay, surveyConcludedMonth, surveyConcludedYear, pipelineAshoreLocation);
   }
 }

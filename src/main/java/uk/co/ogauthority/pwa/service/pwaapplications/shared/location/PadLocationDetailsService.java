@@ -95,6 +95,7 @@ public class PadLocationDetailsService implements ApplicationFormSectionService 
         padLocationDetails.getSurveyConcludedTimestamp()
     );
     locationDetailsForm.setRouteSurveyUndertaken(padLocationDetails.getRouteSurveyUndertaken());
+    locationDetailsForm.setRouteSurveyNotUndertakenReason(padLocationDetails.getRouteSurveyNotUndertakenReason());
     locationDetailsForm.setWithinLimitsOfDeviation(padLocationDetails.getWithinLimitsOfDeviation());
   }
 
@@ -122,6 +123,7 @@ public class PadLocationDetailsService implements ApplicationFormSectionService 
     } else {
       padLocationDetails.setSurveyConcludedTimestamp(null);
       padLocationDetails.setPipelineRouteDetails(null);
+      padLocationDetails.setRouteSurveyNotUndertakenReason(locationDetailsForm.getRouteSurveyNotUndertakenReason());
     }
     padLocationDetails.setRouteSurveyUndertaken(locationDetailsForm.getRouteSurveyUndertaken());
     padLocationDetails.setWithinLimitsOfDeviation(locationDetailsForm.getWithinLimitsOfDeviation());
@@ -149,6 +151,7 @@ public class PadLocationDetailsService implements ApplicationFormSectionService 
         locationDetails.getTransportationMethod(),
         locationDetails.getPipelineRouteDetails(),
         locationDetails.getRouteSurveyUndertaken(),
+        locationDetails.getRouteSurveyNotUndertakenReason(),
         locationDetails.getWithinLimitsOfDeviation(),
         surveyConcludedTimestamp != null ? DateUtils.formatDate(surveyConcludedTimestamp) : null,
         locationDetails.getPipelineAshoreLocation(),

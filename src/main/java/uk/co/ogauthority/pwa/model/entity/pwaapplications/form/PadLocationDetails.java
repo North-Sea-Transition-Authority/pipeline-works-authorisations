@@ -37,6 +37,8 @@ public class PadLocationDetails implements ChildEntity<Integer, PwaApplicationDe
   private String pipelineRouteDetails;
   private Instant surveyConcludedTimestamp;
   private Boolean routeSurveyUndertaken;
+  @Column(name = "survey_not_undertaken_reason")
+  private String routeSurveyNotUndertakenReason;
   private Boolean withinLimitsOfDeviation;
   private String pipelineAshoreLocation;
 
@@ -135,6 +137,14 @@ public class PadLocationDetails implements ChildEntity<Integer, PwaApplicationDe
 
   public void setRouteSurveyUndertaken(Boolean routeSurveyUndertaken) {
     this.routeSurveyUndertaken = routeSurveyUndertaken;
+  }
+
+  public String getRouteSurveyNotUndertakenReason() {
+    return routeSurveyNotUndertakenReason;
+  }
+
+  public void setRouteSurveyNotUndertakenReason(String routeSurveyNotUndertakenReason) {
+    this.routeSurveyNotUndertakenReason = routeSurveyNotUndertakenReason;
   }
 
   public Boolean getWithinLimitsOfDeviation() {
