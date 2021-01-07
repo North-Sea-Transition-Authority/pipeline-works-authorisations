@@ -3,38 +3,18 @@ package uk.co.ogauthority.pwa.model.form.pwaapplications.shared.location;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import uk.co.ogauthority.pwa.model.entity.enums.HseSafetyZone;
 
 public class LocationDetailsSafetyZoneForm {
 
-  private HseSafetyZone withinSafetyZone;
-  private List<String> facilitiesIfYes = new ArrayList<>();
-  private List<String> facilitiesIfPartially = new ArrayList<>();
+  private List<String> facilities = new ArrayList<>();
 
 
-
-  public HseSafetyZone getWithinSafetyZone() {
-    return withinSafetyZone;
+  public List<String> getFacilities() {
+    return facilities;
   }
 
-  public void setWithinSafetyZone(HseSafetyZone withinSafetyZone) {
-    this.withinSafetyZone = withinSafetyZone;
-  }
-
-  public List<String> getFacilitiesIfYes() {
-    return facilitiesIfYes;
-  }
-
-  public void setFacilitiesIfYes(List<String> facilitiesIfYes) {
-    this.facilitiesIfYes = facilitiesIfYes;
-  }
-
-  public List<String> getFacilitiesIfPartially() {
-    return facilitiesIfPartially;
-  }
-
-  public void setFacilitiesIfPartially(List<String> facilitiesIfPartially) {
-    this.facilitiesIfPartially = facilitiesIfPartially;
+  public void setFacilities(List<String> facilities) {
+    this.facilities = facilities;
   }
 
 
@@ -47,13 +27,11 @@ public class LocationDetailsSafetyZoneForm {
       return false;
     }
     LocationDetailsSafetyZoneForm that = (LocationDetailsSafetyZoneForm) o;
-    return withinSafetyZone == that.withinSafetyZone
-        && Objects.equals(facilitiesIfYes, that.facilitiesIfYes)
-        && Objects.equals(facilitiesIfPartially, that.facilitiesIfPartially);
+    return Objects.equals(facilities, that.facilities);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(withinSafetyZone, facilitiesIfYes, facilitiesIfPartially);
+    return Objects.hash(facilities);
   }
 }

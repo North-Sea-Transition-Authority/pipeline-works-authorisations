@@ -1,12 +1,15 @@
 package uk.co.ogauthority.pwa.model.form.pwaapplications.shared.location;
 
 import java.util.Objects;
+import uk.co.ogauthority.pwa.model.entity.enums.HseSafetyZone;
 import uk.co.ogauthority.pwa.model.form.files.UploadMultipleFilesWithDescriptionForm;
 
 public class LocationDetailsForm extends UploadMultipleFilesWithDescriptionForm {
 
   private String approximateProjectLocationFromShore;
-  private LocationDetailsSafetyZoneForm safetyZoneQuestionForm = new LocationDetailsSafetyZoneForm();
+  private HseSafetyZone withinSafetyZone;
+  private LocationDetailsSafetyZoneForm completelyWithinSafetyZoneForm = new LocationDetailsSafetyZoneForm();
+  private LocationDetailsSafetyZoneForm partiallyWithinSafetyZoneForm = new LocationDetailsSafetyZoneForm();
   private Boolean facilitiesOffshore;
   private Boolean transportsMaterialsToShore;
 
@@ -31,13 +34,30 @@ public class LocationDetailsForm extends UploadMultipleFilesWithDescriptionForm 
     this.approximateProjectLocationFromShore = approximateProjectLocationFromShore;
   }
 
-  public LocationDetailsSafetyZoneForm getSafetyZoneQuestionForm() {
-    return safetyZoneQuestionForm;
+  public HseSafetyZone getWithinSafetyZone() {
+    return withinSafetyZone;
   }
 
-  public void setSafetyZoneQuestionForm(
-      LocationDetailsSafetyZoneForm safetyZoneQuestionForm) {
-    this.safetyZoneQuestionForm = safetyZoneQuestionForm;
+  public void setWithinSafetyZone(HseSafetyZone withinSafetyZone) {
+    this.withinSafetyZone = withinSafetyZone;
+  }
+
+  public LocationDetailsSafetyZoneForm getCompletelyWithinSafetyZoneForm() {
+    return completelyWithinSafetyZoneForm;
+  }
+
+  public void setCompletelyWithinSafetyZoneForm(
+      LocationDetailsSafetyZoneForm completelyWithinSafetyZoneForm) {
+    this.completelyWithinSafetyZoneForm = completelyWithinSafetyZoneForm;
+  }
+
+  public LocationDetailsSafetyZoneForm getPartiallyWithinSafetyZoneForm() {
+    return partiallyWithinSafetyZoneForm;
+  }
+
+  public void setPartiallyWithinSafetyZoneForm(
+      LocationDetailsSafetyZoneForm partiallyWithinSafetyZoneForm) {
+    this.partiallyWithinSafetyZoneForm = partiallyWithinSafetyZoneForm;
   }
 
   public Boolean getFacilitiesOffshore() {
@@ -130,7 +150,9 @@ public class LocationDetailsForm extends UploadMultipleFilesWithDescriptionForm 
     }
     LocationDetailsForm that = (LocationDetailsForm) o;
     return Objects.equals(approximateProjectLocationFromShore, that.approximateProjectLocationFromShore)
-        && Objects.equals(safetyZoneQuestionForm, that.safetyZoneQuestionForm)
+        && Objects.equals(withinSafetyZone, that.withinSafetyZone)
+        && Objects.equals(completelyWithinSafetyZoneForm, that.completelyWithinSafetyZoneForm)
+        && Objects.equals(partiallyWithinSafetyZoneForm, that.partiallyWithinSafetyZoneForm)
         && Objects.equals(facilitiesOffshore, that.facilitiesOffshore)
         && Objects.equals(transportsMaterialsToShore, that.transportsMaterialsToShore)
         && Objects.equals(transportationMethod, that.transportationMethod)
@@ -145,9 +167,9 @@ public class LocationDetailsForm extends UploadMultipleFilesWithDescriptionForm 
 
   @Override
   public int hashCode() {
-    return Objects.hash(approximateProjectLocationFromShore, safetyZoneQuestionForm,
-        facilitiesOffshore, transportsMaterialsToShore, transportationMethod, pipelineRouteDetails,
-        routeSurveyUndertaken,
+    return Objects.hash(approximateProjectLocationFromShore, withinSafetyZone, completelyWithinSafetyZoneForm,
+        partiallyWithinSafetyZoneForm, facilitiesOffshore, transportsMaterialsToShore, transportationMethod,
+        pipelineRouteDetails, routeSurveyUndertaken,
         withinLimitsOfDeviation, surveyConcludedDay, surveyConcludedMonth, surveyConcludedYear, pipelineAshoreLocation);
   }
 }

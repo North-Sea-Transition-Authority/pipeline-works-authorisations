@@ -82,7 +82,7 @@ public class PadLocationDetailsService implements ApplicationFormSectionService 
   public void mapEntityToForm(PadLocationDetails padLocationDetails, LocationDetailsForm locationDetailsForm) {
     locationDetailsForm.setApproximateProjectLocationFromShore(
         padLocationDetails.getApproximateProjectLocationFromShore());
-    locationDetailsForm.getSafetyZoneQuestionForm().setWithinSafetyZone(padLocationDetails.getWithinSafetyZone());
+    locationDetailsForm.setWithinSafetyZone(padLocationDetails.getWithinSafetyZone());
     locationDetailsForm.setFacilitiesOffshore(padLocationDetails.getFacilitiesOffshore());
     locationDetailsForm.setTransportsMaterialsToShore(padLocationDetails.getTransportsMaterialsToShore());
     locationDetailsForm.setTransportationMethod(padLocationDetails.getTransportationMethod());
@@ -102,7 +102,7 @@ public class PadLocationDetailsService implements ApplicationFormSectionService 
   public void saveEntityUsingForm(PadLocationDetails padLocationDetails, LocationDetailsForm locationDetailsForm) {
     padLocationDetails.setApproximateProjectLocationFromShore(
         locationDetailsForm.getApproximateProjectLocationFromShore());
-    padLocationDetails.setWithinSafetyZone(locationDetailsForm.getSafetyZoneQuestionForm().getWithinSafetyZone());
+    padLocationDetails.setWithinSafetyZone(locationDetailsForm.getWithinSafetyZone());
     padLocationDetails.setFacilitiesOffshore(locationDetailsForm.getFacilitiesOffshore());
     padLocationDetails.setTransportsMaterialsToShore(locationDetailsForm.getTransportsMaterialsToShore());
     padLocationDetails.setTransportationMethod(locationDetailsForm.getTransportationMethod());
@@ -184,10 +184,10 @@ public class PadLocationDetailsService implements ApplicationFormSectionService 
 
   public Map<String, String> reapplyFacilitySelections(LocationDetailsForm form) {
     List<String> facilities = List.of();
-    if (form.getSafetyZoneQuestionForm().getWithinSafetyZone() == HseSafetyZone.PARTIALLY) {
-      facilities = form.getSafetyZoneQuestionForm().getFacilitiesIfPartially();
-    } else if (form.getSafetyZoneQuestionForm().getWithinSafetyZone() == HseSafetyZone.YES) {
-      facilities = form.getSafetyZoneQuestionForm().getFacilitiesIfYes();
+    if (form.getWithinSafetyZone() == HseSafetyZone.PARTIALLY) {
+      facilities = form.getPartiallyWithinSafetyZoneForm().getFacilities();
+    } else if (form.getWithinSafetyZone() == HseSafetyZone.YES) {
+      facilities = form.getCompletelyWithinSafetyZoneForm().getFacilities();
     }
 
     List<DevukFacility> devukFacilities = List.of();
@@ -225,9 +225,9 @@ public class PadLocationDetailsService implements ApplicationFormSectionService 
     if (!facilities.isEmpty() && !locationDetails.getWithinSafetyZone().equals(HseSafetyZone.NO)) {
 
       if (locationDetails.getWithinSafetyZone().equals(HseSafetyZone.YES)) {
-        locationDetailsForm.getSafetyZoneQuestionForm().setFacilitiesIfYes(formFacilities);
+        locationDetailsForm.getCompletelyWithinSafetyZoneForm().setFacilities(formFacilities);
       } else if (locationDetails.getWithinSafetyZone().equals(HseSafetyZone.PARTIALLY)) {
-        locationDetailsForm.getSafetyZoneQuestionForm().setFacilitiesIfPartially(formFacilities);
+        locationDetailsForm.getPartiallyWithinSafetyZoneForm().setFacilities(formFacilities);
       }
 
     }

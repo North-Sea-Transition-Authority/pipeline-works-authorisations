@@ -95,11 +95,32 @@ public class LocationDetailsValidator implements SmartValidator {
     }
 
     if (requiredQuestions.contains(LocationDetailsQuestion.WITHIN_SAFETY_ZONE)) {
-      ValidatorUtils.invokeNestedValidator(
-          errors,
-          safetyZoneValidator,
-          "safetyZoneQuestionForm",
-          form.getSafetyZoneQuestionForm());
+      if (form.getWithinSafetyZone() == null) {
+        errors.rejectValue("withinSafetyZone",
+            "withinSafetyZone" + FieldValidationErrorCodes.REQUIRED.getCode(),
+            "Enter information on work carried out within 500m of a safety zone");
+
+      } else {
+        switch (form.getWithinSafetyZone()) {
+          case YES:
+            ValidatorUtils.invokeNestedValidator(
+                errors,
+                safetyZoneValidator,
+                "completelyWithinSafetyZoneForm",
+                form.getCompletelyWithinSafetyZoneForm());
+            break;
+          case PARTIALLY:
+            ValidatorUtils.invokeNestedValidator(
+                errors,
+                safetyZoneValidator,
+                "partiallyWithinSafetyZoneForm",
+                form.getPartiallyWithinSafetyZoneForm());
+            break;
+          default:
+            break;
+        }
+
+      }
     }
 
     if (requiredQuestions.contains(LocationDetailsQuestion.FACILITIES_OFFSHORE)) {

@@ -18,14 +18,14 @@
             <@fdsTextInput.textInput path="form.approximateProjectLocationFromShore" labelText="Approximate project location from shore" hintText="e.g. 127km east of Norwick (Shetland Isles) and 390km northeast of Aberdeen"/>
         </#if>
         <#if requiredQuestions?seq_contains("WITHIN_SAFETY_ZONE")>
-            <@fdsRadio.radioGroup path="form.safetyZoneQuestionForm.withinSafetyZone" labelText="Will work be carried out within a HSE recognised 500m safety zone?" hiddenContent=true>
+            <@fdsRadio.radioGroup path="form.withinSafetyZone" labelText="Will work be carried out within a HSE recognised 500m safety zone?" hiddenContent=true>
                 <#assign firstItem = true/>
                 <#list safetyZoneOptions as name, value>
-                    <@fdsRadio.radioItem path="form.safetyZoneQuestionForm.withinSafetyZone" itemMap={name:value} isFirstItem=firstItem>
+                    <@fdsRadio.radioItem path="form.withinSafetyZone" itemMap={name:value} isFirstItem=firstItem>
                         <#if name == "YES">
-                            <@fdsSearchSelector.searchSelectorRest path="form.safetyZoneQuestionForm.facilitiesIfYes" labelText="Which structures are within 500m?" multiSelect=true restUrl=springUrl(facilityRestUrl) nestingPath="form.safetyZoneQuestionForm.withinSafetyZone" preselectedItems=preselectedFacilitiesIfYes!{} hintText="e.g the platform, FPSO, boat, or storage unit"/>
+                            <@fdsSearchSelector.searchSelectorRest path="form.completelyWithinSafetyZoneForm.facilities" labelText="Which structures are within 500m?" multiSelect=true restUrl=springUrl(facilityRestUrl) nestingPath="form.withinSafetyZone" preselectedItems=preselectedFacilitiesIfYes!{} hintText="e.g the platform, FPSO, boat, or storage unit"/>
                         <#elseif name == "PARTIALLY">
-                            <@fdsSearchSelector.searchSelectorRest path="form.safetyZoneQuestionForm.facilitiesIfPartially" labelText="Which structures are within 500m?" multiSelect=true restUrl=springUrl(facilityRestUrl) nestingPath="form.safetyZoneQuestionForm.withinSafetyZone" preselectedItems=preselectedFacilitiesIfPartially!{} hintText="e.g the platform, FPSO, boat, or storage unit"/>
+                            <@fdsSearchSelector.searchSelectorRest path="form.partiallyWithinSafetyZoneForm.facilities" labelText="Which structures are within 500m?" multiSelect=true restUrl=springUrl(facilityRestUrl) nestingPath="form.withinSafetyZone" preselectedItems=preselectedFacilitiesIfPartially!{} hintText="e.g the platform, FPSO, boat, or storage unit"/>
                         </#if>
                     </@fdsRadio.radioItem>
                     <#assign firstItem = false/>

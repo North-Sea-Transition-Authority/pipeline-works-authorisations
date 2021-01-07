@@ -49,13 +49,13 @@ public class PadFacilityService {
     getFacilities(pwaApplicationDetail).forEach(padFacilityRepository::delete);
     List<String> facilities;
 
-    if (form.getSafetyZoneQuestionForm().getWithinSafetyZone() == HseSafetyZone.PARTIALLY
-        && form.getSafetyZoneQuestionForm().getFacilitiesIfPartially().size() > 0) {
-      facilities = form.getSafetyZoneQuestionForm().getFacilitiesIfPartially();
+    if (form.getWithinSafetyZone() == HseSafetyZone.PARTIALLY
+        && form.getPartiallyWithinSafetyZoneForm().getFacilities().size() > 0) {
+      facilities = form.getPartiallyWithinSafetyZoneForm().getFacilities();
 
-    } else if (form.getSafetyZoneQuestionForm().getWithinSafetyZone() == HseSafetyZone.YES
-        && form.getSafetyZoneQuestionForm().getFacilitiesIfYes().size() > 0) {
-      facilities = form.getSafetyZoneQuestionForm().getFacilitiesIfYes();
+    } else if (form.getWithinSafetyZone() == HseSafetyZone.YES
+        && form.getCompletelyWithinSafetyZoneForm().getFacilities().size() > 0) {
+      facilities = form.getCompletelyWithinSafetyZoneForm().getFacilities();
 
     } else {
       return;
@@ -82,7 +82,7 @@ public class PadFacilityService {
 
   public void mapFacilitiesToView(List<PadFacility> facilities, LocationDetailsForm locationDetailsForm,
                                          ModelAndView modelAndView) {
-    if (locationDetailsForm.getSafetyZoneQuestionForm().getWithinSafetyZone() != null) {
+    if (locationDetailsForm.getWithinSafetyZone() != null) {
       var devukFacilities = facilities.stream()
           .filter(PadFacility::isLinkedToDevukFacility)
           .map(PadFacility::getFacility)
@@ -101,7 +101,7 @@ public class PadFacilityService {
       joinedFacilities.putAll(devukFacilities);
       joinedFacilities.putAll(manualFacilities);
 
-      switch (locationDetailsForm.getSafetyZoneQuestionForm().getWithinSafetyZone()) {
+      switch (locationDetailsForm.getWithinSafetyZone()) {
         case PARTIALLY:
           modelAndView.addObject("preselectedFacilitiesIfPartially", joinedFacilities);
           break;

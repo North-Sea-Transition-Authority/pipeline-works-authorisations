@@ -18,31 +18,12 @@ public class LocationDetailsSafetyZoneValidator implements SmartValidator {
   public void validate(Object target, Errors errors) {
     var form = (LocationDetailsSafetyZoneForm) target;
 
-    if (form.getWithinSafetyZone() == null) {
-      errors.rejectValue("withinSafetyZone",
-          "withinSafetyZone" + FieldValidationErrorCodes.REQUIRED.getCode(),
-          "Enter information on work carried out within 500m of a safety zone");
-
-    } else {
-      switch (form.getWithinSafetyZone()) {
-        case YES:
-          if (form.getFacilitiesIfYes().size() == 0) {
-            errors.rejectValue("facilitiesIfYes",
-                "facilitiesIfYes" + FieldValidationErrorCodes.REQUIRED.getCode(),
-                "Select all structures within 500m");
-          }
-          break;
-        case PARTIALLY:
-          if (form.getFacilitiesIfPartially().size() == 0) {
-            errors.rejectValue("facilitiesIfPartially",
-                "facilitiesIfPartially" + FieldValidationErrorCodes.REQUIRED.getCode(),
-                "Select all structures within 500m");
-          }
-          break;
-        default:
-          break;
-      }
+    if (form.getFacilities().size() == 0) {
+      errors.rejectValue("facilities",
+          "facilities" + FieldValidationErrorCodes.REQUIRED.getCode(),
+          "Select all structures within 500m");
     }
+
   }
 
 
