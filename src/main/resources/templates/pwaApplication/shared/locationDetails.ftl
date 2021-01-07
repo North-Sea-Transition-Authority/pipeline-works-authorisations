@@ -55,7 +55,9 @@
                     <@fdsDateInput.dateInput dayPath="form.surveyConcludedDay" monthPath="form.surveyConcludedMonth" yearPath="form.surveyConcludedYear" labelText="When was the pipeline route survey concluded?" formId="surveyConcludedDate" nestingPath="form.routeSurveyUndertaken"/>
                     <@fdsTextarea.textarea path="form.pipelineRouteDetails" labelText="Pipeline route details" hintText="Provide pipeline route details, including water depths along the pipeline route, seabed composition, bathymetric data, seabed features, and soil condition details" characterCount=true maxCharacterLength="4000"/>
                 </@fdsRadio.radioYes>
-                <@fdsRadio.radioNo path="form.routeSurveyUndertaken"/>
+                <@fdsRadio.radioNo path="form.routeSurveyUndertaken">
+                    <@fdsTextarea.textarea path="form.routeSurveyNotUndertakenReason" labelText="Why has a pipeline route survey not been undertaken?" hintText="If you have access to the results of a recent survey, answer Yes to route survey undertaken and provide the information" characterCount=true maxCharacterLength="4000"/>
+                </@fdsRadio.radioNo>
             </@fdsRadio.radioGroup>
         </#if>
         <#if requiredQuestions?seq_contains("WITHIN_LIMITS_OF_DEVIATION")>

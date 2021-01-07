@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.entry;
 
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.junit.Before;
@@ -184,6 +185,27 @@ public class LocationDetailsValidatorTest {
   }
 
   @Test
+  public void validate_routeNotUndertakenReason_null() {
+    var form = new LocationDetailsForm();
+    form.setRouteSurveyUndertaken(false);
+    var result = ValidatorTestUtils.getFormValidationErrors(locationDetailsValidator, form,
+        getValidationHints(Set.of(LocationDetailsQuestion.ROUTE_SURVEY_UNDERTAKEN)));
+    assertThat(result).contains(
+        Map.entry("routeSurveyNotUndertakenReason", Set.of("routeSurveyNotUndertakenReason" + FieldValidationErrorCodes.REQUIRED.getCode())));
+  }
+
+  @Test
+  public void validate_routeNotUndertakenReason_tooLong() {
+    var form = new LocationDetailsForm();
+    form.setRouteSurveyUndertaken(false);
+    form.setRouteSurveyNotUndertakenReason(ValidatorTestUtils.over4000Chars());
+    var result = ValidatorTestUtils.getFormValidationErrors(locationDetailsValidator, form,
+        getValidationHints(Set.of(LocationDetailsQuestion.ROUTE_SURVEY_UNDERTAKEN)));
+    assertThat(result).contains(
+        Map.entry("routeSurveyNotUndertakenReason", Set.of("routeSurveyNotUndertakenReason" + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode())));
+  }
+
+  @Test
   public void validate_valid() {
     var form = new LocationDetailsForm();
     form.setWithinSafetyZone(HseSafetyZone.NO);
@@ -192,6 +214,7 @@ public class LocationDetailsValidatorTest {
     form.setTransportationMethod("Method");
     form.setFacilitiesOffshore(true);
     form.setRouteSurveyUndertaken(false);
+    form.setRouteSurveyNotUndertakenReason("reason");
     form.setPipelineRouteDetails("Detail text");
     form.setWithinLimitsOfDeviation(true);
     var result = ValidatorTestUtils.getFormValidationErrors(locationDetailsValidator, form,

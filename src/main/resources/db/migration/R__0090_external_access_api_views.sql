@@ -40,3 +40,6 @@ AND pwad.pwa_status = 'CONSENTED'
 -- below condition should remove cardinality as only ever 1 initial consent per PWA.
 AND pc.consent_type = 'INITIAL_PWA';
 
+GRANT SELECT ON ${datasource.user}.api_vw_pwa_pipeline_details TO appenv;
+GRANT SELECT ON ${datasource.user}.api_vw_pwa_consents TO appenv;
+GRANT SELECT ON ${datasource.user}.api_vw_primary_pwas TO appenv;

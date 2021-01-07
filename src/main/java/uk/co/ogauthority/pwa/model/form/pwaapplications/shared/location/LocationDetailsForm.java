@@ -17,6 +17,7 @@ public class LocationDetailsForm extends UploadMultipleFilesWithDescriptionForm 
 
   private String pipelineRouteDetails;
   private Boolean routeSurveyUndertaken;
+  private String routeSurveyNotUndertakenReason;
   private Boolean withinLimitsOfDeviation;
 
   private Integer surveyConcludedDay;
@@ -100,6 +101,14 @@ public class LocationDetailsForm extends UploadMultipleFilesWithDescriptionForm 
     this.routeSurveyUndertaken = routeSurveyUndertaken;
   }
 
+  public String getRouteSurveyNotUndertakenReason() {
+    return routeSurveyNotUndertakenReason;
+  }
+
+  public void setRouteSurveyNotUndertakenReason(String routeSurveyNotUndertakenReason) {
+    this.routeSurveyNotUndertakenReason = routeSurveyNotUndertakenReason;
+  }
+
   public Boolean getWithinLimitsOfDeviation() {
     return withinLimitsOfDeviation;
   }
@@ -140,6 +149,8 @@ public class LocationDetailsForm extends UploadMultipleFilesWithDescriptionForm 
     this.pipelineAshoreLocation = pipelineAshoreLocation;
   }
 
+
+  
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -150,7 +161,7 @@ public class LocationDetailsForm extends UploadMultipleFilesWithDescriptionForm 
     }
     LocationDetailsForm that = (LocationDetailsForm) o;
     return Objects.equals(approximateProjectLocationFromShore, that.approximateProjectLocationFromShore)
-        && Objects.equals(withinSafetyZone, that.withinSafetyZone)
+        && withinSafetyZone == that.withinSafetyZone
         && Objects.equals(completelyWithinSafetyZoneForm, that.completelyWithinSafetyZoneForm)
         && Objects.equals(partiallyWithinSafetyZoneForm, that.partiallyWithinSafetyZoneForm)
         && Objects.equals(facilitiesOffshore, that.facilitiesOffshore)
@@ -158,6 +169,7 @@ public class LocationDetailsForm extends UploadMultipleFilesWithDescriptionForm 
         && Objects.equals(transportationMethod, that.transportationMethod)
         && Objects.equals(pipelineRouteDetails, that.pipelineRouteDetails)
         && Objects.equals(routeSurveyUndertaken, that.routeSurveyUndertaken)
+        && Objects.equals(routeSurveyNotUndertakenReason, that.routeSurveyNotUndertakenReason)
         && Objects.equals(withinLimitsOfDeviation, that.withinLimitsOfDeviation)
         && Objects.equals(surveyConcludedDay, that.surveyConcludedDay)
         && Objects.equals(surveyConcludedMonth, that.surveyConcludedMonth)
@@ -169,7 +181,7 @@ public class LocationDetailsForm extends UploadMultipleFilesWithDescriptionForm 
   public int hashCode() {
     return Objects.hash(approximateProjectLocationFromShore, withinSafetyZone, completelyWithinSafetyZoneForm,
         partiallyWithinSafetyZoneForm, facilitiesOffshore, transportsMaterialsToShore, transportationMethod,
-        pipelineRouteDetails, routeSurveyUndertaken,
-        withinLimitsOfDeviation, surveyConcludedDay, surveyConcludedMonth, surveyConcludedYear, pipelineAshoreLocation);
+        pipelineRouteDetails, routeSurveyUndertaken, routeSurveyNotUndertakenReason, withinLimitsOfDeviation,
+        surveyConcludedDay, surveyConcludedMonth, surveyConcludedYear, pipelineAshoreLocation);
   }
 }
