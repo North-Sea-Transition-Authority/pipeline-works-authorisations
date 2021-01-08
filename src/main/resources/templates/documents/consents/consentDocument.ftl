@@ -101,7 +101,7 @@
     }
 
     @media print {
-      #depositsTableSection, #tableAsSection, .tableAPage  {
+      #depositsTableSection, #tableAsSection, .tableAPage, .tableADrawing  {
         page-break-before: always;
       }
     }
