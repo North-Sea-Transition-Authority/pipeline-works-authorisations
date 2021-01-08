@@ -38,7 +38,13 @@ public class SystemAreaAccessServiceTest {
     AuthTestingUtils.testPrivilegeBasedAuthenticationFunction(
         Set.of(PwaUserPrivilege.PWA_APPLICATION_SEARCH),
         systemAreaAccessService::canAccessApplicationSearch);
+  }
 
+  @Test
+  public void canAccessConsentSearch(){
+    AuthTestingUtils.testPrivilegeBasedAuthenticationFunction(
+        Set.of(PwaUserPrivilege.PWA_CONSENT_SEARCH),
+        systemAreaAccessService::canAccessConsentSearch);
   }
 
 }

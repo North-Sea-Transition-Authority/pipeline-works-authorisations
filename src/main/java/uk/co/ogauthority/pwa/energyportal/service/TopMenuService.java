@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.controller.WorkAreaController;
 import uk.co.ogauthority.pwa.controller.search.applicationsearch.ApplicationSearchController;
+import uk.co.ogauthority.pwa.controller.search.consents.ConsentSearchController;
 import uk.co.ogauthority.pwa.controller.teams.ManageTeamsController;
 import uk.co.ogauthority.pwa.model.TopMenuItem;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
@@ -18,8 +19,8 @@ public class TopMenuService {
 
   public static final String WORK_AREA_TITLE = "Work area";
   public static final String TEAM_MANAGEMENT_TITLE = "Manage teams";
-  public static final String APPLICATION_SEARCH_TITLE = "Application search";
-
+  public static final String APPLICATION_SEARCH_TITLE = "Search applications";
+  public static final String CONSENT_SEARCH_TITLE = "Search consents";
 
   private final SystemAreaAccessService systemAreaAccessService;
 
@@ -46,6 +47,11 @@ public class TopMenuService {
       menuItems.add(new TopMenuItem(TEAM_MANAGEMENT_TITLE, ReverseRouter.route(on(ManageTeamsController.class)
           .renderTeamTypes(null)))
       );
+    }
+
+    if (systemAreaAccessService.canAccessConsentSearch(user)) {
+      menuItems.add(new TopMenuItem(CONSENT_SEARCH_TITLE, ReverseRouter.route(on(ConsentSearchController.class)
+          .renderSearch())));
     }
 
     return menuItems;
