@@ -10,7 +10,7 @@
 
     <#if showMaxResultsExceededMessage>
         <@fdsWarning.warning>
-            More than ${maxResults?c} have been found but only ${maxResults?c} are shown. Please refine you search criteria.
+            More than ${maxResults?c} applications have been found but only ${maxResults?c} are shown. Please refine your search criteria.
         </@fdsWarning.warning>
     </#if>
 
