@@ -13,6 +13,7 @@ plugins {
   id 'jacoco'
   id 'checkstyle'
   id 'war'
+  id "org.sonarqube" version "3.0"
 }
 
 apply plugin: 'io.spring.dependency-management'
@@ -108,5 +109,20 @@ dependencyCheck {
     // Point to a persisted volume in drone, to avoid having to re-download the whole CVE database each run.
     // Comment this out to run locally
     directory='/var/nvd-db'
+  }
+}
+
+sonarqube {
+  properties {
+    property("sonar.projectKey", "fiviumuk_pipeline-works-authorisations")
+    property("sonar.host.url", "https://sonarcloud.io")
+    property("sonar.login", System.getenv("SONARCLOUD_TOKEN"))
+    property("sonar.organization", "fivium")
+    property("sonar.branch.name", System.getenv("DRONE_BRANCH"))
+    if (System.getenv("DRONE_BRANCH").startsWith("feature")) {
+      property("sonar.branch.target", "develop")
+    }
+    property("sonar.exclusions", "src/test/**, src/main/resources/public/assets/**, fivium-design-system-core/**, src/main/resources/templates/fds/**, build/**")
+    property("sonar.sources", "src")
   }
 }
