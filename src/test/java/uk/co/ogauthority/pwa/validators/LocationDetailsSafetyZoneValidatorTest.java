@@ -10,14 +10,17 @@ import org.junit.Test;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.location.LocationDetailsSafetyZoneForm;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
+import uk.co.ogauthority.pwa.util.forminputs.twofielddate.TwoFieldDateInputValidator;
 
 public class LocationDetailsSafetyZoneValidatorTest {
 
   private LocationDetailsSafetyZoneValidator validator;
+  private TwoFieldDateInputValidator twoFieldDateInputValidator;
 
   @Before
   public void setUp() {
-    validator = new LocationDetailsSafetyZoneValidator();
+    twoFieldDateInputValidator = new TwoFieldDateInputValidator();
+    validator = new LocationDetailsSafetyZoneValidator(twoFieldDateInputValidator);
   }
 
 

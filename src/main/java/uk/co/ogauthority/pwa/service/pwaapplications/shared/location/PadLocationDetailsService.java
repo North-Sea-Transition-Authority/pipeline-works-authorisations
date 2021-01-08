@@ -35,6 +35,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSect
 import uk.co.ogauthority.pwa.service.search.SearchSelectorService;
 import uk.co.ogauthority.pwa.util.DateUtils;
 import uk.co.ogauthority.pwa.util.StreamUtils;
+import uk.co.ogauthority.pwa.util.forminputs.twofielddate.TwoFieldDateInput;
 import uk.co.ogauthority.pwa.validators.LocationDetailsFormValidationHints;
 import uk.co.ogauthority.pwa.validators.LocationDetailsValidator;
 
@@ -83,6 +84,35 @@ public class PadLocationDetailsService implements ApplicationFormSectionService 
     locationDetailsForm.setApproximateProjectLocationFromShore(
         padLocationDetails.getApproximateProjectLocationFromShore());
     locationDetailsForm.setWithinSafetyZone(padLocationDetails.getWithinSafetyZone());
+
+    //can probably simplify, consider creating separate mapping class before making PR
+    if (HseSafetyZone.YES.equals(padLocationDetails.getWithinSafetyZone())) {
+      locationDetailsForm.getCompletelyWithinSafetyZoneForm().setPsrNotificationSubmitted(padLocationDetails.getPsrNotificationSubmitted());
+      if (BooleanUtils.isTrue(padLocationDetails.getPsrNotificationSubmitted())) {
+        var twoFieldDate = new TwoFieldDateInput(
+            padLocationDetails.getPsrNotificationSubmittedYear(), padLocationDetails.getPsrNotificationSubmittedMonth());
+        locationDetailsForm.getCompletelyWithinSafetyZoneForm().setPsrNotificationSubmittedDate(twoFieldDate);
+
+      } else if (BooleanUtils.isFalse(padLocationDetails.getPsrNotificationSubmitted())) {
+        var twoFieldDate = new TwoFieldDateInput(
+            padLocationDetails.getPsrNotificationExpectedSubmissionYear(), padLocationDetails.getPsrNotificationExpectedSubmissionMonth());
+        locationDetailsForm.getCompletelyWithinSafetyZoneForm().setPsrNotificationExpectedSubmissionDate(twoFieldDate);
+      }
+
+    } else if (HseSafetyZone.PARTIALLY.equals(padLocationDetails.getWithinSafetyZone())) {
+      locationDetailsForm.getPartiallyWithinSafetyZoneForm().setPsrNotificationSubmitted(padLocationDetails.getPsrNotificationSubmitted());
+      if (BooleanUtils.isTrue(padLocationDetails.getPsrNotificationSubmitted())) {
+        var twoFieldDate = new TwoFieldDateInput(
+            padLocationDetails.getPsrNotificationSubmittedYear(), padLocationDetails.getPsrNotificationSubmittedMonth());
+        locationDetailsForm.getPartiallyWithinSafetyZoneForm().setPsrNotificationSubmittedDate(twoFieldDate);
+
+      } else if (BooleanUtils.isFalse(padLocationDetails.getPsrNotificationSubmitted())) {
+        var twoFieldDate = new TwoFieldDateInput(
+            padLocationDetails.getPsrNotificationExpectedSubmissionYear(), padLocationDetails.getPsrNotificationExpectedSubmissionMonth());
+        locationDetailsForm.getPartiallyWithinSafetyZoneForm().setPsrNotificationExpectedSubmissionDate(twoFieldDate);
+      }
+    }
+
     locationDetailsForm.setFacilitiesOffshore(padLocationDetails.getFacilitiesOffshore());
     locationDetailsForm.setTransportsMaterialsToShore(padLocationDetails.getTransportsMaterialsToShore());
     locationDetailsForm.setTransportationMethod(padLocationDetails.getTransportationMethod());
@@ -104,6 +134,35 @@ public class PadLocationDetailsService implements ApplicationFormSectionService 
     padLocationDetails.setApproximateProjectLocationFromShore(
         locationDetailsForm.getApproximateProjectLocationFromShore());
     padLocationDetails.setWithinSafetyZone(locationDetailsForm.getWithinSafetyZone());
+
+    //can probably simplify, consider creating separate mapping class before making PR
+    if (HseSafetyZone.YES.equals(locationDetailsForm.getWithinSafetyZone())) {
+      padLocationDetails.setPsrNotificationSubmitted(locationDetailsForm.getCompletelyWithinSafetyZoneForm().getPsrNotificationSubmitted());
+      if (BooleanUtils.isTrue(locationDetailsForm.getCompletelyWithinSafetyZoneForm().getPsrNotificationSubmitted())) {
+        var formSubmittedDate = locationDetailsForm.getCompletelyWithinSafetyZoneForm().getPsrNotificationSubmittedDate();
+        padLocationDetails.setPsrNotificationSubmittedMonth(Integer.parseInt(formSubmittedDate.getMonth()));
+        padLocationDetails.setPsrNotificationSubmittedYear(Integer.parseInt(formSubmittedDate.getYear()));
+
+      } else if (BooleanUtils.isFalse(locationDetailsForm.getCompletelyWithinSafetyZoneForm().getPsrNotificationSubmitted())) {
+        var formSubmittedDate = locationDetailsForm.getCompletelyWithinSafetyZoneForm().getPsrNotificationExpectedSubmissionDate();
+        padLocationDetails.setPsrNotificationExpectedSubmissionMonth(Integer.parseInt(formSubmittedDate.getMonth()));
+        padLocationDetails.setPsrNotificationExpectedSubmissionYear(Integer.parseInt(formSubmittedDate.getYear()));
+      }
+
+    } else if (HseSafetyZone.PARTIALLY.equals(locationDetailsForm.getWithinSafetyZone())) {
+      padLocationDetails.setPsrNotificationSubmitted(locationDetailsForm.getPartiallyWithinSafetyZoneForm().getPsrNotificationSubmitted());
+      if (BooleanUtils.isTrue(locationDetailsForm.getPartiallyWithinSafetyZoneForm().getPsrNotificationSubmitted())) {
+        var formSubmittedDate = locationDetailsForm.getPartiallyWithinSafetyZoneForm().getPsrNotificationSubmittedDate();
+        padLocationDetails.setPsrNotificationSubmittedMonth(Integer.parseInt(formSubmittedDate.getMonth()));
+        padLocationDetails.setPsrNotificationSubmittedYear(Integer.parseInt(formSubmittedDate.getYear()));
+
+      } else if (BooleanUtils.isFalse(locationDetailsForm.getPartiallyWithinSafetyZoneForm().getPsrNotificationSubmitted())) {
+        var formSubmittedDate = locationDetailsForm.getPartiallyWithinSafetyZoneForm().getPsrNotificationExpectedSubmissionDate();
+        padLocationDetails.setPsrNotificationExpectedSubmissionMonth(Integer.parseInt(formSubmittedDate.getMonth()));
+        padLocationDetails.setPsrNotificationExpectedSubmissionYear(Integer.parseInt(formSubmittedDate.getYear()));
+      }
+    }
+
     padLocationDetails.setFacilitiesOffshore(locationDetailsForm.getFacilitiesOffshore());
     padLocationDetails.setTransportsMaterialsToShore(locationDetailsForm.getTransportsMaterialsToShore());
     padLocationDetails.setTransportationMethod(locationDetailsForm.getTransportationMethod());

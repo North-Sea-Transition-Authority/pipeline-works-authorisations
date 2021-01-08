@@ -13,6 +13,7 @@ import javax.persistence.ManyToOne;
 import uk.co.ogauthority.pwa.model.entity.enums.HseSafetyZone;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.entitycopier.ChildEntity;
+import uk.co.ogauthority.pwa.util.forminputs.twofielddate.TwoFieldDateInput;
 
 @Entity(name = "pad_location_details")
 public class PadLocationDetails implements ChildEntity<Integer, PwaApplicationDetail> {
@@ -30,6 +31,18 @@ public class PadLocationDetails implements ChildEntity<Integer, PwaApplicationDe
 
   @Enumerated(EnumType.STRING)
   private HseSafetyZone withinSafetyZone;
+
+  private Boolean psrNotificationSubmitted;
+
+  @Column(name = "psr_submitted_month")
+  private Integer psrNotificationSubmittedMonth;
+  @Column(name = "psr_submitted_year")
+  private Integer psrNotificationSubmittedYear;
+
+  @Column(name = "psr_expected_submission_month")
+  private Integer psrNotificationExpectedSubmissionMonth;
+  @Column(name = "psr_expected_submission_year")
+  private Integer psrNotificationExpectedSubmissionYear;
 
   private Boolean facilitiesOffshore;
   private Boolean transportsMaterialsToShore;
@@ -89,6 +102,46 @@ public class PadLocationDetails implements ChildEntity<Integer, PwaApplicationDe
 
   public void setWithinSafetyZone(HseSafetyZone withinSafetyZone) {
     this.withinSafetyZone = withinSafetyZone;
+  }
+
+  public Boolean getPsrNotificationSubmitted() {
+    return psrNotificationSubmitted;
+  }
+
+  public void setPsrNotificationSubmitted(Boolean psrNotificationSubmitted) {
+    this.psrNotificationSubmitted = psrNotificationSubmitted;
+  }
+
+  public Integer getPsrNotificationSubmittedMonth() {
+    return psrNotificationSubmittedMonth;
+  }
+
+  public void setPsrNotificationSubmittedMonth(Integer psrNotificationSubmittedMonth) {
+    this.psrNotificationSubmittedMonth = psrNotificationSubmittedMonth;
+  }
+
+  public Integer getPsrNotificationSubmittedYear() {
+    return psrNotificationSubmittedYear;
+  }
+
+  public void setPsrNotificationSubmittedYear(Integer psrNotificationSubmittedYear) {
+    this.psrNotificationSubmittedYear = psrNotificationSubmittedYear;
+  }
+
+  public Integer getPsrNotificationExpectedSubmissionMonth() {
+    return psrNotificationExpectedSubmissionMonth;
+  }
+
+  public void setPsrNotificationExpectedSubmissionMonth(Integer psrNotificationExpectedSubmissionMonth) {
+    this.psrNotificationExpectedSubmissionMonth = psrNotificationExpectedSubmissionMonth;
+  }
+
+  public Integer getPsrNotificationExpectedSubmissionYear() {
+    return psrNotificationExpectedSubmissionYear;
+  }
+
+  public void setPsrNotificationExpectedSubmissionYear(Integer psrNotificationExpectedSubmissionYear) {
+    this.psrNotificationExpectedSubmissionYear = psrNotificationExpectedSubmissionYear;
   }
 
   public Boolean getFacilitiesOffshore() {
