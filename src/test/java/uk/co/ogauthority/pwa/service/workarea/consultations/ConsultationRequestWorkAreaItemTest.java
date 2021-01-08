@@ -11,8 +11,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailItemView;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailSearchItem;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailView;
 import uk.co.ogauthority.pwa.service.consultations.search.ConsultationRequestSearchItem;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ConsultationRequestStatus;

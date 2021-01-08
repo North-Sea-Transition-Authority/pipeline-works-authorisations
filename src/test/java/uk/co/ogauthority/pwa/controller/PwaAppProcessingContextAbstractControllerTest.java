@@ -22,7 +22,7 @@ import uk.co.ogauthority.pwa.config.fileupload.FileUploadProperties;
 import uk.co.ogauthority.pwa.energyportal.service.SystemAreaAccessService;
 import uk.co.ogauthority.pwa.energyportal.service.TopMenuService;
 import uk.co.ogauthority.pwa.model.entity.UserSession;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailSearchItem;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.WorkAreaApplicationDetailSearchItem;
 import uk.co.ogauthority.pwa.service.FoxUrlService;
 import uk.co.ogauthority.pwa.service.UserSessionService;
 import uk.co.ogauthority.pwa.service.appprocessing.AppProcessingBreadcrumbService;
@@ -37,7 +37,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbServic
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
-import uk.co.ogauthority.pwa.service.pwaapplications.search.ApplicationDetailSearcher;
+import uk.co.ogauthority.pwa.service.pwaapplications.search.WorkAreaApplicationDetailSearcher;
 import uk.co.ogauthority.pwa.service.tasklist.CrossingAgreementsTaskListService;
 import uk.co.ogauthority.pwa.service.teams.TeamService;
 import uk.co.ogauthority.pwa.service.users.UserTypeService;
@@ -90,7 +90,7 @@ public abstract class PwaAppProcessingContextAbstractControllerTest {
   private ControllerHelperService controllerHelperService;
 
   @MockBean
-  private ApplicationDetailSearcher applicationDetailSearcher;
+  private WorkAreaApplicationDetailSearcher workAreaApplicationDetailSearcher;
 
   @SpyBean
   private AppProcessingBreadcrumbService appProcessingBreadcrumbService;
@@ -116,7 +116,7 @@ public abstract class PwaAppProcessingContextAbstractControllerTest {
 
     when(userSessionService.getAndValidateSession(any(), anyBoolean())).thenReturn(Optional.of(new UserSession()));
 
-    var searchItem = new ApplicationDetailSearchItem();
+    var searchItem = new WorkAreaApplicationDetailSearchItem();
     searchItem.setPadReference("PA/5/6");
     searchItem.setApplicationType(PwaApplicationType.CAT_1_VARIATION);
     searchItem.setCaseOfficerPersonId(1);
@@ -128,7 +128,7 @@ public abstract class PwaAppProcessingContextAbstractControllerTest {
     searchItem.setPwaHolderNameList(List.of("ROYAL DUTCH SHELL"));
     searchItem.setVersionNo(1);
 
-    when(applicationDetailSearcher.searchByApplicationDetailId(any())).thenReturn(Optional.of(searchItem));
+    when(workAreaApplicationDetailSearcher.searchByApplicationDetailId(any())).thenReturn(Optional.of(searchItem));
 
   }
 

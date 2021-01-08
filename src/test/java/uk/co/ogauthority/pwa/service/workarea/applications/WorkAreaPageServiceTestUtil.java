@@ -6,7 +6,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailSearchItem;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.WorkAreaApplicationDetailSearchItem;
 import uk.co.ogauthority.pwa.model.workflow.GenericWorkflowSubject;
 import uk.co.ogauthority.pwa.service.enums.workflow.UserWorkflowTask;
 import uk.co.ogauthority.pwa.service.enums.workflow.WorkflowType;
@@ -26,8 +26,8 @@ public class WorkAreaPageServiceTestUtil {
         Sort.by(Sort.Direction.ASC, "padProposedStart"));
   }
 
-  public static Page<ApplicationDetailSearchItem> getFakeApplicationSearchResultPage(
-      List<ApplicationDetailSearchItem> results, int page) {
+  public static Page<WorkAreaApplicationDetailSearchItem> getFakeApplicationSearchResultPage(
+      List<WorkAreaApplicationDetailSearchItem> results, int page) {
 
     var fakePage = new PageImpl<>(
         results,
