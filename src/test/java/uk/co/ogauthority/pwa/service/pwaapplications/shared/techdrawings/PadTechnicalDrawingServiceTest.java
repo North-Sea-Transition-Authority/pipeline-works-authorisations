@@ -26,6 +26,7 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineStatus;
 import uk.co.ogauthority.pwa.model.entity.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.files.PadFile;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
@@ -343,6 +344,30 @@ public class PadTechnicalDrawingServiceTest {
   }
 
   @Test
+  public void isDrawingRequiredForPipeline_inServiceStatus() {
+    var isDrawingRequired = padTechnicalDrawingService.isDrawingRequiredForPipeline(PipelineStatus.IN_SERVICE);
+    assertThat(isDrawingRequired).isTrue();
+  }
+
+  @Test
+  public void isDrawingRequiredForPipeline_returnedToShoreStatus() {
+    var isDrawingRequired = padTechnicalDrawingService.isDrawingRequiredForPipeline(PipelineStatus.RETURNED_TO_SHORE);
+    assertThat(isDrawingRequired).isFalse();
+  }
+
+  @Test
+  public void isDrawingRequiredForPipeline_onSeaBedStatus() {
+    var isDrawingRequired = padTechnicalDrawingService.isDrawingRequiredForPipeline(PipelineStatus.OUT_OF_USE_ON_SEABED);
+    assertThat(isDrawingRequired).isTrue();
+  }
+
+  @Test
+  public void isDrawingRequiredForPipeline_neverLaidStatus() {
+    var isDrawingRequired = padTechnicalDrawingService.isDrawingRequiredForPipeline(PipelineStatus.NEVER_LAID);
+    assertThat(isDrawingRequired).isFalse();
+  }
+
+  @Test
   public void validateSection_valid() {
     var pipeline = new PadPipeline(pwaApplicationDetail);
     pipeline.setId(1);
@@ -529,6 +554,8 @@ public class PadTechnicalDrawingServiceTest {
   @Test
   public void getUnlinkedApplicationPipelineOverviews_somePipelinesLinked() {
 
+    padPipelineForAppOverviewA.setPipelineStatus(PipelineStatus.IN_SERVICE);
+    padPipelineForAppOverviewB.setPipelineStatus(PipelineStatus.IN_SERVICE);
     var pipelineOverviewA = new PadPipelineOverview(padPipelineForAppOverviewA, 1L);
     var pipelineOverviewB = new PadPipelineOverview(padPipelineForAppOverviewB, 1L);
     when(padPipelineService.getApplicationPipelineOverviews(pwaApplicationDetail))
@@ -541,8 +568,10 @@ public class PadTechnicalDrawingServiceTest {
   }
 
   @Test
-  public void getUnlinkedApplicationPipelineOverviews_noPipelinesLinked() {var pipelineOverviewA = new PadPipelineOverview(
-      padPipelineForAppOverviewA, 1L);
+  public void getUnlinkedApplicationPipelineOverviews_noPipelinesLinked() {
+    padPipelineForAppOverviewA.setPipelineStatus(PipelineStatus.IN_SERVICE);
+    padPipelineForAppOverviewB.setPipelineStatus(PipelineStatus.IN_SERVICE);
+    var pipelineOverviewA = new PadPipelineOverview(padPipelineForAppOverviewA, 1L);
     var pipelineOverviewB = new PadPipelineOverview(padPipelineForAppOverviewB, 1L);
     when(padPipelineService.getApplicationPipelineOverviews(pwaApplicationDetail))
         .thenReturn(List.of(pipelineOverviewA, pipelineOverviewB));
