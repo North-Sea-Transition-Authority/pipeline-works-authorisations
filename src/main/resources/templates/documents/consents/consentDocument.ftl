@@ -115,6 +115,10 @@
       page: landscapePage;
     }
 
+    #depositsTableSection td {
+      word-wrap: normal
+    }
+
     .drawingNumberList {
       list-style-type:none;
       padding-left: 0;
