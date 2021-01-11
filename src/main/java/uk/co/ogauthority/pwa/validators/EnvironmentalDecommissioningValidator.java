@@ -20,6 +20,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.enums.pwaapplications.shared.EnvDecomQuestion;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.EnvironmentalDecommissioningForm;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
+import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadEnvironmentalDecommissioningService;
 import uk.co.ogauthority.pwa.util.ValidatorUtils;
 
@@ -69,6 +70,13 @@ public class EnvironmentalDecommissioningValidator implements SmartValidator {
             REQUIRED.errorCode("emtHasOutstandingPermits"),
             "Select yes if you have any relevant permits that haven't been submitted to BEIS"
         );
+
+        if (BooleanUtils.isFalse(form.getEmtHasSubmittedPermits()) && BooleanUtils.isFalse(form.getEmtHasOutstandingPermits())) {
+          errors.rejectValue("emtHasSubmittedPermits", "emtHasSubmittedPermits" + FieldValidationErrorCodes.INVALID.getCode(),
+              "Select 'Yes' to one or both of the BEIS EMT permit questions.");
+          errors.rejectValue("emtHasOutstandingPermits", "emtHasOutstandingPermits" + FieldValidationErrorCodes.INVALID.getCode(),
+              "Select 'Yes' to one or both of the BEIS EMT permit questions.");
+        }
 
       }
 
