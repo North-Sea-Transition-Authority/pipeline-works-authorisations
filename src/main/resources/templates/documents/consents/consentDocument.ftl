@@ -115,7 +115,7 @@
       page: landscapePage;
     }
 
-    #depositsTableSection td {
+    #depositsTableSection .materialTypeAndSize {
       word-wrap: normal
     }
 
