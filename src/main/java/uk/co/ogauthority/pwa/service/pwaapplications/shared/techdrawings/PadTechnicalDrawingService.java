@@ -18,6 +18,8 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PhysicalPipelineState;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineStatus;
 import uk.co.ogauthority.pwa.model.entity.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.files.PadFile;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
@@ -166,6 +168,7 @@ public class PadTechnicalDrawingService {
     return overviewList.stream()
         .filter(pipelineOverview -> linkedPipelinesIds.stream()
             .noneMatch(pipelineIdDto -> pipelineOverview.getPadPipelineId().equals(pipelineIdDto.getPadPipelineId())))
+        .filter(pipelineOverview -> isDrawingRequiredForPipeline(pipelineOverview.getPipelineStatus()))
         .collect(Collectors.toUnmodifiableList());
   }
 
@@ -230,6 +233,10 @@ public class PadTechnicalDrawingService {
     saveDrawingAndLink(detail, form, drawing);
   }
 
+  public boolean isDrawingRequiredForPipeline(PipelineStatus pipelineStatus) {
+    return pipelineStatus.getPhysicalPipelineState() == PhysicalPipelineState.ON_SEABED;
+  }
+
   public boolean isComplete(PwaApplicationDetail detail) {
     return drawingsValid(detail);
   }
@@ -249,8 +256,9 @@ public class PadTechnicalDrawingService {
 
   public BindingResult validateDrawing(Object form, BindingResult bindingResult, ValidationType validationType,
                                        PwaApplicationDetail pwaApplicationDetail) {
-    pipelineDrawingValidator.validate(form, bindingResult, pwaApplicationDetail, null,
-        PipelineDrawingValidationType.ADD);
+    var validationHints = new PadTechnicalDrawingValidationHints(
+        pwaApplicationDetail, null, PipelineDrawingValidationType.ADD);
+    pipelineDrawingValidator.validate(form, bindingResult, validationHints);
     groupValidator.validate(form, bindingResult, FullValidation.class, MandatoryUploadValidation.class);
     return bindingResult;
   }
@@ -258,8 +266,9 @@ public class PadTechnicalDrawingService {
   public BindingResult validateEdit(Object form, BindingResult bindingResult, ValidationType validationType,
                                     PwaApplicationDetail pwaApplicationDetail, Integer drawingId) {
     var drawing = getDrawing(pwaApplicationDetail, drawingId);
-    pipelineDrawingValidator.validate(form, bindingResult, pwaApplicationDetail, drawing,
-        PipelineDrawingValidationType.EDIT);
+    var validationHints = new PadTechnicalDrawingValidationHints(
+        pwaApplicationDetail, drawing, PipelineDrawingValidationType.EDIT);
+    pipelineDrawingValidator.validate(form, bindingResult, validationHints);
     groupValidator.validate(form, bindingResult, FullValidation.class, MandatoryUploadValidation.class);
     return bindingResult;
   }
