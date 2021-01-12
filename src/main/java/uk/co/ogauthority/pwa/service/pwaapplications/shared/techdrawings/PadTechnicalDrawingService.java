@@ -290,7 +290,9 @@ public class PadTechnicalDrawingService {
   @VisibleForTesting
   public boolean allPipelinesLinked(PwaApplicationDetail pwaApplicationDetail, List<PadTechnicalDrawing> drawings) {
     var links = padTechnicalDrawingLinkService.getLinksFromDrawingList(drawings);
-    var pipelines = padPipelineService.getPipelines(pwaApplicationDetail);
+    var pipelines = padPipelineService.getPipelines(pwaApplicationDetail).stream()
+        .filter(pipeline -> isDrawingRequiredForPipeline(pipeline.getPipelineStatus()))
+        .collect(Collectors.toList());
 
     Set<Integer> linkedPipelineIds = links.stream()
         .map(drawingLink -> drawingLink.getPipeline().getId())
