@@ -1,6 +1,8 @@
 package uk.co.ogauthority.pwa.controller.search.applicationsearch;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
@@ -20,6 +22,8 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContextService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
+import uk.co.ogauthority.pwa.service.search.applicationsearch.ApplicationDetailSearchService;
+import uk.co.ogauthority.pwa.service.search.applicationsearch.ApplicationSearchDisplayItemCreator;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(ApplicationSearchController.class)
@@ -38,6 +42,12 @@ public class ApplicationSearchControllerTest extends AbstractControllerTest {
 
   @MockBean
   private PwaAppProcessingContextService pwaAppProcessingContextService;
+
+  @MockBean
+  private ApplicationDetailSearchService applicationDetailSearchService;
+
+  @MockBean
+  private ApplicationSearchDisplayItemCreator applicationSearchDisplayItemCreator;
 
 
   @Before
@@ -73,6 +83,42 @@ public class ApplicationSearchControllerTest extends AbstractControllerTest {
         null
     ))))
         .andExpect(status().is3xxRedirection());
+
+  }
+
+  //
+
+  @Test
+  public void doApplicationSearch_whenPermitted() throws Exception {
+
+    mockMvc.perform(post(ReverseRouter.route(on(ApplicationSearchController.class).doApplicationSearch(
+        null
+    )))
+        .with(authenticatedUserAndSession(permittedUser))
+        .with(csrf()))
+        .andExpect(status().isOk());
+
+  }
+
+  @Test
+  public void doApplicationSearch_whenProhibited() throws Exception {
+
+    mockMvc.perform(post(ReverseRouter.route(on(ApplicationSearchController.class).doApplicationSearch(
+        null
+    )))
+        .with(authenticatedUserAndSession(prohibitedUser))
+        .with(csrf()))
+        .andExpect(status().isForbidden());
+
+  }
+
+  @Test
+  public void doApplicationSearch_whenNotLoggedIn() throws Exception {
+
+    mockMvc.perform(post(ReverseRouter.route(on(ApplicationSearchController.class).doApplicationSearch(
+        null
+    ))))
+        .andExpect(status().isForbidden());
 
   }
 }
