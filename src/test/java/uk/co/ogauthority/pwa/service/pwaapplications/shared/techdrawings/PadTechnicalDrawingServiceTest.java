@@ -136,6 +136,7 @@ public class PadTechnicalDrawingServiceTest {
     pipelineDrawing.setId(1);
 
     var pipeline = new PadPipeline();
+    pipeline.setPipelineStatus(PipelineStatus.IN_SERVICE);
     pipeline.setPipelineRef("ref");
 
     var drawingLink = new PadTechnicalDrawingLink();
@@ -171,9 +172,11 @@ public class PadTechnicalDrawingServiceTest {
     pipelineDrawing.setId(1);
 
     var pipeline = new PadPipeline();
+    pipeline.setPipelineStatus(PipelineStatus.IN_SERVICE);
     pipeline.setPipelineRef("ref");
 
     var pipeline2 = new PadPipeline();
+    pipeline2.setPipelineStatus(PipelineStatus.IN_SERVICE);
     pipeline2.setPipelineRef("ref");
 
     var drawingLink = new PadTechnicalDrawingLink();
@@ -242,6 +245,7 @@ public class PadTechnicalDrawingServiceTest {
     drawing.setId(1);
 
     var pipeline = new PadPipeline();
+    pipeline.setPipelineStatus(PipelineStatus.IN_SERVICE);
     pipeline.setPipelineRef("ref");
 
     var link = new PadTechnicalDrawingLink();
@@ -291,6 +295,7 @@ public class PadTechnicalDrawingServiceTest {
     when(padTechnicalDrawingRepository.getAllByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(List.of(drawing));
 
     var pipeline = new PadPipeline();
+    pipeline.setPipelineStatus(PipelineStatus.IN_SERVICE);
     pipeline.setPipelineRef("ref");
 
     var link = new PadTechnicalDrawingLink();
@@ -370,6 +375,7 @@ public class PadTechnicalDrawingServiceTest {
   @Test
   public void validateSection_valid() {
     var pipeline = new PadPipeline(pwaApplicationDetail);
+    pipeline.setPipelineStatus(PipelineStatus.IN_SERVICE);
     pipeline.setId(1);
 
     var link = new PadTechnicalDrawingLink();
@@ -388,9 +394,11 @@ public class PadTechnicalDrawingServiceTest {
   @Test
   public void validateSection_invalid() {
     var pipeline = new PadPipeline(pwaApplicationDetail);
+    pipeline.setPipelineStatus(PipelineStatus.IN_SERVICE);
     pipeline.setId(1);
 
     var pipeline2 = new PadPipeline(pwaApplicationDetail);
+    pipeline2.setPipelineStatus(PipelineStatus.IN_SERVICE);
     pipeline2.setId(2);
 
     var link = new PadTechnicalDrawingLink();
@@ -430,6 +438,7 @@ public class PadTechnicalDrawingServiceTest {
     var drawing = new PadTechnicalDrawing();
 
     var pipeline = new PadPipeline(pwaApplicationDetail);
+    pipeline.setPipelineStatus(PipelineStatus.IN_SERVICE);
     pipeline.setId(1);
 
     var link = new PadTechnicalDrawingLink();
@@ -448,9 +457,11 @@ public class PadTechnicalDrawingServiceTest {
     var drawing = new PadTechnicalDrawing();
 
     var pipeline = new PadPipeline(pwaApplicationDetail);
+    pipeline.setPipelineStatus(PipelineStatus.IN_SERVICE);
     pipeline.setId(1);
 
     var pipeline2 = new PadPipeline(pwaApplicationDetail);
+    pipeline2.setPipelineStatus(PipelineStatus.IN_SERVICE);
     pipeline2.setId(2);
 
     var link = new PadTechnicalDrawingLink();
@@ -473,6 +484,7 @@ public class PadTechnicalDrawingServiceTest {
     when(padTechnicalDrawingRepository.getAllByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(List.of(drawing));
 
     var pipeline = new PadPipeline(pwaApplicationDetail);
+    pipeline.setPipelineStatus(PipelineStatus.IN_SERVICE);
     pipeline.setId(1);
 
     var link = new PadTechnicalDrawingLink();
