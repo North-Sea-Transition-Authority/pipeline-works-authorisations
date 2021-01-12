@@ -314,7 +314,7 @@ public class PadTechnicalDrawingService {
   public BindingResult validateSection(BindingResult bindingResult, PwaApplicationDetail pwaApplicationDetail) {
 
     if (!getValidationFactory(pwaApplicationDetail).isComplete()) {
-      bindingResult.reject("allPipelinesAdded" + FieldValidationErrorCodes.INVALID.getCode(),
+      bindingResult.reject(PipelineSchematicsErrorCode.TECHNICAL_DRAWINGS.getErrorCode(),
           "All pipelines must be linked to a drawing and all drawings must have a file uploaded");
     }
 
