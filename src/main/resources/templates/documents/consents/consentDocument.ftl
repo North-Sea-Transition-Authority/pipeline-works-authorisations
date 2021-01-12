@@ -97,7 +97,7 @@
     }
 
     .coordinateTableCell {
-      width: 135px;
+      width: 140px;
     }
 
     @media print {
