@@ -8,18 +8,15 @@ public class PadTechnicalDrawingValidationHints {
   private final PwaApplicationDetail pwaApplicationDetail;
   private final PadTechnicalDrawing existingDrawing;
   private final PipelineDrawingValidationType validationType;
-  private final PadTechnicalDrawingService technicalDrawingService;
 
 
   public PadTechnicalDrawingValidationHints(
       PwaApplicationDetail pwaApplicationDetail,
       PadTechnicalDrawing existingDrawing,
-      PipelineDrawingValidationType validationType,
-      PadTechnicalDrawingService technicalDrawingService) {
+      PipelineDrawingValidationType validationType) {
     this.pwaApplicationDetail = pwaApplicationDetail;
     this.existingDrawing = existingDrawing;
     this.validationType = validationType;
-    this.technicalDrawingService = technicalDrawingService;
   }
 
   public PwaApplicationDetail getPwaApplicationDetail() {
@@ -34,9 +31,6 @@ public class PadTechnicalDrawingValidationHints {
     return validationType;
   }
 
-  public PadTechnicalDrawingService getTechnicalDrawingService() {
-    return technicalDrawingService;
-  }
 
 
 

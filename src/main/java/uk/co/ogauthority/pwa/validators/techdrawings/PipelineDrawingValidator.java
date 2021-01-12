@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.validators.techdrawings;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.commons.collections4.ListUtils;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import org.springframework.validation.SmartValidator;
@@ -17,6 +18,7 @@ import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.PadPipelineKeyDto;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.PadTechnicalDrawingLinkService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.PadTechnicalDrawingService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.PadTechnicalDrawingValidationHints;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.PipelineDrawingValidationType;
 
@@ -26,14 +28,17 @@ public class PipelineDrawingValidator implements SmartValidator {
   private final PadPipelineService padPipelineService;
   private final PadTechnicalDrawingRepository padTechnicalDrawingRepository;
   private final PadTechnicalDrawingLinkService padTechnicalDrawingLinkService;
+  private final PadTechnicalDrawingService padTechnicalDrawingService;
 
   public PipelineDrawingValidator(
       PadPipelineService padPipelineService,
       PadTechnicalDrawingRepository padTechnicalDrawingRepository,
-      PadTechnicalDrawingLinkService padTechnicalDrawingLinkService) {
+      PadTechnicalDrawingLinkService padTechnicalDrawingLinkService,
+      @Lazy PadTechnicalDrawingService padTechnicalDrawingService) {
     this.padPipelineService = padPipelineService;
     this.padTechnicalDrawingRepository = padTechnicalDrawingRepository;
     this.padTechnicalDrawingLinkService = padTechnicalDrawingLinkService;
+    this.padTechnicalDrawingService = padTechnicalDrawingService;
   }
 
   @Override
@@ -53,7 +58,6 @@ public class PipelineDrawingValidator implements SmartValidator {
     var detail = technicalDrawingValidationHints.getPwaApplicationDetail();
     var existingDrawing = technicalDrawingValidationHints.getExistingDrawing();
     var validatorMode = technicalDrawingValidationHints.getValidationType();
-    var drawingService = technicalDrawingValidationHints.getTechnicalDrawingService();
     var pipelineList = padPipelineService.getByIdList(detail, form.getPadPipelineIds());
 
     // Validate that the drawing reference is valid, and unique.
@@ -91,7 +95,7 @@ public class PipelineDrawingValidator implements SmartValidator {
     }
 
     var pipelinesRequiringDrawings = pipelineList.stream()
-        .filter(padPipeline -> drawingService.isDrawingRequiredForPipeline(padPipeline.getPipelineStatus()))
+        .filter(padPipeline -> padTechnicalDrawingService.isDrawingRequiredForPipeline(padPipeline.getPipelineStatus()))
         .collect(Collectors.toList());
     validatePipelines(errors, form, pipelinesRequiringDrawings, detail, existingDrawing, validatorMode);
   }

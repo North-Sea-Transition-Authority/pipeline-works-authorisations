@@ -52,7 +52,7 @@ public class PipelineDrawingValidatorTest {
   @Before
   public void setUp() {
     validator = new PipelineDrawingValidator(padPipelineService, padTechnicalDrawingRepository,
-        padTechnicalDrawingLinkService);
+        padTechnicalDrawingLinkService, padTechnicalDrawingService);
     form = new PipelineDrawingForm();
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
 
@@ -63,12 +63,12 @@ public class PipelineDrawingValidatorTest {
 
   private PadTechnicalDrawingValidationHints getAddDrawingValidationHints() {
    return new PadTechnicalDrawingValidationHints(
-        pwaApplicationDetail, null, PipelineDrawingValidationType.ADD, padTechnicalDrawingService);
+        pwaApplicationDetail, null, PipelineDrawingValidationType.ADD);
   }
 
   private PadTechnicalDrawingValidationHints getEditDrawingValidationHints(PadTechnicalDrawing drawing) {
     return new PadTechnicalDrawingValidationHints(
-        pwaApplicationDetail, drawing, PipelineDrawingValidationType.EDIT, padTechnicalDrawingService);
+        pwaApplicationDetail, drawing, PipelineDrawingValidationType.EDIT);
   }
 
   @Test

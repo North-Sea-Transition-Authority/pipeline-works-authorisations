@@ -257,7 +257,7 @@ public class PadTechnicalDrawingService {
   public BindingResult validateDrawing(Object form, BindingResult bindingResult, ValidationType validationType,
                                        PwaApplicationDetail pwaApplicationDetail) {
     var validationHints = new PadTechnicalDrawingValidationHints(
-        pwaApplicationDetail, null, PipelineDrawingValidationType.ADD, this);
+        pwaApplicationDetail, null, PipelineDrawingValidationType.ADD);
     pipelineDrawingValidator.validate(form, bindingResult, validationHints);
     groupValidator.validate(form, bindingResult, FullValidation.class, MandatoryUploadValidation.class);
     return bindingResult;
@@ -267,7 +267,7 @@ public class PadTechnicalDrawingService {
                                     PwaApplicationDetail pwaApplicationDetail, Integer drawingId) {
     var drawing = getDrawing(pwaApplicationDetail, drawingId);
     var validationHints = new PadTechnicalDrawingValidationHints(
-        pwaApplicationDetail, drawing, PipelineDrawingValidationType.EDIT, this);
+        pwaApplicationDetail, drawing, PipelineDrawingValidationType.EDIT);
     pipelineDrawingValidator.validate(form, bindingResult, validationHints);
     groupValidator.validate(form, bindingResult, FullValidation.class, MandatoryUploadValidation.class);
     return bindingResult;
