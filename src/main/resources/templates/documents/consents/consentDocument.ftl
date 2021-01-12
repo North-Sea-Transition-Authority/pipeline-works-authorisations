@@ -111,7 +111,7 @@
       page-break-after:auto
     }
 
-    .sectionTable, #depositsTableSection, #tableAsSection {
+    .sectionTable, #depositsTableSection, .tableAPage {
       page: landscapePage;
     }
 
