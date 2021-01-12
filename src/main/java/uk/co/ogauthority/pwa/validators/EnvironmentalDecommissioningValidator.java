@@ -73,9 +73,9 @@ public class EnvironmentalDecommissioningValidator implements SmartValidator {
 
         if (BooleanUtils.isFalse(form.getEmtHasSubmittedPermits()) && BooleanUtils.isFalse(form.getEmtHasOutstandingPermits())) {
           errors.rejectValue("emtHasSubmittedPermits", "emtHasSubmittedPermits" + FieldValidationErrorCodes.INVALID.getCode(),
-              "Select 'Yes' to one or both of the BEIS EMT permit questions.");
+              "Select 'Yes' to one or both of the BEIS EMT permit questions");
           errors.rejectValue("emtHasOutstandingPermits", "emtHasOutstandingPermits" + FieldValidationErrorCodes.INVALID.getCode(),
-              "Select 'Yes' to one or both of the BEIS EMT permit questions.");
+              "Select 'Yes' to one or both of the BEIS EMT permit questions");
         }
 
       }
