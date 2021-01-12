@@ -53,12 +53,10 @@ public class ApplicationSearchController {
   private ModelAndView getSearchModelAndView(List<ApplicationDetailItemView> applicationDetailItemViewList) {
 
     var displayableResults = applicationDetailItemViewList.stream()
-        .sorted(
-            Comparator.comparing(ApplicationDetailItemView::getPadReference, String.CASE_INSENSITIVE_ORDER).reversed())
-        .map(applicationSearchDisplayItemCreator::createDisplayItem)
+        .sorted(Comparator.comparing(ApplicationDetailItemView::getPadReference, String.CASE_INSENSITIVE_ORDER).reversed())
         .limit(MAX_RESULTS)
+        .map(applicationSearchDisplayItemCreator::createDisplayItem)
         .collect(toList());
-
 
     return new ModelAndView("search/applicationSearch/applicationSearch")
         .addObject("showMaxResultsExceededMessage", applicationDetailItemViewList.size() > MAX_RESULTS)

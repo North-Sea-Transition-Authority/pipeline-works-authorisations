@@ -23,6 +23,8 @@ public class SystemAreaAccessService {
 
   public final Set<PwaUserPrivilege> validStartApplicationPrivileges = Set.of(PwaUserPrivilege.PWA_APPLICATION_CREATE);
 
+  public final Set<PwaUserPrivilege> validConsentSearchPrivileges = EnumSet.of(PwaUserPrivilege.PWA_CONSENT_SEARCH);
+
   /**
    * For use in WebSecurityConfig. In other instances call canAccessTeamManagement
    */
@@ -78,6 +80,20 @@ public class SystemAreaAccessService {
   public boolean canAccessApplicationSearch(AuthenticatedUserAccount user) {
     return user.getUserPrivileges().stream()
         .anyMatch(validApplicationSearchPrivileges::contains);
+  }
+
+  /**
+   * For use in WebSecurityConfig. In other instances call canAccessConsentSearch
+   */
+  public String[] getValidConsentSearchGrantedAuthorities() {
+    return validConsentSearchPrivileges.stream()
+        .map(PwaUserPrivilege::name)
+        .toArray(String[]::new);
+  }
+
+  public boolean canAccessConsentSearch(AuthenticatedUserAccount user) {
+    return user.getUserPrivileges().stream()
+        .anyMatch(validConsentSearchPrivileges::contains);
   }
 
 }

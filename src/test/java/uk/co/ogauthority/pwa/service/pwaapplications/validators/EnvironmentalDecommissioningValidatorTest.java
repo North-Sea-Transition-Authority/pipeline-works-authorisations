@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.validators;
 
+import static java.util.Map.entry;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.any;
@@ -21,6 +22,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.EnvironmentalDecommissioningForm;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
+import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadEnvironmentalDecommissioningService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
@@ -101,7 +103,8 @@ public class EnvironmentalDecommissioningValidatorTest {
   public void cat2_mandatoryDataProvided_passed() {
 
     var form = new EnvironmentalDecommissioningForm();
-    form.setEmtHasSubmittedPermits(false);
+    form.setEmtHasSubmittedPermits(true);
+    form.setPermitsSubmitted("submitted");
     form.setEmtHasOutstandingPermits(false);
     var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, cat2AppDetail, ValidationType.FULL);
 
@@ -208,6 +211,40 @@ public class EnvironmentalDecommissioningValidatorTest {
 
     });
 
+  }
+
+  @Test
+  public void testValidate_bothPermitQuestionsAnsweredNo() {
+    var form = new EnvironmentalDecommissioningForm();
+    form.setEmtHasSubmittedPermits(false);
+    form.setEmtHasOutstandingPermits(false);
+    var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, initialAppDetail, ValidationType.FULL);
+    assertThat(errors.get("emtHasSubmittedPermits")).containsExactly("emtHasSubmittedPermits" + FieldValidationErrorCodes.INVALID.getCode());
+    assertThat(errors.get("emtHasOutstandingPermits")).containsExactly("emtHasOutstandingPermits" + FieldValidationErrorCodes.INVALID.getCode());
+  }
+
+  @Test
+  public void testValidate_hasSubmittedPermitQuestionAnsweredYes() {
+    var form = new EnvironmentalDecommissioningForm();
+    form.setEmtHasSubmittedPermits(true);
+    form.setEmtHasOutstandingPermits(false);
+    Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, initialAppDetail, ValidationType.FULL);
+    assertThat(errorsMap).doesNotContain(
+        entry("emtHasSubmittedPermits", Set.of("emtHasSubmittedPermits" + FieldValidationErrorCodes.INVALID.getCode())),
+        entry("emtHasOutstandingPermits", Set.of("emtHasOutstandingPermits" + FieldValidationErrorCodes.INVALID.getCode()))
+    );
+  }
+
+  @Test
+  public void testValidate_hasOutstandingPermitQuestionAnsweredYes() {
+    var form = new EnvironmentalDecommissioningForm();
+    form.setEmtHasSubmittedPermits(false);
+    form.setEmtHasOutstandingPermits(true);
+    Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, initialAppDetail, ValidationType.FULL);
+    assertThat(errorsMap).doesNotContain(
+        entry("emtHasSubmittedPermits", Set.of("emtHasSubmittedPermits" + FieldValidationErrorCodes.INVALID.getCode())),
+        entry("emtHasOutstandingPermits", Set.of("emtHasOutstandingPermits" + FieldValidationErrorCodes.INVALID.getCode()))
+    );
   }
 
   @Test
@@ -332,7 +369,8 @@ public class EnvironmentalDecommissioningValidatorTest {
 
     var form = new EnvironmentalDecommissioningForm();
     form.setTransboundaryEffect(true);
-    form.setEmtHasSubmittedPermits(false);
+    form.setEmtHasSubmittedPermits(true);
+    form.setPermitsSubmitted("submitted");
     form.setEmtHasOutstandingPermits(false);
     form.setEnvironmentalConditions(EnumSet.allOf(EnvironmentalCondition.class));
     form.setDecommissioningConditions(EnumSet.allOf(DecommissioningCondition.class));
