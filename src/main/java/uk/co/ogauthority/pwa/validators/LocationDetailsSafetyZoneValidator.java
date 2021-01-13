@@ -13,8 +13,8 @@ import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.location.Location
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.util.ValidatorUtils;
 import uk.co.ogauthority.pwa.util.forminputs.FormInputLabel;
-import uk.co.ogauthority.pwa.util.forminputs.twofielddate.AfterDateHint;
-import uk.co.ogauthority.pwa.util.forminputs.twofielddate.BeforeDateHint;
+import uk.co.ogauthority.pwa.util.forminputs.twofielddate.OnOrAfterDateHint;
+import uk.co.ogauthority.pwa.util.forminputs.twofielddate.OnOrBeforeDateHint;
 import uk.co.ogauthority.pwa.util.forminputs.twofielddate.TwoFieldDateInputValidator;
 
 @Service
@@ -51,8 +51,8 @@ public class LocationDetailsSafetyZoneValidator implements SmartValidator {
 
     if (BooleanUtils.isTrue(form.getPsrNotificationSubmitted())) {
       List<Object> dateHints = new ArrayList<>();
-      dateHints.add(new FormInputLabel("psrNotificationSubmittedDate"));
-      dateHints.add(new BeforeDateHint(LocalDate.now(), "today's date"));
+      dateHints.add(new FormInputLabel("submitted"));
+      dateHints.add(new OnOrBeforeDateHint(LocalDate.now(), "today's date"));
 
       ValidatorUtils.invokeNestedValidator(
           errors,
@@ -63,8 +63,8 @@ public class LocationDetailsSafetyZoneValidator implements SmartValidator {
 
     } else if (BooleanUtils.isFalse(form.getPsrNotificationSubmitted())) {
       List<Object> dateHints = new ArrayList<>();
-      dateHints.add(new FormInputLabel("psrNotificationExpectedSubmissionDate"));
-      dateHints.add(new AfterDateHint(LocalDate.now(), "today's date"));
+      dateHints.add(new FormInputLabel("expected submission"));
+      dateHints.add(new OnOrAfterDateHint(LocalDate.now(), "today's date"));
 
       ValidatorUtils.invokeNestedValidator(
           errors,

@@ -1,4 +1,4 @@
 [submodule "fivium-design-system-core"]
 	path = fivium-design-system-core
 	url = git@bitbucket.org:fiviumuk/fivium-design-system-core.git
-  branch = release/3.2.4-govuk-3.9.1
+  branch = feature/FDS-200/nested-forms-govuk-js

@@ -102,7 +102,7 @@
         </@fdsRadio.radioYes>
 
         <@fdsRadio.radioNo path="${formPath}.psrNotificationSubmitted">
-            <@fdsNumberInput.twoNumberInputs pathOne="${formPath}.psrNotificationExpectedSubmissionDate.month" pathTwo="${formPath}.psrNotificationExpectedSubmissionDate.year" labelText="Date submitted" formId="expected-submission-month-year" nestingPath="${formPath}.psrNotificationSubmitted">
+            <@fdsNumberInput.twoNumberInputs pathOne="${formPath}.psrNotificationExpectedSubmissionDate.month" pathTwo="${formPath}.psrNotificationExpectedSubmissionDate.year" labelText="Expected submission date" formId="expected-submission-month-year" nestingPath="${formPath}.psrNotificationSubmitted">
                 <@fdsNumberInput.numberInputItem path="${formPath}.psrNotificationExpectedSubmissionDate.month" labelText="Month" inputClass="govuk-input--width-2"/>
                 <@fdsNumberInput.numberInputItem path="${formPath}.psrNotificationExpectedSubmissionDate.year" labelText="Year" inputClass="govuk-input--width-4"/>
             </@fdsNumberInput.twoNumberInputs>
