@@ -85,7 +85,6 @@ public class PadLocationDetailsService implements ApplicationFormSectionService 
         padLocationDetails.getApproximateProjectLocationFromShore());
     locationDetailsForm.setWithinSafetyZone(padLocationDetails.getWithinSafetyZone());
 
-    //can probably simplify, consider creating separate mapping class before making PR
     if (HseSafetyZone.YES.equals(padLocationDetails.getWithinSafetyZone())) {
       locationDetailsForm.getCompletelyWithinSafetyZoneForm().setPsrNotificationSubmitted(padLocationDetails.getPsrNotificationSubmitted());
       if (BooleanUtils.isTrue(padLocationDetails.getPsrNotificationSubmitted())) {
@@ -135,7 +134,6 @@ public class PadLocationDetailsService implements ApplicationFormSectionService 
         locationDetailsForm.getApproximateProjectLocationFromShore());
     padLocationDetails.setWithinSafetyZone(locationDetailsForm.getWithinSafetyZone());
 
-    //can probably simplify, consider creating separate mapping class before making PR
     if (HseSafetyZone.YES.equals(locationDetailsForm.getWithinSafetyZone())) {
       padLocationDetails.setPsrNotificationSubmitted(locationDetailsForm.getCompletelyWithinSafetyZoneForm().getPsrNotificationSubmitted());
       if (BooleanUtils.isTrue(locationDetailsForm.getCompletelyWithinSafetyZoneForm().getPsrNotificationSubmitted())) {
