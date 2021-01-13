@@ -97,7 +97,7 @@
     }
 
     .coordinateTableCell {
-      width: 135px;
+      width: 140px;
     }
 
     @media print {
@@ -113,6 +113,10 @@
 
     .sectionTable, #depositsTableSection, #tableAsSection {
       page: landscapePage;
+    }
+
+    #depositsTableSection .materialTypeAndSize {
+      word-wrap: normal
     }
 
     .drawingNumberList {
