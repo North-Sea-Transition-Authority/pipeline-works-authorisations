@@ -453,6 +453,42 @@ public class PadTechnicalDrawingServiceTest {
   }
 
   @Test
+  public void allPipelinesLinked_notAllPipelinesRequireDrawings() {
+    var drawing = new PadTechnicalDrawing();
+
+    var pipeline = new PadPipeline(pwaApplicationDetail);
+    pipeline.setPipelineStatus(PipelineStatus.IN_SERVICE);
+    pipeline.setId(1);
+
+    var pipeline2 = new PadPipeline(pwaApplicationDetail);
+    pipeline2.setPipelineStatus(PipelineStatus.NEVER_LAID);
+    pipeline2.setId(2);
+
+    var pipeline3 = new PadPipeline(pwaApplicationDetail);
+    pipeline3.setPipelineStatus(PipelineStatus.OUT_OF_USE_ON_SEABED);
+    pipeline3.setId(3);
+
+    var pipeline4 = new PadPipeline(pwaApplicationDetail);
+    pipeline4.setPipelineStatus(PipelineStatus.RETURNED_TO_SHORE);
+    pipeline4.setId(4);
+
+
+    var pipeline1Link = new PadTechnicalDrawingLink();
+    pipeline1Link.setPipeline(pipeline);
+    pipeline1Link.setTechnicalDrawing(drawing);
+
+    var pipeline3Link = new PadTechnicalDrawingLink();
+    pipeline3Link.setPipeline(pipeline3);
+    pipeline3Link.setTechnicalDrawing(drawing);
+
+    when(padTechnicalDrawingLinkService.getLinksFromDrawingList(List.of(drawing))).thenReturn(List.of(pipeline1Link, pipeline3Link));
+    when(padPipelineService.getPipelines(pwaApplicationDetail)).thenReturn(List.of(pipeline, pipeline2, pipeline3, pipeline4));
+
+    var result = padTechnicalDrawingService.allPipelinesLinked(pwaApplicationDetail, List.of(drawing));
+    assertThat(result).isTrue();
+  }
+
+  @Test
   public void allPipelinesLinked_notAllPipelinesLinked() {
     var drawing = new PadTechnicalDrawing();
 
@@ -461,7 +497,7 @@ public class PadTechnicalDrawingServiceTest {
     pipeline.setId(1);
 
     var pipeline2 = new PadPipeline(pwaApplicationDetail);
-    pipeline2.setPipelineStatus(PipelineStatus.IN_SERVICE);
+    pipeline2.setPipelineStatus(PipelineStatus.OUT_OF_USE_ON_SEABED);
     pipeline2.setId(2);
 
     var link = new PadTechnicalDrawingLink();
