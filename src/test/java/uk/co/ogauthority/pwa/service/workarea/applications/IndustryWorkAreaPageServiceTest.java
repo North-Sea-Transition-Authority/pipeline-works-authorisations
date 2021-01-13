@@ -32,8 +32,8 @@ import uk.co.ogauthority.pwa.service.enums.workflow.WorkflowType;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaApplicationContactRoleDto;
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
-import uk.co.ogauthority.pwa.service.pwaapplications.search.ApplicationDetailSearcher;
-import uk.co.ogauthority.pwa.service.pwaapplications.search.ApplicationSearchTestUtil;
+import uk.co.ogauthority.pwa.service.pwaapplications.search.WorkAreaApplicationDetailSearcher;
+import uk.co.ogauthority.pwa.service.pwaapplications.search.WorkAreaApplicationSearchTestUtil;
 import uk.co.ogauthority.pwa.service.workarea.WorkAreaTab;
 import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
 
@@ -47,7 +47,7 @@ public class IndustryWorkAreaPageServiceTest {
   private PwaContactService pwaContactService;
 
   @Mock
-  private ApplicationDetailSearcher applicationDetailSearcher;
+  private WorkAreaApplicationDetailSearcher workAreaApplicationDetailSearcher;
 
   @Mock
   private PwaApplicationRedirectService pwaApplicationRedirectService;
@@ -70,7 +70,7 @@ public class IndustryWorkAreaPageServiceTest {
   public void setup() {
 
     industryWorkAreaPageService = new IndustryWorkAreaPageService(
-        applicationDetailSearcher,
+        workAreaApplicationDetailSearcher,
         pwaContactService,
         pwaApplicationRedirectService,
         camundaWorkflowService
@@ -95,7 +95,7 @@ public class IndustryWorkAreaPageServiceTest {
   public void getOpenApplicationsPageView_zeroResults() {
 
     var fakePage = WorkAreaPageServiceTestUtil.getFakeApplicationSearchResultPage(List.of(), REQUESTED_PAGE);
-    when(applicationDetailSearcher.searchWhereApplicationIdInAndWhereStatusInOrOpenUpdateRequest(any(), any(), any(), anyBoolean()))
+    when(workAreaApplicationDetailSearcher.searchWhereApplicationIdInAndWhereStatusInOrOpenUpdateRequest(any(), any(), any(), anyBoolean()))
         .thenReturn(fakePage);
 
     var workareaPage = industryWorkAreaPageService.getOpenApplicationsPageView(workAreaUser, REQUESTED_PAGE);
@@ -106,7 +106,7 @@ public class IndustryWorkAreaPageServiceTest {
         EnumSet.of(PwaContactRole.PREPARER)
     );
 
-    verify(applicationDetailSearcher, times(1)).searchWhereApplicationIdInAndWhereStatusInOrOpenUpdateRequest(
+    verify(workAreaApplicationDetailSearcher, times(1)).searchWhereApplicationIdInAndWhereStatusInOrOpenUpdateRequest(
         WorkAreaPageServiceTestUtil.getWorkAreaViewPageable(REQUESTED_PAGE, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
         Set.of(BUSINESS_KEY_INT),
         Set.of(PwaApplicationStatus.DRAFT),
@@ -119,7 +119,7 @@ public class IndustryWorkAreaPageServiceTest {
   @Test
   public void getOpenApplicationsPageView_pageableLinksToCorrectTab() {
     var fakePage = WorkAreaPageServiceTestUtil.getFakeApplicationSearchResultPage(List.of(), REQUESTED_PAGE);
-    when(applicationDetailSearcher.searchWhereApplicationIdInAndWhereStatusInOrOpenUpdateRequest(any(), any(), any(), anyBoolean()))
+    when(workAreaApplicationDetailSearcher.searchWhereApplicationIdInAndWhereStatusInOrOpenUpdateRequest(any(), any(), any(), anyBoolean()))
         .thenReturn(fakePage);
 
     var workareaPage = industryWorkAreaPageService.getOpenApplicationsPageView(workAreaUser, REQUESTED_PAGE);
@@ -132,10 +132,10 @@ public class IndustryWorkAreaPageServiceTest {
   @Test
   public void getOpenApplicationsPageView_viewUrlWhenApplicationStatusDraft() {
 
-    var searchItem = ApplicationSearchTestUtil.getSearchDetailItem(PwaApplicationStatus.DRAFT);
+    var searchItem = WorkAreaApplicationSearchTestUtil.getSearchDetailItem(PwaApplicationStatus.DRAFT);
 
     var fakePage = WorkAreaPageServiceTestUtil.getFakeApplicationSearchResultPage(List.of(searchItem), REQUESTED_PAGE);
-    when(applicationDetailSearcher.searchWhereApplicationIdInAndWhereStatusInOrOpenUpdateRequest(any(), any(), any(), anyBoolean()))
+    when(workAreaApplicationDetailSearcher.searchWhereApplicationIdInAndWhereStatusInOrOpenUpdateRequest(any(), any(), any(), anyBoolean()))
         .thenReturn(fakePage);
 
     var workareaPage = industryWorkAreaPageService.getOpenApplicationsPageView(workAreaUser, REQUESTED_PAGE);
@@ -146,7 +146,7 @@ public class IndustryWorkAreaPageServiceTest {
         EnumSet.of(PwaContactRole.PREPARER)
     );
 
-    verify(applicationDetailSearcher, times(1)).searchWhereApplicationIdInAndWhereStatusInOrOpenUpdateRequest(
+    verify(workAreaApplicationDetailSearcher, times(1)).searchWhereApplicationIdInAndWhereStatusInOrOpenUpdateRequest(
         WorkAreaPageServiceTestUtil.getWorkAreaViewPageable(REQUESTED_PAGE, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
         Set.of(BUSINESS_KEY_INT),
         Set.of(PwaApplicationStatus.DRAFT),
@@ -162,16 +162,16 @@ public class IndustryWorkAreaPageServiceTest {
   @Test
   public void getOpenApplicationsPageView_viewUrlWhenApplicationStatusInitialSubmission() {
 
-    var searchItem = ApplicationSearchTestUtil.getSearchDetailItem(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW);
+    var searchItem = WorkAreaApplicationSearchTestUtil.getSearchDetailItem(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW);
 
     var fakePage = WorkAreaPageServiceTestUtil.getFakeApplicationSearchResultPage(List.of(searchItem), REQUESTED_PAGE);
-    when(applicationDetailSearcher.searchWhereApplicationIdInAndWhereStatusInOrOpenUpdateRequest(any(), any(), any(), anyBoolean()))
+    when(workAreaApplicationDetailSearcher.searchWhereApplicationIdInAndWhereStatusInOrOpenUpdateRequest(any(), any(), any(), anyBoolean()))
         .thenReturn(fakePage);
 
     var workareaPage = industryWorkAreaPageService.getOpenApplicationsPageView(pwaManager, REQUESTED_PAGE);
     assertThat(workareaPage.getTotalElements()).isEqualTo(1);
 
-    verify(applicationDetailSearcher, times(1)).searchWhereApplicationIdInAndWhereStatusInOrOpenUpdateRequest(
+    verify(workAreaApplicationDetailSearcher, times(1)).searchWhereApplicationIdInAndWhereStatusInOrOpenUpdateRequest(
         WorkAreaPageServiceTestUtil.getWorkAreaViewPageable(REQUESTED_PAGE, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
         Set.of(BUSINESS_KEY_INT),
         Set.of(PwaApplicationStatus.DRAFT),
@@ -185,7 +185,7 @@ public class IndustryWorkAreaPageServiceTest {
   @Test
   public void getSubmittedApplicationsPageView_pageableLinksToCorrectTab() {
     var fakePage = WorkAreaPageServiceTestUtil.getFakeApplicationSearchResultPage(List.of(), REQUESTED_PAGE);
-    when(applicationDetailSearcher.searchWhereApplicationIdInAndWhereStatusInAndOpenUpdateRequest(any(), any(), any(), anyBoolean()))
+    when(workAreaApplicationDetailSearcher.searchWhereApplicationIdInAndWhereStatusInAndOpenUpdateRequest(any(), any(), any(), anyBoolean()))
         .thenReturn(fakePage);
 
     var workareaPage = industryWorkAreaPageService.getSubmittedApplicationsPageView(workAreaUser, REQUESTED_PAGE);
@@ -199,7 +199,7 @@ public class IndustryWorkAreaPageServiceTest {
   public void getSubmittedApplicationsPageView_zeroResults() {
 
     var fakePage = WorkAreaPageServiceTestUtil.getFakeApplicationSearchResultPage(List.of(), REQUESTED_PAGE);
-    when(applicationDetailSearcher.searchWhereApplicationIdInAndWhereStatusInAndOpenUpdateRequest(any(), any(), any(), anyBoolean()))
+    when(workAreaApplicationDetailSearcher.searchWhereApplicationIdInAndWhereStatusInAndOpenUpdateRequest(any(), any(), any(), anyBoolean()))
         .thenReturn(fakePage);
 
     var workareaPage = industryWorkAreaPageService.getSubmittedApplicationsPageView(workAreaUser, REQUESTED_PAGE);
@@ -210,7 +210,7 @@ public class IndustryWorkAreaPageServiceTest {
         EnumSet.of(PwaContactRole.PREPARER)
     );
 
-    verify(applicationDetailSearcher, times(1)).searchWhereApplicationIdInAndWhereStatusInAndOpenUpdateRequest(
+    verify(workAreaApplicationDetailSearcher, times(1)).searchWhereApplicationIdInAndWhereStatusInAndOpenUpdateRequest(
         WorkAreaPageServiceTestUtil.getWorkAreaViewPageable(REQUESTED_PAGE, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
         Set.of(BUSINESS_KEY_INT),
         Set.of(
@@ -228,10 +228,10 @@ public class IndustryWorkAreaPageServiceTest {
   @Test
   public void getSubmittedApplicationsPageView_whenResultsFound() {
 
-    var searchItem = ApplicationSearchTestUtil.getSearchDetailItem(PwaApplicationStatus.CASE_OFFICER_REVIEW);
+    var searchItem = WorkAreaApplicationSearchTestUtil.getSearchDetailItem(PwaApplicationStatus.CASE_OFFICER_REVIEW);
 
     var fakePage = WorkAreaPageServiceTestUtil.getFakeApplicationSearchResultPage(List.of(searchItem), REQUESTED_PAGE);
-    when(applicationDetailSearcher.searchWhereApplicationIdInAndWhereStatusInAndOpenUpdateRequest(any(), any(), any(), anyBoolean()))
+    when(workAreaApplicationDetailSearcher.searchWhereApplicationIdInAndWhereStatusInAndOpenUpdateRequest(any(), any(), any(), anyBoolean()))
         .thenReturn(fakePage);
 
     var workareaPage = industryWorkAreaPageService.getSubmittedApplicationsPageView(workAreaUser, REQUESTED_PAGE);
@@ -242,7 +242,7 @@ public class IndustryWorkAreaPageServiceTest {
         EnumSet.of(PwaContactRole.PREPARER)
     );
 
-    verify(applicationDetailSearcher, times(1)).searchWhereApplicationIdInAndWhereStatusInAndOpenUpdateRequest(
+    verify(workAreaApplicationDetailSearcher, times(1)).searchWhereApplicationIdInAndWhereStatusInAndOpenUpdateRequest(
         WorkAreaPageServiceTestUtil.getWorkAreaViewPageable(REQUESTED_PAGE, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
         Set.of(BUSINESS_KEY_INT),
         Set.of(

@@ -25,14 +25,14 @@ import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
 import uk.co.ogauthority.pwa.model.entity.files.AppFile;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailSearchItem;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.WorkAreaApplicationDetailSearchItem;
 import uk.co.ogauthority.pwa.service.appprocessing.PwaAppProcessingPermissionService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.fileupload.AppFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
-import uk.co.ogauthority.pwa.service.pwaapplications.search.ApplicationDetailSearcher;
+import uk.co.ogauthority.pwa.service.pwaapplications.search.WorkAreaApplicationDetailSearcher;
 import uk.co.ogauthority.pwa.testutils.ConsulteeGroupTestingUtils;
 import uk.co.ogauthority.pwa.testutils.PwaAppProcessingContextDtoTestUtils;
 import uk.co.ogauthority.pwa.util.DateUtils;
@@ -47,7 +47,7 @@ public class PwaAppProcessingContextServiceTest {
   private PwaAppProcessingPermissionService appProcessingPermissionService;
 
   @Mock
-  private ApplicationDetailSearcher applicationDetailSearcher;
+  private WorkAreaApplicationDetailSearcher workAreaApplicationDetailSearcher;
 
   @Mock
   private AppFileService appFileService;
@@ -72,7 +72,11 @@ public class PwaAppProcessingContextServiceTest {
     detail = new PwaApplicationDetail(application, 1, 1, Instant.now());
     detail.setStatus(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW);
 
-    contextService = new PwaAppProcessingContextService(detailService, appProcessingPermissionService, applicationDetailSearcher, appFileService);
+    contextService = new PwaAppProcessingContextService(
+        detailService,
+        appProcessingPermissionService,
+        workAreaApplicationDetailSearcher,
+        appFileService);
 
     when(detailService.getLastSubmittedApplicationDetail(detail.getMasterPwaApplicationId()))
         .thenReturn(Optional.of(detail));
@@ -80,19 +84,19 @@ public class PwaAppProcessingContextServiceTest {
     var permissionsDto = new ProcessingPermissionsDto(null, Set.of(PwaAppProcessingPermission.ACCEPT_INITIAL_REVIEW));
     when(appProcessingPermissionService.getProcessingPermissionsDto(detail, user)).thenReturn(permissionsDto);
 
-    var searchItem = new ApplicationDetailSearchItem();
+    var workAreaSearchItem = new WorkAreaApplicationDetailSearchItem();
     startInstant = Instant.now();
-    searchItem.setPadReference("PA/5/6");
-    searchItem.setApplicationType(PwaApplicationType.CAT_1_VARIATION);
-    searchItem.setCaseOfficerPersonId(1);
-    searchItem.setCaseOfficerName("Case Officer X");
-    searchItem.setSubmittedAsFastTrackFlag(true);
-    searchItem.setPadProposedStart(startInstant);
-    searchItem.setPadFields(List.of("CAPTAIN", "PENGUIN"));
-    searchItem.setPadHolderNameList(List.of("ROYAL DUTCH SHELL"));
-    searchItem.setPwaHolderNameList(List.of("ROYAL DUTCH SHELL"));
+    workAreaSearchItem.setPadReference("PA/5/6");
+    workAreaSearchItem.setApplicationType(PwaApplicationType.CAT_1_VARIATION);
+    workAreaSearchItem.setCaseOfficerPersonId(1);
+    workAreaSearchItem.setCaseOfficerName("Case Officer X");
+    workAreaSearchItem.setSubmittedAsFastTrackFlag(true);
+    workAreaSearchItem.setPadProposedStart(startInstant);
+    workAreaSearchItem.setPadFields(List.of("CAPTAIN", "PENGUIN"));
+    workAreaSearchItem.setPadHolderNameList(List.of("ROYAL DUTCH SHELL"));
+    workAreaSearchItem.setPwaHolderNameList(List.of("ROYAL DUTCH SHELL"));
 
-    when(applicationDetailSearcher.searchByApplicationDetailId(any())).thenReturn(Optional.of(searchItem));
+    when(workAreaApplicationDetailSearcher.searchByApplicationDetailId(any())).thenReturn(Optional.of(workAreaSearchItem));
 
     var appFile = new AppFile();
     appFile.setPwaApplication(detail.getPwaApplication());
@@ -230,7 +234,7 @@ public class PwaAppProcessingContextServiceTest {
   @Test
   public void validateAndCreate_caseSummaryNotFound() {
 
-    when(applicationDetailSearcher.searchByApplicationDetailId(any())).thenReturn(Optional.empty());
+    when(workAreaApplicationDetailSearcher.searchByApplicationDetailId(any())).thenReturn(Optional.empty());
 
     var builder = new PwaAppProcessingContextParams(1, user)
         .requiredAppStatus(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW)

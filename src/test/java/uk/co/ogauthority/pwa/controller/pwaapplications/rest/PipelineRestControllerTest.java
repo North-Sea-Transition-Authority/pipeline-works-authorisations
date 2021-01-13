@@ -27,7 +27,7 @@ import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
-import uk.co.ogauthority.pwa.service.search.SearchSelectorService;
+import uk.co.ogauthority.pwa.service.searchselector.SearchSelectorService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 

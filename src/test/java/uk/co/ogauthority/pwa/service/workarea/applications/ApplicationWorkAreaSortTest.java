@@ -9,7 +9,7 @@ import org.apache.commons.lang3.reflect.FieldUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailSearchItem;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.WorkAreaApplicationDetailSearchItem;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ApplicationWorkAreaSortTest {
@@ -17,7 +17,7 @@ public class ApplicationWorkAreaSortTest {
   @Test
   public void allValuesHaveValidSortProperty() {
 
-    var validFieldsSet = Arrays.stream(FieldUtils.getAllFields(ApplicationDetailSearchItem.class))
+    var validFieldsSet = Arrays.stream(FieldUtils.getAllFields(WorkAreaApplicationDetailSearchItem.class))
         .map(Field::getName)
         .collect(Collectors.toSet());
 

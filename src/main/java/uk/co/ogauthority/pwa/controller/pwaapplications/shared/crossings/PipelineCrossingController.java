@@ -35,7 +35,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationConte
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.pipeline.PadPipelineCrossingOwnerService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.pipeline.PadPipelineCrossingService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.pipeline.PipelineCrossingUrlFactory;
-import uk.co.ogauthority.pwa.service.search.SearchSelectorService;
+import uk.co.ogauthority.pwa.service.searchselector.SearchSelectorService;
 import uk.co.ogauthority.pwa.service.tasklist.CrossingAgreementsTaskListService;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 import uk.co.ogauthority.pwa.validators.pwaapplications.shared.crossings.PipelineCrossingFormValidator;

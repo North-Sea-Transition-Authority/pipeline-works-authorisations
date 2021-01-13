@@ -24,7 +24,7 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.energyportal.service.organisations.PortalOrganisationsAccessor;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
-import uk.co.ogauthority.pwa.service.search.SearchSelectorService;
+import uk.co.ogauthority.pwa.service.searchselector.SearchSelectorService;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(controllers = PortalOrganisationUnitRestController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = PwaApplicationContextService.class))

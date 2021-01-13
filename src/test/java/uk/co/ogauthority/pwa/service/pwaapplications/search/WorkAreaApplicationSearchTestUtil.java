@@ -8,21 +8,21 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailSearchItem;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.WorkAreaApplicationDetailSearchItem;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 
 /**
- * Util to simplify tests interfacing with application search code.
+ * Util to simplify tests interfacing with work area  search code.
  */
-public class ApplicationSearchTestUtil {
+public class WorkAreaApplicationSearchTestUtil {
 
-  public static ApplicationDetailSearchItem getSearchDetailItem(PwaApplicationStatus status) {
+  public static WorkAreaApplicationDetailSearchItem getSearchDetailItem(PwaApplicationStatus status) {
     return getSearchDetailItem(status, LocalDateTime.of(2020, 1, 2, 3, 4, 5)
         .toInstant(ZoneOffset.ofTotalSeconds(0)));
   }
 
-  public static ApplicationDetailSearchItem getSearchDetailItem(PwaApplicationDetail pwaApplicationDetail, Instant proposedStartDate) {
+  public static WorkAreaApplicationDetailSearchItem getSearchDetailItem(PwaApplicationDetail pwaApplicationDetail, Instant proposedStartDate) {
 
     var searchItem = getSearchDetailItem(pwaApplicationDetail.getStatus(), proposedStartDate);
     searchItem.setPwaApplicationDetailId(pwaApplicationDetail.getId());
@@ -31,8 +31,8 @@ public class ApplicationSearchTestUtil {
 
   }
 
-  public static ApplicationDetailSearchItem getSearchDetailItem(PwaApplicationStatus status, Instant proposedStartDate) {
-    var applicationDetailSearchItem = new ApplicationDetailSearchItem();
+  public static WorkAreaApplicationDetailSearchItem getSearchDetailItem(PwaApplicationStatus status, Instant proposedStartDate) {
+    var applicationDetailSearchItem = new WorkAreaApplicationDetailSearchItem();
 
     applicationDetailSearchItem.setPadStatus(status);
 
@@ -54,11 +54,11 @@ public class ApplicationSearchTestUtil {
     return applicationDetailSearchItem;
   }
 
-  public static Page<ApplicationDetailSearchItem> setupFakeApplicationSearchResultPage(
-      List<ApplicationDetailSearchItem> results,
+  public static Page<WorkAreaApplicationDetailSearchItem> setupFakeApplicationSearchResultPage(
+      List<WorkAreaApplicationDetailSearchItem> results,
       Pageable pageable) {
 
-    return new PageImpl<ApplicationDetailSearchItem>(
+    return new PageImpl<WorkAreaApplicationDetailSearchItem>(
         results,
         pageable,
         results.size());

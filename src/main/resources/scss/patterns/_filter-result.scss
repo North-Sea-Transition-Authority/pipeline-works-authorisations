@@ -1,0 +1,25 @@
+.filter-result-list {
+  border-top: 1px solid $govuk-border-colour;
+
+  &__item {
+    border-bottom: 1px solid $govuk-border-colour;
+    padding-bottom: 0;
+    @include govuk-responsive-padding(2, "top");
+    @include govuk-responsive-padding(1, "bottom");
+  }
+
+}
+
+.filter-result {
+
+  &__heading {
+    @include govuk-responsive-margin(0, 'bottom');
+    @extend %govuk-heading-s;
+  }
+
+  &__data-list {
+    @include govuk-responsive-margin(1, 'top');
+    @include govuk-responsive-margin(0, 'bottom');
+  }
+
+}

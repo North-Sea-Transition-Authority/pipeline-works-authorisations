@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.service.search;
+package uk.co.ogauthority.pwa.service.searchselector;
 
 /**
  * <p>Modifier to be used with SearchSelectorService::addManualEntry

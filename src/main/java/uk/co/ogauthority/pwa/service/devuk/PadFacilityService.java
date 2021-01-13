@@ -14,7 +14,7 @@ import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.location.Location
 import uk.co.ogauthority.pwa.model.search.SearchSelectable;
 import uk.co.ogauthority.pwa.model.search.SearchSelectionView;
 import uk.co.ogauthority.pwa.repository.devuk.PadFacilityRepository;
-import uk.co.ogauthority.pwa.service.search.SearchSelectorService;
+import uk.co.ogauthority.pwa.service.searchselector.SearchSelectorService;
 import uk.co.ogauthority.pwa.util.StreamUtils;
 
 @Service

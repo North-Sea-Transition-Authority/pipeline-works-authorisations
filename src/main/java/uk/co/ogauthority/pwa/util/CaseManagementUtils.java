@@ -13,6 +13,7 @@ import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.service.appprocessing.tabs.AppProcessingTab;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingTask;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 
 public class CaseManagementUtils {
 
@@ -20,11 +21,14 @@ public class CaseManagementUtils {
     throw new AssertionError();
   }
 
-  public static String routeCaseManagement(PwaApplication pwaApplication) {
+  public static String routeCaseManagement(Integer pwaApplicationId, PwaApplicationType applicationType) {
 
     return ReverseRouter.route(on(CaseManagementController.class)
-        .renderCaseManagement(pwaApplication.getId(), pwaApplication.getApplicationType(), AppProcessingTab.TASKS, null, null));
+        .renderCaseManagement(pwaApplicationId, applicationType, AppProcessingTab.TASKS, null, null));
+  }
 
+  public static String routeCaseManagement(PwaApplication pwaApplication) {
+    return routeCaseManagement(pwaApplication.getId(), pwaApplication.getApplicationType());
   }
 
   public static String routeCaseManagement(PwaAppProcessingContext processingContext) {

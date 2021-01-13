@@ -14,7 +14,7 @@ import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.crossings.Pipelin
 import uk.co.ogauthority.pwa.model.search.SearchSelectable;
 import uk.co.ogauthority.pwa.model.search.SearchSelectionView;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadPipelineCrossingOwnerRepository;
-import uk.co.ogauthority.pwa.service.search.SearchSelectorService;
+import uk.co.ogauthority.pwa.service.searchselector.SearchSelectorService;
 
 @Service
 public class PadPipelineCrossingOwnerService {

@@ -5,7 +5,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import uk.co.ogauthority.pwa.mvc.PageView;
 import uk.co.ogauthority.pwa.service.consultations.search.ConsultationRequestSearchItem;
-import uk.co.ogauthority.pwa.service.pwaapplications.search.ApplicationSearchTestUtil;
+import uk.co.ogauthority.pwa.service.pwaapplications.search.WorkAreaApplicationSearchTestUtil;
 import uk.co.ogauthority.pwa.service.workarea.applications.PwaApplicationWorkAreaItem;
 import uk.co.ogauthority.pwa.service.workarea.consultations.ConsultationRequestWorkAreaItem;
 
@@ -15,7 +15,7 @@ public class WorkAreaTestUtils {
   }
 
   public static PageView<PwaApplicationWorkAreaItem> setUpFakeAppPageView(int page) {
-    var fakePage = ApplicationSearchTestUtil.setupFakeApplicationSearchResultPage(
+    var fakePage = WorkAreaApplicationSearchTestUtil.setupFakeApplicationSearchResultPage(
         List.of(),
         PageRequest.of(page, 10)
     );

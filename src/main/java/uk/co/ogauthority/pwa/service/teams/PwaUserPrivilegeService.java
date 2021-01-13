@@ -72,6 +72,7 @@ public class PwaUserPrivilegeService {
 
       privSet.add(PwaUserPrivilege.PWA_WORKAREA);
       privSet.add(PwaUserPrivilege.PWA_CONSULTEE);
+      privSet.add(PwaUserPrivilege.PWA_APPLICATION_SEARCH);
 
     }
 
