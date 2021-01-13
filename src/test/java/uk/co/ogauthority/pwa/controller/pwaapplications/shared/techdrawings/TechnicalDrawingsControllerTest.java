@@ -1,6 +1,5 @@
 package uk.co.ogauthority.pwa.controller.pwaapplications.shared.techdrawings;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.when;
@@ -22,8 +21,6 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.http.HttpMethod;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.validation.BeanPropertyBindingResult;
-import org.springframework.validation.ObjectError;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.PwaApplicationContextAbstractControllerTest;
@@ -39,8 +36,8 @@ import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbServic
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.AdmiraltyChartFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.PadTechnicalDrawingService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.PipelineSchematicsErrorCode;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.TechnicalDrawingSectionService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.TechnicalDrawingsSectionValidationSummary;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.UmbilicalCrossSectionService;
 import uk.co.ogauthority.pwa.testutils.ControllerTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
@@ -76,8 +73,6 @@ public class TechnicalDrawingsControllerTest extends PwaApplicationContextAbstra
 
   private PwaApplicationEndpointTestBuilder endpointTester;
 
-  private TechnicalDrawingsController technicalDrawingsController;
-
   @Before
   public void setup() {
 
@@ -98,16 +93,6 @@ public class TechnicalDrawingsControllerTest extends PwaApplicationContextAbstra
     pwaApplicationDetail.getPwaApplication().setId(APP_ID);
     when(pwaApplicationDetailService.getTipDetail(pwaApplicationDetail.getMasterPwaApplicationId())).thenReturn(
         pwaApplicationDetail);
-
-    technicalDrawingsController = new TechnicalDrawingsController(
-        applicationBreadcrumbService,
-        admiraltyChartFileService,
-        pwaApplicationRedirectService,
-        technicalDrawingSectionService,
-        padTechnicalDrawingService,
-        padFileService,
-        umbilicalCrossSectionService);
-
   }
 
   @Test
@@ -166,6 +151,9 @@ public class TechnicalDrawingsControllerTest extends PwaApplicationContextAbstra
 
     when(pwaContactService.getContactRoles(any(), any())).thenReturn(Set.of(PwaContactRole.PREPARER));
 
+    when(technicalDrawingSectionService.getValidationSummary(any())).thenReturn(
+        TechnicalDrawingsSectionValidationSummary.createInvalidSummary(""));
+
     ControllerTestUtils.failValidationWhenPost(technicalDrawingSectionService, new SummaryForm(), ValidationType.FULL);
 
     mockMvc.perform(post(ReverseRouter.route(on(TechnicalDrawingsController.class)
@@ -187,6 +175,9 @@ public class TechnicalDrawingsControllerTest extends PwaApplicationContextAbstra
 
     when(pwaContactService.getContactRoles(any(), any())).thenReturn(Set.of(PwaContactRole.PREPARER));
 
+    when(technicalDrawingSectionService.getValidationSummary(any())).thenReturn(
+        TechnicalDrawingsSectionValidationSummary.createValidSummary());
+
     ControllerTestUtils.passValidationWhenPost(technicalDrawingSectionService, new SummaryForm(), ValidationType.FULL);
 
     mockMvc.perform(post(ReverseRouter.route(on(TechnicalDrawingsController.class)
@@ -201,37 +192,6 @@ public class TechnicalDrawingsControllerTest extends PwaApplicationContextAbstra
         .with(csrf()))
         .andExpect(status().is3xxRedirection());
 
-  }
-
-  @Test
-  public void validateOverview_technicalDrawingError() {
-
-    var bindingResult = new BeanPropertyBindingResult(new SummaryForm(), "form");
-    String[] errorCodes = {PipelineSchematicsErrorCode.TECHNICAL_DRAWINGS.getErrorCode()};
-    bindingResult.addError(new ObjectError("summaryForm", errorCodes, null, ""));
-    var errorMessage = technicalDrawingsController.validateOverview(bindingResult);
-    assertThat(errorMessage).isEqualTo("All pipelines must be linked to a drawing");
-  }
-
-  @Test
-  public void validateOverview_admiraltyChartError() {
-
-    var bindingResult = new BeanPropertyBindingResult(new SummaryForm(), "form");
-    String[] errorCodes = {PipelineSchematicsErrorCode.ADMIRALTY_CHART.getErrorCode()};
-    bindingResult.addError(new ObjectError("summaryForm", errorCodes, null, ""));
-    var errorMessage = technicalDrawingsController.validateOverview(bindingResult);
-    assertThat(errorMessage).isEqualTo("An admiralty chart must be provided");
-  }
-
-  @Test
-  public void validateOverview_technicalDrawingAndAdmiraltyChartError() {
-
-    var bindingResult = new BeanPropertyBindingResult(new SummaryForm(), "form");
-    String[] errorCodes = {PipelineSchematicsErrorCode.TECHNICAL_DRAWINGS.getErrorCode(),
-        PipelineSchematicsErrorCode.ADMIRALTY_CHART.getErrorCode()};
-    bindingResult.addError(new ObjectError("summaryForm", errorCodes, null, ""));
-    var errorMessage = technicalDrawingsController.validateOverview(bindingResult);
-    assertThat(errorMessage).isEqualTo("An admiralty chart must be provided, and all pipelines must be linked to a drawing");
   }
 
 

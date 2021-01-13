@@ -110,27 +110,6 @@ public class TechnicalDrawingsController {
   }
 
 
-  @VisibleForTesting
-  public String validateOverview(BindingResult bindingResult) {
-    var errorCodes = bindingResult.getAllErrors().stream()
-        .map(DefaultMessageSourceResolvable::getCodes)
-        .filter(Objects::nonNull)
-        .flatMap(Arrays::stream)
-        .collect(Collectors.toSet());
-
-    if (errorCodes.contains(PipelineSchematicsErrorCode.TECHNICAL_DRAWINGS.getErrorCode())
-        && errorCodes.contains(PipelineSchematicsErrorCode.ADMIRALTY_CHART.getErrorCode())) {
-      return "An admiralty chart must be provided, and all pipelines must be linked to a drawing";
-
-    } else if (errorCodes.contains(PipelineSchematicsErrorCode.TECHNICAL_DRAWINGS.getErrorCode())) {
-      return "All pipelines must be linked to a drawing";
-
-    } else if (errorCodes.contains(PipelineSchematicsErrorCode.ADMIRALTY_CHART.getErrorCode())) {
-      return "An admiralty chart must be provided";
-    }
-    return "";
-  }
-
   @PostMapping
   public ModelAndView postOverview(@PathVariable("applicationType")
                                    @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
@@ -141,9 +120,10 @@ public class TechnicalDrawingsController {
                                    AuthenticatedUserAccount user) {
     var detail = applicationContext.getApplicationDetail();
     bindingResult = technicalDrawingSectionService.validate(form, bindingResult, ValidationType.FULL, detail);
-    if (bindingResult.hasErrors()) {
+    var validationSummary = technicalDrawingSectionService.getValidationSummary(bindingResult);
+    if (!validationSummary.isComplete()) {
       return getOverviewModelAndView(detail)
-          .addObject("errorMessage", validateOverview(bindingResult))
+          .addObject("errorMessage", validationSummary.getErrorMessage())
           .addObject("validatorFactory", padTechnicalDrawingService.getValidationFactory(detail));
     }
     return pwaApplicationRedirectService.getTaskListRedirect(detail.getPwaApplication());
