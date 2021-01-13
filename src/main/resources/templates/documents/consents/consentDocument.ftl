@@ -101,7 +101,7 @@
     }
 
     @media print {
-      #depositsTableSection, #tableAsSection, .tableAPage  {
+      #depositsTableSection, #tableAsSection, .tableAPage, .tableADrawing  {
         page-break-before: always;
       }
     }
@@ -111,7 +111,7 @@
       page-break-after:auto
     }
 
-    .sectionTable, #depositsTableSection, #tableAsSection {
+    .sectionTable, #depositsTableSection, .tableAPage {
       page: landscapePage;
     }
 
