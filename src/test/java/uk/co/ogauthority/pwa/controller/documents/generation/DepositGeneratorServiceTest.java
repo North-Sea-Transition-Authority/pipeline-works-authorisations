@@ -176,7 +176,7 @@ public class DepositGeneratorServiceTest {
         overviewForPipeline1.getPipelineNumber(),
         expectedProposedStartDateDeposit1,
         deposit1.getMaterialType().getDisplayText() + ", " + deposit1.getMaterialSize() + " " + UnitMeasurement.ROCK_GRADE.getSuffixDisplay(),
-        String.valueOf(deposit1.getQuantity()),
+        String.valueOf((int) deposit1.getQuantity()),
         deposit1.getFromCoordinates(),
         deposit1.getToCoordinates(),
         List.of(drawing1.getReference(), drawing2.getReference())
@@ -186,7 +186,7 @@ public class DepositGeneratorServiceTest {
         overviewForPipeline2.getPipelineNumber(),
         expectedProposedStartDateDeposit1,
         deposit1.getMaterialType().getDisplayText() + ", " + deposit1.getMaterialSize() + " " + UnitMeasurement.ROCK_GRADE.getSuffixDisplay(),
-        String.valueOf(deposit1.getQuantity()),
+        String.valueOf((int) deposit1.getQuantity()),
         deposit1.getFromCoordinates(),
         deposit1.getToCoordinates(),
         List.of(drawing1.getReference(), drawing2.getReference())
@@ -200,7 +200,7 @@ public class DepositGeneratorServiceTest {
         overviewForPipeline1.getPipelineNumber(),
         expectedProposedStartDateDeposit2,
         deposit2.getMaterialType().getDisplayText() + ", " + deposit2.getMaterialSize() + " " + UnitMeasurement.ROCK_GRADE.getSuffixDisplay(),
-        String.valueOf(deposit2.getQuantity()),
+        String.valueOf((int) deposit2.getQuantity()),
         deposit2.getFromCoordinates(),
         deposit2.getToCoordinates(),
         List.of(drawing1.getReference())
@@ -210,7 +210,7 @@ public class DepositGeneratorServiceTest {
         deposit2.getAppRefAndPipelineNum(),
         expectedProposedStartDateDeposit2,
         deposit2.getMaterialType().getDisplayText() + ", " + deposit2.getMaterialSize() + " " + UnitMeasurement.ROCK_GRADE.getSuffixDisplay(),
-        String.valueOf(deposit2.getQuantity()),
+        String.valueOf((int) deposit2.getQuantity()),
         deposit2.getFromCoordinates(),
         deposit2.getToCoordinates(),
         List.of(drawing1.getReference())
@@ -220,7 +220,7 @@ public class DepositGeneratorServiceTest {
         deposit3.getAppRefAndPipelineNum(),
         expectedProposedStartDateDeposit2,
         deposit3.getMaterialType().getDisplayText() + ", " + deposit3.getMaterialSize() + " " + UnitMeasurement.ROCK_GRADE.getSuffixDisplay(),
-        String.valueOf(deposit3.getQuantity()),
+        String.valueOf((int) deposit3.getQuantity()),
         deposit3.getFromCoordinates(),
         deposit3.getToCoordinates(),
         List.of(drawing1.getReference())

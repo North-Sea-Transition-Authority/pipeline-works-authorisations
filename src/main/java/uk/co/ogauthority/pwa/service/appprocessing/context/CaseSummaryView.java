@@ -5,7 +5,7 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 import java.util.Optional;
 import java.util.stream.Collectors;
 import uk.co.ogauthority.pwa.controller.appsummary.ApplicationSummaryController;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailSearchItem;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.WorkAreaApplicationDetailSearchItem;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.workarea.WorkAreaColumnItemView;
@@ -46,7 +46,7 @@ public class CaseSummaryView {
     this.versionNo = versionNo;
   }
 
-  public static CaseSummaryView from(ApplicationDetailSearchItem detailSearchItem) {
+  public static CaseSummaryView from(WorkAreaApplicationDetailSearchItem detailSearchItem) {
 
     var appWorkAreaItem = new PwaApplicationWorkAreaItem(detailSearchItem, (detailSearchItem1) -> "#");
 

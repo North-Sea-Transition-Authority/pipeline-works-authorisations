@@ -17,9 +17,9 @@ import uk.co.ogauthority.pwa.model.form.fds.RestSearchResult;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
-import uk.co.ogauthority.pwa.service.search.ManualEntryAttribute;
-import uk.co.ogauthority.pwa.service.search.SearchSelection;
-import uk.co.ogauthority.pwa.service.search.SearchSelectorService;
+import uk.co.ogauthority.pwa.service.searchselector.ManualEntryAttribute;
+import uk.co.ogauthority.pwa.service.searchselector.SearchSelection;
+import uk.co.ogauthority.pwa.service.searchselector.SearchSelectorService;
 
 @RestController
 @RequestMapping("/api/pipelines")

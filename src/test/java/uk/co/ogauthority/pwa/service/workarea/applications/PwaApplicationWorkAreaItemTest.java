@@ -11,7 +11,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailSearchItem;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.WorkAreaApplicationDetailSearchItem;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTask;
@@ -23,34 +23,34 @@ import uk.co.ogauthority.pwa.service.workarea.WorkAreaColumnItemView;
 public class PwaApplicationWorkAreaItemTest {
 
   private PwaApplicationWorkAreaItem pwaApplicationWorkAreaItem;
-  private ApplicationDetailSearchItem applicationDetailSearchItem;
+  private WorkAreaApplicationDetailSearchItem workAreaApplicationDetailSearchItem;
 
   private static final String VIEW_URL = "EXAMPLE_URL";
 
 
   @Before
   public void setup() {
-    applicationDetailSearchItem = new ApplicationDetailSearchItem();
-    applicationDetailSearchItem.setApplicationType(PwaApplicationType.INITIAL);
-    applicationDetailSearchItem.setPwaApplicationId(100);
-    applicationDetailSearchItem.setPadFields(List.of("FIELD2", "FIELD1"));
-    applicationDetailSearchItem.setPadHolderNameList(List.of("PAD_HOLDER"));
-    applicationDetailSearchItem.setPwaHolderNameList(List.of("PWA_HOLDER"));
-    applicationDetailSearchItem.setPadFields(List.of("FIELD2", "FIELD1"));
-    applicationDetailSearchItem.setPadProjectName("PROJECT_NAME");
-    applicationDetailSearchItem.setPadProposedStart(
+    workAreaApplicationDetailSearchItem = new WorkAreaApplicationDetailSearchItem();
+    workAreaApplicationDetailSearchItem.setApplicationType(PwaApplicationType.INITIAL);
+    workAreaApplicationDetailSearchItem.setPwaApplicationId(100);
+    workAreaApplicationDetailSearchItem.setPadFields(List.of("FIELD2", "FIELD1"));
+    workAreaApplicationDetailSearchItem.setPadHolderNameList(List.of("PAD_HOLDER"));
+    workAreaApplicationDetailSearchItem.setPwaHolderNameList(List.of("PWA_HOLDER"));
+    workAreaApplicationDetailSearchItem.setPadFields(List.of("FIELD2", "FIELD1"));
+    workAreaApplicationDetailSearchItem.setPadProjectName("PROJECT_NAME");
+    workAreaApplicationDetailSearchItem.setPadProposedStart(
         LocalDateTime.of(2020, 1, 2, 3, 4, 5)
             .toInstant(ZoneOffset.ofTotalSeconds(0)));
-    applicationDetailSearchItem.setPadStatusTimestamp(
+    workAreaApplicationDetailSearchItem.setPadStatusTimestamp(
         LocalDateTime.of(2020, 2, 3, 4, 5, 6)
             .toInstant(ZoneOffset.ofTotalSeconds(0)));
 
-    applicationDetailSearchItem.setPwaReference("PWA_REF");
-    applicationDetailSearchItem.setPadReference("PAD_REF");
+    workAreaApplicationDetailSearchItem.setPwaReference("PWA_REF");
+    workAreaApplicationDetailSearchItem.setPadReference("PAD_REF");
 
-    applicationDetailSearchItem.setPadStatus(PwaApplicationStatus.DRAFT);
-    applicationDetailSearchItem.setTipFlag(true);
-    applicationDetailSearchItem.setSubmittedAsFastTrackFlag(false);
+    workAreaApplicationDetailSearchItem.setPadStatus(PwaApplicationStatus.DRAFT);
+    workAreaApplicationDetailSearchItem.setTipFlag(true);
+    workAreaApplicationDetailSearchItem.setSubmittedAsFastTrackFlag(false);
 
 
   }
@@ -58,20 +58,20 @@ public class PwaApplicationWorkAreaItemTest {
 
   @Test
   public void pwaApplicationWorkAreaItem() {
-    pwaApplicationWorkAreaItem = new PwaApplicationWorkAreaItem(applicationDetailSearchItem, searchItem -> VIEW_URL);
+    pwaApplicationWorkAreaItem = new PwaApplicationWorkAreaItem(workAreaApplicationDetailSearchItem, searchItem -> VIEW_URL);
 
     assertThat(pwaApplicationWorkAreaItem.getPwaApplicationId())
-        .isEqualTo(applicationDetailSearchItem.getPwaApplicationId());
+        .isEqualTo(workAreaApplicationDetailSearchItem.getPwaApplicationId());
     assertThat(pwaApplicationWorkAreaItem.getApplicationTypeDisplay())
-        .isEqualTo(applicationDetailSearchItem.getApplicationType().getDisplayName());
+        .isEqualTo(workAreaApplicationDetailSearchItem.getApplicationType().getDisplayName());
     assertThat(pwaApplicationWorkAreaItem.getOrderedFieldList()).isEqualTo(List.of("FIELD1", "FIELD2"));
     assertThat(pwaApplicationWorkAreaItem.getMasterPwaReference())
-        .isEqualTo(applicationDetailSearchItem.getPwaReference());
+        .isEqualTo(workAreaApplicationDetailSearchItem.getPwaReference());
     assertThat(pwaApplicationWorkAreaItem.getApplicationReference()).isEqualTo(
-        applicationDetailSearchItem.getPadReference());
+        workAreaApplicationDetailSearchItem.getPadReference());
     assertThat(pwaApplicationWorkAreaItem.getAccessUrl()).isEqualTo(VIEW_URL);
     assertThat(pwaApplicationWorkAreaItem.getApplicationStatusDisplay())
-        .isEqualTo(applicationDetailSearchItem.getPadStatus().getDisplayName());
+        .isEqualTo(workAreaApplicationDetailSearchItem.getPadStatus().getDisplayName());
 
     assertThat(pwaApplicationWorkAreaItem.getMasterPwaReference()).isEqualTo("PWA_REF");
     assertThat(pwaApplicationWorkAreaItem.getApplicationReference()).isEqualTo("PAD_REF");
@@ -80,41 +80,41 @@ public class PwaApplicationWorkAreaItemTest {
     assertThat(pwaApplicationWorkAreaItem.getFormattedStatusSetDatetime())
         .isEqualTo("03/02/2020 04:05");
 
-    assertThat(pwaApplicationWorkAreaItem.isTipFlag()).isEqualTo(applicationDetailSearchItem.isTipFlag());
+    assertThat(pwaApplicationWorkAreaItem.isTipFlag()).isEqualTo(workAreaApplicationDetailSearchItem.isTipFlag());
 
   }
 
 
   @Test
   public void getFormattedProposedStartDate_whenSet() {
-    pwaApplicationWorkAreaItem = new PwaApplicationWorkAreaItem(applicationDetailSearchItem, searchItem -> VIEW_URL);
+    pwaApplicationWorkAreaItem = new PwaApplicationWorkAreaItem(workAreaApplicationDetailSearchItem, searchItem -> VIEW_URL);
     assertThat(pwaApplicationWorkAreaItem.getProposedStartDateDisplay()).isEqualTo("02/01/2020");
   }
 
   @Test
   public void getFormattedProposedStartDate_whenNull() {
-    applicationDetailSearchItem.setPadProposedStart(null);
-    pwaApplicationWorkAreaItem = new PwaApplicationWorkAreaItem(applicationDetailSearchItem, searchItem -> VIEW_URL);
+    workAreaApplicationDetailSearchItem.setPadProposedStart(null);
+    pwaApplicationWorkAreaItem = new PwaApplicationWorkAreaItem(workAreaApplicationDetailSearchItem, searchItem -> VIEW_URL);
     assertThat(pwaApplicationWorkAreaItem.getProposedStartDateDisplay()).isNull();
   }
 
   @Test
   public void getFormattedStatusSetDatetime_whenSet() {
-    pwaApplicationWorkAreaItem = new PwaApplicationWorkAreaItem(applicationDetailSearchItem, searchItem -> VIEW_URL);
+    pwaApplicationWorkAreaItem = new PwaApplicationWorkAreaItem(workAreaApplicationDetailSearchItem, searchItem -> VIEW_URL);
     assertThat(pwaApplicationWorkAreaItem.getFormattedStatusSetDatetime()).isEqualTo("03/02/2020 04:05");
   }
 
   @Test
   public void getFormattedStatusSetDatetime_whenNull() {
-    applicationDetailSearchItem.setPadStatusTimestamp(null);
-    pwaApplicationWorkAreaItem = new PwaApplicationWorkAreaItem(applicationDetailSearchItem, searchItem -> VIEW_URL);
+    workAreaApplicationDetailSearchItem.setPadStatusTimestamp(null);
+    pwaApplicationWorkAreaItem = new PwaApplicationWorkAreaItem(workAreaApplicationDetailSearchItem, searchItem -> VIEW_URL);
     assertThat(pwaApplicationWorkAreaItem.getFormattedStatusSetDatetime()).isNull();
   }
 
   @Test
   public void getFastTrackLabelText_notFastTrack() {
 
-    var workAreaItem = new PwaApplicationWorkAreaItem(applicationDetailSearchItem, searchItem -> VIEW_URL);
+    var workAreaItem = new PwaApplicationWorkAreaItem(workAreaApplicationDetailSearchItem, searchItem -> VIEW_URL);
 
     assertThat(workAreaItem.getFastTrackLabelText()).isNull();
 
@@ -123,10 +123,10 @@ public class PwaApplicationWorkAreaItemTest {
   @Test
   public void getFastTrackLabelText_fastTrack_notAccepted() {
 
-    applicationDetailSearchItem.setSubmittedAsFastTrackFlag(true);
-    applicationDetailSearchItem.setPadInitialReviewApprovedTimestamp(null);
+    workAreaApplicationDetailSearchItem.setSubmittedAsFastTrackFlag(true);
+    workAreaApplicationDetailSearchItem.setPadInitialReviewApprovedTimestamp(null);
 
-    var workAreaItem = new PwaApplicationWorkAreaItem(applicationDetailSearchItem, searchItem -> VIEW_URL);
+    var workAreaItem = new PwaApplicationWorkAreaItem(workAreaApplicationDetailSearchItem, searchItem -> VIEW_URL);
 
     assertThat(workAreaItem.getFastTrackLabelText()).isEqualTo(ApplicationTask.FAST_TRACK.getDisplayName());
 
@@ -135,10 +135,10 @@ public class PwaApplicationWorkAreaItemTest {
   @Test
   public void getFastTrackLabelText_fastTrack_accepted() {
 
-    applicationDetailSearchItem.setSubmittedAsFastTrackFlag(true);
-    applicationDetailSearchItem.setPadInitialReviewApprovedTimestamp(Instant.now());
+    workAreaApplicationDetailSearchItem.setSubmittedAsFastTrackFlag(true);
+    workAreaApplicationDetailSearchItem.setPadInitialReviewApprovedTimestamp(Instant.now());
 
-    var workAreaItem = new PwaApplicationWorkAreaItem(applicationDetailSearchItem, searchItem -> VIEW_URL);
+    var workAreaItem = new PwaApplicationWorkAreaItem(workAreaApplicationDetailSearchItem, searchItem -> VIEW_URL);
 
     assertThat(workAreaItem.getFastTrackLabelText()).isEqualTo(
         ApplicationTask.FAST_TRACK.getDisplayName() + " accepted");
@@ -148,9 +148,9 @@ public class PwaApplicationWorkAreaItemTest {
 
   @Test
   public void getApplicationStatusColumn_whenNoCaseOfficer_andNotFastTrack() {
-    applicationDetailSearchItem.setCaseOfficerName(null);
+    workAreaApplicationDetailSearchItem.setCaseOfficerName(null);
 
-    var workAreItem = new PwaApplicationWorkAreaItem(applicationDetailSearchItem, searchItem -> VIEW_URL);
+    var workAreItem = new PwaApplicationWorkAreaItem(workAreaApplicationDetailSearchItem, searchItem -> VIEW_URL);
 
     assertThat(workAreItem.getApplicationStatusColumn()).containsExactly(
         WorkAreaColumnItemView.createLabelledItem(
@@ -166,12 +166,12 @@ public class PwaApplicationWorkAreaItemTest {
   @Test
   public void getApplicationStatusColumn_whenCaseOfficer_andFastTrackApproved() {
     var caseOfficer = "NAME";
-    applicationDetailSearchItem.setCaseOfficerName(caseOfficer);
-    applicationDetailSearchItem.setCaseOfficerPersonId(1);
-    applicationDetailSearchItem.setSubmittedAsFastTrackFlag(true);
-    applicationDetailSearchItem.setPadInitialReviewApprovedTimestamp(Instant.now());
+    workAreaApplicationDetailSearchItem.setCaseOfficerName(caseOfficer);
+    workAreaApplicationDetailSearchItem.setCaseOfficerPersonId(1);
+    workAreaApplicationDetailSearchItem.setSubmittedAsFastTrackFlag(true);
+    workAreaApplicationDetailSearchItem.setPadInitialReviewApprovedTimestamp(Instant.now());
 
-    var workAreItem = new PwaApplicationWorkAreaItem(applicationDetailSearchItem, searchItem -> VIEW_URL);
+    var workAreItem = new PwaApplicationWorkAreaItem(workAreaApplicationDetailSearchItem, searchItem -> VIEW_URL);
 
     assertThat(workAreItem.getApplicationStatusColumn()).containsExactly(
         WorkAreaColumnItemView.createLabelledItem(
@@ -193,21 +193,21 @@ public class PwaApplicationWorkAreaItemTest {
   @Test
   public void getSummaryColumn_whenFieldsExist(){
     ApplicationWorkAreaItemTestUtil.test_getSummaryColumn_whenFieldsExist(
-        applicationDetailSearchItem,
+        workAreaApplicationDetailSearchItem,
         o -> new PwaApplicationWorkAreaItem(o , searchItem -> VIEW_URL));
   }
 
   @Test
   public void getSummaryColumn_whenNoFields(){
     ApplicationWorkAreaItemTestUtil.test_getSummaryColumn_whenNoFields(
-        applicationDetailSearchItem,
+        workAreaApplicationDetailSearchItem,
         o -> new PwaApplicationWorkAreaItem(o , searchItem -> VIEW_URL));
   }
 
   @Test
   public void getHolderColumn_whenInitialType(){
     ApplicationWorkAreaItemTestUtil.test_getHolderColumn_whenInitialType(
-        applicationDetailSearchItem,
+        workAreaApplicationDetailSearchItem,
         o -> new PwaApplicationWorkAreaItem(o , searchItem -> VIEW_URL));
 
   }
@@ -215,14 +215,14 @@ public class PwaApplicationWorkAreaItemTest {
   @Test
   public void getHolderColumn_whenNotInitialType() {
     ApplicationWorkAreaItemTestUtil.test_getHolderColumn_whenNotInitialType(
-        applicationDetailSearchItem,
+        workAreaApplicationDetailSearchItem,
         o -> new PwaApplicationWorkAreaItem(o, searchItem -> VIEW_URL));
   }
 
   @Test
   public void getApplicationColumn_whenInitialType(){
     ApplicationWorkAreaItemTestUtil.test_getApplicationColumn_whenInitialType(
-        applicationDetailSearchItem,
+        workAreaApplicationDetailSearchItem,
         o -> new PwaApplicationWorkAreaItem(o , searchItem -> VIEW_URL));
 
   }
@@ -230,14 +230,14 @@ public class PwaApplicationWorkAreaItemTest {
   @Test
   public void getApplicationColumn_whenNotInitialType() {
     ApplicationWorkAreaItemTestUtil.test_getApplicationColumn_whenNotInitialType(
-        applicationDetailSearchItem,
+        workAreaApplicationDetailSearchItem,
         o -> new PwaApplicationWorkAreaItem(o, searchItem -> VIEW_URL));
   }
 
   @Test
   public void getApplicationColumn_whenUpdate() {
     ApplicationWorkAreaItemTestUtil.test_getApplicationColumn_whenUpdateRequest(
-        applicationDetailSearchItem,
+        workAreaApplicationDetailSearchItem,
         o -> new PwaApplicationWorkAreaItem(o, searchItem -> VIEW_URL));
   }
 

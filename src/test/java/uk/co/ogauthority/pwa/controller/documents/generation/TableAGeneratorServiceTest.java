@@ -5,6 +5,8 @@ import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.junit.Before;
 import org.junit.Test;
@@ -21,9 +23,11 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipe
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipelineIdent;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipelineTestUtil;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.techdrawings.PadTechnicalDrawing;
+import uk.co.ogauthority.pwa.model.form.files.UploadedFileView;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PadPipelineOverview;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineHeaderView;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.techdrawings.PipelineDrawingSummaryView;
+import uk.co.ogauthority.pwa.service.documents.generation.ConsentDocumentImageService;
 import uk.co.ogauthority.pwa.service.documents.generation.TableAGeneratorService;
 import uk.co.ogauthority.pwa.service.documents.views.tablea.DrawingForTableAView;
 import uk.co.ogauthority.pwa.service.documents.views.tablea.TableARowView;
@@ -44,6 +48,9 @@ public class TableAGeneratorServiceTest {
   @Mock
   private PadProjectInformationService padProjectInformationService;
 
+  @Mock
+  private ConsentDocumentImageService consentDocumentImageService;
+
   private PwaApplicationDetail pwaApplicationDetail;
 
   private TableAGeneratorService tableAGeneratorService;
@@ -60,13 +67,20 @@ public class TableAGeneratorServiceTest {
   private static String DRAWING_REF1 = "Drawing Ref 1";
   private static String DRAWING_REF2 = "Drawing Ref 2";
 
+  private static String FILE_ID1 = "1";
+  private static String FILE_ID2 = "2";
+
+  private static String IMG_SRC1 = "source 1 url";
+  private static String IMG_SRC2 = "source 2 url";
+
 
   @Before
   public void setUp() {
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(
         PwaApplicationType.INITIAL, 1, 1);
-    tableAGeneratorService = new TableAGeneratorService(pipelineDiffableSummaryService, padProjectInformationService);
+    tableAGeneratorService = new TableAGeneratorService(pipelineDiffableSummaryService, padProjectInformationService,
+        consentDocumentImageService);
   }
 
   private PadPipeline createPadPipeline(String pipelineRef) {
@@ -95,14 +109,15 @@ public class TableAGeneratorServiceTest {
     return new IdentView(identData);
   }
 
-  private PipelineDrawingSummaryView createDrawingSummaryView(String drawingRef) {
-    var file = new PadFile(null, "1", null,  null);
+  private PipelineDrawingSummaryView createDrawingSummaryView(String drawingRef, String fileId) {
+    var file = new PadFile(null, fileId, null,  null);
+    var uploadedFileView = new UploadedFileView(fileId, null, 1L, null, null, null);
     var technicalDrawing = new PadTechnicalDrawing(null, pwaApplicationDetail, file, drawingRef);
-    return new PipelineDrawingSummaryView(technicalDrawing, List.of());
+    return new PipelineDrawingSummaryView(technicalDrawing, List.of(), uploadedFileView);
   }
 
   private DrawingForTableAView createDrawingForTableAView(
-      List<PipelineDiffableSummary> pipelineDiffableSummaries, String projectName) {
+      List<PipelineDiffableSummary> pipelineDiffableSummaries, String projectName, String imgSrc) {
 
     List<TableAView> tableAViews = new ArrayList<>();
 
@@ -121,8 +136,8 @@ public class TableAGeneratorServiceTest {
         tableAViews,
         projectName,
         pipelineDiffableSummaries.get(0).getDrawingSummaryView().getFileId(),
-        pipelineDiffableSummaries.get(0).getDrawingSummaryView().getReference()
-    );
+        pipelineDiffableSummaries.get(0).getDrawingSummaryView().getReference(),
+        imgSrc);
   }
 
 
@@ -137,7 +152,7 @@ public class TableAGeneratorServiceTest {
         List.of(createIdentView(IDENT_NO1, padPipeline4),
             createIdentView(IDENT_NO2, padPipeline4),
             createIdentView(IDENT_NO3, padPipeline4)),
-        createDrawingSummaryView(DRAWING_REF1)
+        createDrawingSummaryView(DRAWING_REF1, FILE_ID1)
     );
 
     var padPipeline3 = createPadPipeline(PIPILINE_REF3);
@@ -146,7 +161,7 @@ public class TableAGeneratorServiceTest {
         List.of(createIdentView(IDENT_NO1, padPipeline3),
             createIdentView(IDENT_NO2, padPipeline3),
             createIdentView(IDENT_NO3, padPipeline3)),
-        createDrawingSummaryView(DRAWING_REF1)
+        createDrawingSummaryView(DRAWING_REF1, FILE_ID1)
     );
 
     //2 pipeline summaries for drawing 2
@@ -156,7 +171,7 @@ public class TableAGeneratorServiceTest {
         List.of(createIdentView(IDENT_NO1, padPipeline2),
             createIdentView(IDENT_NO2, padPipeline2),
             createIdentView(IDENT_NO3, padPipeline2)),
-        createDrawingSummaryView(DRAWING_REF2)
+        createDrawingSummaryView(DRAWING_REF2, FILE_ID2)
     );
 
     var padPipeline1 = createPadPipeline(PIPILINE_REF1);
@@ -165,8 +180,13 @@ public class TableAGeneratorServiceTest {
         List.of(createIdentView(IDENT_NO1, padPipeline1),
             createIdentView(IDENT_NO2, padPipeline1),
             createIdentView(IDENT_NO3, padPipeline1)),
-        createDrawingSummaryView(DRAWING_REF2)
+        createDrawingSummaryView(DRAWING_REF2, FILE_ID2)
     );
+
+    when(consentDocumentImageService.convertFilesToImageSourceMap(Set.of(FILE_ID1))).thenReturn(
+        Map.of(FILE_ID1, IMG_SRC1));
+    when(consentDocumentImageService.convertFilesToImageSourceMap(Set.of(FILE_ID2))).thenReturn(
+        Map.of(FILE_ID2, IMG_SRC2));
 
     when(pipelineDiffableSummaryService.getApplicationDetailPipelines(pwaApplicationDetail)).thenReturn(List.of(
         pipelineSummary1ForDrawing1,
@@ -187,10 +207,10 @@ public class TableAGeneratorServiceTest {
     var actualDrawingForTableAViews = (List<DrawingForTableAView>) documentSectionData.getTemplateModel().get("drawingForTableAViews");
 
     var expectedDrawing1ForTableAView = createDrawingForTableAView(
-        List.of(pipelineSummary2ForDrawing1, pipelineSummary1ForDrawing1), projectInfo.getProjectName());
+        List.of(pipelineSummary2ForDrawing1, pipelineSummary1ForDrawing1), projectInfo.getProjectName(), IMG_SRC1);
 
     var expectedDrawing2ForTableAView = createDrawingForTableAView(
-        List.of(pipelineSummary2ForDrawing2, pipelineSummary1ForDrawing2), projectInfo.getProjectName());
+        List.of(pipelineSummary2ForDrawing2, pipelineSummary1ForDrawing2), projectInfo.getProjectName(), IMG_SRC2);
 
     assertThat(sectionName).isEqualTo(DocumentSection.TABLE_A.getDisplayName());
     assertThat(actualDrawingForTableAViews).hasSize(2);

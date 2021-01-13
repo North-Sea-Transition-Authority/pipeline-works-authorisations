@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.service.search;
+package uk.co.ogauthority.pwa.service.searchselector;
 
 import java.util.Collection;
 import java.util.LinkedHashMap;

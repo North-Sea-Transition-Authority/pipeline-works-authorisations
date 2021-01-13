@@ -1,4 +1,5 @@
 <#include '../../../pwaLayoutImports.ftl'>
+<#import '../fragments/consentDocImage.ftl' as pwaConsentDocImage>
 
 <#-- @ftlvariable name="sectionName" type="String"-->
 <#-- @ftlvariable name="drawingForTableAViews" type="java.util.List<uk.co.ogauthority.pwa.service.documents.views.tablea.DrawingForTableAView>"-->
@@ -26,6 +27,13 @@
         <@tableA tableAView/>
       </div>
     </#list>
+
+    <div class="tableADrawing">
+      <h4 class="govuk-heading-s">
+        Reference Drawing: ${drawingForTableAView.drawingReference}
+      </h4>
+      <@pwaConsentDocImage.img src=drawingForTableAView.imageSource />
+    </div>
 
   </#list>
 
@@ -83,3 +91,4 @@
     <td> ${tableARowView.productsToBeConveyed!} </td>
   </tr>
 </#macro>
+

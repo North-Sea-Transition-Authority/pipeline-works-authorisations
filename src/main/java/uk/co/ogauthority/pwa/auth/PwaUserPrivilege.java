@@ -4,6 +4,7 @@ public enum PwaUserPrivilege {
 
   // GENERIC
   PWA_WORKAREA,
+  PWA_APPLICATION_SEARCH,
 
   // INDUSTRY
   PWA_INDUSTRY,

@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.service.search;
+package uk.co.ogauthority.pwa.service.searchselector;
 
 import uk.co.ogauthority.pwa.model.search.SearchSelectable;
 
@@ -8,19 +8,17 @@ import uk.co.ogauthority.pwa.model.search.SearchSelectable;
  *
  * <p>The intent is to separate searchable data from the returned results.</p>
  */
-public class SearchIdValueSelection implements SearchSelectable {
+public class SearchSelection implements SearchSelectable {
 
-  private final String id;
   private final String value;
 
-  public SearchIdValueSelection(String id, String value) {
-    this.id = id;
+  public SearchSelection(String value) {
     this.value = value;
   }
 
   @Override
   public String getSelectionId() {
-    return id;
+    return value;
   }
 
   @Override

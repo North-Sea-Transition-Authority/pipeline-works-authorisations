@@ -1,13 +1,13 @@
 package uk.co.ogauthority.pwa.service.workarea.applications;
 
 import org.springframework.data.domain.Sort;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailSearchItem_;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.WorkAreaApplicationDetailSearchItem_;
 import uk.co.ogauthority.pwa.service.workarea.WorkAreaSort;
 
 public enum ApplicationWorkAreaSort implements WorkAreaSort {
 
-  CREATED_DATE_DESC(ApplicationDetailSearchItem_.PAD_CREATED_TIMESTAMP, Sort.Direction.DESC),
-  PROPOSED_START_DATE_ASC(ApplicationDetailSearchItem_.PAD_PROPOSED_START, Sort.Direction.ASC, Sort.NullHandling.NULLS_FIRST);
+  CREATED_DATE_DESC(WorkAreaApplicationDetailSearchItem_.PAD_CREATED_TIMESTAMP, Sort.Direction.DESC),
+  PROPOSED_START_DATE_ASC(WorkAreaApplicationDetailSearchItem_.PAD_PROPOSED_START, Sort.Direction.ASC, Sort.NullHandling.NULLS_FIRST);
 
   private final String sortAttribute;
   private final Sort.Direction sortDirection;

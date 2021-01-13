@@ -97,11 +97,11 @@
     }
 
     .coordinateTableCell {
-      width: 135px;
+      width: 140px;
     }
 
     @media print {
-      #depositsTableSection, #tableAsSection, .tableAPage  {
+      #depositsTableSection, #tableAsSection, .tableAPage, .tableADrawing  {
         page-break-before: always;
       }
     }
@@ -111,8 +111,12 @@
       page-break-after:auto
     }
 
-    .sectionTable, #depositsTableSection, #tableAsSection {
+    .sectionTable, #depositsTableSection, .tableAPage {
       page: landscapePage;
+    }
+
+    #depositsTableSection .materialTypeAndSize {
+      word-wrap: normal
     }
 
     .drawingNumberList {

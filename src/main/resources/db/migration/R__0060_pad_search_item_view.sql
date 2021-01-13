@@ -1,4 +1,4 @@
-CREATE OR REPLACE VIEW ${datasource.user}.pad_search_items (
+CREATE OR REPLACE VIEW ${datasource.user}.workarea_search_items (
   pwa_id
 , pwa_detail_id
 , pwa_application_id
