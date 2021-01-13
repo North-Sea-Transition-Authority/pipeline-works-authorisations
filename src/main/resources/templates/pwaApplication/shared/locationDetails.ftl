@@ -91,7 +91,6 @@
     <@fdsSearchSelector.searchSelectorRest path="${formPath}.facilities" labelText="Which structures are within 500m?" multiSelect=true restUrl=springUrl(facilityRestUrl) 
     nestingPath="form.withinSafetyZone" preselectedItems=preselectedItems hintText="e.g the platform, FPSO, boat, or storage unit"/>    
     
-    Form Path: ${formPath}
     <@fdsRadio.radioGroup path="${formPath}.psrNotificationSubmitted" labelText="Have you submitted a Pipelines Safety Regulations notification to HSE?" hintText="Timely submission in advance of work is advised to avoid potential delays" hiddenContent=true nestingPath="form.withinSafetyZone">
 
         <@fdsRadio.radioYes path="${formPath}.psrNotificationSubmitted">
