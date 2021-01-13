@@ -13,7 +13,9 @@ import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailItemView;
 import uk.co.ogauthority.pwa.service.search.applicationsearch.ApplicationDetailSearchService;
+import uk.co.ogauthority.pwa.service.search.applicationsearch.ApplicationSearchContextCreator;
 import uk.co.ogauthority.pwa.service.search.applicationsearch.ApplicationSearchDisplayItemCreator;
+import uk.co.ogauthority.pwa.service.search.applicationsearch.ApplicationSearchParameters;
 
 @Controller
 @RequestMapping("/application-search")
@@ -22,13 +24,16 @@ public class ApplicationSearchController {
   private static final long MAX_RESULTS = 50L;
 
   private final ApplicationDetailSearchService applicationDetailSearchService;
+  private final ApplicationSearchContextCreator applicationSearchContextCreator;
 
   private final ApplicationSearchDisplayItemCreator applicationSearchDisplayItemCreator;
 
   @Autowired
   public ApplicationSearchController(ApplicationDetailSearchService applicationDetailSearchService,
+                                     ApplicationSearchContextCreator applicationSearchContextCreator,
                                      ApplicationSearchDisplayItemCreator applicationSearchDisplayItemCreator) {
     this.applicationDetailSearchService = applicationDetailSearchService;
+    this.applicationSearchContextCreator = applicationSearchContextCreator;
     this.applicationSearchDisplayItemCreator = applicationSearchDisplayItemCreator;
   }
 
@@ -43,7 +48,9 @@ public class ApplicationSearchController {
   @PostMapping
   public ModelAndView doApplicationSearch(AuthenticatedUserAccount authenticatedUserAccount) {
 
-    var results = applicationDetailSearchService.getAllTipApplicationDetails();
+    var context = applicationSearchContextCreator.createContext(authenticatedUserAccount);
+    var searchParams = new ApplicationSearchParameters();
+    var results = applicationDetailSearchService.search(searchParams, context);
 
     return getSearchModelAndView(results);
 

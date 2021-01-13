@@ -86,8 +86,6 @@ public class ApplicationSearchControllerTest extends AbstractControllerTest {
 
   }
 
-  //
-
   @Test
   public void doApplicationSearch_whenPermitted() throws Exception {
 

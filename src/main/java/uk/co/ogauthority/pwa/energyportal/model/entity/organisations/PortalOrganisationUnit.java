@@ -6,10 +6,12 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 import org.hibernate.annotations.Immutable;
 import uk.co.ogauthority.pwa.model.search.SearchSelectable;
 
-@Entity(name = "portal_organisation_units")
+@Entity
+@Table(name = "portal_organisation_units")
 @Immutable
 public class PortalOrganisationUnit implements SearchSelectable {
 

@@ -13,8 +13,8 @@ import uk.co.ogauthority.pwa.service.workarea.WorkAreaColumnItemView;
  */
 public class ApplicationSearchDisplayItem extends ApplicationWorkAreaItem {
 
-  public ApplicationSearchDisplayItem(ApplicationDetailItemView applicationDetailSearchItem,
-                                      Function<ApplicationDetailItemView, String> viewApplicationUrlProducer) {
+  ApplicationSearchDisplayItem(ApplicationDetailItemView applicationDetailSearchItem,
+                               Function<ApplicationDetailItemView, String> viewApplicationUrlProducer) {
     super(applicationDetailSearchItem, viewApplicationUrlProducer.apply(applicationDetailSearchItem));
   }
 
