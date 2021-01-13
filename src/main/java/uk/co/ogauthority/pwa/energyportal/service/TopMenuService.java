@@ -20,7 +20,7 @@ public class TopMenuService {
   public static final String WORK_AREA_TITLE = "Work area";
   public static final String TEAM_MANAGEMENT_TITLE = "Manage teams";
   public static final String APPLICATION_SEARCH_TITLE = "Search applications";
-  public static final String CONSENT_SEARCH_TITLE = "Search consents";
+  public static final String CONSENT_SEARCH_TITLE = "Search PWAs";
 
   private final SystemAreaAccessService systemAreaAccessService;
 
@@ -51,7 +51,7 @@ public class TopMenuService {
 
     if (systemAreaAccessService.canAccessConsentSearch(user)) {
       menuItems.add(new TopMenuItem(CONSENT_SEARCH_TITLE, ReverseRouter.route(on(ConsentSearchController.class)
-          .renderSearch())));
+          .renderSearch(null))));
     }
 
     return menuItems;

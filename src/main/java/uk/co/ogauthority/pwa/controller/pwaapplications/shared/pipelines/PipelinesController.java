@@ -43,7 +43,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineHe
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineHeaderValidationHints;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineRemovalService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineUrlFactory;
-import uk.co.ogauthority.pwa.service.search.SearchSelectorService;
+import uk.co.ogauthority.pwa.service.searchselector.SearchSelectorService;
 import uk.co.ogauthority.pwa.util.StreamUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 

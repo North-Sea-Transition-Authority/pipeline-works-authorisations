@@ -17,9 +17,9 @@ import uk.co.ogauthority.pwa.model.form.fds.RestSearchResult;
 import uk.co.ogauthority.pwa.service.devuk.DevukFieldService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
-import uk.co.ogauthority.pwa.service.search.ManualEntryAttribute;
-import uk.co.ogauthority.pwa.service.search.SearchIdValueSelection;
-import uk.co.ogauthority.pwa.service.search.SearchSelectorService;
+import uk.co.ogauthority.pwa.service.searchselector.ManualEntryAttribute;
+import uk.co.ogauthority.pwa.service.searchselector.SearchIdValueSelection;
+import uk.co.ogauthority.pwa.service.searchselector.SearchSelectorService;
 
 @RestController
 @RequestMapping("/api/fields")
