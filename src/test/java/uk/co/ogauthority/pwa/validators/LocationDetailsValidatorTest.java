@@ -18,15 +18,19 @@ import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.location.Location
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
+import uk.co.ogauthority.pwa.util.forminputs.twofielddate.TwoFieldDateInputValidator;
 
 public class LocationDetailsValidatorTest {
 
   private LocationDetailsValidator locationDetailsValidator;
   private LocationDetailsSafetyZoneValidator safetyZoneValidator;
+  private TwoFieldDateInputValidator twoFieldDateInputValidator;
+
 
   @Before
   public void setUp() {
-    safetyZoneValidator = new LocationDetailsSafetyZoneValidator();
+    twoFieldDateInputValidator = new TwoFieldDateInputValidator();
+    safetyZoneValidator = new LocationDetailsSafetyZoneValidator(twoFieldDateInputValidator);
     locationDetailsValidator = new LocationDetailsValidator(safetyZoneValidator);
   }
 

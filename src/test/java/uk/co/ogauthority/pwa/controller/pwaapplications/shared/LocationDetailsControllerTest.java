@@ -50,6 +50,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.shared.location.PadLocation
 import uk.co.ogauthority.pwa.testutils.ControllerTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
+import uk.co.ogauthority.pwa.util.forminputs.twofielddate.TwoFieldDateInputValidator;
 import uk.co.ogauthority.pwa.validators.LocationDetailsSafetyZoneValidator;
 import uk.co.ogauthority.pwa.validators.LocationDetailsValidator;
 
@@ -74,6 +75,9 @@ public class LocationDetailsControllerTest extends PwaApplicationContextAbstract
 
   @SpyBean
   private LocationDetailsSafetyZoneValidator locationDetailsSafetyZoneValidator;
+
+  @SpyBean
+  private TwoFieldDateInputValidator twoFieldDateInputValidator;
 
   private WebUserAccount wua;
   private AuthenticatedUserAccount user;
