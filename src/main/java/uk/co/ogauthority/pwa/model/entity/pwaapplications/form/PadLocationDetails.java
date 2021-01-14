@@ -13,7 +13,6 @@ import javax.persistence.ManyToOne;
 import uk.co.ogauthority.pwa.model.entity.enums.HseSafetyZone;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.entitycopier.ChildEntity;
-import uk.co.ogauthority.pwa.util.forminputs.twofielddate.TwoFieldDateInput;
 
 @Entity(name = "pad_location_details")
 public class PadLocationDetails implements ChildEntity<Integer, PwaApplicationDetail> {
