@@ -1,8 +1,12 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings;
 
+import java.util.Arrays;
+import java.util.Objects;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
@@ -64,6 +68,33 @@ public class TechnicalDrawingSectionService implements ApplicationFormSectionSer
     }
     padTechnicalDrawingService.validateSection(bindingResult, pwaApplicationDetail);
     return bindingResult;
+  }
+
+  public TechnicalDrawingsSectionValidationSummary getValidationSummary(BindingResult bindingResult) {
+
+    if (!bindingResult.hasErrors()) {
+      return TechnicalDrawingsSectionValidationSummary.createValidSummary();
+    }
+
+    var errorCodes = bindingResult.getAllErrors().stream()
+        .map(DefaultMessageSourceResolvable::getCodes)
+        .filter(Objects::nonNull)
+        .flatMap(Arrays::stream)
+        .collect(Collectors.toSet());
+
+    if (errorCodes.contains(PipelineSchematicsErrorCode.TECHNICAL_DRAWINGS.getErrorCode())
+        && errorCodes.contains(PipelineSchematicsErrorCode.ADMIRALTY_CHART.getErrorCode())) {
+      return TechnicalDrawingsSectionValidationSummary.createInvalidSummary(
+          "An admiralty chart must be provided, and all pipelines must be linked to a drawing");
+
+    } else if (errorCodes.contains(PipelineSchematicsErrorCode.TECHNICAL_DRAWINGS.getErrorCode())) {
+      return TechnicalDrawingsSectionValidationSummary.createInvalidSummary("All pipelines must be linked to a drawing");
+
+    } else if (errorCodes.contains(PipelineSchematicsErrorCode.ADMIRALTY_CHART.getErrorCode())) {
+      return TechnicalDrawingsSectionValidationSummary.createInvalidSummary("An admiralty chart must be provided");
+    }
+
+    return TechnicalDrawingsSectionValidationSummary.createInvalidSummary("");
   }
 
   @Override
