@@ -15,7 +15,9 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.validation.BeanPropertyBindingResult;
+import org.springframework.validation.ObjectError;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.form.generic.SummaryForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.techdetails.AdmiraltyChartDocumentForm;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
@@ -75,6 +77,50 @@ public class TechnicalDrawingSectionServiceTest {
     technicalDrawingSectionService.validate(form, bindingResult, ValidationType.FULL, detail);
     verify(padTechnicalDrawingService, times(1)).validateSection(bindingResult, detail);
     verify(admiraltyChartFileService, times(1)).validate(any(), eq(bindingResult), eq(ValidationType.FULL), eq(detail));
+  }
+
+  @Test
+  public void getValidationSummary_noError() {
+
+    var bindingResult = new BeanPropertyBindingResult(new SummaryForm(), "form");
+    var validationSummary = technicalDrawingSectionService.getValidationSummary(bindingResult);
+    assertThat(validationSummary.isComplete()).isTrue();
+    assertThat(validationSummary.getErrorMessage()).isNull();
+  }
+
+  @Test
+  public void getValidationSummary_technicalDrawingError() {
+
+    var bindingResult = new BeanPropertyBindingResult(new SummaryForm(), "form");
+    String[] errorCodes = {PipelineSchematicsErrorCode.TECHNICAL_DRAWINGS.getErrorCode()};
+    bindingResult.addError(new ObjectError("summaryForm", errorCodes, null, ""));
+    var validationSummary = technicalDrawingSectionService.getValidationSummary(bindingResult);
+    assertThat(validationSummary.isComplete()).isFalse();
+    assertThat(validationSummary.getErrorMessage()).isEqualTo("All pipelines must be linked to a drawing");
+  }
+
+  @Test
+  public void getValidationSummary_admiraltyChartError() {
+
+    var bindingResult = new BeanPropertyBindingResult(new SummaryForm(), "form");
+    String[] errorCodes = {PipelineSchematicsErrorCode.ADMIRALTY_CHART.getErrorCode()};
+    bindingResult.addError(new ObjectError("summaryForm", errorCodes, null, ""));
+    var validationSummary = technicalDrawingSectionService.getValidationSummary(bindingResult);
+    assertThat(validationSummary.isComplete()).isFalse();
+    assertThat(validationSummary.getErrorMessage()).isEqualTo("An admiralty chart must be provided");
+  }
+
+  @Test
+  public void getValidationSummary_technicalDrawingAndAdmiraltyChartError() {
+
+    var bindingResult = new BeanPropertyBindingResult(new SummaryForm(), "form");
+    String[] errorCodes = {PipelineSchematicsErrorCode.TECHNICAL_DRAWINGS.getErrorCode(),
+        PipelineSchematicsErrorCode.ADMIRALTY_CHART.getErrorCode()};
+    bindingResult.addError(new ObjectError("summaryForm", errorCodes, null, ""));
+    var validationSummary = technicalDrawingSectionService.getValidationSummary(bindingResult);
+    assertThat(validationSummary.isComplete()).isFalse();
+    assertThat(validationSummary.getErrorMessage()).isEqualTo(
+        "An admiralty chart must be provided, and all pipelines must be linked to a drawing");
   }
 
   @Test

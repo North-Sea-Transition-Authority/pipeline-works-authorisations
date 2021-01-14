@@ -1,7 +1,12 @@
 package uk.co.ogauthority.pwa.controller.pwaapplications.shared.techdrawings;
 
+import com.google.common.annotations.VisibleForTesting;
+import java.util.Arrays;
+import java.util.Objects;
+import java.util.stream.Collectors;
 import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,6 +34,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.Admiral
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.AdmiraltyChartUrlFactory;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.PadTechnicalDrawingService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.PipelineDrawingUrlFactory;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.PipelineSchematicsErrorCode;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.TechnicalDrawingSectionService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.UmbilicalCrossSectionService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.UmbilicalCrossSectionUrlFactory;
@@ -103,6 +109,7 @@ public class TechnicalDrawingsController {
     return getOverviewModelAndView(applicationContext.getApplicationDetail());
   }
 
+
   @PostMapping
   public ModelAndView postOverview(@PathVariable("applicationType")
                                    @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
@@ -113,10 +120,10 @@ public class TechnicalDrawingsController {
                                    AuthenticatedUserAccount user) {
     var detail = applicationContext.getApplicationDetail();
     bindingResult = technicalDrawingSectionService.validate(form, bindingResult, ValidationType.FULL, detail);
-    if (bindingResult.hasErrors()) {
+    var validationSummary = technicalDrawingSectionService.getValidationSummary(bindingResult);
+    if (!validationSummary.isComplete()) {
       return getOverviewModelAndView(detail)
-          .addObject("errorMessage",
-              "An admiralty chart must be uploaded, and all pipelines must be linked to a drawing")
+          .addObject("errorMessage", validationSummary.getErrorMessage())
           .addObject("validatorFactory", padTechnicalDrawingService.getValidationFactory(detail));
     }
     return pwaApplicationRedirectService.getTaskListRedirect(detail.getPwaApplication());

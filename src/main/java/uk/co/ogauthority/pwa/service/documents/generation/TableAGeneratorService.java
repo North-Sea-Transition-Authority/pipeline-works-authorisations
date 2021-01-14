@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.service.documents.generation;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -25,13 +26,16 @@ public class TableAGeneratorService implements DocumentSectionGenerator {
 
   private final PipelineDiffableSummaryService pipelineDiffableSummaryService;
   private final PadProjectInformationService padProjectInformationService;
+  private final ConsentDocumentImageService consentDocumentImageService;
 
   @Autowired
   public TableAGeneratorService(
       PipelineDiffableSummaryService pipelineDiffableSummaryService,
-      PadProjectInformationService padProjectInformationService) {
+      PadProjectInformationService padProjectInformationService,
+      ConsentDocumentImageService consentDocumentImageService) {
     this.pipelineDiffableSummaryService = pipelineDiffableSummaryService;
     this.padProjectInformationService = padProjectInformationService;
+    this.consentDocumentImageService = consentDocumentImageService;
   }
 
   @Override
@@ -78,11 +82,17 @@ public class TableAGeneratorService implements DocumentSectionGenerator {
 
           return new DrawingForTableAView(
               tableAViews,
-              projectName, drawingSummary.getFileId(),
-              drawingSummary.getReference()
-          );
+              projectName,
+              drawingSummary.getFileId(),
+              drawingSummary.getReference(),
+              getImgSource(drawingSummary.getFileId()));
         })
         .collect(Collectors.toList());
+  }
+
+  private String getImgSource(String fileId) {
+    Map<String, String> fileIdToImgSourceMap = consentDocumentImageService.convertFilesToImageSourceMap(Set.of(fileId));
+    return fileIdToImgSourceMap.get(fileId);
   }
 
 

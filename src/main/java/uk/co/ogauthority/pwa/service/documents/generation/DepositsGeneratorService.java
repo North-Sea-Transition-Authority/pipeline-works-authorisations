@@ -97,13 +97,16 @@ public class DepositsGeneratorService implements DocumentSectionGenerator {
       PadPermanentDeposit deposit, String pipelineColumnText, List<String> drawingRefs) {
 
     var materialUnitMeasurement = deposit.getMaterialType().equals(MaterialType.ROCK) ? UnitMeasurement.ROCK_GRADE.getSuffixDisplay() : "";
+    var materialSize = deposit.getMaterialType().equals(MaterialType.CONCRETE_MATTRESSES)
+        ? deposit.getConcreteMattressLength() + "x" + deposit.getConcreteMattressWidth() + "x" + deposit.getConcreteMattressDepth()
+        : deposit.getMaterialSize();
 
     return new DepositTableRowView(
         pipelineColumnText,
         DateUtils.createDateEstimateString(deposit.getFromMonth(), deposit.getFromYear()) + "-" +
             DateUtils.createDateEstimateString(deposit.getToMonth(), deposit.getToYear()),
-        deposit.getMaterialType().getDisplayText() + ", " + deposit.getMaterialSize() + " " + materialUnitMeasurement,
-        String.valueOf(deposit.getQuantity()),
+        deposit.getMaterialType().getDisplayText() + ", " + materialSize + " " + materialUnitMeasurement,
+        deposit.getQuantity() % 1 == 0 ? String.valueOf((int) deposit.getQuantity()) : String.valueOf(deposit.getQuantity()),
         deposit.getFromCoordinates(),
         deposit.getToCoordinates(),
         drawingRefs

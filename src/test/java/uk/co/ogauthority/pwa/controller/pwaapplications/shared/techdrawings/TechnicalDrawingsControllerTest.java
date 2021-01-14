@@ -37,6 +37,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationConte
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.AdmiraltyChartFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.PadTechnicalDrawingService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.TechnicalDrawingSectionService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.TechnicalDrawingsSectionValidationSummary;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.UmbilicalCrossSectionService;
 import uk.co.ogauthority.pwa.testutils.ControllerTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
@@ -92,7 +93,6 @@ public class TechnicalDrawingsControllerTest extends PwaApplicationContextAbstra
     pwaApplicationDetail.getPwaApplication().setId(APP_ID);
     when(pwaApplicationDetailService.getTipDetail(pwaApplicationDetail.getMasterPwaApplicationId())).thenReturn(
         pwaApplicationDetail);
-
   }
 
   @Test
@@ -151,6 +151,9 @@ public class TechnicalDrawingsControllerTest extends PwaApplicationContextAbstra
 
     when(pwaContactService.getContactRoles(any(), any())).thenReturn(Set.of(PwaContactRole.PREPARER));
 
+    when(technicalDrawingSectionService.getValidationSummary(any())).thenReturn(
+        TechnicalDrawingsSectionValidationSummary.createInvalidSummary(""));
+
     ControllerTestUtils.failValidationWhenPost(technicalDrawingSectionService, new SummaryForm(), ValidationType.FULL);
 
     mockMvc.perform(post(ReverseRouter.route(on(TechnicalDrawingsController.class)
@@ -171,6 +174,9 @@ public class TechnicalDrawingsControllerTest extends PwaApplicationContextAbstra
   public void postHuooSummary_Valid() throws Exception {
 
     when(pwaContactService.getContactRoles(any(), any())).thenReturn(Set.of(PwaContactRole.PREPARER));
+
+    when(technicalDrawingSectionService.getValidationSummary(any())).thenReturn(
+        TechnicalDrawingsSectionValidationSummary.createValidSummary());
 
     ControllerTestUtils.passValidationWhenPost(technicalDrawingSectionService, new SummaryForm(), ValidationType.FULL);
 

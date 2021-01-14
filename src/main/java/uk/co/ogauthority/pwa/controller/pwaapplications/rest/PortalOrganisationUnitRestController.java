@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import uk.co.ogauthority.pwa.energyportal.service.organisations.PortalOrganisationsAccessor;
 import uk.co.ogauthority.pwa.model.form.fds.RestSearchItem;
 import uk.co.ogauthority.pwa.model.form.fds.RestSearchResult;
-import uk.co.ogauthority.pwa.service.search.SearchSelectorService;
+import uk.co.ogauthority.pwa.service.searchselector.SearchSelectorService;
 
 @RestController
 @RequestMapping("/api/portal")

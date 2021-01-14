@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.service.search;
+package uk.co.ogauthority.pwa.service.searchselector;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;

@@ -29,7 +29,7 @@
         <tr>
           <td> ${depositTableRowView.pipelineNumber} </td>
           <td> ${depositTableRowView.proposedDate} </td>
-          <td> ${depositTableRowView.typeAndSizeOfMaterials} </td>
+          <td class="materialTypeAndSize"> ${depositTableRowView.typeAndSizeOfMaterials} </td>
           <td> ${depositTableRowView.quantity} </td>
           <td class="coordinateTableCell"> <@pwaCoordinate.display coordinatePair=depositTableRowView.fromCoordinates/> </td>
           <td class="coordinateTableCell"> <@pwaCoordinate.display coordinatePair=depositTableRowView.toCoordinates/> </td>

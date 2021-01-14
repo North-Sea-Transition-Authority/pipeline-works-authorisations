@@ -9,13 +9,15 @@ public class DrawingForTableAView {
   private final String projectName;
   private final String drawingFileId;
   private final String drawingReference;
+  private final String imageSource;
 
   public DrawingForTableAView(List<TableAView> tableAViews, String projectName, String drawingFileId,
-                              String drawingReference) {
+                              String drawingReference, String imageSource) {
     this.tableAViews = tableAViews;
     this.projectName = projectName;
     this.drawingFileId = drawingFileId;
     this.drawingReference = drawingReference;
+    this.imageSource = imageSource;
   }
 
 
@@ -35,6 +37,9 @@ public class DrawingForTableAView {
     return drawingReference;
   }
 
+  public String getImageSource() {
+    return imageSource;
+  }
 
   @Override
   public boolean equals(Object o) {
@@ -48,12 +53,13 @@ public class DrawingForTableAView {
     return Objects.equals(tableAViews, that.tableAViews)
         && Objects.equals(projectName, that.projectName)
         && Objects.equals(drawingFileId, that.drawingFileId)
-        && Objects.equals(drawingReference, that.drawingReference);
+        && Objects.equals(drawingReference, that.drawingReference)
+        && Objects.equals(imageSource, that.imageSource);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(tableAViews, projectName, drawingFileId, drawingReference);
+    return Objects.hash(tableAViews, projectName, drawingFileId, drawingReference, imageSource);
   }
 }
 
