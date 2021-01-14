@@ -39,8 +39,8 @@ public class TopMenuService {
 
     if (systemAreaAccessService.canAccessApplicationSearch(user)) {
       menuItems.add(
-          new TopMenuItem(APPLICATION_SEARCH_TITLE, ReverseRouter.route(on(ApplicationSearchController.class)
-              .renderApplicationSearch(null))));
+          new TopMenuItem(APPLICATION_SEARCH_TITLE, ApplicationSearchController.routeToLandingPage())
+      );
     }
 
     if (systemAreaAccessService.canAccessTeamManagement(user)) {

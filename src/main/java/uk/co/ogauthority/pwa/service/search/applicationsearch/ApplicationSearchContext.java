@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.service.search.applicationsearch;
 
+import java.util.Objects;
 import java.util.Set;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationGroup;
@@ -45,5 +46,27 @@ public class ApplicationSearchContext {
 
   public Set<OrganisationUnitId> getOrgUnitIdsAssociatedWithHolderTeamMembership() {
     return orgUnitIdsAssociatedWithHolderTeamMembership;
+  }
+
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    ApplicationSearchContext that = (ApplicationSearchContext) o;
+    return Objects.equals(authenticatedUserAccount,
+        that.authenticatedUserAccount) && userType == that.userType && Objects.equals(
+        orgGroupsWhereMemberOfHolderTeam, that.orgGroupsWhereMemberOfHolderTeam) && Objects.equals(
+        orgUnitIdsAssociatedWithHolderTeamMembership, that.orgUnitIdsAssociatedWithHolderTeamMembership);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(authenticatedUserAccount, userType, orgGroupsWhereMemberOfHolderTeam,
+        orgUnitIdsAssociatedWithHolderTeamMembership);
   }
 }
