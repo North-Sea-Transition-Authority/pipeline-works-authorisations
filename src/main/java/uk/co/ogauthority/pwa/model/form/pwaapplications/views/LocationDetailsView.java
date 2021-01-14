@@ -8,6 +8,8 @@ public class LocationDetailsView {
 
   private final String approximateProjectLocationFromShore;
   private final HseSafetyZone withinSafetyZone;
+  private final Boolean psrNotificationSubmitted;
+  private final String psrNotificationSubmissionDate;
   private final List<String> facilitiesIfYes;
   private final List<String> facilitiesIfPartially;
   private final Boolean facilitiesOffshore;
@@ -29,6 +31,8 @@ public class LocationDetailsView {
 
   public LocationDetailsView(String approximateProjectLocationFromShore,
                              HseSafetyZone withinSafetyZone,
+                             Boolean psrNotificationSubmitted,
+                             String psrNotificationSubmissionDate,
                              List<String> facilitiesIfYes,
                              List<String> facilitiesIfPartially,
                              Boolean facilitiesOffshore,
@@ -43,6 +47,8 @@ public class LocationDetailsView {
                              List<UploadedFileView> uploadedLetterFileViews) {
     this.approximateProjectLocationFromShore = approximateProjectLocationFromShore;
     this.withinSafetyZone = withinSafetyZone;
+    this.psrNotificationSubmitted = psrNotificationSubmitted;
+    this.psrNotificationSubmissionDate = psrNotificationSubmissionDate;
     this.facilitiesIfYes = facilitiesIfYes;
     this.facilitiesIfPartially = facilitiesIfPartially;
     this.facilitiesOffshore = facilitiesOffshore;
@@ -67,6 +73,14 @@ public class LocationDetailsView {
 
   public HseSafetyZone getWithinSafetyZone() {
     return withinSafetyZone;
+  }
+
+  public Boolean getPsrNotificationSubmitted() {
+    return psrNotificationSubmitted;
+  }
+
+  public String getPsrNotificationSubmissionDate() {
+    return psrNotificationSubmissionDate;
   }
 
   public List<String> getFacilitiesIfYes() {

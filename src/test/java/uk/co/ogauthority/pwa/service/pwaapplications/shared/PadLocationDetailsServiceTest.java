@@ -400,6 +400,42 @@ public class PadLocationDetailsServiceTest {
   }
 
   @Test
+  public void getLocationDetailsView_withinSafetyZone_notificationSubmitted() {
+    padLocationDetails.setWithinSafetyZone(HseSafetyZone.YES);
+    padLocationDetails.setPsrNotificationSubmitted(true);
+    padLocationDetails.setPsrNotificationSubmittedMonth(5);
+    padLocationDetails.setPsrNotificationSubmittedYear(2020);
+    when(padLocationDetailsRepository.findByPwaApplicationDetail(pwaApplicationDetail))
+        .thenReturn(Optional.of(padLocationDetails));
+
+    var locationDetailsView = padLocationDetailsService.getLocationDetailsView(pwaApplicationDetail);
+    assertThat(locationDetailsView.getWithinSafetyZone()).isEqualTo(padLocationDetails.getWithinSafetyZone());
+    assertThat(locationDetailsView.getPsrNotificationSubmitted()).isEqualTo(padLocationDetails.getPsrNotificationSubmitted());
+    assertThat(locationDetailsView.getPsrNotificationSubmissionDate()).isEqualTo(
+        DateUtils.createDateEstimateString(padLocationDetails.getPsrNotificationSubmittedMonth(),
+            padLocationDetails.getPsrNotificationSubmittedYear())
+    );
+  }
+
+  @Test
+  public void getLocationDetailsView_withinSafetyZone_notificationNotSubmitted() {
+    padLocationDetails.setWithinSafetyZone(HseSafetyZone.YES);
+    padLocationDetails.setPsrNotificationSubmitted(false);
+    padLocationDetails.setPsrNotificationExpectedSubmissionMonth(5);
+    padLocationDetails.setPsrNotificationExpectedSubmissionYear(2020);
+    when(padLocationDetailsRepository.findByPwaApplicationDetail(pwaApplicationDetail))
+        .thenReturn(Optional.of(padLocationDetails));
+
+    var locationDetailsView = padLocationDetailsService.getLocationDetailsView(pwaApplicationDetail);
+    assertThat(locationDetailsView.getWithinSafetyZone()).isEqualTo(padLocationDetails.getWithinSafetyZone());
+    assertThat(locationDetailsView.getPsrNotificationSubmitted()).isEqualTo(padLocationDetails.getPsrNotificationSubmitted());
+    assertThat(locationDetailsView.getPsrNotificationSubmissionDate()).isEqualTo(
+        DateUtils.createDateEstimateString(padLocationDetails.getPsrNotificationExpectedSubmissionMonth(),
+            padLocationDetails.getPsrNotificationExpectedSubmissionYear())
+    );
+  }
+
+  @Test
   public void getRequiredQuestions_depconAppType() {
     var requiredQuestions = padLocationDetailsService.getRequiredQuestions(PwaApplicationType.DEPOSIT_CONSENT);
     assertThat(requiredQuestions).containsOnly(
