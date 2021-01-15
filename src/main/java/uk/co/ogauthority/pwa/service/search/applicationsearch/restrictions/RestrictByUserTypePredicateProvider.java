@@ -3,10 +3,12 @@ package uk.co.ogauthority.pwa.service.search.applicationsearch.restrictions;
 import static java.util.stream.Collectors.toSet;
 
 import java.time.Instant;
+import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Join;
+import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
@@ -14,8 +16,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
+import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit_;
 import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail_;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication_;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.huoo.PadOrganisationRole;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.huoo.PadOrganisationRole_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailView;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailView_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.PadVersionLookup;
@@ -24,7 +34,6 @@ import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsentOrganisationRole;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsentOrganisationRole_;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent_;
-import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.search.applicationsearch.ApplicationSearchContext;
 import uk.co.ogauthority.pwa.service.search.applicationsearch.ApplicationSearchParameters;
 
@@ -64,7 +73,7 @@ public class RestrictByUserTypePredicateProvider implements ApplicationSearchPre
       case OGA:
         return createRegulatorUserPredicate(applicationSearchContext, applicationSearchParameters, searchCoreQuery, searchCoreRoot);
       case INDUSTRY:
-        return createIndustryUserPredicate(applicationSearchContext, applicationSearchParameters, searchCoreQuery, searchCoreRoot);
+        return createIndustryUserPredicate(applicationSearchContext, searchCoreQuery, searchCoreRoot);
       case CONSULTEE:
         return createConsulteeUserPredicate(applicationSearchContext, applicationSearchParameters, searchCoreQuery, searchCoreRoot);
       default: throw new IllegalArgumentException(
@@ -73,7 +82,6 @@ public class RestrictByUserTypePredicateProvider implements ApplicationSearchPre
     }
 
   }
-
 
   private Predicate getLastSubmittedVersionPredicate(CriteriaQuery<ApplicationDetailView> searchCoreQuery,
                                                      Root<ApplicationDetailView> searchCoreRoot) {
@@ -91,8 +99,6 @@ public class RestrictByUserTypePredicateProvider implements ApplicationSearchPre
     return cb.equal(searchCoreRoot.get(ApplicationDetailView_.PAD_SUBMITTED_TIMESTAMP), subQuery);
 
   }
-
-
 
   /**
    * Restrict to the last submitted version of all apps only.
@@ -122,48 +128,109 @@ public class RestrictByUserTypePredicateProvider implements ApplicationSearchPre
 
   /**
    * Return the last submitted version of applications where the user's "holder" team is a Holder of the top level PWA.
-   * NB. Holders defined the application should be ignored.
+   * NB. Holders defined the application should be ignored expect when its an INITIAL_PWA application.
    */
   private Predicate createIndustryUserPredicate(ApplicationSearchContext applicationSearchContext,
-                                                ApplicationSearchParameters applicationSearchParameters,
                                                 CriteriaQuery<ApplicationDetailView> searchCoreQuery,
                                                 Root<ApplicationDetailView> searchCoreRoot) {
 
     CriteriaBuilder cb = entityManager.getCriteriaBuilder();
 
     var lastSubmittedVersionPredicate = getLastSubmittedVersionPredicate(searchCoreQuery, searchCoreRoot);
-    var lastSubmittedOrFirstDraftPredicate = cb.or(
+
+    // limit so we only ever see the last submitted version
+    // and
+    // A the last submitted version is for an INITIAL_PWA app where HOLDER set to users org
+    // or
+    // B the master pwa ID of the application matches one where a consented HOLDER is one of the user's orgs
+
+    return cb.and(
         lastSubmittedVersionPredicate,
-        cb.and(
-            cb.equal(searchCoreRoot.get(ApplicationDetailView_.VERSION_NO), FIRST_VERSION_NUMBER),
-            cb.equal(searchCoreRoot.get(ApplicationDetailView_.PAD_STATUS), PwaApplicationStatus.DRAFT)
+        cb.or(
+            getSubmittedInitialPwaApplicationsPredicate(applicationSearchContext, searchCoreQuery, searchCoreRoot),
+            getSubmittedVariationApplicationsPredicate(applicationSearchContext, searchCoreQuery, searchCoreRoot)
         )
     );
+
+  }
+
+  /**
+   * Predicate that makes sure latest version of InitialPwa applications are returned when user org unit
+   * is in holder orggrp of HOLDER on latest submitted version of app.
+   */
+  private Predicate getSubmittedInitialPwaApplicationsPredicate(ApplicationSearchContext applicationSearchContext,
+                                                                CriteriaQuery<ApplicationDetailView> searchCoreQuery,
+                                                                Root<ApplicationDetailView> searchCoreRoot) {
+
+    CriteriaBuilder cb = entityManager.getCriteriaBuilder();
 
     var holderOrgUnitIds = applicationSearchContext.getOrgUnitIdsAssociatedWithHolderTeamMembership()
         .stream()
         .map(OrganisationUnitId::asInt)
         .collect(toSet());
 
-    Subquery<Integer> subQuery = searchCoreQuery.subquery(Integer.class);
-    Root<PwaConsentOrganisationRole> subRoot = subQuery.from(PwaConsentOrganisationRole.class);
+    // for initial app, do a seperate independant query search to get the last submitted Initial Pwa apps where is a holder
+    // return app id
+    CriteriaQuery<Integer> initialPwaApplicationQuery = cb.createQuery(Integer.class);
+    Root<PadOrganisationRole> padOrgRoleRoot = initialPwaApplicationQuery.from(PadOrganisationRole.class);
+    Join<PadOrganisationRole, PortalOrganisationUnit> padOrgRoleToPortalOrgUnitJoin = padOrgRoleRoot
+        .join(PadOrganisationRole_.ORGANISATION_UNIT);
+    Join<PadOrganisationRole, PwaApplicationDetail> orgRoleToAppDetailJoin = padOrgRoleRoot
+        .join(PadOrganisationRole_.PWA_APPLICATION_DETAIL);
+    Join<PwaApplicationDetail, PwaApplication> appDetailToAppJoin = orgRoleToAppDetailJoin.join(PwaApplicationDetail_.PWA_APPLICATION);
 
-    Join<PwaConsentOrganisationRole, PwaConsent> orgRoleToConsentJoin = subRoot.join(PwaConsentOrganisationRole_.ADDED_BY_PWA_CONSENT);
 
-    // return master pwa ids from subquery where a holder is one of the org units within searchers org group(s)
-    subQuery.select(orgRoleToConsentJoin.get(PwaConsent_.MASTER_PWA));
-    subQuery.where(cb.and(
-        cb.in(subRoot.get(PwaConsentOrganisationRole_.ORGANISATION_UNIT_ID)).value(holderOrgUnitIds),
-        cb.isNull(subRoot.get(PwaConsentOrganisationRole_.ENDED_BY_PWA_CONSENT)), // maybe move to WHERE
-        cb.equal(subRoot.get(PwaConsentOrganisationRole_.ROLE), HuooRole.HOLDER)
-    ));
-
-    var holderApplicationsPredicate = cb.in(searchCoreRoot.get(ApplicationDetailView_.PWA_ID)).value(subQuery);
-
-    return cb.and(
-        lastSubmittedOrFirstDraftPredicate,
-        holderApplicationsPredicate
+    // have to do a sepeate "last submitted version"  subquery here so that only those initial pwa app where you are a holder on the last
+    // submitted version get returned and included in the results. Dont want a situation where if you were a holder on a previous
+    // version the whole initial PWA app gets returned.
+    Subquery<Instant> lastSubmittedVersionSubQuery = initialPwaApplicationQuery.subquery(Instant.class);
+    Root<PadVersionLookup> padVersionLookupRoot = lastSubmittedVersionSubQuery.from(PadVersionLookup.class);
+    lastSubmittedVersionSubQuery.select(padVersionLookupRoot.get(PadVersionLookup_.LATEST_SUBMITTED_TIMESTAMP));
+    // correlate version lookup subquery by app id to avoid returning rows which happen to have the matching timestamps
+    lastSubmittedVersionSubQuery.where(
+        cb.equal(appDetailToAppJoin.get(PwaApplication_.ID), padVersionLookupRoot.get(PadVersionLookup_.PWA_APPLICATION_ID))
     );
 
+    Path<Integer> applicationDetailId = appDetailToAppJoin.getParent().get(PwaApplicationDetail_.ID);
+    Path<Instant> applicationDetailSubmittedInstant = appDetailToAppJoin.getParent().get(PwaApplicationDetail_.SUBMITTED_TIMESTAMP);
+    initialPwaApplicationQuery.select(applicationDetailId);
+    initialPwaApplicationQuery.where(cb.and(
+        cb.equal(padOrgRoleRoot.get(PadOrganisationRole_.ROLE), HuooRole.HOLDER),
+        cb.in(padOrgRoleToPortalOrgUnitJoin.get(PortalOrganisationUnit_.OU_ID)).value(holderOrgUnitIds),
+        cb.in(applicationDetailSubmittedInstant).value(lastSubmittedVersionSubQuery)
+    ));
+
+    List<Integer> initialPwaAppDetailIdsWhereHolder = entityManager.createQuery(initialPwaApplicationQuery).getResultList();
+
+
+    return cb.in(searchCoreRoot.get(ApplicationDetailView_.PWA_APPLICATION_DETAIL_ID)).value(initialPwaAppDetailIdsWhereHolder);
+
+  }
+
+  private Predicate getSubmittedVariationApplicationsPredicate(ApplicationSearchContext applicationSearchContext,
+                                                               CriteriaQuery<ApplicationDetailView> searchCoreQuery,
+                                                               Root<ApplicationDetailView> searchCoreRoot) {
+    CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+
+    var holderOrgUnitIds = applicationSearchContext.getOrgUnitIdsAssociatedWithHolderTeamMembership()
+        .stream()
+        .map(OrganisationUnitId::asInt)
+        .collect(toSet());
+
+    Subquery<Integer> variationApplicationSubQuery = searchCoreQuery.subquery(Integer.class);
+    Root<PwaConsentOrganisationRole> pwaConsentOrgRoleRoot = variationApplicationSubQuery.from(PwaConsentOrganisationRole.class);
+
+    Join<PwaConsentOrganisationRole, PwaConsent> orgRoleToConsentJoin = pwaConsentOrgRoleRoot
+        .join(PwaConsentOrganisationRole_.ADDED_BY_PWA_CONSENT);
+
+    // return master pwa ids from subquery where a holder is one of the org units within searchers org group(s)
+    variationApplicationSubQuery.select(orgRoleToConsentJoin.get(PwaConsent_.MASTER_PWA));
+    variationApplicationSubQuery.where(cb.and(
+        cb.in(pwaConsentOrgRoleRoot.get(PwaConsentOrganisationRole_.ORGANISATION_UNIT_ID)).value(holderOrgUnitIds),
+        cb.isNull(pwaConsentOrgRoleRoot.get(PwaConsentOrganisationRole_.ENDED_BY_PWA_CONSENT)), // maybe move to WHERE
+        cb.equal(pwaConsentOrgRoleRoot.get(PwaConsentOrganisationRole_.ROLE), HuooRole.HOLDER)
+    ));
+
+    return cb.in(searchCoreRoot.get(ApplicationDetailView_.PWA_ID)).value(variationApplicationSubQuery);
   }
 }

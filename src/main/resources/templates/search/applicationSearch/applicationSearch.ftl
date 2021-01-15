@@ -9,6 +9,8 @@
 
 <@defaultPage htmlTitle="Search applications" pageHeading="Search applications" fullWidthColumn=true topNavigation=true>
 
+    <@fdsInsetText.insetText>Search for submitted applications only, draft applications you are permitted to access are available in the work area.</@fdsInsetText.insetText>
+
     <#if appSearchEntryState == "SEARCH" && !displayableResults?has_content>
     <h2 class="govuk-heading-s">There are no matching results</h2>
     <p class="govuk-body">Improve your results by:</p>

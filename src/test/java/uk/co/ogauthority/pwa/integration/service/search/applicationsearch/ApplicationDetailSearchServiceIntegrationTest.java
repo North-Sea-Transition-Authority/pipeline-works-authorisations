@@ -21,10 +21,13 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
+import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaTestUtil;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailView;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailViewTestUtil;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.PadVersionLookup;
@@ -32,13 +35,16 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.PadVersionLooku
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsentOrganisationRoleTestUtil;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsentTestUtil;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.users.UserType;
+import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadOrganisationRoleTestUtil;
 import uk.co.ogauthority.pwa.service.search.applicationsearch.ApplicationDetailSearchService;
 import uk.co.ogauthority.pwa.service.search.applicationsearch.ApplicationSearchContext;
 import uk.co.ogauthority.pwa.service.search.applicationsearch.ApplicationSearchContextTestUtil;
 import uk.co.ogauthority.pwa.service.search.applicationsearch.ApplicationSearchParameters;
 import uk.co.ogauthority.pwa.service.search.applicationsearch.ApplicationSearchParametersBuilder;
+import uk.co.ogauthority.pwa.testutils.PortalOrganisationTestUtils;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -53,9 +59,9 @@ public class ApplicationDetailSearchServiceIntegrationTest {
   private static final OrganisationUnitId USER_HOLDER_ORG_UNIT_ID = new OrganisationUnitId(10);
   private static final OrganisationUnitId OTHER_HOLDER_ORG_UNIT_ID = new OrganisationUnitId(20);
 
-  private static final int APP1_ID = 1;
-  private static final int APP2_ID = 2;
-  private static final int APP3_ID = 3;
+  private static final int APP1_ID = 10;
+  private static final int APP2_ID = 20;
+  private static final int APP3_ID = 30;
 
   private static final int VERSION1 = 1;
   private static final int VERSION2 = 2;
@@ -71,14 +77,15 @@ public class ApplicationDetailSearchServiceIntegrationTest {
   private PadVersionLookup app2VersionLookup;
   private PadVersionLookup app3VersionLookup;
 
-  private int pwa1_id;
-  private int pwa2_id;
+  private PortalOrganisationUnit portalOrg1;
 
   private MasterPwa pwa1;
   private PwaConsent pwa1Consent;
 
   private MasterPwa pwa2;
   private PwaConsent pwa2Consent;
+
+  private MasterPwa pwa3;// for initial PWA app testing
 
   private ApplicationSearchContext searchContext;
   private ApplicationSearchParameters searchParams;
@@ -91,15 +98,15 @@ public class ApplicationDetailSearchServiceIntegrationTest {
 
   public void createDefaultAppDetailViews() {
     app1Version1 = ApplicationDetailViewTestUtil.createDraftDetailView(
-        pwa1_id, PwaApplicationType.INITIAL, APP1_ID, 10, VERSION1, true
+        pwa1.getId(), PwaApplicationType.INITIAL, APP1_ID, 10, VERSION1, true
     );
     app1VersionLookup = PadVersionLookupTestUtil.createLookupForDraftOnlyApp(APP1_ID);
 
     app2Version1 = ApplicationDetailViewTestUtil.createSubmittedReviewDetailView(
-        pwa1_id, PwaApplicationType.CAT_1_VARIATION, APP2_ID, 20, VERSION1, false, clock.instant().minusSeconds(1000)
+        pwa1.getId(), PwaApplicationType.CAT_1_VARIATION, APP2_ID, 20, VERSION1, false, clock.instant().minusSeconds(1000)
     );
     app2Version2 = ApplicationDetailViewTestUtil.createSubmittedReviewDetailView(
-        pwa1_id, PwaApplicationType.CAT_2_VARIATION, APP2_ID, 30, VERSION2, true, clock.instant()
+        pwa1.getId(), PwaApplicationType.CAT_2_VARIATION, APP2_ID, 30, VERSION2, true, clock.instant()
     );
     // only submitted - no ongoing update - not accepted
     app2VersionLookup = PadVersionLookupTestUtil.createLookupForSubmittedApp(
@@ -110,7 +117,7 @@ public class ApplicationDetailSearchServiceIntegrationTest {
     );
 
     app3Version1 = ApplicationDetailViewTestUtil.createDraftDetailView(
-        pwa2_id, PwaApplicationType.HUOO_VARIATION, APP3_ID, 40, VERSION1, true
+        pwa2.getId(), PwaApplicationType.HUOO_VARIATION, APP3_ID, 40, VERSION1, true
     );
     app3VersionLookup = PadVersionLookupTestUtil.createLookupForDraftOnlyApp(APP3_ID);
 
@@ -155,23 +162,21 @@ public class ApplicationDetailSearchServiceIntegrationTest {
    */
   public void search_whenRegulatorUser_unfiltered_multipleSubmittedVersionsOfApp() {
 
-    createDefaultAppDetailViews();
-    persistAppDetailViews();
+    setupDefaultData();
 
     searchContext = getRegulatorContext();
     searchParams = ApplicationSearchParametersBuilder.createEmptyParams();
 
     var results = applicationDetailSearchService.search(searchParams, searchContext);
 
-    //assert null start date item is first
     assertThat(results).containsExactly(
         app2Version2
     );
 
   }
 
-  private void setupDefaultIndustryData(){
-    setupDefaultPwaConsentsAndHolder();
+  private void setupDefaultData(){
+    setupDefaultPwaConsentsAndHolderOrgs();
     createDefaultAppDetailViews();
     persistAppDetailViews();
 
@@ -184,14 +189,13 @@ public class ApplicationDetailSearchServiceIntegrationTest {
    */
   public void search_whenIndustryUser_unfiltered_noCurrentPwasHeldByOrgGroupOrgUnits() {
 
-    setupDefaultIndustryData();
+    setupDefaultData();
 
     searchContext = getIndustryContext(new OrganisationUnitId(9999));
     searchParams = ApplicationSearchParametersBuilder.createEmptyParams();
 
     var results = applicationDetailSearchService.search(searchParams, searchContext);
 
-    //assert null start date item is first
     assertThat(results).isEmpty();
 
   }
@@ -203,27 +207,76 @@ public class ApplicationDetailSearchServiceIntegrationTest {
    */
   public void search_whenIndustryUser_unfiltered_applicationsForPwaWhereUserInOrgGrpTeam_submittedAndDraftAppsExist() {
 
-    setupDefaultIndustryData();
+    setupDefaultData();
 
     searchContext = getIndustryContext(USER_HOLDER_ORG_UNIT_ID);
     searchParams = ApplicationSearchParametersBuilder.createEmptyParams();
 
     var results = applicationDetailSearchService.search(searchParams, searchContext);
 
-    //assert null start date item is first
-    assertThat(results).containsExactlyInAnyOrder(app1Version1, app2Version2);
+    assertThat(results).containsExactlyInAnyOrder(app2Version2);
 
   }
 
+  @Transactional
+  @Test
+  /**
+   * Test that submitted initial PWA apps appear before they are consented
+   */
+  public void search_whenIndustryUser_unfiltered_submittedInitialPwaAppExists() {
 
-  private void setupDefaultPwaConsentsAndHolder() {
+    setupDefaultData();
+    searchContext = getIndustryContext(USER_HOLDER_ORG_UNIT_ID);
+    searchParams = ApplicationSearchParametersBuilder.createEmptyParams();
+
+    var app = new PwaApplication(pwa3, PwaApplicationType.INITIAL, 0);
+    entityManager.persist(app);
+    var appDetail = new PwaApplicationDetail(app, 1, 1, clock.instant());
+    appDetail.setStatus(PwaApplicationStatus.CASE_OFFICER_REVIEW);
+    appDetail.setSubmittedTimestamp(clock.instant());
+    entityManager.persist(appDetail);
+    var padOrgRole = PadOrganisationRoleTestUtil.createOrgRole(HuooRole.HOLDER, portalOrg1);
+    padOrgRole.setPwaApplicationDetail(appDetail);
+    entityManager.persist(padOrgRole);
+
+    var initialAppDetailView = ApplicationDetailViewTestUtil.createSubmittedReviewDetailView(
+        appDetail.getMasterPwaApplication().getId(),
+        app.getApplicationType(),
+        app.getId(),
+        appDetail.getId(),
+        appDetail.getVersionNo(),
+        appDetail.isTipFlag(),
+        appDetail.getSubmittedTimestamp()
+    );
+    var initialAppLookup = PadVersionLookupTestUtil.createLookupForSubmittedApp(
+        appDetail.getMasterPwaApplicationId(),
+        appDetail.getSubmittedTimestamp(),
+        null,
+        null
+    );
+
+    entityManager.persist(initialAppDetailView);
+    entityManager.persist(initialAppLookup);
+
+    var results = applicationDetailSearchService.search(searchParams, searchContext);
+
+    assertThat(results).containsExactlyInAnyOrder(app2Version2, initialAppDetailView);
+
+  }
+
+  private void setupDefaultPwaConsentsAndHolderOrgs() {
+    portalOrg1 = PortalOrganisationTestUtils.generateOrganisationUnit(USER_HOLDER_ORG_UNIT_ID.asInt(), "ou1", null);
+    entityManager.persist(portalOrg1);
+    var portalOrg2 = PortalOrganisationTestUtils.generateOrganisationUnit(OTHER_HOLDER_ORG_UNIT_ID.asInt(), "ou2", null);
+    entityManager.persist(portalOrg2);
+
     pwa1 = MasterPwaTestUtil.create();
     pwa2 = MasterPwaTestUtil.create();
+    pwa3 = MasterPwaTestUtil.create();
 
     entityManager.persist(pwa1);
-    pwa1_id = pwa1.getId();
     entityManager.persist(pwa2);
-    pwa2_id = pwa2.getId();
+    entityManager.persist(pwa3); // for initial PWA app
 
     pwa1Consent = PwaConsentTestUtil.createInitial(pwa1);
     pwa2Consent = PwaConsentTestUtil.createInitial(pwa2);
