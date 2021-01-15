@@ -44,7 +44,7 @@ public class ApplicationDetailSearchService {
     Root<ApplicationDetailView> searchCoreRoot = searchCoreQuery.from(ApplicationDetailView.class);
 
     List<Predicate> predicateList = new ArrayList<>();
-    // loop providers and ger predicates
+    // loop providers and get applicable predicates
     applicationSearchPredicateProviders.stream()
         .filter(applicationSearchPredicateProvider -> applicationSearchPredicateProvider.doesPredicateApply(
             applicationSearchContext,
