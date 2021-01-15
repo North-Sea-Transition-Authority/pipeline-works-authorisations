@@ -4,8 +4,8 @@ import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
+import uk.co.ogauthority.pwa.exception.ApplicationDeletionException;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
 
@@ -31,15 +31,9 @@ public class PwaApplicationDeleteService {
   public void deleteApplication(WebUserAccount submittedByUser,
                                 PwaApplicationDetail pwaApplicationDetail) {
 
-    if (!pwaApplicationDetail.isTipFlag()) {
-      throw new IllegalArgumentException(String.format("Application Detail not tip! id: %s", pwaApplicationDetail.getId()));
+    if (!pwaApplicationDetailService.applicationDetailCanBeDeleted(pwaApplicationDetail)) {
+      throw new ApplicationDeletionException("Cannot delete application detail with id:" + pwaApplicationDetail.getId());
     }
-
-    if (!pwaApplicationDetail.getStatus().equals(PwaApplicationStatus.DRAFT)) {
-      throw new IllegalArgumentException(
-          String.format("Application Detail not draft! id: %s status: %s", pwaApplicationDetail.getId(), pwaApplicationDetail.getStatus()));
-    }
-
 
     pwaApplicationDetailService.setDeleted(pwaApplicationDetail, submittedByUser.getLinkedPerson());
     camundaWorkflowService.deleteProcessInstanceAndThenTasks(pwaApplicationDetail.getPwaApplication());

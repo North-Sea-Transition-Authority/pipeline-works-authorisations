@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.service.pwaapplications.workflow;
 
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.util.List;
 import org.junit.Before;
@@ -12,9 +13,9 @@ import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.energyportal.model.entity.PersonTestUtil;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
+import uk.co.ogauthority.pwa.exception.ApplicationDeletionException;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
@@ -45,6 +46,7 @@ public class PwaApplicationDeleteServiceTest {
     var deletingPerson = PersonTestUtil.createDefaultPerson();
     var deletingUser = new AuthenticatedUserAccount(new WebUserAccount(1, deletingPerson), List.of());
 
+    when(pwaApplicationDetailService.applicationDetailCanBeDeleted(pwaApplicationDetail)).thenReturn(true);
     pwaApplicationDeleteService.deleteApplication(deletingUser, pwaApplicationDetail);
 
     verify(camundaWorkflowService, times(1)).deleteProcessInstanceAndThenTasks(
@@ -53,21 +55,13 @@ public class PwaApplicationDeleteServiceTest {
   }
 
 
-  @Test(expected = IllegalArgumentException.class)
-  public void deleteApplication_notTipVersion() {
-    pwaApplicationDetail.setTipFlag(false);
+  @Test(expected = ApplicationDeletionException.class)
+  public void deleteApplication_cannotDelete() {
     var deletingUser = new AuthenticatedUserAccount(new WebUserAccount(1, null), List.of());
+    when(pwaApplicationDetailService.applicationDetailCanBeDeleted(pwaApplicationDetail)).thenReturn(false);
 
     pwaApplicationDeleteService.deleteApplication(deletingUser, pwaApplicationDetail);
   }
 
-
-  @Test(expected = IllegalArgumentException.class)
-  public void deleteApplication_notDraftStatus() {
-    pwaApplicationDetail.setStatus(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW);
-    var deletingUser = new AuthenticatedUserAccount(new WebUserAccount(1, null), List.of());
-
-    pwaApplicationDeleteService.deleteApplication(deletingUser, pwaApplicationDetail);
-  }
 
 }

@@ -71,8 +71,7 @@ public class DeleteApplicationController {
 
 
     pwaApplicationDeleteService.deleteApplication(applicationContext.getUser(), applicationContext.getApplicationDetail());
-    FlashUtils.success(redirectAttributes,"Success",
-        "Deleted application " + applicationContext.getApplicationDetail().getPwaApplicationRef());
+    FlashUtils.info(redirectAttributes,"Deleted application " + applicationContext.getApplicationDetail().getPwaApplicationRef());
     return ReverseRouter.redirect(on(WorkAreaController.class).renderWorkArea(null, null, null));
   }
 

@@ -251,6 +251,11 @@ public class PwaApplicationDetailService {
     pwaApplicationDetailRepository.save(pwaApplicationDetail);
   }
 
+  public boolean applicationDetailCanBeDeleted(PwaApplicationDetail appDetail) {
+    return appDetail.isTipFlag()
+        && appDetail.isFirstVersion()
+        && PwaApplicationStatus.DRAFT.equals(appDetail.getStatus());
+  }
 
   public boolean isInitialReviewApproved(PwaApplicationDetail applicationDetail) {
     return applicationDetail.getInitialReviewApprovedByWuaId() != null && applicationDetail.getInitialReviewApprovedTimestamp() != null;
