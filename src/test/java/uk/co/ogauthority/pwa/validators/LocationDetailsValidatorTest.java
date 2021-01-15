@@ -18,14 +18,20 @@ import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.location.Location
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
+import uk.co.ogauthority.pwa.util.forminputs.twofielddate.TwoFieldDateInputValidator;
 
 public class LocationDetailsValidatorTest {
 
   private LocationDetailsValidator locationDetailsValidator;
+  private LocationDetailsSafetyZoneValidator safetyZoneValidator;
+  private TwoFieldDateInputValidator twoFieldDateInputValidator;
+
 
   @Before
   public void setUp() {
-    locationDetailsValidator = new LocationDetailsValidator();
+    twoFieldDateInputValidator = new TwoFieldDateInputValidator();
+    safetyZoneValidator = new LocationDetailsSafetyZoneValidator(twoFieldDateInputValidator);
+    locationDetailsValidator = new LocationDetailsValidator(safetyZoneValidator);
   }
 
 
@@ -94,17 +100,18 @@ public class LocationDetailsValidatorTest {
     var result = ValidatorTestUtils.getFormValidationErrors(locationDetailsValidator, form,
         getValidationHints(Set.of(LocationDetailsQuestion.WITHIN_SAFETY_ZONE)));
     assertThat(result).doesNotContainKeys("withinSafetyZone");
-    assertThat(result).containsKeys("facilitiesIfPartially");
+    assertThat(result).contains(
+        entry("partiallyWithinSafetyZoneForm.facilities", Set.of("facilities" + FieldValidationErrorCodes.REQUIRED.getCode())));
   }
 
   @Test
   public void validate_withinSafetyZone_partially_withFacilities() {
     var form = new LocationDetailsForm();
     form.setWithinSafetyZone(HseSafetyZone.PARTIALLY);
-    form.setFacilitiesIfPartially(List.of("1"));
+    form.getPartiallyWithinSafetyZoneForm().setFacilities(List.of("1"));
     var result = ValidatorTestUtils.getFormValidationErrors(locationDetailsValidator, form,
         getValidationHints(Set.of(LocationDetailsQuestion.WITHIN_SAFETY_ZONE)));
-    assertThat(result).doesNotContainKeys("withinSafetyZone", "facilitiesIfPartially");
+    assertThat(result).doesNotContainKeys("withinSafetyZone", "partiallyWithinSafetyZoneForm.facilities");
   }
 
   @Test
@@ -114,17 +121,18 @@ public class LocationDetailsValidatorTest {
     var result = ValidatorTestUtils.getFormValidationErrors(locationDetailsValidator, form,
         getValidationHints(Set.of(LocationDetailsQuestion.WITHIN_SAFETY_ZONE)));
     assertThat(result).doesNotContainKeys("withinSafetyZone");
-    assertThat(result).containsKeys("facilitiesIfYes");
+    assertThat(result).contains(
+        entry("completelyWithinSafetyZoneForm.facilities", Set.of("facilities" + FieldValidationErrorCodes.REQUIRED.getCode())));
   }
 
   @Test
   public void validate_withinSafetyZone_yes_withFacilities() {
     var form = new LocationDetailsForm();
     form.setWithinSafetyZone(HseSafetyZone.YES);
-    form.setFacilitiesIfYes(List.of("1"));
+    form.getCompletelyWithinSafetyZoneForm().setFacilities(List.of("1"));
     var result = ValidatorTestUtils.getFormValidationErrors(locationDetailsValidator, form,
         getValidationHints(Set.of(LocationDetailsQuestion.WITHIN_SAFETY_ZONE)));
-    assertThat(result).doesNotContainKeys("withinSafetyZone", "facilitiesIfYes");
+    assertThat(result).doesNotContainKeys("withinSafetyZone", "completelyWithinSafetyZoneForm.facilities");
   }
 
   @Test

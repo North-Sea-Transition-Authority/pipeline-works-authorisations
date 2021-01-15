@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.validators;
 
 import java.util.Set;
 import org.apache.commons.lang3.BooleanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import org.springframework.validation.SmartValidator;
@@ -15,6 +16,15 @@ import uk.co.ogauthority.pwa.util.ValidatorUtils;
 
 @Service
 public class LocationDetailsValidator implements SmartValidator {
+
+  private final LocationDetailsSafetyZoneValidator safetyZoneValidator;
+
+
+  @Autowired
+  public LocationDetailsValidator(
+      LocationDetailsSafetyZoneValidator safetyZoneValidator) {
+    this.safetyZoneValidator = safetyZoneValidator;
+  }
 
   @Override
   public boolean supports(Class<?> clazz) {
@@ -86,25 +96,30 @@ public class LocationDetailsValidator implements SmartValidator {
 
     if (requiredQuestions.contains(LocationDetailsQuestion.WITHIN_SAFETY_ZONE)) {
       if (form.getWithinSafetyZone() == null) {
-        errors.rejectValue("withinSafetyZone", "withinSafetyZone.required",
+        errors.rejectValue("withinSafetyZone",
+            "withinSafetyZone" + FieldValidationErrorCodes.REQUIRED.getCode(),
             "Enter information on work carried out within 500m of a safety zone");
+
       } else {
         switch (form.getWithinSafetyZone()) {
           case YES:
-            if (form.getFacilitiesIfYes().size() == 0) {
-              errors.rejectValue("facilitiesIfYes", "facilitiesIfYes.required",
-                  "Select all structures within 500m");
-            }
+            ValidatorUtils.invokeNestedValidator(
+                errors,
+                safetyZoneValidator,
+                "completelyWithinSafetyZoneForm",
+                form.getCompletelyWithinSafetyZoneForm());
             break;
           case PARTIALLY:
-            if (form.getFacilitiesIfPartially().size() == 0) {
-              errors.rejectValue("facilitiesIfPartially", "facilitiesIfPartially.required",
-                  "Select all structures within 500m");
-            }
+            ValidatorUtils.invokeNestedValidator(
+                errors,
+                safetyZoneValidator,
+                "partiallyWithinSafetyZoneForm",
+                form.getPartiallyWithinSafetyZoneForm());
             break;
           default:
             break;
         }
+
       }
     }
 

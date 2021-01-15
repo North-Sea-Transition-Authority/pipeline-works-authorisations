@@ -19,6 +19,11 @@ public class PadLocationDetailTestUtil {
     var pl = new PadLocationDetails();
     pl.setPwaApplicationDetail(pwaApplicationDetail);
     pl.setWithinSafetyZone(HseSafetyZone.YES);
+    pl.setPsrNotificationSubmitted(true);
+    pl.setPsrNotificationSubmittedMonth(5);
+    pl.setPsrNotificationSubmittedYear(2020);
+    pl.setPsrNotificationExpectedSubmissionMonth(5);
+    pl.setPsrNotificationExpectedSubmissionYear(20201);
     pl.setFacilitiesOffshore(true);
     pl.setPipelineAshoreLocation("ashore");
     pl.setTransportsMaterialsToShore(false);
