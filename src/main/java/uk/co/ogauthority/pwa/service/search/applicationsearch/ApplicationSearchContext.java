@@ -8,7 +8,7 @@ import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
 import uk.co.ogauthority.pwa.service.enums.users.UserType;
 
 /**
- * Contains contextual information the relevant to application search processing.
+ * Contains contextual information relevant to application search processing.
  */
 public class ApplicationSearchContext {
   private final AuthenticatedUserAccount authenticatedUserAccount;
