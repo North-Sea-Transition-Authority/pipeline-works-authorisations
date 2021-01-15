@@ -322,7 +322,9 @@ public class PwaApplicationDetailServiceTest {
         "confirmedSatisfactoryTimestamp",
         "withdrawalTimestamp",
         "withdrawalReason",
-        "withdrawingPersonId");
+        "withdrawingPersonId",
+        "deletedTimestamp",
+        "deletingPersonId");
 
     var ignoredForEqualsComparison = new ArrayList<String>();
     ignoredForEqualsComparison.addAll(ignoredFields);
@@ -396,6 +398,8 @@ public class PwaApplicationDetailServiceTest {
     detail.setWithdrawingPersonId(wua.getLinkedPerson().getId());
     detail.setWithdrawalTimestamp(baseTime);
     detail.setWithdrawalReason("reason");
+    detail.setDeletingPersonId(wua.getLinkedPerson().getId());
+    detail.setDeletedTimestamp(baseTime);
 
     // want to make sure that this method always gives every pwaApplicationDetail attribute a value.
     // This should ensure that tests are updated if attributes added later on.
