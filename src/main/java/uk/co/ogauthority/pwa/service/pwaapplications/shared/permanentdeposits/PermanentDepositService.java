@@ -4,6 +4,7 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -22,6 +23,7 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PhysicalPipelineState;
 import uk.co.ogauthority.pwa.model.entity.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.files.PadFile;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
@@ -247,6 +249,16 @@ public class PermanentDepositService implements ApplicationFormSectionService {
         .stream()
         .map(link -> link.getPipeline().getPipelineId())
         .collect(Collectors.toList());
+  }
+
+  public Map<String, String> getPipelinesMapForDeposits(PwaApplicationDetail pwaApplicationDetail) {
+    Map<String, String> pipelinesIdAndNameMap = new LinkedHashMap<>();
+    pipelineAndIdentViewFactory.getAllPipelineOverviewsFromAppAndMasterPwa(pwaApplicationDetail)
+        .entrySet().stream()
+        .filter(entry -> entry.getValue().getPipelineStatus().getPhysicalPipelineState() == PhysicalPipelineState.ON_SEABED)
+        .forEach(entry ->
+            pipelinesIdAndNameMap.put(String.valueOf(entry.getKey().getPipelineIdAsInt()), entry.getValue().getPipelineName()));
+    return pipelinesIdAndNameMap;
   }
 
   public PermanentDepositOverview createViewFromDepositId(Integer depositId) {
