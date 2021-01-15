@@ -19,6 +19,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.IdentDiffa
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineDiffableSummary;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineDiffableSummaryService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation.PadProjectInformationService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.PadTechnicalDrawingService;
 
 @Service
 public class TableAGeneratorService implements DocumentSectionGenerator {
@@ -27,15 +28,18 @@ public class TableAGeneratorService implements DocumentSectionGenerator {
   private final PipelineDiffableSummaryService pipelineDiffableSummaryService;
   private final PadProjectInformationService padProjectInformationService;
   private final ConsentDocumentImageService consentDocumentImageService;
+  private final PadTechnicalDrawingService padTechnicalDrawingService;
 
   @Autowired
   public TableAGeneratorService(
       PipelineDiffableSummaryService pipelineDiffableSummaryService,
       PadProjectInformationService padProjectInformationService,
-      ConsentDocumentImageService consentDocumentImageService) {
+      ConsentDocumentImageService consentDocumentImageService,
+      PadTechnicalDrawingService padTechnicalDrawingService) {
     this.pipelineDiffableSummaryService = pipelineDiffableSummaryService;
     this.padProjectInformationService = padProjectInformationService;
     this.consentDocumentImageService = consentDocumentImageService;
+    this.padTechnicalDrawingService = padTechnicalDrawingService;
   }
 
   @Override
@@ -59,8 +63,11 @@ public class TableAGeneratorService implements DocumentSectionGenerator {
 
   private Map<PipelineDrawingSummaryView, List<PipelineDiffableSummary>> getDrawingForPipelineSummaryMap(
       PwaApplicationDetail pwaApplicationDetail) {
-    var applicationPipelineSummaryList = pipelineDiffableSummaryService.getApplicationDetailPipelines(
-        pwaApplicationDetail);
+    var applicationPipelineSummaryList = pipelineDiffableSummaryService.getApplicationDetailPipelines(pwaApplicationDetail)
+        .stream()
+        .filter(diffableSummary -> padTechnicalDrawingService.isDrawingRequiredForPipeline(
+            diffableSummary.getPipelineHeaderView().getPipelineStatus()))
+        .collect(Collectors.toList());
 
     return applicationPipelineSummaryList.stream()
         .collect(Collectors.groupingBy(PipelineDiffableSummary::getDrawingSummaryView));
