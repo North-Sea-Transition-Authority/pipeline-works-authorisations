@@ -257,6 +257,22 @@ public class PwaApplicationDetailServiceTest {
   }
 
   @Test
+  public void setDeleted() {
+
+    var deletedTimestamp = Instant.now(clock);
+    Person deletingUser = PersonTestUtil.createDefaultPerson();
+
+    pwaApplicationDetailService.setDeleted(pwaApplicationDetail, deletingUser);
+
+    var captor = ArgumentCaptor.forClass(PwaApplicationDetail.class);
+    verify(applicationDetailRepository, times(1)).save(captor.capture());
+
+    assertThat(captor.getValue().getStatus()).isEqualTo(PwaApplicationStatus.DELETED);
+    assertThat(captor.getValue().getDeletedTimestamp()).isEqualTo(deletedTimestamp);
+    assertThat(captor.getValue().getDeletingPersonId()).isEqualTo(deletingUser.getId());
+  }
+
+  @Test
   public void setNotLinkedFieldDescription() {
 
     assertThat(pwaApplicationDetail.getNotLinkedDescription()).isNull();

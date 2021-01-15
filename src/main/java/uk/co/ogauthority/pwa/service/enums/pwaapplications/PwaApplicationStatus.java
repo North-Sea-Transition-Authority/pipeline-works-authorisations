@@ -9,6 +9,7 @@ public enum PwaApplicationStatus {
   INITIAL_SUBMISSION_REVIEW("Submitted - awaiting review"),
   CASE_OFFICER_REVIEW("Case officer review"),
   WITHDRAWN("Withdrawn"),
+  DELETED("Deleted"),
   COMPLETE("Complete");
 
   private final String displayName;

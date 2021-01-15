@@ -243,6 +243,14 @@ public class PwaApplicationDetailService {
     pwaApplicationDetailRepository.save(pwaApplicationDetail);
   }
 
+  @Transactional
+  public void setDeleted(PwaApplicationDetail pwaApplicationDetail, Person deletingUser) {
+    pwaApplicationDetail.setStatus(PwaApplicationStatus.DELETED);
+    pwaApplicationDetail.setDeletedTimestamp(Instant.now(clock));
+    pwaApplicationDetail.setDeletingPersonId(deletingUser.getId());
+    pwaApplicationDetailRepository.save(pwaApplicationDetail);
+  }
+
 
   public boolean isInitialReviewApproved(PwaApplicationDetail applicationDetail) {
     return applicationDetail.getInitialReviewApprovedByWuaId() != null && applicationDetail.getInitialReviewApprovedTimestamp() != null;

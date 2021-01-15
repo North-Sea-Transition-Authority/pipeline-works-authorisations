@@ -1,5 +1,7 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.generic.tasklist;
 
+import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
+
 import com.google.common.annotations.VisibleForTesting;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,8 +9,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.tasklist.TaskListGroup;
+import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.applicationupdate.ApplicationUpdateRequestViewService;
 import uk.co.ogauthority.pwa.service.appprocessing.options.ApproveOptionsService;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaViewService;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
@@ -55,6 +59,15 @@ public class TaskListControllerModelAndViewCreator {
       modelAndView.addObject("masterPwaReference",
           masterPwaViewService.getCurrentMasterPwaView(pwaApplicationDetail.getPwaApplication()).getReference());
     }
+
+    var canShowDeleteAppButton = false;
+    if (pwaApplicationDetail.getStatus() == PwaApplicationStatus.DRAFT && pwaApplicationDetail.isFirstVersion()) {
+      canShowDeleteAppButton = true;
+      modelAndView.addObject("deleteAppUrl",
+          ReverseRouter.route(on(DeleteApplicationController.class).renderDeleteApplication(
+              pwaApplicationDetail.getPwaApplicationType(), pwaApplicationDetail.getMasterPwaApplicationId(),null)));
+    }
+    modelAndView.addObject("canShowDeleteAppButton", canShowDeleteAppButton);
 
     // if first version, we'll have come from the work area, otherwise can only access via case management screen
     if (pwaApplicationDetail.getVersionNo() == 1) {

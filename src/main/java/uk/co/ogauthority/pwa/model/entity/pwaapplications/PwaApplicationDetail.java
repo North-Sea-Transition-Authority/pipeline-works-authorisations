@@ -107,6 +107,12 @@ public class PwaApplicationDetail implements ParentEntity {
   @Convert(converter = PersonIdConverter.class)
   private PersonId withdrawingPersonId;
 
+  private Instant deletedTimestamp;
+
+  @Basic
+  @Convert(converter = PersonIdConverter.class)
+  private PersonId deletingPersonId;
+
 
   public PwaApplicationDetail() {
   }
@@ -399,6 +405,22 @@ public class PwaApplicationDetail implements ParentEntity {
     this.withdrawingPersonId = withdrawingPersonId;
   }
 
+  public Instant getDeletedTimestamp() {
+    return deletedTimestamp;
+  }
+
+  public void setDeletedTimestamp(Instant deletedTimestamp) {
+    this.deletedTimestamp = deletedTimestamp;
+  }
+
+  public PersonId getDeletingPersonId() {
+    return deletingPersonId;
+  }
+
+  public void setDeletingPersonId(PersonId deletingPersonId) {
+    this.deletingPersonId = deletingPersonId;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -435,7 +457,9 @@ public class PwaApplicationDetail implements ParentEntity {
         && Objects.equals(supplementaryDocumentsFlag, that.supplementaryDocumentsFlag)
         && Objects.equals(withdrawalTimestamp, that.withdrawalTimestamp)
         && Objects.equals(withdrawalReason, that.withdrawalReason)
-        && Objects.equals(withdrawingPersonId, that.withdrawingPersonId);
+        && Objects.equals(withdrawingPersonId, that.withdrawingPersonId)
+        && Objects.equals(deletedTimestamp, that.deletedTimestamp)
+        && Objects.equals(deletingPersonId, that.deletingPersonId);
   }
 
   @Override
@@ -445,6 +469,6 @@ public class PwaApplicationDetail implements ParentEntity {
         initialReviewApprovedByWuaId, initialReviewApprovedTimestamp, isLinkedToField, notLinkedDescription,
         pipelinesCrossed, cablesCrossed, medianLineCrossed, submittedAsFastTrackFlag, numOfHolders,
         pipelinePhaseProperties, otherPhaseDescription, partnerLettersRequired, partnerLettersConfirmed,
-        supplementaryDocumentsFlag, withdrawalTimestamp, withdrawalReason, withdrawingPersonId);
+        supplementaryDocumentsFlag, withdrawalTimestamp, withdrawalReason, withdrawingPersonId, deletedTimestamp, deletingPersonId);
   }
 }
