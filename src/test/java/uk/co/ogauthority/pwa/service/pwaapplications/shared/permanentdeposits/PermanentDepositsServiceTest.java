@@ -266,31 +266,31 @@ public class PermanentDepositsServiceTest {
   @Test
   public void getPipelinesMapForDeposits_1pipelineInService_1pipelineRTS() {
 
-    var pipelineNotOnSeabed = new Pipeline();
-    pipelineNotOnSeabed.setId(1);
-    var padPipelineNotOnSeabed = new PadPipeline();
-    padPipelineNotOnSeabed.setPipeline(pipelineNotOnSeabed);
-    padPipelineNotOnSeabed.setPipelineStatus(PipelineStatus.IN_SERVICE);
-    padPipelineNotOnSeabed.setPipelineRef("my ref");
-    padPipelineNotOnSeabed.setPipelineType(PipelineType.HYDRAULIC_JUMPER);
-    var padPipelineOverviewNotOnSeabed = new PadPipelineOverview(padPipelineNotOnSeabed, 1L);
-
     var pipelineOnSeabed = new Pipeline();
-    pipelineOnSeabed.setId(2);
+    pipelineOnSeabed.setId(1);
     var padPipelineOnSeabed = new PadPipeline();
     padPipelineOnSeabed.setPipeline(pipelineOnSeabed);
-    padPipelineOnSeabed.setPipelineStatus(PipelineStatus.RETURNED_TO_SHORE);
+    padPipelineOnSeabed.setPipelineStatus(PipelineStatus.IN_SERVICE);
+    padPipelineOnSeabed.setPipelineRef("my ref");
+    padPipelineOnSeabed.setPipelineType(PipelineType.HYDRAULIC_JUMPER);
     var padPipelineOverviewOnSeabed = new PadPipelineOverview(padPipelineOnSeabed, 1L);
+
+    var pipelineNotOnSeabed = new Pipeline();
+    pipelineNotOnSeabed.setId(2);
+    var padPipelineNotOnSeabed = new PadPipeline();
+    padPipelineNotOnSeabed.setPipeline(pipelineNotOnSeabed);
+    padPipelineNotOnSeabed.setPipelineStatus(PipelineStatus.RETURNED_TO_SHORE);
+    var padPipelineOverviewNotOnSeabed = new PadPipelineOverview(padPipelineNotOnSeabed, 1L);
 
     when(pipelineAndIdentViewFactory.getAllPipelineOverviewsFromAppAndMasterPwa(pwaApplicationDetail))
     .thenReturn(Map.of(
-        PipelineId.from(padPipelineOverviewNotOnSeabed), padPipelineOverviewNotOnSeabed,
-        PipelineId.from(padPipelineOverviewOnSeabed), padPipelineOverviewOnSeabed));
+        PipelineId.from(padPipelineOverviewOnSeabed), padPipelineOverviewOnSeabed,
+        PipelineId.from(padPipelineOverviewNotOnSeabed), padPipelineOverviewNotOnSeabed));
 
     var pipelinesIdAndNameMap = permanentDepositService.getPipelinesMapForDeposits(pwaApplicationDetail);
     assertThat(pipelinesIdAndNameMap).containsOnly(
-        entry(String.valueOf(padPipelineOverviewNotOnSeabed.getPipelineId()),
-            padPipelineNotOnSeabed.getPipelineRef() + " - " + padPipelineNotOnSeabed.getPipelineType().getDisplayName()));
+        entry(String.valueOf(padPipelineOverviewOnSeabed.getPipelineId()),
+            padPipelineOnSeabed.getPipelineRef() + " - " + padPipelineOnSeabed.getPipelineType().getDisplayName()));
   }
 
 
