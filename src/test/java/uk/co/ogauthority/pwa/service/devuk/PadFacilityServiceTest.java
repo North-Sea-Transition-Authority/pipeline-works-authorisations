@@ -78,7 +78,7 @@ public class PadFacilityServiceTest {
     var facilityIds = List.of("1");
     var form = new LocationDetailsForm();
     form.setWithinSafetyZone(HseSafetyZone.PARTIALLY);
-    form.setFacilitiesIfPartially(facilityIds);
+    form.getPartiallyWithinSafetyZoneForm().setFacilities(facilityIds);
 
     when(devukFacilityService.getFacilitiesInIds(any())).thenReturn(List.of(facility));
 
@@ -96,7 +96,7 @@ public class PadFacilityServiceTest {
     var facility = new DevukFacility();
     var form = new LocationDetailsForm();
     form.setWithinSafetyZone(HseSafetyZone.YES);
-    form.setFacilitiesIfYes(List.of("1"));
+    form.getCompletelyWithinSafetyZoneForm().setFacilities(List.of("1"));
 
     when(devukFacilityService.getFacilitiesInIds(any())).thenReturn(List.of(facility));
 
@@ -165,7 +165,7 @@ public class PadFacilityServiceTest {
     var facilityIds = List.of(SearchSelectable.FREE_TEXT_PREFIX + "1");
     var form = new LocationDetailsForm();
     form.setWithinSafetyZone(HseSafetyZone.PARTIALLY);
-    form.setFacilitiesIfPartially(facilityIds);
+    form.getPartiallyWithinSafetyZoneForm().setFacilities(facilityIds);
 
     padFacilityService.setFacilities(pwaApplicationDetail, form);
 
@@ -181,7 +181,7 @@ public class PadFacilityServiceTest {
     var facilityIds = List.of(SearchSelectable.FREE_TEXT_PREFIX + "1");
     var form = new LocationDetailsForm();
     form.setWithinSafetyZone(HseSafetyZone.YES);
-    form.setFacilitiesIfYes(facilityIds);
+    form.getCompletelyWithinSafetyZoneForm().setFacilities(facilityIds);
 
     padFacilityService.setFacilities(pwaApplicationDetail, form);
 
