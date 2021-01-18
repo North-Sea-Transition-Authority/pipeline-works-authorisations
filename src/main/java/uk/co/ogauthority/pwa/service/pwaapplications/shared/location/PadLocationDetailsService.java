@@ -90,12 +90,12 @@ public class PadLocationDetailsService implements ApplicationFormSectionService 
       locationDetailsForm.getCompletelyWithinSafetyZoneForm().setPsrNotificationSubmitted(padLocationDetails.getPsrNotificationSubmitted());
       if (BooleanUtils.isTrue(padLocationDetails.getPsrNotificationSubmitted())) {
         var twoFieldDate = new TwoFieldDateInput(
-            padLocationDetails.getPsrNotificationSubmittedMonth(), padLocationDetails.getPsrNotificationSubmittedYear());
+            padLocationDetails.getPsrNotificationSubmittedYear(), padLocationDetails.getPsrNotificationSubmittedMonth());
         locationDetailsForm.getCompletelyWithinSafetyZoneForm().setPsrNotificationSubmittedDate(twoFieldDate);
 
       } else if (BooleanUtils.isFalse(padLocationDetails.getPsrNotificationSubmitted())) {
         var twoFieldDate = new TwoFieldDateInput(
-            padLocationDetails.getPsrNotificationExpectedSubmissionMonth(), padLocationDetails.getPsrNotificationExpectedSubmissionYear());
+            padLocationDetails.getPsrNotificationExpectedSubmissionYear(), padLocationDetails.getPsrNotificationExpectedSubmissionMonth());
         locationDetailsForm.getCompletelyWithinSafetyZoneForm().setPsrNotificationExpectedSubmissionDate(twoFieldDate);
       }
 
@@ -103,12 +103,12 @@ public class PadLocationDetailsService implements ApplicationFormSectionService 
       locationDetailsForm.getPartiallyWithinSafetyZoneForm().setPsrNotificationSubmitted(padLocationDetails.getPsrNotificationSubmitted());
       if (BooleanUtils.isTrue(padLocationDetails.getPsrNotificationSubmitted())) {
         var twoFieldDate = new TwoFieldDateInput(
-            padLocationDetails.getPsrNotificationSubmittedMonth(), padLocationDetails.getPsrNotificationSubmittedYear());
+            padLocationDetails.getPsrNotificationSubmittedYear(), padLocationDetails.getPsrNotificationSubmittedMonth());
         locationDetailsForm.getPartiallyWithinSafetyZoneForm().setPsrNotificationSubmittedDate(twoFieldDate);
 
       } else if (BooleanUtils.isFalse(padLocationDetails.getPsrNotificationSubmitted())) {
         var twoFieldDate = new TwoFieldDateInput(
-            padLocationDetails.getPsrNotificationExpectedSubmissionMonth(), padLocationDetails.getPsrNotificationExpectedSubmissionYear());
+            padLocationDetails.getPsrNotificationExpectedSubmissionYear(), padLocationDetails.getPsrNotificationExpectedSubmissionMonth());
         locationDetailsForm.getPartiallyWithinSafetyZoneForm().setPsrNotificationExpectedSubmissionDate(twoFieldDate);
       }
     }
