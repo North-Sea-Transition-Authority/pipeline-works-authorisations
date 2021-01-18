@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.model.search;
+package uk.co.ogauthority.pwa.model.searchselector;
 
 /**
  * SearchSelectable provides the required information required to produce a RestSearchItem.

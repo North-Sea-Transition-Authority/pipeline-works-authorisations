@@ -1,6 +1,6 @@
 package uk.co.ogauthority.pwa.service.searchselector;
 
-import uk.co.ogauthority.pwa.model.search.SearchSelectable;
+import uk.co.ogauthority.pwa.model.searchselector.SearchSelectable;
 
 /**
  * <p>To be used for strings that are required to be searched.

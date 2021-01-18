@@ -22,6 +22,7 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContextService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
+import uk.co.ogauthority.pwa.service.search.consents.ConsentSearchContextCreator;
 import uk.co.ogauthority.pwa.service.search.consents.ConsentSearchService;
 
 @RunWith(SpringRunner.class)
@@ -45,6 +46,9 @@ public class ConsentSearchControllerTest extends AbstractControllerTest {
   @MockBean
   private ConsentSearchService consentSearchService;
 
+  @MockBean
+  private ConsentSearchContextCreator consentSearchContextCreator;
+
   @Before
   public void setUp() throws Exception {
   }
@@ -52,7 +56,7 @@ public class ConsentSearchControllerTest extends AbstractControllerTest {
   @Test
   public void renderSearch_whenPermitted() throws Exception {
 
-    mockMvc.perform(get(ReverseRouter.route(on(ConsentSearchController.class).renderSearch(null)))
+    mockMvc.perform(get(ReverseRouter.route(on(ConsentSearchController.class).renderSearch(null, null)))
         .with(authenticatedUserAndSession(permittedUser)))
         .andExpect(status().isOk());
 
@@ -61,7 +65,7 @@ public class ConsentSearchControllerTest extends AbstractControllerTest {
   @Test
   public void renderSearch_whenProhibited() throws Exception {
 
-    mockMvc.perform(get(ReverseRouter.route(on(ConsentSearchController.class).renderSearch(null)))
+    mockMvc.perform(get(ReverseRouter.route(on(ConsentSearchController.class).renderSearch(null, null)))
         .with(authenticatedUserAndSession(prohibitedUser)))
         .andExpect(status().isForbidden());
 
@@ -70,7 +74,7 @@ public class ConsentSearchControllerTest extends AbstractControllerTest {
   @Test
   public void renderSearch_whenNotLoggedIn() throws Exception {
 
-    mockMvc.perform(get(ReverseRouter.route(on(ConsentSearchController.class).renderSearch(null))))
+    mockMvc.perform(get(ReverseRouter.route(on(ConsentSearchController.class).renderSearch(null, null))))
         .andExpect(status().is3xxRedirection());
 
   }
@@ -78,7 +82,7 @@ public class ConsentSearchControllerTest extends AbstractControllerTest {
   @Test
   public void postSearch_whenPermitted() throws Exception {
 
-    mockMvc.perform(post(ReverseRouter.route(on(ConsentSearchController.class).postSearch(null)))
+    mockMvc.perform(post(ReverseRouter.route(on(ConsentSearchController.class).postSearch(null, null)))
         .with(authenticatedUserAndSession(permittedUser))
         .with(csrf()))
         .andExpect(status().isOk());
@@ -89,7 +93,7 @@ public class ConsentSearchControllerTest extends AbstractControllerTest {
   @Test
   public void postSearch_whenProhibited() throws Exception {
 
-    mockMvc.perform(post(ReverseRouter.route(on(ConsentSearchController.class).postSearch(null)))
+    mockMvc.perform(post(ReverseRouter.route(on(ConsentSearchController.class).postSearch(null, null)))
         .with(authenticatedUserAndSession(prohibitedUser))
         .with(csrf()))
         .andExpect(status().isForbidden());
@@ -100,7 +104,7 @@ public class ConsentSearchControllerTest extends AbstractControllerTest {
   @Test
   public void postSearch_whenNotLoggedIn() throws Exception {
 
-    mockMvc.perform(post(ReverseRouter.route(on(ConsentSearchController.class).postSearch(null))))
+    mockMvc.perform(post(ReverseRouter.route(on(ConsentSearchController.class).postSearch(null, null))))
         .andExpect(status().isForbidden());
 
   }

@@ -51,7 +51,7 @@ public class TopMenuService {
 
     if (systemAreaAccessService.canAccessConsentSearch(user)) {
       menuItems.add(new TopMenuItem(CONSENT_SEARCH_TITLE, ReverseRouter.route(on(ConsentSearchController.class)
-          .renderSearch(null))));
+          .renderSearch(null, null))));
     }
 
     return menuItems;

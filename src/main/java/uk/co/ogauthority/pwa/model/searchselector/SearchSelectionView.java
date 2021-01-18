@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.model.search;
+package uk.co.ogauthority.pwa.model.searchselector;
 
 import java.util.ArrayList;
 import java.util.Collections;

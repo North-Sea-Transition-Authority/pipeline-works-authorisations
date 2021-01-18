@@ -1,55 +1,94 @@
 package uk.co.ogauthority.pwa.service.search.consents;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.IntStream;
+import javax.persistence.EntityManager;
+import javax.transaction.Transactional;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureDataJpa;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.junit4.SpringRunner;
+import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
+import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
+import uk.co.ogauthority.pwa.energyportal.model.entity.PersonTestUtil;
+import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
+import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationGroup;
 import uk.co.ogauthority.pwa.model.entity.search.consents.ConsentSearchItem;
+import uk.co.ogauthority.pwa.model.entity.search.consents.PwaHolderOrgGrp;
+import uk.co.ogauthority.pwa.model.search.consents.ConsentSearchContext;
+import uk.co.ogauthority.pwa.model.search.consents.ConsentSearchParams;
 import uk.co.ogauthority.pwa.model.view.search.consents.ConsentSearchResultView;
+import uk.co.ogauthority.pwa.service.enums.users.UserType;
 import uk.co.ogauthority.pwa.testutils.ConsentSearchItemTestUtils;
+import uk.co.ogauthority.pwa.testutils.PortalOrganisationTestUtils;
 
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(SpringRunner.class)
+@SpringBootTest
+@AutoConfigureTestDatabase
+@AutoConfigureDataJpa
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
+@ActiveProfiles("integration-test")
+@SuppressWarnings({"JpaQueryApiInspection", "SqlNoDataSourceInspection"})
+// IJ seems to give spurious warnings when running with embedded H2
 public class ConsentSearchServiceTest {
 
-  @Mock
-  private ConsentSearcher consentSearcher;
+  @Autowired
+  private EntityManager entityManager;
+
+  @Autowired
+  private List<ConsentSearchPredicateProvider> predicateProviders;
 
   private ConsentSearchService consentSearchService;
 
-  private ConsentSearchItem item1, item2, item3;
+  private ConsentSearchItem pwa1Shell, pwa3Bp, pwa2ShellWintershall;
+
+  private PortalOrganisationGroup shell, bp, wintershall;
+
+  private AuthenticatedUserAccount industryUser = new AuthenticatedUserAccount(new WebUserAccount(1, PersonTestUtil.createDefaultPerson()), Set.of(
+      PwaUserPrivilege.PWA_INDUSTRY, PwaUserPrivilege.PWA_CONSENT_SEARCH));
+
+  private AuthenticatedUserAccount ogaUser = new AuthenticatedUserAccount(new WebUserAccount(2, PersonTestUtil.createPersonFrom(new PersonId(12))), Set.of(
+      PwaUserPrivilege.PWA_REGULATOR, PwaUserPrivilege.PWA_CONSENT_SEARCH));
 
   @Before
   public void setUp() throws Exception {
 
-    consentSearchService = new ConsentSearchService(consentSearcher);
+    consentSearchService = new ConsentSearchService(entityManager, predicateProviders);
 
-    item1 = ConsentSearchItemTestUtils.createSearchItem(1, "PENGUIN", "SHELL", Instant.now().minus(18, ChronoUnit.DAYS));
-    item2 = ConsentSearchItemTestUtils.createSearchItem(3, "Interconnector", "BP", Instant.now().minus(365, ChronoUnit.DAYS));
-    item3 = ConsentSearchItemTestUtils.createSearchItem(2, "GAWAIN", "WINTERSHALL", Instant.now().minus(67, ChronoUnit.DAYS));
-
-    when(consentSearcher.findAll()).thenReturn(List.of(item1, item2, item3));
+    shell = PortalOrganisationTestUtils.generateOrganisationGroup(1, "SHELL", "S");
+    bp = PortalOrganisationTestUtils.generateOrganisationGroup(2, "BP", "B");
+    wintershall = PortalOrganisationTestUtils.generateOrganisationGroup(3, "WINTERSHALL", "W");
 
   }
 
   @Test
-  public void search_resultsNotLimited_sortedByIdDesc() {
+  @Transactional
+  public void search_ogaUser_unrestricted_sortedByIdDesc() {
 
-    var results = consentSearchService.search();
+    setUpSearchData();
+
+    var context = new ConsentSearchContext(ogaUser, UserType.OGA);
+
+    var results = consentSearchService.search(new ConsentSearchParams(), context);
 
     // sorted id desc
     var resultViewComparisonList = List.of(
-        ConsentSearchResultView.fromSearchItem(item2),
-        ConsentSearchResultView.fromSearchItem(item3),
-        ConsentSearchResultView.fromSearchItem(item1)
+        ConsentSearchResultView.fromSearchItem(pwa3Bp),
+        ConsentSearchResultView.fromSearchItem(pwa2ShellWintershall),
+        ConsentSearchResultView.fromSearchItem(pwa1Shell)
     );
 
     assertThat(results).containsExactlyElementsOf(resultViewComparisonList);
@@ -57,18 +96,63 @@ public class ConsentSearchServiceTest {
   }
 
   @Test
-  public void search_resultsLimited() {
+  @Transactional
+  public void search_industryUser_restrictedOrgGrpsReturned_sortedByIdDesc() {
 
-    var bigList = new ArrayList<ConsentSearchItem>();
+    setUpSearchData();
 
-    IntStream.rangeClosed(1, ConsentSearchService.MAX_RESULTS_SIZE + 20).forEach(i -> {
+    var context = new ConsentSearchContext(industryUser, UserType.INDUSTRY);
+    context.setOrgGroupIdsUserInTeamFor(Set.of(shell.getOrgGrpId()));
+
+    var results = consentSearchService.search(new ConsentSearchParams(), context);
+
+    // sorted id desc
+    var resultViewComparisonList = List.of(
+        ConsentSearchResultView.fromSearchItem(pwa2ShellWintershall),
+        ConsentSearchResultView.fromSearchItem(pwa1Shell)
+    );
+
+    assertThat(results).containsExactlyElementsOf(resultViewComparisonList);
+
+  }
+
+  @Test
+  @Transactional
+  public void search_oga_resultsLimited() {
+
+    // insert 20 more search items into the view than the max result size
+    int start = 1000;
+    int end = start + ConsentSearchService.MAX_RESULTS_SIZE + 20;
+    IntStream.rangeClosed(start, end).forEach(i -> {
       var item = ConsentSearchItemTestUtils.createSearchItem(i, "PENGUIN" + i, "SHELL" + i, Instant.now().minus(i, ChronoUnit.DAYS));
-      bigList.add(item);
+      entityManager.persist(item);
     });
 
-    when(consentSearcher.findAll()).thenReturn(bigList);
+    var context = new ConsentSearchContext(ogaUser, UserType.OGA);
+    var results = consentSearchService.search(new ConsentSearchParams(), context);
 
-    var results = consentSearchService.search();
+    // results limited to max size
+    assertThat(results.size()).isEqualTo(ConsentSearchService.MAX_RESULTS_SIZE);
+
+  }
+
+  @Test
+  @Transactional
+  public void search_industry_resultsLimited() {
+
+    // insert 20 more search items into the view than the max result size
+    int start = 2000;
+    int end = start + ConsentSearchService.MAX_RESULTS_SIZE + 20;
+    IntStream.rangeClosed(start, end).forEach(i -> {
+      var item = ConsentSearchItemTestUtils.createSearchItem(i, "PENGUIN" + i, "SHELL" + i, Instant.now().minus(i, ChronoUnit.DAYS));
+      var orgGrp = new PwaHolderOrgGrp(i, i, shell.getOrgGrpId());
+      entityManager.persist(item);
+      entityManager.persist(orgGrp);
+    });
+
+    var context = new ConsentSearchContext(industryUser, UserType.INDUSTRY);
+    context.setOrgGroupIdsUserInTeamFor(Set.of(shell.getOrgGrpId()));
+    var results = consentSearchService.search(new ConsentSearchParams(), context);
 
     // results limited to max size
     assertThat(results.size()).isEqualTo(ConsentSearchService.MAX_RESULTS_SIZE);
@@ -78,29 +162,52 @@ public class ConsentSearchServiceTest {
   @Test
   public void haveResultsBeenLimited_equalsMax_yes() {
 
-    var bigList = new ArrayList<ConsentSearchItem>();
+    var bigList = new ArrayList<ConsentSearchResultView>();
 
     IntStream.rangeClosed(1, ConsentSearchService.MAX_RESULTS_SIZE).forEach(i -> {
       var item = ConsentSearchItemTestUtils.createSearchItem(i, "PENGUIN" + i, "SHELL" + i, Instant.now().minus(i, ChronoUnit.DAYS));
-      bigList.add(item);
+      bigList.add(ConsentSearchResultView.fromSearchItem(item));
     });
 
-    when(consentSearcher.findAll()).thenReturn(bigList);
-
-    var results = consentSearchService.search();
-
     assertThat(bigList.size()).isEqualTo(ConsentSearchService.MAX_RESULTS_SIZE);
-    assertThat(consentSearchService.haveResultsBeenLimited(results)).isTrue();
+    assertThat(consentSearchService.haveResultsBeenLimited(bigList)).isTrue();
 
   }
 
   @Test
-  public void haveResultsBeenLimited_notEqualsMax_no() {
+  public void haveResultsBeenLimited_lessThanMax_no() {
 
-    var results = consentSearchService.search();
+    var bigList = new ArrayList<ConsentSearchResultView>();
 
-    assertThat(results.size()).isLessThan(ConsentSearchService.MAX_RESULTS_SIZE);
-    assertThat(consentSearchService.haveResultsBeenLimited(results)).isFalse();
+    IntStream.rangeClosed(1, ConsentSearchService.MAX_RESULTS_SIZE - 1).forEach(i -> {
+      var item = ConsentSearchItemTestUtils.createSearchItem(i, "PENGUIN" + i, "SHELL" + i, Instant.now().minus(i, ChronoUnit.DAYS));
+      bigList.add(ConsentSearchResultView.fromSearchItem(item));
+    });
+
+    assertThat(bigList.size()).isLessThan(ConsentSearchService.MAX_RESULTS_SIZE);
+    assertThat(consentSearchService.haveResultsBeenLimited(bigList)).isFalse();
+
+  }
+
+  private void setUpSearchData() {
+
+    pwa1Shell = ConsentSearchItemTestUtils.createSearchItem(1, "PENGUIN", "SHELL", Instant.now().minus(18, ChronoUnit.DAYS));
+    pwa3Bp = ConsentSearchItemTestUtils.createSearchItem(3, "Interconnector", "BP", Instant.now().minus(365, ChronoUnit.DAYS));
+    pwa2ShellWintershall = ConsentSearchItemTestUtils.createSearchItem(2, "GAWAIN", "SHELL, WINTERSHALL", Instant.now().minus(67, ChronoUnit.DAYS));
+
+    var pwa1OrgGrp = new PwaHolderOrgGrp(1, 1, shell.getOrgGrpId());
+    var pwa3OrgGrp = new PwaHolderOrgGrp(2, 3, bp.getOrgGrpId());
+    var pwa2OrgGrpShell = new PwaHolderOrgGrp(3, 2, shell.getOrgGrpId());
+    var pwa2OrgGrpWintershall = new PwaHolderOrgGrp(4, 2, wintershall.getOrgGrpId());
+
+    entityManager.persist(pwa1Shell);
+    entityManager.persist(pwa3Bp);
+    entityManager.persist(pwa2ShellWintershall);
+
+    entityManager.persist(pwa1OrgGrp);
+    entityManager.persist(pwa3OrgGrp);
+    entityManager.persist(pwa2OrgGrpShell);
+    entityManager.persist(pwa2OrgGrpWintershall);
 
   }
 

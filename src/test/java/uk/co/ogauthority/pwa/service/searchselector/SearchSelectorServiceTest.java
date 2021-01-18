@@ -12,7 +12,7 @@ import org.junit.Test;
 import uk.co.ogauthority.pwa.controller.pwaapplications.rest.DevukRestController;
 import uk.co.ogauthority.pwa.model.entity.devuk.DevukFacility;
 import uk.co.ogauthority.pwa.model.form.fds.RestSearchItem;
-import uk.co.ogauthority.pwa.model.search.SearchSelectable;
+import uk.co.ogauthority.pwa.model.searchselector.SearchSelectable;
 
 public class SearchSelectorServiceTest {
 

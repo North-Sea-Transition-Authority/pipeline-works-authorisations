@@ -16,7 +16,7 @@ public class ConsentSearchItem {
   @Column(name = "reference")
   private String pwaReference;
 
-  @Column(name = "field_or_other_ref")
+  @Column(name = "field_or_other_ref_csv")
   private String fieldNameOrOtherReference;
 
   private String holderNamesCsv;
