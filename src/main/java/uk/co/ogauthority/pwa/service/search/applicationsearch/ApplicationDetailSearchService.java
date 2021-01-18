@@ -31,7 +31,7 @@ public class ApplicationDetailSearchService {
     this.entityManager = entityManager;
   }
 
-  public List<? extends ApplicationDetailItemView> search(ApplicationSearchParameters searchParameters,
+  public List<ApplicationDetailItemView> search(ApplicationSearchParameters searchParameters,
                                                 ApplicationSearchContext applicationSearchContext) {
     // copying list allows return type of list to be simple interface, not an ? extends so we can ignore impl type.
 
@@ -59,7 +59,8 @@ public class ApplicationDetailSearchService {
 
     TypedQuery<ApplicationDetailView> q = entityManager.createQuery(searchCoreQuery);
 
-    return q.getResultList();
+    // required to force simple simple list of interface where the specific type can be ignored.
+    return new ArrayList<>(q.getResultList());
 
   }
 

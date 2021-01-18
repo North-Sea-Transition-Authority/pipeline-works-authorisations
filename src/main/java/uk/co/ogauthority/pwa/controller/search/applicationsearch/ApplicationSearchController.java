@@ -71,7 +71,7 @@ public class ApplicationSearchController {
                                               @RequestParam(name = "appReference", required = false) String appReference) {
 
 
-    List<? extends ApplicationDetailItemView> results = Collections.emptyList();
+    List<ApplicationDetailItemView> results = Collections.emptyList();
 
     if (entryState.equals(AppSearchEntryState.SEARCH)) {
 
@@ -99,7 +99,7 @@ public class ApplicationSearchController {
   }
 
 
-  private ModelAndView getSearchModelAndView(List<? extends ApplicationDetailItemView> applicationDetailItemViewList,
+  private ModelAndView getSearchModelAndView(List<ApplicationDetailItemView> applicationDetailItemViewList,
                                              AppSearchEntryState appSearchEntryState) {
 
     var displayableResults = applicationDetailItemViewList.stream()

@@ -31,6 +31,7 @@ import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaTestUtil;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailItemView;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailView;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailViewTestUtil;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.PadVersionLookup;
@@ -186,9 +187,7 @@ public class ApplicationDetailSearchServiceIntegrationTest {
 
     var results = applicationDetailSearchService.search(searchParams, searchContext);
 
-    assertThat(results).containsExactly(
-        app2Version2
-    );
+    assertThat(results).contains(app2Version2);
 
   }
 
@@ -265,7 +264,7 @@ public class ApplicationDetailSearchServiceIntegrationTest {
     );
     entityManager.persist(initialAppLookup);
 
-    var results = applicationDetailSearchService.search(searchParams, searchContext);
+   var results = applicationDetailSearchService.search(searchParams, searchContext);
 
     assertThat(results).containsExactlyInAnyOrder(app2Version2, initialAppDetailView);
 
@@ -322,11 +321,11 @@ public class ApplicationDetailSearchServiceIntegrationTest {
 
     var results = applicationDetailSearchService.search(searchParams, searchContext);
 
-    assertThat(results).containsExactlyInAnyOrder(v1IsSatisfactoryView);
+    assertThat(results).containsExactly(v1IsSatisfactoryView);
 
   }
 
-  private ApplicationDetailView createAndPersistViewFromAppDetail(PwaApplicationDetail pwaApplicationDetail){
+  private ApplicationDetailItemView createAndPersistViewFromAppDetail(PwaApplicationDetail pwaApplicationDetail){
     var detailView = ApplicationDetailViewTestUtil.createSubmittedReviewDetailView(
         pwaApplicationDetail.getMasterPwaApplication().getId(),
         pwaApplicationDetail.getPwaApplicationType(),
