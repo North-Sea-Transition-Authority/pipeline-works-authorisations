@@ -11,7 +11,7 @@ import uk.co.ogauthority.pwa.service.enums.users.UserType;
 /**
  * Contains contextual information relevant to application search processing.
  */
-public class ApplicationSearchContext {
+public final class ApplicationSearchContext {
   private final AuthenticatedUserAccount authenticatedUserAccount;
 
   private final UserType userType;
@@ -67,14 +67,16 @@ public class ApplicationSearchContext {
     }
     ApplicationSearchContext that = (ApplicationSearchContext) o;
     return Objects.equals(authenticatedUserAccount,
-        that.authenticatedUserAccount) && userType == that.userType && Objects.equals(
-        orgGroupsWhereMemberOfHolderTeam, that.orgGroupsWhereMemberOfHolderTeam) && Objects.equals(
-        orgUnitIdsAssociatedWithHolderTeamMembership, that.orgUnitIdsAssociatedWithHolderTeamMembership);
+        that.authenticatedUserAccount) && userType == that.userType
+        && Objects.equals(orgGroupsWhereMemberOfHolderTeam, that.orgGroupsWhereMemberOfHolderTeam)
+        && Objects.equals(orgUnitIdsAssociatedWithHolderTeamMembership,        that.orgUnitIdsAssociatedWithHolderTeamMembership)
+        && Objects.equals(consulteeGroupIds,
+        that.consulteeGroupIds);
   }
 
   @Override
   public int hashCode() {
     return Objects.hash(authenticatedUserAccount, userType, orgGroupsWhereMemberOfHolderTeam,
-        orgUnitIdsAssociatedWithHolderTeamMembership);
+        orgUnitIdsAssociatedWithHolderTeamMembership, consulteeGroupIds);
   }
 }
