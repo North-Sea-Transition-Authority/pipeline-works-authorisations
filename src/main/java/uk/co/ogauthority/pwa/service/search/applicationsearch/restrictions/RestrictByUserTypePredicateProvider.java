@@ -111,7 +111,7 @@ public class RestrictByUserTypePredicateProvider implements ApplicationSearchPre
                                                            Root<ApplicationDetailView> searchCoreRoot) {
     CriteriaBuilder cb = entityManager.getCriteriaBuilder();
 
-    // use instant so we can filter on the last submitted timestamp
+    // use instant so we can filter on the last confirmed satisfactory timestamp
     Subquery<Instant> subQuery = searchCoreQuery.subquery(Instant.class);
     Root<PadVersionLookup> subRoot = subQuery.from(PadVersionLookup.class);
     // basically a correlated subquery without setting up entity relationships
@@ -218,7 +218,7 @@ public class RestrictByUserTypePredicateProvider implements ApplicationSearchPre
     Join<PwaApplicationDetail, PwaApplication> appDetailToAppJoin = orgRoleToAppDetailJoin.join(PwaApplicationDetail_.PWA_APPLICATION);
 
 
-    // have to do a separate "last submitted version" subquery here so that only those initial pwa app where you are a holder on the last
+    // have to do a seperate "last submitted version" subquery here so that only those initial pwa app where you are a holder on the last
     // submitted version get returned and included in the results. Dont want a situation where if you were a holder on a previous
     // version the whole initial PWA app gets returned.
     Subquery<Instant> lastSubmittedVersionSubQuery = initialPwaApplicationQuery.subquery(Instant.class);
