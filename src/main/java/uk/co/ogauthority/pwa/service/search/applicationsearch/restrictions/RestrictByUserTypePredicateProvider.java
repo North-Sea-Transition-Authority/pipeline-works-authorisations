@@ -18,7 +18,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit_;
+import uk.co.ogauthority.pwa.model.dto.consultations.ConsulteeGroupId;
 import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
+import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroup;
+import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroup_;
+import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
+import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest_;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
@@ -47,8 +52,6 @@ import uk.co.ogauthority.pwa.service.search.applicationsearch.ApplicationSearchP
 public class RestrictByUserTypePredicateProvider implements ApplicationSearchPredicateProvider {
   private static final Logger LOGGER = LoggerFactory.getLogger(RestrictByUserTypePredicateProvider.class);
 
-  private static final int FIRST_VERSION_NUMBER = 1;
-
   private final EntityManager entityManager;
 
   @Autowired
@@ -71,11 +74,14 @@ public class RestrictByUserTypePredicateProvider implements ApplicationSearchPre
 
     switch (userType) {
       case OGA:
-        return createRegulatorUserPredicate(applicationSearchContext, applicationSearchParameters, searchCoreQuery, searchCoreRoot);
+        LOGGER.debug("Using OGA restriction predicate.");
+        return createRegulatorUserPredicate(searchCoreQuery, searchCoreRoot);
       case INDUSTRY:
+        LOGGER.debug("Using INDUSTRY restriction predicate.");
         return createIndustryUserPredicate(applicationSearchContext, searchCoreQuery, searchCoreRoot);
       case CONSULTEE:
-        return createConsulteeUserPredicate(applicationSearchContext, applicationSearchParameters, searchCoreQuery, searchCoreRoot);
+        LOGGER.debug("Using CONSULTEE restriction predicate.");
+        return createConsulteeUserPredicate(applicationSearchContext, searchCoreQuery, searchCoreRoot);
       default: throw new IllegalArgumentException(
           String.format("App search does not support user type of %s for wua_id: %s", userType, applicationSearchContext.getWuaIdAsInt())
       );
@@ -100,12 +106,27 @@ public class RestrictByUserTypePredicateProvider implements ApplicationSearchPre
 
   }
 
+  private Predicate getLastestSatisfactoryVersionPredicate(CriteriaQuery<ApplicationDetailView> searchCoreQuery,
+                                                           Root<ApplicationDetailView> searchCoreRoot) {
+    CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+
+    // use instant so we can filter on the last submitted timestamp
+    Subquery<Instant> subQuery = searchCoreQuery.subquery(Instant.class);
+    Root<PadVersionLookup> subRoot = subQuery.from(PadVersionLookup.class);
+    // basically a correlated subquery without setting up entity relationships
+    subQuery.select(subRoot.get(PadVersionLookup_.LATEST_CONFIRMED_SATISFACTORY_TIMESTAMP));
+    subQuery.where(
+        cb.equal(searchCoreRoot.get(ApplicationDetailView_.PWA_APPLICATION_ID), subRoot.get(PadVersionLookup_.PWA_APPLICATION_ID))
+    );
+
+    return cb.equal(searchCoreRoot.get(ApplicationDetailView_.PAD_CONFIRMED_SATISFACTORY_TIMESTAMP), subQuery);
+
+  }
+
   /**
    * Restrict to the last submitted version of all apps only.
    */
-  private Predicate createRegulatorUserPredicate(ApplicationSearchContext applicationSearchContext,
-                                                 ApplicationSearchParameters applicationSearchParameters,
-                                                 CriteriaQuery<ApplicationDetailView> searchCoreQuery,
+  private Predicate createRegulatorUserPredicate(CriteriaQuery<ApplicationDetailView> searchCoreQuery,
                                                  Root<ApplicationDetailView> searchCoreRoot) {
     return getLastSubmittedVersionPredicate(searchCoreQuery, searchCoreRoot);
 
@@ -115,14 +136,30 @@ public class RestrictByUserTypePredicateProvider implements ApplicationSearchPre
    * Return applications only where the user's consultee group has been consulted and only return the "last accepted" version.
    */
   private Predicate createConsulteeUserPredicate(ApplicationSearchContext applicationSearchContext,
-                                                ApplicationSearchParameters applicationSearchParameters,
                                                 CriteriaQuery<ApplicationDetailView> searchCoreQuery,
                                                 Root<ApplicationDetailView> searchCoreRoot) {
 
-    // TODO PWA-1051 do consultee restrictions and remove commented code.
-    LOGGER.error("PWA-1051 - Consultee user type restrictions not implemented. return nothing.");
     CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-    return cb.equal(cb.literal(false), cb.literal(true));
+    var consulteeGroupIds = applicationSearchContext.getConsulteeGroupIds()
+        .stream()
+        .map(ConsulteeGroupId::asInt)
+        .collect(toSet());
+
+    var latestSatisfactoryVersionPredicate = getLastestSatisfactoryVersionPredicate(searchCoreQuery, searchCoreRoot);
+
+    Subquery<Integer> consultedUponAppIdSubQuery = searchCoreQuery.subquery(Integer.class);
+    Root<ConsultationRequest> consultationRequestRoot = consultedUponAppIdSubQuery.from(ConsultationRequest.class);
+    Join<ConsultationRequest, ConsulteeGroup> requestToGroupJoin = consultationRequestRoot.join(ConsultationRequest_.CONSULTEE_GROUP);
+    Join<ConsultationRequest, PwaApplication> requestToApplicationJoin = consultationRequestRoot.join(ConsultationRequest_.PWA_APPLICATION);
+    Path<Integer> pwaApplicationId = requestToApplicationJoin.get(PwaApplication_.ID);
+
+    consultedUponAppIdSubQuery.select(pwaApplicationId);
+    consultedUponAppIdSubQuery.where(cb.in(requestToGroupJoin.get(ConsulteeGroup_.ID)).value(consulteeGroupIds));
+
+    return cb.and(
+        latestSatisfactoryVersionPredicate,
+        cb.in(searchCoreRoot.get(ApplicationDetailView_.PWA_APPLICATION_ID)).value(consultedUponAppIdSubQuery)
+    );
 
   }
 

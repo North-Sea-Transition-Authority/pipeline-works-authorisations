@@ -3,13 +3,14 @@ package uk.co.ogauthority.pwa.service.search.applicationsearch;
 import java.util.Collections;
 import java.util.Set;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.model.dto.consultations.ConsulteeGroupId;
 import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
 import uk.co.ogauthority.pwa.service.enums.users.UserType;
 
 public final class ApplicationSearchContextTestUtil {
 
   private ApplicationSearchContextTestUtil() {
-    throw new RuntimeException("No object for you!");
+    throw new UnsupportedOperationException("No object for you!");
   }
 
   public static ApplicationSearchContext emptyUserContext(AuthenticatedUserAccount authenticatedUserAccount,
@@ -18,8 +19,8 @@ public final class ApplicationSearchContextTestUtil {
         authenticatedUserAccount,
         userType,
         Collections.emptySet(),
-        Collections.emptySet()
-    );
+        Collections.emptySet(),
+        Collections.emptySet());
   }
 
   public static ApplicationSearchContext industryContext(AuthenticatedUserAccount authenticatedUserAccount,
@@ -28,7 +29,18 @@ public final class ApplicationSearchContextTestUtil {
         authenticatedUserAccount,
         UserType.INDUSTRY,
         Collections.emptySet(),
-        organisationUnitIdSet
+        organisationUnitIdSet,
+        Collections.emptySet());
+  }
+
+  public static ApplicationSearchContext consulteeContext(AuthenticatedUserAccount authenticatedUserAccount,
+                                                         Set<ConsulteeGroupId> consulteeGroupIds) {
+    return new ApplicationSearchContext(
+        authenticatedUserAccount,
+        UserType.CONSULTEE,
+        Collections.emptySet(),
+        Collections.emptySet(),
+        consulteeGroupIds
     );
   }
 

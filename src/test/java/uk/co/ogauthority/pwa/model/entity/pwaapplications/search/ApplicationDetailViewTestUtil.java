@@ -18,7 +18,8 @@ public class ApplicationDetailViewTestUtil {
                                                        int versionNo,
                                                        boolean tipFlag,
                                                        Instant submittedTimestamp,
-                                                       PwaApplicationStatus pwaApplicationStatus) {
+                                                       PwaApplicationStatus pwaApplicationStatus,
+                                                       Instant confirmedSatisfactoryInstant) {
 
     var detailView = new ApplicationDetailView();
     detailView.setTipFlag(tipFlag);
@@ -29,6 +30,7 @@ public class ApplicationDetailViewTestUtil {
     detailView.setPwaId(masterPwaId);
     detailView.setPadStatus(pwaApplicationStatus);
     detailView.setApplicationType(applicationType);
+    detailView.setPadConfirmedSatisfactoryTimestamp(confirmedSatisfactoryInstant);
     return detailView;
   }
 
@@ -48,7 +50,8 @@ public class ApplicationDetailViewTestUtil {
         versionNo,
         tipFlag,
         null,
-        PwaApplicationStatus.DRAFT
+        PwaApplicationStatus.DRAFT,
+        null
     );
   }
 
@@ -58,7 +61,8 @@ public class ApplicationDetailViewTestUtil {
                                                                       int appDetailId,
                                                                       int versionNo,
                                                                       boolean tipFlag,
-                                                                      Instant submittedInstant) {
+                                                                      Instant submittedInstant,
+                                                                      Instant confirmedSatisfactoryInstant) {
 
     return createDetailView(
         masterPwaId,
@@ -68,8 +72,11 @@ public class ApplicationDetailViewTestUtil {
         versionNo,
         tipFlag,
         submittedInstant,
-        PwaApplicationStatus.CASE_OFFICER_REVIEW
+        PwaApplicationStatus.CASE_OFFICER_REVIEW,
+        confirmedSatisfactoryInstant
     );
   }
+
+
 
 }
