@@ -3,7 +3,7 @@
 <#-- @ftlvariable name="appRef" type="java.lang.String" -->
 <#-- @ftlvariable name="taskListUrl" type="java.lang.String" -->
 
-<@defaultPage htmlTitle="Delete application" pageHeading="Are you sure you want to delete application ${appRef}" breadcrumbs=true>
+<@defaultPage htmlTitle="Delete application" pageHeading="Are you sure you want to delete application ${appRef}?" breadcrumbs=true>
 
 
 
