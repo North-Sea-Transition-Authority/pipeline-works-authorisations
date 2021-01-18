@@ -1,6 +1,5 @@
 package uk.co.ogauthority.pwa.model.entity.search.consents;
 
-import com.google.common.annotations.VisibleForTesting;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -8,9 +7,9 @@ import javax.persistence.Table;
 import org.hibernate.annotations.Immutable;
 
 @Entity
-@Table(name = "vw_pwa_holder_org_grps")
+@Table(name = "vw_pwa_holder_org_units")
 @Immutable
-public class PwaHolderOrgGrp {
+public class PwaHolderOrgUnit {
 
   @Id
   @Column(name = "row_num")
@@ -18,17 +17,11 @@ public class PwaHolderOrgGrp {
 
   private Integer pwaId;
 
+  private Integer ouId;
+
+  private String ouName;
+
   private Integer orgGrpId;
-
-  public PwaHolderOrgGrp() {
-  }
-
-  @VisibleForTesting
-  public PwaHolderOrgGrp(Integer rowId, Integer pwaId, Integer orgGrpId) {
-    this.rowId = rowId;
-    this.pwaId = pwaId;
-    this.orgGrpId = orgGrpId;
-  }
 
   public Integer getRowId() {
     return rowId;
@@ -44,6 +37,22 @@ public class PwaHolderOrgGrp {
 
   public void setPwaId(Integer pwaId) {
     this.pwaId = pwaId;
+  }
+
+  public Integer getOuId() {
+    return ouId;
+  }
+
+  public void setOuId(Integer ouId) {
+    this.ouId = ouId;
+  }
+
+  public String getOuName() {
+    return ouName;
+  }
+
+  public void setOuName(String ouName) {
+    this.ouName = ouName;
   }
 
   public Integer getOrgGrpId() {

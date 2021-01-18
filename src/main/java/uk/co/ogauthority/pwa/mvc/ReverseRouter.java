@@ -2,9 +2,12 @@ package uk.co.ogauthority.pwa.mvc;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.context.request.RequestAttributes;
@@ -21,17 +24,23 @@ public class ReverseRouter {
   private ReverseRouter() {
   }
 
+  public static String routeWithQueryParamMap(Object methodCall, MultiValueMap<String, String> paramMap) {
+    return route(methodCall, Collections.emptyMap(), true, paramMap);
+  }
+
   public static String route(Object methodCall) {
-    return route(methodCall, Collections.emptyMap(), true);
+    return route(methodCall, Collections.emptyMap(), true, Collections.emptyMap());
   }
 
   public static String route(Object methodCall, Map<String, Object> uriVariables) {
-    return route(methodCall, uriVariables, true);
+    return route(methodCall, uriVariables, true, Collections.emptyMap());
   }
 
   @SuppressWarnings("unchecked")
-  public static String route(Object methodCall, Map<String, Object> uriVariables,
-                             boolean expandUriVariablesFromRequest) {
+  public static String route(Object methodCall,
+                             Map<String,Object> uriVariables,
+                             boolean expandUriVariablesFromRequest,
+                             Map<String, List<String>> paramMap) {
     //Establish URI variables to substitute - explicitly provided should take precedence
     Map<String, Object> allUriVariables = new HashMap<>();
     if (expandUriVariablesFromRequest) {
@@ -52,7 +61,19 @@ public class ReverseRouter {
 
     //Use a UriComponentsBuilder which is not scoped to the request to get relative URIs (instead of absolute)
     UriComponentsBuilder builder = UriComponentsBuilder.newInstance();
-    return MvcUriComponentsBuilder.fromMethodCall(builder, methodCall).buildAndExpand(allUriVariables).toUriString();
+    builder = MvcUriComponentsBuilder
+        .fromMethodCall(builder, methodCall);
+
+    // add query params if any have been provided
+    if (!paramMap.isEmpty()) {
+      builder = builder
+          .queryParams(new LinkedMultiValueMap<>(paramMap));
+    }
+
+    return builder
+        .buildAndExpand(allUriVariables)
+        .toUriString();
+
   }
 
   public static ModelAndView redirect(Object methodCall) {
@@ -63,9 +84,15 @@ public class ReverseRouter {
     return redirect(methodCall, uriVariables, true);
   }
 
-  public static ModelAndView redirect(Object methodCall, Map<String, Object> uriVariables,
+  public static ModelAndView redirect(Object methodCall,
+                                      Map<String, Object> uriVariables,
                                       boolean expandUriVariablesFromRequest) {
-    return new ModelAndView("redirect:" + route(methodCall, uriVariables, expandUriVariablesFromRequest));
+    return new ModelAndView("redirect:" + route(methodCall, uriVariables, expandUriVariablesFromRequest, Collections.emptyMap()));
+  }
+
+  public static ModelAndView redirectWithQueryParamMap(Object methodCall,
+                                                       MultiValueMap<String, String> queryParamMap) {
+    return new ModelAndView("redirect:" + route(methodCall, Map.of(), true, queryParamMap));
   }
 
   /**

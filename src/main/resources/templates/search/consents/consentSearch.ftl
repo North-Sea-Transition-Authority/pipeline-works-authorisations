@@ -5,15 +5,17 @@
 <#-- @ftlvariable name="searched" type="java.lang.Boolean" -->
 <#-- @ftlvariable name="maxResultsSize" type="java.lang.Boolean" -->
 <#-- @ftlvariable name="searchResults" type="java.util.List<uk.co.ogauthority.pwa.model.view.search.consents.ConsentSearchResultView>" -->
+<#-- @ftlvariable name="orgUnitFilterOptions" type="java.util.Map<java.lang.String, java.lang.String>" -->
+<#-- @ftlvariable name="searchParams" type="uk.co.ogauthority.pwa.model.search.consents.ConsentSearchParams" -->
 
-<@defaultPage htmlTitle="Search PWAs" pageHeading="Search PWAs" fullWidthColumn=true topNavigation=true>
+<@defaultPage htmlTitle="Search PWAs" pageHeading="Search PWAs" fullWidthColumn=true topNavigation=true wrapperWidth=true>
 
     <@fdsSearch.searchPage>
 
         <@fdsSearch.searchFilter>
             <@fdsSearch.searchFilterList filterButtonItemText="PWAs">
-                <@fdsSearch.searchFilterItem itemName="Holder organisation">
-                  <@fdsSearch.searchTextInput path="form.holderOrganisation" labelText="Organisation name"/>
+                <@fdsSearch.searchFilterItem itemName="Holder organisation" expanded=searchParams.holderOrgUnitId?has_content>
+                  <@fdsSearchSelector.searchSelectorEnhanced path="form.holderOrgUnitId" options=orgUnitFilterOptions labelText="Holder organisation" labelClass="govuk-visually-hidden" />
                 </@fdsSearch.searchFilterItem>
             </@fdsSearch.searchFilterList>
         </@fdsSearch.searchFilter>
@@ -32,11 +34,11 @@
                 </ul>
               </#if>
             <#else>
-              <h2 class="govuk-heading-s">
+              <h2 class="govuk-heading-s" role="alert">
                 <#if resultsHaveBeenLimited>
                   More than ${maxResultsSize?c} PWAs have been found but only ${maxResultsSize?c} are shown, you may need to refine your filter criteria.
                 <#else>
-                  ${searchResults?size} PWAs
+                  <@stringUtils.pluralise count=searchResults?size word="PWA"/>
                 </#if>
               </h2>
               <ol class="govuk-list filter-result-list">

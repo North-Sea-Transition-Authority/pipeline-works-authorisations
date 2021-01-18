@@ -14,6 +14,7 @@ import uk.co.ogauthority.pwa.model.entity.search.consents.ConsentSearchItem_;
 import uk.co.ogauthority.pwa.model.search.consents.ConsentSearchContext;
 import uk.co.ogauthority.pwa.model.search.consents.ConsentSearchParams;
 import uk.co.ogauthority.pwa.model.view.search.consents.ConsentSearchResultView;
+import uk.co.ogauthority.pwa.service.search.consents.predicates.ConsentSearchPredicateProvider;
 
 @Service
 public class ConsentSearchService {
@@ -49,7 +50,7 @@ public class ConsentSearchService {
     // SELECT ConsentSearchItem
     criteriaQuery.select(consentSearchItem)
         // WHERE applicable predicates are true
-        .where(cb.and(predicates.toArray(new Predicate[] {})))
+        .where(predicates.toArray(Predicate[]::new))
         // ORDER BY pwa_id DESC
         .orderBy(cb.desc(consentSearchItem.get(ConsentSearchItem_.PWA_ID)));
 
