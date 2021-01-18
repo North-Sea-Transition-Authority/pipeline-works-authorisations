@@ -44,6 +44,8 @@
                         </#list>
                     </ul>
                 </@fdsCheckAnswers.checkAnswersRow>
+
+                <@psrQuestion locationDetailsView.psrNotificationSubmissionDate locationDetailsView.psrNotificationSubmitted/>
             </#if>
 
             <#if locationDetailsView.withinSafetyZone?has_content && locationDetailsView.withinSafetyZone == "PARTIALLY">
@@ -54,6 +56,8 @@
                         </#list>
                     </ul>
                 </@fdsCheckAnswers.checkAnswersRow>
+
+                <@psrQuestion locationDetailsView.psrNotificationSubmissionDate locationDetailsView.psrNotificationSubmitted/>
             </#if>
         </#if>
 
@@ -133,6 +137,26 @@
     </#if>
 
 
+</#macro>
 
+
+
+<#macro psrQuestion notificationSubmissionDate notificationSubmitted=[]>
+   <@fdsCheckAnswers.checkAnswersRow keyText="Have you submitted a Pipelines Safety Regulations notification to HSE?" actionUrl="" screenReaderActionText="" actionText="">
+        <#if locationDetailsView.psrNotificationSubmitted?has_content>
+            <@showYesNoForBool notificationSubmitted/>
+        </#if>                    
+    </@fdsCheckAnswers.checkAnswersRow>
+
+    <#if notificationSubmitted?has_content && notificationSubmitted>
+        <@fdsCheckAnswers.checkAnswersRow keyText="Date submitted" actionUrl="" screenReaderActionText="" actionText="">
+            ${notificationSubmissionDate}
+        </@fdsCheckAnswers.checkAnswersRow>
+
+    <#elseif notificationSubmitted?has_content && !notificationSubmitted>
+        <@fdsCheckAnswers.checkAnswersRow keyText="Expected submission date" actionUrl="" screenReaderActionText="" actionText="">
+            ${notificationSubmissionDate}
+        </@fdsCheckAnswers.checkAnswersRow>
+    </#if>
 </#macro>
 
