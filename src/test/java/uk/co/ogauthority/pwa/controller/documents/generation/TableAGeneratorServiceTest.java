@@ -14,6 +14,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocumentSection;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineStatus;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
 import uk.co.ogauthority.pwa.model.entity.files.PadFile;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
@@ -37,6 +38,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.IdentView;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineDiffableSummary;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineDiffableSummaryService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation.PadProjectInformationService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.PadTechnicalDrawingService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -51,6 +53,9 @@ public class TableAGeneratorServiceTest {
   @Mock
   private ConsentDocumentImageService consentDocumentImageService;
 
+  @Mock
+  private PadTechnicalDrawingService padTechnicalDrawingService;
+
   private PwaApplicationDetail pwaApplicationDetail;
 
   private TableAGeneratorService tableAGeneratorService;
@@ -59,6 +64,7 @@ public class TableAGeneratorServiceTest {
   private static String PIPILINE_REF2 = "PL002";
   private static String PIPILINE_REF3 = "PL003";
   private static String PIPILINE_REF4 = "PL004";
+  private static String PIPILINE_REF5 = "PL005";
 
   private static int IDENT_NO1 = 1;
   private static int IDENT_NO2 = 2;
@@ -80,7 +86,7 @@ public class TableAGeneratorServiceTest {
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(
         PwaApplicationType.INITIAL, 1, 1);
     tableAGeneratorService = new TableAGeneratorService(pipelineDiffableSummaryService, padProjectInformationService,
-        consentDocumentImageService);
+        consentDocumentImageService, padTechnicalDrawingService);
   }
 
   private PadPipeline createPadPipeline(String pipelineRef) {
@@ -183,6 +189,16 @@ public class TableAGeneratorServiceTest {
         createDrawingSummaryView(DRAWING_REF2, FILE_ID2)
     );
 
+    //1 RTS Pipeline
+    var padPipeline5 = createPadPipeline(PIPILINE_REF5);
+    padPipeline5.setPipelineStatus(PipelineStatus.RETURNED_TO_SHORE);
+    var pipelineSummary3NoDrawing = PipelineDiffableSummary.from(
+        createHeaderView(padPipeline5),
+        List.of(createIdentView(IDENT_NO1, padPipeline5),
+            createIdentView(IDENT_NO2, padPipeline5)),
+        null
+    );
+
     when(consentDocumentImageService.convertFilesToImageSourceMap(Set.of(FILE_ID1))).thenReturn(
         Map.of(FILE_ID1, IMG_SRC1));
     when(consentDocumentImageService.convertFilesToImageSourceMap(Set.of(FILE_ID2))).thenReturn(
@@ -192,7 +208,11 @@ public class TableAGeneratorServiceTest {
         pipelineSummary1ForDrawing1,
         pipelineSummary2ForDrawing1,
         pipelineSummary1ForDrawing2,
-        pipelineSummary2ForDrawing2));
+        pipelineSummary2ForDrawing2,
+        pipelineSummary3NoDrawing));
+
+    when(padTechnicalDrawingService.isDrawingRequiredForPipeline(PipelineStatus.IN_SERVICE)).thenReturn(true);
+    when(padTechnicalDrawingService.isDrawingRequiredForPipeline(PipelineStatus.RETURNED_TO_SHORE)).thenReturn(false);
 
     var projectInfo = new PadProjectInformation();
     projectInfo.setProjectName("project name");
@@ -202,6 +222,7 @@ public class TableAGeneratorServiceTest {
 
     //assert that pipeline and drawing summaries have been mapped into TableA views
     // and ordered according to pipeline numbers within and across groups
+    // and that any RTS & NL pipelines are excluded
     var documentSectionData = tableAGeneratorService.getDocumentSectionData(pwaApplicationDetail);
     var sectionName = documentSectionData.getTemplateModel().get("sectionName");
     var actualDrawingForTableAViews = (List<DrawingForTableAView>) documentSectionData.getTemplateModel().get("drawingForTableAViews");
