@@ -1,0 +1,75 @@
+package uk.co.ogauthority.pwa.model.entity.pwaapplications.search;
+
+import java.time.Instant;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+
+public class ApplicationDetailViewTestUtil {
+
+  private ApplicationDetailViewTestUtil() {
+    throw new UnsupportedOperationException("No test util for you!");
+  }
+
+
+  public static ApplicationDetailView createDetailView(int masterPwaId,
+                                                       PwaApplicationType applicationType,
+                                                       int appId,
+                                                       int appDetailId,
+                                                       int versionNo,
+                                                       boolean tipFlag,
+                                                       Instant submittedTimestamp,
+                                                       PwaApplicationStatus pwaApplicationStatus) {
+
+    var detailView = new ApplicationDetailView();
+    detailView.setTipFlag(tipFlag);
+    detailView.setPwaApplicationId(appId);
+    detailView.setPwaApplicationDetailId(appDetailId);
+    detailView.setVersionNo(versionNo);
+    detailView.setPadSubmittedTimestamp(submittedTimestamp);
+    detailView.setPwaId(masterPwaId);
+    detailView.setPadStatus(pwaApplicationStatus);
+    detailView.setApplicationType(applicationType);
+    return detailView;
+  }
+
+
+  public static ApplicationDetailView createDraftDetailView(int masterPwaId,
+                                                            PwaApplicationType applicationType,
+                                                            int appId,
+                                                            int appDetailId,
+                                                            int versionNo,
+                                                            boolean tipFlag) {
+
+    return createDetailView(
+        masterPwaId,
+        applicationType,
+        appId,
+        appDetailId,
+        versionNo,
+        tipFlag,
+        null,
+        PwaApplicationStatus.DRAFT
+    );
+  }
+
+  public static ApplicationDetailView createSubmittedReviewDetailView(int masterPwaId,
+                                                                      PwaApplicationType applicationType,
+                                                                      int appId,
+                                                                      int appDetailId,
+                                                                      int versionNo,
+                                                                      boolean tipFlag,
+                                                                      Instant submittedInstant) {
+
+    return createDetailView(
+        masterPwaId,
+        applicationType,
+        appId,
+        appDetailId,
+        versionNo,
+        tipFlag,
+        submittedInstant,
+        PwaApplicationStatus.CASE_OFFICER_REVIEW
+    );
+  }
+
+}

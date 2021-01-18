@@ -145,8 +145,8 @@ public class PortalOrganisationsAccessor {
    * Returns a list of organisation units which belong to organisation groups in the provided list.
    */
   public List<PortalOrganisationUnit> getOrganisationUnitsForOrganisationGroupsIn(
-      List<PortalOrganisationGroup> organisationGroups) {
-    return organisationUnitRepository.findByPortalOrganisationGroupIn(organisationGroups);
+      Collection<PortalOrganisationGroup> organisationGroups) {
+    return organisationUnitRepository.findByPortalOrganisationGroupIn(List.copyOf(organisationGroups));
   }
 
 }
