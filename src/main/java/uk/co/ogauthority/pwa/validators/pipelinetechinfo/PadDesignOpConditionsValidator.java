@@ -15,6 +15,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationTyp
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.service.enums.validation.MinMaxValidationErrorCodes;
 import uk.co.ogauthority.pwa.util.ValidatorUtils;
+import uk.co.ogauthority.pwa.util.forminputs.minmax.ByPassDefaultValidationHint;
 import uk.co.ogauthority.pwa.util.forminputs.minmax.DecimalPlacesHint;
 import uk.co.ogauthority.pwa.util.forminputs.minmax.DefaultValidationRule;
 import uk.co.ogauthority.pwa.util.forminputs.minmax.IntegerHint;
@@ -56,7 +57,8 @@ public class PadDesignOpConditionsValidator implements SmartValidator {
 
       ValidatorUtils.invokeNestedValidator(errors, minMaxInputValidator, "pressureOpMinMax",
           form.getPressureOpMinMax(), "pressure operating conditions",
-          List.of(DefaultValidationRule.MIN_SMALLER_THAN_MAX), List.of(new PositiveNumberHint(), new IntegerHint()));
+          List.of(new ByPassDefaultValidationHint(DefaultValidationRule.MIN_SMALLER_THAN_MAX)),
+          List.of(new PositiveNumberHint(), new IntegerHint()));
 
       var pressureDesignMax = createBigDecimal(form.getPressureDesignMax());
       if (pressureDesignMax.isEmpty()) {
@@ -102,7 +104,7 @@ public class PadDesignOpConditionsValidator implements SmartValidator {
   }
 
   private void validatePositiveNumber(Errors errors, BigDecimal value, String formProperty, String inputRef) {
-    if (value.compareTo(BigDecimal.ZERO) == -1) {
+    if (value.compareTo(BigDecimal.ZERO) < 0) {
       errors.rejectValue(formProperty, formProperty + MinMaxValidationErrorCodes.NOT_POSITIVE.getCode(),
           "The value must be a positive number for " + inputRef);
     }
