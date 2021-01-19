@@ -102,7 +102,7 @@ public class PadDesignOpConditionsValidator implements SmartValidator {
   }
 
   private void validatePositiveNumber(Errors errors, BigDecimal value, String formProperty, String inputRef) {
-    if (value.compareTo(BigDecimal.ZERO) == -1) {
+    if (value.compareTo(BigDecimal.ZERO) < 0) {
       errors.rejectValue(formProperty, formProperty + MinMaxValidationErrorCodes.NOT_POSITIVE.getCode(),
           "The value must be a positive number for " + inputRef);
     }
