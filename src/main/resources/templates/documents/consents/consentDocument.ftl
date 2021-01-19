@@ -70,8 +70,8 @@
     }
 
     .image {
-      width: 100%;
-      max-height: 875px;
+      width:auto;
+      max-height: 800px;
     }
 
     .header-heading {
