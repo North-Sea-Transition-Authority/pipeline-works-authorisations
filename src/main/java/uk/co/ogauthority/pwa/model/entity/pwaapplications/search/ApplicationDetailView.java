@@ -64,6 +64,9 @@ public class ApplicationDetailView implements ApplicationDetailItemView {
   @Column(name = "pad_init_review_approved_ts")
   private Instant padInitialReviewApprovedTimestamp;
 
+  @Column(name = "pad_confirmed_satisfactory_ts")
+  private Instant padConfirmedSatisfactoryTimestamp;
+
   private Instant padStatusTimestamp;
 
   private boolean tipFlag;
@@ -84,6 +87,14 @@ public class ApplicationDetailView implements ApplicationDetailItemView {
   private boolean openPublicNoticeFlag;
 
   private boolean tipVersionSatisfactoryFlag;
+
+  public void setPadConfirmedSatisfactoryTimestamp(Instant padConfirmedSatisfactoryTimestamp) {
+    this.padConfirmedSatisfactoryTimestamp = padConfirmedSatisfactoryTimestamp;
+  }
+
+  public Instant getPadConfirmedSatisfactoryTimestamp() {
+    return padConfirmedSatisfactoryTimestamp;
+  }
 
   @Override
   public int getPwaApplicationDetailId() {

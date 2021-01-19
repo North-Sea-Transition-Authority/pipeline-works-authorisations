@@ -10,6 +10,7 @@ CREATE OR REPLACE VIEW ${datasource.user}.application_detail_view (
 , pad_created_timestamp
 , pad_submitted_timestamp
 , pad_init_review_approved_ts
+, pad_confirmed_satisfactory_ts
 , pad_status_timestamp
 , tip_flag
 , version_no
@@ -53,6 +54,7 @@ SELECT
 , pad.created_timestamp pad_created_timestamp
 , pad.submitted_timestamp pad_submitted_timestamp
 , pad.init_review_approved_timestamp pad_init_review_approved_ts
+, pad.confirmed_satisfactory_ts pad_confirmed_satisfactory_ts
 , pad.status_last_modified_timestamp pad_status_timestamp
 , pad.tip_flag
 , pad.version_no
