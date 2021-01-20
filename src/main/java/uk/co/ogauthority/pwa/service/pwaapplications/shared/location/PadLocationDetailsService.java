@@ -75,11 +75,9 @@ public class PadLocationDetailsService implements ApplicationFormSectionService 
         .orElse(locationDetailIfOptionalEmpty);
   }
 
-  @Transactional
-  public void save(PadLocationDetails padLocationDetails) {
+  private void save(PadLocationDetails padLocationDetails) {
     padLocationDetailsRepository.save(padLocationDetails);
   }
-
 
   public void mapEntityToForm(PadLocationDetails padLocationDetails, LocationDetailsForm locationDetailsForm) {
     locationDetailsForm.setApproximateProjectLocationFromShore(
