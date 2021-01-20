@@ -173,11 +173,11 @@ public class ApplicationDetailSearchServiceIntegrationTest {
     );
   }
 
-  @Transactional
-  @Test
   /**
    * Test only submitted apps are returned for regulator users.
    */
+  @Transactional
+  @Test
   public void search_whenRegulatorUser_unfiltered_multipleSubmittedVersionsOfApp() {
 
     setupDefaultData();
@@ -198,11 +198,11 @@ public class ApplicationDetailSearchServiceIntegrationTest {
 
   }
 
-  @Transactional
-  @Test
   /**
    * Test only submitted apps are returned for regulator users.
    */
+  @Transactional
+  @Test
   public void search_whenIndustryUser_unfiltered_noCurrentPwasHeldByOrgGroupOrgUnits() {
 
     setupDefaultData();
@@ -216,11 +216,11 @@ public class ApplicationDetailSearchServiceIntegrationTest {
 
   }
 
-  @Transactional
-  @Test
   /**
    * Test only submitted apps are returned for regulator users.
    */
+  @Transactional
+  @Test
   public void search_whenIndustryUser_unfiltered_applicationsForPwaWhereUserInOrgGrpTeam_submittedAndDraftAppsExist() {
 
     setupDefaultData();
@@ -234,11 +234,11 @@ public class ApplicationDetailSearchServiceIntegrationTest {
 
   }
 
-  @Transactional
-  @Test
   /**
    * Test that submitted initial PWA apps appear before they are consented
    */
+  @Transactional
+  @Test
   public void search_whenIndustryUser_unfiltered_submittedInitialPwaAppExists() {
 
     setupDefaultData();
@@ -270,11 +270,11 @@ public class ApplicationDetailSearchServiceIntegrationTest {
 
   }
 
-  @Transactional
-  @Test
   /**
    * Test that only last confirmed satisfactory version of applications the consultee user's group was consulted upon are returned.
    */
+  @Transactional
+  @Test
   public void search_whenConsulteeUser_unfiltered_limitedtoApplicationsConsultedOn_lastSatisfactoryVersion() {
 
     setupDefaultData();
