@@ -23,6 +23,7 @@ public class FileUploadProperties {
 
   @NotEmpty
   private List<String> allowedExtensions;
+  private List<String> allowedImageExtensions;
 
   private String fileNameFilter;
 
@@ -48,6 +49,14 @@ public class FileUploadProperties {
 
   public List<String> getAllowedExtensions() {
     return this.allowedExtensions;
+  }
+
+  public List<String> getAllowedImageExtensions() {
+    return allowedImageExtensions;
+  }
+
+  public void setAllowedImageExtensions(List<String> allowedImageExtensions) {
+    this.allowedImageExtensions = allowedImageExtensions;
   }
 
   @Bean

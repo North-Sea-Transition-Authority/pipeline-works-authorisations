@@ -40,7 +40,6 @@ public class FileUploadService {
   private final UploadedFileRepository uploadedFileRepository;
   private final VirusCheckService virusCheckService;
   private final ImageScalingService imageScalingService;
-  private final List<String> allowedExtensions;
 
   @Autowired
   public FileUploadService(FileUploadProperties fileUploadProperties,
@@ -49,7 +48,6 @@ public class FileUploadService {
                            ImageScalingService imageScalingService) {
     this.fileUploadProperties = fileUploadProperties;
     this.uploadedFileRepository = uploaded;
-    this.allowedExtensions = fileUploadProperties.getAllowedExtensions();
     this.virusCheckService = virusCheckService;
     this.imageScalingService = imageScalingService;
   }
@@ -80,10 +78,20 @@ public class FileUploadService {
    */
   @Transactional
   public FileUploadResult processUpload(MultipartFile file, WebUserAccount user) {
+    return processFileUpload(file, user, fileUploadProperties.getAllowedExtensions());
+  }
+
+  @Transactional
+  public FileUploadResult processImageUpload(MultipartFile file, WebUserAccount user) {
+    return processFileUpload(file, user, fileUploadProperties.getAllowedImageExtensions());
+  }
+
+  private FileUploadResult processFileUpload(MultipartFile file, WebUserAccount user, List<String> allowedExtensions) {
+
     String fileId = generateFileId();
     String filename = sanitiseFilename(Objects.requireNonNull(file.getOriginalFilename()));
 
-    if (!isFileExtensionAllowed(filename)) {
+    if (!isFileExtensionAllowed(filename, allowedExtensions)) {
       return FileUploadResult.generateFailedFileUploadResult(filename, file, UploadErrorType.EXTENSION_NOT_ALLOWED);
     }
 
@@ -131,7 +139,10 @@ public class FileUploadService {
     }
   }
 
-  private boolean isFileExtensionAllowed(String filename) {
+
+
+
+  private boolean isFileExtensionAllowed(String filename, List<String> allowedExtensions) {
     String lowercase = filename.toLowerCase();
     return allowedExtensions.stream()
         .anyMatch(lowercase::endsWith);
