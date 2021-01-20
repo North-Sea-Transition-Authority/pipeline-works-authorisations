@@ -2,7 +2,7 @@ package uk.co.ogauthority.pwa.service.search.applicationsearch;
 
 import java.util.Objects;
 
-public class ApplicationSearchParameters {
+public final class ApplicationSearchParameters {
 
   private String appReference;
 

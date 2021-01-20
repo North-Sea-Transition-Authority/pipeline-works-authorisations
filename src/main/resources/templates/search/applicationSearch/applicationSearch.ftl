@@ -5,6 +5,7 @@
 <#-- @ftlvariable name="maxResults" type="java.lang.Long" -->
 <#-- @ftlvariable name="displayableResults" type="type="java.util.List<uk.co.ogauthority.pwa.service.workarea.applications.PwaApplicationWorkAreaItem>" -->
 <#-- @ftlvariable name="appSearchEntryState" type="uk.co.ogauthority.pwa.controller.search.applicationsearch.ApplicationSearchController.AppSearchEntryState" -->
+<#-- @ftlvariable name="searchUrl" type="java.lang.String" -->
 
 
 <@defaultPage htmlTitle="Search applications" pageHeading="Search applications" fullWidthColumn=true topNavigation=true wrapperWidth=true>
@@ -28,7 +29,8 @@
         </@fdsWarning.warning>
     </#if>
 
-    <@fdsForm.htmlForm>
+    <@fdsForm.htmlForm actionUrl="${springUrl(searchUrl)}">
+        <@fdsTextInput.textInput path="form.appReference" labelText="Application reference" maxCharacterLength="10" inputClass="govuk-input--width-10"/>
         <@fdsAction.button buttonText="Search"/>
     </@fdsForm.htmlForm>
 

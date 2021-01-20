@@ -10,6 +10,8 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.BeanPropertyBindingResult;
+import org.springframework.validation.BindingResult;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailItemView;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailView;
 import uk.co.ogauthority.pwa.service.search.applicationsearch.restrictions.ApplicationSearchPredicateProvider;
@@ -21,13 +23,16 @@ import uk.co.ogauthority.pwa.service.search.applicationsearch.restrictions.Appli
 public class ApplicationDetailSearchService {
 
   private final List<ApplicationSearchPredicateProvider> applicationSearchPredicateProviders;
+  private final ApplicationSearchParamsValidator applicationSearchParamsValidator;
   private final EntityManager entityManager;
 
 
   @Autowired
   public ApplicationDetailSearchService(List<ApplicationSearchPredicateProvider> applicationSearchPredicateProviders,
+                                        ApplicationSearchParamsValidator applicationSearchParamsValidator,
                                         EntityManager entityManager) {
     this.applicationSearchPredicateProviders = applicationSearchPredicateProviders;
+    this.applicationSearchParamsValidator = applicationSearchParamsValidator;
     this.entityManager = entityManager;
   }
 
@@ -59,8 +64,19 @@ public class ApplicationDetailSearchService {
 
     TypedQuery<ApplicationDetailView> q = entityManager.createQuery(searchCoreQuery);
 
-    // required to force simple simple list of interface where the specific type can be ignored.
+    // required to force simple list of interface where the specific type can be ignored.
     return new ArrayList<>(q.getResultList());
+
+  }
+
+
+  public BindingResult validateSearchParamsUsingContext(ApplicationSearchParameters searchParameters,
+                                                        ApplicationSearchContext applicationSearchContext) {
+    var bindingResult = new BeanPropertyBindingResult(searchParameters, "form");
+
+    applicationSearchParamsValidator.validate(searchParameters, bindingResult, applicationSearchContext);
+
+    return bindingResult;
 
   }
 

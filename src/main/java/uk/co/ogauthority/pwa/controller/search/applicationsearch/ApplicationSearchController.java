@@ -7,8 +7,11 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,7 +21,9 @@ import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailItemView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
+import uk.co.ogauthority.pwa.service.objects.FormObjectMapper;
 import uk.co.ogauthority.pwa.service.search.applicationsearch.ApplicationDetailSearchService;
+import uk.co.ogauthority.pwa.service.search.applicationsearch.ApplicationSearchContext;
 import uk.co.ogauthority.pwa.service.search.applicationsearch.ApplicationSearchContextCreator;
 import uk.co.ogauthority.pwa.service.search.applicationsearch.ApplicationSearchDisplayItemCreator;
 import uk.co.ogauthority.pwa.service.search.applicationsearch.ApplicationSearchParameters;
@@ -27,12 +32,11 @@ import uk.co.ogauthority.pwa.service.search.applicationsearch.ApplicationSearchP
 @Controller
 @RequestMapping("/application-search")
 public class ApplicationSearchController {
-
+  private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationSearchController.class);
   private static final long MAX_RESULTS = 50L;
 
   private final ApplicationDetailSearchService applicationDetailSearchService;
   private final ApplicationSearchContextCreator applicationSearchContextCreator;
-
   private final ApplicationSearchDisplayItemCreator applicationSearchDisplayItemCreator;
 
   @Autowired
@@ -50,70 +54,84 @@ public class ApplicationSearchController {
         ApplicationSearchParametersBuilder.createEmptyParams()
     );
 
-    return ReverseRouter.redirect(on(ApplicationSearchController.class)
-        .renderApplicationSearch(
+    var paramMap = new LinkedMultiValueMap<String, String>();
+    paramMap.setAll(FormObjectMapper.toMap(safeParams));
+
+    return ReverseRouter.redirectWithQueryParamMap(on(ApplicationSearchController.class)
+        .getSearchResults(
             null,
             AppSearchEntryState.SEARCH,
-            safeParams.getAppReference()
-        )
+            null
+        ), paramMap
     );
   }
 
   public static String routeToLandingPage() {
     return ReverseRouter.route(on(ApplicationSearchController.class)
-        .renderApplicationSearch(null, AppSearchEntryState.LANDING, null)
+        .getSearchResults(null, AppSearchEntryState.LANDING, null)
     );
   }
 
   @GetMapping()
-  public ModelAndView renderApplicationSearch(AuthenticatedUserAccount authenticatedUserAccount,
-                                              @RequestParam(name = "entryState", defaultValue = "SEARCH") AppSearchEntryState entryState,
-                                              @RequestParam(name = "appReference", required = false) String appReference) {
+  public ModelAndView getSearchResults(AuthenticatedUserAccount authenticatedUserAccount,
+                                       @RequestParam(name = "entryState", defaultValue = "SEARCH") AppSearchEntryState entryState,
+                                       @ModelAttribute("form") ApplicationSearchParameters applicationSearchParameters) {
 
+    var context = applicationSearchContextCreator.createContext(authenticatedUserAccount);
 
-    List<ApplicationDetailItemView> results = Collections.emptyList();
+    return getSearchModelAndView(entryState, applicationSearchParameters, context);
 
-    if (entryState.equals(AppSearchEntryState.SEARCH)) {
+  }
 
-      var context = applicationSearchContextCreator.createContext(authenticatedUserAccount);
-
-      // TODO PWA-1058 -- validate params first?
-      var appSearchParams = new ApplicationSearchParametersBuilder()
-          .setAppReference(appReference)
-          .createApplicationSearchParameters();
-
-      results = applicationDetailSearchService.search(appSearchParams, context);
-    }
-
-    return getSearchModelAndView(results, entryState);
-
+  public static String getBlankSearchUrl() {
+    return ReverseRouter.route(on(ApplicationSearchController.class).getSearchResults(null, null, null));
   }
 
   @PostMapping
-  public ModelAndView doApplicationSearch(AuthenticatedUserAccount authenticatedUserAccount,
-                                          @ModelAttribute("form") ApplicationSearchParameters applicationSearchParameters) {
-
-
+  public ModelAndView submitSearchParams(@ModelAttribute("form") ApplicationSearchParameters applicationSearchParameters) {
     return redirectAndRunSearch(applicationSearchParameters);
-
   }
 
 
-  private ModelAndView getSearchModelAndView(List<ApplicationDetailItemView> applicationDetailItemViewList,
-                                             AppSearchEntryState appSearchEntryState) {
+  private ModelAndView getSearchModelAndView(AppSearchEntryState appSearchEntryState,
+                                             ApplicationSearchParameters searchParameters,
+                                             ApplicationSearchContext applicationSearchContext
+                                             ) {
 
-    var displayableResults = applicationDetailItemViewList.stream()
+    var modelAndView = new ModelAndView("search/applicationSearch/applicationSearch")
+        .addObject("maxResults", MAX_RESULTS)
+        .addObject("appSearchEntryState", appSearchEntryState)
+        // need to provide a search form changes do not include previous search results from the URL params
+        .addObject("searchUrl", ApplicationSearchController.getBlankSearchUrl());
+
+    List<ApplicationDetailItemView> results = Collections.emptyList();
+    if (appSearchEntryState.equals(AppSearchEntryState.SEARCH)) {
+      var validatedParamBindingResult = applicationDetailSearchService.validateSearchParamsUsingContext(
+          searchParameters,
+          applicationSearchContext
+      );
+
+      if (!validatedParamBindingResult.hasErrors()) {
+        results = applicationDetailSearchService.search(searchParameters, applicationSearchContext);
+      } else {
+        LOGGER.error(String.format(
+            "WUA_ID:%s has provided invalid search params. Empty results returned.",
+            applicationSearchContext.getWuaIdAsInt()
+        ));
+      }
+    }
+
+    var displayableResults = results.stream()
         // app id is directly stored in app ref, sort directly rather than deconstruct the reference so its sortable.
         .sorted(Comparator.comparing(ApplicationDetailItemView::getPwaApplicationId).reversed())
         .limit(MAX_RESULTS)
         .map(applicationSearchDisplayItemCreator::createDisplayItem)
         .collect(toList());
 
-    return new ModelAndView("search/applicationSearch/applicationSearch")
-        .addObject("showMaxResultsExceededMessage", applicationDetailItemViewList.size() > MAX_RESULTS)
-        .addObject("maxResults", MAX_RESULTS)
-        .addObject("displayableResults", displayableResults)
-        .addObject("appSearchEntryState", appSearchEntryState);
+    modelAndView.addObject("showMaxResultsExceededMessage", results.size() > MAX_RESULTS)
+        .addObject("displayableResults", displayableResults);
+
+    return modelAndView;
 
   }
 
