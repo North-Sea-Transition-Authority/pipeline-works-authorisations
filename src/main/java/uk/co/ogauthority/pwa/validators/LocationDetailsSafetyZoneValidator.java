@@ -9,7 +9,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import org.springframework.validation.SmartValidator;
 import org.springframework.validation.ValidationUtils;
+import uk.co.ogauthority.pwa.exception.ActionNotAllowedException;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.location.LocationDetailsSafetyZoneForm;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.util.ValidatorUtils;
 import uk.co.ogauthority.pwa.util.forminputs.FormInputLabel;
@@ -37,7 +39,47 @@ public class LocationDetailsSafetyZoneValidator implements SmartValidator {
 
   @Override
   public void validate(Object target, Errors errors) {
+    throw(new ActionNotAllowedException("Incorrect parameters provided for validation"));
+  }
+
+
+  @Override
+  public void validate(Object target, Errors errors, Object... validationHints) {
+
     var form = (LocationDetailsSafetyZoneForm) target;
+    var validationType = (ValidationType) validationHints[0];
+
+    if (validationType.equals(ValidationType.PARTIAL)) {
+      validatePartial(form, errors);
+    } else {
+      validateFull(form, errors);
+    }
+  }
+
+  private void validatePartial(LocationDetailsSafetyZoneForm form, Errors errors) {
+
+    if (BooleanUtils.isTrue(form.getPsrNotificationSubmitted())) {
+      ValidatorUtils.invokeNestedValidator(
+          errors,
+          twoFieldDateInputValidator,
+          "psrNotificationSubmittedDate",
+          form.getPsrNotificationSubmittedDate(),
+          List.of(new FormInputLabel("submitted")).toArray());
+
+    } else if (BooleanUtils.isFalse(form.getPsrNotificationSubmitted())) {
+
+      ValidatorUtils.invokeNestedValidator(
+          errors,
+          twoFieldDateInputValidator,
+          "psrNotificationExpectedSubmissionDate",
+          form.getPsrNotificationExpectedSubmissionDate(),
+          List.of(new FormInputLabel("expected submission")).toArray());
+    }
+
+  }
+
+
+  private void validateFull(LocationDetailsSafetyZoneForm form, Errors errors) {
 
     if (form.getFacilities().size() == 0) {
       errors.rejectValue("facilities",
@@ -76,11 +118,6 @@ public class LocationDetailsSafetyZoneValidator implements SmartValidator {
 
   }
 
-
-  @Override
-  public void validate(Object target, Errors errors, Object... validationHints) {
-    validate(target, errors);
-  }
 
 
 

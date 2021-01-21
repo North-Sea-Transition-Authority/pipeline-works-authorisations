@@ -19,6 +19,7 @@ import org.springframework.validation.ValidationUtils;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
@@ -210,5 +211,39 @@ public class WorkScheduleFormValidatorTest {
         .contains("Work start must be the same as or after Project information proposed start of works date " +
             "(" + earliest.format(CampaignWorkScheduleValidationHint.DATETIME_FORMATTER)+")");
 
+  }
+
+  @Test
+  public void validate_workStartAndWorkEndYearTooLarge() {
+    var form = new WorkScheduleForm();
+    form.setWorkStart(new TwoFieldDateInput(4001, 6));
+    form.setWorkEnd(new TwoFieldDateInput(4001, 7));
+
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+    ValidationUtils.invokeValidator(validator, form, bindingResult, defaultHints);
+
+    var codes = ValidatorTestUtils.extractErrors(bindingResult);
+
+    assertThat(codes).contains(
+        entry("workStart.year", Set.of("year" + FieldValidationErrorCodes.INVALID.getCode())),
+        entry("workEnd.year", Set.of("year" + FieldValidationErrorCodes.INVALID.getCode()))
+    );
+  }
+
+  @Test
+  public void validate_workStartAndWorkEndYearTooSmall() {
+    var form = new WorkScheduleForm();
+    form.setWorkStart(new TwoFieldDateInput(-1, 6));
+    form.setWorkEnd(new TwoFieldDateInput(-1, 7));
+
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+    ValidationUtils.invokeValidator(validator, form, bindingResult, defaultHints);
+
+    var codes = ValidatorTestUtils.extractErrors(bindingResult);
+
+    assertThat(codes).contains(
+        entry("workStart.year", Set.of("year" + FieldValidationErrorCodes.INVALID.getCode())),
+        entry("workEnd.year", Set.of("year" + FieldValidationErrorCodes.INVALID.getCode()))
+    );
   }
 }

@@ -7,6 +7,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Set;
 import org.apache.commons.lang3.tuple.Pair;
+import org.assertj.core.data.MapEntry;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
@@ -49,79 +50,6 @@ public class ValidatorUtilsTest {
     Errors errors = new BeanPropertyBindingResult(projectInformationForm, "form");
     var validationNoErrors = ValidatorUtils.validateDate("proposedStart", "proposed start",
         date.getDayOfMonth(), date.getMonthValue(), date.getYear(), errors);
-    assertThat(errors.getAllErrors()).extracting(ObjectError::getObjectName)
-        .doesNotContain("proposedStartDay", "proposedStartMonth", "proposedStartYear");
-    assertThat(validationNoErrors).isTrue();
-  }
-
-  @Test
-  public void validateDate_yearHas1Digit() {
-    BindingResult errors = new BeanPropertyBindingResult(projectInformationForm, "form");
-    var isValid = ValidatorUtils.validateDate(
-        "proposedStart", "proposed start",
-        1, 1, 1,
-        errors
-    );
-
-    var errorMap = ValidatorTestUtils.extractErrors(errors);
-
-    assertThat(errorMap).contains(
-        entry("proposedStartDay", Set.of(FieldValidationErrorCodes.INVALID.errorCode("proposedStartDay"))),
-        entry("proposedStartMonth", Set.of(FieldValidationErrorCodes.INVALID.errorCode("proposedStartMonth"))),
-        entry("proposedStartYear", Set.of(FieldValidationErrorCodes.INVALID.errorCode("proposedStartYear")))
-    );
-
-    assertThat(isValid).isFalse();
-  }
-
-  @Test
-  public void validateDate_yearHas2DigitS() {
-    BindingResult errors = new BeanPropertyBindingResult(projectInformationForm, "form");
-    var isValid = ValidatorUtils.validateDate(
-        "proposedStart", "proposed start",
-        1, 1, 10,
-        errors
-    );
-
-    var errorMap = ValidatorTestUtils.extractErrors(errors);
-
-    assertThat(errorMap).contains(
-        entry("proposedStartDay", Set.of(FieldValidationErrorCodes.INVALID.errorCode("proposedStartDay"))),
-        entry("proposedStartMonth", Set.of(FieldValidationErrorCodes.INVALID.errorCode("proposedStartMonth"))),
-        entry("proposedStartYear", Set.of(FieldValidationErrorCodes.INVALID.errorCode("proposedStartYear")))
-    );
-
-    assertThat(isValid).isFalse();
-  }
-
-  @Test
-  public void validateDate_yearHas3DigitS() {
-    BindingResult errors = new BeanPropertyBindingResult(projectInformationForm, "form");
-    var isValid = ValidatorUtils.validateDate(
-        "proposedStart", "proposed start",
-        1, 1, 100,
-        errors
-    );
-
-    var errorMap = ValidatorTestUtils.extractErrors(errors);
-
-    assertThat(errorMap).contains(
-        entry("proposedStartDay", Set.of(FieldValidationErrorCodes.INVALID.errorCode("proposedStartDay"))),
-        entry("proposedStartMonth", Set.of(FieldValidationErrorCodes.INVALID.errorCode("proposedStartMonth"))),
-        entry("proposedStartYear", Set.of(FieldValidationErrorCodes.INVALID.errorCode("proposedStartYear")))
-    );
-
-    assertThat(isValid).isFalse();
-  }
-
-  @Test
-  public void validateDate_yearHas4DigitS() {
-    BindingResult errors = new BeanPropertyBindingResult(projectInformationForm, "form");
-    var validationNoErrors = ValidatorUtils.validateDate(
-        "proposedStart", "proposed start",
-        1, 1, 1000,
-        errors
-    );
     assertThat(errors.getAllErrors()).extracting(ObjectError::getObjectName)
         .doesNotContain("proposedStartDay", "proposedStartMonth", "proposedStartYear");
     assertThat(validationNoErrors).isTrue();
@@ -199,6 +127,61 @@ public class ValidatorUtilsTest {
     assertThat(errors.getAllErrors()).extracting(ObjectError::getObjectName)
         .doesNotContain("proposedStartDay", "proposedStartMonth", "proposedStartYear");
     assertThat(validationNoErrors).isTrue();
+  }
+
+  @Test
+  public void isYearValid_validYear() {
+    var isYearValid = ValidatorUtils.isYearValid(0);
+    assertThat(isYearValid).isTrue();
+  }
+
+  @Test
+  public void isYearValid_yearTooBig() {
+    var isYearValid = ValidatorUtils.isYearValid(4001);
+    assertThat(isYearValid).isFalse();
+  }
+
+
+  @Test
+  public void isYearValid_yearTooSmall() {
+    var isYearValid = ValidatorUtils.isYearValid(-1);
+    assertThat(isYearValid).isFalse();
+  }
+
+  @Test
+  public void validateYearWhenPresent_validYear() {
+    Errors errors = new BeanPropertyBindingResult(projectInformationForm, "form");
+    ValidatorUtils.validateYearWhenPresent("proposedStart", "proposed start",
+        0, errors);
+    assertThat(errors.getAllErrors()).extracting(ObjectError::getObjectName)
+        .doesNotContain("proposedStartYear");
+  }
+
+  @Test
+  public void validateYearWhenPresent_yearTooBig() {
+    Errors errors = new BeanPropertyBindingResult(projectInformationForm, "form");
+    ValidatorUtils.validateYearWhenPresent("proposedStart", "proposed start",
+        4001, errors);
+    assertThat(errors.getAllErrors()).extracting(DefaultMessageSourceResolvable::getCode)
+        .contains("proposedStartYear.invalid");
+  }
+
+  @Test
+  public void validateYearWhenPresent_yearTooSmall() {
+    Errors errors = new BeanPropertyBindingResult(projectInformationForm, "form");
+    ValidatorUtils.validateYearWhenPresent("proposedStart", "proposed start",
+        -1, errors);
+    assertThat(errors.getAllErrors()).extracting(DefaultMessageSourceResolvable::getCode)
+        .contains("proposedStartYear.invalid");
+  }
+
+  @Test
+  public void validateYearWhenPresent_notPresent() {
+    Errors errors = new BeanPropertyBindingResult(projectInformationForm, "form");
+    ValidatorUtils.validateYearWhenPresent("proposedStart", "proposed start",
+        null, errors);
+    assertThat(errors.getAllErrors()).extracting(ObjectError::getObjectName)
+        .doesNotContain("proposedStartYear");
   }
 
   @Test

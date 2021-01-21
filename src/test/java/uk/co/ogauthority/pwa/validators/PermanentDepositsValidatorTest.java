@@ -162,6 +162,34 @@ public class PermanentDepositsValidatorTest {
         entry("toDate.month", Set.of("month.month" + FieldValidationErrorCodes.INVALID.getCode())));
   }
 
+  @Test
+  public void validate_dates_yearsTooBig() {
+    var form = getPermanentDepositsFormWithMaterialType();
+    form.getFromDate().setMonth(2);
+    form.getFromDate().setYear(4001);
+    form.getToDate().setMonth(2);
+    form.getToDate().setYear(4001);
+
+    Map<String, Set<String>> errorsMap = getErrorMap(form);
+    assertThat(errorsMap).contains(
+        entry("fromDate.year", Set.of("year" + FieldValidationErrorCodes.INVALID.getCode())),
+        entry("toDate.year", Set.of("year" + FieldValidationErrorCodes.INVALID.getCode())));
+  }
+
+  @Test
+  public void validate_dates_yearsTooSmall() {
+    var form = getPermanentDepositsFormWithMaterialType();
+    form.getFromDate().setMonth(2);
+    form.getFromDate().setYear(-1);
+    form.getToDate().setMonth(2);
+    form.getToDate().setYear(-1);
+
+    Map<String, Set<String>> errorsMap = getErrorMap(form);
+    assertThat(errorsMap).contains(
+        entry("fromDate.year", Set.of("year" + FieldValidationErrorCodes.INVALID.getCode())),
+        entry("toDate.year", Set.of("year" + FieldValidationErrorCodes.INVALID.getCode())));
+  }
+
 
 
 

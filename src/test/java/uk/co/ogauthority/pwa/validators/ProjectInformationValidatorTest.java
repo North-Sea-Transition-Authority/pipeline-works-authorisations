@@ -99,6 +99,76 @@ public class ProjectInformationValidatorTest {
         entry("methodOfPipelineDeployment", Set.of("methodOfPipelineDeployment" + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode())));
   }
 
+  @Test
+  public void validate_partialDates_yearsTooBig() {
+    var form = new ProjectInformationForm();
+    form.setProposedStartYear(4001);
+    form.setMobilisationYear(4001);
+    form.setEarliestCompletionYear(4001);
+    form.setLatestCompletionYear(4001);
+    form.setLicenceTransferPlanned(true);
+    form.setLicenceTransferYear(4001);
+    form.setCommercialAgreementYear(4001);
+    form.setPermanentDepositsMadeType(PermanentDepositRadioOption.LATER_APP);
+    form.setFutureSubmissionDate(new TwoFieldDateInput(4001, 1));
+
+    var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form,
+        new ProjectInformationFormValidationHints(PwaApplicationType.INITIAL, ValidationType.PARTIAL,
+            Set.of(ProjectInformationQuestion.PROPOSED_START_DATE,
+                ProjectInformationQuestion.MOBILISATION_DATE,
+                ProjectInformationQuestion.EARLIEST_COMPLETION_DATE,
+                ProjectInformationQuestion.LATEST_COMPLETION_DATE,
+                ProjectInformationQuestion.LICENCE_TRANSFER_PLANNED,
+                ProjectInformationQuestion.LICENCE_TRANSFER_DATE,
+                ProjectInformationQuestion.COMMERCIAL_AGREEMENT_DATE,
+                ProjectInformationQuestion.PERMANENT_DEPOSITS_BEING_MADE),
+            false));
+
+    assertThat(errorsMap).contains(
+        entry("proposedStartYear", Set.of("proposedStartYear" + FieldValidationErrorCodes.INVALID.getCode())),
+        entry("mobilisationYear", Set.of("mobilisationYear" + FieldValidationErrorCodes.INVALID.getCode())),
+        entry("earliestCompletionYear", Set.of("earliestCompletionYear" + FieldValidationErrorCodes.INVALID.getCode())),
+        entry("latestCompletionYear", Set.of("latestCompletionYear" + FieldValidationErrorCodes.INVALID.getCode())),
+        entry("licenceTransferYear", Set.of("licenceTransferYear" + FieldValidationErrorCodes.INVALID.getCode())),
+        entry("commercialAgreementYear", Set.of("commercialAgreementYear" + FieldValidationErrorCodes.INVALID.getCode())),
+        entry("futureSubmissionDate.year", Set.of("year" + FieldValidationErrorCodes.INVALID.getCode())));
+  }
+
+  @Test
+  public void validate_partialDates_yearTooSmall() {
+    var form = new ProjectInformationForm();
+    form.setProposedStartYear(-1);
+    form.setMobilisationYear(-1);
+    form.setEarliestCompletionYear(-1);
+    form.setLatestCompletionYear(-1);
+    form.setLicenceTransferPlanned(true);
+    form.setLicenceTransferYear(-1);
+    form.setCommercialAgreementYear(-1);
+    form.setPermanentDepositsMadeType(PermanentDepositRadioOption.LATER_APP);
+    form.setFutureSubmissionDate(new TwoFieldDateInput(-1, 1));
+
+    var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form,
+        new ProjectInformationFormValidationHints(PwaApplicationType.INITIAL, ValidationType.PARTIAL,
+            Set.of(ProjectInformationQuestion.PROPOSED_START_DATE,
+                ProjectInformationQuestion.MOBILISATION_DATE,
+                ProjectInformationQuestion.EARLIEST_COMPLETION_DATE,
+                ProjectInformationQuestion.LATEST_COMPLETION_DATE,
+                ProjectInformationQuestion.LICENCE_TRANSFER_PLANNED,
+                ProjectInformationQuestion.LICENCE_TRANSFER_DATE,
+                ProjectInformationQuestion.COMMERCIAL_AGREEMENT_DATE,
+                ProjectInformationQuestion.PERMANENT_DEPOSITS_BEING_MADE),
+            false));
+
+    assertThat(errorsMap).contains(
+        entry("proposedStartYear", Set.of("proposedStartYear" + FieldValidationErrorCodes.INVALID.getCode())),
+        entry("mobilisationYear", Set.of("mobilisationYear" + FieldValidationErrorCodes.INVALID.getCode())),
+        entry("earliestCompletionYear", Set.of("earliestCompletionYear" + FieldValidationErrorCodes.INVALID.getCode())),
+        entry("latestCompletionYear", Set.of("latestCompletionYear" + FieldValidationErrorCodes.INVALID.getCode())),
+        entry("licenceTransferYear", Set.of("licenceTransferYear" + FieldValidationErrorCodes.INVALID.getCode())),
+        entry("commercialAgreementYear", Set.of("commercialAgreementYear" + FieldValidationErrorCodes.INVALID.getCode())),
+        entry("futureSubmissionDate.year", Set.of("year" + FieldValidationErrorCodes.INVALID.getCode())));
+  }
+
 
   @Test
   public void validate_ProposedStartNull() {
@@ -175,11 +245,11 @@ public class ProjectInformationValidatorTest {
     var form = new ProjectInformationForm();
     form.setProposedStartDay(5);
     form.setProposedStartMonth(11);
-    form.setProposedStartYear(5020);
+    form.setProposedStartYear(3020);
 
     form.setMobilisationDay(4);
     form.setMobilisationMonth(11);
-    form.setMobilisationYear(5020);
+    form.setMobilisationYear(3020);
 
     var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, new ProjectInformationFormValidationHints(
             PwaApplicationType.INITIAL, ValidationType.FULL, Set.of(ProjectInformationQuestion.PROPOSED_START_DATE, ProjectInformationQuestion.MOBILISATION_DATE), false));
@@ -194,11 +264,11 @@ public class ProjectInformationValidatorTest {
     var form = new ProjectInformationForm();
     form.setProposedStartDay(5);
     form.setProposedStartMonth(11);
-    form.setProposedStartYear(5020);
+    form.setProposedStartYear(3020);
 
     form.setMobilisationDay(5);
     form.setMobilisationMonth(11);
-    form.setMobilisationYear(5020);
+    form.setMobilisationYear(3020);
 
     var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, new ProjectInformationFormValidationHints(
         PwaApplicationType.INITIAL, ValidationType.FULL, Set.of(ProjectInformationQuestion.PROPOSED_START_DATE, ProjectInformationQuestion.MOBILISATION_DATE), false));
@@ -213,11 +283,11 @@ public class ProjectInformationValidatorTest {
     var form = new ProjectInformationForm();
     form.setProposedStartDay(5);
     form.setProposedStartMonth(11);
-    form.setProposedStartYear(5020);
+    form.setProposedStartYear(3020);
 
     form.setMobilisationDay(6);
     form.setMobilisationMonth(11);
-    form.setMobilisationYear(5020);
+    form.setMobilisationYear(3020);
 
     var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, new ProjectInformationFormValidationHints(
         PwaApplicationType.INITIAL, ValidationType.FULL, Set.of(ProjectInformationQuestion.PROPOSED_START_DATE, ProjectInformationQuestion.MOBILISATION_DATE), false));
@@ -272,11 +342,11 @@ public class ProjectInformationValidatorTest {
     var form = new ProjectInformationForm();
     form.setProposedStartDay(7);
     form.setProposedStartMonth(11);
-    form.setProposedStartYear(5020);
+    form.setProposedStartYear(3020);
 
     form.setEarliestCompletionDay(6);
     form.setEarliestCompletionMonth(11);
-    form.setEarliestCompletionYear(5020);
+    form.setEarliestCompletionYear(3020);
     var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, new ProjectInformationFormValidationHints(
         PwaApplicationType.INITIAL, ValidationType.FULL, Set.of(ProjectInformationQuestion.PROPOSED_START_DATE, ProjectInformationQuestion.EARLIEST_COMPLETION_DATE), false));
     assertThat(errorsMap).contains(
@@ -291,11 +361,11 @@ public class ProjectInformationValidatorTest {
     var form = new ProjectInformationForm();
     form.setProposedStartDay(7);
     form.setProposedStartMonth(11);
-    form.setProposedStartYear(5020);
+    form.setProposedStartYear(3020);
 
     form.setEarliestCompletionDay(7);
     form.setEarliestCompletionMonth(11);
-    form.setEarliestCompletionYear(5020);
+    form.setEarliestCompletionYear(3020);
 
     var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, new ProjectInformationFormValidationHints(
         PwaApplicationType.INITIAL, ValidationType.FULL, Set.of(ProjectInformationQuestion.PROPOSED_START_DATE, ProjectInformationQuestion.EARLIEST_COMPLETION_DATE), false));
@@ -310,11 +380,11 @@ public class ProjectInformationValidatorTest {
     var form = new ProjectInformationForm();
     form.setProposedStartDay(7);
     form.setProposedStartMonth(11);
-    form.setProposedStartYear(5020);
+    form.setProposedStartYear(3020);
 
     form.setEarliestCompletionDay(8);
     form.setEarliestCompletionMonth(11);
-    form.setEarliestCompletionYear(5020);
+    form.setEarliestCompletionYear(3020);
 
     var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, new ProjectInformationFormValidationHints(
         PwaApplicationType.INITIAL, ValidationType.FULL, Set.of(ProjectInformationQuestion.PROPOSED_START_DATE, ProjectInformationQuestion.EARLIEST_COMPLETION_DATE), false));
