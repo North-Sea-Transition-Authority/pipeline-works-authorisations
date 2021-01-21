@@ -1,0 +1,82 @@
+package uk.co.ogauthority.pwa.service.search.applicationsearch;
+
+import java.util.Objects;
+import java.util.Set;
+import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationGroup;
+import uk.co.ogauthority.pwa.model.dto.consultations.ConsulteeGroupId;
+import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
+import uk.co.ogauthority.pwa.service.enums.users.UserType;
+
+/**
+ * Contains contextual information relevant to application search processing.
+ */
+public final class ApplicationSearchContext {
+  private final AuthenticatedUserAccount authenticatedUserAccount;
+
+  private final UserType userType;
+
+  private final Set<PortalOrganisationGroup> orgGroupsWhereMemberOfHolderTeam;
+  private final Set<OrganisationUnitId> orgUnitIdsAssociatedWithHolderTeamMembership;
+
+  private final Set<ConsulteeGroupId> consulteeGroupIds;
+
+  ApplicationSearchContext(AuthenticatedUserAccount authenticatedUserAccount,
+                           UserType userType,
+                           Set<PortalOrganisationGroup> orgGroupsWhereMemberOfHolderTeam,
+                           Set<OrganisationUnitId> orgUnitIdsAssociatedWithHolderTeamMembership,
+                           Set<ConsulteeGroupId> consulteeGroupIds) {
+    this.authenticatedUserAccount = authenticatedUserAccount;
+    this.userType = userType;
+    this.orgGroupsWhereMemberOfHolderTeam = orgGroupsWhereMemberOfHolderTeam;
+    this.orgUnitIdsAssociatedWithHolderTeamMembership = orgUnitIdsAssociatedWithHolderTeamMembership;
+    this.consulteeGroupIds = consulteeGroupIds;
+  }
+
+  public AuthenticatedUserAccount getAuthenticatedUserAccount() {
+    return authenticatedUserAccount;
+  }
+
+  public UserType getUserType() {
+    return userType;
+  }
+
+  public int getWuaIdAsInt() {
+    return authenticatedUserAccount.getWuaId();
+  }
+
+  public Set<PortalOrganisationGroup> getOrgGroupsWhereMemberOfHolderTeam() {
+    return orgGroupsWhereMemberOfHolderTeam;
+  }
+
+  public Set<OrganisationUnitId> getOrgUnitIdsAssociatedWithHolderTeamMembership() {
+    return orgUnitIdsAssociatedWithHolderTeamMembership;
+  }
+
+  public Set<ConsulteeGroupId> getConsulteeGroupIds() {
+    return consulteeGroupIds;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    ApplicationSearchContext that = (ApplicationSearchContext) o;
+    return Objects.equals(authenticatedUserAccount,
+        that.authenticatedUserAccount) && userType == that.userType
+        && Objects.equals(orgGroupsWhereMemberOfHolderTeam, that.orgGroupsWhereMemberOfHolderTeam)
+        && Objects.equals(orgUnitIdsAssociatedWithHolderTeamMembership,        that.orgUnitIdsAssociatedWithHolderTeamMembership)
+        && Objects.equals(consulteeGroupIds,
+        that.consulteeGroupIds);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(authenticatedUserAccount, userType, orgGroupsWhereMemberOfHolderTeam,
+        orgUnitIdsAssociatedWithHolderTeamMembership, consulteeGroupIds);
+  }
+}

@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits;
 
+import static java.util.Map.entry;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
@@ -31,6 +32,8 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.entity.enums.permanentdeposits.MaterialType;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineStatus;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
@@ -39,6 +42,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PadPermanentDepositTestUtil;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.PermanentDepositsForm;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PadPipelineOverview;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineHeaderView;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview;
 import uk.co.ogauthority.pwa.model.location.CoordinatePairTestUtil;
@@ -258,6 +262,37 @@ public class PermanentDepositsServiceTest {
     var form = new PermanentDepositsForm();
     permanentDepositService.mapEntityToFormById(1, form);
   }
+
+  @Test
+  public void getPipelinesMapForDeposits_1pipelineInService_1pipelineRTS() {
+
+    var pipelineOnSeabed = new Pipeline();
+    pipelineOnSeabed.setId(1);
+    var padPipelineOnSeabed = new PadPipeline();
+    padPipelineOnSeabed.setPipeline(pipelineOnSeabed);
+    padPipelineOnSeabed.setPipelineStatus(PipelineStatus.IN_SERVICE);
+    padPipelineOnSeabed.setPipelineRef("my ref");
+    padPipelineOnSeabed.setPipelineType(PipelineType.HYDRAULIC_JUMPER);
+    var padPipelineOverviewOnSeabed = new PadPipelineOverview(padPipelineOnSeabed, 1L);
+
+    var pipelineNotOnSeabed = new Pipeline();
+    pipelineNotOnSeabed.setId(2);
+    var padPipelineNotOnSeabed = new PadPipeline();
+    padPipelineNotOnSeabed.setPipeline(pipelineNotOnSeabed);
+    padPipelineNotOnSeabed.setPipelineStatus(PipelineStatus.RETURNED_TO_SHORE);
+    var padPipelineOverviewNotOnSeabed = new PadPipelineOverview(padPipelineNotOnSeabed, 1L);
+
+    when(pipelineAndIdentViewFactory.getAllPipelineOverviewsFromAppAndMasterPwa(pwaApplicationDetail))
+    .thenReturn(Map.of(
+        PipelineId.from(padPipelineOverviewOnSeabed), padPipelineOverviewOnSeabed,
+        PipelineId.from(padPipelineOverviewNotOnSeabed), padPipelineOverviewNotOnSeabed));
+
+    var pipelinesIdAndNameMap = permanentDepositService.getPipelinesMapForDeposits(pwaApplicationDetail);
+    assertThat(pipelinesIdAndNameMap).containsOnly(
+        entry(String.valueOf(padPipelineOverviewOnSeabed.getPipelineId()),
+            padPipelineOnSeabed.getPipelineRef() + " - " + padPipelineOnSeabed.getPipelineType().getDisplayName()));
+  }
+
 
   @Test
   public void createViewFromDepositId_onePipelineForDeposit() {

@@ -257,6 +257,22 @@ public class PwaApplicationDetailServiceTest {
   }
 
   @Test
+  public void setDeleted() {
+
+    var deletedTimestamp = Instant.now(clock);
+    Person deletingUser = PersonTestUtil.createDefaultPerson();
+
+    pwaApplicationDetailService.setDeleted(pwaApplicationDetail, deletingUser);
+
+    var captor = ArgumentCaptor.forClass(PwaApplicationDetail.class);
+    verify(applicationDetailRepository, times(1)).save(captor.capture());
+
+    assertThat(captor.getValue().getStatus()).isEqualTo(PwaApplicationStatus.DELETED);
+    assertThat(captor.getValue().getDeletedTimestamp()).isEqualTo(deletedTimestamp);
+    assertThat(captor.getValue().getDeletingPersonId()).isEqualTo(deletingUser.getId());
+  }
+
+  @Test
   public void setNotLinkedFieldDescription() {
 
     assertThat(pwaApplicationDetail.getNotLinkedDescription()).isNull();
@@ -306,7 +322,9 @@ public class PwaApplicationDetailServiceTest {
         "confirmedSatisfactoryTimestamp",
         "withdrawalTimestamp",
         "withdrawalReason",
-        "withdrawingPersonId");
+        "withdrawingPersonId",
+        "deletedTimestamp",
+        "deletingPersonId");
 
     var ignoredForEqualsComparison = new ArrayList<String>();
     ignoredForEqualsComparison.addAll(ignoredFields);
@@ -380,6 +398,8 @@ public class PwaApplicationDetailServiceTest {
     detail.setWithdrawingPersonId(wua.getLinkedPerson().getId());
     detail.setWithdrawalTimestamp(baseTime);
     detail.setWithdrawalReason("reason");
+    detail.setDeletingPersonId(wua.getLinkedPerson().getId());
+    detail.setDeletedTimestamp(baseTime);
 
     // want to make sure that this method always gives every pwaApplicationDetail attribute a value.
     // This should ensure that tests are updated if attributes added later on.

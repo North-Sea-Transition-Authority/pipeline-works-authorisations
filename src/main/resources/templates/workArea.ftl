@@ -9,7 +9,7 @@
 <#-- @ftlvariable name="availableTabs" type="java.util.List<uk.co.ogauthority.pwa.service.workarea.WorkAreaTab>" -->
 <#-- @ftlvariable name="showStartButton" type="java.lang.Boolean" -->
 
-<@defaultPage htmlTitle="Work area" pageHeading="Work area" topNavigation=true fullWidthColumn=true>
+<@defaultPage htmlTitle="Work area" pageHeading="Work area" topNavigation=true fullWidthColumn=true wrapperWidth=true>
 
     <#if showStartButton>
         <@fdsAction.link linkText="Start PWA application" linkUrl=springUrl(startPwaApplicationUrl) linkClass="govuk-button" role=true/>

@@ -1,5 +1,7 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.generic.tasklist;
 
+import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
+
 import com.google.common.annotations.VisibleForTesting;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,11 +9,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.tasklist.TaskListGroup;
+import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.applicationupdate.ApplicationUpdateRequestViewService;
 import uk.co.ogauthority.pwa.service.appprocessing.options.ApproveOptionsService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaViewService;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
+import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskListEntryFactory;
 
 
@@ -29,18 +33,21 @@ public class TaskListControllerModelAndViewCreator {
   private final MasterPwaViewService masterPwaViewService;
   private final ApplicationUpdateRequestViewService applicationUpdateRequestViewService;
   private final ApproveOptionsService approveOptionsService;
+  private final PwaApplicationDetailService pwaApplicationDetailService;
 
   @Autowired
   public TaskListControllerModelAndViewCreator(ApplicationBreadcrumbService breadcrumbService,
-                         TaskListEntryFactory taskListEntryFactory,
-                         MasterPwaViewService masterPwaViewService,
-                         ApplicationUpdateRequestViewService applicationUpdateRequestViewService,
-                         ApproveOptionsService approveOptionsService) {
+                                               TaskListEntryFactory taskListEntryFactory,
+                                               MasterPwaViewService masterPwaViewService,
+                                               ApplicationUpdateRequestViewService applicationUpdateRequestViewService,
+                                               ApproveOptionsService approveOptionsService,
+                                               PwaApplicationDetailService pwaApplicationDetailService) {
     this.breadcrumbService = breadcrumbService;
     this.taskListEntryFactory = taskListEntryFactory;
     this.masterPwaViewService = masterPwaViewService;
     this.applicationUpdateRequestViewService = applicationUpdateRequestViewService;
     this.approveOptionsService = approveOptionsService;
+    this.pwaApplicationDetailService = pwaApplicationDetailService;
   }
 
 
@@ -55,6 +62,14 @@ public class TaskListControllerModelAndViewCreator {
       modelAndView.addObject("masterPwaReference",
           masterPwaViewService.getCurrentMasterPwaView(pwaApplicationDetail.getPwaApplication()).getReference());
     }
+
+    var canDeleteApplication = pwaApplicationDetailService.applicationDetailCanBeDeleted(pwaApplicationDetail);
+    if (canDeleteApplication) {
+      modelAndView.addObject("deleteAppUrl",
+          ReverseRouter.route(on(DeleteApplicationController.class).renderDeleteApplication(
+              pwaApplicationDetail.getPwaApplicationType(), pwaApplicationDetail.getMasterPwaApplicationId(),null)));
+    }
+    modelAndView.addObject("canShowDeleteAppButton", canDeleteApplication);
 
     // if first version, we'll have come from the work area, otherwise can only access via case management screen
     if (pwaApplicationDetail.getVersionNo() == 1) {

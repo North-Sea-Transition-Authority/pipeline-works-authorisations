@@ -103,6 +103,7 @@ public class PadEnvironmentalDecommissioningServiceTest {
         .isEqualTo(LocalDate.of(2020, 3, 18));
     assertThat(entity.getEnvironmentalConditions()).isEqualTo(form.getEnvironmentalConditions());
     assertThat(entity.getDecommissioningConditions()).isEqualTo(form.getDecommissioningConditions());
+    verify(padEnvironmentalDecommissioningRepository, times(1)).save(entity);
   }
 
   @Test

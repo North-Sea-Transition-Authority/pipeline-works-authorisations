@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.service.search.consents;
+package uk.co.ogauthority.pwa.service.search.consents.predicates;
 
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaQuery;

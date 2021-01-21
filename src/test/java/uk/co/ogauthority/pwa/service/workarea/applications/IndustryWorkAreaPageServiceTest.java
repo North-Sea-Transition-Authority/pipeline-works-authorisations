@@ -217,6 +217,7 @@ public class IndustryWorkAreaPageServiceTest {
             PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW,
             PwaApplicationStatus.CASE_OFFICER_REVIEW,
             PwaApplicationStatus.WITHDRAWN,
+            PwaApplicationStatus.DELETED,
             PwaApplicationStatus.COMPLETE
         ),
         false
@@ -249,6 +250,7 @@ public class IndustryWorkAreaPageServiceTest {
             PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW,
             PwaApplicationStatus.CASE_OFFICER_REVIEW,
             PwaApplicationStatus.WITHDRAWN,
+            PwaApplicationStatus.DELETED,
             PwaApplicationStatus.COMPLETE
         ),
         false
