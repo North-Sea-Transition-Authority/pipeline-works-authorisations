@@ -3,10 +3,12 @@ package uk.co.ogauthority.pwa.energyportal.model.entity.organisations;
 import java.util.Objects;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.Table;
 import org.hibernate.annotations.Immutable;
 
 
-@Entity(name = "portal_organisation_groups")
+@Entity
+@Table(name = "portal_organisation_groups")
 @Immutable
 public class PortalOrganisationGroup {
 

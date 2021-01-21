@@ -110,12 +110,6 @@ public class PadLocationDetailsServiceTest {
   }
 
   @Test
-  public void save() {
-    padLocationDetailsService.save(padLocationDetails);
-    verify(padLocationDetailsRepository, times(1)).save(padLocationDetails);
-  }
-
-  @Test
   public void mapEntityToForm_WithNulls() {
     var form = new LocationDetailsForm();
     var entity = new PadLocationDetails();
@@ -254,6 +248,7 @@ public class PadLocationDetailsServiceTest {
     assertThat(entity.getSurveyConcludedTimestamp()).isEqualTo(SURVEY_CONCLUDED_DATE);
     assertThat(entity.getRouteSurveyUndertaken()).isEqualTo(form.getRouteSurveyUndertaken());
     assertThat(entity.getWithinLimitsOfDeviation()).isEqualTo(form.getWithinLimitsOfDeviation());
+    verify(padLocationDetailsRepository, times(1)).save(entity);
   }
 
   @Test
@@ -397,6 +392,42 @@ public class PadLocationDetailsServiceTest {
     assertThat(locationDetailsView.getWithinSafetyZone()).isEqualTo(HseSafetyZone.NO);
     assertThat(locationDetailsView.getFacilitiesIfYes()).isEmpty();
     assertThat(locationDetailsView.getFacilitiesIfPartially()).isEmpty();
+  }
+
+  @Test
+  public void getLocationDetailsView_withinSafetyZone_notificationSubmitted() {
+    padLocationDetails.setWithinSafetyZone(HseSafetyZone.YES);
+    padLocationDetails.setPsrNotificationSubmitted(true);
+    padLocationDetails.setPsrNotificationSubmittedMonth(5);
+    padLocationDetails.setPsrNotificationSubmittedYear(2020);
+    when(padLocationDetailsRepository.findByPwaApplicationDetail(pwaApplicationDetail))
+        .thenReturn(Optional.of(padLocationDetails));
+
+    var locationDetailsView = padLocationDetailsService.getLocationDetailsView(pwaApplicationDetail);
+    assertThat(locationDetailsView.getWithinSafetyZone()).isEqualTo(padLocationDetails.getWithinSafetyZone());
+    assertThat(locationDetailsView.getPsrNotificationSubmitted()).isEqualTo(padLocationDetails.getPsrNotificationSubmitted());
+    assertThat(locationDetailsView.getPsrNotificationSubmissionDate()).isEqualTo(
+        DateUtils.createDateEstimateString(padLocationDetails.getPsrNotificationSubmittedMonth(),
+            padLocationDetails.getPsrNotificationSubmittedYear())
+    );
+  }
+
+  @Test
+  public void getLocationDetailsView_withinSafetyZone_notificationNotSubmitted() {
+    padLocationDetails.setWithinSafetyZone(HseSafetyZone.YES);
+    padLocationDetails.setPsrNotificationSubmitted(false);
+    padLocationDetails.setPsrNotificationExpectedSubmissionMonth(5);
+    padLocationDetails.setPsrNotificationExpectedSubmissionYear(2020);
+    when(padLocationDetailsRepository.findByPwaApplicationDetail(pwaApplicationDetail))
+        .thenReturn(Optional.of(padLocationDetails));
+
+    var locationDetailsView = padLocationDetailsService.getLocationDetailsView(pwaApplicationDetail);
+    assertThat(locationDetailsView.getWithinSafetyZone()).isEqualTo(padLocationDetails.getWithinSafetyZone());
+    assertThat(locationDetailsView.getPsrNotificationSubmitted()).isEqualTo(padLocationDetails.getPsrNotificationSubmitted());
+    assertThat(locationDetailsView.getPsrNotificationSubmissionDate()).isEqualTo(
+        DateUtils.createDateEstimateString(padLocationDetails.getPsrNotificationExpectedSubmissionMonth(),
+            padLocationDetails.getPsrNotificationExpectedSubmissionYear())
+    );
   }
 
   @Test

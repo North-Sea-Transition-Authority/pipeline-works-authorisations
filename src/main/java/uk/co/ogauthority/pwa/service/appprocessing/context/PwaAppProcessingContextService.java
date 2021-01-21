@@ -12,7 +12,6 @@ import uk.co.ogauthority.pwa.service.appprocessing.PwaAppProcessingPermissionSer
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.fileupload.AppFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
-import uk.co.ogauthority.pwa.service.pwaapplications.search.WorkAreaApplicationDetailSearcher;
 import uk.co.ogauthority.pwa.util.ApplicationContextUtils;
 
 @Service
@@ -20,17 +19,17 @@ public class PwaAppProcessingContextService {
 
   private final PwaApplicationDetailService detailService;
   private final PwaAppProcessingPermissionService appProcessingPermissionService;
-  private final WorkAreaApplicationDetailSearcher workAreaApplicationDetailSearcher;
+  private final CaseSummaryViewService caseSummaryViewService;
   private final AppFileService appFileService;
 
   @Autowired
   public PwaAppProcessingContextService(PwaApplicationDetailService detailService,
                                         PwaAppProcessingPermissionService appProcessingPermissionService,
-                                        WorkAreaApplicationDetailSearcher workAreaApplicationDetailSearcher,
+                                        CaseSummaryViewService caseSummaryViewService,
                                         AppFileService appFileService) {
     this.detailService = detailService;
     this.appProcessingPermissionService = appProcessingPermissionService;
-    this.workAreaApplicationDetailSearcher = workAreaApplicationDetailSearcher;
+    this.caseSummaryViewService = caseSummaryViewService;
     this.appFileService = appFileService;
   }
 
@@ -70,9 +69,9 @@ public class PwaAppProcessingContextService {
   PwaAppProcessingContext getProcessingContext(Integer applicationId,
                                                AuthenticatedUserAccount authenticatedUser) {
 
-    var detail = detailService.getLastSubmittedApplicationDetail(applicationId)
-        .orElseThrow(() -> new PwaEntityNotFoundException(
-            "Could not find last submitted version on applicationId:" + applicationId));
+    var detail = detailService.getLatestDetailForUser(applicationId, authenticatedUser)
+        .orElseThrow(() -> new PwaEntityNotFoundException(String.format(
+            "Could not find suitable detail for applicationId [%s] and user wua [%s]", applicationId, authenticatedUser.getWuaId())));
 
     var processingPermissionsDto = appProcessingPermissionService
         .getProcessingPermissionsDto(detail, authenticatedUser);
@@ -82,11 +81,7 @@ public class PwaAppProcessingContextService {
           String.format("User with WUA ID: %s has no app processing permissions", authenticatedUser.getWuaId()));
     }
 
-    // TODO PWA-1099 - consultees should not see last submitted version, but instead last accepted/satisfactory version in context.
-    //     Also service can only return 1 version of an app due to base sql View limitations
-    //     so might fail when using pad_id as search criteria.
-    var caseSummaryView = workAreaApplicationDetailSearcher.searchByApplicationDetailId(detail.getId())
-        .map(CaseSummaryView::from)
+    var caseSummaryView = caseSummaryViewService.getCaseSummaryViewForAppDetail(detail)
         .orElse(null);
 
     return new PwaAppProcessingContext(

@@ -75,8 +75,7 @@ public class PadLocationDetailsService implements ApplicationFormSectionService 
         .orElse(locationDetailIfOptionalEmpty);
   }
 
-  @Transactional
-  public void save(PadLocationDetails padLocationDetails) {
+  private void save(PadLocationDetails padLocationDetails) {
     padLocationDetailsRepository.save(padLocationDetails);
   }
 
@@ -128,6 +127,25 @@ public class PadLocationDetailsService implements ApplicationFormSectionService 
     locationDetailsForm.setWithinLimitsOfDeviation(padLocationDetails.getWithinLimitsOfDeviation());
   }
 
+
+  private Integer monthYearStrToInt(String datePart) {
+    return datePart != null ? Integer.parseInt(datePart) : null;
+  }
+
+  private void setNotificationSubmittedDate(PadLocationDetails padLocationDetails, TwoFieldDateInput formSubmittedDate) {
+    padLocationDetails.setPsrNotificationSubmittedMonth(monthYearStrToInt(formSubmittedDate.getMonth()));
+    padLocationDetails.setPsrNotificationSubmittedYear(monthYearStrToInt(formSubmittedDate.getYear()));
+    padLocationDetails.setPsrNotificationExpectedSubmissionMonth(null);
+    padLocationDetails.setPsrNotificationExpectedSubmissionYear(null);
+  }
+
+  private void setNotificationExpectedSubmissionDate(PadLocationDetails padLocationDetails, TwoFieldDateInput formSubmittedDate) {
+    padLocationDetails.setPsrNotificationExpectedSubmissionMonth(monthYearStrToInt(formSubmittedDate.getMonth()));
+    padLocationDetails.setPsrNotificationExpectedSubmissionYear(monthYearStrToInt(formSubmittedDate.getYear()));
+    padLocationDetails.setPsrNotificationSubmittedMonth(null);
+    padLocationDetails.setPsrNotificationSubmittedYear(null);
+  }
+
   @Transactional
   public void saveEntityUsingForm(PadLocationDetails padLocationDetails, LocationDetailsForm locationDetailsForm) {
     padLocationDetails.setApproximateProjectLocationFromShore(
@@ -137,27 +155,23 @@ public class PadLocationDetailsService implements ApplicationFormSectionService 
     if (HseSafetyZone.YES.equals(locationDetailsForm.getWithinSafetyZone())) {
       padLocationDetails.setPsrNotificationSubmitted(locationDetailsForm.getCompletelyWithinSafetyZoneForm().getPsrNotificationSubmitted());
       if (BooleanUtils.isTrue(locationDetailsForm.getCompletelyWithinSafetyZoneForm().getPsrNotificationSubmitted())) {
-        var formSubmittedDate = locationDetailsForm.getCompletelyWithinSafetyZoneForm().getPsrNotificationSubmittedDate();
-        padLocationDetails.setPsrNotificationSubmittedMonth(Integer.parseInt(formSubmittedDate.getMonth()));
-        padLocationDetails.setPsrNotificationSubmittedYear(Integer.parseInt(formSubmittedDate.getYear()));
+        setNotificationSubmittedDate(
+            padLocationDetails, locationDetailsForm.getCompletelyWithinSafetyZoneForm().getPsrNotificationSubmittedDate());
 
       } else if (BooleanUtils.isFalse(locationDetailsForm.getCompletelyWithinSafetyZoneForm().getPsrNotificationSubmitted())) {
-        var formSubmittedDate = locationDetailsForm.getCompletelyWithinSafetyZoneForm().getPsrNotificationExpectedSubmissionDate();
-        padLocationDetails.setPsrNotificationExpectedSubmissionMonth(Integer.parseInt(formSubmittedDate.getMonth()));
-        padLocationDetails.setPsrNotificationExpectedSubmissionYear(Integer.parseInt(formSubmittedDate.getYear()));
+        setNotificationExpectedSubmissionDate(
+            padLocationDetails, locationDetailsForm.getCompletelyWithinSafetyZoneForm().getPsrNotificationExpectedSubmissionDate());
       }
 
     } else if (HseSafetyZone.PARTIALLY.equals(locationDetailsForm.getWithinSafetyZone())) {
       padLocationDetails.setPsrNotificationSubmitted(locationDetailsForm.getPartiallyWithinSafetyZoneForm().getPsrNotificationSubmitted());
       if (BooleanUtils.isTrue(locationDetailsForm.getPartiallyWithinSafetyZoneForm().getPsrNotificationSubmitted())) {
-        var formSubmittedDate = locationDetailsForm.getPartiallyWithinSafetyZoneForm().getPsrNotificationSubmittedDate();
-        padLocationDetails.setPsrNotificationSubmittedMonth(Integer.parseInt(formSubmittedDate.getMonth()));
-        padLocationDetails.setPsrNotificationSubmittedYear(Integer.parseInt(formSubmittedDate.getYear()));
+        setNotificationSubmittedDate(
+            padLocationDetails, locationDetailsForm.getPartiallyWithinSafetyZoneForm().getPsrNotificationSubmittedDate());
 
       } else if (BooleanUtils.isFalse(locationDetailsForm.getPartiallyWithinSafetyZoneForm().getPsrNotificationSubmitted())) {
-        var formSubmittedDate = locationDetailsForm.getPartiallyWithinSafetyZoneForm().getPsrNotificationExpectedSubmissionDate();
-        padLocationDetails.setPsrNotificationExpectedSubmissionMonth(Integer.parseInt(formSubmittedDate.getMonth()));
-        padLocationDetails.setPsrNotificationExpectedSubmissionYear(Integer.parseInt(formSubmittedDate.getYear()));
+        setNotificationExpectedSubmissionDate(
+            padLocationDetails, locationDetailsForm.getPartiallyWithinSafetyZoneForm().getPsrNotificationExpectedSubmissionDate());
       }
     }
 
@@ -187,6 +201,14 @@ public class PadLocationDetailsService implements ApplicationFormSectionService 
     save(padLocationDetails);
   }
 
+
+  private String getDateEstimate(Integer month, Integer year) {
+    if (month == null || year == null) {
+      return "";
+    }
+    return DateUtils.createDateEstimateString(month, year);
+  }
+
   public LocationDetailsView getLocationDetailsView(PwaApplicationDetail pwaApplicationDetail) {
 
     var locationDetails = getLocationDetailsForDraft(pwaApplicationDetail);
@@ -201,6 +223,12 @@ public class PadLocationDetailsService implements ApplicationFormSectionService 
     return new LocationDetailsView(
         locationDetails.getApproximateProjectLocationFromShore(),
         locationDetails.getWithinSafetyZone(),
+        locationDetails.getPsrNotificationSubmitted(),
+        BooleanUtils.isTrue(locationDetails.getPsrNotificationSubmitted())
+            ? getDateEstimate(locationDetails.getPsrNotificationSubmittedMonth(),
+            locationDetails.getPsrNotificationSubmittedYear())
+            : getDateEstimate(locationDetails.getPsrNotificationExpectedSubmissionMonth(),
+            locationDetails.getPsrNotificationExpectedSubmissionYear()),
         HseSafetyZone.YES.equals(locationDetails.getWithinSafetyZone()) ? facilityNames : List.of(),
         HseSafetyZone.PARTIALLY.equals(locationDetails.getWithinSafetyZone()) ? facilityNames : List.of(),
         locationDetails.getFacilitiesOffshore(),

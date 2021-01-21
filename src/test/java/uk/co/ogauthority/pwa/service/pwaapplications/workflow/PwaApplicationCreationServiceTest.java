@@ -123,7 +123,7 @@ public class PwaApplicationCreationServiceTest {
 
     verify(camundaWorkflowService, times(1)).startWorkflow(application);
 
-    verify(pwaContactService, times(1)).addContact(application, user.getLinkedPerson(),
+    verify(pwaContactService, times(1)).updateContact(application, user.getLinkedPerson(),
         Set.of(PwaContactRole.ACCESS_MANAGER, PwaContactRole.PREPARER));
 
 
@@ -209,7 +209,7 @@ public class PwaApplicationCreationServiceTest {
 
     verify(camundaWorkflowService, times(1)).startWorkflow(application);
 
-    verify(pwaContactService, times(1)).addContact(application, user.getLinkedPerson(),
+    verify(pwaContactService, times(1)).updateContact(application, user.getLinkedPerson(),
         Set.of(PwaContactRole.ACCESS_MANAGER, PwaContactRole.PREPARER));
 
     // check application set up correctly

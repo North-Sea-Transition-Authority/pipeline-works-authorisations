@@ -26,6 +26,7 @@ import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermiss
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.testutils.AssertionTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaAppProcessingContextDtoTestUtils;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -59,18 +60,18 @@ public class PwaAppProcessingPermissionServiceTest {
 
     var permissions = processingPermissionService.getGenericProcessingPermissions(user);
 
-    assertThat(permissions).contains(PwaAppProcessingPermission.ACCEPT_INITIAL_REVIEW);
+    AssertionTestUtils.assertNotEmptyAndContains(permissions, PwaAppProcessingPermission.ACCEPT_INITIAL_REVIEW);
 
   }
 
   @Test
-  public void getGenericProcessingPermissions_acceptInitialReviewPermission_failed() {
+  public void getGenericProcessingPermissions_noPrivs_noPermissions() {
 
     clearPrivileges(user);
 
     var permissions = processingPermissionService.getGenericProcessingPermissions(user);
 
-    assertThat(permissions).doesNotContain(PwaAppProcessingPermission.ACCEPT_INITIAL_REVIEW);
+    assertThat(permissions).isEmpty();
 
   }
 
@@ -81,18 +82,7 @@ public class PwaAppProcessingPermissionServiceTest {
 
     var permissions = processingPermissionService.getGenericProcessingPermissions(user);
 
-    assertThat(permissions).contains(PwaAppProcessingPermission.ASSIGN_CASE_OFFICER);
-
-  }
-
-  @Test
-  public void getGenericProcessingPermissions_acceptAssignCaseOfficerPermission_failed() {
-
-    clearPrivileges(user);
-
-    var permissions = processingPermissionService.getGenericProcessingPermissions(user);
-
-    assertThat(permissions).doesNotContain(PwaAppProcessingPermission.ASSIGN_CASE_OFFICER);
+    AssertionTestUtils.assertNotEmptyAndContains(permissions, PwaAppProcessingPermission.ASSIGN_CASE_OFFICER);
 
   }
 
@@ -102,7 +92,7 @@ public class PwaAppProcessingPermissionServiceTest {
     replacePrivileges(user, PwaUserPrivilege.PWA_MANAGER);
 
     var permissions = processingPermissionService.getGenericProcessingPermissions(user);
-    assertThat(permissions).contains(PwaAppProcessingPermission.ADD_CASE_NOTE);
+    AssertionTestUtils.assertNotEmptyAndContains(permissions, PwaAppProcessingPermission.ADD_CASE_NOTE);
 
   }
 
@@ -112,17 +102,7 @@ public class PwaAppProcessingPermissionServiceTest {
     replacePrivileges(user, PwaUserPrivilege.PWA_CASE_OFFICER);
 
     var permissions = processingPermissionService.getGenericProcessingPermissions(user);
-    assertThat(permissions).contains(PwaAppProcessingPermission.ADD_CASE_NOTE);
-
-  }
-
-  @Test
-  public void getGenericProcessingPermissions_noAddCaseNotePermission() {
-
-    clearPrivileges(user);
-
-    var permissions = processingPermissionService.getGenericProcessingPermissions(user);
-    assertThat(permissions).doesNotContain(PwaAppProcessingPermission.ADD_CASE_NOTE);
+    AssertionTestUtils.assertNotEmptyAndContains(permissions, PwaAppProcessingPermission.ADD_CASE_NOTE);
 
   }
 
@@ -132,7 +112,7 @@ public class PwaAppProcessingPermissionServiceTest {
     replacePrivileges(user, PwaUserPrivilege.PWA_CASE_OFFICER);
 
     var permissions = processingPermissionService.getGenericProcessingPermissions(user);
-    assertThat(permissions).contains(PwaAppProcessingPermission.VIEW_ALL_CONSULTATIONS);
+    AssertionTestUtils.assertNotEmptyAndContains(permissions, PwaAppProcessingPermission.VIEW_ALL_CONSULTATIONS);
 
   }
 
@@ -142,18 +122,7 @@ public class PwaAppProcessingPermissionServiceTest {
     replacePrivileges(user, PwaUserPrivilege.PWA_MANAGER);
 
     var permissions = processingPermissionService.getGenericProcessingPermissions(user);
-    assertThat(permissions).contains(PwaAppProcessingPermission.VIEW_ALL_CONSULTATIONS);
-
-  }
-
-  @Test
-  public void getGenericProcessingPermissions_acceptViewAllConsultationsPermission_notCoOrPwaManagerfailed() {
-
-    clearPrivileges(user);
-
-    var permissions = processingPermissionService.getGenericProcessingPermissions(user);
-
-    assertThat(permissions).doesNotContain(PwaAppProcessingPermission.VIEW_ALL_CONSULTATIONS);
+    AssertionTestUtils.assertNotEmptyAndContains(permissions, PwaAppProcessingPermission.VIEW_ALL_CONSULTATIONS);
 
   }
 
@@ -166,7 +135,7 @@ public class PwaAppProcessingPermissionServiceTest {
     when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
 
     var permissions = processingPermissionService.getProcessingPermissionsDto(detail, user).getProcessingPermissions();
-    assertThat(permissions).contains(PwaAppProcessingPermission.WITHDRAW_CONSULTATION);
+    AssertionTestUtils.assertNotEmptyAndContains(permissions, PwaAppProcessingPermission.WITHDRAW_CONSULTATION);
   }
 
   @Test
@@ -178,11 +147,11 @@ public class PwaAppProcessingPermissionServiceTest {
     when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
 
     var permissions = processingPermissionService.getProcessingPermissionsDto(detail, user).getProcessingPermissions();
-    assertThat(permissions).doesNotContain(PwaAppProcessingPermission.WITHDRAW_CONSULTATION);
+    AssertionTestUtils.assertNotEmptyAndDoesNotContain(permissions, PwaAppProcessingPermission.WITHDRAW_CONSULTATION);
   }
 
   @Test
-  public void getAppProcessingPermissions_acceptWithdrawConsultationsPermission_notCo_failed() {
+  public void getAppProcessingPermissions_noPrivs_noPermissions() {
 
     clearPrivileges(user);
 
@@ -190,7 +159,7 @@ public class PwaAppProcessingPermissionServiceTest {
     when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
 
     var permissions = processingPermissionService.getProcessingPermissionsDto(detail, user).getProcessingPermissions();
-    assertThat(permissions).doesNotContain(PwaAppProcessingPermission.WITHDRAW_CONSULTATION);
+    assertThat(permissions).isEmpty();
   }
 
 
@@ -204,7 +173,7 @@ public class PwaAppProcessingPermissionServiceTest {
     when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
 
     var permissions = processingPermissionService.getProcessingPermissionsDto(detail, user).getProcessingPermissions();
-    assertThat(permissions).contains(PwaAppProcessingPermission.ASSIGN_RESPONDER);
+    AssertionTestUtils.assertNotEmptyAndContains(permissions, PwaAppProcessingPermission.ASSIGN_RESPONDER);
 
   }
 
@@ -218,7 +187,7 @@ public class PwaAppProcessingPermissionServiceTest {
     when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
 
     var permissions = processingPermissionService.getProcessingPermissionsDto(detail, user).getProcessingPermissions();
-    assertThat(permissions).contains(PwaAppProcessingPermission.ASSIGN_RESPONDER);
+    AssertionTestUtils.assertNotEmptyAndContains(permissions, PwaAppProcessingPermission.ASSIGN_RESPONDER);
 
   }
 
@@ -232,7 +201,7 @@ public class PwaAppProcessingPermissionServiceTest {
     when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
 
     var permissions = processingPermissionService.getProcessingPermissionsDto(detail, user).getProcessingPermissions();
-    assertThat(permissions).doesNotContain(PwaAppProcessingPermission.ASSIGN_RESPONDER);
+    AssertionTestUtils.assertNotEmptyAndDoesNotContain(permissions, PwaAppProcessingPermission.ASSIGN_RESPONDER);
 
   }
 
@@ -246,7 +215,7 @@ public class PwaAppProcessingPermissionServiceTest {
     when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
 
     var permissions = processingPermissionService.getProcessingPermissionsDto(detail, user).getProcessingPermissions();
-    assertThat(permissions).contains(PwaAppProcessingPermission.CONSULTATION_RESPONDER);
+    AssertionTestUtils.assertNotEmptyAndContains(permissions, PwaAppProcessingPermission.CONSULTATION_RESPONDER);
   }
 
   @Test
@@ -259,7 +228,7 @@ public class PwaAppProcessingPermissionServiceTest {
     when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
 
     var permissions = processingPermissionService.getProcessingPermissionsDto(detail, user).getProcessingPermissions();
-    assertThat(permissions).doesNotContain(PwaAppProcessingPermission.CONSULTATION_RESPONDER);
+    AssertionTestUtils.assertNotEmptyAndDoesNotContain(permissions, PwaAppProcessingPermission.CONSULTATION_RESPONDER);
   }
 
   @Test
@@ -272,7 +241,7 @@ public class PwaAppProcessingPermissionServiceTest {
     when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
 
     var permissions = processingPermissionService.getProcessingPermissionsDto(detail, user).getProcessingPermissions();
-    assertThat(permissions).doesNotContain(PwaAppProcessingPermission.CONSULTATION_RESPONDER);
+    AssertionTestUtils.assertNotEmptyAndDoesNotContain(permissions, PwaAppProcessingPermission.CONSULTATION_RESPONDER);
   }
 
   @Test
@@ -284,7 +253,7 @@ public class PwaAppProcessingPermissionServiceTest {
     when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
 
     var permissions = processingPermissionService.getProcessingPermissionsDto(detail, user).getProcessingPermissions();
-    assertThat(permissions).contains(PwaAppProcessingPermission.EDIT_CONSENT_DOCUMENT);
+    AssertionTestUtils.assertNotEmptyAndContains(permissions, PwaAppProcessingPermission.EDIT_CONSENT_DOCUMENT);
 
   }
 
@@ -297,20 +266,7 @@ public class PwaAppProcessingPermissionServiceTest {
     when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
 
     var permissions = processingPermissionService.getProcessingPermissionsDto(detail, user).getProcessingPermissions();
-    assertThat(permissions).doesNotContain(PwaAppProcessingPermission.EDIT_CONSENT_DOCUMENT);
-
-  }
-
-  @Test
-  public void getAppProcessingPermissions_noEditConsentDocumentPermission_notCaseOfficer() {
-
-    clearPrivileges(user);
-
-    var appInvolvement = new ApplicationInvolvementDto(application, Set.of(), null, false, false, false, false);
-    when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
-
-    var permissions = processingPermissionService.getProcessingPermissionsDto(detail, user).getProcessingPermissions();
-    assertThat(permissions).doesNotContain(PwaAppProcessingPermission.EDIT_CONSENT_DOCUMENT);
+    AssertionTestUtils.assertNotEmptyAndDoesNotContain(permissions, PwaAppProcessingPermission.EDIT_CONSENT_DOCUMENT);
 
   }
 
@@ -323,7 +279,7 @@ public class PwaAppProcessingPermissionServiceTest {
 
     var permissions = processingPermissionService.getProcessingPermissionsDto(detail, user).getProcessingPermissions();
 
-    assertThat(permissions).contains(PwaAppProcessingPermission.UPDATE_APPLICATION);
+    AssertionTestUtils.assertNotEmptyAndContains(permissions, PwaAppProcessingPermission.UPDATE_APPLICATION);
 
   }
 
@@ -336,7 +292,7 @@ public class PwaAppProcessingPermissionServiceTest {
 
     var permissions = processingPermissionService.getProcessingPermissionsDto(detail, user).getProcessingPermissions();
 
-    assertThat(permissions).doesNotContain(PwaAppProcessingPermission.UPDATE_APPLICATION);
+    AssertionTestUtils.assertNotEmptyAndDoesNotContain(permissions, PwaAppProcessingPermission.UPDATE_APPLICATION);
 
   }
 
@@ -348,7 +304,7 @@ public class PwaAppProcessingPermissionServiceTest {
 
     var permissions = processingPermissionService.getProcessingPermissionsDto(detail, user).getProcessingPermissions();
 
-    assertThat(permissions).doesNotContain(PwaAppProcessingPermission.UPDATE_APPLICATION);
+    assertThat(permissions).isEmpty();
 
   }
 
@@ -358,8 +314,8 @@ public class PwaAppProcessingPermissionServiceTest {
     setUserAsIndustryContactPreparer();
 
     var permissions = processingPermissionService.getProcessingPermissionsDto(detail, user).getProcessingPermissions();
-    assertThat(permissions).contains(PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY);
-    assertThat(permissions).contains(PwaAppProcessingPermission.VIEW_APPLICATION_SUMMARY);
+    AssertionTestUtils.assertNotEmptyAndContains(permissions, PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY);
+    AssertionTestUtils.assertNotEmptyAndContains(permissions, PwaAppProcessingPermission.VIEW_APPLICATION_SUMMARY);
 
   }
 
@@ -371,8 +327,8 @@ public class PwaAppProcessingPermissionServiceTest {
     detail.setStatus(PwaApplicationStatus.COMPLETE);
 
     var permissions = processingPermissionService.getProcessingPermissionsDto(detail, user).getProcessingPermissions();
-    assertThat(permissions).doesNotContain(PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY);
-    assertThat(permissions).doesNotContain(PwaAppProcessingPermission.VIEW_APPLICATION_SUMMARY);
+    AssertionTestUtils.assertNotEmptyAndDoesNotContain(permissions, PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY);
+    AssertionTestUtils.assertNotEmptyAndDoesNotContain(permissions, PwaAppProcessingPermission.VIEW_APPLICATION_SUMMARY);
 
   }
 
@@ -382,8 +338,8 @@ public class PwaAppProcessingPermissionServiceTest {
     setUserAsHolderTeamMember();
 
     var permissions = processingPermissionService.getProcessingPermissionsDto(detail, user).getProcessingPermissions();
-    assertThat(permissions).contains(PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY);
-    assertThat(permissions).contains(PwaAppProcessingPermission.VIEW_APPLICATION_SUMMARY);
+    AssertionTestUtils.assertNotEmptyAndContains(permissions, PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY);
+    AssertionTestUtils.assertNotEmptyAndContains(permissions, PwaAppProcessingPermission.VIEW_APPLICATION_SUMMARY);
 
   }
 
@@ -395,8 +351,8 @@ public class PwaAppProcessingPermissionServiceTest {
     detail.setStatus(PwaApplicationStatus.COMPLETE);
 
     var permissions = processingPermissionService.getProcessingPermissionsDto(detail, user).getProcessingPermissions();
-    assertThat(permissions).contains(PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY);
-    assertThat(permissions).contains(PwaAppProcessingPermission.VIEW_APPLICATION_SUMMARY);
+    AssertionTestUtils.assertNotEmptyAndContains(permissions, PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY);
+    AssertionTestUtils.assertNotEmptyAndContains(permissions, PwaAppProcessingPermission.VIEW_APPLICATION_SUMMARY);
 
   }
 
@@ -407,8 +363,7 @@ public class PwaAppProcessingPermissionServiceTest {
         .thenReturn(PwaAppProcessingContextDtoTestUtils.emptyAppInvolvement(detail.getPwaApplication()));
 
     var permissions = processingPermissionService.getProcessingPermissionsDto(detail, user).getProcessingPermissions();
-    assertThat(permissions).doesNotContain(PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY);
-    assertThat(permissions).doesNotContain(PwaAppProcessingPermission.VIEW_APPLICATION_SUMMARY);
+    assertThat(permissions).isEmpty();
 
   }
 
@@ -418,8 +373,8 @@ public class PwaAppProcessingPermissionServiceTest {
     setUserAsIndustryContactPreparer();
 
     var permissions = processingPermissionService.getProcessingPermissionsDto(detail, user).getProcessingPermissions();
-    assertThat(permissions).contains(PwaAppProcessingPermission.APPROVE_OPTIONS_VIEW);
-    assertThat(permissions).doesNotContain(PwaAppProcessingPermission.APPROVE_OPTIONS);
+    AssertionTestUtils.assertNotEmptyAndContains(permissions, PwaAppProcessingPermission.APPROVE_OPTIONS_VIEW);
+    AssertionTestUtils.assertNotEmptyAndDoesNotContain(permissions, PwaAppProcessingPermission.APPROVE_OPTIONS);
   }
 
   @Test
@@ -428,8 +383,8 @@ public class PwaAppProcessingPermissionServiceTest {
     setUserAsCaseOfficer();
 
     var permissions = processingPermissionService.getProcessingPermissionsDto(detail, user).getProcessingPermissions();
-    assertThat(permissions).doesNotContain(PwaAppProcessingPermission.APPROVE_OPTIONS_VIEW);
-    assertThat(permissions).contains(PwaAppProcessingPermission.APPROVE_OPTIONS);
+    AssertionTestUtils.assertNotEmptyAndDoesNotContain(permissions, PwaAppProcessingPermission.APPROVE_OPTIONS_VIEW);
+    AssertionTestUtils.assertNotEmptyAndContains(permissions, PwaAppProcessingPermission.APPROVE_OPTIONS);
   }
 
   @Test
@@ -438,8 +393,8 @@ public class PwaAppProcessingPermissionServiceTest {
     setUserAsIndustryContactPreparer();
 
     var permissions = processingPermissionService.getProcessingPermissionsDto(detail, user).getProcessingPermissions();
-    assertThat(permissions).doesNotContain(PwaAppProcessingPermission.APPROVE_OPTIONS_VIEW);
-    assertThat(permissions).doesNotContain(PwaAppProcessingPermission.APPROVE_OPTIONS);
+    AssertionTestUtils.assertNotEmptyAndDoesNotContain(permissions, PwaAppProcessingPermission.APPROVE_OPTIONS_VIEW);
+    AssertionTestUtils.assertNotEmptyAndDoesNotContain(permissions, PwaAppProcessingPermission.APPROVE_OPTIONS);
   }
 
   private void setUserAsIndustryContactPreparer(){
@@ -466,8 +421,8 @@ public class PwaAppProcessingPermissionServiceTest {
     setUserAsCaseOfficer();
 
     var permissions = processingPermissionService.getProcessingPermissionsDto(detail, user).getProcessingPermissions();
-    assertThat(permissions).doesNotContain(PwaAppProcessingPermission.APPROVE_OPTIONS_VIEW);
-    assertThat(permissions).doesNotContain(PwaAppProcessingPermission.APPROVE_OPTIONS);
+    AssertionTestUtils.assertNotEmptyAndDoesNotContain(permissions, PwaAppProcessingPermission.APPROVE_OPTIONS_VIEW);
+    AssertionTestUtils.assertNotEmptyAndDoesNotContain(permissions, PwaAppProcessingPermission.APPROVE_OPTIONS);
   }
 
   @Test
@@ -477,8 +432,7 @@ public class PwaAppProcessingPermissionServiceTest {
     when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
 
     var permissions = processingPermissionService.getProcessingPermissionsDto(detail, user).getProcessingPermissions();
-    assertThat(permissions).doesNotContain(PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY);
-    assertThat(permissions).doesNotContain(PwaAppProcessingPermission.VIEW_APPLICATION_SUMMARY);
+    assertThat(permissions).isEmpty();
 
   }
 
@@ -491,22 +445,8 @@ public class PwaAppProcessingPermissionServiceTest {
     when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
 
     var permissions = processingPermissionService.getProcessingPermissionsDto(detail, user).getProcessingPermissions();
-    assertThat(permissions).contains(PwaAppProcessingPermission.CASE_MANAGEMENT_OGA);
-    assertThat(permissions).contains(PwaAppProcessingPermission.VIEW_APPLICATION_SUMMARY);
-
-  }
-
-  @Test
-  public void getAppPermissions_noCaseManagementOgaPermission_andNoViewApplicationSummary() {
-
-    clearPrivileges(user);
-
-    var appInvolvement = new ApplicationInvolvementDto(application, Set.of(), null, false, false, false, false);
-    when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
-
-    var permissions = processingPermissionService.getProcessingPermissionsDto(detail, user).getProcessingPermissions();
-    assertThat(permissions).doesNotContain(PwaAppProcessingPermission.CASE_MANAGEMENT_OGA);
-    assertThat(permissions).doesNotContain(PwaAppProcessingPermission.VIEW_APPLICATION_SUMMARY);
+    AssertionTestUtils.assertNotEmptyAndContains(permissions, PwaAppProcessingPermission.CASE_MANAGEMENT_OGA);
+    AssertionTestUtils.assertNotEmptyAndContains(permissions, PwaAppProcessingPermission.VIEW_APPLICATION_SUMMARY);
 
   }
 
@@ -518,8 +458,8 @@ public class PwaAppProcessingPermissionServiceTest {
     when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
 
     var permissions = processingPermissionService.getProcessingPermissionsDto(detail, user).getProcessingPermissions();
-    assertThat(permissions).contains(PwaAppProcessingPermission.CASE_MANAGEMENT_CONSULTEE);
-    assertThat(permissions).contains(PwaAppProcessingPermission.VIEW_APPLICATION_SUMMARY);
+    AssertionTestUtils.assertNotEmptyAndContains(permissions, PwaAppProcessingPermission.CASE_MANAGEMENT_CONSULTEE);
+    AssertionTestUtils.assertNotEmptyAndContains(permissions, PwaAppProcessingPermission.VIEW_APPLICATION_SUMMARY);
 
   }
 
@@ -530,8 +470,7 @@ public class PwaAppProcessingPermissionServiceTest {
     when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
 
     var permissions = processingPermissionService.getProcessingPermissionsDto(detail, user).getProcessingPermissions();
-    assertThat(permissions).doesNotContain(PwaAppProcessingPermission.CASE_MANAGEMENT_CONSULTEE);
-    assertThat(permissions).doesNotContain(PwaAppProcessingPermission.VIEW_APPLICATION_SUMMARY);
+    assertThat(permissions).isEmpty();
 
   }
 
@@ -546,7 +485,7 @@ public class PwaAppProcessingPermissionServiceTest {
     when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
 
     var permissions = processingPermissionService.getProcessingPermissionsDto(detail, user).getProcessingPermissions();
-    assertThat(permissions).contains(PwaAppProcessingPermission.CONSULTEE_ADVICE);
+    AssertionTestUtils.assertNotEmptyAndContains(permissions, PwaAppProcessingPermission.CONSULTEE_ADVICE);
 
   }
 
@@ -561,7 +500,7 @@ public class PwaAppProcessingPermissionServiceTest {
     when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
 
     var permissions = processingPermissionService.getProcessingPermissionsDto(detail, user).getProcessingPermissions();
-    assertThat(permissions).doesNotContain(PwaAppProcessingPermission.CONSULTEE_ADVICE);
+    AssertionTestUtils.assertNotEmptyAndDoesNotContain(permissions, PwaAppProcessingPermission.CONSULTEE_ADVICE);
 
   }
 
@@ -574,7 +513,7 @@ public class PwaAppProcessingPermissionServiceTest {
     when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
 
     var permissions = processingPermissionService.getProcessingPermissionsDto(detail, user).getProcessingPermissions();
-    assertThat(permissions).doesNotContain(PwaAppProcessingPermission.CONSULTEE_ADVICE);
+    assertThat(permissions).isEmpty();
 
   }
 
@@ -587,7 +526,7 @@ public class PwaAppProcessingPermissionServiceTest {
     when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
 
     var permissions = processingPermissionService.getProcessingPermissionsDto(detail, user).getProcessingPermissions();
-    assertThat(permissions).doesNotContain(PwaAppProcessingPermission.CONSULTEE_ADVICE);
+    assertThat(permissions).isEmpty();
 
   }
 
@@ -600,7 +539,7 @@ public class PwaAppProcessingPermissionServiceTest {
     when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
 
     var permissions = processingPermissionService.getProcessingPermissionsDto(detail, user).getProcessingPermissions();
-    assertThat(permissions).doesNotContain(PwaAppProcessingPermission.CONSULTEE_ADVICE);
+    AssertionTestUtils.assertNotEmptyAndDoesNotContain(permissions, PwaAppProcessingPermission.CONSULTEE_ADVICE);
 
   }
 
@@ -613,7 +552,7 @@ public class PwaAppProcessingPermissionServiceTest {
     when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
 
     var permissions = processingPermissionService.getProcessingPermissionsDto(detail, user).getProcessingPermissions();
-    assertThat(permissions).contains(PwaAppProcessingPermission.CONFIRM_SATISFACTORY_APPLICATION);
+    AssertionTestUtils.assertNotEmptyAndContains(permissions, PwaAppProcessingPermission.CONFIRM_SATISFACTORY_APPLICATION);
 
   }
 
@@ -626,20 +565,7 @@ public class PwaAppProcessingPermissionServiceTest {
     when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
 
     var permissions = processingPermissionService.getProcessingPermissionsDto(detail, user).getProcessingPermissions();
-    assertThat(permissions).doesNotContain(PwaAppProcessingPermission.CONFIRM_SATISFACTORY_APPLICATION);
-
-  }
-
-  @Test
-  public void getAppProcessingPermissions_noConfirmSatisfactoryPermission_notCaseOfficer() {
-
-    clearPrivileges(user);
-
-    var appInvolvement = new ApplicationInvolvementDto(application, Set.of(), null, false, false, false, false);
-    when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
-
-    var permissions = processingPermissionService.getProcessingPermissionsDto(detail, user).getProcessingPermissions();
-    assertThat(permissions).doesNotContain(PwaAppProcessingPermission.CONFIRM_SATISFACTORY_APPLICATION);
+    AssertionTestUtils.assertNotEmptyAndDoesNotContain(permissions, PwaAppProcessingPermission.CONFIRM_SATISFACTORY_APPLICATION);
 
   }
 
@@ -651,7 +577,7 @@ public class PwaAppProcessingPermissionServiceTest {
     when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
 
     var permissions = processingPermissionService.getProcessingPermissionsDto(detail, user).getProcessingPermissions();
-    assertThat(permissions).contains(PwaAppProcessingPermission.REQUEST_APPLICATION_UPDATE);
+    AssertionTestUtils.assertNotEmptyAndContains(permissions, PwaAppProcessingPermission.REQUEST_APPLICATION_UPDATE);
 
   }
 
@@ -663,7 +589,7 @@ public class PwaAppProcessingPermissionServiceTest {
     when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
 
     var permissions = processingPermissionService.getProcessingPermissionsDto(detail, user).getProcessingPermissions();
-    assertThat(permissions).doesNotContain(PwaAppProcessingPermission.REQUEST_APPLICATION_UPDATE);
+    AssertionTestUtils.assertNotEmptyAndDoesNotContain(permissions, PwaAppProcessingPermission.REQUEST_APPLICATION_UPDATE);
 
   }
 
@@ -675,7 +601,7 @@ public class PwaAppProcessingPermissionServiceTest {
     when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
 
     var permissions = processingPermissionService.getProcessingPermissionsDto(detail, user).getProcessingPermissions();
-    assertThat(permissions).contains(PwaAppProcessingPermission.REQUEST_APPLICATION_UPDATE);
+    AssertionTestUtils.assertNotEmptyAndContains(permissions, PwaAppProcessingPermission.REQUEST_APPLICATION_UPDATE);
 
   }
 
@@ -687,7 +613,7 @@ public class PwaAppProcessingPermissionServiceTest {
     when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
 
     var permissions = processingPermissionService.getProcessingPermissionsDto(detail, user).getProcessingPermissions();
-    assertThat(permissions).doesNotContain(PwaAppProcessingPermission.REQUEST_APPLICATION_UPDATE);
+    AssertionTestUtils.assertNotEmptyAndDoesNotContain(permissions, PwaAppProcessingPermission.REQUEST_APPLICATION_UPDATE);
 
   }
 
@@ -699,7 +625,7 @@ public class PwaAppProcessingPermissionServiceTest {
     when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
 
     var permissions = processingPermissionService.getProcessingPermissionsDto(detail, user).getProcessingPermissions();
-    assertThat(permissions).contains(PwaAppProcessingPermission.WITHDRAW_APPLICATION);
+    AssertionTestUtils.assertNotEmptyAndContains(permissions, PwaAppProcessingPermission.WITHDRAW_APPLICATION);
 
   }
 
@@ -711,7 +637,7 @@ public class PwaAppProcessingPermissionServiceTest {
     when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
 
     var permissions = processingPermissionService.getProcessingPermissionsDto(detail, user).getProcessingPermissions();
-    assertThat(permissions).doesNotContain(PwaAppProcessingPermission.WITHDRAW_APPLICATION);
+    AssertionTestUtils.assertNotEmptyAndDoesNotContain(permissions, PwaAppProcessingPermission.WITHDRAW_APPLICATION);
 
   }
 
@@ -723,7 +649,7 @@ public class PwaAppProcessingPermissionServiceTest {
     when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
 
     var permissions = processingPermissionService.getProcessingPermissionsDto(detail, user).getProcessingPermissions();
-    assertThat(permissions).contains(PwaAppProcessingPermission.WITHDRAW_APPLICATION);
+    AssertionTestUtils.assertNotEmptyAndContains(permissions, PwaAppProcessingPermission.WITHDRAW_APPLICATION);
 
   }
 
@@ -735,7 +661,7 @@ public class PwaAppProcessingPermissionServiceTest {
     when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
 
     var permissions = processingPermissionService.getProcessingPermissionsDto(detail, user).getProcessingPermissions();
-    assertThat(permissions).doesNotContain(PwaAppProcessingPermission.WITHDRAW_APPLICATION);
+    AssertionTestUtils.assertNotEmptyAndDoesNotContain(permissions, PwaAppProcessingPermission.WITHDRAW_APPLICATION);
 
   }
 

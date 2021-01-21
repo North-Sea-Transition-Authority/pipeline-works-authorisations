@@ -52,6 +52,15 @@ public class PortalOrganisationsAccessor {
   }
 
   /**
+   * Returns true if an organisation unit with matching ouId exists in the database.
+   *
+   * @param ouId search org unit id
+   */
+  public boolean organisationUnitExistsForId(OrganisationUnitId ouId) {
+    return organisationUnitRepository.existsById(ouId.asInt());
+  }
+
+  /**
    * Return a list of  all organisation units where the search term is contained within the actual name.
    *
    * @param searchString find org units with name containing this string
@@ -145,8 +154,8 @@ public class PortalOrganisationsAccessor {
    * Returns a list of organisation units which belong to organisation groups in the provided list.
    */
   public List<PortalOrganisationUnit> getOrganisationUnitsForOrganisationGroupsIn(
-      List<PortalOrganisationGroup> organisationGroups) {
-    return organisationUnitRepository.findByPortalOrganisationGroupIn(organisationGroups);
+      Collection<PortalOrganisationGroup> organisationGroups) {
+    return organisationUnitRepository.findByPortalOrganisationGroupIn(List.copyOf(organisationGroups));
   }
 
 }

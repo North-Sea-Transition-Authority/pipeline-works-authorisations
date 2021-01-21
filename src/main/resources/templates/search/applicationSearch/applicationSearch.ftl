@@ -4,13 +4,27 @@
 <#-- @ftlvariable name="showMaxResultsExceededMessage" type="java.lang.Boolean" -->
 <#-- @ftlvariable name="maxResults" type="java.lang.Long" -->
 <#-- @ftlvariable name="displayableResults" type="type="java.util.List<uk.co.ogauthority.pwa.service.workarea.applications.PwaApplicationWorkAreaItem>" -->
+<#-- @ftlvariable name="appSearchEntryState" type="uk.co.ogauthority.pwa.controller.search.applicationsearch.ApplicationSearchController.AppSearchEntryState" -->
 
 
-<@defaultPage htmlTitle="Search applications" pageHeading="Search applications" fullWidthColumn=true topNavigation=true>
+<@defaultPage htmlTitle="Search applications" pageHeading="Search applications" fullWidthColumn=true topNavigation=true wrapperWidth=true>
+
+    <@fdsInsetText.insetText>Search for submitted applications only, draft applications you are permitted to access are available in the work area.</@fdsInsetText.insetText>
+
+    <#if appSearchEntryState == "SEARCH" && !displayableResults?has_content>
+    <h2 class="govuk-heading-s">There are no matching results</h2>
+    <p class="govuk-body">Improve your results by:</p>
+    <ul class="govuk-list govuk-list--bullet">
+        <li>removing filters</li>
+        <li>double-checking your spelling</li>
+        <li>using fewer keywords</li>
+        <li>searching for something less specific</li>
+    </ul>
+    </#if>
 
     <#if showMaxResultsExceededMessage>
         <@fdsWarning.warning>
-            More than ${maxResults?c} have been found but only ${maxResults?c} are shown. Please refine you search criteria.
+            More than ${maxResults?c} applications have been found but only ${maxResults?c} are shown. Please refine your search criteria.
         </@fdsWarning.warning>
     </#if>
 

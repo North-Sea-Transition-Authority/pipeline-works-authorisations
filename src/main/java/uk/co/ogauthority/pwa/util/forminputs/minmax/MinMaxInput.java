@@ -38,12 +38,12 @@ public class MinMaxInput {
 
 
   public boolean minSmallerThanMax() {
-    return createMinOrNull().compareTo(createMaxOrNull()) == -1;
+    return createMinOrNull().compareTo(createMaxOrNull()) < 0;
   }
 
   public boolean minSmallerOrEqualToMax() {
     int comparedResult = createMinOrNull().compareTo(createMaxOrNull());
-    return comparedResult == -1 || comparedResult == 0;
+    return comparedResult < 0 || comparedResult == 0;
   }
 
 
@@ -57,11 +57,11 @@ public class MinMaxInput {
 
 
   public boolean isMinPositive() {
-    return createMinOrNull().compareTo(BigDecimal.ZERO) == 1;
+    return createMinOrNull().compareTo(BigDecimal.ZERO) > 0;
   }
 
   public boolean isMaxPositive() {
-    return createMaxOrNull().compareTo(BigDecimal.ZERO) == 1;
+    return createMaxOrNull().compareTo(BigDecimal.ZERO) > 0;
   }
 
   public boolean isMinInteger() {

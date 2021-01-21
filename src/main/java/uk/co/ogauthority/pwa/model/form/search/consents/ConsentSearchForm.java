@@ -1,15 +1,25 @@
 package uk.co.ogauthority.pwa.model.form.search.consents;
 
+import uk.co.ogauthority.pwa.model.search.consents.ConsentSearchParams;
+
 public class ConsentSearchForm {
 
-  // TODO implement as selector in PWA-1086, just for show here to get template working
-  private String holderOrganisation;
+  private Integer holderOuId;
 
-  public String getHolderOrganisation() {
-    return holderOrganisation;
+  public static ConsentSearchForm fromSearchParams(ConsentSearchParams consentSearchParams) {
+
+    var form = new ConsentSearchForm();
+    form.setHolderOuId(consentSearchParams.getHolderOrgUnitId());
+    return form;
+
   }
 
-  public void setHolderOrganisation(String holderOrganisation) {
-    this.holderOrganisation = holderOrganisation;
+  public Integer getHolderOuId() {
+    return holderOuId;
   }
+
+  public void setHolderOuId(Integer holderOuId) {
+    this.holderOuId = holderOuId;
+  }
+
 }
