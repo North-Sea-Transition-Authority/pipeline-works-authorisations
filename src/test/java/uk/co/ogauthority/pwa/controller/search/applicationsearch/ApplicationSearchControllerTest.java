@@ -7,10 +7,12 @@ import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
 
+import java.util.Collections;
 import java.util.EnumSet;
 import org.junit.Before;
 import org.junit.Test;
@@ -79,13 +81,18 @@ public class ApplicationSearchControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  public void getSearchResults_whenPermitted() throws Exception {
+  public void getSearchResults_whenPermitted_landingEntry() throws Exception {
 
     mockMvc.perform(get(ReverseRouter.route(on(ApplicationSearchController.class).getSearchResults(
         null, ApplicationSearchController.AppSearchEntryState.LANDING, null
     )))
         .with(authenticatedUserAndSession(permittedUser)))
-        .andExpect(status().isOk());
+        .andExpect(status().isOk())
+        .andExpect(model().attribute("userType", permittedUserSearchContext.getUserType()))
+        .andExpect(model().attribute("searchUrl", ApplicationSearchController.getBlankSearchUrl()))
+        .andExpect(model().attribute("appSearchEntryState", ApplicationSearchController.AppSearchEntryState.LANDING))
+        .andExpect(model().attribute("showMaxResultsExceededMessage", false))
+        .andExpect(model().attribute("displayableResults", Collections.emptyList()));
 
   }
 

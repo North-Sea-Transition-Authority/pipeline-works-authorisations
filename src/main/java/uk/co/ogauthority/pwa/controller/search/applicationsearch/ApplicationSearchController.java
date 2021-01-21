@@ -102,7 +102,8 @@ public class ApplicationSearchController {
         .addObject("maxResults", MAX_RESULTS)
         .addObject("appSearchEntryState", appSearchEntryState)
         // need to provide a search form changes do not include previous search results from the URL params
-        .addObject("searchUrl", ApplicationSearchController.getBlankSearchUrl());
+        .addObject("searchUrl", ApplicationSearchController.getBlankSearchUrl())
+        .addObject("userType", applicationSearchContext.getUserType());
 
     List<ApplicationDetailItemView> results = Collections.emptyList();
     if (appSearchEntryState.equals(AppSearchEntryState.SEARCH)) {

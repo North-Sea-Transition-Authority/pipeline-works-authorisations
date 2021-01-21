@@ -6,14 +6,16 @@
 <#-- @ftlvariable name="displayableResults" type="type="java.util.List<uk.co.ogauthority.pwa.service.workarea.applications.PwaApplicationWorkAreaItem>" -->
 <#-- @ftlvariable name="appSearchEntryState" type="uk.co.ogauthority.pwa.controller.search.applicationsearch.ApplicationSearchController.AppSearchEntryState" -->
 <#-- @ftlvariable name="searchUrl" type="java.lang.String" -->
+<#-- @ftlvariable name="userType" type="uk.co.ogauthority.pwa.service.enums.users.UserType" -->
 
 
 <@defaultPage htmlTitle="Search applications" pageHeading="Search applications" fullWidthColumn=true topNavigation=true wrapperWidth=true>
 
-    <@fdsInsetText.insetText>Search for submitted applications only, draft applications you are permitted to access are available in the work area.</@fdsInsetText.insetText>
+    <#if userType == "INDUSTRY">
+        <@fdsInsetText.insetText>Search for submitted applications only, draft applications you are permitted to access are available in the work area.</@fdsInsetText.insetText>
+    </#if>
 
-    <@fdsForm.htmlForm >
-<#--        actionUrl="${springUrl(searchUrl)}"-->
+    <@fdsForm.htmlForm actionUrl="${springUrl(searchUrl)}">
         <@fdsTextInput.textInput path="form.appReference" labelText="Application reference" maxCharacterLength="10" inputClass="govuk-input--width-10"/>
         <@fdsAction.button buttonText="Search"/>
     </@fdsForm.htmlForm>
