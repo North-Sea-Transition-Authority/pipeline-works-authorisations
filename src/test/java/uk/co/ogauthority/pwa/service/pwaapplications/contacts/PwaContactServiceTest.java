@@ -68,21 +68,6 @@ public class PwaContactServiceTest {
   }
 
   @Test
-  public void addContact() {
-    person = new Person(1, "fore", "sur", "a@b.com", "012358594389");
-    pwaContactService.addContact(pwaApplication, person, Set.of(PwaContactRole.PREPARER));
-
-    verify(pwaContactRepository, times(1)).save(contactArgumentCaptor.capture());
-
-    PwaContact newContact = contactArgumentCaptor.getValue();
-
-    assertThat(newContact.getPwaApplication()).isEqualTo(pwaApplication);
-    assertThat(newContact.getPerson()).isEqualTo(person);
-    assertThat(newContact.getRoles()).containsExactly(PwaContactRole.PREPARER);
-
-  }
-
-  @Test
   public void getContactsForPwaApplication() {
     var contactOne = new PwaContact();
     var contactTwo = new PwaContact();

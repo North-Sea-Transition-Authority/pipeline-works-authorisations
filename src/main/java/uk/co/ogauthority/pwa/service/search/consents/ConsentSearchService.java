@@ -13,13 +13,14 @@ import uk.co.ogauthority.pwa.model.entity.search.consents.ConsentSearchItem;
 import uk.co.ogauthority.pwa.model.entity.search.consents.ConsentSearchItem_;
 import uk.co.ogauthority.pwa.model.search.consents.ConsentSearchContext;
 import uk.co.ogauthority.pwa.model.search.consents.ConsentSearchParams;
+import uk.co.ogauthority.pwa.model.view.search.SearchScreenView;
 import uk.co.ogauthority.pwa.model.view.search.consents.ConsentSearchResultView;
 import uk.co.ogauthority.pwa.service.search.consents.predicates.ConsentSearchPredicateProvider;
 
 @Service
 public class ConsentSearchService {
 
-  public static final int MAX_RESULTS_SIZE = 50;
+  static final int MAX_RESULTS_SIZE = 50;
 
   private final EntityManager entityManager;
   private final List<ConsentSearchPredicateProvider> consentSearchPredicateProviders;
@@ -31,8 +32,8 @@ public class ConsentSearchService {
     this.consentSearchPredicateProviders = consentSearchPredicateProviders;
   }
 
-  public List<ConsentSearchResultView> search(ConsentSearchParams searchParams,
-                                              ConsentSearchContext searchContext) {
+  public SearchScreenView search(ConsentSearchParams searchParams,
+                                 ConsentSearchContext searchContext) {
 
     var cb = entityManager.getCriteriaBuilder();
 
@@ -44,7 +45,8 @@ public class ConsentSearchService {
     // get WHERE clause predicates that we should apply to the query
     List<Predicate> predicates = consentSearchPredicateProviders.stream()
         .filter(predicateProvider -> predicateProvider.shouldApplyToSearch(searchParams, searchContext))
-        .map(predicateProvider -> predicateProvider.getPredicate(searchParams, searchContext, criteriaQuery, consentSearchItem))
+        .map(predicateProvider -> predicateProvider.getPredicate(searchParams, searchContext, criteriaQuery,
+            consentSearchItem))
         .collect(Collectors.toList());
 
     // SELECT ConsentSearchItem
@@ -58,16 +60,19 @@ public class ConsentSearchService {
         // LIMIT MAX_RESULTS_SIZE
         .setMaxResults(MAX_RESULTS_SIZE);
 
-    List<ConsentSearchItem> results = typedQuery.getResultList();
-
-    return results.stream()
+    List<ConsentSearchResultView> results = typedQuery.getResultList().stream()
         .map(ConsentSearchResultView::fromSearchItem)
         .collect(Collectors.toList());
 
-  }
+    CriteriaQuery<Long> countQuery = cb.createQuery(Long.class);
+    Root<ConsentSearchItem> count = countQuery.from(ConsentSearchItem.class);
+    countQuery.select(cb.count(count))
+        .where(criteriaQuery.getRestriction());
 
-  public boolean haveResultsBeenLimited(List<ConsentSearchResultView> searchResults) {
-    return searchResults.size() == MAX_RESULTS_SIZE;
+    long countQueryResult = entityManager.createQuery(countQuery).getSingleResult();
+
+    return new SearchScreenView(countQueryResult, results);
+
   }
 
 }

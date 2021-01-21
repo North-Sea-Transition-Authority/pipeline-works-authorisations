@@ -22,12 +22,16 @@ import org.springframework.transaction.annotation.Transactional;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
+import uk.co.ogauthority.pwa.model.dto.consultations.ConsulteeGroupId;
 import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
+import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroup;
+import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaTestUtil;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailItemView;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailView;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailViewTestUtil;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.PadVersionLookup;
@@ -87,6 +91,10 @@ public class ApplicationDetailSearchServiceIntegrationTest {
 
   private MasterPwa pwa3;// for initial PWA app testing
 
+  private ConsulteeGroup consulteeGroup;
+  private ConsultationRequest  consultationRequest;
+
+
   private ApplicationSearchContext searchContext;
   private ApplicationSearchParameters searchParams;
 
@@ -103,10 +111,10 @@ public class ApplicationDetailSearchServiceIntegrationTest {
     app1VersionLookup = PadVersionLookupTestUtil.createLookupForDraftOnlyApp(APP1_ID);
 
     app2Version1 = ApplicationDetailViewTestUtil.createSubmittedReviewDetailView(
-        pwa1.getId(), PwaApplicationType.CAT_1_VARIATION, APP2_ID, 20, VERSION1, false, clock.instant().minusSeconds(1000)
+        pwa1.getId(), PwaApplicationType.CAT_1_VARIATION, APP2_ID, 20, VERSION1, false, clock.instant().minusSeconds(1000), null
     );
     app2Version2 = ApplicationDetailViewTestUtil.createSubmittedReviewDetailView(
-        pwa1.getId(), PwaApplicationType.CAT_2_VARIATION, APP2_ID, 30, VERSION2, true, clock.instant()
+        pwa1.getId(), PwaApplicationType.CAT_2_VARIATION, APP2_ID, 30, VERSION2, true, clock.instant(), null
     );
     // only submitted - no ongoing update - not accepted
     app2VersionLookup = PadVersionLookupTestUtil.createLookupForSubmittedApp(
@@ -155,6 +163,16 @@ public class ApplicationDetailSearchServiceIntegrationTest {
     );
   }
 
+  private ApplicationSearchContext getConsulteeContext(ConsulteeGroupId consulteeGroupId) {
+    return ApplicationSearchContextTestUtil.consulteeContext(
+        new AuthenticatedUserAccount(
+            new WebUserAccount(),
+            Collections.emptySet()
+        ),
+        Set.of(consulteeGroupId)
+    );
+  }
+
   @Transactional
   @Test
   /**
@@ -169,9 +187,7 @@ public class ApplicationDetailSearchServiceIntegrationTest {
 
     var results = applicationDetailSearchService.search(searchParams, searchContext);
 
-    assertThat(results).containsExactly(
-        app2Version2
-    );
+    assertThat(results).contains(app2Version2);
 
   }
 
@@ -239,29 +255,90 @@ public class ApplicationDetailSearchServiceIntegrationTest {
     padOrgRole.setPwaApplicationDetail(appDetail);
     entityManager.persist(padOrgRole);
 
-    var initialAppDetailView = ApplicationDetailViewTestUtil.createSubmittedReviewDetailView(
-        appDetail.getMasterPwaApplication().getId(),
-        app.getApplicationType(),
-        app.getId(),
-        appDetail.getId(),
-        appDetail.getVersionNo(),
-        appDetail.isTipFlag(),
-        appDetail.getSubmittedTimestamp()
-    );
+    var initialAppDetailView = createAndPersistViewFromAppDetail(appDetail);
     var initialAppLookup = PadVersionLookupTestUtil.createLookupForSubmittedApp(
         appDetail.getMasterPwaApplicationId(),
         appDetail.getSubmittedTimestamp(),
         null,
         null
     );
-
-    entityManager.persist(initialAppDetailView);
     entityManager.persist(initialAppLookup);
 
-    var results = applicationDetailSearchService.search(searchParams, searchContext);
+   var results = applicationDetailSearchService.search(searchParams, searchContext);
 
     assertThat(results).containsExactlyInAnyOrder(app2Version2, initialAppDetailView);
 
+  }
+
+  @Transactional
+  @Test
+  /**
+   * Test that only last confirmed satisfactory version of applications the consultee user's group was consulted upon are returned.
+   */
+  public void search_whenConsulteeUser_unfiltered_limitedtoApplicationsConsultedOn_lastSatisfactoryVersion() {
+
+    setupDefaultData();
+    // setup app to link to consultation request
+    var consultedOnApp = new PwaApplication(pwa3, PwaApplicationType.INITIAL, 0);
+    entityManager.persist(consultedOnApp);
+    // have 2 submitted versions of app, one is satisfactory, one just submitted
+    var appDetailVersion1IsSatisfactory = new PwaApplicationDetail(consultedOnApp, 1, 1, clock.instant());
+    appDetailVersion1IsSatisfactory.setStatus(PwaApplicationStatus.CASE_OFFICER_REVIEW);
+    appDetailVersion1IsSatisfactory.setSubmittedTimestamp(clock.instant());
+    appDetailVersion1IsSatisfactory.setConfirmedSatisfactoryTimestamp(clock.instant());
+    appDetailVersion1IsSatisfactory.setTipFlag(false);
+
+    var appDetailVersion2SubmittedOnly = new PwaApplicationDetail(consultedOnApp, 2, 1, clock.instant());
+    appDetailVersion2SubmittedOnly.setStatus(PwaApplicationStatus.CASE_OFFICER_REVIEW);
+    appDetailVersion2SubmittedOnly.setSubmittedTimestamp(clock.instant());
+
+    entityManager.persist(appDetailVersion1IsSatisfactory);
+    entityManager.persist(appDetailVersion2SubmittedOnly);
+
+    var v1IsSatisfactoryView = createAndPersistViewFromAppDetail(appDetailVersion1IsSatisfactory);
+    // not used by needs to be persisted to test submitted version filtered out correctly
+    var v2IsSubmittedView = createAndPersistViewFromAppDetail(appDetailVersion2SubmittedOnly);
+    // version lookup to store latest confirmed satisfactory time
+    var versionLookup = PadVersionLookupTestUtil.createLookupForSubmittedApp(
+        appDetailVersion1IsSatisfactory.getMasterPwaApplicationId(),
+        appDetailVersion1IsSatisfactory.getSubmittedTimestamp(),
+        null,
+        appDetailVersion1IsSatisfactory.getConfirmedSatisfactoryTimestamp()
+    );
+
+    entityManager.persist(versionLookup);
+
+    // create consultee group and request linked to app
+    consulteeGroup = new ConsulteeGroup();
+    entityManager.persist(consulteeGroup);
+    consultationRequest = new ConsultationRequest();
+    consultationRequest.setPwaApplication(consultedOnApp);
+    consultationRequest.setConsulteeGroup(consulteeGroup);
+    entityManager.persist(consultationRequest);
+
+    searchContext = getConsulteeContext(ConsulteeGroupId.from(consulteeGroup));
+    searchParams = ApplicationSearchParametersBuilder.createEmptyParams();
+
+    var results = applicationDetailSearchService.search(searchParams, searchContext);
+
+    assertThat(results).containsExactly(v1IsSatisfactoryView);
+
+  }
+
+  private ApplicationDetailItemView createAndPersistViewFromAppDetail(PwaApplicationDetail pwaApplicationDetail){
+    var detailView = ApplicationDetailViewTestUtil.createSubmittedReviewDetailView(
+        pwaApplicationDetail.getMasterPwaApplication().getId(),
+        pwaApplicationDetail.getPwaApplicationType(),
+        pwaApplicationDetail.getPwaApplication().getId(),
+        pwaApplicationDetail.getId(),
+        pwaApplicationDetail.getVersionNo(),
+        pwaApplicationDetail.isTipFlag(),
+        pwaApplicationDetail.getSubmittedTimestamp(),
+        pwaApplicationDetail.getConfirmedSatisfactoryTimestamp()
+    );
+
+    entityManager.persist(detailView);
+    return detailView;
   }
 
   private void setupDefaultPwaConsentsAndHolderOrgs() {

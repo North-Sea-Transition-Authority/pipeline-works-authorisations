@@ -16,6 +16,10 @@ public class OrganisationUnitId {
     return new OrganisationUnitId(portalOrganisationUnit.getOuId());
   }
 
+  public static OrganisationUnitId fromInt(Integer ouId) {
+    return new OrganisationUnitId(ouId);
+  }
+
   public int asInt() {
     return this.id;
   }

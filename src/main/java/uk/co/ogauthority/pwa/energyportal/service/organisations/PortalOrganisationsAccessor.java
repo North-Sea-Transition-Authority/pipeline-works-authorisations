@@ -52,6 +52,15 @@ public class PortalOrganisationsAccessor {
   }
 
   /**
+   * Returns true if an organisation unit with matching ouId exists in the database.
+   *
+   * @param ouId search org unit id
+   */
+  public boolean organisationUnitExistsForId(OrganisationUnitId ouId) {
+    return organisationUnitRepository.existsById(ouId.asInt());
+  }
+
+  /**
    * Return a list of  all organisation units where the search term is contained within the actual name.
    *
    * @param searchString find org units with name containing this string

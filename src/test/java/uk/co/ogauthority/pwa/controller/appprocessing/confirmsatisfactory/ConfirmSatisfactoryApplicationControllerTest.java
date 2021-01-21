@@ -83,7 +83,7 @@ public class ConfirmSatisfactoryApplicationControllerTest extends PwaAppProcessi
     when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail, user))
         .thenReturn(new ProcessingPermissionsDto(null, EnumSet.of(PwaAppProcessingPermission.CONFIRM_SATISFACTORY_APPLICATION)));
 
-    when(pwaApplicationDetailService.getLastSubmittedApplicationDetail(APP_ID))
+    when(pwaApplicationDetailService.getLatestDetailForUser(APP_ID, user))
         .thenReturn(Optional.of(pwaApplicationDetail));
 
     when(confirmSatisfactoryApplicationService.taskAccessible(any())).thenReturn(true);

@@ -95,7 +95,7 @@ public class CloseOutOptionsControllerTest extends PwaAppProcessingContextAbstra
     when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail, user))
         .thenReturn(new ProcessingPermissionsDto(null, EnumSet.of(PwaAppProcessingPermission.CLOSE_OUT_OPTIONS)));
 
-    when(pwaApplicationDetailService.getLastSubmittedApplicationDetail(APP_ID))
+    when(pwaApplicationDetailService.getLatestDetailForUser(APP_ID, user))
         .thenReturn(Optional.of(pwaApplicationDetail));
 
     when(closeOutOptionsTaskService.taskAccessible(any())).thenReturn(true);

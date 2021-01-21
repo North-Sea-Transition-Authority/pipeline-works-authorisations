@@ -50,11 +50,11 @@ public class PadFacilityService {
     List<String> facilities;
 
     if (form.getWithinSafetyZone() == HseSafetyZone.PARTIALLY
-        && form.getPartiallyWithinSafetyZoneForm().getFacilities().size() > 0) {
+        && !form.getPartiallyWithinSafetyZoneForm().getFacilities().isEmpty()) {
       facilities = form.getPartiallyWithinSafetyZoneForm().getFacilities();
 
     } else if (form.getWithinSafetyZone() == HseSafetyZone.YES
-        && form.getCompletelyWithinSafetyZoneForm().getFacilities().size() > 0) {
+        && !form.getCompletelyWithinSafetyZoneForm().getFacilities().isEmpty()) {
       facilities = form.getCompletelyWithinSafetyZoneForm().getFacilities();
 
     } else {

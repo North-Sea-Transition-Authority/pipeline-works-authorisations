@@ -81,7 +81,7 @@ public class LocationDetailsSafetyZoneValidator implements SmartValidator {
 
   private void validateFull(LocationDetailsSafetyZoneForm form, Errors errors) {
 
-    if (form.getFacilities().size() == 0) {
+    if (form.getFacilities().isEmpty()) {
       errors.rejectValue("facilities",
           "facilities" + FieldValidationErrorCodes.REQUIRED.getCode(),
           "Select all structures within 500m");

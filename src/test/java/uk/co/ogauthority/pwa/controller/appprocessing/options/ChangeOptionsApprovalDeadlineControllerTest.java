@@ -104,7 +104,7 @@ public class ChangeOptionsApprovalDeadlineControllerTest extends PwaAppProcessin
   when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail, user))
         .thenReturn(new ProcessingPermissionsDto(null, EnumSet.of(PwaAppProcessingPermission.CHANGE_OPTIONS_APPROVAL_DEADLINE)));
 
-    when(pwaApplicationDetailService.getLastSubmittedApplicationDetail(APP_ID))
+    when(pwaApplicationDetailService.getLatestDetailForUser(APP_ID, user))
         .thenReturn(Optional.of(pwaApplicationDetail));
 
     when(changeOptionsApprovalDeadlineTaskService.taskAccessible(any())).thenReturn(true);

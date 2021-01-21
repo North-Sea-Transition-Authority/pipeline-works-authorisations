@@ -110,12 +110,6 @@ public class PadLocationDetailsServiceTest {
   }
 
   @Test
-  public void save() {
-    padLocationDetailsService.save(padLocationDetails);
-    verify(padLocationDetailsRepository, times(1)).save(padLocationDetails);
-  }
-
-  @Test
   public void mapEntityToForm_WithNulls() {
     var form = new LocationDetailsForm();
     var entity = new PadLocationDetails();
@@ -254,6 +248,7 @@ public class PadLocationDetailsServiceTest {
     assertThat(entity.getSurveyConcludedTimestamp()).isEqualTo(SURVEY_CONCLUDED_DATE);
     assertThat(entity.getRouteSurveyUndertaken()).isEqualTo(form.getRouteSurveyUndertaken());
     assertThat(entity.getWithinLimitsOfDeviation()).isEqualTo(form.getWithinLimitsOfDeviation());
+    verify(padLocationDetailsRepository, times(1)).save(entity);
   }
 
   @Test

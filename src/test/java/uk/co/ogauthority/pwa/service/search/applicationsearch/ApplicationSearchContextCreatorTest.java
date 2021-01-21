@@ -5,7 +5,9 @@ import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.mockito.Mockito.when;
 
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
@@ -17,7 +19,12 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.energyportal.model.entity.PersonTestUtil;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.energyportal.service.organisations.PortalOrganisationsAccessor;
+import uk.co.ogauthority.pwa.model.dto.consultations.ConsulteeGroupId;
 import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
+import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroup;
+import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupMemberRole;
+import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupTeamMember;
+import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupTeamService;
 import uk.co.ogauthority.pwa.service.enums.users.UserType;
 import uk.co.ogauthority.pwa.service.teams.TeamService;
 import uk.co.ogauthority.pwa.service.users.UserTypeService;
@@ -36,7 +43,12 @@ public class ApplicationSearchContextCreatorTest {
   @Mock
   private PortalOrganisationsAccessor portalOrganisationsAccessor;
 
+  @Mock
+  private ConsulteeGroupTeamService consulteeGroupTeamService;
+
   private ApplicationSearchContextCreator applicationSearchContextCreator;
+
+  private ConsulteeGroup consulteeGroup;
 
   private AuthenticatedUserAccount authenticatedUserAccount;
   private Person person;
@@ -49,8 +61,8 @@ public class ApplicationSearchContextCreatorTest {
     applicationSearchContextCreator = new ApplicationSearchContextCreator(
         userTypeService,
         teamService,
-        portalOrganisationsAccessor
-    );
+        portalOrganisationsAccessor,
+        consulteeGroupTeamService);
   }
 
   @Test
@@ -62,16 +74,25 @@ public class ApplicationSearchContextCreatorTest {
     var orgUnit = PortalOrganisationTestUtils.getOrganisationUnit();
     var orgGrp = orgUnit.getPortalOrganisationGroup();
     var orgTeam = TeamTestingUtils.getOrganisationTeam(orgGrp);
+    consulteeGroup = new ConsulteeGroup();
+    consulteeGroup.setId(1);
+    var consultationGroupTeamMember = new ConsulteeGroupTeamMember(
+        consulteeGroup,
+        person,
+        EnumSet.allOf(ConsulteeGroupMemberRole.class)
+    );
 
     when(teamService.getOrganisationTeamsPersonIsMemberOf(person)).thenReturn(List.of(orgTeam));
     when(portalOrganisationsAccessor.getOrganisationUnitsForOrganisationGroupsIn(Set.of(orgGrp)))
         .thenReturn(List.of(orgUnit));
+    when(consulteeGroupTeamService.getTeamMemberByPerson(person)).thenReturn(Optional.of(consultationGroupTeamMember));
 
     var context = applicationSearchContextCreator.createContext(authenticatedUserAccount);
 
     assertThat(context.getUserType()).isEqualTo(userType);
     assertThat(context.getOrgUnitIdsAssociatedWithHolderTeamMembership()).containsExactly(OrganisationUnitId.from(orgUnit));
     assertThat(context.getOrgGroupsWhereMemberOfHolderTeam()).containsExactly(orgGrp);
+    assertThat(context.getConsulteeGroupIds()).containsExactly(ConsulteeGroupId.from(consulteeGroup));
 
   }
 }

@@ -4,22 +4,22 @@ import uk.co.ogauthority.pwa.model.search.consents.ConsentSearchParams;
 
 public class ConsentSearchForm {
 
-  private Integer holderOrgUnitId;
+  private Integer holderOuId;
 
   public static ConsentSearchForm fromSearchParams(ConsentSearchParams consentSearchParams) {
 
     var form = new ConsentSearchForm();
-    form.setHolderOrgUnitId(consentSearchParams.getHolderOrgUnitId());
+    form.setHolderOuId(consentSearchParams.getHolderOrgUnitId());
     return form;
 
   }
 
-  public Integer getHolderOrgUnitId() {
-    return holderOrgUnitId;
+  public Integer getHolderOuId() {
+    return holderOuId;
   }
 
-  public void setHolderOrgUnitId(Integer holderOrgUnitId) {
-    this.holderOrgUnitId = holderOrgUnitId;
+  public void setHolderOuId(Integer holderOuId) {
+    this.holderOuId = holderOuId;
   }
 
 }

@@ -4,7 +4,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Mockito.when;
 
-import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import org.junit.Before;
@@ -22,22 +21,22 @@ import uk.co.ogauthority.pwa.config.fileupload.FileUploadProperties;
 import uk.co.ogauthority.pwa.energyportal.service.SystemAreaAccessService;
 import uk.co.ogauthority.pwa.energyportal.service.TopMenuService;
 import uk.co.ogauthority.pwa.model.entity.UserSession;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.WorkAreaApplicationDetailSearchItem;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailViewTestUtil;
 import uk.co.ogauthority.pwa.service.FoxUrlService;
 import uk.co.ogauthority.pwa.service.UserSessionService;
 import uk.co.ogauthority.pwa.service.appprocessing.AppProcessingBreadcrumbService;
 import uk.co.ogauthority.pwa.service.appprocessing.PwaAppProcessingPermissionService;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupTeamService;
+import uk.co.ogauthority.pwa.service.appprocessing.context.CaseSummaryView;
+import uk.co.ogauthority.pwa.service.appprocessing.context.CaseSummaryViewService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContextService;
 import uk.co.ogauthority.pwa.service.consultations.ConsultationRequestService;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
-import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.fileupload.AppFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
-import uk.co.ogauthority.pwa.service.pwaapplications.search.WorkAreaApplicationDetailSearcher;
 import uk.co.ogauthority.pwa.service.tasklist.CrossingAgreementsTaskListService;
 import uk.co.ogauthority.pwa.service.teams.TeamService;
 import uk.co.ogauthority.pwa.service.users.UserTypeService;
@@ -89,9 +88,6 @@ public abstract class PwaAppProcessingContextAbstractControllerTest {
   @SpyBean
   private ControllerHelperService controllerHelperService;
 
-  @MockBean
-  private WorkAreaApplicationDetailSearcher workAreaApplicationDetailSearcher;
-
   @SpyBean
   private AppProcessingBreadcrumbService appProcessingBreadcrumbService;
 
@@ -103,6 +99,9 @@ public abstract class PwaAppProcessingContextAbstractControllerTest {
 
   @MockBean
   protected ConsultationRequestService consultationRequestService;
+
+  @MockBean
+  protected CaseSummaryViewService caseSummaryViewService;
 
   @Before
   public void abstractControllerTestSetup() {
@@ -116,19 +115,9 @@ public abstract class PwaAppProcessingContextAbstractControllerTest {
 
     when(userSessionService.getAndValidateSession(any(), anyBoolean())).thenReturn(Optional.of(new UserSession()));
 
-    var searchItem = new WorkAreaApplicationDetailSearchItem();
-    searchItem.setPadReference("PA/5/6");
-    searchItem.setApplicationType(PwaApplicationType.CAT_1_VARIATION);
-    searchItem.setCaseOfficerPersonId(1);
-    searchItem.setCaseOfficerName("Case Officer X");
-    searchItem.setSubmittedAsFastTrackFlag(true);
-    searchItem.setPadProposedStart(Instant.now());
-    searchItem.setPadFields(List.of("CAPTAIN", "PENGUIN"));
-    searchItem.setPadHolderNameList(List.of("ROYAL DUTCH SHELL"));
-    searchItem.setPwaHolderNameList(List.of("ROYAL DUTCH SHELL"));
-    searchItem.setVersionNo(1);
-
-    when(workAreaApplicationDetailSearcher.searchByApplicationDetailId(any())).thenReturn(Optional.of(searchItem));
+    var appDetailView = ApplicationDetailViewTestUtil.createGenericDetailView();
+    var caseSummaryView = CaseSummaryView.from(appDetailView);
+    when(caseSummaryViewService.getCaseSummaryViewForAppDetail(any())).thenReturn(Optional.of(caseSummaryView));
 
   }
 

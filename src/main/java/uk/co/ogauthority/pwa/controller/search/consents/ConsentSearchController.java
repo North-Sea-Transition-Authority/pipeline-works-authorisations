@@ -3,7 +3,6 @@ package uk.co.ogauthority.pwa.controller.search.consents;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import java.util.Comparator;
-import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.LinkedMultiValueMap;
@@ -16,7 +15,7 @@ import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.model.form.search.consents.ConsentSearchForm;
 import uk.co.ogauthority.pwa.model.search.consents.ConsentSearchParams;
-import uk.co.ogauthority.pwa.model.view.search.consents.ConsentSearchResultView;
+import uk.co.ogauthority.pwa.model.view.search.SearchScreenView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.objects.FormObjectMapper;
 import uk.co.ogauthority.pwa.service.orgs.PwaOrganisationAccessor;
@@ -57,16 +56,14 @@ public class ConsentSearchController {
 
     boolean doSearch = consentSearchParams.isSearch();
 
-    List<ConsentSearchResultView> searchResults = List.of();
+    SearchScreenView searchScreenView = null;
     if (doSearch) {
       var searchContext = consentSearchContextCreator.createContext(user);
-      searchResults = consentSearchService.search(consentSearchParams, searchContext);
+      searchScreenView = consentSearchService.search(consentSearchParams, searchContext);
     }
 
     return new ModelAndView("search/consents/consentSearch")
-        .addObject("searchResults", searchResults)
-        .addObject("maxResultsSize", ConsentSearchService.MAX_RESULTS_SIZE)
-        .addObject("resultsHaveBeenLimited", consentSearchService.haveResultsBeenLimited(searchResults))
+        .addObject("searchScreenView", searchScreenView)
         .addObject("searched", doSearch)
         .addObject("orgUnitFilterOptions", sortedOrganisationUnits)
         .addObject("form", ConsentSearchForm.fromSearchParams(consentSearchParams));
@@ -74,8 +71,7 @@ public class ConsentSearchController {
   }
 
   @PostMapping
-  public ModelAndView postSearch(ConsentSearchParams consentSearchParams,
-                                 ConsentSearchForm form,
+  public ModelAndView postSearch(@ModelAttribute("form") ConsentSearchForm form,
                                  AuthenticatedUserAccount user) {
 
     // create new search params from form posted by user, pass them via redirect

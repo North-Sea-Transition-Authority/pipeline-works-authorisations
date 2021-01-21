@@ -137,10 +137,10 @@ public class ConsentSearchControllerTest extends AbstractControllerTest {
   public void postSearch_whenPermitted_filtersPassedInRedirect() throws Exception {
 
     String viewName = Objects.requireNonNull(
-        mockMvc.perform(post(ReverseRouter.route(on(ConsentSearchController.class).postSearch(null, null, null)))
+        mockMvc.perform(post(ReverseRouter.route(on(ConsentSearchController.class).postSearch(null, null)))
             .with(authenticatedUserAndSession(permittedUser))
             .with(csrf())
-            .param("holderOrgUnitId", "25"))
+            .param("holderOuId", "25"))
             .andExpect(status().is3xxRedirection())
             .andReturn()
             .getModelAndView())
@@ -157,7 +157,7 @@ public class ConsentSearchControllerTest extends AbstractControllerTest {
   @Test
   public void postSearch_whenProhibited() throws Exception {
 
-    mockMvc.perform(post(ReverseRouter.route(on(ConsentSearchController.class).postSearch(null, null, null)))
+    mockMvc.perform(post(ReverseRouter.route(on(ConsentSearchController.class).postSearch(null, null)))
         .with(authenticatedUserAndSession(prohibitedUser))
         .with(csrf()))
         .andExpect(status().isForbidden());
@@ -168,7 +168,7 @@ public class ConsentSearchControllerTest extends AbstractControllerTest {
   @Test
   public void postSearch_whenNotLoggedIn() throws Exception {
 
-    mockMvc.perform(post(ReverseRouter.route(on(ConsentSearchController.class).postSearch(null, null, null))))
+    mockMvc.perform(post(ReverseRouter.route(on(ConsentSearchController.class).postSearch(null, null))))
         .andExpect(status().isForbidden());
 
   }

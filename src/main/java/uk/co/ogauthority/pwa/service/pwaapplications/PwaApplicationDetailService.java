@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.service.pwaapplications;
 
 import java.time.Clock;
 import java.time.Instant;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -25,6 +26,7 @@ import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.partnerletters.Pa
 import uk.co.ogauthority.pwa.repository.pwaapplications.PwaApplicationDetailRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadFastTrackService;
+import uk.co.ogauthority.pwa.service.users.UserTypeService;
 
 @Service
 public class PwaApplicationDetailService {
@@ -32,14 +34,17 @@ public class PwaApplicationDetailService {
   private final PwaApplicationDetailRepository pwaApplicationDetailRepository;
   private final Clock clock;
   private final PadFastTrackService padFastTrackService;
+  private final UserTypeService userTypeService;
 
   @Autowired
   public PwaApplicationDetailService(PwaApplicationDetailRepository pwaApplicationDetailRepository,
                                      @Qualifier("utcClock") Clock clock,
-                                     PadFastTrackService padFastTrackService) {
+                                     PadFastTrackService padFastTrackService,
+                                     UserTypeService userTypeService) {
     this.pwaApplicationDetailRepository = pwaApplicationDetailRepository;
     this.clock = clock;
     this.padFastTrackService = padFastTrackService;
+    this.userTypeService = userTypeService;
   }
 
   /**
@@ -261,10 +266,6 @@ public class PwaApplicationDetailService {
     return applicationDetail.getInitialReviewApprovedByWuaId() != null && applicationDetail.getInitialReviewApprovedTimestamp() != null;
   }
 
-  public Optional<PwaApplicationDetail> getLastSubmittedApplicationDetail(Integer pwaApplicationId) {
-    return pwaApplicationDetailRepository.findLastSubmittedApplicationDetail(pwaApplicationId);
-  }
-
   public void setSupplementaryDocumentsFlag(PwaApplicationDetail detail, Boolean filesToUpload) {
     detail.setSupplementaryDocumentsFlag(filesToUpload);
     pwaApplicationDetailRepository.save(detail);
@@ -290,4 +291,34 @@ public class PwaApplicationDetailService {
     pwaApplicationDetailRepository.save(applicationDetail);
 
   }
+
+  public Optional<PwaApplicationDetail> getLatestDetailForUser(int applicationId,
+                                                               AuthenticatedUserAccount user) {
+
+    var details = pwaApplicationDetailRepository.findByPwaApplicationId(applicationId);
+    var userType = userTypeService.getUserType(user);
+
+    switch (userType) {
+
+      case INDUSTRY:
+      case OGA:
+        return details.stream()
+            .filter(d -> d.getSubmittedTimestamp() != null)
+            .max(Comparator.comparing(PwaApplicationDetail::getSubmittedTimestamp));
+
+      case CONSULTEE:
+        return details.stream()
+            .filter(d -> d.getConfirmedSatisfactoryTimestamp() != null)
+            .max(Comparator.comparing(PwaApplicationDetail::getConfirmedSatisfactoryTimestamp));
+
+      default:
+        throw new IllegalStateException(String.format(
+            "Unrecognised user type [%s] encountered when retrieving app detail for user with WUA id [%s]",
+            userType.name(),
+            user.getWuaId()));
+
+    }
+
+  }
+
 }
