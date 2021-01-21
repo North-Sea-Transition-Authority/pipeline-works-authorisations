@@ -86,7 +86,13 @@ public class CamundaWorkflowService {
                                                                                          Set<WorkflowBusinessKey> workflowBusinessKeys,
                                                                                          Set<UserWorkflowTask> userWorkflowTasks) {
 
+    // task query `processInstanceBusinessKeyIn` resolves to true when no business keys, exit early
+    if (workflowBusinessKeys.isEmpty()) {
+      return Set.of();
+    }
+
     var processInstanceDefinitionKey = workflowType.getProcessDefinitionKey();
+
     var businessKeysArray = workflowBusinessKeys.stream()
         .map(WorkflowBusinessKey::getValue)
         .collect(toList())
