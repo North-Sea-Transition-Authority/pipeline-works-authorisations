@@ -134,7 +134,7 @@ public class DocumentInstanceControllerTest extends PwaAppProcessingContextAbstr
     pwaApplicationDetail.getPwaApplication().setId(1);
     pwaApplicationDetail.setStatus(PwaApplicationStatus.CASE_OFFICER_REVIEW);
 
-    when(pwaApplicationDetailService.getLastSubmittedApplicationDetail(pwaApplicationDetail.getMasterPwaApplicationId()))
+    when(pwaApplicationDetailService.getLatestDetailForUser(pwaApplicationDetail.getMasterPwaApplicationId(), user))
         .thenReturn(Optional.of(pwaApplicationDetail));
 
     var permissionsDto = new ProcessingPermissionsDto(null, EnumSet.allOf(PwaAppProcessingPermission.class));
@@ -158,7 +158,7 @@ public class DocumentInstanceControllerTest extends PwaAppProcessingContextAbstr
     pwaApplicationDetail.getPwaApplication().setId(1);
     pwaApplicationDetail.setStatus(PwaApplicationStatus.CASE_OFFICER_REVIEW);
 
-    when(pwaApplicationDetailService.getLastSubmittedApplicationDetail(pwaApplicationDetail.getMasterPwaApplicationId()))
+    when(pwaApplicationDetailService.getLatestDetailForUser(pwaApplicationDetail.getMasterPwaApplicationId(), user))
         .thenReturn(Optional.of(pwaApplicationDetail));
 
     var permissionsDto = new ProcessingPermissionsDto(null, EnumSet.allOf(PwaAppProcessingPermission.class));
@@ -233,7 +233,7 @@ public class DocumentInstanceControllerTest extends PwaAppProcessingContextAbstr
     pwaApplicationDetail.getPwaApplication().setId(1);
     pwaApplicationDetail.setStatus(PwaApplicationStatus.CASE_OFFICER_REVIEW);
 
-    when(pwaApplicationDetailService.getLastSubmittedApplicationDetail(pwaApplicationDetail.getMasterPwaApplicationId()))
+    when(pwaApplicationDetailService.getLatestDetailForUser(pwaApplicationDetail.getMasterPwaApplicationId(), user))
         .thenReturn(Optional.of(pwaApplicationDetail));
 
     var permissionsDto = new ProcessingPermissionsDto(null, EnumSet.allOf(PwaAppProcessingPermission.class));
@@ -257,7 +257,7 @@ public class DocumentInstanceControllerTest extends PwaAppProcessingContextAbstr
     pwaApplicationDetail.getPwaApplication().setId(1);
     pwaApplicationDetail.setStatus(PwaApplicationStatus.CASE_OFFICER_REVIEW);
 
-    when(pwaApplicationDetailService.getLastSubmittedApplicationDetail(pwaApplicationDetail.getMasterPwaApplicationId()))
+    when(pwaApplicationDetailService.getLatestDetailForUser(pwaApplicationDetail.getMasterPwaApplicationId(), user))
         .thenReturn(Optional.of(pwaApplicationDetail));
 
     var permissionsDto = new ProcessingPermissionsDto(null, EnumSet.allOf(PwaAppProcessingPermission.class));
@@ -332,7 +332,7 @@ public class DocumentInstanceControllerTest extends PwaAppProcessingContextAbstr
     pwaApplicationDetail.getPwaApplication().setId(1);
     pwaApplicationDetail.setStatus(PwaApplicationStatus.CASE_OFFICER_REVIEW);
 
-    when(pwaApplicationDetailService.getLastSubmittedApplicationDetail(pwaApplicationDetail.getMasterPwaApplicationId()))
+    when(pwaApplicationDetailService.getLatestDetailForUser(pwaApplicationDetail.getMasterPwaApplicationId(), user))
         .thenReturn(Optional.of(pwaApplicationDetail));
 
     var permissionsDto = new ProcessingPermissionsDto(null, EnumSet.allOf(PwaAppProcessingPermission.class));
@@ -356,7 +356,7 @@ public class DocumentInstanceControllerTest extends PwaAppProcessingContextAbstr
     pwaApplicationDetail.getPwaApplication().setId(1);
     pwaApplicationDetail.setStatus(PwaApplicationStatus.CASE_OFFICER_REVIEW);
 
-    when(pwaApplicationDetailService.getLastSubmittedApplicationDetail(pwaApplicationDetail.getMasterPwaApplicationId()))
+    when(pwaApplicationDetailService.getLatestDetailForUser(pwaApplicationDetail.getMasterPwaApplicationId(), user))
         .thenReturn(Optional.of(pwaApplicationDetail));
 
     var permissionsDto = new ProcessingPermissionsDto(null, EnumSet.allOf(PwaAppProcessingPermission.class));
@@ -431,7 +431,7 @@ public class DocumentInstanceControllerTest extends PwaAppProcessingContextAbstr
     pwaApplicationDetail.getPwaApplication().setId(1);
     pwaApplicationDetail.setStatus(PwaApplicationStatus.CASE_OFFICER_REVIEW);
 
-    when(pwaApplicationDetailService.getLastSubmittedApplicationDetail(pwaApplicationDetail.getMasterPwaApplicationId()))
+    when(pwaApplicationDetailService.getLatestDetailForUser(pwaApplicationDetail.getMasterPwaApplicationId(), user))
         .thenReturn(Optional.of(pwaApplicationDetail));
 
     var permissionsDto = new ProcessingPermissionsDto(null, EnumSet.allOf(PwaAppProcessingPermission.class));
@@ -455,7 +455,7 @@ public class DocumentInstanceControllerTest extends PwaAppProcessingContextAbstr
     pwaApplicationDetail.getPwaApplication().setId(1);
     pwaApplicationDetail.setStatus(PwaApplicationStatus.CASE_OFFICER_REVIEW);
 
-    when(pwaApplicationDetailService.getLastSubmittedApplicationDetail(pwaApplicationDetail.getMasterPwaApplicationId()))
+    when(pwaApplicationDetailService.getLatestDetailForUser(pwaApplicationDetail.getMasterPwaApplicationId(), user))
         .thenReturn(Optional.of(pwaApplicationDetail));
 
     var permissionsDto = new ProcessingPermissionsDto(null, EnumSet.allOf(PwaAppProcessingPermission.class));

@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.model.entity.pwaapplications.search;
 
 import java.time.Instant;
+import java.util.List;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 
@@ -77,6 +78,22 @@ public class ApplicationDetailViewTestUtil {
     );
   }
 
+  public static ApplicationDetailView createGenericDetailView() {
 
+    var applicationDetailView = new ApplicationDetailView();
+    applicationDetailView.setPadReference("PA/5/6");
+    applicationDetailView.setApplicationType(PwaApplicationType.CAT_1_VARIATION);
+    applicationDetailView.setCaseOfficerPersonId(1);
+    applicationDetailView.setCaseOfficerName("Case Officer X");
+    applicationDetailView.setSubmittedAsFastTrackFlag(true);
+    applicationDetailView.setPadProposedStart(Instant.now());
+    applicationDetailView.setPadFields(List.of("CAPTAIN", "PENGUIN"));
+    applicationDetailView.setPadHolderNameList(List.of("ROYAL DUTCH SHELL"));
+    applicationDetailView.setPwaHolderNameList(List.of("ROYAL DUTCH SHELL"));
+    applicationDetailView.setVersionNo(1);
+
+    return applicationDetailView;
+
+  }
 
 }

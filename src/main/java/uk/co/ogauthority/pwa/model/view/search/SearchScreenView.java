@@ -41,4 +41,5 @@ public class SearchScreenView<T> {
   public int hashCode() {
     return Objects.hash(fullResultCount, searchResults);
   }
+
 }
