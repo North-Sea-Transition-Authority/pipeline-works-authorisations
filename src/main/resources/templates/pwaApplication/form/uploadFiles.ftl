@@ -22,7 +22,7 @@
 
         <#assign allowedExtensions = fileuploadAllowedExtensions/>
         <#if restrictToImageFileTypes?has_content && restrictToImageFileTypes>
-            <#assign allowedExtensions = imageFileuploadAllowedExtensions/>
+            <#assign allowedExtensions = imageFileUploadAllowedExtensions/>
         </#if>
 
         <@fdsFileUpload.fileUpload id="doc-upload-file-id" path="form.uploadedFileWithDescriptionForms" uploadUrl=uploadUrl deleteUrl=deleteUrl maxAllowedSize=fileuploadMaxUploadSize allowedExtensions=allowedExtensions downloadUrl=downloadUrl existingFiles=uploadedFileViewList dropzoneText=dropzoneText multiFile=(singleFileUpload == false)/>
