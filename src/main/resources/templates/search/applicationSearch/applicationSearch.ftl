@@ -12,6 +12,12 @@
 
     <@fdsInsetText.insetText>Search for submitted applications only, draft applications you are permitted to access are available in the work area.</@fdsInsetText.insetText>
 
+    <@fdsForm.htmlForm >
+<#--        actionUrl="${springUrl(searchUrl)}"-->
+        <@fdsTextInput.textInput path="form.appReference" labelText="Application reference" maxCharacterLength="10" inputClass="govuk-input--width-10"/>
+        <@fdsAction.button buttonText="Search"/>
+    </@fdsForm.htmlForm>
+
     <#if appSearchEntryState == "SEARCH" && !displayableResults?has_content>
     <h2 class="govuk-heading-s">There are no matching results</h2>
     <p class="govuk-body">Improve your results by:</p>
@@ -28,11 +34,6 @@
             More than ${maxResults?c} applications have been found but only ${maxResults?c} are shown. Please refine your search criteria.
         </@fdsWarning.warning>
     </#if>
-
-    <@fdsForm.htmlForm actionUrl="${springUrl(searchUrl)}">
-        <@fdsTextInput.textInput path="form.appReference" labelText="Application reference" maxCharacterLength="10" inputClass="govuk-input--width-10"/>
-        <@fdsAction.button buttonText="Search"/>
-    </@fdsForm.htmlForm>
 
     <#if displayableResults?has_content>
         <table class="govuk-table">
