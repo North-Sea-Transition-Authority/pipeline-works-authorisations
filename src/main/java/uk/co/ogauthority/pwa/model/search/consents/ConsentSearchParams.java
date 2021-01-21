@@ -13,7 +13,7 @@ public class ConsentSearchParams {
   public static ConsentSearchParams from(ConsentSearchForm form) {
 
     var params = new ConsentSearchParams();
-    params.setHolderOrgUnitId(form.getHolderOrgUnitId());
+    params.setHolderOrgUnitId(form.getHolderOuId());
 
     return params;
 
