@@ -34,4 +34,11 @@ public final class ApplicationSearchParameters {
   public int hashCode() {
     return Objects.hash(appReference);
   }
+
+  @Override
+  public String toString() {
+    return "ApplicationSearchParameters{" +
+        "appReference='" + appReference + '\'' +
+        '}';
+  }
 }
