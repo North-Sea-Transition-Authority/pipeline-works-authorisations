@@ -66,7 +66,7 @@ public class PwaApplicationCreationService {
     application.setAppReference(pwaApplicationReferencingService.createAppReference());
     pwaApplicationRepository.save(application);
 
-    pwaContactService.addContact(
+    pwaContactService.updateContact(
         application,
         createdByUser.getLinkedPerson(),
         Set.of(PwaContactRole.ACCESS_MANAGER, PwaContactRole.PREPARER));
