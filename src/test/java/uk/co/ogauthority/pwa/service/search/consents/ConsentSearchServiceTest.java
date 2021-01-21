@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.IntStream;
@@ -31,6 +30,7 @@ import uk.co.ogauthority.pwa.model.entity.search.consents.ConsentSearchItem;
 import uk.co.ogauthority.pwa.model.entity.search.consents.PwaHolderOrgGrp;
 import uk.co.ogauthority.pwa.model.search.consents.ConsentSearchContext;
 import uk.co.ogauthority.pwa.model.search.consents.ConsentSearchParams;
+import uk.co.ogauthority.pwa.model.view.search.SearchScreenView;
 import uk.co.ogauthority.pwa.model.view.search.consents.ConsentSearchResultView;
 import uk.co.ogauthority.pwa.service.enums.users.UserType;
 import uk.co.ogauthority.pwa.service.search.consents.predicates.ConsentSearchPredicateProvider;
@@ -90,7 +90,7 @@ public class ConsentSearchServiceTest {
 
     var context = new ConsentSearchContext(ogaUser, UserType.OGA);
 
-    var results = consentSearchService.search(new ConsentSearchParams(), context);
+    var result = consentSearchService.search(new ConsentSearchParams(), context);
 
     // sorted id desc
     var resultViewComparisonList = List.of(
@@ -99,7 +99,10 @@ public class ConsentSearchServiceTest {
         ConsentSearchResultView.fromSearchItem(pwa1Shell)
     );
 
-    assertThat(results).containsExactlyElementsOf(resultViewComparisonList);
+    var screenView = new SearchScreenView(3, resultViewComparisonList);
+
+    assertThat(result).isEqualTo(screenView);
+    assertThat(result.resultsHaveBeenLimited()).isFalse();
 
   }
 
@@ -112,7 +115,7 @@ public class ConsentSearchServiceTest {
     var context = new ConsentSearchContext(industryUser, UserType.INDUSTRY);
     context.setOrgGroupIdsUserInTeamFor(Set.of(shell.getOrgGrpId()));
 
-    var results = consentSearchService.search(new ConsentSearchParams(), context);
+    var result = consentSearchService.search(new ConsentSearchParams(), context);
 
     // sorted id desc
     var resultViewComparisonList = List.of(
@@ -120,7 +123,10 @@ public class ConsentSearchServiceTest {
         ConsentSearchResultView.fromSearchItem(pwa1Shell)
     );
 
-    assertThat(results).containsExactlyElementsOf(resultViewComparisonList);
+    var screenView = new SearchScreenView(2, resultViewComparisonList);
+
+    assertThat(result).isEqualTo(screenView);
+    assertThat(result.resultsHaveBeenLimited()).isFalse();
 
   }
 
@@ -135,11 +141,14 @@ public class ConsentSearchServiceTest {
 
     var params = new ConsentSearchParams();
     params.setHolderOrgUnitId(shellOrg1.getOuId());
-    var results = consentSearchService.search(params, context);
+    var result = consentSearchService.search(params, context);
 
     var resultViewComparisonList = List.of(ConsentSearchResultView.fromSearchItem(pwa1Shell));
 
-    assertThat(results).containsExactlyElementsOf(resultViewComparisonList);
+    var screenView = new SearchScreenView(1, resultViewComparisonList);
+
+    assertThat(result).isEqualTo(screenView);
+    assertThat(result.resultsHaveBeenLimited()).isFalse();
 
   }
 
@@ -154,9 +163,12 @@ public class ConsentSearchServiceTest {
 
     var params = new ConsentSearchParams();
     params.setHolderOrgUnitId(bpOrg.getOuId());
-    var results = consentSearchService.search(params, context);
+    var result = consentSearchService.search(params, context);
 
-    assertThat(results).isEmpty();
+    var screenView = new SearchScreenView(0, List.of());
+
+    assertThat(result).isEqualTo(screenView);
+    assertThat(result.resultsHaveBeenLimited()).isFalse();
 
   }
 
@@ -170,11 +182,14 @@ public class ConsentSearchServiceTest {
 
     var params = new ConsentSearchParams();
     params.setHolderOrgUnitId(bpOrg.getOuId());
-    var results = consentSearchService.search(params, context);
+    var result = consentSearchService.search(params, context);
 
     var resultViewComparisonList = List.of(ConsentSearchResultView.fromSearchItem(pwa3Bp));
 
-    assertThat(results).containsExactlyElementsOf(resultViewComparisonList);
+    var screenView = new SearchScreenView(1, resultViewComparisonList);
+
+    assertThat(result).isEqualTo(screenView);
+    assertThat(result.resultsHaveBeenLimited()).isFalse();
 
   }
 
@@ -185,16 +200,18 @@ public class ConsentSearchServiceTest {
     // insert 20 more search items into the view than the max result size
     int start = 1000;
     int end = start + ConsentSearchService.MAX_RESULTS_SIZE + 20;
-    IntStream.rangeClosed(start, end).forEach(i -> {
+    IntStream.range(start, end).forEach(i -> {
       var item = ConsentSearchItemTestUtils.createSearchItem(i, "PENGUIN" + i, "SHELL" + i, Instant.now().minus(i, ChronoUnit.DAYS));
       entityManager.persist(item);
     });
 
     var context = new ConsentSearchContext(ogaUser, UserType.OGA);
-    var results = consentSearchService.search(new ConsentSearchParams(), context);
+    var result = consentSearchService.search(new ConsentSearchParams(), context);
 
-    // results limited to max size
-    assertThat(results.size()).isEqualTo(ConsentSearchService.MAX_RESULTS_SIZE);
+    // results limited to max size, full count available
+    assertThat(result.getFullResultCount()).isEqualTo(ConsentSearchService.MAX_RESULTS_SIZE + 20);
+    assertThat(result.getSearchResults().size()).isEqualTo(ConsentSearchService.MAX_RESULTS_SIZE);
+    assertThat(result.resultsHaveBeenLimited()).isTrue();
 
   }
 
@@ -205,7 +222,7 @@ public class ConsentSearchServiceTest {
     // insert 20 more search items into the view than the max result size
     int start = 2000;
     int end = start + ConsentSearchService.MAX_RESULTS_SIZE + 20;
-    IntStream.rangeClosed(start, end).forEach(i -> {
+    IntStream.range(start, end).forEach(i -> {
       var item = ConsentSearchItemTestUtils.createSearchItem(i, "PENGUIN" + i, "SHELL" + i, Instant.now().minus(i, ChronoUnit.DAYS));
       var orgGrp = new PwaHolderOrgGrp(i, i, shell.getOrgGrpId());
       entityManager.persist(item);
@@ -214,40 +231,12 @@ public class ConsentSearchServiceTest {
 
     var context = new ConsentSearchContext(industryUser, UserType.INDUSTRY);
     context.setOrgGroupIdsUserInTeamFor(Set.of(shell.getOrgGrpId()));
-    var results = consentSearchService.search(new ConsentSearchParams(), context);
+    var result = consentSearchService.search(new ConsentSearchParams(), context);
 
     // results limited to max size
-    assertThat(results.size()).isEqualTo(ConsentSearchService.MAX_RESULTS_SIZE);
-
-  }
-
-  @Test
-  public void haveResultsBeenLimited_equalsMax_yes() {
-
-    var bigList = new ArrayList<ConsentSearchResultView>();
-
-    IntStream.rangeClosed(1, ConsentSearchService.MAX_RESULTS_SIZE).forEach(i -> {
-      var item = ConsentSearchItemTestUtils.createSearchItem(i, "PENGUIN" + i, "SHELL" + i, Instant.now().minus(i, ChronoUnit.DAYS));
-      bigList.add(ConsentSearchResultView.fromSearchItem(item));
-    });
-
-    assertThat(bigList.size()).isEqualTo(ConsentSearchService.MAX_RESULTS_SIZE);
-    assertThat(consentSearchService.haveResultsBeenLimited(bigList)).isTrue();
-
-  }
-
-  @Test
-  public void haveResultsBeenLimited_lessThanMax_no() {
-
-    var bigList = new ArrayList<ConsentSearchResultView>();
-
-    IntStream.rangeClosed(1, ConsentSearchService.MAX_RESULTS_SIZE - 1).forEach(i -> {
-      var item = ConsentSearchItemTestUtils.createSearchItem(i, "PENGUIN" + i, "SHELL" + i, Instant.now().minus(i, ChronoUnit.DAYS));
-      bigList.add(ConsentSearchResultView.fromSearchItem(item));
-    });
-
-    assertThat(bigList.size()).isLessThan(ConsentSearchService.MAX_RESULTS_SIZE);
-    assertThat(consentSearchService.haveResultsBeenLimited(bigList)).isFalse();
+    assertThat(result.getFullResultCount()).isEqualTo(ConsentSearchService.MAX_RESULTS_SIZE + 20);
+    assertThat(result.getSearchResults().size()).isEqualTo(ConsentSearchService.MAX_RESULTS_SIZE);
+    assertThat(result.resultsHaveBeenLimited()).isTrue();
 
   }
 
