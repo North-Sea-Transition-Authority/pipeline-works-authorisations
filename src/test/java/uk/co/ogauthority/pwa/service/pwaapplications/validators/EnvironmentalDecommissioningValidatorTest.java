@@ -338,8 +338,8 @@ public class EnvironmentalDecommissioningValidatorTest {
       form.setEmtSubmissionMonth(-1);
       form.setEmtSubmissionYear(-1);
       var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, detail, ValidationType.FULL);
-      assertThat(errors.get("emtSubmissionDay")).containsExactly("emtSubmissionDay.invalidDate");
-      assertThat(errors.get("emtSubmissionMonth")).containsExactly("emtSubmissionMonth.invalidDate");
+      assertThat(errors.get("emtSubmissionDay")).containsExactly("emtSubmissionDay.invalidDate", "emtSubmissionDay.invalid");
+      assertThat(errors.get("emtSubmissionMonth")).containsExactly("emtSubmissionMonth.invalidDate", "emtSubmissionMonth.invalid");
       assertThat(errors.get("emtSubmissionYear")).containsExactly("emtSubmissionYear.invalid", "emtSubmissionYear.invalidDate");
 
     });
