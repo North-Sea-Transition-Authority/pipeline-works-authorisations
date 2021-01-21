@@ -2,10 +2,11 @@ package uk.co.ogauthority.pwa.service.appprocessing.context;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import uk.co.ogauthority.pwa.controller.appsummary.ApplicationSummaryController;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.WorkAreaApplicationDetailSearchItem;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.workarea.WorkAreaColumnItemView;
@@ -46,9 +47,9 @@ public class CaseSummaryView {
     this.versionNo = versionNo;
   }
 
-  public static CaseSummaryView from(WorkAreaApplicationDetailSearchItem detailSearchItem) {
+  public static CaseSummaryView from(ApplicationDetailView detailViewItem) {
 
-    var appWorkAreaItem = new PwaApplicationWorkAreaItem(detailSearchItem, (detailSearchItem1) -> "#");
+    var appWorkAreaItem = new PwaApplicationWorkAreaItem(detailViewItem, detailSearchItem1 -> "#");
 
     String holders = appWorkAreaItem.getHolderColumn().stream()
         .map(WorkAreaColumnItemView::getValue)
@@ -57,7 +58,7 @@ public class CaseSummaryView {
     String fields = String.join(", ", appWorkAreaItem.getOrderedFieldList());
     fields = fields.isBlank() ? null : fields;
 
-    String proposedStartDateDisplay = Optional.ofNullable(detailSearchItem.getPadProposedStart())
+    String proposedStartDateDisplay = Optional.ofNullable(detailViewItem.getPadProposedStart())
         .map(DateUtils::formatDate)
         .orElse(null);
 
@@ -72,7 +73,7 @@ public class CaseSummaryView {
         proposedStartDateDisplay,
         appWorkAreaItem.wasSubmittedAsFastTrack(),
         appWorkAreaItem.getCaseOfficerName(),
-        detailSearchItem.getVersionNo()
+        detailViewItem.getVersionNo()
     );
 
   }
@@ -117,9 +118,34 @@ public class CaseSummaryView {
     return versionNo;
   }
 
+  @SuppressWarnings("unused")
+  // used in ftl template
   public String getAppSummaryUrl() {
     return ReverseRouter.route(on(ApplicationSummaryController.class).renderSummary(pwaApplicationId,
         pwaApplicationType, null, null));
   }
 
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    CaseSummaryView that = (CaseSummaryView) o;
+    return fastTrackFlag == that.fastTrackFlag && Objects.equals(pwaApplicationId,
+        that.pwaApplicationId) && pwaApplicationType == that.pwaApplicationType && Objects.equals(
+        pwaApplicationTypeDisplay, that.pwaApplicationTypeDisplay) && Objects.equals(pwaApplicationRef,
+        that.pwaApplicationRef) && Objects.equals(holderNames, that.holderNames) && Objects.equals(
+        fieldNames, that.fieldNames) && Objects.equals(proposedStartDateDisplay,
+        that.proposedStartDateDisplay) && Objects.equals(caseOfficerName,
+        that.caseOfficerName) && Objects.equals(versionNo, that.versionNo);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(pwaApplicationId, pwaApplicationType, pwaApplicationTypeDisplay, pwaApplicationRef, holderNames,
+        fieldNames, proposedStartDateDisplay, fastTrackFlag, caseOfficerName, versionNo);
+  }
 }

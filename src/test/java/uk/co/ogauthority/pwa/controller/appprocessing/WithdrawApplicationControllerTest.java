@@ -65,7 +65,7 @@ public class WithdrawApplicationControllerTest extends PwaAppProcessingContextAb
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL, 1, 30);
     pwaApplicationDetail.setStatus(PwaApplicationStatus.CASE_OFFICER_REVIEW);
-    when(pwaApplicationDetailService.getLastSubmittedApplicationDetail(pwaApplicationDetail.getMasterPwaApplicationId()))
+    when(pwaApplicationDetailService.getLatestDetailForUser(pwaApplicationDetail.getMasterPwaApplicationId(), user))
         .thenReturn(Optional.of(pwaApplicationDetail));
 
     endpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaApplicationDetailService, pwaAppProcessingPermissionService)
