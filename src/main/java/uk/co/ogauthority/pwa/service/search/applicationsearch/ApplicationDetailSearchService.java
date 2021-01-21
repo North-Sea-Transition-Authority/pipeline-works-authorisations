@@ -12,6 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailItemView;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailView;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailView_;
+import uk.co.ogauthority.pwa.model.view.search.SearchScreenView;
 import uk.co.ogauthority.pwa.service.search.applicationsearch.restrictions.ApplicationSearchPredicateProvider;
 
 /**
@@ -20,9 +22,10 @@ import uk.co.ogauthority.pwa.service.search.applicationsearch.restrictions.Appli
 @Service
 public class ApplicationDetailSearchService {
 
+  static final int MAX_RESULTS = 50;
+
   private final List<ApplicationSearchPredicateProvider> applicationSearchPredicateProviders;
   private final EntityManager entityManager;
-
 
   @Autowired
   public ApplicationDetailSearchService(List<ApplicationSearchPredicateProvider> applicationSearchPredicateProviders,
@@ -31,9 +34,8 @@ public class ApplicationDetailSearchService {
     this.entityManager = entityManager;
   }
 
-  public List<ApplicationDetailItemView> search(ApplicationSearchParameters searchParameters,
-                                                ApplicationSearchContext applicationSearchContext) {
-    // copying list allows return type of list to be simple interface, not an ? extends so we can ignore impl type.
+  public SearchScreenView<ApplicationDetailItemView> search(ApplicationSearchParameters searchParameters,
+                                                            ApplicationSearchContext applicationSearchContext) {
 
     CriteriaBuilder cb = entityManager.getCriteriaBuilder();
     CriteriaQuery<ApplicationDetailView> searchCoreQuery = cb.createQuery(ApplicationDetailView.class);
@@ -55,14 +57,25 @@ public class ApplicationDetailSearchService {
 
     // set selection and apply provided predicates
     searchCoreQuery.select(searchCoreRoot)
-        .where(predicateList.toArray(Predicate[]::new));
+        .where(predicateList.toArray(Predicate[]::new))
+        // app id is directly stored in app ref, sort directly rather than deconstruct the reference so its sortable.
+        .orderBy(cb.desc(searchCoreRoot.get(ApplicationDetailView_.PWA_APPLICATION_ID)));
 
-    TypedQuery<ApplicationDetailView> q = entityManager.createQuery(searchCoreQuery);
+    TypedQuery<ApplicationDetailView> q = entityManager.createQuery(searchCoreQuery)
+        .setMaxResults(MAX_RESULTS);
 
-    // required to force simple simple list of interface where the specific type can be ignored.
-    return new ArrayList<>(q.getResultList());
+    // required to force simple list of interface where the specific type can be ignored.
+    List<ApplicationDetailItemView> results = new ArrayList<>(q.getResultList());
+
+    CriteriaQuery<Long> countQuery = cb.createQuery(Long.class);
+    Root<ApplicationDetailView> count = countQuery.from(ApplicationDetailView.class);
+    countQuery.select(cb.count(count))
+        .where(searchCoreQuery.getRestriction());
+
+    long countQueryResult = entityManager.createQuery(countQuery).getSingleResult();
+
+    return new SearchScreenView<>(countQueryResult, results);
 
   }
-
 
 }

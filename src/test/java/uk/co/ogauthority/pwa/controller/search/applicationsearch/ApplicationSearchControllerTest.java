@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.controller.search.applicationsearch;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -11,6 +12,7 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
 
 import java.util.EnumSet;
+import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -22,6 +24,8 @@ import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.AbstractControllerTest;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailItemView;
+import uk.co.ogauthority.pwa.model.view.search.SearchScreenView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContextService;
 import uk.co.ogauthority.pwa.service.enums.users.UserType;
@@ -105,9 +109,11 @@ public class ApplicationSearchControllerTest extends AbstractControllerTest {
   @Test
   public void renderApplicationSearch_runSearchWithParams() throws Exception {
 
+    var screenView = new SearchScreenView<ApplicationDetailItemView>(0, List.of());
+    when(applicationDetailSearchService.search(any(), any())).thenReturn(screenView);
+
     mockMvc.perform(get(ReverseRouter.route(on(ApplicationSearchController.class).renderApplicationSearch(
-        null, ApplicationSearchController.AppSearchEntryState.SEARCH, APP_REF_SEARCH
-    )))
+        null, ApplicationSearchController.AppSearchEntryState.SEARCH, APP_REF_SEARCH)))
         .with(authenticatedUserAndSession(permittedUser)))
         .andExpect(status().isOk());
 

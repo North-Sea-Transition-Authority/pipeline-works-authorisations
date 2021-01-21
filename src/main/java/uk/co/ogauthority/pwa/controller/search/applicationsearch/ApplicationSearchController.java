@@ -1,12 +1,9 @@
 package uk.co.ogauthority.pwa.controller.search.applicationsearch;
 
-import static java.util.stream.Collectors.toList;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,10 +13,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailItemView;
+import uk.co.ogauthority.pwa.model.view.search.SearchScreenView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.search.applicationsearch.ApplicationDetailSearchService;
 import uk.co.ogauthority.pwa.service.search.applicationsearch.ApplicationSearchContextCreator;
+import uk.co.ogauthority.pwa.service.search.applicationsearch.ApplicationSearchDisplayItem;
 import uk.co.ogauthority.pwa.service.search.applicationsearch.ApplicationSearchDisplayItemCreator;
 import uk.co.ogauthority.pwa.service.search.applicationsearch.ApplicationSearchParameters;
 import uk.co.ogauthority.pwa.service.search.applicationsearch.ApplicationSearchParametersBuilder;
@@ -27,8 +25,6 @@ import uk.co.ogauthority.pwa.service.search.applicationsearch.ApplicationSearchP
 @Controller
 @RequestMapping("/application-search")
 public class ApplicationSearchController {
-
-  private static final long MAX_RESULTS = 50L;
 
   private final ApplicationDetailSearchService applicationDetailSearchService;
   private final ApplicationSearchContextCreator applicationSearchContextCreator;
@@ -69,11 +65,22 @@ public class ApplicationSearchController {
   public ModelAndView renderApplicationSearch(AuthenticatedUserAccount authenticatedUserAccount,
                                               @RequestParam(name = "entryState", defaultValue = "SEARCH") AppSearchEntryState entryState,
                                               @RequestParam(name = "appReference", required = false) String appReference) {
+    return getSearchModelAndView(entryState, appReference, authenticatedUserAccount);
+  }
+
+  @PostMapping
+  public ModelAndView doApplicationSearch(AuthenticatedUserAccount authenticatedUserAccount,
+                                          @ModelAttribute("form") ApplicationSearchParameters applicationSearchParameters) {
+    return redirectAndRunSearch(applicationSearchParameters);
+  }
 
 
-    List<ApplicationDetailItemView> results = Collections.emptyList();
+  private ModelAndView getSearchModelAndView(AppSearchEntryState appSearchEntryState,
+                                             String appReference,
+                                             AuthenticatedUserAccount authenticatedUserAccount) {
 
-    if (entryState.equals(AppSearchEntryState.SEARCH)) {
+    SearchScreenView<ApplicationSearchDisplayItem> searchScreenView = null;
+    if (appSearchEntryState.equals(AppSearchEntryState.SEARCH)) {
 
       var context = applicationSearchContextCreator.createContext(authenticatedUserAccount);
 
@@ -82,37 +89,18 @@ public class ApplicationSearchController {
           .setAppReference(appReference)
           .createApplicationSearchParameters();
 
-      results = applicationDetailSearchService.search(appSearchParams, context);
+      var appDetailItemScreenView = applicationDetailSearchService.search(appSearchParams, context);
+
+      var searchDisplayItems = appDetailItemScreenView.getSearchResults().stream()
+          .map(applicationSearchDisplayItemCreator::createDisplayItem)
+          .collect(Collectors.toList());
+
+      searchScreenView = new SearchScreenView<>(appDetailItemScreenView.getFullResultCount(), searchDisplayItems);
+
     }
 
-    return getSearchModelAndView(results, entryState);
-
-  }
-
-  @PostMapping
-  public ModelAndView doApplicationSearch(AuthenticatedUserAccount authenticatedUserAccount,
-                                          @ModelAttribute("form") ApplicationSearchParameters applicationSearchParameters) {
-
-
-    return redirectAndRunSearch(applicationSearchParameters);
-
-  }
-
-
-  private ModelAndView getSearchModelAndView(List<ApplicationDetailItemView> applicationDetailItemViewList,
-                                             AppSearchEntryState appSearchEntryState) {
-
-    var displayableResults = applicationDetailItemViewList.stream()
-        // app id is directly stored in app ref, sort directly rather than deconstruct the reference so its sortable.
-        .sorted(Comparator.comparing(ApplicationDetailItemView::getPwaApplicationId).reversed())
-        .limit(MAX_RESULTS)
-        .map(applicationSearchDisplayItemCreator::createDisplayItem)
-        .collect(toList());
-
     return new ModelAndView("search/applicationSearch/applicationSearch")
-        .addObject("showMaxResultsExceededMessage", applicationDetailItemViewList.size() > MAX_RESULTS)
-        .addObject("maxResults", MAX_RESULTS)
-        .addObject("displayableResults", displayableResults)
+        .addObject("searchScreenView", searchScreenView)
         .addObject("appSearchEntryState", appSearchEntryState);
 
   }
