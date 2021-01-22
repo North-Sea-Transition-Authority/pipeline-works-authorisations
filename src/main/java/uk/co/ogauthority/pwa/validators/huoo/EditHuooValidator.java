@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.validators.huoo;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.commons.collections4.SetUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +11,7 @@ import org.springframework.validation.SmartValidator;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.energyportal.service.organisations.PortalOrganisationsAccessor;
+import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
@@ -61,14 +63,26 @@ public class EditHuooValidator implements SmartValidator {
           "Select the entity type");
     }
 
-    if (form.getHuooType() == HuooType.PORTAL_ORG) {
-      portalOrganisationsAccessor.getOrganisationUnitById(form.getOrganisationUnitId())
-          .orElseGet(() -> {
-            errors.rejectValue("organisationUnitId",
-                "organisationUnitId" + FieldValidationErrorCodes.INVALID.getCode(),
-                "The selected organisation is invalid");
-            return null;
-          });
+    // TREATY type automatically assigned to USER role, so only relevant here
+    if (form.getHuooType() == HuooType.PORTAL_ORG && SetUtils.emptyIfNull(form.getHuooRoles()).isEmpty()) {
+      errors.rejectValue("huooRoles", "huooRoles.required",
+          "Select one or more roles");
+    }
+
+    Optional<OrganisationUnitId> formOrgUnitIdOpt = Optional.ofNullable(form.getOrganisationUnitId())
+        .map(OrganisationUnitId::fromInt);
+
+    if (form.getHuooType() == HuooType.PORTAL_ORG && formOrgUnitIdOpt.isEmpty()) {
+      errors.rejectValue("organisationUnitId", "organisationUnitId.required",
+          "Select an organisation");
+    } else if (form.getHuooType() == HuooType.PORTAL_ORG && formOrgUnitIdOpt.isPresent()) {
+      var formOrgUnitId = formOrgUnitIdOpt.get();
+
+      if (!portalOrganisationsAccessor.organisationUnitExistsForId(formOrgUnitId)) {
+        errors.rejectValue("organisationUnitId",
+            "organisationUnitId" + FieldValidationErrorCodes.INVALID.getCode(),
+            "The selected organisation is invalid");
+      }
 
       boolean holderSelected = SetUtils.emptyIfNull(form.getHuooRoles()).contains(HuooRole.HOLDER)
           || (!SetUtils.emptyIfNull(form.getHuooRoles()).contains(HuooRole.HOLDER)
@@ -76,14 +90,11 @@ public class EditHuooValidator implements SmartValidator {
 
       if (validationHints.length >= 3 && validationHints[2] instanceof AuthenticatedUserAccount
           && detail.getPwaApplicationType().equals(PwaApplicationType.INITIAL) && holderSelected) {
-        var userCanAccessOrgUnit = false;
+
         var user = (AuthenticatedUserAccount) validationHints[2];
-        for (var orgUnitUserCanAccess : getOrgUnitsUserCanAccess(user)) {
-          if (form.getOrganisationUnitId() == orgUnitUserCanAccess.getOuId()) {
-            userCanAccessOrgUnit = true;
-            break;
-          }
-        }
+        var userCanAccessOrgUnit = getOrgUnitsUserCanAccess(user).stream()
+            .anyMatch(organisationUnit -> formOrgUnitId.equals(OrganisationUnitId.from(organisationUnit)));
+
         if (!userCanAccessOrgUnit) {
           errors.rejectValue("organisationUnitId",
               "organisationUnitId" + FieldValidationErrorCodes.INVALID.getCode(),
@@ -91,26 +102,18 @@ public class EditHuooValidator implements SmartValidator {
         }
       }
 
-      if (SetUtils.emptyIfNull(form.getHuooRoles()).isEmpty()) {
-        errors.rejectValue("huooRoles", "huooRoles.required",
-            "Select one or more roles");
-      }
-      if (form.getOrganisationUnitId() != null) {
-        roles.stream()
-            .filter(role -> role.getType().equals(HuooType.PORTAL_ORG))
-            .filter(
-                // we aren't editing an org at all, but a treaty
-                padOrganisationRole -> huooValidationView.getPortalOrganisationUnit() == null
-                    || (padOrganisationRole.getOrganisationUnit().getOuId() != huooValidationView.getPortalOrganisationUnit().getOuId()))
-            .filter(padOrganisationRole ->
-                form.getOrganisationUnitId().equals(padOrganisationRole.getOrganisationUnit().getOuId()))
-            .findAny()
-            .ifPresent(padOrganisationRole -> errors.rejectValue("organisationUnitId", "organisationUnitId.alreadyUsed",
-                "The selected organisation is already added to the application"));
-      } else {
-        errors.rejectValue("organisationUnitId", "organisationUnitId.required",
-            "Select an organisation");
-      }
+      roles.stream()
+          .filter(role -> role.getType().equals(HuooType.PORTAL_ORG))
+          .filter(
+              // we aren't editing an org at all, but a treaty
+              padOrganisationRole -> huooValidationView.getPortalOrganisationUnit() == null
+                  || (padOrganisationRole.getOrganisationUnit().getOuId() != huooValidationView.getPortalOrganisationUnit().getOuId()))
+          .filter(padOrganisationRole ->
+              formOrgUnitId.equals(OrganisationUnitId.from(padOrganisationRole.getOrganisationUnit()))
+          )
+          .findAny()
+          .ifPresent(padOrganisationRole -> errors.rejectValue("organisationUnitId", "organisationUnitId.alreadyUsed",
+              "The selected organisation is already added to the application"));
     }
 
     var holderCount = roles.stream()

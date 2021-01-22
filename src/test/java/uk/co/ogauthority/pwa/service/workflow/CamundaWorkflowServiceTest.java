@@ -281,6 +281,21 @@ public class CamundaWorkflowServiceTest {
   }
 
   @Test
+  public void filterBusinessKeysByWorkflowTypeAndActiveTasksContains_noBusinessKeysPassed_emptySetReturned(){
+
+    camundaWorkflowService.startWorkflow(application);
+
+    var filteredBusinesskeys = camundaWorkflowService.filterBusinessKeysByWorkflowTypeAndActiveTasksContains(
+        WorkflowType.PWA_APPLICATION,
+        Set.of(),
+        Set.of(PwaApplicationWorkflowTask.PREPARE_APPLICATION)
+    );
+
+    assertThat(filteredBusinesskeys).isEmpty();
+
+  }
+
+  @Test
   public void filterBusinessKeysByWorkflowTypeAndActiveTasksContains_filterTaskDoesNotExist(){
 
     camundaWorkflowService.startWorkflow(application);

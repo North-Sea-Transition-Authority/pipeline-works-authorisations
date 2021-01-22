@@ -2,12 +2,16 @@ package uk.co.ogauthority.pwa.service.search.applicationsearch;
 
 import static java.util.stream.Collectors.toSet;
 
+import java.util.Collections;
+import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.energyportal.service.organisations.PortalOrganisationsAccessor;
+import uk.co.ogauthority.pwa.model.dto.consultations.ConsulteeGroupId;
 import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
 import uk.co.ogauthority.pwa.model.teams.PwaOrganisationTeam;
+import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupTeamService;
 import uk.co.ogauthority.pwa.service.teams.TeamService;
 import uk.co.ogauthority.pwa.service.users.UserTypeService;
 
@@ -20,14 +24,17 @@ public class ApplicationSearchContextCreator {
   private final UserTypeService userTypeService;
   private final TeamService teamService;
   private final PortalOrganisationsAccessor portalOrganisationsAccessor;
+  private final ConsulteeGroupTeamService consulteeGroupTeamService;
 
   @Autowired
   public ApplicationSearchContextCreator(UserTypeService userTypeService,
                                          TeamService teamService,
-                                         PortalOrganisationsAccessor portalOrganisationsAccessor) {
+                                         PortalOrganisationsAccessor portalOrganisationsAccessor,
+                                         ConsulteeGroupTeamService consulteeGroupTeamService) {
     this.userTypeService = userTypeService;
     this.teamService = teamService;
     this.portalOrganisationsAccessor = portalOrganisationsAccessor;
+    this.consulteeGroupTeamService = consulteeGroupTeamService;
   }
 
   public ApplicationSearchContext createContext(AuthenticatedUserAccount authenticatedUserAccount) {
@@ -45,10 +52,17 @@ public class ApplicationSearchContextCreator {
         .map(OrganisationUnitId::from)
         .collect(toSet());
 
+    var consulteeGroupIds = consulteeGroupTeamService.getTeamMemberByPerson(authenticatedUserAccount.getLinkedPerson())
+        .map(consulteeGroupTeamMember -> ConsulteeGroupId.from(consulteeGroupTeamMember.getConsulteeGroup()))
+        .map(Set::of)
+        .orElse(Collections.emptySet());
+
     return new ApplicationSearchContext(
         authenticatedUserAccount,
         primaryUserType,
         orgGroupsWhereMemberOfHolderTeam,
-        orgUnitIdsAssociatedWithHolderTeamMembership);
+        orgUnitIdsAssociatedWithHolderTeamMembership,
+        consulteeGroupIds
+    );
   }
 }

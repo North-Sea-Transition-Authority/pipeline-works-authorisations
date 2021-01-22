@@ -70,7 +70,7 @@
               <td class="govuk-table__cell">${pipeline.pipelineTypeDisplay}</td>
               <td class="govuk-table__cell">
                 <ul class="govuk-list">
-                  <li>${pipeline.getFromLocation()}</li>
+                  <li>${pipeline.getFromLocation()!}</li>
                     <#if pipeline.getFromCoordinates()?has_content>
                       <li><@pwaCoordinate.display pipeline.getFromCoordinates()/></li>
                     </#if>
@@ -78,13 +78,13 @@
               </td>
               <td class="govuk-table__cell">
                 <ul class="govuk-list">
-                  <li>${pipeline.getToLocation()}</li>
+                  <li>${pipeline.getToLocation()!}</li>
                     <#if pipeline.getToCoordinates()?has_content>
                       <li><@pwaCoordinate.display pipeline.getToCoordinates()/></li>
                     </#if>
                 </ul>
               </td>
-              <td class="govuk-table__cell">${pipeline.length}</td>
+              <td class="govuk-table__cell">${pipeline.length!}</td>
             </tr>
           </#if>
       </#list>

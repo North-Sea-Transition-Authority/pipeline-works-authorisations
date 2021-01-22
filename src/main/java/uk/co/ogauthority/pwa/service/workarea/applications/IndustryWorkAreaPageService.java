@@ -59,15 +59,13 @@ public class IndustryWorkAreaPageService {
         on(WorkAreaController.class).renderWorkAreaTab(null, WorkAreaTab.INDUSTRY_OPEN_APPLICATIONS, page));
 
     var applicationIdFilter = getIndustryUserApplicationIds(authenticatedUserAccount);
-    var openApplicationStatusFilter = OPEN_PWA_APP_STATUSES;
-    var openForUpdateFlagFilter = true;
 
     return PageView.fromPage(
         workAreaApplicationDetailSearcher.searchWhereApplicationIdInAndWhereStatusInOrOpenUpdateRequest(
             WorkAreaUtils.getWorkAreaPageRequest(page, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
             applicationIdFilter,
-            openApplicationStatusFilter,
-            openForUpdateFlagFilter
+            OPEN_PWA_APP_STATUSES,
+            true
         ),
         workAreaUri,
         sr -> new PwaApplicationWorkAreaItem(sr, this::viewApplicationUrlProducer)
@@ -85,14 +83,13 @@ public class IndustryWorkAreaPageService {
     var applicationIdFilter = getIndustryUserApplicationIds(authenticatedUserAccount);
     // all enum values except those in given set.
     var notOpenApplicationStatusFilter =  EnumSet.complementOf(OPEN_PWA_APP_STATUSES);
-    var openForUpdateFlagFilter = false;
 
     return PageView.fromPage(
         workAreaApplicationDetailSearcher.searchWhereApplicationIdInAndWhereStatusInAndOpenUpdateRequest(
             WorkAreaUtils.getWorkAreaPageRequest(page, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
             applicationIdFilter,
             notOpenApplicationStatusFilter,
-            openForUpdateFlagFilter
+            false
         ),
         workAreaUri,
         sr -> new PwaApplicationWorkAreaItem(sr, this::viewApplicationUrlProducer)
@@ -102,6 +99,7 @@ public class IndustryWorkAreaPageService {
 
 
   private Set<Integer> getIndustryUserApplicationIds(WebUserAccount webUserAccount) {
+
     var applicationContactRoles = pwaContactService.getPwaContactRolesForWebUserAccount(
         webUserAccount,
         EnumSet.of(PwaContactRole.PREPARER));
@@ -117,9 +115,8 @@ public class IndustryWorkAreaPageService {
         Set.of(
             PwaApplicationWorkflowTask.PREPARE_APPLICATION,
             PwaApplicationWorkflowTask.AWAIT_FEEDBACK,
-            PwaApplicationWorkflowTask.UPDATE_APPLICATION)
-
-    ).stream()
+            PwaApplicationWorkflowTask.UPDATE_APPLICATION))
+        .stream()
         .map(workflowBusinessKey -> Integer.valueOf(workflowBusinessKey.getValue()))
         .collect(toImmutableSet());
 

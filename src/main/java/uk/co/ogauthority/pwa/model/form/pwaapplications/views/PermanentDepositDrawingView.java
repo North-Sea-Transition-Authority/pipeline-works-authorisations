@@ -30,8 +30,8 @@ public class PermanentDepositDrawingView {
     this.reference = reference;
     this.depositReferences = depositReferences;
     this.documentDescription = uploadedFileView != null ? uploadedFileView.getFileDescription() : "";
-    this.fileId = uploadedFileView.getFileId();
-    this.fileName = uploadedFileView.getFileName();
+    this.fileId = uploadedFileView != null ? uploadedFileView.getFileId() : "";
+    this.fileName = uploadedFileView != null ? uploadedFileView.getFileName() : "";
   }
 
   public Integer getDepositDrawingId() {

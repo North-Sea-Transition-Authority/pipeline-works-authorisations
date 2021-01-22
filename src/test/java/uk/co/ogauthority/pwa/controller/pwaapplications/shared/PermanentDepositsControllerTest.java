@@ -76,9 +76,6 @@ public class PermanentDepositsControllerTest extends PwaApplicationContextAbstra
   @MockBean
   private PermanentDepositsValidator validator;
 
-  @MockBean
-  private PipelineAndIdentViewFactory pipelineAndIdentViewFactory;
-
   private PwaApplicationEndpointTestBuilder endpointTester;
 
   private PwaApplicationDetail pwaApplicationDetail;

@@ -12,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailItemView;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailView;
-import uk.co.ogauthority.pwa.repository.pwaapplications.search.ApplicationDetailViewRepository;
 import uk.co.ogauthority.pwa.service.search.applicationsearch.restrictions.ApplicationSearchPredicateProvider;
 
 /**
@@ -21,16 +20,13 @@ import uk.co.ogauthority.pwa.service.search.applicationsearch.restrictions.Appli
 @Service
 public class ApplicationDetailSearchService {
 
-  private final ApplicationDetailViewRepository applicationDetailViewRepository;
   private final List<ApplicationSearchPredicateProvider> applicationSearchPredicateProviders;
   private final EntityManager entityManager;
 
 
   @Autowired
-  public ApplicationDetailSearchService(ApplicationDetailViewRepository applicationDetailViewRepository,
-                                        List<ApplicationSearchPredicateProvider> applicationSearchPredicateProviders,
+  public ApplicationDetailSearchService(List<ApplicationSearchPredicateProvider> applicationSearchPredicateProviders,
                                         EntityManager entityManager) {
-    this.applicationDetailViewRepository = applicationDetailViewRepository;
     this.applicationSearchPredicateProviders = applicationSearchPredicateProviders;
     this.entityManager = entityManager;
   }
@@ -63,8 +59,8 @@ public class ApplicationDetailSearchService {
 
     TypedQuery<ApplicationDetailView> q = entityManager.createQuery(searchCoreQuery);
 
-    List<ApplicationDetailItemView> applicationDetailViews = List.copyOf(q.getResultList());
-    return applicationDetailViews;
+    // required to force simple simple list of interface where the specific type can be ignored.
+    return new ArrayList<>(q.getResultList());
 
   }
 

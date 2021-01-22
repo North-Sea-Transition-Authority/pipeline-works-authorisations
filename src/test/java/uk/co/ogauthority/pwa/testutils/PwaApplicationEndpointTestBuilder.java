@@ -276,7 +276,7 @@ public class PwaApplicationEndpointTestBuilder {
     detail.setStatus(defaultStatus);
     detail.getPwaApplication().setApplicationType(defaultType);
     when(pwaApplicationDetailService.getTipDetail(detail.getMasterPwaApplicationId())).thenReturn(detail);
-    when(pwaApplicationDetailService.getLastSubmittedApplicationDetail(detail.getMasterPwaApplicationId()))
+    when(pwaApplicationDetailService.getLatestDetailForUser(detail.getMasterPwaApplicationId(), user))
         .thenReturn(Optional.of(detail));
 
     var defaultContactRoles = EnumSet.allOf(PwaContactRole.class);

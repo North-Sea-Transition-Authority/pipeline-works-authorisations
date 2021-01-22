@@ -65,7 +65,8 @@ public class MinMaxInputValidator implements SmartValidator {
 
   private void performDefaultValidation(
       List<ByPassDefaultValidationHint> validationRulesToByPass, Errors errors, MinMaxInput minMaxInput, String property) {
-    if (!validationRulesToByPass.contains(DefaultValidationRule.MIN_SMALLER_THAN_MAX)) {
+    var byPassMinSmallerThanMaxHint = new ByPassDefaultValidationHint(DefaultValidationRule.MIN_SMALLER_THAN_MAX);
+    if (!validationRulesToByPass.contains(byPassMinSmallerThanMaxHint)) {
       validateMinSmallerOrEqualToMax(errors, minMaxInput, property);
     }
   }

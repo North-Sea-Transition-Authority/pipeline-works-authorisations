@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.SessionAttributes;
+import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.context.annotation.SessionScope;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -233,7 +234,8 @@ public class ModifyPipelineHuooJourneyController {
                                                                    PwaApplicationContext applicationContext,
                                                                    @ModelAttribute("form") PickHuooPipelinesForm form,
                                                                    BindingResult bindingResult,
-                                                                   RedirectAttributes redirectAttributes) {
+                                                                   RedirectAttributes redirectAttributes,
+                                                                   SessionStatus sessionStatus) {
     var applicationDetail = applicationContext.getApplicationDetail();
 
     modifyPipelineHuooJourneyData.updateJourneyOrganisationData(
@@ -275,6 +277,7 @@ public class ModifyPipelineHuooJourneyController {
               form.getTreatyAgreements());
 
           // make sure we clear journey data on completion.
+          sessionStatus.setComplete();
           modifyPipelineHuooJourneyData.reset();
 
           FlashUtils.success(

@@ -87,8 +87,8 @@ public class RequestApplicationUpdateControllerTest extends PwaAppProcessingCont
     pwaApplicationDetail.setStatus(PwaApplicationStatus.CASE_OFFICER_REVIEW);
     pwaApplicationDetail.getPwaApplication().setAppReference(APP_REF);
 
-    when(pwaApplicationDetailService.getLastSubmittedApplicationDetail(1)).thenReturn(Optional.of(pwaApplicationDetail));
-    when(pwaApplicationDetailService.getLastSubmittedApplicationDetail(APP_ID)).thenReturn(Optional.of(pwaApplicationDetail));
+    when(pwaApplicationDetailService.getLatestDetailForUser(1, user)).thenReturn(Optional.of(pwaApplicationDetail));
+    when(pwaApplicationDetailService.getLatestDetailForUser(APP_ID, user)).thenReturn(Optional.of(pwaApplicationDetail));
 
     endpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaApplicationDetailService,
         pwaAppProcessingPermissionService)
