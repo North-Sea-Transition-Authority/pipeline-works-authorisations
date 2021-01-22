@@ -108,7 +108,7 @@ public class ValidatorUtils {
   }
 
   public static boolean isYearValid(Integer year) {
-    return year != null && year >= 0 && year <= 4000;
+    return year != null && year >= 1000 && year <= 4000;
   }
 
   public static void validateYearWhenPresent(String fieldPrefix, String displayPrefix, Integer year, Errors errors) {

@@ -180,9 +180,9 @@ public class PermanentDepositsValidatorTest {
   public void validate_dates_yearsTooSmall() {
     var form = getPermanentDepositsFormWithMaterialType();
     form.getFromDate().setMonth(2);
-    form.getFromDate().setYear(-1);
+    form.getFromDate().setYear(999);
     form.getToDate().setMonth(2);
-    form.getToDate().setYear(-1);
+    form.getToDate().setYear(999);
 
     Map<String, Set<String>> errorsMap = getErrorMap(form);
     assertThat(errorsMap).contains(

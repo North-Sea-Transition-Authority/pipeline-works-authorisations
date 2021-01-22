@@ -366,7 +366,7 @@ public class EnvironmentalDecommissioningValidatorTest {
 
       var form = new EnvironmentalDecommissioningForm();
       form.setEmtHasOutstandingPermits(true);
-      form.setEmtSubmissionYear(-1);
+      form.setEmtSubmissionYear(999);
       var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, detail, ValidationType.PARTIAL);
       assertThat(errors.get("emtSubmissionYear")).contains("emtSubmissionYear" + FieldValidationErrorCodes.INVALID.getCode());
     });

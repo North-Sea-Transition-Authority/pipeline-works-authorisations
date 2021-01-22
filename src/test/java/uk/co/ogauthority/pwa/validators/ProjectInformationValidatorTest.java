@@ -102,15 +102,16 @@ public class ProjectInformationValidatorTest {
   @Test
   public void validate_partialDates_yearsTooBig() {
     var form = new ProjectInformationForm();
-    form.setProposedStartYear(4001);
-    form.setMobilisationYear(4001);
-    form.setEarliestCompletionYear(4001);
-    form.setLatestCompletionYear(4001);
+    int invalidLargeYear = 4001;
+    form.setProposedStartYear(invalidLargeYear);
+    form.setMobilisationYear(invalidLargeYear);
+    form.setEarliestCompletionYear(invalidLargeYear);
+    form.setLatestCompletionYear(invalidLargeYear);
     form.setLicenceTransferPlanned(true);
-    form.setLicenceTransferYear(4001);
-    form.setCommercialAgreementYear(4001);
+    form.setLicenceTransferYear(invalidLargeYear);
+    form.setCommercialAgreementYear(invalidLargeYear);
     form.setPermanentDepositsMadeType(PermanentDepositRadioOption.LATER_APP);
-    form.setFutureSubmissionDate(new TwoFieldDateInput(4001, 1));
+    form.setFutureSubmissionDate(new TwoFieldDateInput(invalidLargeYear, 1));
 
     var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form,
         new ProjectInformationFormValidationHints(PwaApplicationType.INITIAL, ValidationType.PARTIAL,
@@ -137,15 +138,16 @@ public class ProjectInformationValidatorTest {
   @Test
   public void validate_partialDates_yearTooSmall() {
     var form = new ProjectInformationForm();
-    form.setProposedStartYear(-1);
-    form.setMobilisationYear(-1);
-    form.setEarliestCompletionYear(-1);
-    form.setLatestCompletionYear(-1);
+    int invalidSmallYear = 999;
+    form.setProposedStartYear(invalidSmallYear);
+    form.setMobilisationYear(invalidSmallYear);
+    form.setEarliestCompletionYear(invalidSmallYear);
+    form.setLatestCompletionYear(invalidSmallYear);
     form.setLicenceTransferPlanned(true);
-    form.setLicenceTransferYear(-1);
-    form.setCommercialAgreementYear(-1);
+    form.setLicenceTransferYear(invalidSmallYear);
+    form.setCommercialAgreementYear(invalidSmallYear);
     form.setPermanentDepositsMadeType(PermanentDepositRadioOption.LATER_APP);
-    form.setFutureSubmissionDate(new TwoFieldDateInput(-1, 1));
+    form.setFutureSubmissionDate(new TwoFieldDateInput(invalidSmallYear, 1));
 
     var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form,
         new ProjectInformationFormValidationHints(PwaApplicationType.INITIAL, ValidationType.PARTIAL,

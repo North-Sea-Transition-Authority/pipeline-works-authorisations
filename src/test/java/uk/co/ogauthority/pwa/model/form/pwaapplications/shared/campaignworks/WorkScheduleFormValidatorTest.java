@@ -233,8 +233,8 @@ public class WorkScheduleFormValidatorTest {
   @Test
   public void validate_workStartAndWorkEndYearTooSmall() {
     var form = new WorkScheduleForm();
-    form.setWorkStart(new TwoFieldDateInput(-1, 6));
-    form.setWorkEnd(new TwoFieldDateInput(-1, 7));
+    form.setWorkStart(new TwoFieldDateInput(999, 6));
+    form.setWorkEnd(new TwoFieldDateInput(999, 7));
 
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     ValidationUtils.invokeValidator(validator, form, bindingResult, defaultHints);

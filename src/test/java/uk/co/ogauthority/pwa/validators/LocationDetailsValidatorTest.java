@@ -164,7 +164,7 @@ public class LocationDetailsValidatorTest {
   public void validate_surveyConcludedDate_yearTooSmall() {
     var form = new LocationDetailsForm();
     form.setRouteSurveyUndertaken(true);
-    form.setSurveyConcludedYear(-1);
+    form.setSurveyConcludedYear(999);
     var result = ValidatorTestUtils.getFormValidationErrors(locationDetailsValidator, form,
         getValidationHints(Set.of(LocationDetailsQuestion.ROUTE_SURVEY_UNDERTAKEN)));
     assertThat(result).contains(

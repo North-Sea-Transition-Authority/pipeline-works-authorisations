@@ -19,6 +19,8 @@ public class LocationDetailsSafetyZoneValidatorTest {
 
   private LocationDetailsSafetyZoneValidator validator;
   private TwoFieldDateInputValidator twoFieldDateInputValidator;
+  int INVALID_LARGE_YEAR = 4001;
+  int INVALID_SMALL_YEAR = 999;
 
   @Before
   public void setUp() {
@@ -99,7 +101,7 @@ public class LocationDetailsSafetyZoneValidatorTest {
   public void validate_notificationSubmittedYes_yearTooBig() {
     var form = new LocationDetailsSafetyZoneForm();
     form.setPsrNotificationSubmitted(true);
-    form.setPsrNotificationSubmittedDate(new TwoFieldDateInput(4001, 1));
+    form.setPsrNotificationSubmittedDate(new TwoFieldDateInput(INVALID_LARGE_YEAR, 1));
     var result = ValidatorTestUtils.getFormValidationErrors(validator, form, ValidationType.PARTIAL);
     assertThat(result).contains(
         entry("psrNotificationSubmittedDate.year", Set.of("year" + FieldValidationErrorCodes.INVALID.getCode())));
@@ -109,7 +111,7 @@ public class LocationDetailsSafetyZoneValidatorTest {
   public void validate_notificationSubmittedYes_yearTooSmall() {
     var form = new LocationDetailsSafetyZoneForm();
     form.setPsrNotificationSubmitted(true);
-    form.setPsrNotificationSubmittedDate(new TwoFieldDateInput(-1, 1));
+    form.setPsrNotificationSubmittedDate(new TwoFieldDateInput(INVALID_SMALL_YEAR, 1));
     var result = ValidatorTestUtils.getFormValidationErrors(validator, form, ValidationType.PARTIAL);
     assertThat(result).contains(
         entry("psrNotificationSubmittedDate.year", Set.of("year" + FieldValidationErrorCodes.INVALID.getCode())));
@@ -119,7 +121,7 @@ public class LocationDetailsSafetyZoneValidatorTest {
   public void validate_notificationSubmittedNo_yearTooBig() {
     var form = new LocationDetailsSafetyZoneForm();
     form.setPsrNotificationSubmitted(false);
-    form.setPsrNotificationExpectedSubmissionDate(new TwoFieldDateInput(4001, 1));
+    form.setPsrNotificationExpectedSubmissionDate(new TwoFieldDateInput(INVALID_LARGE_YEAR, 1));
     var result = ValidatorTestUtils.getFormValidationErrors(validator, form, ValidationType.PARTIAL);
     assertThat(result).contains(
         entry("psrNotificationExpectedSubmissionDate.year", Set.of("year" + FieldValidationErrorCodes.INVALID.getCode())));
@@ -129,7 +131,7 @@ public class LocationDetailsSafetyZoneValidatorTest {
   public void validate_notificationSubmittedNo_yearTooSmall() {
     var form = new LocationDetailsSafetyZoneForm();
     form.setPsrNotificationSubmitted(false);
-    form.setPsrNotificationExpectedSubmissionDate(new TwoFieldDateInput(-1, 1));
+    form.setPsrNotificationExpectedSubmissionDate(new TwoFieldDateInput(INVALID_SMALL_YEAR, 1));
     var result = ValidatorTestUtils.getFormValidationErrors(validator, form, ValidationType.PARTIAL);
     assertThat(result).contains(
         entry("psrNotificationExpectedSubmissionDate.year", Set.of("year" + FieldValidationErrorCodes.INVALID.getCode())));
