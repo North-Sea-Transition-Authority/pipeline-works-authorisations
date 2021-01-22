@@ -12,7 +12,7 @@
         <@fdsTextInput.textInput path="form.reference" labelText="Drawing reference" inputClass="govuk-!-width-two-thirds"/>
 
         <@fdsFileUpload.fileUpload path="form.uploadedFileWithDescriptionForms" id="deposit-doc-upload-file-id" uploadUrl=uploadUrl deleteUrl=deleteUrl maxAllowedSize=fileuploadMaxUploadSize
-         allowedExtensions=fileuploadAllowedExtensions downloadUrl=downloadUrl existingFiles=uploadedFileViewList dropzoneText="Drag and drop your document here" multiFile=false/>
+         allowedExtensions=imageFileUploadAllowedExtensions downloadUrl=downloadUrl existingFiles=uploadedFileViewList dropzoneText="Drag and drop your document here" multiFile=false/>
 
         <@fdsSearchSelector.searchSelectorEnhanced path="form.selectedDeposits" options=depositOptions labelText="Select deposits" multiSelect=true />
 

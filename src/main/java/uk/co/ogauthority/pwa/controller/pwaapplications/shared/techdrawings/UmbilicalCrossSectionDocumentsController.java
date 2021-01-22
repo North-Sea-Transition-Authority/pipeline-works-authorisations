@@ -86,7 +86,8 @@ public class UmbilicalCrossSectionDocumentsController extends PwaApplicationDeta
         .addObject("backUrl", ReverseRouter.route(on(TechnicalDrawingsController.class)
             .renderOverview(pwaApplicationDetail.getPwaApplicationType(),
                 pwaApplicationDetail.getMasterPwaApplicationId(), null, null)))
-        .addObject("singleFileUpload", true);
+        .addObject("singleFileUpload", true)
+        .addObject("restrictToImageFileTypes", true);
     applicationBreadcrumbService.fromTechnicalDrawings(pwaApplicationDetail.getPwaApplication(), modelAndView,
         "Umbilical cross-section diagram");
     return modelAndView;
@@ -152,7 +153,7 @@ public class UmbilicalCrossSectionDocumentsController extends PwaApplicationDeta
       PwaApplicationContext applicationContext) {
 
     // not creating full link until Save is clicked.
-    return padFileService.processInitialUpload(file, applicationContext.getApplicationDetail(),
+    return padFileService.processImageUpload(file, applicationContext.getApplicationDetail(),
         ApplicationDetailFilePurpose.UMBILICAL_CROSS_SECTION, applicationContext.getUser());
   }
 

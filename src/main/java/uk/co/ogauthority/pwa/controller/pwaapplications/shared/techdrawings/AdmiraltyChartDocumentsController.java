@@ -88,7 +88,8 @@ public class AdmiraltyChartDocumentsController extends PwaApplicationDetailDataF
         .addObject("backUrl", ReverseRouter.route(on(TechnicalDrawingsController.class)
             .renderOverview(pwaApplicationDetail.getPwaApplicationType(),
                 pwaApplicationDetail.getMasterPwaApplicationId(), null, null)))
-        .addObject("singleFileUpload", true);
+        .addObject("singleFileUpload", true)
+        .addObject("restrictToImageFileTypes", true);
     applicationBreadcrumbService.fromTechnicalDrawings(pwaApplicationDetail.getPwaApplication(), modelAndView,
         "Admiralty chart");
     return modelAndView;
@@ -149,7 +150,7 @@ public class AdmiraltyChartDocumentsController extends PwaApplicationDetailDataF
       @RequestParam("file") MultipartFile file,
       PwaApplicationContext applicationContext) {
 
-    return padFileService.processInitialUpload(file, applicationContext.getApplicationDetail(), FILE_PURPOSE,
+    return padFileService.processImageUpload(file, applicationContext.getApplicationDetail(), FILE_PURPOSE,
         applicationContext.getUser());
   }
 
