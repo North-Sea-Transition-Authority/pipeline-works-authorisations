@@ -19,7 +19,6 @@ import uk.co.ogauthority.pwa.controller.consultations.ConsulteeAdviceController;
 import uk.co.ogauthority.pwa.controller.consultations.responses.AssignResponderController;
 import uk.co.ogauthority.pwa.controller.consultations.responses.ConsultationResponseController;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
-import uk.co.ogauthority.pwa.service.appprocessing.CaseSetupService;
 import uk.co.ogauthority.pwa.service.appprocessing.PublicNoticeService;
 import uk.co.ogauthority.pwa.service.appprocessing.application.ConfirmSatisfactoryApplicationService;
 import uk.co.ogauthority.pwa.service.appprocessing.application.WithdrawApplicationService;
@@ -59,12 +58,6 @@ public enum PwaAppProcessingTask {
               processingContext.getMasterPwaApplicationId(), processingContext.getApplicationType(), null,
           null, null)),
       20),
-
-  CASE_SETUP(
-      "Case setup",
-      TaskRequirement.REQUIRED,
-      CaseSetupService.class, processingContext -> "#",
-      30),
 
   CONSULTATIONS(
       "Consultations",
