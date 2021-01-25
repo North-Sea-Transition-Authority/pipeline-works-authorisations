@@ -12,7 +12,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
 
-import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import org.junit.Before;
@@ -94,8 +93,7 @@ public class ApplicationSearchControllerTest extends AbstractControllerTest {
         .andExpect(model().attribute("userType", permittedUserSearchContext.getUserType()))
         .andExpect(model().attribute("searchUrl", ApplicationSearchController.getBlankSearchUrl()))
         .andExpect(model().attribute("appSearchEntryState", ApplicationSearchController.AppSearchEntryState.LANDING))
-        .andExpect(model().attribute("showMaxResultsExceededMessage", false))
-        .andExpect(model().attribute("displayableResults", Collections.emptyList()));
+        .andExpect(model().attributeDoesNotExist("searchScreenView"));
 
   }
 

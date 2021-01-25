@@ -266,9 +266,11 @@ public class ApplicationDetailSearchServiceIntegrationTest {
         .setAppReference("d/2")
         .createApplicationSearchParameters();
 
-    var results = applicationDetailSearchService.search(searchParams, searchContext);
+    var result = applicationDetailSearchService.search(searchParams, searchContext);
 
-    assertThat(results).contains(app2Version2);
+    var screenView = new SearchScreenView<ApplicationDetailItemView>(1, List.of(app2Version2));
+
+    assertThat(result).isEqualTo(screenView);
 
   }
 
@@ -288,7 +290,9 @@ public class ApplicationDetailSearchServiceIntegrationTest {
 
     var results = applicationDetailSearchService.search(searchParams, searchContext);
 
-    assertThat(results).contains(app2Version2);
+    var screenView = new SearchScreenView<ApplicationDetailItemView>(1, List.of(app2Version2));
+
+    assertThat(results).isEqualTo(screenView);
 
   }
 
@@ -306,9 +310,11 @@ public class ApplicationDetailSearchServiceIntegrationTest {
         .setAppReference("PAD/30")
         .createApplicationSearchParameters();
 
-    var results = applicationDetailSearchService.search(searchParams, searchContext);
+    var result = applicationDetailSearchService.search(searchParams, searchContext);
 
-    assertThat(results).isEmpty();
+    var screenView = new SearchScreenView<ApplicationDetailItemView>(0, List.of());
+
+    assertThat(result).isEqualTo(screenView);
 
   }
 
