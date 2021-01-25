@@ -2,7 +2,7 @@ package uk.co.ogauthority.pwa.service.search.applicationsearch;
 
 import java.util.Objects;
 
-public class ApplicationSearchParameters {
+public final class ApplicationSearchParameters {
 
   private String appReference;
 
@@ -33,5 +33,12 @@ public class ApplicationSearchParameters {
   @Override
   public int hashCode() {
     return Objects.hash(appReference);
+  }
+
+  @Override
+  public String toString() {
+    return "ApplicationSearchParameters{" +
+        "appReference='" + appReference + '\'' +
+        '}';
   }
 }

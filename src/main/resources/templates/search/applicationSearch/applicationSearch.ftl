@@ -5,11 +5,20 @@
 <#-- @ftlvariable name="maxResults" type="java.lang.Long" -->
 <#-- @ftlvariable name="displayableResults" type="type="java.util.List<uk.co.ogauthority.pwa.service.workarea.applications.PwaApplicationWorkAreaItem>" -->
 <#-- @ftlvariable name="appSearchEntryState" type="uk.co.ogauthority.pwa.controller.search.applicationsearch.ApplicationSearchController.AppSearchEntryState" -->
+<#-- @ftlvariable name="searchUrl" type="java.lang.String" -->
+<#-- @ftlvariable name="userType" type="uk.co.ogauthority.pwa.service.enums.users.UserType" -->
 
 
 <@defaultPage htmlTitle="Search applications" pageHeading="Search applications" fullWidthColumn=true topNavigation=true wrapperWidth=true>
 
-    <@fdsInsetText.insetText>Search for submitted applications only, draft applications you are permitted to access are available in the work area.</@fdsInsetText.insetText>
+    <#if userType == "INDUSTRY">
+        <@fdsInsetText.insetText>Search for submitted applications only, draft applications you are permitted to access are available in the work area.</@fdsInsetText.insetText>
+    </#if>
+
+    <@fdsForm.htmlForm actionUrl="${springUrl(searchUrl)}">
+        <@fdsTextInput.textInput path="form.appReference" labelText="Application reference" maxCharacterLength="20" inputClass="govuk-input--width-10"/>
+        <@fdsAction.button buttonText="Search"/>
+    </@fdsForm.htmlForm>
 
     <#if appSearchEntryState == "SEARCH" && !displayableResults?has_content>
     <h2 class="govuk-heading-s">There are no matching results</h2>
@@ -27,10 +36,6 @@
             More than ${maxResults?c} applications have been found but only ${maxResults?c} are shown. Please refine your search criteria.
         </@fdsWarning.warning>
     </#if>
-
-    <@fdsForm.htmlForm>
-        <@fdsAction.button buttonText="Search"/>
-    </@fdsForm.htmlForm>
 
     <#if displayableResults?has_content>
         <table class="govuk-table">
