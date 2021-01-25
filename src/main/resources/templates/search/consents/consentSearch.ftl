@@ -1,5 +1,6 @@
 <#include '../../layout.ftl'>
 <#import 'consentSearchResultView.ftl' as consentSearchResultView>
+<#import '../common/searchScreenHelper.ftl' as searchScreenHelper>
 
 <#-- @ftlvariable name="searchScreenView" type="uk.co.ogauthority.pwa.model.view.search.SearchScreenView" -->
 <#-- @ftlvariable name="searched" type="java.lang.Boolean" -->
@@ -24,23 +25,10 @@
 
               <#if !searchScreenView.searchResults?has_content>
                 <#if searched>
-                  <h2 class="govuk-heading-s">There are no matching results</h2>
-                  <p class="govuk-body">Improve your results by:</p>
-                  <ul class="govuk-list govuk-list--bullet">
-                    <li>removing filters</li>
-                    <li>double-checking your spelling</li>
-                    <li>using fewer keywords</li>
-                    <li>searching for something less specific</li>
-                  </ul>
+                  <@searchScreenHelper.noResultsFound />
                 </#if>
               <#else>
-                <h2 class="govuk-heading-s" role="alert">
-                  <#if searchScreenView.resultsHaveBeenLimited()>
-                    ${searchScreenView.fullResultCount?c} PWAs have been found but only ${searchScreenView.searchResults?size?c} are shown, you may need to refine your filter criteria.
-                  <#else>
-                    <@stringUtils.pluralise count=searchScreenView.searchResults?size word="PWA"/>
-                  </#if>
-                </h2>
+                <@searchScreenHelper.resultsCountText searchScreenView "filter"/>
                 <ol class="govuk-list filter-result-list">
                   <#list searchScreenView.searchResults as result>
                     <li class="govuk-list__item filter-result-list__item">
