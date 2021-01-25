@@ -19,7 +19,7 @@
     <@fdsForm.htmlForm>
 
         <@fdsTextInput.textInput path="form.reference" labelText="Schematic reference" inputClass="govuk-!-width-two-thirds"/>
-        <@fdsFileUpload.fileUpload id="doc-upload-file-id" path="form.uploadedFileWithDescriptionForms" uploadUrl=uploadUrl deleteUrl=deleteUrl maxAllowedSize=fileuploadMaxUploadSize allowedExtensions=fileuploadAllowedExtensions downloadUrl=downloadUrl existingFiles=uploadedFileViewList dropzoneText="Drag and drop your documents here" multiFile=false/>
+        <@fdsFileUpload.fileUpload id="doc-upload-file-id" path="form.uploadedFileWithDescriptionForms" uploadUrl=uploadUrl deleteUrl=deleteUrl maxAllowedSize=fileuploadMaxUploadSize allowedExtensions=imageFileUploadAllowedExtensions downloadUrl=downloadUrl existingFiles=uploadedFileViewList dropzoneText="Drag and drop your documents here" multiFile=false/>
 
       <hr class="govuk-section-break govuk-section-break--m"/>
 

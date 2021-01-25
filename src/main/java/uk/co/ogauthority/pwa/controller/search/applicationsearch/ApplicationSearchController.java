@@ -4,8 +4,11 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 
 import java.util.Objects;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -15,7 +18,9 @@ import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.model.view.search.SearchScreenView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
+import uk.co.ogauthority.pwa.service.objects.FormObjectMapper;
 import uk.co.ogauthority.pwa.service.search.applicationsearch.ApplicationDetailSearchService;
+import uk.co.ogauthority.pwa.service.search.applicationsearch.ApplicationSearchContext;
 import uk.co.ogauthority.pwa.service.search.applicationsearch.ApplicationSearchContextCreator;
 import uk.co.ogauthority.pwa.service.search.applicationsearch.ApplicationSearchDisplayItem;
 import uk.co.ogauthority.pwa.service.search.applicationsearch.ApplicationSearchDisplayItemCreator;
@@ -26,9 +31,10 @@ import uk.co.ogauthority.pwa.service.search.applicationsearch.ApplicationSearchP
 @RequestMapping("/application-search")
 public class ApplicationSearchController {
 
+  private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationSearchController.class);
+
   private final ApplicationDetailSearchService applicationDetailSearchService;
   private final ApplicationSearchContextCreator applicationSearchContextCreator;
-
   private final ApplicationSearchDisplayItemCreator applicationSearchDisplayItemCreator;
 
   @Autowired
@@ -46,62 +52,76 @@ public class ApplicationSearchController {
         ApplicationSearchParametersBuilder.createEmptyParams()
     );
 
-    return ReverseRouter.redirect(on(ApplicationSearchController.class)
-        .renderApplicationSearch(
+    var paramMap = new LinkedMultiValueMap<String, String>();
+    paramMap.setAll(FormObjectMapper.toMap(safeParams));
+
+    return ReverseRouter.redirectWithQueryParamMap(on(ApplicationSearchController.class)
+        .getSearchResults(
             null,
             AppSearchEntryState.SEARCH,
-            safeParams.getAppReference()
-        )
+            null
+        ), paramMap
     );
   }
 
   public static String routeToLandingPage() {
     return ReverseRouter.route(on(ApplicationSearchController.class)
-        .renderApplicationSearch(null, AppSearchEntryState.LANDING, null)
+        .getSearchResults(null, AppSearchEntryState.LANDING, null)
     );
   }
 
   @GetMapping()
-  public ModelAndView renderApplicationSearch(AuthenticatedUserAccount authenticatedUserAccount,
-                                              @RequestParam(name = "entryState", defaultValue = "SEARCH") AppSearchEntryState entryState,
-                                              @RequestParam(name = "appReference", required = false) String appReference) {
-    return getSearchModelAndView(entryState, appReference, authenticatedUserAccount);
+  public ModelAndView getSearchResults(AuthenticatedUserAccount authenticatedUserAccount,
+                                       @RequestParam(name = "entryState", defaultValue = "SEARCH") AppSearchEntryState entryState,
+                                       @ModelAttribute("form") ApplicationSearchParameters applicationSearchParameters) {
+    return getSearchModelAndView(entryState, applicationSearchParameters, authenticatedUserAccount);
+  }
+
+  public static String getBlankSearchUrl() {
+    return ReverseRouter.route(on(ApplicationSearchController.class).getSearchResults(null, null, null));
   }
 
   @PostMapping
-  public ModelAndView doApplicationSearch(AuthenticatedUserAccount authenticatedUserAccount,
-                                          @ModelAttribute("form") ApplicationSearchParameters applicationSearchParameters) {
+  public ModelAndView submitSearchParams(@ModelAttribute("form") ApplicationSearchParameters applicationSearchParameters) {
     return redirectAndRunSearch(applicationSearchParameters);
   }
 
 
   private ModelAndView getSearchModelAndView(AppSearchEntryState appSearchEntryState,
-                                             String appReference,
+                                             ApplicationSearchParameters searchParameters,
                                              AuthenticatedUserAccount authenticatedUserAccount) {
 
+    var searchContext = applicationSearchContextCreator.createContext(authenticatedUserAccount);
     SearchScreenView<ApplicationSearchDisplayItem> searchScreenView = null;
     if (appSearchEntryState.equals(AppSearchEntryState.SEARCH)) {
 
-      var context = applicationSearchContextCreator.createContext(authenticatedUserAccount);
+      var validatedParamBindingResult = applicationDetailSearchService
+          .validateSearchParamsUsingContext(searchParameters, searchContext);
 
-      // TODO PWA-1058 -- validate params first?
-      var appSearchParams = new ApplicationSearchParametersBuilder()
-          .setAppReference(appReference)
-          .createApplicationSearchParameters();
+      if (!validatedParamBindingResult.hasErrors()) {
 
-      var appDetailItemScreenView = applicationDetailSearchService.search(appSearchParams, context);
+        var appDetailItemScreenView = applicationDetailSearchService.search(searchParameters, searchContext);
 
-      var searchDisplayItems = appDetailItemScreenView.getSearchResults().stream()
-          .map(applicationSearchDisplayItemCreator::createDisplayItem)
-          .collect(Collectors.toList());
+        var searchDisplayItems = appDetailItemScreenView.getSearchResults().stream()
+            .map(applicationSearchDisplayItemCreator::createDisplayItem)
+            .collect(Collectors.toList());
 
-      searchScreenView = new SearchScreenView<>(appDetailItemScreenView.getFullResultCount(), searchDisplayItems);
+        searchScreenView = new SearchScreenView<>(appDetailItemScreenView.getFullResultCount(), searchDisplayItems);
+
+      } else {
+        LOGGER.error("WUA_ID:{} has provided invalid search params. Empty results returned.",
+            searchContext.getWuaIdAsInt()
+        );
+      }
 
     }
 
     return new ModelAndView("search/applicationSearch/applicationSearch")
         .addObject("searchScreenView", searchScreenView)
-        .addObject("appSearchEntryState", appSearchEntryState);
+        .addObject("appSearchEntryState", appSearchEntryState)
+        // need to provide as search form changes do not include previous search results from the URL params
+        .addObject("searchUrl", ApplicationSearchController.getBlankSearchUrl())
+        .addObject("userType", searchContext.getUserType());
 
   }
 

@@ -161,6 +161,50 @@ public class PadFileServiceTest {
   }
 
   @Test
+  public void processImageUpload_success() {
+
+    var multiPartFile = mock(MultipartFile.class);
+
+    when(fileUploadService.processImageUpload(multiPartFile, wua)).thenReturn(FileUploadResult.generateSuccessfulFileUploadResult(
+        file.getFileId(), fileView.getFileName(), 0, "content"));
+
+    var fileUploadResult = padFileService.processImageUpload(multiPartFile, pwaApplicationDetail, ApplicationDetailFilePurpose.LOCATION_DETAILS, wua);
+
+    assertThat(fileUploadResult.isValid()).isTrue();
+
+    verify(fileUploadService, times(1)).processImageUpload(multiPartFile, wua);
+    verify(padFileRepository, times(1)).save(padFileCaptor.capture());
+
+    var newFile = padFileCaptor.getValue();
+
+    assertThat(newFile.getPwaApplicationDetail()).isEqualTo(pwaApplicationDetail);
+    assertThat(newFile.getFileId()).isEqualTo(file.getFileId());
+    assertThat(newFile.getDescription()).isNull();
+    assertThat(newFile.getPurpose()).isEqualTo(ApplicationDetailFilePurpose.LOCATION_DETAILS);
+    assertThat(newFile.getFileLinkStatus()).isEqualTo(ApplicationFileLinkStatus.TEMPORARY);
+
+  }
+
+  @Test
+  public void processImageUpload_failed() {
+
+    var multiPartFile = mock(MultipartFile.class);
+
+    var failedResult = FileUploadResult.generateFailedFileUploadResult(
+        multiPartFile.getOriginalFilename(), multiPartFile, UploadErrorType.EXTENSION_NOT_ALLOWED);
+
+    when(fileUploadService.processImageUpload(multiPartFile, wua)).thenReturn(failedResult);
+
+    var fileUploadResult = padFileService.processImageUpload(multiPartFile, pwaApplicationDetail, ApplicationDetailFilePurpose.LOCATION_DETAILS, wua);
+
+    assertThat(fileUploadResult.isValid()).isFalse();
+
+    verify(fileUploadService, times(1)).processImageUpload(multiPartFile, wua);
+    verifyNoInteractions(padFileRepository);
+
+  }
+
+  @Test
   public void updateFiles_whenFilesNotOnForm_thenFilesAreDeleted() {
 
     var form = new LocationDetailsForm();

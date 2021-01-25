@@ -72,6 +72,8 @@ public class ApplicationDetailSearchServiceIntegrationTest {
   private static final int VERSION1 = 1;
   private static final int VERSION2 = 2;
 
+  public static final String APP_2_REFERENCE = "PAD/2";
+
   private final Clock clock = Clock.fixed(Instant.now(), ZoneId.systemDefault());
 
   private ApplicationDetailView app1Version1;
@@ -175,11 +177,66 @@ public class ApplicationDetailSearchServiceIntegrationTest {
     );
   }
 
-  @Transactional
-  @Test
+  private ApplicationDetailItemView createAndPersistViewFromAppDetail(PwaApplicationDetail pwaApplicationDetail){
+    var detailView = ApplicationDetailViewTestUtil.createSubmittedReviewDetailView(
+        pwaApplicationDetail.getMasterPwaApplication().getId(),
+        pwaApplicationDetail.getPwaApplicationType(),
+        pwaApplicationDetail.getPwaApplication().getId(),
+        pwaApplicationDetail.getId(),
+        pwaApplicationDetail.getVersionNo(),
+        pwaApplicationDetail.isTipFlag(),
+        pwaApplicationDetail.getSubmittedTimestamp(),
+        pwaApplicationDetail.getConfirmedSatisfactoryTimestamp()
+    );
+
+    entityManager.persist(detailView);
+    return detailView;
+  }
+
+  private void setupDefaultPwaConsentsAndHolderOrgs() {
+    portalOrg1 = PortalOrganisationTestUtils.generateOrganisationUnit(USER_HOLDER_ORG_UNIT_ID.asInt(), "ou1", null);
+    entityManager.persist(portalOrg1);
+    var portalOrg2 = PortalOrganisationTestUtils.generateOrganisationUnit(OTHER_HOLDER_ORG_UNIT_ID.asInt(), "ou2", null);
+    entityManager.persist(portalOrg2);
+
+    pwa1 = MasterPwaTestUtil.create();
+    pwa2 = MasterPwaTestUtil.create();
+    pwa3 = MasterPwaTestUtil.create();
+
+    entityManager.persist(pwa1);
+    entityManager.persist(pwa2);
+    entityManager.persist(pwa3); // for initial PWA app
+
+    pwa1Consent = PwaConsentTestUtil.createInitial(pwa1);
+    pwa2Consent = PwaConsentTestUtil.createInitial(pwa2);
+
+    entityManager.persist(pwa1Consent);
+    entityManager.persist(pwa2Consent);
+
+    var pwa1Holder = PwaConsentOrganisationRoleTestUtil.createOrganisationRole(
+        pwa1Consent, USER_HOLDER_ORG_UNIT_ID, HuooRole.HOLDER
+    );
+
+    var pwa2Holder = PwaConsentOrganisationRoleTestUtil.createOrganisationRole(
+        pwa2Consent, OTHER_HOLDER_ORG_UNIT_ID, HuooRole.HOLDER
+    );
+
+    entityManager.persist(pwa1Holder);
+    entityManager.persist(pwa2Holder);
+  }
+
+  private void setupDefaultData(){
+    setupDefaultPwaConsentsAndHolderOrgs();
+    createDefaultAppDetailViews();
+    persistAppDetailViews();
+
+  }
+
   /**
    * Test only submitted apps are returned for regulator users.
    */
+  @Transactional
+  @Test
   public void search_whenRegulatorUser_unfiltered_multipleSubmittedVersionsOfApp() {
 
     setupDefaultData();
@@ -195,18 +252,71 @@ public class ApplicationDetailSearchServiceIntegrationTest {
 
   }
 
-  private void setupDefaultData(){
+  @Transactional
+  @Test
+  public void search_whenRegulatorUser_applicationReferenceFilter_partialMatch() {
     setupDefaultPwaConsentsAndHolderOrgs();
     createDefaultAppDetailViews();
+    app2Version1.setPadReference(APP_2_REFERENCE);
+    app2Version2.setPadReference(APP_2_REFERENCE);
     persistAppDetailViews();
+
+    searchContext = getRegulatorContext();
+    searchParams = new ApplicationSearchParametersBuilder()
+        .setAppReference("d/2")
+        .createApplicationSearchParameters();
+
+    var results = applicationDetailSearchService.search(searchParams, searchContext);
+
+    assertThat(results).contains(app2Version2);
 
   }
 
   @Transactional
   @Test
+  public void search_whenRegulatorUser_applicationReferenceFilter_fullMatch() {
+    setupDefaultPwaConsentsAndHolderOrgs();
+    createDefaultAppDetailViews();
+    app2Version1.setPadReference(APP_2_REFERENCE);
+    app2Version2.setPadReference(APP_2_REFERENCE);
+    persistAppDetailViews();
+
+    searchContext = getRegulatorContext();
+    searchParams = new ApplicationSearchParametersBuilder()
+        .setAppReference(APP_2_REFERENCE)
+        .createApplicationSearchParameters();
+
+    var results = applicationDetailSearchService.search(searchParams, searchContext);
+
+    assertThat(results).contains(app2Version2);
+
+  }
+
+  @Transactional
+  @Test
+  public void search_whenRegulatorUser_applicationReferenceFilter_noMatch() {
+    setupDefaultPwaConsentsAndHolderOrgs();
+    createDefaultAppDetailViews();
+    app2Version1.setPadReference(APP_2_REFERENCE);
+    app2Version2.setPadReference(APP_2_REFERENCE);
+    persistAppDetailViews();
+
+    searchContext = getRegulatorContext();
+    searchParams = new ApplicationSearchParametersBuilder()
+        .setAppReference("PAD/30")
+        .createApplicationSearchParameters();
+
+    var results = applicationDetailSearchService.search(searchParams, searchContext);
+
+    assertThat(results).isEmpty();
+
+  }
+
   /**
    * Test only submitted apps are returned for regulator users.
    */
+  @Transactional
+  @Test
   public void search_whenIndustryUser_unfiltered_noCurrentPwasHeldByOrgGroupOrgUnits() {
 
     setupDefaultData();
@@ -222,11 +332,11 @@ public class ApplicationDetailSearchServiceIntegrationTest {
 
   }
 
-  @Transactional
-  @Test
   /**
    * Test only submitted apps are returned for regulator users.
    */
+  @Transactional
+  @Test
   public void search_whenIndustryUser_unfiltered_applicationsForPwaWhereUserInOrgGrpTeam_submittedAndDraftAppsExist() {
 
     setupDefaultData();
@@ -242,11 +352,11 @@ public class ApplicationDetailSearchServiceIntegrationTest {
 
   }
 
-  @Transactional
-  @Test
   /**
    * Test that submitted initial PWA apps appear before they are consented
    */
+  @Transactional
+  @Test
   public void search_whenIndustryUser_unfiltered_submittedInitialPwaAppExists() {
 
     setupDefaultData();
@@ -280,11 +390,11 @@ public class ApplicationDetailSearchServiceIntegrationTest {
 
   }
 
-  @Transactional
-  @Test
   /**
    * Test that only last confirmed satisfactory version of applications the consultee user's group was consulted upon are returned.
    */
+  @Transactional
+  @Test
   public void search_whenConsulteeUser_unfiltered_limitedtoApplicationsConsultedOn_lastSatisfactoryVersion() {
 
     setupDefaultData();
@@ -337,52 +447,5 @@ public class ApplicationDetailSearchServiceIntegrationTest {
 
   }
 
-  private ApplicationDetailItemView createAndPersistViewFromAppDetail(PwaApplicationDetail pwaApplicationDetail){
-    var detailView = ApplicationDetailViewTestUtil.createSubmittedReviewDetailView(
-        pwaApplicationDetail.getMasterPwaApplication().getId(),
-        pwaApplicationDetail.getPwaApplicationType(),
-        pwaApplicationDetail.getPwaApplication().getId(),
-        pwaApplicationDetail.getId(),
-        pwaApplicationDetail.getVersionNo(),
-        pwaApplicationDetail.isTipFlag(),
-        pwaApplicationDetail.getSubmittedTimestamp(),
-        pwaApplicationDetail.getConfirmedSatisfactoryTimestamp()
-    );
-
-    entityManager.persist(detailView);
-    return detailView;
-  }
-
-  private void setupDefaultPwaConsentsAndHolderOrgs() {
-    portalOrg1 = PortalOrganisationTestUtils.generateOrganisationUnit(USER_HOLDER_ORG_UNIT_ID.asInt(), "ou1", null);
-    entityManager.persist(portalOrg1);
-    var portalOrg2 = PortalOrganisationTestUtils.generateOrganisationUnit(OTHER_HOLDER_ORG_UNIT_ID.asInt(), "ou2", null);
-    entityManager.persist(portalOrg2);
-
-    pwa1 = MasterPwaTestUtil.create();
-    pwa2 = MasterPwaTestUtil.create();
-    pwa3 = MasterPwaTestUtil.create();
-
-    entityManager.persist(pwa1);
-    entityManager.persist(pwa2);
-    entityManager.persist(pwa3); // for initial PWA app
-
-    pwa1Consent = PwaConsentTestUtil.createInitial(pwa1);
-    pwa2Consent = PwaConsentTestUtil.createInitial(pwa2);
-
-    entityManager.persist(pwa1Consent);
-    entityManager.persist(pwa2Consent);
-
-    var pwa1Holder = PwaConsentOrganisationRoleTestUtil.createOrganisationRole(
-        pwa1Consent, USER_HOLDER_ORG_UNIT_ID, HuooRole.HOLDER
-    );
-
-    var pwa2Holder = PwaConsentOrganisationRoleTestUtil.createOrganisationRole(
-        pwa2Consent, OTHER_HOLDER_ORG_UNIT_ID, HuooRole.HOLDER
-    );
-
-    entityManager.persist(pwa1Holder);
-    entityManager.persist(pwa2Holder);
-  }
 
 }

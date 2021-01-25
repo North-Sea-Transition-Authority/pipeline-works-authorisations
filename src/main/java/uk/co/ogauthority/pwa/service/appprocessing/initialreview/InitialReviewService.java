@@ -100,8 +100,12 @@ public class InitialReviewService implements AppProcessingService {
   @Override
   public TaskListEntry getTaskListEntry(PwaAppProcessingTask task, PwaAppProcessingContext processingContext) {
 
-    var taskStatus = processingContext.getApplicationDetail().getInitialReviewApprovedTimestamp() != null
-        ? TaskStatus.COMPLETED : TaskStatus.NOT_COMPLETED;
+    boolean initialReviewCompleted = applicationDetailService
+        .getAllSubmittedApplicationDetailsForApplication(processingContext.getPwaApplication())
+        .stream()
+        .anyMatch(d -> d.getInitialReviewApprovedTimestamp() != null);
+
+    var taskStatus = initialReviewCompleted ? TaskStatus.COMPLETED : TaskStatus.NOT_COMPLETED;
 
     boolean openUpdateRequest = applicationUpdateRequestService.applicationHasOpenUpdateRequest(processingContext.getApplicationDetail());
 

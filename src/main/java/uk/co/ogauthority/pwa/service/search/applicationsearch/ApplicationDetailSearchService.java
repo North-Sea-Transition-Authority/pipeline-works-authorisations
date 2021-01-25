@@ -10,6 +10,8 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.BeanPropertyBindingResult;
+import org.springframework.validation.BindingResult;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailItemView;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailView;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailView_;
@@ -25,12 +27,15 @@ public class ApplicationDetailSearchService {
   static final int MAX_RESULTS = 50;
 
   private final List<ApplicationSearchPredicateProvider> applicationSearchPredicateProviders;
+  private final ApplicationSearchParamsValidator applicationSearchParamsValidator;
   private final EntityManager entityManager;
 
   @Autowired
   public ApplicationDetailSearchService(List<ApplicationSearchPredicateProvider> applicationSearchPredicateProviders,
+                                        ApplicationSearchParamsValidator applicationSearchParamsValidator,
                                         EntityManager entityManager) {
     this.applicationSearchPredicateProviders = applicationSearchPredicateProviders;
+    this.applicationSearchParamsValidator = applicationSearchParamsValidator;
     this.entityManager = entityManager;
   }
 
@@ -75,6 +80,16 @@ public class ApplicationDetailSearchService {
     long countQueryResult = entityManager.createQuery(countQuery).getSingleResult();
 
     return new SearchScreenView<>(countQueryResult, results);
+
+  }
+
+  public BindingResult validateSearchParamsUsingContext(ApplicationSearchParameters searchParameters,
+                                                        ApplicationSearchContext applicationSearchContext) {
+    var bindingResult = new BeanPropertyBindingResult(searchParameters, "form");
+
+    applicationSearchParamsValidator.validate(searchParameters, bindingResult, applicationSearchContext);
+
+    return bindingResult;
 
   }
 
