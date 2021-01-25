@@ -59,6 +59,29 @@ public class LocationDetailsValidator implements SmartValidator {
           "Approximate project location from shore must be 4000 characters or fewer");
     }
 
+    if (requiredQuestions.contains(LocationDetailsQuestion.WITHIN_SAFETY_ZONE) && form.getWithinSafetyZone() != null) {
+      switch (form.getWithinSafetyZone()) {
+        case YES:
+          ValidatorUtils.invokeNestedValidator(
+              errors,
+              safetyZoneValidator,
+              "completelyWithinSafetyZoneForm",
+              form.getCompletelyWithinSafetyZoneForm(),
+              ValidationType.PARTIAL);
+          break;
+        case PARTIALLY:
+          ValidatorUtils.invokeNestedValidator(
+              errors,
+              safetyZoneValidator,
+              "partiallyWithinSafetyZoneForm",
+              form.getPartiallyWithinSafetyZoneForm(),
+              ValidationType.PARTIAL);
+          break;
+        default:
+          break;
+      }
+    }
+
     if (requiredQuestions.contains(LocationDetailsQuestion.TRANSPORTS_MATERIALS_TO_SHORE)) {
       ValidatorUtils.validateDefaultStringLength(
           errors, "transportationMethod", form::getTransportationMethod,
@@ -107,14 +130,16 @@ public class LocationDetailsValidator implements SmartValidator {
                 errors,
                 safetyZoneValidator,
                 "completelyWithinSafetyZoneForm",
-                form.getCompletelyWithinSafetyZoneForm());
+                form.getCompletelyWithinSafetyZoneForm(),
+                ValidationType.FULL);
             break;
           case PARTIALLY:
             ValidatorUtils.invokeNestedValidator(
                 errors,
                 safetyZoneValidator,
                 "partiallyWithinSafetyZoneForm",
-                form.getPartiallyWithinSafetyZoneForm());
+                form.getPartiallyWithinSafetyZoneForm(),
+                ValidationType.FULL);
             break;
           default:
             break;

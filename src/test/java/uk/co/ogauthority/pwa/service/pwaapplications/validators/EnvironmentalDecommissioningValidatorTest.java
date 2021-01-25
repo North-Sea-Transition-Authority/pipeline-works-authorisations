@@ -338,12 +338,38 @@ public class EnvironmentalDecommissioningValidatorTest {
       form.setEmtSubmissionMonth(-1);
       form.setEmtSubmissionYear(-1);
       var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, detail, ValidationType.FULL);
-      assertThat(errors.get("emtSubmissionDay")).containsExactly("emtSubmissionDay.invalidDate");
-      assertThat(errors.get("emtSubmissionMonth")).containsExactly("emtSubmissionMonth.invalidDate");
-      assertThat(errors.get("emtSubmissionYear")).containsExactly("emtSubmissionYear.invalidDate");
+      assertThat(errors.get("emtSubmissionDay")).containsExactly("emtSubmissionDay.invalidDate", "emtSubmissionDay.invalid");
+      assertThat(errors.get("emtSubmissionMonth")).containsExactly("emtSubmissionMonth.invalidDate", "emtSubmissionMonth.invalid");
+      assertThat(errors.get("emtSubmissionYear")).containsExactly("emtSubmissionYear.invalid", "emtSubmissionYear.invalidDate");
 
     });
 
+  }
+
+  @Test
+  public void testValidate_yearTooBig() {
+
+    details.forEach(detail -> {
+
+      var form = new EnvironmentalDecommissioningForm();
+      form.setEmtHasOutstandingPermits(true);
+      form.setEmtSubmissionYear(4001);
+      var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, detail, ValidationType.PARTIAL);
+      assertThat(errors.get("emtSubmissionYear")).contains("emtSubmissionYear" + FieldValidationErrorCodes.INVALID.getCode());
+    });
+  }
+
+  @Test
+  public void testValidate_yearTooSmall() {
+
+    details.forEach(detail -> {
+
+      var form = new EnvironmentalDecommissioningForm();
+      form.setEmtHasOutstandingPermits(true);
+      form.setEmtSubmissionYear(999);
+      var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, detail, ValidationType.PARTIAL);
+      assertThat(errors.get("emtSubmissionYear")).contains("emtSubmissionYear" + FieldValidationErrorCodes.INVALID.getCode());
+    });
   }
 
   @Test

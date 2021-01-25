@@ -149,6 +149,30 @@ public class LocationDetailsValidatorTest {
   }
 
   @Test
+  public void validate_surveyConcludedDate_yearTooBig() {
+    var form = new LocationDetailsForm();
+    form.setRouteSurveyUndertaken(true);
+    form.setSurveyConcludedYear(4001);
+    var result = ValidatorTestUtils.getFormValidationErrors(locationDetailsValidator, form,
+        getValidationHints(Set.of(LocationDetailsQuestion.ROUTE_SURVEY_UNDERTAKEN)));
+    assertThat(result).contains(
+        entry("surveyConcludedYear", Set.of("surveyConcludedYear" + FieldValidationErrorCodes.INVALID.getCode()))
+    );
+  }
+
+  @Test
+  public void validate_surveyConcludedDate_yearTooSmall() {
+    var form = new LocationDetailsForm();
+    form.setRouteSurveyUndertaken(true);
+    form.setSurveyConcludedYear(999);
+    var result = ValidatorTestUtils.getFormValidationErrors(locationDetailsValidator, form,
+        getValidationHints(Set.of(LocationDetailsQuestion.ROUTE_SURVEY_UNDERTAKEN)));
+    assertThat(result).contains(
+        entry("surveyConcludedYear", Set.of("surveyConcludedYear" + FieldValidationErrorCodes.INVALID.getCode()))
+    );
+  }
+
+  @Test
   public void validate_surveyConcludedDate_valid() {
     var form = new LocationDetailsForm();
     form.setRouteSurveyUndertaken(true);

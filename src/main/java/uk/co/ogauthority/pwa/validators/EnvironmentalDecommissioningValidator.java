@@ -128,6 +128,10 @@ public class EnvironmentalDecommissioningValidator implements SmartValidator {
             "Enter a list of the permits you will submit at a later date");
       }
 
+      ValidatorUtils.validateYearWhenPresent(
+          "emtSubmission", "Permit submission",
+          form.getEmtSubmissionYear(), errors);
+
       // if full do proper date validation, or if partial and they've entered at least one value
       if (validationType == ValidationType.FULL
           || ObjectUtils.anyNotNull(form.getEmtSubmissionYear(), form.getEmtSubmissionMonth(), form.getEmtSubmissionDay())) {

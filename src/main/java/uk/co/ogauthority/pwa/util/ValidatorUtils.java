@@ -108,7 +108,17 @@ public class ValidatorUtils {
   }
 
   public static boolean isYearValid(Integer year) {
-    return year != null && year >= 0 && year >= 1000;
+    return year != null && year >= 1000 && year <= 4000;
+  }
+
+  public static void validateYearWhenPresent(String fieldPrefix, String displayPrefix, Integer year, Errors errors) {
+    //The error message need to be placed on the "day" field otherwise FDS doesnt show the error message on the date input
+    if (year != null && !isYearValid(year)) {
+      errors.rejectValue(fieldPrefix + "Day", FieldValidationErrorCodes.INVALID.errorCode(fieldPrefix + "Day"),
+          displayPrefix + " year must be valid");
+      errors.rejectValue(fieldPrefix + "Month", FieldValidationErrorCodes.INVALID.errorCode(fieldPrefix + "Month"), "");
+      errors.rejectValue(fieldPrefix + "Year", FieldValidationErrorCodes.INVALID.errorCode(fieldPrefix + "Year"), "");
+    }
   }
 
   /**
