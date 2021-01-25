@@ -16,7 +16,7 @@
     </#if>
 
     <@fdsForm.htmlForm actionUrl="${springUrl(searchUrl)}">
-        <@fdsTextInput.textInput path="form.appReference" labelText="Application reference" maxCharacterLength="10" inputClass="govuk-input--width-10"/>
+        <@fdsTextInput.textInput path="form.appReference" labelText="Application reference" maxCharacterLength="20" inputClass="govuk-input--width-10"/>
         <@fdsAction.button buttonText="Search"/>
     </@fdsForm.htmlForm>
 

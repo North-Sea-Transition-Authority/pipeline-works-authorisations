@@ -115,9 +115,8 @@ public class ApplicationSearchController {
       if (!validatedParamBindingResult.hasErrors()) {
         results = applicationDetailSearchService.search(searchParameters, applicationSearchContext);
       } else {
-        LOGGER.error("WUA_ID:{} has provided invalid search params. Empty results returned. {}",
-            applicationSearchContext.getWuaIdAsInt(),
-            searchParameters.toString()
+        LOGGER.error("WUA_ID:{} has provided invalid search params. Empty results returned.",
+            applicationSearchContext.getWuaIdAsInt()
         );
       }
     }
