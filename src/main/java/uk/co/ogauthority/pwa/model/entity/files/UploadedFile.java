@@ -38,6 +38,10 @@ public class UploadedFile {
   @Enumerated(EnumType.STRING)
   private FileUploadStatus status;
 
+  @Lob
+  @Column(updatable = false)
+  private Blob scaledImageData;
+
   public UploadedFile() {
   }
 
@@ -151,4 +155,13 @@ public class UploadedFile {
   public void setStatus(FileUploadStatus status) {
     this.status = status;
   }
+
+  public Blob getScaledImageData() {
+    return scaledImageData;
+  }
+
+  public void setScaledImageData(Blob scaledImageData) {
+    this.scaledImageData = scaledImageData;
+  }
+
 }

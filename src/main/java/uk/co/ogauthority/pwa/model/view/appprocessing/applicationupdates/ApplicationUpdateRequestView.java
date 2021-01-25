@@ -1,6 +1,8 @@
 package uk.co.ogauthority.pwa.model.view.appprocessing.applicationupdates;
 
 import java.time.Instant;
+import org.springframework.beans.factory.annotation.Value;
+import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
 import uk.co.ogauthority.pwa.util.DateUtils;
 
 /**
@@ -8,6 +10,9 @@ import uk.co.ogauthority.pwa.util.DateUtils;
  * {@link uk.co.ogauthority.pwa.model.entity.appprocessing.applicationupdates.ApplicationUpdateRequest} entity.
  */
 public interface ApplicationUpdateRequestView {
+
+  @Value("#{target.pwaApplicationDetail.versionNo}")
+  Integer getRequestedOnApplicationVersionNo();
 
   String getRequestReason();
 
@@ -17,6 +22,15 @@ public interface ApplicationUpdateRequestView {
     return DateUtils.formatDateTime(getRequestedTimestamp());
   }
 
+  PersonId getResponseByPersonId();
+
+  Instant getResponseTimestamp();
+
+  default String getResponseTimestampDisplay() {
+    return DateUtils.formatDateTime(getResponseTimestamp());
+  }
+
+  String getResponseOtherChanges();
 
 
 }

@@ -9,6 +9,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.notify.emailproperties.CaseOfficerAssignedEmailProps;
 import uk.co.ogauthority.pwa.model.tasklist.TaskListEntry;
 import uk.co.ogauthority.pwa.model.tasklist.TaskTag;
+import uk.co.ogauthority.pwa.service.appprocessing.applicationupdate.ApplicationUpdateRequestService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.service.appprocessing.tasks.AppProcessingService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
@@ -36,6 +37,7 @@ public class InitialReviewService implements AppProcessingService {
   private final TeamManagementService teamManagementService;
   private final NotifyService notifyService;
   private final PersonService personService;
+  private final ApplicationUpdateRequestService applicationUpdateRequestService;
 
   @Autowired
   public InitialReviewService(PwaApplicationDetailService applicationDetailService,
@@ -43,13 +45,15 @@ public class InitialReviewService implements AppProcessingService {
                               WorkflowAssignmentService workflowAssignmentService,
                               TeamManagementService teamManagementService,
                               NotifyService notifyService,
-                              PersonService personService) {
+                              PersonService personService,
+                              ApplicationUpdateRequestService applicationUpdateRequestService) {
     this.applicationDetailService = applicationDetailService;
     this.workflowService = workflowService;
     this.workflowAssignmentService = workflowAssignmentService;
     this.teamManagementService = teamManagementService;
     this.notifyService = notifyService;
     this.personService = personService;
+    this.applicationUpdateRequestService = applicationUpdateRequestService;
   }
 
   @Transactional
@@ -96,12 +100,18 @@ public class InitialReviewService implements AppProcessingService {
   @Override
   public TaskListEntry getTaskListEntry(PwaAppProcessingTask task, PwaAppProcessingContext processingContext) {
 
-    var taskStatus = processingContext.getApplicationDetail().getInitialReviewApprovedTimestamp() != null
-        ? TaskStatus.COMPLETED : TaskStatus.NOT_COMPLETED;
+    boolean initialReviewCompleted = applicationDetailService
+        .getAllSubmittedApplicationDetailsForApplication(processingContext.getPwaApplication())
+        .stream()
+        .anyMatch(d -> d.getInitialReviewApprovedTimestamp() != null);
+
+    var taskStatus = initialReviewCompleted ? TaskStatus.COMPLETED : TaskStatus.NOT_COMPLETED;
+
+    boolean openUpdateRequest = applicationUpdateRequestService.applicationHasOpenUpdateRequest(processingContext.getApplicationDetail());
 
     return new TaskListEntry(
         task.getTaskName(),
-        task.getRoute(processingContext),
+        !openUpdateRequest ? task.getRoute(processingContext) : null,
         TaskTag.from(taskStatus),
         task.getDisplayOrder());
 

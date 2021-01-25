@@ -4,7 +4,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -91,7 +90,8 @@ public class PipelinesControllerTest extends PwaApplicationContextAbstractContro
             PwaApplicationType.INITIAL,
             PwaApplicationType.CAT_1_VARIATION,
             PwaApplicationType.CAT_2_VARIATION,
-            PwaApplicationType.DECOMMISSIONING)
+            PwaApplicationType.DECOMMISSIONING,
+            PwaApplicationType.OPTIONS_VARIATION)
         .setAllowedContactRoles(PwaContactRole.PREPARER)
         .setAllowedStatuses(PwaApplicationStatus.DRAFT);
 
@@ -207,7 +207,7 @@ public class PipelinesControllerTest extends PwaApplicationContextAbstractContro
         .andExpect(view().name("pwaApplication/shared/pipelines/addEditPipeline"))
         .andExpect(model().attributeHasErrors("form"));
 
-    verifyNoInteractions(padPipelineService);
+    verify(padPipelineService, times(0)).addPipeline(eq(pwaApplicationDetail), any());
 
   }
 

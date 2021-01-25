@@ -87,23 +87,13 @@ public class RequestApplicationUpdateControllerTest extends PwaAppProcessingCont
     pwaApplicationDetail.setStatus(PwaApplicationStatus.CASE_OFFICER_REVIEW);
     pwaApplicationDetail.getPwaApplication().setAppReference(APP_REF);
 
-    when(pwaApplicationDetailService.getLastSubmittedApplicationDetail(1)).thenReturn(Optional.of(pwaApplicationDetail));
-    when(pwaApplicationDetailService.getLastSubmittedApplicationDetail(APP_ID)).thenReturn(Optional.of(pwaApplicationDetail));
+    when(pwaApplicationDetailService.getLatestDetailForUser(1, user)).thenReturn(Optional.of(pwaApplicationDetail));
+    when(pwaApplicationDetailService.getLatestDetailForUser(APP_ID, user)).thenReturn(Optional.of(pwaApplicationDetail));
 
     endpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaApplicationDetailService,
         pwaAppProcessingPermissionService)
         .setAllowedStatuses(PwaApplicationStatus.CASE_OFFICER_REVIEW)
         .setAllowedProcessingPermissions(PwaAppProcessingPermission.REQUEST_APPLICATION_UPDATE);
-  }
-
-  @Test
-  public void renderRequestUpdate_appStatusSmokeTest() {
-    endpointTester.setRequestMethod(HttpMethod.GET)
-        .setEndpointUrlProducer((applicationDetail, type) ->
-            ReverseRouter.route(on(RequestApplicationUpdateController.class)
-                .renderRequestUpdate(applicationDetail.getMasterPwaApplicationId(), type, null, null, null)));
-
-    endpointTester.performAppStatusChecks(status().isOk(), status().isNotFound());
   }
 
   @Test
@@ -122,7 +112,7 @@ public class RequestApplicationUpdateControllerTest extends PwaAppProcessingCont
   public void renderRequestUpdate_modelHasExpectedAttributes() throws Exception {
 
     var permissionsDto = new ProcessingPermissionsDto(null, Set.of(PwaAppProcessingPermission.REQUEST_APPLICATION_UPDATE));
-    when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail.getPwaApplication(), user))
+    when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail, user))
         .thenReturn(permissionsDto);
 
     var result = mockMvc.perform(
@@ -138,17 +128,17 @@ public class RequestApplicationUpdateControllerTest extends PwaAppProcessingCont
     assertThat(model).contains(entry("form", new ApplicationUpdateRequestForm()));
     assertThat(model).contains(entry("errorList", List.of()));
 
-    verify(applicationUpdateRequestService, times(1)).applicationDetailHasOpenUpdateRequest(pwaApplicationDetail);
+    verify(applicationUpdateRequestService, times(1)).applicationHasOpenUpdateRequest(pwaApplicationDetail);
     verify(applicationUpdateRequestService, times(0)).submitApplicationUpdateRequest(any(), any(), any());
   }
 
   @Test
   public void renderRequestUpdate_whenApplicationHasOpenUpdateRequest() throws Exception {
 
-    when(applicationUpdateRequestService.applicationDetailHasOpenUpdateRequest(pwaApplicationDetail)).thenReturn(true);
+    when(applicationUpdateRequestService.applicationHasOpenUpdateRequest(pwaApplicationDetail)).thenReturn(true);
 
     var permissionsDto = new ProcessingPermissionsDto(null, Set.of(PwaAppProcessingPermission.REQUEST_APPLICATION_UPDATE));
-    when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail.getPwaApplication(), user))
+    when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail, user))
         .thenReturn(permissionsDto);
 
     var result = mockMvc.perform(
@@ -159,18 +149,6 @@ public class RequestApplicationUpdateControllerTest extends PwaAppProcessingCont
     ).andExpect(status().isForbidden())
         .andReturn();
 
-  }
-
-
-  @Test
-  public void requestUpdate_appStatusSmokeTest() {
-    endpointTester.setRequestMethod(HttpMethod.POST)
-        .addRequestParam(REQUEST_REASON_ATTR, REQUEST_REASON_VALID)
-        .setEndpointUrlProducer((applicationDetail, type) ->
-            ReverseRouter.route(on(RequestApplicationUpdateController.class)
-                .requestUpdate(applicationDetail.getMasterPwaApplicationId(), type, null, null, null, null)));
-
-    endpointTester.performAppStatusChecks(status().is3xxRedirection(), status().isNotFound());
   }
 
   @Test
@@ -190,7 +168,7 @@ public class RequestApplicationUpdateControllerTest extends PwaAppProcessingCont
   public void requestUpdate_validationFailsWithNullRequestReason() throws Exception {
 
     var permissionsDto = new ProcessingPermissionsDto(null, Set.of(PwaAppProcessingPermission.REQUEST_APPLICATION_UPDATE));
-    when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail.getPwaApplication(), user))
+    when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail, user))
         .thenReturn(permissionsDto);
 
     mockMvc.perform(
@@ -205,7 +183,7 @@ public class RequestApplicationUpdateControllerTest extends PwaAppProcessingCont
         .andExpect(model().hasErrors())
         .andReturn();
 
-    verify(applicationUpdateRequestService, times(1)).applicationDetailHasOpenUpdateRequest(pwaApplicationDetail);
+    verify(applicationUpdateRequestService, times(1)).applicationHasOpenUpdateRequest(pwaApplicationDetail);
     verify(applicationUpdateRequestService, times(0)).submitApplicationUpdateRequest(any(), any(), any());
 
   }
@@ -214,7 +192,7 @@ public class RequestApplicationUpdateControllerTest extends PwaAppProcessingCont
   public void requestUpdate_validationFailsWithTooLongRequestReason() throws Exception {
 
     var permissionsDto = new ProcessingPermissionsDto(null, Set.of(PwaAppProcessingPermission.REQUEST_APPLICATION_UPDATE));
-    when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail.getPwaApplication(), user))
+    when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail, user))
         .thenReturn(permissionsDto);
 
     mockMvc.perform(
@@ -229,7 +207,7 @@ public class RequestApplicationUpdateControllerTest extends PwaAppProcessingCont
         .andExpect(model().hasErrors())
         .andReturn();
 
-    verify(applicationUpdateRequestService, times(1)).applicationDetailHasOpenUpdateRequest(pwaApplicationDetail);
+    verify(applicationUpdateRequestService, times(1)).applicationHasOpenUpdateRequest(pwaApplicationDetail);
     verify(applicationUpdateRequestService, times(0)).submitApplicationUpdateRequest(any(), any(), any());
 
   }
@@ -238,7 +216,7 @@ public class RequestApplicationUpdateControllerTest extends PwaAppProcessingCont
   public void requestUpdate_redirectsWhenFormValid() throws Exception {
 
     var permissionsDto = new ProcessingPermissionsDto(null, Set.of(PwaAppProcessingPermission.REQUEST_APPLICATION_UPDATE));
-    when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail.getPwaApplication(), user))
+    when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail, user))
         .thenReturn(permissionsDto);
 
     mockMvc.perform(
@@ -252,7 +230,7 @@ public class RequestApplicationUpdateControllerTest extends PwaAppProcessingCont
     ).andExpect(status().is3xxRedirection())
         .andExpect(model().attributeHasNoErrors())
         .andReturn();
-    verify(applicationUpdateRequestService, times(1)).applicationDetailHasOpenUpdateRequest(pwaApplicationDetail);
+    verify(applicationUpdateRequestService, times(1)).applicationHasOpenUpdateRequest(pwaApplicationDetail);
     verify(applicationUpdateRequestService, times(1)).submitApplicationUpdateRequest(pwaApplicationDetail, user,
         REQUEST_REASON_VALID);
 
@@ -261,10 +239,10 @@ public class RequestApplicationUpdateControllerTest extends PwaAppProcessingCont
   @Test
   public void requestUpdate_whenApplicationHasOpenUpdateRequest() throws Exception {
 
-    when(applicationUpdateRequestService.applicationDetailHasOpenUpdateRequest(pwaApplicationDetail)).thenReturn(true);
+    when(applicationUpdateRequestService.applicationHasOpenUpdateRequest(pwaApplicationDetail)).thenReturn(true);
 
     var permissionsDto = new ProcessingPermissionsDto(null, Set.of(PwaAppProcessingPermission.REQUEST_APPLICATION_UPDATE));
-    when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail.getPwaApplication(), user))
+    when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail, user))
         .thenReturn(permissionsDto);
 
     mockMvc.perform(

@@ -53,8 +53,7 @@ public class PwaContactService implements ApplicationFormSectionService {
         .collect(Collectors.toUnmodifiableList());
   }
 
-  @Transactional
-  public void addContact(PwaApplication pwaApplication, Person person, Set<PwaContactRole> roles) {
+  private void addContact(PwaApplication pwaApplication, Person person, Set<PwaContactRole> roles) {
     var contact = new PwaContact(pwaApplication, person, roles);
     pwaContactRepository.save(contact);
   }
@@ -108,8 +107,7 @@ public class PwaContactService implements ApplicationFormSectionService {
         .count();
   }
 
-  @Transactional
-  void updateContactRoles(PwaContact contact, Set<PwaContactRole> roles) {
+  private void updateContactRoles(PwaContact contact, Set<PwaContactRole> roles) {
 
     if (roles.isEmpty()) {
       throw new IllegalStateException("Can't update PwaContact when given an empty role set");
@@ -135,6 +133,7 @@ public class PwaContactService implements ApplicationFormSectionService {
    * @param person         being added to contacts/whose roles are being updated
    * @param roles          new roles for person
    */
+  @Transactional
   public void updateContact(PwaApplication pwaApplication, Person person, Set<PwaContactRole> roles) {
     getContact(pwaApplication, person).ifPresentOrElse(
         contact -> updateContactRoles(contact, roles),
@@ -176,10 +175,18 @@ public class PwaContactService implements ApplicationFormSectionService {
    */
   public Set<PwaApplicationContactRoleDto> getPwaContactRolesForWebUserAccount(WebUserAccount webUserAccount,
                                                                                Set<PwaContactRole> roleFilter) {
+    return getPwaContactRolesForPerson(webUserAccount.getLinkedPerson(), roleFilter);
+  }
+
+  /**
+   * get a collection of the Application contact roles for a given Person where each distinct role is an element.
+   */
+  public Set<PwaApplicationContactRoleDto> getPwaContactRolesForPerson(Person person,
+                                                                       Set<PwaContactRole> roleFilter) {
 
     var appContactRoles = new HashSet<PwaApplicationContactRoleDto>();
 
-    var contacts = pwaContactRepository.findAllAsDtoByPerson(webUserAccount.getLinkedPerson());
+    var contacts = pwaContactRepository.findAllAsDtoByPerson(person);
     for (PwaContactDto contact : contacts) {
       for (PwaContactRole pwaContactRole : contact.getRoles()) {
         if (roleFilter.contains(pwaContactRole)) {

@@ -8,14 +8,18 @@ public class ConsultationRequestReceivedEmailProps extends EmailProperties {
 
   private final String applicationReference;
   private final String consulteeGroupName;
+  private final String dueDateDisplay;
   private final String caseManagementLink;
 
   public ConsultationRequestReceivedEmailProps(String recipientFullName,
-                                               String applicationReference, String consulteeGroupName,
+                                               String applicationReference,
+                                               String consulteeGroupName,
+                                               String dueDateDisplay,
                                                String caseManagementLink) {
     super(NotifyTemplate.CONSULTATION_REQUEST_RECEIVED, recipientFullName);
     this.applicationReference = applicationReference;
     this.consulteeGroupName = consulteeGroupName;
+    this.dueDateDisplay = dueDateDisplay;
     this.caseManagementLink = caseManagementLink;
   }
 
@@ -24,6 +28,7 @@ public class ConsultationRequestReceivedEmailProps extends EmailProperties {
     Map<String, String> emailPersonalisation = super.getEmailPersonalisation();
     emailPersonalisation.put("APPLICATION_REFERENCE", applicationReference);
     emailPersonalisation.put("CONSULTEE_GROUP_NAME", consulteeGroupName);
+    emailPersonalisation.put("DUE_DATE", dueDateDisplay);
     emailPersonalisation.put("CASE_MANAGEMENT_LINK", caseManagementLink);
     return emailPersonalisation;
   }
@@ -39,11 +44,12 @@ public class ConsultationRequestReceivedEmailProps extends EmailProperties {
     ConsultationRequestReceivedEmailProps that = (ConsultationRequestReceivedEmailProps) o;
     return Objects.equals(applicationReference, that.applicationReference)
         && Objects.equals(consulteeGroupName, that.consulteeGroupName)
+        && Objects.equals(dueDateDisplay, that.dueDateDisplay)
         && Objects.equals(caseManagementLink, that.caseManagementLink);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(applicationReference, consulteeGroupName, caseManagementLink);
+    return Objects.hash(applicationReference, consulteeGroupName, dueDateDisplay, caseManagementLink);
   }
 }

@@ -4,14 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 import org.springframework.util.StringUtils;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailSearchItem;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailItemView;
 import uk.co.ogauthority.pwa.service.workarea.ApplicationWorkAreaItem;
 import uk.co.ogauthority.pwa.service.workarea.WorkAreaColumnItemView;
 
 public class PwaApplicationWorkAreaItem extends ApplicationWorkAreaItem {
 
-  public PwaApplicationWorkAreaItem(ApplicationDetailSearchItem applicationDetailSearchItem,
-                                    Function<ApplicationDetailSearchItem, String> viewApplicationUrlProducer) {
+  public PwaApplicationWorkAreaItem(ApplicationDetailItemView applicationDetailSearchItem,
+                                    Function<ApplicationDetailItemView, String> viewApplicationUrlProducer) {
     super(applicationDetailSearchItem, viewApplicationUrlProducer.apply(applicationDetailSearchItem));
   }
 

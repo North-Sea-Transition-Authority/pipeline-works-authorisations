@@ -16,6 +16,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.support.RequestContextUtils;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.controller.pwaapplications.start.StartPwaApplicationController;
+import uk.co.ogauthority.pwa.energyportal.service.SystemAreaAccessService;
 import uk.co.ogauthority.pwa.exception.AccessDeniedException;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.workarea.WorkAreaService;
@@ -30,12 +31,15 @@ public class WorkAreaController {
 
   private final WorkAreaService workAreaService;
   private final WorkAreaTabService workAreaTabService;
+  private final SystemAreaAccessService systemAreaAccessService;
 
   @Autowired
   public WorkAreaController(WorkAreaService workAreaService,
-                            WorkAreaTabService workAreaTabService) {
+                            WorkAreaTabService workAreaTabService,
+                            SystemAreaAccessService systemAreaAccessService) {
     this.workAreaService = workAreaService;
     this.workAreaTabService = workAreaTabService;
+    this.systemAreaAccessService = systemAreaAccessService;
   }
 
   /**
@@ -81,13 +85,16 @@ public class WorkAreaController {
           tab.name()));
     }
 
+    boolean canStartApps = systemAreaAccessService.canStartApplication(authenticatedUserAccount);
+
     return new ModelAndView("workArea")
         .addObject("startPwaApplicationUrl",
             ReverseRouter.route(on(StartPwaApplicationController.class).renderStartApplication(null)))
         .addObject("workAreaResult", workAreaService.getWorkAreaResult(authenticatedUserAccount, tab, page))
         .addObject("tabUrlFactory", new WorkAreaTabUrlFactory())
         .addObject("currentWorkAreaTab", tab)
-        .addObject("availableTabs", tabs);
+        .addObject("availableTabs", tabs)
+        .addObject("showStartButton", canStartApps);
 
   }
 

@@ -7,6 +7,9 @@
 <#-- @ftlvariable name="facilityRestUrl" type="java.lang.String" -->
 <#-- @ftlvariable name="requiredQuestions" type="java.util.Set<uk.co.ogauthority.pwa.model.entity.enums.LocationDetailsQuestion>" -->
 
+
+
+
 <@defaultPage htmlTitle="Location details" pageHeading="Location details" breadcrumbs=true>
 
     <#if errorList?has_content>
@@ -14,24 +17,27 @@
     </#if>
 
     <@fdsForm.htmlForm>
+
         <#if requiredQuestions?seq_contains("APPROXIMATE_PROJECT_LOCATION_FROM_SHORE")>
             <@fdsTextInput.textInput path="form.approximateProjectLocationFromShore" labelText="Approximate project location from shore" hintText="e.g. 127km east of Norwick (Shetland Isles) and 390km northeast of Aberdeen"/>
         </#if>
+
         <#if requiredQuestions?seq_contains("WITHIN_SAFETY_ZONE")>
             <@fdsRadio.radioGroup path="form.withinSafetyZone" labelText="Will work be carried out within a HSE recognised 500m safety zone?" hiddenContent=true>
                 <#assign firstItem = true/>
                 <#list safetyZoneOptions as name, value>
                     <@fdsRadio.radioItem path="form.withinSafetyZone" itemMap={name:value} isFirstItem=firstItem>
-                        <#if name == "YES">
-                            <@fdsSearchSelector.searchSelectorRest path="form.facilitiesIfYes" labelText="Which structures are within 500m?" multiSelect=true restUrl=springUrl(facilityRestUrl) nestingPath="form.withinSafetyZone" preselectedItems=preselectedFacilitiesIfYes!{} hintText="e.g the platform, FPSO, boat, or storage unit"/>
+                        <#if name == "YES">                            
+                            <@safetyZoneQuestion formPath="form.completelyWithinSafetyZoneForm" preselectedItems=preselectedFacilitiesIfYes/>   
                         <#elseif name == "PARTIALLY">
-                            <@fdsSearchSelector.searchSelectorRest path="form.facilitiesIfPartially" labelText="Which structures are within 500m?" multiSelect=true restUrl=springUrl(facilityRestUrl) nestingPath="form.withinSafetyZone" preselectedItems=preselectedFacilitiesIfPartially!{} hintText="e.g the platform, FPSO, boat, or storage unit"/>
+                            <@safetyZoneQuestion formPath="form.partiallyWithinSafetyZoneForm" preselectedItems=preselectedFacilitiesIfPartially/>
                         </#if>
                     </@fdsRadio.radioItem>
                     <#assign firstItem = false/>
                 </#list>
             </@fdsRadio.radioGroup>
         </#if>
+
         <#if requiredQuestions?seq_contains("FACILITIES_OFFSHORE")>
             <@fdsRadio.radioGroup path="form.facilitiesOffshore" labelText="Are all facilities wholly offshore and subsea?" hiddenContent=true>
                 <@fdsRadio.radioYes path="form.facilitiesOffshore"/>
@@ -40,6 +46,7 @@
                 </@fdsRadio.radioNo>
             </@fdsRadio.radioGroup>
         </#if>
+
         <#if requiredQuestions?seq_contains("TRANSPORTS_MATERIALS_TO_SHORE")>
             <@fdsRadio.radioGroup path="form.transportsMaterialsToShore" labelText="Will the pipeline be used to transport products / facilitate the transportation of products to shore?" hiddenContent=true>
                 <@fdsRadio.radioYes path="form.transportsMaterialsToShore">
@@ -55,7 +62,9 @@
                     <@fdsDateInput.dateInput dayPath="form.surveyConcludedDay" monthPath="form.surveyConcludedMonth" yearPath="form.surveyConcludedYear" labelText="When was the pipeline route survey concluded?" formId="surveyConcludedDate" nestingPath="form.routeSurveyUndertaken"/>
                     <@fdsTextarea.textarea path="form.pipelineRouteDetails" labelText="Pipeline route details" hintText="Provide pipeline route details, including water depths along the pipeline route, seabed composition, bathymetric data, seabed features, and soil condition details" characterCount=true maxCharacterLength="4000"/>
                 </@fdsRadio.radioYes>
-                <@fdsRadio.radioNo path="form.routeSurveyUndertaken"/>
+                <@fdsRadio.radioNo path="form.routeSurveyUndertaken">
+                    <@fdsTextarea.textarea path="form.routeSurveyNotUndertakenReason" labelText="Why has a pipeline route survey not been undertaken?" hintText="If you have access to the results of a recent survey, answer Yes to route survey undertaken and provide the information" characterCount=true maxCharacterLength="4000"/>
+                </@fdsRadio.radioNo>
             </@fdsRadio.radioGroup>
         </#if>
         <#if requiredQuestions?seq_contains("WITHIN_LIMITS_OF_DEVIATION")>
@@ -74,3 +83,29 @@
     </@fdsForm.htmlForm>
 
 </@defaultPage>
+
+
+
+<#macro safetyZoneQuestion formPath preselectedItems={}>
+
+    <@fdsSearchSelector.searchSelectorRest path="${formPath}.facilities" labelText="Which structures are within 500m?" multiSelect=true restUrl=springUrl(facilityRestUrl) 
+    nestingPath="form.withinSafetyZone" preselectedItems=preselectedItems hintText="e.g the platform, FPSO, boat, or storage unit"/>    
+    
+    <@fdsRadio.radioGroup path="${formPath}.psrNotificationSubmitted" labelText="Have you submitted a Pipelines Safety Regulations notification to HSE?" hintText="Timely submission in advance of work is advised to avoid potential delays" hiddenContent=true nestingPath="form.withinSafetyZone">
+
+        <@fdsRadio.radioYes path="${formPath}.psrNotificationSubmitted">
+            <@fdsNumberInput.twoNumberInputs pathOne="${formPath}.psrNotificationSubmittedDate.month" pathTwo="${formPath}.psrNotificationSubmittedDate.year" labelText="Date submitted" formId="submitted-month-year" nestingPath="${formPath}.psrNotificationSubmitted">
+                <@fdsNumberInput.numberInputItem path="${formPath}.psrNotificationSubmittedDate.month" labelText="Month" inputClass="govuk-input--width-2"/>
+                <@fdsNumberInput.numberInputItem path="${formPath}.psrNotificationSubmittedDate.year" labelText="Year" inputClass="govuk-input--width-4"/>
+            </@fdsNumberInput.twoNumberInputs>
+        </@fdsRadio.radioYes>
+
+        <@fdsRadio.radioNo path="${formPath}.psrNotificationSubmitted">
+            <@fdsNumberInput.twoNumberInputs pathOne="${formPath}.psrNotificationExpectedSubmissionDate.month" pathTwo="${formPath}.psrNotificationExpectedSubmissionDate.year" labelText="Expected submission date" formId="expected-submission-month-year" nestingPath="${formPath}.psrNotificationSubmitted">
+                <@fdsNumberInput.numberInputItem path="${formPath}.psrNotificationExpectedSubmissionDate.month" labelText="Month" inputClass="govuk-input--width-2"/>
+                <@fdsNumberInput.numberInputItem path="${formPath}.psrNotificationExpectedSubmissionDate.year" labelText="Year" inputClass="govuk-input--width-4"/>
+            </@fdsNumberInput.twoNumberInputs>
+        </@fdsRadio.radioNo>
+    </@fdsRadio.radioGroup>
+
+</#macro>

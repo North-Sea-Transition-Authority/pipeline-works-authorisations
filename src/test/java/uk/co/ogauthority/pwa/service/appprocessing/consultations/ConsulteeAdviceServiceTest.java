@@ -64,7 +64,8 @@ public class ConsulteeAdviceServiceTest {
   public void canShowInTaskList_noConsulteeAdvicePermission_hidden() {
 
     var consultationInvolvement = new ConsultationInvolvementDto(consulteeGroupDetail, Set.of(), null, List.of(), false);
-    var appInvolvement = new ApplicationInvolvementDto(detail.getPwaApplication(), Set.of(), consultationInvolvement, false);
+    var appInvolvement = new ApplicationInvolvementDto(detail.getPwaApplication(), Set.of(), consultationInvolvement, false,
+        false, false, false);
     var context = new PwaAppProcessingContext(detail, user, Set.of(PwaAppProcessingPermission.CASE_MANAGEMENT_CONSULTEE), null, appInvolvement);
 
     boolean canShow = consulteeAdviceService.canShowInTaskList(context);
@@ -77,7 +78,8 @@ public class ConsulteeAdviceServiceTest {
   public void canShowInTaskList_consulteeAdvicePermission_shown() {
 
     var consultationInvolvement = new ConsultationInvolvementDto(consulteeGroupDetail, Set.of(), null, List.of(new ConsultationRequest()), false);
-    var appInvolvement = new ApplicationInvolvementDto(detail.getPwaApplication(), Set.of(), consultationInvolvement, false);
+    var appInvolvement = new ApplicationInvolvementDto(detail.getPwaApplication(), Set.of(), consultationInvolvement, false,
+        false, false, false);
     var context = new PwaAppProcessingContext(detail, user, Set.of(PwaAppProcessingPermission.CONSULTEE_ADVICE), null, appInvolvement);
 
     boolean canShow = consulteeAdviceService.canShowInTaskList(context);
@@ -139,7 +141,8 @@ public class ConsulteeAdviceServiceTest {
     when(consultationResponseService.getResponsesByConsultationRequests(any())).thenReturn(List.of(historicalResponse));
 
     var consultationInvolvement = new ConsultationInvolvementDto(consulteeGroupDetail, Set.of(), null, List.of(historicalRequest), false);
-    var appInvolvement = new ApplicationInvolvementDto(detail.getPwaApplication(), Set.of(), consultationInvolvement, false);
+    var appInvolvement = new ApplicationInvolvementDto(detail.getPwaApplication(), Set.of(), consultationInvolvement, false,
+        false, false, false);
     var context = new PwaAppProcessingContext(detail, user, Set.of(PwaAppProcessingPermission.CONSULTEE_ADVICE), null, appInvolvement);
 
     var requestView = new ConsultationRequestView(
@@ -179,7 +182,8 @@ public class ConsulteeAdviceServiceTest {
     when(consultationResponseService.getResponsesByConsultationRequests(any())).thenReturn(List.of(historicalResponse));
 
     var consultationInvolvement = new ConsultationInvolvementDto(consulteeGroupDetail, Set.of(), activeRequest, List.of(historicalRequest), false);
-    var appInvolvement = new ApplicationInvolvementDto(detail.getPwaApplication(), Set.of(), consultationInvolvement, false);
+    var appInvolvement = new ApplicationInvolvementDto(detail.getPwaApplication(), Set.of(), consultationInvolvement, false,
+        false, false, false);
     var context = new PwaAppProcessingContext(detail, user, Set.of(PwaAppProcessingPermission.CONSULTEE_ADVICE), null, appInvolvement);
 
     var historicRequestView = new ConsultationRequestView(

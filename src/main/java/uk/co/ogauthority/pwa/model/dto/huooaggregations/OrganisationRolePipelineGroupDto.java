@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import uk.co.ogauthority.pwa.model.dto.consents.OrganisationRoleInstanceDto;
 import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineIdentifier;
@@ -21,7 +22,11 @@ public class OrganisationRolePipelineGroupDto {
   public OrganisationRolePipelineGroupDto(OrganisationRoleInstanceDto organisationRoleInstanceDto,
                                           Set<PipelineIdentifier> pipelineIdentifiers) {
     this.organisationRoleInstanceDto = organisationRoleInstanceDto;
-    this.pipelineIdentifiers = pipelineIdentifiers;
+    this.pipelineIdentifiers = pipelineIdentifiers.stream()
+        // make sure no null pipeline identifiers entries get into the final set. Required because we want role owners with
+        // no pipeline identifier links to be accounted for in aggregate summaries.
+        .filter(Objects::nonNull)
+        .collect(Collectors.toUnmodifiableSet());
   }
 
 

@@ -7,7 +7,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-import java.util.List;
+import java.util.EnumSet;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -53,11 +53,16 @@ public class PwaApplicationDetailVersioningServiceTest {
   }
 
   @Test
-  public void createNewApplicationVersion_serviceInteractions_whenMultipleTasks() {
+  public void createNewApplicationVersion_serviceInteractions_whenMultipleTasksCanBeCopied() {
 
-    var shownTasks = List.of(ApplicationTask.APPLICATION_USERS, ApplicationTask.HUOO);
-    when(taskListService.getShownApplicationTasksForDetail(pwaApplicationDetail)).thenReturn(shownTasks);
+    var copyableTasks = EnumSet.of(ApplicationTask.APPLICATION_USERS, ApplicationTask.PROJECT_INFORMATION);
+
+    copyableTasks.forEach(
+        applicationTask -> when(applicationTaskService.taskAllowsCopySectionInformation(applicationTask, pwaApplicationDetail)).thenReturn(true)
+    );
+
     var fakeVersionedAppDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL, APP_ID, 11);
+
     when(pwaApplicationDetailService.createNewTipDetail(pwaApplicationDetail, webUserAccount)).thenReturn(fakeVersionedAppDetail);
 
     var newDetail = pwaApplicationDetailVersioningService.createNewApplicationVersion(pwaApplicationDetail, webUserAccount);
@@ -65,17 +70,33 @@ public class PwaApplicationDetailVersioningServiceTest {
     assertThat(newDetail).isEqualTo(fakeVersionedAppDetail);
 
     verify(pwaApplicationDetailService, times(1)).createNewTipDetail(pwaApplicationDetail, webUserAccount);
-    verify(taskListService, times(1)).getShownApplicationTasksForDetail(pwaApplicationDetail);
-    verify(applicationTaskService, times(1))
-        .copyApplicationTaskDataToApplicationDetail(ApplicationTask.APPLICATION_USERS, pwaApplicationDetail, fakeVersionedAppDetail);
-    verify(applicationTaskService, times(1))
-        .copyApplicationTaskDataToApplicationDetail(ApplicationTask.HUOO, pwaApplicationDetail, fakeVersionedAppDetail);
+
+    // tasks that can be copied are checked then copied
+    copyableTasks.forEach( applicationTask -> {
+      verify(applicationTaskService, times(1))
+          .taskAllowsCopySectionInformation(applicationTask, pwaApplicationDetail);
+
+      verify(applicationTaskService, times(1))
+          .copyApplicationTaskDataToApplicationDetail(applicationTask, pwaApplicationDetail, fakeVersionedAppDetail);
+
+    });
+
+    // tasks that cannot be copied are checked and not copied
+    EnumSet.complementOf(copyableTasks).forEach(applicationTask -> {
+      verify(applicationTaskService, times(1))
+          .taskAllowsCopySectionInformation(applicationTask, pwaApplicationDetail);
+
+      verify(applicationTaskService, times(0))
+          .copyApplicationTaskDataToApplicationDetail(applicationTask, pwaApplicationDetail, fakeVersionedAppDetail);
+
+    });
+
     verifyNoMoreInteractions(pwaApplicationDetailService, taskListService, applicationTaskService);
 
   }
 
   @Test
-  public void createNewApplicationVersion_serviceInteractions_whenZeroTasks() {
+  public void createNewApplicationVersion_serviceInteractions_whenZeroTasksCanBeCopied() {
 
     var fakeVersionedAppDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL, APP_ID, 11);
     when(pwaApplicationDetailService.createNewTipDetail(pwaApplicationDetail, webUserAccount)).thenReturn(fakeVersionedAppDetail);
@@ -85,7 +106,14 @@ public class PwaApplicationDetailVersioningServiceTest {
     assertThat(newDetail).isEqualTo(fakeVersionedAppDetail);
 
     verify(pwaApplicationDetailService, times(1)).createNewTipDetail(pwaApplicationDetail, webUserAccount);
-    verify(taskListService, times(1)).getShownApplicationTasksForDetail(pwaApplicationDetail);
+
+    EnumSet.allOf(ApplicationTask.class).forEach(applicationTask -> {
+      verify(applicationTaskService, times(1))
+          .taskAllowsCopySectionInformation(applicationTask, pwaApplicationDetail);
+
+    });
+
+
     verifyNoMoreInteractions(pwaApplicationDetailService, taskListService, applicationTaskService);
 
   }

@@ -85,7 +85,7 @@ public class ModifyPipelineValidatorTest {
   public void validate_pipelineStatus_historical() {
     when(modifyPipelineService.getSelectableConsentedPipelines(detail)).thenReturn(List.of());
     var form = new ModifyPipelineForm();
-    form.setPipelineStatus(PipelineStatus.AUTHORISED);
+    form.setPipelineStatus(PipelineStatus.PENDING);
     var errors = ValidatorTestUtils.getFormValidationErrors(modifyPipelineValidator, form, detail);
     assertThat(errors).contains(
         entry("pipelineStatus", Set.of("pipelineStatus" + FieldValidationErrorCodes.INVALID.getCode()))

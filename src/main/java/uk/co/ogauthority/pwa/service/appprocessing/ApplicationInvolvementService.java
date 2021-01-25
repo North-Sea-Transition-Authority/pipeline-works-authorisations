@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.service.appprocessing;
 
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -8,12 +9,21 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
+import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationGroup;
+import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.model.dto.appprocessing.ApplicationInvolvementDto;
 import uk.co.ogauthority.pwa.model.dto.appprocessing.ConsultationInvolvementDto;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupMemberRole;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
+import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.huoo.PadOrganisationRole;
+import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
+import uk.co.ogauthority.pwa.model.teams.PwaOrganisationTeam;
+import uk.co.ogauthority.pwa.service.appprocessing.application.ConfirmSatisfactoryApplicationService;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupDetailService;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupTeamService;
 import uk.co.ogauthority.pwa.service.consultations.ConsultationRequestService;
@@ -21,7 +31,12 @@ import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 import uk.co.ogauthority.pwa.service.enums.users.UserType;
 import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationConsultationWorkflowTask;
 import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationWorkflowTask;
+import uk.co.ogauthority.pwa.service.person.PersonService;
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
+import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadOrganisationRoleService;
+import uk.co.ogauthority.pwa.service.pwaconsents.MasterPwaHolderDto;
+import uk.co.ogauthority.pwa.service.pwaconsents.PwaConsentOrganisationRoleService;
+import uk.co.ogauthority.pwa.service.teams.TeamService;
 import uk.co.ogauthority.pwa.service.users.UserTypeService;
 import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
 import uk.co.ogauthority.pwa.service.workflow.task.WorkflowTaskInstance;
@@ -39,6 +54,11 @@ public class ApplicationInvolvementService {
   private final CamundaWorkflowService camundaWorkflowService;
   private final UserTypeService userTypeService;
   private final ConsulteeGroupDetailService consulteeGroupDetailService;
+  private final PersonService personService;
+  private final ConfirmSatisfactoryApplicationService confirmSatisfactoryApplicationService;
+  private final TeamService teamService;
+  private final PwaConsentOrganisationRoleService pwaConsentOrganisationRoleService;
+  private final PadOrganisationRoleService padOrganisationRoleService;
 
   @Autowired
   public ApplicationInvolvementService(ConsulteeGroupTeamService consulteeGroupTeamService,
@@ -46,24 +66,61 @@ public class ApplicationInvolvementService {
                                        ConsultationRequestService consultationRequestService,
                                        CamundaWorkflowService camundaWorkflowService,
                                        UserTypeService userTypeService,
-                                       ConsulteeGroupDetailService consulteeGroupDetailService) {
+                                       ConsulteeGroupDetailService consulteeGroupDetailService,
+                                       PersonService personService,
+                                       ConfirmSatisfactoryApplicationService confirmSatisfactoryApplicationService,
+                                       TeamService teamService,
+                                       PwaConsentOrganisationRoleService pwaConsentOrganisationRoleService,
+                                       PadOrganisationRoleService padOrganisationRoleService) {
     this.consulteeGroupTeamService = consulteeGroupTeamService;
     this.pwaContactService = pwaContactService;
     this.consultationRequestService = consultationRequestService;
     this.camundaWorkflowService = camundaWorkflowService;
     this.userTypeService = userTypeService;
     this.consulteeGroupDetailService = consulteeGroupDetailService;
+    this.personService = personService;
+    this.confirmSatisfactoryApplicationService = confirmSatisfactoryApplicationService;
+    this.teamService = teamService;
+    this.pwaConsentOrganisationRoleService = pwaConsentOrganisationRoleService;
+    this.padOrganisationRoleService = padOrganisationRoleService;
   }
 
-  public ApplicationInvolvementDto getApplicationInvolvementDto(PwaApplication application,
+  public ApplicationInvolvementDto getApplicationInvolvementDto(PwaApplicationDetail detail,
                                                                 AuthenticatedUserAccount user) {
 
     var userType = userTypeService.getUserType(user);
+    var application = detail.getPwaApplication();
 
     // INDUSTRY data
-    Set<PwaContactRole> appContactRoles = userType == UserType.INDUSTRY
-        ? pwaContactService.getContactRoles(application, user.getLinkedPerson())
-        : Set.of();
+    Set<PwaContactRole> appContactRoles = Set.of();
+    boolean userInHolderTeam = false;
+
+    if (userType == UserType.INDUSTRY) {
+
+      // first try and get the consented holders on the master pwa
+      Set<PortalOrganisationGroup> holderOrgGroups = pwaConsentOrganisationRoleService
+          .getCurrentHoldersOrgRolesForMasterPwa(detail.getPwaApplication().getMasterPwa())
+          .stream()
+          .map(MasterPwaHolderDto::getHolderOrganisationGroup)
+          .flatMap(Optional::stream)
+          .collect(Collectors.toSet());
+
+      // if there aren't any consented holders, then get the holders for the app detail we are looking at
+      if (holderOrgGroups.isEmpty()) {
+        holderOrgGroups = padOrganisationRoleService.getOrgRolesForDetailAndRole(detail, HuooRole.HOLDER).stream()
+            .map(PadOrganisationRole::getOrganisationUnit)
+            .map(PortalOrganisationUnit::getPortalOrganisationGroup)
+            .collect(Collectors.toSet());
+      }
+
+      appContactRoles = pwaContactService.getContactRoles(application, user.getLinkedPerson());
+
+      userInHolderTeam = teamService
+          .getOrganisationTeamListIfPersonInRole(user.getLinkedPerson(), EnumSet.allOf(PwaOrganisationRole.class)).stream()
+          .map(PwaOrganisationTeam::getPortalOrganisationGroup)
+          .anyMatch(holderOrgGroups::contains);
+
+    }
 
     // CONSULTEE data
     ConsultationInvolvementDto consultationInvolvement = null;
@@ -73,18 +130,31 @@ public class ApplicationInvolvementService {
 
     // OGA data
     boolean caseOfficerStageAndUserAssigned = false;
+    boolean pwaManagerStage = false;
 
     if (userType == UserType.OGA) {
+
       caseOfficerStageAndUserAssigned = getCaseOfficerPersonId(application)
           .filter(personId -> personId.equals(user.getLinkedPerson().getId()))
           .isPresent();
+
+      pwaManagerStage = camundaWorkflowService.getAllActiveWorkflowTasks(application).stream()
+          .map(t -> PwaApplicationWorkflowTask.valueOf(t.getTaskName()))
+          .anyMatch(t -> t == PwaApplicationWorkflowTask.APPLICATION_REVIEW);
+
     }
+
+    boolean atLeastOneSatisfactoryVersion = confirmSatisfactoryApplicationService.atLeastOneSatisfactoryVersion(
+        application);
 
     return new ApplicationInvolvementDto(
         application,
         appContactRoles,
         consultationInvolvement,
-        caseOfficerStageAndUserAssigned);
+        caseOfficerStageAndUserAssigned,
+        pwaManagerStage,
+        atLeastOneSatisfactoryVersion,
+        userInHolderTeam);
 
   }
 
@@ -92,6 +162,11 @@ public class ApplicationInvolvementService {
     return camundaWorkflowService.getAssignedPersonId(
         new WorkflowTaskInstance(pwaApplication, PwaApplicationWorkflowTask.CASE_OFFICER_REVIEW)
     );
+  }
+
+  public Optional<Person> getCaseOfficerPerson(PwaApplication pwaApplication) {
+    return getCaseOfficerPersonId(pwaApplication)
+        .map(personService::getPersonById);
   }
 
   private ConsultationInvolvementDto getConsultationInvolvement(PwaApplication application,

@@ -9,6 +9,7 @@ import com.google.common.annotations.VisibleForTesting;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -56,6 +57,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
+import uk.co.ogauthority.pwa.service.pwaapplications.options.PadOptionConfirmedService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.huoosummary.AllOrgRolePipelineGroupsView;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.huoosummary.OrganisationRolePipelineGroupView;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.huoosummary.PipelineNumbersAndSplits;
@@ -75,6 +77,8 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
   private final EntityManager entityManager;
   private final EntityCopyingService entityCopyingService;
 
+  private final PadOptionConfirmedService padOptionConfirmedService;
+
   @Autowired
   public PadOrganisationRoleService(
       PadOrganisationRolesRepository padOrganisationRolesRepository,
@@ -83,7 +87,8 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
       PipelineAndIdentViewFactory pipelineAndIdentViewFactory,
       PipelineNumberAndSplitsService pipelineNumberAndSplitsService,
       EntityManager entityManager,
-      EntityCopyingService entityCopyingService) {
+      EntityCopyingService entityCopyingService,
+      PadOptionConfirmedService padOptionConfirmedService) {
     this.padOrganisationRolesRepository = padOrganisationRolesRepository;
     this.padPipelineOrganisationRoleLinkRepository = padPipelineOrganisationRoleLinkRepository;
     this.portalOrganisationsAccessor = portalOrganisationsAccessor;
@@ -91,6 +96,7 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
     this.pipelineNumberAndSplitsService = pipelineNumberAndSplitsService;
     this.entityManager = entityManager;
     this.entityCopyingService = entityCopyingService;
+    this.padOptionConfirmedService = padOptionConfirmedService;
   }
 
   public List<PadOrganisationRole> getOrgRolesForDetail(PwaApplicationDetail pwaApplicationDetail) {
@@ -263,6 +269,7 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
 
   @VisibleForTesting
   void removePipelineLinksForOrgsWithRoles(PwaApplicationDetail detail, Collection<PadOrganisationRole> roles) {
+
     List<PadPipelineOrganisationRoleLink> pipelineLinks =
         padPipelineOrganisationRoleLinkRepository.findAllByPadOrgRoleInAndPadOrgRole_PwaApplicationDetail(
             roles, detail).stream()
@@ -271,8 +278,43 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
                     padOrganisationRole -> padOrganisationRole.getRole().equals(roleLink.getPadOrgRole().getRole())))
             .collect(Collectors.toUnmodifiableList());
 
-    padPipelineOrganisationRoleLinkRepository.deleteAll(pipelineLinks);
+
+    List<PadPipelineOrganisationRoleLink> pipelineLinksToRemove = new ArrayList<>();
+    List<PadPipelineOrganisationRoleLink> pipelineLinksToUpdate = new ArrayList<>();
+
+    //To avoid removing the last instance of a previously defined section of a split pipeline,
+    //we need to find out if the specific section, identified by pipeline and section number, exists more than once.
+    //Section number is a safe proxy for pipeline sections and avoids a filter on each attribute that makes up a split
+    pipelineLinks.forEach(link -> {
+      if (link.getOrgRoleInstanceType().equals(OrgRoleInstanceType.SPLIT_PIPELINE)) {
+        var duplicateSectionLinks = padPipelineOrganisationRoleLinkRepository
+            .countByPadOrgRole_PwaApplicationDetailAndPadOrgRole_RoleAndPipelineAndSectionNumber(
+                detail, link.getPadOrgRole().getRole(), link.getPipeline(), link.getSectionNumber()
+            );
+
+        //If the section exists more than once, we can delete as there still exists some other assigned instance.
+        //If the split section has only 1 instance, do not remove and instead assign it to the "Unassigned pipeline split" role so that ..
+        //we keep all sections of a split pipeline in the data.
+        if (duplicateSectionLinks > 1) {
+          pipelineLinksToRemove.add(link);
+
+        } else {
+          pipelineLinksToUpdate.add(link);
+        }
+
+      } else {
+        pipelineLinksToRemove.add(link);
+      }
+    });
+
+    for (PadPipelineOrganisationRoleLink pipelineLink : pipelineLinksToUpdate) {
+      var tempRoleForPipelineSplits = getOrCreateUnassignedPipelineSplitRole(detail, pipelineLink.getPadOrgRole().getRole());
+      pipelineLink.setPadOrgRole(tempRoleForPipelineSplits);
+    }
+    padPipelineOrganisationRoleLinkRepository.saveAll(pipelineLinksToUpdate);
+    padPipelineOrganisationRoleLinkRepository.deleteAll(pipelineLinksToRemove);
   }
+
 
   @Transactional
   public void removeRoleOfTreatyAgreement(PadOrganisationRole organisationRole) {
@@ -293,6 +335,49 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
     form.setHuooType(HuooType.PORTAL_ORG);
     form.setHuooRoles(roleSet);
     form.setOrganisationUnitId(role.getOrganisationUnit().getOuId());
+  }
+
+
+  @Transactional
+  public void updateOrgRolesUsingForm(PwaApplicationDetail detail, HuooForm form, PortalOrganisationUnit existingOrgUnit) {
+
+    var orgUnitToAdd = portalOrganisationsAccessor.getOrganisationUnitById(form.getOrganisationUnitId())
+        .orElseThrow(() -> new PwaEntityNotFoundException(
+            "Unable to find organisation unit with ID: " + form.getOrganisationUnitId()));
+
+    List<PadOrganisationRole> existingOrgRoles = padOrganisationRolesRepository.getAllByPwaApplicationDetailAndOrganisationUnit(detail,
+        existingOrgUnit);
+
+    //get organisations that need to be saved on the application
+    List<PadOrganisationRole> orgRolesToSave = new ArrayList<>();
+    Set<HuooRole> newHuooRolesForOrg = form.getHuooRoles();
+    Set<HuooRole> huooRolesNotGivenToOrg = EnumSet.complementOf(EnumSet.copyOf(newHuooRolesForOrg));
+
+    newHuooRolesForOrg.forEach(huooRole -> {
+      var orgToUpdateOpt = existingOrgRoles.stream()
+          .filter(existingOrgRole -> huooRole.equals(existingOrgRole.getRole()))
+          .findFirst();
+
+      if (orgToUpdateOpt.isEmpty()) {
+        var padOrganisationRole = PadOrganisationRole.fromOrganisationUnit(detail, orgUnitToAdd, huooRole);
+        orgRolesToSave.add(padOrganisationRole);
+
+      } else {
+        var orgToUpdate = orgToUpdateOpt.get();
+        orgToUpdate.setOrganisationUnit(orgUnitToAdd);
+        orgRolesToSave.add(orgToUpdate);
+      }
+    });
+
+    //save new orgs, remove old orgs, remove old pipeline links
+    List<PadOrganisationRole> orgRolesToRemove = existingOrgRoles.stream()
+        .filter(existingOrgRole -> huooRolesNotGivenToOrg.contains(existingOrgRole.getRole()))
+        .collect(Collectors.toList());
+
+    padOrganisationRolesRepository.saveAll(orgRolesToSave);
+    removePipelineLinksForOrgsWithRoles(detail, orgRolesToRemove);
+    padOrganisationRolesRepository.deleteAll(orgRolesToRemove);
+
   }
 
   /**
@@ -321,10 +406,20 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
           .collect(Collectors.toUnmodifiableSet());
 
       List<PadOrganisationRole> organisationRolesToRemove = currentRoles.stream()
-          .filter(padOrganisationRole -> !form.getHuooRoles().contains(padOrganisationRole.getRole()))
-          .collect(Collectors.toUnmodifiableList());
+          .filter(padOrganisationRole -> !form.getHuooRoles().contains(padOrganisationRole.getRole())).collect(
+              Collectors.toList());
 
       removePipelineLinksForOrgsWithRoles(detail, organisationRolesToRemove);
+
+
+      if (form.getHuooRoles().contains(HuooRole.HOLDER)) {
+        var existingHolderOrgs = padOrganisationRolesRepository.getAllByPwaApplicationDetailAndRole(detail, HuooRole.HOLDER);
+        if (!existingHolderOrgs.isEmpty() && !existingHolderOrgs.get(0).getOrganisationUnit().equals(orgUnit)) {
+          organisationRolesToRemove.addAll(existingHolderOrgs);
+
+        }
+      }
+
 
       padOrganisationRolesRepository.deleteAll(organisationRolesToRemove);
 
@@ -455,16 +550,21 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
 
           // create pipeline reference only when we dont have one in the same session.
           // at this point should we just get the pipeline object itself? cost is extra db hits.
-          var pipeline = pipelineLookup.getOrDefault(pipelineIdentifier,
-              //TODO PWA-676 need to handle pipeline splits
+          var pipeline = pipelineLookup.getOrDefault(
+              pipelineIdentifier,
               entityManager.getReference(Pipeline.class, pipelineIdentifier.getPipelineIdAsInt()));
+
           pipelineLookup.putIfAbsent(pipelineIdentifier, pipeline);
-          padPipelineOrgRoleLinks.add(
-              new PadPipelineOrganisationRoleLink(padOrganisationRole, pipeline)
-          );
+
+          var pipelineRoleLink = new PadPipelineOrganisationRoleLink(padOrganisationRole, pipeline);
+
+          // use the role link visitor to set the correct information based on the implementation of PipelineIdentifier
+          pipelineIdentifier.accept(pipelineRoleLink);
+
+          padPipelineOrgRoleLinks.add(pipelineRoleLink);
+
         });
       });
-
 
     }
 
@@ -637,13 +737,21 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
         PadPipelineOrganisationRoleLink.class
     );
 
+  }
 
+  @Override
+  public boolean allowCopyOfSectionInformation(PwaApplicationDetail pwaApplicationDetail) {
+    // Always copy huoo information when Options
+    return PwaApplicationType.OPTIONS_VARIATION.equals(pwaApplicationDetail.getPwaApplicationType())
+        || canShowInTaskList(pwaApplicationDetail);
   }
 
   @Override
   public boolean canShowInTaskList(PwaApplicationDetail pwaApplicationDetail) {
-    return !pwaApplicationDetail.getPwaApplicationType().equals(PwaApplicationType.OPTIONS_VARIATION)
-        && !pwaApplicationDetail.getPwaApplicationType().equals(PwaApplicationType.DEPOSIT_CONSENT);
+    var validTypes = EnumSet.complementOf(EnumSet.of(PwaApplicationType.DEPOSIT_CONSENT, PwaApplicationType.OPTIONS_VARIATION));
+
+    return validTypes.contains(pwaApplicationDetail.getPwaApplicationType())
+        || padOptionConfirmedService.approvedOptionConfirmed(pwaApplicationDetail);
   }
 
   @Transactional

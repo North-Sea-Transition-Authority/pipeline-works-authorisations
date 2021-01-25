@@ -163,12 +163,22 @@ public class ApplicationTaskServiceTest {
         );
       case OPTIONS_VARIATION:
         return EnumSet.of(
+            // pre-options approval tasks
             ApplicationTask.FIELD_INFORMATION,
             ApplicationTask.APPLICATION_USERS,
             ApplicationTask.PROJECT_INFORMATION,
             ApplicationTask.FAST_TRACK,
             ApplicationTask.OPTIONS_TEMPLATE,
-            ApplicationTask.SUPPLEMENTARY_DOCUMENTS
+            ApplicationTask.CONFIRM_OPTIONS,
+            ApplicationTask.SUPPLEMENTARY_DOCUMENTS,
+            // post approved option confirmation tasks
+            ApplicationTask.HUOO,
+            ApplicationTask.TECHNICAL_DRAWINGS,
+            ApplicationTask.PIPELINES,
+            ApplicationTask.PIPELINES_HUOO,
+            ApplicationTask.PERMANENT_DEPOSITS,
+            ApplicationTask.PERMANENT_DEPOSIT_DRAWINGS
+
         );
       case CAT_2_VARIATION:
         return EnumSet.of(

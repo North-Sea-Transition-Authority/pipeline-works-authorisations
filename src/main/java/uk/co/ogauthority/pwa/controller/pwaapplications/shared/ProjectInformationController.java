@@ -149,7 +149,7 @@ public class ProjectInformationController extends PwaApplicationDetailDataFileUp
       @RequestParam("file") MultipartFile file,
       PwaApplicationContext applicationContext) {
 
-    return padFileService.processInitialUpload(
+    return padFileService.processImageUpload(
         file,
         applicationContext.getApplicationDetail(),
         FILE_PURPOSE,

@@ -73,4 +73,18 @@ public class ClauseActionsUrlFactory {
 
   }
 
+  public String getRemoveClauseRoute(Integer clauseIdToRemove) {
+
+    return ReverseRouter.route(on(DocumentInstanceController.class)
+        .renderRemoveClause(
+            pwaApplication.getId(),
+            pwaApplication.getApplicationType(),
+            null,
+            documentView.getDocumentTemplateMnem(),
+            clauseIdToRemove,
+            null,
+            null));
+
+  }
+
 }

@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.model.workflow;
 
+import java.util.Objects;
 import uk.co.ogauthority.pwa.service.enums.workflow.WorkflowMessageEvent;
 import uk.co.ogauthority.pwa.service.enums.workflow.WorkflowSubject;
 
@@ -29,6 +30,25 @@ public class GenericMessageEvent implements WorkflowMessageEvent {
   @Override
   public String getEventName() {
     return eventName;
+  }
+
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    GenericMessageEvent that = (GenericMessageEvent) o;
+    return Objects.equals(workflowSubject, that.workflowSubject)
+        && Objects.equals(eventName, that.eventName);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(workflowSubject, eventName);
   }
 
   @Override

@@ -1,0 +1,1 @@
+ALTER TABLE ${datasource.user}.uploaded_files ADD scaled_image_data BLOB;

@@ -3,7 +3,7 @@ package uk.co.ogauthority.pwa.validators.appprocessing.options;
 
 import static java.util.Map.entry;
 import static org.assertj.core.api.Assertions.assertThat;
-import static uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes.BEFORE_TODAY;
+import static uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes.BEFORE_SOME_DATE;
 import static uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes.REQUIRED;
 
 import java.util.Set;
@@ -21,7 +21,6 @@ public class ApproveOptionsFormValidatorTest {
   private static final String DAY_ATTR = "deadlineDateDay";
   private static final String MONTH_ATTR = "deadlineDateMonth";
   private static final String YEAR_ATTR = "deadlineDateYear";
-
 
   private ApproveOptionsFormValidator approveOptionsFormValidator;
 
@@ -64,9 +63,9 @@ public class ApproveOptionsFormValidatorTest {
 
     var result = ValidatorTestUtils.getFormValidationErrors(approveOptionsFormValidator, form);
     assertThat(result).containsOnly(
-        entry(DAY_ATTR, Set.of(BEFORE_TODAY.errorCode(DAY_ATTR))),
-        entry(MONTH_ATTR, Set.of(BEFORE_TODAY.errorCode(MONTH_ATTR))),
-        entry(YEAR_ATTR, Set.of(BEFORE_TODAY.errorCode(YEAR_ATTR)))
+        entry(DAY_ATTR, Set.of(BEFORE_SOME_DATE.errorCode(DAY_ATTR))),
+        entry(MONTH_ATTR, Set.of(BEFORE_SOME_DATE.errorCode(MONTH_ATTR))),
+        entry(YEAR_ATTR, Set.of(BEFORE_SOME_DATE.errorCode(YEAR_ATTR)))
     );
 
   }

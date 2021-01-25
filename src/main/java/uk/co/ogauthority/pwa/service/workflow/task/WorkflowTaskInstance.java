@@ -51,6 +51,10 @@ public class WorkflowTaskInstance {
     return userWorkflowTask.getTaskKey();
   }
 
+  public String getTaskName() {
+    return userWorkflowTask.getTaskName();
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {

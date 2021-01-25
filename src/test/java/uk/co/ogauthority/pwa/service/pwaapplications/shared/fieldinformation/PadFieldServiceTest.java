@@ -25,8 +25,8 @@ import uk.co.ogauthority.pwa.model.entity.devuk.DevukField;
 import uk.co.ogauthority.pwa.model.entity.devuk.PadField;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.fields.PwaFieldForm;
-import uk.co.ogauthority.pwa.model.search.SearchSelectable;
-import uk.co.ogauthority.pwa.model.search.SearchSelectionView;
+import uk.co.ogauthority.pwa.model.searchselector.SearchSelectable;
+import uk.co.ogauthority.pwa.model.searchselector.SearchSelectionView;
 import uk.co.ogauthority.pwa.model.view.StringWithTag;
 import uk.co.ogauthority.pwa.model.view.StringWithTagItem;
 import uk.co.ogauthority.pwa.model.view.Tag;
@@ -36,7 +36,7 @@ import uk.co.ogauthority.pwa.service.entitycopier.EntityCopyingService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation.PadProjectInformationService;
-import uk.co.ogauthority.pwa.service.search.SearchSelectorService;
+import uk.co.ogauthority.pwa.service.searchselector.SearchSelectorService;
 import uk.co.ogauthority.pwa.validators.PwaFieldFormValidator;
 
 @RunWith(MockitoJUnitRunner.class)

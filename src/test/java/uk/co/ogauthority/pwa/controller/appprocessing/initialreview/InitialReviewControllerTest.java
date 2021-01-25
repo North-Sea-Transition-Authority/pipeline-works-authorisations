@@ -6,6 +6,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
@@ -33,6 +34,7 @@ import uk.co.ogauthority.pwa.model.dto.appprocessing.ProcessingPermissionsDto;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.PwaAppProcessingPermissionService;
+import uk.co.ogauthority.pwa.service.appprocessing.applicationupdate.ApplicationUpdateRequestService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContextService;
 import uk.co.ogauthority.pwa.service.appprocessing.initialreview.InitialReviewService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
@@ -65,6 +67,9 @@ public class InitialReviewControllerTest extends PwaAppProcessingContextAbstract
   @MockBean
   private PwaAppProcessingPermissionService pwaAppProcessingPermissionService;
 
+  @MockBean
+  private ApplicationUpdateRequestService applicationUpdateRequestService;
+
   @Before
   public void setUp() {
 
@@ -78,7 +83,7 @@ public class InitialReviewControllerTest extends PwaAppProcessingContextAbstract
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     pwaApplicationDetail.getPwaApplication().setId(APP_ID);
-    when(pwaApplicationDetailService.getLastSubmittedApplicationDetail(pwaApplicationDetail.getMasterPwaApplicationId()))
+    when(pwaApplicationDetailService.getLatestDetailForUser(pwaApplicationDetail.getMasterPwaApplicationId(), user))
         .thenReturn(Optional.of(pwaApplicationDetail));
 
   }
@@ -108,6 +113,23 @@ public class InitialReviewControllerTest extends PwaAppProcessingContextAbstract
   }
 
   @Test
+  public void renderInitialReview_openUpdateRequest_denied() throws Exception {
+
+    pwaApplicationDetail.setStatus(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW);
+
+    var permissionsDto = new ProcessingPermissionsDto(null, EnumSet.allOf(PwaAppProcessingPermission.class));
+    when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail, user)).thenReturn(permissionsDto);
+
+    when(applicationUpdateRequestService.applicationHasOpenUpdateRequest(pwaApplicationDetail)).thenReturn(true);
+
+    mockMvc.perform(get(ReverseRouter.route(on(InitialReviewController.class)
+        .renderInitialReview(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null)))
+        .with(authenticatedUserAndSession(user)))
+        .andExpect(status().isForbidden());
+
+  }
+
+  @Test
   public void postInitialReview_permissionSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.POST)
@@ -125,7 +147,7 @@ public class InitialReviewControllerTest extends PwaAppProcessingContextAbstract
     pwaApplicationDetail.setStatus(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW);
 
     var permissionsDto = new ProcessingPermissionsDto(null, EnumSet.allOf(PwaAppProcessingPermission.class));
-    when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail.getPwaApplication(), user)).thenReturn(permissionsDto);
+    when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail, user)).thenReturn(permissionsDto);
 
     mockMvc.perform(post(ReverseRouter.route(on(InitialReviewController.class).postInitialReview(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null, null)))
         .with(authenticatedUserAndSession(user))
@@ -149,7 +171,7 @@ public class InitialReviewControllerTest extends PwaAppProcessingContextAbstract
     doCallRealMethod().when(initialReviewService).acceptApplication(pwaApplicationDetail, 5, user);
 
     var permissionsDto = new ProcessingPermissionsDto(null, EnumSet.allOf(PwaAppProcessingPermission.class));
-    when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail.getPwaApplication(), user)).thenReturn(permissionsDto);
+    when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail, user)).thenReturn(permissionsDto);
 
     mockMvc.perform(post(ReverseRouter.route(on(InitialReviewController.class).postInitialReview(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null, null)))
         .with(authenticatedUserAndSession(user))
@@ -167,7 +189,7 @@ public class InitialReviewControllerTest extends PwaAppProcessingContextAbstract
     pwaApplicationDetail.setStatus(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW);
 
     var permissionsDto = new ProcessingPermissionsDto(null, EnumSet.allOf(PwaAppProcessingPermission.class));
-    when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail.getPwaApplication(), user)).thenReturn(permissionsDto);
+    when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail, user)).thenReturn(permissionsDto);
 
     ControllerTestUtils.mockSmartValidatorErrors(validator, List.of("caseOfficerPersonId"));
 
@@ -177,6 +199,24 @@ public class InitialReviewControllerTest extends PwaAppProcessingContextAbstract
         .with(csrf()))
         .andExpect(status().isOk())
         .andExpect(view().name("pwaApplication/appProcessing/initialReview/initialReview"));
+
+  }
+
+  @Test
+  public void postInitialReview_openUpdateRequest_denied() throws Exception {
+
+    pwaApplicationDetail.setStatus(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW);
+
+    when(applicationUpdateRequestService.applicationHasOpenUpdateRequest(pwaApplicationDetail)).thenReturn(true);
+
+    var permissionsDto = new ProcessingPermissionsDto(null, EnumSet.allOf(PwaAppProcessingPermission.class));
+    when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail, user)).thenReturn(permissionsDto);
+
+    mockMvc.perform(post(ReverseRouter.route(on(InitialReviewController.class).postInitialReview(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null, null)))
+        .with(authenticatedUserAndSession(user))
+        .param("caseOfficerPersonId", "5")
+        .with(csrf()))
+        .andExpect(status().isForbidden());
 
   }
 

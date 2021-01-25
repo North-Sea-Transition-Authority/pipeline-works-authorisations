@@ -33,6 +33,7 @@ import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PadPipelineId;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PadPipelineSummaryDto;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineHeaderFormContext;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineMaterial;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineStatus;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
@@ -54,6 +55,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskInfo;
+import uk.co.ogauthority.pwa.service.pwaapplications.options.PadOptionConfirmedService;
 import uk.co.ogauthority.pwa.service.pwaconsents.PipelineDetailService;
 import uk.co.ogauthority.pwa.service.validation.SummaryScreenValidationResult;
 import uk.co.ogauthority.pwa.util.CoordinateUtils;
@@ -72,6 +74,7 @@ public class PadPipelineService implements ApplicationFormSectionService {
   private final PadPipelinePersisterService padPipelinePersisterService;
   private final PipelineHeaderFormValidator pipelineHeaderFormValidator;
   private final PadPipelineDataCopierService padPipelineDataCopierService;
+  private final PadOptionConfirmedService padOptionConfirmedService;
 
   private static final Set<PipelineStatus> DATA_REQUIRED_STATUSES = Set.of(PipelineStatus.IN_SERVICE, PipelineStatus.OUT_OF_USE_ON_SEABED);
 
@@ -83,7 +86,8 @@ public class PadPipelineService implements ApplicationFormSectionService {
                             PipelineIdentFormValidator pipelineIdentFormValidator,
                             PadPipelinePersisterService padPipelinePersisterService,
                             PipelineHeaderFormValidator pipelineHeaderFormValidator,
-                            PadPipelineDataCopierService padPipelineDataCopierService) {
+                            PadPipelineDataCopierService padPipelineDataCopierService,
+                            PadOptionConfirmedService padOptionConfirmedService) {
     this.padPipelineRepository = padPipelineRepository;
     this.pipelineService = pipelineService;
     this.pipelineDetailService = pipelineDetailService;
@@ -92,6 +96,14 @@ public class PadPipelineService implements ApplicationFormSectionService {
     this.padPipelinePersisterService = padPipelinePersisterService;
     this.pipelineHeaderFormValidator = pipelineHeaderFormValidator;
     this.padPipelineDataCopierService = padPipelineDataCopierService;
+    this.padOptionConfirmedService = padOptionConfirmedService;
+  }
+
+  @Override
+  public boolean canShowInTaskList(PwaApplicationDetail pwaApplicationDetail) {
+    // do not do additional type checks as this is covered by the controller markup
+    return !PwaApplicationType.OPTIONS_VARIATION.equals(pwaApplicationDetail.getPwaApplicationType())
+        || padOptionConfirmedService.approvedOptionConfirmed(pwaApplicationDetail);
   }
 
   public List<PadPipeline> getPipelines(PwaApplicationDetail detail) {
@@ -158,7 +170,7 @@ public class PadPipelineService implements ApplicationFormSectionService {
         new TaskListEntry(
             "Header information",
             editPipelineHeaderUrl,
-            isPadPipelineValid(padPipeline),
+            isPadPipelineValid(padPipeline, pwaApplicationDetail.getPwaApplicationType()),
             10),
         new TaskListEntry(
             "Idents",
@@ -177,12 +189,14 @@ public class PadPipelineService implements ApplicationFormSectionService {
   }
 
   @VisibleForTesting
-  boolean isPadPipelineValid(PadPipeline padPipeline) {
+  boolean isPadPipelineValid(PadPipeline padPipeline, PwaApplicationType pwaApplicationType) {
     if (isValidationRequired(padPipeline)) {
       var form = new PipelineHeaderForm();
       mapEntityToForm(form, padPipeline);
       var bindingResult = new BeanPropertyBindingResult(form, "form");
-      pipelineHeaderFormValidator.validate(form, bindingResult, padPipeline.getPipelineStatus());
+      var validationHints = new PipelineHeaderValidationHints(
+          padPipeline.getPipelineStatus(), canShowAlreadyExistsOnSeabedQuestions(padPipeline, pwaApplicationType));
+      pipelineHeaderFormValidator.validate(form, bindingResult, validationHints);
       return !bindingResult.hasErrors();
     }
     return true;
@@ -205,6 +219,23 @@ public class PadPipelineService implements ApplicationFormSectionService {
         padPipelineId,
         null,
         null));
+  }
+
+  public boolean canShowAlreadyExistsOnSeabedQuestions(PadPipeline padPipeline, PwaApplicationType pwaApplicationType) {
+    return (PwaApplicationType.CAT_2_VARIATION.equals(pwaApplicationType)
+        || PwaApplicationType.DECOMMISSIONING.equals(pwaApplicationType))
+        && PipelineHeaderFormContext.NON_CONSENTED_PIPELINE.equals(getPipelineHeaderFormContext(padPipeline));
+  }
+
+  public boolean canShowAlreadyExistsOnSeabedQuestions(PwaApplicationType pwaApplicationType) {
+    return canShowAlreadyExistsOnSeabedQuestions(null, pwaApplicationType);
+  }
+
+  public PipelineHeaderFormContext getPipelineHeaderFormContext(PadPipeline padPipeline) {
+    if (padPipeline == null || !pipelineDetailService.isPipelineConsented(padPipeline.getPipeline())) {
+      return PipelineHeaderFormContext.NON_CONSENTED_PIPELINE;
+    }
+    return PipelineHeaderFormContext.CONSENTED_PIPELINE;
   }
 
   @Transactional
@@ -262,42 +293,55 @@ public class PadPipelineService implements ApplicationFormSectionService {
 
     padPipeline.setPipelineStatusReason(form.getWhyNotReturnedToShore());
 
+    if (PipelineHeaderFormContext.NON_CONSENTED_PIPELINE.equals(getPipelineHeaderFormContext(padPipeline))) {
+      padPipeline.setAlreadyExistsOnSeabed(form.getAlreadyExistsOnSeabed());
+      if (BooleanUtils.isTrue(form.getAlreadyExistsOnSeabed())) {
+        padPipeline.setPipelineInUse(form.getPipelineInUse());
+      } else {
+        padPipeline.setPipelineInUse(null);
+      }
+    }
+
     padPipelinePersisterService.savePadPipelineAndMaterialiseIdentData(padPipeline);
   }
 
-  public void mapEntityToForm(PipelineHeaderForm form, PadPipeline pipeline) {
+  public void mapEntityToForm(PipelineHeaderForm form, PadPipeline padPipeline) {
 
-    form.setPipelineType(pipeline.getPipelineType());
+    form.setPipelineType(padPipeline.getPipelineType());
 
-    form.setFromLocation(pipeline.getFromLocation());
+    form.setFromLocation(padPipeline.getFromLocation());
     form.setFromCoordinateForm(new CoordinateForm());
-    CoordinateUtils.mapCoordinatePairToForm(pipeline.getFromCoordinates(), form.getFromCoordinateForm());
+    CoordinateUtils.mapCoordinatePairToForm(padPipeline.getFromCoordinates(), form.getFromCoordinateForm());
 
-    form.setToLocation(pipeline.getToLocation());
+    form.setToLocation(padPipeline.getToLocation());
     form.setToCoordinateForm(new CoordinateForm());
-    CoordinateUtils.mapCoordinatePairToForm(pipeline.getToCoordinates(), form.getToCoordinateForm());
+    CoordinateUtils.mapCoordinatePairToForm(padPipeline.getToCoordinates(), form.getToCoordinateForm());
 
-    form.setProductsToBeConveyed(pipeline.getProductsToBeConveyed());
-    form.setLength(pipeline.getLength());
-    form.setComponentPartsDescription(pipeline.getComponentPartsDescription());
+    form.setProductsToBeConveyed(padPipeline.getProductsToBeConveyed());
+    form.setLength(padPipeline.getLength());
+    form.setComponentPartsDescription(padPipeline.getComponentPartsDescription());
 
-    form.setTrenchedBuriedBackfilled(pipeline.getTrenchedBuriedBackfilled());
+    form.setTrenchedBuriedBackfilled(padPipeline.getTrenchedBuriedBackfilled());
 
     Optional.ofNullable(form.getTrenchedBuriedBackfilled())
         .filter(tru -> tru)
-        .ifPresent(t -> form.setTrenchingMethods(pipeline.getTrenchingMethodsDescription()));
+        .ifPresent(t -> form.setTrenchingMethods(padPipeline.getTrenchingMethodsDescription()));
 
-    form.setPipelineFlexibility(pipeline.getPipelineFlexibility());
-    form.setPipelineMaterial(pipeline.getPipelineMaterial());
-    form.setOtherPipelineMaterialUsed(pipeline.getOtherPipelineMaterialUsed());
-    form.setPipelineDesignLife(pipeline.getPipelineDesignLife());
+    form.setPipelineFlexibility(padPipeline.getPipelineFlexibility());
+    form.setPipelineMaterial(padPipeline.getPipelineMaterial());
+    form.setOtherPipelineMaterialUsed(padPipeline.getOtherPipelineMaterialUsed());
+    form.setPipelineDesignLife(padPipeline.getPipelineDesignLife());
 
-    form.setPipelineInBundle(pipeline.getPipelineInBundle());
-    form.setBundleName(pipeline.getBundleName());
-    if (pipeline.getPipelineStatus().equals(PipelineStatus.OUT_OF_USE_ON_SEABED)) {
-      form.setWhyNotReturnedToShore(pipeline.getPipelineStatusReason());
+    form.setPipelineInBundle(padPipeline.getPipelineInBundle());
+    form.setBundleName(padPipeline.getBundleName());
+    if (padPipeline.getPipelineStatus().equals(PipelineStatus.OUT_OF_USE_ON_SEABED)) {
+      form.setWhyNotReturnedToShore(padPipeline.getPipelineStatusReason());
     }
 
+    if (PipelineHeaderFormContext.NON_CONSENTED_PIPELINE.equals(getPipelineHeaderFormContext(padPipeline))) {
+      form.setAlreadyExistsOnSeabed(padPipeline.getAlreadyExistsOnSeabed());
+      form.setPipelineInUse(padPipeline.getPipelineInUse());
+    }
   }
 
   @Transactional
@@ -512,7 +556,7 @@ public class PadPipelineService implements ApplicationFormSectionService {
 
       var padPipeline = padPipelineMap.get(new PadPipelineId(pipelineOverview.getPadPipelineId()));
       var padPipelineId = new PadPipelineId(pipelineOverview.getPadPipelineId());
-      boolean pipelineComplete = isPadPipelineValid(padPipeline);
+      boolean pipelineComplete = isPadPipelineValid(padPipeline, detail.getPwaApplicationType());
 
       var idents = padPipelineIdToIdentListMap.getOrDefault(padPipelineId, List.of());
 

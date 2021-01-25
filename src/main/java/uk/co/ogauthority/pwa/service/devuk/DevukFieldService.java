@@ -10,7 +10,7 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.devuk.DevukFieldId;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.entity.devuk.DevukField;
-import uk.co.ogauthority.pwa.model.search.SearchSelectionView;
+import uk.co.ogauthority.pwa.model.searchselector.SearchSelectionView;
 import uk.co.ogauthority.pwa.repository.devuk.DevukFieldRepository;
 
 @Service

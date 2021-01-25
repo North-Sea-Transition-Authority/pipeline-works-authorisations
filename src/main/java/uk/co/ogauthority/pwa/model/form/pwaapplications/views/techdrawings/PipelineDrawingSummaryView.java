@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.model.form.pwaapplications.views.techdrawings;
 
 import java.util.List;
+import java.util.Objects;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.techdrawings.PadTechnicalDrawing;
 import uk.co.ogauthority.pwa.model.form.files.UploadedFileView;
 
@@ -54,5 +55,27 @@ public class PipelineDrawingSummaryView {
 
   public Integer getDrawingId() {
     return drawingId;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    PipelineDrawingSummaryView that = (PipelineDrawingSummaryView) o;
+    return Objects.equals(reference, that.reference)
+        && Objects.equals(documentDescription, that.documentDescription)
+        && Objects.equals(fileId, that.fileId)
+        && Objects.equals(fileName, that.fileName)
+        && Objects.equals(pipelineReferences, that.pipelineReferences)
+        && Objects.equals(drawingId, that.drawingId);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(reference, documentDescription, fileId, fileName, pipelineReferences, drawingId);
   }
 }

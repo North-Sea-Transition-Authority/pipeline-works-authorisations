@@ -10,6 +10,7 @@ import org.junit.Before;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
@@ -59,7 +60,7 @@ public abstract class AbstractControllerTest {
   @MockBean
   private TopMenuService topMenuService;
 
-  @MockBean
+  @SpyBean
   private ControllerHelperService controllerHelperService;
 
   @Before
@@ -77,8 +78,6 @@ public abstract class AbstractControllerTest {
 
     when(pwaApplicationRedirectService.getTaskListRedirect(any())).thenCallRealMethod();
     when(pwaApplicationRedirectService.getTaskListRoute(any())).thenCallRealMethod();
-
-    when(controllerHelperService.checkErrorsAndRedirect(any(), any(), any())).thenCallRealMethod();
 
   }
 

@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.entry;
 
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.junit.Before;
@@ -17,14 +18,20 @@ import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.location.Location
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
+import uk.co.ogauthority.pwa.util.forminputs.twofielddate.TwoFieldDateInputValidator;
 
 public class LocationDetailsValidatorTest {
 
   private LocationDetailsValidator locationDetailsValidator;
+  private LocationDetailsSafetyZoneValidator safetyZoneValidator;
+  private TwoFieldDateInputValidator twoFieldDateInputValidator;
+
 
   @Before
   public void setUp() {
-    locationDetailsValidator = new LocationDetailsValidator();
+    twoFieldDateInputValidator = new TwoFieldDateInputValidator();
+    safetyZoneValidator = new LocationDetailsSafetyZoneValidator(twoFieldDateInputValidator);
+    locationDetailsValidator = new LocationDetailsValidator(safetyZoneValidator);
   }
 
 
@@ -93,17 +100,18 @@ public class LocationDetailsValidatorTest {
     var result = ValidatorTestUtils.getFormValidationErrors(locationDetailsValidator, form,
         getValidationHints(Set.of(LocationDetailsQuestion.WITHIN_SAFETY_ZONE)));
     assertThat(result).doesNotContainKeys("withinSafetyZone");
-    assertThat(result).containsKeys("facilitiesIfPartially");
+    assertThat(result).contains(
+        entry("partiallyWithinSafetyZoneForm.facilities", Set.of("facilities" + FieldValidationErrorCodes.REQUIRED.getCode())));
   }
 
   @Test
   public void validate_withinSafetyZone_partially_withFacilities() {
     var form = new LocationDetailsForm();
     form.setWithinSafetyZone(HseSafetyZone.PARTIALLY);
-    form.setFacilitiesIfPartially(List.of("1"));
+    form.getPartiallyWithinSafetyZoneForm().setFacilities(List.of("1"));
     var result = ValidatorTestUtils.getFormValidationErrors(locationDetailsValidator, form,
         getValidationHints(Set.of(LocationDetailsQuestion.WITHIN_SAFETY_ZONE)));
-    assertThat(result).doesNotContainKeys("withinSafetyZone", "facilitiesIfPartially");
+    assertThat(result).doesNotContainKeys("withinSafetyZone", "partiallyWithinSafetyZoneForm.facilities");
   }
 
   @Test
@@ -113,17 +121,18 @@ public class LocationDetailsValidatorTest {
     var result = ValidatorTestUtils.getFormValidationErrors(locationDetailsValidator, form,
         getValidationHints(Set.of(LocationDetailsQuestion.WITHIN_SAFETY_ZONE)));
     assertThat(result).doesNotContainKeys("withinSafetyZone");
-    assertThat(result).containsKeys("facilitiesIfYes");
+    assertThat(result).contains(
+        entry("completelyWithinSafetyZoneForm.facilities", Set.of("facilities" + FieldValidationErrorCodes.REQUIRED.getCode())));
   }
 
   @Test
   public void validate_withinSafetyZone_yes_withFacilities() {
     var form = new LocationDetailsForm();
     form.setWithinSafetyZone(HseSafetyZone.YES);
-    form.setFacilitiesIfYes(List.of("1"));
+    form.getCompletelyWithinSafetyZoneForm().setFacilities(List.of("1"));
     var result = ValidatorTestUtils.getFormValidationErrors(locationDetailsValidator, form,
         getValidationHints(Set.of(LocationDetailsQuestion.WITHIN_SAFETY_ZONE)));
-    assertThat(result).doesNotContainKeys("withinSafetyZone", "facilitiesIfYes");
+    assertThat(result).doesNotContainKeys("withinSafetyZone", "completelyWithinSafetyZoneForm.facilities");
   }
 
   @Test
@@ -136,6 +145,30 @@ public class LocationDetailsValidatorTest {
         entry("surveyConcludedDay", Set.of("surveyConcludedDay" + FieldValidationErrorCodes.REQUIRED.getCode())),
         entry("surveyConcludedMonth", Set.of("surveyConcludedMonth" + FieldValidationErrorCodes.REQUIRED.getCode())),
         entry("surveyConcludedYear", Set.of("surveyConcludedYear" + FieldValidationErrorCodes.REQUIRED.getCode()))
+    );
+  }
+
+  @Test
+  public void validate_surveyConcludedDate_yearTooBig() {
+    var form = new LocationDetailsForm();
+    form.setRouteSurveyUndertaken(true);
+    form.setSurveyConcludedYear(4001);
+    var result = ValidatorTestUtils.getFormValidationErrors(locationDetailsValidator, form,
+        getValidationHints(Set.of(LocationDetailsQuestion.ROUTE_SURVEY_UNDERTAKEN)));
+    assertThat(result).contains(
+        entry("surveyConcludedYear", Set.of("surveyConcludedYear" + FieldValidationErrorCodes.INVALID.getCode()))
+    );
+  }
+
+  @Test
+  public void validate_surveyConcludedDate_yearTooSmall() {
+    var form = new LocationDetailsForm();
+    form.setRouteSurveyUndertaken(true);
+    form.setSurveyConcludedYear(999);
+    var result = ValidatorTestUtils.getFormValidationErrors(locationDetailsValidator, form,
+        getValidationHints(Set.of(LocationDetailsQuestion.ROUTE_SURVEY_UNDERTAKEN)));
+    assertThat(result).contains(
+        entry("surveyConcludedYear", Set.of("surveyConcludedYear" + FieldValidationErrorCodes.INVALID.getCode()))
     );
   }
 
@@ -180,6 +213,27 @@ public class LocationDetailsValidatorTest {
   }
 
   @Test
+  public void validate_routeNotUndertakenReason_null() {
+    var form = new LocationDetailsForm();
+    form.setRouteSurveyUndertaken(false);
+    var result = ValidatorTestUtils.getFormValidationErrors(locationDetailsValidator, form,
+        getValidationHints(Set.of(LocationDetailsQuestion.ROUTE_SURVEY_UNDERTAKEN)));
+    assertThat(result).contains(
+        Map.entry("routeSurveyNotUndertakenReason", Set.of("routeSurveyNotUndertakenReason" + FieldValidationErrorCodes.REQUIRED.getCode())));
+  }
+
+  @Test
+  public void validate_routeNotUndertakenReason_tooLong() {
+    var form = new LocationDetailsForm();
+    form.setRouteSurveyUndertaken(false);
+    form.setRouteSurveyNotUndertakenReason(ValidatorTestUtils.over4000Chars());
+    var result = ValidatorTestUtils.getFormValidationErrors(locationDetailsValidator, form,
+        getValidationHints(Set.of(LocationDetailsQuestion.ROUTE_SURVEY_UNDERTAKEN)));
+    assertThat(result).contains(
+        Map.entry("routeSurveyNotUndertakenReason", Set.of("routeSurveyNotUndertakenReason" + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode())));
+  }
+
+  @Test
   public void validate_valid() {
     var form = new LocationDetailsForm();
     form.setWithinSafetyZone(HseSafetyZone.NO);
@@ -188,6 +242,7 @@ public class LocationDetailsValidatorTest {
     form.setTransportationMethod("Method");
     form.setFacilitiesOffshore(true);
     form.setRouteSurveyUndertaken(false);
+    form.setRouteSurveyNotUndertakenReason("reason");
     form.setPipelineRouteDetails("Detail text");
     form.setWithinLimitsOfDeviation(true);
     var result = ValidatorTestUtils.getFormValidationErrors(locationDetailsValidator, form,

@@ -5,7 +5,11 @@ import java.time.Instant;
 import java.time.Period;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -13,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
+import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroup;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupDetail;
@@ -33,11 +38,12 @@ import uk.co.ogauthority.pwa.service.notify.NotifyService;
 import uk.co.ogauthority.pwa.service.teammanagement.TeamManagementService;
 import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
 import uk.co.ogauthority.pwa.service.workflow.task.WorkflowTaskInstance;
+import uk.co.ogauthority.pwa.util.DateUtils;
 import uk.co.ogauthority.pwa.validators.consultations.ConsultationRequestValidationHints;
 import uk.co.ogauthority.pwa.validators.consultations.ConsultationRequestValidator;
 
 /**
- A service to create/withdraw consultation requests from application.
+ * A service to create/withdraw consultation requests from application.
  */
 @Service
 public class ConsultationRequestService {
@@ -103,7 +109,8 @@ public class ConsultationRequestService {
   }
 
   public void saveEntitiesAndStartWorkflow(ConsultationRequestForm form,
-                                           PwaApplicationDetail applicationDetail, AuthenticatedUserAccount user) {
+                                           PwaApplicationDetail applicationDetail,
+                                           AuthenticatedUserAccount user) {
     for (var selectedGroupId: form.getConsulteeGroupSelection().keySet()) {
       var consultationRequest = new ConsultationRequest();
       consultationRequest.setConsulteeGroup(
@@ -118,6 +125,16 @@ public class ConsultationRequestService {
       consultationRequest = consultationRequestRepository.save(consultationRequest);
       camundaWorkflowService.startWorkflow(consultationRequest);
       sendConsultationRequestReceivedEmail(consultationRequest);
+    }
+  }
+
+
+  @Transactional
+  public void withdrawAllOpenConsultationRequests(PwaApplication pwaApplication,
+                                                  AuthenticatedUserAccount withdrawingUser) {
+    var consultationRequests = getAllOpenRequestsByApplication(pwaApplication);
+    for (var consultationRequest : consultationRequests) {
+      withdrawConsultationRequest(consultationRequest, withdrawingUser);
     }
   }
 
@@ -169,6 +186,30 @@ public class ConsultationRequestService {
     return emailRecipients;
   }
 
+
+  public List<Person> getConsultationRecipients(ConsultationRequest consultationRequest) {
+
+    List<Person> emailRecipients =  new ArrayList<>();
+    consulteeGroupTeamService.getTeamMembersForGroup(consultationRequest.getConsulteeGroup()).forEach(
+        teamMember -> {
+        if (teamMember.getRoles().contains(ConsulteeGroupMemberRole.RECIPIENT)) {
+          emailRecipients.add(teamMember.getPerson());
+        }
+      });
+    return emailRecipients;
+  }
+
+  public Person getAssignedResponderForConsultation(ConsultationRequest consultationRequest) {
+
+    Optional<PersonId> assignedResponderPersonId = camundaWorkflowService
+        .getAssignedPersonId(new WorkflowTaskInstance(consultationRequest, PwaApplicationConsultationWorkflowTask.RESPONSE));
+
+    return assignedResponderPersonId.map(id -> teamManagementService.getPerson(id.asInt())).orElse(null);
+  }
+
+
+
+
   private ConsultationWithdrawnEmailProps buildWithdrawnEmailProps(Person recipient,
                                                                    ConsultationRequest consultationRequest,
                                                                    String consulteeGroupName,
@@ -184,13 +225,17 @@ public class ConsultationRequestService {
                                                                                ConsultationRequest consultationRequest,
                                                                                String consulteeGroupName,
                                                                                String caseManagementLink) {
+
+    String dueDateDisplay = DateUtils.formatDateTime(consultationRequest.getDeadlineDate());
+
     return new ConsultationRequestReceivedEmailProps(
         recipient.getFullName(),
         consultationRequest.getPwaApplication().getAppReference(),
         consulteeGroupName,
+        dueDateDisplay,
         caseManagementLink);
-  }
 
+  }
 
   public void rebindFormCheckboxes(ConsultationRequestForm form) {
     for (var entry: form.getConsulteeGroupSelection().entrySet()) {
@@ -222,6 +267,17 @@ public class ConsultationRequestService {
 
   public List<ConsultationRequest> getAllRequestsByApplication(PwaApplication pwaApplication) {
     return consultationRequestRepository.findByPwaApplicationOrderByConsulteeGroupDescStartTimestampDesc(pwaApplication);
+  }
+
+  public List<ConsultationRequest> getAllOpenRequestsByApplication(PwaApplication pwaApplication) {
+    return consultationRequestRepository.findByPwaApplicationAndStatusNotIn(pwaApplication, ENDED_STATUSES);
+  }
+
+  public Map<ConsulteeGroup, ConsulteeGroupDetail> getGroupDetailsForConsulteeGroups(List<ConsultationRequest> consultationRequests) {
+    var consulteeGroupDetails = consulteeGroupDetailService.getAllConsulteeGroupDetailsByGroup(
+        consultationRequests.stream().map(ConsultationRequest::getConsulteeGroup).collect(Collectors.toList()));
+    return consulteeGroupDetails.stream()
+        .collect(Collectors.toMap(ConsulteeGroupDetail::getConsulteeGroup, Function.identity()));
   }
 
   public List<ConsultationRequest> getAllRequestsByAppAndGroupRespondedOnly(PwaApplication pwaApplication, ConsulteeGroup consulteeGroup) {

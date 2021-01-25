@@ -10,14 +10,15 @@ import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.controller.WorkAreaController;
 import uk.co.ogauthority.pwa.controller.appprocessing.CaseManagementController;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailSearchItem;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailItemView;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.WorkAreaApplicationDetailSearchItem;
 import uk.co.ogauthority.pwa.mvc.PageView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.PwaAppProcessingPermissionService;
 import uk.co.ogauthority.pwa.service.appprocessing.tabs.AppProcessingTab;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
-import uk.co.ogauthority.pwa.service.pwaapplications.search.ApplicationDetailSearcher;
+import uk.co.ogauthority.pwa.service.pwaapplications.search.WorkAreaApplicationDetailSearcher;
 import uk.co.ogauthority.pwa.service.workarea.WorkAreaTab;
 import uk.co.ogauthority.pwa.util.WorkAreaUtils;
 
@@ -25,14 +26,14 @@ import uk.co.ogauthority.pwa.util.WorkAreaUtils;
 public class RegulatorWorkAreaPageService {
 
   private final PwaAppProcessingPermissionService appProcessingPermissionService;
-  private final ApplicationDetailSearcher applicationDetailSearcher;
+  private final WorkAreaApplicationDetailSearcher workAreaApplicationDetailSearcher;
 
   @Autowired
   public RegulatorWorkAreaPageService(PwaAppProcessingPermissionService appProcessingPermissionService,
-                                      ApplicationDetailSearcher applicationDetailSearcher) {
+                                      WorkAreaApplicationDetailSearcher workAreaApplicationDetailSearcher) {
 
     this.appProcessingPermissionService = appProcessingPermissionService;
-    this.applicationDetailSearcher = applicationDetailSearcher;
+    this.workAreaApplicationDetailSearcher = workAreaApplicationDetailSearcher;
   }
 
   public PageView<PwaApplicationWorkAreaItem> getRequiresAttentionPageView(
@@ -57,7 +58,7 @@ public class RegulatorWorkAreaPageService {
       int page) {
 
     var workAreaUri = ReverseRouter.route(
-        on(WorkAreaController.class).renderWorkAreaTab(null, WorkAreaTab.REGULATOR_REQUIRES_ATTENTION, page));
+        on(WorkAreaController.class).renderWorkAreaTab(null, WorkAreaTab.REGULATOR_WAITING_ON_OTHERS, page));
 
     return PageView.fromPage(
         getWaitingOnOthersPage(authenticatedUserAccount, applicationIds, page),
@@ -82,13 +83,13 @@ public class RegulatorWorkAreaPageService {
   }
 
 
-  private Page<ApplicationDetailSearchItem> getRequiresAttentionPage(AuthenticatedUserAccount userAccount,
-                                                                     Set<Integer> applicationIdList,
-                                                                     int pageRequest) {
+  private Page<WorkAreaApplicationDetailSearchItem> getRequiresAttentionPage(AuthenticatedUserAccount userAccount,
+                                                                             Set<Integer> applicationIdList,
+                                                                             int pageRequest) {
 
     var searchStatuses = getAdditionalStatusFilterForUser(userAccount);
 
-    return applicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereAllProcessingWaitFlagsFalse(
+    return workAreaApplicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagIsFalseOrAllProcessingWaitFlagsFalse(
         WorkAreaUtils.getWorkAreaPageRequest(pageRequest, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
         searchStatuses,
         applicationIdList
@@ -96,13 +97,13 @@ public class RegulatorWorkAreaPageService {
 
   }
 
-  private Page<ApplicationDetailSearchItem> getWaitingOnOthersPage(AuthenticatedUserAccount userAccount,
-                                                                   Set<Integer> applicationIdList,
-                                                                   int pageRequest) {
+  private Page<WorkAreaApplicationDetailSearchItem> getWaitingOnOthersPage(AuthenticatedUserAccount userAccount,
+                                                                           Set<Integer> applicationIdList,
+                                                                           int pageRequest) {
 
     var searchStatuses = getAdditionalStatusFilterForUser(userAccount);
 
-    return applicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereAnyProcessingWaitFlagTrue(
+    return workAreaApplicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagIsTrueAndAnyProcessingWaitFlagTrue(
         WorkAreaUtils.getWorkAreaPageRequest(pageRequest, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
         searchStatuses,
         applicationIdList
@@ -110,7 +111,7 @@ public class RegulatorWorkAreaPageService {
 
   }
 
-  private String viewApplicationUrlProducer(ApplicationDetailSearchItem applicationDetailSearchItem) {
+  private String viewApplicationUrlProducer(ApplicationDetailItemView applicationDetailSearchItem) {
 
     var applicationId = applicationDetailSearchItem.getPwaApplicationId();
     var applicationType = applicationDetailSearchItem.getApplicationType();

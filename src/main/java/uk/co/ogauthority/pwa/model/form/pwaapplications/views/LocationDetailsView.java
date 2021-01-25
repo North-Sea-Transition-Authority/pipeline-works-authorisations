@@ -8,6 +8,8 @@ public class LocationDetailsView {
 
   private final String approximateProjectLocationFromShore;
   private final HseSafetyZone withinSafetyZone;
+  private final Boolean psrNotificationSubmitted;
+  private final String psrNotificationSubmissionDate;
   private final List<String> facilitiesIfYes;
   private final List<String> facilitiesIfPartially;
   private final Boolean facilitiesOffshore;
@@ -17,6 +19,7 @@ public class LocationDetailsView {
 
   private final String pipelineRouteDetails;
   private final Boolean routeSurveyUndertaken;
+  private final String routeSurveyNotUndertakenReason;
   private final Boolean withinLimitsOfDeviation;
 
   private final String surveyConcludedDate;
@@ -28,15 +31,24 @@ public class LocationDetailsView {
 
   public LocationDetailsView(String approximateProjectLocationFromShore,
                              HseSafetyZone withinSafetyZone,
-                             List<String> facilitiesIfYes, List<String> facilitiesIfPartially,
+                             Boolean psrNotificationSubmitted,
+                             String psrNotificationSubmissionDate,
+                             List<String> facilitiesIfYes,
+                             List<String> facilitiesIfPartially,
                              Boolean facilitiesOffshore,
-                             Boolean transportsMaterialsToShore, String transportationMethod,
-                             String pipelineRouteDetails, Boolean routeSurveyUndertaken,
-                             Boolean withinLimitsOfDeviation, String surveyConcludedDate,
+                             Boolean transportsMaterialsToShore,
+                             String transportationMethod,
+                             String pipelineRouteDetails,
+                             Boolean routeSurveyUndertaken,
+                             String routeSurveyNotUndertakenReason,
+                             Boolean withinLimitsOfDeviation,
+                             String surveyConcludedDate,
                              String pipelineAshoreLocation,
                              List<UploadedFileView> uploadedLetterFileViews) {
     this.approximateProjectLocationFromShore = approximateProjectLocationFromShore;
     this.withinSafetyZone = withinSafetyZone;
+    this.psrNotificationSubmitted = psrNotificationSubmitted;
+    this.psrNotificationSubmissionDate = psrNotificationSubmissionDate;
     this.facilitiesIfYes = facilitiesIfYes;
     this.facilitiesIfPartially = facilitiesIfPartially;
     this.facilitiesOffshore = facilitiesOffshore;
@@ -44,6 +56,7 @@ public class LocationDetailsView {
     this.transportationMethod = transportationMethod;
     this.pipelineRouteDetails = pipelineRouteDetails;
     this.routeSurveyUndertaken = routeSurveyUndertaken;
+    this.routeSurveyNotUndertakenReason = routeSurveyNotUndertakenReason;
     this.withinLimitsOfDeviation = withinLimitsOfDeviation;
     this.surveyConcludedDate = surveyConcludedDate;
     this.pipelineAshoreLocation = pipelineAshoreLocation;
@@ -60,6 +73,14 @@ public class LocationDetailsView {
 
   public HseSafetyZone getWithinSafetyZone() {
     return withinSafetyZone;
+  }
+
+  public Boolean getPsrNotificationSubmitted() {
+    return psrNotificationSubmitted;
+  }
+
+  public String getPsrNotificationSubmissionDate() {
+    return psrNotificationSubmissionDate;
   }
 
   public List<String> getFacilitiesIfYes() {
@@ -88,6 +109,10 @@ public class LocationDetailsView {
 
   public Boolean getRouteSurveyUndertaken() {
     return routeSurveyUndertaken;
+  }
+
+  public String getRouteSurveyNotUndertakenReason() {
+    return routeSurveyNotUndertakenReason;
   }
 
   public Boolean getWithinLimitsOfDeviation() {

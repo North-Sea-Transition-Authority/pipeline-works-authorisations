@@ -123,6 +123,19 @@ public class CamundaWorkflowServiceTest {
 
   }
 
+  @Test(expected = NullPointerException.class)
+  public void deleteProcessInstanceAndThenTasks_processInstanceNotFound() {
+    camundaWorkflowService.deleteProcessInstanceAndThenTasks(application);
+  }
+
+  @Test
+  public void getTasksFromWorkflowTaskInstances() {
+    camundaWorkflowService.startWorkflow(application);
+    var taskInstance = new WorkflowTaskInstance(application, PwaApplicationWorkflowTask.PREPARE_APPLICATION);
+    var tasks = camundaWorkflowService.getTasksFromWorkflowTaskInstances(Set.of(taskInstance));
+    assertThat(tasks).isNotEmpty();
+  }
+
   @Test
   public void assignTaskToUser_valid() {
 
@@ -264,6 +277,21 @@ public class CamundaWorkflowServiceTest {
     );
 
     assertThat(filteredBusinesskeys).containsExactly(WorkflowBusinessKey.from(application.getBusinessKey()));
+
+  }
+
+  @Test
+  public void filterBusinessKeysByWorkflowTypeAndActiveTasksContains_noBusinessKeysPassed_emptySetReturned(){
+
+    camundaWorkflowService.startWorkflow(application);
+
+    var filteredBusinesskeys = camundaWorkflowService.filterBusinessKeysByWorkflowTypeAndActiveTasksContains(
+        WorkflowType.PWA_APPLICATION,
+        Set.of(),
+        Set.of(PwaApplicationWorkflowTask.PREPARE_APPLICATION)
+    );
+
+    assertThat(filteredBusinesskeys).isEmpty();
 
   }
 

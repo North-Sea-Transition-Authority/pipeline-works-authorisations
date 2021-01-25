@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.controller.appprocessing.decision;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
+import java.util.function.Supplier;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
@@ -19,16 +20,19 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.controller.appprocessing.shared.PwaAppProcessingPermissionCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationStatusCheck;
+import uk.co.ogauthority.pwa.exception.AccessDeniedException;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.DocumentTemplateMnem;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocGenType;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.AppProcessingBreadcrumbService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
+import uk.co.ogauthority.pwa.service.appprocessing.decision.ApplicationDecisionTaskService;
 import uk.co.ogauthority.pwa.service.appprocessing.decision.ConsentDocumentUrlFactory;
 import uk.co.ogauthority.pwa.service.documents.ClauseActionsUrlFactory;
 import uk.co.ogauthority.pwa.service.documents.DocumentService;
 import uk.co.ogauthority.pwa.service.documents.generation.DocumentGenerationService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
+import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingTask;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.util.FlashUtils;
@@ -43,14 +47,17 @@ public class AppConsentDocController {
   private final AppProcessingBreadcrumbService breadcrumbService;
   private final DocumentService documentService;
   private final DocumentGenerationService documentGenerationService;
+  private final ApplicationDecisionTaskService applicationDecisionTaskService;
 
   @Autowired
   public AppConsentDocController(AppProcessingBreadcrumbService breadcrumbService,
                                  DocumentService documentService,
-                                 DocumentGenerationService documentGenerationService) {
+                                 DocumentGenerationService documentGenerationService,
+                                 ApplicationDecisionTaskService applicationDecisionTaskService) {
     this.breadcrumbService = breadcrumbService;
     this.documentService = documentService;
     this.documentGenerationService = documentGenerationService;
+    this.applicationDecisionTaskService = applicationDecisionTaskService;
   }
 
   @GetMapping
@@ -60,25 +67,33 @@ public class AppConsentDocController {
                                              PwaAppProcessingContext processingContext,
                                              AuthenticatedUserAccount authenticatedUserAccount) {
 
-    var docInstanceOpt = documentService
-        .getDocumentInstance(processingContext.getPwaApplication(), DocumentTemplateMnem.PWA_CONSENT_DOCUMENT);
+    return whenDecisionMakeable(
+        processingContext,
+        () -> {
 
-    var docView = docInstanceOpt
-        .map(documentService::getDocumentViewForInstance)
-        .orElse(null);
+          var docInstanceOpt = documentService
+              .getDocumentInstance(processingContext.getPwaApplication(), DocumentTemplateMnem.PWA_CONSENT_DOCUMENT);
 
-    var modelAndView = new ModelAndView("pwaApplication/appProcessing/decision/consentDocumentEditor")
-        .addObject("caseSummaryView", processingContext.getCaseSummaryView())
-        .addObject("docInstanceExists", docInstanceOpt.isPresent())
-        .addObject("consentDocumentUrlFactory", new ConsentDocumentUrlFactory(processingContext.getPwaApplication()))
-        .addObject("clauseActionsUrlFactory", new ClauseActionsUrlFactory(processingContext.getPwaApplication(), docView))
-        .addObject("docView", docView)
-        .addObject("downloadUrl", ReverseRouter.route(on(AppConsentDocController.class)
-            .downloadPdf(applicationId, pwaApplicationType, processingContext, authenticatedUserAccount)));
+          var docView = docInstanceOpt
+              .map(documentService::getDocumentViewForInstance)
+              .orElse(null);
 
-    breadcrumbService.fromCaseManagement(processingContext.getPwaApplication(), modelAndView, "Consent document");
+          var modelAndView = new ModelAndView("pwaApplication/appProcessing/decision/consentDocumentEditor")
+              .addObject("caseSummaryView", processingContext.getCaseSummaryView())
+              .addObject("docInstanceExists", docInstanceOpt.isPresent())
+              .addObject("consentDocumentUrlFactory",
+                  new ConsentDocumentUrlFactory(processingContext.getPwaApplication()))
+              .addObject("clauseActionsUrlFactory",
+                  new ClauseActionsUrlFactory(processingContext.getPwaApplication(), docView))
+              .addObject("docView", docView)
+              .addObject("downloadUrl", ReverseRouter.route(on(AppConsentDocController.class)
+                  .downloadPdf(applicationId, pwaApplicationType, processingContext, authenticatedUserAccount)));
 
-    return modelAndView;
+          breadcrumbService.fromCaseManagement(processingContext.getPwaApplication(), modelAndView, "Consent document");
+
+          return modelAndView;
+
+        });
 
   }
 
@@ -90,44 +105,58 @@ public class AppConsentDocController {
                                               PwaAppProcessingContext processingContext,
                                               AuthenticatedUserAccount authenticatedUserAccount) {
 
-    try {
+    return resourceWhenDecisionMakeable(
+        processingContext,
+        () -> {
 
-      var blob = documentGenerationService.generateConsentDocument(processingContext.getApplicationDetail(), DocGenType.PREVIEW);
-      var inputStream = blob.getBinaryStream();
+          try {
 
-      try {
-        return ResponseEntity.ok()
-            .contentType(MediaType.APPLICATION_OCTET_STREAM)
-            .contentLength(blob.length())
-            .header(HttpHeaders.CONTENT_DISPOSITION, String.format("attachment; filename=\"%s\"", "test-filename.pdf"))
-            .body(new InputStreamResource(inputStream));
-      } catch (Exception e) {
-        throw new RuntimeException(String.format("Error serving file '%s'", "test-filename.pdf"), e);
-      }
+            var blob = documentGenerationService.generateConsentDocument(processingContext.getApplicationDetail(),
+                DocGenType.PREVIEW);
+            var inputStream = blob.getBinaryStream();
 
-    } catch (Exception e) {
-      throw new RuntimeException("Error serving document", e);
-    }
+            try {
+              return ResponseEntity.ok()
+                  .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                  .contentLength(blob.length())
+                  .header(HttpHeaders.CONTENT_DISPOSITION,
+                      String.format("attachment; filename=\"%s\"", "test-filename.pdf"))
+                  .body(new InputStreamResource(inputStream));
+            } catch (Exception e) {
+              throw new RuntimeException(String.format("Error serving file '%s'", "test-filename.pdf"), e);
+            }
+
+          } catch (Exception e) {
+            throw new RuntimeException("Error serving document", e);
+          }
+
+        });
 
   }
 
   @PostMapping
   public ModelAndView postConsentDocEditor(@PathVariable("applicationId") Integer applicationId,
-                                   @PathVariable("applicationType")
-                                   @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
-                                   PwaAppProcessingContext processingContext,
-                                   AuthenticatedUserAccount authenticatedUserAccount,
-                                   RedirectAttributes redirectAttributes) {
+                                           @PathVariable("applicationType")
+                                           @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
+                                           PwaAppProcessingContext processingContext,
+                                           AuthenticatedUserAccount authenticatedUserAccount,
+                                           RedirectAttributes redirectAttributes) {
 
-    documentService.createDocumentInstance(
-        processingContext.getPwaApplication(),
-        DocumentTemplateMnem.PWA_CONSENT_DOCUMENT,
-        authenticatedUserAccount.getLinkedPerson());
+    return whenDecisionMakeable(
+        processingContext,
+        () -> {
 
-    FlashUtils.info(redirectAttributes, "Document loaded");
+          documentService.createDocumentInstance(
+              processingContext.getPwaApplication(),
+              DocumentTemplateMnem.PWA_CONSENT_DOCUMENT,
+              authenticatedUserAccount.getLinkedPerson());
 
-    return ReverseRouter.redirect(on(AppConsentDocController.class)
-        .renderConsentDocEditor(applicationId, pwaApplicationType, null, null));
+          FlashUtils.info(redirectAttributes, "Document loaded");
+
+          return ReverseRouter.redirect(on(AppConsentDocController.class)
+              .renderConsentDocEditor(applicationId, pwaApplicationType, null, null));
+
+        });
 
   }
 
@@ -139,13 +168,21 @@ public class AppConsentDocController {
                                            AuthenticatedUserAccount authenticatedUserAccount,
                                            RedirectAttributes redirectAttributes) {
 
-    if (documentService.getDocumentInstance(processingContext.getPwaApplication(), DocumentTemplateMnem.PWA_CONSENT_DOCUMENT).isEmpty()) {
-      return flashErrorAndReturn(processingContext, redirectAttributes);
-    }
+    return whenDecisionMakeable(
+        processingContext,
+        () -> {
 
-    return new ModelAndView("pwaApplication/appProcessing/decision/reloadDocumentConfirm")
-        .addObject("appRef", processingContext.getPwaApplication().getAppReference())
-        .addObject("consentDocumentUrlFactory", new ConsentDocumentUrlFactory(processingContext.getPwaApplication()));
+          if (documentService.getDocumentInstance(processingContext.getPwaApplication(),
+              DocumentTemplateMnem.PWA_CONSENT_DOCUMENT).isEmpty()) {
+            return flashErrorAndReturn(processingContext, redirectAttributes);
+          }
+
+          return new ModelAndView("pwaApplication/appProcessing/decision/reloadDocumentConfirm")
+              .addObject("appRef", processingContext.getPwaApplication().getAppReference())
+              .addObject("consentDocumentUrlFactory",
+                  new ConsentDocumentUrlFactory(processingContext.getPwaApplication()));
+
+        });
 
   }
 
@@ -157,19 +194,26 @@ public class AppConsentDocController {
                                          AuthenticatedUserAccount authenticatedUserAccount,
                                          RedirectAttributes redirectAttributes) {
 
-    if (documentService.getDocumentInstance(processingContext.getPwaApplication(), DocumentTemplateMnem.PWA_CONSENT_DOCUMENT).isEmpty()) {
-      return flashErrorAndReturn(processingContext, redirectAttributes);
-    }
+    return whenDecisionMakeable(
+        processingContext,
+        () -> {
 
-    documentService.reloadDocumentInstance(
-        processingContext.getPwaApplication(),
-        DocumentTemplateMnem.PWA_CONSENT_DOCUMENT,
-        authenticatedUserAccount.getLinkedPerson());
+          if (documentService.getDocumentInstance(processingContext.getPwaApplication(),
+              DocumentTemplateMnem.PWA_CONSENT_DOCUMENT).isEmpty()) {
+            return flashErrorAndReturn(processingContext, redirectAttributes);
+          }
 
-    FlashUtils.info(redirectAttributes, "Document reloaded");
+          documentService.reloadDocumentInstance(
+              processingContext.getPwaApplication(),
+              DocumentTemplateMnem.PWA_CONSENT_DOCUMENT,
+              authenticatedUserAccount.getLinkedPerson());
 
-    return ReverseRouter.redirect(on(AppConsentDocController.class)
-        .renderConsentDocEditor(applicationId, pwaApplicationType, null, null));
+          FlashUtils.info(redirectAttributes, "Document reloaded");
+
+          return ReverseRouter.redirect(on(AppConsentDocController.class)
+              .renderConsentDocEditor(applicationId, pwaApplicationType, null, null));
+
+        });
 
   }
 
@@ -184,6 +228,38 @@ public class AppConsentDocController {
 
     return ReverseRouter.redirect(on(AppConsentDocController.class)
         .renderConsentDocEditor(applicationId, pwaApplicationType, null, null));
+  }
+
+
+  public ModelAndView whenDecisionMakeable(PwaAppProcessingContext processingContext,
+                                           Supplier<ModelAndView> modelAndViewSupplier) {
+
+    if (!applicationDecisionTaskService.taskAccessible(processingContext)) {
+      throwAccessDeniedException(processingContext);
+    }
+
+    return modelAndViewSupplier.get();
+
+  }
+
+
+  public ResponseEntity<Resource> resourceWhenDecisionMakeable(PwaAppProcessingContext processingContext,
+                                                               Supplier<ResponseEntity<Resource>> resourceSupplier) {
+
+    if (!applicationDecisionTaskService.taskAccessible(processingContext)) {
+      throwAccessDeniedException(processingContext);
+    }
+
+    return resourceSupplier.get();
+
+  }
+
+  private void throwAccessDeniedException(PwaAppProcessingContext processingContext) {
+    throw new AccessDeniedException(String.format(
+        "Can't access %s controller routes as application with id [%s] has invalid task state",
+        PwaAppProcessingTask.DECISION.name(),
+        processingContext.getMasterPwaApplicationId()));
+
   }
 
 }

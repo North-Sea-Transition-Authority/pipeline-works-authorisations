@@ -30,8 +30,6 @@ import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 @RunWith(MockitoJUnitRunner.class)
 public class CableCrossingsSummaryServiceTest {
 
-
-
   private final String TEMPLATE = "TEMPLATE";
 
   @Mock

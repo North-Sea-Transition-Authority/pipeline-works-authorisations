@@ -13,6 +13,7 @@ plugins {
   id 'jacoco'
   id 'checkstyle'
   id 'war'
+  id "org.sonarqube" version "3.0"
 }
 
 apply plugin: 'io.spring.dependency-management'
@@ -84,6 +85,9 @@ dependencies {
   // https://mvnrepository.com/artifact/org.jsoup/jsoup
   compile group: 'org.jsoup', name: 'jsoup', version: '1.13.1'
 
+  // https://mvnrepository.com/artifact/org.imgscalr/imgscalr-lib
+  compile group: 'org.imgscalr', name: 'imgscalr-lib', version: '4.2'
+
   testCompile 'com.h2database:h2:1.4.197'
   testCompile 'nl.jqno.equalsverifier:equalsverifier:3.1.8'
   testImplementation 'org.springframework.boot:spring-boot-starter-test'
@@ -105,5 +109,27 @@ dependencyCheck {
     // Point to a persisted volume in drone, to avoid having to re-download the whole CVE database each run.
     // Comment this out to run locally
     directory='/var/nvd-db'
+  }
+}
+
+tasks.jacocoTestReport {
+  reports {
+    xml.enabled(true)
+    html.enabled(false)
+  }
+}
+
+sonarqube {
+  properties {
+    property("sonar.projectKey", "fiviumuk_pipeline-works-authorisations")
+    property("sonar.host.url", "https://sonarcloud.io")
+    property("sonar.login", System.getenv("SONARCLOUD_TOKEN"))
+    property("sonar.organization", "fivium")
+    property("sonar.branch.name", System.getenv("DRONE_BRANCH"))
+    if (System.getenv("DRONE_BRANCH").startsWith("feature")) {
+      property("sonar.branch.target", "develop")
+    }
+    property("sonar.exclusions", "src/test/**, src/main/resources/public/assets/**, fivium-design-system-core/**, src/main/resources/templates/fds/**, build/**")
+    property("sonar.sources", "src")
   }
 }

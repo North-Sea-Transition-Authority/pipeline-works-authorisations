@@ -11,7 +11,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailSearchItem;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailView;
 import uk.co.ogauthority.pwa.service.consultations.search.ConsultationRequestSearchItem;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ConsultationRequestStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
@@ -25,7 +25,8 @@ import uk.co.ogauthority.pwa.service.workarea.applications.PwaApplicationWorkAre
 public class ConsultationRequestWorkAreaItemTest {
 
   private ConsultationRequestWorkAreaItem consultationRequestWorkAreaItem;
-  private ApplicationDetailSearchItem applicationDetailSearchItem;
+
+  private ApplicationDetailView applicationDetailView;
   private ConsultationRequestSearchItem consultationRequestSearchItem;
 
   private static final String VIEW_URL = "EXAMPLE_URL";
@@ -35,37 +36,43 @@ public class ConsultationRequestWorkAreaItemTest {
 
   @Before
   public void setup() {
+    applicationDetailView = new ApplicationDetailView();
+    consultationRequestSearchItem = new ConsultationRequestSearchItem();
+    setApplicationDetailItemViewValues(applicationDetailView);
+    setConsultationRequestSearchItemValues(applicationDetailView, consultationRequestSearchItem);
+  }
 
-    applicationDetailSearchItem = new ApplicationDetailSearchItem();
-    applicationDetailSearchItem.setApplicationType(PwaApplicationType.INITIAL);
-    applicationDetailSearchItem.setPwaApplicationId(100);
-    applicationDetailSearchItem.setPadHolderNameList(List.of("PAD_HOLDER"));
-    applicationDetailSearchItem.setPwaHolderNameList(List.of("PWA_HOLDER"));
-    applicationDetailSearchItem.setPadFields(List.of("FIELD2", "FIELD1"));
-    applicationDetailSearchItem.setPadProjectName("PROJECT_NAME");
-    applicationDetailSearchItem.setPadProposedStart(
+  private void setApplicationDetailItemViewValues(ApplicationDetailView applicationDetailItemView) {
+    applicationDetailItemView.setApplicationType(PwaApplicationType.INITIAL);
+    applicationDetailItemView.setPwaApplicationId(100);
+    applicationDetailItemView.setPadHolderNameList(List.of("PAD_HOLDER"));
+    applicationDetailItemView.setPwaHolderNameList(List.of("PWA_HOLDER"));
+    applicationDetailItemView.setPadFields(List.of("FIELD2", "FIELD1"));
+    applicationDetailItemView.setPadProjectName("PROJECT_NAME");
+    applicationDetailItemView.setPadProposedStart(
         LocalDateTime.of(2020, 1, 2, 3, 4, 5)
             .toInstant(ZoneOffset.ofTotalSeconds(0)));
-    applicationDetailSearchItem.setPadStatusTimestamp(
+    applicationDetailItemView.setPadStatusTimestamp(
         LocalDateTime.of(2020, 2, 3, 4, 5, 6)
             .toInstant(ZoneOffset.ofTotalSeconds(0)));
 
-    applicationDetailSearchItem.setPwaReference("PWA_REF");
-    applicationDetailSearchItem.setPadReference("PAD_REF");
+    applicationDetailItemView.setPwaReference("PWA_REF");
+    applicationDetailItemView.setPadReference("PAD_REF");
 
-    applicationDetailSearchItem.setPadStatus(PwaApplicationStatus.DRAFT);
-    applicationDetailSearchItem.setTipFlag(true);
-    applicationDetailSearchItem.setSubmittedAsFastTrackFlag(false);
+    applicationDetailItemView.setPadStatus(PwaApplicationStatus.DRAFT);
+    applicationDetailItemView.setTipFlag(true);
+    applicationDetailItemView.setSubmittedAsFastTrackFlag(false);
+  }
 
-    consultationRequestSearchItem = new ConsultationRequestSearchItem();
-    consultationRequestSearchItem.setApplicationDetailSearchItem(applicationDetailSearchItem);
+  private void setConsultationRequestSearchItemValues(ApplicationDetailView applicationDetailItemView,
+                                                      ConsultationRequestSearchItem consultationRequestSearchItem) {
+    consultationRequestSearchItem.setApplicationDetailView(applicationDetailItemView);
     consultationRequestSearchItem.setConsulteeGroupId(101);
     consultationRequestSearchItem.setConsulteeGroupName(CONSULTEE_GROUP_NAME);
     consultationRequestSearchItem.setConsulteeGroupAbbr(CONSULTEE_GROUP_NAME_ABBREV);
     consultationRequestSearchItem.setConsultationRequestStatus(ConsultationRequestStatus.ALLOCATION);
     consultationRequestSearchItem.setAssignedResponderName("Assigned Responder");
     consultationRequestSearchItem.setDeadlineDate(LocalDateTime.of(2020, 3, 3, 14, 5, 6).toInstant(ZoneOffset.ofTotalSeconds(0)));
-
   }
 
   @Test
@@ -73,16 +80,16 @@ public class ConsultationRequestWorkAreaItemTest {
     consultationRequestWorkAreaItem = new ConsultationRequestWorkAreaItem(consultationRequestSearchItem, searchItem -> VIEW_URL);
 
     assertThat(consultationRequestWorkAreaItem.getPwaApplicationId())
-        .isEqualTo(applicationDetailSearchItem.getPwaApplicationId());
+        .isEqualTo(applicationDetailView.getPwaApplicationId());
     assertThat(consultationRequestWorkAreaItem.getApplicationTypeDisplay())
-        .isEqualTo(applicationDetailSearchItem.getApplicationType().getDisplayName());
+        .isEqualTo(applicationDetailView.getApplicationType().getDisplayName());
     assertThat(consultationRequestWorkAreaItem.getOrderedFieldList()).isEqualTo(List.of("FIELD1", "FIELD2"));
     assertThat(consultationRequestWorkAreaItem.getMasterPwaReference())
-        .isEqualTo(applicationDetailSearchItem.getPwaReference());
-    assertThat(consultationRequestWorkAreaItem.getApplicationReference()).isEqualTo(applicationDetailSearchItem.getPadReference());
+        .isEqualTo(applicationDetailView.getPwaReference());
+    assertThat(consultationRequestWorkAreaItem.getApplicationReference()).isEqualTo(applicationDetailView.getPadReference());
     assertThat(consultationRequestWorkAreaItem.getAccessUrl()).isEqualTo(VIEW_URL);
     assertThat(consultationRequestWorkAreaItem.getApplicationStatusDisplay())
-        .isEqualTo(applicationDetailSearchItem.getPadStatus().getDisplayName());
+        .isEqualTo(applicationDetailView.getPadStatus().getDisplayName());
 
     assertThat(consultationRequestWorkAreaItem.getMasterPwaReference()).isEqualTo("PWA_REF");
     assertThat(consultationRequestWorkAreaItem.getApplicationReference()).isEqualTo("PAD_REF");
@@ -91,7 +98,7 @@ public class ConsultationRequestWorkAreaItemTest {
     assertThat(consultationRequestWorkAreaItem.getFormattedStatusSetDatetime())
         .isEqualTo("03/02/2020 04:05");
 
-    assertThat(consultationRequestWorkAreaItem.isTipFlag()).isEqualTo(applicationDetailSearchItem.isTipFlag());
+    assertThat(consultationRequestWorkAreaItem.isTipFlag()).isEqualTo(applicationDetailView.isTipFlag());
 
     assertThat(consultationRequestWorkAreaItem.getConsulteeGroupId()).isEqualTo(consultationRequestSearchItem.getConsulteeGroupId());
     assertThat(consultationRequestWorkAreaItem.getConsulteeGroupName()).isEqualTo(consultationRequestSearchItem.getConsulteeGroupName());
@@ -123,7 +130,7 @@ public class ConsultationRequestWorkAreaItemTest {
 
   @Test
   public void getFormattedProposedStartDate_whenNull() {
-    applicationDetailSearchItem.setPadProposedStart(null);
+    applicationDetailView.setPadProposedStart(null);
     consultationRequestWorkAreaItem = new ConsultationRequestWorkAreaItem(consultationRequestSearchItem, searchItem -> VIEW_URL);
     assertThat(consultationRequestWorkAreaItem.getProposedStartDateDisplay()).isNull();
   }
@@ -136,7 +143,7 @@ public class ConsultationRequestWorkAreaItemTest {
 
   @Test
   public void getFormattedStatusSetDatetime_whenNull() {
-    applicationDetailSearchItem.setPadStatusTimestamp(null);
+    applicationDetailView.setPadStatusTimestamp(null);
     consultationRequestWorkAreaItem = new ConsultationRequestWorkAreaItem(consultationRequestSearchItem, searchItem -> VIEW_URL);
     assertThat(consultationRequestWorkAreaItem.getFormattedStatusSetDatetime()).isNull();
   }
@@ -153,8 +160,8 @@ public class ConsultationRequestWorkAreaItemTest {
   @Test
   public void getFastTrackLabelText_fastTrack_notAccepted() {
 
-    applicationDetailSearchItem.setSubmittedAsFastTrackFlag(true);
-    applicationDetailSearchItem.setPadInitialReviewApprovedTimestamp(null);
+    applicationDetailView.setSubmittedAsFastTrackFlag(true);
+    applicationDetailView.setPadInitialReviewApprovedTimestamp(null);
 
     var workAreaItem = new ConsultationRequestWorkAreaItem(consultationRequestSearchItem, searchItem -> VIEW_URL);
 
@@ -165,8 +172,8 @@ public class ConsultationRequestWorkAreaItemTest {
   @Test
   public void getFastTrackLabelText_fastTrack_accepted() {
 
-    applicationDetailSearchItem.setSubmittedAsFastTrackFlag(true);
-    applicationDetailSearchItem.setPadInitialReviewApprovedTimestamp(Instant.now());
+    applicationDetailView.setSubmittedAsFastTrackFlag(true);
+    applicationDetailView.setPadInitialReviewApprovedTimestamp(Instant.now());
 
     var workAreaItem = new ConsultationRequestWorkAreaItem(consultationRequestSearchItem, searchItem -> VIEW_URL);
 
@@ -178,10 +185,10 @@ public class ConsultationRequestWorkAreaItemTest {
   @Test
   public void getApplicationStatusColumn_whenConsultationDue_andFastTrackApproved_andNoResponder() {
     var caseOfficer = "NAME";
-    applicationDetailSearchItem.setCaseOfficerName(caseOfficer);
-    applicationDetailSearchItem.setCaseOfficerPersonId(1);
-    applicationDetailSearchItem.setSubmittedAsFastTrackFlag(true);
-    applicationDetailSearchItem.setPadInitialReviewApprovedTimestamp(Instant.now());
+    applicationDetailView.setCaseOfficerName(caseOfficer);
+    applicationDetailView.setCaseOfficerPersonId(1);
+    applicationDetailView.setSubmittedAsFastTrackFlag(true);
+    applicationDetailView.setPadInitialReviewApprovedTimestamp(Instant.now());
 
     consultationRequestSearchItem.setAssignedResponderName(null);
 
@@ -206,10 +213,10 @@ public class ConsultationRequestWorkAreaItemTest {
   @Test
   public void getApplicationStatusColumn_whenConsultationDue_andFastTrackApproved_andResponderAssigned() {
     var caseOfficer = "NAME";
-    applicationDetailSearchItem.setCaseOfficerName(caseOfficer);
-    applicationDetailSearchItem.setCaseOfficerPersonId(1);
-    applicationDetailSearchItem.setSubmittedAsFastTrackFlag(true);
-    applicationDetailSearchItem.setPadInitialReviewApprovedTimestamp(Instant.now());
+    applicationDetailView.setCaseOfficerName(caseOfficer);
+    applicationDetailView.setCaseOfficerPersonId(1);
+    applicationDetailView.setSubmittedAsFastTrackFlag(true);
+    applicationDetailView.setPadInitialReviewApprovedTimestamp(Instant.now());
 
     consultationRequestSearchItem.setAssignedResponderName("RESPONDER");
 
@@ -238,21 +245,21 @@ public class ConsultationRequestWorkAreaItemTest {
   @Test
   public void getSummaryColumn_whenFieldsExist(){
     ApplicationWorkAreaItemTestUtil.test_getSummaryColumn_whenFieldsExist(
-        applicationDetailSearchItem,
+        applicationDetailView,
         o -> new PwaApplicationWorkAreaItem(o , searchItem -> VIEW_URL));
   }
 
   @Test
   public void getSummaryColumn_whenNoFields(){
     ApplicationWorkAreaItemTestUtil.test_getSummaryColumn_whenNoFields(
-        applicationDetailSearchItem,
+        applicationDetailView,
         o -> new PwaApplicationWorkAreaItem(o , searchItem -> VIEW_URL));
   }
 
   @Test
   public void getHolderColumn_whenInitialType(){
     ApplicationWorkAreaItemTestUtil.test_getHolderColumn_whenInitialType(
-        applicationDetailSearchItem,
+        applicationDetailView,
         o -> new PwaApplicationWorkAreaItem(o , searchItem -> VIEW_URL));
 
   }
@@ -260,14 +267,14 @@ public class ConsultationRequestWorkAreaItemTest {
   @Test
   public void getHolderColumn_whenNotInitialType() {
     ApplicationWorkAreaItemTestUtil.test_getHolderColumn_whenNotInitialType(
-        applicationDetailSearchItem,
+        applicationDetailView,
         o -> new PwaApplicationWorkAreaItem(o, searchItem -> VIEW_URL));
   }
 
   @Test
   public void getApplicationColumn_whenInitialType(){
     ApplicationWorkAreaItemTestUtil.test_getApplicationColumn_whenInitialType(
-        applicationDetailSearchItem,
+        applicationDetailView,
         o -> new PwaApplicationWorkAreaItem(o , searchItem -> VIEW_URL));
 
   }
@@ -275,14 +282,14 @@ public class ConsultationRequestWorkAreaItemTest {
   @Test
   public void getApplicationColumn_whenNotInitialType() {
     ApplicationWorkAreaItemTestUtil.test_getApplicationColumn_whenNotInitialType(
-        applicationDetailSearchItem,
+        applicationDetailView,
         o -> new PwaApplicationWorkAreaItem(o, searchItem -> VIEW_URL));
   }
 
   @Test
   public void getApplicationColumn_whenUpdate() {
     ApplicationWorkAreaItemTestUtil.test_getApplicationColumn_whenUpdateRequest(
-        applicationDetailSearchItem,
+        applicationDetailView,
         o -> new PwaApplicationWorkAreaItem(o, searchItem -> VIEW_URL));
   }
 

@@ -13,6 +13,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineStatus;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
@@ -55,14 +56,19 @@ public class ModifyPipelineServiceTest {
   @Test
   public void getConsentedPipelinesNotOnApplication_consentedPipelineAvailable() {
 
+    // TODO PWA-1047 rename these variables to "consentedPipeline" or "consentedPipelineNotOnApp".
+    //  (if a pipelineDetail exists it is already assumed to be consented)
+    // Also, extract this setup code as this entire test is called a setup step for other tests. which is bad.
     var nonConsentedPipeline = new Pipeline(detail.getPwaApplication());
     nonConsentedPipeline.setId(3);
 
     var nonConsentedPadPipeline = new PadPipeline();
     nonConsentedPadPipeline.setPipeline(nonConsentedPipeline);
+    nonConsentedPadPipeline.setPipelineStatus(PipelineStatus.IN_SERVICE);
     nonConsentedPadPipeline.setPipelineRef("Pipeline ref");
 
     var nonConsentedPipelineDetail = new PipelineDetail();
+    nonConsentedPipelineDetail.setPipelineStatus(PipelineStatus.IN_SERVICE);
     nonConsentedPipelineDetail.setPipeline(nonConsentedPipeline);
 
     when(pipelineDetailService.getNonDeletedPipelineDetailsForApplicationMasterPwa(detail.getMasterPwaApplication()))
@@ -105,10 +111,13 @@ public class ModifyPipelineServiceTest {
   @Test
   public void getConsentedPipelinesNotOnApplication_noPipelinesOnAppDetail() {
 
+    // TODO PWA-1047 rename this variable to "consentedPipeline" or "consentedPipelineNotOnApp"
+    // Also, extract this setup code as this entire test is called a setup step for other tests. which is bad.
     var nonConsentedPipeline = new Pipeline(detail.getPwaApplication());
     nonConsentedPipeline.setId(3);
 
     var nonConsentedPipelineDetail = new PipelineDetail();
+    nonConsentedPipelineDetail.setPipelineStatus(PipelineStatus.IN_SERVICE);
     nonConsentedPipelineDetail.setPipeline(nonConsentedPipeline);
 
     when(pipelineDetailService.getNonDeletedPipelineDetailsForApplicationMasterPwa(detail.getMasterPwaApplication()))
@@ -130,6 +139,7 @@ public class ModifyPipelineServiceTest {
     padPipeline.setId(1);
     padPipeline.setPipeline(pipeline);
     padPipeline.setPipelineType(PipelineType.GAS_LIFT_PIPELINE);
+    padPipeline.setPipelineStatus(PipelineStatus.IN_SERVICE);
 
     var pipelineOverview = new PadPipelineOverview(padPipeline, 1L);
 
@@ -158,6 +168,8 @@ public class ModifyPipelineServiceTest {
     assertThat(result).extracting(NamedPipeline::getPipelineId)
         .containsExactly(3);
   }
+
+
 
   @Test
   public void getSelectableConsentedPipelines_noConsentedPipelines() {

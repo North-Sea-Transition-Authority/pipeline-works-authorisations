@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.service.pwaapplications;
 
 import java.time.Clock;
 import java.time.Instant;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -13,6 +14,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.exception.ActionNotAllowedException;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
@@ -24,6 +26,7 @@ import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.partnerletters.Pa
 import uk.co.ogauthority.pwa.repository.pwaapplications.PwaApplicationDetailRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadFastTrackService;
+import uk.co.ogauthority.pwa.service.users.UserTypeService;
 
 @Service
 public class PwaApplicationDetailService {
@@ -31,14 +34,17 @@ public class PwaApplicationDetailService {
   private final PwaApplicationDetailRepository pwaApplicationDetailRepository;
   private final Clock clock;
   private final PadFastTrackService padFastTrackService;
+  private final UserTypeService userTypeService;
 
   @Autowired
   public PwaApplicationDetailService(PwaApplicationDetailRepository pwaApplicationDetailRepository,
                                      @Qualifier("utcClock") Clock clock,
-                                     PadFastTrackService padFastTrackService) {
+                                     PadFastTrackService padFastTrackService,
+                                     UserTypeService userTypeService) {
     this.pwaApplicationDetailRepository = pwaApplicationDetailRepository;
     this.clock = clock;
     this.padFastTrackService = padFastTrackService;
+    this.userTypeService = userTypeService;
   }
 
   /**
@@ -233,12 +239,31 @@ public class PwaApplicationDetailService {
     pwaApplicationDetailRepository.save(applicationDetail);
   }
 
-  public boolean isInitialReviewApproved(PwaApplicationDetail applicationDetail) {
-    return applicationDetail.getInitialReviewApprovedByWuaId() != null && applicationDetail.getInitialReviewApprovedTimestamp() != null;
+  @Transactional
+  public void setWithdrawn(PwaApplicationDetail pwaApplicationDetail, Person withdrawingUser, String withdrawalReason) {
+    pwaApplicationDetail.setStatus(PwaApplicationStatus.WITHDRAWN);
+    pwaApplicationDetail.setWithdrawalReason(withdrawalReason);
+    pwaApplicationDetail.setWithdrawalTimestamp(Instant.now(clock));
+    pwaApplicationDetail.setWithdrawingPersonId(withdrawingUser.getId());
+    pwaApplicationDetailRepository.save(pwaApplicationDetail);
   }
 
-  public Optional<PwaApplicationDetail> getLastSubmittedApplicationDetail(Integer pwaApplicationId) {
-    return pwaApplicationDetailRepository.findLastSubmittedApplicationDetail(pwaApplicationId);
+  @Transactional
+  public void setDeleted(PwaApplicationDetail pwaApplicationDetail, Person deletingUser) {
+    pwaApplicationDetail.setStatus(PwaApplicationStatus.DELETED);
+    pwaApplicationDetail.setDeletedTimestamp(Instant.now(clock));
+    pwaApplicationDetail.setDeletingPersonId(deletingUser.getId());
+    pwaApplicationDetailRepository.save(pwaApplicationDetail);
+  }
+
+  public boolean applicationDetailCanBeDeleted(PwaApplicationDetail appDetail) {
+    return appDetail.isTipFlag()
+        && appDetail.isFirstVersion()
+        && PwaApplicationStatus.DRAFT.equals(appDetail.getStatus());
+  }
+
+  public boolean isInitialReviewApproved(PwaApplicationDetail applicationDetail) {
+    return applicationDetail.getInitialReviewApprovedByWuaId() != null && applicationDetail.getInitialReviewApprovedTimestamp() != null;
   }
 
   public void setSupplementaryDocumentsFlag(PwaApplicationDetail detail, Boolean filesToUpload) {
@@ -249,4 +274,51 @@ public class PwaApplicationDetailService {
   public List<PwaApplicationDetail> getAllSubmittedApplicationDetailsForApplication(PwaApplication pwaApplication) {
     return pwaApplicationDetailRepository.findByPwaApplicationAndSubmittedTimestampIsNotNull(pwaApplication);
   }
+
+  public List<PwaApplicationDetail> getAllWithdrawnApplicationDetailsForApplication(PwaApplication pwaApplication) {
+    return pwaApplicationDetailRepository.findByPwaApplicationAndStatus(pwaApplication, PwaApplicationStatus.WITHDRAWN);
+  }
+
+  @Transactional
+  public void setConfirmedSatisfactoryData(PwaApplicationDetail applicationDetail,
+                                           String reason,
+                                           Person confirmingPerson) {
+
+    applicationDetail.setConfirmedSatisfactoryByPersonId(confirmingPerson.getId());
+    applicationDetail.setConfirmedSatisfactoryTimestamp(Instant.now(clock));
+    applicationDetail.setConfirmedSatisfactoryReason(reason);
+
+    pwaApplicationDetailRepository.save(applicationDetail);
+
+  }
+
+  public Optional<PwaApplicationDetail> getLatestDetailForUser(int applicationId,
+                                                               AuthenticatedUserAccount user) {
+
+    var details = pwaApplicationDetailRepository.findByPwaApplicationId(applicationId);
+    var userType = userTypeService.getUserType(user);
+
+    switch (userType) {
+
+      case INDUSTRY:
+      case OGA:
+        return details.stream()
+            .filter(d -> d.getSubmittedTimestamp() != null)
+            .max(Comparator.comparing(PwaApplicationDetail::getSubmittedTimestamp));
+
+      case CONSULTEE:
+        return details.stream()
+            .filter(d -> d.getConfirmedSatisfactoryTimestamp() != null)
+            .max(Comparator.comparing(PwaApplicationDetail::getConfirmedSatisfactoryTimestamp));
+
+      default:
+        throw new IllegalStateException(String.format(
+            "Unrecognised user type [%s] encountered when retrieving app detail for user with WUA id [%s]",
+            userType.name(),
+            user.getWuaId()));
+
+    }
+
+  }
+
 }

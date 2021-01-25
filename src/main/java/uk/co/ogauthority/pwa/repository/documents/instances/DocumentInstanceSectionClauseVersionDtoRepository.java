@@ -10,4 +10,6 @@ public interface DocumentInstanceSectionClauseVersionDtoRepository extends JpaRe
 
   List<DocumentInstanceSectionClauseVersionDto> findAllByDiId(Integer diId);
 
+  List<DocumentInstanceSectionClauseVersionDto> findAllByDiId_AndSectionNameEquals(Integer diId, String sectionName);
+
 }

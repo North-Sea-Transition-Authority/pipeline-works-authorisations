@@ -123,6 +123,9 @@ public class PipelinesSummaryService implements ApplicationSectionSummariser {
           Set.of("identViews", "pipelineStatus", "questionsForPipelineStatus")));
       pipelineHeaderMap.put("questionsForPipelineStatus", pipelineSummaryPair.getLeft().getQuestionsForPipelineStatus());
       pipelineHeaderMap.put("hasTemporaryPipelineNumber", StringUtils.isNotEmpty(currentPipelineHeader.getTemporaryPipelineNumber()));
+      pipelineHeaderMap.put("canShowAlreadyExistsOnSeabed", currentPipelineHeader.getAlreadyExistsOnSeabed() != null);
+      pipelineHeaderMap.put("canShowPipelineInUse", currentPipelineHeader.getPipelineInUse() != null);
+
 
       pipelineDiffMap.put("pipelineHeader", pipelineHeaderMap);
       pipelineDiffMap.put("pipelineIdents",

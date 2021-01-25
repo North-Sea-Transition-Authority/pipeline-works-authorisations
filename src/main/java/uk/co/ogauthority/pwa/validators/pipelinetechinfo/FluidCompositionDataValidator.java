@@ -43,8 +43,8 @@ public class FluidCompositionDataValidator implements SmartValidator {
             "Mole percentage should not have more than 2dp for " + chemical.getDisplayText());
 
       } else if (form.getMoleValue() != null
-          && (form.getMoleValue().compareTo(BigDecimal.valueOf(0.01)) == -1
-          || form.getMoleValue().compareTo(BigDecimal.valueOf(100)) == 1)) {
+          && (form.getMoleValue().compareTo(BigDecimal.valueOf(0.01)) < 0
+          || form.getMoleValue().compareTo(BigDecimal.valueOf(100)) > 0)) {
         errors.rejectValue("moleValue", "moleValue" + FieldValidationErrorCodes.INVALID.getCode(),
             "Enter a mole percentage between 0.01 and 100 for " + chemical.getDisplayText());
       }

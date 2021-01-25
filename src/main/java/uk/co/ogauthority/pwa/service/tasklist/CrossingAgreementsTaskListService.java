@@ -38,7 +38,7 @@ public class CrossingAgreementsTaskListService {
             detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null, null));
       case MEDIAN_LINE:
         return ReverseRouter.route(on(MedianLineCrossingController.class).renderMedianLineOverview(
-            detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null, null));
+            detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null));
       case CROSSING_TYPES:
         return ReverseRouter.route(on(CrossingTypesController.class).renderForm(
             detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null, null));
@@ -60,7 +60,7 @@ public class CrossingAgreementsTaskListService {
             detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null, null));
       case MEDIAN_LINE:
         return ReverseRouter.redirect(on(MedianLineCrossingController.class).renderMedianLineOverview(
-            detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null, null));
+            detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null));
       case CROSSING_TYPES:
         return ReverseRouter.redirect(on(CrossingTypesController.class).renderForm(
             detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null, null));

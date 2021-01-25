@@ -10,7 +10,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.ConsultationRequestSt
 
 public interface ConsultationRequestSearchItemRepository extends CrudRepository<ConsultationRequestSearchItem, Integer> {
 
-  @EntityGraph(attributePaths = "applicationDetailSearchItem")
+  @EntityGraph(attributePaths = "applicationDetailView")
   Page<ConsultationRequestSearchItem> getAllByConsultationRequestStatusIsAndConsulteeGroupIdEqualsOrConsultationRequestIdIn(
       Pageable pageable,
       ConsultationRequestStatus requestStatus,

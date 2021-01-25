@@ -44,7 +44,7 @@ public class PipelineControllerRouteUtils {
           "PadPipeline with ID: [%s] is not allowed to access the endpoint with PipelineStatus of [%s]. Valid statuses are: %s",
           padPipeline.getId(),
           padPipeline.getPipelineStatus().name(),
-          PipelineStatus.streamInOrder()
+          PipelineStatus.streamCurrentStatusesInOrder()
               .filter(PipelineControllerRouteUtils::isAccessible)
               .map(Enum::name)
               .collect(Collectors.joining(", "))

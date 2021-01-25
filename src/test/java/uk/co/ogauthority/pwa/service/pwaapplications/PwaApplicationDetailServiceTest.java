@@ -36,6 +36,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
+import uk.co.ogauthority.pwa.energyportal.model.entity.PersonTestUtil;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelineotherproperties.PropertyPhase;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
@@ -44,7 +45,9 @@ import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.partnerletters.Pa
 import uk.co.ogauthority.pwa.repository.pwaapplications.PwaApplicationDetailRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.service.enums.users.UserType;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadFastTrackService;
+import uk.co.ogauthority.pwa.service.users.UserTypeService;
 import uk.co.ogauthority.pwa.testutils.ObjectTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
@@ -64,6 +67,9 @@ public class PwaApplicationDetailServiceTest {
 
   @Mock
   private PadFastTrackService fastTrackService;
+
+  @Mock
+  private UserTypeService userTypeService;
 
   @Captor
   private ArgumentCaptor<PwaApplicationDetail> detailCaptor;
@@ -97,7 +103,7 @@ public class PwaApplicationDetailServiceTest {
 
     when(applicationDetailRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
-    pwaApplicationDetailService = new PwaApplicationDetailService(applicationDetailRepository, clock, fastTrackService);
+    pwaApplicationDetailService = new PwaApplicationDetailService(applicationDetailRepository, clock, fastTrackService, userTypeService);
   }
 
   @Test
@@ -237,6 +243,41 @@ public class PwaApplicationDetailServiceTest {
   }
 
   @Test
+  public void setWithdrawn() {
+
+    var withdrawalTimestamp = Instant.now(clock);
+    pwaApplicationDetail.setWithdrawalTimestamp(withdrawalTimestamp);
+    Person withdrawingUser = PersonTestUtil.createDefaultPerson();
+    String withdrawalReason = "reason";
+
+    pwaApplicationDetailService.setWithdrawn(pwaApplicationDetail, withdrawingUser, withdrawalReason);
+
+    var captor = ArgumentCaptor.forClass(PwaApplicationDetail.class);
+    verify(applicationDetailRepository, times(1)).save(captor.capture());
+
+    assertThat(captor.getValue().getStatus()).isEqualTo(PwaApplicationStatus.WITHDRAWN);
+    assertThat(captor.getValue().getWithdrawalReason()).isEqualTo(withdrawalReason);
+    assertThat(captor.getValue().getWithdrawalTimestamp()).isEqualTo(withdrawalTimestamp);
+    assertThat(captor.getValue().getWithdrawingPersonId()).isEqualTo(withdrawingUser.getId());
+  }
+
+  @Test
+  public void setDeleted() {
+
+    var deletedTimestamp = Instant.now(clock);
+    Person deletingUser = PersonTestUtil.createDefaultPerson();
+
+    pwaApplicationDetailService.setDeleted(pwaApplicationDetail, deletingUser);
+
+    var captor = ArgumentCaptor.forClass(PwaApplicationDetail.class);
+    verify(applicationDetailRepository, times(1)).save(captor.capture());
+
+    assertThat(captor.getValue().getStatus()).isEqualTo(PwaApplicationStatus.DELETED);
+    assertThat(captor.getValue().getDeletedTimestamp()).isEqualTo(deletedTimestamp);
+    assertThat(captor.getValue().getDeletingPersonId()).isEqualTo(deletingUser.getId());
+  }
+
+  @Test
   public void setNotLinkedFieldDescription() {
 
     assertThat(pwaApplicationDetail.getNotLinkedDescription()).isNull();
@@ -275,7 +316,20 @@ public class PwaApplicationDetailServiceTest {
 
     var ignoredFields = List.of("id", "status", "tipFlag", "versionNo", "createdTimestamp", "statusLastModifiedTimestamp", "statusLastModifiedByWuaId", "createdByWuaId");
 
-    var nullFields = List.of("id", "submittedByPersonId", "submittedTimestamp", "initialReviewApprovedByWuaId", "initialReviewApprovedTimestamp", "submittedAsFastTrackFlag");
+    var nullFields = List.of("id",
+        "submittedByPersonId",
+        "submittedTimestamp",
+        "initialReviewApprovedByWuaId",
+        "initialReviewApprovedTimestamp",
+        "submittedAsFastTrackFlag",
+        "confirmedSatisfactoryByPersonId",
+        "confirmedSatisfactoryReason",
+        "confirmedSatisfactoryTimestamp",
+        "withdrawalTimestamp",
+        "withdrawalReason",
+        "withdrawingPersonId",
+        "deletedTimestamp",
+        "deletingPersonId");
 
     var ignoredForEqualsComparison = new ArrayList<String>();
     ignoredForEqualsComparison.addAll(ignoredFields);
@@ -343,6 +397,14 @@ public class PwaApplicationDetailServiceTest {
     detail.setInitialReviewApprovedByWuaId(wua.getWuaId());
     detail.setInitialReviewApprovedTimestamp(baseTime);
     detail.setSupplementaryDocumentsFlag(true);
+    detail.setConfirmedSatisfactoryTimestamp(Instant.now());
+    detail.setConfirmedSatisfactoryReason("reason");
+    detail.setConfirmedSatisfactoryByPersonId(new PersonId(1));
+    detail.setWithdrawingPersonId(wua.getLinkedPerson().getId());
+    detail.setWithdrawalTimestamp(baseTime);
+    detail.setWithdrawalReason("reason");
+    detail.setDeletingPersonId(wua.getLinkedPerson().getId());
+    detail.setDeletedTimestamp(baseTime);
 
     // want to make sure that this method always gives every pwaApplicationDetail attribute a value.
     // This should ensure that tests are updated if attributes added later on.
@@ -359,16 +421,111 @@ public class PwaApplicationDetailServiceTest {
   }
 
   @Test
-  public void getLastSubmittedApplicationDetail_notFound(){
+  public void getLatestDetailForUser_industry_submitted(){
 
-    assertThat(pwaApplicationDetailService.getLastSubmittedApplicationDetail(APP_ID)).isEmpty();
-    verify(applicationDetailRepository, times(1)).findLastSubmittedApplicationDetail(APP_ID);
+    var draftDetail = new PwaApplicationDetail();
+    draftDetail.setStatus(PwaApplicationStatus.DRAFT);
+    var submittedDetail1 = new PwaApplicationDetail();
+    submittedDetail1.setStatus(PwaApplicationStatus.CASE_OFFICER_REVIEW);
+    submittedDetail1.setSubmittedTimestamp(Instant.now().minusSeconds(86400));
+    var submittedDetail2 = new PwaApplicationDetail();
+    submittedDetail2.setStatus(PwaApplicationStatus.CASE_OFFICER_REVIEW);
+    submittedDetail2.setSubmittedTimestamp(Instant.now());
+
+    when(applicationDetailRepository.findByPwaApplicationId(APP_ID)).thenReturn(List.of(draftDetail, submittedDetail1, submittedDetail2));
+    when(userTypeService.getUserType(user)).thenReturn(UserType.INDUSTRY);
+
+    var latestDetailOpt = pwaApplicationDetailService.getLatestDetailForUser(APP_ID, user);
+
+    assertThat(latestDetailOpt)
+        .isPresent()
+        .contains(submittedDetail2);
+
   }
 
   @Test
-  public void getLastSubmittedApplicationDetail_found(){
-    when(applicationDetailRepository.findLastSubmittedApplicationDetail(APP_ID)).thenReturn(Optional.of(pwaApplicationDetail));
-    assertThat(pwaApplicationDetailService.getLastSubmittedApplicationDetail(APP_ID)).contains(pwaApplicationDetail);
+  public void getLatestDetailForUser_oga_submitted(){
+
+    var draftDetail = new PwaApplicationDetail();
+    draftDetail.setStatus(PwaApplicationStatus.DRAFT);
+    var submittedDetail1 = new PwaApplicationDetail();
+    submittedDetail1.setStatus(PwaApplicationStatus.CASE_OFFICER_REVIEW);
+    submittedDetail1.setSubmittedTimestamp(Instant.now().minusSeconds(86400));
+    var submittedDetail2 = new PwaApplicationDetail();
+    submittedDetail2.setStatus(PwaApplicationStatus.CASE_OFFICER_REVIEW);
+    submittedDetail2.setSubmittedTimestamp(Instant.now());
+
+    when(applicationDetailRepository.findByPwaApplicationId(APP_ID)).thenReturn(List.of(draftDetail, submittedDetail1, submittedDetail2));
+    when(userTypeService.getUserType(user)).thenReturn(UserType.OGA);
+
+    var latestDetailOpt = pwaApplicationDetailService.getLatestDetailForUser(APP_ID, user);
+
+    assertThat(latestDetailOpt)
+        .isPresent()
+        .contains(submittedDetail2);
+
+  }
+
+  @Test
+  public void getLatestDetailForUser_consultee_satisfactory() {
+
+    var draftDetail = new PwaApplicationDetail();
+    draftDetail.setStatus(PwaApplicationStatus.DRAFT);
+    var satisfactoryDetail1 = new PwaApplicationDetail();
+    satisfactoryDetail1.setStatus(PwaApplicationStatus.CASE_OFFICER_REVIEW);
+    satisfactoryDetail1.setSubmittedTimestamp(Instant.now().minusSeconds(86400));
+    satisfactoryDetail1.setConfirmedSatisfactoryTimestamp(Instant.now().minusSeconds(86400));
+    var satisfactoryDetail2 = new PwaApplicationDetail();
+    satisfactoryDetail2.setStatus(PwaApplicationStatus.CASE_OFFICER_REVIEW);
+    satisfactoryDetail2.setSubmittedTimestamp(Instant.now().minusSeconds(43200));
+    satisfactoryDetail2.setConfirmedSatisfactoryTimestamp(Instant.now().minusSeconds(43200));
+    var submittedDetail = new PwaApplicationDetail();
+    submittedDetail.setStatus(PwaApplicationStatus.CASE_OFFICER_REVIEW);
+    submittedDetail.setSubmittedTimestamp(Instant.now());
+
+    when(applicationDetailRepository.findByPwaApplicationId(APP_ID))
+        .thenReturn(List.of(draftDetail, satisfactoryDetail1, satisfactoryDetail2, submittedDetail));
+    when(userTypeService.getUserType(user)).thenReturn(UserType.CONSULTEE);
+
+    var latestDetailOpt = pwaApplicationDetailService.getLatestDetailForUser(APP_ID, user);
+
+    assertThat(latestDetailOpt)
+        .isPresent()
+        .contains(satisfactoryDetail2);
+
+  }
+
+  @Test
+  public void setConfirmedSatisfactoryData_allProvided() {
+
+    var detail = new PwaApplicationDetail();
+
+    pwaApplicationDetailService.setConfirmedSatisfactoryData(detail, "reason", wua1Person);
+
+    verify(applicationDetailRepository, times(1)).save(detailCaptor.capture());
+
+    var checkDetail = detailCaptor.getValue();
+
+    assertThat(checkDetail.getConfirmedSatisfactoryByPersonId()).isEqualTo(wua1Person.getId());
+    assertThat(checkDetail.getConfirmedSatisfactoryReason()).isEqualTo("reason");
+    assertThat(checkDetail.getConfirmedSatisfactoryTimestamp()).isEqualTo(clock.instant());
+
+  }
+
+  @Test
+  public void setConfirmedSatisfactoryData_noReason() {
+
+    var detail = new PwaApplicationDetail();
+
+    pwaApplicationDetailService.setConfirmedSatisfactoryData(detail, null, wua1Person);
+
+    verify(applicationDetailRepository, times(1)).save(detailCaptor.capture());
+
+    var checkDetail = detailCaptor.getValue();
+
+    assertThat(checkDetail.getConfirmedSatisfactoryByPersonId()).isEqualTo(wua1Person.getId());
+    assertThat(checkDetail.getConfirmedSatisfactoryReason()).isNull();
+    assertThat(checkDetail.getConfirmedSatisfactoryTimestamp()).isEqualTo(clock.instant());
 
   }
 
@@ -379,5 +536,12 @@ public class PwaApplicationDetailServiceTest {
       throw new RuntimeException(
           String.format("Failed to access field '%s' on class '%s'", field.getName(), object.getClass()));
     }
+  }
+
+  @Test
+  public void getAllWithdrawnApplicationDetailsForApplication() {
+    pwaApplicationDetailService.getAllWithdrawnApplicationDetailsForApplication(pwaApplicationDetail.getPwaApplication());
+    verify(applicationDetailRepository, times(1))
+        .findByPwaApplicationAndStatus(pwaApplicationDetail.getPwaApplication(), PwaApplicationStatus.WITHDRAWN);
   }
 }

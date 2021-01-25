@@ -22,7 +22,19 @@ public class PwaAppProcessingContextDtoTestUtils {
     var groupDetail = ConsulteeGroupTestingUtils.createConsulteeGroup(groupName, groupName.substring(0, 1));
     var consultationInvolvement = new ConsultationInvolvementDto(groupDetail, Set.of(), request, List.of(), false);
 
-    return new ApplicationInvolvementDto(null, Set.of(), consultationInvolvement, false);
+    return new ApplicationInvolvementDto(null, Set.of(), consultationInvolvement, false, false, false, false);
+
+  }
+
+  public static ApplicationInvolvementDto appInvolvementWithConsultationRequest(String groupName,
+                                                                                ConsultationRequest request,
+                                                                                boolean atLeastOneSatisfactoryVersion) {
+
+    var groupDetail = ConsulteeGroupTestingUtils.createConsulteeGroup(groupName, groupName.substring(0, 1));
+    var consultationInvolvement = new ConsultationInvolvementDto(groupDetail, Set.of(), request, List.of(), false);
+
+    return new ApplicationInvolvementDto(null, Set.of(), consultationInvolvement, false, false,
+        atLeastOneSatisfactoryVersion, false);
 
   }
 
@@ -35,8 +47,17 @@ public class PwaAppProcessingContextDtoTestUtils {
         application,
         Set.of(),
         new ConsultationInvolvementDto(null, Set.of(), null, List.of(), false),
-        false
-    );
+        false,
+        false, false, false);
+  }
+
+  public static ApplicationInvolvementDto appInvolvementSatisfactoryVersions(PwaApplication application) {
+    return new ApplicationInvolvementDto(
+        application,
+        Set.of(),
+        new ConsultationInvolvementDto(null, Set.of(), null, List.of(), false),
+        false,
+        false, true, false);
   }
 
 }

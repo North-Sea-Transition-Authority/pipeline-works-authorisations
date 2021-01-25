@@ -7,6 +7,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
@@ -15,8 +16,8 @@ import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSe
 
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -33,17 +34,17 @@ import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.PwaAppProcessingContextAbstractControllerTest;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.dto.appprocessing.ProcessingPermissionsDto;
-import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.consultation.ConsultationRequestForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.AppProcessingBreadcrumbService;
 import uk.co.ogauthority.pwa.service.appprocessing.PwaAppProcessingPermissionService;
-import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContextService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.testutils.ConsulteeGroupTestingUtils;
+import uk.co.ogauthority.pwa.testutils.PwaAppProcessingContextDtoTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
@@ -66,50 +67,50 @@ public class ConsultationRequestControllerTest extends PwaAppProcessingContextAb
 
     consultationRequestController = new ConsultationRequestController(consultationRequestService, null, new AppProcessingBreadcrumbService());
 
+    endpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaApplicationDetailService, pwaAppProcessingPermissionService)
+        .setAllowedStatuses(PwaApplicationStatus.CASE_OFFICER_REVIEW)
+        .setAllowedProcessingPermissions(PwaAppProcessingPermission.EDIT_CONSULTATIONS);
+
     user = new AuthenticatedUserAccount(
         new WebUserAccount(1),
         EnumSet.allOf(PwaUserPrivilege.class));
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL, 1, 30);
     pwaApplicationDetail.setStatus(PwaApplicationStatus.CASE_OFFICER_REVIEW);
-    when(pwaApplicationDetailService.getLastSubmittedApplicationDetail(pwaApplicationDetail.getMasterPwaApplicationId()))
+    when(pwaApplicationDetailService.getLatestDetailForUser(pwaApplicationDetail.getMasterPwaApplicationId(), user))
         .thenReturn(Optional.of(pwaApplicationDetail));
 
-    endpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaApplicationDetailService, pwaAppProcessingPermissionService)
-        .setAllowedStatuses(PwaApplicationStatus.CASE_OFFICER_REVIEW)
-        .setAllowedProcessingPermissions(PwaAppProcessingPermission.EDIT_CONSULTATIONS);
+    var permissionsDto = new ProcessingPermissionsDto(PwaAppProcessingContextDtoTestUtils.appInvolvementSatisfactoryVersions(
+        pwaApplicationDetail.getPwaApplication()), EnumSet.allOf(PwaAppProcessingPermission.class));
+
+    when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail, user)).thenReturn(permissionsDto);
+
   }
 
   @Test
-  public void renderRequestConsultation_getConsulteeGroups_sorted() {
+  public void renderRequestConsultation_getConsulteeGroups_sorted() throws Exception {
 
-    var processingContext = new PwaAppProcessingContext(
-        pwaApplicationDetail,
-        null,
-        Set.of(PwaAppProcessingPermission.ASSIGN_CASE_OFFICER),
-        null,
-        null);
-
-    var consulteeGroupDetail1 = new ConsulteeGroupDetail();
-    consulteeGroupDetail1.setName("second consultee");
+    var consulteeGroupDetail1 = ConsulteeGroupTestingUtils.createConsulteeGroup("second consultee", "sc");
     consulteeGroupDetail1.setDisplayOrder(2);
-    var consulteeGroupDetail2 = new ConsulteeGroupDetail();
-    consulteeGroupDetail2.setName("third consultee");
+    var consulteeGroupDetail2 = ConsulteeGroupTestingUtils.createConsulteeGroup("third consultee", "tc");
     consulteeGroupDetail2.setDisplayOrder(3);
-    var consulteeGroupDetail3 = new ConsulteeGroupDetail();
-    consulteeGroupDetail3.setName("fourth consultee");
+    var consulteeGroupDetail3 = ConsulteeGroupTestingUtils.createConsulteeGroup("fourth consultee", "foc");
     consulteeGroupDetail3.setDisplayOrder(null);
-    var consulteeGroupDetail4 = new ConsulteeGroupDetail();
-    consulteeGroupDetail4.setName("first consultee");
+    var consulteeGroupDetail4 = ConsulteeGroupTestingUtils.createConsulteeGroup("first consultee", "fic");
     consulteeGroupDetail4.setDisplayOrder(1);
 
     when(consultationRequestService.getAllConsulteeGroups()).thenReturn(
         List.of(consulteeGroupDetail1, consulteeGroupDetail2, consulteeGroupDetail3, consulteeGroupDetail4));
 
-    var modelAndView = consultationRequestController.renderRequestConsultation(1, PwaApplicationType.INITIAL, processingContext, user, null);
+    var modelAndView = Objects.requireNonNull(mockMvc.perform(get(ReverseRouter.route(on(ConsultationRequestController.class).renderRequestConsultation(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, new ConsultationRequestForm())))
+        .with(authenticatedUserAndSession(user))
+        .with(csrf()))
+        .andReturn()
+        .getModelAndView());
 
     var expectedOrderedConsulteeGroups = List.of(consulteeGroupDetail4, consulteeGroupDetail1, consulteeGroupDetail2,  consulteeGroupDetail3);
     assertThat(modelAndView.getModel().get("consulteeGroups")).isEqualTo(expectedOrderedConsulteeGroups);
+
   }
 
   @Test
@@ -133,6 +134,20 @@ public class ConsultationRequestControllerTest extends PwaAppProcessingContextAb
                 .renderRequestConsultation(applicationDetail.getMasterPwaApplicationId(), type, null, null, null)));
 
     endpointTester.performProcessingPermissionCheck(status().isOk(), status().isForbidden());
+
+  }
+
+  @Test
+  public void renderRequestConsultation_noSatisfactoryVersions() throws Exception {
+
+    when(processingPermissionService.getProcessingPermissionsDto(any(), any())).thenReturn(new ProcessingPermissionsDto(
+        PwaAppProcessingContextDtoTestUtils.emptyAppInvolvement(pwaApplicationDetail.getPwaApplication()),
+        EnumSet.allOf(PwaAppProcessingPermission.class)));
+
+    mockMvc.perform(get(ReverseRouter.route(on(ConsultationRequestController.class).renderRequestConsultation(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null)))
+        .with(authenticatedUserAndSession(user))
+        .with(csrf()))
+        .andExpect(status().isForbidden());
 
   }
 
@@ -169,9 +184,6 @@ public class ConsultationRequestControllerTest extends PwaAppProcessingContextAb
 
     when(consultationRequestService.validate(any(), any(), any())).thenReturn(new BeanPropertyBindingResult(new ConsultationRequestForm(), "form"));
 
-    var permissionsDto = new ProcessingPermissionsDto(null, EnumSet.allOf(PwaAppProcessingPermission.class));
-    when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail.getPwaApplication(), user)).thenReturn(permissionsDto);
-
     mockMvc.perform(post(ReverseRouter.route(on(ConsultationRequestController.class)
         .postRequestConsultation(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null)))
         .with(authenticatedUserAndSession(user))
@@ -191,9 +203,6 @@ public class ConsultationRequestControllerTest extends PwaAppProcessingContextAb
     failedBindingResult.addError(new ObjectError("fake", "fake"));
     when(consultationRequestService.validate(any(), any(), any())).thenReturn(failedBindingResult);
 
-    var permissionsDto = new ProcessingPermissionsDto(null, EnumSet.allOf(PwaAppProcessingPermission.class));
-    when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail.getPwaApplication(), user)).thenReturn(permissionsDto);
-
     mockMvc.perform(post(ReverseRouter.route(on(ConsultationRequestController.class)
         .postRequestConsultation(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null)))
         .with(authenticatedUserAndSession(user))
@@ -202,6 +211,20 @@ public class ConsultationRequestControllerTest extends PwaAppProcessingContextAb
         .with(csrf()))
         .andExpect(status().isOk())
         .andExpect(view().name("consultation/consultationRequest"));
+
+  }
+
+  @Test
+  public void postRequestConsultation_noSatisfactoryVersions() throws Exception {
+
+    when(processingPermissionService.getProcessingPermissionsDto(any(), any())).thenReturn(new ProcessingPermissionsDto(
+        PwaAppProcessingContextDtoTestUtils.emptyAppInvolvement(pwaApplicationDetail.getPwaApplication()),
+        EnumSet.allOf(PwaAppProcessingPermission.class)));
+
+    mockMvc.perform(post(ReverseRouter.route(on(ConsultationRequestController.class).postRequestConsultation(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null)))
+        .with(authenticatedUserAndSession(user))
+        .with(csrf()))
+        .andExpect(status().isForbidden());
 
   }
 

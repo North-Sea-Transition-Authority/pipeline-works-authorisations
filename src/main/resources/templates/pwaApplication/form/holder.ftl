@@ -6,7 +6,7 @@
 <#-- @ftlvariable name="backUrl" type="String" -->
 <#-- @ftlvariable name="ogaServiceDeskEmail" type="String" -->
 
-<@defaultPage htmlTitle="Consent holder" breadcrumbs=hasHolderSet>
+<@defaultPage htmlTitle="Consent holder">
 
   <@fdsError.errorSummary errorItems=errorList />
 
@@ -23,11 +23,8 @@
         <p>If you already have access to the holder group but your legal entity as per companies house is not shown in the list then provide the OGA with the holder company name, address including postcode and companies house registration number to add to the PWA service: ${ogaServiceDeskEmail} </p>
       </@fdsDetails.summaryDetails>
 
-      <#if hasHolderSet>
-        <@fdsAction.submitButtons primaryButtonText="Save" linkSecondaryAction=true secondaryLinkText="Back to task list" linkSecondaryActionUrl=springUrl(taskListUrl) />
-      <#else>
-        <@fdsAction.submitButtons primaryButtonText="Continue" linkSecondaryAction=true secondaryLinkText="Back to work area" linkSecondaryActionUrl=springUrl(workareaUrl) />
-      </#if>
+      <@fdsAction.submitButtons primaryButtonText="Continue" linkSecondaryAction=true secondaryLinkText="Back to work area" linkSecondaryActionUrl=springUrl(workareaUrl) />
+
 
 
   </@fdsForm.htmlForm>

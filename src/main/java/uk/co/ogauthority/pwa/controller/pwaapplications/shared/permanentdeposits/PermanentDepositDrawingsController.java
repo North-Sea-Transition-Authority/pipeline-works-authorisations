@@ -53,7 +53,8 @@ import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
     PwaApplicationType.DEPOSIT_CONSENT,
     PwaApplicationType.CAT_1_VARIATION,
     PwaApplicationType.CAT_2_VARIATION,
-    PwaApplicationType.DECOMMISSIONING
+    PwaApplicationType.DECOMMISSIONING,
+    PwaApplicationType.OPTIONS_VARIATION
 })
 public class PermanentDepositDrawingsController extends PwaApplicationDetailDataFileUploadAndDownloadController {
 
@@ -255,7 +256,7 @@ public class PermanentDepositDrawingsController extends PwaApplicationDetailData
       @PathVariable("applicationId") Integer applicationId,
       @RequestParam("file") MultipartFile file,
       PwaApplicationContext applicationContext) {
-    return padFileService.processInitialUpload(
+    return padFileService.processImageUpload(
         file,
         applicationContext.getApplicationDetail(),
         FILE_PURPOSE,

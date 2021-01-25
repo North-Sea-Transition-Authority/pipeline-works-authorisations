@@ -12,10 +12,10 @@ import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.model.dto.appprocessing.ConsultationInvolvementDto;
 import uk.co.ogauthority.pwa.model.dto.appprocessing.ProcessingPermissionsDto;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupMemberRole;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
-import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 
 @Service
@@ -28,10 +28,10 @@ public class PwaAppProcessingPermissionService {
     this.applicationInvolvementService = applicationInvolvementService;
   }
 
-  public ProcessingPermissionsDto getProcessingPermissionsDto(PwaApplication application,
+  public ProcessingPermissionsDto getProcessingPermissionsDto(PwaApplicationDetail detail,
                                                               AuthenticatedUserAccount user) {
 
-    var appInvolvement = applicationInvolvementService.getApplicationInvolvementDto(application, user);
+    var appInvolvement = applicationInvolvementService.getApplicationInvolvementDto(detail, user);
 
     var userPrivileges = user.getUserPrivileges();
     var genericPermissions = getGenericProcessingPermissions(userPrivileges);
@@ -47,11 +47,13 @@ public class PwaAppProcessingPermissionService {
                   .map(ConsultationInvolvementDto::getConsulteeRoles)
                   .orElse(Set.of())
                   .isEmpty();
+            // app contacts can only access in progress apps, once complete only holder team users can access
             case CASE_MANAGEMENT_INDUSTRY:
-              return !appInvolvement.getContactRoles().isEmpty();
+              return (!appInvolvement.getContactRoles().isEmpty() && detail.getStatus() != PwaApplicationStatus.COMPLETE)
+                  || appInvolvement.isUserInHolderTeam();
             case APPROVE_OPTIONS_VIEW:
               return !appInvolvement.getContactRoles().isEmpty()
-                  && PwaApplicationType.OPTIONS_VARIATION.equals(application.getApplicationType());
+                  && PwaApplicationType.OPTIONS_VARIATION.equals(detail.getPwaApplicationType());
             case CASE_MANAGEMENT_OGA:
               return userPrivileges.contains(PwaUserPrivilege.PWA_REGULATOR);
             case ASSIGN_RESPONDER:
@@ -68,18 +70,25 @@ public class PwaAppProcessingPermissionService {
                   .orElse(List.of())
                   .isEmpty();
             case APPROVE_OPTIONS:
+            case CLOSE_OUT_OPTIONS:
               return userPrivileges.contains(PwaUserPrivilege.PWA_CASE_OFFICER)
                   && appInvolvement.isCaseOfficerStageAndUserAssigned()
-                  && PwaApplicationType.OPTIONS_VARIATION.equals(application.getApplicationType());
-
+                  && PwaApplicationType.OPTIONS_VARIATION.equals(detail.getPwaApplicationType());
+            case CHANGE_OPTIONS_APPROVAL_DEADLINE:
+              return userPrivileges.contains(PwaUserPrivilege.PWA_MANAGER)
+                  && PwaApplicationType.OPTIONS_VARIATION.equals(detail.getPwaApplicationType());
             case CASE_OFFICER_REVIEW:
+            case CONFIRM_SATISFACTORY_APPLICATION:
             case EDIT_CONSULTATIONS:
             case PUBLIC_NOTICE:
             case WITHDRAW_CONSULTATION:
-            case REQUEST_APPLICATION_UPDATE:
             case EDIT_CONSENT_DOCUMENT:
               return userPrivileges.contains(
                   PwaUserPrivilege.PWA_CASE_OFFICER) && appInvolvement.isCaseOfficerStageAndUserAssigned();
+            case REQUEST_APPLICATION_UPDATE:
+            case WITHDRAW_APPLICATION:
+              return (userPrivileges.contains(PwaUserPrivilege.PWA_CASE_OFFICER) && appInvolvement.isCaseOfficerStageAndUserAssigned())
+                  || (userPrivileges.contains(PwaUserPrivilege.PWA_MANAGER) && appInvolvement.isPwaManagerStage());
             default:
               return false;
           }

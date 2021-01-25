@@ -33,6 +33,8 @@ import uk.co.ogauthority.pwa.model.notify.emailproperties.EmailProperties;
 import uk.co.ogauthority.pwa.model.tasklist.TaskTag;
 import uk.co.ogauthority.pwa.repository.appprocessing.applicationupdates.ApplicationUpdateRequestRepository;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
+import uk.co.ogauthority.pwa.service.appprocessing.options.ApproveOptionsService;
+import uk.co.ogauthority.pwa.service.appprocessing.options.OptionsApprovalStatus;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingTask;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.TaskStatus;
@@ -88,6 +90,9 @@ public class ApplicationUpdateRequestServiceTest {
   @Mock
   private PersonService personService;
 
+  @Mock
+  private ApproveOptionsService approveOptionsService;
+
   private Clock clock = Clock.fixed(Instant.now(), ZoneId.systemDefault());
 
   private ApplicationUpdateRequestService applicationUpdateRequestService;
@@ -132,8 +137,8 @@ public class ApplicationUpdateRequestServiceTest {
         pwaContactService,
         pwaApplicationDetailVersioningService,
         workflowAssignmentService,
-        personService
-    );
+        personService,
+        approveOptionsService);
 
     defaultUpdateRequest = new ApplicationUpdateRequest();
     defaultUpdateRequest.setRequestedByPersonId(REQUESTER_PERSON_ID);
@@ -159,22 +164,22 @@ public class ApplicationUpdateRequestServiceTest {
   }
 
   @Test
-  public void applicationDetailHasOpenUpdateRequest_whenOpenUpdateRequest() {
+  public void applicationHasOpenUpdateRequest_whenOpenUpdateRequest() {
     when(applicationUpdateRequestRepository.findByPwaApplicationDetail_pwaApplicationAndStatus(
         pwaApplicationDetail.getPwaApplication(), ApplicationUpdateRequestStatus.OPEN
     ))
         .thenReturn(Optional.of(defaultUpdateRequest));
-    assertThat(applicationUpdateRequestService.applicationDetailHasOpenUpdateRequest(pwaApplicationDetail)).isTrue();
+    assertThat(applicationUpdateRequestService.applicationHasOpenUpdateRequest(pwaApplicationDetail)).isTrue();
 
   }
 
   @Test
-  public void applicationDetailHasOpenUpdateRequest_whenNoOpenUpdateRequest() {
+  public void applicationHasOpenUpdateRequest_whenNoOpenUpdateRequest() {
     when(applicationUpdateRequestRepository.findByPwaApplicationDetail_pwaApplicationAndStatus(
         pwaApplicationDetail.getPwaApplication(), ApplicationUpdateRequestStatus.OPEN
     ))
         .thenReturn(Optional.empty());
-    assertThat(applicationUpdateRequestService.applicationDetailHasOpenUpdateRequest(pwaApplicationDetail)).isFalse();
+    assertThat(applicationUpdateRequestService.applicationHasOpenUpdateRequest(pwaApplicationDetail)).isFalse();
 
   }
 
@@ -244,7 +249,7 @@ public class ApplicationUpdateRequestServiceTest {
                                                String recipientFullName) {
 
     assertThat(emailProperties.getEmailPersonalisation()).contains(
-        entry("CASE_OFFICER_NAME", responderPerson.getFullName()),
+        entry("REQUESTER_NAME", responderPerson.getFullName()),
         entry("APPLICATION_REFERENCE", pwaApplicationDetail.getPwaApplicationRef())
     );
     assertThat(emailProperties.getRecipientFullName()).isEqualTo(recipientFullName);
@@ -349,6 +354,26 @@ public class ApplicationUpdateRequestServiceTest {
 
     assertThat(taskListEntry.getTaskName()).isEqualTo(PwaAppProcessingTask.RFI.getTaskName());
     assertThat(taskListEntry.getRoute()).isEqualTo(PwaAppProcessingTask.RFI.getRoute(processingContext));
+    assertThat(taskListEntry.getTaskTag()).isNull();
+    assertThat(taskListEntry.getTaskInfoList()).isEmpty();
+
+  }
+
+  @Test
+  public void getTaskListEntry_appUpdate_notInProgress_unrespondedOptionApproval() {
+
+    var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
+
+    var processingContext = new PwaAppProcessingContext(detail, null, Set.of(), null, null);
+
+    when(approveOptionsService.getOptionsApprovalStatus(detail)).thenReturn(OptionsApprovalStatus.APPROVED_UNRESPONDED);
+
+    when(applicationUpdateRequestRepository.findByPwaApplicationDetail_pwaApplicationAndStatus(any(), any())).thenReturn(Optional.empty());
+
+    var taskListEntry = applicationUpdateRequestService.getTaskListEntry(PwaAppProcessingTask.RFI, processingContext);
+
+    assertThat(taskListEntry.getTaskName()).isEqualTo(PwaAppProcessingTask.RFI.getTaskName());
+    assertThat(taskListEntry.getRoute()).isNull();
     assertThat(taskListEntry.getTaskTag()).isNull();
     assertThat(taskListEntry.getTaskInfoList()).isEmpty();
 

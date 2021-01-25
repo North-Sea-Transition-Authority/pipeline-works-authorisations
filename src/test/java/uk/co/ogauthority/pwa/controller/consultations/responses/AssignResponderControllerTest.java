@@ -69,7 +69,7 @@ public class AssignResponderControllerTest extends PwaAppProcessingContextAbstra
         EnumSet.of(PwaUserPrivilege.PWA_CONSULTEE));
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL, 1);
-    when(pwaApplicationDetailService.getLastSubmittedApplicationDetail(pwaApplicationDetail.getMasterPwaApplicationId()))
+    when(pwaApplicationDetailService.getLatestDetailForUser(pwaApplicationDetail.getMasterPwaApplicationId(), user))
         .thenReturn(Optional.of(pwaApplicationDetail));
 
     consultationRequest = new ConsultationRequest();
@@ -120,7 +120,7 @@ public class AssignResponderControllerTest extends PwaAppProcessingContextAbstra
 
     when(assignResponderService.validate(any(), any(), any())).thenReturn(new BeanPropertyBindingResult(new AssignResponderForm(), "form"));
 
-    when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail.getPwaApplication(), user)).thenReturn(permissionsDto);
+    when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail, user)).thenReturn(permissionsDto);
 
     mockMvc.perform(post(ReverseRouter.route(on(AssignResponderController.class).postAssignResponder(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), 1, null, null, null, null, null)))
         .with(authenticatedUserAndSession(user))
@@ -139,7 +139,7 @@ public class AssignResponderControllerTest extends PwaAppProcessingContextAbstra
     failedBindingResult.addError(new ObjectError("fake", "fake"));
     when(assignResponderService.validate(any(), any(), any())).thenReturn(failedBindingResult);
 
-    when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail.getPwaApplication(), user)).thenReturn(permissionsDto);
+    when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail, user)).thenReturn(permissionsDto);
 
     mockMvc.perform(post(ReverseRouter.route(on(AssignResponderController.class).postAssignResponder(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), 1, null, null, null, null, null)))
         .with(authenticatedUserAndSession(user))

@@ -33,7 +33,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadLocationDetails;
 import uk.co.ogauthority.pwa.model.form.files.UploadedFileView;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.location.LocationDetailsForm;
-import uk.co.ogauthority.pwa.model.search.SearchSelectable;
+import uk.co.ogauthority.pwa.model.searchselector.SearchSelectable;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadLocationDetailsRepository;
 import uk.co.ogauthority.pwa.service.devuk.DevukFacilityService;
 import uk.co.ogauthority.pwa.service.devuk.PadFacilityService;
@@ -41,8 +41,9 @@ import uk.co.ogauthority.pwa.service.entitycopier.EntityCopyingService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.location.PadLocationDetailsService;
-import uk.co.ogauthority.pwa.service.search.SearchSelectorService;
+import uk.co.ogauthority.pwa.service.searchselector.SearchSelectorService;
 import uk.co.ogauthority.pwa.util.DateUtils;
+import uk.co.ogauthority.pwa.util.forminputs.twofielddate.TwoFieldDateInput;
 import uk.co.ogauthority.pwa.validators.LocationDetailsValidator;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -109,12 +110,6 @@ public class PadLocationDetailsServiceTest {
   }
 
   @Test
-  public void save() {
-    padLocationDetailsService.save(padLocationDetails);
-    verify(padLocationDetailsRepository, times(1)).save(padLocationDetails);
-  }
-
-  @Test
   public void mapEntityToForm_WithNulls() {
     var form = new LocationDetailsForm();
     var entity = new PadLocationDetails();
@@ -129,6 +124,7 @@ public class PadLocationDetailsServiceTest {
     assertThat(form.getSurveyConcludedMonth()).isNull();
     assertThat(form.getSurveyConcludedYear()).isNull();
     assertThat(form.getRouteSurveyUndertaken()).isNull();
+    assertThat(form.getRouteSurveyNotUndertakenReason()).isNull();
     assertThat(form.getWithinLimitsOfDeviation()).isNull();
   }
 
@@ -153,6 +149,74 @@ public class PadLocationDetailsServiceTest {
   }
 
   @Test
+  public void mapEntityToForm_completelyInSafetyZone_psrSubmitted() {
+    var form = new LocationDetailsForm();
+    padLocationDetails.setWithinSafetyZone(HseSafetyZone.YES);
+    padLocationDetails.setPsrNotificationSubmitted(true);
+    padLocationDetails.setPsrNotificationSubmittedMonth(5);
+    padLocationDetails.setPsrNotificationSubmittedYear(2020);
+
+    padLocationDetailsService.mapEntityToForm(padLocationDetails, form);
+    var safetyZoneForm = form.getCompletelyWithinSafetyZoneForm();
+    assertThat(safetyZoneForm.getPsrNotificationSubmitted()).isEqualTo(padLocationDetails.getPsrNotificationSubmitted());
+    assertThat(safetyZoneForm.getPsrNotificationSubmittedDate().getMonth())
+        .isEqualTo(String.valueOf(padLocationDetails.getPsrNotificationSubmittedMonth()));
+    assertThat(safetyZoneForm.getPsrNotificationSubmittedDate().getYear())
+        .isEqualTo(String.valueOf(padLocationDetails.getPsrNotificationSubmittedYear()));
+  }
+
+  @Test
+  public void mapEntityToForm_completelyInSafetyZone_psrNotSubmitted() {
+    var form = new LocationDetailsForm();
+    padLocationDetails.setWithinSafetyZone(HseSafetyZone.YES);
+    padLocationDetails.setPsrNotificationSubmitted(false);
+    padLocationDetails.setPsrNotificationExpectedSubmissionMonth(5);
+    padLocationDetails.setPsrNotificationExpectedSubmissionYear(2021);
+
+    padLocationDetailsService.mapEntityToForm(padLocationDetails, form);
+    var safetyZoneForm = form.getCompletelyWithinSafetyZoneForm();
+    assertThat(safetyZoneForm.getPsrNotificationSubmitted()).isEqualTo(padLocationDetails.getPsrNotificationSubmitted());
+    assertThat(safetyZoneForm.getPsrNotificationExpectedSubmissionDate().getMonth())
+        .isEqualTo(String.valueOf(padLocationDetails.getPsrNotificationExpectedSubmissionMonth()));
+    assertThat(safetyZoneForm.getPsrNotificationExpectedSubmissionDate().getYear())
+        .isEqualTo(String.valueOf(padLocationDetails.getPsrNotificationExpectedSubmissionYear()));
+  }
+
+  @Test
+  public void mapEntityToForm_partiallyInSafetyZone_psrSubmitted() {
+    var form = new LocationDetailsForm();
+    padLocationDetails.setWithinSafetyZone(HseSafetyZone.PARTIALLY);
+    padLocationDetails.setPsrNotificationSubmitted(true);
+    padLocationDetails.setPsrNotificationSubmittedMonth(5);
+    padLocationDetails.setPsrNotificationSubmittedYear(2020);
+
+    padLocationDetailsService.mapEntityToForm(padLocationDetails, form);
+    var safetyZoneForm = form.getPartiallyWithinSafetyZoneForm();
+    assertThat(safetyZoneForm.getPsrNotificationSubmitted()).isEqualTo(padLocationDetails.getPsrNotificationSubmitted());
+    assertThat(safetyZoneForm.getPsrNotificationSubmittedDate().getMonth())
+        .isEqualTo(String.valueOf(padLocationDetails.getPsrNotificationSubmittedMonth()));
+    assertThat(safetyZoneForm.getPsrNotificationSubmittedDate().getYear())
+        .isEqualTo(String.valueOf(padLocationDetails.getPsrNotificationSubmittedYear()));
+  }
+
+  @Test
+  public void mapEntityToForm_partiallyInSafetyZone_psrNotSubmitted() {
+    var form = new LocationDetailsForm();
+    padLocationDetails.setWithinSafetyZone(HseSafetyZone.PARTIALLY);
+    padLocationDetails.setPsrNotificationSubmitted(false);
+    padLocationDetails.setPsrNotificationExpectedSubmissionMonth(5);
+    padLocationDetails.setPsrNotificationExpectedSubmissionYear(2021);
+
+    padLocationDetailsService.mapEntityToForm(padLocationDetails, form);
+    var safetyZoneForm = form.getPartiallyWithinSafetyZoneForm();
+    assertThat(safetyZoneForm.getPsrNotificationSubmitted()).isEqualTo(padLocationDetails.getPsrNotificationSubmitted());
+    assertThat(safetyZoneForm.getPsrNotificationExpectedSubmissionDate().getMonth())
+        .isEqualTo(String.valueOf(padLocationDetails.getPsrNotificationExpectedSubmissionMonth()));
+    assertThat(safetyZoneForm.getPsrNotificationExpectedSubmissionDate().getYear())
+        .isEqualTo(String.valueOf(padLocationDetails.getPsrNotificationExpectedSubmissionYear()));
+  }
+
+  @Test
   public void saveEntityUsingForm_WithNulls() {
     var form = new LocationDetailsForm();
     var entity = new PadLocationDetails();
@@ -165,6 +229,7 @@ public class PadLocationDetailsServiceTest {
     assertThat(entity.getPipelineRouteDetails()).isNull();
     assertThat(entity.getSurveyConcludedTimestamp()).isNull();
     assertThat(entity.getRouteSurveyUndertaken()).isNull();
+    assertThat(entity.getRouteSurveyNotUndertakenReason()).isNull();
     assertThat(entity.getWithinLimitsOfDeviation()).isNull();
   }
 
@@ -183,6 +248,79 @@ public class PadLocationDetailsServiceTest {
     assertThat(entity.getSurveyConcludedTimestamp()).isEqualTo(SURVEY_CONCLUDED_DATE);
     assertThat(entity.getRouteSurveyUndertaken()).isEqualTo(form.getRouteSurveyUndertaken());
     assertThat(entity.getWithinLimitsOfDeviation()).isEqualTo(form.getWithinLimitsOfDeviation());
+    verify(padLocationDetailsRepository, times(1)).save(entity);
+  }
+
+  @Test
+  public void saveEntityUsingForm_completelyInSafetyZone_psrSubmitted_saved() {
+    var form = new LocationDetailsForm();
+    form.setWithinSafetyZone(HseSafetyZone.YES);
+    form.getCompletelyWithinSafetyZoneForm().setPsrNotificationSubmitted(true);
+    var twoFieldDate = new TwoFieldDateInput(2020, 5);
+    form.getCompletelyWithinSafetyZoneForm().setPsrNotificationSubmittedDate(twoFieldDate);
+
+    var entity = new PadLocationDetails();
+    padLocationDetailsService.saveEntityUsingForm(entity, form);
+    assertThat(entity.getPsrNotificationSubmitted()).isEqualTo(
+        form.getCompletelyWithinSafetyZoneForm().getPsrNotificationSubmitted());
+    assertThat(entity.getPsrNotificationSubmittedMonth()).isEqualTo(
+        Integer.parseInt(form.getCompletelyWithinSafetyZoneForm().getPsrNotificationSubmittedDate().getMonth()));
+    assertThat(entity.getPsrNotificationSubmittedYear()).isEqualTo(
+        Integer.parseInt(form.getCompletelyWithinSafetyZoneForm().getPsrNotificationSubmittedDate().getYear()));
+  }
+
+  @Test
+  public void saveEntityUsingForm_completelyInSafetyZone_psrNotSubmitted_saved() {
+    var form = new LocationDetailsForm();
+    form.setWithinSafetyZone(HseSafetyZone.YES);
+    form.getCompletelyWithinSafetyZoneForm().setPsrNotificationSubmitted(false);
+    var twoFieldDate = new TwoFieldDateInput(2020, 5);
+    form.getCompletelyWithinSafetyZoneForm().setPsrNotificationExpectedSubmissionDate(twoFieldDate);
+
+    var entity = new PadLocationDetails();
+    padLocationDetailsService.saveEntityUsingForm(entity, form);
+    assertThat(entity.getPsrNotificationSubmitted()).isEqualTo(
+        form.getCompletelyWithinSafetyZoneForm().getPsrNotificationSubmitted());
+    assertThat(entity.getPsrNotificationExpectedSubmissionMonth()).isEqualTo(
+        Integer.parseInt(form.getCompletelyWithinSafetyZoneForm().getPsrNotificationExpectedSubmissionDate().getMonth()));
+    assertThat(entity.getPsrNotificationExpectedSubmissionYear()).isEqualTo(
+        Integer.parseInt(form.getCompletelyWithinSafetyZoneForm().getPsrNotificationExpectedSubmissionDate().getYear()));
+  }
+
+  @Test
+  public void saveEntityUsingForm_partiallyInSafetyZone_psrSubmitted_saved() {
+    var form = new LocationDetailsForm();
+    form.setWithinSafetyZone(HseSafetyZone.PARTIALLY);
+    form.getPartiallyWithinSafetyZoneForm().setPsrNotificationSubmitted(true);
+    var twoFieldDate = new TwoFieldDateInput(2020, 5);
+    form.getPartiallyWithinSafetyZoneForm().setPsrNotificationSubmittedDate(twoFieldDate);
+
+    var entity = new PadLocationDetails();
+    padLocationDetailsService.saveEntityUsingForm(entity, form);
+    assertThat(entity.getPsrNotificationSubmitted()).isEqualTo(
+        form.getPartiallyWithinSafetyZoneForm().getPsrNotificationSubmitted());
+    assertThat(entity.getPsrNotificationSubmittedMonth()).isEqualTo(
+        Integer.parseInt(form.getPartiallyWithinSafetyZoneForm().getPsrNotificationSubmittedDate().getMonth()));
+    assertThat(entity.getPsrNotificationSubmittedYear()).isEqualTo(
+        Integer.parseInt(form.getPartiallyWithinSafetyZoneForm().getPsrNotificationSubmittedDate().getYear()));
+  }
+
+  @Test
+  public void saveEntityUsingForm_partiallyInSafetyZone_psrNotSubmitted_saved() {
+    var form = new LocationDetailsForm();
+    form.setWithinSafetyZone(HseSafetyZone.PARTIALLY);
+    form.getPartiallyWithinSafetyZoneForm().setPsrNotificationSubmitted(false);
+    var twoFieldDate = new TwoFieldDateInput(2020, 5);
+    form.getPartiallyWithinSafetyZoneForm().setPsrNotificationExpectedSubmissionDate(twoFieldDate);
+
+    var entity = new PadLocationDetails();
+    padLocationDetailsService.saveEntityUsingForm(entity, form);
+    assertThat(entity.getPsrNotificationSubmitted()).isEqualTo(
+        form.getPartiallyWithinSafetyZoneForm().getPsrNotificationSubmitted());
+    assertThat(entity.getPsrNotificationExpectedSubmissionMonth()).isEqualTo(
+        Integer.parseInt(form.getPartiallyWithinSafetyZoneForm().getPsrNotificationExpectedSubmissionDate().getMonth()));
+    assertThat(entity.getPsrNotificationExpectedSubmissionYear()).isEqualTo(
+        Integer.parseInt(form.getPartiallyWithinSafetyZoneForm().getPsrNotificationExpectedSubmissionDate().getYear()));
   }
 
   @Test
@@ -203,6 +341,16 @@ public class PadLocationDetailsServiceTest {
     var entity = new PadLocationDetails();
     padLocationDetailsService.saveEntityUsingForm(entity, form);
     assertThat(entity.getPipelineAshoreLocation()).isEqualTo(null);
+  }
+
+  @Test
+  public void saveEntityUsingForm_routeSurveyUndertakenAnsweredNo() {
+    var form = new LocationDetailsForm();
+    form.setRouteSurveyUndertaken(false);
+    form.setRouteSurveyNotUndertakenReason("test");
+    var entity = new PadLocationDetails();
+    padLocationDetailsService.saveEntityUsingForm(entity, form);
+    assertThat(entity.getRouteSurveyNotUndertakenReason()).isEqualTo(form.getRouteSurveyNotUndertakenReason());
   }
 
   @Test
@@ -244,6 +392,42 @@ public class PadLocationDetailsServiceTest {
     assertThat(locationDetailsView.getWithinSafetyZone()).isEqualTo(HseSafetyZone.NO);
     assertThat(locationDetailsView.getFacilitiesIfYes()).isEmpty();
     assertThat(locationDetailsView.getFacilitiesIfPartially()).isEmpty();
+  }
+
+  @Test
+  public void getLocationDetailsView_withinSafetyZone_notificationSubmitted() {
+    padLocationDetails.setWithinSafetyZone(HseSafetyZone.YES);
+    padLocationDetails.setPsrNotificationSubmitted(true);
+    padLocationDetails.setPsrNotificationSubmittedMonth(5);
+    padLocationDetails.setPsrNotificationSubmittedYear(2020);
+    when(padLocationDetailsRepository.findByPwaApplicationDetail(pwaApplicationDetail))
+        .thenReturn(Optional.of(padLocationDetails));
+
+    var locationDetailsView = padLocationDetailsService.getLocationDetailsView(pwaApplicationDetail);
+    assertThat(locationDetailsView.getWithinSafetyZone()).isEqualTo(padLocationDetails.getWithinSafetyZone());
+    assertThat(locationDetailsView.getPsrNotificationSubmitted()).isEqualTo(padLocationDetails.getPsrNotificationSubmitted());
+    assertThat(locationDetailsView.getPsrNotificationSubmissionDate()).isEqualTo(
+        DateUtils.createDateEstimateString(padLocationDetails.getPsrNotificationSubmittedMonth(),
+            padLocationDetails.getPsrNotificationSubmittedYear())
+    );
+  }
+
+  @Test
+  public void getLocationDetailsView_withinSafetyZone_notificationNotSubmitted() {
+    padLocationDetails.setWithinSafetyZone(HseSafetyZone.YES);
+    padLocationDetails.setPsrNotificationSubmitted(false);
+    padLocationDetails.setPsrNotificationExpectedSubmissionMonth(5);
+    padLocationDetails.setPsrNotificationExpectedSubmissionYear(2020);
+    when(padLocationDetailsRepository.findByPwaApplicationDetail(pwaApplicationDetail))
+        .thenReturn(Optional.of(padLocationDetails));
+
+    var locationDetailsView = padLocationDetailsService.getLocationDetailsView(pwaApplicationDetail);
+    assertThat(locationDetailsView.getWithinSafetyZone()).isEqualTo(padLocationDetails.getWithinSafetyZone());
+    assertThat(locationDetailsView.getPsrNotificationSubmitted()).isEqualTo(padLocationDetails.getPsrNotificationSubmitted());
+    assertThat(locationDetailsView.getPsrNotificationSubmissionDate()).isEqualTo(
+        DateUtils.createDateEstimateString(padLocationDetails.getPsrNotificationExpectedSubmissionMonth(),
+            padLocationDetails.getPsrNotificationExpectedSubmissionYear())
+    );
   }
 
   @Test
@@ -342,8 +526,8 @@ public class PadLocationDetailsServiceTest {
   public void reapplyFacilitySelections_serviceInteraction_inSafetyZone_Yes() {
     var form = new LocationDetailsForm();
     form.setWithinSafetyZone(HseSafetyZone.YES);
-    form.setFacilitiesIfYes(List.of("yes"));
-    form.setFacilitiesIfPartially(List.of("partially"));
+    form.getCompletelyWithinSafetyZoneForm().setFacilities(List.of("yes"));
+    form.getPartiallyWithinSafetyZoneForm().setFacilities(List.of("partially"));
     padLocationDetailsService.reapplyFacilitySelections(form);
     verify(devukFacilityService, times(1)).getFacilitiesInIds(List.of("yes"));
     verify(devukFacilityService, never()).getFacilitiesInIds(List.of("partially"));
@@ -354,8 +538,8 @@ public class PadLocationDetailsServiceTest {
   public void reapplyFacilitySelections_serviceInteraction_inSafetyZone_Partially() {
     var form = new LocationDetailsForm();
     form.setWithinSafetyZone(HseSafetyZone.PARTIALLY);
-    form.setFacilitiesIfYes(List.of("yes"));
-    form.setFacilitiesIfPartially(List.of("partially"));
+    form.getCompletelyWithinSafetyZoneForm().setFacilities(List.of("yes"));
+    form.getPartiallyWithinSafetyZoneForm().setFacilities(List.of("partially"));
     padLocationDetailsService.reapplyFacilitySelections(form);
     verify(devukFacilityService, times(1)).getFacilitiesInIds(List.of("partially"));
     verify(devukFacilityService, never()).getFacilitiesInIds(List.of("yes"));
@@ -366,10 +550,10 @@ public class PadLocationDetailsServiceTest {
   public void reapplyFacilitySelections_fullRun() {
     var form = new LocationDetailsForm();
     form.setWithinSafetyZone(HseSafetyZone.YES);
-    form.setFacilitiesIfYes(List.of("1", SearchSelectable.FREE_TEXT_PREFIX + "yes"));
+    form.getCompletelyWithinSafetyZoneForm().setFacilities(List.of("1", SearchSelectable.FREE_TEXT_PREFIX + "yes"));
 
     var devukFacility = new DevukFacility(1, "Test facility");
-    when(devukFacilityService.getFacilitiesInIds(form.getFacilitiesIfYes())).thenReturn(List.of(devukFacility));
+    when(devukFacilityService.getFacilitiesInIds(form.getCompletelyWithinSafetyZoneForm().getFacilities())).thenReturn(List.of(devukFacility));
     when(searchSelectorService.buildPrepopulatedSelections(any(), any())).thenCallRealMethod();
     when(searchSelectorService.removePrefix(any())).thenCallRealMethod();
     var result = padLocationDetailsService.reapplyFacilitySelections(form);

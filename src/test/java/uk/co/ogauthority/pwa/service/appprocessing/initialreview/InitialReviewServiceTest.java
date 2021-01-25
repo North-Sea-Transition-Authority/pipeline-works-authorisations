@@ -10,6 +10,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
@@ -26,6 +27,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.notify.emailproperties.EmailProperties;
 import uk.co.ogauthority.pwa.model.tasklist.TaskTag;
+import uk.co.ogauthority.pwa.service.appprocessing.applicationupdate.ApplicationUpdateRequestService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingTask;
@@ -62,6 +64,9 @@ public class InitialReviewServiceTest {
 
   @Mock
   private PersonService personService;
+
+  @Mock
+  private ApplicationUpdateRequestService applicationUpdateRequestService;
 
   @Captor
   private ArgumentCaptor<EmailProperties> emailPropertiesArgumentCaptor;
@@ -104,7 +109,8 @@ public class InitialReviewServiceTest {
         assignmentService,
         teamManagementService,
         notifyService,
-        personService);
+        personService,
+        applicationUpdateRequestService);
 
   }
 
@@ -185,12 +191,37 @@ public class InitialReviewServiceTest {
   }
 
   @Test
-  public void getTaskListEntry_initialReviewCompleted() {
+  public void getTaskListEntry_initialReviewCompleted_latestDetailReviewed() {
 
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     detail.setInitialReviewApprovedTimestamp(Instant.now());
 
     var processingContext = new PwaAppProcessingContext(detail, null, Set.of(), null, null);
+
+    when(detailService.getAllSubmittedApplicationDetailsForApplication(any())).thenReturn(List.of(detail));
+
+    var taskListEntry = initialReviewService.getTaskListEntry(PwaAppProcessingTask.INITIAL_REVIEW, processingContext);
+
+    assertThat(taskListEntry.getTaskName()).isEqualTo(PwaAppProcessingTask.INITIAL_REVIEW.getTaskName());
+    assertThat(taskListEntry.getRoute()).isEqualTo(PwaAppProcessingTask.INITIAL_REVIEW.getRoute(processingContext));
+    assertThat(taskListEntry.getTaskTag()).isEqualTo(TaskTag.from(TaskStatus.COMPLETED));
+    assertThat(taskListEntry.getTaskInfoList()).isEmpty();
+
+  }
+
+  @Test
+  public void getTaskListEntry_initialReviewCompleted_previousDetailReviewed_currentDetailNotReviewed() {
+
+    var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
+    detail.setVersionNo(2);
+    assertThat(detail.getInitialReviewApprovedTimestamp()).isNull();
+    var processingContext = new PwaAppProcessingContext(detail, null, Set.of(), null, null);
+
+    var previousDetailInitialReviewed = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
+    previousDetailInitialReviewed.setVersionNo(1);
+    previousDetailInitialReviewed.setInitialReviewApprovedTimestamp(Instant.now());
+
+    when(detailService.getAllSubmittedApplicationDetailsForApplication(any())).thenReturn(List.of(previousDetailInitialReviewed));
 
     var taskListEntry = initialReviewService.getTaskListEntry(PwaAppProcessingTask.INITIAL_REVIEW, processingContext);
 
@@ -212,6 +243,24 @@ public class InitialReviewServiceTest {
 
     assertThat(taskListEntry.getTaskName()).isEqualTo(PwaAppProcessingTask.INITIAL_REVIEW.getTaskName());
     assertThat(taskListEntry.getRoute()).isEqualTo(PwaAppProcessingTask.INITIAL_REVIEW.getRoute(processingContext));
+    assertThat(taskListEntry.getTaskTag()).isEqualTo(TaskTag.from(TaskStatus.NOT_COMPLETED));
+    assertThat(taskListEntry.getTaskInfoList()).isEmpty();
+
+  }
+
+  @Test
+  public void getTaskListEntry_appUpdateRequestOpen() {
+
+    var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
+
+    var processingContext = new PwaAppProcessingContext(detail, null, Set.of(), null, null);
+
+    when(applicationUpdateRequestService.applicationHasOpenUpdateRequest(detail)).thenReturn(true);
+
+    var taskListEntry = initialReviewService.getTaskListEntry(PwaAppProcessingTask.INITIAL_REVIEW, processingContext);
+
+    assertThat(taskListEntry.getTaskName()).isEqualTo(PwaAppProcessingTask.INITIAL_REVIEW.getTaskName());
+    assertThat(taskListEntry.getRoute()).isNull();
     assertThat(taskListEntry.getTaskTag()).isEqualTo(TaskTag.from(TaskStatus.NOT_COMPLETED));
     assertThat(taskListEntry.getTaskInfoList()).isEmpty();
 

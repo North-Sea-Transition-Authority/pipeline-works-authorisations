@@ -276,7 +276,7 @@ public class PwaApplicationEndpointTestBuilder {
     detail.setStatus(defaultStatus);
     detail.getPwaApplication().setApplicationType(defaultType);
     when(pwaApplicationDetailService.getTipDetail(detail.getMasterPwaApplicationId())).thenReturn(detail);
-    when(pwaApplicationDetailService.getLastSubmittedApplicationDetail(detail.getMasterPwaApplicationId()))
+    when(pwaApplicationDetailService.getLatestDetailForUser(detail.getMasterPwaApplicationId(), user))
         .thenReturn(Optional.of(detail));
 
     var defaultContactRoles = EnumSet.allOf(PwaContactRole.class);
@@ -291,8 +291,9 @@ public class PwaApplicationEndpointTestBuilder {
 
     var defaultPermissions = EnumSet.allOf(PwaAppProcessingPermission.class);
     if (pwaAppProcessingPermissionService != null) {
-      var permissionsDto = new ProcessingPermissionsDto(null, defaultPermissions);
-      when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(detail.getPwaApplication(), user)).thenReturn(permissionsDto);
+      var appInvolvementDto = PwaAppProcessingContextDtoTestUtils.appInvolvementSatisfactoryVersions(detail.getPwaApplication());
+      var permissionsDto = new ProcessingPermissionsDto(appInvolvementDto, defaultPermissions);
+      when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(detail, user)).thenReturn(permissionsDto);
     }
 
   }
@@ -390,11 +391,11 @@ public class PwaApplicationEndpointTestBuilder {
 
         var appInvolvement = Optional.ofNullable(consultationRequest)
             .map(c -> PwaAppProcessingContextDtoTestUtils.appInvolvementWithConsultationRequest("group", c))
-            .orElse(null);
+            .orElse(PwaAppProcessingContextDtoTestUtils.appInvolvementSatisfactoryVersions(detail.getPwaApplication()));
 
         var permissionsDto = new ProcessingPermissionsDto(appInvolvement, userPermissions);
 
-        when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(detail.getPwaApplication(), user))
+        when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(detail, user))
             .thenReturn(permissionsDto);
 
         // Based on required permission for endpoint, if role under test grants required permission

@@ -68,4 +68,13 @@ public class TopMenuServiceTest {
         .containsExactly(TopMenuService.TEAM_MANAGEMENT_TITLE);
   }
 
+  @Test
+  public void getTopMenuItems_consentSearchOnly() {
+    when(systemAreaAccessService.canAccessConsentSearch(any())).thenReturn(true);
+
+    assertThat(topMenuService.getTopMenuItems(userAccount))
+        .extracting(TopMenuItem::getDisplayName)
+        .containsExactly(TopMenuService.CONSENT_SEARCH_TITLE);
+  }
+
 }

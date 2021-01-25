@@ -2,8 +2,6 @@ package uk.co.ogauthority.pwa.controller.pwaapplications.shared.permanentdeposit
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -32,7 +30,6 @@ import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbServic
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits.PermanentDepositService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.viewfactories.PipelineAndIdentViewFactory;
 import uk.co.ogauthority.pwa.util.StreamUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
@@ -47,26 +44,24 @@ import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
     PwaApplicationType.DEPOSIT_CONSENT,
     PwaApplicationType.CAT_1_VARIATION,
     PwaApplicationType.CAT_2_VARIATION,
-    PwaApplicationType.DECOMMISSIONING
+    PwaApplicationType.DECOMMISSIONING,
+    PwaApplicationType.OPTIONS_VARIATION
 })
 public class PermanentDepositController {
 
   private final ApplicationBreadcrumbService applicationBreadcrumbService;
   private final PwaApplicationRedirectService pwaApplicationRedirectService;
   private final PermanentDepositService permanentDepositService;
-  private final PipelineAndIdentViewFactory pipelineAndIdentViewFactory;
   private final ControllerHelperService controllerHelperService;
 
   @Autowired
   public PermanentDepositController(ApplicationBreadcrumbService applicationBreadcrumbService,
                                     PwaApplicationRedirectService pwaApplicationRedirectService,
                                     PermanentDepositService permanentDepositService,
-                                    PipelineAndIdentViewFactory pipelineAndIdentViewFactory,
                                     ControllerHelperService controllerHelperService) {
     this.applicationBreadcrumbService = applicationBreadcrumbService;
     this.pwaApplicationRedirectService = pwaApplicationRedirectService;
     this.permanentDepositService = permanentDepositService;
-    this.pipelineAndIdentViewFactory = pipelineAndIdentViewFactory;
     this.controllerHelperService = controllerHelperService;
   }
 
@@ -207,13 +202,8 @@ public class PermanentDepositController {
   private ModelAndView getAddEditPermanentDepositsModelAndView(PwaApplicationDetail pwaApplicationDetail,
                                                                PermanentDepositsForm form, ScreenActionType type) {
 
-    Map<String, String> pipelinesIdAndNameMap = new LinkedHashMap<>();
-    pipelineAndIdentViewFactory.getAllPipelineOverviewsFromAppAndMasterPwa(pwaApplicationDetail)
-        .forEach((pipelineId, pipelineOverview) ->
-            pipelinesIdAndNameMap.put(String.valueOf(pipelineId.getPipelineIdAsInt()), pipelineOverview.getPipelineName()));
-
     var modelAndView = new ModelAndView("pwaApplication/shared/permanentdeposits/permanentDepositsForm");
-    modelAndView.addObject("pipelines", pipelinesIdAndNameMap)
+    modelAndView.addObject("pipelines", permanentDepositService.getPipelinesMapForDeposits(pwaApplicationDetail))
         .addObject("materialTypes", MaterialType.asList())
         .addObject("longDirections", LongitudeDirection.stream()
             .collect(StreamUtils.toLinkedHashMap(Enum::name, LongitudeDirection::getDisplayText)))

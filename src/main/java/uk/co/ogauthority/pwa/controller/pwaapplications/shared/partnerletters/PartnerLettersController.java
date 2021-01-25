@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.controller.pwaapplications.shared.partnerletters;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -52,6 +53,7 @@ public class PartnerLettersController extends PwaApplicationDetailDataFileUpload
   private final PwaApplicationRedirectService pwaApplicationRedirectService;
   private final PadPartnerLettersService padPartnerLettersService;
   private final ControllerHelperService controllerHelperService;
+  private final String partnerLettersTemplateLink;
 
   private static final ApplicationDetailFilePurpose FILE_PURPOSE = ApplicationDetailFilePurpose.PARTNER_LETTERS;
 
@@ -60,25 +62,25 @@ public class PartnerLettersController extends PwaApplicationDetailDataFileUpload
                                   PwaApplicationRedirectService pwaApplicationRedirectService,
                                   PadPartnerLettersService padPartnerLettersService,
                                   PadFileService padFileService,
-                                  ControllerHelperService controllerHelperService) {
+                                  ControllerHelperService controllerHelperService,
+                                  @Value("${oga.partnerletters.template.link}") String partnerLettersTemplateLink) {
     super(padFileService);
     this.applicationBreadcrumbService = applicationBreadcrumbService;
     this.pwaApplicationRedirectService = pwaApplicationRedirectService;
     this.padPartnerLettersService = padPartnerLettersService;
     this.controllerHelperService = controllerHelperService;
+    this.partnerLettersTemplateLink = partnerLettersTemplateLink;
   }
-
 
   @GetMapping
   public ModelAndView renderAddPartnerLetters(@PathVariable("applicationType")
-                                                      @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
-                                                      @PathVariable("applicationId") Integer applicationId,
-                                                      PwaApplicationContext applicationContext,
-                                                      @ModelAttribute("form") PartnerLettersForm form) {
+                                              @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
+                                              @PathVariable("applicationId") Integer applicationId,
+                                              PwaApplicationContext applicationContext,
+                                              @ModelAttribute("form") PartnerLettersForm form) {
     padPartnerLettersService.mapEntityToForm(applicationContext.getApplicationDetail(), form);
     return getAddPartnerLettersModelAndView(applicationContext.getApplicationDetail(), form);
   }
-
 
   @PostMapping
   public ModelAndView postAddPartnerLetters(@PathVariable("applicationType")
@@ -99,20 +101,17 @@ public class PartnerLettersController extends PwaApplicationDetailDataFileUpload
 
   }
 
-
   private ModelAndView getAddPartnerLettersModelAndView(PwaApplicationDetail pwaApplicationDetail, PartnerLettersForm form) {
-    var modelAndView = this.createModelAndView("pwaApplication/shared/partnerletters/partnerLetters",
-        pwaApplicationDetail,
-        FILE_PURPOSE,
-        form);
 
-    applicationBreadcrumbService.fromTaskList(pwaApplicationDetail.getPwaApplication(), modelAndView,
-        "Partner approval letters");
+    var modelAndView = this.createModelAndView(
+        "pwaApplication/shared/partnerletters/partnerLetters", pwaApplicationDetail, FILE_PURPOSE, form)
+        .addObject("partnerLettersTemplateLink", partnerLettersTemplateLink);
+
+    applicationBreadcrumbService.fromTaskList(pwaApplicationDetail.getPwaApplication(), modelAndView, "Partner approval letters");
+
     return modelAndView;
+
   }
-
-
-
 
   //File handle Endpoints
   @GetMapping("/files/download/{fileId}")

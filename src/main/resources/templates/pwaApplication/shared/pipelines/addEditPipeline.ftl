@@ -9,6 +9,7 @@
 <#-- @ftlvariable name="errorList" type="java.util.List<uk.co.ogauthority.pwa.model.form.fds.ErrorItem>" -->
 <#-- @ftlvariable name="pipelineNumber" type="String" -->
 <#-- @ftlvariable name="questionsForPipelineStatus" type="java.util.Set<uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineHeaderConditionalQuestion>" -->
+<#-- @ftlvariable name="canShowAlreadyExistsOnSeabedQuestions" type="java.lang.Boolean" -->
 
 <@defaultPage htmlTitle="${screenActionType.actionText} ${pipelineNumber!} pipeline" pageHeading="${screenActionType.actionText} ${pipelineNumber!} pipeline" breadcrumbs=true>
 
@@ -118,7 +119,21 @@
             </#list>
         </#if>
 
+        <#if canShowAlreadyExistsOnSeabedQuestions>
+            <@fdsRadio.radioGroup path="form.alreadyExistsOnSeabed" labelText="Does this pipeline already exist on the seabed?" hiddenContent=true>
+                <@fdsRadio.radioYes path="form.alreadyExistsOnSeabed">
+                    <@fdsRadio.radioGroup path="form.pipelineInUse" labelText="Is the pipeline in use?">
+                        <@fdsRadio.radioYes path="form.pipelineInUse"/>
+                        <@fdsRadio.radioNo path="form.pipelineInUse"/>
+                    </@fdsRadio.radioGroup>                        
+                </@fdsRadio.radioYes>
+                <@fdsRadio.radioNo path="form.alreadyExistsOnSeabed"/>
+            </@fdsRadio.radioGroup>
+        </#if>
+
+
         <@fdsAction.submitButtons linkSecondaryAction=true primaryButtonText="${screenActionType.submitButtonText} pipeline" secondaryLinkText="Cancel" linkSecondaryActionUrl=springUrl(cancelUrl)/>
 
     </@fdsForm.htmlForm>
 </@defaultPage>
+

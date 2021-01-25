@@ -40,6 +40,7 @@ import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.PwaAppProcessingPermissionService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContextService;
 import uk.co.ogauthority.pwa.service.appprocessing.options.ApproveOptionsService;
+import uk.co.ogauthority.pwa.service.appprocessing.options.ApproveOptionsTaskService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
@@ -68,6 +69,9 @@ public class ApproveOptionsControllerTest extends PwaAppProcessingContextAbstrac
   private PwaAppProcessingPermissionService pwaAppProcessingPermissionService;
 
   @MockBean
+  private ApproveOptionsTaskService approveOptionsTaskService;
+
+  @MockBean
   private ApproveOptionsFormValidator approveOptionsFormValidator;
 
 
@@ -87,13 +91,13 @@ public class ApproveOptionsControllerTest extends PwaAppProcessingContextAbstrac
         APP_ID, APP_DETAIL_ID);
     pwaApplicationDetail.setStatus(PwaApplicationStatus.CASE_OFFICER_REVIEW);
 
-    when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail.getPwaApplication(), user))
+    when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail, user))
         .thenReturn(new ProcessingPermissionsDto(null, EnumSet.of(PwaAppProcessingPermission.APPROVE_OPTIONS)));
 
-    when(pwaApplicationDetailService.getLastSubmittedApplicationDetail(APP_ID))
+    when(pwaApplicationDetailService.getLatestDetailForUser(APP_ID, user))
         .thenReturn(Optional.of(pwaApplicationDetail));
 
-    when(approveOptionsService.taskAccessible(any())).thenReturn(true);
+    when(approveOptionsTaskService.taskAccessible(any())).thenReturn(true);
 
     endpointTester = new PwaApplicationEndpointTestBuilder(
         mockMvc,
@@ -152,7 +156,7 @@ public class ApproveOptionsControllerTest extends PwaAppProcessingContextAbstrac
 
   @Test
   public void approveOptions_whenTaskNotAccessible() throws Exception {
-    when(approveOptionsService.taskAccessible(any())).thenReturn(false);
+    when(approveOptionsTaskService.taskAccessible(any())).thenReturn(false);
 
     mockMvc.perform(post(ReverseRouter.route(on(ApproveOptionsController.class)
         .approveOptions(APP_ID, APP_TYPE, null, null, null, null)))
@@ -162,7 +166,7 @@ public class ApproveOptionsControllerTest extends PwaAppProcessingContextAbstrac
 
   @Test
   public void renderApproveOptions_whenTaskNotAccessible() throws Exception {
-    when(approveOptionsService.taskAccessible(any())).thenReturn(false);
+    when(approveOptionsTaskService.taskAccessible(any())).thenReturn(false);
 
     mockMvc.perform(get(ReverseRouter.route(on(ApproveOptionsController.class)
         .renderApproveOptions(APP_ID, APP_TYPE, null, null, null)))
@@ -172,7 +176,7 @@ public class ApproveOptionsControllerTest extends PwaAppProcessingContextAbstrac
 
   @Test
   public void approveOptions_whenTaskAccessible_andfailsValidation() throws Exception {
-    when(approveOptionsService.taskAccessible(any())).thenReturn(true);
+    when(approveOptionsTaskService.taskAccessible(any())).thenReturn(true);
     mockApproveOptionsValidationFail();
 
     mockMvc.perform(post(ReverseRouter.route(on(ApproveOptionsController.class)
@@ -188,7 +192,7 @@ public class ApproveOptionsControllerTest extends PwaAppProcessingContextAbstrac
 
   @Test
   public void approveOptions_whenTaskAccessible_andPassesValidation() throws Exception {
-    when(approveOptionsService.taskAccessible(any())).thenReturn(true);
+    when(approveOptionsTaskService.taskAccessible(any())).thenReturn(true);
 
     mockMvc.perform(post(ReverseRouter.route(on(ApproveOptionsController.class)
         .approveOptions(APP_ID, APP_TYPE, null, null, null, null)))
@@ -203,14 +207,14 @@ public class ApproveOptionsControllerTest extends PwaAppProcessingContextAbstrac
     var expectedDeadlineInstant = LocalDate.of(2020, 12, 1).atStartOfDay(ZoneId.systemDefault()).toInstant();
     verify(approveOptionsService, times(1)).approveOptions(
         pwaApplicationDetail,
-        person,
+        user,
         expectedDeadlineInstant
     );
   }
 
   @Test
   public void renderApproveOptions_whenTaskAccessible() throws Exception {
-    when(approveOptionsService.taskAccessible(any())).thenReturn(true);
+    when(approveOptionsTaskService.taskAccessible(any())).thenReturn(true);
 
     mockMvc.perform(get(ReverseRouter.route(on(ApproveOptionsController.class)
         .renderApproveOptions(APP_ID, APP_TYPE, null, null, null)))

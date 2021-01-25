@@ -12,7 +12,7 @@ import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.controller.WorkAreaController;
 import uk.co.ogauthority.pwa.controller.appprocessing.CaseManagementController;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailSearchItem;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailItemView;
 import uk.co.ogauthority.pwa.model.workflow.WorkflowBusinessKey;
 import uk.co.ogauthority.pwa.mvc.PageView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
@@ -24,7 +24,7 @@ import uk.co.ogauthority.pwa.service.enums.workflow.WorkflowType;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaApplicationContactRoleDto;
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
-import uk.co.ogauthority.pwa.service.pwaapplications.search.ApplicationDetailSearcher;
+import uk.co.ogauthority.pwa.service.pwaapplications.search.WorkAreaApplicationDetailSearcher;
 import uk.co.ogauthority.pwa.service.workarea.WorkAreaTab;
 import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
 import uk.co.ogauthority.pwa.util.WorkAreaUtils;
@@ -34,18 +34,18 @@ public class IndustryWorkAreaPageService {
 
   private static final EnumSet<PwaApplicationStatus> OPEN_PWA_APP_STATUSES = EnumSet.of(PwaApplicationStatus.DRAFT);
 
-  private final ApplicationDetailSearcher applicationDetailSearcher;
+  private final WorkAreaApplicationDetailSearcher workAreaApplicationDetailSearcher;
   private final PwaContactService pwaContactService;
   private final PwaApplicationRedirectService pwaApplicationRedirectService;
   private final CamundaWorkflowService camundaWorkflowService;
 
   @Autowired
-  public IndustryWorkAreaPageService(ApplicationDetailSearcher applicationDetailSearcher,
+  public IndustryWorkAreaPageService(WorkAreaApplicationDetailSearcher workAreaApplicationDetailSearcher,
                                      PwaContactService pwaContactService,
                                      PwaApplicationRedirectService pwaApplicationRedirectService,
                                      CamundaWorkflowService camundaWorkflowService) {
 
-    this.applicationDetailSearcher = applicationDetailSearcher;
+    this.workAreaApplicationDetailSearcher = workAreaApplicationDetailSearcher;
     this.pwaContactService = pwaContactService;
     this.pwaApplicationRedirectService = pwaApplicationRedirectService;
     this.camundaWorkflowService = camundaWorkflowService;
@@ -59,15 +59,13 @@ public class IndustryWorkAreaPageService {
         on(WorkAreaController.class).renderWorkAreaTab(null, WorkAreaTab.INDUSTRY_OPEN_APPLICATIONS, page));
 
     var applicationIdFilter = getIndustryUserApplicationIds(authenticatedUserAccount);
-    var openApplicationStatusFilter = OPEN_PWA_APP_STATUSES;
-    var openForUpdateFlagFilter = true;
 
     return PageView.fromPage(
-        applicationDetailSearcher.searchWhereApplicationIdInAndWhereStatusInOrOpenUpdateRequest(
+        workAreaApplicationDetailSearcher.searchWhereApplicationIdInAndWhereStatusInOrOpenUpdateRequest(
             WorkAreaUtils.getWorkAreaPageRequest(page, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
             applicationIdFilter,
-            openApplicationStatusFilter,
-            openForUpdateFlagFilter
+            OPEN_PWA_APP_STATUSES,
+            true
         ),
         workAreaUri,
         sr -> new PwaApplicationWorkAreaItem(sr, this::viewApplicationUrlProducer)
@@ -80,19 +78,18 @@ public class IndustryWorkAreaPageService {
       int page) {
 
     var workAreaUri = ReverseRouter.route(
-        on(WorkAreaController.class).renderWorkAreaTab(null, WorkAreaTab.INDUSTRY_OPEN_APPLICATIONS, page));
+        on(WorkAreaController.class).renderWorkAreaTab(null, WorkAreaTab.INDUSTRY_SUBMITTED_APPLICATIONS, page));
 
     var applicationIdFilter = getIndustryUserApplicationIds(authenticatedUserAccount);
     // all enum values except those in given set.
     var notOpenApplicationStatusFilter =  EnumSet.complementOf(OPEN_PWA_APP_STATUSES);
-    var openForUpdateFlagFilter = false;
 
     return PageView.fromPage(
-        applicationDetailSearcher.searchWhereApplicationIdInAndWhereStatusInAndOpenUpdateRequest(
+        workAreaApplicationDetailSearcher.searchWhereApplicationIdInAndWhereStatusInAndOpenUpdateRequest(
             WorkAreaUtils.getWorkAreaPageRequest(page, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
             applicationIdFilter,
             notOpenApplicationStatusFilter,
-            openForUpdateFlagFilter
+            false
         ),
         workAreaUri,
         sr -> new PwaApplicationWorkAreaItem(sr, this::viewApplicationUrlProducer)
@@ -102,6 +99,7 @@ public class IndustryWorkAreaPageService {
 
 
   private Set<Integer> getIndustryUserApplicationIds(WebUserAccount webUserAccount) {
+
     var applicationContactRoles = pwaContactService.getPwaContactRolesForWebUserAccount(
         webUserAccount,
         EnumSet.of(PwaContactRole.PREPARER));
@@ -117,15 +115,14 @@ public class IndustryWorkAreaPageService {
         Set.of(
             PwaApplicationWorkflowTask.PREPARE_APPLICATION,
             PwaApplicationWorkflowTask.AWAIT_FEEDBACK,
-            PwaApplicationWorkflowTask.UPDATE_APPLICATION)
-
-    ).stream()
+            PwaApplicationWorkflowTask.UPDATE_APPLICATION))
+        .stream()
         .map(workflowBusinessKey -> Integer.valueOf(workflowBusinessKey.getValue()))
         .collect(toImmutableSet());
 
   }
 
-  private String viewApplicationUrlProducer(ApplicationDetailSearchItem applicationDetailSearchItem) {
+  private String viewApplicationUrlProducer(ApplicationDetailItemView applicationDetailSearchItem) {
 
     var applicationId = applicationDetailSearchItem.getPwaApplicationId();
     var applicationType = applicationDetailSearchItem.getApplicationType();

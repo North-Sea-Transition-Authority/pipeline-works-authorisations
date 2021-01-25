@@ -27,9 +27,8 @@ public class ApplicationContactsSummaryService implements ApplicationSectionSumm
   private final PwaContactService pwaContactService;
 
   @Autowired
-  public ApplicationContactsSummaryService(
-      TaskListService taskListService,
-      PwaContactService pwaContactService) {
+  public ApplicationContactsSummaryService(TaskListService taskListService,
+                                           PwaContactService pwaContactService) {
     this.taskListService = taskListService;
     this.pwaContactService = pwaContactService;
   }

@@ -1,7 +1,5 @@
 package uk.co.ogauthority.pwa.model.form.pwaapplications.shared.location;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 import uk.co.ogauthority.pwa.model.entity.enums.HseSafetyZone;
 import uk.co.ogauthority.pwa.model.form.files.UploadMultipleFilesWithDescriptionForm;
@@ -10,8 +8,8 @@ public class LocationDetailsForm extends UploadMultipleFilesWithDescriptionForm 
 
   private String approximateProjectLocationFromShore;
   private HseSafetyZone withinSafetyZone;
-  private List<String> facilitiesIfYes;
-  private List<String> facilitiesIfPartially;
+  private LocationDetailsSafetyZoneForm completelyWithinSafetyZoneForm = new LocationDetailsSafetyZoneForm();
+  private LocationDetailsSafetyZoneForm partiallyWithinSafetyZoneForm = new LocationDetailsSafetyZoneForm();
   private Boolean facilitiesOffshore;
   private Boolean transportsMaterialsToShore;
 
@@ -19,6 +17,7 @@ public class LocationDetailsForm extends UploadMultipleFilesWithDescriptionForm 
 
   private String pipelineRouteDetails;
   private Boolean routeSurveyUndertaken;
+  private String routeSurveyNotUndertakenReason;
   private Boolean withinLimitsOfDeviation;
 
   private Integer surveyConcludedDay;
@@ -27,10 +26,6 @@ public class LocationDetailsForm extends UploadMultipleFilesWithDescriptionForm 
 
   private String pipelineAshoreLocation;
 
-  public LocationDetailsForm() {
-    facilitiesIfPartially = new ArrayList<>();
-    facilitiesIfYes = new ArrayList<>();
-  }
 
   public String getApproximateProjectLocationFromShore() {
     return approximateProjectLocationFromShore;
@@ -48,20 +43,22 @@ public class LocationDetailsForm extends UploadMultipleFilesWithDescriptionForm 
     this.withinSafetyZone = withinSafetyZone;
   }
 
-  public List<String> getFacilitiesIfYes() {
-    return facilitiesIfYes;
+  public LocationDetailsSafetyZoneForm getCompletelyWithinSafetyZoneForm() {
+    return completelyWithinSafetyZoneForm;
   }
 
-  public void setFacilitiesIfYes(List<String> facilitiesIfYes) {
-    this.facilitiesIfYes = facilitiesIfYes;
+  public void setCompletelyWithinSafetyZoneForm(
+      LocationDetailsSafetyZoneForm completelyWithinSafetyZoneForm) {
+    this.completelyWithinSafetyZoneForm = completelyWithinSafetyZoneForm;
   }
 
-  public List<String> getFacilitiesIfPartially() {
-    return facilitiesIfPartially;
+  public LocationDetailsSafetyZoneForm getPartiallyWithinSafetyZoneForm() {
+    return partiallyWithinSafetyZoneForm;
   }
 
-  public void setFacilitiesIfPartially(List<String> facilitiesIfPartially) {
-    this.facilitiesIfPartially = facilitiesIfPartially;
+  public void setPartiallyWithinSafetyZoneForm(
+      LocationDetailsSafetyZoneForm partiallyWithinSafetyZoneForm) {
+    this.partiallyWithinSafetyZoneForm = partiallyWithinSafetyZoneForm;
   }
 
   public Boolean getFacilitiesOffshore() {
@@ -104,6 +101,14 @@ public class LocationDetailsForm extends UploadMultipleFilesWithDescriptionForm 
     this.routeSurveyUndertaken = routeSurveyUndertaken;
   }
 
+  public String getRouteSurveyNotUndertakenReason() {
+    return routeSurveyNotUndertakenReason;
+  }
+
+  public void setRouteSurveyNotUndertakenReason(String routeSurveyNotUndertakenReason) {
+    this.routeSurveyNotUndertakenReason = routeSurveyNotUndertakenReason;
+  }
+
   public Boolean getWithinLimitsOfDeviation() {
     return withinLimitsOfDeviation;
   }
@@ -144,6 +149,8 @@ public class LocationDetailsForm extends UploadMultipleFilesWithDescriptionForm 
     this.pipelineAshoreLocation = pipelineAshoreLocation;
   }
 
+
+  
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -155,13 +162,14 @@ public class LocationDetailsForm extends UploadMultipleFilesWithDescriptionForm 
     LocationDetailsForm that = (LocationDetailsForm) o;
     return Objects.equals(approximateProjectLocationFromShore, that.approximateProjectLocationFromShore)
         && withinSafetyZone == that.withinSafetyZone
-        && Objects.equals(facilitiesIfYes, that.facilitiesIfYes)
-        && Objects.equals(facilitiesIfPartially, that.facilitiesIfPartially)
+        && Objects.equals(completelyWithinSafetyZoneForm, that.completelyWithinSafetyZoneForm)
+        && Objects.equals(partiallyWithinSafetyZoneForm, that.partiallyWithinSafetyZoneForm)
         && Objects.equals(facilitiesOffshore, that.facilitiesOffshore)
         && Objects.equals(transportsMaterialsToShore, that.transportsMaterialsToShore)
         && Objects.equals(transportationMethod, that.transportationMethod)
         && Objects.equals(pipelineRouteDetails, that.pipelineRouteDetails)
         && Objects.equals(routeSurveyUndertaken, that.routeSurveyUndertaken)
+        && Objects.equals(routeSurveyNotUndertakenReason, that.routeSurveyNotUndertakenReason)
         && Objects.equals(withinLimitsOfDeviation, that.withinLimitsOfDeviation)
         && Objects.equals(surveyConcludedDay, that.surveyConcludedDay)
         && Objects.equals(surveyConcludedMonth, that.surveyConcludedMonth)
@@ -171,9 +179,9 @@ public class LocationDetailsForm extends UploadMultipleFilesWithDescriptionForm 
 
   @Override
   public int hashCode() {
-    return Objects.hash(approximateProjectLocationFromShore, withinSafetyZone, facilitiesIfYes, facilitiesIfPartially,
-        facilitiesOffshore, transportsMaterialsToShore, transportationMethod, pipelineRouteDetails,
-        routeSurveyUndertaken,
-        withinLimitsOfDeviation, surveyConcludedDay, surveyConcludedMonth, surveyConcludedYear, pipelineAshoreLocation);
+    return Objects.hash(approximateProjectLocationFromShore, withinSafetyZone, completelyWithinSafetyZoneForm,
+        partiallyWithinSafetyZoneForm, facilitiesOffshore, transportsMaterialsToShore, transportationMethod,
+        pipelineRouteDetails, routeSurveyUndertaken, routeSurveyNotUndertakenReason, withinLimitsOfDeviation,
+        surveyConcludedDay, surveyConcludedMonth, surveyConcludedYear, pipelineAshoreLocation);
   }
 }

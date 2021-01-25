@@ -1,7 +1,7 @@
 package uk.co.ogauthority.pwa.service.licence;
 
 import uk.co.ogauthority.pwa.model.entity.licence.PearsBlock;
-import uk.co.ogauthority.pwa.model.search.SearchSelectable;
+import uk.co.ogauthority.pwa.model.searchselector.SearchSelectable;
 
 public class PickablePearsBlock implements SearchSelectable {
 

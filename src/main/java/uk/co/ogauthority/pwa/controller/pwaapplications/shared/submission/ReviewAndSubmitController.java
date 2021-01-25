@@ -21,6 +21,7 @@ import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.submission.Applic
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.applicationsummariser.ApplicationSummaryViewService;
 import uk.co.ogauthority.pwa.service.appprocessing.applicationupdate.ApplicationUpdateRequestService;
+import uk.co.ogauthority.pwa.service.appprocessing.applicationupdate.ApplicationUpdateRequestViewService;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
@@ -51,6 +52,7 @@ public class ReviewAndSubmitController {
   private final PwaApplicationSubmissionService pwaApplicationSubmissionService;
   private final ApplicationSummaryViewService applicationSummaryViewService;
   private final ApplicationUpdateRequestService applicationUpdateRequestService;
+  private final ApplicationUpdateRequestViewService applicationUpdateRequestViewService;
   private final ApplicationUpdateResponseFormValidator validator;
 
   @Autowired
@@ -60,12 +62,14 @@ public class ReviewAndSubmitController {
       PwaApplicationSubmissionService pwaApplicationSubmissionService,
       ApplicationSummaryViewService applicationSummaryViewService,
       ApplicationUpdateRequestService applicationUpdateRequestService,
+      ApplicationUpdateRequestViewService applicationUpdateRequestViewService,
       ApplicationUpdateResponseFormValidator validator) {
     this.controllerHelperService = controllerHelperService;
     this.pwaApplicationRedirectService = pwaApplicationRedirectService;
     this.pwaApplicationSubmissionService = pwaApplicationSubmissionService;
     this.applicationSummaryViewService = applicationSummaryViewService;
     this.applicationUpdateRequestService = applicationUpdateRequestService;
+    this.applicationUpdateRequestViewService = applicationUpdateRequestViewService;
     this.validator = validator;
   }
 
@@ -77,14 +81,14 @@ public class ReviewAndSubmitController {
       @ModelAttribute("form") ApplicationUpdateResponseForm form) {
 
     var hasOpenUpdateRequest = applicationUpdateRequestService
-        .applicationDetailHasOpenUpdateRequest(applicationContext.getApplicationDetail());
+        .applicationHasOpenUpdateRequest(applicationContext.getApplicationDetail());
     return getModelAndView(applicationContext.getApplicationDetail(), hasOpenUpdateRequest);
 
   }
 
   private ModelAndView getModelAndView(PwaApplicationDetail pwaApplicationDetail, boolean openUpdateRequest) {
     var modelAndView = new ModelAndView("pwaApplication/shared/submission/reviewAndSubmit");
-
+    var openUpdateRequestViewOpt = applicationUpdateRequestViewService.getOpenRequestView(pwaApplicationDetail.getPwaApplication());
     var appSummaryView = applicationSummaryViewService.getApplicationSummaryView(pwaApplicationDetail);
 
     modelAndView
@@ -93,6 +97,10 @@ public class ReviewAndSubmitController {
             pwaApplicationRedirectService.getTaskListRoute(pwaApplicationDetail.getPwaApplication()))
         .addObject("applicationReference", pwaApplicationDetail.getPwaApplicationRef())
         .addObject("openUpdateRequest", openUpdateRequest);
+
+    openUpdateRequestViewOpt.ifPresent(applicationUpdateRequestView ->
+        modelAndView.addObject("updateRequestView", applicationUpdateRequestView)
+    );
 
     return modelAndView;
 
@@ -109,7 +117,7 @@ public class ReviewAndSubmitController {
       BindingResult bindingResult) {
 
     var hasOpenUpdateRequest = applicationUpdateRequestService
-        .applicationDetailHasOpenUpdateRequest(applicationContext.getApplicationDetail());
+        .applicationHasOpenUpdateRequest(applicationContext.getApplicationDetail());
 
     if (hasOpenUpdateRequest) {
       ValidationUtils.invokeValidator(validator, form, bindingResult);

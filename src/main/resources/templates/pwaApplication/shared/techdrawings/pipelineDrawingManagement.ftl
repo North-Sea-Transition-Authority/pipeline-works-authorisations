@@ -21,5 +21,4 @@
         </@fdsInsetText.insetText>
         <@fdsAction.link linkText="Add pipeline schematic" linkUrl=springUrl(urlFactory.getAddPipelineDrawingUrl()) linkClass="govuk-button govuk-button--blue"/>
     </#if>
-
 </#macro>

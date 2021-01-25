@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits;
 
+import static java.util.Map.entry;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
@@ -11,8 +12,10 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import javax.validation.Validation;
@@ -27,28 +30,32 @@ import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.permanentdeposits.PermanentDepositController;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
+import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.entity.enums.permanentdeposits.MaterialType;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineStatus;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadProjectInformation;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PadDepositPipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PadPermanentDeposit;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PadPermanentDepositTestUtil;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.PermanentDepositsForm;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PadPipelineOverview;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineHeaderView;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview;
 import uk.co.ogauthority.pwa.model.location.CoordinatePairTestUtil;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadDepositPipelineRepository;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadPermanentDepositRepository;
-import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadProjectInformationRepository;
-import uk.co.ogauthority.pwa.repository.pwaapplications.shared.pipelines.PadPipelineRepository;
 import uk.co.ogauthority.pwa.service.entitycopier.EntityCopyingService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
-import uk.co.ogauthority.pwa.service.location.CoordinateFormValidator;
+import uk.co.ogauthority.pwa.service.pwaapplications.options.PadOptionConfirmedService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.viewfactories.PipelineAndIdentViewFactory;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation.PadProjectInformationService;
 import uk.co.ogauthority.pwa.service.pwaconsents.PipelineDetailService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
@@ -57,13 +64,8 @@ import uk.co.ogauthority.pwa.validators.PermanentDepositsValidator;
 @RunWith(MockitoJUnitRunner.class)
 public class PermanentDepositsServiceTest {
 
-  private final static String FILE_ID = "1234567u8oplkjmnhbgvfc";
-
   @Mock
   private PadPermanentDepositRepository permanentDepositInformationRepository;
-
-  @Mock
-  private PadPipelineRepository padPipelineRepository;
 
   @Mock
   private PadDepositPipelineRepository padDepositPipelineRepository;
@@ -75,13 +77,10 @@ public class PermanentDepositsServiceTest {
   private PermanentDepositEntityMappingService permanentDepositEntityMappingService;
 
   @Mock
-  private PadProjectInformationRepository padProjectInformationRepository;
+  private PadProjectInformationService padProjectInformationService;
 
   @Mock
   private PermanentDepositsValidator validator;
-
-  @Mock
-  private CoordinateFormValidator coordinateFormValidator;
 
   @Mock
   private EntityCopyingService entityCopyingService;
@@ -95,34 +94,40 @@ public class PermanentDepositsServiceTest {
   @Mock
   private PipelineDetailService pipelineDetailService;
 
+  @Mock
+  private PadOptionConfirmedService padOptionConfirmedService;
+
 
   private SpringValidatorAdapter groupValidator;
 
 
-  private PermanentDepositService service;
+  private PermanentDepositService permanentDepositService;
   private PadPermanentDeposit padPermanentDeposit = new PadPermanentDeposit();
   private PermanentDepositsForm form = new PermanentDepositsForm();
   private PwaApplicationDetail pwaApplicationDetail;
   private LocalDate date;
   private WebUserAccount user = new WebUserAccount(1);
 
+  private static int DEPOSIT_ID_1 = 1;
+
   @Before
   public void setUp() {
 
     groupValidator = new SpringValidatorAdapter(Validation.buildDefaultValidatorFactory().getValidator());
 
-    service = new PermanentDepositService(
+    permanentDepositService = new PermanentDepositService(
         permanentDepositInformationRepository,
         depositDrawingsService,
         permanentDepositEntityMappingService,
         validator,
         groupValidator,
-        padPipelineRepository,
         padDepositPipelineRepository,
-        padProjectInformationRepository,
+        padProjectInformationService,
         entityCopyingService,
         pipelineAndIdentViewFactory,
-        padFileService, pipelineDetailService);
+        padFileService,
+        pipelineDetailService,
+        padOptionConfirmedService);
 
     date = LocalDate.now();
 
@@ -138,7 +143,7 @@ public class PermanentDepositsServiceTest {
     padPermanentDeposit.setPwaApplicationDetail(pwaApplicationDetail);
     when(permanentDepositInformationRepository.save(padPermanentDeposit)).thenReturn(padPermanentDeposit);
 
-    service.saveEntityUsingForm(pwaApplicationDetail, form, user);
+    permanentDepositService.saveEntityUsingForm(pwaApplicationDetail, form, user);
     verify(permanentDepositEntityMappingService, times(1)).setEntityValuesUsingForm(padPermanentDeposit, form);
     verify(permanentDepositInformationRepository, times(1)).save(padPermanentDeposit);
 
@@ -152,7 +157,7 @@ public class PermanentDepositsServiceTest {
     form.setBioGroutBagsNotUsedDescription(ok);
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
-    service.validate(form, bindingResult, ValidationType.PARTIAL, pwaApplicationDetail);
+    permanentDepositService.validate(form, bindingResult, ValidationType.PARTIAL, pwaApplicationDetail);
 
     var errors = ValidatorTestUtils.extractErrors(bindingResult);
 
@@ -166,8 +171,8 @@ public class PermanentDepositsServiceTest {
   public void validate_full_fail() {
     var form = new PermanentDepositsForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    service.validate(form, bindingResult, ValidationType.FULL, pwaApplicationDetail);
-    verify(validator, times(1)).validate(form, bindingResult, service, pwaApplicationDetail);
+    permanentDepositService.validate(form, bindingResult, ValidationType.FULL, pwaApplicationDetail);
+    verify(validator, times(1)).validate(form, bindingResult, permanentDepositService, pwaApplicationDetail);
   }
 
   @Test
@@ -177,8 +182,8 @@ public class PermanentDepositsServiceTest {
     form.setBioGroutBagsNotUsedDescription(ok);
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
-    service.validate(form, bindingResult, ValidationType.FULL, pwaApplicationDetail);
-    verify(validator, times(1)).validate(form, bindingResult, service, pwaApplicationDetail);
+    permanentDepositService.validate(form, bindingResult, ValidationType.FULL, pwaApplicationDetail);
+    verify(validator, times(1)).validate(form, bindingResult, permanentDepositService, pwaApplicationDetail);
   }
 
   @Test
@@ -188,48 +193,36 @@ public class PermanentDepositsServiceTest {
     entityMapper.setEntityConcreteProperties(entity);
 
     when( permanentDepositInformationRepository.findByPwaApplicationDetailOrderByReferenceAsc(pwaApplicationDetail)).thenReturn(List.of(entity));
-    assertThat(service.validateDepositOverview(pwaApplicationDetail)).isEqualTo(true);
+    assertThat(permanentDepositService.validateDepositOverview(pwaApplicationDetail)).isEqualTo(true);
   }
 
 
   @Test
   public void validateDepositOverview_inValid() {
     when( permanentDepositInformationRepository.findByPwaApplicationDetailOrderByReferenceAsc(pwaApplicationDetail)).thenReturn(new ArrayList<>());
-    assertThat(service.validateDepositOverview(pwaApplicationDetail)).isEqualTo(false);
+    assertThat(permanentDepositService.validateDepositOverview(pwaApplicationDetail)).isEqualTo(false);
   }
 
 
   @Test
   public void isPermanentDepositMade_depositMadeTrue() {
-    PadProjectInformation projectInformation = new PadProjectInformation();
-    projectInformation.setPermanentDepositsMade(true);
-    when(padProjectInformationRepository.findByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(Optional.of(projectInformation));
-    assertThat(service.permanentDepositsAreToBeMadeOnApp(pwaApplicationDetail)).isEqualTo(true);
+    when(padProjectInformationService.getPermanentDepositsOnApplication(pwaApplicationDetail)).thenReturn(true);
+
+    assertThat(permanentDepositService.permanentDepositsAreToBeMadeOnApp(pwaApplicationDetail)).isEqualTo(true);
   }
 
   @Test
   public void isPermanentDepositMade_depositMadeFalse() {
-    PadProjectInformation projectInformation = new PadProjectInformation();
-    projectInformation.setPermanentDepositsMade(false);
-    when(padProjectInformationRepository.findByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(Optional.of(projectInformation));
-    assertThat(service.permanentDepositsAreToBeMadeOnApp(pwaApplicationDetail)).isEqualTo(false);
-  }
+    when(padProjectInformationService.getPermanentDepositsOnApplication(pwaApplicationDetail)).thenReturn(false);
 
-  @Test
-  public void isPermanentDepositMade_depositMadeNull() {
-    PadProjectInformation projectInformation = new PadProjectInformation();
-    projectInformation.setPermanentDepositsMade(null);
-    when(padProjectInformationRepository.findByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(Optional.of(projectInformation));
-    assertThat(service.permanentDepositsAreToBeMadeOnApp(pwaApplicationDetail)).isEqualTo(false);
+    assertThat(permanentDepositService.permanentDepositsAreToBeMadeOnApp(pwaApplicationDetail)).isEqualTo(false);
   }
 
   @Test
   public void isPermanentDepositMade_depcon() {
-    PadProjectInformation projectInformation = new PadProjectInformation();
-    projectInformation.setPermanentDepositsMade(false);
     var pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.DEPOSIT_CONSENT);
-    when(padProjectInformationRepository.findByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(Optional.of(projectInformation));
-    assertThat(service.permanentDepositsAreToBeMadeOnApp(pwaApplicationDetail)).isEqualTo(true);
+
+    assertThat(permanentDepositService.permanentDepositsAreToBeMadeOnApp(pwaApplicationDetail)).isEqualTo(true);
   }
 
   @Test
@@ -237,14 +230,14 @@ public class PermanentDepositsServiceTest {
     var permDeposit = getPadPermanentDeposit();
     when(permanentDepositInformationRepository.findByPwaApplicationDetailOrderByReferenceAsc(pwaApplicationDetail))
         .thenReturn(List.of(permDeposit));
-    assertThat(service.getPermanentDepositViews(pwaApplicationDetail)).isNotNull();
+    assertThat(permanentDepositService.getPermanentDepositViews(pwaApplicationDetail)).isNotNull();
     verify(permanentDepositEntityMappingService, times(1)).createPermanentDepositOverview(permDeposit, new HashMap<>());
   }
 
   @Test
   public void createViewFromEntity_serviceInteractions(){
     var deposit = getPadPermanentDeposit();
-    service.createViewFromEntity(getPadPermanentDeposit());
+    permanentDepositService.createViewFromEntity(getPadPermanentDeposit());
     verify(permanentDepositEntityMappingService, times(1)).createPermanentDepositOverview(deposit, new HashMap<>());
   }
 
@@ -267,7 +260,62 @@ public class PermanentDepositsServiceTest {
   @Test(expected = PwaEntityNotFoundException.class)
   public void mapEntityToFormById_noEntityExists() {
     var form = new PermanentDepositsForm();
-    service.mapEntityToFormById(1, form);
+    permanentDepositService.mapEntityToFormById(1, form);
+  }
+
+  @Test
+  public void getPipelinesMapForDeposits_1pipelineInService_1pipelineRTS() {
+
+    var pipelineOnSeabed = new Pipeline();
+    pipelineOnSeabed.setId(1);
+    var padPipelineOnSeabed = new PadPipeline();
+    padPipelineOnSeabed.setPipeline(pipelineOnSeabed);
+    padPipelineOnSeabed.setPipelineStatus(PipelineStatus.IN_SERVICE);
+    padPipelineOnSeabed.setPipelineRef("my ref");
+    padPipelineOnSeabed.setPipelineType(PipelineType.HYDRAULIC_JUMPER);
+    var padPipelineOverviewOnSeabed = new PadPipelineOverview(padPipelineOnSeabed, 1L);
+
+    var pipelineNotOnSeabed = new Pipeline();
+    pipelineNotOnSeabed.setId(2);
+    var padPipelineNotOnSeabed = new PadPipeline();
+    padPipelineNotOnSeabed.setPipeline(pipelineNotOnSeabed);
+    padPipelineNotOnSeabed.setPipelineStatus(PipelineStatus.RETURNED_TO_SHORE);
+    var padPipelineOverviewNotOnSeabed = new PadPipelineOverview(padPipelineNotOnSeabed, 1L);
+
+    when(pipelineAndIdentViewFactory.getAllPipelineOverviewsFromAppAndMasterPwa(pwaApplicationDetail))
+    .thenReturn(Map.of(
+        PipelineId.from(padPipelineOverviewOnSeabed), padPipelineOverviewOnSeabed,
+        PipelineId.from(padPipelineOverviewNotOnSeabed), padPipelineOverviewNotOnSeabed));
+
+    var pipelinesIdAndNameMap = permanentDepositService.getPipelinesMapForDeposits(pwaApplicationDetail);
+    assertThat(pipelinesIdAndNameMap).containsOnly(
+        entry(String.valueOf(padPipelineOverviewOnSeabed.getPipelineId()),
+            padPipelineOnSeabed.getPipelineRef() + " - " + padPipelineOnSeabed.getPipelineType().getDisplayName()));
+  }
+
+
+  @Test
+  public void createViewFromDepositId_onePipelineForDeposit() {
+
+    var deposit = getPadPermanentDeposit();
+    deposit.setId(DEPOSIT_ID_1);
+    when(permanentDepositInformationRepository.findById(DEPOSIT_ID_1)).thenReturn(Optional.of(deposit));
+
+    var pipeline = new Pipeline();
+    pipeline.setId(1);
+    var padDepositPipeline = new PadDepositPipeline();
+    padDepositPipeline.setPadPermanentDeposit(deposit);
+    padDepositPipeline.setPipeline(pipeline);
+    when(padDepositPipelineRepository.findAllByPadPermanentDeposit(deposit)).thenReturn(List.of(padDepositPipeline));
+
+    Map<PipelineId, PipelineOverview> pipelineIdAndOverviewMap = Map.of(pipeline.getPipelineId(), new PipelineHeaderView());
+    when(pipelineAndIdentViewFactory.getAllPipelineOverviewsFromAppAndMasterPwaByPipelineIds(
+        deposit.getPwaApplicationDetail(), List.of(pipeline.getPipelineId())))
+        .thenReturn(pipelineIdAndOverviewMap);
+
+    permanentDepositService.createViewFromDepositId(DEPOSIT_ID_1);
+    verify(permanentDepositEntityMappingService, times(1))
+        .createPermanentDepositOverview(deposit, pipelineIdAndOverviewMap);
   }
 
   @Test
@@ -281,7 +329,7 @@ public class PermanentDepositsServiceTest {
     mockedEntity.setId(1);
 
     when(permanentDepositInformationRepository.findByPwaApplicationDetailOrderByReferenceAsc(pwaApplicationDetail)).thenReturn(List.of(mockedEntity));
-    var actualUrlMap = service.getEditUrlsForDeposits(pwaApplicationDetail);
+    var actualUrlMap = permanentDepositService.getEditUrlsForDeposits(pwaApplicationDetail);
     assertThat(actualUrlMap).isEqualTo(expectedUrlMap);
   }
 
@@ -296,7 +344,7 @@ public class PermanentDepositsServiceTest {
     mockedEntity.setId(1);
 
     when(permanentDepositInformationRepository.findByPwaApplicationDetailOrderByReferenceAsc(pwaApplicationDetail)).thenReturn(List.of(mockedEntity));
-    var actualUrlMap = service.getRemoveUrlsForDeposits(pwaApplicationDetail);
+    var actualUrlMap = permanentDepositService.getRemoveUrlsForDeposits(pwaApplicationDetail);
     assertThat(actualUrlMap).isEqualTo(expectedUrlMap);
   }
 
@@ -305,7 +353,7 @@ public class PermanentDepositsServiceTest {
     var entity = new PadPermanentDeposit();
     entity.setId(1);
     when(permanentDepositInformationRepository.findByPwaApplicationDetailAndReferenceIgnoreCase(pwaApplicationDetail,"myRef")).thenReturn(Optional.of(entity));
-    assertThat(service.isDepositReferenceUnique("myRef", 1, pwaApplicationDetail)).isTrue();
+    assertThat(permanentDepositService.isDepositReferenceUnique("myRef", 1, pwaApplicationDetail)).isTrue();
   }
 
   @Test
@@ -313,27 +361,53 @@ public class PermanentDepositsServiceTest {
     var entity = new PadPermanentDeposit();
     entity.setId(2);
     when(permanentDepositInformationRepository.findByPwaApplicationDetailAndReferenceIgnoreCase(pwaApplicationDetail,"myRef")).thenReturn(Optional.of(entity));
-    assertThat(service.isDepositReferenceUnique("myRef", 1, pwaApplicationDetail)).isFalse();
+    assertThat(permanentDepositService.isDepositReferenceUnique("myRef", 1, pwaApplicationDetail)).isFalse();
   }
 
 
   @Test
   public void isDepositReferenceUniqueNoId_true() {
     when(permanentDepositInformationRepository.findByPwaApplicationDetailAndReferenceIgnoreCase(pwaApplicationDetail,"myRef")).thenReturn(Optional.empty());
-    assertThat(service.isDepositReferenceUnique("myRef", null, pwaApplicationDetail)).isTrue();
+    assertThat(permanentDepositService.isDepositReferenceUnique("myRef", null, pwaApplicationDetail)).isTrue();
   }
 
   @Test
   public void isDepositReferenceUnique_false() {
     var entity = new PadPermanentDeposit();
     when(permanentDepositInformationRepository.findByPwaApplicationDetailAndReferenceIgnoreCase(pwaApplicationDetail,"myRef")).thenReturn(Optional.of(entity));
-    assertThat(service.isDepositReferenceUnique("myRef", null, pwaApplicationDetail)).isFalse();
+    assertThat(permanentDepositService.isDepositReferenceUnique("myRef", null, pwaApplicationDetail)).isFalse();
   }
 
   @Test(expected = PwaEntityNotFoundException.class)
   public void removeDeposit_noEntityFound() {
-    service.removeDeposit(5);
+    permanentDepositService.removeDeposit(5);
   }
+
+
+  @Test
+  public void getPermanentDepositForPipelinesMap() {
+
+    var deposit1 = new PadPermanentDeposit();
+    deposit1.setId(1);
+    var deposit2 = new PadPermanentDeposit();
+    deposit2.setId(2);
+
+    var pipeline1 = new Pipeline();
+    var pipeline2 = new Pipeline();
+
+    var deposit1AndPipeline1 = PadPermanentDepositTestUtil.createDepositPipeline(deposit1, pipeline1);
+    var deposit1AndPipeline2 = PadPermanentDepositTestUtil.createDepositPipeline(deposit1, pipeline2);
+    var deposit2AndPipeline1 = PadPermanentDepositTestUtil.createDepositPipeline(deposit2, pipeline1);
+
+    when(padDepositPipelineRepository.getAllByPadPermanentDeposit_PwaApplicationDetail(pwaApplicationDetail))
+        .thenReturn(List.of(deposit1AndPipeline1, deposit1AndPipeline2, deposit2AndPipeline1));
+
+    var depositForDepositPipelinesMap = permanentDepositService.getDepositForDepositPipelinesMap(pwaApplicationDetail);
+
+    assertThat(depositForDepositPipelinesMap.get(deposit1)).isEqualTo(List.of(deposit1AndPipeline1, deposit1AndPipeline2));
+    assertThat(depositForDepositPipelinesMap.get(deposit2)).isEqualTo(List.of(deposit2AndPipeline1));
+  }
+
 
   @Test
   public void cleanupData_hiddenData() {
@@ -361,7 +435,7 @@ public class PermanentDepositsServiceTest {
     when(permanentDepositInformationRepository.findByPwaApplicationDetailOrderByReferenceAsc(pwaApplicationDetail)).thenReturn(List.of(mattress, rock, grout, other, depositWithPipelines));
 
 
-    service.cleanupData(pwaApplicationDetail);
+    permanentDepositService.cleanupData(pwaApplicationDetail);
 
     assertThat(mattress.getGroutBagsBioDegradable()).isNull();
     assertThat(mattress.getBagsNotUsedDescription()).isNull();
@@ -432,7 +506,7 @@ public class PermanentDepositsServiceTest {
 
     when(pipelineDetailService.isPipelineConsented(padPipeline.getPipeline())).thenReturn(false);
 
-    service.removePadPipelineFromDeposits(padPipeline);
+    permanentDepositService.removePadPipelineFromDeposits(padPipeline);
 
     verify(padDepositPipelineRepository, times(1)).deleteAll(
         List.of(depositPipelineLink1, depositPipelineLink2));
@@ -466,7 +540,7 @@ public class PermanentDepositsServiceTest {
 
     when(pipelineDetailService.isPipelineConsented(padPipeline.getPipeline())).thenReturn(false);
 
-    service.removePadPipelineFromDeposits(padPipeline);
+    permanentDepositService.removePadPipelineFromDeposits(padPipeline);
 
     verify(padDepositPipelineRepository, times(1)).deleteAll(
         List.of(depositPipelineLink1, depositPipelineLink2));
@@ -484,6 +558,52 @@ public class PermanentDepositsServiceTest {
     verifyNoInteractions(padDepositPipelineRepository);
     verifyNoInteractions(permanentDepositInformationRepository);
     verifyNoInteractions(depositDrawingsService);
+  }
+
+  @Test
+  public void canShowInTaskList_notOptionsVariation_andPermDepositsQuestionIsTrue() {
+    var notOptions = EnumSet.allOf(PwaApplicationType.class);
+    notOptions.remove(PwaApplicationType.OPTIONS_VARIATION);
+
+    when(padProjectInformationService.getPermanentDepositsOnApplication(pwaApplicationDetail)).thenReturn(true);
+
+    for (PwaApplicationType type : notOptions) {
+      pwaApplicationDetail.getPwaApplication().setApplicationType(type);
+      assertThat(permanentDepositService.canShowInTaskList(pwaApplicationDetail)).isTrue();
+    }
+
+  }
+
+  @Test
+  public void canShowInTaskList_OptionsVariation_optionsNotComplete() {
+    when(padOptionConfirmedService.approvedOptionConfirmed(pwaApplicationDetail)).thenReturn(false);
+
+    pwaApplicationDetail.getPwaApplication().setApplicationType(PwaApplicationType.OPTIONS_VARIATION);
+
+    assertThat(permanentDepositService.canShowInTaskList(pwaApplicationDetail)).isFalse();
+
+  }
+
+  @Test
+  public void canShowInTaskList_OptionsVariation_optionsComplete_andPermDepositsQuestionIsTrue() {
+    when(padOptionConfirmedService.approvedOptionConfirmed(pwaApplicationDetail)).thenReturn(true);
+    when(padProjectInformationService.getPermanentDepositsOnApplication(pwaApplicationDetail)).thenReturn(true);
+
+    pwaApplicationDetail.getPwaApplication().setApplicationType(PwaApplicationType.OPTIONS_VARIATION);
+
+    assertThat(permanentDepositService.canShowInTaskList(pwaApplicationDetail)).isTrue();
+
+  }
+
+  @Test
+  public void canShowInTaskList_OptionsVariation_optionsComplete_andPermDepositsQuestionIsFalse() {
+    when(padOptionConfirmedService.approvedOptionConfirmed(pwaApplicationDetail)).thenReturn(true);
+    when(padProjectInformationService.getPermanentDepositsOnApplication(pwaApplicationDetail)).thenReturn(false);
+
+    pwaApplicationDetail.getPwaApplication().setApplicationType(PwaApplicationType.OPTIONS_VARIATION);
+
+    assertThat(permanentDepositService.canShowInTaskList(pwaApplicationDetail)).isFalse();
+
   }
 
 

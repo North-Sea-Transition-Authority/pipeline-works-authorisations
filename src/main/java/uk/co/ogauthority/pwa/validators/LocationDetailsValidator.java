@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.validators;
 
 import java.util.Set;
 import org.apache.commons.lang3.BooleanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import org.springframework.validation.SmartValidator;
@@ -15,6 +16,15 @@ import uk.co.ogauthority.pwa.util.ValidatorUtils;
 
 @Service
 public class LocationDetailsValidator implements SmartValidator {
+
+  private final LocationDetailsSafetyZoneValidator safetyZoneValidator;
+
+
+  @Autowired
+  public LocationDetailsValidator(
+      LocationDetailsSafetyZoneValidator safetyZoneValidator) {
+    this.safetyZoneValidator = safetyZoneValidator;
+  }
 
   @Override
   public boolean supports(Class<?> clazz) {
@@ -47,6 +57,29 @@ public class LocationDetailsValidator implements SmartValidator {
       ValidatorUtils.validateDefaultStringLength(
           errors, "approximateProjectLocationFromShore", form::getApproximateProjectLocationFromShore,
           "Approximate project location from shore must be 4000 characters or fewer");
+    }
+
+    if (requiredQuestions.contains(LocationDetailsQuestion.WITHIN_SAFETY_ZONE) && form.getWithinSafetyZone() != null) {
+      switch (form.getWithinSafetyZone()) {
+        case YES:
+          ValidatorUtils.invokeNestedValidator(
+              errors,
+              safetyZoneValidator,
+              "completelyWithinSafetyZoneForm",
+              form.getCompletelyWithinSafetyZoneForm(),
+              ValidationType.PARTIAL);
+          break;
+        case PARTIALLY:
+          ValidatorUtils.invokeNestedValidator(
+              errors,
+              safetyZoneValidator,
+              "partiallyWithinSafetyZoneForm",
+              form.getPartiallyWithinSafetyZoneForm(),
+              ValidationType.PARTIAL);
+          break;
+        default:
+          break;
+      }
     }
 
     if (requiredQuestions.contains(LocationDetailsQuestion.TRANSPORTS_MATERIALS_TO_SHORE)) {
@@ -86,25 +119,32 @@ public class LocationDetailsValidator implements SmartValidator {
 
     if (requiredQuestions.contains(LocationDetailsQuestion.WITHIN_SAFETY_ZONE)) {
       if (form.getWithinSafetyZone() == null) {
-        errors.rejectValue("withinSafetyZone", "withinSafetyZone.required",
+        errors.rejectValue("withinSafetyZone",
+            "withinSafetyZone" + FieldValidationErrorCodes.REQUIRED.getCode(),
             "Enter information on work carried out within 500m of a safety zone");
+
       } else {
         switch (form.getWithinSafetyZone()) {
           case YES:
-            if (form.getFacilitiesIfYes().size() == 0) {
-              errors.rejectValue("facilitiesIfYes", "facilitiesIfYes.required",
-                  "Select all structures within 500m");
-            }
+            ValidatorUtils.invokeNestedValidator(
+                errors,
+                safetyZoneValidator,
+                "completelyWithinSafetyZoneForm",
+                form.getCompletelyWithinSafetyZoneForm(),
+                ValidationType.FULL);
             break;
           case PARTIALLY:
-            if (form.getFacilitiesIfPartially().size() == 0) {
-              errors.rejectValue("facilitiesIfPartially", "facilitiesIfPartially.required",
-                  "Select all structures within 500m");
-            }
+            ValidatorUtils.invokeNestedValidator(
+                errors,
+                safetyZoneValidator,
+                "partiallyWithinSafetyZoneForm",
+                form.getPartiallyWithinSafetyZoneForm(),
+                ValidationType.FULL);
             break;
           default:
             break;
         }
+
       }
     }
 
@@ -137,6 +177,13 @@ public class LocationDetailsValidator implements SmartValidator {
         if (BooleanUtils.isTrue(form.getRouteSurveyUndertaken())) {
           ValidationUtils.rejectIfEmpty(errors, "pipelineRouteDetails",
               "pipelineRouteDetails.required", "Enter pipeline route details");
+        } else {
+          ValidationUtils.rejectIfEmpty(errors, "routeSurveyNotUndertakenReason",
+              "routeSurveyNotUndertakenReason" + FieldValidationErrorCodes.REQUIRED.getCode(),
+              "Enter the reason for why a pipeline route survey has not been undertaken");
+          ValidatorUtils.validateDefaultStringLength(
+              errors, "routeSurveyNotUndertakenReason", form::getRouteSurveyNotUndertakenReason,
+              "The reason for why a pipeline route survey has not been undertaken");
         }
       }
     }

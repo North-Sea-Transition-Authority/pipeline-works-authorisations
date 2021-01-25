@@ -25,22 +25,12 @@ steps:
 
   - name: build-backend
     image: openjdk:11-jdk-slim
+    environment:
+      SONARCLOUD_TOKEN:
+        from_secret: SONARCLOUD_TOKEN
     commands:
       - chmod +x gradlew
-      - ./gradlew test checkstyleMain bootWar bootJar
-
-  - name: code-analysis
-    image: aosapps/drone-sonar-plugin
-    settings:
-      sonar_host:
-        from_secret: sonar_host
-      sonar_token:
-        from_secret: sonar_token
-      sources: src
-      exclusions: src/test/**, src/main/resources/public/assets/**, src/main/resources/templates/fds/**, fivium-design-system-core/**
-    when:
-      status: success
-      branch: develop
+      - ./gradlew test jacocoTestReport checkstyleMain bootWar bootJar sonarqube
 
   - name: publish-build-s3
     image: plugins/s3

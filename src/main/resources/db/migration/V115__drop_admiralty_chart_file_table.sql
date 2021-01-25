@@ -1,0 +1,1 @@
+DROP TABLE ${datasource.user}.pad_admiralty_chart_files;

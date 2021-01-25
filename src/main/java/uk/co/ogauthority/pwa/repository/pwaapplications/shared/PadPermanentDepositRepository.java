@@ -17,4 +17,8 @@ public interface PadPermanentDepositRepository extends CrudRepository<PadPermane
       PwaApplicationDetail pwaApplicationDetail, String reference);
 
   List<PadPermanentDeposit> getAllByPwaApplicationDetail(PwaApplicationDetail detail);
+
+  List<PadPermanentDeposit> getAllByPwaApplicationDetailAndDepositIsForPipelinesOnOtherApp(
+      PwaApplicationDetail detail,
+      Boolean depositIsForPipelinesOnOtherApp);
 }

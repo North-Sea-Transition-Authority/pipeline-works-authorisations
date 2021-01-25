@@ -266,8 +266,8 @@ public class PadProjectInformationServiceTest {
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.DEPOSIT_CONSENT);
 
     padProjectInformation = new PadProjectInformation();
+    padProjectInformation.setLicenceTransferPlanned(null);
     // cleanup data shown on all apps and safely assumed to have value
-    padProjectInformation.setLicenceTransferPlanned(false);
     // set answers on visible questions
     padProjectInformation.setTemporaryDepositsMade(false);
     padProjectInformation.setTemporaryDepDescription("Some content");
@@ -344,6 +344,36 @@ public class PadProjectInformationServiceTest {
             eq(ApplicationDetailFilePurpose.PROJECT_INFORMATION),
             eq(ApplicationFileLinkStatus.FULL));
 
+  }
+
+  @Test
+  public void getPermanentDepositsOnApplication_depositMadeNull() {
+    PadProjectInformation projectInformation = new PadProjectInformation();
+    projectInformation.setPermanentDepositsMade(null);
+
+    when(padProjectInformationRepository.findByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(Optional.of(projectInformation));
+
+    assertThat(service.getPermanentDepositsOnApplication(pwaApplicationDetail)).isEqualTo(false);
+  }
+
+  @Test
+  public void getPermanentDepositsOnApplication_depositMadeFalse() {
+    PadProjectInformation projectInformation = new PadProjectInformation();
+    projectInformation.setPermanentDepositsMade(false);
+
+    when(padProjectInformationRepository.findByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(Optional.of(projectInformation));
+
+    assertThat(service.getPermanentDepositsOnApplication(pwaApplicationDetail)).isEqualTo(false);
+  }
+
+  @Test
+  public void getPermanentDepositsOnApplication_depositMadeTrue() {
+    PadProjectInformation projectInformation = new PadProjectInformation();
+    projectInformation.setPermanentDepositsMade(true);
+
+    when(padProjectInformationRepository.findByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(Optional.of(projectInformation));
+
+    assertThat(service.getPermanentDepositsOnApplication(pwaApplicationDetail)).isEqualTo(true);
   }
 
 

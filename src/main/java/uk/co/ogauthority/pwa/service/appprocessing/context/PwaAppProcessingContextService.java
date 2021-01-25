@@ -12,7 +12,6 @@ import uk.co.ogauthority.pwa.service.appprocessing.PwaAppProcessingPermissionSer
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.fileupload.AppFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
-import uk.co.ogauthority.pwa.service.pwaapplications.search.ApplicationDetailSearcher;
 import uk.co.ogauthority.pwa.util.ApplicationContextUtils;
 
 @Service
@@ -20,17 +19,17 @@ public class PwaAppProcessingContextService {
 
   private final PwaApplicationDetailService detailService;
   private final PwaAppProcessingPermissionService appProcessingPermissionService;
-  private final ApplicationDetailSearcher applicationDetailSearcher;
+  private final CaseSummaryViewService caseSummaryViewService;
   private final AppFileService appFileService;
 
   @Autowired
   public PwaAppProcessingContextService(PwaApplicationDetailService detailService,
                                         PwaAppProcessingPermissionService appProcessingPermissionService,
-                                        ApplicationDetailSearcher applicationDetailSearcher,
+                                        CaseSummaryViewService caseSummaryViewService,
                                         AppFileService appFileService) {
     this.detailService = detailService;
     this.appProcessingPermissionService = appProcessingPermissionService;
-    this.applicationDetailSearcher = applicationDetailSearcher;
+    this.caseSummaryViewService = caseSummaryViewService;
     this.appFileService = appFileService;
   }
 
@@ -70,20 +69,19 @@ public class PwaAppProcessingContextService {
   PwaAppProcessingContext getProcessingContext(Integer applicationId,
                                                AuthenticatedUserAccount authenticatedUser) {
 
-    var detail = detailService.getLastSubmittedApplicationDetail(applicationId)
-        .orElseThrow(() -> new PwaEntityNotFoundException(
-            "Could not find last submitted version on applicationId:" + applicationId));
+    var detail = detailService.getLatestDetailForUser(applicationId, authenticatedUser)
+        .orElseThrow(() -> new PwaEntityNotFoundException(String.format(
+            "Could not find suitable detail for applicationId [%s] and user wua [%s]", applicationId, authenticatedUser.getWuaId())));
 
     var processingPermissionsDto = appProcessingPermissionService
-        .getProcessingPermissionsDto(detail.getPwaApplication(), authenticatedUser);
+        .getProcessingPermissionsDto(detail, authenticatedUser);
 
     if (processingPermissionsDto.getProcessingPermissions().isEmpty()) {
       throw new AccessDeniedException(
           String.format("User with WUA ID: %s has no app processing permissions", authenticatedUser.getWuaId()));
     }
 
-    var caseSummaryView = applicationDetailSearcher.searchByApplicationDetailId(detail.getId())
-        .map(CaseSummaryView::from)
+    var caseSummaryView = caseSummaryViewService.getCaseSummaryViewForAppDetail(detail)
         .orElse(null);
 
     return new PwaAppProcessingContext(

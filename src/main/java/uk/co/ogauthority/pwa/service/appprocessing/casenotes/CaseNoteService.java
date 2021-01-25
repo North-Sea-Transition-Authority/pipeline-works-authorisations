@@ -125,6 +125,7 @@ public class CaseNoteService implements AppProcessingService, CaseHistoryItemSer
               .collect(Collectors.toList());
 
           return new CaseHistoryItemView.Builder("Case note", caseNote.getDateTime(), caseNote.getPersonId())
+              .setPersonEmailLabel("Contact email")
               .setUploadedFileViews(caseNoteFileViews, caseNoteFileDownloadUrl)
               .addDataItem("Note text", caseNote.getNoteText())
               .build();

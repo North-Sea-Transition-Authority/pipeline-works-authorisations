@@ -9,6 +9,11 @@ AS
   e_num_migration_found NUMBER := -20999;
   PRAGMA EXCEPTION_INIT (e_migration_found, -20999);
 
+  FUNCTION create_new_pipeline_status( p_detail_status VARCHAR2
+                                     , p_pipeline_status VARCHAR2
+                                     , p_pipeline_number VARCHAR2)
+  RETURN VARCHAR2;
+
   PROCEDURE migrate_master(p_mig_master_pwa ${datasource.user}.mig_master_pwas%ROWTYPE);
 
   PROCEDURE migrate_pipeline_history(p_mig_pipeline_history ${datasource.user}.mig_pipeline_history%ROWTYPE);
@@ -231,6 +236,38 @@ AS
 
   END get_or_create_pipeline;
 
+  FUNCTION create_new_pipeline_status( p_detail_status VARCHAR2
+                                     , p_pipeline_status VARCHAR2
+                                     , p_pipeline_number VARCHAR2)
+    RETURN VARCHAR2
+  AS
+    l_new_status VARCHAR2(4000);
+  BEGIN
+    -- For deleted or pending pipelines, dont bother trying to post process using pipelines number
+    IF(p_detail_status = 'DELETED' OR p_detail_status = 'PENDING') THEN
+      RETURN p_detail_status;
+    END IF;
+
+    -- can now ignore detail status and just interpret pipeline status
+    IF(p_pipeline_status = 'OUT_OF_USE') THEN
+      l_new_status := 'OUT_OF_USE_ON_SEABED';
+    ELSE
+      l_new_status := 'IN_SERVICE';
+    END IF;
+
+    SELECT
+      CASE
+        WHEN p_pipeline_number LIKE '%RTS' THEN 'RETURNED_TO_SHARE'
+        WHEN p_pipeline_number LIKE '%NL' THEN 'NEVER_LAID'
+        ELSE l_new_status
+      END
+    INTO l_new_status
+    FROM dual;
+
+    RETURN l_new_status;
+
+  END create_new_pipeline_status;
+
   PROCEDURE migrate_pipeline_history(p_mig_pipeline_history ${datasource.user}.mig_pipeline_history%ROWTYPE)
   AS
     l_master_pipeline_row      ${datasource.user}.pipelines%ROWTYPE;
@@ -241,6 +278,7 @@ AS
     l_huoo_role_count NUMBER := 0;
 
     l_length_metre NUMBER;
+    l_new_pipeline_status VARCHAR2(4000);
 
   BEGIN
     ${datasource.user}.migration_logger.log_pipeline(
@@ -249,7 +287,7 @@ AS
       , p_message => 'pipeline record migration started pd_id: ' || p_mig_pipeline_history.pd_id
       );
 
-    /* This needs to create the master pipeline record and link current HUOO data to it.*/
+    /* This needs to create the master pipeline record and link current HUOO data to it. */
     l_master_pipeline_row := get_or_create_pipeline(p_mig_pipeline_history);
 
     /*
@@ -270,6 +308,12 @@ AS
      RAISE;
     END;
 
+    l_new_pipeline_status := create_new_pipeline_status(
+        p_detail_status => p_mig_pipeline_history.status
+      , p_pipeline_status => p_mig_pipeline_history.pipeline_status
+      , p_pipeline_number => p_mig_pipeline_history.pipeline_number
+    );
+
     INSERT INTO ${datasource.user}.pipeline_details ( id
                                         , pipeline_id
                                         , pwa_consent_id
@@ -277,7 +321,6 @@ AS
                                         , end_timestamp
                                         , tip_flag
                                         , pipeline_status
-                                        , detail_status
                                         , pipeline_number
                                         , created_by_wua_id
                                         , from_location
@@ -295,8 +338,7 @@ AS
            , p_mig_pipeline_history.start_date
            , p_mig_pipeline_history.end_date
            , CASE WHEN p_mig_pipeline_history.status_control = 'C' THEN 1 ELSE NULL END
-           , p_mig_pipeline_history.pipeline_status
-           , p_mig_pipeline_history.status
+           , l_new_pipeline_status
            , p_mig_pipeline_history.pipeline_number
            , p_mig_pipeline_history.created_by_wua_id
 
@@ -335,13 +377,15 @@ AS
                                               , ident_no
                                               , from_location
                                               , to_location
-                                              , length)
+                                              , length
+                                              , is_defining_structure)
     VALUES ( l_detail_id
             , 1 -- default ident number
             -- repeat pipeline header info so it can corrected "in app"
             , p_mig_pipeline_history.position_from
             , p_mig_pipeline_history.position_to
-            , l_length_metre)
+            , l_length_metre
+            , 0)
     RETURNING id INTO l_detail_ident_id;
 
     INSERT INTO ${datasource.user}.pipeline_detail_ident_data ( pipeline_detail_ident_id
@@ -364,7 +408,9 @@ AS
                                                       , trench_depth
                                                       , system_identifier
                                                       , psig
-                                                      , notes)
+                                                      , notes
+                                                      , detail_status
+                                                      , pipeline_status)
     VALUES ( l_detail_id
            , p_mig_pipeline_history.type
            , p_mig_pipeline_history.commissioned_date
@@ -375,7 +421,9 @@ AS
            , p_mig_pipeline_history.trench_depth
            , p_mig_pipeline_history.system_identifier
            , p_mig_pipeline_history.psig
-           , p_mig_pipeline_history.notes)
+           , p_mig_pipeline_history.notes
+           , p_mig_pipeline_history.status
+           , p_mig_pipeline_history.pipeline_status)
     RETURNING id INTO l_detail_migration_data_id;
 
     FOR company_hist IN (

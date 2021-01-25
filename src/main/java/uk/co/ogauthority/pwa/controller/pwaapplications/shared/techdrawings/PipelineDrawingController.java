@@ -40,7 +40,6 @@ import uk.co.ogauthority.pwa.service.fileupload.FileUpdateMode;
 import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.PadTechnicalDrawingLinkService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.PadTechnicalDrawingService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.PipelineDrawingUrlFactory;
@@ -54,12 +53,12 @@ import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
     PwaApplicationType.INITIAL,
     PwaApplicationType.CAT_1_VARIATION,
     PwaApplicationType.CAT_2_VARIATION,
-    PwaApplicationType.DECOMMISSIONING
+    PwaApplicationType.DECOMMISSIONING,
+    PwaApplicationType.OPTIONS_VARIATION
 })
 public class PipelineDrawingController extends PwaApplicationDetailDataFileUploadAndDownloadController {
 
   private final ApplicationBreadcrumbService applicationBreadcrumbService;
-  private final PadPipelineService padPipelineService;
   private final PadTechnicalDrawingService padTechnicalDrawingService;
   private final PadTechnicalDrawingLinkService padTechnicalDrawingLinkService;
   private final PadFileService padFileService;
@@ -70,14 +69,12 @@ public class PipelineDrawingController extends PwaApplicationDetailDataFileUploa
   @Autowired
   public PipelineDrawingController(
       ApplicationBreadcrumbService applicationBreadcrumbService,
-      PadPipelineService padPipelineService,
       PadTechnicalDrawingService padTechnicalDrawingService,
       PadTechnicalDrawingLinkService padTechnicalDrawingLinkService,
       PadFileService padFileService,
       ControllerHelperService controllerHelperService) {
     super(padFileService);
     this.applicationBreadcrumbService = applicationBreadcrumbService;
-    this.padPipelineService = padPipelineService;
     this.padTechnicalDrawingService = padTechnicalDrawingService;
     this.padTechnicalDrawingLinkService = padTechnicalDrawingLinkService;
     this.padFileService = padFileService;
@@ -245,7 +242,7 @@ public class PipelineDrawingController extends PwaApplicationDetailDataFileUploa
       @PathVariable("applicationId") Integer applicationId,
       @RequestParam("file") MultipartFile file,
       PwaApplicationContext applicationContext) {
-    return padFileService.processInitialUpload(
+    return padFileService.processImageUpload(
         file,
         applicationContext.getApplicationDetail(),
         FILE_PURPOSE,

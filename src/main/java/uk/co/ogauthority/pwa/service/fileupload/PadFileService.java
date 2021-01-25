@@ -109,16 +109,31 @@ public class PadFileService {
                                                WebUserAccount user) {
 
     var result = fileUploadService.processUpload(file, user);
+    savePadFileIfValid(result, pwaApplicationDetail, purpose);
+    return result;
+  }
 
+  @Transactional
+  public FileUploadResult processImageUpload(MultipartFile file,
+                                               PwaApplicationDetail pwaApplicationDetail,
+                                               ApplicationDetailFilePurpose purpose,
+                                               WebUserAccount user) {
+
+    var result = fileUploadService.processImageUpload(file, user);
+    savePadFileIfValid(result, pwaApplicationDetail, purpose);
+    return result;
+  }
+
+  private void savePadFileIfValid(FileUploadResult result,
+                                  PwaApplicationDetail pwaApplicationDetail,
+                                  ApplicationDetailFilePurpose purpose) {
     if (result.isValid()) {
       String fileId = result.getFileId().orElseThrow();
       var appFile = new PadFile(pwaApplicationDetail, fileId, purpose, ApplicationFileLinkStatus.TEMPORARY);
       padFileRepository.save(appFile);
     }
-
-    return result;
-
   }
+
 
   /**
    * Fully link temporary files that are still present, update file descriptions, delete files that have been deleted onscreen.

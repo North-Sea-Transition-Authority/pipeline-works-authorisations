@@ -42,7 +42,8 @@ import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
     PwaApplicationType.INITIAL,
     PwaApplicationType.CAT_1_VARIATION,
     PwaApplicationType.CAT_2_VARIATION,
-    PwaApplicationType.DECOMMISSIONING
+    PwaApplicationType.DECOMMISSIONING,
+    PwaApplicationType.OPTIONS_VARIATION
 })
 public class TechnicalDrawingsController {
 
@@ -102,6 +103,7 @@ public class TechnicalDrawingsController {
     return getOverviewModelAndView(applicationContext.getApplicationDetail());
   }
 
+
   @PostMapping
   public ModelAndView postOverview(@PathVariable("applicationType")
                                    @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
@@ -112,10 +114,10 @@ public class TechnicalDrawingsController {
                                    AuthenticatedUserAccount user) {
     var detail = applicationContext.getApplicationDetail();
     bindingResult = technicalDrawingSectionService.validate(form, bindingResult, ValidationType.FULL, detail);
-    if (bindingResult.hasErrors()) {
+    var validationSummary = technicalDrawingSectionService.getValidationSummary(bindingResult);
+    if (!validationSummary.isComplete()) {
       return getOverviewModelAndView(detail)
-          .addObject("errorMessage",
-              "An admiralty chart must be uploaded, and all pipelines must be linked to a drawing")
+          .addObject("errorMessage", validationSummary.getErrorMessage())
           .addObject("validatorFactory", padTechnicalDrawingService.getValidationFactory(detail));
     }
     return pwaApplicationRedirectService.getTaskListRedirect(detail.getPwaApplication());

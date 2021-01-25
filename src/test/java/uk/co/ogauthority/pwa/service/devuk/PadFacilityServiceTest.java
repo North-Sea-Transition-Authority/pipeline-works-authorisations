@@ -23,9 +23,9 @@ import uk.co.ogauthority.pwa.model.entity.devuk.PadFacility;
 import uk.co.ogauthority.pwa.model.entity.enums.HseSafetyZone;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.location.LocationDetailsForm;
-import uk.co.ogauthority.pwa.model.search.SearchSelectable;
+import uk.co.ogauthority.pwa.model.searchselector.SearchSelectable;
 import uk.co.ogauthority.pwa.repository.devuk.PadFacilityRepository;
-import uk.co.ogauthority.pwa.service.search.SearchSelectorService;
+import uk.co.ogauthority.pwa.service.searchselector.SearchSelectorService;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PadFacilityServiceTest {
@@ -78,7 +78,7 @@ public class PadFacilityServiceTest {
     var facilityIds = List.of("1");
     var form = new LocationDetailsForm();
     form.setWithinSafetyZone(HseSafetyZone.PARTIALLY);
-    form.setFacilitiesIfPartially(facilityIds);
+    form.getPartiallyWithinSafetyZoneForm().setFacilities(facilityIds);
 
     when(devukFacilityService.getFacilitiesInIds(any())).thenReturn(List.of(facility));
 
@@ -96,7 +96,7 @@ public class PadFacilityServiceTest {
     var facility = new DevukFacility();
     var form = new LocationDetailsForm();
     form.setWithinSafetyZone(HseSafetyZone.YES);
-    form.setFacilitiesIfYes(List.of("1"));
+    form.getCompletelyWithinSafetyZoneForm().setFacilities(List.of("1"));
 
     when(devukFacilityService.getFacilitiesInIds(any())).thenReturn(List.of(facility));
 
@@ -165,7 +165,7 @@ public class PadFacilityServiceTest {
     var facilityIds = List.of(SearchSelectable.FREE_TEXT_PREFIX + "1");
     var form = new LocationDetailsForm();
     form.setWithinSafetyZone(HseSafetyZone.PARTIALLY);
-    form.setFacilitiesIfPartially(facilityIds);
+    form.getPartiallyWithinSafetyZoneForm().setFacilities(facilityIds);
 
     padFacilityService.setFacilities(pwaApplicationDetail, form);
 
@@ -181,7 +181,7 @@ public class PadFacilityServiceTest {
     var facilityIds = List.of(SearchSelectable.FREE_TEXT_PREFIX + "1");
     var form = new LocationDetailsForm();
     form.setWithinSafetyZone(HseSafetyZone.YES);
-    form.setFacilitiesIfYes(facilityIds);
+    form.getCompletelyWithinSafetyZoneForm().setFacilities(facilityIds);
 
     padFacilityService.setFacilities(pwaApplicationDetail, form);
 

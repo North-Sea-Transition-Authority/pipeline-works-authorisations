@@ -11,10 +11,10 @@ import uk.co.ogauthority.pwa.model.entity.devuk.PadFacility;
 import uk.co.ogauthority.pwa.model.entity.enums.HseSafetyZone;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.location.LocationDetailsForm;
-import uk.co.ogauthority.pwa.model.search.SearchSelectable;
-import uk.co.ogauthority.pwa.model.search.SearchSelectionView;
+import uk.co.ogauthority.pwa.model.searchselector.SearchSelectable;
+import uk.co.ogauthority.pwa.model.searchselector.SearchSelectionView;
 import uk.co.ogauthority.pwa.repository.devuk.PadFacilityRepository;
-import uk.co.ogauthority.pwa.service.search.SearchSelectorService;
+import uk.co.ogauthority.pwa.service.searchselector.SearchSelectorService;
 import uk.co.ogauthority.pwa.util.StreamUtils;
 
 @Service
@@ -48,10 +48,15 @@ public class PadFacilityService {
   public void setFacilities(PwaApplicationDetail pwaApplicationDetail, LocationDetailsForm form) {
     getFacilities(pwaApplicationDetail).forEach(padFacilityRepository::delete);
     List<String> facilities;
-    if (form.getWithinSafetyZone() == HseSafetyZone.PARTIALLY && form.getFacilitiesIfPartially().size() > 0) {
-      facilities = form.getFacilitiesIfPartially();
-    } else if (form.getWithinSafetyZone() == HseSafetyZone.YES && form.getFacilitiesIfYes().size() > 0) {
-      facilities = form.getFacilitiesIfYes();
+
+    if (form.getWithinSafetyZone() == HseSafetyZone.PARTIALLY
+        && !form.getPartiallyWithinSafetyZoneForm().getFacilities().isEmpty()) {
+      facilities = form.getPartiallyWithinSafetyZoneForm().getFacilities();
+
+    } else if (form.getWithinSafetyZone() == HseSafetyZone.YES
+        && !form.getCompletelyWithinSafetyZoneForm().getFacilities().isEmpty()) {
+      facilities = form.getCompletelyWithinSafetyZoneForm().getFacilities();
+
     } else {
       return;
     }

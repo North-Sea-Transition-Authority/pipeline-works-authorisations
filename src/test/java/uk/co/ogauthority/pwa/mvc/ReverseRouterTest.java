@@ -64,7 +64,7 @@ public class ReverseRouterTest extends AbstractControllerTest {
     // Variable from request should be overridden by variable in map even when request substitution is disabled
     route = ReverseRouter.route(
         on(TestController.class).testMethod("method_child_id"), Collections.singletonMap("parentId", "map_parent_id"),
-        false);
+        false, Collections.emptyMap());
     assertThat(route).isEqualTo("/parent/map_parent_id/child/method_child_id");
 
     // Variable from method parameter should NOT be overridden by variable in map
@@ -78,7 +78,7 @@ public class ReverseRouterTest extends AbstractControllerTest {
     // Should throw exception if we don't allow variables from the request
     assertThatThrownBy(
         () -> ReverseRouter.route(on(TestController.class).testMethod("method_child_id"), Collections.emptyMap(),
-            false))
+            false, Collections.emptyMap()))
         .isInstanceOf(IllegalArgumentException.class)
         .hasMessageContaining("Map has no value");
   }

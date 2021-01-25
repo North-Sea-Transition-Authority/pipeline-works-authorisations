@@ -7,7 +7,7 @@
   <style>
     @page {
       size: A4;
-      margin: 50px;
+      margin: 135px 50px 50px;
 
       @bottom-right {
         content: counter(page);
@@ -15,11 +15,20 @@
         font-family: "Arial-MT";
       }
 
+      @top-left-corner {
+        content: element(header-content);
+      }
+
       @top-left {
-        /*content: element(myheader);*/
         content: element(watermark-ref);
       }
+
     }
+
+    @page landscapePage {
+      size: A4 landscape;
+    }
+
 
     @font-face {
       font-family: "Arial-MT";
@@ -37,11 +46,6 @@
       font-size: 16px;
     }
 
-    img {
-      width: 30%;
-      height: auto;
-    }
-
     watermark {
       position: running(watermark-ref);
       z-index: -999;
@@ -53,31 +57,121 @@
       line-height: 90px;
     }
 
-    #myheader {
-      position: running(myheader);
+    #header-content {
+      position: running(header-content);
+      padding-top: 50px;
+      height: auto;
+      padding-left: 55px
     }
 
-    #image {
-      background-image: url('document-assets/oga-logo.png');
-      height: 30px;
+    .logo-image {
+      width: 30%;
+      max-height: 30px;
+    }
+
+    .image {
+      width:auto;
+      max-height: 800px;
+    }
+
+    .header-heading {
+      margin-top: 5px;
+    }    
+
+    table {
+      /* Repeats the header and footer on each page that the table is on. */
+      -fs-table-paginate: paginate;
+    }
+
+    .sectionTable {
+      width: 1000px;
+    }
+
+    .sectionTable, .sectionTable th, .sectionTable td {
+      border: 1px solid black;
+      border-collapse: collapse;
+    }
+
+    .sectionTable td {
+      padding-left: 5px;
+    }
+
+    .coordinateTableCell {
+      width: 140px;
+    }
+
+    @media print {
+      #depositsTableSection, #tableAsSection, .tableAPage, .tableADrawing  {
+        page-break-before: always;
+      }
+    }
+
+    .sectionTable tr {
+      page-break-inside:avoid;
+      page-break-after:auto
+    }
+
+    .sectionTable, #depositsTableSection, .tableAPage {
+      page: landscapePage;
+    }
+
+    #depositsTableSection .materialTypeAndSize {
+      word-wrap: normal
+    }
+
+    .drawingNumberList {
+      list-style-type:none;
+      padding-left: 0;
+    }
+
+    ol {
+      padding-left: 20px;
+    }
+
+    .govuk-list--lower-alpha {
+      list-style-type: lower-alpha;
+    }
+
+    .govuk-list--lower-roman {
+      list-style-type: lower-roman;
+    }
+
+    .tableA {
+      page-break-inside:auto
+    }
+
+    .tableA th {
+      text-align: center;
+    }
+
+    .tableA .headerRow {
+      vertical-align: top;
+    }
+
+    #huooSection {
+      text-align: center;
+    }
+
+    #huooSection .huooPipelines, #huooSection .roleTypeTxt {
+      font-weight: bold;
+      text-decoration: underline;
+    }
+
+    #huooSection .orgRoleAndPipelines {
+      margin-top: 40px;
     }
 
   </style>
 </head>
 <body>
 
-<#--  <div id="myheader">-->
+  <div id="header-content">
 
-<#--    <div id="image"></div>-->
+    <img class="logo-image" src="classpath:///document-assets/oga-logo.png"/>
 
-<#--    <div id="header">-->
-<#--      <h1>${consentRef!"Pipeline Works Authorisations document"}</h1>-->
-<#--    </div>-->
+    <h1 class="header-heading">${consentRef!"Pipeline Works Authorisations document"}</h1>
 
-<#--  </div>-->
-
-  <img src="classpath:///document-assets/oga-logo.png"/>
-  <h1>${consentRef!"Pipeline Works Authorisations document"}</h1>
+  </div>
 
   <#if showWatermark>
     <watermark>TEST DOCUMENT</watermark>

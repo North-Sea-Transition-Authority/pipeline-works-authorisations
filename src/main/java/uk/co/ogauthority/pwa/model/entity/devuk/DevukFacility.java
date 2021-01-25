@@ -4,7 +4,7 @@ import com.google.common.annotations.VisibleForTesting;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import org.hibernate.annotations.Immutable;
-import uk.co.ogauthority.pwa.model.search.SearchSelectable;
+import uk.co.ogauthority.pwa.model.searchselector.SearchSelectable;
 
 @Entity(name = "devuk_facilities")
 @Immutable

@@ -6,7 +6,7 @@ import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailSearchItem;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailView;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ConsultationRequestStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
@@ -20,26 +20,26 @@ public class ConsultationRequestSearchTestUtil {
 
     var consultationRequestSearchItem = new ConsultationRequestSearchItem();
 
-    var applicationDetailSearchItem = new ApplicationDetailSearchItem();
+    ApplicationDetailView applicationDetailView = new ApplicationDetailView();
 
     //defaults
-    applicationDetailSearchItem.setPadStatus(PwaApplicationStatus.CASE_OFFICER_REVIEW);
-    applicationDetailSearchItem.setApplicationType(PwaApplicationType.INITIAL);
-    applicationDetailSearchItem.setPwaApplicationId(100);
-    applicationDetailSearchItem.setPadFields(List.of("FIELD2", "FIELD1"));
-    applicationDetailSearchItem.setPadProjectName("PROJECT_NAME");
-    applicationDetailSearchItem.setPadProposedStart(
+    applicationDetailView.setPadStatus(PwaApplicationStatus.CASE_OFFICER_REVIEW);
+    applicationDetailView.setApplicationType(PwaApplicationType.INITIAL);
+    applicationDetailView.setPwaApplicationId(100);
+    applicationDetailView.setPadFields(List.of("FIELD2", "FIELD1"));
+    applicationDetailView.setPadProjectName("PROJECT_NAME");
+    applicationDetailView.setPadProposedStart(
         LocalDateTime.of(2020, 1, 2, 3, 4, 5)
             .toInstant(ZoneOffset.ofTotalSeconds(0)));
-    applicationDetailSearchItem.setPadStatusTimestamp(
+    applicationDetailView.setPadStatusTimestamp(
         LocalDateTime.of(2020, 2, 3, 4, 5, 6)
             .toInstant(ZoneOffset.ofTotalSeconds(0)));
-    applicationDetailSearchItem.setPwaReference("PWA_REF");
-    applicationDetailSearchItem.setPadReference("PAD_REF");
-    applicationDetailSearchItem.setTipFlag(true);
-    applicationDetailSearchItem.setSubmittedAsFastTrackFlag(false);
+    applicationDetailView.setPwaReference("PWA_REF");
+    applicationDetailView.setPadReference("PAD_REF");
+    applicationDetailView.setTipFlag(true);
+    applicationDetailView.setSubmittedAsFastTrackFlag(false);
 
-    consultationRequestSearchItem.setApplicationDetailSearchItem(applicationDetailSearchItem);
+    consultationRequestSearchItem.setApplicationDetailView(applicationDetailView);
 
     consultationRequestSearchItem.setConsultationRequestId(1000);
     consultationRequestSearchItem.setConsultationRequestStatus(status);

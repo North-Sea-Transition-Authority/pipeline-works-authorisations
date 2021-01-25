@@ -128,6 +128,8 @@ public class PipelineDetailIdentDataImportServiceTest {
     detailIdent.setToLongitudeMinutes(4);
     detailIdent.setToLongitudeSeconds(BigDecimal.valueOf(4));
     detailIdent.setToLongitudeDirection(LongitudeDirection.WEST);
+    detailIdent.setDefiningStructure(true);
+
 
     var result = pipelineDetailIdentDataImportService.mapIdentToPadPipelineIdent(padPipeline, detailIdent);
 
@@ -137,6 +139,7 @@ public class PipelineDetailIdentDataImportServiceTest {
     assertThat(result.getFromLocation()).isEqualTo(detailIdent.getFromLocation());
     assertThat(result.getToLocation()).isEqualTo(detailIdent.getToLocation());
     assertThat(result.getLength()).isEqualTo(detailIdent.getLength());
+    assertThat(result.getIsDefiningStructure()).isEqualTo(detailIdent.getIsDefiningStructure());
 
     assertThat(result.getFromCoordinates().getLatitude())
         .extracting(Coordinate::getDegrees, Coordinate::getMinutes, Coordinate::getSeconds,

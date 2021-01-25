@@ -93,6 +93,7 @@ public class PipelineDetailIdentDataImportService {
 
     ident.setFromCoordinates(fromCoordinates);
     ident.setToCoordinates(toCoordinates);
+    ident.setDefiningStructure(detailIdent.getIsDefiningStructure());
 
     return ident;
   }

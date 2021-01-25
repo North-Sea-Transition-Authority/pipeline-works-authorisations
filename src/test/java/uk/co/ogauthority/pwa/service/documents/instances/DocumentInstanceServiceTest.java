@@ -38,6 +38,7 @@ import uk.co.ogauthority.pwa.model.entity.documents.templates.DocumentTemplate;
 import uk.co.ogauthority.pwa.model.entity.documents.templates.DocumentTemplateSection;
 import uk.co.ogauthority.pwa.model.entity.documents.templates.DocumentTemplateSectionClause;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.DocumentTemplateMnem;
+import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocumentSection;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.enums.documents.SectionClauseVersionStatus;
 import uk.co.ogauthority.pwa.model.form.documents.ClauseForm;
@@ -252,7 +253,7 @@ public class DocumentInstanceServiceTest {
 
     var versionList = List.of(clauseVersion1, clauseVersion2);
 
-    when(instanceSectionClauseVersionRepository.findAllByDocumentInstanceSectionClauseInAndTipFlagIsTrue(clauseList)).thenReturn(versionList);
+    when(instanceSectionClauseVersionRepository.findAllByDocumentInstanceSectionClauseIn(clauseList)).thenReturn(versionList);
 
     documentInstanceService.clearClauses(applicationDetail.getPwaApplication(), DocumentTemplateMnem.PWA_CONSENT_DOCUMENT);
 
@@ -327,6 +328,77 @@ public class DocumentInstanceServiceTest {
 
     assertThat(docView.getSections().size()).isEqualTo(2);
 
+  }
+
+  @Test
+  public void getDocumentView_specificSectionOnly() {
+
+    var docInstance = new DocumentInstance();
+    docInstance.setPwaApplication(applicationDetail.getPwaApplication());
+    docInstance.setDocumentTemplate(documentTemplate);
+    docInstance.setId(1);
+
+    var docView = documentInstanceService.getDocumentView(docInstance, DocumentSection.SCHEDULE_1);
+
+    verify(documentInstanceSectionClauseVersionDtoRepository, times(1)).findAllByDiId_AndSectionNameEquals(1, DocumentSection.SCHEDULE_1.name());
+
+  }
+
+  @Test
+  public void getSectionClauseView() {
+
+    var clauseId = 1;
+    var documentInstanceSectionClauseVersion = new DocumentInstanceSectionClauseVersion();
+    var documentInstanceSectionClause = new DocumentInstanceSectionClause();
+    var documentInstance = new DocumentInstance();
+    var documentTemplate = new DocumentTemplate();
+
+    documentTemplate.setMnem(DocumentTemplateMnem.PWA_CONSENT_DOCUMENT);
+    documentInstance.setId(1);
+    documentInstance.setDocumentTemplate(documentTemplate);
+    documentInstanceSectionClauseVersion.setDocumentInstanceSectionClause(documentInstanceSectionClause);
+    documentInstanceSectionClauseVersion.setStatus(SectionClauseVersionStatus.ACTIVE);
+    documentInstanceSectionClause.setDocumentInstance(documentInstance);
+
+    when(instanceSectionClauseVersionRepository.findByDocumentInstanceSectionClause_IdAndTipFlagIsTrue(clauseId))
+        .thenReturn(Optional.of(documentInstanceSectionClauseVersion));
+
+    var dto1 = new DocumentInstanceSectionClauseVersionDto();
+    var sectionName = DocumentSection.SCHEDULE_2.name();
+    dto1.setStatus(SectionClauseVersionStatus.ACTIVE.name());
+    dto1.setSectionName(sectionName);
+    dto1.setName("name1");
+    dto1.setText("some text 1");
+    dto1.setLevelNumber(1);
+    dto1.setDiscId(1);
+    var dto2 = new DocumentInstanceSectionClauseVersionDto();
+    dto2.setStatus(SectionClauseVersionStatus.ACTIVE.name());
+    dto2.setSectionName(sectionName);
+    dto2.setName("name1");
+    dto2.setText("some text 2");
+    dto2.setLevelNumber(2);
+    dto2.setDiscId(2);
+    dto2.setParentDiscId(dto1.getDiscId());
+    var dto3 = new DocumentInstanceSectionClauseVersionDto();
+    dto3.setStatus(SectionClauseVersionStatus.ACTIVE.name());
+    dto3.setSectionName(sectionName);
+    dto3.setName("name1");
+    dto3.setText("some text 3");
+    dto3.setLevelNumber(3);
+    dto3.setDiscId(2);
+    dto3.setParentDiscId(dto2.getDiscId());
+    when(documentInstanceSectionClauseVersionDtoRepository.findAllByDiId(documentInstance.getId()))
+        .thenReturn(List.of(dto1, dto2, dto3));
+
+
+    var sectionClauseVersionView = documentInstanceService.getSectionClauseView(clauseId);
+
+    assertThat(sectionClauseVersionView.getName()).isEqualTo(dto1.getName());
+    assertThat(sectionClauseVersionView.getText()).isEqualTo(dto1.getText());
+    assertThat(sectionClauseVersionView.getChildClauses().get(0).getName()).isEqualTo(dto2.getName());
+    assertThat(sectionClauseVersionView.getChildClauses().get(0).getText()).isEqualTo(dto2.getText());
+    assertThat(sectionClauseVersionView.getChildClauses().get(0).getChildClauses().get(0).getName()).isEqualTo(dto3.getName());
+    assertThat(sectionClauseVersionView.getChildClauses().get(0).getChildClauses().get(0).getText()).isEqualTo(dto3.getText());
   }
 
   @Test
@@ -619,7 +691,7 @@ public class DocumentInstanceServiceTest {
         .orElseThrow();
 
     // initial version updated properly
-    assertThat(originalClauseVersion.getStatus()).isEqualTo(SectionClauseVersionStatus.ENDED);
+    assertThat(originalClauseVersion.getStatus()).isEqualTo(SectionClauseVersionStatus.DELETED);
     assertThat(originalClauseVersion.getEndedByPersonId()).isEqualTo(new PersonId(222));
     assertThat(originalClauseVersion.getEndedTimestamp()).isEqualTo(clock.instant());
     assertThat(originalClauseVersion.getTipFlag()).isFalse();
@@ -648,7 +720,7 @@ public class DocumentInstanceServiceTest {
   private SectionClauseVersionView findClause(DocumentView documentView, DocumentInstanceSectionClauseVersionDto versionDto) {
 
     return documentView.getSections().stream()
-        .filter(section -> section.getName().equals(versionDto.getSectionName()))
+        .filter(section -> section.getName().equals(DocumentSection.valueOf(versionDto.getSectionName()).getDisplayName()))
         .map(section -> {
 
           switch (versionDto.getLevelNumber()) {
@@ -683,10 +755,74 @@ public class DocumentInstanceServiceTest {
   private Optional<SidebarSectionLink> findSidebarLink(DocumentView documentView, DocumentInstanceSectionClauseVersionDto versionDto) {
 
     return documentView.getSections().stream()
-        .filter(section -> section.getName().equals(versionDto.getSectionName()))
+        .filter(section -> section.getName().equals(DocumentSection.valueOf(versionDto.getSectionName()).getDisplayName()))
         .flatMap(section -> section.getSidebarSectionLinks().stream())
         .filter(link -> link.getLink().contains(versionDto.getDiscvId().toString()))
         .findFirst();
+
+  }
+
+
+  @Test
+  public void removeClause() {
+
+    //sub child clause
+    var subChildDocumentInstance = new DocumentInstance();
+    var subChildDocumentInstanceSectionClause = new DocumentInstanceSectionClause();
+    var subChildDocumentInstanceSectionClauseVersion = new DocumentInstanceSectionClauseVersion();
+    subChildDocumentInstanceSectionClauseVersion.setDocumentInstanceSectionClause(subChildDocumentInstanceSectionClause);
+    subChildDocumentInstanceSectionClauseVersion.getDocumentInstanceSectionClause().setDocumentInstance(subChildDocumentInstance);
+
+
+    //child clause
+    var childDocumentInstance = new DocumentInstance();
+    var childDocumentInstanceSectionClause = new DocumentInstanceSectionClause();
+    var childDocumentInstanceSectionClauseVersion = new DocumentInstanceSectionClauseVersion();
+    childDocumentInstanceSectionClauseVersion.setDocumentInstanceSectionClause(childDocumentInstanceSectionClause);
+    childDocumentInstanceSectionClauseVersion.getDocumentInstanceSectionClause().setDocumentInstance(childDocumentInstance);
+
+    when(instanceSectionClauseVersionRepository.findByDocumentInstanceSectionClause_DocumentInstanceAndParentDocumentInstanceSectionClause(
+        childDocumentInstanceSectionClauseVersion.getDocumentInstanceSectionClause().getDocumentInstance(),
+        childDocumentInstanceSectionClauseVersion.getDocumentInstanceSectionClause()
+    )).thenReturn(List.of(subChildDocumentInstanceSectionClauseVersion));
+
+
+    //parent clause
+    var clauseId = 1;
+    var documentInstance = new DocumentInstance();
+    var documentInstanceSectionClause = new DocumentInstanceSectionClause();
+    var documentInstanceSectionClauseVersion = new DocumentInstanceSectionClauseVersion();
+    documentInstanceSectionClauseVersion.setDocumentInstanceSectionClause(documentInstanceSectionClause);
+    documentInstanceSectionClauseVersion.getDocumentInstanceSectionClause().setDocumentInstance(documentInstance);
+
+    when(instanceSectionClauseVersionRepository.findByDocumentInstanceSectionClause_IdAndTipFlagIsTrue(clauseId))
+        .thenReturn(Optional.of(documentInstanceSectionClauseVersion));
+
+    when(instanceSectionClauseVersionRepository.findByDocumentInstanceSectionClause_DocumentInstanceAndParentDocumentInstanceSectionClause(
+        documentInstanceSectionClauseVersion.getDocumentInstanceSectionClause().getDocumentInstance(),
+        documentInstanceSectionClauseVersion.getDocumentInstanceSectionClause()
+    )).thenReturn(List.of(childDocumentInstanceSectionClauseVersion));
+
+
+    //assertions for parent clause
+
+    var person = new Person(1, "name", null, null, null);
+    documentInstanceService.removeClause(clauseId, person);
+
+    ArgumentCaptor<DocumentInstanceSectionClauseVersion> docInstanceSectionClauseVersionCaptor = ArgumentCaptor.forClass(DocumentInstanceSectionClauseVersion.class);
+    verify(instanceSectionClauseVersionRepository, times(1)).save(docInstanceSectionClauseVersionCaptor.capture());
+    assertThat(docInstanceSectionClauseVersionCaptor.getValue().getStatus()).isEqualTo(SectionClauseVersionStatus.DELETED);
+    assertThat(docInstanceSectionClauseVersionCaptor.getValue().getEndedByPersonId()).isEqualTo(person.getId());
+    assertThat(docInstanceSectionClauseVersionCaptor.getValue().getEndedTimestamp()).isEqualTo(clock.instant());
+
+
+    //assertions for child clause
+    ArgumentCaptor<List<DocumentInstanceSectionClauseVersion>> childDocInstanceSectionClauseVersionCaptor = ArgumentCaptor.forClass(List.class);
+    verify(instanceSectionClauseVersionRepository, times(2)).saveAll(childDocInstanceSectionClauseVersionCaptor.capture());
+    assertThat(childDocInstanceSectionClauseVersionCaptor.getValue().get(0).getStatus()).isEqualTo(SectionClauseVersionStatus.DELETED);
+    assertThat(childDocInstanceSectionClauseVersionCaptor.getValue().get(0).getEndedByPersonId()).isEqualTo(person.getId());
+    assertThat(childDocInstanceSectionClauseVersionCaptor.getValue().get(0).getEndedTimestamp()).isEqualTo(clock.instant());
+
 
   }
 

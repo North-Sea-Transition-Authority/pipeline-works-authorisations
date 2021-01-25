@@ -6,6 +6,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import java.util.EnumSet;
+import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -15,6 +16,8 @@ import org.springframework.context.annotation.FilterType;
 import org.springframework.http.HttpMethod;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.ogauthority.pwa.controller.TaskListControllerTest;
+import uk.co.ogauthority.pwa.model.tasklist.TaskListEntry;
+import uk.co.ogauthority.pwa.model.tasklist.TaskListGroup;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
@@ -39,7 +42,14 @@ public class Category1TaskListControllerTest extends TaskListControllerTest {
         .setAllowedContactRoles(PwaContactRole.PREPARER)
         .setAllowedStatuses(PwaApplicationStatus.DRAFT)
         .setPreTestSetupMethod((detail) -> {
-          when(taskListService.getTaskListModelAndView(detail)).thenCallRealMethod();
+          var taskListGroupList = List.of(
+              new TaskListGroup("group", 1, List.of(
+                  new TaskListEntry("task", "/route", true, 10)))
+          );
+
+          when(taskListService.getTaskListGroups(detail)).thenReturn(taskListGroupList);
+          when(taskListControllerModelAndViewCreator.getTaskListModelAndView(detail, taskListGroupList))
+              .thenCallRealMethod();
         });
   }
 

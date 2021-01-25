@@ -108,7 +108,17 @@ public class ValidatorUtils {
   }
 
   public static boolean isYearValid(Integer year) {
-    return year != null && year >= 0 && year >= 1000;
+    return year != null && year >= 1000 && year <= 4000;
+  }
+
+  public static void validateYearWhenPresent(String fieldPrefix, String displayPrefix, Integer year, Errors errors) {
+    //The error message need to be placed on the "day" field otherwise FDS doesnt show the error message on the date input
+    if (year != null && !isYearValid(year)) {
+      errors.rejectValue(fieldPrefix + "Day", FieldValidationErrorCodes.INVALID.errorCode(fieldPrefix + "Day"),
+          displayPrefix + " year must be valid");
+      errors.rejectValue(fieldPrefix + "Month", FieldValidationErrorCodes.INVALID.errorCode(fieldPrefix + "Month"), "");
+      errors.rejectValue(fieldPrefix + "Year", FieldValidationErrorCodes.INVALID.errorCode(fieldPrefix + "Year"), "");
+    }
   }
 
   /**
@@ -129,16 +139,49 @@ public class ValidatorUtils {
                                                       Integer month,
                                                       Integer year,
                                                       Errors errors) {
+    return validateDateIsOnOrAfterComparisonDate(
+        fieldPrefix,
+        displayPrefix,
+        day,
+        month,
+        year,
+        LocalDate.now(),
+        "in the past",
+        errors
+    );
+  }
+
+  /**
+   * Provide standardised error messages to ensure consistent date validation.
+   * Ensures that the date is valid, and the date is on or after the date passed in.
+   * @param fieldPrefix   The prefix of the form date fields. EG: proposedStartDay has a prefix of proposedStart.
+   * @param displayPrefix The grouped name in the error message. EG: "proposed start".
+   * @param day           Form field day
+   * @param month         Form field month
+   * @param year          Form field year
+   * @param comparisonDate Date to compare with
+   * @param errorSuffix Text to append to error message
+   * @param errors        Errors object to add rejection codes and messages to.
+   * @return True if date is valid with no errors.
+   */
+  public static boolean validateDateIsOnOrAfterComparisonDate(String fieldPrefix,
+                                                              String displayPrefix,
+                                                              Integer day,
+                                                              Integer month,
+                                                              Integer year,
+                                                              LocalDate comparisonDate,
+                                                              String errorSuffix,
+                                                              Errors errors) {
     if (validateDate(fieldPrefix, displayPrefix, day, month, year, errors)) {
       var date = LocalDate.of(year, month, day);
-      if (date.isBefore(LocalDate.now())) {
+      if (date.isBefore(comparisonDate)) {
         errors.rejectValue(fieldPrefix + "Day",
-            String.format("%sDay%s", fieldPrefix, FieldValidationErrorCodes.BEFORE_TODAY.getCode()),
-            String.format("%s must not be in the past", StringUtils.capitalize(displayPrefix)));
+            String.format("%sDay%s", fieldPrefix, FieldValidationErrorCodes.BEFORE_SOME_DATE.getCode()),
+            String.format("%s must not be %s", StringUtils.capitalize(displayPrefix), errorSuffix));
         errors.rejectValue(fieldPrefix + "Month",
-            String.format("%sMonth%s", fieldPrefix, FieldValidationErrorCodes.BEFORE_TODAY.getCode()), "");
+            String.format("%sMonth%s", fieldPrefix, FieldValidationErrorCodes.BEFORE_SOME_DATE.getCode()), "");
         errors.rejectValue(fieldPrefix + "Year",
-            String.format("%sYear%s", fieldPrefix, FieldValidationErrorCodes.BEFORE_TODAY.getCode()), "");
+            String.format("%sYear%s", fieldPrefix, FieldValidationErrorCodes.BEFORE_SOME_DATE.getCode()), "");
         return false;
       }
       return true;
@@ -152,16 +195,49 @@ public class ValidatorUtils {
                                                     Integer month,
                                                     Integer year,
                                                     Errors errors) {
+    return validateDateIsOnOrBeforeComparisonDate(
+        fieldPrefix,
+        displayPrefix,
+        day,
+        month,
+        year,
+        LocalDate.now(),
+        "in the future",
+        errors
+    );
+  }
+
+  /**
+   * Provide standardised error messages to ensure consistent date validation.
+   * Ensures that the date is valid, and the date is on or before the date passed in.
+   * @param fieldPrefix   The prefix of the form date fields. EG: proposedStartDay has a prefix of proposedStart.
+   * @param displayPrefix The grouped name in the error message. EG: "proposed start".
+   * @param day           Form field day
+   * @param month         Form field month
+   * @param year          Form field year
+   * @param comparisonDate Date to compare with
+   * @param errorSuffix Text to append to error message
+   * @param errors        Errors object to add rejection codes and messages to.
+   * @return True if date is valid with no errors.
+   */
+  public static boolean validateDateIsOnOrBeforeComparisonDate(String fieldPrefix,
+                                                               String displayPrefix,
+                                                               Integer day,
+                                                               Integer month,
+                                                               Integer year,
+                                                               LocalDate comparisonDate,
+                                                               String errorSuffix,
+                                                               Errors errors) {
     if (validateDate(fieldPrefix, displayPrefix, day, month, year, errors)) {
       var date = LocalDate.of(year, month, day);
-      if (date.isAfter(LocalDate.now())) {
+      if (date.isAfter(comparisonDate)) {
         errors.rejectValue(fieldPrefix + "Day",
-            String.format("%sDay%s", fieldPrefix, FieldValidationErrorCodes.AFTER_TODAY.getCode()),
-            String.format("%s must not be in the future", StringUtils.capitalize(displayPrefix)));
+            String.format("%sDay%s", fieldPrefix, FieldValidationErrorCodes.AFTER_SOME_DATE.getCode()),
+            String.format("%s must not be %s", StringUtils.capitalize(displayPrefix), errorSuffix));
         errors.rejectValue(fieldPrefix + "Month",
-            String.format("%sMonth%s", fieldPrefix, FieldValidationErrorCodes.AFTER_TODAY.getCode()), "");
+            String.format("%sMonth%s", fieldPrefix, FieldValidationErrorCodes.AFTER_SOME_DATE.getCode()), "");
         errors.rejectValue(fieldPrefix + "Year",
-            String.format("%sYear%s", fieldPrefix, FieldValidationErrorCodes.AFTER_TODAY.getCode()), "");
+            String.format("%sYear%s", fieldPrefix, FieldValidationErrorCodes.AFTER_SOME_DATE.getCode()), "");
         return false;
       }
       return true;
