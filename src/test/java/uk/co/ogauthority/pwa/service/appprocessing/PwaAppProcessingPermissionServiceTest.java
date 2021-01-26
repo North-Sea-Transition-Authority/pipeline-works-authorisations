@@ -41,6 +41,7 @@ public class PwaAppProcessingPermissionServiceTest {
 
   private PwaApplicationDetail detail;
   private PwaApplication application;
+  private static Set<PwaApplicationType> VALID_PUBLIC_NOTICE_APP_TYPES;
 
   @Before
   public void setUp() {
@@ -50,6 +51,7 @@ public class PwaAppProcessingPermissionServiceTest {
     application = new PwaApplication();
     detail = new PwaApplicationDetail();
     detail.setPwaApplication(application);
+    VALID_PUBLIC_NOTICE_APP_TYPES = Set.of(PwaApplicationType.INITIAL, PwaApplicationType.CAT_1_VARIATION);
 
   }
 
@@ -670,7 +672,7 @@ public class PwaAppProcessingPermissionServiceTest {
   public void getAppProcessingPermissions_hasPublicNoticePermission_allValidAppTypes_assignedCaseOfficer() {
 
     PwaApplicationType.stream()
-        .filter(appType -> appType == PwaApplicationType.INITIAL || appType == PwaApplicationType.CAT_1_VARIATION)
+        .filter(appType -> VALID_PUBLIC_NOTICE_APP_TYPES.contains(appType))
         .forEach(pwaApplicationType -> {
 
           detail.getPwaApplication().setApplicationType(pwaApplicationType);
@@ -688,7 +690,7 @@ public class PwaAppProcessingPermissionServiceTest {
   @Test
   public void getAppProcessingPermissions_hasPublicNoticePermission_validAppType_notAssignedCaseOfficer() {
 
-    detail.getPwaApplication().setApplicationType(PwaApplicationType.INITIAL);
+    detail.getPwaApplication().setApplicationType(VALID_PUBLIC_NOTICE_APP_TYPES.iterator().next());
     replacePrivileges(user, PwaUserPrivilege.PWA_CASE_OFFICER);
 
     var appInvolvement = new ApplicationInvolvementDto(application, Set.of(), null, false, false, false, false);
@@ -703,7 +705,7 @@ public class PwaAppProcessingPermissionServiceTest {
   public void getAppProcessingPermissions_hasPublicNoticePermission_allInvalidAppTypes_assignedCaseOfficer() {
 
     PwaApplicationType.stream()
-        .filter(appType -> appType != PwaApplicationType.INITIAL && appType != PwaApplicationType.CAT_1_VARIATION)
+        .filter(appType -> !VALID_PUBLIC_NOTICE_APP_TYPES.contains(appType))
         .forEach(pwaApplicationType -> {
 
           detail.getPwaApplication().setApplicationType(pwaApplicationType);
