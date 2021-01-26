@@ -1,10 +1,10 @@
-package uk.co.ogauthority.pwa.pay.prototype.api.v1.model.cardPayment.response;/*
+package uk.co.ogauthority.pwa.pay.api.model.cardpayment.response;/*
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Objects;
 
 /**
- * A structure representing the refunds availability
+ * A structure representing the refunds availability.
  */
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -25,7 +25,7 @@ public class RefundSummary {
   }
 
   /**
-   * Availability status of the refund
+   * Availability status of the refund.
    *
    * @return status
    **/
@@ -38,7 +38,7 @@ public class RefundSummary {
   }
 
   /**
-   * Amount available for refund in pence
+   * Amount available for refund in pence.
    *
    * @return amountAvailable
    **/
@@ -47,7 +47,7 @@ public class RefundSummary {
   }
 
   /**
-   * Amount submitted for refunds on this Payment in pence
+   * Amount submitted for refunds on this Payment in pence.
    *
    * @return amountSubmitted
    **/

@@ -1,88 +1,95 @@
-package uk.co.ogauthority.pwa.pay.prototype.api.v1.model.cardPayment.response;
+package uk.co.ogauthority.pwa.pay.api.model.cardpayment.response;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
- * links for payment
+ * links for payment.
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class PaymentLinks {
 
   @JsonProperty("self")
-  private Link self = null;
+  private Link self;
 
   @JsonProperty("next_url")
-  private Link nextUrl = null;
+  private Link nextUrl;
 
   @JsonProperty("next_url_post")
-  private PostLink nextUrlPost = null;
+  private PostLink nextUrlPost;
 
   @JsonProperty("events")
-  private Link events = null;
+  private Link events;
 
   @JsonProperty("refunds")
-  private Link refunds = null;
+  private Link refunds;
 
   @JsonProperty("cancel")
-  private PostLink cancel = null;
+  private PostLink cancel;
 
   @JsonProperty("capture")
-  private PostLink capture = null;
+  private PostLink capture;
 
-   /**
-   * self
+  /**
+   * self.
+   *
    * @return self
-  **/
+   **/
   public Link getSelf() {
     return self;
   }
 
-   /**
-   * next_url
+  /**
+   * next_url.
+   *
    * @return nextUrl
-  **/
+   **/
 
   public Link getNextUrl() {
     return nextUrl;
   }
 
-   /**
-   * next_url_post
+  /**
+   * next_url_post.
+   *
    * @return nextUrlPost
-  **/
+   **/
   public PostLink getNextUrlPost() {
     return nextUrlPost;
   }
 
-   /**
-   * events
+  /**
+   * events.
+   *
    * @return events
-  **/
+   **/
   public Link getEvents() {
     return events;
   }
 
-   /**
-   * refunds
+  /**
+   * refunds.
+   *
    * @return refunds
-  **/
+   **/
   public Link getRefunds() {
     return refunds;
   }
 
-   /**
-   * cancel
+  /**
+   * cancel.
+   *
    * @return cancel
-  **/
+   **/
   public PostLink getCancel() {
     return cancel;
   }
 
-   /**
-   * capture
+  /**
+   * capture.
+   *
    * @return capture
-  **/
+   **/
   public PostLink getCapture() {
     return capture;
   }

@@ -1,10 +1,10 @@
-package uk.co.ogauthority.pwa.pay.prototype.api.v1.model.cardPayment.response;
+package uk.co.ogauthority.pwa.pay.api.model.cardpayment.response;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
- * A link related to a payment
+ * A link related to a payment.
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Link {
@@ -13,20 +13,22 @@ public class Link {
   private String href = null;
 
   @JsonProperty("method")
-  private String method = null;
+  private String method;
 
-   /**
-   * Get href
+  /**
+   * Get href.
+   *
    * @return href
-  **/
+   **/
   public String getHref() {
     return href;
   }
 
-   /**
-   * Get method
+  /**
+   * Get method.
+   *
    * @return method
-  **/
+   **/
   public String getMethod() {
     return method;
   }

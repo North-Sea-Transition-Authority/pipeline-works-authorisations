@@ -5,11 +5,11 @@
  * https://github.com/swagger-api/swagger-codegen.git
  */
 
-package uk.co.ogauthority.pwa.pay.prototype.api.v1.model.cardPayment.request;
+package uk.co.ogauthority.pwa.pay.api.model.cardpayment.request;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.Objects;
-import uk.co.ogauthority.pwa.pay.prototype.api.v1.model.cardPayment.Address;
+import uk.co.ogauthority.pwa.pay.api.model.cardpayment.Address;
 
 
 /**

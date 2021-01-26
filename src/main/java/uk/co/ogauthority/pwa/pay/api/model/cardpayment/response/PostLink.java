@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.pay.prototype.api.v1.model.cardPayment.response;
+package uk.co.ogauthority.pwa.pay.api.model.cardpayment.response;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * A POST link related to a payment
+ * A POST link related to a payment.
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class PostLink {
@@ -28,10 +28,11 @@ public class PostLink {
     return this;
   }
 
-   /**
-   * Get type
+  /**
+   * Get type.
+   *
    * @return type
-  **/
+   **/
   public String getType() {
     return type;
   }
@@ -53,10 +54,11 @@ public class PostLink {
     return this;
   }
 
-   /**
-   * Get params
+  /**
+   * Get params.
+   *
    * @return params
-  **/
+   **/
   public Map<String, Object> getParams() {
     return params;
   }
@@ -65,18 +67,20 @@ public class PostLink {
     this.params = params;
   }
 
-   /**
-   * Get href
+  /**
+   * Get href.
+   *
    * @return href
-  **/
+   **/
   public String getHref() {
     return href;
   }
 
-   /**
-   * Get method
+  /**
+   * Get method.
+   *
    * @return method
-  **/
+   **/
   public String getMethod() {
     return method;
   }

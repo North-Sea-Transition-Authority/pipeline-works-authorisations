@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.pay.prototype.api.v1.model.cardPayment.request;
+package uk.co.ogauthority.pwa.pay.api.model.cardpayment.request;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import uk.co.ogauthority.pwa.pay.prototype.api.v1.model.cardPayment.LanguageEnum;
+import uk.co.ogauthority.pwa.pay.api.model.cardpayment.LanguageEnum;
 
 /**
  * The Payment Request Payload.
@@ -15,19 +15,19 @@ import uk.co.ogauthority.pwa.pay.prototype.api.v1.model.cardPayment.LanguageEnum
 public class CreateCardPaymentRequest {
 
   @JsonProperty("amount")
-  private Integer amount = null;
+  private Integer amount;
 
   @JsonProperty("reference")
-  private String reference = null;
+  private String reference;
 
   @JsonProperty("description")
-  private String description = null;
+  private String description;
 
   @JsonProperty("email")
-  private String email = null;
+  private String email;
 
   @JsonProperty("return_url")
-  private String returnUrl = null;
+  private String returnUrl;
 
   @JsonProperty("delayed_capture")
   private final Boolean delayedCapture = false;
@@ -42,7 +42,7 @@ public class CreateCardPaymentRequest {
   private final Map<String, Object> metadata = new HashMap<>();
 
   @JsonProperty("prefilled_cardholder_details")
-  private PrefilledCardholderDetails prefilledCardholderDetails = null;
+  private PrefilledCardholderDetails prefilledCardholderDetails;
 
   /*
    * minimal data required for successful request.
@@ -52,6 +52,10 @@ public class CreateCardPaymentRequest {
     this.reference = reference;
     this.description = description;
     this.returnUrl = returnUrl;
+  }
+
+  public void addMetadata(Map<String, Object> metadata) {
+    this.metadata.putAll(metadata);
   }
 
   /**
@@ -130,7 +134,9 @@ public class CreateCardPaymentRequest {
   }
 
   /**
-   * Additional metadata - up to 10 name/value pairs - on the payment. Each key must be between 1 and 30 characters long. The value, if a string, must be no greater than 50 characters long. Other permissible value types: boolean, number.
+   * Additional metadata - up to 10 name/value pairs - on the payment.
+   * Each key must be between 1 and 30 characters long. The value, if a string, must be no greater than 50 characters long.
+   * Other permissible value types: boolean, number.
    *
    * @return metadata
    **/
@@ -174,7 +180,6 @@ public class CreateCardPaymentRequest {
     return Objects.hash(amount, reference, description, email, returnUrl, delayedCapture, moto, metadata,
         prefilledCardholderDetails);
   }
-
 
 
 }

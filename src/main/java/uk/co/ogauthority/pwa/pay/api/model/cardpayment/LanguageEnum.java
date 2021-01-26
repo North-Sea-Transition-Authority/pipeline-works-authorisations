@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.pay.prototype.api.v1.model.cardPayment;
+package uk.co.ogauthority.pwa.pay.api.model.cardpayment;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;

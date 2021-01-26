@@ -1,10 +1,10 @@
-package uk.co.ogauthority.pwa.pay.prototype.api.v1.model.cardPayment.response;
+package uk.co.ogauthority.pwa.pay.api.model.cardpayment.response;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.HashMap;
 import java.util.Map;
-import uk.co.ogauthority.pwa.pay.prototype.api.v1.model.cardPayment.LanguageEnum;
+import uk.co.ogauthority.pwa.pay.api.model.cardpayment.LanguageEnum;
 
 /**
  * CreatePaymentResult.
@@ -13,58 +13,58 @@ import uk.co.ogauthority.pwa.pay.prototype.api.v1.model.cardPayment.LanguageEnum
 public class CreatePaymentResult {
 
   @JsonProperty("amount")
-  private Long amount = null;
+  private Long amount;
 
   @JsonProperty("state")
-  private PaymentState state = null;
+  private PaymentState state;
 
   @JsonProperty("description")
-  private String description = null;
+  private String description;
 
   @JsonProperty("reference")
-  private String reference = null;
+  private String reference;
 
   @JsonProperty("language")
-  private LanguageEnum language = null;
+  private LanguageEnum language;
 
   @JsonProperty("payment_id")
-  private String paymentId = null;
+  private String paymentId;
 
   @JsonProperty("payment_provider")
-  private String paymentProvider = null;
+  private String paymentProvider;
 
   @JsonProperty("return_url")
-  private String returnUrl = null;
+  private String returnUrl;
 
   @JsonProperty("created_date")
-  private String createdDate = null;
+  private String createdDate;
 
   @JsonProperty("delayed_capture")
-  private Boolean delayedCapture = null;
+  private Boolean delayedCapture;
 
   @JsonProperty("moto")
-  private Boolean moto = null;
+  private Boolean moto;
 
   @JsonProperty("_links")
-  private PaymentLinks links = null;
+  private PaymentLinks links;
 
   @JsonProperty("provider_id")
-  private String providerId = null;
+  private String providerId;
 
   @JsonProperty("metadata")
   private Map<String, String> metadata = new HashMap<>();
 
   @JsonProperty("email")
-  private String email = null;
+  private String email;
 
   @JsonProperty("refund_summary")
-  private RefundSummary refundSummary = null;
+  private RefundSummary refundSummary;
 
   @JsonProperty("settlement_summary")
-  private PaymentSettlementSummary settlementSummary = null;
+  private PaymentSettlementSummary settlementSummary;
 
   @JsonProperty("card_details")
-  private CardDetails cardDetails = null;
+  private CardDetails cardDetails;
 
 
   /**
@@ -148,7 +148,7 @@ public class CreatePaymentResult {
 
 
   /**
-   * Get paymentProvider
+   * Get paymentProvider.
    *
    * @return paymentProvider
    **/

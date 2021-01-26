@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.pay.prototype.controller;
+package uk.co.ogauthority.pwa.pay.controller;
 
 import java.io.Serializable;
 import java.util.LinkedHashSet;
@@ -39,7 +39,7 @@ public class PaymentJourneySessionStore implements Serializable {
     this.init();
   }
 
-  public void startJourney(String payUkId){
+  public void startJourney(String payUkId) {
     this.currentPaymentJourney = new ImmutablePair<>(this.activeUuid, payUkId);
 
   }
@@ -53,7 +53,7 @@ public class PaymentJourneySessionStore implements Serializable {
     return activeUuid;
   }
 
-  public void setHistoricalUUIDAsActive(UUID uuid) {
+  public void setHistoricalUuidAsActive(UUID uuid) {
     if (!this.historicalUuidSet.contains(uuid)) {
       throw new PwaEntityNotFoundException("Could not find matching historical uuid :" + uuid);
     }

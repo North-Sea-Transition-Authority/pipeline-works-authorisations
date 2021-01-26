@@ -1,9 +1,9 @@
-package uk.co.ogauthority.pwa.pay.prototype.api.v1.model.cardPayment.response;
+package uk.co.ogauthority.pwa.pay.api.model.cardpayment.response;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Objects;
-import uk.co.ogauthority.pwa.pay.prototype.api.v1.model.cardPayment.Address;
+import uk.co.ogauthority.pwa.pay.api.model.cardpayment.Address;
 
 /**
  * A structure representing the payment card.

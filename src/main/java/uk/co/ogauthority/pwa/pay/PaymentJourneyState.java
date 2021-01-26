@@ -1,26 +1,27 @@
-package uk.co.ogauthority.pwa.pay.prototype.api.v1.model.cardPayment.response;
-
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+package uk.co.ogauthority.pwa.pay;
 
 /**
  * A structure representing the current state of the payment in its lifecycle.
  */
-@JsonIgnoreProperties(ignoreUnknown = true)
-public class PaymentState {
+public final class PaymentJourneyState {
 
-  private String status = null;
+  private final String status;
 
+  private final Boolean finished;
 
-  private Boolean finished = null;
+  private final String message;
 
+  private final String code;
 
-  private String message = null;
-
-
-  private String code = null;
+  PaymentJourneyState(String status, Boolean finished, String message, String code) {
+    this.status = status;
+    this.finished = finished;
+    this.message = message;
+    this.code = code;
+  }
 
   /**
-   * Current progress of the payment in its lifecycle
+   * Current progress of the payment in its lifecycle.
    *
    * @return status
    **/
@@ -29,7 +30,7 @@ public class PaymentState {
   }
 
   /**
-   * Whether the payment has finished
+   * Whether the payment has finished.
    *
    * @return finished
    **/
@@ -38,7 +39,7 @@ public class PaymentState {
   }
 
   /**
-   * What went wrong with the Payment if it finished with an error - English message
+   * What went wrong with the Payment if it finished with an error - English message.
    *
    * @return message
    **/
@@ -47,7 +48,7 @@ public class PaymentState {
   }
 
   /**
-   * What went wrong with the Payment if it finished with an error - error code
+   * What went wrong with the Payment if it finished with an error - error code.
    *
    * @return code
    **/
