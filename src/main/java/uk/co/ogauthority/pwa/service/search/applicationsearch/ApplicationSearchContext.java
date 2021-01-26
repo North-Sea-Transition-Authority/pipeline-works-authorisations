@@ -69,14 +69,18 @@ public final class ApplicationSearchContext {
     return Objects.equals(authenticatedUserAccount,
         that.authenticatedUserAccount) && userType == that.userType
         && Objects.equals(orgGroupsWhereMemberOfHolderTeam, that.orgGroupsWhereMemberOfHolderTeam)
-        && Objects.equals(orgUnitIdsAssociatedWithHolderTeamMembership,        that.orgUnitIdsAssociatedWithHolderTeamMembership)
+        && Objects.equals(orgUnitIdsAssociatedWithHolderTeamMembership, that.orgUnitIdsAssociatedWithHolderTeamMembership)
         && Objects.equals(consulteeGroupIds,
         that.consulteeGroupIds);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(authenticatedUserAccount, userType, orgGroupsWhereMemberOfHolderTeam,
-        orgUnitIdsAssociatedWithHolderTeamMembership, consulteeGroupIds);
+    return Objects.hash(
+        authenticatedUserAccount,
+        userType,
+        orgGroupsWhereMemberOfHolderTeam,
+        orgUnitIdsAssociatedWithHolderTeamMembership,
+        consulteeGroupIds);
   }
 }

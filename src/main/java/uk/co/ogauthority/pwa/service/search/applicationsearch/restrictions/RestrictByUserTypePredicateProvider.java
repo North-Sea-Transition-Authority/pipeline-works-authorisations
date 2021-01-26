@@ -217,8 +217,7 @@ public class RestrictByUserTypePredicateProvider implements ApplicationSearchPre
         .join(PadOrganisationRole_.PWA_APPLICATION_DETAIL);
     Join<PwaApplicationDetail, PwaApplication> appDetailToAppJoin = orgRoleToAppDetailJoin.join(PwaApplicationDetail_.PWA_APPLICATION);
 
-
-    // have to do a seperate "last submitted version" subquery here so that only those initial pwa app where you are a holder on the last
+    // have to do a separate "last submitted version" subquery here so that only those initial pwa app where you are a holder on the last
     // submitted version get returned and included in the results. Dont want a situation where if you were a holder on a previous
     // version the whole initial PWA app gets returned.
     Subquery<Instant> lastSubmittedVersionSubQuery = initialPwaApplicationQuery.subquery(Instant.class);
@@ -242,6 +241,10 @@ public class RestrictByUserTypePredicateProvider implements ApplicationSearchPre
 
     List<Integer> initialPwaAppDetailIdsWhereHolder = entityManager.createQuery(initialPwaApplicationQuery).getResultList();
 
+    // when there are no initial pwa apps for user orgs - simply return an always false condition that will be optimised out by the db.
+    if (initialPwaAppDetailIdsWhereHolder.isEmpty()) {
+      return cb.isFalse(cb.literal(true));
+    }
 
     return cb.in(searchCoreRoot.get(ApplicationDetailView_.PWA_APPLICATION_DETAIL_ID)).value(initialPwaAppDetailIdsWhereHolder);
 

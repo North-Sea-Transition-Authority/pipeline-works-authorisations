@@ -202,6 +202,61 @@ public class ValidatorUtilsTest {
   }
 
   @Test
+  public void isYearValid_validYear() {
+    var isYearValid = ValidatorUtils.isYearValid(1000);
+    assertThat(isYearValid).isTrue();
+  }
+
+  @Test
+  public void isYearValid_yearTooBig() {
+    var isYearValid = ValidatorUtils.isYearValid(4001);
+    assertThat(isYearValid).isFalse();
+  }
+
+
+  @Test
+  public void isYearValid_yearTooSmall() {
+    var isYearValid = ValidatorUtils.isYearValid(999);
+    assertThat(isYearValid).isFalse();
+  }
+
+  @Test
+  public void validateYearWhenPresent_validYear() {
+    Errors errors = new BeanPropertyBindingResult(projectInformationForm, "form");
+    ValidatorUtils.validateYearWhenPresent("proposedStart", "proposed start",
+        999, errors);
+    assertThat(errors.getAllErrors()).extracting(ObjectError::getObjectName)
+        .doesNotContain("proposedStartYear");
+  }
+
+  @Test
+  public void validateYearWhenPresent_yearTooBig() {
+    Errors errors = new BeanPropertyBindingResult(projectInformationForm, "form");
+    ValidatorUtils.validateYearWhenPresent("proposedStart", "proposed start",
+        4001, errors);
+    assertThat(errors.getAllErrors()).extracting(DefaultMessageSourceResolvable::getCode)
+        .contains("proposedStartYear.invalid");
+  }
+
+  @Test
+  public void validateYearWhenPresent_yearTooSmall() {
+    Errors errors = new BeanPropertyBindingResult(projectInformationForm, "form");
+    ValidatorUtils.validateYearWhenPresent("proposedStart", "proposed start",
+        999, errors);
+    assertThat(errors.getAllErrors()).extracting(DefaultMessageSourceResolvable::getCode)
+        .contains("proposedStartYear.invalid");
+  }
+
+  @Test
+  public void validateYearWhenPresent_notPresent() {
+    Errors errors = new BeanPropertyBindingResult(projectInformationForm, "form");
+    ValidatorUtils.validateYearWhenPresent("proposedStart", "proposed start",
+        null, errors);
+    assertThat(errors.getAllErrors()).extracting(ObjectError::getObjectName)
+        .doesNotContain("proposedStartYear");
+  }
+
+  @Test
   public void validateBoolean_Null() {
     Errors errors = new BeanPropertyBindingResult(projectInformationForm, "form");
     ValidatorUtils.validateBooleanTrue(errors, projectInformationForm.getUsingCampaignApproach(), "usingCampaignApproach", "Err");

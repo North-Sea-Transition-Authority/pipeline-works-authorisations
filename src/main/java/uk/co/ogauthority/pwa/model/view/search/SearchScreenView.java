@@ -2,14 +2,13 @@ package uk.co.ogauthority.pwa.model.view.search;
 
 import java.util.List;
 import java.util.Objects;
-import uk.co.ogauthority.pwa.model.view.search.consents.ConsentSearchResultView;
 
-public class SearchScreenView {
+public class SearchScreenView<T> {
 
   private final long fullResultCount;
-  private final List<ConsentSearchResultView> searchResults;
+  private final List<T> searchResults;
 
-  public SearchScreenView(long fullResultCount, List<ConsentSearchResultView> searchResults) {
+  public SearchScreenView(long fullResultCount, List<T> searchResults) {
     this.fullResultCount = fullResultCount;
     this.searchResults = searchResults;
   }
@@ -18,7 +17,7 @@ public class SearchScreenView {
     return fullResultCount;
   }
 
-  public List<ConsentSearchResultView> getSearchResults() {
+  public List<T> getSearchResults() {
     return searchResults;
   }
 
@@ -34,7 +33,7 @@ public class SearchScreenView {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    SearchScreenView that = (SearchScreenView) o;
+    SearchScreenView<?> that = (SearchScreenView<?>) o;
     return fullResultCount == that.fullResultCount && Objects.equals(searchResults, that.searchResults);
   }
 
