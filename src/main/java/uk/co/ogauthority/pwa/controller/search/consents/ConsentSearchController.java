@@ -16,6 +16,7 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrgan
 import uk.co.ogauthority.pwa.model.form.search.consents.ConsentSearchForm;
 import uk.co.ogauthority.pwa.model.search.consents.ConsentSearchParams;
 import uk.co.ogauthority.pwa.model.view.search.SearchScreenView;
+import uk.co.ogauthority.pwa.model.view.search.consents.ConsentSearchResultView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.objects.FormObjectMapper;
 import uk.co.ogauthority.pwa.service.orgs.PwaOrganisationAccessor;
@@ -56,7 +57,7 @@ public class ConsentSearchController {
 
     boolean doSearch = consentSearchParams.isSearch();
 
-    SearchScreenView searchScreenView = null;
+    SearchScreenView<ConsentSearchResultView> searchScreenView = null;
     if (doSearch) {
       var searchContext = consentSearchContextCreator.createContext(user);
       searchScreenView = consentSearchService.search(consentSearchParams, searchContext);

@@ -7,6 +7,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 import javax.persistence.EntityManager;
 import org.junit.Test;
@@ -39,6 +40,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.PadVersionLooku
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsentOrganisationRoleTestUtil;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsentTestUtil;
+import uk.co.ogauthority.pwa.model.view.search.SearchScreenView;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.users.UserType;
@@ -242,9 +244,11 @@ public class ApplicationDetailSearchServiceIntegrationTest {
     searchContext = getRegulatorContext();
     searchParams = ApplicationSearchParametersBuilder.createEmptyParams();
 
-    var results = applicationDetailSearchService.search(searchParams, searchContext);
+    var result = applicationDetailSearchService.search(searchParams, searchContext);
 
-    assertThat(results).contains(app2Version2);
+    var screenView = new SearchScreenView<>(1, List.of(app2Version2));
+
+    assertThat(result).isEqualTo(screenView);
 
   }
 
@@ -262,9 +266,11 @@ public class ApplicationDetailSearchServiceIntegrationTest {
         .setAppReference("d/2")
         .createApplicationSearchParameters();
 
-    var results = applicationDetailSearchService.search(searchParams, searchContext);
+    var result = applicationDetailSearchService.search(searchParams, searchContext);
 
-    assertThat(results).contains(app2Version2);
+    var screenView = new SearchScreenView<ApplicationDetailItemView>(1, List.of(app2Version2));
+
+    assertThat(result).isEqualTo(screenView);
 
   }
 
@@ -284,7 +290,9 @@ public class ApplicationDetailSearchServiceIntegrationTest {
 
     var results = applicationDetailSearchService.search(searchParams, searchContext);
 
-    assertThat(results).contains(app2Version2);
+    var screenView = new SearchScreenView<ApplicationDetailItemView>(1, List.of(app2Version2));
+
+    assertThat(results).isEqualTo(screenView);
 
   }
 
@@ -302,9 +310,11 @@ public class ApplicationDetailSearchServiceIntegrationTest {
         .setAppReference("PAD/30")
         .createApplicationSearchParameters();
 
-    var results = applicationDetailSearchService.search(searchParams, searchContext);
+    var result = applicationDetailSearchService.search(searchParams, searchContext);
 
-    assertThat(results).isEmpty();
+    var screenView = new SearchScreenView<ApplicationDetailItemView>(0, List.of());
+
+    assertThat(result).isEqualTo(screenView);
 
   }
 
@@ -322,7 +332,9 @@ public class ApplicationDetailSearchServiceIntegrationTest {
 
     var results = applicationDetailSearchService.search(searchParams, searchContext);
 
-    assertThat(results).isEmpty();
+    var screenView = new SearchScreenView<>(0, List.of());
+
+    assertThat(results).isEqualTo(screenView);
 
   }
 
@@ -338,9 +350,11 @@ public class ApplicationDetailSearchServiceIntegrationTest {
     searchContext = getIndustryContext(USER_HOLDER_ORG_UNIT_ID);
     searchParams = ApplicationSearchParametersBuilder.createEmptyParams();
 
-    var results = applicationDetailSearchService.search(searchParams, searchContext);
+    var result = applicationDetailSearchService.search(searchParams, searchContext);
 
-    assertThat(results).containsExactlyInAnyOrder(app2Version2);
+    var screenView = new SearchScreenView<>(1, List.of(app2Version2));
+
+    assertThat(result).isEqualTo(screenView);
 
   }
 
@@ -374,9 +388,11 @@ public class ApplicationDetailSearchServiceIntegrationTest {
     );
     entityManager.persist(initialAppLookup);
 
-   var results = applicationDetailSearchService.search(searchParams, searchContext);
+   var result = applicationDetailSearchService.search(searchParams, searchContext);
 
-    assertThat(results).containsExactlyInAnyOrder(app2Version2, initialAppDetailView);
+   var screenView = new SearchScreenView<>(2, List.of(app2Version2, initialAppDetailView));
+
+    assertThat(result).isEqualTo(screenView);
 
   }
 
@@ -429,9 +445,11 @@ public class ApplicationDetailSearchServiceIntegrationTest {
     searchContext = getConsulteeContext(ConsulteeGroupId.from(consulteeGroup));
     searchParams = ApplicationSearchParametersBuilder.createEmptyParams();
 
-    var results = applicationDetailSearchService.search(searchParams, searchContext);
+    var result = applicationDetailSearchService.search(searchParams, searchContext);
 
-    assertThat(results).containsExactly(v1IsSatisfactoryView);
+    var screenView = new SearchScreenView<>(1, List.of(v1IsSatisfactoryView));
+
+    assertThat(result).isEqualTo(screenView);
 
   }
 

@@ -32,8 +32,8 @@ public class ConsentSearchService {
     this.consentSearchPredicateProviders = consentSearchPredicateProviders;
   }
 
-  public SearchScreenView search(ConsentSearchParams searchParams,
-                                 ConsentSearchContext searchContext) {
+  public SearchScreenView<ConsentSearchResultView> search(ConsentSearchParams searchParams,
+                                                          ConsentSearchContext searchContext) {
 
     var cb = entityManager.getCriteriaBuilder();
 
@@ -71,7 +71,7 @@ public class ConsentSearchService {
 
     long countQueryResult = entityManager.createQuery(countQuery).getSingleResult();
 
-    return new SearchScreenView(countQueryResult, results);
+    return new SearchScreenView<>(countQueryResult, results);
 
   }
 
