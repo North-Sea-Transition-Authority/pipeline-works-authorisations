@@ -12,8 +12,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
 
-import java.util.Collections;
 import java.util.EnumSet;
+import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -28,6 +28,8 @@ import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.AbstractControllerTest;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailItemView;
+import uk.co.ogauthority.pwa.model.view.search.SearchScreenView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContextService;
 import uk.co.ogauthority.pwa.service.enums.users.UserType;
@@ -91,8 +93,7 @@ public class ApplicationSearchControllerTest extends AbstractControllerTest {
         .andExpect(model().attribute("userType", permittedUserSearchContext.getUserType()))
         .andExpect(model().attribute("searchUrl", ApplicationSearchController.getBlankSearchUrl()))
         .andExpect(model().attribute("appSearchEntryState", ApplicationSearchController.AppSearchEntryState.LANDING))
-        .andExpect(model().attribute("showMaxResultsExceededMessage", false))
-        .andExpect(model().attribute("displayableResults", Collections.emptyList()));
+        .andExpect(model().attributeDoesNotExist("searchScreenView"));
 
   }
 
@@ -119,6 +120,9 @@ public class ApplicationSearchControllerTest extends AbstractControllerTest {
 
   @Test
   public void getSearchResults_runSearchWithParams() throws Exception {
+
+    var screenView = new SearchScreenView<ApplicationDetailItemView>(0, List.of());
+    when(applicationDetailSearchService.search(any(), any())).thenReturn(screenView);
 
     var params = new ApplicationSearchParametersBuilder()
         .setAppReference(APP_REF_SEARCH)

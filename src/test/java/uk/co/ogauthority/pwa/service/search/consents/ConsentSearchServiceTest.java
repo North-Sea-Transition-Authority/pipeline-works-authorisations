@@ -99,7 +99,7 @@ public class ConsentSearchServiceTest {
         ConsentSearchResultView.fromSearchItem(pwa1Shell)
     );
 
-    var screenView = new SearchScreenView(3, resultViewComparisonList);
+    var screenView = new SearchScreenView<>(3, resultViewComparisonList);
 
     assertThat(result).isEqualTo(screenView);
     assertThat(result.resultsHaveBeenLimited()).isFalse();
@@ -123,7 +123,7 @@ public class ConsentSearchServiceTest {
         ConsentSearchResultView.fromSearchItem(pwa1Shell)
     );
 
-    var screenView = new SearchScreenView(2, resultViewComparisonList);
+    var screenView = new SearchScreenView<>(2, resultViewComparisonList);
 
     assertThat(result).isEqualTo(screenView);
     assertThat(result.resultsHaveBeenLimited()).isFalse();
@@ -145,7 +145,7 @@ public class ConsentSearchServiceTest {
 
     var resultViewComparisonList = List.of(ConsentSearchResultView.fromSearchItem(pwa1Shell));
 
-    var screenView = new SearchScreenView(1, resultViewComparisonList);
+    var screenView = new SearchScreenView<>(1, resultViewComparisonList);
 
     assertThat(result).isEqualTo(screenView);
     assertThat(result.resultsHaveBeenLimited()).isFalse();
@@ -165,7 +165,7 @@ public class ConsentSearchServiceTest {
     params.setHolderOrgUnitId(bpOrg.getOuId());
     var result = consentSearchService.search(params, context);
 
-    var screenView = new SearchScreenView(0, List.of());
+    var screenView = new SearchScreenView<>(0, List.of());
 
     assertThat(result).isEqualTo(screenView);
     assertThat(result.resultsHaveBeenLimited()).isFalse();
@@ -186,7 +186,7 @@ public class ConsentSearchServiceTest {
 
     var resultViewComparisonList = List.of(ConsentSearchResultView.fromSearchItem(pwa3Bp));
 
-    var screenView = new SearchScreenView(1, resultViewComparisonList);
+    var screenView = new SearchScreenView<>(1, resultViewComparisonList);
 
     assertThat(result).isEqualTo(screenView);
     assertThat(result.resultsHaveBeenLimited()).isFalse();
