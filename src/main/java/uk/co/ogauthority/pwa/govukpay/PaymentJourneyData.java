@@ -1,0 +1,147 @@
+package uk.co.ogauthority.pwa.govukpay;
+
+import java.util.Map;
+
+/**
+ * returns view of single govuk payment journey.
+ */
+public final class PaymentJourneyData {
+
+  private final String paymentId;
+
+  private final PaymentJourneyState paymentJourneyState;
+
+  private final Long amount;
+
+  private final String description;
+
+  private final String reference;
+
+  private final Map<String, String> metadata;
+
+  private final String email; // where confirmation email was sent if payment completed in service
+
+  private final String paymentProvider;
+
+  private final String createdDate;
+
+  private final String refundStatus; // TODO PWA-1113 turn into enum we control - e.g NOT_REFUNDED, IN_PROGRESS, COMPLETE
+
+  private final String settlementStatus; // TODO PWA-1113 turn into enum we control - e.g NOT_SETTLED, SETTLED. what about the date?
+
+  private final Long corporateCardSurcharge;
+
+  private final Long totalAmount;
+
+  private final Long fee;
+
+  private final Long netAmount;
+
+  private final String providerId;
+
+  private final String returnUrl;
+
+  public PaymentJourneyData(String paymentId,
+                            PaymentJourneyState paymentJourneyState,
+                            Long amount,
+                            String description,
+                            String reference,
+                            Map<String, String> metadata,
+                            String email,
+                            String paymentProvider,
+                            String createdDate,
+                            String refundStatus,
+                            String settlementStatus,
+                            Long corporateCardSurcharge,
+                            Long totalAmount,
+                            Long fee,
+                            Long netAmount,
+                            String providerId,
+                            String returnUrl) {
+    this.paymentId = paymentId;
+    this.paymentJourneyState = paymentJourneyState;
+    this.amount = amount;
+    this.description = description;
+    this.reference = reference;
+    this.metadata = metadata;
+    this.email = email;
+    this.paymentProvider = paymentProvider;
+    this.createdDate = createdDate;
+    this.refundStatus = refundStatus;
+    this.settlementStatus = settlementStatus;
+    this.corporateCardSurcharge = corporateCardSurcharge;
+    this.totalAmount = totalAmount;
+    this.fee = fee;
+    this.netAmount = netAmount;
+    this.providerId = providerId;
+    this.returnUrl = returnUrl;
+  }
+
+  public String getPaymentId() {
+    return paymentId;
+  }
+
+  public PaymentJourneyState getPaymentJourneyState() {
+    return paymentJourneyState;
+  }
+
+  public Long getAmount() {
+    return amount;
+  }
+
+  public String getDescription() {
+    return description;
+  }
+
+  public String getReference() {
+    return reference;
+  }
+
+  public Map<String, String> getMetadata() {
+    return metadata;
+  }
+
+  public String getEmail() {
+    return email;
+  }
+
+  public String getPaymentProvider() {
+    return paymentProvider;
+  }
+
+  public String getCreatedDate() {
+    return createdDate;
+  }
+
+  public String getRefundStatus() {
+    return refundStatus;
+  }
+
+  public String getSettlementStatus() {
+    return settlementStatus;
+  }
+
+  public Long getCorporateCardSurcharge() {
+    return corporateCardSurcharge;
+  }
+
+  public Long getTotalAmount() {
+    return totalAmount;
+  }
+
+  public Long getFee() {
+    return fee;
+  }
+
+  public Long getNetAmount() {
+    return netAmount;
+  }
+
+  public String getProviderId() {
+    return providerId;
+  }
+
+  public String getReturnUrl() {
+    return returnUrl;
+  }
+}

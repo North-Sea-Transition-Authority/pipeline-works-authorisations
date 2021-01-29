@@ -6,11 +6,15 @@ import java.time.Clock;
 import javax.validation.Validation;
 import org.apache.commons.validator.routines.EmailValidator;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Scope;
 import org.springframework.context.support.ResourceBundleMessageSource;
+import org.springframework.http.client.ClientHttpRequestFactory;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
 import uk.co.ogauthority.pwa.auth.FoxLoginCallbackFilter;
 import uk.co.ogauthority.pwa.auth.FoxSessionFilter;
@@ -38,14 +42,33 @@ public class BeanConfig {
   public NotificationClient notificationClient(@Value("${notify.apiKey}") String apiKey,
                                                @Value("${pwa.proxy.host:#{null}}") String proxyHost,
                                                @Value("${pwa.proxy.port:#{null}}") String proxyPort) {
+    Proxy proxy = createProxy(proxyHost, proxyPort);
+
+    return new NotificationClient(apiKey, proxy);
+  }
+
+  private Proxy createProxy(String proxyHost,String proxyPort){
     Proxy proxy;
     if (proxyHost == null) {
       proxy = Proxy.NO_PROXY;
     } else {
       proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyHost, Integer.valueOf(proxyPort)));
     }
-    return new NotificationClient(apiKey, proxy);
+
+    return proxy;
   }
+
+  @Bean
+  @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE) // We need a new instance for each invocation - based on etl config
+  public ClientHttpRequestFactory requestFactory( @Value("${pwa.proxy.host:#{null}}") String proxyHost,
+                                                  @Value("${pwa.proxy.port:#{null}}") String proxyPort) {
+    var httpRequestFactory = new SimpleClientHttpRequestFactory();
+    var proxy = createProxy(proxyHost, proxyPort);
+    httpRequestFactory.setProxy(proxy);
+    return httpRequestFactory;
+  }
+
+
 
   @Bean
   public EmailValidator emailValidator() {
