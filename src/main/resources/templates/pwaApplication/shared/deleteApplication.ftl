@@ -15,7 +15,7 @@
 
 
 
-        <@fdsAction.submitButtons primaryButtonText="Delete" linkSecondaryAction=true secondaryLinkText="Back to task list" linkSecondaryActionUrl=springUrl(taskListUrl)/>
+        <@fdsAction.submitButtons primaryButtonText="Delete" linkSecondaryAction=true secondaryLinkText="Back to task list" linkSecondaryActionUrl=springUrl(taskListUrl) primaryButtonClass="govuk-button govuk-button--warning" />
     </@fdsForm.htmlForm>
 
 </@defaultPage>

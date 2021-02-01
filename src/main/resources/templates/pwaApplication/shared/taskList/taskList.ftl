@@ -22,6 +22,10 @@
         <@pageBanner.banner view=optionsApprovalPageBanner />
     </#if>
 
+    <#if canShowDeleteAppButton>
+        <@fdsAction.link linkText="Delete application" linkUrl=springUrl(deleteAppUrl) linkClass="govuk-button govuk-button--blue" role=true/>
+    </#if>
+
     <@fdsTaskList.taskList>
 
         <#list applicationTaskGroups as taskGroup>
@@ -35,10 +39,6 @@
         <@fdsTaskList.taskListSection sectionNumber="${applicationTaskGroups?size + 1}" sectionHeadingText="Submit application" warningText="In order to submit this application, all sections above must have a COMPLETED label.">
             <@fdsTaskList.taskListItem itemUrl=springUrl(submissionTask.route) itemText=submissionTask.taskName/>
         </@fdsTaskList.taskListSection>
-
-        <#if canShowDeleteAppButton>
-            <@fdsAction.link linkText="Delete application" linkUrl=springUrl(deleteAppUrl) linkClass="govuk-button govuk-button--warning" role=true/>
-        </#if>
 
     </@fdsTaskList.taskList>
 
