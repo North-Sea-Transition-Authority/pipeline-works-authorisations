@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.model.auditRevisions;
+package uk.co.ogauthority.pwa.model.auditrevisions;
 
 import org.hibernate.envers.RevisionListener;
 import org.slf4j.Logger;

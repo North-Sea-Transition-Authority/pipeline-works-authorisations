@@ -47,12 +47,12 @@ public class BeanConfig {
     return new NotificationClient(apiKey, proxy);
   }
 
-  private Proxy createProxy(String proxyHost,String proxyPort){
+  private Proxy createProxy(String proxyHost, String proxyPort) {
     Proxy proxy;
     if (proxyHost == null) {
       proxy = Proxy.NO_PROXY;
     } else {
-      proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyHost, Integer.valueOf(proxyPort)));
+      proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyHost, Integer.parseInt(proxyPort)));
     }
 
     return proxy;
@@ -60,8 +60,8 @@ public class BeanConfig {
 
   @Bean
   @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE) // We need a new instance for each invocation - based on etl config
-  public ClientHttpRequestFactory requestFactory( @Value("${pwa.proxy.host:#{null}}") String proxyHost,
-                                                  @Value("${pwa.proxy.port:#{null}}") String proxyPort) {
+  public ClientHttpRequestFactory requestFactory(@Value("${pwa.proxy.host:#{null}}") String proxyHost,
+                                                 @Value("${pwa.proxy.port:#{null}}") String proxyPort) {
     var httpRequestFactory = new SimpleClientHttpRequestFactory();
     var proxy = createProxy(proxyHost, proxyPort);
     httpRequestFactory.setProxy(proxy);

@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.model.auditRevisions;
+package uk.co.ogauthority.pwa.model.auditrevisions;
 
 import java.util.Date;
 import javax.persistence.Column;

@@ -46,7 +46,7 @@ final class GovUkPayConfiguration {
     this.apiKey = apiKey;
     this.govukPayAuthorizationHeaderValue = "Bearer " + apiKey;
     this.apiConnectionTimeoutSeconds = apiConnectionTimeoutSeconds;
-    this.apiReadTimeoutSeconds =apiReadTimeoutSeconds;
+    this.apiReadTimeoutSeconds = apiReadTimeoutSeconds;
     this.logLevel = logLevel;
     this.restTemplateBuilder = restTemplateBuilder;
     this.clientHttpRequestFactory = clientHttpRequestFactory;
@@ -81,7 +81,7 @@ final class GovUkPayConfiguration {
     return govukPayAuthorizationHeaderValue;
   }
 
-  RestTemplate getConfiguredRestTemplate(){
+  RestTemplate getConfiguredRestTemplate() {
     return restTemplateBuilder
         .setConnectTimeout(Duration.ofSeconds(apiConnectionTimeoutSeconds))
         .setReadTimeout(Duration.ofSeconds(apiReadTimeoutSeconds))
