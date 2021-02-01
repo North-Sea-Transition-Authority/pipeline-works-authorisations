@@ -1,6 +1,5 @@
 package uk.co.ogauthority.pwa.util.forminputs.twofielddate;
 
-import com.google.common.annotations.VisibleForTesting;
 import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.util.Objects;
