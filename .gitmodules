@@ -1,4 +1,4 @@
 [submodule "fivium-design-system-core"]
 	path = fivium-design-system-core
 	url = git@bitbucket.org:fiviumuk/fivium-design-system-core.git
-  branch = pwa-base-branch
+  branch = release/v3.2.5-govuk-3.10.1
