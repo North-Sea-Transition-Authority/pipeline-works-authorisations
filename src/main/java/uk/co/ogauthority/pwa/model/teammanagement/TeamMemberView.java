@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.model.teammanagement;
 
+import java.util.Objects;
 import java.util.Set;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 
@@ -58,4 +59,25 @@ public class TeamMemberView {
   public Set<TeamRoleView> getRoleViews() {
     return roleViews;
   }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    TeamMemberView that = (TeamMemberView) o;
+    return Objects.equals(forename, that.forename) && Objects.equals(surname,
+        that.surname) && Objects.equals(emailAddress, that.emailAddress) && Objects.equals(
+        telephoneNo, that.telephoneNo) && Objects.equals(editRoute, that.editRoute) && Objects.equals(
+        removeRoute, that.removeRoute) && Objects.equals(roleViews, that.roleViews);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(forename, surname, emailAddress, telephoneNo, editRoute, removeRoute, roleViews);
+  }
+
 }

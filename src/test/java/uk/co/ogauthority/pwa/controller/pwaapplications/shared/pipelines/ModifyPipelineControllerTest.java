@@ -20,7 +20,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.ogauthority.pwa.controller.PwaApplicationContextAbstractControllerTest;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
-import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
@@ -49,13 +49,13 @@ public class ModifyPipelineControllerTest extends PwaApplicationContextAbstractC
   @Before
   public void setUp() {
 
-    endpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaContactService, pwaApplicationDetailService)
+    endpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaApplicationPermissionService, pwaApplicationDetailService)
         .setAllowedTypes(
             PwaApplicationType.CAT_1_VARIATION,
             PwaApplicationType.CAT_2_VARIATION,
             PwaApplicationType.OPTIONS_VARIATION,
             PwaApplicationType.DECOMMISSIONING)
-        .setAllowedContactRoles(PwaContactRole.PREPARER)
+        .setAllowedPermissions(PwaApplicationPermission.EDIT)
         .setAllowedStatuses(PwaApplicationStatus.DRAFT);
 
     PwaApplicationDetail pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(
@@ -63,19 +63,19 @@ public class ModifyPipelineControllerTest extends PwaApplicationContextAbstractC
     pwaApplicationDetail.getPwaApplication().setId(APP_ID);
     when(pwaApplicationDetailService.getTipDetail(pwaApplicationDetail.getMasterPwaApplicationId())).thenReturn(
         pwaApplicationDetail);
-    when(pwaContactService.getContactRoles(eq(pwaApplicationDetail.getPwaApplication()), any()))
-        .thenReturn(EnumSet.allOf(PwaContactRole.class));
+    when(pwaApplicationPermissionService.getPermissions(eq(pwaApplicationDetail), any()))
+        .thenReturn(EnumSet.allOf(PwaApplicationPermission.class));
   }
 
   @Test
-  public void renderImportConsentedPipeline_contactSmokeTest() {
+  public void renderImportConsentedPipeline_permissionSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(ModifyPipelineController.class)
                 .renderImportConsentedPipeline(applicationDetail.getMasterPwaApplicationId(), type, null, null)));
 
-    endpointTester.performAppContactRoleCheck(status().isOk(), status().isForbidden());
+    endpointTester.performAppPermissionCheck(status().isOk(), status().isForbidden());
 
   }
 
@@ -104,14 +104,14 @@ public class ModifyPipelineControllerTest extends PwaApplicationContextAbstractC
   }
 
   @Test
-  public void postImportConsentedPipeline_contactSmokeTest() {
+  public void postImportConsentedPipeline_permissionSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(ModifyPipelineController.class)
                 .postImportConsentedPipeline(applicationDetail.getMasterPwaApplicationId(), type, null, null, null, null)));
 
-    endpointTester.performAppContactRoleCheck(status().is3xxRedirection(), status().isForbidden());
+    endpointTester.performAppPermissionCheck(status().is3xxRedirection(), status().isForbidden());
 
   }
 

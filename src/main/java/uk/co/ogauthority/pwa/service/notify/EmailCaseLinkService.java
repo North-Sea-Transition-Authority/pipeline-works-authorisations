@@ -1,8 +1,12 @@
 package uk.co.ogauthority.pwa.service.notify;
 
+import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import uk.co.ogauthority.pwa.controller.pwaapplications.shared.submission.ReviewAndSubmitController;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
+import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.util.CaseManagementUtils;
 
 @Service
@@ -16,6 +20,11 @@ public class EmailCaseLinkService {
 
   public String generateCaseManagementLink(PwaApplication application) {
     return pwaUrlBase + contextPath + CaseManagementUtils.routeCaseManagement(application);
+  }
+
+  public String generateReviewAndSubmitLink(PwaApplication application) {
+    return pwaUrlBase + contextPath + ReverseRouter.route(on(ReviewAndSubmitController.class)
+        .review(application.getApplicationType(), application.getId(), null, null));
   }
 
 }

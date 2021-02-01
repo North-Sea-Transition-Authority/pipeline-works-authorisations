@@ -37,7 +37,7 @@ import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.PermanentDepositD
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PermanentDepositDrawingView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.permanentdepositdrawings.PadDepositDrawingRepository;
-import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
@@ -85,7 +85,7 @@ public class PermanentDepositDrawingsControllerTest extends PwaApplicationContex
         new WebUserAccount(1),
         EnumSet.allOf(PwaUserPrivilege.class));
 
-    endpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaContactService, pwaApplicationDetailService)
+    endpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaApplicationPermissionService, pwaApplicationDetailService)
         .setAllowedTypes(
             PwaApplicationType.INITIAL,
             PwaApplicationType.DEPOSIT_CONSENT,
@@ -93,14 +93,14 @@ public class PermanentDepositDrawingsControllerTest extends PwaApplicationContex
             PwaApplicationType.CAT_2_VARIATION,
             PwaApplicationType.DECOMMISSIONING,
             PwaApplicationType.OPTIONS_VARIATION)
-        .setAllowedContactRoles(PwaContactRole.PREPARER)
+        .setAllowedPermissions(PwaApplicationPermission.EDIT)
         .setAllowedStatuses(PwaApplicationStatus.DRAFT);
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     pwaApplicationDetail.getPwaApplication().setId(APP_ID);
     when(pwaApplicationDetailService.getTipDetail(pwaApplicationDetail.getMasterPwaApplicationId())).thenReturn(pwaApplicationDetail);
-    when(pwaContactService.getContactRoles(eq(pwaApplicationDetail.getPwaApplication()), any()))
-        .thenReturn(EnumSet.allOf(PwaContactRole.class));
+    when(pwaApplicationPermissionService.getPermissions(eq(pwaApplicationDetail), any()))
+        .thenReturn(EnumSet.allOf(PwaApplicationPermission.class));
   }
 
 
@@ -108,14 +108,14 @@ public class PermanentDepositDrawingsControllerTest extends PwaApplicationContex
 
   //Overview endpoint tests
   @Test
-  public void renderDepositDrawingsOverview_contactSmokeTest() {
+  public void renderDepositDrawingsOverview_permissionSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PermanentDepositDrawingsController.class)
                 .renderDepositDrawingsOverview(type, applicationDetail.getMasterPwaApplicationId(),  null, null)));
 
-    endpointTester.performAppContactRoleCheck(status().isOk(), status().isForbidden());
+    endpointTester.performAppPermissionCheck(status().isOk(), status().isForbidden());
   }
 
   @Test
@@ -169,7 +169,7 @@ public class PermanentDepositDrawingsControllerTest extends PwaApplicationContex
   }
 
   @Test
-  public void postDepositDrawingsOverview_contactSmokeTest() {
+  public void postDepositDrawingsOverview_permissionSmokeTest() {
     when(depositDrawingsService.isComplete(any(PwaApplicationDetail.class))).thenReturn(true);
     endpointTester.setRequestMethod(HttpMethod.POST)
         .addRequestParam(ValidationType.FULL.getButtonText(), ValidationType.FULL.getButtonText())
@@ -177,7 +177,7 @@ public class PermanentDepositDrawingsControllerTest extends PwaApplicationContex
             ReverseRouter.route(on(PermanentDepositDrawingsController.class)
                 .postDepositDrawingsOverview(type, applicationDetail.getMasterPwaApplicationId(), null, null, null)));
 
-    endpointTester.performAppContactRoleCheck(status().is3xxRedirection(), status().isForbidden());
+    endpointTester.performAppPermissionCheck(status().is3xxRedirection(), status().isForbidden());
 
   }
 
@@ -186,14 +186,14 @@ public class PermanentDepositDrawingsControllerTest extends PwaApplicationContex
 
   //ADD endpoint tests
   @Test
-  public void renderAddDepositDrawing_contactSmokeTest() {
+  public void renderAddDepositDrawing_permissionSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PermanentDepositDrawingsController.class)
                 .renderAddDepositDrawing(type, applicationDetail.getMasterPwaApplicationId(),  null, null)));
 
-    endpointTester.performAppContactRoleCheck(status().isOk(), status().isForbidden());
+    endpointTester.performAppPermissionCheck(status().isOk(), status().isForbidden());
   }
 
   @Test
@@ -247,7 +247,7 @@ public class PermanentDepositDrawingsControllerTest extends PwaApplicationContex
   }
 
   @Test
-  public void postAddDepositDrawing_contactSmokeTest() {
+  public void postAddDepositDrawing_permissionSmokeTest() {
     ControllerTestUtils.passValidationWhenPost(depositDrawingsService, new PermanentDepositDrawingForm(), ValidationType.FULL );
     endpointTester.setRequestMethod(HttpMethod.POST)
         .addRequestParam(ValidationType.FULL.getButtonText(), ValidationType.FULL.getButtonText())
@@ -255,7 +255,7 @@ public class PermanentDepositDrawingsControllerTest extends PwaApplicationContex
             ReverseRouter.route(on(PermanentDepositDrawingsController.class)
                 .postAddDepositDrawing(type, applicationDetail.getMasterPwaApplicationId(), null, null, null)));
 
-    endpointTester.performAppContactRoleCheck(status().is3xxRedirection(), status().isForbidden());
+    endpointTester.performAppPermissionCheck(status().is3xxRedirection(), status().isForbidden());
 
   }
 
@@ -302,14 +302,14 @@ public class PermanentDepositDrawingsControllerTest extends PwaApplicationContex
   }
 
   @Test
-  public void renderRemoveDepositDrawing_contactSmokeTest() {
+  public void renderRemoveDepositDrawing_permissionSmokeTest() {
     when(depositDrawingsService.getDepositDrawingView(any(), any())).thenReturn(buildDepositDrawingView());
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PermanentDepositDrawingsController.class)
                 .renderRemoveDepositDrawing(type, applicationDetail.getMasterPwaApplicationId(),  null, 1, null)));
 
-    endpointTester.performAppContactRoleCheck(status().isOk(), status().isForbidden());
+    endpointTester.performAppPermissionCheck(status().isOk(), status().isForbidden());
   }
 
   @Test
@@ -361,14 +361,14 @@ public class PermanentDepositDrawingsControllerTest extends PwaApplicationContex
   }
 
   @Test
-  public void postRemoveDepositDrawing_contactSmokeTest() {
+  public void postRemoveDepositDrawing_permissionSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.POST)
         .addRequestParam(ValidationType.FULL.getButtonText(), ValidationType.FULL.getButtonText())
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PermanentDepositDrawingsController.class)
                 .postRemoveDepositDrawing(type, applicationDetail.getMasterPwaApplicationId(), null, 1, null, null)));
 
-    endpointTester.performAppContactRoleCheck(status().is3xxRedirection(), status().isForbidden());
+    endpointTester.performAppPermissionCheck(status().is3xxRedirection(), status().isForbidden());
 
   }
 
@@ -380,14 +380,14 @@ public class PermanentDepositDrawingsControllerTest extends PwaApplicationContex
 
   //EDIT endpoints
   @Test
-  public void renderEditDepositDrawing_contactSmokeTest() {
+  public void renderEditDepositDrawing_permissionSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PermanentDepositDrawingsController.class)
                 .renderEditDepositDrawing(type, applicationDetail.getMasterPwaApplicationId(),  null, 1, null)));
 
-    endpointTester.performAppContactRoleCheck(status().isOk(), status().isForbidden());
+    endpointTester.performAppPermissionCheck(status().isOk(), status().isForbidden());
   }
 
   @Test
@@ -441,7 +441,7 @@ public class PermanentDepositDrawingsControllerTest extends PwaApplicationContex
   }
 
   @Test
-  public void postEditDepositDrawing_contactSmokeTest() {
+  public void postEditDepositDrawing_permissionSmokeTest() {
     when(depositDrawingsService.validateDrawingEdit(any(), any(), eq(ValidationType.FULL), any(), any())).thenReturn(new BeanPropertyBindingResult(new PermanentDepositDrawingForm(), "form"));
     endpointTester.setRequestMethod(HttpMethod.POST)
         .addRequestParam(ValidationType.FULL.getButtonText(), "")
@@ -449,7 +449,7 @@ public class PermanentDepositDrawingsControllerTest extends PwaApplicationContex
             ReverseRouter.route(on(PermanentDepositDrawingsController.class)
                 .postEditDepositDrawing(type, applicationDetail.getMasterPwaApplicationId(), null, 1, null, null)));
 
-    endpointTester.performAppContactRoleCheck(status().is3xxRedirection(), status().isForbidden());
+    endpointTester.performAppPermissionCheck(status().is3xxRedirection(), status().isForbidden());
 
   }
 

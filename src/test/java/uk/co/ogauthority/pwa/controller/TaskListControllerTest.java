@@ -19,12 +19,14 @@ import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaViewService;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
+import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationPermissionService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationTaskService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskListEntryFactory;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskListService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.tasklist.TaskListControllerModelAndViewCreator;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
+import uk.co.ogauthority.pwa.service.teams.PwaHolderTeamService;
 
 public abstract class TaskListControllerTest extends AbstractControllerTest {
 
@@ -61,6 +63,12 @@ public abstract class TaskListControllerTest extends AbstractControllerTest {
   @MockBean
   private MasterPwaViewService masterPwaViewService;
 
+  @MockBean
+  private PwaHolderTeamService pwaHolderTeamService;
+
+  @MockBean
+  protected PwaApplicationPermissionService pwaApplicationPermissionService;
+
   @Mock
   private MasterPwaView masterPwaView;
 
@@ -75,14 +83,9 @@ public abstract class TaskListControllerTest extends AbstractControllerTest {
 
   @Before
   public void taskListControllerTestSetup() {
+
     when(masterPwaView.getReference()).thenReturn("EXAMPLE_REFERENCE");
     when(masterPwaViewService.getCurrentMasterPwaView(any())).thenReturn(masterPwaView);
-
-
-//    taskListService = new TaskListService(
-//        taskListEntryFactory,
-//        applicationTaskService
-//    );
 
     taskListControllerModelAndViewCreator = new TaskListControllerModelAndViewCreator(
         applicationBreadcrumbService,

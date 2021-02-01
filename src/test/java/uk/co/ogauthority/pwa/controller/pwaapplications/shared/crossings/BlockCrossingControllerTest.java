@@ -40,7 +40,7 @@ import uk.co.ogauthority.pwa.model.entity.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.PadCrossedBlock;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
-import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.licence.PearsBlockService;
@@ -106,14 +106,14 @@ public class BlockCrossingControllerTest extends PwaApplicationContextAbstractCo
   public void setup() {
     doCallRealMethod().when(applicationBreadcrumbService).fromCrossings(any(), any(), any());
     // set default checks for entire controller
-    endpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaContactService, pwaApplicationDetailService)
+    endpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaApplicationPermissionService, pwaApplicationDetailService)
         .setAllowedTypes(
             PwaApplicationType.INITIAL,
             PwaApplicationType.CAT_1_VARIATION,
             PwaApplicationType.CAT_2_VARIATION,
             PwaApplicationType.DEPOSIT_CONSENT,
             PwaApplicationType.DECOMMISSIONING)
-        .setAllowedContactRoles(PwaContactRole.PREPARER)
+        .setAllowedPermissions(PwaApplicationPermission.EDIT)
         .setAllowedStatuses(PwaApplicationStatus.DRAFT);
 
     when(padCrossedBlock.getBlockReference()).thenReturn("some block");
@@ -125,8 +125,8 @@ public class BlockCrossingControllerTest extends PwaApplicationContextAbstractCo
     pwaApplicationDetail.getPwaApplication().setId(APP_ID);
     when(pwaApplicationDetailService.getTipDetail(pwaApplicationDetail.getMasterPwaApplicationId())).thenReturn(
         pwaApplicationDetail);
-    when(pwaContactService.getContactRoles(eq(pwaApplicationDetail.getPwaApplication()), any()))
-        .thenReturn(EnumSet.allOf(PwaContactRole.class));
+    when(pwaApplicationPermissionService.getPermissions(eq(pwaApplicationDetail), any()))
+        .thenReturn(EnumSet.allOf(PwaApplicationPermission.class));
 
     when(blockCrossingService.getCrossedBlockView(any(), any())).thenReturn(
         new BlockCrossingView(BLOCK_CROSSING_ID, "ref", "ref", List.of(), true));
@@ -182,7 +182,7 @@ public class BlockCrossingControllerTest extends PwaApplicationContextAbstractCo
             )
         );
 
-    endpointTester.performAppContactRoleCheck(status().isOk(), status().isForbidden());
+    endpointTester.performAppPermissionCheck(status().isOk(), status().isForbidden());
 
   }
 
@@ -289,7 +289,7 @@ public class BlockCrossingControllerTest extends PwaApplicationContextAbstractCo
     )
         .setRequestMethod(HttpMethod.GET);
 
-    endpointTester.performAppContactRoleCheck(status().isOk(), status().isForbidden());
+    endpointTester.performAppPermissionCheck(status().isOk(), status().isForbidden());
   }
 
   @Test
@@ -358,7 +358,7 @@ public class BlockCrossingControllerTest extends PwaApplicationContextAbstractCo
             )
         );
 
-    endpointTester.performAppContactRoleCheck(status().is3xxRedirection(), status().isForbidden());
+    endpointTester.performAppPermissionCheck(status().is3xxRedirection(), status().isForbidden());
 
   }
 
@@ -463,7 +463,7 @@ public class BlockCrossingControllerTest extends PwaApplicationContextAbstractCo
         )
         .addRequestParam("crossedBlockOwner", "HOLDER");
 
-    endpointTester.performAppContactRoleCheck(status().is3xxRedirection(), status().isForbidden());
+    endpointTester.performAppPermissionCheck(status().is3xxRedirection(), status().isForbidden());
 
   }
 
@@ -516,7 +516,7 @@ public class BlockCrossingControllerTest extends PwaApplicationContextAbstractCo
     )
         .setRequestMethod(HttpMethod.GET);
 
-    endpointTester.performAppContactRoleCheck(status().isOk(), status().isForbidden());
+    endpointTester.performAppPermissionCheck(status().isOk(), status().isForbidden());
   }
 
   @Test
@@ -565,7 +565,7 @@ public class BlockCrossingControllerTest extends PwaApplicationContextAbstractCo
     )
         .setRequestMethod(HttpMethod.GET);
 
-    endpointTester.performAppContactRoleCheck(status().isOk(), status().isForbidden());
+    endpointTester.performAppPermissionCheck(status().isOk(), status().isForbidden());
   }
 
   @Test
@@ -616,9 +616,9 @@ public class BlockCrossingControllerTest extends PwaApplicationContextAbstractCo
             ReverseRouter.route(on(BlockCrossingController.class)
                 .renderBlockCrossingOverview(type, applicationDetail.getMasterPwaApplicationId(), null, null)));
 
-    endpointTester.performAppContactRoleCheck(status().isOk(), status().isForbidden());
+    endpointTester.performAppPermissionCheck(status().isOk(), status().isForbidden());
 
-    verify(padFileService, times(endpointTester.getContactRoles().size())).getUploadedFileViews(any(),
+    verify(padFileService, times(endpointTester.getAllowedAppPermissions().size())).getUploadedFileViews(any(),
         eq(ApplicationDetailFilePurpose.BLOCK_CROSSINGS), eq(ApplicationFileLinkStatus.FULL));
   }
 
@@ -658,7 +658,7 @@ public class BlockCrossingControllerTest extends PwaApplicationContextAbstractCo
             ReverseRouter.route(on(BlockCrossingController.class)
                 .postOverview(type, applicationDetail.getMasterPwaApplicationId(), null, null)));
 
-    endpointTester.performAppContactRoleCheck(status().isOk(), status().isForbidden());
+    endpointTester.performAppPermissionCheck(status().isOk(), status().isForbidden());
   }
 
 }

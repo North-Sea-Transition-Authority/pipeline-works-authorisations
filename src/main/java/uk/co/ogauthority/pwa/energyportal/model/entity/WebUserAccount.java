@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.energyportal.model.entity;
 
 import com.google.common.annotations.VisibleForTesting;
 import java.io.Serializable;
+import java.util.Objects;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -87,4 +88,25 @@ public class WebUserAccount implements Serializable {
   public Person getLinkedPerson() {
     return person;
   }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    WebUserAccount that = (WebUserAccount) o;
+    return wuaId == that.wuaId && Objects.equals(title, that.title) && Objects.equals(forename,
+        that.forename) && Objects.equals(surname, that.surname) && Objects.equals(emailAddress,
+        that.emailAddress) && Objects.equals(loginId,
+        that.loginId) && accountStatus == that.accountStatus && Objects.equals(person, that.person);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(wuaId, title, forename, surname, emailAddress, loginId, accountStatus, person);
+  }
+
 }

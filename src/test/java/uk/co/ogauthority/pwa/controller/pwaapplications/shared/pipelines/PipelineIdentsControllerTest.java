@@ -55,7 +55,7 @@ import uk.co.ogauthority.pwa.model.location.LongitudeCoordinate;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.location.LatitudeDirection;
 import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
-import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
@@ -103,7 +103,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
         new WebUserAccount(1),
         EnumSet.allOf(PwaUserPrivilege.class));
 
-    endpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaContactService, pwaApplicationDetailService,
+    endpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaApplicationPermissionService, pwaApplicationDetailService,
         padPipelineService)
         .setAllowedTypes(
             PwaApplicationType.INITIAL,
@@ -111,15 +111,15 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
             PwaApplicationType.CAT_2_VARIATION,
             PwaApplicationType.DECOMMISSIONING,
             PwaApplicationType.OPTIONS_VARIATION)
-        .setAllowedContactRoles(PwaContactRole.PREPARER)
+        .setAllowedPermissions(PwaApplicationPermission.EDIT)
         .setAllowedStatuses(PwaApplicationStatus.DRAFT);
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     pwaApplicationDetail.getPwaApplication().setId(APP_ID);
     when(pwaApplicationDetailService.getTipDetail(pwaApplicationDetail.getMasterPwaApplicationId())).thenReturn(
         pwaApplicationDetail);
-    when(pwaContactService.getContactRoles(eq(pwaApplicationDetail.getPwaApplication()), any()))
-        .thenReturn(EnumSet.allOf(PwaContactRole.class));
+    when(pwaApplicationPermissionService.getPermissions(eq(pwaApplicationDetail), any()))
+        .thenReturn(EnumSet.allOf(PwaApplicationPermission.class));
 
     padPipeline = getDefaultPadPipeline(99, pwaApplicationDetail);
 
@@ -167,14 +167,14 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
   }
 
   @Test
-  public void renderAddIdent_contactSmokeTest() {
+  public void renderAddIdent_permissionSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PipelineIdentsController.class)
                 .renderAddIdent(applicationDetail.getMasterPwaApplicationId(), type, 99, null, null, null)));
 
-    endpointTester.performAppContactRoleCheck(status().isOk(), status().isForbidden());
+    endpointTester.performAppPermissionCheck(status().isOk(), status().isForbidden());
 
   }
 
@@ -298,14 +298,14 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
   }
 
   @Test
-  public void postAddIdent_contactSmokeTest() {
+  public void postAddIdent_permissionSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PipelineIdentsController.class)
                 .postAddIdent(applicationDetail.getMasterPwaApplicationId(), type, 99, null, null, null, null)));
 
-    endpointTester.performAppContactRoleCheck(status().is3xxRedirection(), status().isForbidden());
+    endpointTester.performAppPermissionCheck(status().is3xxRedirection(), status().isForbidden());
 
   }
 
@@ -404,7 +404,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
   }
 
   @Test
-  public void renderIdentOverview_contactSmokeTest() {
+  public void renderIdentOverview_permissionSmokeTest() {
 
     padPipeline.setPipelineRef("my ref");
     padPipeline.setPipelineType(PipelineType.HYDRAULIC_JUMPER);
@@ -417,7 +417,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
             ReverseRouter.route(on(PipelineIdentsController.class)
                 .renderIdentOverview(applicationDetail.getMasterPwaApplicationId(), type, 99, null, null)));
 
-    endpointTester.performAppContactRoleCheck(status().isOk(), status().isForbidden());
+    endpointTester.performAppPermissionCheck(status().isOk(), status().isForbidden());
 
   }
 
@@ -485,13 +485,13 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
   }
 
   @Test
-  public void renderRemoveIdent_contactSmokeTest() {
+  public void renderRemoveIdent_permissionSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PipelineIdentsController.class)
                 .renderRemoveIdent(applicationDetail.getMasterPwaApplicationId(), type, 99, null, 1, null)));
 
-    endpointTester.performAppContactRoleCheck(status().isOk(), status().isForbidden());
+    endpointTester.performAppPermissionCheck(status().isOk(), status().isForbidden());
   }
 
   @Test
@@ -566,21 +566,21 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
   }
 
   @Test
-  public void postRemoveIdent_contactSmokeTest() {
+  public void postRemoveIdent_permissionSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PipelineIdentsController.class)
                 .postRemoveIdent(applicationDetail.getMasterPwaApplicationId(), type, 99, null, 1, null)));
 
-    endpointTester.performAppContactRoleCheck(status().is3xxRedirection(), status().isForbidden());
+    endpointTester.performAppPermissionCheck(status().is3xxRedirection(), status().isForbidden());
 
   }
 
   @Test
   public void postRemoveIdent_verifyRemove() throws Exception {
 
-    when(pwaContactService.getContactRoles(any(), any())).thenReturn(EnumSet.allOf(PwaContactRole.class));
+    when(pwaApplicationPermissionService.getPermissions(any(), any())).thenReturn(EnumSet.allOf(PwaApplicationPermission.class));
 
     mockMvc.perform(post(ReverseRouter.route(on(PipelineIdentsController.class)
         .postRemoveIdent(APP_ID, PwaApplicationType.INITIAL, padPipeline.getId(), null, 1, null)))
@@ -670,14 +670,14 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
   }
 
   @Test
-  public void postIdentOverview_contactSmokeTest() {
+  public void postIdentOverview_permissionSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PipelineIdentsController.class)
                 .postIdentOverview(applicationDetail.getMasterPwaApplicationId(), type, 99, null, null)));
 
-    endpointTester.performAppContactRoleCheck(status().is3xxRedirection(), status().isForbidden());
+    endpointTester.performAppPermissionCheck(status().is3xxRedirection(), status().isForbidden());
 
   }
 
@@ -698,7 +698,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
             ReverseRouter.route(on(PipelineIdentsController.class)
                 .postIdentOverview(applicationDetail.getMasterPwaApplicationId(), type, padPipeline.getId(), null, null)));
 
-    endpointTester.performAppContactRoleCheck(status().isOk(), status().isForbidden());
+    endpointTester.performAppPermissionCheck(status().isOk(), status().isForbidden());
 
   }
 
@@ -731,14 +731,14 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
   }
 
   @Test
-  public void renderEditIdent_contactSmokeTest() {
+  public void renderEditIdent_permissionSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PipelineIdentsController.class)
                 .renderEditIdent(applicationDetail.getMasterPwaApplicationId(), type, 99, 1, null, null, null)));
 
-    endpointTester.performAppContactRoleCheck(status().isOk(), status().isForbidden());
+    endpointTester.performAppPermissionCheck(status().isOk(), status().isForbidden());
 
   }
 
@@ -819,14 +819,14 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
   }
 
   @Test
-  public void postEditIdent_contactSmokeTest() {
+  public void postEditIdent_permissionSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PipelineIdentsController.class)
                 .postEditIdent(applicationDetail.getMasterPwaApplicationId(), type, 99, 1, null, null, null, null)));
 
-    endpointTester.performAppContactRoleCheck(status().is3xxRedirection(), status().isForbidden());
+    endpointTester.performAppPermissionCheck(status().is3xxRedirection(), status().isForbidden());
 
   }
 
@@ -844,7 +844,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
       return errors;
     }).when(validator).validate(any(), any(), any());
 
-    endpointTester.performAppContactRoleCheck(status().isOk(), status().isForbidden());
+    endpointTester.performAppPermissionCheck(status().isOk(), status().isForbidden());
 
   }
 
@@ -877,14 +877,14 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
   }
 
   @Test
-  public void renderInsertIdentAbove_contactSmokeTest() {
+  public void renderInsertIdentAbove_permissionSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PipelineIdentsController.class)
                 .renderInsertIdentAbove(applicationDetail.getMasterPwaApplicationId(), type, 99, 1, null, null, null)));
 
-    endpointTester.performAppContactRoleCheck(status().isOk(), status().isForbidden());
+    endpointTester.performAppPermissionCheck(status().isOk(), status().isForbidden());
 
   }
 
@@ -1016,7 +1016,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
   }
 
   @Test
-  public void postInsertIdentAbove_contactSmokeTest() {
+  public void postInsertIdentAbove_permissionSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -1024,7 +1024,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
                 .postInsertIdentAbove(applicationDetail.getMasterPwaApplicationId(), type, 99, 1, null, null, null,
                     null)));
 
-    endpointTester.performAppContactRoleCheck(status().is3xxRedirection(), status().isForbidden());
+    endpointTester.performAppPermissionCheck(status().is3xxRedirection(), status().isForbidden());
 
   }
 

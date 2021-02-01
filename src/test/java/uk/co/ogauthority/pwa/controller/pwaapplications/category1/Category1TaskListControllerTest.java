@@ -19,7 +19,7 @@ import uk.co.ogauthority.pwa.controller.TaskListControllerTest;
 import uk.co.ogauthority.pwa.model.tasklist.TaskListEntry;
 import uk.co.ogauthority.pwa.model.tasklist.TaskListGroup;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
-import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
@@ -35,11 +35,11 @@ public class Category1TaskListControllerTest extends TaskListControllerTest {
   public void setUp() {
 
 
-    when(pwaContactService.getContactRoles(any(), any())).thenReturn(EnumSet.allOf(PwaContactRole.class));
+    when(pwaApplicationPermissionService.getPermissions(any(), any())).thenReturn(EnumSet.allOf(PwaApplicationPermission.class));
 
-    endpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaContactService, pwaApplicationDetailService)
+    endpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaApplicationPermissionService, pwaApplicationDetailService)
         .setAllowedTypes(PwaApplicationType.CAT_1_VARIATION)
-        .setAllowedContactRoles(PwaContactRole.PREPARER)
+        .setAllowedPermissions(PwaApplicationPermission.EDIT)
         .setAllowedStatuses(PwaApplicationStatus.DRAFT)
         .setPreTestSetupMethod((detail) -> {
           var taskListGroupList = List.of(
@@ -98,7 +98,7 @@ public class Category1TaskListControllerTest extends TaskListControllerTest {
             )
         );
 
-    endpointTester.performAppContactRoleCheck(status().isOk(), status().isForbidden());
+    endpointTester.performAppPermissionCheck(status().isOk(), status().isForbidden());
 
   }
 }

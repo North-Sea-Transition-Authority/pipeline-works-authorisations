@@ -6,6 +6,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.time.Clock;
@@ -142,6 +143,7 @@ public class ApplicationUpdateRequestServiceTest {
 
     defaultUpdateRequest = new ApplicationUpdateRequest();
     defaultUpdateRequest.setRequestedByPersonId(REQUESTER_PERSON_ID);
+    defaultUpdateRequest.setStatus(ApplicationUpdateRequestStatus.OPEN);
 
     when(personService.getPersonById(REQUESTER_PERSON_ID)).thenReturn(requesterPerson);
   }
@@ -288,8 +290,7 @@ public class ApplicationUpdateRequestServiceTest {
 
     when(applicationUpdateRequestRepository.findByPwaApplicationDetail_pwaApplicationAndStatus(
         pwaApplicationDetail.getPwaApplication(), ApplicationUpdateRequestStatus.OPEN
-    ))
-        .thenReturn(Optional.of(defaultUpdateRequest));
+    )).thenReturn(Optional.of(defaultUpdateRequest));
 
     applicationUpdateRequestService.respondToApplicationOpenUpdateRequest(pwaApplicationDetail, responderPerson, "RESPONSE");
 
@@ -300,6 +301,42 @@ public class ApplicationUpdateRequestServiceTest {
       assertThat(applicationUpdateRequest.getResponseTimestamp()).isEqualTo(clock.instant());
       assertThat(applicationUpdateRequest.getResponseOtherChanges()).isEqualTo("RESPONSE");
       assertThat(applicationUpdateRequest.getResponseByPersonId()).isEqualTo(RESPONDER_PERSON_ID);
+      assertThat(applicationUpdateRequest.getResponsePwaApplicationDetail()).isEqualTo(pwaApplicationDetail);
+      assertThat(applicationUpdateRequest.getStatus()).isEqualTo(ApplicationUpdateRequestStatus.RESPONDED);
+    });
+
+    verify(personService, times(1)).getPersonById(REQUESTER_PERSON_ID);
+
+    verify(notifyService, times(1)).sendEmail(emailPropertiesArgumentCaptor.capture(), eq(requesterPerson.getEmailAddress()));
+
+    assertThat(emailPropertiesArgumentCaptor.getValue()).satisfies(emailProperties -> {
+      assertThat(emailProperties.getRecipientFullName()).isEqualTo(requesterPerson.getFullName());
+      assertThat(emailProperties.getTemplate()).isEqualTo(NotifyTemplate.APPLICATION_UPDATE_RESPONDED);
+      assertThat(emailProperties.getEmailPersonalisation()).containsEntry("APPLICATION_REFERENCE", pwaApplicationDetail.getPwaApplicationRef());
+    });
+
+  }
+
+  @Test
+  public void respondToApplicationOpenUpdateRequest_preparerResponseNotOverwritten() {
+
+    // set the response, ensure it is not overwritten later
+    var preparerPersonId = new PersonId(99);
+    defaultUpdateRequest.setResponseByPersonId(preparerPersonId);
+    defaultUpdateRequest.setResponseOtherChanges("my changes");
+
+    when(applicationUpdateRequestRepository.findByPwaApplicationDetail_pwaApplicationAndStatus(
+        pwaApplicationDetail.getPwaApplication(), ApplicationUpdateRequestStatus.OPEN
+    )).thenReturn(Optional.of(defaultUpdateRequest));
+
+    applicationUpdateRequestService.respondToApplicationOpenUpdateRequest(pwaApplicationDetail, responderPerson, null);
+
+    verify(applicationUpdateRequestRepository, times(1)).save(appUpdateArgCapture.capture());
+
+    assertThat(appUpdateArgCapture.getValue()).satisfies(applicationUpdateRequest -> {
+      assertThat(applicationUpdateRequest.getResponseTimestamp()).isEqualTo(clock.instant());
+      assertThat(applicationUpdateRequest.getResponseOtherChanges()).isEqualTo("my changes");
+      assertThat(applicationUpdateRequest.getResponseByPersonId()).isEqualTo(preparerPersonId);
       assertThat(applicationUpdateRequest.getResponsePwaApplicationDetail()).isEqualTo(pwaApplicationDetail);
     });
 
@@ -319,7 +356,34 @@ public class ApplicationUpdateRequestServiceTest {
   @Test(expected = PwaEntityNotFoundException.class)
   public void respondToApplicationOpenUpdateRequest_noOpenUpdateRequest() {
     applicationUpdateRequestService.respondToApplicationOpenUpdateRequest(pwaApplicationDetail, responderPerson, "RESPONSE");
+  }
 
+  @Test
+  public void storeResponseWithoutSubmitting_happyPath() {
+
+    when(applicationUpdateRequestRepository.findByPwaApplicationDetail_pwaApplicationAndStatus(
+        pwaApplicationDetail.getPwaApplication(), ApplicationUpdateRequestStatus.OPEN
+    )).thenReturn(Optional.of(defaultUpdateRequest));
+
+    applicationUpdateRequestService.storeResponseWithoutSubmitting(pwaApplicationDetail, responderPerson, "my text");
+
+    verify(applicationUpdateRequestRepository, times(1)).save(appUpdateArgCapture.capture());
+
+    assertThat(appUpdateArgCapture.getValue()).satisfies(applicationUpdateRequest -> {
+      assertThat(applicationUpdateRequest.getResponseTimestamp()).isEqualTo(clock.instant());
+      assertThat(applicationUpdateRequest.getResponseOtherChanges()).isEqualTo("my text");
+      assertThat(applicationUpdateRequest.getResponseByPersonId()).isEqualTo(responderPerson.getId());
+      assertThat(applicationUpdateRequest.getResponsePwaApplicationDetail()).isEqualTo(pwaApplicationDetail);
+      assertThat(applicationUpdateRequest.getStatus()).isEqualTo(ApplicationUpdateRequestStatus.OPEN);
+    });
+
+    verifyNoInteractions(notifyService);
+
+  }
+
+  @Test(expected = PwaEntityNotFoundException.class)
+  public void storeResponseWithoutSubmitting_noOpenUpdateRequest() {
+    applicationUpdateRequestService.storeResponseWithoutSubmitting(pwaApplicationDetail, responderPerson, "RESPONSE");
   }
 
   @Test

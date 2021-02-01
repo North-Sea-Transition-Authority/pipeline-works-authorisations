@@ -40,7 +40,7 @@ import uk.co.ogauthority.pwa.model.entity.enums.HuooType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.huoo.PadOrganisationRole;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
-import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
@@ -87,7 +87,7 @@ public class AddHuooControllerTest extends PwaApplicationContextAbstractControll
     doCallRealMethod().when(applicationBreadcrumbService).fromWorkArea(any(), any());
 
     // set default checks for entire controller
-    endpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaContactService, pwaApplicationDetailService)
+    endpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaApplicationPermissionService, pwaApplicationDetailService)
         .setAllowedTypes(
             PwaApplicationType.INITIAL,
             PwaApplicationType.CAT_1_VARIATION,
@@ -95,7 +95,7 @@ public class AddHuooControllerTest extends PwaApplicationContextAbstractControll
             PwaApplicationType.DECOMMISSIONING,
             PwaApplicationType.OPTIONS_VARIATION,
             PwaApplicationType.HUOO_VARIATION)
-        .setAllowedContactRoles(PwaContactRole.PREPARER)
+        .setAllowedPermissions(PwaApplicationPermission.EDIT)
         .setAllowedStatuses(PwaApplicationStatus.DRAFT);
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
@@ -157,15 +157,14 @@ public class AddHuooControllerTest extends PwaApplicationContextAbstractControll
             )
         );
 
-    endpointTester.performAppContactRoleCheck(status().isOk(), status().isForbidden());
+    endpointTester.performAppPermissionCheck(status().isOk(), status().isForbidden());
 
   }
 
   @Test
   public void renderAddHuoo_modelContentsAsExpected() throws Exception {
 
-    when(pwaContactService.getContactRoles(any(), any()))
-        .thenReturn(EnumSet.allOf(PwaContactRole.class));
+    when(pwaApplicationPermissionService.getPermissions(any(), any())).thenReturn(EnumSet.allOf(PwaApplicationPermission.class));
 
     var orgRole = new PadOrganisationRole();
     when(padOrganisationRoleService.getOrganisationRole(pwaApplicationDetail, 1)).thenReturn(orgRole);
@@ -256,7 +255,7 @@ public class AddHuooControllerTest extends PwaApplicationContextAbstractControll
             )
         );
 
-    endpointTester.performAppContactRoleCheck(status().isOk(), status().isForbidden());
+    endpointTester.performAppPermissionCheck(status().isOk(), status().isForbidden());
 
   }
 
@@ -283,8 +282,7 @@ public class AddHuooControllerTest extends PwaApplicationContextAbstractControll
   @Test
   public void postEditOrgHuoo_notIncludingTreatyFields() throws Exception {
 
-    when(pwaContactService.getContactRoles(any(), any()))
-        .thenReturn(EnumSet.allOf(PwaContactRole.class));
+    when(pwaApplicationPermissionService.getPermissions(any(), any())).thenReturn(EnumSet.allOf(PwaApplicationPermission.class));
 
     MultiValueMap parameters = new LinkedMultiValueMap<String, String>() {{
       add("organisationUnitId", "2");

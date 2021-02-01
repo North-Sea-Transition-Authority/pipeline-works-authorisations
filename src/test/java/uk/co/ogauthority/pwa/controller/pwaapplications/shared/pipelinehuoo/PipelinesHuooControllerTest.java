@@ -34,7 +34,7 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
-import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
@@ -88,10 +88,10 @@ public class PipelinesHuooControllerTest extends PwaApplicationContextAbstractCo
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(APP_TYPE, APP_ID);
 
     when(pwaApplicationDetailService.getTipDetail(APP_ID)).thenReturn(pwaApplicationDetail);
-    when(pwaContactService.getContactRoles(eq(pwaApplicationDetail.getPwaApplication()), any()))
-        .thenReturn(EnumSet.allOf(PwaContactRole.class));
+    when(pwaApplicationPermissionService.getPermissions(eq(pwaApplicationDetail), any()))
+        .thenReturn(EnumSet.allOf(PwaApplicationPermission.class));
 
-    endpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaContactService, pwaApplicationDetailService)
+    endpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaApplicationPermissionService, pwaApplicationDetailService)
         .setAllowedTypes(
             PwaApplicationType.INITIAL,
             PwaApplicationType.CAT_1_VARIATION,
@@ -99,7 +99,7 @@ public class PipelinesHuooControllerTest extends PwaApplicationContextAbstractCo
             PwaApplicationType.HUOO_VARIATION,
             PwaApplicationType.DECOMMISSIONING,
             PwaApplicationType.OPTIONS_VARIATION)
-        .setAllowedContactRoles(PwaContactRole.PREPARER)
+        .setAllowedPermissions(PwaApplicationPermission.EDIT)
         .setAllowedStatuses(PwaApplicationStatus.DRAFT);
 
     pipelineAndOrgRoleGroupViewsByRole = PipelineAndOrgRoleGroupViewsByRoleTestUtil.createFrom(
@@ -149,7 +149,7 @@ public class PipelinesHuooControllerTest extends PwaApplicationContextAbstractCo
                 pwaApplicationType, pwaApplicationDetail.getMasterPwaApplicationId(), null
             ))));
 
-    endpointTester.performAppContactRoleCheck(status().isOk(), status().isForbidden());
+    endpointTester.performAppPermissionCheck(status().isOk(), status().isForbidden());
 
   }
 
@@ -202,7 +202,7 @@ public class PipelinesHuooControllerTest extends PwaApplicationContextAbstractCo
                 pwaApplicationType, pwaApplicationDetail.getMasterPwaApplicationId(), null
             ))));
 
-    endpointTester.performAppContactRoleCheck(status().isOk(), status().isForbidden());
+    endpointTester.performAppPermissionCheck(status().isOk(), status().isForbidden());
 
   }
 

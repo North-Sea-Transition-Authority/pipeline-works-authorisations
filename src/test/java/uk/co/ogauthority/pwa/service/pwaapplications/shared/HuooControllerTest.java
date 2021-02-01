@@ -30,7 +30,7 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.generic.SummaryForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
-import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
@@ -68,7 +68,7 @@ public class HuooControllerTest extends PwaApplicationContextAbstractControllerT
     doCallRealMethod().when(applicationBreadcrumbService).fromWorkArea(any(), any());
 
     // set default checks for entire controller
-    endpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaContactService, pwaApplicationDetailService)
+    endpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaApplicationPermissionService, pwaApplicationDetailService)
         .setAllowedTypes(
             PwaApplicationType.INITIAL,
             PwaApplicationType.CAT_1_VARIATION,
@@ -76,7 +76,7 @@ public class HuooControllerTest extends PwaApplicationContextAbstractControllerT
             PwaApplicationType.DECOMMISSIONING,
             PwaApplicationType.HUOO_VARIATION,
             PwaApplicationType.OPTIONS_VARIATION)
-        .setAllowedContactRoles(PwaContactRole.PREPARER)
+        .setAllowedPermissions(PwaApplicationPermission.EDIT)
         .setAllowedStatuses(PwaApplicationStatus.DRAFT);
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
@@ -133,14 +133,14 @@ public class HuooControllerTest extends PwaApplicationContextAbstractControllerT
             )
         );
 
-    endpointTester.performAppContactRoleCheck(status().isOk(), status().isForbidden());
+    endpointTester.performAppPermissionCheck(status().isOk(), status().isForbidden());
 
   }
 
   @Test
   public void postHuooSummary_Invalid() throws Exception {
 
-    when(pwaContactService.getContactRoles(any(), any())).thenReturn(Set.of(PwaContactRole.PREPARER));
+    when(pwaApplicationPermissionService.getPermissions(any(), any())).thenReturn(Set.of(PwaApplicationPermission.EDIT));
 
     ControllerTestUtils.failValidationWhenPost(padOrganisationRoleService, new SummaryForm(), ValidationType.FULL);
 
@@ -162,7 +162,7 @@ public class HuooControllerTest extends PwaApplicationContextAbstractControllerT
   @Test
   public void postHuooSummary_Valid() throws Exception {
 
-    when(pwaContactService.getContactRoles(any(), any())).thenReturn(Set.of(PwaContactRole.PREPARER));
+    when(pwaApplicationPermissionService.getPermissions(any(), any())).thenReturn(Set.of(PwaApplicationPermission.EDIT));
 
     ControllerTestUtils.passValidationWhenPost(padOrganisationRoleService, new SummaryForm(), ValidationType.FULL);
 

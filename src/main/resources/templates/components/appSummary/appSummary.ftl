@@ -37,7 +37,7 @@
     <@defaultPagePaneContent pageHeading=pageHeading>
 
         <#if errorList?has_content>
-            <@fdsError.errorSummary errorItems=errorList errorTitle="Errors"/>
+            <@fdsError.errorSummary errorItems=errorList />
         </#if>
 
         ${aboveSummaryInsert!}

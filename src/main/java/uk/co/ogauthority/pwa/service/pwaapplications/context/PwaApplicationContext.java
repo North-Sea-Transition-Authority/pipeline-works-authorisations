@@ -6,7 +6,7 @@ import uk.co.ogauthority.pwa.model.entity.files.PadFile;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
-import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 
 /**
@@ -14,20 +14,20 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
  */
 public class PwaApplicationContext {
 
-  private PwaApplicationDetail applicationDetail;
+  private final PwaApplicationDetail applicationDetail;
 
   private final WebUserAccount user;
-  private Set<PwaContactRole> userRoles;
+  private final Set<PwaApplicationPermission> permissions;
 
   private PadPipeline padPipeline;
   private PadFile padFile;
 
   public PwaApplicationContext(PwaApplicationDetail applicationDetail,
                                WebUserAccount user,
-                               Set<PwaContactRole> userRoles) {
+                               Set<PwaApplicationPermission> permissions) {
     this.applicationDetail = applicationDetail;
     this.user = user;
-    this.userRoles = userRoles;
+    this.permissions = permissions;
   }
 
   public PwaApplicationDetail getApplicationDetail() {
@@ -38,8 +38,8 @@ public class PwaApplicationContext {
     return user;
   }
 
-  public Set<PwaContactRole> getUserRoles() {
-    return userRoles;
+  public Set<PwaApplicationPermission> getPermissions() {
+    return permissions;
   }
 
   public PwaApplication getPwaApplication() {
@@ -69,4 +69,5 @@ public class PwaApplicationContext {
   public int getMasterPwaApplicationId() {
     return this.applicationDetail.getMasterPwaApplicationId();
   }
+
 }

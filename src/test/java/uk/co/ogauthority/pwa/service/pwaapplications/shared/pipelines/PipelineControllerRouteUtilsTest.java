@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.EnumSet;
 import java.util.Objects;
+import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
@@ -15,7 +16,6 @@ import uk.co.ogauthority.pwa.exception.AccessDeniedException;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineStatus;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
-import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
@@ -32,8 +32,7 @@ public class PipelineControllerRouteUtilsTest {
   @Before
   public void setUp() {
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
-    applicationContext = new PwaApplicationContext(pwaApplicationDetail, new WebUserAccount(1), EnumSet.allOf(
-        PwaContactRole.class));
+    applicationContext = new PwaApplicationContext(pwaApplicationDetail, new WebUserAccount(1), Set.of());
     redirectAttributes = new RedirectAttributesModelMap();
 
     padPipeline = new PadPipeline();

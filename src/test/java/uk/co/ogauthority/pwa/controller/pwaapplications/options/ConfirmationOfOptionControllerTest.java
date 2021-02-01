@@ -35,7 +35,7 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.options.PadConfirmationOfOption;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
-import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
@@ -73,23 +73,23 @@ public class ConfirmationOfOptionControllerTest extends PwaApplicationContextAbs
         new WebUserAccount(1),
         EnumSet.allOf(PwaUserPrivilege.class));
 
-    endpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaContactService, pwaApplicationDetailService)
+    endpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaApplicationPermissionService, pwaApplicationDetailService)
         .setAllowedTypes(PwaApplicationType.OPTIONS_VARIATION)
-        .setAllowedContactRoles(PwaContactRole.PREPARER)
+        .setAllowedPermissions(PwaApplicationPermission.EDIT)
         .setAllowedStatuses(PwaApplicationStatus.DRAFT);
 
-    when(pwaContactService.getContactRoles(any(), any())).thenReturn(Set.of(PwaContactRole.PREPARER));
+    when(pwaApplicationPermissionService.getPermissions(any(), any())).thenReturn(Set.of(PwaApplicationPermission.EDIT));
     when(pwaApplicationDetailService.getTipDetail(APP_ID)).thenReturn(pwaApplicationDetail);
   }
 
   @Test
-  public void renderConfirmOption_contactSmokeTest() {
+  public void renderConfirmOption_permissionSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(ConfirmationOfOptionController.class)
                 .renderConfirmOption(type, applicationDetail.getMasterPwaApplicationId(), null, null)));
 
-    endpointTester.performAppContactRoleCheck(status().isOk(), status().isForbidden());
+    endpointTester.performAppPermissionCheck(status().isOk(), status().isForbidden());
   }
 
   @Test
@@ -198,7 +198,7 @@ public class ConfirmationOfOptionControllerTest extends PwaApplicationContextAbs
   }
 
   @Test
-  public void confirmOption_contactSmokeTest() {
+  public void confirmOption_permissionSmokeTest() {
     mockFailValidation();
 
     endpointTester.setRequestMethod(HttpMethod.POST)
@@ -208,7 +208,7 @@ public class ConfirmationOfOptionControllerTest extends PwaApplicationContextAbs
                 .confirmOption(type, applicationDetail.getMasterPwaApplicationId(), null, null, null,
                     ValidationType.FULL)));
 
-    endpointTester.performAppContactRoleCheck(status().isOk(), status().isForbidden());
+    endpointTester.performAppPermissionCheck(status().isOk(), status().isForbidden());
   }
 
   @Test

@@ -6,6 +6,7 @@ package uk.co.ogauthority.pwa.model.enums.notify;
 public enum NotifyTemplate {
 
   // Application workflow changes
+  REVIEW_AND_SUBMIT_APPLICATION("REVIEW_AND_SUBMIT_APPLICATION_V1"),
   APPLICATION_SUBMITTED("APPLICATION_SUBMITTED_V1"),
 
   APPLICATION_UPDATE_REQUESTED("APPLICATION_UPDATE_REQUEST_V1"),

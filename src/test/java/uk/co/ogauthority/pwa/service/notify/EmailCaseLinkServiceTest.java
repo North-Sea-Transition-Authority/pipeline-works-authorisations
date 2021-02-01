@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.service.notify;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -10,6 +11,8 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureDataJpa;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
+import uk.co.ogauthority.pwa.controller.pwaapplications.shared.submission.ReviewAndSubmitController;
+import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.util.CaseManagementUtils;
@@ -31,6 +34,17 @@ public class EmailCaseLinkServiceTest {
     String caseManagementLink = emailCaseLinkService.generateCaseManagementLink(detail.getPwaApplication());
 
     assertThat(caseManagementLink).isEqualTo("http://test/test" + CaseManagementUtils.routeCaseManagement(detail.getPwaApplication()));
+
+  }
+
+  @Test
+  public void generateReviewAndSubmitLink_application() {
+
+    var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
+    String caseManagementLink = emailCaseLinkService.generateReviewAndSubmitLink(detail.getPwaApplication());
+
+    assertThat(caseManagementLink).isEqualTo("http://test/test" + ReverseRouter.route(on(ReviewAndSubmitController.class)
+        .review(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null, null)));
 
   }
 

@@ -14,17 +14,14 @@ import org.springframework.context.annotation.FilterType;
 import org.springframework.http.HttpMethod;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.ogauthority.pwa.controller.PwaApplicationContextAbstractControllerTest;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
-import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
-import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
 import uk.co.ogauthority.pwa.service.pwaapplications.workflow.PwaApplicationDeleteService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
-import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(controllers = DeleteApplicationController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = PwaApplicationContextService.class))
@@ -39,27 +36,24 @@ public class DeleteApplicationControllerTest extends PwaApplicationContextAbstra
 
   private PwaApplicationEndpointTestBuilder endpointTester;
 
-  private PwaApplicationDetail pwaApplicationDetail;
-
-
   @Before
   public void setUp() throws Exception {
-    endpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaContactService, pwaApplicationDetailService)
-        .setAllowedContactRoles(PwaContactRole.PREPARER)
+
+    endpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaApplicationPermissionService, pwaApplicationDetailService)
+        .setAllowedPermissions(PwaApplicationPermission.EDIT)
         .setAllowedStatuses(PwaApplicationStatus.DRAFT);
 
-    pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
   }
 
 
   @Test
-  public void renderDeleteApplication_contactSmokeTest() {
+  public void renderDeleteApplication_permissionSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(DeleteApplicationController.class)
                 .renderDeleteApplication(type, applicationDetail.getMasterPwaApplicationId(),null)));
 
-    endpointTester.performAppContactRoleCheck(status().isOk(), status().isForbidden());
+    endpointTester.performAppPermissionCheck(status().isOk(), status().isForbidden());
   }
 
   @Test
@@ -85,14 +79,14 @@ public class DeleteApplicationControllerTest extends PwaApplicationContextAbstra
   }
 
   @Test
-  public void postDeleteApplication_contactSmokeTest() {
+  public void postDeleteApplication_permissionSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.POST)
         .addRequestParam(ValidationType.FULL.getButtonText(), ValidationType.FULL.getButtonText())
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(DeleteApplicationController.class)
                 .postDeleteApplication(type, applicationDetail.getMasterPwaApplicationId(), null, null)));
 
-    endpointTester.performAppContactRoleCheck(status().is3xxRedirection(), status().isForbidden());
+    endpointTester.performAppPermissionCheck(status().is3xxRedirection(), status().isForbidden());
 
   }
 

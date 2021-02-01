@@ -1,42 +1,35 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.context;
 
-import java.util.Collections;
 import java.util.Objects;
 import java.util.Set;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.exception.AccessDeniedException;
-import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
-import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
 import uk.co.ogauthority.pwa.util.ApplicationContextUtils;
 
 @Service
 public class PwaApplicationContextService {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(PwaApplicationContextService.class);
-
   private final PwaApplicationDetailService detailService;
-  private final PwaContactService pwaContactService;
   private final PadPipelineService padPipelineService;
   private final PadFileService padFileService;
+  private final PwaApplicationPermissionService pwaApplicationPermissionService;
 
   @Autowired
   public PwaApplicationContextService(PwaApplicationDetailService detailService,
-                                      PwaContactService pwaContactService,
                                       PadPipelineService padPipelineService,
-                                      PadFileService padFileService) {
+                                      PadFileService padFileService,
+                                      PwaApplicationPermissionService pwaApplicationPermissionService) {
     this.detailService = detailService;
-    this.pwaContactService = pwaContactService;
     this.padPipelineService = padPipelineService;
     this.padFileService = padFileService;
+    this.pwaApplicationPermissionService = pwaApplicationPermissionService;
   }
 
   /**
@@ -50,9 +43,9 @@ public class PwaApplicationContextService {
 
     ApplicationContextUtils.performAppStatusCheck(contextParams.getStatus(), context.getApplicationDetail());
     performApplicationTypeCheck(contextParams.getTypes(), context.getApplicationType(), applicationId);
-    performPrivilegeCheck(
-        contextParams.getPermissions(),
-        context.getUserRoles(),
+    performPermissionCheck(
+        contextParams,
+        context,
         contextParams.getAuthenticatedUserAccount(),
         applicationId);
 
@@ -76,9 +69,12 @@ public class PwaApplicationContextService {
    */
   public PwaApplicationContext getApplicationContext(Integer applicationId,
                                                      AuthenticatedUserAccount authenticatedUser) {
+
     var detail = detailService.getTipDetail(applicationId);
-    var roles = pwaContactService.getContactRoles(detail.getPwaApplication(), authenticatedUser.getLinkedPerson());
-    return new PwaApplicationContext(detail, authenticatedUser, roles);
+
+    var permissions = pwaApplicationPermissionService.getPermissions(detail, authenticatedUser.getLinkedPerson());
+
+    return new PwaApplicationContext(detail, authenticatedUser, permissions);
   }
 
   /**
@@ -99,30 +95,30 @@ public class PwaApplicationContextService {
   }
 
   /**
-   * If the user has ALL of the required permissions then pass, otherwise throw a relevant exception.
+   * If the user has (ALL of the required permissions OR ALL of the required holder roles) then pass, otherwise throw a relevant exception.
    */
-  private void performPrivilegeCheck(Set<PwaApplicationPermission> requiredPermissions,
-                                     Set<PwaContactRole> usersRoles,
-                                     AuthenticatedUserAccount user,
-                                     int applicationId) {
+  private void performPermissionCheck(PwaApplicationContextParams contextParams,
+                                      PwaApplicationContext context,
+                                      AuthenticatedUserAccount user,
+                                      int applicationId) {
 
-    if (usersRoles.isEmpty()) {
+
+    var requiredPermissions = contextParams.getPermissions();
+
+    if (context.getPermissions().isEmpty()) {
       throwPermissionException(user.getWuaId(), applicationId, requiredPermissions);
     }
 
-    if (!requiredPermissions.isEmpty()) {
+    boolean userHasRequiredPermissions = context.getPermissions().containsAll(requiredPermissions);
 
-      boolean userHasRequiredPermissions = requiredPermissions.stream()
-          .noneMatch(p -> Collections.disjoint(p.getRoles(), usersRoles));
-
-      if (!userHasRequiredPermissions) {
-        throwPermissionException(user.getWuaId(), applicationId, requiredPermissions);
-      }
+    if (!userHasRequiredPermissions) {
+      throwPermissionException(user.getWuaId(), applicationId, requiredPermissions);
     }
 
   }
 
-  private void throwPermissionException(int wuaId, int applicationId,
+  private void throwPermissionException(int wuaId,
+                                        int applicationId,
                                         Set<PwaApplicationPermission> requiredPermissions) {
     throw new AccessDeniedException(
         String.format(

@@ -1,7 +1,6 @@
 package uk.co.ogauthority.pwa.controller.pwaapplications.shared.submission;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -21,6 +20,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.http.HttpMethod;
+import org.springframework.mock.web.MockHttpSession;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
@@ -28,7 +28,7 @@ import uk.co.ogauthority.pwa.controller.PwaApplicationContextAbstractControllerT
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
-import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
@@ -46,7 +46,8 @@ public class SubmitConfirmationControllerTest extends PwaApplicationContextAbstr
   @MockBean
   private ApplicationSummaryFactory applicationSummaryFactory;
 
-  private PwaApplicationEndpointTestBuilder endpointTester;
+  private PwaApplicationEndpointTestBuilder editEndpointTester;
+  private PwaApplicationEndpointTestBuilder submitEndpointTester;
 
   private PwaApplicationDetail detail;
   private ApplicationSubmissionSummary applicationSubmissionSummary;
@@ -56,12 +57,14 @@ public class SubmitConfirmationControllerTest extends PwaApplicationContextAbstr
       EnumSet.allOf(PwaUserPrivilege.class)
   );
 
+  private MockHttpSession session;
+
   @Before
   public void setup() {
 
-    endpointTester = new PwaApplicationEndpointTestBuilder(
+    editEndpointTester = new PwaApplicationEndpointTestBuilder(
         this.mockMvc,
-        pwaContactService,
+        pwaApplicationPermissionService,
         pwaApplicationDetailService
     ).setAllowedTypes(
         PwaApplicationType.INITIAL,
@@ -70,9 +73,23 @@ public class SubmitConfirmationControllerTest extends PwaApplicationContextAbstr
         PwaApplicationType.DECOMMISSIONING,
         PwaApplicationType.DEPOSIT_CONSENT,
         PwaApplicationType.OPTIONS_VARIATION,
-        PwaApplicationType.HUOO_VARIATION
-    )
-        .setAllowedContactRoles(PwaContactRole.PREPARER)
+        PwaApplicationType.HUOO_VARIATION)
+    .setAllowedPermissions(PwaApplicationPermission.EDIT)
+    .setAllowedStatuses(EnumSet.allOf(PwaApplicationStatus.class).toArray(PwaApplicationStatus[]::new));
+
+    submitEndpointTester = new PwaApplicationEndpointTestBuilder(
+        this.mockMvc,
+        pwaApplicationPermissionService,
+        pwaApplicationDetailService
+    ).setAllowedTypes(
+        PwaApplicationType.INITIAL,
+        PwaApplicationType.CAT_1_VARIATION,
+        PwaApplicationType.CAT_2_VARIATION,
+        PwaApplicationType.DECOMMISSIONING,
+        PwaApplicationType.DEPOSIT_CONSENT,
+        PwaApplicationType.OPTIONS_VARIATION,
+        PwaApplicationType.HUOO_VARIATION)
+        .setAllowedPermissions(PwaApplicationPermission.SUBMIT)
         .setAllowedStatuses(EnumSet.allOf(PwaApplicationStatus.class).toArray(PwaApplicationStatus[]::new));
 
     detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL, APP_ID);
@@ -85,54 +102,56 @@ public class SubmitConfirmationControllerTest extends PwaApplicationContextAbstr
         "Some User"
     );
 
-    when(pwaContactService.getContactRoles(eq(detail.getPwaApplication()), any()))
-        .thenReturn(EnumSet.allOf(PwaContactRole.class));
+    when(pwaApplicationPermissionService.getPermissions(detail, user.getLinkedPerson())).thenReturn(
+        EnumSet.allOf(PwaApplicationPermission.class));
 
     when(applicationSummaryFactory.createSubmissionSummary(any())).thenReturn(applicationSubmissionSummary);
+
+    session = new MockHttpSession();
+    session.setAttribute("submitterPersonName", "name");
+
   }
 
-
   @Test
-  public void confirmation_roleChecks() {
+  public void confirmSubmission_permissionChecks() {
 
-    endpointTester.setRequestMethod(HttpMethod.GET)
+    submitEndpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((detail, appType) ->
             ReverseRouter.route(on(SubmitConfirmationController.class)
-                .confirmation(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null))
+                .confirmSubmission(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null))
         )
-        .performAppContactRoleCheck(status().isOk(), status().isForbidden());
+        .performAppPermissionCheck(status().isOk(), status().isForbidden());
 
   }
 
   @Test
-  public void confirmation_statusChecks() {
+  public void confirmSubmission_statusChecks() {
 
-    endpointTester.setRequestMethod(HttpMethod.GET)
+    submitEndpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((detail, appType) ->
             ReverseRouter.route(on(SubmitConfirmationController.class)
-                .confirmation(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null))
+                .confirmSubmission(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null))
         )
         .performAppStatusChecks(status().isOk(), status().isNotFound());
   }
 
   @Test
-  public void confirmation_typeChecks() {
+  public void confirmSubmission_typeChecks() {
 
-    endpointTester.setRequestMethod(HttpMethod.GET)
+    submitEndpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((detail, appType) ->
             ReverseRouter.route(on(SubmitConfirmationController.class)
-                .confirmation(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null))
+                .confirmSubmission(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null))
         )
         .performAppTypeChecks(status().isOk(), status().isForbidden());
   }
 
-
   @Test
-  public void confirmation_hasSubmissionSummaryObject() throws Exception {
+  public void confirmSubmission_hasSubmissionSummaryObject() throws Exception {
     when(pwaApplicationDetailService.getTipDetail(detail.getMasterPwaApplicationId())).thenReturn(detail);
 
     mockMvc.perform(get(ReverseRouter.route(on(SubmitConfirmationController.class)
-            .confirmation(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null))
+            .confirmSubmission(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null))
         )
             .with(authenticatedUserAndSession(user))
     )
@@ -142,6 +161,44 @@ public class SubmitConfirmationControllerTest extends PwaApplicationContextAbstr
     .andExpect(model().attribute("submissionSummary", applicationSubmissionSummary));
 
     verify(applicationSummaryFactory, times(1)).createSubmissionSummary(detail);
+  }
+
+  @Test
+  public void confirmSentToSubmitter_permissionChecks() {
+
+    editEndpointTester.setRequestMethod(HttpMethod.GET)
+        .setEndpointUrlProducer((detail, appType) ->
+            ReverseRouter.route(on(SubmitConfirmationController.class)
+                .confirmSentToSubmitter(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null, null))
+        )
+        .setSession(session)
+        .performAppPermissionCheck(status().isOk(), status().isForbidden());
+
+  }
+
+  @Test
+  public void confirmSentToSubmitter_statusChecks() {
+
+    editEndpointTester.setRequestMethod(HttpMethod.GET)
+        .setEndpointUrlProducer((detail, appType) ->
+            ReverseRouter.route(on(SubmitConfirmationController.class)
+                .confirmSentToSubmitter(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null, null))
+        )
+        .setSession(session)
+        .performAppStatusChecks(status().isOk(), status().isNotFound());
+  }
+
+  @Test
+  public void confirmSentToSubmitter_typeChecks() {
+
+    editEndpointTester.setRequestMethod(HttpMethod.GET)
+        .setEndpointUrlProducer((detail, appType) ->
+            ReverseRouter.route(on(SubmitConfirmationController.class)
+                .confirmSentToSubmitter(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null, null))
+        )
+        .setSession(session)
+        .performAppTypeChecks(status().isOk(), status().isForbidden());
+
   }
 
 }

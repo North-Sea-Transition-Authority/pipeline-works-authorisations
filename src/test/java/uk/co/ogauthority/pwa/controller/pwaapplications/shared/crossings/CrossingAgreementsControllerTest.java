@@ -27,7 +27,7 @@ import uk.co.ogauthority.pwa.model.entity.enums.MedianLineStatus;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadMedianLineAgreement;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
-import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
@@ -89,12 +89,11 @@ public class CrossingAgreementsControllerTest extends PwaApplicationContextAbstr
   public void setUp() {
         pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
 
-    var userRoles = EnumSet.allOf(PwaContactRole.class);
     var wua = new WebUserAccount(1);
     user = new AuthenticatedUserAccount(wua, Set.of());
 
     // support application context service
-    when(pwaContactService.getContactRoles(eq(pwaApplicationDetail.getPwaApplication()), any())).thenReturn(userRoles);
+    when(pwaApplicationPermissionService.getPermissions(eq(pwaApplicationDetail), any())).thenReturn(EnumSet.allOf(PwaApplicationPermission.class));
     when(pwaApplicationDetailService.getTipDetail(APP_ID)).thenReturn(pwaApplicationDetail);
     when(crossingAgreementsService.getValidationResult(pwaApplicationDetail)).thenReturn(new CrossingAgreementsValidationResult(Set.of()));
   }

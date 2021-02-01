@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.controller.pwaapplications.shared.submission;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
+import javax.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,7 +30,6 @@ import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
     PwaApplicationType.OPTIONS_VARIATION,
     PwaApplicationType.HUOO_VARIATION
 })
-@PwaApplicationPermissionCheck(permissions = PwaApplicationPermission.SUBMIT)
 public class SubmitConfirmationController {
 
   private final ApplicationSummaryFactory applicationSummaryFactory;
@@ -39,21 +39,38 @@ public class SubmitConfirmationController {
     this.applicationSummaryFactory = applicationSummaryFactory;
   }
 
-
-  @GetMapping
-  public ModelAndView confirmation(@PathVariable("applicationType")
+  @GetMapping("/submitted")
+  @PwaApplicationPermissionCheck(permissions = PwaApplicationPermission.SUBMIT)
+  public ModelAndView confirmSubmission(@PathVariable("applicationType")
                                    @ApplicationTypeUrl PwaApplicationType applicationType,
-                                   @PathVariable("applicationId") int applicationId,
-                                   PwaApplicationContext applicationContext) {
+                                        @PathVariable("applicationId") int applicationId,
+                                        PwaApplicationContext applicationContext) {
 
     var submissionSummary = applicationSummaryFactory.createSubmissionSummary(
         applicationContext.getApplicationDetail());
-    var modelAndView = new ModelAndView("pwaApplication/shared/submission/submitConfirmation")
+
+    return new ModelAndView("pwaApplication/shared/submission/submitConfirmation")
         .addObject("workAreaUrl", ReverseRouter.route(on(WorkAreaController.class).renderWorkArea(null, null, null)))
         .addObject("submissionSummary", submissionSummary)
         .addObject("isFirstVersion", applicationContext.getApplicationDetail().isFirstVersion());
 
-    return modelAndView;
+  }
+
+  @GetMapping("/sent-to-submitter")
+  @PwaApplicationPermissionCheck(permissions = PwaApplicationPermission.EDIT)
+  public ModelAndView confirmSentToSubmitter(@PathVariable("applicationType")
+                                             @ApplicationTypeUrl PwaApplicationType applicationType,
+                                             @PathVariable("applicationId") int applicationId,
+                                             PwaApplicationContext applicationContext,
+                                             HttpSession session) {
+
+    var submitterPersonName = (String) session.getAttribute("submitterPersonName");
+
+    return new ModelAndView("pwaApplication/shared/submission/sentToSubmitter")
+        .addObject("workAreaUrl", ReverseRouter.route(on(WorkAreaController.class).renderWorkArea(null, null, null)))
+        .addObject("isFirstVersion", applicationContext.getApplicationDetail().isFirstVersion())
+        .addObject("submitterPersonName", submitterPersonName)
+        .addObject("applicationReference", applicationContext.getPwaApplication().getAppReference());
 
   }
 

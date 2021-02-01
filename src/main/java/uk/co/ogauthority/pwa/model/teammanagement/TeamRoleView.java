@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.model.teammanagement;
 
+import java.util.Objects;
 import uk.co.ogauthority.pwa.model.Checkable;
 import uk.co.ogauthority.pwa.model.teams.PwaRole;
 
@@ -50,4 +51,24 @@ public class TeamRoleView implements Checkable {
         pwaRole.getDescription(),
         pwaRole.getDisplaySequence());
   }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    TeamRoleView that = (TeamRoleView) o;
+    return displaySequence == that.displaySequence && Objects.equals(roleName,
+        that.roleName) && Objects.equals(title, that.title) && Objects.equals(description,
+        that.description);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(roleName, title, description, displaySequence);
+  }
+
 }

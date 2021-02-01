@@ -36,8 +36,10 @@ import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
+import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationPermissionService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
 import uk.co.ogauthority.pwa.service.tasklist.CrossingAgreementsTaskListService;
+import uk.co.ogauthority.pwa.service.teams.PwaHolderTeamService;
 import uk.co.ogauthority.pwa.service.teams.TeamService;
 
 @Import(PwaApplicationContextAbstractControllerTest.AbstractControllerTestConfiguration.class)
@@ -86,6 +88,12 @@ public abstract class PwaApplicationContextAbstractControllerTest {
 
   @MockBean
   private PwaAppProcessingContextService appProcessingContextService;
+
+  @MockBean
+  protected PwaApplicationPermissionService pwaApplicationPermissionService;
+
+  @MockBean
+  private PwaHolderTeamService pwaHolderTeamService;
 
   @SpyBean
   private ControllerHelperService controllerHelperService;

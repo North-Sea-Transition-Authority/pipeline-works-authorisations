@@ -18,13 +18,11 @@ import uk.co.ogauthority.pwa.model.entity.files.PadFile;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
-import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
-import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -34,13 +32,13 @@ public class PwaApplicationContextServiceTest {
   private PwaApplicationDetailService detailService;
 
   @Mock
-  private PwaContactService contactService;
-
-  @Mock
   private PadPipelineService padPipelineService;
 
   @Mock
   private PadFileService padFileService;
+
+  @Mock
+  private PwaApplicationPermissionService pwaApplicationPermissionService;
 
   private PwaApplicationContextService contextService;
 
@@ -60,10 +58,10 @@ public class PwaApplicationContextServiceTest {
     detail = new PwaApplicationDetail(application, 1, 1, Instant.now());
     detail.setStatus(PwaApplicationStatus.DRAFT);
 
-    contextService = new PwaApplicationContextService(detailService, contactService, padPipelineService, padFileService);
+    contextService = new PwaApplicationContextService(detailService, padPipelineService, padFileService, pwaApplicationPermissionService);
 
     when(detailService.getTipDetail(1)).thenReturn(detail);
-    when(contactService.getContactRoles(application, user.getLinkedPerson())).thenReturn(Set.of(PwaContactRole.PREPARER));
+    when(pwaApplicationPermissionService.getPermissions(detail, user.getLinkedPerson())).thenReturn(Set.of(PwaApplicationPermission.EDIT));
 
     var padPipeline = new PadPipeline();
     padPipeline.setPwaApplicationDetail(detail);
@@ -83,13 +81,13 @@ public class PwaApplicationContextServiceTest {
 
     assertThat(appContext.getApplicationDetail()).isEqualTo(detail);
     assertThat(appContext.getUser()).isEqualTo(user);
-    assertThat(appContext.getUserRoles()).containsExactly(PwaContactRole.PREPARER);
+    assertThat(appContext.getPermissions()).containsExactly(PwaApplicationPermission.EDIT);
 
   }
 
   @Test(expected = AccessDeniedException.class)
   public void validateAndCreate_noChecks_userHasNoRolesForApp() {
-    when(contactService.getContactRoles(application, user.getLinkedPerson())).thenReturn(Set.of());
+    when(pwaApplicationPermissionService.getPermissions(detail, user.getLinkedPerson())).thenReturn(Set.of());
     var contextBuilder = new PwaApplicationContextParams(1, user);
     contextService.validateAndCreate(contextBuilder);
   }
@@ -104,7 +102,7 @@ public class PwaApplicationContextServiceTest {
 
     assertThat(appContext.getApplicationDetail()).isEqualTo(detail);
     assertThat(appContext.getUser()).isEqualTo(user);
-    assertThat(appContext.getUserRoles()).containsExactly(PwaContactRole.PREPARER);
+    assertThat(appContext.getPermissions()).containsExactly(PwaApplicationPermission.EDIT);
 
   }
 
@@ -122,15 +120,27 @@ public class PwaApplicationContextServiceTest {
     var appContext = contextService.validateAndCreate(builder);
     assertThat(appContext.getApplicationDetail()).isEqualTo(detail);
     assertThat(appContext.getUser()).isEqualTo(user);
-    assertThat(appContext.getUserRoles()).containsExactly(PwaContactRole.PREPARER);
+    assertThat(appContext.getPermissions()).containsExactly(PwaApplicationPermission.EDIT);
   }
 
   @Test(expected = AccessDeniedException.class)
   public void validateAndCreate_permissionsCheck_invalid() {
-    when(contactService.getContactRoles(application, user.getLinkedPerson())).thenReturn(Set.of(PwaContactRole.VIEWER));
+    when(pwaApplicationPermissionService.getPermissions(detail, user.getLinkedPerson())).thenReturn(Set.of(PwaApplicationPermission.VIEW));
     var builder = new PwaApplicationContextParams(1, user)
         .requiredUserPermissions(Set.of(PwaApplicationPermission.EDIT));
     contextService.validateAndCreate(builder);
+  }
+
+  @Test(expected = AccessDeniedException.class)
+  public void validateAndCreate_permissionsCheck_invalid_noPermissions() {
+
+    var builder = new PwaApplicationContextParams(1, user)
+        .requiredUserPermissions(Set.of(PwaApplicationPermission.SUBMIT));
+
+    when(pwaApplicationPermissionService.getPermissions(detail, user.getLinkedPerson())).thenReturn(Set.of());
+
+    contextService.validateAndCreate(builder);
+
   }
 
   @Test
@@ -149,7 +159,7 @@ public class PwaApplicationContextServiceTest {
 
       assertThat(appContext.getApplicationDetail()).isEqualTo(detail);
       assertThat(appContext.getUser()).isEqualTo(user);
-      assertThat(appContext.getUserRoles()).containsExactly(PwaContactRole.PREPARER);
+      assertThat(appContext.getPermissions()).containsExactly(PwaApplicationPermission.EDIT);
 
     });
 
@@ -178,7 +188,7 @@ public class PwaApplicationContextServiceTest {
     var appContext = contextService.validateAndCreate(builder);
     assertThat(appContext.getApplicationDetail()).isEqualTo(detail);
     assertThat(appContext.getUser()).isEqualTo(user);
-    assertThat(appContext.getUserRoles()).containsExactly(PwaContactRole.PREPARER);
+    assertThat(appContext.getPermissions()).containsExactly(PwaApplicationPermission.EDIT);
   }
 
   @Test(expected = PwaEntityNotFoundException.class)

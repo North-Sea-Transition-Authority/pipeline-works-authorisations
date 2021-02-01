@@ -28,7 +28,7 @@ import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 @Controller
 @RequestMapping("/pwa-application/{applicationType}/{applicationId}/delete-application")
 @PwaApplicationStatusCheck(status = PwaApplicationStatus.DRAFT)
-@PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.EDIT, PwaApplicationPermission.SUBMIT})
+@PwaApplicationPermissionCheck(permissions = PwaApplicationPermission.EDIT)
 public class DeleteApplicationController {
 
   private final PwaApplicationDeleteService pwaApplicationDeleteService;

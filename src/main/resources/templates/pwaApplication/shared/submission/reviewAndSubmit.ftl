@@ -3,9 +3,12 @@
 <#-- @ftlvariable name="appSummaryView" type="uk.co.ogauthority.pwa.model.view.appsummary.ApplicationSummaryView" -->
 <#-- @ftlvariable name="combinedSummaryHtml" type="java.lang.String" -->
 <#-- @ftlvariable name="taskListUrl" type="java.lang.String" -->
+<#-- @ftlvariable name="submitUrl" type="java.lang.String" -->
 <#-- @ftlvariable name="applicationReference" type="java.lang.String" -->
 <#-- @ftlvariable name="openUpdateRequest" type="java.lang.Boolean" -->
 <#-- @ftlvariable name="updateRequestView" type="uk.co.ogauthority.pwa.model.view.appprocessing.applicationupdates.ApplicationUpdateRequestView" -->
+<#-- @ftlvariable name="submitterCandidates" type="java.util.Map<java.lang.Integer, java.lang.String>" -->
+<#-- @ftlvariable name="userPermissions" type="java.util.Set<uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission>" -->
 
 <#assign pageHeading="Review and Submit Application ${applicationReference}"/>
 
@@ -24,10 +27,11 @@
     errorList=errorList
     aboveSummaryInsert=updateRequestBanner!"">
 
-        <@fdsForm.htmlForm>
+        <@fdsForm.htmlForm actionUrl=springUrl(submitUrl)>
           <!-- Submit button macro not used to allow for hiding of button when application is not valid. -->
 
-            <#if openUpdateRequest>
+            <#if openUpdateRequest && userPermissions?seq_contains("EDIT")>
+
                 <@fdsRadio.radioGroup
                 path="form.madeOnlyRequestedChanges"
                 labelText="Describe the update"
@@ -41,8 +45,22 @@
 
             </#if>
 
-            <@fdsAction.button buttonText="Submit" buttonValue="submit" />
+            <#if submitterCandidates?has_content>
+
+                <h2 class="govuk-heading-l">Application submission</h2>
+
+                <@fdsSearchSelector.searchSelectorEnhanced
+                    path="form.submitterPersonId"
+                    options=submitterCandidates
+                    labelText="Select person to submit the application to the OGA"
+                    hintText="Only people with submission permissions in the holder organisation are allowed to submit this application to the OGA"
+                    formGroupClass="govuk-!-width-two-thirds"/>
+
+            </#if>
+
+            <@fdsAction.button buttonText=submitterCandidates?has_content?then("Send to submitter", "Submit") buttonValue="submit" />
             <@fdsAction.link linkText="Back to task list" linkClass="govuk-link govuk-link--button" linkUrl=springUrl(taskListUrl)/>
+
         </@fdsForm.htmlForm>
 
     </@pwaAppSummary.summary>

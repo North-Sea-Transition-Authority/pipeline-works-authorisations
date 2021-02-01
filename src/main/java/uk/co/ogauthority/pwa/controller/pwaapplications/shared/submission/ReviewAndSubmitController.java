@@ -2,11 +2,13 @@ package uk.co.ogauthority.pwa.controller.pwaapplications.shared.submission;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
+import java.util.Comparator;
+import java.util.Map;
+import javax.servlet.http.HttpSession;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.ValidationUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,21 +18,25 @@ import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationPermissionCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationStatusCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTypeCheck;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.submission.ApplicationUpdateResponseForm;
+import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
+import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.submission.ReviewAndSubmitApplicationForm;
+import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.applicationsummariser.ApplicationSummaryViewService;
-import uk.co.ogauthority.pwa.service.appprocessing.applicationupdate.ApplicationUpdateRequestService;
 import uk.co.ogauthority.pwa.service.appprocessing.applicationupdate.ApplicationUpdateRequestViewService;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.service.person.PersonService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.service.pwaapplications.workflow.PwaApplicationSubmissionService;
+import uk.co.ogauthority.pwa.service.teams.PwaHolderTeamService;
+import uk.co.ogauthority.pwa.util.StreamUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
-import uk.co.ogauthority.pwa.validators.pwaapplications.shared.submission.ApplicationUpdateResponseFormValidator;
+import uk.co.ogauthority.pwa.validators.pwaapplications.shared.submission.ReviewAndSubmitApplicationFormValidator;
 
 @Controller
 @RequestMapping("/pwa-application/{applicationType}/{applicationId}/review")
@@ -51,82 +57,97 @@ public class ReviewAndSubmitController {
   private final PwaApplicationRedirectService pwaApplicationRedirectService;
   private final PwaApplicationSubmissionService pwaApplicationSubmissionService;
   private final ApplicationSummaryViewService applicationSummaryViewService;
-  private final ApplicationUpdateRequestService applicationUpdateRequestService;
   private final ApplicationUpdateRequestViewService applicationUpdateRequestViewService;
-  private final ApplicationUpdateResponseFormValidator validator;
+  private final ReviewAndSubmitApplicationFormValidator validator;
+  private final PwaHolderTeamService pwaHolderTeamService;
+  private final SendAppToSubmitterService sendAppToSubmitterService;
+  private final PersonService personService;
 
   @Autowired
-  public ReviewAndSubmitController(
-      ControllerHelperService controllerHelperService,
-      PwaApplicationRedirectService pwaApplicationRedirectService,
-      PwaApplicationSubmissionService pwaApplicationSubmissionService,
-      ApplicationSummaryViewService applicationSummaryViewService,
-      ApplicationUpdateRequestService applicationUpdateRequestService,
-      ApplicationUpdateRequestViewService applicationUpdateRequestViewService,
-      ApplicationUpdateResponseFormValidator validator) {
+  public ReviewAndSubmitController(ControllerHelperService controllerHelperService,
+                                   PwaApplicationRedirectService pwaApplicationRedirectService,
+                                   PwaApplicationSubmissionService pwaApplicationSubmissionService,
+                                   ApplicationSummaryViewService applicationSummaryViewService,
+                                   ApplicationUpdateRequestViewService applicationUpdateRequestViewService,
+                                   ReviewAndSubmitApplicationFormValidator validator,
+                                   PwaHolderTeamService pwaHolderTeamService,
+                                   SendAppToSubmitterService sendAppToSubmitterService,
+                                   PersonService personService) {
     this.controllerHelperService = controllerHelperService;
     this.pwaApplicationRedirectService = pwaApplicationRedirectService;
     this.pwaApplicationSubmissionService = pwaApplicationSubmissionService;
     this.applicationSummaryViewService = applicationSummaryViewService;
-    this.applicationUpdateRequestService = applicationUpdateRequestService;
     this.applicationUpdateRequestViewService = applicationUpdateRequestViewService;
     this.validator = validator;
+    this.pwaHolderTeamService = pwaHolderTeamService;
+    this.sendAppToSubmitterService = sendAppToSubmitterService;
+    this.personService = personService;
   }
 
   @GetMapping
-  public ModelAndView review(
-      @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
-      @PathVariable("applicationId") int applicationId,
-      PwaApplicationContext applicationContext,
-      @ModelAttribute("form") ApplicationUpdateResponseForm form) {
-
-    var hasOpenUpdateRequest = applicationUpdateRequestService
-        .applicationHasOpenUpdateRequest(applicationContext.getApplicationDetail());
-    return getModelAndView(applicationContext.getApplicationDetail(), hasOpenUpdateRequest);
-
+  public ModelAndView review(@PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
+                             @PathVariable("applicationId") int applicationId,
+                             PwaApplicationContext applicationContext,
+                             @ModelAttribute("form") ReviewAndSubmitApplicationForm form) {
+    return getModelAndView(applicationContext, form);
   }
 
-  private ModelAndView getModelAndView(PwaApplicationDetail pwaApplicationDetail, boolean openUpdateRequest) {
-    var modelAndView = new ModelAndView("pwaApplication/shared/submission/reviewAndSubmit");
-    var openUpdateRequestViewOpt = applicationUpdateRequestViewService.getOpenRequestView(pwaApplicationDetail.getPwaApplication());
-    var appSummaryView = applicationSummaryViewService.getApplicationSummaryView(pwaApplicationDetail);
+  private ModelAndView getModelAndView(PwaApplicationContext applicationContext, ReviewAndSubmitApplicationForm form) {
 
-    modelAndView
+    var detail = applicationContext.getApplicationDetail();
+    var appSummaryView = applicationSummaryViewService.getApplicationSummaryView(detail);
+
+    var modelAndView = new ModelAndView("pwaApplication/shared/submission/reviewAndSubmit")
         .addObject("appSummaryView", appSummaryView)
-        .addObject("taskListUrl",
-            pwaApplicationRedirectService.getTaskListRoute(pwaApplicationDetail.getPwaApplication()))
-        .addObject("applicationReference", pwaApplicationDetail.getPwaApplicationRef())
-        .addObject("openUpdateRequest", openUpdateRequest);
+        .addObject("taskListUrl", pwaApplicationRedirectService.getTaskListRoute(detail.getPwaApplication()))
+        .addObject("applicationReference", detail.getPwaApplicationRef())
+        .addObject("openUpdateRequest", false)
+        .addObject("submitterCandidates", Map.of())
+        .addObject("form", form)
+        .addObject("userPermissions", applicationContext.getPermissions())
+        .addObject("submitUrl", ReverseRouter.route(on(ReviewAndSubmitController.class)
+            .submit(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null, null, null)));
 
-    openUpdateRequestViewOpt.ifPresent(applicationUpdateRequestView ->
-        modelAndView.addObject("updateRequestView", applicationUpdateRequestView)
-    );
+    // if there's an open update request, include it
+    applicationUpdateRequestViewService.getOpenRequestView(detail.getPwaApplication())
+        .ifPresent(view -> modelAndView
+            .addObject("updateRequestView", view)
+            .addObject("openUpdateRequest", true));
+
+    // if user is not a submitter, get the list of submitters we can send to
+    if (!applicationContext.getPermissions().contains(PwaApplicationPermission.SUBMIT)) {
+
+      var submitterSelectOptions = pwaHolderTeamService
+          .getPeopleWithHolderTeamRole(detail, PwaOrganisationRole.APPLICATION_SUBMITTER)
+          .stream()
+          .sorted(Comparator.comparing(Person::getFullName))
+          .collect(StreamUtils.toLinkedHashMap(person -> String.valueOf(person.getId().asInt()), Person::getFullName));
+
+      modelAndView.addObject("submitterCandidates", submitterSelectOptions);
+      modelAndView.addObject("submitUrl", ReverseRouter.route(on(ReviewAndSubmitController.class)
+          .sendToSubmitter(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null, null, null, null)));
+
+    }
 
     return modelAndView;
 
   }
 
-
   @PostMapping
   @PwaApplicationPermissionCheck(permissions = PwaApplicationPermission.SUBMIT)
-  public ModelAndView submit(
-      @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
-      @PathVariable("applicationId") int applicationId,
-      PwaApplicationContext applicationContext,
-      @ModelAttribute("form") ApplicationUpdateResponseForm form,
-      BindingResult bindingResult) {
+  public ModelAndView submit(@PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
+                             @PathVariable("applicationId") int applicationId,
+                             PwaApplicationContext applicationContext,
+                             @ModelAttribute("form") ReviewAndSubmitApplicationForm form,
+                             BindingResult bindingResult) {
 
-    var hasOpenUpdateRequest = applicationUpdateRequestService
-        .applicationHasOpenUpdateRequest(applicationContext.getApplicationDetail());
-
-    if (hasOpenUpdateRequest) {
-      ValidationUtils.invokeValidator(validator, form, bindingResult);
-    }
+    validator.validate(form, bindingResult, applicationContext);
 
     return controllerHelperService.checkErrorsAndRedirect(
         bindingResult,
-        getModelAndView(applicationContext.getApplicationDetail(), hasOpenUpdateRequest),
+        getModelAndView(applicationContext, form),
         () -> {
+
           pwaApplicationSubmissionService.submitApplication(
               applicationContext.getUser(),
               applicationContext.getApplicationDetail(),
@@ -134,10 +155,50 @@ public class ReviewAndSubmitController {
           );
 
           return ReverseRouter.redirect(
-              on(SubmitConfirmationController.class).confirmation(applicationType, applicationId, null));
+              on(SubmitConfirmationController.class).confirmSubmission(applicationType, applicationId, null));
+
         }
 
     );
 
   }
+
+  @PostMapping("/send-to-submitter")
+  @PwaApplicationPermissionCheck(permissions = PwaApplicationPermission.EDIT)
+  public ModelAndView sendToSubmitter(
+      @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
+      @PathVariable("applicationId") int applicationId,
+      PwaApplicationContext applicationContext,
+      @ModelAttribute("form") ReviewAndSubmitApplicationForm form,
+      BindingResult bindingResult,
+      HttpSession session) {
+
+    validator.validate(form, bindingResult, applicationContext);
+
+    return controllerHelperService.checkErrorsAndRedirect(
+        bindingResult,
+        getModelAndView(applicationContext, form),
+        () -> {
+
+          var submitterPerson = personService.getPersonById(new PersonId(form.getSubmitterPersonId()));
+
+          sendAppToSubmitterService.sendToSubmitter(
+              applicationContext.getApplicationDetail(),
+              applicationContext.getUser().getLinkedPerson(),
+              BooleanUtils.isFalse(form.getMadeOnlyRequestedChanges()) ? form.getOtherChangesDescription() : null,
+              submitterPerson);
+
+          // add to session so confirmation screen can access without worrying about losing the flash scope
+          // after a page reload.
+          session.setAttribute("submitterPersonName", submitterPerson.getFullName());
+
+          return ReverseRouter.redirect(on(SubmitConfirmationController.class)
+              .confirmSentToSubmitter(applicationType, applicationId, null, null));
+
+        }
+
+    );
+
+  }
+
 }

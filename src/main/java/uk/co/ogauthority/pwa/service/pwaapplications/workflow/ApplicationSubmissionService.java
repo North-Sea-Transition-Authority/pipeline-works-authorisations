@@ -17,13 +17,13 @@ public interface ApplicationSubmissionService {
 
 
   /**
-   * Provide the workflow task should be completed on submission.
+   * Provide the workflow task that should be completed on submission.
    */
   PwaApplicationWorkflowTask getTaskToComplete();
 
 
   /**
-   * Provide the Status should be set on the submitted application detail.
+   * Provide the status that should be set on the submitted application detail.
    */
   PwaApplicationStatus getSubmittedApplicationDetailStatus(PwaApplicationDetail pwaApplicationDetail);
 

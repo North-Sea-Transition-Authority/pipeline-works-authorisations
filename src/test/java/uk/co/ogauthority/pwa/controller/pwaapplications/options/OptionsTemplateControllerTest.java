@@ -30,7 +30,7 @@ import uk.co.ogauthority.pwa.model.entity.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.options.OptionsTemplateForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
-import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
@@ -67,21 +67,21 @@ public class OptionsTemplateControllerTest extends PwaApplicationContextAbstract
         new WebUserAccount(1),
         EnumSet.allOf(PwaUserPrivilege.class));
 
-    endpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaContactService, pwaApplicationDetailService)
+    endpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaApplicationPermissionService, pwaApplicationDetailService)
         .setAllowedTypes(PwaApplicationType.OPTIONS_VARIATION)
-        .setAllowedContactRoles(PwaContactRole.PREPARER)
+        .setAllowedPermissions(PwaApplicationPermission.EDIT)
         .setAllowedStatuses(PwaApplicationStatus.DRAFT);
 
   }
 
   @Test
-  public void renderOptionsTemplate_contactSmokeTest() {
+  public void renderOptionsTemplate_permissionSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(OptionsTemplateController.class)
                 .renderOptionsTemplate(applicationDetail.getMasterPwaApplicationId(), type, null, null, null)));
 
-    endpointTester.performAppContactRoleCheck(status().isOk(), status().isForbidden());
+    endpointTester.performAppPermissionCheck(status().isOk(), status().isForbidden());
   }
 
   @Test
@@ -132,7 +132,7 @@ public class OptionsTemplateControllerTest extends PwaApplicationContextAbstract
   }
 
   @Test
-  public void postOptionsTemplate_contactSmokeTest() {
+  public void postOptionsTemplate_permissionSmokeTest() {
     ControllerTestUtils.passValidationWhenPost(optionsTemplateService, new OptionsTemplateForm(), ValidationType.FULL);
     endpointTester.setRequestMethod(HttpMethod.POST)
         .addRequestParam(ValidationType.FULL.getButtonText(), "")
@@ -140,7 +140,7 @@ public class OptionsTemplateControllerTest extends PwaApplicationContextAbstract
             ReverseRouter.route(on(OptionsTemplateController.class)
                 .postOptionsTemplate(applicationDetail.getMasterPwaApplicationId(), type, null, null, null, null, ValidationType.FULL)));
 
-    endpointTester.performAppContactRoleCheck(status().is3xxRedirection(), status().isForbidden());
+    endpointTester.performAppPermissionCheck(status().is3xxRedirection(), status().isForbidden());
 
   }
 
@@ -154,8 +154,7 @@ public class OptionsTemplateControllerTest extends PwaApplicationContextAbstract
     when(pwaApplicationDetailService.getTipDetail(pwaApplicationDetail.getMasterPwaApplicationId()))
         .thenReturn(pwaApplicationDetail);
 
-    when(pwaContactService.getContactRoles(pwaApplicationDetail.getPwaApplication(), user.getLinkedPerson())).thenReturn(
-        EnumSet.allOf(PwaContactRole.class));
+    when(pwaApplicationPermissionService.getPermissions(pwaApplicationDetail, user.getLinkedPerson())).thenReturn(EnumSet.allOf(PwaApplicationPermission.class));
 
     mockMvc.perform(post(ReverseRouter.route(on(OptionsTemplateController.class)
         .postOptionsTemplate(
@@ -190,8 +189,7 @@ public class OptionsTemplateControllerTest extends PwaApplicationContextAbstract
     when(pwaApplicationDetailService.getTipDetail(pwaApplicationDetail.getMasterPwaApplicationId()))
         .thenReturn(pwaApplicationDetail);
 
-    when(pwaContactService.getContactRoles(pwaApplicationDetail.getPwaApplication(), user.getLinkedPerson())).thenReturn(
-        EnumSet.allOf(PwaContactRole.class));
+    when(pwaApplicationPermissionService.getPermissions(pwaApplicationDetail, user.getLinkedPerson())).thenReturn(EnumSet.allOf(PwaApplicationPermission.class));
 
     mockMvc.perform(post(ReverseRouter.route(on(OptionsTemplateController.class)
         .postOptionsTemplate(

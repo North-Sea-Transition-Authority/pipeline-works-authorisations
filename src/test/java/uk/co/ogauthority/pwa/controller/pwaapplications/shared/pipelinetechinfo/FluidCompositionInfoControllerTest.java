@@ -21,7 +21,7 @@ import uk.co.ogauthority.pwa.controller.PwaApplicationContextAbstractControllerT
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelinetechinfo.FluidCompositionForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
-import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
@@ -52,31 +52,31 @@ public class FluidCompositionInfoControllerTest extends PwaApplicationContextAbs
 
   @Before
   public void setUp() {
-    endpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaContactService, pwaApplicationDetailService)
+    endpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaApplicationPermissionService, pwaApplicationDetailService)
         .setAllowedTypes(
             PwaApplicationType.INITIAL,
             PwaApplicationType.CAT_1_VARIATION)
-        .setAllowedContactRoles(PwaContactRole.PREPARER)
+        .setAllowedPermissions(PwaApplicationPermission.EDIT)
         .setAllowedStatuses(PwaApplicationStatus.DRAFT);
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     pwaApplicationDetail.getPwaApplication().setId(APP_ID);
     when(pwaApplicationDetailService.getTipDetail(pwaApplicationDetail.getMasterPwaApplicationId())).thenReturn(pwaApplicationDetail);
-    when(pwaContactService.getContactRoles(eq(pwaApplicationDetail.getPwaApplication()), any()))
-        .thenReturn(EnumSet.allOf(PwaContactRole.class));
+    when(pwaApplicationPermissionService.getPermissions(eq(pwaApplicationDetail), any()))
+        .thenReturn(EnumSet.allOf(PwaApplicationPermission.class));
   }
 
 
 
 
   @Test
-  public void renderAddFluidCompositionInfo_contactSmokeTest() {
+  public void renderAddFluidCompositionInfo_permissionSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(FluidCompositionInfoController.class)
                 .renderAddFluidCompositionInfo(type, applicationDetail.getMasterPwaApplicationId(),null, null)));
 
-    endpointTester.performAppContactRoleCheck(status().isOk(), status().isForbidden());
+    endpointTester.performAppPermissionCheck(status().isOk(), status().isForbidden());
   }
 
   @Test
@@ -129,7 +129,7 @@ public class FluidCompositionInfoControllerTest extends PwaApplicationContextAbs
   }
 
   @Test
-  public void postAddFluidCompositionInfo_contactSmokeTest() {
+  public void postAddFluidCompositionInfo_permissionSmokeTest() {
     ControllerTestUtils.passValidationWhenPost(padFluidCompositionInfoService, new FluidCompositionForm(), ValidationType.FULL );
     endpointTester.setRequestMethod(HttpMethod.POST)
         .addRequestParam(ValidationType.FULL.getButtonText(), ValidationType.FULL.getButtonText())
@@ -137,7 +137,7 @@ public class FluidCompositionInfoControllerTest extends PwaApplicationContextAbs
             ReverseRouter.route(on(FluidCompositionInfoController.class)
                 .postAddFluidCompositionInfo(type, applicationDetail.getMasterPwaApplicationId(), null, null, null, ValidationType.FULL)));
 
-    endpointTester.performAppContactRoleCheck(status().is3xxRedirection(), status().isForbidden());
+    endpointTester.performAppPermissionCheck(status().is3xxRedirection(), status().isForbidden());
 
   }
 
@@ -150,7 +150,7 @@ public class FluidCompositionInfoControllerTest extends PwaApplicationContextAbs
             ReverseRouter.route(on(FluidCompositionInfoController.class)
                 .postAddFluidCompositionInfo(type, applicationDetail.getMasterPwaApplicationId(), null, null, null, ValidationType.FULL)));
 
-    endpointTester.performAppContactRoleCheck(status().isOk(), status().isForbidden());
+    endpointTester.performAppPermissionCheck(status().isOk(), status().isForbidden());
   }
 
 

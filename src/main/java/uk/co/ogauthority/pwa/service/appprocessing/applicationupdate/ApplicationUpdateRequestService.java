@@ -94,18 +94,26 @@ public class ApplicationUpdateRequestService implements AppProcessingService {
 
   }
 
+  /**
+   * Submit a response to an open update request to the OGA.
+   * @param pwaApplicationDetail the update request is for
+   * @param respondingPerson person submitting response
+   * @param response response text
+   */
   @Transactional
   public void respondToApplicationOpenUpdateRequest(PwaApplicationDetail pwaApplicationDetail,
                                                     Person respondingPerson,
                                                     String response) {
-    var openUpdateRequest = applicationUpdateRequestRepository.findByPwaApplicationDetail_pwaApplicationAndStatus(
-        pwaApplicationDetail.getPwaApplication(), ApplicationUpdateRequestStatus.OPEN)
-        .orElseThrow(() -> new PwaEntityNotFoundException(
-            "Expected to find open update request for pad_id:" + pwaApplicationDetail.getId()));
 
-    openUpdateRequest.setResponseOtherChanges(response);
+    var openUpdateRequest = getOpenUpdateRequestOrThrow(pwaApplicationDetail);
+
+    // only update the response if it isn't already present to avoid overwriting a preparer's response
+    if (openUpdateRequest.getResponseByPersonId() == null) {
+      openUpdateRequest.setResponseOtherChanges(response);
+      openUpdateRequest.setResponseByPersonId(respondingPerson.getId());
+    }
+
     openUpdateRequest.setResponseTimestamp(clock.instant());
-    openUpdateRequest.setResponseByPersonId(respondingPerson.getId());
     openUpdateRequest.setResponsePwaApplicationDetail(pwaApplicationDetail);
     openUpdateRequest.setStatus(ApplicationUpdateRequestStatus.RESPONDED);
     applicationUpdateRequestRepository.save(openUpdateRequest);
@@ -115,6 +123,33 @@ public class ApplicationUpdateRequestService implements AppProcessingService {
 
   }
 
+  /**
+   * Store a user's response to an open update request without submitting it to OGA. Allows for users other than those
+   * preparing the application to submit the app while the response is provided by the preparer.
+   * @param pwaApplicationDetail the update request is for
+   * @param respondingPerson person responding
+   * @param responseText response text
+   */
+  @Transactional
+  public void storeResponseWithoutSubmitting(PwaApplicationDetail pwaApplicationDetail,
+                                             Person respondingPerson,
+                                             String responseText) {
+
+    var openUpdateRequest = getOpenUpdateRequestOrThrow(pwaApplicationDetail);
+    openUpdateRequest.setResponseOtherChanges(responseText);
+    openUpdateRequest.setResponseByPersonId(respondingPerson.getId());
+    openUpdateRequest.setResponsePwaApplicationDetail(pwaApplicationDetail);
+    openUpdateRequest.setResponseTimestamp(clock.instant());
+    applicationUpdateRequestRepository.save(openUpdateRequest);
+
+  }
+
+  private ApplicationUpdateRequest getOpenUpdateRequestOrThrow(PwaApplicationDetail pwaApplicationDetail) {
+    return applicationUpdateRequestRepository.findByPwaApplicationDetail_pwaApplicationAndStatus(
+        pwaApplicationDetail.getPwaApplication(), ApplicationUpdateRequestStatus.OPEN)
+        .orElseThrow(() -> new PwaEntityNotFoundException(
+            "Expected to find open update request for pad_id:" + pwaApplicationDetail.getId()));
+  }
 
   @VisibleForTesting
   void createApplicationUpdateRequest(PwaApplicationDetail pwaApplicationDetail,

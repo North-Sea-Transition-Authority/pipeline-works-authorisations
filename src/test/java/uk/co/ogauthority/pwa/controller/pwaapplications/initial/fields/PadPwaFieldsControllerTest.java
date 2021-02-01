@@ -38,7 +38,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.fields.PwaFieldForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
-import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
@@ -85,7 +85,7 @@ public class PadPwaFieldsControllerTest extends PwaApplicationContextAbstractCon
     padField.setDevukField(devukField);
 
     when(pwaApplicationDetailService.getTipDetail(APP_ID)).thenReturn(pwaApplicationDetail);
-    when(pwaContactService.getContactRoles(any(), any())).thenReturn(EnumSet.allOf(PwaContactRole.class));
+    when(pwaApplicationPermissionService.getPermissions(any(), any())).thenReturn(EnumSet.allOf(PwaApplicationPermission.class));
 
     when(padFieldService.getActiveFieldsForApplicationDetail(any())).thenReturn(List.of(padField));
 
@@ -93,22 +93,22 @@ public class PadPwaFieldsControllerTest extends PwaApplicationContextAbstractCon
 
     doCallRealMethod().when(applicationBreadcrumbService).fromTaskList(any(), any(), any());
     // set default checks for entire controller
-    endpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaContactService, pwaApplicationDetailService)
+    endpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaApplicationPermissionService, pwaApplicationDetailService)
         .setAllowedTypes(PwaApplicationType.values())
-        .setAllowedContactRoles(PwaContactRole.PREPARER)
+        .setAllowedPermissions(PwaApplicationPermission.EDIT)
         .setAllowedStatuses(PwaApplicationStatus.DRAFT);
 
   }
 
   @Test
-  public void renderFields_contactSmokeTest() {
+  public void renderFields_permissionSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PadPwaFieldsController.class)
                 .renderFields(type, applicationDetail.getMasterPwaApplicationId(), null, null, null)));
 
-    endpointTester.performAppContactRoleCheck(status().isOk(), status().isForbidden());
+    endpointTester.performAppPermissionCheck(status().isOk(), status().isForbidden());
 
   }
 
@@ -156,7 +156,7 @@ public class PadPwaFieldsControllerTest extends PwaApplicationContextAbstractCon
   }
 
   @Test
-  public void postFields_contactSmokeTest() {
+  public void postFields_permissionSmokeTest() {
     ControllerTestUtils.passValidationWhenPost(padFieldService, new PwaFieldForm(), ValidationType.FULL);
 
     endpointTester.setRequestMethod(HttpMethod.POST)
@@ -165,7 +165,7 @@ public class PadPwaFieldsControllerTest extends PwaApplicationContextAbstractCon
                 .postFields(type, applicationDetail.getMasterPwaApplicationId(), null, null, null, null, null)))
         .addRequestParam(ValidationType.FULL.getButtonText(), ValidationType.FULL.getButtonText());
 
-    endpointTester.performAppContactRoleCheck(status().is3xxRedirection(), status().isForbidden());
+    endpointTester.performAppPermissionCheck(status().is3xxRedirection(), status().isForbidden());
 
   }
 

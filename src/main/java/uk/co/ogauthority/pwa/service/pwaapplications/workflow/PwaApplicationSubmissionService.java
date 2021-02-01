@@ -23,7 +23,6 @@ public class PwaApplicationSubmissionService {
   private final CamundaWorkflowService camundaWorkflowService;
   private final PwaApplicationDataCleanupService pwaApplicationDataCleanupService;
 
-
   private final ApplicationSubmissionServiceProvider applicationSubmissionServiceProvider;
 
   @Autowired
@@ -35,7 +34,6 @@ public class PwaApplicationSubmissionService {
     this.camundaWorkflowService = camundaWorkflowService;
     this.pwaApplicationDataCleanupService = pwaApplicationDataCleanupService;
     this.applicationSubmissionServiceProvider = applicationSubmissionServiceProvider;
-
   }
 
   @Transactional

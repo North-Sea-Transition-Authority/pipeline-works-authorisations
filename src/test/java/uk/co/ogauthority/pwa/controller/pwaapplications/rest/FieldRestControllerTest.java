@@ -8,6 +8,7 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -23,7 +24,7 @@ import uk.co.ogauthority.pwa.controller.PwaApplicationContextAbstractControllerT
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
-import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
@@ -53,18 +54,18 @@ public class FieldRestControllerTest extends PwaApplicationContextAbstractContro
         new WebUserAccount(1),
         EnumSet.allOf(PwaUserPrivilege.class));
 
-    endpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaContactService, pwaApplicationDetailService);
+    endpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaApplicationPermissionService, pwaApplicationDetailService);
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     pwaApplicationDetail.getPwaApplication().setId(APP_ID);
     when(pwaApplicationDetailService.getTipDetail(pwaApplicationDetail.getMasterPwaApplicationId())).thenReturn(
         pwaApplicationDetail);
-    when(pwaContactService.getContactRoles(eq(pwaApplicationDetail.getPwaApplication()), any()))
-        .thenReturn(EnumSet.allOf(PwaContactRole.class));
+    when(pwaApplicationPermissionService.getPermissions(eq(pwaApplicationDetail), any()))
+        .thenReturn(EnumSet.allOf(PwaApplicationPermission.class));
 
     when(devukFieldService.getByStatusCodes(List.of(500, 600, 700))).thenReturn(List.of());
 
-    var context = new PwaApplicationContext(pwaApplicationDetail, user, EnumSet.allOf(PwaContactRole.class));
+    var context = new PwaApplicationContext(pwaApplicationDetail, user, Set.of());
     when(pwaApplicationContextService.validateAndCreate(any())).thenReturn(context);
   }
 
@@ -76,7 +77,7 @@ public class FieldRestControllerTest extends PwaApplicationContextAbstractContro
             ReverseRouter.route(on(FieldRestController.class)
                 .searchFields(applicationDetail.getMasterPwaApplicationId(), null, "term")));
 
-    endpointTester.performAppContactRoleCheck(status().isOk(), status().isOk());
+    endpointTester.performAppPermissionCheck(status().isOk(), status().isOk());
   }
 
 }

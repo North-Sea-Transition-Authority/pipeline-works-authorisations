@@ -28,7 +28,7 @@ import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
-import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
@@ -82,18 +82,18 @@ public class PipelineCrossingControllerTest extends PwaApplicationContextAbstrac
         PwaApplicationType.DECOMMISSIONING);
 
     when(pwaApplicationDetailService.getTipDetail(anyInt())).thenReturn(pwaApplicationDetail);
-    when(pwaContactService.getContactRoles(any(), any())).thenReturn(EnumSet.allOf(PwaContactRole.class));
+    when(pwaApplicationPermissionService.getPermissions(any(), any())).thenReturn(EnumSet.allOf(PwaApplicationPermission.class));
 
     user = new AuthenticatedUserAccount(new WebUserAccount(1), Set.of());
 
-    endpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaContactService, pwaApplicationDetailService)
+    endpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaApplicationPermissionService, pwaApplicationDetailService)
         .setAllowedTypes(
             PwaApplicationType.INITIAL,
             PwaApplicationType.CAT_1_VARIATION,
             PwaApplicationType.CAT_2_VARIATION,
             PwaApplicationType.DECOMMISSIONING
         )
-        .setAllowedContactRoles(PwaContactRole.PREPARER)
+        .setAllowedPermissions(PwaApplicationPermission.EDIT)
         .setAllowedStatuses(PwaApplicationStatus.DRAFT);
   }
 
@@ -148,9 +148,9 @@ public class PipelineCrossingControllerTest extends PwaApplicationContextAbstrac
             ReverseRouter.route(on(PipelineCrossingController.class)
                 .renderOverview(type, applicationDetail.getMasterPwaApplicationId(), null, null)));
 
-    endpointTester.performAppContactRoleCheck(status().isOk(), status().isForbidden());
+    endpointTester.performAppPermissionCheck(status().isOk(), status().isForbidden());
 
-    verify(padFileService, times(endpointTester.getContactRoles().size())).getUploadedFileViews(any(),
+    verify(padFileService, times(endpointTester.getAllowedAppPermissions().size())).getUploadedFileViews(any(),
         eq(ApplicationDetailFilePurpose.PIPELINE_CROSSINGS), eq(ApplicationFileLinkStatus.FULL));
   }
 
@@ -190,7 +190,7 @@ public class PipelineCrossingControllerTest extends PwaApplicationContextAbstrac
             ReverseRouter.route(on(PipelineCrossingController.class)
                 .postOverview(type, applicationDetail.getMasterPwaApplicationId(), null, null)));
 
-    endpointTester.performAppContactRoleCheck(status().is3xxRedirection(), status().isForbidden());
+    endpointTester.performAppPermissionCheck(status().is3xxRedirection(), status().isForbidden());
   }
 
 }

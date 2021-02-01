@@ -31,9 +31,10 @@ import uk.co.ogauthority.pwa.energyportal.service.organisations.PortalOrganisati
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContextService;
-import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
+import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationPermissionService;
 import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadOrganisationRoleService;
 import uk.co.ogauthority.pwa.service.pwaapplications.workflow.PwaApplicationCreationService;
 import uk.co.ogauthority.pwa.testutils.ControllerTestUtils;
@@ -62,6 +63,11 @@ public class PwaHolderControllerTest extends AbstractControllerTest {
   @MockBean
   private PwaHolderFormValidator pwaHolderFormValidator;
 
+  @MockBean
+  private PwaApplicationPermissionService pwaApplicationPermissionService;
+
+  @MockBean
+  private PadOrganisationRoleService padOrganisationRoleService;
 
   private AuthenticatedUserAccount user = new AuthenticatedUserAccount(new WebUserAccount(123),
       Set.of(PwaUserPrivilege.PWA_APPLICATION_CREATE));
@@ -73,9 +79,6 @@ public class PwaHolderControllerTest extends AbstractControllerTest {
 
   private PwaApplicationDetail detail;
 
-  @MockBean
-  private PadOrganisationRoleService padOrganisationRoleService;
-
   @Before
   public void before() {
 
@@ -83,7 +86,7 @@ public class PwaHolderControllerTest extends AbstractControllerTest {
     detail.getPwaApplication().setId(APP_ID);
 
     when(pwaApplicationDetailService.getTipDetail(APP_ID)).thenReturn(detail);
-    when(pwaContactService.getContactRoles(any(), any())).thenReturn(EnumSet.allOf(PwaContactRole.class));
+    when(pwaApplicationPermissionService.getPermissions(any(), any())).thenReturn(EnumSet.allOf(PwaApplicationPermission.class));
 
     orgUnit = TeamTestingUtils.createOrgUnit();
     when(portalOrganisationsAccessor.getOrganisationUnitById(111)).thenReturn(Optional.of(orgUnit));

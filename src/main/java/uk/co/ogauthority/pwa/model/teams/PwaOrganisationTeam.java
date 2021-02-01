@@ -17,4 +17,5 @@ public class PwaOrganisationTeam extends PwaTeam {
   public PortalOrganisationGroup getPortalOrganisationGroup() {
     return portalOrganisationGroup;
   }
+
 }
