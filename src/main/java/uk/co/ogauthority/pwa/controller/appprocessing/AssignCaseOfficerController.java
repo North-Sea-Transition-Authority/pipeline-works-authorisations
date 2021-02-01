@@ -34,7 +34,7 @@ import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 @Controller
 @RequestMapping("/pwa-application/{applicationType}/{applicationId}/reassign-case-officer")
 @PwaAppProcessingPermissionCheck(permissions = {PwaAppProcessingPermission.ASSIGN_CASE_OFFICER})
-@PwaApplicationStatusCheck(status = PwaApplicationStatus.CASE_OFFICER_REVIEW)
+@PwaApplicationStatusCheck(statuses = PwaApplicationStatus.CASE_OFFICER_REVIEW)
 public class AssignCaseOfficerController {
 
   private final AssignCaseOfficerService assignCaseOfficerService;

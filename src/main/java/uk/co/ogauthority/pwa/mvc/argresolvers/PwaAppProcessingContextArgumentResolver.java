@@ -53,18 +53,18 @@ public class PwaAppProcessingContextArgumentResolver implements HandlerMethodArg
       return pwaAppProcessingContextService.validateAndCreate(new PwaAppProcessingContextParams(applicationId, authenticatedUser));
     }
 
-    Set<PwaAppProcessingPermission> requiredRoles = getProcessingPermissionsCheck(methodParameter);
-    PwaApplicationStatus appStatus = ArgumentResolverUtils.getApplicationStatusCheck(methodParameter);
+    Set<PwaAppProcessingPermission> requiredPermissions = getProcessingPermissionsCheck(methodParameter);
+    Set<PwaApplicationStatus> appStatuses = ArgumentResolverUtils.getApplicationStatusCheck(methodParameter);
 
     // blow up if no annotations used on controller
-    if (requiredRoles.isEmpty() && appStatus == null) {
+    if (requiredPermissions.isEmpty() && appStatuses.isEmpty()) {
       throw new AccessDeniedException(String.format("This controller has not been secured using annotations: %s",
           methodParameter.getContainingClass().getName()));
     }
 
     var contextParams = new PwaAppProcessingContextParams(applicationId, authenticatedUser)
-        .requiredAppStatus(appStatus)
-        .requiredProcessingPermissions(requiredRoles)
+        .requiredAppStatuses(appStatuses)
+        .requiredProcessingPermissions(requiredPermissions)
         .withFileId(ArgumentResolverUtils.resolveStringFromRequestOrNull(nativeWebRequest, "fileId"));
 
     return pwaAppProcessingContextService.validateAndCreate(contextParams);

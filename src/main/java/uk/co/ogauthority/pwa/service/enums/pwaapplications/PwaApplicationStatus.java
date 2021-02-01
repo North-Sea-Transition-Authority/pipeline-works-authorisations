@@ -21,4 +21,5 @@ public enum PwaApplicationStatus {
   public String getDisplayName() {
     return displayName;
   }
+
 }

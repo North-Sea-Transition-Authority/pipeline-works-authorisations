@@ -86,7 +86,7 @@ public class CrossingAgreementsController {
   }
 
   @GetMapping
-  @PwaApplicationStatusCheck(status = PwaApplicationStatus.DRAFT)
+  @PwaApplicationStatusCheck(statuses = PwaApplicationStatus.DRAFT)
   public ModelAndView renderCrossingAgreementsOverview(@PathVariable("applicationType")
                                                        @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
                                                        @PathVariable("applicationId") Integer applicationId,

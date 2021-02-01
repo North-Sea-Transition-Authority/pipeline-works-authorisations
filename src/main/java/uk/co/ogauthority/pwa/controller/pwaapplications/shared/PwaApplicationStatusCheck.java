@@ -9,12 +9,12 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 
 /**
  * Annotation to be used in conjunction with {@link PwaApplicationContextArgumentResolver} on controller
- * methods to restrict processing of the method to applications at a specific status.
+ * methods to restrict processing of the method to applications at specific statuses.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD, ElementType.TYPE})
 public @interface PwaApplicationStatusCheck {
 
-  PwaApplicationStatus status();
+  PwaApplicationStatus[] statuses();
 
 }

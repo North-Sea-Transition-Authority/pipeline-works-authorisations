@@ -29,7 +29,7 @@ import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
 @Controller
 @RequestMapping("/pwa-application/{applicationType}/{applicationId}/design-operating-conditions")
-@PwaApplicationStatusCheck(status = PwaApplicationStatus.DRAFT)
+@PwaApplicationStatusCheck(statuses = PwaApplicationStatus.DRAFT)
 @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.EDIT})
 @PwaApplicationTypeCheck(types = {
     PwaApplicationType.INITIAL,

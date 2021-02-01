@@ -39,7 +39,7 @@ import uk.co.ogauthority.pwa.validators.appprocessing.options.ApproveOptionsForm
 @Controller
 @RequestMapping("/pwa-application/{applicationType}/{applicationId}/approve-options")
 @PwaAppProcessingPermissionCheck(permissions = {PwaAppProcessingPermission.APPROVE_OPTIONS})
-@PwaApplicationStatusCheck(status = PwaApplicationStatus.CASE_OFFICER_REVIEW)
+@PwaApplicationStatusCheck(statuses = PwaApplicationStatus.CASE_OFFICER_REVIEW)
 public class ApproveOptionsController {
 
   private final ApplicationBreadcrumbService breadcrumbService;

@@ -60,7 +60,7 @@ import uk.co.ogauthority.pwa.validators.pipelinehuoo.PickHuooPipelineValidationT
     PwaApplicationType.DECOMMISSIONING,
     PwaApplicationType.OPTIONS_VARIATION
 })
-@PwaApplicationStatusCheck(status = PwaApplicationStatus.DRAFT)
+@PwaApplicationStatusCheck(statuses = PwaApplicationStatus.DRAFT)
 @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.EDIT})
 @SessionAttributes("modifyPipelineHuooJourneyData")
 public class ModifyPipelineHuooJourneyController {

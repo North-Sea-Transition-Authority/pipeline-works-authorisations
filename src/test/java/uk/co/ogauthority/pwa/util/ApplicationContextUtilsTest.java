@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.util;
 
+import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -21,12 +22,12 @@ public class ApplicationContextUtilsTest {
 
   @Test
   public void performAppStatusCheck_valid() {
-    ApplicationContextUtils.performAppStatusCheck(PwaApplicationStatus.DRAFT, detail);
+    ApplicationContextUtils.performAppStatusCheck(Set.of(PwaApplicationStatus.DRAFT), detail);
   }
 
   @Test(expected = PwaEntityNotFoundException.class)
   public void performAppStatusCheck_invalid() {
-    ApplicationContextUtils.performAppStatusCheck(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW, detail);
+    ApplicationContextUtils.performAppStatusCheck(Set.of(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW), detail);
   }
 
 }

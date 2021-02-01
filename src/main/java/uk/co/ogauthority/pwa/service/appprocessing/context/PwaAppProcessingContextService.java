@@ -43,7 +43,7 @@ public class PwaAppProcessingContextService {
     var applicationId = contextParams.getApplicationId();
     var context = getProcessingContext(applicationId, contextParams.getAuthenticatedUserAccount());
 
-    ApplicationContextUtils.performAppStatusCheck(contextParams.getStatus(), context.getApplicationDetail());
+    ApplicationContextUtils.performAppStatusCheck(contextParams.getStatuses(), context.getApplicationDetail());
 
     performPermissionCheck(
         contextParams.getAppProcessingPermissions(),

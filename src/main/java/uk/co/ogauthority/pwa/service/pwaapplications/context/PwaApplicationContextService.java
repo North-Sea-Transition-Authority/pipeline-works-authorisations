@@ -41,7 +41,7 @@ public class PwaApplicationContextService {
     var applicationId = contextParams.getApplicationId();
     var context = getApplicationContext(applicationId, contextParams.getAuthenticatedUserAccount());
 
-    ApplicationContextUtils.performAppStatusCheck(contextParams.getStatus(), context.getApplicationDetail());
+    ApplicationContextUtils.performAppStatusCheck(contextParams.getStatuses(), context.getApplicationDetail());
     performApplicationTypeCheck(contextParams.getTypes(), context.getApplicationType(), applicationId);
     performPermissionCheck(
         contextParams,

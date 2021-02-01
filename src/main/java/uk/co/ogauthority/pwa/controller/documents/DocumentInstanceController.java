@@ -35,7 +35,7 @@ import uk.co.ogauthority.pwa.util.documents.DocumentInstanceRedirectUtils;
 
 @Controller
 @RequestMapping("/pwa-application/{applicationType}/{applicationId}/documents/{documentTemplateMnem}")
-@PwaApplicationStatusCheck(status = PwaApplicationStatus.CASE_OFFICER_REVIEW)
+@PwaApplicationStatusCheck(statuses = PwaApplicationStatus.CASE_OFFICER_REVIEW)
 @PwaAppProcessingPermissionCheck(permissions = PwaAppProcessingPermission.EDIT_CONSENT_DOCUMENT)
 public class DocumentInstanceController {
 

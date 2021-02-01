@@ -56,17 +56,17 @@ public class PwaApplicationContextArgumentResolver implements HandlerMethodArgum
     }
 
     Set<PwaApplicationPermission> requiredPermissions = getApplicationPermissionsCheck(methodParameter);
-    PwaApplicationStatus appStatus = ArgumentResolverUtils.getApplicationStatusCheck(methodParameter);
+    Set<PwaApplicationStatus> appStatuses = ArgumentResolverUtils.getApplicationStatusCheck(methodParameter);
     Set<PwaApplicationType> applicationTypes = getApplicationTypeCheck(methodParameter);
 
     // blow up if no annotations used on controller
-    if (requiredPermissions.isEmpty() && appStatus == null && applicationTypes.isEmpty()) {
+    if (requiredPermissions.isEmpty() && appStatuses.isEmpty() && applicationTypes.isEmpty()) {
       throw new AccessDeniedException(String.format("This controller has not been secured using annotations: %s",
           methodParameter.getContainingClass().getName()));
     }
 
     var contextParams = new PwaApplicationContextParams(applicationId, authenticatedUser)
-        .requiredAppStatus(appStatus)
+        .requiredAppStatuses(appStatuses)
         .requiredAppTypes(applicationTypes)
         .requiredUserPermissions(requiredPermissions)
         .withPadPipelineId(ArgumentResolverUtils.resolveIdFromRequestOrNull(nativeWebRequest, "padPipelineId"))

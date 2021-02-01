@@ -57,7 +57,7 @@ import uk.co.ogauthority.pwa.validators.pwaapplications.shared.crossings.EditBlo
     PwaApplicationType.DEPOSIT_CONSENT,
     PwaApplicationType.DECOMMISSIONING
 })
-@PwaApplicationStatusCheck(status = PwaApplicationStatus.DRAFT)
+@PwaApplicationStatusCheck(statuses = PwaApplicationStatus.DRAFT)
 @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.EDIT})
 public class BlockCrossingController {
   private final ApplicationBreadcrumbService breadcrumbService;

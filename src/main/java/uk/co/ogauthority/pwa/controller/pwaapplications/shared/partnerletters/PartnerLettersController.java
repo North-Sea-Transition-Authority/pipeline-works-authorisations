@@ -39,7 +39,6 @@ import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
 @Controller
 @RequestMapping("/pwa-application/{applicationType}/{applicationId}/partner-letters")
-@PwaApplicationStatusCheck(status = PwaApplicationStatus.DRAFT)
 @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.EDIT})
 @PwaApplicationTypeCheck(types = {
     PwaApplicationType.INITIAL,
@@ -73,6 +72,7 @@ public class PartnerLettersController extends PwaApplicationDetailDataFileUpload
   }
 
   @GetMapping
+  @PwaApplicationStatusCheck(statuses = PwaApplicationStatus.DRAFT)
   public ModelAndView renderAddPartnerLetters(@PathVariable("applicationType")
                                               @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
                                               @PathVariable("applicationId") Integer applicationId,
@@ -83,6 +83,7 @@ public class PartnerLettersController extends PwaApplicationDetailDataFileUpload
   }
 
   @PostMapping
+  @PwaApplicationStatusCheck(statuses = PwaApplicationStatus.DRAFT)
   public ModelAndView postAddPartnerLetters(@PathVariable("applicationType")
                                             @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
                                             @PathVariable("applicationId") Integer applicationId,
@@ -127,6 +128,7 @@ public class PartnerLettersController extends PwaApplicationDetailDataFileUpload
 
   @PostMapping("/files/upload")
   @ResponseBody
+  @PwaApplicationStatusCheck(statuses = PwaApplicationStatus.DRAFT)
   public FileUploadResult handleUpload(
       @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
       @PathVariable("applicationId") Integer applicationId,
@@ -143,6 +145,7 @@ public class PartnerLettersController extends PwaApplicationDetailDataFileUpload
 
   @PostMapping("/files/delete/{fileId}")
   @ResponseBody
+  @PwaApplicationStatusCheck(statuses = PwaApplicationStatus.DRAFT)
   public FileDeleteResult handleDelete(
       @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
       @PathVariable("applicationId") Integer applicationId,

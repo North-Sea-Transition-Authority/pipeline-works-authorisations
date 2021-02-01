@@ -37,7 +37,7 @@ import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
 @Controller
 @RequestMapping("/pwa-application/{applicationType}/{applicationId}/fields")
-@PwaApplicationStatusCheck(status = PwaApplicationStatus.DRAFT)
+@PwaApplicationStatusCheck(statuses = PwaApplicationStatus.DRAFT)
 @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.EDIT})
 public class PadPwaFieldsController {
 

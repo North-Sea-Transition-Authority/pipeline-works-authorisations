@@ -43,7 +43,6 @@ import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
 @Controller
 @RequestMapping("/pwa-application/{applicationType}/{applicationId}/crossings/median-line-documents")
-@PwaApplicationStatusCheck(status = PwaApplicationStatus.DRAFT)
 @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.EDIT})
 @PwaApplicationTypeCheck(types = {
     PwaApplicationType.INITIAL,
@@ -100,6 +99,7 @@ public class MedianLineDocumentsController extends PwaApplicationDetailDataFileU
   }
 
   @GetMapping
+  @PwaApplicationStatusCheck(statuses = PwaApplicationStatus.DRAFT)
   public ModelAndView renderEditMedianLineCrossingDocuments(
       @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
       @PathVariable("applicationId") Integer applicationId,
@@ -111,6 +111,7 @@ public class MedianLineDocumentsController extends PwaApplicationDetailDataFileU
   }
 
   @PostMapping
+  @PwaApplicationStatusCheck(statuses = PwaApplicationStatus.DRAFT)
   public ModelAndView postMedianLineCrossingDocuments(
       @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
       @PathVariable("applicationId") Integer applicationId,
@@ -147,6 +148,7 @@ public class MedianLineDocumentsController extends PwaApplicationDetailDataFileU
 
   @PostMapping("/files/upload")
   @ResponseBody
+  @PwaApplicationStatusCheck(statuses = PwaApplicationStatus.DRAFT)
   public FileUploadResult handleUpload(
       @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
       @PathVariable("applicationId") Integer applicationId,
@@ -163,6 +165,7 @@ public class MedianLineDocumentsController extends PwaApplicationDetailDataFileU
 
   @PostMapping("/files/delete/{fileId}")
   @ResponseBody
+  @PwaApplicationStatusCheck(statuses = PwaApplicationStatus.DRAFT)
   public FileDeleteResult handleDelete(
       @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
       @PathVariable("applicationId") Integer applicationId,

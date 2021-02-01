@@ -40,7 +40,6 @@ import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
 @Controller
 @RequestMapping("/pwa-application/{applicationType}/{applicationId}/technical-drawings/umbilical-cross-section")
-@PwaApplicationStatusCheck(status = PwaApplicationStatus.DRAFT)
 @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.EDIT})
 @PwaApplicationTypeCheck(types = {
     PwaApplicationType.INITIAL,
@@ -94,6 +93,7 @@ public class UmbilicalCrossSectionDocumentsController extends PwaApplicationDeta
   }
 
   @GetMapping
+  @PwaApplicationStatusCheck(statuses = PwaApplicationStatus.DRAFT)
   public ModelAndView renderAddDocuments(
       @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
       @PathVariable("applicationId") Integer applicationId,
@@ -106,6 +106,7 @@ public class UmbilicalCrossSectionDocumentsController extends PwaApplicationDeta
   }
 
   @PostMapping
+  @PwaApplicationStatusCheck(statuses = PwaApplicationStatus.DRAFT)
   public ModelAndView postAddDocuments(
       @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
       @PathVariable("applicationId") Integer applicationId,
@@ -146,6 +147,7 @@ public class UmbilicalCrossSectionDocumentsController extends PwaApplicationDeta
 
   @PostMapping("/files/upload")
   @ResponseBody
+  @PwaApplicationStatusCheck(statuses = PwaApplicationStatus.DRAFT)
   public FileUploadResult handleUpload(
       @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
       @PathVariable("applicationId") Integer applicationId,
@@ -159,6 +161,7 @@ public class UmbilicalCrossSectionDocumentsController extends PwaApplicationDeta
 
   @PostMapping("/files/delete/{fileId}")
   @ResponseBody
+  @PwaApplicationStatusCheck(statuses = PwaApplicationStatus.DRAFT)
   public FileDeleteResult handleDelete(
       @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
       @PathVariable("applicationId") Integer applicationId,

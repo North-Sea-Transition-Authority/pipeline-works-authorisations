@@ -15,7 +15,7 @@ public class PwaApplicationContextParams {
   private final int applicationId;
   private final AuthenticatedUserAccount authenticatedUserAccount;
 
-  private PwaApplicationStatus status;
+  private Set<PwaApplicationStatus> statuses;
   private Set<PwaApplicationType> types;
   private Set<PwaApplicationPermission> permissions;
 
@@ -25,12 +25,13 @@ public class PwaApplicationContextParams {
   public PwaApplicationContextParams(int applicationId, AuthenticatedUserAccount authenticatedUserAccount) {
     this.applicationId = applicationId;
     this.authenticatedUserAccount = authenticatedUserAccount;
+    statuses = Set.of();
     types = Set.of();
     permissions = Set.of();
   }
 
-  public PwaApplicationContextParams requiredAppStatus(PwaApplicationStatus status) {
-    this.status = status;
+  public PwaApplicationContextParams requiredAppStatuses(Set<PwaApplicationStatus> statuses) {
+    this.statuses = statuses;
     return this;
   }
 
@@ -62,8 +63,8 @@ public class PwaApplicationContextParams {
     return authenticatedUserAccount;
   }
 
-  PwaApplicationStatus getStatus() {
-    return status;
+  Set<PwaApplicationStatus> getStatuses() {
+    return statuses;
   }
 
   Set<PwaApplicationType> getTypes() {

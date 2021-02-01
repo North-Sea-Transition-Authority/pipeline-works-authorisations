@@ -20,7 +20,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.generic.tasklist.TaskListCo
 @Controller
 @RequestMapping("/pwa-application/decom/{applicationId}/tasks")
 @PwaApplicationTypeCheck(types = {PwaApplicationType.DECOMMISSIONING})
-@PwaApplicationStatusCheck(status = PwaApplicationStatus.DRAFT)
+@PwaApplicationStatusCheck(statuses = PwaApplicationStatus.DRAFT)
 @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.EDIT})
 public class DecommissioningTaskListController {
 

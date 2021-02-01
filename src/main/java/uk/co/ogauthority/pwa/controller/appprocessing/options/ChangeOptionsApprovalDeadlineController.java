@@ -40,7 +40,7 @@ import uk.co.ogauthority.pwa.validators.appprocessing.options.ChangeOptionsAppro
 @Controller
 @RequestMapping("/pwa-application/{applicationType}/{applicationId}/change-options-approval-deadline")
 @PwaAppProcessingPermissionCheck(permissions = {PwaAppProcessingPermission.CHANGE_OPTIONS_APPROVAL_DEADLINE})
-@PwaApplicationStatusCheck(status = PwaApplicationStatus.CASE_OFFICER_REVIEW)
+@PwaApplicationStatusCheck(statuses = PwaApplicationStatus.CASE_OFFICER_REVIEW)
 public class ChangeOptionsApprovalDeadlineController {
 
   private final ApplicationBreadcrumbService breadcrumbService;

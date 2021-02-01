@@ -40,7 +40,6 @@ import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
 @Controller
 @RequestMapping("/pwa-application/{applicationType}/{applicationId}/technical-drawings/admiralty-chart")
-@PwaApplicationStatusCheck(status = PwaApplicationStatus.DRAFT)
 @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.EDIT})
 @PwaApplicationTypeCheck(types = {
     PwaApplicationType.INITIAL,
@@ -96,6 +95,7 @@ public class AdmiraltyChartDocumentsController extends PwaApplicationDetailDataF
   }
 
   @GetMapping
+  @PwaApplicationStatusCheck(statuses = PwaApplicationStatus.DRAFT)
   public ModelAndView renderEditAdmiraltyChartDocuments(
       @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
       @PathVariable("applicationId") Integer applicationId,
@@ -107,6 +107,7 @@ public class AdmiraltyChartDocumentsController extends PwaApplicationDetailDataF
   }
 
   @PostMapping
+  @PwaApplicationStatusCheck(statuses = PwaApplicationStatus.DRAFT)
   public ModelAndView postAdmiraltyChartDocuments(
       @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
       @PathVariable("applicationId") Integer applicationId,
@@ -144,6 +145,7 @@ public class AdmiraltyChartDocumentsController extends PwaApplicationDetailDataF
 
   @PostMapping("/files/upload")
   @ResponseBody
+  @PwaApplicationStatusCheck(statuses = PwaApplicationStatus.DRAFT)
   public FileUploadResult handleUpload(
       @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
       @PathVariable("applicationId") Integer applicationId,
@@ -156,6 +158,7 @@ public class AdmiraltyChartDocumentsController extends PwaApplicationDetailDataF
 
   @PostMapping("/files/delete/{fileId}")
   @ResponseBody
+  @PwaApplicationStatusCheck(statuses = PwaApplicationStatus.DRAFT)
   public FileDeleteResult handleDelete(
       @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
       @PathVariable("applicationId") Integer applicationId,

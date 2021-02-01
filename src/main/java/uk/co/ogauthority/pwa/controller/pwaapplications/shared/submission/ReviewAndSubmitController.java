@@ -50,7 +50,7 @@ import uk.co.ogauthority.pwa.validators.pwaapplications.shared.submission.Review
     PwaApplicationType.HUOO_VARIATION
 })
 @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.VIEW})
-@PwaApplicationStatusCheck(status = PwaApplicationStatus.DRAFT)
+@PwaApplicationStatusCheck(statuses = PwaApplicationStatus.DRAFT)
 public class ReviewAndSubmitController {
 
   private final ControllerHelperService controllerHelperService;

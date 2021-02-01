@@ -43,7 +43,6 @@ import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
 @Controller
 @RequestMapping("/pwa-application/{applicationType}/{applicationId}/crossings/pipeline-documents")
-@PwaApplicationStatusCheck(status = PwaApplicationStatus.DRAFT)
 @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.EDIT})
 @PwaApplicationTypeCheck(types = {
     PwaApplicationType.INITIAL,
@@ -100,6 +99,7 @@ public class PipelineCrossingDocumentsController extends PwaApplicationDetailDat
   }
 
   @GetMapping
+  @PwaApplicationStatusCheck(statuses = PwaApplicationStatus.DRAFT)
   public ModelAndView renderEditPipelineCrossingDocuments(
       @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
       @PathVariable("applicationId") Integer applicationId,
@@ -111,6 +111,7 @@ public class PipelineCrossingDocumentsController extends PwaApplicationDetailDat
   }
 
   @PostMapping
+  @PwaApplicationStatusCheck(statuses = PwaApplicationStatus.DRAFT)
   public ModelAndView postPipelineCrossingDocuments(
       @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
       @PathVariable("applicationId") Integer applicationId,
@@ -147,6 +148,7 @@ public class PipelineCrossingDocumentsController extends PwaApplicationDetailDat
 
   @PostMapping("/files/upload")
   @ResponseBody
+  @PwaApplicationStatusCheck(statuses = PwaApplicationStatus.DRAFT)
   public FileUploadResult handleUpload(
       @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
       @PathVariable("applicationId") Integer applicationId,
@@ -163,6 +165,7 @@ public class PipelineCrossingDocumentsController extends PwaApplicationDetailDat
 
   @PostMapping("/files/delete/{fileId}")
   @ResponseBody
+  @PwaApplicationStatusCheck(statuses = PwaApplicationStatus.DRAFT)
   public FileDeleteResult handleDelete(
       @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
       @PathVariable("applicationId") Integer applicationId,

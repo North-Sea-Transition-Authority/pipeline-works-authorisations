@@ -45,7 +45,7 @@ import uk.co.ogauthority.pwa.validators.huoo.EditHuooValidator;
 
 @Controller
 @RequestMapping("/pwa-application/{applicationType}/{applicationId}/huoo")
-@PwaApplicationStatusCheck(status = PwaApplicationStatus.DRAFT)
+@PwaApplicationStatusCheck(statuses = PwaApplicationStatus.DRAFT)
 @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.EDIT})
 @PwaApplicationTypeCheck(types = {
     PwaApplicationType.INITIAL,

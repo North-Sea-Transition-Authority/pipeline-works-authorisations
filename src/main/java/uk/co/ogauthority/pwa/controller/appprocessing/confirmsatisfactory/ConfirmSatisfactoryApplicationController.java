@@ -33,7 +33,7 @@ import uk.co.ogauthority.pwa.validators.appprocessing.confirmsatisfactory.Confir
 @Controller
 @RequestMapping("/pwa-application/{applicationType}/{applicationId}/confirm-satisfactory")
 @PwaAppProcessingPermissionCheck(permissions = {PwaAppProcessingPermission.CONFIRM_SATISFACTORY_APPLICATION})
-@PwaApplicationStatusCheck(status = PwaApplicationStatus.CASE_OFFICER_REVIEW)
+@PwaApplicationStatusCheck(statuses = PwaApplicationStatus.CASE_OFFICER_REVIEW)
 public class ConfirmSatisfactoryApplicationController {
 
   private final ApplicationBreadcrumbService breadcrumbService;

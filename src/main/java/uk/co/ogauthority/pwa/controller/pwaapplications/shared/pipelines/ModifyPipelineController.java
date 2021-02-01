@@ -39,7 +39,7 @@ import uk.co.ogauthority.pwa.validators.pwaapplications.shared.pipelines.ModifyP
     PwaApplicationType.OPTIONS_VARIATION,
     PwaApplicationType.DECOMMISSIONING
 })
-@PwaApplicationStatusCheck(status = PwaApplicationStatus.DRAFT)
+@PwaApplicationStatusCheck(statuses = PwaApplicationStatus.DRAFT)
 @PwaApplicationPermissionCheck(permissions = PwaApplicationPermission.EDIT)
 public class ModifyPipelineController {
 

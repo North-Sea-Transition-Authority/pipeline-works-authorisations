@@ -110,7 +110,7 @@ public class PwaAppProcessingContextServiceTest {
   public void validateAndCreate_statusCheck_valid() {
 
     var builder = new PwaAppProcessingContextParams(1, user)
-        .requiredAppStatus(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW);
+        .requiredAppStatuses(Set.of(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW));
 
     var appContext = contextService.validateAndCreate(builder);
 
@@ -123,7 +123,7 @@ public class PwaAppProcessingContextServiceTest {
   @Test(expected = PwaEntityNotFoundException.class)
   public void validateAndCreate_statusCheck_invalid() {
     var builder = new PwaAppProcessingContextParams(1, user)
-        .requiredAppStatus(PwaApplicationStatus.DRAFT);
+        .requiredAppStatuses(Set.of(PwaApplicationStatus.DRAFT));
     contextService.validateAndCreate(builder);
   }
 
@@ -168,7 +168,7 @@ public class PwaAppProcessingContextServiceTest {
   @Test
   public void validateAndCreate_allChecks_valid() {
     var builder = new PwaAppProcessingContextParams(1, user)
-        .requiredAppStatus(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW)
+        .requiredAppStatuses(Set.of(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW))
         .requiredProcessingPermissions(Set.of(PwaAppProcessingPermission.ACCEPT_INITIAL_REVIEW));
     var appContext = contextService.validateAndCreate(builder);
     assertThat(appContext.getApplicationDetail()).isEqualTo(detail);
@@ -179,7 +179,7 @@ public class PwaAppProcessingContextServiceTest {
   @Test(expected = PwaEntityNotFoundException.class)
   public void validateAndCreate_allChecks_statusInvalid() {
     var builder = new PwaAppProcessingContextParams(1, user)
-        .requiredAppStatus(PwaApplicationStatus.DRAFT)
+        .requiredAppStatuses(Set.of(PwaApplicationStatus.DRAFT))
         .requiredProcessingPermissions(Set.of(PwaAppProcessingPermission.ACCEPT_INITIAL_REVIEW));
     contextService.validateAndCreate(builder);
   }
@@ -187,7 +187,7 @@ public class PwaAppProcessingContextServiceTest {
   @Test(expected = AccessDeniedException.class)
   public void validateAndCreate_allChecks_permissionsInvalid() {
     var builder = new PwaAppProcessingContextParams(1, user)
-        .requiredAppStatus(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW)
+        .requiredAppStatuses(Set.of(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW))
         .requiredProcessingPermissions(Set.of(PwaAppProcessingPermission.CASE_OFFICER_REVIEW));
     contextService.validateAndCreate(builder);
   }
@@ -196,7 +196,7 @@ public class PwaAppProcessingContextServiceTest {
   public void validateAndCreate_caseSummaryCreated() {
 
     var builder = new PwaAppProcessingContextParams(1, user)
-        .requiredAppStatus(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW)
+        .requiredAppStatuses(Set.of(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW))
         .requiredProcessingPermissions(Set.of(PwaAppProcessingPermission.ACCEPT_INITIAL_REVIEW));
 
     var caseSummaryView = CaseSummaryView.from(ApplicationDetailViewTestUtil.createGenericDetailView());
@@ -214,7 +214,7 @@ public class PwaAppProcessingContextServiceTest {
     when(caseSummaryViewService.getCaseSummaryViewForAppDetail(any())).thenReturn(Optional.empty());
 
     var builder = new PwaAppProcessingContextParams(1, user)
-        .requiredAppStatus(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW)
+        .requiredAppStatuses(Set.of(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW))
         .requiredProcessingPermissions(Set.of(PwaAppProcessingPermission.ACCEPT_INITIAL_REVIEW));
 
     var processingContext = contextService.validateAndCreate(builder);

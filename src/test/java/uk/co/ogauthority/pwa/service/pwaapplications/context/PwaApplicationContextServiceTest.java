@@ -96,7 +96,7 @@ public class PwaApplicationContextServiceTest {
   public void validateAndCreate_statusCheck_valid() {
 
     var builder = new PwaApplicationContextParams(1, user)
-        .requiredAppStatus(PwaApplicationStatus.DRAFT);
+        .requiredAppStatuses(Set.of(PwaApplicationStatus.DRAFT));
 
     var appContext = contextService.validateAndCreate(builder);
 
@@ -109,7 +109,7 @@ public class PwaApplicationContextServiceTest {
   @Test(expected = PwaEntityNotFoundException.class)
   public void validateAndCreate_statusCheck_invalid() {
     var builder = new PwaApplicationContextParams(1, user)
-        .requiredAppStatus(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW);
+        .requiredAppStatuses(Set.of(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW));
     contextService.validateAndCreate(builder);
   }
 
@@ -182,7 +182,7 @@ public class PwaApplicationContextServiceTest {
   @Test
   public void validateAndCreate_allChecks_valid() {
     var builder = new PwaApplicationContextParams(1, user)
-        .requiredAppStatus(PwaApplicationStatus.DRAFT)
+        .requiredAppStatuses(Set.of(PwaApplicationStatus.DRAFT))
         .requiredAppTypes(Set.of(PwaApplicationType.INITIAL))
         .requiredUserPermissions(Set.of(PwaApplicationPermission.EDIT));
     var appContext = contextService.validateAndCreate(builder);
@@ -194,7 +194,7 @@ public class PwaApplicationContextServiceTest {
   @Test(expected = PwaEntityNotFoundException.class)
   public void validateAndCreate_allChecks_statusInvalid() {
     var builder = new PwaApplicationContextParams(1, user)
-        .requiredAppStatus(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW)
+        .requiredAppStatuses(Set.of(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW))
         .requiredAppTypes(Set.of(PwaApplicationType.INITIAL))
         .requiredUserPermissions(Set.of(PwaApplicationPermission.EDIT));
     contextService.validateAndCreate(builder);
@@ -204,7 +204,7 @@ public class PwaApplicationContextServiceTest {
   public void validateAndCreate_allChecks_typeInvalid() {
     detail.getPwaApplication().setApplicationType(PwaApplicationType.CAT_2_VARIATION);
     var builder = new PwaApplicationContextParams(1, user)
-        .requiredAppStatus(PwaApplicationStatus.DRAFT)
+        .requiredAppStatuses(Set.of(PwaApplicationStatus.DRAFT))
         .requiredAppTypes(Set.of(PwaApplicationType.INITIAL))
         .requiredUserPermissions(Set.of(PwaApplicationPermission.EDIT));
     contextService.validateAndCreate(builder);
@@ -213,7 +213,7 @@ public class PwaApplicationContextServiceTest {
   @Test(expected = AccessDeniedException.class)
   public void validateAndCreate_allChecks_permissionInvalid() {
     var builder = new PwaApplicationContextParams(1, user)
-        .requiredAppStatus(PwaApplicationStatus.DRAFT)
+        .requiredAppStatuses(Set.of(PwaApplicationStatus.DRAFT))
         .requiredAppTypes(Set.of(PwaApplicationType.INITIAL))
         .requiredUserPermissions(Set.of(PwaApplicationPermission.MANAGE_CONTACTS));
     contextService.validateAndCreate(builder);

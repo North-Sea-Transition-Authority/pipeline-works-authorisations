@@ -34,7 +34,7 @@ import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 @Controller
 @RequestMapping("/pwa-application/{applicationType}/{applicationId}/request-consultation")
 @PwaAppProcessingPermissionCheck(permissions = {PwaAppProcessingPermission.EDIT_CONSULTATIONS})
-@PwaApplicationStatusCheck(status = PwaApplicationStatus.CASE_OFFICER_REVIEW)
+@PwaApplicationStatusCheck(statuses = PwaApplicationStatus.CASE_OFFICER_REVIEW)
 public class ConsultationRequestController {
 
   private final ConsultationRequestService consultationRequestService;

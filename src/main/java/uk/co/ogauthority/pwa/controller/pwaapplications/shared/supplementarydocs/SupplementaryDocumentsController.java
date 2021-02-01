@@ -38,7 +38,6 @@ import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
 @Controller
 @RequestMapping("/pwa-application/{applicationType}/{applicationId}/supplementary-documents")
-@PwaApplicationStatusCheck(status = PwaApplicationStatus.DRAFT)
 @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.EDIT})
 @PwaApplicationTypeCheck(types = { PwaApplicationType.OPTIONS_VARIATION })
 public class SupplementaryDocumentsController extends PwaApplicationDetailDataFileUploadAndDownloadController {
@@ -79,6 +78,7 @@ public class SupplementaryDocumentsController extends PwaApplicationDetailDataFi
   }
 
   @GetMapping
+  @PwaApplicationStatusCheck(statuses = PwaApplicationStatus.DRAFT)
   public ModelAndView renderSupplementaryDocuments(@PathVariable("applicationId") Integer applicationId,
                                                    @PathVariable("applicationType")
                                                    @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
@@ -91,6 +91,7 @@ public class SupplementaryDocumentsController extends PwaApplicationDetailDataFi
   }
 
   @PostMapping
+  @PwaApplicationStatusCheck(statuses = PwaApplicationStatus.DRAFT)
   public ModelAndView postSupplementaryDocuments(@PathVariable("applicationId") Integer applicationId,
                                                  @PathVariable("applicationType")
                                                  @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
@@ -122,6 +123,7 @@ public class SupplementaryDocumentsController extends PwaApplicationDetailDataFi
 
   @PostMapping("/files/upload")
   @ResponseBody
+  @PwaApplicationStatusCheck(statuses = PwaApplicationStatus.DRAFT)
   public FileUploadResult handleUpload(
       @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
       @PathVariable("applicationId") Integer applicationId,
@@ -149,6 +151,7 @@ public class SupplementaryDocumentsController extends PwaApplicationDetailDataFi
 
   @PostMapping("/files/delete/{fileId}")
   @ResponseBody
+  @PwaApplicationStatusCheck(statuses = PwaApplicationStatus.DRAFT)
   public FileDeleteResult handleDelete(
       @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
       @PathVariable("applicationId") Integer applicationId,

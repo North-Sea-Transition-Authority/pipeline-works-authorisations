@@ -48,7 +48,7 @@ import uk.co.ogauthority.pwa.validators.pwaapplications.shared.crossings.Pipelin
     PwaApplicationType.CAT_2_VARIATION,
     PwaApplicationType.DECOMMISSIONING
 })
-@PwaApplicationStatusCheck(status = PwaApplicationStatus.DRAFT)
+@PwaApplicationStatusCheck(statuses = PwaApplicationStatus.DRAFT)
 @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.EDIT})
 public class PipelineCrossingController {
 

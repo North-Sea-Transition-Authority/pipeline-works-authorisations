@@ -106,7 +106,7 @@ public class InitialReviewController {
   }
 
   @GetMapping
-  @PwaApplicationStatusCheck(status = PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW)
+  @PwaApplicationStatusCheck(statuses = PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW)
   public ModelAndView renderInitialReview(@PathVariable("applicationId") Integer applicationId,
                                           @PathVariable("applicationType")
                                           @ApplicationTypeUrl PwaApplicationType pwaApplicationType,

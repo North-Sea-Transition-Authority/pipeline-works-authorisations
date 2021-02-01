@@ -14,7 +14,7 @@ public class PwaAppProcessingContextParams {
   private final int applicationId;
   private final AuthenticatedUserAccount authenticatedUserAccount;
 
-  private PwaApplicationStatus status;
+  private Set<PwaApplicationStatus> statuses;
   private Set<PwaAppProcessingPermission> appProcessingPermissions;
 
   private String fileId;
@@ -22,11 +22,12 @@ public class PwaAppProcessingContextParams {
   public PwaAppProcessingContextParams(int applicationId, AuthenticatedUserAccount authenticatedUserAccount) {
     this.applicationId = applicationId;
     this.authenticatedUserAccount = authenticatedUserAccount;
+    this.statuses = Set.of();
     this.appProcessingPermissions = Set.of();
   }
 
-  public PwaAppProcessingContextParams requiredAppStatus(PwaApplicationStatus status) {
-    this.status = status;
+  public PwaAppProcessingContextParams requiredAppStatuses(Set<PwaApplicationStatus> statuses) {
+    this.statuses = statuses;
     return this;
   }
 
@@ -48,8 +49,8 @@ public class PwaAppProcessingContextParams {
     return authenticatedUserAccount;
   }
 
-  public PwaApplicationStatus getStatus() {
-    return status;
+  public Set<PwaApplicationStatus> getStatuses() {
+    return statuses;
   }
 
   public Set<PwaAppProcessingPermission> getAppProcessingPermissions() {

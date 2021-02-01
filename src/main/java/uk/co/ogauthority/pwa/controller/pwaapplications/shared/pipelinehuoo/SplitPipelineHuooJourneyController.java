@@ -52,7 +52,7 @@ import uk.co.ogauthority.pwa.validators.pipelinehuoo.PickSplitPipelineFormValida
     PwaApplicationType.DECOMMISSIONING,
     PwaApplicationType.OPTIONS_VARIATION
 })
-@PwaApplicationStatusCheck(status = PwaApplicationStatus.DRAFT)
+@PwaApplicationStatusCheck(statuses = PwaApplicationStatus.DRAFT)
 @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.EDIT})
 public class SplitPipelineHuooJourneyController {
 
