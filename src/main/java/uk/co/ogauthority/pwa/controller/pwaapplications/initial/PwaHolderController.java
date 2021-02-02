@@ -129,18 +129,16 @@ public class PwaHolderController {
 
     List<String> ogList = getOrgGroupsUserCanAccess(user).stream()
             .sorted(Comparator.comparing(PortalOrganisationGroup::getName))
-            .map(e -> e.getName())
+            .map(PortalOrganisationGroup::getName)
             .collect(Collectors.toList());
 
-    var modelAndView = new ModelAndView("pwaApplication/form/holder")
+    return new ModelAndView("pwaApplication/form/holder")
         .addObject("ouMap", ouMap)
         .addObject("ogList", ogList)
         .addObject("workareaUrl", ReverseRouter.route(on(WorkAreaController.class).renderWorkArea(null, null, null)))
         .addObject("errorList", List.of())
         .addObject("hasHolderSet", form != null && form.getHolderOuId() != null)
         .addObject("ogaServiceDeskEmail", ogaServiceDeskEmail);
-
-    return modelAndView;
   }
 
   private List<PortalOrganisationGroup> getOrgGroupsUserCanAccess(AuthenticatedUserAccount user) {

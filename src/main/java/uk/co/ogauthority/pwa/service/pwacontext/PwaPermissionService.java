@@ -36,12 +36,11 @@ public class PwaPermissionService {
                                               AuthenticatedUserAccount user) {
     return Arrays.stream(PwaPermission.values())
         .filter(permission -> {
-          switch (permission) {
-            case VIEW_PWA:
-              return isUserInHolderTeam(masterPwa, user.getLinkedPerson()) || isUserOgaConsentViewer(user.getLinkedPerson());
-            default:
-              return false;
+          if (permission == PwaPermission.VIEW_PWA) {
+            return isUserInHolderTeam(masterPwa, user.getLinkedPerson()) || isUserOgaConsentViewer(
+                user.getLinkedPerson());
           }
+          return false;
 
         })
         .collect(Collectors.toSet());
