@@ -21,29 +21,22 @@ import uk.co.ogauthority.pwa.config.fileupload.FileUploadProperties;
 import uk.co.ogauthority.pwa.energyportal.service.SystemAreaAccessService;
 import uk.co.ogauthority.pwa.energyportal.service.TopMenuService;
 import uk.co.ogauthority.pwa.model.entity.UserSession;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailViewTestUtil;
 import uk.co.ogauthority.pwa.service.FoxUrlService;
 import uk.co.ogauthority.pwa.service.UserSessionService;
-import uk.co.ogauthority.pwa.service.appprocessing.AppProcessingBreadcrumbService;
-import uk.co.ogauthority.pwa.service.appprocessing.PwaAppProcessingPermissionService;
-import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupTeamService;
-import uk.co.ogauthority.pwa.service.appprocessing.context.CaseSummaryView;
-import uk.co.ogauthority.pwa.service.appprocessing.context.CaseSummaryViewService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContextService;
-import uk.co.ogauthority.pwa.service.consultations.ConsultationRequestService;
-import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
-import uk.co.ogauthority.pwa.service.fileupload.AppFileService;
+import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaManagementService;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
-import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
 import uk.co.ogauthority.pwa.service.pwacontext.PwaContextService;
+import uk.co.ogauthority.pwa.service.pwacontext.PwaPermissionService;
+import uk.co.ogauthority.pwa.service.search.consents.ConsentSearchService;
 import uk.co.ogauthority.pwa.service.tasklist.CrossingAgreementsTaskListService;
 import uk.co.ogauthority.pwa.service.teams.TeamService;
 import uk.co.ogauthority.pwa.service.users.UserTypeService;
 
-@Import(PwaAppProcessingContextAbstractControllerTest.AbstractControllerTestConfiguration.class)
-public abstract class PwaAppProcessingContextAbstractControllerTest {
+@Import(PwaContextAbstractControllerTest.AbstractControllerTestConfiguration.class)
+public abstract class PwaContextAbstractControllerTest {
 
   protected MockMvc mockMvc;
 
@@ -51,7 +44,10 @@ public abstract class PwaAppProcessingContextAbstractControllerTest {
   protected WebApplicationContext context;
 
   @Autowired
-  protected PwaAppProcessingContextService appProcessingContextService;
+  protected PwaContextService pwaContextService;
+
+  @MockBean
+  protected ConsentSearchService consentSearchService;
 
   @MockBean
   protected FoxUrlService foxUrlService;
@@ -60,7 +56,7 @@ public abstract class PwaAppProcessingContextAbstractControllerTest {
   protected UserSessionService userSessionService;
 
   @MockBean
-  protected PwaApplicationDetailService pwaApplicationDetailService;
+  protected MasterPwaManagementService masterPwaManagementService;
 
   @MockBean
   protected TeamService teamService;
@@ -69,13 +65,7 @@ public abstract class PwaAppProcessingContextAbstractControllerTest {
   private TopMenuService topMenuService;
 
   @Autowired
-  protected PwaAppProcessingPermissionService processingPermissionService;
-
-  @MockBean
-  protected PwaApplicationContextService pwaApplicationContextService;
-
-  @MockBean
-  protected PwaContextService pwaContextService;
+  protected PwaPermissionService pwaPermissionService;
 
   @SpyBean
   protected ApplicationBreadcrumbService breadcrumbService;
@@ -86,26 +76,16 @@ public abstract class PwaAppProcessingContextAbstractControllerTest {
   @MockBean
   private CrossingAgreementsTaskListService crossingAgreementsTaskListService;
 
-  @MockBean
-  private ConsulteeGroupTeamService consulteeGroupTeamService;
-
-  @SpyBean
-  private ControllerHelperService controllerHelperService;
-
-  @SpyBean
-  private AppProcessingBreadcrumbService appProcessingBreadcrumbService;
-
-  @MockBean
-  private AppFileService appFileService;
-
   @SpyBean
   protected UserTypeService userTypeService;
 
   @MockBean
-  protected ConsultationRequestService consultationRequestService;
+  protected PwaApplicationContextService pwaApplicationContextService;
 
   @MockBean
-  protected CaseSummaryViewService caseSummaryViewService;
+  protected PwaAppProcessingContextService pwaAppProcessingContextService;
+
+
 
   @Before
   public void abstractControllerTestSetup() {
@@ -118,10 +98,6 @@ public abstract class PwaAppProcessingContextAbstractControllerTest {
     when(foxUrlService.getFoxLogoutUrl()).thenReturn("testLogoutUrl");
 
     when(userSessionService.getAndValidateSession(any(), anyBoolean())).thenReturn(Optional.of(new UserSession()));
-
-    var appDetailView = ApplicationDetailViewTestUtil.createGenericDetailView();
-    var caseSummaryView = CaseSummaryView.from(appDetailView);
-    when(caseSummaryViewService.getCaseSummaryViewForAppDetail(any())).thenReturn(Optional.of(caseSummaryView));
 
   }
 

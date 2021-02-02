@@ -12,6 +12,7 @@ import javax.transaction.Transactional;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureDataJpa;
@@ -32,6 +33,7 @@ import uk.co.ogauthority.pwa.model.search.consents.ConsentSearchContext;
 import uk.co.ogauthority.pwa.model.search.consents.ConsentSearchParams;
 import uk.co.ogauthority.pwa.model.view.search.SearchScreenView;
 import uk.co.ogauthority.pwa.model.view.search.consents.ConsentSearchResultView;
+import uk.co.ogauthority.pwa.repository.search.consents.ConsentSearchItemRepository;
 import uk.co.ogauthority.pwa.service.enums.users.UserType;
 import uk.co.ogauthority.pwa.service.search.consents.predicates.ConsentSearchPredicateProvider;
 import uk.co.ogauthority.pwa.testutils.ConsentSearchItemTestUtils;
@@ -55,6 +57,9 @@ public class ConsentSearchServiceTest {
 
   private ConsentSearchService consentSearchService;
 
+  @Mock
+  private ConsentSearchItemRepository consentSearchItemRepository;
+
   private ConsentSearchItem pwa1Shell, pwa3Bp, pwa2ShellWintershall;
 
   private PortalOrganisationGroup shell, bp, wintershall;
@@ -69,7 +74,7 @@ public class ConsentSearchServiceTest {
   @Before
   public void setUp() throws Exception {
 
-    consentSearchService = new ConsentSearchService(entityManager, predicateProviders);
+    consentSearchService = new ConsentSearchService(entityManager, predicateProviders, consentSearchItemRepository);
 
     shell = PortalOrganisationTestUtils.generateOrganisationGroup(1, "SHELL", "S");
     bp = PortalOrganisationTestUtils.generateOrganisationGroup(2, "BP", "B");

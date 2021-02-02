@@ -34,6 +34,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
+import uk.co.ogauthority.pwa.service.pwacontext.PwaContextService;
 import uk.co.ogauthority.pwa.service.teams.TeamService;
 
 @RunWith(SpringRunner.class)
@@ -74,6 +75,9 @@ public class ControllerHelperServiceTypeMismatchTest {
 
   @MockBean
   private PwaAppProcessingContextService pwaAppProcessingContextService;
+
+  @MockBean
+  private PwaContextService pwaContextService;
 
   @Autowired
   private ControllerHelperService controllerHelperService;

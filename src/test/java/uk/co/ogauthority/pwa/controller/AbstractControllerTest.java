@@ -29,6 +29,7 @@ import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
+import uk.co.ogauthority.pwa.service.pwacontext.PwaContextService;
 import uk.co.ogauthority.pwa.service.teams.TeamService;
 
 @Import(AbstractControllerTest.AbstractControllerTestConfiguration.class)
@@ -59,6 +60,9 @@ public abstract class AbstractControllerTest {
 
   @MockBean
   private TopMenuService topMenuService;
+
+  @MockBean
+  protected PwaContextService pwaContextService;
 
   @SpyBean
   private ControllerHelperService controllerHelperService;

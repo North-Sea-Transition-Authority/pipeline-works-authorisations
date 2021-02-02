@@ -9,12 +9,14 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.entity.search.consents.ConsentSearchItem;
 import uk.co.ogauthority.pwa.model.entity.search.consents.ConsentSearchItem_;
 import uk.co.ogauthority.pwa.model.search.consents.ConsentSearchContext;
 import uk.co.ogauthority.pwa.model.search.consents.ConsentSearchParams;
 import uk.co.ogauthority.pwa.model.view.search.SearchScreenView;
 import uk.co.ogauthority.pwa.model.view.search.consents.ConsentSearchResultView;
+import uk.co.ogauthority.pwa.repository.search.consents.ConsentSearchItemRepository;
 import uk.co.ogauthority.pwa.service.search.consents.predicates.ConsentSearchPredicateProvider;
 
 @Service
@@ -24,12 +26,15 @@ public class ConsentSearchService {
 
   private final EntityManager entityManager;
   private final List<ConsentSearchPredicateProvider> consentSearchPredicateProviders;
+  private final ConsentSearchItemRepository consentSearchItemRepository;
 
   @Autowired
   public ConsentSearchService(EntityManager entityManager,
-                              List<ConsentSearchPredicateProvider> consentSearchPredicateProviders) {
+                              List<ConsentSearchPredicateProvider> consentSearchPredicateProviders,
+                              ConsentSearchItemRepository consentSearchItemRepository) {
     this.entityManager = entityManager;
     this.consentSearchPredicateProviders = consentSearchPredicateProviders;
+    this.consentSearchItemRepository = consentSearchItemRepository;
   }
 
   public SearchScreenView<ConsentSearchResultView> search(ConsentSearchParams searchParams,
@@ -73,6 +78,19 @@ public class ConsentSearchService {
 
     return new SearchScreenView<>(countQueryResult, results);
 
+  }
+
+  public List<ConsentSearchItem> findAll() {
+    return (List<ConsentSearchItem>) consentSearchItemRepository.findAll();
+  }
+
+  public ConsentSearchItem getConsentSearchItemById(Integer pwaId) {
+    return consentSearchItemRepository.findById(pwaId)
+        .orElseThrow(() -> new PwaEntityNotFoundException(String.format("Couldn't find consent search item with ID: %s", pwaId)));
+  }
+
+  public ConsentSearchResultView getConsentSearchResultView(Integer pwaId) {
+    return ConsentSearchResultView.fromSearchItem(getConsentSearchItemById(pwaId));
   }
 
 }

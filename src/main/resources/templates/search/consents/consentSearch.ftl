@@ -6,6 +6,7 @@
 <#-- @ftlvariable name="searched" type="java.lang.Boolean" -->
 <#-- @ftlvariable name="orgUnitFilterOptions" type="java.util.Map<java.lang.String, java.lang.String>" -->
 <#-- @ftlvariable name="searchParams" type="uk.co.ogauthority.pwa.model.search.consents.ConsentSearchParams" -->
+<#-- @ftlvariable name="consentSearchUrlFactory" type="uk.co.ogauthority.pwa.controller.search.consents.ConsentSearchUrlFactory" -->
 
 <@defaultPage htmlTitle="Search PWAs" pageHeading="Search PWAs" fullWidthColumn=true topNavigation=true wrapperWidth=true>
 
@@ -32,7 +33,7 @@
                 <ol class="govuk-list filter-result-list">
                   <#list searchScreenView.searchResults as result>
                     <li class="govuk-list__item filter-result-list__item">
-                      <@consentSearchResultView.view result />
+                      <@consentSearchResultView.view result consentSearchUrlFactory/>
                     </li>
                   </#list>
                 </ol>

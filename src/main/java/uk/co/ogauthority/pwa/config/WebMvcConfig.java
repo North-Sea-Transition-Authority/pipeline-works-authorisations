@@ -17,6 +17,7 @@ import uk.co.ogauthority.pwa.mvc.ResponseBufferSizeHandlerInterceptor;
 import uk.co.ogauthority.pwa.mvc.argresolvers.AuthenticatedUserAccountArgumentResolver;
 import uk.co.ogauthority.pwa.mvc.argresolvers.PwaAppProcessingContextArgumentResolver;
 import uk.co.ogauthority.pwa.mvc.argresolvers.PwaApplicationContextArgumentResolver;
+import uk.co.ogauthority.pwa.mvc.argresolvers.PwaContextArgumentResolver;
 import uk.co.ogauthority.pwa.mvc.argresolvers.ValidationTypeArgumentResolver;
 import uk.co.ogauthority.pwa.util.converters.PwaApplicationTypePathVariableConverterEnumToString;
 import uk.co.ogauthority.pwa.util.converters.PwaApplicationTypePathVariableConverterStringToEnum;
@@ -26,18 +27,22 @@ public class WebMvcConfig implements WebMvcConfigurer {
 
   private final PwaApplicationContextArgumentResolver pwaApplicationContextArgumentResolver;
   private final PwaAppProcessingContextArgumentResolver pwaAppProcessingContextArgumentResolver;
+  private final PwaContextArgumentResolver pwaContextArgumentResolver;
 
   @Autowired
   public WebMvcConfig(PwaApplicationContextArgumentResolver pwaApplicationContextArgumentResolver,
-                      PwaAppProcessingContextArgumentResolver pwaAppProcessingContextArgumentResolver) {
+                      PwaAppProcessingContextArgumentResolver pwaAppProcessingContextArgumentResolver,
+                      PwaContextArgumentResolver pwaContextArgumentResolver) {
     this.pwaApplicationContextArgumentResolver = pwaApplicationContextArgumentResolver;
     this.pwaAppProcessingContextArgumentResolver = pwaAppProcessingContextArgumentResolver;
+    this.pwaContextArgumentResolver = pwaContextArgumentResolver;
   }
 
   @Override
   public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
     resolvers.add(pwaApplicationContextArgumentResolver);
     resolvers.add(pwaAppProcessingContextArgumentResolver);
+    resolvers.add(pwaContextArgumentResolver);
     resolvers.add(new AuthenticatedUserAccountArgumentResolver());
     resolvers.add(new ValidationTypeArgumentResolver());
   }

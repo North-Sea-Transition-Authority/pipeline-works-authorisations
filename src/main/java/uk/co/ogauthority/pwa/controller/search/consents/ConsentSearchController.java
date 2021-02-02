@@ -67,7 +67,8 @@ public class ConsentSearchController {
         .addObject("searchScreenView", searchScreenView)
         .addObject("searched", doSearch)
         .addObject("orgUnitFilterOptions", sortedOrganisationUnits)
-        .addObject("form", ConsentSearchForm.fromSearchParams(consentSearchParams));
+        .addObject("form", ConsentSearchForm.fromSearchParams(consentSearchParams))
+        .addObject("consentSearchUrlFactory", new ConsentSearchUrlFactory());
 
   }
 

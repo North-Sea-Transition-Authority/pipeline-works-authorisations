@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.collections4.SetUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,7 @@ import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.energyportal.model.dto.teams.PortalTeamDto;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
+import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationGroup;
 import uk.co.ogauthority.pwa.energyportal.service.teams.PortalTeamAccessor;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
@@ -130,6 +132,12 @@ public class TeamService {
     );
 
     return pwaTeamsDtoFactory.createOrganisationTeamList(orgTeamList);
+  }
+
+  public boolean isUserInHolderTeam(Person person, Set<PortalOrganisationGroup> holderOrgGroups) {
+    return getOrganisationTeamListIfPersonInRole(person, EnumSet.allOf(PwaOrganisationRole.class)).stream()
+        .map(PwaOrganisationTeam::getPortalOrganisationGroup)
+        .anyMatch(holderOrgGroups::contains);
   }
 
   private PwaRegulatorTeam createRegulatorTeamOrError(List<PortalTeamDto> teams) {

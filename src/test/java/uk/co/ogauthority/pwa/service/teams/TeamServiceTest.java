@@ -278,6 +278,38 @@ public class TeamServiceTest {
   }
 
   @Test
+  public void isUserInHolderTeam_userInTeam() {
+
+    List<PortalTeamDto> foundOrganisationTeams = List.of(organisationTeamAsPortalTeamDto1);
+    when(portalTeamAccessor.getTeamsWherePersonMemberOfTeamTypeAndHasRoleMatching(
+        eq(organisationPerson),
+        eq(PwaTeamType.ORGANISATION.getPortalTeamType()),
+        any()))
+        .thenReturn(foundOrganisationTeams);
+
+    when(pwaTeamsDtoFactory.createOrganisationTeamList(foundOrganisationTeams))
+        .thenReturn(List.of(organisationTeam1));
+
+    var userInHolderTeam = teamService.isUserInHolderTeam(
+        organisationPerson, Set.of(organisationTeam1.getPortalOrganisationGroup()));
+    assertThat(userInHolderTeam).isTrue();
+  }
+
+  @Test
+  public void isUserInHolderTeam_userNotInTeam() {
+
+    when(portalTeamAccessor.getTeamsWherePersonMemberOfTeamTypeAndHasRoleMatching(
+        eq(organisationPerson),
+        eq(PwaTeamType.ORGANISATION.getPortalTeamType()),
+        any()))
+        .thenReturn(List.of());
+
+    var userInHolderTeam = teamService.isUserInHolderTeam(
+        organisationPerson, Set.of(organisationTeam1.getPortalOrganisationGroup()));
+    assertThat(userInHolderTeam).isFalse();
+  }
+
+  @Test
   public void removePersonFromTeam_verifyServiceInteraction() {
     teamService.removePersonFromTeam(regulatorTeam, regulatorPerson, someWebUserAccount);
     verify(portalTeamAccessor, times(1)).removePersonFromTeam(regulatorTeam.getId(), regulatorPerson, someWebUserAccount);

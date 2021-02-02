@@ -5,6 +5,7 @@ import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.entity.enums.MasterPwaDetailStatus;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaDetail;
@@ -45,6 +46,11 @@ public class MasterPwaManagementService {
 
     return masterPwaDetail;
 
+  }
+
+  public MasterPwa getMasterPwaById(Integer pwaId) {
+    return masterPwaRepository.findById(pwaId)
+        .orElseThrow(() -> new PwaEntityNotFoundException("Could not find master PWA with id " + pwaId));
   }
 
 }

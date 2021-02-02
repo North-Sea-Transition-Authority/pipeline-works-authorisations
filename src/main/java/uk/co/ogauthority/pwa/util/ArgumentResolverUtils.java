@@ -22,6 +22,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 public class ArgumentResolverUtils {
 
   public static final String APPLICATION_ID_PARAM = "applicationId";
+  public static final String MASTER_PWA_ID_PARAM = "pwaId";
 
   private ArgumentResolverUtils() {
     throw new AssertionError();
