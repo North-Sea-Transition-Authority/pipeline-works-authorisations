@@ -2,8 +2,6 @@ package uk.co.ogauthority.pwa.govukpay;
 
 import java.util.List;
 import java.util.Objects;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -19,8 +17,6 @@ import uk.co.ogauthority.pwa.govukpay.api.cardpayment.response.GetPaymentResult;
 
 @Service
 class GovUkPayClientApiV1Impl implements GovUkPayCardPaymentClient {
-
-  private static final Logger LOGGER = LoggerFactory.getLogger(GovUkPayClientApiV1Impl.class);
 
   private final ApiV1RequestDataMapper apiV1RequestDataMapper;
   private final GovUkPayConfiguration govUkPayConfiguration;
