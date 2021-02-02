@@ -206,7 +206,6 @@ public class BlockCrossingController {
       @PathVariable("blockCrossingId") Integer blockCrossingId,
       PwaApplicationContext applicationContext) {
     var detail = applicationContext.getApplicationDetail();
-    var crossedBlock = blockCrossingService.getCrossedBlockByIdAndApplicationDetail(blockCrossingId, detail);
     var modelAndView = new ModelAndView("pwaApplication/shared/crossings/removeBlockCrossing")
         .addObject("crossing", blockCrossingService.getCrossedBlockView(detail, blockCrossingId))
         .addObject("backUrl",
@@ -275,9 +274,7 @@ public class BlockCrossingController {
 
     if (form.getPickedBlock() != null) {
       blockCrossingService.getPickablePearsBlockFromForm(form)
-          .ifPresent(block -> {
-            modelAndView.addObject("preselectedBlock", Map.of(block.getSelectionId(), block.getSelectionText()));
-          });
+          .ifPresent(block -> modelAndView.addObject("preselectedBlock", Map.of(block.getSelectionId(), block.getSelectionText())));
     }
 
     addGenericBlockCrossingModelAttributes(modelAndView, applicationContext);
