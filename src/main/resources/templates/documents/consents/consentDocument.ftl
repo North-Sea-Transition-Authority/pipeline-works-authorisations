@@ -161,6 +161,10 @@
       margin-top: 40px;
     }
 
+    .huooOrgDescription {
+      page-break-inside:avoid;
+    }
+
   </style>
 </head>
 <body>

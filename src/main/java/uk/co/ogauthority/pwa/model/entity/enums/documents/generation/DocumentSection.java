@@ -15,7 +15,7 @@ public enum DocumentSection {
 
   SCHEDULE_2("Schedule 2", SectionType.CLAUSE_LIST, Schedule2GeneratorService.class),
 
-  HUOO("HUOOs", HuooGeneratorService.class),
+  HUOO("Schedule 1", HuooGeneratorService.class),
 
   TABLE_A("Table As", TableAGeneratorService.class),
 
