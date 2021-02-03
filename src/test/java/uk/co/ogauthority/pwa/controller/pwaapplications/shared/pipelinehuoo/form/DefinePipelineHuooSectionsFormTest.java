@@ -1,5 +1,7 @@
 package uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelinehuoo.form;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -33,5 +35,26 @@ public class DefinePipelineHuooSectionsFormTest {
   public void resetSectionPoints_when1Sections() {
     var form = new DefinePipelineHuooSectionsForm();
     form.resetSectionPoints(1,  firstIdentLocation);
+
+    assertThat(form.getPipelineSectionPoints()).hasSize(1);
+    assertThat(form.getPipelineSectionPoints().get(0).getPointIncludedInSection()).isTrue();
+    assertThat(form.getPipelineSectionPoints().get(0).getPickedPipelineIdentString()).isEqualTo(firstIdentLocation.getPickableString());
+  }
+
+  @Test
+  public void resetSectionPoints_when3Sections() {
+    var form = new DefinePipelineHuooSectionsForm();
+    form.resetSectionPoints(3,  firstIdentLocation);
+
+    assertThat(form.getPipelineSectionPoints()).hasSize(3);
+    assertThat(form.getPipelineSectionPoints().get(0).getPointIncludedInSection()).isTrue();
+    assertThat(form.getPipelineSectionPoints().get(0).getPickedPipelineIdentString()).isEqualTo(firstIdentLocation.getPickableString());
+
+    assertThat(form.getPipelineSectionPoints().get(1).getPointIncludedInSection()).isNull();
+    assertThat(form.getPipelineSectionPoints().get(1).getPickedPipelineIdentString()).isNull();
+
+    assertThat(form.getPipelineSectionPoints().get(2).getPointIncludedInSection()).isNull();
+    assertThat(form.getPipelineSectionPoints().get(2).getPickedPipelineIdentString()).isNull();
+
   }
 }
