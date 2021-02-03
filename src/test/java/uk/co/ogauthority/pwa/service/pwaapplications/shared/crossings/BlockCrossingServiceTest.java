@@ -147,6 +147,15 @@ public class BlockCrossingServiceTest {
 
   }
 
+  @Test(expected = PwaEntityNotFoundException.class)
+  public void errorWhenCrossedBlockDoesNotExist_whenBlockFound_andHasNonMatchingDetail() {
+    var otherDetail = new PwaApplicationDetail();
+    otherDetail.setId(9999);
+    padCrossedBlock.setPwaApplicationDetail(otherDetail);
+    blockCrossingService.errorWhenCrossedBlockDoesNotExist(CROSSED_BLOCK_ID, pwaApplicationDetail);
+
+  }
+
   @Test
   public void getCrossedBlockViews_whenHolderIsOwner_andUnlicensedBlock() {
 

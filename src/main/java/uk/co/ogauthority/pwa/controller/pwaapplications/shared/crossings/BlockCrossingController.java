@@ -205,7 +205,9 @@ public class BlockCrossingController {
       @PathVariable("applicationId") Integer applicationId,
       @PathVariable("blockCrossingId") Integer blockCrossingId,
       PwaApplicationContext applicationContext) {
+
     var detail = applicationContext.getApplicationDetail();
+    blockCrossingService.errorWhenCrossedBlockDoesNotExist(blockCrossingId, detail);
     var modelAndView = new ModelAndView("pwaApplication/shared/crossings/removeBlockCrossing")
         .addObject("crossing", blockCrossingService.getCrossedBlockView(detail, blockCrossingId))
         .addObject("backUrl",
