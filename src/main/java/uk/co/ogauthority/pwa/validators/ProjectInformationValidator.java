@@ -131,20 +131,19 @@ public class ProjectInformationValidator implements SmartValidator {
       }
     }
 
-    if (requiredQuestions.contains(ProjectInformationQuestion.PERMANENT_DEPOSITS_BEING_MADE)) {
+    if (requiredQuestions.contains(ProjectInformationQuestion.PERMANENT_DEPOSITS_BEING_MADE)
+        && PermanentDepositRadioOption.LATER_APP.equals(form.getPermanentDepositsMadeType())) {
 
-      if (PermanentDepositRadioOption.LATER_APP.equals(form.getPermanentDepositsMadeType())) {
-        List<Object> toDateHints = new ArrayList<>();
-        toDateHints.add(new FormInputLabel("deposit submission"));
-        ValidatorUtils.invokeNestedValidator(
-            errors,
-            twoFieldDateInputValidator,
-            "futureSubmissionDate",
-            form.getFutureSubmissionDate(),
-            toDateHints.toArray());
-      }
-
+      List<Object> toDateHints = new ArrayList<>();
+      toDateHints.add(new FormInputLabel("deposit submission"));
+      ValidatorUtils.invokeNestedValidator(
+          errors,
+          twoFieldDateInputValidator,
+          "futureSubmissionDate",
+          form.getFutureSubmissionDate(),
+          toDateHints.toArray());
     }
+
   }
 
   private void validateFull(ProjectInformationForm form,  Errors errors,
