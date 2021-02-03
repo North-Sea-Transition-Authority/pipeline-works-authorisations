@@ -14,18 +14,13 @@ final class ApiV1RequestDataMapper {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ApiV1RequestDataMapper.class);
 
-  private final GovUkPayConfiguration govUkPayConfiguration;
-
   @Autowired
-  ApiV1RequestDataMapper(GovUkPayConfiguration govUkPayConfiguration) {
-    this.govUkPayConfiguration = govUkPayConfiguration;
+  ApiV1RequestDataMapper() {
   }
 
   CreateCardPaymentRequest mapNewCardPaymentRequest(NewCardPaymentRequest newCardPaymentRequest) {
+    LOGGER.trace("mapNewCardPaymentRequest - param newCardPaymentRequest {}", newCardPaymentRequest);
 
-    if (govUkPayConfiguration.isDebugEnabled()) {
-      LOGGER.debug("mapNewCardPaymentRequest - param newCardPaymentRequest {}", newCardPaymentRequest.toString());
-    }
     var cardPaymentRequest = new CreateCardPaymentRequest(
         newCardPaymentRequest.getAmount(),
         newCardPaymentRequest.getReference(),
@@ -43,9 +38,7 @@ final class ApiV1RequestDataMapper {
   }
 
   NewCardPaymentResult mapNewCardPaymentResult(CreatePaymentResult createPaymentResult) {
-    if (govUkPayConfiguration.isDebugEnabled()) {
-      LOGGER.debug("mapNewCardPaymentResponse - param createPaymentResult {}", createPaymentResult.toString());
-    }
+    LOGGER.trace("mapNewCardPaymentResponse - param createPaymentResult {}", createPaymentResult);
 
     var paymentState = new PaymentJourneyState(
         createPaymentResult.getState().getStatus(),

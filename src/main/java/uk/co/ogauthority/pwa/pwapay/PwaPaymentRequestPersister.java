@@ -110,7 +110,7 @@ public class PwaPaymentRequestPersister {
 
     paymentRequest.setGovUkPaymentStatus(paymentJourneyState.getStatus());
     paymentRequest.setGovUkPaymentStatusMessage(
-        String.format("Code: %s \n Message: %s",
+        String.format("Code: %s %n Message: %s",
             paymentJourneyState.getCode(),
             paymentJourneyState.getMessage()
         )
