@@ -56,11 +56,10 @@ public class FastTrackController {
   }
 
   private ModelAndView getFastTrackModelAndView(PwaApplicationDetail detail) {
-    var startDate = LocalDate.now();
     var projectInformation = padProjectInformationService.getPadProjectInformationData(detail);
     var modelAndView = new ModelAndView("pwaApplication/shared/fastTrack");
     if (projectInformation.getProposedStartTimestamp() != null) {
-      startDate = LocalDate.ofInstant(projectInformation.getProposedStartTimestamp(), ZoneId.systemDefault());
+      var startDate = LocalDate.ofInstant(projectInformation.getProposedStartTimestamp(), ZoneId.systemDefault());
       modelAndView.addObject("startDate", DateUtils.formatDate(startDate));
       modelAndView.addObject("modifyStartDateUrl",
           ReverseRouter.route(on(ProjectInformationController.class)

@@ -63,9 +63,7 @@ public class ConfirmationOfOptionController {
         padConfirmationOfOption -> padConfirmationOfOptionService.mapEntityToForm(form, padConfirmationOfOption)
     );
 
-    var modelAndView = createModelAndView(applicationContext);
-
-    return modelAndView;
+    return createModelAndView(applicationContext);
   }
 
   @PostMapping

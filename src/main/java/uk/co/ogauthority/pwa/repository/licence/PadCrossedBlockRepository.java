@@ -12,6 +12,8 @@ public interface PadCrossedBlockRepository extends CrudRepository<PadCrossedBloc
 
   List<PadCrossedBlock> getAllByPwaApplicationDetail(PwaApplicationDetail pwaApplicationDetail);
 
+  boolean existsByIdAndPwaApplicationDetail(Integer id, PwaApplicationDetail pwaApplicationDetail);
+
   int countPadCrossedBlockByPwaApplicationDetailAndBlockOwnerIn(PwaApplicationDetail pwaApplicationDetail,
                                                                 Iterable<CrossedBlockOwner> blockOwners);
 
