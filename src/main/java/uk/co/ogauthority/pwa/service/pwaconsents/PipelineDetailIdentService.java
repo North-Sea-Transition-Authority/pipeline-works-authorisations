@@ -37,13 +37,17 @@ public class PipelineDetailIdentService {
   /**
    * Processing steps recreate method used for creating Idents views for a PadPipeline.
    */
+  @Transactional(readOnly = true) // just a hint, not guaranteed to be enforced read only.
   public List<IdentView> getSortedPipelineIdentViewsForPipeline(PipelineId pipelineId) {
-    return getSortedPipelineIdentViewsForPipelines(List.of(pipelineId)).get(pipelineId);
-
+    return getMapOfPipelineIdToSortedIdentViewList(List.of(pipelineId)).get(pipelineId);
   }
 
   @Transactional(readOnly = true) // just a hint, not guaranteed to be enforced read only.
   public Map<PipelineId, List<IdentView>> getSortedPipelineIdentViewsForPipelines(Collection<PipelineId> pipelineIds) {
+    return getMapOfPipelineIdToSortedIdentViewList(pipelineIds);
+  }
+
+  private Map<PipelineId, List<IdentView>> getMapOfPipelineIdToSortedIdentViewList(Collection<PipelineId> pipelineIds) {
     return pipelineIdentViewCollectorService.getPipelineIdToIdentVewsMap(
         PipelineDetailIdent.class,
         PipelineDetailIdentData.class,

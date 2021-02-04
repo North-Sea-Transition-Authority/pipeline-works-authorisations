@@ -90,7 +90,7 @@ public class PickExistingPwaController {
 
     List<String> ogList = getOrgGroupsUserCanAccess(user).stream()
         .sorted(Comparator.comparing(PortalOrganisationGroup::getName))
-        .map(e -> e.getName())
+        .map(PortalOrganisationGroup::getName)
         .collect(Collectors.toList());
 
     return new ModelAndView("pwaApplication/shared/pickPwaForApplication")

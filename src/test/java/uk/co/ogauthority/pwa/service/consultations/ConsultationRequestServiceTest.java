@@ -169,14 +169,14 @@ public class ConsultationRequestServiceTest {
         teamMember1.getPerson().getFullName(),
         pwaApplicationDetail.getPwaApplication().getAppReference(),
         groupDetail.getName(),
-        DateUtils.formatDateTime(dueDate),
+        DateUtils.formatDate(dueDate),
         caseManagementLink)));
 
     assertTrue(expectedEmailPropsValues.contains(new ConsultationRequestReceivedEmailProps(
         teamMember2.getPerson().getFullName(),
         pwaApplicationDetail.getPwaApplication().getAppReference(),
         groupDetail.getName(),
-        DateUtils.formatDateTime(dueDate),
+        DateUtils.formatDate(dueDate),
         caseManagementLink)));
 
     List<String> expectedToEmailValues = expectedToEmailAddress.getAllValues();

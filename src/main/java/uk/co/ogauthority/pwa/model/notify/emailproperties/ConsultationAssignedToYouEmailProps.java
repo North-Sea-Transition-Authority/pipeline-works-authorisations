@@ -8,15 +8,18 @@ public class ConsultationAssignedToYouEmailProps extends EmailProperties {
   private final String applicationReference;
   private final String assigningUserFullName;
   private final String consultationDueDateDisplay;
+  private final String caseManagementLink;
 
   public ConsultationAssignedToYouEmailProps(String recipientFullName,
                                              String applicationReference,
                                              String assigningUserFullName,
-                                             String consultationDueDateDisplay) {
+                                             String consultationDueDateDisplay,
+                                             String caseManagementLink) {
     super(NotifyTemplate.CONSULTATION_ASSIGNED_TO_YOU, recipientFullName);
     this.applicationReference = applicationReference;
     this.assigningUserFullName = assigningUserFullName;
     this.consultationDueDateDisplay = consultationDueDateDisplay;
+    this.caseManagementLink = caseManagementLink;
   }
 
   @Override
@@ -25,6 +28,7 @@ public class ConsultationAssignedToYouEmailProps extends EmailProperties {
     emailPersonalisation.put("APPLICATION_REFERENCE", applicationReference);
     emailPersonalisation.put("ASSIGNER_FULL_NAME", assigningUserFullName);
     emailPersonalisation.put("DUE_DATE", consultationDueDateDisplay);
+    emailPersonalisation.put("CASE_MANAGEMENT_LINK", caseManagementLink);
     return emailPersonalisation;
   }
 

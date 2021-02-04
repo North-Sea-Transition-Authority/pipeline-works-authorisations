@@ -11,8 +11,6 @@ import org.springframework.web.client.RestTemplate;
 @Component
 final class GovUkPayConfiguration {
 
-  private static final String DEBUG_LOG_LEVEL = "DEBUG";
-
   private static final String GOVUK_PAY_BASE = "https://publicapi.payments.service.gov.uk";
   private static final String PAYMENTS_URL = "/v1/payments";
 
@@ -21,8 +19,6 @@ final class GovUkPayConfiguration {
   private final String contextPath;
 
   private final String apiKey;
-
-  private final String logLevel;
 
   private final String govukPayAuthorizationHeaderValue;
 
@@ -39,22 +35,16 @@ final class GovUkPayConfiguration {
                         @Value("${context-path}") String contextPath,
                         @Value("${govukpay.apiKey}") String apiKey,
                         @Value("${govukpay.connect-timeout-seconds:#{10}}") Long apiConnectionTimeoutSeconds,
-                        @Value("${govukpay.read-timeout-seconds:#{10}}") Long apiReadTimeoutSeconds,
-                        @Value("${govukpay.log.level:#{null}}") String logLevel) {
+                        @Value("${govukpay.read-timeout-seconds:#{10}}") Long apiReadTimeoutSeconds) {
     this.applicationBaseUrl = applicationBaseUrl;
     this.contextPath = contextPath;
     this.apiKey = apiKey;
     this.govukPayAuthorizationHeaderValue = "Bearer " + apiKey;
     this.apiConnectionTimeoutSeconds = apiConnectionTimeoutSeconds;
     this.apiReadTimeoutSeconds = apiReadTimeoutSeconds;
-    this.logLevel = logLevel;
     this.restTemplateBuilder = restTemplateBuilder;
     this.clientHttpRequestFactory = clientHttpRequestFactory;
 
-  }
-
-  boolean isDebugEnabled() {
-    return DEBUG_LOG_LEVEL.equals(this.logLevel);
   }
 
   String getGovukPayBaseUrl() {

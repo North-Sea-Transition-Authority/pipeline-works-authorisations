@@ -60,7 +60,6 @@ public class PipelineDrawingController extends PwaApplicationDetailDataFileUploa
   private final ApplicationBreadcrumbService applicationBreadcrumbService;
   private final PadTechnicalDrawingService padTechnicalDrawingService;
   private final PadTechnicalDrawingLinkService padTechnicalDrawingLinkService;
-  private final PadFileService padFileService;
   private final ControllerHelperService controllerHelperService;
 
   private static final ApplicationDetailFilePurpose FILE_PURPOSE = ApplicationDetailFilePurpose.PIPELINE_DRAWINGS;
@@ -76,7 +75,6 @@ public class PipelineDrawingController extends PwaApplicationDetailDataFileUploa
     this.applicationBreadcrumbService = applicationBreadcrumbService;
     this.padTechnicalDrawingService = padTechnicalDrawingService;
     this.padTechnicalDrawingLinkService = padTechnicalDrawingLinkService;
-    this.padFileService = padFileService;
     this.controllerHelperService = controllerHelperService;
   }
 

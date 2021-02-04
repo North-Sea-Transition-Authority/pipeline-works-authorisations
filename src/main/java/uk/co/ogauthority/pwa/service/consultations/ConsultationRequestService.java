@@ -226,7 +226,7 @@ public class ConsultationRequestService {
                                                                                String consulteeGroupName,
                                                                                String caseManagementLink) {
 
-    String dueDateDisplay = DateUtils.formatDateTime(consultationRequest.getDeadlineDate());
+    String dueDateDisplay = DateUtils.formatDate(consultationRequest.getDeadlineDate());
 
     return new ConsultationRequestReceivedEmailProps(
         recipient.getFullName(),

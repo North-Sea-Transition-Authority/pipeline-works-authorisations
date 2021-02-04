@@ -45,6 +45,7 @@ import uk.co.ogauthority.pwa.service.enums.appprocessing.TaskStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ConsultationRequestStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationConsultationWorkflowTask;
+import uk.co.ogauthority.pwa.service.notify.EmailCaseLinkService;
 import uk.co.ogauthority.pwa.service.notify.NotifyService;
 import uk.co.ogauthority.pwa.service.teammanagement.TeamManagementService;
 import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
@@ -83,6 +84,9 @@ public class AssignResponderServiceTest {
   @Mock
   private NotifyService notifyService;
 
+  @Mock
+  private EmailCaseLinkService emailCaseLinkService;
+
   @Captor
   private ArgumentCaptor<ConsultationAssignedToYouEmailProps> emailPropsCaptor;
 
@@ -95,7 +99,8 @@ public class AssignResponderServiceTest {
         teamManagementService,
         camundaWorkflowService,
         consultationRequestService,
-        notifyService);
+        notifyService,
+        emailCaseLinkService);
   }
 
   @Test
@@ -134,6 +139,9 @@ public class AssignResponderServiceTest {
     when(camundaWorkflowService.getAllActiveWorkflowTasks(consultationRequest))
         .thenReturn(Set.of(task));
 
+    var caseManagementLink = "case link";
+    when(emailCaseLinkService.generateCaseManagementLink(consultationRequest.getPwaApplication())).thenReturn(caseManagementLink);
+
     assignResponderService.assignResponder(form, consultationRequest, assigningUser);
 
     verify(camundaWorkflowService, times(1)).completeTask(eq(task));
@@ -157,7 +165,8 @@ public class AssignResponderServiceTest {
             tuple("RECIPIENT_FULL_NAME", responderPerson.getFullName()),
             tuple("APPLICATION_REFERENCE", app.getAppReference()),
             tuple("ASSIGNER_FULL_NAME", assigningUser.getLinkedPerson().getFullName()),
-            tuple("DUE_DATE", DateUtils.formatDateTime(deadline))
+            tuple("DUE_DATE", DateUtils.formatDate(deadline)),
+            tuple("CASE_MANAGEMENT_LINK", caseManagementLink)
         );
 
     assertThat(consultationRequest.getStatus()).isEqualTo(ConsultationRequestStatus.AWAITING_RESPONSE);
@@ -250,7 +259,7 @@ public class AssignResponderServiceTest {
             tuple("RECIPIENT_FULL_NAME", responderPerson.getFullName()),
             tuple("APPLICATION_REFERENCE", app.getAppReference()),
             tuple("ASSIGNER_FULL_NAME", assigningUser.getLinkedPerson().getFullName()),
-            tuple("DUE_DATE", DateUtils.formatDateTime(deadline))
+            tuple("DUE_DATE", DateUtils.formatDate(deadline))
         );
 
     assertThat(consultationRequest.getStatus()).isEqualTo(ConsultationRequestStatus.AWAITING_RESPONSE);

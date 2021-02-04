@@ -24,6 +24,7 @@ import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingTask;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.TaskStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ConsultationRequestStatus;
 import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationConsultationWorkflowTask;
+import uk.co.ogauthority.pwa.service.notify.EmailCaseLinkService;
 import uk.co.ogauthority.pwa.service.notify.NotifyService;
 import uk.co.ogauthority.pwa.service.teammanagement.TeamManagementService;
 import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
@@ -42,6 +43,7 @@ public class AssignResponderService implements AppProcessingService {
   private final CamundaWorkflowService camundaWorkflowService;
   private final ConsultationRequestService consultationRequestService;
   private final NotifyService notifyService;
+  private final EmailCaseLinkService emailCaseLinkService;
 
   @Autowired
   public AssignResponderService(WorkflowAssignmentService workflowAssignmentService,
@@ -50,7 +52,8 @@ public class AssignResponderService implements AppProcessingService {
                                 TeamManagementService teamManagementService,
                                 CamundaWorkflowService camundaWorkflowService,
                                 ConsultationRequestService consultationRequestService,
-                                NotifyService notifyService) {
+                                NotifyService notifyService,
+                                EmailCaseLinkService emailCaseLinkService) {
     this.workflowAssignmentService = workflowAssignmentService;
     this.assignResponderValidator = assignResponderValidator;
     this.consulteeGroupTeamService = consulteeGroupTeamService;
@@ -58,6 +61,7 @@ public class AssignResponderService implements AppProcessingService {
     this.camundaWorkflowService = camundaWorkflowService;
     this.consultationRequestService = consultationRequestService;
     this.notifyService = notifyService;
+    this.emailCaseLinkService = emailCaseLinkService;
   }
 
   public List<Person> getAllRespondersForRequest(ConsultationRequest consultationRequest) {
@@ -98,8 +102,8 @@ public class AssignResponderService implements AppProcessingService {
 
     // if user didn't assign to themselves, email the assigned responder
     if (!Objects.equals(responderPerson, assigningPerson)) {
-
-      var emailProps = buildAssignedEmailProps(responderPerson, consultationRequest, assigningPerson);
+      var caseManagementLink = emailCaseLinkService.generateCaseManagementLink(consultationRequest.getPwaApplication());
+      var emailProps = buildAssignedEmailProps(responderPerson, consultationRequest, assigningPerson, caseManagementLink);
       notifyService.sendEmail(emailProps, responderPerson.getEmailAddress());
 
     }
@@ -108,17 +112,18 @@ public class AssignResponderService implements AppProcessingService {
 
   private ConsultationAssignedToYouEmailProps buildAssignedEmailProps(Person assignee,
                                                                       ConsultationRequest consultationRequest,
-                                                                      Person assigningPerson) {
+                                                                      Person assigningPerson,
+                                                                      String caseManagementLink) {
 
     String appRef = consultationRequest.getPwaApplication().getAppReference();
-    String dueDateDisplay = DateUtils.formatDateTime(consultationRequest.getDeadlineDate());
+    String dueDateDisplay = DateUtils.formatDate(consultationRequest.getDeadlineDate());
 
     return new ConsultationAssignedToYouEmailProps(
         assignee.getFullName(),
         appRef,
         assigningPerson.getFullName(),
-        dueDateDisplay
-    );
+        dueDateDisplay,
+        caseManagementLink);
 
   }
 
