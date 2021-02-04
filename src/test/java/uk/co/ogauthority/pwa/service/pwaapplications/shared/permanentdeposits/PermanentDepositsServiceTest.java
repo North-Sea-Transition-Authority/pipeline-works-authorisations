@@ -442,17 +442,17 @@ public class PermanentDepositsServiceTest {
     assertThat(mattress.getOtherMaterialType()).isNull();
     assertThat(mattress.getMaterialSize()).isNull();
     assertThat(mattress.getContingencyAmount()).isNotNull();
-    assertThat(mattress.getQuantity()).isNotNull();
-    assertThat(mattress.getConcreteMattressDepth()).isNotNull();
-    assertThat(mattress.getConcreteMattressWidth()).isNotNull();
-    assertThat(mattress.getConcreteMattressLength()).isNotNull();
+    assertThat(mattress.getQuantity()).isEqualTo(Double.valueOf(1.0));
+    assertThat(mattress.getConcreteMattressDepth()).isEqualTo(BigDecimal.valueOf(3));
+    assertThat(mattress.getConcreteMattressWidth()).isEqualTo(BigDecimal.valueOf(1));
+    assertThat(mattress.getConcreteMattressLength()).isEqualTo(BigDecimal.valueOf(2));
 
     assertThat(rock.getGroutBagsBioDegradable()).isNull();
     assertThat(rock.getBagsNotUsedDescription()).isNull();
     assertThat(rock.getOtherMaterialType()).isNull();
     assertThat(rock.getMaterialSize()).isNotNull();
     assertThat(rock.getContingencyAmount()).isNotNull();
-    assertThat(rock.getQuantity()).isNotNull();
+    assertThat(rock.getQuantity()).isEqualTo(Double.valueOf(1));
     assertThat(rock.getConcreteMattressDepth()).isNull();
     assertThat(rock.getConcreteMattressWidth()).isNull();
     assertThat(rock.getConcreteMattressLength()).isNull();
@@ -462,7 +462,7 @@ public class PermanentDepositsServiceTest {
     assertThat(grout.getOtherMaterialType()).isNull();
     assertThat(grout.getMaterialSize()).isNotNull();
     assertThat(grout.getContingencyAmount()).isNotNull();
-    assertThat(grout.getQuantity()).isNotNull();
+    assertThat(grout.getQuantity()).isEqualTo(Double.valueOf(1));
     assertThat(grout.getConcreteMattressDepth()).isNull();
     assertThat(grout.getConcreteMattressWidth()).isNull();
     assertThat(grout.getConcreteMattressLength()).isNull();
@@ -472,7 +472,7 @@ public class PermanentDepositsServiceTest {
     assertThat(other.getOtherMaterialType()).isNotNull();
     assertThat(other.getMaterialSize()).isNotNull();
     assertThat(other.getContingencyAmount()).isNotNull();
-    assertThat(other.getQuantity()).isNotNull();
+    assertThat(other.getQuantity()).isEqualTo(Double.valueOf(1));
     assertThat(other.getConcreteMattressDepth()).isNull();
     assertThat(other.getConcreteMattressWidth()).isNull();
     assertThat(other.getConcreteMattressLength()).isNull();

@@ -292,7 +292,9 @@ public class DiffServiceTest {
       assertThat(diffResultMap.values()).allMatch(o -> o instanceof DiffedField);
       List<DiffedField> diffedFieldList = diffResultMap.values().stream().filter(o -> o instanceof DiffedField).map(
           o -> (DiffedField) o).collect(toList());
-      assertThat(diffedFieldList).allMatch(diffedField -> diffedField.getDiffType().equals(DiffType.UNCHANGED));
+      assertThat(diffedFieldList)
+          .isNotEmpty()
+          .allMatch(diffedField -> diffedField.getDiffType().equals(DiffType.UNCHANGED));
     }
   }
 
@@ -328,7 +330,8 @@ public class DiffServiceTest {
       assertThat(diffResultMap.values()).allMatch(o -> o instanceof DiffedField);
       List<DiffedField> diffedFieldList = diffResultMap.values().stream().filter(o -> o instanceof DiffedField).map(
           o -> (DiffedField) o).collect(toList());
-      assertThat(diffedFieldList).allMatch(diffedField -> diffedField.getDiffType().equals(DiffType.ADDED));
+      assertThat(diffedFieldList).isNotEmpty()
+          .allMatch(diffedField -> diffedField.getDiffType().equals(DiffType.ADDED));
     }
   }
 
@@ -345,7 +348,8 @@ public class DiffServiceTest {
       assertThat(diffResultMap.values()).allMatch(o -> o instanceof DiffedField);
       List<DiffedField> diffedFieldList = diffResultMap.values().stream().filter(o -> o instanceof DiffedField).map(
           o -> (DiffedField) o).collect(toList());
-      assertThat(diffedFieldList).allMatch(diffedField -> diffedField.getDiffType().equals(DiffType.DELETED));
+      assertThat(diffedFieldList).isNotEmpty()
+          .allMatch(diffedField -> diffedField.getDiffType().equals(DiffType.DELETED));
     }
   }
 

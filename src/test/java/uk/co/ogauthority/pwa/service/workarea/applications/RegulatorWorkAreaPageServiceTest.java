@@ -99,9 +99,9 @@ public class RegulatorWorkAreaPageServiceTest {
         Set.of(APP_ID_1, APP_ID_2)
     );
 
-    assertThat(workAreaPage.getPageContent()).allSatisfy(pwaApplicationWorkAreaItem ->
-        assertThat(pwaApplicationWorkAreaItem.getAccessUrl()).isNotNull()
-    );
+    assertThat(workAreaPage.getPageContent())
+        .isNotEmpty()
+        .allSatisfy(pwaApplicationWorkAreaItem -> assertThat(pwaApplicationWorkAreaItem.getAccessUrl()).isNotNull());
   }
 
   @Test
@@ -146,6 +146,11 @@ public class RegulatorWorkAreaPageServiceTest {
 
   @Test
   public void getWaitingOnOthersPageView_hasAssignedApps() {
+
+    fakeResultPage = WorkAreaPageServiceTestUtil.getFakeApplicationSearchResultPage(
+        List.of(WorkAreaApplicationSearchTestUtil.getSearchDetailItem(PwaApplicationStatus.CASE_OFFICER_REVIEW)),
+        REQUESTED_PAGE);
+
     when(workAreaApplicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagIsTrueAndAnyProcessingWaitFlagTrue(any(), any(), any()))
         .thenReturn(fakeResultPage);
 
@@ -157,9 +162,9 @@ public class RegulatorWorkAreaPageServiceTest {
         Set.of(APP_ID_1, APP_ID_2)
     );
 
-    assertThat(workAreaPage.getPageContent()).allSatisfy(pwaApplicationWorkAreaItem ->
-        assertThat(pwaApplicationWorkAreaItem.getAccessUrl()).isNotNull()
-    );
+    assertThat(workAreaPage.getPageContent())
+        .isNotEmpty()
+        .allSatisfy(pwaApplicationWorkAreaItem -> assertThat(pwaApplicationWorkAreaItem.getAccessUrl()).isNotNull());
 
   }
 

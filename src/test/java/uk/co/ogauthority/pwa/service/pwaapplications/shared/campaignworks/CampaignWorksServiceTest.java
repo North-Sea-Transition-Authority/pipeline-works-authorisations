@@ -441,16 +441,16 @@ public class CampaignWorksServiceTest {
 
     var workScheduleView = campaignWorksService.createWorkScheduleView(workSchedule);
 
-    assertThat(workScheduleView.getSchedulePipelines()).allSatisfy(
-        campaignWorkSchedulePipelineView -> {
-          assertThat(campaignWorkSchedulePipelineView.getPipelineNumber()).isEqualTo(pipe1.getPipelineRef());
-          assertThat(campaignWorkSchedulePipelineView.getFromLocation()).isEqualTo(pipe1.getFromLocation());
-          assertThat(campaignWorkSchedulePipelineView.getToLocation()).isEqualTo(pipe1.getToLocation());
-          assertThat(campaignWorkSchedulePipelineView.getPipelineTypeDisplayName())
-              .isEqualTo(pipe1.getPipelineType().getDisplayName());
-
-        }
-    );
+    assertThat(workScheduleView.getSchedulePipelines())
+        .isNotEmpty()
+        .allSatisfy(
+          campaignWorkSchedulePipelineView -> {
+            assertThat(campaignWorkSchedulePipelineView.getPipelineNumber()).isEqualTo(pipe1.getPipelineRef());
+            assertThat(campaignWorkSchedulePipelineView.getFromLocation()).isEqualTo(pipe1.getFromLocation());
+            assertThat(campaignWorkSchedulePipelineView.getToLocation()).isEqualTo(pipe1.getToLocation());
+            assertThat(campaignWorkSchedulePipelineView.getPipelineTypeDisplayName())
+                .isEqualTo(pipe1.getPipelineType().getDisplayName());
+        });
 
   }
 

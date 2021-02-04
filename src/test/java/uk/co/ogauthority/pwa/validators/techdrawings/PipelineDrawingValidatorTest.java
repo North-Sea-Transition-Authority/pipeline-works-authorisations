@@ -189,6 +189,7 @@ public class PipelineDrawingValidatorTest {
     var drawing = new PadTechnicalDrawing(1, pwaApplicationDetail, null, "ref");
     var result = ValidatorTestUtils.getFormValidationErrors(validator, form, getEditDrawingValidationHints(drawing));
     assertThat(result).extractingFromEntries(Map.Entry::getValue)
+        .isNotEmpty()
         .doesNotContain(Set.of("padPipelineIds" + FieldValidationErrorCodes.INVALID.getCode()));
   }
 
