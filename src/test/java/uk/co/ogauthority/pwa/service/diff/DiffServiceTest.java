@@ -167,12 +167,13 @@ public class DiffServiceTest {
 
     // type of all entries is DELETED
     assertThat(resultDiffedFields.stream().allMatch(
-        diffedfield -> diffedfield.getDiffType().equals(DiffType.DELETED))).isTrue();
+        diffedField -> diffedField.getDiffType().equals(DiffType.DELETED))).isTrue();
 
     // currentValue is blank and previous value has value each field
-    assertThat(resultDiffedFields.stream().allMatch(diffedfield -> StringUtils.isBlank(diffedfield.getCurrentValue())));
-    assertThat(
-        resultDiffedFields.stream().allMatch(diffedfield -> StringUtils.isNotBlank(diffedfield.getPreviousValue())));
+    assertThat(resultDiffedFields)
+        .isNotEmpty()
+        .allSatisfy(diffedField -> StringUtils.isBlank(diffedField.getCurrentValue()))
+        .allSatisfy(diffedField -> StringUtils.isNotBlank(diffedField.getPreviousValue()));
 
   }
 
@@ -195,10 +196,14 @@ public class DiffServiceTest {
     Map<String, Object> diffResult = diffService.diff(diffWithListsCurrent, diffWithListsPrevious);
 
     for (Object diffResultObject : diffResult.values()) {
+
       // test that a list fields produce a mapped list
       assertThat(diffResultObject instanceof List).isTrue();
+
       // all objects in list are of the expected type
-      assertThat(((List) diffResultObject).stream().allMatch(o -> o instanceof DiffedField));
+      var diffResultObjectList = (List) diffResultObject;
+      diffResultObjectList
+          .forEach(o -> assertThat(o).isInstanceOf(DiffedField.class));
 
     }
 

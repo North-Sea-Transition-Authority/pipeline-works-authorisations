@@ -244,7 +244,7 @@ public class PadOrganisationRoleServiceTest {
     // org1 has Holder role, which is ranked higher
     assertThat(comparison).isEqualTo(-1);
 
-    assertThat(orgRoleViewList.indexOf(org1View)).isEqualTo(0);
+    assertThat(orgRoleViewList.indexOf(org1View)).isZero();
     assertThat(orgRoleViewList.indexOf(org2View)).isEqualTo(1);
 
   }
@@ -273,7 +273,7 @@ public class PadOrganisationRoleServiceTest {
     // as the roles are equal, company name is used, and org2:AAA beats org1:ZZZ
     assertThat(comparison).isEqualTo(1);
 
-    assertThat(orgRoleViewList.indexOf(org2View)).isEqualTo(0);
+    assertThat(orgRoleViewList.indexOf(org2View)).isZero();
     assertThat(orgRoleViewList.indexOf(org1View)).isEqualTo(1);
 
   }

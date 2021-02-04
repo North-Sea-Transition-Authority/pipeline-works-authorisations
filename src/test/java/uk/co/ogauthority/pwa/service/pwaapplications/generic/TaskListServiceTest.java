@@ -118,7 +118,7 @@ public class TaskListServiceTest {
 
   @Test
   public void getTaskListGroups_whenNoApplicationTasksShown() {
-    assertThat(taskListService.getTaskListGroups(pwaApplicationDetail).isEmpty());
+    assertThat(taskListService.getTaskListGroups(pwaApplicationDetail)).isEmpty();
   }
 
   @Test
