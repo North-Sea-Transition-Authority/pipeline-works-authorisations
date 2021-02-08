@@ -121,6 +121,24 @@ public class ValidatorUtils {
     }
   }
 
+  public static void validateDateWhenPresent(String fieldPrefix,
+                                             String displayPrefix,
+                                             @Nullable Integer day,
+                                             @Nullable Integer month,
+                                             @Nullable Integer year,
+                                              Errors errors) {
+
+    if ((year != null && !isYearValid(year))
+        || (month != null && !isMonthValid(month))
+        || (day != null && !Range.between(1, 31).contains(day))) {
+
+      errors.rejectValue(fieldPrefix + "Day", FieldValidationErrorCodes.INVALID.errorCode(fieldPrefix + "Day"),
+          String.format(DATE_INVALID_ERROR_FORMAT, displayPrefix));
+      errors.rejectValue(fieldPrefix + "Month", FieldValidationErrorCodes.INVALID.errorCode(fieldPrefix + "Month"), "");
+      errors.rejectValue(fieldPrefix + "Year", FieldValidationErrorCodes.INVALID.errorCode(fieldPrefix + "Year"), "");
+    }
+  }
+
   /**
    * Provide standardised error messages to ensure consistent date validation.
    * Ensures that the date is valid, and the date is either the current day, or is in the future.
