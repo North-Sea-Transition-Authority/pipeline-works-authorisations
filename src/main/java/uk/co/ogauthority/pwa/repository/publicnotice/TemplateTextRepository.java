@@ -8,7 +8,7 @@ import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.TemplateTextType;
 import uk.co.ogauthority.pwa.model.entity.publicnotice.TemplateText;
 
 @Repository
-public interface PublicNoticeCoverLetterRepository extends CrudRepository<TemplateText, Integer> {
+public interface TemplateTextRepository extends CrudRepository<TemplateText, Integer> {
 
   Optional<TemplateText> findByTextTypeAndEndTimestampIsNull(TemplateTextType textType);
 }
