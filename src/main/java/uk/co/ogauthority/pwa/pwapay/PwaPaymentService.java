@@ -15,6 +15,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.co.ogauthority.pwa.govukpay.GovUkPayCardPaymentClient;
+import uk.co.ogauthority.pwa.govukpay.GovUkPaymentStatus;
 import uk.co.ogauthority.pwa.govukpay.NewCardPaymentRequest;
 import uk.co.ogauthority.pwa.govukpay.PaymentJourneyState;
 
@@ -22,9 +23,6 @@ import uk.co.ogauthority.pwa.govukpay.PaymentJourneyState;
 public class PwaPaymentService {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(PwaPaymentService.class);
-
-  public static final String GOVUK_PAYMENT_SUCCESS_STATUS = "success";
-  public static final String GOVUK_PAYMENT_CANCELLED_STATUS = "cancelled"; //TODO PWA -1113 is this correct?
 
   private final GovUkPayCardPaymentClient govUkPayCardPaymentClient;
   private final PwaPaymentRequestRepository pwaPaymentRequestRepository;
@@ -150,9 +148,9 @@ public class PwaPaymentService {
   // TODO PWA-1113 needs independent test?
   private PaymentRequestStatus decodeGovPayStatus(PaymentJourneyState paymentJourneyState) {
     if (paymentJourneyState.isFinished()) {
-      if (GOVUK_PAYMENT_SUCCESS_STATUS.equals(paymentJourneyState.getStatus())) {
+      if (GovUkPaymentStatus.SUCCESS.equals(paymentJourneyState.getStatus())) {
         return PaymentRequestStatus.PAYMENT_COMPLETE;
-      } else if (GOVUK_PAYMENT_CANCELLED_STATUS.equals(paymentJourneyState.getStatus())) {
+      } else if (GovUkPaymentStatus.CANCELLED.equals(paymentJourneyState.getStatus())) {
         return PaymentRequestStatus.CANCELLED;
       } else {
         return PaymentRequestStatus.COMPLETE_WITHOUT_PAYMENT;

@@ -82,14 +82,20 @@ class GovUkPayClientApiV1Impl implements GovUkPayCardPaymentClient {
 
     ResponseEntity<String> result = restTemplate.exchange(
         resourceUrl,
-        HttpMethod.GET,
+        HttpMethod.POST,
         entity,
         String.class
     );
 
-    if (!result.getStatusCode().equals(HttpStatus.OK)) {
+    var expectedSuccessStatus = HttpStatus.NO_CONTENT;
+    if (!result.getStatusCode().equals(expectedSuccessStatus)) {
       throw new GovUkPayRequestFailure(
-          String.format("Received status code %s from %s", result.getStatusCodeValue(), resourceUrl)
+          String.format(
+              "Received status code %s from %s. Expected code %s",
+              result.getStatusCodeValue(),
+              resourceUrl,
+              expectedSuccessStatus
+          )
       );
     }
 
