@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.govukpay.api.cardpayment.response;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import uk.co.ogauthority.pwa.govukpay.GovUkPaymentStatus;
 
 /**
  * A structure representing the current state of the payment in its lifecycle.
@@ -8,23 +9,24 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class PaymentState {
 
-  private String status = null;
+
+  private GovUkPaymentStatus status;
 
 
-  private Boolean finished = null;
+  private Boolean finished;
 
 
-  private String message = null;
+  private String message;
 
 
-  private String code = null;
+  private String code;
 
   /**
    * Current progress of the payment in its lifecycle.
    *
    * @return status
    **/
-  public String getStatus() {
+  public GovUkPaymentStatus getStatus() {
     return status;
   }
 

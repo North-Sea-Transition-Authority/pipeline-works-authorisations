@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.govukpay;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Map;
 
@@ -19,7 +20,7 @@ public final class NewCardPaymentResult {
   // GET endpoint on external service that allows a user to complete the started payment journey
   private final String startExternalPaymentJourneyUrl;
 
-  private final String createdDate; // TODO PWA-1113 make instant
+  private final LocalDateTime createdDate;
 
   private final Map<String, String> metadata;
 
@@ -27,7 +28,7 @@ public final class NewCardPaymentResult {
                        PaymentJourneyState paymentJourneyState,
                        String returnToServiceAfterJourneyCompleteUrl,
                        String startExternalPaymentJourneyUrl,
-                       String createdDate,
+                       LocalDateTime createdDate,
                        Map<String, String> metadata) {
     this.paymentId = paymentId;
     this.paymentJourneyState = paymentJourneyState;
@@ -49,7 +50,7 @@ public final class NewCardPaymentResult {
     return startExternalPaymentJourneyUrl;
   }
 
-  public String getCreatedDate() {
+  public LocalDateTime getCreatedDate() {
     return createdDate;
   }
 

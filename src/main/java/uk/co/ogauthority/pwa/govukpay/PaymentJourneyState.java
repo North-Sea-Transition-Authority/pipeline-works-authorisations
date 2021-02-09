@@ -5,7 +5,7 @@ package uk.co.ogauthority.pwa.govukpay;
  */
 public final class PaymentJourneyState {
 
-  private final String status;
+  private final GovUkPaymentStatus status;
 
   private final Boolean finished;
 
@@ -13,7 +13,7 @@ public final class PaymentJourneyState {
 
   private final String code;
 
-  PaymentJourneyState(String status, Boolean finished, String message, String code) {
+  PaymentJourneyState(GovUkPaymentStatus status, Boolean finished, String message, String code) {
     this.status = status;
     this.finished = finished;
     this.message = message;
@@ -25,7 +25,7 @@ public final class PaymentJourneyState {
    *
    * @return status
    **/
-  public String getStatus() {
+  public GovUkPaymentStatus getStatus() {
     return status;
   }
 

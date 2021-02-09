@@ -25,9 +25,9 @@ public final class PaymentJourneyData {
 
   private final String createdDate;
 
-  private final String refundStatus; // TODO PWA-1113 turn into enum we control - e.g NOT_REFUNDED, IN_PROGRESS, COMPLETE
+  private final String refundStatus;
 
-  private final String settlementStatus; // TODO PWA-1113 turn into enum we control - e.g NOT_SETTLED, SETTLED. what about the date?
+  private final String settlementStatus;
 
   private final Long corporateCardSurcharge;
 

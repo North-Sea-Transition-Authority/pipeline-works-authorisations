@@ -1,7 +1,9 @@
 package uk.co.ogauthority.pwa.govukpay.api.cardpayment.response;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import uk.co.ogauthority.pwa.govukpay.api.cardpayment.LanguageEnum;
@@ -37,7 +39,8 @@ public class CreatePaymentResult {
   private String returnUrl;
 
   @JsonProperty("created_date")
-  private String createdDate;
+  @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+  private LocalDateTime createdDate;
 
   @JsonProperty("delayed_capture")
   private Boolean delayedCapture;
@@ -175,15 +178,15 @@ public class CreatePaymentResult {
   }
 
   /**
-   * The date you created the payment.
+   * The date gov uk reports you created the payment.
    *
    * @return createdDate
    **/
-  public String getCreatedDate() {
+  public LocalDateTime getCreatedDate() {
     return createdDate;
   }
 
-  public void setCreatedDate(String createdDate) {
+  public void setCreatedDate(LocalDateTime createdDate) {
     this.createdDate = createdDate;
   }
 
