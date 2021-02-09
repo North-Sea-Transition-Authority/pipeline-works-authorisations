@@ -1,6 +1,5 @@
 package uk.co.ogauthority.pwa.model.entity.publicnotice;
 
-import java.time.Instant;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -9,7 +8,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeStatus;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
@@ -30,14 +28,41 @@ public class PublicNotice {
   @Enumerated(EnumType.STRING)
   private PublicNoticeStatus status;
 
-  @JoinColumn(name = "cover_letter_id")
-  @OneToOne
-  private PublicNoticeCoverLetter coverLetter;
-
   private Integer version;
 
-  private Instant publicationStartTimestamp;
-  private Instant publicationEndTimestamp;
-  private Instant submittedTimestamp;
+
+
+  public Integer getId() {
+    return id;
+  }
+
+  public void setId(Integer id) {
+    this.id = id;
+  }
+
+  public PwaApplication getPwaApplication() {
+    return pwaApplication;
+  }
+
+  public void setPwaApplication(PwaApplication pwaApplication) {
+    this.pwaApplication = pwaApplication;
+  }
+
+  public PublicNoticeStatus getStatus() {
+    return status;
+  }
+
+  public void setStatus(PublicNoticeStatus status) {
+    this.status = status;
+  }
+
+  public Integer getVersion() {
+    return version;
+  }
+
+  public void setVersion(Integer version) {
+    this.version = version;
+  }
+
 
 }

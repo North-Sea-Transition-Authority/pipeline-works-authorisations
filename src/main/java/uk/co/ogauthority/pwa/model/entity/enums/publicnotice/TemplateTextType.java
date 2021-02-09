@@ -1,4 +1,7 @@
 package uk.co.ogauthority.pwa.model.entity.enums.publicnotice;
 
-public enum CoverLetterTextType {
+public enum TemplateTextType {
+
+  PUBLIC_NOTICE_COVER_LETTER
+
 }

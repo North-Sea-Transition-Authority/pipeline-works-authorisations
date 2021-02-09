@@ -3,11 +3,12 @@ package uk.co.ogauthority.pwa.repository.publicnotice;
 
 import java.util.Optional;
 import org.springframework.data.repository.CrudRepository;
-import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.CoverLetterTextType;
-import uk.co.ogauthority.pwa.model.entity.publicnotice.PublicNoticeCoverLetter;
+import org.springframework.stereotype.Repository;
+import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.TemplateTextType;
+import uk.co.ogauthority.pwa.model.entity.publicnotice.TemplateText;
 
+@Repository
+public interface PublicNoticeCoverLetterRepository extends CrudRepository<TemplateText, Integer> {
 
-public interface PublicNoticeCoverLetterRepository extends CrudRepository<PublicNoticeCoverLetter, Integer> {
-
-  Optional<PublicNoticeCoverLetter> findByTextTypeAndEndTimestampIsNull(CoverLetterTextType textType);
+  Optional<TemplateText> findByTextTypeAndEndTimestampIsNull(TemplateTextType textType);
 }
