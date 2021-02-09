@@ -67,8 +67,6 @@ class GovUkPayClientApiV1Impl implements GovUkPayCardPaymentClient {
       );
     }
     return apiV1RequestDataMapper.mapGetPaymentResult(Objects.requireNonNull(result.getBody()));
-
-
   }
 
   @Override

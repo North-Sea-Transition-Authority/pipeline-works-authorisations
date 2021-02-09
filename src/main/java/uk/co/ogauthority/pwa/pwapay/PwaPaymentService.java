@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.pwapay;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.time.Clock;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -145,8 +146,8 @@ public class PwaPaymentService {
 
   }
 
-  // TODO PWA-1113 needs independent test?
-  private PaymentRequestStatus decodeGovPayStatus(PaymentJourneyState paymentJourneyState) {
+  @VisibleForTesting
+  PaymentRequestStatus decodeGovPayStatus(PaymentJourneyState paymentJourneyState) {
     if (paymentJourneyState.isFinished()) {
       if (GovUkPaymentStatus.SUCCESS.equals(paymentJourneyState.getStatus())) {
         return PaymentRequestStatus.PAYMENT_COMPLETE;
