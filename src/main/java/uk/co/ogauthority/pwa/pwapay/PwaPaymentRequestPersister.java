@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.pwapay;
 
 import java.time.Clock;
 import java.util.UUID;
+import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.lang.Nullable;
@@ -109,12 +110,17 @@ public class PwaPaymentRequestPersister {
                                                GovPayPaymentJourneyState govPayPaymentJourneyState) {
 
     paymentRequest.setGovUkPaymentStatus(govPayPaymentJourneyState.getStatus());
-    paymentRequest.setGovUkPaymentStatusMessage(
-        String.format("Code: %s %n Message: %s",
-            govPayPaymentJourneyState.getCode(),
-            govPayPaymentJourneyState.getMessage()
-        )
-    );
+    if (ObjectUtils.anyNotNull(govPayPaymentJourneyState.getCode(), govPayPaymentJourneyState.getMessage())) {
+      paymentRequest.setGovUkPaymentStatusMessage(
+          String.format("Code: %s %n Message: %s",
+              govPayPaymentJourneyState.getCode(),
+              govPayPaymentJourneyState.getMessage()
+          )
+      );
+    } else {
+      paymentRequest.setGovUkPaymentStatusMessage(null);
+    }
+
     paymentRequest.setGovUkPaymentStatusTimestamp(clock.instant());
   }
 

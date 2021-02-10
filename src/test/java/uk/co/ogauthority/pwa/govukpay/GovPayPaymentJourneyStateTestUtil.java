@@ -11,5 +11,9 @@ public final class GovPayPaymentJourneyStateTestUtil {
     return new GovPayPaymentJourneyState(govUkPaymentStatus, govUkPaymentStatus.isJourneyFinished(), null, null);
   }
 
+  public static GovPayPaymentJourneyState createFailedJourneyState(String message, String code){
+    return new GovPayPaymentJourneyState(GovUkPaymentStatus.FAILED, GovUkPaymentStatus.FAILED.isJourneyFinished(), message, code);
+  }
+
 
 }

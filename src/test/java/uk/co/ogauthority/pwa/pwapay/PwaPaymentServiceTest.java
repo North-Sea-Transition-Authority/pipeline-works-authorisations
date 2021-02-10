@@ -80,7 +80,6 @@ public class PwaPaymentServiceTest {
     pwaPaymentService = new PwaPaymentService(
         govUkPayCardPaymentClient,
         pwaPaymentRequestPersister,
-        clock,
         pwaPaymentRequestRepository,
         PWA_URL_BASE,
         CONTEXT_PATH

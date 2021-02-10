@@ -1,14 +1,12 @@
 package uk.co.ogauthority.pwa.pwapay;
 
 import com.google.common.annotations.VisibleForTesting;
-import java.time.Clock;
 import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -33,9 +31,7 @@ public class PwaPaymentService {
 
   @Autowired
   public PwaPaymentService(GovUkPayCardPaymentClient govUkPayCardPaymentClient,
-
                            PwaPaymentRequestPersister pwaPaymentRequestPersister,
-                           @Qualifier("utcClock") Clock clock,
                            PwaPaymentRequestRepository pwaPaymentRequestRepository,
                            @Value("${pwa.url.base}") String pwaUrlBase,
                            @Value("${context-path}") String contextPath
