@@ -62,7 +62,7 @@ public class CloseOutOptionsTaskServiceTest {
         EnumSet.of(PwaAppProcessingPermission.CLOSE_OUT_OPTIONS)
     );
 
-    var canShow = closeOutOptionsTaskService.canShowInTaskList(pwaAppProcessingContext);
+    assertThat(closeOutOptionsTaskService.canShowInTaskList(pwaAppProcessingContext)).isTrue();
   }
 
   @Test
@@ -72,7 +72,8 @@ public class CloseOutOptionsTaskServiceTest {
         pwaApplicationDetail,
         EnumSet.noneOf(PwaAppProcessingPermission.class)
     );
-    var canShow = closeOutOptionsTaskService.canShowInTaskList(pwaAppProcessingContext);
+
+    assertThat(closeOutOptionsTaskService.canShowInTaskList(pwaAppProcessingContext)).isFalse();
   }
 
   @Test

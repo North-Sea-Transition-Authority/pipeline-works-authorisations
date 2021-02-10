@@ -82,6 +82,15 @@ public class BlockCrossingService implements ApplicationFormSectionService {
             "Crossed block not found with id:" + crossedBlockId + " for appDetailId:" + pwaApplicationDetail.getId()));
   }
 
+  public void errorWhenCrossedBlockDoesNotExist(int crossedBlockId,
+                                              PwaApplicationDetail pwaApplicationDetail) {
+    if (!padCrossedBlockRepository.existsByIdAndPwaApplicationDetail(crossedBlockId, pwaApplicationDetail)) {
+      throw new PwaEntityNotFoundException(
+          "Crossed block not found with id:" + crossedBlockId + " for appDetailId:" + pwaApplicationDetail.getId());
+    }
+  }
+
+
   public BlockCrossingView getCrossedBlockView(PwaApplicationDetail pwaApplicationDetail, Integer crossingId) {
     return getCrossedBlockViews(pwaApplicationDetail).stream()
         .filter(blockCrossingView -> crossingId.equals(blockCrossingView.getId()))

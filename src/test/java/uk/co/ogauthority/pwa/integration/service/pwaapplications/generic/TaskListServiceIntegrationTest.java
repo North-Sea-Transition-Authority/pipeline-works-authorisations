@@ -38,6 +38,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits.Pe
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.supplementarydocs.SupplementaryDocumentsService;
 import uk.co.ogauthority.pwa.service.pwaapplications.workflow.PwaApplicationCreationService;
 import uk.co.ogauthority.pwa.service.pwaapplications.workflow.PwaApplicationReferencingService;
+import uk.co.ogauthority.pwa.testutils.AssertionTestUtils;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -228,7 +229,7 @@ public class TaskListServiceIntegrationTest {
       try {
         pwaApplication.setApplicationType(appType);
         var taskNamesList = getKeysFromTaskList(taskListService.getApplicationTaskListEntries(pwaApplicationDetail));
-        assertThat(taskNamesList).doesNotContain(ApplicationTask.CAMPAIGN_WORKS.getDisplayName());
+        AssertionTestUtils.assertNotEmptyAndDoesNotContain(taskNamesList, ApplicationTask.CAMPAIGN_WORKS.getDisplayName());
       } catch (AssertionError e) {
         throw new AssertionError("Failed at type: " + appType + "\n" + e.getMessage(), e);
       }
@@ -248,7 +249,7 @@ public class TaskListServiceIntegrationTest {
       try {
         pwaApplication.setApplicationType(appType);
         var taskNamesList = getKeysFromTaskList(taskListService.getApplicationTaskListEntries(pwaApplicationDetail));
-        assertThat(taskNamesList).contains(ApplicationTask.CAMPAIGN_WORKS.getDisplayName());
+        AssertionTestUtils.assertNotEmptyAndContains(taskNamesList, ApplicationTask.CAMPAIGN_WORKS.getDisplayName());
       } catch (AssertionError e) {
         throw new AssertionError("Failed at type: " + appType + "\n" + e.getMessage(), e);
       }
@@ -268,7 +269,7 @@ public class TaskListServiceIntegrationTest {
       try {
         pwaApplication.setApplicationType(appType);
         var taskNamesList = getKeysFromTaskList(taskListService.getApplicationTaskListEntries(pwaApplicationDetail));
-        assertThat(taskNamesList).doesNotContain(ApplicationTask.CAMPAIGN_WORKS.getDisplayName());
+        AssertionTestUtils.assertNotEmptyAndDoesNotContain(taskNamesList, ApplicationTask.CAMPAIGN_WORKS.getDisplayName());
       } catch (AssertionError e) {
         throw new AssertionError("Failed at type: " + appType + "\n" + e.getMessage(), e);
       }
@@ -285,7 +286,7 @@ public class TaskListServiceIntegrationTest {
       try {
         pwaApplication.setApplicationType(appType);
         var taskNamesList = getKeysFromTaskList(taskListService.getApplicationTaskListEntries(pwaApplicationDetail));
-        assertThat(taskNamesList).doesNotContain(ApplicationTask.FAST_TRACK.getDisplayName());
+        AssertionTestUtils.assertNotEmptyAndDoesNotContain(taskNamesList, ApplicationTask.FAST_TRACK.getDisplayName());
       } catch (AssertionError e) {
         throw new AssertionError("Failed at type: " + appType + "\n" + e.getMessage(), e);
       }
@@ -305,7 +306,7 @@ public class TaskListServiceIntegrationTest {
       try {
         pwaApplication.setApplicationType(appType);
         var taskNamesList = getKeysFromTaskList(taskListService.getApplicationTaskListEntries(pwaApplicationDetail));
-        assertThat(taskNamesList).contains(ApplicationTask.FAST_TRACK.getDisplayName());
+        AssertionTestUtils.assertNotEmptyAndContains(taskNamesList, ApplicationTask.FAST_TRACK.getDisplayName());
       } catch (AssertionError e) {
         throw new AssertionError("Failed at type: " + appType + "\n" + e.getMessage(), e);
       }
@@ -325,7 +326,7 @@ public class TaskListServiceIntegrationTest {
       try {
         pwaApplication.setApplicationType(appType);
         var taskNamesList = getKeysFromTaskList(taskListService.getApplicationTaskListEntries(pwaApplicationDetail));
-        assertThat(taskNamesList).doesNotContain(ApplicationTask.FAST_TRACK.getDisplayName());
+        AssertionTestUtils.assertNotEmptyAndDoesNotContain(taskNamesList, ApplicationTask.FAST_TRACK.getDisplayName());
       } catch (AssertionError e) {
         throw new AssertionError("Failed at type: " + appType + "\n" + e.getMessage(), e);
       }
@@ -341,7 +342,7 @@ public class TaskListServiceIntegrationTest {
       try {
         pwaApplication.setApplicationType(appType);
         var taskNamesList = getKeysFromTaskList(taskListService.getApplicationTaskListEntries(pwaApplicationDetail));
-        assertThat(taskNamesList).doesNotContain(ApplicationTask.PERMANENT_DEPOSITS.getDisplayName());
+        AssertionTestUtils.assertNotEmptyAndDoesNotContain(taskNamesList, ApplicationTask.PERMANENT_DEPOSITS.getDisplayName());
       } catch (AssertionError e) {
         throw new AssertionError("Failed at type: " + appType + "\n" + e.getMessage(), e);
       }
@@ -361,7 +362,7 @@ public class TaskListServiceIntegrationTest {
       try {
         pwaApplication.setApplicationType(appType);
         var taskNamesList = getKeysFromTaskList(taskListService.getApplicationTaskListEntries(pwaApplicationDetail));
-        assertThat(taskNamesList).contains(ApplicationTask.PERMANENT_DEPOSITS.getDisplayName());
+        AssertionTestUtils.assertNotEmptyAndContains(taskNamesList, ApplicationTask.PERMANENT_DEPOSITS.getDisplayName());
       } catch (AssertionError e) {
         throw new AssertionError("Failed at type: " + appType + "\n" + e.getMessage(), e);
       }
@@ -381,7 +382,7 @@ public class TaskListServiceIntegrationTest {
       try {
         pwaApplication.setApplicationType(appType);
         var taskNamesList = getKeysFromTaskList(taskListService.getApplicationTaskListEntries(pwaApplicationDetail));
-        assertThat(taskNamesList).doesNotContain(ApplicationTask.PERMANENT_DEPOSITS.getDisplayName());
+        AssertionTestUtils.assertNotEmptyAndDoesNotContain(taskNamesList, ApplicationTask.PERMANENT_DEPOSITS.getDisplayName());
       } catch (AssertionError e) {
         throw new AssertionError("Failed at type: " + appType + "\n" + e.getMessage(), e);
       }

@@ -94,11 +94,9 @@ public class MedianLineAgreementValidatorTest {
     form.setNegotiatorEmailIfOngoing(INVALID_EMAIL);
 
     var result = ValidatorTestUtils.getFormValidationErrors(validator, form, FullValidation.class);
-    assertThat(result.values()).doesNotContain(Set.of("negotiatorEmailIfCompleted", "negotiatorEmailIfOngoing"));
-  }
-
-
-  private void assertLengthValidation(MedianLineAgreementsForm form) {
+    assertThat(result.values())
+        .isNotEmpty()
+        .doesNotContain(Set.of("negotiatorEmailIfCompleted", "negotiatorEmailIfOngoing"));
   }
 
   @Test

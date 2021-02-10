@@ -193,7 +193,7 @@ public class AppFileServiceTest {
 
     var savedFiles = appFileSetCaptor.getValue();
 
-    assertThat(savedFiles).allSatisfy(savedFile -> {
+    assertThat(savedFiles).isNotEmpty().allSatisfy(savedFile -> {
       assertThat(savedFile.getDescription()).isEqualTo("New Description");
       assertThat(savedFile.getFileLinkStatus()).isEqualTo(ApplicationFileLinkStatus.FULL);
     });

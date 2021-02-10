@@ -138,26 +138,10 @@ public class PadPipelinesHuooService implements ApplicationFormSectionService {
   }
 
   @Transactional
-  public void removeSplitsForPipeline(PwaApplicationDetail pwaApplicationDetail, PipelineId pipelineId, HuooRole huooRole) {
-
-    var splitPipelineRoles = padPipelineOrganisationRoleLinkRepository
-        .findByPadOrgRole_pwaApplicationDetailAndPadOrgRole_RoleAndPipeline_IdIn(
-            pwaApplicationDetail, huooRole, Set.of(pipelineId.asInt())
-        );
-
-    var temporarySplitRoleOptional = splitPipelineRoles.stream()
-        .map(PadPipelineOrganisationRoleLink::getPadOrgRole)
-        .filter(padOrganisationRole -> HuooType.UNASSIGNED_PIPELINE_SPLIT.equals(padOrganisationRole.getType()))
-        .findFirst();
-
-    padOrganisationRoleService.removalPipelineOrgRoleLinks(splitPipelineRoles);
-    // remove temporary role if no pipeline links remain after processing
-
-    temporarySplitRoleOptional.ifPresent(role -> {
-      if (!doesRoleHavePipelineLinks(role)) {
-        padOrganisationRoleService.removeOrgRole(role);
-      }
-    });
+  public void removeSplitsForPipeline(PwaApplicationDetail pwaApplicationDetail,
+                                      PipelineId pipelineId,
+                                      HuooRole huooRole) {
+    removeSplitsForPipelineWithinRole(pwaApplicationDetail, pipelineId, huooRole);
   }
 
   private boolean doesRoleHavePipelineLinks(PadOrganisationRole padOrganisationRole) {
@@ -350,12 +334,13 @@ public class PadPipelinesHuooService implements ApplicationFormSectionService {
     return PipelineAndOrganisationRoleGroupSummaryDto.aggregateOrganisationPipelineRoleDtos(allPipelineRolesForApp);
   }
 
+  @Transactional
   public List<PadPipelineOrganisationRoleLink> replacePipelineSectionsForPipelineAndRole(PwaApplicationDetail pwaApplicationDetail,
                                                                                          HuooRole huooRole,
                                                                                          PipelineId pipelineId,
                                                                                          List<PipelineSection> pipelineSections) {
 
-    removeSplitsForPipeline(pwaApplicationDetail, pipelineId, huooRole);
+    removeSplitsForPipelineWithinRole(pwaApplicationDetail, pipelineId, huooRole);
     var unassignedPipelineSplitRole = padOrganisationRoleService.getOrCreateUnassignedPipelineSplitRole(
         pwaApplicationDetail,
         huooRole);
@@ -369,6 +354,32 @@ public class PadPipelinesHuooService implements ApplicationFormSectionService {
     });
 
     return IterableUtils.toList(padPipelineOrganisationRoleLinkRepository.saveAll(unassignedPipelineSplitRoles));
+
+  }
+
+  // helper containing shared "remove splits for pipeline" logic required by seperate @public Tranactional methods.
+  private void removeSplitsForPipelineWithinRole(PwaApplicationDetail pwaApplicationDetail,
+                                                 PipelineId pipelineId,
+                                                 HuooRole huooRole) {
+
+    var splitPipelineRoles = padPipelineOrganisationRoleLinkRepository
+        .findByPadOrgRole_pwaApplicationDetailAndPadOrgRole_RoleAndPipeline_IdIn(
+            pwaApplicationDetail, huooRole, Set.of(pipelineId.asInt())
+        );
+
+    var temporarySplitRoleOptional = splitPipelineRoles.stream()
+        .map(PadPipelineOrganisationRoleLink::getPadOrgRole)
+        .filter(padOrganisationRole -> HuooType.UNASSIGNED_PIPELINE_SPLIT.equals(padOrganisationRole.getType()))
+        .findFirst();
+
+    padOrganisationRoleService.removalPipelineOrgRoleLinks(splitPipelineRoles);
+    // remove temporary role if no pipeline links remain after processing
+
+    temporarySplitRoleOptional.ifPresent(role -> {
+      if (!doesRoleHavePipelineLinks(role)) {
+        padOrganisationRoleService.removeOrgRole(role);
+      }
+    });
 
   }
 

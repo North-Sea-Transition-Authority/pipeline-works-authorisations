@@ -3,7 +3,7 @@
 <#-- @ftlvariable name="appRef" type="java.lang.String" -->
 <#-- @ftlvariable name="taskListUrl" type="java.lang.String" -->
 
-<@defaultPage htmlTitle="Delete application" pageHeading="Are you sure you want to delete application ${appRef}?" breadcrumbs=true>
+<@defaultPage htmlTitle="Delete application ${appRef}" pageHeading="Are you sure you want to delete application ${appRef}?" breadcrumbs=true>
 
 
 
@@ -15,7 +15,7 @@
 
 
 
-        <@fdsAction.submitButtons primaryButtonText="Delete" linkSecondaryAction=true secondaryLinkText="Back to task list" linkSecondaryActionUrl=springUrl(taskListUrl)/>
+        <@fdsAction.submitButtons primaryButtonText="Delete" linkSecondaryAction=true secondaryLinkText="Back to task list" linkSecondaryActionUrl=springUrl(taskListUrl) primaryButtonClass="govuk-button govuk-button--warning" />
     </@fdsForm.htmlForm>
 
 </@defaultPage>

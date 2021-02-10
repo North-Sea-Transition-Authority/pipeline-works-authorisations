@@ -147,6 +147,15 @@ public class BlockCrossingServiceTest {
 
   }
 
+  @Test(expected = PwaEntityNotFoundException.class)
+  public void errorWhenCrossedBlockDoesNotExist_whenBlockFound_andHasNonMatchingDetail() {
+    var otherDetail = new PwaApplicationDetail();
+    otherDetail.setId(9999);
+    padCrossedBlock.setPwaApplicationDetail(otherDetail);
+    blockCrossingService.errorWhenCrossedBlockDoesNotExist(CROSSED_BLOCK_ID, pwaApplicationDetail);
+
+  }
+
   @Test
   public void getCrossedBlockViews_whenHolderIsOwner_andUnlicensedBlock() {
 
@@ -155,7 +164,7 @@ public class BlockCrossingServiceTest {
 
     var views = blockCrossingService.getCrossedBlockViews(pwaApplicationDetail);
 
-    assertThat(views).allSatisfy(bcv -> {
+    assertThat(views).isNotEmpty().allSatisfy(bcv -> {
       assertThat(bcv.getBlockOperatorList()).isEmpty();
       assertThat(bcv.getBlockOwnedCompletelyByHolder()).isTrue();
       assertThat(bcv.getBlockReference()).isEqualTo(BLOCK_REF);
@@ -175,7 +184,7 @@ public class BlockCrossingServiceTest {
 
     var views = blockCrossingService.getCrossedBlockViews(pwaApplicationDetail);
 
-    assertThat(views).allSatisfy(bcv -> {
+    assertThat(views).isNotEmpty().allSatisfy(bcv -> {
       assertThat(bcv.getBlockOperatorList()).isEmpty();
       assertThat(bcv.getBlockOwnedCompletelyByHolder()).isTrue();
       assertThat(bcv.getBlockReference()).isEqualTo(BLOCK_REF);
@@ -203,7 +212,7 @@ public class BlockCrossingServiceTest {
 
     var views = blockCrossingService.getCrossedBlockViews(pwaApplicationDetail);
 
-    assertThat(views).allSatisfy(bcv -> {
+    assertThat(views).isNotEmpty().allSatisfy(bcv -> {
       assertThat(bcv.getBlockOperatorList().get(0)).isEqualTo(orgUnit.getName());
       assertThat(bcv.getBlockOwnedCompletelyByHolder()).isFalse();
       assertThat(bcv.getBlockReference()).isEqualTo(BLOCK_REF);
@@ -226,7 +235,7 @@ public class BlockCrossingServiceTest {
 
     var views = blockCrossingService.getCrossedBlockViews(pwaApplicationDetail);
 
-    assertThat(views).allSatisfy(bcv -> {
+    assertThat(views).isNotEmpty().allSatisfy(bcv -> {
       assertThat(bcv.getBlockOperatorList().get(0)).isEqualTo(owner.getOwnerName());
       assertThat(bcv.getBlockOwnedCompletelyByHolder()).isFalse();
       assertThat(bcv.getBlockReference()).isEqualTo(BLOCK_REF);

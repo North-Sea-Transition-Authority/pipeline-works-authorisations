@@ -192,12 +192,14 @@ public class OptionsCaseManagementEmailServiceTest {
         eq(caseOfficerPerson.getEmailAddress()));
 
     var emailProps = optionsDeadlineChangedEmailCaptor.getAllValues();
-    assertThat(emailProps).allSatisfy(applicationOptionsApprovedEmailProps -> {
+
+    assertThat(emailProps)
+        .isNotEmpty()
+        .allSatisfy(applicationOptionsApprovedEmailProps -> {
           assertThat(applicationOptionsApprovedEmailProps.getEmailPersonalisation()).containsEntry("DEADLINE_DATE","01-February-2020");
           assertThat(applicationOptionsApprovedEmailProps.getEmailPersonalisation()).containsEntry("APPLICATION_REFERENCE", pwaApplicationDetail.getPwaApplicationRef());
           assertThat(applicationOptionsApprovedEmailProps.getEmailPersonalisation()).containsEntry("CASE_MANAGEMENT_LINK", CASE_LINK);
-        }
-    );
+        });
 
   }
 }

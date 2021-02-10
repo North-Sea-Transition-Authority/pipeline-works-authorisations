@@ -240,10 +240,12 @@ public class PadFileServiceTest {
 
     var savedFiles = padFileSetCaptor.getValue();
 
-    assertThat(savedFiles).allSatisfy(savedFile -> {
-      assertThat(savedFile.getDescription()).isEqualTo("New Description");
-      assertThat(savedFile.getFileLinkStatus()).isEqualTo(ApplicationFileLinkStatus.FULL);
-    });
+    assertThat(savedFiles)
+        .isNotEmpty()
+        .allSatisfy(savedFile -> {
+          assertThat(savedFile.getDescription()).isEqualTo("New Description");
+          assertThat(savedFile.getFileLinkStatus()).isEqualTo(ApplicationFileLinkStatus.FULL);
+        });
 
     verify(padFileRepository, times(1)).deleteAll(Collections.emptySet());
 

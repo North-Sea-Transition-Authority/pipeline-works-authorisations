@@ -61,7 +61,6 @@ public class PermanentDepositDrawingsController extends PwaApplicationDetailData
   private final PwaApplicationRedirectService pwaApplicationRedirectService;
   private final DepositDrawingsService depositDrawingsService;
   private final PermanentDepositService permanentDepositService;
-  private final PadFileService padFileService;
   private final ControllerHelperService controllerHelperService;
 
   private static final ApplicationDetailFilePurpose FILE_PURPOSE = ApplicationDetailFilePurpose.DEPOSIT_DRAWINGS;
@@ -78,7 +77,6 @@ public class PermanentDepositDrawingsController extends PwaApplicationDetailData
     this.pwaApplicationRedirectService = pwaApplicationRedirectService;
     this.depositDrawingsService = depositDrawingsService;
     this.permanentDepositService = permanentDepositService;
-    this.padFileService = padFileService;
     this.controllerHelperService = controllerHelperService;
   }
 
