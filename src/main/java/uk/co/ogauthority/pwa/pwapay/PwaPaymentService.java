@@ -15,10 +15,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import uk.co.ogauthority.pwa.govukpay.GovPayNewCardPaymentRequest;
+import uk.co.ogauthority.pwa.govukpay.GovPayPaymentJourneyState;
 import uk.co.ogauthority.pwa.govukpay.GovUkPayCardPaymentClient;
 import uk.co.ogauthority.pwa.govukpay.GovUkPaymentStatus;
-import uk.co.ogauthority.pwa.govukpay.NewCardPaymentRequest;
-import uk.co.ogauthority.pwa.govukpay.PaymentJourneyState;
 
 @Service
 public class PwaPaymentService {
@@ -69,7 +69,7 @@ public class PwaPaymentService {
     var returnUrl = pwaUrlBase + contextPath + returnUrlSupplier.apply(newPwaPaymentRequestUuid);
 
     try {
-      var paymentRequest = new NewCardPaymentRequest(
+      var paymentRequest = new GovPayNewCardPaymentRequest(
           pennyAmount,
           reference,
           description,
@@ -110,7 +110,8 @@ public class PwaPaymentService {
 
   @Transactional
   public void refreshPwaPaymentRequestData(PwaPaymentRequest pwaPaymentRequest) {
-    refreshFromGovUkPayOrElseFallback(pwaPaymentRequest,
+    refreshFromGovUkPayOrElseFallback(
+        pwaPaymentRequest,
         paymentRequest -> {
           LOGGER.debug("Refresh of in progress request without govUkPaymentId. Set as complete without payment");
           pwaPaymentRequestPersister.setPaymentRequestStatusData(
@@ -147,11 +148,11 @@ public class PwaPaymentService {
   }
 
   @VisibleForTesting
-  PaymentRequestStatus decodeGovPayStatus(PaymentJourneyState paymentJourneyState) {
-    if (paymentJourneyState.isFinished()) {
-      if (GovUkPaymentStatus.SUCCESS.equals(paymentJourneyState.getStatus())) {
+  PaymentRequestStatus decodeGovPayStatus(GovPayPaymentJourneyState govPayPaymentJourneyState) {
+    if (govPayPaymentJourneyState.isFinished()) {
+      if (GovUkPaymentStatus.SUCCESS.equals(govPayPaymentJourneyState.getStatus())) {
         return PaymentRequestStatus.PAYMENT_COMPLETE;
-      } else if (GovUkPaymentStatus.CANCELLED.equals(paymentJourneyState.getStatus())) {
+      } else if (GovUkPaymentStatus.CANCELLED.equals(govPayPaymentJourneyState.getStatus())) {
         return PaymentRequestStatus.CANCELLED;
       } else {
         return PaymentRequestStatus.COMPLETE_WITHOUT_PAYMENT;

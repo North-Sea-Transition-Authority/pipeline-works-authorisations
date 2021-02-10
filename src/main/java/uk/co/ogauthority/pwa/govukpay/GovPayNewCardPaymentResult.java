@@ -7,9 +7,9 @@ import java.util.Map;
 /**
  * returned by govuk pay client on on successful new card payment journey creation.
  */
-public final class NewCardPaymentResult {
+public final class GovPayNewCardPaymentResult {
 
-  private final PaymentJourneyState paymentJourneyState;
+  private final GovPayPaymentJourneyState govPayPaymentJourneyState;
 
   private final String paymentId;
 
@@ -24,22 +24,22 @@ public final class NewCardPaymentResult {
 
   private final Map<String, String> metadata;
 
-  NewCardPaymentResult(String paymentId,
-                       PaymentJourneyState paymentJourneyState,
-                       String returnToServiceAfterJourneyCompleteUrl,
-                       String startExternalPaymentJourneyUrl,
-                       LocalDateTime createdDate,
-                       Map<String, String> metadata) {
+  GovPayNewCardPaymentResult(String paymentId,
+                             GovPayPaymentJourneyState govPayPaymentJourneyState,
+                             String returnToServiceAfterJourneyCompleteUrl,
+                             String startExternalPaymentJourneyUrl,
+                             LocalDateTime createdDate,
+                             Map<String, String> metadata) {
     this.paymentId = paymentId;
-    this.paymentJourneyState = paymentJourneyState;
+    this.govPayPaymentJourneyState = govPayPaymentJourneyState;
     this.returnToServiceAfterJourneyCompleteUrl = returnToServiceAfterJourneyCompleteUrl;
     this.startExternalPaymentJourneyUrl = startExternalPaymentJourneyUrl;
     this.createdDate = createdDate;
     this.metadata =  Collections.unmodifiableMap(metadata);
   }
 
-  public PaymentJourneyState getPaymentJourneyState() {
-    return paymentJourneyState;
+  public GovPayPaymentJourneyState getPaymentJourneyState() {
+    return govPayPaymentJourneyState;
   }
 
   public String getPaymentId() {

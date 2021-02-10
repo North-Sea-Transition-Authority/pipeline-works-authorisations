@@ -18,18 +18,18 @@ final class ApiV1RequestDataMapper {
   ApiV1RequestDataMapper() {
   }
 
-  CreateCardPaymentRequest mapNewCardPaymentRequest(NewCardPaymentRequest newCardPaymentRequest) {
-    LOGGER.trace("mapNewCardPaymentRequest - param newCardPaymentRequest {}", newCardPaymentRequest);
+  CreateCardPaymentRequest mapNewCardPaymentRequest(GovPayNewCardPaymentRequest govPayNewCardPaymentRequest) {
+    LOGGER.trace("mapNewCardPaymentRequest - param newCardPaymentRequest {}", govPayNewCardPaymentRequest);
 
     var cardPaymentRequest = new CreateCardPaymentRequest(
-        newCardPaymentRequest.getAmount(),
-        newCardPaymentRequest.getReference(),
-        newCardPaymentRequest.getDescription(),
-        newCardPaymentRequest.getReturnUrl()
+        govPayNewCardPaymentRequest.getAmount(),
+        govPayNewCardPaymentRequest.getReference(),
+        govPayNewCardPaymentRequest.getDescription(),
+        govPayNewCardPaymentRequest.getReturnUrl()
     );
 
-    if (!newCardPaymentRequest.getMetadata().isEmpty()) {
-      var metadataMap = new HashMap<String, Object>(newCardPaymentRequest.getMetadata());
+    if (!govPayNewCardPaymentRequest.getMetadata().isEmpty()) {
+      var metadataMap = new HashMap<String, Object>(govPayNewCardPaymentRequest.getMetadata());
       cardPaymentRequest.addMetadata(metadataMap);
     }
 
@@ -37,17 +37,17 @@ final class ApiV1RequestDataMapper {
 
   }
 
-  NewCardPaymentResult mapNewCardPaymentResult(CreatePaymentResult createPaymentResult) {
+  GovPayNewCardPaymentResult mapNewCardPaymentResult(CreatePaymentResult createPaymentResult) {
     LOGGER.trace("mapNewCardPaymentResponse - param createPaymentResult {}", createPaymentResult);
 
-    var paymentState = new PaymentJourneyState(
+    var paymentState = new GovPayPaymentJourneyState(
         createPaymentResult.getState().getStatus(),
         createPaymentResult.getState().isFinished(),
         createPaymentResult.getState().getMessage(),
         createPaymentResult.getState().getCode()
     );
 
-    return new NewCardPaymentResult(
+    return new GovPayNewCardPaymentResult(
         createPaymentResult.getPaymentId(),
         paymentState,
         createPaymentResult.getReturnUrl(),
@@ -59,16 +59,16 @@ final class ApiV1RequestDataMapper {
   }
 
 
-  PaymentJourneyData mapGetPaymentResult(GetPaymentResult result) {
+  GovPayPaymentJourneyData mapGetPaymentResult(GetPaymentResult result) {
 
-    var paymentState = new PaymentJourneyState(
+    var paymentState = new GovPayPaymentJourneyState(
         result.getState().getStatus(),
         result.getState().isFinished(),
         result.getState().getMessage(),
         result.getState().getCode()
     );
 
-    return new PaymentJourneyData(
+    return new GovPayPaymentJourneyData(
         result.getPaymentId(),
         paymentState,
         result.getAmount(),

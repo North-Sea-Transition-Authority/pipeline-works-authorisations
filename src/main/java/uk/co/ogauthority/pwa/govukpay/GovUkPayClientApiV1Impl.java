@@ -29,8 +29,8 @@ class GovUkPayClientApiV1Impl implements GovUkPayCardPaymentClient {
   }
 
   @Override
-  public NewCardPaymentResult createCardPaymentJourney(NewCardPaymentRequest newCardPaymentRequest) {
-    var paymentRequest = apiV1RequestDataMapper.mapNewCardPaymentRequest(newCardPaymentRequest);
+  public GovPayNewCardPaymentResult createCardPaymentJourney(GovPayNewCardPaymentRequest govPayNewCardPaymentRequest) {
+    var paymentRequest = apiV1RequestDataMapper.mapNewCardPaymentRequest(govPayNewCardPaymentRequest);
 
     RestTemplate restTemplate = govUkPayConfiguration.getConfiguredRestTemplate();
 
@@ -47,7 +47,7 @@ class GovUkPayClientApiV1Impl implements GovUkPayCardPaymentClient {
   }
 
   @Override
-  public PaymentJourneyData getCardPaymentJourneyData(String paymentId) {
+  public GovPayPaymentJourneyData getCardPaymentJourneyData(String paymentId) {
     RestTemplate restTemplate = govUkPayConfiguration.getConfiguredRestTemplate();
 
     HttpHeaders headers = getAuthorisedHttpHeaders();

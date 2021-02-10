@@ -8,7 +8,7 @@ import java.util.Objects;
 /**
  * Client apps use this object to create a new card payment journey.
  */
-public final class NewCardPaymentRequest {
+public final class GovPayNewCardPaymentRequest {
 
   private static final int MINIMUM_AMOUNT = 0;
   private static final int MAXIMUM_AMOUNT = 10000000;
@@ -26,11 +26,11 @@ public final class NewCardPaymentRequest {
   /*
    * Payment request with metadata
    */
-  public NewCardPaymentRequest(Integer amount,
-                               String reference,
-                               String description,
-                               String returnUrl,
-                               Map<String, String> metadata) {
+  public GovPayNewCardPaymentRequest(Integer amount,
+                                     String reference,
+                                     String description,
+                                     String returnUrl,
+                                     Map<String, String> metadata) {
     Objects.requireNonNull(amount);
     Objects.requireNonNull(reference);
     Objects.requireNonNull(description);
@@ -67,7 +67,7 @@ public final class NewCardPaymentRequest {
   /*
    * Payment request with minimal data
    */
-  public NewCardPaymentRequest(Integer amount, String reference, String description, String returnUrl) {
+  public GovPayNewCardPaymentRequest(Integer amount, String reference, String description, String returnUrl) {
     this(amount, reference, description, returnUrl, Map.of());
   }
 
