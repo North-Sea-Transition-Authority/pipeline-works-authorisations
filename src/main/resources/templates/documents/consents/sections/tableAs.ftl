@@ -54,7 +54,7 @@
         <th> W.T. (mm) </th>
         <th> Type of Insulation </th>
         <th> M.A.O.P. </th>
-        <th> Product to be Conveyed </th>
+        <th> Product(s) to be Conveyed </th>
       </tr>
     </thead>
 
