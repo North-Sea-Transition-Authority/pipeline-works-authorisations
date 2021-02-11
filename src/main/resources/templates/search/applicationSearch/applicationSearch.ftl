@@ -5,7 +5,9 @@
 <#-- @ftlvariable name="searchScreenView" type="uk.co.ogauthority.pwa.model.view.search.SearchScreenView" -->
 <#-- @ftlvariable name="appSearchEntryState" type="uk.co.ogauthority.pwa.controller.search.applicationsearch.ApplicationSearchController.AppSearchEntryState" -->
 <#-- @ftlvariable name="searchUrl" type="java.lang.String" -->
-<#-- @ftlvariable name="userType" type="uk.co.ogauthority.pwa.service.enums.users.UserType" -->
+<#-- @ftlvariable name="assignedCaseOfficers" type="java.util.Map<java.lang.String, java.lang.String>" -->
+<#-- @ftlvariable name="userType" type="uk.co.ogauthority.pwa.service.enums.users.UserType" --> 
+
 
 <@defaultPage htmlTitle="Search applications" pageHeading="Search applications" fullWidthColumn=true topNavigation=true wrapperWidth=true>
 
@@ -38,8 +40,14 @@
                         <@fdsCheckbox.checkboxItem path="form.includeCompletedOrWithdrawnApps" labelText="Include Completed/Withdrawn applications"/>
                     </@fdsCheckbox.checkboxGroup>
                 </@fdsSearch.searchFilterItem>
+
+                <#if userType == "OGA">
+                    <@fdsSearch.searchFilterItem itemName="Case officer" expanded=form.assignedCaseOfficers?has_content>
+                        <@fdsSearchSelector.searchSelectorEnhanced path="form.caseOfficerId" options=assignedCaseOfficers labelText="Select a case officer" />
+                    </@fdsSearch.searchFilterItem>
+                </#if>
             </@fdsSearch.searchFilterList>
-        </@fdsSearch.searchFilter>
+        </@fdsSearch.searchFilter>   
 
         <@fdsSearch.searchPageContent>
 

@@ -3,6 +3,8 @@ package uk.co.ogauthority.pwa.service.search.applicationsearch;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import org.springframework.validation.SmartValidator;
+import uk.co.ogauthority.pwa.service.enums.users.UserType;
+import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 
 
 @Service
@@ -18,7 +20,11 @@ class ApplicationSearchParamsValidator implements SmartValidator {
     var params = (ApplicationSearchParameters) target;
     var context = (ApplicationSearchContext) validationHints[0];
 
-    // fill in as necessary with validation steps.
+    if (params.getCaseOfficerId() != null && !context.getUserType().equals(UserType.OGA)) {
+      errors.rejectValue("caseOfficerId", "caseOfficerId" + FieldValidationErrorCodes.INVALID.getCode(), "User must be an OGA user");
+    }
+
+
   }
 
   @Override

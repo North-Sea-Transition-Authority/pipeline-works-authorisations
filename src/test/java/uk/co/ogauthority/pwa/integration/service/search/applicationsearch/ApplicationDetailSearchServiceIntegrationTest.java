@@ -30,6 +30,7 @@ import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaTestUtil;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaAppAssignmentView;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailItemView;
@@ -44,6 +45,7 @@ import uk.co.ogauthority.pwa.model.view.search.SearchScreenView;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.users.UserType;
+import uk.co.ogauthority.pwa.service.enums.workflow.assignment.WorkflowAssignment;
 import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadOrganisationRoleTestUtil;
 import uk.co.ogauthority.pwa.service.search.applicationsearch.ApplicationDetailSearchService;
 import uk.co.ogauthority.pwa.service.search.applicationsearch.ApplicationSearchContext;
@@ -508,6 +510,89 @@ public class ApplicationDetailSearchServiceIntegrationTest {
     var result = applicationDetailSearchService.search(searchParams, searchContext);
 
     var screenView = new SearchScreenView<ApplicationDetailItemView>(1, List.of(app2Version2));
+
+    assertThat(result).isEqualTo(screenView);
+
+  }
+
+  @Transactional
+  @Test
+  public void search_regulatorContext_filterByCaseOfficer_completeAppDetailExistsForApp() {
+    var app = new PwaApplication(pwa2, PwaApplicationType.CAT_1_VARIATION, 0);
+    entityManager.persist(app);
+    var appDetail = new PwaApplicationDetail(app, 1, 1, clock.instant());
+    appDetail.setStatus(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW);
+    entityManager.persist(appDetail);
+
+    var caseOfficerPersonId = 123;
+
+    setupDefaultPwaConsentsAndHolderOrgs();
+    createDefaultAppDetailViews();
+    app2Version1.setPadReference(APP_2_REFERENCE);
+    app2Version1.setPwaApplicationId(app.getId());
+    app2Version1.setCaseOfficerPersonId(123);
+    app2Version2.setPadReference(APP_2_REFERENCE);
+    app2Version2.setPwaApplicationId(app.getId());
+    app2Version2.setCaseOfficerPersonId(123);
+    app2VersionLookup.setPwaApplicationId(app.getId());
+    persistAppDetailViews();
+
+    var assignmentView = new PwaAppAssignmentView();
+    assignmentView.setId(1);
+    assignmentView.setPwaApplicationId(app2Version2.getPwaApplicationId());
+    assignmentView.setAssignment(WorkflowAssignment.CASE_OFFICER);
+    assignmentView.setAssigneePersonId(caseOfficerPersonId);
+    entityManager.persist(assignmentView);
+
+
+    searchContext = getRegulatorContext();
+    searchParams = new ApplicationSearchParametersBuilder()
+        .setCaseOfficerId(String.valueOf(caseOfficerPersonId))
+        .createApplicationSearchParameters();
+
+    var result = applicationDetailSearchService.search(searchParams, searchContext);
+
+    var screenView = new SearchScreenView<ApplicationDetailItemView>(1, List.of(app2Version2));
+
+    assertThat(result).isEqualTo(screenView);
+
+  }
+
+  @Transactional
+  @Test
+  public void search_regulatorContext_filterByCaseOfficer_noCaseOfficersAssignedToApps() {
+    var app = new PwaApplication(pwa2, PwaApplicationType.CAT_1_VARIATION, 0);
+    entityManager.persist(app);
+    var appDetail = new PwaApplicationDetail(app, 1, 1, clock.instant());
+    appDetail.setStatus(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW);
+    entityManager.persist(appDetail);
+
+    var caseOfficerPersonId = 123;
+    var consulteeUserId = 456;
+
+    setupDefaultPwaConsentsAndHolderOrgs();
+    createDefaultAppDetailViews();
+    app2Version1.setPadReference(APP_2_REFERENCE);
+    app2Version1.setPwaApplicationId(app.getId());
+    app2VersionLookup.setPwaApplicationId(app.getId());
+    persistAppDetailViews();
+
+    var assignmentView = new PwaAppAssignmentView();
+    assignmentView.setId(1);
+    assignmentView.setPwaApplicationId(app2Version1.getPwaApplicationId());
+    assignmentView.setAssignment(WorkflowAssignment.CONSULTATION_RESPONDER);
+    assignmentView.setAssigneePersonId(consulteeUserId);
+    entityManager.persist(assignmentView);
+
+
+    searchContext = getRegulatorContext();
+    searchParams = new ApplicationSearchParametersBuilder()
+        .setCaseOfficerId(String.valueOf(caseOfficerPersonId))
+        .createApplicationSearchParameters();
+
+    var result = applicationDetailSearchService.search(searchParams, searchContext);
+
+    var screenView = new SearchScreenView<ApplicationDetailItemView>(0, List.of());
 
     assertThat(result).isEqualTo(screenView);
 

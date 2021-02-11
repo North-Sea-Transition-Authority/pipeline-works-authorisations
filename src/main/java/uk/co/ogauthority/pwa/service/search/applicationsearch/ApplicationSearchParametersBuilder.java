@@ -5,6 +5,8 @@ public class ApplicationSearchParametersBuilder {
 
   private Boolean includeCompletedOrWithdrawnApps;
 
+  private String caseOfficerId;
+
   public ApplicationSearchParametersBuilder setAppReference(String appReference) {
     this.appReference = appReference;
     return this;
@@ -15,13 +17,17 @@ public class ApplicationSearchParametersBuilder {
     return this;
   }
 
+  public ApplicationSearchParametersBuilder setCaseOfficerId(String caseOfficerId) {
+    this.caseOfficerId = caseOfficerId;
+    return this;
+  }
+
   public ApplicationSearchParameters createApplicationSearchParameters() {
-    return new ApplicationSearchParameters(appReference, includeCompletedOrWithdrawnApps);
+    return new ApplicationSearchParameters(appReference, includeCompletedOrWithdrawnApps, caseOfficerId);
   }
 
   public static ApplicationSearchParameters createEmptyParams() {
     return new ApplicationSearchParameters(
-        null, null
-    );
+        null, null, null);
   }
 }

@@ -14,8 +14,10 @@ import uk.co.ogauthority.pwa.model.dto.appprocessing.ApplicationInvolvementDto;
 import uk.co.ogauthority.pwa.model.dto.appprocessing.ConsultationInvolvementDto;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupMemberRole;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaAppAssignmentView;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.repository.pwaapplications.search.PwaAppAssignmentViewRepository;
 import uk.co.ogauthority.pwa.service.appprocessing.application.ConfirmSatisfactoryApplicationService;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupDetailService;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupTeamService;
@@ -24,7 +26,9 @@ import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 import uk.co.ogauthority.pwa.service.enums.users.UserType;
 import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationConsultationWorkflowTask;
 import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationWorkflowTask;
+import uk.co.ogauthority.pwa.service.enums.workflow.assignment.WorkflowAssignment;
 import uk.co.ogauthority.pwa.service.person.PersonService;
+import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
 import uk.co.ogauthority.pwa.service.teams.PwaHolderTeamService;
 import uk.co.ogauthority.pwa.service.users.UserTypeService;
@@ -47,6 +51,8 @@ public class ApplicationInvolvementService {
   private final PersonService personService;
   private final ConfirmSatisfactoryApplicationService confirmSatisfactoryApplicationService;
   private final PwaHolderTeamService pwaHolderTeamService;
+  private final PwaAppAssignmentViewRepository pwaAppAssignmentViewRepository;
+  private final PwaApplicationDetailService pwaApplicationDetailService;
 
   @Autowired
   public ApplicationInvolvementService(ConsulteeGroupTeamService consulteeGroupTeamService,
@@ -57,7 +63,9 @@ public class ApplicationInvolvementService {
                                        ConsulteeGroupDetailService consulteeGroupDetailService,
                                        PersonService personService,
                                        ConfirmSatisfactoryApplicationService confirmSatisfactoryApplicationService,
-                                       PwaHolderTeamService pwaHolderTeamService) {
+                                       PwaHolderTeamService pwaHolderTeamService,
+                                       PwaAppAssignmentViewRepository pwaAppAssignmentViewRepository,
+                                       PwaApplicationDetailService pwaApplicationDetailService) {
     this.consulteeGroupTeamService = consulteeGroupTeamService;
     this.pwaContactService = pwaContactService;
     this.consultationRequestService = consultationRequestService;
@@ -67,6 +75,8 @@ public class ApplicationInvolvementService {
     this.personService = personService;
     this.confirmSatisfactoryApplicationService = confirmSatisfactoryApplicationService;
     this.pwaHolderTeamService = pwaHolderTeamService;
+    this.pwaAppAssignmentViewRepository = pwaAppAssignmentViewRepository;
+    this.pwaApplicationDetailService = pwaApplicationDetailService;
   }
 
   public ApplicationInvolvementDto getApplicationInvolvementDto(PwaApplicationDetail detail,
@@ -197,6 +207,14 @@ public class ApplicationInvolvementService {
 
     return Optional.empty();
 
+  }
+
+  //WARNING: This may return assignment views where the case officer is assigned on more that one app.
+  // Currently this is only called by the ApplicationSearchController where duplicate case officers are removed
+  public List<PwaAppAssignmentView> getCaseOfficersAssignedToOpenApps() {
+    var openApplicationIds = pwaApplicationDetailService.getOpenApplicationIds();
+    return pwaAppAssignmentViewRepository.findAllByAssignmentAndPwaApplicationIdIn(
+        WorkflowAssignment.CASE_OFFICER, openApplicationIds);
   }
 
 }

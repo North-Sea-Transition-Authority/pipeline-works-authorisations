@@ -8,9 +8,13 @@ public final class ApplicationSearchParameters {
 
   private Boolean includeCompletedOrWithdrawnApps;
 
-  public ApplicationSearchParameters(String appReference, Boolean includeCompletedOrWithdrawnApps) {
+  private String caseOfficerId;
+
+  public ApplicationSearchParameters(String appReference, Boolean includeCompletedOrWithdrawnApps,
+                                     String caseOfficerId) {
     this.appReference = appReference;
     this.includeCompletedOrWithdrawnApps = includeCompletedOrWithdrawnApps;
+    this.caseOfficerId = caseOfficerId;
   }
 
   public String getAppReference() {
@@ -29,6 +33,14 @@ public final class ApplicationSearchParameters {
     this.includeCompletedOrWithdrawnApps = includeCompletedOrWithdrawnApps;
   }
 
+  public String getCaseOfficerId() {
+    return caseOfficerId;
+  }
+
+  public void setCaseOfficerId(String caseOfficerId) {
+    this.caseOfficerId = caseOfficerId;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -39,19 +51,21 @@ public final class ApplicationSearchParameters {
     }
     ApplicationSearchParameters that = (ApplicationSearchParameters) o;
     return Objects.equals(appReference, that.appReference)
-        && Objects.equals(includeCompletedOrWithdrawnApps, that.includeCompletedOrWithdrawnApps);
+        && Objects.equals(includeCompletedOrWithdrawnApps, that.includeCompletedOrWithdrawnApps)
+        && Objects.equals(caseOfficerId, that.caseOfficerId);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(appReference, includeCompletedOrWithdrawnApps);
+    return Objects.hash(appReference, includeCompletedOrWithdrawnApps, caseOfficerId);
   }
 
   @Override
   public String toString() {
     return "ApplicationSearchParameters{" +
         "appReference='" + appReference + '\'' +
-        ", includeCompletedOrWithdrawnApps=" + includeCompletedOrWithdrawnApps +
+        ", includeCompletedOrWithdrawnApps=" + includeCompletedOrWithdrawnApps + '\'' +
+        ", caseOfficerId=" + caseOfficerId +
         '}';
   }
 }

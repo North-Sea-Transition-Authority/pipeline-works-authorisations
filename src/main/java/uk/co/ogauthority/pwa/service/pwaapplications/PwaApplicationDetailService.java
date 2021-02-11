@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +25,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.crossings.CrossingTypesForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.partnerletters.PartnerLettersForm;
 import uk.co.ogauthority.pwa.repository.pwaapplications.PwaApplicationDetailRepository;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.ApplicationState;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadFastTrackService;
 import uk.co.ogauthority.pwa.service.users.UserTypeService;
@@ -319,6 +321,14 @@ public class PwaApplicationDetailService {
 
     }
 
+  }
+
+  public List<Integer> getOpenApplicationIds() {
+    var openStatuses = PwaApplicationStatus.getStatusesWithState(ApplicationState.DRAFT, ApplicationState.SUBMITTED);
+    return pwaApplicationDetailRepository.findLastSubmittedAppDetailsWithStatusIn(openStatuses)
+        .stream()
+        .map(detail -> detail.getPwaApplication().getId())
+        .collect(Collectors.toList());
   }
 
 }
