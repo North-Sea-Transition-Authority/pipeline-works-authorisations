@@ -1,12 +1,12 @@
 CREATE TABLE ${datasource.user}.template_text (
-    id INTEGER PRIMARY KEY
+    id NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY
     , text_type VARCHAR2(4000) NOT NULL
     , text CLOB NOT NULL
     , end_timestamp TIMESTAMP
 );
 
 CREATE TABLE ${datasource.user}.public_notices (
-    id INTEGER PRIMARY KEY
+    id NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY
     , application_id INTEGER NOT NULL
     , status VARCHAR2(4000) NOT NULL
     , version INTEGER NOT NULL
@@ -17,7 +17,7 @@ CREATE INDEX ${datasource.user}.pn_pwa_app_fk_idx ON ${datasource.user}.public_n
 
 
 CREATE TABLE ${datasource.user}.public_notice_dates (
-    id INTEGER PRIMARY KEY
+    id NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY
     , public_notice_id INTEGER NOT NULL
     , publication_start_timestamp TIMESTAMP
     , publication_end_timestamp TIMESTAMP
@@ -30,7 +30,7 @@ CREATE INDEX ${datasource.user}.pndates_pn_fk_idx ON ${datasource.user}.public_n
 
 
 CREATE TABLE ${datasource.user}.public_notice_requests (
-    id INTEGER PRIMARY KEY
+    id NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY
     , public_notice_id INTEGER NOT NULL
     , cover_letter_text CLOB NOT NULL
     , status VARCHAR2(4000) NOT NULL
