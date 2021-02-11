@@ -454,4 +454,65 @@ public class ApplicationDetailSearchServiceIntegrationTest {
   }
 
 
+  @Transactional
+  @Test
+  public void search_regulatorContext_emptySearchParam_completeAppDetailExistsForApp() {
+    var app = new PwaApplication(pwa2, PwaApplicationType.CAT_1_VARIATION, 0);
+    entityManager.persist(app);
+    var appDetail = new PwaApplicationDetail(app, 1, 1, clock.instant());
+    appDetail.setStatus(PwaApplicationStatus.COMPLETE);
+    entityManager.persist(appDetail);
+
+    setupDefaultPwaConsentsAndHolderOrgs();
+    createDefaultAppDetailViews();
+    app2Version1.setPadReference(APP_2_REFERENCE);
+    app2Version1.setPwaApplicationId(app.getId());
+    app2Version2.setPadReference(APP_2_REFERENCE);
+    app2Version2.setPwaApplicationId(app.getId());
+    persistAppDetailViews();
+
+    searchContext = getRegulatorContext();
+    searchParams = ApplicationSearchParametersBuilder.createEmptyParams();
+
+    var result = applicationDetailSearchService.search(searchParams, searchContext);
+
+    var screenView = new SearchScreenView<ApplicationDetailItemView>(0, List.of());
+
+    assertThat(result).isEqualTo(screenView);
+
+  }
+
+  @Transactional
+  @Test
+  public void search_regulatorContext_includeCompletedWithdrawnApps_completeAppDetailExistsForApp() {
+    var app = new PwaApplication(pwa2, PwaApplicationType.CAT_1_VARIATION, 0);
+    entityManager.persist(app);
+    var appDetail = new PwaApplicationDetail(app, 1, 1, clock.instant());
+    appDetail.setStatus(PwaApplicationStatus.COMPLETE);
+    entityManager.persist(appDetail);
+
+    setupDefaultPwaConsentsAndHolderOrgs();
+    createDefaultAppDetailViews();
+    app2Version1.setPadReference(APP_2_REFERENCE);
+    app2Version1.setPwaApplicationId(app.getId());
+    app2Version2.setPadReference(APP_2_REFERENCE);
+    app2Version2.setPwaApplicationId(app.getId());
+    app2VersionLookup.setPwaApplicationId(app.getId());
+    persistAppDetailViews();
+
+    searchContext = getRegulatorContext();
+    searchParams = new ApplicationSearchParametersBuilder()
+        .includeCompletedOrWithdrawnApps(true)
+        .createApplicationSearchParameters();
+
+    var result = applicationDetailSearchService.search(searchParams, searchContext);
+
+    var screenView = new SearchScreenView<ApplicationDetailItemView>(1, List.of(app2Version2));
+
+    assertThat(result).isEqualTo(screenView);
+
+  }
+
+
+
 }

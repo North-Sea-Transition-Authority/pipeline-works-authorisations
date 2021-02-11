@@ -13,37 +13,66 @@
         <@fdsInsetText.insetText>Search for submitted applications only, draft applications you are permitted to access are available in the work area.</@fdsInsetText.insetText>
     </#if>
 
-    <@fdsForm.htmlForm actionUrl="${springUrl(searchUrl)}">
-        <@fdsTextInput.textInput path="form.appReference" labelText="Application reference" maxCharacterLength="20" inputClass="govuk-input--width-10"/>
-        <@fdsAction.button buttonText="Search"/>
-    </@fdsForm.htmlForm>
+    <@fdsSearch.searchPage>
 
-    <#if searchScreenView?has_content>
+        <@fdsSearch.searchFilter formActionUrl="${springUrl(searchUrl)}">
+            <@fdsSearch.searchFilterList filterButtonItemText="applications">
+                <@fdsSearch.searchFilterItem itemName="Application reference" expanded=form.appReference?has_content>
+                    <@fdsTextInput.textInput path="form.appReference"
+                    labelText="Application reference" labelClass="govuk-visually-hidden"
+                    hintText="Enter a full or partial reference"
+                    maxCharacterLength="20" inputClass="govuk-input--width-10"
+                    />
+                </@fdsSearch.searchFilterItem>
 
-        <#if appSearchEntryState == "SEARCH" && !searchScreenView.searchResults?has_content>
-            <@searchScreenHelper.noResultsFound />
-        </#if>
+                <@fdsSearch.searchFilterItem itemName="Application status" expanded=form.includeCompletedOrWithdrawnApps?has_content>
+                    <@fdsCheckbox.checkboxGroup path="form.includeCompletedOrWithdrawnApps"
+                    hintText="Select an option"
+                    fieldsetHeadingText="Application status"
+                    formGroupClass=""
+                    smallCheckboxes=true
+                    hiddenContent=false
+                    inline=true
+                    showLabelOnly=true
+                    noFieldsetHeadingSize="--s govuk-visually-hidden">
+                        <@fdsCheckbox.checkboxItem path="form.includeCompletedOrWithdrawnApps" labelText="Include Completed/Withdrawn applications"/>
+                    </@fdsCheckbox.checkboxGroup>
+                </@fdsSearch.searchFilterItem>
+            </@fdsSearch.searchFilterList>
+        </@fdsSearch.searchFilter>
 
-        <@searchScreenHelper.resultsCountText searchScreenView "search" />
+        <@fdsSearch.searchPageContent>
 
-        <#if searchScreenView.searchResults?has_content>
-            <table class="govuk-table">
-                <thead class="govuk-table__head">
-                <tr class="govuk-table__row">
-                    <th class="govuk-table__header govuk-!-width-one-third" scope="col">Application</th>
-                    <th class="govuk-table__header" scope="col">Holder</th>
-                    <th class="govuk-table__header govuk-!-width-one-third" scope="col">Summary</th>
-                    <th class="govuk-table__header govuk-!-width-one-third" scope="col">Application status</th>
-                </tr>
-                </thead>
-                <tbody class="govuk-table__body">
-                <#list searchScreenView.searchResults as item>
-                    <@applicationWorkAreaItem.workAreaItemContentRow item/>
-                </#list>
-                </tbody>
-            </table>
-        </#if>
+            <#if searchScreenView?has_content>
 
-    </#if>
+                <#if appSearchEntryState == "SEARCH" && !searchScreenView.searchResults?has_content>
+                    <@searchScreenHelper.noResultsFound />
+                </#if>
+
+                <#if searchScreenView.searchResults?has_content>
+                    <@searchScreenHelper.resultsCountText searchScreenView "search" />
+
+                    <table class="govuk-table">
+                        <thead class="govuk-table__head">
+                        <tr class="govuk-table__row">
+                            <th class="govuk-table__header govuk-!-width-one-third" scope="col">Application</th>
+                            <th class="govuk-table__header" scope="col">Holder</th>
+                            <th class="govuk-table__header govuk-!-width-one-third" scope="col">Summary</th>
+                            <th class="govuk-table__header govuk-!-width-one-third" scope="col">Application status</th>
+                        </tr>
+                        </thead>
+                        <tbody class="govuk-table__body">
+                        <#list searchScreenView.searchResults as item>
+                            <@applicationWorkAreaItem.workAreaItemContentRow item/>
+                        </#list>
+                        </tbody>
+                    </table>
+                </#if>
+
+            </#if>
+
+        </@fdsSearch.searchPageContent>
+
+    </@fdsSearch.searchPage>
 
 </@defaultPage>

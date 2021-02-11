@@ -6,8 +6,11 @@ public final class ApplicationSearchParameters {
 
   private String appReference;
 
-  public ApplicationSearchParameters(String appReference) {
+  private Boolean includeCompletedOrWithdrawnApps;
+
+  public ApplicationSearchParameters(String appReference, Boolean includeCompletedOrWithdrawnApps) {
     this.appReference = appReference;
+    this.includeCompletedOrWithdrawnApps = includeCompletedOrWithdrawnApps;
   }
 
   public String getAppReference() {
@@ -16,6 +19,14 @@ public final class ApplicationSearchParameters {
 
   public void setAppReference(String appReference) {
     this.appReference = appReference;
+  }
+
+  public Boolean getIncludeCompletedOrWithdrawnApps() {
+    return includeCompletedOrWithdrawnApps;
+  }
+
+  public void setIncludeCompletedOrWithdrawnApps(Boolean includeCompletedOrWithdrawnApps) {
+    this.includeCompletedOrWithdrawnApps = includeCompletedOrWithdrawnApps;
   }
 
   @Override
@@ -27,18 +38,20 @@ public final class ApplicationSearchParameters {
       return false;
     }
     ApplicationSearchParameters that = (ApplicationSearchParameters) o;
-    return Objects.equals(appReference, that.appReference);
+    return Objects.equals(appReference, that.appReference)
+        && Objects.equals(includeCompletedOrWithdrawnApps, that.includeCompletedOrWithdrawnApps);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(appReference);
+    return Objects.hash(appReference, includeCompletedOrWithdrawnApps);
   }
 
   @Override
   public String toString() {
     return "ApplicationSearchParameters{" +
         "appReference='" + appReference + '\'' +
+        ", includeCompletedOrWithdrawnApps=" + includeCompletedOrWithdrawnApps +
         '}';
   }
 }
