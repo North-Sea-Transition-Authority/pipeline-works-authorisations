@@ -10,7 +10,7 @@ import uk.co.ogauthority.pwa.govukpay.api.cardpayment.response.CreatePaymentResu
 import uk.co.ogauthority.pwa.govukpay.api.cardpayment.response.GetPaymentResult;
 
 @Service
-final class ApiV1RequestDataMapper {
+class ApiV1RequestDataMapper {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ApiV1RequestDataMapper.class);
 
