@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 @Component
-class GovUkPayConfiguration {
+final class GovUkPayConfiguration {
 
   private static final String PAYMENTS_URL = "/v1/payments";
 
