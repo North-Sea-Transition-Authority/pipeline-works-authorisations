@@ -28,7 +28,7 @@
         <h2 class="govuk-heading-l">${section.name}</h2>
       </#if>
 
-      <ol class="govuk-list govuk-list--${listClass}">
+      <ol class="govuk-list govuk-list--${listClass} clause-list__list clause-list__list--${listClass}">
 
         <#list section.clauses as clauseView>
 
@@ -36,6 +36,8 @@
           <@clause clauseView=clauseView clauseActionsUrlFactory=clauseActionsUrlFactory listClass=childListClass isLastInList=isLastInList/>
 
         </#list>
+
+      </ol>
 
     </#list>
 
@@ -52,42 +54,48 @@
 
   <#assign clauseActionsFlag = clauseActionsUrlFactory?has_content />
 
-  <li id="clauseId-${clauseView.clauseId?c}">
+  <li id="clauseId-${clauseView.clauseId?c}" class="clause-list__list-item">
 
-    <${headingSize} class="govuk-heading-${headingClass}">
-        ${clauseView.name}
-        <#if clauseActionsFlag>
-          <@fdsAction.link
-          linkText="Add clause above"
-          linkUrl=springUrl(clauseActionsUrlFactory.getAddClauseBeforeRoute(clauseView.clauseId))
-          linkClass="govuk-link clause-list__action clause-list__action--heading govuk-!-font-size-19"
-          linkScreenReaderText=clauseView.name />
-          <@fdsAction.link
-          linkText="Edit clause"
-          linkUrl=springUrl(clauseActionsUrlFactory.getEditClauseRoute(clauseView.clauseId))
-          linkClass="govuk-link clause-list__action clause-list__action--heading govuk-!-font-size-19"
-          linkScreenReaderText=clauseView.name />
-          <@fdsAction.link
-          linkText="Remove"
-          linkUrl=springUrl(clauseActionsUrlFactory.getRemoveClauseRoute(clauseView.clauseId))
-          linkClass="govuk-link clause-list__action clause-list__action--heading govuk-!-font-size-19"
-          linkScreenReaderText=clauseView.name />
+    <${headingSize} class="govuk-heading-${headingClass} govuk-!-margin-bottom-2">${clauseView.name}</${headingSize}>
+    <#if clauseActionsFlag>
+      <@fdsActionDropdown.actionDropdown dropdownButtonText="Clause actions" dropdownButtonClass="govuk-!-margin-bottom-2">
+        <@fdsActionDropdown.actionDropdownItem
+          actionText="Add clause above"
+          linkAction=true
+          linkActionUrl=springUrl(clauseActionsUrlFactory.getAddClauseBeforeRoute(clauseView.clauseId))
+          linkActionScreenReaderText=clauseView.name/>
+        <#if isLastInList>
+          <@fdsActionDropdown.actionDropdownItem
+            actionText="Add clause below"
+            linkAction=true
+            linkActionUrl=springUrl(clauseActionsUrlFactory.getAddClauseAfterRoute(clauseView.clauseId))
+            linkActionScreenReaderText="after ${clauseView.name}" />
         </#if>
-    </${headingSize}>
-
-    <@multiLineText.multiLineText blockClass="clause-list__text">${clauseView.text}</@multiLineText.multiLineText>
-
-    <#if isLastInList && clauseActionsFlag>
-        <@fdsAction.link
-        linkText="Add clause"
-        linkUrl=springUrl(clauseActionsUrlFactory.getAddClauseAfterRoute(clauseView.clauseId))
-        linkClass="govuk-link clause-list__action"
-        linkScreenReaderText="after ${clauseView.name}" />
+        <#if !clauseView.childClauses?has_content && (clauseView.levelNumber == 1 || clauseView.levelNumber == 2)>
+          <@fdsActionDropdown.actionDropdownItem
+            actionText="Add sub-clause"
+            linkAction=true
+            linkActionUrl=springUrl(clauseActionsUrlFactory.getAddSubClauseRoute(clauseView.clauseId))
+            linkActionScreenReaderText="for ${clauseView.name}"/>
+        </#if>
+        <@fdsActionDropdown.actionDropdownItem
+          actionText="Edit clause"
+          linkAction=true
+          linkActionUrl=springUrl(clauseActionsUrlFactory.getEditClauseRoute(clauseView.clauseId))
+          linkActionScreenReaderText=clauseView.name />
+        <@fdsActionDropdown.actionDropdownItem
+          actionText="Remove"
+          linkAction=true
+          linkActionUrl=springUrl(clauseActionsUrlFactory.getRemoveClauseRoute(clauseView.clauseId))
+          linkActionScreenReaderText=clauseView.name />
+      </@fdsActionDropdown.actionDropdown>
     </#if>
+
+    <@multiLineText.multiLineText blockClass="clause-list__text">${clauseView.text!}</@multiLineText.multiLineText>
 
     <#if clauseView.childClauses?has_content>
 
-      <ol class="govuk-list govuk-list--${listClass}">
+      <ol class="govuk-list govuk-list--${listClass} clause-list__list clause-list__list--${listClass}">
 
           <#list clauseView.childClauses as child>
 
@@ -105,14 +113,6 @@
           </#list>
 
       </ol>
-
-      <#elseif (clauseView.levelNumber == 1 || clauseView.levelNumber == 2) && clauseActionsFlag>
-
-        <@fdsAction.link
-        linkText="Add sub-clause"
-        linkUrl=springUrl(clauseActionsUrlFactory.getAddSubClauseRoute(clauseView.clauseId))
-        linkClass="govuk-link clause-list__action"
-        linkScreenReaderText="for ${clauseView.name}"/>
 
     </#if>
 
