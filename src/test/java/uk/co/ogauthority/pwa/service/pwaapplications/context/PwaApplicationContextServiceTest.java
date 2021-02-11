@@ -85,7 +85,7 @@ public class PwaApplicationContextServiceTest {
 
   }
 
-  @Test(expected = AccessDeniedException.class)
+  @Test
   public void validateAndCreate_noChecks_userHasNoRolesForApp() {
     when(pwaApplicationPermissionService.getPermissions(detail, user.getLinkedPerson())).thenReturn(Set.of());
     var contextBuilder = new PwaApplicationContextParams(1, user);
