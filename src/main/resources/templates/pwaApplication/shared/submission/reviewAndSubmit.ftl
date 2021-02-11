@@ -45,7 +45,7 @@
 
             </#if>
 
-            <#if submitterCandidates?has_content>
+            <#if !userPermissions?seq_contains("SUBMIT")>
 
                 <h2 class="govuk-heading-l">Application submission</h2>
 
