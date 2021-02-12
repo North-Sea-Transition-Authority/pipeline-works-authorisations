@@ -95,24 +95,28 @@ public class PwaApplicationContextService {
   }
 
   /**
-   * If the user has (ALL of the required permissions OR ALL of the required holder roles) then pass, otherwise throw a relevant exception.
+   * If the user has ANY of the required permissions then pass, otherwise throw a relevant exception.
    */
   private void performPermissionCheck(PwaApplicationContextParams contextParams,
                                       PwaApplicationContext context,
                                       AuthenticatedUserAccount user,
                                       int applicationId) {
 
-
     var requiredPermissions = contextParams.getPermissions();
 
-    if (context.getPermissions().isEmpty()) {
-      throwPermissionException(user.getWuaId(), applicationId, requiredPermissions);
-    }
+    if (!requiredPermissions.isEmpty()) {
 
-    boolean userHasRequiredPermissions = context.getPermissions().containsAll(requiredPermissions);
+      if (context.getPermissions().isEmpty()) {
+        throwPermissionException(user.getWuaId(), applicationId, requiredPermissions);
+      }
 
-    if (!userHasRequiredPermissions) {
-      throwPermissionException(user.getWuaId(), applicationId, requiredPermissions);
+      boolean userHasRequiredPermissions = context.getPermissions().stream()
+          .anyMatch(requiredPermissions::contains);
+
+      if (!userHasRequiredPermissions) {
+        throwPermissionException(user.getWuaId(), applicationId, requiredPermissions);
+      }
+
     }
 
   }

@@ -1,7 +1,9 @@
 package uk.co.ogauthority.pwa.repository.pwaapplications;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
@@ -24,5 +26,12 @@ public interface PwaApplicationDetailRepository extends CrudRepository<PwaApplic
   List<PwaApplicationDetail> findByPwaApplicationAndStatus(PwaApplication pwaApplication, PwaApplicationStatus status);
 
   List<PwaApplicationDetail> findByPwaApplicationId(int applicationId);
+
+  @Query("SELECT pad FROM PwaApplicationDetail pad " +
+      "JOIN PadVersionLookup psv ON psv.pwaApplicationId = pad.pwaApplication.id " +
+      "AND psv.latestSubmittedTimestamp = pad.submittedTimestamp " +
+      "WHERE pad.status in :status")
+  List<PwaApplicationDetail> findLastSubmittedAppDetailsWithStatusIn(Collection<PwaApplicationStatus> status);
+
 
 }

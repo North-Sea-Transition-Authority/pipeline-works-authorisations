@@ -3,6 +3,8 @@ package uk.co.ogauthority.pwa.service.appprocessing;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
@@ -24,6 +26,7 @@ import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.repository.pwaapplications.search.PwaAppAssignmentViewRepository;
 import uk.co.ogauthority.pwa.service.appprocessing.application.ConfirmSatisfactoryApplicationService;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupDetailService;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupTeamService;
@@ -33,7 +36,9 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.ConsultationRequestSt
 import uk.co.ogauthority.pwa.service.enums.users.UserType;
 import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationConsultationWorkflowTask;
 import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationWorkflowTask;
+import uk.co.ogauthority.pwa.service.enums.workflow.assignment.WorkflowAssignment;
 import uk.co.ogauthority.pwa.service.person.PersonService;
+import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
 import uk.co.ogauthority.pwa.service.teams.PwaHolderTeamService;
 import uk.co.ogauthority.pwa.service.users.UserTypeService;
@@ -73,6 +78,12 @@ public class ApplicationInvolvementServiceTest {
   @Mock
   private PwaHolderTeamService pwaHolderTeamService;
 
+  @Mock
+  private PwaAppAssignmentViewRepository pwaAppAssignmentViewRepository;
+
+  @Mock
+  private PwaApplicationDetailService pwaApplicationDetailService;
+
   private ApplicationInvolvementService applicationInvolvementService;
 
   private PwaApplicationDetail detail;
@@ -91,7 +102,7 @@ public class ApplicationInvolvementServiceTest {
         consulteeGroupDetailService,
         personService,
         confirmSatisfactoryApplicationService,
-        pwaHolderTeamService);
+        pwaHolderTeamService, pwaAppAssignmentViewRepository, pwaApplicationDetailService);
 
     detail = new PwaApplicationDetail();
     application = new PwaApplication();
@@ -403,5 +414,17 @@ public class ApplicationInvolvementServiceTest {
     assertThat(involvement.hasAtLeastOneSatisfactoryVersion()).isFalse();
 
   }
+
+  @Test
+  public void getCaseOfficersAssignedToOpenApps() {
+
+    var openApplicationIds = List.of(1, 2, 3);
+    when(pwaApplicationDetailService.getOpenApplicationIds()).thenReturn(openApplicationIds);
+
+    applicationInvolvementService.getCaseOfficersAssignedToOpenApps();
+    verify(pwaAppAssignmentViewRepository, times(1))
+        .findAllByAssignmentAndPwaApplicationIdIn(WorkflowAssignment.CASE_OFFICER, openApplicationIds);
+  }
+
 
 }

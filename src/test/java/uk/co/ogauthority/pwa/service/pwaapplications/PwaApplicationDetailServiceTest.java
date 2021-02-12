@@ -43,6 +43,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.partnerletters.PartnerLettersForm;
 import uk.co.ogauthority.pwa.repository.pwaapplications.PwaApplicationDetailRepository;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.ApplicationState;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.users.UserType;
@@ -544,4 +545,20 @@ public class PwaApplicationDetailServiceTest {
     verify(applicationDetailRepository, times(1))
         .findByPwaApplicationAndStatus(pwaApplicationDetail.getPwaApplication(), PwaApplicationStatus.WITHDRAWN);
   }
+
+  @Test
+  public void getOpenApplicationIds() {
+    var pwaAppId1 = 1;
+    var pwaAppId2 = 2;
+    var detail1 = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL, pwaAppId1);
+    var detail2 = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL, pwaAppId2);
+
+    var openStatuses = PwaApplicationStatus.getStatusesWithState(ApplicationState.DRAFT, ApplicationState.SUBMITTED);
+    when(applicationDetailRepository.findLastSubmittedAppDetailsWithStatusIn(openStatuses)).thenReturn(List.of(detail1, detail2));
+
+    var openApplicationIds = pwaApplicationDetailService.getOpenApplicationIds();
+    assertThat(openApplicationIds).isEqualTo(List.of(
+        detail1.getPwaApplication().getId(), detail2.getPwaApplication().getId()));
+  }
+
 }

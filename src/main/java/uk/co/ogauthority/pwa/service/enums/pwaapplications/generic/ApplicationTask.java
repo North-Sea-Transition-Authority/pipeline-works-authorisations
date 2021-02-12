@@ -281,7 +281,7 @@ public enum ApplicationTask implements GeneralPurposeApplicationTask {
             .renderFields(applicationType, applicationId, null, null, null));
       case APPLICATION_USERS:
         return ReverseRouter.route(on(PwaContactController.class)
-            .renderContactsScreen(applicationType, applicationId, null));
+            .renderContactsScreen(applicationType, applicationId, null, null));
       case PROJECT_INFORMATION:
         return ReverseRouter.route(on(ProjectInformationController.class)
             .renderProjectInformation(applicationType, applicationId, null, null));
