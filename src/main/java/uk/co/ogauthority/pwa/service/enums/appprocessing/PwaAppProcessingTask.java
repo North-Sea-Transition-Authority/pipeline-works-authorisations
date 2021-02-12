@@ -18,6 +18,7 @@ import uk.co.ogauthority.pwa.controller.consultations.ConsultationController;
 import uk.co.ogauthority.pwa.controller.consultations.ConsulteeAdviceController;
 import uk.co.ogauthority.pwa.controller.consultations.responses.AssignResponderController;
 import uk.co.ogauthority.pwa.controller.consultations.responses.ConsultationResponseController;
+import uk.co.ogauthority.pwa.controller.publicnotice.PublicNoticeController;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.PublicNoticeService;
 import uk.co.ogauthority.pwa.service.appprocessing.application.ConfirmSatisfactoryApplicationService;
@@ -96,7 +97,9 @@ public enum PwaAppProcessingTask {
   PUBLIC_NOTICE(
       "Public notice",
       TaskRequirement.REQUIRED,
-      PublicNoticeService.class, processingContext -> "#",
+      PublicNoticeService.class, processingContext ->  ReverseRouter.route(on(PublicNoticeController.class)
+      .renderDraftPublicNotice(processingContext.getMasterPwaApplicationId(),
+          processingContext.getApplicationType(), null, null)),
       50),
 
   DECISION(
