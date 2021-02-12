@@ -3,9 +3,9 @@ package uk.co.ogauthority.pwa.govukpay;
 /**
  * A structure representing the current state of the payment in its lifecycle.
  */
-public final class PaymentJourneyState {
+public final class GovPayPaymentJourneyState {
 
-  private final String status;
+  private final GovUkPaymentStatus status;
 
   private final Boolean finished;
 
@@ -13,7 +13,7 @@ public final class PaymentJourneyState {
 
   private final String code;
 
-  PaymentJourneyState(String status, Boolean finished, String message, String code) {
+  GovPayPaymentJourneyState(GovUkPaymentStatus status, Boolean finished, String message, String code) {
     this.status = status;
     this.finished = finished;
     this.message = message;
@@ -25,7 +25,7 @@ public final class PaymentJourneyState {
    *
    * @return status
    **/
-  public String getStatus() {
+  public GovUkPaymentStatus getStatus() {
     return status;
   }
 

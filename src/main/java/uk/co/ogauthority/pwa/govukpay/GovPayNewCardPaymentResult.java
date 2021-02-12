@@ -1,14 +1,15 @@
 package uk.co.ogauthority.pwa.govukpay;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Map;
 
 /**
  * returned by govuk pay client on on successful new card payment journey creation.
  */
-public final class NewCardPaymentResult {
+public final class GovPayNewCardPaymentResult {
 
-  private final PaymentJourneyState paymentJourneyState;
+  private final GovPayPaymentJourneyState govPayPaymentJourneyState;
 
   private final String paymentId;
 
@@ -19,26 +20,26 @@ public final class NewCardPaymentResult {
   // GET endpoint on external service that allows a user to complete the started payment journey
   private final String startExternalPaymentJourneyUrl;
 
-  private final String createdDate; // TODO PWA-1113 make instant
+  private final LocalDateTime createdDate;
 
   private final Map<String, String> metadata;
 
-  NewCardPaymentResult(String paymentId,
-                       PaymentJourneyState paymentJourneyState,
-                       String returnToServiceAfterJourneyCompleteUrl,
-                       String startExternalPaymentJourneyUrl,
-                       String createdDate,
-                       Map<String, String> metadata) {
+  GovPayNewCardPaymentResult(String paymentId,
+                             GovPayPaymentJourneyState govPayPaymentJourneyState,
+                             String returnToServiceAfterJourneyCompleteUrl,
+                             String startExternalPaymentJourneyUrl,
+                             LocalDateTime createdDate,
+                             Map<String, String> metadata) {
     this.paymentId = paymentId;
-    this.paymentJourneyState = paymentJourneyState;
+    this.govPayPaymentJourneyState = govPayPaymentJourneyState;
     this.returnToServiceAfterJourneyCompleteUrl = returnToServiceAfterJourneyCompleteUrl;
     this.startExternalPaymentJourneyUrl = startExternalPaymentJourneyUrl;
     this.createdDate = createdDate;
     this.metadata =  Collections.unmodifiableMap(metadata);
   }
 
-  public PaymentJourneyState getPaymentJourneyState() {
-    return paymentJourneyState;
+  public GovPayPaymentJourneyState getPaymentJourneyState() {
+    return govPayPaymentJourneyState;
   }
 
   public String getPaymentId() {
@@ -49,7 +50,7 @@ public final class NewCardPaymentResult {
     return startExternalPaymentJourneyUrl;
   }
 
-  public String getCreatedDate() {
+  public LocalDateTime getCreatedDate() {
     return createdDate;
   }
 

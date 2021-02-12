@@ -12,6 +12,7 @@ import javax.persistence.Table;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.annotations.Type;
 import org.hibernate.envers.Audited;
+import uk.co.ogauthority.pwa.govukpay.GovUkPaymentStatus;
 
 
 @Entity
@@ -43,10 +44,13 @@ public class PwaPaymentRequest {
   private String requestStatusMessage;
 
   private String govUkPaymentId;
-  private String govUkPaymentStatus; // TODO PWA-1113 do we need this as as proper enum?
+
+  @Enumerated(EnumType.STRING)
+  private GovUkPaymentStatus govUkPaymentStatus;
 
   @Column(name = "gov_uk_payment_status_ts")
   private Instant govUkPaymentStatusTimestamp;
+
   private String govUkPaymentStatusMessage;
 
   // object helper methods
@@ -148,11 +152,11 @@ public class PwaPaymentRequest {
     this.govUkPaymentId = govUkPaymentId;
   }
 
-  public String getGovUkPaymentStatus() {
+  public GovUkPaymentStatus getGovUkPaymentStatus() {
     return govUkPaymentStatus;
   }
 
-  public void setGovUkPaymentStatus(String govUkPaymentStatus) {
+  public void setGovUkPaymentStatus(GovUkPaymentStatus govUkPaymentStatus) {
     this.govUkPaymentStatus = govUkPaymentStatus;
   }
 

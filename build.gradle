@@ -67,7 +67,8 @@ dependencies {
   compile 'org.camunda.bpm.springboot:camunda-bpm-spring-boot-starter:3.4.1'
 
   // Required by Hibernate Envers
-  compile 'org.hibernate:hibernate-envers'
+  // https://mvnrepository.com/artifact/org.hibernate/hibernate-envers
+  compile 'org.hibernate:hibernate-envers:5.4.27.Final'
 
   // automatically generates jpa meta-model for type safe criteria builder queries
   annotationProcessor("javax.xml.bind:jaxb-api")

@@ -11,14 +11,13 @@ import org.springframework.web.client.RestTemplate;
 @Component
 final class GovUkPayConfiguration {
 
-  private static final String GOVUK_PAY_BASE = "https://publicapi.payments.service.gov.uk";
   private static final String PAYMENTS_URL = "/v1/payments";
 
   private final String applicationBaseUrl;
 
-  private final String contextPath;
-
   private final String apiKey;
+
+  private final String govUkPayBaseUrl;
 
   private final String govukPayAuthorizationHeaderValue;
 
@@ -28,27 +27,36 @@ final class GovUkPayConfiguration {
   private final RestTemplateBuilder restTemplateBuilder;
   private final ClientHttpRequestFactory clientHttpRequestFactory;
 
+  private final RestTemplate restTemplate;
+
   @Autowired
   GovUkPayConfiguration(RestTemplateBuilder restTemplateBuilder,
                         ClientHttpRequestFactory clientHttpRequestFactory,
                         @Value("${pwa.url.base}") String applicationBaseUrl,
-                        @Value("${context-path}") String contextPath,
                         @Value("${govukpay.apiKey}") String apiKey,
+                        @Value("${govukpay.api.base-url}") String govUkPayBaseUrl,
                         @Value("${govukpay.connect-timeout-seconds:#{10}}") Long apiConnectionTimeoutSeconds,
                         @Value("${govukpay.read-timeout-seconds:#{10}}") Long apiReadTimeoutSeconds) {
     this.applicationBaseUrl = applicationBaseUrl;
-    this.contextPath = contextPath;
     this.apiKey = apiKey;
+    this.govUkPayBaseUrl = govUkPayBaseUrl;
     this.govukPayAuthorizationHeaderValue = "Bearer " + apiKey;
     this.apiConnectionTimeoutSeconds = apiConnectionTimeoutSeconds;
     this.apiReadTimeoutSeconds = apiReadTimeoutSeconds;
     this.restTemplateBuilder = restTemplateBuilder;
     this.clientHttpRequestFactory = clientHttpRequestFactory;
 
+    this.restTemplate = restTemplateBuilder
+        .setConnectTimeout(Duration.ofSeconds(apiConnectionTimeoutSeconds))
+        .setReadTimeout(Duration.ofSeconds(apiReadTimeoutSeconds))
+        .defaultHeader("User-Agent", "fivium-gov-uk-payment-client")
+        .requestFactory(() -> clientHttpRequestFactory)
+        .build();
+
   }
 
   String getGovukPayBaseUrl() {
-    return GOVUK_PAY_BASE;
+    return this.govUkPayBaseUrl;
   }
 
   String getPaymentsEndpoint() {
@@ -57,10 +65,6 @@ final class GovUkPayConfiguration {
 
   String getApplicationBaseUrl() {
     return applicationBaseUrl;
-  }
-
-  String getContextPath() {
-    return contextPath;
   }
 
   String getApiKey() {
@@ -72,11 +76,6 @@ final class GovUkPayConfiguration {
   }
 
   RestTemplate getConfiguredRestTemplate() {
-    return restTemplateBuilder
-        .setConnectTimeout(Duration.ofSeconds(apiConnectionTimeoutSeconds))
-        .setReadTimeout(Duration.ofSeconds(apiReadTimeoutSeconds))
-        .defaultHeader("User-Agent", "fivium-gov-uk-payment-client")
-        .requestFactory(() -> clientHttpRequestFactory)
-        .build();
+    return restTemplate;
   }
 }

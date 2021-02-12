@@ -1,30 +1,27 @@
 package uk.co.ogauthority.pwa.pwapay;
 
-import java.time.Clock;
+import com.google.common.annotations.VisibleForTesting;
 import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import uk.co.ogauthority.pwa.govukpay.GovPayNewCardPaymentRequest;
+import uk.co.ogauthority.pwa.govukpay.GovPayPaymentJourneyState;
 import uk.co.ogauthority.pwa.govukpay.GovUkPayCardPaymentClient;
-import uk.co.ogauthority.pwa.govukpay.NewCardPaymentRequest;
-import uk.co.ogauthority.pwa.govukpay.PaymentJourneyState;
+import uk.co.ogauthority.pwa.govukpay.GovUkPaymentStatus;
 
 @Service
 public class PwaPaymentService {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(PwaPaymentService.class);
-
-  public static final String GOVUK_PAYMENT_SUCCESS_STATUS = "success";
-  public static final String GOVUK_PAYMENT_CANCELLED_STATUS = "cancelled"; //TODO PWA -1113 is this correct?
 
   private final GovUkPayCardPaymentClient govUkPayCardPaymentClient;
   private final PwaPaymentRequestRepository pwaPaymentRequestRepository;
@@ -34,9 +31,7 @@ public class PwaPaymentService {
 
   @Autowired
   public PwaPaymentService(GovUkPayCardPaymentClient govUkPayCardPaymentClient,
-
                            PwaPaymentRequestPersister pwaPaymentRequestPersister,
-                           @Qualifier("utcClock") Clock clock,
                            PwaPaymentRequestRepository pwaPaymentRequestRepository,
                            @Value("${pwa.url.base}") String pwaUrlBase,
                            @Value("${context-path}") String contextPath
@@ -70,7 +65,7 @@ public class PwaPaymentService {
     var returnUrl = pwaUrlBase + contextPath + returnUrlSupplier.apply(newPwaPaymentRequestUuid);
 
     try {
-      var paymentRequest = new NewCardPaymentRequest(
+      var paymentRequest = new GovPayNewCardPaymentRequest(
           pennyAmount,
           reference,
           description,
@@ -111,7 +106,8 @@ public class PwaPaymentService {
 
   @Transactional
   public void refreshPwaPaymentRequestData(PwaPaymentRequest pwaPaymentRequest) {
-    refreshFromGovUkPayOrElseFallback(pwaPaymentRequest,
+    refreshFromGovUkPayOrElseFallback(
+        pwaPaymentRequest,
         paymentRequest -> {
           LOGGER.debug("Refresh of in progress request without govUkPaymentId. Set as complete without payment");
           pwaPaymentRequestPersister.setPaymentRequestStatusData(
@@ -147,12 +143,12 @@ public class PwaPaymentService {
 
   }
 
-  // TODO PWA-1113 needs independent test?
-  private PaymentRequestStatus decodeGovPayStatus(PaymentJourneyState paymentJourneyState) {
-    if (paymentJourneyState.isFinished()) {
-      if (GOVUK_PAYMENT_SUCCESS_STATUS.equals(paymentJourneyState.getStatus())) {
+  @VisibleForTesting
+  PaymentRequestStatus decodeGovPayStatus(GovPayPaymentJourneyState govPayPaymentJourneyState) {
+    if (govPayPaymentJourneyState.isFinished()) {
+      if (GovUkPaymentStatus.SUCCESS.equals(govPayPaymentJourneyState.getStatus())) {
         return PaymentRequestStatus.PAYMENT_COMPLETE;
-      } else if (GOVUK_PAYMENT_CANCELLED_STATUS.equals(paymentJourneyState.getStatus())) {
+      } else if (GovUkPaymentStatus.CANCELLED.equals(govPayPaymentJourneyState.getStatus())) {
         return PaymentRequestStatus.CANCELLED;
       } else {
         return PaymentRequestStatus.COMPLETE_WITHOUT_PAYMENT;

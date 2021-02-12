@@ -5,11 +5,11 @@ import java.util.Map;
 /**
  * returns view of single govuk payment journey.
  */
-public final class PaymentJourneyData {
+public final class GovPayPaymentJourneyData {
 
   private final String paymentId;
 
-  private final PaymentJourneyState paymentJourneyState;
+  private final GovPayPaymentJourneyState govPayPaymentJourneyState;
 
   private final Long amount;
 
@@ -25,9 +25,9 @@ public final class PaymentJourneyData {
 
   private final String createdDate;
 
-  private final String refundStatus; // TODO PWA-1113 turn into enum we control - e.g NOT_REFUNDED, IN_PROGRESS, COMPLETE
+  private final String refundStatus;
 
-  private final String settlementStatus; // TODO PWA-1113 turn into enum we control - e.g NOT_SETTLED, SETTLED. what about the date?
+  private final String settlementStatus;
 
   private final Long corporateCardSurcharge;
 
@@ -41,25 +41,25 @@ public final class PaymentJourneyData {
 
   private final String returnUrl;
 
-  public PaymentJourneyData(String paymentId,
-                            PaymentJourneyState paymentJourneyState,
-                            Long amount,
-                            String description,
-                            String reference,
-                            Map<String, String> metadata,
-                            String email,
-                            String paymentProvider,
-                            String createdDate,
-                            String refundStatus,
-                            String settlementStatus,
-                            Long corporateCardSurcharge,
-                            Long totalAmount,
-                            Long fee,
-                            Long netAmount,
-                            String providerId,
-                            String returnUrl) {
+  public GovPayPaymentJourneyData(String paymentId,
+                                  GovPayPaymentJourneyState govPayPaymentJourneyState,
+                                  Long amount,
+                                  String description,
+                                  String reference,
+                                  Map<String, String> metadata,
+                                  String email,
+                                  String paymentProvider,
+                                  String createdDate,
+                                  String refundStatus,
+                                  String settlementStatus,
+                                  Long corporateCardSurcharge,
+                                  Long totalAmount,
+                                  Long fee,
+                                  Long netAmount,
+                                  String providerId,
+                                  String returnUrl) {
     this.paymentId = paymentId;
-    this.paymentJourneyState = paymentJourneyState;
+    this.govPayPaymentJourneyState = govPayPaymentJourneyState;
     this.amount = amount;
     this.description = description;
     this.reference = reference;
@@ -81,8 +81,8 @@ public final class PaymentJourneyData {
     return paymentId;
   }
 
-  public PaymentJourneyState getPaymentJourneyState() {
-    return paymentJourneyState;
+  public GovPayPaymentJourneyState getPaymentJourneyState() {
+    return govPayPaymentJourneyState;
   }
 
   public Long getAmount() {

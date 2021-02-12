@@ -5,10 +5,10 @@ package uk.co.ogauthority.pwa.govukpay;
  */
 public interface GovUkPayCardPaymentClient {
 
-  NewCardPaymentResult createCardPaymentJourney(NewCardPaymentRequest newCardPaymentRequest);
+  GovPayNewCardPaymentResult createCardPaymentJourney(GovPayNewCardPaymentRequest govPayNewCardPaymentRequest);
 
 
-  PaymentJourneyData getCardPaymentJourneyData(String paymentId);
+  GovPayPaymentJourneyData getCardPaymentJourneyData(String paymentId);
 
   void cancelCardPaymentJourney(String paymentId);
 }
