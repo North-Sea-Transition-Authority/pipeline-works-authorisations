@@ -22,10 +22,10 @@ CREATE TABLE ${datasource.user}.pwa_app_charge_request_details (
 , CONSTRAINT pacrd_tip_flag_ck CHECK (tip_flag IN (0, 1))
 -- actual data that might change detail to detail
 , auto_case_officer_person_id NUMBER NOT NULL -- pwa managers nominate a case officer. store here not in camunda for simplicity.
-, total_pennies INTEGER NOT NULL -- waved payment could set 0. Not necessarily the sum of link charge request item if payment waved.
+, total_pennies INTEGER NOT NULL -- waived payment could set 0. Not necessarily the sum of link charge request item if payment waived.
 , charge_summary VARCHAR2(255) NOT NULL -- limited to the same value as the hard limit in govpay for readable descriptions
 , status VARCHAR2(400) NOT NULL
-, charge_waved_reason VARCHAR2(4000)
+, charge_waived_reason VARCHAR2(4000)
 , CONSTRAINT pacrd_total_pennies_ck CHECK (total_pennies >= 0)
 );
 

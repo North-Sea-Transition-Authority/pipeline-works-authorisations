@@ -49,7 +49,7 @@ public class PwaAppChargeRequestDetail {
   @Enumerated(EnumType.STRING)
   private PwaAppChargeRequestStatus status;
 
-  private String chargeWavedReason;
+  private String chargeWaivedReason;
 
 
   public Integer getId() {
@@ -151,12 +151,12 @@ public class PwaAppChargeRequestDetail {
   }
 
 
-  public String getChargeWavedReason() {
-    return chargeWavedReason;
+  public String getChargeWaivedReason() {
+    return chargeWaivedReason;
   }
 
-  public void setChargeWavedReason(String chargeWavedReason) {
-    this.chargeWavedReason = chargeWavedReason;
+  public void setChargeWaivedReason(String chargeWaivedReason) {
+    this.chargeWaivedReason = chargeWaivedReason;
   }
 
 }
