@@ -47,8 +47,8 @@ public class PwaAppChargeRequest {
     return pwaApplication;
   }
 
-  public void setPwaApplication(PwaApplication pwaApplicationId) {
-    this.pwaApplication = pwaApplicationId;
+  public void setPwaApplication(PwaApplication pwaApplication) {
+    this.pwaApplication = pwaApplication;
   }
 
 

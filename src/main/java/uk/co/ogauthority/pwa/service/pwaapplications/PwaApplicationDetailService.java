@@ -25,6 +25,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.crossings.CrossingTypesForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.partnerletters.PartnerLettersForm;
 import uk.co.ogauthority.pwa.repository.pwaapplications.PwaApplicationDetailRepository;
+import uk.co.ogauthority.pwa.service.appprocessing.initialreview.InitialReviewPaymentDecision;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ApplicationState;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadFastTrackService;
@@ -218,10 +219,12 @@ public class PwaApplicationDetailService {
   }
 
   @Transactional
-  public void setInitialReviewApproved(PwaApplicationDetail detail, WebUserAccount acceptingUser) {
+  public void setInitialReviewApproved(PwaApplicationDetail detail,
+                                       WebUserAccount acceptingUser,
+                                       InitialReviewPaymentDecision initialReviewPaymentDecision) {
     detail.setInitialReviewApprovedByWuaId(acceptingUser.getWuaId());
     detail.setInitialReviewApprovedTimestamp(Instant.now(clock));
-    updateStatus(detail, PwaApplicationStatus.CASE_OFFICER_REVIEW, acceptingUser);
+    updateStatus(detail, initialReviewPaymentDecision.getPostReviewPwaApplicationStatus(), acceptingUser);
     pwaApplicationDetailRepository.save(detail);
   }
 

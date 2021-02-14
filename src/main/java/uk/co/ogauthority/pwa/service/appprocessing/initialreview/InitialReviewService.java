@@ -3,26 +3,26 @@ package uk.co.ogauthority.pwa.service.appprocessing.initialreview;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
+import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
 import uk.co.ogauthority.pwa.exception.ActionAlreadyPerformedException;
+import uk.co.ogauthority.pwa.model.entity.appprocessing.processingcharges.PwaAppChargeRequestStatus;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.notify.emailproperties.CaseOfficerAssignedEmailProps;
 import uk.co.ogauthority.pwa.model.tasklist.TaskListEntry;
 import uk.co.ogauthority.pwa.model.tasklist.TaskTag;
 import uk.co.ogauthority.pwa.service.appprocessing.applicationupdate.ApplicationUpdateRequestService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
+import uk.co.ogauthority.pwa.service.appprocessing.processingcharges.ApplicationChargeRequestService;
+import uk.co.ogauthority.pwa.service.appprocessing.processingcharges.ApplicationChargeRequestSpecification;
 import uk.co.ogauthority.pwa.service.appprocessing.tasks.AppProcessingService;
+import uk.co.ogauthority.pwa.service.consultations.AssignCaseOfficerService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingTask;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.TaskStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationWorkflowTask;
-import uk.co.ogauthority.pwa.service.notify.NotifyService;
-import uk.co.ogauthority.pwa.service.person.PersonService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
-import uk.co.ogauthority.pwa.service.teammanagement.TeamManagementService;
 import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
-import uk.co.ogauthority.pwa.service.workflow.assignment.WorkflowAssignmentService;
 import uk.co.ogauthority.pwa.service.workflow.task.WorkflowTaskInstance;
 
 /**
@@ -33,61 +33,54 @@ public class InitialReviewService implements AppProcessingService {
 
   private final PwaApplicationDetailService applicationDetailService;
   private final CamundaWorkflowService workflowService;
-  private final WorkflowAssignmentService workflowAssignmentService;
-  private final TeamManagementService teamManagementService;
-  private final NotifyService notifyService;
-  private final PersonService personService;
   private final ApplicationUpdateRequestService applicationUpdateRequestService;
+  private final ApplicationChargeRequestService applicationChargeRequestService;
+  private final AssignCaseOfficerService assignCaseOfficerService;
 
   @Autowired
   public InitialReviewService(PwaApplicationDetailService applicationDetailService,
                               CamundaWorkflowService workflowService,
-                              WorkflowAssignmentService workflowAssignmentService,
-                              TeamManagementService teamManagementService,
-                              NotifyService notifyService,
-                              PersonService personService,
-                              ApplicationUpdateRequestService applicationUpdateRequestService) {
+                              ApplicationUpdateRequestService applicationUpdateRequestService,
+                              ApplicationChargeRequestService applicationChargeRequestService,
+                              AssignCaseOfficerService assignCaseOfficerService) {
     this.applicationDetailService = applicationDetailService;
     this.workflowService = workflowService;
-    this.workflowAssignmentService = workflowAssignmentService;
-    this.teamManagementService = teamManagementService;
-    this.notifyService = notifyService;
-    this.personService = personService;
     this.applicationUpdateRequestService = applicationUpdateRequestService;
+    this.applicationChargeRequestService = applicationChargeRequestService;
+    this.assignCaseOfficerService = assignCaseOfficerService;
   }
 
   @Transactional
   public void acceptApplication(PwaApplicationDetail detail,
-                                Integer caseOfficerPersonId,
-                                WebUserAccount acceptingUser) {
+                                PersonId caseOfficerPersonId,
+                                InitialReviewPaymentDecision initialReviewPaymentDecision,
+                                AuthenticatedUserAccount acceptingUser) {
 
     if (!detail.getStatus().equals(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW)) {
       throw new ActionAlreadyPerformedException(
           String.format("Action: acceptApplication for app detail with ID: %s", detail.getId()));
     }
 
-    applicationDetailService.setInitialReviewApproved(detail, acceptingUser);
+    // TODO PWA-977 get payment fees from the TODO FeeService based on however the application is set up.
+    var appChargeSpec = new ApplicationChargeRequestSpecification(detail.getPwaApplication(), PwaAppChargeRequestStatus.OPEN)
+        .setChargeSummary("Example payment summary")
+        .setTotalPennies(100)
+        .addChargeItem("Application Submission charge", 100)
+        .setOnPaymentCompleteCaseOfficerPersonId(caseOfficerPersonId);
+
+    applicationChargeRequestService.createPwaAppChargeRequest(
+        acceptingUser.getLinkedPerson(),
+        appChargeSpec
+    );
+
+    applicationDetailService.setInitialReviewApproved(detail, acceptingUser, initialReviewPaymentDecision);
+    workflowService.setWorkflowProperty(detail.getPwaApplication(), initialReviewPaymentDecision.getPwaApplicationInitialReviewResult());
     workflowService.completeTask(new WorkflowTaskInstance(detail.getPwaApplication(), PwaApplicationWorkflowTask.APPLICATION_REVIEW));
 
-    var caseOfficer = teamManagementService.getPerson(caseOfficerPersonId);
-
-    workflowAssignmentService.assign(
-        detail.getPwaApplication(),
-        PwaApplicationWorkflowTask.CASE_OFFICER_REVIEW,
-        caseOfficer,
-        acceptingUser.getLinkedPerson());
-
-    sendCaseOfficerAssignedEmail(detail, caseOfficer.getFullName());
-
-  }
-
-  private void sendCaseOfficerAssignedEmail(PwaApplicationDetail applicationDetail, String caseOfficerName) {
-
-    var submitterPerson = personService.getPersonById(applicationDetail.getSubmittedByPersonId());
-
-    var props = new CaseOfficerAssignedEmailProps(submitterPerson.getFullName(), applicationDetail.getPwaApplicationRef(), caseOfficerName);
-
-    notifyService.sendEmail(props, submitterPerson.getEmailAddress());
+    // If payment waived, assume workflow has migrated to the correct state and try to assign immediately.
+    if (initialReviewPaymentDecision.equals(InitialReviewPaymentDecision.PAYMENT_WAIVED)) {
+      assignCaseOfficerService.assignCaseOfficer(caseOfficerPersonId, detail, acceptingUser);
+    }
 
   }
 

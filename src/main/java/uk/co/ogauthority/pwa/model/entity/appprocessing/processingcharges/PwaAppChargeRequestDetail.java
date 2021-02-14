@@ -26,7 +26,7 @@ public class PwaAppChargeRequestDetail {
 
   @ManyToOne
   @JoinColumn(referencedColumnName = "id", name = "pwa_app_charge_request_id")
-  private PwaAppChargeRequest pwaAppChargeRequestId;
+  private PwaAppChargeRequest pwaAppChargeRequest;
 
   @Basic
   @Convert(converter = PersonIdConverter.class)
@@ -42,7 +42,11 @@ public class PwaAppChargeRequestDetail {
 
   private Boolean tipFlag;
 
-  private Integer autoCaseOfficerPersonId;
+  @Basic
+  @Convert(converter = PersonIdConverter.class)
+  @Column(name = "auto_case_officer_person_id")
+  private PersonId autoCaseOfficerPersonId;
+
   private Integer totalPennies;
   private String chargeSummary;
 
@@ -51,6 +55,15 @@ public class PwaAppChargeRequestDetail {
 
   private String chargeWaivedReason;
 
+  public PwaAppChargeRequestDetail() {
+    // default
+  }
+
+  public PwaAppChargeRequestDetail(PwaAppChargeRequest pwaAppChargeRequest) {
+    this.pwaAppChargeRequest = pwaAppChargeRequest;
+    this.startedByPersonId = pwaAppChargeRequest.getRequestedByPersonId();
+    this.startedTimestamp = pwaAppChargeRequest.getRequestedByTimestamp();
+  }
 
   public Integer getId() {
     return id;
@@ -61,12 +74,12 @@ public class PwaAppChargeRequestDetail {
   }
 
 
-  public PwaAppChargeRequest getPwaAppChargeRequestId() {
-    return pwaAppChargeRequestId;
+  public PwaAppChargeRequest getPwaAppChargeRequest() {
+    return pwaAppChargeRequest;
   }
 
-  public void setPwaAppChargeRequestId(PwaAppChargeRequest pwaAppChargeRequestId) {
-    this.pwaAppChargeRequestId = pwaAppChargeRequestId;
+  public void setPwaAppChargeRequest(PwaAppChargeRequest pwaAppChargeRequestId) {
+    this.pwaAppChargeRequest = pwaAppChargeRequestId;
   }
 
 
@@ -115,11 +128,11 @@ public class PwaAppChargeRequestDetail {
   }
 
 
-  public Integer getAutoCaseOfficerPersonId() {
+  public PersonId getAutoCaseOfficerPersonId() {
     return autoCaseOfficerPersonId;
   }
 
-  public void setAutoCaseOfficerPersonId(Integer autoCaseOfficerPersonId) {
+  public void setAutoCaseOfficerPersonId(PersonId autoCaseOfficerPersonId) {
     this.autoCaseOfficerPersonId = autoCaseOfficerPersonId;
   }
 
