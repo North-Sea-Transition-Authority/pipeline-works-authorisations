@@ -260,14 +260,22 @@ public class PadLocationDetailsService implements ApplicationFormSectionService 
 
   public Set<LocationDetailsQuestion> getRequiredQuestions(PwaApplicationType pwaApplicationType) {
 
-    if (pwaApplicationType == PwaApplicationType.DEPOSIT_CONSENT) {
-      return Set.of(
-          LocationDetailsQuestion.APPROXIMATE_PROJECT_LOCATION_FROM_SHORE,
-          LocationDetailsQuestion.WITHIN_SAFETY_ZONE
-      );
+    switch (pwaApplicationType) {
+      case DEPOSIT_CONSENT:
+        return EnumSet.of(
+            LocationDetailsQuestion.APPROXIMATE_PROJECT_LOCATION_FROM_SHORE,
+            LocationDetailsQuestion.WITHIN_SAFETY_ZONE
+        );
+
+      case DECOMMISSIONING:
+        return LocationDetailsQuestion.getAllExcluding(
+            LocationDetailsQuestion.WITHIN_LIMITS_OF_DEVIATION
+        );
+
+      default:
+        return EnumSet.allOf(LocationDetailsQuestion.class);
     }
 
-    return EnumSet.allOf(LocationDetailsQuestion.class);
   }
 
   public Map<String, String> reapplyFacilitySelections(LocationDetailsForm form) {
