@@ -162,7 +162,7 @@ public class InitialReviewControllerTest extends PwaAppProcessingContextAbstract
         .andExpect(status().is3xxRedirection());
 
     verify(initialReviewService, times(1))
-        .acceptApplication(pwaApplicationDetail, new PersonId(5), InitialReviewPaymentDecision.PAYMENT_REQUIRED, user);
+        .acceptApplication(pwaApplicationDetail, new PersonId(5), InitialReviewPaymentDecision.PAYMENT_WAIVED, user);
 
   }
 
@@ -175,7 +175,7 @@ public class InitialReviewControllerTest extends PwaAppProcessingContextAbstract
     pwaApplicationDetail.setInitialReviewApprovedByWuaId(1);
     pwaApplicationDetail.setInitialReviewApprovedTimestamp(approvedTimestamp);
 
-    doCallRealMethod().when(initialReviewService).acceptApplication(pwaApplicationDetail, new PersonId(5),InitialReviewPaymentDecision.PAYMENT_REQUIRED, user);
+    doCallRealMethod().when(initialReviewService).acceptApplication(pwaApplicationDetail, new PersonId(5),InitialReviewPaymentDecision.PAYMENT_WAIVED, user);
 
     var permissionsDto = new ProcessingPermissionsDto(null, EnumSet.allOf(PwaAppProcessingPermission.class));
     when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail, user)).thenReturn(permissionsDto);
