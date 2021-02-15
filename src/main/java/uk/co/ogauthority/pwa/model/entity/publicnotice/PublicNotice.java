@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.model.entity.publicnotice;
 
+import java.util.Objects;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -11,10 +12,12 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeStatus;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
+import uk.co.ogauthority.pwa.service.enums.workflow.WorkflowSubject;
+import uk.co.ogauthority.pwa.service.enums.workflow.WorkflowType;
 
 @Entity
 @Table(name = "public_notices")
-public class PublicNotice {
+public class PublicNotice implements WorkflowSubject {
 
 
   @Id
@@ -30,7 +33,15 @@ public class PublicNotice {
 
   private Integer version;
 
+  public PublicNotice() {
+  }
 
+  public PublicNotice(PwaApplication pwaApplication,
+                      PublicNoticeStatus status, Integer version) {
+    this.pwaApplication = pwaApplication;
+    this.status = status;
+    this.version = version;
+  }
 
   public Integer getId() {
     return id;
@@ -65,4 +76,34 @@ public class PublicNotice {
   }
 
 
+  @Override
+  public Integer getBusinessKey() {
+    return id;
+  }
+
+  @Override
+  public WorkflowType getWorkflowType() {
+    return WorkflowType.PWA_APPLICATION_PUBLIC_NOTICE;
+  }
+
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    PublicNotice that = (PublicNotice) o;
+    return Objects.equals(id, that.id)
+        && Objects.equals(pwaApplication, that.pwaApplication)
+        && status == that.status
+        && Objects.equals(version, that.version);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(id, pwaApplication, status, version);
+  }
 }

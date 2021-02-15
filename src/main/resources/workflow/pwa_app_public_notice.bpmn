@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_1jwmo6d" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.1.1">
+  <bpmn:collaboration id="Collaboration_1ypistw">
+    <bpmn:participant id="Participant_0d1y4h6" name="PWA application public notice" processRef="pwaApplicationPublicNotice" />
+  </bpmn:collaboration>
+  <bpmn:process id="pwaApplicationPublicNotice" isExecutable="true">
+    <bpmn:laneSet id="LaneSet_16748mf">
+      <bpmn:lane id="Lane_0oijpcx" name="System">
+        <bpmn:flowNodeRef>StartEvent_1</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_1ajzzrx" name="PWA Manager">
+        <bpmn:flowNodeRef>manager_approval</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_1uj85z1" name="Case Officer">
+        <bpmn:flowNodeRef>draft</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_1k8t37c" name="Applicant">
+        <bpmn:flowNodeRef>applicantUpdate</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_0nwwqm7" name="Case Officer">
+        <bpmn:flowNodeRef>caseOfficerReview</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_0inyvzt" name="Case Officer">
+        <bpmn:flowNodeRef>finalisation</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Event_1j97abm</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="StartEvent_1">
+      <bpmn:outgoing>Flow_1i9bxzq</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:userTask id="manager_approval" name="Manager Approval">
+      <bpmn:incoming>Flow_18zzof5</bpmn:incoming>
+      <bpmn:outgoing>Flow_0hliqfb</bpmn:outgoing>
+      <bpmn:outgoing>Flow_1qtmnhy</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:userTask id="draft" name="Draft">
+      <bpmn:incoming>Flow_1i9bxzq</bpmn:incoming>
+      <bpmn:incoming>Flow_1qtmnhy</bpmn:incoming>
+      <bpmn:outgoing>Flow_18zzof5</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:userTask id="finalisation" name="Finalisation">
+      <bpmn:incoming>Flow_0p46w77</bpmn:incoming>
+      <bpmn:outgoing>Flow_0q3e6zf</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:endEvent id="Event_1j97abm">
+      <bpmn:incoming>Flow_0q3e6zf</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_0hliqfb" sourceRef="manager_approval" targetRef="applicantUpdate" />
+    <bpmn:sequenceFlow id="Flow_1i9bxzq" sourceRef="StartEvent_1" targetRef="draft" />
+    <bpmn:sequenceFlow id="Flow_18zzof5" sourceRef="draft" targetRef="manager_approval" />
+    <bpmn:sequenceFlow id="Flow_0fmvypf" sourceRef="applicantUpdate" targetRef="caseOfficerReview" />
+    <bpmn:sequenceFlow id="Flow_0p46w77" sourceRef="caseOfficerReview" targetRef="finalisation" />
+    <bpmn:sequenceFlow id="Flow_1qtmnhy" sourceRef="manager_approval" targetRef="draft" />
+    <bpmn:sequenceFlow id="Flow_0ea0nze" sourceRef="caseOfficerReview" targetRef="applicantUpdate" />
+    <bpmn:userTask id="applicantUpdate" name="Applicant Update">
+      <bpmn:incoming>Flow_0ea0nze</bpmn:incoming>
+      <bpmn:incoming>Flow_0hliqfb</bpmn:incoming>
+      <bpmn:outgoing>Flow_0fmvypf</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:userTask id="caseOfficerReview" name="Case Officer Review">
+      <bpmn:incoming>Flow_0fmvypf</bpmn:incoming>
+      <bpmn:outgoing>Flow_0p46w77</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0ea0nze</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="Flow_0q3e6zf" sourceRef="finalisation" targetRef="Event_1j97abm" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_1ypistw">
+      <bpmndi:BPMNShape id="Participant_0d1y4h6_di" bpmnElement="Participant_0d1y4h6" isHorizontal="true">
+        <dc:Bounds x="157" y="90" width="463" height="730" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_0inyvzt_di" bpmnElement="Lane_0inyvzt" isHorizontal="true">
+        <dc:Bounds x="187" y="700" width="433" height="120" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_0nwwqm7_di" bpmnElement="Lane_0nwwqm7" isHorizontal="true">
+        <dc:Bounds x="187" y="580" width="433" height="120" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_1k8t37c_di" bpmnElement="Lane_1k8t37c" isHorizontal="true">
+        <dc:Bounds x="187" y="460" width="433" height="120" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_1uj85z1_di" bpmnElement="Lane_1uj85z1" isHorizontal="true">
+        <dc:Bounds x="187" y="210" width="433" height="125" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_1ajzzrx_di" bpmnElement="Lane_1ajzzrx" isHorizontal="true">
+        <dc:Bounds x="187" y="335" width="433" height="125" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_0oijpcx_di" bpmnElement="Lane_0oijpcx" isHorizontal="true">
+        <dc:Bounds x="187" y="90" width="433" height="120" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_0ea0nze_di" bpmnElement="Flow_0ea0nze">
+        <di:waypoint x="340" y="598" />
+        <di:waypoint x="340" y="550" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1qtmnhy_di" bpmnElement="Flow_1qtmnhy">
+        <di:waypoint x="350" y="361" />
+        <di:waypoint x="350" y="311" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0p46w77_di" bpmnElement="Flow_0p46w77">
+        <di:waypoint x="318" y="678" />
+        <di:waypoint x="318" y="718" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0fmvypf_di" bpmnElement="Flow_0fmvypf">
+        <di:waypoint x="318" y="550" />
+        <di:waypoint x="318" y="598" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_18zzof5_di" bpmnElement="Flow_18zzof5">
+        <di:waypoint x="318" y="311" />
+        <di:waypoint x="318" y="361" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1i9bxzq_di" bpmnElement="Flow_1i9bxzq">
+        <di:waypoint x="318" y="169" />
+        <di:waypoint x="318" y="231" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0hliqfb_di" bpmnElement="Flow_0hliqfb">
+        <di:waypoint x="318" y="441" />
+        <di:waypoint x="318" y="470" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0q3e6zf_di" bpmnElement="Flow_0q3e6zf">
+        <di:waypoint x="368" y="758" />
+        <di:waypoint x="470" y="758" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
+        <dc:Bounds x="300" y="133" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1p3wx6u_di" bpmnElement="manager_approval">
+        <dc:Bounds x="268" y="361" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0m89bok_di" bpmnElement="draft">
+        <dc:Bounds x="268" y="231" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1gw9h59_di" bpmnElement="finalisation">
+        <dc:Bounds x="268" y="718" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1j97abm_di" bpmnElement="Event_1j97abm">
+        <dc:Bounds x="470" y="740" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_19hkqg3_di" bpmnElement="applicantUpdate">
+        <dc:Bounds x="268" y="470" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0m2yo5l_di" bpmnElement="caseOfficerReview">
+        <dc:Bounds x="268" y="598" width="100" height="80" />
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

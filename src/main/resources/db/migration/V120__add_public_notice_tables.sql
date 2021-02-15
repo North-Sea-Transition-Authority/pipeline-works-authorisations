@@ -44,3 +44,27 @@ CREATE TABLE ${datasource.user}.public_notice_requests (
     , CONSTRAINT pnrequests_pn_fk FOREIGN KEY(public_notice_id) REFERENCES ${datasource.user}.public_notices(id)
 );
 CREATE INDEX ${datasource.user}.pnrequests_pn_fk_idx ON ${datasource.user}.public_notice_requests(public_notice_id);
+
+
+CREATE TABLE ${datasource.user}.public_notice_documents (
+    id NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY
+    , public_notice_id INTEGER NOT NULL
+    , version INTEGER NOT NULL
+    , document_type VARCHAR2(4000) NOT NULL
+    , comments VARCHAR2(4000)
+
+    , CONSTRAINT pnd_pn_fk FOREIGN KEY(public_notice_id) REFERENCES ${datasource.user}.public_notices(id)
+);
+CREATE INDEX ${datasource.user}.pnd_pn_fk_idx ON ${datasource.user}.public_notice_documents(public_notice_id);
+
+
+CREATE TABLE ${datasource.user}.public_notice_document_links (
+    id NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY
+    , public_notice_document_id INTEGER NOT NULL
+    , af_id INTEGER NOT NULL
+
+    , CONSTRAINT pndl_pnd_fk FOREIGN KEY(public_notice_document_id) REFERENCES ${datasource.user}.public_notice_documents(id)
+    , CONSTRAINT pndl_af_id_fk FOREIGN KEY (af_id) REFERENCES ${datasource.user}.app_files (id)
+);
+CREATE INDEX ${datasource.user}.pndl_pnd_fk_idx ON ${datasource.user}.public_notice_document_links(public_notice_document_id);
+CREATE INDEX ${datasource.user}.pndl_af_fk_idx ON ${datasource.user}.public_notice_document_links (af_id);

@@ -1,5 +1,4 @@
-package uk.co.ogauthority.pwa.repository.publicnotice;
-
+package uk.co.ogauthority.pwa.repository.template;
 
 import java.util.Optional;
 import org.springframework.data.repository.CrudRepository;

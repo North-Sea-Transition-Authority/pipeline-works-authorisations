@@ -20,7 +20,6 @@ import uk.co.ogauthority.pwa.controller.consultations.responses.AssignResponderC
 import uk.co.ogauthority.pwa.controller.consultations.responses.ConsultationResponseController;
 import uk.co.ogauthority.pwa.controller.publicnotice.PublicNoticeController;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
-import uk.co.ogauthority.pwa.service.appprocessing.PublicNoticeService;
 import uk.co.ogauthority.pwa.service.appprocessing.application.ConfirmSatisfactoryApplicationService;
 import uk.co.ogauthority.pwa.service.appprocessing.application.WithdrawApplicationService;
 import uk.co.ogauthority.pwa.service.appprocessing.applicationupdate.ApplicationUpdateRequestService;
@@ -32,6 +31,7 @@ import uk.co.ogauthority.pwa.service.appprocessing.initialreview.InitialReviewSe
 import uk.co.ogauthority.pwa.service.appprocessing.options.ApproveOptionsTaskService;
 import uk.co.ogauthority.pwa.service.appprocessing.options.ChangeOptionsApprovalDeadlineTaskService;
 import uk.co.ogauthority.pwa.service.appprocessing.options.CloseOutOptionsTaskService;
+import uk.co.ogauthority.pwa.service.appprocessing.publicnotice.PublicNoticeService;
 import uk.co.ogauthority.pwa.service.appprocessing.tasks.AppProcessingService;
 import uk.co.ogauthority.pwa.service.consultations.AssignCaseOfficerService;
 import uk.co.ogauthority.pwa.service.consultations.AssignResponderService;
@@ -99,7 +99,7 @@ public enum PwaAppProcessingTask {
       TaskRequirement.REQUIRED,
       PublicNoticeService.class, processingContext ->  ReverseRouter.route(on(PublicNoticeController.class)
       .renderDraftPublicNotice(processingContext.getMasterPwaApplicationId(),
-          processingContext.getApplicationType(), null, null)),
+          processingContext.getApplicationType(), null, null, null)),
       50),
 
   DECISION(

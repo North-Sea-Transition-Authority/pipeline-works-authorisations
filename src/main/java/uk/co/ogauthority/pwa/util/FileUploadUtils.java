@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.util;
 import java.util.List;
 import java.util.stream.IntStream;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
 import uk.co.ogauthority.pwa.model.form.files.UploadMultipleFilesWithDescriptionForm;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
@@ -15,12 +16,12 @@ public class FileUploadUtils {
   }
 
   public static void validateMaxFileLimit(UploadMultipleFilesWithDescriptionForm uploadForm,
-                                          BindingResult bindingResult,
+                                          Errors errors,
                                           int maxFileCount,
                                           String limitExceededMessage) {
 
     if (uploadForm.getUploadedFileWithDescriptionForms().size() > maxFileCount) {
-      bindingResult.rejectValue("uploadedFileWithDescriptionForms",
+      errors.rejectValue("uploadedFileWithDescriptionForms",
           "uploadedFileWithDescriptionForms" + FieldValidationErrorCodes.EXCEEDED_MAXIMUM_FILE_UPLOAD_COUNT.getCode(),
           limitExceededMessage);
     }
@@ -28,12 +29,12 @@ public class FileUploadUtils {
   }
 
   public static void validateMinFileLimit(UploadMultipleFilesWithDescriptionForm uploadForm,
-                                          BindingResult bindingResult,
+                                          Errors errors,
                                           int minFileLimit,
                                           String limitNotReachedMessage) {
 
     if (uploadForm.getFileFormsForValidation().size() < minFileLimit) {
-      bindingResult.rejectValue("uploadedFileWithDescriptionForms",
+      errors.rejectValue("uploadedFileWithDescriptionForms",
           FieldValidationErrorCodes.MIN_FILE_COUNT_NOT_REACHED.errorCode("uploadedFileWithDescriptionForms"),
           limitNotReachedMessage);
     }

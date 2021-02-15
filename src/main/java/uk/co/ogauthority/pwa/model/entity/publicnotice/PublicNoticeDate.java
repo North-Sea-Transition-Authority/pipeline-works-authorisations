@@ -16,7 +16,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 
 @Entity
 @Table(name = "public_notice_dates")
-public class PublicNoticeDates {
+public class PublicNoticeDate {
 
 
   @Id

@@ -7,9 +7,11 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Table;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.TemplateTextType;
 
 @Entity
+@Table(name = "template_text")
 public class TemplateText {
 
 
