@@ -21,6 +21,7 @@ import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.workflow.WorkflowBusinessKey;
+import uk.co.ogauthority.pwa.service.appprocessing.initialreview.InitialReviewPaymentDecision;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationConsultationWorkflowTask;
 import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationSubmitResult;
@@ -144,6 +145,7 @@ public class CamundaWorkflowServiceTest {
     camundaWorkflowService.startWorkflow(application);
     camundaWorkflowService.setWorkflowProperty(application, PwaApplicationSubmitResult.SUBMIT_PREPARED_APPLICATION);
     camundaWorkflowService.completeTask(new WorkflowTaskInstance(application, PwaApplicationWorkflowTask.PREPARE_APPLICATION));
+    camundaWorkflowService.setWorkflowProperty(application, InitialReviewPaymentDecision.PAYMENT_WAIVED.getPwaApplicationInitialReviewResult());
     camundaWorkflowService.completeTask(new WorkflowTaskInstance(application, PwaApplicationWorkflowTask.APPLICATION_REVIEW));
 
     camundaWorkflowService.assignTaskToUser(new WorkflowTaskInstance(application, PwaApplicationWorkflowTask.CASE_OFFICER_REVIEW), person);
@@ -178,6 +180,7 @@ public class CamundaWorkflowServiceTest {
     camundaWorkflowService.startWorkflow(application);
     camundaWorkflowService.setWorkflowProperty(application, PwaApplicationSubmitResult.SUBMIT_PREPARED_APPLICATION);
     camundaWorkflowService.completeTask(new WorkflowTaskInstance(application, PwaApplicationWorkflowTask.PREPARE_APPLICATION));
+    camundaWorkflowService.setWorkflowProperty(application, InitialReviewPaymentDecision.PAYMENT_WAIVED.getPwaApplicationInitialReviewResult());
     camundaWorkflowService.completeTask(new WorkflowTaskInstance(application, PwaApplicationWorkflowTask.APPLICATION_REVIEW));
 
     camundaWorkflowService.assignTaskToUser(new WorkflowTaskInstance(application, PwaApplicationWorkflowTask.CASE_OFFICER_REVIEW), person);
@@ -255,6 +258,7 @@ public class CamundaWorkflowServiceTest {
     camundaWorkflowService.startWorkflow(application);
     camundaWorkflowService.setWorkflowProperty(application, PwaApplicationSubmitResult.SUBMIT_PREPARED_APPLICATION);
     camundaWorkflowService.completeTask(new WorkflowTaskInstance(application, PwaApplicationWorkflowTask.PREPARE_APPLICATION));
+    camundaWorkflowService.setWorkflowProperty(application, InitialReviewPaymentDecision.PAYMENT_WAIVED.getPwaApplicationInitialReviewResult());
     camundaWorkflowService.completeTask(new WorkflowTaskInstance(application, PwaApplicationWorkflowTask.APPLICATION_REVIEW));
     camundaWorkflowService.triggerMessageEvent(application, PwaApplicationWorkflowMessageEvents.UPDATE_APPLICATION_REQUEST.getMessageEventName());
 
