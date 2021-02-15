@@ -142,7 +142,7 @@ public class InitialReviewController {
               initialReviewService.acceptApplication(
                   processingContext.getApplicationDetail(),
                   new PersonId(form.getCaseOfficerPersonId()),
-                  InitialReviewPaymentDecision.PAYMENT_REQUIRED,
+                  InitialReviewPaymentDecision.PAYMENT_WAIVED,
                   user);
               FlashUtils.success(redirectAttributes,
                   "Accepted initial review for " + processingContext.getApplicationDetail().getPwaApplicationRef());
