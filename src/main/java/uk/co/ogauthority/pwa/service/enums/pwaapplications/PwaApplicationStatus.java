@@ -12,6 +12,7 @@ public enum PwaApplicationStatus {
 
   DRAFT("Draft", ApplicationState.DRAFT),
   INITIAL_SUBMISSION_REVIEW("Submitted - awaiting review", ApplicationState.SUBMITTED),
+  AWAITING_APPLICATION_PAYMENT("Submitted - awaiting payment", ApplicationState.SUBMITTED),
   CASE_OFFICER_REVIEW("Case officer review", ApplicationState.SUBMITTED),
   WITHDRAWN("Withdrawn", ApplicationState.COMPLETED),
   DELETED("Deleted", ApplicationState.DELETED),

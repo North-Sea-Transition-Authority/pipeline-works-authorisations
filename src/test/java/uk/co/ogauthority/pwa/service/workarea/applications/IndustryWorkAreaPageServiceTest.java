@@ -215,6 +215,7 @@ public class IndustryWorkAreaPageServiceTest {
         Set.of(BUSINESS_KEY_INT),
         Set.of(
             PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW,
+            PwaApplicationStatus.AWAITING_APPLICATION_PAYMENT,
             PwaApplicationStatus.CASE_OFFICER_REVIEW,
             PwaApplicationStatus.WITHDRAWN,
             PwaApplicationStatus.DELETED,
@@ -248,6 +249,7 @@ public class IndustryWorkAreaPageServiceTest {
         Set.of(BUSINESS_KEY_INT),
         Set.of(
             PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW,
+            PwaApplicationStatus.AWAITING_APPLICATION_PAYMENT,
             PwaApplicationStatus.CASE_OFFICER_REVIEW,
             PwaApplicationStatus.WITHDRAWN,
             PwaApplicationStatus.DELETED,

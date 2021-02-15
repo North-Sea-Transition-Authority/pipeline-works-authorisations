@@ -19,12 +19,14 @@ import uk.co.ogauthority.pwa.controller.WorkAreaController;
 import uk.co.ogauthority.pwa.controller.appprocessing.shared.PwaAppProcessingPermissionCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationStatusCheck;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
+import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
 import uk.co.ogauthority.pwa.exception.AccessDeniedException;
 import uk.co.ogauthority.pwa.exception.ActionAlreadyPerformedException;
 import uk.co.ogauthority.pwa.model.form.appprocessing.initialreview.InitialReviewForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.applicationupdate.ApplicationUpdateRequestService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
+import uk.co.ogauthority.pwa.service.appprocessing.initialreview.InitialReviewPaymentDecision;
 import uk.co.ogauthority.pwa.service.appprocessing.initialreview.InitialReviewService;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
@@ -78,7 +80,8 @@ public class InitialReviewController {
         .addObject("workAreaUrl", ReverseRouter.route(on(WorkAreaController.class).renderWorkArea(null, null, null)))
         .addObject("caseOfficerCandidates",
             workflowAssignmentService
-                .getAssignmentCandidates(detail.getPwaApplication(), PwaApplicationWorkflowTask.CASE_OFFICER_REVIEW).stream()
+                .getAssignmentCandidates(detail.getPwaApplication(), PwaApplicationWorkflowTask.CASE_OFFICER_REVIEW)
+                .stream()
                 .sorted(Comparator.comparing(Person::getFullName))
                 .collect(StreamUtils.toLinkedHashMap(person -> String.valueOf(person.getId().asInt()),
                     Person::getFullName)))
@@ -134,9 +137,13 @@ public class InitialReviewController {
           getInitialReviewModelAndView(processingContext),
           () -> {
 
+            // TODO PWA-977 get initial review decision from form.
             try {
-              initialReviewService.acceptApplication(processingContext.getApplicationDetail(),
-                  form.getCaseOfficerPersonId(), user);
+              initialReviewService.acceptApplication(
+                  processingContext.getApplicationDetail(),
+                  new PersonId(form.getCaseOfficerPersonId()),
+                  InitialReviewPaymentDecision.PAYMENT_REQUIRED,
+                  user);
               FlashUtils.success(redirectAttributes,
                   "Accepted initial review for " + processingContext.getApplicationDetail().getPwaApplicationRef());
             } catch (ActionAlreadyPerformedException e) {

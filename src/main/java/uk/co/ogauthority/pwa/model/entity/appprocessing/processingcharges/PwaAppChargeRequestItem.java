@@ -23,6 +23,17 @@ public class PwaAppChargeRequestItem {
   private String description;
   private Integer pennyAmount;
 
+  public PwaAppChargeRequestItem() {
+    // default
+  }
+
+  public PwaAppChargeRequestItem(PwaAppChargeRequest pwaAppChargeRequest,
+                                 String description,
+                                 Integer pennyAmount) {
+    this.pwaAppChargeRequest = pwaAppChargeRequest;
+    this.description = description;
+    this.pennyAmount = pennyAmount;
+  }
 
   public Integer getId() {
     return id;

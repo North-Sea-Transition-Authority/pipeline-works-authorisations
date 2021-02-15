@@ -44,8 +44,9 @@ public class AssignCaseOfficerService implements AppProcessingService {
     this.assignCaseOfficerValidator = assignCaseOfficerValidator;
   }
 
-  public void assignCaseOfficer(
-      PersonId caseOfficerPersonId, PwaApplicationDetail pwaApplicationDetail, AuthenticatedUserAccount assigningUser) {
+  public void assignCaseOfficer(PersonId caseOfficerPersonId,
+                                PwaApplicationDetail pwaApplicationDetail,
+                                AuthenticatedUserAccount assigningUser) {
 
     var caseOfficer = teamManagementService.getPerson(caseOfficerPersonId.asInt());
 
@@ -59,6 +60,7 @@ public class AssignCaseOfficerService implements AppProcessingService {
     //TODO: PWA-808 - Send email to new case officer when reassigning
   }
 
+
   private void sendCaseOfficerAssignedEmail(PwaApplicationDetail applicationDetail, Person caseOfficer) {
     var submitterPerson = personService.getPersonById(applicationDetail.getSubmittedByPersonId());
 
@@ -67,7 +69,8 @@ public class AssignCaseOfficerService implements AppProcessingService {
     notifyService.sendEmail(props, submitterPerson.getEmailAddress());
   }
 
-  public BindingResult validate(AssignCaseOfficerForm form, BindingResult bindingResult, PwaApplication pwaApplication) {
+  public BindingResult validate(AssignCaseOfficerForm form, BindingResult bindingResult,
+                                PwaApplication pwaApplication) {
     assignCaseOfficerValidator.validate(form, bindingResult, pwaApplication);
     return bindingResult;
   }

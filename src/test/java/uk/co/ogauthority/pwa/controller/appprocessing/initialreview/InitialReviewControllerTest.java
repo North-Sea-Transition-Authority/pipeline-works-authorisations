@@ -29,6 +29,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.PwaAppProcessingContextAbstractControllerTest;
+import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.dto.appprocessing.ProcessingPermissionsDto;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
@@ -36,6 +37,7 @@ import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.PwaAppProcessingPermissionService;
 import uk.co.ogauthority.pwa.service.appprocessing.applicationupdate.ApplicationUpdateRequestService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContextService;
+import uk.co.ogauthority.pwa.service.appprocessing.initialreview.InitialReviewPaymentDecision;
 import uk.co.ogauthority.pwa.service.appprocessing.initialreview.InitialReviewService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
@@ -49,6 +51,8 @@ import uk.co.ogauthority.pwa.validators.appprocessing.initialreview.InitialRevie
 @RunWith(SpringRunner.class)
 @WebMvcTest(controllers = InitialReviewController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {PwaAppProcessingContextService.class}))
 public class InitialReviewControllerTest extends PwaAppProcessingContextAbstractControllerTest {
+
+  private static final String CASE_OFFICER_ID_ATTR = "caseOfficerPersonId";
 
   private PwaApplicationEndpointTestBuilder endpointTester;
   private PwaApplicationDetail pwaApplicationDetail;
@@ -80,6 +84,7 @@ public class InitialReviewControllerTest extends PwaAppProcessingContextAbstract
     endpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaApplicationDetailService, pwaAppProcessingPermissionService)
         .setAllowedStatuses(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW)
         .setAllowedProcessingPermissions(PwaAppProcessingPermission.ACCEPT_INITIAL_REVIEW);
+
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     pwaApplicationDetail.getPwaApplication().setId(APP_ID);
@@ -135,7 +140,8 @@ public class InitialReviewControllerTest extends PwaAppProcessingContextAbstract
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(InitialReviewController.class)
-                .postInitialReview(applicationDetail.getMasterPwaApplicationId(), type, null, null, null, null, null)));
+                .postInitialReview(applicationDetail.getMasterPwaApplicationId(), type, null, null, null, null, null)))
+        .addRequestParam(CASE_OFFICER_ID_ATTR, "1");
 
     endpointTester.performProcessingPermissionCheck(status().is3xxRedirection(), status().isForbidden());
 
@@ -155,7 +161,8 @@ public class InitialReviewControllerTest extends PwaAppProcessingContextAbstract
         .with(csrf()))
         .andExpect(status().is3xxRedirection());
 
-    verify(initialReviewService, times(1)).acceptApplication(pwaApplicationDetail, 5, user);
+    verify(initialReviewService, times(1))
+        .acceptApplication(pwaApplicationDetail, new PersonId(5), InitialReviewPaymentDecision.PAYMENT_REQUIRED, user);
 
   }
 
@@ -168,7 +175,7 @@ public class InitialReviewControllerTest extends PwaAppProcessingContextAbstract
     pwaApplicationDetail.setInitialReviewApprovedByWuaId(1);
     pwaApplicationDetail.setInitialReviewApprovedTimestamp(approvedTimestamp);
 
-    doCallRealMethod().when(initialReviewService).acceptApplication(pwaApplicationDetail, 5, user);
+    doCallRealMethod().when(initialReviewService).acceptApplication(pwaApplicationDetail, new PersonId(5),InitialReviewPaymentDecision.PAYMENT_REQUIRED, user);
 
     var permissionsDto = new ProcessingPermissionsDto(null, EnumSet.allOf(PwaAppProcessingPermission.class));
     when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail, user)).thenReturn(permissionsDto);

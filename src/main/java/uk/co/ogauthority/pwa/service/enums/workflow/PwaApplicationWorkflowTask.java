@@ -8,6 +8,7 @@ public enum PwaApplicationWorkflowTask implements UserWorkflowTask {
 
   PREPARE_APPLICATION("prepareApplication", null),
   APPLICATION_REVIEW("applicationReview", null),
+  AWAIT_APPLICATION_PAYMENT("awaitApplicationPayment", null),
   CASE_OFFICER_REVIEW("caseOfficerReview", WorkflowAssignment.CASE_OFFICER),
   AWAIT_FEEDBACK("awaitFeedback", null),
   UPDATE_APPLICATION("updateApplication", null);

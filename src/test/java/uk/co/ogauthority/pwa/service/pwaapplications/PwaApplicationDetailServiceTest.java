@@ -43,6 +43,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.partnerletters.PartnerLettersForm;
 import uk.co.ogauthority.pwa.repository.pwaapplications.PwaApplicationDetailRepository;
+import uk.co.ogauthority.pwa.service.appprocessing.initialreview.InitialReviewPaymentDecision;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ApplicationState;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
@@ -209,18 +210,34 @@ public class PwaApplicationDetailServiceTest {
   }
 
   @Test
-  public void setInitialReviewApproved() {
+  public void setInitialReviewApproved_paymentWaived() {
 
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     detail.setStatus(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW);
 
-    pwaApplicationDetailService.setInitialReviewApproved(detail, user);
+    pwaApplicationDetailService.setInitialReviewApproved(detail, user, InitialReviewPaymentDecision.PAYMENT_WAIVED);
 
     verify(applicationDetailRepository, times(2)).save(detail);
 
     assertThat(detail.getInitialReviewApprovedByWuaId()).isEqualTo(user.getWuaId());
     assertThat(detail.getInitialReviewApprovedTimestamp()).isEqualTo(clock.instant());
     assertThat(detail.getStatus()).isEqualTo(PwaApplicationStatus.CASE_OFFICER_REVIEW);
+
+  }
+
+  @Test
+  public void setInitialReviewApproved_paymentRequired() {
+
+    var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
+    detail.setStatus(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW);
+
+    pwaApplicationDetailService.setInitialReviewApproved(detail, user, InitialReviewPaymentDecision.PAYMENT_REQUIRED);
+
+    verify(applicationDetailRepository, times(2)).save(detail);
+
+    assertThat(detail.getInitialReviewApprovedByWuaId()).isEqualTo(user.getWuaId());
+    assertThat(detail.getInitialReviewApprovedTimestamp()).isEqualTo(clock.instant());
+    assertThat(detail.getStatus()).isEqualTo(PwaApplicationStatus.AWAITING_APPLICATION_PAYMENT);
 
   }
 
