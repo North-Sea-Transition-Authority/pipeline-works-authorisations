@@ -28,6 +28,7 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationGroup;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.model.entity.search.consents.ConsentSearchItem;
+import uk.co.ogauthority.pwa.model.entity.search.consents.PwaConsentView;
 import uk.co.ogauthority.pwa.model.entity.search.consents.PwaHolderOrgGrp;
 import uk.co.ogauthority.pwa.model.search.consents.ConsentSearchContext;
 import uk.co.ogauthority.pwa.model.search.consents.ConsentSearchParams;
@@ -62,6 +63,8 @@ public class ConsentSearchServiceTest {
 
   private ConsentSearchItem pwa1Shell, pwa3Bp, pwa2ShellWintershall;
 
+  private List<String> pwa1ConsentRefs, pwa2ConsentRefs, pwa3ConsentRefs;
+
   private PortalOrganisationGroup shell, bp, wintershall;
   private PortalOrganisationUnit shellOrg1, shellOrg2, bpOrg, wintershallOrg;
 
@@ -84,6 +87,10 @@ public class ConsentSearchServiceTest {
     shellOrg2 = PortalOrganisationTestUtils.generateOrganisationUnit(2, "ShellOrg2", shell);
     bpOrg = PortalOrganisationTestUtils.generateOrganisationUnit(3, "BpOrg1", bp);
     wintershallOrg = PortalOrganisationTestUtils.generateOrganisationUnit(4, "WinterOrg", wintershall);
+
+    pwa1ConsentRefs = List.of("1/V/20", "2/V/21");
+    pwa2ConsentRefs = List.of("5/W/99", "5/W/96");
+    pwa3ConsentRefs = List.of("10/D/01", "12/V/99");
 
   }
 
@@ -200,6 +207,70 @@ public class ConsentSearchServiceTest {
 
   @Test
   @Transactional
+  public void search_filterByConsentReference_smallRefFragment_filteredAndReturned() {
+
+    setUpSearchData();
+
+    var context = new ConsentSearchContext(ogaUser, UserType.OGA);
+
+    var params = new ConsentSearchParams();
+    params.setConsentReference("1");
+    var result = consentSearchService.search(params, context);
+
+    var resultViewComparisonList = List.of(ConsentSearchResultView.fromSearchItem(pwa1Shell), ConsentSearchResultView.fromSearchItem(pwa3Bp));
+
+    var screenView = new SearchScreenView<>(2, resultViewComparisonList);
+
+    assertThat(result.getFullResultCount()).isEqualTo(screenView.getFullResultCount());
+    assertThat(result.getSearchResults()).containsExactlyInAnyOrderElementsOf(screenView.getSearchResults());
+    assertThat(result.resultsHaveBeenLimited()).isFalse();
+
+  }
+
+  @Test
+  @Transactional
+  public void search_filterByConsentReference_fullRefFragment_filteredAndReturned() {
+
+    setUpSearchData();
+
+    var context = new ConsentSearchContext(ogaUser, UserType.OGA);
+
+    var params = new ConsentSearchParams();
+    params.setConsentReference("5/W/96");
+    var result = consentSearchService.search(params, context);
+
+    var resultViewComparisonList = List.of(ConsentSearchResultView.fromSearchItem(pwa2ShellWintershall));
+
+    var screenView = new SearchScreenView<>(1, resultViewComparisonList);
+
+    assertThat(result).isEqualTo(screenView);
+    assertThat(result.resultsHaveBeenLimited()).isFalse();
+
+  }
+
+  @Test
+  @Transactional
+  public void search_filterByConsentReference_nothingFound() {
+
+    setUpSearchData();
+
+    var context = new ConsentSearchContext(ogaUser, UserType.OGA);
+
+    var params = new ConsentSearchParams();
+    params.setConsentReference("ABC");
+    var result = consentSearchService.search(params, context);
+
+    var resultViewComparisonList = List.of(ConsentSearchResultView.fromSearchItem(pwa2ShellWintershall));
+
+    var screenView = new SearchScreenView<>(0, List.of());
+
+    assertThat(result).isEqualTo(screenView);
+    assertThat(result.resultsHaveBeenLimited()).isFalse();
+
+  }
+
+  @Test
+  @Transactional
   public void search_oga_resultsLimited() {
 
     // insert 20 more search items into the view than the max result size
@@ -274,6 +345,30 @@ public class ConsentSearchServiceTest {
     entityManager.persist(pwa2OrgUnit1);
     entityManager.persist(pwa2OrgUnit2);
     entityManager.persist(pwa3OrgUnit);
+
+    pwa1ConsentRefs.forEach(ref -> {
+      var consentView = new PwaConsentView();
+      consentView.setRowId(pwa1Shell.getPwaId() + ref);
+      consentView.setPwaId(pwa1Shell.getPwaId());
+      consentView.setConsentReference(ref);
+      entityManager.persist(consentView);
+    });
+
+    pwa2ConsentRefs.forEach(ref -> {
+      var consentView = new PwaConsentView();
+      consentView.setRowId(pwa2ShellWintershall.getPwaId() + ref);
+      consentView.setPwaId(pwa2ShellWintershall.getPwaId());
+      consentView.setConsentReference(ref);
+      entityManager.persist(consentView);
+    });
+
+    pwa3ConsentRefs.forEach(ref -> {
+      var consentView = new PwaConsentView();
+      consentView.setRowId(pwa3Bp.getPwaId() + ref);
+      consentView.setPwaId(pwa3Bp.getPwaId());
+      consentView.setConsentReference(ref);
+      entityManager.persist(consentView);
+    });
 
   }
 
