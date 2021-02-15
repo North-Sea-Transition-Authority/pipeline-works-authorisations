@@ -6,6 +6,7 @@ import uk.co.ogauthority.pwa.model.view.sidebarnav.SidebarSectionLink;
 public class SectionView {
 
   private String name;
+  private int displayOrder;
 
   private List<SectionClauseVersionView> clauses;
 
@@ -20,6 +21,14 @@ public class SectionView {
 
   public void setName(String name) {
     this.name = name;
+  }
+
+  public int getDisplayOrder() {
+    return displayOrder;
+  }
+
+  public void setDisplayOrder(int displayOrder) {
+    this.displayOrder = displayOrder;
   }
 
   public List<SectionClauseVersionView> getClauses() {

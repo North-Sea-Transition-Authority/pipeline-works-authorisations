@@ -162,7 +162,7 @@ public class DepositGeneratorServiceTest {
 
 
 
-    var documentSectionData = depositsGeneratorService.getDocumentSectionData(pwaApplicationDetail);
+    var documentSectionData = depositsGeneratorService.getDocumentSectionData(pwaApplicationDetail, null);
     var depositTableRowViews = (List<DepositTableRowView>) documentSectionData.getTemplateModel().get("depositTableRowViews");
     var sectionName = documentSectionData.getTemplateModel().get("sectionName");
 
@@ -231,6 +231,18 @@ public class DepositGeneratorServiceTest {
     assertThat(depositTableRowViews.get(2)).isIn(expectedTableRowViewForDep1AndPipeline1, expectedTableRowViewForDep2AndPipeline1);
     assertThat(depositTableRowViews.get(3)).isIn(expectedTableRowViewForDep1AndPipeline1, expectedTableRowViewForDep2AndPipeline1);
     assertThat(depositTableRowViews.get(4)).isEqualTo(expectedTableRowViewForDep1AndPipeline2);
+  }
+
+  @Test
+  public void getDocumentSectionData_noDeposits() {
+
+    when(permanentDepositService.getDepositForDepositPipelinesMap(pwaApplicationDetail)).thenReturn(Map.of());
+    when(permanentDepositService.getAllDepositsWithPipelinesFromOtherApps(pwaApplicationDetail)).thenReturn(List.of());
+
+    var docSectionData = depositsGeneratorService.getDocumentSectionData(pwaApplicationDetail, null);
+
+    assertThat(docSectionData).isNull();
+
   }
 
 }

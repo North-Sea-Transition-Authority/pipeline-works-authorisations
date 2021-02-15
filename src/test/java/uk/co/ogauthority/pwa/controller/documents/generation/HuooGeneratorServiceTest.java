@@ -80,7 +80,7 @@ public class HuooGeneratorServiceTest {
         .thenReturn(allRoleDiffablePipelineGroupView);
 
 
-    var documentSectionData = huooGeneratorService.getDocumentSectionData(pwaApplicationDetail);
+    var documentSectionData = huooGeneratorService.getDocumentSectionData(pwaApplicationDetail, null);
     var allRolePipelineGroupView = (AllRoleDiffablePipelineGroupView) documentSectionData.getTemplateModel().get("allRolePipelineGroupView");
     var sectionName = documentSectionData.getTemplateModel().get("sectionName");
 

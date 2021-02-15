@@ -64,7 +64,7 @@ public class DepositDrawingsGeneratorServiceTest {
   @Test
   public void getDocumentSectionData() {
 
-    var docSectionData = depositDrawingsGeneratorService.getDocumentSectionData(detail);
+    var docSectionData = depositDrawingsGeneratorService.getDocumentSectionData(detail, null);
 
     verify(consentDocumentImageService, times(1)).convertFilesToImageSourceMap(Set.of("id1", "id2"));
 
@@ -76,4 +76,16 @@ public class DepositDrawingsGeneratorServiceTest {
     );
 
   }
+
+  @Test
+  public void getDocumentSectionData_noDrawings() {
+
+    when(depositDrawingsService.getAllDepositDrawingsForDetail(detail)).thenReturn(List.of());
+
+    var docSectionData = depositDrawingsGeneratorService.getDocumentSectionData(detail, null);
+
+    assertThat(docSectionData).isNull();
+
+  }
+
 }

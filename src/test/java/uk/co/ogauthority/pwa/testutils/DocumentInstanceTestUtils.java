@@ -2,14 +2,12 @@ package uk.co.ogauthority.pwa.testutils;
 
 import java.time.Clock;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.model.documents.instances.DocumentInstanceSectionClauseVersionDto;
-import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocumentSection;
+import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocumentSpec;
 import uk.co.ogauthority.pwa.model.enums.documents.SectionClauseVersionStatus;
 
 public class DocumentInstanceTestUtils {
@@ -19,6 +17,7 @@ public class DocumentInstanceTestUtils {
   }
 
   public static List<DocumentInstanceSectionClauseVersionDto> getInstanceSectionClauseVersionDtoList(Integer diId,
+                                                                                                     DocumentSpec documentSpec,
                                                                                                      Clock clock,
                                                                                                      Person creatingPerson,
                                                                                                      int sectionCount,
@@ -28,8 +27,7 @@ public class DocumentInstanceTestUtils {
     Random random = new Random();
     List<DocumentInstanceSectionClauseVersionDto> clauses = new ArrayList<>();
 
-    var sectionList = Arrays.stream(DocumentSection.values())
-        .collect(Collectors.toList());
+    var sectionList = new ArrayList<>(documentSpec.getDocumentSectionDisplayOrderMap().keySet());
 
     IntStream.rangeClosed(1, sectionCount).forEach(sectionIdx -> {
 

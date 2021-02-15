@@ -10,6 +10,7 @@ import java.util.stream.Stream;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.model.documents.generation.DocumentSectionData;
+import uk.co.ogauthority.pwa.model.entity.documents.instances.DocumentInstance;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocumentSection;
 import uk.co.ogauthority.pwa.model.entity.enums.measurements.UnitMeasurement;
 import uk.co.ogauthority.pwa.model.entity.enums.permanentdeposits.MaterialType;
@@ -41,12 +42,18 @@ public class DepositsGeneratorService implements DocumentSectionGenerator {
   }
 
   @Override
-  public DocumentSectionData getDocumentSectionData(PwaApplicationDetail pwaApplicationDetail) {
+  public DocumentSectionData getDocumentSectionData(PwaApplicationDetail pwaApplicationDetail,
+                                                    DocumentInstance documentInstance) {
 
     var depositForPipelinesMap = permanentDepositService.getDepositForDepositPipelinesMap(pwaApplicationDetail);
     var depositsWithPipelinesFromOtherApps = permanentDepositService.getAllDepositsWithPipelinesFromOtherApps(pwaApplicationDetail);
     var allDeposits = Stream.of(depositsWithPipelinesFromOtherApps, depositForPipelinesMap.keySet())
         .flatMap(Collection::stream).collect(Collectors.toList());
+
+    // short-circuit early if no deposits, nothing to show
+    if (allDeposits.isEmpty()) {
+      return null;
+    }
 
     var depositAndDrawingMap = depositDrawingsService.getDepositAndDrawingLinksMapForDeposits(allDeposits);
     List<DepositTableRowView> depositTableRowViews = new ArrayList<>();
@@ -82,6 +89,7 @@ public class DepositsGeneratorService implements DocumentSectionGenerator {
     );
 
     return new DocumentSectionData("documents/consents/sections/deposits", modelMap);
+
   }
 
 

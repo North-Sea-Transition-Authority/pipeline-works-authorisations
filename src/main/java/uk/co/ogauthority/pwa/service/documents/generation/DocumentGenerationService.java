@@ -55,7 +55,7 @@ public class DocumentGenerationService {
     var combinedSectionHtml = docSpec.getDocumentSectionDisplayOrderMap().entrySet().stream()
         .sorted(Map.Entry.comparingByValue())
         .map(entry -> getDocumentSectionData(pwaApplicationDetail, docInstance, entry.getKey()))
-        .filter(Objects::nonNull) // TODO remove when all sections implemented
+        .filter(Objects::nonNull)
         .map(sectionData -> templateRenderingService.render(sectionData.getTemplatePath(), sectionData.getTemplateModel(), false))
         .collect(Collectors.joining());
 
@@ -84,7 +84,8 @@ public class DocumentGenerationService {
               "sectionType", documentSection));
     }
 
-    return springApplicationContext.getBean(documentSection.getSectionGenerator()).getDocumentSectionData(pwaApplicationDetail);
+    return springApplicationContext.getBean(documentSection.getSectionGenerator())
+        .getDocumentSectionData(pwaApplicationDetail, documentInstance);
 
   }
 

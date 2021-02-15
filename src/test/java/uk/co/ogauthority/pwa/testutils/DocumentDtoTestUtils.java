@@ -10,6 +10,7 @@ import java.util.Random;
 import java.util.stream.IntStream;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
+import uk.co.ogauthority.pwa.model.documents.instances.DocumentInstanceSectionClauseVersionDto;
 import uk.co.ogauthority.pwa.model.documents.templates.DocumentTemplateDto;
 import uk.co.ogauthority.pwa.model.entity.documents.templates.DocumentTemplate;
 import uk.co.ogauthority.pwa.model.entity.documents.templates.DocumentTemplateSection;
@@ -172,6 +173,20 @@ public class DocumentDtoTestUtils {
     clauseVersion.setCreatedByPersonId(new PersonId(1));
     clauseVersion.setStatus(SectionClauseVersionStatus.ACTIVE);
 
+  }
+
+  public static DocumentInstanceSectionClauseVersionDto getDocumentInstanceSectionClauseVersionDto(String sectionName,
+                                                                                             String text,
+                                                                                             int levelNumber,
+                                                                                             int discId) {
+    var dto1 = new DocumentInstanceSectionClauseVersionDto();
+    dto1.setStatus(SectionClauseVersionStatus.ACTIVE.name());
+    dto1.setSectionName(sectionName);
+    dto1.setName("name1");
+    dto1.setText(text);
+    dto1.setLevelNumber(levelNumber);
+    dto1.setDiscId(discId);
+    return dto1;
   }
 
 }

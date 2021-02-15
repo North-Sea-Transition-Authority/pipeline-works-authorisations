@@ -20,7 +20,5 @@ public class ClauseFormValidator implements Validator {
 
     ValidationUtils.rejectIfEmpty(errors, "name", FieldValidationErrorCodes.REQUIRED.errorCode("name"), "Enter a clause name");
 
-    ValidationUtils.rejectIfEmpty(errors, "text", FieldValidationErrorCodes.REQUIRED.errorCode("text"), "Enter some clause text");
-
   }
 }

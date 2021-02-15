@@ -4,6 +4,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,6 +32,7 @@ import uk.co.ogauthority.pwa.model.entity.documents.instances.DocumentInstanceSe
 import uk.co.ogauthority.pwa.model.entity.documents.templates.DocumentTemplateSection;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.DocumentTemplateMnem;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocumentSection;
+import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocumentSpec;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.enums.documents.PwaDocumentType;
 import uk.co.ogauthority.pwa.model.enums.documents.SectionClauseVersionStatus;
@@ -211,19 +213,28 @@ public class DocumentInstanceService {
     var docView = new DocumentView(PwaDocumentType.INSTANCE, documentInstance.getDocumentTemplate().getMnem());
 
     var sections = sectionToClauseVersionMap.entrySet().stream()
-        .map(entry -> createSectionView(DocumentSection.valueOf(entry.getKey()).getDisplayName(), entry.getValue()))
+        .map(entry -> createSectionView(
+            documentInstance.getPwaApplication().getApplicationType().getConsentDocumentSpec(),
+            DocumentSection.valueOf(entry.getKey()),
+            entry.getValue()))
         .collect(Collectors.toList());
 
     docView.setSections(sections);
+
+    docView.getSections()
+        .sort(Comparator.comparingInt(SectionView::getDisplayOrder));
 
     return docView;
 
   }
 
-  private SectionView createSectionView(String sectionName, List<DocumentInstanceSectionClauseVersionDto> clauseVersionDtos) {
+  private SectionView createSectionView(DocumentSpec documentSpec,
+                                        DocumentSection documentSection,
+                                        List<DocumentInstanceSectionClauseVersionDto> clauseVersionDtos) {
 
     var sectionView = new SectionView();
-    sectionView.setName(sectionName);
+    sectionView.setName(documentSection.getDisplayName());
+    sectionView.setDisplayOrder(documentSpec.getDisplayOrder(documentSection));
 
     // group clauses according to their level in the hierarchy, i.e. 1 = top-level, 3 = lowest level, 2 is a child of 1 etc
     var clauseViewLevelToViewMap = clauseVersionDtos.stream()

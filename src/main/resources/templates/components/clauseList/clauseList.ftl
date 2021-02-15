@@ -18,7 +18,7 @@
 
 </#macro>
 
-<#macro list documentView clauseActionsUrlFactory listClass="number" childListClass="lower-alpha" showSectionHeading=true>
+<#macro list documentView clauseActionsUrlFactory listClass="number" childListClass="lower-alpha" showSectionHeading=true showClauseHeadings=true>
 
   <div class="clause-list">
 
@@ -33,7 +33,7 @@
         <#list section.clauses as clauseView>
 
           <#local isLastInList = clauseView?counter == section.clauses?size />
-          <@clause clauseView=clauseView clauseActionsUrlFactory=clauseActionsUrlFactory listClass=childListClass isLastInList=isLastInList/>
+          <@clause clauseView=clauseView clauseActionsUrlFactory=clauseActionsUrlFactory listClass=childListClass isLastInList=isLastInList showClauseHeading=showClauseHeadings/>
 
         </#list>
 
@@ -50,45 +50,48 @@
   headingClass="m"
   childHeadingSize="h4"
   childHeadingClass="s"
-  childListClass="lower-roman">
+  childListClass="lower-roman"
+  showClauseHeading=true>
 
   <#assign clauseActionsFlag = clauseActionsUrlFactory?has_content />
 
   <li id="clauseId-${clauseView.clauseId?c}" class="clause-list__list-item">
 
-    <${headingSize} class="govuk-heading-${headingClass} govuk-!-margin-bottom-2">${clauseView.name}</${headingSize}>
-    <#if clauseActionsFlag>
-      <@fdsActionDropdown.actionDropdown dropdownButtonText="Clause actions" dropdownButtonClass="govuk-!-margin-bottom-2">
-        <@fdsActionDropdown.actionDropdownItem
-          actionText="Add clause above"
-          linkAction=true
-          linkActionUrl=springUrl(clauseActionsUrlFactory.getAddClauseBeforeRoute(clauseView.clauseId))
-          linkActionScreenReaderText=clauseView.name/>
-        <#if isLastInList>
+    <#if showClauseHeading>
+      <${headingSize} class="govuk-heading-${headingClass} govuk-!-margin-bottom-2">${clauseView.name}</${headingSize}>
+      <#if clauseActionsFlag>
+        <@fdsActionDropdown.actionDropdown dropdownButtonText="Clause actions" dropdownButtonClass="govuk-!-margin-bottom-2">
           <@fdsActionDropdown.actionDropdownItem
-            actionText="Add clause below"
+            actionText="Add clause above"
             linkAction=true
-            linkActionUrl=springUrl(clauseActionsUrlFactory.getAddClauseAfterRoute(clauseView.clauseId))
-            linkActionScreenReaderText="after ${clauseView.name}" />
-        </#if>
-        <#if !clauseView.childClauses?has_content && (clauseView.levelNumber == 1 || clauseView.levelNumber == 2)>
+            linkActionUrl=springUrl(clauseActionsUrlFactory.getAddClauseBeforeRoute(clauseView.clauseId))
+            linkActionScreenReaderText=clauseView.name/>
+          <#if isLastInList>
+            <@fdsActionDropdown.actionDropdownItem
+              actionText="Add clause below"
+              linkAction=true
+              linkActionUrl=springUrl(clauseActionsUrlFactory.getAddClauseAfterRoute(clauseView.clauseId))
+              linkActionScreenReaderText="after ${clauseView.name}" />
+          </#if>
+          <#if !clauseView.childClauses?has_content && (clauseView.levelNumber == 1 || clauseView.levelNumber == 2)>
+            <@fdsActionDropdown.actionDropdownItem
+              actionText="Add sub-clause"
+              linkAction=true
+              linkActionUrl=springUrl(clauseActionsUrlFactory.getAddSubClauseRoute(clauseView.clauseId))
+              linkActionScreenReaderText="for ${clauseView.name}"/>
+          </#if>
           <@fdsActionDropdown.actionDropdownItem
-            actionText="Add sub-clause"
+            actionText="Edit clause"
             linkAction=true
-            linkActionUrl=springUrl(clauseActionsUrlFactory.getAddSubClauseRoute(clauseView.clauseId))
-            linkActionScreenReaderText="for ${clauseView.name}"/>
-        </#if>
-        <@fdsActionDropdown.actionDropdownItem
-          actionText="Edit clause"
-          linkAction=true
-          linkActionUrl=springUrl(clauseActionsUrlFactory.getEditClauseRoute(clauseView.clauseId))
-          linkActionScreenReaderText=clauseView.name />
-        <@fdsActionDropdown.actionDropdownItem
-          actionText="Remove"
-          linkAction=true
-          linkActionUrl=springUrl(clauseActionsUrlFactory.getRemoveClauseRoute(clauseView.clauseId))
-          linkActionScreenReaderText=clauseView.name />
-      </@fdsActionDropdown.actionDropdown>
+            linkActionUrl=springUrl(clauseActionsUrlFactory.getEditClauseRoute(clauseView.clauseId))
+            linkActionScreenReaderText=clauseView.name />
+          <@fdsActionDropdown.actionDropdownItem
+            actionText="Remove"
+            linkAction=true
+            linkActionUrl=springUrl(clauseActionsUrlFactory.getRemoveClauseRoute(clauseView.clauseId))
+            linkActionScreenReaderText=clauseView.name />
+        </@fdsActionDropdown.actionDropdown>
+      </#if>
     </#if>
 
     <@multiLineText.multiLineText blockClass="clause-list__text">${clauseView.text!}</@multiLineText.multiLineText>
@@ -108,7 +111,8 @@
               headingClass=childHeadingClass
               listClass=childListClass
               childHeadingSize="h5"
-              isLastInList=isLast />
+              isLastInList=isLast
+              showClauseHeading=showClauseHeading/>
 
           </#list>
 

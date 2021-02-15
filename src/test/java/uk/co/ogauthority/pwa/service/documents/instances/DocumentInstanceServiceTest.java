@@ -276,7 +276,9 @@ public class DocumentInstanceServiceTest {
   @Test
   public void getDocumentView_multipleSections_withMaxNestingLevels() {
 
-    var list = DocumentInstanceTestUtils.getInstanceSectionClauseVersionDtoList(1, clock, person, 2, 3, 3);
+    var list = DocumentInstanceTestUtils
+        .getInstanceSectionClauseVersionDtoList(1, applicationDetail.getPwaApplicationType().getConsentDocumentSpec() , clock, person, 2, 3, 3);
+
     when(documentInstanceSectionClauseVersionDtoRepository.findAllByDiId(any())).thenReturn(list);
 
     var docInstance = new DocumentInstance();
@@ -338,9 +340,9 @@ public class DocumentInstanceServiceTest {
     docInstance.setDocumentTemplate(documentTemplate);
     docInstance.setId(1);
 
-    var docView = documentInstanceService.getDocumentView(docInstance, DocumentSection.SCHEDULE_1);
+    var docView = documentInstanceService.getDocumentView(docInstance, DocumentSection.INITIAL_TERMS_AND_CONDITIONS);
 
-    verify(documentInstanceSectionClauseVersionDtoRepository, times(1)).findAllByDiId_AndSectionNameEquals(1, DocumentSection.SCHEDULE_1.name());
+    verify(documentInstanceSectionClauseVersionDtoRepository, times(1)).findAllByDiId_AndSectionNameEquals(1, DocumentSection.INITIAL_TERMS_AND_CONDITIONS.name());
 
   }
 
@@ -356,6 +358,7 @@ public class DocumentInstanceServiceTest {
     documentTemplate.setMnem(DocumentTemplateMnem.PWA_CONSENT_DOCUMENT);
     documentInstance.setId(1);
     documentInstance.setDocumentTemplate(documentTemplate);
+    documentInstance.setPwaApplication(applicationDetail.getPwaApplication());
     documentInstanceSectionClauseVersion.setDocumentInstanceSectionClause(documentInstanceSectionClause);
     documentInstanceSectionClauseVersion.setStatus(SectionClauseVersionStatus.ACTIVE);
     documentInstanceSectionClause.setDocumentInstance(documentInstance);
@@ -363,29 +366,14 @@ public class DocumentInstanceServiceTest {
     when(instanceSectionClauseVersionRepository.findByDocumentInstanceSectionClause_IdAndTipFlagIsTrue(clauseId))
         .thenReturn(Optional.of(documentInstanceSectionClauseVersion));
 
-    var dto1 = new DocumentInstanceSectionClauseVersionDto();
     var sectionName = DocumentSection.SCHEDULE_2.name();
-    dto1.setStatus(SectionClauseVersionStatus.ACTIVE.name());
-    dto1.setSectionName(sectionName);
-    dto1.setName("name1");
-    dto1.setText("some text 1");
-    dto1.setLevelNumber(1);
-    dto1.setDiscId(1);
-    var dto2 = new DocumentInstanceSectionClauseVersionDto();
-    dto2.setStatus(SectionClauseVersionStatus.ACTIVE.name());
-    dto2.setSectionName(sectionName);
-    dto2.setName("name1");
-    dto2.setText("some text 2");
-    dto2.setLevelNumber(2);
-    dto2.setDiscId(2);
+    DocumentInstanceSectionClauseVersionDto dto1 = DocumentDtoTestUtils
+        .getDocumentInstanceSectionClauseVersionDto(sectionName, "some text 1", 1, 1);
+    DocumentInstanceSectionClauseVersionDto dto2 = DocumentDtoTestUtils
+        .getDocumentInstanceSectionClauseVersionDto(sectionName, "some text 2", 2, 2);
     dto2.setParentDiscId(dto1.getDiscId());
-    var dto3 = new DocumentInstanceSectionClauseVersionDto();
-    dto3.setStatus(SectionClauseVersionStatus.ACTIVE.name());
-    dto3.setSectionName(sectionName);
-    dto3.setName("name1");
-    dto3.setText("some text 3");
-    dto3.setLevelNumber(3);
-    dto3.setDiscId(2);
+    DocumentInstanceSectionClauseVersionDto dto3 = DocumentDtoTestUtils
+        .getDocumentInstanceSectionClauseVersionDto(sectionName, "some text 3", 3, 2);
     dto3.setParentDiscId(dto2.getDiscId());
     when(documentInstanceSectionClauseVersionDtoRepository.findAllByDiId(documentInstance.getId()))
         .thenReturn(List.of(dto1, dto2, dto3));

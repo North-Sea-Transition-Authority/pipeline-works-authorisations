@@ -33,7 +33,7 @@ public enum PwaApplicationType {
       Period.ofMonths(4),
       Period.ofMonths(6),
       MedianLineImplication.TRUE,
-      null),
+      DocumentSpec.VARIATION_CONSENT_DOCUMENT),
 
   CAT_2_VARIATION(
       "Cat. 2 Variation",
@@ -41,7 +41,7 @@ public enum PwaApplicationType {
       Period.ofWeeks(6),
       Period.ofWeeks(8),
       MedianLineImplication.TRUE,
-      null),
+      DocumentSpec.VARIATION_CONSENT_DOCUMENT),
 
   HUOO_VARIATION(
       "HUOO Variation",
@@ -49,7 +49,7 @@ public enum PwaApplicationType {
       Period.ofWeeks(6),
       Period.ofWeeks(8),
       MedianLineImplication.FALSE,
-      null),
+      DocumentSpec.VARIATION_CONSENT_DOCUMENT),
 
   OPTIONS_VARIATION(
       "Options Variation",
@@ -57,7 +57,7 @@ public enum PwaApplicationType {
       Period.ofWeeks(6),
       Period.ofWeeks(8),
       MedianLineImplication.FALSE,
-      null),
+      DocumentSpec.VARIATION_CONSENT_DOCUMENT),
 
   DECOMMISSIONING(
       "Decommissioning",
@@ -65,7 +65,7 @@ public enum PwaApplicationType {
       Period.ofMonths(6),
       Period.ofMonths(6),
       MedianLineImplication.TRUE,
-      null);
+      DocumentSpec.VARIATION_CONSENT_DOCUMENT);
 
   private final String displayName;
   private final String urlPathString;

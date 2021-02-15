@@ -37,7 +37,8 @@ public class DocumentService {
                                      DocumentTemplateMnem templateMnem,
                                      Person creatingUser) {
 
-    var documentDto = documentTemplateService.populateDocumentDtoFromTemplateMnem(templateMnem);
+    var documentDto = documentTemplateService
+        .populateDocumentDtoFromTemplateMnem(templateMnem, application.getApplicationType().getConsentDocumentSpec());
 
     documentInstanceService.createFromDocumentDto(application, documentDto, creatingUser);
 
