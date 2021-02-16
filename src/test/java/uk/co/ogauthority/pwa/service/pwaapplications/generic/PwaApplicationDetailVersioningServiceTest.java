@@ -47,7 +47,6 @@ public class PwaApplicationDetailVersioningServiceTest {
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL, APP_ID, 10);
 
     pwaApplicationDetailVersioningService = new PwaApplicationDetailVersioningService(
-        taskListService,
         pwaApplicationDetailService,
         applicationTaskService);
   }

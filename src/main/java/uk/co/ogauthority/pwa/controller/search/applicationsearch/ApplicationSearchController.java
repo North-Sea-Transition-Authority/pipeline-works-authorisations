@@ -4,7 +4,6 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 
 import com.google.common.annotations.VisibleForTesting;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;

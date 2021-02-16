@@ -12,15 +12,12 @@ import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService
 @Service
 public class PwaApplicationDetailVersioningService {
 
-  private final TaskListService taskListService;
   private final PwaApplicationDetailService pwaApplicationDetailService;
   private final ApplicationTaskService applicationTaskService;
 
   @Autowired
-  public PwaApplicationDetailVersioningService(TaskListService taskListService,
-                                               PwaApplicationDetailService pwaApplicationDetailService,
+  public PwaApplicationDetailVersioningService(PwaApplicationDetailService pwaApplicationDetailService,
                                                ApplicationTaskService applicationTaskService) {
-    this.taskListService = taskListService;
     this.pwaApplicationDetailService = pwaApplicationDetailService;
     this.applicationTaskService = applicationTaskService;
   }
