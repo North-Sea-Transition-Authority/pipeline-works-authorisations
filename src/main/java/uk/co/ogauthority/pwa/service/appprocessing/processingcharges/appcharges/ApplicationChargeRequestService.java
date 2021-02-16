@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.service.appprocessing.processingcharges;
+package uk.co.ogauthority.pwa.service.appprocessing.processingcharges.appcharges;
 
 import static java.util.stream.Collectors.toList;
 
@@ -18,7 +18,10 @@ import uk.co.ogauthority.pwa.repository.appprocessing.processingcharges.PwaAppCh
 import uk.co.ogauthority.pwa.repository.appprocessing.processingcharges.PwaAppChargeRequestRepository;
 
 /**
- * Creates and reports on charges levied for applications.
+ * Creates and reports on charges demanded for applications.
+ * Whats the difference between charges and fees? "They have been charged the application fee" e.g
+ * -> Fee is what an item will cost
+ * -> charge is when that fee has been actually demanded from a person/org.
  */
 @Service
 public class ApplicationChargeRequestService {

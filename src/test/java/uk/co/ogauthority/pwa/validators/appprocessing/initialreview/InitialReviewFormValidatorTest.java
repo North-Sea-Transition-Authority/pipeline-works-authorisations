@@ -15,6 +15,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.form.appprocessing.initialreview.InitialReviewForm;
+import uk.co.ogauthority.pwa.service.appprocessing.initialreview.InitialReviewPaymentDecision;
 import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationWorkflowTask;
 import uk.co.ogauthority.pwa.service.workflow.assignment.WorkflowAssignmentService;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
@@ -33,7 +34,7 @@ public class InitialReviewFormValidatorTest {
   }
 
   @Test
-  public void validate_success() {
+  public void validate_paymentWaived_withReason_andCaseOfficer() {
 
     var caseOfficerPerson = new Person(1, null, null, null, null);
 
@@ -41,10 +42,32 @@ public class InitialReviewFormValidatorTest {
 
     var form = new InitialReviewForm();
     form.setCaseOfficerPersonId(1);
+    form.setPaymentWaivedReason("Reason");
+    form.setInitialReviewPaymentDecision(InitialReviewPaymentDecision.PAYMENT_WAIVED);
 
     var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, new PwaApplication());
 
     assertThat(errors).isEmpty();
+
+  }
+
+  @Test
+  public void validate_paymentWaived_NoReason_andCaseOfficer() {
+
+    var caseOfficerPerson = new Person(1, null, null, null, null);
+
+    when(workflowAssignmentService.getAssignmentCandidates(any(), eq(PwaApplicationWorkflowTask.CASE_OFFICER_REVIEW))).thenReturn(Set.of(caseOfficerPerson));
+
+    var form = new InitialReviewForm();
+    form.setCaseOfficerPersonId(1);
+    form.setInitialReviewPaymentDecision(InitialReviewPaymentDecision.PAYMENT_WAIVED);
+
+    var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, new PwaApplication());
+
+    assertThat(errors).containsOnly(
+        entry("paymentWaivedReason", Set.of("paymentWaivedReason.required"))
+
+    );
 
   }
 
@@ -56,7 +79,9 @@ public class InitialReviewFormValidatorTest {
     var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, new PwaApplication());
 
     assertThat(errors).containsOnly(
-        entry("caseOfficerPersonId", Set.of("caseOfficerPersonId.required"))
+        entry("caseOfficerPersonId", Set.of("caseOfficerPersonId.required")),
+        entry("initialReviewPaymentDecision", Set.of("initialReviewPaymentDecision.required"))
+
     );
 
   }
@@ -65,6 +90,7 @@ public class InitialReviewFormValidatorTest {
   public void valid_fail_userNotCaseOfficer() {
 
     var form = new InitialReviewForm();
+    form.setInitialReviewPaymentDecision(InitialReviewPaymentDecision.PAYMENT_REQUIRED);
     form.setCaseOfficerPersonId(99);
 
     when(workflowAssignmentService.getAssignmentCandidates(any(), eq(PwaApplicationWorkflowTask.CASE_OFFICER_REVIEW))).thenReturn(Set.of(new Person(1, null, null, null, null)));

@@ -1,7 +1,7 @@
 package uk.co.ogauthority.pwa.service.enums.workflow;
 
 /**
- * Defines workflow property valeus associated with an initial review payment decision.
+ * Defines workflow property values associated with an initial review payment decision.
  */
 public enum PwaApplicationInitialReviewResult implements WorkflowProperty {
 

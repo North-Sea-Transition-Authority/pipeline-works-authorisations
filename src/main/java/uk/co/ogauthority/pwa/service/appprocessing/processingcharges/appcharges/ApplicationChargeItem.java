@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.service.appprocessing.processingcharges;
+package uk.co.ogauthority.pwa.service.appprocessing.processingcharges.appcharges;
 
 
 /**

@@ -1,0 +1,24 @@
+package uk.co.ogauthority.pwa.service.appprocessing.processingcharges;
+
+import java.util.List;
+
+public final class ApplicationPaymentDisplaySummaryTestUtil {
+
+  private ApplicationPaymentDisplaySummaryTestUtil() {
+    throw new UnsupportedOperationException("no util for you1!");
+  }
+
+
+  public static ApplicationPaymentDisplaySummary getDefaultPaymentDisplaySummary() {
+    return new ApplicationPaymentDisplaySummary(
+        "Payment summary headline",
+        "1.00",
+        List.of(new DisplayableFeeItem("Fee item 1", "1.00"))
+
+    );
+
+
+  }
+
+
+}
