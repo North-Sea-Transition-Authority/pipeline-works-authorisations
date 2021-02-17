@@ -1,8 +1,12 @@
 package uk.co.ogauthority.pwa.service.appprocessing.publicnotice;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.time.Clock;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +16,7 @@ import org.springframework.validation.BindingResult;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
+import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeActions;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeDocumentType;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeRequestReason;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeRequestStatus;
@@ -24,6 +29,7 @@ import uk.co.ogauthority.pwa.model.entity.publicnotice.PublicNoticeDocument;
 import uk.co.ogauthority.pwa.model.entity.publicnotice.PublicNoticeDocumentLink;
 import uk.co.ogauthority.pwa.model.entity.publicnotice.PublicNoticeRequest;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.publicnotice.PublicNoticeDraftForm;
 import uk.co.ogauthority.pwa.model.notify.emailproperties.PublicNoticeApprovalRequestEmailProps;
 import uk.co.ogauthority.pwa.model.tasklist.TaskListEntry;
@@ -31,10 +37,13 @@ import uk.co.ogauthority.pwa.model.tasklist.TaskTag;
 import uk.co.ogauthority.pwa.model.teams.PwaRegulatorRole;
 import uk.co.ogauthority.pwa.model.teams.PwaRole;
 import uk.co.ogauthority.pwa.model.teams.PwaTeamMember;
+import uk.co.ogauthority.pwa.model.view.publicnotice.AllPublicNoticesView;
+import uk.co.ogauthority.pwa.model.view.publicnotice.PublicNoticeView;
 import uk.co.ogauthority.pwa.repository.publicnotice.PublicNoticeDocumentLinkRepository;
 import uk.co.ogauthority.pwa.repository.publicnotice.PublicNoticeDocumentRepository;
 import uk.co.ogauthority.pwa.repository.publicnotice.PublicNoticeRepository;
 import uk.co.ogauthority.pwa.repository.publicnotice.PublicNoticeRequestRepository;
+import uk.co.ogauthority.pwa.service.appprocessing.PwaAppProcessingPermissionService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.service.appprocessing.tasks.AppProcessingService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
@@ -47,6 +56,7 @@ import uk.co.ogauthority.pwa.service.notify.NotifyService;
 import uk.co.ogauthority.pwa.service.teams.TeamService;
 import uk.co.ogauthority.pwa.service.template.TemplateTextService;
 import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
+import uk.co.ogauthority.pwa.util.DateUtils;
 import uk.co.ogauthority.pwa.validators.publicnotice.PublicNoticeDraftValidator;
 
 @Service
@@ -64,8 +74,10 @@ public class PublicNoticeService implements AppProcessingService {
   private final NotifyService notifyService;
   private final EmailCaseLinkService emailCaseLinkService;
   private final TeamService teamService;
+  private final PwaAppProcessingPermissionService pwaAppProcessingPermissionService;
 
   private static final AppFilePurpose FILE_PURPOSE = AppFilePurpose.PUBLIC_NOTICE;
+  private static final Set<PublicNoticeStatus> ENDED_STATUSES = Set.of(PublicNoticeStatus.WITHDRAWN);
 
   @Autowired
   public PublicNoticeService(
@@ -79,7 +91,8 @@ public class PublicNoticeService implements AppProcessingService {
       CamundaWorkflowService camundaWorkflowService,
       @Qualifier("utcClock") Clock clock, NotifyService notifyService,
       EmailCaseLinkService emailCaseLinkService,
-      TeamService teamService1) {
+      TeamService teamService,
+      PwaAppProcessingPermissionService pwaAppProcessingPermissionService) {
     this.templateTextService = templateTextService;
     this.publicNoticeDraftValidator = publicNoticeDraftValidator;
     this.appFileService = appFileService;
@@ -91,12 +104,13 @@ public class PublicNoticeService implements AppProcessingService {
     this.clock = clock;
     this.notifyService = notifyService;
     this.emailCaseLinkService = emailCaseLinkService;
-    this.teamService = teamService1;
+    this.teamService = teamService;
+    this.pwaAppProcessingPermissionService = pwaAppProcessingPermissionService;
   }
 
   @Override
   public boolean canShowInTaskList(PwaAppProcessingContext processingContext) {
-    return processingContext.getAppProcessingPermissions().contains(PwaAppProcessingPermission.PUBLIC_NOTICE)
+    return processingContext.getAppProcessingPermissions().contains(PwaAppProcessingPermission.DRAFT_PUBLIC_NOTICE)
         || processingContext.getAppProcessingPermissions().contains(PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY);
   }
 
@@ -210,6 +224,60 @@ public class PublicNoticeService implements AppProcessingService {
 
     camundaWorkflowService.startWorkflow(publicNotice);
     sendPublicNoticeApprovalEmails(pwaApplication, form.getReason().getReasonText());
+  }
+
+
+  private PublicNoticeView createViewFromPublicNotice(PublicNotice publicNotice) {
+
+    var publicNoticeRequest = getLatestPublicNoticeRequest(publicNotice);
+
+    return new PublicNoticeView(
+        publicNotice.getStatus(), DateUtils.formatDate(publicNoticeRequest.getSubmittedTimestamp()));
+  }
+
+  @VisibleForTesting
+  Set<PublicNoticeActions> getAvailablePublicNoticeActions(PublicNoticeStatus publicNoticeStatus,
+                                                           AuthenticatedUserAccount user,
+                                                           PwaApplicationDetail pwaApplicationDetail) {
+
+    var processingPermissions = pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail, user)
+        .getProcessingPermissions();
+
+    if (processingPermissions.contains(PwaAppProcessingPermission.DRAFT_PUBLIC_NOTICE) && publicNoticeStatus == null) {
+      return Set.of(PublicNoticeActions.NEW_DRAFT);
+
+    } else if (processingPermissions.contains(PwaAppProcessingPermission.DRAFT_PUBLIC_NOTICE)
+        && publicNoticeStatus.equals(PublicNoticeStatus.DRAFT)) {
+      return Set.of(PublicNoticeActions.UPDATE_DRAFT);
+
+    } else if (processingPermissions.contains(PwaAppProcessingPermission.APPROVE_PUBLIC_NOTICE)
+        && publicNoticeStatus.equals(PublicNoticeStatus.MANAGER_APPROVAL)) {
+      return Set.of(PublicNoticeActions.APPROVE);
+    }
+
+    return Set.of();
+  }
+
+
+  public AllPublicNoticesView getAllPublicNoticeViews(PwaApplicationDetail pwaApplicationDetail, AuthenticatedUserAccount userAccount) {
+
+    var publicNotices = publicNoticeRepository.findAllByPwaApplicationOrderByVersionDesc(pwaApplicationDetail.getPwaApplication());
+    PublicNoticeView currentPublicNotice = null;
+    List<PublicNoticeView> historicalPublicNotices = new ArrayList<>();
+    Set<PublicNoticeActions> availableActions = getAvailablePublicNoticeActions(null, userAccount, pwaApplicationDetail);
+
+    for (var x = 0; x < publicNotices.size(); x++) {
+      //public notices are ordered with the newest at first index so just check if active
+      if (x == 0 && !ENDED_STATUSES.contains(publicNotices.get(x).getStatus())) {
+        currentPublicNotice = createViewFromPublicNotice(publicNotices.get(x));
+        availableActions = getAvailablePublicNoticeActions(publicNotices.get(x).getStatus(), userAccount, pwaApplicationDetail);
+
+      } else {
+        historicalPublicNotices.add(createViewFromPublicNotice(publicNotices.get(x)));
+      }
+    }
+
+    return new AllPublicNoticesView(currentPublicNotice, historicalPublicNotices, availableActions);
   }
 
 
