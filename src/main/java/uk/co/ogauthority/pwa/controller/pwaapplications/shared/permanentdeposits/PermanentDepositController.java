@@ -81,7 +81,7 @@ public class PermanentDepositController {
                                               @PathVariable("applicationId") Integer applicationId,
                                               PwaApplicationContext applicationContext,
                                               @ModelAttribute("form") PermanentDepositsForm form) {
-    return getAddEditPermanentDepositsModelAndView(applicationContext.getApplicationDetail(), form, ScreenActionType.ADD);
+    return getAddEditPermanentDepositsModelAndView(applicationContext.getApplicationDetail(),  ScreenActionType.ADD);
   }
 
   @GetMapping("/edit-deposits/{depositId}")
@@ -92,7 +92,7 @@ public class PermanentDepositController {
                                                  PwaApplicationContext applicationContext,
                                                  @ModelAttribute("form") PermanentDepositsForm form) {
     permanentDepositService.mapEntityToFormById(depositId, form);
-    return getAddEditPermanentDepositsModelAndView(applicationContext.getApplicationDetail(), form, ScreenActionType.EDIT);
+    return getAddEditPermanentDepositsModelAndView(applicationContext.getApplicationDetail(), ScreenActionType.EDIT);
   }
 
   @GetMapping("/remove-deposit/{depositId}")
@@ -135,7 +135,7 @@ public class PermanentDepositController {
         applicationContext.getApplicationDetail());
 
     return controllerHelperService.checkErrorsAndRedirect(bindingResult,
-        getAddEditPermanentDepositsModelAndView(applicationContext.getApplicationDetail(), form, ScreenActionType.ADD), () -> {
+        getAddEditPermanentDepositsModelAndView(applicationContext.getApplicationDetail(), ScreenActionType.ADD), () -> {
           permanentDepositService.saveEntityUsingForm(applicationContext.getApplicationDetail(), form, applicationContext.getUser());
           return ReverseRouter.redirect(on(PermanentDepositController.class).renderPermanentDepositsOverview(
               pwaApplicationType, applicationId, null, null));
@@ -159,7 +159,7 @@ public class PermanentDepositController {
         applicationContext.getApplicationDetail());
 
     return controllerHelperService.checkErrorsAndRedirect(bindingResult,
-        getAddEditPermanentDepositsModelAndView(applicationContext.getApplicationDetail(), form, ScreenActionType.EDIT), () -> {
+        getAddEditPermanentDepositsModelAndView(applicationContext.getApplicationDetail(), ScreenActionType.EDIT), () -> {
           permanentDepositService.saveEntityUsingForm(applicationContext.getApplicationDetail(), form, applicationContext.getUser());
           return ReverseRouter.redirect(on(PermanentDepositController.class).renderPermanentDepositsOverview(
               pwaApplicationType, applicationId, null, null));
@@ -200,7 +200,7 @@ public class PermanentDepositController {
 
 
   private ModelAndView getAddEditPermanentDepositsModelAndView(PwaApplicationDetail pwaApplicationDetail,
-                                                               PermanentDepositsForm form, ScreenActionType type) {
+                                                               ScreenActionType type) {
 
     var modelAndView = new ModelAndView("pwaApplication/shared/permanentdeposits/permanentDepositsForm");
     modelAndView.addObject("pipelines", permanentDepositService.getPipelinesMapForDeposits(pwaApplicationDetail))
