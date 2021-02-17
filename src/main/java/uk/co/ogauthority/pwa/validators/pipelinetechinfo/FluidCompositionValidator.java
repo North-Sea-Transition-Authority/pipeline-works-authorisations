@@ -34,12 +34,8 @@ public class FluidCompositionValidator implements SmartValidator {
     // sort form map by chemical display order to ensure the validation errors are ordered correctly
     chemicalDataFormMap.entrySet().stream()
         .sorted(Comparator.comparing(e -> e.getKey().getDisplayOrder()))
-        .forEach(e -> {
-
-          ValidatorUtils.invokeNestedValidator(errors, fluidCompositionDataValidator,
-              "chemicalDataFormMap[" + e.getKey() + "]", e.getValue(), e.getKey());
-
-        });
+        .forEach(e -> ValidatorUtils.invokeNestedValidator(errors, fluidCompositionDataValidator,
+            "chemicalDataFormMap[" + e.getKey() + "]", e.getValue(), e.getKey()));
 
   }
 

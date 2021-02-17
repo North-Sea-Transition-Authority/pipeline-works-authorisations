@@ -12,7 +12,6 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTyp
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
-import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskListService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.tasklist.TaskListControllerModelAndViewCreator;
@@ -24,15 +23,12 @@ import uk.co.ogauthority.pwa.service.pwaapplications.generic.tasklist.TaskListCo
 @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.EDIT})
 public class DepositConsentTaskListController {
 
-  private final PwaApplicationDetailService pwaApplicationDetailService;
   private final TaskListService taskListService;
   private final TaskListControllerModelAndViewCreator taskListControllerModelAndViewCreator;
 
   @Autowired
-  public DepositConsentTaskListController(PwaApplicationDetailService pwaApplicationDetailService,
-                                          TaskListService taskListService,
+  public DepositConsentTaskListController(TaskListService taskListService,
                                           TaskListControllerModelAndViewCreator taskListControllerModelAndViewCreator) {
-    this.pwaApplicationDetailService = pwaApplicationDetailService;
     this.taskListService = taskListService;
     this.taskListControllerModelAndViewCreator = taskListControllerModelAndViewCreator;
   }
