@@ -13,8 +13,6 @@
     <@fdsCheckAnswers.checkAnswersWrapper summaryListId="" headingText=submittedHeading! headingSize="h3" headingClass="govuk-heading-m">
         <@fdsCheckAnswers.checkAnswers summaryListClass="">
 
-            <#nested/>
-
             <#if !displayAsHistoricalRequest>
                 <@fdsCheckAnswers.checkAnswersRow keyText="Submitted" actionText="" actionUrl="" screenReaderActionText="">
                     ${publicNoticeViewData.submittedTimestamp}
