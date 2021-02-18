@@ -6,6 +6,7 @@
 <#-- @ftlvariable name="appSearchEntryState" type="uk.co.ogauthority.pwa.controller.search.applicationsearch.ApplicationSearchController.AppSearchEntryState" -->
 <#-- @ftlvariable name="searchUrl" type="java.lang.String" -->
 <#-- @ftlvariable name="assignedCaseOfficers" type="java.util.Map<java.lang.String, java.lang.String>" -->
+<#-- @ftlvariable name="pwaApplicationTypeMap" type="java.util.Map<java.lang.String, java.lang.String>" -->
 <#-- @ftlvariable name="userType" type="uk.co.ogauthority.pwa.service.enums.users.UserType" --> 
 
 
@@ -46,6 +47,10 @@
                         <@fdsSearchSelector.searchSelectorEnhanced path="form.caseOfficerId" options=assignedCaseOfficers labelText="Select a case officer" />
                     </@fdsSearch.searchFilterItem>
                 </#if>
+                
+                <@fdsSearch.searchFilterItem itemName="Application type" expanded=form.pwaApplicationTypeMap?has_content>
+                    <@fdsSearchSelector.searchSelectorEnhanced path="form.pwaApplicationType" options=pwaApplicationTypeMap labelText="Select an application type" />
+                </@fdsSearch.searchFilterItem>
             </@fdsSearch.searchFilterList>
         </@fdsSearch.searchFilter>   
 
