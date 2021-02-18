@@ -80,7 +80,6 @@ public class PwaAppProcessingPermissionService {
             case VIEW_ALL_PUBLIC_NOTICES:
               return (userPrivileges.contains(PwaUserPrivilege.PWA_CASE_OFFICER)
                   || userPrivileges.contains(PwaUserPrivilege.PWA_MANAGER))
-                  //TODO: add app involvement check for c.o & manager
                   && (PwaApplicationType.INITIAL.equals(detail.getPwaApplicationType())
                   || PwaApplicationType.CAT_1_VARIATION.equals(detail.getPwaApplicationType()));
             case DRAFT_PUBLIC_NOTICE:
@@ -90,7 +89,6 @@ public class PwaAppProcessingPermissionService {
                   || PwaApplicationType.CAT_1_VARIATION.equals(detail.getPwaApplicationType()));
             case APPROVE_PUBLIC_NOTICE:
               return userPrivileges.contains(PwaUserPrivilege.PWA_MANAGER)
-                  //TODO: add app involvement check for manager
                   && (PwaApplicationType.INITIAL.equals(detail.getPwaApplicationType())
                   || PwaApplicationType.CAT_1_VARIATION.equals(detail.getPwaApplicationType()));
             case CASE_OFFICER_REVIEW:

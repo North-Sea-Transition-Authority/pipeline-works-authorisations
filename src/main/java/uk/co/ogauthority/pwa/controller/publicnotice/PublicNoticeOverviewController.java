@@ -11,7 +11,7 @@ import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.controller.appprocessing.shared.PwaAppProcessingPermissionCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationStatusCheck;
-import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeActions;
+import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeAction;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.AppProcessingBreadcrumbService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
@@ -72,12 +72,12 @@ public class PublicNoticeOverviewController {
     var modelAndView = new ModelAndView("publicNotice/publicNoticeOverview")
         .addObject("appRef", pwaApplication.getAppReference())
         .addObject("allPublicNoticesView", allPublicNoticesView)
-        .addObject("existingPublicNoticeActions", PublicNoticeActions.getExistingPublicNoticeActions())
+        .addObject("existingPublicNoticeActions", PublicNoticeAction.getExistingPublicNoticeActions())
         .addObject("draftPublicNoticeUrl", draftPublicNoticeUrl)
         .addObject("backUrl", CaseManagementUtils.routeCaseManagement(processingContext))
         .addObject("caseSummaryView", processingContext.getCaseSummaryView());
 
-    appProcessingBreadcrumbService.fromCaseManagement(pwaApplication, modelAndView, "Draft a public notice");
+    appProcessingBreadcrumbService.fromCaseManagement(pwaApplication, modelAndView, "Public notice overview");
     return modelAndView;
   }
 

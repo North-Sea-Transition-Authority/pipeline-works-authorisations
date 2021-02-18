@@ -2,18 +2,18 @@ package uk.co.ogauthority.pwa.model.view.publicnotice;
 
 import java.util.List;
 import java.util.Set;
-import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeActions;
+import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeAction;
 
 public class AllPublicNoticesView {
 
 
   private final PublicNoticeView currentPublicNotice;
   private final List<PublicNoticeView> historicalPublicNotices;
-  private final Set<PublicNoticeActions> actions;
+  private final Set<PublicNoticeAction> actions;
 
   public AllPublicNoticesView(PublicNoticeView currentPublicNotice,
                               List<PublicNoticeView> historicalPublicNotices,
-                              Set<PublicNoticeActions> actions) {
+                              Set<PublicNoticeAction> actions) {
     this.currentPublicNotice = currentPublicNotice;
     this.historicalPublicNotices = historicalPublicNotices;
     this.actions = actions;
@@ -28,7 +28,7 @@ public class AllPublicNoticesView {
     return historicalPublicNotices;
   }
 
-  public Set<PublicNoticeActions> getActions() {
+  public Set<PublicNoticeAction> getActions() {
     return actions;
   }
 

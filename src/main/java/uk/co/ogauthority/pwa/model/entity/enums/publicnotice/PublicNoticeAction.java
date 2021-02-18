@@ -3,7 +3,7 @@ package uk.co.ogauthority.pwa.model.entity.enums.publicnotice;
 import java.util.EnumSet;
 import java.util.Set;
 
-public enum PublicNoticeActions {
+public enum PublicNoticeAction {
 
   NEW_DRAFT("Draft"),
   UPDATE_DRAFT("Update draft"),
@@ -13,7 +13,7 @@ public enum PublicNoticeActions {
   private final String actionDisplayText;
 
 
-  PublicNoticeActions(String actionDisplayText) {
+  PublicNoticeAction(String actionDisplayText) {
     this.actionDisplayText = actionDisplayText;
   }
 
@@ -21,8 +21,8 @@ public enum PublicNoticeActions {
     return actionDisplayText;
   }
 
-  public static Set<PublicNoticeActions> getExistingPublicNoticeActions() {
-    return EnumSet.complementOf(EnumSet.of(PublicNoticeActions.NEW_DRAFT));
+  public static Set<PublicNoticeAction> getExistingPublicNoticeActions() {
+    return EnumSet.complementOf(EnumSet.of(PublicNoticeAction.NEW_DRAFT));
   }
 
 

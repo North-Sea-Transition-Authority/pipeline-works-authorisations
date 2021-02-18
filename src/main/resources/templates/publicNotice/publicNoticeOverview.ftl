@@ -1,6 +1,6 @@
 <#-- @ftlvariable name="errorList" type="java.util.Map<java.lang.String,java.util.List<java.lang.String,java.lang.String>>" -->
 <#-- @ftlvariable name="allPublicNoticesView" type="uk.co.ogauthority.pwa.model.view.publicnotice.AllPublicNoticesView" -->
-<#-- @ftlvariable name="existingPublicNoticeActions" type="java.util.List<uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeActions>" -->
+<#-- @ftlvariable name="existingPublicNoticeActions" type="java.util.List<uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeAction>" -->
 <#-- @ftlvariable name="appRef" type="java.lang.String" -->
 
 

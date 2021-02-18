@@ -16,7 +16,7 @@ import org.springframework.validation.BindingResult;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
-import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeActions;
+import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeAction;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeDocumentType;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeRequestReason;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeRequestStatus;
@@ -236,23 +236,23 @@ public class PublicNoticeService implements AppProcessingService {
   }
 
   @VisibleForTesting
-  Set<PublicNoticeActions> getAvailablePublicNoticeActions(PublicNoticeStatus publicNoticeStatus,
-                                                           AuthenticatedUserAccount user,
-                                                           PwaApplicationDetail pwaApplicationDetail) {
+  Set<PublicNoticeAction> getAvailablePublicNoticeActions(PublicNoticeStatus publicNoticeStatus,
+                                                          AuthenticatedUserAccount user,
+                                                          PwaApplicationDetail pwaApplicationDetail) {
 
     var processingPermissions = pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail, user)
         .getProcessingPermissions();
 
     if (processingPermissions.contains(PwaAppProcessingPermission.DRAFT_PUBLIC_NOTICE) && publicNoticeStatus == null) {
-      return Set.of(PublicNoticeActions.NEW_DRAFT);
+      return Set.of(PublicNoticeAction.NEW_DRAFT);
 
     } else if (processingPermissions.contains(PwaAppProcessingPermission.DRAFT_PUBLIC_NOTICE)
         && publicNoticeStatus.equals(PublicNoticeStatus.DRAFT)) {
-      return Set.of(PublicNoticeActions.UPDATE_DRAFT);
+      return Set.of(PublicNoticeAction.UPDATE_DRAFT);
 
     } else if (processingPermissions.contains(PwaAppProcessingPermission.APPROVE_PUBLIC_NOTICE)
         && publicNoticeStatus.equals(PublicNoticeStatus.MANAGER_APPROVAL)) {
-      return Set.of(PublicNoticeActions.APPROVE);
+      return Set.of(PublicNoticeAction.APPROVE);
     }
 
     return Set.of();
@@ -264,7 +264,7 @@ public class PublicNoticeService implements AppProcessingService {
     var publicNotices = publicNoticeRepository.findAllByPwaApplicationOrderByVersionDesc(pwaApplicationDetail.getPwaApplication());
     PublicNoticeView currentPublicNotice = null;
     List<PublicNoticeView> historicalPublicNotices = new ArrayList<>();
-    Set<PublicNoticeActions> availableActions = getAvailablePublicNoticeActions(null, userAccount, pwaApplicationDetail);
+    Set<PublicNoticeAction> availableActions = getAvailablePublicNoticeActions(null, userAccount, pwaApplicationDetail);
 
     for (var x = 0; x < publicNotices.size(); x++) {
       //public notices are ordered with the newest at first index so just check if active

@@ -24,7 +24,7 @@ import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.energyportal.model.entity.PersonTestUtil;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.dto.appprocessing.ProcessingPermissionsDto;
-import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeActions;
+import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeAction;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeRequestStatus;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeStatus;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.TemplateTextType;
@@ -333,7 +333,7 @@ public class PublicNoticeServiceTest {
         new ProcessingPermissionsDto(null, Set.of(PwaAppProcessingPermission.DRAFT_PUBLIC_NOTICE)));
     var publicNoticeActions = publicNoticeService.getAvailablePublicNoticeActions(null, user, pwaApplicationDetail);
 
-    assertThat(publicNoticeActions).containsOnly(PublicNoticeActions.NEW_DRAFT);
+    assertThat(publicNoticeActions).containsOnly(PublicNoticeAction.NEW_DRAFT);
   }
 
   @Test
@@ -343,7 +343,7 @@ public class PublicNoticeServiceTest {
         new ProcessingPermissionsDto(null, Set.of(PwaAppProcessingPermission.DRAFT_PUBLIC_NOTICE)));
     var publicNoticeActions = publicNoticeService.getAvailablePublicNoticeActions(PublicNoticeStatus.DRAFT, user, pwaApplicationDetail);
 
-    assertThat(publicNoticeActions).containsOnly(PublicNoticeActions.UPDATE_DRAFT);
+    assertThat(publicNoticeActions).containsOnly(PublicNoticeAction.UPDATE_DRAFT);
   }
 
   @Test
@@ -353,7 +353,7 @@ public class PublicNoticeServiceTest {
         new ProcessingPermissionsDto(null, Set.of(PwaAppProcessingPermission.APPROVE_PUBLIC_NOTICE)));
     var publicNoticeActions = publicNoticeService.getAvailablePublicNoticeActions(PublicNoticeStatus.MANAGER_APPROVAL, user, pwaApplicationDetail);
 
-    assertThat(publicNoticeActions).containsOnly(PublicNoticeActions.APPROVE);
+    assertThat(publicNoticeActions).containsOnly(PublicNoticeAction.APPROVE);
   }
 
   @Test
@@ -365,7 +365,7 @@ public class PublicNoticeServiceTest {
     var allPublicNoticesView = publicNoticeService.getAllPublicNoticeViews(pwaApplicationDetail, user);
     assertThat(allPublicNoticesView.getCurrentPublicNotice()).isNull();
     assertThat(allPublicNoticesView.getHistoricalPublicNotices()).isEmpty();
-    assertThat(allPublicNoticesView.getActions()).containsOnly(PublicNoticeActions.NEW_DRAFT);
+    assertThat(allPublicNoticesView.getActions()).containsOnly(PublicNoticeAction.NEW_DRAFT);
   }
 
   @Test
@@ -399,7 +399,7 @@ public class PublicNoticeServiceTest {
 
     assertThat(allPublicNoticesView.getCurrentPublicNotice()).isEqualTo(expectedCurrentPublicNoticeView);
     assertThat(allPublicNoticesView.getHistoricalPublicNotices()).containsOnly(expectedEndedPublicNotice1View ,expectedEndedPublicNotice2View);
-    assertThat(allPublicNoticesView.getActions()).containsOnly(PublicNoticeActions.UPDATE_DRAFT);
+    assertThat(allPublicNoticesView.getActions()).containsOnly(PublicNoticeAction.UPDATE_DRAFT);
   }
 
   @Test
@@ -422,7 +422,7 @@ public class PublicNoticeServiceTest {
 
     assertThat(allPublicNoticesView.getCurrentPublicNotice()).isEqualTo(expectedCurrentPublicNoticeView);
     assertThat(allPublicNoticesView.getHistoricalPublicNotices()).isEmpty();
-    assertThat(allPublicNoticesView.getActions()).containsOnly(PublicNoticeActions.UPDATE_DRAFT);
+    assertThat(allPublicNoticesView.getActions()).containsOnly(PublicNoticeAction.UPDATE_DRAFT);
   }
 
   @Test
@@ -451,7 +451,7 @@ public class PublicNoticeServiceTest {
 
     assertThat(allPublicNoticesView.getCurrentPublicNotice()).isNull();
     assertThat(allPublicNoticesView.getHistoricalPublicNotices()).containsOnly(expectedEndedPublicNotice1View ,expectedEndedPublicNotice2View);
-    assertThat(allPublicNoticesView.getActions()).containsOnly(PublicNoticeActions.NEW_DRAFT);
+    assertThat(allPublicNoticesView.getActions()).containsOnly(PublicNoticeAction.NEW_DRAFT);
   }
 
   @Test
