@@ -2,6 +2,8 @@ package uk.co.ogauthority.pwa.service.appprocessing.publicnotice;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Set;
+import uk.co.ogauthority.pwa.model.dto.appprocessing.ProcessingPermissionsDto;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeDocumentType;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeRequestReason;
@@ -15,6 +17,9 @@ import uk.co.ogauthority.pwa.model.entity.publicnotice.PublicNoticeRequest;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.form.files.UploadFileWithDescriptionForm;
 import uk.co.ogauthority.pwa.model.form.publicnotice.PublicNoticeDraftForm;
+import uk.co.ogauthority.pwa.model.view.publicnotice.PublicNoticeView;
+import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
+import uk.co.ogauthority.pwa.util.DateUtils;
 
 final class PublicNoticeTestUtil {
 
@@ -25,6 +30,10 @@ final class PublicNoticeTestUtil {
 
   static PublicNotice createInitialPublicNotice(PwaApplication pwaApplication) {
     return new PublicNotice(pwaApplication, PublicNoticeStatus.DRAFT, VERSION1);
+  }
+
+  static PublicNotice createEndedPublicNotice(PwaApplication pwaApplication) {
+    return new PublicNotice(pwaApplication, PublicNoticeStatus.WITHDRAWN, 10);
   }
 
   static PublicNoticeDocument createInitialPublicNoticeDocument(PublicNotice publicNotice) {
@@ -61,6 +70,16 @@ final class PublicNoticeTestUtil {
     publicNoticeRequest.setCreatedByPersonId(1);
     return publicNoticeRequest;
   }
+
+  static PublicNoticeRequest createInitialPublicNoticeRequest(PublicNotice publicNotice) {
+    return createInitialPublicNoticeRequest(publicNotice, createDefaultPublicNoticeDraftForm());
+  }
+
+  static PublicNoticeView createPublicNoticeView(PublicNotice publicNotice, PublicNoticeRequest publicNoticeRequest) {
+    return new PublicNoticeView(publicNotice.getStatus(),
+        DateUtils.formatDate(publicNoticeRequest.getSubmittedTimestamp()));
+  }
+
 
 
 
