@@ -1,5 +1,7 @@
 package uk.co.ogauthority.pwa.controller.appprocessing.decision;
 
+import static org.hamcrest.Matchers.hasProperty;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -7,6 +9,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
@@ -34,11 +37,13 @@ import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.PwaAppProcessingPermissionService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContextService;
 import uk.co.ogauthority.pwa.service.appprocessing.decision.ApplicationDecisionTaskService;
+import uk.co.ogauthority.pwa.service.appprocessing.decision.ConsentDocumentService;
 import uk.co.ogauthority.pwa.service.documents.DocumentService;
 import uk.co.ogauthority.pwa.service.documents.generation.DocumentGenerationService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.service.template.TemplateTextService;
 import uk.co.ogauthority.pwa.testutils.PwaAppProcessingContextDtoTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
@@ -59,7 +64,14 @@ public class AppConsentDocControllerTest extends PwaAppProcessingContextAbstract
   @MockBean
   private ApplicationDecisionTaskService applicationDecisionTaskService;
 
-  private PwaApplicationEndpointTestBuilder endpointTester;
+  @MockBean
+  private ConsentDocumentService consentDocumentService;
+
+  @MockBean
+  private TemplateTextService templateTextService;
+
+  private PwaApplicationEndpointTestBuilder editDocumentEndpointTester;
+  private PwaApplicationEndpointTestBuilder sendForApprovalEndpointTester;
 
   private AuthenticatedUserAccount user;
 
@@ -69,10 +81,15 @@ public class AppConsentDocControllerTest extends PwaAppProcessingContextAbstract
   public void setUp() {
 
     when(applicationDecisionTaskService.taskAccessible(any())).thenReturn(true);
+    when(consentDocumentService.canSendForApproval(any())).thenReturn(true);
 
-    endpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaApplicationDetailService, pwaAppProcessingPermissionService)
+    editDocumentEndpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaApplicationDetailService, pwaAppProcessingPermissionService)
         .setAllowedStatuses(PwaApplicationStatus.CASE_OFFICER_REVIEW)
         .setAllowedProcessingPermissions(PwaAppProcessingPermission.EDIT_CONSENT_DOCUMENT);
+
+    sendForApprovalEndpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaApplicationDetailService, pwaAppProcessingPermissionService)
+        .setAllowedStatuses(PwaApplicationStatus.CASE_OFFICER_REVIEW)
+        .setAllowedProcessingPermissions(PwaAppProcessingPermission.SEND_CONSENT_FOR_APPROVAL);
 
     user = new AuthenticatedUserAccount(
         new WebUserAccount(1),
@@ -95,24 +112,24 @@ public class AppConsentDocControllerTest extends PwaAppProcessingContextAbstract
   @Test
   public void renderConsentDocEditor_permissionSmokeTest() {
 
-    endpointTester.setRequestMethod(HttpMethod.GET)
+    editDocumentEndpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(AppConsentDocController.class)
                 .renderConsentDocEditor(applicationDetail.getMasterPwaApplicationId(), type, null, null)));
 
-    endpointTester.performProcessingPermissionCheck(status().isOk(), status().isForbidden());
+    editDocumentEndpointTester.performProcessingPermissionCheck(status().isOk(), status().isForbidden());
 
   }
 
   @Test
   public void renderConsentDocEditor_statusSmokeTest() {
 
-    endpointTester.setRequestMethod(HttpMethod.GET)
+    editDocumentEndpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(AppConsentDocController.class)
                 .renderConsentDocEditor(applicationDetail.getMasterPwaApplicationId(), type, null, null)));
 
-    endpointTester.performAppStatusChecks(status().isOk(), status().isNotFound());
+    editDocumentEndpointTester.performAppStatusChecks(status().isOk(), status().isNotFound());
 
   }
 
@@ -131,24 +148,24 @@ public class AppConsentDocControllerTest extends PwaAppProcessingContextAbstract
   @Test
   public void postConsentDocEditor_permissionSmokeTest() {
 
-    endpointTester.setRequestMethod(HttpMethod.POST)
+    editDocumentEndpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(AppConsentDocController.class)
                 .postConsentDocEditor(applicationDetail.getMasterPwaApplicationId(), type, null, null, null)));
 
-    endpointTester.performProcessingPermissionCheck(status().is3xxRedirection(), status().isForbidden());
+    editDocumentEndpointTester.performProcessingPermissionCheck(status().is3xxRedirection(), status().isForbidden());
 
   }
 
   @Test
   public void postConsentDocEditor_statusSmokeTest() {
 
-    endpointTester.setRequestMethod(HttpMethod.POST)
+    editDocumentEndpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(AppConsentDocController.class)
                 .postConsentDocEditor(applicationDetail.getMasterPwaApplicationId(), type, null, null, null)));
 
-    endpointTester.performAppStatusChecks(status().is3xxRedirection(), status().isNotFound());
+    editDocumentEndpointTester.performAppStatusChecks(status().is3xxRedirection(), status().isNotFound());
 
   }
 
@@ -181,12 +198,12 @@ public class AppConsentDocControllerTest extends PwaAppProcessingContextAbstract
 
     when(documentService.getDocumentInstance(any(), any())).thenReturn(Optional.of(new DocumentInstance()));
 
-    endpointTester.setRequestMethod(HttpMethod.GET)
+    editDocumentEndpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(AppConsentDocController.class)
                 .renderReloadDocument(applicationDetail.getMasterPwaApplicationId(), type, null, null, null)));
 
-    endpointTester.performProcessingPermissionCheck(status().isOk(), status().isForbidden());
+    editDocumentEndpointTester.performProcessingPermissionCheck(status().isOk(), status().isForbidden());
 
   }
 
@@ -195,12 +212,12 @@ public class AppConsentDocControllerTest extends PwaAppProcessingContextAbstract
 
     when(documentService.getDocumentInstance(any(), any())).thenReturn(Optional.of(new DocumentInstance()));
 
-    endpointTester.setRequestMethod(HttpMethod.GET)
+    editDocumentEndpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(AppConsentDocController.class)
                 .renderReloadDocument(applicationDetail.getMasterPwaApplicationId(), type, null, null, null)));
 
-    endpointTester.performAppStatusChecks(status().isOk(), status().isNotFound());
+    editDocumentEndpointTester.performAppStatusChecks(status().isOk(), status().isNotFound());
 
   }
 
@@ -223,7 +240,7 @@ public class AppConsentDocControllerTest extends PwaAppProcessingContextAbstract
     mockMvc.perform(get(ReverseRouter.route(on(AppConsentDocController.class).renderReloadDocument(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null)))
         .with(authenticatedUserAndSession(user))
         .with(csrf()))
-        .andExpect(status().isForbidden());
+        .andExpect(status().is3xxRedirection());
 
   }
 
@@ -232,12 +249,12 @@ public class AppConsentDocControllerTest extends PwaAppProcessingContextAbstract
 
     when(documentService.getDocumentInstance(any(), any())).thenReturn(Optional.of(new DocumentInstance()));
 
-    endpointTester.setRequestMethod(HttpMethod.POST)
+    editDocumentEndpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(AppConsentDocController.class)
                 .postReloadDocument(applicationDetail.getMasterPwaApplicationId(), type, null, null, null)));
 
-    endpointTester.performProcessingPermissionCheck(status().is3xxRedirection(), status().isForbidden());
+    editDocumentEndpointTester.performProcessingPermissionCheck(status().is3xxRedirection(), status().isForbidden());
 
   }
 
@@ -246,12 +263,12 @@ public class AppConsentDocControllerTest extends PwaAppProcessingContextAbstract
 
     when(documentService.getDocumentInstance(any(), any())).thenReturn(Optional.of(new DocumentInstance()));
 
-    endpointTester.setRequestMethod(HttpMethod.POST)
+    editDocumentEndpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(AppConsentDocController.class)
                 .postReloadDocument(applicationDetail.getMasterPwaApplicationId(), type, null, null, null)));
 
-    endpointTester.performAppStatusChecks(status().is3xxRedirection(), status().isNotFound());
+    editDocumentEndpointTester.performAppStatusChecks(status().is3xxRedirection(), status().isNotFound());
 
   }
 
@@ -291,7 +308,109 @@ public class AppConsentDocControllerTest extends PwaAppProcessingContextAbstract
     mockMvc.perform(post(ReverseRouter.route(on(AppConsentDocController.class).postReloadDocument(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null)))
         .with(authenticatedUserAndSession(user))
         .with(csrf()))
-        .andExpect(status().isForbidden());
+        .andExpect(status().is3xxRedirection());
+
+    verify(documentService, times(0)).reloadDocumentInstance(any(), any(), any());
+
+  }
+
+  @Test
+  public void renderSendForApproval_statusSmokeTest() {
+
+    sendForApprovalEndpointTester.setRequestMethod(HttpMethod.GET)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(AppConsentDocController.class)
+                .renderSendForApproval(applicationDetail.getMasterPwaApplicationId(), type, null, null, null, null)));
+
+    sendForApprovalEndpointTester.performAppStatusChecks(status().isOk(), status().isNotFound());
+
+  }
+
+  @Test
+  public void renderSendForApproval_permissionsSmokeTest() {
+
+    sendForApprovalEndpointTester.setRequestMethod(HttpMethod.GET)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(AppConsentDocController.class)
+                .renderSendForApproval(applicationDetail.getMasterPwaApplicationId(), type, null, null, null, null)));
+
+    sendForApprovalEndpointTester.performProcessingPermissionCheck(status().isOk(), status().isForbidden());
+
+  }
+
+  @Test
+  public void renderSendForApproval_sendNotAllowed() throws Exception {
+
+    when(consentDocumentService.canSendForApproval(any())).thenReturn(false);
+
+    mockMvc.perform(get(ReverseRouter.route(on(AppConsentDocController.class).renderSendForApproval(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null)))
+        .with(authenticatedUserAndSession(user))
+        .with(csrf()))
+        .andExpect(status().is3xxRedirection());
+
+  }
+
+  @Test
+  public void renderSendForApproval_sendAllowed() throws Exception {
+
+    when(templateTextService.getLatestVersionTextByType(pwaApplicationDetail.getPwaApplicationType().getConsentEmailTemplateTextType())).thenReturn("my cover letter");
+
+    mockMvc.perform(get(ReverseRouter.route(on(AppConsentDocController.class).renderSendForApproval(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null)))
+        .with(authenticatedUserAndSession(user))
+        .with(csrf()))
+        .andExpect(status().isOk())
+        .andExpect(model().attribute("form", hasProperty("coverLetterText", is("my cover letter"))));
+
+  }
+
+  @Test
+  public void sendForApproval_statusSmokeTest() {
+
+    sendForApprovalEndpointTester.setRequestMethod(HttpMethod.POST)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(AppConsentDocController.class)
+                .sendForApproval(applicationDetail.getMasterPwaApplicationId(), type, null, null, null, null, null)));
+
+    sendForApprovalEndpointTester.performAppStatusChecks(status().isOk(), status().isNotFound());
+
+  }
+
+  @Test
+  public void sendForApproval_permissionsSmokeTest() {
+
+    sendForApprovalEndpointTester.setRequestMethod(HttpMethod.POST)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(AppConsentDocController.class)
+                .sendForApproval(applicationDetail.getMasterPwaApplicationId(), type, null, null, null, null, null)));
+
+    sendForApprovalEndpointTester.performProcessingPermissionCheck(status().isOk(), status().isForbidden());
+
+  }
+
+  @Test
+  public void sendForApproval_sendNotAllowed() throws Exception {
+
+    when(consentDocumentService.canSendForApproval(any())).thenReturn(false);
+
+    mockMvc.perform(post(ReverseRouter.route(on(AppConsentDocController.class).sendForApproval(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null, null)))
+        .with(authenticatedUserAndSession(user))
+        .with(csrf()))
+        .andExpect(status().is3xxRedirection());
+
+    verify(consentDocumentService, times(0)).sendForApproval(any(), any(), any());
+
+  }
+
+  @Test
+  public void sendForApproval_sendAllowed() throws Exception {
+
+    mockMvc.perform(post(ReverseRouter.route(on(AppConsentDocController.class).sendForApproval(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null, null)))
+        .with(authenticatedUserAndSession(user))
+        .with(csrf())
+        .param("coverLetterText", "mytext"))
+        .andExpect(status().is3xxRedirection());
+
+    verify(consentDocumentService, times(1)).sendForApproval(pwaApplicationDetail.getPwaApplication(), "mytext", user.getLinkedPerson());
 
   }
 

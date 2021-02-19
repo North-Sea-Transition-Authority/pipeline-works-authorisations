@@ -24,6 +24,7 @@ public enum PwaAppProcessingPermission {
   ADD_CASE_NOTE(ProcessingPermissionType.GENERIC),
   PUBLIC_NOTICE,
   EDIT_CONSENT_DOCUMENT,
+  SEND_CONSENT_FOR_APPROVAL,
   WITHDRAW_APPLICATION,
 
   // CONSULTEES

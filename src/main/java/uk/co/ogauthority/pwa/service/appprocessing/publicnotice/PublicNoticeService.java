@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.service.appprocessing.publicnotice;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,6 +67,7 @@ public class PublicNoticeService implements AppProcessingService {
   private final TeamService teamService;
 
   private static final AppFilePurpose FILE_PURPOSE = AppFilePurpose.PUBLIC_NOTICE;
+  private static final Set<PublicNoticeStatus> ENDED_STATUSES = Set.of(PublicNoticeStatus.ENDED, PublicNoticeStatus.WITHDRAWN);
 
   @Autowired
   public PublicNoticeService(
@@ -229,4 +231,10 @@ public class PublicNoticeService implements AppProcessingService {
     publicNoticeDocumentLinkRepository.delete(publicNoticeDocumentLink);
     publicNoticeDocumentRepository.delete(publicNoticeDocumentLink.getPublicNoticeDocument());
   }
+
+  public boolean publicNoticeInProgress(PwaApplication pwaApplication) {
+    return publicNoticeRepository.findAllByPwaApplication(pwaApplication).stream()
+        .anyMatch(notice -> !ENDED_STATUSES.contains(notice.getStatus()));
+  }
+
 }
