@@ -115,7 +115,7 @@ public class LocationDetailsController extends PwaApplicationDetailDataFileUploa
   }
 
   @GetMapping
-  @PwaApplicationStatusCheck(statuses = PwaApplicationStatus.DRAFT)
+  @PwaApplicationStatusCheck(statuses = {PwaApplicationStatus.DRAFT, PwaApplicationStatus.UPDATE_REQUESTED})
   public ModelAndView renderLocationDetails(@PathVariable("applicationType")
                                             @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
                                             PwaApplicationContext applicationContext,
@@ -134,7 +134,7 @@ public class LocationDetailsController extends PwaApplicationDetailDataFileUploa
   }
 
   @PostMapping
-  @PwaApplicationStatusCheck(statuses = PwaApplicationStatus.DRAFT)
+  @PwaApplicationStatusCheck(statuses = {PwaApplicationStatus.DRAFT, PwaApplicationStatus.UPDATE_REQUESTED})
   public ModelAndView postLocationDetails(@PathVariable("applicationType")
                                           @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
                                           PwaApplicationContext applicationContext,
@@ -167,7 +167,7 @@ public class LocationDetailsController extends PwaApplicationDetailDataFileUploa
 
   @PostMapping("/files/upload")
   @ResponseBody
-  @PwaApplicationStatusCheck(statuses = PwaApplicationStatus.DRAFT)
+  @PwaApplicationStatusCheck(statuses = {PwaApplicationStatus.DRAFT, PwaApplicationStatus.UPDATE_REQUESTED})
   public FileUploadResult handleUpload(
       @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
       @PathVariable("applicationId") Integer applicationId,
@@ -195,7 +195,7 @@ public class LocationDetailsController extends PwaApplicationDetailDataFileUploa
 
   @PostMapping("/files/delete/{fileId}")
   @ResponseBody
-  @PwaApplicationStatusCheck(statuses = PwaApplicationStatus.DRAFT)
+  @PwaApplicationStatusCheck(statuses = {PwaApplicationStatus.DRAFT, PwaApplicationStatus.UPDATE_REQUESTED})
   public FileDeleteResult handleDelete(
       @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
       @PathVariable("applicationId") Integer applicationId,

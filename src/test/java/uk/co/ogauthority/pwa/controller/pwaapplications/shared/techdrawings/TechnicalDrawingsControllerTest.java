@@ -28,8 +28,8 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.generic.SummaryForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.ApplicationState;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
-import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
@@ -87,7 +87,7 @@ public class TechnicalDrawingsControllerTest extends PwaApplicationContextAbstra
             PwaApplicationType.DECOMMISSIONING,
             PwaApplicationType.OPTIONS_VARIATION)
         .setAllowedPermissions(PwaApplicationPermission.EDIT)
-        .setAllowedStatuses(PwaApplicationStatus.DRAFT);
+        .setAllowedStatuses(ApplicationState.INDUSTRY_EDITABLE);
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     pwaApplicationDetail.getPwaApplication().setId(APP_ID);

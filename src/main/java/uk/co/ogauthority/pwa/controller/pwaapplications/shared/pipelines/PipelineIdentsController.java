@@ -47,7 +47,7 @@ import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
     PwaApplicationType.DECOMMISSIONING,
     PwaApplicationType.OPTIONS_VARIATION
 })
-@PwaApplicationStatusCheck(statuses = PwaApplicationStatus.DRAFT)
+@PwaApplicationStatusCheck(statuses = {PwaApplicationStatus.DRAFT, PwaApplicationStatus.UPDATE_REQUESTED})
 @PwaApplicationPermissionCheck(permissions = PwaApplicationPermission.EDIT)
 public class PipelineIdentsController {
 

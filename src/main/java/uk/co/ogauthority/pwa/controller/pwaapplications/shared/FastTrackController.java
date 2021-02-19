@@ -70,7 +70,7 @@ public class FastTrackController {
   }
 
   @GetMapping
-  @PwaApplicationStatusCheck(statuses = PwaApplicationStatus.DRAFT)
+  @PwaApplicationStatusCheck(statuses = {PwaApplicationStatus.DRAFT, PwaApplicationStatus.UPDATE_REQUESTED})
   @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.EDIT})
   public ModelAndView renderFastTrack(@PathVariable("applicationType")
                                       @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
@@ -90,7 +90,7 @@ public class FastTrackController {
   }
 
   @PostMapping
-  @PwaApplicationStatusCheck(statuses = PwaApplicationStatus.DRAFT)
+  @PwaApplicationStatusCheck(statuses = {PwaApplicationStatus.DRAFT, PwaApplicationStatus.UPDATE_REQUESTED})
   @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.EDIT})
   public ModelAndView postFastTrack(@PathVariable("applicationType")
                                     @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
