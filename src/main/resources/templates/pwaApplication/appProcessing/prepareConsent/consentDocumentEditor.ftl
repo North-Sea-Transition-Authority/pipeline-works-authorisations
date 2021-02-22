@@ -35,9 +35,9 @@
             <@fdsAction.link linkText="Send for approval" linkUrl=springUrl(consentDocumentUrlFactory.sendForApprovalUrl) linkClass="govuk-button govuk-button--green" />
           </#if>
 
-          <@fdsAction.link linkText="Reload document" linkUrl=springUrl(consentDocumentUrlFactory.reloadDocumentUrl) linkClass="govuk-button govuk-button--blue" />
+          <@fdsAction.link linkText="Preview document" linkUrl=springUrl(consentDocumentUrlFactory.downloadUrl) linkClass="govuk-button govuk-button--blue" />
 
-          <@fdsAction.link linkText="Preview document" linkUrl=springUrl(consentDocumentUrlFactory.downloadUrl) linkClass="govuk-button govuk-button--secondary" />
+          <@fdsAction.link linkText="Reload document" linkUrl=springUrl(consentDocumentUrlFactory.reloadDocumentUrl) linkClass="govuk-button govuk-button--secondary" />
 
       </#if>
 
