@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.service.appprocessing.decision;
+package uk.co.ogauthority.pwa.service.appprocessing.prepareconsent;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;

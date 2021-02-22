@@ -9,11 +9,11 @@ import uk.co.ogauthority.pwa.controller.appprocessing.WithdrawApplicationControl
 import uk.co.ogauthority.pwa.controller.appprocessing.applicationupdate.RequestApplicationUpdateController;
 import uk.co.ogauthority.pwa.controller.appprocessing.casenotes.CaseNoteController;
 import uk.co.ogauthority.pwa.controller.appprocessing.confirmsatisfactory.ConfirmSatisfactoryApplicationController;
-import uk.co.ogauthority.pwa.controller.appprocessing.decision.AppConsentDocController;
 import uk.co.ogauthority.pwa.controller.appprocessing.initialreview.InitialReviewController;
 import uk.co.ogauthority.pwa.controller.appprocessing.options.ApproveOptionsController;
 import uk.co.ogauthority.pwa.controller.appprocessing.options.ChangeOptionsApprovalDeadlineController;
 import uk.co.ogauthority.pwa.controller.appprocessing.options.CloseOutOptionsController;
+import uk.co.ogauthority.pwa.controller.appprocessing.prepareconsent.AppConsentDocController;
 import uk.co.ogauthority.pwa.controller.consultations.ConsultationController;
 import uk.co.ogauthority.pwa.controller.consultations.ConsulteeAdviceController;
 import uk.co.ogauthority.pwa.controller.consultations.responses.AssignResponderController;
@@ -26,11 +26,11 @@ import uk.co.ogauthority.pwa.service.appprocessing.applicationupdate.Application
 import uk.co.ogauthority.pwa.service.appprocessing.casenotes.CaseNoteService;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.ConsultationService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
-import uk.co.ogauthority.pwa.service.appprocessing.decision.ApplicationDecisionTaskService;
 import uk.co.ogauthority.pwa.service.appprocessing.initialreview.InitialReviewService;
 import uk.co.ogauthority.pwa.service.appprocessing.options.ApproveOptionsTaskService;
 import uk.co.ogauthority.pwa.service.appprocessing.options.ChangeOptionsApprovalDeadlineTaskService;
 import uk.co.ogauthority.pwa.service.appprocessing.options.CloseOutOptionsTaskService;
+import uk.co.ogauthority.pwa.service.appprocessing.prepareconsent.PrepareConsentTaskService;
 import uk.co.ogauthority.pwa.service.appprocessing.publicnotice.PublicNoticeService;
 import uk.co.ogauthority.pwa.service.appprocessing.tasks.AppProcessingService;
 import uk.co.ogauthority.pwa.service.consultations.AssignCaseOfficerService;
@@ -102,10 +102,10 @@ public enum PwaAppProcessingTask {
           processingContext.getApplicationType(), null, null, null)),
       50),
 
-  DECISION(
-      "Decision",
+  PREPARE_CONSENT(
+      "Prepare consent",
       TaskRequirement.REQUIRED,
-      ApplicationDecisionTaskService.class, processingContext -> ReverseRouter.route(on(AppConsentDocController.class)
+      PrepareConsentTaskService.class, processingContext -> ReverseRouter.route(on(AppConsentDocController.class)
       .renderConsentDocEditor(processingContext.getMasterPwaApplicationId(), processingContext.getApplicationType(),
           null, null)),
       60),

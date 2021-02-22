@@ -2,12 +2,12 @@
 
 <#-- @ftlvariable name="caseSummaryView" type="uk.co.ogauthority.pwa.service.appprocessing.context.CaseSummaryView" -->
 <#-- @ftlvariable name="docInstanceExists" type="java.lang.Boolean" -->
-<#-- @ftlvariable name="consentDocumentUrlFactory" type="uk.co.ogauthority.pwa.service.appprocessing.decision.ConsentDocumentUrlFactory" -->
+<#-- @ftlvariable name="consentDocumentUrlFactory" type="uk.co.ogauthority.pwa.service.appprocessing.prepareconsent.ConsentDocumentUrlFactory" -->
 <#-- @ftlvariable name="clauseActionsUrlFactory" type="uk.co.ogauthority.pwa.service.documents.ClauseActionsUrlFactory" -->
 <#-- @ftlvariable name="docView" type="uk.co.ogauthority.pwa.model.documents.view.DocumentView" -->
 <#-- @ftlvariable name="userProcessingPermissions" type="java.util.Set<uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission>" -->
 
-<#assign pageHeading = "${caseSummaryView.pwaApplicationRef} - Consent document" />
+<#assign pageHeading = "${caseSummaryView.pwaApplicationRef} - Prepare consent" />
 
 <@defaultPagePane htmlTitle=pageHeading phaseBanner=false>
 

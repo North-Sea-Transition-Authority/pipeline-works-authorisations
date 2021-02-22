@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.service.appprocessing.decision;
+package uk.co.ogauthority.pwa.service.appprocessing.prepareconsent;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,14 +15,14 @@ import uk.co.ogauthority.pwa.service.enums.appprocessing.TaskStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 
 @Service
-public class ApplicationDecisionTaskService implements AppProcessingService {
+public class PrepareConsentTaskService implements AppProcessingService {
 
   private final DocumentService documentService;
   private final ApproveOptionsService approveOptionsService;
 
   @Autowired
-  public ApplicationDecisionTaskService(DocumentService documentService,
-                                        ApproveOptionsService approveOptionsService) {
+  public PrepareConsentTaskService(DocumentService documentService,
+                                   ApproveOptionsService approveOptionsService) {
     this.documentService = documentService;
     this.approveOptionsService = approveOptionsService;
   }

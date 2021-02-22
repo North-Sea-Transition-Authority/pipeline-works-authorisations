@@ -1,7 +1,7 @@
 <#include '../../../layout.ftl'>
 
 <#-- @ftlvariable name="appRef" type="java.lang.String" -->
-<#-- @ftlvariable name="consentDocumentUrlFactory" type="uk.co.ogauthority.pwa.service.appprocessing.decision.ConsentDocumentUrlFactory" -->
+<#-- @ftlvariable name="consentDocumentUrlFactory" type="uk.co.ogauthority.pwa.service.appprocessing.prepareconsent.ConsentDocumentUrlFactory" -->
 
 <@defaultPage htmlTitle="${appRef} - Reload document" breadcrumbs=false fullWidthColumn=true>
 
