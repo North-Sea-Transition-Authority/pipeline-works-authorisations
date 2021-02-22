@@ -13,6 +13,7 @@ import uk.co.ogauthority.pwa.model.dto.appprocessing.ConsultationInvolvementDto;
 import uk.co.ogauthority.pwa.model.dto.appprocessing.ProcessingPermissionsDto;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupMemberRole;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
@@ -51,6 +52,13 @@ public class PwaAppProcessingPermissionService {
             case CASE_MANAGEMENT_INDUSTRY:
               return (!appInvolvement.getContactRoles().isEmpty() && detail.getStatus() != PwaApplicationStatus.COMPLETE)
                   || appInvolvement.isUserInHolderTeam();
+            case PAY_FOR_APPLICATION: return (
+                PwaApplicationStatus.AWAITING_APPLICATION_PAYMENT.equals(detail.getStatus())
+                && (
+                    appInvolvement.hasAnyOfTheseContactRoles(PwaContactRole.PREPARER, PwaContactRole.ACCESS_MANAGER)
+                    || appInvolvement.hasAnyOfTheseHolderRoles(PwaOrganisationRole.FINANCE_ADMIN)
+                )
+            );
             case APPROVE_OPTIONS_VIEW:
               return !appInvolvement.getContactRoles().isEmpty()
                   && PwaApplicationType.OPTIONS_VARIATION.equals(detail.getPwaApplicationType());

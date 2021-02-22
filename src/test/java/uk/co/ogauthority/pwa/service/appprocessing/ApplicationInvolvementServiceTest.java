@@ -8,6 +8,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -26,6 +27,7 @@ import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
 import uk.co.ogauthority.pwa.repository.pwaapplications.search.PwaAppAssignmentViewRepository;
 import uk.co.ogauthority.pwa.service.appprocessing.application.ConfirmSatisfactoryApplicationService;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupDetailService;
@@ -153,7 +155,7 @@ public class ApplicationInvolvementServiceTest {
 
     when(userTypeService.getUserType(user)).thenReturn(UserType.INDUSTRY);
     when(pwaContactService.getContactRoles(application, user.getLinkedPerson())).thenReturn(Set.of());
-    when(pwaHolderTeamService.isPersonInHolderTeam(detail, user.getLinkedPerson())).thenReturn(true);
+    when(pwaHolderTeamService.getRolesInHolderTeam(detail, user.getLinkedPerson())).thenReturn(EnumSet.allOf(PwaOrganisationRole.class));
 
     var involvement = applicationInvolvementService.getApplicationInvolvementDto(detail, user);
 
@@ -172,7 +174,7 @@ public class ApplicationInvolvementServiceTest {
 
     when(userTypeService.getUserType(user)).thenReturn(UserType.INDUSTRY);
     when(pwaContactService.getContactRoles(application, user.getLinkedPerson())).thenReturn(Set.of());
-    when(pwaHolderTeamService.isPersonInHolderTeam(detail, user.getLinkedPerson())).thenReturn(false);
+    when(pwaHolderTeamService.getRolesInHolderTeam(detail, user.getLinkedPerson())).thenReturn(EnumSet.noneOf(PwaOrganisationRole.class));
 
     var involvement = applicationInvolvementService.getApplicationInvolvementDto(detail, user);
 

@@ -17,6 +17,7 @@ import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaAppAssignmentView;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
 import uk.co.ogauthority.pwa.repository.pwaapplications.search.PwaAppAssignmentViewRepository;
 import uk.co.ogauthority.pwa.service.appprocessing.application.ConfirmSatisfactoryApplicationService;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupDetailService;
@@ -87,11 +88,11 @@ public class ApplicationInvolvementService {
 
     // INDUSTRY data
     Set<PwaContactRole> appContactRoles = Set.of();
-    boolean userInHolderTeam = false;
+    Set<PwaOrganisationRole> userHolderTeamRoles = Set.of();
 
     if (userType == UserType.INDUSTRY) {
 
-      userInHolderTeam = pwaHolderTeamService.isPersonInHolderTeam(detail, user.getLinkedPerson());
+      userHolderTeamRoles = pwaHolderTeamService.getRolesInHolderTeam(detail, user.getLinkedPerson());
 
       appContactRoles = pwaContactService.getContactRoles(application, user.getLinkedPerson());
 
@@ -132,7 +133,8 @@ public class ApplicationInvolvementService {
         caseOfficerStageAndUserAssigned,
         pwaManagerStage,
         atLeastOneSatisfactoryVersion,
-        userInHolderTeam);
+        userHolderTeamRoles
+    );
 
   }
 
