@@ -599,5 +599,45 @@ public class ApplicationDetailSearchServiceIntegrationTest {
   }
 
 
+  @Transactional
+  @Test
+  public void search_whenRegulatorUser_applicationTypeFilter_appTypeUnmatched() {
+    setupDefaultPwaConsentsAndHolderOrgs();
+    createDefaultAppDetailViews();
+    persistAppDetailViews();
+
+    searchContext = getRegulatorContext();
+    searchParams = new ApplicationSearchParametersBuilder()
+        .setPwaApplicationType(PwaApplicationType.OPTIONS_VARIATION)
+        .createApplicationSearchParameters();
+
+    var result = applicationDetailSearchService.search(searchParams, searchContext);
+
+    var screenView = new SearchScreenView<ApplicationDetailItemView>(0, List.of());
+
+    assertThat(result).isEqualTo(screenView);
+
+  }
+
+  @Transactional
+  @Test
+  public void search_whenRegulatorUser_applicationTypeFilter_appTypeMatched() {
+    setupDefaultPwaConsentsAndHolderOrgs();
+    createDefaultAppDetailViews();
+    persistAppDetailViews();
+
+    searchContext = getRegulatorContext();
+    searchParams = new ApplicationSearchParametersBuilder()
+        .setPwaApplicationType(PwaApplicationType.CAT_2_VARIATION)
+        .createApplicationSearchParameters();
+
+    var result = applicationDetailSearchService.search(searchParams, searchContext);
+
+    var screenView = new SearchScreenView<ApplicationDetailItemView>(1, List.of(app2Version2));
+
+    assertThat(result).isEqualTo(screenView);
+  }
+
+
 
 }
