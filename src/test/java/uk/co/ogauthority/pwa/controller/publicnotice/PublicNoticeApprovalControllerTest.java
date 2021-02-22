@@ -4,7 +4,9 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
 
@@ -19,16 +21,21 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.http.HttpMethod;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.validation.BeanPropertyBindingResult;
+import org.springframework.validation.ObjectError;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.PwaAppProcessingContextAbstractControllerTest;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.dto.appprocessing.ProcessingPermissionsDto;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.form.publicnotice.PublicNoticeApprovalForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.PwaAppProcessingPermissionService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContextService;
+import uk.co.ogauthority.pwa.service.appprocessing.publicnotice.PublicNoticeApprovalService;
 import uk.co.ogauthority.pwa.service.appprocessing.publicnotice.PublicNoticeService;
+import uk.co.ogauthority.pwa.service.appprocessing.publicnotice.PublicNoticeTestUtil;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
@@ -47,6 +54,9 @@ public class PublicNoticeApprovalControllerTest extends PwaAppProcessingContextA
 
   @MockBean
   private PublicNoticeService publicNoticeService;
+
+  @MockBean
+  private PublicNoticeApprovalService publicNoticeApprovalService;
 
   private PwaApplicationDetail pwaApplicationDetail;
   private AuthenticatedUserAccount user;
@@ -71,6 +81,14 @@ public class PublicNoticeApprovalControllerTest extends PwaAppProcessingContextA
         pwaApplicationDetail.getPwaApplication()), EnumSet.allOf(PwaAppProcessingPermission.class));
 
     when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail, user)).thenReturn(permissionsDto);
+
+    var publicNotice = PublicNoticeTestUtil.createInitialPublicNotice(pwaApplicationDetail.getPwaApplication());
+    when(publicNoticeService.getLatestPublicNotice(any()))
+        .thenReturn(publicNotice);
+
+    var publicNoticeRequest = PublicNoticeTestUtil.createInitialPublicNoticeRequest(publicNotice);
+    when(publicNoticeService.getLatestPublicNoticeRequest(publicNotice))
+        .thenReturn(publicNoticeRequest);
 
   }
 
@@ -113,6 +131,65 @@ public class PublicNoticeApprovalControllerTest extends PwaAppProcessingContextA
         .andExpect(status().isForbidden());
 
   }
+
+
+  @Test
+  public void postApprovePublicNotice_appStatusSmokeTest() {
+
+    when(publicNoticeApprovalService.validate(any(), any())).thenReturn(new BeanPropertyBindingResult(new PublicNoticeApprovalForm(), "form"));
+
+    endpointTestBuilder.setRequestMethod(HttpMethod.POST)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(PublicNoticeApprovalController.class)
+                .postApprovePublicNotice(applicationDetail.getMasterPwaApplicationId(), type, null, null, null, null)));
+
+    endpointTestBuilder.performAppStatusChecks(status().is3xxRedirection(), status().isNotFound());
+
+  }
+
+  @Test
+  public void postApprovePublicNotice_permissionSmokeTest() {
+
+    when(publicNoticeApprovalService.validate(any(), any())).thenReturn(new BeanPropertyBindingResult(new PublicNoticeApprovalForm(), "form"));
+
+    endpointTestBuilder.setRequestMethod(HttpMethod.POST)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(PublicNoticeApprovalController.class)
+                .postApprovePublicNotice(applicationDetail.getMasterPwaApplicationId(), type, null, null, null, null)));
+
+    endpointTestBuilder.performProcessingPermissionCheck(status().is3xxRedirection(), status().isForbidden());
+
+  }
+
+  @Test
+  public void postApprovePublicNotice_validationFail() throws Exception {
+
+    var failedBindingResult = new BeanPropertyBindingResult(new PublicNoticeApprovalForm(), "form");
+    failedBindingResult.addError(new ObjectError("fake", "fake"));
+    when(publicNoticeApprovalService.validate(any(), any())).thenReturn(failedBindingResult);
+
+    mockMvc.perform(post(ReverseRouter.route(on(PublicNoticeApprovalController.class)
+        .postApprovePublicNotice(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null)))
+        .with(authenticatedUserAndSession(user))
+        .with(csrf()))
+        .andExpect(status().isOk())
+        .andExpect(view().name("publicNotice/approvePublicNotice"));
+  }
+
+  @Test
+  public void postApprovePublicNotice_noSatisfactoryVersions() throws Exception {
+
+    when(processingPermissionService.getProcessingPermissionsDto(any(), any())).thenReturn(new ProcessingPermissionsDto(
+        PwaAppProcessingContextDtoTestUtils.emptyAppInvolvement(pwaApplicationDetail.getPwaApplication()),
+        EnumSet.allOf(PwaAppProcessingPermission.class)));
+
+    mockMvc.perform(post(ReverseRouter.route(on(PublicNoticeApprovalController.class).postApprovePublicNotice(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null)))
+        .with(authenticatedUserAndSession(user))
+        .with(csrf()))
+        .andExpect(status().isForbidden());
+
+  }
+
 
 
 

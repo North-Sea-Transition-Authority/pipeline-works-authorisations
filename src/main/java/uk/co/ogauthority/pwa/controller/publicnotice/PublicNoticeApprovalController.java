@@ -4,9 +4,11 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
@@ -16,6 +18,7 @@ import uk.co.ogauthority.pwa.model.form.publicnotice.PublicNoticeApprovalForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.AppProcessingBreadcrumbService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
+import uk.co.ogauthority.pwa.service.appprocessing.publicnotice.PublicNoticeApprovalService;
 import uk.co.ogauthority.pwa.service.appprocessing.publicnotice.PublicNoticeService;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
@@ -33,15 +36,18 @@ public class PublicNoticeApprovalController  {
 
   private final AppProcessingBreadcrumbService appProcessingBreadcrumbService;
   private final PublicNoticeService publicNoticeService;
+  private final PublicNoticeApprovalService publicNoticeApprovalService;
   private final ControllerHelperService controllerHelperService;
 
   @Autowired
   public PublicNoticeApprovalController(
       AppProcessingBreadcrumbService appProcessingBreadcrumbService,
       PublicNoticeService publicNoticeService,
+      PublicNoticeApprovalService publicNoticeApprovalService,
       ControllerHelperService controllerHelperService) {
     this.appProcessingBreadcrumbService = appProcessingBreadcrumbService;
     this.publicNoticeService = publicNoticeService;
+    this.publicNoticeApprovalService = publicNoticeApprovalService;
     this.controllerHelperService = controllerHelperService;
   }
 
@@ -61,7 +67,36 @@ public class PublicNoticeApprovalController  {
   }
 
 
+  @PostMapping
+  public ModelAndView postApprovePublicNotice(@PathVariable("applicationId") Integer applicationId,
+                                            @PathVariable("applicationType")
+                                            @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
+                                            PwaAppProcessingContext processingContext,
+                                            AuthenticatedUserAccount authenticatedUserAccount,
+                                            @ModelAttribute("form") PublicNoticeApprovalForm form,
+                                            BindingResult bindingResult) {
+
+    return CaseManagementUtils.withAtLeastOneSatisfactoryVersion(processingContext,
+        PwaAppProcessingTask.PUBLIC_NOTICE,  () -> {
+          var validatedBindingResult = publicNoticeApprovalService.validate(form, bindingResult);
+
+          return controllerHelperService.checkErrorsAndRedirect(validatedBindingResult,
+              getApprovePublicNoticeModelAndView(processingContext), () -> {
+                publicNoticeApprovalService.updatePublicNoticeRequest(
+                    form, processingContext.getPwaApplication());
+                return  ReverseRouter.redirect(on(PublicNoticeOverviewController.class).renderPublicNoticeOverview(
+                    applicationId, pwaApplicationType, processingContext, authenticatedUserAccount));
+              });
+
+        });
+
+  }
+
+
   private ModelAndView getApprovePublicNoticeModelAndView(PwaAppProcessingContext processingContext) {
+
+    var publicNotice = publicNoticeService.getLatestPublicNotice(processingContext.getPwaApplication());
+    var publicNoticeRequest = publicNoticeService.getLatestPublicNoticeRequest(publicNotice);
 
     var pwaApplication = processingContext.getPwaApplication();
     var publicNoticeOverviewUrl = ReverseRouter.route(on(PublicNoticeOverviewController.class).renderPublicNoticeOverview(
@@ -69,6 +104,8 @@ public class PublicNoticeApprovalController  {
 
     var modelAndView = new ModelAndView("publicNotice/approvePublicNotice")
         .addObject("appRef", pwaApplication.getAppReference())
+        .addObject("coverLetter", publicNoticeRequest.getCoverLetterText())
+        .addObject("requestReason", publicNoticeRequest.getReason().getReasonText())
         .addObject("cancelUrl", publicNoticeOverviewUrl)
         .addObject("caseSummaryView", processingContext.getCaseSummaryView());
 
