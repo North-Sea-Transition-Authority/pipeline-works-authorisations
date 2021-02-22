@@ -9,9 +9,7 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
 
 import java.util.EnumSet;
-import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,7 +25,6 @@ import uk.co.ogauthority.pwa.controller.PwaAppProcessingContextAbstractControlle
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.dto.appprocessing.ProcessingPermissionsDto;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.view.publicnotice.AllPublicNoticesView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.PwaAppProcessingPermissionService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContextService;
@@ -40,8 +37,8 @@ import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 @RunWith(SpringRunner.class)
-@WebMvcTest(controllers = PublicNoticeOverviewController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {PwaAppProcessingContextService.class}))
-public class PublicNoticeOverviewControllerTest extends PwaAppProcessingContextAbstractControllerTest {
+@WebMvcTest(controllers = PublicNoticeApprovalController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {PwaAppProcessingContextService.class}))
+public class PublicNoticeApprovalControllerTest extends PwaAppProcessingContextAbstractControllerTest {
 
   private PwaApplicationEndpointTestBuilder endpointTestBuilder;
 
@@ -59,7 +56,7 @@ public class PublicNoticeOverviewControllerTest extends PwaAppProcessingContextA
 
     endpointTestBuilder = new PwaApplicationEndpointTestBuilder(mockMvc, pwaApplicationDetailService, pwaAppProcessingPermissionService)
         .setAllowedStatuses(PwaApplicationStatus.CASE_OFFICER_REVIEW)
-        .setAllowedProcessingPermissions(PwaAppProcessingPermission.VIEW_ALL_PUBLIC_NOTICES);
+        .setAllowedProcessingPermissions(PwaAppProcessingPermission.APPROVE_PUBLIC_NOTICE);
 
     user = new AuthenticatedUserAccount(new WebUserAccount(1), EnumSet.allOf(PwaUserPrivilege.class));
 
@@ -79,44 +76,38 @@ public class PublicNoticeOverviewControllerTest extends PwaAppProcessingContextA
 
 
   @Test
-  public void renderPublicNoticeOverview_appStatusSmokeTest() {
-
-    when(publicNoticeService.getAllPublicNoticeViews(any())).thenReturn(
-        new AllPublicNoticesView(null, List.of(), Set.of()));
+  public void renderApprovePublicNotice_appStatusSmokeTest() {
 
     endpointTestBuilder.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
-            ReverseRouter.route(on(PublicNoticeOverviewController.class)
-                .renderPublicNoticeOverview(applicationDetail.getMasterPwaApplicationId(), type, null, null)));
+            ReverseRouter.route(on(PublicNoticeApprovalController.class)
+                .renderApprovePublicNotice(applicationDetail.getMasterPwaApplicationId(), type, null, null, null)));
 
     endpointTestBuilder.performAppStatusChecks(status().isOk(), status().isNotFound());
 
   }
 
   @Test
-  public void renderPublicNoticeOverview_processingPermissionSmokeTest() {
-
-    when(publicNoticeService.getAllPublicNoticeViews(any())).thenReturn(
-        new AllPublicNoticesView(null, List.of(), Set.of()));
+  public void renderApprovePublicNotice_processingPermissionSmokeTest() {
 
     endpointTestBuilder.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
-            ReverseRouter.route(on(PublicNoticeOverviewController.class)
-                .renderPublicNoticeOverview(applicationDetail.getMasterPwaApplicationId(), type, null, null)));
+            ReverseRouter.route(on(PublicNoticeApprovalController.class)
+                .renderApprovePublicNotice(applicationDetail.getMasterPwaApplicationId(), type, null, null, null)));
 
     endpointTestBuilder.performProcessingPermissionCheck(status().isOk(), status().isForbidden());
 
   }
 
   @Test
-  public void renderPublicNoticeOverview_noSatisfactoryVersions() throws Exception {
+  public void renderApprovePublicNotice_noSatisfactoryVersions() throws Exception {
 
     when(processingPermissionService.getProcessingPermissionsDto(any(), any())).thenReturn(new ProcessingPermissionsDto(
         PwaAppProcessingContextDtoTestUtils.emptyAppInvolvement(pwaApplicationDetail.getPwaApplication()),
         EnumSet.allOf(PwaAppProcessingPermission.class)));
 
-    mockMvc.perform(get(ReverseRouter.route(on(PublicNoticeOverviewController.class).renderPublicNoticeOverview(
-        pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null,  null)))
+    mockMvc.perform(get(ReverseRouter.route(on(PublicNoticeApprovalController.class).renderApprovePublicNotice(
+        pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null)))
         .with(authenticatedUserAndSession(user))
         .with(csrf()))
         .andExpect(status().isForbidden());

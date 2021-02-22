@@ -29,7 +29,6 @@ import uk.co.ogauthority.pwa.model.entity.publicnotice.PublicNoticeDocument;
 import uk.co.ogauthority.pwa.model.entity.publicnotice.PublicNoticeDocumentLink;
 import uk.co.ogauthority.pwa.model.entity.publicnotice.PublicNoticeRequest;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.publicnotice.PublicNoticeDraftForm;
 import uk.co.ogauthority.pwa.model.notify.emailproperties.PublicNoticeApprovalRequestEmailProps;
 import uk.co.ogauthority.pwa.model.tasklist.TaskListEntry;
@@ -43,7 +42,6 @@ import uk.co.ogauthority.pwa.repository.publicnotice.PublicNoticeDocumentLinkRep
 import uk.co.ogauthority.pwa.repository.publicnotice.PublicNoticeDocumentRepository;
 import uk.co.ogauthority.pwa.repository.publicnotice.PublicNoticeRepository;
 import uk.co.ogauthority.pwa.repository.publicnotice.PublicNoticeRequestRepository;
-import uk.co.ogauthority.pwa.service.appprocessing.PwaAppProcessingPermissionService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.service.appprocessing.tasks.AppProcessingService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
@@ -74,7 +72,6 @@ public class PublicNoticeService implements AppProcessingService {
   private final NotifyService notifyService;
   private final EmailCaseLinkService emailCaseLinkService;
   private final TeamService teamService;
-  private final PwaAppProcessingPermissionService pwaAppProcessingPermissionService;
 
   private static final AppFilePurpose FILE_PURPOSE = AppFilePurpose.PUBLIC_NOTICE;
   private static final Set<PublicNoticeStatus> ENDED_STATUSES = Set.of(PublicNoticeStatus.WITHDRAWN);
@@ -91,8 +88,7 @@ public class PublicNoticeService implements AppProcessingService {
       CamundaWorkflowService camundaWorkflowService,
       @Qualifier("utcClock") Clock clock, NotifyService notifyService,
       EmailCaseLinkService emailCaseLinkService,
-      TeamService teamService,
-      PwaAppProcessingPermissionService pwaAppProcessingPermissionService) {
+      TeamService teamService) {
     this.templateTextService = templateTextService;
     this.publicNoticeDraftValidator = publicNoticeDraftValidator;
     this.appFileService = appFileService;
@@ -105,13 +101,13 @@ public class PublicNoticeService implements AppProcessingService {
     this.notifyService = notifyService;
     this.emailCaseLinkService = emailCaseLinkService;
     this.teamService = teamService;
-    this.pwaAppProcessingPermissionService = pwaAppProcessingPermissionService;
   }
 
   @Override
   public boolean canShowInTaskList(PwaAppProcessingContext processingContext) {
     return processingContext.getAppProcessingPermissions().contains(PwaAppProcessingPermission.DRAFT_PUBLIC_NOTICE)
-        || processingContext.getAppProcessingPermissions().contains(PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY);
+        || processingContext.getAppProcessingPermissions().contains(PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY)
+        || processingContext.getAppProcessingPermissions().contains(PwaAppProcessingPermission.APPROVE_PUBLIC_NOTICE);
   }
 
   @Override
@@ -127,6 +123,10 @@ public class PublicNoticeService implements AppProcessingService {
 
   }
 
+
+  public List<PublicNotice> getOpenPublicNoticesByStatus(PublicNoticeStatus publicNoticeStatus) {
+    return publicNoticeRepository.findAllByStatusAndStatusNotIn(publicNoticeStatus, ENDED_STATUSES);
+  }
 
   private PublicNoticeRequest getLatestPublicNoticeRequest(PublicNotice publicNotice) {
     return publicNoticeRequestRepository.findFirstByPublicNoticeOrderByVersionDesc(publicNotice)
@@ -203,7 +203,7 @@ public class PublicNoticeService implements AppProcessingService {
                                                  AuthenticatedUserAccount userAccount) {
 
     var publicNotice = new PublicNotice(
-        pwaApplication, PublicNoticeStatus.DRAFT, getPublicNoticeLatestVersionNumber(pwaApplication) + 1);
+        pwaApplication, PublicNoticeStatus.MANAGER_APPROVAL, getPublicNoticeLatestVersionNumber(pwaApplication) + 1);
     publicNotice = publicNoticeRepository.save(publicNotice);
 
     appFileService.updateFiles(form, pwaApplication, FILE_PURPOSE, FileUpdateMode.DELETE_UNLINKED_FILES, userAccount);
@@ -237,21 +237,19 @@ public class PublicNoticeService implements AppProcessingService {
 
   @VisibleForTesting
   Set<PublicNoticeAction> getAvailablePublicNoticeActions(PublicNoticeStatus publicNoticeStatus,
-                                                          AuthenticatedUserAccount user,
-                                                          PwaApplicationDetail pwaApplicationDetail) {
+                                                          PwaAppProcessingContext pwaAppProcessingContext) {
 
-    var processingPermissions = pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail, user)
-        .getProcessingPermissions();
+    var processingPermissions = pwaAppProcessingContext.getAppProcessingPermissions();
 
     if (processingPermissions.contains(PwaAppProcessingPermission.DRAFT_PUBLIC_NOTICE) && publicNoticeStatus == null) {
       return Set.of(PublicNoticeAction.NEW_DRAFT);
 
     } else if (processingPermissions.contains(PwaAppProcessingPermission.DRAFT_PUBLIC_NOTICE)
-        && publicNoticeStatus.equals(PublicNoticeStatus.DRAFT)) {
+        && PublicNoticeStatus.DRAFT.equals(publicNoticeStatus)) {
       return Set.of(PublicNoticeAction.UPDATE_DRAFT);
 
     } else if (processingPermissions.contains(PwaAppProcessingPermission.APPROVE_PUBLIC_NOTICE)
-        && publicNoticeStatus.equals(PublicNoticeStatus.MANAGER_APPROVAL)) {
+        && PublicNoticeStatus.MANAGER_APPROVAL.equals(publicNoticeStatus)) {
       return Set.of(PublicNoticeAction.APPROVE);
     }
 
@@ -259,18 +257,18 @@ public class PublicNoticeService implements AppProcessingService {
   }
 
 
-  public AllPublicNoticesView getAllPublicNoticeViews(PwaApplicationDetail pwaApplicationDetail, AuthenticatedUserAccount userAccount) {
+  public AllPublicNoticesView getAllPublicNoticeViews(PwaAppProcessingContext pwaAppProcessingContext) {
 
-    var publicNotices = publicNoticeRepository.findAllByPwaApplicationOrderByVersionDesc(pwaApplicationDetail.getPwaApplication());
+    var publicNotices = publicNoticeRepository.findAllByPwaApplicationOrderByVersionDesc(pwaAppProcessingContext.getPwaApplication());
     PublicNoticeView currentPublicNotice = null;
     List<PublicNoticeView> historicalPublicNotices = new ArrayList<>();
-    Set<PublicNoticeAction> availableActions = getAvailablePublicNoticeActions(null, userAccount, pwaApplicationDetail);
+    Set<PublicNoticeAction> availableActions = getAvailablePublicNoticeActions(null, pwaAppProcessingContext);
 
     for (var x = 0; x < publicNotices.size(); x++) {
       //public notices are ordered with the newest at first index so just check if active
       if (x == 0 && !ENDED_STATUSES.contains(publicNotices.get(x).getStatus())) {
         currentPublicNotice = createViewFromPublicNotice(publicNotices.get(x));
-        availableActions = getAvailablePublicNoticeActions(publicNotices.get(x).getStatus(), userAccount, pwaApplicationDetail);
+        availableActions = getAvailablePublicNoticeActions(publicNotices.get(x).getStatus(), pwaAppProcessingContext);
 
       } else {
         historicalPublicNotices.add(createViewFromPublicNotice(publicNotices.get(x)));

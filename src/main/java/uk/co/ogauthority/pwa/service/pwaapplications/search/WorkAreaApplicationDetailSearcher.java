@@ -21,6 +21,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeStatus;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.WorkAreaApplicationDetailSearchItem;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.WorkAreaApplicationDetailSearchItem_;
 import uk.co.ogauthority.pwa.repository.pwaapplications.search.WorkAreaApplicationDetailSearchItemRepository;
@@ -194,6 +195,7 @@ public class WorkAreaApplicationDetailSearcher {
         searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagIsFalseOrAllProcessingWaitFlagsFalse(
           Pageable pageable,
           Set<PwaApplicationStatus> statusFilter,
+          Set<PublicNoticeStatus> publicNoticeStatusFilter,
           Set<Integer> pwaApplicationIdFilter) {
 
     if (statusFilter.isEmpty() && pwaApplicationIdFilter.isEmpty()) {
@@ -208,7 +210,7 @@ public class WorkAreaApplicationDetailSearcher {
         pwaApplicationIdFilter.isEmpty() ? null : pwaApplicationIdFilter,
         false,
         false,
-        false,
+        publicNoticeStatusFilter.isEmpty() ? null : publicNoticeStatusFilter,
         false
     );
 
@@ -233,7 +235,6 @@ public class WorkAreaApplicationDetailSearcher {
         // passing null when empty is required or else spring produces invalid sql for the IN condition.
         statusFilter.isEmpty() ? null : statusFilter,
         pwaApplicationIdFilter.isEmpty() ? null : pwaApplicationIdFilter,
-        true,
         true,
         true,
         true

@@ -7,7 +7,7 @@ public enum PublicNoticeAction {
 
   NEW_DRAFT("Draft"),
   UPDATE_DRAFT("Update draft"),
-  APPROVE("Update");
+  APPROVE("Update request");
 
 
   private final String actionDisplayText;

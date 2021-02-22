@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
+import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeStatus;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.WorkAreaApplicationDetailSearchItem;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 
@@ -19,7 +20,7 @@ public interface WorkAreaApplicationDetailSearchItemRepository extends CrudRepos
       "AND ( " +
       "  (waadsi.tipVersionSatisfactoryFlag = :tipVersionSatisfactoryFlag) OR ( " +
       "    waadsi.openUpdateRequestFlag = :openForUpdateFlag " +
-      "    AND waadsi.openPublicNoticeFlag = :openPublicNoticeFlag " +
+      "    AND waadsi.publicNoticeStatus IN :publicNoticeStatuses " +
       "    AND waadsi.openConsultationRequestFlag = :openConsultationRequestFlag" +
       "  ) " +
       ")";
@@ -30,7 +31,6 @@ public interface WorkAreaApplicationDetailSearchItemRepository extends CrudRepos
       "AND ( " +
       "  (waadsi.tipVersionSatisfactoryFlag = :tipVersionSatisfactoryFlag) AND ( " +
       "    waadsi.openUpdateRequestFlag = :openForUpdateFlag " +
-      "    OR waadsi.openPublicNoticeFlag = :openPublicNoticeFlag " +
       "    OR waadsi.openConsultationRequestFlag = :openConsultationRequestFlag" +
       "  ) " +
       ")";
@@ -54,7 +54,7 @@ public interface WorkAreaApplicationDetailSearchItemRepository extends CrudRepos
       @Param("applicationIdFilter") Collection<Integer> applicationIdFilter,
       @Param("tipVersionSatisfactoryFlag") Boolean tipVersionSatisfactoryFlag,
       @Param("openForUpdateFlag") Boolean openForUpdateFlag,
-      @Param("openPublicNoticeFlag") Boolean openPublicNoticeFlag,
+      @Param("publicNoticeStatuses") Collection<PublicNoticeStatus> publicNoticeStatuses,
       @Param("openConsultationRequestFlag") Boolean openConsultationRequestFlag
   );
 
@@ -69,7 +69,6 @@ public interface WorkAreaApplicationDetailSearchItemRepository extends CrudRepos
       @Param("applicationIdFilter") Collection<Integer> applicationIdFilter,
       @Param("tipVersionSatisfactoryFlag") Boolean tipVersionSatisfactoryFlag,
       @Param("openForUpdateFlag") Boolean openForUpdateFlag,
-      @Param("openPublicNoticeFlag") Boolean openPublicNoticeFlag,
       @Param("openConsultationRequestFlag") Boolean openConsultationRequestFlag
   );
 
