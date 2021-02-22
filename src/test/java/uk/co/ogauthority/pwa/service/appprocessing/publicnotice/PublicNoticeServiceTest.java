@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.service.appprocessing.publicnotice;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -24,6 +25,7 @@ import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.energyportal.model.entity.PersonTestUtil;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeRequestStatus;
+import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeStatus;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.TemplateTextType;
 import uk.co.ogauthority.pwa.model.entity.files.AppFile;
 import uk.co.ogauthority.pwa.model.entity.files.AppFilePurpose;
@@ -339,5 +341,38 @@ public class PublicNoticeServiceTest {
     verify(publicNoticeDocumentLinkRepository, times(1)).delete(publicNoticeDocumentLink);
   }
 
+  @Test
+  public void publicNoticeInProgress_no() {
+
+    var endedNotice = new PublicNotice();
+    endedNotice.setStatus(PublicNoticeStatus.ENDED);
+
+    var withdrawnNotice = new PublicNotice();
+    withdrawnNotice.setStatus(PublicNoticeStatus.WITHDRAWN);
+
+    when(publicNoticeRepository.findAllByPwaApplication(any())).thenReturn(List.of(endedNotice, withdrawnNotice));
+
+    boolean inProgress = publicNoticeService.publicNoticeInProgress(new PwaApplication());
+
+    assertThat(inProgress).isFalse();
+
+  }
+
+  @Test
+  public void publicNoticeInProgress_yes() {
+
+    var endedNotice = new PublicNotice();
+    endedNotice.setStatus(PublicNoticeStatus.ENDED);
+
+    var inProgressNotice = new PublicNotice();
+    inProgressNotice.setStatus(PublicNoticeStatus.APPLICANT_UPDATE);
+
+    when(publicNoticeRepository.findAllByPwaApplication(any())).thenReturn(List.of(endedNotice, inProgressNotice));
+
+    boolean inProgress = publicNoticeService.publicNoticeInProgress(new PwaApplication());
+
+    assertThat(inProgress).isTrue();
+
+  }
 
 }

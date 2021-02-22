@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.model.documents.view;
 
+import java.util.ArrayList;
 import java.util.List;
 import uk.co.ogauthority.pwa.model.view.sidebarnav.SidebarSectionLink;
 
@@ -13,6 +14,7 @@ public class SectionView {
   private List<SidebarSectionLink> sidebarSectionLinks;
 
   public SectionView() {
+    this.clauses = new ArrayList<>();
   }
 
   public String getName() {
