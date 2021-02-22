@@ -12,8 +12,10 @@ import uk.co.ogauthority.pwa.service.applicationsummariser.ApplicationSectionSum
 import uk.co.ogauthority.pwa.service.applicationsummariser.ApplicationSectionSummary;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.crossings.CrossingAgreementTask;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTask;
+import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationTaskService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskListService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CrossingTypesService;
+import uk.co.ogauthority.pwa.service.tasklist.CrossingTaskGeneralPurposeTaskAdapter;
 
 /**
  * Construct summary of Types of crossings Information for a given application.
@@ -23,13 +25,15 @@ public class CrossingTypesSummaryService implements ApplicationSectionSummariser
 
   private final CrossingTypesService crossingTypesService;
   private final TaskListService taskListService;
+  private final ApplicationTaskService applicationTaskService;
 
   @Autowired
-  public CrossingTypesSummaryService(
-      CrossingTypesService crossingTypesService,
-      TaskListService taskListService) {
+  public CrossingTypesSummaryService(CrossingTypesService crossingTypesService,
+                                     TaskListService taskListService,
+                                     ApplicationTaskService applicationTaskService) {
     this.crossingTypesService = crossingTypesService;
     this.taskListService = taskListService;
+    this.applicationTaskService = applicationTaskService;
   }
 
   @Override
@@ -38,7 +42,10 @@ public class CrossingTypesSummaryService implements ApplicationSectionSummariser
     var taskFilter = Set.of(
         ApplicationTask.CROSSING_AGREEMENTS);
 
-    return taskListService.anyTaskShownForApplication(taskFilter, pwaApplicationDetail);
+    var crossingTypeTaskAdapter = new CrossingTaskGeneralPurposeTaskAdapter(CrossingAgreementTask.CROSSING_TYPES);
+
+    return taskListService.anyTaskShownForApplication(taskFilter, pwaApplicationDetail)
+        && applicationTaskService.canShowTask(crossingTypeTaskAdapter, pwaApplicationDetail);
   }
 
   @Override

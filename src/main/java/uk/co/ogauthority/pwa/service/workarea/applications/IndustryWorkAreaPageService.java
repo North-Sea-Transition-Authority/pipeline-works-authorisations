@@ -18,6 +18,7 @@ import uk.co.ogauthority.pwa.mvc.PageView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.tabs.AppProcessingTab;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.ApplicationState;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationWorkflowTask;
 import uk.co.ogauthority.pwa.service.enums.workflow.WorkflowType;
@@ -31,8 +32,6 @@ import uk.co.ogauthority.pwa.util.WorkAreaUtils;
 
 @Service
 public class IndustryWorkAreaPageService {
-
-  private static final EnumSet<PwaApplicationStatus> OPEN_PWA_APP_STATUSES = EnumSet.of(PwaApplicationStatus.DRAFT);
 
   private final WorkAreaApplicationDetailSearcher workAreaApplicationDetailSearcher;
   private final PwaContactService pwaContactService;
@@ -64,7 +63,7 @@ public class IndustryWorkAreaPageService {
         workAreaApplicationDetailSearcher.searchWhereApplicationIdInAndWhereStatusInOrOpenUpdateRequest(
             WorkAreaUtils.getWorkAreaPageRequest(page, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
             applicationIdFilter,
-            OPEN_PWA_APP_STATUSES,
+            ApplicationState.INDUSTRY_EDITABLE.getStatuses(),
             true
         ),
         workAreaUri,
@@ -81,8 +80,7 @@ public class IndustryWorkAreaPageService {
         on(WorkAreaController.class).renderWorkAreaTab(null, WorkAreaTab.INDUSTRY_SUBMITTED_APPLICATIONS, page));
 
     var applicationIdFilter = getIndustryUserApplicationIds(authenticatedUserAccount);
-    // all enum values except those in given set.
-    var notOpenApplicationStatusFilter =  EnumSet.complementOf(OPEN_PWA_APP_STATUSES);
+    var notOpenApplicationStatusFilter =  EnumSet.complementOf(EnumSet.copyOf(ApplicationState.INDUSTRY_EDITABLE.getStatuses()));
 
     return PageView.fromPage(
         workAreaApplicationDetailSearcher.searchWhereApplicationIdInAndWhereStatusInAndOpenUpdateRequest(

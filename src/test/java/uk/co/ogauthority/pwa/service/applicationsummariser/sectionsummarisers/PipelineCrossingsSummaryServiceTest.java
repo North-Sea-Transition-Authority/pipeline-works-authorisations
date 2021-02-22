@@ -4,10 +4,12 @@ package uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers;
 import static java.util.Map.entry;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
+import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -21,6 +23,7 @@ import uk.co.ogauthority.pwa.model.form.files.UploadedFileView;
 import uk.co.ogauthority.pwa.model.view.sidebarnav.SidebarSectionLink;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.crossings.CrossingAgreementTask;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTask;
 import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskListService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.pipeline.PadPipelineCrossingService;
@@ -57,19 +60,34 @@ public class PipelineCrossingsSummaryServiceTest {
   @Test
   public void canSummarise_serviceInteractions() {
     when(taskListService.anyTaskShownForApplication(any(), any())).thenReturn(true);
-    assertThat(pipelineCrossingsSummaryService.canSummarise(pwaApplicationDetail)).isTrue();
+
+    pipelineCrossingsSummaryService.canSummarise(pwaApplicationDetail);
+
+    verify(taskListService, times(1)).anyTaskShownForApplication(
+        Set.of(ApplicationTask.CROSSING_AGREEMENTS), pwaApplicationDetail
+    );
+
+    verify(padPipelineCrossingService, times(1)).canShowInTaskList(pwaApplicationDetail);
 
   }
 
 
   @Test
-  public void canSummarise_whenHasTaskShown() {
-    when(taskListService.anyTaskShownForApplication(any(), eq(pwaApplicationDetail))).thenReturn(true);
+  public void canSummarise_whenHasCrossingsTaskShown_andPipelineCrossingSectionShown() {
+    when(taskListService.anyTaskShownForApplication(any(), any())).thenReturn(true);
+    when(padPipelineCrossingService.canShowInTaskList(any())).thenReturn(true);
     assertThat(pipelineCrossingsSummaryService.canSummarise(pwaApplicationDetail)).isTrue();
   }
 
   @Test
-  public void canSummarise_whenTaskNotShown() {
+  public void canSummarise_whenHasCrossingsTaskShown_andPipelineCrossingSectionNotShown() {
+    when(taskListService.anyTaskShownForApplication(any(), any())).thenReturn(true);
+    when(padPipelineCrossingService.canShowInTaskList(any())).thenReturn(false);
+    assertThat(pipelineCrossingsSummaryService.canSummarise(pwaApplicationDetail)).isFalse();
+  }
+
+  @Test
+  public void canSummarise_whenCrossingTaskNotShown() {
     assertThat(pipelineCrossingsSummaryService.canSummarise(pwaApplicationDetail)).isFalse();
   }
 
