@@ -33,7 +33,7 @@ import uk.co.ogauthority.pwa.validators.pwaapplications.shared.crossings.Crossin
 
 @Controller
 @RequestMapping("/pwa-application/{applicationType}/{applicationId}/crossings/types")
-@PwaApplicationStatusCheck(statuses = PwaApplicationStatus.DRAFT)
+@PwaApplicationStatusCheck(statuses = {PwaApplicationStatus.DRAFT, PwaApplicationStatus.UPDATE_REQUESTED})
 @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.EDIT})
 @PwaApplicationTypeCheck(types = {
     PwaApplicationType.INITIAL,

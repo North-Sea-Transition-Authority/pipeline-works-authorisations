@@ -40,8 +40,8 @@ import uk.co.ogauthority.pwa.model.form.files.UploadedFileView;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.techdetails.PipelineDrawingForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.techdrawings.PipelineDrawingSummaryView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.ApplicationState;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
-import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
@@ -89,7 +89,7 @@ public class PipelineDrawingControllerTest extends PwaApplicationContextAbstract
             PwaApplicationType.DECOMMISSIONING,
             PwaApplicationType.OPTIONS_VARIATION)
         .setAllowedPermissions(PwaApplicationPermission.EDIT)
-        .setAllowedStatuses(PwaApplicationStatus.DRAFT);
+        .setAllowedStatuses(ApplicationState.INDUSTRY_EDITABLE);
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     pwaApplicationDetail.getPwaApplication().setId(APP_ID);
@@ -364,7 +364,7 @@ public class PipelineDrawingControllerTest extends PwaApplicationContextAbstract
 
     endpointTester.performAppStatusChecks(status().is3xxRedirection(), status().isNotFound());
 
-    verify(padTechnicalDrawingService, times(1)).removeDrawing(any(), eq(1), any());
+    verify(padTechnicalDrawingService, times(ApplicationState.INDUSTRY_EDITABLE.getStatuses().size())).removeDrawing(any(), eq(1), any());
 
   }
 
@@ -467,6 +467,7 @@ public class PipelineDrawingControllerTest extends PwaApplicationContextAbstract
 
   @Test
   public void postEditDrawing_appStatusSmokeTest() {
+
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PipelineDrawingController.class)
@@ -483,7 +484,7 @@ public class PipelineDrawingControllerTest extends PwaApplicationContextAbstract
 
     endpointTester.performAppStatusChecks(status().is3xxRedirection(), status().isNotFound());
 
-    verify(padTechnicalDrawingService, times(1)).updateDrawing(any(), eq(1), any(), any());
+    verify(padTechnicalDrawingService, times(ApplicationState.INDUSTRY_EDITABLE.getStatuses().size())).updateDrawing(any(), eq(1), any(), any());
 
   }
 

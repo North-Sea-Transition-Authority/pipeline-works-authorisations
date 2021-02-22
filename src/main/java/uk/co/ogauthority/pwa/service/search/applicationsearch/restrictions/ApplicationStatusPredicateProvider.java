@@ -14,7 +14,6 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailView;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailView_;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ApplicationState;
-import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.search.applicationsearch.ApplicationSearchContext;
 import uk.co.ogauthority.pwa.service.search.applicationsearch.ApplicationSearchParameters;
 
@@ -42,9 +41,8 @@ public class ApplicationStatusPredicateProvider implements ApplicationSearchPred
 
     var cb = entityManager.getCriteriaBuilder();
     var excludeAppsWithStatus = BooleanUtils.isTrue(applicationSearchParameters.getIncludeCompletedOrWithdrawnApps())
-        ? PwaApplicationStatus.getStatusesWithState(ApplicationState.DELETED)
-        : PwaApplicationStatus.getStatusesWithState(ApplicationState.DELETED, ApplicationState.COMPLETED);
-
+        ? ApplicationState.DELETED_PRE_SUBMIT.getStatuses()
+        : ApplicationState.ENDED.getStatuses();
 
     Subquery<Integer> subQuery = searchCoreQuery.subquery(Integer.class);
     Root<PwaApplicationDetail> subRoot = subQuery.from(PwaApplicationDetail.class);

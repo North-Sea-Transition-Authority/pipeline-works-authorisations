@@ -13,6 +13,8 @@ public interface PublicNoticeRepository extends CrudRepository<PublicNotice, Int
 
   Optional<PublicNotice> findFirstByPwaApplicationOrderByVersionDesc(PwaApplication pwaApplication);
 
+  List<PublicNotice> findAllByPwaApplicationOrderByVersionDesc(PwaApplication pwaApplication);
+
   List<PublicNotice> findAllByPwaApplication(PwaApplication application);
 
 }

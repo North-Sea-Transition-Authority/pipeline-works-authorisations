@@ -42,8 +42,8 @@ import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 @RunWith(SpringRunner.class)
-@WebMvcTest(controllers = PublicNoticeController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {PwaAppProcessingContextService.class}))
-public class PublicNoticeControllerTest extends PwaAppProcessingContextAbstractControllerTest {
+@WebMvcTest(controllers = PublicNoticeDraftController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {PwaAppProcessingContextService.class}))
+public class PublicNoticeDraftControllerTest extends PwaAppProcessingContextAbstractControllerTest {
 
   private PwaApplicationEndpointTestBuilder endpointTestBuilder;
 
@@ -61,7 +61,7 @@ public class PublicNoticeControllerTest extends PwaAppProcessingContextAbstractC
 
     endpointTestBuilder = new PwaApplicationEndpointTestBuilder(mockMvc, pwaApplicationDetailService, pwaAppProcessingPermissionService)
         .setAllowedStatuses(PwaApplicationStatus.CASE_OFFICER_REVIEW)
-        .setAllowedProcessingPermissions(PwaAppProcessingPermission.PUBLIC_NOTICE);
+        .setAllowedProcessingPermissions(PwaAppProcessingPermission.DRAFT_PUBLIC_NOTICE);
 
     user = new AuthenticatedUserAccount(new WebUserAccount(1), EnumSet.allOf(PwaUserPrivilege.class));
 
@@ -85,7 +85,7 @@ public class PublicNoticeControllerTest extends PwaAppProcessingContextAbstractC
 
     endpointTestBuilder.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
-            ReverseRouter.route(on(PublicNoticeController.class)
+            ReverseRouter.route(on(PublicNoticeDraftController.class)
                 .renderDraftPublicNotice(applicationDetail.getMasterPwaApplicationId(), type, null, null, null)));
 
     endpointTestBuilder.performAppStatusChecks(status().isOk(), status().isNotFound());
@@ -97,7 +97,7 @@ public class PublicNoticeControllerTest extends PwaAppProcessingContextAbstractC
 
     endpointTestBuilder.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
-            ReverseRouter.route(on(PublicNoticeController.class)
+            ReverseRouter.route(on(PublicNoticeDraftController.class)
                 .renderDraftPublicNotice(applicationDetail.getMasterPwaApplicationId(), type, null, null, null)));
 
     endpointTestBuilder.performProcessingPermissionCheck(status().isOk(), status().isForbidden());
@@ -111,7 +111,7 @@ public class PublicNoticeControllerTest extends PwaAppProcessingContextAbstractC
         PwaAppProcessingContextDtoTestUtils.emptyAppInvolvement(pwaApplicationDetail.getPwaApplication()),
         EnumSet.allOf(PwaAppProcessingPermission.class)));
 
-    mockMvc.perform(get(ReverseRouter.route(on(PublicNoticeController.class).renderDraftPublicNotice(
+    mockMvc.perform(get(ReverseRouter.route(on(PublicNoticeDraftController.class).renderDraftPublicNotice(
         pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null)))
         .with(authenticatedUserAndSession(user))
         .with(csrf()))
@@ -126,7 +126,7 @@ public class PublicNoticeControllerTest extends PwaAppProcessingContextAbstractC
 
     endpointTestBuilder.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
-            ReverseRouter.route(on(PublicNoticeController.class)
+            ReverseRouter.route(on(PublicNoticeDraftController.class)
                 .postDraftPublicNotice(applicationDetail.getMasterPwaApplicationId(), type, null, null, null, null)));
 
     endpointTestBuilder.performAppStatusChecks(status().is3xxRedirection(), status().isNotFound());
@@ -140,7 +140,7 @@ public class PublicNoticeControllerTest extends PwaAppProcessingContextAbstractC
 
     endpointTestBuilder.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
-            ReverseRouter.route(on(PublicNoticeController.class)
+            ReverseRouter.route(on(PublicNoticeDraftController.class)
                 .postDraftPublicNotice(applicationDetail.getMasterPwaApplicationId(), type, null, null, null, null)));
 
     endpointTestBuilder.performProcessingPermissionCheck(status().is3xxRedirection(), status().isForbidden());
@@ -154,7 +154,7 @@ public class PublicNoticeControllerTest extends PwaAppProcessingContextAbstractC
     failedBindingResult.addError(new ObjectError("fake", "fake"));
     when(publicNoticeService.validate(any(), any())).thenReturn(failedBindingResult);
 
-    mockMvc.perform(post(ReverseRouter.route(on(PublicNoticeController.class)
+    mockMvc.perform(post(ReverseRouter.route(on(PublicNoticeDraftController.class)
         .postDraftPublicNotice(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null)))
         .with(authenticatedUserAndSession(user))
         .with(csrf()))
@@ -169,7 +169,7 @@ public class PublicNoticeControllerTest extends PwaAppProcessingContextAbstractC
         PwaAppProcessingContextDtoTestUtils.emptyAppInvolvement(pwaApplicationDetail.getPwaApplication()),
         EnumSet.allOf(PwaAppProcessingPermission.class)));
 
-    mockMvc.perform(post(ReverseRouter.route(on(PublicNoticeController.class).postDraftPublicNotice(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null)))
+    mockMvc.perform(post(ReverseRouter.route(on(PublicNoticeDraftController.class).postDraftPublicNotice(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null)))
         .with(authenticatedUserAndSession(user))
         .with(csrf()))
         .andExpect(status().isForbidden());

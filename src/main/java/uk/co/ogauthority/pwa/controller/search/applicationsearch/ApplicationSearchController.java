@@ -95,9 +95,9 @@ public class ApplicationSearchController {
   }
 
   @VisibleForTesting
-  Map<String, String> getCaseOfficersAssignedToOpenAppsMap() {
+  Map<String, String> getCaseOfficersAssignedToInProgressAppsMap() {
     var caseOfficersAssignedToOpenAppsMap = new LinkedHashMap<String, String>();
-    applicationInvolvementService.getCaseOfficersAssignedToOpenApps()
+    applicationInvolvementService.getCaseOfficersAssignedToInProgressApps()
         .stream()
         .sorted(Comparator.comparing(PwaAppAssignmentView::getAssigneeName))
         .forEach(pwaAppAssignmentView -> caseOfficersAssignedToOpenAppsMap.put(
@@ -140,7 +140,7 @@ public class ApplicationSearchController {
         .addObject("appSearchEntryState", appSearchEntryState)
         // need to provide as search form changes do not include previous search results from the URL params
         .addObject("searchUrl", ApplicationSearchController.getBlankSearchUrl())
-        .addObject("assignedCaseOfficers", getCaseOfficersAssignedToOpenAppsMap())
+        .addObject("assignedCaseOfficers", getCaseOfficersAssignedToInProgressAppsMap())
         .addObject("userType", searchContext.getUserType());
 
   }

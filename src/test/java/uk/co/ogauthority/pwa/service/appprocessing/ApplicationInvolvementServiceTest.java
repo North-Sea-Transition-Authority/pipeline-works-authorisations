@@ -418,12 +418,12 @@ public class ApplicationInvolvementServiceTest {
   @Test
   public void getCaseOfficersAssignedToOpenApps() {
 
-    var openApplicationIds = List.of(1, 2, 3);
-    when(pwaApplicationDetailService.getOpenApplicationIds()).thenReturn(openApplicationIds);
+    var inProgressApplicationIds = List.of(1, 2, 3);
+    when(pwaApplicationDetailService.getInProgressApplicationIds()).thenReturn(inProgressApplicationIds);
 
-    applicationInvolvementService.getCaseOfficersAssignedToOpenApps();
+    applicationInvolvementService.getCaseOfficersAssignedToInProgressApps();
     verify(pwaAppAssignmentViewRepository, times(1))
-        .findAllByAssignmentAndPwaApplicationIdIn(WorkflowAssignment.CASE_OFFICER, openApplicationIds);
+        .findAllByAssignmentAndPwaApplicationIdIn(WorkflowAssignment.CASE_OFFICER, inProgressApplicationIds);
   }
 
 
