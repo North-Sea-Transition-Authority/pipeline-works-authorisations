@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.controller.WorkAreaController;
 import uk.co.ogauthority.pwa.controller.appprocessing.shared.PwaAppProcessingPermissionCheck;
@@ -25,6 +26,7 @@ import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermiss
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingTask;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
+import uk.co.ogauthority.pwa.util.FlashUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
 
@@ -66,21 +68,21 @@ public class WithdrawApplicationController {
                                               PwaAppProcessingContext processingContext,
                                               AuthenticatedUserAccount authenticatedUserAccount,
                                               @ModelAttribute("form") WithdrawApplicationForm form,
-                                              BindingResult bindingResult) {
+                                              BindingResult bindingResult,
+                                              RedirectAttributes redirectAttributes) {
 
     bindingResult = withdrawApplicationService.validate(form, bindingResult, processingContext.getApplicationDetail());
 
-    return controllerHelperService.checkErrorsAndRedirect(bindingResult,
-        getWithdrawApplicationModelAndView(processingContext), () -> {
+    return controllerHelperService.checkErrorsAndRedirect(bindingResult, getWithdrawApplicationModelAndView(processingContext), () -> {
 
-          withdrawApplicationService.withdrawApplication(form, processingContext.getApplicationDetail(), authenticatedUserAccount);
-          return ReverseRouter.redirect(on(WorkAreaController.class).renderWorkArea(null, null, null));
-        });
+      withdrawApplicationService.withdrawApplication(form, processingContext.getApplicationDetail(), authenticatedUserAccount);
+
+      FlashUtils.info(redirectAttributes, processingContext.getApplicationDetail().getPwaApplicationRef() + " withdrawn");
+      return ReverseRouter.redirect(on(WorkAreaController.class).renderWorkArea(null, null, null));
+
+    });
 
   }
-
-
-
 
   private ModelAndView getWithdrawApplicationModelAndView(PwaAppProcessingContext processingContext) {
 

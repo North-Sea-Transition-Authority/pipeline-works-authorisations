@@ -27,7 +27,6 @@ import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 @WebMvcTest(controllers = DeleteApplicationController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = PwaApplicationContextService.class))
 public class DeleteApplicationControllerTest extends PwaApplicationContextAbstractControllerTest {
 
-
   @MockBean
   private PwaApplicationDeleteService pwaApplicationDeleteService;
 
@@ -44,7 +43,6 @@ public class DeleteApplicationControllerTest extends PwaApplicationContextAbstra
         .setAllowedStatuses(PwaApplicationStatus.DRAFT);
 
   }
-
 
   @Test
   public void renderDeleteApplication_permissionSmokeTest() {

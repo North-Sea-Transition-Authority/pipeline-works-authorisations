@@ -1,5 +1,7 @@
 package uk.co.ogauthority.pwa.controller.publicnotice;
 
+import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +25,7 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationSta
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeRequestReason;
 import uk.co.ogauthority.pwa.model.entity.files.AppFilePurpose;
 import uk.co.ogauthority.pwa.model.form.publicnotice.PublicNoticeDraftForm;
+import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.AppProcessingBreadcrumbService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.service.appprocessing.publicnotice.PublicNoticeService;
@@ -37,16 +40,16 @@ import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
 @Controller
 @RequestMapping("/pwa-application/{applicationType}/{applicationId}/public-notice")
-@PwaAppProcessingPermissionCheck(permissions = {PwaAppProcessingPermission.PUBLIC_NOTICE})
+@PwaAppProcessingPermissionCheck(permissions = {PwaAppProcessingPermission.DRAFT_PUBLIC_NOTICE})
 @PwaApplicationStatusCheck(statuses = PwaApplicationStatus.CASE_OFFICER_REVIEW)
-public class PublicNoticeController extends PwaApplicationDataFileUploadAndDownloadController {
+public class PublicNoticeDraftController extends PwaApplicationDataFileUploadAndDownloadController {
 
   private final AppProcessingBreadcrumbService appProcessingBreadcrumbService;
   private final PublicNoticeService publicNoticeService;
   private final ControllerHelperService controllerHelperService;
 
   @Autowired
-  public PublicNoticeController(
+  public PublicNoticeDraftController(
       AppProcessingBreadcrumbService appProcessingBreadcrumbService,
       PublicNoticeService publicNoticeService,
       ControllerHelperService controllerHelperService,
@@ -93,7 +96,8 @@ public class PublicNoticeController extends PwaApplicationDataFileUploadAndDownl
               getDraftPublicNoticeModelAndView(processingContext, form), () -> {
                 publicNoticeService.createPublicNoticeAndStartWorkflow(
                     form, processingContext.getPwaApplication(), authenticatedUserAccount);
-                return  CaseManagementUtils.redirectCaseManagement(processingContext);
+                return  ReverseRouter.redirect(on(PublicNoticeOverviewController.class).renderPublicNoticeOverview(
+                    applicationId, pwaApplicationType, processingContext, authenticatedUserAccount));
               });
 
         });
@@ -111,9 +115,12 @@ public class PublicNoticeController extends PwaApplicationDataFileUploadAndDownl
         AppFilePurpose.PUBLIC_NOTICE,
         form);
 
+    var publicNoticeOverviewUrl = ReverseRouter.route(on(PublicNoticeOverviewController.class).renderPublicNoticeOverview(
+        pwaApplication.getId(), pwaApplication.getApplicationType(), null, null));
+
     modelAndView.addObject("appRef", pwaApplication.getAppReference())
         .addObject("publicNoticeRequestReasons", PublicNoticeRequestReason.asList())
-        .addObject("cancelUrl", CaseManagementUtils.routeCaseManagement(processingContext))
+        .addObject("cancelUrl", publicNoticeOverviewUrl)
         .addObject("caseSummaryView", processingContext.getCaseSummaryView());
 
     appProcessingBreadcrumbService.fromCaseManagement(pwaApplication, modelAndView, "Draft a public notice");

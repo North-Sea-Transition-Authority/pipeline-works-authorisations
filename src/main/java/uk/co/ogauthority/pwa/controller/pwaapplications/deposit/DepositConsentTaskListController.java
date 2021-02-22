@@ -19,7 +19,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.generic.tasklist.TaskListCo
 @Controller
 @RequestMapping("/pwa-application/dep/{applicationId}/tasks")
 @PwaApplicationTypeCheck(types = {PwaApplicationType.DEPOSIT_CONSENT})
-@PwaApplicationStatusCheck(statuses = PwaApplicationStatus.DRAFT)
+@PwaApplicationStatusCheck(statuses = {PwaApplicationStatus.DRAFT, PwaApplicationStatus.UPDATE_REQUESTED})
 @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.EDIT})
 public class DepositConsentTaskListController {
 

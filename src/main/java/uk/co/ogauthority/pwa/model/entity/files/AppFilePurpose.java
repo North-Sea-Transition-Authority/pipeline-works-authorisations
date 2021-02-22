@@ -2,7 +2,7 @@ package uk.co.ogauthority.pwa.model.entity.files;
 
 import uk.co.ogauthority.pwa.controller.appprocessing.casenotes.CaseNoteController;
 import uk.co.ogauthority.pwa.controller.files.PwaApplicationDataFileUploadAndDownloadController;
-import uk.co.ogauthority.pwa.controller.publicnotice.PublicNoticeController;
+import uk.co.ogauthority.pwa.controller.publicnotice.PublicNoticeDraftController;
 
 /**
  * Enumeration of the different areas of a PWA application that can have file links.
@@ -10,7 +10,7 @@ import uk.co.ogauthority.pwa.controller.publicnotice.PublicNoticeController;
 public enum AppFilePurpose {
 
   CASE_NOTES(CaseNoteController.class),
-  PUBLIC_NOTICE(PublicNoticeController.class);
+  PUBLIC_NOTICE(PublicNoticeDraftController.class);
 
   private final Class<? extends PwaApplicationDataFileUploadAndDownloadController> fileControllerClass;
 

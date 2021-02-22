@@ -33,8 +33,8 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.MedianLineAgreementsForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.MedianLineAgreementView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.ApplicationState;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
-import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
@@ -97,7 +97,7 @@ public class MedianLineCrossingControllerTest extends PwaApplicationContextAbstr
             PwaApplicationType.DECOMMISSIONING
         )
         .setAllowedPermissions(PwaApplicationPermission.EDIT)
-        .setAllowedStatuses(PwaApplicationStatus.DRAFT);
+        .setAllowedStatuses(ApplicationState.INDUSTRY_EDITABLE);
 
   }
 

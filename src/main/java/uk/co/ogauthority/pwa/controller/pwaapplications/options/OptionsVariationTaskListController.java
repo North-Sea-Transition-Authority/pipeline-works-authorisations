@@ -19,7 +19,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.generic.tasklist.TaskListCo
 @Controller
 @RequestMapping("/pwa-application/options-variation/{applicationId}/tasks")
 @PwaApplicationTypeCheck(types = {PwaApplicationType.OPTIONS_VARIATION})
-@PwaApplicationStatusCheck(statuses = PwaApplicationStatus.DRAFT)
+@PwaApplicationStatusCheck(statuses = {PwaApplicationStatus.DRAFT, PwaApplicationStatus.UPDATE_REQUESTED})
 @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.EDIT})
 public class OptionsVariationTaskListController {
 

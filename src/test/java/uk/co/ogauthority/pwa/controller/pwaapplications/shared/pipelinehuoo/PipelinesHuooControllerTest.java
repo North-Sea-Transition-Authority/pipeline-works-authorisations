@@ -34,8 +34,8 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.ApplicationState;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
-import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
@@ -100,7 +100,7 @@ public class PipelinesHuooControllerTest extends PwaApplicationContextAbstractCo
             PwaApplicationType.DECOMMISSIONING,
             PwaApplicationType.OPTIONS_VARIATION)
         .setAllowedPermissions(PwaApplicationPermission.EDIT)
-        .setAllowedStatuses(PwaApplicationStatus.DRAFT);
+        .setAllowedStatuses(ApplicationState.INDUSTRY_EDITABLE);
 
     pipelineAndOrgRoleGroupViewsByRole = PipelineAndOrgRoleGroupViewsByRoleTestUtil.createFrom(
         PipelineHuooRoleSummaryViewTestUtil.createEmptyGroupWithNoUnassigned(HuooRole.HOLDER),

@@ -41,8 +41,8 @@ import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadPermanentDepositRepository;
 import uk.co.ogauthority.pwa.service.enums.location.LatitudeDirection;
 import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.ApplicationState;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
-import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
@@ -96,7 +96,7 @@ public class PermanentDepositsControllerTest extends PwaApplicationContextAbstra
             PwaApplicationType.DECOMMISSIONING,
             PwaApplicationType.OPTIONS_VARIATION)
         .setAllowedPermissions(PwaApplicationPermission.EDIT)
-        .setAllowedStatuses(PwaApplicationStatus.DRAFT);
+        .setAllowedStatuses(ApplicationState.INDUSTRY_EDITABLE);
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     pwaApplicationDetail.getPwaApplication().setId(APP_ID);
