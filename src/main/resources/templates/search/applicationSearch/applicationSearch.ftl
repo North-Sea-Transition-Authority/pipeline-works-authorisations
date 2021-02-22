@@ -44,12 +44,12 @@
 
                 <#if userType == "OGA">
                     <@fdsSearch.searchFilterItem itemName="Case officer" expanded=form.assignedCaseOfficers?has_content>
-                        <@fdsSearchSelector.searchSelectorEnhanced path="form.caseOfficerId" options=assignedCaseOfficers labelText="Select a case officer" optionalInputDefault="None" />
+                        <@fdsSearchSelector.searchSelectorEnhanced path="form.caseOfficerId" options=assignedCaseOfficers labelText="Select a case officer" optionalInputDefault="Any" labelClass="govuk-visually-hidden" />
                     </@fdsSearch.searchFilterItem>
                 </#if>
                 
                 <@fdsSearch.searchFilterItem itemName="Application type" expanded=form.pwaApplicationTypeMap?has_content>
-                    <@fdsSearchSelector.searchSelectorEnhanced path="form.pwaApplicationType" options=pwaApplicationTypeMap labelText="Select an application type" optionalInputDefault="None" />
+                    <@fdsSearchSelector.searchSelectorEnhanced path="form.pwaApplicationType" options=pwaApplicationTypeMap labelText="Select an application type" optionalInputDefault="Any" labelClass="govuk-visually-hidden" />
                 </@fdsSearch.searchFilterItem>
             </@fdsSearch.searchFilterList>
         </@fdsSearch.searchFilter>   

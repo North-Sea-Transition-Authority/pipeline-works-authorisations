@@ -14,6 +14,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.ApplicationState;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationSubmitResult;
@@ -90,9 +91,9 @@ public class PwaApplicationSubmissionServiceTest {
 
 
   @Test
-  public void submitApplication_throwsErrorWhenNotDraft() {
+  public void submitApplication_throwsErrorWhenNotIndustryEditable() {
     var invalidSubmitStatuses = EnumSet.allOf(PwaApplicationStatus.class);
-    invalidSubmitStatuses.remove(PwaApplicationStatus.DRAFT);
+    invalidSubmitStatuses.removeAll(ApplicationState.INDUSTRY_EDITABLE.getStatuses());
 
     // test each status where error expected
     for (PwaApplicationStatus invalidStatus : invalidSubmitStatuses) {
