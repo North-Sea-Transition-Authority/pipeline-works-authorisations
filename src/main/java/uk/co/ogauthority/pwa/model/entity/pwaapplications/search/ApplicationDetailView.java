@@ -342,6 +342,7 @@ public class ApplicationDetailView implements ApplicationDetailItemView {
   public PublicNoticeStatus getPublicNoticeStatus() {
     return publicNoticeStatus;
   }
+
   @Override
   public void setPublicNoticeStatus(PublicNoticeStatus publicNoticeStatus) {
     this.publicNoticeStatus = publicNoticeStatus;
