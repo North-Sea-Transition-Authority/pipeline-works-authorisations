@@ -1,12 +1,9 @@
 package uk.co.ogauthority.pwa.model.form.pwaapplications.shared.campaignworks;
 
 import java.util.List;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import uk.co.ogauthority.pwa.util.forminputs.twofielddate.TwoFieldDateInput;
 
 public class WorkScheduleForm {
-  private static final Logger LOGGER = LoggerFactory.getLogger(WorkScheduleForm.class);
 
   private TwoFieldDateInput workStart;
 

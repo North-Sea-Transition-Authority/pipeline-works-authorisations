@@ -1,6 +1,5 @@
 package uk.co.ogauthority.pwa.testutils;
 
-
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
@@ -42,6 +41,7 @@ import uk.co.ogauthority.pwa.service.appprocessing.PwaAppProcessingPermissionSer
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.location.LatitudeDirection;
 import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.ApplicationState;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
@@ -165,9 +165,13 @@ public class PwaApplicationEndpointTestBuilder {
     return this;
   }
 
-  public PwaApplicationEndpointTestBuilder setAllowedStatuses(
-      PwaApplicationStatus... allowedStatuses) {
+  public PwaApplicationEndpointTestBuilder setAllowedStatuses(PwaApplicationStatus... allowedStatuses) {
     this.allowedStatuses = Set.of(allowedStatuses);
+    return this;
+  }
+
+  public PwaApplicationEndpointTestBuilder setAllowedStatuses(ApplicationState applicationState) {
+    this.allowedStatuses = applicationState.getStatuses();
     return this;
   }
 

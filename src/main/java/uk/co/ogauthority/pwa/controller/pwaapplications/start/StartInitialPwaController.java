@@ -2,7 +2,6 @@ package uk.co.ogauthority.pwa.controller.pwaapplications.start;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -12,19 +11,12 @@ import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.controller.pwaapplications.initial.PwaHolderController;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
-import uk.co.ogauthority.pwa.service.pwaapplications.workflow.PwaApplicationCreationService;
 import uk.co.ogauthority.pwa.util.ApplicationTypeUtils;
 
 @Controller
 @RequestMapping("/pwa-application/initial/new")
 public class StartInitialPwaController {
 
-  private final PwaApplicationCreationService pwaApplicationCreationService;
-
-  @Autowired
-  public StartInitialPwaController(PwaApplicationCreationService pwaApplicationCreationService) {
-    this.pwaApplicationCreationService = pwaApplicationCreationService;
-  }
 
   /**
    * Render of start page for initial PWA application.

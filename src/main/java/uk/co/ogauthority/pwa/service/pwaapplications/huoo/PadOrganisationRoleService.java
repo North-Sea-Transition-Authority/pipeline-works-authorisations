@@ -19,8 +19,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.persistence.EntityManager;
 import org.apache.commons.collections4.IterableUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -66,8 +64,6 @@ import uk.co.ogauthority.pwa.validators.huoo.HuooValidationView;
 
 @Service
 public class PadOrganisationRoleService implements ApplicationFormSectionService {
-
-  private static final Logger LOGGER = LoggerFactory.getLogger(PadOrganisationRoleService.class);
 
   private final PadOrganisationRolesRepository padOrganisationRolesRepository;
   private final PadPipelineOrganisationRoleLinkRepository padPipelineOrganisationRoleLinkRepository;
@@ -464,8 +460,7 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
     return new HuooValidationView(new HashSet<>(roles));
   }
 
-  public HuooValidationView getValidationViewForTreaty(PwaApplicationDetail pwaApplicationDetail,
-                                                       PadOrganisationRole padOrganisationRole) {
+  public HuooValidationView getValidationViewForTreaty(PadOrganisationRole padOrganisationRole) {
     return new HuooValidationView(Set.of(padOrganisationRole));
   }
 

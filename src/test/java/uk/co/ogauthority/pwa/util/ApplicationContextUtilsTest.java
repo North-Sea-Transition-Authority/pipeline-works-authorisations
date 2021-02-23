@@ -20,7 +20,8 @@ public class ApplicationContextUtilsTest {
     detail.setStatus(PwaApplicationStatus.DRAFT);
   }
 
-  @Test
+  // use default class to tell sonarcloud we aren't expecting an exception
+  @Test(expected = Test.None.class)
   public void performAppStatusCheck_valid() {
     ApplicationContextUtils.performAppStatusCheck(Set.of(PwaApplicationStatus.DRAFT), detail);
   }

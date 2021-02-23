@@ -148,8 +148,9 @@ public class ConsentSearchControllerTest extends AbstractControllerTest {
 
     assert viewName != null;
     String queryString = viewName.substring(viewName.indexOf("?"));
-    assertThat(queryString).contains("holderOrgUnitId=25");
-    assertThat(queryString).contains("search=true");
+    assertThat(queryString)
+        .contains("holderOrgUnitId=25")
+        .contains("search=true");
 
   }
 

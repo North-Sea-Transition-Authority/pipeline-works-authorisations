@@ -65,7 +65,7 @@ public class DocumentInstanceController {
                                            @ModelAttribute("form") ClauseForm form,
                                            AuthenticatedUserAccount authenticatedUserAccount) {
 
-    var clauseVersion = documentInstanceService.getInstanceClauseVersionByClauseIdOrThrow(clauseIdToAddAfter);
+    documentInstanceService.getInstanceClauseVersionByClauseIdOrThrow(clauseIdToAddAfter);
 
     return getAddEditClauseModelAndView(processingContext, ScreenActionType.ADD);
 
@@ -134,7 +134,7 @@ public class DocumentInstanceController {
                                            @ModelAttribute("form") ClauseForm form,
                                            AuthenticatedUserAccount authenticatedUserAccount) {
 
-    var clauseVersion = documentInstanceService.getInstanceClauseVersionByClauseIdOrThrow(clauseIdToAddBefore);
+    documentInstanceService.getInstanceClauseVersionByClauseIdOrThrow(clauseIdToAddBefore);
 
     return getAddEditClauseModelAndView(processingContext, ScreenActionType.ADD);
 
@@ -179,7 +179,7 @@ public class DocumentInstanceController {
                                             @ModelAttribute("form") ClauseForm form,
                                             AuthenticatedUserAccount authenticatedUserAccount) {
 
-    var clauseVersion = documentInstanceService.getInstanceClauseVersionByClauseIdOrThrow(clauseId);
+    documentInstanceService.getInstanceClauseVersionByClauseIdOrThrow(clauseId);
 
     return getAddEditClauseModelAndView(processingContext, ScreenActionType.ADD);
 

@@ -56,14 +56,14 @@ public class ProductionNotifyServiceImpl implements NotifyService {
           notificationClient.sendEmail(templateId.get(), toEmailAddress, personalisation, reference, emailReplyToId);
         } else {
           // TODO PWA-591 metric logging for email failures
-          LOGGER.error("Email validation prevented email being sent to: " + toEmailAddress);
+          LOGGER.error("Email validation prevented email being sent to: {}", toEmailAddress);
         }
 
       } else {
-        LOGGER.error("Could not find template ID for template with name " + emailProperties.getTemplateName());
+        LOGGER.error("Could not find template ID for template with name {}", emailProperties.getTemplateName());
       }
     } catch (NotificationClientException e) {
-      LOGGER.error("Error occurred in NotificationClient: " + ExceptionUtils.getStackTrace(e));
+      LOGGER.error("Error occurred in NotificationClient: {}", ExceptionUtils.getStackTrace(e));
     }
 
   }

@@ -8,13 +8,14 @@
 
     <@pwaCaseSummary.summary caseSummaryView=caseSummaryView />
 
-    <h2 class="govuk-heading-l">Withdraw application ${appRef}</h2>
+    <h2 class="govuk-heading-l">Withdraw application</h2>
 
     <@fdsForm.htmlForm>
 
-        <@fdsTextarea.textarea path="form.withdrawalReason" labelText="Provide a reason for why you are withdrawing this application" characterCount=true maxCharacterLength="4000" inputClass="govuk-!-width-two-thirds"/>        
+        <@fdsTextarea.textarea path="form.withdrawalReason" labelText="Provide a reason for why you are withdrawing this application" characterCount=true maxCharacterLength="4000" inputClass="govuk-!-width-two-thirds"/>
 
-        <@fdsAction.submitButtons primaryButtonText="Withdraw application" linkSecondaryAction=true secondaryLinkText="Cancel" linkSecondaryActionUrl=springUrl(cancelUrl)/>
+        <@fdsAction.submitButtons primaryButtonText="Withdraw application" primaryButtonClass="govuk-button govuk-button--warning" linkSecondaryAction=true secondaryLinkText="Cancel" linkSecondaryActionUrl=springUrl(cancelUrl)/>
+
     </@fdsForm.htmlForm>
 
 </@defaultPage>

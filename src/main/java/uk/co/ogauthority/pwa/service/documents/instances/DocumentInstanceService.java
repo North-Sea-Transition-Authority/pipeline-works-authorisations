@@ -88,34 +88,34 @@ public class DocumentInstanceService {
 
     var templateClauseIdToNewInstanceClauseMap = new HashMap<Integer, DocumentInstanceSectionClause>();
 
-    documentTemplateDto.getSections().forEach(section -> {
+    documentTemplateDto.getSections().forEach(section ->
 
-      // for each current clause version within a section
-      section.getClauses().forEach(templateClauseVersion -> {
+        // for each current clause version within a section
+        section.getClauses().forEach(templateClauseVersion -> {
 
-        var createdFromTemplateClause = templateClauseVersion.getTemplateClauseRecord();
+          var createdFromTemplateClause = templateClauseVersion.getTemplateClauseRecord();
 
-        // create a corresponding instance clause linked to the template clause it was created from
-        var clause = new DocumentInstanceSectionClause();
-        clause.setDocumentInstance(instance);
-        clause.setDocumentTemplateSectionClause(createdFromTemplateClause);
+          // create a corresponding instance clause linked to the template clause it was created from
+          var clause = new DocumentInstanceSectionClause();
+          clause.setDocumentInstance(instance);
+          clause.setDocumentTemplateSectionClause(createdFromTemplateClause);
 
-        // store the new instance clause against the id of its associated template clause
-        templateClauseIdToNewInstanceClauseMap.put(createdFromTemplateClause.getId(), clause);
+          // store the new instance clause against the id of its associated template clause
+          templateClauseIdToNewInstanceClauseMap.put(createdFromTemplateClause.getId(), clause);
 
-        // create a new instance clause version from the template clause version
-        DocumentInstanceSectionClauseVersion newClauseVersion = sectionClauseCreator
-            .createInstanceClauseVersionFromTemplate(templateClauseVersion, creatingPerson);
+          // create a new instance clause version from the template clause version
+          DocumentInstanceSectionClauseVersion newClauseVersion = sectionClauseCreator
+              .createInstanceClauseVersionFromTemplate(templateClauseVersion, creatingPerson);
 
-        // link the newly created instance clause to its version
-        newClauseVersion.setDocumentInstanceSectionClause(clause);
+          // link the newly created instance clause to its version
+          newClauseVersion.setDocumentInstanceSectionClause(clause);
 
-        // store the creating template clause version and the new instance clause based on it for later lookup
-        templateClauseVersionToInstanceClauseVersionMap.put(templateClauseVersion, newClauseVersion);
+          // store the creating template clause version and the new instance clause based on it for later lookup
+          templateClauseVersionToInstanceClauseVersionMap.put(templateClauseVersion, newClauseVersion);
 
-      });
+        })
 
-    });
+    );
 
     // set parent clauses as required, returning to list before saving
     List<DocumentInstanceSectionClauseVersion> modifiedInstanceClauseVersions = templateClauseVersionToInstanceClauseVersionMap
@@ -261,14 +261,14 @@ public class DocumentInstanceService {
 
     int parentLevel = childLevel - 1;
 
-    levelNumberToClauseVersionMap.getOrDefault(childLevel, List.of()).forEach(child -> {
+    levelNumberToClauseVersionMap.getOrDefault(childLevel, List.of()).forEach(child ->
 
-      levelNumberToClauseVersionMap.get(parentLevel).stream()
-          .filter(parent -> Objects.equals(parent.getClauseId(), child.getParentClauseId()))
-          .findFirst()
-          .ifPresent(parent -> parent.getChildClauses().add(child));
+        levelNumberToClauseVersionMap.get(parentLevel).stream()
+            .filter(parent -> Objects.equals(parent.getClauseId(), child.getParentClauseId()))
+            .findFirst()
+            .ifPresent(parent -> parent.getChildClauses().add(child))
 
-    });
+    );
 
   }
 
