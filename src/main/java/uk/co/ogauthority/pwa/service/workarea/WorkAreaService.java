@@ -116,7 +116,7 @@ public class WorkAreaService {
   }
 
   private Set<Integer> getApplicationIdsForOpenPublicNotices() {
-    return publicNoticeService.getOpenPublicNoticesByStatus(PublicNoticeStatus.MANAGER_APPROVAL)
+    return publicNoticeService.getAllPublicNotices()
         .stream().map(publicNotice -> publicNotice.getPwaApplication().getId())
         .collect(Collectors.toSet());
   }

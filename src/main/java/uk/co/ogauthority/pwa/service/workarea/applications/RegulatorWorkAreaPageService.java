@@ -89,11 +89,7 @@ public class RegulatorWorkAreaPageService {
 
     if (user.getUserPrivileges().contains(PwaUserPrivilege.PWA_MANAGER)) {
       return Set.of(PublicNoticeStatus.MANAGER_APPROVAL);
-
-    } else if (user.getUserPrivileges().contains(PwaUserPrivilege.PWA_CASE_OFFICER)) {
-      return Set.of(PublicNoticeStatus.DRAFT, PublicNoticeStatus.CASE_OFFICER_REVIEW);
     }
-
     return Set.of();
   }
 
@@ -119,10 +115,12 @@ public class RegulatorWorkAreaPageService {
                                                                            int pageRequest) {
 
     var searchStatuses = getAdditionalStatusFilterForUser(userAccount);
+    var publicNoticeStatuses = getPublicNoticeStatusFilterForUser(userAccount);
 
     return workAreaApplicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagIsTrueAndAnyProcessingWaitFlagTrue(
         WorkAreaUtils.getWorkAreaPageRequest(pageRequest, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
         searchStatuses,
+        publicNoticeStatuses,
         applicationIdList
     );
 

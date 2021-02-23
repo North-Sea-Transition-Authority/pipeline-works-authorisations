@@ -267,6 +267,7 @@ public class WorkAreaApplicationDetailSearcherIntegrationTest {
     var result = workAreaApplicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagIsTrueAndAnyProcessingWaitFlagTrue(
         WorkAreaPageServiceTestUtil.getWorkAreaViewPageable(0, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
         Set.of(),
+        Set.of(),
         Set.of(1, 2, 3, 4)
     );
 
@@ -285,6 +286,7 @@ public class WorkAreaApplicationDetailSearcherIntegrationTest {
 
     var result = workAreaApplicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagIsTrueAndAnyProcessingWaitFlagTrue(
         WorkAreaPageServiceTestUtil.getWorkAreaViewPageable(0, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
+        Set.of(),
         Set.of(),
         Set.of(1, 2, 3, 4)
     );
@@ -305,6 +307,7 @@ public class WorkAreaApplicationDetailSearcherIntegrationTest {
 
     var result = workAreaApplicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagIsTrueAndAnyProcessingWaitFlagTrue(
         WorkAreaPageServiceTestUtil.getWorkAreaViewPageable(0, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
+        Set.of(),
         Set.of(),
         Set.of(1, 2, 3, 4)
     );

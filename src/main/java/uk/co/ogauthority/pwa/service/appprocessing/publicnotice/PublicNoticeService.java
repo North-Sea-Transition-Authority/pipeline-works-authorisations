@@ -9,6 +9,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.transaction.Transactional;
+import org.apache.commons.collections4.IterableUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -125,7 +126,11 @@ public class PublicNoticeService implements AppProcessingService {
 
 
   public List<PublicNotice> getOpenPublicNoticesByStatus(PublicNoticeStatus publicNoticeStatus) {
-    return publicNoticeRepository.findAllByStatusAndStatusNotIn(publicNoticeStatus, ENDED_STATUSES);
+    return publicNoticeRepository.findAllByStatus(publicNoticeStatus);
+  }
+
+  public List<PublicNotice> getAllPublicNotices() {
+    return IterableUtils.toList(publicNoticeRepository.findAll());
   }
 
   private PublicNoticeRequest getLatestPublicNoticeRequest(PublicNotice publicNotice) {

@@ -114,7 +114,7 @@ public class WorkAreaServiceTest {
     var pwaApplication = new PwaApplication();
     pwaApplication.setId(1);
     var publicNotice = PublicNoticeTestUtil.createInitialPublicNotice(pwaApplication);
-    when(publicNoticeService.getOpenPublicNoticesByStatus(PublicNoticeStatus.MANAGER_APPROVAL)).thenReturn(List.of(publicNotice));
+    when(publicNoticeService.getAllPublicNotices()).thenReturn(List.of(publicNotice));
     var workAreaResult = workAreaService.getWorkAreaResult(authenticatedUserAccount, WorkAreaTab.REGULATOR_REQUIRES_ATTENTION, 0);
 
     verify(regulatorWorkAreaPageService, times(1)).getRequiresAttentionPageView(

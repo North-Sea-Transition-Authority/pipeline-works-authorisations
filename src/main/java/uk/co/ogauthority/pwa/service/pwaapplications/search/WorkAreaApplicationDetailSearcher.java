@@ -223,6 +223,7 @@ public class WorkAreaApplicationDetailSearcher {
         searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagIsTrueAndAnyProcessingWaitFlagTrue(
           Pageable pageable,
           Set<PwaApplicationStatus> statusFilter,
+          Set<PublicNoticeStatus> publicNoticeStatusFilter,
           Set<Integer> pwaApplicationIdFilter) {
 
     if (statusFilter.isEmpty() && pwaApplicationIdFilter.isEmpty()) {
@@ -237,6 +238,7 @@ public class WorkAreaApplicationDetailSearcher {
         pwaApplicationIdFilter.isEmpty() ? null : pwaApplicationIdFilter,
         true,
         true,
+        publicNoticeStatusFilter.isEmpty() ? null : publicNoticeStatusFilter,
         true
     );
 
