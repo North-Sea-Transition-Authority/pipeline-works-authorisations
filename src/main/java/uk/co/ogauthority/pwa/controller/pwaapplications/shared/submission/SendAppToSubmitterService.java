@@ -7,7 +7,7 @@ import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.notify.emailproperties.ReviewAndSubmitApplicationEmailProps;
+import uk.co.ogauthority.pwa.model.notify.emailproperties.applicationworkflow.ReviewAndSubmitApplicationEmailProps;
 import uk.co.ogauthority.pwa.service.appprocessing.applicationupdate.ApplicationUpdateRequestService;
 import uk.co.ogauthority.pwa.service.notify.EmailCaseLinkService;
 import uk.co.ogauthority.pwa.service.notify.NotifyService;

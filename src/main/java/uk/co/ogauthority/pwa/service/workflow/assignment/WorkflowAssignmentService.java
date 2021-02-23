@@ -10,8 +10,6 @@ import uk.co.ogauthority.pwa.exception.WorkflowAssignmentException;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupMemberRole;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupTeamMember;
 import uk.co.ogauthority.pwa.model.teams.PwaRegulatorRole;
-import uk.co.ogauthority.pwa.model.teams.PwaRole;
-import uk.co.ogauthority.pwa.model.teams.PwaTeamMember;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupTeamService;
 import uk.co.ogauthority.pwa.service.consultations.ConsultationRequestService;
 import uk.co.ogauthority.pwa.service.enums.workflow.UserWorkflowTask;
@@ -19,7 +17,7 @@ import uk.co.ogauthority.pwa.service.enums.workflow.WorkflowMessageEvent;
 import uk.co.ogauthority.pwa.service.enums.workflow.WorkflowSubject;
 import uk.co.ogauthority.pwa.service.enums.workflow.WorkflowType;
 import uk.co.ogauthority.pwa.service.teammanagement.TeamManagementService;
-import uk.co.ogauthority.pwa.service.teams.TeamService;
+import uk.co.ogauthority.pwa.service.teams.PwaTeamService;
 import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
 import uk.co.ogauthority.pwa.service.workflow.task.WorkflowTaskInstance;
 
@@ -28,20 +26,20 @@ public class WorkflowAssignmentService {
 
   private final CamundaWorkflowService camundaWorkflowService;
   private final AssignmentAuditService assignmentAuditService;
-  private final TeamService teamService;
+  private final PwaTeamService pwaTeamService;
   private final ConsulteeGroupTeamService consulteeGroupTeamService;
   private final ConsultationRequestService consultationRequestService;
   private final TeamManagementService teamManagementService;
 
   public WorkflowAssignmentService(CamundaWorkflowService camundaWorkflowService,
                                    AssignmentAuditService assignmentAuditService,
-                                   TeamService teamService,
+                                   PwaTeamService pwaTeamService,
                                    ConsulteeGroupTeamService consulteeGroupTeamService,
                                    ConsultationRequestService consultationRequestService,
                                    TeamManagementService teamManagementService) {
     this.camundaWorkflowService = camundaWorkflowService;
     this.assignmentAuditService = assignmentAuditService;
-    this.teamService = teamService;
+    this.pwaTeamService = pwaTeamService;
     this.consulteeGroupTeamService = consulteeGroupTeamService;
     this.consultationRequestService = consultationRequestService;
     this.teamManagementService = teamManagementService;
@@ -59,12 +57,7 @@ public class WorkflowAssignmentService {
     switch (task.getAssignment()) {
 
       case CASE_OFFICER:
-        return teamService.getTeamMembers(teamService.getRegulatorTeam()).stream()
-            .filter(member -> member.getRoleSet().stream()
-                .map(PwaRole::getName)
-                .anyMatch(roleName -> roleName.equals(PwaRegulatorRole.CASE_OFFICER.getPortalTeamRoleName())))
-            .map(PwaTeamMember::getPerson)
-            .collect(Collectors.toSet());
+        return pwaTeamService.getPeopleWithRegulatorRole(PwaRegulatorRole.CASE_OFFICER);
 
       case CONSULTATION_RESPONDER:
 

@@ -22,6 +22,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
 import uk.co.ogauthority.pwa.energyportal.model.entity.PersonTestUtil;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.dto.appprocessing.ProcessingPermissionsDto;
@@ -39,7 +40,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.files.UploadFileWithDescriptionForm;
 import uk.co.ogauthority.pwa.model.form.publicnotice.PublicNoticeDraftForm;
-import uk.co.ogauthority.pwa.model.notify.emailproperties.PublicNoticeApprovalRequestEmailProps;
+import uk.co.ogauthority.pwa.model.notify.emailproperties.publicnotices.PublicNoticeApprovalRequestEmailProps;
 import uk.co.ogauthority.pwa.model.tasklist.TaskTag;
 import uk.co.ogauthority.pwa.model.teams.PwaRegulatorRole;
 import uk.co.ogauthority.pwa.repository.publicnotice.PublicNoticeDocumentLinkRepository;
@@ -55,12 +56,11 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.fileupload.AppFileService;
 import uk.co.ogauthority.pwa.service.notify.EmailCaseLinkService;
 import uk.co.ogauthority.pwa.service.notify.NotifyService;
-import uk.co.ogauthority.pwa.service.teams.TeamService;
+import uk.co.ogauthority.pwa.service.teams.PwaTeamService;
 import uk.co.ogauthority.pwa.service.template.TemplateTextService;
 import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
 import uk.co.ogauthority.pwa.testutils.PwaAppProcessingContextDtoTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
-import uk.co.ogauthority.pwa.testutils.TeamTestingUtils;
 import uk.co.ogauthority.pwa.validators.publicnotice.PublicNoticeDraftValidator;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -102,7 +102,7 @@ public class PublicNoticeServiceTest {
   private EmailCaseLinkService emailCaseLinkService;
 
   @Mock
-  private TeamService teamService;
+  private PwaTeamService pwaTeamService;
 
   @Mock
   private PwaAppProcessingPermissionService pwaAppProcessingPermissionService;
@@ -138,7 +138,7 @@ public class PublicNoticeServiceTest {
         publicNoticeDocumentRepository,
         publicNoticeDocumentLinkRepository,
         camundaWorkflowService,
-        clock, notifyService, emailCaseLinkService, teamService, pwaAppProcessingPermissionService);
+        clock, notifyService, emailCaseLinkService, pwaTeamService, pwaAppProcessingPermissionService);
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     pwaApplication = pwaApplicationDetail.getPwaApplication();
@@ -277,13 +277,11 @@ public class PublicNoticeServiceTest {
 
     String caseManagementLink = "case management link url";
     when(emailCaseLinkService.generateCaseManagementLink(pwaApplication)).thenReturn(caseManagementLink);
-    var regulatorTeam = TeamTestingUtils.getRegulatorTeam();
-    when(teamService.getRegulatorTeam()).thenReturn(regulatorTeam);
-    var regulatorTeamMember = TeamTestingUtils.createRegulatorTeamMember(
-            regulatorTeam, PersonTestUtil.createDefaultPerson(), Set.of(PwaRegulatorRole.PWA_MANAGER));
-    var regulatorTeamMembers = List.of(regulatorTeamMember);
-    when(teamService.getTeamMembers(regulatorTeam)).thenReturn(regulatorTeamMembers);
 
+    var pwaManager1 = PersonTestUtil.createPersonFrom(new PersonId(1));
+    var pwaManager2 = PersonTestUtil.createPersonFrom(new PersonId(2));
+    var pwaManagers = Set.of(pwaManager1, pwaManager2);
+    when(pwaTeamService.getPeopleWithRegulatorRole(PwaRegulatorRole.PWA_MANAGER)).thenReturn(pwaManagers);
 
     var publicNoticeDraftForm = PublicNoticeTestUtil.createDefaultPublicNoticeDraftForm(List.of(uploadFileWithDescriptionForm));
     publicNoticeService.createPublicNoticeAndStartWorkflow(publicNoticeDraftForm, pwaApplication, user);
@@ -315,14 +313,14 @@ public class PublicNoticeServiceTest {
 
     verify(camundaWorkflowService, times(1)).startWorkflow(expectedPublicNotice);
 
-    regulatorTeamMembers.forEach(teamMember -> {
+    pwaManagers.forEach(person -> {
       var expectedEmailProps = new PublicNoticeApprovalRequestEmailProps(
-      teamMember.getPerson().getFullName(),
+      person.getFullName(),
       pwaApplication.getAppReference(),
       publicNoticeDraftForm.getReason().getReasonText(),
       caseManagementLink);
 
-      verify(notifyService, times(1)).sendEmail(expectedEmailProps, teamMember.getPerson().getEmailAddress());
+      verify(notifyService, times(1)).sendEmail(expectedEmailProps, person.getEmailAddress());
     });
   }
 

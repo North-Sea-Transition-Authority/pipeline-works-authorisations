@@ -266,7 +266,7 @@ public class TeamManagementService {
 
 
   public void notifyNewTeamUser(PwaTeam team, Person person, List<PwaRole> selectedRoles) {
-    // TODO PWA-149 - email notifications
+    // TODO PWA-1147 - email notifications
     LOGGER.info("== TODO Email notification - PwaTeam member added ==");
   }
 

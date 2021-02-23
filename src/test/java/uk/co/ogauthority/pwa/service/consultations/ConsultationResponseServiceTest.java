@@ -34,7 +34,7 @@ import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationResponse;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.form.consultation.ConsultationResponseForm;
 import uk.co.ogauthority.pwa.model.form.enums.ConsultationResponseOption;
-import uk.co.ogauthority.pwa.model.notify.emailproperties.ConsultationResponseReceivedEmailProps;
+import uk.co.ogauthority.pwa.model.notify.emailproperties.consultations.ConsultationResponseReceivedEmailProps;
 import uk.co.ogauthority.pwa.model.tasklist.TaskTag;
 import uk.co.ogauthority.pwa.repository.consultations.ConsultationResponseRepository;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupDetailService;
