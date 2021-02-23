@@ -65,13 +65,7 @@ headerIcon=true>
           </#if>
 
           <#assign flash>
-              <#if flashTitle?has_content>
-                  <@fdsFlash.flash flashTitle=flashTitle flashClass=flashClass!"">
-                      <#if flashMessage?has_content>
-                        <p class="govuk-body">${flashMessage}</p>
-                      </#if>
-                  </@fdsFlash.flash>
-              </#if>
+            <@pwaFlash.flashContent flashTitle=flashTitle flashMessage=flashMessage flashClass=flashClass!"" />
           </#assign>
 
         <main class="${mainClasses}" id="main-content" role="main">

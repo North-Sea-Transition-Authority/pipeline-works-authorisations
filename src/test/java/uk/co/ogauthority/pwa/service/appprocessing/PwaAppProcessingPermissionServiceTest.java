@@ -774,8 +774,41 @@ public class PwaAppProcessingPermissionServiceTest {
         });
   }
 
+  @Test
+  public void getAppProcessingPermissions_sendConsentForApproval_assignedCaseOfficer() {
 
+    replacePrivileges(user, PwaUserPrivilege.PWA_CASE_OFFICER);
+    var appInvolvement = new ApplicationInvolvementDto(application, Set.of(), null, true, false, false, false);
+    when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
 
+    var permissions = processingPermissionService.getProcessingPermissionsDto(detail, user).getProcessingPermissions();
+    AssertionTestUtils.assertNotEmptyAndContains(permissions, PwaAppProcessingPermission.SEND_CONSENT_FOR_APPROVAL);
+
+  }
+
+  @Test
+  public void getAppProcessingPermissions_sendConsentForApproval_notAssignedCaseOfficer() {
+
+    replacePrivileges(user, PwaUserPrivilege.PWA_CASE_OFFICER);
+    var appInvolvement = new ApplicationInvolvementDto(application, Set.of(), null, false, false, false, false);
+    when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
+
+    var permissions = processingPermissionService.getProcessingPermissionsDto(detail, user).getProcessingPermissions();
+    AssertionTestUtils.assertNotEmptyAndDoesNotContain(permissions, PwaAppProcessingPermission.SEND_CONSENT_FOR_APPROVAL);
+
+  }
+
+  @Test
+  public void getAppProcessingPermissions_sendConsentForApproval_notCaseOfficer() {
+
+    replacePrivileges(user, PwaUserPrivilege.PWA_MANAGER);
+    var appInvolvement = new ApplicationInvolvementDto(application, Set.of(), null, false, false, false, false);
+    when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
+
+    var permissions = processingPermissionService.getProcessingPermissionsDto(detail, user).getProcessingPermissions();
+    AssertionTestUtils.assertNotEmptyAndDoesNotContain(permissions, PwaAppProcessingPermission.SEND_CONSENT_FOR_APPROVAL);
+
+  }
 
   private void clearPrivileges(AuthenticatedUserAccount userArg) {
     user = new AuthenticatedUserAccount(userArg, Set.of());

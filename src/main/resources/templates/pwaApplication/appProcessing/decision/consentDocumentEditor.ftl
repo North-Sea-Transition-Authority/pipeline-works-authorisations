@@ -5,6 +5,7 @@
 <#-- @ftlvariable name="consentDocumentUrlFactory" type="uk.co.ogauthority.pwa.service.appprocessing.decision.ConsentDocumentUrlFactory" -->
 <#-- @ftlvariable name="clauseActionsUrlFactory" type="uk.co.ogauthority.pwa.service.documents.ClauseActionsUrlFactory" -->
 <#-- @ftlvariable name="docView" type="uk.co.ogauthority.pwa.model.documents.view.DocumentView" -->
+<#-- @ftlvariable name="userProcessingPermissions" type="java.util.Set<uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission>" -->
 
 <#assign pageHeading = "${caseSummaryView.pwaApplicationRef} - Consent document" />
 
@@ -30,9 +31,13 @@
 
       <#else>
 
-          <@fdsAction.link linkText="Reload document" linkUrl=springUrl(consentDocumentUrlFactory.reloadDocumentUrl) linkClass="govuk-button govuk-button--blue" />
+          <#if userProcessingPermissions?seq_contains("SEND_CONSENT_FOR_APPROVAL")>
+            <@fdsAction.link linkText="Send for approval" linkUrl=springUrl(consentDocumentUrlFactory.sendForApprovalUrl) linkClass="govuk-button govuk-button--green" />
+          </#if>
 
-          <@fdsAction.link linkText="Preview document" linkUrl=springUrl(downloadUrl) linkClass="govuk-button govuk-button--secondary" />
+          <@fdsAction.link linkText="Preview document" linkUrl=springUrl(consentDocumentUrlFactory.downloadUrl) linkClass="govuk-button govuk-button--blue" />
+
+          <@fdsAction.link linkText="Reload document" linkUrl=springUrl(consentDocumentUrlFactory.reloadDocumentUrl) linkClass="govuk-button govuk-button--secondary" />
 
       </#if>
 
