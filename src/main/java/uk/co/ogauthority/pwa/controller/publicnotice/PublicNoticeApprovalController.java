@@ -14,6 +14,7 @@ import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.controller.appprocessing.shared.PwaAppProcessingPermissionCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationStatusCheck;
+import uk.co.ogauthority.pwa.exception.AccessDeniedException;
 import uk.co.ogauthority.pwa.model.form.publicnotice.PublicNoticeApprovalForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.AppProcessingBreadcrumbService;
@@ -63,7 +64,14 @@ public class PublicNoticeApprovalController  {
     return CaseManagementUtils.withAtLeastOneSatisfactoryVersion(
         processingContext,
         PwaAppProcessingTask.PUBLIC_NOTICE,
-        () -> getApprovePublicNoticeModelAndView(processingContext));
+        () -> {
+          if (publicNoticeApprovalService.openPublicNoticeCanBeApproved(processingContext.getPwaApplication())) {
+            return getApprovePublicNoticeModelAndView(processingContext);
+          }
+          throw new AccessDeniedException(
+              "Access denied as there is not an open public notice in the approval stage for application with id: " +
+                  processingContext.getMasterPwaApplicationId());
+        });
   }
 
 
@@ -109,7 +117,7 @@ public class PublicNoticeApprovalController  {
         .addObject("cancelUrl", publicNoticeOverviewUrl)
         .addObject("caseSummaryView", processingContext.getCaseSummaryView());
 
-    appProcessingBreadcrumbService.fromCaseManagement(pwaApplication, modelAndView, "Public notice approval");
+    appProcessingBreadcrumbService.fromCaseManagement(pwaApplication, modelAndView, "Review public notice request");
     return modelAndView;
   }
 

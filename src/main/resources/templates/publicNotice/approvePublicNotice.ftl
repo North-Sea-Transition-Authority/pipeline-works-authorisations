@@ -7,12 +7,12 @@
 
 <#include '../layout.ftl'>
 
-<@defaultPage htmlTitle="${appRef} approve public notice request" topNavigation=true twoThirdsColumn=false breadcrumbs=true>
+<@defaultPage htmlTitle="${appRef} review public notice request" topNavigation=true twoThirdsColumn=false breadcrumbs=true>
 
     <@fdsForm.htmlForm>
         <@pwaCaseSummary.summary caseSummaryView=caseSummaryView />
 
-        <h2 class="govuk-heading-l">Approve public notice request</h2>
+        <h2 class="govuk-heading-l">Review public notice request</h2>
 
 
         <h3 class="govuk-heading-m"> Cover letter </h3>
