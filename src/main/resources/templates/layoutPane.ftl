@@ -71,6 +71,8 @@ breadcrumbs=false
             <@fdsBackLink.backLink backLinkUrl=backLinkUrl backLinkText=backLinkText/>
         </#if>
 
+        <@pwaFlash.flashContent flashTitle=flashTitle flashMessage=flashMessage flashClass=flashClass!"" />
+
       <div class="fds-content__header">
           <@defaultHeading caption=caption captionClass=captionClass pageHeading=pageHeading pageHeadingClass=pageHeadingClass/>
       </div>

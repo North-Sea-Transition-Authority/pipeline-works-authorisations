@@ -7,7 +7,8 @@ public enum PublicNoticeStatus {
   APPLICANT_UPDATE("Applicant update"),
   CASE_OFFICER_REVIEW("Case officer review"),
   FINALISATION("Finalisation"),
-  WITHDRAWN("Withdrawn");
+  WITHDRAWN("Withdrawn"),
+  ENDED("Ended");
 
   private final String displayText;
 
