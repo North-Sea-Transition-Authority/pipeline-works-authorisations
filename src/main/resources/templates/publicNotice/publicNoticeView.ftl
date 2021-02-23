@@ -7,24 +7,26 @@
 <#macro publicNoticeView publicNoticeViewData displayAsHistoricalRequest=false>
 
     <#if displayAsHistoricalRequest>
-        <h3 class="govuk-heading-m"> Submitted ${publicNoticeViewData.submittedTimestamp} </h3>
+        <#assign submittedHeading = "Submitted ${publicNoticeViewData.submittedTimestamp}"/>
     </#if>
 
-    <@fdsCheckAnswers.checkAnswers summaryListClass="">
-        <#nested/>
-        <#if !displayAsHistoricalRequest>
-            <@fdsCheckAnswers.checkAnswersRow keyText="Submitted" actionText="" actionUrl="" screenReaderActionText="">
-                ${publicNoticeViewData.submittedTimestamp}
+    <@fdsCheckAnswers.checkAnswersWrapper summaryListId="" headingText=submittedHeading! headingSize="h3" headingClass="govuk-heading-m">
+        <@fdsCheckAnswers.checkAnswers summaryListClass="">
+
+            <#if !displayAsHistoricalRequest>
+                <@fdsCheckAnswers.checkAnswersRow keyText="Submitted" actionText="" actionUrl="" screenReaderActionText="">
+                    ${publicNoticeViewData.submittedTimestamp}
+                </@fdsCheckAnswers.checkAnswersRow>
+            </#if>
+
+            <@fdsCheckAnswers.checkAnswersRow keyText="Status" actionText="" actionUrl="" screenReaderActionText="">
+                ${publicNoticeViewData.status.getDisplayText()}
             </@fdsCheckAnswers.checkAnswersRow>
-        </#if>
 
-        <@fdsCheckAnswers.checkAnswersRow keyText="Status" actionText="" actionUrl="" screenReaderActionText="">
-            ${publicNoticeViewData.status.getDisplayText()}
-        </@fdsCheckAnswers.checkAnswersRow>
+        </@fdsCheckAnswers.checkAnswers>    
+    </@fdsCheckAnswers.checkAnswersWrapper>
 
 
-    </@fdsCheckAnswers.checkAnswers>
 
 
 </#macro>
-

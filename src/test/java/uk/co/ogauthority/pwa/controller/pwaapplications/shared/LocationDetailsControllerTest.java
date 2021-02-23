@@ -40,8 +40,8 @@ import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.location.Location
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.devuk.DevukFacilityService;
 import uk.co.ogauthority.pwa.service.devuk.PadFacilityService;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.ApplicationState;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
-import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
@@ -107,7 +107,7 @@ public class LocationDetailsControllerTest extends PwaApplicationContextAbstract
             PwaApplicationType.DECOMMISSIONING,
             PwaApplicationType.DEPOSIT_CONSENT)
         .setAllowedPermissions(PwaApplicationPermission.EDIT)
-        .setAllowedStatuses(PwaApplicationStatus.DRAFT);
+        .setAllowedStatuses(ApplicationState.INDUSTRY_EDITABLE);
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     pwaApplicationDetail.getPwaApplication().setId(APP_ID);

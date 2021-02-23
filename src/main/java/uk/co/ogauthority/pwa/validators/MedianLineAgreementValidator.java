@@ -15,11 +15,11 @@ import uk.co.ogauthority.pwa.util.validationgroups.PartialValidation;
 @Service
 public class MedianLineAgreementValidator implements SmartValidator {
 
-  private static String MISSING_NAME = "Enter the name of the negotiator";
-  private static String MISSING_EMAIL = "Enter a contact email for the negotiator";
+  private static final String MISSING_NAME = "Enter the name of the negotiator";
+  private static final String MISSING_EMAIL = "Enter a contact email for the negotiator";
 
-  private static String NEGOTIATOR_NAME = "Negotiator name";
-  private static String NEGOTIATOR_EMAIL = "Negotiator email";
+  private static final String NEGOTIATOR_NAME = "Negotiator name";
+  private static final String NEGOTIATOR_EMAIL = "Negotiator email";
 
   @Override
   public boolean supports(Class<?> clazz) {

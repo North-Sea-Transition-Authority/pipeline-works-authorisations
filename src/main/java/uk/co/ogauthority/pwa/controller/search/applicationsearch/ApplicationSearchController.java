@@ -4,7 +4,6 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 
 import com.google.common.annotations.VisibleForTesting;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -25,6 +24,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaAppAssignmentView;
 import uk.co.ogauthority.pwa.model.view.search.SearchScreenView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.ApplicationInvolvementService;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.objects.FormObjectMapper;
 import uk.co.ogauthority.pwa.service.search.applicationsearch.ApplicationDetailSearchService;
 import uk.co.ogauthority.pwa.service.search.applicationsearch.ApplicationSearchContextCreator;
@@ -32,6 +32,7 @@ import uk.co.ogauthority.pwa.service.search.applicationsearch.ApplicationSearchD
 import uk.co.ogauthority.pwa.service.search.applicationsearch.ApplicationSearchDisplayItemCreator;
 import uk.co.ogauthority.pwa.service.search.applicationsearch.ApplicationSearchParameters;
 import uk.co.ogauthority.pwa.service.search.applicationsearch.ApplicationSearchParametersBuilder;
+import uk.co.ogauthority.pwa.util.StreamUtils;
 
 @Controller
 @RequestMapping("/application-search")
@@ -96,9 +97,9 @@ public class ApplicationSearchController {
   }
 
   @VisibleForTesting
-  Map<String, String> getCaseOfficersAssignedToOpenAppsMap() {
+  Map<String, String> getCaseOfficersAssignedToInProgressAppsMap() {
     var caseOfficersAssignedToOpenAppsMap = new LinkedHashMap<String, String>();
-    applicationInvolvementService.getCaseOfficersAssignedToOpenApps()
+    applicationInvolvementService.getCaseOfficersAssignedToInProgressApps()
         .stream()
         .sorted(Comparator.comparing(PwaAppAssignmentView::getAssigneeName))
         .forEach(pwaAppAssignmentView -> caseOfficersAssignedToOpenAppsMap.put(
@@ -136,12 +137,17 @@ public class ApplicationSearchController {
 
     }
 
+    var pwaApplicationTypeMap = PwaApplicationType.stream()
+        .sorted(Comparator.comparing(PwaApplicationType::getDisplayName))
+        .collect(StreamUtils.toLinkedHashMap(Enum::name, PwaApplicationType::getDisplayName));
+
     return new ModelAndView("search/applicationSearch/applicationSearch")
         .addObject("searchScreenView", searchScreenView)
         .addObject("appSearchEntryState", appSearchEntryState)
         // need to provide as search form changes do not include previous search results from the URL params
         .addObject("searchUrl", ApplicationSearchController.getBlankSearchUrl())
-        .addObject("assignedCaseOfficers", getCaseOfficersAssignedToOpenAppsMap())
+        .addObject("pwaApplicationTypeMap", pwaApplicationTypeMap)
+        .addObject("assignedCaseOfficers", getCaseOfficersAssignedToInProgressAppsMap())
         .addObject("userType", searchContext.getUserType());
 
   }

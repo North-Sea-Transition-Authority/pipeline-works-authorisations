@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.service.search.applicationsearch;
 
 import java.util.Objects;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 
 public final class ApplicationSearchParameters {
 
@@ -10,11 +11,15 @@ public final class ApplicationSearchParameters {
 
   private String caseOfficerId;
 
+  private PwaApplicationType pwaApplicationType;
+
   public ApplicationSearchParameters(String appReference, Boolean includeCompletedOrWithdrawnApps,
-                                     String caseOfficerId) {
+                                     String caseOfficerId,
+                                     PwaApplicationType pwaApplicationType) {
     this.appReference = appReference;
     this.includeCompletedOrWithdrawnApps = includeCompletedOrWithdrawnApps;
     this.caseOfficerId = caseOfficerId;
+    this.pwaApplicationType = pwaApplicationType;
   }
 
   public String getAppReference() {
@@ -41,6 +46,14 @@ public final class ApplicationSearchParameters {
     this.caseOfficerId = caseOfficerId;
   }
 
+  public PwaApplicationType getPwaApplicationType() {
+    return pwaApplicationType;
+  }
+
+  public void setPwaApplicationType(PwaApplicationType pwaApplicationType) {
+    this.pwaApplicationType = pwaApplicationType;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -52,20 +65,22 @@ public final class ApplicationSearchParameters {
     ApplicationSearchParameters that = (ApplicationSearchParameters) o;
     return Objects.equals(appReference, that.appReference)
         && Objects.equals(includeCompletedOrWithdrawnApps, that.includeCompletedOrWithdrawnApps)
-        && Objects.equals(caseOfficerId, that.caseOfficerId);
+        && Objects.equals(caseOfficerId, that.caseOfficerId)
+        && Objects.equals(pwaApplicationType, that.pwaApplicationType);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(appReference, includeCompletedOrWithdrawnApps, caseOfficerId);
+    return Objects.hash(appReference, includeCompletedOrWithdrawnApps, caseOfficerId, pwaApplicationType);
   }
 
   @Override
   public String toString() {
     return "ApplicationSearchParameters{" +
         "appReference='" + appReference + '\'' +
-        ", includeCompletedOrWithdrawnApps=" + includeCompletedOrWithdrawnApps + '\'' +
-        ", caseOfficerId=" + caseOfficerId +
+        ", includeCompletedOrWithdrawnApps=" + includeCompletedOrWithdrawnApps +
+        ", caseOfficerId='" + caseOfficerId + '\'' +
+        ", pwaApplicationType=" + pwaApplicationType +
         '}';
   }
 }

@@ -133,9 +133,9 @@ public class ApplicationSearchControllerTest extends AbstractControllerTest {
     assignmentViewOpenApp2.setAssigneePersonId(2);
     assignmentViewOpenApp2.setAssigneeName("case officer b");
 
-    when(applicationInvolvementService.getCaseOfficersAssignedToOpenApps()).thenReturn(List.of(assignmentViewOpenApp2, assignmentViewOpenApp1));
+    when(applicationInvolvementService.getCaseOfficersAssignedToInProgressApps()).thenReturn(List.of(assignmentViewOpenApp2, assignmentViewOpenApp1));
 
-    var caseOfficersAssignedToOpenAppsMap = applicationSearchController.getCaseOfficersAssignedToOpenAppsMap();
+    var caseOfficersAssignedToOpenAppsMap = applicationSearchController.getCaseOfficersAssignedToInProgressAppsMap();
     assertThat(caseOfficersAssignedToOpenAppsMap).containsExactly(
         entry(String.valueOf(assignmentViewOpenApp1.getAssigneePersonId()), assignmentViewOpenApp1.getAssigneeName()),
         entry(String.valueOf(assignmentViewOpenApp2.getAssigneePersonId()), assignmentViewOpenApp2.getAssigneeName()));

@@ -11,7 +11,6 @@ import uk.co.ogauthority.pwa.model.view.sidebarnav.SidebarSectionLink;
 import uk.co.ogauthority.pwa.service.applicationsummariser.ApplicationSectionSummariser;
 import uk.co.ogauthority.pwa.service.applicationsummariser.ApplicationSectionSummary;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTask;
-import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskListService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation.PadProjectInformationService;
 
@@ -20,16 +19,13 @@ public class ProjectInformationSummaryService implements ApplicationSectionSumma
 
   private final TaskListService taskListService;
   private final PadProjectInformationService padProjectInformationService;
-  private final PadFileService padFileService;
 
   @Autowired
   public ProjectInformationSummaryService(
       TaskListService taskListService,
-      PadProjectInformationService padProjectInformationService,
-      PadFileService padFileService) {
+      PadProjectInformationService padProjectInformationService) {
     this.taskListService = taskListService;
     this.padProjectInformationService = padProjectInformationService;
-    this.padFileService = padFileService;
   }
 
   @Override

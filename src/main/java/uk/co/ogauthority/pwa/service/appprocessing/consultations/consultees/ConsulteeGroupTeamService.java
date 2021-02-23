@@ -157,7 +157,7 @@ public class ConsulteeGroupTeamService {
         .collect(Collectors.toList());
 
     // if there's one or more roles that would now have no users in it, throw exception
-    if (emptyRoles.size() > 0) {
+    if (!emptyRoles.isEmpty()) {
 
       String emptyRolesCsv = emptyRoles.stream()
           .map(role -> role.getDisplayName() + "s")

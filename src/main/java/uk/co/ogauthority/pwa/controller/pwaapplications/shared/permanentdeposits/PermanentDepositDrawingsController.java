@@ -82,7 +82,7 @@ public class PermanentDepositDrawingsController extends PwaApplicationDetailData
 
   //Form Endpoints
   @GetMapping
-  @PwaApplicationStatusCheck(statuses = PwaApplicationStatus.DRAFT)
+  @PwaApplicationStatusCheck(statuses = {PwaApplicationStatus.DRAFT, PwaApplicationStatus.UPDATE_REQUESTED})
   public ModelAndView renderDepositDrawingsOverview(@PathVariable("applicationType")
                                                       @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
                                                       @PathVariable("applicationId") Integer applicationId,
@@ -92,7 +92,7 @@ public class PermanentDepositDrawingsController extends PwaApplicationDetailData
   }
 
   @GetMapping("/add-deposit-drawing")
-  @PwaApplicationStatusCheck(statuses = PwaApplicationStatus.DRAFT)
+  @PwaApplicationStatusCheck(statuses = {PwaApplicationStatus.DRAFT, PwaApplicationStatus.UPDATE_REQUESTED})
   public ModelAndView renderAddDepositDrawing(@PathVariable("applicationType")
                                                  @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
                                                  @PathVariable("applicationId") Integer applicationId,
@@ -102,7 +102,7 @@ public class PermanentDepositDrawingsController extends PwaApplicationDetailData
   }
 
   @GetMapping("/edit-deposit-drawing/{depositDrawingId}")
-  @PwaApplicationStatusCheck(statuses = PwaApplicationStatus.DRAFT)
+  @PwaApplicationStatusCheck(statuses = {PwaApplicationStatus.DRAFT, PwaApplicationStatus.UPDATE_REQUESTED})
   public ModelAndView renderEditDepositDrawing(@PathVariable("applicationType")
                                               @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
                                               @PathVariable("applicationId") Integer applicationId,
@@ -115,7 +115,7 @@ public class PermanentDepositDrawingsController extends PwaApplicationDetailData
   }
 
   @GetMapping("/remove-deposit-drawing/{depositDrawingId}")
-  @PwaApplicationStatusCheck(statuses = PwaApplicationStatus.DRAFT)
+  @PwaApplicationStatusCheck(statuses = {PwaApplicationStatus.DRAFT, PwaApplicationStatus.UPDATE_REQUESTED})
   public ModelAndView renderRemoveDepositDrawing(@PathVariable("applicationType")
                                                @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
                                                @PathVariable("applicationId") Integer applicationId,
@@ -128,7 +128,7 @@ public class PermanentDepositDrawingsController extends PwaApplicationDetailData
 
 
   @PostMapping
-  @PwaApplicationStatusCheck(statuses = PwaApplicationStatus.DRAFT)
+  @PwaApplicationStatusCheck(statuses = {PwaApplicationStatus.DRAFT, PwaApplicationStatus.UPDATE_REQUESTED})
   public ModelAndView postDepositDrawingsOverview(@PathVariable("applicationType")
                                             @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
                                             @PathVariable("applicationId") Integer applicationId,
@@ -143,7 +143,7 @@ public class PermanentDepositDrawingsController extends PwaApplicationDetailData
   }
 
   @PostMapping("/add-deposit-drawing")
-  @PwaApplicationStatusCheck(statuses = PwaApplicationStatus.DRAFT)
+  @PwaApplicationStatusCheck(statuses = {PwaApplicationStatus.DRAFT, PwaApplicationStatus.UPDATE_REQUESTED})
   public ModelAndView postAddDepositDrawing(@PathVariable("applicationType")
                                             @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
                                             @PathVariable("applicationId") Integer applicationId,
@@ -164,7 +164,7 @@ public class PermanentDepositDrawingsController extends PwaApplicationDetailData
   }
 
   @PostMapping("/edit-deposit-drawing/{depositDrawingId}")
-  @PwaApplicationStatusCheck(statuses = PwaApplicationStatus.DRAFT)
+  @PwaApplicationStatusCheck(statuses = {PwaApplicationStatus.DRAFT, PwaApplicationStatus.UPDATE_REQUESTED})
   public ModelAndView postEditDepositDrawing(@PathVariable("applicationType")
                                              @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
                                              @PathVariable("applicationId") Integer applicationId,
@@ -185,7 +185,7 @@ public class PermanentDepositDrawingsController extends PwaApplicationDetailData
   }
 
   @PostMapping("/remove-deposit-drawing/{depositDrawingId}")
-  @PwaApplicationStatusCheck(statuses = PwaApplicationStatus.DRAFT)
+  @PwaApplicationStatusCheck(statuses = {PwaApplicationStatus.DRAFT, PwaApplicationStatus.UPDATE_REQUESTED})
   public ModelAndView postRemoveDepositDrawing(@PathVariable("applicationType")
                                              @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
                                              @PathVariable("applicationId") Integer applicationId,
@@ -254,7 +254,7 @@ public class PermanentDepositDrawingsController extends PwaApplicationDetailData
   @Override
   @PostMapping("/file/upload")
   @ResponseBody
-  @PwaApplicationStatusCheck(statuses = PwaApplicationStatus.DRAFT)
+  @PwaApplicationStatusCheck(statuses = {PwaApplicationStatus.DRAFT, PwaApplicationStatus.UPDATE_REQUESTED})
   public FileUploadResult handleUpload(
       @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
       @PathVariable("applicationId") Integer applicationId,
@@ -282,7 +282,7 @@ public class PermanentDepositDrawingsController extends PwaApplicationDetailData
   @Override
   @PostMapping("/file/delete/{fileId}")
   @ResponseBody
-  @PwaApplicationStatusCheck(statuses = PwaApplicationStatus.DRAFT)
+  @PwaApplicationStatusCheck(statuses = {PwaApplicationStatus.DRAFT, PwaApplicationStatus.UPDATE_REQUESTED})
   public FileDeleteResult handleDelete(
       @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
       @PathVariable("applicationId") Integer applicationId,

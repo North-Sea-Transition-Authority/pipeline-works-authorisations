@@ -3,8 +3,6 @@ package uk.co.ogauthority.pwa.service.pwaapplications.shared.supplementarydocs;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang3.BooleanUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BeanPropertyBindingResult;
@@ -24,7 +22,6 @@ import uk.co.ogauthority.pwa.util.validationgroups.PartialValidation;
 @Service
 public class SupplementaryDocumentsService implements ApplicationFormSectionService {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(SupplementaryDocumentsService.class);
   private final PadFileService padFileService;
   private final SpringValidatorAdapter groupValidator;
   private final PwaApplicationDetailService pwaApplicationDetailService;

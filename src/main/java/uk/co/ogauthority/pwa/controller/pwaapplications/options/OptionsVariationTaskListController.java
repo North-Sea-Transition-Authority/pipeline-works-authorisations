@@ -12,7 +12,6 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTyp
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
-import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskListService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.tasklist.TaskListControllerModelAndViewCreator;
@@ -20,19 +19,16 @@ import uk.co.ogauthority.pwa.service.pwaapplications.generic.tasklist.TaskListCo
 @Controller
 @RequestMapping("/pwa-application/options-variation/{applicationId}/tasks")
 @PwaApplicationTypeCheck(types = {PwaApplicationType.OPTIONS_VARIATION})
-@PwaApplicationStatusCheck(statuses = PwaApplicationStatus.DRAFT)
+@PwaApplicationStatusCheck(statuses = {PwaApplicationStatus.DRAFT, PwaApplicationStatus.UPDATE_REQUESTED})
 @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.EDIT})
 public class OptionsVariationTaskListController {
 
-  private final PwaApplicationDetailService pwaApplicationDetailService;
   private final TaskListService taskListService;
   private final TaskListControllerModelAndViewCreator taskListControllerModelAndViewCreator;
 
   @Autowired
-  public OptionsVariationTaskListController(PwaApplicationDetailService pwaApplicationDetailService,
-                                            TaskListService taskListService,
+  public OptionsVariationTaskListController(TaskListService taskListService,
                                             TaskListControllerModelAndViewCreator taskListControllerModelAndViewCreator) {
-    this.pwaApplicationDetailService = pwaApplicationDetailService;
     this.taskListService = taskListService;
     this.taskListControllerModelAndViewCreator = taskListControllerModelAndViewCreator;
   }

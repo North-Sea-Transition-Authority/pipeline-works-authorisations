@@ -78,7 +78,7 @@ public class EnvironmentalDecomSummaryServiceTest {
     assertThat(appSummary.getTemplateModel()).contains(entry("sectionDisplayText", ApplicationTask.ENVIRONMENTAL_DECOMMISSIONING.getDisplayName()));
     assertThat(appSummary.getTemplateModel()).containsKey("environmentalConditions");
     assertThat(appSummary.getTemplateModel()).containsKey("decommissioningConditions");
-    assertThat(appSummary.getTemplateModel().get("availableQuestions")).isEqualTo(padEnvironmentalDecommissioningService.getAvailableQuestions(pwaApplicationDetail));
+    assertThat(appSummary.getTemplateModel()).containsEntry("availableQuestions", padEnvironmentalDecommissioningService.getAvailableQuestions(pwaApplicationDetail));
 
     assertThat(appSummary.getSidebarSectionLinks()).containsExactly(
         SidebarSectionLink.createAnchorLink(ApplicationTask.ENVIRONMENTAL_DECOMMISSIONING.getDisplayName(), "#environmentalDecommDetails")

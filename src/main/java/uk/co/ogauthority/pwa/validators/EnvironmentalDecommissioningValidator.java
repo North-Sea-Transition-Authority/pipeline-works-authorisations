@@ -88,22 +88,18 @@ public class EnvironmentalDecommissioningValidator implements SmartValidator {
 
     }
 
-    if (availableQuestions.contains(EnvDecomQuestion.ACKNOWLEDGEMENTS) && validationType == ValidationType.FULL) {
-
-      if (form.getEnvironmentalConditions() == null
-          || form.getEnvironmentalConditions().size() < EnvironmentalCondition.values().length) {
-        errors.rejectValue("environmentalConditions", "environmentalConditions.requiresAll",
-            "Confirm your agreement to all environmental conditions");
-      }
-
+    boolean envCondsNullOrEmpty = form.getEnvironmentalConditions() == null
+        || form.getEnvironmentalConditions().size() < EnvironmentalCondition.values().length;
+    if (availableQuestions.contains(EnvDecomQuestion.ACKNOWLEDGEMENTS) && validationType == ValidationType.FULL && envCondsNullOrEmpty) {
+      errors.rejectValue("environmentalConditions", "environmentalConditions.requiresAll",
+          "Confirm your agreement to all environmental conditions");
     }
 
-    if (availableQuestions.contains(EnvDecomQuestion.DECOMMISSIONING) && validationType == ValidationType.FULL) {
-      if (form.getDecommissioningConditions() == null
-          || form.getDecommissioningConditions().size() < DecommissioningCondition.values().length) {
-        errors.rejectValue("decommissioningConditions", "decommissioningConditions.requiresAll",
-            "Confirm your agreement to all decommissioning conditions");
-      }
+    boolean decomCondsNullOrEmpty = form.getDecommissioningConditions() == null
+        || form.getDecommissioningConditions().size() < DecommissioningCondition.values().length;
+    if (availableQuestions.contains(EnvDecomQuestion.DECOMMISSIONING) && validationType == ValidationType.FULL && decomCondsNullOrEmpty) {
+      errors.rejectValue("decommissioningConditions", "decommissioningConditions.requiresAll",
+          "Confirm your agreement to all decommissioning conditions");
     }
 
   }

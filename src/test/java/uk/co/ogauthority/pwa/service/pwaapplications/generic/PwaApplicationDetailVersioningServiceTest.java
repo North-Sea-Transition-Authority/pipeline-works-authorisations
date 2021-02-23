@@ -15,6 +15,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTask;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
@@ -47,7 +48,6 @@ public class PwaApplicationDetailVersioningServiceTest {
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL, APP_ID, 10);
 
     pwaApplicationDetailVersioningService = new PwaApplicationDetailVersioningService(
-        taskListService,
         pwaApplicationDetailService,
         applicationTaskService);
   }
@@ -63,13 +63,16 @@ public class PwaApplicationDetailVersioningServiceTest {
 
     var fakeVersionedAppDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL, APP_ID, 11);
 
-    when(pwaApplicationDetailService.createNewTipDetail(pwaApplicationDetail, webUserAccount)).thenReturn(fakeVersionedAppDetail);
+    when(pwaApplicationDetailService.createNewTipDetail(pwaApplicationDetail, PwaApplicationStatus.UPDATE_REQUESTED,
+        webUserAccount
+    )).thenReturn(fakeVersionedAppDetail);
 
     var newDetail = pwaApplicationDetailVersioningService.createNewApplicationVersion(pwaApplicationDetail, webUserAccount);
 
     assertThat(newDetail).isEqualTo(fakeVersionedAppDetail);
 
-    verify(pwaApplicationDetailService, times(1)).createNewTipDetail(pwaApplicationDetail, webUserAccount);
+    verify(pwaApplicationDetailService, times(1))
+        .createNewTipDetail(pwaApplicationDetail, PwaApplicationStatus.UPDATE_REQUESTED, webUserAccount);
 
     // tasks that can be copied are checked then copied
     copyableTasks.forEach( applicationTask -> {
@@ -99,13 +102,15 @@ public class PwaApplicationDetailVersioningServiceTest {
   public void createNewApplicationVersion_serviceInteractions_whenZeroTasksCanBeCopied() {
 
     var fakeVersionedAppDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL, APP_ID, 11);
-    when(pwaApplicationDetailService.createNewTipDetail(pwaApplicationDetail, webUserAccount)).thenReturn(fakeVersionedAppDetail);
+    when(pwaApplicationDetailService.createNewTipDetail(pwaApplicationDetail, PwaApplicationStatus.UPDATE_REQUESTED, webUserAccount))
+        .thenReturn(fakeVersionedAppDetail);
 
     var newDetail = pwaApplicationDetailVersioningService.createNewApplicationVersion(pwaApplicationDetail, webUserAccount);
 
     assertThat(newDetail).isEqualTo(fakeVersionedAppDetail);
 
-    verify(pwaApplicationDetailService, times(1)).createNewTipDetail(pwaApplicationDetail, webUserAccount);
+    verify(pwaApplicationDetailService, times(1))
+        .createNewTipDetail(pwaApplicationDetail, PwaApplicationStatus.UPDATE_REQUESTED, webUserAccount);
 
     EnumSet.allOf(ApplicationTask.class).forEach(applicationTask -> {
       verify(applicationTaskService, times(1))

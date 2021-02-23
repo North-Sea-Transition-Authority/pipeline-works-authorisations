@@ -12,7 +12,6 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTyp
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
-import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskListService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.tasklist.TaskListControllerModelAndViewCreator;
@@ -20,20 +19,17 @@ import uk.co.ogauthority.pwa.service.pwaapplications.generic.tasklist.TaskListCo
 @Controller
 @RequestMapping("/pwa-application/initial/{applicationId}/tasks")
 @PwaApplicationTypeCheck(types = {PwaApplicationType.INITIAL})
-@PwaApplicationStatusCheck(statuses = PwaApplicationStatus.DRAFT)
+@PwaApplicationStatusCheck(statuses = {PwaApplicationStatus.DRAFT, PwaApplicationStatus.UPDATE_REQUESTED})
 @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.EDIT})
 public class InitialTaskListController {
 
   private final TaskListService taskListService;
-  private final PwaApplicationDetailService pwaApplicationDetailService;
   private final TaskListControllerModelAndViewCreator taskListControllerModelAndViewCreator;
 
   @Autowired
   public InitialTaskListController(TaskListService taskListService,
-                                   PwaApplicationDetailService pwaApplicationDetailService,
                                    TaskListControllerModelAndViewCreator taskListControllerModelAndViewCreator) {
     this.taskListService = taskListService;
-    this.pwaApplicationDetailService = pwaApplicationDetailService;
     this.taskListControllerModelAndViewCreator = taskListControllerModelAndViewCreator;
   }
 

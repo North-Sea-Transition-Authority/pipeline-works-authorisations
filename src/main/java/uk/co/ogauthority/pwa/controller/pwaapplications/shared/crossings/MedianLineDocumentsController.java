@@ -99,7 +99,7 @@ public class MedianLineDocumentsController extends PwaApplicationDetailDataFileU
   }
 
   @GetMapping
-  @PwaApplicationStatusCheck(statuses = PwaApplicationStatus.DRAFT)
+  @PwaApplicationStatusCheck(statuses = {PwaApplicationStatus.DRAFT, PwaApplicationStatus.UPDATE_REQUESTED})
   public ModelAndView renderEditMedianLineCrossingDocuments(
       @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
       @PathVariable("applicationId") Integer applicationId,
@@ -111,7 +111,7 @@ public class MedianLineDocumentsController extends PwaApplicationDetailDataFileU
   }
 
   @PostMapping
-  @PwaApplicationStatusCheck(statuses = PwaApplicationStatus.DRAFT)
+  @PwaApplicationStatusCheck(statuses = {PwaApplicationStatus.DRAFT, PwaApplicationStatus.UPDATE_REQUESTED})
   public ModelAndView postMedianLineCrossingDocuments(
       @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
       @PathVariable("applicationId") Integer applicationId,
@@ -148,7 +148,7 @@ public class MedianLineDocumentsController extends PwaApplicationDetailDataFileU
 
   @PostMapping("/files/upload")
   @ResponseBody
-  @PwaApplicationStatusCheck(statuses = PwaApplicationStatus.DRAFT)
+  @PwaApplicationStatusCheck(statuses = {PwaApplicationStatus.DRAFT, PwaApplicationStatus.UPDATE_REQUESTED})
   public FileUploadResult handleUpload(
       @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
       @PathVariable("applicationId") Integer applicationId,
@@ -165,7 +165,7 @@ public class MedianLineDocumentsController extends PwaApplicationDetailDataFileU
 
   @PostMapping("/files/delete/{fileId}")
   @ResponseBody
-  @PwaApplicationStatusCheck(statuses = PwaApplicationStatus.DRAFT)
+  @PwaApplicationStatusCheck(statuses = {PwaApplicationStatus.DRAFT, PwaApplicationStatus.UPDATE_REQUESTED})
   public FileDeleteResult handleDelete(
       @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
       @PathVariable("applicationId") Integer applicationId,
