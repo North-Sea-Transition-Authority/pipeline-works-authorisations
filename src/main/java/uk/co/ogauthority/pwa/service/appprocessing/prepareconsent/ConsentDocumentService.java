@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.service.appprocessing.decision;
+package uk.co.ogauthority.pwa.service.appprocessing.prepareconsent;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

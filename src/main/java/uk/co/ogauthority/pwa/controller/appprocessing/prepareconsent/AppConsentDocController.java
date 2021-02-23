@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.controller.appprocessing.decision;
+package uk.co.ogauthority.pwa.controller.appprocessing.prepareconsent;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
@@ -31,9 +31,9 @@ import uk.co.ogauthority.pwa.model.form.appprocessing.prepareconsent.SendConsent
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.AppProcessingBreadcrumbService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
-import uk.co.ogauthority.pwa.service.appprocessing.decision.ApplicationDecisionTaskService;
-import uk.co.ogauthority.pwa.service.appprocessing.decision.ConsentDocumentService;
-import uk.co.ogauthority.pwa.service.appprocessing.decision.ConsentDocumentUrlFactory;
+import uk.co.ogauthority.pwa.service.appprocessing.prepareconsent.ConsentDocumentService;
+import uk.co.ogauthority.pwa.service.appprocessing.prepareconsent.ConsentDocumentUrlFactory;
+import uk.co.ogauthority.pwa.service.appprocessing.prepareconsent.PrepareConsentTaskService;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.documents.ClauseActionsUrlFactory;
 import uk.co.ogauthority.pwa.service.documents.DocumentService;
@@ -55,7 +55,7 @@ public class AppConsentDocController {
   private final AppProcessingBreadcrumbService breadcrumbService;
   private final DocumentService documentService;
   private final DocumentGenerationService documentGenerationService;
-  private final ApplicationDecisionTaskService applicationDecisionTaskService;
+  private final PrepareConsentTaskService prepareConsentTaskService;
   private final ControllerHelperService controllerHelperService;
   private final TemplateTextService templateTextService;
   private final ConsentDocumentService consentDocumentService;
@@ -64,14 +64,14 @@ public class AppConsentDocController {
   public AppConsentDocController(AppProcessingBreadcrumbService breadcrumbService,
                                  DocumentService documentService,
                                  DocumentGenerationService documentGenerationService,
-                                 ApplicationDecisionTaskService applicationDecisionTaskService,
+                                 PrepareConsentTaskService prepareConsentTaskService,
                                  ControllerHelperService controllerHelperService,
                                  TemplateTextService templateTextService,
                                  ConsentDocumentService consentDocumentService) {
     this.breadcrumbService = breadcrumbService;
     this.documentService = documentService;
     this.documentGenerationService = documentGenerationService;
-    this.applicationDecisionTaskService = applicationDecisionTaskService;
+    this.prepareConsentTaskService = prepareConsentTaskService;
     this.controllerHelperService = controllerHelperService;
     this.templateTextService = templateTextService;
     this.consentDocumentService = consentDocumentService;
@@ -84,7 +84,7 @@ public class AppConsentDocController {
                                              PwaAppProcessingContext processingContext,
                                              AuthenticatedUserAccount authenticatedUserAccount) {
 
-    return whenDecisionMakeable(
+    return whenPrepareConsentAvailable(
         processingContext,
         () -> {
 
@@ -95,7 +95,7 @@ public class AppConsentDocController {
               .map(documentService::getDocumentViewForInstance)
               .orElse(null);
 
-          var modelAndView = new ModelAndView("pwaApplication/appProcessing/decision/consentDocumentEditor")
+          var modelAndView = new ModelAndView("pwaApplication/appProcessing/prepareConsent/consentDocumentEditor")
               .addObject("caseSummaryView", processingContext.getCaseSummaryView())
               .addObject("docInstanceExists", docInstanceOpt.isPresent())
               .addObject("consentDocumentUrlFactory",
@@ -121,7 +121,7 @@ public class AppConsentDocController {
                                               PwaAppProcessingContext processingContext,
                                               AuthenticatedUserAccount authenticatedUserAccount) {
 
-    return resourceWhenDecisionMakeable(
+    return resourceWhenPrepareConsentAvailable(
         processingContext,
         () -> {
 
@@ -158,7 +158,7 @@ public class AppConsentDocController {
                                            AuthenticatedUserAccount authenticatedUserAccount,
                                            RedirectAttributes redirectAttributes) {
 
-    return whenDecisionMakeable(
+    return whenPrepareConsentAvailable(
         processingContext,
         () -> {
 
@@ -187,7 +187,7 @@ public class AppConsentDocController {
     return whenDocumentReloadable(
         processingContext,
         redirectAttributes,
-        () -> new ModelAndView("pwaApplication/appProcessing/decision/reloadDocumentConfirm")
+        () -> new ModelAndView("pwaApplication/appProcessing/prepareConsent/reloadDocumentConfirm")
             .addObject("appRef", processingContext.getPwaApplication().getAppReference())
             .addObject("consentDocumentUrlFactory",
                 new ConsentDocumentUrlFactory(processingContext.getPwaApplication())));
@@ -267,12 +267,12 @@ public class AppConsentDocController {
 
   private ModelAndView getSendForApprovalModelAndView(PwaAppProcessingContext processingContext) {
 
-    var modelAndView = new ModelAndView("pwaApplication/appProcessing/decision/sendForApproval")
+    var modelAndView = new ModelAndView("pwaApplication/appProcessing/prepareConsent/sendForApproval")
         .addObject("caseSummaryView", processingContext.getCaseSummaryView())
         .addObject("cancelUrl", ReverseRouter.route(on(AppConsentDocController.class)
             .renderConsentDocEditor(processingContext.getMasterPwaApplicationId(), processingContext.getApplicationType(), null, null)));
 
-    breadcrumbService.fromConsentDocument(processingContext.getPwaApplication(), modelAndView, "Send consent for approval");
+    breadcrumbService.fromPrepareConsent(processingContext.getPwaApplication(), modelAndView, "Send consent for approval");
 
     return modelAndView;
 
@@ -306,10 +306,10 @@ public class AppConsentDocController {
 
   }
 
-  public ModelAndView whenDecisionMakeable(PwaAppProcessingContext processingContext,
-                                           Supplier<ModelAndView> modelAndViewSupplier) {
+  public ModelAndView whenPrepareConsentAvailable(PwaAppProcessingContext processingContext,
+                                                  Supplier<ModelAndView> modelAndViewSupplier) {
 
-    if (!applicationDecisionTaskService.taskAccessible(processingContext)) {
+    if (!prepareConsentTaskService.taskAccessible(processingContext)) {
       throwAccessDeniedException(processingContext);
     }
 
@@ -337,10 +337,10 @@ public class AppConsentDocController {
 
   }
 
-  public ResponseEntity<Resource> resourceWhenDecisionMakeable(PwaAppProcessingContext processingContext,
-                                                               Supplier<ResponseEntity<Resource>> resourceSupplier) {
+  public ResponseEntity<Resource> resourceWhenPrepareConsentAvailable(PwaAppProcessingContext processingContext,
+                                                                      Supplier<ResponseEntity<Resource>> resourceSupplier) {
 
-    if (!applicationDecisionTaskService.taskAccessible(processingContext)) {
+    if (!prepareConsentTaskService.taskAccessible(processingContext)) {
       throwAccessDeniedException(processingContext);
     }
 
@@ -351,7 +351,7 @@ public class AppConsentDocController {
   private void throwAccessDeniedException(PwaAppProcessingContext processingContext) {
     throw new AccessDeniedException(String.format(
         "Can't access %s controller routes as application with id [%s] has invalid task state",
-        PwaAppProcessingTask.DECISION.name(),
+        PwaAppProcessingTask.PREPARE_CONSENT.name(),
         processingContext.getMasterPwaApplicationId()));
 
   }

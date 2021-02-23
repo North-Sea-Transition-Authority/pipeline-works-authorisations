@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.controller.appprocessing.decision;
+package uk.co.ogauthority.pwa.controller.appprocessing.prepareconsent;
 
 import static org.hamcrest.Matchers.hasProperty;
 import static org.hamcrest.Matchers.is;
@@ -36,8 +36,8 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.PwaAppProcessingPermissionService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContextService;
-import uk.co.ogauthority.pwa.service.appprocessing.decision.ApplicationDecisionTaskService;
-import uk.co.ogauthority.pwa.service.appprocessing.decision.ConsentDocumentService;
+import uk.co.ogauthority.pwa.service.appprocessing.prepareconsent.ConsentDocumentService;
+import uk.co.ogauthority.pwa.service.appprocessing.prepareconsent.PrepareConsentTaskService;
 import uk.co.ogauthority.pwa.service.documents.DocumentService;
 import uk.co.ogauthority.pwa.service.documents.generation.DocumentGenerationService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
@@ -62,7 +62,7 @@ public class AppConsentDocControllerTest extends PwaAppProcessingContextAbstract
   private DocumentGenerationService documentGenerationService;
 
   @MockBean
-  private ApplicationDecisionTaskService applicationDecisionTaskService;
+  private PrepareConsentTaskService prepareConsentTaskService;
 
   @MockBean
   private ConsentDocumentService consentDocumentService;
@@ -80,7 +80,7 @@ public class AppConsentDocControllerTest extends PwaAppProcessingContextAbstract
   @Before
   public void setUp() {
 
-    when(applicationDecisionTaskService.taskAccessible(any())).thenReturn(true);
+    when(prepareConsentTaskService.taskAccessible(any())).thenReturn(true);
     when(consentDocumentService.canSendForApproval(any())).thenReturn(true);
 
     editDocumentEndpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaApplicationDetailService, pwaAppProcessingPermissionService)
@@ -134,9 +134,9 @@ public class AppConsentDocControllerTest extends PwaAppProcessingContextAbstract
   }
 
   @Test
-  public void renderConsentDocEditor_decisionTaskNotAccessible() throws Exception {
+  public void renderConsentDocEditor_prepareConsentTaskNotAccessible() throws Exception {
 
-    when(applicationDecisionTaskService.taskAccessible(any())).thenReturn(false);
+    when(prepareConsentTaskService.taskAccessible(any())).thenReturn(false);
 
     mockMvc.perform(get(ReverseRouter.route(on(AppConsentDocController.class).renderConsentDocEditor(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null)))
         .with(authenticatedUserAndSession(user))
@@ -182,9 +182,9 @@ public class AppConsentDocControllerTest extends PwaAppProcessingContextAbstract
   }
 
   @Test
-  public void postConsentDocEditor_decisionTaskNotAccessible() throws Exception {
+  public void postConsentDocEditor_prepareConsentTaskNotAccessible() throws Exception {
 
-    when(applicationDecisionTaskService.taskAccessible(any())).thenReturn(false);
+    when(prepareConsentTaskService.taskAccessible(any())).thenReturn(false);
 
     mockMvc.perform(post(ReverseRouter.route(on(AppConsentDocController.class).postConsentDocEditor(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null)))
         .with(authenticatedUserAndSession(user))
@@ -234,8 +234,8 @@ public class AppConsentDocControllerTest extends PwaAppProcessingContextAbstract
   }
 
   @Test
-  public void renderReloadDocument_decisionTaskNotAccessible() throws Exception {
-    when(applicationDecisionTaskService.taskAccessible(any())).thenReturn(false);
+  public void renderReloadDocument_prepareConsentTaskNotAccessible() throws Exception {
+    when(prepareConsentTaskService.taskAccessible(any())).thenReturn(false);
 
     mockMvc.perform(get(ReverseRouter.route(on(AppConsentDocController.class).renderReloadDocument(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null)))
         .with(authenticatedUserAndSession(user))
@@ -301,9 +301,9 @@ public class AppConsentDocControllerTest extends PwaAppProcessingContextAbstract
   }
 
   @Test
-  public void postReloadDocument_decisionTaskNotAccessible() throws Exception {
+  public void postReloadDocument_prepareConsentTaskNotAccessible() throws Exception {
 
-    when(applicationDecisionTaskService.taskAccessible(any())).thenReturn(false);
+    when(prepareConsentTaskService.taskAccessible(any())).thenReturn(false);
 
     mockMvc.perform(post(ReverseRouter.route(on(AppConsentDocController.class).postReloadDocument(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null)))
         .with(authenticatedUserAndSession(user))

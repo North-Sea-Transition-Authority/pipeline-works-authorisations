@@ -1,8 +1,8 @@
-package uk.co.ogauthority.pwa.service.appprocessing.decision;
+package uk.co.ogauthority.pwa.service.appprocessing.prepareconsent;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
-import uk.co.ogauthority.pwa.controller.appprocessing.decision.AppConsentDocController;
+import uk.co.ogauthority.pwa.controller.appprocessing.prepareconsent.AppConsentDocController;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 

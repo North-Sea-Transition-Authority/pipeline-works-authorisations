@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.service.appprocessing.decision;
+package uk.co.ogauthority.pwa.service.appprocessing.prepareconsent;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -27,7 +27,7 @@ import uk.co.ogauthority.pwa.testutils.PwaAppProcessingContextDtoTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ApplicationDecisionTaskServiceTest {
+public class PrepareConsentTaskServiceTest {
 
   @Mock
   private DocumentService documentService;
@@ -35,11 +35,11 @@ public class ApplicationDecisionTaskServiceTest {
   @Mock
   private ApproveOptionsService approveOptionsService;
 
-  private ApplicationDecisionTaskService applicationDecisionTaskService;
+  private PrepareConsentTaskService prepareConsentTaskService;
 
   @Before
   public void setUp() {
-    applicationDecisionTaskService = new ApplicationDecisionTaskService(documentService, approveOptionsService);
+    prepareConsentTaskService = new PrepareConsentTaskService(documentService, approveOptionsService);
   }
 
   @Test
@@ -47,7 +47,7 @@ public class ApplicationDecisionTaskServiceTest {
 
     var processingContext = new PwaAppProcessingContext(null, null, Set.of(PwaAppProcessingPermission.EDIT_CONSENT_DOCUMENT), null, null);
 
-    boolean canShow = applicationDecisionTaskService.canShowInTaskList(processingContext);
+    boolean canShow = prepareConsentTaskService.canShowInTaskList(processingContext);
 
     assertThat(canShow).isTrue();
 
@@ -58,7 +58,7 @@ public class ApplicationDecisionTaskServiceTest {
 
     var processingContext = new PwaAppProcessingContext(null, null, Set.of(PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY), null, null);
 
-    boolean canShow = applicationDecisionTaskService.canShowInTaskList(processingContext);
+    boolean canShow = prepareConsentTaskService.canShowInTaskList(processingContext);
 
     assertThat(canShow).isTrue();
 
@@ -69,7 +69,7 @@ public class ApplicationDecisionTaskServiceTest {
 
     var processingContext = new PwaAppProcessingContext(null, null, Set.of(), null, null);
 
-    boolean canShow = applicationDecisionTaskService.canShowInTaskList(processingContext);
+    boolean canShow = prepareConsentTaskService.canShowInTaskList(processingContext);
 
     assertThat(canShow).isFalse();
 
@@ -83,10 +83,10 @@ public class ApplicationDecisionTaskServiceTest {
     var processingContext = new PwaAppProcessingContext(detail, null, Set.of(), null,
         PwaAppProcessingContextDtoTestUtils.emptyAppInvolvement(detail.getPwaApplication()));
 
-    var taskListEntry = applicationDecisionTaskService.getTaskListEntry(PwaAppProcessingTask.DECISION, processingContext);
+    var taskListEntry = prepareConsentTaskService.getTaskListEntry(PwaAppProcessingTask.PREPARE_CONSENT, processingContext);
 
     assertThat(taskListEntry.getTaskTag()).isEqualTo(TaskTag.from(TaskStatus.CANNOT_START_YET));
-    assertThat(taskListEntry.getTaskName()).isEqualTo(PwaAppProcessingTask.DECISION.getTaskName());
+    assertThat(taskListEntry.getTaskName()).isEqualTo(PwaAppProcessingTask.PREPARE_CONSENT.getTaskName());
     assertThat(taskListEntry.getRoute()).isNull();
     assertThat(taskListEntry.getTaskInfoList()).isEmpty();
 
@@ -102,10 +102,10 @@ public class ApplicationDecisionTaskServiceTest {
     var processingContext = new PwaAppProcessingContext(detail, null, Set.of(), null,
         PwaAppProcessingContextDtoTestUtils.appInvolvementSatisfactoryVersions(detail.getPwaApplication()));
 
-    var taskListEntry = applicationDecisionTaskService.getTaskListEntry(PwaAppProcessingTask.DECISION, processingContext);
+    var taskListEntry = prepareConsentTaskService.getTaskListEntry(PwaAppProcessingTask.PREPARE_CONSENT, processingContext);
 
     assertThat(taskListEntry.getTaskTag()).isEqualTo(TaskTag.from(TaskStatus.NOT_REQUIRED));
-    assertThat(taskListEntry.getTaskName()).isEqualTo(PwaAppProcessingTask.DECISION.getTaskName());
+    assertThat(taskListEntry.getTaskName()).isEqualTo(PwaAppProcessingTask.PREPARE_CONSENT.getTaskName());
     assertThat(taskListEntry.getRoute()).isNull();
     assertThat(taskListEntry.getTaskInfoList()).isEmpty();
 
@@ -123,11 +123,11 @@ public class ApplicationDecisionTaskServiceTest {
 
     when(documentService.getDocumentInstance(any(), eq(DocumentTemplateMnem.PWA_CONSENT_DOCUMENT))).thenReturn(Optional.empty());
 
-    var taskListEntry = applicationDecisionTaskService.getTaskListEntry(PwaAppProcessingTask.DECISION, processingContext);
+    var taskListEntry = prepareConsentTaskService.getTaskListEntry(PwaAppProcessingTask.PREPARE_CONSENT, processingContext);
 
     assertThat(taskListEntry.getTaskTag()).isEqualTo(TaskTag.from(TaskStatus.NOT_STARTED));
-    assertThat(taskListEntry.getTaskName()).isEqualTo(PwaAppProcessingTask.DECISION.getTaskName());
-    assertThat(taskListEntry.getRoute()).isEqualTo(PwaAppProcessingTask.DECISION.getRoute(processingContext));
+    assertThat(taskListEntry.getTaskName()).isEqualTo(PwaAppProcessingTask.PREPARE_CONSENT.getTaskName());
+    assertThat(taskListEntry.getRoute()).isEqualTo(PwaAppProcessingTask.PREPARE_CONSENT.getRoute(processingContext));
     assertThat(taskListEntry.getTaskInfoList()).isEmpty();
 
   }
@@ -142,11 +142,11 @@ public class ApplicationDecisionTaskServiceTest {
 
     when(documentService.getDocumentInstance(any(), eq(DocumentTemplateMnem.PWA_CONSENT_DOCUMENT))).thenReturn(Optional.empty());
 
-    var taskListEntry = applicationDecisionTaskService.getTaskListEntry(PwaAppProcessingTask.DECISION, processingContext);
+    var taskListEntry = prepareConsentTaskService.getTaskListEntry(PwaAppProcessingTask.PREPARE_CONSENT, processingContext);
 
     assertThat(taskListEntry.getTaskTag()).isEqualTo(TaskTag.from(TaskStatus.NOT_STARTED));
-    assertThat(taskListEntry.getTaskName()).isEqualTo(PwaAppProcessingTask.DECISION.getTaskName());
-    assertThat(taskListEntry.getRoute()).isEqualTo(PwaAppProcessingTask.DECISION.getRoute(processingContext));
+    assertThat(taskListEntry.getTaskName()).isEqualTo(PwaAppProcessingTask.PREPARE_CONSENT.getTaskName());
+    assertThat(taskListEntry.getRoute()).isEqualTo(PwaAppProcessingTask.PREPARE_CONSENT.getRoute(processingContext));
     assertThat(taskListEntry.getTaskInfoList()).isEmpty();
 
   }
@@ -162,11 +162,11 @@ public class ApplicationDecisionTaskServiceTest {
     when(documentService.getDocumentInstance(any(), eq(DocumentTemplateMnem.PWA_CONSENT_DOCUMENT)))
         .thenReturn(Optional.of(new DocumentInstance()));
 
-    var taskListEntry = applicationDecisionTaskService.getTaskListEntry(PwaAppProcessingTask.DECISION, processingContext);
+    var taskListEntry = prepareConsentTaskService.getTaskListEntry(PwaAppProcessingTask.PREPARE_CONSENT, processingContext);
 
     assertThat(taskListEntry.getTaskTag()).isEqualTo(TaskTag.from(TaskStatus.IN_PROGRESS));
-    assertThat(taskListEntry.getTaskName()).isEqualTo(PwaAppProcessingTask.DECISION.getTaskName());
-    assertThat(taskListEntry.getRoute()).isEqualTo(PwaAppProcessingTask.DECISION.getRoute(processingContext));
+    assertThat(taskListEntry.getTaskName()).isEqualTo(PwaAppProcessingTask.PREPARE_CONSENT.getTaskName());
+    assertThat(taskListEntry.getRoute()).isEqualTo(PwaAppProcessingTask.PREPARE_CONSENT.getRoute(processingContext));
     assertThat(taskListEntry.getTaskInfoList()).isEmpty();
 
   }
@@ -180,7 +180,7 @@ public class ApplicationDecisionTaskServiceTest {
     var processingContext = new PwaAppProcessingContext(detail, null, Set.of(), null,
         PwaAppProcessingContextDtoTestUtils.appInvolvementSatisfactoryVersions(detail.getPwaApplication()));
 
-    var taskAccessible = applicationDecisionTaskService.taskAccessible(processingContext);
+    var taskAccessible = prepareConsentTaskService.taskAccessible(processingContext);
 
     assertThat(taskAccessible).isTrue();
 
@@ -194,7 +194,7 @@ public class ApplicationDecisionTaskServiceTest {
     var processingContext = new PwaAppProcessingContext(detail, null, Set.of(), null,
         PwaAppProcessingContextDtoTestUtils.emptyAppInvolvement(detail.getPwaApplication()));
 
-    var taskAccessible = applicationDecisionTaskService.taskAccessible(processingContext);
+    var taskAccessible = prepareConsentTaskService.taskAccessible(processingContext);
 
     assertThat(taskAccessible).isFalse();
 
@@ -210,7 +210,7 @@ public class ApplicationDecisionTaskServiceTest {
     var processingContext = new PwaAppProcessingContext(detail, null, Set.of(), null,
         PwaAppProcessingContextDtoTestUtils.appInvolvementSatisfactoryVersions(detail.getPwaApplication()));
 
-    var taskAccessible = applicationDecisionTaskService.taskAccessible(processingContext);
+    var taskAccessible = prepareConsentTaskService.taskAccessible(processingContext);
 
     assertThat(taskAccessible).isFalse();
 
@@ -227,7 +227,7 @@ public class ApplicationDecisionTaskServiceTest {
     var processingContext = new PwaAppProcessingContext(detail, null, Set.of(), null,
         PwaAppProcessingContextDtoTestUtils.appInvolvementSatisfactoryVersions(detail.getPwaApplication()));
 
-    var taskAccessible = applicationDecisionTaskService.taskAccessible(processingContext);
+    var taskAccessible = prepareConsentTaskService.taskAccessible(processingContext);
 
     assertThat(taskAccessible).isTrue();
 
