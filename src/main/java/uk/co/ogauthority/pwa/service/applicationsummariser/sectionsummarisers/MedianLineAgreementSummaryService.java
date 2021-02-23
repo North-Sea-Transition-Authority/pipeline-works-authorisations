@@ -39,7 +39,8 @@ public class MedianLineAgreementSummaryService implements ApplicationSectionSumm
     var taskFilter = Set.of(
         ApplicationTask.CROSSING_AGREEMENTS);
 
-    return taskListService.anyTaskShownForApplication(taskFilter, pwaApplicationDetail);
+    return taskListService.anyTaskShownForApplication(taskFilter, pwaApplicationDetail)
+        && padMedianLineAgreementService.canShowInTaskList(pwaApplicationDetail);
   }
 
   @Override
