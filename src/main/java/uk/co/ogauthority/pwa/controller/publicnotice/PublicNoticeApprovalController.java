@@ -101,7 +101,7 @@ public class PublicNoticeApprovalController  {
           throw new AccessDeniedException(
               "Access denied as there is not an open public notice in the approval stage for application with id: " +
                   processingContext.getMasterPwaApplicationId());
-    });
+        });
 
   }
 
