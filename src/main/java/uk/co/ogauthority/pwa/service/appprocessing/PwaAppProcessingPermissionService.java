@@ -96,6 +96,7 @@ public class PwaAppProcessingPermissionService {
             case EDIT_CONSULTATIONS:
             case WITHDRAW_CONSULTATION:
             case EDIT_CONSENT_DOCUMENT:
+            case SEND_CONSENT_FOR_APPROVAL:
               return userPrivileges.contains(
                   PwaUserPrivilege.PWA_CASE_OFFICER) && appInvolvement.isCaseOfficerStageAndUserAssigned();
             case REQUEST_APPLICATION_UPDATE:

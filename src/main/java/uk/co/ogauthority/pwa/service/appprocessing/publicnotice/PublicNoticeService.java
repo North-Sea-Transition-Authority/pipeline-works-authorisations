@@ -9,6 +9,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.transaction.Transactional;
+import org.apache.commons.collections4.IterableUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -75,7 +76,7 @@ public class PublicNoticeService implements AppProcessingService {
   private final TeamService teamService;
 
   private static final AppFilePurpose FILE_PURPOSE = AppFilePurpose.PUBLIC_NOTICE;
-  private static final Set<PublicNoticeStatus> ENDED_STATUSES = Set.of(PublicNoticeStatus.WITHDRAWN);
+  private static final Set<PublicNoticeStatus> ENDED_STATUSES = Set.of(PublicNoticeStatus.ENDED, PublicNoticeStatus.WITHDRAWN);
 
   @Autowired
   public PublicNoticeService(
@@ -126,7 +127,11 @@ public class PublicNoticeService implements AppProcessingService {
 
 
   public List<PublicNotice> getOpenPublicNoticesByStatus(PublicNoticeStatus publicNoticeStatus) {
-    return publicNoticeRepository.findAllByStatusAndStatusNotIn(publicNoticeStatus, ENDED_STATUSES);
+    return publicNoticeRepository.findAllByStatus(publicNoticeStatus);
+  }
+
+  public List<PublicNotice> getAllPublicNotices() {
+    return IterableUtils.toList(publicNoticeRepository.findAll());
   }
 
   public PublicNotice getLatestPublicNotice(PwaApplication pwaApplication) {
@@ -302,4 +307,10 @@ public class PublicNoticeService implements AppProcessingService {
     publicNoticeDocumentLinkRepository.delete(publicNoticeDocumentLink);
     publicNoticeDocumentRepository.delete(publicNoticeDocumentLink.getPublicNoticeDocument());
   }
+
+  public boolean publicNoticeInProgress(PwaApplication pwaApplication) {
+    return publicNoticeRepository.findAllByPwaApplication(pwaApplication).stream()
+        .anyMatch(notice -> !ENDED_STATUSES.contains(notice.getStatus()));
+  }
+
 }

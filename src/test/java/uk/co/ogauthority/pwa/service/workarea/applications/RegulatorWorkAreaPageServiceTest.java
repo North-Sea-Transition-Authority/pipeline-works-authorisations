@@ -85,26 +85,6 @@ public class RegulatorWorkAreaPageServiceTest {
   }
 
   @Test
-  public void getRequiresAttentionPageView_zeroAssignedCases_caseOfficerPrivilege() {
-    when(workAreaApplicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagIsFalseOrAllProcessingWaitFlagsFalse(any(), any(), any(), any()))
-        .thenReturn(fakeResultPage);
-
-    var caseOfficer = new AuthenticatedUserAccount(new WebUserAccount(10),
-        EnumSet.of(PwaUserPrivilege.PWA_WORKAREA, PwaUserPrivilege.PWA_CASE_OFFICER));
-
-    var workareaPage = appWorkAreaPageService.getRequiresAttentionPageView(caseOfficer, Set.of(), REQUESTED_PAGE);
-    assertThat(workareaPage.getTotalElements()).isEqualTo(0);
-
-    verify(workAreaApplicationDetailSearcher, times(1)).searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagIsFalseOrAllProcessingWaitFlagsFalse(
-        WorkAreaPageServiceTestUtil.getWorkAreaViewPageable(REQUESTED_PAGE, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
-        Set.of(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW),
-        Set.of(PublicNoticeStatus.DRAFT, PublicNoticeStatus.CASE_OFFICER_REVIEW),
-        Set.of()
-    );
-
-  }
-
-  @Test
   public void getRequiresAttentionPageView_hasAssignedApps() {
     fakeResultPage = WorkAreaPageServiceTestUtil.getFakeApplicationSearchResultPage(
         List.of(WorkAreaApplicationSearchTestUtil.getSearchDetailItem(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW)),
@@ -141,7 +121,7 @@ public class RegulatorWorkAreaPageServiceTest {
 
   @Test
   public void getWaitingOnOthersPageView_zeroAssignedCases() {
-    when(workAreaApplicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagIsTrueAndAnyProcessingWaitFlagTrue(any(), any(), any()))
+    when(workAreaApplicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagIsTrueAndAnyProcessingWaitFlagTrue(any(), any(), any(), any()))
         .thenReturn(fakeResultPage);
 
     var workareaPage = appWorkAreaPageService.getWaitingOnOthersPageView(pwaManager, Set.of(), REQUESTED_PAGE);
@@ -150,6 +130,7 @@ public class RegulatorWorkAreaPageServiceTest {
     verify(workAreaApplicationDetailSearcher, times(1)).searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagIsTrueAndAnyProcessingWaitFlagTrue(
         WorkAreaPageServiceTestUtil.getWorkAreaViewPageable(REQUESTED_PAGE, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
         Set.of(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW),
+        Set.of(PublicNoticeStatus.MANAGER_APPROVAL),
         Set.of()
     );
 
@@ -157,7 +138,7 @@ public class RegulatorWorkAreaPageServiceTest {
 
   @Test
   public void getWaitingOnOthersPageView_pageableLinksToCorrectTab() {
-    when(workAreaApplicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagIsTrueAndAnyProcessingWaitFlagTrue(any(), any(), any()))
+    when(workAreaApplicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagIsTrueAndAnyProcessingWaitFlagTrue(any(), any(), any(), any()))
         .thenReturn(fakeResultPage);
 
     var workareaPage = appWorkAreaPageService.getWaitingOnOthersPageView(pwaManager, Set.of(), REQUESTED_PAGE);
@@ -174,7 +155,7 @@ public class RegulatorWorkAreaPageServiceTest {
         List.of(WorkAreaApplicationSearchTestUtil.getSearchDetailItem(PwaApplicationStatus.CASE_OFFICER_REVIEW)),
         REQUESTED_PAGE);
 
-    when(workAreaApplicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagIsTrueAndAnyProcessingWaitFlagTrue(any(), any(), any()))
+    when(workAreaApplicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagIsTrueAndAnyProcessingWaitFlagTrue(any(), any(), any(), any()))
         .thenReturn(fakeResultPage);
 
     var workAreaPage = appWorkAreaPageService.getWaitingOnOthersPageView(pwaManager, Set.of(APP_ID_1, APP_ID_2), REQUESTED_PAGE);
@@ -182,6 +163,7 @@ public class RegulatorWorkAreaPageServiceTest {
     verify(workAreaApplicationDetailSearcher, times(1)).searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagIsTrueAndAnyProcessingWaitFlagTrue(
         WorkAreaPageServiceTestUtil.getWorkAreaViewPageable(REQUESTED_PAGE, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
         Set.of(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW),
+        Set.of(PublicNoticeStatus.MANAGER_APPROVAL),
         Set.of(APP_ID_1, APP_ID_2)
     );
 

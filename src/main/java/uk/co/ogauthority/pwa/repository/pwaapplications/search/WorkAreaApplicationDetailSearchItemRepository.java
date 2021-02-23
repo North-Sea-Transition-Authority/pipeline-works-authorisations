@@ -31,6 +31,7 @@ public interface WorkAreaApplicationDetailSearchItemRepository extends CrudRepos
       "AND ( " +
       "  (waadsi.tipVersionSatisfactoryFlag = :tipVersionSatisfactoryFlag) AND ( " +
       "    waadsi.openUpdateRequestFlag = :openForUpdateFlag " +
+      "    OR waadsi.publicNoticeStatus IN :publicNoticeStatuses " +
       "    OR waadsi.openConsultationRequestFlag = :openConsultationRequestFlag" +
       "  ) " +
       ")";
@@ -69,6 +70,7 @@ public interface WorkAreaApplicationDetailSearchItemRepository extends CrudRepos
       @Param("applicationIdFilter") Collection<Integer> applicationIdFilter,
       @Param("tipVersionSatisfactoryFlag") Boolean tipVersionSatisfactoryFlag,
       @Param("openForUpdateFlag") Boolean openForUpdateFlag,
+      @Param("publicNoticeStatuses") Collection<PublicNoticeStatus> publicNoticeStatuses,
       @Param("openConsultationRequestFlag") Boolean openConsultationRequestFlag
   );
 

@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.service.appprocessing.publicnotice;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -227,8 +228,7 @@ public class PublicNoticeServiceTest {
   @Test
   public void getOpenPublicNoticesByStatus() {
     publicNoticeService.getOpenPublicNoticesByStatus(PublicNoticeStatus.DRAFT);
-    verify(publicNoticeRepository, times(1)).findAllByStatusAndStatusNotIn(
-        PublicNoticeStatus.DRAFT, Set.of(PublicNoticeStatus.WITHDRAWN));
+    verify(publicNoticeRepository, times(1)).findAllByStatus(PublicNoticeStatus.DRAFT);
   }
 
   @Test(expected = EntityLatestVersionNotFoundException.class)
@@ -506,5 +506,38 @@ public class PublicNoticeServiceTest {
     verify(publicNoticeDocumentLinkRepository, times(1)).delete(publicNoticeDocumentLink);
   }
 
+  @Test
+  public void publicNoticeInProgress_no() {
+
+    var endedNotice = new PublicNotice();
+    endedNotice.setStatus(PublicNoticeStatus.ENDED);
+
+    var withdrawnNotice = new PublicNotice();
+    withdrawnNotice.setStatus(PublicNoticeStatus.WITHDRAWN);
+
+    when(publicNoticeRepository.findAllByPwaApplication(any())).thenReturn(List.of(endedNotice, withdrawnNotice));
+
+    boolean inProgress = publicNoticeService.publicNoticeInProgress(new PwaApplication());
+
+    assertThat(inProgress).isFalse();
+
+  }
+
+  @Test
+  public void publicNoticeInProgress_yes() {
+
+    var endedNotice = new PublicNotice();
+    endedNotice.setStatus(PublicNoticeStatus.ENDED);
+
+    var inProgressNotice = new PublicNotice();
+    inProgressNotice.setStatus(PublicNoticeStatus.APPLICANT_UPDATE);
+
+    when(publicNoticeRepository.findAllByPwaApplication(any())).thenReturn(List.of(endedNotice, inProgressNotice));
+
+    boolean inProgress = publicNoticeService.publicNoticeInProgress(new PwaApplication());
+
+    assertThat(inProgress).isTrue();
+
+  }
 
 }
