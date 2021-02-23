@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.controller.publicnotice;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
@@ -27,7 +28,9 @@ import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.PwaAppProcessingContextAbstractControllerTest;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
+import uk.co.ogauthority.pwa.exception.AccessDeniedException;
 import uk.co.ogauthority.pwa.model.dto.appprocessing.ProcessingPermissionsDto;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.publicnotice.PublicNoticeApprovalForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
@@ -74,6 +77,7 @@ public class PublicNoticeApprovalControllerTest extends PwaAppProcessingContextA
     pwaApplicationDetail.getPwaApplication().setId(1);
     pwaApplicationDetail.setStatus(PwaApplicationStatus.CASE_OFFICER_REVIEW);
 
+
     when(pwaApplicationDetailService.getLatestDetailForUser(pwaApplicationDetail.getMasterPwaApplicationId(), user))
         .thenReturn(Optional.of(pwaApplicationDetail));
 
@@ -90,6 +94,7 @@ public class PublicNoticeApprovalControllerTest extends PwaAppProcessingContextA
     when(publicNoticeService.getLatestPublicNoticeRequest(publicNotice))
         .thenReturn(publicNoticeRequest);
 
+    when(publicNoticeApprovalService.openPublicNoticeCanBeApproved(any())).thenReturn(true);
   }
 
 
@@ -130,6 +135,19 @@ public class PublicNoticeApprovalControllerTest extends PwaAppProcessingContextA
         .with(csrf()))
         .andExpect(status().isForbidden());
 
+  }
+
+  @Test
+  public void renderApprovePublicNotice_noPublicNoticeToApprove() throws Exception {
+
+    when(publicNoticeApprovalService.openPublicNoticeCanBeApproved(any())).thenReturn(false);
+
+    mockMvc.perform(get(ReverseRouter.route(on(PublicNoticeApprovalController.class)
+        .renderApprovePublicNotice(
+            pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null)))
+        .with(authenticatedUserAndSession(user))
+        .with(csrf()))
+        .andExpect(result -> assertThat(result.getResolvedException() instanceof AccessDeniedException).isTrue());
   }
 
 
@@ -188,6 +206,18 @@ public class PublicNoticeApprovalControllerTest extends PwaAppProcessingContextA
         .with(csrf()))
         .andExpect(status().isForbidden());
 
+  }
+
+  @Test
+  public void postApprovePublicNotice_noPublicNoticeToApprove() throws Exception {
+
+    when(publicNoticeApprovalService.openPublicNoticeCanBeApproved(any())).thenReturn(false);
+
+    mockMvc.perform(post(ReverseRouter.route(on(PublicNoticeApprovalController.class)
+        .postApprovePublicNotice(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null)))
+        .with(authenticatedUserAndSession(user))
+        .with(csrf()))
+        .andExpect(result -> assertThat(result.getResolvedException() instanceof AccessDeniedException).isTrue());
   }
 
 

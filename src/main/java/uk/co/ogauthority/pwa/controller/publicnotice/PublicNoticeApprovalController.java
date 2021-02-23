@@ -86,17 +86,22 @@ public class PublicNoticeApprovalController  {
 
     return CaseManagementUtils.withAtLeastOneSatisfactoryVersion(processingContext,
         PwaAppProcessingTask.PUBLIC_NOTICE,  () -> {
-          var validatedBindingResult = publicNoticeApprovalService.validate(form, bindingResult);
+          if (publicNoticeApprovalService.openPublicNoticeCanBeApproved(processingContext.getPwaApplication())) {
+            var validatedBindingResult = publicNoticeApprovalService.validate(form, bindingResult);
 
-          return controllerHelperService.checkErrorsAndRedirect(validatedBindingResult,
-              getApprovePublicNoticeModelAndView(processingContext), () -> {
-                publicNoticeApprovalService.updatePublicNoticeRequest(
-                    form, processingContext.getPwaApplication());
-                return  ReverseRouter.redirect(on(PublicNoticeOverviewController.class).renderPublicNoticeOverview(
-                    applicationId, pwaApplicationType, processingContext, authenticatedUserAccount));
-              });
+            return controllerHelperService.checkErrorsAndRedirect(validatedBindingResult,
+                getApprovePublicNoticeModelAndView(processingContext), () -> {
+                  publicNoticeApprovalService.updatePublicNoticeRequest(
+                      form, processingContext.getPwaApplication());
+                  return ReverseRouter.redirect(on(PublicNoticeOverviewController.class).renderPublicNoticeOverview(
+                      applicationId, pwaApplicationType, processingContext, authenticatedUserAccount));
+                });
 
-        });
+          }
+          throw new AccessDeniedException(
+              "Access denied as there is not an open public notice in the approval stage for application with id: " +
+                  processingContext.getMasterPwaApplicationId());
+    });
 
   }
 
