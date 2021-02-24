@@ -11,6 +11,7 @@ import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.model.form.publicnotice.PublicNoticeApprovalForm;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
+import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationPublicNoticeApprovalResult;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -36,7 +37,7 @@ public class PublicNoticeApprovalValidatorTest {
   @Test
   public void validate_form_valid() {
     var form = new PublicNoticeApprovalForm();
-    form.setRequestApproved(true);
+    form.setRequestApproved(PwaApplicationPublicNoticeApprovalResult.REQUEST_APPROVED);
 
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form);
     assertThat(errorsMap).isEmpty();
@@ -45,7 +46,7 @@ public class PublicNoticeApprovalValidatorTest {
   @Test
   public void validate_form_requestRejected_reasonDescriptionNull() {
     var form = new PublicNoticeApprovalForm();
-    form.setRequestApproved(false);
+    form.setRequestApproved(PwaApplicationPublicNoticeApprovalResult.REQUEST_REJECTED);
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form);
     assertThat(errorsMap).contains(
         entry("requestRejectedReason", Set.of("requestRejectedReason" + FieldValidationErrorCodes.REQUIRED.getCode()))
@@ -55,7 +56,7 @@ public class PublicNoticeApprovalValidatorTest {
   @Test
   public void validate_form_textAreaLengthExceeded() {
     var form = new PublicNoticeApprovalForm();
-    form.setRequestApproved(false);
+    form.setRequestApproved(PwaApplicationPublicNoticeApprovalResult.REQUEST_REJECTED);
     form.setRequestRejectedReason(ValidatorTestUtils.over4000Chars());
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form);
     assertThat(errorsMap).contains(

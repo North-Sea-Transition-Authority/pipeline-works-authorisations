@@ -1,8 +1,8 @@
 <#-- @ftlvariable name="errorList" type="java.util.Map<java.lang.String,java.util.List<java.lang.String,java.lang.String>>" -->
-<#-- @ftlvariable name="errorList" type="java.util.Map<java.lang.String,java.util.List<java.lang.String,java.lang.String>>" -->
 <#-- @ftlvariable name="appRef" type="java.lang.String" -->
 <#-- @ftlvariable name="coverLetter" type="java.lang.String" -->
 <#-- @ftlvariable name="requestReason" type="java.lang.String" -->
+<#-- @ftlvariable name="approvalResultOptions" type="java.util.List<java.lang.String>" -->
 
 
 <#include '../layout.ftl'>
@@ -23,10 +23,14 @@
     
     
         <@fdsRadio.radioGroup path="form.requestApproved" labelText="Respond to the public notice approval request" hiddenContent=true>
-            <@fdsRadio.radioItem path="form.requestApproved" itemMap={"true" : "Approve"} isFirstItem=true/>
-            <@fdsRadio.radioItem path="form.requestApproved" itemMap={"false" : "Reject"}>
-                <@fdsTextarea.textarea path="form.requestRejectedReason" nestingPath="form.requestApproved" labelText="Rejection reason" characterCount=true maxCharacterLength="4000" inputClass="govuk-!-width-two-thirds"/>
-            </@fdsRadio.radioItem>
+            <#assign firstItem=true/>
+            <#list approvalResultOptions as approvalResultOption>
+                <@fdsRadio.radioItem path="form.requestApproved" itemMap={approvalResultOption : approvalResultOption.getDisplayValue()} isFirstItem=firstItem>
+                    <#if approvalResultOption == "REQUEST_REJECTED">
+                        <@fdsTextarea.textarea path="form.requestRejectedReason" nestingPath="form.requestApproved" labelText="Rejection reason" characterCount=true maxCharacterLength="4000" inputClass="govuk-!-width-two-thirds"/>
+                    </#if>
+                </@fdsRadio.radioItem>
+            </#list>            
         </@fdsRadio.radioGroup>
 
         <@fdsAction.submitButtons primaryButtonText="Submit" linkSecondaryAction=true secondaryLinkText="Cancel" linkSecondaryActionUrl=springUrl(cancelUrl)/>

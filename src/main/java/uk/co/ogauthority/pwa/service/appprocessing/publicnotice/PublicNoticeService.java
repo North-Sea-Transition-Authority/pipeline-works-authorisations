@@ -17,7 +17,6 @@ import org.springframework.validation.BindingResult;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.exception.EntityLatestVersionNotFoundException;
-import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeAction;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeDocumentType;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeRequestReason;
@@ -126,7 +125,7 @@ public class PublicNoticeService implements AppProcessingService {
   }
 
 
-  public List<PublicNotice> getOpenPublicNoticesByStatus(PublicNoticeStatus publicNoticeStatus) {
+  public List<PublicNotice> getPublicNoticesByStatus(PublicNoticeStatus publicNoticeStatus) {
     return publicNoticeRepository.findAllByStatus(publicNoticeStatus);
   }
 
@@ -144,6 +143,14 @@ public class PublicNoticeService implements AppProcessingService {
     return publicNoticeRequestRepository.findFirstByPublicNoticeOrderByVersionDesc(publicNotice)
         .orElseThrow(() -> new EntityLatestVersionNotFoundException(String.format(
             "Couldn't find public notice request with public notice ID: %s", publicNotice.getId())));
+  }
+
+  public void savePublicNoticeRequest(PublicNoticeRequest publicNoticeRequest) {
+    publicNoticeRequestRepository.save(publicNoticeRequest);
+  }
+
+  public void savePublicNotice(PublicNotice publicNotice) {
+    publicNoticeRepository.save(publicNotice);
   }
 
   private Integer getPublicNoticeLatestVersionNumber(PwaApplication pwaApplication) {

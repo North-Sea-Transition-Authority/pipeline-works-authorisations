@@ -26,6 +26,7 @@ import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermiss
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingTask;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationPublicNoticeApprovalResult;
 import uk.co.ogauthority.pwa.util.CaseManagementUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
@@ -92,8 +93,8 @@ public class PublicNoticeApprovalController  {
             return controllerHelperService.checkErrorsAndRedirect(validatedBindingResult,
                 getApprovePublicNoticeModelAndView(processingContext), () -> {
                   publicNoticeApprovalService.updatePublicNoticeRequest(
-                      form, processingContext.getPwaApplication());
-                  return ReverseRouter.redirect(on(PublicNoticeOverviewController.class).renderPublicNoticeOverview(
+                      form, processingContext.getPwaApplication(), authenticatedUserAccount);
+                  return  ReverseRouter.redirect(on(PublicNoticeOverviewController.class).renderPublicNoticeOverview(
                       applicationId, pwaApplicationType, processingContext, authenticatedUserAccount));
                 });
 
@@ -101,6 +102,7 @@ public class PublicNoticeApprovalController  {
           throw new AccessDeniedException(
               "Access denied as there is not an open public notice in the approval stage for application with id: " +
                   processingContext.getMasterPwaApplicationId());
+
         });
 
   }
@@ -119,6 +121,7 @@ public class PublicNoticeApprovalController  {
         .addObject("appRef", pwaApplication.getAppReference())
         .addObject("coverLetter", publicNoticeRequest.getCoverLetterText())
         .addObject("requestReason", publicNoticeRequest.getReason().getReasonText())
+        .addObject("approvalResultOptions", PwaApplicationPublicNoticeApprovalResult.asList())
         .addObject("cancelUrl", publicNoticeOverviewUrl)
         .addObject("caseSummaryView", processingContext.getCaseSummaryView());
 

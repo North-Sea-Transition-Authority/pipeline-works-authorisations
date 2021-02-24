@@ -36,9 +36,15 @@ public class PublicNoticeRequest {
 
   private String reasonDescription;
 
+  private Boolean requestApproved;
+
+  private String rejectionReason;
+
   private Integer version;
 
   private Instant submittedTimestamp;
+
+  private Instant endedTimestamp;
 
   private Integer createdByPersonId;
   private Integer endedByPersonId;
@@ -92,6 +98,22 @@ public class PublicNoticeRequest {
     this.reasonDescription = reasonDescription;
   }
 
+  public Boolean getRequestApproved() {
+    return requestApproved;
+  }
+
+  public void setRequestApproved(Boolean requestApproved) {
+    this.requestApproved = requestApproved;
+  }
+
+  public String getRejectionReason() {
+    return rejectionReason;
+  }
+
+  public void setRejectionReason(String rejectionReason) {
+    this.rejectionReason = rejectionReason;
+  }
+
   public Integer getVersion() {
     return version;
   }
@@ -106,6 +128,14 @@ public class PublicNoticeRequest {
 
   public void setSubmittedTimestamp(Instant submittedTimestamp) {
     this.submittedTimestamp = submittedTimestamp;
+  }
+
+  public Instant getEndedTimestamp() {
+    return endedTimestamp;
+  }
+
+  public void setEndedTimestamp(Instant endedTimestamp) {
+    this.endedTimestamp = endedTimestamp;
   }
 
   public Integer getCreatedByPersonId() {
@@ -123,4 +153,5 @@ public class PublicNoticeRequest {
   public void setEndedByPersonId(Integer endedByPersonId) {
     this.endedByPersonId = endedByPersonId;
   }
+
 }
