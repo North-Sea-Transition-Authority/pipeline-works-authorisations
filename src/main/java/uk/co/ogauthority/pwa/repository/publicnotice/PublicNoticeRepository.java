@@ -17,8 +17,6 @@ public interface PublicNoticeRepository extends CrudRepository<PublicNotice, Int
 
   List<PublicNotice> findAllByPwaApplicationOrderByVersionDesc(PwaApplication pwaApplication);
 
-  List<PublicNotice> findAllByStatus(PublicNoticeStatus openStatus);
-
   List<PublicNotice> findAllByStatusNotIn(Set<PublicNoticeStatus> statuses);
 
   List<PublicNotice> findAllByPwaApplication(PwaApplication application);

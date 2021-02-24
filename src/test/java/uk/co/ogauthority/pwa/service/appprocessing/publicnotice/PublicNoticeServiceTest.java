@@ -125,6 +125,8 @@ public class PublicNoticeServiceTest {
   @Captor
   private ArgumentCaptor<PublicNoticeRequest> publicNoticeRequestArgumentCaptor;
 
+  private static Set<PublicNoticeStatus> ENDED_STATUSES;
+
 
   @Before
   public void setUp() {
@@ -144,6 +146,7 @@ public class PublicNoticeServiceTest {
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     pwaApplication = pwaApplicationDetail.getPwaApplication();
     user = new AuthenticatedUserAccount(new WebUserAccount(1, PersonTestUtil.createDefaultPerson()), List.of());
+    ENDED_STATUSES = Set.of(PublicNoticeStatus.ENDED, PublicNoticeStatus.WITHDRAWN);
   }
 
   @Test
@@ -226,9 +229,9 @@ public class PublicNoticeServiceTest {
 
 
   @Test
-  public void getOpenPublicNoticesByStatus() {
-    publicNoticeService.getOpenPublicNoticesByStatus(PublicNoticeStatus.DRAFT);
-    verify(publicNoticeRepository, times(1)).findAllByStatus(PublicNoticeStatus.DRAFT);
+  public void getOpenPublicNotices() {
+    publicNoticeService.getOpenPublicNotices();
+    verify(publicNoticeRepository, times(1)).findAllByStatusNotIn(ENDED_STATUSES);
   }
 
   @Test
