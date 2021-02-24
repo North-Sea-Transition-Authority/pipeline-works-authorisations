@@ -129,8 +129,8 @@ public class PublicNoticeService implements AppProcessingService {
     return publicNoticeRepository.findAllByStatus(publicNoticeStatus);
   }
 
-  public List<PublicNotice> getAllPublicNotices() {
-    return IterableUtils.toList(publicNoticeRepository.findAll());
+  public List<PublicNotice> getOpenPublicNotices() {
+    return publicNoticeRepository.findAllByStatusNotIn(ENDED_STATUSES);
   }
 
   public PublicNotice getLatestPublicNotice(PwaApplication pwaApplication) {
