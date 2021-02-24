@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.service.appprocessing.publicnotice;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -38,6 +39,7 @@ import uk.co.ogauthority.pwa.model.entity.publicnotice.PublicNoticeDocumentLink;
 import uk.co.ogauthority.pwa.model.entity.publicnotice.PublicNoticeRequest;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.enums.notify.NotifyTemplate;
 import uk.co.ogauthority.pwa.model.form.files.UploadFileWithDescriptionForm;
 import uk.co.ogauthority.pwa.model.form.publicnotice.PublicNoticeDraftForm;
 import uk.co.ogauthority.pwa.model.notify.emailproperties.publicnotices.PublicNoticeApprovalRequestEmailProps;
@@ -106,6 +108,12 @@ public class PublicNoticeServiceTest {
 
   @Mock
   private PwaAppProcessingPermissionService pwaAppProcessingPermissionService;
+
+  @Captor
+  private ArgumentCaptor<PublicNoticeApprovalRequestEmailProps> approvalRequestEmailPropsCaptor;
+
+  @Captor
+  private ArgumentCaptor<String> emailAddressCaptor;
 
   private PwaApplication pwaApplication;
   private PwaApplicationDetail pwaApplicationDetail;
@@ -313,15 +321,26 @@ public class PublicNoticeServiceTest {
 
     verify(camundaWorkflowService, times(1)).startWorkflow(expectedPublicNotice);
 
-    pwaManagers.forEach(person -> {
-      var expectedEmailProps = new PublicNoticeApprovalRequestEmailProps(
-      person.getFullName(),
-      pwaApplication.getAppReference(),
-      publicNoticeDraftForm.getReason().getReasonText(),
-      caseManagementLink);
+    verify(notifyService, times(pwaManagers.size())).sendEmail(approvalRequestEmailPropsCaptor.capture(), emailAddressCaptor.capture());
 
-      verify(notifyService, times(1)).sendEmail(expectedEmailProps, person.getEmailAddress());
+    assertThat(approvalRequestEmailPropsCaptor.getAllValues()).allSatisfy(emailProps -> {
+
+      assertThat(emailProps.getEmailPersonalisation()).contains(
+          entry("APPLICATION_REFERENCE", pwaApplication.getAppReference()),
+          entry("PUBLIC_NOTICE_REASON", publicNoticeDraftForm.getReason().getReasonText()),
+          entry("CASE_MANAGEMENT_LINK", caseManagementLink)
+      );
+
+      assertThat(emailProps.getTemplate()).isEqualTo(NotifyTemplate.PUBLIC_NOTICE_APPROVAL_REQUEST);
+
     });
+
+    assertThat(approvalRequestEmailPropsCaptor.getAllValues().get(0).getRecipientFullName()).isEqualTo(pwaManager1.getFullName());
+    assertThat(emailAddressCaptor.getAllValues().get(0)).isEqualTo(pwaManager1.getEmailAddress());
+
+    assertThat(approvalRequestEmailPropsCaptor.getAllValues().get(1).getRecipientFullName()).isEqualTo(pwaManager2.getFullName());
+    assertThat(emailAddressCaptor.getAllValues().get(1)).isEqualTo(pwaManager2.getEmailAddress());
+
   }
 
 
