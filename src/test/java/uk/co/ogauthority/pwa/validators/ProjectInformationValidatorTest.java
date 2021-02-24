@@ -507,7 +507,7 @@ public class ProjectInformationValidatorTest {
     form.setEarliestCompletionYear(earliestCompletionDate.getYear());
 
     var maxFutureDate = proposedStartDate.plusMonths(12);
-    form.setLatestCompletionDay(maxFutureDate.getDayOfMonth() - 1);
+    form.setLatestCompletionDay(Math.max(maxFutureDate.getDayOfMonth() - 1, 1));
     form.setLatestCompletionMonth(maxFutureDate.getMonthValue());
     form.setLatestCompletionYear(maxFutureDate.getYear());
 
@@ -600,7 +600,7 @@ public class ProjectInformationValidatorTest {
     form.setEarliestCompletionYear(earliestCompletionDate.getYear());
 
     var maxFutureDate = proposedStartDate.plusMonths(6);
-    form.setLatestCompletionDay(maxFutureDate.getDayOfMonth() - 1);
+    form.setLatestCompletionDay(Math.max(maxFutureDate.getDayOfMonth() - 1, 1));
     form.setLatestCompletionMonth(maxFutureDate.getMonthValue());
     form.setLatestCompletionYear(maxFutureDate.getYear());
 
