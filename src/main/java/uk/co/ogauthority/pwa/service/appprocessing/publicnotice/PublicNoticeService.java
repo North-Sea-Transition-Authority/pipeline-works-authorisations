@@ -125,6 +125,9 @@ public class PublicNoticeService implements AppProcessingService {
 
   }
 
+  public List<PublicNotice> getPublicNoticesByStatus(PublicNoticeStatus publicNoticeStatus) {
+    return publicNoticeRepository.findAllByStatus(publicNoticeStatus);
+  }
 
   public List<PublicNotice> getOpenPublicNotices() {
     return publicNoticeRepository.findAllByStatusNotIn(ENDED_STATUSES);

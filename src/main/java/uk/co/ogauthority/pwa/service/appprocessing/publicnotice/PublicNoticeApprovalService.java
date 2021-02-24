@@ -25,7 +25,7 @@ public class PublicNoticeApprovalService {
 
 
   public boolean openPublicNoticeCanBeApproved(PwaApplication pwaApplication) {
-    return publicNoticeService.getOpenPublicNoticesByStatus(PublicNoticeStatus.MANAGER_APPROVAL)
+    return publicNoticeService.getPublicNoticesByStatus(PublicNoticeStatus.MANAGER_APPROVAL)
         .stream()
         .anyMatch(publicNotice -> publicNotice.getPwaApplication().equals(pwaApplication));
   }

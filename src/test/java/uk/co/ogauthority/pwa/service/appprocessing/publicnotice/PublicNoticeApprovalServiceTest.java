@@ -55,7 +55,7 @@ public class PublicNoticeApprovalServiceTest {
   @Test
   public void openPublicNoticeCanBeApproved_approvablePublicNoticeExistsWithApp() {
     var publicNotice = PublicNoticeTestUtil.createInitialPublicNotice(pwaApplication);
-    when(publicNoticeService.getOpenPublicNoticesByStatus(PublicNoticeStatus.MANAGER_APPROVAL)).thenReturn(List.of(publicNotice));
+    when(publicNoticeService.getPublicNoticesByStatus(PublicNoticeStatus.MANAGER_APPROVAL)).thenReturn(List.of(publicNotice));
     var publicNoticeExists = publicNoticeApprovalService.openPublicNoticeCanBeApproved(pwaApplication);
     assertThat(publicNoticeExists).isTrue();
   }
@@ -63,14 +63,14 @@ public class PublicNoticeApprovalServiceTest {
   @Test
   public void openPublicNoticeCanBeApproved_approvablePublicNoticeExistsWithDifferentApp() {
     var publicNotice = PublicNoticeTestUtil.createInitialPublicNotice(new PwaApplication());
-    when(publicNoticeService.getOpenPublicNoticesByStatus(PublicNoticeStatus.MANAGER_APPROVAL)).thenReturn(List.of(publicNotice));
+    when(publicNoticeService.getPublicNoticesByStatus(PublicNoticeStatus.MANAGER_APPROVAL)).thenReturn(List.of(publicNotice));
     var publicNoticeExists = publicNoticeApprovalService.openPublicNoticeCanBeApproved(pwaApplication);
     assertThat(publicNoticeExists).isFalse();
   }
 
   @Test
   public void openPublicNoticeCanBeApproved_approvablePublicNoticeDoesNotExist() {
-    when(publicNoticeService.getOpenPublicNoticesByStatus(PublicNoticeStatus.MANAGER_APPROVAL)).thenReturn(List.of());
+    when(publicNoticeService.getPublicNoticesByStatus(PublicNoticeStatus.MANAGER_APPROVAL)).thenReturn(List.of());
     var publicNoticeExists = publicNoticeApprovalService.openPublicNoticeCanBeApproved(pwaApplication);
     assertThat(publicNoticeExists).isFalse();
   }
