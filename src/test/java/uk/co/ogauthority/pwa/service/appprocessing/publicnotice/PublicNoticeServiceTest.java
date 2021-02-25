@@ -24,7 +24,7 @@ import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.energyportal.model.entity.PersonTestUtil;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
-import uk.co.ogauthority.pwa.model.dto.appprocessing.ProcessingPermissionsDto;
+import uk.co.ogauthority.pwa.exception.EntityLatestVersionNotFoundException;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeAction;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeRequestStatus;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeStatus;
@@ -229,9 +229,28 @@ public class PublicNoticeServiceTest {
 
 
   @Test
+  public void getPublicNoticesByStatus() {
+    publicNoticeService.getPublicNoticesByStatus(PublicNoticeStatus.DRAFT);
+    verify(publicNoticeRepository, times(1)).findAllByStatus(PublicNoticeStatus.DRAFT);
+  }
+
   public void getOpenPublicNotices() {
     publicNoticeService.getOpenPublicNotices();
     verify(publicNoticeRepository, times(1)).findAllByStatusNotIn(ENDED_STATUSES);
+  }
+
+  @Test(expected = EntityLatestVersionNotFoundException.class)
+  public void getLatestPublicNotice_notFound() {
+    publicNoticeService.getLatestPublicNotice(pwaApplication);
+    verify(publicNoticeRepository, times(1)).findFirstByPwaApplicationOrderByVersionDesc(pwaApplication);
+  }
+
+  @Test
+  public void getLatestPublicNotice_noExceptionThrown() {
+    when(publicNoticeRepository.findFirstByPwaApplicationOrderByVersionDesc(pwaApplication)).thenReturn(
+        Optional.of(new PublicNotice()));
+    publicNoticeService.getLatestPublicNotice(pwaApplication);
+    verify(publicNoticeRepository, times(1)).findFirstByPwaApplicationOrderByVersionDesc(pwaApplication);
   }
 
   @Test

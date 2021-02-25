@@ -107,7 +107,10 @@ public class WorkAreaApplicationDetailSearcher {
     Predicate openRequestForUpdatePredicate = cb.equal(
         root.get(WorkAreaApplicationDetailSearchItem_.openUpdateRequestFlag), openUpdateRequestFilter);
 
-    Predicate statusOrOpenUpdatePredicate = cb.or(statusFilterPredicate, openRequestForUpdatePredicate);
+    Predicate publicNoticeUpdateRequestPredicate = cb.equal(
+        root.get(WorkAreaApplicationDetailSearchItem_.publicNoticeStatus), PublicNoticeStatus.APPLICANT_UPDATE);
+
+    Predicate statusOrOpenUpdatePredicate = cb.or(statusFilterPredicate, openRequestForUpdatePredicate, publicNoticeUpdateRequestPredicate);
 
     Predicate finalPredicate = cb.and(appIdFilterPredicate, statusOrOpenUpdatePredicate);
 

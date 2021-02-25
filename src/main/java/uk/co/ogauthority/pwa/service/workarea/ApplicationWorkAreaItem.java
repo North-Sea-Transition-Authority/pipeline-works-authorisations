@@ -89,7 +89,7 @@ public abstract class ApplicationWorkAreaItem {
     this.submittedAsFastTrackFlag = applicationDetailItemView.wasSubmittedAsFastTrack();
     this.initialReviewApprovedInstant = applicationDetailItemView.getPadInitialReviewApprovedTimestamp();
     this.accessUrl = accessUrl;
-    this.publicNoticeStatus = null;
+    this.publicNoticeStatus = applicationDetailItemView.getPublicNoticeStatus();
 
     if (applicationDetailItemView.getCaseOfficerPersonId() != null) {
       this.caseOfficerPersonId = new PersonId(applicationDetailItemView.getCaseOfficerPersonId());
@@ -207,6 +207,10 @@ public abstract class ApplicationWorkAreaItem {
 
     if (this.openUpdateRequestFlag) {
       columnItemList.add(WorkAreaColumnItemView.createTagItem(WorkAreaColumnItemView.TagType.DEFAULT, "UPDATE REQUESTED"));
+    }
+
+    if (PublicNoticeStatus.APPLICANT_UPDATE.equals(this.publicNoticeStatus)) {
+      columnItemList.add(WorkAreaColumnItemView.createTagItem(WorkAreaColumnItemView.TagType.DEFAULT, "PUBLIC NOTICE UPDATE REQUESTED"));
     }
 
     return columnItemList;

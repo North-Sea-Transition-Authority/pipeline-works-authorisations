@@ -68,7 +68,7 @@ public final class PublicNoticeTestUtil {
     return publicNoticeRequest;
   }
 
-  static PublicNoticeRequest createInitialPublicNoticeRequest(PublicNotice publicNotice) {
+  public static PublicNoticeRequest createInitialPublicNoticeRequest(PublicNotice publicNotice) {
     return createInitialPublicNoticeRequest(publicNotice, createDefaultPublicNoticeDraftForm());
   }
 
