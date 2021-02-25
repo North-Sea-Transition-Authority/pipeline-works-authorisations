@@ -80,11 +80,10 @@ public class PublicNoticeApprovalService {
     var requestIsApproved = PwaApplicationPublicNoticeApprovalResult.REQUEST_APPROVED.equals(form.getRequestApproved());
 
     publicNoticeRequest.setRequestApproved(requestIsApproved);
-    publicNoticeRequest.setEndedByPersonId(authenticatedUserAccount.getLinkedPerson().getId().asInt());
-    publicNoticeRequest.setEndedTimestamp(clock.instant());
+    publicNoticeRequest.setResponderPersonId(authenticatedUserAccount.getLinkedPerson().getId().asInt());
+    publicNoticeRequest.setResponseTimestamp(clock.instant());
 
     if (!requestIsApproved) {
-      publicNoticeRequest.setRequestApproved(false);
       publicNoticeRequest.setRejectionReason(form.getRequestRejectedReason());
       publicNotice.setStatus(PublicNoticeStatus.DRAFT);
 

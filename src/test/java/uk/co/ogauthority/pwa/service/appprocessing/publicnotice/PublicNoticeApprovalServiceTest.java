@@ -145,8 +145,8 @@ public class PublicNoticeApprovalServiceTest {
     verify(publicNoticeService, times(1)).savePublicNoticeRequest(publicNoticeRequestArgumentCaptor.capture());
     var actualPublicNoticeRequest = publicNoticeRequestArgumentCaptor.getValue();
     assertThat(actualPublicNoticeRequest.getRequestApproved()).isTrue();
-    assertThat(actualPublicNoticeRequest.getEndedByPersonId()).isEqualTo(user.getLinkedPerson().getId().asInt());
-    assertThat(actualPublicNoticeRequest.getEndedTimestamp()).isEqualTo(clock.instant());
+    assertThat(actualPublicNoticeRequest.getResponderPersonId()).isEqualTo(user.getLinkedPerson().getId().asInt());
+    assertThat(actualPublicNoticeRequest.getResponseTimestamp()).isEqualTo(clock.instant());
 
     verify(camundaWorkflowService, times(1)).setWorkflowProperty(publicNotice, form.getRequestApproved());
     verify(camundaWorkflowService, times(1)).completeTask(new WorkflowTaskInstance(publicNotice,
@@ -191,8 +191,8 @@ public class PublicNoticeApprovalServiceTest {
     verify(publicNoticeService, times(1)).savePublicNoticeRequest(publicNoticeRequestArgumentCaptor.capture());
     var actualPublicNoticeRequest = publicNoticeRequestArgumentCaptor.getValue();
     assertThat(actualPublicNoticeRequest.getRequestApproved()).isFalse();
-    assertThat(actualPublicNoticeRequest.getEndedByPersonId()).isEqualTo(user.getLinkedPerson().getId().asInt());
-    assertThat(actualPublicNoticeRequest.getEndedTimestamp()).isEqualTo(clock.instant());
+    assertThat(actualPublicNoticeRequest.getResponderPersonId()).isEqualTo(user.getLinkedPerson().getId().asInt());
+    assertThat(actualPublicNoticeRequest.getResponseTimestamp()).isEqualTo(clock.instant());
     assertThat(actualPublicNoticeRequest.getRejectionReason()).isEqualTo(form.getRequestRejectedReason());
 
     verify(camundaWorkflowService, times(1)).setWorkflowProperty(publicNotice, form.getRequestApproved());

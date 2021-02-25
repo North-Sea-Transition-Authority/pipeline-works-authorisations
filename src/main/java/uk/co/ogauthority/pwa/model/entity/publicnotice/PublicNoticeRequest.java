@@ -44,10 +44,10 @@ public class PublicNoticeRequest {
 
   private Instant submittedTimestamp;
 
-  private Instant endedTimestamp;
+  private Instant responseTimestamp;
 
   private Integer createdByPersonId;
-  private Integer endedByPersonId;
+  private Integer responderPersonId;
 
 
   public Integer getId() {
@@ -130,12 +130,12 @@ public class PublicNoticeRequest {
     this.submittedTimestamp = submittedTimestamp;
   }
 
-  public Instant getEndedTimestamp() {
-    return endedTimestamp;
+  public Instant getResponseTimestamp() {
+    return responseTimestamp;
   }
 
-  public void setEndedTimestamp(Instant endedTimestamp) {
-    this.endedTimestamp = endedTimestamp;
+  public void setResponseTimestamp(Instant responseTimestamp) {
+    this.responseTimestamp = responseTimestamp;
   }
 
   public Integer getCreatedByPersonId() {
@@ -146,12 +146,12 @@ public class PublicNoticeRequest {
     this.createdByPersonId = createdByPersonId;
   }
 
-  public Integer getEndedByPersonId() {
-    return endedByPersonId;
+  public Integer getResponderPersonId() {
+    return responderPersonId;
   }
 
-  public void setEndedByPersonId(Integer endedByPersonId) {
-    this.endedByPersonId = endedByPersonId;
+  public void setResponderPersonId(Integer responderPersonId) {
+    this.responderPersonId = responderPersonId;
   }
 
 }
