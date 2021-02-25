@@ -87,6 +87,7 @@ public class WorkAreaApplicationDetailSearcherTest {
     var resultPage = workAreaApplicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagIsFalseOrAllProcessingWaitFlagsFalse(
         pageable,
         Set.of(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW),
+        Set.of(),
         Set.of(1, 2, 3)
     );
 
@@ -96,7 +97,7 @@ public class WorkAreaApplicationDetailSearcherTest {
         Set.of(1, 2, 3),
         false,
         false,
-        false,
+        null,
         false
     );
   }
@@ -106,6 +107,7 @@ public class WorkAreaApplicationDetailSearcherTest {
 
     var resultPage = workAreaApplicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagIsFalseOrAllProcessingWaitFlagsFalse(
         pageable,
+        Set.of(),
         Set.of(),
         Set.of()
     );

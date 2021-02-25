@@ -16,10 +16,15 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
+import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeStatus;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.workflow.GenericWorkflowSubject;
 import uk.co.ogauthority.pwa.mvc.PageView;
+import uk.co.ogauthority.pwa.service.appprocessing.publicnotice.PublicNoticeService;
+import uk.co.ogauthority.pwa.service.appprocessing.publicnotice.PublicNoticeTestUtil;
 import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationConsultationWorkflowTask;
 import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationWorkflowTask;
 import uk.co.ogauthority.pwa.service.enums.workflow.WorkflowType;
@@ -48,6 +53,9 @@ public class WorkAreaServiceTest {
   @Mock
   private RegulatorWorkAreaPageService regulatorWorkAreaPageService;
 
+  @Mock
+  private PublicNoticeService publicNoticeService;
+
   private WorkAreaService workAreaService;
 
   private PageView<PwaApplicationWorkAreaItem> appPageView;
@@ -62,7 +70,8 @@ public class WorkAreaServiceTest {
         camundaWorkflowService,
         industryWorkAreaPageService,
         consultationWorkAreaPageService,
-        regulatorWorkAreaPageService);
+        regulatorWorkAreaPageService,
+        publicNoticeService);
 
     appPageView = WorkAreaTestUtils.setUpFakeAppPageView(0);
     when(industryWorkAreaPageService.getOpenApplicationsPageView(any(), anyInt())).thenReturn(appPageView);
@@ -90,6 +99,26 @@ public class WorkAreaServiceTest {
     var workAreaResult = workAreaService.getWorkAreaResult(authenticatedUserAccount, WorkAreaTab.REGULATOR_REQUIRES_ATTENTION, 0);
 
     verify(regulatorWorkAreaPageService, times(1)).getRequiresAttentionPageView(eq(authenticatedUserAccount), eq(Set.of(1,2)), eq(0));
+
+    assertThat(workAreaResult.getApplicationsTabPages()).isEqualTo(appPageView);
+    assertThat(workAreaResult.getConsultationsTabPages()).isNull();
+
+  }
+
+  @Test
+  public void getWorkAreaResult_regAttentionTab_pwaManagerPrivilege_resultsExist() {
+
+    authenticatedUserAccount = new AuthenticatedUserAccount(new WebUserAccount(1, new Person()), List.of(
+        PwaUserPrivilege.PWA_MANAGER));
+
+    var pwaApplication = new PwaApplication();
+    pwaApplication.setId(1);
+    var publicNotice = PublicNoticeTestUtil.createInitialPublicNotice(pwaApplication);
+    when(publicNoticeService.getOpenPublicNotices()).thenReturn(List.of(publicNotice));
+    var workAreaResult = workAreaService.getWorkAreaResult(authenticatedUserAccount, WorkAreaTab.REGULATOR_REQUIRES_ATTENTION, 0);
+
+    verify(regulatorWorkAreaPageService, times(1)).getRequiresAttentionPageView(
+        eq(authenticatedUserAccount), eq(Set.of(publicNotice.getPwaApplication().getId())), eq(0));
 
     assertThat(workAreaResult.getApplicationsTabPages()).isEqualTo(appPageView);
     assertThat(workAreaResult.getConsultationsTabPages()).isNull();

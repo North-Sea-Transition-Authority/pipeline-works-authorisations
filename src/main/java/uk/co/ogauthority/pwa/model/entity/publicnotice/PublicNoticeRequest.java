@@ -36,12 +36,18 @@ public class PublicNoticeRequest {
 
   private String reasonDescription;
 
+  private Boolean requestApproved;
+
+  private String rejectionReason;
+
   private Integer version;
 
   private Instant submittedTimestamp;
 
+  private Instant responseTimestamp;
+
   private Integer createdByPersonId;
-  private Integer endedByPersonId;
+  private Integer responderPersonId;
 
 
   public Integer getId() {
@@ -92,6 +98,22 @@ public class PublicNoticeRequest {
     this.reasonDescription = reasonDescription;
   }
 
+  public Boolean getRequestApproved() {
+    return requestApproved;
+  }
+
+  public void setRequestApproved(Boolean requestApproved) {
+    this.requestApproved = requestApproved;
+  }
+
+  public String getRejectionReason() {
+    return rejectionReason;
+  }
+
+  public void setRejectionReason(String rejectionReason) {
+    this.rejectionReason = rejectionReason;
+  }
+
   public Integer getVersion() {
     return version;
   }
@@ -108,6 +130,14 @@ public class PublicNoticeRequest {
     this.submittedTimestamp = submittedTimestamp;
   }
 
+  public Instant getResponseTimestamp() {
+    return responseTimestamp;
+  }
+
+  public void setResponseTimestamp(Instant responseTimestamp) {
+    this.responseTimestamp = responseTimestamp;
+  }
+
   public Integer getCreatedByPersonId() {
     return createdByPersonId;
   }
@@ -116,11 +146,12 @@ public class PublicNoticeRequest {
     this.createdByPersonId = createdByPersonId;
   }
 
-  public Integer getEndedByPersonId() {
-    return endedByPersonId;
+  public Integer getResponderPersonId() {
+    return responderPersonId;
   }
 
-  public void setEndedByPersonId(Integer endedByPersonId) {
-    this.endedByPersonId = endedByPersonId;
+  public void setResponderPersonId(Integer responderPersonId) {
+    this.responderPersonId = responderPersonId;
   }
+
 }

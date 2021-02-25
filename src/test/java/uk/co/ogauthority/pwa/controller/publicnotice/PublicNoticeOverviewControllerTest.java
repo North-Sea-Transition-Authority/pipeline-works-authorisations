@@ -81,7 +81,7 @@ public class PublicNoticeOverviewControllerTest extends PwaAppProcessingContextA
   @Test
   public void renderPublicNoticeOverview_appStatusSmokeTest() {
 
-    when(publicNoticeService.getAllPublicNoticeViews(any(), any())).thenReturn(
+    when(publicNoticeService.getAllPublicNoticeViews(any())).thenReturn(
         new AllPublicNoticesView(null, List.of(), Set.of()));
 
     endpointTestBuilder.setRequestMethod(HttpMethod.GET)
@@ -96,7 +96,7 @@ public class PublicNoticeOverviewControllerTest extends PwaAppProcessingContextA
   @Test
   public void renderPublicNoticeOverview_processingPermissionSmokeTest() {
 
-    when(publicNoticeService.getAllPublicNoticeViews(any(), any())).thenReturn(
+    when(publicNoticeService.getAllPublicNoticeViews(any())).thenReturn(
         new AllPublicNoticesView(null, List.of(), Set.of()));
 
     endpointTestBuilder.setRequestMethod(HttpMethod.GET)
