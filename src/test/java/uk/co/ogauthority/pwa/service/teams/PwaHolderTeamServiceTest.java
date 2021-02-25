@@ -194,6 +194,37 @@ public class PwaHolderTeamServiceTest {
   }
 
   @Test
+  public void getHolderOrgGroups_consentedHolderExists() {
+
+    when(teamManagementService.getTeamMemberViewForTeamAndPerson(consentedHolderTeam, person))
+        .thenReturn(Optional.of(teamMemberView));
+
+    when(pwaConsentOrganisationRoleService.getCurrentHoldersOrgRolesForMasterPwa(any())).thenReturn(Set.of(
+        new MasterPwaHolderDto(consentedHolderOu, null)));
+
+    var organisationGroupSet = pwaHolderTeamService.getHolderOrgGroups(detail);
+
+    verifyNoInteractions(padOrganisationRoleService);
+
+    assertThat(organisationGroupSet).containsExactly(consentedHolderGroup);
+
+  }
+
+  @Test
+  public void getHolderOrgGroups_noConsented_appHolderUsed() {
+
+    when(teamManagementService.getTeamMemberViewForTeamAndPerson(appHolderTeam, person))
+        .thenReturn(Optional.of(appMemberView));
+
+    var organisationGroupSet = pwaHolderTeamService.getHolderOrgGroups(detail);
+
+    verify(pwaConsentOrganisationRoleService, times(1)).getCurrentHoldersOrgRolesForMasterPwa(any());
+
+    assertThat(organisationGroupSet).containsExactly(appHolderGroup);
+
+  }
+
+  @Test
   public void getPeopleWithHolderTeamRole_hasRole() {
 
     when(teamService.getAllOrganisationTeams()).thenReturn(List.of(appHolderTeam));

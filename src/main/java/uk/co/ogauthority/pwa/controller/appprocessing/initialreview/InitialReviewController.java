@@ -29,8 +29,8 @@ import uk.co.ogauthority.pwa.service.appprocessing.applicationupdate.Application
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.service.appprocessing.initialreview.InitialReviewPaymentDecision;
 import uk.co.ogauthority.pwa.service.appprocessing.initialreview.InitialReviewService;
-import uk.co.ogauthority.pwa.service.appprocessing.processingcharges.ApplicationPaymentSummariser;
 import uk.co.ogauthority.pwa.service.appprocessing.processingcharges.appfees.ApplicationFeeService;
+import uk.co.ogauthority.pwa.service.appprocessing.processingcharges.display.ApplicationPaymentSummariser;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingTask;
@@ -87,7 +87,7 @@ public class InitialReviewController {
 
     var modelAndView = new ModelAndView("pwaApplication/appProcessing/initialReview/initialReview")
         .addObject("appRef", detail.getPwaApplicationRef())
-        .addObject("applicationFees", displayableFees)
+        .addObject("appPaymentDisplaySummary", displayableFees)
         .addObject("paymentDecisionOptions", Arrays.stream(InitialReviewPaymentDecision.values())
             .collect(StreamUtils.toLinkedHashMap(Enum::name, InitialReviewPaymentDecision::getDisplayText)))
         .addObject("isOptionsVariation", detail.getPwaApplicationType().equals(PwaApplicationType.OPTIONS_VARIATION))
