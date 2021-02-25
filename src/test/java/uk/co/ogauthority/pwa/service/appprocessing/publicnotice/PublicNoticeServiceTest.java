@@ -229,6 +229,11 @@ public class PublicNoticeServiceTest {
 
 
   @Test
+  public void getPublicNoticesByStatus() {
+    publicNoticeService.getPublicNoticesByStatus(PublicNoticeStatus.DRAFT);
+    verify(publicNoticeRepository, times(1)).findAllByStatus(PublicNoticeStatus.DRAFT);
+  }
+
   public void getOpenPublicNotices() {
     publicNoticeService.getOpenPublicNotices();
     verify(publicNoticeRepository, times(1)).findAllByStatusNotIn(ENDED_STATUSES);

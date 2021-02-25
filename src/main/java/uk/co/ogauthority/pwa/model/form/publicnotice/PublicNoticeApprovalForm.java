@@ -1,17 +1,19 @@
 package uk.co.ogauthority.pwa.model.form.publicnotice;
 
+import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationPublicNoticeApprovalResult;
+
 public class PublicNoticeApprovalForm {
 
 
-  private Boolean requestApproved;
+  private PwaApplicationPublicNoticeApprovalResult requestApproved;
   private String requestRejectedReason;
 
 
-  public Boolean getRequestApproved() {
+  public PwaApplicationPublicNoticeApprovalResult getRequestApproved() {
     return requestApproved;
   }
 
-  public void setRequestApproved(Boolean requestApproved) {
+  public void setRequestApproved(PwaApplicationPublicNoticeApprovalResult requestApproved) {
     this.requestApproved = requestApproved;
   }
 
