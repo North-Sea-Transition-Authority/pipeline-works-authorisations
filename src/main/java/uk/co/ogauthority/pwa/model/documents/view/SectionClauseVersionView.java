@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.model.documents.view;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.util.ArrayList;
 import java.util.List;
 import uk.co.ogauthority.pwa.model.documents.instances.DocumentInstanceSectionClauseVersionDto;
@@ -21,6 +22,11 @@ public class SectionClauseVersionView {
   private Integer levelOrder;
 
   private List<SectionClauseVersionView> childClauses;
+
+  @VisibleForTesting
+  public SectionClauseVersionView() {
+
+  }
 
   public SectionClauseVersionView(Integer id,
                                   Integer clauseId,

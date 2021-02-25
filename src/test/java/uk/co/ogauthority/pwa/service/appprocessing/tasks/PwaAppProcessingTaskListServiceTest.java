@@ -96,7 +96,7 @@ public class PwaAppProcessingTaskListServiceTest {
             // CLOSE_OUT_OPTIONS route has content based on independently tested specific conditions
             tuple(PwaAppProcessingTask.CLOSE_OUT_OPTIONS.getTaskName(), null),
             tuple(PwaAppProcessingTask.PUBLIC_NOTICE.getTaskName(), PwaAppProcessingTask.PUBLIC_NOTICE.getRoute(processingContext)),
-            tuple(PwaAppProcessingTask.DECISION.getTaskName(), PwaAppProcessingTask.DECISION.getRoute(processingContext)),
+            tuple(PwaAppProcessingTask.PREPARE_CONSENT.getTaskName(), PwaAppProcessingTask.PREPARE_CONSENT.getRoute(processingContext)),
             tuple(PwaAppProcessingTask.ALLOCATE_RESPONDER.getTaskName(), PwaAppProcessingTask.ALLOCATE_RESPONDER.getRoute(processingContext)),
             tuple(PwaAppProcessingTask.CONSULTATION_RESPONSE.getTaskName(), PwaAppProcessingTask.CONSULTATION_RESPONSE.getRoute(processingContext))
         );
@@ -148,7 +148,7 @@ public class PwaAppProcessingTaskListServiceTest {
             tuple(PwaAppProcessingTask.CONFIRM_SATISFACTORY_APPLICATION.getTaskName(), PwaAppProcessingTask.CONFIRM_SATISFACTORY_APPLICATION.getRoute(processingContext)),
             tuple(PwaAppProcessingTask.CONSULTATIONS.getTaskName(), PwaAppProcessingTask.CONSULTATIONS.getRoute(processingContext)),
             tuple(PwaAppProcessingTask.PUBLIC_NOTICE.getTaskName(), PwaAppProcessingTask.PUBLIC_NOTICE.getRoute(processingContext)),
-            tuple(PwaAppProcessingTask.DECISION.getTaskName(), PwaAppProcessingTask.DECISION.getRoute(processingContext)),
+            tuple(PwaAppProcessingTask.PREPARE_CONSENT.getTaskName(), PwaAppProcessingTask.PREPARE_CONSENT.getRoute(processingContext)),
             tuple(PwaAppProcessingTask.ALLOCATE_RESPONDER.getTaskName(), PwaAppProcessingTask.ALLOCATE_RESPONDER.getRoute(processingContext)),
             tuple(PwaAppProcessingTask.CONSULTATION_RESPONSE.getTaskName(), PwaAppProcessingTask.CONSULTATION_RESPONSE.getRoute(processingContext))
         );

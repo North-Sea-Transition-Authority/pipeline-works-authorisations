@@ -77,7 +77,7 @@ public class PublicNoticeService implements AppProcessingService {
   private final PwaAppProcessingPermissionService pwaAppProcessingPermissionService;
 
   private static final AppFilePurpose FILE_PURPOSE = AppFilePurpose.PUBLIC_NOTICE;
-  private static final Set<PublicNoticeStatus> ENDED_STATUSES = Set.of(PublicNoticeStatus.WITHDRAWN);
+  private static final Set<PublicNoticeStatus> ENDED_STATUSES = Set.of(PublicNoticeStatus.ENDED, PublicNoticeStatus.WITHDRAWN);
 
   @Autowired
   public PublicNoticeService(
@@ -297,4 +297,10 @@ public class PublicNoticeService implements AppProcessingService {
     publicNoticeDocumentLinkRepository.delete(publicNoticeDocumentLink);
     publicNoticeDocumentRepository.delete(publicNoticeDocumentLink.getPublicNoticeDocument());
   }
+
+  public boolean publicNoticeInProgress(PwaApplication pwaApplication) {
+    return publicNoticeRepository.findAllByPwaApplication(pwaApplication).stream()
+        .anyMatch(notice -> !ENDED_STATUSES.contains(notice.getStatus()));
+  }
+
 }

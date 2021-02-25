@@ -928,8 +928,41 @@ public class PwaAppProcessingPermissionServiceTest {
     AssertionTestUtils.assertNotEmptyAndContains(permissions, PwaAppProcessingPermission.PAY_FOR_APPLICATION);
   }
 
+  @Test
+  public void getAppProcessingPermissions_sendConsentForApproval_assignedCaseOfficer() {
 
+    replacePrivileges(user, PwaUserPrivilege.PWA_CASE_OFFICER);
+    var appInvolvement = ApplicationInvolvementDtoTestUtil.fromInvolvementFlags(application, Set.of(CASE_OFFICER_STAGE_AND_USER_ASSIGNED));
+    when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
 
+    var permissions = processingPermissionService.getProcessingPermissionsDto(detail, user).getProcessingPermissions();
+    AssertionTestUtils.assertNotEmptyAndContains(permissions, PwaAppProcessingPermission.SEND_CONSENT_FOR_APPROVAL);
+
+  }
+
+  @Test
+  public void getAppProcessingPermissions_sendConsentForApproval_notAssignedCaseOfficer() {
+
+    replacePrivileges(user, PwaUserPrivilege.PWA_CASE_OFFICER);
+    var appInvolvement = ApplicationInvolvementDtoTestUtil.noInvolvementAndNoFlags(application);
+    when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
+
+    var permissions = processingPermissionService.getProcessingPermissionsDto(detail, user).getProcessingPermissions();
+    AssertionTestUtils.assertNotEmptyAndDoesNotContain(permissions, PwaAppProcessingPermission.SEND_CONSENT_FOR_APPROVAL);
+
+  }
+
+  @Test
+  public void getAppProcessingPermissions_sendConsentForApproval_notCaseOfficer() {
+
+    replacePrivileges(user, PwaUserPrivilege.PWA_MANAGER);
+    var appInvolvement = ApplicationInvolvementDtoTestUtil.noInvolvementAndNoFlags(application);
+    when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
+
+    var permissions = processingPermissionService.getProcessingPermissionsDto(detail, user).getProcessingPermissions();
+    AssertionTestUtils.assertNotEmptyAndDoesNotContain(permissions, PwaAppProcessingPermission.SEND_CONSENT_FOR_APPROVAL);
+
+  }
 
   private void clearPrivileges(AuthenticatedUserAccount userArg) {
     user = new AuthenticatedUserAccount(userArg, Set.of());

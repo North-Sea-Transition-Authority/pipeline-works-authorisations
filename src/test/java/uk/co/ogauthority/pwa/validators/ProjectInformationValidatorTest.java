@@ -507,7 +507,7 @@ public class ProjectInformationValidatorTest {
     form.setEarliestCompletionYear(earliestCompletionDate.getYear());
 
     var maxFutureDate = proposedStartDate.plusMonths(12);
-    form.setLatestCompletionDay(maxFutureDate.getDayOfMonth() - 1);
+    form.setLatestCompletionDay(Math.max(maxFutureDate.getDayOfMonth() - 1, 1));
     form.setLatestCompletionMonth(maxFutureDate.getMonthValue());
     form.setLatestCompletionYear(maxFutureDate.getYear());
 
@@ -600,7 +600,7 @@ public class ProjectInformationValidatorTest {
     form.setEarliestCompletionYear(earliestCompletionDate.getYear());
 
     var maxFutureDate = proposedStartDate.plusMonths(6);
-    form.setLatestCompletionDay(maxFutureDate.getDayOfMonth() - 1);
+    form.setLatestCompletionDay(Math.max(maxFutureDate.getDayOfMonth() - 1, 1));
     form.setLatestCompletionMonth(maxFutureDate.getMonthValue());
     form.setLatestCompletionYear(maxFutureDate.getYear());
 
@@ -889,7 +889,7 @@ public class ProjectInformationValidatorTest {
     ));
     var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form,
         new ProjectInformationFormValidationHints(PwaApplicationType.INITIAL, ValidationType.FULL, Set.of(ProjectInformationQuestion.PROJECT_LAYOUT_DIAGRAM), false));
-    assertThat(errorsMap).doesNotContainKeys("uploadedFileWithDescriptionForms");
+    assertThat(errorsMap).doesNotContainKeys("uploadedFileWithDescriptionForms", "uploadedFileWithDescriptionForms[0].uploadedFileDescription");
   }
 
   @Test
@@ -902,6 +902,19 @@ public class ProjectInformationValidatorTest {
     var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form,
         new ProjectInformationFormValidationHints(PwaApplicationType.INITIAL, ValidationType.FULL, Set.of(ProjectInformationQuestion.PROJECT_LAYOUT_DIAGRAM), false));
     assertThat(errorsMap).containsKeys("uploadedFileWithDescriptionForms");
+  }
+
+  @Test
+  public void validate_projectLayoutDiagramFile_noDescription() {
+    var form = new ProjectInformationForm();
+    form.setUploadedFileWithDescriptionForms(List.of(
+        new UploadFileWithDescriptionForm("1", null, Instant.now())
+    ));
+    var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form,
+        new ProjectInformationFormValidationHints(PwaApplicationType.INITIAL, ValidationType.FULL, Set.of(ProjectInformationQuestion.PROJECT_LAYOUT_DIAGRAM), false));
+    assertThat(errorsMap).contains(
+        entry("uploadedFileWithDescriptionForms[0].uploadedFileDescription",
+            Set.of("uploadedFileWithDescriptionForms[0].uploadedFileDescription" + FieldValidationErrorCodes.REQUIRED.getCode())));
   }
 
   @Test
