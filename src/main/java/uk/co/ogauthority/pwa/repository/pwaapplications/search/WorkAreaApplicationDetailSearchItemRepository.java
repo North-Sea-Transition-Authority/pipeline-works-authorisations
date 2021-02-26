@@ -26,8 +26,9 @@ public interface WorkAreaApplicationDetailSearchItemRepository extends CrudRepos
       "      (waadsi.openConsentReviewFlag = TRUE AND :openConsentReviewForegroundFlag = TRUE) OR " +
       "      (waadsi.openConsentReviewFlag = FALSE AND :openConsentReviewForegroundFlag = FALSE) " +
       "    ) " +
-      "  ) " +
-      ")";
+      "  )" +
+      ")" +
+      "OR  (:publicNoticeOverrideFlag = TRUE AND waadsi.publicNoticeStatus IN :publicNoticeStatuses)";
 
   String PADSTATUS_IN_OR_PWAAPPLICATION_ID_IN_AND_WHERE_TIP_SATISFACTORY_FLAG_MATCHES_AND_ANY_OTHER_WAIT_FLAGS_MATCH = "" +
       "FROM WorkAreaApplicationDetailSearchItem waadsi " +
@@ -39,7 +40,8 @@ public interface WorkAreaApplicationDetailSearchItemRepository extends CrudRepos
       "    OR waadsi.openConsultationRequestFlag = :openConsultationRequestFlag" +
       "    OR (waadsi.openConsentReviewFlag = TRUE AND :openConsentReviewForegroundFlag = FALSE)" +
       "  ) " +
-      ")";
+      ")" +
+      "OR  (:publicNoticeOverrideFlag = TRUE AND waadsi.publicNoticeStatus IN :publicNoticeStatuses)";
 
   Page<WorkAreaApplicationDetailSearchItem> findAllByTipFlagIsTrueAndPadStatusIn(Pageable pageable,
                                                                                  Collection<PwaApplicationStatus> statusFilter);
@@ -60,6 +62,7 @@ public interface WorkAreaApplicationDetailSearchItemRepository extends CrudRepos
       @Param("applicationIdFilter") Collection<Integer> applicationIdFilter,
       @Param("tipVersionSatisfactoryFlag") Boolean tipVersionSatisfactoryFlag,
       @Param("openForUpdateFlag") Boolean openForUpdateFlag,
+      @Param("publicNoticeOverrideFlag") Boolean publicNoticeOverrideFlag,
       @Param("publicNoticeStatuses") Collection<PublicNoticeStatus> publicNoticeStatuses,
       @Param("openConsultationRequestFlag") Boolean openConsultationRequestFlag,
       @Param("openConsentReviewForegroundFlag") Boolean openConsentReviewForegroundFlag
@@ -76,6 +79,7 @@ public interface WorkAreaApplicationDetailSearchItemRepository extends CrudRepos
       @Param("applicationIdFilter") Collection<Integer> applicationIdFilter,
       @Param("tipVersionSatisfactoryFlag") Boolean tipVersionSatisfactoryFlag,
       @Param("openForUpdateFlag") Boolean openForUpdateFlag,
+      @Param("publicNoticeOverrideFlag") Boolean publicNoticeOverrideFlag,
       @Param("publicNoticeStatuses") Collection<PublicNoticeStatus> publicNoticeStatuses,
       @Param("openConsultationRequestFlag") Boolean openConsultationRequestFlag,
       @Param("openConsentReviewForegroundFlag") Boolean openConsentReviewForegroundFlag

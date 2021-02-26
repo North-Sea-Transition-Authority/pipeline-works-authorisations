@@ -95,8 +95,16 @@ public class RegulatorWorkAreaPageService {
 
     if (user.getUserPrivileges().contains(PwaUserPrivilege.PWA_MANAGER)) {
       return Set.of(PublicNoticeStatus.MANAGER_APPROVAL);
+
+    } else if (user.getUserPrivileges().contains(PwaUserPrivilege.PWA_CASE_OFFICER)) {
+      return Set.of(PublicNoticeStatus.DRAFT);
     }
     return Set.of();
+  }
+
+  private boolean getPublicNoticeOverrideFlag(AuthenticatedUserAccount user) {
+    return user.getUserPrivileges().contains(PwaUserPrivilege.PWA_MANAGER)
+       || user.getUserPrivileges().contains(PwaUserPrivilege.PWA_CASE_OFFICER);
   }
 
 
@@ -107,6 +115,7 @@ public class RegulatorWorkAreaPageService {
     var processingPermissions = appProcessingPermissionService.getGenericProcessingPermissions(userAccount);
     var searchStatuses = getAdditionalStatusFilterForUser(processingPermissions);
     var publicNoticeStatuses = getPublicNoticeStatusFilterForUser(userAccount);
+    var publicNoticeOverrideFlag = getPublicNoticeOverrideFlag(userAccount);
 
     var processingFlagsMap = getProcessingFlagsMapWithDefault(processingPermissions, false);
 
@@ -114,6 +123,7 @@ public class RegulatorWorkAreaPageService {
         WorkAreaUtils.getWorkAreaPageRequest(pageRequest, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
         searchStatuses,
         publicNoticeStatuses,
+        publicNoticeOverrideFlag,
         applicationIdList,
         processingFlagsMap
     );
@@ -142,6 +152,7 @@ public class RegulatorWorkAreaPageService {
     var processingPermissions = appProcessingPermissionService.getGenericProcessingPermissions(userAccount);
     var searchStatuses = getAdditionalStatusFilterForUser(processingPermissions);
     var publicNoticeStatuses = getPublicNoticeStatusFilterForUser(userAccount);
+    var publicNoticeOverrideFlag = getPublicNoticeOverrideFlag(userAccount);
 
     var processingFlagsMap = getProcessingFlagsMapWithDefault(processingPermissions, true);
 
@@ -149,6 +160,7 @@ public class RegulatorWorkAreaPageService {
         WorkAreaUtils.getWorkAreaPageRequest(pageRequest, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
         searchStatuses,
         publicNoticeStatuses,
+        publicNoticeOverrideFlag,
         applicationIdList,
         processingFlagsMap
     );

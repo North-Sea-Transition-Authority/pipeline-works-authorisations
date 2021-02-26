@@ -95,6 +95,7 @@ public class WorkAreaApplicationDetailSearcherTest {
         pageable,
         Set.of(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW),
         Set.of(),
+        false,
         Set.of(1, 2, 3),
         flagMap
     );
@@ -103,6 +104,7 @@ public class WorkAreaApplicationDetailSearcherTest {
         pageable,
         Set.of(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW),
         Set.of(1, 2, 3),
+        false,
         false,
         false,
         null,
@@ -118,6 +120,7 @@ public class WorkAreaApplicationDetailSearcherTest {
         pageable,
         Set.of(),
         Set.of(),
+        false,
         Set.of(),
         Map.of()
     );
