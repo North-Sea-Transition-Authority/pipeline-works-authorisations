@@ -22,6 +22,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeStatus;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.WorkAreaApplicationDetailSearchItem;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.WorkAreaApplicationDetailSearchItem_;
 import uk.co.ogauthority.pwa.repository.pwaapplications.search.WorkAreaApplicationDetailSearchItemRepository;
@@ -108,7 +109,10 @@ public class WorkAreaApplicationDetailSearcher {
     Predicate openRequestForUpdatePredicate = cb.equal(
         root.get(WorkAreaApplicationDetailSearchItem_.openUpdateRequestFlag), openUpdateRequestFilter);
 
-    Predicate statusOrOpenUpdatePredicate = cb.or(statusFilterPredicate, openRequestForUpdatePredicate);
+    Predicate publicNoticeUpdateRequestPredicate = cb.equal(
+        root.get(WorkAreaApplicationDetailSearchItem_.publicNoticeStatus), PublicNoticeStatus.APPLICANT_UPDATE);
+
+    Predicate statusOrOpenUpdatePredicate = cb.or(statusFilterPredicate, openRequestForUpdatePredicate, publicNoticeUpdateRequestPredicate);
 
     Predicate finalPredicate = cb.and(appIdFilterPredicate, statusOrOpenUpdatePredicate);
 
@@ -196,6 +200,7 @@ public class WorkAreaApplicationDetailSearcher {
       searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagEqualsOrAllProcessingWaitFlagsEqual(
       Pageable pageable,
       Set<PwaApplicationStatus> statusFilter,
+      Set<PublicNoticeStatus> publicNoticeStatusFilter,
       Set<Integer> pwaApplicationIdFilter,
       Map<WorkAreaFlag, Boolean> workAreaFlagMap) {
 
@@ -211,7 +216,7 @@ public class WorkAreaApplicationDetailSearcher {
         pwaApplicationIdFilter.isEmpty() ? null : pwaApplicationIdFilter,
         workAreaFlagMap.get(WorkAreaFlag.TIP_VERSION_SATISFACTORY),
         workAreaFlagMap.get(WorkAreaFlag.OPEN_UPDATE_REQUEST),
-        workAreaFlagMap.get(WorkAreaFlag.OPEN_PUBLIC_NOTICE),
+            publicNoticeStatusFilter.isEmpty() ? null : publicNoticeStatusFilter,
         workAreaFlagMap.get(WorkAreaFlag.OPEN_CONSULTATION_REQUEST),
         workAreaFlagMap.get(WorkAreaFlag.OPEN_CONSENT_REVIEW_FOREGROUND_FLAG)
     );
@@ -225,6 +230,7 @@ public class WorkAreaApplicationDetailSearcher {
       searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagEqualsAndAnyProcessingWaitFlagEqual(
           Pageable pageable,
           Set<PwaApplicationStatus> statusFilter,
+          Set<PublicNoticeStatus> publicNoticeStatusFilter,
           Set<Integer> pwaApplicationIdFilter,
           Map<WorkAreaFlag, Boolean> workAreaFlagMap) {
 
@@ -240,7 +246,7 @@ public class WorkAreaApplicationDetailSearcher {
         pwaApplicationIdFilter.isEmpty() ? null : pwaApplicationIdFilter,
         workAreaFlagMap.get(WorkAreaFlag.TIP_VERSION_SATISFACTORY),
         workAreaFlagMap.get(WorkAreaFlag.OPEN_UPDATE_REQUEST),
-        workAreaFlagMap.get(WorkAreaFlag.OPEN_PUBLIC_NOTICE),
+            publicNoticeStatusFilter.isEmpty() ? null : publicNoticeStatusFilter,
         workAreaFlagMap.get(WorkAreaFlag.OPEN_CONSULTATION_REQUEST),
         workAreaFlagMap.get(WorkAreaFlag.OPEN_CONSENT_REVIEW_FOREGROUND_FLAG)
     );

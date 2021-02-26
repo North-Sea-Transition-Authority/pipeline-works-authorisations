@@ -11,6 +11,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import org.hibernate.annotations.Immutable;
 import uk.co.ogauthority.pwa.model.entity.converters.SemiColonSeparatedListConverter;
+import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 
@@ -84,7 +85,8 @@ public class ApplicationDetailView implements ApplicationDetailItemView {
   @Column(name = "open_consultation_req_flag")
   private boolean openConsultationRequestFlag;
 
-  private boolean openPublicNoticeFlag;
+  @Enumerated(EnumType.STRING)
+  private PublicNoticeStatus publicNoticeStatus;
 
   private boolean tipVersionSatisfactoryFlag;
 
@@ -339,13 +341,13 @@ public class ApplicationDetailView implements ApplicationDetailItemView {
   }
 
   @Override
-  public boolean isOpenPublicNoticeFlag() {
-    return openPublicNoticeFlag;
+  public PublicNoticeStatus getPublicNoticeStatus() {
+    return publicNoticeStatus;
   }
 
   @Override
-  public void setOpenPublicNoticeFlag(boolean openPublicNoticeFlag) {
-    this.openPublicNoticeFlag = openPublicNoticeFlag;
+  public void setPublicNoticeStatus(PublicNoticeStatus publicNoticeStatus) {
+    this.publicNoticeStatus = publicNoticeStatus;
   }
 
   @Override

@@ -71,12 +71,12 @@ public class InitialReviewService implements AppProcessingService {
         detail.getPwaApplication(),
         initialReviewPaymentDecision.getPwaAppChargeRequestStatus()
     )
-        .setChargeSummary(appFeeReport.getFeeSummary())
+        .setChargeSummary(appFeeReport.getSummary())
         .setTotalPennies(appFeeReport.getTotalPennies())
         .setChargeWaivedReason(paymentWaivedReason)
         .setOnPaymentCompleteCaseOfficerPersonId(caseOfficerPersonId);
 
-    appFeeReport.getApplicationFeeItems().forEach(
+    appFeeReport.getPaymentItems().forEach(
         applicationFeeItem -> appChargeSpec.addChargeItem(applicationFeeItem.getDescription(), applicationFeeItem.getPennyAmount())
     );
 

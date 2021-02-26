@@ -8,7 +8,7 @@
 <#-- @ftlvariable name="caseSummaryView" type="uk.co.ogauthority.pwa.service.appprocessing.context.CaseSummaryView" -->
 <#-- @ftlvariable name="errorList" type="java.util.List<uk.co.ogauthority.pwa.model.form.fds.ErrorItem>"-->
 <#-- @ftlvariable name="cancelUrl" type="String" -->
-<#-- @ftlvariable name="applicationFees" type="uk.co.ogauthority.pwa.service.appprocessing.processingcharges.DisplayableFeeItem" -->
+<#-- @ftlvariable name="appPaymentDisplaySummary" type="uk.co.ogauthority.pwa.service.appprocessing.processingcharges.display.ApplicationPaymentDisplaySummary" -->
 
 <@defaultPage htmlTitle="Accept application ${appRef}" breadcrumbs=true fullWidthColumn=true>
 
@@ -43,27 +43,7 @@
               </@fdsWarning.warning>
           </#if>
 
-        <table class="govuk-table">
-            <caption class="govuk-table__caption govuk-table__caption-m">${applicationFees.headlineSummary}</caption>
-            <thead class="govuk-table__head">
-            <tr class="govuk-table__row">
-                <th scope="col" class="govuk-table__header">Item</th>
-                <th scope="col" class="govuk-table__header govuk-table__header--numeric">Cost</th>
-            </tr>
-            </thead>
-            <tbody class="govuk-table__body">
-                <#list applicationFees.displayableFeeItemList as displayableFee>
-                    <tr class="govuk-table__row">
-                        <td class="govuk-table__cell ">${displayableFee.description}</td>
-                        <td class="govuk-table__cell govuk-table__cell--numeric">&#163;${displayableFee.formattedAmount}</td>
-                    </tr
-                </#list>
-                <tr class="govuk-table__row">
-                    <th scope="row" class="govuk-table__header">Total charge</th>
-                    <th class="govuk-table__cell govuk-table__cell--numeric">&#163;${applicationFees.formattedAmount}</th>
-                </tr>
-            </tbody>
-        </table>
+          <@pwaPayment.applicationPaymentDisplaySummary summary=appPaymentDisplaySummary />
 
           <@fdsForm.htmlForm>
 

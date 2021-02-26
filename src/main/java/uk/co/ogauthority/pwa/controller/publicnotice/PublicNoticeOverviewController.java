@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.controller.publicnotice;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
+import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -59,13 +60,31 @@ public class PublicNoticeOverviewController {
   }
 
 
+  private Map<String, String> getActionUrlMap(PwaAppProcessingContext processingContext) {
+
+    var pwaApplicationId = processingContext.getMasterPwaApplicationId();
+    var applicationType = processingContext.getApplicationType();
+
+    return Map.of(
+        PublicNoticeAction.NEW_DRAFT.name(), ReverseRouter.route(on(PublicNoticeDraftController.class)
+            .renderDraftPublicNotice(pwaApplicationId, applicationType, null, null, null)),
+
+        PublicNoticeAction.UPDATE_DRAFT.name(), ReverseRouter.route(on(PublicNoticeDraftController.class)
+            .renderDraftPublicNotice(pwaApplicationId, applicationType, null, null, null)),
+
+        PublicNoticeAction.APPROVE.name(), ReverseRouter.route(on(PublicNoticeApprovalController.class)
+            .renderApprovePublicNotice(pwaApplicationId, applicationType, null, null, null))
+    );
+
+  }
+
+
 
   private ModelAndView getDraftPublicNoticeModelAndView(PwaAppProcessingContext processingContext,
                                                         AuthenticatedUserAccount authenticatedUserAccount) {
 
     var pwaApplication = processingContext.getPwaApplication();
-    var allPublicNoticesView = publicNoticeService.getAllPublicNoticeViews(
-        processingContext.getApplicationDetail(), authenticatedUserAccount);
+    var allPublicNoticesView = publicNoticeService.getAllPublicNoticeViews(processingContext);
     var draftPublicNoticeUrl = ReverseRouter.route(on(PublicNoticeDraftController.class).renderDraftPublicNotice(
         pwaApplication.getId(), pwaApplication.getApplicationType(), null, authenticatedUserAccount, null));
 
@@ -73,6 +92,7 @@ public class PublicNoticeOverviewController {
         .addObject("appRef", pwaApplication.getAppReference())
         .addObject("allPublicNoticesView", allPublicNoticesView)
         .addObject("existingPublicNoticeActions", PublicNoticeAction.getExistingPublicNoticeActions())
+        .addObject("actionUrlMap", getActionUrlMap(processingContext))
         .addObject("draftPublicNoticeUrl", draftPublicNoticeUrl)
         .addObject("backUrl", CaseManagementUtils.routeCaseManagement(processingContext))
         .addObject("caseSummaryView", processingContext.getCaseSummaryView());

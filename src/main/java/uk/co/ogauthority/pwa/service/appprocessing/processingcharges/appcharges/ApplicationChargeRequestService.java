@@ -3,6 +3,8 @@ package uk.co.ogauthority.pwa.service.appprocessing.processingcharges.appcharges
 import static java.util.stream.Collectors.toList;
 
 import java.time.Clock;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -13,6 +15,7 @@ import uk.co.ogauthority.pwa.model.entity.appprocessing.processingcharges.PwaApp
 import uk.co.ogauthority.pwa.model.entity.appprocessing.processingcharges.PwaAppChargeRequestDetail;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.processingcharges.PwaAppChargeRequestItem;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.processingcharges.PwaAppChargeRequestStatus;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.repository.appprocessing.processingcharges.PwaAppChargeRequestDetailRepository;
 import uk.co.ogauthority.pwa.repository.appprocessing.processingcharges.PwaAppChargeRequestItemRepository;
 import uk.co.ogauthority.pwa.repository.appprocessing.processingcharges.PwaAppChargeRequestRepository;
@@ -69,7 +72,7 @@ public class ApplicationChargeRequestService {
     detail.setTipFlag(true);
     detail.setChargeSummary(applicationChargeRequestSpecification.getChargeSummary());
     detail.setTotalPennies(applicationChargeRequestSpecification.getTotalPennies());
-    detail.setStatus(applicationChargeRequestSpecification.getPwaAppChargeRequestStatus());
+    detail.setPwaAppChargeRequestStatus(applicationChargeRequestSpecification.getPwaAppChargeRequestStatus());
     detail.setChargeWaivedReason(applicationChargeRequestSpecification.getChargeWaivedReason());
     detail.setAutoCaseOfficerPersonId(applicationChargeRequestSpecification.getOnPaymentCompleteCaseOfficerPersonId());
 
@@ -116,6 +119,35 @@ public class ApplicationChargeRequestService {
       throw new UnsupportedOperationException("Cannot create non-waived charge request with waived reason provided");
     }
 
+  }
+
+  public Optional<ApplicationChargeRequestReport> getApplicationChargeRequestReport(PwaApplication pwaApplication) {
+    return getAppChargeRequestReportWithStatus(pwaApplication, PwaAppChargeRequestStatus.OPEN);
+  }
+
+  private Optional<ApplicationChargeRequestReport> getAppChargeRequestReportWithStatus(PwaApplication pwaApplication,
+                                                                                       PwaAppChargeRequestStatus requestStatus) {
+    return pwaAppChargeRequestDetailRepository.findByPwaAppChargeRequest_PwaApplicationAndPwaAppChargeRequestStatusAndTipFlagIsTrue(
+        pwaApplication,
+        requestStatus
+    )
+        .map(pwaAppChargeRequestDetail -> {
+
+          var chargeItems = pwaAppChargeRequestItemRepository.findAllByPwaAppChargeRequestOrderByDescriptionAsc(
+              pwaAppChargeRequestDetail.getPwaAppChargeRequest())
+              .stream()
+              .map(ApplicationChargeItem::from)
+              .collect(Collectors.toUnmodifiableList());
+
+          return new ApplicationChargeRequestReport(
+              pwaApplication,
+              pwaAppChargeRequestDetail.getTotalPennies(),
+              pwaAppChargeRequestDetail.getChargeSummary(),
+              chargeItems,
+              pwaAppChargeRequestDetail.getPwaAppChargeRequestStatus(),
+              pwaAppChargeRequestDetail.getChargeWaivedReason()
+          );
+        });
   }
 
 }

@@ -20,6 +20,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
+import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeStatus;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.WorkAreaApplicationDetailSearchItem;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
@@ -201,6 +202,10 @@ public class WorkAreaApplicationDetailSearcherIntegrationTest {
     setupSearchItems();
 
     detail3SearchItem.setTipVersionSatisfactoryFlag(true);
+    detail1SearchItem.setPublicNoticeStatus(PublicNoticeStatus.MANAGER_APPROVAL);
+    detail2SearchItem.setPublicNoticeStatus(PublicNoticeStatus.MANAGER_APPROVAL);
+    detail3SearchItem.setPublicNoticeStatus(PublicNoticeStatus.MANAGER_APPROVAL);
+    detail4SearchItem.setPublicNoticeStatus(PublicNoticeStatus.MANAGER_APPROVAL);
     persistSearchItems();
 
     var flagMap = getFlagMapWithDefaultValue(false);
@@ -208,6 +213,7 @@ public class WorkAreaApplicationDetailSearcherIntegrationTest {
     var result = workAreaApplicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagEqualsOrAllProcessingWaitFlagsEqual(
         WorkAreaPageServiceTestUtil.getWorkAreaViewPageable(0, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
         Set.of(),
+        Set.of(PublicNoticeStatus.MANAGER_APPROVAL),
         Set.of(1, 2, 3, 4),
         flagMap
     );
@@ -227,6 +233,7 @@ public class WorkAreaApplicationDetailSearcherIntegrationTest {
 
     var result = workAreaApplicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagEqualsOrAllProcessingWaitFlagsEqual(
         WorkAreaPageServiceTestUtil.getWorkAreaViewPageable(0, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
+        Set.of(),
         Set.of(),
         Set.of(1, 2, 3, 4),
         flagMap
@@ -345,6 +352,7 @@ public class WorkAreaApplicationDetailSearcherIntegrationTest {
     var result = workAreaApplicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagEqualsOrAllProcessingWaitFlagsEqual(
         WorkAreaPageServiceTestUtil.getWorkAreaViewPageable(0, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
         Set.of(),
+        Set.of(),
         Set.of(1, 2, 3, 4),
         flagMap
     );
@@ -367,6 +375,7 @@ public class WorkAreaApplicationDetailSearcherIntegrationTest {
     var result = workAreaApplicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagEqualsAndAnyProcessingWaitFlagEqual(
         WorkAreaPageServiceTestUtil.getWorkAreaViewPageable(0, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
         Set.of(),
+        Set.of(),
         Set.of(1, 2, 3, 4),
         flagMap
     );
@@ -388,6 +397,7 @@ public class WorkAreaApplicationDetailSearcherIntegrationTest {
 
     var result = workAreaApplicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagEqualsAndAnyProcessingWaitFlagEqual(
         WorkAreaPageServiceTestUtil.getWorkAreaViewPageable(0, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
+        Set.of(),
         Set.of(),
         Set.of(1, 2, 3, 4),
         flagMap
@@ -435,6 +445,7 @@ public class WorkAreaApplicationDetailSearcherIntegrationTest {
 
     var result = workAreaApplicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagEqualsAndAnyProcessingWaitFlagEqual(
         WorkAreaPageServiceTestUtil.getWorkAreaViewPageable(0, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
+        Set.of(),
         Set.of(),
         Set.of(1, 2, 3, 4),
         flagMap

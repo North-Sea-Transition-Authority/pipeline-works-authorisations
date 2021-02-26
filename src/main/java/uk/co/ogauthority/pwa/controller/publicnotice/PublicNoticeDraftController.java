@@ -39,7 +39,7 @@ import uk.co.ogauthority.pwa.util.CaseManagementUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
 @Controller
-@RequestMapping("/pwa-application/{applicationType}/{applicationId}/public-notice")
+@RequestMapping("/pwa-application/{applicationType}/{applicationId}/public-notice-draft")
 @PwaAppProcessingPermissionCheck(permissions = {PwaAppProcessingPermission.DRAFT_PUBLIC_NOTICE})
 @PwaApplicationStatusCheck(statuses = PwaApplicationStatus.CASE_OFFICER_REVIEW)
 public class PublicNoticeDraftController extends PwaApplicationDataFileUploadAndDownloadController {

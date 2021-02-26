@@ -23,6 +23,7 @@ import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.WorkAreaController;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
+import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeStatus;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.WorkAreaApplicationDetailSearchItem;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.PwaAppProcessingPermissionService;
@@ -74,7 +75,7 @@ public class RegulatorWorkAreaPageServiceTest {
 
   @Test
   public void getRequiresAttentionPageView_zeroAssignedCases() {
-    when(workAreaApplicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagEqualsOrAllProcessingWaitFlagsEqual(any(), any(), any(), any()))
+    when(workAreaApplicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagEqualsOrAllProcessingWaitFlagsEqual(any(), any(), any(), any(), any()))
         .thenReturn(fakeResultPage);
 
     var workAreaPage = appWorkAreaPageService.getRequiresAttentionPageView(pwaManager, Set.of(), REQUESTED_PAGE);
@@ -86,6 +87,7 @@ public class RegulatorWorkAreaPageServiceTest {
     verify(workAreaApplicationDetailSearcher, times(1)).searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagEqualsOrAllProcessingWaitFlagsEqual(
         WorkAreaPageServiceTestUtil.getWorkAreaViewPageable(REQUESTED_PAGE, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
         pwaManagerStatuses,
+        Set.of(PublicNoticeStatus.MANAGER_APPROVAL),
         Set.of(),
         flagMap
     );
@@ -99,7 +101,7 @@ public class RegulatorWorkAreaPageServiceTest {
         List.of(WorkAreaApplicationSearchTestUtil.getSearchDetailItem(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW)),
         REQUESTED_PAGE);
 
-    when(workAreaApplicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagEqualsOrAllProcessingWaitFlagsEqual(any(), any(), any(), any()))
+    when(workAreaApplicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagEqualsOrAllProcessingWaitFlagsEqual(any(), any(), any(), any(), any()))
         .thenReturn(fakeResultPage);
 
     var workAreaPage = appWorkAreaPageService.getRequiresAttentionPageView(pwaManager, Set.of(APP_ID_1, APP_ID_2), REQUESTED_PAGE);
@@ -110,6 +112,7 @@ public class RegulatorWorkAreaPageServiceTest {
     verify(workAreaApplicationDetailSearcher, times(1)).searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagEqualsOrAllProcessingWaitFlagsEqual(
         WorkAreaPageServiceTestUtil.getWorkAreaViewPageable(REQUESTED_PAGE, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
         pwaManagerStatuses,
+        Set.of(PublicNoticeStatus.MANAGER_APPROVAL),
         Set.of(APP_ID_1, APP_ID_2),
         flagMap
     );
@@ -121,7 +124,7 @@ public class RegulatorWorkAreaPageServiceTest {
 
   @Test
   public void getRequiresAttentionPageView_pageableLinksToCorrectTab() {
-    when(workAreaApplicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagEqualsOrAllProcessingWaitFlagsEqual(any(), any(), any(), any()))
+    when(workAreaApplicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagEqualsOrAllProcessingWaitFlagsEqual(any(), any(), any(), any(), any()))
         .thenReturn(fakeResultPage);
 
     var workareaPage = appWorkAreaPageService.getRequiresAttentionPageView(pwaManager, Set.of(), REQUESTED_PAGE);
@@ -133,7 +136,7 @@ public class RegulatorWorkAreaPageServiceTest {
 
   @Test
   public void getWaitingOnOthersPageView_zeroAssignedCases() {
-    when(workAreaApplicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagEqualsAndAnyProcessingWaitFlagEqual(any(), any(), any(), any()))
+    when(workAreaApplicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagEqualsAndAnyProcessingWaitFlagEqual(any(), any(), any(), any(), any()))
         .thenReturn(fakeResultPage);
 
     var workareaPage = appWorkAreaPageService.getWaitingOnOthersPageView(pwaManager, Set.of(), REQUESTED_PAGE);
@@ -144,6 +147,7 @@ public class RegulatorWorkAreaPageServiceTest {
     verify(workAreaApplicationDetailSearcher, times(1)).searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagEqualsAndAnyProcessingWaitFlagEqual(
         WorkAreaPageServiceTestUtil.getWorkAreaViewPageable(REQUESTED_PAGE, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
         pwaManagerStatuses,
+        Set.of(PublicNoticeStatus.MANAGER_APPROVAL),
         Set.of(),
         flagMap
     );
@@ -152,7 +156,7 @@ public class RegulatorWorkAreaPageServiceTest {
 
   @Test
   public void getWaitingOnOthersPageView_pageableLinksToCorrectTab() {
-    when(workAreaApplicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagEqualsAndAnyProcessingWaitFlagEqual(any(), any(), any(), any()))
+    when(workAreaApplicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagEqualsAndAnyProcessingWaitFlagEqual(any(), any(), any(), any(), any()))
         .thenReturn(fakeResultPage);
 
     var workareaPage = appWorkAreaPageService.getWaitingOnOthersPageView(pwaManager, Set.of(), REQUESTED_PAGE);
@@ -169,7 +173,7 @@ public class RegulatorWorkAreaPageServiceTest {
         List.of(WorkAreaApplicationSearchTestUtil.getSearchDetailItem(PwaApplicationStatus.CASE_OFFICER_REVIEW)),
         REQUESTED_PAGE);
 
-    when(workAreaApplicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagEqualsAndAnyProcessingWaitFlagEqual(any(), any(), any(), any()))
+    when(workAreaApplicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagEqualsAndAnyProcessingWaitFlagEqual(any(), any(), any(), any(), any()))
         .thenReturn(fakeResultPage);
 
     var flagMap = getFlagMapWithDefaultValue(true);
@@ -179,6 +183,7 @@ public class RegulatorWorkAreaPageServiceTest {
     verify(workAreaApplicationDetailSearcher, times(1)).searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagEqualsAndAnyProcessingWaitFlagEqual(
         WorkAreaPageServiceTestUtil.getWorkAreaViewPageable(REQUESTED_PAGE, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
         pwaManagerStatuses,
+        Set.of(PublicNoticeStatus.MANAGER_APPROVAL),
         Set.of(APP_ID_1, APP_ID_2),
         flagMap
     );

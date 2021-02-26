@@ -6,8 +6,11 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.model.entity.workflow.assignment.Assignment;
+import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
+import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeStatus;
+import uk.co.ogauthority.pwa.service.appprocessing.publicnotice.PublicNoticeService;
 import uk.co.ogauthority.pwa.service.enums.workflow.WorkflowType;
 import uk.co.ogauthority.pwa.service.workarea.applications.IndustryWorkAreaPageService;
 import uk.co.ogauthority.pwa.service.workarea.applications.RegulatorWorkAreaPageService;
@@ -25,6 +28,7 @@ public class WorkAreaService {
   private final IndustryWorkAreaPageService industryWorkAreaPageService;
   private final ConsultationWorkAreaPageService consultationWorkAreaPageService;
   private final RegulatorWorkAreaPageService regulatorWorkAreaPageService;
+  private final PublicNoticeService publicNoticeService;
   private final AssignmentService assignmentService;
 
   @Autowired
@@ -32,11 +36,13 @@ public class WorkAreaService {
                          IndustryWorkAreaPageService industryWorkAreaPageService,
                          ConsultationWorkAreaPageService consultationWorkAreaPageService,
                          RegulatorWorkAreaPageService regulatorWorkAreaPageService,
+                         PublicNoticeService publicNoticeService,
                          AssignmentService assignmentService) {
     this.camundaWorkflowService = camundaWorkflowService;
     this.industryWorkAreaPageService = industryWorkAreaPageService;
     this.consultationWorkAreaPageService = consultationWorkAreaPageService;
     this.regulatorWorkAreaPageService = regulatorWorkAreaPageService;
+    this.publicNoticeService = publicNoticeService;
     this.assignmentService = assignmentService;
   }
 
@@ -80,6 +86,9 @@ public class WorkAreaService {
 
       case REGULATOR_REQUIRES_ATTENTION:
         businessKeys = getBusinessKeysFromWorkflowToTaskMap(workflowTypeToTaskMap, WorkflowType.PWA_APPLICATION);
+        if (authenticatedUserAccount.getUserPrivileges().contains(PwaUserPrivilege.PWA_MANAGER)) {
+          businessKeys.addAll(getApplicationIdsForOpenPublicNotices());
+        }
         businessKeys.addAll(assignedAppIds);
         return new WorkAreaResult(
             regulatorWorkAreaPageService.getRequiresAttentionPageView(authenticatedUserAccount, businessKeys, page),
@@ -120,6 +129,12 @@ public class WorkAreaService {
         .map(AssignedTaskInstance::getBusinessKey)
         .collect(Collectors.toSet());
 
+  }
+
+  private Set<Integer> getApplicationIdsForOpenPublicNotices() {
+    return publicNoticeService.getOpenPublicNotices()
+        .stream().map(publicNotice -> publicNotice.getPwaApplication().getId())
+        .collect(Collectors.toSet());
   }
 
 }
