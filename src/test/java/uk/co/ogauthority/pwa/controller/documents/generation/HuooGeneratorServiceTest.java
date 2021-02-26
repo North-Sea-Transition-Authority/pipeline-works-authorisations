@@ -55,7 +55,7 @@ public class HuooGeneratorServiceTest {
 
   private DiffableOrgRolePipelineGroup createDiffableOrgRolePipelineGroup() {
     return new DiffableOrgRolePipelineGroup(
-        null, null, null, null, null, null, false, List.of());
+        null, null, null, null, false, null, null, false, List.of());
   }
 
 

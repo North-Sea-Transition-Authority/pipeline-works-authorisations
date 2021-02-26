@@ -89,8 +89,16 @@ public class RegulatorWorkAreaPageService {
 
     if (user.getUserPrivileges().contains(PwaUserPrivilege.PWA_MANAGER)) {
       return Set.of(PublicNoticeStatus.MANAGER_APPROVAL);
+
+    } else if (user.getUserPrivileges().contains(PwaUserPrivilege.PWA_CASE_OFFICER)) {
+      return Set.of(PublicNoticeStatus.DRAFT);
     }
     return Set.of();
+  }
+
+  private boolean getPublicNoticeOverrideFlag(AuthenticatedUserAccount user) {
+    return user.getUserPrivileges().contains(PwaUserPrivilege.PWA_MANAGER)
+       || user.getUserPrivileges().contains(PwaUserPrivilege.PWA_CASE_OFFICER);
   }
 
 
@@ -100,11 +108,13 @@ public class RegulatorWorkAreaPageService {
 
     var searchStatuses = getAdditionalStatusFilterForUser(userAccount);
     var publicNoticeStatuses = getPublicNoticeStatusFilterForUser(userAccount);
+    var publicNoticeOverrideFlag = getPublicNoticeOverrideFlag(userAccount);
 
     return workAreaApplicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagIsFalseOrAllProcessingWaitFlagsFalse(
         WorkAreaUtils.getWorkAreaPageRequest(pageRequest, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
         searchStatuses,
         publicNoticeStatuses,
+        publicNoticeOverrideFlag,
         applicationIdList
     );
 
@@ -116,11 +126,13 @@ public class RegulatorWorkAreaPageService {
 
     var searchStatuses = getAdditionalStatusFilterForUser(userAccount);
     var publicNoticeStatuses = getPublicNoticeStatusFilterForUser(userAccount);
+    var publicNoticeOverrideFlag = getPublicNoticeOverrideFlag(userAccount);
 
     return workAreaApplicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagIsTrueAndAnyProcessingWaitFlagTrue(
         WorkAreaUtils.getWorkAreaPageRequest(pageRequest, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
         searchStatuses,
         publicNoticeStatuses,
+        publicNoticeOverrideFlag,
         applicationIdList
     );
 

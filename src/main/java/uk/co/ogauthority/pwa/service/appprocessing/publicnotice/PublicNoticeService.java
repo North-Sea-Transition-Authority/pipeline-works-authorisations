@@ -123,7 +123,6 @@ public class PublicNoticeService implements AppProcessingService {
 
   }
 
-
   public List<PublicNotice> getPublicNoticesByStatus(PublicNoticeStatus publicNoticeStatus) {
     return publicNoticeRepository.findAllByStatus(publicNoticeStatus);
   }

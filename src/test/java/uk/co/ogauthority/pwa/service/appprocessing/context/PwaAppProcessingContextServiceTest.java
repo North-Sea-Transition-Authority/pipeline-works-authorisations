@@ -17,7 +17,7 @@ import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.exception.AccessDeniedException;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
-import uk.co.ogauthority.pwa.model.dto.appprocessing.ApplicationInvolvementDto;
+import uk.co.ogauthority.pwa.model.dto.appprocessing.ApplicationInvolvementDtoTestUtil;
 import uk.co.ogauthority.pwa.model.dto.appprocessing.ConsultationInvolvementDto;
 import uk.co.ogauthority.pwa.model.dto.appprocessing.ProcessingPermissionsDto;
 import uk.co.ogauthority.pwa.model.dto.consultations.ConsultationRequestDto;
@@ -292,8 +292,7 @@ public class PwaAppProcessingContextServiceTest {
         false
     );
 
-    var appInvolvement = new ApplicationInvolvementDto(application, Set.of(), consultationInvolvement, false, false,
-        false, false);
+    var appInvolvement = ApplicationInvolvementDtoTestUtil.generateConsulteeInvolvement(application, consultationInvolvement);
     var permissionsDto = new ProcessingPermissionsDto(appInvolvement, Set.of(PwaAppProcessingPermission.CASE_MANAGEMENT_CONSULTEE));
     when(appProcessingPermissionService.getProcessingPermissionsDto(any(), any()))
         .thenReturn(permissionsDto);
@@ -314,7 +313,7 @@ public class PwaAppProcessingContextServiceTest {
 
     var builder = new PwaAppProcessingContextParams(1, user);
 
-    var appInvolvement = new ApplicationInvolvementDto(application, Set.of(), null, false, false, false, false);
+    var appInvolvement = ApplicationInvolvementDtoTestUtil.noInvolvementAndNoFlags(detail.getPwaApplication());
     var permissionsDto = new ProcessingPermissionsDto(appInvolvement, Set.of(PwaAppProcessingPermission.CASE_MANAGEMENT_CONSULTEE));
     when(appProcessingPermissionService.getProcessingPermissionsDto(any(), any()))
         .thenReturn(permissionsDto);
@@ -330,8 +329,7 @@ public class PwaAppProcessingContextServiceTest {
 
     var builder = new PwaAppProcessingContextParams(1, user);
 
-    var appInvolvement = new ApplicationInvolvementDto(application, Set.of(), new ConsultationInvolvementDto(null, Set.of(), null, List.of(), false), false,
-        false, false, false);
+    var appInvolvement = ApplicationInvolvementDtoTestUtil.noInvolvementAndNoFlags(application);
     var permissionsDto = new ProcessingPermissionsDto(appInvolvement, Set.of(PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY));
     when(appProcessingPermissionService.getProcessingPermissionsDto(any(), any()))
         .thenReturn(permissionsDto);

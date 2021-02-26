@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.service.appprocessing.processingcharges;
+package uk.co.ogauthority.pwa.service.appprocessing.processingcharges.display;
 
 import java.util.List;
 
@@ -12,8 +12,8 @@ public class ApplicationPaymentDisplaySummary {
   private final List<DisplayableFeeItem> displayableFeeItemList;
 
   ApplicationPaymentDisplaySummary(String headlineSummary,
-                                          String formattedAmount,
-                                          List<DisplayableFeeItem> displayableFeeItemList) {
+                                   String formattedAmount,
+                                   List<DisplayableFeeItem> displayableFeeItemList) {
     this.headlineSummary = headlineSummary;
     this.formattedAmount = formattedAmount;
     this.displayableFeeItemList = displayableFeeItemList;
