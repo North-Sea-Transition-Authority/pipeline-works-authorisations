@@ -199,6 +199,7 @@ public class WorkAreaApplicationDetailSearcher {
           Pageable pageable,
           Set<PwaApplicationStatus> statusFilter,
           Set<PublicNoticeStatus> publicNoticeStatusFilter,
+          Boolean publicNoticeOverrideFlag,
           Set<Integer> pwaApplicationIdFilter) {
 
     if (statusFilter.isEmpty() && pwaApplicationIdFilter.isEmpty()) {
@@ -213,6 +214,7 @@ public class WorkAreaApplicationDetailSearcher {
         pwaApplicationIdFilter.isEmpty() ? null : pwaApplicationIdFilter,
         false,
         false,
+        publicNoticeOverrideFlag,
         publicNoticeStatusFilter.isEmpty() ? null : publicNoticeStatusFilter,
         false
     );
@@ -227,6 +229,7 @@ public class WorkAreaApplicationDetailSearcher {
           Pageable pageable,
           Set<PwaApplicationStatus> statusFilter,
           Set<PublicNoticeStatus> publicNoticeStatusFilter,
+          Boolean publicNoticeOverrideFlag,
           Set<Integer> pwaApplicationIdFilter) {
 
     if (statusFilter.isEmpty() && pwaApplicationIdFilter.isEmpty()) {
@@ -241,6 +244,7 @@ public class WorkAreaApplicationDetailSearcher {
         pwaApplicationIdFilter.isEmpty() ? null : pwaApplicationIdFilter,
         true,
         true,
+        publicNoticeOverrideFlag,
         publicNoticeStatusFilter.isEmpty() ? null : publicNoticeStatusFilter,
         true
     );

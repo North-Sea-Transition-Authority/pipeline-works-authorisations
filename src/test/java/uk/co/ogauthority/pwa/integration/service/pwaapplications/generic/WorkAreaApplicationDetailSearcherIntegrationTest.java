@@ -208,6 +208,7 @@ public class WorkAreaApplicationDetailSearcherIntegrationTest {
         WorkAreaPageServiceTestUtil.getWorkAreaViewPageable(0, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
         Set.of(),
         Set.of(PublicNoticeStatus.MANAGER_APPROVAL),
+        true,
         Set.of(1, 2, 3, 4)
     );
 
@@ -226,6 +227,7 @@ public class WorkAreaApplicationDetailSearcherIntegrationTest {
         WorkAreaPageServiceTestUtil.getWorkAreaViewPageable(0, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
         Set.of(),
         Set.of(),
+        false,
         Set.of(1, 2, 3, 4)
     );
 
@@ -248,6 +250,7 @@ public class WorkAreaApplicationDetailSearcherIntegrationTest {
         WorkAreaPageServiceTestUtil.getWorkAreaViewPageable(0, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
         Set.of(),
         Set.of(),
+        false,
         Set.of(1, 2, 3, 4)
     );
 
@@ -268,6 +271,7 @@ public class WorkAreaApplicationDetailSearcherIntegrationTest {
         WorkAreaPageServiceTestUtil.getWorkAreaViewPageable(0, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
         Set.of(),
         Set.of(),
+        false,
         Set.of(1, 2, 3, 4)
     );
 
@@ -288,6 +292,7 @@ public class WorkAreaApplicationDetailSearcherIntegrationTest {
         WorkAreaPageServiceTestUtil.getWorkAreaViewPageable(0, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
         Set.of(),
         Set.of(),
+        false,
         Set.of(1, 2, 3, 4)
     );
 
@@ -309,6 +314,7 @@ public class WorkAreaApplicationDetailSearcherIntegrationTest {
         WorkAreaPageServiceTestUtil.getWorkAreaViewPageable(0, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
         Set.of(),
         Set.of(),
+        false,
         Set.of(1, 2, 3, 4)
     );
 

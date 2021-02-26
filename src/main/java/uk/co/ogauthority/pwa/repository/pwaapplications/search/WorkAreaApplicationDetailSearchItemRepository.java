@@ -22,8 +22,9 @@ public interface WorkAreaApplicationDetailSearchItemRepository extends CrudRepos
       "    waadsi.openUpdateRequestFlag = :openForUpdateFlag " +
       "    AND waadsi.publicNoticeStatus IN :publicNoticeStatuses " +
       "    AND waadsi.openConsultationRequestFlag = :openConsultationRequestFlag" +
-      "  ) " +
-      ")";
+      "  )" +
+      ")" +
+      "OR  (:publicNoticeOverrideFlag = TRUE AND waadsi.publicNoticeStatus IN :publicNoticeStatuses)";
 
   String PADSTATUS_IN_OR_PWAAPPLICATION_ID_IN_AND_WHERE_TIP_SATISFACTORY_FLAG_MATCHES_AND_ANY_OTHER_WAIT_FLAGS_MATCH = "" +
       "FROM WorkAreaApplicationDetailSearchItem waadsi " +
@@ -34,7 +35,8 @@ public interface WorkAreaApplicationDetailSearchItemRepository extends CrudRepos
       "    OR waadsi.publicNoticeStatus IN :publicNoticeStatuses " +
       "    OR waadsi.openConsultationRequestFlag = :openConsultationRequestFlag" +
       "  ) " +
-      ")";
+      ")" +
+      "OR  (:publicNoticeOverrideFlag = TRUE AND waadsi.publicNoticeStatus IN :publicNoticeStatuses)";
 
   Page<WorkAreaApplicationDetailSearchItem> findAllByTipFlagIsTrueAndPadStatusIn(Pageable pageable,
                                                                                  Collection<PwaApplicationStatus> statusFilter);
@@ -55,6 +57,7 @@ public interface WorkAreaApplicationDetailSearchItemRepository extends CrudRepos
       @Param("applicationIdFilter") Collection<Integer> applicationIdFilter,
       @Param("tipVersionSatisfactoryFlag") Boolean tipVersionSatisfactoryFlag,
       @Param("openForUpdateFlag") Boolean openForUpdateFlag,
+      @Param("publicNoticeOverrideFlag") Boolean publicNoticeOverrideFlag,
       @Param("publicNoticeStatuses") Collection<PublicNoticeStatus> publicNoticeStatuses,
       @Param("openConsultationRequestFlag") Boolean openConsultationRequestFlag
   );
@@ -70,6 +73,7 @@ public interface WorkAreaApplicationDetailSearchItemRepository extends CrudRepos
       @Param("applicationIdFilter") Collection<Integer> applicationIdFilter,
       @Param("tipVersionSatisfactoryFlag") Boolean tipVersionSatisfactoryFlag,
       @Param("openForUpdateFlag") Boolean openForUpdateFlag,
+      @Param("publicNoticeOverrideFlag") Boolean publicNoticeOverrideFlag,
       @Param("publicNoticeStatuses") Collection<PublicNoticeStatus> publicNoticeStatuses,
       @Param("openConsultationRequestFlag") Boolean openConsultationRequestFlag
   );
