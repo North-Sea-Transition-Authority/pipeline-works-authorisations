@@ -78,7 +78,8 @@ public class PwaHolderTeamService {
 
   }
 
-  private Set<PortalOrganisationGroup> getHolderOrgGroups(PwaApplicationDetail detail) {
+  // TODO PWA-1148 - have dedicated service for this logic which is app type aware.
+  public Set<PortalOrganisationGroup> getHolderOrgGroups(PwaApplicationDetail detail) {
 
     // first try and get the consented holders on the master pwa
     Set<PortalOrganisationGroup> holderOrgGroups = pwaConsentOrganisationRoleService

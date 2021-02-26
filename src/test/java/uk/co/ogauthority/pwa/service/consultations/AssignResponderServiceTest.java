@@ -12,6 +12,7 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.time.Instant;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -37,6 +38,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.form.consultation.AssignResponderForm;
 import uk.co.ogauthority.pwa.model.notify.emailproperties.consultations.ConsultationAssignedToYouEmailProps;
 import uk.co.ogauthority.pwa.model.tasklist.TaskTag;
+import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupTeamService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
@@ -374,7 +376,7 @@ public class AssignResponderServiceTest {
         Set.of(PwaAppProcessingPermission.ASSIGN_RESPONDER),
         null,
         new ApplicationInvolvementDto(null, Set.of(), new ConsultationInvolvementDto(null, Set.of(), null, List.of(), false), false,
-            false, false, false));
+            false, false, EnumSet.noneOf(PwaOrganisationRole.class)));
 
     boolean canShow = assignResponderService.canShowInTaskList(processingContext);
 

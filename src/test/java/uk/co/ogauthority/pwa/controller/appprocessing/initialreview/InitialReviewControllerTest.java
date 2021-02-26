@@ -41,11 +41,11 @@ import uk.co.ogauthority.pwa.service.appprocessing.applicationupdate.Application
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContextService;
 import uk.co.ogauthority.pwa.service.appprocessing.initialreview.InitialReviewPaymentDecision;
 import uk.co.ogauthority.pwa.service.appprocessing.initialreview.InitialReviewService;
-import uk.co.ogauthority.pwa.service.appprocessing.processingcharges.ApplicationPaymentDisplaySummary;
-import uk.co.ogauthority.pwa.service.appprocessing.processingcharges.ApplicationPaymentDisplaySummaryTestUtil;
-import uk.co.ogauthority.pwa.service.appprocessing.processingcharges.ApplicationPaymentSummariser;
 import uk.co.ogauthority.pwa.service.appprocessing.processingcharges.appfees.ApplicationFeeReport;
 import uk.co.ogauthority.pwa.service.appprocessing.processingcharges.appfees.ApplicationFeeService;
+import uk.co.ogauthority.pwa.service.appprocessing.processingcharges.display.ApplicationPaymentDisplaySummary;
+import uk.co.ogauthority.pwa.service.appprocessing.processingcharges.display.ApplicationPaymentDisplaySummaryTestUtil;
+import uk.co.ogauthority.pwa.service.appprocessing.processingcharges.display.ApplicationPaymentSummariser;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;

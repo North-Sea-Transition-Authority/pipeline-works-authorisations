@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.service.appprocessing.processingcharges;
+package uk.co.ogauthority.pwa.service.appprocessing.processingcharges.display;
 
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -43,7 +43,7 @@ public class ApplicationPaymentSummariserTest {
 
     assertThat(result.getHeadlineSummary()).isEqualTo(HEADLINE_FEE_DESC);
     assertThat(result.getFormattedAmount()).isEqualTo(FEE_AMOUNT_FORMATTED);
-    assertThat(result.getDisplayableFeeItemList())        .hasOnlyOneElementSatisfying(displayableFeeItem -> {
+    assertThat(result.getDisplayableFeeItemList()).hasOnlyOneElementSatisfying(displayableFeeItem -> {
       assertThat(displayableFeeItem.getDescription()).isEqualTo(FEE_ITEM_DESC);
       assertThat(displayableFeeItem.getFormattedAmount()).isEqualTo(FEE_AMOUNT_FORMATTED);
     });

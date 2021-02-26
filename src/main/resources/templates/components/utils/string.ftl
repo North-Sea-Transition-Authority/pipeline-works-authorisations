@@ -76,4 +76,10 @@
     ${subscriptConverter(text)}
 </#macro>
 
+<#macro listToString list delimiter=", " whenEmpty="">
+    <#if list?has_content><#list list as listItem>${listItem}<#sep>${delimiter}</#list>
+    <#else>${whenEmpty}
+    </#if>
+</#macro>
+
 

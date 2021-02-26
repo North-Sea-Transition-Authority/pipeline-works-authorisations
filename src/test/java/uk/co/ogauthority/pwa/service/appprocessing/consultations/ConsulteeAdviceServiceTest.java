@@ -6,6 +6,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 import java.time.Instant;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 import org.junit.Before;
@@ -21,6 +22,7 @@ import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationResponse;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.consultation.ConsultationRequestView;
+import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.service.consultations.ConsultationResponseService;
 import uk.co.ogauthority.pwa.service.consultations.ConsultationViewService;
@@ -65,7 +67,7 @@ public class ConsulteeAdviceServiceTest {
 
     var consultationInvolvement = new ConsultationInvolvementDto(consulteeGroupDetail, Set.of(), null, List.of(), false);
     var appInvolvement = new ApplicationInvolvementDto(detail.getPwaApplication(), Set.of(), consultationInvolvement, false,
-        false, false, false);
+        false, false, EnumSet.noneOf(PwaOrganisationRole.class));
     var context = new PwaAppProcessingContext(detail, user, Set.of(PwaAppProcessingPermission.CASE_MANAGEMENT_CONSULTEE), null, appInvolvement);
 
     boolean canShow = consulteeAdviceService.canShowInTaskList(context);
@@ -79,7 +81,7 @@ public class ConsulteeAdviceServiceTest {
 
     var consultationInvolvement = new ConsultationInvolvementDto(consulteeGroupDetail, Set.of(), null, List.of(new ConsultationRequest()), false);
     var appInvolvement = new ApplicationInvolvementDto(detail.getPwaApplication(), Set.of(), consultationInvolvement, false,
-        false, false, false);
+        false, false, EnumSet.noneOf(PwaOrganisationRole.class));
     var context = new PwaAppProcessingContext(detail, user, Set.of(PwaAppProcessingPermission.CONSULTEE_ADVICE), null, appInvolvement);
 
     boolean canShow = consulteeAdviceService.canShowInTaskList(context);
@@ -142,7 +144,7 @@ public class ConsulteeAdviceServiceTest {
 
     var consultationInvolvement = new ConsultationInvolvementDto(consulteeGroupDetail, Set.of(), null, List.of(historicalRequest), false);
     var appInvolvement = new ApplicationInvolvementDto(detail.getPwaApplication(), Set.of(), consultationInvolvement, false,
-        false, false, false);
+        false, false, EnumSet.noneOf(PwaOrganisationRole.class));
     var context = new PwaAppProcessingContext(detail, user, Set.of(PwaAppProcessingPermission.CONSULTEE_ADVICE), null, appInvolvement);
 
     var requestView = new ConsultationRequestView(
@@ -183,7 +185,7 @@ public class ConsulteeAdviceServiceTest {
 
     var consultationInvolvement = new ConsultationInvolvementDto(consulteeGroupDetail, Set.of(), activeRequest, List.of(historicalRequest), false);
     var appInvolvement = new ApplicationInvolvementDto(detail.getPwaApplication(), Set.of(), consultationInvolvement, false,
-        false, false, false);
+        false, false, EnumSet.noneOf(PwaOrganisationRole.class));
     var context = new PwaAppProcessingContext(detail, user, Set.of(PwaAppProcessingPermission.CONSULTEE_ADVICE), null, appInvolvement);
 
     var historicRequestView = new ConsultationRequestView(

@@ -8,6 +8,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
+import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeStatus;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailItemView;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
@@ -60,6 +61,8 @@ public abstract class ApplicationWorkAreaItem {
 
   private final String accessUrl;
 
+  private final PublicNoticeStatus publicNoticeStatus;
+
   public ApplicationWorkAreaItem(ApplicationDetailItemView applicationDetailItemView,
                                  String accessUrl) {
     this.pwaApplicationId = applicationDetailItemView.getPwaApplicationId();
@@ -86,6 +89,7 @@ public abstract class ApplicationWorkAreaItem {
     this.submittedAsFastTrackFlag = applicationDetailItemView.wasSubmittedAsFastTrack();
     this.initialReviewApprovedInstant = applicationDetailItemView.getPadInitialReviewApprovedTimestamp();
     this.accessUrl = accessUrl;
+    this.publicNoticeStatus = applicationDetailItemView.getPublicNoticeStatus();
 
     if (applicationDetailItemView.getCaseOfficerPersonId() != null) {
       this.caseOfficerPersonId = new PersonId(applicationDetailItemView.getCaseOfficerPersonId());
@@ -172,6 +176,10 @@ public abstract class ApplicationWorkAreaItem {
     return caseOfficerName;
   }
 
+  public PublicNoticeStatus getPublicNoticeStatus() {
+    return publicNoticeStatus;
+  }
+
   /**
    * Provide a default implementation for the application column that can be overridden if required.
    */
@@ -199,6 +207,10 @@ public abstract class ApplicationWorkAreaItem {
 
     if (this.openUpdateRequestFlag) {
       columnItemList.add(WorkAreaColumnItemView.createTagItem(WorkAreaColumnItemView.TagType.DEFAULT, "UPDATE REQUESTED"));
+    }
+
+    if (PublicNoticeStatus.APPLICANT_UPDATE.equals(this.publicNoticeStatus)) {
+      columnItemList.add(WorkAreaColumnItemView.createTagItem(WorkAreaColumnItemView.TagType.DEFAULT, "PUBLIC NOTICE UPDATE REQUESTED"));
     }
 
     return columnItemList;

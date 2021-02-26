@@ -8,8 +8,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.WorkAreaController;
 import uk.co.ogauthority.pwa.controller.appprocessing.CaseManagementController;
+import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeStatus;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailItemView;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.WorkAreaApplicationDetailSearchItem;
 import uk.co.ogauthority.pwa.mvc.PageView;
@@ -83,15 +85,36 @@ public class RegulatorWorkAreaPageService {
   }
 
 
+  private Set<PublicNoticeStatus> getPublicNoticeStatusFilterForUser(AuthenticatedUserAccount user) {
+
+    if (user.getUserPrivileges().contains(PwaUserPrivilege.PWA_MANAGER)) {
+      return Set.of(PublicNoticeStatus.MANAGER_APPROVAL);
+
+    } else if (user.getUserPrivileges().contains(PwaUserPrivilege.PWA_CASE_OFFICER)) {
+      return Set.of(PublicNoticeStatus.DRAFT);
+    }
+    return Set.of();
+  }
+
+  private boolean getPublicNoticeOverrideFlag(AuthenticatedUserAccount user) {
+    return user.getUserPrivileges().contains(PwaUserPrivilege.PWA_MANAGER)
+       || user.getUserPrivileges().contains(PwaUserPrivilege.PWA_CASE_OFFICER);
+  }
+
+
   private Page<WorkAreaApplicationDetailSearchItem> getRequiresAttentionPage(AuthenticatedUserAccount userAccount,
                                                                              Set<Integer> applicationIdList,
                                                                              int pageRequest) {
 
     var searchStatuses = getAdditionalStatusFilterForUser(userAccount);
+    var publicNoticeStatuses = getPublicNoticeStatusFilterForUser(userAccount);
+    var publicNoticeOverrideFlag = getPublicNoticeOverrideFlag(userAccount);
 
     return workAreaApplicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagIsFalseOrAllProcessingWaitFlagsFalse(
         WorkAreaUtils.getWorkAreaPageRequest(pageRequest, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
         searchStatuses,
+        publicNoticeStatuses,
+        publicNoticeOverrideFlag,
         applicationIdList
     );
 
@@ -102,10 +125,14 @@ public class RegulatorWorkAreaPageService {
                                                                            int pageRequest) {
 
     var searchStatuses = getAdditionalStatusFilterForUser(userAccount);
+    var publicNoticeStatuses = getPublicNoticeStatusFilterForUser(userAccount);
+    var publicNoticeOverrideFlag = getPublicNoticeOverrideFlag(userAccount);
 
     return workAreaApplicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagIsTrueAndAnyProcessingWaitFlagTrue(
         WorkAreaUtils.getWorkAreaPageRequest(pageRequest, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
         searchStatuses,
+        publicNoticeStatuses,
+        publicNoticeOverrideFlag,
         applicationIdList
     );
 

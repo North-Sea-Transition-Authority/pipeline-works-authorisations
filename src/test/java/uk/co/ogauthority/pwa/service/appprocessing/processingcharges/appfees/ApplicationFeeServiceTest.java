@@ -95,11 +95,10 @@ public class ApplicationFeeServiceTest {
     var maxDateMinimum = LocalDate.of(4000, 1, 1).atStartOfDay().toInstant(ZoneOffset.UTC);
     assertThat(maxPeriodInstantCaptor.getValue()).isAfterOrEqualTo(maxDateMinimum);
 
-    assertThat(report.getApplicationFeeItems())
-        .containsExactly(new ApplicationFeeItem(FEE_DESC, FEE_AMOUNT));
+    assertThat(report.getPaymentItems()).containsExactly(new ApplicationFeeItem(FEE_DESC, FEE_AMOUNT));
     assertThat(report.getPwaApplication()).isEqualTo(pwaApplicationDetail.getPwaApplication());
-    assertThat(report.getFeeSummary()).containsOnlyOnce(APP_REF);
-    assertThat(report.getFeeSummary()).doesNotContain(FAST_TRACK_STRING);
+    assertThat(report.getSummary()).containsOnlyOnce(APP_REF);
+    assertThat(report.getSummary()).doesNotContain(FAST_TRACK_STRING);
     assertThat(report.getTotalPennies()).isEqualTo(FEE_AMOUNT);
 
   }
@@ -111,14 +110,14 @@ public class ApplicationFeeServiceTest {
 
     var report = applicationFeeService.getApplicationFeeReport(pwaApplicationDetail);
 
-    assertThat(report.getApplicationFeeItems()).hasSize(2)
+    assertThat(report.getPaymentItems()).hasSize(2)
         .allSatisfy(applicationFeeItem -> assertThat(applicationFeeItem.getPennyAmount()).isEqualTo(FEE_AMOUNT))
         .anySatisfy(applicationFeeItem -> assertThat(applicationFeeItem.getDescription()).isEqualTo(FEE_DESC))
         .anySatisfy(applicationFeeItem -> assertThat(applicationFeeItem.getDescription()).contains(FAST_TRACK_STRING));
 
     assertThat(report.getPwaApplication()).isEqualTo(pwaApplicationDetail.getPwaApplication());
-    assertThat(report.getFeeSummary()).containsOnlyOnce(APP_REF);
-    assertThat(report.getFeeSummary()).containsOnlyOnce(FAST_TRACK_STRING);
+    assertThat(report.getSummary()).containsOnlyOnce(APP_REF);
+    assertThat(report.getSummary()).containsOnlyOnce(FAST_TRACK_STRING);
     assertThat(report.getTotalPennies()).isEqualTo(FEE_AMOUNT * 2);
 
   }
