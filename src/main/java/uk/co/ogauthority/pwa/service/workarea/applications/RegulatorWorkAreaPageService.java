@@ -115,27 +115,30 @@ public class RegulatorWorkAreaPageService {
     var processingPermissions = appProcessingPermissionService.getGenericProcessingPermissions(userAccount);
     var searchStatuses = getAdditionalStatusFilterForUser(processingPermissions);
     var publicNoticeStatuses = getPublicNoticeStatusFilterForUser(userAccount);
-    var publicNoticeOverrideFlag = getPublicNoticeOverrideFlag(userAccount);
 
-    var processingFlagsMap = getProcessingFlagsMapWithDefault(processingPermissions, false);
+    var processingFlagsMap = getProcessingFlagsMapWithDefault(userAccount, processingPermissions, false);
 
     return workAreaApplicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagEqualsOrAllProcessingWaitFlagsEqual(
         WorkAreaUtils.getWorkAreaPageRequest(pageRequest, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
         searchStatuses,
         publicNoticeStatuses,
-        publicNoticeOverrideFlag,
         applicationIdList,
         processingFlagsMap
     );
 
   }
 
-  private Map<WorkAreaFlag, Boolean> getProcessingFlagsMapWithDefault(Set<PwaAppProcessingPermission> processingPermissions,
+  private Map<WorkAreaFlag, Boolean> getProcessingFlagsMapWithDefault(AuthenticatedUserAccount userAccount,
+                                                                      Set<PwaAppProcessingPermission> processingPermissions,
                                                                       Boolean defaultValue) {
 
     // set all wait flags to default
     var processingFlagsMap = WorkAreaFlag.stream()
         .collect(Collectors.toMap(Function.identity(), val -> defaultValue));
+
+    // get public notice override flag based on user
+    boolean publicNoticeOverrideFlag = getPublicNoticeOverrideFlag(userAccount);
+    processingFlagsMap.put(WorkAreaFlag.PUBLIC_NOTICE_OVERRIDE, publicNoticeOverrideFlag);
 
     // then recalculate open consent review flag based on user permissions
     boolean userCanConsentReview = processingPermissions.contains(PwaAppProcessingPermission.CONSENT_REVIEW);
@@ -152,15 +155,13 @@ public class RegulatorWorkAreaPageService {
     var processingPermissions = appProcessingPermissionService.getGenericProcessingPermissions(userAccount);
     var searchStatuses = getAdditionalStatusFilterForUser(processingPermissions);
     var publicNoticeStatuses = getPublicNoticeStatusFilterForUser(userAccount);
-    var publicNoticeOverrideFlag = getPublicNoticeOverrideFlag(userAccount);
 
-    var processingFlagsMap = getProcessingFlagsMapWithDefault(processingPermissions, true);
+    var processingFlagsMap = getProcessingFlagsMapWithDefault(userAccount, processingPermissions, true);
 
     return workAreaApplicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagEqualsAndAnyProcessingWaitFlagEqual(
         WorkAreaUtils.getWorkAreaPageRequest(pageRequest, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
         searchStatuses,
         publicNoticeStatuses,
-        publicNoticeOverrideFlag,
         applicationIdList,
         processingFlagsMap
     );

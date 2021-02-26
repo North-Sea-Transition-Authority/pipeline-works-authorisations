@@ -20,7 +20,7 @@ public interface WorkAreaApplicationDetailSearchItemRepository extends CrudRepos
       "AND ( " +
       "  (waadsi.tipVersionSatisfactoryFlag = :tipVersionSatisfactoryFlag) OR ( " +
       "    waadsi.openUpdateRequestFlag = :openForUpdateFlag " +
-      "    AND waadsi.publicNoticeStatus IN :publicNoticeStatuses " +
+      "    AND (waadsi.publicNoticeStatus IN :publicNoticeStatuses OR waadsi.publicNoticeStatus IS NULL)" +
       "    AND waadsi.openConsultationRequestFlag = :openConsultationRequestFlag" +
       "    AND ( " +
       "      (waadsi.openConsentReviewFlag = TRUE AND :openConsentReviewForegroundFlag = TRUE) OR " +

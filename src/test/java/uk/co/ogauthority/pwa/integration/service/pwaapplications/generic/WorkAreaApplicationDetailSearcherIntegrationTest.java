@@ -209,12 +209,12 @@ public class WorkAreaApplicationDetailSearcherIntegrationTest {
     persistSearchItems();
 
     var flagMap = getFlagMapWithDefaultValue(false);
+    flagMap.put(WorkAreaFlag.PUBLIC_NOTICE_OVERRIDE, true);
 
     var result = workAreaApplicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagEqualsOrAllProcessingWaitFlagsEqual(
         WorkAreaPageServiceTestUtil.getWorkAreaViewPageable(0, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
         Set.of(),
         Set.of(PublicNoticeStatus.MANAGER_APPROVAL),
-        true,
         Set.of(1, 2, 3, 4),
         flagMap
     );
@@ -236,7 +236,6 @@ public class WorkAreaApplicationDetailSearcherIntegrationTest {
         WorkAreaPageServiceTestUtil.getWorkAreaViewPageable(0, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
         Set.of(),
         Set.of(),
-        false,
         Set.of(1, 2, 3, 4),
         flagMap
     );
@@ -281,6 +280,7 @@ public class WorkAreaApplicationDetailSearcherIntegrationTest {
 
     var flagMap = getFlagMapWithDefaultValue(false);
     flagMap.put(WorkAreaFlag.OPEN_CONSENT_REVIEW_FOREGROUND_FLAG, true);
+    flagMap.put(WorkAreaFlag.PUBLIC_NOTICE_OVERRIDE, false);
 
     var result = workAreaApplicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagEqualsOrAllProcessingWaitFlagsEqual(
         WorkAreaPageServiceTestUtil.getWorkAreaViewPageable(0, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
@@ -329,6 +329,7 @@ public class WorkAreaApplicationDetailSearcherIntegrationTest {
     persistSearchItems();
 
     var flagMap = getFlagMapWithDefaultValue(false);
+    flagMap.put(WorkAreaFlag.PUBLIC_NOTICE_OVERRIDE, true);
 
     var result = workAreaApplicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagEqualsOrAllProcessingWaitFlagsEqual(
         WorkAreaPageServiceTestUtil.getWorkAreaViewPageable(0, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
@@ -354,12 +355,12 @@ public class WorkAreaApplicationDetailSearcherIntegrationTest {
 
     var flagMap = getFlagMapWithDefaultValue(false);
     flagMap.put(WorkAreaFlag.OPEN_CONSENT_REVIEW_FOREGROUND_FLAG, true);
+    flagMap.put(WorkAreaFlag.PUBLIC_NOTICE_OVERRIDE, false);
 
     var result = workAreaApplicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagEqualsOrAllProcessingWaitFlagsEqual(
         WorkAreaPageServiceTestUtil.getWorkAreaViewPageable(0, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
         Set.of(),
         Set.of(),
-        false,
         Set.of(1, 2, 3, 4),
         flagMap
     );
@@ -378,12 +379,12 @@ public class WorkAreaApplicationDetailSearcherIntegrationTest {
     persistSearchItems();
 
     var flagMap = getFlagMapWithDefaultValue(true);
+    flagMap.put(WorkAreaFlag.PUBLIC_NOTICE_OVERRIDE, false);
 
     var result = workAreaApplicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagEqualsAndAnyProcessingWaitFlagEqual(
         WorkAreaPageServiceTestUtil.getWorkAreaViewPageable(0, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
         Set.of(),
         Set.of(),
-        false,
         Set.of(1, 2, 3, 4),
         flagMap
     );
@@ -402,12 +403,12 @@ public class WorkAreaApplicationDetailSearcherIntegrationTest {
     persistSearchItems();
 
     var flagMap = getFlagMapWithDefaultValue(true);
+    flagMap.put(WorkAreaFlag.PUBLIC_NOTICE_OVERRIDE, false);
 
     var result = workAreaApplicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagEqualsAndAnyProcessingWaitFlagEqual(
         WorkAreaPageServiceTestUtil.getWorkAreaViewPageable(0, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
         Set.of(),
         Set.of(),
-        false,
         Set.of(1, 2, 3, 4),
         flagMap
     );
@@ -427,12 +428,12 @@ public class WorkAreaApplicationDetailSearcherIntegrationTest {
     persistSearchItems();
 
     var flagMap = getFlagMapWithDefaultValue(true);
+    flagMap.put(WorkAreaFlag.PUBLIC_NOTICE_OVERRIDE, false);
 
     var result = workAreaApplicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagEqualsAndAnyProcessingWaitFlagEqual(
         WorkAreaPageServiceTestUtil.getWorkAreaViewPageable(0, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
         Set.of(),
         Set.of(),
-        false,
         Set.of(1, 2, 3, 4),
         flagMap
     );

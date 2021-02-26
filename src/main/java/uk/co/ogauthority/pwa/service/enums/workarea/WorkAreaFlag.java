@@ -9,9 +9,11 @@ public enum WorkAreaFlag {
 
   OPEN_UPDATE_REQUEST,
 
+  PUBLIC_NOTICE_OVERRIDE,
+
   OPEN_CONSULTATION_REQUEST,
 
-  OPEN_CONSENT_REVIEW_FOREGROUND_FLAG; // whether or not open consent reviews should show in the foreground tab
+  OPEN_CONSENT_REVIEW_FOREGROUND_FLAG;
 
   public static Stream<WorkAreaFlag> stream() {
     return Arrays.stream(WorkAreaFlag.values());

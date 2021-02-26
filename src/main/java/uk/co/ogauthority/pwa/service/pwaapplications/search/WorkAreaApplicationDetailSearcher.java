@@ -201,8 +201,7 @@ public class WorkAreaApplicationDetailSearcher {
       Pageable pageable,
       Set<PwaApplicationStatus> statusFilter,
       Set<PublicNoticeStatus> publicNoticeStatusFilter,
-      Boolean publicNoticeOverrideFlag,
-          Set<Integer> pwaApplicationIdFilter,
+      Set<Integer> pwaApplicationIdFilter,
       Map<WorkAreaFlag, Boolean> workAreaFlagMap) {
 
     if (statusFilter.isEmpty() && pwaApplicationIdFilter.isEmpty()) {
@@ -217,7 +216,7 @@ public class WorkAreaApplicationDetailSearcher {
         pwaApplicationIdFilter.isEmpty() ? null : pwaApplicationIdFilter,
         workAreaFlagMap.get(WorkAreaFlag.TIP_VERSION_SATISFACTORY),
         workAreaFlagMap.get(WorkAreaFlag.OPEN_UPDATE_REQUEST),
-        publicNoticeOverrideFlag,
+        workAreaFlagMap.get(WorkAreaFlag.PUBLIC_NOTICE_OVERRIDE),
         publicNoticeStatusFilter.isEmpty() ? null : publicNoticeStatusFilter,
         workAreaFlagMap.get(WorkAreaFlag.OPEN_CONSULTATION_REQUEST),
         workAreaFlagMap.get(WorkAreaFlag.OPEN_CONSENT_REVIEW_FOREGROUND_FLAG)
@@ -233,7 +232,6 @@ public class WorkAreaApplicationDetailSearcher {
           Pageable pageable,
           Set<PwaApplicationStatus> statusFilter,
           Set<PublicNoticeStatus> publicNoticeStatusFilter,
-          Boolean publicNoticeOverrideFlag,
           Set<Integer> pwaApplicationIdFilter,
           Map<WorkAreaFlag, Boolean> workAreaFlagMap) {
 
@@ -249,7 +247,7 @@ public class WorkAreaApplicationDetailSearcher {
         pwaApplicationIdFilter.isEmpty() ? null : pwaApplicationIdFilter,
         workAreaFlagMap.get(WorkAreaFlag.TIP_VERSION_SATISFACTORY),
         workAreaFlagMap.get(WorkAreaFlag.OPEN_UPDATE_REQUEST),
-            publicNoticeOverrideFlag,
+        workAreaFlagMap.get(WorkAreaFlag.PUBLIC_NOTICE_OVERRIDE),
         publicNoticeStatusFilter.isEmpty() ? null : publicNoticeStatusFilter,
         workAreaFlagMap.get(WorkAreaFlag.OPEN_CONSULTATION_REQUEST),
         workAreaFlagMap.get(WorkAreaFlag.OPEN_CONSENT_REVIEW_FOREGROUND_FLAG)
