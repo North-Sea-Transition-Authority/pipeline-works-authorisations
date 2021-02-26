@@ -7,6 +7,7 @@
 <#-- @ftlvariable name="industryFlag" type="java.lang.Boolean" -->
 <#-- @ftlvariable name="updateRequestView" type="uk.co.ogauthority.pwa.model.view.appprocessing.applicationupdates.ApplicationUpdateRequestView" -->
 <#-- @ftlvariable name="optionsApprovalPageBanner" type="uk.co.ogauthority.pwa.model.view.banner.PageBannerView" -->
+<#-- @ftlvariable name="publicNoticePageBannerView" type="uk.co.ogauthority.pwa.model.view.banner.PageBannerView" -->
 
 <#-- @ftlvariable name="taskListUrl" type="String" -->
 <#-- @ftlvariable name="processingPermissions" type="java.util.Set<uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission> -->
@@ -26,6 +27,10 @@
 
     <#if optionsApprovalPageBanner?has_content>
         <@pageBanner.banner view=optionsApprovalPageBanner showBannerLinks=processingPermissions?seq_contains("UPDATE_APPLICATION") />
+    </#if>
+
+    <#if publicNoticePageBannerView?has_content>
+        <@pageBanner.banner view=publicNoticePageBannerView showBannerLinks=processingPermissions?seq_contains("UPDATE_PUBLIC_NOTICE_DOC") />
     </#if>
 
   <@fdsBackendTabs.tabList>

@@ -72,6 +72,14 @@ public final class PublicNoticeTestUtil {
     return createInitialPublicNoticeRequest(publicNotice, createDefaultPublicNoticeDraftForm());
   }
 
+  public static PublicNoticeRequest createApprovedPublicNoticeRequest(PublicNotice publicNotice) {
+    var publicNoticeRequest = createInitialPublicNoticeRequest(publicNotice, createDefaultPublicNoticeDraftForm());
+    publicNoticeRequest.setResponderPersonId(2);
+    publicNoticeRequest.setRequestApproved(true);
+    publicNoticeRequest.setResponseTimestamp(Instant.now());
+    return publicNoticeRequest;
+  }
+
   static PublicNoticeView createPublicNoticeView(PublicNotice publicNotice, PublicNoticeRequest publicNoticeRequest) {
     return new PublicNoticeView(publicNotice.getStatus(),
         DateUtils.formatDate(publicNoticeRequest.getSubmittedTimestamp()));

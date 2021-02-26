@@ -19,15 +19,18 @@ import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.config.fileupload.FileDeleteResult;
 import uk.co.ogauthority.pwa.config.fileupload.FileUploadResult;
+import uk.co.ogauthority.pwa.controller.WorkAreaController;
 import uk.co.ogauthority.pwa.controller.appprocessing.shared.PwaAppProcessingPermissionCheck;
 import uk.co.ogauthority.pwa.controller.files.PwaApplicationDataFileUploadAndDownloadController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationStatusCheck;
-import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeRequestReason;
+import uk.co.ogauthority.pwa.exception.AccessDeniedException;
+import uk.co.ogauthority.pwa.exception.ViewNotFoundException;
 import uk.co.ogauthority.pwa.model.entity.files.AppFilePurpose;
-import uk.co.ogauthority.pwa.model.form.publicnotice.PublicNoticeDraftForm;
+import uk.co.ogauthority.pwa.model.form.publicnotice.UpdatePublicNoticeDocumentForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.AppProcessingBreadcrumbService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
+import uk.co.ogauthority.pwa.service.appprocessing.publicnotice.PublicNoticeDocumentUpdateService;
 import uk.co.ogauthority.pwa.service.appprocessing.publicnotice.PublicNoticeService;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
@@ -39,99 +42,114 @@ import uk.co.ogauthority.pwa.util.CaseManagementUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
 @Controller
-@RequestMapping("/pwa-application/{applicationType}/{applicationId}/public-notice-draft")
-@PwaAppProcessingPermissionCheck(permissions = {PwaAppProcessingPermission.DRAFT_PUBLIC_NOTICE})
+@RequestMapping("/pwa-application/{applicationType}/{applicationId}/public-notice-document-update")
+@PwaAppProcessingPermissionCheck(permissions = {PwaAppProcessingPermission.UPDATE_PUBLIC_NOTICE_DOC})
 @PwaApplicationStatusCheck(statuses = PwaApplicationStatus.CASE_OFFICER_REVIEW)
-public class PublicNoticeDraftController extends PwaApplicationDataFileUploadAndDownloadController {
+public class PublicNoticeDocumentUpdateController extends PwaApplicationDataFileUploadAndDownloadController {
 
   private final AppProcessingBreadcrumbService appProcessingBreadcrumbService;
   private final PublicNoticeService publicNoticeService;
+  private final PublicNoticeDocumentUpdateService publicNoticeDocumentUpdateService;
   private final ControllerHelperService controllerHelperService;
 
   @Autowired
-  public PublicNoticeDraftController(
+  public PublicNoticeDocumentUpdateController(
       AppProcessingBreadcrumbService appProcessingBreadcrumbService,
       PublicNoticeService publicNoticeService,
       ControllerHelperService controllerHelperService,
-      AppFileService appFileService) {
+      AppFileService appFileService,
+      PublicNoticeDocumentUpdateService publicNoticeDocumentUpdateService) {
     super(appFileService);
     this.appProcessingBreadcrumbService = appProcessingBreadcrumbService;
     this.publicNoticeService = publicNoticeService;
     this.controllerHelperService = controllerHelperService;
+    this.publicNoticeDocumentUpdateService = publicNoticeDocumentUpdateService;
   }
 
 
   @GetMapping
-  public ModelAndView renderDraftPublicNotice(@PathVariable("applicationId") Integer applicationId,
-                                              @PathVariable("applicationType")
-                                              @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
-                                              PwaAppProcessingContext processingContext,
-                                              AuthenticatedUserAccount authenticatedUserAccount,
-                                              @ModelAttribute("form") PublicNoticeDraftForm form) {
+  public ModelAndView renderUpdatePublicNoticeDocument(@PathVariable("applicationId") Integer applicationId,
+                                                @PathVariable("applicationType")
+                                                @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
+                                                PwaAppProcessingContext processingContext,
+                                                AuthenticatedUserAccount authenticatedUserAccount,
+                                                @ModelAttribute("form") UpdatePublicNoticeDocumentForm form) {
 
     return CaseManagementUtils.withAtLeastOneSatisfactoryVersion(
         processingContext,
         PwaAppProcessingTask.PUBLIC_NOTICE,
         () -> {
-          var pwaApplication = processingContext.getPwaApplication();
-          publicNoticeService.mapPublicNoticeDraftToForm(pwaApplication, form);
-          return getDraftPublicNoticeModelAndView(processingContext, form);
+          if (publicNoticeDocumentUpdateService.publicNoticeDocumentCanBeUpdated(processingContext.getPwaApplication())) {
+            return getUpdatePublicNoticeDocumentModelAndView(processingContext, form);
+          }
+          throw new AccessDeniedException(
+              "Access denied as there is not an public notice that requires the document to be updated for application with id: " +
+                  processingContext.getMasterPwaApplicationId());
         });
   }
 
+
   @PostMapping
-  public ModelAndView postDraftPublicNotice(@PathVariable("applicationId") Integer applicationId,
-                                              @PathVariable("applicationType")
-                                              @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
-                                              PwaAppProcessingContext processingContext,
-                                              AuthenticatedUserAccount authenticatedUserAccount,
-                                              @ModelAttribute("form") PublicNoticeDraftForm form,
-                                              BindingResult bindingResult) {
+  public ModelAndView postUpdatePublicNoticeDocument(@PathVariable("applicationId") Integer applicationId,
+                                            @PathVariable("applicationType")
+                                            @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
+                                            PwaAppProcessingContext processingContext,
+                                            AuthenticatedUserAccount authenticatedUserAccount,
+                                            @ModelAttribute("form") UpdatePublicNoticeDocumentForm form,
+                                            BindingResult bindingResult) {
 
     return CaseManagementUtils.withAtLeastOneSatisfactoryVersion(processingContext,
         PwaAppProcessingTask.PUBLIC_NOTICE,  () -> {
-          var validatedBindingResult = publicNoticeService.validate(form, bindingResult);
+          if (publicNoticeDocumentUpdateService.publicNoticeDocumentCanBeUpdated(processingContext.getPwaApplication())) {
+            var validatedBindingResult = publicNoticeDocumentUpdateService.validate(form, bindingResult);
 
-          return controllerHelperService.checkErrorsAndRedirect(validatedBindingResult,
-              getDraftPublicNoticeModelAndView(processingContext, form), () -> {
-                publicNoticeService.createPublicNoticeAndStartWorkflow(
-                    form, processingContext.getPwaApplication(), authenticatedUserAccount);
-                return  ReverseRouter.redirect(on(PublicNoticeOverviewController.class).renderPublicNoticeOverview(
-                    applicationId, pwaApplicationType, processingContext, authenticatedUserAccount));
-              });
+            return controllerHelperService.checkErrorsAndRedirect(validatedBindingResult,
+                getUpdatePublicNoticeDocumentModelAndView(processingContext, form), () -> {
+                  publicNoticeDocumentUpdateService.updatePublicNoticeDocumentAndTransitionWorkflow(
+                      form, processingContext.getPwaApplication(), authenticatedUserAccount);
+                  return  ReverseRouter.redirect(on(WorkAreaController.class).renderWorkArea(null, null, null));
+                });
+
+          }
+          throw new AccessDeniedException(
+              "Access denied as there is not an public notice that requires the document to be updated for application with id: " +
+                  processingContext.getMasterPwaApplicationId());
 
         });
 
   }
 
 
-
-  private ModelAndView getDraftPublicNoticeModelAndView(PwaAppProcessingContext processingContext, PublicNoticeDraftForm form) {
+  private ModelAndView getUpdatePublicNoticeDocumentModelAndView(PwaAppProcessingContext processingContext,
+                                                                 UpdatePublicNoticeDocumentForm form) {
 
     var pwaApplication = processingContext.getPwaApplication();
+    var publicNotice = publicNoticeService.getLatestPublicNotice(pwaApplication);
+    var publicNoticeRequest = publicNoticeService.getLatestPublicNoticeRequest(publicNotice);
 
-    var modelAndView = createModelAndView("publicNotice/draftPublicNotice",
+    var publicNoticeDocumentFileView = publicNoticeDocumentUpdateService.getPublicNoticeDocumentFileView(pwaApplication).orElseThrow(
+        () -> new ViewNotFoundException(String.format(
+        "Couldn't find public notice document file view with pwaApplication ID: %s", pwaApplication.getId())));
+
+    var modelAndView = createModelAndView("publicNotice/updatePublicNoticeDocument",
         pwaApplication,
         AppFilePurpose.PUBLIC_NOTICE,
         form);
 
-    var publicNoticeOverviewUrl = ReverseRouter.route(on(PublicNoticeOverviewController.class).renderPublicNoticeOverview(
-        pwaApplication.getId(), pwaApplication.getApplicationType(), null, null));
-
     modelAndView.addObject("appRef", pwaApplication.getAppReference())
-        .addObject("publicNoticeRequestReasons", PublicNoticeRequestReason.asList())
-        .addObject("cancelUrl", publicNoticeOverviewUrl)
+        .addObject("coverLetter", publicNoticeRequest.getCoverLetterText())
+        .addObject("publicNoticeDocumentFileView", publicNoticeDocumentFileView)
+        .addObject("cancelUrl", CaseManagementUtils.routeCaseManagement(processingContext))
         .addObject("caseSummaryView", processingContext.getCaseSummaryView());
 
-    appProcessingBreadcrumbService.fromCaseManagement(pwaApplication, modelAndView, "Draft a public notice");
+    appProcessingBreadcrumbService.fromCaseManagement(pwaApplication, modelAndView, "Update public notice document");
     return modelAndView;
   }
 
 
 
 
-  @PwaAppProcessingPermissionCheck(permissions = {
-      PwaAppProcessingPermission.DRAFT_PUBLIC_NOTICE, PwaAppProcessingPermission.UPDATE_PUBLIC_NOTICE_DOC})
+
   @PostMapping("/file/upload")
   @ResponseBody
   public FileUploadResult handleUpload(@PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
@@ -145,8 +163,6 @@ public class PublicNoticeDraftController extends PwaApplicationDataFileUploadAnd
         processingContext.getUser());
   }
 
-  @PwaAppProcessingPermissionCheck(permissions = {
-      PwaAppProcessingPermission.DRAFT_PUBLIC_NOTICE, PwaAppProcessingPermission.UPDATE_PUBLIC_NOTICE_DOC})
   @GetMapping("/files/download/{fileId}")
   @ResponseBody
   public ResponseEntity<Resource> handleDownload(
@@ -157,8 +173,6 @@ public class PublicNoticeDraftController extends PwaApplicationDataFileUploadAnd
     return serveFile(processingContext.getAppFile());
   }
 
-  @PwaAppProcessingPermissionCheck(permissions = {
-      PwaAppProcessingPermission.DRAFT_PUBLIC_NOTICE, PwaAppProcessingPermission.UPDATE_PUBLIC_NOTICE_DOC})
   @PostMapping("/file/delete/{fileId}")
   @ResponseBody
   public FileDeleteResult handleDelete(
@@ -172,6 +186,8 @@ public class PublicNoticeDraftController extends PwaApplicationDataFileUploadAnd
         appFile -> publicNoticeService.getPublicNoticeDocumentLink(processingContext.getAppFile())
             .ifPresent(publicNoticeService::deleteFileLinkAndPublicNoticeDocument));
   }
+
+
 
 
 }
