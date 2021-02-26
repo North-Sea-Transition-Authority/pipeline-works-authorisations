@@ -5,7 +5,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import javax.persistence.EntityManager;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -21,6 +24,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.WorkAreaApplicationDetailSearchItem;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.service.enums.workarea.WorkAreaFlag;
 import uk.co.ogauthority.pwa.service.pwaapplications.search.WorkAreaApplicationDetailSearcher;
 import uk.co.ogauthority.pwa.service.pwaapplications.search.WorkAreaApplicationSearchTestUtil;
 import uk.co.ogauthority.pwa.service.workarea.applications.ApplicationWorkAreaSort;
@@ -199,10 +203,13 @@ public class WorkAreaApplicationDetailSearcherIntegrationTest {
     detail3SearchItem.setTipVersionSatisfactoryFlag(true);
     persistSearchItems();
 
-    var result = workAreaApplicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagIsFalseOrAllProcessingWaitFlagsFalse(
+    var flagMap = getFlagMapWithDefaultValue(false);
+
+    var result = workAreaApplicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagEqualsOrAllProcessingWaitFlagsEqual(
         WorkAreaPageServiceTestUtil.getWorkAreaViewPageable(0, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
         Set.of(),
-        Set.of(1, 2, 3, 4)
+        Set.of(1, 2, 3, 4),
+        flagMap
     );
 
     assertThat(result).containsOnly(detail1SearchItem, detail2SearchItem, detail3SearchItem, detail4SearchItem);
@@ -216,14 +223,16 @@ public class WorkAreaApplicationDetailSearcherIntegrationTest {
     setupSearchItems();
     persistSearchItems();
 
-    var result = workAreaApplicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagIsFalseOrAllProcessingWaitFlagsFalse(
+    var flagMap = getFlagMapWithDefaultValue(false);
+
+    var result = workAreaApplicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagEqualsOrAllProcessingWaitFlagsEqual(
         WorkAreaPageServiceTestUtil.getWorkAreaViewPageable(0, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
         Set.of(),
-        Set.of(1, 2, 3, 4)
+        Set.of(1, 2, 3, 4),
+        flagMap
     );
 
     assertThat(result).containsOnly(detail1SearchItem, detail2SearchItem, detail3SearchItem, detail4SearchItem);
-
 
   }
 
@@ -237,10 +246,107 @@ public class WorkAreaApplicationDetailSearcherIntegrationTest {
     detail3SearchItem.setTipVersionSatisfactoryFlag(true);
     persistSearchItems();
 
-    var result = workAreaApplicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagIsFalseOrAllProcessingWaitFlagsFalse(
+    var flagMap = getFlagMapWithDefaultValue(false);
+
+    var result = workAreaApplicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagEqualsOrAllProcessingWaitFlagsEqual(
         WorkAreaPageServiceTestUtil.getWorkAreaViewPageable(0, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
         Set.of(),
-        Set.of(1, 2, 3, 4)
+        Set.of(1, 2, 3, 4),
+        flagMap
+    );
+
+    assertThat(result).containsOnly(detail1SearchItem, detail2SearchItem, detail4SearchItem);
+
+  }
+
+  @Transactional
+  @Test
+  public void searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagIsFalseOrAllProcessingWaitFlagsFalse_consentReview_consentReviewForegroundFlag_available() {
+
+    setupSearchItems();
+
+    detail3SearchItem.setTipVersionSatisfactoryFlag(true);
+    detail3SearchItem.setOpenConsentReviewFlag(true);
+    persistSearchItems();
+
+    var flagMap = getFlagMapWithDefaultValue(false);
+    flagMap.put(WorkAreaFlag.OPEN_CONSENT_REVIEW_FOREGROUND_FLAG, true);
+
+    var result = workAreaApplicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagEqualsOrAllProcessingWaitFlagsEqual(
+        WorkAreaPageServiceTestUtil.getWorkAreaViewPageable(0, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
+        Set.of(),
+        Set.of(1, 2, 3, 4),
+        flagMap
+    );
+
+    assertThat(result).containsOnly(detail1SearchItem, detail2SearchItem, detail3SearchItem, detail4SearchItem);
+
+  }
+
+  @Transactional
+  @Test
+  public void searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagIsFalseOrAllProcessingWaitFlagsFalse_consentReview_noWaitFlags_notAvailable() {
+
+    setupSearchItems();
+
+    detail3SearchItem.setTipVersionSatisfactoryFlag(true);
+    detail3SearchItem.setOpenConsentReviewFlag(true);
+    persistSearchItems();
+
+    var flagMap = getFlagMapWithDefaultValue(false);
+
+    var result = workAreaApplicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagEqualsOrAllProcessingWaitFlagsEqual(
+        WorkAreaPageServiceTestUtil.getWorkAreaViewPageable(0, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
+        Set.of(),
+        Set.of(1, 2, 3, 4),
+        flagMap
+    );
+
+    assertThat(result).containsOnly(detail1SearchItem, detail2SearchItem, detail4SearchItem);
+
+  }
+
+  @Transactional
+  @Test
+  public void searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagIsFalseOrAllProcessingWaitFlagsFalse_noConsentReview_noWaitFlags_available() {
+
+    setupSearchItems();
+
+    detail3SearchItem.setTipVersionSatisfactoryFlag(true);
+    detail3SearchItem.setOpenConsentReviewFlag(false);
+    persistSearchItems();
+
+    var flagMap = getFlagMapWithDefaultValue(false);
+
+    var result = workAreaApplicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagEqualsOrAllProcessingWaitFlagsEqual(
+        WorkAreaPageServiceTestUtil.getWorkAreaViewPageable(0, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
+        Set.of(),
+        Set.of(1, 2, 3, 4),
+        flagMap
+    );
+
+    assertThat(result).containsOnly(detail1SearchItem, detail2SearchItem, detail3SearchItem, detail4SearchItem);
+
+  }
+
+  @Transactional
+  @Test
+  public void searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagIsFalseOrAllProcessingWaitFlagsFalse_noConsentReview_consentReviewForegroundFlag_notAvailable() {
+
+    setupSearchItems();
+
+    detail3SearchItem.setTipVersionSatisfactoryFlag(true);
+    detail3SearchItem.setOpenConsentReviewFlag(false);
+    persistSearchItems();
+
+    var flagMap = getFlagMapWithDefaultValue(false);
+    flagMap.put(WorkAreaFlag.OPEN_CONSENT_REVIEW_FOREGROUND_FLAG, true);
+
+    var result = workAreaApplicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagEqualsOrAllProcessingWaitFlagsEqual(
+        WorkAreaPageServiceTestUtil.getWorkAreaViewPageable(0, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
+        Set.of(),
+        Set.of(1, 2, 3, 4),
+        flagMap
     );
 
     assertThat(result).containsOnly(detail1SearchItem, detail2SearchItem, detail4SearchItem);
@@ -256,10 +362,13 @@ public class WorkAreaApplicationDetailSearcherIntegrationTest {
     detail3SearchItem.setTipVersionSatisfactoryFlag(false);
     persistSearchItems();
 
-    var result = workAreaApplicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagIsTrueAndAnyProcessingWaitFlagTrue(
+    var flagMap = getFlagMapWithDefaultValue(true);
+
+    var result = workAreaApplicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagEqualsAndAnyProcessingWaitFlagEqual(
         WorkAreaPageServiceTestUtil.getWorkAreaViewPageable(0, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
         Set.of(),
-        Set.of(1, 2, 3, 4)
+        Set.of(1, 2, 3, 4),
+        flagMap
     );
 
     assertThat(result).isEmpty();
@@ -275,10 +384,13 @@ public class WorkAreaApplicationDetailSearcherIntegrationTest {
     detail3SearchItem.setTipVersionSatisfactoryFlag(true);
     persistSearchItems();
 
-    var result = workAreaApplicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagIsTrueAndAnyProcessingWaitFlagTrue(
+    var flagMap = getFlagMapWithDefaultValue(true);
+
+    var result = workAreaApplicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagEqualsAndAnyProcessingWaitFlagEqual(
         WorkAreaPageServiceTestUtil.getWorkAreaViewPageable(0, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
         Set.of(),
-        Set.of(1, 2, 3, 4)
+        Set.of(1, 2, 3, 4),
+        flagMap
     );
 
     assertThat(result).isEmpty();
@@ -295,13 +407,70 @@ public class WorkAreaApplicationDetailSearcherIntegrationTest {
     detail3SearchItem.setOpenConsultationRequestFlag(true);
     persistSearchItems();
 
-    var result = workAreaApplicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagIsTrueAndAnyProcessingWaitFlagTrue(
+    var flagMap = getFlagMapWithDefaultValue(true);
+
+    var result = workAreaApplicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagEqualsAndAnyProcessingWaitFlagEqual(
         WorkAreaPageServiceTestUtil.getWorkAreaViewPageable(0, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
         Set.of(),
-        Set.of(1, 2, 3, 4)
+        Set.of(1, 2, 3, 4),
+        flagMap
     );
 
     assertThat(result).containsOnly(detail3SearchItem);
+
+  }
+
+  @Transactional
+  @Test
+  public void searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagIsTrueAndAnyProcessingWaitFlagTrue_consentReviewOpen_oneWaitFlag_available() {
+
+    setupSearchItems();
+
+    detail3SearchItem.setTipVersionSatisfactoryFlag(true);
+    detail3SearchItem.setOpenConsentReviewFlag(true);
+    persistSearchItems();
+
+    var flagMap = getFlagMapWithDefaultValue(true);
+    flagMap.put(WorkAreaFlag.OPEN_CONSENT_REVIEW_FOREGROUND_FLAG, false);
+
+    var result = workAreaApplicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagEqualsAndAnyProcessingWaitFlagEqual(
+        WorkAreaPageServiceTestUtil.getWorkAreaViewPageable(0, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
+        Set.of(),
+        Set.of(1, 2, 3, 4),
+        flagMap
+    );
+
+    assertThat(result).containsOnly(detail3SearchItem);
+
+  }
+
+  @Transactional
+  @Test
+  public void searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagIsTrueAndAnyProcessingWaitFlagTrue_consentReviewOpen_noWaitFlags_notAvailable() {
+
+    setupSearchItems();
+
+    detail3SearchItem.setTipVersionSatisfactoryFlag(true);
+    detail3SearchItem.setOpenConsentReviewFlag(true);
+    persistSearchItems();
+
+    var flagMap = getFlagMapWithDefaultValue(true);
+
+    var result = workAreaApplicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagEqualsAndAnyProcessingWaitFlagEqual(
+        WorkAreaPageServiceTestUtil.getWorkAreaViewPageable(0, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
+        Set.of(),
+        Set.of(1, 2, 3, 4),
+        flagMap
+    );
+
+    assertThat(result).isEmpty();
+
+  }
+
+  private Map<WorkAreaFlag, Boolean> getFlagMapWithDefaultValue(Boolean value) {
+
+    return WorkAreaFlag.stream()
+        .collect(Collectors.toMap(Function.identity(), val -> value));
 
   }
 

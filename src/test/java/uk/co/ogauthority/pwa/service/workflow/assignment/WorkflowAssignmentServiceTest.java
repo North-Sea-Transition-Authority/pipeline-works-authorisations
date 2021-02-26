@@ -47,7 +47,7 @@ public class WorkflowAssignmentServiceTest {
   private CamundaWorkflowService camundaWorkflowService;
 
   @Mock
-  private AssignmentAuditService assignmentAuditService;
+  private AssignmentService assignmentService;
 
   @Mock
   private PwaTeamService pwaTeamService;
@@ -79,8 +79,8 @@ public class WorkflowAssignmentServiceTest {
 
     when(pwaTeamService.getPeopleWithRegulatorRole(PwaRegulatorRole.CASE_OFFICER)).thenReturn(Set.of(caseOfficerPerson));
 
-    workflowAssignmentService = new WorkflowAssignmentService(camundaWorkflowService, assignmentAuditService,
-        pwaTeamService, consulteeGroupTeamService, consultationRequestService, teamManagementService);
+    workflowAssignmentService = new WorkflowAssignmentService(camundaWorkflowService,
+        pwaTeamService, consulteeGroupTeamService, consultationRequestService, teamManagementService, assignmentService);
 
     pwaApplicationSubject = new GenericWorkflowSubject(1, WorkflowType.PWA_APPLICATION);
     consultationSubject = new GenericWorkflowSubject(1, WorkflowType.PWA_APPLICATION_CONSULTATION);
@@ -166,8 +166,9 @@ public class WorkflowAssignmentServiceTest {
     verify(camundaWorkflowService, times(1)).assignTaskToUser(
         eq(new WorkflowTaskInstance(app, PwaApplicationWorkflowTask.CASE_OFFICER_REVIEW)),
         eq(caseOfficerPerson));
-    verify(assignmentAuditService, times(1)).auditAssignment(app, PwaApplicationWorkflowTask.CASE_OFFICER_REVIEW,
-        caseOfficerPerson, notCaseOfficerPerson);
+
+    verify(assignmentService, times(1))
+        .createOrUpdateAssignment(app, PwaApplicationWorkflowTask.CASE_OFFICER_REVIEW, caseOfficerPerson, notCaseOfficerPerson);
 
   }
 

@@ -7,11 +7,13 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.model.entity.workflow.assignment.Assignment;
 import uk.co.ogauthority.pwa.service.enums.workflow.WorkflowType;
 import uk.co.ogauthority.pwa.service.workarea.applications.IndustryWorkAreaPageService;
 import uk.co.ogauthority.pwa.service.workarea.applications.RegulatorWorkAreaPageService;
 import uk.co.ogauthority.pwa.service.workarea.consultations.ConsultationWorkAreaPageService;
 import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
+import uk.co.ogauthority.pwa.service.workflow.assignment.AssignmentService;
 import uk.co.ogauthority.pwa.service.workflow.task.AssignedTaskInstance;
 
 @Service
@@ -23,16 +25,19 @@ public class WorkAreaService {
   private final IndustryWorkAreaPageService industryWorkAreaPageService;
   private final ConsultationWorkAreaPageService consultationWorkAreaPageService;
   private final RegulatorWorkAreaPageService regulatorWorkAreaPageService;
+  private final AssignmentService assignmentService;
 
   @Autowired
   public WorkAreaService(CamundaWorkflowService camundaWorkflowService,
                          IndustryWorkAreaPageService industryWorkAreaPageService,
                          ConsultationWorkAreaPageService consultationWorkAreaPageService,
-                         RegulatorWorkAreaPageService regulatorWorkAreaPageService) {
+                         RegulatorWorkAreaPageService regulatorWorkAreaPageService,
+                         AssignmentService assignmentService) {
     this.camundaWorkflowService = camundaWorkflowService;
     this.industryWorkAreaPageService = industryWorkAreaPageService;
     this.consultationWorkAreaPageService = consultationWorkAreaPageService;
     this.regulatorWorkAreaPageService = regulatorWorkAreaPageService;
+    this.assignmentService = assignmentService;
   }
 
   /**
@@ -46,6 +51,16 @@ public class WorkAreaService {
     Map<WorkflowType, List<AssignedTaskInstance>> workflowTypeToTaskMap = camundaWorkflowService
         .getAssignedTasks(authenticatedUserAccount.getLinkedPerson()).stream()
         .collect(Collectors.groupingBy(AssignedTaskInstance::getWorkflowType));
+
+    Map<WorkflowType, List<Assignment>> workflowTypeToAssignmentMap = assignmentService.getAssignmentsForPerson(
+        authenticatedUserAccount.getLinkedPerson());
+
+    // todo ensure apps returned are still in progress, PWA-177 after ending workflows, clear assignments in the Assignment table
+    var assignedAppIds = workflowTypeToAssignmentMap
+        .getOrDefault(WorkflowType.PWA_APPLICATION, List.of())
+        .stream()
+        .map(Assignment::getBusinessKey)
+        .collect(Collectors.toList());
 
     Set<Integer> businessKeys;
 
@@ -65,6 +80,7 @@ public class WorkAreaService {
 
       case REGULATOR_REQUIRES_ATTENTION:
         businessKeys = getBusinessKeysFromWorkflowToTaskMap(workflowTypeToTaskMap, WorkflowType.PWA_APPLICATION);
+        businessKeys.addAll(assignedAppIds);
         return new WorkAreaResult(
             regulatorWorkAreaPageService.getRequiresAttentionPageView(authenticatedUserAccount, businessKeys, page),
             null
@@ -72,14 +88,14 @@ public class WorkAreaService {
 
       case REGULATOR_WAITING_ON_OTHERS:
         businessKeys = getBusinessKeysFromWorkflowToTaskMap(workflowTypeToTaskMap, WorkflowType.PWA_APPLICATION);
+        businessKeys.addAll(assignedAppIds);
         return new WorkAreaResult(
             regulatorWorkAreaPageService.getWaitingOnOthersPageView(authenticatedUserAccount, businessKeys, page),
             null
         );
 
       case OPEN_CONSULTATIONS:
-        businessKeys = getBusinessKeysFromWorkflowToTaskMap(workflowTypeToTaskMap,
-            WorkflowType.PWA_APPLICATION_CONSULTATION);
+        businessKeys = getBusinessKeysFromWorkflowToTaskMap(workflowTypeToTaskMap, WorkflowType.PWA_APPLICATION_CONSULTATION);
         return new WorkAreaResult(null,
             consultationWorkAreaPageService.getPageView(authenticatedUserAccount, businessKeys, page));
 

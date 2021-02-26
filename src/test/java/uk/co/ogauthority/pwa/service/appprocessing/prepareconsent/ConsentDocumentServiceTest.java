@@ -32,7 +32,10 @@ import uk.co.ogauthority.pwa.service.consultations.ConsultationRequestService;
 import uk.co.ogauthority.pwa.service.documents.instances.DocumentInstanceService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationWorkflowTask;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
+import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
+import uk.co.ogauthority.pwa.service.workflow.task.WorkflowTaskInstance;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -59,6 +62,9 @@ public class ConsentDocumentServiceTest {
   @Mock
   private ConsentReviewService consentReviewService;
 
+  @Mock
+  private CamundaWorkflowService camundaWorkflowService;
+
   private ConsentDocumentService consentDocumentService;
 
   private PwaApplicationDetail detail;
@@ -76,7 +82,8 @@ public class ConsentDocumentServiceTest {
         documentInstanceService,
         pwaApplicationDetailService,
         consentDocumentEmailService,
-        consentReviewService);
+        consentReviewService,
+        camundaWorkflowService);
 
     detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
 
@@ -179,7 +186,7 @@ public class ConsentDocumentServiceTest {
   @Test
   public void sendForApproval_verifyServiceCalls() {
 
-    var detail = new PwaApplicationDetail();
+    var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     consentDocumentService.sendForApproval(detail, "cover letter my text", authUser);
 
     verify(pwaApplicationDetailService, times(1)).updateStatus(detail, PwaApplicationStatus.CONSENT_REVIEW, authUser);
@@ -187,6 +194,9 @@ public class ConsentDocumentServiceTest {
     verify(consentReviewService, times(1)).startConsentReview(detail, "cover letter my text", person);
 
     verify(consentDocumentEmailService, times(1)).sendConsentReviewStartedEmail(detail, person);
+
+    var workflowTaskInstance = new WorkflowTaskInstance(detail.getPwaApplication(), PwaApplicationWorkflowTask.CASE_OFFICER_REVIEW);
+    verify(camundaWorkflowService, times(1)).completeTask(workflowTaskInstance);
 
   }
 

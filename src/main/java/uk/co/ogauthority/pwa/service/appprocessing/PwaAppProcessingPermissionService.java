@@ -134,6 +134,7 @@ public class PwaAppProcessingPermissionService {
 
             case ACCEPT_INITIAL_REVIEW:
             case ASSIGN_CASE_OFFICER:
+            case CONSENT_REVIEW:
               return userPrivileges.contains(PwaUserPrivilege.PWA_MANAGER);
             case VIEW_ALL_CONSULTATIONS:
             case ADD_CASE_NOTE:

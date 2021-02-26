@@ -85,6 +85,8 @@ public class WorkAreaApplicationDetailSearchItem implements ApplicationDetailIte
 
   private boolean tipVersionSatisfactoryFlag;
 
+  private boolean openConsentReviewFlag;
+
   @Override
   public int getPwaApplicationDetailId() {
     return pwaApplicationDetailId;
@@ -348,6 +350,16 @@ public class WorkAreaApplicationDetailSearchItem implements ApplicationDetailIte
   @Override
   public void setTipVersionSatisfactoryFlag(boolean tipVersionSatisfactoryFlag) {
     this.tipVersionSatisfactoryFlag = tipVersionSatisfactoryFlag;
+  }
+
+  @Override
+  public boolean isOpenConsentReviewFlag() {
+    return openConsentReviewFlag;
+  }
+
+  @Override
+  public void setOpenConsentReviewFlag(boolean openConsentReviewFlag) {
+    this.openConsentReviewFlag = openConsentReviewFlag;
   }
 
 }

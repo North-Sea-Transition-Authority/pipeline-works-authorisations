@@ -3,7 +3,10 @@ package uk.co.ogauthority.pwa.service.workarea.applications;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import java.util.EnumSet;
+import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
@@ -18,6 +21,7 @@ import uk.co.ogauthority.pwa.service.appprocessing.PwaAppProcessingPermissionSer
 import uk.co.ogauthority.pwa.service.appprocessing.tabs.AppProcessingTab;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
+import uk.co.ogauthority.pwa.service.enums.workarea.WorkAreaFlag;
 import uk.co.ogauthority.pwa.service.pwaapplications.search.WorkAreaApplicationDetailSearcher;
 import uk.co.ogauthority.pwa.service.workarea.WorkAreaTab;
 import uk.co.ogauthority.pwa.util.WorkAreaUtils;
@@ -68,14 +72,16 @@ public class RegulatorWorkAreaPageService {
 
   }
 
-  private Set<PwaApplicationStatus> getAdditionalStatusFilterForUser(AuthenticatedUserAccount user) {
+  private Set<PwaApplicationStatus> getAdditionalStatusFilterForUser(Set<PwaAppProcessingPermission> processingPermissions) {
 
     var searchStatuses = EnumSet.noneOf(PwaApplicationStatus.class);
 
-    var processingPermissions = appProcessingPermissionService.getGenericProcessingPermissions(user);
-
     if (processingPermissions.contains(PwaAppProcessingPermission.ACCEPT_INITIAL_REVIEW)) {
       searchStatuses.add(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW);
+    }
+
+    if (processingPermissions.contains(PwaAppProcessingPermission.CONSENT_REVIEW)) {
+      searchStatuses.add(PwaApplicationStatus.CONSENT_REVIEW);
     }
 
     return searchStatuses;
@@ -87,13 +93,32 @@ public class RegulatorWorkAreaPageService {
                                                                              Set<Integer> applicationIdList,
                                                                              int pageRequest) {
 
-    var searchStatuses = getAdditionalStatusFilterForUser(userAccount);
+    var processingPermissions = appProcessingPermissionService.getGenericProcessingPermissions(userAccount);
+    var searchStatuses = getAdditionalStatusFilterForUser(processingPermissions);
 
-    return workAreaApplicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagIsFalseOrAllProcessingWaitFlagsFalse(
+    var processingFlagsMap = getProcessingFlagsMapWithDefault(processingPermissions, false);
+
+    return workAreaApplicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagEqualsOrAllProcessingWaitFlagsEqual(
         WorkAreaUtils.getWorkAreaPageRequest(pageRequest, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
         searchStatuses,
-        applicationIdList
+        applicationIdList,
+        processingFlagsMap
     );
+
+  }
+
+  private Map<WorkAreaFlag, Boolean> getProcessingFlagsMapWithDefault(Set<PwaAppProcessingPermission> processingPermissions,
+                                                                      Boolean defaultValue) {
+
+    // set all wait flags to default
+    var processingFlagsMap = WorkAreaFlag.stream()
+        .collect(Collectors.toMap(Function.identity(), val -> defaultValue));
+
+    // then recalculate open consent review flag based on user permissions
+    boolean userCanConsentReview = processingPermissions.contains(PwaAppProcessingPermission.CONSENT_REVIEW);
+    processingFlagsMap.put(WorkAreaFlag.OPEN_CONSENT_REVIEW_FOREGROUND_FLAG, userCanConsentReview);
+
+    return processingFlagsMap;
 
   }
 
@@ -101,12 +126,16 @@ public class RegulatorWorkAreaPageService {
                                                                            Set<Integer> applicationIdList,
                                                                            int pageRequest) {
 
-    var searchStatuses = getAdditionalStatusFilterForUser(userAccount);
+    var processingPermissions = appProcessingPermissionService.getGenericProcessingPermissions(userAccount);
+    var searchStatuses = getAdditionalStatusFilterForUser(processingPermissions);
 
-    return workAreaApplicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagIsTrueAndAnyProcessingWaitFlagTrue(
+    var processingFlagsMap = getProcessingFlagsMapWithDefault(processingPermissions, true);
+
+    return workAreaApplicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagEqualsAndAnyProcessingWaitFlagEqual(
         WorkAreaUtils.getWorkAreaPageRequest(pageRequest, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
         searchStatuses,
-        applicationIdList
+        applicationIdList,
+        processingFlagsMap
     );
 
   }

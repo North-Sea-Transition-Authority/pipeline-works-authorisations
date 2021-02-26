@@ -88,6 +88,8 @@ public class ApplicationDetailView implements ApplicationDetailItemView {
 
   private boolean tipVersionSatisfactoryFlag;
 
+  private boolean openConsentReviewFlag;
+
   public void setPadConfirmedSatisfactoryTimestamp(Instant padConfirmedSatisfactoryTimestamp) {
     this.padConfirmedSatisfactoryTimestamp = padConfirmedSatisfactoryTimestamp;
   }
@@ -359,5 +361,15 @@ public class ApplicationDetailView implements ApplicationDetailItemView {
   @Override
   public void setTipVersionSatisfactoryFlag(boolean tipVersionSatisfactoryFlag) {
     this.tipVersionSatisfactoryFlag = tipVersionSatisfactoryFlag;
+  }
+
+  @Override
+  public boolean isOpenConsentReviewFlag() {
+    return openConsentReviewFlag;
+  }
+
+  @Override
+  public void setOpenConsentReviewFlag(boolean openConsentReviewFlag) {
+    this.openConsentReviewFlag = openConsentReviewFlag;
   }
 }

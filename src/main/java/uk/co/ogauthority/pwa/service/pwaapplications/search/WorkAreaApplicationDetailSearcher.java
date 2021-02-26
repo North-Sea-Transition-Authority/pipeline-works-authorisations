@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
@@ -25,6 +26,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.WorkAreaApplica
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.WorkAreaApplicationDetailSearchItem_;
 import uk.co.ogauthority.pwa.repository.pwaapplications.search.WorkAreaApplicationDetailSearchItemRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
+import uk.co.ogauthority.pwa.service.enums.workarea.WorkAreaFlag;
 
 @Service
 public class WorkAreaApplicationDetailSearcher {
@@ -191,10 +193,11 @@ public class WorkAreaApplicationDetailSearcher {
    * - latest version is satisfactory, but no open update requests, consultation requests etc.
    */
   public Page<WorkAreaApplicationDetailSearchItem>
-        searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagIsFalseOrAllProcessingWaitFlagsFalse(
-          Pageable pageable,
-          Set<PwaApplicationStatus> statusFilter,
-          Set<Integer> pwaApplicationIdFilter) {
+      searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagEqualsOrAllProcessingWaitFlagsEqual(
+      Pageable pageable,
+      Set<PwaApplicationStatus> statusFilter,
+      Set<Integer> pwaApplicationIdFilter,
+      Map<WorkAreaFlag, Boolean> workAreaFlagMap) {
 
     if (statusFilter.isEmpty() && pwaApplicationIdFilter.isEmpty()) {
       return Page.empty(pageable);
@@ -206,10 +209,11 @@ public class WorkAreaApplicationDetailSearcher {
         // passing null when empty is required or else spring produces invalid sql for the IN condition.
         statusFilter.isEmpty() ? null : statusFilter,
         pwaApplicationIdFilter.isEmpty() ? null : pwaApplicationIdFilter,
-        false,
-        false,
-        false,
-        false
+        workAreaFlagMap.get(WorkAreaFlag.TIP_VERSION_SATISFACTORY),
+        workAreaFlagMap.get(WorkAreaFlag.OPEN_UPDATE_REQUEST),
+        workAreaFlagMap.get(WorkAreaFlag.OPEN_PUBLIC_NOTICE),
+        workAreaFlagMap.get(WorkAreaFlag.OPEN_CONSULTATION_REQUEST),
+        workAreaFlagMap.get(WorkAreaFlag.OPEN_CONSENT_REVIEW_FOREGROUND_FLAG)
     );
 
   }
@@ -218,10 +222,11 @@ public class WorkAreaApplicationDetailSearcher {
    * Get app details where the latest version is satisfactory and there is at least one open update request, consultation request etc.
    */
   public Page<WorkAreaApplicationDetailSearchItem>
-        searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagIsTrueAndAnyProcessingWaitFlagTrue(
+      searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagEqualsAndAnyProcessingWaitFlagEqual(
           Pageable pageable,
           Set<PwaApplicationStatus> statusFilter,
-          Set<Integer> pwaApplicationIdFilter) {
+          Set<Integer> pwaApplicationIdFilter,
+          Map<WorkAreaFlag, Boolean> workAreaFlagMap) {
 
     if (statusFilter.isEmpty() && pwaApplicationIdFilter.isEmpty()) {
       return Page.empty(pageable);
@@ -233,10 +238,11 @@ public class WorkAreaApplicationDetailSearcher {
         // passing null when empty is required or else spring produces invalid sql for the IN condition.
         statusFilter.isEmpty() ? null : statusFilter,
         pwaApplicationIdFilter.isEmpty() ? null : pwaApplicationIdFilter,
-        true,
-        true,
-        true,
-        true
+        workAreaFlagMap.get(WorkAreaFlag.TIP_VERSION_SATISFACTORY),
+        workAreaFlagMap.get(WorkAreaFlag.OPEN_UPDATE_REQUEST),
+        workAreaFlagMap.get(WorkAreaFlag.OPEN_PUBLIC_NOTICE),
+        workAreaFlagMap.get(WorkAreaFlag.OPEN_CONSULTATION_REQUEST),
+        workAreaFlagMap.get(WorkAreaFlag.OPEN_CONSENT_REVIEW_FOREGROUND_FLAG)
     );
 
   }
@@ -244,6 +250,5 @@ public class WorkAreaApplicationDetailSearcher {
   public Optional<WorkAreaApplicationDetailSearchItem> searchByApplicationDetailId(Integer pwaApplicationDetailId) {
     return workAreaApplicationDetailSearchItemRepository.findByPwaApplicationDetailIdEquals(pwaApplicationDetailId);
   }
-
 
 }

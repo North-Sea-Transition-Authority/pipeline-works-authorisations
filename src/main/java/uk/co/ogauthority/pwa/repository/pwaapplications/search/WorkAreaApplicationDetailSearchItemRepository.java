@@ -21,6 +21,10 @@ public interface WorkAreaApplicationDetailSearchItemRepository extends CrudRepos
       "    waadsi.openUpdateRequestFlag = :openForUpdateFlag " +
       "    AND waadsi.openPublicNoticeFlag = :openPublicNoticeFlag " +
       "    AND waadsi.openConsultationRequestFlag = :openConsultationRequestFlag" +
+      "    AND ( " +
+      "      (waadsi.openConsentReviewFlag = TRUE AND :openConsentReviewForegroundFlag = TRUE) OR " +
+      "      (waadsi.openConsentReviewFlag = FALSE AND :openConsentReviewForegroundFlag = FALSE) " +
+      "    ) " +
       "  ) " +
       ")";
 
@@ -32,6 +36,7 @@ public interface WorkAreaApplicationDetailSearchItemRepository extends CrudRepos
       "    waadsi.openUpdateRequestFlag = :openForUpdateFlag " +
       "    OR waadsi.openPublicNoticeFlag = :openPublicNoticeFlag " +
       "    OR waadsi.openConsultationRequestFlag = :openConsultationRequestFlag" +
+      "    OR (waadsi.openConsentReviewFlag = TRUE AND :openConsentReviewForegroundFlag = FALSE)" +
       "  ) " +
       ")";
 
@@ -55,7 +60,8 @@ public interface WorkAreaApplicationDetailSearchItemRepository extends CrudRepos
       @Param("tipVersionSatisfactoryFlag") Boolean tipVersionSatisfactoryFlag,
       @Param("openForUpdateFlag") Boolean openForUpdateFlag,
       @Param("openPublicNoticeFlag") Boolean openPublicNoticeFlag,
-      @Param("openConsultationRequestFlag") Boolean openConsultationRequestFlag
+      @Param("openConsultationRequestFlag") Boolean openConsultationRequestFlag,
+      @Param("openConsentReviewForegroundFlag") Boolean openConsentReviewForegroundFlag
   );
 
   // we can use standard JPQL + Pageable here as the sort values will never be null after submission.
@@ -70,7 +76,8 @@ public interface WorkAreaApplicationDetailSearchItemRepository extends CrudRepos
       @Param("tipVersionSatisfactoryFlag") Boolean tipVersionSatisfactoryFlag,
       @Param("openForUpdateFlag") Boolean openForUpdateFlag,
       @Param("openPublicNoticeFlag") Boolean openPublicNoticeFlag,
-      @Param("openConsultationRequestFlag") Boolean openConsultationRequestFlag
+      @Param("openConsultationRequestFlag") Boolean openConsultationRequestFlag,
+      @Param("openConsentReviewForegroundFlag") Boolean openConsentReviewForegroundFlag
   );
 
   Page<WorkAreaApplicationDetailSearchItem> findAllByPwaApplicationIdInAndPadStatusInAndOpenUpdateRequestFlag(

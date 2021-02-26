@@ -129,6 +129,16 @@ public class PwaAppProcessingPermissionServiceTest {
   }
 
   @Test
+  public void getGenericProcessingPermissions_consentReview_pwaManager_success() {
+
+    replacePrivileges(user, PwaUserPrivilege.PWA_MANAGER);
+
+    var permissions = processingPermissionService.getGenericProcessingPermissions(user);
+    AssertionTestUtils.assertNotEmptyAndContains(permissions, PwaAppProcessingPermission.CONSENT_REVIEW);
+
+  }
+
+  @Test
   public void getAppProcessingPermissions_acceptWithdrawConsultationsPermission_assignedCo_success() {
 
     replacePrivileges(user, PwaUserPrivilege.PWA_CASE_OFFICER);

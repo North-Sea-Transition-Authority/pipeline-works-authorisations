@@ -9,6 +9,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
@@ -16,19 +17,22 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
-import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
+import uk.co.ogauthority.pwa.energyportal.model.entity.PersonTestUtil;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
+import uk.co.ogauthority.pwa.model.entity.workflow.assignment.Assignment;
 import uk.co.ogauthority.pwa.model.workflow.GenericWorkflowSubject;
 import uk.co.ogauthority.pwa.mvc.PageView;
 import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationConsultationWorkflowTask;
 import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationWorkflowTask;
 import uk.co.ogauthority.pwa.service.enums.workflow.WorkflowType;
+import uk.co.ogauthority.pwa.service.enums.workflow.assignment.WorkflowAssignment;
 import uk.co.ogauthority.pwa.service.workarea.applications.IndustryWorkAreaPageService;
 import uk.co.ogauthority.pwa.service.workarea.applications.PwaApplicationWorkAreaItem;
 import uk.co.ogauthority.pwa.service.workarea.applications.RegulatorWorkAreaPageService;
 import uk.co.ogauthority.pwa.service.workarea.consultations.ConsultationRequestWorkAreaItem;
 import uk.co.ogauthority.pwa.service.workarea.consultations.ConsultationWorkAreaPageService;
 import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
+import uk.co.ogauthority.pwa.service.workflow.assignment.AssignmentService;
 import uk.co.ogauthority.pwa.service.workflow.task.AssignedTaskInstance;
 import uk.co.ogauthority.pwa.service.workflow.task.WorkflowTaskInstance;
 import uk.co.ogauthority.pwa.testutils.WorkAreaTestUtils;
@@ -48,12 +52,16 @@ public class WorkAreaServiceTest {
   @Mock
   private RegulatorWorkAreaPageService regulatorWorkAreaPageService;
 
+  @Mock
+  private AssignmentService assignmentService;
+
   private WorkAreaService workAreaService;
 
   private PageView<PwaApplicationWorkAreaItem> appPageView;
   private PageView<ConsultationRequestWorkAreaItem> consultationPageView;
 
-  private AuthenticatedUserAccount authenticatedUserAccount = new AuthenticatedUserAccount(new WebUserAccount(1, new Person()), List.of());
+  private final AuthenticatedUserAccount authenticatedUserAccount = new AuthenticatedUserAccount(new WebUserAccount(1,
+      PersonTestUtil.createDefaultPerson()), List.of());
 
   @Before
   public void setUp() {
@@ -62,7 +70,8 @@ public class WorkAreaServiceTest {
         camundaWorkflowService,
         industryWorkAreaPageService,
         consultationWorkAreaPageService,
-        regulatorWorkAreaPageService);
+        regulatorWorkAreaPageService,
+        assignmentService);
 
     appPageView = WorkAreaTestUtils.setUpFakeAppPageView(0);
     when(industryWorkAreaPageService.getOpenApplicationsPageView(any(), anyInt())).thenReturn(appPageView);
@@ -123,9 +132,14 @@ public class WorkAreaServiceTest {
         new AssignedTaskInstance(new WorkflowTaskInstance(consultationWorkflowSubject, PwaApplicationConsultationWorkflowTask.ALLOCATION), authenticatedUserAccount.getLinkedPerson())
     ));
 
+    var nonCamundaAssignment = new Assignment(100, WorkflowType.PWA_APPLICATION, WorkflowAssignment.CASE_OFFICER,
+        authenticatedUserAccount.getLinkedPerson().getId());
+    when(assignmentService.getAssignmentsForPerson(authenticatedUserAccount.getLinkedPerson()))
+        .thenReturn(Map.of(WorkflowType.PWA_APPLICATION, List.of(nonCamundaAssignment)));
+
     var workAreaResult = workAreaService.getWorkAreaResult(authenticatedUserAccount, WorkAreaTab.REGULATOR_WAITING_ON_OTHERS, 0);
 
-    verify(regulatorWorkAreaPageService, times(1)).getWaitingOnOthersPageView(eq(authenticatedUserAccount), eq(Set.of(1,2)), eq(0));
+    verify(regulatorWorkAreaPageService, times(1)).getWaitingOnOthersPageView(eq(authenticatedUserAccount), eq(Set.of(1,2,100)), eq(0));
 
     assertThat(workAreaResult.getApplicationsTabPages()).isEqualTo(appPageView);
     assertThat(workAreaResult.getConsultationsTabPages()).isNull();
@@ -136,6 +150,7 @@ public class WorkAreaServiceTest {
   public void getWorkAreaResult_regWaitingTab_noAssignedTasks() {
 
     when(camundaWorkflowService.getAssignedTasks(authenticatedUserAccount.getLinkedPerson())).thenReturn(Set.of());
+    when(assignmentService.getAssignmentsForPerson(authenticatedUserAccount.getLinkedPerson())).thenReturn(Map.of());
 
     var workAreaResult = workAreaService.getWorkAreaResult(authenticatedUserAccount, WorkAreaTab.REGULATOR_WAITING_ON_OTHERS, 1);
 

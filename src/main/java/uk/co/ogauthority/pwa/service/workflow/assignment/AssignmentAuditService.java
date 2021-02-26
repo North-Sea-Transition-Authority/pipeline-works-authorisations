@@ -6,10 +6,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
+import uk.co.ogauthority.pwa.model.entity.workflow.assignment.Assignment;
 import uk.co.ogauthority.pwa.model.entity.workflow.assignment.AssignmentAudit;
 import uk.co.ogauthority.pwa.repository.workflow.assignment.AssignmentAuditRepository;
 import uk.co.ogauthority.pwa.service.enums.workflow.UserWorkflowTask;
-import uk.co.ogauthority.pwa.service.enums.workflow.WorkflowSubject;
 
 @Service
 public class AssignmentAuditService {
@@ -25,17 +25,16 @@ public class AssignmentAuditService {
   }
 
   @Transactional
-  public void auditAssignment(WorkflowSubject workflowSubject,
+  public void auditAssignment(Assignment assignment,
                               UserWorkflowTask task,
-                              Person assignee,
                               Person assigningPerson) {
 
     var audit = new AssignmentAudit();
-    audit.setWorkflowType(workflowSubject.getWorkflowType());
-    audit.setBusinessKey(workflowSubject.getBusinessKey());
-    audit.setAssignment(task.getAssignment());
+    audit.setWorkflowType(assignment.getWorkflowType());
+    audit.setBusinessKey(assignment.getBusinessKey());
+    audit.setAssignment(assignment.getWorkflowAssignment());
     audit.setTaskKey(task.getTaskKey());
-    audit.setAssigneePersonId(assignee.getId().asInt());
+    audit.setAssigneePersonId(assignment.getAssigneePersonId().asInt());
     audit.setAssignedByPersonId(assigningPerson.getId().asInt());
     audit.setAssignmentTimestamp(clock.instant());
 
