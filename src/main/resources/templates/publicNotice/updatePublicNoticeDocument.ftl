@@ -18,8 +18,10 @@
 
   <@fdsForm.htmlForm>
     <h3 class="govuk-heading-m"> Cover letter </h3>
-    <p class="govuk-body"> ${coverLetter} </p>
-    <@multiLineText.multiLineText blockClass="govuk-body"> ${coverLetter} </@multiLineText.multiLineText>
+    
+    <@multiLineText.multiLineText>
+      <p class="govuk-body"> ${coverLetter} </p> 
+    </@multiLineText.multiLineText>
  
     <h3 class="govuk-heading-m"> Public notice document download </h3>
     <p>
