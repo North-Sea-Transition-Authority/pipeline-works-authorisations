@@ -258,6 +258,7 @@ public class WorkAreaApplicationDetailSearcherIntegrationTest {
     var result = workAreaApplicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagEqualsOrAllProcessingWaitFlagsEqual(
         WorkAreaPageServiceTestUtil.getWorkAreaViewPageable(0, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
         Set.of(),
+        Set.of(),
         Set.of(1, 2, 3, 4),
         flagMap
     );
@@ -282,6 +283,7 @@ public class WorkAreaApplicationDetailSearcherIntegrationTest {
     var result = workAreaApplicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagEqualsOrAllProcessingWaitFlagsEqual(
         WorkAreaPageServiceTestUtil.getWorkAreaViewPageable(0, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
         Set.of(),
+        Set.of(),
         Set.of(1, 2, 3, 4),
         flagMap
     );
@@ -305,6 +307,7 @@ public class WorkAreaApplicationDetailSearcherIntegrationTest {
     var result = workAreaApplicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagEqualsOrAllProcessingWaitFlagsEqual(
         WorkAreaPageServiceTestUtil.getWorkAreaViewPageable(0, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
         Set.of(),
+        Set.of(),
         Set.of(1, 2, 3, 4),
         flagMap
     );
@@ -327,6 +330,7 @@ public class WorkAreaApplicationDetailSearcherIntegrationTest {
 
     var result = workAreaApplicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagEqualsOrAllProcessingWaitFlagsEqual(
         WorkAreaPageServiceTestUtil.getWorkAreaViewPageable(0, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
+        Set.of(),
         Set.of(),
         Set.of(1, 2, 3, 4),
         flagMap
@@ -422,6 +426,7 @@ public class WorkAreaApplicationDetailSearcherIntegrationTest {
     var result = workAreaApplicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagEqualsAndAnyProcessingWaitFlagEqual(
         WorkAreaPageServiceTestUtil.getWorkAreaViewPageable(0, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
         Set.of(),
+        Set.of(),
         Set.of(1, 2, 3, 4),
         flagMap
     );
@@ -469,6 +474,7 @@ public class WorkAreaApplicationDetailSearcherIntegrationTest {
 
     var result = workAreaApplicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagEqualsAndAnyProcessingWaitFlagEqual(
         WorkAreaPageServiceTestUtil.getWorkAreaViewPageable(0, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
+        Set.of(),
         Set.of(),
         Set.of(1, 2, 3, 4),
         flagMap

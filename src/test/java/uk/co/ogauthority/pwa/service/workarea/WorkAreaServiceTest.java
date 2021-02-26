@@ -20,7 +20,6 @@ import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.energyportal.model.entity.PersonTestUtil;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
-import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeStatus;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.workflow.assignment.Assignment;
 import uk.co.ogauthority.pwa.model.workflow.GenericWorkflowSubject;
@@ -68,7 +67,7 @@ public class WorkAreaServiceTest {
   private PageView<PwaApplicationWorkAreaItem> appPageView;
   private PageView<ConsultationRequestWorkAreaItem> consultationPageView;
 
-  private final AuthenticatedUserAccount authenticatedUserAccount = new AuthenticatedUserAccount(new WebUserAccount(1,
+  private AuthenticatedUserAccount authenticatedUserAccount = new AuthenticatedUserAccount(new WebUserAccount(1,
       PersonTestUtil.createDefaultPerson()), List.of());
 
   @Before
@@ -117,7 +116,7 @@ public class WorkAreaServiceTest {
   @Test
   public void getWorkAreaResult_regAttentionTab_pwaManagerPrivilege_resultsExist() {
 
-    authenticatedUserAccount = new AuthenticatedUserAccount(new WebUserAccount(1, new Person()), List.of(
+    authenticatedUserAccount = new AuthenticatedUserAccount(new WebUserAccount(1, PersonTestUtil.createDefaultPerson()), List.of(
         PwaUserPrivilege.PWA_MANAGER));
 
     var pwaApplication = new PwaApplication();

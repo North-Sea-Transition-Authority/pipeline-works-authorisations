@@ -9,8 +9,6 @@ public enum WorkAreaFlag {
 
   OPEN_UPDATE_REQUEST,
 
-  OPEN_PUBLIC_NOTICE,
-
   OPEN_CONSULTATION_REQUEST,
 
   OPEN_CONSENT_REVIEW_FOREGROUND_FLAG; // whether or not open consent reviews should show in the foreground tab

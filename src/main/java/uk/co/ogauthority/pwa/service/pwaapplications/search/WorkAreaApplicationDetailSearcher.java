@@ -216,7 +216,7 @@ public class WorkAreaApplicationDetailSearcher {
         pwaApplicationIdFilter.isEmpty() ? null : pwaApplicationIdFilter,
         workAreaFlagMap.get(WorkAreaFlag.TIP_VERSION_SATISFACTORY),
         workAreaFlagMap.get(WorkAreaFlag.OPEN_UPDATE_REQUEST),
-            publicNoticeStatusFilter.isEmpty() ? null : publicNoticeStatusFilter,
+        publicNoticeStatusFilter.isEmpty() ? null : publicNoticeStatusFilter,
         workAreaFlagMap.get(WorkAreaFlag.OPEN_CONSULTATION_REQUEST),
         workAreaFlagMap.get(WorkAreaFlag.OPEN_CONSENT_REVIEW_FOREGROUND_FLAG)
     );
