@@ -161,6 +161,10 @@
       margin-top: 40px;
     }
 
+    .huooTreatyDescription {
+      width: 650px;
+    }
+
     .huooOrgDescription {
       page-break-inside:avoid;
     }

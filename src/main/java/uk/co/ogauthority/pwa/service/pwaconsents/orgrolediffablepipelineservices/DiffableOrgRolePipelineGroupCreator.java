@@ -60,6 +60,7 @@ public class DiffableOrgRolePipelineGroupCreator {
     var isManuallyEnteredName = false;
     var companyAddress = "";
     var companyNumber = "";
+    var isTreatyAgreement = false;
     var treatyAgreementText = "";
 
     if (orgRolePipelineGroupView.getHuooType() == HuooType.PORTAL_ORG && orgRolePipelineGroupView.getOrgUnitDetailDto() != null) {
@@ -74,6 +75,7 @@ public class DiffableOrgRolePipelineGroupCreator {
       isManuallyEnteredName = true;
 
     } else if (orgRolePipelineGroupView.getHuooType() == HuooType.TREATY_AGREEMENT) {
+      isTreatyAgreement = true;
       orgName = orgRolePipelineGroupView.getTreatyAgreement().getCountry();
       treatyAgreementText = orgRolePipelineGroupView.getTreatyAgreement().getAgreementText();
     }
@@ -95,6 +97,7 @@ public class DiffableOrgRolePipelineGroupCreator {
         orgName,
         companyAddress,
         companyNumber,
+        isTreatyAgreement,
         treatyAgreementText,
         hasCompanyData,
         isManuallyEnteredName,

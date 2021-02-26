@@ -11,6 +11,7 @@ public class DiffableOrgRolePipelineGroup {
   private final StringWithTag roleOwnerName;
   private final String companyAddress;
   private final String companyNumber;
+  private final Boolean orgRoleIsTreatyAgreement;
   private final String treatyAgreementText;
   private final Boolean hasCompanyData;
   private final Boolean isManuallyEnteredName;
@@ -21,6 +22,7 @@ public class DiffableOrgRolePipelineGroup {
   public DiffableOrgRolePipelineGroup(OrganisationRoleOwnerDto roleOwner, String roleOwnerName,
                                       String companyAddress,
                                       String companyNumber,
+                                      Boolean orgRoleIsTreatyAgreement,
                                       String treatyAgreementText,
                                       Boolean hasCompanyData,
                                       Boolean isManuallyEnteredName,
@@ -29,6 +31,7 @@ public class DiffableOrgRolePipelineGroup {
     this.roleOwnerName = isManuallyEnteredName ? new StringWithTag(roleOwnerName, Tag.NOT_FROM_PORTAL) : new StringWithTag(roleOwnerName);
     this.companyAddress = companyAddress;
     this.companyNumber = companyNumber;
+    this.orgRoleIsTreatyAgreement = orgRoleIsTreatyAgreement;
     this.treatyAgreementText = treatyAgreementText;
     this.hasCompanyData = hasCompanyData;
     this.isManuallyEnteredName = isManuallyEnteredName;
@@ -50,6 +53,10 @@ public class DiffableOrgRolePipelineGroup {
 
   public String getCompanyNumber() {
     return companyNumber;
+  }
+
+  public Boolean getOrgRoleIsTreatyAgreement() {
+    return orgRoleIsTreatyAgreement;
   }
 
   public String getTreatyAgreementText() {

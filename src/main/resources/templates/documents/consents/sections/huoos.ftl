@@ -46,9 +46,15 @@
         </p>
       </#if>
 
-      <p class="huooOrgDescription">
-        ${orgRolePipelineGroup.roleOwnerName.value}, whose registered office is ${orgRolePipelineGroup.companyAddress}. Registered Company Number ${orgRolePipelineGroup.companyNumber}
-      </p>
+      <#if orgRolePipelineGroup.orgRoleIsTreatyAgreement>
+          <p class="huooOrgDescription huooTreatyDescription">
+            ${orgRolePipelineGroup.treatyAgreementText}
+          </p>
+      <#else>
+        <p class="huooOrgDescription">
+          ${orgRolePipelineGroup.roleOwnerName.value}, whose registered office is ${orgRolePipelineGroup.companyAddress}. Registered Company Number ${orgRolePipelineGroup.companyNumber}
+        </p>
+      </#if>
     </div>
   </#list>
 
