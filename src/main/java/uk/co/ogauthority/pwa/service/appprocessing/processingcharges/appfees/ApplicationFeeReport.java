@@ -3,11 +3,12 @@ package uk.co.ogauthority.pwa.service.appprocessing.processingcharges.appfees;
 import java.util.Collections;
 import java.util.List;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
+import uk.co.ogauthority.pwa.service.appprocessing.processingcharges.display.PaymentHeader;
 
 /**
  * Class to capture the breakdown of an application submission fee.
  */
-public final class ApplicationFeeReport {
+public final class ApplicationFeeReport implements PaymentHeader<ApplicationFeeItem> {
 
   private final PwaApplication pwaApplication;
   private final Integer totalPennies;
@@ -29,15 +30,19 @@ public final class ApplicationFeeReport {
     return pwaApplication;
   }
 
-  public Integer getTotalPennies() {
-    return totalPennies;
-  }
-
-  public String getFeeSummary() {
+  @Override
+  public String getSummary() {
     return feeSummary;
   }
 
-  public List<ApplicationFeeItem> getApplicationFeeItems() {
+  @Override
+  public List<ApplicationFeeItem> getPaymentItems() {
     return Collections.unmodifiableList(applicationFeeItems);
   }
+
+  @Override
+  public int getTotalPennies() {
+    return totalPennies;
+  }
+
 }

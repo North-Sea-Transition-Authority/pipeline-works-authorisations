@@ -2,11 +2,12 @@ package uk.co.ogauthority.pwa.service.appprocessing.processingcharges.appfees;
 
 
 import java.util.Objects;
+import uk.co.ogauthority.pwa.service.appprocessing.processingcharges.display.PaymentItem;
 
 /**
  * Object that describes a single item within the breakdown of total fee.
  */
-public final class ApplicationFeeItem {
+public final class ApplicationFeeItem implements PaymentItem {
 
   private final String description;
   private final int pennyAmount;
@@ -16,10 +17,12 @@ public final class ApplicationFeeItem {
     this.pennyAmount = pennyAmount;
   }
 
+  @Override
   public String getDescription() {
     return description;
   }
 
+  @Override
   public int getPennyAmount() {
     return pennyAmount;
   }

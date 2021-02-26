@@ -1,14 +1,18 @@
 package uk.co.ogauthority.pwa.service.appprocessing.tabs;
 
+import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.co.ogauthority.pwa.controller.appprocessing.processingcharges.IndustryPaymentController;
 import uk.co.ogauthority.pwa.model.tasklist.TaskListGroup;
 import uk.co.ogauthority.pwa.model.view.appprocessing.applicationupdates.ApplicationUpdateRequestView;
 import uk.co.ogauthority.pwa.model.view.banner.PageBannerView;
+import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.applicationupdate.ApplicationUpdateRequestViewService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.service.appprocessing.options.ApproveOptionsService;
@@ -43,6 +47,8 @@ public class TasksTabContentService implements AppProcessingTabContentService {
     Optional<PageBannerView> optionsApprovalPageBannerViewOpt = Optional.empty();
     String taskListUrl = "";
 
+    Optional<String> payForAppUrl = Optional.empty();
+
     boolean industryFlag = appProcessingContext.getAppProcessingPermissions().contains(PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY);
 
     // only retrieve tasks if we're on the tasks tab to reduce load time
@@ -58,6 +64,12 @@ public class TasksTabContentService implements AppProcessingTabContentService {
 
       taskListUrl = pwaApplicationRedirectService.getTaskListRoute(appProcessingContext.getPwaApplication());
 
+      if (appProcessingContext.hasProcessingPermission(PwaAppProcessingPermission.PAY_FOR_APPLICATION)) {
+        payForAppUrl = Optional.of(ReverseRouter.route(on(IndustryPaymentController.class).renderPayForApplicationLanding(
+            appProcessingContext.getMasterPwaApplicationId(), appProcessingContext.getApplicationType(), null
+        )));
+      }
+
     }
 
     var modelMap = new HashMap<>(Map.of(
@@ -68,7 +80,7 @@ public class TasksTabContentService implements AppProcessingTabContentService {
 
     updateRequestViewOpt.ifPresent(view -> modelMap.put("updateRequestView", view));
     optionsApprovalPageBannerViewOpt.ifPresent(view -> modelMap.put("optionsApprovalPageBanner", view));
-
+    payForAppUrl.ifPresent(s -> modelMap.put("payForAppUrl", s));
     return modelMap;
 
   }

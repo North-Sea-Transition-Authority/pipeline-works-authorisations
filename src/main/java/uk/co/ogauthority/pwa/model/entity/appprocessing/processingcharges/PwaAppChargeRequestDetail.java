@@ -51,7 +51,8 @@ public class PwaAppChargeRequestDetail {
   private String chargeSummary;
 
   @Enumerated(EnumType.STRING)
-  private PwaAppChargeRequestStatus status;
+  @Column(name = "status")
+  private PwaAppChargeRequestStatus pwaAppChargeRequestStatus;
 
   private String chargeWaivedReason;
 
@@ -155,12 +156,12 @@ public class PwaAppChargeRequestDetail {
   }
 
 
-  public PwaAppChargeRequestStatus getStatus() {
-    return status;
+  public PwaAppChargeRequestStatus getPwaAppChargeRequestStatus() {
+    return pwaAppChargeRequestStatus;
   }
 
-  public void setStatus(PwaAppChargeRequestStatus status) {
-    this.status = status;
+  public void setPwaAppChargeRequestStatus(PwaAppChargeRequestStatus status) {
+    this.pwaAppChargeRequestStatus = status;
   }
 
 

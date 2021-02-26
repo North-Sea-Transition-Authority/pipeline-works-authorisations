@@ -11,6 +11,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.List;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -117,7 +118,7 @@ public class ApplicationChargeRequestServiceTest {
       assertThat(pwaAppChargeRequestDetail.getTotalPennies()).isEqualTo(spec.getTotalPennies());
       assertThat(pwaAppChargeRequestDetail.getChargeSummary()).isEqualTo(spec.getChargeSummary());
       assertThat(pwaAppChargeRequestDetail.getAutoCaseOfficerPersonId()).isEqualTo(spec.getOnPaymentCompleteCaseOfficerPersonId());
-      assertThat(pwaAppChargeRequestDetail.getStatus()).isEqualTo(spec.getPwaAppChargeRequestStatus());
+      assertThat(pwaAppChargeRequestDetail.getPwaAppChargeRequestStatus()).isEqualTo(spec.getPwaAppChargeRequestStatus());
       assertThat(pwaAppChargeRequestDetail.getChargeWaivedReason()).isNull();
     });
 
@@ -160,7 +161,7 @@ public class ApplicationChargeRequestServiceTest {
     assertThat(chargeRequestDetailCaptor.getValue()).satisfies(pwaAppChargeRequestDetail -> {
 
       assertThat(pwaAppChargeRequestDetail.getTotalPennies()).isEqualTo(spec.getTotalPennies());
-      assertThat(pwaAppChargeRequestDetail.getStatus()).isEqualTo(spec.getPwaAppChargeRequestStatus());
+      assertThat(pwaAppChargeRequestDetail.getPwaAppChargeRequestStatus()).isEqualTo(spec.getPwaAppChargeRequestStatus());
       assertThat(pwaAppChargeRequestDetail.getChargeWaivedReason()).isEqualTo(spec.getChargeWaivedReason());
     });
   }
@@ -253,4 +254,45 @@ public class ApplicationChargeRequestServiceTest {
     applicationChargeRequestService.createPwaAppChargeRequest(requestPerson, spec);
 
   }
+
+  @Test
+  public void getApplicationChargeRequestReport_whenNoOpenChargeRequestFound(){
+
+    assertThat(applicationChargeRequestService.getApplicationChargeRequestReport(pwaApplication)).isEmpty();
+
+  }
+
+  @Test
+  public void getApplicationChargeRequestReport_whenOpenChargeRequestFound_andChargeItems(){
+
+    var chargeRequestDetail = new PwaAppChargeRequestDetail();
+    chargeRequestDetail.setChargeSummary("My Summary");
+    chargeRequestDetail.setTotalPennies(150);
+    chargeRequestDetail.setPwaAppChargeRequestStatus(PwaAppChargeRequestStatus.OPEN);
+
+    var chargeItem = new PwaAppChargeRequestItem(null, "Item 1", 150);
+    when(pwaAppChargeRequestDetailRepository.findByPwaAppChargeRequest_PwaApplicationAndPwaAppChargeRequestStatusAndTipFlagIsTrue(any(), any()))
+        .thenReturn(Optional.of(chargeRequestDetail));
+    when(pwaAppChargeRequestItemRepository.findAllByPwaAppChargeRequestOrderByDescriptionAsc(any()))
+        .thenReturn(List.of(chargeItem));
+
+    var report = applicationChargeRequestService.getApplicationChargeRequestReport(pwaApplication)
+        .orElseThrow(()-> new RuntimeException("Expected report!"));
+
+    assertThat(report.getPwaAppChargeRequestStatus()).isEqualTo(chargeRequestDetail.getPwaAppChargeRequestStatus());
+    assertThat(report.getSummary()).isEqualTo(chargeRequestDetail.getChargeSummary());
+    assertThat(report.getTotalPennies()).isEqualTo(chargeRequestDetail.getTotalPennies());
+    assertThat(report.getPwaApplication()).isEqualTo(pwaApplication);
+    assertThat(report.getWaivedReason()).isNull();
+    assertThat(report.getPaymentItems()).containsExactly(new ApplicationChargeItem(
+        chargeItem.getDescription(),
+        chargeItem.getPennyAmount()
+    ));
+
+
+
+
+
+  }
+
 }
