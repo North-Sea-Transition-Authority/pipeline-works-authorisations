@@ -31,8 +31,8 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrgan
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
-import uk.co.ogauthority.pwa.model.notify.emailproperties.ApplicationOptionsApprovalDeadlineChangedEmailProps;
-import uk.co.ogauthority.pwa.model.notify.emailproperties.ApplicationOptionsApprovedEmailProps;
+import uk.co.ogauthority.pwa.model.notify.emailproperties.optionsapplications.ApplicationOptionsApprovalDeadlineChangedEmailProps;
+import uk.co.ogauthority.pwa.model.notify.emailproperties.optionsapplications.ApplicationOptionsApprovedEmailProps;
 import uk.co.ogauthority.pwa.service.appprocessing.ApplicationInvolvementService;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;

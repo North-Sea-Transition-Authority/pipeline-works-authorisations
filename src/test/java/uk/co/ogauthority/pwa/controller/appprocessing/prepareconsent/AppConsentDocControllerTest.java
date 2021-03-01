@@ -410,7 +410,7 @@ public class AppConsentDocControllerTest extends PwaAppProcessingContextAbstract
         .param("coverLetterText", "mytext"))
         .andExpect(status().is3xxRedirection());
 
-    verify(consentDocumentService, times(1)).sendForApproval(pwaApplicationDetail.getPwaApplication(), "mytext", user.getLinkedPerson());
+    verify(consentDocumentService, times(1)).sendForApproval(pwaApplicationDetail, "mytext", user);
 
   }
 

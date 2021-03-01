@@ -1,25 +1,22 @@
-package uk.co.ogauthority.pwa.model.notify.emailproperties;
+package uk.co.ogauthority.pwa.model.notify.emailproperties.updaterequests;
 
 import java.util.Map;
 import java.util.Objects;
 import uk.co.ogauthority.pwa.model.enums.notify.NotifyTemplate;
+import uk.co.ogauthority.pwa.model.notify.emailproperties.EmailProperties;
 
-public class ConsultationRequestReceivedEmailProps extends EmailProperties {
+public class ApplicationUpdateAcceptedEmailProps extends EmailProperties {
 
   private final String applicationReference;
   private final String consulteeGroupName;
-  private final String dueDateDisplay;
   private final String caseManagementLink;
 
-  public ConsultationRequestReceivedEmailProps(String recipientFullName,
-                                               String applicationReference,
-                                               String consulteeGroupName,
-                                               String dueDateDisplay,
-                                               String caseManagementLink) {
-    super(NotifyTemplate.CONSULTATION_REQUEST_RECEIVED, recipientFullName);
+  public ApplicationUpdateAcceptedEmailProps(String recipientFullName,
+                                             String applicationReference, String consulteeGroupName,
+                                             String caseManagementLink) {
+    super(NotifyTemplate.APPLICATION_UPDATE_ACCEPTED, recipientFullName);
     this.applicationReference = applicationReference;
     this.consulteeGroupName = consulteeGroupName;
-    this.dueDateDisplay = dueDateDisplay;
     this.caseManagementLink = caseManagementLink;
   }
 
@@ -28,7 +25,6 @@ public class ConsultationRequestReceivedEmailProps extends EmailProperties {
     Map<String, String> emailPersonalisation = super.getEmailPersonalisation();
     emailPersonalisation.put("APPLICATION_REFERENCE", applicationReference);
     emailPersonalisation.put("CONSULTEE_GROUP_NAME", consulteeGroupName);
-    emailPersonalisation.put("DUE_DATE", dueDateDisplay);
     emailPersonalisation.put("CASE_MANAGEMENT_LINK", caseManagementLink);
     return emailPersonalisation;
   }
@@ -41,15 +37,14 @@ public class ConsultationRequestReceivedEmailProps extends EmailProperties {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    ConsultationRequestReceivedEmailProps that = (ConsultationRequestReceivedEmailProps) o;
+    ApplicationUpdateAcceptedEmailProps that = (ApplicationUpdateAcceptedEmailProps) o;
     return Objects.equals(applicationReference, that.applicationReference)
         && Objects.equals(consulteeGroupName, that.consulteeGroupName)
-        && Objects.equals(dueDateDisplay, that.dueDateDisplay)
         && Objects.equals(caseManagementLink, that.caseManagementLink);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(applicationReference, consulteeGroupName, dueDateDisplay, caseManagementLink);
+    return Objects.hash(applicationReference, consulteeGroupName, caseManagementLink);
   }
 }

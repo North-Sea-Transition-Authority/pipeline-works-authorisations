@@ -1,16 +1,23 @@
 package uk.co.ogauthority.pwa.service.appprocessing.prepareconsent;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
+import uk.co.ogauthority.pwa.energyportal.model.entity.PersonTestUtil;
+import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.documents.view.DocumentView;
 import uk.co.ogauthority.pwa.model.documents.view.SectionClauseVersionView;
 import uk.co.ogauthority.pwa.model.documents.view.SectionView;
@@ -23,7 +30,9 @@ import uk.co.ogauthority.pwa.service.appprocessing.applicationupdate.Application
 import uk.co.ogauthority.pwa.service.appprocessing.publicnotice.PublicNoticeService;
 import uk.co.ogauthority.pwa.service.consultations.ConsultationRequestService;
 import uk.co.ogauthority.pwa.service.documents.instances.DocumentInstanceService;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -41,14 +50,33 @@ public class ConsentDocumentServiceTest {
   @Mock
   private DocumentInstanceService documentInstanceService;
 
+  @Mock
+  private PwaApplicationDetailService pwaApplicationDetailService;
+
+  @Mock
+  private ConsentDocumentEmailService consentDocumentEmailService;
+
+  @Mock
+  private ConsentReviewService consentReviewService;
+
   private ConsentDocumentService consentDocumentService;
 
   private PwaApplicationDetail detail;
 
+  private final Person person = PersonTestUtil.createDefaultPerson();
+  private final AuthenticatedUserAccount authUser = new AuthenticatedUserAccount(new WebUserAccount(1, person), Set.of());
+
   @Before
   public void setUp() throws Exception {
 
-    consentDocumentService = new ConsentDocumentService(applicationUpdateRequestService, consultationRequestService, publicNoticeService, documentInstanceService);
+    consentDocumentService = new ConsentDocumentService(
+        applicationUpdateRequestService,
+        consultationRequestService,
+        publicNoticeService,
+        documentInstanceService,
+        pwaApplicationDetailService,
+        consentDocumentEmailService,
+        consentReviewService);
 
     detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
 
@@ -145,6 +173,20 @@ public class ConsentDocumentServiceTest {
 
     boolean canSend = consentDocumentService.canSendForApproval(detail);
     assertThat(canSend).isTrue();
+
+  }
+
+  @Test
+  public void sendForApproval_verifyServiceCalls() {
+
+    var detail = new PwaApplicationDetail();
+    consentDocumentService.sendForApproval(detail, "cover letter my text", authUser);
+
+    verify(pwaApplicationDetailService, times(1)).updateStatus(detail, PwaApplicationStatus.CONSENT_REVIEW, authUser);
+
+    verify(consentReviewService, times(1)).startConsentReview(detail, "cover letter my text", person);
+
+    verify(consentDocumentEmailService, times(1)).sendConsentReviewStartedEmail(detail, person);
 
   }
 

@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.service.appprocessing.publicnotice;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -22,6 +23,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
 import uk.co.ogauthority.pwa.energyportal.model.entity.PersonTestUtil;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.exception.EntityLatestVersionNotFoundException;
@@ -37,9 +39,10 @@ import uk.co.ogauthority.pwa.model.entity.publicnotice.PublicNoticeDocumentLink;
 import uk.co.ogauthority.pwa.model.entity.publicnotice.PublicNoticeRequest;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.enums.notify.NotifyTemplate;
 import uk.co.ogauthority.pwa.model.form.files.UploadFileWithDescriptionForm;
 import uk.co.ogauthority.pwa.model.form.publicnotice.PublicNoticeDraftForm;
-import uk.co.ogauthority.pwa.model.notify.emailproperties.PublicNoticeApprovalRequestEmailProps;
+import uk.co.ogauthority.pwa.model.notify.emailproperties.publicnotices.PublicNoticeApprovalRequestEmailProps;
 import uk.co.ogauthority.pwa.model.tasklist.TaskTag;
 import uk.co.ogauthority.pwa.model.teams.PwaRegulatorRole;
 import uk.co.ogauthority.pwa.repository.publicnotice.PublicNoticeDocumentLinkRepository;
@@ -56,12 +59,11 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.fileupload.AppFileService;
 import uk.co.ogauthority.pwa.service.notify.EmailCaseLinkService;
 import uk.co.ogauthority.pwa.service.notify.NotifyService;
-import uk.co.ogauthority.pwa.service.teams.TeamService;
+import uk.co.ogauthority.pwa.service.teams.PwaTeamService;
 import uk.co.ogauthority.pwa.service.template.TemplateTextService;
 import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
 import uk.co.ogauthority.pwa.testutils.PwaAppProcessingContextDtoTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
-import uk.co.ogauthority.pwa.testutils.TeamTestingUtils;
 import uk.co.ogauthority.pwa.validators.publicnotice.PublicNoticeDraftValidator;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -103,10 +105,16 @@ public class PublicNoticeServiceTest {
   private EmailCaseLinkService emailCaseLinkService;
 
   @Mock
-  private TeamService teamService;
+  private PwaTeamService pwaTeamService;
 
   @Mock
   private PwaAppProcessingPermissionService pwaAppProcessingPermissionService;
+
+  @Captor
+  private ArgumentCaptor<PublicNoticeApprovalRequestEmailProps> approvalRequestEmailPropsCaptor;
+
+  @Captor
+  private ArgumentCaptor<String> emailAddressCaptor;
 
   private PwaApplication pwaApplication;
   private PwaApplicationDetail pwaApplicationDetail;
@@ -141,7 +149,7 @@ public class PublicNoticeServiceTest {
         publicNoticeDocumentRepository,
         publicNoticeDocumentLinkRepository,
         camundaWorkflowService,
-        clock, notifyService, emailCaseLinkService, teamService);
+        clock, notifyService, emailCaseLinkService, pwaTeamService);
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     pwaApplication = pwaApplicationDetail.getPwaApplication();
@@ -316,13 +324,11 @@ public class PublicNoticeServiceTest {
 
     String caseManagementLink = "case management link url";
     when(emailCaseLinkService.generateCaseManagementLink(pwaApplication)).thenReturn(caseManagementLink);
-    var regulatorTeam = TeamTestingUtils.getRegulatorTeam();
-    when(teamService.getRegulatorTeam()).thenReturn(regulatorTeam);
-    var regulatorTeamMember = TeamTestingUtils.createRegulatorTeamMember(
-            regulatorTeam, PersonTestUtil.createDefaultPerson(), Set.of(PwaRegulatorRole.PWA_MANAGER));
-    var regulatorTeamMembers = List.of(regulatorTeamMember);
-    when(teamService.getTeamMembers(regulatorTeam)).thenReturn(regulatorTeamMembers);
 
+    var pwaManager1 = PersonTestUtil.createPersonFrom(new PersonId(1));
+    var pwaManager2 = PersonTestUtil.createPersonFrom(new PersonId(2));
+    var pwaManagers = Set.of(pwaManager1, pwaManager2);
+    when(pwaTeamService.getPeopleWithRegulatorRole(PwaRegulatorRole.PWA_MANAGER)).thenReturn(pwaManagers);
 
     var publicNoticeDraftForm = PublicNoticeTestUtil.createDefaultPublicNoticeDraftForm(List.of(uploadFileWithDescriptionForm));
     publicNoticeService.createPublicNoticeAndStartWorkflow(publicNoticeDraftForm, pwaApplication, user);
@@ -354,15 +360,26 @@ public class PublicNoticeServiceTest {
 
     verify(camundaWorkflowService, times(1)).startWorkflow(expectedPublicNotice);
 
-    regulatorTeamMembers.forEach(teamMember -> {
-      var expectedEmailProps = new PublicNoticeApprovalRequestEmailProps(
-      teamMember.getPerson().getFullName(),
-      pwaApplication.getAppReference(),
-      publicNoticeDraftForm.getReason().getReasonText(),
-      caseManagementLink);
+    verify(notifyService, times(pwaManagers.size())).sendEmail(approvalRequestEmailPropsCaptor.capture(), emailAddressCaptor.capture());
 
-      verify(notifyService, times(1)).sendEmail(expectedEmailProps, teamMember.getPerson().getEmailAddress());
+    assertThat(approvalRequestEmailPropsCaptor.getAllValues()).allSatisfy(emailProps -> {
+
+      assertThat(emailProps.getEmailPersonalisation()).contains(
+          entry("APPLICATION_REFERENCE", pwaApplication.getAppReference()),
+          entry("PUBLIC_NOTICE_REASON", publicNoticeDraftForm.getReason().getReasonText()),
+          entry("CASE_MANAGEMENT_LINK", caseManagementLink)
+      );
+
+      assertThat(emailProps.getTemplate()).isEqualTo(NotifyTemplate.PUBLIC_NOTICE_APPROVAL_REQUEST);
+
     });
+
+    assertThat(approvalRequestEmailPropsCaptor.getAllValues().get(0).getRecipientFullName()).isEqualTo(pwaManager1.getFullName());
+    assertThat(emailAddressCaptor.getAllValues().get(0)).isEqualTo(pwaManager1.getEmailAddress());
+
+    assertThat(approvalRequestEmailPropsCaptor.getAllValues().get(1).getRecipientFullName()).isEqualTo(pwaManager2.getFullName());
+    assertThat(emailAddressCaptor.getAllValues().get(1)).isEqualTo(pwaManager2.getEmailAddress());
+
   }
 
 

@@ -1,8 +1,9 @@
-package uk.co.ogauthority.pwa.model.notify.emailproperties;
+package uk.co.ogauthority.pwa.model.notify.emailproperties.applicationworkflow;
 
 import java.util.Map;
 import java.util.Objects;
 import uk.co.ogauthority.pwa.model.enums.notify.NotifyTemplate;
+import uk.co.ogauthority.pwa.model.notify.emailproperties.EmailProperties;
 
 public class ApplicationWithdrawnEmailProps extends EmailProperties {
 

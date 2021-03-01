@@ -25,8 +25,7 @@ import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupTeamMember;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
-import uk.co.ogauthority.pwa.model.teams.PwaRole;
-import uk.co.ogauthority.pwa.model.teams.PwaTeamMember;
+import uk.co.ogauthority.pwa.model.teams.PwaRegulatorRole;
 import uk.co.ogauthority.pwa.model.workflow.GenericMessageEvent;
 import uk.co.ogauthority.pwa.model.workflow.GenericWorkflowSubject;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupTeamService;
@@ -36,7 +35,7 @@ import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationWorkflowTask;
 import uk.co.ogauthority.pwa.service.enums.workflow.UserWorkflowTask;
 import uk.co.ogauthority.pwa.service.enums.workflow.WorkflowType;
 import uk.co.ogauthority.pwa.service.teammanagement.TeamManagementService;
-import uk.co.ogauthority.pwa.service.teams.TeamService;
+import uk.co.ogauthority.pwa.service.teams.PwaTeamService;
 import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
 import uk.co.ogauthority.pwa.service.workflow.task.WorkflowTaskInstance;
 import uk.co.ogauthority.pwa.testutils.ConsulteeGroupTestingUtils;
@@ -51,7 +50,7 @@ public class WorkflowAssignmentServiceTest {
   private AssignmentAuditService assignmentAuditService;
 
   @Mock
-  private TeamService teamService;
+  private PwaTeamService pwaTeamService;
 
   @Mock
   private ConsultationRequestService consultationRequestService;
@@ -64,8 +63,7 @@ public class WorkflowAssignmentServiceTest {
 
   private WorkflowAssignmentService workflowAssignmentService;
 
-  private PwaTeamMember caseOfficerTeamMember;
-  private PwaTeamMember notCaseOfficer;
+  private Person caseOfficerPerson, notCaseOfficerPerson;
 
   private GenericWorkflowSubject pwaApplicationSubject;
   private GenericWorkflowSubject consultationSubject;
@@ -76,19 +74,13 @@ public class WorkflowAssignmentServiceTest {
   @Before
   public void setUp() {
 
-    var caseOfficerPerson = new Person(1, null, null, null, null);
-    caseOfficerTeamMember = new PwaTeamMember(teamService.getRegulatorTeam(), caseOfficerPerson,
-        Set.of(new PwaRole("CASE_OFFICER", null, null, 10)));
+    caseOfficerPerson = new Person(1, null, null, null, null);
+    notCaseOfficerPerson = new Person(2, null, null, null, null);
 
-    var notCaseOfficerPerson = new Person(2, null, null, null, null);
-    notCaseOfficer = new PwaTeamMember(teamService.getRegulatorTeam(), notCaseOfficerPerson,
-        Set.of(new PwaRole("PWA_MANAGER", null, null, 20)));
-
-    when(teamService.getTeamMembers(teamService.getRegulatorTeam())).thenReturn(
-        List.of(caseOfficerTeamMember, notCaseOfficer));
+    when(pwaTeamService.getPeopleWithRegulatorRole(PwaRegulatorRole.CASE_OFFICER)).thenReturn(Set.of(caseOfficerPerson));
 
     workflowAssignmentService = new WorkflowAssignmentService(camundaWorkflowService, assignmentAuditService,
-        teamService, consulteeGroupTeamService, consultationRequestService, teamManagementService);
+        pwaTeamService, consulteeGroupTeamService, consultationRequestService, teamManagementService);
 
     pwaApplicationSubject = new GenericWorkflowSubject(1, WorkflowType.PWA_APPLICATION);
     consultationSubject = new GenericWorkflowSubject(1, WorkflowType.PWA_APPLICATION_CONSULTATION);
@@ -106,7 +98,7 @@ public class WorkflowAssignmentServiceTest {
   public void getAssignmentCandidates_caseOfficer() {
 
     assertThat(workflowAssignmentService.getAssignmentCandidates(pwaApplicationSubject,
-        PwaApplicationWorkflowTask.CASE_OFFICER_REVIEW)).containsOnly(caseOfficerTeamMember.getPerson());
+        PwaApplicationWorkflowTask.CASE_OFFICER_REVIEW)).containsOnly(caseOfficerPerson);
 
   }
 
@@ -169,13 +161,13 @@ public class WorkflowAssignmentServiceTest {
     var app = new PwaApplication();
 
     workflowAssignmentService.assign(app, PwaApplicationWorkflowTask.CASE_OFFICER_REVIEW,
-        caseOfficerTeamMember.getPerson(), notCaseOfficer.getPerson());
+        caseOfficerPerson, notCaseOfficerPerson);
 
     verify(camundaWorkflowService, times(1)).assignTaskToUser(
         eq(new WorkflowTaskInstance(app, PwaApplicationWorkflowTask.CASE_OFFICER_REVIEW)),
-        eq(caseOfficerTeamMember.getPerson()));
+        eq(caseOfficerPerson));
     verify(assignmentAuditService, times(1)).auditAssignment(app, PwaApplicationWorkflowTask.CASE_OFFICER_REVIEW,
-        caseOfficerTeamMember.getPerson(), notCaseOfficer.getPerson());
+        caseOfficerPerson, notCaseOfficerPerson);
 
   }
 
@@ -184,8 +176,8 @@ public class WorkflowAssignmentServiceTest {
 
     var app = new PwaApplication();
 
-    workflowAssignmentService.assign(app, PwaApplicationWorkflowTask.CASE_OFFICER_REVIEW, notCaseOfficer.getPerson(),
-        caseOfficerTeamMember.getPerson());
+    workflowAssignmentService.assign(app, PwaApplicationWorkflowTask.CASE_OFFICER_REVIEW, notCaseOfficerPerson,
+        caseOfficerPerson);
 
   }
 

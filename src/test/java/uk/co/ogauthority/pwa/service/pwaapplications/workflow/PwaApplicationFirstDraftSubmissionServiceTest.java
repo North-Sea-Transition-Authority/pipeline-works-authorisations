@@ -9,7 +9,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-import java.util.List;
 import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
@@ -29,9 +28,8 @@ import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationSubmitResult;
 import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationWorkflowTask;
 import uk.co.ogauthority.pwa.service.notify.NotifyService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.submission.PadPipelineNumberingService;
-import uk.co.ogauthority.pwa.service.teams.TeamService;
+import uk.co.ogauthority.pwa.service.teams.PwaTeamService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
-import uk.co.ogauthority.pwa.testutils.TeamTestingUtils;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PwaApplicationFirstDraftSubmissionServiceTest {
@@ -43,7 +41,7 @@ public class PwaApplicationFirstDraftSubmissionServiceTest {
   private NotifyService notifyService;
 
   @Mock
-  private TeamService teamService;
+  private PwaTeamService pwaTeamService;
 
   @Mock
   private PadPipelineNumberingService padPipelineNumberingService;
@@ -64,7 +62,7 @@ public class PwaApplicationFirstDraftSubmissionServiceTest {
 
     pwaApplicationFirstDraftSubmissionService = new PwaApplicationFirstDraftSubmissionService(
         notifyService,
-        teamService,
+        pwaTeamService,
         padPipelineNumberingService
     );
 
@@ -87,26 +85,16 @@ public class PwaApplicationFirstDraftSubmissionServiceTest {
   public void doBeforeSubmit_verifyServiceInteractions() {
     pwaApplicationFirstDraftSubmissionService.doBeforeSubmit(pwaApplicationDetail, person, SUBMISSION_DESC);
       verify(padPipelineNumberingService, times(1)).assignPipelineReferences(pwaApplicationDetail);
-      verifyNoMoreInteractions(padPipelineNumberingService, notifyService, teamService);
+      verifyNoMoreInteractions(padPipelineNumberingService, notifyService, pwaTeamService);
   }
 
   @Test
   public void doAfterSubmit_pwaManagersSentEmail() {
 
-    var teamMemberList = List.of(
-        TeamTestingUtils.createRegulatorTeamMember(teamService.getRegulatorTeam(),
-            new Person(1, "PWA", "Manager1", "manager1@pwa.co.uk", null),
-            Set.of(PwaRegulatorRole.PWA_MANAGER)),
-        TeamTestingUtils.createRegulatorTeamMember(teamService.getRegulatorTeam(),
-            new Person(2, "PWA", "Manager2", "manager2@pwa.co.uk", null),
-            Set.of(PwaRegulatorRole.PWA_MANAGER)),
-        TeamTestingUtils.createRegulatorTeamMember(teamService.getRegulatorTeam(),
-            new Person(3, "PWA", "Case officer", "co@pwa.co.uk", null),
-            Set.of(PwaRegulatorRole.CASE_OFFICER))
-    );
+    var pwaManager1 = new Person(1, "PWA", "Manager1", "manager1@pwa.co.uk", null);
+    var pwaManager2 = new Person(2, "PWA", "Manager2", "manager2@pwa.co.uk", null);
 
-    when(teamService.getTeamMembers(teamService.getRegulatorTeam())).thenReturn(teamMemberList);
-
+    when(pwaTeamService.getPeopleWithRegulatorRole(PwaRegulatorRole.PWA_MANAGER)).thenReturn(Set.of(pwaManager1, pwaManager2));
 
     pwaApplicationFirstDraftSubmissionService.doAfterSubmit(pwaApplicationDetail);
 

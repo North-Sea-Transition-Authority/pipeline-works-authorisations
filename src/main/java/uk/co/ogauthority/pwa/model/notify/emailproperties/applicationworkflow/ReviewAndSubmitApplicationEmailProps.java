@@ -1,7 +1,8 @@
-package uk.co.ogauthority.pwa.model.notify.emailproperties;
+package uk.co.ogauthority.pwa.model.notify.emailproperties.applicationworkflow;
 
 import java.util.Map;
 import uk.co.ogauthority.pwa.model.enums.notify.NotifyTemplate;
+import uk.co.ogauthority.pwa.model.notify.emailproperties.EmailProperties;
 
 public class ReviewAndSubmitApplicationEmailProps extends EmailProperties {
 
