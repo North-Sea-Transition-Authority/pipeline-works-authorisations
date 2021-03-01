@@ -11,6 +11,7 @@ public enum PwaApplicationStatus {
   INITIAL_SUBMISSION_REVIEW("Submitted - awaiting review"),
   AWAITING_APPLICATION_PAYMENT("Submitted - awaiting payment"),
   CASE_OFFICER_REVIEW("Case officer review"),
+  CONSENT_REVIEW("Consent review"),
   WITHDRAWN("Withdrawn"),
   DELETED("Deleted"),
   COMPLETE("Complete");

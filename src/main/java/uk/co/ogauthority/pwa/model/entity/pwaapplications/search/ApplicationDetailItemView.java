@@ -63,6 +63,8 @@ public interface ApplicationDetailItemView {
 
   boolean isTipVersionSatisfactoryFlag();
 
+  boolean isOpenConsentReviewFlag();
+
 
   @VisibleForTesting
   void setPwaApplicationDetailId(int pwaApplicationDetailId);
@@ -142,5 +144,7 @@ public interface ApplicationDetailItemView {
   @VisibleForTesting
   void setTipVersionSatisfactoryFlag(boolean tipVersionSatisfactoryFlag);
 
-  
+  @VisibleForTesting
+  void setOpenConsentReviewFlag(boolean openConsentReviewFlag);
+
 }

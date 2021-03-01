@@ -100,8 +100,7 @@ public class IndustryPaymentController {
         processingContext.getPwaApplication(),
         processingContext.getUser());
 
-    if (CreatePaymentAttemptResult.AttemptOutcome.COMPLETED_PAYMENT_EXISTS.equals(
-        startPaymentAttemptResult.getPaymentAttemptOutcome())) {
+    if (CreatePaymentAttemptResult.AttemptOutcome.COMPLETED_PAYMENT_EXISTS.equals(startPaymentAttemptResult.getPaymentAttemptOutcome())) {
       FlashUtils.info(
           redirectAttributes,
           String.format(PAYMENT_ALREADY_COMPLETE_FLASH_TITLE, processingContext.getPwaApplication().getAppReference()),

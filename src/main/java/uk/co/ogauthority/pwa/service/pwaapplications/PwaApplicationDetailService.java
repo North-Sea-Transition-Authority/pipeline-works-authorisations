@@ -94,7 +94,8 @@ public class PwaApplicationDetailService {
    * @return Saved app detail.
    */
   @Transactional
-  public PwaApplicationDetail updateStatus(PwaApplicationDetail pwaApplicationDetail, PwaApplicationStatus status,
+  public PwaApplicationDetail updateStatus(PwaApplicationDetail pwaApplicationDetail,
+                                           PwaApplicationStatus status,
                                            WebUserAccount webUserAccount) {
     pwaApplicationDetail.setStatus(status);
     pwaApplicationDetail.setStatusLastModifiedTimestamp(Instant.now(clock));

@@ -1,22 +1,19 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.workflow;
 
 import java.util.Optional;
-import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.notify.emailproperties.ApplicationSubmittedEmailProps;
+import uk.co.ogauthority.pwa.model.notify.emailproperties.applicationworkflow.ApplicationSubmittedEmailProps;
 import uk.co.ogauthority.pwa.model.teams.PwaRegulatorRole;
-import uk.co.ogauthority.pwa.model.teams.PwaRole;
-import uk.co.ogauthority.pwa.model.teams.PwaTeamMember;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationSubmitResult;
 import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationWorkflowTask;
 import uk.co.ogauthority.pwa.service.notify.NotifyService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.submission.PadPipelineNumberingService;
-import uk.co.ogauthority.pwa.service.teams.TeamService;
+import uk.co.ogauthority.pwa.service.teams.PwaTeamService;
 
 /**
  * Service to perform all submission business logic for pwa applications.
@@ -25,18 +22,17 @@ import uk.co.ogauthority.pwa.service.teams.TeamService;
 class PwaApplicationFirstDraftSubmissionService implements ApplicationSubmissionService {
 
   private final NotifyService notifyService;
-  private final TeamService teamService;
+  private final PwaTeamService pwaTeamService;
   private final PadPipelineNumberingService padPipelineNumberingService;
 
 
   @Autowired
   public PwaApplicationFirstDraftSubmissionService(NotifyService notifyService,
-                                                   TeamService teamService,
+                                                   PwaTeamService pwaTeamService,
                                                    PadPipelineNumberingService padPipelineNumberingService) {
 
     this.notifyService = notifyService;
-    this.teamService = teamService;
-
+    this.pwaTeamService = pwaTeamService;
     this.padPipelineNumberingService = padPipelineNumberingService;
   }
 
@@ -67,12 +63,7 @@ class PwaApplicationFirstDraftSubmissionService implements ApplicationSubmission
 
   private void sendApplicationSubmittedEmail(PwaApplicationDetail detail) {
 
-    var pwaManagers = teamService.getTeamMembers(teamService.getRegulatorTeam()).stream()
-        .filter(member -> member.getRoleSet().stream()
-            .map(PwaRole::getName)
-            .anyMatch(roleName -> roleName.equals(PwaRegulatorRole.PWA_MANAGER.getPortalTeamRoleName())))
-        .map(PwaTeamMember::getPerson)
-        .collect(Collectors.toSet());
+    var pwaManagers = pwaTeamService.getPeopleWithRegulatorRole(PwaRegulatorRole.PWA_MANAGER);
 
     pwaManagers.forEach(pwaManager -> {
 

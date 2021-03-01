@@ -168,6 +168,10 @@ public class IndustryPaymentControllerTest extends PwaAppProcessingContextAbstra
 
   @Test
   public void startPaymentAttempt_appStatusSmokeTest() {
+    // if app payment received whilst waiting on the page, clicking Pay should redirect you nicely even though the permission has timed out.
+    endpointTester
+        .setAllowedProcessingPermissions(PwaAppProcessingPermission.PAY_FOR_APPLICATION, PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY)
+        .setAllowedStatuses(PwaApplicationStatus.CASE_OFFICER_REVIEW, PwaApplicationStatus.AWAITING_APPLICATION_PAYMENT);
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(IndustryPaymentController.class)
@@ -178,6 +182,10 @@ public class IndustryPaymentControllerTest extends PwaAppProcessingContextAbstra
 
   @Test
   public void startPaymentAttempt_processingPermissionSmokeTest() {
+    // if app payment received whilst waiting on the page, clicking Pay should redirect you nicely even though the permission has timed out.
+    endpointTester
+        .setAllowedProcessingPermissions(PwaAppProcessingPermission.PAY_FOR_APPLICATION, PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY)
+        .setAllowedStatuses(PwaApplicationStatus.CASE_OFFICER_REVIEW, PwaApplicationStatus.AWAITING_APPLICATION_PAYMENT);;
 
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->

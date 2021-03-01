@@ -295,10 +295,9 @@ public class AppConsentDocController {
         () -> controllerHelperService.checkErrorsAndRedirect(bindingResult, getSendForApprovalModelAndView(processingContext), () -> {
 
           consentDocumentService
-              .sendForApproval(processingContext.getPwaApplication(), form.getCoverLetterText(), authUser.getLinkedPerson());
+              .sendForApproval(processingContext.getApplicationDetail(), form.getCoverLetterText(), authUser);
 
-          FlashUtils.info(redirectAttributes, processingContext.getPwaApplication().getAppReference() + " consent sent for approval",
-              "Sending to PWA manager functionality will be added in PWA-1144.");
+          FlashUtils.info(redirectAttributes, processingContext.getPwaApplication().getAppReference() + " consent sent for approval");
 
           return ReverseRouter.redirect(on(WorkAreaController.class).renderWorkArea(null, null, null));
 

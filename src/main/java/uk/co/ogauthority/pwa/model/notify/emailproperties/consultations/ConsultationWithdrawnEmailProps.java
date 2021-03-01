@@ -1,22 +1,23 @@
-package uk.co.ogauthority.pwa.model.notify.emailproperties;
+package uk.co.ogauthority.pwa.model.notify.emailproperties.consultations;
 
 import java.util.Map;
 import java.util.Objects;
 import uk.co.ogauthority.pwa.model.enums.notify.NotifyTemplate;
+import uk.co.ogauthority.pwa.model.notify.emailproperties.EmailProperties;
 
-public class ApplicationUpdateAcceptedEmailProps extends EmailProperties {
+public class ConsultationWithdrawnEmailProps extends EmailProperties {
 
   private final String applicationReference;
   private final String consulteeGroupName;
-  private final String caseManagementLink;
+  private final String withdrawingUserName;
 
-  public ApplicationUpdateAcceptedEmailProps(String recipientFullName,
-                                             String applicationReference, String consulteeGroupName,
-                                             String caseManagementLink) {
-    super(NotifyTemplate.APPLICATION_UPDATE_ACCEPTED, recipientFullName);
+  public ConsultationWithdrawnEmailProps(String recipientFullName,
+                                         String applicationReference, String consulteeGroupName,
+                                         String withdrawingUserName) {
+    super(NotifyTemplate.CONSULTATION_WITHDRAWN, recipientFullName);
     this.applicationReference = applicationReference;
     this.consulteeGroupName = consulteeGroupName;
-    this.caseManagementLink = caseManagementLink;
+    this.withdrawingUserName = withdrawingUserName;
   }
 
   @Override
@@ -24,7 +25,7 @@ public class ApplicationUpdateAcceptedEmailProps extends EmailProperties {
     Map<String, String> emailPersonalisation = super.getEmailPersonalisation();
     emailPersonalisation.put("APPLICATION_REFERENCE", applicationReference);
     emailPersonalisation.put("CONSULTEE_GROUP_NAME", consulteeGroupName);
-    emailPersonalisation.put("CASE_MANAGEMENT_LINK", caseManagementLink);
+    emailPersonalisation.put("WITHDRAWING_USER_NAME", withdrawingUserName);
     return emailPersonalisation;
   }
 
@@ -36,14 +37,14 @@ public class ApplicationUpdateAcceptedEmailProps extends EmailProperties {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    ApplicationUpdateAcceptedEmailProps that = (ApplicationUpdateAcceptedEmailProps) o;
+    ConsultationWithdrawnEmailProps that = (ConsultationWithdrawnEmailProps) o;
     return Objects.equals(applicationReference, that.applicationReference)
         && Objects.equals(consulteeGroupName, that.consulteeGroupName)
-        && Objects.equals(caseManagementLink, that.caseManagementLink);
+        && Objects.equals(withdrawingUserName, that.withdrawingUserName);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(applicationReference, consulteeGroupName, caseManagementLink);
+    return Objects.hash(applicationReference, consulteeGroupName, withdrawingUserName);
   }
 }

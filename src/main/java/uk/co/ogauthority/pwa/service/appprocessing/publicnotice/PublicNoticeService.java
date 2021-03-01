@@ -7,9 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 import javax.transaction.Transactional;
-import org.apache.commons.collections4.IterableUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -31,12 +29,10 @@ import uk.co.ogauthority.pwa.model.entity.publicnotice.PublicNoticeDocumentLink;
 import uk.co.ogauthority.pwa.model.entity.publicnotice.PublicNoticeRequest;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.form.publicnotice.PublicNoticeDraftForm;
-import uk.co.ogauthority.pwa.model.notify.emailproperties.PublicNoticeApprovalRequestEmailProps;
+import uk.co.ogauthority.pwa.model.notify.emailproperties.publicnotices.PublicNoticeApprovalRequestEmailProps;
 import uk.co.ogauthority.pwa.model.tasklist.TaskListEntry;
 import uk.co.ogauthority.pwa.model.tasklist.TaskTag;
 import uk.co.ogauthority.pwa.model.teams.PwaRegulatorRole;
-import uk.co.ogauthority.pwa.model.teams.PwaRole;
-import uk.co.ogauthority.pwa.model.teams.PwaTeamMember;
 import uk.co.ogauthority.pwa.model.view.publicnotice.AllPublicNoticesView;
 import uk.co.ogauthority.pwa.model.view.publicnotice.PublicNoticeView;
 import uk.co.ogauthority.pwa.repository.publicnotice.PublicNoticeDocumentLinkRepository;
@@ -52,7 +48,7 @@ import uk.co.ogauthority.pwa.service.fileupload.AppFileService;
 import uk.co.ogauthority.pwa.service.fileupload.FileUpdateMode;
 import uk.co.ogauthority.pwa.service.notify.EmailCaseLinkService;
 import uk.co.ogauthority.pwa.service.notify.NotifyService;
-import uk.co.ogauthority.pwa.service.teams.TeamService;
+import uk.co.ogauthority.pwa.service.teams.PwaTeamService;
 import uk.co.ogauthority.pwa.service.template.TemplateTextService;
 import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
 import uk.co.ogauthority.pwa.util.DateUtils;
@@ -72,7 +68,7 @@ public class PublicNoticeService implements AppProcessingService {
   private final Clock clock;
   private final NotifyService notifyService;
   private final EmailCaseLinkService emailCaseLinkService;
-  private final TeamService teamService;
+  private final PwaTeamService pwaTeamService;
 
   private static final AppFilePurpose FILE_PURPOSE = AppFilePurpose.PUBLIC_NOTICE;
   private static final Set<PublicNoticeStatus> ENDED_STATUSES = Set.of(PublicNoticeStatus.ENDED, PublicNoticeStatus.WITHDRAWN);
@@ -89,7 +85,7 @@ public class PublicNoticeService implements AppProcessingService {
       CamundaWorkflowService camundaWorkflowService,
       @Qualifier("utcClock") Clock clock, NotifyService notifyService,
       EmailCaseLinkService emailCaseLinkService,
-      TeamService teamService) {
+      PwaTeamService pwaTeamService) {
     this.templateTextService = templateTextService;
     this.publicNoticeDraftValidator = publicNoticeDraftValidator;
     this.appFileService = appFileService;
@@ -101,7 +97,7 @@ public class PublicNoticeService implements AppProcessingService {
     this.clock = clock;
     this.notifyService = notifyService;
     this.emailCaseLinkService = emailCaseLinkService;
-    this.teamService = teamService;
+    this.pwaTeamService = pwaTeamService;
   }
 
   @Override
@@ -197,12 +193,7 @@ public class PublicNoticeService implements AppProcessingService {
 
     var caseManagementLink = emailCaseLinkService.generateCaseManagementLink(pwaApplication);
 
-    var pwaManagers = teamService.getTeamMembers(teamService.getRegulatorTeam()).stream()
-        .filter(member -> member.getRoleSet().stream()
-            .map(PwaRole::getName)
-            .anyMatch(roleName -> roleName.equals(PwaRegulatorRole.PWA_MANAGER.getPortalTeamRoleName())))
-        .map(PwaTeamMember::getPerson)
-        .collect(Collectors.toSet());
+    var pwaManagers = pwaTeamService.getPeopleWithRegulatorRole(PwaRegulatorRole.PWA_MANAGER);
 
     pwaManagers.forEach(pwaManager -> {
 

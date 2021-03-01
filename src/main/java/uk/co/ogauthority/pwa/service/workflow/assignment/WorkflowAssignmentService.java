@@ -4,14 +4,13 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.transaction.Transactional;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.exception.WorkflowAssignmentException;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupMemberRole;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupTeamMember;
 import uk.co.ogauthority.pwa.model.teams.PwaRegulatorRole;
-import uk.co.ogauthority.pwa.model.teams.PwaRole;
-import uk.co.ogauthority.pwa.model.teams.PwaTeamMember;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupTeamService;
 import uk.co.ogauthority.pwa.service.consultations.ConsultationRequestService;
 import uk.co.ogauthority.pwa.service.enums.workflow.UserWorkflowTask;
@@ -19,7 +18,7 @@ import uk.co.ogauthority.pwa.service.enums.workflow.WorkflowMessageEvent;
 import uk.co.ogauthority.pwa.service.enums.workflow.WorkflowSubject;
 import uk.co.ogauthority.pwa.service.enums.workflow.WorkflowType;
 import uk.co.ogauthority.pwa.service.teammanagement.TeamManagementService;
-import uk.co.ogauthority.pwa.service.teams.TeamService;
+import uk.co.ogauthority.pwa.service.teams.PwaTeamService;
 import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
 import uk.co.ogauthority.pwa.service.workflow.task.WorkflowTaskInstance;
 
@@ -27,24 +26,25 @@ import uk.co.ogauthority.pwa.service.workflow.task.WorkflowTaskInstance;
 public class WorkflowAssignmentService {
 
   private final CamundaWorkflowService camundaWorkflowService;
-  private final AssignmentAuditService assignmentAuditService;
-  private final TeamService teamService;
+  private final PwaTeamService pwaTeamService;
   private final ConsulteeGroupTeamService consulteeGroupTeamService;
   private final ConsultationRequestService consultationRequestService;
   private final TeamManagementService teamManagementService;
+  private final AssignmentService assignmentService;
 
+  @Autowired
   public WorkflowAssignmentService(CamundaWorkflowService camundaWorkflowService,
-                                   AssignmentAuditService assignmentAuditService,
-                                   TeamService teamService,
+                                   PwaTeamService pwaTeamService,
                                    ConsulteeGroupTeamService consulteeGroupTeamService,
                                    ConsultationRequestService consultationRequestService,
-                                   TeamManagementService teamManagementService) {
+                                   TeamManagementService teamManagementService,
+                                   AssignmentService assignmentService) {
     this.camundaWorkflowService = camundaWorkflowService;
-    this.assignmentAuditService = assignmentAuditService;
-    this.teamService = teamService;
+    this.pwaTeamService = pwaTeamService;
     this.consulteeGroupTeamService = consulteeGroupTeamService;
     this.consultationRequestService = consultationRequestService;
     this.teamManagementService = teamManagementService;
+    this.assignmentService = assignmentService;
   }
 
   /**
@@ -59,12 +59,7 @@ public class WorkflowAssignmentService {
     switch (task.getAssignment()) {
 
       case CASE_OFFICER:
-        return teamService.getTeamMembers(teamService.getRegulatorTeam()).stream()
-            .filter(member -> member.getRoleSet().stream()
-                .map(PwaRole::getName)
-                .anyMatch(roleName -> roleName.equals(PwaRegulatorRole.CASE_OFFICER.getPortalTeamRoleName())))
-            .map(PwaTeamMember::getPerson)
-            .collect(Collectors.toSet());
+        return pwaTeamService.getPeopleWithRegulatorRole(PwaRegulatorRole.CASE_OFFICER);
 
       case CONSULTATION_RESPONDER:
 
@@ -108,7 +103,7 @@ public class WorkflowAssignmentService {
     }
 
     camundaWorkflowService.assignTaskToUser(new WorkflowTaskInstance(workflowSubject, task), personToAssign);
-    assignmentAuditService.auditAssignment(workflowSubject, task, personToAssign, assigningPerson);
+    assignmentService.createOrUpdateAssignment(workflowSubject, task, personToAssign, assigningPerson);
 
   }
 
@@ -136,6 +131,10 @@ public class WorkflowAssignmentService {
         .getAssignedPersonId(workflowTaskInstance)
         .map(personId -> teamManagementService.getPerson(personId.asInt()));
 
+  }
+
+  public void clearAssignments(WorkflowSubject workflowSubject) {
+    assignmentService.clearAssignments(workflowSubject);
   }
 
 }

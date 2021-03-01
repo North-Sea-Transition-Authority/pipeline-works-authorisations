@@ -18,7 +18,7 @@ import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationResponse;
 import uk.co.ogauthority.pwa.model.form.consultation.ConsultationResponseForm;
 import uk.co.ogauthority.pwa.model.form.enums.ConsultationResponseOption;
-import uk.co.ogauthority.pwa.model.notify.emailproperties.ConsultationResponseReceivedEmailProps;
+import uk.co.ogauthority.pwa.model.notify.emailproperties.consultations.ConsultationResponseReceivedEmailProps;
 import uk.co.ogauthority.pwa.model.tasklist.TaskListEntry;
 import uk.co.ogauthority.pwa.model.tasklist.TaskTag;
 import uk.co.ogauthority.pwa.repository.consultations.ConsultationResponseRepository;
@@ -127,6 +127,8 @@ public class ConsultationResponseService implements AppProcessingService {
     consultationRequestService.saveConsultationRequest(consultationRequest);
 
     sendResponseNotificationToCaseOfficer(consultationRequest, consultationResponse);
+
+    workflowAssignmentService.clearAssignments(consultationRequest);
 
   }
 

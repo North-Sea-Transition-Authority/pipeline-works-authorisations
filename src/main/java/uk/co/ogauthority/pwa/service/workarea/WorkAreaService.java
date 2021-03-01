@@ -8,37 +8,36 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
-import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeStatus;
+import uk.co.ogauthority.pwa.model.entity.workflow.assignment.Assignment;
 import uk.co.ogauthority.pwa.service.appprocessing.publicnotice.PublicNoticeService;
 import uk.co.ogauthority.pwa.service.enums.workflow.WorkflowType;
 import uk.co.ogauthority.pwa.service.workarea.applications.IndustryWorkAreaPageService;
 import uk.co.ogauthority.pwa.service.workarea.applications.RegulatorWorkAreaPageService;
 import uk.co.ogauthority.pwa.service.workarea.consultations.ConsultationWorkAreaPageService;
-import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
-import uk.co.ogauthority.pwa.service.workflow.task.AssignedTaskInstance;
+import uk.co.ogauthority.pwa.service.workflow.assignment.AssignmentService;
 
 @Service
 public class WorkAreaService {
 
   public static final int PAGE_SIZE = 10;
 
-  private final CamundaWorkflowService camundaWorkflowService;
   private final IndustryWorkAreaPageService industryWorkAreaPageService;
   private final ConsultationWorkAreaPageService consultationWorkAreaPageService;
   private final RegulatorWorkAreaPageService regulatorWorkAreaPageService;
   private final PublicNoticeService publicNoticeService;
+  private final AssignmentService assignmentService;
 
   @Autowired
-  public WorkAreaService(CamundaWorkflowService camundaWorkflowService,
-                         IndustryWorkAreaPageService industryWorkAreaPageService,
+  public WorkAreaService(IndustryWorkAreaPageService industryWorkAreaPageService,
                          ConsultationWorkAreaPageService consultationWorkAreaPageService,
                          RegulatorWorkAreaPageService regulatorWorkAreaPageService,
-                         PublicNoticeService publicNoticeService) {
-    this.camundaWorkflowService = camundaWorkflowService;
+                         PublicNoticeService publicNoticeService,
+                         AssignmentService assignmentService) {
     this.industryWorkAreaPageService = industryWorkAreaPageService;
     this.consultationWorkAreaPageService = consultationWorkAreaPageService;
     this.regulatorWorkAreaPageService = regulatorWorkAreaPageService;
     this.publicNoticeService = publicNoticeService;
+    this.assignmentService = assignmentService;
   }
 
   /**
@@ -48,10 +47,8 @@ public class WorkAreaService {
                                           WorkAreaTab workAreaTab,
                                           int page) {
 
-    // get tasks assigned to the user, grouped by workflow type
-    Map<WorkflowType, List<AssignedTaskInstance>> workflowTypeToTaskMap = camundaWorkflowService
-        .getAssignedTasks(authenticatedUserAccount.getLinkedPerson()).stream()
-        .collect(Collectors.groupingBy(AssignedTaskInstance::getWorkflowType));
+    Map<WorkflowType, List<Assignment>> workflowTypeToAssignmentMap = assignmentService.getAssignmentsForPerson(
+        authenticatedUserAccount.getLinkedPerson());
 
     Set<Integer> businessKeys;
 
@@ -70,7 +67,7 @@ public class WorkAreaService {
         );
 
       case REGULATOR_REQUIRES_ATTENTION:
-        businessKeys = getBusinessKeysFromWorkflowToTaskMap(workflowTypeToTaskMap, WorkflowType.PWA_APPLICATION);
+        businessKeys = getBusinessKeysFromWorkflowToTaskMap(workflowTypeToAssignmentMap, WorkflowType.PWA_APPLICATION);
         if (authenticatedUserAccount.getUserPrivileges().contains(PwaUserPrivilege.PWA_MANAGER)) {
           businessKeys.addAll(getApplicationIdsForOpenPublicNotices());
         }
@@ -80,15 +77,14 @@ public class WorkAreaService {
         );
 
       case REGULATOR_WAITING_ON_OTHERS:
-        businessKeys = getBusinessKeysFromWorkflowToTaskMap(workflowTypeToTaskMap, WorkflowType.PWA_APPLICATION);
+        businessKeys = getBusinessKeysFromWorkflowToTaskMap(workflowTypeToAssignmentMap, WorkflowType.PWA_APPLICATION);
         return new WorkAreaResult(
             regulatorWorkAreaPageService.getWaitingOnOthersPageView(authenticatedUserAccount, businessKeys, page),
             null
         );
 
       case OPEN_CONSULTATIONS:
-        businessKeys = getBusinessKeysFromWorkflowToTaskMap(workflowTypeToTaskMap,
-            WorkflowType.PWA_APPLICATION_CONSULTATION);
+        businessKeys = getBusinessKeysFromWorkflowToTaskMap(workflowTypeToAssignmentMap, WorkflowType.PWA_APPLICATION_CONSULTATION);
         return new WorkAreaResult(null,
             consultationWorkAreaPageService.getPageView(authenticatedUserAccount, businessKeys, page));
 
@@ -104,13 +100,14 @@ public class WorkAreaService {
    * Retrieve business keys for assigned tasks that are in the requested workflow type.
    */
   private Set<Integer> getBusinessKeysFromWorkflowToTaskMap(
-      Map<WorkflowType, List<AssignedTaskInstance>> workflowToTaskMap,
+      Map<WorkflowType, List<Assignment>> workflowToAssignmentMap,
       WorkflowType workflowType) {
 
-    return workflowToTaskMap.entrySet().stream()
-        .filter(entry -> entry.getKey().equals(workflowType))
-        .flatMap(entry -> entry.getValue().stream())
-        .map(AssignedTaskInstance::getBusinessKey)
+    // todo ensure apps returned are still in progress, PWA-177 after ending workflows, clear assignments in the Assignment table
+    return workflowToAssignmentMap
+        .getOrDefault(workflowType, List.of())
+        .stream()
+        .map(Assignment::getBusinessKey)
         .collect(Collectors.toSet());
 
   }
