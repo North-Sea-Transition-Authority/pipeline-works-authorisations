@@ -21,6 +21,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeStatus;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.WorkAreaApplicationDetailSearchItem;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.WorkAreaApplicationDetailSearchItem_;
 import uk.co.ogauthority.pwa.repository.pwaapplications.search.WorkAreaApplicationDetailSearchItemRepository;
@@ -106,7 +107,10 @@ public class WorkAreaApplicationDetailSearcher {
     Predicate openRequestForUpdatePredicate = cb.equal(
         root.get(WorkAreaApplicationDetailSearchItem_.openUpdateRequestFlag), openUpdateRequestFilter);
 
-    Predicate statusOrOpenUpdatePredicate = cb.or(statusFilterPredicate, openRequestForUpdatePredicate);
+    Predicate publicNoticeUpdateRequestPredicate = cb.equal(
+        root.get(WorkAreaApplicationDetailSearchItem_.publicNoticeStatus), PublicNoticeStatus.APPLICANT_UPDATE);
+
+    Predicate statusOrOpenUpdatePredicate = cb.or(statusFilterPredicate, openRequestForUpdatePredicate, publicNoticeUpdateRequestPredicate);
 
     Predicate finalPredicate = cb.and(appIdFilterPredicate, statusOrOpenUpdatePredicate);
 
@@ -194,6 +198,8 @@ public class WorkAreaApplicationDetailSearcher {
         searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagIsFalseOrAllProcessingWaitFlagsFalse(
           Pageable pageable,
           Set<PwaApplicationStatus> statusFilter,
+          Set<PublicNoticeStatus> publicNoticeStatusFilter,
+          Boolean publicNoticeOverrideFlag,
           Set<Integer> pwaApplicationIdFilter) {
 
     if (statusFilter.isEmpty() && pwaApplicationIdFilter.isEmpty()) {
@@ -208,7 +214,8 @@ public class WorkAreaApplicationDetailSearcher {
         pwaApplicationIdFilter.isEmpty() ? null : pwaApplicationIdFilter,
         false,
         false,
-        false,
+        publicNoticeOverrideFlag,
+        publicNoticeStatusFilter.isEmpty() ? null : publicNoticeStatusFilter,
         false
     );
 
@@ -221,6 +228,8 @@ public class WorkAreaApplicationDetailSearcher {
         searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagIsTrueAndAnyProcessingWaitFlagTrue(
           Pageable pageable,
           Set<PwaApplicationStatus> statusFilter,
+          Set<PublicNoticeStatus> publicNoticeStatusFilter,
+          Boolean publicNoticeOverrideFlag,
           Set<Integer> pwaApplicationIdFilter) {
 
     if (statusFilter.isEmpty() && pwaApplicationIdFilter.isEmpty()) {
@@ -235,7 +244,8 @@ public class WorkAreaApplicationDetailSearcher {
         pwaApplicationIdFilter.isEmpty() ? null : pwaApplicationIdFilter,
         true,
         true,
-        true,
+        publicNoticeOverrideFlag,
+        publicNoticeStatusFilter.isEmpty() ? null : publicNoticeStatusFilter,
         true
     );
 

@@ -2,8 +2,6 @@ package uk.co.ogauthority.pwa.service.appprocessing.publicnotice;
 
 import java.time.Instant;
 import java.util.List;
-import java.util.Set;
-import uk.co.ogauthority.pwa.model.dto.appprocessing.ProcessingPermissionsDto;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeDocumentType;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeRequestReason;
@@ -18,18 +16,17 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.form.files.UploadFileWithDescriptionForm;
 import uk.co.ogauthority.pwa.model.form.publicnotice.PublicNoticeDraftForm;
 import uk.co.ogauthority.pwa.model.view.publicnotice.PublicNoticeView;
-import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.util.DateUtils;
 
-final class PublicNoticeTestUtil {
+public final class PublicNoticeTestUtil {
 
   private static int VERSION1 = 1;
 
   private PublicNoticeTestUtil(){}
 
 
-  static PublicNotice createInitialPublicNotice(PwaApplication pwaApplication) {
-    return new PublicNotice(pwaApplication, PublicNoticeStatus.DRAFT, VERSION1);
+  public static PublicNotice createInitialPublicNotice(PwaApplication pwaApplication) {
+    return new PublicNotice(pwaApplication, PublicNoticeStatus.MANAGER_APPROVAL, VERSION1);
   }
 
   static PublicNotice createEndedPublicNotice(PwaApplication pwaApplication) {
@@ -71,7 +68,7 @@ final class PublicNoticeTestUtil {
     return publicNoticeRequest;
   }
 
-  static PublicNoticeRequest createInitialPublicNoticeRequest(PublicNotice publicNotice) {
+  public static PublicNoticeRequest createInitialPublicNoticeRequest(PublicNotice publicNotice) {
     return createInitialPublicNoticeRequest(publicNotice, createDefaultPublicNoticeDraftForm());
   }
 
