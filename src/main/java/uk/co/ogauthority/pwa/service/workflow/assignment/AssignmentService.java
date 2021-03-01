@@ -43,15 +43,15 @@ public class AssignmentService {
 
         }, () -> {
 
-          var assignment = new Assignment();
-          assignment.setBusinessKey(workflowSubject.getBusinessKey());
-          assignment.setWorkflowType(workflowSubject.getWorkflowType());
-          assignment.setWorkflowAssignment(task.getAssignment());
-          assignment.setAssigneePersonId(personToAssign.getId());
+              var assignment = new Assignment();
+              assignment.setBusinessKey(workflowSubject.getBusinessKey());
+              assignment.setWorkflowType(workflowSubject.getWorkflowType());
+              assignment.setWorkflowAssignment(task.getAssignment());
+              assignment.setAssigneePersonId(personToAssign.getId());
 
-          assignmentRepository.save(assignment);
+              assignmentRepository.save(assignment);
 
-          assignmentAuditService.auditAssignment(assignment, task, assigningPerson);
+              assignmentAuditService.auditAssignment(assignment, task, assigningPerson);
 
         });
 
