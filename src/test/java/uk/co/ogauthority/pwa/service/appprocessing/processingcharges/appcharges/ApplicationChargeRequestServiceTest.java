@@ -7,6 +7,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.time.Clock;
@@ -36,6 +37,7 @@ import uk.co.ogauthority.pwa.model.entity.appprocessing.processingcharges.PwaApp
 import uk.co.ogauthority.pwa.model.entity.appprocessing.processingcharges.PwaAppChargeRequestStatus;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.processingcharges.PwaAppChargeRequestTestUtil;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.pwapay.CreateCardPaymentResultTestUtil;
 import uk.co.ogauthority.pwa.pwapay.PaymentRequestStatus;
 import uk.co.ogauthority.pwa.pwapay.PwaPaymentRequest;
@@ -45,11 +47,14 @@ import uk.co.ogauthority.pwa.repository.appprocessing.processingcharges.PwaAppCh
 import uk.co.ogauthority.pwa.repository.appprocessing.processingcharges.PwaAppChargeRequestDetailRepository;
 import uk.co.ogauthority.pwa.repository.appprocessing.processingcharges.PwaAppChargeRequestItemRepository;
 import uk.co.ogauthority.pwa.repository.appprocessing.processingcharges.PwaAppChargeRequestRepository;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationWorkflowTask;
 import uk.co.ogauthority.pwa.service.person.PersonService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
 import uk.co.ogauthority.pwa.service.workflow.assignment.WorkflowAssignmentService;
+import uk.co.ogauthority.pwa.service.workflow.task.WorkflowTaskInstance;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -83,6 +88,9 @@ public class ApplicationChargeRequestServiceTest {
   private PersonService personService;
 
   @Captor
+  private ArgumentCaptor<PwaAppChargeRequestDetail> requestDetailArgumentCaptor;
+
+  @Captor
   private ArgumentCaptor<PwaAppChargePaymentAttempt> paymentAttemptArgumentCaptor;
 
   @Captor
@@ -99,6 +107,7 @@ public class ApplicationChargeRequestServiceTest {
   private WebUserAccount paymentAttemptWua;
 
   private PwaApplication pwaApplication;
+  private PwaApplicationDetail pwaApplicationDetail;
 
   private PwaAppChargeRequestDetail chargeRequestDetail;
   private PwaAppChargeRequest chargeRequest;
@@ -111,8 +120,10 @@ public class ApplicationChargeRequestServiceTest {
     paymentAttemptPerson = PersonTestUtil.createPersonFrom(new PersonId(30));
     paymentAttemptWua = new WebUserAccount(31, paymentAttemptPerson);
 
-    pwaApplication = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL)
-        .getPwaApplication();
+    pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
+    pwaApplication = pwaApplicationDetail.getPwaApplication();
+
+    when(pwaApplicationDetailService.getTipDetail(pwaApplication)).thenReturn(pwaApplicationDetail);
 
     chargeRequestDetail = PwaAppChargeRequestTestUtil.createDefaultChargeRequest(
         pwaApplication, requestPerson, PwaAppChargeRequestStatus.OPEN);
@@ -518,11 +529,83 @@ public class ApplicationChargeRequestServiceTest {
 
   }
 
+
   @Test
-  public void reconcilePaymentRequestCallbackUuidToPaymentAttempt() {
+  public void processPaymentAttempt_paymentAttemptStillInProgress() {
+    var attempt = PwaAppChargePaymentAttemptTestUtil.createWithPaymentRequest(chargeRequest, PaymentRequestStatus.PENDING, paymentAttemptPerson);
+
+    var processPaymentAttemptResult = applicationChargeRequestService.processPaymentAttempt(attempt, paymentAttemptWua);
+
+    assertThat(processPaymentAttemptResult).isEqualTo(ProcessPaymentAttemptOutcome.CHARGE_REQUEST_UNCHANGED);
+    verify(pwaAppChargeRequestDetailRepository, times(0)).save(any());
+    verifyNoInteractions(camundaWorkflowService, workflowAssignmentService);
+
   }
 
   @Test
-  public void processPaymentAttempt() {
+  public void processPaymentAttempt_paymentRequestNotOpen_butPaymentAttemptUpdatesAsPaid() {
+    chargeRequestDetail.setPwaAppChargeRequestStatus(PwaAppChargeRequestStatus.PAID);
+
+    var attempt = PwaAppChargePaymentAttemptTestUtil.createWithPaymentRequest(chargeRequest, PaymentRequestStatus.PENDING, paymentAttemptPerson);
+
+    doAnswer(invocation -> {
+      var request = (PwaPaymentRequest) invocation.getArgument(0);
+      request.setRequestStatus(PaymentRequestStatus.PAYMENT_COMPLETE);
+      return invocation;
+    }).when(pwaPaymentService).refreshPwaPaymentRequestData(any());
+
+    var processPaymentAttemptResult = applicationChargeRequestService.processPaymentAttempt(attempt, paymentAttemptWua);
+
+    assertThat(processPaymentAttemptResult).isEqualTo(ProcessPaymentAttemptOutcome.CHARGE_REQUEST_UNCHANGED);
+
+    assertThat(processPaymentAttemptResult).isEqualTo(ProcessPaymentAttemptOutcome.CHARGE_REQUEST_UNCHANGED);
+    verify(pwaAppChargeRequestDetailRepository, times(0)).save(any());
+    verifyNoInteractions(camundaWorkflowService, workflowAssignmentService);
+
   }
+
+  @Test
+  public void processPaymentAttempt_paymentRequestOpen_paymentAttemptUpdatesAsPaid() {
+    chargeRequestDetail.setPwaAppChargeRequestStatus(PwaAppChargeRequestStatus.OPEN);
+    chargeRequestDetail.setAutoCaseOfficerPersonId(caseOfficerPerson.getId());
+
+    when(personService.getPersonById(caseOfficerPerson.getId())).thenReturn(caseOfficerPerson);
+    when(personService.getPersonById(requestPerson.getId())).thenReturn(requestPerson);
+
+    var attempt = PwaAppChargePaymentAttemptTestUtil.createWithPaymentRequest(chargeRequest, PaymentRequestStatus.PENDING, paymentAttemptPerson);
+
+    doAnswer(invocation -> {
+      var request = (PwaPaymentRequest) invocation.getArgument(0);
+      request.setRequestStatus(PaymentRequestStatus.PAYMENT_COMPLETE);
+      return invocation;
+    }).when(pwaPaymentService).refreshPwaPaymentRequestData(any());
+
+    var processPaymentAttemptResult = applicationChargeRequestService.processPaymentAttempt(attempt, paymentAttemptWua);
+
+    assertThat(processPaymentAttemptResult).isEqualTo(ProcessPaymentAttemptOutcome.CHARGE_REQUEST_PAID);
+
+    var verifyOrder = Mockito.inOrder(
+        pwaApplicationDetailService, camundaWorkflowService, workflowAssignmentService, pwaAppChargeRequestDetailRepository
+    );
+
+    verifyOrder.verify(pwaApplicationDetailService, times(1)).getTipDetail(pwaApplication);
+    verifyOrder.verify(pwaAppChargeRequestDetailRepository, times(2)).save(requestDetailArgumentCaptor.capture());
+    verifyOrder.verify(camundaWorkflowService, times(1)).completeTask(new WorkflowTaskInstance(
+        pwaApplication,
+        PwaApplicationWorkflowTask.AWAIT_APPLICATION_PAYMENT
+    ));
+    verifyOrder.verify(workflowAssignmentService, times(1))
+        .assign(pwaApplication, PwaApplicationWorkflowTask.CASE_OFFICER_REVIEW, caseOfficerPerson, requestPerson);
+
+    verifyOrder.verify(pwaApplicationDetailService, times(1)).updateStatus(pwaApplicationDetail, PwaApplicationStatus.CASE_OFFICER_REVIEW, paymentAttemptWua);
+    verifyOrder.verifyNoMoreInteractions();
+
+    // verify we end the old request detail and set new one as tip.
+    assertThat(requestDetailArgumentCaptor.getAllValues().get(0).getTipFlag()).isFalse();
+    assertThat(requestDetailArgumentCaptor.getAllValues().get(1).getTipFlag()).isTrue();
+
+  }
+
+
+
 }

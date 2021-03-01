@@ -109,6 +109,10 @@ public class PwaPaymentServiceTest {
         GovPayNewCardPaymentRequest.class);
     when(govUkPayCardPaymentClient.createCardPaymentJourney(any())).thenReturn(newPaymentResult);
 
+    var paymentRequest = new PwaPaymentRequest();
+    paymentRequest.setUuid(paymentUuid);
+    when(pwaPaymentRequestRepository.findById(paymentUuid)).thenReturn(Optional.of(paymentRequest));
+
     var createCardPaymentResult = pwaPaymentService.createCardPayment(
         PENNY_AMOUNT,
         PAYMENT_REFERENCE,
@@ -124,6 +128,7 @@ public class PwaPaymentServiceTest {
     );
     inOrder.verify(govUkPayCardPaymentClient, times(1)).createCardPaymentJourney(newPaymentRequestCaptor.capture());
     inOrder.verify(pwaPaymentRequestPersister, times(1)).setPaymentRequestInProgress(paymentUuid, newPaymentResult);
+    inOrder.verify(pwaPaymentRequestRepository, times(1)).findById(paymentUuid);
     inOrder.verifyNoMoreInteractions();
 
     assertThat(newPaymentRequestCaptor.getValue().getAmount()).isEqualTo(PENNY_AMOUNT);
@@ -133,6 +138,7 @@ public class PwaPaymentServiceTest {
     assertThat(newPaymentRequestCaptor.getValue().getReturnUrl()).isEqualTo(journeyReturnUrl);
     // no point testing this precisely, its going to be whatever we fake it to be while setting up the test.
     assertThat(createCardPaymentResult.getStartExternalJourneyUrl()).isNotEmpty();
+    assertThat(createCardPaymentResult.getPwaPaymentRequest()).isEqualTo(paymentRequest);
   }
 
   @Test

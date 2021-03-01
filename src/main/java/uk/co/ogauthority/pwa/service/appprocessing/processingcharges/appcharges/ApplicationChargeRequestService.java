@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.co.ogauthority.pwa.controller.appprocessing.processingcharges.IndustryPaymentCallbackController;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
+import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.processingcharges.PwaAppChargePaymentAttempt;
@@ -252,15 +253,11 @@ public class ApplicationChargeRequestService {
       // Cancelling a request does a refresh of payment request data, so we can rely on this being up to date
       var activeAttemptPaymentRequestStatus = activePaymentAttempt.getPwaPaymentRequest().getRequestStatus();
 
+      // make sure we only set active flag to false when payment journey finished without completed payment.
+      updatePaymentAttemptFromRequest(activePaymentAttempt, person.getId());
+
       somePaymentAttemptCompletedSuccessfully = somePaymentAttemptCompletedSuccessfully
           || PAYMENT_COMPLETE.equals(activeAttemptPaymentRequestStatus);
-
-      // only remove active flag when not dealing with a completed payment attempt
-      if (!PAYMENT_COMPLETE.equals(activeAttemptPaymentRequestStatus)) {
-        activePaymentAttempt.setActiveFlag(false);
-        activePaymentAttempt.setEndedByPersonId(person.getId());
-        activePaymentAttempt.setEndedTimestamp(clock.instant());
-      }
 
     }
 
@@ -325,11 +322,15 @@ public class ApplicationChargeRequestService {
   }
 
 
-  private void updatePaymentAttemptFromRequest(PwaAppChargePaymentAttempt pwaAppChargePaymentAttempt) {
+  private void updatePaymentAttemptFromRequest(PwaAppChargePaymentAttempt pwaAppChargePaymentAttempt, PersonId endedByPersonId) {
     pwaPaymentService.refreshPwaPaymentRequestData(pwaAppChargePaymentAttempt.getPwaPaymentRequest());
+    // set as not active if finished without completed payment.
     if (PaymentRequestStatus.JourneyState.FINISHED.equals(
-        pwaAppChargePaymentAttempt.getPwaPaymentRequest().getRequestStatus().getJourneyState())) {
+        pwaAppChargePaymentAttempt.getPwaPaymentRequest().getRequestStatus().getJourneyState())
+        && !PAYMENT_COMPLETE.equals(pwaAppChargePaymentAttempt.getPwaPaymentRequest().getRequestStatus())) {
       pwaAppChargePaymentAttempt.setActiveFlag(false);
+      pwaAppChargePaymentAttempt.setEndedByPersonId(endedByPersonId);
+      pwaAppChargePaymentAttempt.setEndedTimestamp(clock.instant());
     }
 
     pwaAppChargePaymentAttemptRepository.save(pwaAppChargePaymentAttempt);
@@ -378,7 +379,7 @@ public class ApplicationChargeRequestService {
     var tipAppDetail = pwaApplicationDetailService.getTipDetail(
         pwaAppChargePaymentAttempt.getPwaAppChargeRequest().getPwaApplication());
 
-    updatePaymentAttemptFromRequest(pwaAppChargePaymentAttempt);
+    updatePaymentAttemptFromRequest(pwaAppChargePaymentAttempt, webUserAccount.getLinkedPerson().getId());
 
     var latestPaymentRequestStatus = pwaAppChargePaymentAttempt.getAssociatedPaymentRequestStatus();
 
