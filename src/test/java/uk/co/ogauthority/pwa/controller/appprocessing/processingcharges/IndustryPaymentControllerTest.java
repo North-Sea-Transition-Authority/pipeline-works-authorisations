@@ -171,7 +171,7 @@ public class IndustryPaymentControllerTest extends PwaAppProcessingContextAbstra
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(IndustryPaymentController.class)
-                .startPaymentAttempt(applicationDetail.getMasterPwaApplicationId(), type, null)));
+                .startPaymentAttempt(applicationDetail.getMasterPwaApplicationId(), type, null, null)));
 
     endpointTester.performAppStatusChecks(status().is3xxRedirection(), status().isNotFound());
   }
@@ -182,7 +182,7 @@ public class IndustryPaymentControllerTest extends PwaAppProcessingContextAbstra
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(IndustryPaymentController.class)
-                .startPaymentAttempt(applicationDetail.getMasterPwaApplicationId(), type, null)));
+                .startPaymentAttempt(applicationDetail.getMasterPwaApplicationId(), type, null, null)));
 
     endpointTester.performProcessingPermissionCheck(status().is3xxRedirection(), status().isForbidden());
 

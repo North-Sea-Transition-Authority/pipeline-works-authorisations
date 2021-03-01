@@ -109,7 +109,7 @@ public class PwaPaymentServiceTest {
         GovPayNewCardPaymentRequest.class);
     when(govUkPayCardPaymentClient.createCardPaymentJourney(any())).thenReturn(newPaymentResult);
 
-    var nextPageUrl = pwaPaymentService.createCardPayment(
+    var createCardPaymentResult = pwaPaymentService.createCardPayment(
         PENNY_AMOUNT,
         PAYMENT_REFERENCE,
         PAYMENT_DESCRIPTION,
@@ -132,7 +132,7 @@ public class PwaPaymentServiceTest {
     assertThat(newPaymentRequestCaptor.getValue().getMetadata()).isEmpty();
     assertThat(newPaymentRequestCaptor.getValue().getReturnUrl()).isEqualTo(journeyReturnUrl);
     // no point testing this precisely, its going to be whatever we fake it to be while setting up the test.
-    assertThat(nextPageUrl).isNotBlank();
+    assertThat(createCardPaymentResult.getStartExternalJourneyUrl()).isNotEmpty();
   }
 
   @Test
