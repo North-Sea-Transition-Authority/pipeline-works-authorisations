@@ -18,4 +18,6 @@ public interface AssignmentRepository extends CrudRepository<Assignment, Integer
 
   List<Assignment> findByAssigneePersonId(PersonId personId);
 
+  List<Assignment> findByBusinessKeyAndWorkflowType(Integer businessKey, WorkflowType workflowType);
+
 }

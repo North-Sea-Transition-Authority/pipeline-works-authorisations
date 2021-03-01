@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.service.workflow.assignment;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -122,6 +123,19 @@ public class AssignmentServiceTest {
         WorkflowType.PWA_APPLICATION, List.of(appAssignment),
         WorkflowType.PWA_APPLICATION_CONSULTATION, List.of(consultationAssignment)
     ));
+
+  }
+
+  @Test
+  public void clearAssignments() {
+
+    var assignment = new Assignment(1, WorkflowType.PWA_APPLICATION, WorkflowAssignment.CASE_OFFICER, new PersonId(1));
+    when(assignmentRepository.findByBusinessKeyAndWorkflowType(1, WorkflowType.PWA_APPLICATION))
+        .thenReturn(List.of(assignment));
+
+    assignmentService.clearAssignments(new GenericWorkflowSubject(1, WorkflowType.PWA_APPLICATION));
+
+    verify(assignmentRepository, times(1)).deleteAll(eq(List.of(assignment)));
 
   }
 

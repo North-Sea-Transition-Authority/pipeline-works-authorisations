@@ -177,6 +177,7 @@ public class ConsultationResponseServiceTest {
     verify(camundaWorkflowService, times(1)).completeTask(eq(new WorkflowTaskInstance(consultationRequest, PwaApplicationConsultationWorkflowTask.RESPONSE)));
     verify(consultationResponseRepository, times(1)).save(responseCaptor.capture());
     verify(consultationRequestService, times(1)).saveConsultationRequest(consultationRequest);
+    verify(workflowAssignmentService, times(1)).clearAssignments(consultationRequest);
 
     var response = responseCaptor.getValue();
 
@@ -201,6 +202,7 @@ public class ConsultationResponseServiceTest {
     verify(camundaWorkflowService, times(1)).completeTask(eq(new WorkflowTaskInstance(consultationRequest, PwaApplicationConsultationWorkflowTask.RESPONSE)));
     verify(consultationResponseRepository, times(1)).save(responseCaptor.capture());
     verify(consultationRequestService, times(1)).saveConsultationRequest(consultationRequest);
+    verify(workflowAssignmentService, times(1)).clearAssignments(consultationRequest);
     assertThat(consultationRequest.getStatus()).isEqualTo(ConsultationRequestStatus.RESPONDED);
 
     var response = responseCaptor.getValue();

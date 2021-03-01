@@ -254,4 +254,14 @@ public class WorkflowAssignmentServiceTest {
 
   }
 
+  @Test
+  public void clearAssignments_verifyServiceInteractions() {
+
+    var workflowSubject = new GenericWorkflowSubject(1, WorkflowType.PWA_APPLICATION);
+    workflowAssignmentService.clearAssignments(workflowSubject);
+
+    verify(assignmentService, times(1)).clearAssignments(workflowSubject);
+
+  }
+
 }

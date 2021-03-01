@@ -53,13 +53,22 @@ public class AssignmentService {
 
               assignmentAuditService.auditAssignment(assignment, task, assigningPerson);
 
-        });
+          });
 
   }
 
   public Map<WorkflowType, List<Assignment>> getAssignmentsForPerson(Person person) {
     return assignmentRepository.findByAssigneePersonId(person.getId()).stream()
         .collect(Collectors.groupingBy(Assignment::getWorkflowType));
+  }
+
+  public void clearAssignments(WorkflowSubject workflowSubject) {
+
+    var assignments = assignmentRepository.findByBusinessKeyAndWorkflowType(
+        workflowSubject.getBusinessKey(), workflowSubject.getWorkflowType());
+
+    assignmentRepository.deleteAll(assignments);
+
   }
 
 }

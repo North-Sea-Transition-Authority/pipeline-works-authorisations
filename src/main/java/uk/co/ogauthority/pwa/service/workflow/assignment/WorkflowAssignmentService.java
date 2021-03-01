@@ -133,4 +133,8 @@ public class WorkflowAssignmentService {
 
   }
 
+  public void clearAssignments(WorkflowSubject workflowSubject) {
+    assignmentService.clearAssignments(workflowSubject);
+  }
+
 }
