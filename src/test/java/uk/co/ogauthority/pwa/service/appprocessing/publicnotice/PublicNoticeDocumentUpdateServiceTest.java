@@ -136,7 +136,7 @@ public class PublicNoticeDocumentUpdateServiceTest {
 
     var pageBannerView = pageBannerViewOpt.get();
     assertThat(pageBannerView.getHeader()).isEqualTo("Public notice document update requested");
-    assertThat(pageBannerView.getHeaderCaption()).isEqualTo("Approved " + DateUtils.formatDateTime(
+    assertThat(pageBannerView.getHeaderCaption()).isEqualTo("Requested " + DateUtils.formatDateTime(
         publicNoticeRequest.getResponseTimestamp()));
     assertThat(pageBannerView.getBannerLink().getUrl()).isEqualTo(
         ReverseRouter.route(on(PublicNoticeDocumentUpdateController.class)
