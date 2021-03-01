@@ -7,14 +7,13 @@
 
 <@defaultPage htmlTitle="${appRef} update public notice document" topNavigation=true twoThirdsColumn=false breadcrumbs=true>
 
-  <@pwaCaseSummary.summary caseSummaryView=caseSummaryView />
-
-  <h2 class="govuk-heading-l">Update public notice document</h2>
-
   <#if errorList?has_content>
     <@fdsError.errorSummary errorItems=errorList/>
   </#if>
 
+  <@pwaCaseSummary.summary caseSummaryView=caseSummaryView />
+
+  <h2 class="govuk-heading-l">Update public notice document</h2>
 
   <@fdsForm.htmlForm>
     <h3 class="govuk-heading-m"> Cover letter </h3>

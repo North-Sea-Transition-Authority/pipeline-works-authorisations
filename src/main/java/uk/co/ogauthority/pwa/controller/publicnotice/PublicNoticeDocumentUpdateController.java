@@ -52,6 +52,10 @@ public class PublicNoticeDocumentUpdateController extends PwaApplicationDataFile
   private final PublicNoticeDocumentUpdateService publicNoticeDocumentUpdateService;
   private final ControllerHelperService controllerHelperService;
 
+  private static final String fileHandleUnsupportedOperationExceptionMsg =
+      "File handling is not directly supported within PublicNoticeDocumentUpdateController. " +
+          "File handling should be handled in PublicNoticeDraftController";
+
   @Autowired
   public PublicNoticeDocumentUpdateController(
       AppProcessingBreadcrumbService appProcessingBreadcrumbService,
@@ -149,18 +153,17 @@ public class PublicNoticeDocumentUpdateController extends PwaApplicationDataFile
 
 
 
-
+  //These file handle methods are not actually used, as the file purpose used in this controller is associated with the
+  // public notice draft controller which supports the permission/s associated with this controller.
+  // The file methods below are still required to be implemented here as we're extending the abstract class
+  // PwaApplicationDataFileUploadAndDownloadController therefore throwing UnsupportedOperationException.
   @PostMapping("/file/upload")
   @ResponseBody
   public FileUploadResult handleUpload(@PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
                                        @PathVariable("applicationId") Integer applicationId,
                                        @RequestParam("file") MultipartFile file,
                                        PwaAppProcessingContext processingContext) {
-    return appFileService.processInitialUpload(
-        file,
-        processingContext.getPwaApplication(),
-        AppFilePurpose.PUBLIC_NOTICE,
-        processingContext.getUser());
+    throw new UnsupportedOperationException(fileHandleUnsupportedOperationExceptionMsg);
   }
 
   @GetMapping("/files/download/{fileId}")
@@ -170,7 +173,7 @@ public class PublicNoticeDocumentUpdateController extends PwaApplicationDataFile
       @PathVariable("applicationId") Integer applicationId,
       @PathVariable("fileId") String fileId,
       PwaAppProcessingContext processingContext) {
-    return serveFile(processingContext.getAppFile());
+    throw new UnsupportedOperationException(fileHandleUnsupportedOperationExceptionMsg);
   }
 
   @PostMapping("/file/delete/{fileId}")
@@ -180,11 +183,7 @@ public class PublicNoticeDocumentUpdateController extends PwaApplicationDataFile
       @PathVariable("applicationId") Integer applicationId,
       @PathVariable("fileId") String fileId,
       PwaAppProcessingContext processingContext) {
-    return appFileService.processFileDeletionWithPreDeleteAction(
-        processingContext.getAppFile(),
-        processingContext.getUser(),
-        appFile -> publicNoticeService.getPublicNoticeDocumentLink(processingContext.getAppFile())
-            .ifPresent(publicNoticeService::deleteFileLinkAndPublicNoticeDocument));
+    throw new UnsupportedOperationException(fileHandleUnsupportedOperationExceptionMsg);
   }
 
 

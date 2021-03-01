@@ -62,7 +62,7 @@ public class PublicNoticeDocumentUpdateService {
 
     return Optional.of(new PageBannerView.PageBannerViewBuilder()
         .setHeader("Public notice document update requested")
-        .setHeaderCaption("Approved " + DateUtils.formatDateTime(publicNoticeRequest.getResponseTimestamp()))
+        .setHeaderCaption("Requested " + DateUtils.formatDateTime(publicNoticeRequest.getResponseTimestamp()))
         .setBannerLink(new BannerLink(
             ReverseRouter.route(on(PublicNoticeDocumentUpdateController.class)
                 .renderUpdatePublicNoticeDocument(pwaApplication.getId(), pwaApplication.getApplicationType(), null, null, null)),
