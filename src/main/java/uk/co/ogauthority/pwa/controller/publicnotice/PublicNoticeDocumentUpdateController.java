@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.controller.publicnotice;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
+import java.util.function.Supplier;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
@@ -24,7 +25,6 @@ import uk.co.ogauthority.pwa.controller.appprocessing.shared.PwaAppProcessingPer
 import uk.co.ogauthority.pwa.controller.files.PwaApplicationDataFileUploadAndDownloadController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationStatusCheck;
 import uk.co.ogauthority.pwa.exception.AccessDeniedException;
-import uk.co.ogauthority.pwa.exception.ViewNotFoundException;
 import uk.co.ogauthority.pwa.model.entity.files.AppFilePurpose;
 import uk.co.ogauthority.pwa.model.form.publicnotice.UpdatePublicNoticeDocumentForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
@@ -71,6 +71,23 @@ public class PublicNoticeDocumentUpdateController extends PwaApplicationDataFile
   }
 
 
+  private ModelAndView publicNoticeInValidState(PwaAppProcessingContext processingContext,
+                                                Supplier<ModelAndView> modelAndViewSupplier) {
+
+    return CaseManagementUtils.withAtLeastOneSatisfactoryVersion(
+        processingContext,
+        PwaAppProcessingTask.PUBLIC_NOTICE,
+        () -> {
+          if (publicNoticeDocumentUpdateService.publicNoticeDocumentCanBeUpdated(processingContext.getPwaApplication())) {
+            return modelAndViewSupplier.get();
+          }
+          throw new AccessDeniedException(
+              "Access denied as there is not an public notice that requires the document to be updated for application with id: " +
+                  processingContext.getMasterPwaApplicationId());
+        });
+  }
+
+
   @GetMapping
   public ModelAndView renderUpdatePublicNoticeDocument(@PathVariable("applicationId") Integer applicationId,
                                                 @PathVariable("applicationType")
@@ -79,17 +96,8 @@ public class PublicNoticeDocumentUpdateController extends PwaApplicationDataFile
                                                 AuthenticatedUserAccount authenticatedUserAccount,
                                                 @ModelAttribute("form") UpdatePublicNoticeDocumentForm form) {
 
-    return CaseManagementUtils.withAtLeastOneSatisfactoryVersion(
-        processingContext,
-        PwaAppProcessingTask.PUBLIC_NOTICE,
-        () -> {
-          if (publicNoticeDocumentUpdateService.publicNoticeDocumentCanBeUpdated(processingContext.getPwaApplication())) {
-            return getUpdatePublicNoticeDocumentModelAndView(processingContext, form);
-          }
-          throw new AccessDeniedException(
-              "Access denied as there is not an public notice that requires the document to be updated for application with id: " +
-                  processingContext.getMasterPwaApplicationId());
-        });
+    return publicNoticeInValidState(processingContext, () ->
+        getUpdatePublicNoticeDocumentModelAndView(processingContext, form));
   }
 
 
@@ -102,24 +110,17 @@ public class PublicNoticeDocumentUpdateController extends PwaApplicationDataFile
                                             @ModelAttribute("form") UpdatePublicNoticeDocumentForm form,
                                             BindingResult bindingResult) {
 
-    return CaseManagementUtils.withAtLeastOneSatisfactoryVersion(processingContext,
-        PwaAppProcessingTask.PUBLIC_NOTICE,  () -> {
-          if (publicNoticeDocumentUpdateService.publicNoticeDocumentCanBeUpdated(processingContext.getPwaApplication())) {
-            var validatedBindingResult = publicNoticeDocumentUpdateService.validate(form, bindingResult);
+    return publicNoticeInValidState(processingContext, () -> {
+      var validatedBindingResult = publicNoticeDocumentUpdateService.validate(form, bindingResult);
 
-            return controllerHelperService.checkErrorsAndRedirect(validatedBindingResult,
-                getUpdatePublicNoticeDocumentModelAndView(processingContext, form), () -> {
-                  publicNoticeDocumentUpdateService.updatePublicNoticeDocumentAndTransitionWorkflow(
-                      form, processingContext.getPwaApplication(), authenticatedUserAccount);
-                  return  ReverseRouter.redirect(on(WorkAreaController.class).renderWorkArea(null, null, null));
-                });
+      return controllerHelperService.checkErrorsAndRedirect(validatedBindingResult,
+          getUpdatePublicNoticeDocumentModelAndView(processingContext, form), () -> {
 
-          }
-          throw new AccessDeniedException(
-              "Access denied as there is not an public notice that requires the document to be updated for application with id: " +
-                  processingContext.getMasterPwaApplicationId());
-
-        });
+            publicNoticeDocumentUpdateService.updatePublicNoticeDocumentAndTransitionWorkflow(
+                processingContext.getPwaApplication(), form, authenticatedUserAccount);
+            return  ReverseRouter.redirect(on(WorkAreaController.class).renderWorkArea(null, null, null));
+          });
+    });
 
   }
 
@@ -131,9 +132,7 @@ public class PublicNoticeDocumentUpdateController extends PwaApplicationDataFile
     var publicNotice = publicNoticeService.getLatestPublicNotice(pwaApplication);
     var publicNoticeRequest = publicNoticeService.getLatestPublicNoticeRequest(publicNotice);
 
-    var publicNoticeDocumentFileView = publicNoticeDocumentUpdateService.getPublicNoticeDocumentFileView(pwaApplication).orElseThrow(
-        () -> new ViewNotFoundException(String.format(
-        "Couldn't find public notice document file view with pwaApplication ID: %s", pwaApplication.getId())));
+    var publicNoticeDocumentFileView = publicNoticeDocumentUpdateService.getLatestPublicNoticeDocumentFileView(pwaApplication);
 
     var modelAndView = createModelAndView("publicNotice/updatePublicNoticeDocument",
         pwaApplication,

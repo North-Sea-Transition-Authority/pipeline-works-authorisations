@@ -29,6 +29,7 @@ import uk.co.ogauthority.pwa.model.entity.publicnotice.PublicNoticeDocument;
 import uk.co.ogauthority.pwa.model.entity.publicnotice.PublicNoticeDocumentLink;
 import uk.co.ogauthority.pwa.model.entity.publicnotice.PublicNoticeRequest;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
+import uk.co.ogauthority.pwa.model.form.files.UploadFileWithDescriptionForm;
 import uk.co.ogauthority.pwa.model.form.publicnotice.PublicNoticeDraftForm;
 import uk.co.ogauthority.pwa.model.notify.emailproperties.PublicNoticeApprovalRequestEmailProps;
 import uk.co.ogauthority.pwa.model.tasklist.TaskListEntry;
@@ -147,8 +148,8 @@ public class PublicNoticeService implements AppProcessingService {
     publicNoticeRequestRepository.save(publicNoticeRequest);
   }
 
-  public void savePublicNotice(PublicNotice publicNotice) {
-    publicNoticeRepository.save(publicNotice);
+  public PublicNotice savePublicNotice(PublicNotice publicNotice) {
+    return publicNoticeRepository.save(publicNotice);
   }
 
   private Integer getPublicNoticeLatestVersionNumber(PwaApplication pwaApplication) {
@@ -231,9 +232,8 @@ public class PublicNoticeService implements AppProcessingService {
     publicNoticeDocument = publicNoticeDocumentRepository.save(publicNoticeDocument);
 
     //accessing list at index 0 as validator ensures there is always and only 1 file
-    var documentUploadedFileId = form.getUploadedFileWithDescriptionForms().get(0).getUploadedFileId();
-    var docAppFile = appFileService.getAppFileByPwaApplicationAndFileId(pwaApplication, documentUploadedFileId);
-    var publicNoticeDocumentLink = new PublicNoticeDocumentLink(publicNoticeDocument, docAppFile);
+    var publicNoticeDocumentLink = createPublicNoticeDocumentLinkFromForm(
+        pwaApplication, form.getUploadedFileWithDescriptionForms().get(0), publicNoticeDocument);
     publicNoticeDocumentLinkRepository.save(publicNoticeDocumentLink);
 
     var publicNoticeRequest = createInitialPublicNoticeRequestFromForm(form, publicNotice, userAccount.getLinkedPerson());
@@ -241,6 +241,14 @@ public class PublicNoticeService implements AppProcessingService {
 
     camundaWorkflowService.startWorkflow(publicNotice);
     sendPublicNoticeApprovalEmails(pwaApplication, form.getReason().getReasonText());
+  }
+
+  public PublicNoticeDocumentLink createPublicNoticeDocumentLinkFromForm(PwaApplication pwaApplication,
+                                                                         UploadFileWithDescriptionForm form,
+                                                                         PublicNoticeDocument publicNoticeDocument) {
+    var documentUploadedFileId = form.getUploadedFileId();
+    var docAppFile = appFileService.getAppFileByPwaApplicationAndFileId(pwaApplication, documentUploadedFileId);
+    return new PublicNoticeDocumentLink(publicNoticeDocument, docAppFile);
   }
 
 
@@ -293,6 +301,12 @@ public class PublicNoticeService implements AppProcessingService {
     }
 
     return new AllPublicNoticesView(currentPublicNotice, historicalPublicNotices, availableActions);
+  }
+
+  PublicNoticeDocument getLatestPublicNoticeDocument(PublicNotice publicNotice) {
+    return publicNoticeDocumentRepository.findByPublicNoticeAndDocumentType(publicNotice, PublicNoticeDocumentType.IN_PROGRESS_DOCUMENT)
+        .orElseThrow(() -> new EntityLatestVersionNotFoundException(String.format(
+            "Couldn't find public notice document with public notice ID: %s", publicNotice.getId())));
   }
 
 
