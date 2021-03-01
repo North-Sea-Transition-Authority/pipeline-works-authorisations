@@ -9,7 +9,10 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import javax.persistence.EntityManager;
 import org.junit.Before;
 import org.junit.Test;
@@ -21,6 +24,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import uk.co.ogauthority.pwa.repository.pwaapplications.search.WorkAreaApplicationDetailSearchItemRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
+import uk.co.ogauthority.pwa.service.enums.workarea.WorkAreaFlag;
 
 @RunWith(MockitoJUnitRunner.class)
 public class WorkAreaApplicationDetailSearcherTest {
@@ -84,12 +88,15 @@ public class WorkAreaApplicationDetailSearcherTest {
   @Test
   public void searchByStatusOrApplicationIdsAndWhereAllProcessingWaitFlagsFalse_serviceInteractions_whenFiltersHaveContent() {
 
-    var resultPage = workAreaApplicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagIsFalseOrAllProcessingWaitFlagsFalse(
+    var flagMap = WorkAreaFlag.stream()
+        .collect(Collectors.toMap(Function.identity(), val -> false));
+
+    var resultPage = workAreaApplicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagEqualsOrAllProcessingWaitFlagsEqual(
         pageable,
         Set.of(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW),
         Set.of(),
-        false,
-        Set.of(1, 2, 3)
+        Set.of(1, 2, 3),
+        flagMap
     );
 
     verify(workAreaApplicationDetailSearchItemRepository, times(1)).findAllByPadStatusInOrPwaApplicationIdInAndWhereTipSatisfactoryFlagEqualsOrAllWaitFlagsMatch(
@@ -100,6 +107,7 @@ public class WorkAreaApplicationDetailSearcherTest {
         false,
         false,
         null,
+        false,
         false
     );
   }
@@ -107,18 +115,18 @@ public class WorkAreaApplicationDetailSearcherTest {
   @Test
   public void searchByStatusOrApplicationIdsAndWhereAllProcessingWaitFlagsFalse_serviceInteractions_whenFiltersHaveNoContent() {
 
-    var resultPage = workAreaApplicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagIsFalseOrAllProcessingWaitFlagsFalse(
+    var resultPage = workAreaApplicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagEqualsOrAllProcessingWaitFlagsEqual(
         pageable,
         Set.of(),
         Set.of(),
-        false,
-        Set.of()
+        Set.of(),
+        Map.of()
     );
 
-    verify(workAreaApplicationDetailSearchItemRepository, times(0)).findAllByPadStatusInOrPwaApplicationIdIn(
-        any(), any(), any()
-    );
+    verify(workAreaApplicationDetailSearchItemRepository, times(0)).findAllByPadStatusInOrPwaApplicationIdIn(any(), any(), any());
 
     assertThat(resultPage).isEqualTo(Page.empty(pageable));
+
   }
+
 }

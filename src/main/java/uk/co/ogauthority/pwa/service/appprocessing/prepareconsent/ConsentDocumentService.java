@@ -11,7 +11,10 @@ import uk.co.ogauthority.pwa.service.appprocessing.publicnotice.PublicNoticeServ
 import uk.co.ogauthority.pwa.service.consultations.ConsultationRequestService;
 import uk.co.ogauthority.pwa.service.documents.instances.DocumentInstanceService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
+import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationWorkflowTask;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
+import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
+import uk.co.ogauthority.pwa.service.workflow.task.WorkflowTaskInstance;
 
 @Service
 public class ConsentDocumentService {
@@ -23,6 +26,7 @@ public class ConsentDocumentService {
   private final PwaApplicationDetailService pwaApplicationDetailService;
   private final ConsentDocumentEmailService consentDocumentEmailService;
   private final ConsentReviewService consentReviewService;
+  private final CamundaWorkflowService camundaWorkflowService;
 
   @Autowired
   public ConsentDocumentService(ApplicationUpdateRequestService applicationUpdateRequestService,
@@ -31,7 +35,8 @@ public class ConsentDocumentService {
                                 DocumentInstanceService documentInstanceService,
                                 PwaApplicationDetailService pwaApplicationDetailService,
                                 ConsentDocumentEmailService consentDocumentEmailService,
-                                ConsentReviewService consentReviewService) {
+                                ConsentReviewService consentReviewService,
+                                CamundaWorkflowService camundaWorkflowService) {
     this.applicationUpdateRequestService = applicationUpdateRequestService;
     this.consultationRequestService = consultationRequestService;
     this.publicNoticeService = publicNoticeService;
@@ -39,6 +44,7 @@ public class ConsentDocumentService {
     this.pwaApplicationDetailService = pwaApplicationDetailService;
     this.consentDocumentEmailService = consentDocumentEmailService;
     this.consentReviewService = consentReviewService;
+    this.camundaWorkflowService = camundaWorkflowService;
   }
 
   public boolean canSendForApproval(PwaApplicationDetail detail) {
@@ -70,7 +76,9 @@ public class ConsentDocumentService {
 
     consentDocumentEmailService.sendConsentReviewStartedEmail(pwaApplicationDetail, sendingUser.getLinkedPerson());
 
-    // todo camunda PWA-1144
+    var currentTaskWorkflowInstance = new WorkflowTaskInstance(
+        pwaApplicationDetail.getPwaApplication(), PwaApplicationWorkflowTask.CASE_OFFICER_REVIEW);
+    camundaWorkflowService.completeTask(currentTaskWorkflowInstance);
 
   }
 

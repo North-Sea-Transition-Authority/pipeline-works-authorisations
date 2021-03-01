@@ -20,8 +20,12 @@ public interface WorkAreaApplicationDetailSearchItemRepository extends CrudRepos
       "AND ( " +
       "  (waadsi.tipVersionSatisfactoryFlag = :tipVersionSatisfactoryFlag) OR ( " +
       "    waadsi.openUpdateRequestFlag = :openForUpdateFlag " +
-      "    AND waadsi.publicNoticeStatus IN :publicNoticeStatuses " +
+      "    AND (waadsi.publicNoticeStatus IN :publicNoticeStatuses OR waadsi.publicNoticeStatus IS NULL)" +
       "    AND waadsi.openConsultationRequestFlag = :openConsultationRequestFlag" +
+      "    AND ( " +
+      "      (waadsi.openConsentReviewFlag = TRUE AND :openConsentReviewForegroundFlag = TRUE) OR " +
+      "      (waadsi.openConsentReviewFlag = FALSE AND :openConsentReviewForegroundFlag = FALSE) " +
+      "    ) " +
       "  )" +
       ")" +
       "OR  (:publicNoticeOverrideFlag = TRUE AND waadsi.publicNoticeStatus IN :publicNoticeStatuses)";
@@ -34,6 +38,7 @@ public interface WorkAreaApplicationDetailSearchItemRepository extends CrudRepos
       "    waadsi.openUpdateRequestFlag = :openForUpdateFlag " +
       "    OR waadsi.publicNoticeStatus IN :publicNoticeStatuses " +
       "    OR waadsi.openConsultationRequestFlag = :openConsultationRequestFlag" +
+      "    OR (waadsi.openConsentReviewFlag = TRUE AND :openConsentReviewForegroundFlag = FALSE)" +
       "  ) " +
       ")" +
       "OR  (:publicNoticeOverrideFlag = TRUE AND waadsi.publicNoticeStatus IN :publicNoticeStatuses)";
@@ -59,7 +64,8 @@ public interface WorkAreaApplicationDetailSearchItemRepository extends CrudRepos
       @Param("openForUpdateFlag") Boolean openForUpdateFlag,
       @Param("publicNoticeOverrideFlag") Boolean publicNoticeOverrideFlag,
       @Param("publicNoticeStatuses") Collection<PublicNoticeStatus> publicNoticeStatuses,
-      @Param("openConsultationRequestFlag") Boolean openConsultationRequestFlag
+      @Param("openConsultationRequestFlag") Boolean openConsultationRequestFlag,
+      @Param("openConsentReviewForegroundFlag") Boolean openConsentReviewForegroundFlag
   );
 
   // we can use standard JPQL + Pageable here as the sort values will never be null after submission.
@@ -75,7 +81,8 @@ public interface WorkAreaApplicationDetailSearchItemRepository extends CrudRepos
       @Param("openForUpdateFlag") Boolean openForUpdateFlag,
       @Param("publicNoticeOverrideFlag") Boolean publicNoticeOverrideFlag,
       @Param("publicNoticeStatuses") Collection<PublicNoticeStatus> publicNoticeStatuses,
-      @Param("openConsultationRequestFlag") Boolean openConsultationRequestFlag
+      @Param("openConsultationRequestFlag") Boolean openConsultationRequestFlag,
+      @Param("openConsentReviewForegroundFlag") Boolean openConsentReviewForegroundFlag
   );
 
   Page<WorkAreaApplicationDetailSearchItem> findAllByPwaApplicationIdInAndPadStatusInAndOpenUpdateRequestFlag(

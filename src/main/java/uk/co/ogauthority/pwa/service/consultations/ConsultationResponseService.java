@@ -128,6 +128,8 @@ public class ConsultationResponseService implements AppProcessingService {
 
     sendResponseNotificationToCaseOfficer(consultationRequest, consultationResponse);
 
+    workflowAssignmentService.clearAssignments(consultationRequest);
+
   }
 
   public BindingResult validate(ConsultationResponseForm form, BindingResult bindingResult) {

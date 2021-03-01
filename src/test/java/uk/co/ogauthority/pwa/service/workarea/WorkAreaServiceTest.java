@@ -9,6 +9,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
@@ -17,32 +18,26 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
-import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
+import uk.co.ogauthority.pwa.energyportal.model.entity.PersonTestUtil;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
-import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeStatus;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
+import uk.co.ogauthority.pwa.model.entity.workflow.assignment.Assignment;
 import uk.co.ogauthority.pwa.model.workflow.GenericWorkflowSubject;
 import uk.co.ogauthority.pwa.mvc.PageView;
 import uk.co.ogauthority.pwa.service.appprocessing.publicnotice.PublicNoticeService;
 import uk.co.ogauthority.pwa.service.appprocessing.publicnotice.PublicNoticeTestUtil;
-import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationConsultationWorkflowTask;
-import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationWorkflowTask;
 import uk.co.ogauthority.pwa.service.enums.workflow.WorkflowType;
+import uk.co.ogauthority.pwa.service.enums.workflow.assignment.WorkflowAssignment;
 import uk.co.ogauthority.pwa.service.workarea.applications.IndustryWorkAreaPageService;
 import uk.co.ogauthority.pwa.service.workarea.applications.PwaApplicationWorkAreaItem;
 import uk.co.ogauthority.pwa.service.workarea.applications.RegulatorWorkAreaPageService;
 import uk.co.ogauthority.pwa.service.workarea.consultations.ConsultationRequestWorkAreaItem;
 import uk.co.ogauthority.pwa.service.workarea.consultations.ConsultationWorkAreaPageService;
-import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
-import uk.co.ogauthority.pwa.service.workflow.task.AssignedTaskInstance;
-import uk.co.ogauthority.pwa.service.workflow.task.WorkflowTaskInstance;
+import uk.co.ogauthority.pwa.service.workflow.assignment.AssignmentService;
 import uk.co.ogauthority.pwa.testutils.WorkAreaTestUtils;
 
 @RunWith(MockitoJUnitRunner.class)
 public class WorkAreaServiceTest {
-
-  @Mock
-  private CamundaWorkflowService camundaWorkflowService;
 
   @Mock
   private IndustryWorkAreaPageService industryWorkAreaPageService;
@@ -56,22 +51,26 @@ public class WorkAreaServiceTest {
   @Mock
   private PublicNoticeService publicNoticeService;
 
+  @Mock
+  private AssignmentService assignmentService;
+
   private WorkAreaService workAreaService;
 
   private PageView<PwaApplicationWorkAreaItem> appPageView;
   private PageView<ConsultationRequestWorkAreaItem> consultationPageView;
 
-  private AuthenticatedUserAccount authenticatedUserAccount = new AuthenticatedUserAccount(new WebUserAccount(1, new Person()), List.of());
+  private AuthenticatedUserAccount authenticatedUserAccount = new AuthenticatedUserAccount(new WebUserAccount(1,
+      PersonTestUtil.createDefaultPerson()), List.of());
 
   @Before
   public void setUp() {
 
     this.workAreaService = new WorkAreaService(
-        camundaWorkflowService,
         industryWorkAreaPageService,
         consultationWorkAreaPageService,
         regulatorWorkAreaPageService,
-        publicNoticeService);
+        publicNoticeService,
+        assignmentService);
 
     appPageView = WorkAreaTestUtils.setUpFakeAppPageView(0);
     when(industryWorkAreaPageService.getOpenApplicationsPageView(any(), anyInt())).thenReturn(appPageView);
@@ -90,11 +89,14 @@ public class WorkAreaServiceTest {
     var appWorkflowSubject2 = new GenericWorkflowSubject(2, WorkflowType.PWA_APPLICATION);
     var consultationWorkflowSubject = new GenericWorkflowSubject(3, WorkflowType.PWA_APPLICATION_CONSULTATION);
 
-    when(camundaWorkflowService.getAssignedTasks(authenticatedUserAccount.getLinkedPerson())).thenReturn(Set.of(
-      new AssignedTaskInstance(new WorkflowTaskInstance(appWorkflowSubject, PwaApplicationWorkflowTask.PREPARE_APPLICATION), authenticatedUserAccount.getLinkedPerson()),
-      new AssignedTaskInstance(new WorkflowTaskInstance(appWorkflowSubject2, PwaApplicationWorkflowTask.PREPARE_APPLICATION), authenticatedUserAccount.getLinkedPerson()),
-      new AssignedTaskInstance(new WorkflowTaskInstance(consultationWorkflowSubject, PwaApplicationConsultationWorkflowTask.ALLOCATION), authenticatedUserAccount.getLinkedPerson())
-    ));
+    when(assignmentService.getAssignmentsForPerson(authenticatedUserAccount.getLinkedPerson())).thenReturn(Map.of(
+        WorkflowType.PWA_APPLICATION, List.of(
+            new Assignment(appWorkflowSubject.getBusinessKey(), appWorkflowSubject.getWorkflowType(), WorkflowAssignment.CASE_OFFICER, authenticatedUserAccount.getLinkedPerson().getId()),
+            new Assignment(appWorkflowSubject2.getBusinessKey(), appWorkflowSubject2.getWorkflowType(), WorkflowAssignment.CASE_OFFICER, authenticatedUserAccount.getLinkedPerson().getId())
+        ),
+        WorkflowType.PWA_APPLICATION_CONSULTATION, List.of(
+            new Assignment(consultationWorkflowSubject.getBusinessKey(), consultationWorkflowSubject.getWorkflowType(), WorkflowAssignment.CONSULTATION_RESPONDER, authenticatedUserAccount.getLinkedPerson().getId())
+        )));
 
     var workAreaResult = workAreaService.getWorkAreaResult(authenticatedUserAccount, WorkAreaTab.REGULATOR_REQUIRES_ATTENTION, 0);
 
@@ -108,7 +110,7 @@ public class WorkAreaServiceTest {
   @Test
   public void getWorkAreaResult_regAttentionTab_pwaManagerPrivilege_resultsExist() {
 
-    authenticatedUserAccount = new AuthenticatedUserAccount(new WebUserAccount(1, new Person()), List.of(
+    authenticatedUserAccount = new AuthenticatedUserAccount(new WebUserAccount(1, PersonTestUtil.createDefaultPerson()), List.of(
         PwaUserPrivilege.PWA_MANAGER));
 
     var pwaApplication = new PwaApplication();
@@ -128,7 +130,7 @@ public class WorkAreaServiceTest {
   @Test
   public void getWorkAreaResult_regAttentionTab_noAssignedTasks() {
 
-    when(camundaWorkflowService.getAssignedTasks(authenticatedUserAccount.getLinkedPerson())).thenReturn(Set.of());
+    when(assignmentService.getAssignmentsForPerson(authenticatedUserAccount.getLinkedPerson())).thenReturn(Map.of());
 
     var workAreaResult = workAreaService.getWorkAreaResult(authenticatedUserAccount, WorkAreaTab.REGULATOR_REQUIRES_ATTENTION, 1);
 
@@ -146,11 +148,14 @@ public class WorkAreaServiceTest {
     var appWorkflowSubject2 = new GenericWorkflowSubject(2, WorkflowType.PWA_APPLICATION);
     var consultationWorkflowSubject = new GenericWorkflowSubject(3, WorkflowType.PWA_APPLICATION_CONSULTATION);
 
-    when(camundaWorkflowService.getAssignedTasks(authenticatedUserAccount.getLinkedPerson())).thenReturn(Set.of(
-        new AssignedTaskInstance(new WorkflowTaskInstance(appWorkflowSubject, PwaApplicationWorkflowTask.PREPARE_APPLICATION), authenticatedUserAccount.getLinkedPerson()),
-        new AssignedTaskInstance(new WorkflowTaskInstance(appWorkflowSubject2, PwaApplicationWorkflowTask.PREPARE_APPLICATION), authenticatedUserAccount.getLinkedPerson()),
-        new AssignedTaskInstance(new WorkflowTaskInstance(consultationWorkflowSubject, PwaApplicationConsultationWorkflowTask.ALLOCATION), authenticatedUserAccount.getLinkedPerson())
-    ));
+    when(assignmentService.getAssignmentsForPerson(authenticatedUserAccount.getLinkedPerson())).thenReturn(Map.of(
+        WorkflowType.PWA_APPLICATION, List.of(
+            new Assignment(appWorkflowSubject.getBusinessKey(), appWorkflowSubject.getWorkflowType(), WorkflowAssignment.CASE_OFFICER, authenticatedUserAccount.getLinkedPerson().getId()),
+            new Assignment(appWorkflowSubject2.getBusinessKey(), appWorkflowSubject2.getWorkflowType(), WorkflowAssignment.CASE_OFFICER, authenticatedUserAccount.getLinkedPerson().getId())
+        ),
+        WorkflowType.PWA_APPLICATION_CONSULTATION, List.of(
+            new Assignment(consultationWorkflowSubject.getBusinessKey(), consultationWorkflowSubject.getWorkflowType(), WorkflowAssignment.CONSULTATION_RESPONDER, authenticatedUserAccount.getLinkedPerson().getId())
+        )));
 
     var workAreaResult = workAreaService.getWorkAreaResult(authenticatedUserAccount, WorkAreaTab.REGULATOR_WAITING_ON_OTHERS, 0);
 
@@ -164,7 +169,7 @@ public class WorkAreaServiceTest {
   @Test
   public void getWorkAreaResult_regWaitingTab_noAssignedTasks() {
 
-    when(camundaWorkflowService.getAssignedTasks(authenticatedUserAccount.getLinkedPerson())).thenReturn(Set.of());
+    when(assignmentService.getAssignmentsForPerson(authenticatedUserAccount.getLinkedPerson())).thenReturn(Map.of());
 
     var workAreaResult = workAreaService.getWorkAreaResult(authenticatedUserAccount, WorkAreaTab.REGULATOR_WAITING_ON_OTHERS, 1);
 
@@ -178,16 +183,6 @@ public class WorkAreaServiceTest {
   @Test
   public void getWorkAreaResult_openIndustryApplicationsTab_resultsExist() {
 
-    var appWorkflowSubject = new GenericWorkflowSubject(1, WorkflowType.PWA_APPLICATION);
-    var appWorkflowSubject2 = new GenericWorkflowSubject(2, WorkflowType.PWA_APPLICATION);
-    var consultationWorkflowSubject = new GenericWorkflowSubject(3, WorkflowType.PWA_APPLICATION_CONSULTATION);
-
-    when(camundaWorkflowService.getAssignedTasks(authenticatedUserAccount.getLinkedPerson())).thenReturn(Set.of(
-        new AssignedTaskInstance(new WorkflowTaskInstance(appWorkflowSubject, PwaApplicationWorkflowTask.PREPARE_APPLICATION), authenticatedUserAccount.getLinkedPerson()),
-        new AssignedTaskInstance(new WorkflowTaskInstance(appWorkflowSubject2, PwaApplicationWorkflowTask.PREPARE_APPLICATION), authenticatedUserAccount.getLinkedPerson()),
-        new AssignedTaskInstance(new WorkflowTaskInstance(consultationWorkflowSubject, PwaApplicationConsultationWorkflowTask.ALLOCATION), authenticatedUserAccount.getLinkedPerson())
-    ));
-
     var workAreaResult = workAreaService.getWorkAreaResult(authenticatedUserAccount, WorkAreaTab.INDUSTRY_OPEN_APPLICATIONS, 0);
 
     verify(industryWorkAreaPageService, times(1)).getOpenApplicationsPageView(eq(authenticatedUserAccount), eq(0));
@@ -200,7 +195,7 @@ public class WorkAreaServiceTest {
   @Test
   public void getWorkAreaResult_openIndustryApplicationsTab_noAssignedTasks() {
 
-    when(camundaWorkflowService.getAssignedTasks(authenticatedUserAccount.getLinkedPerson())).thenReturn(Set.of());
+    when(assignmentService.getAssignmentsForPerson(authenticatedUserAccount.getLinkedPerson())).thenReturn(Map.of());
 
     var workAreaResult = workAreaService.getWorkAreaResult(authenticatedUserAccount, WorkAreaTab.INDUSTRY_OPEN_APPLICATIONS, 1);
 
@@ -214,16 +209,6 @@ public class WorkAreaServiceTest {
   @Test
   public void getWorkAreaResult_industrySubmittedApplicationsTab_resultsExist() {
 
-    var appWorkflowSubject = new GenericWorkflowSubject(1, WorkflowType.PWA_APPLICATION);
-    var appWorkflowSubject2 = new GenericWorkflowSubject(2, WorkflowType.PWA_APPLICATION);
-    var consultationWorkflowSubject = new GenericWorkflowSubject(3, WorkflowType.PWA_APPLICATION_CONSULTATION);
-
-    when(camundaWorkflowService.getAssignedTasks(authenticatedUserAccount.getLinkedPerson())).thenReturn(Set.of(
-        new AssignedTaskInstance(new WorkflowTaskInstance(appWorkflowSubject, PwaApplicationWorkflowTask.PREPARE_APPLICATION), authenticatedUserAccount.getLinkedPerson()),
-        new AssignedTaskInstance(new WorkflowTaskInstance(appWorkflowSubject2, PwaApplicationWorkflowTask.PREPARE_APPLICATION), authenticatedUserAccount.getLinkedPerson()),
-        new AssignedTaskInstance(new WorkflowTaskInstance(consultationWorkflowSubject, PwaApplicationConsultationWorkflowTask.ALLOCATION), authenticatedUserAccount.getLinkedPerson())
-    ));
-
     var workAreaResult = workAreaService.getWorkAreaResult(authenticatedUserAccount, WorkAreaTab.INDUSTRY_SUBMITTED_APPLICATIONS, 0);
 
     verify(industryWorkAreaPageService, times(1)).getSubmittedApplicationsPageView(eq(authenticatedUserAccount), eq(0));
@@ -236,7 +221,7 @@ public class WorkAreaServiceTest {
   @Test
   public void getWorkAreaResult_industrySubmittedApplicationsTab_noAssignedTasks() {
 
-    when(camundaWorkflowService.getAssignedTasks(authenticatedUserAccount.getLinkedPerson())).thenReturn(Set.of());
+    when(assignmentService.getAssignmentsForPerson(authenticatedUserAccount.getLinkedPerson())).thenReturn(Map.of());
 
     var workAreaResult = workAreaService.getWorkAreaResult(authenticatedUserAccount, WorkAreaTab.INDUSTRY_SUBMITTED_APPLICATIONS, 1);
 
@@ -255,12 +240,15 @@ public class WorkAreaServiceTest {
     var appWorkflowSubject = new GenericWorkflowSubject(2, WorkflowType.PWA_APPLICATION);
     var appWorkflowSubject2 = new GenericWorkflowSubject(3, WorkflowType.PWA_APPLICATION);
 
-    when(camundaWorkflowService.getAssignedTasks(authenticatedUserAccount.getLinkedPerson())).thenReturn(Set.of(
-        new AssignedTaskInstance(new WorkflowTaskInstance(consultationWorkflowSubject, PwaApplicationConsultationWorkflowTask.ALLOCATION), authenticatedUserAccount.getLinkedPerson()),
-        new AssignedTaskInstance(new WorkflowTaskInstance(consultationWorkflowSubject2, PwaApplicationConsultationWorkflowTask.ALLOCATION), authenticatedUserAccount.getLinkedPerson()),
-        new AssignedTaskInstance(new WorkflowTaskInstance(appWorkflowSubject, PwaApplicationWorkflowTask.PREPARE_APPLICATION), authenticatedUserAccount.getLinkedPerson()),
-        new AssignedTaskInstance(new WorkflowTaskInstance(appWorkflowSubject2, PwaApplicationWorkflowTask.PREPARE_APPLICATION), authenticatedUserAccount.getLinkedPerson())
-    ));
+    when(assignmentService.getAssignmentsForPerson(authenticatedUserAccount.getLinkedPerson())).thenReturn(Map.of(
+        WorkflowType.PWA_APPLICATION, List.of(
+            new Assignment(appWorkflowSubject.getBusinessKey(), appWorkflowSubject.getWorkflowType(), WorkflowAssignment.CASE_OFFICER, authenticatedUserAccount.getLinkedPerson().getId()),
+            new Assignment(appWorkflowSubject2.getBusinessKey(), appWorkflowSubject2.getWorkflowType(), WorkflowAssignment.CASE_OFFICER, authenticatedUserAccount.getLinkedPerson().getId())
+        ),
+        WorkflowType.PWA_APPLICATION_CONSULTATION, List.of(
+            new Assignment(consultationWorkflowSubject.getBusinessKey(), consultationWorkflowSubject.getWorkflowType(), WorkflowAssignment.CONSULTATION_RESPONDER, authenticatedUserAccount.getLinkedPerson().getId()),
+            new Assignment(consultationWorkflowSubject2.getBusinessKey(), consultationWorkflowSubject2.getWorkflowType(), WorkflowAssignment.CONSULTATION_RESPONDER, authenticatedUserAccount.getLinkedPerson().getId())
+        )));
 
     var workAreaResult = workAreaService.getWorkAreaResult(authenticatedUserAccount, WorkAreaTab.OPEN_CONSULTATIONS, 0);
 
@@ -274,7 +262,7 @@ public class WorkAreaServiceTest {
   @Test
   public void getWorkAreaResult_consultationsTab_noAssignedTasks() {
 
-    when(camundaWorkflowService.getAssignedTasks(authenticatedUserAccount.getLinkedPerson())).thenReturn(Set.of());
+    when(assignmentService.getAssignmentsForPerson(authenticatedUserAccount.getLinkedPerson())).thenReturn(Map.of());
 
     var workAreaResult = workAreaService.getWorkAreaResult(authenticatedUserAccount, WorkAreaTab.OPEN_CONSULTATIONS, 1);
 

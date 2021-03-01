@@ -4,6 +4,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.transaction.Transactional;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.exception.WorkflowAssignmentException;
@@ -25,24 +26,25 @@ import uk.co.ogauthority.pwa.service.workflow.task.WorkflowTaskInstance;
 public class WorkflowAssignmentService {
 
   private final CamundaWorkflowService camundaWorkflowService;
-  private final AssignmentAuditService assignmentAuditService;
   private final PwaTeamService pwaTeamService;
   private final ConsulteeGroupTeamService consulteeGroupTeamService;
   private final ConsultationRequestService consultationRequestService;
   private final TeamManagementService teamManagementService;
+  private final AssignmentService assignmentService;
 
+  @Autowired
   public WorkflowAssignmentService(CamundaWorkflowService camundaWorkflowService,
-                                   AssignmentAuditService assignmentAuditService,
                                    PwaTeamService pwaTeamService,
                                    ConsulteeGroupTeamService consulteeGroupTeamService,
                                    ConsultationRequestService consultationRequestService,
-                                   TeamManagementService teamManagementService) {
+                                   TeamManagementService teamManagementService,
+                                   AssignmentService assignmentService) {
     this.camundaWorkflowService = camundaWorkflowService;
-    this.assignmentAuditService = assignmentAuditService;
     this.pwaTeamService = pwaTeamService;
     this.consulteeGroupTeamService = consulteeGroupTeamService;
     this.consultationRequestService = consultationRequestService;
     this.teamManagementService = teamManagementService;
+    this.assignmentService = assignmentService;
   }
 
   /**
@@ -101,7 +103,7 @@ public class WorkflowAssignmentService {
     }
 
     camundaWorkflowService.assignTaskToUser(new WorkflowTaskInstance(workflowSubject, task), personToAssign);
-    assignmentAuditService.auditAssignment(workflowSubject, task, personToAssign, assigningPerson);
+    assignmentService.createOrUpdateAssignment(workflowSubject, task, personToAssign, assigningPerson);
 
   }
 
@@ -129,6 +131,10 @@ public class WorkflowAssignmentService {
         .getAssignedPersonId(workflowTaskInstance)
         .map(personId -> teamManagementService.getPerson(personId.asInt()));
 
+  }
+
+  public void clearAssignments(WorkflowSubject workflowSubject) {
+    assignmentService.clearAssignments(workflowSubject);
   }
 
 }
