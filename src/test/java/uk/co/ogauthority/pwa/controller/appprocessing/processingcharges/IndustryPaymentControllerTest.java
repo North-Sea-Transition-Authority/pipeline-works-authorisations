@@ -35,6 +35,7 @@ import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingConte
 import uk.co.ogauthority.pwa.service.appprocessing.processingcharges.appcharges.ApplicationChargeRequestReport;
 import uk.co.ogauthority.pwa.service.appprocessing.processingcharges.appcharges.ApplicationChargeRequestReportTestUtil;
 import uk.co.ogauthority.pwa.service.appprocessing.processingcharges.appcharges.ApplicationChargeRequestService;
+import uk.co.ogauthority.pwa.service.appprocessing.processingcharges.appcharges.CreatePaymentAttemptResultTestUtil;
 import uk.co.ogauthority.pwa.service.appprocessing.processingcharges.display.ApplicationPaymentDisplaySummary;
 import uk.co.ogauthority.pwa.service.appprocessing.processingcharges.display.ApplicationPaymentDisplaySummaryTestUtil;
 import uk.co.ogauthority.pwa.service.appprocessing.processingcharges.display.ApplicationPaymentSummariser;
@@ -102,6 +103,10 @@ public class IndustryPaymentControllerTest extends PwaAppProcessingContextAbstra
 
     when(pwaApplicationDetailService.getLatestDetailForUser(pwaApplicationDetail.getMasterPwaApplicationId(), user))
         .thenReturn(Optional.of(pwaApplicationDetail));
+
+    var attemptSuccessResult = CreatePaymentAttemptResultTestUtil.createSuccess();
+    when(applicationChargeRequestService.startChargeRequestPaymentAttempt(any(), any()))
+        .thenReturn(attemptSuccessResult);
 
     endpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaApplicationDetailService, pwaAppProcessingPermissionService)
         .setAllowedProcessingPermissions(PwaAppProcessingPermission.PAY_FOR_APPLICATION)
