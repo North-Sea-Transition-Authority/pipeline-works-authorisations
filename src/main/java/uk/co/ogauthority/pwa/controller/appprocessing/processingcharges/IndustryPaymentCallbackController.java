@@ -38,7 +38,7 @@ public class IndustryPaymentCallbackController {
     );
 
     if (processPaymentAttemptOutcome.equals(ProcessPaymentAttemptOutcome.CHARGE_REQUEST_PAID)) {
-      // TODO PWA-1142 - confirmation page/ charge request status page.
+      // TODO PWA-1158 - confirmation page/ charge request status page.
       FlashUtils.success(redirectAttributes,
           String.format("Payment for application %s complete", pwaApplication.getAppReference()));
       return CaseManagementUtils.redirectCaseManagement(pwaApplication);
