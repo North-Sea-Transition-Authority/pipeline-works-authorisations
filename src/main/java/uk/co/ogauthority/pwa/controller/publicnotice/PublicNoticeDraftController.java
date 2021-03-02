@@ -41,7 +41,6 @@ import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 @Controller
 @RequestMapping("/pwa-application/{applicationType}/{applicationId}/public-notice-draft")
 @PwaAppProcessingPermissionCheck(permissions = {PwaAppProcessingPermission.DRAFT_PUBLIC_NOTICE})
-@PwaApplicationStatusCheck(statuses = PwaApplicationStatus.CASE_OFFICER_REVIEW)
 public class PublicNoticeDraftController extends PwaApplicationDataFileUploadAndDownloadController {
 
   private final AppProcessingBreadcrumbService appProcessingBreadcrumbService;
@@ -62,6 +61,7 @@ public class PublicNoticeDraftController extends PwaApplicationDataFileUploadAnd
 
 
   @GetMapping
+  @PwaApplicationStatusCheck(statuses = PwaApplicationStatus.CASE_OFFICER_REVIEW)
   public ModelAndView renderDraftPublicNotice(@PathVariable("applicationId") Integer applicationId,
                                               @PathVariable("applicationType")
                                               @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
@@ -80,6 +80,7 @@ public class PublicNoticeDraftController extends PwaApplicationDataFileUploadAnd
   }
 
   @PostMapping
+  @PwaApplicationStatusCheck(statuses = PwaApplicationStatus.CASE_OFFICER_REVIEW)
   public ModelAndView postDraftPublicNotice(@PathVariable("applicationId") Integer applicationId,
                                               @PathVariable("applicationType")
                                               @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
@@ -130,7 +131,9 @@ public class PublicNoticeDraftController extends PwaApplicationDataFileUploadAnd
 
 
 
-
+  @PwaAppProcessingPermissionCheck(permissions = {
+      PwaAppProcessingPermission.DRAFT_PUBLIC_NOTICE, PwaAppProcessingPermission.UPDATE_PUBLIC_NOTICE_DOC})
+  @PwaApplicationStatusCheck(statuses = PwaApplicationStatus.CASE_OFFICER_REVIEW)
   @PostMapping("/file/upload")
   @ResponseBody
   public FileUploadResult handleUpload(@PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
@@ -144,6 +147,8 @@ public class PublicNoticeDraftController extends PwaApplicationDataFileUploadAnd
         processingContext.getUser());
   }
 
+  @PwaAppProcessingPermissionCheck(permissions = {
+      PwaAppProcessingPermission.DRAFT_PUBLIC_NOTICE, PwaAppProcessingPermission.UPDATE_PUBLIC_NOTICE_DOC})
   @GetMapping("/files/download/{fileId}")
   @ResponseBody
   public ResponseEntity<Resource> handleDownload(
@@ -154,6 +159,9 @@ public class PublicNoticeDraftController extends PwaApplicationDataFileUploadAnd
     return serveFile(processingContext.getAppFile());
   }
 
+  @PwaAppProcessingPermissionCheck(permissions = {
+      PwaAppProcessingPermission.DRAFT_PUBLIC_NOTICE, PwaAppProcessingPermission.UPDATE_PUBLIC_NOTICE_DOC})
+  @PwaApplicationStatusCheck(statuses = PwaApplicationStatus.CASE_OFFICER_REVIEW)
   @PostMapping("/file/delete/{fileId}")
   @ResponseBody
   public FileDeleteResult handleDelete(

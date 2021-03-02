@@ -29,6 +29,7 @@ import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.applicationupdate.ApplicationUpdateRequestViewService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.service.appprocessing.options.ApproveOptionsService;
+import uk.co.ogauthority.pwa.service.appprocessing.publicnotice.PublicNoticeDocumentUpdateService;
 import uk.co.ogauthority.pwa.service.appprocessing.tasks.PwaAppProcessingTaskListService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
@@ -50,6 +51,9 @@ public class TasksTabContentServiceTest {
   @Mock
   private ApproveOptionsService approveOptionsService;
 
+  @Mock
+  private PublicNoticeDocumentUpdateService publicNoticeDocumentUpdateService;;
+
   private TasksTabContentService taskTabContentService;
 
   private WebUserAccount wua;
@@ -61,7 +65,8 @@ public class TasksTabContentServiceTest {
         taskListService,
         applicationUpdateRequestViewService,
         pwaApplicationRedirectService,
-        approveOptionsService);
+        approveOptionsService,
+        publicNoticeDocumentUpdateService);
 
     when(pwaApplicationRedirectService.getTaskListRoute(any())).thenReturn("#");
 
@@ -123,6 +128,32 @@ public class TasksTabContentServiceTest {
   }
 
   @Test
+  public void getTabContentModelMap_tasksTab_populated_whenPublicNoticeUpdateRequested() {
+
+    var taskListGroupsList = List.of(new TaskListGroup("test", 10, List.of()));
+
+    var processingContext = createContextWithPermissions(PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY);
+
+    when(taskListService.getTaskListGroups(processingContext)).thenReturn(taskListGroupsList);
+
+    var publicNoticePageBannerView = new PageBannerView.PageBannerViewBuilder().build();
+    when(publicNoticeDocumentUpdateService.getPublicNoticeUpdatePageBannerView(processingContext.getPwaApplication()))
+        .thenReturn(Optional.of(publicNoticePageBannerView));
+
+    var modelMap = taskTabContentService.getTabContent(processingContext, AppProcessingTab.TASKS);
+
+    verify(taskListService, times(1)).getTaskListGroups(processingContext);
+
+    assertThat(modelMap)
+        .extractingFromEntries(Map.Entry::getKey, Map.Entry::getValue)
+        .contains(
+            tuple("publicNoticePageBannerView", publicNoticePageBannerView)
+        );
+
+  }
+
+
+
   public void getTabContentModelMap_tasksTab_populated_whenPaymentPermission() {
 
     var taskListGroupsList = List.of(new TaskListGroup("test", 10, List.of()));
@@ -134,7 +165,6 @@ public class TasksTabContentServiceTest {
     var optionsApprovedBanner = new PageBannerView.PageBannerViewBuilder().build();
     when(approveOptionsService.getOptionsApprovalPageBannerView(any(PwaApplicationDetail.class)))
         .thenReturn(Optional.of(optionsApprovedBanner));
-
     var modelMap = taskTabContentService.getTabContent(processingContext, AppProcessingTab.TASKS);
 
     verify(taskListService, times(1)).getTaskListGroups(processingContext);
@@ -177,5 +207,6 @@ public class TasksTabContentServiceTest {
         null,
         null);
   }
+
 
 }
