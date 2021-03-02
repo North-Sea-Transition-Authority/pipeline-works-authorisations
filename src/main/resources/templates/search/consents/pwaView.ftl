@@ -6,7 +6,7 @@
 <@defaultPage htmlTitle="View PWA" fullWidthColumn=true topNavigation=true wrapperWidth=true>
 
     <h3 class="govuk-heading-s"> View PWA </h3>
-    <h1 class="govuk-heading-xl">${consentSearchResultView.latestConsentReference}</h1>
+    <h1 class="govuk-heading-xl">${consentSearchResultView.pwaReference!}</h1>
 
     <@consentSearchTopLevelView.topLevelData consentSearchResultView/>
 
