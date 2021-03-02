@@ -71,6 +71,6 @@ public class PortalOrganisationUnit implements SearchSelectable {
 
   @Override
   public String getSelectionText() {
-    return name;
+    return getName();
   }
 }

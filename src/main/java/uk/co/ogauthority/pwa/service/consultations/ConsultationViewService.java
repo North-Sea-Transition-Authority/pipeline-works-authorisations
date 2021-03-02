@@ -61,9 +61,8 @@ public class ConsultationViewService {
     var groupAndDetailMap = getGroupAndDetailMap(consultationRequests);
     var groupRequestMap =  getGroupRequestMap(consultationRequests);
 
-    groupRequestMap.forEach((group, requestList) -> {
-      consulteeGroupRequestsViews.add(createGroupRequestView(requestList, requestResponseMap, groupAndDetailMap));
-    });
+    groupRequestMap.forEach((group, requestList) ->
+        consulteeGroupRequestsViews.add(createGroupRequestView(requestList, requestResponseMap, groupAndDetailMap)));
     consulteeGroupRequestsViews.sort(Comparator.comparing(x -> x.getCurrentRequest().getConsulteeGroupName()));
     return consulteeGroupRequestsViews;
   }
@@ -86,9 +85,8 @@ public class ConsultationViewService {
 
     var requestResponseMap = getRequestResponseMap(consultationRequests);
     var groupDetail = consulteeGroupDetailService.getConsulteeGroupDetailByGroupAndTipFlagIsTrue(consultationRequest.getConsulteeGroup());
-    requestResponseMap.forEach((request, response) -> {
-      consultationRequestViews.add(mapConsultationRequestToView(request, response, groupDetail));
-    });
+    requestResponseMap.forEach((request, response) ->
+        consultationRequestViews.add(mapConsultationRequestToView(request, response, groupDetail)));
 
     consultationRequestViews.sort(Comparator.comparing(ConsultationRequestView::getResponseDate).reversed());
     return consultationRequestViews;
@@ -155,9 +153,8 @@ public class ConsultationViewService {
   private Map<ConsultationRequest, ConsultationResponse> getRequestResponseMap(List<ConsultationRequest> consultationRequests) {
     List<ConsultationResponse> consultationResponses = consultationResponseService.getResponsesByConsultationRequests(consultationRequests);
     Map<ConsultationRequest, ConsultationResponse> requestResponseMap = new LinkedHashMap<>();
-    consultationResponses.forEach(consultationResponse -> {
-      requestResponseMap.put(consultationResponse.getConsultationRequest(), consultationResponse);
-    });
+    consultationResponses.forEach(consultationResponse ->
+        requestResponseMap.put(consultationResponse.getConsultationRequest(), consultationResponse));
     return requestResponseMap;
   }
 

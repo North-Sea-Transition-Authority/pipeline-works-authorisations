@@ -38,6 +38,6 @@ public class DevukFacility implements SearchSelectable {
 
   @Override
   public String getSelectionText() {
-    return facilityName;
+    return getFacilityName();
   }
 }
