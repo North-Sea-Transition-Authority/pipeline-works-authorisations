@@ -23,20 +23,19 @@
     </@multiLineText.multiLineText>
  
     <h3 class="govuk-heading-m"> Public notice document download </h3>
-    <p>
+    <p class="govuk-body">
       <@fdsAction.link linkText=publicNoticeDocumentFileView.fileName linkUrl=springUrl(publicNoticeDocumentFileView.fileUrl) 
       linkClass="govuk-link" linkScreenReaderText="Download ${publicNoticeDocumentFileView.fileName}" role=false start=false openInNewTab=true/> 
     </p>
-      
-    <@fdsFieldset.fieldset legendHeading="Public notice document" legendHeadingClass="govuk-fieldset__legend--m" legendHeadingSize="h3" hintText="Upload the updated public notice document (parts A-D)">
-      <@grid.gridRow>
-        <@grid.twoThirdsColumn>
-          <@fdsFileUpload.fileUpload id="doc-upload-file-id" path="form.uploadedFileWithDescriptionForms" uploadUrl=uploadUrl deleteUrl=deleteUrl
-          maxAllowedSize=fileuploadMaxUploadSize allowedExtensions=fileuploadAllowedExtensions downloadUrl=downloadUrl existingFiles=uploadedFileViewList dropzoneText="Drag and drop your document here" />
-        </@grid.twoThirdsColumn>
-      </@grid.gridRow>
-    </@fdsFieldset.fieldset>
 
+    <@grid.gridRow>
+      <@grid.twoThirdsColumn>
+        <@fdsFieldset.fieldset legendHeading="Public notice document" legendHeadingClass="govuk-fieldset__legend--m" legendHeadingSize="h3" hintText="Upload the updated public notice document (parts A-D)">      
+          <@fdsFileUpload.fileUpload id="doc-upload-file-id" path="form.uploadedFileWithDescriptionForms" uploadUrl=uploadUrl deleteUrl=deleteUrl
+          maxAllowedSize=fileuploadMaxUploadSize allowedExtensions=fileuploadAllowedExtensions downloadUrl=downloadUrl existingFiles=uploadedFileViewList dropzoneText="Drag and drop your document here" />       
+        </@fdsFieldset.fieldset>
+      </@grid.twoThirdsColumn>
+    </@grid.gridRow>
 
     <@fdsAction.submitButtons primaryButtonText="Update" linkSecondaryAction=true secondaryLinkText="Cancel" linkSecondaryActionUrl=springUrl(cancelUrl)/>
 
