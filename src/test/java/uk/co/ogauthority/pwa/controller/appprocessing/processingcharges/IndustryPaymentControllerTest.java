@@ -35,6 +35,7 @@ import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingConte
 import uk.co.ogauthority.pwa.service.appprocessing.processingcharges.appcharges.ApplicationChargeRequestReport;
 import uk.co.ogauthority.pwa.service.appprocessing.processingcharges.appcharges.ApplicationChargeRequestReportTestUtil;
 import uk.co.ogauthority.pwa.service.appprocessing.processingcharges.appcharges.ApplicationChargeRequestService;
+import uk.co.ogauthority.pwa.service.appprocessing.processingcharges.appcharges.CreatePaymentAttemptResultTestUtil;
 import uk.co.ogauthority.pwa.service.appprocessing.processingcharges.display.ApplicationPaymentDisplaySummary;
 import uk.co.ogauthority.pwa.service.appprocessing.processingcharges.display.ApplicationPaymentDisplaySummaryTestUtil;
 import uk.co.ogauthority.pwa.service.appprocessing.processingcharges.display.ApplicationPaymentSummariser;
@@ -103,6 +104,10 @@ public class IndustryPaymentControllerTest extends PwaAppProcessingContextAbstra
     when(pwaApplicationDetailService.getLatestDetailForUser(pwaApplicationDetail.getMasterPwaApplicationId(), user))
         .thenReturn(Optional.of(pwaApplicationDetail));
 
+    var attemptSuccessResult = CreatePaymentAttemptResultTestUtil.createSuccess();
+    when(applicationChargeRequestService.startChargeRequestPaymentAttempt(any(), any()))
+        .thenReturn(attemptSuccessResult);
+
     endpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaApplicationDetailService, pwaAppProcessingPermissionService)
         .setAllowedProcessingPermissions(PwaAppProcessingPermission.PAY_FOR_APPLICATION)
         .setAllowedStatuses(PwaApplicationStatus.AWAITING_APPLICATION_PAYMENT);
@@ -168,21 +173,29 @@ public class IndustryPaymentControllerTest extends PwaAppProcessingContextAbstra
 
   @Test
   public void startPaymentAttempt_appStatusSmokeTest() {
+    // if app payment received whilst waiting on the page, clicking Pay should redirect you nicely even though the permission has timed out.
+    endpointTester
+        .setAllowedProcessingPermissions(PwaAppProcessingPermission.PAY_FOR_APPLICATION, PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY)
+        .setAllowedStatuses(PwaApplicationStatus.CASE_OFFICER_REVIEW, PwaApplicationStatus.AWAITING_APPLICATION_PAYMENT);
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(IndustryPaymentController.class)
-                .startPaymentAttempt(applicationDetail.getMasterPwaApplicationId(), type, null)));
+                .startPaymentAttempt(applicationDetail.getMasterPwaApplicationId(), type, null, null)));
 
     endpointTester.performAppStatusChecks(status().is3xxRedirection(), status().isNotFound());
   }
 
   @Test
   public void startPaymentAttempt_processingPermissionSmokeTest() {
+    // if app payment received whilst waiting on the page, clicking Pay should redirect you nicely even though the permission has timed out.
+    endpointTester
+        .setAllowedProcessingPermissions(PwaAppProcessingPermission.PAY_FOR_APPLICATION, PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY)
+        .setAllowedStatuses(PwaApplicationStatus.CASE_OFFICER_REVIEW, PwaApplicationStatus.AWAITING_APPLICATION_PAYMENT);;
 
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(IndustryPaymentController.class)
-                .startPaymentAttempt(applicationDetail.getMasterPwaApplicationId(), type, null)));
+                .startPaymentAttempt(applicationDetail.getMasterPwaApplicationId(), type, null, null)));
 
     endpointTester.performProcessingPermissionCheck(status().is3xxRedirection(), status().isForbidden());
 

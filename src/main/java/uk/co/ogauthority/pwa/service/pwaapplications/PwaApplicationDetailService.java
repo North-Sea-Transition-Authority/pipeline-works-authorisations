@@ -48,6 +48,10 @@ public class PwaApplicationDetailService {
     this.userTypeService = userTypeService;
   }
 
+  public PwaApplicationDetail getTipDetail(PwaApplication pwaApplication) {
+    return getTipDetail(pwaApplication.getId());
+  }
+
   public PwaApplicationDetail getTipDetail(Integer pwaApplicationId) {
     return pwaApplicationDetailRepository.findByPwaApplicationIdAndTipFlagIsTrue(pwaApplicationId)
         .orElseThrow(() -> new PwaEntityNotFoundException(

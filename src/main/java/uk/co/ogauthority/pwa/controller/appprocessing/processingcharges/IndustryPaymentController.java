@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import uk.co.ogauthority.pwa.controller.appprocessing.shared.PwaAppProcessingPermissionCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationStatusCheck;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationGroup;
@@ -22,6 +23,7 @@ import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.service.appprocessing.processingcharges.appcharges.ApplicationChargeRequestReport;
 import uk.co.ogauthority.pwa.service.appprocessing.processingcharges.appcharges.ApplicationChargeRequestService;
+import uk.co.ogauthority.pwa.service.appprocessing.processingcharges.appcharges.CreatePaymentAttemptResult;
 import uk.co.ogauthority.pwa.service.appprocessing.processingcharges.display.ApplicationPaymentSummariser;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
@@ -30,6 +32,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaOrganisationUserRo
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.teams.PwaHolderTeamService;
 import uk.co.ogauthority.pwa.util.CaseManagementUtils;
+import uk.co.ogauthority.pwa.util.FlashUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
 @Controller
@@ -39,6 +42,10 @@ import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 public class IndustryPaymentController {
 
   private static final String PAY_FOR_APP_LANDING_PAGE = "Pay for application";
+  private static final String PAYMENT_ALREADY_COMPLETE_FLASH_TITLE = "Application %s has completed payment";
+  private static final String PAYMENT_ALREADY_COMPLETE_FLASH_CONTENT =
+      "You cannot pay for an application that has previously been paid for.";
+
   private final ApplicationBreadcrumbService breadcrumbService;
   private final ApplicationChargeRequestService applicationChargeRequestService;
   private final ApplicationPaymentSummariser applicationPaymentSummariser;
@@ -77,12 +84,38 @@ public class IndustryPaymentController {
   }
 
   @PostMapping
+  @PwaAppProcessingPermissionCheck(permissions = {
+      PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY, PwaAppProcessingPermission.PAY_FOR_APPLICATION
+  })
+  @PwaApplicationStatusCheck(statuses = {
+      PwaApplicationStatus.AWAITING_APPLICATION_PAYMENT, PwaApplicationStatus.CASE_OFFICER_REVIEW
+  })
   public ModelAndView startPaymentAttempt(@PathVariable("applicationId") Integer applicationId,
                                           @PathVariable("applicationType")
                                           @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
-                                          PwaAppProcessingContext processingContext) {
-    return ReverseRouter.redirect(on(IndustryPaymentController.class)
-        .renderPayForApplicationLanding(applicationId, pwaApplicationType, null));
+                                          PwaAppProcessingContext processingContext,
+                                          RedirectAttributes redirectAttributes) {
+
+    var startPaymentAttemptResult = applicationChargeRequestService.startChargeRequestPaymentAttempt(
+        processingContext.getPwaApplication(),
+        processingContext.getUser());
+
+    if (CreatePaymentAttemptResult.AttemptOutcome.COMPLETED_PAYMENT_EXISTS.equals(startPaymentAttemptResult.getPaymentAttemptOutcome())) {
+      FlashUtils.info(
+          redirectAttributes,
+          String.format(PAYMENT_ALREADY_COMPLETE_FLASH_TITLE, processingContext.getPwaApplication().getAppReference()),
+          PAYMENT_ALREADY_COMPLETE_FLASH_CONTENT
+      );
+      return CaseManagementUtils.redirectCaseManagement(processingContext);
+    }
+
+    return new ModelAndView("redirect:" +
+        applicationChargeRequestService.startChargeRequestPaymentAttempt(
+            processingContext.getPwaApplication(),
+            processingContext.getUser()
+        )
+            .getStartExternalJourneyUrl()
+    );
 
   }
 

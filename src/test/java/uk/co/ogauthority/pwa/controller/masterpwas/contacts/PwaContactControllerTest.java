@@ -353,7 +353,7 @@ public class PwaContactControllerTest extends PwaApplicationContextAbstractContr
 
     detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
 
-    when(pwaApplicationDetailService.getTipDetail(any())).thenReturn(detail);
+    when(pwaApplicationDetailService.getTipDetail(anyInt())).thenReturn(detail);
     when(pwaApplicationPermissionService.getPermissions(detail, user.getLinkedPerson())).thenReturn(Set.of(PwaApplicationPermission.MANAGE_CONTACTS));
 
     var orgGroup = PortalOrganisationTestUtils.generateOrganisationGroup(1, "ORGGRP", "OG");

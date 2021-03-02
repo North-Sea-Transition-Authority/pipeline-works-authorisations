@@ -48,10 +48,10 @@ public class PwaPaymentService {
    * Returns url that allows for completion of the new payment journey on through external app.
    */
   @Transactional
-  public String createCardPayment(Integer pennyAmount,
-                                  String reference,
-                                  String description,
-                                  Function<UUID, String> returnUrlSupplier) {
+  public CreateCardPaymentResult createCardPayment(Integer pennyAmount,
+                                                   String reference,
+                                                   String description,
+                                                   Function<UUID, String> returnUrlSupplier) {
 
     // new transaction launched here so we can save the request attempt even if later code fails.
     var newPwaPaymentRequestUuid = pwaPaymentRequestPersister.createPendingPaymentRequestInNewTransaction(
@@ -74,7 +74,8 @@ public class PwaPaymentService {
 
       var result = govUkPayCardPaymentClient.createCardPaymentJourney(paymentRequest);
       pwaPaymentRequestPersister.setPaymentRequestInProgress(newPwaPaymentRequestUuid, result);
-      return result.getStartExternalPaymentJourneyUrl();
+      var inProgressPaymentRequest = getGovUkPaymentRequestByUuidOrError(newPwaPaymentRequestUuid);
+      return new CreateCardPaymentResult(inProgressPaymentRequest, result.getStartExternalPaymentJourneyUrl());
     } catch (Exception e) {
 
       pwaPaymentRequestPersister.setPaymentRequestStatusInNewTransaction(
@@ -98,6 +99,10 @@ public class PwaPaymentService {
 
   @Transactional(readOnly = true)
   public PwaPaymentRequest getGovUkPaymentRequestOrError(UUID uuid) {
+    return getGovUkPaymentRequestByUuidOrError(uuid);
+  }
+
+  private PwaPaymentRequest getGovUkPaymentRequestByUuidOrError(UUID uuid) {
     return pwaPaymentRequestRepository.findById(uuid)
         .orElseThrow(() -> new PwaPaymentsException(
             String.format("Could not locate payment journey identified by %s", uuid))

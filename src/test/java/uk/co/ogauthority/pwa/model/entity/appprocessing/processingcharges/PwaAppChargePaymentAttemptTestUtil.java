@@ -1,0 +1,35 @@
+package uk.co.ogauthority.pwa.model.entity.appprocessing.processingcharges;
+
+import java.time.Instant;
+import java.util.UUID;
+import org.apache.commons.lang3.RandomStringUtils;
+import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
+import uk.co.ogauthority.pwa.pwapay.PaymentRequestStatus;
+import uk.co.ogauthority.pwa.pwapay.PwaPaymentRequestTestUtil;
+
+public final class PwaAppChargePaymentAttemptTestUtil {
+
+  private PwaAppChargePaymentAttemptTestUtil(){
+    throw new UnsupportedOperationException("no util for you!");
+  }
+
+
+  public static PwaAppChargePaymentAttempt createWithPaymentRequest(PwaAppChargeRequest pwaAppChargeRequest,
+                                                                    PaymentRequestStatus paymentRequestStatus,
+                                                                    Person person){
+
+    var paymentRequest = PwaPaymentRequestTestUtil.createFrom(
+        UUID.randomUUID(),
+        paymentRequestStatus,
+        RandomStringUtils.randomAlphabetic(10)
+    );
+
+    return new PwaAppChargePaymentAttempt(
+      pwaAppChargeRequest, person.getId(), Instant.now(), true, paymentRequest
+    );
+
+  }
+
+
+
+}

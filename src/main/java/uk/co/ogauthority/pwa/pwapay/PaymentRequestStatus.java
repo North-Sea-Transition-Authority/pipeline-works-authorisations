@@ -19,7 +19,7 @@ public enum PaymentRequestStatus {
     return journeyState;
   }
 
-  enum JourneyState {
+  public enum JourneyState {
     IN_PROGRESS, FINISHED
   }
 }
