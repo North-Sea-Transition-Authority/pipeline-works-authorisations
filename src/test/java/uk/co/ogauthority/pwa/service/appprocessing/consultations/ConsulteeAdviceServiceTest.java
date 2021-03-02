@@ -21,6 +21,7 @@ import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationResponse;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.enums.tasklist.TaskState;
 import uk.co.ogauthority.pwa.model.form.consultation.ConsultationRequestView;
 import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
@@ -29,6 +30,7 @@ import uk.co.ogauthority.pwa.service.consultations.ConsultationViewService;
 import uk.co.ogauthority.pwa.service.consultations.ConsulteeAdviceService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingTask;
+import uk.co.ogauthority.pwa.service.enums.appprocessing.appinvolvement.OpenConsentReview;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ConsultationRequestStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.testutils.ConsulteeGroupTestingUtils;
@@ -67,7 +69,7 @@ public class ConsulteeAdviceServiceTest {
 
     var consultationInvolvement = new ConsultationInvolvementDto(consulteeGroupDetail, Set.of(), null, List.of(), false);
     var appInvolvement = new ApplicationInvolvementDto(detail.getPwaApplication(), Set.of(), consultationInvolvement, false,
-        false, false, EnumSet.noneOf(PwaOrganisationRole.class));
+        false, false, EnumSet.noneOf(PwaOrganisationRole.class), OpenConsentReview.NO);
     var context = new PwaAppProcessingContext(detail, user, Set.of(PwaAppProcessingPermission.CASE_MANAGEMENT_CONSULTEE), null, appInvolvement);
 
     boolean canShow = consulteeAdviceService.canShowInTaskList(context);
@@ -81,7 +83,7 @@ public class ConsulteeAdviceServiceTest {
 
     var consultationInvolvement = new ConsultationInvolvementDto(consulteeGroupDetail, Set.of(), null, List.of(new ConsultationRequest()), false);
     var appInvolvement = new ApplicationInvolvementDto(detail.getPwaApplication(), Set.of(), consultationInvolvement, false,
-        false, false, EnumSet.noneOf(PwaOrganisationRole.class));
+        false, false, EnumSet.noneOf(PwaOrganisationRole.class), OpenConsentReview.NO);
     var context = new PwaAppProcessingContext(detail, user, Set.of(PwaAppProcessingPermission.CONSULTEE_ADVICE), null, appInvolvement);
 
     boolean canShow = consulteeAdviceService.canShowInTaskList(context);
@@ -126,6 +128,7 @@ public class ConsulteeAdviceServiceTest {
     assertThat(taskListEntry.getTaskName()).isEqualTo(PwaAppProcessingTask.CONSULTEE_ADVICE.getTaskName());
     assertThat(taskListEntry.getRoute()).isEqualTo(PwaAppProcessingTask.CONSULTEE_ADVICE.getRoute(context));
     assertThat(taskListEntry.getTaskTag()).isNull();
+    assertThat(taskListEntry.getTaskState()).isEqualTo(TaskState.EDIT);
     assertThat(taskListEntry.getDisplayOrder()).isEqualTo(PwaAppProcessingTask.CONSULTEE_ADVICE.getDisplayOrder());
 
   }
@@ -144,7 +147,7 @@ public class ConsulteeAdviceServiceTest {
 
     var consultationInvolvement = new ConsultationInvolvementDto(consulteeGroupDetail, Set.of(), null, List.of(historicalRequest), false);
     var appInvolvement = new ApplicationInvolvementDto(detail.getPwaApplication(), Set.of(), consultationInvolvement, false,
-        false, false, EnumSet.noneOf(PwaOrganisationRole.class));
+        false, false, EnumSet.noneOf(PwaOrganisationRole.class), OpenConsentReview.NO);
     var context = new PwaAppProcessingContext(detail, user, Set.of(PwaAppProcessingPermission.CONSULTEE_ADVICE), null, appInvolvement);
 
     var requestView = new ConsultationRequestView(
@@ -185,7 +188,7 @@ public class ConsulteeAdviceServiceTest {
 
     var consultationInvolvement = new ConsultationInvolvementDto(consulteeGroupDetail, Set.of(), activeRequest, List.of(historicalRequest), false);
     var appInvolvement = new ApplicationInvolvementDto(detail.getPwaApplication(), Set.of(), consultationInvolvement, false,
-        false, false, EnumSet.noneOf(PwaOrganisationRole.class));
+        false, false, EnumSet.noneOf(PwaOrganisationRole.class), OpenConsentReview.NO);
     var context = new PwaAppProcessingContext(detail, user, Set.of(PwaAppProcessingPermission.CONSULTEE_ADVICE), null, appInvolvement);
 
     var historicRequestView = new ConsultationRequestView(

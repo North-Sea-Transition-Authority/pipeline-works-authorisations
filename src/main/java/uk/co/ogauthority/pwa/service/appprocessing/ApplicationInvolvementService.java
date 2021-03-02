@@ -22,7 +22,9 @@ import uk.co.ogauthority.pwa.repository.pwaapplications.search.PwaAppAssignmentV
 import uk.co.ogauthority.pwa.service.appprocessing.application.ConfirmSatisfactoryApplicationService;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupDetailService;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupTeamService;
+import uk.co.ogauthority.pwa.service.appprocessing.prepareconsent.ConsentReviewService;
 import uk.co.ogauthority.pwa.service.consultations.ConsultationRequestService;
+import uk.co.ogauthority.pwa.service.enums.appprocessing.appinvolvement.OpenConsentReview;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 import uk.co.ogauthority.pwa.service.enums.users.UserType;
 import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationConsultationWorkflowTask;
@@ -34,6 +36,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
 import uk.co.ogauthority.pwa.service.teams.PwaHolderTeamService;
 import uk.co.ogauthority.pwa.service.users.UserTypeService;
 import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
+import uk.co.ogauthority.pwa.service.workflow.assignment.AssignmentService;
 import uk.co.ogauthority.pwa.service.workflow.task.WorkflowTaskInstance;
 
 /**
@@ -54,6 +57,8 @@ public class ApplicationInvolvementService {
   private final PwaHolderTeamService pwaHolderTeamService;
   private final PwaAppAssignmentViewRepository pwaAppAssignmentViewRepository;
   private final PwaApplicationDetailService pwaApplicationDetailService;
+  private final ConsentReviewService consentReviewService;
+  private final AssignmentService assignmentService;
 
   @Autowired
   public ApplicationInvolvementService(ConsulteeGroupTeamService consulteeGroupTeamService,
@@ -66,7 +71,9 @@ public class ApplicationInvolvementService {
                                        ConfirmSatisfactoryApplicationService confirmSatisfactoryApplicationService,
                                        PwaHolderTeamService pwaHolderTeamService,
                                        PwaAppAssignmentViewRepository pwaAppAssignmentViewRepository,
-                                       PwaApplicationDetailService pwaApplicationDetailService) {
+                                       PwaApplicationDetailService pwaApplicationDetailService,
+                                       ConsentReviewService consentReviewService,
+                                       AssignmentService assignmentService) {
     this.consulteeGroupTeamService = consulteeGroupTeamService;
     this.pwaContactService = pwaContactService;
     this.consultationRequestService = consultationRequestService;
@@ -78,6 +85,8 @@ public class ApplicationInvolvementService {
     this.pwaHolderTeamService = pwaHolderTeamService;
     this.pwaAppAssignmentViewRepository = pwaAppAssignmentViewRepository;
     this.pwaApplicationDetailService = pwaApplicationDetailService;
+    this.consentReviewService = consentReviewService;
+    this.assignmentService = assignmentService;
   }
 
   public ApplicationInvolvementDto getApplicationInvolvementDto(PwaApplicationDetail detail,
@@ -108,14 +117,13 @@ public class ApplicationInvolvementService {
     }
 
     // OGA data
-    boolean caseOfficerStageAndUserAssigned = false;
+    var userIsAssignedCaseOfficer = false;
     boolean pwaManagerStage = false;
 
     if (userType == UserType.OGA) {
 
-      caseOfficerStageAndUserAssigned = getCaseOfficerPersonId(application)
-          .filter(personId -> personId.equals(user.getLinkedPerson().getId()))
-          .isPresent();
+      userIsAssignedCaseOfficer = assignmentService.getAssignmentsForPerson(application, user.getLinkedPerson()).stream()
+          .anyMatch(ass -> WorkflowAssignment.CASE_OFFICER.equals(ass.getWorkflowAssignment()));
 
       pwaManagerStage = camundaWorkflowService.getAllActiveWorkflowTasks(application).stream()
           .map(t -> PwaApplicationWorkflowTask.valueOf(t.getTaskName()))
@@ -126,15 +134,19 @@ public class ApplicationInvolvementService {
     boolean atLeastOneSatisfactoryVersion = confirmSatisfactoryApplicationService.atLeastOneSatisfactoryVersion(
         application);
 
+    var openConsentReview = consentReviewService.getOpenConsentReview(detail)
+        .map(openReview -> OpenConsentReview.YES)
+        .orElse(OpenConsentReview.NO);
+
     return new ApplicationInvolvementDto(
         application,
         appContactRoles,
         consultationInvolvement,
-        caseOfficerStageAndUserAssigned,
+        userIsAssignedCaseOfficer,
         pwaManagerStage,
         atLeastOneSatisfactoryVersion,
-        userHolderTeamRoles
-    );
+        userHolderTeamRoles,
+        openConsentReview);
 
   }
 

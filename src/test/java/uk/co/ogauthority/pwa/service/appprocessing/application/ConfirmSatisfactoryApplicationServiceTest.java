@@ -23,6 +23,7 @@ import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupDetail;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
+import uk.co.ogauthority.pwa.model.enums.tasklist.TaskState;
 import uk.co.ogauthority.pwa.model.notify.emailproperties.updaterequests.ApplicationUpdateAcceptedEmailProps;
 import uk.co.ogauthority.pwa.model.tasklist.TaskTag;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
@@ -101,6 +102,7 @@ public class ConfirmSatisfactoryApplicationServiceTest {
 
     assertThat(taskListEntry.getTaskName()).isEqualTo(PwaAppProcessingTask.CONFIRM_SATISFACTORY_APPLICATION.getTaskName());
     assertThat(taskListEntry.getRoute()).isEqualTo(PwaAppProcessingTask.CONFIRM_SATISFACTORY_APPLICATION.getRoute(processingContext));
+    assertThat(taskListEntry.getTaskState()).isEqualTo(TaskState.EDIT);
     assertThat(taskListEntry.getTaskTag()).isEqualTo(TaskTag.from(TaskStatus.NOT_COMPLETED));
     assertThat(taskListEntry.getTaskInfoList()).isEmpty();
 
@@ -117,7 +119,8 @@ public class ConfirmSatisfactoryApplicationServiceTest {
     var taskListEntry = confirmSatisfactoryApplicationService.getTaskListEntry(PwaAppProcessingTask.CONFIRM_SATISFACTORY_APPLICATION, processingContext);
 
     assertThat(taskListEntry.getTaskName()).isEqualTo(PwaAppProcessingTask.CONFIRM_SATISFACTORY_APPLICATION.getTaskName());
-    assertThat(taskListEntry.getRoute()).isNull();
+    assertThat(taskListEntry.getRoute()).isEqualTo(PwaAppProcessingTask.CONFIRM_SATISFACTORY_APPLICATION.getRoute(processingContext));
+    assertThat(taskListEntry.getTaskState()).isEqualTo(TaskState.LOCK);
     assertThat(taskListEntry.getTaskTag()).isEqualTo(TaskTag.from(TaskStatus.COMPLETED));
     assertThat(taskListEntry.getTaskInfoList()).isEmpty();
 

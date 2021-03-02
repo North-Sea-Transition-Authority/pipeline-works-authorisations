@@ -14,6 +14,7 @@ import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.applicationupdates.ApplicationUpdateRequest;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.enums.appprocessing.applicationupdates.ApplicationUpdateRequestStatus;
+import uk.co.ogauthority.pwa.model.enums.tasklist.TaskState;
 import uk.co.ogauthority.pwa.model.notify.emailproperties.updaterequests.ApplicationUpdateRequestEmailProps;
 import uk.co.ogauthority.pwa.model.notify.emailproperties.updaterequests.ApplicationUpdateResponseEmailProps;
 import uk.co.ogauthority.pwa.model.tasklist.TaskListEntry;
@@ -226,16 +227,17 @@ public class ApplicationUpdateRequestService implements AppProcessingService {
     boolean openUpdateForDetail = applicationHasOpenUpdateRequest(processingContext.getApplicationDetail());
 
     // prevent access during initial options approval or in progress update request
-    String taskRoute = openUpdateForDetail || OptionsApprovalStatus.APPROVED_UNRESPONDED.equals(optionsApprovalStatus)
-        ? null
-        : task.getRoute(processingContext);
+    var taskState = openUpdateForDetail || OptionsApprovalStatus.APPROVED_UNRESPONDED.equals(optionsApprovalStatus)
+        ? TaskState.LOCK
+        : TaskState.EDIT;
 
     var taskTag = openUpdateForDetail ? TaskTag.from(TaskStatus.IN_PROGRESS) : null;
 
     return new TaskListEntry(
         task.getTaskName(),
-        taskRoute,
+        task.getRoute(processingContext),
         taskTag,
+        taskState,
         task.getDisplayOrder());
 
   }

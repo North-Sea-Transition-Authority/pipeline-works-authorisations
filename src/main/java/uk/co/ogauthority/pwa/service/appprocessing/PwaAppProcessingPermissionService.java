@@ -80,7 +80,7 @@ public class PwaAppProcessingPermissionService {
             case APPROVE_OPTIONS:
             case CLOSE_OUT_OPTIONS:
               return userPrivileges.contains(PwaUserPrivilege.PWA_CASE_OFFICER)
-                  && appInvolvement.isCaseOfficerStageAndUserAssigned()
+                  && appInvolvement.isUserAssignedCaseOfficer()
                   && PwaApplicationType.OPTIONS_VARIATION.equals(detail.getPwaApplicationType());
             case CHANGE_OPTIONS_APPROVAL_DEADLINE:
               return userPrivileges.contains(PwaUserPrivilege.PWA_MANAGER)
@@ -92,7 +92,7 @@ public class PwaAppProcessingPermissionService {
                   || PwaApplicationType.CAT_1_VARIATION.equals(detail.getPwaApplicationType()));
             case DRAFT_PUBLIC_NOTICE:
               return userPrivileges.contains(PwaUserPrivilege.PWA_CASE_OFFICER)
-                  && appInvolvement.isCaseOfficerStageAndUserAssigned()
+                  && appInvolvement.isUserAssignedCaseOfficer()
                   && (PwaApplicationType.INITIAL.equals(detail.getPwaApplicationType())
                   || PwaApplicationType.CAT_1_VARIATION.equals(detail.getPwaApplicationType()));
             case APPROVE_PUBLIC_NOTICE:
@@ -110,10 +110,10 @@ public class PwaAppProcessingPermissionService {
             case EDIT_CONSENT_DOCUMENT:
             case SEND_CONSENT_FOR_APPROVAL:
               return userPrivileges.contains(
-                  PwaUserPrivilege.PWA_CASE_OFFICER) && appInvolvement.isCaseOfficerStageAndUserAssigned();
+                  PwaUserPrivilege.PWA_CASE_OFFICER) && appInvolvement.isUserAssignedCaseOfficer();
             case REQUEST_APPLICATION_UPDATE:
             case WITHDRAW_APPLICATION:
-              return (userPrivileges.contains(PwaUserPrivilege.PWA_CASE_OFFICER) && appInvolvement.isCaseOfficerStageAndUserAssigned())
+              return (userPrivileges.contains(PwaUserPrivilege.PWA_CASE_OFFICER) && appInvolvement.isUserAssignedCaseOfficer())
                   || (userPrivileges.contains(PwaUserPrivilege.PWA_MANAGER) && appInvolvement.isPwaManagerStage());
             default:
               return false;

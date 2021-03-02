@@ -127,6 +127,22 @@ public class AssignmentServiceTest {
   }
 
   @Test
+  public void getAssignmentsForPerson_workflowSubject() {
+
+    var person = PersonTestUtil.createDefaultPerson();
+
+    var appAssignment = new Assignment(1, WorkflowType.PWA_APPLICATION, WorkflowAssignment.CASE_OFFICER, person.getId());
+
+    when(assignmentRepository.findByBusinessKeyAndWorkflowTypeAndAssigneePersonId(1, WorkflowType.PWA_APPLICATION, person.getId()))
+        .thenReturn(List.of(appAssignment));
+
+    var list = assignmentService.getAssignmentsForPerson(new GenericWorkflowSubject(1, WorkflowType.PWA_APPLICATION), person);
+
+    assertThat(list).containsExactly(appAssignment);
+
+  }
+
+  @Test
   public void clearAssignments() {
 
     var assignment = new Assignment(1, WorkflowType.PWA_APPLICATION, WorkflowAssignment.CASE_OFFICER, new PersonId(1));

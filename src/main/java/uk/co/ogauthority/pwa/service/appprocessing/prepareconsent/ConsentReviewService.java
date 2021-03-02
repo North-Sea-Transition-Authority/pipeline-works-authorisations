@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.service.appprocessing.prepareconsent;
 
 import java.time.Clock;
+import java.util.Optional;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -41,6 +42,12 @@ public class ConsentReviewService {
     var consentReview = new ConsentReview(pwaApplicationDetail, coverLetterText, startingPerson.getId(), clock.instant());
     consentReviewRepository.save(consentReview);
 
+  }
+
+  public Optional<ConsentReview> getOpenConsentReview(PwaApplicationDetail pwaApplicationDetail) {
+    return consentReviewRepository.findAllByPwaApplicationDetail(pwaApplicationDetail).stream()
+        .filter(review -> ConsentReviewStatus.OPEN.equals(review.getStatus()))
+        .findFirst();
   }
 
 }

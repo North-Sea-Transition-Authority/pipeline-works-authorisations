@@ -14,6 +14,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.model.entity.documents.instances.DocumentInstance;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.DocumentTemplateMnem;
+import uk.co.ogauthority.pwa.model.enums.tasklist.TaskState;
 import uk.co.ogauthority.pwa.model.tasklist.TaskTag;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.service.appprocessing.options.ApproveOptionsService;
@@ -87,7 +88,8 @@ public class PrepareConsentTaskServiceTest {
 
     assertThat(taskListEntry.getTaskTag()).isEqualTo(TaskTag.from(TaskStatus.CANNOT_START_YET));
     assertThat(taskListEntry.getTaskName()).isEqualTo(PwaAppProcessingTask.PREPARE_CONSENT.getTaskName());
-    assertThat(taskListEntry.getRoute()).isNull();
+    assertThat(taskListEntry.getTaskName()).isEqualTo(PwaAppProcessingTask.PREPARE_CONSENT.getTaskName());
+    assertThat(taskListEntry.getTaskState()).isEqualTo(TaskState.LOCK);
     assertThat(taskListEntry.getTaskInfoList()).isEmpty();
 
   }
@@ -106,7 +108,8 @@ public class PrepareConsentTaskServiceTest {
 
     assertThat(taskListEntry.getTaskTag()).isEqualTo(TaskTag.from(TaskStatus.NOT_REQUIRED));
     assertThat(taskListEntry.getTaskName()).isEqualTo(PwaAppProcessingTask.PREPARE_CONSENT.getTaskName());
-    assertThat(taskListEntry.getRoute()).isNull();
+    assertThat(taskListEntry.getTaskName()).isEqualTo(PwaAppProcessingTask.PREPARE_CONSENT.getTaskName());
+    assertThat(taskListEntry.getTaskState()).isEqualTo(TaskState.LOCK);
     assertThat(taskListEntry.getTaskInfoList()).isEmpty();
 
   }
@@ -128,6 +131,7 @@ public class PrepareConsentTaskServiceTest {
     assertThat(taskListEntry.getTaskTag()).isEqualTo(TaskTag.from(TaskStatus.NOT_STARTED));
     assertThat(taskListEntry.getTaskName()).isEqualTo(PwaAppProcessingTask.PREPARE_CONSENT.getTaskName());
     assertThat(taskListEntry.getRoute()).isEqualTo(PwaAppProcessingTask.PREPARE_CONSENT.getRoute(processingContext));
+    assertThat(taskListEntry.getTaskState()).isEqualTo(TaskState.EDIT);
     assertThat(taskListEntry.getTaskInfoList()).isEmpty();
 
   }
@@ -147,6 +151,7 @@ public class PrepareConsentTaskServiceTest {
     assertThat(taskListEntry.getTaskTag()).isEqualTo(TaskTag.from(TaskStatus.NOT_STARTED));
     assertThat(taskListEntry.getTaskName()).isEqualTo(PwaAppProcessingTask.PREPARE_CONSENT.getTaskName());
     assertThat(taskListEntry.getRoute()).isEqualTo(PwaAppProcessingTask.PREPARE_CONSENT.getRoute(processingContext));
+    assertThat(taskListEntry.getTaskState()).isEqualTo(TaskState.EDIT);
     assertThat(taskListEntry.getTaskInfoList()).isEmpty();
 
   }
@@ -167,6 +172,7 @@ public class PrepareConsentTaskServiceTest {
     assertThat(taskListEntry.getTaskTag()).isEqualTo(TaskTag.from(TaskStatus.IN_PROGRESS));
     assertThat(taskListEntry.getTaskName()).isEqualTo(PwaAppProcessingTask.PREPARE_CONSENT.getTaskName());
     assertThat(taskListEntry.getRoute()).isEqualTo(PwaAppProcessingTask.PREPARE_CONSENT.getRoute(processingContext));
+    assertThat(taskListEntry.getTaskState()).isEqualTo(TaskState.EDIT);
     assertThat(taskListEntry.getTaskInfoList()).isEmpty();
 
   }

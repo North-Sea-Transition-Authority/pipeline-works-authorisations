@@ -8,6 +8,7 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.enums.tasklist.TaskState;
 import uk.co.ogauthority.pwa.model.notify.emailproperties.updaterequests.ApplicationUpdateAcceptedEmailProps;
 import uk.co.ogauthority.pwa.model.tasklist.TaskListEntry;
 import uk.co.ogauthority.pwa.model.tasklist.TaskTag;
@@ -53,8 +54,9 @@ public class ConfirmSatisfactoryApplicationService implements AppProcessingServi
 
     return new TaskListEntry(
         task.getTaskName(),
-        !isSatisfactory ? task.getRoute(processingContext) : null,
+        task.getRoute(processingContext),
         !isSatisfactory ? TaskTag.from(TaskStatus.NOT_COMPLETED) : TaskTag.from(TaskStatus.COMPLETED),
+        !isSatisfactory ? TaskState.EDIT : TaskState.LOCK,
         task.getDisplayOrder());
 
   }

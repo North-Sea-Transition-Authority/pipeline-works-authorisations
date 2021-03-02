@@ -5,6 +5,7 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.controller.appprocessing.options.ChangeOptionsApprovalDeadlineController;
+import uk.co.ogauthority.pwa.model.enums.tasklist.TaskState;
 import uk.co.ogauthority.pwa.model.tasklist.TaskListEntry;
 import uk.co.ogauthority.pwa.model.tasklist.TaskTag;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
@@ -35,7 +36,9 @@ public class ChangeOptionsApprovalDeadlineTaskService implements AppProcessingSe
 
   @Override
   public TaskListEntry getTaskListEntry(PwaAppProcessingTask task, PwaAppProcessingContext processingContext) {
+
     var taskAccessible = taskAccessible(processingContext);
+
     var changeDeadlineRoute = ReverseRouter.route(on(ChangeOptionsApprovalDeadlineController.class).renderChangeDeadline(
         processingContext.getMasterPwaApplicationId(),
         processingContext.getApplicationType(),
@@ -45,13 +48,14 @@ public class ChangeOptionsApprovalDeadlineTaskService implements AppProcessingSe
     ));
 
     var taskTag = !taskAccessible ? TaskTag.from(TaskStatus.CANNOT_START_YET) : null;
-    var taskRoute = taskAccessible ? changeDeadlineRoute : null;
 
     return new TaskListEntry(
         task.getTaskName(),
-        taskRoute,
+        changeDeadlineRoute,
         taskTag,
+        taskAccessible ? TaskState.EDIT : TaskState.LOCK,
         task.getDisplayOrder());
+
   }
 
   public boolean taskAccessible(PwaAppProcessingContext pwaAppProcessingContext) {

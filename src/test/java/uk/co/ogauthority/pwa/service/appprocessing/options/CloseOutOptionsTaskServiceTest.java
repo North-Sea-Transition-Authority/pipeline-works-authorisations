@@ -5,6 +5,7 @@ import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.mockito.Mockito.when;
 
 import java.util.EnumSet;
+import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -12,6 +13,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.enums.tasklist.TaskState;
 import uk.co.ogauthority.pwa.service.appprocessing.applicationupdate.ApplicationUpdateRequestService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContextTestUtil;
@@ -140,8 +142,9 @@ public class CloseOutOptionsTaskServiceTest {
     );
 
     assertThat(taskListEntry.getTaskName()).isEqualTo(PwaAppProcessingTask.CLOSE_OUT_OPTIONS.getTaskName());
-    assertThat(taskListEntry.getRoute()).isNull();
+    assertThat(taskListEntry.getRoute()).isNotNull();
     assertThat(taskListEntry.getDisplayOrder()).isEqualTo(PwaAppProcessingTask.CLOSE_OUT_OPTIONS.getDisplayOrder());
+    Assertions.assertThat(taskListEntry.getTaskState()).isEqualTo(TaskState.LOCK);
     assertThat(taskListEntry.getTaskTag().getTagText()).isEqualTo(TaskStatus.NOT_REQUIRED.getDisplayText());
 
   }
@@ -162,8 +165,9 @@ public class CloseOutOptionsTaskServiceTest {
     );
 
     assertThat(taskListEntry.getTaskName()).isEqualTo(PwaAppProcessingTask.CLOSE_OUT_OPTIONS.getTaskName());
-    assertThat(taskListEntry.getRoute()).isNull();
+    assertThat(taskListEntry.getRoute()).isNotNull();
     assertThat(taskListEntry.getDisplayOrder()).isEqualTo(PwaAppProcessingTask.CLOSE_OUT_OPTIONS.getDisplayOrder());
+    Assertions.assertThat(taskListEntry.getTaskState()).isEqualTo(TaskState.LOCK);
     assertThat(taskListEntry.getTaskTag().getTagText()).isEqualTo(TaskStatus.NOT_REQUIRED.getDisplayText());
 
   }
@@ -186,6 +190,7 @@ public class CloseOutOptionsTaskServiceTest {
     assertThat(taskListEntry.getTaskName()).isEqualTo(PwaAppProcessingTask.CLOSE_OUT_OPTIONS.getTaskName());
     assertThat(taskListEntry.getRoute()).isNotNull();
     assertThat(taskListEntry.getDisplayOrder()).isEqualTo(PwaAppProcessingTask.CLOSE_OUT_OPTIONS.getDisplayOrder());
+    Assertions.assertThat(taskListEntry.getTaskState()).isEqualTo(TaskState.EDIT);
     assertThat(taskListEntry.getTaskTag().getTagText()).isEqualTo(TaskStatus.NOT_STARTED.getDisplayText());
   }
 
@@ -205,8 +210,9 @@ public class CloseOutOptionsTaskServiceTest {
     );
 
     assertThat(taskListEntry.getTaskName()).isEqualTo(PwaAppProcessingTask.CLOSE_OUT_OPTIONS.getTaskName());
-    assertThat(taskListEntry.getRoute()).isNull();
+    assertThat(taskListEntry.getRoute()).isNotNull();
     assertThat(taskListEntry.getDisplayOrder()).isEqualTo(PwaAppProcessingTask.CLOSE_OUT_OPTIONS.getDisplayOrder());
+    Assertions.assertThat(taskListEntry.getTaskState()).isEqualTo(TaskState.LOCK);
     assertThat(taskListEntry.getTaskTag().getTagText()).isEqualTo(TaskStatus.CANNOT_START_YET.getDisplayText());
   }
 }

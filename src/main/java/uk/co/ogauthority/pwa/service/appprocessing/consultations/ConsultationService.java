@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.service.appprocessing.consultations;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.co.ogauthority.pwa.model.enums.tasklist.TaskState;
 import uk.co.ogauthority.pwa.model.tasklist.TaskListEntry;
 import uk.co.ogauthority.pwa.model.tasklist.TaskTag;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
@@ -53,8 +54,9 @@ public class ConsultationService implements AppProcessingService {
 
     return new TaskListEntry(
         task.getTaskName(),
-        atLeastOneSatisfactoryVersion ? task.getRoute(processingContext) : null,
+        task.getRoute(processingContext),
         atLeastOneSatisfactoryVersion ? TaskTag.from(taskStatus) : TaskTag.from(TaskStatus.CANNOT_START_YET),
+        atLeastOneSatisfactoryVersion ? TaskState.EDIT : TaskState.LOCK,
         task.getDisplayOrder());
 
   }

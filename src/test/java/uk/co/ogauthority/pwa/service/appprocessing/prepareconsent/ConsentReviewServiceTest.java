@@ -83,4 +83,30 @@ public class ConsentReviewServiceTest {
 
   }
 
+  @Test
+  public void getOpenConsentReview_openReview() {
+
+    var openReview = new ConsentReview();
+    openReview.setStatus(ConsentReviewStatus.OPEN);
+    when(consentReviewRepository.findAllByPwaApplicationDetail(detail)).thenReturn(List.of(openReview));
+
+    var optionalReview = consentReviewService.getOpenConsentReview(detail);
+
+    assertThat(optionalReview).isPresent();
+
+  }
+
+  @Test
+  public void getOpenConsentReview_noOpenReview() {
+
+    var openReview = new ConsentReview();
+    openReview.setStatus(ConsentReviewStatus.APPROVED);
+    when(consentReviewRepository.findAllByPwaApplicationDetail(detail)).thenReturn(List.of(openReview));
+
+    var optionalReview = consentReviewService.getOpenConsentReview(detail);
+
+    assertThat(optionalReview).isEmpty();
+
+  }
+
 }

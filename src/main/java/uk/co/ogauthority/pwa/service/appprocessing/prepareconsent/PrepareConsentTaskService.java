@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.service.appprocessing.prepareconsent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.DocumentTemplateMnem;
+import uk.co.ogauthority.pwa.model.enums.tasklist.TaskState;
 import uk.co.ogauthority.pwa.model.tasklist.TaskListEntry;
 import uk.co.ogauthority.pwa.model.tasklist.TaskTag;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
@@ -58,10 +59,9 @@ public class PrepareConsentTaskService implements AppProcessingService {
       return TaskStatus.NOT_REQUIRED;
     }
 
-    var documentInProgress = documentService.getDocumentInstance(
-        processingContext.getPwaApplication(),
-        DocumentTemplateMnem.PWA_CONSENT_DOCUMENT
-    ).isPresent();
+    boolean documentInProgress = documentService
+        .getDocumentInstance(processingContext.getPwaApplication(), DocumentTemplateMnem.PWA_CONSENT_DOCUMENT)
+        .isPresent();
 
     return documentInProgress ? TaskStatus.IN_PROGRESS : TaskStatus.NOT_STARTED;
 
@@ -77,8 +77,10 @@ public class PrepareConsentTaskService implements AppProcessingService {
 
     return new TaskListEntry(
         task.getTaskName(),
-        taskAccessible ? task.getRoute(processingContext) : null,
+        task.getRoute(processingContext),
         TaskTag.from(taskStatus),
+        taskAccessible ? TaskState.EDIT : TaskState.LOCK,
         task.getDisplayOrder());
+
   }
 }

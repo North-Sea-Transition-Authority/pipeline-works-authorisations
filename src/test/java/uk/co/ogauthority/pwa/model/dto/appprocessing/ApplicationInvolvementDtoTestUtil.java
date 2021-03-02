@@ -8,6 +8,7 @@ import java.util.EnumSet;
 import java.util.Set;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
+import uk.co.ogauthority.pwa.service.enums.appprocessing.appinvolvement.OpenConsentReview;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 
 public final class ApplicationInvolvementDtoTestUtil {
@@ -26,8 +27,8 @@ public final class ApplicationInvolvementDtoTestUtil {
         versionFlags.contains(CASE_OFFICER_STAGE_AND_USER_ASSIGNED),
         versionFlags.contains(PWA_MANAGER_STAGE),
         versionFlags.contains(AT_LEAST_ONE_SATISFACTORY_VERSION),
-        EnumSet.noneOf(PwaOrganisationRole.class)
-    );
+        EnumSet.noneOf(PwaOrganisationRole.class),
+        OpenConsentReview.NO);
 
   }
 
@@ -43,8 +44,8 @@ public final class ApplicationInvolvementDtoTestUtil {
         versionFlags.contains(CASE_OFFICER_STAGE_AND_USER_ASSIGNED),
         versionFlags.contains(PWA_MANAGER_STAGE),
         versionFlags.contains(AT_LEAST_ONE_SATISFACTORY_VERSION),
-        pwaOrganisationRoles
-    );
+        pwaOrganisationRoles,
+        OpenConsentReview.NO);
 
   }
 
@@ -131,7 +132,6 @@ public final class ApplicationInvolvementDtoTestUtil {
     );
 
   }
-
 
   private static Set<InvolvementFlag> getDefaultFlags() {
     return Set.of(AT_LEAST_ONE_SATISFACTORY_VERSION);

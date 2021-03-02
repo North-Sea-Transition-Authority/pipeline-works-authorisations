@@ -24,15 +24,19 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.dto.appprocessing.ConsultationInvolvementDto;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupMemberRole;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupTeamMember;
+import uk.co.ogauthority.pwa.model.entity.appprocessing.prepareconsent.ConsentReview;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.entity.workflow.assignment.Assignment;
 import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
 import uk.co.ogauthority.pwa.repository.pwaapplications.search.PwaAppAssignmentViewRepository;
 import uk.co.ogauthority.pwa.service.appprocessing.application.ConfirmSatisfactoryApplicationService;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupDetailService;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupTeamService;
+import uk.co.ogauthority.pwa.service.appprocessing.prepareconsent.ConsentReviewService;
 import uk.co.ogauthority.pwa.service.consultations.ConsultationRequestService;
+import uk.co.ogauthority.pwa.service.enums.appprocessing.appinvolvement.OpenConsentReview;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ConsultationRequestStatus;
 import uk.co.ogauthority.pwa.service.enums.users.UserType;
@@ -45,6 +49,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
 import uk.co.ogauthority.pwa.service.teams.PwaHolderTeamService;
 import uk.co.ogauthority.pwa.service.users.UserTypeService;
 import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
+import uk.co.ogauthority.pwa.service.workflow.assignment.AssignmentService;
 import uk.co.ogauthority.pwa.service.workflow.task.WorkflowTaskInstance;
 import uk.co.ogauthority.pwa.testutils.ConsulteeGroupTestingUtils;
 
@@ -86,6 +91,12 @@ public class ApplicationInvolvementServiceTest {
   @Mock
   private PwaApplicationDetailService pwaApplicationDetailService;
 
+  @Mock
+  private ConsentReviewService consentReviewService;
+
+  @Mock
+  private AssignmentService assignmentService;
+
   private ApplicationInvolvementService applicationInvolvementService;
 
   private PwaApplicationDetail detail;
@@ -104,7 +115,11 @@ public class ApplicationInvolvementServiceTest {
         consulteeGroupDetailService,
         personService,
         confirmSatisfactoryApplicationService,
-        pwaHolderTeamService, pwaAppAssignmentViewRepository, pwaApplicationDetailService);
+        pwaHolderTeamService,
+        pwaAppAssignmentViewRepository,
+        pwaApplicationDetailService,
+        consentReviewService,
+        assignmentService);
 
     detail = new PwaApplicationDetail();
     application = new PwaApplication();
@@ -129,7 +144,7 @@ public class ApplicationInvolvementServiceTest {
     assertThat(involvement.getPwaApplication()).isEqualTo(application);
     assertThat(involvement.getContactRoles()).containsExactly(PwaContactRole.PREPARER);
     assertThat(involvement.getConsultationInvolvement()).isEmpty();
-    assertThat(involvement.isCaseOfficerStageAndUserAssigned()).isFalse();
+    assertThat(involvement.isUserAssignedCaseOfficer()).isFalse();
 
   }
 
@@ -146,7 +161,7 @@ public class ApplicationInvolvementServiceTest {
     assertThat(involvement.getPwaApplication()).isEqualTo(application);
     assertThat(involvement.getContactRoles()).isEmpty();
     assertThat(involvement.getConsultationInvolvement()).isEmpty();
-    assertThat(involvement.isCaseOfficerStageAndUserAssigned()).isFalse();
+    assertThat(involvement.isUserAssignedCaseOfficer()).isFalse();
 
   }
 
@@ -164,7 +179,7 @@ public class ApplicationInvolvementServiceTest {
     assertThat(involvement.getPwaApplication()).isEqualTo(application);
     assertThat(involvement.getContactRoles()).isEmpty();
     assertThat(involvement.getConsultationInvolvement()).isEmpty();
-    assertThat(involvement.isCaseOfficerStageAndUserAssigned()).isFalse();
+    assertThat(involvement.isUserAssignedCaseOfficer()).isFalse();
     assertThat(involvement.isUserInHolderTeam()).isTrue();
 
   }
@@ -183,7 +198,7 @@ public class ApplicationInvolvementServiceTest {
     assertThat(involvement.getPwaApplication()).isEqualTo(application);
     assertThat(involvement.getContactRoles()).isEmpty();
     assertThat(involvement.getConsultationInvolvement()).isEmpty();
-    assertThat(involvement.isCaseOfficerStageAndUserAssigned()).isFalse();
+    assertThat(involvement.isUserAssignedCaseOfficer()).isFalse();
     assertThat(involvement.isUserInHolderTeam()).isFalse();
 
   }
@@ -192,9 +207,8 @@ public class ApplicationInvolvementServiceTest {
   public void getApplicationInvolvementDto_regulatorUser_assignedCo_onlyRelevantInteractionsAndDataPopulated() {
 
     when(userTypeService.getUserType(user)).thenReturn(UserType.OGA);
-    when(camundaWorkflowService.getAssignedPersonId(any())).thenReturn(Optional.of(new PersonId(1)));
-    when(camundaWorkflowService.getAllActiveWorkflowTasks(application)).thenReturn(
-        Set.of(new WorkflowTaskInstance(application, PwaApplicationWorkflowTask.CASE_OFFICER_REVIEW)));
+    var assignment = new Assignment(application.getBusinessKey(), application.getWorkflowType(), WorkflowAssignment.CASE_OFFICER, user.getLinkedPerson().getId());
+    when(assignmentService.getAssignmentsForPerson(application, user.getLinkedPerson())).thenReturn(List.of(assignment));
 
     var involvement = applicationInvolvementService.getApplicationInvolvementDto(detail, user);
 
@@ -203,7 +217,7 @@ public class ApplicationInvolvementServiceTest {
     assertThat(involvement.getPwaApplication()).isEqualTo(application);
     assertThat(involvement.getContactRoles()).isEmpty();
     assertThat(involvement.getConsultationInvolvement()).isEmpty();
-    assertThat(involvement.isCaseOfficerStageAndUserAssigned()).isTrue();
+    assertThat(involvement.isUserAssignedCaseOfficer()).isTrue();
     assertThat(involvement.isPwaManagerStage()).isFalse();
 
   }
@@ -212,9 +226,6 @@ public class ApplicationInvolvementServiceTest {
   public void getApplicationInvolvementDto_regulatorUser_notAssignedCo_onlyRelevantInteractionsAndDataPopulated() {
 
     when(userTypeService.getUserType(user)).thenReturn(UserType.OGA);
-    when(camundaWorkflowService.getAssignedPersonId(any())).thenReturn(Optional.empty());
-    when(camundaWorkflowService.getAllActiveWorkflowTasks(application)).thenReturn(
-        Set.of(new WorkflowTaskInstance(application, PwaApplicationWorkflowTask.CASE_OFFICER_REVIEW)));
 
     var involvement = applicationInvolvementService.getApplicationInvolvementDto(detail, user);
 
@@ -223,7 +234,7 @@ public class ApplicationInvolvementServiceTest {
     assertThat(involvement.getPwaApplication()).isEqualTo(application);
     assertThat(involvement.getContactRoles()).isEmpty();
     assertThat(involvement.getConsultationInvolvement()).isEmpty();
-    assertThat(involvement.isCaseOfficerStageAndUserAssigned()).isFalse();
+    assertThat(involvement.isUserAssignedCaseOfficer()).isFalse();
     assertThat(involvement.isPwaManagerStage()).isFalse();
 
   }
@@ -232,7 +243,6 @@ public class ApplicationInvolvementServiceTest {
   public void getApplicationInvolvementDto_regulatorUser_pwaManagerStage_onlyRelevantInteractionsAndDataPopulated() {
 
     when(userTypeService.getUserType(user)).thenReturn(UserType.OGA);
-    when(camundaWorkflowService.getAssignedPersonId(any())).thenReturn(Optional.empty());
     when(camundaWorkflowService.getAllActiveWorkflowTasks(application)).thenReturn(
         Set.of(new WorkflowTaskInstance(application, PwaApplicationWorkflowTask.APPLICATION_REVIEW)));
 
@@ -243,7 +253,7 @@ public class ApplicationInvolvementServiceTest {
     assertThat(involvement.getPwaApplication()).isEqualTo(application);
     assertThat(involvement.getContactRoles()).isEmpty();
     assertThat(involvement.getConsultationInvolvement()).isEmpty();
-    assertThat(involvement.isCaseOfficerStageAndUserAssigned()).isFalse();
+    assertThat(involvement.isUserAssignedCaseOfficer()).isFalse();
     assertThat(involvement.isPwaManagerStage()).isTrue();
 
   }
@@ -268,7 +278,7 @@ public class ApplicationInvolvementServiceTest {
 
     assertThat(involvement.getPwaApplication()).isEqualTo(application);
     assertThat(involvement.getContactRoles()).isEmpty();
-    assertThat(involvement.isCaseOfficerStageAndUserAssigned()).isFalse();
+    assertThat(involvement.isUserAssignedCaseOfficer()).isFalse();
 
     assertThat(involvement.getConsultationInvolvement()).isPresent();
 
@@ -311,7 +321,7 @@ public class ApplicationInvolvementServiceTest {
 
     assertThat(involvement.getPwaApplication()).isEqualTo(application);
     assertThat(involvement.getContactRoles()).isEmpty();
-    assertThat(involvement.isCaseOfficerStageAndUserAssigned()).isFalse();
+    assertThat(involvement.isUserAssignedCaseOfficer()).isFalse();
 
     var consultationInvolvementOpt = involvement.getConsultationInvolvement();
 
@@ -357,7 +367,7 @@ public class ApplicationInvolvementServiceTest {
 
     assertThat(involvement.getPwaApplication()).isEqualTo(application);
     assertThat(involvement.getContactRoles()).isEmpty();
-    assertThat(involvement.isCaseOfficerStageAndUserAssigned()).isFalse();
+    assertThat(involvement.isUserAssignedCaseOfficer()).isFalse();
 
     var consultationInvolvementOpt = involvement.getConsultationInvolvement();
 
@@ -428,5 +438,27 @@ public class ApplicationInvolvementServiceTest {
         .findAllByAssignmentAndPwaApplicationIdIn(WorkflowAssignment.CASE_OFFICER, inProgressApplicationIds);
   }
 
+  @Test
+  public void openConsentReview_whenTrue() {
+
+    var consentReview = new ConsentReview();
+    when(consentReviewService.getOpenConsentReview(detail)).thenReturn(Optional.of(consentReview));
+
+    var involvement = applicationInvolvementService.getApplicationInvolvementDto(detail, user);
+
+    assertThat(involvement.getOpenConsentReview()).isEqualTo(OpenConsentReview.YES);
+
+  }
+
+  @Test
+  public void openConsentReview_whenFalse() {
+
+    when(consentReviewService.getOpenConsentReview(detail)).thenReturn(Optional.empty());
+
+    var involvement = applicationInvolvementService.getApplicationInvolvementDto(detail, user);
+
+    assertThat(involvement.getOpenConsentReview()).isEqualTo(OpenConsentReview.NO);
+
+  }
 
 }

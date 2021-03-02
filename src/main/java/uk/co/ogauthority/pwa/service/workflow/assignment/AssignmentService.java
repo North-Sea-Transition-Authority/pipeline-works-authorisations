@@ -62,6 +62,12 @@ public class AssignmentService {
         .collect(Collectors.groupingBy(Assignment::getWorkflowType));
   }
 
+  public List<Assignment> getAssignmentsForPerson(WorkflowSubject workflowSubject,
+                                                  Person person) {
+    return assignmentRepository.findByBusinessKeyAndWorkflowTypeAndAssigneePersonId(
+        workflowSubject.getBusinessKey(), workflowSubject.getWorkflowType(), person.getId());
+  }
+
   public void clearAssignments(WorkflowSubject workflowSubject) {
 
     var assignments = assignmentRepository.findByBusinessKeyAndWorkflowType(

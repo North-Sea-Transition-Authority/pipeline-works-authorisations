@@ -6,6 +6,7 @@ import java.util.Set;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupMemberRole;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
+import uk.co.ogauthority.pwa.service.enums.appprocessing.appinvolvement.OpenConsentReview;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 
 public class ApplicationInvolvementDto {
@@ -16,7 +17,7 @@ public class ApplicationInvolvementDto {
 
   private final ConsultationInvolvementDto consultationInvolvement;
 
-  private final boolean caseOfficerStageAndUserAssigned;
+  private final boolean userIsAssignedCaseOfficer;
 
   private final boolean pwaManagerStage;
 
@@ -26,21 +27,25 @@ public class ApplicationInvolvementDto {
 
   private final Set<PwaOrganisationRole> holderTeamRoles;
 
+  private final OpenConsentReview openConsentReview;
+
   public ApplicationInvolvementDto(PwaApplication pwaApplication,
                                    Set<PwaContactRole> contactRoles,
                                    ConsultationInvolvementDto consultationInvolvement,
-                                   boolean caseOfficerStageAndUserAssigned,
+                                   boolean userIsAssignedCaseOfficer,
                                    boolean pwaManagerStage,
                                    boolean atLeastOneSatisfactoryVersion,
-                                   Set<PwaOrganisationRole> holderTeamRoles) {
+                                   Set<PwaOrganisationRole> holderTeamRoles,
+                                   OpenConsentReview openConsentReview) {
     this.pwaApplication = pwaApplication;
     this.contactRoles = contactRoles;
     this.consultationInvolvement = consultationInvolvement;
-    this.caseOfficerStageAndUserAssigned = caseOfficerStageAndUserAssigned;
+    this.userIsAssignedCaseOfficer = userIsAssignedCaseOfficer;
     this.pwaManagerStage = pwaManagerStage;
     this.atLeastOneSatisfactoryVersion = atLeastOneSatisfactoryVersion;
     this.userInHolderTeam = !holderTeamRoles.isEmpty();
     this.holderTeamRoles = holderTeamRoles;
+    this.openConsentReview = openConsentReview;
   }
 
   public PwaApplication getPwaApplication() {
@@ -55,8 +60,8 @@ public class ApplicationInvolvementDto {
     return Optional.ofNullable(consultationInvolvement);
   }
 
-  public boolean isCaseOfficerStageAndUserAssigned() {
-    return caseOfficerStageAndUserAssigned;
+  public boolean isUserAssignedCaseOfficer() {
+    return userIsAssignedCaseOfficer;
   }
 
   public boolean isPwaManagerStage() {
@@ -85,5 +90,9 @@ public class ApplicationInvolvementDto {
 
   public boolean isUserInHolderTeam() {
     return userInHolderTeam;
+  }
+
+  public OpenConsentReview getOpenConsentReview() {
+    return openConsentReview;
   }
 }

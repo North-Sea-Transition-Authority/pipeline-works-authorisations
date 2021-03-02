@@ -7,6 +7,7 @@ import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
 import uk.co.ogauthority.pwa.exception.ActionAlreadyPerformedException;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.enums.tasklist.TaskState;
 import uk.co.ogauthority.pwa.model.tasklist.TaskListEntry;
 import uk.co.ogauthority.pwa.model.tasklist.TaskTag;
 import uk.co.ogauthority.pwa.service.appprocessing.applicationupdate.ApplicationUpdateRequestService;
@@ -116,8 +117,9 @@ public class InitialReviewService implements AppProcessingService {
 
     return new TaskListEntry(
         task.getTaskName(),
-        !openUpdateRequest ? task.getRoute(processingContext) : null,
+        task.getRoute(processingContext),
         TaskTag.from(taskStatus),
+        !openUpdateRequest ? TaskState.EDIT : TaskState.LOCK,
         task.getDisplayOrder());
 
   }

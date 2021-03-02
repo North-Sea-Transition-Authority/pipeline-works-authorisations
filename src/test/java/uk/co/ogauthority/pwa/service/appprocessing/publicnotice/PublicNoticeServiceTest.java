@@ -41,6 +41,7 @@ import uk.co.ogauthority.pwa.model.entity.publicnotice.PublicNoticeRequest;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.enums.notify.NotifyTemplate;
+import uk.co.ogauthority.pwa.model.enums.tasklist.TaskState;
 import uk.co.ogauthority.pwa.model.form.files.UploadFileWithDescriptionForm;
 import uk.co.ogauthority.pwa.model.form.publicnotice.PublicNoticeDraftForm;
 import uk.co.ogauthority.pwa.model.notify.emailproperties.publicnotices.PublicNoticeApprovalRequestEmailProps;
@@ -213,8 +214,9 @@ public class PublicNoticeServiceTest {
     var taskListEntry = publicNoticeService.getTaskListEntry(PwaAppProcessingTask.PUBLIC_NOTICE, processingContext);
 
     assertThat(taskListEntry.getTaskName()).isEqualTo(PwaAppProcessingTask.PUBLIC_NOTICE.getTaskName());
-    assertThat(taskListEntry.getRoute()).isNull();
+    assertThat(taskListEntry.getRoute()).isEqualTo(PwaAppProcessingTask.PUBLIC_NOTICE.getRoute(processingContext));
     assertThat(taskListEntry.getTaskTag()).isEqualTo(TaskTag.from(TaskStatus.CANNOT_START_YET));
+    assertThat(taskListEntry.getTaskState()).isEqualTo(TaskState.LOCK);
     assertThat(taskListEntry.getTaskInfoList()).isEmpty();
 
   }
@@ -232,6 +234,7 @@ public class PublicNoticeServiceTest {
     assertThat(taskListEntry.getTaskName()).isEqualTo(PwaAppProcessingTask.PUBLIC_NOTICE.getTaskName());
     assertThat(taskListEntry.getRoute()).isEqualTo(PwaAppProcessingTask.PUBLIC_NOTICE.getRoute(processingContext));
     assertThat(taskListEntry.getTaskTag()).isEqualTo(TaskTag.from(TaskStatus.NOT_STARTED));
+    assertThat(taskListEntry.getTaskState()).isEqualTo(TaskState.EDIT);
     assertThat(taskListEntry.getTaskInfoList()).isEmpty();
 
   }
@@ -243,6 +246,7 @@ public class PublicNoticeServiceTest {
     verify(publicNoticeRepository, times(1)).findAllByStatus(PublicNoticeStatus.DRAFT);
   }
 
+  @Test
   public void getOpenPublicNotices() {
     publicNoticeService.getOpenPublicNotices();
     verify(publicNoticeRepository, times(1)).findAllByStatusNotIn(ENDED_STATUSES);

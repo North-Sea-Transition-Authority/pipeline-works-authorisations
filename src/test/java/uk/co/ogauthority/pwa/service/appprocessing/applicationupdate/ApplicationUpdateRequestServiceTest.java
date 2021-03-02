@@ -30,6 +30,7 @@ import uk.co.ogauthority.pwa.model.entity.appprocessing.applicationupdates.Appli
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.enums.appprocessing.applicationupdates.ApplicationUpdateRequestStatus;
 import uk.co.ogauthority.pwa.model.enums.notify.NotifyTemplate;
+import uk.co.ogauthority.pwa.model.enums.tasklist.TaskState;
 import uk.co.ogauthority.pwa.model.notify.emailproperties.EmailProperties;
 import uk.co.ogauthority.pwa.model.tasklist.TaskTag;
 import uk.co.ogauthority.pwa.repository.appprocessing.applicationupdates.ApplicationUpdateRequestRepository;
@@ -399,8 +400,9 @@ public class ApplicationUpdateRequestServiceTest {
     var taskListEntry = applicationUpdateRequestService.getTaskListEntry(PwaAppProcessingTask.RFI, processingContext);
 
     assertThat(taskListEntry.getTaskName()).isEqualTo(PwaAppProcessingTask.RFI.getTaskName());
-    assertThat(taskListEntry.getRoute()).isNull();
+    assertThat(taskListEntry.getRoute()).isEqualTo(PwaAppProcessingTask.RFI.getRoute(processingContext));
     assertThat(taskListEntry.getTaskTag()).isEqualTo(TaskTag.from(TaskStatus.IN_PROGRESS));
+    assertThat(taskListEntry.getTaskState()).isEqualTo(TaskState.LOCK);
     assertThat(taskListEntry.getTaskInfoList()).isEmpty();
 
   }
@@ -419,6 +421,7 @@ public class ApplicationUpdateRequestServiceTest {
     assertThat(taskListEntry.getTaskName()).isEqualTo(PwaAppProcessingTask.RFI.getTaskName());
     assertThat(taskListEntry.getRoute()).isEqualTo(PwaAppProcessingTask.RFI.getRoute(processingContext));
     assertThat(taskListEntry.getTaskTag()).isNull();
+    assertThat(taskListEntry.getTaskState()).isEqualTo(TaskState.EDIT);
     assertThat(taskListEntry.getTaskInfoList()).isEmpty();
 
   }
@@ -437,8 +440,9 @@ public class ApplicationUpdateRequestServiceTest {
     var taskListEntry = applicationUpdateRequestService.getTaskListEntry(PwaAppProcessingTask.RFI, processingContext);
 
     assertThat(taskListEntry.getTaskName()).isEqualTo(PwaAppProcessingTask.RFI.getTaskName());
-    assertThat(taskListEntry.getRoute()).isNull();
+    assertThat(taskListEntry.getRoute()).isEqualTo(PwaAppProcessingTask.RFI.getRoute(processingContext));
     assertThat(taskListEntry.getTaskTag()).isNull();
+    assertThat(taskListEntry.getTaskState()).isEqualTo(TaskState.LOCK);
     assertThat(taskListEntry.getTaskInfoList()).isEmpty();
 
   }

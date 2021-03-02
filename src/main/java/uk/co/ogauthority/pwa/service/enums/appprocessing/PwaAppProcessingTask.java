@@ -19,6 +19,7 @@ import uk.co.ogauthority.pwa.controller.consultations.ConsulteeAdviceController;
 import uk.co.ogauthority.pwa.controller.consultations.responses.AssignResponderController;
 import uk.co.ogauthority.pwa.controller.consultations.responses.ConsultationResponseController;
 import uk.co.ogauthority.pwa.controller.publicnotice.PublicNoticeOverviewController;
+import uk.co.ogauthority.pwa.exception.ValueNotFoundException;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.application.ConfirmSatisfactoryApplicationService;
 import uk.co.ogauthority.pwa.service.appprocessing.application.WithdrawApplicationService;
@@ -156,6 +157,7 @@ public enum PwaAppProcessingTask {
   ADD_NOTE_OR_DOCUMENT(
       "Add note/document",
       TaskRequirement.OPTIONAL,
+      TaskLockable.NO,
       CaseNoteService.class, processingContext -> ReverseRouter.route(on(CaseNoteController.class)
       .renderAddCaseNote(processingContext.getMasterPwaApplicationId(), processingContext.getApplicationType(), null,
           null, null)),
@@ -171,9 +173,24 @@ public enum PwaAppProcessingTask {
 
   private final String taskName;
   private final TaskRequirement taskRequirement;
+  private final TaskLockable taskLockable;
   private final Class<? extends AppProcessingService> serviceClass;
   private final Function<PwaAppProcessingContext, String> routeFunction;
   private final int displayOrder;
+
+  PwaAppProcessingTask(String taskName,
+                       TaskRequirement taskRequirement,
+                       TaskLockable taskLockable,
+                       Class<? extends AppProcessingService> serviceClass,
+                       Function<PwaAppProcessingContext, String> routeFunction,
+                       int displayOrder) {
+    this.taskName = taskName;
+    this.taskRequirement = taskRequirement;
+    this.taskLockable = taskLockable;
+    this.serviceClass = serviceClass;
+    this.routeFunction = routeFunction;
+    this.displayOrder = displayOrder;
+  }
 
   PwaAppProcessingTask(String taskName,
                        TaskRequirement taskRequirement,
@@ -182,6 +199,7 @@ public enum PwaAppProcessingTask {
                        int displayOrder) {
     this.taskName = taskName;
     this.taskRequirement = taskRequirement;
+    taskLockable = TaskLockable.YES;
     this.serviceClass = serviceClass;
     this.routeFunction = routeFunction;
     this.displayOrder = displayOrder;
@@ -193,6 +211,10 @@ public enum PwaAppProcessingTask {
 
   public TaskRequirement getTaskRequirement() {
     return taskRequirement;
+  }
+
+  public TaskLockable getTaskLockable() {
+    return taskLockable;
   }
 
   public Class<? extends AppProcessingService> getServiceClass() {
@@ -209,6 +231,14 @@ public enum PwaAppProcessingTask {
 
   public String getRoute(PwaAppProcessingContext processingContext) {
     return routeFunction.apply(processingContext);
+  }
+
+  public static PwaAppProcessingTask resolveFromTaskName(String taskName) {
+    return PwaAppProcessingTask.stream()
+        .filter(task -> task.getTaskName().equals(taskName))
+        .findFirst()
+        .orElseThrow(() -> new ValueNotFoundException(String.format(
+            "Couldn't resolve PwaAppProcessingTask from taskName: [%s]", taskName)));
   }
 
 }

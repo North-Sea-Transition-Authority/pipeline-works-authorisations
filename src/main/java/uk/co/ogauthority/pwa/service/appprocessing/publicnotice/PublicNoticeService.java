@@ -28,6 +28,7 @@ import uk.co.ogauthority.pwa.model.entity.publicnotice.PublicNoticeDocument;
 import uk.co.ogauthority.pwa.model.entity.publicnotice.PublicNoticeDocumentLink;
 import uk.co.ogauthority.pwa.model.entity.publicnotice.PublicNoticeRequest;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
+import uk.co.ogauthority.pwa.model.enums.tasklist.TaskState;
 import uk.co.ogauthority.pwa.model.form.files.UploadFileWithDescriptionForm;
 import uk.co.ogauthority.pwa.model.form.publicnotice.PublicNoticeDraftForm;
 import uk.co.ogauthority.pwa.model.notify.emailproperties.publicnotices.PublicNoticeApprovalRequestEmailProps;
@@ -115,8 +116,9 @@ public class PublicNoticeService implements AppProcessingService {
 
     return new TaskListEntry(
         task.getTaskName(),
-        atLeastOneSatisfactoryVersion ? task.getRoute(processingContext) : null,
+        task.getRoute(processingContext),
         atLeastOneSatisfactoryVersion ? TaskTag.from(TaskStatus.NOT_STARTED) : TaskTag.from(TaskStatus.CANNOT_START_YET),
+        atLeastOneSatisfactoryVersion ? TaskState.EDIT : TaskState.LOCK,
         task.getDisplayOrder());
 
   }

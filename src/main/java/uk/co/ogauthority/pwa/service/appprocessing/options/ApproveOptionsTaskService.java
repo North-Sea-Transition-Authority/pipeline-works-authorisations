@@ -5,6 +5,7 @@ import static uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessing
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.co.ogauthority.pwa.model.enums.tasklist.TaskState;
 import uk.co.ogauthority.pwa.model.tasklist.TaskListEntry;
 import uk.co.ogauthority.pwa.model.tasklist.TaskTag;
 import uk.co.ogauthority.pwa.repository.appprocessing.options.OptionsApplicationApprovalRepository;
@@ -74,6 +75,7 @@ public class ApproveOptionsTaskService implements AppProcessingService {
 
   @Override
   public TaskListEntry getTaskListEntry(PwaAppProcessingTask task, PwaAppProcessingContext processingContext) {
+
     var optionsApproved = optionsApplicationApprovalRepository.findByPwaApplication(
         processingContext.getPwaApplication())
         .isPresent();
@@ -101,6 +103,7 @@ public class ApproveOptionsTaskService implements AppProcessingService {
         task.getTaskName(),
         null,
         TaskTag.from(taskStatus),
+        TaskState.LOCK,
         task.getDisplayOrder());
   }
 
@@ -120,19 +123,13 @@ public class ApproveOptionsTaskService implements AppProcessingService {
       taskStatus = TaskStatus.CANNOT_START_YET;
     }
 
-    String route;
-    if (taskStatus.equals(TaskStatus.NOT_COMPLETED)) {
-      route = taskAccessible ? task.getRoute(processingContext) : null;
-    } else {
-      route = null;
-    }
-
     boolean atLeastOneSatisfactoryVersion = processingContext.getApplicationInvolvement().hasAtLeastOneSatisfactoryVersion();
 
     return new TaskListEntry(
         task.getTaskName(),
-        atLeastOneSatisfactoryVersion ? route : null,
+        task.getRoute(processingContext),
         atLeastOneSatisfactoryVersion ? TaskTag.from(taskStatus) : TaskTag.from(TaskStatus.CANNOT_START_YET),
+        atLeastOneSatisfactoryVersion && taskStatus.equals(TaskStatus.NOT_COMPLETED) && taskAccessible ? TaskState.EDIT : TaskState.LOCK,
         task.getDisplayOrder());
   }
 }

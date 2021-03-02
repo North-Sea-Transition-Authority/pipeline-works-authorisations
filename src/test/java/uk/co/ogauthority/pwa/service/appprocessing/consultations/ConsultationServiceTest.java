@@ -12,6 +12,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
+import uk.co.ogauthority.pwa.model.enums.tasklist.TaskState;
 import uk.co.ogauthority.pwa.model.tasklist.TaskTag;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.service.consultations.ConsultationRequestService;
@@ -81,8 +82,9 @@ public class ConsultationServiceTest {
     var taskListEntry = consultationService.getTaskListEntry(PwaAppProcessingTask.CONSULTATIONS, processingContext);
 
     assertThat(taskListEntry.getTaskName()).isEqualTo(PwaAppProcessingTask.CONSULTATIONS.getTaskName());
-    assertThat(taskListEntry.getRoute()).isNull();
+    assertThat(taskListEntry.getRoute()).isEqualTo(PwaAppProcessingTask.CONSULTATIONS.getRoute(processingContext));
     assertThat(taskListEntry.getTaskInfoList()).isEmpty();
+    assertThat(taskListEntry.getTaskState()).isEqualTo(TaskState.LOCK);
     assertThat(taskListEntry.getTaskTag()).isEqualTo(TaskTag.from(TaskStatus.CANNOT_START_YET));
 
   }
@@ -101,6 +103,7 @@ public class ConsultationServiceTest {
     assertThat(taskListEntry.getTaskName()).isEqualTo(PwaAppProcessingTask.CONSULTATIONS.getTaskName());
     assertThat(taskListEntry.getRoute()).isEqualTo(PwaAppProcessingTask.CONSULTATIONS.getRoute(processingContext));
     assertThat(taskListEntry.getTaskInfoList()).isEmpty();
+    assertThat(taskListEntry.getTaskState()).isEqualTo(TaskState.EDIT);
     assertThat(taskListEntry.getTaskTag()).isEqualTo(TaskTag.from(TaskStatus.NOT_STARTED));
 
   }
@@ -121,6 +124,7 @@ public class ConsultationServiceTest {
     assertThat(taskListEntry.getTaskName()).isEqualTo(PwaAppProcessingTask.CONSULTATIONS.getTaskName());
     assertThat(taskListEntry.getRoute()).isEqualTo(PwaAppProcessingTask.CONSULTATIONS.getRoute(processingContext));
     assertThat(taskListEntry.getTaskInfoList()).isEmpty();
+    assertThat(taskListEntry.getTaskState()).isEqualTo(TaskState.EDIT);
     assertThat(taskListEntry.getTaskTag()).isEqualTo(TaskTag.from(TaskStatus.IN_PROGRESS));
 
   }
@@ -145,6 +149,7 @@ public class ConsultationServiceTest {
     assertThat(taskListEntry.getTaskName()).isEqualTo(PwaAppProcessingTask.CONSULTATIONS.getTaskName());
     assertThat(taskListEntry.getRoute()).isEqualTo(PwaAppProcessingTask.CONSULTATIONS.getRoute(processingContext));
     assertThat(taskListEntry.getTaskInfoList()).isEmpty();
+    assertThat(taskListEntry.getTaskState()).isEqualTo(TaskState.EDIT);
     assertThat(taskListEntry.getTaskTag()).isEqualTo(TaskTag.from(TaskStatus.COMPLETED));
 
   }
