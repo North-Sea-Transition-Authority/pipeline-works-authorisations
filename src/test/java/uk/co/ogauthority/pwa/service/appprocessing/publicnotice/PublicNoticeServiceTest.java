@@ -28,6 +28,7 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.PersonTestUtil;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.exception.EntityLatestVersionNotFoundException;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeAction;
+import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeDocumentType;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeRequestStatus;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeStatus;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.TemplateTextType;
@@ -382,6 +383,23 @@ public class PublicNoticeServiceTest {
 
   }
 
+  @Test
+  public void createPublicNoticeDocumentLinkFromForm() {
+
+    var publicNotice = PublicNoticeTestUtil.createInitialPublicNotice(pwaApplication);
+    var document = PublicNoticeTestUtil.createInitialPublicNoticeDocument(publicNotice);
+
+    var publicNoticeAppFile = PublicNoticeTestUtil.createAppFileForPublicNotice(pwaApplication);
+    var uploadFileWithDescriptionForm = new UploadFileWithDescriptionForm(
+        publicNoticeAppFile.getFileId(), "desc", clock.instant());
+    when(appFileService.getAppFileByPwaApplicationAndFileId(pwaApplication, publicNoticeAppFile.getFileId()))
+        .thenReturn(publicNoticeAppFile);
+
+    var documentLink = publicNoticeService.createPublicNoticeDocumentLinkFromForm(pwaApplication, uploadFileWithDescriptionForm, document);
+    assertThat(documentLink.getPublicNoticeDocument()).isEqualTo(document);
+    assertThat(documentLink.getAppFile()).isEqualTo(publicNoticeAppFile);
+  }
+
 
   @Test
   public void getAvailablePublicNoticeActions_draftPermissionAndNullStatus() {
@@ -521,6 +539,14 @@ public class PublicNoticeServiceTest {
     var appFile = new AppFile();
     publicNoticeService.getPublicNoticeDocumentLink(appFile);
     verify(publicNoticeDocumentLinkRepository, times(1)).findByAppFile(appFile);
+  }
+
+  @Test(expected = EntityLatestVersionNotFoundException.class)
+  public void getLatestPublicNoticeDocument_notFound() {
+    var publicNotice = PublicNoticeTestUtil.createInitialPublicNotice(pwaApplication);
+    publicNoticeService.getLatestPublicNoticeDocument(publicNotice);
+    verify(publicNoticeDocumentRepository, times(1)).findByPublicNoticeAndDocumentType(
+        publicNotice, PublicNoticeDocumentType.IN_PROGRESS_DOCUMENT);
   }
 
   @Test

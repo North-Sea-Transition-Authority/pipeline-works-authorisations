@@ -877,6 +877,7 @@ public class PwaAppProcessingPermissionServiceTest {
           when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
 
           var permissions = processingPermissionService.getProcessingPermissionsDto(detail, user).getProcessingPermissions();
+          assertThat(permissions).isNotEmpty();
           assertThat(permissions).doesNotContain(PwaAppProcessingPermission.UPDATE_PUBLIC_NOTICE_DOC);
         });
   }
@@ -897,6 +898,7 @@ public class PwaAppProcessingPermissionServiceTest {
           when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
 
           var permissions = processingPermissionService.getProcessingPermissionsDto(detail, user).getProcessingPermissions();
+          assertThat(permissions).isNotEmpty();
           assertThat(permissions).doesNotContain(PwaAppProcessingPermission.UPDATE_PUBLIC_NOTICE_DOC);
         });
   }

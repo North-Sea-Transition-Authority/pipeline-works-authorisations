@@ -29,6 +29,14 @@ public final class PublicNoticeTestUtil {
     return new PublicNotice(pwaApplication, PublicNoticeStatus.MANAGER_APPROVAL, VERSION1);
   }
 
+  public static PublicNotice createApplicantUpdatePublicNotice(PwaApplication pwaApplication) {
+    return new PublicNotice(pwaApplication, PublicNoticeStatus.APPLICANT_UPDATE, VERSION1);
+  }
+
+  public static PublicNotice createCaseOfficerReviewPublicNotice(PwaApplication pwaApplication) {
+    return new PublicNotice(pwaApplication, PublicNoticeStatus.CASE_OFFICER_REVIEW, VERSION1);
+  }
+
   static PublicNotice createEndedPublicNotice(PwaApplication pwaApplication) {
     return new PublicNotice(pwaApplication, PublicNoticeStatus.WITHDRAWN, 10);
   }

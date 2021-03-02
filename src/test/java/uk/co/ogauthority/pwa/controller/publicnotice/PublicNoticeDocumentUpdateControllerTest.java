@@ -98,8 +98,8 @@ public class PublicNoticeDocumentUpdateControllerTest extends PwaAppProcessingCo
     when(publicNoticeDocumentUpdateService.publicNoticeDocumentCanBeUpdated(any())).thenReturn(true);
 
     var fileView = UploadedFileViewTestUtil.createDefaultFileView();
-    when(publicNoticeDocumentUpdateService.getPublicNoticeDocumentFileView(any()))
-        .thenReturn(Optional.of(fileView));
+    when(publicNoticeDocumentUpdateService.getLatestPublicNoticeDocumentFileView(any()))
+        .thenReturn(fileView);
   }
 
 
@@ -153,18 +153,6 @@ public class PublicNoticeDocumentUpdateControllerTest extends PwaAppProcessingCo
         .with(authenticatedUserAndSession(user))
         .with(csrf()))
         .andExpect(result -> assertThat(result.getResolvedException() instanceof AccessDeniedException).isTrue());
-  }
-
-  @Test
-  public void renderUpdatePublicNoticeDocument_noDocumentFileView() throws Exception {
-
-    when(publicNoticeDocumentUpdateService.getPublicNoticeDocumentFileView(any())).thenReturn(Optional.empty());
-
-    mockMvc.perform(get(ReverseRouter.route(on(PublicNoticeDocumentUpdateController.class)
-        .renderUpdatePublicNoticeDocument(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null)))
-        .with(authenticatedUserAndSession(user))
-        .with(csrf()))
-        .andExpect(result -> assertThat(result.getResolvedException() instanceof ViewNotFoundException).isTrue());
   }
 
 
@@ -235,18 +223,6 @@ public class PublicNoticeDocumentUpdateControllerTest extends PwaAppProcessingCo
         .with(authenticatedUserAndSession(user))
         .with(csrf()))
         .andExpect(result -> assertThat(result.getResolvedException() instanceof AccessDeniedException).isTrue());
-  }
-
-  @Test
-  public void postUpdatePublicNoticeDocument_noDocumentFileView() throws Exception {
-
-    when(publicNoticeDocumentUpdateService.getPublicNoticeDocumentFileView(any())).thenReturn(Optional.empty());
-
-    mockMvc.perform(post(ReverseRouter.route(on(PublicNoticeDocumentUpdateController.class)
-        .postUpdatePublicNoticeDocument(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null)))
-        .with(authenticatedUserAndSession(user))
-        .with(csrf()))
-        .andExpect(result -> assertThat(result.getResolvedException() instanceof ViewNotFoundException).isTrue());
   }
 
 
