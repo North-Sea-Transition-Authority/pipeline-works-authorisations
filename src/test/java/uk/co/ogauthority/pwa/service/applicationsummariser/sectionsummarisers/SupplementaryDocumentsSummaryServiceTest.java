@@ -93,7 +93,7 @@ public class SupplementaryDocumentsSummaryServiceTest {
     assertThat(appSummary.getTemplateModel()).contains(entry("sectionDisplayText", ApplicationTask.SUPPLEMENTARY_DOCUMENTS.getDisplayName()));
     assertThat(appSummary.getSidebarSectionLinks()).containsExactly(
         SidebarSectionLink.createAnchorLink(ApplicationTask.SUPPLEMENTARY_DOCUMENTS.getDisplayName(), "#supplementaryDocuments"));
-    assertThat(appSummary.getTemplateModel().get("suppDocFileDownloadUrl")).isEqualTo(ReverseRouter.route(
+    assertThat(appSummary.getTemplateModel()).containsEntry("suppDocFileDownloadUrl", ReverseRouter.route(
         on(SupplementaryDocumentsController.class).handleDownload(pwaApplicationDetail.getPwaApplicationType(), pwaApplicationDetail.getMasterPwaApplicationId(), null, null)));
 
   }
