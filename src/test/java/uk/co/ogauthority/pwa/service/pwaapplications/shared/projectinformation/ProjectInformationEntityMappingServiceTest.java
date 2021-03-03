@@ -149,7 +149,7 @@ public class ProjectInformationEntityMappingServiceTest {
   public void setEntityValuesUsingForm_permanentDepositsTypeIsThisApp(){
     form.setPermanentDepositsMadeType(PermanentDepositRadioOption.THIS_APP);
     projectInformationEntityMappingService.setEntityValuesUsingForm(entity, form);
-    assertThat(entity.getPermanentDepositsMade()).isEqualTo(PermanentDepositRadioOption.THIS_APP);
+    assertThat(entity.getPermanentDepositsMade()).isEqualTo(PermanentDepositRadioOption.THIS_APP.isPermanentDepositMade());
     assertThat(entity.getFutureAppSubmissionMonth()).isNull();
     assertThat(entity.getFutureAppSubmissionYear()).isNull();
   }
@@ -158,7 +158,7 @@ public class ProjectInformationEntityMappingServiceTest {
   public void setEntityValuesUsingForm_noPermanentDeposits(){
     form.setPermanentDepositsMadeType(PermanentDepositRadioOption.NONE);
     projectInformationEntityMappingService.setEntityValuesUsingForm(entity, form);
-    assertThat(entity.getPermanentDepositsMade()).isEqualTo(PermanentDepositRadioOption.NONE);
+    assertThat(entity.getPermanentDepositsMade()).isEqualTo(PermanentDepositRadioOption.NONE.isPermanentDepositMade());
     assertThat(entity.getFutureAppSubmissionMonth()).isNull();
     assertThat(entity.getFutureAppSubmissionYear()).isNull();
   }
