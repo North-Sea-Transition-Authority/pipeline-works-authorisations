@@ -103,7 +103,7 @@ public class PaymentRequestDashboardController {
       case REFRESH:
         pwaPaymentService.refreshPwaPaymentRequestData(paymentRequest);
         break;
-      default: LOGGER.warn("Unrecognised updated payment action: " + action);
+      default: LOGGER.warn("Unrecognised updated payment action: {}", action);
     }
 
     return ReverseRouter.redirect(
