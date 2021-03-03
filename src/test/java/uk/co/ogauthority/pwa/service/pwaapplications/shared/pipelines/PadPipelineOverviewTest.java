@@ -26,7 +26,7 @@ public class PadPipelineOverviewTest {
 
     padPipelineOverview = new PadPipelineOverview(padPipeline);
     var expectedPipelineName = "my ref - 5 Millimetre " + PipelineType.PRODUCTION_FLOWLINE.getDisplayName();
-    assertThat(padPipelineOverview.getPipelineName().equals(expectedPipelineName));
+    assertThat(padPipelineOverview.getPipelineName()).isEqualTo(expectedPipelineName);
   }
 
   @Test
@@ -38,7 +38,7 @@ public class PadPipelineOverviewTest {
 
     padPipelineOverview = new PadPipelineOverview(padPipeline);
     var expectedPipelineName = "my ref - " + PipelineType.HYDRAULIC_JUMPER.getDisplayName();
-    assertThat(padPipelineOverview.getPipelineName().equals(expectedPipelineName));
+    assertThat(padPipelineOverview.getPipelineName()).isEqualTo(expectedPipelineName);
   }
 
   @Test
@@ -52,7 +52,7 @@ public class PadPipelineOverviewTest {
 
     padPipelineOverview = new PadPipelineOverview(padPipeline);
     var expectedPipelineName = "my ref - 5 Millimetre " + PipelineType.PRODUCTION_FLOWLINE.getDisplayName() + " (my bundle)";
-    assertThat(padPipelineOverview.getPipelineName().equals(expectedPipelineName));
+    assertThat(padPipelineOverview.getPipelineName()).isEqualTo(expectedPipelineName);
   }
 
 }

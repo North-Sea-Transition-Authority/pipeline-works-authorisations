@@ -188,9 +188,8 @@ public class ApplicationUpdateRequestService implements AppProcessingService {
 
     } else {
       LOGGER.error(
-          "Tried to send application update request email, but no recipients found. pwaApplication.id:" +
-              pwaApplicationDetail.getMasterPwaApplicationId()
-      );
+          String.format("Tried to send application update request email, but no recipients found. pwaApplication.id: %s",
+              pwaApplicationDetail.getMasterPwaApplicationId()));
     }
 
   }
