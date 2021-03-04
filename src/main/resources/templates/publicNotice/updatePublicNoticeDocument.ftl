@@ -1,6 +1,8 @@
 <#-- @ftlvariable name="errorList" type="java.util.Map<java.lang.String,java.util.List<java.lang.String,java.lang.String>>" -->
 <#-- @ftlvariable name="publicNoticeDocumentFileView" type="uk.co.ogauthority.pwa.model.form.files.UploadedFileView>" -->
 <#-- @ftlvariable name="appRef" type="java.lang.String" -->
+<#-- @ftlvariable name="coverLetter" type="java.lang.String" -->
+<#-- @ftlvariable name="publicNoticeDocumentComments" type="java.lang.String" -->
 
 
 <#include '../layout.ftl'>
@@ -16,11 +18,18 @@
   <h2 class="govuk-heading-l">Update public notice document</h2>
 
   <@fdsForm.htmlForm>
-    <h3 class="govuk-heading-m"> Cover letter </h3>
-    
+
+    <h3 class="govuk-heading-m"> Cover letter </h3>    
     <@multiLineText.multiLineText>
       <p class="govuk-body"> ${coverLetter} </p> 
     </@multiLineText.multiLineText>
+
+    <#if publicNoticeDocumentComments?has_content>
+      <h3 class="govuk-heading-m"> Comments </h3>    
+      <@multiLineText.multiLineText>
+        <p class="govuk-body"> ${publicNoticeDocumentComments} </p> 
+      </@multiLineText.multiLineText>
+    </#if>
  
     <h3 class="govuk-heading-m"> Public notice document download </h3>
     <p class="govuk-body">
@@ -37,7 +46,7 @@
       </@grid.twoThirdsColumn>
     </@grid.gridRow>
 
-    <@fdsAction.submitButtons primaryButtonText="Update" linkSecondaryAction=true secondaryLinkText="Cancel" linkSecondaryActionUrl=springUrl(cancelUrl)/>
+    <@fdsAction.submitButtons primaryButtonText="Submit to case officer" linkSecondaryAction=true secondaryLinkText="Cancel" linkSecondaryActionUrl=springUrl(cancelUrl)/>
 
   </@fdsForm.htmlForm>
 

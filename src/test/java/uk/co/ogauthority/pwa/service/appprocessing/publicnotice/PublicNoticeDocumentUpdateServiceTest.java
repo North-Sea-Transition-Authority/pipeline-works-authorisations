@@ -8,7 +8,6 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 
 import java.time.Instant;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
@@ -22,8 +21,6 @@ import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.controller.publicnotice.PublicNoticeDocumentUpdateController;
 import uk.co.ogauthority.pwa.energyportal.model.entity.PersonTestUtil;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
-import uk.co.ogauthority.pwa.exception.EntityLatestVersionNotFoundException;
-import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeAction;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeDocumentType;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeStatus;
@@ -34,9 +31,8 @@ import uk.co.ogauthority.pwa.model.entity.publicnotice.PublicNoticeDocumentLink;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.files.UploadFileWithDescriptionForm;
-import uk.co.ogauthority.pwa.model.form.files.UploadedFileViewTestUtil;
 import uk.co.ogauthority.pwa.model.form.publicnotice.UpdatePublicNoticeDocumentForm;
-import uk.co.ogauthority.pwa.model.notify.emailproperties.PublicNoticeDocumentReviewRequestEmailProps;
+import uk.co.ogauthority.pwa.model.notify.emailproperties.publicnotices.PublicNoticeDocumentReviewRequestEmailProps;
 import uk.co.ogauthority.pwa.model.teams.PwaRegulatorRole;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.repository.publicnotice.PublicNoticeDocumentLinkRepository;
@@ -139,41 +135,6 @@ public class PublicNoticeDocumentUpdateServiceTest {
     when(publicNoticeService.getPublicNoticesByStatus(PublicNoticeStatus.APPLICANT_UPDATE)).thenReturn(List.of());
     var publicNoticeExists = publicNoticeDocumentUpdateService.publicNoticeDocumentCanBeUpdated(pwaApplication);
     assertThat(publicNoticeExists).isFalse();
-  }
-
-  @Test
-  public void getPublicNoticeDocumentFileView_documentLinkExists() {
-
-    var publicNotice = PublicNoticeTestUtil.createInitialPublicNotice(pwaApplication);
-    when(publicNoticeService.getLatestPublicNotice(pwaApplication))
-        .thenReturn(publicNotice);
-
-    var document = PublicNoticeTestUtil.createInitialPublicNoticeDocument(publicNotice);
-    when(publicNoticeService.getLatestPublicNoticeDocument(publicNotice)).thenReturn(document);
-
-    var publicNoticeAppFile = PublicNoticeTestUtil.createAppFileForPublicNotice(pwaApplication);
-    var documentLink = new PublicNoticeDocumentLink(document, publicNoticeAppFile);
-    when(publicNoticeDocumentLinkRepository.findByPublicNoticeDocument(document)).thenReturn(Optional.of(documentLink));
-
-    var documentFileView = UploadedFileViewTestUtil.createDefaultFileView();
-    when(appFileService.getUploadedFileView(pwaApplication, documentLink.getAppFile().getFileId(), FILE_PURPOSE, ApplicationFileLinkStatus.FULL))
-        .thenReturn(documentFileView);
-
-    var actualFileView = publicNoticeDocumentUpdateService.getLatestPublicNoticeDocumentFileView(pwaApplication);
-    assertThat(actualFileView).isEqualTo(documentFileView);
-  }
-
-  @Test(expected = EntityLatestVersionNotFoundException.class)
-  public void getPublicNoticeDocumentFileView_documentLinkDoesNotExists() {
-
-    var publicNotice = PublicNoticeTestUtil.createInitialPublicNotice(pwaApplication);
-    when(publicNoticeService.getLatestPublicNotice(pwaApplication))
-        .thenReturn(publicNotice);
-
-    var document = PublicNoticeTestUtil.createInitialPublicNoticeDocument(publicNotice);
-    when(publicNoticeService.getLatestPublicNoticeDocument(publicNotice)).thenReturn(document);
-
-    publicNoticeDocumentUpdateService.getLatestPublicNoticeDocumentFileView(pwaApplication);
   }
 
   @Test
