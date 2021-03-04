@@ -205,7 +205,7 @@ public class PublicNoticeDocumentUpdateRequestControllerTest extends PwaAppProce
         .with(authenticatedUserAndSession(user))
         .with(csrf()))
         .andExpect(status().isOk())
-        .andExpect(view().name("publicNotice/reviewPublicNoticeDocument"));
+        .andExpect(view().name("publicNotice/requestPublicNoticeDocumentUpdate"));
   }
 
   @Test
