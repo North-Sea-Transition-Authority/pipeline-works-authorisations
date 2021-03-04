@@ -558,7 +558,6 @@ public class ApplicationChargeRequestServiceTest {
 
     assertThat(processPaymentAttemptResult).isEqualTo(ProcessPaymentAttemptOutcome.CHARGE_REQUEST_UNCHANGED);
 
-    assertThat(processPaymentAttemptResult).isEqualTo(ProcessPaymentAttemptOutcome.CHARGE_REQUEST_UNCHANGED);
     verify(pwaAppChargeRequestDetailRepository, times(0)).save(any());
     verifyNoInteractions(camundaWorkflowService, workflowAssignmentService);
 

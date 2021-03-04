@@ -9,6 +9,7 @@ import com.google.common.annotations.VisibleForTesting;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -474,7 +475,7 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
   public Map<HuooRole, Integer> getRoleCountMap(PwaApplicationDetail pwaApplicationDetail) {
     var padOrganisationRoleList = getOrgRolesForDetail(pwaApplicationDetail);
 
-    var map = new HashMap<HuooRole, Integer>();
+    EnumMap<HuooRole, Integer> map = new EnumMap<>(HuooRole.class);
     HuooRole.stream()
         .forEach(role -> map.put(role, 0));
 

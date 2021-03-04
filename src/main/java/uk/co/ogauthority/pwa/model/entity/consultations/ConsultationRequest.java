@@ -130,7 +130,7 @@ public class ConsultationRequest implements WorkflowSubject {
 
   @Override
   public Integer getBusinessKey() {
-    return id;
+    return getId();
   }
 
   @Override

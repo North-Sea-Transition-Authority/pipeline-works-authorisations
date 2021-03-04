@@ -2,8 +2,6 @@ package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.
 
 import java.util.List;
 import java.util.Map;
-import uk.co.ogauthority.pwa.model.dto.consents.OrganisationRoleOwnerDto;
-import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitDetailDto;
 
 public class DiffedAllOrgRolePipelineGroups {
 

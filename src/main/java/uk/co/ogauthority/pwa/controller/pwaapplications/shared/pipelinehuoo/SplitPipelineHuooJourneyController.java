@@ -95,8 +95,7 @@ public class SplitPipelineHuooJourneyController {
                                                   @ModelAttribute("form") PickSplitPipelineForm form) {
 
 
-    var modelAndView = getSelectPipelineModelAndView(applicationContext, huooRole);
-    return modelAndView;
+    return getSelectPipelineModelAndView(applicationContext, huooRole);
   }
 
   @PostMapping("/select-pipeline")
@@ -183,7 +182,7 @@ public class SplitPipelineHuooJourneyController {
         numberOfSections,
         huooRole,
         applicationContext,
-        (splitablePipelineOverview) -> {
+        splitablePipelineOverview -> {
 
           var pickableIdentLocationOptions = pickableHuooPipelineIdentService.getSortedPickableIdentLocationOptions(
               applicationContext.getApplicationDetail(), PipelineId.from(splitablePipelineOverview)
@@ -220,7 +219,7 @@ public class SplitPipelineHuooJourneyController {
         numberOfSections,
         huooRole,
         applicationContext,
-        (splitablePipelineOverview) -> {
+        splitablePipelineOverview -> {
           var pipelineIdObj = PipelineId.from(splitablePipelineOverview);
           var pickableIdentLocationOptions = pickableHuooPipelineIdentService.getSortedPickableIdentLocationOptions(
               applicationContext.getApplicationDetail(), pipelineIdObj
