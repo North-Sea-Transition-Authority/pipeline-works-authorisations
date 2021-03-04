@@ -108,7 +108,7 @@ public class CancelPaymentRequestController {
                                       Function<ApplicationChargeRequestReport, ModelAndView> reportModelAndViewFunction) {
     if (!cancelPaymentRequestProcService.taskAccessible(processingContext)) {
       throw new AccessDeniedException(
-          String.format("WuaId:%s authorised to access Cancel payments task for appId:%s",
+          String.format("WuaId:%s not authorised to access Cancel payments task for appId:%s",
               processingContext.getUser().getWuaId(),
               processingContext.getMasterPwaApplicationId()
           )

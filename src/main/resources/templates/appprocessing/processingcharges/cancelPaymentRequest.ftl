@@ -20,7 +20,7 @@
             <h2 class="govuk-heading-l">${pageRef}</h2>
 
             <@fdsInsetText.insetText>
-                Please note that by cancelling the payment, the application will require the Initial review to be re-completed.
+                The initial review for this application will need to be completed again after the payment is cancelled.
             </@fdsInsetText.insetText>
 
             <@pwaPayment.applicationPaymentDisplaySummary summary=appPaymentDisplaySummary />

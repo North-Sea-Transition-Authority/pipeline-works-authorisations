@@ -435,7 +435,7 @@ public class ApplicationChargeRequestService {
     return pwaAppChargeRequestDetailRepository.countByPwaAppChargeRequest_PwaApplicationAndPwaAppChargeRequestStatusAndTipFlagIsTrue(
         pwaApplication,
         PwaAppChargeRequestStatus.OPEN
-    ) == 1L;
+    ) > 0L;
 
   }
 
