@@ -141,7 +141,7 @@ public class PublicNoticeDocumentUpdateServiceTest {
   public void getPublicNoticeUpdatePageBannerView_publicNoticeDocumentCanNotBeUpdated() {
     when(publicNoticeService.getPublicNoticesByStatus(PublicNoticeStatus.APPLICANT_UPDATE)).thenReturn(List.of());
     var pageBannerViewOpt = publicNoticeDocumentUpdateService.getPublicNoticeUpdatePageBannerView(pwaApplication);
-    assertThat(pageBannerViewOpt.isEmpty()).isTrue();
+    assertThat(pageBannerViewOpt).isEmpty();
   }
 
   @Test
@@ -158,7 +158,7 @@ public class PublicNoticeDocumentUpdateServiceTest {
         .thenReturn(publicNoticeRequest);
 
     var pageBannerViewOpt = publicNoticeDocumentUpdateService.getPublicNoticeUpdatePageBannerView(pwaApplication);
-    assertThat(pageBannerViewOpt.isPresent()).isTrue();
+    assertThat(pageBannerViewOpt).isPresent();
 
     var pageBannerView = pageBannerViewOpt.get();
     assertThat(pageBannerView.getHeader()).isEqualTo("Public notice document update requested");

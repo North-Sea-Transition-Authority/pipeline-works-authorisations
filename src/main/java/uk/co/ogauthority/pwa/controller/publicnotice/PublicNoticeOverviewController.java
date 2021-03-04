@@ -33,7 +33,6 @@ public class PublicNoticeOverviewController {
 
   private final AppProcessingBreadcrumbService appProcessingBreadcrumbService;
   private final PublicNoticeService publicNoticeService;
-  private final ControllerHelperService controllerHelperService;
 
   @Autowired
   public PublicNoticeOverviewController(
@@ -42,7 +41,6 @@ public class PublicNoticeOverviewController {
       ControllerHelperService controllerHelperService) {
     this.appProcessingBreadcrumbService = appProcessingBreadcrumbService;
     this.publicNoticeService = publicNoticeService;
-    this.controllerHelperService = controllerHelperService;
   }
 
 
