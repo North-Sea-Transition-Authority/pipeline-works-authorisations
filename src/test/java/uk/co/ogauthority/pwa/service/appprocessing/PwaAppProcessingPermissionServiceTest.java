@@ -673,6 +673,52 @@ public class PwaAppProcessingPermissionServiceTest {
   }
 
   @Test
+  public void getAppProcessingPermissions_cancelPayment_pwaManager_andAwaitingPayment() {
+
+    replacePrivileges(user, PwaUserPrivilege.PWA_MANAGER);
+    detail.setStatus(PwaApplicationStatus.AWAITING_APPLICATION_PAYMENT);
+
+    var appInvolvement = ApplicationInvolvementDtoTestUtil.noInvolvementAndNoFlags(
+        application
+    );
+
+    when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
+
+    var permissions = processingPermissionService.getProcessingPermissionsDto(detail, user).getProcessingPermissions();
+    AssertionTestUtils.assertNotEmptyAndContains(permissions, PwaAppProcessingPermission.CANCEL_PAYMENT);
+
+  }
+
+  @Test
+  public void getAppProcessingPermissions_cancelPayment_pwaManager_andNotAwaitingPayment() {
+
+    replacePrivileges(user, PwaUserPrivilege.PWA_MANAGER);
+    var noCancelPaymentPermissionStatuses = EnumSet.allOf(PwaApplicationStatus.class);
+    noCancelPaymentPermissionStatuses.remove(PwaApplicationStatus.AWAITING_APPLICATION_PAYMENT);
+
+    var appInvolvement = ApplicationInvolvementDtoTestUtil.noInvolvementAndNoFlags(
+        application
+    );
+
+    when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
+
+    for (PwaApplicationStatus appStatus : noCancelPaymentPermissionStatuses) {
+      try {
+        detail.setStatus(PwaApplicationStatus.AWAITING_APPLICATION_PAYMENT);
+
+        var permissions = processingPermissionService.getProcessingPermissionsDto(
+            detail,
+            user
+        ).getProcessingPermissions();
+        AssertionTestUtils.assertNotEmptyAndContains(permissions, PwaAppProcessingPermission.CANCEL_PAYMENT);
+      } catch (AssertionError e) {
+        throw new AssertionError("Failed at status:" + appStatus, e);
+      }
+    }
+
+  }
+
+  @Test
   public void getAppProcessingPermissions_requestUpdate_pwaManager_andNotPwaManagerStage() {
 
     replacePrivileges(user, PwaUserPrivilege.PWA_MANAGER);

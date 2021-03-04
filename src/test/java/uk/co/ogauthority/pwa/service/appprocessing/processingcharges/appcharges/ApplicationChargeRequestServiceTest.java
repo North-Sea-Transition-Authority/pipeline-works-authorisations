@@ -607,5 +607,25 @@ public class ApplicationChargeRequestServiceTest {
   }
 
 
+  @Test
+  public void applicationHasOpenChargeRequest_whenNoOpenRequest() {
 
+    when(pwaAppChargeRequestDetailRepository.countByPwaAppChargeRequest_PwaApplicationAndPwaAppChargeRequestStatusAndTipFlagIsTrue(
+        pwaApplication, PwaAppChargeRequestStatus.OPEN
+    )).thenReturn(0L);
+
+    assertThat(applicationChargeRequestService.applicationHasOpenChargeRequest(pwaApplication)).isFalse();
+
+  }
+
+  @Test
+  public void applicationHasOpenChargeRequest_whenOpenRequest() {
+
+    when(pwaAppChargeRequestDetailRepository.countByPwaAppChargeRequest_PwaApplicationAndPwaAppChargeRequestStatusAndTipFlagIsTrue(
+        pwaApplication, PwaAppChargeRequestStatus.OPEN
+    )).thenReturn(1L);
+
+    assertThat(applicationChargeRequestService.applicationHasOpenChargeRequest(pwaApplication)).isTrue();
+
+  }
 }
