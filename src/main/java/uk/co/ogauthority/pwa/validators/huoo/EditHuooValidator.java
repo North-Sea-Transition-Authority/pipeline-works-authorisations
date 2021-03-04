@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.commons.collections4.SetUtils;
+import org.apache.commons.lang3.NotImplementedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
@@ -47,9 +48,8 @@ public class EditHuooValidator implements SmartValidator {
   }
 
   @Override
-  @Deprecated
   public void validate(Object target, Errors errors) {
-    throw new AssertionError(); /* required by the SmartValidator. Not actually used. */
+    throw new NotImplementedException("Use the other validate method and provide hints.");
   }
 
   @Override
@@ -143,11 +143,9 @@ public class EditHuooValidator implements SmartValidator {
             padOrgRole -> padOrgRole.getOrganisationUnit().getOuId() == huooValidationView.getPortalOrganisationUnit().getOuId())
         .anyMatch(padOrgRole -> padOrgRole.getRole().equals(HuooRole.HOLDER));
 
-    if (orgWasHolder) {
-      if (!SetUtils.emptyIfNull(form.getHuooRoles()).contains(HuooRole.HOLDER) && holderCount == 0) {
-        errors.rejectValue("huooRoles", "huooRoles.requiresOneHolder",
-            "You can't remove the final holder on an application");
-      }
+    if (orgWasHolder && !SetUtils.emptyIfNull(form.getHuooRoles()).contains(HuooRole.HOLDER) && holderCount == 0) {
+      errors.rejectValue("huooRoles", "huooRoles.requiresOneHolder",
+          "You can't remove the final holder on an application");
     }
   }
 

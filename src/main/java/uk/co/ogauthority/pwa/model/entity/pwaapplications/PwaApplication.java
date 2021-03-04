@@ -142,7 +142,7 @@ public class PwaApplication implements WorkflowSubject {
 
   @Override
   public Integer getBusinessKey() {
-    return id;
+    return getId();
   }
 
   @Override

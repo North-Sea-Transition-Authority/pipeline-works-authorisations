@@ -3,8 +3,8 @@ package uk.co.ogauthority.pwa.service.teams;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import java.util.Comparator;
+import java.util.EnumMap;
 import java.util.EnumSet;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
@@ -36,7 +36,7 @@ public class ManageTeamService {
 
   public Map<ManageTeamType, String> getManageTeamTypesAndUrlsForUser(WebUserAccount user) {
 
-    var teamTypeUrls = new HashMap<ManageTeamType, String>();
+    var teamTypeUrls = new EnumMap<ManageTeamType, String>(ManageTeamType.class);
 
     Set<PwaRegulatorRole> userRegRoles = teamService
         .getMembershipOfPersonInTeam(teamService.getRegulatorTeam(), user.getLinkedPerson())
