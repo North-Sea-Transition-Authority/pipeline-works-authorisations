@@ -21,12 +21,6 @@ final class GovUkPayConfiguration {
 
   private final String govukPayAuthorizationHeaderValue;
 
-  private final Long apiConnectionTimeoutSeconds;
-  private final Long apiReadTimeoutSeconds;
-
-  private final RestTemplateBuilder restTemplateBuilder;
-  private final ClientHttpRequestFactory clientHttpRequestFactory;
-
   private final RestTemplate restTemplate;
 
   @Autowired
@@ -41,10 +35,6 @@ final class GovUkPayConfiguration {
     this.apiKey = apiKey;
     this.govUkPayBaseUrl = govUkPayBaseUrl;
     this.govukPayAuthorizationHeaderValue = "Bearer " + apiKey;
-    this.apiConnectionTimeoutSeconds = apiConnectionTimeoutSeconds;
-    this.apiReadTimeoutSeconds = apiReadTimeoutSeconds;
-    this.restTemplateBuilder = restTemplateBuilder;
-    this.clientHttpRequestFactory = clientHttpRequestFactory;
 
     this.restTemplate = restTemplateBuilder
         .setConnectTimeout(Duration.ofSeconds(apiConnectionTimeoutSeconds))
@@ -61,14 +51,6 @@ final class GovUkPayConfiguration {
 
   String getPaymentsEndpoint() {
     return PAYMENTS_URL;
-  }
-
-  String getApplicationBaseUrl() {
-    return applicationBaseUrl;
-  }
-
-  String getApiKey() {
-    return apiKey;
   }
 
   String getGovukPayAuthorizationHeaderValue() {

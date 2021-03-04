@@ -7,13 +7,13 @@ public final class GovPayPaymentJourneyState {
 
   private final GovUkPaymentStatus status;
 
-  private final Boolean finished;
+  private final boolean finished;
 
   private final String message;
 
   private final String code;
 
-  GovPayPaymentJourneyState(GovUkPaymentStatus status, Boolean finished, String message, String code) {
+  GovPayPaymentJourneyState(GovUkPaymentStatus status, boolean finished, String message, String code) {
     this.status = status;
     this.finished = finished;
     this.message = message;
@@ -34,7 +34,7 @@ public final class GovPayPaymentJourneyState {
    *
    * @return finished
    **/
-  public Boolean isFinished() {
+  public boolean isFinished() {
     return finished;
   }
 

@@ -215,7 +215,7 @@ public class PwaPaymentRequestPersisterTest {
 
     assertThat(capturedPaymentRequest.getRequestStatus()).isEqualTo(PaymentRequestStatus.IN_PROGRESS);
     assertThat(capturedPaymentRequest.getRequestStatusTimestamp()).isEqualTo(clock.instant());
-    assertThat(capturedPaymentRequest.getRequestStatusMessage()).isEqualTo(null);
+    assertThat(capturedPaymentRequest.getRequestStatusMessage()).isNull();
 
     assertThat(capturedPaymentRequest.getGovUkPaymentStatus()).isEqualTo(GovUkPaymentStatus.CREATED);
     assertThat(capturedPaymentRequest.getGovUkPaymentStatusTimestamp()).isEqualTo(clock.instant());

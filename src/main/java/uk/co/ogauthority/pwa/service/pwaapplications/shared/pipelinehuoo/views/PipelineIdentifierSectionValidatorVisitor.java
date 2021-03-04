@@ -25,7 +25,7 @@ class PipelineIdentifierSectionValidatorVisitor implements PipelineIdentifierVis
                                             List<PipelineIdentifier> groupedPipelineIdentifiers) {
     this.sortedPipelineLocationOptions = sortedPipelineLocationOptions;
     this.sortedPipelineSections = groupedPipelineIdentifiers.stream()
-        .filter(o -> o instanceof PipelineSection)
+        .filter(PipelineSection.class::isInstance)
         .map(o -> (PipelineSection) o)
         .sorted(Comparator.comparing(PipelineSection::getSectionNumber))
         .collect(Collectors.toList());
