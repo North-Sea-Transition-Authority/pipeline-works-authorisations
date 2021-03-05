@@ -115,6 +115,9 @@ public class PwaAppProcessingPermissionService {
             case WITHDRAW_APPLICATION:
               return (userPrivileges.contains(PwaUserPrivilege.PWA_CASE_OFFICER) && appInvolvement.isUserAssignedCaseOfficer())
                   || (userPrivileges.contains(PwaUserPrivilege.PWA_MANAGER) && appInvolvement.isPwaManagerStage());
+            case CANCEL_PAYMENT:
+              return PwaApplicationStatus.AWAITING_APPLICATION_PAYMENT.equals(detail.getStatus())
+                  && userPrivileges.contains(PwaUserPrivilege.PWA_MANAGER);
             default:
               return false;
           }

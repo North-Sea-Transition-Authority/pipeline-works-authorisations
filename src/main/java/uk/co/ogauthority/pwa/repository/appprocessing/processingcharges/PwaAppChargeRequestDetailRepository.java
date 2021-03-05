@@ -16,6 +16,11 @@ public interface PwaAppChargeRequestDetailRepository extends CrudRepository<PwaA
       PwaAppChargeRequestStatus pwaAppChargeRequestStatus
   );
 
+  long countByPwaAppChargeRequest_PwaApplicationAndPwaAppChargeRequestStatusAndTipFlagIsTrue(
+      PwaApplication pwaApplication,
+      PwaAppChargeRequestStatus pwaAppChargeRequestStatus
+  );
+
   Optional<PwaAppChargeRequestDetail> findByPwaAppChargeRequest_PwaApplicationAndTipFlagIsTrue(
       PwaApplication pwaApplication
   );

@@ -15,13 +15,13 @@
 <#assign sharePaymentUrlMailTo>mailto:?subject=Pay OGA for PWA application ${appRef}&body=Please use this link to pay the Oil and Gas Authority for our PWA application: ${paymentLandingPageUrl}</#assign>
 <#assign linkclass="govuk-link govuk-link--no-visited-state"/>
 <@defaultPage htmlTitle="${pageHeadingWithAppRef}" topNavigation=true breadcrumbs=true fullWidthColumn=true>
+    <@fdsError.errorSummary errorItems=errorList />
+
     <@pwaCaseSummary.summary caseSummaryView=caseSummaryView />
 
     <@grid.gridRow>
         <@grid.twoThirdsColumn>
             <h2 class="govuk-heading-l">${pageHeading}</h2>
-
-            <@fdsError.errorSummary errorItems=errorList />
 
             <@fdsInsetText.insetText>
                 Please note that by starting the payment, any other person currently completing a payment for the application will have their attempt cancelled.
