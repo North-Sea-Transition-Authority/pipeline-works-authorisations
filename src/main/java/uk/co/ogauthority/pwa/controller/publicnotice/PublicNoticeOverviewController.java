@@ -73,7 +73,10 @@ public class PublicNoticeOverviewController {
             .renderDraftPublicNotice(pwaApplicationId, applicationType, null, null, null)),
 
         PublicNoticeAction.APPROVE.name(), ReverseRouter.route(on(PublicNoticeApprovalController.class)
-            .renderApprovePublicNotice(pwaApplicationId, applicationType, null, null, null))
+            .renderApprovePublicNotice(pwaApplicationId, applicationType, null, null, null)),
+
+        PublicNoticeAction.WITHDRAW.name(), ReverseRouter.route(on(WithdrawPublicNoticeController.class)
+            .renderWithdrawPublicNotice(pwaApplicationId, applicationType, null, null, null))
     );
 
   }

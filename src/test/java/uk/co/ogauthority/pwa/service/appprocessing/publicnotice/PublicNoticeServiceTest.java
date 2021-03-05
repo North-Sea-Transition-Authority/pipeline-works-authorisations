@@ -436,6 +436,16 @@ public class PublicNoticeServiceTest {
   }
 
   @Test
+  public void getAvailablePublicNoticeActions_additionalWithdrawPermissions_draftAndWithdrawActionsReturned() {
+
+    var context = PwaAppProcessingContextTestUtil.withPermissions(
+        pwaApplicationDetail, Set.of(PwaAppProcessingPermission.DRAFT_PUBLIC_NOTICE, PwaAppProcessingPermission.WITHDRAW_PUBLIC_NOTICE));
+    var publicNoticeActions = publicNoticeService.getAvailablePublicNoticeActions(PublicNoticeStatus.DRAFT, context);
+
+    assertThat(publicNoticeActions).containsOnly(PublicNoticeAction.UPDATE_DRAFT, PublicNoticeAction.WITHDRAW);
+  }
+
+  @Test
   public void getAllPublicNoticeViews_noPublicNotices() {
 
     var context = PwaAppProcessingContextTestUtil.withPermissions(
