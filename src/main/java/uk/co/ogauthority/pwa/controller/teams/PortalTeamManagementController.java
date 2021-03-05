@@ -31,6 +31,7 @@ import uk.co.ogauthority.pwa.model.teams.PwaTeam;
 import uk.co.ogauthority.pwa.model.teams.PwaTeamType;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaOrganisationUserRole;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaRegulatorUserRole;
 import uk.co.ogauthority.pwa.service.enums.users.UserType;
 import uk.co.ogauthority.pwa.service.teammanagement.AddUserToTeamFormValidator;
 import uk.co.ogauthority.pwa.service.teammanagement.LastAdministratorException;
@@ -45,7 +46,6 @@ public class PortalTeamManagementController {
   private final TeamManagementService teamManagementService;
   private final AddUserToTeamFormValidator addUserToTeamFormValidator;
   private final String ogaRegistrationLink;
-  private final Map<String, String> allRolesMap;
 
   @Autowired
   public PortalTeamManagementController(TeamManagementService teamManagementService,
@@ -54,12 +54,23 @@ public class PortalTeamManagementController {
     this.teamManagementService = teamManagementService;
     this.addUserToTeamFormValidator = addUserToTeamFormValidator;
     this.ogaRegistrationLink = ogaRegistrationLink;
-
-
-    allRolesMap = PwaOrganisationUserRole.stream()
-        .sorted(Comparator.comparing(PwaOrganisationUserRole::getDisplayOrder))
-        .collect(StreamUtils.toLinkedHashMap(PwaOrganisationUserRole::getRoleName, PwaOrganisationUserRole::getRoleDescription));
   }
+
+
+  private Map<String, String> getAllRolesMap(PwaTeam pwaTeam) {
+
+    if (pwaTeam.getType().equals(PwaTeamType.REGULATOR)) {
+      return PwaRegulatorUserRole.stream()
+          .sorted(Comparator.comparing(PwaRegulatorUserRole::getDisplayOrder))
+          .collect(StreamUtils.toLinkedHashMap(PwaRegulatorUserRole::getRoleName, PwaRegulatorUserRole::getRoleDescription));
+
+    } else {
+      return PwaOrganisationUserRole.stream()
+          .sorted(Comparator.comparing(PwaOrganisationUserRole::getDisplayOrder))
+          .collect(StreamUtils.toLinkedHashMap(PwaOrganisationUserRole::getRoleName, PwaOrganisationUserRole::getRoleDescription));
+    }
+  }
+
 
   /**
    * Display all teams the user can manage.
@@ -108,7 +119,7 @@ public class PortalTeamManagementController {
         .addObject("showBreadcrumbs", false)
         .addObject("userCanManageAccess", true)
         .addObject("showTopNav", true)
-        .addObject("allRoles", allRolesMap)
+        .addObject("allRoles", getAllRolesMap(team))
         .addObject("appUser", false)
         .addObject("userType", team.getType().equals(PwaTeamType.REGULATOR) ? UserType.OGA : UserType.INDUSTRY);
 
