@@ -717,7 +717,8 @@ public class ApplicationChargeRequestServiceTest {
       var request = (PwaPaymentRequest) invocation.getArgument(0);
       request.setRequestStatus(PaymentRequestStatus.IN_PROGRESS);
       return invocation;
-    }).when(pwaPaymentService).refreshPwaPaymentRequestData(any());
+    }).when(pwaPaymentService).cancelPayment(
+        any());
 
     var cancelOutcome = applicationChargeRequestService.cancelPaymentRequest(
         pwaApplication, pwaManagerWua, CANCEL_REASON);
@@ -738,14 +739,14 @@ public class ApplicationChargeRequestServiceTest {
       var request = (PwaPaymentRequest) invocation.getArgument(0);
       request.setRequestStatus(PaymentRequestStatus.PAYMENT_COMPLETE);
       return invocation;
-    }).when(pwaPaymentService).refreshPwaPaymentRequestData(any());
+    }).when(pwaPaymentService).cancelPayment(any());
 
     var cancelOutcome = applicationChargeRequestService.cancelPaymentRequest(
         pwaApplication, pwaManagerWua, CANCEL_REASON);
 
     assertThat(cancelOutcome).isEqualTo(CancelAppPaymentOutcome.NOT_CANCELLED_ALREADY_PAID);
 
-    verify(pwaPaymentService, times(0)).cancelPayment(attempt.getPwaPaymentRequest());
+    verify(pwaPaymentService, times(1)).cancelPayment(attempt.getPwaPaymentRequest());
   }
 
 }
