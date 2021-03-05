@@ -3,7 +3,7 @@ package uk.co.ogauthority.pwa.service.enums.pwaapplications;
 import java.util.stream.Stream;
 
 /**
- * Roles associated with PWA regulator team
+ * Roles associated with PWA regulator team.
  */
 public enum PwaRegulatorUserRole {
 
