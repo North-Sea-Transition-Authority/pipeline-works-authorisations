@@ -14,6 +14,7 @@ import org.springframework.validation.ObjectError;
 import org.springframework.validation.SmartValidator;
 import org.springframework.validation.Validator;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
+import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
 
 public class ControllerTestUtils {
@@ -32,7 +33,7 @@ public class ControllerTestUtils {
     doAnswer(invocation -> {
       BindingResult result = invocation.getArgument(1);
       fieldsWithErrors.forEach(field ->
-          result.rejectValue(field, "fake.code", "fake message"));
+          result.rejectValue(field, FieldValidationErrorCodes.INVALID.errorCode(field), "fake message"));
       return result;
     }).when(validator).validate(any(), any());
 
