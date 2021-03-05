@@ -7,12 +7,18 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.processingcharges.PwaAppChargePaymentAttempt;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.processingcharges.PwaAppChargeRequest;
+import uk.co.ogauthority.pwa.pwapay.PaymentRequestStatus;
 import uk.co.ogauthority.pwa.pwapay.PwaPaymentRequest;
 
 @Repository
 public interface PwaAppChargePaymentAttemptRepository extends CrudRepository<PwaAppChargePaymentAttempt, Integer> {
 
   List<PwaAppChargePaymentAttempt> findAllByPwaAppChargeRequestAndActiveFlagIsTrue(PwaAppChargeRequest pwaAppChargeRequest);
+
+  List<PwaAppChargePaymentAttempt> findAllByPwaAppChargeRequestAndPwaPaymentRequest_RequestStatus(
+      PwaAppChargeRequest pwaAppChargeRequest,
+      PaymentRequestStatus paymentRequestStatus
+  );
 
   Optional<PwaAppChargePaymentAttempt> findByPwaPaymentRequest(PwaPaymentRequest paymentRequest);
 

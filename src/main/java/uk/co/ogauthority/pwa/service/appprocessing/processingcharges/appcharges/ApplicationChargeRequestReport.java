@@ -13,9 +13,11 @@ import uk.co.ogauthority.pwa.service.appprocessing.processingcharges.display.Pay
 public final class ApplicationChargeRequestReport implements PaymentHeader<ApplicationChargeItem> {
 
   private final Instant requestedInstant;
-  private final PersonId requestedBy;
+  private final PersonId requestedByPersonId;
   private final Instant lastUpdatedInstant;
   private final PersonId lastUpdatedPersonId;
+  private final Instant paidInstant;
+  private final PersonId paidByPersonId;
   private final int totalPennies;
   private final String feeSummary;
   private final List<ApplicationChargeItem> applicationChargeItems;
@@ -24,9 +26,12 @@ public final class ApplicationChargeRequestReport implements PaymentHeader<Appli
   private final String cancelledReason;
 
   ApplicationChargeRequestReport(Instant requestedInstant,
-                                 PersonId requestedBy,
+                                 PersonId requestedByPersonId,
                                  Instant lastUpdatedInstant,
                                  PersonId lastUpdatedPersonId,
+
+                                 Instant paidInstant,
+                                 PersonId paidByPersonId,
                                  Integer totalPennies,
                                  String feeSummary,
                                  List<ApplicationChargeItem> applicationChargeItems,
@@ -34,9 +39,11 @@ public final class ApplicationChargeRequestReport implements PaymentHeader<Appli
                                  String waivedReason,
                                  String cancelledReason) {
     this.requestedInstant = requestedInstant;
-    this.requestedBy = requestedBy;
+    this.requestedByPersonId = requestedByPersonId;
     this.lastUpdatedInstant = lastUpdatedInstant;
     this.lastUpdatedPersonId = lastUpdatedPersonId;
+    this.paidInstant = paidInstant;
+    this.paidByPersonId = paidByPersonId;
     this.totalPennies = totalPennies;
     this.feeSummary = feeSummary;
     this.applicationChargeItems = applicationChargeItems;
@@ -59,6 +66,30 @@ public final class ApplicationChargeRequestReport implements PaymentHeader<Appli
   @Override
   public List<ApplicationChargeItem> getPaymentItems() {
     return Collections.unmodifiableList(applicationChargeItems);
+  }
+
+  public Instant getRequestedInstant() {
+    return requestedInstant;
+  }
+
+  public PersonId getRequestedByPersonId() {
+    return requestedByPersonId;
+  }
+
+  public Instant getLastUpdatedInstant() {
+    return lastUpdatedInstant;
+  }
+
+  public PersonId getLastUpdatedPersonId() {
+    return lastUpdatedPersonId;
+  }
+
+  public Instant getPaidInstant() {
+    return paidInstant;
+  }
+
+  public PersonId getPaidByPersonId() {
+    return paidByPersonId;
   }
 
   public PwaAppChargeRequestStatus getPwaAppChargeRequestStatus() {

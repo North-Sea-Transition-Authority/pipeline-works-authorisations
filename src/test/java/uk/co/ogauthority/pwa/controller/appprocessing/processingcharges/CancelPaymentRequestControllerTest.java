@@ -92,7 +92,6 @@ public class CancelPaymentRequestControllerTest extends PwaAppProcessingContextA
     pwaApplicationDetail.setStatus(PwaApplicationStatus.AWAITING_APPLICATION_PAYMENT);
 
     applicationChargeRequestReport = ApplicationChargeRequestReportTestUtil.createOpenReport(
-        pwaApplicationDetail.getPwaApplication(),
         100,
         "Summary",
         List.of(ApplicationChargeRequestReportTestUtil.createApplicationChargeItem("Item 1", 100))

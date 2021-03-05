@@ -5,6 +5,7 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 import static uk.co.ogauthority.pwa.pwapay.PaymentRequestStatus.PAYMENT_COMPLETE;
 
 import java.time.Clock;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -192,11 +193,17 @@ public class ApplicationChargeRequestService {
         .map(ApplicationChargeItem::from)
         .collect(Collectors.toUnmodifiableList());
 
+    var successfullyPaidPaymentAttempt = getSuccessfullyPaidPaymentAttempt(
+        pwaAppChargeRequestDetail.getPwaAppChargeRequest()
+    );
+
     return new ApplicationChargeRequestReport(
         pwaAppChargeRequestDetail.getPwaAppChargeRequest().getRequestedByTimestamp(),
         pwaAppChargeRequestDetail.getPwaAppChargeRequest().getRequestedByPersonId(),
         pwaAppChargeRequestDetail.getStartedTimestamp(),
         pwaAppChargeRequestDetail.getStartedByPersonId(),
+        successfullyPaidPaymentAttempt.map(o -> o.getPwaPaymentRequest().getRequestStatusTimestamp()).orElse(null),
+        successfullyPaidPaymentAttempt.map(PwaAppChargePaymentAttempt::getCreatedByPersonId).orElse(null),
         pwaAppChargeRequestDetail.getTotalPennies(),
         pwaAppChargeRequestDetail.getChargeSummary(),
         chargeItems,
@@ -204,6 +211,30 @@ public class ApplicationChargeRequestService {
         pwaAppChargeRequestDetail.getChargeWaivedReason(),
         pwaAppChargeRequestDetail.getChargeCancelledReason()
     );
+  }
+
+  public List<ApplicationChargeRequestReport> getAllApplicationChargeRequestReportsForApplication(PwaApplication pwaApplication) {
+    return pwaAppChargeRequestDetailRepository.findByPwaAppChargeRequest_PwaApplicationAndTipFlagIsTrue(pwaApplication)
+        .stream()
+        .map(this::convertRequestDetailToReport)
+        .collect(Collectors.toList());
+  }
+
+  private Optional<PwaAppChargePaymentAttempt> getSuccessfullyPaidPaymentAttempt(PwaAppChargeRequest pwaAppChargeRequest) {
+    var allPaidAttempts =  pwaAppChargePaymentAttemptRepository
+        .findAllByPwaAppChargeRequestAndPwaPaymentRequest_RequestStatus(pwaAppChargeRequest, PAYMENT_COMPLETE);
+
+    // if in the unlikely event there is some bug which means their are multiple complete payment requests,
+    // log, then return the attempt which was paid first
+    if (allPaidAttempts.size() > 1) {
+      LOGGER.error("Detected multiple paid payment attempts for payment request! requestId:{}", pwaAppChargeRequest.getId());
+    }
+
+    return allPaidAttempts.stream()
+        .min(Comparator.comparing(
+            pwaAppChargePaymentAttempt -> pwaAppChargePaymentAttempt.getPwaPaymentRequest().getRequestStatusTimestamp())
+        );
+
   }
 
   @Transactional

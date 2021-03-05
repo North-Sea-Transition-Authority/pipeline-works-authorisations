@@ -30,6 +30,7 @@
 
                 <@fdsDataItems.dataItem dataItemListClasses="fds-data-items-list--tight">
                     <#list item.dataItems as key, value>
+
                       <@fdsDataItems.dataValues key=key value=value />
                     </#list>
                 </@fdsDataItems.dataItem>
