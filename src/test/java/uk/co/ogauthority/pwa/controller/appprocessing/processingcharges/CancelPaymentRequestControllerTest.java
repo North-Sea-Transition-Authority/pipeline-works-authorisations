@@ -99,7 +99,7 @@ public class CancelPaymentRequestControllerTest extends PwaAppProcessingContextA
     );
     applicationPaymentDisplaySummary = ApplicationPaymentDisplaySummaryTestUtil.getDefaultPaymentDisplaySummary();
 
-    when(applicationChargeRequestService.getApplicationChargeRequestReport(any()))
+    when(applicationChargeRequestService.getOpenRequestAsApplicationChargeRequestReport(any()))
         .thenReturn(Optional.of(applicationChargeRequestReport));
     when(applicationPaymentSummariser.summarise(any()))
         .thenReturn(applicationPaymentDisplaySummary);
@@ -154,7 +154,7 @@ public class CancelPaymentRequestControllerTest extends PwaAppProcessingContextA
 
   @Test
   public void renderCancelPaymentRequest_whenAppChargeReportNotFound() throws Exception {
-    when(applicationChargeRequestService.getApplicationChargeRequestReport(any())).thenReturn(Optional.empty());
+    when(applicationChargeRequestService.getOpenRequestAsApplicationChargeRequestReport(any())).thenReturn(Optional.empty());
 
     mockMvc.perform(get(ReverseRouter.route(on(CancelPaymentRequestController.class)
         .renderCancelPaymentRequest(APP_ID, APP_TYPE, null, null)))
@@ -189,7 +189,7 @@ public class CancelPaymentRequestControllerTest extends PwaAppProcessingContextA
 
   @Test
   public void cancelPaymentRequest_whenAppChargeReportNotFound() throws Exception {
-    when(applicationChargeRequestService.getApplicationChargeRequestReport(any())).thenReturn(Optional.empty());
+    when(applicationChargeRequestService.getOpenRequestAsApplicationChargeRequestReport(any())).thenReturn(Optional.empty());
 
     mockMvc.perform(post(ReverseRouter.route(on(CancelPaymentRequestController.class)
         .cancelPaymentRequest(APP_ID, APP_TYPE, null, null, null, null)))

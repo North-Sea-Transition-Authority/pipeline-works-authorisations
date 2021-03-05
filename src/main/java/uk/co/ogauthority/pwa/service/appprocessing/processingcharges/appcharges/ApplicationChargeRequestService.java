@@ -171,7 +171,7 @@ public class ApplicationChargeRequestService {
 
   }
 
-  public Optional<ApplicationChargeRequestReport> getApplicationChargeRequestReport(PwaApplication pwaApplication) {
+  public Optional<ApplicationChargeRequestReport> getOpenRequestAsApplicationChargeRequestReport(PwaApplication pwaApplication) {
     return getAppChargeRequestReportWithStatus(pwaApplication, PwaAppChargeRequestStatus.OPEN);
   }
 

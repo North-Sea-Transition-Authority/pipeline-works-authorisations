@@ -154,7 +154,7 @@ public class CancelPaymentRequestController {
       );
     }
 
-    var appChargeReport = applicationChargeRequestService.getApplicationChargeRequestReport(
+    var appChargeReport = applicationChargeRequestService.getOpenRequestAsApplicationChargeRequestReport(
         processingContext.getPwaApplication())
         .orElseThrow(() -> new ApplicationChargeException(
             "Expected to be able to generate app charge report for appId:" + processingContext.getMasterPwaApplicationId())
