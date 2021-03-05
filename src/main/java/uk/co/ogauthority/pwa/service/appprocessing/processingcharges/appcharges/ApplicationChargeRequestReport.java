@@ -1,9 +1,10 @@
 package uk.co.ogauthority.pwa.service.appprocessing.processingcharges.appcharges;
 
+import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
+import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.processingcharges.PwaAppChargeRequestStatus;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.service.appprocessing.processingcharges.display.PaymentHeader;
 
 /**
@@ -11,30 +12,37 @@ import uk.co.ogauthority.pwa.service.appprocessing.processingcharges.display.Pay
  */
 public final class ApplicationChargeRequestReport implements PaymentHeader<ApplicationChargeItem> {
 
-  private final PwaApplication pwaApplication;
+  private final Instant requestedInstant;
+  private final PersonId requestedBy;
+  private final Instant lastUpdatedInstant;
+  private final PersonId lastUpdatedPersonId;
   private final int totalPennies;
   private final String feeSummary;
   private final List<ApplicationChargeItem> applicationChargeItems;
   private final PwaAppChargeRequestStatus pwaAppChargeRequestStatus;
   private final String waivedReason;
+  private final String cancelledReason;
 
-
-  ApplicationChargeRequestReport(PwaApplication pwaApplication,
+  ApplicationChargeRequestReport(Instant requestedInstant,
+                                 PersonId requestedBy,
+                                 Instant lastUpdatedInstant,
+                                 PersonId lastUpdatedPersonId,
                                  Integer totalPennies,
                                  String feeSummary,
                                  List<ApplicationChargeItem> applicationChargeItems,
                                  PwaAppChargeRequestStatus pwaAppChargeRequestStatus,
-                                 String waivedReason) {
-    this.pwaApplication = pwaApplication;
+                                 String waivedReason,
+                                 String cancelledReason) {
+    this.requestedInstant = requestedInstant;
+    this.requestedBy = requestedBy;
+    this.lastUpdatedInstant = lastUpdatedInstant;
+    this.lastUpdatedPersonId = lastUpdatedPersonId;
     this.totalPennies = totalPennies;
     this.feeSummary = feeSummary;
     this.applicationChargeItems = applicationChargeItems;
     this.pwaAppChargeRequestStatus = pwaAppChargeRequestStatus;
     this.waivedReason = waivedReason;
-  }
-
-  public PwaApplication getPwaApplication() {
-    return pwaApplication;
+    this.cancelledReason = cancelledReason;
   }
 
 
@@ -59,5 +67,9 @@ public final class ApplicationChargeRequestReport implements PaymentHeader<Appli
 
   public String getWaivedReason() {
     return waivedReason;
+  }
+
+  public String getCancelledReason() {
+    return cancelledReason;
   }
 }

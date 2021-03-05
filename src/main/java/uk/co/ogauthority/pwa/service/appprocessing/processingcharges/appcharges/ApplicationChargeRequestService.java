@@ -172,32 +172,10 @@ public class ApplicationChargeRequestService {
   }
 
   public Optional<ApplicationChargeRequestReport> getOpenRequestAsApplicationChargeRequestReport(PwaApplication pwaApplication) {
-    return getAppChargeRequestReportWithStatus(pwaApplication, PwaAppChargeRequestStatus.OPEN);
-  }
-
-  private Optional<ApplicationChargeRequestReport> getAppChargeRequestReportWithStatus(PwaApplication pwaApplication,
-                                                                                       PwaAppChargeRequestStatus requestStatus) {
     return pwaAppChargeRequestDetailRepository.findByPwaAppChargeRequest_PwaApplicationAndPwaAppChargeRequestStatusAndTipFlagIsTrue(
         pwaApplication,
-        requestStatus
-    )
-        .map(pwaAppChargeRequestDetail -> {
-
-          var chargeItems = pwaAppChargeRequestItemRepository.findAllByPwaAppChargeRequestOrderByDescriptionAsc(
-              pwaAppChargeRequestDetail.getPwaAppChargeRequest())
-              .stream()
-              .map(ApplicationChargeItem::from)
-              .collect(Collectors.toUnmodifiableList());
-
-          return new ApplicationChargeRequestReport(
-              pwaApplication,
-              pwaAppChargeRequestDetail.getTotalPennies(),
-              pwaAppChargeRequestDetail.getChargeSummary(),
-              chargeItems,
-              pwaAppChargeRequestDetail.getPwaAppChargeRequestStatus(),
-              pwaAppChargeRequestDetail.getChargeWaivedReason()
-          );
-        });
+        PwaAppChargeRequestStatus.OPEN
+    ).map(this::convertRequestDetailToReport);
   }
 
   private PwaAppChargeRequestDetail getTipOpenRequestDetailForApplication(PwaApplication pwaApplication) {
@@ -205,6 +183,27 @@ public class ApplicationChargeRequestService {
         pwaApplication, PwaAppChargeRequestStatus.OPEN
     ).orElseThrow(() -> new ApplicationChargeException(
         "Expected to find OPEN tip charge request detail for app_id:" + pwaApplication.getId()));
+  }
+
+  private ApplicationChargeRequestReport convertRequestDetailToReport(PwaAppChargeRequestDetail pwaAppChargeRequestDetail) {
+    var chargeItems = pwaAppChargeRequestItemRepository.findAllByPwaAppChargeRequestOrderByDescriptionAsc(
+        pwaAppChargeRequestDetail.getPwaAppChargeRequest())
+        .stream()
+        .map(ApplicationChargeItem::from)
+        .collect(Collectors.toUnmodifiableList());
+
+    return new ApplicationChargeRequestReport(
+        pwaAppChargeRequestDetail.getPwaAppChargeRequest().getRequestedByTimestamp(),
+        pwaAppChargeRequestDetail.getPwaAppChargeRequest().getRequestedByPersonId(),
+        pwaAppChargeRequestDetail.getStartedTimestamp(),
+        pwaAppChargeRequestDetail.getStartedByPersonId(),
+        pwaAppChargeRequestDetail.getTotalPennies(),
+        pwaAppChargeRequestDetail.getChargeSummary(),
+        chargeItems,
+        pwaAppChargeRequestDetail.getPwaAppChargeRequestStatus(),
+        pwaAppChargeRequestDetail.getChargeWaivedReason(),
+        pwaAppChargeRequestDetail.getChargeCancelledReason()
+    );
   }
 
   @Transactional
