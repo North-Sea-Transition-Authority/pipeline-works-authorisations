@@ -24,7 +24,7 @@
             </@fdsCheckAnswers.checkAnswersRow>
 
             <#if publicNoticeViewData.latestDocumentComments?has_content>
-                <@fdsCheckAnswers.checkAnswersRow keyText="Comments" actionText="" actionUrl="" screenReaderActionText="">
+                <@fdsCheckAnswers.checkAnswersRow keyText="Case officer comments" actionText="" actionUrl="" screenReaderActionText="">
                    <@multiLineText.multiLineText>
                         <p class="govuk-body"> ${publicNoticeViewData.latestDocumentComments} </p> 
                     </@multiLineText.multiLineText>

@@ -25,7 +25,7 @@
     </@multiLineText.multiLineText>
 
     <#if publicNoticeDocumentComments?has_content>
-      <h3 class="govuk-heading-m"> Comments </h3>    
+      <h3 class="govuk-heading-m"> Case officer comments </h3>    
       <@multiLineText.multiLineText>
         <p class="govuk-body"> ${publicNoticeDocumentComments} </p> 
       </@multiLineText.multiLineText>
