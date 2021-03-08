@@ -12,6 +12,7 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.time.Instant;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -34,14 +35,17 @@ import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupTeamMember;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
+import uk.co.ogauthority.pwa.model.enums.tasklist.TaskState;
 import uk.co.ogauthority.pwa.model.form.consultation.AssignResponderForm;
-import uk.co.ogauthority.pwa.model.notify.emailproperties.ConsultationAssignedToYouEmailProps;
+import uk.co.ogauthority.pwa.model.notify.emailproperties.consultations.ConsultationAssignedToYouEmailProps;
 import uk.co.ogauthority.pwa.model.tasklist.TaskTag;
+import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupTeamService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingTask;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.TaskStatus;
+import uk.co.ogauthority.pwa.service.enums.appprocessing.appinvolvement.OpenConsentReview;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ConsultationRequestStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationConsultationWorkflowTask;
@@ -374,7 +378,7 @@ public class AssignResponderServiceTest {
         Set.of(PwaAppProcessingPermission.ASSIGN_RESPONDER),
         null,
         new ApplicationInvolvementDto(null, Set.of(), new ConsultationInvolvementDto(null, Set.of(), null, List.of(), false), false,
-            false, false, false));
+            false, false, EnumSet.noneOf(PwaOrganisationRole.class), OpenConsentReview.NO));
 
     boolean canShow = assignResponderService.canShowInTaskList(processingContext);
 
@@ -426,6 +430,7 @@ public class AssignResponderServiceTest {
     assertThat(taskListEntry.getTaskName()).isEqualTo(PwaAppProcessingTask.ALLOCATE_RESPONDER.getTaskName());
     assertThat(taskListEntry.getRoute()).isEqualTo(PwaAppProcessingTask.ALLOCATE_RESPONDER.getRoute(processingContext));
     assertThat(taskListEntry.getTaskTag()).isEqualTo(TaskTag.from(TaskStatus.NOT_COMPLETED));
+    assertThat(taskListEntry.getTaskState()).isEqualTo(TaskState.EDIT);
     assertThat(taskListEntry.getDisplayOrder()).isEqualTo(PwaAppProcessingTask.ALLOCATE_RESPONDER.getDisplayOrder());
 
   }
@@ -454,6 +459,7 @@ public class AssignResponderServiceTest {
     assertThat(taskListEntry.getRoute()).isEqualTo(PwaAppProcessingTask.ALLOCATE_RESPONDER.getRoute(processingContext));
     assertThat(taskListEntry.getTaskTag().getTagText()).isEqualTo(person.getFullName());
     assertThat(taskListEntry.getTaskTag().getTagClass()).isEqualTo("govuk-tag--purple");
+    assertThat(taskListEntry.getTaskState()).isEqualTo(TaskState.EDIT);
     assertThat(taskListEntry.getDisplayOrder()).isEqualTo(PwaAppProcessingTask.ALLOCATE_RESPONDER.getDisplayOrder());
 
   }

@@ -6,13 +6,12 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Function;
+import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
@@ -24,6 +23,8 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.crossings.CrossingTypesForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.partnerletters.PartnerLettersForm;
 import uk.co.ogauthority.pwa.repository.pwaapplications.PwaApplicationDetailRepository;
+import uk.co.ogauthority.pwa.service.appprocessing.initialreview.InitialReviewPaymentDecision;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.ApplicationState;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadFastTrackService;
 import uk.co.ogauthority.pwa.service.users.UserTypeService;
@@ -47,19 +48,8 @@ public class PwaApplicationDetailService {
     this.userTypeService = userTypeService;
   }
 
-  /**
-   * Execute a caller-defined function if the tip detail for a specific PWA application is in Draft status and accessible to the user.
-   *
-   * @param pwaApplicationId for application being queried
-   * @param user             attempting to access the application
-   * @param function         to execute if application is in the right state and user has access to it
-   * @return result of function
-   */
-  public ModelAndView withDraftTipDetail(Integer pwaApplicationId,
-                                         AuthenticatedUserAccount user,
-                                         Function<PwaApplicationDetail, ModelAndView> function) {
-    PwaApplicationDetail detail = getTipDetailWithStatus(pwaApplicationId, PwaApplicationStatus.DRAFT);
-    return function.apply(detail);
+  public PwaApplicationDetail getTipDetail(PwaApplication pwaApplication) {
+    return getTipDetail(pwaApplication.getId());
   }
 
   public PwaApplicationDetail getTipDetail(Integer pwaApplicationId) {
@@ -69,17 +59,6 @@ public class PwaApplicationDetailService {
                 pwaApplicationId
             ))
         );
-  }
-
-  /**
-   * Get the tip detail for a PwaApplication if that detail's status matches the one passed-in.
-   */
-  public PwaApplicationDetail getTipDetailWithStatus(Integer pwaApplicationId, PwaApplicationStatus status) {
-    return pwaApplicationDetailRepository.findByPwaApplicationIdAndStatusAndTipFlagIsTrue(pwaApplicationId, status)
-        .orElseThrow(() -> new PwaEntityNotFoundException(
-            String.format("Couldn't find tip PwaApplicationDetail for PwaApplication ID: %s and status: %s",
-                pwaApplicationId,
-                status.name())));
   }
 
   /**
@@ -115,7 +94,8 @@ public class PwaApplicationDetailService {
    * @return Saved app detail.
    */
   @Transactional
-  public PwaApplicationDetail updateStatus(PwaApplicationDetail pwaApplicationDetail, PwaApplicationStatus status,
+  public PwaApplicationDetail updateStatus(PwaApplicationDetail pwaApplicationDetail,
+                                           PwaApplicationStatus status,
                                            WebUserAccount webUserAccount) {
     pwaApplicationDetail.setStatus(status);
     pwaApplicationDetail.setStatusLastModifiedTimestamp(Instant.now(clock));
@@ -149,16 +129,17 @@ public class PwaApplicationDetailService {
   }
 
   /**
-   * Create and return new tipo detail in Draft status.
-   * new tip detail duplicates all suitable application data into the new detail from the old one.
+   * Create and return new tip detail.
+   * New tip detail duplicates all suitable application data into the new detail from the old one.
    *
    * @return Saved app detail.
    */
   @Transactional
-  public PwaApplicationDetail createNewTipDetail(PwaApplicationDetail currentTipDetail, WebUserAccount webUserAccount) {
+  public PwaApplicationDetail createNewTipDetail(PwaApplicationDetail currentTipDetail,
+                                                 PwaApplicationStatus newStatus,
+                                                 WebUserAccount webUserAccount) {
     if (!currentTipDetail.isTipFlag()) {
-      throw new ActionNotAllowedException(
-          "Cannot create new tip detail from non tip detail. pad_id:" + currentTipDetail.getId());
+      throw new ActionNotAllowedException("Cannot create new tip detail from non tip detail. pad_id:" + currentTipDetail.getId());
     }
     currentTipDetail.setTipFlag(false);
     currentTipDetail = pwaApplicationDetailRepository.save(currentTipDetail);
@@ -167,7 +148,7 @@ public class PwaApplicationDetailService {
         currentTipDetail.getVersionNo() + 1,
         webUserAccount.getWuaId(),
         clock.instant());
-    newTipDetail.setStatus(PwaApplicationStatus.DRAFT);
+    newTipDetail.setStatus(newStatus);
     copyApplicationDetailData(currentTipDetail, newTipDetail);
     return pwaApplicationDetailRepository.save(newTipDetail);
   }
@@ -216,10 +197,12 @@ public class PwaApplicationDetailService {
   }
 
   @Transactional
-  public void setInitialReviewApproved(PwaApplicationDetail detail, WebUserAccount acceptingUser) {
+  public void setInitialReviewApproved(PwaApplicationDetail detail,
+                                       WebUserAccount acceptingUser,
+                                       InitialReviewPaymentDecision initialReviewPaymentDecision) {
     detail.setInitialReviewApprovedByWuaId(acceptingUser.getWuaId());
     detail.setInitialReviewApprovedTimestamp(Instant.now(clock));
-    updateStatus(detail, PwaApplicationStatus.CASE_OFFICER_REVIEW, acceptingUser);
+    updateStatus(detail, initialReviewPaymentDecision.getPostReviewPwaApplicationStatus(), acceptingUser);
     pwaApplicationDetailRepository.save(detail);
   }
 
@@ -319,6 +302,14 @@ public class PwaApplicationDetailService {
 
     }
 
+  }
+
+  public List<Integer> getInProgressApplicationIds() {
+    var inProgressStatuses = ApplicationState.IN_PROGRESS.getStatuses();
+    return pwaApplicationDetailRepository.findLastSubmittedAppDetailsWithStatusIn(inProgressStatuses)
+        .stream()
+        .map(detail -> detail.getPwaApplication().getId())
+        .collect(Collectors.toList());
   }
 
 }

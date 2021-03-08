@@ -34,7 +34,7 @@ import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationResponse;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.form.consultation.ConsultationResponseForm;
 import uk.co.ogauthority.pwa.model.form.enums.ConsultationResponseOption;
-import uk.co.ogauthority.pwa.model.notify.emailproperties.ConsultationResponseReceivedEmailProps;
+import uk.co.ogauthority.pwa.model.notify.emailproperties.consultations.ConsultationResponseReceivedEmailProps;
 import uk.co.ogauthority.pwa.model.tasklist.TaskTag;
 import uk.co.ogauthority.pwa.repository.consultations.ConsultationResponseRepository;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupDetailService;
@@ -177,6 +177,7 @@ public class ConsultationResponseServiceTest {
     verify(camundaWorkflowService, times(1)).completeTask(eq(new WorkflowTaskInstance(consultationRequest, PwaApplicationConsultationWorkflowTask.RESPONSE)));
     verify(consultationResponseRepository, times(1)).save(responseCaptor.capture());
     verify(consultationRequestService, times(1)).saveConsultationRequest(consultationRequest);
+    verify(workflowAssignmentService, times(1)).clearAssignments(consultationRequest);
 
     var response = responseCaptor.getValue();
 
@@ -201,6 +202,7 @@ public class ConsultationResponseServiceTest {
     verify(camundaWorkflowService, times(1)).completeTask(eq(new WorkflowTaskInstance(consultationRequest, PwaApplicationConsultationWorkflowTask.RESPONSE)));
     verify(consultationResponseRepository, times(1)).save(responseCaptor.capture());
     verify(consultationRequestService, times(1)).saveConsultationRequest(consultationRequest);
+    verify(workflowAssignmentService, times(1)).clearAssignments(consultationRequest);
     assertThat(consultationRequest.getStatus()).isEqualTo(ConsultationRequestStatus.RESPONDED);
 
     var response = responseCaptor.getValue();

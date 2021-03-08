@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
+import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeStatus;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.WorkAreaApplicationDetailSearchItem;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 
@@ -19,10 +20,15 @@ public interface WorkAreaApplicationDetailSearchItemRepository extends CrudRepos
       "AND ( " +
       "  (waadsi.tipVersionSatisfactoryFlag = :tipVersionSatisfactoryFlag) OR ( " +
       "    waadsi.openUpdateRequestFlag = :openForUpdateFlag " +
-      "    AND waadsi.openPublicNoticeFlag = :openPublicNoticeFlag " +
+      "    AND (waadsi.publicNoticeStatus IN :publicNoticeStatuses OR waadsi.publicNoticeStatus IS NULL)" +
       "    AND waadsi.openConsultationRequestFlag = :openConsultationRequestFlag" +
-      "  ) " +
-      ")";
+      "    AND ( " +
+      "      (waadsi.openConsentReviewFlag = TRUE AND :openConsentReviewForegroundFlag = TRUE) OR " +
+      "      (waadsi.openConsentReviewFlag = FALSE AND :openConsentReviewForegroundFlag = FALSE) " +
+      "    ) " +
+      "  )" +
+      ")" +
+      "OR  (:publicNoticeOverrideFlag = TRUE AND waadsi.publicNoticeStatus IN :publicNoticeStatuses)";
 
   String PADSTATUS_IN_OR_PWAAPPLICATION_ID_IN_AND_WHERE_TIP_SATISFACTORY_FLAG_MATCHES_AND_ANY_OTHER_WAIT_FLAGS_MATCH = "" +
       "FROM WorkAreaApplicationDetailSearchItem waadsi " +
@@ -30,10 +36,12 @@ public interface WorkAreaApplicationDetailSearchItemRepository extends CrudRepos
       "AND ( " +
       "  (waadsi.tipVersionSatisfactoryFlag = :tipVersionSatisfactoryFlag) AND ( " +
       "    waadsi.openUpdateRequestFlag = :openForUpdateFlag " +
-      "    OR waadsi.openPublicNoticeFlag = :openPublicNoticeFlag " +
+      "    OR waadsi.publicNoticeStatus IN :publicNoticeStatuses " +
       "    OR waadsi.openConsultationRequestFlag = :openConsultationRequestFlag" +
+      "    OR (waadsi.openConsentReviewFlag = TRUE AND :openConsentReviewForegroundFlag = FALSE)" +
       "  ) " +
-      ")";
+      ")" +
+      "OR  (:publicNoticeOverrideFlag = TRUE AND waadsi.publicNoticeStatus IN :publicNoticeStatuses)";
 
   Page<WorkAreaApplicationDetailSearchItem> findAllByTipFlagIsTrueAndPadStatusIn(Pageable pageable,
                                                                                  Collection<PwaApplicationStatus> statusFilter);
@@ -54,8 +62,10 @@ public interface WorkAreaApplicationDetailSearchItemRepository extends CrudRepos
       @Param("applicationIdFilter") Collection<Integer> applicationIdFilter,
       @Param("tipVersionSatisfactoryFlag") Boolean tipVersionSatisfactoryFlag,
       @Param("openForUpdateFlag") Boolean openForUpdateFlag,
-      @Param("openPublicNoticeFlag") Boolean openPublicNoticeFlag,
-      @Param("openConsultationRequestFlag") Boolean openConsultationRequestFlag
+      @Param("publicNoticeOverrideFlag") Boolean publicNoticeOverrideFlag,
+      @Param("publicNoticeStatuses") Collection<PublicNoticeStatus> publicNoticeStatuses,
+      @Param("openConsultationRequestFlag") Boolean openConsultationRequestFlag,
+      @Param("openConsentReviewForegroundFlag") Boolean openConsentReviewForegroundFlag
   );
 
   // we can use standard JPQL + Pageable here as the sort values will never be null after submission.
@@ -69,8 +79,10 @@ public interface WorkAreaApplicationDetailSearchItemRepository extends CrudRepos
       @Param("applicationIdFilter") Collection<Integer> applicationIdFilter,
       @Param("tipVersionSatisfactoryFlag") Boolean tipVersionSatisfactoryFlag,
       @Param("openForUpdateFlag") Boolean openForUpdateFlag,
-      @Param("openPublicNoticeFlag") Boolean openPublicNoticeFlag,
-      @Param("openConsultationRequestFlag") Boolean openConsultationRequestFlag
+      @Param("publicNoticeOverrideFlag") Boolean publicNoticeOverrideFlag,
+      @Param("publicNoticeStatuses") Collection<PublicNoticeStatus> publicNoticeStatuses,
+      @Param("openConsultationRequestFlag") Boolean openConsultationRequestFlag,
+      @Param("openConsentReviewForegroundFlag") Boolean openConsentReviewForegroundFlag
   );
 
   Page<WorkAreaApplicationDetailSearchItem> findAllByPwaApplicationIdInAndPadStatusInAndOpenUpdateRequestFlag(

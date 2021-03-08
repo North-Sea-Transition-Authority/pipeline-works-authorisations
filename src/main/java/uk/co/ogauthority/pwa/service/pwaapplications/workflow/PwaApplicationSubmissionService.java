@@ -6,7 +6,7 @@ import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.ApplicationState;
 import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationSubmitResult;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.PwaApplicationDataCleanupService;
@@ -45,9 +45,9 @@ public class PwaApplicationSubmissionService {
       throw new IllegalArgumentException(String.format("Application Detail not tip! id: %s", detail.getId()));
     }
 
-    if (!detail.getStatus().equals(PwaApplicationStatus.DRAFT)) {
+    if (!ApplicationState.INDUSTRY_EDITABLE.includes(detail.getStatus())) {
       throw new IllegalArgumentException(
-          String.format("Application Detail not draft! id: %s status: %s", detail.getId(), detail.getStatus()));
+          String.format("Application Detail not industry editable! id: %s status: %s", detail.getId(), detail.getStatus()));
     }
 
     var submissionService = applicationSubmissionServiceProvider.getSubmissionService(detail);

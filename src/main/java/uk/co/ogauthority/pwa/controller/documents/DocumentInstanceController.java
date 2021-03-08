@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
-import uk.co.ogauthority.pwa.controller.appprocessing.decision.AppConsentDocController;
+import uk.co.ogauthority.pwa.controller.appprocessing.prepareconsent.AppConsentDocController;
 import uk.co.ogauthority.pwa.controller.appprocessing.shared.PwaAppProcessingPermissionCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationStatusCheck;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.DocumentTemplateMnem;
@@ -65,7 +65,7 @@ public class DocumentInstanceController {
                                            @ModelAttribute("form") ClauseForm form,
                                            AuthenticatedUserAccount authenticatedUserAccount) {
 
-    var clauseVersion = documentInstanceService.getInstanceClauseVersionByClauseIdOrThrow(clauseIdToAddAfter);
+    documentInstanceService.getInstanceClauseVersionByClauseIdOrThrow(clauseIdToAddAfter);
 
     return getAddEditClauseModelAndView(processingContext, ScreenActionType.ADD);
 
@@ -82,7 +82,7 @@ public class DocumentInstanceController {
         .addObject("actionType", screenActionType);
 
     String thisPage = screenActionType.getActionText() + " clause";
-    breadcrumbService.fromConsentDocument(processingContext.getPwaApplication(), modelAndView, thisPage);
+    breadcrumbService.fromPrepareConsent(processingContext.getPwaApplication(), modelAndView, thisPage);
 
     return modelAndView;
 
@@ -134,7 +134,7 @@ public class DocumentInstanceController {
                                            @ModelAttribute("form") ClauseForm form,
                                            AuthenticatedUserAccount authenticatedUserAccount) {
 
-    var clauseVersion = documentInstanceService.getInstanceClauseVersionByClauseIdOrThrow(clauseIdToAddBefore);
+    documentInstanceService.getInstanceClauseVersionByClauseIdOrThrow(clauseIdToAddBefore);
 
     return getAddEditClauseModelAndView(processingContext, ScreenActionType.ADD);
 
@@ -179,7 +179,7 @@ public class DocumentInstanceController {
                                             @ModelAttribute("form") ClauseForm form,
                                             AuthenticatedUserAccount authenticatedUserAccount) {
 
-    var clauseVersion = documentInstanceService.getInstanceClauseVersionByClauseIdOrThrow(clauseId);
+    documentInstanceService.getInstanceClauseVersionByClauseIdOrThrow(clauseId);
 
     return getAddEditClauseModelAndView(processingContext, ScreenActionType.ADD);
 
@@ -301,7 +301,7 @@ public class DocumentInstanceController {
         .addObject("sectionClauseView", documentInstanceService.getSectionClauseView(clauseId));
 
     String thisPage = "Remove clause";
-    breadcrumbService.fromConsentDocument(processingContext.getPwaApplication(), modelAndView, thisPage);
+    breadcrumbService.fromPrepareConsent(processingContext.getPwaApplication(), modelAndView, thisPage);
 
     return modelAndView;
   }

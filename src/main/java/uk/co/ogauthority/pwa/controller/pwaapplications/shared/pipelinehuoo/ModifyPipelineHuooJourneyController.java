@@ -60,7 +60,7 @@ import uk.co.ogauthority.pwa.validators.pipelinehuoo.PickHuooPipelineValidationT
     PwaApplicationType.DECOMMISSIONING,
     PwaApplicationType.OPTIONS_VARIATION
 })
-@PwaApplicationStatusCheck(statuses = PwaApplicationStatus.DRAFT)
+@PwaApplicationStatusCheck(statuses = {PwaApplicationStatus.DRAFT, PwaApplicationStatus.UPDATE_REQUESTED})
 @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.EDIT})
 @SessionAttributes("modifyPipelineHuooJourneyData")
 public class ModifyPipelineHuooJourneyController {
@@ -171,8 +171,7 @@ public class ModifyPipelineHuooJourneyController {
         huooRole,
         form);
 
-    var modelAndView = getSelectPipelineModelAndView(applicationContext, huooRole);
-    return modelAndView;
+    return getSelectPipelineModelAndView(applicationContext, huooRole);
   }
 
   @PostMapping("/pipelines")
@@ -220,10 +219,7 @@ public class ModifyPipelineHuooJourneyController {
     modifyPipelineHuooJourneyData.updateFormWithPipelineJourneyData(applicationDetail, huooRole, form);
     modifyPipelineHuooJourneyData.updateFormWithOrganisationRoleJourneyData(applicationDetail, huooRole, form);
 
-    var modelAndView = getUpdatePipelineOrgRoleModelAndView(applicationContext, huooRole);
-
-
-    return modelAndView;
+    return getUpdatePipelineOrgRoleModelAndView(applicationContext, huooRole);
   }
 
   @PostMapping(value = "/pipelines/organisations")
@@ -341,7 +337,7 @@ public class ModifyPipelineHuooJourneyController {
   private ModelAndView getSelectPipelineModelAndView(PwaApplicationContext applicationContext, HuooRole huooRole) {
     var sortedPickablePipelineOptions = getSortedPickablePipelines(applicationContext.getApplicationDetail(), huooRole);
 
-    var modelAndView = new ModelAndView("pwaApplication/shared/pipelinehuoo/addPipelineHuooSelectPipelines")
+    return new ModelAndView("pwaApplication/shared/pipelinehuoo/addPipelineHuooSelectPipelines")
         .addObject("backUrl", ReverseRouter.route(on(PipelinesHuooController.class).renderSummary(
             applicationContext.getApplicationType(), applicationContext.getMasterPwaApplicationId(), null
         )))
@@ -349,7 +345,6 @@ public class ModifyPipelineHuooJourneyController {
             String.format(SELECT_PIPELINES_QUESTION_FORMAT, huooRole.getDisplayText().toLowerCase()))
         .addObject("pickableHuooPipelineOptions", sortedPickablePipelineOptions)
         .addObject("backLinkText", SELECT_PIPELINES_BACK_LINK_TEXT);
-    return modelAndView;
   }
 
   private List<PickableHuooPipelineOption> getSortedPickablePipelines(PwaApplicationDetail pwaApplicationDetail,

@@ -47,7 +47,8 @@ public class CableCrossingsSummaryService implements ApplicationSectionSummarise
     var taskFilter = Set.of(
         ApplicationTask.CROSSING_AGREEMENTS);
 
-    return taskListService.anyTaskShownForApplication(taskFilter, pwaApplicationDetail);
+    return taskListService.anyTaskShownForApplication(taskFilter, pwaApplicationDetail)
+        && padCableCrossingService.canShowInTaskList(pwaApplicationDetail);
   }
 
   @Override

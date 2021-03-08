@@ -24,8 +24,9 @@ CREATE OR REPLACE VIEW ${datasource.user}.application_detail_view (
 , pwa_holder_name_list
 , pad_holder_name_list
 , open_consultation_req_flag
-, open_public_notice_flag
+, public_notice_status
 , open_update_request_flag
+, open_consent_review_flag
 ) AS
 WITH open_update_app_details AS (
   SELECT
@@ -101,8 +102,9 @@ SELECT
     ) > 0 THEN 1
     ELSE 0
   END open_consultation_req_flag
-, 0 open_public_notice_flag -- TODO PWA-931
+, pn.status public_notice_status
 , CASE WHEN ouad.pad_id IS NOT NULL THEN 1 ELSE 0 END open_update_request_flag
+, CASE WHEN pcr.id IS NOT NULL THEN 1 ELSE 0 END open_consent_review_flag
 FROM ${datasource.user}.pwa_application_details pad -- want 1 row per detail for maximum query flexibility. intended to be the only introduced cardinality
 JOIN ${datasource.user}.pwa_applications pa ON pad.pwa_application_id = pa.id
 JOIN ${datasource.user}.pad_status_versions psv ON pa.id = psv.pwa_application_id
@@ -110,7 +112,7 @@ JOIN ${datasource.user}.pwas p ON pa.pwa_id = p.id
 JOIN ${datasource.user}.pwa_details pd ON pd.pwa_id = p.id
 LEFT JOIN ${datasource.user}.pwa_app_assignments paa ON paa.pwa_application_id = pad.pwa_application_id AND paa.assignment = 'CASE_OFFICER'
 LEFT JOIN ${datasource.user}.pad_project_information ppi ON ppi.application_detail_id = pad.id
+LEFT JOIN ${datasource.user}.public_notices pn ON pn.application_id = pa.id AND pn.status NOT IN ('WITHDRAWN', 'ENDED')
 LEFT JOIN open_update_app_details ouad ON ouad.pad_id = pad.id AND (ouad.open_app_update = 1 OR ouad.unresponded_option_approval = 1)
+LEFT JOIN ${datasource.user}.pad_consent_reviews pcr ON pcr.pad_id = pad.id AND pcr.end_timestamp IS NULL
 WHERE pd.end_timestamp IS NULL;
-
-

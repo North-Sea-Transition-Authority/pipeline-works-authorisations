@@ -4,6 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 
 import java.util.EnumSet;
+import java.util.List;
+import java.util.Set;
 import javax.persistence.EntityManager;
 import javax.transaction.Transactional;
 import org.junit.Before;
@@ -16,14 +18,19 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
+import uk.co.ogauthority.pwa.model.dto.appprocessing.ApplicationInvolvementDto;
+import uk.co.ogauthority.pwa.model.dto.appprocessing.ApplicationInvolvementDtoTestUtil;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.enums.tasklist.TaskState;
 import uk.co.ogauthority.pwa.model.tasklist.TaskListEntry;
 import uk.co.ogauthority.pwa.model.tasklist.TaskListGroup;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingTask;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.TaskRequirement;
+import uk.co.ogauthority.pwa.service.enums.appprocessing.appinvolvement.OpenConsentReview;
+import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.testutils.PwaAppProcessingContextDtoTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
@@ -63,7 +70,7 @@ public class PwaAppProcessingTaskListServiceTest {
     processingContext = new PwaAppProcessingContext(
         pwaApplicationDetail,
         null,
-        EnumSet.allOf(PwaAppProcessingPermission.class),
+        EnumSet.complementOf(EnumSet.of(PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY)),
         null,
         involvement
     );
@@ -92,11 +99,11 @@ public class PwaAppProcessingTaskListServiceTest {
             tuple(PwaAppProcessingTask.CONFIRM_SATISFACTORY_APPLICATION.getTaskName(), PwaAppProcessingTask.CONFIRM_SATISFACTORY_APPLICATION.getRoute(processingContext)),
             tuple(PwaAppProcessingTask.CONSULTATIONS.getTaskName(), PwaAppProcessingTask.CONSULTATIONS.getRoute(processingContext)),
             // APPROVE_OPTIONS route has content based on independently tested specific conditions
-            tuple(PwaAppProcessingTask.APPROVE_OPTIONS.getTaskName(), null),
+            tuple(PwaAppProcessingTask.APPROVE_OPTIONS.getTaskName(), PwaAppProcessingTask.APPROVE_OPTIONS.getRoute(processingContext)),
             // CLOSE_OUT_OPTIONS route has content based on independently tested specific conditions
-            tuple(PwaAppProcessingTask.CLOSE_OUT_OPTIONS.getTaskName(), null),
+            tuple(PwaAppProcessingTask.CLOSE_OUT_OPTIONS.getTaskName(), PwaAppProcessingTask.CLOSE_OUT_OPTIONS.getRoute(processingContext)),
             tuple(PwaAppProcessingTask.PUBLIC_NOTICE.getTaskName(), PwaAppProcessingTask.PUBLIC_NOTICE.getRoute(processingContext)),
-            tuple(PwaAppProcessingTask.DECISION.getTaskName(), PwaAppProcessingTask.DECISION.getRoute(processingContext)),
+            tuple(PwaAppProcessingTask.PREPARE_CONSENT.getTaskName(), PwaAppProcessingTask.PREPARE_CONSENT.getRoute(processingContext)),
             tuple(PwaAppProcessingTask.ALLOCATE_RESPONDER.getTaskName(), PwaAppProcessingTask.ALLOCATE_RESPONDER.getRoute(processingContext)),
             tuple(PwaAppProcessingTask.CONSULTATION_RESPONSE.getTaskName(), PwaAppProcessingTask.CONSULTATION_RESPONSE.getRoute(processingContext))
         );
@@ -105,13 +112,28 @@ public class PwaAppProcessingTaskListServiceTest {
         .extracting(TaskListEntry::getTaskName, TaskListEntry::getRoute)
         .containsExactly(
             // CHANGE_OPTIONS_APPROVAL_DEADLINE route has content based on independently tested specific conditions
-            tuple(PwaAppProcessingTask.CHANGE_OPTIONS_APPROVAL_DEADLINE.getTaskName(), null),
+            tuple(PwaAppProcessingTask.CHANGE_OPTIONS_APPROVAL_DEADLINE.getTaskName(), PwaAppProcessingTask.CHANGE_OPTIONS_APPROVAL_DEADLINE.getRoute(processingContext)),
             tuple(PwaAppProcessingTask.CONSULTEE_ADVICE.getTaskName(), PwaAppProcessingTask.CONSULTEE_ADVICE.getRoute(processingContext)),
             tuple(PwaAppProcessingTask.ALLOCATE_CASE_OFFICER.getTaskName(), PwaAppProcessingTask.ALLOCATE_CASE_OFFICER.getRoute(processingContext)),
             tuple(PwaAppProcessingTask.RFI.getTaskName(), PwaAppProcessingTask.RFI.getRoute(processingContext)),
             tuple(PwaAppProcessingTask.ADD_NOTE_OR_DOCUMENT.getTaskName(), PwaAppProcessingTask.ADD_NOTE_OR_DOCUMENT.getRoute(processingContext)),
             tuple(PwaAppProcessingTask.WITHDRAW_APPLICATION.getTaskName(), PwaAppProcessingTask.WITHDRAW_APPLICATION.getRoute(processingContext))
         );
+
+    taskListGroups.stream()
+        .flatMap(group -> group.getTaskListEntries().stream())
+        .forEach(entry -> {
+
+          var resolvedTask = PwaAppProcessingTask.resolveFromTaskName(entry.getTaskName());
+          var lockedTasks = List.of(PwaAppProcessingTask.APPROVE_OPTIONS, PwaAppProcessingTask.CLOSE_OUT_OPTIONS, PwaAppProcessingTask.CHANGE_OPTIONS_APPROVAL_DEADLINE);
+
+          if (lockedTasks.contains(resolvedTask)) {
+            assertThat(entry.getTaskState()).isEqualTo(TaskState.LOCK);
+          } else {
+            assertThat(entry.getTaskState()).isEqualTo(TaskState.EDIT);
+          }
+
+        });
 
   }
 
@@ -148,11 +170,68 @@ public class PwaAppProcessingTaskListServiceTest {
             tuple(PwaAppProcessingTask.CONFIRM_SATISFACTORY_APPLICATION.getTaskName(), PwaAppProcessingTask.CONFIRM_SATISFACTORY_APPLICATION.getRoute(processingContext)),
             tuple(PwaAppProcessingTask.CONSULTATIONS.getTaskName(), PwaAppProcessingTask.CONSULTATIONS.getRoute(processingContext)),
             tuple(PwaAppProcessingTask.PUBLIC_NOTICE.getTaskName(), PwaAppProcessingTask.PUBLIC_NOTICE.getRoute(processingContext)),
-            tuple(PwaAppProcessingTask.DECISION.getTaskName(), PwaAppProcessingTask.DECISION.getRoute(processingContext)),
+            tuple(PwaAppProcessingTask.PREPARE_CONSENT.getTaskName(), PwaAppProcessingTask.PREPARE_CONSENT.getRoute(processingContext)),
             tuple(PwaAppProcessingTask.ALLOCATE_RESPONDER.getTaskName(), PwaAppProcessingTask.ALLOCATE_RESPONDER.getRoute(processingContext)),
             tuple(PwaAppProcessingTask.CONSULTATION_RESPONSE.getTaskName(), PwaAppProcessingTask.CONSULTATION_RESPONSE.getRoute(processingContext))
         );
 
+  }
+
+  @Test
+  @Transactional
+  public void getTaskListGroups_entriesLockedWhenOpenConsentReview() {
+
+    var appInvolvement = new ApplicationInvolvementDto(
+        pwaApplicationDetail.getPwaApplication(),
+        Set.of(),
+        null,
+        true,
+        false,
+        true,
+        Set.of(),
+        OpenConsentReview.YES);
+
+    processingContext = new PwaAppProcessingContext(
+        pwaApplicationDetail,
+        null,
+        EnumSet.of(PwaAppProcessingPermission.CASE_MANAGEMENT_OGA),
+        null,
+        appInvolvement
+    );
+
+    var taskListGroups = taskListService.getTaskListGroups(processingContext);
+
+    taskListGroups.stream()
+        .flatMap(group -> group.getTaskListEntries().stream())
+        .forEach(entry -> {
+
+          if (entry.getTaskName().equals(PwaAppProcessingTask.ADD_NOTE_OR_DOCUMENT.getTaskName())) {
+            assertThat(entry.getTaskState()).isEqualTo(TaskState.EDIT);
+          } else {
+            assertThat(entry.getTaskState()).isEqualTo(TaskState.LOCK);
+          }
+
+        });
+
+  }
+
+  @Test
+  @Transactional
+  public void getTaskListGroups_entriesLockedWhenIndustry() {
+
+    processingContext = new PwaAppProcessingContext(
+        pwaApplicationDetail,
+        null,
+        EnumSet.of(PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY),
+        null,
+        ApplicationInvolvementDtoTestUtil.generatePwaContactInvolvement(pwaApplicationDetail.getPwaApplication(), Set.of(PwaContactRole.PREPARER))
+    );
+
+    var taskListGroups = taskListService.getTaskListGroups(processingContext);
+
+    taskListGroups.stream()
+        .flatMap(group -> group.getTaskListEntries().stream())
+        .forEach(entry -> assertThat(entry.getTaskState()).isEqualTo(TaskState.LOCK));
 
   }
 

@@ -19,7 +19,6 @@ import uk.co.ogauthority.pwa.model.form.pwaapplications.views.ProjectInformation
 import uk.co.ogauthority.pwa.model.view.sidebarnav.SidebarSectionLink;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTask;
-import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskListService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation.PadProjectInformationService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
@@ -34,10 +33,6 @@ public class ProjectInformationSummaryServiceTest {
 
   @Mock
   private PadProjectInformationService padProjectInformationService;
-
-  @Mock
-  private PadFileService padFileService;
-
   private ProjectInformationSummaryService projectInformationSummaryService;
   private PwaApplicationDetail pwaApplicationDetail;
 
@@ -45,8 +40,7 @@ public class ProjectInformationSummaryServiceTest {
   public void setUp() {
     projectInformationSummaryService = new ProjectInformationSummaryService(
         taskListService,
-        padProjectInformationService,
-        padFileService);
+        padProjectInformationService);
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL, 1, 2);
 

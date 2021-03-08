@@ -258,6 +258,7 @@ public class HuooSummaryServiceTest {
         orgRolePipelineGroupView.getOrgUnitDetailDto().getCompanyName(),
         orgRolePipelineGroupView.getOrgUnitDetailDto().getCompanyAddress(),
         orgRolePipelineGroupView.getOrgUnitDetailDto().getCompanyAddress(),
+        false,
         null,
         !orgRolePipelineGroupView.getIsManuallyEnteredName(),
         orgRolePipelineGroupView.getIsManuallyEnteredName(),

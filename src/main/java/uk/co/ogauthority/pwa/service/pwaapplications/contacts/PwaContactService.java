@@ -73,13 +73,6 @@ public class PwaContactService implements ApplicationFormSectionService {
                 person.getId())));
   }
 
-  public boolean personHasContactRoleForPwaApplication(PwaApplication pwaApplication, Person person,
-                                                       PwaContactRole role) {
-    return getContact(pwaApplication, person)
-        .map(contact -> contact.getRoles().contains(role))
-        .orElse(false);
-  }
-
   public Set<PwaContactRole> getContactRoles(PwaApplication pwaApplication, Person person) {
     return getContact(pwaApplication, person)
         .map(PwaContact::getRoles)
@@ -151,9 +144,9 @@ public class PwaContactService implements ApplicationFormSectionService {
     var person = contact.getPerson();
 
     var editUrl = ReverseRouter.route(on(PwaContactController.class)
-        .renderContactRolesScreen(applicationType, applicationId, person.getId().asInt(), null, null));
+        .renderContactRolesScreen(applicationType, applicationId, null, person.getId().asInt(), null, null));
     var removeUrl = ReverseRouter.route(on(PwaContactController.class)
-        .renderRemoveContactScreen(applicationType, applicationId, person.getId().asInt(), null));
+        .renderRemoveContactScreen(applicationType, applicationId, null, person.getId().asInt(), null));
 
     return new TeamMemberView(
         person,

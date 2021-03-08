@@ -76,7 +76,7 @@
 
     .header-heading {
       margin-top: 5px;
-    }    
+    }
 
     table {
       /* Repeats the header and footer on each page that the table is on. */
@@ -159,6 +159,24 @@
 
     #huooSection .orgRoleAndPipelines {
       margin-top: 40px;
+    }
+
+    .huooTreatyDescription {
+      width: 650px;
+    }
+
+    .huooOrgDescription {
+      page-break-inside:avoid;
+    }
+
+    .clause-list__list-item {
+      margin-top: 15px;
+    }
+
+    .multi-line-text {
+      white-space: pre-line;
+      margin-bottom: 20px;
+      display: block;
     }
 
   </style>

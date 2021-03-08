@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.model.documents.generation.DocumentSectionData;
+import uk.co.ogauthority.pwa.model.entity.documents.instances.DocumentInstance;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocumentSection;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineHeaderView;
@@ -43,11 +44,17 @@ public class TableAGeneratorService implements DocumentSectionGenerator {
   }
 
   @Override
-  public DocumentSectionData getDocumentSectionData(PwaApplicationDetail pwaApplicationDetail) {
+  public DocumentSectionData getDocumentSectionData(PwaApplicationDetail pwaApplicationDetail,
+                                                    DocumentInstance documentInstance) {
 
     var drawingForPipelineSummaryMap = getDrawingForPipelineSummaryMap(pwaApplicationDetail);
     var projectName = padProjectInformationService.getPadProjectInformationData(pwaApplicationDetail).getProjectName();
     var drawingForTableAViews = mapDrawingsAndPipelinesToDrawingTableAView(projectName, drawingForPipelineSummaryMap);
+
+    // if no pipelines or drawings, nothing to show, exit early
+    if (drawingForTableAViews.isEmpty()) {
+      return null;
+    }
 
     drawingForTableAViews.sort(Comparator.comparing(drawingForTableA ->
         drawingForTableA.getTableAViews().get(0).getHeaderRow().getPipelineNumber()));

@@ -22,6 +22,7 @@ import uk.co.ogauthority.pwa.model.entity.documents.templates.DocumentTemplate;
 import uk.co.ogauthority.pwa.model.entity.documents.templates.DocumentTemplateSection;
 import uk.co.ogauthority.pwa.model.entity.documents.templates.DocumentTemplateSectionClauseVersion;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.DocumentTemplateMnem;
+import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocumentSpec;
 import uk.co.ogauthority.pwa.model.enums.documents.DocumentTemplateSectionStatus;
 import uk.co.ogauthority.pwa.repository.documents.templates.DocumentTemplateSectionClauseVersionRepository;
 import uk.co.ogauthority.pwa.repository.documents.templates.DocumentTemplateSectionRepository;
@@ -60,11 +61,15 @@ public class DocumentTemplateServiceTest {
 
     var template = new DocumentTemplate();
 
+    var docSpec = DocumentSpec.INITIAL_APP_CONSENT_DOCUMENT;
+
+    var sectionNames = docSpec.getSectionNames();
+
     Map<DocumentTemplateSection, List<DocumentTemplateSectionClauseVersion>> sectionToClauseListMap = DocumentDtoTestUtils.createArgMap(template, clock);
 
     var sections = new ArrayList<>(sectionToClauseListMap.keySet());
 
-    when(templateSectionRepository.getAllByDocumentTemplate_MnemAndStatusIs(DocumentTemplateMnem.PWA_CONSENT_DOCUMENT, DocumentTemplateSectionStatus.ACTIVE))
+    when(templateSectionRepository.getAllByDocumentTemplate_MnemAndNameInAndStatusIs(DocumentTemplateMnem.PWA_CONSENT_DOCUMENT, sectionNames, DocumentTemplateSectionStatus.ACTIVE))
         .thenReturn(sections);
 
     var clauseVersions = sectionToClauseListMap.values().stream()
@@ -74,7 +79,7 @@ public class DocumentTemplateServiceTest {
     when(templateSectionClauseVersionRepository.getAllByDocumentTemplateSectionClause_DocumentTemplateSectionInAndTipFlagIsTrue(sections))
         .thenReturn(clauseVersions);
 
-    documentTemplateService.populateDocumentDtoFromTemplateMnem(DocumentTemplateMnem.PWA_CONSENT_DOCUMENT);
+    documentTemplateService.populateDocumentDtoFromTemplateMnem(DocumentTemplateMnem.PWA_CONSENT_DOCUMENT, docSpec);
 
     verify(documentDtoFactory, times(1)).create(eq(sectionToClauseListMap));
 
@@ -83,10 +88,12 @@ public class DocumentTemplateServiceTest {
   @Test(expected = DocumentTemplateException.class)
   public void populateDocumentDtoFromTemplateMnem_noSections() {
 
-    when(templateSectionRepository.getAllByDocumentTemplate_MnemAndStatusIs(DocumentTemplateMnem.PWA_CONSENT_DOCUMENT, DocumentTemplateSectionStatus.ACTIVE))
+    var docSpec = DocumentSpec.INITIAL_APP_CONSENT_DOCUMENT;
+
+    when(templateSectionRepository.getAllByDocumentTemplate_MnemAndNameInAndStatusIs(DocumentTemplateMnem.PWA_CONSENT_DOCUMENT, docSpec.getSectionNames(), DocumentTemplateSectionStatus.ACTIVE))
         .thenReturn(List.of());
 
-    documentTemplateService.populateDocumentDtoFromTemplateMnem(DocumentTemplateMnem.PWA_CONSENT_DOCUMENT);
+    documentTemplateService.populateDocumentDtoFromTemplateMnem(DocumentTemplateMnem.PWA_CONSENT_DOCUMENT, docSpec);
 
   }
 

@@ -13,6 +13,7 @@ import uk.co.ogauthority.pwa.model.dto.appprocessing.ConsultationInvolvementDto;
 import uk.co.ogauthority.pwa.model.dto.appprocessing.ProcessingPermissionsDto;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupMemberRole;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
@@ -51,6 +52,13 @@ public class PwaAppProcessingPermissionService {
             case CASE_MANAGEMENT_INDUSTRY:
               return (!appInvolvement.getContactRoles().isEmpty() && detail.getStatus() != PwaApplicationStatus.COMPLETE)
                   || appInvolvement.isUserInHolderTeam();
+            case PAY_FOR_APPLICATION: return (
+                PwaApplicationStatus.AWAITING_APPLICATION_PAYMENT.equals(detail.getStatus())
+                && (
+                    appInvolvement.hasAnyOfTheseContactRoles(PwaContactRole.PREPARER, PwaContactRole.ACCESS_MANAGER)
+                    || appInvolvement.hasAnyOfTheseHolderRoles(PwaOrganisationRole.FINANCE_ADMIN)
+                )
+            );
             case APPROVE_OPTIONS_VIEW:
               return !appInvolvement.getContactRoles().isEmpty()
                   && PwaApplicationType.OPTIONS_VARIATION.equals(detail.getPwaApplicationType());
@@ -72,14 +80,27 @@ public class PwaAppProcessingPermissionService {
             case APPROVE_OPTIONS:
             case CLOSE_OUT_OPTIONS:
               return userPrivileges.contains(PwaUserPrivilege.PWA_CASE_OFFICER)
-                  && appInvolvement.isCaseOfficerStageAndUserAssigned()
+                  && appInvolvement.isUserAssignedCaseOfficer()
                   && PwaApplicationType.OPTIONS_VARIATION.equals(detail.getPwaApplicationType());
             case CHANGE_OPTIONS_APPROVAL_DEADLINE:
               return userPrivileges.contains(PwaUserPrivilege.PWA_MANAGER)
                   && PwaApplicationType.OPTIONS_VARIATION.equals(detail.getPwaApplicationType());
-            case PUBLIC_NOTICE:
+            case VIEW_ALL_PUBLIC_NOTICES:
+              return (userPrivileges.contains(PwaUserPrivilege.PWA_CASE_OFFICER)
+                  || userPrivileges.contains(PwaUserPrivilege.PWA_MANAGER))
+                  && (PwaApplicationType.INITIAL.equals(detail.getPwaApplicationType())
+                  || PwaApplicationType.CAT_1_VARIATION.equals(detail.getPwaApplicationType()));
+            case DRAFT_PUBLIC_NOTICE:
               return userPrivileges.contains(PwaUserPrivilege.PWA_CASE_OFFICER)
-                  && appInvolvement.isCaseOfficerStageAndUserAssigned()
+                  && appInvolvement.isUserAssignedCaseOfficer()
+                  && (PwaApplicationType.INITIAL.equals(detail.getPwaApplicationType())
+                  || PwaApplicationType.CAT_1_VARIATION.equals(detail.getPwaApplicationType()));
+            case APPROVE_PUBLIC_NOTICE:
+              return userPrivileges.contains(PwaUserPrivilege.PWA_MANAGER)
+                  && (PwaApplicationType.INITIAL.equals(detail.getPwaApplicationType())
+                  || PwaApplicationType.CAT_1_VARIATION.equals(detail.getPwaApplicationType()));
+            case UPDATE_PUBLIC_NOTICE_DOC:
+              return userPrivileges.contains(PwaUserPrivilege.PWA_INDUSTRY)
                   && (PwaApplicationType.INITIAL.equals(detail.getPwaApplicationType())
                   || PwaApplicationType.CAT_1_VARIATION.equals(detail.getPwaApplicationType()));
             case CASE_OFFICER_REVIEW:
@@ -87,12 +108,16 @@ public class PwaAppProcessingPermissionService {
             case EDIT_CONSULTATIONS:
             case WITHDRAW_CONSULTATION:
             case EDIT_CONSENT_DOCUMENT:
+            case SEND_CONSENT_FOR_APPROVAL:
               return userPrivileges.contains(
-                  PwaUserPrivilege.PWA_CASE_OFFICER) && appInvolvement.isCaseOfficerStageAndUserAssigned();
+                  PwaUserPrivilege.PWA_CASE_OFFICER) && appInvolvement.isUserAssignedCaseOfficer();
             case REQUEST_APPLICATION_UPDATE:
             case WITHDRAW_APPLICATION:
-              return (userPrivileges.contains(PwaUserPrivilege.PWA_CASE_OFFICER) && appInvolvement.isCaseOfficerStageAndUserAssigned())
+              return (userPrivileges.contains(PwaUserPrivilege.PWA_CASE_OFFICER) && appInvolvement.isUserAssignedCaseOfficer())
                   || (userPrivileges.contains(PwaUserPrivilege.PWA_MANAGER) && appInvolvement.isPwaManagerStage());
+            case CANCEL_PAYMENT:
+              return PwaApplicationStatus.AWAITING_APPLICATION_PAYMENT.equals(detail.getStatus())
+                  && userPrivileges.contains(PwaUserPrivilege.PWA_MANAGER);
             default:
               return false;
           }
@@ -124,6 +149,7 @@ public class PwaAppProcessingPermissionService {
 
             case ACCEPT_INITIAL_REVIEW:
             case ASSIGN_CASE_OFFICER:
+            case CONSENT_REVIEW:
               return userPrivileges.contains(PwaUserPrivilege.PWA_MANAGER);
             case VIEW_ALL_CONSULTATIONS:
             case ADD_CASE_NOTE:

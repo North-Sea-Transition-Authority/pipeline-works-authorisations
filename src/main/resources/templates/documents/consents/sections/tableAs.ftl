@@ -5,9 +5,7 @@
 <#-- @ftlvariable name="drawingForTableAViews" type="java.util.List<uk.co.ogauthority.pwa.service.documents.views.tablea.DrawingForTableAView>"-->
 
 
-<div id="tableAsSection">
-
-  <h2 class="govuk-heading-l">${sectionName}</h2>
+<div>
 
   <#list drawingForTableAViews as drawingForTableAView>
 
@@ -54,7 +52,7 @@
         <th> W.T. (mm) </th>
         <th> Type of Insulation </th>
         <th> M.A.O.P. </th>
-        <th> Product to be Conveyed </th>
+        <th> Product(s) to be Conveyed </th>
       </tr>
     </thead>
 

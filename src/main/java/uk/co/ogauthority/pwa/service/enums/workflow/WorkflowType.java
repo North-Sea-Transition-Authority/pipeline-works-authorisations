@@ -11,7 +11,8 @@ import uk.co.ogauthority.pwa.exception.WorkflowException;
 public enum WorkflowType {
 
   PWA_APPLICATION("pwaApplication", PwaApplicationWorkflowTask.class),
-  PWA_APPLICATION_CONSULTATION("pwaApplicationConsultation", PwaApplicationConsultationWorkflowTask.class);
+  PWA_APPLICATION_CONSULTATION("pwaApplicationConsultation", PwaApplicationConsultationWorkflowTask.class),
+  PWA_APPLICATION_PUBLIC_NOTICE("pwaApplicationPublicNotice", PwaApplicationPublicNoticeWorkflowTask.class);
 
   private final String processDefinitionKey;
   private final Class<? extends UserWorkflowTask> workflowTaskClass;

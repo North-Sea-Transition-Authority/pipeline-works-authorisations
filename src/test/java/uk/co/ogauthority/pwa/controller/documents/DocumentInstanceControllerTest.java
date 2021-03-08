@@ -166,8 +166,7 @@ public class DocumentInstanceControllerTest extends PwaAppProcessingContextAbstr
 
     mockMvc.perform(post(ReverseRouter.route(on(DocumentInstanceController.class).postAddClauseAfter(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, DocumentTemplateMnem.PWA_CONSENT_DOCUMENT, 1, null, null, null, null)))
         .with(authenticatedUserAndSession(user))
-        .with(csrf())
-        .param("name", "name"))
+        .with(csrf()))
         .andExpect(status().isOk());
 
     verify(documentInstanceService, times(0)).addClauseAfter(any(), any(), eq(user.getLinkedPerson()));
@@ -265,8 +264,7 @@ public class DocumentInstanceControllerTest extends PwaAppProcessingContextAbstr
 
     mockMvc.perform(post(ReverseRouter.route(on(DocumentInstanceController.class).postAddClauseBefore(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, DocumentTemplateMnem.PWA_CONSENT_DOCUMENT, 1, null, null, null, null)))
         .with(authenticatedUserAndSession(user))
-        .with(csrf())
-        .param("name", "name"))
+        .with(csrf()))
         .andExpect(status().isOk());
 
     verify(documentInstanceService, times(0)).addClauseBefore(any(), any(), eq(user.getLinkedPerson()));
@@ -364,8 +362,7 @@ public class DocumentInstanceControllerTest extends PwaAppProcessingContextAbstr
 
     mockMvc.perform(post(ReverseRouter.route(on(DocumentInstanceController.class).postAddSubClauseFor(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, DocumentTemplateMnem.PWA_CONSENT_DOCUMENT, 1, null, null, null, null)))
         .with(authenticatedUserAndSession(user))
-        .with(csrf())
-        .param("name", "name"))
+        .with(csrf()))
         .andExpect(status().isOk());
 
     verify(documentInstanceService, times(0)).addSubClause(any(), any(), eq(user.getLinkedPerson()));
@@ -463,8 +460,7 @@ public class DocumentInstanceControllerTest extends PwaAppProcessingContextAbstr
 
     mockMvc.perform(post(ReverseRouter.route(on(DocumentInstanceController.class).postEditClause(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, DocumentTemplateMnem.PWA_CONSENT_DOCUMENT, 1, null, null, null, null)))
         .with(authenticatedUserAndSession(user))
-        .with(csrf())
-        .param("name", "name"))
+        .with(csrf()))
         .andExpect(status().isOk());
 
     verify(documentInstanceService, times(0)).editClause(any(), any(), eq(user.getLinkedPerson()));

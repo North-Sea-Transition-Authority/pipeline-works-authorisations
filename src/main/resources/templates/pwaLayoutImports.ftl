@@ -4,6 +4,7 @@
 <#include 'fds/objects/layouts/generic.ftl'>
 <#import 'fds/objects/grid/grid.ftl' as grid>
 <#import 'header.ftl' as pipelinesHeader>
+<#import 'components/flash/flash.ftl' as pwaFlash>
 <#import 'components/files/fileList.ftl' as pwaFiles>
 <#import 'components/completedTag/completedTag.ftl' as completedTag>
 <#import 'components/coordinates/locationInput.ftl' as pwaLocationInput>
@@ -23,6 +24,7 @@
 <#import 'components/appSummary/appSummary.ftl' as pwaAppSummary>
 <#import 'components/sidebarSectionLink/sidebarSectionLink.ftl' as pwaSidebarSectionLink>
 <#import 'components/tableSelectorToggler/tableSelectorToggler.ftl' as pwaTableSelectionToggler>
+<#import 'components/payment/payment.ftl' as pwaPayment>
 
 <#function springUrl url>
     <#local springUrl>

@@ -6,9 +6,13 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.co.ogauthority.pwa.model.enums.tasklist.TaskState;
 import uk.co.ogauthority.pwa.model.tasklist.TaskListGroup;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
+import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingTask;
+import uk.co.ogauthority.pwa.service.enums.appprocessing.TaskLockable;
+import uk.co.ogauthority.pwa.service.enums.appprocessing.appinvolvement.OpenConsentReview;
 
 @Service
 public class PwaAppProcessingTaskListService {
@@ -36,6 +40,13 @@ public class PwaAppProcessingTaskListService {
             .map(task -> pwaAppProcessingTaskService.getTaskListEntry(task, pwaAppProcessingContext))
             .collect(Collectors.toList());
 
+        if (shouldLockAllTasks(pwaAppProcessingContext)) {
+          entryList.stream()
+              .filter(taskListEntry -> PwaAppProcessingTask
+                  .resolveFromTaskName(taskListEntry.getTaskName()).getTaskLockable() == TaskLockable.YES)
+              .forEach(entry -> entry.setTaskState(TaskState.LOCK));
+        }
+
         groupList.add(new TaskListGroup(
             requiredTask.getDisplayName(),
             requiredTask.getDisplayOrder(),
@@ -49,6 +60,15 @@ public class PwaAppProcessingTaskListService {
 
     return groupList;
 
+  }
+
+  /**
+   * If we're an industry user or there's an open consent review, everything should be locked, return true.
+   * Otherwise false.
+   */
+  private boolean shouldLockAllTasks(PwaAppProcessingContext processingContext) {
+    return processingContext.hasProcessingPermission(PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY)
+        || processingContext.getApplicationInvolvement().getOpenConsentReview() == OpenConsentReview.YES;
   }
 
 }

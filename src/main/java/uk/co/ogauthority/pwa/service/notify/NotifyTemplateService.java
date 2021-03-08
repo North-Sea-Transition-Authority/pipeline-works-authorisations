@@ -38,7 +38,7 @@ public class NotifyTemplateService {
       try {
         emailTemplateList = notificationClient.getAllTemplates(NotifyTemplateType.EMAIL_TEMPLATE_TYPE.getTypeName()).getTemplates();
       } catch (NotificationClientException e) {
-        LOGGER.error("Error constructing NotificationClient: " + ExceptionUtils.getStackTrace(e));
+        LOGGER.error("Error constructing NotificationClient: {}", ExceptionUtils.getStackTrace(e));
         emailTemplateList = Collections.emptyList();
       }
     }

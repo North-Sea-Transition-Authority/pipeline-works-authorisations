@@ -93,7 +93,7 @@ public class WithdrawApplicationControllerTest extends PwaAppProcessingContextAb
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(WithdrawApplicationController.class)
-                .postWithdrawApplication(applicationDetail.getMasterPwaApplicationId(), type, null, null, null, null)));
+                .postWithdrawApplication(applicationDetail.getMasterPwaApplicationId(), type, null, null, null, null, null)));
 
     endpointTester.performProcessingPermissionCheck(status().is3xxRedirection(), status().isForbidden());
 
@@ -108,7 +108,7 @@ public class WithdrawApplicationControllerTest extends PwaAppProcessingContextAb
     when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail, user)).thenReturn(permissionsDto);
 
     mockMvc.perform(post(ReverseRouter.route(on(WithdrawApplicationController.class)
-        .postWithdrawApplication(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null)))
+        .postWithdrawApplication(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null, null)))
         .with(authenticatedUserAndSession(user))
         .with(csrf()))
         .andExpect(status().is3xxRedirection());
@@ -128,7 +128,7 @@ public class WithdrawApplicationControllerTest extends PwaAppProcessingContextAb
     when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail, user)).thenReturn(permissionsDto);
 
     mockMvc.perform(post(ReverseRouter.route(on(WithdrawApplicationController.class)
-        .postWithdrawApplication(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null)))
+        .postWithdrawApplication(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null, null)))
         .with(authenticatedUserAndSession(user))
         .with(csrf()))
         .andExpect(status().isOk())

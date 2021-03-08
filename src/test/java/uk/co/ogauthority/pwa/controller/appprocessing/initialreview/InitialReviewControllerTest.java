@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.controller.appprocessing.initialreview;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -20,6 +21,7 @@ import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
@@ -29,6 +31,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.PwaAppProcessingContextAbstractControllerTest;
+import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.dto.appprocessing.ProcessingPermissionsDto;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
@@ -36,7 +39,13 @@ import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.PwaAppProcessingPermissionService;
 import uk.co.ogauthority.pwa.service.appprocessing.applicationupdate.ApplicationUpdateRequestService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContextService;
+import uk.co.ogauthority.pwa.service.appprocessing.initialreview.InitialReviewPaymentDecision;
 import uk.co.ogauthority.pwa.service.appprocessing.initialreview.InitialReviewService;
+import uk.co.ogauthority.pwa.service.appprocessing.processingcharges.appfees.ApplicationFeeReport;
+import uk.co.ogauthority.pwa.service.appprocessing.processingcharges.appfees.ApplicationFeeService;
+import uk.co.ogauthority.pwa.service.appprocessing.processingcharges.display.ApplicationPaymentDisplaySummary;
+import uk.co.ogauthority.pwa.service.appprocessing.processingcharges.display.ApplicationPaymentDisplaySummaryTestUtil;
+import uk.co.ogauthority.pwa.service.appprocessing.processingcharges.display.ApplicationPaymentSummariser;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
@@ -49,6 +58,15 @@ import uk.co.ogauthority.pwa.validators.appprocessing.initialreview.InitialRevie
 @RunWith(SpringRunner.class)
 @WebMvcTest(controllers = InitialReviewController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {PwaAppProcessingContextService.class}))
 public class InitialReviewControllerTest extends PwaAppProcessingContextAbstractControllerTest {
+
+  private static final String CASE_OFFICER_ID_ATTR = "caseOfficerPersonId";
+  private static final String REVIEW_DECISION_ATTR = "initialReviewPaymentDecision";
+  private static final String PAYMENT_WAIVED_ATTR = "paymentWaivedReason";
+
+  private static final String HEADLINE_FEE_DESC = "FEE_HEAD";
+  private static final String FEE_ITEM_DESC = "FEE_ITEM";
+  private static final int FEE_AMOUNT = 100;
+
 
   private PwaApplicationEndpointTestBuilder endpointTester;
   private PwaApplicationDetail pwaApplicationDetail;
@@ -70,8 +88,23 @@ public class InitialReviewControllerTest extends PwaAppProcessingContextAbstract
   @MockBean
   private ApplicationUpdateRequestService applicationUpdateRequestService;
 
+  @MockBean
+  private ApplicationFeeService applicationFeeService;
+
+  @MockBean
+  private ApplicationPaymentSummariser applicationPaymentSummariser;
+
+  @Mock
+  private ApplicationFeeReport applicationFeeReport;
+
+  private ApplicationPaymentDisplaySummary applicationPaymentDisplaySummary;
+
   @Before
   public void setUp() {
+
+    applicationPaymentDisplaySummary = ApplicationPaymentDisplaySummaryTestUtil.getDefaultPaymentDisplaySummary();
+    when(applicationFeeService.getApplicationFeeReport(any())).thenReturn(applicationFeeReport);
+    when(applicationPaymentSummariser.summarise(applicationFeeReport)).thenReturn(applicationPaymentDisplaySummary);
 
     user = new AuthenticatedUserAccount(
         new WebUserAccount(1),
@@ -85,7 +118,6 @@ public class InitialReviewControllerTest extends PwaAppProcessingContextAbstract
     pwaApplicationDetail.getPwaApplication().setId(APP_ID);
     when(pwaApplicationDetailService.getLatestDetailForUser(pwaApplicationDetail.getMasterPwaApplicationId(), user))
         .thenReturn(Optional.of(pwaApplicationDetail));
-
   }
 
   @Test
@@ -135,14 +167,15 @@ public class InitialReviewControllerTest extends PwaAppProcessingContextAbstract
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(InitialReviewController.class)
-                .postInitialReview(applicationDetail.getMasterPwaApplicationId(), type, null, null, null, null, null)));
+                .postInitialReview(applicationDetail.getMasterPwaApplicationId(), type, null, null, null, null, null)))
+        .addRequestParam(CASE_OFFICER_ID_ATTR, "1");
 
     endpointTester.performProcessingPermissionCheck(status().is3xxRedirection(), status().isForbidden());
 
   }
 
   @Test
-  public void postInitialReview() throws Exception {
+  public void postInitialReview_paymentWaived() throws Exception {
 
     pwaApplicationDetail.setStatus(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW);
 
@@ -151,11 +184,44 @@ public class InitialReviewControllerTest extends PwaAppProcessingContextAbstract
 
     mockMvc.perform(post(ReverseRouter.route(on(InitialReviewController.class).postInitialReview(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null, null)))
         .with(authenticatedUserAndSession(user))
-        .param("caseOfficerPersonId", "5")
+        .param(CASE_OFFICER_ID_ATTR, "5")
+        .param(REVIEW_DECISION_ATTR, InitialReviewPaymentDecision.PAYMENT_WAIVED.name())
+        .param(PAYMENT_WAIVED_ATTR, "REASON")
         .with(csrf()))
         .andExpect(status().is3xxRedirection());
 
-    verify(initialReviewService, times(1)).acceptApplication(pwaApplicationDetail, 5, user);
+    verify(initialReviewService, times(1))
+        .acceptApplication(pwaApplicationDetail,
+            new PersonId(5),
+            InitialReviewPaymentDecision.PAYMENT_WAIVED,
+            "REASON",
+            user);
+
+  }
+
+  @Test
+  public void postInitialReview_paymentRequired() throws Exception {
+
+    pwaApplicationDetail.setStatus(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW);
+
+    var permissionsDto = new ProcessingPermissionsDto(null, EnumSet.allOf(PwaAppProcessingPermission.class));
+    when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail, user)).thenReturn(permissionsDto);
+
+    mockMvc.perform(post(ReverseRouter.route(on(InitialReviewController.class).postInitialReview(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null, null)))
+        .with(authenticatedUserAndSession(user))
+        .param(CASE_OFFICER_ID_ATTR, "5")
+        .param(REVIEW_DECISION_ATTR, InitialReviewPaymentDecision.PAYMENT_REQUIRED.name())
+        // still provide this and verify its ignored by service call
+        .param(PAYMENT_WAIVED_ATTR, "REASON")
+        .with(csrf()))
+        .andExpect(status().is3xxRedirection());
+
+    verify(initialReviewService, times(1))
+        .acceptApplication(pwaApplicationDetail,
+            new PersonId(5),
+            InitialReviewPaymentDecision.PAYMENT_REQUIRED,
+            null,
+            user);
 
   }
 
@@ -168,7 +234,7 @@ public class InitialReviewControllerTest extends PwaAppProcessingContextAbstract
     pwaApplicationDetail.setInitialReviewApprovedByWuaId(1);
     pwaApplicationDetail.setInitialReviewApprovedTimestamp(approvedTimestamp);
 
-    doCallRealMethod().when(initialReviewService).acceptApplication(pwaApplicationDetail, 5, user);
+    doCallRealMethod().when(initialReviewService).acceptApplication(pwaApplicationDetail, new PersonId(5),InitialReviewPaymentDecision.PAYMENT_WAIVED, "REASON", user);
 
     var permissionsDto = new ProcessingPermissionsDto(null, EnumSet.allOf(PwaAppProcessingPermission.class));
     when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail, user)).thenReturn(permissionsDto);

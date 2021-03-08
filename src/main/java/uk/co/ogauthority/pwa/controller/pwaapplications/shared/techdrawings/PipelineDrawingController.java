@@ -133,7 +133,7 @@ public class PipelineDrawingController extends PwaApplicationDetailDataFileUploa
   }
 
   @GetMapping("/new")
-  @PwaApplicationStatusCheck(statuses = PwaApplicationStatus.DRAFT)
+  @PwaApplicationStatusCheck(statuses = {PwaApplicationStatus.DRAFT, PwaApplicationStatus.UPDATE_REQUESTED})
   public ModelAndView renderAddDrawing(
       @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
       @PathVariable("applicationId") Integer applicationId,
@@ -144,7 +144,7 @@ public class PipelineDrawingController extends PwaApplicationDetailDataFileUploa
   }
 
   @PostMapping("/new")
-  @PwaApplicationStatusCheck(statuses = PwaApplicationStatus.DRAFT)
+  @PwaApplicationStatusCheck(statuses = {PwaApplicationStatus.DRAFT, PwaApplicationStatus.UPDATE_REQUESTED})
   public ModelAndView postAddDrawing(
       @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
       @PathVariable("applicationId") Integer applicationId,
@@ -169,7 +169,7 @@ public class PipelineDrawingController extends PwaApplicationDetailDataFileUploa
   }
 
   @GetMapping("/{drawingId}/remove")
-  @PwaApplicationStatusCheck(statuses = PwaApplicationStatus.DRAFT)
+  @PwaApplicationStatusCheck(statuses = {PwaApplicationStatus.DRAFT, PwaApplicationStatus.UPDATE_REQUESTED})
   public ModelAndView renderRemoveDrawing(
       @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
       @PathVariable("applicationId") Integer applicationId,
@@ -180,7 +180,7 @@ public class PipelineDrawingController extends PwaApplicationDetailDataFileUploa
   }
 
   @PostMapping("/{drawingId}/remove")
-  @PwaApplicationStatusCheck(statuses = PwaApplicationStatus.DRAFT)
+  @PwaApplicationStatusCheck(statuses = {PwaApplicationStatus.DRAFT, PwaApplicationStatus.UPDATE_REQUESTED})
   public ModelAndView postRemoveDrawing(
       @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
       @PathVariable("applicationId") Integer applicationId,
@@ -195,7 +195,7 @@ public class PipelineDrawingController extends PwaApplicationDetailDataFileUploa
   }
 
   @GetMapping("/{drawingId}/edit")
-  @PwaApplicationStatusCheck(statuses = PwaApplicationStatus.DRAFT)
+  @PwaApplicationStatusCheck(statuses = {PwaApplicationStatus.DRAFT, PwaApplicationStatus.UPDATE_REQUESTED})
   public ModelAndView renderEditDrawing(
       @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
       @PathVariable("applicationId") Integer applicationId,
@@ -209,7 +209,7 @@ public class PipelineDrawingController extends PwaApplicationDetailDataFileUploa
   }
 
   @PostMapping("/{drawingId}/edit")
-  @PwaApplicationStatusCheck(statuses = PwaApplicationStatus.DRAFT)
+  @PwaApplicationStatusCheck(statuses = {PwaApplicationStatus.DRAFT, PwaApplicationStatus.UPDATE_REQUESTED})
   public ModelAndView postEditDrawing(
       @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
       @PathVariable("applicationId") Integer applicationId,
@@ -240,7 +240,7 @@ public class PipelineDrawingController extends PwaApplicationDetailDataFileUploa
   @Override
   @PostMapping("/file/upload")
   @ResponseBody
-  @PwaApplicationStatusCheck(statuses = PwaApplicationStatus.DRAFT)
+  @PwaApplicationStatusCheck(statuses = {PwaApplicationStatus.DRAFT, PwaApplicationStatus.UPDATE_REQUESTED})
   public FileUploadResult handleUpload(
       @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
       @PathVariable("applicationId") Integer applicationId,
@@ -268,7 +268,7 @@ public class PipelineDrawingController extends PwaApplicationDetailDataFileUploa
   @Override
   @PostMapping("/file/delete/{fileId}")
   @ResponseBody
-  @PwaApplicationStatusCheck(statuses = PwaApplicationStatus.DRAFT)
+  @PwaApplicationStatusCheck(statuses = {PwaApplicationStatus.DRAFT, PwaApplicationStatus.UPDATE_REQUESTED})
   public FileDeleteResult handleDelete(
       @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
       @PathVariable("applicationId") Integer applicationId,
@@ -278,7 +278,7 @@ public class PipelineDrawingController extends PwaApplicationDetailDataFileUploa
     var detail = applicationContext.getApplicationDetail();
     return padFileService.processFileDeletionWithPreDeleteAction(applicationContext.getPadFile(),
         applicationContext.getUser(),
-        (padFile) -> padTechnicalDrawingService.getDrawingLinkedToPadFile(detail, padFile)
+        padFile -> padTechnicalDrawingService.getDrawingLinkedToPadFile(detail, padFile)
             .ifPresent(padTechnicalDrawingService::unlinkFile));
   }
 }

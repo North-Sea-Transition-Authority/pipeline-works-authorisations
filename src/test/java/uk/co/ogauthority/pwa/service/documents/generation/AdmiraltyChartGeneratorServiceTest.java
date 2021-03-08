@@ -52,9 +52,9 @@ public class AdmiraltyChartGeneratorServiceTest {
   }
 
   @Test
-  public void getDocumentSectionData() {
+  public void getDocumentSectionData_admiraltyChartAvailable() {
 
-    var docSectionData = admiraltyChartGeneratorService.getDocumentSectionData(detail);
+    var docSectionData = admiraltyChartGeneratorService.getDocumentSectionData(detail, null);
 
     verify(consentDocumentImageService, times(1)).convertFilesToImageSourceMap(Set.of("id1"));
 
@@ -63,6 +63,20 @@ public class AdmiraltyChartGeneratorServiceTest {
         entry("sectionName", DocumentSection.ADMIRALTY_CHART.getDisplayName()),
         entry("admiraltyChartImgSource", "fullChartUri")
     );
+
+  }
+
+  @Test
+  public void getDocumentSectionData_noAdmiraltyChart() {
+
+    when(padFileService.getAllByPwaApplicationDetailAndPurpose(detail, ApplicationDetailFilePurpose.ADMIRALTY_CHART))
+        .thenReturn(List.of());
+
+    var docSectionData = admiraltyChartGeneratorService.getDocumentSectionData(detail, null);
+
+    verify(consentDocumentImageService, times(0)).convertFilesToImageSourceMap(Set.of("id1"));
+
+    assertThat(docSectionData).isNull();
 
   }
 

@@ -2,8 +2,6 @@
 
   &__action {
 
-    font-weight: normal;
-
     &--heading {
       margin-left: govuk-spacing(2);
     }
@@ -11,14 +9,13 @@
   }
 
   &__text__preserve-whitespace {
-    font-weight: normal;
     margin-bottom: govuk-spacing(4);
     display: block;
   }
 
-  .govuk-list {
+  .clause-list__list {
 
-    > li {
+    > li.clause-list__list-item::marker {
       font-weight: bold;
     }
 

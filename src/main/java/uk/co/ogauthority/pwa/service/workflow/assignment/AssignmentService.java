@@ -1,0 +1,80 @@
+package uk.co.ogauthority.pwa.service.workflow.assignment;
+
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import javax.transaction.Transactional;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
+import uk.co.ogauthority.pwa.model.entity.workflow.assignment.Assignment;
+import uk.co.ogauthority.pwa.repository.workflow.assignment.AssignmentRepository;
+import uk.co.ogauthority.pwa.service.enums.workflow.UserWorkflowTask;
+import uk.co.ogauthority.pwa.service.enums.workflow.WorkflowSubject;
+import uk.co.ogauthority.pwa.service.enums.workflow.WorkflowType;
+
+@Service
+public class AssignmentService {
+
+  private final AssignmentRepository assignmentRepository;
+  private final AssignmentAuditService assignmentAuditService;
+
+  @Autowired
+  public AssignmentService(AssignmentRepository assignmentRepository,
+                           AssignmentAuditService assignmentAuditService) {
+    this.assignmentRepository = assignmentRepository;
+    this.assignmentAuditService = assignmentAuditService;
+  }
+
+  @Transactional
+  public void createOrUpdateAssignment(WorkflowSubject workflowSubject,
+                                       UserWorkflowTask task,
+                                       Person personToAssign,
+                                       Person assigningPerson) {
+
+    assignmentRepository.findByBusinessKeyAndWorkflowTypeAndWorkflowAssignment(
+        workflowSubject.getBusinessKey(), workflowSubject.getWorkflowType(), task.getAssignment())
+        .ifPresentOrElse(assignment -> {
+
+          assignment.setAssigneePersonId(personToAssign.getId());
+          assignmentRepository.save(assignment);
+
+          assignmentAuditService.auditAssignment(assignment, task, assigningPerson);
+
+        }, () -> {
+
+              var assignment = new Assignment();
+              assignment.setBusinessKey(workflowSubject.getBusinessKey());
+              assignment.setWorkflowType(workflowSubject.getWorkflowType());
+              assignment.setWorkflowAssignment(task.getAssignment());
+              assignment.setAssigneePersonId(personToAssign.getId());
+
+              assignmentRepository.save(assignment);
+
+              assignmentAuditService.auditAssignment(assignment, task, assigningPerson);
+
+          });
+
+  }
+
+  public Map<WorkflowType, List<Assignment>> getAssignmentsForPerson(Person person) {
+    return assignmentRepository.findByAssigneePersonId(person.getId()).stream()
+        .collect(Collectors.groupingBy(Assignment::getWorkflowType));
+  }
+
+  public List<Assignment> getAssignmentsForPerson(WorkflowSubject workflowSubject,
+                                                  Person person) {
+    return assignmentRepository.findByBusinessKeyAndWorkflowTypeAndAssigneePersonId(
+        workflowSubject.getBusinessKey(), workflowSubject.getWorkflowType(), person.getId());
+  }
+
+  public void clearAssignments(WorkflowSubject workflowSubject) {
+
+    var assignments = assignmentRepository.findByBusinessKeyAndWorkflowType(
+        workflowSubject.getBusinessKey(), workflowSubject.getWorkflowType());
+
+    assignmentRepository.deleteAll(assignments);
+
+  }
+
+}

@@ -21,9 +21,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.junit.Before;
@@ -43,6 +41,8 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.partnerletters.PartnerLettersForm;
 import uk.co.ogauthority.pwa.repository.pwaapplications.PwaApplicationDetailRepository;
+import uk.co.ogauthority.pwa.service.appprocessing.initialreview.InitialReviewPaymentDecision;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.ApplicationState;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.users.UserType;
@@ -98,29 +98,9 @@ public class PwaApplicationDetailServiceTest {
 
     clock = Clock.fixed(fixedInstant, ZoneId.systemDefault());
 
-    when(applicationDetailRepository.findByPwaApplicationIdAndStatusAndTipFlagIsTrue(APP_ID, PwaApplicationStatus.DRAFT))
-        .thenReturn(Optional.of(pwaApplicationDetail));
-
     when(applicationDetailRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
     pwaApplicationDetailService = new PwaApplicationDetailService(applicationDetailRepository, clock, fastTrackService, userTypeService);
-  }
-
-  @Test
-  public void withDraftTipDetail() {
-    AtomicBoolean functionApplied = new AtomicBoolean(false);
-    pwaApplicationDetailService.withDraftTipDetail(APP_ID, user, detail -> {
-      assertThat(detail).isEqualTo(pwaApplicationDetail);
-      functionApplied.set(true);
-      return null;
-    });
-    assertThat(functionApplied.get()).isEqualTo(true);
-  }
-
-  @Test
-  public void getTipDetailWithStatus() {
-    var detail = pwaApplicationDetailService.getTipDetailWithStatus(APP_ID, PwaApplicationStatus.DRAFT);
-    assertThat(detail).isEqualTo(pwaApplicationDetail);
   }
 
   @Test
@@ -208,18 +188,34 @@ public class PwaApplicationDetailServiceTest {
   }
 
   @Test
-  public void setInitialReviewApproved() {
+  public void setInitialReviewApproved_paymentWaived() {
 
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     detail.setStatus(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW);
 
-    pwaApplicationDetailService.setInitialReviewApproved(detail, user);
+    pwaApplicationDetailService.setInitialReviewApproved(detail, user, InitialReviewPaymentDecision.PAYMENT_WAIVED);
 
     verify(applicationDetailRepository, times(2)).save(detail);
 
     assertThat(detail.getInitialReviewApprovedByWuaId()).isEqualTo(user.getWuaId());
     assertThat(detail.getInitialReviewApprovedTimestamp()).isEqualTo(clock.instant());
     assertThat(detail.getStatus()).isEqualTo(PwaApplicationStatus.CASE_OFFICER_REVIEW);
+
+  }
+
+  @Test
+  public void setInitialReviewApproved_paymentRequired() {
+
+    var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
+    detail.setStatus(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW);
+
+    pwaApplicationDetailService.setInitialReviewApproved(detail, user, InitialReviewPaymentDecision.PAYMENT_REQUIRED);
+
+    verify(applicationDetailRepository, times(2)).save(detail);
+
+    assertThat(detail.getInitialReviewApprovedByWuaId()).isEqualTo(user.getWuaId());
+    assertThat(detail.getInitialReviewApprovedTimestamp()).isEqualTo(clock.instant());
+    assertThat(detail.getStatus()).isEqualTo(PwaApplicationStatus.AWAITING_APPLICATION_PAYMENT);
 
   }
 
@@ -296,7 +292,8 @@ public class PwaApplicationDetailServiceTest {
     setAllPwaAppDetailFields(pwaApplicationDetail, PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW, webUserAccount2);
     pwaApplicationDetail.setStatus(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW);
 
-    var newDetail = pwaApplicationDetailService.createNewTipDetail(pwaApplicationDetail, user);
+    var newDetail = pwaApplicationDetailService
+        .createNewTipDetail(pwaApplicationDetail, PwaApplicationStatus.UPDATE_REQUESTED, user);
 
     // Test Old Detail
     assertThat(pwaApplicationDetail.isTipFlag()).isFalse();
@@ -311,8 +308,8 @@ public class PwaApplicationDetailServiceTest {
     assertThat(newDetail.getStatusLastModifiedTimestamp()).isEqualTo(newDetail.getCreatedTimestamp());
     assertThat(newDetail.getStatusLastModifiedByWuaId()).isNotEqualTo(pwaApplicationDetail.getStatusLastModifiedByWuaId());
     assertThat(newDetail.getCreatedByWuaId()).isNotEqualTo(pwaApplicationDetail.getCreatedByWuaId());
-    // sets new detail to DRAFT
-    assertThat(newDetail.getStatus()).isEqualTo(PwaApplicationStatus.DRAFT);
+    // sets new detail to UPDATE_REQUESTED
+    assertThat(newDetail.getStatus()).isEqualTo(PwaApplicationStatus.UPDATE_REQUESTED);
 
     var ignoredFields = List.of("id", "status", "tipFlag", "versionNo", "createdTimestamp", "statusLastModifiedTimestamp", "statusLastModifiedByWuaId", "createdByWuaId");
 
@@ -544,4 +541,20 @@ public class PwaApplicationDetailServiceTest {
     verify(applicationDetailRepository, times(1))
         .findByPwaApplicationAndStatus(pwaApplicationDetail.getPwaApplication(), PwaApplicationStatus.WITHDRAWN);
   }
+
+  @Test
+  public void getOpenApplicationIds() {
+    var pwaAppId1 = 1;
+    var pwaAppId2 = 2;
+    var detail1 = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL, pwaAppId1);
+    var detail2 = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL, pwaAppId2);
+
+    var openStatuses = ApplicationState.IN_PROGRESS.getStatuses();
+    when(applicationDetailRepository.findLastSubmittedAppDetailsWithStatusIn(openStatuses)).thenReturn(List.of(detail1, detail2));
+
+    var openApplicationIds = pwaApplicationDetailService.getInProgressApplicationIds();
+    assertThat(openApplicationIds).isEqualTo(List.of(
+        detail1.getPwaApplication().getId(), detail2.getPwaApplication().getId()));
+  }
+
 }

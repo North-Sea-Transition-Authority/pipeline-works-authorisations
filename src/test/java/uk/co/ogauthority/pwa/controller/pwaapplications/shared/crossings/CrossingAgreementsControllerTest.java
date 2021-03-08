@@ -32,16 +32,9 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.BlockCrossingFileService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.BlockCrossingService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CableCrossingFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CrossingAgreementsService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CrossingAgreementsValidationResult;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.MedianLineCrossingFileService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.PadCableCrossingService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.PadMedianLineAgreementService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.pipeline.PadPipelineCrossingService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.pipeline.PipelineCrossingFileService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 @RunWith(SpringRunner.class)
@@ -58,28 +51,7 @@ public class CrossingAgreementsControllerTest extends PwaApplicationContextAbstr
   private PadMedianLineAgreementService padMedianLineAgreementService;
 
   @MockBean
-  private BlockCrossingService blockCrossingService;
-
-  @MockBean
-  private BlockCrossingFileService blockCrossingFileService;
-
-  @MockBean
   private CrossingAgreementsService crossingAgreementsService;
-
-  @MockBean
-  private MedianLineCrossingFileService medianLineCrossingFileService;
-
-  @MockBean
-  private PadCableCrossingService cableCrossingService;
-
-  @MockBean
-  private CableCrossingFileService cableCrossingFileService;
-
-  @MockBean
-  private PadPipelineCrossingService padPipelineCrossingService;
-
-  @MockBean
-  private PipelineCrossingFileService pipelineCrossingFileService;
 
   private PwaApplicationDetail pwaApplicationDetail;
   private PwaApplicationContext pwaApplicationContext;

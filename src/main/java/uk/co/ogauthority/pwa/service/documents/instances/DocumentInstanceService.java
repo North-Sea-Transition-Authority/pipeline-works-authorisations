@@ -4,6 +4,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,6 +32,7 @@ import uk.co.ogauthority.pwa.model.entity.documents.instances.DocumentInstanceSe
 import uk.co.ogauthority.pwa.model.entity.documents.templates.DocumentTemplateSection;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.DocumentTemplateMnem;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocumentSection;
+import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocumentSpec;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.enums.documents.PwaDocumentType;
 import uk.co.ogauthority.pwa.model.enums.documents.SectionClauseVersionStatus;
@@ -86,34 +88,34 @@ public class DocumentInstanceService {
 
     var templateClauseIdToNewInstanceClauseMap = new HashMap<Integer, DocumentInstanceSectionClause>();
 
-    documentTemplateDto.getSections().forEach(section -> {
+    documentTemplateDto.getSections().forEach(section ->
 
-      // for each current clause version within a section
-      section.getClauses().forEach(templateClauseVersion -> {
+        // for each current clause version within a section
+        section.getClauses().forEach(templateClauseVersion -> {
 
-        var createdFromTemplateClause = templateClauseVersion.getTemplateClauseRecord();
+          var createdFromTemplateClause = templateClauseVersion.getTemplateClauseRecord();
 
-        // create a corresponding instance clause linked to the template clause it was created from
-        var clause = new DocumentInstanceSectionClause();
-        clause.setDocumentInstance(instance);
-        clause.setDocumentTemplateSectionClause(createdFromTemplateClause);
+          // create a corresponding instance clause linked to the template clause it was created from
+          var clause = new DocumentInstanceSectionClause();
+          clause.setDocumentInstance(instance);
+          clause.setDocumentTemplateSectionClause(createdFromTemplateClause);
 
-        // store the new instance clause against the id of its associated template clause
-        templateClauseIdToNewInstanceClauseMap.put(createdFromTemplateClause.getId(), clause);
+          // store the new instance clause against the id of its associated template clause
+          templateClauseIdToNewInstanceClauseMap.put(createdFromTemplateClause.getId(), clause);
 
-        // create a new instance clause version from the template clause version
-        DocumentInstanceSectionClauseVersion newClauseVersion = sectionClauseCreator
-            .createInstanceClauseVersionFromTemplate(templateClauseVersion, creatingPerson);
+          // create a new instance clause version from the template clause version
+          DocumentInstanceSectionClauseVersion newClauseVersion = sectionClauseCreator
+              .createInstanceClauseVersionFromTemplate(templateClauseVersion, creatingPerson);
 
-        // link the newly created instance clause to its version
-        newClauseVersion.setDocumentInstanceSectionClause(clause);
+          // link the newly created instance clause to its version
+          newClauseVersion.setDocumentInstanceSectionClause(clause);
 
-        // store the creating template clause version and the new instance clause based on it for later lookup
-        templateClauseVersionToInstanceClauseVersionMap.put(templateClauseVersion, newClauseVersion);
+          // store the creating template clause version and the new instance clause based on it for later lookup
+          templateClauseVersionToInstanceClauseVersionMap.put(templateClauseVersion, newClauseVersion);
 
-      });
+        })
 
-    });
+    );
 
     // set parent clauses as required, returning to list before saving
     List<DocumentInstanceSectionClauseVersion> modifiedInstanceClauseVersions = templateClauseVersionToInstanceClauseVersionMap
@@ -211,19 +213,28 @@ public class DocumentInstanceService {
     var docView = new DocumentView(PwaDocumentType.INSTANCE, documentInstance.getDocumentTemplate().getMnem());
 
     var sections = sectionToClauseVersionMap.entrySet().stream()
-        .map(entry -> createSectionView(DocumentSection.valueOf(entry.getKey()).getDisplayName(), entry.getValue()))
+        .map(entry -> createSectionView(
+            documentInstance.getPwaApplication().getApplicationType().getConsentDocumentSpec(),
+            DocumentSection.valueOf(entry.getKey()),
+            entry.getValue()))
         .collect(Collectors.toList());
 
     docView.setSections(sections);
+
+    docView.getSections()
+        .sort(Comparator.comparingInt(SectionView::getDisplayOrder));
 
     return docView;
 
   }
 
-  private SectionView createSectionView(String sectionName, List<DocumentInstanceSectionClauseVersionDto> clauseVersionDtos) {
+  private SectionView createSectionView(DocumentSpec documentSpec,
+                                        DocumentSection documentSection,
+                                        List<DocumentInstanceSectionClauseVersionDto> clauseVersionDtos) {
 
     var sectionView = new SectionView();
-    sectionView.setName(sectionName);
+    sectionView.setName(documentSection.getDisplayName());
+    sectionView.setDisplayOrder(documentSpec.getDisplayOrder(documentSection));
 
     // group clauses according to their level in the hierarchy, i.e. 1 = top-level, 3 = lowest level, 2 is a child of 1 etc
     var clauseViewLevelToViewMap = clauseVersionDtos.stream()
@@ -250,14 +261,14 @@ public class DocumentInstanceService {
 
     int parentLevel = childLevel - 1;
 
-    levelNumberToClauseVersionMap.getOrDefault(childLevel, List.of()).forEach(child -> {
+    levelNumberToClauseVersionMap.getOrDefault(childLevel, List.of()).forEach(child ->
 
-      levelNumberToClauseVersionMap.get(parentLevel).stream()
-          .filter(parent -> Objects.equals(parent.getClauseId(), child.getParentClauseId()))
-          .findFirst()
-          .ifPresent(parent -> parent.getChildClauses().add(child));
+        levelNumberToClauseVersionMap.get(parentLevel).stream()
+            .filter(parent -> Objects.equals(parent.getClauseId(), child.getParentClauseId()))
+            .findFirst()
+            .ifPresent(parent -> parent.getChildClauses().add(child))
 
-    });
+    );
 
   }
 

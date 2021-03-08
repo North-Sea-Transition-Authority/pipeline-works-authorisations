@@ -10,11 +10,13 @@ public class ConsentSearchParams {
 
   private Integer holderOrgUnitId;
 
+  private String consentReference;
+
   public static ConsentSearchParams from(ConsentSearchForm form) {
 
     var params = new ConsentSearchParams();
     params.setHolderOrgUnitId(form.getHolderOuId());
-
+    params.setConsentReference(form.getConsentReference());
     return params;
 
   }
@@ -35,6 +37,14 @@ public class ConsentSearchParams {
     this.holderOrgUnitId = holderOrgUnitId;
   }
 
+  public String getConsentReference() {
+    return consentReference;
+  }
+
+  public void setConsentReference(String consentReference) {
+    this.consentReference = consentReference;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -51,4 +61,5 @@ public class ConsentSearchParams {
   public int hashCode() {
     return Objects.hash(search, holderOrgUnitId);
   }
+
 }

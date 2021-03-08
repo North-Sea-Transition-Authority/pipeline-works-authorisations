@@ -79,6 +79,7 @@ public class TableAGeneratorServiceTest {
   private static String IMG_SRC1 = "source 1 url";
   private static String IMG_SRC2 = "source 2 url";
 
+  private PadProjectInformation projectInfo;
 
   @Before
   public void setUp() {
@@ -87,6 +88,11 @@ public class TableAGeneratorServiceTest {
         PwaApplicationType.INITIAL, 1, 1);
     tableAGeneratorService = new TableAGeneratorService(pipelineDiffableSummaryService, padProjectInformationService,
         consentDocumentImageService, padTechnicalDrawingService);
+
+    projectInfo = new PadProjectInformation();
+    projectInfo.setProjectName("project name");
+    when(padProjectInformationService.getPadProjectInformationData(pwaApplicationDetail)).thenReturn(projectInfo);
+
   }
 
   private PadPipeline createPadPipeline(String pipelineRef) {
@@ -214,16 +220,10 @@ public class TableAGeneratorServiceTest {
     when(padTechnicalDrawingService.isDrawingRequiredForPipeline(PipelineStatus.IN_SERVICE)).thenReturn(true);
     when(padTechnicalDrawingService.isDrawingRequiredForPipeline(PipelineStatus.RETURNED_TO_SHORE)).thenReturn(false);
 
-    var projectInfo = new PadProjectInformation();
-    projectInfo.setProjectName("project name");
-    when(padProjectInformationService.getPadProjectInformationData(pwaApplicationDetail)).thenReturn(projectInfo);
-
-
-
     //assert that pipeline and drawing summaries have been mapped into TableA views
     // and ordered according to pipeline numbers within and across groups
     // and that any RTS & NL pipelines are excluded
-    var documentSectionData = tableAGeneratorService.getDocumentSectionData(pwaApplicationDetail);
+    var documentSectionData = tableAGeneratorService.getDocumentSectionData(pwaApplicationDetail, null);
     var sectionName = documentSectionData.getTemplateModel().get("sectionName");
     var actualDrawingForTableAViews = (List<DrawingForTableAView>) documentSectionData.getTemplateModel().get("drawingForTableAViews");
 
@@ -239,5 +239,15 @@ public class TableAGeneratorServiceTest {
     assertThat(actualDrawingForTableAViews.get(1)).isEqualTo(expectedDrawing1ForTableAView);
   }
 
+  @Test
+  public void getDocumentSectionData_noPipelines() {
+
+    when(pipelineDiffableSummaryService.getApplicationDetailPipelines(pwaApplicationDetail)).thenReturn(List.of());
+
+    var docSectionData = tableAGeneratorService.getDocumentSectionData(pwaApplicationDetail, null);
+
+    assertThat(docSectionData).isNull();
+
+  }
 
 }

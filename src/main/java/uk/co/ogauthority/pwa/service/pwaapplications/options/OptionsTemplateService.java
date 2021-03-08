@@ -2,8 +2,6 @@ package uk.co.ogauthority.pwa.service.pwaapplications.options;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BeanPropertyBindingResult;
@@ -24,7 +22,6 @@ import uk.co.ogauthority.pwa.util.validationgroups.PartialValidation;
 @Service
 public class OptionsTemplateService implements ApplicationFormSectionService {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(OptionsTemplateService.class);
   private final PadFileService padFileService;
   private final SpringValidatorAdapter groupValidator;
 

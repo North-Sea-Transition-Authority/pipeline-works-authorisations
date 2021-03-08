@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.controller.masterpwas.contacts;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
@@ -18,6 +19,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
+import org.springframework.http.HttpMethod;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.controller.PwaApplicationContextAbstractControllerTest;
@@ -26,7 +28,10 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.huoo.PadOrganisationRole;
+import uk.co.ogauthority.pwa.model.teammanagement.TeamMemberView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.ApplicationState;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.AddPwaContactFormValidator;
@@ -34,6 +39,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationConte
 import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadOrganisationRoleService;
 import uk.co.ogauthority.pwa.service.teammanagement.TeamManagementService;
 import uk.co.ogauthority.pwa.testutils.PortalOrganisationTestUtils;
+import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 @RunWith(SpringRunner.class)
@@ -55,19 +61,300 @@ public class PwaContactControllerTest extends PwaApplicationContextAbstractContr
   private AuthenticatedUserAccount user = new AuthenticatedUserAccount(new WebUserAccount(1, PersonTestUtil.createDefaultPerson()), Set.of());
 
   private PwaApplicationDetail detail;
+  private PwaApplicationEndpointTestBuilder manageAndEditEndpointTester, manageEndpointTester;
 
   @Before
   public void setUp() {
 
-    detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
+    when(teamManagementService.getPerson(anyInt())).thenReturn(user.getLinkedPerson());
+    var teamMemberView = new TeamMemberView(user.getLinkedPerson(), null, null, Set.of());
+    when(pwaContactService.getTeamMemberView(any(), any())).thenReturn(teamMemberView);
 
-    when(pwaApplicationDetailService.withDraftTipDetail(any(), any(), any())).thenCallRealMethod();
-    when(pwaApplicationDetailService.getTipDetailWithStatus(any(), any())).thenReturn(detail);
+    manageAndEditEndpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaApplicationPermissionService, pwaApplicationDetailService)
+        .setAllowedTypes(
+            PwaApplicationType.INITIAL,
+            PwaApplicationType.CAT_1_VARIATION,
+            PwaApplicationType.CAT_2_VARIATION,
+            PwaApplicationType.DECOMMISSIONING,
+            PwaApplicationType.DEPOSIT_CONSENT,
+            PwaApplicationType.HUOO_VARIATION,
+            PwaApplicationType.OPTIONS_VARIATION)
+        .setAllowedPermissions(PwaApplicationPermission.MANAGE_CONTACTS, PwaApplicationPermission.EDIT)
+        .setAllowedStatuses(ApplicationState.INDUSTRY_EDITABLE);
+
+    manageEndpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaApplicationPermissionService, pwaApplicationDetailService)
+        .setAllowedTypes(
+            PwaApplicationType.INITIAL,
+            PwaApplicationType.CAT_1_VARIATION,
+            PwaApplicationType.CAT_2_VARIATION,
+            PwaApplicationType.DECOMMISSIONING,
+            PwaApplicationType.DEPOSIT_CONSENT,
+            PwaApplicationType.HUOO_VARIATION,
+            PwaApplicationType.OPTIONS_VARIATION)
+        .setAllowedPermissions(PwaApplicationPermission.MANAGE_CONTACTS)
+        .setAllowedStatuses(ApplicationState.INDUSTRY_EDITABLE);
+
+  }
+
+  @Test
+  public void renderContactsScreen_appTypeSmokeTest() {
+
+    manageAndEditEndpointTester.setRequestMethod(HttpMethod.GET)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(PwaContactController.class)
+                .renderContactsScreen(type, applicationDetail.getMasterPwaApplicationId(), null, null)));
+
+    manageAndEditEndpointTester.performAppTypeChecks(status().isOk(), status().isForbidden());
+
+  }
+
+  @Test
+  public void renderContactsScreen_permissionSmokeTest() {
+
+    manageAndEditEndpointTester.setRequestMethod(HttpMethod.GET)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(PwaContactController.class)
+                .renderContactsScreen(type, applicationDetail.getMasterPwaApplicationId(), null, null)));
+
+    manageAndEditEndpointTester.performAppPermissionCheck(status().isOk(), status().isForbidden());
+
+  }
+
+  @Test
+  public void renderContactsScreen_appStatusSmokeTest() {
+
+    manageAndEditEndpointTester.setRequestMethod(HttpMethod.GET)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(PwaContactController.class)
+                .renderContactsScreen(type, applicationDetail.getMasterPwaApplicationId(), null, null)));
+
+    manageAndEditEndpointTester.performAppStatusChecks(status().isOk(), status().isNotFound());
+
+  }
+
+  @Test
+  public void renderAddContact_appTypeSmokeTest() {
+
+    manageEndpointTester.setRequestMethod(HttpMethod.GET)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(PwaContactController.class)
+                .renderAddContact(type, applicationDetail.getMasterPwaApplicationId(), null, null, null)));
+
+    manageEndpointTester.performAppTypeChecks(status().isOk(), status().isForbidden());
+
+  }
+
+  @Test
+  public void renderAddContact_permissionSmokeTest() {
+
+    manageEndpointTester.setRequestMethod(HttpMethod.GET)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(PwaContactController.class)
+                .renderAddContact(type, applicationDetail.getMasterPwaApplicationId(), null, null, null)));
+
+    manageEndpointTester.performAppPermissionCheck(status().isOk(), status().isForbidden());
+
+  }
+
+  @Test
+  public void renderAddContact_appStatusSmokeTest() {
+
+    manageEndpointTester.setRequestMethod(HttpMethod.GET)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(PwaContactController.class)
+                .renderAddContact(type, applicationDetail.getMasterPwaApplicationId(), null, null, null)));
+
+    manageEndpointTester.performAppStatusChecks(status().isOk(), status().isNotFound());
+
+  }
+
+  @Test
+  public void addContact_appTypeSmokeTest() {
+
+    manageEndpointTester.setRequestMethod(HttpMethod.POST)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(PwaContactController.class)
+                .addContact(type, applicationDetail.getMasterPwaApplicationId(), null, null, null, null)));
+
+    manageEndpointTester.performAppTypeChecks(status().isOk(), status().isForbidden());
+
+  }
+
+  @Test
+  public void addContact_permissionSmokeTest() {
+
+    manageEndpointTester.setRequestMethod(HttpMethod.POST)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(PwaContactController.class)
+                .addContact(type, applicationDetail.getMasterPwaApplicationId(), null, null, null, null)));
+
+    manageEndpointTester.performAppPermissionCheck(status().isOk(), status().isForbidden());
+
+  }
+
+  @Test
+  public void addContact_appStatusSmokeTest() {
+
+    manageEndpointTester.setRequestMethod(HttpMethod.POST)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(PwaContactController.class)
+                .addContact(type, applicationDetail.getMasterPwaApplicationId(), null, null, null, null)));
+
+    manageEndpointTester.performAppStatusChecks(status().isOk(), status().isNotFound());
+
+  }
+
+  @Test
+  public void renderContactRolesScreen_appTypeSmokeTest() {
+
+    manageEndpointTester.setRequestMethod(HttpMethod.GET)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(PwaContactController.class)
+                .renderContactRolesScreen(type, applicationDetail.getMasterPwaApplicationId(), null, 1, null, null)));
+
+    manageEndpointTester.performAppTypeChecks(status().isOk(), status().isForbidden());
+
+  }
+
+  @Test
+  public void renderContactRolesScreen_permissionSmokeTest() {
+
+    manageEndpointTester.setRequestMethod(HttpMethod.GET)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(PwaContactController.class)
+                .renderContactRolesScreen(type, applicationDetail.getMasterPwaApplicationId(), null, 1, null, null)));
+
+    manageEndpointTester.performAppPermissionCheck(status().isOk(), status().isForbidden());
+
+  }
+
+  @Test
+  public void renderContactRolesScreen_appStatusSmokeTest() {
+
+    manageEndpointTester.setRequestMethod(HttpMethod.GET)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(PwaContactController.class)
+                .renderContactRolesScreen(type, applicationDetail.getMasterPwaApplicationId(), null, 1, null, null)));
+
+    manageEndpointTester.performAppStatusChecks(status().isOk(), status().isNotFound());
+
+  }
+
+  @Test
+  public void updateContactRoles_appTypeSmokeTest() {
+
+    manageEndpointTester.setRequestMethod(HttpMethod.POST)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(PwaContactController.class)
+                .updateContactRoles(type, applicationDetail.getMasterPwaApplicationId(), 1, null, null, null, null)));
+
+    manageEndpointTester.performAppTypeChecks(status().isOk(), status().isForbidden());
+
+  }
+
+  @Test
+  public void updateContactRoles_permissionSmokeTest() {
+
+    manageEndpointTester.setRequestMethod(HttpMethod.POST)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(PwaContactController.class)
+                .updateContactRoles(type, applicationDetail.getMasterPwaApplicationId(), 1, null, null, null, null)));
+
+    manageEndpointTester.performAppPermissionCheck(status().isOk(), status().isForbidden());
+
+  }
+
+  @Test
+  public void updateContactRoles_appStatusSmokeTest() {
+
+    manageEndpointTester.setRequestMethod(HttpMethod.POST)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(PwaContactController.class)
+                .updateContactRoles(type, applicationDetail.getMasterPwaApplicationId(), 1, null, null, null, null)));
+
+    manageEndpointTester.performAppStatusChecks(status().isOk(), status().isNotFound());
+
+  }
+
+  @Test
+  public void renderRemoveContactScreen_appTypeSmokeTest() {
+
+    manageEndpointTester.setRequestMethod(HttpMethod.GET)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(PwaContactController.class)
+                .renderRemoveContactScreen(type, applicationDetail.getMasterPwaApplicationId(), null, 1, null)));
+
+    manageEndpointTester.performAppTypeChecks(status().isOk(), status().isForbidden());
+
+  }
+
+  @Test
+  public void renderRemoveContactScreen_permissionSmokeTest() {
+
+    manageEndpointTester.setRequestMethod(HttpMethod.GET)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(PwaContactController.class)
+                .renderRemoveContactScreen(type, applicationDetail.getMasterPwaApplicationId(), null, 1, null)));
+
+    manageEndpointTester.performAppPermissionCheck(status().isOk(), status().isForbidden());
+
+  }
+
+  @Test
+  public void renderRemoveContactScreen_appStatusSmokeTest() {
+
+    manageEndpointTester.setRequestMethod(HttpMethod.GET)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(PwaContactController.class)
+                .renderRemoveContactScreen(type, applicationDetail.getMasterPwaApplicationId(), null, 1, null)));
+
+    manageEndpointTester.performAppStatusChecks(status().isOk(), status().isNotFound());
+
+  }
+
+  @Test
+  public void removeContact_appTypeSmokeTest() {
+
+    manageEndpointTester.setRequestMethod(HttpMethod.POST)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(PwaContactController.class)
+                .removeContact(type, applicationDetail.getMasterPwaApplicationId(), null, 1, null)));
+
+    manageEndpointTester.performAppTypeChecks(status().is3xxRedirection(), status().isForbidden());
+
+  }
+
+  @Test
+  public void removeContact_permissionSmokeTest() {
+
+    manageEndpointTester.setRequestMethod(HttpMethod.POST)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(PwaContactController.class)
+                .removeContact(type, applicationDetail.getMasterPwaApplicationId(), null, 1, null)));
+
+    manageEndpointTester.performAppPermissionCheck(status().is3xxRedirection(), status().isForbidden());
+
+  }
+
+  @Test
+  public void removeContact_appStatusSmokeTest() {
+
+    manageEndpointTester.setRequestMethod(HttpMethod.POST)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(PwaContactController.class)
+                .removeContact(type, applicationDetail.getMasterPwaApplicationId(), null, 1, null)));
+
+    manageEndpointTester.performAppStatusChecks(status().is3xxRedirection(), status().isNotFound());
 
   }
 
   @Test
   public void renderContactsScreen_holderNamesNotDuplicated() throws Exception {
+
+    detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
+
+    when(pwaApplicationDetailService.getTipDetail(anyInt())).thenReturn(detail);
+    when(pwaApplicationPermissionService.getPermissions(detail, user.getLinkedPerson())).thenReturn(Set.of(PwaApplicationPermission.MANAGE_CONTACTS));
 
     var orgGroup = PortalOrganisationTestUtils.generateOrganisationGroup(1, "ORGGRP", "OG");
 
@@ -84,7 +371,7 @@ public class PwaContactControllerTest extends PwaApplicationContextAbstractContr
     when(padOrganisationRoleService.getOrgRolesForDetailAndRole(detail, HuooRole.HOLDER)).thenReturn(List.of(role1, role2));
 
     mockMvc.perform(get(ReverseRouter.route(on(PwaContactController.class)
-        .renderContactsScreen(PwaApplicationType.INITIAL, 1, null)))
+        .renderContactsScreen(PwaApplicationType.INITIAL, 1, null, null)))
         .with(authenticatedUserAndSession(user)))
         .andExpect(status().isOk())
         .andExpect(model().attribute("orgGroupHolders", Set.of("ORGGRP")));

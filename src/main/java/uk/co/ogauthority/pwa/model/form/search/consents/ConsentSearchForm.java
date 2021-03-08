@@ -6,10 +6,13 @@ public class ConsentSearchForm {
 
   private Integer holderOuId;
 
+  private String consentReference;
+
   public static ConsentSearchForm fromSearchParams(ConsentSearchParams consentSearchParams) {
 
     var form = new ConsentSearchForm();
     form.setHolderOuId(consentSearchParams.getHolderOrgUnitId());
+    form.setConsentReference(consentSearchParams.getConsentReference());
     return form;
 
   }
@@ -22,4 +25,11 @@ public class ConsentSearchForm {
     this.holderOuId = holderOuId;
   }
 
+  public String getConsentReference() {
+    return consentReference;
+  }
+
+  public void setConsentReference(String consentReference) {
+    this.consentReference = consentReference;
+  }
 }

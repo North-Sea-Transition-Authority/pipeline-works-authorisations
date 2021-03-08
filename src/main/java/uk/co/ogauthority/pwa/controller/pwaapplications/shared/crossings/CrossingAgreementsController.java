@@ -16,15 +16,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.BlockCrossingFileService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.BlockCrossingService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CableCrossingFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CrossingAgreementsService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.MedianLineCrossingFileService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.PadCableCrossingService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.PadMedianLineAgreementService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.pipeline.PadPipelineCrossingService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.pipeline.PipelineCrossingFileService;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
 @Controller
@@ -39,40 +31,16 @@ import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 public class CrossingAgreementsController {
 
   private final ApplicationBreadcrumbService applicationBreadcrumbService;
-  private final PadMedianLineAgreementService padMedianLineAgreementService;
-  private final BlockCrossingService blockCrossingService;
-  private final BlockCrossingFileService blockCrossingFileService;
   private final CrossingAgreementsService crossingAgreementsService;
-  private final MedianLineCrossingFileService medianLineCrossingFileService;
-  private final PadCableCrossingService cableCrossingService;
-  private final CableCrossingFileService cableCrossingFileService;
-  private final PadPipelineCrossingService padPipelineCrossingService;
-  private final PipelineCrossingFileService pipelineCrossingFileService;
   private final PwaApplicationRedirectService pwaApplicationRedirectService;
 
   @Autowired
   public CrossingAgreementsController(
       ApplicationBreadcrumbService applicationBreadcrumbService,
-      PadMedianLineAgreementService padMedianLineAgreementService,
-      BlockCrossingService blockCrossingService,
-      BlockCrossingFileService blockCrossingFileService,
       CrossingAgreementsService crossingAgreementsService,
-      MedianLineCrossingFileService medianLineCrossingFileService,
-      PadCableCrossingService cableCrossingService,
-      CableCrossingFileService cableCrossingFileService,
-      PadPipelineCrossingService padPipelineCrossingService,
-      PipelineCrossingFileService pipelineCrossingFileService,
       PwaApplicationRedirectService pwaApplicationRedirectService) {
     this.applicationBreadcrumbService = applicationBreadcrumbService;
-    this.padMedianLineAgreementService = padMedianLineAgreementService;
-    this.blockCrossingService = blockCrossingService;
-    this.blockCrossingFileService = blockCrossingFileService;
     this.crossingAgreementsService = crossingAgreementsService;
-    this.medianLineCrossingFileService = medianLineCrossingFileService;
-    this.cableCrossingService = cableCrossingService;
-    this.cableCrossingFileService = cableCrossingFileService;
-    this.padPipelineCrossingService = padPipelineCrossingService;
-    this.pipelineCrossingFileService = pipelineCrossingFileService;
     this.pwaApplicationRedirectService = pwaApplicationRedirectService;
   }
 
@@ -86,7 +54,7 @@ public class CrossingAgreementsController {
   }
 
   @GetMapping
-  @PwaApplicationStatusCheck(statuses = PwaApplicationStatus.DRAFT)
+  @PwaApplicationStatusCheck(statuses = {PwaApplicationStatus.DRAFT, PwaApplicationStatus.UPDATE_REQUESTED})
   public ModelAndView renderCrossingAgreementsOverview(@PathVariable("applicationType")
                                                        @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
                                                        @PathVariable("applicationId") Integer applicationId,

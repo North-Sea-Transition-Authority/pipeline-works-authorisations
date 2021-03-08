@@ -10,6 +10,7 @@ import uk.co.ogauthority.pwa.model.documents.templates.DocumentTemplateDto;
 import uk.co.ogauthority.pwa.model.entity.documents.templates.DocumentTemplateSection;
 import uk.co.ogauthority.pwa.model.entity.documents.templates.DocumentTemplateSectionClauseVersion;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.DocumentTemplateMnem;
+import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocumentSpec;
 import uk.co.ogauthority.pwa.model.enums.documents.DocumentTemplateSectionStatus;
 import uk.co.ogauthority.pwa.repository.documents.templates.DocumentTemplateSectionClauseVersionRepository;
 import uk.co.ogauthority.pwa.repository.documents.templates.DocumentTemplateSectionRepository;
@@ -34,12 +35,18 @@ public class DocumentTemplateService {
   /**
    * Create an object containing all relevant information about a document template.
    * @param templateMnem to identify document template by
+   * @param documentSpec defining which sections should be included in the doc
    * @return populated model of document template
    */
-  public DocumentTemplateDto populateDocumentDtoFromTemplateMnem(DocumentTemplateMnem templateMnem) {
+  public DocumentTemplateDto populateDocumentDtoFromTemplateMnem(DocumentTemplateMnem templateMnem,
+                                                                 DocumentSpec documentSpec) {
+
+    var sectionsInDocSpec = documentSpec.getDocumentSectionDisplayOrderMap().keySet().stream()
+        .map(Enum::name)
+        .collect(Collectors.toSet());
 
     List<DocumentTemplateSection> sections = sectionRepository
-        .getAllByDocumentTemplate_MnemAndStatusIs(templateMnem, DocumentTemplateSectionStatus.ACTIVE);
+        .getAllByDocumentTemplate_MnemAndNameInAndStatusIs(templateMnem, sectionsInDocSpec, DocumentTemplateSectionStatus.ACTIVE);
 
     if (sections.isEmpty()) {
       throw new DocumentTemplateException(

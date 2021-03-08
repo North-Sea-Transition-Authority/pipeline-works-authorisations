@@ -47,7 +47,8 @@ public class PipelineCrossingsSummaryService implements ApplicationSectionSummar
     var taskFilter = Set.of(
         ApplicationTask.CROSSING_AGREEMENTS);
 
-    return taskListService.anyTaskShownForApplication(taskFilter, pwaApplicationDetail);
+    return taskListService.anyTaskShownForApplication(taskFilter, pwaApplicationDetail)
+        && padPipelineCrossingService.canShowInTaskList(pwaApplicationDetail);
   }
 
   @Override

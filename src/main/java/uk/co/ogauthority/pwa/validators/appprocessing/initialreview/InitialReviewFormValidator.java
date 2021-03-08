@@ -9,6 +9,8 @@ import org.springframework.validation.SmartValidator;
 import org.springframework.validation.ValidationUtils;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.form.appprocessing.initialreview.InitialReviewForm;
+import uk.co.ogauthority.pwa.service.appprocessing.initialreview.InitialReviewPaymentDecision;
+import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationWorkflowTask;
 import uk.co.ogauthority.pwa.service.workflow.assignment.WorkflowAssignmentService;
 
@@ -33,8 +35,28 @@ public class InitialReviewFormValidator implements SmartValidator {
     var form = (InitialReviewForm) target;
     var application = (PwaApplication) validationHints[0];
 
-    ValidationUtils.rejectIfEmptyOrWhitespace(errors, "caseOfficerPersonId", "caseOfficerPersonId.required",
-        "Select a case officer");
+    ValidationUtils.rejectIfEmptyOrWhitespace(
+        errors,
+        "initialReviewPaymentDecision",
+        FieldValidationErrorCodes.REQUIRED.errorCode("initialReviewPaymentDecision"),
+        "Select a payment decision"
+    );
+
+    if (InitialReviewPaymentDecision.PAYMENT_WAIVED.equals(form.getInitialReviewPaymentDecision())) {
+      ValidationUtils.rejectIfEmptyOrWhitespace(
+          errors,
+          "paymentWaivedReason",
+          FieldValidationErrorCodes.REQUIRED.errorCode("paymentWaivedReason"),
+          "Enter a reason for waiving the payment"
+      );
+    }
+
+    ValidationUtils.rejectIfEmptyOrWhitespace(
+        errors,
+        "caseOfficerPersonId",
+        FieldValidationErrorCodes.REQUIRED.errorCode("caseOfficerPersonId"),
+        "Select a case officer"
+    );
 
     if (form.getCaseOfficerPersonId() != null) {
 
@@ -43,11 +65,15 @@ public class InitialReviewFormValidator implements SmartValidator {
           .anyMatch(person -> Objects.equals(person.getId().asInt(), form.getCaseOfficerPersonId()));
 
       if (!selectedUserCanBeAssigned) {
-        errors.rejectValue("caseOfficerPersonId", "caseOfficerPersonId.invalid",
-            "This user is no longer a case officer. Select another case officer.");
+        errors.rejectValue(
+            "caseOfficerPersonId",
+            FieldValidationErrorCodes.INVALID.errorCode("caseOfficerPersonId"),
+            "This user is no longer a case officer. Select another case officer."
+        );
       }
 
     }
+
 
   }
 

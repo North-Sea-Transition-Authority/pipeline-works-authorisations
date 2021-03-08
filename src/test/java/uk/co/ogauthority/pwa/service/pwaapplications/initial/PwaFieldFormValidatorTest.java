@@ -38,7 +38,7 @@ public class PwaFieldFormValidatorTest {
 
     var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, ValidationType.FULL);
 
-    assertThat(errors.keySet()).containsOnly("linkedToField");
+    assertThat(errors).containsOnlyKeys("linkedToField");
     assertThat(errors.get("linkedToField")).containsOnly(REQUIRED.errorCode("linkedToField"));
 
   }

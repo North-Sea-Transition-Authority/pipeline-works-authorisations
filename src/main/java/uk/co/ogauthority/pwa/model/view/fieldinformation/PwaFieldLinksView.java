@@ -13,9 +13,9 @@ import uk.co.ogauthority.pwa.model.view.StringWithTagItem;
 public class PwaFieldLinksView {
 
   private final Boolean isLinkedToFields;
-  private String pwaLinkedToDescription;
+  private final String pwaLinkedToDescription;
 
-  private List<StringWithTagItem> linkedFieldNames;
+  private final List<StringWithTagItem> linkedFieldNames;
 
   public PwaFieldLinksView(Boolean isLinkedToFields,
                            String pwaLinkedToDescription,

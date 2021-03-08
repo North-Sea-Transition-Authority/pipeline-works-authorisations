@@ -11,6 +11,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import org.hibernate.annotations.Immutable;
 import uk.co.ogauthority.pwa.model.entity.converters.SemiColonSeparatedListConverter;
+import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 
@@ -81,9 +82,12 @@ public class WorkAreaApplicationDetailSearchItem implements ApplicationDetailIte
   @Column(name = "open_consultation_req_flag")
   private boolean openConsultationRequestFlag;
 
-  private boolean openPublicNoticeFlag;
+  @Enumerated(EnumType.STRING)
+  private PublicNoticeStatus publicNoticeStatus;
 
   private boolean tipVersionSatisfactoryFlag;
+
+  private boolean openConsentReviewFlag;
 
   @Override
   public int getPwaApplicationDetailId() {
@@ -326,13 +330,13 @@ public class WorkAreaApplicationDetailSearchItem implements ApplicationDetailIte
   }
 
   @Override
-  public boolean isOpenPublicNoticeFlag() {
-    return openPublicNoticeFlag;
+  public PublicNoticeStatus getPublicNoticeStatus() {
+    return publicNoticeStatus;
   }
 
   @Override
-  public void setOpenPublicNoticeFlag(boolean openPublicNoticeFlag) {
-    this.openPublicNoticeFlag = openPublicNoticeFlag;
+  public void setPublicNoticeStatus(PublicNoticeStatus publicNoticeStatus) {
+    this.publicNoticeStatus = publicNoticeStatus;
   }
 
   @Override
@@ -348,6 +352,16 @@ public class WorkAreaApplicationDetailSearchItem implements ApplicationDetailIte
   @Override
   public void setTipVersionSatisfactoryFlag(boolean tipVersionSatisfactoryFlag) {
     this.tipVersionSatisfactoryFlag = tipVersionSatisfactoryFlag;
+  }
+
+  @Override
+  public boolean isOpenConsentReviewFlag() {
+    return openConsentReviewFlag;
+  }
+
+  @Override
+  public void setOpenConsentReviewFlag(boolean openConsentReviewFlag) {
+    this.openConsentReviewFlag = openConsentReviewFlag;
   }
 
 }

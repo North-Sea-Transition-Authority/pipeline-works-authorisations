@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.repository.documents.templates;
 
+import java.util.Collection;
 import java.util.List;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.repository.CrudRepository;
@@ -12,7 +13,8 @@ import uk.co.ogauthority.pwa.model.enums.documents.DocumentTemplateSectionStatus
 public interface DocumentTemplateSectionRepository extends CrudRepository<DocumentTemplateSection, Integer> {
 
   @EntityGraph(attributePaths = { "documentTemplate" })
-  List<DocumentTemplateSection> getAllByDocumentTemplate_MnemAndStatusIs(DocumentTemplateMnem mnem,
-                                                                         DocumentTemplateSectionStatus sectionStatus);
+  List<DocumentTemplateSection> getAllByDocumentTemplate_MnemAndNameInAndStatusIs(DocumentTemplateMnem mnem,
+                                                                                  Collection<String> sectionNames,
+                                                                                  DocumentTemplateSectionStatus sectionStatus);
 
 }

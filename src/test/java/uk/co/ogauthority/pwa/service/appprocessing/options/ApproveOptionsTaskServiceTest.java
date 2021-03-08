@@ -22,6 +22,7 @@ import uk.co.ogauthority.pwa.controller.appprocessing.options.ApproveOptionsCont
 import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.options.OptionsApplicationApproval;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.enums.tasklist.TaskState;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.repository.appprocessing.options.OptionsApplicationApprovalRepository;
 import uk.co.ogauthority.pwa.service.appprocessing.applicationupdate.ApplicationUpdateRequestService;
@@ -231,11 +232,20 @@ public class ApproveOptionsTaskServiceTest {
         pwaAppProcessingContext
     );
 
-    assertThat(taskListEntry.getRoute()).isNull();
+    assertThat(taskListEntry.getRoute()).isEqualTo(getRoute());
     assertThat(taskListEntry.getDisplayOrder()).isEqualTo(APPROVE_OPTIONS.getDisplayOrder());
     assertThat(taskListEntry.getTaskName()).isEqualTo(APPROVE_OPTIONS.getTaskName());
+    assertThat(taskListEntry.getTaskState()).isEqualTo(TaskState.LOCK);
     assertThat(taskListEntry.getTaskTag().getTagText()).isEqualToIgnoringCase("cannot start yet");
 
+  }
+
+  private String getRoute() {
+    return ReverseRouter.route(on(ApproveOptionsController.class).renderApproveOptions(
+        pwaAppProcessingContext.getMasterPwaApplicationId(),
+        pwaAppProcessingContext.getApplicationType(),
+        null, null, null
+    ));
   }
 
   @Test
@@ -258,15 +268,10 @@ public class ApproveOptionsTaskServiceTest {
         pwaAppProcessingContext
     );
 
-    assertThat(taskListEntry.getRoute()).isEqualTo(
-        ReverseRouter.route(on(ApproveOptionsController.class).renderApproveOptions(
-            pwaAppProcessingContext.getMasterPwaApplicationId(),
-            pwaAppProcessingContext.getApplicationType(),
-            null, null, null
-        ))
-    );
+    assertThat(taskListEntry.getRoute()).isEqualTo(getRoute());
     assertThat(taskListEntry.getDisplayOrder()).isEqualTo(APPROVE_OPTIONS.getDisplayOrder());
     assertThat(taskListEntry.getTaskName()).isEqualTo(APPROVE_OPTIONS.getTaskName());
+    assertThat(taskListEntry.getTaskState()).isEqualTo(TaskState.EDIT);
     assertThat(taskListEntry.getTaskTag().getTagText()).isEqualToIgnoringCase("not completed");
 
   }
@@ -295,9 +300,10 @@ public class ApproveOptionsTaskServiceTest {
         pwaAppProcessingContext
     );
 
-    assertThat(taskListEntry.getRoute()).isNull();
+    assertThat(taskListEntry.getRoute()).isEqualTo(getRoute());
     assertThat(taskListEntry.getDisplayOrder()).isEqualTo(APPROVE_OPTIONS.getDisplayOrder());
     assertThat(taskListEntry.getTaskName()).isEqualTo(APPROVE_OPTIONS.getTaskName());
+    assertThat(taskListEntry.getTaskState()).isEqualTo(TaskState.LOCK);
     assertThat(taskListEntry.getTaskTag().getTagText()).isEqualToIgnoringCase("completed");
   }
 
@@ -326,9 +332,10 @@ public class ApproveOptionsTaskServiceTest {
         pwaAppProcessingContext
     );
 
-    assertThat(taskListEntry.getRoute()).isNull();
+    assertThat(taskListEntry.getRoute()).isEqualTo(getRoute());
     assertThat(taskListEntry.getDisplayOrder()).isEqualTo(APPROVE_OPTIONS.getDisplayOrder());
     assertThat(taskListEntry.getTaskName()).isEqualTo(APPROVE_OPTIONS.getTaskName());
+    assertThat(taskListEntry.getTaskState()).isEqualTo(TaskState.LOCK);
     assertThat(taskListEntry.getTaskTag().getTagText()).isEqualToIgnoringCase("cannot start yet");
   }
 
@@ -351,6 +358,7 @@ public class ApproveOptionsTaskServiceTest {
     assertThat(taskListEntry.getRoute()).isNull();
     assertThat(taskListEntry.getDisplayOrder()).isEqualTo(APPROVE_OPTIONS.getDisplayOrder());
     assertThat(taskListEntry.getTaskName()).isEqualTo(APPROVE_OPTIONS.getTaskName());
+    assertThat(taskListEntry.getTaskState()).isEqualTo(TaskState.LOCK);
     assertThat(taskListEntry.getTaskTag().getTagText()).isEqualToIgnoringCase("completed");
   }
 
@@ -372,6 +380,7 @@ public class ApproveOptionsTaskServiceTest {
     assertThat(taskListEntry.getRoute()).isNull();
     assertThat(taskListEntry.getDisplayOrder()).isEqualTo(APPROVE_OPTIONS.getDisplayOrder());
     assertThat(taskListEntry.getTaskName()).isEqualTo(APPROVE_OPTIONS.getTaskName());
+    assertThat(taskListEntry.getTaskState()).isEqualTo(TaskState.LOCK);
     assertThat(taskListEntry.getTaskTag().getTagText()).isEqualToIgnoringCase("not completed");
   }
 

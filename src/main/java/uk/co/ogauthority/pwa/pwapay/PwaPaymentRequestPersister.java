@@ -2,14 +2,15 @@ package uk.co.ogauthority.pwa.pwapay;
 
 import java.time.Clock;
 import java.util.UUID;
+import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import uk.co.ogauthority.pwa.govukpay.NewCardPaymentResult;
-import uk.co.ogauthority.pwa.govukpay.PaymentJourneyState;
+import uk.co.ogauthority.pwa.govukpay.GovPayNewCardPaymentResult;
+import uk.co.ogauthority.pwa.govukpay.GovPayPaymentJourneyState;
 
 /**
  * Has to be separate class from PWAPaymentService to allow fine grained transaction control.
@@ -73,8 +74,8 @@ public class PwaPaymentRequestPersister {
 
   @Transactional
   public void setPaymentRequestGovUkStatusData(PwaPaymentRequest paymentRequest,
-                                               PaymentJourneyState paymentJourneyState) {
-    mapPaymentJourneyStateToRequest(paymentRequest, paymentJourneyState);
+                                               GovPayPaymentJourneyState govPayPaymentJourneyState) {
+    mapPaymentJourneyStateToRequest(paymentRequest, govPayPaymentJourneyState);
     pwaPaymentRequestRepository.save(paymentRequest);
   }
 
@@ -91,30 +92,35 @@ public class PwaPaymentRequestPersister {
 
   @Transactional
   public void setPaymentRequestInProgress(UUID paymentRequestUuid,
-                                          NewCardPaymentResult newCardPaymentResult) {
+                                          GovPayNewCardPaymentResult govPayNewCardPaymentResult) {
 
     var paymentRequest = getPaymentRequestOrError(paymentRequestUuid);
     setPaymentRequestStatusCommon(paymentRequest, PaymentRequestStatus.IN_PROGRESS, null);
 
-    paymentRequest.setGovUkPaymentId(newCardPaymentResult.getPaymentId());
-    paymentRequest.setReturnUrl(newCardPaymentResult.getReturnToServiceAfterJourneyCompleteUrl());
+    paymentRequest.setGovUkPaymentId(govPayNewCardPaymentResult.getPaymentId());
+    paymentRequest.setReturnUrl(govPayNewCardPaymentResult.getReturnToServiceAfterJourneyCompleteUrl());
 
-    mapPaymentJourneyStateToRequest(paymentRequest, newCardPaymentResult.getPaymentJourneyState());
+    mapPaymentJourneyStateToRequest(paymentRequest, govPayNewCardPaymentResult.getPaymentJourneyState());
 
     pwaPaymentRequestRepository.save(paymentRequest);
 
   }
 
   private void mapPaymentJourneyStateToRequest(PwaPaymentRequest paymentRequest,
-                                               PaymentJourneyState paymentJourneyState) {
+                                               GovPayPaymentJourneyState govPayPaymentJourneyState) {
 
-    paymentRequest.setGovUkPaymentStatus(paymentJourneyState.getStatus());
-    paymentRequest.setGovUkPaymentStatusMessage(
-        String.format("Code: %s %n Message: %s",
-            paymentJourneyState.getCode(),
-            paymentJourneyState.getMessage()
-        )
-    );
+    paymentRequest.setGovUkPaymentStatus(govPayPaymentJourneyState.getStatus());
+    if (ObjectUtils.anyNotNull(govPayPaymentJourneyState.getCode(), govPayPaymentJourneyState.getMessage())) {
+      paymentRequest.setGovUkPaymentStatusMessage(
+          String.format("Code: %s %n Message: %s",
+              govPayPaymentJourneyState.getCode(),
+              govPayPaymentJourneyState.getMessage()
+          )
+      );
+    } else {
+      paymentRequest.setGovUkPaymentStatusMessage(null);
+    }
+
     paymentRequest.setGovUkPaymentStatusTimestamp(clock.instant());
   }
 

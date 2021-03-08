@@ -3,7 +3,6 @@ package uk.co.ogauthority.pwa.validators;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
@@ -15,6 +14,7 @@ import uk.co.ogauthority.pwa.service.enums.projectinformation.PermanentDepositRa
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
+import uk.co.ogauthority.pwa.util.FileUploadUtils;
 import uk.co.ogauthority.pwa.util.ValidatorUtils;
 import uk.co.ogauthority.pwa.util.forminputs.FormInputLabel;
 import uk.co.ogauthority.pwa.util.forminputs.twofielddate.OnOrAfterDateHint;
@@ -352,10 +352,17 @@ public class ProjectInformationValidator implements SmartValidator {
     }
 
     if (requiredQuestions.contains(ProjectInformationQuestion.PROJECT_LAYOUT_DIAGRAM)
-        && ListUtils.emptyIfNull(form.getUploadedFileWithDescriptionForms()).size() > 1) {
-      errors.rejectValue("uploadedFileWithDescriptionForms",
-          "uploadedFileWithDescriptionForms" + FieldValidationErrorCodes.EXCEEDED_MAXIMUM_FILE_UPLOAD_COUNT.getCode(),
-          "Upload a maximum of one file");
+        && !form.getUploadedFileWithDescriptionForms().isEmpty()) {
+
+      FileUploadUtils.validateMaxFileLimit(form, errors, 1, "Upload a maximum of one file");
+
+      ValidationUtils.rejectIfEmpty(
+          errors,
+          "uploadedFileWithDescriptionForms[0].uploadedFileDescription",
+          FieldValidationErrorCodes.REQUIRED.errorCode("uploadedFileWithDescriptionForms[0].uploadedFileDescription"),
+          "File must have a description"
+      );
+
     }
   }
 

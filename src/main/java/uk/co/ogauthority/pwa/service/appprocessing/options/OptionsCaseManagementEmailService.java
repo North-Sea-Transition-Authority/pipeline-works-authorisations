@@ -13,10 +13,9 @@ import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.notify.emailproperties.ApplicationOptionsApprovalDeadlineChangedEmailProps;
-import uk.co.ogauthority.pwa.model.notify.emailproperties.ApplicationOptionsApprovedEmailProps;
+import uk.co.ogauthority.pwa.model.notify.emailproperties.optionsapplications.ApplicationOptionsApprovalDeadlineChangedEmailProps;
+import uk.co.ogauthority.pwa.model.notify.emailproperties.optionsapplications.ApplicationOptionsApprovedEmailProps;
 import uk.co.ogauthority.pwa.service.appprocessing.ApplicationInvolvementService;
-import uk.co.ogauthority.pwa.service.consultations.ConsultationRequestService;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 import uk.co.ogauthority.pwa.service.notify.EmailCaseLinkService;
 import uk.co.ogauthority.pwa.service.notify.NotifyService;
@@ -39,21 +38,17 @@ class OptionsCaseManagementEmailService {
 
   private final PwaConsentOrganisationRoleService pwaConsentOrganisationRoleService;
 
-  private final ConsultationRequestService consultationRequestService;
-
   private final ApplicationInvolvementService applicationInvolvementService;
 
   public OptionsCaseManagementEmailService(EmailCaseLinkService emailCaseLinkService,
                                            NotifyService notifyService,
                                            PwaContactService pwaContactService,
                                            PwaConsentOrganisationRoleService pwaConsentOrganisationRoleService,
-                                           ConsultationRequestService consultationRequestService,
                                            ApplicationInvolvementService applicationInvolvementService) {
     this.emailCaseLinkService = emailCaseLinkService;
     this.notifyService = notifyService;
     this.pwaContactService = pwaContactService;
     this.pwaConsentOrganisationRoleService = pwaConsentOrganisationRoleService;
-    this.consultationRequestService = consultationRequestService;
     this.applicationInvolvementService = applicationInvolvementService;
   }
 
@@ -87,9 +82,8 @@ class OptionsCaseManagementEmailService {
 
     } else {
       LOGGER.error(
-          "Tried to send application options approved email, but no recipients found. pwaApplication.id:" +
-              pwaApplication.getId()
-      );
+          String.format("Tried to send application options approved email, but no recipients found. pwaApplication.id: %s",
+              pwaApplication.getId()));
     }
 
   }
@@ -130,9 +124,8 @@ class OptionsCaseManagementEmailService {
 
     } else {
       LOGGER.error(
-          "Tried to send application options approved deadline changed email, but no recipients found. pwaApplication.id:" +
-              pwaApplication.getId()
-      );
+          String.format("Tried to send application options approved deadline changed email, but no recipients found. pwaApplication.id: %s",
+              pwaApplication.getId()));
     }
 
   }

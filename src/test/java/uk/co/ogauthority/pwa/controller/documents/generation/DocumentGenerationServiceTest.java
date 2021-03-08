@@ -79,7 +79,7 @@ public class DocumentGenerationServiceTest {
   public void generateConsentDocument_allDocSectionsProcessed() {
 
     var documentSectionGenerator = mock(DocumentSectionGenerator.class);
-    when(documentSectionGenerator.getDocumentSectionData(pwaApplicationDetail)).thenReturn(new DocumentSectionData("TEMPLATE", Map.of("test", "test")));
+    when(documentSectionGenerator.getDocumentSectionData(pwaApplicationDetail, documentInstance)).thenReturn(new DocumentSectionData("TEMPLATE", Map.of("test", "test")));
 
     when(springApplicationContext.getBean(any(Class.class))).thenAnswer(invocation -> documentSectionGenerator);
 
@@ -94,7 +94,8 @@ public class DocumentGenerationServiceTest {
     int numberOfCustomSections = sectionTypeToCountMap.get(SectionType.CUSTOM).intValue();
     int numberOfClauseSections = sectionTypeToCountMap.get(SectionType.CLAUSE_LIST).intValue();
 
-    verify(documentSectionGenerator, times(numberOfCustomSections)).getDocumentSectionData(pwaApplicationDetail);
+    verify(documentSectionGenerator, times(numberOfCustomSections)).getDocumentSectionData(pwaApplicationDetail,
+        documentInstance);
     verify(documentInstanceService, times(numberOfClauseSections)).getDocumentView(eq(documentInstance), any());
 
   }

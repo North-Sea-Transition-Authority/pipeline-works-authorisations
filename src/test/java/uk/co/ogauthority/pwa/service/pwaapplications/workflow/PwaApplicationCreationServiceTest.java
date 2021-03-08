@@ -144,7 +144,7 @@ public class PwaApplicationCreationServiceTest {
   @Test
   public void createVariationPwaApplication_createsApplicationsAsExpected_whenCategory1() {
     createVariationPwaApplication_assertUsingType(PwaApplicationType.CAT_1_VARIATION);
-    assertThat(pwaConsentOrganisationRoleService.getOrganisationRoleSummary(masterPwa));
+
     verify(padOrganisationRoleService, times(1)).createApplicationOrganisationRolesFromSummary(any(), any());
 
   }
@@ -152,28 +152,28 @@ public class PwaApplicationCreationServiceTest {
   @Test
   public void createVariationPwaApplication_createsApplicationsAsExpected_whenCategory2() {
     createVariationPwaApplication_assertUsingType(PwaApplicationType.CAT_2_VARIATION);
-    assertThat(pwaConsentOrganisationRoleService.getOrganisationRoleSummary(masterPwa));
+
     verify(padOrganisationRoleService, times(1)).createApplicationOrganisationRolesFromSummary(any(), any());
   }
 
   @Test
   public void createVariationPwaApplication_createsApplicationsAsExpected_whenHuoo() {
     createVariationPwaApplication_assertUsingType(PwaApplicationType.HUOO_VARIATION);
-    assertThat(pwaConsentOrganisationRoleService.getOrganisationRoleSummary(masterPwa));
+
     verify(padOrganisationRoleService, times(1)).createApplicationOrganisationRolesFromSummary(any(), any());
   }
 
   @Test
   public void createVariationPwaApplication_createsApplicationsAsExpected_whenOptions() {
     createVariationPwaApplication_assertUsingType(PwaApplicationType.OPTIONS_VARIATION);
-    assertThat(pwaConsentOrganisationRoleService.getOrganisationRoleSummary(masterPwa));
+
     verify(padOrganisationRoleService, times(1)).createApplicationOrganisationRolesFromSummary(any(), any());
   }
 
   @Test
   public void createVariationPwaApplication_createsApplicationsAsExpected_whenDecom() {
     createVariationPwaApplication_assertUsingType(PwaApplicationType.DECOMMISSIONING);
-    assertThat(pwaConsentOrganisationRoleService.getOrganisationRoleSummary(masterPwa));
+
     verify(padOrganisationRoleService, times(1)).createApplicationOrganisationRolesFromSummary(any(), any());
   }
 

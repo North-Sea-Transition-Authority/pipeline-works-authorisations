@@ -8,7 +8,6 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
@@ -93,39 +92,6 @@ public class PwaContactServiceTest {
     when(pwaContactRepository.findByPwaApplicationAndPerson(pwaApplication, person)).thenReturn(Optional.empty());
 
     assertThat(pwaContactService.personIsContactOnApplication(pwaApplication, person)).isFalse();
-
-  }
-
-  @Test
-  public void personHasContactRoleForPwaApplication_personHasRole() {
-    var roles = Set.of(PwaContactRole.ACCESS_MANAGER, PwaContactRole.PREPARER);
-
-    var pwaContact = new PwaContact(pwaApplication, person, roles);
-
-    when(pwaContactRepository.findByPwaApplicationAndPerson(pwaApplication, person))
-        .thenReturn(Optional.of(pwaContact));
-
-    assertThat(pwaContactService.personHasContactRoleForPwaApplication(
-        pwaApplication, person,
-        PwaContactRole.ACCESS_MANAGER
-    )).isTrue();
-    assertThat(pwaContactService.personHasContactRoleForPwaApplication(
-        pwaApplication, person,
-        PwaContactRole.PREPARER
-    )).isTrue();
-    assertThat(pwaContactService.personHasContactRoleForPwaApplication(
-        pwaApplication, person,
-        PwaContactRole.VIEWER
-    )).isFalse();
-
-  }
-
-  @Test
-  public void personHasContactRoleForPwaApplication_notContact() {
-    when(pwaContactRepository.findByPwaApplicationAndPerson(pwaApplication, person)).thenReturn(Optional.empty());
-
-    Arrays.stream(PwaContactRole.values()).forEach(role ->
-        assertThat(pwaContactService.personHasContactRoleForPwaApplication(pwaApplication, person, role)).isFalse());
 
   }
 
@@ -306,6 +272,7 @@ public class PwaContactServiceTest {
         ReverseRouter.route(on(PwaContactController.class).renderContactRolesScreen(
             pwaApplication.getApplicationType(),
             pwaApplication.getId(),
+            null,
             person.getId().asInt(),
             null,
             null
@@ -315,7 +282,7 @@ public class PwaContactServiceTest {
 
     assertThat(teamMemberView.getRemoveRoute()).isEqualTo(
         ReverseRouter.route(on(PwaContactController.class)
-            .renderRemoveContactScreen(pwaApplication.getApplicationType(), pwaApplication.getId(),
+            .renderRemoveContactScreen(pwaApplication.getApplicationType(), pwaApplication.getId(), null,
                 person.getId().asInt(), null)));
 
     assertThat(teamMemberView.getRoleViews().size()).isEqualTo(1);

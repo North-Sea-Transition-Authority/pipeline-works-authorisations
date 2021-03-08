@@ -4,9 +4,11 @@
 <#-- @ftlvariable name="isOptionsVariation" type="java.lang.Boolean" -->
 <#-- @ftlvariable name="isFastTrack" type="java.lang.Boolean" -->
 <#-- @ftlvariable name="caseOfficerCandidates" type="java.util.Map<String, String>" -->
+<#-- @ftlvariable name="paymentDecisionOptions" type="java.util.Map<String, String>" -->
 <#-- @ftlvariable name="caseSummaryView" type="uk.co.ogauthority.pwa.service.appprocessing.context.CaseSummaryView" -->
 <#-- @ftlvariable name="errorList" type="java.util.List<uk.co.ogauthority.pwa.model.form.fds.ErrorItem>"-->
 <#-- @ftlvariable name="cancelUrl" type="String" -->
+<#-- @ftlvariable name="appPaymentDisplaySummary" type="uk.co.ogauthority.pwa.service.appprocessing.processingcharges.display.ApplicationPaymentDisplaySummary" -->
 
 <@defaultPage htmlTitle="Accept application ${appRef}" breadcrumbs=true fullWidthColumn=true>
 
@@ -27,6 +29,8 @@
     <@grid.gridRow>
       <@grid.twoThirdsColumn>
 
+        <h2 class="govuk-heading-l">Accept application</h2>
+
           <#if isFastTrack>
               <@fdsWarning.warning>
                 This application is being fast-tracked, consider the proposed start of works date before accepting.
@@ -39,7 +43,21 @@
               </@fdsWarning.warning>
           </#if>
 
+          <@pwaPayment.applicationPaymentDisplaySummary summary=appPaymentDisplaySummary />
+
           <@fdsForm.htmlForm>
+
+              <@fdsRadio.radioGroup path="form.initialReviewPaymentDecision" labelText="What is your payment decision for this application?" showLabelOnly=true hiddenContent=true>
+                  <#assign firstItem=true/>
+                  <#list paymentDecisionOptions as name, displayText>
+                      <@fdsRadio.radioItem path="form.initialReviewPaymentDecision" itemMap={name:displayText} isFirstItem=firstItem>
+                          <#if name == 'PAYMENT_WAIVED'>
+                              <@fdsTextarea.textarea path="form.paymentWaivedReason" labelText="Why is the payment being waived?" maxCharacterLength="4000" characterCount=true nestingPath="form.initialReviewPaymentDecision"/>
+                          </#if>
+                          <#assign firstItem=false/>
+                      </@fdsRadio.radioItem>
+                  </#list>
+              </@fdsRadio.radioGroup>
 
               <@fdsSearchSelector.searchSelectorEnhanced path="form.caseOfficerPersonId" options=caseOfficerCandidates labelText="Case officer" />
 

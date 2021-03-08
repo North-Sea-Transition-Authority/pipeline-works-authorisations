@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.controller.appprocessing.initialreview;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.function.Supplier;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,13 +20,17 @@ import uk.co.ogauthority.pwa.controller.WorkAreaController;
 import uk.co.ogauthority.pwa.controller.appprocessing.shared.PwaAppProcessingPermissionCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationStatusCheck;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
+import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
 import uk.co.ogauthority.pwa.exception.AccessDeniedException;
 import uk.co.ogauthority.pwa.exception.ActionAlreadyPerformedException;
 import uk.co.ogauthority.pwa.model.form.appprocessing.initialreview.InitialReviewForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.applicationupdate.ApplicationUpdateRequestService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
+import uk.co.ogauthority.pwa.service.appprocessing.initialreview.InitialReviewPaymentDecision;
 import uk.co.ogauthority.pwa.service.appprocessing.initialreview.InitialReviewService;
+import uk.co.ogauthority.pwa.service.appprocessing.processingcharges.appfees.ApplicationFeeService;
+import uk.co.ogauthority.pwa.service.appprocessing.processingcharges.display.ApplicationPaymentSummariser;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingTask;
@@ -47,6 +52,8 @@ public class InitialReviewController {
 
   private final ApplicationBreadcrumbService breadcrumbService;
   private final InitialReviewService initialReviewService;
+  private final ApplicationFeeService applicationFeeService;
+  private final ApplicationPaymentSummariser applicationPaymentSummariser;
   private final WorkflowAssignmentService workflowAssignmentService;
   private final InitialReviewFormValidator initialReviewFormValidator;
   private final ControllerHelperService controllerHelperService;
@@ -55,12 +62,16 @@ public class InitialReviewController {
   @Autowired
   public InitialReviewController(ApplicationBreadcrumbService breadcrumbService,
                                  InitialReviewService initialReviewService,
+                                 ApplicationFeeService applicationFeeService,
+                                 ApplicationPaymentSummariser applicationPaymentSummariser,
                                  WorkflowAssignmentService workflowAssignmentService,
                                  InitialReviewFormValidator initialReviewFormValidator,
                                  ControllerHelperService controllerHelperService,
                                  ApplicationUpdateRequestService applicationUpdateRequestService) {
     this.breadcrumbService = breadcrumbService;
     this.initialReviewService = initialReviewService;
+    this.applicationFeeService = applicationFeeService;
+    this.applicationPaymentSummariser = applicationPaymentSummariser;
     this.workflowAssignmentService = workflowAssignmentService;
     this.initialReviewFormValidator = initialReviewFormValidator;
     this.controllerHelperService = controllerHelperService;
@@ -70,15 +81,22 @@ public class InitialReviewController {
   private ModelAndView getInitialReviewModelAndView(PwaAppProcessingContext appProcessingContext) {
 
     var detail = appProcessingContext.getApplicationDetail();
+    var feeReport = applicationFeeService.getApplicationFeeReport(appProcessingContext.getApplicationDetail());
+    var displayableFees = applicationPaymentSummariser.summarise(feeReport);
+
 
     var modelAndView = new ModelAndView("pwaApplication/appProcessing/initialReview/initialReview")
         .addObject("appRef", detail.getPwaApplicationRef())
+        .addObject("appPaymentDisplaySummary", displayableFees)
+        .addObject("paymentDecisionOptions", Arrays.stream(InitialReviewPaymentDecision.values())
+            .collect(StreamUtils.toLinkedHashMap(Enum::name, InitialReviewPaymentDecision::getDisplayText)))
         .addObject("isOptionsVariation", detail.getPwaApplicationType().equals(PwaApplicationType.OPTIONS_VARIATION))
         .addObject("isFastTrack", detail.getSubmittedAsFastTrackFlag())
         .addObject("workAreaUrl", ReverseRouter.route(on(WorkAreaController.class).renderWorkArea(null, null, null)))
         .addObject("caseOfficerCandidates",
             workflowAssignmentService
-                .getAssignmentCandidates(detail.getPwaApplication(), PwaApplicationWorkflowTask.CASE_OFFICER_REVIEW).stream()
+                .getAssignmentCandidates(detail.getPwaApplication(), PwaApplicationWorkflowTask.CASE_OFFICER_REVIEW)
+                .stream()
                 .sorted(Comparator.comparing(Person::getFullName))
                 .collect(StreamUtils.toLinkedHashMap(person -> String.valueOf(person.getId().asInt()),
                     Person::getFullName)))
@@ -135,8 +153,14 @@ public class InitialReviewController {
           () -> {
 
             try {
-              initialReviewService.acceptApplication(processingContext.getApplicationDetail(),
-                  form.getCaseOfficerPersonId(), user);
+              initialReviewService.acceptApplication(
+                  processingContext.getApplicationDetail(),
+                  new PersonId(form.getCaseOfficerPersonId()),
+                  form.getInitialReviewPaymentDecision(),
+                  InitialReviewPaymentDecision.PAYMENT_WAIVED.equals(form.getInitialReviewPaymentDecision())
+                      ? form.getPaymentWaivedReason()
+                      : null,
+                  user);
               FlashUtils.success(redirectAttributes,
                   "Accepted initial review for " + processingContext.getApplicationDetail().getPwaApplicationRef());
             } catch (ActionAlreadyPerformedException e) {

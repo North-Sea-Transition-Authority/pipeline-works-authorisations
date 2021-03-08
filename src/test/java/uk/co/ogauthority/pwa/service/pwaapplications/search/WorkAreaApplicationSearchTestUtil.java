@@ -58,9 +58,7 @@ public class WorkAreaApplicationSearchTestUtil {
       List<WorkAreaApplicationDetailSearchItem> results,
       Pageable pageable) {
 
-    return new PageImpl<WorkAreaApplicationDetailSearchItem>(
-        results,
-        pageable,
-        results.size());
+    return new PageImpl<>(results, pageable, results.size());
+
   }
 }

@@ -12,6 +12,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.enums.tasklist.TaskState;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContextTestUtil;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
@@ -73,6 +74,7 @@ public class ChangeOptionsApprovalDeadlineTaskServiceTest {
     assertThat(taskListEntry.getRoute()).isNotNull();
     assertThat(taskListEntry.getDisplayOrder()).isEqualTo(CHANGE_OPTIONS_APPROVAL_DEADLINE.getDisplayOrder());
     assertThat(taskListEntry.getTaskName()).isEqualTo(CHANGE_OPTIONS_APPROVAL_DEADLINE.getTaskName());
+    assertThat(taskListEntry.getTaskState()).isEqualTo(TaskState.EDIT);
     assertThat(taskListEntry.getTaskTag()).isNull();
 
   }
@@ -88,9 +90,10 @@ public class ChangeOptionsApprovalDeadlineTaskServiceTest {
         pwaAppProcessingContext
     );
 
-    assertThat(taskListEntry.getRoute()).isNull();
+    assertThat(taskListEntry.getRoute()).isNotNull();
     assertThat(taskListEntry.getDisplayOrder()).isEqualTo(CHANGE_OPTIONS_APPROVAL_DEADLINE.getDisplayOrder());
     assertThat(taskListEntry.getTaskName()).isEqualTo(CHANGE_OPTIONS_APPROVAL_DEADLINE.getTaskName());
+    assertThat(taskListEntry.getTaskState()).isEqualTo(TaskState.LOCK);
     assertThat(taskListEntry.getTaskTag().getTagText()).isEqualToIgnoringCase("cannot start yet");
 
   }

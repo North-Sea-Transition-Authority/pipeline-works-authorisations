@@ -19,6 +19,7 @@ import uk.co.ogauthority.pwa.model.entity.enums.documents.DocumentTemplateMnem;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.service.documents.instances.DocumentInstanceService;
 import uk.co.ogauthority.pwa.service.documents.templates.DocumentTemplateService;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DocumentServiceTest {
@@ -42,15 +43,16 @@ public class DocumentServiceTest {
   public void createDocumentInstance_noExistingDocInstance() {
 
     var app = new PwaApplication();
+    app.setApplicationType(PwaApplicationType.INITIAL);
     var person = new Person();
 
     var docDto = new DocumentTemplateDto();
 
-    when(documentTemplateService.populateDocumentDtoFromTemplateMnem(DocumentTemplateMnem.PWA_CONSENT_DOCUMENT)).thenReturn(docDto);
+    when(documentTemplateService.populateDocumentDtoFromTemplateMnem(DocumentTemplateMnem.PWA_CONSENT_DOCUMENT, PwaApplicationType.INITIAL.getConsentDocumentSpec())).thenReturn(docDto);
 
     documentService.createDocumentInstance(app, DocumentTemplateMnem.PWA_CONSENT_DOCUMENT, person);
 
-    verify(documentTemplateService, times(1)).populateDocumentDtoFromTemplateMnem(DocumentTemplateMnem.PWA_CONSENT_DOCUMENT);
+    verify(documentTemplateService, times(1)).populateDocumentDtoFromTemplateMnem(DocumentTemplateMnem.PWA_CONSENT_DOCUMENT, PwaApplicationType.INITIAL.getConsentDocumentSpec());
 
     verify(documentInstanceService, times(1)).createFromDocumentDto(app, docDto, person);
 
@@ -60,6 +62,7 @@ public class DocumentServiceTest {
   public void reloadDocumentInstance_docInstanceExists() {
 
     var app = new PwaApplication();
+    app.setApplicationType(PwaApplicationType.INITIAL);
 
     documentService.reloadDocumentInstance(app, DocumentTemplateMnem.PWA_CONSENT_DOCUMENT, new Person());
 

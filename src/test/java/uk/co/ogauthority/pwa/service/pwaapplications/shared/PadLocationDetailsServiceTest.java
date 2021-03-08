@@ -17,6 +17,7 @@ import java.time.ZoneOffset;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -430,6 +431,11 @@ public class PadLocationDetailsServiceTest {
     );
   }
 
+
+  private Set<PwaApplicationType> getAppTypesWithCustomQuestionSets(){
+    return EnumSet.of(PwaApplicationType.DEPOSIT_CONSENT, PwaApplicationType.DECOMMISSIONING);
+  }
+
   @Test
   public void getRequiredQuestions_depconAppType() {
     var requiredQuestions = padLocationDetailsService.getRequiredQuestions(PwaApplicationType.DEPOSIT_CONSENT);
@@ -440,8 +446,16 @@ public class PadLocationDetailsServiceTest {
   }
 
   @Test
-  public void getRequiredQuestions_allAppTypesExceptDepcon() {
-    PwaApplicationType.stream().filter(appType -> !appType.equals(PwaApplicationType.DEPOSIT_CONSENT))
+  public void getRequiredQuestions_decomAppType() {
+    var requiredQuestions = padLocationDetailsService.getRequiredQuestions(PwaApplicationType.DECOMMISSIONING);
+    var expectedQuestions = EnumSet.allOf(LocationDetailsQuestion.class);
+    expectedQuestions.remove(LocationDetailsQuestion.WITHIN_LIMITS_OF_DEVIATION);
+    assertThat(requiredQuestions).containsAll(expectedQuestions);
+  }
+
+  @Test
+  public void getRequiredQuestions_allAppTypesExceptDepconAndDecom() {
+    PwaApplicationType.stream().filter(appType -> !getAppTypesWithCustomQuestionSets().contains(appType))
       .forEach(appType -> {
         var requiredQuestions = padLocationDetailsService.getRequiredQuestions(appType);
         assertThat(requiredQuestions).containsAll(EnumSet.allOf(LocationDetailsQuestion.class));

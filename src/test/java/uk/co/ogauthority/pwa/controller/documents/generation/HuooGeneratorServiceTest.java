@@ -55,7 +55,7 @@ public class HuooGeneratorServiceTest {
 
   private DiffableOrgRolePipelineGroup createDiffableOrgRolePipelineGroup() {
     return new DiffableOrgRolePipelineGroup(
-        null, null, null, null, null, null, false, List.of());
+        null, null, null, null, false, null, null, false, List.of());
   }
 
 
@@ -80,7 +80,7 @@ public class HuooGeneratorServiceTest {
         .thenReturn(allRoleDiffablePipelineGroupView);
 
 
-    var documentSectionData = huooGeneratorService.getDocumentSectionData(pwaApplicationDetail);
+    var documentSectionData = huooGeneratorService.getDocumentSectionData(pwaApplicationDetail, null);
     var allRolePipelineGroupView = (AllRoleDiffablePipelineGroupView) documentSectionData.getTemplateModel().get("allRolePipelineGroupView");
     var sectionName = documentSectionData.getTemplateModel().get("sectionName");
 

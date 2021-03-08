@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.model.entity.pwaapplications.search;
 import com.google.common.annotations.VisibleForTesting;
 import java.time.Instant;
 import java.util.List;
+import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 
@@ -58,9 +59,11 @@ public interface ApplicationDetailItemView {
 
   boolean isOpenConsultationRequestFlag();
 
-  boolean isOpenPublicNoticeFlag();
+  PublicNoticeStatus getPublicNoticeStatus();
 
   boolean isTipVersionSatisfactoryFlag();
+
+  boolean isOpenConsentReviewFlag();
 
 
   @VisibleForTesting
@@ -136,10 +139,12 @@ public interface ApplicationDetailItemView {
   void setOpenConsultationRequestFlag(boolean openConsultationRequestFlag);
 
   @VisibleForTesting
-  void setOpenPublicNoticeFlag(boolean openPublicNoticeFlag);
+  void setPublicNoticeStatus(PublicNoticeStatus publicNoticeStatus);
 
   @VisibleForTesting
   void setTipVersionSatisfactoryFlag(boolean tipVersionSatisfactoryFlag);
 
-  
+  @VisibleForTesting
+  void setOpenConsentReviewFlag(boolean openConsentReviewFlag);
+
 }
