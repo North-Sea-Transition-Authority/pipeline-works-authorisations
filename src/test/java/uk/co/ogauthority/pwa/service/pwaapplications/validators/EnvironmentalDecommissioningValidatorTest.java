@@ -154,10 +154,9 @@ public class EnvironmentalDecommissioningValidatorTest {
       form.setEmtSubmissionDay(23);
 
       var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, detail, ValidationType.PARTIAL);
-
-      assertThat(errors.get("emtSubmissionDay")).containsExactly("emtSubmissionDay.notParsable");
-      assertThat(errors.get("emtSubmissionMonth")).containsExactly("emtSubmissionMonth.notParsable");
-      assertThat(errors.get("emtSubmissionYear")).containsExactly("emtSubmissionYear.notParsable");
+      assertThat(errors.get("emtSubmissionDay")).containsExactly(FieldValidationErrorCodes.INVALID.errorCode("emtSubmissionDay"));
+      assertThat(errors.get("emtSubmissionMonth")).containsExactly(FieldValidationErrorCodes.INVALID.errorCode("emtSubmissionMonth"));
+      assertThat(errors.get("emtSubmissionYear")).containsExactly(FieldValidationErrorCodes.INVALID.errorCode("emtSubmissionYear"));
 
     });
 
@@ -319,16 +318,16 @@ public class EnvironmentalDecommissioningValidatorTest {
       var form = new EnvironmentalDecommissioningForm();
       form.setEmtHasOutstandingPermits(true);
       var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, detail, ValidationType.FULL);
-      assertThat(errors.get("emtSubmissionDay")).containsExactly("emtSubmissionDay.notParsable");
-      assertThat(errors.get("emtSubmissionMonth")).containsExactly("emtSubmissionMonth.notParsable");
-      assertThat(errors.get("emtSubmissionYear")).containsExactly("emtSubmissionYear.notParsable");
+      assertThat(errors.get("emtSubmissionDay")).containsExactly(FieldValidationErrorCodes.REQUIRED.errorCode("emtSubmissionDay"));
+      assertThat(errors.get("emtSubmissionMonth")).containsExactly(FieldValidationErrorCodes.REQUIRED.errorCode("emtSubmissionMonth"));
+      assertThat(errors.get("emtSubmissionYear")).containsExactly(FieldValidationErrorCodes.REQUIRED.errorCode("emtSubmissionYear"));
 
     });
 
   }
 
   @Test
-  public void testValidate_InvalidDate_full() {
+  public void testValidate_invalidDate_full() {
 
     details.forEach(detail -> {
 
@@ -338,9 +337,9 @@ public class EnvironmentalDecommissioningValidatorTest {
       form.setEmtSubmissionMonth(-1);
       form.setEmtSubmissionYear(-1);
       var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, detail, ValidationType.FULL);
-      assertThat(errors.get("emtSubmissionDay")).containsExactly("emtSubmissionDay.invalidDate", "emtSubmissionDay.invalid");
-      assertThat(errors.get("emtSubmissionMonth")).containsExactly("emtSubmissionMonth.invalidDate", "emtSubmissionMonth.invalid");
-      assertThat(errors.get("emtSubmissionYear")).containsExactly("emtSubmissionYear.invalid", "emtSubmissionYear.invalidDate");
+      assertThat(errors.get("emtSubmissionDay")).containsExactly(FieldValidationErrorCodes.INVALID.errorCode("emtSubmissionDay"));
+      assertThat(errors.get("emtSubmissionMonth")).containsExactly(FieldValidationErrorCodes.INVALID.errorCode("emtSubmissionMonth"));
+      assertThat(errors.get("emtSubmissionYear")).containsExactly(FieldValidationErrorCodes.INVALID.errorCode("emtSubmissionYear"));
 
     });
 

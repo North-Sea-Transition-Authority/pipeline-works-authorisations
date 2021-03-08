@@ -220,41 +220,6 @@ public class ValidatorUtilsTest {
     assertThat(isYearValid).isFalse();
   }
 
-  @Test
-  public void validateYearWhenPresent_validYear() {
-    Errors errors = new BeanPropertyBindingResult(projectInformationForm, "form");
-    ValidatorUtils.validateYearWhenPresent("proposedStart", "proposed start",
-        999, errors);
-    assertThat(errors.getAllErrors()).extracting(ObjectError::getObjectName)
-        .doesNotContain("proposedStartYear");
-  }
-
-  @Test
-  public void validateYearWhenPresent_yearTooBig() {
-    Errors errors = new BeanPropertyBindingResult(projectInformationForm, "form");
-    ValidatorUtils.validateYearWhenPresent("proposedStart", "proposed start",
-        4001, errors);
-    assertThat(errors.getAllErrors()).extracting(DefaultMessageSourceResolvable::getCode)
-        .contains("proposedStartYear.invalid");
-  }
-
-  @Test
-  public void validateYearWhenPresent_yearTooSmall() {
-    Errors errors = new BeanPropertyBindingResult(projectInformationForm, "form");
-    ValidatorUtils.validateYearWhenPresent("proposedStart", "proposed start",
-        999, errors);
-    assertThat(errors.getAllErrors()).extracting(DefaultMessageSourceResolvable::getCode)
-        .contains("proposedStartYear.invalid");
-  }
-
-  @Test
-  public void validateYearWhenPresent_notPresent() {
-    Errors errors = new BeanPropertyBindingResult(projectInformationForm, "form");
-    ValidatorUtils.validateYearWhenPresent("proposedStart", "proposed start",
-        null, errors);
-    assertThat(errors.getAllErrors()).extracting(ObjectError::getObjectName)
-        .doesNotContain("proposedStartYear");
-  }
 
   @Test
   public void validateDateWhenPresent_notPresent() {
@@ -304,6 +269,34 @@ public class ValidatorUtilsTest {
     assertThat(errors.getAllErrors()).extracting(DefaultMessageSourceResolvable::getCode)
         .contains("proposedStartYear" +  FieldValidationErrorCodes.INVALID.getCode());
   }
+
+  @Test
+  public void validateDateWhenPresent_validFormat_invalidDayForMonth() {
+    Errors errors = new BeanPropertyBindingResult(projectInformationForm, "form");
+    ValidatorUtils.validateDateWhenPresent("proposedStart", "proposed start",
+        31, 2, 2020, errors);
+    assertThat(errors.getAllErrors()).extracting(DefaultMessageSourceResolvable::getCode)
+        .contains("proposedStartDay" +  FieldValidationErrorCodes.INVALID.getCode());
+  }
+
+  @Test
+  public void validateDateWhenPresent_validValues_dataPartiallyEntered() {
+    Errors errors = new BeanPropertyBindingResult(projectInformationForm, "form");
+    ValidatorUtils.validateDateWhenPresent("proposedStart", "proposed start",
+        null, 2, 2020, errors);
+    assertThat(errors.getAllErrors()).extracting(DefaultMessageSourceResolvable::getCode)
+        .contains("proposedStartDay" +  FieldValidationErrorCodes.INVALID.getCode());
+  }
+
+  @Test
+  public void validateDateWhenPresent_inValidValue_dataPartiallyEntered() {
+    Errors errors = new BeanPropertyBindingResult(projectInformationForm, "form");
+    ValidatorUtils.validateDateWhenPresent("proposedStart", "proposed start",
+        32, null, null, errors);
+    assertThat(errors.getAllErrors()).extracting(DefaultMessageSourceResolvable::getCode)
+        .contains("proposedStartDay" +  FieldValidationErrorCodes.INVALID.getCode());
+  }
+
 
   @Test
   public void validateBoolean_Null() {
