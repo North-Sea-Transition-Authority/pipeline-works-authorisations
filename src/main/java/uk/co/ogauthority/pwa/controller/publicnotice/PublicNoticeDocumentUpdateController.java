@@ -52,7 +52,7 @@ public class PublicNoticeDocumentUpdateController extends PwaApplicationDataFile
   private final PublicNoticeDocumentUpdateService publicNoticeDocumentUpdateService;
   private final ControllerHelperService controllerHelperService;
 
-  private static final String fileHandleUnsupportedOperationExceptionMsg =
+  private static final String FILE_HANDLE_UNSUPPORTED_OPERATION_EXCEPTION_MSG =
       "File handling is not directly supported within PublicNoticeDocumentUpdateController. " +
           "File handling should be handled in PublicNoticeDraftController";
 
@@ -132,7 +132,7 @@ public class PublicNoticeDocumentUpdateController extends PwaApplicationDataFile
     var publicNotice = publicNoticeService.getLatestPublicNotice(pwaApplication);
     var publicNoticeRequest = publicNoticeService.getLatestPublicNoticeRequest(publicNotice);
 
-    var publicNoticeDocumentFileView = publicNoticeDocumentUpdateService.getLatestPublicNoticeDocumentFileView(pwaApplication);
+    var publicNoticeDocumentFileView = publicNoticeService.getLatestPublicNoticeDocumentFileView(pwaApplication);
 
     var modelAndView = createModelAndView("publicNotice/updatePublicNoticeDocument",
         pwaApplication,
@@ -141,6 +141,7 @@ public class PublicNoticeDocumentUpdateController extends PwaApplicationDataFile
 
     modelAndView.addObject("appRef", pwaApplication.getAppReference())
         .addObject("coverLetter", publicNoticeRequest.getCoverLetterText())
+        .addObject("publicNoticeDocumentComments", publicNoticeService.getLatestPublicNoticeDocument(publicNotice).getComments())
         .addObject("publicNoticeDocumentFileView", publicNoticeDocumentFileView)
         .addObject("cancelUrl", CaseManagementUtils.routeCaseManagement(processingContext))
         .addObject("caseSummaryView", processingContext.getCaseSummaryView());
@@ -162,7 +163,7 @@ public class PublicNoticeDocumentUpdateController extends PwaApplicationDataFile
                                        @PathVariable("applicationId") Integer applicationId,
                                        @RequestParam("file") MultipartFile file,
                                        PwaAppProcessingContext processingContext) {
-    throw new UnsupportedOperationException(fileHandleUnsupportedOperationExceptionMsg);
+    throw new UnsupportedOperationException(FILE_HANDLE_UNSUPPORTED_OPERATION_EXCEPTION_MSG);
   }
 
   @GetMapping("/files/download/{fileId}")
@@ -172,7 +173,7 @@ public class PublicNoticeDocumentUpdateController extends PwaApplicationDataFile
       @PathVariable("applicationId") Integer applicationId,
       @PathVariable("fileId") String fileId,
       PwaAppProcessingContext processingContext) {
-    throw new UnsupportedOperationException(fileHandleUnsupportedOperationExceptionMsg);
+    throw new UnsupportedOperationException(FILE_HANDLE_UNSUPPORTED_OPERATION_EXCEPTION_MSG);
   }
 
   @PostMapping("/file/delete/{fileId}")
@@ -182,7 +183,7 @@ public class PublicNoticeDocumentUpdateController extends PwaApplicationDataFile
       @PathVariable("applicationId") Integer applicationId,
       @PathVariable("fileId") String fileId,
       PwaAppProcessingContext processingContext) {
-    throw new UnsupportedOperationException(fileHandleUnsupportedOperationExceptionMsg);
+    throw new UnsupportedOperationException(FILE_HANDLE_UNSUPPORTED_OPERATION_EXCEPTION_MSG);
   }
 
 

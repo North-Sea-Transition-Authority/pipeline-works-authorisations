@@ -83,11 +83,11 @@ public class OptionsTemplateSummaryServiceTest {
 
     assertThat(appSummary.getTemplatePath()).isEqualTo(TEMPLATE);
     assertThat(appSummary.getTemplateModel()).containsKey("optionsTemplateFileView");
-    assertThat(appSummary.getTemplateModel().get("optionsTemplateFileView") instanceof UploadedFileView).isTrue();
+    assertThat(appSummary.getTemplateModel().get("optionsTemplateFileView")).isInstanceOf(UploadedFileView.class);
     assertThat(appSummary.getTemplateModel()).contains(entry("sectionDisplayText", ApplicationTask.OPTIONS_TEMPLATE.getDisplayName()));
     assertThat(appSummary.getSidebarSectionLinks()).containsExactly(
         SidebarSectionLink.createAnchorLink(ApplicationTask.OPTIONS_TEMPLATE.getDisplayName(), "#optionsTemplate"));
-    assertThat(appSummary.getTemplateModel().get("optionsFileDownloadUrl")).isEqualTo(ReverseRouter
+    assertThat(appSummary.getTemplateModel()).containsEntry("optionsFileDownloadUrl", ReverseRouter
         .route(on(OptionsTemplateController.class)
             .handleDownload(pwaApplicationDetail.getPwaApplicationType(), pwaApplicationDetail.getMasterPwaApplicationId(), null, null)));
 

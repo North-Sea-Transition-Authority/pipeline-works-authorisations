@@ -152,7 +152,6 @@ public class InitialReviewController {
           getInitialReviewModelAndView(processingContext),
           () -> {
 
-            // TODO PWA-977 get initial review decision from form.
             try {
               initialReviewService.acceptApplication(
                   processingContext.getApplicationDetail(),

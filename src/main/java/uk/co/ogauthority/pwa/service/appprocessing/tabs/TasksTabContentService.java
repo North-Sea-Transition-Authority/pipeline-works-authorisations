@@ -67,9 +67,11 @@ public class TasksTabContentService implements AppProcessingTabContentService {
           appProcessingContext.getApplicationDetail()
       );
 
-      publicNoticePageBannerViewOpt = publicNoticeDocumentUpdateService.getPublicNoticeUpdatePageBannerView(
-          appProcessingContext.getPwaApplication()
-      );
+      if (appProcessingContext.getAppProcessingPermissions().contains(PwaAppProcessingPermission.UPDATE_PUBLIC_NOTICE_DOC)) {
+        publicNoticePageBannerViewOpt = publicNoticeDocumentUpdateService.getPublicNoticeUpdatePageBannerView(
+            appProcessingContext.getPwaApplication()
+        );
+      }
 
       taskListUrl = pwaApplicationRedirectService.getTaskListRoute(appProcessingContext.getPwaApplication());
 

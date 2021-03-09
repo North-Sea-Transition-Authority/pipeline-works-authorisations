@@ -217,12 +217,11 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
       }
     }
 
-    if (requiredQuestions.contains(ProjectInformationQuestion.PERMANENT_DEPOSITS_BEING_MADE)) {
+    if (requiredQuestions.contains(ProjectInformationQuestion.PERMANENT_DEPOSITS_BEING_MADE)
+        && !projectInformation.getPermanentDepositsMade()) {
       // null out permanent deposit month and year if not "part of later application"
-      if (!projectInformation.getPermanentDepositsMade()) {
-        projectInformation.setFutureAppSubmissionMonth(null);
-        projectInformation.setFutureAppSubmissionYear(null);
-      }
+      projectInformation.setFutureAppSubmissionMonth(null);
+      projectInformation.setFutureAppSubmissionYear(null);
     }
 
     padProjectInformationRepository.save(projectInformation);
@@ -242,12 +241,12 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
   @Override
   public void copySectionInformation(PwaApplicationDetail fromDetail, PwaApplicationDetail toDetail) {
 
-    var newProjInfo = entityCopyingService.duplicateEntityAndSetParent(
+    entityCopyingService.duplicateEntityAndSetParent(
         () -> getPadProjectInformationData(fromDetail),
         toDetail,
         PadProjectInformation.class);
 
-    var duplicatedPadFiles = padFileService.copyPadFilesToPwaApplicationDetail(
+    padFileService.copyPadFilesToPwaApplicationDetail(
         fromDetail,
         toDetail,
         FILE_PURPOSE,

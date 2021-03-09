@@ -59,7 +59,7 @@ public class ConsentDocumentService {
         .getDocumentInstance(detail.getPwaApplication(), DocumentTemplateMnem.PWA_CONSENT_DOCUMENT)
         .stream()
         .flatMap(instance -> documentInstanceService.getDocumentView(instance).getSections().stream())
-        .anyMatch(section -> section.getClauses().size() >= 1);
+        .anyMatch(section -> !section.getClauses().isEmpty());
 
     return latestAppVersionSatisfactory && !updateInProgress && !consultationInProgress && !publicNoticeInProgress && documentHasClauses;
 

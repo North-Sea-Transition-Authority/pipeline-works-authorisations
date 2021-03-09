@@ -23,6 +23,14 @@
                 ${publicNoticeViewData.status.getDisplayText()}
             </@fdsCheckAnswers.checkAnswersRow>
 
+            <#if publicNoticeViewData.latestDocumentComments?has_content>
+                <@fdsCheckAnswers.checkAnswersRow keyText="Case officer comments" actionText="" actionUrl="" screenReaderActionText="">
+                   <@multiLineText.multiLineText>
+                        <p class="govuk-body"> ${publicNoticeViewData.latestDocumentComments} </p> 
+                    </@multiLineText.multiLineText>
+                </@fdsCheckAnswers.checkAnswersRow>
+            </#if>
+
         </@fdsCheckAnswers.checkAnswers>    
     </@fdsCheckAnswers.checkAnswersWrapper>
 

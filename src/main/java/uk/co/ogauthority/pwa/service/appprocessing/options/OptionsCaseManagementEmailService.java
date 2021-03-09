@@ -82,9 +82,8 @@ class OptionsCaseManagementEmailService {
 
     } else {
       LOGGER.error(
-          "Tried to send application options approved email, but no recipients found. pwaApplication.id:" +
-              pwaApplication.getId()
-      );
+          String.format("Tried to send application options approved email, but no recipients found. pwaApplication.id: %s",
+              pwaApplication.getId()));
     }
 
   }
@@ -125,9 +124,8 @@ class OptionsCaseManagementEmailService {
 
     } else {
       LOGGER.error(
-          "Tried to send application options approved deadline changed email, but no recipients found. pwaApplication.id:" +
-              pwaApplication.getId()
-      );
+          String.format("Tried to send application options approved deadline changed email, but no recipients found. pwaApplication.id: %s",
+              pwaApplication.getId()));
     }
 
   }

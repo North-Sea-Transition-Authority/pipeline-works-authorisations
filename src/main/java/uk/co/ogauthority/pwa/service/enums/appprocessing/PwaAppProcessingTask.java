@@ -14,6 +14,7 @@ import uk.co.ogauthority.pwa.controller.appprocessing.options.ApproveOptionsCont
 import uk.co.ogauthority.pwa.controller.appprocessing.options.ChangeOptionsApprovalDeadlineController;
 import uk.co.ogauthority.pwa.controller.appprocessing.options.CloseOutOptionsController;
 import uk.co.ogauthority.pwa.controller.appprocessing.prepareconsent.AppConsentDocController;
+import uk.co.ogauthority.pwa.controller.appprocessing.processingcharges.CancelPaymentRequestController;
 import uk.co.ogauthority.pwa.controller.consultations.ConsultationController;
 import uk.co.ogauthority.pwa.controller.consultations.ConsulteeAdviceController;
 import uk.co.ogauthority.pwa.controller.consultations.responses.AssignResponderController;
@@ -32,6 +33,7 @@ import uk.co.ogauthority.pwa.service.appprocessing.options.ApproveOptionsTaskSer
 import uk.co.ogauthority.pwa.service.appprocessing.options.ChangeOptionsApprovalDeadlineTaskService;
 import uk.co.ogauthority.pwa.service.appprocessing.options.CloseOutOptionsTaskService;
 import uk.co.ogauthority.pwa.service.appprocessing.prepareconsent.PrepareConsentTaskService;
+import uk.co.ogauthority.pwa.service.appprocessing.processingcharges.CancelPaymentRequestAppProcessingService;
 import uk.co.ogauthority.pwa.service.appprocessing.publicnotice.PublicNoticeService;
 import uk.co.ogauthority.pwa.service.appprocessing.tasks.AppProcessingService;
 import uk.co.ogauthority.pwa.service.consultations.AssignCaseOfficerService;
@@ -162,6 +164,14 @@ public enum PwaAppProcessingTask {
       .renderAddCaseNote(processingContext.getMasterPwaApplicationId(), processingContext.getApplicationType(), null,
           null, null)),
       110),
+
+  CANCEL_PAYMENT(
+      "Cancel payment request",
+      TaskRequirement.OPTIONAL,
+      CancelPaymentRequestAppProcessingService.class, processingContext -> ReverseRouter.route(on(CancelPaymentRequestController.class)
+      .renderCancelPaymentRequest(processingContext.getMasterPwaApplicationId(),
+          processingContext.getApplicationType(), null, null)),
+      115),
 
   WITHDRAW_APPLICATION(
       "Withdraw application",

@@ -153,9 +153,9 @@ public class PadPipelinesHuooService implements ApplicationFormSectionService {
                                           BindingResult bindingResult,
                                           PickHuooPipelineValidationType pickHuooPipelineValidationType,
                                           HuooRole huooRole) {
-
-    var availableTreatiesForRole = getAvailableTreatyAgreementsForRole(pwaApplicationDetail, huooRole);
-    pickHuooPipelinesFormValidator.validate(form,
+    
+    pickHuooPipelinesFormValidator.validate(
+        form,
         bindingResult, List.of(
             huooRole,
             pwaApplicationDetail,

@@ -41,8 +41,14 @@ public final class PublicNoticeTestUtil {
     return new PublicNotice(pwaApplication, PublicNoticeStatus.WITHDRAWN, 10);
   }
 
-  static PublicNoticeDocument createInitialPublicNoticeDocument(PublicNotice publicNotice) {
+  public static PublicNoticeDocument createInitialPublicNoticeDocument(PublicNotice publicNotice) {
     return new PublicNoticeDocument(publicNotice, VERSION1, PublicNoticeDocumentType.IN_PROGRESS_DOCUMENT);
+  }
+
+  public static PublicNoticeDocument createCommentedPublicNoticeDocument(PublicNotice publicNotice) {
+    var document = createInitialPublicNoticeDocument(publicNotice);
+    document.setComments("comments");
+    return document;
   }
 
   static AppFile createAppFileForPublicNotice(PwaApplication pwaApplication) {
@@ -90,7 +96,12 @@ public final class PublicNoticeTestUtil {
 
   static PublicNoticeView createPublicNoticeView(PublicNotice publicNotice, PublicNoticeRequest publicNoticeRequest) {
     return new PublicNoticeView(publicNotice.getStatus(),
-        DateUtils.formatDate(publicNoticeRequest.getSubmittedTimestamp()));
+        DateUtils.formatDate(publicNoticeRequest.getSubmittedTimestamp()), null);
+  }
+
+  static PublicNoticeView createPublicNoticeView(PublicNotice publicNotice, PublicNoticeRequest publicNoticeRequest, PublicNoticeDocument publicNoticeDocument) {
+    return new PublicNoticeView(publicNotice.getStatus(),
+        DateUtils.formatDate(publicNoticeRequest.getSubmittedTimestamp()), publicNoticeDocument.getComments());
   }
 
 

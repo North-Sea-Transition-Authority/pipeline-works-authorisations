@@ -21,6 +21,10 @@ public class PwaAppProcessingContextDtoTestUtils {
     throw new AssertionError();
   }
 
+  /**
+   * Should be replaced by method within ApplicationInvolvementDtoTestUtil.
+   */
+  @Deprecated
   public static ApplicationInvolvementDto appInvolvementWithConsultationRequest(String groupName,
                                                                                 ConsultationRequest request) {
 
