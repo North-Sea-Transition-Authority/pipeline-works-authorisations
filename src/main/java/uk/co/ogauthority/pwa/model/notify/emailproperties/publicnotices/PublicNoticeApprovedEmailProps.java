@@ -1,18 +1,19 @@
-package uk.co.ogauthority.pwa.model.notify.emailproperties;
+package uk.co.ogauthority.pwa.model.notify.emailproperties.publicnotices;
 
 import java.util.Map;
 import java.util.Objects;
 import uk.co.ogauthority.pwa.model.enums.notify.NotifyTemplate;
+import uk.co.ogauthority.pwa.model.notify.emailproperties.EmailProperties;
 
-public class PublicNoticeDocumentReviewRequestEmailProps extends EmailProperties {
+public class PublicNoticeApprovedEmailProps extends EmailProperties {
 
   private final String applicationReference;
   private final String caseManagementLink;
 
-  public PublicNoticeDocumentReviewRequestEmailProps(String recipientFullName,
-                                                     String applicationReference,
-                                                     String caseManagementLink) {
-    super(NotifyTemplate.PUBLIC_NOTICE_DOCUMENT_REVIEW_REQUEST, recipientFullName);
+  public PublicNoticeApprovedEmailProps(String recipientFullName,
+                                        String applicationReference,
+                                        String caseManagementLink) {
+    super(NotifyTemplate.PUBLIC_NOTICE_APPROVED, recipientFullName);
     this.applicationReference = applicationReference;
     this.caseManagementLink = caseManagementLink;
   }
@@ -33,7 +34,7 @@ public class PublicNoticeDocumentReviewRequestEmailProps extends EmailProperties
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    PublicNoticeDocumentReviewRequestEmailProps that = (PublicNoticeDocumentReviewRequestEmailProps) o;
+    PublicNoticeApprovedEmailProps that = (PublicNoticeApprovedEmailProps) o;
     return Objects.equals(applicationReference, that.applicationReference)
         && Objects.equals(caseManagementLink, that.caseManagementLink);
   }

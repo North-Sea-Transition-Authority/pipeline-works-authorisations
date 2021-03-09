@@ -97,7 +97,7 @@ public class RegulatorWorkAreaPageService {
       return Set.of(PublicNoticeStatus.MANAGER_APPROVAL);
 
     } else if (user.getUserPrivileges().contains(PwaUserPrivilege.PWA_CASE_OFFICER)) {
-      return Set.of(PublicNoticeStatus.DRAFT);
+      return Set.of(PublicNoticeStatus.DRAFT, PublicNoticeStatus.CASE_OFFICER_REVIEW);
     }
     return Set.of();
   }

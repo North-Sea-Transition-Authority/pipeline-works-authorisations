@@ -8,10 +8,12 @@ public class PublicNoticeView {
 
   private final PublicNoticeStatus status;
   private final String submittedTimestamp;
+  private final String latestDocumentComments;
 
-  public PublicNoticeView(PublicNoticeStatus status, String submittedTimestamp) {
+  public PublicNoticeView(PublicNoticeStatus status, String submittedTimestamp, String latestDocumentComments) {
     this.status = status;
     this.submittedTimestamp = submittedTimestamp;
+    this.latestDocumentComments = latestDocumentComments;
   }
 
 
@@ -23,6 +25,9 @@ public class PublicNoticeView {
     return submittedTimestamp;
   }
 
+  public String getLatestDocumentComments() {
+    return latestDocumentComments;
+  }
 
   @Override
   public boolean equals(Object o) {
@@ -34,11 +39,12 @@ public class PublicNoticeView {
     }
     PublicNoticeView that = (PublicNoticeView) o;
     return status == that.status
-        && Objects.equals(submittedTimestamp, that.submittedTimestamp);
+        && Objects.equals(submittedTimestamp, that.submittedTimestamp)
+        && Objects.equals(latestDocumentComments, that.latestDocumentComments);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(status, submittedTimestamp);
+    return Objects.hash(status, submittedTimestamp,latestDocumentComments);
   }
 }
