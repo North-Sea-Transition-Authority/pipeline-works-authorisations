@@ -134,7 +134,7 @@ public class WithdrawPublicNoticeServiceTest {
         pwaApplication, user.getLinkedPerson(), form.getWithdrawalReason(), clock.instant());
     when(publicNoticeService.savePublicNotice(publicNotice)).thenReturn(withdrawnPublicNotice);
 
-    var emailRecipients = Set.of(PersonTestUtil.createDefaultPerson());
+    var emailRecipients = Set.of(PersonTestUtil.createPersonFrom(new PersonId(200), "manager@email.com"));
     when(pwaTeamService.getPeopleWithRegulatorRole(PwaRegulatorRole.PWA_MANAGER)).thenReturn(emailRecipients);
 
     withdrawPublicNoticeService.withdrawPublicNotice(pwaApplication, form, user);
@@ -175,9 +175,10 @@ public class WithdrawPublicNoticeServiceTest {
         pwaApplication, user.getLinkedPerson(), form.getWithdrawalReason(), clock.instant());
     when(publicNoticeService.savePublicNotice(publicNotice)).thenReturn(withdrawnPublicNotice);
 
-    var pwaManager = PersonTestUtil.createDefaultPerson();
+    var pwaManager = PersonTestUtil.createPersonFrom(new PersonId(200), "manager@email.com");
     when(pwaTeamService.getPeopleWithRegulatorRole(PwaRegulatorRole.PWA_MANAGER)).thenReturn(Set.of(pwaManager));
-    var applicant = PersonTestUtil.createPersonFrom(new PersonId(200));
+
+    var applicant = PersonTestUtil.createPersonFrom(new PersonId(300), "applicant@email.com");
     when(pwaContactService.getPeopleInRoleForPwaApplication(pwaApplication,
         PwaContactRole.PREPARER)).thenReturn(List.of(applicant));
     var emailRecipients = List.of(pwaManager, applicant);

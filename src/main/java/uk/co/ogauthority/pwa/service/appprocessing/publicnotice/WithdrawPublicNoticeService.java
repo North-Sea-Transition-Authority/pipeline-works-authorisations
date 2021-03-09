@@ -76,8 +76,9 @@ public class WithdrawPublicNoticeService {
                                    AuthenticatedUserAccount authenticatedUserAccount) {
 
     var publicNotice = publicNoticeService.getLatestPublicNotice(pwaApplication);
+    var publicNoticeStatusBeforeWithdrawal = publicNotice.getStatus();
 
-    var workflowTaskInstance = new WorkflowTaskInstance(publicNotice, publicNotice.getStatus().getWorkflowTask());
+    var workflowTaskInstance = new WorkflowTaskInstance(publicNotice, publicNoticeStatusBeforeWithdrawal.getWorkflowTask());
     camundaWorkflowService.deleteProcessAndTask(workflowTaskInstance);
 
     publicNotice.setStatus(PublicNoticeStatus.WITHDRAWN);
@@ -90,7 +91,7 @@ public class WithdrawPublicNoticeService {
     var statusesDeterminingPublicNoticeWasSentToApplicant = Set.of(
         PublicNoticeStatus.APPLICANT_UPDATE, PublicNoticeStatus.CASE_OFFICER_REVIEW, PublicNoticeStatus.FINALISATION);
 
-    if (statusesDeterminingPublicNoticeWasSentToApplicant.contains(publicNotice.getStatus())) {
+    if (statusesDeterminingPublicNoticeWasSentToApplicant.contains(publicNoticeStatusBeforeWithdrawal)) {
       emailRecipients.addAll(pwaContactService.getPeopleInRoleForPwaApplication(
           pwaApplication,
           PwaContactRole.PREPARER

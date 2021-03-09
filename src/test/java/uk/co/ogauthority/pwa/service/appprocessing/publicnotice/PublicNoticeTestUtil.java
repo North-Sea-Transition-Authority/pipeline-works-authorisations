@@ -56,8 +56,14 @@ public final class PublicNoticeTestUtil {
     return publicNotice;
   }
 
-  static PublicNoticeDocument createInitialPublicNoticeDocument(PublicNotice publicNotice) {
+  public static PublicNoticeDocument createInitialPublicNoticeDocument(PublicNotice publicNotice) {
     return new PublicNoticeDocument(publicNotice, VERSION1, PublicNoticeDocumentType.IN_PROGRESS_DOCUMENT);
+  }
+
+  public static PublicNoticeDocument createCommentedPublicNoticeDocument(PublicNotice publicNotice) {
+    var document = createInitialPublicNoticeDocument(publicNotice);
+    document.setComments("comments");
+    return document;
   }
 
   static AppFile createAppFileForPublicNotice(PwaApplication pwaApplication) {
@@ -103,9 +109,14 @@ public final class PublicNoticeTestUtil {
     return publicNoticeRequest;
   }
 
-  static PublicNoticeView createPublicNoticeView(PublicNotice publicNotice, PublicNoticeRequest publicNoticeRequest) {
+  static PublicNoticeView createCommentedPublicNoticeView(PublicNotice publicNotice, PublicNoticeRequest publicNoticeRequest) {
     return new PublicNoticeView(publicNotice.getStatus(),
         DateUtils.formatDate(publicNoticeRequest.getSubmittedTimestamp()));
+  }
+
+  static PublicNoticeView createCommentedPublicNoticeView(PublicNotice publicNotice, PublicNoticeRequest publicNoticeRequest, PublicNoticeDocument publicNoticeDocument) {
+    return new PublicNoticeView(publicNotice.getStatus(),
+        DateUtils.formatDate(publicNoticeRequest.getSubmittedTimestamp()), publicNoticeDocument.getComments(), null, null);
   }
 
   static PublicNoticeView createWithdrawnPublicNoticeView(PublicNotice publicNotice,
@@ -114,6 +125,7 @@ public final class PublicNoticeTestUtil {
     return new PublicNoticeView(
         publicNotice.getStatus(),
         DateUtils.formatDate(publicNoticeRequest.getSubmittedTimestamp()),
+        null,
         withdrawingUsername,
         DateUtils.formatDate(publicNotice.getWithdrawalTimestamp())
     );

@@ -144,7 +144,7 @@ public class RegulatorWorkAreaPageServiceTest {
     verify(workAreaApplicationDetailSearcher, times(1)).searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagEqualsOrAllProcessingWaitFlagsEqual(
         WorkAreaPageServiceTestUtil.getWorkAreaViewPageable(REQUESTED_PAGE, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
         pwaManagerStatuses,
-        Set.of(PublicNoticeStatus.DRAFT),
+        Set.of(PublicNoticeStatus.DRAFT, PublicNoticeStatus.CASE_OFFICER_REVIEW),
         Set.of(APP_ID_1, APP_ID_2),
         flagMap
     );

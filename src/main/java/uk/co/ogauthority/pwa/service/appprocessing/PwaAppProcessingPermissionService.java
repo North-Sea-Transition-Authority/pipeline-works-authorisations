@@ -91,6 +91,7 @@ public class PwaAppProcessingPermissionService {
                   && (PwaApplicationType.INITIAL.equals(detail.getPwaApplicationType())
                   || PwaApplicationType.CAT_1_VARIATION.equals(detail.getPwaApplicationType()));
             case DRAFT_PUBLIC_NOTICE:
+            case REQUEST_PUBLIC_NOTICE_UPDATE:
             case WITHDRAW_PUBLIC_NOTICE:
               return userPrivileges.contains(PwaUserPrivilege.PWA_CASE_OFFICER)
                   && appInvolvement.isUserAssignedCaseOfficer()
@@ -116,6 +117,9 @@ public class PwaAppProcessingPermissionService {
             case WITHDRAW_APPLICATION:
               return (userPrivileges.contains(PwaUserPrivilege.PWA_CASE_OFFICER) && appInvolvement.isUserAssignedCaseOfficer())
                   || (userPrivileges.contains(PwaUserPrivilege.PWA_MANAGER) && appInvolvement.isPwaManagerStage());
+            case CANCEL_PAYMENT:
+              return PwaApplicationStatus.AWAITING_APPLICATION_PAYMENT.equals(detail.getStatus())
+                  && userPrivileges.contains(PwaUserPrivilege.PWA_MANAGER);
             default:
               return false;
           }

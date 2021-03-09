@@ -132,7 +132,8 @@ public class TasksTabContentServiceTest {
 
     var taskListGroupsList = List.of(new TaskListGroup("test", 10, List.of()));
 
-    var processingContext = createContextWithPermissions(PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY);
+    var processingContext = createContextWithPermissions(
+        PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY, PwaAppProcessingPermission.UPDATE_PUBLIC_NOTICE_DOC);
 
     when(taskListService.getTaskListGroups(processingContext)).thenReturn(taskListGroupsList);
 

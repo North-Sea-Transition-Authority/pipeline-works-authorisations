@@ -11,6 +11,11 @@
     </#if>
 
     <@fdsCheckAnswers.checkAnswersWrapper summaryListId="" headingText=submittedHeading! headingSize="h3" headingClass="govuk-heading-m">
+    
+        <#if !displayAsHistoricalRequest>
+            <#nested>
+        </#if>
+
         <@fdsCheckAnswers.checkAnswers summaryListClass="">
 
             <#if !displayAsHistoricalRequest>
@@ -29,6 +34,14 @@
                 </@fdsCheckAnswers.checkAnswersRow>
                 <@fdsCheckAnswers.checkAnswersRow keyText="Withdrawn on" actionText="" actionUrl="" screenReaderActionText="">
                     ${publicNoticeViewData.withdrawnTimestamp}
+                </@fdsCheckAnswers.checkAnswersRow>
+            </#if>
+
+            <#if publicNoticeViewData.latestDocumentComments?has_content>
+                <@fdsCheckAnswers.checkAnswersRow keyText="Case officer comments" actionText="" actionUrl="" screenReaderActionText="">
+                   <@multiLineText.multiLineText>
+                        <p class="govuk-body"> ${publicNoticeViewData.latestDocumentComments} </p> 
+                    </@multiLineText.multiLineText>
                 </@fdsCheckAnswers.checkAnswersRow>
             </#if>
 

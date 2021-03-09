@@ -558,7 +558,6 @@ public class ApplicationChargeRequestServiceTest {
 
     assertThat(processPaymentAttemptResult).isEqualTo(ProcessPaymentAttemptOutcome.CHARGE_REQUEST_UNCHANGED);
 
-    assertThat(processPaymentAttemptResult).isEqualTo(ProcessPaymentAttemptOutcome.CHARGE_REQUEST_UNCHANGED);
     verify(pwaAppChargeRequestDetailRepository, times(0)).save(any());
     verifyNoInteractions(camundaWorkflowService, workflowAssignmentService);
 
@@ -607,5 +606,25 @@ public class ApplicationChargeRequestServiceTest {
   }
 
 
+  @Test
+  public void applicationHasOpenChargeRequest_whenNoOpenRequest() {
 
+    when(pwaAppChargeRequestDetailRepository.countByPwaAppChargeRequest_PwaApplicationAndPwaAppChargeRequestStatusAndTipFlagIsTrue(
+        pwaApplication, PwaAppChargeRequestStatus.OPEN
+    )).thenReturn(0L);
+
+    assertThat(applicationChargeRequestService.applicationHasOpenChargeRequest(pwaApplication)).isFalse();
+
+  }
+
+  @Test
+  public void applicationHasOpenChargeRequest_whenOpenRequest() {
+
+    when(pwaAppChargeRequestDetailRepository.countByPwaAppChargeRequest_PwaApplicationAndPwaAppChargeRequestStatusAndTipFlagIsTrue(
+        pwaApplication, PwaAppChargeRequestStatus.OPEN
+    )).thenReturn(1L);
+
+    assertThat(applicationChargeRequestService.applicationHasOpenChargeRequest(pwaApplication)).isTrue();
+
+  }
 }

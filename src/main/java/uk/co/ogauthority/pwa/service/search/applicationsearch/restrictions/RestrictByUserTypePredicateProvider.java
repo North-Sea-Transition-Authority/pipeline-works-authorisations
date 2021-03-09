@@ -185,7 +185,7 @@ public class RestrictByUserTypePredicateProvider implements ApplicationSearchPre
     return cb.and(
         lastSubmittedVersionPredicate,
         cb.or(
-            getSubmittedInitialPwaApplicationsPredicate(applicationSearchContext, searchCoreQuery, searchCoreRoot),
+            getSubmittedInitialPwaApplicationsPredicate(applicationSearchContext, searchCoreRoot),
             getSubmittedVariationApplicationsPredicate(applicationSearchContext, searchCoreQuery, searchCoreRoot)
         )
     );
@@ -197,7 +197,6 @@ public class RestrictByUserTypePredicateProvider implements ApplicationSearchPre
    * is in holder orggrp of HOLDER on latest submitted version of app.
    */
   private Predicate getSubmittedInitialPwaApplicationsPredicate(ApplicationSearchContext applicationSearchContext,
-                                                                CriteriaQuery<ApplicationDetailView> searchCoreQuery,
                                                                 Root<ApplicationDetailView> searchCoreRoot) {
 
     CriteriaBuilder cb = entityManager.getCriteriaBuilder();

@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.model.dto.appprocessing;
 
 import static uk.co.ogauthority.pwa.model.dto.appprocessing.ApplicationInvolvementDtoTestUtil.InvolvementFlag.AT_LEAST_ONE_SATISFACTORY_VERSION;
 import static uk.co.ogauthority.pwa.model.dto.appprocessing.ApplicationInvolvementDtoTestUtil.InvolvementFlag.CASE_OFFICER_STAGE_AND_USER_ASSIGNED;
+import static uk.co.ogauthority.pwa.model.dto.appprocessing.ApplicationInvolvementDtoTestUtil.InvolvementFlag.OPEN_CONSENT_REVIEW;
 import static uk.co.ogauthority.pwa.model.dto.appprocessing.ApplicationInvolvementDtoTestUtil.InvolvementFlag.PWA_MANAGER_STAGE;
 
 import java.util.EnumSet;
@@ -45,7 +46,8 @@ public final class ApplicationInvolvementDtoTestUtil {
         versionFlags.contains(PWA_MANAGER_STAGE),
         versionFlags.contains(AT_LEAST_ONE_SATISFACTORY_VERSION),
         pwaOrganisationRoles,
-        OpenConsentReview.NO);
+        versionFlags.contains(OPEN_CONSENT_REVIEW) ? OpenConsentReview.YES : OpenConsentReview.NO
+    );
 
   }
 
@@ -140,7 +142,8 @@ public final class ApplicationInvolvementDtoTestUtil {
   public enum InvolvementFlag {
     AT_LEAST_ONE_SATISFACTORY_VERSION,
     CASE_OFFICER_STAGE_AND_USER_ASSIGNED,
-    PWA_MANAGER_STAGE
+    PWA_MANAGER_STAGE,
+    OPEN_CONSENT_REVIEW
   }
 
 }
