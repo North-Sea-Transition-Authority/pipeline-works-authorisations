@@ -27,6 +27,7 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
 import uk.co.ogauthority.pwa.energyportal.model.entity.PersonTestUtil;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.exception.EntityLatestVersionNotFoundException;
+import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeAction;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeDocumentType;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeRequestStatus;
@@ -43,6 +44,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.enums.notify.NotifyTemplate;
 import uk.co.ogauthority.pwa.model.enums.tasklist.TaskState;
 import uk.co.ogauthority.pwa.model.form.files.UploadFileWithDescriptionForm;
+import uk.co.ogauthority.pwa.model.form.files.UploadedFileViewTestUtil;
 import uk.co.ogauthority.pwa.model.form.publicnotice.PublicNoticeDraftForm;
 import uk.co.ogauthority.pwa.model.notify.emailproperties.publicnotices.PublicNoticeApprovalRequestEmailProps;
 import uk.co.ogauthority.pwa.model.tasklist.TaskTag;
@@ -436,6 +438,16 @@ public class PublicNoticeServiceTest {
   }
 
   @Test
+  public void getAvailablePublicNoticeActions_requestUpdatePermissionAndCaseOfficerReviewStatus() {
+
+    var context = PwaAppProcessingContextTestUtil.withPermissions(
+        pwaApplicationDetail, Set.of(PwaAppProcessingPermission.REQUEST_PUBLIC_NOTICE_UPDATE));
+    var publicNoticeActions = publicNoticeService.getAvailablePublicNoticeActions(PublicNoticeStatus.CASE_OFFICER_REVIEW, context);
+
+    assertThat(publicNoticeActions).containsOnly(PublicNoticeAction.REQUEST_DOCUMENT_UPDATE);
+  }
+
+  @Test
   public void getAllPublicNoticeViews_noPublicNotices() {
 
     var context = PwaAppProcessingContextTestUtil.withPermissions(
@@ -466,7 +478,6 @@ public class PublicNoticeServiceTest {
     when(publicNoticeRequestRepository.findFirstByPublicNoticeOrderByVersionDesc(endedPublicNotice2))
         .thenReturn(Optional.of(endedPublicNotice2Request));
 
-
     var context = PwaAppProcessingContextTestUtil.withPermissions(
         pwaApplicationDetail, Set.of(PwaAppProcessingPermission.APPROVE_PUBLIC_NOTICE));
     var allPublicNoticesView = publicNoticeService.getAllPublicNoticeViews(context);
@@ -490,7 +501,6 @@ public class PublicNoticeServiceTest {
     when(publicNoticeRequestRepository.findFirstByPublicNoticeOrderByVersionDesc(currentPublicNotice))
         .thenReturn(Optional.of(currentPublicNoticeRequest));
 
-
     var context = PwaAppProcessingContextTestUtil.withPermissions(
         pwaApplicationDetail, Set.of(PwaAppProcessingPermission.APPROVE_PUBLIC_NOTICE));
     var allPublicNoticesView = publicNoticeService.getAllPublicNoticeViews(context);
@@ -500,6 +510,29 @@ public class PublicNoticeServiceTest {
     assertThat(allPublicNoticesView.getCurrentPublicNotice()).isEqualTo(expectedCurrentPublicNoticeView);
     assertThat(allPublicNoticesView.getHistoricalPublicNotices()).isEmpty();
     assertThat(allPublicNoticesView.getActions()).containsOnly(PublicNoticeAction.APPROVE);
+  }
+
+  @Test
+  public void getAllPublicNoticeViews_publicNoticeDocumentHasComments_commentsStoredOnView() {
+
+    var currentPublicNotice = PublicNoticeTestUtil.createApplicantUpdatePublicNotice(pwaApplication);
+    when(publicNoticeRepository.findAllByPwaApplicationOrderByVersionDesc(pwaApplication)).thenReturn(List.of(currentPublicNotice));
+
+    var currentPublicNoticeRequest = PublicNoticeTestUtil.createInitialPublicNoticeRequest(currentPublicNotice);
+    when(publicNoticeRequestRepository.findFirstByPublicNoticeOrderByVersionDesc(currentPublicNotice))
+        .thenReturn(Optional.of(currentPublicNoticeRequest));
+
+    var currentPublicNoticeDocument = PublicNoticeTestUtil.createCommentedPublicNoticeDocument(currentPublicNotice);
+    when(publicNoticeDocumentRepository.findByPublicNoticeAndDocumentType(currentPublicNotice, PublicNoticeDocumentType.IN_PROGRESS_DOCUMENT))
+        .thenReturn(Optional.of(currentPublicNoticeDocument));
+
+    var context = PwaAppProcessingContextTestUtil.withPermissions(
+        pwaApplicationDetail, Set.of(PwaAppProcessingPermission.UPDATE_PUBLIC_NOTICE_DOC));
+    var allPublicNoticesView = publicNoticeService.getAllPublicNoticeViews(context);
+
+    var expectedCurrentPublicNoticeView = PublicNoticeTestUtil.createPublicNoticeView(
+        currentPublicNotice, currentPublicNoticeRequest, currentPublicNoticeDocument);
+    assertThat(allPublicNoticesView.getCurrentPublicNotice()).isEqualTo(expectedCurrentPublicNoticeView);
   }
 
   @Test
@@ -551,6 +584,43 @@ public class PublicNoticeServiceTest {
     publicNoticeService.getLatestPublicNoticeDocument(publicNotice);
     verify(publicNoticeDocumentRepository, times(1)).findByPublicNoticeAndDocumentType(
         publicNotice, PublicNoticeDocumentType.IN_PROGRESS_DOCUMENT);
+  }
+
+  @Test
+  public void getPublicNoticeDocumentFileView_documentLinkExists() {
+
+    var publicNotice = PublicNoticeTestUtil.createInitialPublicNotice(pwaApplication);
+    when(publicNoticeRepository.findFirstByPwaApplicationOrderByVersionDesc(pwaApplication)).thenReturn(
+        Optional.of(publicNotice));
+
+    var document = PublicNoticeTestUtil.createInitialPublicNoticeDocument(publicNotice);
+    when(publicNoticeDocumentRepository.findByPublicNoticeAndDocumentType(publicNotice, PublicNoticeDocumentType.IN_PROGRESS_DOCUMENT))
+        .thenReturn(Optional.of(document));
+
+    var publicNoticeAppFile = PublicNoticeTestUtil.createAppFileForPublicNotice(pwaApplication);
+    var documentLink = new PublicNoticeDocumentLink(document, publicNoticeAppFile);
+    when(publicNoticeDocumentLinkRepository.findByPublicNoticeDocument(document)).thenReturn(Optional.of(documentLink));
+
+    var documentFileView = UploadedFileViewTestUtil.createDefaultFileView();
+    when(appFileService.getUploadedFileView(pwaApplication, documentLink.getAppFile().getFileId(), FILE_PURPOSE, ApplicationFileLinkStatus.FULL))
+        .thenReturn(documentFileView);
+
+    var actualFileView = publicNoticeService.getLatestPublicNoticeDocumentFileView(pwaApplication);
+    assertThat(actualFileView).isEqualTo(documentFileView);
+  }
+
+  @Test(expected = EntityLatestVersionNotFoundException.class)
+  public void getPublicNoticeDocumentFileView_documentLinkDoesNotExists() {
+
+    var publicNotice = PublicNoticeTestUtil.createInitialPublicNotice(pwaApplication);
+    when(publicNoticeRepository.findFirstByPwaApplicationOrderByVersionDesc(pwaApplication)).thenReturn(
+        Optional.of(publicNotice));
+
+    var document = PublicNoticeTestUtil.createInitialPublicNoticeDocument(publicNotice);
+    when(publicNoticeDocumentRepository.findByPublicNoticeAndDocumentType(publicNotice, PublicNoticeDocumentType.IN_PROGRESS_DOCUMENT))
+        .thenReturn(Optional.of(document));
+
+    publicNoticeService.getLatestPublicNoticeDocumentFileView(pwaApplication);
   }
 
   @Test

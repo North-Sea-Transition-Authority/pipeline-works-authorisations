@@ -10,8 +10,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.controller.publicnotice.PublicNoticeDocumentUpdateController;
-import uk.co.ogauthority.pwa.exception.EntityLatestVersionNotFoundException;
-import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeAction;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeDocumentType;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeStatus;
@@ -19,9 +17,8 @@ import uk.co.ogauthority.pwa.model.entity.files.AppFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.publicnotice.PublicNotice;
 import uk.co.ogauthority.pwa.model.entity.publicnotice.PublicNoticeDocument;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
-import uk.co.ogauthority.pwa.model.form.files.UploadedFileView;
 import uk.co.ogauthority.pwa.model.form.publicnotice.UpdatePublicNoticeDocumentForm;
-import uk.co.ogauthority.pwa.model.notify.emailproperties.PublicNoticeDocumentReviewRequestEmailProps;
+import uk.co.ogauthority.pwa.model.notify.emailproperties.publicnotices.PublicNoticeDocumentReviewRequestEmailProps;
 import uk.co.ogauthority.pwa.model.teams.PwaRegulatorRole;
 import uk.co.ogauthority.pwa.model.teams.PwaRole;
 import uk.co.ogauthority.pwa.model.teams.PwaTeamMember;
@@ -105,19 +102,6 @@ public class PublicNoticeDocumentUpdateService {
         ))
         .build());
   }
-
-  public UploadedFileView getLatestPublicNoticeDocumentFileView(PwaApplication pwaApplication) {
-
-    var publicNotice = publicNoticeService.getLatestPublicNotice(pwaApplication);
-    var latestPublicNoticeDocument = publicNoticeService.getLatestPublicNoticeDocument(publicNotice);
-    var documentLink = publicNoticeDocumentLinkRepository.findByPublicNoticeDocument(latestPublicNoticeDocument)
-        .orElseThrow(() -> new EntityLatestVersionNotFoundException(String.format(
-            "Couldn't find public notice document link with public notice document ID: %s", latestPublicNoticeDocument.getId())));
-
-    return appFileService.getUploadedFileView(
-        pwaApplication, documentLink.getAppFile().getFileId(), FILE_PURPOSE, ApplicationFileLinkStatus.FULL);
-  }
-
 
   public BindingResult validate(UpdatePublicNoticeDocumentForm form, BindingResult bindingResult) {
     publicNoticeDocumentUpdateValidator.validate(form, bindingResult);
