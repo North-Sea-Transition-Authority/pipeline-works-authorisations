@@ -50,6 +50,7 @@ import uk.co.ogauthority.pwa.repository.appprocessing.processingcharges.PwaAppCh
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationWorkflowTask;
+import uk.co.ogauthority.pwa.service.enums.workflow.PwaAwaitPaymentResult;
 import uk.co.ogauthority.pwa.service.person.PersonService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
@@ -59,6 +60,8 @@ import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ApplicationChargeRequestServiceTest {
+
+  private static final String CANCEL_REASON = "CANCEL_REASON";
 
   @Mock
   private PwaAppChargeRequestRepository pwaAppChargeRequestRepository;
@@ -96,11 +99,16 @@ public class ApplicationChargeRequestServiceTest {
   @Captor
   private ArgumentCaptor<List<PwaAppChargePaymentAttempt>> activePaymentAttemptArgumentCaptor;
 
+  @Captor
+  private ArgumentCaptor<PwaApplicationDetail> applicationDetailArgumentCaptor;
+
   private final Clock clock = Clock.fixed(Instant.now(), ZoneId.systemDefault());
 
   private ApplicationChargeRequestService applicationChargeRequestService;
 
-  private Person requestPerson;
+  private Person pwaManagerPerson;
+  private WebUserAccount pwaManagerWua;
+
   private Person caseOfficerPerson;
 
   private Person paymentAttemptPerson;
@@ -115,7 +123,8 @@ public class ApplicationChargeRequestServiceTest {
   @Before
   public void setUp() throws Exception {
 
-    requestPerson = PersonTestUtil.createPersonFrom(new PersonId(10));
+    pwaManagerPerson = PersonTestUtil.createPersonFrom(new PersonId(10));
+    pwaManagerWua = new WebUserAccount(10, pwaManagerPerson);
     caseOfficerPerson = PersonTestUtil.createPersonFrom(new PersonId(20));
     paymentAttemptPerson = PersonTestUtil.createPersonFrom(new PersonId(30));
     paymentAttemptWua = new WebUserAccount(31, paymentAttemptPerson);
@@ -126,10 +135,10 @@ public class ApplicationChargeRequestServiceTest {
     when(pwaApplicationDetailService.getTipDetail(pwaApplication)).thenReturn(pwaApplicationDetail);
 
     chargeRequestDetail = PwaAppChargeRequestTestUtil.createDefaultChargeRequest(
-        pwaApplication, requestPerson, PwaAppChargeRequestStatus.OPEN);
+        pwaApplication, pwaManagerPerson, PwaAppChargeRequestStatus.OPEN);
     chargeRequest = chargeRequestDetail.getPwaAppChargeRequest();
 
-    when(pwaAppChargeRequestDetailRepository.findByPwaAppChargeRequest_PwaApplicationAndTipFlagIsTrue(pwaApplication))
+    when(pwaAppChargeRequestDetailRepository.findByPwaAppChargeRequest_PwaApplicationAndPwaAppChargeRequestStatusAndTipFlagIsTrue(pwaApplication, PwaAppChargeRequestStatus.OPEN))
         .thenReturn(Optional.of(chargeRequestDetail));
 
     applicationChargeRequestService = new ApplicationChargeRequestService(
@@ -160,7 +169,7 @@ public class ApplicationChargeRequestServiceTest {
         .addChargeItem("CHARGE_1", 25)
         .addChargeItem("CHARGE_2", 75);
 
-    applicationChargeRequestService.createPwaAppChargeRequest(requestPerson, spec);
+    applicationChargeRequestService.createPwaAppChargeRequest(pwaManagerPerson, spec);
 
     ArgumentCaptor<List<PwaAppChargeRequestItem>> chargeItemCaptor = ArgumentCaptor.forClass(List.class);
     ArgumentCaptor<PwaAppChargeRequest> chargeRequestCaptor = ArgumentCaptor.forClass(PwaAppChargeRequest.class);
@@ -180,13 +189,13 @@ public class ApplicationChargeRequestServiceTest {
     assertThat(chargeRequestCaptor.getValue()).satisfies(pwaAppChargeRequest -> {
       assertThat(pwaAppChargeRequest.getPwaApplication()).isEqualTo(pwaApplication);
       assertThat(pwaAppChargeRequest.getRequestedByTimestamp()).isEqualTo(clock.instant());
-      assertThat(pwaAppChargeRequest.getRequestedByPersonId()).isEqualTo(requestPerson.getId());
+      assertThat(pwaAppChargeRequest.getRequestedByPersonId()).isEqualTo(pwaManagerPerson.getId());
     });
 
     assertThat(chargeRequestDetailCaptor.getValue()).satisfies(pwaAppChargeRequestDetail -> {
       assertThat(pwaAppChargeRequestDetail.getPwaAppChargeRequest()).isEqualTo(chargeRequestCaptor.getValue());
       assertThat(pwaAppChargeRequestDetail.getStartedTimestamp()).isEqualTo(clock.instant());
-      assertThat(pwaAppChargeRequestDetail.getStartedByPersonId()).isEqualTo(requestPerson.getId());
+      assertThat(pwaAppChargeRequestDetail.getStartedByPersonId()).isEqualTo(pwaManagerPerson.getId());
       assertThat(pwaAppChargeRequestDetail.getEndedTimestamp()).isNull();
       assertThat(pwaAppChargeRequestDetail.getEndedByPersonId()).isNull();
       assertThat(pwaAppChargeRequestDetail.getTipFlag()).isTrue();
@@ -227,7 +236,7 @@ public class ApplicationChargeRequestServiceTest {
         .addChargeItem("CHARGE_1", 25)
         .addChargeItem("CHARGE_2", 75);
 
-    applicationChargeRequestService.createPwaAppChargeRequest(requestPerson, spec);
+    applicationChargeRequestService.createPwaAppChargeRequest(pwaManagerPerson, spec);
 
     ArgumentCaptor<PwaAppChargeRequest> chargeRequestCaptor = ArgumentCaptor.forClass(PwaAppChargeRequest.class);
     ArgumentCaptor<PwaAppChargeRequestDetail> chargeRequestDetailCaptor = ArgumentCaptor.forClass(
@@ -254,7 +263,7 @@ public class ApplicationChargeRequestServiceTest {
         .setOnPaymentCompleteCaseOfficerPersonId(caseOfficerPerson.getId())
         .addChargeItem("CHARGE_1", 25);
 
-    applicationChargeRequestService.createPwaAppChargeRequest(requestPerson, spec);
+    applicationChargeRequestService.createPwaAppChargeRequest(pwaManagerPerson, spec);
 
   }
 
@@ -267,7 +276,7 @@ public class ApplicationChargeRequestServiceTest {
         .setOnPaymentCompleteCaseOfficerPersonId(caseOfficerPerson.getId())
         .addChargeItem("CHARGE_1", 25);
 
-    applicationChargeRequestService.createPwaAppChargeRequest(requestPerson, spec);
+    applicationChargeRequestService.createPwaAppChargeRequest(pwaManagerPerson, spec);
 
   }
 
@@ -279,7 +288,7 @@ public class ApplicationChargeRequestServiceTest {
         .setTotalPennies(100)
         .setOnPaymentCompleteCaseOfficerPersonId(caseOfficerPerson.getId());
 
-    applicationChargeRequestService.createPwaAppChargeRequest(requestPerson, spec);
+    applicationChargeRequestService.createPwaAppChargeRequest(pwaManagerPerson, spec);
 
   }
 
@@ -292,7 +301,7 @@ public class ApplicationChargeRequestServiceTest {
         .setOnPaymentCompleteCaseOfficerPersonId(caseOfficerPerson.getId())
         .addChargeItem("CHARGE_1", -1);
 
-    applicationChargeRequestService.createPwaAppChargeRequest(requestPerson, spec);
+    applicationChargeRequestService.createPwaAppChargeRequest(pwaManagerPerson, spec);
 
   }
 
@@ -304,7 +313,7 @@ public class ApplicationChargeRequestServiceTest {
         .setOnPaymentCompleteCaseOfficerPersonId(caseOfficerPerson.getId())
         .addChargeItem("CHARGE_1", 100);
 
-    applicationChargeRequestService.createPwaAppChargeRequest(requestPerson, spec);
+    applicationChargeRequestService.createPwaAppChargeRequest(pwaManagerPerson, spec);
 
   }
 
@@ -316,7 +325,7 @@ public class ApplicationChargeRequestServiceTest {
         .setOnPaymentCompleteCaseOfficerPersonId(caseOfficerPerson.getId())
         .addChargeItem("CHARGE_1", 100);
 
-    applicationChargeRequestService.createPwaAppChargeRequest(requestPerson, spec);
+    applicationChargeRequestService.createPwaAppChargeRequest(pwaManagerPerson, spec);
 
   }
 
@@ -329,13 +338,14 @@ public class ApplicationChargeRequestServiceTest {
         .setOnPaymentCompleteCaseOfficerPersonId(caseOfficerPerson.getId())
         .addChargeItem("CHARGE_1", 100);
 
-    applicationChargeRequestService.createPwaAppChargeRequest(requestPerson, spec);
+    applicationChargeRequestService.createPwaAppChargeRequest(pwaManagerPerson, spec);
 
   }
 
   @Test
   public void getApplicationChargeRequestReport_whenNoOpenChargeRequestFound() {
-
+    when(pwaAppChargeRequestDetailRepository.findByPwaAppChargeRequest_PwaApplicationAndPwaAppChargeRequestStatusAndTipFlagIsTrue(any(), any()))
+        .thenReturn(Optional.empty());
     assertThat(applicationChargeRequestService.getApplicationChargeRequestReport(pwaApplication)).isEmpty();
 
   }
@@ -367,8 +377,9 @@ public class ApplicationChargeRequestServiceTest {
 
   @Test(expected = ApplicationChargeException.class)
   public void startChargeRequestPaymentAttempt_noTipRequestDetail() {
-    when(pwaAppChargeRequestDetailRepository.findByPwaAppChargeRequest_PwaApplicationAndTipFlagIsTrue(pwaApplication))
-        .thenReturn(Optional.empty());
+    when(pwaAppChargeRequestDetailRepository.findByPwaAppChargeRequest_PwaApplicationAndPwaAppChargeRequestStatusAndTipFlagIsTrue(
+        pwaApplication, PwaAppChargeRequestStatus.OPEN
+    )).thenReturn(Optional.empty());
 
     applicationChargeRequestService.startChargeRequestPaymentAttempt(
         pwaApplication, paymentAttemptWua
@@ -569,7 +580,7 @@ public class ApplicationChargeRequestServiceTest {
     chargeRequestDetail.setAutoCaseOfficerPersonId(caseOfficerPerson.getId());
 
     when(personService.getPersonById(caseOfficerPerson.getId())).thenReturn(caseOfficerPerson);
-    when(personService.getPersonById(requestPerson.getId())).thenReturn(requestPerson);
+    when(personService.getPersonById(pwaManagerPerson.getId())).thenReturn(pwaManagerPerson);
 
     var attempt = PwaAppChargePaymentAttemptTestUtil.createWithPaymentRequest(chargeRequest, PaymentRequestStatus.PENDING, paymentAttemptPerson);
 
@@ -589,12 +600,16 @@ public class ApplicationChargeRequestServiceTest {
 
     verifyOrder.verify(pwaApplicationDetailService, times(1)).getTipDetail(pwaApplication);
     verifyOrder.verify(pwaAppChargeRequestDetailRepository, times(2)).save(requestDetailArgumentCaptor.capture());
+    verifyOrder.verify(camundaWorkflowService, times(1)).setWorkflowProperty(
+        pwaApplication,
+        PwaAwaitPaymentResult.PAID
+    );
     verifyOrder.verify(camundaWorkflowService, times(1)).completeTask(new WorkflowTaskInstance(
         pwaApplication,
         PwaApplicationWorkflowTask.AWAIT_APPLICATION_PAYMENT
     ));
     verifyOrder.verify(workflowAssignmentService, times(1))
-        .assign(pwaApplication, PwaApplicationWorkflowTask.CASE_OFFICER_REVIEW, caseOfficerPerson, requestPerson);
+        .assign(pwaApplication, PwaApplicationWorkflowTask.CASE_OFFICER_REVIEW, caseOfficerPerson, pwaManagerPerson);
 
     verifyOrder.verify(pwaApplicationDetailService, times(1)).updateStatus(pwaApplicationDetail, PwaApplicationStatus.CASE_OFFICER_REVIEW, paymentAttemptWua);
     verifyOrder.verifyNoMoreInteractions();
@@ -627,4 +642,111 @@ public class ApplicationChargeRequestServiceTest {
     assertThat(applicationChargeRequestService.applicationHasOpenChargeRequest(pwaApplication)).isTrue();
 
   }
+
+
+  @Test
+  public void cancelAppPaymentOutcome_whenChargeRequestOpen_workflowUpdated(){
+
+    var cancelOutcome = applicationChargeRequestService.cancelPaymentRequest(
+        pwaApplication, pwaManagerWua, CANCEL_REASON);
+
+    assertThat(cancelOutcome).isEqualTo(CancelAppPaymentOutcome.CANCELLED);
+
+    verify(camundaWorkflowService, times(1)).setWorkflowProperty(
+        pwaApplication,
+        PwaAwaitPaymentResult.CANCELLED
+    );
+    verify(camundaWorkflowService, times(1)).completeTask(new WorkflowTaskInstance(
+        pwaApplication,
+        PwaApplicationWorkflowTask.AWAIT_APPLICATION_PAYMENT
+    ));
+
+  }
+
+  @Test
+  public void cancelAppPaymentOutcome_whenChargeRequestOpen_chargeRequestStatusUpdated(){
+
+    var cancelOutcome = applicationChargeRequestService.cancelPaymentRequest(
+        pwaApplication, pwaManagerWua, CANCEL_REASON);
+
+    assertThat(cancelOutcome).isEqualTo(CancelAppPaymentOutcome.CANCELLED);
+
+    verify(pwaAppChargeRequestDetailRepository, times(2)).save(requestDetailArgumentCaptor.capture());
+
+    // verify we end the old request detail and set new one as tip.
+    assertThat(requestDetailArgumentCaptor.getAllValues().get(0).getTipFlag()).isFalse();
+    assertThat(requestDetailArgumentCaptor.getAllValues().get(0).getEndedTimestamp()).isEqualTo(clock.instant());
+    assertThat(requestDetailArgumentCaptor.getAllValues().get(0).getEndedByPersonId()).isEqualTo(pwaManagerPerson.getId());
+    assertThat(requestDetailArgumentCaptor.getAllValues().get(0).getPwaAppChargeRequestStatus()).isEqualTo(PwaAppChargeRequestStatus.OPEN);
+
+    assertThat(requestDetailArgumentCaptor.getAllValues().get(1).getTipFlag()).isTrue();
+    assertThat(requestDetailArgumentCaptor.getAllValues().get(1).getChargeCancelledReason()).isEqualTo(CANCEL_REASON);
+    assertThat(requestDetailArgumentCaptor.getAllValues().get(1).getPwaAppChargeRequestStatus()).isEqualTo(PwaAppChargeRequestStatus.CANCELLED);
+    assertThat(requestDetailArgumentCaptor.getAllValues().get(1).getStartedTimestamp()).isEqualTo(clock.instant());
+    assertThat(requestDetailArgumentCaptor.getAllValues().get(1).getStartedByPersonId()).isEqualTo(pwaManagerPerson.getId());
+    assertThat(requestDetailArgumentCaptor.getAllValues().get(1).getEndedTimestamp()).isNull();
+    assertThat(requestDetailArgumentCaptor.getAllValues().get(1).getEndedByPersonId()).isNull();
+
+  }
+
+  @Test
+  public void cancelAppPaymentOutcome_whenChargeRequestOpen_applicationDetailUpdated(){
+
+    var cancelOutcome = applicationChargeRequestService.cancelPaymentRequest(
+        pwaApplication, pwaManagerWua, CANCEL_REASON);
+
+    assertThat(cancelOutcome).isEqualTo(CancelAppPaymentOutcome.CANCELLED);
+
+    verify(pwaApplicationDetailService, times(1)).updateStatus(
+        applicationDetailArgumentCaptor.capture(),
+        eq(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW),
+        eq(pwaManagerWua));
+
+    assertThat(applicationDetailArgumentCaptor.getValue().getInitialReviewApprovedByWuaId()).isNull();
+    assertThat(applicationDetailArgumentCaptor.getValue().getInitialReviewApprovedTimestamp()).isNull();
+  }
+
+  @Test
+  public void cancelAppPaymentOutcome_whenChargeRequestOpen_andIncompletePaymentAttempts_attemptsCancelled(){
+
+    var attempt = PwaAppChargePaymentAttemptTestUtil.createWithPaymentRequest(chargeRequest, PaymentRequestStatus.PENDING, paymentAttemptPerson);
+    when(pwaAppChargePaymentAttemptRepository.findAllByPwaAppChargeRequestAndActiveFlagIsTrue(chargeRequest))
+        .thenReturn(List.of(attempt));
+
+    doAnswer(invocation -> {
+      var request = (PwaPaymentRequest) invocation.getArgument(0);
+      request.setRequestStatus(PaymentRequestStatus.IN_PROGRESS);
+      return invocation;
+    }).when(pwaPaymentService).cancelPayment(
+        any());
+
+    var cancelOutcome = applicationChargeRequestService.cancelPaymentRequest(
+        pwaApplication, pwaManagerWua, CANCEL_REASON);
+
+    assertThat(cancelOutcome).isEqualTo(CancelAppPaymentOutcome.CANCELLED);
+
+    verify(pwaPaymentService, times(1)).cancelPayment(attempt.getPwaPaymentRequest());
+  }
+
+  @Test
+  public void cancelAppPaymentOutcome_whenChargeRequestOpen_andCompletePaymentAttempt_doNotCancelRequest(){
+
+    var attempt = PwaAppChargePaymentAttemptTestUtil.createWithPaymentRequest(chargeRequest, PaymentRequestStatus.PENDING, paymentAttemptPerson);
+    when(pwaAppChargePaymentAttemptRepository.findAllByPwaAppChargeRequestAndActiveFlagIsTrue(chargeRequest))
+        .thenReturn(List.of(attempt));
+
+    doAnswer(invocation -> {
+      var request = (PwaPaymentRequest) invocation.getArgument(0);
+      request.setRequestStatus(PaymentRequestStatus.PAYMENT_COMPLETE);
+      return invocation;
+    }).when(pwaPaymentService).cancelPayment(any());
+
+    var cancelOutcome = applicationChargeRequestService.cancelPaymentRequest(
+        pwaApplication, pwaManagerWua, CANCEL_REASON);
+
+    assertThat(cancelOutcome).isEqualTo(CancelAppPaymentOutcome.NOT_CANCELLED_ALREADY_PAID);
+
+    verify(pwaPaymentService, times(1)).cancelPayment(attempt.getPwaPaymentRequest());
+  }
+
 }

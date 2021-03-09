@@ -33,6 +33,7 @@
     </bpmn:userTask>
     <bpmn:userTask id="applicationReview" name="Initial review" camunda:candidateGroups="PWA_MANAGER">
       <bpmn:incoming>applicantSubmitApplicationToRegulator</bpmn:incoming>
+      <bpmn:incoming>Flow_1q3gtp6</bpmn:incoming>
       <bpmn:outgoing>pwaManagerApproved</bpmn:outgoing>
     </bpmn:userTask>
     <bpmn:userTask id="awaitFeedback" name="Await feedback">
@@ -68,8 +69,11 @@
     <bpmn:userTask id="awaitApplicationPayment" name="Await application payment" camunda:candidateGroups="PWA_MANAGER">
       <bpmn:incoming>flowPaymentRequired</bpmn:incoming>
       <bpmn:outgoing>Flow_0nqtsl7</bpmn:outgoing>
+      <bpmn:outgoing>Flow_1q3gtp6</bpmn:outgoing>
     </bpmn:userTask>
-    <bpmn:sequenceFlow id="Flow_0nqtsl7" name="Payment Received" sourceRef="awaitApplicationPayment" targetRef="caseOfficerReview" />
+    <bpmn:sequenceFlow id="Flow_0nqtsl7" name="Payment Received" sourceRef="awaitApplicationPayment" targetRef="caseOfficerReview">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${awaitApplicationPaymentResult== 'PAID'}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_0sluzej" sourceRef="caseOfficerReview" targetRef="consentReview" />
     <bpmn:userTask id="caseOfficerReview" name="Case officer review" camunda:candidateGroups="CASE_OFFICER">
       <bpmn:incoming>flowPaymentWaived</bpmn:incoming>
@@ -78,18 +82,21 @@
     <bpmn:userTask id="consentReview" name="Consent review" camunda:candidateGroups="PWA_MANAGER">
       <bpmn:incoming>Flow_0sluzej</bpmn:incoming>
     </bpmn:userTask>
+    <bpmn:sequenceFlow id="Flow_1q3gtp6" name="Payment request cancelled" sourceRef="awaitApplicationPayment" targetRef="applicationReview">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${awaitApplicationPaymentResult== 'CANCELLED'}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
     <bpmn:textAnnotation id="TextAnnotation_14uzapn">
       <bpmn:text>Can be active simultaneously with update application task</bpmn:text>
     </bpmn:textAnnotation>
     <bpmn:association id="Association_0iekkla" sourceRef="awaitFeedback" targetRef="TextAnnotation_14uzapn" />
-    <bpmn:textAnnotation id="TextAnnotation_1fiy15w">
-      <bpmn:text>Triggers app update request</bpmn:text>
-    </bpmn:textAnnotation>
-    <bpmn:association id="Association_1wo0vb9" sourceRef="applicationReview" targetRef="TextAnnotation_1fiy15w" />
     <bpmn:textAnnotation id="TextAnnotation_0x1ys7g">
       <bpmn:text>Triggers app update request</bpmn:text>
     </bpmn:textAnnotation>
     <bpmn:association id="Association_0j8wzsy" sourceRef="caseOfficerReview" targetRef="TextAnnotation_0x1ys7g" />
+    <bpmn:textAnnotation id="TextAnnotation_1fiy15w">
+      <bpmn:text>Triggers app update request</bpmn:text>
+    </bpmn:textAnnotation>
+    <bpmn:association id="Association_1wo0vb9" sourceRef="applicationReview" targetRef="TextAnnotation_1fiy15w" />
   </bpmn:process>
   <bpmn:message id="updateApplicationRequest" name="updateApplicationRequest" />
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
@@ -106,8 +113,8 @@
       <bpmndi:BPMNShape id="Lane_0k9ldl3_di" bpmnElement="Lane_0k9ldl3" isHorizontal="true">
         <dc:Bounds x="172" y="80" width="1078" height="320" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="TextAnnotation_0x1ys7g_di" bpmnElement="TextAnnotation_0x1ys7g">
-        <dc:Bounds x="440" y="860" width="113" height="40" />
+      <bpmndi:BPMNShape id="TextAnnotation_1fiy15w_di" bpmnElement="TextAnnotation_1fiy15w">
+        <dc:Bounds x="480" y="430" width="100" height="40" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="Flow_0sluzej_di" bpmnElement="Flow_0sluzej">
         <di:waypoint x="680" y="990" />
@@ -165,6 +172,14 @@
           <dc:Bounds x="750" y="86" width="86" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1q3gtp6_di" bpmnElement="Flow_1q3gtp6">
+        <di:waypoint x="630" y="630" />
+        <di:waypoint x="630" y="509" />
+        <di:waypoint x="450" y="509" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="603" y="567" width="85" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
         <dc:Bounds x="232" y="242" width="36" height="36" />
       </bpmndi:BPMNShape>
@@ -189,21 +204,21 @@
       <bpmndi:BPMNShape id="Activity_1yh73g2_di" bpmnElement="awaitApplicationPayment">
         <dc:Bounds x="580" y="630" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="TextAnnotation_14uzapn_di" bpmnElement="TextAnnotation_14uzapn">
-        <dc:Bounds x="720" y="140" width="100" height="68" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="TextAnnotation_1fiy15w_di" bpmnElement="TextAnnotation_1fiy15w">
-        <dc:Bounds x="500" y="470" width="100" height="40" />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_1ho4iwz_di" bpmnElement="caseOfficerReview">
         <dc:Bounds x="580" y="930" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_18lar1h_di" bpmnElement="consentReview">
         <dc:Bounds x="810" y="630" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNEdge id="Association_0j8wzsy_di" bpmnElement="Association_0j8wzsy">
-        <di:waypoint x="581" y="937" />
-        <di:waypoint x="527" y="900" />
+      <bpmndi:BPMNShape id="TextAnnotation_14uzapn_di" bpmnElement="TextAnnotation_14uzapn">
+        <dc:Bounds x="720" y="140" width="100" height="68" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="TextAnnotation_0x1ys7g_di" bpmnElement="TextAnnotation_0x1ys7g">
+        <dc:Bounds x="440" y="860" width="113" height="40" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Association_1wo0vb9_di" bpmnElement="Association_1wo0vb9">
+        <di:waypoint x="450" y="487" />
+        <di:waypoint x="487" y="470" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="Event_1pkmy66_di" bpmnElement="recieveAppUpdateRequestMessage">
         <dc:Bounds x="662" y="222" width="36" height="36" />
@@ -215,9 +230,9 @@
         <di:waypoint x="680" y="229" />
         <di:waypoint x="720" y="205" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Association_1wo0vb9_di" bpmnElement="Association_1wo0vb9">
-        <di:waypoint x="450" y="503" />
-        <di:waypoint x="500" y="497" />
+      <bpmndi:BPMNEdge id="Association_0j8wzsy_di" bpmnElement="Association_0j8wzsy">
+        <di:waypoint x="581" y="937" />
+        <di:waypoint x="527" y="900" />
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

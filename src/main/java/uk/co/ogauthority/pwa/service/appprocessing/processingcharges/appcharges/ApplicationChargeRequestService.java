@@ -37,6 +37,7 @@ import uk.co.ogauthority.pwa.repository.appprocessing.processingcharges.PwaAppCh
 import uk.co.ogauthority.pwa.repository.appprocessing.processingcharges.PwaAppChargeRequestRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationWorkflowTask;
+import uk.co.ogauthority.pwa.service.enums.workflow.PwaAwaitPaymentResult;
 import uk.co.ogauthority.pwa.service.person.PersonService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
@@ -69,7 +70,6 @@ public class ApplicationChargeRequestService {
   public ApplicationChargeRequestService(PwaAppChargeRequestRepository pwaAppChargeRequestRepository,
                                          PwaAppChargeRequestDetailRepository pwaAppChargeRequestDetailRepository,
                                          PwaAppChargeRequestItemRepository pwaAppChargeRequestItemRepository,
-
                                          PwaAppChargePaymentAttemptRepository pwaAppChargePaymentAttemptRepository,
                                          PwaPaymentService pwaPaymentService,
                                          PwaApplicationDetailService pwaApplicationDetailService,
@@ -200,23 +200,23 @@ public class ApplicationChargeRequestService {
         });
   }
 
-  private PwaAppChargeRequestDetail getTipRequestDetailForApplication(PwaApplication pwaApplication) {
-    return pwaAppChargeRequestDetailRepository.findByPwaAppChargeRequest_PwaApplicationAndTipFlagIsTrue(
-        pwaApplication)
-        .orElseThrow(() -> new ApplicationChargeException(
-            "Expected to find tip charge request detail for app_id:" + pwaApplication.getId()));
+  private PwaAppChargeRequestDetail getTipOpenRequestDetailForApplication(PwaApplication pwaApplication) {
+    return pwaAppChargeRequestDetailRepository.findByPwaAppChargeRequest_PwaApplicationAndPwaAppChargeRequestStatusAndTipFlagIsTrue(
+        pwaApplication, PwaAppChargeRequestStatus.OPEN
+    ).orElseThrow(() -> new ApplicationChargeException(
+        "Expected to find OPEN tip charge request detail for app_id:" + pwaApplication.getId()));
   }
 
   @Transactional
   public CreatePaymentAttemptResult startChargeRequestPaymentAttempt(PwaApplication pwaApplication,
                                                                      WebUserAccount webUserAccount) {
 
-    var tipRequestDetail = getTipRequestDetailForApplication(pwaApplication);
+    var tipOpenRequestDetail = getTipOpenRequestDetailForApplication(pwaApplication);
 
-    if (PwaAppChargeRequestStatus.OPEN.equals(tipRequestDetail.getPwaAppChargeRequestStatus())) {
+    if (PwaAppChargeRequestStatus.OPEN.equals(tipOpenRequestDetail.getPwaAppChargeRequestStatus())) {
 
       var cancelActivePaymentAttemptOutcome = cancelActivePaymentAttempts(
-          tipRequestDetail.getPwaAppChargeRequest(),
+          tipOpenRequestDetail.getPwaAppChargeRequest(),
           webUserAccount.getLinkedPerson()
       );
 
@@ -224,9 +224,9 @@ public class ApplicationChargeRequestService {
         return new CreatePaymentAttemptResult(null, CreatePaymentAttemptResult.AttemptOutcome.COMPLETED_PAYMENT_EXISTS);
       }
 
-      return createCardPaymentOrError(pwaApplication, tipRequestDetail, webUserAccount.getLinkedPerson());
+      return createCardPaymentOrError(pwaApplication, tipOpenRequestDetail, webUserAccount.getLinkedPerson());
 
-    } else if (PwaAppChargeRequestStatus.PAID.equals(tipRequestDetail.getPwaAppChargeRequestStatus())) {
+    } else if (PwaAppChargeRequestStatus.PAID.equals(tipOpenRequestDetail.getPwaAppChargeRequestStatus())) {
       // if we know payment request has already been paid, just return with appropriate result.
       return new CreatePaymentAttemptResult(null, CreatePaymentAttemptResult.AttemptOutcome.COMPLETED_PAYMENT_EXISTS);
     }
@@ -235,7 +235,7 @@ public class ApplicationChargeRequestService {
         String.format(
             "Tried to start a payment on app_id:%s where the current charge request status is not supported. request status:%s",
             pwaApplication.getId(),
-            tipRequestDetail.getPwaAppChargeRequestStatus()
+            tipOpenRequestDetail.getPwaAppChargeRequestStatus()
         )
     );
 
@@ -322,7 +322,8 @@ public class ApplicationChargeRequestService {
   }
 
 
-  private void updatePaymentAttemptFromRequest(PwaAppChargePaymentAttempt pwaAppChargePaymentAttempt, PersonId endedByPersonId) {
+  private void updatePaymentAttemptFromRequest(PwaAppChargePaymentAttempt pwaAppChargePaymentAttempt,
+                                               PersonId endedByPersonId) {
     pwaPaymentService.refreshPwaPaymentRequestData(pwaAppChargePaymentAttempt.getPwaPaymentRequest());
     // set as not active if finished without completed payment.
     if (PaymentRequestStatus.JourneyState.FINISHED.equals(
@@ -342,17 +343,25 @@ public class ApplicationChargeRequestService {
       throw new ApplicationChargeException("Expected tip detail to be provided");
     }
 
+    pwaAppChargeRequestDetail = endAppChargeRequestDetail(pwaAppChargeRequestDetail, person);
+
+    createNewTipChargeRequestDetailFrom(pwaAppChargeRequestDetail, PwaAppChargeRequestStatus.PAID, person, null, null);
+  }
+
+  private PwaAppChargeRequestDetail endAppChargeRequestDetail(PwaAppChargeRequestDetail pwaAppChargeRequestDetail,
+                                                              Person person) {
     pwaAppChargeRequestDetail.setTipFlag(false);
     pwaAppChargeRequestDetail.setEndedByPersonId(person.getId());
     pwaAppChargeRequestDetail.setEndedTimestamp(clock.instant());
-    pwaAppChargeRequestDetail = pwaAppChargeRequestDetailRepository.save(pwaAppChargeRequestDetail);
-
-    createAndSaveNewTipFrom(pwaAppChargeRequestDetail, PwaAppChargeRequestStatus.PAID, person);
+    return pwaAppChargeRequestDetailRepository.save(pwaAppChargeRequestDetail);
   }
 
-  private void createAndSaveNewTipFrom(PwaAppChargeRequestDetail pwaAppChargeRequestDetail,
-                                       PwaAppChargeRequestStatus pwaAppChargeRequestStatus,
-                                       Person person) {
+  private void createNewTipChargeRequestDetailFrom(PwaAppChargeRequestDetail pwaAppChargeRequestDetail,
+                                                   PwaAppChargeRequestStatus pwaAppChargeRequestStatus,
+                                                   Person person,
+                                                   String waivedReason,
+                                                   String cancelledReason
+  ) {
     var newTipDetail = new PwaAppChargeRequestDetail();
     newTipDetail.setPwaAppChargeRequest(pwaAppChargeRequestDetail.getPwaAppChargeRequest());
     newTipDetail.setStartedTimestamp(clock.instant());
@@ -363,7 +372,8 @@ public class ApplicationChargeRequestService {
 
     newTipDetail.setChargeSummary(pwaAppChargeRequestDetail.getChargeSummary());
     newTipDetail.setTotalPennies(pwaAppChargeRequestDetail.getTotalPennies());
-    newTipDetail.setChargeWaivedReason(pwaAppChargeRequestDetail.getChargeWaivedReason());
+    newTipDetail.setChargeWaivedReason(waivedReason);
+    newTipDetail.setChargeCancelledReason(cancelledReason);
     newTipDetail.setAutoCaseOfficerPersonId(pwaAppChargeRequestDetail.getAutoCaseOfficerPersonId());
 
     pwaAppChargeRequestDetailRepository.save(newTipDetail);
@@ -373,7 +383,7 @@ public class ApplicationChargeRequestService {
   public ProcessPaymentAttemptOutcome processPaymentAttempt(PwaAppChargePaymentAttempt pwaAppChargePaymentAttempt,
                                                             WebUserAccount webUserAccount) {
 
-    var tipChargeRequestDetail = getTipRequestDetailForApplication(
+    var tipChargeRequestDetail = getTipOpenRequestDetailForApplication(
         pwaAppChargePaymentAttempt.getPwaAppChargeRequest().getPwaApplication());
 
     var tipAppDetail = pwaApplicationDetailService.getTipDetail(
@@ -401,11 +411,9 @@ public class ApplicationChargeRequestService {
     // Continue processing successful paid attempt not error cases extracted out.
     setChargeRequestPaid(tipChargeRequestDetail, webUserAccount.getLinkedPerson());
 
-    camundaWorkflowService.completeTask(
-        new WorkflowTaskInstance(
-            pwaAppChargePaymentAttempt.getPwaAppChargeRequest().getPwaApplication(),
-            PwaApplicationWorkflowTask.AWAIT_APPLICATION_PAYMENT
-        )
+    completeAwaitingPaymentTaskWithResult(
+        tipChargeRequestDetail.getPwaAppChargeRequest().getPwaApplication(),
+        PwaAwaitPaymentResult.PAID
     );
 
     try {
@@ -431,12 +439,85 @@ public class ApplicationChargeRequestService {
     return ProcessPaymentAttemptOutcome.CHARGE_REQUEST_PAID;
   }
 
+  private void completeAwaitingPaymentTaskWithResult(PwaApplication pwaApplication,
+                                                     PwaAwaitPaymentResult pwaAwaitPaymentResult) {
+    camundaWorkflowService.setWorkflowProperty(pwaApplication,
+        pwaAwaitPaymentResult
+    );
+
+    camundaWorkflowService.completeTask(
+        new WorkflowTaskInstance(
+            pwaApplication,
+            PwaApplicationWorkflowTask.AWAIT_APPLICATION_PAYMENT
+        )
+    );
+
+
+  }
+
+  @Transactional
+  public CancelAppPaymentOutcome cancelPaymentRequest(PwaApplication pwaApplication,
+                                                      WebUserAccount webUserAccount,
+                                                      String cancellationReason) {
+    var paymentRequestTipDetail = getTipOpenRequestDetailForApplication(pwaApplication);
+    // return not cancelled value if detected invalid payment request status
+    if (!paymentRequestTipDetail.getPwaAppChargeRequestStatus().equals(PwaAppChargeRequestStatus.OPEN)) {
+      if (paymentRequestTipDetail.getPwaAppChargeRequestStatus().equals(PwaAppChargeRequestStatus.PAID)) {
+        return CancelAppPaymentOutcome.NOT_CANCELLED_ALREADY_PAID;
+      } else {
+        throw new ApplicationChargeException(String.format(
+            "Cannot cancel non payment request with status:%s for paymentRequestDetailId:%s by wuaId:%s",
+            paymentRequestTipDetail.getPwaAppChargeRequestStatus(),
+            paymentRequestTipDetail.getId(),
+            webUserAccount.getWuaId()
+        ));
+      }
+    }
+
+    var cancelOutcome = cancelActivePaymentAttempts(paymentRequestTipDetail.getPwaAppChargeRequest(), webUserAccount.getLinkedPerson());
+    if (cancelOutcome.equals(CancelActivePaymentAttemptsOutcome.SOME_ATTEMPT_ALREADY_PAID)) {
+      // do not do any additional clean up of payment attempt and charge request here so we do not
+      // invalidate the user journey who has just completed the payment.
+      // In the edge case where the user who paid does not return to the service immediately and progress the application,
+      // then we just wait for the cleanup job to cleanup and progress the workflow.
+      return CancelAppPaymentOutcome.NOT_CANCELLED_ALREADY_PAID;
+    }
+
+    paymentRequestTipDetail = endAppChargeRequestDetail(paymentRequestTipDetail, webUserAccount.getLinkedPerson());
+
+    createNewTipChargeRequestDetailFrom(
+        paymentRequestTipDetail,
+        PwaAppChargeRequestStatus.CANCELLED,
+        webUserAccount.getLinkedPerson(),
+        null,
+        cancellationReason
+    );
+
+    completeAwaitingPaymentTaskWithResult(
+        paymentRequestTipDetail.getPwaAppChargeRequest().getPwaApplication(),
+        PwaAwaitPaymentResult.CANCELLED
+    );
+
+    var pwaApplicationDetail = pwaApplicationDetailService.getTipDetail(
+        paymentRequestTipDetail.getPwaAppChargeRequest().getPwaApplication()
+    );
+
+    // TODO PWA-1168 we need to implement a proper initial review entity now that its possible
+    //  we go through the workflow stage multiple times.
+    pwaApplicationDetail.setInitialReviewApprovedTimestamp(null);
+    pwaApplicationDetail.setInitialReviewApprovedByWuaId(null);
+    pwaApplicationDetailService.updateStatus(pwaApplicationDetail, PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW,
+        webUserAccount);
+
+    // TODO PWA-1140 email app contacts about cancelled payment
+    return CancelAppPaymentOutcome.CANCELLED;
+  }
+
   public boolean applicationHasOpenChargeRequest(PwaApplication pwaApplication) {
     return pwaAppChargeRequestDetailRepository.countByPwaAppChargeRequest_PwaApplicationAndPwaAppChargeRequestStatusAndTipFlagIsTrue(
         pwaApplication,
         PwaAppChargeRequestStatus.OPEN
     ) > 0L;
-
   }
 
   private enum CancelActivePaymentAttemptsOutcome {
