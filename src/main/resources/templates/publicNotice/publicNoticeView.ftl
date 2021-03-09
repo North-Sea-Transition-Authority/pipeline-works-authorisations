@@ -23,6 +23,15 @@
                 ${publicNoticeViewData.status.getDisplayText()}
             </@fdsCheckAnswers.checkAnswersRow>
 
+            <#if publicNoticeViewData.status == "WITHDRAWN">
+                <@fdsCheckAnswers.checkAnswersRow keyText="Withdrawn by" actionText="" actionUrl="" screenReaderActionText="">
+                    ${publicNoticeViewData.withdrawnByPersonName}
+                </@fdsCheckAnswers.checkAnswersRow>
+                <@fdsCheckAnswers.checkAnswersRow keyText="Withdrawn on" actionText="" actionUrl="" screenReaderActionText="">
+                    ${publicNoticeViewData.withdrawnTimestamp}
+                </@fdsCheckAnswers.checkAnswersRow>
+            </#if>
+
         </@fdsCheckAnswers.checkAnswers>    
     </@fdsCheckAnswers.checkAnswersWrapper>
 

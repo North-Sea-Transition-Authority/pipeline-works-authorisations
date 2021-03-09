@@ -51,6 +51,7 @@ import uk.co.ogauthority.pwa.service.fileupload.AppFileService;
 import uk.co.ogauthority.pwa.service.fileupload.FileUpdateMode;
 import uk.co.ogauthority.pwa.service.notify.EmailCaseLinkService;
 import uk.co.ogauthority.pwa.service.notify.NotifyService;
+import uk.co.ogauthority.pwa.service.teammanagement.TeamManagementService;
 import uk.co.ogauthority.pwa.service.teams.PwaTeamService;
 import uk.co.ogauthority.pwa.service.template.TemplateTextService;
 import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
@@ -72,6 +73,7 @@ public class PublicNoticeService implements AppProcessingService {
   private final NotifyService notifyService;
   private final EmailCaseLinkService emailCaseLinkService;
   private final PwaTeamService pwaTeamService;
+  private final TeamManagementService teamManagementService;
 
   private static final AppFilePurpose FILE_PURPOSE = AppFilePurpose.PUBLIC_NOTICE;
   private static final Set<PublicNoticeStatus> ENDED_STATUSES = Set.of(PublicNoticeStatus.ENDED, PublicNoticeStatus.WITHDRAWN);
@@ -88,7 +90,8 @@ public class PublicNoticeService implements AppProcessingService {
       CamundaWorkflowService camundaWorkflowService,
       @Qualifier("utcClock") Clock clock, NotifyService notifyService,
       EmailCaseLinkService emailCaseLinkService,
-      PwaTeamService pwaTeamService) {
+      PwaTeamService pwaTeamService,
+      TeamManagementService teamManagementService) {
     this.templateTextService = templateTextService;
     this.publicNoticeDraftValidator = publicNoticeDraftValidator;
     this.appFileService = appFileService;
@@ -101,6 +104,7 @@ public class PublicNoticeService implements AppProcessingService {
     this.notifyService = notifyService;
     this.emailCaseLinkService = emailCaseLinkService;
     this.pwaTeamService = pwaTeamService;
+    this.teamManagementService = teamManagementService;
   }
 
   @Override
@@ -250,9 +254,19 @@ public class PublicNoticeService implements AppProcessingService {
   private PublicNoticeView createViewFromPublicNotice(PublicNotice publicNotice) {
 
     var publicNoticeRequest = getLatestPublicNoticeRequest(publicNotice);
+    String withdrawingPersonName = null;
+    String withdrawnTimestamp = null;
+
+    if (publicNotice.getStatus().equals(PublicNoticeStatus.WITHDRAWN)) {
+      withdrawingPersonName = teamManagementService.getPerson(publicNotice.getWithdrawingPersonId().asInt()).getFullName();
+      withdrawnTimestamp = DateUtils.formatDate(publicNotice.getWithdrawalTimestamp());
+    }
 
     return new PublicNoticeView(
-        publicNotice.getStatus(), DateUtils.formatDate(publicNoticeRequest.getSubmittedTimestamp()));
+        publicNotice.getStatus(),
+        DateUtils.formatDate(publicNoticeRequest.getSubmittedTimestamp()),
+        withdrawingPersonName,
+        withdrawnTimestamp);
   }
 
   @VisibleForTesting

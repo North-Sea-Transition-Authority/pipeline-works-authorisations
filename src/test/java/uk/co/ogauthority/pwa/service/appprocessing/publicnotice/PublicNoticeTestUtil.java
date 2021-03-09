@@ -2,6 +2,8 @@ package uk.co.ogauthority.pwa.service.appprocessing.publicnotice;
 
 import java.time.Instant;
 import java.util.List;
+import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
+import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeDocumentType;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeRequestReason;
@@ -37,8 +39,21 @@ public final class PublicNoticeTestUtil {
     return new PublicNotice(pwaApplication, PublicNoticeStatus.CASE_OFFICER_REVIEW, VERSION1);
   }
 
-  static PublicNotice createEndedPublicNotice(PwaApplication pwaApplication) {
-    return new PublicNotice(pwaApplication, PublicNoticeStatus.WITHDRAWN, 10);
+  static PublicNotice createWithdrawnPublicNotice(PwaApplication pwaApplication) {
+    var publicNotice = new PublicNotice(pwaApplication, PublicNoticeStatus.WITHDRAWN, 10);
+    publicNotice.setWithdrawingPersonId(new PersonId(1));
+    publicNotice.setWithdrawalReason("my reason");
+    publicNotice.setWithdrawalTimestamp(Instant.now());
+    return publicNotice;
+  }
+
+  static PublicNotice createWithdrawnPublicNotice(PwaApplication pwaApplication,
+                                                  Person withdrawingPerson, String reason, Instant withdrawalTimestamp) {
+    var publicNotice = new PublicNotice(pwaApplication, PublicNoticeStatus.WITHDRAWN, 10);
+    publicNotice.setWithdrawingPersonId(withdrawingPerson.getId());
+    publicNotice.setWithdrawalReason(reason);
+    publicNotice.setWithdrawalTimestamp(withdrawalTimestamp);
+    return publicNotice;
   }
 
   static PublicNoticeDocument createInitialPublicNoticeDocument(PublicNotice publicNotice) {
@@ -93,7 +108,16 @@ public final class PublicNoticeTestUtil {
         DateUtils.formatDate(publicNoticeRequest.getSubmittedTimestamp()));
   }
 
-
+  static PublicNoticeView createWithdrawnPublicNoticeView(PublicNotice publicNotice,
+                                                          String withdrawingUsername,
+                                                          PublicNoticeRequest publicNoticeRequest) {
+    return new PublicNoticeView(
+        publicNotice.getStatus(),
+        DateUtils.formatDate(publicNoticeRequest.getSubmittedTimestamp()),
+        withdrawingUsername,
+        DateUtils.formatDate(publicNotice.getWithdrawalTimestamp())
+    );
+  }
 
 
 

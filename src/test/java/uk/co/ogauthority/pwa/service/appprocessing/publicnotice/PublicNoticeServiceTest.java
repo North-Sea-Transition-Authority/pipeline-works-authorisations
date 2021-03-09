@@ -51,7 +51,6 @@ import uk.co.ogauthority.pwa.repository.publicnotice.PublicNoticeDocumentLinkRep
 import uk.co.ogauthority.pwa.repository.publicnotice.PublicNoticeDocumentRepository;
 import uk.co.ogauthority.pwa.repository.publicnotice.PublicNoticeRepository;
 import uk.co.ogauthority.pwa.repository.publicnotice.PublicNoticeRequestRepository;
-import uk.co.ogauthority.pwa.service.appprocessing.PwaAppProcessingPermissionService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContextTestUtil;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
@@ -61,6 +60,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.fileupload.AppFileService;
 import uk.co.ogauthority.pwa.service.notify.EmailCaseLinkService;
 import uk.co.ogauthority.pwa.service.notify.NotifyService;
+import uk.co.ogauthority.pwa.service.teammanagement.TeamManagementService;
 import uk.co.ogauthority.pwa.service.teams.PwaTeamService;
 import uk.co.ogauthority.pwa.service.template.TemplateTextService;
 import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
@@ -110,7 +110,7 @@ public class PublicNoticeServiceTest {
   private PwaTeamService pwaTeamService;
 
   @Mock
-  private PwaAppProcessingPermissionService pwaAppProcessingPermissionService;
+  private TeamManagementService teamManagementService;
 
   @Captor
   private ArgumentCaptor<PublicNoticeApprovalRequestEmailProps> approvalRequestEmailPropsCaptor;
@@ -151,7 +151,7 @@ public class PublicNoticeServiceTest {
         publicNoticeDocumentRepository,
         publicNoticeDocumentLinkRepository,
         camundaWorkflowService,
-        clock, notifyService, emailCaseLinkService, pwaTeamService);
+        clock, notifyService, emailCaseLinkService, pwaTeamService, teamManagementService);
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     pwaApplication = pwaApplicationDetail.getPwaApplication();
@@ -458,11 +458,11 @@ public class PublicNoticeServiceTest {
   }
 
   @Test
-  public void getAllPublicNoticeViews_currentPublicNoticeAndEndedPublicNotices() {
+  public void getAllPublicNoticeViews_currentPublicNoticeAndEndedPublicNotices_withdrawalPropertiesMatchPublicNotice() {
 
     var currentPublicNotice = PublicNoticeTestUtil.createInitialPublicNotice(pwaApplication);
-    var endedPublicNotice1 = PublicNoticeTestUtil.createEndedPublicNotice(pwaApplication);
-    var endedPublicNotice2 = PublicNoticeTestUtil.createEndedPublicNotice(pwaApplication);
+    var endedPublicNotice1 = PublicNoticeTestUtil.createWithdrawnPublicNotice(pwaApplication);
+    var endedPublicNotice2 = PublicNoticeTestUtil.createWithdrawnPublicNotice(pwaApplication);
     when(publicNoticeRepository.findAllByPwaApplicationOrderByVersionDesc(pwaApplication)).thenReturn(
         List.of(currentPublicNotice, endedPublicNotice1 ,endedPublicNotice2));
 
@@ -476,14 +476,21 @@ public class PublicNoticeServiceTest {
     when(publicNoticeRequestRepository.findFirstByPublicNoticeOrderByVersionDesc(endedPublicNotice2))
         .thenReturn(Optional.of(endedPublicNotice2Request));
 
+    var withdrawingPerson = PersonTestUtil.createDefaultPerson();
+    when(teamManagementService.getPerson(endedPublicNotice1.getWithdrawingPersonId().asInt())).thenReturn(withdrawingPerson);
+    when(teamManagementService.getPerson(endedPublicNotice2.getWithdrawingPersonId().asInt())).thenReturn(withdrawingPerson);
+
 
     var context = PwaAppProcessingContextTestUtil.withPermissions(
         pwaApplicationDetail, Set.of(PwaAppProcessingPermission.APPROVE_PUBLIC_NOTICE));
     var allPublicNoticesView = publicNoticeService.getAllPublicNoticeViews(context);
 
     var expectedCurrentPublicNoticeView = PublicNoticeTestUtil.createPublicNoticeView(currentPublicNotice, currentPublicNoticeRequest);
-    var expectedEndedPublicNotice1View = PublicNoticeTestUtil.createPublicNoticeView(endedPublicNotice1, endedPublicNotice1Request);
-    var expectedEndedPublicNotice2View = PublicNoticeTestUtil.createPublicNoticeView(endedPublicNotice2, endedPublicNotice2Request);
+    var expectedEndedPublicNotice1View = PublicNoticeTestUtil.createWithdrawnPublicNoticeView(
+        endedPublicNotice1, withdrawingPerson.getFullName(), endedPublicNotice1Request);
+    var expectedEndedPublicNotice2View = PublicNoticeTestUtil.createWithdrawnPublicNoticeView(
+        endedPublicNotice2, withdrawingPerson.getFullName(), endedPublicNotice2Request);
+
 
     assertThat(allPublicNoticesView.getCurrentPublicNotice()).isEqualTo(expectedCurrentPublicNoticeView);
     assertThat(allPublicNoticesView.getHistoricalPublicNotices()).containsOnly(expectedEndedPublicNotice1View, expectedEndedPublicNotice2View);
@@ -513,10 +520,10 @@ public class PublicNoticeServiceTest {
   }
 
   @Test
-  public void getAllPublicNoticeViews_onlyEndedPublicNotices() {
+  public void getAllPublicNoticeViews_onlyEndedPublicNotices_withdrawalPropertiesMatchPublicNotice() {
 
-    var endedPublicNotice1 = PublicNoticeTestUtil.createEndedPublicNotice(pwaApplication);
-    var endedPublicNotice2 = PublicNoticeTestUtil.createEndedPublicNotice(pwaApplication);
+    var endedPublicNotice1 = PublicNoticeTestUtil.createWithdrawnPublicNotice(pwaApplication);
+    var endedPublicNotice2 = PublicNoticeTestUtil.createWithdrawnPublicNotice(pwaApplication);
     when(publicNoticeRepository.findAllByPwaApplicationOrderByVersionDesc(pwaApplication)).thenReturn(
         List.of(endedPublicNotice1 ,endedPublicNotice2));
 
@@ -527,16 +534,21 @@ public class PublicNoticeServiceTest {
     when(publicNoticeRequestRepository.findFirstByPublicNoticeOrderByVersionDesc(endedPublicNotice2))
         .thenReturn(Optional.of(endedPublicNotice2Request));
 
+    var withdrawingPerson = PersonTestUtil.createDefaultPerson();
+    when(teamManagementService.getPerson(endedPublicNotice1.getWithdrawingPersonId().asInt())).thenReturn(withdrawingPerson);
+    when(teamManagementService.getPerson(endedPublicNotice2.getWithdrawingPersonId().asInt())).thenReturn(withdrawingPerson);
 
     var context = PwaAppProcessingContextTestUtil.withPermissions(
         pwaApplicationDetail, Set.of(PwaAppProcessingPermission.DRAFT_PUBLIC_NOTICE));
     var allPublicNoticesView = publicNoticeService.getAllPublicNoticeViews(context);
 
-    var expectedEndedPublicNotice1View = PublicNoticeTestUtil.createPublicNoticeView(endedPublicNotice1, endedPublicNotice1Request);
-    var expectedEndedPublicNotice2View = PublicNoticeTestUtil.createPublicNoticeView(endedPublicNotice2, endedPublicNotice2Request);
+    var expectedEndedPublicNotice1View = PublicNoticeTestUtil.createWithdrawnPublicNoticeView(
+        endedPublicNotice1, withdrawingPerson.getFullName(), endedPublicNotice1Request);
+    var expectedEndedPublicNotice2View = PublicNoticeTestUtil.createWithdrawnPublicNoticeView(
+        endedPublicNotice2, withdrawingPerson.getFullName(), endedPublicNotice2Request);
 
     assertThat(allPublicNoticesView.getCurrentPublicNotice()).isNull();
-    assertThat(allPublicNoticesView.getHistoricalPublicNotices()).containsOnly(expectedEndedPublicNotice1View ,expectedEndedPublicNotice2View);
+    assertThat(allPublicNoticesView.getHistoricalPublicNotices()).containsOnly(expectedEndedPublicNotice1View, expectedEndedPublicNotice2View);
     assertThat(allPublicNoticesView.getActions()).containsOnly(PublicNoticeAction.NEW_DRAFT);
   }
 
