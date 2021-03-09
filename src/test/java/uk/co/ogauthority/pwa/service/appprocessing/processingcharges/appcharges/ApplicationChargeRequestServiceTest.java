@@ -367,7 +367,6 @@ public class ApplicationChargeRequestServiceTest {
     assertThat(report.getPwaAppChargeRequestStatus()).isEqualTo(chargeRequestDetail.getPwaAppChargeRequestStatus());
     assertThat(report.getSummary()).isEqualTo(chargeRequestDetail.getChargeSummary());
     assertThat(report.getTotalPennies()).isEqualTo(chargeRequestDetail.getTotalPennies());
-    assertThat(report.getPwaApplication()).isEqualTo(pwaApplication);
     assertThat(report.getWaivedReason()).isNull();
     assertThat(report.getPaymentItems()).containsExactly(new ApplicationChargeItem(
         chargeItem.getDescription(),

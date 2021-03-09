@@ -16,18 +16,18 @@ import uk.co.ogauthority.pwa.util.DateUtils;
 @Service
 public class ApplicationChargeRequestHistoryItemService implements CaseHistoryItemService {
 
-  private static final String STATUS_LABEL = "Request status";
-  private static final String DESCRIPTION_LABEL = "Description";
-  private static final String FORMATTED_TOTAL_LABEL = "Total";
+  static final String STATUS_LABEL = "Request status";
+  static final String DESCRIPTION_LABEL = "Description";
+  static final String FORMATTED_TOTAL_LABEL = "Total";
 
-  private static final String PAID_BY_LABEL = "Paid by";
-  private static final String PAID_BY_EMAIL = "Paid by contact email";
-  private static final String PAID_AT_LABEL = "Paid on";
+  static final String PAID_BY_LABEL = "Paid by";
+  static final String PAID_BY_EMAIL = "Paid by contact email";
+  static final String PAID_AT_LABEL = "Paid on";
 
-  private static final String CANCELLED_BY_LABEL = "Cancelled by";
-  private static final String CANCELLED_BY_EMAIL = "Cancelled by contact email";
-  private static final String CANCELLED_AT_LABEL = "Cancelled on";
-  private static final String CANCELLED_REASON_LABEL = "Cancelled reason";
+  static final String CANCELLED_BY_LABEL = "Cancelled by";
+  static final String CANCELLED_BY_EMAIL = "Cancelled by contact email";
+  static final String CANCELLED_AT_LABEL = "Cancelled on";
+  static final String CANCELLED_REASON_LABEL = "Cancelled reason";
 
   private static final String WAIVED_REASON_LABEL = "Waived reason";
 

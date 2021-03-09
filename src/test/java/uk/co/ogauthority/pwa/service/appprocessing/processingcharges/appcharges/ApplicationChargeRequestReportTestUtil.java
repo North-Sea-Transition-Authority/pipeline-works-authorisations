@@ -21,6 +21,15 @@ public class ApplicationChargeRequestReportTestUtil {
 
   public static ApplicationChargeRequestReport createOpenReport(Integer totalPennies,
                                                                 String summary,
+                                                                Instant requestTime,
+                                                                PersonId requestPersonId,
+                                                                List<ApplicationChargeItem> applicationFeeItems) {
+
+    return createOpenReport(totalPennies, summary, applicationFeeItems, requestTime, requestPersonId);
+  }
+
+  public static ApplicationChargeRequestReport createOpenReport(Integer totalPennies,
+                                                                String summary,
                                                                 List<ApplicationChargeItem> applicationFeeItems,
                                                                 Instant requestedInstant,
                                                                 PersonId requestedBy) {
