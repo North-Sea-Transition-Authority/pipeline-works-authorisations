@@ -34,6 +34,9 @@ import uk.co.ogauthority.pwa.model.teams.PwaTeam;
 import uk.co.ogauthority.pwa.model.teams.PwaTeamMember;
 import uk.co.ogauthority.pwa.model.teams.PwaTeamType;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaOrganisationUserRole;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaRegulatorUserRole;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaUserRole;
 import uk.co.ogauthority.pwa.service.teams.TeamService;
 
 @Service
@@ -340,6 +343,14 @@ public class TeamManagementService {
 
   public boolean isPersonMemberOfTeam(Person person, PwaTeam team) {
     return teamService.isPersonMemberOfTeam(person, team);
+  }
+
+  public List<PwaUserRole> getUserRolesForPwaTeam(PwaTeam pwaTeam) {
+    if (pwaTeam.getType().equals(PwaTeamType.REGULATOR)) {
+      return PwaRegulatorUserRole.stream().collect(Collectors.toList());
+    } else {
+      return PwaOrganisationUserRole.stream().collect(Collectors.toList());
+    }
   }
 
 }

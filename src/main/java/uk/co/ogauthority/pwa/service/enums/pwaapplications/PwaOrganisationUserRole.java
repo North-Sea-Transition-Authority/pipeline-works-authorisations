@@ -6,7 +6,7 @@ import java.util.stream.Stream;
  * Roles associated with organisation users.
  * TODO PWA-1149 this needs to be unified with PwaOrganisationRole.
  */
-public enum PwaOrganisationUserRole {
+public enum PwaOrganisationUserRole implements PwaUserRole {
 
   ACCESS_MANAGER("Access manager", "Can add, update or remove users from your organisation account (Access manager)", 10),
 
@@ -26,14 +26,17 @@ public enum PwaOrganisationUserRole {
     this.displayOrder = displayOrder;
   }
 
+  @Override
   public String getRoleName() {
     return roleName;
   }
 
+  @Override
   public String getRoleDescription() {
     return roleDescription;
   }
 
+  @Override
   public int getDisplayOrder() {
     return displayOrder;
   }

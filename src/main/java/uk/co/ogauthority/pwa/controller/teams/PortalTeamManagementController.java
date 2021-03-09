@@ -30,8 +30,7 @@ import uk.co.ogauthority.pwa.model.teammanagement.TeamView;
 import uk.co.ogauthority.pwa.model.teams.PwaTeam;
 import uk.co.ogauthority.pwa.model.teams.PwaTeamType;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
-import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaOrganisationUserRole;
-import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaRegulatorUserRole;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaUserRole;
 import uk.co.ogauthority.pwa.service.enums.users.UserType;
 import uk.co.ogauthority.pwa.service.teammanagement.AddUserToTeamFormValidator;
 import uk.co.ogauthority.pwa.service.teammanagement.LastAdministratorException;
@@ -59,16 +58,9 @@ public class PortalTeamManagementController {
 
   private Map<String, String> getAllRolesMap(PwaTeam pwaTeam) {
 
-    if (pwaTeam.getType().equals(PwaTeamType.REGULATOR)) {
-      return PwaRegulatorUserRole.stream()
-          .sorted(Comparator.comparing(PwaRegulatorUserRole::getDisplayOrder))
-          .collect(StreamUtils.toLinkedHashMap(PwaRegulatorUserRole::getRoleName, PwaRegulatorUserRole::getRoleDescription));
-
-    } else {
-      return PwaOrganisationUserRole.stream()
-          .sorted(Comparator.comparing(PwaOrganisationUserRole::getDisplayOrder))
-          .collect(StreamUtils.toLinkedHashMap(PwaOrganisationUserRole::getRoleName, PwaOrganisationUserRole::getRoleDescription));
-    }
+    return teamManagementService.getUserRolesForPwaTeam(pwaTeam).stream()
+        .sorted(Comparator.comparing(PwaUserRole::getDisplayOrder))
+        .collect(StreamUtils.toLinkedHashMap(PwaUserRole::getRoleName, PwaUserRole::getRoleDescription));
   }
 
 

@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -36,6 +37,8 @@ import uk.co.ogauthority.pwa.model.teams.PwaRole;
 import uk.co.ogauthority.pwa.model.teams.PwaTeam;
 import uk.co.ogauthority.pwa.model.teams.PwaTeamMember;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaOrganisationUserRole;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaRegulatorUserRole;
 import uk.co.ogauthority.pwa.service.teams.TeamService;
 import uk.co.ogauthority.pwa.testutils.TeamTestingUtils;
 
@@ -421,6 +424,20 @@ public class TeamManagementServiceTest {
     assertThat(teamUserView.getFullName()).isEqualTo(person.getForename() + " " + person.getSurname());
     assertThat(teamUserView.getEditRoute()).isEqualTo(expectedEditRoute);
     assertThat(teamUserView.getRemoveRoute()).isEqualTo(expectedRemoveRoute);
+  }
+
+  @Test
+    public void getUserRolesForPwaTeam_regulatorTeamType() {
+      var pwaTeam = new PwaRegulatorTeam(1, null, null);
+      var userRoles = teamManagementService.getUserRolesForPwaTeam(pwaTeam);
+      assertThat(userRoles).containsAll(PwaRegulatorUserRole.stream().collect(Collectors.toList()));
+  }
+
+  @Test
+    public void getUserRolesForPwaTeam_organisationTeamType() {
+      var pwaTeam = new PwaOrganisationTeam(1, null, null, null);
+      var userRoles = teamManagementService.getUserRolesForPwaTeam(pwaTeam);
+      assertThat(userRoles).containsAll(PwaOrganisationUserRole.stream().collect(Collectors.toList()));
   }
 
 }

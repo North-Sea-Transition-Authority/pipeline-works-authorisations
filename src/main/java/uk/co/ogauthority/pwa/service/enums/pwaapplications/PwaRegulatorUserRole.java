@@ -5,7 +5,7 @@ import java.util.stream.Stream;
 /**
  * Roles associated with PWA regulator team.
  */
-public enum PwaRegulatorUserRole {
+public enum PwaRegulatorUserRole implements PwaUserRole {
 
   CASE_OFFICER("Case Officer", "Process applications and run consultations (Case Officer)", 10),
 
@@ -27,14 +27,17 @@ public enum PwaRegulatorUserRole {
     this.displayOrder = displayOrder;
   }
 
+  @Override
   public String getRoleName() {
     return roleName;
   }
 
+  @Override
   public String getRoleDescription() {
     return roleDescription;
   }
 
+  @Override
   public int getDisplayOrder() {
     return displayOrder;
   }
