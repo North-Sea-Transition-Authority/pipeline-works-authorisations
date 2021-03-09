@@ -112,8 +112,8 @@ public class ApplicationChargeRequestReportTestUtil {
         totalPennies,
         summary,
         List.of(),
-        PwaAppChargeRequestStatus.WAIVED,
-        "WAIVE_REASON",
+        PwaAppChargeRequestStatus.PAID,
+        null,
         null
     );
   }

@@ -3,9 +3,12 @@ package uk.co.ogauthority.pwa.service.appprocessing.casehistory;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
 import org.junit.Before;
@@ -25,6 +28,7 @@ import uk.co.ogauthority.pwa.service.appprocessing.processingcharges.display.App
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.person.PersonService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
+import uk.co.ogauthority.pwa.util.DateUtils;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ApplicationChargeRequestHistoryItemServiceTest {
@@ -98,16 +102,123 @@ public class ApplicationChargeRequestHistoryItemServiceTest {
       assertThat(caseHistoryItemView.getPersonId()).isEqualTo(requesterPersonId);
       assertThat(caseHistoryItemView.getHeaderText()).isNotNull();
 
-      assertStandardDataItems(caseHistoryItemView.getDataItems(), 3);
+      assertStandardDataItems(caseHistoryItemView.getDataItems(), PwaAppChargeRequestStatus.OPEN, 3);
 
     });
   }
 
-  private void assertStandardDataItems(Map<String, String> dataItems, int expectedSize) {
+  @Test
+  public void getCaseHistoryItemViews_whenRequestCancelled() {
+    var cancelledInstant = requestInstant.plus(1, ChronoUnit.DAYS);
+    var applicationChargeRequestReport = ApplicationChargeRequestReportTestUtil.createCancelledReport(
+        PENNIES,
+        SUMMARY,
+        requestInstant,
+        requesterPersonId,
+        cancelledInstant,
+        cancelledByPersonId
+    );
+    when(applicationChargeRequestService.getAllApplicationChargeRequestReportsForApplication(any()))
+        .thenReturn(List.of(applicationChargeRequestReport));
+    var summarisedReport = ApplicationPaymentDisplaySummaryTestUtil.createSimpleSummary(SUMMARY, FORMATTED_AMOUNT);
+    when(applicationPaymentSummariser.summarise(applicationChargeRequestReport)).thenReturn(summarisedReport);
+
+    var caseHistoryItems = caseHistoryService.getCaseHistoryItemViews(pwaApplication);
+
+    assertThat(caseHistoryItems).hasOnlyOneElementSatisfying(caseHistoryItemView -> {
+      assertThat(caseHistoryItemView.getDateTime()).isEqualTo(requestInstant);
+      assertThat(caseHistoryItemView.getPersonId()).isEqualTo(requesterPersonId);
+      assertThat(caseHistoryItemView.getHeaderText()).isNotNull();
+
+      assertStandardDataItems(caseHistoryItemView.getDataItems(), PwaAppChargeRequestStatus.CANCELLED, 7);
+
+      assertThat(caseHistoryItemView.getDataItems())
+          .hasEntrySatisfying(ApplicationChargeRequestHistoryItemService.CANCELLED_AT_LABEL,
+              s -> assertThat(s).isEqualTo(DateUtils.formatDateTime(cancelledInstant)))
+          .hasEntrySatisfying(ApplicationChargeRequestHistoryItemService.CANCELLED_BY_EMAIL,
+              s -> assertThat(s).isEqualTo(fakePerson.getEmailAddress()))
+          .hasEntrySatisfying(ApplicationChargeRequestHistoryItemService.CANCELLED_BY_LABEL,
+              s -> assertThat(s).isEqualTo(fakePerson.getFullName()))
+          .hasEntrySatisfying(ApplicationChargeRequestHistoryItemService.CANCELLED_REASON_LABEL,
+              s -> assertThat(s).isEqualTo(applicationChargeRequestReport.getCancelledReason()));
+
+      verify(personService, times(1)).getPersonById(cancelledByPersonId);
+    });
+  }
+
+  @Test
+  public void getCaseHistoryItemViews_whenRequestWaived() {
+    var cancelledInstant = requestInstant.plus(1, ChronoUnit.DAYS);
+    var applicationChargeRequestReport = ApplicationChargeRequestReportTestUtil.createWaivedReport(
+        PENNIES,
+        SUMMARY,
+        requestInstant,
+        requesterPersonId
+    );
+    when(applicationChargeRequestService.getAllApplicationChargeRequestReportsForApplication(any()))
+        .thenReturn(List.of(applicationChargeRequestReport));
+    var summarisedReport = ApplicationPaymentDisplaySummaryTestUtil.createSimpleSummary(SUMMARY, FORMATTED_AMOUNT);
+    when(applicationPaymentSummariser.summarise(applicationChargeRequestReport)).thenReturn(summarisedReport);
+
+    var caseHistoryItems = caseHistoryService.getCaseHistoryItemViews(pwaApplication);
+
+    assertThat(caseHistoryItems).hasOnlyOneElementSatisfying(caseHistoryItemView -> {
+      assertThat(caseHistoryItemView.getDateTime()).isEqualTo(requestInstant);
+      assertThat(caseHistoryItemView.getPersonId()).isEqualTo(requesterPersonId);
+      assertThat(caseHistoryItemView.getHeaderText()).isNotNull();
+
+      assertStandardDataItems(caseHistoryItemView.getDataItems(), PwaAppChargeRequestStatus.WAIVED, 4);
+
+      assertThat(caseHistoryItemView.getDataItems())
+          .hasEntrySatisfying(ApplicationChargeRequestHistoryItemService.WAIVED_REASON_LABEL,
+              s -> assertThat(s).isEqualTo(applicationChargeRequestReport.getWaivedReason()));
+    });
+
+    verify(personService, times(0)).getPersonById(any());
+  }
+
+  @Test
+  public void getCaseHistoryItemViews_whenRequestPaid() {
+    var paidInstant = requestInstant.plus(1, ChronoUnit.DAYS);
+    var applicationChargeRequestReport = ApplicationChargeRequestReportTestUtil.createPaidReport(
+        PENNIES,
+        SUMMARY,
+        requestInstant,
+        requesterPersonId,
+        paidInstant,
+        paidByPersonId
+    );
+    when(applicationChargeRequestService.getAllApplicationChargeRequestReportsForApplication(any()))
+        .thenReturn(List.of(applicationChargeRequestReport));
+    var summarisedReport = ApplicationPaymentDisplaySummaryTestUtil.createSimpleSummary(SUMMARY, FORMATTED_AMOUNT);
+    when(applicationPaymentSummariser.summarise(applicationChargeRequestReport)).thenReturn(summarisedReport);
+
+    var caseHistoryItems = caseHistoryService.getCaseHistoryItemViews(pwaApplication);
+
+    assertThat(caseHistoryItems).hasOnlyOneElementSatisfying(caseHistoryItemView -> {
+      assertThat(caseHistoryItemView.getDateTime()).isEqualTo(requestInstant);
+      assertThat(caseHistoryItemView.getPersonId()).isEqualTo(requesterPersonId);
+      assertThat(caseHistoryItemView.getHeaderText()).isNotNull();
+
+      assertStandardDataItems(caseHistoryItemView.getDataItems(), PwaAppChargeRequestStatus.PAID, 6);
+
+      assertThat(caseHistoryItemView.getDataItems())
+          .hasEntrySatisfying(ApplicationChargeRequestHistoryItemService.PAID_AT_LABEL,
+              s -> assertThat(s).isEqualTo(DateUtils.formatDateTime(paidInstant)))
+          .hasEntrySatisfying(ApplicationChargeRequestHistoryItemService.PAID_BY_EMAIL,
+              s -> assertThat(s).isEqualTo(fakePerson.getEmailAddress()))
+          .hasEntrySatisfying(ApplicationChargeRequestHistoryItemService.PAID_BY_LABEL,
+              s -> assertThat(s).isEqualTo(fakePerson.getFullName()));
+    });
+
+    verify(personService, times(1)).getPersonById(paidByPersonId);
+  }
+
+  private void assertStandardDataItems(Map<String, String> dataItems, PwaAppChargeRequestStatus status, int expectedSize) {
     assertThat(dataItems)
         .hasSize(expectedSize)
         .hasEntrySatisfying(ApplicationChargeRequestHistoryItemService.STATUS_LABEL,
-            s -> assertThat(s).isEqualTo(PwaAppChargeRequestStatus.OPEN.getDispayString()))
+            s -> assertThat(s).isEqualTo(status.getDispayString()))
         .hasEntrySatisfying(ApplicationChargeRequestHistoryItemService.DESCRIPTION_LABEL,
             s -> assertThat(s).isEqualTo(SUMMARY))
         .hasEntrySatisfying(ApplicationChargeRequestHistoryItemService.FORMATTED_TOTAL_LABEL,

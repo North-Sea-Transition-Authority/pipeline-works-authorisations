@@ -29,7 +29,7 @@ public class ApplicationChargeRequestHistoryItemService implements CaseHistoryIt
   static final String CANCELLED_AT_LABEL = "Cancelled on";
   static final String CANCELLED_REASON_LABEL = "Cancelled reason";
 
-  private static final String WAIVED_REASON_LABEL = "Waived reason";
+  static final String WAIVED_REASON_LABEL = "Waived reason";
 
   private final ApplicationChargeRequestService applicationChargeRequestService;
   private final ApplicationPaymentSummariser applicationPaymentSummariser;
