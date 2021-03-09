@@ -126,7 +126,7 @@ public class CancelPaymentRequestController {
                     String.format(
                         "Cancelled payment request for %s",
                         processingContext.getCaseSummaryView().getPwaApplicationRef()),
-                    "Please complete the initial review to progress the application"
+                    "Complete the initial review to progress the application"
                 );
               } else {
                 FlashUtils.info(
