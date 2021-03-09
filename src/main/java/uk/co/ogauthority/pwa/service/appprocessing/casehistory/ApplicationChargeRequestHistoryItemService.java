@@ -100,7 +100,7 @@ public class ApplicationChargeRequestHistoryItemService implements CaseHistoryIt
         caseHistoryItemBuilder.addDataItem(CANCELLED_REASON_LABEL, applicationChargeRequestReport.getCancelledReason());
         break;
       default:
-        // do nothing, other statuses dont need e
+        // do nothing, other statuses dont need extra data items.
     }
 
   }

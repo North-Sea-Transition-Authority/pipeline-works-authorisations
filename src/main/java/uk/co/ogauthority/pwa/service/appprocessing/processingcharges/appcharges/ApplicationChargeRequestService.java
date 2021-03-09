@@ -496,7 +496,7 @@ public class ApplicationChargeRequestService {
         return CancelAppPaymentOutcome.NOT_CANCELLED_ALREADY_PAID;
       } else {
         throw new ApplicationChargeException(String.format(
-            "Cannot cancel non payment request with status:%s for paymentRequestDetailId:%s by wuaId:%s",
+            "Cannot cancel payment request with status:%s for paymentRequestDetailId:%s by wuaId:%s",
             paymentRequestTipDetail.getPwaAppChargeRequestStatus(),
             paymentRequestTipDetail.getId(),
             webUserAccount.getWuaId()
