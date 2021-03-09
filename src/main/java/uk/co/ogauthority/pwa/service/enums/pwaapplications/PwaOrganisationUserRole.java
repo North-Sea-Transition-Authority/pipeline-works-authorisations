@@ -8,7 +8,7 @@ import java.util.stream.Stream;
  */
 public enum PwaOrganisationUserRole implements PwaUserRole {
 
-  ACCESS_MANAGER("Access manager", "Can add, update or remove users from your organisation account (Access manager)", 10),
+  ACCESS_MANAGER("Team administrator", "Can add, update or remove users from your organisation account (Team administrator)", 10),
 
   APPLICATION_CREATOR("Application creator", "Can create PWA and associated applications (Application creator)", 30),
 
