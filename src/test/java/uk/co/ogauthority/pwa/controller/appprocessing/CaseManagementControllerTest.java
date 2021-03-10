@@ -20,6 +20,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.ogauthority.pwa.controller.PwaAppProcessingContextAbstractControllerTest;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.PwaAppProcessingPermissionService;
+import uk.co.ogauthority.pwa.service.appprocessing.application.ConfirmSatisfactoryApplicationService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContextService;
 import uk.co.ogauthority.pwa.service.appprocessing.tabs.AppProcessingTab;
 import uk.co.ogauthority.pwa.service.appprocessing.tabs.AppProcessingTabService;
@@ -34,6 +35,9 @@ public class CaseManagementControllerTest extends PwaAppProcessingContextAbstrac
 
   @MockBean
   private PwaAppProcessingPermissionService pwaAppProcessingPermissionService;
+
+  @MockBean
+  private ConfirmSatisfactoryApplicationService confirmSatisfactoryApplicationService;
 
   @MockBean
   private AppProcessingTabService appProcessingTabService;

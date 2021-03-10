@@ -11,11 +11,13 @@ import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.controller.appprocessing.shared.PwaAppProcessingPermissionCheck;
 import uk.co.ogauthority.pwa.exception.AccessDeniedException;
+import uk.co.ogauthority.pwa.service.appprocessing.application.ConfirmSatisfactoryApplicationService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.service.appprocessing.tabs.AppProcessingTab;
 import uk.co.ogauthority.pwa.service.appprocessing.tabs.AppProcessingTabService;
 import uk.co.ogauthority.pwa.service.appprocessing.tabs.AppProcessingTabUrlFactory;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
+import uk.co.ogauthority.pwa.service.enums.appprocessing.TaskRequirement;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
@@ -29,10 +31,13 @@ import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 public class CaseManagementController {
 
   private final AppProcessingTabService appProcessingTabService;
+  private final ConfirmSatisfactoryApplicationService confirmSatisfactoryApplicationService;
 
   @Autowired
-  public CaseManagementController(AppProcessingTabService appProcessingTabService) {
+  public CaseManagementController(AppProcessingTabService appProcessingTabService,
+                                  ConfirmSatisfactoryApplicationService confirmSatisfactoryApplicationService) {
     this.appProcessingTabService = appProcessingTabService;
+    this.confirmSatisfactoryApplicationService = confirmSatisfactoryApplicationService;
   }
 
   @GetMapping
@@ -71,8 +76,9 @@ public class CaseManagementController {
         .addObject("availableTabs", availableTabs)
         .addObject("tabUrlFactory", new AppProcessingTabUrlFactory(detail))
         .addObject("processingPermissions", appProcessingContext.getAppProcessingPermissions())
+        .addObject("showConfirmSatisfactoryWarning", confirmSatisfactoryApplicationService.confirmSatisfactoryTaskRequired(detail))
+        .addObject("taskRequirementToShowWarning", TaskRequirement.REQUIRED)
         .addAllObjects(tabContentModelMap);
-
   }
 
 

@@ -12,6 +12,9 @@
 
 <#-- @ftlvariable name="taskListUrl" type="String" -->
 <#-- @ftlvariable name="processingPermissions" type="java.util.Set<uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission> -->
+<#-- @ftlvariable name="showConfirmSatisfactoryWarning" type="java.lang.Boolean" -->
+<#-- @ftlvariable name="taskRequirementToShowWarning" type="uk.co.ogauthority.pwa.service.enums.appprocessing.TaskRequirement -->
+
 
 <#include '../../layout.ftl'>
 <#import 'tabs/tasksTab.ftl' as tasksTab>
@@ -48,17 +51,18 @@
 
       <@fdsBackendTabs.tabContent tabAnchor=tab.anchor currentTab=currentProcessingTab.value tabValue=tab.value>
 
-          <#if tab == "TASKS">
-              <@tasksTab.tab taskListGroups=taskListGroups industryFlag=industryFlag />
-          </#if>
+        <#assign tasksTabWarningText = "This updated application should be confirmed as satisfactory before performing other tasks."/>
+        <#if tab == "TASKS">
+            <@tasksTab.tab taskListGroups=taskListGroups industryFlag=industryFlag warningText=tasksTabWarningText showWarning=showConfirmSatisfactoryWarning taskRequirementToShowWarning=taskRequirementToShowWarning/>
+        </#if>
 
-          <#if tab == "CASE_HISTORY">
-              <@caseHistoryTab.tab caseHistoryItems=caseHistoryItems />
-          </#if>
+        <#if tab == "CASE_HISTORY">
+            <@caseHistoryTab.tab caseHistoryItems=caseHistoryItems />
+        </#if>
 
-          <#if tab == "FIRS">
-              <@firsTab.tab />
-          </#if>
+        <#if tab == "FIRS">
+            <@firsTab.tab />
+        </#if>
 
       </@fdsBackendTabs.tabContent>
 
