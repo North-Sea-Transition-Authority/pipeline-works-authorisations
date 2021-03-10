@@ -1,7 +1,8 @@
-package uk.co.ogauthority.pwa.service.enums.workflow;
+package uk.co.ogauthority.pwa.service.enums.workflow.publicnotice;
 
 import java.util.Arrays;
 import java.util.List;
+import uk.co.ogauthority.pwa.service.enums.workflow.WorkflowProperty;
 
 /**
  * Defines workflow property values associated with a manager approval decision.

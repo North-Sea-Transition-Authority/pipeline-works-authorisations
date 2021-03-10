@@ -23,11 +23,11 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.workflow.WorkflowBusinessKey;
 import uk.co.ogauthority.pwa.service.appprocessing.initialreview.InitialReviewPaymentDecision;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
-import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationConsultationWorkflowTask;
-import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationSubmitResult;
-import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationWorkflowMessageEvents;
-import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationWorkflowTask;
 import uk.co.ogauthority.pwa.service.enums.workflow.WorkflowType;
+import uk.co.ogauthority.pwa.service.enums.workflow.application.PwaApplicationSubmitResult;
+import uk.co.ogauthority.pwa.service.enums.workflow.application.PwaApplicationWorkflowMessageEvents;
+import uk.co.ogauthority.pwa.service.enums.workflow.application.PwaApplicationWorkflowTask;
+import uk.co.ogauthority.pwa.service.enums.workflow.consultation.PwaApplicationConsultationWorkflowTask;
 import uk.co.ogauthority.pwa.service.workflow.task.WorkflowTaskInstance;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 

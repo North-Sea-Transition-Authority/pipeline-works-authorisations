@@ -82,7 +82,7 @@ public class PublicNoticeDocumentUpdateController extends PwaApplicationDataFile
             return modelAndViewSupplier.get();
           }
           throw new AccessDeniedException(
-              "Access denied as there is not an public notice that requires the document to be updated for application with id: " +
+              "Access denied as there is not a public notice that requires the document to be updated for application with id: " +
                   processingContext.getMasterPwaApplicationId());
         });
   }

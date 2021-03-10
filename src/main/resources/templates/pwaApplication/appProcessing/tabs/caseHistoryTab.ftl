@@ -28,12 +28,13 @@
                       </#if>
                 </@fdsDataItems.dataItem>
 
-                <@fdsDataItems.dataItem dataItemListClasses="fds-data-items-list--tight">
-                    <#list item.dataItems as key, value>
-
-                      <@fdsDataItems.dataValues key=key value=value />
+                <#list item.dataItemRows as row>
+                    <@fdsDataItems.dataItem dataItemListClasses="fds-data-items-list--tight">
+                    <#list row.dataItems as key, value>
+                        <@fdsDataItems.dataValues key=key value=value />
                     </#list>
-                </@fdsDataItems.dataItem>
+                    </@fdsDataItems.dataItem>
+                </#list>
 
               <#if item.uploadedFileViews?has_content>
                 <@pwaFiles.uploadedFileList downloadUrl=springUrl(item.fileDownloadUrl) existingFiles=item.uploadedFileViews blockClass="case-history" />

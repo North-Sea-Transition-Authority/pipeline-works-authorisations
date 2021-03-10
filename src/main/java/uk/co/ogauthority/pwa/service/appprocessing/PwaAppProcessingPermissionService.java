@@ -92,6 +92,7 @@ public class PwaAppProcessingPermissionService {
                   || PwaApplicationType.CAT_1_VARIATION.equals(detail.getPwaApplicationType()));
             case DRAFT_PUBLIC_NOTICE:
             case REQUEST_PUBLIC_NOTICE_UPDATE:
+            case WITHDRAW_PUBLIC_NOTICE:
               return userPrivileges.contains(PwaUserPrivilege.PWA_CASE_OFFICER)
                   && appInvolvement.isUserAssignedCaseOfficer()
                   && (PwaApplicationType.INITIAL.equals(detail.getPwaApplicationType())
@@ -108,10 +109,11 @@ public class PwaAppProcessingPermissionService {
             case CONFIRM_SATISFACTORY_APPLICATION:
             case EDIT_CONSULTATIONS:
             case WITHDRAW_CONSULTATION:
-            case EDIT_CONSENT_DOCUMENT:
             case SEND_CONSENT_FOR_APPROVAL:
-              return userPrivileges.contains(
-                  PwaUserPrivilege.PWA_CASE_OFFICER) && appInvolvement.isUserAssignedCaseOfficer();
+              return userPrivileges.contains(PwaUserPrivilege.PWA_CASE_OFFICER) && appInvolvement.isUserAssignedCaseOfficer();
+            case EDIT_CONSENT_DOCUMENT:
+              return (userPrivileges.contains(PwaUserPrivilege.PWA_CASE_OFFICER) && appInvolvement.isUserAssignedCaseOfficer())
+                  || userPrivileges.contains(PwaUserPrivilege.PWA_MANAGER);
             case REQUEST_APPLICATION_UPDATE:
             case WITHDRAW_APPLICATION:
               return (userPrivileges.contains(PwaUserPrivilege.PWA_CASE_OFFICER) && appInvolvement.isUserAssignedCaseOfficer())

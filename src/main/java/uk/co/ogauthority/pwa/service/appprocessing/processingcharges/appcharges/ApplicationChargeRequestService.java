@@ -37,8 +37,8 @@ import uk.co.ogauthority.pwa.repository.appprocessing.processingcharges.PwaAppCh
 import uk.co.ogauthority.pwa.repository.appprocessing.processingcharges.PwaAppChargeRequestItemRepository;
 import uk.co.ogauthority.pwa.repository.appprocessing.processingcharges.PwaAppChargeRequestRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
-import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationWorkflowTask;
 import uk.co.ogauthority.pwa.service.enums.workflow.PwaAwaitPaymentResult;
+import uk.co.ogauthority.pwa.service.enums.workflow.application.PwaApplicationWorkflowTask;
 import uk.co.ogauthority.pwa.service.person.PersonService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;

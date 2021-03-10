@@ -22,8 +22,8 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.PersonTestUtil;
 import uk.co.ogauthority.pwa.model.entity.workflow.assignment.Assignment;
 import uk.co.ogauthority.pwa.model.workflow.GenericWorkflowSubject;
 import uk.co.ogauthority.pwa.repository.workflow.assignment.AssignmentRepository;
-import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationWorkflowTask;
 import uk.co.ogauthority.pwa.service.enums.workflow.WorkflowType;
+import uk.co.ogauthority.pwa.service.enums.workflow.application.PwaApplicationWorkflowTask;
 import uk.co.ogauthority.pwa.service.enums.workflow.assignment.WorkflowAssignment;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -152,6 +152,17 @@ public class AssignmentServiceTest {
     assignmentService.clearAssignments(new GenericWorkflowSubject(1, WorkflowType.PWA_APPLICATION));
 
     verify(assignmentRepository, times(1)).deleteAll(eq(List.of(assignment)));
+
+  }
+
+  @Test
+  public void getAssignments() {
+
+    var workflowSubject = new GenericWorkflowSubject(1, WorkflowType.PWA_APPLICATION);
+    assignmentService.getAssignments(workflowSubject);
+
+    verify(assignmentRepository, times(1))
+        .findByBusinessKeyAndWorkflowType(workflowSubject.getBusinessKey(), workflowSubject.getWorkflowType());
 
   }
 
