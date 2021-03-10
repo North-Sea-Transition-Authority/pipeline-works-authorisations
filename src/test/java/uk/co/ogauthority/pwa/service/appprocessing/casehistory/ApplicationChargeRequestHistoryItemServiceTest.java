@@ -10,7 +10,6 @@ import static org.mockito.Mockito.when;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
-import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -21,6 +20,7 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
 import uk.co.ogauthority.pwa.energyportal.model.entity.PersonTestUtil;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.processingcharges.PwaAppChargeRequestStatus;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
+import uk.co.ogauthority.pwa.model.view.appprocessing.casehistory.DataItemRow;
 import uk.co.ogauthority.pwa.service.appprocessing.processingcharges.appcharges.ApplicationChargeRequestReportTestUtil;
 import uk.co.ogauthority.pwa.service.appprocessing.processingcharges.appcharges.ApplicationChargeRequestService;
 import uk.co.ogauthority.pwa.service.appprocessing.processingcharges.display.ApplicationPaymentDisplaySummaryTestUtil;
@@ -102,7 +102,8 @@ public class ApplicationChargeRequestHistoryItemServiceTest {
       assertThat(caseHistoryItemView.getPersonId()).isEqualTo(requesterPersonId);
       assertThat(caseHistoryItemView.getHeaderText()).isNotNull();
 
-      assertStandardDataItems(caseHistoryItemView.getDataItems(), PwaAppChargeRequestStatus.OPEN, 3);
+      assertStandardDataItems(caseHistoryItemView.getDataItemRows(), PwaAppChargeRequestStatus.OPEN);
+      assertThat(caseHistoryItemView.getDataItemRows()).hasSize(1);
 
     });
   }
@@ -130,15 +131,20 @@ public class ApplicationChargeRequestHistoryItemServiceTest {
       assertThat(caseHistoryItemView.getPersonId()).isEqualTo(requesterPersonId);
       assertThat(caseHistoryItemView.getHeaderText()).isNotNull();
 
-      assertStandardDataItems(caseHistoryItemView.getDataItems(), PwaAppChargeRequestStatus.CANCELLED, 7);
+      assertStandardDataItems(caseHistoryItemView.getDataItemRows(), PwaAppChargeRequestStatus.CANCELLED);
+      assertThat(caseHistoryItemView.getDataItemRows()).hasSize(3);
 
-      assertThat(caseHistoryItemView.getDataItems())
+      assertThat(caseHistoryItemView.getDataItemRows().get(1).getDataItems())
+          .hasSize(3)
           .hasEntrySatisfying(ApplicationChargeRequestHistoryItemService.CANCELLED_AT_LABEL,
               s -> assertThat(s).isEqualTo(DateUtils.formatDateTime(cancelledInstant)))
           .hasEntrySatisfying(ApplicationChargeRequestHistoryItemService.CANCELLED_BY_EMAIL,
               s -> assertThat(s).isEqualTo(fakePerson.getEmailAddress()))
           .hasEntrySatisfying(ApplicationChargeRequestHistoryItemService.CANCELLED_BY_LABEL,
-              s -> assertThat(s).isEqualTo(fakePerson.getFullName()))
+              s -> assertThat(s).isEqualTo(fakePerson.getFullName()));
+
+      assertThat(caseHistoryItemView.getDataItemRows().get(2).getDataItems())
+          .hasSize(1)
           .hasEntrySatisfying(ApplicationChargeRequestHistoryItemService.CANCELLED_REASON_LABEL,
               s -> assertThat(s).isEqualTo(applicationChargeRequestReport.getCancelledReason()));
 
@@ -167,9 +173,11 @@ public class ApplicationChargeRequestHistoryItemServiceTest {
       assertThat(caseHistoryItemView.getPersonId()).isEqualTo(requesterPersonId);
       assertThat(caseHistoryItemView.getHeaderText()).isNotNull();
 
-      assertStandardDataItems(caseHistoryItemView.getDataItems(), PwaAppChargeRequestStatus.WAIVED, 4);
+      assertStandardDataItems(caseHistoryItemView.getDataItemRows(), PwaAppChargeRequestStatus.WAIVED);
+      assertThat(caseHistoryItemView.getDataItemRows()).hasSize(2);
 
-      assertThat(caseHistoryItemView.getDataItems())
+      assertThat(caseHistoryItemView.getDataItemRows().get(1).getDataItems())
+          .hasSize(1)
           .hasEntrySatisfying(ApplicationChargeRequestHistoryItemService.WAIVED_REASON_LABEL,
               s -> assertThat(s).isEqualTo(applicationChargeRequestReport.getWaivedReason()));
     });
@@ -200,9 +208,10 @@ public class ApplicationChargeRequestHistoryItemServiceTest {
       assertThat(caseHistoryItemView.getPersonId()).isEqualTo(requesterPersonId);
       assertThat(caseHistoryItemView.getHeaderText()).isNotNull();
 
-      assertStandardDataItems(caseHistoryItemView.getDataItems(), PwaAppChargeRequestStatus.PAID, 6);
+      assertStandardDataItems(caseHistoryItemView.getDataItemRows(), PwaAppChargeRequestStatus.PAID);
 
-      assertThat(caseHistoryItemView.getDataItems())
+      assertThat(caseHistoryItemView.getDataItemRows().get(1).getDataItems())
+          .hasSize(3)
           .hasEntrySatisfying(ApplicationChargeRequestHistoryItemService.PAID_AT_LABEL,
               s -> assertThat(s).isEqualTo(DateUtils.formatDateTime(paidInstant)))
           .hasEntrySatisfying(ApplicationChargeRequestHistoryItemService.PAID_BY_EMAIL,
@@ -214,9 +223,9 @@ public class ApplicationChargeRequestHistoryItemServiceTest {
     verify(personService, times(1)).getPersonById(paidByPersonId);
   }
 
-  private void assertStandardDataItems(Map<String, String> dataItems, PwaAppChargeRequestStatus status, int expectedSize) {
-    assertThat(dataItems)
-        .hasSize(expectedSize)
+  private void assertStandardDataItems(List<DataItemRow> dataItemRows, PwaAppChargeRequestStatus status) {
+    assertThat(dataItemRows.get(0).getDataItems())
+        .hasSize(3)
         .hasEntrySatisfying(ApplicationChargeRequestHistoryItemService.STATUS_LABEL,
             s -> assertThat(s).isEqualTo(status.getDispayString()))
         .hasEntrySatisfying(ApplicationChargeRequestHistoryItemService.DESCRIPTION_LABEL,

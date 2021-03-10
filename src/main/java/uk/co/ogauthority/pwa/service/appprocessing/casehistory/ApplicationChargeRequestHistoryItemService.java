@@ -1,5 +1,10 @@
 package uk.co.ogauthority.pwa.service.appprocessing.casehistory;
 
+import static uk.co.ogauthority.pwa.model.entity.appprocessing.processingcharges.PwaAppChargeRequestStatus.CANCELLED;
+import static uk.co.ogauthority.pwa.model.entity.appprocessing.processingcharges.PwaAppChargeRequestStatus.PAID;
+import static uk.co.ogauthority.pwa.model.entity.appprocessing.processingcharges.PwaAppChargeRequestStatus.WAIVED;
+
+import java.util.EnumSet;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -78,6 +83,10 @@ public class ApplicationChargeRequestHistoryItemService implements CaseHistoryIt
     caseHistoryItemBuilder.addDataItem(DESCRIPTION_LABEL, summarisedReport.getHeadlineSummary());
     caseHistoryItemBuilder.addDataItem(FORMATTED_TOTAL_LABEL, summarisedReport.getFormattedAmount());
 
+    if (EnumSet.of(WAIVED, PAID, CANCELLED).contains(applicationChargeRequestReport.getPwaAppChargeRequestStatus())) {
+      caseHistoryItemBuilder.addDataItemRow();
+    }
+
     switch (applicationChargeRequestReport.getPwaAppChargeRequestStatus()) {
       case WAIVED:
         caseHistoryItemBuilder.addDataItem(WAIVED_REASON_LABEL, applicationChargeRequestReport.getWaivedReason());
@@ -97,6 +106,7 @@ public class ApplicationChargeRequestHistoryItemService implements CaseHistoryIt
             DateUtils.formatDateTime(applicationChargeRequestReport.getLastUpdatedInstant()));
         caseHistoryItemBuilder.addDataItem(CANCELLED_BY_LABEL, cancelledByPerson.getFullName());
         caseHistoryItemBuilder.addDataItem(CANCELLED_BY_EMAIL, cancelledByPerson.getEmailAddress());
+        caseHistoryItemBuilder.addDataItemRow();
         caseHistoryItemBuilder.addDataItem(CANCELLED_REASON_LABEL, applicationChargeRequestReport.getCancelledReason());
         break;
       default:
