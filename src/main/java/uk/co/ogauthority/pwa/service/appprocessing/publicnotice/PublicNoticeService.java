@@ -53,7 +53,7 @@ import uk.co.ogauthority.pwa.service.fileupload.AppFileService;
 import uk.co.ogauthority.pwa.service.fileupload.FileUpdateMode;
 import uk.co.ogauthority.pwa.service.notify.EmailCaseLinkService;
 import uk.co.ogauthority.pwa.service.notify.NotifyService;
-import uk.co.ogauthority.pwa.service.teammanagement.TeamManagementService;
+import uk.co.ogauthority.pwa.service.person.PersonService;
 import uk.co.ogauthority.pwa.service.teams.PwaTeamService;
 import uk.co.ogauthority.pwa.service.template.TemplateTextService;
 import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
@@ -75,7 +75,7 @@ public class PublicNoticeService implements AppProcessingService {
   private final NotifyService notifyService;
   private final EmailCaseLinkService emailCaseLinkService;
   private final PwaTeamService pwaTeamService;
-  private final TeamManagementService teamManagementService;
+  private final PersonService personService;
 
   private static final AppFilePurpose FILE_PURPOSE = AppFilePurpose.PUBLIC_NOTICE;
   private static final Set<PublicNoticeStatus> ENDED_STATUSES = Set.of(PublicNoticeStatus.ENDED, PublicNoticeStatus.WITHDRAWN);
@@ -93,7 +93,7 @@ public class PublicNoticeService implements AppProcessingService {
       @Qualifier("utcClock") Clock clock, NotifyService notifyService,
       EmailCaseLinkService emailCaseLinkService,
       PwaTeamService pwaTeamService,
-      TeamManagementService teamManagementService) {
+      PersonService personService) {
     this.templateTextService = templateTextService;
     this.publicNoticeDraftValidator = publicNoticeDraftValidator;
     this.appFileService = appFileService;
@@ -106,7 +106,7 @@ public class PublicNoticeService implements AppProcessingService {
     this.notifyService = notifyService;
     this.emailCaseLinkService = emailCaseLinkService;
     this.pwaTeamService = pwaTeamService;
-    this.teamManagementService = teamManagementService;
+    this.personService = personService;
   }
 
   @Override
@@ -262,7 +262,7 @@ public class PublicNoticeService implements AppProcessingService {
     String withdrawnTimestamp = null;
 
     if (publicNotice.getStatus().equals(PublicNoticeStatus.WITHDRAWN)) {
-      withdrawingPersonName = teamManagementService.getPerson(publicNotice.getWithdrawingPersonId().asInt()).getFullName();
+      withdrawingPersonName = personService.getPersonById(publicNotice.getWithdrawingPersonId()).getFullName();
       withdrawnTimestamp = DateUtils.formatDate(publicNotice.getWithdrawalTimestamp());
     }
 

@@ -62,7 +62,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.fileupload.AppFileService;
 import uk.co.ogauthority.pwa.service.notify.EmailCaseLinkService;
 import uk.co.ogauthority.pwa.service.notify.NotifyService;
-import uk.co.ogauthority.pwa.service.teammanagement.TeamManagementService;
+import uk.co.ogauthority.pwa.service.person.PersonService;
 import uk.co.ogauthority.pwa.service.teams.PwaTeamService;
 import uk.co.ogauthority.pwa.service.template.TemplateTextService;
 import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
@@ -112,7 +112,7 @@ public class PublicNoticeServiceTest {
   private PwaTeamService pwaTeamService;
 
   @Mock
-  private TeamManagementService teamManagementService;
+  private PersonService personService;
 
   @Captor
   private ArgumentCaptor<PublicNoticeApprovalRequestEmailProps> approvalRequestEmailPropsCaptor;
@@ -153,7 +153,7 @@ public class PublicNoticeServiceTest {
         publicNoticeDocumentRepository,
         publicNoticeDocumentLinkRepository,
         camundaWorkflowService,
-        clock, notifyService, emailCaseLinkService, pwaTeamService, teamManagementService);
+        clock, notifyService, emailCaseLinkService, pwaTeamService, personService);
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     pwaApplication = pwaApplicationDetail.getPwaApplication();
@@ -489,8 +489,8 @@ public class PublicNoticeServiceTest {
         .thenReturn(Optional.of(endedPublicNotice2Request));
 
     var withdrawingPerson = PersonTestUtil.createDefaultPerson();
-    when(teamManagementService.getPerson(endedPublicNotice1.getWithdrawingPersonId().asInt())).thenReturn(withdrawingPerson);
-    when(teamManagementService.getPerson(endedPublicNotice2.getWithdrawingPersonId().asInt())).thenReturn(withdrawingPerson);
+    when(personService.getPersonById(endedPublicNotice1.getWithdrawingPersonId())).thenReturn(withdrawingPerson);
+    when(personService.getPersonById(endedPublicNotice2.getWithdrawingPersonId())).thenReturn(withdrawingPerson);
 
 
     var context = PwaAppProcessingContextTestUtil.withPermissions(
@@ -570,8 +570,8 @@ public class PublicNoticeServiceTest {
         .thenReturn(Optional.of(endedPublicNotice2Request));
 
     var withdrawingPerson = PersonTestUtil.createDefaultPerson();
-    when(teamManagementService.getPerson(endedPublicNotice1.getWithdrawingPersonId().asInt())).thenReturn(withdrawingPerson);
-    when(teamManagementService.getPerson(endedPublicNotice2.getWithdrawingPersonId().asInt())).thenReturn(withdrawingPerson);
+    when(personService.getPersonById(endedPublicNotice1.getWithdrawingPersonId())).thenReturn(withdrawingPerson);
+    when(personService.getPersonById(endedPublicNotice2.getWithdrawingPersonId())).thenReturn(withdrawingPerson);
 
     var context = PwaAppProcessingContextTestUtil.withPermissions(
         pwaApplicationDetail, Set.of(PwaAppProcessingPermission.DRAFT_PUBLIC_NOTICE));

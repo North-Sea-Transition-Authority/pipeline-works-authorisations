@@ -85,7 +85,7 @@ public class WithdrawPublicNoticeService {
     publicNotice.setWithdrawalReason(form.getWithdrawalReason());
     publicNotice.setWithdrawalTimestamp(clock.instant());
     publicNotice.setWithdrawingPersonId(authenticatedUserAccount.getLinkedPerson().getId());
-    publicNotice = publicNoticeService.savePublicNotice(publicNotice);
+    publicNoticeService.savePublicNotice(publicNotice);
 
     var emailRecipients = new ArrayList<Person>();
     var statusesDeterminingPublicNoticeWasSentToApplicant = Set.of(
