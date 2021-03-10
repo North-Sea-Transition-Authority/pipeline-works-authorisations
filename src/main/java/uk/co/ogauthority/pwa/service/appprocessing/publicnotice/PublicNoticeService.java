@@ -4,6 +4,7 @@ import com.google.common.annotations.VisibleForTesting;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -264,24 +265,30 @@ public class PublicNoticeService implements AppProcessingService {
                                                           PwaAppProcessingContext pwaAppProcessingContext) {
 
     var processingPermissions = pwaAppProcessingContext.getAppProcessingPermissions();
+    Set<PublicNoticeAction> publicNoticeActions = new HashSet<>();
 
     if (processingPermissions.contains(PwaAppProcessingPermission.DRAFT_PUBLIC_NOTICE) && publicNoticeStatus == null) {
-      return Set.of(PublicNoticeAction.NEW_DRAFT);
+      publicNoticeActions.add(PublicNoticeAction.NEW_DRAFT);
 
     } else if (processingPermissions.contains(PwaAppProcessingPermission.DRAFT_PUBLIC_NOTICE)
         && PublicNoticeStatus.DRAFT.equals(publicNoticeStatus)) {
-      return Set.of(PublicNoticeAction.UPDATE_DRAFT);
+      publicNoticeActions.add(PublicNoticeAction.UPDATE_DRAFT);
 
     } else if (processingPermissions.contains(PwaAppProcessingPermission.APPROVE_PUBLIC_NOTICE)
         && PublicNoticeStatus.MANAGER_APPROVAL.equals(publicNoticeStatus)) {
-      return Set.of(PublicNoticeAction.APPROVE);
+      publicNoticeActions.add(PublicNoticeAction.APPROVE);
 
     } else if (processingPermissions.contains(PwaAppProcessingPermission.REQUEST_PUBLIC_NOTICE_UPDATE)
         && PublicNoticeStatus.CASE_OFFICER_REVIEW.equals(publicNoticeStatus)) {
-      return Set.of(PublicNoticeAction.REQUEST_DOCUMENT_UPDATE);
+      publicNoticeActions.add(PublicNoticeAction.REQUEST_DOCUMENT_UPDATE);
     }
 
-    return Set.of();
+    if (processingPermissions.contains(PwaAppProcessingPermission.WITHDRAW_PUBLIC_NOTICE)
+        && publicNoticeStatus != null && !ENDED_STATUSES.contains(publicNoticeStatus)) {
+      publicNoticeActions.add(PublicNoticeAction.WITHDRAW);
+    }
+
+    return publicNoticeActions;
   }
 
 
