@@ -19,7 +19,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.workflow.assignment.Assignment;
 import uk.co.ogauthority.pwa.model.entity.workflow.assignment.AssignmentAudit;
 import uk.co.ogauthority.pwa.repository.workflow.assignment.AssignmentAuditRepository;
-import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationWorkflowTask;
+import uk.co.ogauthority.pwa.service.enums.workflow.application.PwaApplicationWorkflowTask;
 import uk.co.ogauthority.pwa.service.enums.workflow.assignment.WorkflowAssignment;
 
 @RunWith(MockitoJUnitRunner.class)

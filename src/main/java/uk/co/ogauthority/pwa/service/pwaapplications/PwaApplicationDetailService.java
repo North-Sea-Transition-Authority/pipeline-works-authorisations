@@ -312,4 +312,8 @@ public class PwaApplicationDetailService {
         .collect(Collectors.toList());
   }
 
+  public List<PwaApplicationDetail> getAllDetailsForApplication(PwaApplication pwaApplication) {
+    return pwaApplicationDetailRepository.findByPwaApplication(pwaApplication);
+  }
+
 }

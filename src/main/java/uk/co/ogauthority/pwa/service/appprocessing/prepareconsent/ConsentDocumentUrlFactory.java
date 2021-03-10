@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.service.appprocessing.prepareconsent;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import uk.co.ogauthority.pwa.controller.appprocessing.prepareconsent.AppConsentDocController;
+import uk.co.ogauthority.pwa.controller.appprocessing.prepareconsent.ConsentReviewController;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 
@@ -37,6 +38,16 @@ public class ConsentDocumentUrlFactory {
   public String getDownloadUrl() {
     return ReverseRouter.route(on(AppConsentDocController.class)
         .downloadPdf(application.getId(), application.getApplicationType(), null, null));
+  }
+
+  public String getReturnToCaseOfficerUrl() {
+    return ReverseRouter.route(on(ConsentReviewController.class)
+        .renderReturnToCaseOfficer(application.getId(), application.getApplicationType(), null, null, null));
+  }
+
+  public String getIssueConsentUrl() {
+    return ReverseRouter.route(on(ConsentReviewController.class)
+        .renderIssueConsent(application.getId(), application.getApplicationType(), null, null));
   }
 
 }

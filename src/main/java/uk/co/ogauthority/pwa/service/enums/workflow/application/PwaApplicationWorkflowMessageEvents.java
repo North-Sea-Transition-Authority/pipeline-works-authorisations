@@ -1,4 +1,6 @@
-package uk.co.ogauthority.pwa.service.enums.workflow;
+package uk.co.ogauthority.pwa.service.enums.workflow.application;
+
+import uk.co.ogauthority.pwa.service.enums.workflow.WorkflowType;
 
 public enum PwaApplicationWorkflowMessageEvents {
 

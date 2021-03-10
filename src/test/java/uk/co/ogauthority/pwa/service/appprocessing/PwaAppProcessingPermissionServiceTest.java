@@ -307,6 +307,22 @@ public class PwaAppProcessingPermissionServiceTest {
   }
 
   @Test
+  public void getAppProcessingPermissions_hasEditConsentDocumentPermission_pwaManager() {
+
+    replacePrivileges(user, PwaUserPrivilege.PWA_MANAGER);
+
+    var appInvolvement = ApplicationInvolvementDtoTestUtil.fromInvolvementFlags(
+        application,
+        EnumSet.noneOf(ApplicationInvolvementDtoTestUtil.InvolvementFlag.class)
+    );
+    when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
+
+    var permissions = processingPermissionService.getProcessingPermissionsDto(detail, user).getProcessingPermissions();
+    AssertionTestUtils.assertNotEmptyAndContains(permissions, PwaAppProcessingPermission.EDIT_CONSENT_DOCUMENT);
+
+  }
+
+  @Test
   public void getAppPermissions_hasUpdateApplicationPermission_isContact_Preparer() {
 
     var appInvolvement = ApplicationInvolvementDtoTestUtil.generatePwaContactInvolvement(

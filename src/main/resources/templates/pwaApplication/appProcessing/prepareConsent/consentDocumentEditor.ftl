@@ -1,5 +1,7 @@
 <#include '../../../layoutPane.ftl'>
 
+<#import 'consentDocumentEditorActions.ftl' as consentActions>
+
 <#-- @ftlvariable name="caseSummaryView" type="uk.co.ogauthority.pwa.service.appprocessing.context.CaseSummaryView" -->
 <#-- @ftlvariable name="docInstanceExists" type="java.lang.Boolean" -->
 <#-- @ftlvariable name="consentDocumentUrlFactory" type="uk.co.ogauthority.pwa.service.appprocessing.prepareconsent.ConsentDocumentUrlFactory" -->
@@ -31,13 +33,7 @@
 
       <#else>
 
-          <#if userProcessingPermissions?seq_contains("SEND_CONSENT_FOR_APPROVAL")>
-            <@fdsAction.link linkText="Send for approval" linkUrl=springUrl(consentDocumentUrlFactory.sendForApprovalUrl) linkClass="govuk-button govuk-button--green" />
-          </#if>
-
-          <@fdsAction.link linkText="Preview document" linkUrl=springUrl(consentDocumentUrlFactory.downloadUrl) linkClass="govuk-button govuk-button--blue" />
-
-          <@fdsAction.link linkText="Reload document" linkUrl=springUrl(consentDocumentUrlFactory.reloadDocumentUrl) linkClass="govuk-button govuk-button--secondary" />
+          <@consentActions.actions userProcessingPermissions consentDocumentUrlFactory />
 
       </#if>
 

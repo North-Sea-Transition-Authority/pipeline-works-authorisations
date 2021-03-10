@@ -1,4 +1,6 @@
-package uk.co.ogauthority.pwa.service.enums.workflow;
+package uk.co.ogauthority.pwa.service.enums.workflow.application;
+
+import uk.co.ogauthority.pwa.service.enums.workflow.WorkflowProperty;
 
 /**
  * When an application is being prepared, what values can be set on the workflow?
