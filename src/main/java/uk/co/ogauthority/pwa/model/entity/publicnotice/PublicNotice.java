@@ -1,6 +1,9 @@
 package uk.co.ogauthority.pwa.model.entity.publicnotice;
 
+import java.time.Instant;
 import java.util.Objects;
+import javax.persistence.Basic;
+import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -10,6 +13,8 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
+import uk.co.ogauthority.pwa.model.entity.converters.PersonIdConverter;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeStatus;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.service.enums.workflow.WorkflowSubject;
@@ -32,6 +37,16 @@ public class PublicNotice implements WorkflowSubject {
   private PublicNoticeStatus status;
 
   private Integer version;
+
+  private Instant withdrawalTimestamp;
+
+  private String withdrawalReason;
+
+  @Basic
+  @Convert(converter = PersonIdConverter.class)
+  private PersonId withdrawingPersonId;
+
+
 
   public PublicNotice() {
   }
@@ -75,6 +90,29 @@ public class PublicNotice implements WorkflowSubject {
     this.version = version;
   }
 
+  public Instant getWithdrawalTimestamp() {
+    return withdrawalTimestamp;
+  }
+
+  public void setWithdrawalTimestamp(Instant withdrawalTimestamp) {
+    this.withdrawalTimestamp = withdrawalTimestamp;
+  }
+
+  public String getWithdrawalReason() {
+    return withdrawalReason;
+  }
+
+  public void setWithdrawalReason(String withdrawalReason) {
+    this.withdrawalReason = withdrawalReason;
+  }
+
+  public PersonId getWithdrawingPersonId() {
+    return withdrawingPersonId;
+  }
+
+  public void setWithdrawingPersonId(PersonId withdrawingPersonId) {
+    this.withdrawingPersonId = withdrawingPersonId;
+  }
 
   @Override
   public Integer getBusinessKey() {
@@ -99,11 +137,14 @@ public class PublicNotice implements WorkflowSubject {
     return Objects.equals(id, that.id)
         && Objects.equals(pwaApplication, that.pwaApplication)
         && status == that.status
-        && Objects.equals(version, that.version);
+        && Objects.equals(version, that.version)
+        && Objects.equals(withdrawalTimestamp, that.withdrawalTimestamp)
+        && Objects.equals(withdrawalReason, that.withdrawalReason)
+        && Objects.equals(withdrawingPersonId, that.withdrawingPersonId);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, pwaApplication, status, version);
+    return Objects.hash(id, pwaApplication, status, version, withdrawalTimestamp, withdrawalReason, withdrawingPersonId);
   }
 }

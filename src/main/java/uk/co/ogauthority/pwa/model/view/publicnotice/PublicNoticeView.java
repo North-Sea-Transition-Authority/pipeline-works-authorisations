@@ -9,11 +9,29 @@ public class PublicNoticeView {
   private final PublicNoticeStatus status;
   private final String submittedTimestamp;
   private final String latestDocumentComments;
+  private final String withdrawnByPersonName;
+  private final String withdrawnTimestamp;
 
-  public PublicNoticeView(PublicNoticeStatus status, String submittedTimestamp, String latestDocumentComments) {
+
+  //constructor for only the fields that are required as a minimum for a public notice view
+  public PublicNoticeView(PublicNoticeStatus status, String submittedTimestamp) {
+    this.status = status;
+    this.submittedTimestamp = submittedTimestamp;
+    this.latestDocumentComments = null;
+    this.withdrawnByPersonName = null;
+    this.withdrawnTimestamp = null;
+  }
+
+  public PublicNoticeView(PublicNoticeStatus status,
+                          String submittedTimestamp,
+                          String latestDocumentComments,
+                          String withdrawnByPersonName,
+                          String withdrawnTimestamp) {
     this.status = status;
     this.submittedTimestamp = submittedTimestamp;
     this.latestDocumentComments = latestDocumentComments;
+    this.withdrawnByPersonName = withdrawnByPersonName;
+    this.withdrawnTimestamp = withdrawnTimestamp;
   }
 
 
@@ -23,6 +41,14 @@ public class PublicNoticeView {
 
   public String getSubmittedTimestamp() {
     return submittedTimestamp;
+  }
+
+  public String getWithdrawnByPersonName() {
+    return withdrawnByPersonName;
+  }
+
+  public String getWithdrawnTimestamp() {
+    return withdrawnTimestamp;
   }
 
   public String getLatestDocumentComments() {
@@ -40,11 +66,13 @@ public class PublicNoticeView {
     PublicNoticeView that = (PublicNoticeView) o;
     return status == that.status
         && Objects.equals(submittedTimestamp, that.submittedTimestamp)
-        && Objects.equals(latestDocumentComments, that.latestDocumentComments);
+        && Objects.equals(latestDocumentComments, that.latestDocumentComments)
+        && Objects.equals(withdrawnByPersonName, that.withdrawnByPersonName)
+        && Objects.equals(withdrawnTimestamp, that.withdrawnTimestamp);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(status, submittedTimestamp,latestDocumentComments);
+    return Objects.hash(status, submittedTimestamp, latestDocumentComments, withdrawnByPersonName, withdrawnTimestamp);
   }
 }

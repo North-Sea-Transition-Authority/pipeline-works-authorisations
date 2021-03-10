@@ -20,12 +20,7 @@
   </#if>
 
   <#if allPublicNoticesView.currentPublicNotice?has_content>
-    <#list existingPublicNoticeActions as publicNoticeAction>
-      <#if allPublicNoticesView.actions?seq_contains(publicNoticeAction)>
-        <@fdsAction.link linkText=publicNoticeAction.getDisplayText() linkUrl=springUrl(actionUrlMap[publicNoticeAction.name()]) linkClass="govuk-link" role=false start=false /> &nbsp;
-      </#if>
-    </#list>
-    <@publicNoticeView publicNoticeViewData=allPublicNoticesView.currentPublicNotice/>
+    <@publicNoticeView publicNoticeViewData=allPublicNoticesView.currentPublicNotice existingPublicNoticeActions=existingPublicNoticeActions publicNoticeActions=allPublicNoticesView.actions/>
   </#if>
 
   <#if (allPublicNoticesView.historicalPublicNotices?size > 0)>
