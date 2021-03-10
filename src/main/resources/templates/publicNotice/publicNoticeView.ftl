@@ -1,10 +1,12 @@
 <#include '../layout.ftl'>
 
 <#-- @ftlvariable name="publicNoticeViewData" type="uk.co.ogauthority.pwa.model.view.publicnotice.PublicNoticeView" -->
+<#-- @ftlvariable name="publicNoticeActions" type="java.util.List<uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeAction>" -->
+<#-- @ftlvariable name="existingPublicNoticeActions" type="java.util.List<uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeAction>" -->
 
 
 
-<#macro publicNoticeView publicNoticeViewData displayAsHistoricalRequest=false>
+<#macro publicNoticeView publicNoticeViewData displayAsHistoricalRequest=false existingPublicNoticeActions=[] publicNoticeActions=[]>
 
     <#if displayAsHistoricalRequest>
         <#assign submittedHeading = "Submitted ${publicNoticeViewData.submittedTimestamp}"/>
@@ -13,7 +15,11 @@
     <@fdsCheckAnswers.checkAnswersWrapper summaryListId="" headingText=submittedHeading! headingSize="h3" headingClass="govuk-heading-m">
     
         <#if !displayAsHistoricalRequest>
-            <#nested>
+            <#list existingPublicNoticeActions as publicNoticeAction>
+                <#if publicNoticeActions?seq_contains(publicNoticeAction)>
+                    <@fdsAction.link linkText=publicNoticeAction.getDisplayText() linkUrl=springUrl(actionUrlMap[publicNoticeAction.name()]) linkClass="govuk-link" role=false start=false /> &nbsp;
+                </#if>
+            </#list>
         </#if>
 
         <@fdsCheckAnswers.checkAnswers summaryListClass="">
