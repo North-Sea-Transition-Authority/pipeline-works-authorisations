@@ -93,6 +93,7 @@ public class PwaAppProcessingPermissionService {
             case DRAFT_PUBLIC_NOTICE:
             case REQUEST_PUBLIC_NOTICE_UPDATE:
             case WITHDRAW_PUBLIC_NOTICE:
+            case FINALISE_PUBLIC_NOTICE:
               return userPrivileges.contains(PwaUserPrivilege.PWA_CASE_OFFICER)
                   && appInvolvement.isUserAssignedCaseOfficer()
                   && (PwaApplicationType.INITIAL.equals(detail.getPwaApplicationType())

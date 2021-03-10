@@ -17,7 +17,6 @@ import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.AppProcessingBreadcrumbService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.service.appprocessing.publicnotice.PublicNoticeService;
-import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingTask;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
@@ -37,8 +36,7 @@ public class PublicNoticeOverviewController {
   @Autowired
   public PublicNoticeOverviewController(
       AppProcessingBreadcrumbService appProcessingBreadcrumbService,
-      PublicNoticeService publicNoticeService,
-      ControllerHelperService controllerHelperService) {
+      PublicNoticeService publicNoticeService) {
     this.appProcessingBreadcrumbService = appProcessingBreadcrumbService;
     this.publicNoticeService = publicNoticeService;
   }
@@ -75,6 +73,9 @@ public class PublicNoticeOverviewController {
 
         PublicNoticeAction.REQUEST_DOCUMENT_UPDATE.name(), ReverseRouter.route(on(PublicNoticeDocumentUpdateRequestController.class)
             .renderRequestPublicNoticeDocumentUpdate(pwaApplicationId, applicationType, null, null, null)),
+
+        PublicNoticeAction.FINALISE.name(), ReverseRouter.route(on(FinalisePublicNoticeController.class)
+            .renderFinalisePublicNotice(pwaApplicationId, applicationType, null, null, null)),
 
         PublicNoticeAction.WITHDRAW.name(), ReverseRouter.route(on(WithdrawPublicNoticeController.class)
             .renderWithdrawPublicNotice(pwaApplicationId, applicationType, null, null, null))

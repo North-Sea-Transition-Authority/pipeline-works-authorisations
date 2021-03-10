@@ -1,8 +1,5 @@
 package uk.co.ogauthority.pwa.service.enums.workflow;
 
-import java.util.Arrays;
-import java.util.List;
-
 /**
  * Defines workflow property values associated with a case officer's decision on a public notice document requiring an update.
  */

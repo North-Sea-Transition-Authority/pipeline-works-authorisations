@@ -10,6 +10,7 @@ public enum PublicNoticeAction {
   APPROVE("Review"),
   UPDATE_DOCUMENT("Update public notice"),
   REQUEST_DOCUMENT_UPDATE("Request update"),
+  FINALISE("Finalise"),
   WITHDRAW("Withdraw public notice");
 
   private final String actionDisplayText;

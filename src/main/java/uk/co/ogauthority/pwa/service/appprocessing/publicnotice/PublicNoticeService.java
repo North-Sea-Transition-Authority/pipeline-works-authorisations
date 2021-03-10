@@ -166,10 +166,10 @@ public class PublicNoticeService implements AppProcessingService {
   public void mapPublicNoticeDraftToForm(PwaApplication pwaApplication, PublicNoticeDraftForm form) {
 
     var coverLetterText = templateTextService.getLatestVersionTextByType(TemplateTextType.PUBLIC_NOTICE_COVER_LETTER);
-    var latestPublicNoticeOpt = publicNoticeRepository.findFirstByPwaApplicationOrderByVersionDesc(pwaApplication);
+    var draftPublicNoticeOpt = publicNoticeRepository.findByStatusAndPwaApplication(PublicNoticeStatus.DRAFT, pwaApplication);
 
-    if (latestPublicNoticeOpt.isPresent()) {
-      var publicNoticeRequest = getLatestPublicNoticeRequest(latestPublicNoticeOpt.get());
+    if (draftPublicNoticeOpt.isPresent()) {
+      var publicNoticeRequest = getLatestPublicNoticeRequest(draftPublicNoticeOpt.get());
       coverLetterText = publicNoticeRequest.getCoverLetterText();
       form.setReason(publicNoticeRequest.getReason());
       if (PublicNoticeRequestReason.CONSULTEES_NOT_ALL_CONTENT.equals(form.getReason())) {
@@ -296,6 +296,11 @@ public class PublicNoticeService implements AppProcessingService {
     } else if (processingPermissions.contains(PwaAppProcessingPermission.REQUEST_PUBLIC_NOTICE_UPDATE)
         && PublicNoticeStatus.CASE_OFFICER_REVIEW.equals(publicNoticeStatus)) {
       publicNoticeActions.add(PublicNoticeAction.REQUEST_DOCUMENT_UPDATE);
+    }
+
+    if (processingPermissions.contains(PwaAppProcessingPermission.FINALISE_PUBLIC_NOTICE)
+        && PublicNoticeStatus.CASE_OFFICER_REVIEW.equals(publicNoticeStatus)) {
+      publicNoticeActions.add(PublicNoticeAction.FINALISE);
     }
 
     if (processingPermissions.contains(PwaAppProcessingPermission.WITHDRAW_PUBLIC_NOTICE)
