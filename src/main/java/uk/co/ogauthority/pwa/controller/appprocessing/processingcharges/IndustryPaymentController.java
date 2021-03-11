@@ -155,7 +155,7 @@ public class IndustryPaymentController {
 
   private ModelAndView withAppChargeRequestReportOrError(PwaAppProcessingContext processingContext,
                                                          Function<ApplicationChargeRequestReport, ModelAndView> modelAndViewSupplier) {
-    return applicationChargeRequestService.getApplicationChargeRequestReport(processingContext.getPwaApplication())
+    return applicationChargeRequestService.getOpenRequestAsApplicationChargeRequestReport(processingContext.getPwaApplication())
         .map(modelAndViewSupplier::apply)
         .orElseThrow(() -> new PwaEntityNotFoundException(
                 "Could not locate application charge request for app Id:" + processingContext.getMasterPwaApplicationId()

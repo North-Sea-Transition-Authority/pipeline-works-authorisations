@@ -5,6 +5,7 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 import static uk.co.ogauthority.pwa.pwapay.PaymentRequestStatus.PAYMENT_COMPLETE;
 
 import java.time.Clock;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -171,33 +172,11 @@ public class ApplicationChargeRequestService {
 
   }
 
-  public Optional<ApplicationChargeRequestReport> getApplicationChargeRequestReport(PwaApplication pwaApplication) {
-    return getAppChargeRequestReportWithStatus(pwaApplication, PwaAppChargeRequestStatus.OPEN);
-  }
-
-  private Optional<ApplicationChargeRequestReport> getAppChargeRequestReportWithStatus(PwaApplication pwaApplication,
-                                                                                       PwaAppChargeRequestStatus requestStatus) {
+  public Optional<ApplicationChargeRequestReport> getOpenRequestAsApplicationChargeRequestReport(PwaApplication pwaApplication) {
     return pwaAppChargeRequestDetailRepository.findByPwaAppChargeRequest_PwaApplicationAndPwaAppChargeRequestStatusAndTipFlagIsTrue(
         pwaApplication,
-        requestStatus
-    )
-        .map(pwaAppChargeRequestDetail -> {
-
-          var chargeItems = pwaAppChargeRequestItemRepository.findAllByPwaAppChargeRequestOrderByDescriptionAsc(
-              pwaAppChargeRequestDetail.getPwaAppChargeRequest())
-              .stream()
-              .map(ApplicationChargeItem::from)
-              .collect(Collectors.toUnmodifiableList());
-
-          return new ApplicationChargeRequestReport(
-              pwaApplication,
-              pwaAppChargeRequestDetail.getTotalPennies(),
-              pwaAppChargeRequestDetail.getChargeSummary(),
-              chargeItems,
-              pwaAppChargeRequestDetail.getPwaAppChargeRequestStatus(),
-              pwaAppChargeRequestDetail.getChargeWaivedReason()
-          );
-        });
+        PwaAppChargeRequestStatus.OPEN
+    ).map(this::convertRequestDetailToReport);
   }
 
   private PwaAppChargeRequestDetail getTipOpenRequestDetailForApplication(PwaApplication pwaApplication) {
@@ -205,6 +184,57 @@ public class ApplicationChargeRequestService {
         pwaApplication, PwaAppChargeRequestStatus.OPEN
     ).orElseThrow(() -> new ApplicationChargeException(
         "Expected to find OPEN tip charge request detail for app_id:" + pwaApplication.getId()));
+  }
+
+  private ApplicationChargeRequestReport convertRequestDetailToReport(PwaAppChargeRequestDetail pwaAppChargeRequestDetail) {
+    var chargeItems = pwaAppChargeRequestItemRepository.findAllByPwaAppChargeRequestOrderByDescriptionAsc(
+        pwaAppChargeRequestDetail.getPwaAppChargeRequest())
+        .stream()
+        .map(ApplicationChargeItem::from)
+        .collect(Collectors.toUnmodifiableList());
+
+    var successfullyPaidPaymentAttempt = getSuccessfullyPaidPaymentAttempt(
+        pwaAppChargeRequestDetail.getPwaAppChargeRequest()
+    );
+
+    return new ApplicationChargeRequestReport(
+        pwaAppChargeRequestDetail.getPwaAppChargeRequest().getRequestedByTimestamp(),
+        pwaAppChargeRequestDetail.getPwaAppChargeRequest().getRequestedByPersonId(),
+        pwaAppChargeRequestDetail.getStartedTimestamp(),
+        pwaAppChargeRequestDetail.getStartedByPersonId(),
+        successfullyPaidPaymentAttempt.map(o -> o.getPwaPaymentRequest().getRequestStatusTimestamp()).orElse(null),
+        successfullyPaidPaymentAttempt.map(PwaAppChargePaymentAttempt::getCreatedByPersonId).orElse(null),
+        pwaAppChargeRequestDetail.getTotalPennies(),
+        pwaAppChargeRequestDetail.getChargeSummary(),
+        chargeItems,
+        pwaAppChargeRequestDetail.getPwaAppChargeRequestStatus(),
+        pwaAppChargeRequestDetail.getChargeWaivedReason(),
+        pwaAppChargeRequestDetail.getChargeCancelledReason()
+    );
+  }
+
+  public List<ApplicationChargeRequestReport> getAllApplicationChargeRequestReportsForApplication(PwaApplication pwaApplication) {
+    return pwaAppChargeRequestDetailRepository.findByPwaAppChargeRequest_PwaApplicationAndTipFlagIsTrue(pwaApplication)
+        .stream()
+        .map(this::convertRequestDetailToReport)
+        .collect(Collectors.toList());
+  }
+
+  private Optional<PwaAppChargePaymentAttempt> getSuccessfullyPaidPaymentAttempt(PwaAppChargeRequest pwaAppChargeRequest) {
+    var allPaidAttempts =  pwaAppChargePaymentAttemptRepository
+        .findAllByPwaAppChargeRequestAndPwaPaymentRequest_RequestStatus(pwaAppChargeRequest, PAYMENT_COMPLETE);
+
+    // if in the unlikely event there is some bug which means their are multiple complete payment requests,
+    // log, then return the attempt which was paid first
+    if (allPaidAttempts.size() > 1) {
+      LOGGER.error("Detected multiple paid payment attempts for payment request! requestId:{}", pwaAppChargeRequest.getId());
+    }
+
+    return allPaidAttempts.stream()
+        .min(Comparator.comparing(
+            pwaAppChargePaymentAttempt -> pwaAppChargePaymentAttempt.getPwaPaymentRequest().getRequestStatusTimestamp())
+        );
+
   }
 
   @Transactional
@@ -466,7 +496,7 @@ public class ApplicationChargeRequestService {
         return CancelAppPaymentOutcome.NOT_CANCELLED_ALREADY_PAID;
       } else {
         throw new ApplicationChargeException(String.format(
-            "Cannot cancel non payment request with status:%s for paymentRequestDetailId:%s by wuaId:%s",
+            "Cannot cancel payment request with status:%s for paymentRequestDetailId:%s by wuaId:%s",
             paymentRequestTipDetail.getPwaAppChargeRequestStatus(),
             paymentRequestTipDetail.getId(),
             webUserAccount.getWuaId()

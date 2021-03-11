@@ -88,14 +88,13 @@ public class IndustryPaymentControllerTest extends PwaAppProcessingContextAbstra
     pwaApplicationDetail.setStatus(PwaApplicationStatus.AWAITING_APPLICATION_PAYMENT);
 
     applicationChargeRequestReport = ApplicationChargeRequestReportTestUtil.createOpenReport(
-        pwaApplicationDetail.getPwaApplication(),
         100,
         "Summary",
         List.of(ApplicationChargeRequestReportTestUtil.createApplicationChargeItem("Item 1", 100))
     );
     applicationPaymentDisplaySummary = ApplicationPaymentDisplaySummaryTestUtil.getDefaultPaymentDisplaySummary();
 
-    when(applicationChargeRequestService.getApplicationChargeRequestReport(any()))
+    when(applicationChargeRequestService.getOpenRequestAsApplicationChargeRequestReport(any()))
         .thenReturn(Optional.of(applicationChargeRequestReport));
     when(applicationPaymentSummariser.summarise(any()))
         .thenReturn(applicationPaymentDisplaySummary);
@@ -142,7 +141,7 @@ public class IndustryPaymentControllerTest extends PwaAppProcessingContextAbstra
     when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail, user))
         .thenReturn(permissionsDto);
 
-    when(applicationChargeRequestService.getApplicationChargeRequestReport(any()))
+    when(applicationChargeRequestService.getOpenRequestAsApplicationChargeRequestReport(any()))
         .thenReturn(Optional.empty());
 
     mockMvc.perform(get(ReverseRouter.route(on(IndustryPaymentController.class).renderPayForApplicationLanding(APP_ID, APP_TYPE, null)))

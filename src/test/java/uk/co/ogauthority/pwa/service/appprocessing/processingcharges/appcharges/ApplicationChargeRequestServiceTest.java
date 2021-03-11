@@ -49,8 +49,8 @@ import uk.co.ogauthority.pwa.repository.appprocessing.processingcharges.PwaAppCh
 import uk.co.ogauthority.pwa.repository.appprocessing.processingcharges.PwaAppChargeRequestRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
-import uk.co.ogauthority.pwa.service.enums.workflow.application.PwaApplicationWorkflowTask;
 import uk.co.ogauthority.pwa.service.enums.workflow.PwaAwaitPaymentResult;
+import uk.co.ogauthority.pwa.service.enums.workflow.application.PwaApplicationWorkflowTask;
 import uk.co.ogauthority.pwa.service.person.PersonService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
@@ -343,15 +343,15 @@ public class ApplicationChargeRequestServiceTest {
   }
 
   @Test
-  public void getApplicationChargeRequestReport_whenNoOpenChargeRequestFound() {
+  public void getOpenRequestAsApplicationChargeRequestReport_whenNoOpenChargeRequestFound() {
     when(pwaAppChargeRequestDetailRepository.findByPwaAppChargeRequest_PwaApplicationAndPwaAppChargeRequestStatusAndTipFlagIsTrue(any(), any()))
         .thenReturn(Optional.empty());
-    assertThat(applicationChargeRequestService.getApplicationChargeRequestReport(pwaApplication)).isEmpty();
+    assertThat(applicationChargeRequestService.getOpenRequestAsApplicationChargeRequestReport(pwaApplication)).isEmpty();
 
   }
 
   @Test
-  public void getApplicationChargeRequestReport_whenOpenChargeRequestFound_andChargeItems() {
+  public void getOpenRequestAsApplicationChargeRequestReport_whenOpenChargeRequestFound_andChargeItems() {
 
     var chargeItem = new PwaAppChargeRequestItem(null, "Item 1", 150);
     when(
@@ -361,13 +361,12 @@ public class ApplicationChargeRequestServiceTest {
     when(pwaAppChargeRequestItemRepository.findAllByPwaAppChargeRequestOrderByDescriptionAsc(any()))
         .thenReturn(List.of(chargeItem));
 
-    var report = applicationChargeRequestService.getApplicationChargeRequestReport(pwaApplication)
+    var report = applicationChargeRequestService.getOpenRequestAsApplicationChargeRequestReport(pwaApplication)
         .orElseThrow(() -> new RuntimeException("Expected report!"));
 
     assertThat(report.getPwaAppChargeRequestStatus()).isEqualTo(chargeRequestDetail.getPwaAppChargeRequestStatus());
     assertThat(report.getSummary()).isEqualTo(chargeRequestDetail.getChargeSummary());
     assertThat(report.getTotalPennies()).isEqualTo(chargeRequestDetail.getTotalPennies());
-    assertThat(report.getPwaApplication()).isEqualTo(pwaApplication);
     assertThat(report.getWaivedReason()).isNull();
     assertThat(report.getPaymentItems()).containsExactly(new ApplicationChargeItem(
         chargeItem.getDescription(),

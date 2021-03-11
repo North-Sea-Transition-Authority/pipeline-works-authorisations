@@ -126,7 +126,7 @@ public class CancelPaymentRequestController {
                     String.format(
                         "Cancelled payment request for %s",
                         processingContext.getCaseSummaryView().getPwaApplicationRef()),
-                    "Please complete the initial review to progress the application"
+                    "Complete the initial review to progress the application"
                 );
               } else {
                 FlashUtils.info(
@@ -154,7 +154,7 @@ public class CancelPaymentRequestController {
       );
     }
 
-    var appChargeReport = applicationChargeRequestService.getApplicationChargeRequestReport(
+    var appChargeReport = applicationChargeRequestService.getOpenRequestAsApplicationChargeRequestReport(
         processingContext.getPwaApplication())
         .orElseThrow(() -> new ApplicationChargeException(
             "Expected to be able to generate app charge report for appId:" + processingContext.getMasterPwaApplicationId())
