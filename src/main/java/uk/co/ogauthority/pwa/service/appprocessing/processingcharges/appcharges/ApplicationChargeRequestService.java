@@ -56,6 +56,8 @@ public class ApplicationChargeRequestService {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationChargeRequestService.class);
 
+
+  private final AppChargeEmailService appChargeEmailService;
   private final PwaAppChargeRequestRepository pwaAppChargeRequestRepository;
   private final PwaAppChargeRequestDetailRepository pwaAppChargeRequestDetailRepository;
   private final PwaAppChargeRequestItemRepository pwaAppChargeRequestItemRepository;
@@ -68,7 +70,8 @@ public class ApplicationChargeRequestService {
   private final Clock clock;
 
   @Autowired
-  public ApplicationChargeRequestService(PwaAppChargeRequestRepository pwaAppChargeRequestRepository,
+  public ApplicationChargeRequestService(AppChargeEmailService appChargeEmailService,
+                                         PwaAppChargeRequestRepository pwaAppChargeRequestRepository,
                                          PwaAppChargeRequestDetailRepository pwaAppChargeRequestDetailRepository,
                                          PwaAppChargeRequestItemRepository pwaAppChargeRequestItemRepository,
                                          PwaAppChargePaymentAttemptRepository pwaAppChargePaymentAttemptRepository,
@@ -78,6 +81,7 @@ public class ApplicationChargeRequestService {
                                          CamundaWorkflowService camundaWorkflowService,
                                          PersonService personService,
                                          @Qualifier("utcClock") Clock clock) {
+    this.appChargeEmailService = appChargeEmailService;
     this.pwaAppChargeRequestRepository = pwaAppChargeRequestRepository;
     this.pwaAppChargeRequestDetailRepository = pwaAppChargeRequestDetailRepository;
     this.pwaAppChargeRequestItemRepository = pwaAppChargeRequestItemRepository;
@@ -277,7 +281,7 @@ public class ApplicationChargeRequestService {
     var activePaymentAttempts = getActivePaymentAttemptsForChargeRequest(pwaAppChargeRequest);
     var somePaymentAttemptCompletedSuccessfully = false;
     for (PwaAppChargePaymentAttempt activePaymentAttempt : activePaymentAttempts) {
-
+      pwaPaymentService.refreshPwaPaymentRequestData(activePaymentAttempt.getPwaPaymentRequest());
       pwaPaymentService.cancelPayment(activePaymentAttempt.getPwaPaymentRequest());
 
       // Cancelling a request does a refresh of payment request data, so we can rely on this being up to date
@@ -446,18 +450,20 @@ public class ApplicationChargeRequestService {
         PwaAwaitPaymentResult.PAID
     );
 
-    try {
-      workflowAssignmentService.assign(
-          pwaAppChargePaymentAttempt.getPwaAppChargeRequest().getPwaApplication(),
-          PwaApplicationWorkflowTask.CASE_OFFICER_REVIEW,
-          personService.getPersonById(tipChargeRequestDetail.getAutoCaseOfficerPersonId()),
-          personService.getPersonById(tipChargeRequestDetail.getStartedByPersonId())
-      );
-    } catch (Exception e) {
-      LOGGER.error("Error on auto case officer assign. Failed  on personId:{} as case officer for appId:{}",
+    var assignmentResult = workflowAssignmentService.assignTask(
+        pwaAppChargePaymentAttempt.getPwaAppChargeRequest().getPwaApplication(),
+        PwaApplicationWorkflowTask.CASE_OFFICER_REVIEW,
+        personService.getPersonById(tipChargeRequestDetail.getAutoCaseOfficerPersonId()),
+        personService.getPersonById(tipChargeRequestDetail.getStartedByPersonId())
+    );
+
+    if (!assignmentResult.equals(WorkflowAssignmentService.AssignTaskResult.SUCCESS)) {
+      LOGGER.info("Error on auto case officer assign. Failed  on personId:{} as case officer for appId:{}",
           tipChargeRequestDetail.getAutoCaseOfficerPersonId(),
           pwaAppChargePaymentAttempt.getPwaAppChargeRequest().getPwaApplication().getId()
       );
+
+      appChargeEmailService.sendFailedToAssignCaseOfficerEmail(pwaAppChargePaymentAttempt.getPwaAppChargeRequest().getPwaApplication());
     }
 
     pwaApplicationDetailService.updateStatus(
@@ -481,7 +487,6 @@ public class ApplicationChargeRequestService {
             PwaApplicationWorkflowTask.AWAIT_APPLICATION_PAYMENT
         )
     );
-
 
   }
 

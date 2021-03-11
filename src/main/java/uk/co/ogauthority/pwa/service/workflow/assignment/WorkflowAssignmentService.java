@@ -85,15 +85,37 @@ public class WorkflowAssignmentService {
   }
 
   @Transactional
+  /**
+   * Use this method to assign a task without throwing an exception if theres a problem.
+   */
+  public AssignTaskResult assignTask(WorkflowSubject workflowSubject,
+                                     UserWorkflowTask task,
+                                     Person personToAssign,
+                                     Person assigningPerson) {
+    return assignTaskInternal(
+        workflowSubject,
+        task,
+        personToAssign,
+        assigningPerson
+    );
+  }
+
+  @Transactional
+  /**
+   * Use this method to assign a task if you want to return exceptions up the call stack if theres a problem.
+   */
   public void assign(WorkflowSubject workflowSubject,
                      UserWorkflowTask task,
                      Person personToAssign,
                      Person assigningPerson) {
+    var assignResult = assignTaskInternal(
+        workflowSubject,
+        task,
+        personToAssign,
+        assigningPerson
+    );
 
-    boolean allowed = getAssignmentCandidates(workflowSubject, task).stream()
-        .anyMatch(person -> person.getId().equals(personToAssign.getId()));
-
-    if (!allowed) {
+    if (assignResult.equals(AssignTaskResult.ASSIGNMENT_CANDIDATE_INVALID)) {
       throw new WorkflowAssignmentException(String.format(
           "Can't assign person with ID: %s to task [%s] for %s with ID: %s as they are not a valid assignment candidate.",
           personToAssign.getId().asInt(),
@@ -102,9 +124,23 @@ public class WorkflowAssignmentService {
           workflowSubject.getBusinessKey()));
     }
 
+
+  }
+
+  private AssignTaskResult assignTaskInternal(WorkflowSubject workflowSubject,
+                                              UserWorkflowTask task,
+                                              Person personToAssign,
+                                              Person assigningPerson) {
+    boolean allowed = getAssignmentCandidates(workflowSubject, task).stream()
+        .anyMatch(person -> person.getId().equals(personToAssign.getId()));
+
+    if (!allowed) {
+      return AssignTaskResult.ASSIGNMENT_CANDIDATE_INVALID;
+    }
+
     camundaWorkflowService.assignTaskToUser(new WorkflowTaskInstance(workflowSubject, task), personToAssign);
     assignmentService.createOrUpdateAssignment(workflowSubject, task, personToAssign, assigningPerson);
-
+    return AssignTaskResult.SUCCESS;
   }
 
   @Transactional
@@ -137,4 +173,9 @@ public class WorkflowAssignmentService {
     assignmentService.clearAssignments(workflowSubject);
   }
 
+
+  public enum AssignTaskResult {
+    SUCCESS,
+    ASSIGNMENT_CANDIDATE_INVALID
+  }
 }

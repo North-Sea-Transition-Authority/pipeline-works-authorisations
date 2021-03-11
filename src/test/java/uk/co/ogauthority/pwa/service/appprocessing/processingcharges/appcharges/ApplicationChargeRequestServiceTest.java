@@ -64,6 +64,9 @@ public class ApplicationChargeRequestServiceTest {
   private static final String CANCEL_REASON = "CANCEL_REASON";
 
   @Mock
+  private AppChargeEmailService appChargeEmailService;
+
+  @Mock
   private PwaAppChargeRequestRepository pwaAppChargeRequestRepository;
 
   @Mock
@@ -141,7 +144,11 @@ public class ApplicationChargeRequestServiceTest {
     when(pwaAppChargeRequestDetailRepository.findByPwaAppChargeRequest_PwaApplicationAndPwaAppChargeRequestStatusAndTipFlagIsTrue(pwaApplication, PwaAppChargeRequestStatus.OPEN))
         .thenReturn(Optional.of(chargeRequestDetail));
 
+    when(workflowAssignmentService.assignTask(any(), any(),any(), any()))
+        .thenReturn(WorkflowAssignmentService.AssignTaskResult.SUCCESS);
+
     applicationChargeRequestService = new ApplicationChargeRequestService(
+        appChargeEmailService,
         pwaAppChargeRequestRepository,
         pwaAppChargeRequestDetailRepository,
         pwaAppChargeRequestItemRepository,
@@ -208,7 +215,6 @@ public class ApplicationChargeRequestServiceTest {
       assertThat(pwaAppChargeRequestDetail.getChargeWaivedReason()).isNull();
     });
 
-
     assertThat(chargeItemCaptor.getValue())
         .isNotEmpty()
         .anySatisfy(pwaAppChargeRequestItem -> {
@@ -221,9 +227,7 @@ public class ApplicationChargeRequestServiceTest {
           assertThat(pwaAppChargeRequestItem.getPennyAmount()).isEqualTo(75);
           assertThat(pwaAppChargeRequestItem.getDescription()).isEqualTo("CHARGE_2");
         });
-
   }
-
 
   @Test
   public void createPwaAppChargeRequest_withValidSpec_andWaivedStatus_setsExpectedData() {
@@ -608,7 +612,7 @@ public class ApplicationChargeRequestServiceTest {
         PwaApplicationWorkflowTask.AWAIT_APPLICATION_PAYMENT
     ));
     verifyOrder.verify(workflowAssignmentService, times(1))
-        .assign(pwaApplication, PwaApplicationWorkflowTask.CASE_OFFICER_REVIEW, caseOfficerPerson, pwaManagerPerson);
+        .assignTask(pwaApplication, PwaApplicationWorkflowTask.CASE_OFFICER_REVIEW, caseOfficerPerson, pwaManagerPerson);
 
     verifyOrder.verify(pwaApplicationDetailService, times(1)).updateStatus(pwaApplicationDetail, PwaApplicationStatus.CASE_OFFICER_REVIEW, paymentAttemptWua);
     verifyOrder.verifyNoMoreInteractions();
@@ -616,6 +620,33 @@ public class ApplicationChargeRequestServiceTest {
     // verify we end the old request detail and set new one as tip.
     assertThat(requestDetailArgumentCaptor.getAllValues().get(0).getTipFlag()).isFalse();
     assertThat(requestDetailArgumentCaptor.getAllValues().get(1).getTipFlag()).isTrue();
+
+    verifyNoInteractions(appChargeEmailService);
+
+  }
+
+  @Test
+  public void processPaymentAttempt_paymentRequestOpen_paymentAttemptUpdatesAsPaid_caseOfficerFailsToAssign() {
+    chargeRequestDetail.setPwaAppChargeRequestStatus(PwaAppChargeRequestStatus.OPEN);
+    chargeRequestDetail.setAutoCaseOfficerPersonId(caseOfficerPerson.getId());
+
+    when(personService.getPersonById(caseOfficerPerson.getId())).thenReturn(caseOfficerPerson);
+    when(personService.getPersonById(pwaManagerPerson.getId())).thenReturn(pwaManagerPerson);
+
+    when(workflowAssignmentService.assignTask(any(),any(),any(),any()))
+        .thenReturn(WorkflowAssignmentService.AssignTaskResult.ASSIGNMENT_CANDIDATE_INVALID);
+
+    var attempt = PwaAppChargePaymentAttemptTestUtil.createWithPaymentRequest(chargeRequest, PaymentRequestStatus.PENDING, paymentAttemptPerson);
+
+    doAnswer(invocation -> {
+      var request = (PwaPaymentRequest) invocation.getArgument(0);
+      request.setRequestStatus(PaymentRequestStatus.PAYMENT_COMPLETE);
+      return invocation;
+    }).when(pwaPaymentService).refreshPwaPaymentRequestData(any());
+
+    applicationChargeRequestService.processPaymentAttempt(attempt, paymentAttemptWua);
+
+    verify(appChargeEmailService, times(1)).sendFailedToAssignCaseOfficerEmail(pwaApplication);
 
   }
 
