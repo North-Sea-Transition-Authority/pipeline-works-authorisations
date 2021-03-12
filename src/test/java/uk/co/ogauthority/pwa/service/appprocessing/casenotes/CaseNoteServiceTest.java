@@ -35,6 +35,7 @@ import uk.co.ogauthority.pwa.model.form.appprocessing.casenotes.AddCaseNoteForm;
 import uk.co.ogauthority.pwa.model.form.files.UploadFileWithDescriptionForm;
 import uk.co.ogauthority.pwa.model.form.files.UploadedFileView;
 import uk.co.ogauthority.pwa.model.view.appprocessing.casehistory.CaseHistoryItemView;
+import uk.co.ogauthority.pwa.model.view.appprocessing.casehistory.DataItemRow;
 import uk.co.ogauthority.pwa.repository.appprocessing.casenotes.CaseNoteDocumentLinkRepository;
 import uk.co.ogauthority.pwa.repository.appprocessing.casenotes.CaseNoteRepository;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
@@ -207,15 +208,15 @@ public class CaseNoteServiceTest {
             CaseHistoryItemView::getPersonId,
             CaseHistoryItemView::getPersonLabelText,
             CaseHistoryItemView::getPersonName,
-            CaseHistoryItemView::getDataItems)
+            CaseHistoryItemView::getDataItemRows)
         .contains(
-            tuple(clock.instant(), DateUtils.formatDateTime(clock.instant()), "Case note", new PersonId(1), "Created by", null, Map.of("Note text", "noteText")),
-            tuple(clock.instant().minusSeconds(10), DateUtils.formatDateTime(clock.instant().minusSeconds(10)), "Case note", new PersonId(2), "Created by", null, Map.of("Note text", "note2"))
-            );
+            tuple(clock.instant(), DateUtils.formatDateTime(clock.instant()), "Case note", new PersonId(1), "Created by", null, List.of(new DataItemRow(Map.of("Note text", "noteText")))),
+            tuple(clock.instant().minusSeconds(10), DateUtils.formatDateTime(clock.instant().minusSeconds(10)), "Case note", new PersonId(2), "Created by", null, List.of(new DataItemRow(Map.of("Note text", "note2"))))
+        );
 
     views.forEach(view -> {
 
-      if (view.getDataItems().containsValue("note2")) {
+      if (view.getDataItemRows().get(0).getDataItems().containsValue("note2")) {
 
         assertThat(view.getUploadedFileViews()).isEmpty();
 

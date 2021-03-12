@@ -33,5 +33,6 @@ public interface PwaApplicationDetailRepository extends CrudRepository<PwaApplic
       "WHERE pad.status in :status")
   List<PwaApplicationDetail> findLastSubmittedAppDetailsWithStatusIn(Collection<PwaApplicationStatus> status);
 
+  List<PwaApplicationDetail> findByPwaApplication(PwaApplication pwaApplication);
 
 }

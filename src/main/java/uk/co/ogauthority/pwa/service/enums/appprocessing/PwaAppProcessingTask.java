@@ -108,6 +108,7 @@ public enum PwaAppProcessingTask {
   PREPARE_CONSENT(
       "Prepare consent",
       TaskRequirement.REQUIRED,
+      TaskAutoLockable.NO,
       PrepareConsentTaskService.class, processingContext -> ReverseRouter.route(on(AppConsentDocController.class)
       .renderConsentDocEditor(processingContext.getMasterPwaApplicationId(), processingContext.getApplicationType(),
           null, null)),
@@ -159,7 +160,7 @@ public enum PwaAppProcessingTask {
   ADD_NOTE_OR_DOCUMENT(
       "Add note/document",
       TaskRequirement.OPTIONAL,
-      TaskLockable.NO,
+      TaskAutoLockable.NO,
       CaseNoteService.class, processingContext -> ReverseRouter.route(on(CaseNoteController.class)
       .renderAddCaseNote(processingContext.getMasterPwaApplicationId(), processingContext.getApplicationType(), null,
           null, null)),
@@ -183,20 +184,20 @@ public enum PwaAppProcessingTask {
 
   private final String taskName;
   private final TaskRequirement taskRequirement;
-  private final TaskLockable taskLockable;
+  private final TaskAutoLockable taskAutoLockable;
   private final Class<? extends AppProcessingService> serviceClass;
   private final Function<PwaAppProcessingContext, String> routeFunction;
   private final int displayOrder;
 
   PwaAppProcessingTask(String taskName,
                        TaskRequirement taskRequirement,
-                       TaskLockable taskLockable,
+                       TaskAutoLockable taskAutoLockable,
                        Class<? extends AppProcessingService> serviceClass,
                        Function<PwaAppProcessingContext, String> routeFunction,
                        int displayOrder) {
     this.taskName = taskName;
     this.taskRequirement = taskRequirement;
-    this.taskLockable = taskLockable;
+    this.taskAutoLockable = taskAutoLockable;
     this.serviceClass = serviceClass;
     this.routeFunction = routeFunction;
     this.displayOrder = displayOrder;
@@ -209,7 +210,7 @@ public enum PwaAppProcessingTask {
                        int displayOrder) {
     this.taskName = taskName;
     this.taskRequirement = taskRequirement;
-    taskLockable = TaskLockable.YES;
+    taskAutoLockable = TaskAutoLockable.YES;
     this.serviceClass = serviceClass;
     this.routeFunction = routeFunction;
     this.displayOrder = displayOrder;
@@ -223,8 +224,8 @@ public enum PwaAppProcessingTask {
     return taskRequirement;
   }
 
-  public TaskLockable getTaskLockable() {
-    return taskLockable;
+  public TaskAutoLockable getTaskAutoLockable() {
+    return taskAutoLockable;
   }
 
   public Class<? extends AppProcessingService> getServiceClass() {

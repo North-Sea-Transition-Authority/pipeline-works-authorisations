@@ -16,8 +16,15 @@ public final class ApplicationPaymentDisplaySummaryTestUtil {
         List.of(new DisplayableFeeItem("Fee item 1", "1.00"))
 
     );
+  }
 
+  public static ApplicationPaymentDisplaySummary createSimpleSummary(String header, String formattedAmount) {
+    return new ApplicationPaymentDisplaySummary(
+        header,
+        formattedAmount,
+        List.of(new DisplayableFeeItem("Fee item 1", "1.00"))
 
+    );
   }
 
 

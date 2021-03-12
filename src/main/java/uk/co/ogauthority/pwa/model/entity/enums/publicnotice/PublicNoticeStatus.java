@@ -1,6 +1,6 @@
 package uk.co.ogauthority.pwa.model.entity.enums.publicnotice;
 
-import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationPublicNoticeWorkflowTask;
+import uk.co.ogauthority.pwa.service.enums.workflow.publicnotice.PwaApplicationPublicNoticeWorkflowTask;
 
 public enum PublicNoticeStatus {
 

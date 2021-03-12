@@ -2,6 +2,9 @@ package uk.co.ogauthority.pwa.service.enums.workflow;
 
 import java.util.stream.Stream;
 import uk.co.ogauthority.pwa.exception.WorkflowException;
+import uk.co.ogauthority.pwa.service.enums.workflow.application.PwaApplicationWorkflowTask;
+import uk.co.ogauthority.pwa.service.enums.workflow.consultation.PwaApplicationConsultationWorkflowTask;
+import uk.co.ogauthority.pwa.service.enums.workflow.publicnotice.PwaApplicationPublicNoticeWorkflowTask;
 
 /**
  * Enumeration of Camunda workflows.

@@ -2,7 +2,7 @@ package uk.co.ogauthority.pwa.service.appprocessing.initialreview;
 
 import uk.co.ogauthority.pwa.model.entity.appprocessing.processingcharges.PwaAppChargeRequestStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
-import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationInitialReviewResult;
+import uk.co.ogauthority.pwa.service.enums.workflow.application.PwaApplicationInitialReviewResult;
 
 /**
  * Initial review payment decision.

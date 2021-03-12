@@ -13,6 +13,7 @@ import uk.co.ogauthority.pwa.service.documents.DocumentService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingTask;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.TaskStatus;
+import uk.co.ogauthority.pwa.service.enums.appprocessing.appinvolvement.OpenConsentReview;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 
 @Service
@@ -67,7 +68,6 @@ public class PrepareConsentTaskService implements AppProcessingService {
 
   }
 
-
   @Override
   public TaskListEntry getTaskListEntry(PwaAppProcessingTask task, PwaAppProcessingContext processingContext) {
 
@@ -75,12 +75,24 @@ public class PrepareConsentTaskService implements AppProcessingService {
 
     var taskAccessible = !taskStatus.shouldForceInaccessible();
 
+    var taskState = taskAccessible ? TaskState.EDIT : TaskState.LOCK;
+
+    // if we can do a consent review and there is one open, we can access the task, otherwise we lock it
+    if (processingContext.hasProcessingPermission(PwaAppProcessingPermission.CONSENT_REVIEW)
+        && processingContext.getApplicationInvolvement().getOpenConsentReview() == OpenConsentReview.YES) {
+      taskState = TaskState.EDIT;
+    } else if (processingContext.getApplicationInvolvement().getOpenConsentReview() == OpenConsentReview.YES
+        || processingContext.hasProcessingPermission(PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY)) {
+      taskState = TaskState.LOCK;
+    }
+
     return new TaskListEntry(
         task.getTaskName(),
         task.getRoute(processingContext),
         TaskTag.from(taskStatus),
-        taskAccessible ? TaskState.EDIT : TaskState.LOCK,
+        taskState,
         task.getDisplayOrder());
 
   }
+
 }

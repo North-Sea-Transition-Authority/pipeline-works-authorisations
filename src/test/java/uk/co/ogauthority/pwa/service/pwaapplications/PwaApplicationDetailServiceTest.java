@@ -557,4 +557,13 @@ public class PwaApplicationDetailServiceTest {
         detail1.getPwaApplication().getId(), detail2.getPwaApplication().getId()));
   }
 
+  @Test
+  public void getAllDetailsForApplication() {
+
+    var app = new PwaApplication();
+    pwaApplicationDetailService.getAllDetailsForApplication(app);
+    verify(applicationDetailRepository, times(1)).findByPwaApplication(app);
+
+  }
+
 }

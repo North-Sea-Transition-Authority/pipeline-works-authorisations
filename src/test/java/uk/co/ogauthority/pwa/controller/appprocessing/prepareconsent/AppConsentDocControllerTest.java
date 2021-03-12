@@ -84,11 +84,11 @@ public class AppConsentDocControllerTest extends PwaAppProcessingContextAbstract
     when(consentDocumentService.canSendForApproval(any())).thenReturn(true);
 
     editDocumentEndpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaApplicationDetailService, pwaAppProcessingPermissionService)
-        .setAllowedStatuses(PwaApplicationStatus.CASE_OFFICER_REVIEW)
+        .setAllowedStatuses(PwaApplicationStatus.CASE_OFFICER_REVIEW, PwaApplicationStatus.CONSENT_REVIEW)
         .setAllowedProcessingPermissions(PwaAppProcessingPermission.EDIT_CONSENT_DOCUMENT);
 
     sendForApprovalEndpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaApplicationDetailService, pwaAppProcessingPermissionService)
-        .setAllowedStatuses(PwaApplicationStatus.CASE_OFFICER_REVIEW)
+        .setAllowedStatuses(PwaApplicationStatus.CASE_OFFICER_REVIEW, PwaApplicationStatus.CONSENT_REVIEW)
         .setAllowedProcessingPermissions(PwaAppProcessingPermission.SEND_CONSENT_FOR_APPROVAL);
 
     user = new AuthenticatedUserAccount(

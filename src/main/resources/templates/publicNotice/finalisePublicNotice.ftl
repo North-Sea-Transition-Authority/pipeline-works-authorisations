@@ -18,14 +18,22 @@
 
     <@fdsForm.htmlForm>
 
-        <@fdsInsetText.insetText>
-            You must ensure that you provide the finalised public notice document to the OGA content team for publishing on the OGA website.
-        </@fdsInsetText.insetText>
+        <@grid.gridRow>
+            <@grid.twoThirdsColumn>
+                <@fdsInsetText.insetText>
+                    You must ensure that you provide the finalised public notice document to the OGA content team for publishing on the OGA website.
+                </@fdsInsetText.insetText>
+            </@grid.twoThirdsColumn>
+        </@grid.gridRow>
 
         <@fdsDateInput.dateInput dayPath="form.startDay" monthPath="form.startMonth" yearPath="form.startYear" labelText="Public notice start date" formId="form.start"/>
-    
-        <@fdsTextInput.textInput path="form.daysToBePublishedFor" labelText="How many calendar days will the public notice be published for" inputClass="govuk-input--width-4"
-            hintText="The calendar days entered must account for public holidays that occur during the period for which the public notice will be published." />
+        
+        <@grid.gridRow>
+            <@grid.twoThirdsColumn>
+                <@fdsTextInput.textInput path="form.daysToBePublishedFor" labelText="How many calendar days will the public notice be published for?" inputClass="govuk-input--width-4"
+                    hintText="The calendar days entered must account for public holidays that occur during the period for which the public notice will be published." />
+            </@grid.twoThirdsColumn>
+        </@grid.gridRow>
 
         <@fdsAction.submitButtons primaryButtonText="Finalise public notice" linkSecondaryAction=true secondaryLinkText="Cancel" linkSecondaryActionUrl=springUrl(cancelUrl)/>
     </@fdsForm.htmlForm>
