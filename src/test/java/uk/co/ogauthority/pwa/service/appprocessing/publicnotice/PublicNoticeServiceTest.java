@@ -275,7 +275,7 @@ public class PublicNoticeServiceTest {
     when(templateTextService.getLatestVersionTextByType(TemplateTextType.PUBLIC_NOTICE_COVER_LETTER)).thenReturn(coverLetterTemplateText);
 
     var publicNotice = PublicNoticeTestUtil.createInitialPublicNotice(pwaApplication);
-    when(publicNoticeRepository.findFirstByPwaApplicationOrderByVersionDesc(pwaApplication)).thenReturn(Optional.of(publicNotice));
+    when(publicNoticeRepository.findByStatusAndPwaApplication(PublicNoticeStatus.DRAFT, pwaApplication)).thenReturn(Optional.of(publicNotice));
 
     var expectedForm = PublicNoticeTestUtil.createDefaultPublicNoticeDraftForm();
     var publicNoticeRequest = PublicNoticeTestUtil.createInitialPublicNoticeRequest(publicNotice, expectedForm);
@@ -297,7 +297,7 @@ public class PublicNoticeServiceTest {
     var coverLetterTemplateText = "cover letter text...";
     when(templateTextService.getLatestVersionTextByType(TemplateTextType.PUBLIC_NOTICE_COVER_LETTER)).thenReturn(coverLetterTemplateText);
 
-    when(publicNoticeRepository.findFirstByPwaApplicationOrderByVersionDesc(pwaApplication)).thenReturn(Optional.empty());
+    when(publicNoticeRepository.findByStatusAndPwaApplication(PublicNoticeStatus.DRAFT, pwaApplication)).thenReturn(Optional.empty());
 
     var actualForm = new PublicNoticeDraftForm();
     publicNoticeService.mapPublicNoticeDraftToForm(pwaApplication, actualForm);
@@ -448,6 +448,7 @@ public class PublicNoticeServiceTest {
     assertThat(publicNoticeActions).containsOnly(PublicNoticeAction.UPDATE_DRAFT, PublicNoticeAction.WITHDRAW);
   }
 
+  @Test
   public void getAvailablePublicNoticeActions_requestUpdatePermissionAndCaseOfficerReviewStatus() {
 
     var context = PwaAppProcessingContextTestUtil.withPermissions(
@@ -455,6 +456,27 @@ public class PublicNoticeServiceTest {
     var publicNoticeActions = publicNoticeService.getAvailablePublicNoticeActions(PublicNoticeStatus.CASE_OFFICER_REVIEW, context);
 
     assertThat(publicNoticeActions).containsOnly(PublicNoticeAction.REQUEST_DOCUMENT_UPDATE);
+  }
+
+  @Test
+  public void getAvailablePublicNoticeActions_finalisePermissionAndCaseOfficerReviewStatus() {
+
+    var context = PwaAppProcessingContextTestUtil.withPermissions(
+        pwaApplicationDetail, Set.of(PwaAppProcessingPermission.FINALISE_PUBLIC_NOTICE));
+    var publicNoticeActions = publicNoticeService.getAvailablePublicNoticeActions(PublicNoticeStatus.CASE_OFFICER_REVIEW, context);
+
+    assertThat(publicNoticeActions).containsOnly(PublicNoticeAction.FINALISE);
+  }
+
+  @Test
+  public void getAvailablePublicNoticeActions_requestUpdateAndFinalisePermissions_updateAndFinaliseActionsReturned() {
+
+    var context = PwaAppProcessingContextTestUtil.withPermissions(
+        pwaApplicationDetail,
+        Set.of(PwaAppProcessingPermission.REQUEST_PUBLIC_NOTICE_UPDATE, PwaAppProcessingPermission.FINALISE_PUBLIC_NOTICE));
+    var publicNoticeActions = publicNoticeService.getAvailablePublicNoticeActions(PublicNoticeStatus.CASE_OFFICER_REVIEW, context);
+
+    assertThat(publicNoticeActions).containsOnly(PublicNoticeAction.REQUEST_DOCUMENT_UPDATE, PublicNoticeAction.FINALISE);
   }
 
   @Test

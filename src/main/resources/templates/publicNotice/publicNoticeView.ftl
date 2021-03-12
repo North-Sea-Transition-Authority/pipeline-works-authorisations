@@ -17,7 +17,7 @@
         <#if !displayAsHistoricalRequest>
             <#list existingPublicNoticeActions as publicNoticeAction>
                 <#if publicNoticeActions?seq_contains(publicNoticeAction)>
-                    <@fdsAction.link linkText=publicNoticeAction.getDisplayText() linkUrl=springUrl(actionUrlMap[publicNoticeAction.name()]) linkClass="govuk-link" role=false start=false /> &nbsp;
+                    <@fdsAction.link linkText=publicNoticeAction.getDisplayText() linkUrl=springUrl(actionUrlMap[publicNoticeAction.name()]) linkClass="govuk-link govuk-link--stand-alone" role=false start=false /> &nbsp;
                 </#if>
             </#list>
         </#if>

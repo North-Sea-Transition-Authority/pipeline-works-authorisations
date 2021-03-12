@@ -1147,6 +1147,85 @@ public class PwaAppProcessingPermissionServiceTest {
 
 
   @Test
+  public void getAppProcessingPermissions_hasFinalisePublicNoticePermission_allInvalidAppTypes_caseOfficerPrivilege() {
+
+    PwaApplicationType.stream()
+        .filter(appType -> !VALID_PUBLIC_NOTICE_APP_TYPES.contains(appType))
+        .forEach(pwaApplicationType -> {
+
+          detail.getPwaApplication().setApplicationType(pwaApplicationType);
+          replacePrivileges(user, PwaUserPrivilege.PWA_CASE_OFFICER);
+
+          var appInvolvement = ApplicationInvolvementDtoTestUtil.fromInvolvementFlags(
+              application,
+              EnumSet.of(CASE_OFFICER_STAGE_AND_USER_ASSIGNED)
+          );
+          when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
+
+          var permissions = processingPermissionService.getProcessingPermissionsDto(detail, user).getProcessingPermissions();
+          AssertionTestUtils.assertNotEmptyAndDoesNotContain(permissions, PwaAppProcessingPermission.FINALISE_PUBLIC_NOTICE);
+        });
+  }
+
+
+  @Test
+  public void getAppProcessingPermissions_hasFinalisePublicNoticePermission_allValidAppTypes_assignedCaseOfficer() {
+
+    PwaApplicationType.stream()
+        .filter(appType -> VALID_PUBLIC_NOTICE_APP_TYPES.contains(appType))
+        .forEach(pwaApplicationType -> {
+
+          detail.getPwaApplication().setApplicationType(pwaApplicationType);
+          replacePrivileges(user, PwaUserPrivilege.PWA_CASE_OFFICER);
+
+          var appInvolvement = ApplicationInvolvementDtoTestUtil.fromInvolvementFlags(
+              application,
+              EnumSet.of(CASE_OFFICER_STAGE_AND_USER_ASSIGNED)
+          );
+          when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
+
+          var permissions = processingPermissionService.getProcessingPermissionsDto(detail, user).getProcessingPermissions();
+          AssertionTestUtils.assertNotEmptyAndContains(permissions, PwaAppProcessingPermission.FINALISE_PUBLIC_NOTICE);
+        });
+  }
+
+  @Test
+  public void getAppProcessingPermissions_hasFinalisePublicNoticePermission_notAssignedCaseOfficer() {
+
+    detail.getPwaApplication().setApplicationType(VALID_PUBLIC_NOTICE_APP_TYPES.iterator().next());
+    replacePrivileges(user, PwaUserPrivilege.PWA_CASE_OFFICER);
+
+    var appInvolvement = ApplicationInvolvementDtoTestUtil.noInvolvementAndNoFlags(application);
+    when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
+
+    var permissions = processingPermissionService.getProcessingPermissionsDto(detail, user).getProcessingPermissions();
+    AssertionTestUtils.assertNotEmptyAndDoesNotContain(permissions, PwaAppProcessingPermission.FINALISE_PUBLIC_NOTICE);
+
+  }
+
+  @Test
+  public void getAppProcessingPermissions_hasFinalisePublicNoticePermission_allInvalidAppTypes_assignedCaseOfficer() {
+
+    PwaApplicationType.stream()
+        .filter(appType -> !VALID_PUBLIC_NOTICE_APP_TYPES.contains(appType))
+        .forEach(pwaApplicationType -> {
+
+          detail.getPwaApplication().setApplicationType(pwaApplicationType);
+          replacePrivileges(user, PwaUserPrivilege.PWA_CASE_OFFICER);
+
+          var appInvolvement = ApplicationInvolvementDtoTestUtil.fromInvolvementFlags(
+              application,
+              EnumSet.of(CASE_OFFICER_STAGE_AND_USER_ASSIGNED)
+          );
+          when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
+
+          var permissions = processingPermissionService.getProcessingPermissionsDto(detail, user).getProcessingPermissions();
+          AssertionTestUtils.assertNotEmptyAndDoesNotContain(permissions, PwaAppProcessingPermission.FINALISE_PUBLIC_NOTICE);
+        });
+  }
+
+
+  @Test
   public void getAppProcessingPermissions_payForApplicationPermission_inAwaitingPaymentStatus_holderTeamFinanceRole() {
 
       detail.setStatus(PwaApplicationStatus.AWAITING_APPLICATION_PAYMENT);

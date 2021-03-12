@@ -33,12 +33,12 @@ import uk.co.ogauthority.pwa.model.dto.appprocessing.ApplicationInvolvementDtoTe
 import uk.co.ogauthority.pwa.model.dto.appprocessing.ConsultationInvolvementDtoTestUtil;
 import uk.co.ogauthority.pwa.model.dto.appprocessing.ProcessingPermissionsDto;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.form.publicnotice.WithdrawPublicNoticeForm;
+import uk.co.ogauthority.pwa.model.form.publicnotice.FinalisePublicNoticeForm;
 import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.PwaAppProcessingPermissionService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContextService;
-import uk.co.ogauthority.pwa.service.appprocessing.publicnotice.WithdrawPublicNoticeService;
+import uk.co.ogauthority.pwa.service.appprocessing.publicnotice.FinalisePublicNoticeService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
@@ -47,8 +47,8 @@ import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 @RunWith(SpringRunner.class)
-@WebMvcTest(controllers = WithdrawPublicNoticeController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {PwaAppProcessingContextService.class}))
-public class WithdrawPublicNoticeControllerTest extends PwaAppProcessingContextAbstractControllerTest {
+@WebMvcTest(controllers = FinalisePublicNoticeController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {PwaAppProcessingContextService.class}))
+public class FinalisePublicNoticeControllerTest extends PwaAppProcessingContextAbstractControllerTest {
 
   private PwaApplicationEndpointTestBuilder endpointTestBuilder;
 
@@ -56,7 +56,7 @@ public class WithdrawPublicNoticeControllerTest extends PwaAppProcessingContextA
   private PwaAppProcessingPermissionService pwaAppProcessingPermissionService;
   
   @MockBean
-  private WithdrawPublicNoticeService withdrawPublicNoticeService;
+  private FinalisePublicNoticeService finalisePublicNoticeService;
 
   private PwaApplicationDetail pwaApplicationDetail;
   private AuthenticatedUserAccount user;
@@ -66,7 +66,7 @@ public class WithdrawPublicNoticeControllerTest extends PwaAppProcessingContextA
 
     endpointTestBuilder = new PwaApplicationEndpointTestBuilder(mockMvc, pwaApplicationDetailService, pwaAppProcessingPermissionService)
         .setAllowedStatuses(PwaApplicationStatus.CASE_OFFICER_REVIEW)
-        .setAllowedProcessingPermissions(PwaAppProcessingPermission.WITHDRAW_PUBLIC_NOTICE);
+        .setAllowedProcessingPermissions(PwaAppProcessingPermission.FINALISE_PUBLIC_NOTICE);
 
     user = new AuthenticatedUserAccount(new WebUserAccount(1), EnumSet.allOf(PwaUserPrivilege.class));
 
@@ -87,42 +87,42 @@ public class WithdrawPublicNoticeControllerTest extends PwaAppProcessingContextA
 
     when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail, user)).thenReturn(permissionsDto);
 
-    when(withdrawPublicNoticeService.publicNoticeCanBeWithdrawn(any())).thenReturn(true);
+    when(finalisePublicNoticeService.publicNoticeCanBeFinalised(any())).thenReturn(true);
   }
 
 
   @Test
-  public void renderWithdrawPublicNotice_appStatusSmokeTest() {
+  public void renderFinalisePublicNotice_appStatusSmokeTest() {
 
     endpointTestBuilder.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
-            ReverseRouter.route(on(WithdrawPublicNoticeController.class)
-                .renderWithdrawPublicNotice(applicationDetail.getMasterPwaApplicationId(), type, null, null, null)));
+            ReverseRouter.route(on(FinalisePublicNoticeController.class)
+                .renderFinalisePublicNotice(applicationDetail.getMasterPwaApplicationId(), type, null, null, null)));
 
     endpointTestBuilder.performAppStatusChecks(status().isOk(), status().isNotFound());
 
   }
 
   @Test
-  public void renderWithdrawPublicNotice_processingPermissionSmokeTest() {
+  public void renderFinalisePublicNotice_processingPermissionSmokeTest() {
 
     endpointTestBuilder.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
-            ReverseRouter.route(on(WithdrawPublicNoticeController.class)
-                .renderWithdrawPublicNotice(applicationDetail.getMasterPwaApplicationId(), type, null, null, null)));
+            ReverseRouter.route(on(FinalisePublicNoticeController.class)
+                .renderFinalisePublicNotice(applicationDetail.getMasterPwaApplicationId(), type, null, null, null)));
 
     endpointTestBuilder.performProcessingPermissionCheck(status().isOk(), status().isForbidden());
 
   }
 
   @Test
-  public void renderWithdrawPublicNotice_noSatisfactoryVersions() throws Exception {
+  public void renderFinalisePublicNotice_noSatisfactoryVersions() throws Exception {
 
     when(processingPermissionService.getProcessingPermissionsDto(any(), any())).thenReturn(new ProcessingPermissionsDto(
         ApplicationInvolvementDtoTestUtil.noInvolvementAndNoFlags(pwaApplicationDetail.getPwaApplication()),
         EnumSet.allOf(PwaAppProcessingPermission.class)));
 
-    mockMvc.perform(get(ReverseRouter.route(on(WithdrawPublicNoticeController.class).renderWithdrawPublicNotice(
+    mockMvc.perform(get(ReverseRouter.route(on(FinalisePublicNoticeController.class).renderFinalisePublicNotice(
         pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null)))
         .with(authenticatedUserAndSession(user))
         .with(csrf()))
@@ -131,12 +131,12 @@ public class WithdrawPublicNoticeControllerTest extends PwaAppProcessingContextA
   }
 
   @Test
-  public void renderWithdrawPublicNotice_noPublicNoticeToWithdraw() throws Exception {
+  public void renderFinalisePublicNotice_noPublicNoticeToFinalise() throws Exception {
 
-    when(withdrawPublicNoticeService.publicNoticeCanBeWithdrawn(any())).thenReturn(false);
+    when(finalisePublicNoticeService.publicNoticeCanBeFinalised(any())).thenReturn(false);
 
-    mockMvc.perform(get(ReverseRouter.route(on(WithdrawPublicNoticeController.class)
-        .renderWithdrawPublicNotice(
+    mockMvc.perform(get(ReverseRouter.route(on(FinalisePublicNoticeController.class)
+        .renderFinalisePublicNotice(
             pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null)))
         .with(authenticatedUserAndSession(user))
         .with(csrf()))
@@ -145,56 +145,56 @@ public class WithdrawPublicNoticeControllerTest extends PwaAppProcessingContextA
 
 
   @Test
-  public void postWithdrawPublicNotice_appStatusSmokeTest() {
+  public void postFinalisePublicNotice_appStatusSmokeTest() {
 
-    when(withdrawPublicNoticeService.validate(any(), any())).thenReturn(new BeanPropertyBindingResult(new WithdrawPublicNoticeForm(), "form"));
+    when(finalisePublicNoticeService.validate(any(), any())).thenReturn(new BeanPropertyBindingResult(new FinalisePublicNoticeForm(), "form"));
 
     endpointTestBuilder.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
-            ReverseRouter.route(on(WithdrawPublicNoticeController.class)
-                .postWithdrawPublicNotice(applicationDetail.getMasterPwaApplicationId(), type, null, null, null, null)));
+            ReverseRouter.route(on(FinalisePublicNoticeController.class)
+                .postFinalisePublicNotice(applicationDetail.getMasterPwaApplicationId(), type, null, null, null, null)));
 
     endpointTestBuilder.performAppStatusChecks(status().is3xxRedirection(), status().isNotFound());
 
   }
 
   @Test
-  public void postWithdrawPublicNotice_permissionSmokeTest() {
+  public void postFinalisePublicNotice_permissionSmokeTest() {
 
-    when(withdrawPublicNoticeService.validate(any(), any())).thenReturn(new BeanPropertyBindingResult(new WithdrawPublicNoticeForm(), "form"));
+    when(finalisePublicNoticeService.validate(any(), any())).thenReturn(new BeanPropertyBindingResult(new FinalisePublicNoticeForm(), "form"));
 
     endpointTestBuilder.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
-            ReverseRouter.route(on(WithdrawPublicNoticeController.class)
-                .postWithdrawPublicNotice(applicationDetail.getMasterPwaApplicationId(), type, null, null, null, null)));
+            ReverseRouter.route(on(FinalisePublicNoticeController.class)
+                .postFinalisePublicNotice(applicationDetail.getMasterPwaApplicationId(), type, null, null, null, null)));
 
     endpointTestBuilder.performProcessingPermissionCheck(status().is3xxRedirection(), status().isForbidden());
 
   }
 
   @Test
-  public void postWithdrawPublicNotice_validationFail() throws Exception {
+  public void postFinalisePublicNotice_validationFail() throws Exception {
 
-    var failedBindingResult = new BeanPropertyBindingResult(new WithdrawPublicNoticeForm(), "form");
+    var failedBindingResult = new BeanPropertyBindingResult(new FinalisePublicNoticeForm(), "form");
     failedBindingResult.addError(new ObjectError("fake", "fake"));
-    when(withdrawPublicNoticeService.validate(any(), any())).thenReturn(failedBindingResult);
+    when(finalisePublicNoticeService.validate(any(), any())).thenReturn(failedBindingResult);
 
-    mockMvc.perform(post(ReverseRouter.route(on(WithdrawPublicNoticeController.class)
-        .postWithdrawPublicNotice(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null)))
+    mockMvc.perform(post(ReverseRouter.route(on(FinalisePublicNoticeController.class)
+        .postFinalisePublicNotice(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null)))
         .with(authenticatedUserAndSession(user))
         .with(csrf()))
         .andExpect(status().isOk())
-        .andExpect(view().name("publicNotice/withdrawPublicNotice"));
+        .andExpect(view().name("publicNotice/finalisePublicNotice"));
   }
 
   @Test
-  public void postWithdrawPublicNotice_noSatisfactoryVersions() throws Exception {
+  public void postFinalisePublicNotice_noSatisfactoryVersions() throws Exception {
 
     when(processingPermissionService.getProcessingPermissionsDto(any(), any())).thenReturn(new ProcessingPermissionsDto(
         ApplicationInvolvementDtoTestUtil.noInvolvementAndNoFlags(pwaApplicationDetail.getPwaApplication()),
         EnumSet.allOf(PwaAppProcessingPermission.class)));
 
-    mockMvc.perform(post(ReverseRouter.route(on(WithdrawPublicNoticeController.class).postWithdrawPublicNotice(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null)))
+    mockMvc.perform(post(ReverseRouter.route(on(FinalisePublicNoticeController.class).postFinalisePublicNotice(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null)))
         .with(authenticatedUserAndSession(user))
         .with(csrf()))
         .andExpect(status().isForbidden());
@@ -202,12 +202,12 @@ public class WithdrawPublicNoticeControllerTest extends PwaAppProcessingContextA
   }
 
   @Test
-  public void postWithdrawPublicNotice_noPublicNoticeToWithdraw() throws Exception {
+  public void postFinalisePublicNotice_noPublicNoticeToFinalise() throws Exception {
 
-    when(withdrawPublicNoticeService.publicNoticeCanBeWithdrawn(any())).thenReturn(false);
+    when(finalisePublicNoticeService.publicNoticeCanBeFinalised(any())).thenReturn(false);
 
-    mockMvc.perform(post(ReverseRouter.route(on(WithdrawPublicNoticeController.class)
-        .postWithdrawPublicNotice(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null)))
+    mockMvc.perform(post(ReverseRouter.route(on(FinalisePublicNoticeController.class)
+        .postFinalisePublicNotice(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null)))
         .with(authenticatedUserAndSession(user))
         .with(csrf()))
         .andExpect(result -> assertThat(result.getResolvedException() instanceof AccessDeniedException).isTrue());
