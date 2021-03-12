@@ -16,7 +16,7 @@ import uk.co.ogauthority.pwa.model.notify.emailproperties.publicnotices.PublicNo
 import uk.co.ogauthority.pwa.repository.publicnotice.PublicNoticeDatesRepository;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationPublicNoticeFinalisationResult;
-import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationPublicNoticeWorkflowTask;
+import uk.co.ogauthority.pwa.service.enums.workflow.publicnotice.PwaApplicationPublicNoticeWorkflowTask;
 import uk.co.ogauthority.pwa.service.notify.EmailCaseLinkService;
 import uk.co.ogauthority.pwa.service.notify.NotifyService;
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
