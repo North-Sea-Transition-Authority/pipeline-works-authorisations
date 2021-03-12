@@ -64,7 +64,7 @@ public class AppChargeEmailServiceTest {
   }
 
   @Test
-  public void sendFailedToAssignCaseOfficerEmail_emailsCaseOfficers() {
+  public void sendFailedToAssignCaseOfficerEmail_emailsPwaManagers() {
 
     when(pwaTeamService.getPeopleWithRegulatorRole(PwaRegulatorRole.PWA_MANAGER))
         .thenReturn(Set.of(pwaManager1, pwaManager2));
