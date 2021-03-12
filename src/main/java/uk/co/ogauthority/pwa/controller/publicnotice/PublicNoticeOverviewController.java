@@ -52,7 +52,7 @@ public class PublicNoticeOverviewController {
     return CaseManagementUtils.withAtLeastOneSatisfactoryVersion(
         processingContext,
         PwaAppProcessingTask.PUBLIC_NOTICE,
-        () -> getDraftPublicNoticeModelAndView(processingContext, authenticatedUserAccount));
+        () -> getPublicNoticeOverviewModelAndView(processingContext, authenticatedUserAccount));
   }
 
 
@@ -85,8 +85,8 @@ public class PublicNoticeOverviewController {
 
 
 
-  private ModelAndView getDraftPublicNoticeModelAndView(PwaAppProcessingContext processingContext,
-                                                        AuthenticatedUserAccount authenticatedUserAccount) {
+  private ModelAndView getPublicNoticeOverviewModelAndView(PwaAppProcessingContext processingContext,
+                                                           AuthenticatedUserAccount authenticatedUserAccount) {
 
     var pwaApplication = processingContext.getPwaApplication();
     var allPublicNoticesView = publicNoticeService.getAllPublicNoticeViews(processingContext);

@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.service.appprocessing.publicnotice;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.List;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
@@ -16,6 +17,7 @@ import uk.co.ogauthority.pwa.model.entity.publicnotice.PublicNoticeDocument;
 import uk.co.ogauthority.pwa.model.entity.publicnotice.PublicNoticeRequest;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.form.files.UploadFileWithDescriptionForm;
+import uk.co.ogauthority.pwa.model.form.publicnotice.FinalisePublicNoticeForm;
 import uk.co.ogauthority.pwa.model.form.publicnotice.PublicNoticeDraftForm;
 import uk.co.ogauthority.pwa.model.view.publicnotice.PublicNoticeView;
 import uk.co.ogauthority.pwa.util.DateUtils;
@@ -130,6 +132,27 @@ public final class PublicNoticeTestUtil {
         DateUtils.formatDate(publicNotice.getWithdrawalTimestamp())
     );
   }
+
+  static FinalisePublicNoticeForm createStartBeforeTodayFinalisePublicNoticeForm() {
+    var form = new FinalisePublicNoticeForm();
+    var lastMonthDate = LocalDate.now().minusMonths(1);
+    form.setStartDay(lastMonthDate.getDayOfMonth());
+    form.setStartMonth(lastMonthDate.getMonthValue());
+    form.setStartYear(lastMonthDate.getYear());
+    form.setDaysToBePublishedFor(40);
+    return form;
+  }
+
+  static FinalisePublicNoticeForm createAfterTodayFinalisePublicNoticeForm() {
+    var form = new FinalisePublicNoticeForm();
+    var nextMonthDate = LocalDate.now().plusMonths(1);
+    form.setStartDay(nextMonthDate.getDayOfMonth());
+    form.setStartMonth(nextMonthDate.getMonthValue());
+    form.setStartYear(nextMonthDate.getYear());
+    form.setDaysToBePublishedFor(40);
+    return form;
+  }
+
 
 
 

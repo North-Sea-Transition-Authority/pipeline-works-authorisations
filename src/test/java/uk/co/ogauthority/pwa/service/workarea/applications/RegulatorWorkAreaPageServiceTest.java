@@ -226,6 +226,35 @@ public class RegulatorWorkAreaPageServiceTest {
 
   }
 
+  @Test
+  public void getWaitingOnOthersPageView_hasAssignedApps_caseOfficerPrivilege() {
+
+    fakeResultPage = WorkAreaPageServiceTestUtil.getFakeApplicationSearchResultPage(
+        List.of(WorkAreaApplicationSearchTestUtil.getSearchDetailItem(PwaApplicationStatus.CASE_OFFICER_REVIEW)),
+        REQUESTED_PAGE);
+
+    when(workAreaApplicationDetailSearcher.searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagEqualsAndAnyProcessingWaitFlagEqual(any(), any(), any(), any(),any()))
+        .thenReturn(fakeResultPage);
+
+    var flagMap = getFlagMapWithDefaultValue(true);
+
+    var caseOfficer = new AuthenticatedUserAccount(new WebUserAccount(10), EnumSet.of(PwaUserPrivilege.PWA_CASE_OFFICER));
+    var workAreaPage = appWorkAreaPageService.getWaitingOnOthersPageView(caseOfficer, Set.of(APP_ID_1, APP_ID_2), REQUESTED_PAGE);
+
+    verify(workAreaApplicationDetailSearcher, times(1)).searchByStatusOrApplicationIdsAndWhereTipSatisfactoryFlagEqualsAndAnyProcessingWaitFlagEqual(
+        WorkAreaPageServiceTestUtil.getWorkAreaViewPageable(REQUESTED_PAGE, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
+        pwaManagerStatuses,
+        EnumSet.complementOf(EnumSet.of(PublicNoticeStatus.DRAFT, PublicNoticeStatus.CASE_OFFICER_REVIEW)),
+        Set.of(APP_ID_1, APP_ID_2),
+        flagMap
+    );
+
+    assertThat(workAreaPage.getPageContent())
+        .isNotEmpty()
+        .allSatisfy(pwaApplicationWorkAreaItem -> assertThat(pwaApplicationWorkAreaItem.getAccessUrl()).isNotNull());
+
+  }
+
   private Map<WorkAreaFlag, Boolean> getFlagMapWithDefaultValue(Boolean value) {
 
     return WorkAreaFlag.stream()

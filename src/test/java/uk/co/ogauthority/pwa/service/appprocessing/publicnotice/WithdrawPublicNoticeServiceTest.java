@@ -134,6 +134,9 @@ public class WithdrawPublicNoticeServiceTest {
         pwaApplication, user.getLinkedPerson(), form.getWithdrawalReason(), clock.instant());
     when(publicNoticeService.savePublicNotice(publicNotice)).thenReturn(withdrawnPublicNotice);
 
+    var latestPublicNoticeDocument = PublicNoticeTestUtil.createInitialPublicNoticeDocument(publicNotice);
+    when(publicNoticeService.getLatestPublicNoticeDocument(publicNotice)).thenReturn(latestPublicNoticeDocument);
+
     var emailRecipients = Set.of(PersonTestUtil.createPersonFrom(new PersonId(200), "manager@email.com"));
     when(pwaTeamService.getPeopleWithRegulatorRole(PwaRegulatorRole.PWA_MANAGER)).thenReturn(emailRecipients);
 
@@ -141,6 +144,8 @@ public class WithdrawPublicNoticeServiceTest {
 
     verify(camundaWorkflowService, times(1)).deleteProcessAndTask(new WorkflowTaskInstance(
         publicNotice, PwaApplicationPublicNoticeWorkflowTask.MANAGER_APPROVAL));
+
+    verify(publicNoticeService, times(1)).archivePublicNoticeDocument(latestPublicNoticeDocument);
 
     verify(publicNoticeService, times(1)).savePublicNotice(publicNoticeArgumentCaptor.capture());
     var actualPublicNotice = publicNoticeArgumentCaptor.getValue();
@@ -175,6 +180,9 @@ public class WithdrawPublicNoticeServiceTest {
         pwaApplication, user.getLinkedPerson(), form.getWithdrawalReason(), clock.instant());
     when(publicNoticeService.savePublicNotice(publicNotice)).thenReturn(withdrawnPublicNotice);
 
+    var latestPublicNoticeDocument = PublicNoticeTestUtil.createInitialPublicNoticeDocument(publicNotice);
+    when(publicNoticeService.getLatestPublicNoticeDocument(publicNotice)).thenReturn(latestPublicNoticeDocument);
+
     var pwaManager = PersonTestUtil.createPersonFrom(new PersonId(200), "manager@email.com");
     when(pwaTeamService.getPeopleWithRegulatorRole(PwaRegulatorRole.PWA_MANAGER)).thenReturn(Set.of(pwaManager));
 
@@ -187,6 +195,8 @@ public class WithdrawPublicNoticeServiceTest {
 
     verify(camundaWorkflowService, times(1)).deleteProcessAndTask(new WorkflowTaskInstance(
         publicNotice, PwaApplicationPublicNoticeWorkflowTask.CASE_OFFICER_REVIEW));
+
+    verify(publicNoticeService, times(1)).archivePublicNoticeDocument(latestPublicNoticeDocument);
 
     emailRecipients.forEach(recipient -> {
       var expectedEmailProps = new PublicNoticeWithdrawnEmailProps(
