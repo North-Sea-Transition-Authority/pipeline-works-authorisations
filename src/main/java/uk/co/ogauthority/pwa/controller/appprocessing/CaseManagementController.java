@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.controller.appprocessing;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +10,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.appprocessing.shared.PwaAppProcessingPermissionCheck;
 import uk.co.ogauthority.pwa.exception.AccessDeniedException;
 import uk.co.ogauthority.pwa.service.appprocessing.application.ConfirmSatisfactoryApplicationService;
@@ -57,14 +59,15 @@ public class CaseManagementController {
           tab.name()));
     }
 
-    return getCaseManagementModelAndView(processingContext, tab, tabs);
+    return getCaseManagementModelAndView(processingContext, tab, tabs, authenticatedUserAccount);
 
   }
 
 
   private ModelAndView getCaseManagementModelAndView(PwaAppProcessingContext appProcessingContext,
                                                      AppProcessingTab currentTab,
-                                                     List<AppProcessingTab> availableTabs) {
+                                                     List<AppProcessingTab> availableTabs,
+                                                     AuthenticatedUserAccount authenticatedUserAccount) {
 
     var detail = appProcessingContext.getApplicationDetail();
 
@@ -76,9 +79,21 @@ public class CaseManagementController {
         .addObject("availableTabs", availableTabs)
         .addObject("tabUrlFactory", new AppProcessingTabUrlFactory(detail))
         .addObject("processingPermissions", appProcessingContext.getAppProcessingPermissions())
-        .addObject("showConfirmSatisfactoryWarning", confirmSatisfactoryApplicationService.confirmSatisfactoryTaskRequired(detail))
-        .addObject("taskRequirementToShowWarning", TaskRequirement.REQUIRED)
+        .addObject("taskGroupNameWarningMessageMap",
+            getTaskGroupNameWarningMessageMap(appProcessingContext, authenticatedUserAccount))
         .addAllObjects(tabContentModelMap);
+  }
+
+  private Map<String, String> getTaskGroupNameWarningMessageMap(PwaAppProcessingContext appProcessingContext,
+                                                                AuthenticatedUserAccount authenticatedUserAccount) {
+    var taskGroupNameWarningMessageMap = new HashMap<String, String>();
+
+    if (authenticatedUserAccount.getUserPrivileges().contains(PwaUserPrivilege.PWA_CASE_OFFICER)
+        && confirmSatisfactoryApplicationService.confirmSatisfactoryTaskRequired(appProcessingContext.getApplicationDetail())) {
+      taskGroupNameWarningMessageMap.put(TaskRequirement.REQUIRED.getDisplayName(),
+          "This updated application should be confirmed as satisfactory before performing other tasks.");
+    }
+    return taskGroupNameWarningMessageMap;
   }
 
 

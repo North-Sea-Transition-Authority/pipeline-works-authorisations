@@ -1,13 +1,16 @@
 package uk.co.ogauthority.pwa.controller.appprocessing;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -17,15 +20,22 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.http.HttpMethod;
 import org.springframework.test.context.junit4.SpringRunner;
+import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.PwaAppProcessingContextAbstractControllerTest;
+import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.PwaAppProcessingPermissionService;
 import uk.co.ogauthority.pwa.service.appprocessing.application.ConfirmSatisfactoryApplicationService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContextService;
+import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContextTestUtil;
 import uk.co.ogauthority.pwa.service.appprocessing.tabs.AppProcessingTab;
 import uk.co.ogauthority.pwa.service.appprocessing.tabs.AppProcessingTabService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
+import uk.co.ogauthority.pwa.service.enums.appprocessing.TaskRequirement;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
+import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(controllers = CaseManagementController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {PwaAppProcessingContextService.class}))
@@ -41,6 +51,9 @@ public class CaseManagementControllerTest extends PwaAppProcessingContextAbstrac
 
   @MockBean
   private AppProcessingTabService appProcessingTabService;
+
+  @MockBean
+  private CaseManagementController caseManagementController;
 
   @Before
   public void setUp() {
@@ -86,6 +99,23 @@ public class CaseManagementControllerTest extends PwaAppProcessingContextAbstrac
 
     endpointTester.performProcessingPermissionCheck(status().isOk(), status().isForbidden());
 
+  }
+
+  @Test
+  public void renderCaseManagement_taskGroupNameWarningMessageMap_hasWarningMsgForCaseOfficer() {
+
+    var caseOfficer = new AuthenticatedUserAccount(new WebUserAccount(10), EnumSet.of(PwaUserPrivilege.PWA_CASE_OFFICER));
+    var context = PwaAppProcessingContextTestUtil.withPermissions(PwaApplicationTestUtil.createDefaultApplicationDetail(
+        PwaApplicationType.INITIAL), Set.of());
+    caseManagementController = new CaseManagementController(appProcessingTabService, confirmSatisfactoryApplicationService);
+
+    when(appProcessingTabService.getTabsAvailableToUser(any())).thenReturn(List.of(AppProcessingTab.TASKS));
+    when(confirmSatisfactoryApplicationService.confirmSatisfactoryTaskRequired(context.getApplicationDetail())).thenReturn(true);
+
+    var modelAndView =  caseManagementController.renderCaseManagement(1, null, AppProcessingTab.TASKS, context, caseOfficer);
+
+    var warningMap = (Map<String, String>) modelAndView.getModel().get("taskGroupNameWarningMessageMap");
+    assertThat(warningMap.get(TaskRequirement.REQUIRED.getDisplayName())).isNotNull();
   }
 
 

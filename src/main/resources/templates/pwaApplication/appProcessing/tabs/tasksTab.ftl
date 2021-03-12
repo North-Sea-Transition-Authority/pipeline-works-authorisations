@@ -1,9 +1,9 @@
 <#include '../../../layout.ftl'>
 
 <#-- @ftlvariable name="task" type="uk.co.ogauthority.pwa.model.tasklist.TaskListEntry" -->
-<#-- @ftlvariable name="taskRequirementToShowWarning" type="uk.co.ogauthority.pwa.service.enums.appprocessing.TaskRequirement -->
+<#-- @ftlvariable name="taskGroupNameWarningMessageMap" type="java.util.Map<java.lang.String, java.lang.String>" -->
 
-<#macro tab taskListGroups industryFlag=false warningText="" showWarning=false taskRequirementToShowWarning=[]>
+<#macro tab taskListGroups industryFlag=false taskGroupNameWarningMessageMap=[]>
 
 
 
@@ -11,12 +11,12 @@
 
       <#list taskListGroups as taskGroup>
 
-          <#assign taskListSectionWarningText = ""/>
-          <#if showWarning && taskRequirementToShowWarning.getDisplayName() == taskGroup.groupName>
-            <#assign taskListSectionWarningText = warningText/>
+          <#assign warningText = ""/>
+          <#if taskGroupNameWarningMessageMap[taskGroup.groupName]?has_content>
+            <#assign warningText = taskGroupNameWarningMessageMap[taskGroup.groupName]/>
           </#if>
 
-          <@fdsTaskList.taskListSection sectionHeadingText=industryFlag?then("Status", taskGroup.groupName) warningText=taskListSectionWarningText>
+          <@fdsTaskList.taskListSection sectionHeadingText=industryFlag?then("Status", taskGroup.groupName) warningText=warningText>
               <#list taskGroup.taskListEntries as task>
 
                   <#if task.taskState != "LOCK">

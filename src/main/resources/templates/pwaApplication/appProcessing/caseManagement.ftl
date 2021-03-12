@@ -12,8 +12,7 @@
 
 <#-- @ftlvariable name="taskListUrl" type="String" -->
 <#-- @ftlvariable name="processingPermissions" type="java.util.Set<uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission> -->
-<#-- @ftlvariable name="showConfirmSatisfactoryWarning" type="java.lang.Boolean" -->
-<#-- @ftlvariable name="taskRequirementToShowWarning" type="uk.co.ogauthority.pwa.service.enums.appprocessing.TaskRequirement -->
+<#-- @ftlvariable name="taskGroupNameWarningMessageMap" type="java.util.Map<java.lang.String, java.lang.String>" -->
 
 
 <#include '../../layout.ftl'>
@@ -51,9 +50,8 @@
 
       <@fdsBackendTabs.tabContent tabAnchor=tab.anchor currentTab=currentProcessingTab.value tabValue=tab.value>
 
-        <#assign tasksTabWarningText = "This updated application should be confirmed as satisfactory before performing other tasks."/>
         <#if tab == "TASKS">
-            <@tasksTab.tab taskListGroups=taskListGroups industryFlag=industryFlag warningText=tasksTabWarningText showWarning=showConfirmSatisfactoryWarning taskRequirementToShowWarning=taskRequirementToShowWarning/>
+            <@tasksTab.tab taskListGroups=taskListGroups industryFlag=industryFlag taskGroupNameWarningMessageMap=taskGroupNameWarningMessageMap/>
         </#if>
 
         <#if tab == "CASE_HISTORY">
