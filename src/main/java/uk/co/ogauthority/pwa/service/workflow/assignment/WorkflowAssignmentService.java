@@ -88,10 +88,10 @@ public class WorkflowAssignmentService {
   /**
    * Use this method to assign a task without throwing an exception if theres a problem.
    */
-  public AssignTaskResult assignTask(WorkflowSubject workflowSubject,
-                                     UserWorkflowTask task,
-                                     Person personToAssign,
-                                     Person assigningPerson) {
+  public AssignTaskResult assignTaskNoException(WorkflowSubject workflowSubject,
+                                                UserWorkflowTask task,
+                                                Person personToAssign,
+                                                Person assigningPerson) {
     return assignTaskInternal(
         workflowSubject,
         task,

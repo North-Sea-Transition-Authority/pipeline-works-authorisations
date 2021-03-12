@@ -450,7 +450,7 @@ public class ApplicationChargeRequestService {
         PwaAwaitPaymentResult.PAID
     );
 
-    var assignmentResult = workflowAssignmentService.assignTask(
+    var assignmentResult = workflowAssignmentService.assignTaskNoException(
         pwaAppChargePaymentAttempt.getPwaAppChargeRequest().getPwaApplication(),
         PwaApplicationWorkflowTask.CASE_OFFICER_REVIEW,
         personService.getPersonById(tipChargeRequestDetail.getAutoCaseOfficerPersonId()),

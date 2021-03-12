@@ -144,7 +144,7 @@ public class ApplicationChargeRequestServiceTest {
     when(pwaAppChargeRequestDetailRepository.findByPwaAppChargeRequest_PwaApplicationAndPwaAppChargeRequestStatusAndTipFlagIsTrue(pwaApplication, PwaAppChargeRequestStatus.OPEN))
         .thenReturn(Optional.of(chargeRequestDetail));
 
-    when(workflowAssignmentService.assignTask(any(), any(),any(), any()))
+    when(workflowAssignmentService.assignTaskNoException(any(), any(),any(), any()))
         .thenReturn(WorkflowAssignmentService.AssignTaskResult.SUCCESS);
 
     applicationChargeRequestService = new ApplicationChargeRequestService(
@@ -612,7 +612,7 @@ public class ApplicationChargeRequestServiceTest {
         PwaApplicationWorkflowTask.AWAIT_APPLICATION_PAYMENT
     ));
     verifyOrder.verify(workflowAssignmentService, times(1))
-        .assignTask(pwaApplication, PwaApplicationWorkflowTask.CASE_OFFICER_REVIEW, caseOfficerPerson, pwaManagerPerson);
+        .assignTaskNoException(pwaApplication, PwaApplicationWorkflowTask.CASE_OFFICER_REVIEW, caseOfficerPerson, pwaManagerPerson);
 
     verifyOrder.verify(pwaApplicationDetailService, times(1)).updateStatus(pwaApplicationDetail, PwaApplicationStatus.CASE_OFFICER_REVIEW, paymentAttemptWua);
     verifyOrder.verifyNoMoreInteractions();
@@ -633,7 +633,7 @@ public class ApplicationChargeRequestServiceTest {
     when(personService.getPersonById(caseOfficerPerson.getId())).thenReturn(caseOfficerPerson);
     when(personService.getPersonById(pwaManagerPerson.getId())).thenReturn(pwaManagerPerson);
 
-    when(workflowAssignmentService.assignTask(any(),any(),any(),any()))
+    when(workflowAssignmentService.assignTaskNoException(any(),any(),any(),any()))
         .thenReturn(WorkflowAssignmentService.AssignTaskResult.ASSIGNMENT_CANDIDATE_INVALID);
 
     var attempt = PwaAppChargePaymentAttemptTestUtil.createWithPaymentRequest(chargeRequest, PaymentRequestStatus.PENDING, paymentAttemptPerson);

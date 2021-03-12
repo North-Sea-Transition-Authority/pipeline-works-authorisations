@@ -183,11 +183,11 @@ public class WorkflowAssignmentServiceTest {
   }
 
   @Test
-  public void assignTask_success() {
+  public void assignTaskNoException_success() {
 
     var app = new PwaApplication();
 
-    assertThat(workflowAssignmentService.assignTask(
+    assertThat(workflowAssignmentService.assignTaskNoException(
        app,
        PwaApplicationWorkflowTask.CASE_OFFICER_REVIEW,
         caseOfficerPerson,
@@ -204,11 +204,11 @@ public class WorkflowAssignmentServiceTest {
   }
 
   @Test
-  public void assignTask_invalidAssigneePerson() {
+  public void assignTaskNoException_invalidAssigneePerson() {
 
     var app = new PwaApplication();
 
-    assertThat(workflowAssignmentService.assignTask(
+    assertThat(workflowAssignmentService.assignTaskNoException(
         app,
         PwaApplicationWorkflowTask.CASE_OFFICER_REVIEW,
         notCaseOfficerPerson,
