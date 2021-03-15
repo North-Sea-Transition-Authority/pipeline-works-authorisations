@@ -63,7 +63,7 @@ public class IndustryWorkAreaPageService {
         workAreaApplicationDetailSearcher.searchWhereApplicationIdInAndWhereStatusInOrOpenUpdateRequest(
             WorkAreaUtils.getWorkAreaPageRequest(page, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
             applicationIdFilter,
-            ApplicationState.INDUSTRY_EDITABLE.getStatuses(),
+            ApplicationState.REQUIRES_INDUSTRY_ATTENTION.getStatuses(),
             true
         ),
         workAreaUri,
@@ -80,7 +80,7 @@ public class IndustryWorkAreaPageService {
         on(WorkAreaController.class).renderWorkAreaTab(null, WorkAreaTab.INDUSTRY_SUBMITTED_APPLICATIONS, page));
 
     var applicationIdFilter = getIndustryUserApplicationIds(authenticatedUserAccount);
-    var notOpenApplicationStatusFilter =  EnumSet.complementOf(EnumSet.copyOf(ApplicationState.INDUSTRY_EDITABLE.getStatuses()));
+    var notOpenApplicationStatusFilter =  EnumSet.complementOf(EnumSet.copyOf(ApplicationState.REQUIRES_INDUSTRY_ATTENTION.getStatuses()));
 
     return PageView.fromPage(
         workAreaApplicationDetailSearcher.searchWhereApplicationIdInAndWhereStatusInAndOpenUpdateRequest(

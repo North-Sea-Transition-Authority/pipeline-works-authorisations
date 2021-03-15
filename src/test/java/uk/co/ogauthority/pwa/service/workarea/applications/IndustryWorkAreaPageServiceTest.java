@@ -109,7 +109,7 @@ public class IndustryWorkAreaPageServiceTest {
     verify(workAreaApplicationDetailSearcher, times(1)).searchWhereApplicationIdInAndWhereStatusInOrOpenUpdateRequest(
         WorkAreaPageServiceTestUtil.getWorkAreaViewPageable(REQUESTED_PAGE, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
         Set.of(BUSINESS_KEY_INT),
-        ApplicationState.INDUSTRY_EDITABLE.getStatuses(),
+        ApplicationState.REQUIRES_INDUSTRY_ATTENTION.getStatuses(),
         true
     );
 
@@ -149,7 +149,7 @@ public class IndustryWorkAreaPageServiceTest {
     verify(workAreaApplicationDetailSearcher, times(1)).searchWhereApplicationIdInAndWhereStatusInOrOpenUpdateRequest(
         WorkAreaPageServiceTestUtil.getWorkAreaViewPageable(REQUESTED_PAGE, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
         Set.of(BUSINESS_KEY_INT),
-        ApplicationState.INDUSTRY_EDITABLE.getStatuses(),
+        ApplicationState.REQUIRES_INDUSTRY_ATTENTION.getStatuses(),
         true
     );
 
@@ -174,7 +174,7 @@ public class IndustryWorkAreaPageServiceTest {
     verify(workAreaApplicationDetailSearcher, times(1)).searchWhereApplicationIdInAndWhereStatusInOrOpenUpdateRequest(
         WorkAreaPageServiceTestUtil.getWorkAreaViewPageable(REQUESTED_PAGE, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
         Set.of(BUSINESS_KEY_INT),
-        ApplicationState.INDUSTRY_EDITABLE.getStatuses(),
+        ApplicationState.REQUIRES_INDUSTRY_ATTENTION.getStatuses(),
         true
     );
 
@@ -215,7 +215,6 @@ public class IndustryWorkAreaPageServiceTest {
         Set.of(BUSINESS_KEY_INT),
         Set.of(
             PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW,
-            PwaApplicationStatus.AWAITING_APPLICATION_PAYMENT,
             PwaApplicationStatus.CASE_OFFICER_REVIEW,
             PwaApplicationStatus.CONSENT_REVIEW,
             PwaApplicationStatus.WITHDRAWN,
@@ -250,7 +249,6 @@ public class IndustryWorkAreaPageServiceTest {
         Set.of(BUSINESS_KEY_INT),
         Set.of(
             PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW,
-            PwaApplicationStatus.AWAITING_APPLICATION_PAYMENT,
             PwaApplicationStatus.CASE_OFFICER_REVIEW,
             PwaApplicationStatus.CONSENT_REVIEW,
             PwaApplicationStatus.WITHDRAWN,
