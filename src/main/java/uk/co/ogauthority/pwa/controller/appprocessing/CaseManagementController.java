@@ -80,15 +80,14 @@ public class CaseManagementController {
         .addObject("tabUrlFactory", new AppProcessingTabUrlFactory(detail))
         .addObject("processingPermissions", appProcessingContext.getAppProcessingPermissions())
         .addObject("taskGroupNameWarningMessageMap",
-            getTaskGroupNameWarningMessageMap(appProcessingContext, authenticatedUserAccount))
+            getTaskGroupNameWarningMessageMap(appProcessingContext))
         .addAllObjects(tabContentModelMap);
   }
 
-  private Map<String, String> getTaskGroupNameWarningMessageMap(PwaAppProcessingContext appProcessingContext,
-                                                                AuthenticatedUserAccount authenticatedUserAccount) {
+  private Map<String, String> getTaskGroupNameWarningMessageMap(PwaAppProcessingContext appProcessingContext) {
     var taskGroupNameWarningMessageMap = new HashMap<String, String>();
 
-    if (authenticatedUserAccount.getUserPrivileges().contains(PwaUserPrivilege.PWA_CASE_OFFICER)
+    if (appProcessingContext.getApplicationInvolvement().isUserAssignedCaseOfficer()
         && confirmSatisfactoryApplicationService.confirmSatisfactoryTaskRequired(appProcessingContext.getApplicationDetail())) {
       taskGroupNameWarningMessageMap.put(TaskRequirement.REQUIRED.getDisplayName(),
           "This updated application should be confirmed as satisfactory before performing other tasks.");

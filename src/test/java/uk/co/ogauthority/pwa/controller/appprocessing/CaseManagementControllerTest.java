@@ -24,11 +24,12 @@ import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.PwaAppProcessingContextAbstractControllerTest;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
+import uk.co.ogauthority.pwa.model.dto.appprocessing.ApplicationInvolvementDtoTestUtil;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.PwaAppProcessingPermissionService;
 import uk.co.ogauthority.pwa.service.appprocessing.application.ConfirmSatisfactoryApplicationService;
+import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContextService;
-import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContextTestUtil;
 import uk.co.ogauthority.pwa.service.appprocessing.tabs.AppProcessingTab;
 import uk.co.ogauthority.pwa.service.appprocessing.tabs.AppProcessingTabService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
@@ -105,8 +106,20 @@ public class CaseManagementControllerTest extends PwaAppProcessingContextAbstrac
   public void renderCaseManagement_taskGroupNameWarningMessageMap_hasWarningMsgForCaseOfficer() {
 
     var caseOfficer = new AuthenticatedUserAccount(new WebUserAccount(10), EnumSet.of(PwaUserPrivilege.PWA_CASE_OFFICER));
-    var context = PwaAppProcessingContextTestUtil.withPermissions(PwaApplicationTestUtil.createDefaultApplicationDetail(
-        PwaApplicationType.INITIAL), Set.of());
+    var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
+
+    var appInvolvement = ApplicationInvolvementDtoTestUtil.fromInvolvementFlags(
+        detail.getPwaApplication(),
+        EnumSet.of(ApplicationInvolvementDtoTestUtil.InvolvementFlag.AT_LEAST_ONE_SATISFACTORY_VERSION,
+            ApplicationInvolvementDtoTestUtil.InvolvementFlag.CASE_OFFICER_STAGE_AND_USER_ASSIGNED));
+
+    var context = new PwaAppProcessingContext(
+        detail,
+        caseOfficer,
+        Set.of(),
+        null,
+        appInvolvement);
+
     caseManagementController = new CaseManagementController(appProcessingTabService, confirmSatisfactoryApplicationService);
 
     when(appProcessingTabService.getTabsAvailableToUser(any())).thenReturn(List.of(AppProcessingTab.TASKS));
@@ -116,6 +129,34 @@ public class CaseManagementControllerTest extends PwaAppProcessingContextAbstrac
 
     var warningMap = (Map<String, String>) modelAndView.getModel().get("taskGroupNameWarningMessageMap");
     assertThat(warningMap.get(TaskRequirement.REQUIRED.getDisplayName())).isNotNull();
+  }
+
+  @Test
+  public void renderCaseManagement_taskGroupNameWarningMessageMap_userIsNotAssignedCaseOfficer_noWarningMessage() {
+
+    var user = new AuthenticatedUserAccount(new WebUserAccount(10), EnumSet.of(PwaUserPrivilege.PWA_INDUSTRY));
+    var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
+
+    var appInvolvement = ApplicationInvolvementDtoTestUtil.fromInvolvementFlags(
+        detail.getPwaApplication(),
+        EnumSet.of(ApplicationInvolvementDtoTestUtil.InvolvementFlag.AT_LEAST_ONE_SATISFACTORY_VERSION));
+
+    var context = new PwaAppProcessingContext(
+        detail,
+        user,
+        Set.of(),
+        null,
+        appInvolvement);
+
+    caseManagementController = new CaseManagementController(appProcessingTabService, confirmSatisfactoryApplicationService);
+
+    when(appProcessingTabService.getTabsAvailableToUser(any())).thenReturn(List.of(AppProcessingTab.TASKS));
+    when(confirmSatisfactoryApplicationService.confirmSatisfactoryTaskRequired(context.getApplicationDetail())).thenReturn(true);
+
+    var modelAndView =  caseManagementController.renderCaseManagement(1, null, AppProcessingTab.TASKS, context, user);
+
+    var warningMap = (Map<String, String>) modelAndView.getModel().get("taskGroupNameWarningMessageMap");
+    assertThat(warningMap).isEmpty();
   }
 
 
