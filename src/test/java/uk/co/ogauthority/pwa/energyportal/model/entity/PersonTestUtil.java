@@ -24,6 +24,16 @@ public class PersonTestUtil {
     );
   }
 
+  public static Person createPersonFrom(PersonId personId, String email, String forename) {
+    return new Person(
+        personId.asInt(),
+        forename,
+        "surname",
+        email,
+        "0123456789"
+    );
+  }
+
   public static Person createDefaultPerson() {
     return new Person(
         100,

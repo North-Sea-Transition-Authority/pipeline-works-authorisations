@@ -183,6 +183,44 @@ public class WorkflowAssignmentServiceTest {
   }
 
   @Test
+  public void assignTaskNoException_success() {
+
+    var app = new PwaApplication();
+
+    assertThat(workflowAssignmentService.assignTaskNoException(
+       app,
+       PwaApplicationWorkflowTask.CASE_OFFICER_REVIEW,
+        caseOfficerPerson,
+       notCaseOfficerPerson)
+    ).isEqualTo(WorkflowAssignmentService.AssignTaskResult.SUCCESS);
+
+    verify(camundaWorkflowService, times(1)).assignTaskToUser(
+        eq(new WorkflowTaskInstance(app, PwaApplicationWorkflowTask.CASE_OFFICER_REVIEW)),
+        eq(caseOfficerPerson));
+
+    verify(assignmentService, times(1))
+        .createOrUpdateAssignment(app, PwaApplicationWorkflowTask.CASE_OFFICER_REVIEW, caseOfficerPerson, notCaseOfficerPerson);
+
+  }
+
+  @Test
+  public void assignTaskNoException_invalidAssigneePerson() {
+
+    var app = new PwaApplication();
+
+    assertThat(workflowAssignmentService.assignTaskNoException(
+        app,
+        PwaApplicationWorkflowTask.CASE_OFFICER_REVIEW,
+        notCaseOfficerPerson,
+        notCaseOfficerPerson)
+    ).isEqualTo(WorkflowAssignmentService.AssignTaskResult.ASSIGNMENT_CANDIDATE_INVALID);
+
+    verify(camundaWorkflowService, times(0)).assignTaskToUser(any(), any());
+    verify(assignmentService, times(0)).createOrUpdateAssignment(any(), any(), any(), any());
+
+  }
+
+  @Test
   public void triggerWorkflowMessageAndAssertTaskExists_whenExpectedTaskExists() {
     var testMessageName = "TEST";
     var testTaskKey = "TASK_KEY";
