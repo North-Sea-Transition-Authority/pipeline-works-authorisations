@@ -22,6 +22,7 @@ import uk.co.ogauthority.pwa.service.enums.workflow.application.PwaApplicationWo
 import uk.co.ogauthority.pwa.service.notify.EmailCaseLinkService;
 import uk.co.ogauthority.pwa.service.notify.NotifyService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
+import uk.co.ogauthority.pwa.service.pwaconsents.PwaConsentService;
 import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
 import uk.co.ogauthority.pwa.service.workflow.assignment.WorkflowAssignmentService;
 import uk.co.ogauthority.pwa.service.workflow.task.WorkflowTaskInstance;
@@ -36,6 +37,7 @@ public class ConsentReviewService {
   private final CamundaWorkflowService camundaWorkflowService;
   private final NotifyService notifyService;
   private final EmailCaseLinkService emailCaseLinkService;
+  private final PwaConsentService pwaConsentService;
 
   @Autowired
   public ConsentReviewService(ConsentReviewRepository consentReviewRepository,
@@ -44,7 +46,8 @@ public class ConsentReviewService {
                               WorkflowAssignmentService workflowAssignmentService,
                               CamundaWorkflowService camundaWorkflowService,
                               NotifyService notifyService,
-                              EmailCaseLinkService emailCaseLinkService) {
+                              EmailCaseLinkService emailCaseLinkService,
+                              PwaConsentService pwaConsentService) {
     this.consentReviewRepository = consentReviewRepository;
     this.clock = clock;
     this.pwaApplicationDetailService = pwaApplicationDetailService;
@@ -52,6 +55,7 @@ public class ConsentReviewService {
     this.camundaWorkflowService = camundaWorkflowService;
     this.notifyService = notifyService;
     this.emailCaseLinkService = emailCaseLinkService;
+    this.pwaConsentService = pwaConsentService;
   }
 
   @Transactional
@@ -148,6 +152,8 @@ public class ConsentReviewService {
         .findFirst()
         .orElseThrow(() -> new ConsentReviewException(String.format(
             "Can't issue consent as there is no open consent review for PWA detail with id [%s]", pwaApplicationDetail.getId())));
+
+    pwaConsentService.createConsent(pwaApplicationDetail.getPwaApplication());
 
     // end review
     openReview.setEndTimestamp(clock.instant());

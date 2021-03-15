@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.controller.documents.generation;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -14,6 +15,8 @@ import java.util.stream.Collectors;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.context.ApplicationContext;
@@ -49,6 +52,9 @@ public class DocumentGenerationServiceTest {
 
   @Mock
   private DocumentInstanceService documentInstanceService;
+
+  @Captor
+  private ArgumentCaptor<Map<String, Object>> modelMapCaptor;
 
   private DocumentGenerationService documentGenerationService;
 
@@ -97,6 +103,13 @@ public class DocumentGenerationServiceTest {
     verify(documentSectionGenerator, times(numberOfCustomSections)).getDocumentSectionData(pwaApplicationDetail,
         documentInstance);
     verify(documentInstanceService, times(numberOfClauseSections)).getDocumentView(eq(documentInstance), any());
+
+    verify(templateRenderingService, times(1)).render(eq("documents/consents/consentDocument.ftl"), modelMapCaptor.capture(), eq(false));
+
+    assertThat(modelMapCaptor.getValue()).containsAllEntriesOf(Map.of(
+        "showWatermark", true,
+        "consentRef", "99/X/99"
+    ));
 
   }
 
