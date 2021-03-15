@@ -12,15 +12,15 @@
 
     <div class="govuk-panel govuk-panel--confirmation">
         <h1 class="govuk-panel__title">
-            Application ${appRef} successfully completed payment
+            Application ${appRef} payment completed
         </h1>
     </div>
 
     <h2 class="govuk-heading-m">What happens next</h2>
     <p class="govuk-body">Your application will be processed by the assigned case officer.</p>
     <ul class="govuk-list govuk-list--bullet">
-        <li>You can <@fdsAction.link linkClass="govuk-link govuk-!-font-size-19" linkText="view your application" linkUrl="${springUrl(caseManagementUrl)}"/> or;</li>
-        <li>You can <@fdsAction.link linkClass="govuk-link govuk-!-font-size-19" linkText="work on another application" linkUrl="${springUrl(workAreaUrl)}"/> from the work area.</li>
+        <li>You can <@fdsAction.link linkClass="govuk-link govuk-!-font-size-19" linkText="view your application" linkUrl="${springUrl(caseManagementUrl)}"/></li>
+        <li>You can <@fdsAction.link linkClass="govuk-link govuk-!-font-size-19" linkText="work on another application" linkUrl="${springUrl(workAreaUrl)}"/> from the work area</li>
     </ul>
 
 </@defaultPage>
