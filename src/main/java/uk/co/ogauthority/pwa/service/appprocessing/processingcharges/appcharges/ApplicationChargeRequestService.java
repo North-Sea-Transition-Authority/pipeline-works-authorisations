@@ -179,6 +179,13 @@ public class ApplicationChargeRequestService {
     ).map(this::convertRequestDetailToReport);
   }
 
+  public Optional<ApplicationChargeRequestReport> getLatestRequestAsApplicationChargeRequestReport(PwaApplication pwaApplication) {
+    // if multiple charge requests this is doing more work than necessary. unlikely to be more than 2 so perf ignored.
+    return getAllApplicationChargeRequestReportsForApplication(pwaApplication)
+        .stream()
+        .max(Comparator.comparing(ApplicationChargeRequestReport::getRequestedInstant));
+  }
+
   private PwaAppChargeRequestDetail getTipOpenRequestDetailForApplication(PwaApplication pwaApplication) {
     return pwaAppChargeRequestDetailRepository.findByPwaAppChargeRequest_PwaApplicationAndPwaAppChargeRequestStatusAndTipFlagIsTrue(
         pwaApplication, PwaAppChargeRequestStatus.OPEN
