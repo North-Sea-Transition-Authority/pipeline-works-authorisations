@@ -11,7 +11,7 @@ public enum PwaApplicationPublicNoticeWorkflowTask implements UserWorkflowTask {
   MANAGER_APPROVAL("managerApproval", null),
   APPLICANT_UPDATE("applicantUpdate", null),
   CASE_OFFICER_REVIEW("caseOfficerReview", null),
-  FINALISATION("finalisation", null);
+  WAITING("waiting", null);
 
   private final String taskKey;
   private final WorkflowAssignment workflowAssignment;

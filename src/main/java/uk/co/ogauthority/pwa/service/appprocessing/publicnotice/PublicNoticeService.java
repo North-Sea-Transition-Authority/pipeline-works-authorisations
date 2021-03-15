@@ -78,7 +78,7 @@ public class PublicNoticeService implements AppProcessingService {
   private final PersonService personService;
 
   private static final AppFilePurpose FILE_PURPOSE = AppFilePurpose.PUBLIC_NOTICE;
-  private static final Set<PublicNoticeStatus> ENDED_STATUSES = Set.of(PublicNoticeStatus.ENDED, PublicNoticeStatus.WITHDRAWN);
+  private static final Set<PublicNoticeStatus> ENDED_STATUSES = Set.of(PublicNoticeStatus.PUBLISHED, PublicNoticeStatus.WITHDRAWN);
 
   @Autowired
   public PublicNoticeService(
@@ -158,6 +158,11 @@ public class PublicNoticeService implements AppProcessingService {
     return publicNoticeRepository.save(publicNotice);
   }
 
+  void archivePublicNoticeDocument(PublicNoticeDocument publicNoticeDocument) {
+    publicNoticeDocument.setDocumentType(PublicNoticeDocumentType.ARCHIVED);
+    publicNoticeDocumentRepository.save(publicNoticeDocument);
+  }
+
   private Integer getPublicNoticeLatestVersionNumber(PwaApplication pwaApplication) {
     var latestPublicNoticeOpt = publicNoticeRepository.findFirstByPwaApplicationOrderByVersionDesc(pwaApplication);
     return latestPublicNoticeOpt.isPresent() ? latestPublicNoticeOpt.get().getVersion() : 0;
@@ -225,7 +230,7 @@ public class PublicNoticeService implements AppProcessingService {
         pwaApplication, PublicNoticeStatus.MANAGER_APPROVAL, getPublicNoticeLatestVersionNumber(pwaApplication) + 1);
     publicNotice = publicNoticeRepository.save(publicNotice);
 
-    appFileService.updateFiles(form, pwaApplication, FILE_PURPOSE, FileUpdateMode.DELETE_UNLINKED_FILES, userAccount);
+    appFileService.updateFiles(form, pwaApplication, FILE_PURPOSE, FileUpdateMode.KEEP_UNLINKED_FILES, userAccount);
 
     var publicNoticeDocVersion = 1;
     var publicNoticeDocument = new PublicNoticeDocument(

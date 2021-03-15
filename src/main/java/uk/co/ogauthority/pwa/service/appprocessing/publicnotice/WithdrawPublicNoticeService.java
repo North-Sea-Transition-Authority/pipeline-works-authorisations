@@ -87,9 +87,12 @@ public class WithdrawPublicNoticeService {
     publicNotice.setWithdrawingPersonId(authenticatedUserAccount.getLinkedPerson().getId());
     publicNoticeService.savePublicNotice(publicNotice);
 
+    var latestPublicNoticeDocument = publicNoticeService.getLatestPublicNoticeDocument(publicNotice);
+    publicNoticeService.archivePublicNoticeDocument(latestPublicNoticeDocument);
+
     var emailRecipients = new ArrayList<Person>();
     var statusesDeterminingPublicNoticeWasSentToApplicant = Set.of(
-        PublicNoticeStatus.APPLICANT_UPDATE, PublicNoticeStatus.CASE_OFFICER_REVIEW, PublicNoticeStatus.FINALISATION);
+        PublicNoticeStatus.APPLICANT_UPDATE, PublicNoticeStatus.CASE_OFFICER_REVIEW, PublicNoticeStatus.WAITING);
 
     if (statusesDeterminingPublicNoticeWasSentToApplicant.contains(publicNoticeStatusBeforeWithdrawal)) {
       emailRecipients.addAll(pwaContactService.getPeopleInRoleForPwaApplication(

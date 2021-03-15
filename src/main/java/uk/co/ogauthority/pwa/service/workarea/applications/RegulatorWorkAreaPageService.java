@@ -91,13 +91,15 @@ public class RegulatorWorkAreaPageService {
   }
 
 
-  private Set<PublicNoticeStatus> getPublicNoticeStatusFilterForUser(AuthenticatedUserAccount user) {
+  private Set<PublicNoticeStatus> getPublicNoticeStatusFilterForUser(AuthenticatedUserAccount user, WorkAreaTab workAreaTab) {
 
     if (user.getUserPrivileges().contains(PwaUserPrivilege.PWA_MANAGER)) {
       return Set.of(PublicNoticeStatus.MANAGER_APPROVAL);
 
     } else if (user.getUserPrivileges().contains(PwaUserPrivilege.PWA_CASE_OFFICER)) {
-      return Set.of(PublicNoticeStatus.DRAFT, PublicNoticeStatus.CASE_OFFICER_REVIEW);
+      var statusesForCaseOfficerAttention = EnumSet.of(PublicNoticeStatus.DRAFT, PublicNoticeStatus.CASE_OFFICER_REVIEW);
+      return workAreaTab.equals(WorkAreaTab.REGULATOR_REQUIRES_ATTENTION)
+          ? statusesForCaseOfficerAttention : EnumSet.complementOf(statusesForCaseOfficerAttention);
     }
     return Set.of();
   }
@@ -114,7 +116,7 @@ public class RegulatorWorkAreaPageService {
 
     var processingPermissions = appProcessingPermissionService.getGenericProcessingPermissions(userAccount);
     var searchStatuses = getAdditionalStatusFilterForUser(processingPermissions);
-    var publicNoticeStatuses = getPublicNoticeStatusFilterForUser(userAccount);
+    var publicNoticeStatuses = getPublicNoticeStatusFilterForUser(userAccount, WorkAreaTab.REGULATOR_REQUIRES_ATTENTION);
 
     var processingFlagsMap = getProcessingFlagsMapWithDefault(userAccount, processingPermissions, false);
 
@@ -154,7 +156,7 @@ public class RegulatorWorkAreaPageService {
 
     var processingPermissions = appProcessingPermissionService.getGenericProcessingPermissions(userAccount);
     var searchStatuses = getAdditionalStatusFilterForUser(processingPermissions);
-    var publicNoticeStatuses = getPublicNoticeStatusFilterForUser(userAccount);
+    var publicNoticeStatuses = getPublicNoticeStatusFilterForUser(userAccount, WorkAreaTab.REGULATOR_WAITING_ON_OTHERS);
 
     var processingFlagsMap = getProcessingFlagsMapWithDefault(userAccount, processingPermissions, true);
 

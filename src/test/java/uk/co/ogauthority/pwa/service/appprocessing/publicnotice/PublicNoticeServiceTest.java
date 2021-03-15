@@ -158,7 +158,7 @@ public class PublicNoticeServiceTest {
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     pwaApplication = pwaApplicationDetail.getPwaApplication();
     user = new AuthenticatedUserAccount(new WebUserAccount(1, PersonTestUtil.createDefaultPerson()), List.of());
-    ENDED_STATUSES = Set.of(PublicNoticeStatus.ENDED, PublicNoticeStatus.WITHDRAWN);
+    ENDED_STATUSES = Set.of(PublicNoticeStatus.PUBLISHED, PublicNoticeStatus.WITHDRAWN);
   }
 
   @Test
@@ -266,6 +266,17 @@ public class PublicNoticeServiceTest {
         Optional.of(new PublicNotice()));
     publicNoticeService.getLatestPublicNotice(pwaApplication);
     verify(publicNoticeRepository, times(1)).findFirstByPwaApplicationOrderByVersionDesc(pwaApplication);
+  }
+
+  @Test
+  public void archivePublicNoticeDocument() {
+    var publicNotice = PublicNoticeTestUtil.createInitialPublicNotice(pwaApplication);
+    var publicNoticeDocument = PublicNoticeTestUtil.createInitialPublicNoticeDocument(publicNotice);
+    publicNoticeService.archivePublicNoticeDocument(publicNoticeDocument);
+
+    verify(publicNoticeDocumentRepository, times(1)).save(publicNoticeDocumentArgumentCaptor.capture());
+    var actualPublicNoticeDocument = publicNoticeDocumentArgumentCaptor.getValue();
+    assertThat(actualPublicNoticeDocument.getDocumentType()).isEqualTo(PublicNoticeDocumentType.ARCHIVED);
   }
 
   @Test
@@ -681,7 +692,7 @@ public class PublicNoticeServiceTest {
   public void publicNoticeInProgress_no() {
 
     var endedNotice = new PublicNotice();
-    endedNotice.setStatus(PublicNoticeStatus.ENDED);
+    endedNotice.setStatus(PublicNoticeStatus.PUBLISHED);
 
     var withdrawnNotice = new PublicNotice();
     withdrawnNotice.setStatus(PublicNoticeStatus.WITHDRAWN);
@@ -698,7 +709,7 @@ public class PublicNoticeServiceTest {
   public void publicNoticeInProgress_yes() {
 
     var endedNotice = new PublicNotice();
-    endedNotice.setStatus(PublicNoticeStatus.ENDED);
+    endedNotice.setStatus(PublicNoticeStatus.PUBLISHED);
 
     var inProgressNotice = new PublicNotice();
     inProgressNotice.setStatus(PublicNoticeStatus.APPLICANT_UPDATE);

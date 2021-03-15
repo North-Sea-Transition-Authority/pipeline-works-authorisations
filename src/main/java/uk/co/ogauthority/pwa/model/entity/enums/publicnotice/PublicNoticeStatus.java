@@ -8,9 +8,9 @@ public enum PublicNoticeStatus {
   MANAGER_APPROVAL("Manager approval", PwaApplicationPublicNoticeWorkflowTask.MANAGER_APPROVAL),
   APPLICANT_UPDATE("Applicant update", PwaApplicationPublicNoticeWorkflowTask.APPLICANT_UPDATE),
   CASE_OFFICER_REVIEW("Case officer review", PwaApplicationPublicNoticeWorkflowTask.CASE_OFFICER_REVIEW),
-  FINALISATION("Finalisation", PwaApplicationPublicNoticeWorkflowTask.FINALISATION),
+  WAITING("Waiting", PwaApplicationPublicNoticeWorkflowTask.WAITING),
   WITHDRAWN("Withdrawn", null),
-  ENDED("Ended", null);
+  PUBLISHED("Published", null);
 
   private final String displayText;
   private final PwaApplicationPublicNoticeWorkflowTask workflowTask;
