@@ -77,6 +77,10 @@ public class ConfirmSatisfactoryApplicationService implements AppProcessingServi
         .anyMatch(this::isSatisfactory);
   }
 
+  public boolean confirmSatisfactoryTaskRequired(PwaApplicationDetail tipDetail) {
+    return !tipDetail.isFirstVersion() && !isSatisfactory(tipDetail);
+  }
+
   @Transactional
   public void confirmSatisfactory(PwaApplicationDetail applicationDetail,
                                   String reason,

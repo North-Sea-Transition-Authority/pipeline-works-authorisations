@@ -181,6 +181,29 @@ public class ConfirmSatisfactoryApplicationServiceTest {
   }
 
   @Test
+  public void confirmSatisfactoryTaskRequired_detailIsFirstVersion_taskNotRequired() {
+
+    var firstVersionDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
+    assertThat(confirmSatisfactoryApplicationService.confirmSatisfactoryTaskRequired(firstVersionDetail)).isFalse();
+  }
+
+  @Test
+  public void confirmSatisfactoryTaskRequired_detailIsNotFirstVersion_detailIsSatisfactory_taskNotRequired() {
+
+    var firstVersionDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
+    firstVersionDetail.setConfirmedSatisfactoryTimestamp(Instant.now());
+    assertThat(confirmSatisfactoryApplicationService.confirmSatisfactoryTaskRequired(firstVersionDetail)).isFalse();
+  }
+
+  @Test
+  public void confirmSatisfactoryTaskRequired_detailIsNotFirstVersion_detailIsNotSatisfactory_taskRequired() {
+
+    var firstVersionDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
+    firstVersionDetail.setVersionNo(2);
+    assertThat(confirmSatisfactoryApplicationService.confirmSatisfactoryTaskRequired(firstVersionDetail)).isTrue();
+  }
+
+  @Test
   public void confirmSatisfactory_notAlreadyCompleted_success_hasAssignedResponder() {
 
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
