@@ -30,6 +30,10 @@ public class PublicNoticeDate {
   private Integer createdByPersonId;
   private Integer endedByPersonId;
 
+  public PublicNoticeDate() {
+    //default
+  }
+
   public PublicNoticeDate(PublicNotice publicNotice, Instant publicationStartTimestamp,
                           Instant publicationEndTimestamp, Integer createdByPersonId) {
     this.publicNotice = publicNotice;

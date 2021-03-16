@@ -308,6 +308,12 @@ public class PublicNoticeService implements AppProcessingService {
       publicNoticeActions.add(PublicNoticeAction.FINALISE);
     }
 
+    if (processingPermissions.contains(PwaAppProcessingPermission.FINALISE_PUBLIC_NOTICE)
+        && PublicNoticeStatus.WAITING.equals(publicNoticeStatus)) {
+      publicNoticeActions.add(PublicNoticeAction.UPDATE_DATES);
+    }
+
+
     if (processingPermissions.contains(PwaAppProcessingPermission.WITHDRAW_PUBLIC_NOTICE)
         && publicNoticeStatus != null && !ENDED_STATUSES.contains(publicNoticeStatus)) {
       publicNoticeActions.add(PublicNoticeAction.WITHDRAW);

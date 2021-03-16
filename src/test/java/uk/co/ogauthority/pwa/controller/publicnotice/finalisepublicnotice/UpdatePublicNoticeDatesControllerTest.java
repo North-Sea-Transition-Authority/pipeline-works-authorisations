@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.controller.publicnotice;
+package uk.co.ogauthority.pwa.controller.publicnotice.finalisepublicnotice;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -27,6 +27,7 @@ import org.springframework.validation.ObjectError;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.PwaAppProcessingContextAbstractControllerTest;
+import uk.co.ogauthority.pwa.controller.publicnotice.FinalisePublicNoticeController;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.exception.AccessDeniedException;
 import uk.co.ogauthority.pwa.model.dto.appprocessing.ApplicationInvolvementDtoTestUtil;
@@ -48,7 +49,7 @@ import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(controllers = FinalisePublicNoticeController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {PwaAppProcessingContextService.class}))
-public class FinalisePublicNoticeControllerTest extends PwaAppProcessingContextAbstractControllerTest {
+public class UpdatePublicNoticeDatesControllerTest extends PwaAppProcessingContextAbstractControllerTest {
 
   private PwaApplicationEndpointTestBuilder endpointTestBuilder;
 
@@ -87,42 +88,42 @@ public class FinalisePublicNoticeControllerTest extends PwaAppProcessingContextA
 
     when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail, user)).thenReturn(permissionsDto);
 
-    when(finalisePublicNoticeService.publicNoticeCanBeFinalised(any())).thenReturn(true);
+    when(finalisePublicNoticeService.publicNoticeDatesCanBeUpdated(any())).thenReturn(true);
   }
 
 
   @Test
-  public void renderFinalisePublicNotice_appStatusSmokeTest() {
+  public void renderUpdatePublicNoticePublicationDates_appStatusSmokeTest() {
 
     endpointTestBuilder.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(FinalisePublicNoticeController.class)
-                .renderFinalisePublicNotice(applicationDetail.getMasterPwaApplicationId(), type, null, null, null)));
+                .renderUpdatePublicNoticePublicationDates(applicationDetail.getMasterPwaApplicationId(), type, null, null, null)));
 
     endpointTestBuilder.performAppStatusChecks(status().isOk(), status().isNotFound());
 
   }
 
   @Test
-  public void renderFinalisePublicNotice_processingPermissionSmokeTest() {
+  public void renderUpdatePublicNoticePublicationDates_processingPermissionSmokeTest() {
 
     endpointTestBuilder.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(FinalisePublicNoticeController.class)
-                .renderFinalisePublicNotice(applicationDetail.getMasterPwaApplicationId(), type, null, null, null)));
+                .renderUpdatePublicNoticePublicationDates(applicationDetail.getMasterPwaApplicationId(), type, null, null, null)));
 
     endpointTestBuilder.performProcessingPermissionCheck(status().isOk(), status().isForbidden());
 
   }
 
   @Test
-  public void renderFinalisePublicNotice_noSatisfactoryVersions() throws Exception {
+  public void renderUpdatePublicNoticePublicationDates_noSatisfactoryVersions() throws Exception {
 
     when(processingPermissionService.getProcessingPermissionsDto(any(), any())).thenReturn(new ProcessingPermissionsDto(
         ApplicationInvolvementDtoTestUtil.noInvolvementAndNoFlags(pwaApplicationDetail.getPwaApplication()),
         EnumSet.allOf(PwaAppProcessingPermission.class)));
 
-    mockMvc.perform(get(ReverseRouter.route(on(FinalisePublicNoticeController.class).renderFinalisePublicNotice(
+    mockMvc.perform(get(ReverseRouter.route(on(FinalisePublicNoticeController.class).renderUpdatePublicNoticePublicationDates(
         pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null)))
         .with(authenticatedUserAndSession(user))
         .with(csrf()))
@@ -131,12 +132,12 @@ public class FinalisePublicNoticeControllerTest extends PwaAppProcessingContextA
   }
 
   @Test
-  public void renderFinalisePublicNotice_noPublicNoticeToFinalise() throws Exception {
+  public void renderUpdatePublicNoticePublicationDates_noPublicationDatesToUpdate() throws Exception {
 
-    when(finalisePublicNoticeService.publicNoticeCanBeFinalised(any())).thenReturn(false);
+    when(finalisePublicNoticeService.publicNoticeDatesCanBeUpdated(any())).thenReturn(false);
 
     mockMvc.perform(get(ReverseRouter.route(on(FinalisePublicNoticeController.class)
-        .renderFinalisePublicNotice(
+        .renderUpdatePublicNoticePublicationDates(
             pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null)))
         .with(authenticatedUserAndSession(user))
         .with(csrf()))
@@ -145,42 +146,42 @@ public class FinalisePublicNoticeControllerTest extends PwaAppProcessingContextA
 
 
   @Test
-  public void postFinalisePublicNotice_appStatusSmokeTest() {
+  public void postUpdatePublicNoticePublicationDates_appStatusSmokeTest() {
 
     when(finalisePublicNoticeService.validate(any(), any())).thenReturn(new BeanPropertyBindingResult(new FinalisePublicNoticeForm(), "form"));
 
     endpointTestBuilder.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(FinalisePublicNoticeController.class)
-                .postFinalisePublicNotice(applicationDetail.getMasterPwaApplicationId(), type, null, null, null, null)));
+                .postUpdatePublicNoticePublicationDates(applicationDetail.getMasterPwaApplicationId(), type, null, null, null, null)));
 
     endpointTestBuilder.performAppStatusChecks(status().is3xxRedirection(), status().isNotFound());
 
   }
 
   @Test
-  public void postFinalisePublicNotice_permissionSmokeTest() {
+  public void postUpdatePublicNoticePublicationDates_permissionSmokeTest() {
 
     when(finalisePublicNoticeService.validate(any(), any())).thenReturn(new BeanPropertyBindingResult(new FinalisePublicNoticeForm(), "form"));
 
     endpointTestBuilder.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(FinalisePublicNoticeController.class)
-                .postFinalisePublicNotice(applicationDetail.getMasterPwaApplicationId(), type, null, null, null, null)));
+                .postUpdatePublicNoticePublicationDates(applicationDetail.getMasterPwaApplicationId(), type, null, null, null, null)));
 
     endpointTestBuilder.performProcessingPermissionCheck(status().is3xxRedirection(), status().isForbidden());
 
   }
 
   @Test
-  public void postFinalisePublicNotice_validationFail() throws Exception {
+  public void postUpdatePublicNoticePublicationDates_validationFail() throws Exception {
 
     var failedBindingResult = new BeanPropertyBindingResult(new FinalisePublicNoticeForm(), "form");
     failedBindingResult.addError(new ObjectError("fake", "fake"));
     when(finalisePublicNoticeService.validate(any(), any())).thenReturn(failedBindingResult);
 
     mockMvc.perform(post(ReverseRouter.route(on(FinalisePublicNoticeController.class)
-        .postFinalisePublicNotice(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null)))
+        .postUpdatePublicNoticePublicationDates(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null)))
         .with(authenticatedUserAndSession(user))
         .with(csrf()))
         .andExpect(status().isOk())
@@ -188,13 +189,14 @@ public class FinalisePublicNoticeControllerTest extends PwaAppProcessingContextA
   }
 
   @Test
-  public void postFinalisePublicNotice_noSatisfactoryVersions() throws Exception {
+  public void postUpdatePublicNoticePublicationDates_noSatisfactoryVersions() throws Exception {
 
     when(processingPermissionService.getProcessingPermissionsDto(any(), any())).thenReturn(new ProcessingPermissionsDto(
         ApplicationInvolvementDtoTestUtil.noInvolvementAndNoFlags(pwaApplicationDetail.getPwaApplication()),
         EnumSet.allOf(PwaAppProcessingPermission.class)));
 
-    mockMvc.perform(post(ReverseRouter.route(on(FinalisePublicNoticeController.class).postFinalisePublicNotice(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null)))
+    mockMvc.perform(post(ReverseRouter.route(on(FinalisePublicNoticeController.class).postUpdatePublicNoticePublicationDates(
+        pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null)))
         .with(authenticatedUserAndSession(user))
         .with(csrf()))
         .andExpect(status().isForbidden());
@@ -202,12 +204,12 @@ public class FinalisePublicNoticeControllerTest extends PwaAppProcessingContextA
   }
 
   @Test
-  public void postFinalisePublicNotice_noPublicNoticeToFinalise() throws Exception {
+  public void publicNoticeInValidStateForUpdate_noPublicNoticeInWaitingStage() throws Exception {
 
-    when(finalisePublicNoticeService.publicNoticeCanBeFinalised(any())).thenReturn(false);
+    when(finalisePublicNoticeService.publicNoticeDatesCanBeUpdated(any())).thenReturn(false);
 
     mockMvc.perform(post(ReverseRouter.route(on(FinalisePublicNoticeController.class)
-        .postFinalisePublicNotice(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null)))
+        .postUpdatePublicNoticePublicationDates(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null)))
         .with(authenticatedUserAndSession(user))
         .with(csrf()))
         .andExpect(result -> assertThat(result.getResolvedException() instanceof AccessDeniedException).isTrue());

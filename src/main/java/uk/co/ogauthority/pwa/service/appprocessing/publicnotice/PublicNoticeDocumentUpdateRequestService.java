@@ -10,7 +10,7 @@ import uk.co.ogauthority.pwa.model.form.publicnotice.PublicNoticeDocumentUpdateR
 import uk.co.ogauthority.pwa.model.notify.emailproperties.publicnotices.PublicNoticeUpdateRequestEmailProps;
 import uk.co.ogauthority.pwa.repository.publicnotice.PublicNoticeDocumentRepository;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
-import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationPublicNoticeDocumentResult;
+import uk.co.ogauthority.pwa.service.enums.workflow.publicnotice.PublicNoticeCaseOfficerReviewResult;
 import uk.co.ogauthority.pwa.service.enums.workflow.publicnotice.PwaApplicationPublicNoticeWorkflowTask;
 import uk.co.ogauthority.pwa.service.notify.EmailCaseLinkService;
 import uk.co.ogauthority.pwa.service.notify.NotifyService;
@@ -94,7 +94,7 @@ public class PublicNoticeDocumentUpdateRequestService {
     publicNotice.setStatus(PublicNoticeStatus.APPLICANT_UPDATE);
     publicNotice = publicNoticeService.savePublicNotice(publicNotice);
 
-    camundaWorkflowService.setWorkflowProperty(publicNotice, PwaApplicationPublicNoticeDocumentResult.UPDATE_REQUESTED);
+    camundaWorkflowService.setWorkflowProperty(publicNotice, PublicNoticeCaseOfficerReviewResult.UPDATE_REQUESTED);
     camundaWorkflowService.completeTask(new WorkflowTaskInstance(publicNotice,
         PwaApplicationPublicNoticeWorkflowTask.CASE_OFFICER_REVIEW));
 

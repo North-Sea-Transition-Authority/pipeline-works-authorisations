@@ -46,12 +46,14 @@
     <bpmn:sequenceFlow id="Flow_1i9bxzq" sourceRef="StartEvent_1" targetRef="managerApproval" />
     <bpmn:sequenceFlow id="Flow_18zzof5" sourceRef="draft" targetRef="managerApproval" />
     <bpmn:sequenceFlow id="Flow_0fmvypf" sourceRef="applicantUpdate" targetRef="caseOfficerReview" />
-    <bpmn:sequenceFlow id="Flow_0ea0nze" sourceRef="caseOfficerReview" targetRef="applicantUpdate" />
+    <bpmn:sequenceFlow id="Flow_0ea0nze" sourceRef="caseOfficerReview" targetRef="applicantUpdate">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${caseOfficerReviewDecision== 'UPDATE_REQUESTED'}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1p61rbo" sourceRef="managerApproval" targetRef="applicantUpdate">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${approvalDecision == 'APPROVED'}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_0q3e6zf" sourceRef="caseOfficerReview" targetRef="waiting">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${startPublicationDecision== 'WAIT_FOR_START_DATE'}</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${caseOfficerReviewDecision== 'WAIT_FOR_START_DATE'}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_160qeng" sourceRef="waiting" targetRef="Event_1j97abm" />
     <bpmn:userTask id="applicantUpdate" name="Applicant Update">
@@ -60,7 +62,7 @@
       <bpmn:outgoing>Flow_0fmvypf</bpmn:outgoing>
     </bpmn:userTask>
     <bpmn:sequenceFlow id="Flow_084utx2" sourceRef="caseOfficerReview" targetRef="Event_1j97abm">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${startPublicationDecision== 'PUBLICATION_STARTED'}</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${caseOfficerReviewDecision== 'PUBLICATION_STARTED'}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:endEvent id="Event_1j97abm" name="Published">
       <bpmn:incoming>Flow_160qeng</bpmn:incoming>

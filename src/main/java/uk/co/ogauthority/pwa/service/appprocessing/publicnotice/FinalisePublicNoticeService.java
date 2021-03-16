@@ -8,14 +8,17 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.exception.EntityLatestVersionNotFoundException;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeStatus;
+import uk.co.ogauthority.pwa.model.entity.publicnotice.PublicNotice;
 import uk.co.ogauthority.pwa.model.entity.publicnotice.PublicNoticeDate;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.form.publicnotice.FinalisePublicNoticeForm;
 import uk.co.ogauthority.pwa.model.notify.emailproperties.publicnotices.PublicNoticePublicationEmailProps;
+import uk.co.ogauthority.pwa.model.notify.emailproperties.publicnotices.PublicNoticePublicationUpdateEmailProps;
 import uk.co.ogauthority.pwa.repository.publicnotice.PublicNoticeDatesRepository;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
-import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationPublicNoticeFinalisationResult;
+import uk.co.ogauthority.pwa.service.enums.workflow.publicnotice.PublicNoticeCaseOfficerReviewResult;
 import uk.co.ogauthority.pwa.service.enums.workflow.publicnotice.PwaApplicationPublicNoticeWorkflowTask;
 import uk.co.ogauthority.pwa.service.notify.EmailCaseLinkService;
 import uk.co.ogauthority.pwa.service.notify.NotifyService;
@@ -67,6 +70,12 @@ public class FinalisePublicNoticeService {
         .anyMatch(publicNotice -> publicNotice.getPwaApplication().equals(pwaApplication));
   }
 
+  public boolean publicNoticeDatesCanBeUpdated(PwaApplication pwaApplication) {
+    return publicNoticeService.getPublicNoticesByStatus(PublicNoticeStatus.WAITING)
+        .stream()
+        .anyMatch(publicNotice -> publicNotice.getPwaApplication().equals(pwaApplication));
+  }
+
 
   public BindingResult validate(FinalisePublicNoticeForm form, BindingResult bindingResult) {
     finalisePublicNoticeValidator.validate(form, bindingResult);
@@ -92,7 +101,6 @@ public class FinalisePublicNoticeService {
     });
   }
 
-
   @Transactional
   public void finalisePublicNotice(PwaApplication pwaApplication,
                                    FinalisePublicNoticeForm form,
@@ -110,11 +118,11 @@ public class FinalisePublicNoticeService {
 
     if (startDate.isBefore(LocalDate.now()) || startDate.isEqual(LocalDate.now())) {
       publicNotice.setStatus(PublicNoticeStatus.PUBLISHED);
-      camundaWorkflowService.setWorkflowProperty(publicNotice, PwaApplicationPublicNoticeFinalisationResult.PUBLICATION_STARTED);
+      camundaWorkflowService.setWorkflowProperty(publicNotice, PublicNoticeCaseOfficerReviewResult.PUBLICATION_STARTED);
 
     } else {
       publicNotice.setStatus(PublicNoticeStatus.WAITING);
-      camundaWorkflowService.setWorkflowProperty(publicNotice, PwaApplicationPublicNoticeFinalisationResult.WAIT_FOR_START_DATE);
+      camundaWorkflowService.setWorkflowProperty(publicNotice, PublicNoticeCaseOfficerReviewResult.WAIT_FOR_START_DATE);
     }
 
     camundaWorkflowService.completeTask(new WorkflowTaskInstance(
@@ -123,5 +131,74 @@ public class FinalisePublicNoticeService {
     sendPublicationEmails(pwaApplication, startDate);
   }
 
+  private PublicNoticeDate getActivePublicNoticeDate(PublicNotice publicNotice) {
+    return publicNoticeDatesRepository.getByPublicNoticeAndEndedByPersonIdIsNull(publicNotice)
+        .orElseThrow(() -> new EntityLatestVersionNotFoundException(String.format(
+            "Couldn't find public notice date with public notice ID: %s", publicNotice.getId())));
+  }
 
+
+  private void sendPublicationUpdateEmails(PwaApplication pwaApplication, LocalDate startDate) {
+
+    var emailRecipients = pwaContactService.getPeopleInRoleForPwaApplication(
+        pwaApplication,
+        PwaContactRole.PREPARER);
+    var caseManagementLink = emailCaseLinkService.generateCaseManagementLink(pwaApplication);
+
+    emailRecipients.forEach(recipient -> {
+      var emailProps = new PublicNoticePublicationUpdateEmailProps(
+          recipient.getFullName(),
+          pwaApplication.getAppReference(),
+          caseManagementLink,
+          DateUtils.formatDate(startDate));
+      notifyService.sendEmail(emailProps, recipient.getEmailAddress());
+    });
+  }
+
+  @Transactional
+  public void updatePublicNoticeDate(PwaApplication pwaApplication,
+                                     FinalisePublicNoticeForm form,
+                                     AuthenticatedUserAccount authenticatedUserAccount) {
+
+    var publicNotice = publicNoticeService.getLatestPublicNotice(pwaApplication);
+    var activePublicNoticeDate = getActivePublicNoticeDate(publicNotice);
+
+    activePublicNoticeDate.setEndedByPersonId(authenticatedUserAccount.getLinkedPerson().getId().asInt());
+    publicNoticeDatesRepository.save(activePublicNoticeDate);
+
+    var startDate = LocalDate.of(form.getStartYear(), form.getStartMonth(), form.getStartDay());
+    var newPublicNoticeDate = new PublicNoticeDate(
+        publicNotice,
+        startDate.atStartOfDay(ZoneId.systemDefault()).toInstant(),
+        startDate.plusDays(form.getDaysToBePublishedFor()).atStartOfDay(ZoneId.systemDefault()).toInstant(),
+        authenticatedUserAccount.getLinkedPerson().getId().asInt());
+    publicNoticeDatesRepository.save(newPublicNoticeDate);
+
+    if (startDate.isBefore(LocalDate.now()) || startDate.isEqual(LocalDate.now())) {
+      camundaWorkflowService.setWorkflowProperty(publicNotice, PublicNoticeCaseOfficerReviewResult.PUBLICATION_STARTED);
+      camundaWorkflowService.completeTask(new WorkflowTaskInstance(
+          publicNotice, PwaApplicationPublicNoticeWorkflowTask.WAITING));
+      publicNotice.setStatus(PublicNoticeStatus.PUBLISHED);
+      publicNoticeService.savePublicNotice(publicNotice);
+    }
+
+    sendPublicationUpdateEmails(pwaApplication, startDate);
+  }
+
+
+  public void mapUnpublishedPublicNoticeDateToForm(PwaApplication pwaApplication,
+                                                   FinalisePublicNoticeForm form) {
+
+    var publicNotice = publicNoticeService.getLatestPublicNotice(pwaApplication);
+    var activePublicNoticeDate = getActivePublicNoticeDate(publicNotice);
+
+    DateUtils.setYearMonthDayFromInstant(
+        form::setStartYear,
+        form::setStartMonth,
+        form::setStartDay,
+        activePublicNoticeDate.getPublicationStartTimestamp()
+    );
+
+    form.setDaysToBePublishedFor((int) activePublicNoticeDate.getPublicationDaysLength());
+  }
 }

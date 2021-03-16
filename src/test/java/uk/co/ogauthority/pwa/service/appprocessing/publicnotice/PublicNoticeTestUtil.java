@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.service.appprocessing.publicnotice;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.List;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
@@ -13,6 +14,7 @@ import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeStatus;
 import uk.co.ogauthority.pwa.model.entity.files.AppFile;
 import uk.co.ogauthority.pwa.model.entity.files.AppFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.publicnotice.PublicNotice;
+import uk.co.ogauthority.pwa.model.entity.publicnotice.PublicNoticeDate;
 import uk.co.ogauthority.pwa.model.entity.publicnotice.PublicNoticeDocument;
 import uk.co.ogauthority.pwa.model.entity.publicnotice.PublicNoticeRequest;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
@@ -39,6 +41,10 @@ public final class PublicNoticeTestUtil {
 
   public static PublicNotice createCaseOfficerReviewPublicNotice(PwaApplication pwaApplication) {
     return new PublicNotice(pwaApplication, PublicNoticeStatus.CASE_OFFICER_REVIEW, VERSION1);
+  }
+
+  public static PublicNotice createWaitingPublicNotice(PwaApplication pwaApplication) {
+    return new PublicNotice(pwaApplication, PublicNoticeStatus.WAITING, VERSION1);
   }
 
   static PublicNotice createWithdrawnPublicNotice(PwaApplication pwaApplication) {
@@ -151,6 +157,16 @@ public final class PublicNoticeTestUtil {
     form.setStartYear(nextMonthDate.getYear());
     form.setDaysToBePublishedFor(40);
     return form;
+  }
+
+  public static PublicNoticeDate createWaitingPublicNoticeDate(PublicNotice publicNotice) {
+    var startDate = LocalDate.now().minusMonths(1);
+    return new PublicNoticeDate(
+        publicNotice,
+        startDate.atStartOfDay(ZoneId.systemDefault()).toInstant(),
+        startDate.plusDays(28).atStartOfDay(ZoneId.systemDefault()).toInstant(),
+        1
+    );
   }
 
 

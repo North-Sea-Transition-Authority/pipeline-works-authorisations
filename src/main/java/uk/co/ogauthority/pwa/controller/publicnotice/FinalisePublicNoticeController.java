@@ -16,6 +16,7 @@ import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.controller.appprocessing.shared.PwaAppProcessingPermissionCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationStatusCheck;
 import uk.co.ogauthority.pwa.exception.AccessDeniedException;
+import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeAction;
 import uk.co.ogauthority.pwa.model.form.publicnotice.FinalisePublicNoticeForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.AppProcessingBreadcrumbService;
@@ -38,6 +39,7 @@ public class FinalisePublicNoticeController {
   private final AppProcessingBreadcrumbService appProcessingBreadcrumbService;
   private final FinalisePublicNoticeService finalisePublicNoticeService;
   private final ControllerHelperService controllerHelperService;
+
 
   @Autowired
   public FinalisePublicNoticeController(
@@ -67,6 +69,24 @@ public class FinalisePublicNoticeController {
   }
 
 
+  private ModelAndView publicNoticeInValidStateForUpdate(PwaAppProcessingContext processingContext,
+                                                         Supplier<ModelAndView> modelAndViewSupplier) {
+
+    return CaseManagementUtils.withAtLeastOneSatisfactoryVersion(
+        processingContext,
+        PwaAppProcessingTask.PUBLIC_NOTICE,
+        () -> {
+          if (finalisePublicNoticeService.publicNoticeDatesCanBeUpdated(processingContext.getPwaApplication())) {
+            return modelAndViewSupplier.get();
+          }
+          throw new AccessDeniedException(String.format(
+              "Access denied as there is not a finalised public notice that is waiting to be published for application with id: %s",
+                  processingContext.getMasterPwaApplicationId()));
+        });
+  }
+
+
+
   @GetMapping
   public ModelAndView renderFinalisePublicNotice(@PathVariable("applicationId") Integer applicationId,
                                                 @PathVariable("applicationType")
@@ -76,14 +96,14 @@ public class FinalisePublicNoticeController {
                                                 @ModelAttribute("form") FinalisePublicNoticeForm form) {
 
     return publicNoticeInValidState(processingContext, () ->
-        getFinalisePublicNoticeModelAndView(processingContext));
+        getFinalisePublicNoticeModelAndView(processingContext, PublicNoticeAction.FINALISE));
   }
 
 
   @PostMapping
   public ModelAndView postFinalisePublicNotice(@PathVariable("applicationId") Integer applicationId,
                                                @PathVariable("applicationType")
-                                            @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
+                                               @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
                                                PwaAppProcessingContext processingContext,
                                                AuthenticatedUserAccount authenticatedUserAccount,
                                                @ModelAttribute("form") FinalisePublicNoticeForm form,
@@ -93,7 +113,7 @@ public class FinalisePublicNoticeController {
       var validatedBindingResult = finalisePublicNoticeService.validate(form, bindingResult);
 
       return controllerHelperService.checkErrorsAndRedirect(validatedBindingResult,
-          getFinalisePublicNoticeModelAndView(processingContext), () -> {
+          getFinalisePublicNoticeModelAndView(processingContext, PublicNoticeAction.FINALISE), () -> {
 
             finalisePublicNoticeService.finalisePublicNotice(processingContext.getPwaApplication(), form, authenticatedUserAccount);
             return  ReverseRouter.redirect(on(PublicNoticeOverviewController.class).renderPublicNoticeOverview(
@@ -104,7 +124,47 @@ public class FinalisePublicNoticeController {
   }
 
 
-  private ModelAndView getFinalisePublicNoticeModelAndView(PwaAppProcessingContext processingContext) {
+  @GetMapping("update")
+  public ModelAndView renderUpdatePublicNoticePublicationDates(@PathVariable("applicationId") Integer applicationId,
+                                                               @PathVariable("applicationType")
+                                                               @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
+                                                               PwaAppProcessingContext processingContext,
+                                                               AuthenticatedUserAccount authenticatedUserAccount,
+                                                               @ModelAttribute("form") FinalisePublicNoticeForm form) {
+
+    return publicNoticeInValidStateForUpdate(processingContext, () -> {
+      finalisePublicNoticeService.mapUnpublishedPublicNoticeDateToForm(processingContext.getPwaApplication(), form);
+      return getFinalisePublicNoticeModelAndView(processingContext, PublicNoticeAction.UPDATE_DATES);
+    });
+  }
+
+
+  @PostMapping("update")
+  public ModelAndView postUpdatePublicNoticePublicationDates(@PathVariable("applicationId") Integer applicationId,
+                                                             @PathVariable("applicationType")
+                                                             @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
+                                                             PwaAppProcessingContext processingContext,
+                                                             AuthenticatedUserAccount authenticatedUserAccount,
+                                                             @ModelAttribute("form") FinalisePublicNoticeForm form,
+                                                             BindingResult bindingResult) {
+
+    return publicNoticeInValidStateForUpdate(processingContext, () -> {
+      var validatedBindingResult = finalisePublicNoticeService.validate(form, bindingResult);
+
+      return controllerHelperService.checkErrorsAndRedirect(validatedBindingResult,
+          getFinalisePublicNoticeModelAndView(processingContext, PublicNoticeAction.UPDATE_DATES), () -> {
+
+            finalisePublicNoticeService.updatePublicNoticeDate(processingContext.getPwaApplication(), form, authenticatedUserAccount);
+            return  ReverseRouter.redirect(on(PublicNoticeOverviewController.class).renderPublicNoticeOverview(
+                applicationId, pwaApplicationType, processingContext, authenticatedUserAccount));
+          });
+    });
+
+  }
+
+
+  private ModelAndView getFinalisePublicNoticeModelAndView(PwaAppProcessingContext processingContext,
+                                                           PublicNoticeAction publicNoticeAction) {
 
     var pwaApplication = processingContext.getPwaApplication();
     var cancelUrl = ReverseRouter.route(on(PublicNoticeOverviewController.class).renderPublicNoticeOverview(
@@ -113,7 +173,8 @@ public class FinalisePublicNoticeController {
     var modelAndView = new ModelAndView("publicNotice/finalisePublicNotice")
         .addObject("appRef", pwaApplication.getAppReference())
         .addObject("cancelUrl", cancelUrl)
-        .addObject("caseSummaryView", processingContext.getCaseSummaryView());
+        .addObject("caseSummaryView", processingContext.getCaseSummaryView())
+        .addObject("publicNoticeAction", publicNoticeAction);
 
     appProcessingBreadcrumbService.fromCaseManagement(pwaApplication, modelAndView, "Finalise public notice");
     return modelAndView;

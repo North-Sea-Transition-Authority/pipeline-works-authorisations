@@ -480,6 +480,16 @@ public class PublicNoticeServiceTest {
   }
 
   @Test
+  public void getAvailablePublicNoticeActions_finalisePermissionAndWaitingStatus() {
+
+    var context = PwaAppProcessingContextTestUtil.withPermissions(
+        pwaApplicationDetail, Set.of(PwaAppProcessingPermission.FINALISE_PUBLIC_NOTICE));
+    var publicNoticeActions = publicNoticeService.getAvailablePublicNoticeActions(PublicNoticeStatus.WAITING, context);
+
+    assertThat(publicNoticeActions).containsOnly(PublicNoticeAction.UPDATE_DATES);
+  }
+
+  @Test
   public void getAvailablePublicNoticeActions_requestUpdateAndFinalisePermissions_updateAndFinaliseActionsReturned() {
 
     var context = PwaAppProcessingContextTestUtil.withPermissions(
@@ -489,6 +499,7 @@ public class PublicNoticeServiceTest {
 
     assertThat(publicNoticeActions).containsOnly(PublicNoticeAction.REQUEST_DOCUMENT_UPDATE, PublicNoticeAction.FINALISE);
   }
+
 
   @Test
   public void getAllPublicNoticeViews_noPublicNotices() {

@@ -77,6 +77,9 @@ public class PublicNoticeOverviewController {
         PublicNoticeAction.FINALISE.name(), ReverseRouter.route(on(FinalisePublicNoticeController.class)
             .renderFinalisePublicNotice(pwaApplicationId, applicationType, null, null, null)),
 
+        PublicNoticeAction.UPDATE_DATES.name(), ReverseRouter.route(on(FinalisePublicNoticeController.class)
+            .renderUpdatePublicNoticePublicationDates(pwaApplicationId, applicationType, null, null, null)),
+
         PublicNoticeAction.WITHDRAW.name(), ReverseRouter.route(on(WithdrawPublicNoticeController.class)
             .renderWithdrawPublicNotice(pwaApplicationId, applicationType, null, null, null))
     );
