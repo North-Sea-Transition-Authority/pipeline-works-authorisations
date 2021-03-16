@@ -86,16 +86,16 @@ steps:
       status:
         - success
 
-  - name: vulnerability-scan-java
-    image: openjdk:11-jdk-slim
-    commands:
-      - chmod +x gradlew
-      - ./gradlew dependencyCheckAnalyze
-    volumes:
-      - name: nvd-db
-        path: /var/nvd-db
-    when:
-      branch: develop
+#  - name: vulnerability-scan-java
+#    image: openjdk:11-jdk-slim
+#    commands:
+#      - chmod +x gradlew
+#      - ./gradlew dependencyCheckAnalyze
+#    volumes:
+#      - name: nvd-db
+#        path: /var/nvd-db
+#    when:
+#      branch: develop
 
   - name: vulnerability-scan-npm
     image: node:10.12.0
