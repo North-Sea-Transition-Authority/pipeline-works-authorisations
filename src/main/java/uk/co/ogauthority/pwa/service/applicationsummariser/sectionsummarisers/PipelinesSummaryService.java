@@ -111,7 +111,7 @@ public class PipelinesSummaryService implements ApplicationSectionSummariser {
         )
         .collect(Collectors.toList());
 
-    pipelineSummaryPairList.forEach((pipelineSummaryPair) -> {
+    pipelineSummaryPairList.forEach(pipelineSummaryPair -> {
       var pipelineDiffMap = new HashMap<String, Object>();
       diffedPipelineSummaryList.add(pipelineDiffMap);
       // we need to ignore the nested complex list of idents so we can do this diff separately

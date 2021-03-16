@@ -117,7 +117,7 @@ public class ApproveOptionsTaskService implements AppProcessingService {
 
     if (optionsApproved) {
       taskStatus = TaskStatus.COMPLETED;
-    } else if (taskAccessible && !optionsApproved) {
+    } else if (taskAccessible) {
       taskStatus = TaskStatus.NOT_COMPLETED;
     } else {
       taskStatus = TaskStatus.CANNOT_START_YET;

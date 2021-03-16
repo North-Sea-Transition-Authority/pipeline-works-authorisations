@@ -132,7 +132,7 @@ public class ConsultationResponseServiceTest {
 
     consultationResponseService.saveResponseAndCompleteWorkflow(form, consultationRequest, user);
 
-    verify(camundaWorkflowService, times(1)).completeTask(eq(new WorkflowTaskInstance(consultationRequest, PwaApplicationConsultationWorkflowTask.RESPONSE)));
+    verify(camundaWorkflowService, times(1)).completeTask(new WorkflowTaskInstance(consultationRequest, PwaApplicationConsultationWorkflowTask.RESPONSE));
     verify(consultationResponseRepository, times(1)).save(responseCaptor.capture());
     verify(consultationRequestService, times(1)).saveConsultationRequest(consultationRequest);
     assertThat(consultationRequest.getStatus()).isEqualTo(ConsultationRequestStatus.RESPONDED);
@@ -199,7 +199,7 @@ public class ConsultationResponseServiceTest {
 
     consultationResponseService.saveResponseAndCompleteWorkflow(form, consultationRequest, user);
 
-    verify(camundaWorkflowService, times(1)).completeTask(eq(new WorkflowTaskInstance(consultationRequest, PwaApplicationConsultationWorkflowTask.RESPONSE)));
+    verify(camundaWorkflowService, times(1)).completeTask(new WorkflowTaskInstance(consultationRequest, PwaApplicationConsultationWorkflowTask.RESPONSE));
     verify(consultationResponseRepository, times(1)).save(responseCaptor.capture());
     verify(consultationRequestService, times(1)).saveConsultationRequest(consultationRequest);
     verify(workflowAssignmentService, times(1)).clearAssignments(consultationRequest);
@@ -261,7 +261,7 @@ public class ConsultationResponseServiceTest {
     var consultationRequest = new ConsultationRequest();
     var user = new WebUserAccount(1, new Person(1, null, null, null, null));
 
-    when(camundaWorkflowService.getAssignedPersonId(eq(new WorkflowTaskInstance(consultationRequest, PwaApplicationConsultationWorkflowTask.RESPONSE))))
+    when(camundaWorkflowService.getAssignedPersonId(new WorkflowTaskInstance(consultationRequest, PwaApplicationConsultationWorkflowTask.RESPONSE)))
         .thenReturn(Optional.of(user.getLinkedPerson().getId()));
 
     boolean isMemberOfRequestGroup = consultationResponseService.isUserAssignedResponderForConsultation(user, consultationRequest);
@@ -276,7 +276,7 @@ public class ConsultationResponseServiceTest {
     var consultationRequest = new ConsultationRequest();
     var user = new WebUserAccount(1, new Person(1, null, null, null, null));
 
-    when(camundaWorkflowService.getAssignedPersonId(eq(new WorkflowTaskInstance(consultationRequest, PwaApplicationConsultationWorkflowTask.RESPONSE))))
+    when(camundaWorkflowService.getAssignedPersonId(new WorkflowTaskInstance(consultationRequest, PwaApplicationConsultationWorkflowTask.RESPONSE)))
         .thenReturn(Optional.of(new PersonId(5)));
 
     boolean isMemberOfRequestGroup = consultationResponseService.isUserAssignedResponderForConsultation(user, consultationRequest);

@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
-import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.appprocessing.shared.PwaAppProcessingPermissionCheck;
 import uk.co.ogauthority.pwa.exception.AccessDeniedException;
 import uk.co.ogauthority.pwa.service.appprocessing.application.ConfirmSatisfactoryApplicationService;
@@ -59,15 +58,14 @@ public class CaseManagementController {
           tab.name()));
     }
 
-    return getCaseManagementModelAndView(processingContext, tab, tabs, authenticatedUserAccount);
+    return getCaseManagementModelAndView(processingContext, tab, tabs);
 
   }
 
 
   private ModelAndView getCaseManagementModelAndView(PwaAppProcessingContext appProcessingContext,
                                                      AppProcessingTab currentTab,
-                                                     List<AppProcessingTab> availableTabs,
-                                                     AuthenticatedUserAccount authenticatedUserAccount) {
+                                                     List<AppProcessingTab> availableTabs) {
 
     var detail = appProcessingContext.getApplicationDetail();
 
