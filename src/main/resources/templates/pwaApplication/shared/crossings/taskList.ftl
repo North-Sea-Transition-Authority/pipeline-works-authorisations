@@ -6,11 +6,13 @@
 <#-- @ftlvariable name="errorMessage" type="String" -->
 <#-- @ftlvariable name="tasks" type="java.util.List<uk.co.ogauthority.pwa.model.tasklist.TaskListEntry>" -->
 
-<@defaultPage htmlTitle="Blocks and crossing agreements" pageHeading="Blocks and crossing agreements" breadcrumbs=true>
+<@defaultPage htmlTitle="Blocks and crossing agreements" breadcrumbs=true>
 
     <#if errorMessage?has_content>
       <@fdsError.singleErrorSummary errorMessage=errorMessage />
     </#if>
+
+    <h1 class="govuk-heading-xl">Blocks and crossing agreements</h1>
 
     <@fdsTaskList.taskList>
         <@fdsTaskList.taskListSection>

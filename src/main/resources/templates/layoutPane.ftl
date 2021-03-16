@@ -57,7 +57,7 @@ backLink=false
 backLinkUrl=""
 backLinkText="Back"
 breadcrumbs=false
->
+errorItems=[]>
 
   <div class="fds-pane__content">
     <main id="main-content" class="fds-content ${mainClasses}" role="main">
@@ -74,7 +74,7 @@ breadcrumbs=false
         <@pwaFlash.flashContent flashTitle=flashTitle flashMessage=flashMessage flashClass=flashClass!"" />
 
       <div class="fds-content__header">
-          <@defaultHeading caption=caption captionClass=captionClass pageHeading=pageHeading pageHeadingClass=pageHeadingClass/>
+          <@defaultHeading caption=caption captionClass=captionClass pageHeading=pageHeading pageHeadingClass=pageHeadingClass errorItems=errorItems/>
       </div>
         <#nested>
     </main>

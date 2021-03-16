@@ -10,11 +10,7 @@
 <#-- @ftlvariable name="firstSectionStartDescription" type="java.lang.String" -->
 <#-- @ftlvariable name="lastSectionEndDescription" type="java.lang.String" -->
 
-<@defaultPage htmlTitle=pageHeading pageHeading=pageHeading breadcrumbs=false fullWidthColumn=true>
-
-  <#if errorList?has_content>
-    <@fdsError.errorSummary errorItems=errorList errorTitle="Errors"/>
-  </#if>
+<@defaultPage htmlTitle=pageHeading pageHeading=pageHeading breadcrumbs=false fullWidthColumn=true errorItems=errorList>
 
     <#-- title is long due to using the pipeline name, use two thirds width for everything else   -->
   <div class="govuk-width-container">

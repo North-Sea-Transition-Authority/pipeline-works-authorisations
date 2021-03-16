@@ -26,7 +26,8 @@ wrapperWidth=false
 masthead=false
 errorCheck=false
 noIndex=false
-headerIcon=true>
+headerIcon=true
+errorItems=[]>
 
     <@genericLayout htmlTitle=htmlTitle htmlAppTitle="OGA Pipelines" errorCheck=errorCheck noIndex=noIndex>
 
@@ -74,7 +75,7 @@ headerIcon=true>
                 <@grid.gridRow>
                     <@grid.fullColumn>
                         ${flash}
-                        <@defaultHeading caption=caption captionClass=captionClass pageHeading=pageHeading pageHeadingClass=pageHeadingClass/>
+                        <@defaultHeading caption=caption captionClass=captionClass pageHeading=pageHeading pageHeadingClass=pageHeadingClass errorItems=errorItems/>
                         <#nested>
                     </@grid.fullColumn>
                 </@grid.gridRow>
@@ -82,7 +83,7 @@ headerIcon=true>
                 <@grid.gridRow>
                     <@grid.oneHalfColumn>
                         ${flash}
-                        <@defaultHeading caption=caption captionClass=captionClass pageHeading=pageHeading pageHeadingClass=pageHeadingClass/>
+                        <@defaultHeading caption=caption captionClass=captionClass pageHeading=pageHeading pageHeadingClass=pageHeadingClass errorItems=errorItems/>
                         <#nested>
                     </@grid.oneHalfColumn>
                 </@grid.gridRow>
@@ -90,7 +91,7 @@ headerIcon=true>
                 <@grid.gridRow>
                     <@grid.oneThirdColumn>
                         ${flash}
-                        <@defaultHeading caption=caption captionClass=captionClass pageHeading=pageHeading pageHeadingClass=pageHeadingClass/>
+                        <@defaultHeading caption=caption captionClass=captionClass pageHeading=pageHeading pageHeadingClass=pageHeadingClass errorItems=errorItems/>
                         <#nested>
                     </@grid.oneThirdColumn>
                 </@grid.gridRow>
@@ -98,7 +99,7 @@ headerIcon=true>
                 <@grid.gridRow>
                     <@grid.twoThirdsColumn>
                         ${flash}
-                        <@defaultHeading caption=caption captionClass=captionClass pageHeading=pageHeading pageHeadingClass=pageHeadingClass/>
+                        <@defaultHeading caption=caption captionClass=captionClass pageHeading=pageHeading pageHeadingClass=pageHeadingClass errorItems=errorItems/>
                         <#nested>
                     </@grid.twoThirdsColumn>
                 </@grid.gridRow>
@@ -106,7 +107,7 @@ headerIcon=true>
                 <@grid.gridRow>
                     <@grid.oneQuarterColumn>
                         ${flash}
-                        <@defaultHeading caption=caption captionClass=captionClass pageHeading=pageHeading pageHeadingClass=pageHeadingClass/>
+                        <@defaultHeading caption=caption captionClass=captionClass pageHeading=pageHeading pageHeadingClass=pageHeadingClass errorItems=errorItems/>
                         <#nested>
                     </@grid.oneQuarterColumn>
                 </@grid.gridRow>
@@ -114,7 +115,7 @@ headerIcon=true>
                 <@grid.gridRow>
                     <@grid.twoThirdsColumn>
                         ${flash}
-                        <@defaultHeading caption=caption captionClass=captionClass pageHeading=pageHeading pageHeadingClass=pageHeadingClass/>
+                        <@defaultHeading caption=caption captionClass=captionClass pageHeading=pageHeading pageHeadingClass=pageHeadingClass errorItems=errorItems/>
                         <#nested>
                     </@grid.twoThirdsColumn>
                     <@grid.oneThirdColumn>
@@ -123,7 +124,7 @@ headerIcon=true>
                 </@grid.gridRow>
             <#else>
                 ${flash}
-                <@defaultHeading caption=caption captionClass=captionClass pageHeading=pageHeading pageHeadingClass=pageHeadingClass/>
+                <@defaultHeading caption=caption captionClass=captionClass pageHeading=pageHeading pageHeadingClass=pageHeadingClass errorItems=errorItems/>
                 <#nested>
             </#if>
         </main>

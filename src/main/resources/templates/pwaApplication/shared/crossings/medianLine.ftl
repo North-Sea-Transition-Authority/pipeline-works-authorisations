@@ -1,9 +1,8 @@
 <#include '../../../layout.ftl'>
 
-<@defaultPage htmlTitle="Median line agreements" breadcrumbs=true>
+<#-- @ftlvariable name="errorList" type="java.util.List<uk.co.ogauthority.pwa.model.form.fds.ErrorItem>" -->
 
-    <@fdsError.errorSummary errorItems=errorList />
-
+<@defaultPage htmlTitle="Median line agreements" breadcrumbs=true errorItems=errorList>
     <@fdsForm.htmlForm>
         <@fdsRadio.radioGroup path="form.agreementStatus" labelText="Will the proposed works cross any median line?" fieldsetHeadingSize="h1" fieldsetHeadingClass="govuk-fieldset__legend--xl" hiddenContent=true>
             <#assign firstItem=true/>

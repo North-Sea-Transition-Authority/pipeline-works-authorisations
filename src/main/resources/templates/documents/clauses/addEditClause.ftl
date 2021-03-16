@@ -4,9 +4,7 @@
 
 <#include '../../layout.ftl'>
 
-<@defaultPage htmlTitle="${actionType.actionText} clause" pageHeading="${actionType.actionText} clause" topNavigation=true twoThirdsColumn=true breadcrumbs=true>
-
-    <@fdsError.errorSummary errorItems=errorList />
+<@defaultPage htmlTitle="${actionType.actionText} clause" pageHeading="${actionType.actionText} clause" topNavigation=true twoThirdsColumn=true breadcrumbs=true errorItems=errorList>
 
     <@fdsForm.htmlForm>
 

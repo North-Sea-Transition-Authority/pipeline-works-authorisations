@@ -12,10 +12,12 @@
 <#-- @ftlvariable name="summaryValidationResult" type="uk.co.ogauthority.pwa.service.validation.SummaryScreenValidationResult" -->
 
 
-<@defaultPage htmlTitle=pageHeading pageHeading=pageHeading breadcrumbs=true fullWidthColumn=true>
+<@defaultPage htmlTitle=pageHeading breadcrumbs=true fullWidthColumn=true>
 
     <@validationResult.singleErrorSummary summaryValidationResult=summaryValidationResult! />
     <@validationResult.errorSummary summaryValidationResult=summaryValidationResult! />
+
+    <h1 class="govuk-heading-xl">${pageHeading}</h1>
 
     <@fdsInsetText.insetText>
       <p>Groups of pipelines with associated HUOOs are shown below.</p>

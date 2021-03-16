@@ -4,11 +4,7 @@
 <#-- @ftlvariable name="modifyStartDateUrl" type="java.lang.String" -->
 <#-- @ftlvariable name="startDate" type="java.lang.String" -->
 
-<@defaultPage htmlTitle="Fast-track" pageHeading="Fast-track" breadcrumbs=true>
-
-    <#if errorList?has_content>
-        <@fdsError.errorSummary errorItems=errorList errorTitle="Errors"/>
-    </#if>
+<@defaultPage htmlTitle="Fast-track" pageHeading="Fast-track" breadcrumbs=true errorItems=errorList>
 
     <@fdsInsetText.insetText>
         Your application will be fast-tracked as the start date is before the minimum review period.

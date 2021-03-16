@@ -1,7 +1,6 @@
 <#include '../../../layout.ftl'>
 <#import 'workScheduleView.ftl' as workScheduleView>
 
-<#-- @ftlvariable name="errorList" type="java.util.List<uk.co.ogauthority.pwa.model.form.fds.ErrorItem>" -->
 <#-- @ftlvariable name="dependencySectionName" type="java.lang.String" -->
 <#-- @ftlvariable name="dependencySectionUrl" type="java.lang.String" -->
 <#-- @ftlvariable name="backUrl" type="java.lang.String" -->
@@ -38,15 +37,17 @@
     </@fdsCard.card>
 </#macro>
 
-<@defaultPage htmlTitle="Campaign works" pageHeading="Campaign works" breadcrumbs=true fullWidthColumn=true>
+<@defaultPage htmlTitle="Campaign works" breadcrumbs=true fullWidthColumn=true>
 
     <#if sectionValidationResult.getCompleteSectionErrorMessage()?has_content>
         <@fdsError.singleErrorSummary errorMessage=sectionValidationResult.getCompleteSectionErrorMessage() />
     </#if>
 
+    <h1 class="govuk-heading-xl">Campaign works</h1>
+
     <@fdsInsetText.insetText>
       Your application requires campaign works information due to the information provided in the ${dependencySectionName} section. </br>
-      <@fdsAction.link linkText="Click here to change your campaign works approach." linkUrl=springUrl(dependencySectionUrl) linkClass="govuk-link"/> 
+      <@fdsAction.link linkText="Click here to change your campaign works approach." linkUrl=springUrl(dependencySectionUrl) linkClass="govuk-link"/>
       <p>Provide the schedule of campaign works for the pipelines on this application. You do not have to provide information on pipelines that are not part of this application. If a pipeline is installed over multiple periods, then add it to each relevant period.</p>
     </@fdsInsetText.insetText>
 

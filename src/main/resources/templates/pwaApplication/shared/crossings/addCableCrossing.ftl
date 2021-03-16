@@ -1,11 +1,9 @@
 <#include '../../../layout.ftl'>
 
+<#-- @ftlvariable name="errorList" type="java.util.List<uk.co.ogauthority.pwa.model.form.fds.ErrorItem>" -->
 <#-- @ftlvariable name="backUrl" type="java.lang.String" -->
-<@defaultPage htmlTitle="Add cable crossing" pageHeading="Add cable crossing" breadcrumbs=true>
-    <#if errorList?has_content>
-        <@fdsError.errorSummary errorItems=errorList errorTitle="Errors"/>
-    </#if>
 
+<@defaultPage htmlTitle="Add cable crossing" pageHeading="Add cable crossing" breadcrumbs=true errorItems=errorList>
     <@fdsForm.htmlForm>
         <@fdsTextInput.textInput path="form.cableName" labelText="Name of the cable"/>
         <@fdsTextInput.textInput path="form.cableOwner" labelText="Name of cable owner"/>

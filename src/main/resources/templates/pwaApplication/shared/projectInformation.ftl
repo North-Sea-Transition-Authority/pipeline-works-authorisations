@@ -6,14 +6,10 @@
 <#-- @ftlvariable name="requiredQuestions" type="java.util.Set< uk.co.ogauthority.pwa.model.entity.enums.ProjectInformationQuestion>" -->
 
 
-<@defaultPage htmlTitle="Project information" pageHeading="Project information" breadcrumbs=true>
-
-    <#if errorList?has_content>
-        <@fdsError.errorSummary errorItems=errorList errorTitle="Errors"/>
-    </#if>
+<@defaultPage htmlTitle="Project information" pageHeading="Project information" breadcrumbs=true errorItems=errorList>
 
     <@fdsForm.htmlForm>
-        
+
         <#if requiredQuestions?seq_contains("PROJECT_NAME")>
             <@fdsTextInput.textInput path="form.projectName" labelText="Name of project"/>
         </#if>
@@ -21,7 +17,7 @@
         <#if requiredQuestions?seq_contains("PROPOSED_START_DATE")>
             <@fdsDateInput.dateInput dayPath="form.proposedStartDay" monthPath="form.proposedStartMonth" yearPath="form.proposedStartYear" labelText="Proposed start of works date" formId="form.proposedStart"/>
         </#if>
-        
+
         <#if requiredQuestions?seq_contains("PROJECT_OVERVIEW")>
             <@fdsTextarea.textarea path="form.projectOverview" labelText="Overview of project" characterCount=true maxCharacterLength="4000"/>
         </#if>
@@ -41,7 +37,7 @@
         <#if requiredQuestions?seq_contains("LATEST_COMPLETION_DATE")>
             <@fdsDateInput.dateInput dayPath="form.latestCompletionDay" monthPath="form.latestCompletionMonth" yearPath="form.latestCompletionYear" labelText="Latest completion date" formId="form.latestCompletion"/>
         </#if>
-        
+
         <#if requiredQuestions?seq_contains("LICENCE_TRANSFER_PLANNED")>
             <@fdsRadio.radioGroup path="form.licenceTransferPlanned" labelText="Is a licence transfer planned?" hiddenContent=true hintText="A licence transfer is in relation to a transfer of equity share from one company to another for a defined asset, field or infrastructure.">
                 <@fdsRadio.radioYes path="form.licenceTransferPlanned">

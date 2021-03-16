@@ -1,13 +1,12 @@
 <#include '../../../layout.ftl'>
 
+<#-- @ftlvariable name="errorList" type="java.util.List<uk.co.ogauthority.pwa.model.form.fds.ErrorItem>" -->
 <#-- @ftlvariable name="crossedBlockOwnerOptions" type="java.util.List<uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CrossedBlockOwner>" -->
 <#-- @ftlvariable name="orgUnits" type="java.util.Map<java.lang.String, java.lang.String>" -->
 <#-- @ftlvariable name="blockSelectorUrl" type="java.lang.String" -->
 <#-- @ftlvariable name="backUrl" type="java.lang.String" -->
 
-
-<@defaultPage htmlTitle="Add block" pageHeading="Add block" breadcrumbs=true>
-    <@fdsError.errorSummary errorItems=errorList />
+<@defaultPage htmlTitle="Add block" pageHeading="Add block" breadcrumbs=true errorItems=errorList>
 
     <@fdsForm.htmlForm>
         <@fdsSearchSelector.searchSelectorRest path="form.pickedBlock" restUrl=springUrl(blockSelectorUrl) labelText="What block is the pipeline located in or crossing?" selectorMinInputLength=3 preselectedItems=preselectedBlock

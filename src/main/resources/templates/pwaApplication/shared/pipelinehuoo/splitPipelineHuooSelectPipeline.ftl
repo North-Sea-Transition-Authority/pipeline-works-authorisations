@@ -8,11 +8,8 @@
 <#-- @ftlvariable name="selectPipelineHintText" type="java.lang.String" -->
 <#-- @ftlvariable name="pipelineOptions" type="java.util.Map<Integer, String> -->
 
-<@defaultPage htmlTitle=pageHeading pageHeading=pageHeading breadcrumbs=false >
+<@defaultPage htmlTitle=pageHeading pageHeading=pageHeading breadcrumbs=false errorItems=errorList>
 
-    <#if errorList?has_content>
-        <@fdsError.errorSummary errorItems=errorList errorTitle="Errors"/>
-    </#if>
     <@fdsInsetText.insetText>
       Only pipelines with more than 1 ident can be selected when defining a split.
     </@fdsInsetText.insetText>

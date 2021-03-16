@@ -3,11 +3,7 @@
 
 <#-- @ftlvariable name="errorList" type="java.util.List<uk.co.ogauthority.pwa.model.form.fds.ErrorItem>"-->
 
-<@defaultPage htmlTitle="Design and operating conditions" pageHeading="Design and operating conditions" breadcrumbs=true>
-
-    <#if errorList?has_content>
-        <@fdsError.errorSummary errorItems=errorList />
-    </#if>
+<@defaultPage htmlTitle="Design and operating conditions" pageHeading="Design and operating conditions" breadcrumbs=true errorItems=errorList>
 
     <@fdsForm.htmlForm>
 
@@ -21,7 +17,7 @@
             labelText="What are the pressure operating conditions?" nestedPath="" unitMeasurement=unitMeasurements.BAR_G/>
 
         <@fdsFieldset.fieldset legendHeading="What is the maximum designed pressure condition?" legendHeadingSize="h2" legendHeadingClass="govuk-fieldset__legend govuk-fieldset__legend--s">
-            <@fdsTextInput.textInput path="form.pressureDesignMax" labelText="max" suffix=stringUtils.superscriptConverter(unitMeasurements.BAR_G.suffixDisplay) 
+            <@fdsTextInput.textInput path="form.pressureDesignMax" labelText="max" suffix=stringUtils.superscriptConverter(unitMeasurements.BAR_G.suffixDisplay)
              suffixScreenReaderPrompt=unitMeasurements.BAR_G.suffixScreenReaderDisplay inputClass="govuk-input--width-5"/>
         </@fdsFieldset.fieldset>
 

@@ -11,10 +11,12 @@
     <@fdsAction.link linkText=text linkUrl=url linkClass="govuk-button govuk-button--blue" />
 </#macro>
 
-<@defaultPage htmlTitle="Pipelines" pageHeading="Pipelines" fullWidthColumn=true breadcrumbs=true>
+<@defaultPage htmlTitle="Pipelines" fullWidthColumn=true breadcrumbs=true>
 
     <@validationResult.singleErrorSummary summaryValidationResult=pipelineSummaryValidationResult! />
     <@validationResult.errorSummary summaryValidationResult=pipelineSummaryValidationResult! />
+
+    <h1 class="govuk-heading-xl">Pipelines</h1>
 
     <#if !pipelineTaskListItems?has_content>
         <@fdsInsetText.insetText>No pipelines have been added yet.</@fdsInsetText.insetText>

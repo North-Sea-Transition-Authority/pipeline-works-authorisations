@@ -4,15 +4,17 @@
 <#-- @ftlvariable name="errorMessage" type="String" -->
 <#-- @ftlvariable name="errorList" type="java.util.List<uk.co.ogauthority.pwa.model.form.fds.ErrorItem>" -->
 
-<@defaultPage htmlTitle="Permanent deposit drawings" pageHeading="Permanent deposit drawings" breadcrumbs=true>
+<@defaultPage htmlTitle="Permanent deposit drawings" breadcrumbs=true>
 
     <#if errorMessage?has_content>
         <@fdsError.singleErrorSummary errorMessage=errorMessage />
     </#if>
 
     <#if errorList?has_content>
-        <@fdsError.errorSummary errorItems=errorList errorTitle="Errors"/>
+        <@fdsError.errorSummary errorItems=errorList />
     </#if>
+
+    <h1 class="govuk-heading-xl">Permanent deposit drawings</h1>
 
     <@fdsForm.htmlForm>
 

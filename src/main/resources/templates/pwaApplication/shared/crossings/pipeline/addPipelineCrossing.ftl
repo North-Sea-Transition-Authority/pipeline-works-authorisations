@@ -1,11 +1,9 @@
 <#include '../../../../layout.ftl'>
 
+<#-- @ftlvariable name="errorList" type="java.util.List<uk.co.ogauthority.pwa.model.form.fds.ErrorItem>" -->
 <#-- @ftlvariable name="backUrl" type="java.lang.String" -->
-<@defaultPage htmlTitle="${screenActionType.actionText} pipeline crossing" pageHeading="${screenActionType.actionText} pipeline crossing" breadcrumbs=true>
-    <#if errorList?has_content>
-        <@fdsError.errorSummary errorItems=errorList errorTitle="Errors"/>
-    </#if>
 
+<@defaultPage htmlTitle="${screenActionType.actionText} pipeline crossing" pageHeading="${screenActionType.actionText} pipeline crossing" breadcrumbs=true errorItems=errorList>
     <@fdsForm.htmlForm>
         <@fdsTextInput.textInput path="form.pipelineCrossed" labelText="Which pipeline will be crossed?" hintText="This will be the PL number or other reference if not part of the PWA regime"/>
         <@fdsRadio.radioGroup path="form.pipelineFullyOwnedByOrganisation" labelText="Is the pipeline being crossed fully owned by your organisation?" hiddenContent=true>

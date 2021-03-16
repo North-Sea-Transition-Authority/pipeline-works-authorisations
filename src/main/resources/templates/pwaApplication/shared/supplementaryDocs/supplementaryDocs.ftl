@@ -2,11 +2,7 @@
 
 <#-- @ftlvariable name="errorList" type="java.util.List<uk.co.ogauthority.pwa.model.form.fds.ErrorItem>" -->
 
-<@defaultPage htmlTitle="Supplementary documents" pageHeading="Supplementary documents" breadcrumbs=true>
-
-    <#if errorList?has_content>
-        <@fdsError.errorSummary errorItems=errorList />
-    </#if>
+<@defaultPage htmlTitle="Supplementary documents" pageHeading="Supplementary documents" breadcrumbs=true errorItems=errorList>
 
     <@fdsForm.htmlForm>
 

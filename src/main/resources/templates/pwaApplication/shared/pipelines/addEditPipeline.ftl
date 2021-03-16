@@ -11,11 +11,7 @@
 <#-- @ftlvariable name="questionsForPipelineStatus" type="java.util.Set<uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineHeaderConditionalQuestion>" -->
 <#-- @ftlvariable name="canShowAlreadyExistsOnSeabedQuestions" type="java.lang.Boolean" -->
 
-<@defaultPage htmlTitle="${screenActionType.actionText} ${pipelineNumber!} pipeline" pageHeading="${screenActionType.actionText} ${pipelineNumber!} pipeline" breadcrumbs=true>
-
-    <#if errorList?has_content>
-        <@fdsError.errorSummary errorItems=errorList />
-    </#if>
+<@defaultPage htmlTitle="${screenActionType.actionText} ${pipelineNumber!} pipeline" pageHeading="${screenActionType.actionText} ${pipelineNumber!} pipeline" breadcrumbs=true errorItems=errorList>
 
     <@fdsForm.htmlForm>
 
@@ -125,7 +121,7 @@
                     <@fdsRadio.radioGroup path="form.pipelineInUse" labelText="Is the pipeline in use?">
                         <@fdsRadio.radioYes path="form.pipelineInUse"/>
                         <@fdsRadio.radioNo path="form.pipelineInUse"/>
-                    </@fdsRadio.radioGroup>                        
+                    </@fdsRadio.radioGroup>
                 </@fdsRadio.radioYes>
                 <@fdsRadio.radioNo path="form.alreadyExistsOnSeabed"/>
             </@fdsRadio.radioGroup>

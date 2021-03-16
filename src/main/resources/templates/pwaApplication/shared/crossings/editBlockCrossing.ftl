@@ -1,11 +1,10 @@
 <#include '../../../layout.ftl'>
 
+<#-- @ftlvariable name="errorList" type="java.util.List<uk.co.ogauthority.pwa.model.form.fds.ErrorItem>" -->
 <#-- @ftlvariable name="crossedBlockOwnerOptions" type="java.util.List<uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CrossedBlockOwner>" -->
 <#-- @ftlvariable name="orgUnits" type="java.util.Map<java.lang.String, java.lang.String>" -->
 
-<@defaultPage htmlTitle="Edit block" pageHeading="Edit block" breadcrumbs=true>
-
-    <@fdsError.errorSummary errorItems=errorList />
+<@defaultPage htmlTitle="Edit block" pageHeading="Edit block" breadcrumbs=true errorItems=errorList>
 
     <@fdsDataItems.dataItem>
         <@fdsDataItems.dataValues key="Block reference" value=blockReference/>

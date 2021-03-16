@@ -6,9 +6,7 @@
 <#-- @ftlvariable name="backUrl" type="String" -->
 <#-- @ftlvariable name="ogaServiceDeskEmail" type="String" -->
 
-<@defaultPage htmlTitle="Consent holder">
-
-  <@fdsError.errorSummary errorItems=errorList />
+<@defaultPage htmlTitle="Consent holder" errorItems=errorList>
 
   <@fdsForm.htmlForm>
 
@@ -16,7 +14,7 @@
 
       <#assign groups>
         <#list ogList as group> ${group} <#sep>, </#list>
-      </#assign> 
+      </#assign>
       <@fdsDetails.summaryDetails summaryTitle="The holder organisation is not in the list">
         <p>You can only create a new PWA for organisations within the following groups: ${groups}. </p>
         <p>If the group you need to create a PWA for is not shown above then you must contact the holder to create the new PWA application on your behalf and provide you with access to the application. Alternatively, they can provide you with access to their organisation account. </p>

@@ -3,11 +3,7 @@
 
 <#include '../../../layout.ftl'>
 
-<@defaultPage htmlTitle="${screenActionType.actionText} a holder, user, operator, or owner" breadcrumbs=true>
-
-    <#if errorList?has_content>
-        <@fdsError.errorSummary errorItems=errorList errorTitle="Errors"/>
-    </#if>
+<@defaultPage htmlTitle="${screenActionType.actionText} a holder, user, operator, or owner" breadcrumbs=true errorItems=errorList>
 
     <@fdsForm.htmlForm>
         <@fdsRadio.radioGroup path="form.huooType" labelText="What type of holder, user, operator or owner is being added?" fieldsetHeadingSize="h1" fieldsetHeadingClass="govuk-fieldset__legend--xl" hiddenContent=true>

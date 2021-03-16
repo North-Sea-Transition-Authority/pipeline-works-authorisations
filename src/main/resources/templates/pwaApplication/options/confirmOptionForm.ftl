@@ -7,11 +7,7 @@
 <#-- @ftlvariable name="submitSecondaryButtonText" type="java.lang.String" -->
 
 
-<@defaultPage htmlTitle=pageHeading pageHeading="" breadcrumbs=true>
-
-    <#if errorList?has_content>
-        <@fdsError.errorSummary errorItems=errorList />
-    </#if>
+<@defaultPage htmlTitle=pageHeading pageHeading="" breadcrumbs=true errorItems=errorList>
 
     <@fdsForm.htmlForm>
         <@fdsRadio.radioGroup

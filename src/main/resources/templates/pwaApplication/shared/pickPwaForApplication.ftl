@@ -1,10 +1,10 @@
 <#include '../../layout.ftl'>
 
+<#-- @ftlvariable name="errorList" type="java.util.List<uk.co.ogauthority.pwa.model.form.fds.ErrorItem>" -->
 <#-- @ftlvariable name="ogList" type="java.util.List<String>" -->
 <#-- @ftlvariable name="pwaApplicationType" type="uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType" -->
 
-<@defaultPage htmlTitle="Start PWA application">
-    <@fdsError.errorSummary errorItems=errorList />
+<@defaultPage htmlTitle="Start PWA application" errorItems=errorList>
 
     <@fdsForm.htmlForm>
 
@@ -23,7 +23,7 @@
             <p>The organisation must be the current holder of the PWA.</p>
             <p>If you do not have access to the PWA then you must contact the holder to create the application on your behalf. Once created they can provide you with access to the application. Alternatively, they can provide you with access to their organisation account. </p>
         </@fdsDetails.summaryDetails>
-            
+
         <@fdsAction.submitButtons primaryButtonText="Continue" linkSecondaryAction=true secondaryLinkText="Back to work area" linkSecondaryActionUrl=springUrl(workareaUrl) />
     </@fdsForm.htmlForm>
 

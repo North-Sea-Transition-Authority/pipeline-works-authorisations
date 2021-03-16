@@ -4,11 +4,7 @@
 <#-- @ftlvariable name="errorList" type="java.util.List<uk.co.ogauthority.pwa.model.form.fds.ErrorItem>"-->
 <#-- @ftlvariable name="backUrl" type=" java.lang.String"-->
 
-<@defaultPage htmlTitle="General technical details" pageHeading="General technical details" breadcrumbs=true>
-
-    <#if errorList?has_content>
-        <@fdsError.errorSummary errorItems=errorList/>
-    </#if>
+<@defaultPage htmlTitle="General technical details" pageHeading="General technical details" breadcrumbs=true errorItems=errorList>
 
     <@fdsForm.htmlForm>
         <@fdsTextInput.textInput path="form.estimatedFieldLife" labelText="What is the estimated life of the field?" suffix="years" inputClass="govuk-input--width-5"/>

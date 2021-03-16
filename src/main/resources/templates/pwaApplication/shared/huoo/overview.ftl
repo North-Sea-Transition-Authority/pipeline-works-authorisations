@@ -7,19 +7,21 @@
 
 <#include '../../../layout.ftl'>
 
-<@defaultPage htmlTitle="Holders, users, operators, and owners (HUOO)" pageHeading="Holders, users, operators, and owners (HUOO)" fullWidthColumn=true breadcrumbs=true>
+<@defaultPage htmlTitle="Holders, users, operators, and owners (HUOO)" fullWidthColumn=true breadcrumbs=true>
 
   <#if errorMessage?has_content>
     <@fdsError.singleErrorSummary errorMessage=errorMessage />
   </#if>
 
-    <#if showHolderGuidance>
-      <@fdsInsetText.insetText>
-        You can only have a single holder on a PWA.
-        <br/><br/>
-        To change the holder you must edit the current holder and update the organisation. You can only set the holder to an organisation that you are a member of.
-      </@fdsInsetText.insetText>
-    </#if>
+  <h1 class="govuk-heading-xl">Holders, users, operators, and owners (HUOO)</h1>
+
+  <#if showHolderGuidance>
+    <@fdsInsetText.insetText>
+      You can only have a single holder on a PWA.
+      <br/><br/>
+      To change the holder you must edit the current holder and update the organisation. You can only set the holder to an organisation that you are a member of.
+    </@fdsInsetText.insetText>
+  </#if>
 
   <@fdsAction.link linkText="Add holder, user, operator or owner" linkUrl=springUrl(addHuooUrl) linkClass="govuk-link govuk-link--button govuk-button govuk-button--blue" role=true/>
 

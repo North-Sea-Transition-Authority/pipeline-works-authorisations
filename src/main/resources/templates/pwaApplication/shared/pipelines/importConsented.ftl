@@ -8,11 +8,7 @@
 <#-- @ftlvariable name="errorList" type="java.util.List<uk.co.ogauthority.pwa.model.form.fds.ErrorItem>" -->
 <#-- @ftlvariable name="coreType" type="uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineCoreType" -->
 
-<@defaultPage htmlTitle="Modify consented pipeline" pageHeading="Modify consented pipeline" breadcrumbs=true>
-
-    <#if errorList?has_content>
-        <@fdsError.errorSummary errorItems=errorList />
-    </#if>
+<@defaultPage htmlTitle="Modify consented pipeline" pageHeading="Modify consented pipeline" breadcrumbs=true errorItems=errorList>
 
     <@fdsForm.htmlForm>
 

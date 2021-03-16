@@ -9,10 +9,12 @@
 <#-- @ftlvariable name="identUrlFactory" type="uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.IdentUrlFactory" -->
 <#-- @ftlvariable name="coreType" type="uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineCoreType" -->
 
-<@defaultPage htmlTitle="${pipelineOverview.getPipelineName()} idents" breadcrumbs=true fullWidthColumn=true  pageHeading="${pipelineOverview.getPipelineName()} idents">
+<@defaultPage htmlTitle="${pipelineOverview.getPipelineName()} idents" breadcrumbs=true fullWidthColumn=true>
 
     <@validationResult.singleErrorSummary summaryValidationResult=identSummaryValidationResult! />
     <@validationResult.errorSummary summaryValidationResult=identSummaryValidationResult! />
+
+    <h1 class="govuk-heading-xl">${pipelineOverview.getPipelineName()} idents</h1>
 
     <@fdsAction.link linkText="Add ident" linkUrl=springUrl(addIdentUrl) linkClass="govuk-button govuk-button--blue" />
 
@@ -21,7 +23,7 @@
             <p>Main component parts such as ESDV, Manifolds, SSIV, Termination Units or component(s) that affect flow should have their own ident with the from, to and description defined as that component. This only applies to the main production or umbilical pipeline.</p>
             <p>All idents are to follow the direction of flow.</p>
         </@fdsDetails.summaryDetails>
-            
+
 
     <#if summaryView?has_content && summaryView.connectedPipelineIdents?has_content>
         <@fdsTimeline.timeline>
