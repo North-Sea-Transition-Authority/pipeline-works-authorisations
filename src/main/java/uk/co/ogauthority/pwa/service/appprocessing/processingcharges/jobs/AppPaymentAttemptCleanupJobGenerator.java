@@ -41,7 +41,7 @@ public class AppPaymentAttemptCleanupJobGenerator {
     if (scheduler.getJobDetail(JOB_KEY) != null) {
       LOGGER.info("Hourly payment attempt cleanup job found");
     } else {
-      LOGGER.info("Hourly payment attempt cleanup job does not exist.Creating...");
+      LOGGER.info("Hourly payment attempt cleanup job does not exist. Creating...");
       JobDetail jobDetail = newJob(PaymentAttemptCleanupBean.class)
           .withIdentity(JOB_KEY)
           .requestRecovery()
