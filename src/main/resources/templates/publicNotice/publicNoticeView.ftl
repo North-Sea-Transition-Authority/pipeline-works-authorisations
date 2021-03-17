@@ -49,6 +49,18 @@
                         <p class="govuk-body"> ${publicNoticeViewData.latestDocumentComments} </p> 
                     </@multiLineText.multiLineText>
                 </@fdsCheckAnswers.checkAnswersRow>
+            </#if>            
+
+            <#if publicNoticeViewData.publicationStartTimestamp?has_content>
+                <@fdsCheckAnswers.checkAnswersRow keyText="Publication start date" actionText="" actionUrl="" screenReaderActionText="">
+                   ${publicNoticeViewData.publicationStartTimestamp}
+                </@fdsCheckAnswers.checkAnswersRow>
+            </#if>
+            
+            <#if publicNoticeViewData.publicationEndTimestamp?has_content>
+                <@fdsCheckAnswers.checkAnswersRow keyText="Publication end date" actionText="" actionUrl="" screenReaderActionText="">
+                   ${publicNoticeViewData.publicationEndTimestamp}
+                </@fdsCheckAnswers.checkAnswersRow>
             </#if>
 
         </@fdsCheckAnswers.checkAnswers>    
@@ -58,3 +70,4 @@
 
 
 </#macro>
+

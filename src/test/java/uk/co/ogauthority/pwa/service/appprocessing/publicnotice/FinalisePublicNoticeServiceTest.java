@@ -256,7 +256,7 @@ public class FinalisePublicNoticeServiceTest {
     var publicNotice = PublicNoticeTestUtil.createWaitingPublicNotice(pwaApplication);
     when(publicNoticeService.getLatestPublicNotice(pwaApplication)).thenReturn(publicNotice);
 
-    var publicNoticeDate = PublicNoticeTestUtil.createWaitingPublicNoticeDate(publicNotice);
+    var publicNoticeDate = PublicNoticeTestUtil.createLatestPublicNoticeDate(publicNotice);
     when(publicNoticeDatesRepository.getByPublicNoticeAndEndedByPersonIdIsNull(publicNotice))
         .thenReturn(Optional.of(publicNoticeDate));
 
@@ -288,7 +288,7 @@ public class FinalisePublicNoticeServiceTest {
     var publicNotice = PublicNoticeTestUtil.createWaitingPublicNotice(pwaApplication);
     when(publicNoticeService.getLatestPublicNotice(pwaApplication)).thenReturn(publicNotice);
 
-    var publicNoticeDate = PublicNoticeTestUtil.createWaitingPublicNoticeDate(publicNotice);
+    var publicNoticeDate = PublicNoticeTestUtil.createLatestPublicNoticeDate(publicNotice);
     when(publicNoticeDatesRepository.getByPublicNoticeAndEndedByPersonIdIsNull(publicNotice))
         .thenReturn(Optional.of(publicNoticeDate));
 
@@ -305,7 +305,7 @@ public class FinalisePublicNoticeServiceTest {
     var publicNotice = PublicNoticeTestUtil.createWaitingPublicNotice(pwaApplication);
     when(publicNoticeService.getLatestPublicNotice(pwaApplication)).thenReturn(publicNotice);
 
-    var publicNoticeDate = PublicNoticeTestUtil.createWaitingPublicNoticeDate(publicNotice);
+    var publicNoticeDate = PublicNoticeTestUtil.createLatestPublicNoticeDate(publicNotice);
     when(publicNoticeDatesRepository.getByPublicNoticeAndEndedByPersonIdIsNull(publicNotice))
         .thenReturn(Optional.of(publicNoticeDate));
 
@@ -328,7 +328,7 @@ public class FinalisePublicNoticeServiceTest {
     var publicNotice = PublicNoticeTestUtil.createWaitingPublicNotice(pwaApplication);
     when(publicNoticeService.getLatestPublicNotice(pwaApplication)).thenReturn(publicNotice);
 
-    var publicNoticeDate = PublicNoticeTestUtil.createWaitingPublicNoticeDate(publicNotice);
+    var publicNoticeDate = PublicNoticeTestUtil.createLatestPublicNoticeDate(publicNotice);
     when(publicNoticeDatesRepository.getByPublicNoticeAndEndedByPersonIdIsNull(publicNotice))
         .thenReturn(Optional.of(publicNoticeDate));
 
@@ -359,7 +359,7 @@ public class FinalisePublicNoticeServiceTest {
     var publicNotice = PublicNoticeTestUtil.createWaitingPublicNotice(pwaApplication);
     when(publicNoticeService.getLatestPublicNotice(pwaApplication)).thenReturn(publicNotice);
 
-    var publicNoticeDate = PublicNoticeTestUtil.createWaitingPublicNoticeDate(publicNotice);
+    var publicNoticeDate = PublicNoticeTestUtil.createLatestPublicNoticeDate(publicNotice);
     when(publicNoticeDatesRepository.getByPublicNoticeAndEndedByPersonIdIsNull(publicNotice))
         .thenReturn(Optional.of(publicNoticeDate));
 
