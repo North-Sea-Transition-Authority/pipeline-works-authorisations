@@ -477,7 +477,7 @@ public class PermanentDepositsServiceTest {
     assertThat(other.getConcreteMattressWidth()).isNull();
     assertThat(other.getConcreteMattressLength()).isNull();
 
-    verify(permanentDepositInformationRepository, times(1)).saveAll(eq(List.of(mattress, rock, grout, other, depositWithPipelines)));
+    verify(permanentDepositInformationRepository, times(1)).saveAll(List.of(mattress, rock, grout, other, depositWithPipelines));
     verify(padDepositPipelineRepository, times(1)).deleteAll(depositPipelineLinks);
 
   }
