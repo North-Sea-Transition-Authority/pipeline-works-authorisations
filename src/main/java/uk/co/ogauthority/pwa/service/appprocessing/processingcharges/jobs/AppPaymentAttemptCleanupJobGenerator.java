@@ -26,7 +26,7 @@ public class AppPaymentAttemptCleanupJobGenerator {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(PaymentAttemptCleanupBean.class);
   private static final JobKey JOB_KEY = jobKey("HOURLY_PAYMENT_ATTEMPT_CLEANUP_JOB", "APPLICATION_CHARGE_JOBS");
-  private static final TriggerKey TRIGGER_KEY = triggerKey("NIGHTLY_PUBLICATION_TRIGGER_KEY", "APPLICATION_CHARGE_TRIGGERS");
+  private static final TriggerKey TRIGGER_KEY = triggerKey("HOURLY_PAYMENT_ATTEMPT_CLEANUP_TRIGGER_KEY", "APPLICATION_CHARGE_TRIGGERS");
 
   private final Scheduler scheduler;
 
