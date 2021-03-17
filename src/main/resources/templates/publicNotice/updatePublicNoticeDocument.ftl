@@ -20,18 +20,38 @@
   <@fdsForm.htmlForm>
 
     <h3 class="govuk-heading-m"> Cover letter </h3>    
-    <@multiLineText.multiLineText>
-      <p class="govuk-body"> ${coverLetter} </p> 
-    </@multiLineText.multiLineText>
+    <@grid.gridRow>
+      <@grid.twoThirdsColumn>
+        <@multiLineText.multiLineText blockClass="public-notice__text">
+            <p class="govuk-body"> ${coverLetter} </p>
+        </@multiLineText.multiLineText>
+      </@grid.twoThirdsColumn>
+    </@grid.gridRow>
 
     <#if publicNoticeDocumentComments?has_content>
       <h3 class="govuk-heading-m"> Case officer comments </h3>    
-      <@multiLineText.multiLineText>
+      <@multiLineText.multiLineText blockClass="public-notice__text">
         <p class="govuk-body"> ${publicNoticeDocumentComments} </p> 
       </@multiLineText.multiLineText>
     </#if>
  
     <h3 class="govuk-heading-m"> Public notice document download </h3>
+    <@grid.gridRow>
+        <@grid.twoThirdsColumn>
+            <@fdsInsetText.insetText>
+              <p class="govuk-body"> 
+                Review Annexes A-D of the attached public notice. Sections that you must update are
+                enclosed in square brackets and shown in red text. 
+                If any parties not shown within the table in Annex D are served a notice, their details, including email addresses, 
+                should be supplied to OGA by updating Annex D.
+              </p>
+
+              <p class="govuk-body"> 
+                Upload the updated public notice document and return it to the case officer.
+              </p>
+            </@fdsInsetText.insetText>
+        </@grid.twoThirdsColumn>
+    </@grid.gridRow>
     <p class="govuk-body">
       <@fdsAction.link linkText=publicNoticeDocumentFileView.fileName linkUrl=springUrl(publicNoticeDocumentFileView.fileUrl) 
       linkClass="govuk-link" linkScreenReaderText="Download ${publicNoticeDocumentFileView.fileName}" role=false start=false openInNewTab=true/> 

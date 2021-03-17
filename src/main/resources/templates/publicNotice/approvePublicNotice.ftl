@@ -15,11 +15,19 @@
         <h2 class="govuk-heading-l">Review public notice request</h2>
 
 
-        <h3 class="govuk-heading-m"> Cover letter </h3>
-        <p class="govuk-body"> ${coverLetter} </p>
+        <h3 class="govuk-heading-m"> Cover letter </h3>        
+        <@grid.gridRow>
+            <@grid.twoThirdsColumn>
+                <@multiLineText.multiLineText blockClass="public-notice__text">
+                    <p class="govuk-body"> ${coverLetter} </p>
+                </@multiLineText.multiLineText>
+            </@grid.twoThirdsColumn>
+        </@grid.gridRow>
 
         <h3 class="govuk-heading-m"> Public notice request reason </h3>
-        <p class="govuk-body"> ${requestReason} </p>
+        <@multiLineText.multiLineText blockClass="public-notice__text">
+            <p class="govuk-body"> ${requestReason} </p>
+        </@multiLineText.multiLineText>
     
     
         <@fdsRadio.radioGroup path="form.requestApproved" labelText="Respond to the public notice approval request" hiddenContent=true>
