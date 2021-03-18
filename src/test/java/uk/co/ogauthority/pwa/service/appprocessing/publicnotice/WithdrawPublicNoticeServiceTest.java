@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.time.Clock;
@@ -206,6 +207,19 @@ public class WithdrawPublicNoticeServiceTest {
 
       verify(notifyService, times(1)).sendEmail(expectedEmailProps, recipient.getEmailAddress());
     });
+  }
+
+  @Test
+  public void withdrawPublicNotice_publishedStatus_workflowUnchanged() {
+
+    var publicNotice = PublicNoticeTestUtil.createPublishedPublicNotice(pwaApplication);
+    when(publicNoticeService.getLatestPublicNotice(pwaApplication)).thenReturn(publicNotice);
+
+    var form = new WithdrawPublicNoticeForm();
+    form.setWithdrawalReason("my reason");
+    withdrawPublicNoticeService.withdrawPublicNotice(pwaApplication, form, user);
+
+    verifyNoInteractions(camundaWorkflowService);
   }
 
 

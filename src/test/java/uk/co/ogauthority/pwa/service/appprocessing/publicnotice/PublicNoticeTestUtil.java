@@ -47,6 +47,10 @@ public final class PublicNoticeTestUtil {
     return new PublicNotice(pwaApplication, PublicNoticeStatus.WAITING, VERSION1);
   }
 
+  public static PublicNotice createPublishedPublicNotice(PwaApplication pwaApplication) {
+    return new PublicNotice(pwaApplication, PublicNoticeStatus.PUBLISHED, VERSION1);
+  }
+
   static PublicNotice createWithdrawnPublicNotice(PwaApplication pwaApplication) {
     var publicNotice = new PublicNotice(pwaApplication, PublicNoticeStatus.WITHDRAWN, 10);
     publicNotice.setWithdrawingPersonId(new PersonId(1));
@@ -124,7 +128,7 @@ public final class PublicNoticeTestUtil {
 
   static PublicNoticeView createCommentedPublicNoticeView(PublicNotice publicNotice, PublicNoticeRequest publicNoticeRequest, PublicNoticeDocument publicNoticeDocument) {
     return new PublicNoticeView(publicNotice.getStatus(),
-        DateUtils.formatDate(publicNoticeRequest.getSubmittedTimestamp()), publicNoticeDocument.getComments(), null, null);
+        DateUtils.formatDate(publicNoticeRequest.getSubmittedTimestamp()), publicNoticeDocument.getComments(), null, null, null, null);
   }
 
   static PublicNoticeView createWithdrawnPublicNoticeView(PublicNotice publicNotice,
@@ -135,7 +139,22 @@ public final class PublicNoticeTestUtil {
         DateUtils.formatDate(publicNoticeRequest.getSubmittedTimestamp()),
         null,
         withdrawingUsername,
-        DateUtils.formatDate(publicNotice.getWithdrawalTimestamp())
+        DateUtils.formatDate(publicNotice.getWithdrawalTimestamp()),
+        null, null
+    );
+  }
+
+  static PublicNoticeView createPublishedPublicNoticeView(PublicNotice publicNotice,
+                                                          PublicNoticeDate publicNoticeDate,
+                                                          PublicNoticeRequest publicNoticeRequest) {
+    return new PublicNoticeView(
+        publicNotice.getStatus(),
+        DateUtils.formatDate(publicNoticeRequest.getSubmittedTimestamp()),
+        null,
+        null,
+        null,
+        DateUtils.formatDate(publicNoticeDate.getPublicationStartTimestamp()),
+        DateUtils.formatDate(publicNoticeDate.getPublicationEndTimestamp())
     );
   }
 
@@ -159,7 +178,7 @@ public final class PublicNoticeTestUtil {
     return form;
   }
 
-  public static PublicNoticeDate createWaitingPublicNoticeDate(PublicNotice publicNotice) {
+  public static PublicNoticeDate createLatestPublicNoticeDate(PublicNotice publicNotice) {
     var startDate = LocalDate.now().minusMonths(1);
     return new PublicNoticeDate(
         publicNotice,
