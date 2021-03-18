@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
-import uk.co.ogauthority.pwa.controller.ApplicationLandingPageRouter;
+import uk.co.ogauthority.pwa.controller.ApplicationLandingPageRouterController;
 import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeStatus;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailItemView;
@@ -113,7 +113,7 @@ public abstract class ApplicationWorkAreaItem {
   public ApplicationWorkAreaItem(ApplicationDetailItemView applicationDetailItemView) {
     this(
         applicationDetailItemView,
-        ReverseRouter.route(on(ApplicationLandingPageRouter.class).route(applicationDetailItemView.getPwaApplicationId(), null))
+        ReverseRouter.route(on(ApplicationLandingPageRouterController.class).route(applicationDetailItemView.getPwaApplicationId(), null))
     );
   }
 

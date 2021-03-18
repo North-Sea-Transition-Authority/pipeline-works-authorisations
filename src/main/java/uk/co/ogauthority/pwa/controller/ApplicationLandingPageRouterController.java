@@ -11,12 +11,12 @@ import uk.co.ogauthority.pwa.service.pwaapplications.routing.ApplicationLandingP
 
 @Controller
 @RequestMapping("/pwa-application/{applicationId}/route")
-public class ApplicationLandingPageRouter {
+public class ApplicationLandingPageRouterController {
 
   private final ApplicationLandingPageService applicationLandingPageService;
 
   @Autowired
-  public ApplicationLandingPageRouter(ApplicationLandingPageService applicationLandingPageService) {
+  public ApplicationLandingPageRouterController(ApplicationLandingPageService applicationLandingPageService) {
     this.applicationLandingPageService = applicationLandingPageService;
   }
 

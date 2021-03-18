@@ -28,8 +28,8 @@ import uk.co.ogauthority.pwa.service.pwaapplications.routing.ApplicationLandingP
 import uk.co.ogauthority.pwa.service.pwaapplications.routing.ApplicationLandingPageService;
 
 @RunWith(SpringRunner.class)
-@WebMvcTest(ApplicationLandingPageRouter.class)
-public class ApplicationLandingPageRouterTest extends AbstractControllerTest {
+@WebMvcTest(ApplicationLandingPageRouterController.class)
+public class ApplicationLandingPageRouterControllerTest extends AbstractControllerTest {
 
   private static final int APP_ID = 10;
   private static final String ROUTE = "Example/Route";
@@ -57,7 +57,7 @@ public class ApplicationLandingPageRouterTest extends AbstractControllerTest {
     authenticatedUserAccount = new AuthenticatedUserAccount(new WebUserAccount(),
         EnumSet.allOf(PwaUserPrivilege.class));
 
-   mockMvc.perform(get(ReverseRouter.route(on(ApplicationLandingPageRouter.class).route(APP_ID, null)))
+   mockMvc.perform(get(ReverseRouter.route(on(ApplicationLandingPageRouterController.class).route(APP_ID, null)))
         .with(authenticatedUserAndSession(authenticatedUserAccount)))
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl(ROUTE));

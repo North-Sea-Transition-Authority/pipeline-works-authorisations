@@ -5,7 +5,7 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 
 import java.util.List;
 import java.util.function.Function;
-import uk.co.ogauthority.pwa.controller.ApplicationLandingPageRouter;
+import uk.co.ogauthority.pwa.controller.ApplicationLandingPageRouterController;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailItemView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
@@ -141,7 +141,7 @@ public class ApplicationWorkAreaItemTestUtil {
 
     assertThat(applicationWorkAreaItem.getAccessUrl()).isEqualTo(
         ReverseRouter.route(
-            on(ApplicationLandingPageRouter.class).route(applicationDetailSearchItem.getPwaApplicationId(), null))
+            on(ApplicationLandingPageRouterController.class).route(applicationDetailSearchItem.getPwaApplicationId(), null))
     );
   }
 

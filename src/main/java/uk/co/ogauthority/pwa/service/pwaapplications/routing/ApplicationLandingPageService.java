@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.routing;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
@@ -19,13 +20,20 @@ public class ApplicationLandingPageService {
   private final PwaApplicationRedirectService applicationRedirectService;
   private final PwaApplicationDetailService pwaApplicationDetailService;
 
+  private final String pwaUrlBase;
+  private final String contextPath;
+
   @Autowired
   public ApplicationLandingPageService(ApplicationInvolvementService applicationInvolvementService,
                                        PwaApplicationRedirectService applicationRedirectService,
-                                       PwaApplicationDetailService pwaApplicationDetailService) {
+                                       PwaApplicationDetailService pwaApplicationDetailService,
+                                       @Value("${pwa.url.base}") String pwaUrlBase,
+                                       @Value("${context-path}") String contextPath) {
     this.applicationInvolvementService = applicationInvolvementService;
     this.applicationRedirectService = applicationRedirectService;
     this.pwaApplicationDetailService = pwaApplicationDetailService;
+    this.pwaUrlBase = pwaUrlBase;
+    this.contextPath = contextPath;
   }
 
 
@@ -43,16 +51,17 @@ public class ApplicationLandingPageService {
 
     var appInvolvement = applicationInvolvementService.getApplicationInvolvementDto(detail, user);
 
-    if (appInvolvement.isUserInAppContactTeam() && detail.isFirstVersion()) {
+    var urlRoot = pwaUrlBase + contextPath;
+    if (appInvolvement.isUserInAppContactTeam() && detail.isFirstDraft()) {
       return new ApplicationLandingPageInstance(
           ApplicationLandingPage.TASK_LIST,
-          applicationRedirectService.getTaskListRoute(applicationId, detail.getPwaApplicationType())
+          urlRoot + applicationRedirectService.getTaskListRoute(applicationId, detail.getPwaApplicationType())
       );
     }
 
     return new ApplicationLandingPageInstance(
         ApplicationLandingPage.CASE_MANAGEMENT,
-        CaseManagementUtils.routeCaseManagement(applicationId, detail.getPwaApplicationType())
+        urlRoot + CaseManagementUtils.routeCaseManagement(applicationId, detail.getPwaApplicationType())
     );
 
   }

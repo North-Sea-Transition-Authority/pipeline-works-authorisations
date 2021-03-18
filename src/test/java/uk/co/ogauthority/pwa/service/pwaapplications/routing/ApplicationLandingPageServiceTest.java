@@ -24,6 +24,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
 import uk.co.ogauthority.pwa.service.appprocessing.ApplicationInvolvementService;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
@@ -37,6 +38,9 @@ public class ApplicationLandingPageServiceTest {
   private static final PwaApplicationType APP_TYPE = PwaApplicationType.INITIAL;
 
   private static final String TASK_LIST_ROUTE = "example/task/list/route";
+
+  private static final String URL_BASE = "base/";
+  private static final String CONTEXT_PATH = "context";
 
   @Mock
   private ApplicationInvolvementService applicationInvolvementService;
@@ -54,8 +58,9 @@ public class ApplicationLandingPageServiceTest {
   @Before
   public void setUp() throws Exception {
     applicationLandingPageService = new ApplicationLandingPageService(
-        applicationInvolvementService, applicationRedirectService, pwaApplicationDetailService
-    );
+        applicationInvolvementService, applicationRedirectService, pwaApplicationDetailService,
+        URL_BASE,
+        CONTEXT_PATH);
 
     authenticatedUserAccount = AuthenticatedUserAccountTestUtil.defaultAllPrivUserAccount();
 
@@ -76,8 +81,8 @@ public class ApplicationLandingPageServiceTest {
   }
 
   @Test
-  public void getApplicationLandingPage_whenIndustryUser_firstVersion() {
-
+  public void getApplicationLandingPage_whenApplicationContact_firstVersion_andDraft() {
+    detail.setStatus(PwaApplicationStatus.DRAFT);
     applicationInvolvementDto = ApplicationInvolvementDtoTestUtil.generatePwaContactInvolvement(
         detail.getPwaApplication(), EnumSet.allOf(PwaContactRole.class));
     when(applicationInvolvementService.getApplicationInvolvementDto(detail, authenticatedUserAccount)).thenReturn(applicationInvolvementDto);
@@ -85,14 +90,28 @@ public class ApplicationLandingPageServiceTest {
     var landingPageInstance = applicationLandingPageService.getApplicationLandingPage(authenticatedUserAccount, APP_ID);
 
     assertThat(landingPageInstance.getApplicationLandingPage()).isEqualTo(ApplicationLandingPage.TASK_LIST);
-    assertThat(landingPageInstance.getUrl()).isEqualTo(TASK_LIST_ROUTE);
+    assertThat(landingPageInstance.getUrl()).isEqualTo(URL_BASE + CONTEXT_PATH + TASK_LIST_ROUTE);
 
     verify(applicationRedirectService, times(1)).getTaskListRoute(APP_ID, APP_TYPE);
 
   }
 
   @Test
-  public void getApplicationLandingPage_whenIndustryUser_notFirstVersion() {
+  public void getApplicationLandingPage_whenApplicationContact_firstVersion_andNotDraft() {
+
+    detail.setStatus(PwaApplicationStatus.AWAITING_APPLICATION_PAYMENT);
+    applicationInvolvementDto = ApplicationInvolvementDtoTestUtil.generatePwaContactInvolvement(
+        detail.getPwaApplication(), EnumSet.allOf(PwaContactRole.class));
+    when(applicationInvolvementService.getApplicationInvolvementDto(detail, authenticatedUserAccount)).thenReturn(applicationInvolvementDto);
+
+    var landingPageInstance = applicationLandingPageService.getApplicationLandingPage(authenticatedUserAccount, APP_ID);
+
+    assertCaseManagementLandingPage(landingPageInstance);
+
+  }
+
+  @Test
+  public void getApplicationLandingPage_whenApplicationContact_notFirstVersion() {
 
     detail = PwaApplicationTestUtil.createDefaultApplicationDetail(APP_TYPE, APP_ID ,20, 2);
     when(pwaApplicationDetailService.getLatestDetailForUser(APP_ID, authenticatedUserAccount))
@@ -102,7 +121,6 @@ public class ApplicationLandingPageServiceTest {
         detail.getPwaApplication(), EnumSet.allOf(PwaContactRole.class));
 
     when(applicationInvolvementService.getApplicationInvolvementDto(detail, authenticatedUserAccount)).thenReturn(applicationInvolvementDto);
-
 
     var landingPageInstance = applicationLandingPageService.getApplicationLandingPage(authenticatedUserAccount, APP_ID);
 
@@ -155,7 +173,7 @@ public class ApplicationLandingPageServiceTest {
 
   private void assertCaseManagementLandingPage(ApplicationLandingPageInstance applicationLandingPageInstance){
     assertThat(applicationLandingPageInstance.getApplicationLandingPage()).isEqualTo(ApplicationLandingPage.CASE_MANAGEMENT);
-    assertThat(applicationLandingPageInstance.getUrl()).isEqualTo(CaseManagementUtils.routeCaseManagement(APP_ID, APP_TYPE));
+    assertThat(applicationLandingPageInstance.getUrl()).isEqualTo( URL_BASE + CONTEXT_PATH + CaseManagementUtils.routeCaseManagement(APP_ID, APP_TYPE));
 
     verifyNoInteractions(applicationRedirectService);
   }
