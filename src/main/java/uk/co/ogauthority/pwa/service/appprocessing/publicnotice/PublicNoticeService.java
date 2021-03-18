@@ -270,11 +270,11 @@ public class PublicNoticeService implements AppProcessingService {
 
   public boolean canCreatePublicNoticeDraft(PwaApplication pwaApplication) {
     var latestPublicNoticeOptional = publicNoticeRepository.findFirstByPwaApplicationOrderByVersionDesc(pwaApplication);
-    return latestPublicNoticeOptional.map(publicNotice -> canCreatePublicNoticeDraft(publicNotice.getStatus()))
+    return latestPublicNoticeOptional.map(publicNotice -> isPublicNoticeStatusEnded(publicNotice.getStatus()))
         .orElse(true);
   }
 
-  private boolean canCreatePublicNoticeDraft(PublicNoticeStatus publicNoticeStatus) {
+  private boolean isPublicNoticeStatusEnded(PublicNoticeStatus publicNoticeStatus) {
     return ENDED_STATUSES.contains(publicNoticeStatus);
   }
 
@@ -320,7 +320,7 @@ public class PublicNoticeService implements AppProcessingService {
     Set<PublicNoticeAction> publicNoticeActions = new HashSet<>();
 
     if (processingPermissions.contains(PwaAppProcessingPermission.DRAFT_PUBLIC_NOTICE)
-        && (publicNoticeStatus == null || canCreatePublicNoticeDraft(publicNoticeStatus))) {
+        && (publicNoticeStatus == null || isPublicNoticeStatusEnded(publicNoticeStatus))) {
       return Set.of(PublicNoticeAction.NEW_DRAFT);
     }
 
