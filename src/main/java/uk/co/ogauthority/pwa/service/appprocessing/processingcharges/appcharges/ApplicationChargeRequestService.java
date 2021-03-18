@@ -5,6 +5,7 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 import static uk.co.ogauthority.pwa.pwapay.PaymentRequestStatus.PAYMENT_COMPLETE;
 
 import java.time.Clock;
+import java.time.Instant;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -565,6 +566,14 @@ public class ApplicationChargeRequestService {
   private enum CancelActivePaymentAttemptsOutcome {
     SOME_ATTEMPT_ALREADY_PAID,
     NO_ATTEMPT_ALREADY_PAID
+  }
+
+  public List<PwaAppChargePaymentAttempt> getActiveAttemptsWhereStatusIsAndStartedBefore(PaymentRequestStatus paymentRequestStatus,
+                                                                                         Instant attemptsCreatedBeforeInstant) {
+    return pwaAppChargePaymentAttemptRepository.findAllByActiveFlagIsTrueAndPwaPaymentRequest_RequestStatusAndCreatedTimestampIsBefore(
+        paymentRequestStatus,
+        attemptsCreatedBeforeInstant
+    );
   }
 
 

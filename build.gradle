@@ -60,6 +60,8 @@ dependencies {
   implementation 'org.springframework.boot:spring-boot-starter-actuator'
   implementation 'io.micrometer:micrometer-registry-statsd:1.3.2'
 
+  implementation 'org.springframework.boot:spring-boot-starter-quartz'
+
   compile 'org.flywaydb:flyway-core:5.2.1-FIVIUM'
   compile 'com.oracle:ojdbc7:12.1.0.2'
   compile('uk.gov.service.notify:notifications-java-client:3.12.0-RELEASE')
