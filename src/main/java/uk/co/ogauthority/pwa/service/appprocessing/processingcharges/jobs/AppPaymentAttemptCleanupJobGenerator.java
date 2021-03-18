@@ -19,12 +19,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class AppPaymentAttemptCleanupJobGenerator {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(PaymentAttemptCleanupBean.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(AppPaymentAttemptCleanupJobGenerator.class);
   private static final JobKey JOB_KEY = jobKey("HOURLY_PAYMENT_ATTEMPT_CLEANUP_JOB", "APPLICATION_CHARGE_JOBS");
   private static final TriggerKey TRIGGER_KEY = triggerKey("HOURLY_PAYMENT_ATTEMPT_CLEANUP_TRIGGER_KEY", "APPLICATION_CHARGE_TRIGGERS");
 
@@ -36,7 +35,6 @@ public class AppPaymentAttemptCleanupJobGenerator {
   }
 
   @EventListener(classes = ApplicationReadyEvent.class)
-  @Transactional
   public void registerJob() throws SchedulerException {
     if (scheduler.getJobDetail(JOB_KEY) != null) {
       LOGGER.info("Hourly payment attempt cleanup job found");

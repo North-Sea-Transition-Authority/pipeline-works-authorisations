@@ -87,6 +87,8 @@ public class PaymentAttemptCleanupBean extends QuartzJobBean {
     } catch (Exception e) {
       LOGGER.error(" Payment attempt cleanup job execution failed", e);
       throw new JobExecutionException(e);
+    } finally {
+      SecurityContextHolder.clearContext();
     }
   }
 }
