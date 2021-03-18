@@ -35,6 +35,7 @@ import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.PwaAppProcessingPermissionService;
 import uk.co.ogauthority.pwa.service.appprocessing.application.WithdrawApplicationService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContextService;
+import uk.co.ogauthority.pwa.service.appprocessing.publicnotice.WithdrawPublicNoticeService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
@@ -52,6 +53,9 @@ public class WithdrawApplicationControllerTest extends PwaAppProcessingContextAb
 
   @MockBean
   private PwaAppProcessingPermissionService pwaAppProcessingPermissionService;
+
+  @MockBean
+  private  WithdrawPublicNoticeService withdrawPublicNoticeService;
 
   private PwaApplicationDetail pwaApplicationDetail;
   private AuthenticatedUserAccount user;
@@ -71,6 +75,8 @@ public class WithdrawApplicationControllerTest extends PwaAppProcessingContextAb
     endpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaApplicationDetailService, pwaAppProcessingPermissionService)
         .setAllowedStatuses(PwaApplicationStatus.CASE_OFFICER_REVIEW)
         .setAllowedProcessingPermissions(PwaAppProcessingPermission.WITHDRAW_APPLICATION);
+
+    when(withdrawPublicNoticeService.publicNoticeCanBeWithdrawn(pwaApplicationDetail.getPwaApplication())).thenReturn(false);
   }
 
   @Test
@@ -123,6 +129,23 @@ public class WithdrawApplicationControllerTest extends PwaAppProcessingContextAb
     var failedBindingResult = new BeanPropertyBindingResult(new WithdrawApplicationForm(), "form");
     failedBindingResult.addError(new ObjectError("fake", "fake"));
     when(withdrawApplicationService.validate(any(), any(), any())).thenReturn(failedBindingResult);
+
+    var permissionsDto = new ProcessingPermissionsDto(null, EnumSet.allOf(PwaAppProcessingPermission.class));
+    when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail, user)).thenReturn(permissionsDto);
+
+    mockMvc.perform(post(ReverseRouter.route(on(WithdrawApplicationController.class)
+        .postWithdrawApplication(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null, null)))
+        .with(authenticatedUserAndSession(user))
+        .with(csrf()))
+        .andExpect(status().isOk())
+        .andExpect(view().name("appprocessing/withdrawApplication"));
+
+  }
+
+  @Test
+  public void postWithdrawApplication_openPublicNoticeExists() throws Exception {
+
+    when(withdrawPublicNoticeService.publicNoticeCanBeWithdrawn(any())).thenReturn(true);
 
     var permissionsDto = new ProcessingPermissionsDto(null, EnumSet.allOf(PwaAppProcessingPermission.class));
     when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail, user)).thenReturn(permissionsDto);
