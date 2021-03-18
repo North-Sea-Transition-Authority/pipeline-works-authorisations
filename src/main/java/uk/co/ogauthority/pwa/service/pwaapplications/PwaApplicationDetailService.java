@@ -283,7 +283,7 @@ public class PwaApplicationDetailService {
     var tipDetail = details.stream()
         .filter(PwaApplicationDetail::isTipFlag)
         .findFirst()
-        .orElseThrow(() -> new RuntimeException("Requested AppId:%s has no tip detail"));
+        .orElseThrow(() -> new RuntimeException(String.format("Requested AppId:%s has no tip detail", applicationId)));
 
     switch (userType) {
 
