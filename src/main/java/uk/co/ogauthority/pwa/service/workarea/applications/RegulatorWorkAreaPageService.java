@@ -53,7 +53,7 @@ public class RegulatorWorkAreaPageService {
     return PageView.fromPage(
         getRequiresAttentionPage(authenticatedUserAccount, applicationIds, page),
         workAreaUri,
-        sr -> new PwaApplicationWorkAreaItem(sr, this::viewApplicationUrlProducer)
+        PwaApplicationWorkAreaItem::new
     );
 
   }
@@ -69,7 +69,7 @@ public class RegulatorWorkAreaPageService {
     return PageView.fromPage(
         getWaitingOnOthersPage(authenticatedUserAccount, applicationIds, page),
         workAreaUri,
-        sr -> new PwaApplicationWorkAreaItem(sr, this::viewApplicationUrlProducer)
+        PwaApplicationWorkAreaItem::new
     );
 
   }

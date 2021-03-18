@@ -153,7 +153,7 @@ public class WorkAreaControllerTest extends AbstractControllerTest {
     return PageView.fromPage(
         fakePage,
         "workAreaUri",
-        searchItem -> new PwaApplicationWorkAreaItem(searchItem, applicationDetailSearchItem -> "Fake_View_Url")
+        PwaApplicationWorkAreaItem::new
     );
 
 

@@ -22,7 +22,7 @@ import uk.co.ogauthority.pwa.service.workarea.WorkAreaColumnItemView;
 @RunWith(MockitoJUnitRunner.class)
 public class ApplicationSearchDisplayItemTest {
 
-  private static final String VIEW_URL = "EXAMPLE_URL";
+  private static final int APP_ID = 100;
 
   private ApplicationSearchDisplayItem applicationSearchDisplayItem;
   private ApplicationDetailItemView applicationDetailItemView;
@@ -33,7 +33,7 @@ public class ApplicationSearchDisplayItemTest {
 
     applicationDetailItemView = new ApplicationDetailView();
     applicationDetailItemView.setApplicationType(PwaApplicationType.INITIAL);
-    applicationDetailItemView.setPwaApplicationId(100);
+    applicationDetailItemView.setPwaApplicationId(APP_ID);
     applicationDetailItemView.setPadFields(List.of("FIELD2", "FIELD1"));
     applicationDetailItemView.setPadHolderNameList(List.of("PAD_HOLDER"));
     applicationDetailItemView.setPwaHolderNameList(List.of("PWA_HOLDER"));
@@ -59,8 +59,7 @@ public class ApplicationSearchDisplayItemTest {
   public void getApplicationStatusColumn_whenNoCaseOfficer_andNotFastTrack() {
     applicationDetailItemView.setCaseOfficerName(null);
 
-    applicationSearchDisplayItem = new ApplicationSearchDisplayItem(applicationDetailItemView,
-        applicationDetailItemView1 -> VIEW_URL);
+    applicationSearchDisplayItem = new ApplicationSearchDisplayItem(applicationDetailItemView);
 
     assertThat(applicationSearchDisplayItem.getApplicationStatusColumn()).containsExactly(
         WorkAreaColumnItemView.createLabelledItem(
@@ -81,8 +80,7 @@ public class ApplicationSearchDisplayItemTest {
     applicationDetailItemView.setSubmittedAsFastTrackFlag(true);
     applicationDetailItemView.setPadInitialReviewApprovedTimestamp(Instant.now());
 
-    applicationSearchDisplayItem = new ApplicationSearchDisplayItem(applicationDetailItemView,
-        detailItemView -> VIEW_URL);
+    applicationSearchDisplayItem = new ApplicationSearchDisplayItem(applicationDetailItemView);
 
     assertThat(applicationSearchDisplayItem.getApplicationStatusColumn()).containsExactly(
         WorkAreaColumnItemView.createLabelledItem(
@@ -102,24 +100,31 @@ public class ApplicationSearchDisplayItemTest {
 
   /* Below are super type tests*/
   @Test
+  public void getAccessUrl_assertDefaultUrl(){
+    ApplicationWorkAreaItemTestUtil.test_getAccessUrl_assertDefaultAccessUrl(
+        applicationDetailItemView,
+        ApplicationSearchDisplayItem::new);
+  }
+
+  @Test
   public void getSummaryColumn_whenFieldsExist() {
     ApplicationWorkAreaItemTestUtil.test_getSummaryColumn_whenFieldsExist(
         applicationDetailItemView,
-        o -> new ApplicationSearchDisplayItem(o, detailItemView -> VIEW_URL));
+        ApplicationSearchDisplayItem::new);
   }
 
   @Test
   public void getSummaryColumn_whenNoFields() {
     ApplicationWorkAreaItemTestUtil.test_getSummaryColumn_whenNoFields(
         applicationDetailItemView,
-        o -> new ApplicationSearchDisplayItem(o, detailItemView -> VIEW_URL));
+        ApplicationSearchDisplayItem::new);
   }
 
   @Test
   public void getHolderColumn_whenInitialType() {
     ApplicationWorkAreaItemTestUtil.test_getHolderColumn_whenInitialType(
         applicationDetailItemView,
-        o -> new ApplicationSearchDisplayItem(o, detailItemView -> VIEW_URL));
+        ApplicationSearchDisplayItem::new);
 
   }
 
@@ -127,14 +132,14 @@ public class ApplicationSearchDisplayItemTest {
   public void getHolderColumn_whenNotInitialType() {
     ApplicationWorkAreaItemTestUtil.test_getHolderColumn_whenNotInitialType(
         applicationDetailItemView,
-        o -> new ApplicationSearchDisplayItem(o, detailItemView -> VIEW_URL));
+        ApplicationSearchDisplayItem::new);
   }
 
   @Test
   public void getApplicationColumn_whenInitialType() {
     ApplicationWorkAreaItemTestUtil.test_getApplicationColumn_whenInitialType(
         applicationDetailItemView,
-        o -> new ApplicationSearchDisplayItem(o, detailItemView -> VIEW_URL));
+        ApplicationSearchDisplayItem::new);
 
   }
 
@@ -142,13 +147,13 @@ public class ApplicationSearchDisplayItemTest {
   public void getApplicationColumn_whenNotInitialType() {
     ApplicationWorkAreaItemTestUtil.test_getApplicationColumn_whenNotInitialType(
         applicationDetailItemView,
-        o -> new ApplicationSearchDisplayItem(o, detailItemView -> VIEW_URL));
+        ApplicationSearchDisplayItem::new);
   }
 
   @Test
   public void getApplicationColumn_whenUpdate() {
     ApplicationWorkAreaItemTestUtil.test_getApplicationColumn_whenUpdateRequest(
         applicationDetailItemView,
-        o -> new ApplicationSearchDisplayItem(o, detailItemView -> VIEW_URL));
+        ApplicationSearchDisplayItem::new);
   }
 }

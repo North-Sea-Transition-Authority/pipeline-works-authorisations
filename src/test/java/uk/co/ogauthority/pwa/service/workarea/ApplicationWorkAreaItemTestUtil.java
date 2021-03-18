@@ -1,10 +1,13 @@
 package uk.co.ogauthority.pwa.service.workarea;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import java.util.List;
 import java.util.function.Function;
+import uk.co.ogauthority.pwa.controller.ApplicationLandingPageRouter;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailItemView;
+import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 
 public class ApplicationWorkAreaItemTestUtil {
@@ -130,6 +133,16 @@ public class ApplicationWorkAreaItemTestUtil {
         WorkAreaColumnItemView.createTagItem(WorkAreaColumnItemView.TagType.DEFAULT, "UPDATE REQUESTED")
     );
 
+  }
+
+  public static void test_getAccessUrl_assertDefaultAccessUrl(ApplicationDetailItemView applicationDetailSearchItem,
+                                                              Function<ApplicationDetailItemView, ApplicationWorkAreaItem> workAreaItemFunction) {
+    var applicationWorkAreaItem = workAreaItemFunction.apply(applicationDetailSearchItem);
+
+    assertThat(applicationWorkAreaItem.getAccessUrl()).isEqualTo(
+        ReverseRouter.route(
+            on(ApplicationLandingPageRouter.class).route(applicationDetailSearchItem.getPwaApplicationId(), null))
+    );
   }
 
 
