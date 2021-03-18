@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.controller.publicnotice;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
+import java.util.function.Supplier;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +23,7 @@ import uk.co.ogauthority.pwa.config.fileupload.FileUploadResult;
 import uk.co.ogauthority.pwa.controller.appprocessing.shared.PwaAppProcessingPermissionCheck;
 import uk.co.ogauthority.pwa.controller.files.PwaApplicationDataFileUploadAndDownloadController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationStatusCheck;
+import uk.co.ogauthority.pwa.exception.AccessDeniedException;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeRequestReason;
 import uk.co.ogauthority.pwa.model.entity.files.AppFilePurpose;
 import uk.co.ogauthority.pwa.model.form.publicnotice.PublicNoticeDraftForm;
@@ -60,6 +62,25 @@ public class PublicNoticeDraftController extends PwaApplicationDataFileUploadAnd
   }
 
 
+
+
+  private ModelAndView publicNoticeInValidState(PwaAppProcessingContext processingContext,
+                                                Supplier<ModelAndView> modelAndViewSupplier) {
+
+    return CaseManagementUtils.withAtLeastOneSatisfactoryVersion(
+        processingContext,
+        PwaAppProcessingTask.PUBLIC_NOTICE,
+        () -> {
+          if (publicNoticeService.canCreatePublicNoticeDraft(processingContext.getPwaApplication())) {
+            return modelAndViewSupplier.get();
+          }
+          throw new AccessDeniedException(
+              String.format("Access denied as the latest public notice does not meet the requirements to allow creating a new draft " +
+                  "for application with id: %s", processingContext.getMasterPwaApplicationId()));
+        });
+  }
+
+
   @GetMapping
   @PwaApplicationStatusCheck(statuses = PwaApplicationStatus.CASE_OFFICER_REVIEW)
   public ModelAndView renderDraftPublicNotice(@PathVariable("applicationId") Integer applicationId,
@@ -69,10 +90,8 @@ public class PublicNoticeDraftController extends PwaApplicationDataFileUploadAnd
                                               AuthenticatedUserAccount authenticatedUserAccount,
                                               @ModelAttribute("form") PublicNoticeDraftForm form) {
 
-    return CaseManagementUtils.withAtLeastOneSatisfactoryVersion(
-        processingContext,
-        PwaAppProcessingTask.PUBLIC_NOTICE,
-        () -> {
+    return publicNoticeInValidState(
+        processingContext, () -> {
           var pwaApplication = processingContext.getPwaApplication();
           publicNoticeService.mapPublicNoticeDraftToForm(pwaApplication, form);
           return getDraftPublicNoticeModelAndView(processingContext, form);
@@ -89,19 +108,18 @@ public class PublicNoticeDraftController extends PwaApplicationDataFileUploadAnd
                                               @ModelAttribute("form") PublicNoticeDraftForm form,
                                               BindingResult bindingResult) {
 
-    return CaseManagementUtils.withAtLeastOneSatisfactoryVersion(processingContext,
-        PwaAppProcessingTask.PUBLIC_NOTICE,  () -> {
-          var validatedBindingResult = publicNoticeService.validate(form, bindingResult);
+    return publicNoticeInValidState(processingContext, () -> {
+      var validatedBindingResult = publicNoticeService.validate(form, bindingResult);
 
-          return controllerHelperService.checkErrorsAndRedirect(validatedBindingResult,
-              getDraftPublicNoticeModelAndView(processingContext, form), () -> {
-                publicNoticeService.createPublicNoticeAndStartWorkflow(
-                    form, processingContext.getPwaApplication(), authenticatedUserAccount);
-                return  ReverseRouter.redirect(on(PublicNoticeOverviewController.class).renderPublicNoticeOverview(
-                    applicationId, pwaApplicationType, processingContext, authenticatedUserAccount));
-              });
+      return controllerHelperService.checkErrorsAndRedirect(validatedBindingResult,
+          getDraftPublicNoticeModelAndView(processingContext, form), () -> {
+            publicNoticeService.createPublicNoticeAndStartWorkflow(
+                form, processingContext.getPwaApplication(), authenticatedUserAccount);
+            return  ReverseRouter.redirect(on(PublicNoticeOverviewController.class).renderPublicNoticeOverview(
+                applicationId, pwaApplicationType, processingContext, authenticatedUserAccount));
+          });
 
-        });
+    });
 
   }
 
