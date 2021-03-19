@@ -76,8 +76,8 @@ public class WithdrawApplicationController {
                                               BindingResult bindingResult,
                                               RedirectAttributes redirectAttributes) {
 
-    var openPublicNoticeExistsForApp = withdrawPublicNoticeService.publicNoticeCanBeWithdrawn(processingContext.getPwaApplication());
-    if (openPublicNoticeExistsForApp) {
+    var publicNoticeCanBeWithdrawn = withdrawPublicNoticeService.publicNoticeCanBeWithdrawn(processingContext.getPwaApplication());
+    if (publicNoticeCanBeWithdrawn) {
       var errorItem = new ErrorItem(0, "", "You must withdraw any open public notices before withdrawing this application");
       return getWithdrawApplicationModelAndView(processingContext).addObject("errorList", List.of(errorItem));
     }
