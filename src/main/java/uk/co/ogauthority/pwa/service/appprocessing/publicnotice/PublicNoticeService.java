@@ -3,11 +3,14 @@ package uk.co.ogauthority.pwa.service.appprocessing.publicnotice;
 import com.google.common.annotations.VisibleForTesting;
 import java.time.Clock;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -161,12 +164,35 @@ public class PublicNoticeService implements AppProcessingService {
             "Couldn't find public notice date with public notice ID: %s", publicNotice.getId())));
   }
 
+  public List<PublicNotice> getAllPublicNoticesDueForPublishing() {
+
+    var waitingPublicNotices = getPublicNoticesByStatus(PublicNoticeStatus.WAITING);
+    var tomorrow = LocalDate.now().plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant();
+    return publicNoticeDatesRepository.getAllByPublicNoticeInAndPublicationStartTimestampBefore(waitingPublicNotices, tomorrow)
+        .stream().map(PublicNoticeDate::getPublicNotice)
+        .collect(Collectors.toList());
+  }
+
+  public List<PublicNotice> getAllPublicNoticesDueToEnd() {
+
+    var publishedPublicNotices = getPublicNoticesByStatus(PublicNoticeStatus.PUBLISHED);
+    var tomorrow = LocalDate.now().plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant();
+    return publicNoticeDatesRepository.getAllByPublicNoticeInAndPublicationEndTimestampBefore(publishedPublicNotices, tomorrow)
+        .stream().map(PublicNoticeDate::getPublicNotice)
+        .collect(Collectors.toList());
+  }
+
   public void savePublicNoticeRequest(PublicNoticeRequest publicNoticeRequest) {
     publicNoticeRequestRepository.save(publicNoticeRequest);
   }
 
   public PublicNotice savePublicNotice(PublicNotice publicNotice) {
     return publicNoticeRepository.save(publicNotice);
+  }
+
+  public void endPublicNotices(List<PublicNotice> publicNotices) {
+    publicNotices.forEach(publicNotice -> publicNotice.setStatus(PublicNoticeStatus.ENDED));
+    publicNoticeRepository.saveAll(publicNotices);
   }
 
   void archivePublicNoticeDocument(PublicNoticeDocument publicNoticeDocument) {
