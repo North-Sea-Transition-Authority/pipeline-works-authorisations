@@ -16,10 +16,12 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.controller.WorkAreaController;
 import uk.co.ogauthority.pwa.controller.appprocessing.shared.PwaAppProcessingPermissionCheck;
+import uk.co.ogauthority.pwa.model.form.fds.ErrorItem;
 import uk.co.ogauthority.pwa.model.form.withdraw.WithdrawApplicationForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.application.WithdrawApplicationService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
+import uk.co.ogauthority.pwa.service.appprocessing.publicnotice.WithdrawPublicNoticeService;
 import uk.co.ogauthority.pwa.service.appprocessing.tabs.AppProcessingTab;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
@@ -38,14 +40,17 @@ public class WithdrawApplicationController {
   private final ApplicationBreadcrumbService applicationBreadcrumbService;
   private final WithdrawApplicationService withdrawApplicationService;
   private final ControllerHelperService controllerHelperService;
+  private final WithdrawPublicNoticeService withdrawPublicNoticeService;
 
   @Autowired
   public WithdrawApplicationController(ApplicationBreadcrumbService applicationBreadcrumbService,
                                        WithdrawApplicationService withdrawApplicationService,
-                                       ControllerHelperService controllerHelperService) {
+                                       ControllerHelperService controllerHelperService,
+                                       WithdrawPublicNoticeService withdrawPublicNoticeService) {
     this.applicationBreadcrumbService = applicationBreadcrumbService;
     this.withdrawApplicationService = withdrawApplicationService;
     this.controllerHelperService = controllerHelperService;
+    this.withdrawPublicNoticeService = withdrawPublicNoticeService;
   }
 
 
@@ -71,10 +76,15 @@ public class WithdrawApplicationController {
                                               BindingResult bindingResult,
                                               RedirectAttributes redirectAttributes) {
 
+    var publicNoticeCanBeWithdrawn = withdrawPublicNoticeService.publicNoticeCanBeWithdrawn(processingContext.getPwaApplication());
+    if (publicNoticeCanBeWithdrawn) {
+      var errorItem = new ErrorItem(0, "", "You must withdraw any open public notices before withdrawing this application");
+      return getWithdrawApplicationModelAndView(processingContext).addObject("errorList", List.of(errorItem));
+    }
+
     bindingResult = withdrawApplicationService.validate(form, bindingResult, processingContext.getApplicationDetail());
 
     return controllerHelperService.checkErrorsAndRedirect(bindingResult, getWithdrawApplicationModelAndView(processingContext), () -> {
-
       withdrawApplicationService.withdrawApplication(form, processingContext.getApplicationDetail(), authenticatedUserAccount);
 
       FlashUtils.info(redirectAttributes, processingContext.getApplicationDetail().getPwaApplicationRef() + " withdrawn");
