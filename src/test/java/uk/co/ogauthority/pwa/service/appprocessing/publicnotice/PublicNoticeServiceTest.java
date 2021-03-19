@@ -492,9 +492,9 @@ public class PublicNoticeServiceTest {
 
     var context = PwaAppProcessingContextTestUtil.withPermissions(
         pwaApplicationDetail, Set.of(PwaAppProcessingPermission.DRAFT_PUBLIC_NOTICE));
-    var publicNoticeActions = publicNoticeService.getAvailablePublicNoticeActions(PublicNoticeStatus.DRAFT, context);
+    var publicNoticeActions = publicNoticeService.getAvailablePublicNoticeActions(PublicNoticeStatus.APPLICANT_UPDATE, context);
 
-    assertThat(publicNoticeActions).doesNotContain(PublicNoticeAction.NEW_DRAFT);
+    assertThat(publicNoticeActions).isEmpty();
   }
 
   @Test
