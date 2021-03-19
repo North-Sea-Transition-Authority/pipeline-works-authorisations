@@ -108,10 +108,10 @@
       </table>
     </#list>
 
-    <#if userCanAccessTaskList>
+    <#if userCanAccessTaskList?has_content && userCanAccessTaskList>
       <@fdsAction.link linkText="Complete section" linkClass="govuk-button"  linkUrl=springUrl(completeSectionUrl)/>
     </#if>
-    <#if showCaseManagementLink>
+    <#if showCaseManagementLink?has_content && showCaseManagementLink>
       <@fdsAction.link linkText="View application management" linkClass="govuk-link govuk-link--button"  linkUrl=springUrl(caseManagementUrl)/>
     </#if>
 
