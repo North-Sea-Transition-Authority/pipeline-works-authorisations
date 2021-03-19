@@ -1,5 +1,7 @@
 package uk.co.ogauthority.pwa.service.workarea;
 
+import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
+
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -7,9 +9,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
+import uk.co.ogauthority.pwa.controller.ApplicationLandingPageRouterController;
 import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeStatus;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailItemView;
+import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTask;
@@ -63,7 +67,10 @@ public abstract class ApplicationWorkAreaItem {
 
   private final PublicNoticeStatus publicNoticeStatus;
 
-  public ApplicationWorkAreaItem(ApplicationDetailItemView applicationDetailItemView,
+  /**
+   * Prefer other super constructor as it applies default access url logic.
+   */
+  private ApplicationWorkAreaItem(ApplicationDetailItemView applicationDetailItemView,
                                  String accessUrl) {
     this.pwaApplicationId = applicationDetailItemView.getPwaApplicationId();
     this.pwaApplicationReference = applicationDetailItemView.getPadReference();
@@ -98,6 +105,16 @@ public abstract class ApplicationWorkAreaItem {
 
     this.openUpdateRequestFlag = applicationDetailItemView.getOpenUpdateRequestFlag();
 
+  }
+
+  /**
+   * This is the preferred super constructor as it applies default access url logic.
+   */
+  public ApplicationWorkAreaItem(ApplicationDetailItemView applicationDetailItemView) {
+    this(
+        applicationDetailItemView,
+        ReverseRouter.route(on(ApplicationLandingPageRouterController.class).route(applicationDetailItemView.getPwaApplicationId(), null))
+    );
   }
 
   public int getPwaApplicationId() {

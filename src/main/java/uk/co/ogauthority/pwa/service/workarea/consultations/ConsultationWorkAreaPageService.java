@@ -9,14 +9,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.controller.WorkAreaController;
-import uk.co.ogauthority.pwa.controller.appprocessing.CaseManagementController;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupMemberRole;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupTeamMember;
 import uk.co.ogauthority.pwa.mvc.PageView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupTeamService;
-import uk.co.ogauthority.pwa.service.appprocessing.tabs.AppProcessingTab;
 import uk.co.ogauthority.pwa.service.consultations.search.ConsultationRequestSearchItem;
 import uk.co.ogauthority.pwa.service.consultations.search.ConsultationRequestSearcher;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ConsultationRequestStatus;
@@ -45,7 +43,7 @@ public class ConsultationWorkAreaPageService {
     return PageView.fromPage(
         getConsultationSearchResults(authenticatedUserAccount, consultationRequestIds, page),
         workAreaUri,
-        sr -> new ConsultationRequestWorkAreaItem(sr, this::consultationUrlProducer)
+        ConsultationRequestWorkAreaItem::new
     );
 
   }
@@ -68,18 +66,6 @@ public class ConsultationWorkAreaPageService {
         consulteeGroupIdToGetAllocationRequestsFor,
         consultationRequestIdList
     );
-
-  }
-
-  private String consultationUrlProducer(ConsultationRequestSearchItem consultationRequestSearchItem) {
-
-    return ReverseRouter.route(on(CaseManagementController.class).renderCaseManagement(
-        consultationRequestSearchItem.getApplicationDetailView().getPwaApplicationId(),
-        consultationRequestSearchItem.getApplicationDetailView().getApplicationType(),
-        AppProcessingTab.TASKS,
-        null,
-        null
-    ));
 
   }
 

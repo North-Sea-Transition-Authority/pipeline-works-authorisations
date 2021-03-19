@@ -6,7 +6,6 @@ import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
@@ -30,7 +29,6 @@ import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ApplicationState;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.workflow.WorkflowType;
-import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaApplicationContactRoleDto;
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
 import uk.co.ogauthority.pwa.service.pwaapplications.search.WorkAreaApplicationDetailSearcher;
@@ -51,9 +49,6 @@ public class IndustryWorkAreaPageServiceTest {
   private WorkAreaApplicationDetailSearcher workAreaApplicationDetailSearcher;
 
   @Mock
-  private PwaApplicationRedirectService pwaApplicationRedirectService;
-
-  @Mock
   private CamundaWorkflowService camundaWorkflowService;
 
   private IndustryWorkAreaPageService industryWorkAreaPageService;
@@ -72,7 +67,6 @@ public class IndustryWorkAreaPageServiceTest {
     industryWorkAreaPageService = new IndustryWorkAreaPageService(
         workAreaApplicationDetailSearcher,
         pwaContactService,
-        pwaApplicationRedirectService,
         camundaWorkflowService
     );
 
@@ -113,7 +107,6 @@ public class IndustryWorkAreaPageServiceTest {
         true
     );
 
-    verifyNoInteractions(pwaApplicationRedirectService);
   }
 
   @Test
@@ -129,58 +122,6 @@ public class IndustryWorkAreaPageServiceTest {
             .renderWorkAreaTab(null, WorkAreaTab.INDUSTRY_OPEN_APPLICATIONS, 0)));
   }
 
-  @Test
-  public void getOpenApplicationsPageView_viewUrlWhenApplicationStatusDraft() {
-
-    var searchItem = WorkAreaApplicationSearchTestUtil.getSearchDetailItem(PwaApplicationStatus.DRAFT);
-
-    var fakePage = WorkAreaPageServiceTestUtil.getFakeApplicationSearchResultPage(List.of(searchItem), REQUESTED_PAGE);
-    when(workAreaApplicationDetailSearcher.searchWhereApplicationIdInAndWhereStatusInOrOpenUpdateRequest(any(), any(), any(), anyBoolean()))
-        .thenReturn(fakePage);
-
-    var workareaPage = industryWorkAreaPageService.getOpenApplicationsPageView(workAreaUser, REQUESTED_PAGE);
-
-    assertThat(workareaPage.getTotalElements()).isEqualTo(1);
-    verify(pwaContactService, times(1)).getPwaContactRolesForWebUserAccount(
-        workAreaUser,
-        EnumSet.of(PwaContactRole.PREPARER)
-    );
-
-    verify(workAreaApplicationDetailSearcher, times(1)).searchWhereApplicationIdInAndWhereStatusInOrOpenUpdateRequest(
-        WorkAreaPageServiceTestUtil.getWorkAreaViewPageable(REQUESTED_PAGE, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
-        Set.of(BUSINESS_KEY_INT),
-        ApplicationState.REQUIRES_INDUSTRY_ATTENTION.getStatuses(),
-        true
-    );
-
-    verify(pwaApplicationRedirectService, times(1))
-        .getTaskListRoute(searchItem.getPwaApplicationId(), searchItem.getApplicationType());
-
-  }
-
-
-  @Test
-  public void getOpenApplicationsPageView_viewUrlWhenApplicationStatusInitialSubmission() {
-
-    var searchItem = WorkAreaApplicationSearchTestUtil.getSearchDetailItem(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW);
-
-    var fakePage = WorkAreaPageServiceTestUtil.getFakeApplicationSearchResultPage(List.of(searchItem), REQUESTED_PAGE);
-    when(workAreaApplicationDetailSearcher.searchWhereApplicationIdInAndWhereStatusInOrOpenUpdateRequest(any(), any(), any(), anyBoolean()))
-        .thenReturn(fakePage);
-
-    var workareaPage = industryWorkAreaPageService.getOpenApplicationsPageView(pwaManager, REQUESTED_PAGE);
-    assertThat(workareaPage.getTotalElements()).isEqualTo(1);
-
-    verify(workAreaApplicationDetailSearcher, times(1)).searchWhereApplicationIdInAndWhereStatusInOrOpenUpdateRequest(
-        WorkAreaPageServiceTestUtil.getWorkAreaViewPageable(REQUESTED_PAGE, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
-        Set.of(BUSINESS_KEY_INT),
-        ApplicationState.REQUIRES_INDUSTRY_ATTENTION.getStatuses(),
-        true
-    );
-
-    verifyNoInteractions(pwaApplicationRedirectService);
-
-  }
 
   @Test
   public void getSubmittedApplicationsPageView_pageableLinksToCorrectTab() {
@@ -224,7 +165,6 @@ public class IndustryWorkAreaPageServiceTest {
         false
     );
 
-    verifyNoInteractions(pwaApplicationRedirectService);
   }
 
   @Test
@@ -257,8 +197,6 @@ public class IndustryWorkAreaPageServiceTest {
         ),
         false
     );
-
-    verifyNoInteractions(pwaApplicationRedirectService);
 
   }
 

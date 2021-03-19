@@ -77,7 +77,7 @@ public class ConsultationRequestWorkAreaItemTest {
 
   @Test
   public void consultationRequestWorkAreaItem() {
-    consultationRequestWorkAreaItem = new ConsultationRequestWorkAreaItem(consultationRequestSearchItem, searchItem -> VIEW_URL);
+    consultationRequestWorkAreaItem = new ConsultationRequestWorkAreaItem(consultationRequestSearchItem);
 
     assertThat(consultationRequestWorkAreaItem.getPwaApplicationId())
         .isEqualTo(applicationDetailView.getPwaApplicationId());
@@ -87,7 +87,6 @@ public class ConsultationRequestWorkAreaItemTest {
     assertThat(consultationRequestWorkAreaItem.getMasterPwaReference())
         .isEqualTo(applicationDetailView.getPwaReference());
     assertThat(consultationRequestWorkAreaItem.getApplicationReference()).isEqualTo(applicationDetailView.getPadReference());
-    assertThat(consultationRequestWorkAreaItem.getAccessUrl()).isEqualTo(VIEW_URL);
     assertThat(consultationRequestWorkAreaItem.getApplicationStatusDisplay())
         .isEqualTo(applicationDetailView.getPadStatus().getDisplayName());
 
@@ -111,47 +110,47 @@ public class ConsultationRequestWorkAreaItemTest {
 
   @Test
   public void getAssignedResponderName_whenSet() {
-    consultationRequestWorkAreaItem = new ConsultationRequestWorkAreaItem(consultationRequestSearchItem, searchItem -> VIEW_URL);
+    consultationRequestWorkAreaItem = new ConsultationRequestWorkAreaItem(consultationRequestSearchItem);
     assertThat(consultationRequestWorkAreaItem.getAssignedResponderName()).isEqualTo(consultationRequestSearchItem.getAssignedResponderName());
   }
 
   @Test
   public void getAssignedResponderName_whenNull() {
     consultationRequestSearchItem.setAssignedResponderName(null);
-    consultationRequestWorkAreaItem = new ConsultationRequestWorkAreaItem(consultationRequestSearchItem, searchItem -> VIEW_URL);
+    consultationRequestWorkAreaItem = new ConsultationRequestWorkAreaItem(consultationRequestSearchItem);
     assertThat(consultationRequestWorkAreaItem.getAssignedResponderName()).isNull();
   }
 
   @Test
   public void getFormattedProposedStartDate_whenSet() {
-    consultationRequestWorkAreaItem = new ConsultationRequestWorkAreaItem(consultationRequestSearchItem, searchItem -> VIEW_URL);
+    consultationRequestWorkAreaItem = new ConsultationRequestWorkAreaItem(consultationRequestSearchItem);
     assertThat(consultationRequestWorkAreaItem.getProposedStartDateDisplay()).isEqualTo("02/01/2020");
   }
 
   @Test
   public void getFormattedProposedStartDate_whenNull() {
     applicationDetailView.setPadProposedStart(null);
-    consultationRequestWorkAreaItem = new ConsultationRequestWorkAreaItem(consultationRequestSearchItem, searchItem -> VIEW_URL);
+    consultationRequestWorkAreaItem = new ConsultationRequestWorkAreaItem(consultationRequestSearchItem);
     assertThat(consultationRequestWorkAreaItem.getProposedStartDateDisplay()).isNull();
   }
 
   @Test
   public void getFormattedStatusSetDatetime_whenSet() {
-    consultationRequestWorkAreaItem = new ConsultationRequestWorkAreaItem(consultationRequestSearchItem, searchItem -> VIEW_URL);
+    consultationRequestWorkAreaItem = new ConsultationRequestWorkAreaItem(consultationRequestSearchItem);
     assertThat(consultationRequestWorkAreaItem.getFormattedStatusSetDatetime()).isEqualTo("03/02/2020 04:05");
   }
 
   @Test
   public void getFormattedStatusSetDatetime_whenNull() {
     applicationDetailView.setPadStatusTimestamp(null);
-    consultationRequestWorkAreaItem = new ConsultationRequestWorkAreaItem(consultationRequestSearchItem, searchItem -> VIEW_URL);
+    consultationRequestWorkAreaItem = new ConsultationRequestWorkAreaItem(consultationRequestSearchItem);
     assertThat(consultationRequestWorkAreaItem.getFormattedStatusSetDatetime()).isNull();
   }
 
   @Test
   public void getFastTrackLabelText_notFastTrack() {
 
-    var workAreaItem = new ConsultationRequestWorkAreaItem(consultationRequestSearchItem, searchItem -> VIEW_URL);
+    var workAreaItem = new ConsultationRequestWorkAreaItem(consultationRequestSearchItem);
 
     assertThat(workAreaItem.getFastTrackLabelText()).isNull();
 
@@ -163,7 +162,7 @@ public class ConsultationRequestWorkAreaItemTest {
     applicationDetailView.setSubmittedAsFastTrackFlag(true);
     applicationDetailView.setPadInitialReviewApprovedTimestamp(null);
 
-    var workAreaItem = new ConsultationRequestWorkAreaItem(consultationRequestSearchItem, searchItem -> VIEW_URL);
+    var workAreaItem = new ConsultationRequestWorkAreaItem(consultationRequestSearchItem);
 
     assertThat(workAreaItem.getFastTrackLabelText()).isEqualTo(ApplicationTask.FAST_TRACK.getDisplayName());
 
@@ -175,7 +174,7 @@ public class ConsultationRequestWorkAreaItemTest {
     applicationDetailView.setSubmittedAsFastTrackFlag(true);
     applicationDetailView.setPadInitialReviewApprovedTimestamp(Instant.now());
 
-    var workAreaItem = new ConsultationRequestWorkAreaItem(consultationRequestSearchItem, searchItem -> VIEW_URL);
+    var workAreaItem = new ConsultationRequestWorkAreaItem(consultationRequestSearchItem);
 
     assertThat(workAreaItem.getFastTrackLabelText()).isEqualTo(ApplicationTask.FAST_TRACK.getDisplayName() + " accepted");
 
@@ -192,7 +191,7 @@ public class ConsultationRequestWorkAreaItemTest {
 
     consultationRequestSearchItem.setAssignedResponderName(null);
 
-    var workAreItem = new ConsultationRequestWorkAreaItem(consultationRequestSearchItem, searchItem -> VIEW_URL);
+    var workAreItem = new ConsultationRequestWorkAreaItem(consultationRequestSearchItem);
 
     assertThat(workAreItem.getApplicationStatusColumn()).containsExactly(
         WorkAreaColumnItemView.createLabelledItem(
@@ -220,7 +219,7 @@ public class ConsultationRequestWorkAreaItemTest {
 
     consultationRequestSearchItem.setAssignedResponderName("RESPONDER");
 
-    var workAreItem = new ConsultationRequestWorkAreaItem(consultationRequestSearchItem, searchItem -> VIEW_URL);
+    var workAreItem = new ConsultationRequestWorkAreaItem(consultationRequestSearchItem);
 
     assertThat(workAreItem.getApplicationStatusColumn()).containsExactly(
         WorkAreaColumnItemView.createLabelledItem(
@@ -242,25 +241,32 @@ public class ConsultationRequestWorkAreaItemTest {
   }
 
  /* Below are super type tests*/
+ @Test
+ public void getAccessUrl_assertDefaultUrl(){
+   ApplicationWorkAreaItemTestUtil.test_getAccessUrl_assertDefaultAccessUrl(
+       applicationDetailView,
+       PwaApplicationWorkAreaItem::new);
+ }
+  
   @Test
   public void getSummaryColumn_whenFieldsExist(){
     ApplicationWorkAreaItemTestUtil.test_getSummaryColumn_whenFieldsExist(
         applicationDetailView,
-        o -> new PwaApplicationWorkAreaItem(o , searchItem -> VIEW_URL));
+        PwaApplicationWorkAreaItem::new);
   }
 
   @Test
   public void getSummaryColumn_whenNoFields(){
     ApplicationWorkAreaItemTestUtil.test_getSummaryColumn_whenNoFields(
         applicationDetailView,
-        o -> new PwaApplicationWorkAreaItem(o , searchItem -> VIEW_URL));
+        PwaApplicationWorkAreaItem::new);
   }
 
   @Test
   public void getHolderColumn_whenInitialType(){
     ApplicationWorkAreaItemTestUtil.test_getHolderColumn_whenInitialType(
         applicationDetailView,
-        o -> new PwaApplicationWorkAreaItem(o , searchItem -> VIEW_URL));
+        PwaApplicationWorkAreaItem::new);
 
   }
 
@@ -268,14 +274,14 @@ public class ConsultationRequestWorkAreaItemTest {
   public void getHolderColumn_whenNotInitialType() {
     ApplicationWorkAreaItemTestUtil.test_getHolderColumn_whenNotInitialType(
         applicationDetailView,
-        o -> new PwaApplicationWorkAreaItem(o, searchItem -> VIEW_URL));
+        PwaApplicationWorkAreaItem::new);
   }
 
   @Test
   public void getApplicationColumn_whenInitialType(){
     ApplicationWorkAreaItemTestUtil.test_getApplicationColumn_whenInitialType(
         applicationDetailView,
-        o -> new PwaApplicationWorkAreaItem(o , searchItem -> VIEW_URL));
+        PwaApplicationWorkAreaItem::new);
 
   }
 
@@ -283,14 +289,14 @@ public class ConsultationRequestWorkAreaItemTest {
   public void getApplicationColumn_whenNotInitialType() {
     ApplicationWorkAreaItemTestUtil.test_getApplicationColumn_whenNotInitialType(
         applicationDetailView,
-        o -> new PwaApplicationWorkAreaItem(o, searchItem -> VIEW_URL));
+        PwaApplicationWorkAreaItem::new);
   }
 
   @Test
   public void getApplicationColumn_whenUpdate() {
     ApplicationWorkAreaItemTestUtil.test_getApplicationColumn_whenUpdateRequest(
         applicationDetailView,
-        o -> new PwaApplicationWorkAreaItem(o, searchItem -> VIEW_URL));
+        PwaApplicationWorkAreaItem::new);
   }
 
 }

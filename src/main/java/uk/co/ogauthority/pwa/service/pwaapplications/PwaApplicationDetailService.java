@@ -280,10 +280,18 @@ public class PwaApplicationDetailService {
 
     var details = pwaApplicationDetailRepository.findByPwaApplicationId(applicationId);
     var userType = userTypeService.getUserType(user);
+    var tipDetail = details.stream()
+        .filter(PwaApplicationDetail::isTipFlag)
+        .findFirst()
+        .orElseThrow(() -> new RuntimeException(String.format("Requested AppId:%s has no tip detail", applicationId)));
 
     switch (userType) {
 
       case INDUSTRY:
+        if (tipDetail.isFirstVersion()) {
+          return Optional.of(tipDetail);
+        }
+        // fall through to last OGA rule if tip is not first version and user is industry type.
       case OGA:
         return details.stream()
             .filter(d -> d.getSubmittedTimestamp() != null)

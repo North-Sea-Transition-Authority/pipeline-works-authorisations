@@ -10,19 +10,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.controller.WorkAreaController;
-import uk.co.ogauthority.pwa.controller.appprocessing.CaseManagementController;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailItemView;
 import uk.co.ogauthority.pwa.model.workflow.WorkflowBusinessKey;
 import uk.co.ogauthority.pwa.mvc.PageView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
-import uk.co.ogauthority.pwa.service.appprocessing.tabs.AppProcessingTab;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ApplicationState;
-import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.workflow.WorkflowType;
 import uk.co.ogauthority.pwa.service.enums.workflow.application.PwaApplicationWorkflowTask;
-import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaApplicationContactRoleDto;
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
 import uk.co.ogauthority.pwa.service.pwaapplications.search.WorkAreaApplicationDetailSearcher;
@@ -35,18 +30,14 @@ public class IndustryWorkAreaPageService {
 
   private final WorkAreaApplicationDetailSearcher workAreaApplicationDetailSearcher;
   private final PwaContactService pwaContactService;
-  private final PwaApplicationRedirectService pwaApplicationRedirectService;
   private final CamundaWorkflowService camundaWorkflowService;
 
   @Autowired
   public IndustryWorkAreaPageService(WorkAreaApplicationDetailSearcher workAreaApplicationDetailSearcher,
                                      PwaContactService pwaContactService,
-                                     PwaApplicationRedirectService pwaApplicationRedirectService,
                                      CamundaWorkflowService camundaWorkflowService) {
-
     this.workAreaApplicationDetailSearcher = workAreaApplicationDetailSearcher;
     this.pwaContactService = pwaContactService;
-    this.pwaApplicationRedirectService = pwaApplicationRedirectService;
     this.camundaWorkflowService = camundaWorkflowService;
   }
 
@@ -67,7 +58,7 @@ public class IndustryWorkAreaPageService {
             true
         ),
         workAreaUri,
-        sr -> new PwaApplicationWorkAreaItem(sr, this::viewApplicationUrlProducer)
+        PwaApplicationWorkAreaItem::new
     );
 
   }
@@ -90,7 +81,7 @@ public class IndustryWorkAreaPageService {
             false
         ),
         workAreaUri,
-        sr -> new PwaApplicationWorkAreaItem(sr, this::viewApplicationUrlProducer)
+        PwaApplicationWorkAreaItem::new
     );
 
   }
@@ -117,20 +108,6 @@ public class IndustryWorkAreaPageService {
         .stream()
         .map(workflowBusinessKey -> Integer.valueOf(workflowBusinessKey.getValue()))
         .collect(toImmutableSet());
-
-  }
-
-  private String viewApplicationUrlProducer(ApplicationDetailItemView applicationDetailSearchItem) {
-
-    var applicationId = applicationDetailSearchItem.getPwaApplicationId();
-    var applicationType = applicationDetailSearchItem.getApplicationType();
-
-    if (applicationDetailSearchItem.getPadStatus() == PwaApplicationStatus.DRAFT) {
-      return pwaApplicationRedirectService.getTaskListRoute(applicationId, applicationType);
-    }
-
-    return ReverseRouter.route(on(CaseManagementController.class)
-        .renderCaseManagement(applicationId, applicationType, AppProcessingTab.TASKS, null, null));
 
   }
 

@@ -24,6 +24,7 @@ public class ApplicationInvolvementDto {
   private final boolean atLeastOneSatisfactoryVersion;
 
   private final boolean userInHolderTeam;
+  private final boolean userInAppContactTeam;
 
   private final Set<PwaOrganisationRole> holderTeamRoles;
 
@@ -44,6 +45,7 @@ public class ApplicationInvolvementDto {
     this.pwaManagerStage = pwaManagerStage;
     this.atLeastOneSatisfactoryVersion = atLeastOneSatisfactoryVersion;
     this.userInHolderTeam = !holderTeamRoles.isEmpty();
+    this.userInAppContactTeam = !contactRoles.isEmpty();
     this.holderTeamRoles = holderTeamRoles;
     this.openConsentReview = openConsentReview;
   }
@@ -94,5 +96,9 @@ public class ApplicationInvolvementDto {
 
   public OpenConsentReview getOpenConsentReview() {
     return openConsentReview;
+  }
+
+  public boolean isUserInAppContactTeam() {
+    return userInAppContactTeam;
   }
 }
