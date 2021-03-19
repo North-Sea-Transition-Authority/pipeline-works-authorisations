@@ -10,7 +10,8 @@ public enum PublicNoticeStatus {
   CASE_OFFICER_REVIEW("Case officer review", PwaApplicationPublicNoticeWorkflowTask.CASE_OFFICER_REVIEW),
   WAITING("Waiting", PwaApplicationPublicNoticeWorkflowTask.WAITING),
   WITHDRAWN("Withdrawn", null),
-  PUBLISHED("Published", null);
+  PUBLISHED("Published", null),
+  ENDED("Ended", null);
 
   private final String displayText;
   private final PwaApplicationPublicNoticeWorkflowTask workflowTask;

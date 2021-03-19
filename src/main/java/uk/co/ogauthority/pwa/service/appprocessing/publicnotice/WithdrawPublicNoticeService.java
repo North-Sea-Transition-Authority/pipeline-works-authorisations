@@ -78,8 +78,10 @@ public class WithdrawPublicNoticeService {
     var publicNotice = publicNoticeService.getLatestPublicNotice(pwaApplication);
     var publicNoticeStatusBeforeWithdrawal = publicNotice.getStatus();
 
-    var workflowTaskInstance = new WorkflowTaskInstance(publicNotice, publicNoticeStatusBeforeWithdrawal.getWorkflowTask());
-    camundaWorkflowService.deleteProcessAndTask(workflowTaskInstance);
+    if (!publicNotice.getStatus().equals(PublicNoticeStatus.PUBLISHED)) {
+      var workflowTaskInstance = new WorkflowTaskInstance(publicNotice, publicNoticeStatusBeforeWithdrawal.getWorkflowTask());
+      camundaWorkflowService.deleteProcessAndTask(workflowTaskInstance);
+    }
 
     publicNotice.setStatus(PublicNoticeStatus.WITHDRAWN);
     publicNotice.setWithdrawalReason(form.getWithdrawalReason());
