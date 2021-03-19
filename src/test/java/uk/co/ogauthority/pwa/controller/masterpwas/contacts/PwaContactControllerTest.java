@@ -2,6 +2,8 @@ package uk.co.ogauthority.pwa.controller.masterpwas.contacts;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
@@ -32,6 +34,7 @@ import uk.co.ogauthority.pwa.model.teammanagement.TeamMemberView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ApplicationState;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.AddPwaContactFormValidator;
@@ -80,7 +83,7 @@ public class PwaContactControllerTest extends PwaApplicationContextAbstractContr
             PwaApplicationType.HUOO_VARIATION,
             PwaApplicationType.OPTIONS_VARIATION)
         .setAllowedPermissions(PwaApplicationPermission.MANAGE_CONTACTS, PwaApplicationPermission.EDIT)
-        .setAllowedStatuses(ApplicationState.INDUSTRY_EDITABLE);
+        .setAllowedStatuses(ApplicationState.IN_PROGRESS);
 
     manageEndpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaApplicationPermissionService, pwaApplicationDetailService)
         .setAllowedTypes(
@@ -92,7 +95,7 @@ public class PwaContactControllerTest extends PwaApplicationContextAbstractContr
             PwaApplicationType.HUOO_VARIATION,
             PwaApplicationType.OPTIONS_VARIATION)
         .setAllowedPermissions(PwaApplicationPermission.MANAGE_CONTACTS)
-        .setAllowedStatuses(ApplicationState.INDUSTRY_EDITABLE);
+        .setAllowedStatuses(ApplicationState.IN_PROGRESS);
 
   }
 
@@ -375,6 +378,142 @@ public class PwaContactControllerTest extends PwaApplicationContextAbstractContr
         .with(authenticatedUserAndSession(user)))
         .andExpect(status().isOk())
         .andExpect(model().attribute("orgGroupHolders", Set.of("ORGGRP")));
+
+  }
+
+  @Test
+  public void renderContactsScreen_whenUserHasManageContactPrivOnly_andApplicationCanBeEdited() throws Exception {
+
+    for(PwaApplicationStatus status: ApplicationState.INDUSTRY_EDITABLE.getStatuses()) {
+      try {
+        detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
+        detail.setStatus(status);
+
+        when(pwaApplicationDetailService.getTipDetail(anyInt())).thenReturn(detail);
+        when(pwaApplicationPermissionService.getPermissions(detail, user.getLinkedPerson())).thenReturn(
+            Set.of(PwaApplicationPermission.MANAGE_CONTACTS));
+
+        mockMvc.perform(get(ReverseRouter.route(on(PwaContactController.class)
+            .renderContactsScreen(PwaApplicationType.INITIAL, 1, null, null)))
+            .with(authenticatedUserAndSession(user)))
+            .andExpect(status().isOk())
+            .andExpect(model().attributeExists("caseManagementUrl"))
+            .andExpect(model().attributeExists("completeSectionUrl"))
+            .andExpect(model().attribute("userCanAccessTaskList", false))
+            .andExpect(model().attribute("showCaseManagementLink", true));
+      } catch (AssertionError e){
+        throw new AssertionError("Failed with status: " + status, e);
+      }
+    }
+    verify(applicationBreadcrumbService, times(ApplicationState.INDUSTRY_EDITABLE.getStatuses().size()))
+        .fromCaseManagement(any(), any(), any());
+  }
+
+  @Test
+  public void renderContactsScreen_whenUserHasManageContactPrivOnly_andApplicationCannotBeEdited() throws Exception {
+
+
+    detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
+    detail.setStatus(PwaApplicationStatus.CASE_OFFICER_REVIEW);
+
+    when(pwaApplicationDetailService.getTipDetail(anyInt())).thenReturn(detail);
+    when(pwaApplicationPermissionService.getPermissions(detail, user.getLinkedPerson())).thenReturn(
+        Set.of(PwaApplicationPermission.MANAGE_CONTACTS));
+
+    mockMvc.perform(get(ReverseRouter.route(on(PwaContactController.class)
+        .renderContactsScreen(PwaApplicationType.INITIAL, 1, null, null)))
+        .with(authenticatedUserAndSession(user)))
+        .andExpect(status().isOk())
+        .andExpect(model().attributeExists("caseManagementUrl"))
+        .andExpect(model().attributeExists("completeSectionUrl"))
+        .andExpect(model().attribute("userCanAccessTaskList", false))
+        .andExpect(model().attribute("showCaseManagementLink", true));
+
+    verify(applicationBreadcrumbService, times(1)).fromCaseManagement(any(), any(), any());
+  }
+
+  @Test
+  public void renderContactsScreen_whenUserHasManageContactPrivAndEditPriv_andApplicationCannotBeEdited() throws Exception {
+
+
+    detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
+    detail.setStatus(PwaApplicationStatus.CASE_OFFICER_REVIEW);
+
+    when(pwaApplicationDetailService.getTipDetail(anyInt())).thenReturn(detail);
+    when(pwaApplicationPermissionService.getPermissions(detail, user.getLinkedPerson())).thenReturn(
+        Set.of(PwaApplicationPermission.MANAGE_CONTACTS, PwaApplicationPermission.EDIT));
+
+    mockMvc.perform(get(ReverseRouter.route(on(PwaContactController.class)
+        .renderContactsScreen(PwaApplicationType.INITIAL, 1, null, null)))
+        .with(authenticatedUserAndSession(user)))
+        .andExpect(status().isOk())
+        .andExpect(model().attributeExists("caseManagementUrl"))
+        .andExpect(model().attributeExists("completeSectionUrl"))
+        .andExpect(model().attribute("userCanAccessTaskList", false))
+        .andExpect(model().attribute("showCaseManagementLink", true));
+
+    verify(applicationBreadcrumbService, times(1)).fromCaseManagement(any(), any(), any());
+  }
+
+  @Test
+  public void renderContactsScreen_whenUserHasManageContactPrivAndEditPriv_andApplicationCanBeEdited() throws Exception {
+
+    for(PwaApplicationStatus status: ApplicationState.INDUSTRY_EDITABLE.getStatuses()) {
+      try {
+        detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
+        detail.setStatus(status);
+
+        when(pwaApplicationDetailService.getTipDetail(anyInt())).thenReturn(detail);
+        when(pwaApplicationPermissionService.getPermissions(detail, user.getLinkedPerson())).thenReturn(
+            Set.of(PwaApplicationPermission.MANAGE_CONTACTS, PwaApplicationPermission.EDIT));
+
+        mockMvc.perform(get(ReverseRouter.route(on(PwaContactController.class)
+            .renderContactsScreen(PwaApplicationType.INITIAL, 1, null, null)))
+            .with(authenticatedUserAndSession(user)))
+            .andExpect(status().isOk())
+            .andExpect(model().attributeExists("caseManagementUrl"))
+            .andExpect(model().attributeExists("completeSectionUrl"))
+            .andExpect(model().attribute("userCanAccessTaskList", true))
+            .andExpect(model().attribute("showCaseManagementLink", true));
+      } catch (AssertionError e){
+        throw new AssertionError("Failed with status: " + status, e);
+      }
+    }
+
+
+    verify(applicationBreadcrumbService, times(ApplicationState.INDUSTRY_EDITABLE.getStatuses().size()))
+        .fromTaskList(any(), any(), any());
+
+  }
+
+  @Test
+  public void renderContactsScreen_whenUserHasMEditPrivOnly_andApplicationCanBeEdited() throws Exception {
+
+    for(PwaApplicationStatus status: ApplicationState.INDUSTRY_EDITABLE.getStatuses()) {
+      try {
+        detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
+        detail.setStatus(status);
+
+        when(pwaApplicationDetailService.getTipDetail(anyInt())).thenReturn(detail);
+        when(pwaApplicationPermissionService.getPermissions(detail, user.getLinkedPerson())).thenReturn(
+            Set.of(PwaApplicationPermission.EDIT));
+
+        mockMvc.perform(get(ReverseRouter.route(on(PwaContactController.class)
+            .renderContactsScreen(PwaApplicationType.INITIAL, 1, null, null)))
+            .with(authenticatedUserAndSession(user)))
+            .andExpect(status().isOk())
+            .andExpect(model().attributeExists("caseManagementUrl"))
+            .andExpect(model().attributeExists("completeSectionUrl"))
+            .andExpect(model().attribute("userCanAccessTaskList", true))
+            .andExpect(model().attribute("showCaseManagementLink", false));
+
+      } catch (AssertionError e){
+        throw new AssertionError("Failed with status: " + status, e);
+      }
+    }
+
+    verify(applicationBreadcrumbService, times(ApplicationState.INDUSTRY_EDITABLE.getStatuses().size()))
+        .fromTaskList(any(), any(), any());
 
   }
 

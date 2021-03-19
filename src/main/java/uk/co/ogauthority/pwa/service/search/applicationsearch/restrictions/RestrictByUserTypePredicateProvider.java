@@ -249,6 +249,7 @@ public class RestrictByUserTypePredicateProvider implements ApplicationSearchPre
 
   }
 
+  //TODO PWA-1185 rename to remove "submitted" as not accurate
   private Predicate getSubmittedVariationApplicationsPredicate(ApplicationSearchContext applicationSearchContext,
                                                                CriteriaQuery<ApplicationDetailView> searchCoreQuery,
                                                                Root<ApplicationDetailView> searchCoreRoot) {
