@@ -2,18 +2,23 @@ package uk.co.ogauthority.pwa.service.masterpwas;
 
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.Instant;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.model.entity.devuk.DevukField;
+import uk.co.ogauthority.pwa.model.entity.devuk.PadField;
+import uk.co.ogauthority.pwa.model.entity.enums.MasterPwaDetailStatus;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaDetail;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaDetailField;
@@ -22,7 +27,6 @@ import uk.co.ogauthority.pwa.model.view.StringWithTag;
 import uk.co.ogauthority.pwa.model.view.StringWithTagItem;
 import uk.co.ogauthority.pwa.model.view.Tag;
 import uk.co.ogauthority.pwa.repository.masterpwas.MasterPwaDetailFieldRepository;
-import uk.co.ogauthority.pwa.repository.masterpwas.MasterPwaDetailRepository;
 import uk.co.ogauthority.pwa.service.devuk.DevukFieldService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
@@ -42,10 +46,12 @@ public class MasterPwaDetailFieldServiceTest {
   private MasterPwaDetailFieldRepository masterPwaDetailFieldRepository;
 
   @Mock
-  private MasterPwaDetailRepository masterPwaDetailRepository;
-
+  private MasterPwaService masterPwaService;
 
   private MasterPwaDetailFieldService masterPwaDetailFieldService;
+
+  @Captor
+  private ArgumentCaptor<List<MasterPwaDetailField>> fieldsCaptor;
 
   private PwaApplication pwaApplication;
 
@@ -61,16 +67,15 @@ public class MasterPwaDetailFieldServiceTest {
     masterPwaDetailFieldService = new MasterPwaDetailFieldService(
         devukFieldService,
         masterPwaDetailFieldRepository,
-        masterPwaDetailRepository
+        masterPwaService
     );
 
     pwaApplication = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL).getPwaApplication();
     masterPwa = pwaApplication.getMasterPwa();
-    masterPwaDetail = new MasterPwaDetail(Instant.now());
-    masterPwaDetail.setMasterPwa(masterPwa);
+    masterPwaDetail = new MasterPwaDetail(masterPwa, MasterPwaDetailStatus.CONSENTED, "ref", Instant.now());
 
-    when(masterPwaDetailRepository.findByMasterPwaAndEndInstantIsNull(masterPwa))
-        .thenReturn(Optional.of(masterPwaDetail));
+    when(masterPwaService.getCurrentDetailOrThrow(masterPwa))
+        .thenReturn(masterPwaDetail);
 
     devukField = new DevukField(FIELD_ID, DEVUK_FIELD_NAME, 100);
 
@@ -128,4 +133,33 @@ public class MasterPwaDetailFieldServiceTest {
     );
 
   }
+
+  @Test
+  public void createMasterPwaFieldsFromPadFields() {
+
+    var devukField = new PadField();
+    devukField.setDevukField(new DevukField(1, "FNAME", 400));
+
+    var manualField = new PadField();
+    manualField.setFieldName("MANUAL");
+
+    var detail = new MasterPwaDetail();
+    masterPwaDetailFieldService.createMasterPwaFieldsFromPadFields(detail, List.of(devukField, manualField));
+
+    verify(masterPwaDetailFieldRepository, times(1)).saveAll(fieldsCaptor.capture());
+
+    assertThat(fieldsCaptor.getValue().get(0)).satisfies(field -> {
+      assertThat(field.getDevukFieldId()).isEqualTo(devukField.getDevukField().getDevukFieldId());
+      assertThat(field.getMasterPwaDetail()).isEqualTo(detail);
+      assertThat(field.getManualFieldName()).isNull();
+    });
+
+    assertThat(fieldsCaptor.getValue().get(1)).satisfies(field -> {
+      assertThat(field.getDevukFieldId()).isNull();
+      assertThat(field.getMasterPwaDetail()).isEqualTo(detail);
+      assertThat(field.getManualFieldName()).isEqualTo("MANUAL");
+    });
+
+  }
+
 }

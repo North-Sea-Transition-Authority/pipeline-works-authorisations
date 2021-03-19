@@ -16,7 +16,7 @@ import uk.co.ogauthority.pwa.exception.AccessDeniedException;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.search.consents.ConsentSearchItem;
 import uk.co.ogauthority.pwa.model.view.search.consents.ConsentSearchResultView;
-import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaManagementService;
+import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaService;
 import uk.co.ogauthority.pwa.service.search.consents.ConsentSearchService;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -26,7 +26,7 @@ public class PwaContextServiceTest {
   private PwaPermissionService pwaPermissionService;
 
   @Mock
-  private MasterPwaManagementService masterPwaManagementService;
+  private MasterPwaService masterPwaService;
 
   @Mock
   private ConsentSearchService consentSearchService;
@@ -50,9 +50,9 @@ public class PwaContextServiceTest {
     consentSearchItem.setLatestConsentTimestamp(Instant.now());
     consentSearchResultView = ConsentSearchResultView.fromSearchItem(consentSearchItem);
 
-    contextService = new PwaContextService(pwaPermissionService, masterPwaManagementService, consentSearchService);
+    contextService = new PwaContextService(pwaPermissionService, masterPwaService, consentSearchService);
 
-    when(masterPwaManagementService.getMasterPwaById(masterPwa.getId())).thenReturn(masterPwa);
+    when(masterPwaService.getMasterPwaById(masterPwa.getId())).thenReturn(masterPwa);
     when(consentSearchService.getConsentSearchResultView(masterPwa.getId())).thenReturn(consentSearchResultView);
   }
 

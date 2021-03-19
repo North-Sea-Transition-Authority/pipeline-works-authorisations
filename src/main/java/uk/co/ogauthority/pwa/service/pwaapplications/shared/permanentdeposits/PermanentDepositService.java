@@ -151,7 +151,7 @@ public class PermanentDepositService implements ApplicationFormSectionService {
       for (String pipelineId : form.getSelectedPipelines()) {
         if (!pipelineId.equals("")) {
           var pipeline = new Pipeline();
-          pipeline.setMasterPwa(detail.getMasterPwaApplication());
+          pipeline.setMasterPwa(detail.getMasterPwa());
           pipeline.setId(Integer.parseInt(pipelineId));
           var depositsForPipelines = new PadDepositPipeline(permanentDeposit, pipeline);
           padDepositPipelineRepository.save(depositsForPipelines);

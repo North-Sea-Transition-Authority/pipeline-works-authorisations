@@ -32,6 +32,16 @@ public class MasterPwaDetailField {
 
   private String manualFieldName;
 
+  public MasterPwaDetailField() {
+  }
+
+  public MasterPwaDetailField(MasterPwaDetail masterPwaDetail,
+                              DevukFieldId devukFieldId,
+                              String manualFieldName) {
+    this.masterPwaDetail = masterPwaDetail;
+    this.devukFieldId = devukFieldId;
+    this.manualFieldName = manualFieldName;
+  }
 
   public Integer getId() {
     return id;

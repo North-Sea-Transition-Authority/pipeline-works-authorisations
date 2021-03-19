@@ -260,7 +260,7 @@ public final class PwaApplicationDetail implements ParentEntity {
     return this.pwaApplication.getId();
   }
 
-  public MasterPwa getMasterPwaApplication() {
+  public MasterPwa getMasterPwa() {
     return this.pwaApplication.getMasterPwa();
   }
 
