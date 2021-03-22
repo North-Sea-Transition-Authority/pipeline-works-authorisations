@@ -186,7 +186,7 @@ public class RestrictByUserTypePredicateProvider implements ApplicationSearchPre
         lastSubmittedVersionPredicate,
         cb.or(
             getSubmittedInitialPwaApplicationsPredicate(applicationSearchContext, searchCoreRoot),
-            getSubmittedVariationApplicationsPredicate(applicationSearchContext, searchCoreQuery, searchCoreRoot)
+            getVariationApplicationsPredicate(applicationSearchContext, searchCoreQuery, searchCoreRoot)
         )
     );
 
@@ -249,10 +249,9 @@ public class RestrictByUserTypePredicateProvider implements ApplicationSearchPre
 
   }
 
-  //TODO PWA-1185 rename to remove "submitted" as not accurate
-  private Predicate getSubmittedVariationApplicationsPredicate(ApplicationSearchContext applicationSearchContext,
-                                                               CriteriaQuery<ApplicationDetailView> searchCoreQuery,
-                                                               Root<ApplicationDetailView> searchCoreRoot) {
+  private Predicate getVariationApplicationsPredicate(ApplicationSearchContext applicationSearchContext,
+                                                      CriteriaQuery<ApplicationDetailView> searchCoreQuery,
+                                                      Root<ApplicationDetailView> searchCoreRoot) {
     CriteriaBuilder cb = entityManager.getCriteriaBuilder();
 
     var holderOrgUnitIds = applicationSearchContext.getOrgUnitIdsAssociatedWithHolderTeamMembership()
