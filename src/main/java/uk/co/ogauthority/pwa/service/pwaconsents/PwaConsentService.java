@@ -27,7 +27,7 @@ public class PwaConsentService {
   }
 
   @Transactional
-  public void createConsent(PwaApplication application) {
+  public PwaConsent createConsent(PwaApplication application) {
 
     var pwaConsent = new PwaConsent();
     pwaConsent.setMasterPwa(application.getMasterPwa());
@@ -57,7 +57,7 @@ public class PwaConsentService {
     var ref = pwaConsentReferencingService.createConsentReference(pwaConsent);
     pwaConsent.setReference(ref);
 
-    pwaConsentRepository.save(pwaConsent);
+    return pwaConsentRepository.save(pwaConsent);
 
   }
 

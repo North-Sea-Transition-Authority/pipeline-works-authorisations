@@ -27,7 +27,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.repository.pwaapplications.PwaApplicationRepository;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
-import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaManagementService;
+import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
 import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadOrganisationRoleService;
@@ -47,7 +47,7 @@ public class PwaApplicationCreationServiceTest {
   );
 
   @Mock
-  private MasterPwaManagementService masterPwaManagementService;
+  private MasterPwaService masterPwaService;
 
   @Mock
   private PwaApplicationRepository pwaApplicationRepository;
@@ -93,7 +93,7 @@ public class PwaApplicationCreationServiceTest {
         .thenAnswer(invocation -> new PwaApplicationDetail(invocation.getArgument(0), 1, 1, Instant.now()));
 
     pwaApplicationCreationService = new PwaApplicationCreationService(
-        masterPwaManagementService,
+        masterPwaService,
         pwaApplicationRepository,
         camundaWorkflowService,
         pwaContactService,
@@ -110,7 +110,7 @@ public class PwaApplicationCreationServiceTest {
     WebUserAccount user = new WebUserAccount(123);
 
     when(masterPwaDetail.getMasterPwa()).thenReturn(masterPwa);
-    when(masterPwaManagementService.createMasterPwa(any(), any())).thenReturn(masterPwaDetail);
+    when(masterPwaService.createMasterPwa(any(), any())).thenReturn(masterPwaDetail);
 
     PwaApplicationDetail createdApplication = pwaApplicationCreationService.createInitialPwaApplication(user);
 

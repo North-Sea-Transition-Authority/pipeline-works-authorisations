@@ -2,7 +2,6 @@ package uk.co.ogauthority.pwa.service.search.applicationsearch;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Function;
 import org.springframework.util.StringUtils;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailItemView;
 import uk.co.ogauthority.pwa.service.workarea.ApplicationWorkAreaItem;
@@ -13,9 +12,8 @@ import uk.co.ogauthority.pwa.service.workarea.WorkAreaColumnItemView;
  */
 public class ApplicationSearchDisplayItem extends ApplicationWorkAreaItem {
 
-  ApplicationSearchDisplayItem(ApplicationDetailItemView applicationDetailSearchItem,
-                               Function<ApplicationDetailItemView, String> viewApplicationUrlProducer) {
-    super(applicationDetailSearchItem, viewApplicationUrlProducer.apply(applicationDetailSearchItem));
+  ApplicationSearchDisplayItem(ApplicationDetailItemView applicationDetailSearchItem) {
+    super(applicationDetailSearchItem);
   }
 
   @Override

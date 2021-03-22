@@ -223,8 +223,10 @@ public class ApplicationInvolvementService {
 
   }
 
-  //WARNING: This may return assignment views where the case officer is assigned on more that one app.
-  // Currently this is only called by the ApplicationSearchController where duplicate case officers are removed
+  /**
+   * WARNING: This may return assignment views where the case officer is assigned on more that one app.
+   * Currently this is only called by the ApplicationSearchController where duplicate case officers are removed.
+   */
   public List<PwaAppAssignmentView> getCaseOfficersAssignedToInProgressApps() {
     var inProgressApplicationIds = pwaApplicationDetailService.getInProgressApplicationIds();
     return pwaAppAssignmentViewRepository.findAllByAssignmentAndPwaApplicationIdIn(

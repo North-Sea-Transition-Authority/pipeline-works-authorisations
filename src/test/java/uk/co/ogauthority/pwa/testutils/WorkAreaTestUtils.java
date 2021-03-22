@@ -23,7 +23,7 @@ public class WorkAreaTestUtils {
     return PageView.fromPage(
         fakePage,
         "workAreaUri",
-        searchItem -> new PwaApplicationWorkAreaItem(searchItem, applicationDetailSearchItem -> "Fake_View_Url")
+        PwaApplicationWorkAreaItem::new
     );
 
   }
@@ -38,7 +38,7 @@ public class WorkAreaTestUtils {
     return PageView.fromPage(
         fakePage,
         "workAreaUri",
-        searchItem -> new ConsultationRequestWorkAreaItem(searchItem, consultationRequestSearchItem -> "Fake_View_Url")
+        ConsultationRequestWorkAreaItem::new
     );
 
   }

@@ -49,7 +49,7 @@ public class CaseSummaryView {
 
   public static CaseSummaryView from(ApplicationDetailView detailViewItem) {
 
-    var appWorkAreaItem = new PwaApplicationWorkAreaItem(detailViewItem, detailSearchItem1 -> "#");
+    var appWorkAreaItem = new PwaApplicationWorkAreaItem(detailViewItem);
 
     String holders = appWorkAreaItem.getHolderColumn().stream()
         .map(WorkAreaColumnItemView::getValue)

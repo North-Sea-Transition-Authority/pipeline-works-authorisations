@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.model.view.fieldinformation;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.BooleanUtils;
 import uk.co.ogauthority.pwa.model.view.StringWithTag;
@@ -42,4 +43,24 @@ public class PwaFieldLinksView {
   public List<StringWithTagItem> getLinkedFieldNames() {
     return linkedFieldNames;
   }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    PwaFieldLinksView that = (PwaFieldLinksView) o;
+    return Objects.equals(isLinkedToFields, that.isLinkedToFields) && Objects.equals(
+        pwaLinkedToDescription, that.pwaLinkedToDescription) && Objects.equals(linkedFieldNames,
+        that.linkedFieldNames);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(isLinkedToFields, pwaLinkedToDescription, linkedFieldNames);
+  }
+
 }

@@ -27,6 +27,7 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.exception.appprocessing.ConsentReviewException;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.prepareconsent.ConsentReview;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
 import uk.co.ogauthority.pwa.model.enums.appprocessing.prepareconsent.ConsentReviewStatus;
 import uk.co.ogauthority.pwa.model.notify.emailproperties.applicationworkflow.ConsentReviewReturnedEmailProps;
 import uk.co.ogauthority.pwa.repository.appprocessing.prepareconsent.ConsentReviewRepository;
@@ -39,6 +40,7 @@ import uk.co.ogauthority.pwa.service.notify.EmailCaseLinkService;
 import uk.co.ogauthority.pwa.service.notify.NotifyService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaconsents.PwaConsentService;
+import uk.co.ogauthority.pwa.service.pwaconsents.consentwriters.ConsentWriterService;
 import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
 import uk.co.ogauthority.pwa.service.workflow.assignment.WorkflowAssignmentService;
 import uk.co.ogauthority.pwa.service.workflow.task.WorkflowTaskInstance;
@@ -71,6 +73,9 @@ public class ConsentReviewServiceTest {
   @Mock
   private PwaConsentService pwaConsentService;
 
+  @Mock
+  private ConsentWriterService consentWriterService;
+
   private ConsentReviewService consentReviewService;
 
   @Captor
@@ -91,8 +96,9 @@ public class ConsentReviewServiceTest {
     when(clock.instant()).thenReturn(fixedInstant);
     when(emailCaseLinkService.generateCaseManagementLink(any())).thenCallRealMethod();
 
-    consentReviewService = new ConsentReviewService(consentReviewRepository, clock, pwaApplicationDetailService,
-        workflowAssignmentService, camundaWorkflowService, notifyService, emailCaseLinkService, pwaConsentService);
+    consentReviewService = new ConsentReviewService(
+        consentReviewRepository, clock, pwaApplicationDetailService,
+        workflowAssignmentService, camundaWorkflowService, notifyService, emailCaseLinkService, pwaConsentService, consentWriterService);
 
   }
 
@@ -222,9 +228,13 @@ public class ConsentReviewServiceTest {
     openReview.setStatus(ConsentReviewStatus.OPEN);
     when(consentReviewRepository.findAllByPwaApplicationDetail(detail)).thenReturn(List.of(openReview));
 
+    var consent = new PwaConsent();
+    when(pwaConsentService.createConsent(detail.getPwaApplication())).thenReturn(consent);
+
     consentReviewService.issueConsent(detail, returningUser);
 
     verify(pwaConsentService, times(1)).createConsent(detail.getPwaApplication());
+    verify(consentWriterService, times(1)).updateConsentedData(detail, consent);
 
     verify(consentReviewRepository, times(1)).save(consentReviewArgumentCaptor.capture());
     assertThat(consentReviewArgumentCaptor.getValue()).satisfies(consentReview -> {

@@ -13,14 +13,11 @@ import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.WorkAreaController;
-import uk.co.ogauthority.pwa.controller.appprocessing.CaseManagementController;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeStatus;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailItemView;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.WorkAreaApplicationDetailSearchItem;
 import uk.co.ogauthority.pwa.mvc.PageView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.PwaAppProcessingPermissionService;
-import uk.co.ogauthority.pwa.service.appprocessing.tabs.AppProcessingTab;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.workarea.WorkAreaFlag;
@@ -53,7 +50,7 @@ public class RegulatorWorkAreaPageService {
     return PageView.fromPage(
         getRequiresAttentionPage(authenticatedUserAccount, applicationIds, page),
         workAreaUri,
-        sr -> new PwaApplicationWorkAreaItem(sr, this::viewApplicationUrlProducer)
+        PwaApplicationWorkAreaItem::new
     );
 
   }
@@ -69,7 +66,7 @@ public class RegulatorWorkAreaPageService {
     return PageView.fromPage(
         getWaitingOnOthersPage(authenticatedUserAccount, applicationIds, page),
         workAreaUri,
-        sr -> new PwaApplicationWorkAreaItem(sr, this::viewApplicationUrlProducer)
+        PwaApplicationWorkAreaItem::new
     );
 
   }
@@ -168,14 +165,6 @@ public class RegulatorWorkAreaPageService {
         processingFlagsMap
     );
 
-  }
-
-  private String viewApplicationUrlProducer(ApplicationDetailItemView applicationDetailSearchItem) {
-
-    var applicationId = applicationDetailSearchItem.getPwaApplicationId();
-    var applicationType = applicationDetailSearchItem.getApplicationType();
-    return ReverseRouter.route(on(CaseManagementController.class)
-        .renderCaseManagement(applicationId, applicationType, AppProcessingTab.TASKS, null, null));
   }
 
 }

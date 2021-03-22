@@ -24,7 +24,7 @@ import uk.co.ogauthority.pwa.model.entity.UserSession;
 import uk.co.ogauthority.pwa.service.FoxUrlService;
 import uk.co.ogauthority.pwa.service.UserSessionService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContextService;
-import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaManagementService;
+import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaService;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
@@ -56,7 +56,7 @@ public abstract class PwaContextAbstractControllerTest {
   protected UserSessionService userSessionService;
 
   @MockBean
-  protected MasterPwaManagementService masterPwaManagementService;
+  protected MasterPwaService masterPwaService;
 
   @MockBean
   protected TeamService teamService;

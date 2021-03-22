@@ -15,6 +15,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.ogauthority.pwa.energyportal.model.entity.devuk.DevukFieldId;
+import uk.co.ogauthority.pwa.model.entity.enums.MasterPwaDetailStatus;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaDetail;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaDetailField;
@@ -53,7 +54,7 @@ public class MasterPwaDetailFieldIntegrationtest {
     masterPwa.setId(null);
     entityManager.persist(masterPwa);
 
-    masterPwaDetail = new MasterPwaDetail(Instant.now());
+    masterPwaDetail = new MasterPwaDetail(masterPwa, MasterPwaDetailStatus.CONSENTED, "ref", Instant.now());
     entityManager.persist(masterPwaDetail);
 
   }

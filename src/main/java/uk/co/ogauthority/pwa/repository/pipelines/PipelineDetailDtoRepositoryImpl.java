@@ -38,7 +38,7 @@ public class PipelineDetailDtoRepositoryImpl implements PipelineDetailDtoReposit
         "AND pc.masterPwa = :master_pwa " +
         "AND pd.bundleName IS NOT NULL " +
         "AND pd.pipelineStatus IN :statusFilter ", PipelineBundlePairDto.class)
-        .setParameter("master_pwa", pwaApplicationDetail.getMasterPwaApplication())
+        .setParameter("master_pwa", pwaApplicationDetail.getMasterPwa())
         .setParameter("statusFilter", statusFilter)
         .getResultList();
   }
