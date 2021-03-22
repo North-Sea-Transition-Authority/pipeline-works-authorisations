@@ -181,7 +181,7 @@ public class ApplicationDetailSearchServiceIntegrationTest {
 
   private ApplicationDetailItemView createAndPersistViewFromAppDetail(PwaApplicationDetail pwaApplicationDetail){
     var detailView = ApplicationDetailViewTestUtil.createSubmittedReviewDetailView(
-        pwaApplicationDetail.getMasterPwaApplication().getId(),
+        pwaApplicationDetail.getMasterPwa().getId(),
         pwaApplicationDetail.getPwaApplicationType(),
         pwaApplicationDetail.getPwaApplication().getId(),
         pwaApplicationDetail.getId(),

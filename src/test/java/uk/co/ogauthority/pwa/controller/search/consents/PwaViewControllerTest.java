@@ -42,7 +42,7 @@ public class PwaViewControllerTest extends PwaContextAbstractControllerTest {
   @Before
   public void setUp() {
 
-    endpointTester = new PwaEndpointTestBuilder(mockMvc, masterPwaManagementService, pwaPermissionService, consentSearchService)
+    endpointTester = new PwaEndpointTestBuilder(mockMvc, masterPwaService, pwaPermissionService, consentSearchService)
         .setAllowedProcessingPermissions(PwaPermission.VIEW_PWA);
 
     user = new AuthenticatedUserAccount(
@@ -52,7 +52,7 @@ public class PwaViewControllerTest extends PwaContextAbstractControllerTest {
     this.masterPwa = new MasterPwa();
     this.masterPwa.setId(1);
     this.masterPwa.setCreatedTimestamp(Instant.MIN);
-    when(masterPwaManagementService.getMasterPwaById(masterPwa.getId())).thenReturn(masterPwa);
+    when(masterPwaService.getMasterPwaById(masterPwa.getId())).thenReturn(masterPwa);
 
     when(pwaPermissionService.getPwaPermissions(masterPwa, user)).thenReturn(Set.of(PwaPermission.VIEW_PWA));
 

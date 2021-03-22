@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.controller.publicnotice;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
@@ -12,6 +13,7 @@ import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSe
 
 import java.util.EnumSet;
 import java.util.Optional;
+import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,6 +29,8 @@ import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.PwaAppProcessingContextAbstractControllerTest;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
+import uk.co.ogauthority.pwa.exception.AccessDeniedException;
+import uk.co.ogauthority.pwa.model.dto.appprocessing.ApplicationInvolvementDtoTestUtil;
 import uk.co.ogauthority.pwa.model.dto.appprocessing.ProcessingPermissionsDto;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.publicnotice.PublicNoticeDraftForm;
@@ -72,10 +76,14 @@ public class PublicNoticeDraftControllerTest extends PwaAppProcessingContextAbst
     when(pwaApplicationDetailService.getLatestDetailForUser(pwaApplicationDetail.getMasterPwaApplicationId(), user))
         .thenReturn(Optional.of(pwaApplicationDetail));
 
-    var permissionsDto = new ProcessingPermissionsDto(PwaAppProcessingContextDtoTestUtils.appInvolvementSatisfactoryVersions(
-        pwaApplicationDetail.getPwaApplication()), EnumSet.allOf(PwaAppProcessingPermission.class));
+    var appInvolvement = ApplicationInvolvementDtoTestUtil.fromInvolvementFlags(
+        pwaApplicationDetail.getPwaApplication(),
+        Set.of(ApplicationInvolvementDtoTestUtil.InvolvementFlag.AT_LEAST_ONE_SATISFACTORY_VERSION));
+    var permissionsDto = new ProcessingPermissionsDto(appInvolvement, EnumSet.allOf(PwaAppProcessingPermission.class));
 
     when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail, user)).thenReturn(permissionsDto);
+
+    when(publicNoticeService.canCreatePublicNoticeDraft(any())).thenReturn(true);
 
   }
 
@@ -120,6 +128,19 @@ public class PublicNoticeDraftControllerTest extends PwaAppProcessingContextAbst
   }
 
   @Test
+  public void renderDraftPublicNotice_cannotDraftNewPublicNotice() throws Exception {
+
+    when(publicNoticeService.canCreatePublicNoticeDraft(any())).thenReturn(false);
+
+    mockMvc.perform(get(ReverseRouter.route(on(PublicNoticeDraftController.class)
+        .renderDraftPublicNotice(
+            pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null)))
+        .with(authenticatedUserAndSession(user))
+        .with(csrf()))
+        .andExpect(result -> assertThat(result.getResolvedException() instanceof AccessDeniedException).isTrue());
+  }
+
+  @Test
   public void postDraftPublicNotice_appStatusSmokeTest() {
 
     when(publicNoticeService.validate(any(), any())).thenReturn(new BeanPropertyBindingResult(new PublicNoticeDraftForm(), "form"));
@@ -154,8 +175,8 @@ public class PublicNoticeDraftControllerTest extends PwaAppProcessingContextAbst
     failedBindingResult.addError(new ObjectError("fake", "fake"));
     when(publicNoticeService.validate(any(), any())).thenReturn(failedBindingResult);
 
-    mockMvc.perform(post(ReverseRouter.route(on(PublicNoticeDraftController.class)
-        .postDraftPublicNotice(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null)))
+    mockMvc.perform(post(ReverseRouter.route(on(PublicNoticeDraftController.class).postDraftPublicNotice(
+        pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null)))
         .with(authenticatedUserAndSession(user))
         .with(csrf()))
         .andExpect(status().isOk())
@@ -169,11 +190,24 @@ public class PublicNoticeDraftControllerTest extends PwaAppProcessingContextAbst
         PwaAppProcessingContextDtoTestUtils.emptyAppInvolvement(pwaApplicationDetail.getPwaApplication()),
         EnumSet.allOf(PwaAppProcessingPermission.class)));
 
-    mockMvc.perform(post(ReverseRouter.route(on(PublicNoticeDraftController.class).postDraftPublicNotice(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null)))
+    mockMvc.perform(post(ReverseRouter.route(on(PublicNoticeDraftController.class).postDraftPublicNotice(
+        pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null)))
         .with(authenticatedUserAndSession(user))
         .with(csrf()))
         .andExpect(status().isForbidden());
 
+  }
+
+  @Test
+  public void postDraftPublicNotice_cannotDraftNewPublicNotice() throws Exception {
+
+    when(publicNoticeService.canCreatePublicNoticeDraft(any())).thenReturn(false);
+
+    mockMvc.perform(get(ReverseRouter.route(on(PublicNoticeDraftController.class).postDraftPublicNotice(
+        pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null)))
+        .with(authenticatedUserAndSession(user))
+        .with(csrf()))
+        .andExpect(result -> assertThat(result.getResolvedException() instanceof AccessDeniedException).isTrue());
   }
 
 

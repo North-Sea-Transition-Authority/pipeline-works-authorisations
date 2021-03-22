@@ -15,7 +15,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.repository.pwaapplications.PwaApplicationRepository;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
-import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaManagementService;
+import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
 import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadOrganisationRoleService;
@@ -28,7 +28,7 @@ import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
 @Service
 public class PwaApplicationCreationService {
 
-  private final MasterPwaManagementService masterPwaManagementService;
+  private final MasterPwaService masterPwaService;
   private final PwaApplicationRepository pwaApplicationRepository;
   private final CamundaWorkflowService camundaWorkflowService;
   private final PwaContactService pwaContactService;
@@ -39,7 +39,7 @@ public class PwaApplicationCreationService {
 
 
   @Autowired
-  public PwaApplicationCreationService(MasterPwaManagementService masterPwaManagementService,
+  public PwaApplicationCreationService(MasterPwaService masterPwaService,
                                        PwaApplicationRepository pwaApplicationRepository,
                                        CamundaWorkflowService camundaWorkflowService,
                                        PwaContactService pwaContactService,
@@ -47,7 +47,7 @@ public class PwaApplicationCreationService {
                                        PwaApplicationReferencingService pwaApplicationReferencingService,
                                        PwaConsentOrganisationRoleService pwaConsentOrganisationRoleService,
                                        PadOrganisationRoleService padOrganisationRoleService) {
-    this.masterPwaManagementService = masterPwaManagementService;
+    this.masterPwaService = masterPwaService;
     this.pwaApplicationRepository = pwaApplicationRepository;
     this.camundaWorkflowService = camundaWorkflowService;
     this.pwaContactService = pwaContactService;
@@ -101,7 +101,7 @@ public class PwaApplicationCreationService {
   @Transactional
   public PwaApplicationDetail createInitialPwaApplication(WebUserAccount createdByUser) {
 
-    MasterPwaDetail masterPwaDetail = masterPwaManagementService.createMasterPwa(
+    MasterPwaDetail masterPwaDetail = masterPwaService.createMasterPwa(
         MasterPwaDetailStatus.APPLICATION,
         // TODO PWA-480 implement referencing
         "New Pwa " + RandomUtils.nextInt()

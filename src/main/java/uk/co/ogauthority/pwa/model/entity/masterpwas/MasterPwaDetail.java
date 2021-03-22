@@ -45,7 +45,13 @@ public class MasterPwaDetail {
   public MasterPwaDetail() {
   }
 
-  public MasterPwaDetail(Instant startInstant) {
+  public MasterPwaDetail(MasterPwa masterPwa,
+                         MasterPwaDetailStatus status,
+                         String reference,
+                         Instant startInstant) {
+    this.masterPwa = masterPwa;
+    this.masterPwaDetailStatus = status;
+    this.reference = reference;
     this.startInstant = startInstant;
   }
 

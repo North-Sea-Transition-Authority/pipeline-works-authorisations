@@ -6,22 +6,22 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.exception.AccessDeniedException;
-import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaManagementService;
+import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaService;
 import uk.co.ogauthority.pwa.service.search.consents.ConsentSearchService;
 
 @Service
 public class PwaContextService {
 
   private final PwaPermissionService pwaPermissionService;
-  private final MasterPwaManagementService masterPwaManagementService;
+  private final MasterPwaService masterPwaService;
   private final ConsentSearchService consentSearchService;
 
   @Autowired
   public PwaContextService(PwaPermissionService pwaPermissionService,
-                           MasterPwaManagementService masterPwaManagementService,
+                           MasterPwaService masterPwaService,
                            ConsentSearchService consentSearchService) {
     this.pwaPermissionService = pwaPermissionService;
-    this.masterPwaManagementService = masterPwaManagementService;
+    this.masterPwaService = masterPwaService;
     this.consentSearchService = consentSearchService;
   }
 
@@ -55,7 +55,7 @@ public class PwaContextService {
   PwaContext getPwaContext(Integer pwaId,
                            AuthenticatedUserAccount authenticatedUser) {
 
-    var masterPwa = masterPwaManagementService.getMasterPwaById(pwaId);
+    var masterPwa = masterPwaService.getMasterPwaById(pwaId);
     var pwaPermissions = pwaPermissionService.getPwaPermissions(masterPwa, authenticatedUser);
 
     if (pwaPermissions.isEmpty()) {

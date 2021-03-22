@@ -42,7 +42,7 @@ public class ModifyPipelineService {
   @VisibleForTesting
   public List<PipelineDetail> getConsentedPipelinesNotOnApplication(PwaApplicationDetail pwaApplicationDetail) {
     var consentedPipelines = pipelineDetailService.getNonDeletedPipelineDetailsForApplicationMasterPwa(
-        pwaApplicationDetail.getMasterPwaApplication());
+        pwaApplicationDetail.getMasterPwa());
     var pipelineIdsContainedInApplication = padPipelineService.getPipelines(pwaApplicationDetail).stream()
         .map(PadPipeline::getPipelineId)
         .collect(Collectors.toSet());

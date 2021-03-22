@@ -11,6 +11,7 @@ import static org.mockito.Mockito.when;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -49,6 +50,7 @@ import uk.co.ogauthority.pwa.model.form.publicnotice.PublicNoticeDraftForm;
 import uk.co.ogauthority.pwa.model.notify.emailproperties.publicnotices.PublicNoticeApprovalRequestEmailProps;
 import uk.co.ogauthority.pwa.model.tasklist.TaskTag;
 import uk.co.ogauthority.pwa.model.teams.PwaRegulatorRole;
+import uk.co.ogauthority.pwa.repository.publicnotice.PublicNoticeDatesRepository;
 import uk.co.ogauthority.pwa.repository.publicnotice.PublicNoticeDocumentLinkRepository;
 import uk.co.ogauthority.pwa.repository.publicnotice.PublicNoticeDocumentRepository;
 import uk.co.ogauthority.pwa.repository.publicnotice.PublicNoticeRepository;
@@ -95,6 +97,9 @@ public class PublicNoticeServiceTest {
 
   @Mock
   private PublicNoticeDocumentLinkRepository publicNoticeDocumentLinkRepository;
+
+  @Mock
+  private PublicNoticeDatesRepository publicNoticeDatesRepository;
 
   @Mock
   private CamundaWorkflowService camundaWorkflowService;
@@ -152,13 +157,13 @@ public class PublicNoticeServiceTest {
         publicNoticeRequestRepository,
         publicNoticeDocumentRepository,
         publicNoticeDocumentLinkRepository,
-        camundaWorkflowService,
+        publicNoticeDatesRepository, camundaWorkflowService,
         clock, notifyService, emailCaseLinkService, pwaTeamService, personService);
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     pwaApplication = pwaApplicationDetail.getPwaApplication();
     user = new AuthenticatedUserAccount(new WebUserAccount(1, PersonTestUtil.createDefaultPerson()), List.of());
-    ENDED_STATUSES = Set.of(PublicNoticeStatus.PUBLISHED, PublicNoticeStatus.WITHDRAWN);
+    ENDED_STATUSES = Set.of(PublicNoticeStatus.ENDED, PublicNoticeStatus.WITHDRAWN);
   }
 
   @Test
@@ -257,6 +262,21 @@ public class PublicNoticeServiceTest {
   @Test(expected = EntityLatestVersionNotFoundException.class)
   public void getLatestPublicNotice_notFound() {
     publicNoticeService.getLatestPublicNotice(pwaApplication);
+    verify(publicNoticeRepository, times(1)).findFirstByPwaApplicationOrderByVersionDesc(pwaApplication);
+  }
+
+  @Test
+  public void getLatestPublicNoticeDate_noExceptionThrown() {
+    var publicNotice = PublicNoticeTestUtil.createWaitingPublicNotice(pwaApplication);
+    when(publicNoticeDatesRepository.getByPublicNoticeAndEndedByPersonIdIsNull(publicNotice)).thenReturn(
+        Optional.of(PublicNoticeTestUtil.createLatestPublicNoticeDate(publicNotice)));
+    publicNoticeService.getLatestPublicNoticeDate(publicNotice);
+    verify(publicNoticeDatesRepository, times(1)).getByPublicNoticeAndEndedByPersonIdIsNull(publicNotice);
+  }
+
+  @Test(expected = EntityLatestVersionNotFoundException.class)
+  public void getLatestPublicNoticeDate_notFound() {
+    publicNoticeService.getLatestPublicNoticeDate(new PublicNotice());
     verify(publicNoticeRepository, times(1)).findFirstByPwaApplicationOrderByVersionDesc(pwaApplication);
   }
 
@@ -417,6 +437,35 @@ public class PublicNoticeServiceTest {
     assertThat(documentLink.getAppFile()).isEqualTo(publicNoticeAppFile);
   }
 
+  @Test
+  public void canCreatePublicNoticeDraft_noPublicNoticeExists_canCreateDraftIsTrue() {
+
+    when(publicNoticeRepository.findFirstByPwaApplicationOrderByVersionDesc(pwaApplication)).thenReturn(Optional.empty());
+    var canCreateDraft = publicNoticeService.canCreatePublicNoticeDraft(pwaApplication);
+    assertThat(canCreateDraft).isTrue();
+  }
+
+  @Test
+  public void canCreatePublicNoticeDraft_latestPublicNoticeEnded_canCreateDraftIsTrue() {
+
+    var publicNotice = PublicNoticeTestUtil.createWithdrawnPublicNotice(pwaApplication);
+    when(publicNoticeRepository.findFirstByPwaApplicationOrderByVersionDesc(pwaApplication)).thenReturn(Optional.of(publicNotice));
+    var canCreateDraft = publicNoticeService.canCreatePublicNoticeDraft(pwaApplication);
+    assertThat(canCreateDraft).isTrue();
+  }
+
+  @Test
+  public void canCreatePublicNoticeDraft_latestPublicNoticeNotEndedStatuses_canCreateDraftIsFalse() {
+
+    EnumSet.complementOf(EnumSet.copyOf(ENDED_STATUSES)).forEach(activeStatus -> {
+      var publicNotice = new PublicNotice();
+      publicNotice.setStatus(activeStatus);
+      when(publicNoticeRepository.findFirstByPwaApplicationOrderByVersionDesc(pwaApplication)).thenReturn(Optional.of(publicNotice));
+      var canCreateDraft = publicNoticeService.canCreatePublicNoticeDraft(pwaApplication);
+      assertThat(canCreateDraft).isFalse();
+    });
+  }
+
 
   @Test
   public void getAvailablePublicNoticeActions_draftPermissionAndNullStatus() {
@@ -429,11 +478,31 @@ public class PublicNoticeServiceTest {
   }
 
   @Test
+  public void getAvailablePublicNoticeActions_draftPermissionAndEndedStatus() {
+
+    var context = PwaAppProcessingContextTestUtil.withPermissions(
+        pwaApplicationDetail, Set.of(PwaAppProcessingPermission.DRAFT_PUBLIC_NOTICE));
+    var publicNoticeActions = publicNoticeService.getAvailablePublicNoticeActions(PublicNoticeStatus.ENDED, context);
+
+    assertThat(publicNoticeActions).containsOnly(PublicNoticeAction.NEW_DRAFT);
+  }
+
+  @Test
+  public void getAvailablePublicNoticeActions_draftPermissionAndActiveStatus() {
+
+    var context = PwaAppProcessingContextTestUtil.withPermissions(
+        pwaApplicationDetail, Set.of(PwaAppProcessingPermission.DRAFT_PUBLIC_NOTICE));
+    var publicNoticeActions = publicNoticeService.getAvailablePublicNoticeActions(PublicNoticeStatus.APPLICANT_UPDATE, context);
+
+    assertThat(publicNoticeActions).isEmpty();
+  }
+
+  @Test
   public void getAvailablePublicNoticeActions_draftPermissionAndDraftStatus() {
 
     var context = PwaAppProcessingContextTestUtil.withPermissions(
         pwaApplicationDetail, Set.of(PwaAppProcessingPermission.DRAFT_PUBLIC_NOTICE));
-    var publicNoticeActions = publicNoticeService.getAvailablePublicNoticeActions(PublicNoticeStatus.DRAFT,context);
+    var publicNoticeActions = publicNoticeService.getAvailablePublicNoticeActions(PublicNoticeStatus.DRAFT, context);
 
     assertThat(publicNoticeActions).containsOnly(PublicNoticeAction.UPDATE_DRAFT);
   }
@@ -632,6 +701,31 @@ public class PublicNoticeServiceTest {
   }
 
   @Test
+  public void getAllPublicNoticeViews_publicNoticeHasPublicationDates_publicationDatesPropertiesMatchPublicNoticeDate() {
+
+    var publishedPublicNotice = PublicNoticeTestUtil.createPublishedPublicNotice(pwaApplication);
+    when(publicNoticeRepository.findAllByPwaApplicationOrderByVersionDesc(pwaApplication)).thenReturn(
+        List.of(publishedPublicNotice));
+
+    var publishedPublicNoticeRequest = PublicNoticeTestUtil.createApprovedPublicNoticeRequest(publishedPublicNotice);
+    when(publicNoticeRequestRepository.findFirstByPublicNoticeOrderByVersionDesc(publishedPublicNotice))
+        .thenReturn(Optional.of(publishedPublicNoticeRequest));
+
+    var publicNoticeDate = PublicNoticeTestUtil.createLatestPublicNoticeDate(publishedPublicNotice);
+    when(publicNoticeDatesRepository.getByPublicNoticeAndEndedByPersonIdIsNull(publishedPublicNotice)).thenReturn(Optional.of(publicNoticeDate));
+
+    var context = PwaAppProcessingContextTestUtil.withPermissions(
+        pwaApplicationDetail, Set.of(PwaAppProcessingPermission.WITHDRAW_PUBLIC_NOTICE));
+    var allPublicNoticesView = publicNoticeService.getAllPublicNoticeViews(context);
+
+    var expectedPublicNoticeView = PublicNoticeTestUtil.createPublishedPublicNoticeView(
+        publishedPublicNotice, publicNoticeDate, publishedPublicNoticeRequest);
+
+    assertThat(allPublicNoticesView.getCurrentPublicNotice()).isEqualTo(expectedPublicNoticeView);
+  }
+
+
+  @Test
   public void validate_serviceInteractions() {
     var form = new PublicNoticeDraftForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
@@ -703,7 +797,7 @@ public class PublicNoticeServiceTest {
   public void publicNoticeInProgress_no() {
 
     var endedNotice = new PublicNotice();
-    endedNotice.setStatus(PublicNoticeStatus.PUBLISHED);
+    endedNotice.setStatus(PublicNoticeStatus.ENDED);
 
     var withdrawnNotice = new PublicNotice();
     withdrawnNotice.setStatus(PublicNoticeStatus.WITHDRAWN);

@@ -251,7 +251,7 @@ public class PwaConsentOrganisationRoleServiceTest {
   @Test
   public void getAllOrganisationRolePipelineGroupView_includesPortalOrgsAndTreaty() {
 
-    var masterPwa = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL).getMasterPwaApplication();
+    var masterPwa = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL).getMasterPwa();
 
     //Organisation Roles Summary DTO
     var orgPipelineRoleInstanceDto1 = OrganisationRoleDtoTestUtil.createOrgUnitPipelineRoleInstance(

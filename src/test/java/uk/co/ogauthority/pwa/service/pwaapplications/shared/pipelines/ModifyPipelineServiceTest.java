@@ -71,7 +71,7 @@ public class ModifyPipelineServiceTest {
     nonConsentedPipelineDetail.setPipelineStatus(PipelineStatus.IN_SERVICE);
     nonConsentedPipelineDetail.setPipeline(nonConsentedPipeline);
 
-    when(pipelineDetailService.getNonDeletedPipelineDetailsForApplicationMasterPwa(detail.getMasterPwaApplication()))
+    when(pipelineDetailService.getNonDeletedPipelineDetailsForApplicationMasterPwa(detail.getMasterPwa()))
         .thenReturn(List.of(nonConsentedPipelineDetail));
 
     var result = modifyPipelineService.getConsentedPipelinesNotOnApplication(detail);
@@ -88,7 +88,7 @@ public class ModifyPipelineServiceTest {
     var consentedPipelineDetail = new PipelineDetail();
     consentedPipelineDetail.setPipeline(consentedPipeline);
 
-    when(pipelineDetailService.getNonDeletedPipelineDetailsForApplicationMasterPwa(detail.getMasterPwaApplication()))
+    when(pipelineDetailService.getNonDeletedPipelineDetailsForApplicationMasterPwa(detail.getMasterPwa()))
         .thenReturn(List.of(consentedPipelineDetail));
 
     var padPipeline = new PadPipeline();
@@ -120,7 +120,7 @@ public class ModifyPipelineServiceTest {
     nonConsentedPipelineDetail.setPipelineStatus(PipelineStatus.IN_SERVICE);
     nonConsentedPipelineDetail.setPipeline(nonConsentedPipeline);
 
-    when(pipelineDetailService.getNonDeletedPipelineDetailsForApplicationMasterPwa(detail.getMasterPwaApplication()))
+    when(pipelineDetailService.getNonDeletedPipelineDetailsForApplicationMasterPwa(detail.getMasterPwa()))
         .thenReturn(List.of(nonConsentedPipelineDetail));
 
     var result = modifyPipelineService.getConsentedPipelinesNotOnApplication(detail);
