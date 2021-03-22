@@ -50,7 +50,7 @@ public class PublicNoticePublicationUpdateJobGenerator {
           .newTrigger()
           .withIdentity(TRIGGER_KEY)
           // start job at 1am of the current day
-          .startAt(DateBuilder.newDate().atHourOfDay(1).build())
+          .startAt(DateBuilder.todayAt(1,0,0))
           .withSchedule(CalendarIntervalScheduleBuilder.calendarIntervalSchedule().withIntervalInDays(1))
           .build();
 
