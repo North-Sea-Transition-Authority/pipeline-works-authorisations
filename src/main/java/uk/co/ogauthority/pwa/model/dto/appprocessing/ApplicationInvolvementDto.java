@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.model.dto.appprocessing;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupMemberRole;
@@ -76,7 +77,11 @@ public class ApplicationInvolvementDto {
   }
 
   public boolean hasAnyOfTheseHolderRoles(PwaOrganisationRole... roles) {
-    return Arrays.stream(roles)
+    return hasAnyOfTheseHolderRoles(Arrays.asList(roles));
+  }
+
+  public boolean hasAnyOfTheseHolderRoles(Collection<PwaOrganisationRole> roles) {
+    return roles.stream()
         .anyMatch(holderTeamRoles::contains);
   }
 

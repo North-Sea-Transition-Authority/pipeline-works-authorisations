@@ -17,28 +17,28 @@ public enum PwaApplicationPermission {
 
   SUBMIT(
       EnumSet.noneOf(PwaContactRole.class),
-      Set.of(PwaOrganisationRole.APPLICATION_SUBMITTER),
+      EnumSet.of(PwaOrganisationRole.APPLICATION_SUBMITTER),
       EnumSet.noneOf(PwaRegulatorRole.class),
       EnumSet.noneOf(ConsulteeGroupMemberRole.class)
   ),
 
   EDIT(
-      Set.of(PwaContactRole.PREPARER),
+      EnumSet.of(PwaContactRole.PREPARER),
       EnumSet.noneOf(PwaOrganisationRole.class),
       EnumSet.noneOf(PwaRegulatorRole.class),
       EnumSet.noneOf(ConsulteeGroupMemberRole.class)
   ),
 
   MANAGE_CONTACTS(
-      Set.of(PwaContactRole.ACCESS_MANAGER),
-      EnumSet.noneOf(PwaOrganisationRole.class),
+      EnumSet.of(PwaContactRole.ACCESS_MANAGER),
+      EnumSet.of(PwaOrganisationRole.APPLICATION_SUBMITTER, PwaOrganisationRole.APPLICATION_CREATOR),
       EnumSet.noneOf(PwaRegulatorRole.class),
       EnumSet.noneOf(ConsulteeGroupMemberRole.class)
   ),
 
   VIEW(
       EnumSet.allOf(PwaContactRole.class),
-      Set.of(PwaOrganisationRole.APPLICATION_SUBMITTER),
+      EnumSet.of(PwaOrganisationRole.APPLICATION_SUBMITTER),
       EnumSet.allOf(PwaRegulatorRole.class),
       EnumSet.allOf(ConsulteeGroupMemberRole.class
   ));

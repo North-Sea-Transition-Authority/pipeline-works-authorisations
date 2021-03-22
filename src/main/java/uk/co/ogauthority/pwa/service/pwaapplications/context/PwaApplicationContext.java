@@ -30,6 +30,10 @@ public class PwaApplicationContext {
     this.permissions = permissions;
   }
 
+  public boolean hasPermission(PwaApplicationPermission pwaApplicationPermission) {
+    return permissions.contains(pwaApplicationPermission);
+  }
+
   public PwaApplicationDetail getApplicationDetail() {
     return applicationDetail;
   }

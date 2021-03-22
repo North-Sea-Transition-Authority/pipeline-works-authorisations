@@ -1,6 +1,11 @@
 package uk.co.ogauthority.pwa.controller.masterpwas.contacts;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
+import static uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus.AWAITING_APPLICATION_PAYMENT;
+import static uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus.CASE_OFFICER_REVIEW;
+import static uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus.DRAFT;
+import static uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW;
+import static uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus.UPDATE_REQUESTED;
 
 import java.util.Comparator;
 import java.util.List;
@@ -33,8 +38,8 @@ import uk.co.ogauthority.pwa.model.teammanagement.TeamMemberView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.ApplicationState;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
-import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.users.UserType;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
@@ -45,15 +50,19 @@ import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationConte
 import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadOrganisationRoleService;
 import uk.co.ogauthority.pwa.service.teammanagement.LastAdministratorException;
 import uk.co.ogauthority.pwa.service.teammanagement.TeamManagementService;
+import uk.co.ogauthority.pwa.util.CaseManagementUtils;
 import uk.co.ogauthority.pwa.util.EnumUtils;
 import uk.co.ogauthority.pwa.util.StreamUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
 @Controller
 @RequestMapping("/pwa-application/{applicationType}/{applicationId}/contacts")
-@PwaApplicationStatusCheck(statuses = {PwaApplicationStatus.DRAFT, PwaApplicationStatus.UPDATE_REQUESTED})
+@PwaApplicationStatusCheck(statuses =
+    {DRAFT, UPDATE_REQUESTED, INITIAL_SUBMISSION_REVIEW, AWAITING_APPLICATION_PAYMENT, CASE_OFFICER_REVIEW})
 @PwaApplicationPermissionCheck(permissions = PwaApplicationPermission.MANAGE_CONTACTS)
 public class PwaContactController {
+
+  private static final String APP_USERS_PAGE = "Application users";
 
   private final PwaContactService pwaContactService;
   private final ApplicationBreadcrumbService applicationBreadcrumbService;
@@ -118,6 +127,11 @@ public class PwaContactController {
         .map(orgRole -> orgRole.getOrganisationUnit().getPortalOrganisationGroup().getName())
         .collect(Collectors.toSet());
 
+    var userCanAccessTaskList = applicationContext.hasPermission(PwaApplicationPermission.EDIT)
+        && ApplicationState.INDUSTRY_EDITABLE.includes(applicationContext.getApplicationDetail().getStatus());
+
+    var showCaseManagementLink = applicationContext.hasPermission(PwaApplicationPermission.MANAGE_CONTACTS);
+
     var modelAndView = new ModelAndView("teamManagement/teamMembers")
         .addObject("teamName", "Application users")
         .addObject("teamMemberViews", teamMemberViews)
@@ -125,14 +139,24 @@ public class PwaContactController {
             .renderAddContact(pwaApplication.getApplicationType(), pwaApplication.getId(), null, null, null)))
         .addObject("showBreadcrumbs", true)
         .addObject("showTopNav", false)
-        .addObject("userCanManageAccess", applicationContext.getPermissions().contains(PwaApplicationPermission.MANAGE_CONTACTS))
+        .addObject("userCanManageAccess",
+            applicationContext.getPermissions().contains(PwaApplicationPermission.MANAGE_CONTACTS))
         .addObject("allRoles", allRolesMap)
-        .addObject("backUrl", pwaApplicationRedirectService.getTaskListRoute(pwaApplication))
+        .addObject("completeSectionUrl", pwaApplicationRedirectService.getTaskListRoute(pwaApplication))
         .addObject("orgGroupHolders", orgGroupHolders)
         .addObject("appUser", true)
-        .addObject("userType", UserType.INDUSTRY);
+        .addObject("userType", UserType.INDUSTRY)
+        .addObject("userCanAccessTaskList", userCanAccessTaskList)
+        .addObject("showCaseManagementLink", showCaseManagementLink)
+        .addObject("caseManagementUrl", CaseManagementUtils.routeCaseManagement(
+            applicationContext.getMasterPwaApplicationId(), applicationContext.getApplicationType()));
 
-    applicationBreadcrumbService.fromTaskList(pwaApplication, modelAndView, "Application users");
+    // Prioritise task list access over accurate breadcrumbs based on user actions.
+    if (userCanAccessTaskList) {
+      applicationBreadcrumbService.fromTaskList(pwaApplication, modelAndView, APP_USERS_PAGE);
+    } else {
+      applicationBreadcrumbService.fromCaseManagement(pwaApplication, modelAndView, APP_USERS_PAGE);
+    }
 
     return modelAndView;
 

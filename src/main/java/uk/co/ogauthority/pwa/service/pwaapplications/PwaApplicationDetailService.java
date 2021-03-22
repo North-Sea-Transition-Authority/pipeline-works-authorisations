@@ -307,9 +307,7 @@ public class PwaApplicationDetailService {
             "Unrecognised user type [%s] encountered when retrieving app detail for user with WUA id [%s]",
             userType.name(),
             user.getWuaId()));
-
     }
-
   }
 
   public List<Integer> getInProgressApplicationIds() {
