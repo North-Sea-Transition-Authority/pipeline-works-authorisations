@@ -168,7 +168,8 @@ public class PublicNoticeService implements AppProcessingService {
 
     var waitingPublicNotices = getPublicNoticesByStatus(PublicNoticeStatus.WAITING);
     var tomorrow = LocalDate.now().plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant();
-    return publicNoticeDatesRepository.getAllByPublicNoticeInAndPublicationStartTimestampBefore(waitingPublicNotices, tomorrow)
+    return publicNoticeDatesRepository.getAllByPublicNoticeInAndPublicationStartTimestampBeforeAndEndedByPersonIdIsNull(
+        waitingPublicNotices, tomorrow)
         .stream().map(PublicNoticeDate::getPublicNotice)
         .collect(Collectors.toList());
   }
@@ -177,7 +178,8 @@ public class PublicNoticeService implements AppProcessingService {
 
     var publishedPublicNotices = getPublicNoticesByStatus(PublicNoticeStatus.PUBLISHED);
     var tomorrow = LocalDate.now().plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant();
-    return publicNoticeDatesRepository.getAllByPublicNoticeInAndPublicationEndTimestampBefore(publishedPublicNotices, tomorrow)
+    return publicNoticeDatesRepository.getAllByPublicNoticeInAndPublicationEndTimestampBeforeAndEndedByPersonIdIsNull(
+        publishedPublicNotices, tomorrow)
         .stream().map(PublicNoticeDate::getPublicNotice)
         .collect(Collectors.toList());
   }

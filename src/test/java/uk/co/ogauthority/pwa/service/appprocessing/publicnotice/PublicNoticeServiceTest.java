@@ -302,7 +302,7 @@ public class PublicNoticeServiceTest {
     publicNoticeService.getAllPublicNoticesDueForPublishing();
 
     var tomorrow = LocalDate.now().plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant();
-    verify(publicNoticeDatesRepository, times(1)).getAllByPublicNoticeInAndPublicationStartTimestampBefore(
+    verify(publicNoticeDatesRepository, times(1)).getAllByPublicNoticeInAndPublicationStartTimestampBeforeAndEndedByPersonIdIsNull(
         publicNotices, tomorrow);
   }
 
@@ -316,7 +316,7 @@ public class PublicNoticeServiceTest {
     publicNoticeService.getAllPublicNoticesDueToEnd();
 
     var tomorrow = LocalDate.now().plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant();
-    verify(publicNoticeDatesRepository, times(1)).getAllByPublicNoticeInAndPublicationEndTimestampBefore(
+    verify(publicNoticeDatesRepository, times(1)).getAllByPublicNoticeInAndPublicationEndTimestampBeforeAndEndedByPersonIdIsNull(
         publicNotices, tomorrow);
   }
 

@@ -14,10 +14,10 @@ public interface PublicNoticeDatesRepository extends CrudRepository<PublicNotice
 
   Optional<PublicNoticeDate> getByPublicNoticeAndEndedByPersonIdIsNull(PublicNotice publicNotice);
 
-  List<PublicNoticeDate> getAllByPublicNoticeInAndPublicationStartTimestampBefore(List<PublicNotice> publicNotices,
-                                                                                Instant publicationStartTimestamp);
+  List<PublicNoticeDate> getAllByPublicNoticeInAndPublicationStartTimestampBeforeAndEndedByPersonIdIsNull(List<PublicNotice> publicNotices,
+                                                                                                        Instant publicationStartTimestamp);
 
-  List<PublicNoticeDate> getAllByPublicNoticeInAndPublicationEndTimestampBefore(List<PublicNotice> publicNotices,
-                                                                                Instant publicationEndTimestamp);
+  List<PublicNoticeDate> getAllByPublicNoticeInAndPublicationEndTimestampBeforeAndEndedByPersonIdIsNull(List<PublicNotice> publicNotices,
+                                                                                                        Instant publicationEndTimestamp);
 
 }
