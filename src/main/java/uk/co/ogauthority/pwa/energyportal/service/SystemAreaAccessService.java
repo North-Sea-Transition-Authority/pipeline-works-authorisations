@@ -23,7 +23,8 @@ public class SystemAreaAccessService {
 
   public final Set<PwaUserPrivilege> validStartApplicationPrivileges = Set.of(PwaUserPrivilege.PWA_APPLICATION_CREATE);
 
-  public final Set<PwaUserPrivilege> validConsentSearchPrivileges = EnumSet.of(PwaUserPrivilege.PWA_CONSENT_SEARCH);
+  public final Set<PwaUserPrivilege> validConsentSearchPrivileges = EnumSet.of(
+      PwaUserPrivilege.PWA_CONSENT_SEARCH, PwaUserPrivilege.PWA_MANAGER, PwaUserPrivilege.PWA_CASE_OFFICER);
 
   /**
    * For use in WebSecurityConfig. In other instances call canAccessTeamManagement
