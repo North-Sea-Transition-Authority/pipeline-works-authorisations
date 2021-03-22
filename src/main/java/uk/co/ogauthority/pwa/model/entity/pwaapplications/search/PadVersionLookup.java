@@ -25,6 +25,12 @@ public class PadVersionLookup {
   @Column(name = "latest_satisfactory_ts")
   private Instant latestConfirmedSatisfactoryTimestamp;
 
+  @Column(name = "latest_submission_v_no")
+  private Integer latestSubmittedVersionNo;
+
+  @Column(name = "latest_satisfactory_v_no")
+  private Integer latestConfirmedSatisfactoryVersionNo;
+
   @Column(name = "latest_draft_v_no")
   private Integer maxDraftVersionNo;
 
@@ -58,5 +64,21 @@ public class PadVersionLookup {
 
   public void setMaxDraftVersionNo(Integer maxDraftVersionNo) {
     this.maxDraftVersionNo = maxDraftVersionNo;
+  }
+
+  public Integer getLatestSubmittedVersionNo() {
+    return latestSubmittedVersionNo;
+  }
+
+  public void setLatestSubmittedVersionNo(Integer latestSubmittedVersionNo) {
+    this.latestSubmittedVersionNo = latestSubmittedVersionNo;
+  }
+
+  public Integer getLatestConfirmedSatisfactoryVersionNo() {
+    return latestConfirmedSatisfactoryVersionNo;
+  }
+
+  public void setLatestConfirmedSatisfactoryVersionNo(Integer latestConfirmedSatisfactoryVersionNo) {
+    this.latestConfirmedSatisfactoryVersionNo = latestConfirmedSatisfactoryVersionNo;
   }
 }
