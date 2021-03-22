@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.service.appprocessing.publicnotice;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import javax.transaction.Transactional;
@@ -101,6 +102,23 @@ public class FinalisePublicNoticeService {
     });
   }
 
+
+  public void publishPublicNotice(PublicNotice publicNotice) {
+
+    var existingStatus = publicNotice.getStatus();
+    publicNotice.setStatus(PublicNoticeStatus.PUBLISHED);
+    camundaWorkflowService.setWorkflowProperty(publicNotice, PublicNoticeCaseOfficerReviewResult.PUBLICATION_STARTED);
+    completeTaskAndSavePublicNotice(publicNotice, existingStatus);
+  }
+
+  private void completeTaskAndSavePublicNotice(PublicNotice publicNotice,
+                                               PublicNoticeStatus existingStatus) {
+
+    camundaWorkflowService.completeTask(new WorkflowTaskInstance(
+        publicNotice, existingStatus.getWorkflowTask()));
+    publicNoticeService.savePublicNotice(publicNotice);
+  }
+
   @Transactional
   public void finalisePublicNotice(PwaApplication pwaApplication,
                                    FinalisePublicNoticeForm form,
@@ -112,23 +130,24 @@ public class FinalisePublicNoticeService {
     var publicNoticeDate = new PublicNoticeDate(
         publicNotice,
         startDate.atStartOfDay(ZoneId.systemDefault()).toInstant(),
-        startDate.plusDays(form.getDaysToBePublishedFor()).atStartOfDay(ZoneId.systemDefault()).toInstant(),
+        createPublicationEndDateInstant(startDate, form.getDaysToBePublishedFor()),
         authenticatedUserAccount.getLinkedPerson().getId().asInt());
     publicNoticeDatesRepository.save(publicNoticeDate);
 
     if (startDate.isBefore(LocalDate.now()) || startDate.isEqual(LocalDate.now())) {
-      publicNotice.setStatus(PublicNoticeStatus.PUBLISHED);
-      camundaWorkflowService.setWorkflowProperty(publicNotice, PublicNoticeCaseOfficerReviewResult.PUBLICATION_STARTED);
+      publishPublicNotice(publicNotice);
 
     } else {
       publicNotice.setStatus(PublicNoticeStatus.WAITING);
       camundaWorkflowService.setWorkflowProperty(publicNotice, PublicNoticeCaseOfficerReviewResult.WAIT_FOR_START_DATE);
+      completeTaskAndSavePublicNotice(publicNotice, PublicNoticeStatus.CASE_OFFICER_REVIEW);
     }
 
-    camundaWorkflowService.completeTask(new WorkflowTaskInstance(
-        publicNotice, PwaApplicationPublicNoticeWorkflowTask.CASE_OFFICER_REVIEW));
-    publicNoticeService.savePublicNotice(publicNotice);
-    sendPublicationEmails(pwaApplication, startDate);
+    sendPublicationEmails(publicNotice.getPwaApplication(), startDate);
+  }
+
+  private Instant createPublicationEndDateInstant(LocalDate startDate, int totalDaysToPublishFor) {
+    return startDate.plusDays(totalDaysToPublishFor).atStartOfDay(ZoneId.systemDefault()).toInstant();
   }
 
   private PublicNoticeDate getActivePublicNoticeDate(PublicNotice publicNotice) {
@@ -170,7 +189,7 @@ public class FinalisePublicNoticeService {
     var newPublicNoticeDate = new PublicNoticeDate(
         publicNotice,
         startDate.atStartOfDay(ZoneId.systemDefault()).toInstant(),
-        startDate.plusDays(form.getDaysToBePublishedFor()).atStartOfDay(ZoneId.systemDefault()).toInstant(),
+        createPublicationEndDateInstant(startDate, form.getDaysToBePublishedFor()),
         authenticatedUserAccount.getLinkedPerson().getId().asInt());
     publicNoticeDatesRepository.save(newPublicNoticeDate);
 
