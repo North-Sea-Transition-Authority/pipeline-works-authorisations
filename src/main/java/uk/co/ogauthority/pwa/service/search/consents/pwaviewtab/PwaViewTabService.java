@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaService;
 import uk.co.ogauthority.pwa.service.pwaconsents.PipelineDetailService;
 import uk.co.ogauthority.pwa.service.pwacontext.PwaContext;
 import uk.co.ogauthority.pwa.service.search.consents.PwaViewTab;
@@ -17,13 +16,10 @@ import uk.co.ogauthority.pwa.service.search.consents.tabcontentviews.PwaPipeline
 public class PwaViewTabService {
 
   private final PipelineDetailService pipelineDetailService;
-  private final MasterPwaService masterPwaService;
 
   @Autowired
-  public PwaViewTabService(PipelineDetailService pipelineDetailService,
-                           MasterPwaService masterPwaService) {
+  public PwaViewTabService(PipelineDetailService pipelineDetailService) {
     this.pipelineDetailService = pipelineDetailService;
-    this.masterPwaService = masterPwaService;
   }
 
 
@@ -42,8 +38,7 @@ public class PwaViewTabService {
 
 
   private List<PwaPipelineView> getPipelineTabContent(PwaContext pwaContext) {
-    var masterPwa = masterPwaService.getMasterPwaById(pwaContext.getConsentSearchResultView().getPwaId());
-    var pipelineOverviews = pipelineDetailService.getAllPipelineOverviewsForMasterPwa(masterPwa);
+    var pipelineOverviews = pipelineDetailService.getAllPipelineOverviewsForMasterPwa(pwaContext.getMasterPwa());
     return pipelineOverviews
         .stream().map(PwaPipelineView::new)
         .sorted(Comparator.comparing(PwaPipelineView::getPipelineNumberOnlyFromReference))

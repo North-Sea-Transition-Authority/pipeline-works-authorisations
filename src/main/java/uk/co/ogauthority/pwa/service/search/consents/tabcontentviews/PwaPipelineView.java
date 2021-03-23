@@ -1,5 +1,7 @@
 package uk.co.ogauthority.pwa.service.search.consents.tabcontentviews;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Objects;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineStatus;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview;
@@ -23,7 +25,7 @@ public class PwaPipelineView {
     this.fromCoordinates = pipelineOverview.getFromCoordinates();
     this.toLocation = pipelineOverview.getToLocation();
     this.toCoordinates = pipelineOverview.getToCoordinates();
-    this.length = pipelineOverview.getLength().toString();
+    this.length = createLengthDisplayString(pipelineOverview.getLength());
   }
 
 
@@ -61,6 +63,11 @@ public class PwaPipelineView {
     return length;
   }
 
+
+
+  private static String createLengthDisplayString(BigDecimal length) {
+    return length != null ? length.setScale(2, RoundingMode.HALF_UP).toPlainString() : null;
+  }
 
   @Override
   public boolean equals(Object o) {

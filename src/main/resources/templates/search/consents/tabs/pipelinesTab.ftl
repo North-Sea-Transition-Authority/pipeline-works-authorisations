@@ -19,23 +19,27 @@
     <#list pwaPipelineViews as pwaPipelineView>
       <tr class="govuk-table__row">
         <td class="govuk-table__cell">
-            ${pwaPipelineView.pipelineNumber}
+          ${pwaPipelineView.pipelineNumber}
         </td>
         <td class="govuk-table__cell">
-            ${pwaPipelineView.status.getDisplayText()}
+          ${pwaPipelineView.status.getDisplayText()}
         </td>
         <td class="govuk-table__cell">
+          <div>
             ${pwaPipelineView.fromLocation}
             </br>
             <@pwaCoordinate.display coordinatePair=pwaPipelineView.fromCoordinates />
+          </div>
         </td>
         <td class="govuk-table__cell">
+          <div>
             ${pwaPipelineView.toLocation}
             </br>
             <@pwaCoordinate.display coordinatePair=pwaPipelineView.toCoordinates />
+          </div>
         </td>
         <td class="govuk-table__cell">
-            ${pwaPipelineView.length}
+          ${pwaPipelineView.length}
         </td>
       </tr>
     </#list>    

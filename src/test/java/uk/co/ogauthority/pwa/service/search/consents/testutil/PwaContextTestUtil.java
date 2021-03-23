@@ -6,6 +6,8 @@ import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.energyportal.model.entity.PersonTestUtil;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
+import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
+import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaTestUtil;
 import uk.co.ogauthority.pwa.model.view.search.consents.ConsentSearchResultView;
 import uk.co.ogauthority.pwa.service.pwacontext.PwaContext;
 import uk.co.ogauthority.pwa.service.pwacontext.PwaPermission;
@@ -24,14 +26,15 @@ public class PwaContextTestUtil {
         Instant.now(), null, Instant.now());
   }
 
-  public static PwaContext createPwaContext(WebUserAccount user, Set<PwaPermission> pwaPermissions) {
-    return new PwaContext(user, pwaPermissions, createConsentSearchResultView());
+  public static PwaContext createPwaContext(MasterPwa masterPwa, WebUserAccount user, Set<PwaPermission> pwaPermissions) {
+    return new PwaContext(masterPwa, user, pwaPermissions, createConsentSearchResultView());
   }
 
   public static PwaContext createPwaContext() {
+    var masterPwa = MasterPwaTestUtil.create();
     var user = new AuthenticatedUserAccount(new WebUserAccount(1, PersonTestUtil.createDefaultPerson()), Set.of(
         PwaUserPrivilege.PWA_CASE_OFFICER, PwaUserPrivilege.PWA_CONSENT_SEARCH));
-    return createPwaContext(user, Set.of(PwaPermission.VIEW_PWA));
+    return createPwaContext(masterPwa, user, Set.of(PwaPermission.VIEW_PWA));
   }
 
 }

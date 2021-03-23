@@ -64,6 +64,7 @@ public class PwaContextService {
     }
 
     return new PwaContext(
+        masterPwa,
         authenticatedUser,
         pwaPermissions,
         consentSearchService.getConsentSearchResultView(pwaId));

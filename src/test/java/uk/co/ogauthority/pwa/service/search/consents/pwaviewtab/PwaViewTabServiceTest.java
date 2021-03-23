@@ -9,9 +9,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
-import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaTestUtil;
-import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaService;
 import uk.co.ogauthority.pwa.service.pwaconsents.PipelineDetailService;
 import uk.co.ogauthority.pwa.service.pwacontext.PwaContext;
 import uk.co.ogauthority.pwa.service.search.consents.PwaViewTab;
@@ -23,15 +20,10 @@ import uk.co.ogauthority.pwa.service.search.consents.testutil.PwaContextTestUtil
 public class PwaViewTabServiceTest {
 
   @Mock
-  private MasterPwaService masterPwaService;
-
-  @Mock
   private PipelineDetailService pipelineDetailService;
 
   private PwaViewTabService pwaViewTabService;
 
-
-  private AuthenticatedUserAccount user;
   private PwaContext pwaContext;
 
 
@@ -43,7 +35,7 @@ public class PwaViewTabServiceTest {
   @Before
   public void setUp() throws Exception {
 
-    pwaViewTabService = new PwaViewTabService(pipelineDetailService, masterPwaService);
+    pwaViewTabService = new PwaViewTabService(pipelineDetailService);
 
     pwaContext = PwaContextTestUtil.createPwaContext();
 
@@ -53,12 +45,9 @@ public class PwaViewTabServiceTest {
   @Test
   public void getTabContentModelMap_pipelinesTab_modelMapContainsPipelineViews_orderedByPipelineNumber() {
 
-    var masterPwa = MasterPwaTestUtil.create();
-    when(masterPwaService.getMasterPwaById(pwaContext.getConsentSearchResultView().getPwaId()))
-        .thenReturn(masterPwa);
-
-    var unOrderedPipelineOverviews = List.of(PwaViewTabTestUtil.createPipelineOverview(PIPELINE_REF_ID2), PwaViewTabTestUtil.createPipelineOverview(PIPELINE_REF_ID1));
-    when(pipelineDetailService.getAllPipelineOverviewsForMasterPwa(masterPwa)).thenReturn(unOrderedPipelineOverviews);
+    var unOrderedPipelineOverviews = List.of(
+        PwaViewTabTestUtil.createPipelineOverview(PIPELINE_REF_ID2), PwaViewTabTestUtil.createPipelineOverview(PIPELINE_REF_ID1));
+    when(pipelineDetailService.getAllPipelineOverviewsForMasterPwa(pwaContext.getMasterPwa())).thenReturn(unOrderedPipelineOverviews);
 
     var modelMap = pwaViewTabService.getTabContentModelMap(pwaContext, PwaViewTab.PIPELINES);
     var actualPwaPipelineViews = (List<PwaPipelineView>) modelMap.get("pwaPipelineViews");
