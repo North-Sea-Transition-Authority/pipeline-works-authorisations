@@ -17,17 +17,6 @@
 <@defaultPage htmlTitle=teamName backLink=!showBreadcrumbs pageHeading=teamName topNavigation=showTopNav twoThirdsColumn=false breadcrumbs=showBreadcrumbs>
 
     <#if allRoles??>
-      <@fdsDetails.summaryDetails summaryTitle="What does each role allow a user to do?" >
-        <@fdsCheckAnswers.checkAnswers summaryListClass="">
-            <#list allRoles as propName, propValue>
-              <#assign description = propValue?keep_before("(") >
-                  <@fdsCheckAnswers.checkAnswersRow keyText="${propName}" actionText="" actionUrl="" screenReaderActionText="">
-                    ${description}
-                  </@fdsCheckAnswers.checkAnswersRow>
-            </#list>
-        </@fdsCheckAnswers.checkAnswers>  
-      </@fdsDetails.summaryDetails>
-    
       <#if userType == "INDUSTRY">
         <#if appUser == true>
           <#assign groups>
@@ -44,13 +33,27 @@
           </@fdsInsetText.insetText>
         </#if>
         
-      </#if>  
-    </#if>  
+      </#if>
 
+      <@fdsDetails.summaryDetails summaryTitle="What does each role allow a user to do?" >
+          <@fdsCheckAnswers.checkAnswers summaryListClass="">
+              <#list allRoles as propName, propValue>
+                  <#assign description = propValue?keep_before("(") >
+                  <@fdsCheckAnswers.checkAnswersRow keyText="${propName}" actionText="" actionUrl="" screenReaderActionText="">
+                      ${description}
+                  </@fdsCheckAnswers.checkAnswersRow>
+              </#list>
+          </@fdsCheckAnswers.checkAnswers>
+      </@fdsDetails.summaryDetails>
 
+    </#if>
 
     <#if userCanManageAccess>
         <@fdsAction.link linkText="Add user" linkUrl=springUrl(addUserUrl) linkClass="govuk-button govuk-button--blue" role=true/>
+    </#if>
+
+    <#if showCaseManagementLink?has_content && showCaseManagementLink>
+        <@fdsAction.link linkText="View application management" linkClass="govuk-button govuk-button--secondary" role=true linkUrl=springUrl(caseManagementUrl)/>
     </#if>
 
     <#list teamMemberViews>
@@ -109,10 +112,7 @@
     </#list>
 
     <#if userCanAccessTaskList?has_content && userCanAccessTaskList>
-      <@fdsAction.link linkText="Complete section" linkClass="govuk-button"  linkUrl=springUrl(completeSectionUrl)/>
-    </#if>
-    <#if showCaseManagementLink?has_content && showCaseManagementLink>
-      <@fdsAction.link linkText="View application management" linkClass="govuk-link govuk-link--button"  linkUrl=springUrl(caseManagementUrl)/>
+      <@fdsAction.link linkText="Complete section" linkClass="govuk-button"  linkUrl=springUrl(completeSectionUrl) role=true/>
     </#if>
 
 </@defaultPage>

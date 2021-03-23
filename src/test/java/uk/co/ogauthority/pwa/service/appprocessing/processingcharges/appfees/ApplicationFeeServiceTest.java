@@ -4,6 +4,7 @@ package uk.co.ogauthority.pwa.service.appprocessing.processingcharges.appfees;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -23,11 +24,11 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.processingcharges.FeePeriodDetail;
-import uk.co.ogauthority.pwa.model.entity.appprocessing.processingcharges.FeePeriodDetailFeeItem;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.processingcharges.FeePeriodTestUtil;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.repository.appprocessing.processingcharges.FeePeriodDetailItemRepository;
 import uk.co.ogauthority.pwa.repository.appprocessing.processingcharges.FeePeriodDetailRepository;
+import uk.co.ogauthority.pwa.service.appprocessing.processingcharges.appfees.feeproviders.ApplicationFeeItem;
+import uk.co.ogauthority.pwa.service.appprocessing.processingcharges.appfees.feeproviders.ApplicationFeeItemTestUtil;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
@@ -39,50 +40,49 @@ public class ApplicationFeeServiceTest {
 
   private static final String FAST_TRACK_STRING = "Fast-track";
 
-
   @Mock
   private FeePeriodDetailRepository feePeriodDetailRepository;
 
   @Mock
-  private FeePeriodDetailItemRepository feePeriodDetailItemRepository;
+  private ApplicationFeeItemProvider feeItemProvider;
 
   private Clock clock = Clock.fixed(
       LocalDateTime.of(2020, 12, 1, 0, 0).toInstant(ZoneOffset.UTC), ZoneId.systemDefault());
-
 
   private ApplicationFeeService applicationFeeService;
 
   private PwaApplicationDetail pwaApplicationDetail;
 
   private FeePeriodDetail feePeriodDetail;
-
-  private FeePeriodDetailFeeItem feePeriodDetailFeeItem;
+  private ApplicationFeeItem applicationFeeItem;
 
   @Before
   public void setUp() throws Exception {
 
 
     feePeriodDetail = FeePeriodTestUtil.createDefaultFeePeriodDetail();
-    feePeriodDetailFeeItem = FeePeriodTestUtil.createFeePeriodFeeItem(feePeriodDetail, FEE_DESC, FEE_AMOUNT);
+    applicationFeeItem = ApplicationFeeItemTestUtil.createAppFeeItem(FEE_DESC, FEE_AMOUNT);
+    when(feeItemProvider.provideFees(any(), any())).thenReturn(List.of(applicationFeeItem));
+    when(feeItemProvider.canProvideFeeItems(any())).thenReturn(true);
+    when(feeItemProvider.getProvisionOrdering()).thenReturn(1);
 
     when(feePeriodDetailRepository.findByTipFlagIsTrueAndPeriodStartTimestampIsBeforeAndPeriodEndTimestampIsAfter(any(),
         any()))
         .thenReturn(Optional.of(feePeriodDetail));
-    when(feePeriodDetailItemRepository.findAllByFeePeriodDetailAndFeeItem_PwaApplicationType(any(), any()))
-        .thenReturn(List.of(feePeriodDetailFeeItem));
-
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     pwaApplicationDetail.getPwaApplication().setAppReference(APP_REF);
 
     applicationFeeService = new ApplicationFeeService(
         feePeriodDetailRepository,
-        feePeriodDetailItemRepository,
+        List.of(feeItemProvider),
         clock
     );
   }
 
   @Test
-  public void getApplicationFeeReport_currentFeePeriod_withChargeItemForAppType_exists_notFastTrack() {
+  public void getApplicationFeeReport_currentFeePeriodExists_providerCanProvideFeeItems() {
+
+    when(feeItemProvider.getApplicationFeeType()).thenReturn(PwaApplicationFeeType.DEFAULT);
 
     var report = applicationFeeService.getApplicationFeeReport(pwaApplicationDetail);
 
@@ -95,30 +95,77 @@ public class ApplicationFeeServiceTest {
     var maxDateMinimum = LocalDate.of(4000, 1, 1).atStartOfDay().toInstant(ZoneOffset.UTC);
     assertThat(maxPeriodInstantCaptor.getValue()).isAfterOrEqualTo(maxDateMinimum);
 
-    assertThat(report.getPaymentItems()).containsExactly(new ApplicationFeeItem(FEE_DESC, FEE_AMOUNT));
+    assertThat(report.getPaymentItems()).containsExactly(ApplicationFeeItemTestUtil.createAppFeeItem(FEE_DESC, FEE_AMOUNT));
     assertThat(report.getPwaApplication()).isEqualTo(pwaApplicationDetail.getPwaApplication());
     assertThat(report.getSummary()).containsOnlyOnce(APP_REF);
     assertThat(report.getSummary()).doesNotContain(FAST_TRACK_STRING);
     assertThat(report.getTotalPennies()).isEqualTo(FEE_AMOUNT);
 
+    verify(feeItemProvider, times(1)).canProvideFeeItems(pwaApplicationDetail);
+    verify(feeItemProvider, times(1)).provideFees(feePeriodDetail, pwaApplicationDetail);
+
   }
 
   @Test
-  public void getApplicationFeeReport_currentFeePeriod_withChargeItemForAppType_exists_fastTrack() {
+  public void getApplicationFeeReport_currentFeePeriodExists_providerCannotProvideFeeItems() {
 
-    pwaApplicationDetail.setSubmittedAsFastTrackFlag(true);
+    when(feeItemProvider.getApplicationFeeType()).thenReturn(PwaApplicationFeeType.DEFAULT);
+    when(feeItemProvider.canProvideFeeItems(any())).thenReturn(false);
 
     var report = applicationFeeService.getApplicationFeeReport(pwaApplicationDetail);
 
-    assertThat(report.getPaymentItems()).hasSize(2)
-        .allSatisfy(applicationFeeItem -> assertThat(applicationFeeItem.getPennyAmount()).isEqualTo(FEE_AMOUNT))
-        .anySatisfy(applicationFeeItem -> assertThat(applicationFeeItem.getDescription()).isEqualTo(FEE_DESC))
-        .anySatisfy(applicationFeeItem -> assertThat(applicationFeeItem.getDescription()).contains(FAST_TRACK_STRING));
+    assertThat(report.getPaymentItems()).isEmpty();
+    assertThat(report.getPwaApplication()).isEqualTo(pwaApplicationDetail.getPwaApplication());
+    assertThat(report.getSummary()).containsOnlyOnce(APP_REF);
+    assertThat(report.getTotalPennies()).isEqualTo(0);
+
+  }
+
+  @Test
+  public void getApplicationFeeReport_currentFeePeriodExists_fastTrack() {
+    when(feeItemProvider.getApplicationFeeType()).thenReturn(PwaApplicationFeeType.FAST_TRACK);
+
+    var report = applicationFeeService.getApplicationFeeReport(pwaApplicationDetail);
+
+    assertThat(report.getPaymentItems())
+        .hasOnlyOneElementSatisfying(applicationFeeItem -> {
+          assertThat(applicationFeeItem.getPennyAmount()).isEqualTo(FEE_AMOUNT);
+          assertThat(applicationFeeItem.getDescription()).isEqualTo(FEE_DESC);
+        });
 
     assertThat(report.getPwaApplication()).isEqualTo(pwaApplicationDetail.getPwaApplication());
     assertThat(report.getSummary()).containsOnlyOnce(APP_REF);
     assertThat(report.getSummary()).containsOnlyOnce(FAST_TRACK_STRING);
-    assertThat(report.getTotalPennies()).isEqualTo(FEE_AMOUNT * 2);
+    assertThat(report.getTotalPennies()).isEqualTo(FEE_AMOUNT);
+
+  }
+
+  @Test
+  public void getApplicationFeeReport_combinesAppFeesFromMultipleProviders() {
+
+    when(feeItemProvider.getApplicationFeeType()).thenReturn(PwaApplicationFeeType.DEFAULT);
+
+    var feeItemProvider2 = mock(ApplicationFeeItemProvider.class);
+    when(feeItemProvider2.canProvideFeeItems(pwaApplicationDetail)).thenReturn(true);
+    when(feeItemProvider2.getApplicationFeeType()).thenReturn(PwaApplicationFeeType.FAST_TRACK);
+    when(feeItemProvider2.getProvisionOrdering()).thenReturn(2);
+
+    var appFeeItem2 = ApplicationFeeItemTestUtil.createAppFeeItem("Fee item 2", 200);
+    when(feeItemProvider2.provideFees(any(), any())).thenReturn(List.of(appFeeItem2));
+
+    applicationFeeService = new ApplicationFeeService(
+        feePeriodDetailRepository,
+        List.of(feeItemProvider, feeItemProvider2),
+        clock
+    );
+
+    var report = applicationFeeService.getApplicationFeeReport(pwaApplicationDetail);
+
+    assertThat(report.getPaymentItems()).hasSize(2)
+        .containsExactly(applicationFeeItem, appFeeItem2);
+
+    assertThat(report.getPwaApplication()).isEqualTo(pwaApplicationDetail.getPwaApplication());
+    assertThat(report.getTotalPennies()).isEqualTo(applicationFeeItem.getPennyAmount() + appFeeItem2.getPennyAmount());
 
   }
 

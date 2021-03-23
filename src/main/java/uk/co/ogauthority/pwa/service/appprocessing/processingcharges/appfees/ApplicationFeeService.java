@@ -1,20 +1,20 @@
 package uk.co.ogauthority.pwa.service.appprocessing.processingcharges.appfees;
 
+import static java.util.stream.Collectors.toList;
+
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
-import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.processingcharges.FeePeriodDetail;
-import uk.co.ogauthority.pwa.model.entity.appprocessing.processingcharges.FeePeriodDetailFeeItem;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.repository.appprocessing.processingcharges.FeePeriodDetailItemRepository;
 import uk.co.ogauthority.pwa.repository.appprocessing.processingcharges.FeePeriodDetailRepository;
+import uk.co.ogauthority.pwa.service.appprocessing.processingcharges.appfees.feeproviders.ApplicationFeeItem;
 
 /**
  * Generates application Fee views based on PwaApplication data.
@@ -26,12 +26,11 @@ import uk.co.ogauthority.pwa.repository.appprocessing.processingcharges.FeePerio
 @Service
 public class ApplicationFeeService {
 
-  private static final String FAST_TRACK_SUMMARY_FORMAT = "Fast-track %s application %s submission";
   private static final String STANDARD_SUMMARY_FORMAT = "%s application %s submission";
-  private static final String FAST_TRACK_FEE_DESCRIPTION = "Fast-track application surcharge (plus 100% standard application cost)";
+  private static final String FAST_TRACK_SUMMARY_FORMAT = "Fast-track %s application %s submission";
 
   private final FeePeriodDetailRepository feePeriodDetailRepository;
-  private final FeePeriodDetailItemRepository feePeriodDetailItemRepository;
+  private final List<ApplicationFeeItemProvider> applicationFeeItemProviders;
 
   private final Clock clock;
 
@@ -39,10 +38,10 @@ public class ApplicationFeeService {
 
   @Autowired
   public ApplicationFeeService(FeePeriodDetailRepository feePeriodDetailRepository,
-                               FeePeriodDetailItemRepository feePeriodDetailItemRepository,
+                               List<ApplicationFeeItemProvider> applicationFeeItemProviders,
                                @Qualifier("utcClock") Clock clock) {
     this.feePeriodDetailRepository = feePeriodDetailRepository;
-    this.feePeriodDetailItemRepository = feePeriodDetailItemRepository;
+    this.applicationFeeItemProviders = applicationFeeItemProviders;
     this.clock = clock;
 
     maxFeePeriodEndOverrideIfNull = LocalDateTime.of(4000, 1, 1, 0, 0, 0).toInstant(ZoneOffset.UTC);
@@ -53,13 +52,18 @@ public class ApplicationFeeService {
 
     var currentFeeDetail = getCurrentFeePeriodDetailOrError();
 
-    var feeDetailChargeItems = feePeriodDetailItemRepository.findAllByFeePeriodDetailAndFeeItem_PwaApplicationType(
-        currentFeeDetail,
-        pwaApplicationDetail.getPwaApplicationType()
-    );
+    var appFeeItems = applicationFeeItemProviders.stream()
+        .sorted(Comparator.comparing(ApplicationFeeItemProvider::getProvisionOrdering))
+        .filter(applicationFeeItemProvider -> applicationFeeItemProvider.canProvideFeeItems(pwaApplicationDetail))
+        .flatMap(applicationFeeItemProvider -> applicationFeeItemProvider.provideFees(currentFeeDetail, pwaApplicationDetail).stream())
+        .collect(toList());
 
-    var appFeeItems = generateFullFeeItemList(pwaApplicationDetail, feeDetailChargeItems);
-    var feeSummary = BooleanUtils.isTrue(pwaApplicationDetail.getSubmittedAsFastTrackFlag())
+    var useFastTrackSummary =  applicationFeeItemProviders
+        .stream()
+        .filter(applicationFeeItemProvider -> applicationFeeItemProvider.getApplicationFeeType().equals(PwaApplicationFeeType.FAST_TRACK))
+        .anyMatch(applicationFeeItemProvider -> applicationFeeItemProvider.canProvideFeeItems(pwaApplicationDetail));
+
+    var feeSummary = useFastTrackSummary
         ? String.format(
         FAST_TRACK_SUMMARY_FORMAT,
         pwaApplicationDetail.getPwaApplicationType().getDisplayName(),
@@ -81,37 +85,6 @@ public class ApplicationFeeService {
     );
 
   }
-
-  private List<ApplicationFeeItem> generateFullFeeItemList(PwaApplicationDetail pwaApplicationDetail,
-                                                           List<FeePeriodDetailFeeItem> feePeriodDetailFeeItems) {
-
-    var appFeeList = new ArrayList<ApplicationFeeItem>();
-    feePeriodDetailFeeItems.forEach(feePeriodDetailFeeItem -> appFeeList.add(
-        new ApplicationFeeItem(
-            feePeriodDetailFeeItem.getFeeItem().getDisplayDescription(),
-            feePeriodDetailFeeItem.getPennyAmount()
-        )
-    ));
-
-    if (BooleanUtils.isTrue(pwaApplicationDetail.getSubmittedAsFastTrackFlag())) {
-
-      var feeItemTotal = (Integer) appFeeList
-          .stream()
-          .mapToInt(ApplicationFeeItem::getPennyAmount)
-          .sum();
-
-      var fastTrackAppFee = new ApplicationFeeItem(
-          FAST_TRACK_FEE_DESCRIPTION, feeItemTotal
-      );
-
-      appFeeList.add(fastTrackAppFee);
-
-    }
-
-    return appFeeList;
-
-  }
-
 
   private FeePeriodDetail getCurrentFeePeriodDetailOrError() {
 

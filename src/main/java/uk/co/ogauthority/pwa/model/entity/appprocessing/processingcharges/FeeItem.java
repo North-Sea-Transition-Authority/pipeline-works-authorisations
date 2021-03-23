@@ -7,6 +7,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import uk.co.ogauthority.pwa.service.appprocessing.processingcharges.appfees.PwaApplicationFeeType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 
 @Entity
@@ -19,6 +20,10 @@ public class FeeItem {
 
   @Enumerated(EnumType.STRING)
   private PwaApplicationType pwaApplicationType;
+
+  @Enumerated(EnumType.STRING)
+  private PwaApplicationFeeType pwaApplicationFeeType;
+
   private String displayDescription;
 
 
@@ -39,6 +44,14 @@ public class FeeItem {
     this.pwaApplicationType = pwaApplicationType;
   }
 
+  public PwaApplicationFeeType getPwaApplicationFeeType() {
+    return pwaApplicationFeeType;
+  }
+
+  public void setPwaApplicationFeeType(
+      PwaApplicationFeeType pwaApplicationFeeType) {
+    this.pwaApplicationFeeType = pwaApplicationFeeType;
+  }
 
   public String getDisplayDescription() {
     return displayDescription;
