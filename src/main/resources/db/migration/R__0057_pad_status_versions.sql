@@ -12,6 +12,5 @@ SELECT
     THEN pad.version_no
   END) latest_draft_v_no
 FROM ${datasource.user}.pwa_application_details pad
-GROUP BY pad.pwa_application_id
-ORDER BY pad.pwa_application_id;
+GROUP BY pad.pwa_application_id;
 
