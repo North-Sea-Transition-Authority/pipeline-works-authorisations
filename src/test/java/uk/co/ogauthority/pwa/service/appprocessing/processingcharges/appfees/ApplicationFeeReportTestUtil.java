@@ -2,6 +2,8 @@ package uk.co.ogauthority.pwa.service.appprocessing.processingcharges.appfees;
 
 import java.util.List;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
+import uk.co.ogauthority.pwa.service.appprocessing.processingcharges.appfees.feeproviders.ApplicationFeeItem;
+import uk.co.ogauthority.pwa.service.appprocessing.processingcharges.appfees.feeproviders.ApplicationFeeItemTestUtil;
 
 public class ApplicationFeeReportTestUtil {
   private ApplicationFeeReportTestUtil(){
@@ -23,7 +25,7 @@ public class ApplicationFeeReportTestUtil {
   }
 
   public static ApplicationFeeItem createApplicationFeeItem(String desc, int amount){
-    return new ApplicationFeeItem(desc, amount);
+    return ApplicationFeeItemTestUtil.createAppFeeItem(desc, amount);
 
   }
 

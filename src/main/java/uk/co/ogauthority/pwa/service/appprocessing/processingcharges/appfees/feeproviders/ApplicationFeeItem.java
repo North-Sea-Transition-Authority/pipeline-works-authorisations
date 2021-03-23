@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.service.appprocessing.processingcharges.appfees;
+package uk.co.ogauthority.pwa.service.appprocessing.processingcharges.appfees.feeproviders;
 
 
 import java.util.Objects;

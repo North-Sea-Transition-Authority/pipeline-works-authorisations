@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.service.appprocessing.processingcharges.appfees;
 import java.util.Collections;
 import java.util.List;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
+import uk.co.ogauthority.pwa.service.appprocessing.processingcharges.appfees.feeproviders.ApplicationFeeItem;
 import uk.co.ogauthority.pwa.service.appprocessing.processingcharges.display.PaymentHeader;
 
 /**
