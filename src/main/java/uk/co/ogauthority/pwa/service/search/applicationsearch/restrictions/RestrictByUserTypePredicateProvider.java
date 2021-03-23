@@ -236,14 +236,14 @@ public class RestrictByUserTypePredicateProvider implements ApplicationSearchPre
     // have to do a separate "last submitted version" subquery here so that only those initial pwa app where you are a holder on the last
     // submitted version get returned and included in the results. Dont want a situation where if you were a holder on a previous
     // version the whole initial PWA app gets returned.
-    Subquery<Integer> lastSubmittedVersionSubQuery = initialPwaApplicationQuery.subquery(Integer.class);
-    Root<PadVersionLookup> padVersionLookupRoot = lastSubmittedVersionSubQuery.from(PadVersionLookup.class);
-    lastSubmittedVersionSubQuery.select(cb.coalesce(
+    Subquery<Integer> lastSubmittedOrFirstDraftVersionSubQuery = initialPwaApplicationQuery.subquery(Integer.class);
+    Root<PadVersionLookup> padVersionLookupRoot = lastSubmittedOrFirstDraftVersionSubQuery.from(PadVersionLookup.class);
+    lastSubmittedOrFirstDraftVersionSubQuery.select(cb.coalesce(
         padVersionLookupRoot.get(PadVersionLookup_.LATEST_SUBMITTED_VERSION_NO),
         padVersionLookupRoot.get(PadVersionLookup_.MAX_DRAFT_VERSION_NO))
     );
     // correlate version lookup subquery to individual apps by id
-    lastSubmittedVersionSubQuery.where(
+    lastSubmittedOrFirstDraftVersionSubQuery.where(
         cb.equal(appDetailToAppJoin.get(PwaApplication_.ID), padVersionLookupRoot.get(PadVersionLookup_.PWA_APPLICATION_ID))
     );
 
@@ -255,7 +255,7 @@ public class RestrictByUserTypePredicateProvider implements ApplicationSearchPre
         cb.equal(applicationTypePath, PwaApplicationType.INITIAL),
         cb.equal(padOrgRoleRoot.get(PadOrganisationRole_.ROLE), HuooRole.HOLDER),
         cb.in(padOrgRoleToPortalOrgUnitJoin.get(PortalOrganisationUnit_.OU_ID)).value(holderOrgUnitIds),
-        cb.in(applicationDetailVersionNoPath).value(lastSubmittedVersionSubQuery)
+        cb.in(applicationDetailVersionNoPath).value(lastSubmittedOrFirstDraftVersionSubQuery)
     ));
 
     List<Integer> initialPwaAppDetailIdsWhereHolder = entityManager.createQuery(initialPwaApplicationQuery).getResultList();
