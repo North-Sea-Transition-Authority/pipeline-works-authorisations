@@ -230,6 +230,21 @@ public class ApplicationChargeRequestServiceTest {
   }
 
   @Test
+  public void createPwaAppChargeRequest_withValidSpec_emailsAppContacts() {
+
+    var spec = new ApplicationChargeRequestSpecification(pwaApplication, PwaAppChargeRequestStatus.OPEN)
+        .setChargeSummary("CHARGE_SUMMARY")
+        .setTotalPennies(100)
+        .setOnPaymentCompleteCaseOfficerPersonId(caseOfficerPerson.getId())
+        .addChargeItem("CHARGE_1", 25)
+        .addChargeItem("CHARGE_2", 75);
+
+    applicationChargeRequestService.createPwaAppChargeRequest(pwaManagerPerson, spec);
+
+    verify(appChargeEmailService, times(1)).sendChargeRequestIssuedEmail(pwaApplication);
+  }
+
+  @Test
   public void createPwaAppChargeRequest_withValidSpec_andWaivedStatus_setsExpectedData() {
 
     var spec = new ApplicationChargeRequestSpecification(pwaApplication, PwaAppChargeRequestStatus.WAIVED)
@@ -673,6 +688,18 @@ public class ApplicationChargeRequestServiceTest {
 
   }
 
+
+  @Test
+  public void cancelAppPaymentOutcome_whenChargeRequestOpen_emailSent(){
+
+    var cancelOutcome = applicationChargeRequestService.cancelPaymentRequest(
+        pwaApplication, pwaManagerWua, CANCEL_REASON);
+
+    assertThat(cancelOutcome).isEqualTo(CancelAppPaymentOutcome.CANCELLED);
+
+    verify(appChargeEmailService, times(1)).sendChargeRequestCancelledEmail(pwaApplication);
+
+  }
 
   @Test
   public void cancelAppPaymentOutcome_whenChargeRequestOpen_workflowUpdated(){

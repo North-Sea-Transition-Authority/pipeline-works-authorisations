@@ -57,7 +57,6 @@ public class ApplicationChargeRequestService {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationChargeRequestService.class);
 
-
   private final AppChargeEmailService appChargeEmailService;
   private final PwaAppChargeRequestRepository pwaAppChargeRequestRepository;
   private final PwaAppChargeRequestDetailRepository pwaAppChargeRequestDetailRepository;
@@ -113,6 +112,8 @@ public class ApplicationChargeRequestService {
         ))
         .collect(toList());
     pwaAppChargeRequestItemRepository.saveAll(chargeItems);
+
+    appChargeEmailService.sendChargeRequestIssuedEmail(applicationChargeRequestSpecification.getPwaApplication());
 
   }
 
@@ -552,7 +553,7 @@ public class ApplicationChargeRequestService {
     pwaApplicationDetailService.updateStatus(pwaApplicationDetail, PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW,
         webUserAccount);
 
-    // TODO PWA-1140 email app contacts about cancelled payment
+    appChargeEmailService.sendChargeRequestCancelledEmail(pwaApplicationDetail.getPwaApplication());
     return CancelAppPaymentOutcome.CANCELLED;
   }
 
