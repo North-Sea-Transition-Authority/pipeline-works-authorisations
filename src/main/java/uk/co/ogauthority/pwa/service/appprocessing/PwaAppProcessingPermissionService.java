@@ -115,6 +115,12 @@ public class PwaAppProcessingPermissionService {
             case EDIT_CONSENT_DOCUMENT:
               return (userPrivileges.contains(PwaUserPrivilege.PWA_CASE_OFFICER) && appInvolvement.isUserAssignedCaseOfficer())
                   || userPrivileges.contains(PwaUserPrivilege.PWA_MANAGER);
+            case VIEW_CONSENT_DOCUMENT:
+              return (userPrivileges.contains(PwaUserPrivilege.PWA_CASE_OFFICER)
+                  || userPrivileges.contains(PwaUserPrivilege.PWA_MANAGER)
+                  || userPrivileges.contains(PwaUserPrivilege.PWA_CONSENT_SEARCH)
+                  || userPrivileges.contains(PwaUserPrivilege.PWA_REGULATOR)
+                  || userPrivileges.contains(PwaUserPrivilege.PWA_REG_ORG_MANAGE));
             case REQUEST_APPLICATION_UPDATE:
             case WITHDRAW_APPLICATION:
               return (userPrivileges.contains(PwaUserPrivilege.PWA_CASE_OFFICER) && appInvolvement.isUserAssignedCaseOfficer())

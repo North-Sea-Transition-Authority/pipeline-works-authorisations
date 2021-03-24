@@ -3,12 +3,16 @@ package uk.co.ogauthority.pwa.service.search.consents.pwaviewtab;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import uk.co.ogauthority.pwa.repository.pwaconsents.PwaConsentApplicationDto;
+import uk.co.ogauthority.pwa.repository.pwaconsents.PwaConsentDtoRepository;
 import uk.co.ogauthority.pwa.service.pwaconsents.PipelineDetailService;
 import uk.co.ogauthority.pwa.service.pwacontext.PwaContext;
 import uk.co.ogauthority.pwa.service.search.consents.PwaViewTab;
@@ -21,6 +25,9 @@ public class PwaViewTabServiceTest {
 
   @Mock
   private PipelineDetailService pipelineDetailService;
+
+  @Mock
+  private PwaConsentDtoRepository pwaConsentDtoRepository;
 
   private PwaViewTabService pwaViewTabService;
 
@@ -35,7 +42,7 @@ public class PwaViewTabServiceTest {
   @Before
   public void setUp() throws Exception {
 
-    pwaViewTabService = new PwaViewTabService(pipelineDetailService);
+    pwaViewTabService = new PwaViewTabService(pipelineDetailService, pwaConsentDtoRepository);
 
     pwaContext = PwaContextTestUtil.createPwaContext();
 
@@ -57,7 +64,6 @@ public class PwaViewTabServiceTest {
 
   }
 
-
   @Test
   public void getTabContentModelMap_getPipelineNumberOnlyFromReference_refPrependedWithPLChars_charsRemoved() {
     var pwaPipelineView = new PwaPipelineView(PwaViewTabTestUtil.createPipelineOverview(PIPELINE_REF_ID2));
@@ -74,6 +80,23 @@ public class PwaViewTabServiceTest {
   public void getTabContentModelMap_getPipelineNumberOnlyFromReference_refPrependedWithWhitespace_whitespaceRemoved() {
     var pwaPipelineView = new PwaPipelineView(PwaViewTabTestUtil.createPipelineOverview("  001"));
     assertThat(pwaPipelineView.getPipelineNumberOnlyFromReference()).isEqualTo("001");
+  }
+
+
+  @Test
+  public void getTabContentModelMap_consentTab_modelMapContainsConsentHistoryViews_orderedByConsentDate() {
+
+    var today = LocalDate.now();
+    var unOrderedConsentAppDtos = List.of(
+        PwaViewTabTestUtil.createConsentApplicationDto(today.plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant()),
+        PwaViewTabTestUtil.createConsentApplicationDto(today.minusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant()));
+    when(pwaConsentDtoRepository.getConsentAndApplicationDto(pwaContext.getMasterPwa())).thenReturn(unOrderedConsentAppDtos);
+
+    var modelMap = pwaViewTabService.getTabContentModelMap(pwaContext, PwaViewTab.CONSENT_HISTORY);
+    var pwaConsentHistoryViews = (List<PwaConsentApplicationDto>) modelMap.get("pwaConsentHistoryViews");
+    assertThat(pwaConsentHistoryViews).containsExactly(
+        unOrderedConsentAppDtos.get(1), unOrderedConsentAppDtos.get(0));
+
   }
 
 
