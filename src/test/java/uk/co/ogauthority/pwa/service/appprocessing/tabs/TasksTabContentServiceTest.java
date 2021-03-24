@@ -20,6 +20,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.controller.appprocessing.processingcharges.IndustryPaymentController;
+import uk.co.ogauthority.pwa.controller.masterpwas.contacts.PwaContactController;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.tasklist.TaskListGroup;
@@ -155,11 +156,15 @@ public class TasksTabContentServiceTest {
 
 
 
+  @Test
   public void getTabContentModelMap_tasksTab_populated_whenPaymentPermission() {
 
     var taskListGroupsList = List.of(new TaskListGroup("test", 10, List.of()));
 
-    var processingContext = createContextWithPermissions(PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY, PwaAppProcessingPermission.PAY_FOR_APPLICATION);
+    var processingContext = createContextWithPermissions(
+        PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY,
+        PwaAppProcessingPermission.PAY_FOR_APPLICATION
+    );
 
     when(taskListService.getTaskListGroups(processingContext)).thenReturn(taskListGroupsList);
 
@@ -177,6 +182,56 @@ public class TasksTabContentServiceTest {
                 processingContext.getMasterPwaApplicationId(), processingContext.getApplicationType(), null
             )))
         );
+
+  }
+
+  @Test
+  public void getTabContentModelMap_tasksTab_populated_whenManageAppContactsPermission() {
+
+    var taskListGroupsList = List.of(new TaskListGroup("test", 10, List.of()));
+
+    var processingContext = createContextWithPermissions(
+        PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY,
+        PwaAppProcessingPermission.MANAGE_APPLICATION_CONTACTS
+    );
+
+    when(taskListService.getTaskListGroups(processingContext)).thenReturn(taskListGroupsList);
+
+    var optionsApprovedBanner = new PageBannerView.PageBannerViewBuilder().build();
+    when(approveOptionsService.getOptionsApprovalPageBannerView(any(PwaApplicationDetail.class)))
+        .thenReturn(Optional.of(optionsApprovedBanner));
+    var modelMap = taskTabContentService.getTabContent(processingContext, AppProcessingTab.TASKS);
+
+    verify(taskListService, times(1)).getTaskListGroups(processingContext);
+
+    assertThat(modelMap)
+        .extractingFromEntries(Map.Entry::getKey, Map.Entry::getValue)
+        .contains(
+            tuple("manageAppContactsUrl", ReverseRouter.route(on(PwaContactController.class).renderContactsScreen(
+                processingContext.getApplicationType(), processingContext.getMasterPwaApplicationId(),null, null
+            )))
+        );
+  }
+
+  @Test
+  public void getTabContentModelMap_tasksTab_populated_whenCaseManagementIndustryPermissionOnly() {
+
+    var taskListGroupsList = List.of(new TaskListGroup("test", 10, List.of()));
+
+    var processingContext = createContextWithPermissions(
+        PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY
+    );
+
+    when(taskListService.getTaskListGroups(processingContext)).thenReturn(taskListGroupsList);
+
+    var optionsApprovedBanner = new PageBannerView.PageBannerViewBuilder().build();
+    when(approveOptionsService.getOptionsApprovalPageBannerView(any(PwaApplicationDetail.class)))
+        .thenReturn(Optional.of(optionsApprovedBanner));
+    var modelMap = taskTabContentService.getTabContent(processingContext, AppProcessingTab.TASKS);
+
+    verify(taskListService, times(1)).getTaskListGroups(processingContext);
+
+    assertThat(modelMap).doesNotContainKeys("manageAppContactsUrl", "payForAppUrl");
 
   }
 

@@ -9,6 +9,7 @@
 <#-- @ftlvariable name="optionsApprovalPageBanner" type="uk.co.ogauthority.pwa.model.view.banner.PageBannerView" -->
 <#-- @ftlvariable name="publicNoticePageBannerView" type="uk.co.ogauthority.pwa.model.view.banner.PageBannerView" -->
 <#-- @ftlvariable name="payForAppUrl" type="java.lang.String" -->
+<#-- @ftlvariable name="manageAppContactsUrl" type="java.lang.String" -->
 
 <#-- @ftlvariable name="taskListUrl" type="String" -->
 <#-- @ftlvariable name="processingPermissions" type="java.util.Set<uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission> -->
@@ -38,6 +39,9 @@
 
     <#if payForAppUrl?has_content>
         <@fdsAction.link linkText="Pay for application" linkUrl=springUrl(payForAppUrl) linkClass="govuk-button govuk-button--blue" role=true/>
+    </#if>
+    <#if manageAppContactsUrl?has_content>
+        <@fdsAction.link linkText="Manage application users" linkUrl=springUrl(manageAppContactsUrl) linkClass="govuk-button govuk-button--blue" role=true/>
     </#if>
 
   <@fdsBackendTabs.tabList>

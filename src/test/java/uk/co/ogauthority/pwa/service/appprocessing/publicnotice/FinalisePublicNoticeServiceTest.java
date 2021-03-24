@@ -352,6 +352,21 @@ public class FinalisePublicNoticeServiceTest {
     });
   }
 
+  @Test
+  public void publishPublicNotice_verifyServiceInteractions_statusUpdatedToPublished() {
+
+    var publicNotice = PublicNoticeTestUtil.createWaitingPublicNotice(pwaApplication);
+    finalisePublicNoticeService.publishPublicNotice(publicNotice);
+
+    verify(camundaWorkflowService, times(1)).setWorkflowProperty(
+        publicNotice, PublicNoticeCaseOfficerReviewResult.PUBLICATION_STARTED);
+    verify(camundaWorkflowService, times(1)).completeTask(new WorkflowTaskInstance(publicNotice,
+        PwaApplicationPublicNoticeWorkflowTask.WAITING));
+
+    verify(publicNoticeService, times(1)).savePublicNotice(publicNoticeArgumentCaptor.capture());
+    var actualPublicNotice = publicNoticeArgumentCaptor.getValue();
+    assertThat(actualPublicNotice.getStatus()).isEqualTo(PublicNoticeStatus.PUBLISHED);
+  }
 
   @Test
   public void mapUnpublishedPublicNoticeDateToForm_unpublishedPublicNoticeDateExists_dataMappedToForm() {

@@ -10,6 +10,7 @@ import static org.mockito.Mockito.when;
 
 import java.time.Clock;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.EnumSet;
 import java.util.List;
@@ -132,6 +133,9 @@ public class PublicNoticeServiceTest {
 
   @Captor
   private ArgumentCaptor<PublicNotice> publicNoticeArgumentCaptor;
+
+  @Captor
+  private ArgumentCaptor<List<PublicNotice>> publicNoticesArgumentCaptor;
 
   @Captor
   private ArgumentCaptor<PublicNoticeDocument> publicNoticeDocumentArgumentCaptor;
@@ -286,6 +290,46 @@ public class PublicNoticeServiceTest {
         Optional.of(new PublicNotice()));
     publicNoticeService.getLatestPublicNotice(pwaApplication);
     verify(publicNoticeRepository, times(1)).findFirstByPwaApplicationOrderByVersionDesc(pwaApplication);
+  }
+
+  @Test
+  public void getAllPublicNoticesDueForPublishing_verifyRepoInteraction() {
+
+    var publicNotices = List.of(PublicNoticeTestUtil.createWaitingPublicNotice(pwaApplication),
+        PublicNoticeTestUtil.createWaitingPublicNotice(new PwaApplication()));
+    when(publicNoticeRepository.findAllByStatus(PublicNoticeStatus.WAITING)).thenReturn(publicNotices);
+
+    publicNoticeService.getAllPublicNoticesDueForPublishing();
+
+    var tomorrow = LocalDate.now().plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant();
+    verify(publicNoticeDatesRepository, times(1)).getAllByPublicNoticeInAndPublicationStartTimestampBeforeAndEndedByPersonIdIsNull(
+        publicNotices, tomorrow);
+  }
+
+  @Test
+  public void getAllPublicNoticesDueToEnd_verifyRepoInteraction() {
+
+    var publicNotices = List.of(PublicNoticeTestUtil.createPublishedPublicNotice(pwaApplication),
+        PublicNoticeTestUtil.createPublishedPublicNotice(new PwaApplication()));
+    when(publicNoticeRepository.findAllByStatus(PublicNoticeStatus.PUBLISHED)).thenReturn(publicNotices);
+
+    publicNoticeService.getAllPublicNoticesDueToEnd();
+
+    var tomorrow = LocalDate.now().plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant();
+    verify(publicNoticeDatesRepository, times(1)).getAllByPublicNoticeInAndPublicationEndTimestampBeforeAndEndedByPersonIdIsNull(
+        publicNotices, tomorrow);
+  }
+
+  @Test
+  public void endPublicNotices_statusUpdatedAndSaved() {
+
+    var publicNotices = List.of(PublicNoticeTestUtil.createPublishedPublicNotice(pwaApplication),
+        PublicNoticeTestUtil.createPublishedPublicNotice(new PwaApplication()));
+    publicNoticeService.endPublicNotices(publicNotices);
+
+    verify(publicNoticeRepository, times(1)).saveAll(publicNoticesArgumentCaptor.capture());
+    publicNoticesArgumentCaptor.getValue().forEach(
+        actualPublicNotice -> assertThat(actualPublicNotice.getStatus()).isEqualTo(PublicNoticeStatus.ENDED));
   }
 
   @Test
