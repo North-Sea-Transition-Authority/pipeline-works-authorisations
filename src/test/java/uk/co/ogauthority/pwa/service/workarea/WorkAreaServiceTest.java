@@ -127,7 +127,7 @@ public class WorkAreaServiceTest {
 
   }
 
-8  @Test
+  @Test
   public void getWorkAreaResult_regAttentionTab_pwaIndustryPrivilege_resultsExist() {
 
     authenticatedUserAccount = new AuthenticatedUserAccount(new WebUserAccount(1, PersonTestUtil.createDefaultPerson()), List.of(
