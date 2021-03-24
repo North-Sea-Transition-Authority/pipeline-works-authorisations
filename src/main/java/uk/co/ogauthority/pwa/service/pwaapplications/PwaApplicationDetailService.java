@@ -279,7 +279,7 @@ public class PwaApplicationDetailService {
                                                                AuthenticatedUserAccount user) {
 
     var details = pwaApplicationDetailRepository.findByPwaApplicationId(applicationId);
-    var userType = userTypeService.getUserType(user);
+    var userType = userTypeService.getPriorityUserType(user);
     var tipDetail = details.stream()
         .filter(PwaApplicationDetail::isTipFlag)
         .findFirst()

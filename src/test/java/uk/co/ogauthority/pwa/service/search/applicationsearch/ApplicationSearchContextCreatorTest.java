@@ -69,7 +69,7 @@ public class ApplicationSearchContextCreatorTest {
   public void createContext_contextContentSetAsExpected() {
 
     var userType = UserType.INDUSTRY;
-    when(userTypeService.getUserType(authenticatedUserAccount)).thenReturn(userType);
+    when(userTypeService.getPriorityUserType(authenticatedUserAccount)).thenReturn(userType);
 
     var orgUnit = PortalOrganisationTestUtils.getOrganisationUnit();
     var orgGrp = orgUnit.getPortalOrganisationGroup();

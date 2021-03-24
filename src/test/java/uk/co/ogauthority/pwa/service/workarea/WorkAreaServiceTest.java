@@ -127,6 +127,29 @@ public class WorkAreaServiceTest {
 
   }
 
+8  @Test
+  public void getWorkAreaResult_regAttentionTab_pwaIndustryPrivilege_resultsExist() {
+
+    authenticatedUserAccount = new AuthenticatedUserAccount(new WebUserAccount(1, PersonTestUtil.createDefaultPerson()), List.of(
+        PwaUserPrivilege.PWA_INDUSTRY));
+
+    var appContactAppId = 999;
+    when(industryWorkAreaPageService.getBusinessKeysWhereUserIsAppPreparerAndTaskActive(any(), any()))
+        .thenReturn(Set.of(appContactAppId));
+
+    var pwaApplication = new PwaApplication();
+    pwaApplication.setId(1);
+    var workAreaResult = workAreaService.getWorkAreaResult(authenticatedUserAccount, WorkAreaTab.REGULATOR_REQUIRES_ATTENTION, 0);
+
+    verify(regulatorWorkAreaPageService, times(1)).getRequiresAttentionPageView(
+        eq(authenticatedUserAccount), eq(Set.of(appContactAppId)), eq(0));
+
+    assertThat(workAreaResult.getApplicationsTabPages()).isEqualTo(appPageView);
+    assertThat(workAreaResult.getConsultationsTabPages()).isNull();
+
+  }
+
+
   @Test
   public void getWorkAreaResult_regAttentionTab_noAssignedTasks() {
 

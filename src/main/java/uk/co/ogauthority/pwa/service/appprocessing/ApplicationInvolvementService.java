@@ -92,14 +92,14 @@ public class ApplicationInvolvementService {
   public ApplicationInvolvementDto getApplicationInvolvementDto(PwaApplicationDetail detail,
                                                                 AuthenticatedUserAccount user) {
 
-    var userType = userTypeService.getUserType(user);
+    var userTypes = userTypeService.getUserTypes(user);
     var application = detail.getPwaApplication();
 
     // INDUSTRY data
     Set<PwaContactRole> appContactRoles = Set.of();
     Set<PwaOrganisationRole> userHolderTeamRoles = Set.of();
 
-    if (userType == UserType.INDUSTRY) {
+    if (userTypes.contains(UserType.INDUSTRY)) {
 
       userHolderTeamRoles = pwaHolderTeamService.getRolesInHolderTeam(detail, user.getLinkedPerson());
 
@@ -109,7 +109,7 @@ public class ApplicationInvolvementService {
 
     // CONSULTEE data
     ConsultationInvolvementDto consultationInvolvement = null;
-    if (userType == UserType.CONSULTEE) {
+    if (userTypes.contains(UserType.CONSULTEE)) {
       consultationInvolvement = getConsultationInvolvement(application, user.getLinkedPerson())
           .orElseThrow(() -> new IllegalStateException(String.format(
               "Person with id [%s] has CONSULTEE priv but we have no consultation involvement object",
@@ -120,7 +120,7 @@ public class ApplicationInvolvementService {
     var userIsAssignedCaseOfficer = false;
     boolean pwaManagerStage = false;
 
-    if (userType == UserType.OGA) {
+    if (userTypes.contains(UserType.OGA)) {
 
       userIsAssignedCaseOfficer = assignmentService.getAssignmentsForPerson(application, user.getLinkedPerson()).stream()
           .anyMatch(ass -> WorkflowAssignment.CASE_OFFICER.equals(ass.getWorkflowAssignment()));
