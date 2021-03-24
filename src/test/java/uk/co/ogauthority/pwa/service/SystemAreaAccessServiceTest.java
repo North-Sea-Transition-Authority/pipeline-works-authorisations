@@ -43,7 +43,8 @@ public class SystemAreaAccessServiceTest {
   @Test
   public void canAccessConsentSearch(){
     AuthTestingUtils.testPrivilegeBasedAuthenticationFunction(
-        Set.of(PwaUserPrivilege.PWA_CONSENT_SEARCH, PwaUserPrivilege.PWA_MANAGER, PwaUserPrivilege.PWA_CASE_OFFICER),
+        Set.of(PwaUserPrivilege.PWA_CONSENT_SEARCH, PwaUserPrivilege.PWA_MANAGER, PwaUserPrivilege.PWA_CASE_OFFICER,
+            PwaUserPrivilege.PWA_REGULATOR, PwaUserPrivilege.PWA_REG_ORG_MANAGE),
         systemAreaAccessService::canAccessConsentSearch);
 
   }
