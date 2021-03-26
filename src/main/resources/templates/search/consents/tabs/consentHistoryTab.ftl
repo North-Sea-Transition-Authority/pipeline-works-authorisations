@@ -1,7 +1,7 @@
 <#include '../../../layout.ftl'>
 
 <#-- @ftlvariable name="pwaConsentHistoryViews" type="java.util.List<uk.co.ogauthority.pwa.service.search.consents.tabcontentviews.PwaConsentApplicationDto>" -->
-<#-- @ftlvariable name="pwaViewUrlFactory" type="uk.co.ogauthority.pwa.service.search.consents.pwaviewtab.PwaViewUrlFactory" -->
+<#-- @ftlvariable name="urlFactory" type="uk.co.ogauthority.pwa.service.search.consents.pwaviewtab.PwaViewUrlFactory" -->
 
 <#macro tab urlFactory pwaConsentHistoryViews=[]>
 

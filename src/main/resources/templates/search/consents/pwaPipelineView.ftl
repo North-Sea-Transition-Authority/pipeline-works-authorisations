@@ -1,0 +1,36 @@
+<#include '../../layout.ftl'>
+<#import 'consentSearchTopLevelView.ftl' as consentSearchTopLevelView>
+<#import 'tabs/pipelinesTab.ftl' as pipelinesTab>
+
+<#-- @ftlvariable name="consentSearchResultView" type="uk.co.ogauthority.pwa.model.view.search.consents.ConsentSearchResultView" -->
+<#-- @ftlvariable name="availableTabs" type="java.util.List<uk.co.ogauthority.pwa.service.search.consents.PwaViewTab>" -->
+<#-- @ftlvariable name="currentProcessingTab" type="uk.co.ogauthority.pwa.service.search.consents.PwaViewTab" -->
+<#-- @ftlvariable name="pwaPipelineViewUrlFactory" type="uk.co.ogauthority.pwa.service.search.consents.pwaviewtab.PwaPipelineViewUrlFactory" -->
+
+
+
+<@defaultPage htmlTitle="View PWA pipeline ${pipelineReference}" fullWidthColumn=true topNavigation=true wrapperWidth=true caption="View pipeline">
+
+    <h1 class="govuk-heading-xl">${pipelineReference}</h1>
+
+    <@consentSearchTopLevelView.topLevelData consentSearchResultView/>
+
+    <@fdsBackendTabs.tabList>
+        <#list availableTabs as tab>
+            <@fdsBackendTabs.tab tabLabel=tab.getLabel() tabUrl=pwaPipelineViewUrlFactory.getTabUrl(tab.value) tabAnchor=tab.anchor currentTab=currentProcessingTab.value tabValue=tab.value />
+        </#list>
+    </@fdsBackendTabs.tabList>
+
+    <#list availableTabs as tab>
+
+      <@fdsBackendTabs.tabContent tabAnchor=tab.anchor currentTab=currentProcessingTab.value tabValue=tab.value>
+
+      </@fdsBackendTabs.tabContent>
+
+    </#list>
+
+
+
+
+</@defaultPage>
+

@@ -9,6 +9,7 @@ import uk.co.ogauthority.pwa.model.location.CoordinatePair;
 
 public class PwaPipelineView {
 
+  private final Integer pipelineId;
   private final String pipelineNumber;
   private final PipelineStatus status;
   private final String fromLocation;
@@ -19,6 +20,7 @@ public class PwaPipelineView {
 
 
   public PwaPipelineView(PipelineOverview pipelineOverview) {
+    this.pipelineId = pipelineOverview.getPipelineId();
     this.pipelineNumber = pipelineOverview.getPipelineNumber();
     this.status = pipelineOverview.getPipelineStatus();
     this.fromLocation = pipelineOverview.getFromLocation();
@@ -28,6 +30,9 @@ public class PwaPipelineView {
     this.length = createLengthDisplayString(pipelineOverview.getLength());
   }
 
+  public Integer getPipelineId() {
+    return pipelineId;
+  }
 
   public String getPipelineNumber() {
     return pipelineNumber;

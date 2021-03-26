@@ -28,6 +28,7 @@ import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaService;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineService;
 import uk.co.ogauthority.pwa.service.pwacontext.PwaContextService;
 import uk.co.ogauthority.pwa.service.pwacontext.PwaPermissionService;
 import uk.co.ogauthority.pwa.service.search.consents.ConsentSearchService;
@@ -45,6 +46,9 @@ public abstract class PwaContextAbstractControllerTest {
 
   @Autowired
   protected PwaContextService pwaContextService;
+
+  @MockBean
+  protected PipelineService pipelineService;
 
   @MockBean
   protected ConsentSearchService consentSearchService;

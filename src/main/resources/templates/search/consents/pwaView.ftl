@@ -12,9 +12,8 @@
 
 
 
-<@defaultPage htmlTitle="View PWA" fullWidthColumn=true topNavigation=true wrapperWidth=true>
+<@defaultPage htmlTitle="View PWA" fullWidthColumn=true topNavigation=true wrapperWidth=true caption="View PWA">
 
-    <h3 class="govuk-heading-s"> View PWA </h3>
     <h1 class="govuk-heading-xl">${consentSearchResultView.pwaReference!}</h1>
 
     <@consentSearchTopLevelView.topLevelData consentSearchResultView/>
@@ -30,7 +29,7 @@
       <@fdsBackendTabs.tabContent tabAnchor=tab.anchor currentTab=currentProcessingTab.value tabValue=tab.value>
 
         <#if tab == "PIPELINES">
-            <@pipelinesTab.tab pwaPipelineViews/>
+            <@pipelinesTab.tab  urlFactory=pwaViewUrlFactory pwaPipelineViews=pwaPipelineViews/>
 
         <#elseif tab == "CONSENT_HISTORY">
             <@consentHistoryTa.tab  urlFactory=pwaViewUrlFactory pwaConsentHistoryViews=pwaConsentHistoryViews/>
