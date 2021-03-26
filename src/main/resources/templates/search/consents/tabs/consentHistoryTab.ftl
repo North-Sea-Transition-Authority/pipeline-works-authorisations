@@ -10,7 +10,7 @@
       <tr class="govuk-table__row">
         <th class="govuk-table__header" scope="col">Consent document (if available)</th>
         <th class="govuk-table__header" scope="col">Consent date</th>
-        <th class="govuk-table__header" scope="col">Application reference </br> Application Type </th>
+        <th class="govuk-table__header" scope="col">Application reference </br> Application type </th>
       </tr>
     </thead>
 
@@ -34,7 +34,7 @@
           <#if pwaConsentHistoryView.appReference?has_content && pwaConsentHistoryView.applicationType?has_content>
             <div>
               <@fdsAction.link linkText=pwaConsentHistoryView.appReference linkUrl=springUrl(urlFactory.routeCaseManagement(pwaConsentHistoryView.pwaApplicationId, pwaConsentHistoryView.applicationType)) 
-              linkClass="govuk-link" linkScreenReaderText="Go to ${pwaConsentHistoryView.appReference} route case management screen" role=false start=false openInNewTab=true/> 
+              linkClass="govuk-link" linkScreenReaderText="Go to ${pwaConsentHistoryView.appReference} case management screen" role=false start=false openInNewTab=true/> 
               </br>
               ${pwaConsentHistoryView.applicationType.getDisplayName()}
             </div>

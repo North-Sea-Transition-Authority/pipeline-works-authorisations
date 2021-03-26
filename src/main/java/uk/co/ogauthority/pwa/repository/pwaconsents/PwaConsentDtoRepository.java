@@ -5,6 +5,6 @@ import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 
 public interface PwaConsentDtoRepository {
 
-  List<PwaConsentApplicationDto> getConsentAndApplicationDto(MasterPwa masterPwa);
+  List<PwaConsentApplicationDto> getConsentAndApplicationDtos(MasterPwa masterPwa);
 
 }

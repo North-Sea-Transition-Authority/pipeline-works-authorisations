@@ -120,7 +120,8 @@ public class PwaAppProcessingPermissionService {
                   || userPrivileges.contains(PwaUserPrivilege.PWA_MANAGER)
                   || userPrivileges.contains(PwaUserPrivilege.PWA_CONSENT_SEARCH)
                   || userPrivileges.contains(PwaUserPrivilege.PWA_REGULATOR)
-                  || userPrivileges.contains(PwaUserPrivilege.PWA_REG_ORG_MANAGE));
+                  || userPrivileges.contains(PwaUserPrivilege.PWA_REG_ORG_MANAGE)
+                  || userPrivileges.contains(PwaUserPrivilege.PWA_INDUSTRY));
             case REQUEST_APPLICATION_UPDATE:
             case WITHDRAW_APPLICATION:
               return (userPrivileges.contains(PwaUserPrivilege.PWA_CASE_OFFICER) && appInvolvement.isUserAssignedCaseOfficer())

@@ -18,7 +18,7 @@ public class PwaConsentDtoRepositoryImpl implements PwaConsentDtoRepository {
 
 
   @Override
-  public List<PwaConsentApplicationDto> getConsentAndApplicationDto(MasterPwa masterPwa) {
+  public List<PwaConsentApplicationDto> getConsentAndApplicationDtos(MasterPwa masterPwa) {
     return entityManager.createQuery("" +
         "SELECT new uk.co.ogauthority.pwa.repository.pwaconsents.PwaConsentApplicationDto(" +
         "pc.id, " +

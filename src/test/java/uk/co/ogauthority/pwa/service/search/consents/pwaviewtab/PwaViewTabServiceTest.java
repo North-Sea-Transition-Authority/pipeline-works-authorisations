@@ -90,7 +90,7 @@ public class PwaViewTabServiceTest {
     var unOrderedConsentAppDtos = List.of(
         PwaViewTabTestUtil.createConsentApplicationDto(today.plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant()),
         PwaViewTabTestUtil.createConsentApplicationDto(today.minusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant()));
-    when(pwaConsentDtoRepository.getConsentAndApplicationDto(pwaContext.getMasterPwa())).thenReturn(unOrderedConsentAppDtos);
+    when(pwaConsentDtoRepository.getConsentAndApplicationDtos(pwaContext.getMasterPwa())).thenReturn(unOrderedConsentAppDtos);
 
     var modelMap = pwaViewTabService.getTabContentModelMap(pwaContext, PwaViewTab.CONSENT_HISTORY);
     var pwaConsentHistoryViews = (List<PwaConsentApplicationDto>) modelMap.get("pwaConsentHistoryViews");

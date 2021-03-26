@@ -58,7 +58,7 @@ public class PwaAppProcessingPermissionServiceTest {
     detail.setPwaApplication(application);
     VALID_PUBLIC_NOTICE_APP_TYPES = Set.of(PwaApplicationType.INITIAL, PwaApplicationType.CAT_1_VARIATION);
     VALID_VIEW_CONSENT_DOC_PRIVILEGES = Set.of(PwaUserPrivilege.PWA_CONSENT_SEARCH, PwaUserPrivilege.PWA_MANAGER,
-        PwaUserPrivilege.PWA_CASE_OFFICER, PwaUserPrivilege.PWA_REGULATOR, PwaUserPrivilege.PWA_REG_ORG_MANAGE);
+        PwaUserPrivilege.PWA_CASE_OFFICER, PwaUserPrivilege.PWA_REGULATOR, PwaUserPrivilege.PWA_REG_ORG_MANAGE, PwaUserPrivilege.PWA_INDUSTRY);
 
   }
 
@@ -636,7 +636,7 @@ public class PwaAppProcessingPermissionServiceTest {
     when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
 
     var permissions = processingPermissionService.getProcessingPermissionsDto(detail, user).getProcessingPermissions();
-    assertThat(permissions).isEmpty();
+    AssertionTestUtils.assertNotEmptyAndDoesNotContain(permissions, PwaAppProcessingPermission.CONSULTEE_ADVICE);
 
   }
 
