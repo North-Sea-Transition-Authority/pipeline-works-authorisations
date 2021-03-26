@@ -124,6 +124,30 @@ public class PublicNoticeService implements AppProcessingService {
         || processingContext.getAppProcessingPermissions().contains(PwaAppProcessingPermission.APPROVE_PUBLIC_NOTICE);
   }
 
+
+  private TaskStatus getPublicNoticeTaskStatus(PwaAppProcessingContext processingContext, boolean atLeastOneSatisfactoryVersion) {
+
+    var latestPublicNoticeOpt = publicNoticeRepository.findFirstByPwaApplicationOrderByVersionDesc(processingContext.getPwaApplication());
+    var permissions = processingContext.getAppProcessingPermissions();
+
+    if (latestPublicNoticeOpt.isPresent() && permissions.contains(PwaAppProcessingPermission.APPROVE_PUBLIC_NOTICE)
+        && PublicNoticeStatus.MANAGER_APPROVAL.equals(latestPublicNoticeOpt.get().getStatus())) {
+      return TaskStatus.ACTION_REQUIRED;
+
+    } else if (latestPublicNoticeOpt.isPresent() && PublicNoticeStatus.ENDED.equals(latestPublicNoticeOpt.get().getStatus())) {
+      return TaskStatus.COMPLETED;
+
+    } else if (latestPublicNoticeOpt.isPresent()) {
+      return TaskStatus.IN_PROGRESS;
+
+    } else if (atLeastOneSatisfactoryVersion) {
+      return TaskStatus.NOT_STARTED;
+
+    } else {
+      return TaskStatus.CANNOT_START_YET;
+    }
+  }
+
   @Override
   public TaskListEntry getTaskListEntry(PwaAppProcessingTask task, PwaAppProcessingContext processingContext) {
 
@@ -132,10 +156,9 @@ public class PublicNoticeService implements AppProcessingService {
     return new TaskListEntry(
         task.getTaskName(),
         task.getRoute(processingContext),
-        atLeastOneSatisfactoryVersion ? TaskTag.from(TaskStatus.NOT_STARTED) : TaskTag.from(TaskStatus.CANNOT_START_YET),
+        TaskTag.from(getPublicNoticeTaskStatus(processingContext, atLeastOneSatisfactoryVersion)),
         atLeastOneSatisfactoryVersion ? TaskState.EDIT : TaskState.LOCK,
         task.getDisplayOrder());
-
   }
 
   public List<PublicNotice> getPublicNoticesByStatus(PublicNoticeStatus publicNoticeStatus) {
