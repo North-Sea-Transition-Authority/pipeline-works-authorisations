@@ -57,7 +57,7 @@ public class PwaPermissionServiceTest {
   }
 
   @Test
-  public void getPwaPermissions_userInHolderTeam_userIsNotOgaConsentViewer() {
+  public void getPwaPermissions_userInHolderTeam_userDoesNotHaveRegulatorRole() {
 
     var masterPwaHolderDto = new MasterPwaHolderDto(organisationUnit1, new PwaConsent());
     when(pwaConsentOrganisationRoleService.getCurrentHoldersOrgRolesForMasterPwa(masterPwa))
@@ -74,7 +74,7 @@ public class PwaPermissionServiceTest {
 
 
   @Test
-  public void getPwaPermissions_userNotInHolderTeam_userIsOgaConsentViewer() {
+  public void getPwaPermissions_userNotInHolderTeam_userHasRegulatorRole() {
 
     when(pwaConsentOrganisationRoleService.getCurrentHoldersOrgRolesForMasterPwa(masterPwa))
         .thenReturn(Set.of());
@@ -84,7 +84,7 @@ public class PwaPermissionServiceTest {
 
     int pwaRegulatorTeamId = 1;
     var regulatorTeam = new PwaRegulatorTeam(pwaRegulatorTeamId, "", "");
-    when(teamService.getRegulatorTeamIfPersonInRole(user.getLinkedPerson(), Set.of(PwaRegulatorRole.CONSENT_VIEWER)))
+    when(teamService.getRegulatorTeamIfPersonInRole(user.getLinkedPerson(), EnumSet.allOf(PwaRegulatorRole.class)))
         .thenReturn(Optional.of(regulatorTeam));
 
     var permissions = pwaPermissionService.getPwaPermissions(masterPwa, user);
@@ -93,7 +93,7 @@ public class PwaPermissionServiceTest {
   }
 
   @Test
-  public void getPwaPermissions_notHolderTeam_notConsentViewer() {
+  public void getPwaPermissions_notHolderTeam_userDoesNotHaveRegulatorRole() {
 
     when(pwaConsentOrganisationRoleService.getCurrentHoldersOrgRolesForMasterPwa(masterPwa))
         .thenReturn(Set.of());
@@ -101,7 +101,7 @@ public class PwaPermissionServiceTest {
     when(teamService.getOrganisationTeamListIfPersonInRole(user.getLinkedPerson(), EnumSet.allOf(PwaOrganisationRole.class)))
         .thenReturn(List.of());
 
-    when(teamService.getRegulatorTeamIfPersonInRole(user.getLinkedPerson(), Set.of(PwaRegulatorRole.CONSENT_VIEWER)))
+    when(teamService.getRegulatorTeamIfPersonInRole(user.getLinkedPerson(), EnumSet.allOf(PwaRegulatorRole.class)))
         .thenReturn(Optional.empty());
 
     var permissions = pwaPermissionService.getPwaPermissions(masterPwa, user);
