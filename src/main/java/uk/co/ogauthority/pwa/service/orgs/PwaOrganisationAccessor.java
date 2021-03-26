@@ -35,7 +35,7 @@ public class PwaOrganisationAccessor {
 
   public List<PortalOrganisationGroup> getOrgGroupsUserCanAccess(AuthenticatedUserAccount user) {
 
-    if (userTypeService.getUserType(user) == UserType.OGA) {
+    if (userTypeService.getPriorityUserType(user) == UserType.OGA) {
       return portalOrganisationsAccessor.getAllOrganisationGroups();
     }
 
@@ -47,7 +47,7 @@ public class PwaOrganisationAccessor {
 
   public List<PortalOrganisationUnit> getOrgUnitsUserCanAccess(AuthenticatedUserAccount user) {
 
-    if (userTypeService.getUserType(user) == UserType.OGA) {
+    if (userTypeService.getPriorityUserType(user) == UserType.OGA) {
       return portalOrganisationsAccessor.getAllOrganisationUnits();
     }
 

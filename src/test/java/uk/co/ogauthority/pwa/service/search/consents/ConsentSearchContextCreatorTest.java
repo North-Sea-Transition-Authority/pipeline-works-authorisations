@@ -54,7 +54,7 @@ public class ConsentSearchContextCreatorTest {
     var orgTeam = mock(PwaOrganisationTeam.class);
     when(orgTeam.getPortalOrganisationGroup()).thenReturn(orgGroup);
 
-    when(userTypeService.getUserType(user)).thenReturn(UserType.INDUSTRY);
+    when(userTypeService.getPriorityUserType(user)).thenReturn(UserType.INDUSTRY);
     when(teamService.getOrganisationTeamListIfPersonInRole(eq(user.getLinkedPerson()), any())).thenReturn(List.of(orgTeam));
 
     var context = consentSearchContextCreator.createContext(user);
@@ -68,7 +68,7 @@ public class ConsentSearchContextCreatorTest {
   @Test
   public void createContext_regulatorUser() {
 
-    when(userTypeService.getUserType(user)).thenReturn(UserType.OGA);
+    when(userTypeService.getPriorityUserType(user)).thenReturn(UserType.OGA);
 
     var context = consentSearchContextCreator.createContext(user);
     verifyNoInteractions(teamService);

@@ -426,7 +426,7 @@ public class PwaApplicationDetailServiceTest {
     draftDetail.setVersionNo(1);
 
     when(applicationDetailRepository.findByPwaApplicationId(APP_ID)).thenReturn(List.of(draftDetail));
-    when(userTypeService.getUserType(user)).thenReturn(UserType.INDUSTRY);
+    when(userTypeService.getPriorityUserType(user)).thenReturn(UserType.INDUSTRY);
 
     var latestDetailOpt = pwaApplicationDetailService.getLatestDetailForUser(APP_ID, user);
 
@@ -455,7 +455,7 @@ public class PwaApplicationDetailServiceTest {
     submittedDetail2.setTipFlag(true);
 
     when(applicationDetailRepository.findByPwaApplicationId(APP_ID)).thenReturn(List.of(draftDetail, submittedDetail1, submittedDetail2));
-    when(userTypeService.getUserType(user)).thenReturn(UserType.INDUSTRY);
+    when(userTypeService.getPriorityUserType(user)).thenReturn(UserType.INDUSTRY);
 
     var latestDetailOpt = pwaApplicationDetailService.getLatestDetailForUser(APP_ID, user);
 
@@ -476,7 +476,7 @@ public class PwaApplicationDetailServiceTest {
     submittedDetail2.setTipFlag(true);
 
     when(applicationDetailRepository.findByPwaApplicationId(APP_ID)).thenReturn(List.of(draftDetail, submittedDetail1, submittedDetail2));
-    when(userTypeService.getUserType(user)).thenReturn(UserType.OGA);
+    when(userTypeService.getPriorityUserType(user)).thenReturn(UserType.OGA);
 
     var latestDetailOpt = pwaApplicationDetailService.getLatestDetailForUser(APP_ID, user);
 
@@ -502,7 +502,7 @@ public class PwaApplicationDetailServiceTest {
 
     when(applicationDetailRepository.findByPwaApplicationId(APP_ID))
         .thenReturn(List.of(draftDetail, satisfactoryDetail1, satisfactoryDetail2, submittedDetail));
-    when(userTypeService.getUserType(user)).thenReturn(UserType.CONSULTEE);
+    when(userTypeService.getPriorityUserType(user)).thenReturn(UserType.CONSULTEE);
 
     var latestDetailOpt = pwaApplicationDetailService.getLatestDetailForUser(APP_ID, user);
 

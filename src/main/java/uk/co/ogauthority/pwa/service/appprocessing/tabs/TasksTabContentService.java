@@ -56,7 +56,7 @@ public class TasksTabContentService implements AppProcessingTabContentService {
     Optional<String> payForAppUrl = Optional.empty();
     Optional<String> manageAppContactsUrl = Optional.empty();
 
-    boolean industryFlag = appProcessingContext.getAppProcessingPermissions().contains(PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY);
+    boolean industryFlag = appProcessingContext.hasProcessingPermission(PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY);
 
     // only retrieve tasks if we're on the tasks tab to reduce load time
     if (currentTab == AppProcessingTab.TASKS) {
@@ -88,7 +88,6 @@ public class TasksTabContentService implements AppProcessingTabContentService {
            appProcessingContext.getApplicationType(),  appProcessingContext.getMasterPwaApplicationId(), null, null
         )));
       }
-
     }
 
     var modelMap = new HashMap<>(Map.of(

@@ -33,7 +33,7 @@ public class WorkAreaTabService {
   }
 
   public List<WorkAreaTab> getTabsAvailableToUser(AuthenticatedUserAccount authenticatedUserAccount) {
-    var userType = userTypeService.getUserType(authenticatedUserAccount);
+    var userType = userTypeService.getPriorityUserType(authenticatedUserAccount);
 
     return WorkAreaTab.stream()
         .filter(tab -> tab.getUserType().equals(userType))

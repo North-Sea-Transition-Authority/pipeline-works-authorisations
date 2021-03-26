@@ -133,7 +133,7 @@ public class ApplicationInvolvementServiceTest {
   @Test
   public void getApplicationInvolvementDto_industryUser_isContact_onlyRelevantInteractionsAndDataPopulated() {
 
-    when(userTypeService.getUserType(user)).thenReturn(UserType.INDUSTRY);
+    when(userTypeService.getUserTypes(user)).thenReturn(EnumSet.of(UserType.INDUSTRY));
     when(pwaContactService.getContactRoles(application, user.getLinkedPerson())).thenReturn(
         Set.of(PwaContactRole.PREPARER));
 
@@ -151,7 +151,7 @@ public class ApplicationInvolvementServiceTest {
   @Test
   public void getApplicationInvolvementDto_industryUser_notContact_onlyRelevantInteractionsAndDataPopulated() {
 
-    when(userTypeService.getUserType(user)).thenReturn(UserType.INDUSTRY);
+    when(userTypeService.getUserTypes(user)).thenReturn(EnumSet.of(UserType.INDUSTRY));
     when(pwaContactService.getContactRoles(application, user.getLinkedPerson())).thenReturn(Set.of());
 
     var involvement = applicationInvolvementService.getApplicationInvolvementDto(detail, user);
@@ -168,7 +168,7 @@ public class ApplicationInvolvementServiceTest {
   @Test
   public void getApplicationInvolvementDto_industryUser_inHolderTeam() {
 
-    when(userTypeService.getUserType(user)).thenReturn(UserType.INDUSTRY);
+    when(userTypeService.getUserTypes(user)).thenReturn(EnumSet.of(UserType.INDUSTRY));
     when(pwaContactService.getContactRoles(application, user.getLinkedPerson())).thenReturn(Set.of());
     when(pwaHolderTeamService.getRolesInHolderTeam(detail, user.getLinkedPerson())).thenReturn(EnumSet.allOf(PwaOrganisationRole.class));
 
@@ -187,7 +187,7 @@ public class ApplicationInvolvementServiceTest {
   @Test
   public void getApplicationInvolvementDto_industryUser_notInHolderTeam() {
 
-    when(userTypeService.getUserType(user)).thenReturn(UserType.INDUSTRY);
+    when(userTypeService.getUserTypes(user)).thenReturn(EnumSet.of(UserType.INDUSTRY));
     when(pwaContactService.getContactRoles(application, user.getLinkedPerson())).thenReturn(Set.of());
     when(pwaHolderTeamService.getRolesInHolderTeam(detail, user.getLinkedPerson())).thenReturn(EnumSet.noneOf(PwaOrganisationRole.class));
 
@@ -206,7 +206,7 @@ public class ApplicationInvolvementServiceTest {
   @Test
   public void getApplicationInvolvementDto_regulatorUser_assignedCo_onlyRelevantInteractionsAndDataPopulated() {
 
-    when(userTypeService.getUserType(user)).thenReturn(UserType.OGA);
+    when(userTypeService.getUserTypes(user)).thenReturn(EnumSet.of(UserType.OGA));
     var assignment = new Assignment(application.getBusinessKey(), application.getWorkflowType(), WorkflowAssignment.CASE_OFFICER, user.getLinkedPerson().getId());
     when(assignmentService.getAssignmentsForPerson(application, user.getLinkedPerson())).thenReturn(List.of(assignment));
 
@@ -225,7 +225,7 @@ public class ApplicationInvolvementServiceTest {
   @Test
   public void getApplicationInvolvementDto_regulatorUser_notAssignedCo_onlyRelevantInteractionsAndDataPopulated() {
 
-    when(userTypeService.getUserType(user)).thenReturn(UserType.OGA);
+    when(userTypeService.getUserTypes(user)).thenReturn(EnumSet.of(UserType.OGA));
 
     var involvement = applicationInvolvementService.getApplicationInvolvementDto(detail, user);
 
@@ -242,7 +242,7 @@ public class ApplicationInvolvementServiceTest {
   @Test
   public void getApplicationInvolvementDto_regulatorUser_pwaManagerStage_onlyRelevantInteractionsAndDataPopulated() {
 
-    when(userTypeService.getUserType(user)).thenReturn(UserType.OGA);
+    when(userTypeService.getUserTypes(user)).thenReturn(EnumSet.of(UserType.OGA));
     when(camundaWorkflowService.getAllActiveWorkflowTasks(application)).thenReturn(
         Set.of(new WorkflowTaskInstance(application, PwaApplicationWorkflowTask.APPLICATION_REVIEW)));
 
@@ -259,11 +259,78 @@ public class ApplicationInvolvementServiceTest {
   }
 
   @Test
+  public void getApplicationInvolvementDto_regulatorUser_andInSomeIndustryHolderTeam_butNotForApp() {
+
+    when(userTypeService.getUserTypes(user)).thenReturn(EnumSet.of(UserType.OGA, UserType.INDUSTRY));
+    when(camundaWorkflowService.getAllActiveWorkflowTasks(application)).thenReturn(
+        Set.of(new WorkflowTaskInstance(application, PwaApplicationWorkflowTask.APPLICATION_REVIEW)));
+
+    var involvement = applicationInvolvementService.getApplicationInvolvementDto(detail, user);
+
+    verifyNoInteractions(consulteeGroupTeamService, consultationRequestService, consulteeGroupDetailService);
+
+    assertThat(involvement.getPwaApplication()).isEqualTo(application);
+    assertThat(involvement.getContactRoles()).isEmpty();
+    assertThat(involvement.isUserInHolderTeam()).isFalse();
+    assertThat(involvement.getConsultationInvolvement()).isEmpty();
+    assertThat(involvement.isUserAssignedCaseOfficer()).isFalse();
+    assertThat(involvement.isPwaManagerStage()).isTrue();
+
+  }
+
+  @Test
+  public void getApplicationInvolvementDto_regulatorUser_andInSomeIndustryHolderTeamForApp() {
+
+    when(userTypeService.getUserTypes(user)).thenReturn(EnumSet.of(UserType.OGA, UserType.INDUSTRY));
+    when(camundaWorkflowService.getAllActiveWorkflowTasks(application)).thenReturn(
+        Set.of(new WorkflowTaskInstance(application, PwaApplicationWorkflowTask.APPLICATION_REVIEW)));
+
+    when(pwaHolderTeamService.getRolesInHolderTeam(detail, user.getLinkedPerson())).thenReturn(EnumSet.of(PwaOrganisationRole.APPLICATION_SUBMITTER));
+
+    var involvement = applicationInvolvementService.getApplicationInvolvementDto(detail, user);
+
+    verifyNoInteractions(consulteeGroupTeamService, consultationRequestService, consulteeGroupDetailService);
+
+    assertThat(involvement.getPwaApplication()).isEqualTo(application);
+    assertThat(involvement.getContactRoles()).isEmpty();
+    assertThat(involvement.hasAnyOfTheseHolderRoles(PwaOrganisationRole.APPLICATION_SUBMITTER)).isTrue();
+    assertThat(involvement.isUserInHolderTeam()).isTrue();
+    assertThat(involvement.getConsultationInvolvement()).isEmpty();
+    assertThat(involvement.isUserAssignedCaseOfficer()).isFalse();
+    assertThat(involvement.isPwaManagerStage()).isTrue();
+
+  }
+
+  @Test
+  public void getApplicationInvolvementDto_regulatorUser_andInAppContactRoleForApp() {
+
+    when(userTypeService.getUserTypes(user)).thenReturn(EnumSet.of(UserType.OGA, UserType.INDUSTRY));
+    when(camundaWorkflowService.getAllActiveWorkflowTasks(application)).thenReturn(
+        Set.of(new WorkflowTaskInstance(application, PwaApplicationWorkflowTask.APPLICATION_REVIEW)));
+
+    when(pwaContactService.getContactRoles(application, user.getLinkedPerson())).thenReturn(EnumSet.of(PwaContactRole.PREPARER));
+
+    var involvement = applicationInvolvementService.getApplicationInvolvementDto(detail, user);
+
+    verifyNoInteractions(consulteeGroupTeamService, consultationRequestService, consulteeGroupDetailService);
+
+    assertThat(involvement.getPwaApplication()).isEqualTo(application);
+    assertThat(involvement.getContactRoles()).containsExactly(PwaContactRole.PREPARER);
+    assertThat(involvement.isUserInAppContactTeam()).isTrue();
+    assertThat(involvement.hasAnyOfTheseHolderRoles(PwaOrganisationRole.values())).isFalse();
+    assertThat(involvement.isUserInHolderTeam()).isFalse();
+    assertThat(involvement.getConsultationInvolvement()).isEmpty();
+    assertThat(involvement.isUserAssignedCaseOfficer()).isFalse();
+    assertThat(involvement.isPwaManagerStage()).isTrue();
+
+  }
+
+  @Test
   public void getApplicationInvolvementDto_consulteeUser_notConsulted_onlyRelevantInteractionsAndDataPopulated() {
 
     var groupDetail = ConsulteeGroupTestingUtils.createConsulteeGroup("name", "abb");
 
-    when(userTypeService.getUserType(user)).thenReturn(UserType.CONSULTEE);
+    when(userTypeService.getUserTypes(user)).thenReturn(EnumSet.of(UserType.CONSULTEE));
     when(consulteeGroupTeamService.getTeamMemberByPerson(any())).thenReturn(Optional.of(
         new ConsulteeGroupTeamMember(
             groupDetail.getConsulteeGroup(),
@@ -297,7 +364,7 @@ public class ApplicationInvolvementServiceTest {
 
     var groupDetail = ConsulteeGroupTestingUtils.createConsulteeGroup("name", "abb");
 
-    when(userTypeService.getUserType(user)).thenReturn(UserType.CONSULTEE);
+    when(userTypeService.getUserTypes(user)).thenReturn(EnumSet.of(UserType.CONSULTEE));
     when(consulteeGroupTeamService.getTeamMemberByPerson(any())).thenReturn(Optional.of(
         new ConsulteeGroupTeamMember(
             groupDetail.getConsulteeGroup(),
@@ -343,7 +410,7 @@ public class ApplicationInvolvementServiceTest {
 
     var groupDetail = ConsulteeGroupTestingUtils.createConsulteeGroup("name", "abb");
 
-    when(userTypeService.getUserType(user)).thenReturn(UserType.CONSULTEE);
+    when(userTypeService.getUserTypes(user)).thenReturn(EnumSet.of(UserType.CONSULTEE));
     when(consulteeGroupTeamService.getTeamMemberByPerson(any())).thenReturn(Optional.of(
         new ConsulteeGroupTeamMember(
             groupDetail.getConsulteeGroup(),
