@@ -78,7 +78,7 @@ public class PickedPwaRetrievalService {
 
     return nonConsentedPwaService.getNonConsentedMasterPwaDetailByHolderOrgUnits(potentialHolderOrganisationUnits)
         .stream()
-        .filter(masterPwaDetail -> String.valueOf(masterPwaDetail.getMasterPwaId()).equals(pickedPwaId))
+        .filter(masterPwaDetail -> masterPwaDetail.getMasterPwaId() == pickedPwaId)
         .map(MasterPwaDetail::getMasterPwa)
         .findFirst()
         .orElseThrow(() -> new IllegalStateException("Could not find authorised non-consented master pwa with id: " + pickedPwaId));
