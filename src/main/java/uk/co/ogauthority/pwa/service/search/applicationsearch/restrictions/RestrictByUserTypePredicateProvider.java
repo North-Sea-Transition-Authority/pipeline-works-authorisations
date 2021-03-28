@@ -193,9 +193,9 @@ public class RestrictByUserTypePredicateProvider implements ApplicationSearchPre
 
     var lastSubmittedOrFirstDraftVersionPredicate = getLastSubmittedVersionOrFirstDraftPredicate(searchCoreQuery, searchCoreRoot);
 
-    // limit so we only ever see the last submitted version
+    // limit so we only ever see the last submitted version or first draft version
     // and
-    // A the last submitted version is for an INITIAL_PWA app where HOLDER set to users org
+    // A the last submitted/first draft version is for an INITIAL_PWA app where HOLDER set to users org
     // or
     // B the master pwa ID of the application matches one where a consented HOLDER is one of the user's orgs
 
@@ -233,8 +233,8 @@ public class RestrictByUserTypePredicateProvider implements ApplicationSearchPre
         .join(PadOrganisationRole_.PWA_APPLICATION_DETAIL);
     Join<PwaApplicationDetail, PwaApplication> appDetailToAppJoin = orgRoleToAppDetailJoin.join(PwaApplicationDetail_.PWA_APPLICATION);
 
-    // have to do a separate "last submitted version" subquery here so that only those initial pwa app where you are a holder on the last
-    // submitted version get returned and included in the results. Dont want a situation where if you were a holder on a previous
+    // have to do a separate "last submitted/first draft version" subquery here so that only those initial pwa apps where
+    // you are a holder get returned and included in the results. Dont want a situation where if you were a holder on a previous
     // version the whole initial PWA app gets returned.
     Subquery<Integer> lastSubmittedOrFirstDraftVersionSubQuery = initialPwaApplicationQuery.subquery(Integer.class);
     Root<PadVersionLookup> padVersionLookupRoot = lastSubmittedOrFirstDraftVersionSubQuery.from(PadVersionLookup.class);

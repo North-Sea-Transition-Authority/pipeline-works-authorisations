@@ -11,7 +11,7 @@ import uk.co.ogauthority.pwa.service.appprocessing.processingcharges.appfees.fee
 public interface ApplicationFeeItemProvider {
 
   /**
-   * If canProvideFeeItems returns true, define when the fee items should be provided in relation ot other fee providers.
+   * If canProvideFeeItems returns true, define when the fee items should be provided in relation to other fee providers.
    */
   int getProvisionOrdering();
 
