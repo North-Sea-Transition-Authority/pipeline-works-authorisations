@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -12,7 +11,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
-import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaDetail;
 import uk.co.ogauthority.pwa.service.masterpwas.ConsentedMasterPwaService;
 import uk.co.ogauthority.pwa.service.masterpwas.NonConsentedPwaService;
 import uk.co.ogauthority.pwa.service.teams.PwaHolderTeamService;
@@ -32,10 +30,6 @@ public class PickedPwaRetrievalServiceTest {
   private PwaHolderTeamService pwaHolderTeamService;
 
 
-  @Mock
-  private MasterPwaDetail masterPwaDetail;
-
-
   private WebUserAccount webUserAccount = new WebUserAccount(1);
 
   private PickedPwaRetrievalService pickedPwaRetrievalService;
@@ -47,7 +41,6 @@ public class PickedPwaRetrievalServiceTest {
         nonConsentedPwaService,
         pwaHolderTeamService);
 
-    when(masterPwaDetail.getMasterPwaId()).thenReturn(999);
   }
 
   @Test
