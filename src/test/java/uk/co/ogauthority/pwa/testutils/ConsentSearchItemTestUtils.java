@@ -27,10 +27,10 @@ public class ConsentSearchItemTestUtils {
     return item;
   }
 
-  public static PwaHolderOrgUnit createPwaHolderOrgUnit(int rowId, int pwaId, PortalOrganisationUnit organisationUnit) {
+  public static PwaHolderOrgUnit createPwaHolderOrgUnit(String rowId, int pwaId, PortalOrganisationUnit organisationUnit) {
 
     var orgUnit = new PwaHolderOrgUnit();
-    orgUnit.setRowId(rowId);
+    orgUnit.setCompositeId(rowId);
     orgUnit.setPwaId(pwaId);
     orgUnit.setOuId(organisationUnit.getOuId());
     orgUnit.setOrgGrpId(organisationUnit.getPortalOrganisationGroup().getOrgGrpId());

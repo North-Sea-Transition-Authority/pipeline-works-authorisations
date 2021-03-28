@@ -1,4 +1,4 @@
-CREATE OR REPLACE VIEW ${datasource.user}.workarea_search_items (
+CREATE OR REPLACE FORCE VIEW ${datasource.user}.workarea_search_items (
   pwa_id
 , pwa_detail_id
 , pwa_application_id
@@ -74,13 +74,9 @@ SELECT
 
 , (
   -- when dealing with a migrated case, include all HOLDERS, even if not successfully mapped to avoid hiding expected info
-  SELECT LISTAGG(COALESCE(pou.name, pcor.migrated_organisation_name), ';;;;') WITHIN GROUP(ORDER BY 1)
-  FROM ${datasource.user}.pwa_consents pc
-  JOIN ${datasource.user}.pwa_consent_organisation_roles pcor ON pc.id = pcor.added_by_pwa_consent_id
-  LEFT JOIN ${datasource.user}.portal_organisation_units pou ON pcor.ou_id = pou.ou_id
-  WHERE pc.pwa_id = p.id
-  AND pcor.ended_by_pwa_consent_id IS NULL
-  AND pcor.role = 'HOLDER'
+  SELECT LISTAGG(COALESCE(vphou.ou_name, vphou.migrated_organisation_name), ';;;;') WITHIN GROUP(ORDER BY 1)
+  FROM ${datasource.user}.vw_pwa_holder_org_units vphou
+  WHERE vphou.pwa_id = p.id
   ) pwa_holder_name_list
 
 , (
