@@ -83,7 +83,7 @@ public class NonConsentedPwaService {
             "JOIN PwaApplication pa ON mpd.masterPwa = pa.masterPwa " +
             "JOIN PadVersionLookup pvl ON pvl.pwaApplicationId = pa.id " +
             "JOIN PwaApplicationDetail pad ON pad.pwaApplication = pa " +
-            "  AND pad.versionNo = COALESCE(pvl.latestSubmittedVersionNo, pvl.maxDraftVersionNo) " +
+            "  AND pad.versionNo = pvl.latestSubmittedVersionNo " +
             "JOIN PadOrganisationRole por ON por.pwaApplicationDetail = pad " +
             "WHERE mpd.endInstant IS NULL " + // latest master pwa detail
             "AND mpd.masterPwaDetailStatus = :masterPwaDetailStatus " +
