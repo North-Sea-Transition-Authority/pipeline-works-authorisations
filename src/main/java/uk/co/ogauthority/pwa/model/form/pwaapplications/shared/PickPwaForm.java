@@ -1,16 +1,23 @@
 package uk.co.ogauthority.pwa.model.form.pwaapplications.shared;
 
-import javax.validation.constraints.NotNull;
-
 public class PickPwaForm {
-  @NotNull(message = "Select a PWA")
-  private String pickablePwaString;
+  private Integer consentedMasterPwaId;
 
-  public String getPickablePwaString() {
-    return pickablePwaString;
+  private Integer nonConsentedMasterPwaId;
+
+  public Integer getConsentedMasterPwaId() {
+    return consentedMasterPwaId;
   }
 
-  public void setPickablePwaString(String pickablePwaString) {
-    this.pickablePwaString = pickablePwaString;
+  public void setConsentedMasterPwaId(Integer consentedMasterPwaId) {
+    this.consentedMasterPwaId = consentedMasterPwaId;
+  }
+
+  public Integer getNonConsentedMasterPwaId() {
+    return nonConsentedMasterPwaId;
+  }
+
+  public void setNonConsentedMasterPwaId(Integer nonConsentedMasterPwaId) {
+    this.nonConsentedMasterPwaId = nonConsentedMasterPwaId;
   }
 }

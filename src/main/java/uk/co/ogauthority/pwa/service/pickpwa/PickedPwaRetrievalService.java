@@ -1,56 +1,87 @@
 package uk.co.ogauthority.pwa.service.pickpwa;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import javax.transaction.Transactional;
+import java.util.Comparator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaDetail;
 import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
-import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaAuthorisationService;
+import uk.co.ogauthority.pwa.service.masterpwas.ConsentedMasterPwaService;
+import uk.co.ogauthority.pwa.service.masterpwas.NonConsentedPwaService;
+import uk.co.ogauthority.pwa.service.teams.PwaHolderTeamService;
+import uk.co.ogauthority.pwa.util.StreamUtils;
 
 @Service
 public class PickedPwaRetrievalService {
 
-  private final MasterPwaAuthorisationService masterPwaAuthorisationService;
+  private final ConsentedMasterPwaService consentedMasterPwaService;
+  private final NonConsentedPwaService nonConsentedPwaService;
+  private final PwaHolderTeamService pwaHolderTeamService;
 
   @Autowired
-  public PickedPwaRetrievalService(MasterPwaAuthorisationService masterPwaAuthorisationService) {
-    this.masterPwaAuthorisationService = masterPwaAuthorisationService;
+  public PickedPwaRetrievalService(ConsentedMasterPwaService consentedMasterPwaService,
+                                   NonConsentedPwaService nonConsentedPwaService,
+                                   PwaHolderTeamService pwaHolderTeamService) {
+    this.consentedMasterPwaService = consentedMasterPwaService;
+    this.nonConsentedPwaService = nonConsentedPwaService;
+    this.pwaHolderTeamService = pwaHolderTeamService;
+
   }
 
-  /**
-   * A PWA is pickable if the user has the application creator role within the PWA's holder team.
-   */
-  public List<PickablePwaDto> getPickablePwasWhereAuthorised(WebUserAccount webUserAccount) {
-    Set<MasterPwa> authorisedAccessPwas = masterPwaAuthorisationService.getMasterPwasWhereUserIsAuthorised(
+  public PickableMasterPwaOptions getPickablePwaOptions(WebUserAccount webUserAccount) {
+
+    var potentialHolderOrganisationUnits =  pwaHolderTeamService.getPortalOrganisationUnitsWhereUserHasOrgRole(
         webUserAccount,
-        PwaOrganisationRole.APPLICATION_CREATOR);
+        PwaOrganisationRole.APPLICATION_CREATOR
+    );
 
-    List<MasterPwaDetail> masterPwas = masterPwaAuthorisationService.getCurrentMasterPwaDetails(authorisedAccessPwas);
+    var consentedMasterPwaMap = consentedMasterPwaService.getMasterPwaDetailsWhereAnyPortalOrgUnitsHolder(
+        potentialHolderOrganisationUnits)
+        .stream()
+        .sorted(Comparator.comparing(MasterPwaDetail::getReference))
+        .collect(
+            StreamUtils.toLinkedHashMap(mpd -> String.valueOf(mpd.getMasterPwaId()), MasterPwaDetail::getReference));
 
-    List<PickablePwaDto> pickablePwaDtos = new ArrayList<>();
-    for (MasterPwaDetail masterPwaDetail : masterPwas) {
-      pickablePwaDtos.add(PickablePwaDto.from(masterPwaDetail));
-    }
+    var nonConsentedMasterPwaMap = nonConsentedPwaService.getNonConsentedMasterPwaDetailByHolderOrgUnits(
+        potentialHolderOrganisationUnits)
+        .stream()
+        .sorted(Comparator.comparing(MasterPwaDetail::getReference))
+        .collect(
+            StreamUtils.toLinkedHashMap(mpd -> String.valueOf(mpd.getMasterPwaId()), MasterPwaDetail::getReference));
 
-    return pickablePwaDtos;
+    return new PickableMasterPwaOptions(consentedMasterPwaMap, nonConsentedMasterPwaMap);
   }
 
-  @Transactional
-  public MasterPwa getPickedPwa(PickablePwa pickedPwaForVariation, WebUserAccount user) {
+  public MasterPwa getPickedConsentedPwa(Integer pickedPwaId, WebUserAccount user) {
 
-    if (pickedPwaForVariation.getPickablePwaSource() == PickablePwaSource.MASTER) {
-      return masterPwaAuthorisationService.getMasterPwaIfAuthorised(
-          pickedPwaForVariation.getContentId(),
-          user,
-          PwaOrganisationRole.APPLICATION_CREATOR
-      );
-    }
-    throw new IllegalStateException("Unexpected value: " + pickedPwaForVariation.toString());
+    var potentialHolderOrganisationUnits =  pwaHolderTeamService.getPortalOrganisationUnitsWhereUserHasOrgRole(
+        user,
+        PwaOrganisationRole.APPLICATION_CREATOR
+    );
+
+    return consentedMasterPwaService.getMasterPwaDetailsWhereAnyPortalOrgUnitsHolder(potentialHolderOrganisationUnits)
+        .stream()
+        .filter(masterPwaDetail -> masterPwaDetail.getMasterPwaId() == pickedPwaId)
+        .map(MasterPwaDetail::getMasterPwa)
+        .findFirst()
+        .orElseThrow(() -> new IllegalStateException("Could not find authorised consented master pwa with id: " + pickedPwaId));
+
+  }
+
+  public MasterPwa getPickedNonConsentedPwa(Integer pickedPwaId, WebUserAccount user) {
+
+    var potentialHolderOrganisationUnits =  pwaHolderTeamService.getPortalOrganisationUnitsWhereUserHasOrgRole(
+        user,
+        PwaOrganisationRole.APPLICATION_CREATOR
+    );
+
+    return nonConsentedPwaService.getNonConsentedMasterPwaDetailByHolderOrgUnits(potentialHolderOrganisationUnits)
+        .stream()
+        .filter(masterPwaDetail -> String.valueOf(masterPwaDetail.getMasterPwaId()).equals(pickedPwaId))
+        .map(MasterPwaDetail::getMasterPwa)
+        .findFirst()
+        .orElseThrow(() -> new IllegalStateException("Could not find authorised non-consented master pwa with id: " + pickedPwaId));
 
   }
 

@@ -6,7 +6,6 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.validation.Valid;
@@ -20,22 +19,20 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
-import uk.co.ogauthority.pwa.controller.WorkAreaController;
+import uk.co.ogauthority.pwa.controller.pwaapplications.start.StartPwaApplicationController;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationGroup;
 import uk.co.ogauthority.pwa.exception.AccessDeniedException;
+import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.PickPwaForm;
 import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
-import uk.co.ogauthority.pwa.model.teams.PwaOrganisationTeam;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
-import uk.co.ogauthority.pwa.service.pickpwa.PickPwaForVariationService;
-import uk.co.ogauthority.pwa.service.pickpwa.PickablePwa;
-import uk.co.ogauthority.pwa.service.pickpwa.PickablePwaDto;
+import uk.co.ogauthority.pwa.service.pickpwa.PickPwaFormValidator;
 import uk.co.ogauthority.pwa.service.pickpwa.PickedPwaRetrievalService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
-import uk.co.ogauthority.pwa.service.teams.TeamService;
-import uk.co.ogauthority.pwa.util.StreamUtils;
+import uk.co.ogauthority.pwa.service.pwaapplications.workflow.PwaApplicationCreationService;
+import uk.co.ogauthority.pwa.service.teams.PwaHolderTeamService;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
 @Controller
@@ -53,22 +50,26 @@ public class PickExistingPwaController {
 
   private final PwaApplicationRedirectService pwaApplicationRedirectService;
   private final PickedPwaRetrievalService pickedPwaRetrievalService;
-  private final PickPwaForVariationService pickPwaForVariationService;
   private final ControllerHelperService controllerHelperService;
-  private final TeamService teamService;
+  private final PwaHolderTeamService pwaHolderTeamService;
+  private final PwaApplicationCreationService pwaApplicationCreationService;
+  private final PickPwaFormValidator pickPwaFormValidator;
+
 
   @Autowired
   public PickExistingPwaController(
       PwaApplicationRedirectService pwaApplicationRedirectService,
       PickedPwaRetrievalService pickPwaService,
-      PickPwaForVariationService pickPwaForVariationService,
       ControllerHelperService controllerHelperService,
-      TeamService teamService) {
+      PwaHolderTeamService pwaHolderTeamService,
+      PwaApplicationCreationService pwaApplicationCreationService,
+      PickPwaFormValidator pickPwaFormValidator) {
     this.pwaApplicationRedirectService = pwaApplicationRedirectService;
     this.pickedPwaRetrievalService = pickPwaService;
-    this.pickPwaForVariationService = pickPwaForVariationService;
     this.controllerHelperService = controllerHelperService;
-    this.teamService = teamService;
+    this.pwaHolderTeamService = pwaHolderTeamService;
+    this.pwaApplicationCreationService = pwaApplicationCreationService;
+    this.pickPwaFormValidator = pickPwaFormValidator;
   }
 
 
@@ -82,23 +83,24 @@ public class PickExistingPwaController {
   }
 
   private ModelAndView getPickPwaModelAndView(AuthenticatedUserAccount user, PwaApplicationType pwaApplicationType) {
+    var pickableOptions = pickedPwaRetrievalService.getPickablePwaOptions(user);
 
-    Map<String, String> selectablePwaMap = pickedPwaRetrievalService.getPickablePwasWhereAuthorised(user)
+    List<String> ogList = pwaHolderTeamService.getPortalOrganisationGroupsWhereUserHasOrgRole(user, PwaOrganisationRole.APPLICATION_CREATOR)
         .stream()
-        .sorted(Comparator.comparing(PickablePwaDto::getReference))
-        .collect(StreamUtils.toLinkedHashMap(PickablePwaDto::getPickablePwaString, PickablePwaDto::getReference));
-
-    List<String> ogList = getOrgGroupsUserCanAccess(user).stream()
         .sorted(Comparator.comparing(PortalOrganisationGroup::getName))
         .map(PortalOrganisationGroup::getName)
         .collect(Collectors.toList());
+    var showNonConsentedOptions = !pickableOptions.getNonconsentedPickablePwas().isEmpty()
+        && PwaApplicationType.DEPOSIT_CONSENT.equals(pwaApplicationType);
 
     return new ModelAndView("pwaApplication/shared/pickPwaForApplication")
-        .addObject("selectablePwaMap", selectablePwaMap)
-        .addObject("workareaUrl", ReverseRouter.route(on(WorkAreaController.class).renderWorkArea(null, null, null)))
+        .addObject("consentedPwaMap", pickableOptions.getConsentedPickablePwas())
+        .addObject("nonConsentedPwaMap", pickableOptions.getNonconsentedPickablePwas())
+        .addObject("backUrl", ReverseRouter.route(on(StartPwaApplicationController.class).renderStartApplication(null)))
         .addObject("ogList", ogList)
         .addObject("errorList", List.of())
-        .addObject("pwaApplicationType", pwaApplicationType);
+        .addObject("pwaApplicationType", pwaApplicationType)
+        .addObject("showNonConsentedOptions", showNonConsentedOptions);
   }
 
   @PostMapping("/pick-pwa-for-application")
@@ -108,30 +110,29 @@ public class PickExistingPwaController {
                                                  BindingResult bindingResult,
                                                  AuthenticatedUserAccount user) {
     checkApplicationTypeValid(pwaApplicationType);
-    return controllerHelperService.checkErrorsAndRedirect(bindingResult, getPickPwaModelAndView(user, pwaApplicationType), () -> {
-      var pickedPwa = new PickablePwa(form.getPickablePwaString());
-      var newApplication = pickPwaForVariationService.createPwaVariationApplicationForPickedPwa(
-          pickedPwa,
-          pwaApplicationType,
-          user
-      );
-      return pwaApplicationRedirectService.getTaskListRedirect(newApplication);
-    });
-  }
 
+    pickPwaFormValidator.validate(form, bindingResult, pwaApplicationType);
+    return controllerHelperService.checkErrorsAndRedirect(bindingResult,
+        getPickPwaModelAndView(user, pwaApplicationType), () -> {
+          MasterPwa pickedPwa;
+          if (form.getConsentedMasterPwaId() != null) {
+            pickedPwa = pickedPwaRetrievalService.getPickedConsentedPwa(form.getConsentedMasterPwaId(), user);
+          } else {
+            pickedPwa = pickedPwaRetrievalService.getPickedNonConsentedPwa(form.getNonConsentedMasterPwaId(), user);
+          }
+          var newApplication = pwaApplicationCreationService.createVariationPwaApplication(
+              user,
+              pickedPwa,
+              pwaApplicationType)
+              .getPwaApplication();
+          return pwaApplicationRedirectService.getTaskListRedirect(newApplication);
+        });
+  }
 
   private void checkApplicationTypeValid(PwaApplicationType pwaApplicationType) {
     if (!VALID_START_APPLICATION_TYPES.contains(pwaApplicationType)) {
       throw new AccessDeniedException("Unsupported type for pick pwa: " + pwaApplicationType);
     }
-  }
-
-  private List<PortalOrganisationGroup> getOrgGroupsUserCanAccess(AuthenticatedUserAccount user) {
-    return teamService.getOrganisationTeamListIfPersonInRole(
-        user.getLinkedPerson(),
-        List.of(PwaOrganisationRole.APPLICATION_CREATOR)).stream()
-        .map(PwaOrganisationTeam::getPortalOrganisationGroup)
-        .collect(Collectors.toList());
   }
 
 
