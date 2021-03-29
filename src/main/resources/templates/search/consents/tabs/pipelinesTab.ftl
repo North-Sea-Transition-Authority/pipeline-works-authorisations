@@ -21,7 +21,7 @@
       <tr class="govuk-table__row">
         <td class="govuk-table__cell">
           <@fdsAction.link linkText=pwaPipelineView.pipelineNumber linkUrl=springUrl(urlFactory.getPwaPipelineViewUrl(pwaPipelineView.pipelineId)) 
-              linkClass="govuk-link" linkScreenReaderText="Go to pipeline ${pwaPipelineView.pipelineNumber} view screen" role=false start=false openInNewTab=true/> 
+              linkClass="govuk-link" linkScreenReaderText="Go to pipeline ${pwaPipelineView.pipelineNumber} view screen" openInNewTab=true/> 
         </td>
         <td class="govuk-table__cell">
           ${pwaPipelineView.status.getDisplayText()}

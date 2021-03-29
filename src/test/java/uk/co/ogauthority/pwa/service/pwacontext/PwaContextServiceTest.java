@@ -45,8 +45,8 @@ public class PwaContextServiceTest {
   private ConsentSearchResultView consentSearchResultView;
   private Set<PwaPermission> validPermissions;
 
-  private static int PIPELINE_ID = 1;
-  private static int MASTER_PWA_ID1 = 1;
+  private final static int PIPELINE_ID = 1;
+  private final static int MASTER_PWA_ID1 = 1;
 
   @Before
   public void setUp() {

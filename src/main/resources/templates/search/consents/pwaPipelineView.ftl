@@ -9,7 +9,7 @@
 
 
 
-<@defaultPage htmlTitle="View PWA pipeline ${pipelineReference}" fullWidthColumn=true topNavigation=true wrapperWidth=true caption="View pipeline">
+<@defaultPage htmlTitle="View PWA pipeline ${pipelineReference}" fullWidthColumn=true topNavigation=true breadcrumbs=true wrapperWidth=true caption="View pipeline (PWA - ${consentSearchResultView.pwaReference})">
 
     <h1 class="govuk-heading-xl">${pipelineReference}</h1>
 

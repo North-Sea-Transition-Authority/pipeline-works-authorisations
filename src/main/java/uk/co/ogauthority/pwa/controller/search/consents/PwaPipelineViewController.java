@@ -13,6 +13,7 @@ import uk.co.ogauthority.pwa.service.pwacontext.PwaContext;
 import uk.co.ogauthority.pwa.service.pwacontext.PwaPermission;
 import uk.co.ogauthority.pwa.service.pwacontext.PwaPermissionCheck;
 import uk.co.ogauthority.pwa.service.search.consents.PwaPipelineViewTab;
+import uk.co.ogauthority.pwa.service.search.consents.SearchPwaBreadcrumbService;
 import uk.co.ogauthority.pwa.service.search.consents.pwaviewtab.PwaPipelineViewUrlFactory;
 
 @Controller
@@ -21,10 +22,13 @@ import uk.co.ogauthority.pwa.service.search.consents.pwaviewtab.PwaPipelineViewU
 public class PwaPipelineViewController {
 
   private final PipelineDetailService pipelineDetailService;
+  private final SearchPwaBreadcrumbService searchPwaBreadcrumbService;
 
   @Autowired
-  public PwaPipelineViewController(PipelineDetailService pipelineDetailService) {
+  public PwaPipelineViewController(PipelineDetailService pipelineDetailService,
+                                   SearchPwaBreadcrumbService searchPwaBreadcrumbService) {
     this.pipelineDetailService = pipelineDetailService;
+    this.searchPwaBreadcrumbService = searchPwaBreadcrumbService;
   }
 
 
@@ -37,12 +41,17 @@ public class PwaPipelineViewController {
 
     var pipelineDetail = pipelineDetailService.getLatestByPipelineId(pipelineId);
 
-    return new ModelAndView("search/consents/pwaPipelineView")
+    var modelAndView =  new ModelAndView("search/consents/pwaPipelineView")
         .addObject("consentSearchResultView", pwaContext.getConsentSearchResultView())
         .addObject("availableTabs", PwaPipelineViewTab.stream().collect(Collectors.toList()))
         .addObject("currentProcessingTab", tab)
         .addObject("pwaPipelineViewUrlFactory", new PwaPipelineViewUrlFactory(pwaContext.getMasterPwa().getId(), pipelineId))
         .addObject("pipelineReference", pipelineDetail.getPipelineNumber());
+
+    searchPwaBreadcrumbService.fromPwaPipelineView(
+        pwaId, pwaContext.getConsentSearchResultView().getPwaReference(), modelAndView, "View pipeline");
+
+    return modelAndView;
   }
 
 
