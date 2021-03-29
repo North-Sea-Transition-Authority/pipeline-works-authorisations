@@ -50,7 +50,8 @@ public class PipelineReferencePredicateProvider implements ConsentSearchPredicat
     masterPwaSubQuery.select(pipelineToMasterPwaJoin.get(MasterPwa_.ID));
 
     masterPwaSubQuery.where(cb.and(
-        cb.equal(pipelineDetailRoot.get(PipelineDetail_.PIPELINE_NUMBER), searchParams.getPipelineReference())),
+        cb.like(cb.lower(pipelineDetailRoot.get(PipelineDetail_.PIPELINE_NUMBER)),
+            "%" + searchParams.getPipelineReference().toLowerCase() + "%")),
         cb.isTrue(pipelineDetailRoot.get(PipelineDetail_.TIP_FLAG))
     );
 

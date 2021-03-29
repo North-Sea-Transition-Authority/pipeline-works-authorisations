@@ -275,7 +275,24 @@ public class ConsentSearchServiceTest {
 
   @Test
   @Transactional
-  public void search_filterByPipelineReference_filteredAndReturned() {
+  public void search_filterByPipelineReference_likeMatch_filteredAndReturned() {
+
+    var context = new ConsentSearchContext(ogaUser, UserType.OGA);
+    var params = new ConsentSearchParams();
+    params.setPipelineReference("pl1717");
+
+    setupPipelineRefSearchData(params.getPipelineReference().toUpperCase());
+
+    var result = consentSearchService.search(params, context);
+    var resultViewComparisonList = List.of(ConsentSearchResultView.fromSearchItem(pwa1Shell));
+
+    var screenView = new SearchScreenView<>(1, resultViewComparisonList);
+    assertThat(result).isEqualTo(screenView);
+  }
+
+  @Test
+  @Transactional
+  public void search_filterByPipelineReference_exactMatch_filteredAndReturned() {
 
     var context = new ConsentSearchContext(ogaUser, UserType.OGA);
     var params = new ConsentSearchParams();
