@@ -33,6 +33,7 @@ import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
 import uk.co.ogauthority.pwa.model.entity.search.consents.ConsentSearchItem;
 import uk.co.ogauthority.pwa.model.entity.search.consents.PwaConsentView;
 import uk.co.ogauthority.pwa.model.entity.search.consents.PwaHolderOrgGrp;
+import uk.co.ogauthority.pwa.model.entity.search.consents.PwaHolderOrgUnitTestUtil;
 import uk.co.ogauthority.pwa.model.search.consents.ConsentSearchContext;
 import uk.co.ogauthority.pwa.model.search.consents.ConsentSearchParams;
 import uk.co.ogauthority.pwa.model.view.search.SearchScreenView;
@@ -404,10 +405,10 @@ public class ConsentSearchServiceTest {
     var pwa2OrgGrpShell = new PwaHolderOrgGrp(3, 2, shell.getOrgGrpId());
     var pwa2OrgGrpWintershall = new PwaHolderOrgGrp(4, 2, wintershall.getOrgGrpId());
 
-    var pwa1OrgUnit = ConsentSearchItemTestUtils.createPwaHolderOrgUnit(1, 1, shellOrg1);
-    var pwa2OrgUnit1 = ConsentSearchItemTestUtils.createPwaHolderOrgUnit(2, 2, shellOrg2);
-    var pwa2OrgUnit2 = ConsentSearchItemTestUtils.createPwaHolderOrgUnit(3, 2, wintershallOrg);
-    var pwa3OrgUnit = ConsentSearchItemTestUtils.createPwaHolderOrgUnit(4, 3, bpOrg);
+    var pwa1OrgUnit = PwaHolderOrgUnitTestUtil.createPwaHolderOrgUnit("1", 1, shellOrg1);
+    var pwa2OrgUnit1 = PwaHolderOrgUnitTestUtil.createPwaHolderOrgUnit("2", 2, shellOrg2);
+    var pwa2OrgUnit2 = PwaHolderOrgUnitTestUtil.createPwaHolderOrgUnit("3", 2, wintershallOrg);
+    var pwa3OrgUnit = PwaHolderOrgUnitTestUtil.createPwaHolderOrgUnit("4", 3, bpOrg);
 
     entityManager.persist(pwa1Shell);
     entityManager.persist(pwa3Bp);

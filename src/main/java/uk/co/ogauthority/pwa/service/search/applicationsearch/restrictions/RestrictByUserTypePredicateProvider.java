@@ -35,10 +35,8 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDeta
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailView_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.PadVersionLookup;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.PadVersionLookup_;
-import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
-import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsentOrganisationRole;
-import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsentOrganisationRole_;
-import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent_;
+import uk.co.ogauthority.pwa.model.entity.search.consents.PwaHolderOrgUnit;
+import uk.co.ogauthority.pwa.model.entity.search.consents.PwaHolderOrgUnit_;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.search.applicationsearch.ApplicationSearchContext;
 import uk.co.ogauthority.pwa.service.search.applicationsearch.ApplicationSearchParameters;
@@ -280,18 +278,11 @@ public class RestrictByUserTypePredicateProvider implements ApplicationSearchPre
         .collect(toSet());
 
     Subquery<Integer> variationApplicationSubQuery = searchCoreQuery.subquery(Integer.class);
-    Root<PwaConsentOrganisationRole> pwaConsentOrgRoleRoot = variationApplicationSubQuery.from(PwaConsentOrganisationRole.class);
-
-    Join<PwaConsentOrganisationRole, PwaConsent> orgRoleToConsentJoin = pwaConsentOrgRoleRoot
-        .join(PwaConsentOrganisationRole_.ADDED_BY_PWA_CONSENT);
+    Root<PwaHolderOrgUnit> holderOrgUnitRoot = variationApplicationSubQuery.from(PwaHolderOrgUnit.class);
 
     // return master pwa ids from subquery where a holder is one of the org units within searchers org group(s)
-    variationApplicationSubQuery.select(orgRoleToConsentJoin.get(PwaConsent_.MASTER_PWA));
-    variationApplicationSubQuery.where(cb.and(
-        cb.in(pwaConsentOrgRoleRoot.get(PwaConsentOrganisationRole_.ORGANISATION_UNIT_ID)).value(holderOrgUnitIds),
-        cb.isNull(pwaConsentOrgRoleRoot.get(PwaConsentOrganisationRole_.ENDED_BY_PWA_CONSENT)),
-        cb.equal(pwaConsentOrgRoleRoot.get(PwaConsentOrganisationRole_.ROLE), HuooRole.HOLDER)
-    ));
+    variationApplicationSubQuery.select(holderOrgUnitRoot.get(PwaHolderOrgUnit_.PWA_ID));
+    variationApplicationSubQuery.where(cb.in(holderOrgUnitRoot.get(PwaHolderOrgUnit_.OU_ID)).value(holderOrgUnitIds));
 
     return cb.in(searchCoreRoot.get(ApplicationDetailView_.PWA_ID)).value(variationApplicationSubQuery);
   }
