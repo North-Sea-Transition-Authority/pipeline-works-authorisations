@@ -20,6 +20,9 @@
                 <@fdsSearch.searchFilterItem itemName="Consent reference" expanded=searchParams.consentReference?has_content>
                   <@fdsTextInput.textInput path="form.consentReference" labelText="Consent reference" labelClass="govuk-visually-hidden" />
                 </@fdsSearch.searchFilterItem>
+                <@fdsSearch.searchFilterItem itemName="Pipeline reference" expanded=searchParams.pipelineReference?has_content>
+                  <@fdsTextInput.textInput path="form.pipelineReference" labelText="Pipeline reference" labelClass="govuk-visually-hidden" />
+                </@fdsSearch.searchFilterItem>
             </@fdsSearch.searchFilterList>
         </@fdsSearch.searchFilter>
 
