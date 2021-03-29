@@ -19,10 +19,11 @@
       <tr class="govuk-table__row">
 
         <td class="govuk-table__cell">
-          ${pwaConsentHistoryView.consentReference}
           <#if pwaConsentHistoryView.pwaApplicationId?has_content>
-            <@fdsAction.link linkText="Download consent document" linkUrl=springUrl(urlFactory.getConsentDocumentUrl(pwaConsentHistoryView.pwaApplicationId, pwaConsentHistoryView.applicationType)) 
+            <@fdsAction.link linkText=pwaConsentHistoryView.consentReference linkUrl=springUrl(urlFactory.getConsentDocumentUrl(pwaConsentHistoryView.pwaApplicationId, pwaConsentHistoryView.applicationType)) 
             linkClass="govuk-link" linkScreenReaderText="Download consent document" role=false start=false openInNewTab=true/> 
+          <#else>
+            ${pwaConsentHistoryView.consentReference}
           </#if>
         </td>
 
