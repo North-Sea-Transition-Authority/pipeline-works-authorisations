@@ -327,6 +327,20 @@ public class PwaAppProcessingPermissionServiceTest {
 
 
   @Test
+  public void getAppProcessingPermissions_hasViewConsentDocumentPermission_userInHolderTeam() {
+
+    user = new AuthenticatedUserAccount(user, VALID_VIEW_CONSENT_DOC_PRIVILEGES);
+
+    var appInvolvement = ApplicationInvolvementDtoTestUtil.generatePwaHolderTeamInvolvement(
+        application, Set.of(PwaOrganisationRole.APPLICATION_CREATOR));
+    when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
+
+    var permissions = processingPermissionService.getProcessingPermissionsDto(detail, user).getProcessingPermissions();
+    AssertionTestUtils.assertNotEmptyAndContains(permissions, PwaAppProcessingPermission.VIEW_CONSENT_DOCUMENT);
+
+  }
+
+  @Test
   public void getAppProcessingPermissions_hasViewConsentDocumentPermission_validUserPrivileges() {
 
     user = new AuthenticatedUserAccount(user, VALID_VIEW_CONSENT_DOC_PRIVILEGES);
