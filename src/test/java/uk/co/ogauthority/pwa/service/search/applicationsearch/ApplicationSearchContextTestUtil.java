@@ -24,6 +24,16 @@ public final class ApplicationSearchContextTestUtil {
         Collections.emptySet());
   }
 
+  public static ApplicationSearchContext industryAndOgaContext(AuthenticatedUserAccount authenticatedUserAccount,
+                                                               Set<OrganisationUnitId> organisationUnitIdSet) {
+    return new ApplicationSearchContext(
+        authenticatedUserAccount,
+        EnumSet.of(UserType.INDUSTRY, UserType.OGA),
+        Collections.emptySet(),
+        organisationUnitIdSet,
+        Collections.emptySet());
+  }
+
   public static ApplicationSearchContext industryContext(AuthenticatedUserAccount authenticatedUserAccount,
                                                          Set<OrganisationUnitId> organisationUnitIdSet) {
     return new ApplicationSearchContext(
