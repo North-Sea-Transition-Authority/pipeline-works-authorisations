@@ -650,7 +650,7 @@ public class PwaAppProcessingPermissionServiceTest {
     when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
 
     var permissions = processingPermissionService.getProcessingPermissionsDto(detail, user).getProcessingPermissions();
-    AssertionTestUtils.assertNotEmptyAndDoesNotContain(permissions, PwaAppProcessingPermission.CONSULTEE_ADVICE);
+    assertThat(permissions).isEmpty();
 
   }
 
