@@ -2,7 +2,9 @@ package uk.co.ogauthority.pwa.controller.pwaapplications.start;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
@@ -49,7 +51,9 @@ public class StartPwaApplicationController {
   }
 
   private ModelAndView getStartAppModelAndView() {
-    var applicationTypes = List.of(PwaApplicationType.values());
+    var applicationTypes = PwaApplicationType.stream()
+        .sorted(Comparator.comparing(PwaApplicationType::getDisplayOrder))
+        .collect(Collectors.toList());
 
     return new ModelAndView("pwaApplication/selectApplication")
       .addObject("contactEmail", contactEmail)
