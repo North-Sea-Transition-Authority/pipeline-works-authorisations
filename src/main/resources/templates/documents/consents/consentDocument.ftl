@@ -137,7 +137,8 @@
     }
 
     .tableA {
-      page-break-inside:auto
+      page-break-inside:auto;
+      font-size: 12px;
     }
 
     .tableA th {
