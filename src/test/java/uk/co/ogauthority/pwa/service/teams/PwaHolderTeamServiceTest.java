@@ -22,6 +22,7 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.energyportal.model.entity.PersonTestUtil;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationGroup;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
+import uk.co.ogauthority.pwa.energyportal.service.organisations.PortalOrganisationsAccessor;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
@@ -53,6 +54,9 @@ public class PwaHolderTeamServiceTest {
   private TeamService teamService;
 
   @Mock
+  private PortalOrganisationsAccessor portalOrganisationsAccessor;
+
+  @Mock
   private TeamManagementService teamManagementService;
 
   private PwaHolderTeamService pwaHolderTeamService;
@@ -77,7 +81,8 @@ public class PwaHolderTeamServiceTest {
 
     person = PersonTestUtil.createDefaultPerson();
 
-    pwaHolderTeamService = new PwaHolderTeamService(pwaConsentOrganisationRoleService, padOrganisationRoleService, teamService, teamManagementService);
+    pwaHolderTeamService = new PwaHolderTeamService(pwaConsentOrganisationRoleService, padOrganisationRoleService, teamService, teamManagementService,
+        portalOrganisationsAccessor);
 
     consentedHolderGroup = PortalOrganisationTestUtils.generateOrganisationGroup(1, "O", "O");
     appHolderGroup = PortalOrganisationTestUtils.generateOrganisationGroup(2, "T", "T");

@@ -1,38 +1,34 @@
 package uk.co.ogauthority.pwa.service.pickpwa;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
 
-import java.util.List;
-import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
-import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
-import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaDetail;
-import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
-import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaAuthorisationService;
+import uk.co.ogauthority.pwa.service.masterpwas.ConsentedMasterPwaService;
+import uk.co.ogauthority.pwa.service.masterpwas.NonConsentedPwaService;
+import uk.co.ogauthority.pwa.service.teams.PwaHolderTeamService;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PickedPwaRetrievalServiceTest {
 
-  @Mock
-  private MasterPwaAuthorisationService masterPwaAuthorisationService;
+  private static final int MASTER_PWA_ID = 1;
 
   @Mock
-  private MasterPwaDetail masterPwaDetail;
+  private ConsentedMasterPwaService consentedMasterPwaService;
 
   @Mock
-  private MasterPwa masterPwa;
+  private NonConsentedPwaService nonConsentedPwaService;
 
   @Mock
-  private PickablePwa pickedPwa;
+  private PwaHolderTeamService pwaHolderTeamService;
+
 
   private WebUserAccount webUserAccount = new WebUserAccount(1);
 
@@ -41,58 +37,26 @@ public class PickedPwaRetrievalServiceTest {
   @Before
   public void setup() {
     pickedPwaRetrievalService = new PickedPwaRetrievalService(
-        masterPwaAuthorisationService
-        );
+        consentedMasterPwaService,
+        nonConsentedPwaService,
+        pwaHolderTeamService);
 
-    when(pickedPwa.getContentId()).thenReturn(100);
-    when(masterPwaDetail.getMasterPwaId()).thenReturn(999);
   }
 
   @Test
   public void getPickablePwasWhereAuthorised_whenNoPickablePwasExist() {
-    assertThat(pickedPwaRetrievalService.getPickablePwasWhereAuthorised(webUserAccount)).isEmpty();
+    var options = pickedPwaRetrievalService.getPickablePwaOptions(webUserAccount);
+    assertThat(options.getConsentedPickablePwas()).isEmpty();
+    assertThat(options.getNonconsentedPickablePwas()).isEmpty();
 
-    verify(masterPwaAuthorisationService, times(1)).getMasterPwasWhereUserIsAuthorised(webUserAccount, PwaOrganisationRole.APPLICATION_CREATOR);
-
-  }
-
-  @Test
-  public void getPickablePwasWhereAuthorised_whenSingleMasterPwaExistsOnly() {
-    when(masterPwaDetail.getReference()).thenReturn("REFERENCE");
-
-    when(masterPwaAuthorisationService.getMasterPwasWhereUserIsAuthorised(webUserAccount, PwaOrganisationRole.APPLICATION_CREATOR)).thenReturn(
-        Set.of(masterPwa)
-    );
-    when(masterPwaAuthorisationService.getCurrentMasterPwaDetails(Set.of(masterPwa))).thenReturn(
-        List.of(masterPwaDetail)
-    );
-
-    var pickablePwaDtos = pickedPwaRetrievalService.getPickablePwasWhereAuthorised(webUserAccount);
-
-    assertThat(pickablePwaDtos.size()).isEqualTo(1);
-    assertThat(pickablePwaDtos.get(0).getPickablePwaString()).isEqualTo(
-        PickablePwaSource.MASTER.getPickableStringPrefix() + masterPwaDetail.getMasterPwaId()
-    );
-    assertThat(pickablePwaDtos.get(0).getReference()).isEqualTo(masterPwaDetail.getReference());
+    verify(consentedMasterPwaService, times(1)).getMasterPwaDetailsWhereAnyPortalOrgUnitsHolder(any());
 
   }
 
   @Test(expected = IllegalStateException.class)
-  public void getPickedPwa_whenUnknownPwaSource() {
-    when(pickedPwa.getPickablePwaSource()).thenReturn(PickablePwaSource.UNKNOWN);
-    var masterPwa = pickedPwaRetrievalService.getPickedPwa(pickedPwa, webUserAccount);
+  public void getPickedConsentedPwa_whenUnknownPwaSource() {
+    var masterPwa = pickedPwaRetrievalService.getPickedConsentedPwa(MASTER_PWA_ID, webUserAccount);
   }
 
-  @Test
-  public void getPickedPwa_whenSourceIsMaster() {
-    when(pickedPwa.getPickablePwaSource()).thenReturn(PickablePwaSource.MASTER);
-    pickedPwaRetrievalService.getPickedPwa(pickedPwa, webUserAccount);
-    verify(masterPwaAuthorisationService, times(1)).getMasterPwaIfAuthorised(
-        pickedPwa.getContentId(),
-        webUserAccount,
-        PwaOrganisationRole.APPLICATION_CREATOR
-    );
-    verifyNoMoreInteractions(masterPwaAuthorisationService);
-  }
 
 }

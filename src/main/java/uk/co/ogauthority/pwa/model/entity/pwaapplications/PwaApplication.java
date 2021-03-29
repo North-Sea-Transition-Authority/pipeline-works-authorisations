@@ -11,13 +11,15 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationDecision;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.workflow.WorkflowSubject;
 import uk.co.ogauthority.pwa.service.enums.workflow.WorkflowType;
 
-@Entity(name = "pwa_applications")
+@Entity
+@Table(name = "pwa_applications")
 public class PwaApplication implements WorkflowSubject {
 
   @Id
