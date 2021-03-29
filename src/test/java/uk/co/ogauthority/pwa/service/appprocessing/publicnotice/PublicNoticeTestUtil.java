@@ -51,6 +51,10 @@ public final class PublicNoticeTestUtil {
     return new PublicNotice(pwaApplication, PublicNoticeStatus.PUBLISHED, VERSION1);
   }
 
+  public static PublicNotice createEndedPublicNotice(PwaApplication pwaApplication) {
+    return new PublicNotice(pwaApplication, PublicNoticeStatus.ENDED, VERSION1);
+  }
+
   static PublicNotice createWithdrawnPublicNotice(PwaApplication pwaApplication) {
     var publicNotice = new PublicNotice(pwaApplication, PublicNoticeStatus.WITHDRAWN, 10);
     publicNotice.setWithdrawingPersonId(new PersonId(1));

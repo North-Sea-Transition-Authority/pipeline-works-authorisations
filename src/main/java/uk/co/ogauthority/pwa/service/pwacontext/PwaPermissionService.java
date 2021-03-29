@@ -37,7 +37,7 @@ public class PwaPermissionService {
     return Arrays.stream(PwaPermission.values())
         .filter(permission -> {
           if (permission == PwaPermission.VIEW_PWA) {
-            return isUserInHolderTeam(masterPwa, user.getLinkedPerson()) || isUserOgaConsentViewer(
+            return isUserInHolderTeam(masterPwa, user.getLinkedPerson()) || userHasRegulatorRole(
                 user.getLinkedPerson());
           }
           return false;
@@ -59,8 +59,8 @@ public class PwaPermissionService {
         .anyMatch(holderOrgGroups::contains);
   }
 
-  private boolean isUserOgaConsentViewer(Person person) {
-    return teamService.getRegulatorTeamIfPersonInRole(person, Set.of(PwaRegulatorRole.CONSENT_VIEWER)).isPresent();
+  private boolean userHasRegulatorRole(Person person) {
+    return teamService.getRegulatorTeamIfPersonInRole(person, EnumSet.allOf(PwaRegulatorRole.class)).isPresent();
   }
 
 

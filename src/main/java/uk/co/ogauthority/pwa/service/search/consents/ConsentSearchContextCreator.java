@@ -28,7 +28,7 @@ public class ConsentSearchContextCreator {
 
   public ConsentSearchContext createContext(AuthenticatedUserAccount user) {
 
-    var context = new ConsentSearchContext(user, userTypeService.getUserType(user));
+    var context = new ConsentSearchContext(user, userTypeService.getPriorityUserType(user));
 
     if (context.getUserType() == UserType.INDUSTRY) {
 

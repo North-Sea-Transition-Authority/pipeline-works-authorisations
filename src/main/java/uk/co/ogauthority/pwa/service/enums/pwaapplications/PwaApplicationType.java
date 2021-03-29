@@ -21,7 +21,8 @@ public enum PwaApplicationType {
       MedianLineImplication.FALSE,
       DocumentSpec.INITIAL_APP_CONSENT_DOCUMENT,
       TemplateTextType.INITIAL_CONSENT_EMAIL_COVER_LETTER,
-      PwaConsentType.INITIAL_PWA),
+      PwaConsentType.INITIAL_PWA,
+      10),
 
   DEPOSIT_CONSENT(
       "Deposit Consent",
@@ -30,7 +31,8 @@ public enum PwaApplicationType {
       Period.ofWeeks(8),
       MedianLineImplication.FALSE,
       DocumentSpec.DEPOSIT_CONSENT_DOCUMENT,
-      PwaConsentType.DEPOSIT_CONSENT),
+      PwaConsentType.DEPOSIT_CONSENT,
+      20),
 
   CAT_1_VARIATION(
       "Cat. 1 Variation",
@@ -38,7 +40,8 @@ public enum PwaApplicationType {
       Period.ofMonths(4),
       Period.ofMonths(6),
       MedianLineImplication.TRUE,
-      DocumentSpec.VARIATION_CONSENT_DOCUMENT),
+      DocumentSpec.VARIATION_CONSENT_DOCUMENT,
+      30),
 
   CAT_2_VARIATION(
       "Cat. 2 Variation",
@@ -46,7 +49,8 @@ public enum PwaApplicationType {
       Period.ofWeeks(6),
       Period.ofWeeks(8),
       MedianLineImplication.TRUE,
-      DocumentSpec.VARIATION_CONSENT_DOCUMENT),
+      DocumentSpec.VARIATION_CONSENT_DOCUMENT,
+      40),
 
   HUOO_VARIATION(
       "HUOO Variation",
@@ -54,7 +58,8 @@ public enum PwaApplicationType {
       Period.ofWeeks(6),
       Period.ofWeeks(8),
       MedianLineImplication.FALSE,
-      DocumentSpec.VARIATION_CONSENT_DOCUMENT),
+      DocumentSpec.VARIATION_CONSENT_DOCUMENT,
+      50),
 
   OPTIONS_VARIATION(
       "Options Variation",
@@ -62,7 +67,8 @@ public enum PwaApplicationType {
       Period.ofWeeks(6),
       Period.ofWeeks(8),
       MedianLineImplication.FALSE,
-      DocumentSpec.VARIATION_CONSENT_DOCUMENT),
+      DocumentSpec.VARIATION_CONSENT_DOCUMENT,
+      60),
 
   DECOMMISSIONING(
       "Decommissioning",
@@ -70,7 +76,8 @@ public enum PwaApplicationType {
       Period.ofMonths(6),
       Period.ofMonths(6),
       MedianLineImplication.TRUE,
-      DocumentSpec.VARIATION_CONSENT_DOCUMENT);
+      DocumentSpec.VARIATION_CONSENT_DOCUMENT,
+      70);
 
   private final String displayName;
   private final String urlPathString;
@@ -83,19 +90,22 @@ public enum PwaApplicationType {
   private final TemplateTextType consentEmailTemplateTextType;
 
   private final PwaConsentType pwaConsentType;
+  private final int displayOrder;
 
   PwaApplicationType(String displayName,
                      String urlPathString,
                      Period minProcessingPeriod,
                      Period maxProcessingPeriod,
                      MedianLineImplication medianLineImplication,
-                     DocumentSpec consentDocumentSpec) {
+                     DocumentSpec consentDocumentSpec,
+                     int displayOrder) {
     this.displayName = displayName;
     this.urlPathString = urlPathString;
     this.minProcessingPeriod = minProcessingPeriod;
     this.maxProcessingPeriod = maxProcessingPeriod;
     this.medianLineImplication = medianLineImplication;
     this.consentDocumentSpec = consentDocumentSpec;
+    this.displayOrder = displayOrder;
     this.consentEmailTemplateTextType = TemplateTextType.VARIATION_CONSENT_EMAIL_COVER_LETTER;
     this.pwaConsentType = PwaConsentType.VARIATION;
   }
@@ -107,7 +117,8 @@ public enum PwaApplicationType {
                      MedianLineImplication medianLineImplication,
                      DocumentSpec consentDocumentSpec,
                      TemplateTextType consentEmailTemplateTextType,
-                     PwaConsentType pwaConsentType) {
+                     PwaConsentType pwaConsentType,
+                     int displayOrder) {
     this.displayName = displayName;
     this.urlPathString = urlPathString;
     this.minProcessingPeriod = minProcessingPeriod;
@@ -116,6 +127,7 @@ public enum PwaApplicationType {
     this.consentDocumentSpec = consentDocumentSpec;
     this.consentEmailTemplateTextType = consentEmailTemplateTextType;
     this.pwaConsentType = pwaConsentType;
+    this.displayOrder = displayOrder;
   }
 
   PwaApplicationType(String displayName,
@@ -124,13 +136,15 @@ public enum PwaApplicationType {
                      Period maxProcessingPeriod,
                      MedianLineImplication medianLineImplication,
                      DocumentSpec consentDocumentSpec,
-                     PwaConsentType pwaConsentType) {
+                     PwaConsentType pwaConsentType,
+                     int displayOrder) {
     this.displayName = displayName;
     this.urlPathString = urlPathString;
     this.minProcessingPeriod = minProcessingPeriod;
     this.maxProcessingPeriod = maxProcessingPeriod;
     this.medianLineImplication = medianLineImplication;
     this.consentDocumentSpec = consentDocumentSpec;
+    this.displayOrder = displayOrder;
     this.consentEmailTemplateTextType = TemplateTextType.VARIATION_CONSENT_EMAIL_COVER_LETTER;
     this.pwaConsentType = pwaConsentType;
   }
@@ -182,6 +196,10 @@ public enum PwaApplicationType {
 
   public PwaConsentType getPwaConsentType() {
     return pwaConsentType;
+  }
+
+  public int getDisplayOrder() {
+    return displayOrder;
   }
 
   public static Stream<PwaApplicationType> stream() {

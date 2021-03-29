@@ -3,11 +3,14 @@ package uk.co.ogauthority.pwa.service.appprocessing.publicnotice;
 import com.google.common.annotations.VisibleForTesting;
 import java.time.Clock;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -121,6 +124,30 @@ public class PublicNoticeService implements AppProcessingService {
         || processingContext.getAppProcessingPermissions().contains(PwaAppProcessingPermission.APPROVE_PUBLIC_NOTICE);
   }
 
+
+  private TaskStatus getPublicNoticeTaskStatus(PwaAppProcessingContext processingContext, boolean atLeastOneSatisfactoryVersion) {
+
+    var latestPublicNoticeOpt = publicNoticeRepository.findFirstByPwaApplicationOrderByVersionDesc(processingContext.getPwaApplication());
+    var permissions = processingContext.getAppProcessingPermissions();
+
+    if (latestPublicNoticeOpt.isPresent() && permissions.contains(PwaAppProcessingPermission.APPROVE_PUBLIC_NOTICE)
+        && PublicNoticeStatus.MANAGER_APPROVAL.equals(latestPublicNoticeOpt.get().getStatus())) {
+      return TaskStatus.ACTION_REQUIRED;
+
+    } else if (latestPublicNoticeOpt.isPresent() && PublicNoticeStatus.ENDED.equals(latestPublicNoticeOpt.get().getStatus())) {
+      return TaskStatus.COMPLETED;
+
+    } else if (latestPublicNoticeOpt.isPresent()) {
+      return TaskStatus.IN_PROGRESS;
+
+    } else if (atLeastOneSatisfactoryVersion) {
+      return TaskStatus.NOT_STARTED;
+
+    } else {
+      return TaskStatus.CANNOT_START_YET;
+    }
+  }
+
   @Override
   public TaskListEntry getTaskListEntry(PwaAppProcessingTask task, PwaAppProcessingContext processingContext) {
 
@@ -129,10 +156,9 @@ public class PublicNoticeService implements AppProcessingService {
     return new TaskListEntry(
         task.getTaskName(),
         task.getRoute(processingContext),
-        atLeastOneSatisfactoryVersion ? TaskTag.from(TaskStatus.NOT_STARTED) : TaskTag.from(TaskStatus.CANNOT_START_YET),
+        TaskTag.from(getPublicNoticeTaskStatus(processingContext, atLeastOneSatisfactoryVersion)),
         atLeastOneSatisfactoryVersion ? TaskState.EDIT : TaskState.LOCK,
         task.getDisplayOrder());
-
   }
 
   public List<PublicNotice> getPublicNoticesByStatus(PublicNoticeStatus publicNoticeStatus) {
@@ -161,12 +187,37 @@ public class PublicNoticeService implements AppProcessingService {
             "Couldn't find public notice date with public notice ID: %s", publicNotice.getId())));
   }
 
+  public List<PublicNotice> getAllPublicNoticesDueForPublishing() {
+
+    var waitingPublicNotices = getPublicNoticesByStatus(PublicNoticeStatus.WAITING);
+    var tomorrow = LocalDate.now().plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant();
+    return publicNoticeDatesRepository.getAllByPublicNoticeInAndPublicationStartTimestampBeforeAndEndedByPersonIdIsNull(
+        waitingPublicNotices, tomorrow)
+        .stream().map(PublicNoticeDate::getPublicNotice)
+        .collect(Collectors.toList());
+  }
+
+  public List<PublicNotice> getAllPublicNoticesDueToEnd() {
+
+    var publishedPublicNotices = getPublicNoticesByStatus(PublicNoticeStatus.PUBLISHED);
+    var tomorrow = LocalDate.now().plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant();
+    return publicNoticeDatesRepository.getAllByPublicNoticeInAndPublicationEndTimestampBeforeAndEndedByPersonIdIsNull(
+        publishedPublicNotices, tomorrow)
+        .stream().map(PublicNoticeDate::getPublicNotice)
+        .collect(Collectors.toList());
+  }
+
   public void savePublicNoticeRequest(PublicNoticeRequest publicNoticeRequest) {
     publicNoticeRequestRepository.save(publicNoticeRequest);
   }
 
   public PublicNotice savePublicNotice(PublicNotice publicNotice) {
     return publicNoticeRepository.save(publicNotice);
+  }
+
+  public void endPublicNotices(List<PublicNotice> publicNotices) {
+    publicNotices.forEach(publicNotice -> publicNotice.setStatus(PublicNoticeStatus.ENDED));
+    publicNoticeRepository.saveAll(publicNotices);
   }
 
   void archivePublicNoticeDocument(PublicNoticeDocument publicNoticeDocument) {

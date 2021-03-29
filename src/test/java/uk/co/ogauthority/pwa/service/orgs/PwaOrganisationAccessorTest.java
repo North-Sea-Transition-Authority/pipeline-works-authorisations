@@ -50,8 +50,8 @@ public class PwaOrganisationAccessorTest {
     industryUser = new AuthenticatedUserAccount(new WebUserAccount(1, PersonTestUtil.createPersonFrom(new PersonId(1))), Set.of());
     ogaUser = new AuthenticatedUserAccount(new WebUserAccount(2, PersonTestUtil.createPersonFrom(new PersonId(2))), Set.of());
 
-    when(userTypeService.getUserType(industryUser)).thenReturn(UserType.INDUSTRY);
-    when(userTypeService.getUserType(ogaUser)).thenReturn(UserType.OGA);
+    when(userTypeService.getPriorityUserType(industryUser)).thenReturn(UserType.INDUSTRY);
+    when(userTypeService.getPriorityUserType(ogaUser)).thenReturn(UserType.OGA);
 
     pwaOrganisationAccessor = new PwaOrganisationAccessor(teamService, portalOrganisationsAccessor, userTypeService);
 

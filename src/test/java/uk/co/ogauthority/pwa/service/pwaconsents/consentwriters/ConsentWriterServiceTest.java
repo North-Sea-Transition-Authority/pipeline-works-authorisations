@@ -37,6 +37,9 @@ public class ConsentWriterServiceTest {
   private FieldWriter fieldWriter;
 
   @MockBean
+  private HuooWriter huooWriter;
+
+  @MockBean
   private TaskListService taskListService;
 
   @Autowired
@@ -49,6 +52,8 @@ public class ConsentWriterServiceTest {
 
     when(fieldWriter.getTaskDependentOn()).thenCallRealMethod();
     when(fieldWriter.getExecutionOrder()).thenCallRealMethod();
+    when(huooWriter.getTaskDependentOn()).thenCallRealMethod();
+    when(huooWriter.getExecutionOrder()).thenCallRealMethod();
 
     applicationTasks = ApplicationTask.stream().collect(Collectors.toList());
     when(taskListService.getShownApplicationTasksForDetail(any()))
@@ -64,9 +69,10 @@ public class ConsentWriterServiceTest {
 
     consentWriterService.updateConsentedData(detail, consent);
 
-    var inOrder = Mockito.inOrder(fieldWriter);
+    var inOrder = Mockito.inOrder(fieldWriter, huooWriter);
 
     inOrder.verify(fieldWriter, times(1)).write(detail, consent);
+    inOrder.verify(huooWriter, times(1)).write(detail, consent);
 
   }
 
@@ -81,6 +87,20 @@ public class ConsentWriterServiceTest {
     consentWriterService.updateConsentedData(detail, consent);
 
     verify(fieldWriter, times(0)).write(detail, consent);
+
+  }
+
+  @Test
+  public void updateConsentedData_noHuooTask_noHuooWrite() {
+
+    applicationTasks.remove(ApplicationTask.HUOO);
+
+    var detail = new PwaApplicationDetail();
+    var consent = new PwaConsent();
+
+    consentWriterService.updateConsentedData(detail, consent);
+
+    verify(huooWriter, times(0)).write(detail, consent);
 
   }
 

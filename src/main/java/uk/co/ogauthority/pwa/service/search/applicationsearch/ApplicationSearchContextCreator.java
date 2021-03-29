@@ -38,7 +38,7 @@ public class ApplicationSearchContextCreator {
   }
 
   public ApplicationSearchContext createContext(AuthenticatedUserAccount authenticatedUserAccount) {
-    var primaryUserType = userTypeService.getUserType(authenticatedUserAccount);
+    var primaryUserType = userTypeService.getPriorityUserType(authenticatedUserAccount);
     var orgGroupsWhereMemberOfHolderTeam = teamService.getOrganisationTeamsPersonIsMemberOf(
         authenticatedUserAccount.getLinkedPerson()
     )

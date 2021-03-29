@@ -112,7 +112,7 @@ public class ApplicationDetailSearchServiceIntegrationTest {
 
   public void createDefaultAppDetailViews() {
     app1Version1 = ApplicationDetailViewTestUtil.createDraftDetailView(
-        pwa1.getId(), PwaApplicationType.INITIAL, APP1_ID, 10, VERSION1, true
+        pwa1.getId(), PwaApplicationType.DEPOSIT_CONSENT, APP1_ID, 10, VERSION1, true
     );
     app1VersionLookup = PadVersionLookupTestUtil.createLookupForDraftOnlyApp(APP1_ID);
 
@@ -125,7 +125,7 @@ public class ApplicationDetailSearchServiceIntegrationTest {
     // only submitted - no ongoing update - not accepted
     app2VersionLookup = PadVersionLookupTestUtil.createLookupForSubmittedApp(
         APP2_ID,
-        clock.instant(),
+        VERSION2,
         null,
         null
     );
@@ -345,7 +345,7 @@ public class ApplicationDetailSearchServiceIntegrationTest {
    */
   @Transactional
   @Test
-  public void search_whenIndustryUser_unfiltered_applicationsForPwaWhereUserInOrgGrpTeam_submittedAndDraftAppsExist() {
+  public void search_whenIndustryUser_unfiltered_applicationsForPwaWhereUserInOrgGrpTeam_submittedAndUpdateAppsExist() {
 
     setupDefaultData();
 
@@ -354,7 +354,7 @@ public class ApplicationDetailSearchServiceIntegrationTest {
 
     var result = applicationDetailSearchService.search(searchParams, searchContext);
 
-    var screenView = new SearchScreenView<>(1, List.of(app2Version2));
+    var screenView = new SearchScreenView<>(2, List.of(app2Version2, app1Version1));
 
     assertThat(result).isEqualTo(screenView);
 
@@ -373,7 +373,7 @@ public class ApplicationDetailSearchServiceIntegrationTest {
 
     var app = new PwaApplication(pwa3, PwaApplicationType.INITIAL, 0);
     entityManager.persist(app);
-    var appDetail = new PwaApplicationDetail(app, 1, 1, clock.instant());
+    var appDetail = new PwaApplicationDetail(app, VERSION1, 1, clock.instant());
     appDetail.setStatus(PwaApplicationStatus.CASE_OFFICER_REVIEW);
     appDetail.setSubmittedTimestamp(clock.instant());
     entityManager.persist(appDetail);
@@ -384,7 +384,7 @@ public class ApplicationDetailSearchServiceIntegrationTest {
     var initialAppDetailView = createAndPersistViewFromAppDetail(appDetail);
     var initialAppLookup = PadVersionLookupTestUtil.createLookupForSubmittedApp(
         appDetail.getMasterPwaApplicationId(),
-        appDetail.getSubmittedTimestamp(),
+        VERSION1,
         null,
         null
     );
@@ -392,7 +392,40 @@ public class ApplicationDetailSearchServiceIntegrationTest {
 
    var result = applicationDetailSearchService.search(searchParams, searchContext);
 
-   var screenView = new SearchScreenView<>(2, List.of(app2Version2, initialAppDetailView));
+   var screenView = new SearchScreenView<>(3, List.of(app2Version2, app1Version1, initialAppDetailView));
+
+    assertThat(result).isEqualTo(screenView);
+
+  }
+
+  /**
+   * Test that submitted initial PWA apps appear before they are consented
+   */
+  @Transactional
+  @Test
+  public void search_whenIndustryUser_unfiltered_draftInitialPwaAppExists() {
+
+    setupDefaultData();
+    searchContext = getIndustryContext(USER_HOLDER_ORG_UNIT_ID);
+    searchParams = ApplicationSearchParametersBuilder.createEmptyParams();
+
+    var app = new PwaApplication(pwa3, PwaApplicationType.INITIAL, 0);
+    entityManager.persist(app);
+    var appDetail = new PwaApplicationDetail(app, VERSION1, 1, clock.instant());
+    appDetail.setStatus(PwaApplicationStatus.CASE_OFFICER_REVIEW);
+    appDetail.setSubmittedTimestamp(clock.instant());
+    entityManager.persist(appDetail);
+    var padOrgRole = PadOrganisationRoleTestUtil.createOrgRole(HuooRole.HOLDER, portalOrg1);
+    padOrgRole.setPwaApplicationDetail(appDetail);
+    entityManager.persist(padOrgRole);
+
+    var initialAppDetailView = createAndPersistViewFromAppDetail(appDetail);
+    var initialAppLookup = PadVersionLookupTestUtil.createLookupForDraftOnlyApp(appDetail.getMasterPwaApplicationId());
+    entityManager.persist(initialAppLookup);
+
+    var result = applicationDetailSearchService.search(searchParams, searchContext);
+
+    var screenView = new SearchScreenView<>(3, List.of(app2Version2, app1Version1, initialAppDetailView));
 
     assertThat(result).isEqualTo(screenView);
 
@@ -403,20 +436,20 @@ public class ApplicationDetailSearchServiceIntegrationTest {
    */
   @Transactional
   @Test
-  public void search_whenConsulteeUser_unfiltered_limitedtoApplicationsConsultedOn_lastSatisfactoryVersion() {
+  public void search_whenConsulteeUser_unfiltered_limitedToApplicationsConsultedOn_lastSatisfactoryVersion() {
 
     setupDefaultData();
     // setup app to link to consultation request
     var consultedOnApp = new PwaApplication(pwa3, PwaApplicationType.INITIAL, 0);
     entityManager.persist(consultedOnApp);
     // have 2 submitted versions of app, one is satisfactory, one just submitted
-    var appDetailVersion1IsSatisfactory = new PwaApplicationDetail(consultedOnApp, 1, 1, clock.instant());
+    var appDetailVersion1IsSatisfactory = new PwaApplicationDetail(consultedOnApp, VERSION1, 1, clock.instant());
     appDetailVersion1IsSatisfactory.setStatus(PwaApplicationStatus.CASE_OFFICER_REVIEW);
     appDetailVersion1IsSatisfactory.setSubmittedTimestamp(clock.instant());
     appDetailVersion1IsSatisfactory.setConfirmedSatisfactoryTimestamp(clock.instant());
     appDetailVersion1IsSatisfactory.setTipFlag(false);
 
-    var appDetailVersion2SubmittedOnly = new PwaApplicationDetail(consultedOnApp, 2, 1, clock.instant());
+    var appDetailVersion2SubmittedOnly = new PwaApplicationDetail(consultedOnApp, VERSION2, 1, clock.instant());
     appDetailVersion2SubmittedOnly.setStatus(PwaApplicationStatus.CASE_OFFICER_REVIEW);
     appDetailVersion2SubmittedOnly.setSubmittedTimestamp(clock.instant());
 
@@ -429,7 +462,7 @@ public class ApplicationDetailSearchServiceIntegrationTest {
     // version lookup to store latest confirmed satisfactory time
     var versionLookup = PadVersionLookupTestUtil.createLookupForSubmittedApp(
         appDetailVersion1IsSatisfactory.getMasterPwaApplicationId(),
-        appDetailVersion1IsSatisfactory.getSubmittedTimestamp(),
+        VERSION2,
         null,
         appDetailVersion1IsSatisfactory.getConfirmedSatisfactoryTimestamp()
     );
@@ -597,7 +630,6 @@ public class ApplicationDetailSearchServiceIntegrationTest {
     assertThat(result).isEqualTo(screenView);
 
   }
-
 
   @Transactional
   @Test

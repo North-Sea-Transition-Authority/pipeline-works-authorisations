@@ -94,21 +94,38 @@ public class RestrictByUserTypePredicateProvider implements ApplicationSearchPre
                                                      Root<ApplicationDetailView> searchCoreRoot) {
     CriteriaBuilder cb = entityManager.getCriteriaBuilder();
 
-    // use instant so we can filter on the last submitted timestamp
-    Subquery<Instant> subQuery = searchCoreQuery.subquery(Instant.class);
+    Subquery<Integer> subQuery = searchCoreQuery.subquery(Integer.class);
     Root<PadVersionLookup> subRoot = subQuery.from(PadVersionLookup.class);
     // basically a correlated subquery without setting up entity relationships
-    subQuery.select(subRoot.get(PadVersionLookup_.LATEST_SUBMITTED_TIMESTAMP));
+    subQuery.select(subRoot.get(PadVersionLookup_.LATEST_SUBMITTED_VERSION_NO));
     subQuery.where(
         cb.equal(searchCoreRoot.get(ApplicationDetailView_.PWA_APPLICATION_ID), subRoot.get(PadVersionLookup_.PWA_APPLICATION_ID))
     );
 
-    return cb.equal(searchCoreRoot.get(ApplicationDetailView_.PAD_SUBMITTED_TIMESTAMP), subQuery);
+    return cb.equal(searchCoreRoot.get(ApplicationDetailView_.VERSION_NO), subQuery);
 
   }
 
-  private Predicate getLastestSatisfactoryVersionPredicate(CriteriaQuery<ApplicationDetailView> searchCoreQuery,
-                                                           Root<ApplicationDetailView> searchCoreRoot) {
+  private Predicate getLastSubmittedVersionOrFirstDraftPredicate(CriteriaQuery<ApplicationDetailView> searchCoreQuery,
+                                                                 Root<ApplicationDetailView> searchCoreRoot) {
+    CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+
+    Subquery<Integer> subQuery = searchCoreQuery.subquery(Integer.class);
+    Root<PadVersionLookup> subRoot = subQuery.from(PadVersionLookup.class);
+    // basically a correlated subquery without setting up entity relationships
+    subQuery.select(cb.coalesce(
+        subRoot.get(PadVersionLookup_.LATEST_SUBMITTED_VERSION_NO), subRoot.get(PadVersionLookup_.MAX_DRAFT_VERSION_NO))
+    );
+    subQuery.where(
+        cb.equal(searchCoreRoot.get(ApplicationDetailView_.PWA_APPLICATION_ID), subRoot.get(PadVersionLookup_.PWA_APPLICATION_ID))
+    );
+
+    return cb.equal(searchCoreRoot.get(ApplicationDetailView_.VERSION_NO), subQuery);
+
+  }
+
+  private Predicate getLatestSatisfactoryVersionPredicate(CriteriaQuery<ApplicationDetailView> searchCoreQuery,
+                                                          Root<ApplicationDetailView> searchCoreRoot) {
     CriteriaBuilder cb = entityManager.getCriteriaBuilder();
 
     // use instant so we can filter on the last confirmed satisfactory timestamp
@@ -146,7 +163,7 @@ public class RestrictByUserTypePredicateProvider implements ApplicationSearchPre
         .map(ConsulteeGroupId::asInt)
         .collect(toSet());
 
-    var latestSatisfactoryVersionPredicate = getLastestSatisfactoryVersionPredicate(searchCoreQuery, searchCoreRoot);
+    var latestSatisfactoryVersionPredicate = getLatestSatisfactoryVersionPredicate(searchCoreQuery, searchCoreRoot);
 
     Subquery<Integer> consultedUponAppIdSubQuery = searchCoreQuery.subquery(Integer.class);
     Root<ConsultationRequest> consultationRequestRoot = consultedUponAppIdSubQuery.from(ConsultationRequest.class);
@@ -174,19 +191,19 @@ public class RestrictByUserTypePredicateProvider implements ApplicationSearchPre
 
     CriteriaBuilder cb = entityManager.getCriteriaBuilder();
 
-    var lastSubmittedVersionPredicate = getLastSubmittedVersionPredicate(searchCoreQuery, searchCoreRoot);
+    var lastSubmittedOrFirstDraftVersionPredicate = getLastSubmittedVersionOrFirstDraftPredicate(searchCoreQuery, searchCoreRoot);
 
-    // limit so we only ever see the last submitted version
+    // limit so we only ever see the last submitted version or first draft version
     // and
-    // A the last submitted version is for an INITIAL_PWA app where HOLDER set to users org
+    // A the last submitted/first draft version is for an INITIAL_PWA app where HOLDER set to users org
     // or
     // B the master pwa ID of the application matches one where a consented HOLDER is one of the user's orgs
 
     return cb.and(
-        lastSubmittedVersionPredicate,
+        lastSubmittedOrFirstDraftVersionPredicate,
         cb.or(
-            getSubmittedInitialPwaApplicationsPredicate(applicationSearchContext, searchCoreRoot),
-            getSubmittedVariationApplicationsPredicate(applicationSearchContext, searchCoreQuery, searchCoreRoot)
+            getInitialPwaApplicationsPredicate(applicationSearchContext, searchCoreRoot),
+            getVariationApplicationsPredicate(applicationSearchContext, searchCoreQuery, searchCoreRoot)
         )
     );
 
@@ -196,8 +213,8 @@ public class RestrictByUserTypePredicateProvider implements ApplicationSearchPre
    * Predicate that makes sure latest version of InitialPwa applications are returned when user org unit
    * is in holder orggrp of HOLDER on latest submitted version of app.
    */
-  private Predicate getSubmittedInitialPwaApplicationsPredicate(ApplicationSearchContext applicationSearchContext,
-                                                                Root<ApplicationDetailView> searchCoreRoot) {
+  private Predicate getInitialPwaApplicationsPredicate(ApplicationSearchContext applicationSearchContext,
+                                                       Root<ApplicationDetailView> searchCoreRoot) {
 
     CriteriaBuilder cb = entityManager.getCriteriaBuilder();
 
@@ -206,7 +223,7 @@ public class RestrictByUserTypePredicateProvider implements ApplicationSearchPre
         .map(OrganisationUnitId::asInt)
         .collect(toSet());
 
-    // for initial app, do a separate independent query search to get the last submitted Initial Pwa apps where is a holder
+    // for initial app, do a separate independent query search to get the last submitted/first draft Initial Pwa apps where is a holder
     // return app id
     CriteriaQuery<Integer> initialPwaApplicationQuery = cb.createQuery(Integer.class);
     Root<PadOrganisationRole> padOrgRoleRoot = initialPwaApplicationQuery.from(PadOrganisationRole.class);
@@ -216,26 +233,29 @@ public class RestrictByUserTypePredicateProvider implements ApplicationSearchPre
         .join(PadOrganisationRole_.PWA_APPLICATION_DETAIL);
     Join<PwaApplicationDetail, PwaApplication> appDetailToAppJoin = orgRoleToAppDetailJoin.join(PwaApplicationDetail_.PWA_APPLICATION);
 
-    // have to do a separate "last submitted version" subquery here so that only those initial pwa app where you are a holder on the last
-    // submitted version get returned and included in the results. Dont want a situation where if you were a holder on a previous
+    // have to do a separate "last submitted/first draft version" subquery here so that only those initial pwa apps where
+    // you are a holder get returned and included in the results. Dont want a situation where if you were a holder on a previous
     // version the whole initial PWA app gets returned.
-    Subquery<Instant> lastSubmittedVersionSubQuery = initialPwaApplicationQuery.subquery(Instant.class);
-    Root<PadVersionLookup> padVersionLookupRoot = lastSubmittedVersionSubQuery.from(PadVersionLookup.class);
-    lastSubmittedVersionSubQuery.select(padVersionLookupRoot.get(PadVersionLookup_.LATEST_SUBMITTED_TIMESTAMP));
-    // correlate version lookup subquery by app id to avoid returning rows which happen to have the matching timestamps
-    lastSubmittedVersionSubQuery.where(
+    Subquery<Integer> lastSubmittedOrFirstDraftVersionSubQuery = initialPwaApplicationQuery.subquery(Integer.class);
+    Root<PadVersionLookup> padVersionLookupRoot = lastSubmittedOrFirstDraftVersionSubQuery.from(PadVersionLookup.class);
+    lastSubmittedOrFirstDraftVersionSubQuery.select(cb.coalesce(
+        padVersionLookupRoot.get(PadVersionLookup_.LATEST_SUBMITTED_VERSION_NO),
+        padVersionLookupRoot.get(PadVersionLookup_.MAX_DRAFT_VERSION_NO))
+    );
+    // correlate version lookup subquery to individual apps by id
+    lastSubmittedOrFirstDraftVersionSubQuery.where(
         cb.equal(appDetailToAppJoin.get(PwaApplication_.ID), padVersionLookupRoot.get(PadVersionLookup_.PWA_APPLICATION_ID))
     );
 
     Path<Integer> applicationDetailIdPath = appDetailToAppJoin.getParent().get(PwaApplicationDetail_.ID);
-    Path<Instant> applicationDetailSubmittedInstantPath = appDetailToAppJoin.getParent().get(PwaApplicationDetail_.SUBMITTED_TIMESTAMP);
+    Path<Integer> applicationDetailVersionNoPath = appDetailToAppJoin.getParent().get(PwaApplicationDetail_.VERSION_NO);
     Path<PwaApplicationType> applicationTypePath = appDetailToAppJoin.get(PwaApplication_.APPLICATION_TYPE);
     initialPwaApplicationQuery.select(applicationDetailIdPath);
     initialPwaApplicationQuery.where(cb.and(
         cb.equal(applicationTypePath, PwaApplicationType.INITIAL),
         cb.equal(padOrgRoleRoot.get(PadOrganisationRole_.ROLE), HuooRole.HOLDER),
         cb.in(padOrgRoleToPortalOrgUnitJoin.get(PortalOrganisationUnit_.OU_ID)).value(holderOrgUnitIds),
-        cb.in(applicationDetailSubmittedInstantPath).value(lastSubmittedVersionSubQuery)
+        cb.in(applicationDetailVersionNoPath).value(lastSubmittedOrFirstDraftVersionSubQuery)
     ));
 
     List<Integer> initialPwaAppDetailIdsWhereHolder = entityManager.createQuery(initialPwaApplicationQuery).getResultList();
@@ -249,9 +269,9 @@ public class RestrictByUserTypePredicateProvider implements ApplicationSearchPre
 
   }
 
-  private Predicate getSubmittedVariationApplicationsPredicate(ApplicationSearchContext applicationSearchContext,
-                                                               CriteriaQuery<ApplicationDetailView> searchCoreQuery,
-                                                               Root<ApplicationDetailView> searchCoreRoot) {
+  private Predicate getVariationApplicationsPredicate(ApplicationSearchContext applicationSearchContext,
+                                                      CriteriaQuery<ApplicationDetailView> searchCoreQuery,
+                                                      Root<ApplicationDetailView> searchCoreRoot) {
     CriteriaBuilder cb = entityManager.getCriteriaBuilder();
 
     var holderOrgUnitIds = applicationSearchContext.getOrgUnitIdsAssociatedWithHolderTeamMembership()

@@ -16,6 +16,8 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.ApplicationState;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 
@@ -129,6 +131,12 @@ public class PwaAppProcessingPermissionService {
             case CANCEL_PAYMENT:
               return PwaApplicationStatus.AWAITING_APPLICATION_PAYMENT.equals(detail.getStatus())
                   && userPrivileges.contains(PwaUserPrivilege.PWA_MANAGER);
+            case MANAGE_APPLICATION_CONTACTS:
+              return
+                  (
+                      appInvolvement.hasAnyOfTheseHolderRoles(PwaApplicationPermission.MANAGE_CONTACTS.getHolderTeamRoles())
+                      || appInvolvement.hasAnyOfTheseContactRoles(PwaContactRole.ACCESS_MANAGER)
+                  ) && !ApplicationState.COMPLETED.includes(detail.getStatus());
             default:
               return false;
           }
@@ -168,12 +176,9 @@ public class PwaAppProcessingPermissionService {
                   || userPrivileges.contains(PwaUserPrivilege.PWA_CASE_OFFICER);
             default:
               return false;
-
           }
-
         })
         .collect(Collectors.toSet());
-
   }
 
 }
