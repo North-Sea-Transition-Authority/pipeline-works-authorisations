@@ -22,12 +22,12 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
+import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationGroup;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.model.dto.consultations.ConsulteeGroupId;
 import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroup;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
-import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaTestUtil;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaAppAssignmentView;
@@ -39,14 +39,12 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDeta
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.PadVersionLookup;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.PadVersionLookupTestUtil;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
-import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsentOrganisationRoleTestUtil;
-import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsentTestUtil;
+import uk.co.ogauthority.pwa.model.entity.search.consents.PwaHolderOrgUnitTestUtil;
 import uk.co.ogauthority.pwa.model.view.search.SearchScreenView;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.users.UserType;
 import uk.co.ogauthority.pwa.service.enums.workflow.assignment.WorkflowAssignment;
-import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadOrganisationRoleTestUtil;
 import uk.co.ogauthority.pwa.service.search.applicationsearch.ApplicationDetailSearchService;
 import uk.co.ogauthority.pwa.service.search.applicationsearch.ApplicationSearchContext;
 import uk.co.ogauthority.pwa.service.search.applicationsearch.ApplicationSearchContextTestUtil;
@@ -87,7 +85,8 @@ public class ApplicationDetailSearchServiceIntegrationTest {
   private PadVersionLookup app2VersionLookup;
   private PadVersionLookup app3VersionLookup;
 
-  private PortalOrganisationUnit portalOrg1;
+  private PortalOrganisationGroup portalOrgGroup1;
+  private PortalOrganisationUnit portalOrgUnit1;
 
   private MasterPwa pwa1;
   private PwaConsent pwa1Consent;
@@ -196,10 +195,15 @@ public class ApplicationDetailSearchServiceIntegrationTest {
   }
 
   private void setupDefaultPwaConsentsAndHolderOrgs() {
-    portalOrg1 = PortalOrganisationTestUtils.generateOrganisationUnit(USER_HOLDER_ORG_UNIT_ID.asInt(), "ou1", null);
-    entityManager.persist(portalOrg1);
-    var portalOrg2 = PortalOrganisationTestUtils.generateOrganisationUnit(OTHER_HOLDER_ORG_UNIT_ID.asInt(), "ou2", null);
-    entityManager.persist(portalOrg2);
+    portalOrgGroup1 = PortalOrganisationTestUtils.generateOrganisationGroup(1, "ORG GRP 1", "OG1");
+    entityManager.persist(portalOrgGroup1);
+    portalOrgUnit1 = PortalOrganisationTestUtils.generateOrganisationUnit(USER_HOLDER_ORG_UNIT_ID.asInt(), "ou1", portalOrgGroup1);
+    entityManager.persist(portalOrgUnit1);
+
+    var portalOrgGroup2 = PortalOrganisationTestUtils.generateOrganisationGroup(2, "ORG GRP 2", "OG2");
+    entityManager.persist(portalOrgGroup2);
+    var portalOrgUnit2 = PortalOrganisationTestUtils.generateOrganisationUnit(OTHER_HOLDER_ORG_UNIT_ID.asInt(), "ou2", portalOrgGroup2);
+    entityManager.persist(portalOrgUnit2);
 
     pwa1 = MasterPwaTestUtil.create();
     pwa2 = MasterPwaTestUtil.create();
@@ -209,19 +213,9 @@ public class ApplicationDetailSearchServiceIntegrationTest {
     entityManager.persist(pwa2);
     entityManager.persist(pwa3); // for initial PWA app
 
-    pwa1Consent = PwaConsentTestUtil.createInitial(pwa1);
-    pwa2Consent = PwaConsentTestUtil.createInitial(pwa2);
+    var pwa1Holder = PwaHolderOrgUnitTestUtil.createPwaHolderOrgUnit("pwa1-org1", pwa1.getId(), portalOrgUnit1);
 
-    entityManager.persist(pwa1Consent);
-    entityManager.persist(pwa2Consent);
-
-    var pwa1Holder = PwaConsentOrganisationRoleTestUtil.createOrganisationRole(
-        pwa1Consent, USER_HOLDER_ORG_UNIT_ID, HuooRole.HOLDER
-    );
-
-    var pwa2Holder = PwaConsentOrganisationRoleTestUtil.createOrganisationRole(
-        pwa2Consent, OTHER_HOLDER_ORG_UNIT_ID, HuooRole.HOLDER
-    );
+    var pwa2Holder = PwaHolderOrgUnitTestUtil.createPwaHolderOrgUnit("pwa2-org2", pwa2.getId(), portalOrgUnit2);
 
     entityManager.persist(pwa1Holder);
     entityManager.persist(pwa2Holder);
@@ -377,9 +371,8 @@ public class ApplicationDetailSearchServiceIntegrationTest {
     appDetail.setStatus(PwaApplicationStatus.CASE_OFFICER_REVIEW);
     appDetail.setSubmittedTimestamp(clock.instant());
     entityManager.persist(appDetail);
-    var padOrgRole = PadOrganisationRoleTestUtil.createOrgRole(HuooRole.HOLDER, portalOrg1);
-    padOrgRole.setPwaApplicationDetail(appDetail);
-    entityManager.persist(padOrgRole);
+    var pwa3InitialAppHolderOrgUnit = PwaHolderOrgUnitTestUtil.createPwaHolderOrgUnit("org1CompId", pwa3.getId(), portalOrgUnit1);
+    entityManager.persist(pwa3InitialAppHolderOrgUnit);
 
     var initialAppDetailView = createAndPersistViewFromAppDetail(appDetail);
     var initialAppLookup = PadVersionLookupTestUtil.createLookupForSubmittedApp(
@@ -415,9 +408,8 @@ public class ApplicationDetailSearchServiceIntegrationTest {
     appDetail.setStatus(PwaApplicationStatus.CASE_OFFICER_REVIEW);
     appDetail.setSubmittedTimestamp(clock.instant());
     entityManager.persist(appDetail);
-    var padOrgRole = PadOrganisationRoleTestUtil.createOrgRole(HuooRole.HOLDER, portalOrg1);
-    padOrgRole.setPwaApplicationDetail(appDetail);
-    entityManager.persist(padOrgRole);
+    var pwa3InitialAppHolderOrgUnit = PwaHolderOrgUnitTestUtil.createPwaHolderOrgUnit("org1CompId", pwa3.getId(), portalOrgUnit1);
+    entityManager.persist(pwa3InitialAppHolderOrgUnit);
 
     var initialAppDetailView = createAndPersistViewFromAppDetail(appDetail);
     var initialAppLookup = PadVersionLookupTestUtil.createLookupForDraftOnlyApp(appDetail.getMasterPwaApplicationId());
@@ -669,7 +661,5 @@ public class ApplicationDetailSearchServiceIntegrationTest {
 
     assertThat(result).isEqualTo(screenView);
   }
-
-
 
 }

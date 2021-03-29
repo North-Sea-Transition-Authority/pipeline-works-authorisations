@@ -15,7 +15,7 @@ public class PwaApplicationTypePathVariableConverterStringToEnum implements Conv
   @Override
   public PwaApplicationType convert(String source) {
     return PwaApplicationType.getFromUrlPathString(source)
-        .orElseThrow(() -> new IllegalArgumentException(String.format("could not map %s to application pty", source)));
+        .orElseThrow(() -> new IllegalArgumentException(String.format("could not map %s to application type", source)));
   }
 
   @Override
