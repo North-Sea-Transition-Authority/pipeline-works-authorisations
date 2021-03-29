@@ -25,4 +25,7 @@ public interface PwaConsentOrganisationRoleRepository extends CrudRepository<Pwa
       Collection<PwaConsent> pwaConsents,
       Collection<HuooRole> roles);
 
+  @EntityGraph(attributePaths = {"addedByPwaConsent", "addedByPwaConsent.masterPwa"})
+  List<PwaConsentOrganisationRole> findByAddedByPwaConsentInAndEndTimestampIsNull(Collection<PwaConsent> consents);
+
 }

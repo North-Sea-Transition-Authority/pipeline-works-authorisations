@@ -4,6 +4,8 @@ import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
 
+import com.google.common.collect.Multimap;
+import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -17,6 +19,7 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.energyportal.service.organisations.PortalOrganisationsAccessor;
@@ -27,6 +30,7 @@ import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineIdentifier;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooType;
+import uk.co.ogauthority.pwa.model.entity.enums.TreatyAgreement;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelinehuoo.OrgRoleInstanceType;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
@@ -50,6 +54,7 @@ public class PwaConsentOrganisationRoleService {
   private final PipelineDetailService pipelineDetailService;
   private final PwaConsentRepository pwaConsentRepository;
   private final PortalOrganisationsAccessor portalOrganisationsAccessor;
+  private final Clock clock;
 
   @Autowired
   public PwaConsentOrganisationRoleService(
@@ -58,13 +63,15 @@ public class PwaConsentOrganisationRoleService {
       PipelineNumberAndSplitsService pipelineNumberAndSplitsService,
       PipelineDetailService pipelineDetailService,
       PwaConsentRepository pwaConsentRepository,
-      PortalOrganisationsAccessor portalOrganisationsAccessor) {
+      PortalOrganisationsAccessor portalOrganisationsAccessor,
+      @Qualifier("utcClock") Clock clock) {
     this.pwaConsentOrganisationRoleRepository = pwaConsentOrganisationRoleRepository;
     this.pwaConsentPipelineOrganisationRoleLinkRepository = pwaConsentPipelineOrganisationRoleLinkRepository;
     this.pipelineNumberAndSplitsService = pipelineNumberAndSplitsService;
     this.pipelineDetailService = pipelineDetailService;
     this.pwaConsentRepository = pwaConsentRepository;
     this.portalOrganisationsAccessor = portalOrganisationsAccessor;
+    this.clock = clock;
   }
 
 
@@ -259,5 +266,42 @@ public class PwaConsentOrganisationRoleService {
     );
   }
 
+  public List<PwaConsentOrganisationRole> getActiveOrgRolesAddedByConsents(Collection<PwaConsent> consents) {
+    return pwaConsentOrganisationRoleRepository.findByAddedByPwaConsentInAndEndTimestampIsNull(consents);
+  }
+
+  public void endConsentOrgRoles(PwaConsent endingConsent,
+                                 Collection<PwaConsentOrganisationRole> consentRolesToEnd) {
+
+    consentRolesToEnd.forEach(role -> {
+      role.setEndedByPwaConsent(endingConsent);
+      role.setEndTimestamp(clock.instant());
+    });
+
+    pwaConsentOrganisationRoleRepository.saveAll(consentRolesToEnd);
+
+  }
+
+  public void createNewConsentOrgUnitRoles(PwaConsent pwaConsent,
+                                           Multimap<OrganisationUnitId, HuooRole> consentRolesToAdd) {
+
+    var newOrgRoles = consentRolesToAdd.entries().stream()
+        .map(entry -> PwaConsentOrganisationRole.createOrgUnitRole(pwaConsent, entry.getValue(), entry.getKey().asInt(), clock.instant()))
+        .collect(Collectors.toList());
+
+    pwaConsentOrganisationRoleRepository.saveAll(newOrgRoles);
+
+  }
+
+  public void createNewConsentTreatyRoles(PwaConsent pwaConsent,
+                                          Multimap<TreatyAgreement, HuooRole> consentRolesToAdd) {
+
+    var newOrgRoles = consentRolesToAdd.entries().stream()
+        .map(entry -> PwaConsentOrganisationRole.createTreatyAgreementRole(pwaConsent, entry.getValue(), entry.getKey(), clock.instant()))
+        .collect(Collectors.toList());
+
+    pwaConsentOrganisationRoleRepository.saveAll(newOrgRoles);
+
+  }
 
 }

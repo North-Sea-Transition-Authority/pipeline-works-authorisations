@@ -29,6 +29,7 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
 import uk.co.ogauthority.pwa.energyportal.model.entity.PersonTestUtil;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.exception.EntityLatestVersionNotFoundException;
+import uk.co.ogauthority.pwa.model.dto.appprocessing.ApplicationInvolvementDtoTestUtil;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeAction;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeDocumentType;
@@ -214,31 +215,64 @@ public class PublicNoticeServiceTest {
 
   }
 
+
   @Test
-  public void getTaskListEntry_notSatisfactory() {
+  public void getTaskListEntry_publicNoticeAtManagerApproval_taskStatusIsActionRequired() {
 
-    var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
+    var appInvolvementDto = ApplicationInvolvementDtoTestUtil.fromInvolvementFlags(
+        pwaApplication, Set.of(ApplicationInvolvementDtoTestUtil.InvolvementFlag.AT_LEAST_ONE_SATISFACTORY_VERSION));
+    var processingContext = new PwaAppProcessingContext(pwaApplicationDetail, null, Set.of(PwaAppProcessingPermission.APPROVE_PUBLIC_NOTICE), null, appInvolvementDto);
 
-    var processingContext = new PwaAppProcessingContext(detail, null, Set.of(), null,
-        PwaAppProcessingContextDtoTestUtils.emptyAppInvolvement(detail.getPwaApplication()));
+    var publicNotice = PublicNoticeTestUtil.createInitialPublicNotice(pwaApplication);
+    when(publicNoticeRepository.findFirstByPwaApplicationOrderByVersionDesc(processingContext.getPwaApplication()))
+        .thenReturn(Optional.of(publicNotice));
 
     var taskListEntry = publicNoticeService.getTaskListEntry(PwaAppProcessingTask.PUBLIC_NOTICE, processingContext);
 
-    assertThat(taskListEntry.getTaskName()).isEqualTo(PwaAppProcessingTask.PUBLIC_NOTICE.getTaskName());
-    assertThat(taskListEntry.getRoute()).isEqualTo(PwaAppProcessingTask.PUBLIC_NOTICE.getRoute(processingContext));
-    assertThat(taskListEntry.getTaskTag()).isEqualTo(TaskTag.from(TaskStatus.CANNOT_START_YET));
-    assertThat(taskListEntry.getTaskState()).isEqualTo(TaskState.LOCK);
-    assertThat(taskListEntry.getTaskInfoList()).isEmpty();
-
+    assertThat(taskListEntry.getTaskTag()).isEqualTo(TaskTag.from(TaskStatus.ACTION_REQUIRED));
+    assertThat(taskListEntry.getTaskState()).isEqualTo(TaskState.EDIT);
   }
 
   @Test
-  public void getTaskListEntry_publicNoticeNotStarted() {
+  public void getTaskListEntry_publicNoticeEnded_taskStatusIsCompleted() {
 
-    var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
+    var appInvolvementDto = ApplicationInvolvementDtoTestUtil.fromInvolvementFlags(
+        pwaApplication, Set.of(ApplicationInvolvementDtoTestUtil.InvolvementFlag.AT_LEAST_ONE_SATISFACTORY_VERSION));
+    var processingContext = new PwaAppProcessingContext(pwaApplicationDetail, null, Set.of(), null, appInvolvementDto);
 
-    var processingContext = new PwaAppProcessingContext(detail, null, Set.of(), null,
-        PwaAppProcessingContextDtoTestUtils.appInvolvementSatisfactoryVersions(detail.getPwaApplication()));
+    var publicNotice = PublicNoticeTestUtil.createEndedPublicNotice(pwaApplication);
+    when(publicNoticeRepository.findFirstByPwaApplicationOrderByVersionDesc(processingContext.getPwaApplication()))
+        .thenReturn(Optional.of(publicNotice));
+
+    var taskListEntry = publicNoticeService.getTaskListEntry(PwaAppProcessingTask.PUBLIC_NOTICE, processingContext);
+
+    assertThat(taskListEntry.getTaskTag()).isEqualTo(TaskTag.from(TaskStatus.COMPLETED));
+    assertThat(taskListEntry.getTaskState()).isEqualTo(TaskState.EDIT);
+  }
+
+  @Test
+  public void getTaskListEntry_publicNoticeNotEndedAndNotAtApprovalStage_taskStatusIsInProgress() {
+
+    var appInvolvementDto = ApplicationInvolvementDtoTestUtil.fromInvolvementFlags(
+        pwaApplication, Set.of(ApplicationInvolvementDtoTestUtil.InvolvementFlag.AT_LEAST_ONE_SATISFACTORY_VERSION));
+    var processingContext = new PwaAppProcessingContext(pwaApplicationDetail, null, Set.of(), null, appInvolvementDto);
+
+    var publicNotice = PublicNoticeTestUtil.createCaseOfficerReviewPublicNotice(pwaApplication);
+    when(publicNoticeRepository.findFirstByPwaApplicationOrderByVersionDesc(processingContext.getPwaApplication()))
+        .thenReturn(Optional.of(publicNotice));
+
+    var taskListEntry = publicNoticeService.getTaskListEntry(PwaAppProcessingTask.PUBLIC_NOTICE, processingContext);
+
+    assertThat(taskListEntry.getTaskTag()).isEqualTo(TaskTag.from(TaskStatus.IN_PROGRESS));
+    assertThat(taskListEntry.getTaskState()).isEqualTo(TaskState.EDIT);
+  }
+
+  @Test
+  public void getTaskListEntry_noPublicNotice_appSatisfactory_taskStatusIsNotStarted() {
+
+    var appInvolvementDto = ApplicationInvolvementDtoTestUtil.fromInvolvementFlags(
+        pwaApplication, Set.of(ApplicationInvolvementDtoTestUtil.InvolvementFlag.AT_LEAST_ONE_SATISFACTORY_VERSION));
+    var processingContext = new PwaAppProcessingContext(pwaApplicationDetail, null, Set.of(), null, appInvolvementDto);
 
     var taskListEntry = publicNoticeService.getTaskListEntry(PwaAppProcessingTask.PUBLIC_NOTICE, processingContext);
 
@@ -247,7 +281,21 @@ public class PublicNoticeServiceTest {
     assertThat(taskListEntry.getTaskTag()).isEqualTo(TaskTag.from(TaskStatus.NOT_STARTED));
     assertThat(taskListEntry.getTaskState()).isEqualTo(TaskState.EDIT);
     assertThat(taskListEntry.getTaskInfoList()).isEmpty();
+  }
 
+  @Test
+  public void getTaskListEntry_noPublicNotice_appNotSatisfactory_taskStatusIsCannotStart() {
+
+    var appInvolvementDto = ApplicationInvolvementDtoTestUtil.noInvolvementAndNoFlags(pwaApplication);
+    var processingContext = new PwaAppProcessingContext(pwaApplicationDetail, null, Set.of(), null, appInvolvementDto);
+
+    var taskListEntry = publicNoticeService.getTaskListEntry(PwaAppProcessingTask.PUBLIC_NOTICE, processingContext);
+
+    assertThat(taskListEntry.getTaskName()).isEqualTo(PwaAppProcessingTask.PUBLIC_NOTICE.getTaskName());
+    assertThat(taskListEntry.getRoute()).isEqualTo(PwaAppProcessingTask.PUBLIC_NOTICE.getRoute(processingContext));
+    assertThat(taskListEntry.getTaskTag()).isEqualTo(TaskTag.from(TaskStatus.CANNOT_START_YET));
+    assertThat(taskListEntry.getTaskState()).isEqualTo(TaskState.LOCK);
+    assertThat(taskListEntry.getTaskInfoList()).isEmpty();
   }
 
 

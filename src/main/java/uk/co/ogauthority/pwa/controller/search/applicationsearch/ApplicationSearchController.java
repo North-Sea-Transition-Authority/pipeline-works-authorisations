@@ -138,7 +138,7 @@ public class ApplicationSearchController {
     }
 
     var pwaApplicationTypeMap = PwaApplicationType.stream()
-        .sorted(Comparator.comparing(PwaApplicationType::getDisplayName))
+        .sorted(Comparator.comparing(PwaApplicationType::getDisplayOrder))
         .collect(StreamUtils.toLinkedHashMap(Enum::name, PwaApplicationType::getDisplayName));
 
     return new ModelAndView("search/applicationSearch/applicationSearch")
