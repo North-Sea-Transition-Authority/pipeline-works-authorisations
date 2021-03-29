@@ -1,10 +1,12 @@
 package uk.co.ogauthority.pwa.service.pwaconsents;
 
 import java.time.Clock;
+import java.util.List;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsentType;
@@ -59,6 +61,10 @@ public class PwaConsentService {
 
     return pwaConsentRepository.save(pwaConsent);
 
+  }
+
+  public List<PwaConsent> getConsentsByMasterPwa(MasterPwa masterPwa) {
+    return pwaConsentRepository.findByMasterPwa(masterPwa);
   }
 
 }

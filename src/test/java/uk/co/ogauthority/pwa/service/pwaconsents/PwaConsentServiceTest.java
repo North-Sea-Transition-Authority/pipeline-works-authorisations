@@ -16,6 +16,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
 import uk.co.ogauthority.pwa.repository.pwaconsents.PwaConsentRepository;
@@ -123,6 +124,17 @@ public class PwaConsentServiceTest {
       assertThat(consent.getVariationNumber()).isNull();
       assertThat(consent.isMigratedFlag()).isFalse();
     });
+
+  }
+
+  @Test
+  public void getConsentsByMasterPwa() {
+
+    var masterPwa = new MasterPwa();
+
+    pwaConsentService.getConsentsByMasterPwa(masterPwa);
+
+    verify(pwaConsentRepository, times(1)).findByMasterPwa(masterPwa);
 
   }
 

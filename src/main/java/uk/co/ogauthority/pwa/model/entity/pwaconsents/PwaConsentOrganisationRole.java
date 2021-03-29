@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.model.entity.pwaconsents;
 
 
 import java.time.Instant;
+import java.util.Objects;
 import java.util.Optional;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -49,6 +50,45 @@ public class PwaConsentOrganisationRole {
   private Instant startTimestamp;
 
   private Instant endTimestamp;
+
+  public PwaConsentOrganisationRole() {
+  }
+
+  private PwaConsentOrganisationRole(PwaConsent addedByPwaConsent,
+                                     HuooRole role,
+                                     Integer organisationUnitId,
+                                     Instant startTimestamp) {
+    this.addedByPwaConsent = addedByPwaConsent;
+    this.role = role;
+    this.type = HuooType.PORTAL_ORG;
+    this.organisationUnitId = organisationUnitId;
+    this.startTimestamp = startTimestamp;
+  }
+
+  private PwaConsentOrganisationRole(PwaConsent addedByPwaConsent,
+                                     HuooRole role,
+                                     TreatyAgreement agreement,
+                                     Instant startTimestamp) {
+    this.addedByPwaConsent = addedByPwaConsent;
+    this.role = role;
+    this.type = HuooType.TREATY_AGREEMENT;
+    this.agreement = agreement;
+    this.startTimestamp = startTimestamp;
+  }
+
+  public static PwaConsentOrganisationRole createOrgUnitRole(PwaConsent addedByPwaConsent,
+                                                             HuooRole role,
+                                                             int organisationUnitId,
+                                                             Instant startTimestamp) {
+    return new PwaConsentOrganisationRole(addedByPwaConsent, role, organisationUnitId, startTimestamp);
+  }
+
+  public static PwaConsentOrganisationRole createTreatyAgreementRole(PwaConsent addedByPwaConsent,
+                                                                     HuooRole role,
+                                                                     TreatyAgreement agreement,
+                                                                     Instant startTimestamp) {
+    return new PwaConsentOrganisationRole(addedByPwaConsent, role, agreement, startTimestamp);
+  }
 
   public Integer getId() {
     return id;
@@ -145,4 +185,28 @@ public class PwaConsentOrganisationRole {
         ", endTimestamp=" + endTimestamp +
         '}';
   }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    PwaConsentOrganisationRole that = (PwaConsentOrganisationRole) o;
+    return Objects.equals(id, that.id) && Objects.equals(addedByPwaConsent,
+        that.addedByPwaConsent) && Objects.equals(endedByPwaConsent,
+        that.endedByPwaConsent) && role == that.role && type == that.type && Objects.equals(organisationUnitId,
+        that.organisationUnitId) && Objects.equals(migratedOrganisationName,
+        that.migratedOrganisationName) && agreement == that.agreement && Objects.equals(startTimestamp,
+        that.startTimestamp) && Objects.equals(endTimestamp, that.endTimestamp);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(id, addedByPwaConsent, endedByPwaConsent, role, type, organisationUnitId,
+        migratedOrganisationName, agreement, startTimestamp, endTimestamp);
+  }
+
 }
