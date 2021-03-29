@@ -14,7 +14,7 @@ import uk.co.ogauthority.pwa.service.enums.users.UserType;
 public final class ApplicationSearchContext {
   private final AuthenticatedUserAccount authenticatedUserAccount;
 
-  private final UserType userType;
+  private final Set<UserType> userTypes;
 
   private final Set<PortalOrganisationGroup> orgGroupsWhereMemberOfHolderTeam;
   private final Set<OrganisationUnitId> orgUnitIdsAssociatedWithHolderTeamMembership;
@@ -22,12 +22,12 @@ public final class ApplicationSearchContext {
   private final Set<ConsulteeGroupId> consulteeGroupIds;
 
   ApplicationSearchContext(AuthenticatedUserAccount authenticatedUserAccount,
-                           UserType userType,
+                           Set<UserType> userTypes,
                            Set<PortalOrganisationGroup> orgGroupsWhereMemberOfHolderTeam,
                            Set<OrganisationUnitId> orgUnitIdsAssociatedWithHolderTeamMembership,
                            Set<ConsulteeGroupId> consulteeGroupIds) {
     this.authenticatedUserAccount = authenticatedUserAccount;
-    this.userType = userType;
+    this.userTypes = userTypes;
     this.orgGroupsWhereMemberOfHolderTeam = orgGroupsWhereMemberOfHolderTeam;
     this.orgUnitIdsAssociatedWithHolderTeamMembership = orgUnitIdsAssociatedWithHolderTeamMembership;
     this.consulteeGroupIds = consulteeGroupIds;
@@ -37,8 +37,8 @@ public final class ApplicationSearchContext {
     return authenticatedUserAccount;
   }
 
-  public UserType getUserType() {
-    return userType;
+  public Set<UserType> getUserTypes() {
+    return userTypes;
   }
 
   public int getWuaIdAsInt() {
@@ -66,21 +66,16 @@ public final class ApplicationSearchContext {
       return false;
     }
     ApplicationSearchContext that = (ApplicationSearchContext) o;
-    return Objects.equals(authenticatedUserAccount,
-        that.authenticatedUserAccount) && userType == that.userType
+    return Objects.equals(authenticatedUserAccount, that.authenticatedUserAccount)
+        && Objects.equals(userTypes, that.userTypes)
         && Objects.equals(orgGroupsWhereMemberOfHolderTeam, that.orgGroupsWhereMemberOfHolderTeam)
         && Objects.equals(orgUnitIdsAssociatedWithHolderTeamMembership, that.orgUnitIdsAssociatedWithHolderTeamMembership)
-        && Objects.equals(consulteeGroupIds,
-        that.consulteeGroupIds);
+        && Objects.equals(consulteeGroupIds, that.consulteeGroupIds);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(
-        authenticatedUserAccount,
-        userType,
-        orgGroupsWhereMemberOfHolderTeam,
-        orgUnitIdsAssociatedWithHolderTeamMembership,
-        consulteeGroupIds);
+    return Objects.hash(authenticatedUserAccount, userTypes, orgGroupsWhereMemberOfHolderTeam,
+        orgUnitIdsAssociatedWithHolderTeamMembership, consulteeGroupIds);
   }
 }

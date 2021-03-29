@@ -69,7 +69,7 @@ public class ApplicationSearchContextCreatorTest {
   public void createContext_contextContentSetAsExpected() {
 
     var userType = UserType.INDUSTRY;
-    when(userTypeService.getPriorityUserType(authenticatedUserAccount)).thenReturn(userType);
+    when(userTypeService.getUserTypes(authenticatedUserAccount)).thenReturn(Set.of(userType));
 
     var orgUnit = PortalOrganisationTestUtils.getOrganisationUnit();
     var orgGrp = orgUnit.getPortalOrganisationGroup();
@@ -89,7 +89,7 @@ public class ApplicationSearchContextCreatorTest {
 
     var context = applicationSearchContextCreator.createContext(authenticatedUserAccount);
 
-    assertThat(context.getUserType()).isEqualTo(userType);
+    assertThat(context.getUserTypes()).containsExactly(userType);
     assertThat(context.getOrgUnitIdsAssociatedWithHolderTeamMembership()).containsExactly(OrganisationUnitId.from(orgUnit));
     assertThat(context.getOrgGroupsWhereMemberOfHolderTeam()).containsExactly(orgGrp);
     assertThat(context.getConsulteeGroupIds()).containsExactly(ConsulteeGroupId.from(consulteeGroup));

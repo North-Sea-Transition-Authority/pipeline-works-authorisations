@@ -148,7 +148,7 @@ public class ApplicationSearchController {
         .addObject("searchUrl", ApplicationSearchController.getBlankSearchUrl())
         .addObject("pwaApplicationTypeMap", pwaApplicationTypeMap)
         .addObject("assignedCaseOfficers", getCaseOfficersAssignedToInProgressAppsMap())
-        .addObject("userType", searchContext.getUserType());
+        .addObject("userTypes", searchContext.getUserTypes());
 
   }
 

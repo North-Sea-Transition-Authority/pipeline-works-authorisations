@@ -4,6 +4,7 @@ import static java.util.stream.Collectors.toSet;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Set;
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -38,6 +39,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.PadVersionLooku
 import uk.co.ogauthority.pwa.model.entity.search.consents.PwaHolderOrgUnit;
 import uk.co.ogauthority.pwa.model.entity.search.consents.PwaHolderOrgUnit_;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.service.enums.users.UserType;
 import uk.co.ogauthority.pwa.service.search.applicationsearch.ApplicationSearchContext;
 import uk.co.ogauthority.pwa.service.search.applicationsearch.ApplicationSearchParameters;
 
@@ -69,22 +71,24 @@ public class RestrictByUserTypePredicateProvider implements ApplicationSearchPre
                                    ApplicationSearchParameters applicationSearchParameters,
                                    CriteriaQuery<ApplicationDetailView> searchCoreQuery,
                                    Root<ApplicationDetailView> searchCoreRoot) {
-    var userType = applicationSearchContext.getUserType();
+    Set<UserType> userTypes = applicationSearchContext.getUserTypes();
 
-    switch (userType) {
-      case OGA:
-        LOGGER.debug("Using OGA restriction predicate.");
-        return createRegulatorUserPredicate(searchCoreQuery, searchCoreRoot);
-      case INDUSTRY:
-        LOGGER.debug("Using INDUSTRY restriction predicate.");
-        return createIndustryUserPredicate(applicationSearchContext, searchCoreQuery, searchCoreRoot);
-      case CONSULTEE:
-        LOGGER.debug("Using CONSULTEE restriction predicate.");
-        return createConsulteeUserPredicate(applicationSearchContext, searchCoreQuery, searchCoreRoot);
-      default: throw new IllegalArgumentException(
-          String.format("App search does not support user type of %s for wua_id: %s", userType, applicationSearchContext.getWuaIdAsInt())
-      );
+    if (userTypes.contains(UserType.OGA)) {
+      LOGGER.debug("Using OGA restriction predicate.");
+      return createRegulatorUserPredicate(searchCoreQuery, searchCoreRoot);
+
+    } else if (userTypes.contains(UserType.INDUSTRY)) {
+      LOGGER.debug("Using INDUSTRY restriction predicate.");
+      return createIndustryUserPredicate(applicationSearchContext, searchCoreQuery, searchCoreRoot);
+
+    } else if (userTypes.contains(UserType.CONSULTEE)) {
+      LOGGER.debug("Using CONSULTEE restriction predicate.");
+      return createConsulteeUserPredicate(applicationSearchContext, searchCoreQuery, searchCoreRoot);
     }
+
+    throw new IllegalArgumentException(
+          String.format("App search does not support user type of %s for wua_id: %s", userTypes, applicationSearchContext.getWuaIdAsInt())
+      );
 
   }
 

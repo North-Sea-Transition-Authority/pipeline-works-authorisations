@@ -20,7 +20,7 @@ class ApplicationSearchParamsValidator implements SmartValidator {
     var params = (ApplicationSearchParameters) target;
     var context = (ApplicationSearchContext) validationHints[0];
 
-    if (params.getCaseOfficerId() != null && !context.getUserType().equals(UserType.OGA)) {
+    if (params.getCaseOfficerId() != null && !context.getUserTypes().contains(UserType.OGA)) {
       errors.rejectValue("caseOfficerId", "caseOfficerId" + FieldValidationErrorCodes.INVALID.getCode(), "User must be an OGA user");
     }
 
