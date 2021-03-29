@@ -45,13 +45,13 @@
         <th> Ident No </th>
         <th> From </th>
         <th> To </th>
-        <th> Desc of Main Component Parts of Pipeline </th>
+        <th> Description of Main Component Parts of Pipeline </th>
         <th> Length (m) </th>
-        <th> Ext Dia (mm) </th>
-        <th> Int Dia (mm) </th>
-        <th> W.T. (mm) </th>
+        <th> External Diameter (mm) </th>
+        <th> Internal Diameter (mm) </th>
+        <th> Wall Thickness (mm) </th>
         <th> Type of Insulation </th>
-        <th> M.A.O.P. </th>
+        <th> MAOP (barg) </th>
         <th> Product(s) to be Conveyed </th>
       </tr>
     </thead>
