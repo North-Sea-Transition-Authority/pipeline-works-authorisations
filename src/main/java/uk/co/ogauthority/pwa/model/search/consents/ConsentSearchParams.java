@@ -12,11 +12,14 @@ public class ConsentSearchParams {
 
   private String consentReference;
 
+  private String pipelineReference;
+
   public static ConsentSearchParams from(ConsentSearchForm form) {
 
     var params = new ConsentSearchParams();
     params.setHolderOrgUnitId(form.getHolderOuId());
     params.setConsentReference(form.getConsentReference());
+    params.setPipelineReference(form.getPipelineReference());
     return params;
 
   }
@@ -45,6 +48,14 @@ public class ConsentSearchParams {
     this.consentReference = consentReference;
   }
 
+  public String getPipelineReference() {
+    return pipelineReference;
+  }
+
+  public void setPipelineReference(String pipelineReference) {
+    this.pipelineReference = pipelineReference;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -54,12 +65,14 @@ public class ConsentSearchParams {
       return false;
     }
     ConsentSearchParams that = (ConsentSearchParams) o;
-    return search == that.search && Objects.equals(holderOrgUnitId, that.holderOrgUnitId);
+    return search == that.search
+        && Objects.equals(holderOrgUnitId, that.holderOrgUnitId)
+        && Objects.equals(pipelineReference, that.pipelineReference);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(search, holderOrgUnitId);
+    return Objects.hash(search, holderOrgUnitId, pipelineReference);
   }
 
 }
