@@ -34,19 +34,6 @@ public class NonConsentedPwaService {
   /**
    * Returns DTO wrapping information about non consented master pwas where any of the provided holder orgs are a Holder.
    */
-  private Set<NonConsentedMasterPwaDto> getNonConsentedMasterPwaDtoByHolderOrgUnitsAndMasterPwaId(
-      Set<PortalOrganisationUnit> holderOrganisationUnitSet,
-      int masterPwaId) {
-
-    return getNonConsentedMasterPwaDtoByHolderOrgUnits(holderOrganisationUnitSet)
-        .stream()
-        .filter(nonConsentedMasterPwaDto -> nonConsentedMasterPwaDto.getMasterPwaId() == masterPwaId)
-        .collect(Collectors.toUnmodifiableSet());
-  }
-
-  /**
-   * Returns DTO wrapping information about non consented master pwas where any of the provided holder orgs are a Holder.
-   */
   public List<MasterPwaDetail> getNonConsentedMasterPwaDetailByHolderOrgUnits(
       Collection<PortalOrganisationUnit> holderOrganisationUnits) {
 

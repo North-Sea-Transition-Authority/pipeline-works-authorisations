@@ -21,7 +21,7 @@
 
              <@fdsSearchSelector.searchSelectorEnhanced path="form.consentedMasterPwaId" labelText="Select an existing PWA" options=consentedPwaMap optionalInputDefault="Select one..." />
              <p class="govuk-body">or</p>
-             <@fdsSearchSelector.searchSelectorEnhanced path="form.nonConsentedMasterPwaId" labelText="Select a PWA that been applied for but is not yet consented" options=nonConsentedPwaMap optionalInputDefault="Select one..." />
+             <@fdsSearchSelector.searchSelectorEnhanced path="form.nonConsentedMasterPwaId" labelText="Select a PWA that has been applied for but is not yet consented" options=nonConsentedPwaMap optionalInputDefault="Select one..." />
            </@fdsFieldset.fieldset>
         <#else>
           <@fdsSearchSelector.searchSelectorEnhanced path="form.consentedMasterPwaId" labelText=pageHeader options=consentedPwaMap pageHeading=true labelHeadingClass="govuk-label--l" />
