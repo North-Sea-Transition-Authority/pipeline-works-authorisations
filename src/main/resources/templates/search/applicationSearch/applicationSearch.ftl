@@ -7,14 +7,10 @@
 <#-- @ftlvariable name="searchUrl" type="java.lang.String" -->
 <#-- @ftlvariable name="assignedCaseOfficers" type="java.util.Map<java.lang.String, java.lang.String>" -->
 <#-- @ftlvariable name="pwaApplicationTypeMap" type="java.util.Map<java.lang.String, java.lang.String>" -->
-<#-- @ftlvariable name="userType" type="uk.co.ogauthority.pwa.service.enums.users.UserType" --> 
+<#-- @ftlvariable name="userTypes" type="java.util.Set<uk.co.ogauthority.pwa.service.enums.users.UserType>" -->
 
 
 <@defaultPage htmlTitle="Search applications" pageHeading="Search applications" fullWidthColumn=true topNavigation=true wrapperWidth=true>
-
-    <#if userType == "INDUSTRY">
-        <@fdsInsetText.insetText>Search for submitted applications only, draft applications you are permitted to access are available in the work area.</@fdsInsetText.insetText>
-    </#if>
 
     <@fdsSearch.searchPage>
 
@@ -42,7 +38,7 @@
                     </@fdsCheckbox.checkboxGroup>
                 </@fdsSearch.searchFilterItem>
 
-                <#if userType == "OGA">
+                <#if userTypes?seq_contains("OGA")>
                     <@fdsSearch.searchFilterItem itemName="Case officer" expanded=form.assignedCaseOfficers?has_content>
                         <@fdsSearchSelector.searchSelectorEnhanced path="form.caseOfficerId" options=assignedCaseOfficers labelText="Select a case officer" optionalInputDefault="Any" labelClass="govuk-visually-hidden" />
                     </@fdsSearch.searchFilterItem>

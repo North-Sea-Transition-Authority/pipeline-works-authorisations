@@ -106,7 +106,7 @@ public class ApplicationSearchControllerTest extends AbstractControllerTest {
     )))
         .with(authenticatedUserAndSession(permittedUser)))
         .andExpect(status().isOk())
-        .andExpect(model().attribute("userType", permittedUserSearchContext.getUserType()))
+        .andExpect(model().attribute("userTypes", permittedUserSearchContext.getUserTypes()))
         .andExpect(model().attribute("searchUrl", ApplicationSearchController.getBlankSearchUrl()))
         .andExpect(model().attribute("appSearchEntryState", ApplicationSearchController.AppSearchEntryState.LANDING))
         .andExpect(model().attribute("assignedCaseOfficers", Map.of()))

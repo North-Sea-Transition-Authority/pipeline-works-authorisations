@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.service.search.applicationsearch;
 
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.Set;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.model.dto.consultations.ConsulteeGroupId;
@@ -17,9 +18,19 @@ public final class ApplicationSearchContextTestUtil {
                                                           UserType userType) {
     return new ApplicationSearchContext(
         authenticatedUserAccount,
-        userType,
+        userType != null ? EnumSet.of(userType) : EnumSet.noneOf(UserType.class),
         Collections.emptySet(),
         Collections.emptySet(),
+        Collections.emptySet());
+  }
+
+  public static ApplicationSearchContext industryAndOgaContext(AuthenticatedUserAccount authenticatedUserAccount,
+                                                               Set<OrganisationUnitId> organisationUnitIdSet) {
+    return new ApplicationSearchContext(
+        authenticatedUserAccount,
+        EnumSet.of(UserType.INDUSTRY, UserType.OGA),
+        Collections.emptySet(),
+        organisationUnitIdSet,
         Collections.emptySet());
   }
 
@@ -27,7 +38,7 @@ public final class ApplicationSearchContextTestUtil {
                                                          Set<OrganisationUnitId> organisationUnitIdSet) {
     return new ApplicationSearchContext(
         authenticatedUserAccount,
-        UserType.INDUSTRY,
+        EnumSet.of(UserType.INDUSTRY),
         Collections.emptySet(),
         organisationUnitIdSet,
         Collections.emptySet());
@@ -37,7 +48,7 @@ public final class ApplicationSearchContextTestUtil {
                                                          Set<ConsulteeGroupId> consulteeGroupIds) {
     return new ApplicationSearchContext(
         authenticatedUserAccount,
-        UserType.CONSULTEE,
+        EnumSet.of(UserType.CONSULTEE),
         Collections.emptySet(),
         Collections.emptySet(),
         consulteeGroupIds

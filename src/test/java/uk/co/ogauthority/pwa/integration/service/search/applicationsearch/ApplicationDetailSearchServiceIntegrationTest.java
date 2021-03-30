@@ -38,7 +38,6 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDeta
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailViewTestUtil;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.PadVersionLookup;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.PadVersionLookupTestUtil;
-import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
 import uk.co.ogauthority.pwa.model.entity.search.consents.PwaHolderOrgUnitTestUtil;
 import uk.co.ogauthority.pwa.model.view.search.SearchScreenView;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
@@ -56,7 +55,7 @@ import uk.co.ogauthority.pwa.testutils.PortalOrganisationTestUtils;
 @SpringBootTest
 @AutoConfigureTestDatabase
 @AutoConfigureDataJpa
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @ActiveProfiles("integration-test")
 @SuppressWarnings({"JpaQueryApiInspection", "SqlNoDataSourceInspection"})
 // IJ seems to give spurious warnings when running with embedded H2
@@ -88,11 +87,12 @@ public class ApplicationDetailSearchServiceIntegrationTest {
   private PortalOrganisationGroup portalOrgGroup1;
   private PortalOrganisationUnit portalOrgUnit1;
 
+  private PortalOrganisationGroup portalOrgGroup2;
+  private PortalOrganisationUnit portalOrgUnit2;
+
   private MasterPwa pwa1;
-  private PwaConsent pwa1Consent;
 
   private MasterPwa pwa2;
-  private PwaConsent pwa2Consent;
 
   private MasterPwa pwa3;// for initial PWA app testing
 
@@ -158,6 +158,16 @@ public class ApplicationDetailSearchServiceIntegrationTest {
     );
   }
 
+  private ApplicationSearchContext getIndustryAndOgaContext(OrganisationUnitId organisationUnitId) {
+    return ApplicationSearchContextTestUtil.industryAndOgaContext(
+        new AuthenticatedUserAccount(
+            new WebUserAccount(),
+            Collections.emptySet()
+        ),
+        Set.of(organisationUnitId)
+    );
+  }
+
   private ApplicationSearchContext getIndustryContext(OrganisationUnitId organisationUnitId) {
     return ApplicationSearchContextTestUtil.industryContext(
         new AuthenticatedUserAccount(
@@ -200,9 +210,9 @@ public class ApplicationDetailSearchServiceIntegrationTest {
     portalOrgUnit1 = PortalOrganisationTestUtils.generateOrganisationUnit(USER_HOLDER_ORG_UNIT_ID.asInt(), "ou1", portalOrgGroup1);
     entityManager.persist(portalOrgUnit1);
 
-    var portalOrgGroup2 = PortalOrganisationTestUtils.generateOrganisationGroup(2, "ORG GRP 2", "OG2");
+    portalOrgGroup2 = PortalOrganisationTestUtils.generateOrganisationGroup(2, "ORG GRP 2", "OG2");
     entityManager.persist(portalOrgGroup2);
-    var portalOrgUnit2 = PortalOrganisationTestUtils.generateOrganisationUnit(OTHER_HOLDER_ORG_UNIT_ID.asInt(), "ou2", portalOrgGroup2);
+    portalOrgUnit2 = PortalOrganisationTestUtils.generateOrganisationUnit(OTHER_HOLDER_ORG_UNIT_ID.asInt(), "ou2", portalOrgGroup2);
     entityManager.persist(portalOrgUnit2);
 
     pwa1 = MasterPwaTestUtil.create();
@@ -389,6 +399,65 @@ public class ApplicationDetailSearchServiceIntegrationTest {
 
     assertThat(result).isEqualTo(screenView);
 
+  }
+
+  @Transactional
+  @Test
+  public void search_whenIndustryUser_andOGAUser_unfiltered_draftInitialPwaAppExistsForDifferentHolder() {
+
+    setupDefaultData();
+    searchContext = getIndustryAndOgaContext(new OrganisationUnitId(portalOrgUnit1.getOuId()));
+    searchParams = ApplicationSearchParametersBuilder.createEmptyParams();
+
+    var app = new PwaApplication(pwa3, PwaApplicationType.INITIAL, 0);
+    entityManager.persist(app);
+    var appDetail = new PwaApplicationDetail(app, VERSION1, 1, clock.instant());
+    appDetail.setStatus(PwaApplicationStatus.DRAFT);
+    entityManager.persist(appDetail);
+    var pwa3InitialAppHolderOrgUnit = PwaHolderOrgUnitTestUtil.createPwaHolderOrgUnit("org1CompId", pwa3.getId(), portalOrgUnit2);
+    entityManager.persist(pwa3InitialAppHolderOrgUnit);
+
+    var initialAppDetailView = createAndPersistViewFromAppDetail(appDetail);
+    var initialAppLookup = PadVersionLookupTestUtil.createLookupForDraftOnlyApp(
+        appDetail.getMasterPwaApplicationId()
+    );
+    entityManager.persist(initialAppLookup);
+
+    var result = applicationDetailSearchService.search(searchParams, searchContext);
+
+    var screenView = new SearchScreenView<>(2, List.of(app2Version2, app1Version1));
+
+    assertThat(result).isEqualTo(screenView);
+  }
+
+  @Transactional
+  @Test
+  public void search_whenIndustryUser_andOGAUser_unfiltered_draftInitialPwaAppExistsForUserHolderOrg() {
+
+    setupDefaultData();
+    searchContext = getIndustryAndOgaContext(new OrganisationUnitId(portalOrgUnit1.getOuId()));
+    searchParams = ApplicationSearchParametersBuilder.createEmptyParams();
+
+    var app = new PwaApplication(pwa3, PwaApplicationType.INITIAL, 0);
+    entityManager.persist(app);
+    var appDetail = new PwaApplicationDetail(app, VERSION1, 1, clock.instant());
+    appDetail.setStatus(PwaApplicationStatus.DRAFT);
+
+    entityManager.persist(appDetail);
+    var pwa3InitialAppHolderOrgUnit = PwaHolderOrgUnitTestUtil.createPwaHolderOrgUnit("org1CompId", pwa3.getId(), portalOrgUnit1);
+    entityManager.persist(pwa3InitialAppHolderOrgUnit);
+
+    var initialAppDetailView = createAndPersistViewFromAppDetail(appDetail);
+    var initialAppLookup = PadVersionLookupTestUtil.createLookupForDraftOnlyApp(
+        appDetail.getMasterPwaApplicationId()
+    );
+    entityManager.persist(initialAppLookup);
+
+    var result = applicationDetailSearchService.search(searchParams, searchContext);
+
+    var screenView = new SearchScreenView<>(3, List.of(app2Version2, app1Version1, initialAppDetailView));
+
+    assertThat(result).isEqualTo(screenView);
   }
 
   /**
