@@ -67,8 +67,7 @@ public class PublicNoticePublicationUpdaterJob extends QuartzJobBean {
       LOGGER.info("Job execution complete for {}", LOGGER_JOB_STRING);
 
     } catch (Exception e) {
-      LOGGER.error("Publication update job execution failed", e);
-      throw new JobExecutionException(e);
+      throw new JobExecutionException("Publication update job execution failed", e);
     }
 
   }
