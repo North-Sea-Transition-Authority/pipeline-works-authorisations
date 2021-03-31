@@ -328,9 +328,7 @@ public class ApplicationDetailSearchServiceIntegrationTest {
 
   }
 
-  /**
-   * Test only submitted apps are returned for regulator users.
-   */
+
   @Transactional
   @Test
   public void search_whenIndustryUser_unfiltered_noCurrentPwasHeldByOrgGroupOrgUnits() {
@@ -348,9 +346,6 @@ public class ApplicationDetailSearchServiceIntegrationTest {
 
   }
 
-  /**
-   * Test only submitted apps are returned for regulator users.
-   */
   @Transactional
   @Test
   public void search_whenIndustryUser_unfiltered_applicationsForPwaWhereUserInOrgGrpTeam_submittedAndUpdateAppsExist() {
@@ -734,6 +729,44 @@ public class ApplicationDetailSearchServiceIntegrationTest {
     var screenView = new SearchScreenView<ApplicationDetailItemView>(1, List.of(app2Version2));
 
     assertThat(result).isEqualTo(screenView);
+  }
+
+  @Transactional
+  @Test
+  public void search_whenIndustryUser_holderOrgUnitFilterMatches() {
+
+    setupDefaultData();
+
+    searchContext = getIndustryContext(USER_HOLDER_ORG_UNIT_ID);
+    searchParams = new ApplicationSearchParametersBuilder()
+      .setHolderOrgUnitId(USER_HOLDER_ORG_UNIT_ID.asInt())
+      .createApplicationSearchParameters();
+
+    var result = applicationDetailSearchService.search(searchParams, searchContext);
+
+    var screenView = new SearchScreenView<>(2, List.of(app2Version2, app1Version1));
+
+    assertThat(result).isEqualTo(screenView);
+
+  }
+
+  @Transactional
+  @Test
+  public void search_whenIndustryUser_holderOrgUnitFilterMatches_butNotForUser() {
+
+    setupDefaultData();
+
+    searchContext = getIndustryContext(USER_HOLDER_ORG_UNIT_ID);
+    searchParams = new ApplicationSearchParametersBuilder()
+        .setHolderOrgUnitId(OTHER_HOLDER_ORG_UNIT_ID.asInt())
+        .createApplicationSearchParameters();
+
+    var result = applicationDetailSearchService.search(searchParams, searchContext);
+
+    var screenView = new SearchScreenView<>(0, List.of());
+
+    assertThat(result).isEqualTo(screenView);
+
   }
 
 }
