@@ -44,6 +44,16 @@ public final class ApplicationSearchContextTestUtil {
         Collections.emptySet());
   }
 
+  public static ApplicationSearchContext combinedIndustryOgaContext(AuthenticatedUserAccount authenticatedUserAccount,
+                                                         Set<OrganisationUnitId> organisationUnitIdSet) {
+    return new ApplicationSearchContext(
+        authenticatedUserAccount,
+        EnumSet.of(UserType.INDUSTRY, UserType.OGA),
+        Collections.emptySet(),
+        organisationUnitIdSet,
+        Collections.emptySet());
+  }
+
   public static ApplicationSearchContext consulteeContext(AuthenticatedUserAccount authenticatedUserAccount,
                                                          Set<ConsulteeGroupId> consulteeGroupIds) {
     return new ApplicationSearchContext(

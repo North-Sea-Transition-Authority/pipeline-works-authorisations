@@ -29,7 +29,7 @@ public class PortalOrganisationUnitRestController {
     this.searchSelectorService = searchSelectorService;
   }
 
-  @GetMapping("/orgs/units")
+  @GetMapping("/orgs/lax/units")
   @ResponseBody
   public RestSearchResult searchPortalOrgUnits(@RequestParam("term") String searchTerm) {
     var queryList = portalOrganisationsAccessor.findOrganisationUnitsWhereNameContains(
@@ -40,6 +40,19 @@ public class PortalOrganisationUnitRestController {
         .sorted(Comparator.comparing(RestSearchItem::getText))
         .collect(Collectors.toList());
     searchSelectorService.addManualEntry(searchTerm, searchResults);
+    return new RestSearchResult(searchResults);
+  }
+
+  @GetMapping("/orgs/strict/units/")
+  @ResponseBody
+  public RestSearchResult searchPortalOrgUnitsNoManualEntry(@RequestParam("term") String searchTerm) {
+    var queryList = portalOrganisationsAccessor.findOrganisationUnitsWhereNameContains(
+        searchTerm, PageRequest.of(0, 15)
+    );
+    var searchResults = searchSelectorService.search(searchTerm, queryList)
+        .stream()
+        .sorted(Comparator.comparing(RestSearchItem::getText))
+        .collect(Collectors.toList());
     return new RestSearchResult(searchResults);
   }
 

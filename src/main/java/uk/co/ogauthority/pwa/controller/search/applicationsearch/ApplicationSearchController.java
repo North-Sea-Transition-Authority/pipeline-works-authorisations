@@ -4,6 +4,7 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 
 import com.google.common.annotations.VisibleForTesting;
 import java.util.Comparator;
+import java.util.EnumSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -20,18 +21,26 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.controller.pwaapplications.rest.PortalOrganisationUnitRestController;
+import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
+import uk.co.ogauthority.pwa.energyportal.service.organisations.PortalOrganisationsAccessor;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaAppAssignmentView;
+import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
 import uk.co.ogauthority.pwa.model.view.search.SearchScreenView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.ApplicationInvolvementService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.service.enums.users.UserType;
 import uk.co.ogauthority.pwa.service.objects.FormObjectMapper;
 import uk.co.ogauthority.pwa.service.search.applicationsearch.ApplicationDetailSearchService;
+import uk.co.ogauthority.pwa.service.search.applicationsearch.ApplicationSearchContext;
 import uk.co.ogauthority.pwa.service.search.applicationsearch.ApplicationSearchContextCreator;
 import uk.co.ogauthority.pwa.service.search.applicationsearch.ApplicationSearchDisplayItem;
 import uk.co.ogauthority.pwa.service.search.applicationsearch.ApplicationSearchDisplayItemCreator;
 import uk.co.ogauthority.pwa.service.search.applicationsearch.ApplicationSearchParameters;
 import uk.co.ogauthority.pwa.service.search.applicationsearch.ApplicationSearchParametersBuilder;
+import uk.co.ogauthority.pwa.service.searchselector.SearchSelectorService;
+import uk.co.ogauthority.pwa.service.teams.PwaHolderTeamService;
 import uk.co.ogauthority.pwa.util.StreamUtils;
 
 @Controller
@@ -44,16 +53,22 @@ public class ApplicationSearchController {
   private final ApplicationSearchContextCreator applicationSearchContextCreator;
   private final ApplicationSearchDisplayItemCreator applicationSearchDisplayItemCreator;
   private final ApplicationInvolvementService applicationInvolvementService;
+  private final PwaHolderTeamService pwaHolderTeamService;
+  private final PortalOrganisationsAccessor portalOrganisationsAccessor;
 
   @Autowired
   public ApplicationSearchController(ApplicationDetailSearchService applicationDetailSearchService,
                                      ApplicationSearchContextCreator applicationSearchContextCreator,
                                      ApplicationSearchDisplayItemCreator applicationSearchDisplayItemCreator,
-                                     ApplicationInvolvementService applicationInvolvementService) {
+                                     ApplicationInvolvementService applicationInvolvementService,
+                                     PwaHolderTeamService pwaHolderTeamService,
+                                     PortalOrganisationsAccessor portalOrganisationsAccessor) {
     this.applicationDetailSearchService = applicationDetailSearchService;
     this.applicationSearchContextCreator = applicationSearchContextCreator;
     this.applicationSearchDisplayItemCreator = applicationSearchDisplayItemCreator;
     this.applicationInvolvementService = applicationInvolvementService;
+    this.pwaHolderTeamService = pwaHolderTeamService;
+    this.portalOrganisationsAccessor = portalOrganisationsAccessor;
   }
 
   private ModelAndView redirectAndRunSearch(ApplicationSearchParameters applicationSearchParameters) {
@@ -141,7 +156,7 @@ public class ApplicationSearchController {
         .sorted(Comparator.comparing(PwaApplicationType::getDisplayOrder))
         .collect(StreamUtils.toLinkedHashMap(Enum::name, PwaApplicationType::getDisplayName));
 
-    return new ModelAndView("search/applicationSearch/applicationSearch")
+    var modelAndView = new ModelAndView("search/applicationSearch/applicationSearch")
         .addObject("searchScreenView", searchScreenView)
         .addObject("appSearchEntryState", appSearchEntryState)
         // need to provide as search form changes do not include previous search results from the URL params
@@ -150,11 +165,48 @@ public class ApplicationSearchController {
         .addObject("assignedCaseOfficers", getCaseOfficersAssignedToInProgressAppsMap())
         .addObject("userTypes", searchContext.getUserTypes());
 
+    updateModelAndViewWithHolderOrgAttributes(modelAndView, searchParameters, searchContext);
+
+    return modelAndView;
+
+  }
+
+  private void updateModelAndViewWithHolderOrgAttributes(ModelAndView modelAndView,
+                                                         ApplicationSearchParameters searchParameters,
+                                                         ApplicationSearchContext searchContext) {
+
+    var useLimitedOrgSearch = searchContext.containsSingleUserTypeOf(UserType.INDUSTRY);
+    Map<String, String> limitedOrgUnitOptions = Map.of();
+
+    if (useLimitedOrgSearch) {
+      limitedOrgUnitOptions = pwaHolderTeamService.getPortalOrganisationUnitsWhereUserHasAnyOrgRole(
+          searchContext.getAuthenticatedUserAccount(),
+          EnumSet.allOf(PwaOrganisationRole.class)
+      ).stream()
+          .sorted(Comparator.comparing(PortalOrganisationUnit::getSelectionText))
+          .collect(StreamUtils.toLinkedHashMap(
+              PortalOrganisationUnit::getSelectionId,
+              PortalOrganisationUnit::getSelectionText)
+          );
+      // if using REST selector and have selected an org unit, need to pre-populate selector onload.
+    } else if (searchParameters.getHolderOrgUnitId() != null) {
+      var portalOrg = portalOrganisationsAccessor.getOrganisationUnitById(searchParameters.getHolderOrgUnitId());
+      portalOrg.ifPresent(portalOrganisationUnit ->
+          modelAndView.addObject("preselectedHolderOrgUnits",
+              Map.of(portalOrganisationUnit.getSelectionId(), portalOrganisationUnit.getSelectionText()))
+      );
+    }
+
+    modelAndView
+        .addObject("orgsRestUrl", SearchSelectorService.route(on(PortalOrganisationUnitRestController.class)
+            .searchPortalOrgUnitsNoManualEntry(null)))
+        .addObject("limitedOrgUnitOptions", limitedOrgUnitOptions)
+        .addObject("useLimitedOrgSearch", useLimitedOrgSearch);
+
   }
 
   public enum AppSearchEntryState {
     SEARCH,
     LANDING
   }
-
 }

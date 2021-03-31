@@ -9,6 +9,9 @@
 <#-- @ftlvariable name="pwaApplicationTypeMap" type="java.util.Map<java.lang.String, java.lang.String>" -->
 <#-- @ftlvariable name="userTypes" type="java.util.Set<uk.co.ogauthority.pwa.service.enums.users.UserType>" -->
 
+<#-- @ftlvariable name="useLimitedOrgSearch" type="java.lang.Boolean" -->
+<#-- @ftlvariable name="orgsRestUrl" type="java.lang.String" -->
+<#-- @ftlvariable name="limitedOrgUnitOptions" type="java.util.Map<java.lang.String, java.lang.String>" -->
 
 <@defaultPage htmlTitle="Search applications" pageHeading="Search applications" fullWidthColumn=true topNavigation=true wrapperWidth=true>
 
@@ -26,7 +29,6 @@
 
                 <@fdsSearch.searchFilterItem itemName="Application status" expanded=form.includeCompletedOrWithdrawnApps?has_content>
                     <@fdsCheckbox.checkboxGroup path="form.includeCompletedOrWithdrawnApps"
-                    hintText="Select an option"
                     fieldsetHeadingText="Application status"
                     formGroupClass=""
                     smallCheckboxes=true
@@ -39,14 +41,23 @@
                 </@fdsSearch.searchFilterItem>
 
                 <#if userTypes?seq_contains("OGA")>
-                    <@fdsSearch.searchFilterItem itemName="Case officer" expanded=form.assignedCaseOfficers?has_content>
-                        <@fdsSearchSelector.searchSelectorEnhanced path="form.caseOfficerId" options=assignedCaseOfficers labelText="Select a case officer" optionalInputDefault="Any" labelClass="govuk-visually-hidden" />
+                    <@fdsSearch.searchFilterItem itemName="Case officer" expanded=form.caseOfficerPersonId?has_content>
+                        <@fdsSearchSelector.searchSelectorEnhanced path="form.caseOfficerPersonId" options=assignedCaseOfficers labelText="Select a case officer" optionalInputDefault="Any" labelClass="govuk-visually-hidden" />
                     </@fdsSearch.searchFilterItem>
                 </#if>
                 
-                <@fdsSearch.searchFilterItem itemName="Application type" expanded=form.pwaApplicationTypeMap?has_content>
+                <@fdsSearch.searchFilterItem itemName="Application type" expanded=form.pwaApplicationType?has_content>
                     <@fdsSearchSelector.searchSelectorEnhanced path="form.pwaApplicationType" options=pwaApplicationTypeMap labelText="Select an application type" optionalInputDefault="Any" labelClass="govuk-visually-hidden" />
                 </@fdsSearch.searchFilterItem>
+
+                <@fdsSearch.searchFilterItem itemName="Holder organisation" expanded=form.holderOrgUnitId?has_content>
+                <#if useLimitedOrgSearch>
+                    <@fdsSearchSelector.searchSelectorEnhanced path="form.holderOrgUnitId" options=limitedOrgUnitOptions labelText="Select an application type" optionalInputDefault="Any" labelClass="govuk-visually-hidden" />
+                <#else>
+                    <@fdsSearchSelector.searchSelectorRest path="form.holderOrgUnitId" preselectedItems=preselectedHolderOrgUnits restUrl=springUrl(orgsRestUrl) labelText="Select an organisation" optionalInputDefault="Any" labelClass="govuk-visually-hidden" />
+                </#if>
+                </@fdsSearch.searchFilterItem>
+
             </@fdsSearch.searchFilterList>
         </@fdsSearch.searchFilter>   
 

@@ -55,7 +55,7 @@ import uk.co.ogauthority.pwa.testutils.PortalOrganisationTestUtils;
 @SpringBootTest
 @AutoConfigureTestDatabase
 @AutoConfigureDataJpa
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @ActiveProfiles("integration-test")
 @SuppressWarnings({"JpaQueryApiInspection", "SqlNoDataSourceInspection"})
 // IJ seems to give spurious warnings when running with embedded H2
@@ -63,10 +63,14 @@ public class ApplicationDetailSearchServiceIntegrationTest {
 
   private static final OrganisationUnitId USER_HOLDER_ORG_UNIT_ID = new OrganisationUnitId(10);
   private static final OrganisationUnitId OTHER_HOLDER_ORG_UNIT_ID = new OrganisationUnitId(20);
-
-  private static final int APP1_ID = 10;
-  private static final int APP2_ID = 20;
-  private static final int APP3_ID = 30;
+  // high valued default ids' so any new apps or app details generated within tests wont hit an id already in use.
+  private static final int APP1_ID = 100;
+  private static final int APP2_ID = 200;
+  private static final int APP3_ID = 300;
+  private static final int APP1_DETAIL_ID = 1000;
+  private static final int APP2_V1_DETAIL_ID = 2000;
+  private static final int APP2_V2_DETAIL_ID = 3000;
+  private static final int APP3_V1_DETAIL_ID = 4000;
 
   private static final int VERSION1 = 1;
   private static final int VERSION2 = 2;
@@ -111,15 +115,15 @@ public class ApplicationDetailSearchServiceIntegrationTest {
 
   public void createDefaultAppDetailViews() {
     app1Version1 = ApplicationDetailViewTestUtil.createDraftDetailView(
-        pwa1.getId(), PwaApplicationType.DEPOSIT_CONSENT, APP1_ID, 10, VERSION1, true
+        pwa1.getId(), PwaApplicationType.DEPOSIT_CONSENT, APP1_ID, APP1_DETAIL_ID, VERSION1, true
     );
     app1VersionLookup = PadVersionLookupTestUtil.createLookupForDraftOnlyApp(APP1_ID);
 
     app2Version1 = ApplicationDetailViewTestUtil.createSubmittedReviewDetailView(
-        pwa1.getId(), PwaApplicationType.CAT_1_VARIATION, APP2_ID, 20, VERSION1, false, clock.instant().minusSeconds(1000), null
+        pwa1.getId(), PwaApplicationType.CAT_1_VARIATION, APP2_ID, APP2_V1_DETAIL_ID, VERSION1, false, clock.instant().minusSeconds(1000), null
     );
     app2Version2 = ApplicationDetailViewTestUtil.createSubmittedReviewDetailView(
-        pwa1.getId(), PwaApplicationType.CAT_2_VARIATION, APP2_ID, 30, VERSION2, true, clock.instant(), null
+        pwa1.getId(), PwaApplicationType.CAT_2_VARIATION, APP2_ID, APP2_V2_DETAIL_ID, VERSION2, true, clock.instant(), null
     );
     // only submitted - no ongoing update - not accepted
     app2VersionLookup = PadVersionLookupTestUtil.createLookupForSubmittedApp(
@@ -130,7 +134,7 @@ public class ApplicationDetailSearchServiceIntegrationTest {
     );
 
     app3Version1 = ApplicationDetailViewTestUtil.createDraftDetailView(
-        pwa2.getId(), PwaApplicationType.HUOO_VARIATION, APP3_ID, 40, VERSION1, true
+        pwa2.getId(), PwaApplicationType.HUOO_VARIATION, APP3_ID, APP3_V1_DETAIL_ID, VERSION1, true
     );
     app3VersionLookup = PadVersionLookupTestUtil.createLookupForDraftOnlyApp(APP3_ID);
 
@@ -374,7 +378,8 @@ public class ApplicationDetailSearchServiceIntegrationTest {
     setupDefaultData();
     searchContext = getIndustryContext(USER_HOLDER_ORG_UNIT_ID);
     searchParams = ApplicationSearchParametersBuilder.createEmptyParams();
-
+    var appId = 99999;
+    var appDetailId = 99999;
     var app = new PwaApplication(pwa3, PwaApplicationType.INITIAL, 0);
     entityManager.persist(app);
     var appDetail = new PwaApplicationDetail(app, VERSION1, 1, clock.instant());
@@ -641,7 +646,7 @@ public class ApplicationDetailSearchServiceIntegrationTest {
 
     searchContext = getRegulatorContext();
     searchParams = new ApplicationSearchParametersBuilder()
-        .setCaseOfficerId(String.valueOf(caseOfficerPersonId))
+        .setCaseOfficerPersonId(caseOfficerPersonId)
         .createApplicationSearchParameters();
 
     var result = applicationDetailSearchService.search(searchParams, searchContext);
@@ -681,7 +686,7 @@ public class ApplicationDetailSearchServiceIntegrationTest {
 
     searchContext = getRegulatorContext();
     searchParams = new ApplicationSearchParametersBuilder()
-        .setCaseOfficerId(String.valueOf(caseOfficerPersonId))
+        .setCaseOfficerPersonId(caseOfficerPersonId)
         .createApplicationSearchParameters();
 
     var result = applicationDetailSearchService.search(searchParams, searchContext);

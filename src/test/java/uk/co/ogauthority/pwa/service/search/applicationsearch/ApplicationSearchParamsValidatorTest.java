@@ -13,12 +13,16 @@ import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
+import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
 import uk.co.ogauthority.pwa.service.enums.users.UserType;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ApplicationSearchParamsValidatorTest {
+
+  private static final int CASE_OFFICER_PERSON_ID = 1;
+  private static final OrganisationUnitId HOLDER_ORG_UNIT_ID = new OrganisationUnitId(10);
 
   private ApplicationSearchParamsValidator applicationSearchParamsValidator;
   private AuthenticatedUserAccount authenticatedUserAccount;
@@ -68,11 +72,11 @@ public class ApplicationSearchParamsValidatorTest {
     var context = ApplicationSearchContextTestUtil.emptyUserContext(authenticatedUserAccount, UserType.INDUSTRY);
     var validationErrors = ValidatorTestUtils.getFormValidationErrors(
         applicationSearchParamsValidator,
-        new ApplicationSearchParametersBuilder().setCaseOfficerId("1").createApplicationSearchParameters(),
+        new ApplicationSearchParametersBuilder().setCaseOfficerPersonId(CASE_OFFICER_PERSON_ID).createApplicationSearchParameters(),
         context);
 
     assertThat(validationErrors).contains(Map.entry(
-        "caseOfficerId", Set.of("caseOfficerId" + FieldValidationErrorCodes.INVALID.getCode())));
+        "caseOfficerPersonId", Set.of("caseOfficerPersonId" + FieldValidationErrorCodes.INVALID.getCode())));
   }
 
   @Test
@@ -80,11 +84,59 @@ public class ApplicationSearchParamsValidatorTest {
     var context = ApplicationSearchContextTestUtil.emptyUserContext(authenticatedUserAccount, UserType.OGA);
     var validationErrors = ValidatorTestUtils.getFormValidationErrors(
         applicationSearchParamsValidator,
-        new ApplicationSearchParametersBuilder().setCaseOfficerId("1").createApplicationSearchParameters(),
+        new ApplicationSearchParametersBuilder().setCaseOfficerPersonId(CASE_OFFICER_PERSON_ID).createApplicationSearchParameters(),
         context);
 
     assertThat(validationErrors).doesNotContain(Map.entry(
-        "caseOfficerId", Set.of("caseOfficerId" + FieldValidationErrorCodes.INVALID.getCode())));
+        "caseOfficerPersonId", Set.of("caseOfficerPersonId" + FieldValidationErrorCodes.INVALID.getCode())));
+  }
+
+  @Test
+  public void validate_holderOrgUnitId_ogaUserType() {
+    var context = ApplicationSearchContextTestUtil.emptyUserContext(authenticatedUserAccount, UserType.OGA);
+    var validationErrors = ValidatorTestUtils.getFormValidationErrors(
+        applicationSearchParamsValidator,
+        new ApplicationSearchParametersBuilder().setHolderOrgUnitId(HOLDER_ORG_UNIT_ID.asInt()).createApplicationSearchParameters(),
+        context);
+
+    assertThat(validationErrors).doesNotContain(Map.entry(
+        "holderOrgUnitId", Set.of("holderOrgUnitId" + FieldValidationErrorCodes.INVALID.getCode())));
+  }
+
+  @Test
+  public void validate_holderOrgUnitId_combinedOgaIndustryUserType_selectedHolderOrgIdNotInIndustryOrgs() {
+    var context = ApplicationSearchContextTestUtil.combinedIndustryOgaContext(authenticatedUserAccount, Set.of(HOLDER_ORG_UNIT_ID));
+    var validationErrors = ValidatorTestUtils.getFormValidationErrors(
+        applicationSearchParamsValidator,
+        new ApplicationSearchParametersBuilder().setHolderOrgUnitId(9999999).createApplicationSearchParameters(),
+        context);
+
+    assertThat(validationErrors).doesNotContain(Map.entry(
+        "holderOrgUnitId", Set.of("holderOrgUnitId" + FieldValidationErrorCodes.INVALID.getCode())));
+  }
+
+  @Test
+  public void validate_holderOrgUnitId_IndustryUserTypeOnly_invalidOrgUnitSelected() {
+    var context = ApplicationSearchContextTestUtil.emptyUserContext(authenticatedUserAccount, UserType.INDUSTRY);
+    var validationErrors = ValidatorTestUtils.getFormValidationErrors(
+        applicationSearchParamsValidator,
+        new ApplicationSearchParametersBuilder().setHolderOrgUnitId(HOLDER_ORG_UNIT_ID.asInt()).createApplicationSearchParameters(),
+        context);
+
+    assertThat(validationErrors).contains(Map.entry(
+        "holderOrgUnitId", Set.of("holderOrgUnitId" + FieldValidationErrorCodes.INVALID.getCode())));
+  }
+
+  @Test
+  public void validate_holderOrgUnitId_IndustryUserTypeOnly_validOrgUnitSelected() {
+    var context = ApplicationSearchContextTestUtil.industryContext(authenticatedUserAccount, Set.of(HOLDER_ORG_UNIT_ID ));
+    var validationErrors = ValidatorTestUtils.getFormValidationErrors(
+        applicationSearchParamsValidator,
+        new ApplicationSearchParametersBuilder().setHolderOrgUnitId(HOLDER_ORG_UNIT_ID.asInt()).createApplicationSearchParameters(),
+        context);
+
+    assertThat(validationErrors).doesNotContain(Map.entry(
+        "holderOrgUnitId", Set.of("holderOrgUnitId" + FieldValidationErrorCodes.INVALID.getCode())));
   }
 
 }

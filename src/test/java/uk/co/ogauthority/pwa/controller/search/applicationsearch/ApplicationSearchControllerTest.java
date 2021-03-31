@@ -17,6 +17,8 @@ import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSe
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -31,6 +33,9 @@ import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.AbstractControllerTest;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
+import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
+import uk.co.ogauthority.pwa.energyportal.service.organisations.PortalOrganisationsAccessor;
+import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaAppAssignmentView;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailItemView;
 import uk.co.ogauthority.pwa.model.view.search.SearchScreenView;
@@ -49,6 +54,8 @@ import uk.co.ogauthority.pwa.service.search.applicationsearch.ApplicationSearchC
 import uk.co.ogauthority.pwa.service.search.applicationsearch.ApplicationSearchDisplayItemCreator;
 import uk.co.ogauthority.pwa.service.search.applicationsearch.ApplicationSearchParameters;
 import uk.co.ogauthority.pwa.service.search.applicationsearch.ApplicationSearchParametersBuilder;
+import uk.co.ogauthority.pwa.service.teams.PwaHolderTeamService;
+import uk.co.ogauthority.pwa.testutils.PortalOrganisationTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 @RunWith(SpringRunner.class)
@@ -83,6 +90,14 @@ public class ApplicationSearchControllerTest extends AbstractControllerTest {
   @MockBean
   private ApplicationInvolvementService applicationInvolvementService;
 
+  @MockBean
+  private PortalOrganisationsAccessor portalOrganisationsAccessor;
+
+  @MockBean
+  private PwaHolderTeamService pwaHolderTeamService;
+
+  private PortalOrganisationUnit portalOrganisationUnit = PortalOrganisationTestUtils.getOrganisationUnit();
+
   private ApplicationSearchContext permittedUserSearchContext;
 
   private ApplicationSearchController applicationSearchController;
@@ -90,7 +105,8 @@ public class ApplicationSearchControllerTest extends AbstractControllerTest {
   @Before
   public void setUp() throws Exception {
     applicationSearchController = new ApplicationSearchController(
-        applicationDetailSearchService, applicationSearchContextCreator, applicationSearchDisplayItemCreator, applicationInvolvementService);
+        applicationDetailSearchService, applicationSearchContextCreator, applicationSearchDisplayItemCreator, applicationInvolvementService,
+        pwaHolderTeamService, portalOrganisationsAccessor);
 
     permittedUserSearchContext = ApplicationSearchContextTestUtil.emptyUserContext(permittedUser, UserType.OGA);
     when(applicationSearchContextCreator.createContext(permittedUser)).thenReturn(permittedUserSearchContext);
@@ -112,6 +128,58 @@ public class ApplicationSearchControllerTest extends AbstractControllerTest {
         .andExpect(model().attribute("assignedCaseOfficers", Map.of()))
         .andExpect(model().attributeDoesNotExist("searchScreenView"));
   }
+
+  @Test
+  public void getSearchResults_whenPermitted_landingEntry_industryOnlyUserType() throws Exception {
+
+    var orgUnitId = new OrganisationUnitId(portalOrganisationUnit.getOuId());
+    permittedUserSearchContext = ApplicationSearchContextTestUtil.industryContext(permittedUser, Set.of(orgUnitId));
+    when(applicationSearchContextCreator.createContext(permittedUser)).thenReturn(permittedUserSearchContext);
+
+
+    mockMvc.perform(get(ReverseRouter.route(on(ApplicationSearchController.class).getSearchResults(
+        null, ApplicationSearchController.AppSearchEntryState.LANDING, null
+    )))
+        .with(authenticatedUserAndSession(permittedUser)))
+        .andExpect(status().isOk())
+        .andExpect(model().attribute("useLimitedOrgSearch", true));
+  }
+  @Test
+  public void getSearchResults_whenPermitted_landingEntry_notIndustryOnlyUserType() throws Exception {
+
+    var orgUnitId = new OrganisationUnitId(portalOrganisationUnit.getOuId());
+    permittedUserSearchContext = ApplicationSearchContextTestUtil.combinedIndustryOgaContext(permittedUser, Set.of(orgUnitId));
+    when(applicationSearchContextCreator.createContext(permittedUser)).thenReturn(permittedUserSearchContext);
+
+
+    mockMvc.perform(get(ReverseRouter.route(on(ApplicationSearchController.class).getSearchResults(
+        null, ApplicationSearchController.AppSearchEntryState.LANDING, null
+    )))
+        .with(authenticatedUserAndSession(permittedUser)))
+        .andExpect(status().isOk())
+        .andExpect(model().attribute("useLimitedOrgSearch", false));
+  }
+
+  @Test
+  public void getSearchResults_whenPermitted_landingEntry_notIndustryOnlyUserType_selectedHolderOrg() throws Exception {
+
+    var orgUnitId = new OrganisationUnitId(portalOrganisationUnit.getOuId());
+    permittedUserSearchContext = ApplicationSearchContextTestUtil.combinedIndustryOgaContext(permittedUser, Set.of(orgUnitId));
+    when(applicationSearchContextCreator.createContext(permittedUser)).thenReturn(permittedUserSearchContext);
+
+    when(portalOrganisationsAccessor.getOrganisationUnitById(portalOrganisationUnit.getOuId()))
+        .thenReturn(Optional.of(portalOrganisationUnit));
+
+    mockMvc.perform(get(ReverseRouter.route(on(ApplicationSearchController.class).getSearchResults(
+        null, ApplicationSearchController.AppSearchEntryState.LANDING, null
+    )))
+        .with(authenticatedUserAndSession(permittedUser))
+        .param("holderOrgUnitId", portalOrganisationUnit.getSelectionId()))
+        .andExpect(status().isOk())
+        .andExpect(model().attribute("useLimitedOrgSearch", false))
+        .andExpect(model().attributeExists("preselectedHolderOrgUnits"));
+  }
+
 
   @Test
   public void getSearchResults_openAppsAssignedCaseOfficersMapping() {

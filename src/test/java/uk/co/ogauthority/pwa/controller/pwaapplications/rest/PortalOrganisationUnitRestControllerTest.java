@@ -59,4 +59,21 @@ public class PortalOrganisationUnitRestControllerTest extends PwaApplicationCont
             .with(csrf())
     ).andExpect(status().isOk());
   }
+
+  @Test
+  public void searchPortalOrgUnitsNoManualEntry_authenticated() throws Exception {
+    mockMvc.perform(
+        get(ReverseRouter.route(on(PortalOrganisationUnitRestController.class).searchPortalOrgUnitsNoManualEntry("Test")))
+            .with(authenticatedUserAndSession(user))
+            .with(csrf())
+    ).andExpect(status().isOk());
+  }
+
+  @Test
+  public void searchPortalOrgUnitsNoManualEntry_unauthenticated() throws Exception {
+    mockMvc.perform(
+        get(ReverseRouter.route(on(PortalOrganisationUnitRestController.class).searchPortalOrgUnitsNoManualEntry("Test")))
+            .with(csrf())
+    ).andExpect(status().is3xxRedirection());
+  }
 }
