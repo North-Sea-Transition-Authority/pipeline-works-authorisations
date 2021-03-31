@@ -2,6 +2,8 @@
 <#import '../../workarea/_applicationWorkAreaItem.ftl' as applicationWorkAreaItem>
 <#import '../common/searchScreenHelper.ftl' as searchScreenHelper>
 
+<#-- @ftlvariable name="clearFiltersUrl" type="java.lang.String" -->
+
 <#-- @ftlvariable name="searchScreenView" type="uk.co.ogauthority.pwa.model.view.search.SearchScreenView" -->
 <#-- @ftlvariable name="appSearchEntryState" type="uk.co.ogauthority.pwa.controller.search.applicationsearch.ApplicationSearchController.AppSearchEntryState" -->
 <#-- @ftlvariable name="searchUrl" type="java.lang.String" -->
@@ -18,7 +20,7 @@
     <@fdsSearch.searchPage>
 
         <@fdsSearch.searchFilter formActionUrl="${springUrl(searchUrl)}">
-            <@fdsSearch.searchFilterList filterButtonItemText="applications">
+            <@fdsSearch.searchFilterList filterButtonItemText="applications" clearFilterText="Clear filters" clearFilterUrl=springUrl(clearFiltersUrl)>
                 <@fdsSearch.searchFilterItem itemName="Application reference" expanded=form.appReference?has_content>
                     <@fdsTextInput.textInput path="form.appReference"
                     labelText="Application reference" labelClass="govuk-visually-hidden"

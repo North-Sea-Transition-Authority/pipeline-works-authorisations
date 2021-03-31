@@ -56,6 +56,16 @@ public class ApplicationSearchController {
   private final PwaHolderTeamService pwaHolderTeamService;
   private final PortalOrganisationsAccessor portalOrganisationsAccessor;
 
+  public static String routeToLandingPage() {
+    return ReverseRouter.route(on(ApplicationSearchController.class)
+        .getSearchResults(null, AppSearchEntryState.LANDING, null)
+    );
+  }
+
+  public static String routeToBlankSearchUrl() {
+    return ReverseRouter.route(on(ApplicationSearchController.class).getSearchResults(null, null, null));
+  }
+
   @Autowired
   public ApplicationSearchController(ApplicationDetailSearchService applicationDetailSearchService,
                                      ApplicationSearchContextCreator applicationSearchContextCreator,
@@ -89,12 +99,6 @@ public class ApplicationSearchController {
     );
   }
 
-  public static String routeToLandingPage() {
-    return ReverseRouter.route(on(ApplicationSearchController.class)
-        .getSearchResults(null, AppSearchEntryState.LANDING, null)
-    );
-  }
-
   @GetMapping()
   public ModelAndView getSearchResults(AuthenticatedUserAccount authenticatedUserAccount,
                                        @RequestParam(name = "entryState", defaultValue = "SEARCH") AppSearchEntryState entryState,
@@ -102,9 +106,7 @@ public class ApplicationSearchController {
     return getSearchModelAndView(entryState, applicationSearchParameters, authenticatedUserAccount);
   }
 
-  public static String getBlankSearchUrl() {
-    return ReverseRouter.route(on(ApplicationSearchController.class).getSearchResults(null, null, null));
-  }
+
 
   @PostMapping
   public ModelAndView submitSearchParams(@ModelAttribute("form") ApplicationSearchParameters applicationSearchParameters) {
@@ -160,7 +162,8 @@ public class ApplicationSearchController {
         .addObject("searchScreenView", searchScreenView)
         .addObject("appSearchEntryState", appSearchEntryState)
         // need to provide as search form changes do not include previous search results from the URL params
-        .addObject("searchUrl", ApplicationSearchController.getBlankSearchUrl())
+        .addObject("clearFiltersUrl", ApplicationSearchController.routeToLandingPage())
+        .addObject("searchUrl", ApplicationSearchController.routeToBlankSearchUrl())
         .addObject("pwaApplicationTypeMap", pwaApplicationTypeMap)
         .addObject("assignedCaseOfficers", getCaseOfficersAssignedToInProgressAppsMap())
         .addObject("userTypes", searchContext.getUserTypes());
