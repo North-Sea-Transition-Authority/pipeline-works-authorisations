@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.service.pwacontext;
 import java.util.Set;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
+import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.view.search.consents.ConsentSearchResultView;
 
 /**
@@ -15,6 +16,8 @@ public class PwaContext {
   private final WebUserAccount user;
   private final Set<PwaPermission> pwaPermissions;
   private final ConsentSearchResultView consentSearchResultView;
+  private Pipeline pipeline;
+
 
   public PwaContext(MasterPwa masterPwa, WebUserAccount user,
                     Set<PwaPermission> pwaPermissions,
@@ -39,6 +42,14 @@ public class PwaContext {
 
   public ConsentSearchResultView getConsentSearchResultView() {
     return consentSearchResultView;
+  }
+
+  public Pipeline getPipeline() {
+    return pipeline;
+  }
+
+  public void setPipeline(Pipeline pipeline) {
+    this.pipeline = pipeline;
   }
 
   public boolean hasPermission(PwaPermission pwaPermission) {
