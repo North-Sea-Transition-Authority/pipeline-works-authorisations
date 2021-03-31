@@ -14,7 +14,7 @@ import uk.co.ogauthority.pwa.service.pwacontext.PwaPermission;
 import uk.co.ogauthority.pwa.service.pwacontext.PwaPermissionCheck;
 import uk.co.ogauthority.pwa.service.search.consents.PwaViewTab;
 import uk.co.ogauthority.pwa.service.search.consents.pwaviewtab.PwaViewTabService;
-import uk.co.ogauthority.pwa.service.search.consents.pwaviewtab.PwaViewTabUrlFactory;
+import uk.co.ogauthority.pwa.service.search.consents.pwaviewtab.PwaViewUrlFactory;
 
 @Controller
 @RequestMapping("/consents/pwa-view/{pwaId}/{tab}")
@@ -41,7 +41,7 @@ public class PwaViewController {
         .addObject("consentSearchResultView", pwaContext.getConsentSearchResultView())
         .addObject("availableTabs", PwaViewTab.stream().collect(Collectors.toList()))
         .addObject("currentProcessingTab", tab)
-        .addObject("tabUrlFactory", new PwaViewTabUrlFactory(pwaId))
+        .addObject("pwaViewUrlFactory", new PwaViewUrlFactory(pwaId))
         .addAllObjects(tabContentModelMap);
   }
 

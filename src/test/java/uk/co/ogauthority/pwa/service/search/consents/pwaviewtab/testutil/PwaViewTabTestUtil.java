@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.service.search.consents.pwaviewtab.testutil;
 
+import java.time.Instant;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
@@ -8,6 +9,8 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipe
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipelineTestUtil;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineHeaderView;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview;
+import uk.co.ogauthority.pwa.repository.pwaconsents.PwaConsentApplicationDto;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 
 public class PwaViewTabTestUtil {
 
@@ -40,5 +43,12 @@ public class PwaViewTabTestUtil {
 
     return new PipelineHeaderView(pipelineDetail);
   }
+
+  public static PwaConsentApplicationDto createConsentApplicationDto(Instant consentInstant) {
+    return new PwaConsentApplicationDto(
+        1, consentInstant, "consent ref", 1, PwaApplicationType.INITIAL, "app ref");
+  }
+
+
 
 }

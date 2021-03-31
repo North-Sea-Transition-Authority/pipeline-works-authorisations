@@ -13,8 +13,6 @@ final class GovUkPayConfiguration {
 
   private static final String PAYMENTS_URL = "/v1/payments";
 
-  private final String applicationBaseUrl;
-
   private final String apiKey;
 
   private final String govUkPayBaseUrl;
@@ -26,12 +24,10 @@ final class GovUkPayConfiguration {
   @Autowired
   GovUkPayConfiguration(RestTemplateBuilder restTemplateBuilder,
                         ClientHttpRequestFactory clientHttpRequestFactory,
-                        @Value("${pwa.url.base}") String applicationBaseUrl,
                         @Value("${govukpay.apiKey}") String apiKey,
                         @Value("${govukpay.api.base-url}") String govUkPayBaseUrl,
                         @Value("${govukpay.connect-timeout-seconds:#{10}}") Long apiConnectionTimeoutSeconds,
                         @Value("${govukpay.read-timeout-seconds:#{10}}") Long apiReadTimeoutSeconds) {
-    this.applicationBaseUrl = applicationBaseUrl;
     this.apiKey = apiKey;
     this.govUkPayBaseUrl = govUkPayBaseUrl;
     this.govukPayAuthorizationHeaderValue = "Bearer " + apiKey;
@@ -59,5 +55,9 @@ final class GovUkPayConfiguration {
 
   RestTemplate getConfiguredRestTemplate() {
     return restTemplate;
+  }
+
+  public String getApiKey() {
+    return apiKey;
   }
 }
