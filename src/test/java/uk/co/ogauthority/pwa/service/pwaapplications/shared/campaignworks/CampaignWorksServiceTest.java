@@ -411,7 +411,8 @@ public class CampaignWorksServiceTest {
   @Test
   public void getWorkScheduleOrError_validId(){
 
-    var workSchedule = campaignWorksService.getWorkScheduleOrError(pwaApplicationDetail, SCHEDULE_ID );
+    assertThat(campaignWorksService.getWorkScheduleOrError(pwaApplicationDetail, SCHEDULE_ID))
+        .isEqualTo(workSchedule);
 
   }
 
