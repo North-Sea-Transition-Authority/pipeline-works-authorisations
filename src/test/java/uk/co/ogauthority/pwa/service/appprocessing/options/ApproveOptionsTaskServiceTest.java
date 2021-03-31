@@ -12,6 +12,7 @@ import static uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessing
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.junit.Before;
 import org.junit.Test;
@@ -78,6 +79,25 @@ public class ApproveOptionsTaskServiceTest {
   @Test
   public void canShowInTaskList_whenHasApproveOptionsPermission() {
     assertThat(approveOptionsTaskService.canShowInTaskList(pwaAppProcessingContext)).isTrue();
+  }
+
+  @Test
+  public void canShowInTaskList_showAllTasksPermissionAndOptionsAppType() {
+    pwaAppProcessingContext = PwaAppProcessingContextTestUtil.withPermissions(
+        pwaApplicationDetail,
+        EnumSet.of(PwaAppProcessingPermission.SHOW_ALL_TASKS)
+    );
+    assertThat(approveOptionsTaskService.canShowInTaskList(pwaAppProcessingContext)).isTrue();
+  }
+
+  @Test
+  public void canShowInTaskList_showAllTasksPermissionAndNotOptionsAppType() {
+    var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
+    pwaAppProcessingContext = PwaAppProcessingContextTestUtil.withPermissions(
+        detail,
+        EnumSet.of(PwaAppProcessingPermission.SHOW_ALL_TASKS)
+    );
+    assertThat(approveOptionsTaskService.canShowInTaskList(pwaAppProcessingContext)).isFalse();
   }
 
   @Test

@@ -115,6 +115,26 @@ public class PwaAppProcessingPermissionServiceTest {
   }
 
   @Test
+  public void getGenericProcessingPermissions_hasShowAllTasks_pwaManagerOnly_hasPermission() {
+
+    replacePrivileges(user, PwaUserPrivilege.PWA_MANAGER);
+
+    var permissions = processingPermissionService.getGenericProcessingPermissions(user);
+    AssertionTestUtils.assertNotEmptyAndContains(permissions, PwaAppProcessingPermission.SHOW_ALL_TASKS);
+
+  }
+
+  @Test
+  public void getGenericProcessingPermissions_hasShowAllTasks_pwaManagerAndCaseOfficer_noPermission() {
+
+    replacePrivileges(user, PwaUserPrivilege.PWA_MANAGER, PwaUserPrivilege.PWA_CASE_OFFICER);
+
+    var permissions = processingPermissionService.getGenericProcessingPermissions(user);
+    AssertionTestUtils.assertNotEmptyAndDoesNotContain(permissions, PwaAppProcessingPermission.SHOW_ALL_TASKS);
+
+  }
+
+  @Test
   public void getGenericProcessingPermissions_acceptViewAllConsultationsPermission_co_success() {
 
     replacePrivileges(user, PwaUserPrivilege.PWA_CASE_OFFICER);

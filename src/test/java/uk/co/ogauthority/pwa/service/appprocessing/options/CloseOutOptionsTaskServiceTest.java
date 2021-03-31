@@ -47,7 +47,7 @@ public class CloseOutOptionsTaskServiceTest {
 
     pwaAppProcessingContext = PwaAppProcessingContextTestUtil.withPermissions(
         pwaApplicationDetail,
-        EnumSet.allOf(PwaAppProcessingPermission.class)
+        EnumSet.complementOf(EnumSet.of(PwaAppProcessingPermission.SHOW_ALL_TASKS))
     );
 
     closeOutOptionsTaskService = new CloseOutOptionsTaskService(
@@ -65,6 +65,25 @@ public class CloseOutOptionsTaskServiceTest {
     );
 
     assertThat(closeOutOptionsTaskService.canShowInTaskList(pwaAppProcessingContext)).isTrue();
+  }
+
+  @Test
+  public void canShowInTaskList_showAllTasksPermission_optionsAppType() {
+    pwaAppProcessingContext = PwaAppProcessingContextTestUtil.withPermissions(
+        pwaApplicationDetail,
+        EnumSet.of(PwaAppProcessingPermission.SHOW_ALL_TASKS)
+    );
+    assertThat(closeOutOptionsTaskService.canShowInTaskList(pwaAppProcessingContext)).isTrue();
+  }
+
+  @Test
+  public void canShowInTaskList_showAllTasksPermission_notOptionsAppType() {
+    var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
+    pwaAppProcessingContext = PwaAppProcessingContextTestUtil.withPermissions(
+        detail,
+        EnumSet.of(PwaAppProcessingPermission.SHOW_ALL_TASKS)
+    );
+    assertThat(closeOutOptionsTaskService.canShowInTaskList(pwaAppProcessingContext)).isFalse();
   }
 
   @Test

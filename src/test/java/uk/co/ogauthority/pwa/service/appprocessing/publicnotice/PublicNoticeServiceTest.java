@@ -205,6 +205,29 @@ public class PublicNoticeServiceTest {
   }
 
   @Test
+  public void canShowInTaskList_showAllTasksPublicNoticePermission_validAppType_true() {
+
+    var processingContext = new PwaAppProcessingContext(pwaApplicationDetail, null, Set.of(PwaAppProcessingPermission.SHOW_ALL_TASKS), null, null);
+
+    boolean canShow = publicNoticeService.canShowInTaskList(processingContext);
+
+    assertThat(canShow).isTrue();
+
+  }
+
+  @Test
+  public void canShowInTaskList_showAllTasksPublicNoticePermission_invalidAppType_false() {
+
+    pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.OPTIONS_VARIATION);
+    var processingContext = new PwaAppProcessingContext(pwaApplicationDetail, null, Set.of(PwaAppProcessingPermission.SHOW_ALL_TASKS), null, null);
+
+    boolean canShow = publicNoticeService.canShowInTaskList(processingContext);
+
+    assertThat(canShow).isFalse();
+
+  }
+
+  @Test
   public void canShowInTaskList_noPermissions_false() {
 
     var processingContext = new PwaAppProcessingContext(null, null, Set.of(), null, null);

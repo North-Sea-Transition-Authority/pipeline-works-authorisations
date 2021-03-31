@@ -1,7 +1,9 @@
 package uk.co.ogauthority.pwa.service.appprocessing.options;
 
 import static uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission.CLOSE_OUT_OPTIONS;
+import static uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission.SHOW_ALL_TASKS;
 
+import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.model.enums.tasklist.TaskState;
@@ -10,9 +12,11 @@ import uk.co.ogauthority.pwa.model.tasklist.TaskTag;
 import uk.co.ogauthority.pwa.service.appprocessing.applicationupdate.ApplicationUpdateRequestService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.service.appprocessing.tasks.AppProcessingService;
+import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingTask;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.TaskStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 
 @Service
 public class CloseOutOptionsTaskService implements AppProcessingService {
@@ -34,7 +38,9 @@ public class CloseOutOptionsTaskService implements AppProcessingService {
   }
 
   private boolean hasAccessPermissions(PwaAppProcessingContext pwaAppProcessingContext) {
-    return pwaAppProcessingContext.getAppProcessingPermissions().contains(CLOSE_OUT_OPTIONS);
+    return pwaAppProcessingContext.getAppProcessingPermissions().contains(CLOSE_OUT_OPTIONS)
+        || (pwaAppProcessingContext.getApplicationType().equals(PwaApplicationType.OPTIONS_VARIATION)
+        && pwaAppProcessingContext.getAppProcessingPermissions().contains(SHOW_ALL_TASKS));
   }
 
   public boolean taskAccessible(PwaAppProcessingContext pwaAppProcessingContext) {
@@ -42,10 +48,13 @@ public class CloseOutOptionsTaskService implements AppProcessingService {
 
     var taskStatus = getTaskStatus(pwaAppProcessingContext);
 
-    return hasAccessPermissions && taskStatusGrantsTaskAccess(taskStatus);
+    return hasAccessPermissions && taskStatusGrantsTaskAccess(taskStatus, pwaAppProcessingContext.getAppProcessingPermissions());
   }
 
-  private boolean taskStatusGrantsTaskAccess(TaskStatus taskStatus) {
+  private boolean taskStatusGrantsTaskAccess(TaskStatus taskStatus, Set<PwaAppProcessingPermission> permissions) {
+    if (permissions.contains(SHOW_ALL_TASKS)) {
+      return false;
+    }
     return !(taskStatus.shouldForceInaccessible() || TaskStatus.COMPLETED.equals(taskStatus));
   }
 
@@ -92,7 +101,7 @@ public class CloseOutOptionsTaskService implements AppProcessingService {
   public TaskListEntry getTaskListEntry(PwaAppProcessingTask task, PwaAppProcessingContext processingContext) {
 
     TaskStatus taskStatus = getTaskStatus(processingContext);
-    var isAccessible = taskStatusGrantsTaskAccess(taskStatus);
+    var isAccessible = taskStatusGrantsTaskAccess(taskStatus, processingContext.getAppProcessingPermissions());
 
     return new TaskListEntry(
         task.getTaskName(),

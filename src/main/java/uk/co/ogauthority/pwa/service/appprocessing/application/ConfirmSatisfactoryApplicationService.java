@@ -44,7 +44,8 @@ public class ConfirmSatisfactoryApplicationService implements AppProcessingServi
   @Override
   public boolean canShowInTaskList(PwaAppProcessingContext processingContext) {
     return processingContext.getAppProcessingPermissions().contains(PwaAppProcessingPermission.CONFIRM_SATISFACTORY_APPLICATION)
-        || processingContext.getAppProcessingPermissions().contains(PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY);
+        || processingContext.getAppProcessingPermissions().contains(PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY)
+        || processingContext.getAppProcessingPermissions().contains(PwaAppProcessingPermission.SHOW_ALL_TASKS);
   }
 
   @Override
@@ -52,11 +53,16 @@ public class ConfirmSatisfactoryApplicationService implements AppProcessingServi
 
     boolean isSatisfactory = isSatisfactory(processingContext.getApplicationDetail());
 
+    var taskState = TaskState.LOCK;
+    if (!processingContext.getAppProcessingPermissions().contains(PwaAppProcessingPermission.SHOW_ALL_TASKS)) {
+      taskState = !isSatisfactory ? TaskState.EDIT : TaskState.LOCK;
+    }
+
     return new TaskListEntry(
         task.getTaskName(),
         task.getRoute(processingContext),
         !isSatisfactory ? TaskTag.from(TaskStatus.NOT_COMPLETED) : TaskTag.from(TaskStatus.COMPLETED),
-        !isSatisfactory ? TaskState.EDIT : TaskState.LOCK,
+        taskState,
         task.getDisplayOrder());
 
   }

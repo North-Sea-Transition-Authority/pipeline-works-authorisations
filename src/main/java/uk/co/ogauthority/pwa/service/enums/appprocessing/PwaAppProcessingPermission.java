@@ -22,6 +22,7 @@ public enum PwaAppProcessingPermission {
   REQUEST_APPLICATION_UPDATE,
   CASE_MANAGEMENT_OGA,
   ADD_CASE_NOTE(ProcessingPermissionType.GENERIC),
+  SHOW_ALL_TASKS(ProcessingPermissionType.GENERIC),
 
   // PUBLIC NOTICE
   VIEW_ALL_PUBLIC_NOTICES,

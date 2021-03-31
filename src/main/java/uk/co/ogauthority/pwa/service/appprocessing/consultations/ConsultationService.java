@@ -29,7 +29,8 @@ public class ConsultationService implements AppProcessingService {
   @Override
   public boolean canShowInTaskList(PwaAppProcessingContext processingContext) {
     return processingContext.getAppProcessingPermissions().contains(PwaAppProcessingPermission.VIEW_ALL_CONSULTATIONS)
-        || processingContext.getAppProcessingPermissions().contains(PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY);
+        || processingContext.getAppProcessingPermissions().contains(PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY)
+        || processingContext.getAppProcessingPermissions().contains(PwaAppProcessingPermission.SHOW_ALL_TASKS);
   }
 
   @Override
@@ -52,11 +53,16 @@ public class ConsultationService implements AppProcessingService {
 
     boolean atLeastOneSatisfactoryVersion = processingContext.getApplicationInvolvement().hasAtLeastOneSatisfactoryVersion();
 
+    var taskState = TaskState.LOCK;
+    if (!processingContext.getAppProcessingPermissions().contains(PwaAppProcessingPermission.SHOW_ALL_TASKS)) {
+      taskState = atLeastOneSatisfactoryVersion ? TaskState.EDIT : TaskState.LOCK;
+    }
+
     return new TaskListEntry(
         task.getTaskName(),
         task.getRoute(processingContext),
         atLeastOneSatisfactoryVersion ? TaskTag.from(taskStatus) : TaskTag.from(TaskStatus.CANNOT_START_YET),
-        atLeastOneSatisfactoryVersion ? TaskState.EDIT : TaskState.LOCK,
+        taskState,
         task.getDisplayOrder());
 
   }

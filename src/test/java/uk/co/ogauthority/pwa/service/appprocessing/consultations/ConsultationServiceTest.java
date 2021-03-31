@@ -11,6 +11,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import uk.co.ogauthority.pwa.model.dto.appprocessing.ApplicationInvolvementDtoTestUtil;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
 import uk.co.ogauthority.pwa.model.enums.tasklist.TaskState;
 import uk.co.ogauthority.pwa.model.tasklist.TaskTag;
@@ -60,6 +61,17 @@ public class ConsultationServiceTest {
   }
 
   @Test
+  public void canShowInTaskList_showAllTasksPermission() {
+
+    var processingContext = new PwaAppProcessingContext(null, null, Set.of(PwaAppProcessingPermission.SHOW_ALL_TASKS), null, null);
+
+    boolean canShow = consultationService.canShowInTaskList(processingContext);
+
+    assertThat(canShow).isTrue();
+
+  }
+
+  @Test
   public void canShowInTaskList_noPermissions() {
 
     var processingContext = new PwaAppProcessingContext(null, null, Set.of(), null, null);
@@ -86,6 +98,27 @@ public class ConsultationServiceTest {
     assertThat(taskListEntry.getTaskInfoList()).isEmpty();
     assertThat(taskListEntry.getTaskState()).isEqualTo(TaskState.LOCK);
     assertThat(taskListEntry.getTaskTag()).isEqualTo(TaskTag.from(TaskStatus.CANNOT_START_YET));
+
+  }
+
+  @Test
+  public void getTaskListEntry_showAllTasksPermission_taskStateLocked() {
+
+    var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
+
+    var appInvolvement = ApplicationInvolvementDtoTestUtil.fromInvolvementFlags(
+        detail.getPwaApplication(), Set.of(ApplicationInvolvementDtoTestUtil.InvolvementFlag.AT_LEAST_ONE_SATISFACTORY_VERSION));
+    var processingContext = new PwaAppProcessingContext(detail, null, Set.of(PwaAppProcessingPermission.SHOW_ALL_TASKS), null, appInvolvement);
+
+    when(consultationRequestService.getAllRequestsByApplication(any())).thenReturn(List.of());
+
+    var taskListEntry = consultationService.getTaskListEntry(PwaAppProcessingTask.CONSULTATIONS, processingContext);
+
+    assertThat(taskListEntry.getTaskName()).isEqualTo(PwaAppProcessingTask.CONSULTATIONS.getTaskName());
+    assertThat(taskListEntry.getRoute()).isEqualTo(PwaAppProcessingTask.CONSULTATIONS.getRoute(processingContext));
+    assertThat(taskListEntry.getTaskInfoList()).isEmpty();
+    assertThat(taskListEntry.getTaskState()).isEqualTo(TaskState.LOCK);
+    assertThat(taskListEntry.getTaskTag()).isEqualTo(TaskTag.from(TaskStatus.NOT_STARTED));
 
   }
 
