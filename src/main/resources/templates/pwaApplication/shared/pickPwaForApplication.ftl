@@ -19,7 +19,7 @@
          <#if showNonConsentedOptions>
            <@fdsFieldset.fieldset legendHeading=pageHeader legendHeadingClass="govuk-fieldset__legend--l" legendHeadingSize="h2">
 
-             <@fdsSearchSelector.searchSelectorEnhanced path="form.consentedMasterPwaId" labelText="Select an existing PWA" options=consentedPwaMap optionalInputDefault="Select one..." />
+             <@fdsSearchSelector.searchSelectorEnhanced path="form.consentedMasterPwaId" labelText="Select a consented PWA" options=consentedPwaMap optionalInputDefault="Select one..." />
              <p class="govuk-body">or</p>
              <@fdsSearchSelector.searchSelectorEnhanced path="form.nonConsentedMasterPwaId" labelText="Select a PWA that has been applied for but is not yet consented" options=nonConsentedPwaMap optionalInputDefault="Select one..." />
            </@fdsFieldset.fieldset>

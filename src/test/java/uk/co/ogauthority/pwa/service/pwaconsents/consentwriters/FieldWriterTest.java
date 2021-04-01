@@ -61,7 +61,7 @@ public class FieldWriterTest {
     fieldWriter = new FieldWriter(masterPwaService, masterPwaDetailFieldService, padFieldService);
 
     when(masterPwaService.getCurrentDetailOrThrow(detail.getMasterPwa())).thenReturn(masterPwaDetail);
-    when(masterPwaService.createNewDetail(any(), any(), any())).thenReturn(masterPwaDetail);
+    when(masterPwaService.createDuplicateNewDetail(any())).thenReturn(masterPwaDetail);
 
     fields = List.of(new PadField());
     when(padFieldService.getActiveFieldsForApplicationDetail(detail)).thenReturn(fields);
@@ -76,8 +76,11 @@ public class FieldWriterTest {
 
     fieldWriter.write(detail, pwaConsent);
 
-    verify(masterPwaService, times(1))
-        .updateDetail(masterPwaDetail, MasterPwaDetailStatus.CONSENTED, detail.getLinkedToField(), detail.getNotLinkedDescription());
+    verify(masterPwaService, times(0)).createDuplicateNewDetail(any());
+    verify(masterPwaService, times(1)).updateDetailFieldInfo(
+        masterPwaDetail,
+        detail.getLinkedToField(),
+        detail.getNotLinkedDescription());
 
     verify(masterPwaDetailFieldService, times(1)).createMasterPwaFieldsFromPadFields(masterPwaDetail, fields);
 
@@ -98,7 +101,8 @@ public class FieldWriterTest {
 
     fieldWriter.write(detail, pwaConsent);
 
-    verify(masterPwaService, times(0)).createNewDetail(any(), any(), any());
+    verify(masterPwaService, times(0)).createDuplicateNewDetail(any());
+    verify(masterPwaService, times(0)).updateDetailFieldInfo(any(), any(), any());
 
     verify(masterPwaDetailFieldService, times(0)).createMasterPwaFieldsFromPadFields(any(), any());
 
@@ -119,7 +123,8 @@ public class FieldWriterTest {
 
     fieldWriter.write(detail, pwaConsent);
 
-    verify(masterPwaService, times(1)).createNewDetail(masterPwa, true, null);
+    verify(masterPwaService, times(1)).createDuplicateNewDetail(masterPwa);
+    verify(masterPwaService, times(1)).updateDetailFieldInfo(masterPwaDetail, true, null);
 
     verify(masterPwaDetailFieldService, times(1)).createMasterPwaFieldsFromPadFields(masterPwaDetail, fields);
 
