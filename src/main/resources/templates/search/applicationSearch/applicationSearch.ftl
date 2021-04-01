@@ -54,9 +54,9 @@
 
                 <@fdsSearch.searchFilterItem itemName="Holder organisation" expanded=form.holderOrgUnitId?has_content>
                 <#if useLimitedOrgSearch>
-                    <@fdsSearchSelector.searchSelectorEnhanced path="form.holderOrgUnitId" options=limitedOrgUnitOptions labelText="Select an application type" optionalInputDefault="Any" labelClass="govuk-visually-hidden" />
+                    <@fdsSearchSelector.searchSelectorEnhanced path="form.holderOrgUnitId" options=limitedOrgUnitOptions labelText="Select a holder organisation" optionalInputDefault="Any" labelClass="govuk-visually-hidden" />
                 <#else>
-                    <@fdsSearchSelector.searchSelectorRest path="form.holderOrgUnitId" preselectedItems=preselectedHolderOrgUnits restUrl=springUrl(orgsRestUrl) labelText="Select an organisation" optionalInputDefault="Any" labelClass="govuk-visually-hidden" />
+                    <@fdsSearchSelector.searchSelectorRest path="form.holderOrgUnitId" preselectedItems=preselectedHolderOrgUnits restUrl=springUrl(orgsRestUrl) labelText="Select a holder organisation" optionalInputDefault="Any" labelClass="govuk-visually-hidden" />
                 </#if>
                 </@fdsSearch.searchFilterItem>
 
