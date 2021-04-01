@@ -1,11 +1,14 @@
-<#include '../../layout.ftl'>
-<#import 'consentSearchTopLevelView.ftl' as consentSearchTopLevelView>
-<#import 'tabs/pipelinesTab.ftl' as pipelinesTab>
+<#include '../../../layout.ftl'>
+<#import '../consentSearchTopLevelView.ftl' as consentSearchTopLevelView>
+<#import 'tabs/pipelineHistoryTab.ftl' as pipelineHistoryTab>
+
 
 <#-- @ftlvariable name="consentSearchResultView" type="uk.co.ogauthority.pwa.model.view.search.consents.ConsentSearchResultView" -->
 <#-- @ftlvariable name="availableTabs" type="java.util.List<uk.co.ogauthority.pwa.service.search.consents.PwaViewTab>" -->
 <#-- @ftlvariable name="currentProcessingTab" type="uk.co.ogauthority.pwa.service.search.consents.PwaViewTab" -->
 <#-- @ftlvariable name="pwaPipelineViewUrlFactory" type="uk.co.ogauthority.pwa.service.search.consents.pwaviewtab.PwaPipelineViewUrlFactory" -->
+<#-- @ftlvariable name="diffedPipelineSummaryModel" type="java.util.Map<java.lang.String, Object>" -->
+
 
 
 
@@ -21,9 +24,14 @@
         </#list>
     </@fdsBackendTabs.tabList>
 
+
     <#list availableTabs as tab>
 
       <@fdsBackendTabs.tabContent tabAnchor=tab.anchor currentTab=currentProcessingTab.value tabValue=tab.value>
+
+        <#if currentProcessingTab == "PIPELINE_HISTORY">
+            <@pipelineHistoryTab.tab diffedPipelineSummaryModel/>
+        </#if>
 
       </@fdsBackendTabs.tabContent>
 

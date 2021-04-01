@@ -69,4 +69,12 @@ public class PipelineDiffableSummaryService {
         .collect(Collectors.toList());
   }
 
+  public PipelineDiffableSummary getConsentedPipeline(Integer pipelineId) {
+
+    var pipelineDetail = pipelineDetailService.getLatestByPipelineId(pipelineId);
+    var identViews = pipelineDetailIdentService.getSortedPipelineIdentViewsForPipeline(pipelineDetail.getPipelineId());
+    PipelineHeaderView pipelineHeaderView = new PipelineHeaderView(pipelineDetail);
+    return PipelineDiffableSummary.from(pipelineHeaderView, identViews, null);
+  }
+
 }

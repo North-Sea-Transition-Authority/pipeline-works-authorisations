@@ -134,8 +134,8 @@ public class PipelineHeaderView implements PipelineOverview {
     this.pipelineFlexibility = null;
     this.pipelineMaterial = null;
     this.otherPipelineMaterialUsed = null;
-    this.trenchedBuriedBackfilled = null;
-    this.trenchingMethodsDescription = null;
+    this.trenchedBuriedBackfilled = pipelineDetail.getTrenchedBuriedFilledFlag();
+    this.trenchingMethodsDescription = pipelineDetail.getTrenchingMethodsDesc();
     this.questionsForPipelineStatus = PipelineHeaderConditionalQuestion.getQuestionsForStatus(
         pipelineDetail.getPipelineStatus());
     this.alreadyExistsOnSeabed = null;

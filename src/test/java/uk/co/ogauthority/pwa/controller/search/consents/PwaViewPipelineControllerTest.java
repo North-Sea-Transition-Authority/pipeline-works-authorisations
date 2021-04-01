@@ -6,6 +6,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import java.time.Instant;
+import java.util.Map;
 import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
@@ -30,6 +31,7 @@ import uk.co.ogauthority.pwa.service.pwacontext.PwaContextService;
 import uk.co.ogauthority.pwa.service.pwacontext.PwaPermission;
 import uk.co.ogauthority.pwa.service.pwacontext.PwaPermissionService;
 import uk.co.ogauthority.pwa.service.search.consents.PwaPipelineViewTab;
+import uk.co.ogauthority.pwa.service.search.consents.pwapipelineview.PwaPipelineHistoryViewService;
 import uk.co.ogauthority.pwa.testutils.PwaEndpointTestBuilder;
 
 @RunWith(SpringRunner.class)
@@ -46,6 +48,9 @@ public class PwaViewPipelineControllerTest extends PwaContextAbstractControllerT
 
   @MockBean
   protected PipelineDetailService pipelineDetailService;
+
+  @MockBean
+  protected PwaPipelineHistoryViewService pwaPipelineHistoryViewService;
 
   private static int PIPELINE_ID = 1;
 
@@ -75,6 +80,7 @@ public class PwaViewPipelineControllerTest extends PwaContextAbstractControllerT
     pipeline.setId(PIPELINE_ID);
     pipeline.setMasterPwa(masterPwa);
     when(pipelineService.getPipelineFromId(new PipelineId(PIPELINE_ID))).thenReturn(pipeline);
+    when(pwaPipelineHistoryViewService.getDiffedPipelineSummaryModel(PIPELINE_ID)).thenReturn(Map.of());
   }
 
 
