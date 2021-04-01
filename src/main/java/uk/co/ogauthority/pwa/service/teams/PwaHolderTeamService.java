@@ -72,6 +72,19 @@ public class PwaHolderTeamService {
     );
   }
 
+  public List<PortalOrganisationUnit> getPortalOrganisationUnitsWhereUserHasAnyOrgRole(WebUserAccount webUserAccount,
+                                                                                       Set<PwaOrganisationRole> pwaOrganisationRole) {
+
+    var organisationTeams = teamService.getOrganisationTeamListIfPersonInRole(
+        webUserAccount.getLinkedPerson(), pwaOrganisationRole);
+
+    return portalOrganisationsAccessor.getOrganisationUnitsForOrganisationGroupsIn(
+        organisationTeams.stream()
+            .map(PwaOrganisationTeam::getPortalOrganisationGroup)
+            .collect(Collectors.toList())
+    );
+  }
+
   public List<PortalOrganisationGroup> getPortalOrganisationGroupsWhereUserHasOrgRole(WebUserAccount webUserAccount,
                                                                                      PwaOrganisationRole pwaOrganisationRole) {
 
