@@ -11,6 +11,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -98,6 +99,7 @@ public class PadPipelineIdentServiceTest {
     ident = makeIdent(1, "from", "to");
     ident.setPadPipeline(padPipeline);
     identData = makeIdentData(ident);
+    padPipeline.setLength(ident.getLength());
 
   }
 
@@ -252,8 +254,9 @@ public class PadPipelineIdentServiceTest {
     var identDataB = makeIdentData(identB);
 
     var pipeline = new PadPipeline();
-    when(padPipelineIdentRepository.getAllByPadPipeline(pipeline)).thenReturn(List.of(identAStart, identAEnd, identB));
-    when(padPipelineIdentDataService.getDataFromIdentList(eq(List.of(identAStart, identAEnd, identB))))
+    var idents = List.of(identAStart, identAEnd, identB);
+    when(padPipelineIdentRepository.getAllByPadPipeline(pipeline)).thenReturn(idents);
+    when(padPipelineIdentDataService.getDataFromIdentList(eq(idents)))
         .thenReturn(new LinkedHashMap<>() {{
           put(identAStart, identDataAStart);
           put(identAEnd, identDataAEnd);
@@ -267,6 +270,11 @@ public class PadPipelineIdentServiceTest {
     assertThat(summaryView.getConnectedPipelineIdents().get(1).getIdentViews())
         .extracting(IdentView::getIdentNumber)
         .containsExactly(3);
+
+    var expectedLengthDisplay = idents.stream()
+        .map(PadPipelineIdent::getLength)
+        .reduce(BigDecimal.ZERO, BigDecimal::add).setScale(2, RoundingMode.HALF_UP).toPlainString() + "m";
+    assertThat(summaryView.getTotalIdentLength()).isEqualTo(expectedLengthDisplay);
   }
 
   @Test
@@ -277,6 +285,7 @@ public class PadPipelineIdentServiceTest {
         .thenReturn(new LinkedHashMap<>());
     ConnectedPipelineIdentSummaryView summaryView = padPipelineIdentService.getConnectedPipelineIdentSummaryView(padPipeline);
     assertThat(summaryView.getConnectedPipelineIdents()).isEmpty();
+    assertThat(summaryView.getTotalIdentLength()).isEqualTo("0m");
   }
 
   private PadPipelineIdent makeIdent(int id, String fromLocation, String toLocation) {
@@ -588,7 +597,16 @@ public class PadPipelineIdentServiceTest {
   }
 
   @Test
-  public void getSummaryScreenValidationResult_sectionIncomplete() {
+  public void getSummaryScreenValidationResult_identLengthDoesNotMatchPadPipelineLength_sectionIncomplete() {
+    padPipeline.setLength(BigDecimal.valueOf(51));
+    when(padPipelineIdentRepository.getAllByPadPipeline(padPipeline))
+        .thenReturn(List.of(ident));
+    var result = padPipelineIdentService.getSummaryScreenValidationResult(padPipeline);
+    assertThat(result.isSectionComplete()).isFalse();
+  }
+
+  @Test
+  public void getSummaryScreenValidationResult_identInvalid_sectionIncomplete() {
     ident.setId(1);
     ident.setIdentNo(1);
     doAnswer(invocation -> {

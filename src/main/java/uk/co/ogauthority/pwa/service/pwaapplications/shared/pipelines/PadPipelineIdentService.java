@@ -1,6 +1,8 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines;
 
 import com.google.common.annotations.VisibleForTesting;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -86,6 +88,13 @@ public class PadPipelineIdentService {
     return padPipelineIdentRepository.getAllByPadPipeline_PwaApplicationDetail(pwaApplicationDetail);
   }
 
+  private BigDecimal getTotalIdentLength(List<PadPipelineIdent> idents) {
+    return idents.stream()
+        .filter(ident -> ident.getLength() != null)
+        .map(PadPipelineIdent::getLength)
+        .reduce(BigDecimal.ZERO, BigDecimal::add);
+  }
+
   public SummaryScreenValidationResult getSummaryScreenValidationResult(PadPipeline padPipeline) {
     List<PadPipelineIdent> idents = getAllIdents(padPipeline)
         .stream()
@@ -101,12 +110,22 @@ public class PadPipelineIdentService {
 
     boolean allIdentsValid = invalidIdents.isEmpty() && !idents.isEmpty();
 
+    String errorMessage = null;
+    if (!allIdentsValid) {
+      errorMessage = "Add at least one ident";
+
+    } else if (!getTotalIdentLength(idents).equals(padPipeline.getLength())) {
+      allIdentsValid = false;
+      errorMessage = "The total length of all idents must equal the total pipeline length of: " +
+          (padPipeline.getLength().setScale(2, RoundingMode.HALF_UP).toPlainString() + "m");
+    }
+
     return new SummaryScreenValidationResult(
         invalidIdents,
         "ident",
         "is incomplete",
         allIdentsValid,
-        allIdentsValid ? null : "Add at least one ident"
+        errorMessage
     );
   }
 
@@ -164,7 +183,15 @@ public class PadPipelineIdentService {
         .map(ConnectedPipelineIdentsView::new)
         .collect(Collectors.toUnmodifiableList());
 
-    return new ConnectedPipelineIdentSummaryView(connectedIdents);
+    var totalIdentLength = identViews.stream()
+        .filter(identView -> identView.getLength() != null)
+        .map(IdentView::getLength)
+        .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+    var totalIdentLengthDisplay = !totalIdentLength.equals(BigDecimal.ZERO)
+        ? totalIdentLength.setScale(2, RoundingMode.HALF_UP).toPlainString() + "m" : "0m";
+
+    return new ConnectedPipelineIdentSummaryView(connectedIdents, totalIdentLengthDisplay);
   }
 
   public Optional<PadPipelineIdent> getMaxIdent(PadPipeline pipeline) {

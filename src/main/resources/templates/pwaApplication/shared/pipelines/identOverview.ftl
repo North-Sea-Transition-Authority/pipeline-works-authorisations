@@ -26,6 +26,12 @@
 
 
     <#if summaryView?has_content && summaryView.connectedPipelineIdents?has_content>
+        <@fdsCheckAnswers.checkAnswers>
+            <@fdsCheckAnswers.checkAnswersRowNoAction keyText="Total idents length">
+                ${summaryView.totalIdentLength}
+            </@fdsCheckAnswers.checkAnswersRowNoAction>
+        </@fdsCheckAnswers.checkAnswers>
+
         <@fdsTimeline.timeline>
             <@fdsTimeline.timelineSection sectionHeading="">
                 <#assign pastFirstIteration = false/>
