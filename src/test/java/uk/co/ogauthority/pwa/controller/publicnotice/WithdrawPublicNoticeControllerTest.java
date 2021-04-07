@@ -140,7 +140,7 @@ public class WithdrawPublicNoticeControllerTest extends PwaAppProcessingContextA
             pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null)))
         .with(authenticatedUserAndSession(user))
         .with(csrf()))
-        .andExpect(result -> assertThat(result.getResolvedException() instanceof AccessDeniedException).isTrue());
+        .andExpect(result -> assertThat(result.getResolvedException()).isInstanceOf(AccessDeniedException.class));
   }
 
 
@@ -210,7 +210,7 @@ public class WithdrawPublicNoticeControllerTest extends PwaAppProcessingContextA
         .postWithdrawPublicNotice(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null)))
         .with(authenticatedUserAndSession(user))
         .with(csrf()))
-        .andExpect(result -> assertThat(result.getResolvedException() instanceof AccessDeniedException).isTrue());
+        .andExpect(result -> assertThat(result.getResolvedException()).isInstanceOf(AccessDeniedException.class));
   }
 
 
