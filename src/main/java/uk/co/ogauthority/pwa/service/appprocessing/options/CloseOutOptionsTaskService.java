@@ -1,7 +1,7 @@
 package uk.co.ogauthority.pwa.service.appprocessing.options;
 
 import static uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission.CLOSE_OUT_OPTIONS;
-import static uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission.SHOW_ALL_TASKS;
+import static uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission.SHOW_ALL_TASKS_AS_PWA_MANAGER_ONLY;
 
 import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,7 +40,7 @@ public class CloseOutOptionsTaskService implements AppProcessingService {
   private boolean hasAccessPermissions(PwaAppProcessingContext pwaAppProcessingContext) {
     return pwaAppProcessingContext.getAppProcessingPermissions().contains(CLOSE_OUT_OPTIONS)
         || (pwaAppProcessingContext.getApplicationType().equals(PwaApplicationType.OPTIONS_VARIATION)
-        && pwaAppProcessingContext.getAppProcessingPermissions().contains(SHOW_ALL_TASKS));
+        && pwaAppProcessingContext.getAppProcessingPermissions().contains(SHOW_ALL_TASKS_AS_PWA_MANAGER_ONLY));
   }
 
   public boolean taskAccessible(PwaAppProcessingContext pwaAppProcessingContext) {
@@ -52,7 +52,7 @@ public class CloseOutOptionsTaskService implements AppProcessingService {
   }
 
   private boolean taskStatusGrantsTaskAccess(TaskStatus taskStatus, Set<PwaAppProcessingPermission> permissions) {
-    if (permissions.contains(SHOW_ALL_TASKS)) {
+    if (permissions.contains(SHOW_ALL_TASKS_AS_PWA_MANAGER_ONLY)) {
       return false;
     }
     return !(taskStatus.shouldForceInaccessible() || TaskStatus.COMPLETED.equals(taskStatus));

@@ -83,7 +83,7 @@ public class ConfirmSatisfactoryApplicationServiceTest {
   @Test
   public void canShowInTaskList_showAllTasksPermission_true() {
 
-    var processingContext = new PwaAppProcessingContext(null, null, Set.of(PwaAppProcessingPermission.SHOW_ALL_TASKS), null, null);
+    var processingContext = new PwaAppProcessingContext(null, null, Set.of(PwaAppProcessingPermission.SHOW_ALL_TASKS_AS_PWA_MANAGER_ONLY), null, null);
 
     boolean canShow = confirmSatisfactoryApplicationService.canShowInTaskList(processingContext);
 
@@ -142,7 +142,7 @@ public class ConfirmSatisfactoryApplicationServiceTest {
 
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
 
-    var processingContext = new PwaAppProcessingContext(detail, null, Set.of(PwaAppProcessingPermission.SHOW_ALL_TASKS), null, null);
+    var processingContext = new PwaAppProcessingContext(detail, null, Set.of(PwaAppProcessingPermission.SHOW_ALL_TASKS_AS_PWA_MANAGER_ONLY), null, null);
 
     var taskListEntry = confirmSatisfactoryApplicationService.getTaskListEntry(PwaAppProcessingTask.CONFIRM_SATISFACTORY_APPLICATION, processingContext);
 

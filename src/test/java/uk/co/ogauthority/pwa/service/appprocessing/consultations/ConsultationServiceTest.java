@@ -63,7 +63,7 @@ public class ConsultationServiceTest {
   @Test
   public void canShowInTaskList_showAllTasksPermission() {
 
-    var processingContext = new PwaAppProcessingContext(null, null, Set.of(PwaAppProcessingPermission.SHOW_ALL_TASKS), null, null);
+    var processingContext = new PwaAppProcessingContext(null, null, Set.of(PwaAppProcessingPermission.SHOW_ALL_TASKS_AS_PWA_MANAGER_ONLY), null, null);
 
     boolean canShow = consultationService.canShowInTaskList(processingContext);
 
@@ -108,7 +108,7 @@ public class ConsultationServiceTest {
 
     var appInvolvement = ApplicationInvolvementDtoTestUtil.fromInvolvementFlags(
         detail.getPwaApplication(), Set.of(ApplicationInvolvementDtoTestUtil.InvolvementFlag.AT_LEAST_ONE_SATISFACTORY_VERSION));
-    var processingContext = new PwaAppProcessingContext(detail, null, Set.of(PwaAppProcessingPermission.SHOW_ALL_TASKS), null, appInvolvement);
+    var processingContext = new PwaAppProcessingContext(detail, null, Set.of(PwaAppProcessingPermission.SHOW_ALL_TASKS_AS_PWA_MANAGER_ONLY), null, appInvolvement);
 
     when(consultationRequestService.getAllRequestsByApplication(any())).thenReturn(List.of());
 

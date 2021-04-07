@@ -167,7 +167,7 @@ public class PwaAppProcessingPermissionService {
             case ADD_CASE_NOTE:
               return userPrivileges.contains(PwaUserPrivilege.PWA_MANAGER)
                   || userPrivileges.contains(PwaUserPrivilege.PWA_CASE_OFFICER);
-            case SHOW_ALL_TASKS:
+            case SHOW_ALL_TASKS_AS_PWA_MANAGER_ONLY:
               return userPrivileges.contains(PwaUserPrivilege.PWA_MANAGER) && !userPrivileges.contains(PwaUserPrivilege.PWA_CASE_OFFICER);
             default:
               return false;

@@ -120,7 +120,7 @@ public class PwaAppProcessingPermissionServiceTest {
     replacePrivileges(user, PwaUserPrivilege.PWA_MANAGER);
 
     var permissions = processingPermissionService.getGenericProcessingPermissions(user);
-    AssertionTestUtils.assertNotEmptyAndContains(permissions, PwaAppProcessingPermission.SHOW_ALL_TASKS);
+    AssertionTestUtils.assertNotEmptyAndContains(permissions, PwaAppProcessingPermission.SHOW_ALL_TASKS_AS_PWA_MANAGER_ONLY);
 
   }
 
@@ -130,7 +130,7 @@ public class PwaAppProcessingPermissionServiceTest {
     replacePrivileges(user, PwaUserPrivilege.PWA_MANAGER, PwaUserPrivilege.PWA_CASE_OFFICER);
 
     var permissions = processingPermissionService.getGenericProcessingPermissions(user);
-    AssertionTestUtils.assertNotEmptyAndDoesNotContain(permissions, PwaAppProcessingPermission.SHOW_ALL_TASKS);
+    AssertionTestUtils.assertNotEmptyAndDoesNotContain(permissions, PwaAppProcessingPermission.SHOW_ALL_TASKS_AS_PWA_MANAGER_ONLY);
 
   }
 

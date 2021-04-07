@@ -2,7 +2,7 @@ package uk.co.ogauthority.pwa.service.appprocessing.options;
 
 import static uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission.APPROVE_OPTIONS;
 import static uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission.APPROVE_OPTIONS_VIEW;
-import static uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission.SHOW_ALL_TASKS;
+import static uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission.SHOW_ALL_TASKS_AS_PWA_MANAGER_ONLY;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -50,7 +50,7 @@ public class ApproveOptionsTaskService implements AppProcessingService {
   private boolean hasViewAccessPermissions(PwaAppProcessingContext pwaAppProcessingContext) {
     return pwaAppProcessingContext.getAppProcessingPermissions().contains(APPROVE_OPTIONS_VIEW)
         || (pwaAppProcessingContext.getApplicationType().equals(PwaApplicationType.OPTIONS_VARIATION)
-        && pwaAppProcessingContext.getAppProcessingPermissions().contains(SHOW_ALL_TASKS));
+        && pwaAppProcessingContext.getAppProcessingPermissions().contains(SHOW_ALL_TASKS_AS_PWA_MANAGER_ONLY));
   }
 
   public boolean taskAccessible(PwaAppProcessingContext pwaAppProcessingContext) {
