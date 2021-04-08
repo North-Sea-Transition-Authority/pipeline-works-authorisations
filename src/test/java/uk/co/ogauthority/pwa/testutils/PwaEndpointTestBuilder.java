@@ -187,6 +187,9 @@ public class PwaEndpointTestBuilder {
     when(masterPwaService.getMasterPwaById(masterPwa.getId())).thenReturn(masterPwa);
 
     var consentSearchItem = new ConsentSearchItem();
+    consentSearchItem.setPwaId(pwaId);
+    consentSearchItem.setPwaReference("1/W/02");
+
     consentSearchItem.setFirstConsentTimestamp(Instant.now());
     consentSearchItem.setLatestConsentTimestamp(Instant.now());
     consentSearchItem.setLatestConsentReference("latest consent reference");

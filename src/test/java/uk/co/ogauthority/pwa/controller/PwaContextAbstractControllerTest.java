@@ -28,9 +28,11 @@ import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaService;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineService;
 import uk.co.ogauthority.pwa.service.pwacontext.PwaContextService;
 import uk.co.ogauthority.pwa.service.pwacontext.PwaPermissionService;
 import uk.co.ogauthority.pwa.service.search.consents.ConsentSearchService;
+import uk.co.ogauthority.pwa.service.search.consents.SearchPwaBreadcrumbService;
 import uk.co.ogauthority.pwa.service.tasklist.CrossingAgreementsTaskListService;
 import uk.co.ogauthority.pwa.service.teams.TeamService;
 import uk.co.ogauthority.pwa.service.users.UserTypeService;
@@ -45,6 +47,9 @@ public abstract class PwaContextAbstractControllerTest {
 
   @Autowired
   protected PwaContextService pwaContextService;
+
+  @MockBean
+  protected PipelineService pipelineService;
 
   @MockBean
   protected ConsentSearchService consentSearchService;
@@ -66,6 +71,9 @@ public abstract class PwaContextAbstractControllerTest {
 
   @Autowired
   protected PwaPermissionService pwaPermissionService;
+
+  @SpyBean
+  private SearchPwaBreadcrumbService searchPwaBreadcrumbService;
 
   @SpyBean
   protected ApplicationBreadcrumbService breadcrumbService;

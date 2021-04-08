@@ -12,6 +12,7 @@ public class PwaContextParams {
   private final int pwaId;
   private final AuthenticatedUserAccount authenticatedUserAccount;
   private Set<PwaPermission> requiredPwaPermissions;
+  private Integer pipelineId;
 
   public PwaContextParams(int pwaId, AuthenticatedUserAccount authenticatedUserAccount) {
     this.pwaId = pwaId;
@@ -22,6 +23,11 @@ public class PwaContextParams {
 
   public PwaContextParams requiredPwaPermissions(Set<PwaPermission> pwaPermissions) {
     this.requiredPwaPermissions = pwaPermissions;
+    return this;
+  }
+
+  public PwaContextParams withPipelineId(Integer pipelineId) {
+    this.pipelineId = pipelineId;
     return this;
   }
 
@@ -38,5 +44,7 @@ public class PwaContextParams {
     return requiredPwaPermissions;
   }
 
-
+  public Integer getPipelineId() {
+    return pipelineId;
+  }
 }
