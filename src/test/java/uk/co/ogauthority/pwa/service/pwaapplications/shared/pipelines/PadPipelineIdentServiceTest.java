@@ -589,11 +589,12 @@ public class PadPipelineIdentServiceTest {
   }
 
   @Test
-  public void getSummaryScreenValidationResult_sectionComplete() {
+  public void getSummaryScreenValidationResult_identsValidAndLengthMatchesPadPipeline_sectionComplete() {
     when(padPipelineIdentRepository.getAllByPadPipeline(padPipeline))
         .thenReturn(List.of(ident));
     var result = padPipelineIdentService.getSummaryScreenValidationResult(padPipeline);
     assertThat(result.isSectionComplete()).isTrue();
+    assertThat(result.getErrorItems()).isEmpty();
   }
 
   @Test
