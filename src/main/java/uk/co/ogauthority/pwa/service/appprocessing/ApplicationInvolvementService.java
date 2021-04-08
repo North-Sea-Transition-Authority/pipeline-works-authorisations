@@ -138,6 +138,9 @@ public class ApplicationInvolvementService {
         .map(openReview -> OpenConsentReview.YES)
         .orElse(OpenConsentReview.NO);
 
+    var userIsIndustryOnly = !(appContactRoles.isEmpty() && userHolderTeamRoles.isEmpty())
+         && !(consultationInvolvement != null || userTypes.contains(UserType.OGA));
+
     return new ApplicationInvolvementDto(
         application,
         appContactRoles,
@@ -146,6 +149,7 @@ public class ApplicationInvolvementService {
         pwaManagerStage,
         atLeastOneSatisfactoryVersion,
         userHolderTeamRoles,
+        userIsIndustryOnly,
         openConsentReview);
 
   }

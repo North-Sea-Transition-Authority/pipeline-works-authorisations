@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.model.enums.tasklist.TaskState;
 import uk.co.ogauthority.pwa.model.tasklist.TaskListGroup;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
-import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingTask;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.TaskAutoLockable;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.appinvolvement.OpenConsentReview;
@@ -67,7 +66,7 @@ public class PwaAppProcessingTaskListService {
    * Otherwise false.
    */
   private boolean shouldLockAllTasks(PwaAppProcessingContext processingContext) {
-    return processingContext.hasProcessingPermission(PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY)
+    return processingContext.getApplicationInvolvement().hasOnlyIndustryInvolvement()
         || processingContext.getApplicationInvolvement().getOpenConsentReview() == OpenConsentReview.YES;
   }
 

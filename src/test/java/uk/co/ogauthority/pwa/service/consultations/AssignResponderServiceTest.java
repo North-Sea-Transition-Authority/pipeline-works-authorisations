@@ -12,7 +12,6 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.time.Instant;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -28,7 +27,7 @@ import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
-import uk.co.ogauthority.pwa.model.dto.appprocessing.ApplicationInvolvementDto;
+import uk.co.ogauthority.pwa.model.dto.appprocessing.ApplicationInvolvementDtoTestUtil;
 import uk.co.ogauthority.pwa.model.dto.appprocessing.ConsultationInvolvementDto;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroup;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupMemberRole;
@@ -39,13 +38,11 @@ import uk.co.ogauthority.pwa.model.enums.tasklist.TaskState;
 import uk.co.ogauthority.pwa.model.form.consultation.AssignResponderForm;
 import uk.co.ogauthority.pwa.model.notify.emailproperties.consultations.ConsultationAssignedToYouEmailProps;
 import uk.co.ogauthority.pwa.model.tasklist.TaskTag;
-import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupTeamService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingTask;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.TaskStatus;
-import uk.co.ogauthority.pwa.service.enums.appprocessing.appinvolvement.OpenConsentReview;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ConsultationRequestStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.workflow.consultation.PwaApplicationConsultationWorkflowTask;
@@ -372,13 +369,17 @@ public class AssignResponderServiceTest {
   @Test
   public void canShowInTaskList_hasPermission_noActiveConsultation_notShown() {
 
+    var appInvolvement = ApplicationInvolvementDtoTestUtil.generateConsulteeInvolvement(
+        null,
+        new ConsultationInvolvementDto(null, Set.of(), null, List.of(), false)
+    )
+        ;
     var processingContext = new PwaAppProcessingContext(
         null,
         null,
         Set.of(PwaAppProcessingPermission.ASSIGN_RESPONDER),
         null,
-        new ApplicationInvolvementDto(null, Set.of(), new ConsultationInvolvementDto(null, Set.of(), null, List.of(), false), false,
-            false, false, EnumSet.noneOf(PwaOrganisationRole.class), OpenConsentReview.NO));
+        appInvolvement);
 
     boolean canShow = assignResponderService.canShowInTaskList(processingContext);
 
