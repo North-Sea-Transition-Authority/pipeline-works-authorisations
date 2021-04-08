@@ -40,7 +40,7 @@ public class PipelineIdentDataFormValidator implements SmartValidator {
           "Enter a description of the component parts");
 
       ValidatorUtils.validateDefaultStringLength(
-          errors, "componentPartsDescription", form::getComponentPartsDescription, "Description of component parts");
+          errors, "componentPartsDescription", form::getComponentPartsDescription, "Description of component part");
 
       ValidationUtils.rejectIfEmptyOrWhitespace(errors, fieldPrefix + "productsToBeConveyedMultiCore",
           "productsToBeConveyedMultiCore" + FieldValidationErrorCodes.REQUIRED.getCode(),

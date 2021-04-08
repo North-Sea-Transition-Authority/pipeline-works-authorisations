@@ -23,7 +23,7 @@
         </#if>
 
         <#if requiredQuestions?seq_contains("METHOD_OF_PIPELINE_DEPLOYMENT")>
-            <@fdsTextarea.textarea path="form.methodOfPipelineDeployment" labelText="Pipeline installation method" hintText="Brief overview of method that will be deployed for the pipeline installation(s) if new pipelines are being installed" characterCount=true maxCharacterLength="4000" optionalLabel=isPipelineDeploymentQuestionOptional/>
+            <@fdsTextarea.textarea path="form.methodOfPipelineDeployment" labelText="Pipeline installation method" hintText="Brief overview of method that will be deployed for the pipeline installation(s) of new pipelines that are being installed." characterCount=true maxCharacterLength="4000" optionalLabel=isPipelineDeploymentQuestionOptional/>
         </#if>
 
         <#if requiredQuestions?seq_contains("MOBILISATION_DATE")>

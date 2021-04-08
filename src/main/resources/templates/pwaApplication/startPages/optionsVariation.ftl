@@ -9,14 +9,12 @@
 
   <@fdsStartPage.startPage startActionText="Start ${typeDisplay}" startActionUrl=buttonUrl>
 
-    <@fdsInsetText.insetText>
-      The Holder should detail why they would like OGA to consider the case to be handled as an Options.
-    </@fdsInsetText.insetText>
+    <p class="govuk-body">Where the problem with a pipeline(s) may not be clearly identified and there may be various points
+      of possible failure, OGA may consider an Options case. To apply under the above circumstances, the Holder should
+      provide details to why they would like OGA to consider the case to be handled as an Options.</p>
 
-    <p class="govuk-body">Where the problem with a pipeline(s) may not be clearly identified and there may be various
-      points of possible failure, OGA may consider an Options case.</p>
-
-    <p class="govuk-body">Where there are no objections, it takes approximately ${formattedDuration} to authorisation.</p>
+    <p class="govuk-body">Where there are no objections, it takes approximately ${formattedDuration} from receipt of a
+      satisfactory application to issuing the authorisation.</p>
 
   </@fdsStartPage.startPage>
 

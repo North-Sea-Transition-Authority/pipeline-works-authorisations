@@ -25,7 +25,9 @@ public class StartInitialPwaController {
   public ModelAndView renderStartPage() {
     return new ModelAndView("pwaApplication/startPages/initial")
         .addObject("startUrl", ReverseRouter.route(on(StartInitialPwaController.class).startInitialPwa(null)))
-        .addObject("formattedDuration", ApplicationTypeUtils.getFormattedDuration(PwaApplicationType.INITIAL));
+        .addObject("formattedDuration", ApplicationTypeUtils.getFormattedDuration(PwaApplicationType.INITIAL))
+        .addObject("formattedMedianLineDuration",
+            ApplicationTypeUtils.getFormattedMedianLineDuration(PwaApplicationType.INITIAL));
   }
 
   /**
