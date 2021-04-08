@@ -182,9 +182,14 @@ public class ConsentReviewController {
 
     try {
 
-      consentReviewService.issueConsent(processingContext.getApplicationDetail(), authenticatedUserAccount);
+      var issuedConsentDto = consentReviewService.issueConsent(processingContext.getApplicationDetail(), authenticatedUserAccount);
 
-      FlashUtils.success(redirectAttributes, processingContext.getPwaApplication().getAppReference() + " consent issued");
+      FlashUtils.success(redirectAttributes,
+          String.format(
+              "Issued consent %s for application %s",
+              issuedConsentDto.getConsentReference(),
+              processingContext.getPwaApplication().getAppReference())
+      );
 
     } catch (ConsentReviewException e) {
 
