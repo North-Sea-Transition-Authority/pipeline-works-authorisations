@@ -81,6 +81,7 @@ public class PwaViewPipelineControllerTest extends PwaContextAbstractControllerT
     pipeline.setMasterPwa(masterPwa);
     when(pipelineService.getPipelineFromId(new PipelineId(PIPELINE_ID))).thenReturn(pipeline);
     when(pwaPipelineHistoryViewService.getDiffedPipelineSummaryModel(PIPELINE_ID)).thenReturn(Map.of());
+    when(pwaPipelineHistoryViewService.getPipelinesVersionSearchSelectorItems(any())).thenReturn(Map.of());
   }
 
 
@@ -91,7 +92,7 @@ public class PwaViewPipelineControllerTest extends PwaContextAbstractControllerT
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((masterPwa) ->
             ReverseRouter.route(on(PwaPipelineViewController.class)
-                .renderViewPwaPipeline(1, PIPELINE_ID, PwaPipelineViewTab.PIPELINE_HISTORY, null, null)));
+                .renderViewPwaPipeline(1, PIPELINE_ID, PwaPipelineViewTab.PIPELINE_HISTORY, null, null, null, null)));
 
     endpointTester.performProcessingPermissionCheck(status().isOk(), status().isForbidden());
 
@@ -104,7 +105,32 @@ public class PwaViewPipelineControllerTest extends PwaContextAbstractControllerT
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((masterPwa) ->
             ReverseRouter.route(on(PwaPipelineViewController.class)
-                .renderViewPwaPipeline(1, PIPELINE_ID, null, null, null)));
+                .renderViewPwaPipeline(1, PIPELINE_ID, null, null, null, null, null)));
+
+    endpointTester.performProcessingPermissionCheck(status().isNotFound(), status().isNotFound());
+
+  }
+
+  @Test
+  public void postViewPwaPipeline_processingPermissionSmokeTest() {
+
+    endpointTester.setRequestMethod(HttpMethod.GET)
+        .setEndpointUrlProducer((masterPwa) ->
+            ReverseRouter.route(on(PwaPipelineViewController.class)
+                .postViewPwaPipeline(1, PIPELINE_ID, PwaPipelineViewTab.PIPELINE_HISTORY, null, null, null)));
+
+    endpointTester.performProcessingPermissionCheck(status().isOk(), status().isForbidden());
+
+  }
+
+
+  @Test
+  public void postViewPwaPipeline_nullTab() {
+
+    endpointTester.setRequestMethod(HttpMethod.GET)
+        .setEndpointUrlProducer((masterPwa) ->
+            ReverseRouter.route(on(PwaPipelineViewController.class)
+                .postViewPwaPipeline(1, PIPELINE_ID, null, null, null, null)));
 
     endpointTester.performProcessingPermissionCheck(status().isNotFound(), status().isNotFound());
 
