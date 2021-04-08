@@ -463,10 +463,11 @@ public class PadPipelinesHuooServiceTest {
   @Test
   public void getSortedPickablePipelineOptionsForApplicationDetail_whenOnlyWholePipelines(){
 
-    var result = padPipelinesHuooService.getSortedPickablePipelineOptionsForApplicationDetail(
+    assertThat(padPipelinesHuooService.getSortedPickablePipelineOptionsForApplicationDetail(
         pwaApplicationDetail,
         DEFAULT_ROLE
-
+    )).allSatisfy(pickableHuooPipelineOption ->
+        assertThat(pickableHuooPipelineOption.getPickableHuooPipelineType()).isEqualTo(PickableHuooPipelineType.FULL)
     );
   }
 

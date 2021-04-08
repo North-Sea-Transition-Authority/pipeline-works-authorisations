@@ -176,7 +176,8 @@ public class PwaContactController {
   }
 
   @GetMapping("/new")
-  public ModelAndView renderAddContact(@PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
+  public ModelAndView renderAddContact(@PathVariable("applicationType")
+                                       @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
                                        @PathVariable("applicationId") Integer applicationId,
                                        PwaApplicationContext applicationContext,
                                        @ModelAttribute("form") AddPwaContactForm form,

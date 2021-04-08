@@ -1,15 +1,35 @@
 CREATE OR REPLACE VIEW ${datasource.user}.vw_pwa_holder_org_units AS
 SELECT
-  ROWNUM row_num
+  pwa_status || '|' || pd.pwa_id || '|' || pcor.id composite_id
 , pd.pwa_id pwa_id
+, pcor.migrated_organisation_name
 , pou.ou_id
 , pou.name ou_name
 , pou.org_grp_id
 FROM ${datasource.user}.pwa_details pd
 JOIN ${datasource.user}.pwa_consents pc ON pc.pwa_id = pd.pwa_id
 JOIN ${datasource.user}.pwa_consent_organisation_roles pcor ON pcor.added_by_pwa_consent_id = pc.id AND pcor.role = 'HOLDER' AND pcor.end_timestamp IS NULL
-JOIN ${datasource.user}.portal_organisation_units pou ON pou.ou_id = pcor.ou_id
-WHERE pd.end_timestamp IS NULL;
+LEFT JOIN ${datasource.user}.portal_organisation_units pou ON pou.ou_id = pcor.ou_id
+WHERE pd.end_timestamp IS NULL
+AND pd.pwa_status = 'CONSENTED'
+UNION ALL
+SELECT
+  pwa_status || '|' || pd.pwa_id || '|' || por.id composite_id
+, pd.pwa_id pwa_id
+, NULL migrated_organisation_name
+, pou.ou_id
+, pou.name ou_name
+, pou.org_grp_id
+FROM ${datasource.user}.pwa_details pd
+JOIN ${datasource.user}.pwa_applications pa ON pd.pwa_id = pa.pwa_id
+JOIN ${datasource.user}.pwa_application_details pad ON pa.id = pad.pwa_application_id
+JOIN ${datasource.user}.pad_status_versions psv ON psv.pwa_application_id = pa.id AND pad.version_no = psv.latest_submission_v_no
+JOIN ${datasource.user}.pad_organisation_roles por ON por.application_detail_id = pad.id AND por.role = 'HOLDER' AND por.type = 'PORTAL_ORG'
+JOIN ${datasource.user}.portal_organisation_units pou ON pou.ou_id = por.ou_id
+WHERE pd.end_timestamp IS NULL
+AND pd.pwa_status = 'APPLICATION'
+-- exclude variations based on non consented pwa
+AND pa.application_type = 'INITIAL';
 
 CREATE OR REPLACE VIEW ${datasource.user}.vw_pwa_holder_org_grps AS
 SELECT

@@ -12,8 +12,8 @@ import org.hibernate.annotations.Immutable;
 public class PwaHolderOrgUnit {
 
   @Id
-  @Column(name = "row_num")
-  private Integer rowId;
+  @Column(name = "composite_id")
+  private String compositeId;
 
   private Integer pwaId;
 
@@ -23,12 +23,14 @@ public class PwaHolderOrgUnit {
 
   private Integer orgGrpId;
 
-  public Integer getRowId() {
-    return rowId;
+  private String migratedOrganisationName;
+
+  public String getCompositeId() {
+    return compositeId;
   }
 
-  public void setRowId(Integer rowId) {
-    this.rowId = rowId;
+  public void setCompositeId(String rowId) {
+    this.compositeId = rowId;
   }
 
   public Integer getPwaId() {
@@ -63,4 +65,11 @@ public class PwaHolderOrgUnit {
     this.orgGrpId = orgGrpId;
   }
 
+  public String getMigratedOrganisationName() {
+    return migratedOrganisationName;
+  }
+
+  public void setMigratedOrganisationName(String migratedOrganisationName) {
+    this.migratedOrganisationName = migratedOrganisationName;
+  }
 }

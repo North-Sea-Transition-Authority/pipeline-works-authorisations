@@ -25,11 +25,11 @@ public class PickablePearsBlock implements SearchSelectable {
 
   @Override
   public String getSelectionId() {
-    return data;
+    return getData();
   }
 
   @Override
   public String getSelectionText() {
-    return key;
+    return getKey();
   }
 }

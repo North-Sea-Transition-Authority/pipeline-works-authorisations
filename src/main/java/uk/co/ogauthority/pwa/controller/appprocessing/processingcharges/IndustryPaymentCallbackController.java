@@ -69,13 +69,12 @@ public class IndustryPaymentCallbackController {
                                           PwaAppProcessingContext processingContext) {
     return withPaidAppChargeRequestReportOrError(
         processingContext,
-        applicationChargeRequestReport -> getPaymentCompleteModelAndView(processingContext, applicationChargeRequestReport)
+        applicationChargeRequestReport -> getPaymentCompleteModelAndView(processingContext)
     );
 
   }
 
-  private ModelAndView getPaymentCompleteModelAndView(PwaAppProcessingContext processingContext,
-                                                      ApplicationChargeRequestReport applicationChargeRequestReport) {
+  private ModelAndView getPaymentCompleteModelAndView(PwaAppProcessingContext processingContext) {
 
     return new ModelAndView("appprocessing/processingcharges/paymentCompleteConfirmation")
         .addObject("appRef", processingContext.getPwaApplication().getAppReference())
