@@ -18,11 +18,38 @@ public enum PwaApplicationType {
       "initial",
       Period.ofMonths(4),
       Period.ofMonths(6),
-      MedianLineImplication.FALSE,
+      MedianLineImplication.TRUE,
       DocumentSpec.INITIAL_APP_CONSENT_DOCUMENT,
       TemplateTextType.INITIAL_CONSENT_EMAIL_COVER_LETTER,
       PwaConsentType.INITIAL_PWA,
       10),
+
+  CAT_1_VARIATION(
+      "Cat. 1 Variation",
+      "cat-1",
+      Period.ofMonths(4),
+      Period.ofMonths(6),
+      MedianLineImplication.TRUE,
+      DocumentSpec.VARIATION_CONSENT_DOCUMENT,
+      20),
+
+  CAT_2_VARIATION(
+      "Cat. 2 Variation",
+      "cat-2",
+      Period.ofWeeks(6),
+      Period.ofWeeks(8),
+      MedianLineImplication.TRUE,
+      DocumentSpec.VARIATION_CONSENT_DOCUMENT,
+      30),
+
+  HUOO_VARIATION(
+      "HUOO Variation",
+      "huoo",
+      Period.ofWeeks(6),
+      Period.ofWeeks(8),
+      MedianLineImplication.FALSE,
+      DocumentSpec.VARIATION_CONSENT_DOCUMENT,
+      40),
 
   DEPOSIT_CONSENT(
       "Deposit Consent",
@@ -32,33 +59,6 @@ public enum PwaApplicationType {
       MedianLineImplication.FALSE,
       DocumentSpec.DEPOSIT_CONSENT_DOCUMENT,
       PwaConsentType.DEPOSIT_CONSENT,
-      20),
-
-  CAT_1_VARIATION(
-      "Cat. 1 Variation",
-      "cat-1",
-      Period.ofMonths(4),
-      Period.ofMonths(6),
-      MedianLineImplication.TRUE,
-      DocumentSpec.VARIATION_CONSENT_DOCUMENT,
-      30),
-
-  CAT_2_VARIATION(
-      "Cat. 2 Variation",
-      "cat-2",
-      Period.ofWeeks(6),
-      Period.ofWeeks(8),
-      MedianLineImplication.TRUE,
-      DocumentSpec.VARIATION_CONSENT_DOCUMENT,
-      40),
-
-  HUOO_VARIATION(
-      "HUOO Variation",
-      "huoo",
-      Period.ofWeeks(6),
-      Period.ofWeeks(8),
-      MedianLineImplication.FALSE,
-      DocumentSpec.VARIATION_CONSENT_DOCUMENT,
       50),
 
   OPTIONS_VARIATION(

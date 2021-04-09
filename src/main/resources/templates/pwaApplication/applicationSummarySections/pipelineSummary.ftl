@@ -193,7 +193,7 @@
             <@fdsDataItems.dataValues key="Products to be conveyed" value="${productsToBeConveyed}" />
         </@fdsDataItems.dataItem>
         <@fdsDataItems.dataItem dataItemListClasses="fds-data-items-list--tight">
-            <@fdsDataItems.dataValues key="Description of component parts" value="${componentPartsDescription}"/>
+            <@fdsDataItems.dataValues key="Description of component part" value="${componentPartsDescription}"/>
         </@fdsDataItems.dataItem>
 
     </@fdsTimeline.timelineTimeStamp>

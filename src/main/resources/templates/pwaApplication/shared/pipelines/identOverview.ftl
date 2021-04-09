@@ -76,7 +76,7 @@
                                 <@dataValueForCoreType coreType=coreType key="Products to be conveyed" valueSingleCore=(identView.productsToBeConveyed)! valueMultiCore=(identView.productsToBeConveyedMultiCore)!/>
                             </@fdsDataItems.dataItem>
                             <@fdsDataItems.dataItem dataItemListClasses="fds-data-items-list--tight">
-                                <@dataValueForCoreType coreType=coreType key="Description of component parts" valueSingleCore=(identView.componentPartsDescription)! valueMultiCore=(identView.componentPartsDescription)!/>
+                                <@dataValueForCoreType coreType=coreType key="Description of component part" valueSingleCore=(identView.componentPartsDescription)! valueMultiCore=(identView.componentPartsDescription)!/>
                             </@fdsDataItems.dataItem>
                         </@fdsTimeline.timelineTimeStamp>
                     </#list>
