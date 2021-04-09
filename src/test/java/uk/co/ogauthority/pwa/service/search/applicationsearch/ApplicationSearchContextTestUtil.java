@@ -18,7 +18,7 @@ public final class ApplicationSearchContextTestUtil {
                                                           UserType userType) {
     return new ApplicationSearchContext(
         authenticatedUserAccount,
-        userType != null ? EnumSet.of(userType) : EnumSet.noneOf(UserType.class),
+        EnumSet.of(userType),
         Collections.emptySet(),
         Collections.emptySet(),
         Collections.emptySet());
@@ -39,6 +39,16 @@ public final class ApplicationSearchContextTestUtil {
     return new ApplicationSearchContext(
         authenticatedUserAccount,
         EnumSet.of(UserType.INDUSTRY),
+        Collections.emptySet(),
+        organisationUnitIdSet,
+        Collections.emptySet());
+  }
+
+  public static ApplicationSearchContext combinedIndustryOgaContext(AuthenticatedUserAccount authenticatedUserAccount,
+                                                         Set<OrganisationUnitId> organisationUnitIdSet) {
+    return new ApplicationSearchContext(
+        authenticatedUserAccount,
+        EnumSet.of(UserType.INDUSTRY, UserType.OGA),
         Collections.emptySet(),
         organisationUnitIdSet,
         Collections.emptySet());

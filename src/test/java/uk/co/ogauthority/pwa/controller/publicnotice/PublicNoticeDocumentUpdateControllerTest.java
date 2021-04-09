@@ -153,7 +153,7 @@ public class PublicNoticeDocumentUpdateControllerTest extends PwaAppProcessingCo
             pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null)))
         .with(authenticatedUserAndSession(user))
         .with(csrf()))
-        .andExpect(result -> assertThat(result.getResolvedException() instanceof AccessDeniedException).isTrue());
+        .andExpect(result -> assertThat(result.getResolvedException()).isInstanceOf(AccessDeniedException.class));
   }
 
 
@@ -223,7 +223,7 @@ public class PublicNoticeDocumentUpdateControllerTest extends PwaAppProcessingCo
         .postUpdatePublicNoticeDocument(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null)))
         .with(authenticatedUserAndSession(user))
         .with(csrf()))
-        .andExpect(result -> assertThat(result.getResolvedException() instanceof AccessDeniedException).isTrue());
+        .andExpect(result -> assertThat(result.getResolvedException()).isInstanceOf(AccessDeniedException.class));
   }
 
 

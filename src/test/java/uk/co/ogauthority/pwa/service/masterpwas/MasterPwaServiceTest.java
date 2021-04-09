@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.service.masterpwa;
+package uk.co.ogauthority.pwa.service.masterpwas;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -24,7 +24,6 @@ import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaDetail;
 import uk.co.ogauthority.pwa.repository.masterpwas.MasterPwaDetailRepository;
 import uk.co.ogauthority.pwa.repository.masterpwas.MasterPwaRepository;
-import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaService;
 
 @RunWith(MockitoJUnitRunner.class)
 public class MasterPwaServiceTest {
@@ -52,6 +51,10 @@ public class MasterPwaServiceTest {
         masterPwaDetailRepository,
         clock
     );
+
+    // make sure we get an object back from save as real repos do.
+    when(masterPwaDetailRepository.save(any()))
+        .thenAnswer(invocation -> invocation.getArgument(0));
   }
 
   @Test
@@ -98,16 +101,17 @@ public class MasterPwaServiceTest {
   }
 
   @Test
-  public void updateDetail() {
+  public void updateDetailFieldInfo_setsValuesAsExpected() {
+    var masterPwa = new MasterPwa();
+    var detail = new MasterPwaDetail(masterPwa, MasterPwaDetailStatus.APPLICATION, "some ref", clock.instant().minusMillis(100));
+    detail.setLinkedToFields(false);
+    detail.setPwaLinkedToDescription("some description");
 
-    var detail = new MasterPwaDetail();
-
-    masterPwaService.updateDetail(detail, MasterPwaDetailStatus.CONSENTED, true, null);
+    masterPwaService.updateDetailFieldInfo(detail, true, null);
 
     verify(masterPwaDetailRepository, times(1)).save(pwaDetailArgumentCaptor.capture());
 
     assertThat(pwaDetailArgumentCaptor.getValue()).satisfies(saved -> {
-      assertThat(saved.getMasterPwaDetailStatus()).isEqualTo(MasterPwaDetailStatus.CONSENTED);
       assertThat(saved.getLinkedToFields()).isTrue();
       assertThat(saved.getPwaLinkedToDescription()).isNull();
     });
@@ -115,14 +119,19 @@ public class MasterPwaServiceTest {
   }
 
   @Test
-  public void createNewDetail() {
+  public void createDuplicateNewDetail_endsOldDetailAndSetsNewDetailValuesAsExpected() {
 
     var masterPwa = new MasterPwa();
     var detail = new MasterPwaDetail();
+    detail.setMasterPwa(masterPwa);
     detail.setReference("ref");
+    detail.setLinkedToFields(false);
+    detail.setPwaLinkedToDescription("some description");
+    detail.setMasterPwaDetailStatus(MasterPwaDetailStatus.APPLICATION);
+
     when(masterPwaDetailRepository.findByMasterPwaAndEndInstantIsNull(masterPwa)).thenReturn(Optional.of(detail));
 
-    masterPwaService.createNewDetail(masterPwa, false, "description here");
+    masterPwaService.createDuplicateNewDetail(masterPwa);
 
     verify(masterPwaDetailRepository, times(2)).save(pwaDetailArgumentCaptor.capture());
 
@@ -134,8 +143,8 @@ public class MasterPwaServiceTest {
       assertThat(second.getMasterPwa()).isEqualTo(masterPwa);
       assertThat(second.getStartInstant()).isEqualTo(clock.instant());
       assertThat(second.getReference()).isEqualTo(detail.getReference());
-      assertThat(second.getLinkedToFields()).isFalse();
-      assertThat(second.getPwaLinkedToDescription()).isEqualTo("description here");
+      assertThat(second.getLinkedToFields()).isEqualTo(detail.getLinkedToFields());
+      assertThat(second.getPwaLinkedToDescription()).isEqualTo(detail.getPwaLinkedToDescription());
     });
 
   }

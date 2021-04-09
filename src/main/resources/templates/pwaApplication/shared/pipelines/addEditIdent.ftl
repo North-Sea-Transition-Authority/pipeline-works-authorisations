@@ -68,7 +68,7 @@
 
         <@fdsFieldset.fieldset legendHeading="Ident information" legendHeadingSize="h2" legendHeadingClass="govuk-fieldset__legend--l">
 
-            <@fdsTextarea.textarea path="form.dataForm.componentPartsDescription" labelText="Description of component parts" nestingPath="form.definingStructure"
+            <@fdsTextarea.textarea path="form.dataForm.componentPartsDescription" labelText="Description of component part" nestingPath="form.definingStructure"
              hintText="e.g. 10\" production flowline, electrical lead d B, 2 x 6\" Production Jumper within a Wellhead Bundle, 6\" flexible gas lift flowline, control umbilical etc" characterCount=true maxCharacterLength="4000"/>
             <@identDataTextInput coreType=coreType textInputPath="form.dataForm.productsToBeConveyed" textAreaPath="form.dataForm.productsToBeConveyedMultiCore" useTextArea=true labelText="Products to be conveyed" nestingPath="form.definingStructure"/>
 

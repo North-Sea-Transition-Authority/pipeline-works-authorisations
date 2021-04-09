@@ -58,12 +58,10 @@ public class MasterPwaService {
   }
 
   @Transactional
-  public void updateDetail(MasterPwaDetail detail,
-                           MasterPwaDetailStatus status,
-                           Boolean linkedToFields,
-                           String pwaLinkedToDescription) {
+  public void updateDetailFieldInfo(MasterPwaDetail detail,
+                                    Boolean linkedToFields,
+                                    String pwaLinkedToDescription) {
 
-    detail.setMasterPwaDetailStatus(status);
     detail.setLinkedToFields(linkedToFields);
     detail.setPwaLinkedToDescription(pwaLinkedToDescription);
     masterPwaDetailRepository.save(detail);
@@ -71,22 +69,48 @@ public class MasterPwaService {
   }
 
   @Transactional
-  public MasterPwaDetail createNewDetail(MasterPwa masterPwa,
-                                         Boolean linkedToFields,
-                                         String pwaLinkedToDescription) {
+  public void updateDetailReference(MasterPwaDetail detail,
+                                    String reference) {
+    detail.setReference(reference);
+    masterPwaDetailRepository.save(detail);
+  }
 
+  @Transactional
+  public MasterPwaDetail createDuplicateNewDetail(MasterPwa masterPwa) {
+
+    var endedCurrentDetail = getAndEndCurrentDetail(masterPwa);
+
+    return createNewDetailFrom(endedCurrentDetail, endedCurrentDetail.getMasterPwaDetailStatus());
+
+  }
+
+  @Transactional
+  public MasterPwaDetail createNewDetailWithStatus(MasterPwa masterPwa, MasterPwaDetailStatus masterPwaDetailStatus) {
+
+    var endedCurrentDetail = getAndEndCurrentDetail(masterPwa);
+
+    return createNewDetailFrom(endedCurrentDetail, masterPwaDetailStatus);
+
+  }
+
+  private MasterPwaDetail getAndEndCurrentDetail(MasterPwa masterPwa) {
     var currentDetail = getCurrentDetailOrThrow(masterPwa);
     currentDetail.setEndInstant(clock.instant());
-    masterPwaDetailRepository.save(currentDetail);
+    return masterPwaDetailRepository.save(currentDetail);
+  }
 
-    var newDetail = new MasterPwaDetail(masterPwa, MasterPwaDetailStatus.CONSENTED, currentDetail.getReference(), clock.instant());
+  private MasterPwaDetail createNewDetailFrom(MasterPwaDetail masterPwaDetail,
+                                              MasterPwaDetailStatus masterPwaDetailStatus) {
+    var newDetail = new MasterPwaDetail(
+        masterPwaDetail.getMasterPwa(),
+        masterPwaDetailStatus,
+        masterPwaDetail.getReference(),
+        clock.instant());
 
-    newDetail.setLinkedToFields(linkedToFields);
-    newDetail.setPwaLinkedToDescription(pwaLinkedToDescription);
+    newDetail.setLinkedToFields(masterPwaDetail.getLinkedToFields());
+    newDetail.setPwaLinkedToDescription(masterPwaDetail.getPwaLinkedToDescription());
 
-    masterPwaDetailRepository.save(newDetail);
-
-    return newDetail;
+    return masterPwaDetailRepository.save(newDetail);
 
   }
 

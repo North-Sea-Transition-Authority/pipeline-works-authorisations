@@ -17,7 +17,6 @@ public class PageView<T> {
 
   private static final String DEFAULT_PAGE_URI_PARAM_NAME = "page";
 
-
   private final int currentPage;
   private final int totalPages;
   private final List<T> pageContent;
@@ -62,7 +61,7 @@ public class PageView<T> {
    * @return a PageView of the data which includes total pages, page content, current page,
    *     a function to map the content to the page, and the total elements in a query.
    */
-  public static <P, T> PageView<T> fromPage(Page<T> page, String pageUriTemplate, String pageUriParamName) {
+  public static <T> PageView<T> fromPage(Page<T> page, String pageUriTemplate, String pageUriParamName) {
     return fromPage(page, pageUriTemplate, pageUriParamName, Function.identity());
   }
 
@@ -164,8 +163,6 @@ public class PageView<T> {
     return (this.currentPage * pageSize) + 1;
   }
 
-  ;
-
   /**
    * Used for display purposes. e.g "Showing 1 - 6 of 12 results"
    *
@@ -174,7 +171,5 @@ public class PageView<T> {
   public int getPageRangeTopValue() {
     return Math.min(getPageRangeBottomValue() + pageSize - 1, this.totalElements);
   }
-
-  ;
 
 }

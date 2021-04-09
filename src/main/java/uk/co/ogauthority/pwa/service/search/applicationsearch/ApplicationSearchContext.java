@@ -57,6 +57,12 @@ public final class ApplicationSearchContext {
     return consulteeGroupIds;
   }
 
+
+  public boolean containsSingleUserTypeOf(UserType userType) {
+    return this.userTypes.size() == 1
+        && this.userTypes.contains(userType);
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -69,7 +75,8 @@ public final class ApplicationSearchContext {
     return Objects.equals(authenticatedUserAccount, that.authenticatedUserAccount)
         && Objects.equals(userTypes, that.userTypes)
         && Objects.equals(orgGroupsWhereMemberOfHolderTeam, that.orgGroupsWhereMemberOfHolderTeam)
-        && Objects.equals(orgUnitIdsAssociatedWithHolderTeamMembership, that.orgUnitIdsAssociatedWithHolderTeamMembership)
+        && Objects.equals(orgUnitIdsAssociatedWithHolderTeamMembership,
+        that.orgUnitIdsAssociatedWithHolderTeamMembership)
         && Objects.equals(consulteeGroupIds, that.consulteeGroupIds);
   }
 

@@ -69,7 +69,7 @@ public class CaseManagementController {
 
     var detail = appProcessingContext.getApplicationDetail();
 
-    Map<String, ?> tabContentModelMap = appProcessingTabService.getTabContentModelMap(appProcessingContext, currentTab);
+    Map<String, Object> tabContentModelMap = appProcessingTabService.getTabContentModelMap(appProcessingContext, currentTab);
 
     return new ModelAndView("pwaApplication/appProcessing/caseManagement")
         .addObject("caseSummaryView", appProcessingContext.getCaseSummaryView())

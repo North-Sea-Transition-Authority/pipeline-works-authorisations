@@ -1,9 +1,9 @@
 package uk.co.ogauthority.pwa.service.pwaconsents.consentwriters;
 
+import java.util.Collection;
 import java.util.Objects;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import uk.co.ogauthority.pwa.model.entity.enums.MasterPwaDetailStatus;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTask;
@@ -33,8 +33,8 @@ public class FieldWriter implements ConsentWriter {
   }
 
   @Override
-  public ApplicationTask getTaskDependentOn() {
-    return ApplicationTask.FIELD_INFORMATION;
+  public boolean writerIsApplicable(Collection<ApplicationTask> applicationTaskSet, PwaConsent pwaConsent) {
+    return applicationTaskSet.contains(ApplicationTask.FIELD_INFORMATION);
   }
 
   @Override
@@ -47,9 +47,8 @@ public class FieldWriter implements ConsentWriter {
     // if first application for PWA, need to set the current master PWA detail to consented and write any fields to consented model
     if (pwaConsent.getVariationNumber() == 0) {
 
-      masterPwaService.updateDetail(
+      masterPwaService.updateDetailFieldInfo(
           currentPwaDetail,
-          MasterPwaDetailStatus.CONSENTED,
           pwaApplicationDetail.getLinkedToField(),
           pwaApplicationDetail.getNotLinkedDescription());
 
@@ -66,8 +65,11 @@ public class FieldWriter implements ConsentWriter {
 
       if (!Objects.equals(masterPwaFieldView, padFieldView)) {
 
-        currentPwaDetail = masterPwaService.createNewDetail(pwaApplicationDetail.getMasterPwa(),
-            padFieldView.getLinkedToFields(), padFieldView.getPwaLinkedToDescription());
+        currentPwaDetail = masterPwaService.createDuplicateNewDetail(pwaApplicationDetail.getMasterPwa());
+        masterPwaService.updateDetailFieldInfo(
+            currentPwaDetail,
+            padFieldView.getLinkedToFields(),
+            padFieldView.getPwaLinkedToDescription());
 
         writeNewFieldDetails = true;
 

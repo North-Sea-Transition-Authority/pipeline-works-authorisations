@@ -103,14 +103,16 @@ public class PwaApplicationCreationService {
 
     MasterPwaDetail masterPwaDetail = masterPwaService.createMasterPwa(
         MasterPwaDetailStatus.APPLICATION,
-        // TODO PWA-480 implement referencing
+        // this will be updated immediately when the app reference is available
         "New Pwa " + RandomUtils.nextInt()
     );
 
     var masterPwa = masterPwaDetail.getMasterPwa();
 
-    return createApplication(masterPwa, PwaApplicationType.INITIAL, 0, createdByUser);
+    var newApplication = createApplication(masterPwa, PwaApplicationType.INITIAL, 0, createdByUser);
+    masterPwaService.updateDetailReference(masterPwaDetail, newApplication.getPwaApplicationRef());
 
+    return newApplication;
   }
 
   @Transactional

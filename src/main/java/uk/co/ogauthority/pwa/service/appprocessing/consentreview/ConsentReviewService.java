@@ -148,7 +148,7 @@ public class ConsentReviewService {
   }
 
   @Transactional
-  public void issueConsent(PwaApplicationDetail pwaApplicationDetail, WebUserAccount issuingUser) {
+  public IssuedConsentDto issueConsent(PwaApplicationDetail pwaApplicationDetail, WebUserAccount issuingUser) {
 
     // get open review if exists, error if it doesn't
     var openReview = consentReviewRepository.findAllByPwaApplicationDetail(pwaApplicationDetail).stream()
@@ -171,6 +171,7 @@ public class ConsentReviewService {
     completeWorkflowTaskWithDecision(pwaApplicationDetail, ConsentReviewDecision.APPROVE);
     workflowAssignmentService.clearAssignments(pwaApplicationDetail.getPwaApplication());
 
+    return new IssuedConsentDto(consent.getReference());
   }
 
 }

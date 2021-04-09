@@ -219,10 +219,12 @@ public class PadFileService {
                                                      ApplicationDetailFilePurpose purpose,
                                                      ApplicationFileLinkStatus fileLinkStatus) {
 
-    return padFileRepository.findAllAsFileViewByAppDetailAndPurposeAndFileLinkStatus(
-        pwaApplicationDetail, purpose, fileLinkStatus).stream()
-        .peek(ufv -> ufv.setFileUrl(getDownloadUrl(pwaApplicationDetail, purpose, ufv.getFileId())))
-        .collect(Collectors.toList());
+    var views = padFileRepository
+        .findAllAsFileViewByAppDetailAndPurposeAndFileLinkStatus(pwaApplicationDetail, purpose, fileLinkStatus);
+
+    views.forEach(view -> view.setFileUrl(getDownloadUrl(pwaApplicationDetail, purpose, view.getFileId())));
+
+    return views;
 
   }
 

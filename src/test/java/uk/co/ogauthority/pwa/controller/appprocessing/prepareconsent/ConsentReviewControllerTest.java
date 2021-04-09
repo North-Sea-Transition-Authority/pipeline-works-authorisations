@@ -43,6 +43,7 @@ import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.PwaAppProcessingPermissionService;
 import uk.co.ogauthority.pwa.service.appprocessing.consentreview.ConsentReviewReturnFormValidator;
 import uk.co.ogauthority.pwa.service.appprocessing.consentreview.ConsentReviewService;
+import uk.co.ogauthority.pwa.service.appprocessing.consentreview.IssuedConsentDtoTestUtil;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContextService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
@@ -95,6 +96,9 @@ public class ConsentReviewControllerTest extends PwaAppProcessingContextAbstract
     user = new AuthenticatedUserAccount(
         new WebUserAccount(1),
         EnumSet.allOf(PwaUserPrivilege.class));
+
+    var issuedConsentDto = IssuedConsentDtoTestUtil.createDefault();
+    when(consentReviewService.issueConsent(any(), any())).thenReturn(issuedConsentDto);
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     pwaApplicationDetail.getPwaApplication().setId(1);

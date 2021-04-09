@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.service.pwaconsents.consentwriters;
 
+import java.util.Collection;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTask;
@@ -11,7 +12,7 @@ public interface ConsentWriter {
 
   int getExecutionOrder();
 
-  ApplicationTask getTaskDependentOn();
+  boolean writerIsApplicable(Collection<ApplicationTask> applicationTaskSet, PwaConsent pwaConsent);
 
   void write(PwaApplicationDetail pwaApplicationDetail, PwaConsent pwaConsent);
 

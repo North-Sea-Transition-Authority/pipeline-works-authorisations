@@ -21,6 +21,7 @@ public class ApplicationInvolvementDtoTest {
         false,
         false,
         Set.of(),
+        false,
         null
     );
 
@@ -38,6 +39,7 @@ public class ApplicationInvolvementDtoTest {
         false,
         false,
         Set.of(),
+        false,
         null
     );
 
@@ -56,6 +58,7 @@ public class ApplicationInvolvementDtoTest {
         false,
         false,
         Set.of(PwaOrganisationRole.APPLICATION_CREATOR),
+        false,
         null
     );
 
@@ -73,6 +76,7 @@ public class ApplicationInvolvementDtoTest {
         false,
         false,
         Set.of(),
+        false,
         null
     );
 

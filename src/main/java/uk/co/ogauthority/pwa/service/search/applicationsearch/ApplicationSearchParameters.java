@@ -9,16 +9,21 @@ public final class ApplicationSearchParameters {
 
   private Boolean includeCompletedOrWithdrawnApps;
 
-  private String caseOfficerId;
+  private Integer caseOfficerPersonId;
+
+  private Integer holderOrgUnitId;
 
   private PwaApplicationType pwaApplicationType;
 
-  public ApplicationSearchParameters(String appReference, Boolean includeCompletedOrWithdrawnApps,
-                                     String caseOfficerId,
+  public ApplicationSearchParameters(String appReference,
+                                     Boolean includeCompletedOrWithdrawnApps,
+                                     Integer caseOfficerPersonId,
+                                     Integer holderOrgUnitId,
                                      PwaApplicationType pwaApplicationType) {
     this.appReference = appReference;
     this.includeCompletedOrWithdrawnApps = includeCompletedOrWithdrawnApps;
-    this.caseOfficerId = caseOfficerId;
+    this.caseOfficerPersonId = caseOfficerPersonId;
+    this.holderOrgUnitId = holderOrgUnitId;
     this.pwaApplicationType = pwaApplicationType;
   }
 
@@ -38,12 +43,12 @@ public final class ApplicationSearchParameters {
     this.includeCompletedOrWithdrawnApps = includeCompletedOrWithdrawnApps;
   }
 
-  public String getCaseOfficerId() {
-    return caseOfficerId;
+  public Integer getCaseOfficerPersonId() {
+    return caseOfficerPersonId;
   }
 
-  public void setCaseOfficerId(String caseOfficerId) {
-    this.caseOfficerId = caseOfficerId;
+  public void setCaseOfficerPersonId(Integer caseOfficerPersonId) {
+    this.caseOfficerPersonId = caseOfficerPersonId;
   }
 
   public PwaApplicationType getPwaApplicationType() {
@@ -52,6 +57,14 @@ public final class ApplicationSearchParameters {
 
   public void setPwaApplicationType(PwaApplicationType pwaApplicationType) {
     this.pwaApplicationType = pwaApplicationType;
+  }
+
+  public Integer getHolderOrgUnitId() {
+    return holderOrgUnitId;
+  }
+
+  public void setHolderOrgUnitId(Integer holderOrgUnitId) {
+    this.holderOrgUnitId = holderOrgUnitId;
   }
 
   @Override
@@ -65,13 +78,15 @@ public final class ApplicationSearchParameters {
     ApplicationSearchParameters that = (ApplicationSearchParameters) o;
     return Objects.equals(appReference, that.appReference)
         && Objects.equals(includeCompletedOrWithdrawnApps, that.includeCompletedOrWithdrawnApps)
-        && Objects.equals(caseOfficerId, that.caseOfficerId)
-        && Objects.equals(pwaApplicationType, that.pwaApplicationType);
+        && Objects.equals(caseOfficerPersonId, that.caseOfficerPersonId)
+        && Objects.equals(holderOrgUnitId, that.holderOrgUnitId)
+        && pwaApplicationType == that.pwaApplicationType;
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(appReference, includeCompletedOrWithdrawnApps, caseOfficerId, pwaApplicationType);
+    return Objects.hash(appReference, includeCompletedOrWithdrawnApps, caseOfficerPersonId, holderOrgUnitId,
+        pwaApplicationType);
   }
 
   @Override
@@ -79,7 +94,8 @@ public final class ApplicationSearchParameters {
     return "ApplicationSearchParameters{" +
         "appReference='" + appReference + '\'' +
         ", includeCompletedOrWithdrawnApps=" + includeCompletedOrWithdrawnApps +
-        ", caseOfficerId='" + caseOfficerId + '\'' +
+        ", caseOfficerId='" + caseOfficerPersonId + '\'' +
+        ", holderOrgUnitId='" + holderOrgUnitId + '\'' +
         ", pwaApplicationType=" + pwaApplicationType +
         '}';
   }

@@ -28,7 +28,7 @@ public class ConsentWriterService {
     var availableTasks = taskListService.getShownApplicationTasksForDetail(pwaApplicationDetail);
 
     consentWriters.stream()
-        .filter(writer -> availableTasks.contains(writer.getTaskDependentOn()))
+        .filter(writer -> writer.writerIsApplicable(availableTasks, pwaConsent))
         .sorted(Comparator.comparing(ConsentWriter::getExecutionOrder))
         .forEach(writer -> writer.write(pwaApplicationDetail, pwaConsent));
 

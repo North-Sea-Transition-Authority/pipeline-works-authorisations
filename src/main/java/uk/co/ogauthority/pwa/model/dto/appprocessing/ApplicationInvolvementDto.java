@@ -27,6 +27,8 @@ public class ApplicationInvolvementDto {
   private final boolean userInHolderTeam;
   private final boolean userInAppContactTeam;
 
+  private final boolean userIsIndustryOnly;
+
   private final Set<PwaOrganisationRole> holderTeamRoles;
 
   private final OpenConsentReview openConsentReview;
@@ -38,6 +40,7 @@ public class ApplicationInvolvementDto {
                                    boolean pwaManagerStage,
                                    boolean atLeastOneSatisfactoryVersion,
                                    Set<PwaOrganisationRole> holderTeamRoles,
+                                   boolean userIsIndustryOnly,
                                    OpenConsentReview openConsentReview) {
     this.pwaApplication = pwaApplication;
     this.contactRoles = contactRoles;
@@ -48,6 +51,7 @@ public class ApplicationInvolvementDto {
     this.userInHolderTeam = !holderTeamRoles.isEmpty();
     this.userInAppContactTeam = !contactRoles.isEmpty();
     this.holderTeamRoles = holderTeamRoles;
+    this.userIsIndustryOnly = userIsIndustryOnly;
     this.openConsentReview = openConsentReview;
   }
 
@@ -105,5 +109,9 @@ public class ApplicationInvolvementDto {
 
   public boolean isUserInAppContactTeam() {
     return userInAppContactTeam;
+  }
+
+  public boolean hasOnlyIndustryInvolvement() {
+    return userIsIndustryOnly;
   }
 }

@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.model.dto.appprocessing;
 
 import static uk.co.ogauthority.pwa.model.dto.appprocessing.ApplicationInvolvementDtoTestUtil.InvolvementFlag.AT_LEAST_ONE_SATISFACTORY_VERSION;
 import static uk.co.ogauthority.pwa.model.dto.appprocessing.ApplicationInvolvementDtoTestUtil.InvolvementFlag.CASE_OFFICER_STAGE_AND_USER_ASSIGNED;
+import static uk.co.ogauthority.pwa.model.dto.appprocessing.ApplicationInvolvementDtoTestUtil.InvolvementFlag.INDUSTRY_INVOLVEMENT_ONLY;
 import static uk.co.ogauthority.pwa.model.dto.appprocessing.ApplicationInvolvementDtoTestUtil.InvolvementFlag.OPEN_CONSENT_REVIEW;
 import static uk.co.ogauthority.pwa.model.dto.appprocessing.ApplicationInvolvementDtoTestUtil.InvolvementFlag.PWA_MANAGER_STAGE;
 
@@ -21,15 +22,13 @@ public final class ApplicationInvolvementDtoTestUtil {
   public static ApplicationInvolvementDto generatePwaContactInvolvement(PwaApplication pwaApplication,
                                                                         Set<InvolvementFlag> versionFlags,
                                                                         Set<PwaContactRole> pwaContactRoleSet) {
-    return new ApplicationInvolvementDto(
+    return generateAppInvolvement(
         pwaApplication,
+        versionFlags,
         pwaContactRoleSet,
-        null,
-        versionFlags.contains(CASE_OFFICER_STAGE_AND_USER_ASSIGNED),
-        versionFlags.contains(PWA_MANAGER_STAGE),
-        versionFlags.contains(AT_LEAST_ONE_SATISFACTORY_VERSION),
-        EnumSet.noneOf(PwaOrganisationRole.class),
-        OpenConsentReview.NO);
+        Set.of(),
+        null
+    );
 
   }
 
@@ -46,6 +45,7 @@ public final class ApplicationInvolvementDtoTestUtil {
         versionFlags.contains(PWA_MANAGER_STAGE),
         versionFlags.contains(AT_LEAST_ONE_SATISFACTORY_VERSION),
         pwaOrganisationRoles,
+        versionFlags.contains(INDUSTRY_INVOLVEMENT_ONLY),
         versionFlags.contains(OPEN_CONSENT_REVIEW) ? OpenConsentReview.YES : OpenConsentReview.NO
     );
 
@@ -89,9 +89,12 @@ public final class ApplicationInvolvementDtoTestUtil {
 
   public static ApplicationInvolvementDto generatePwaHolderTeamInvolvement(PwaApplication pwaApplication,
                                                                            Set<PwaOrganisationRole> pwaOrganisationRoles) {
+    var flags = getDefaultFlags();
+    flags.add(INDUSTRY_INVOLVEMENT_ONLY);
+
     return generateAppInvolvement(
         pwaApplication,
-        getDefaultFlags(),
+        flags,
         EnumSet.noneOf(PwaContactRole.class),
         pwaOrganisationRoles,
         null
@@ -125,6 +128,7 @@ public final class ApplicationInvolvementDtoTestUtil {
   public static ApplicationInvolvementDto generatePwaContactInvolvement(PwaApplication pwaApplication,
                                                                         Set<PwaContactRole> pwaContactRoleSet) {
     var flags = getDefaultFlags();
+    flags.add(INDUSTRY_INVOLVEMENT_ONLY);
     return generateAppInvolvement(
         pwaApplication,
         flags,
@@ -136,14 +140,15 @@ public final class ApplicationInvolvementDtoTestUtil {
   }
 
   private static Set<InvolvementFlag> getDefaultFlags() {
-    return Set.of(AT_LEAST_ONE_SATISFACTORY_VERSION);
+    return EnumSet.of(AT_LEAST_ONE_SATISFACTORY_VERSION);
   }
 
   public enum InvolvementFlag {
     AT_LEAST_ONE_SATISFACTORY_VERSION,
     CASE_OFFICER_STAGE_AND_USER_ASSIGNED,
     PWA_MANAGER_STAGE,
-    OPEN_CONSENT_REVIEW
+    OPEN_CONSENT_REVIEW,
+    INDUSTRY_INVOLVEMENT_ONLY
   }
 
 }
