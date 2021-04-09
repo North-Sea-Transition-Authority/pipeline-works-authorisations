@@ -229,9 +229,10 @@ public class ConsentReviewServiceTest {
     when(consentReviewRepository.findAllByPwaApplicationDetail(detail)).thenReturn(List.of(openReview));
 
     var consent = new PwaConsent();
+    consent.setReference("exampleRef");
     when(pwaConsentService.createConsent(detail.getPwaApplication())).thenReturn(consent);
 
-    consentReviewService.issueConsent(detail, returningUser);
+    var issuedConsentDto = consentReviewService.issueConsent(detail, returningUser);
 
     verify(pwaConsentService, times(1)).createConsent(detail.getPwaApplication());
     verify(consentWriterService, times(1)).updateConsentedData(detail, consent);
@@ -243,6 +244,8 @@ public class ConsentReviewServiceTest {
       assertThat(consentReview.getEndedByPersonId()).isEqualTo(returningUser.getLinkedPerson().getId());
       assertThat(consentReview.getEndedReason()).isNull();
     });
+
+    assertThat(issuedConsentDto.getConsentReference()).isEqualTo(consent.getReference());
 
     // update app status
     verify(pwaApplicationDetailService, times(1)).updateStatus(detail, PwaApplicationStatus.COMPLETE, returningUser);

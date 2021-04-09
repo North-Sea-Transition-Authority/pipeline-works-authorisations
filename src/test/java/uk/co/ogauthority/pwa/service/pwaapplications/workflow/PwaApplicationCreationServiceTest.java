@@ -137,6 +137,8 @@ public class PwaApplicationCreationServiceTest {
     assertThat(application.getDecisionTimestamp()).isEmpty();
 
     assertThat(createdApplication.getPwaApplication()).isEqualTo(application);
+    verify(masterPwaService, times(1)).updateDetailReference(masterPwaDetail, application.getAppReference());
+
   }
 
 

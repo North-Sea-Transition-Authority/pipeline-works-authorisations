@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.service.pwaconsents.consentwriters;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -45,8 +46,8 @@ public class HuooWriter implements ConsentWriter {
   }
 
   @Override
-  public ApplicationTask getTaskDependentOn() {
-    return ApplicationTask.HUOO;
+  public boolean writerIsApplicable(Collection<ApplicationTask> applicationTaskSet, PwaConsent pwaConsent) {
+    return applicationTaskSet.contains(ApplicationTask.HUOO);
   }
 
   @Override

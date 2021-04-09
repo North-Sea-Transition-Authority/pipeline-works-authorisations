@@ -21,6 +21,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
+import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsentType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTask;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskListService;
 
@@ -40,6 +41,9 @@ public class ConsentWriterServiceTest {
   private HuooWriter huooWriter;
 
   @MockBean
+  private InitialPwaMasterDetailWriter initialPwaMasterDetailWriter;
+
+  @MockBean
   private TaskListService taskListService;
 
   @Autowired
@@ -47,32 +51,59 @@ public class ConsentWriterServiceTest {
 
   private List<ApplicationTask> applicationTasks;
 
+  private  PwaApplicationDetail detail;
+  private PwaConsent consent;
+
+  private void configureDefaultMockWriterBehaviour(ConsentWriter consentWriterMock){
+    when(consentWriterMock.writerIsApplicable(any(), any())).thenCallRealMethod();
+    when(consentWriterMock.getExecutionOrder()).thenCallRealMethod();
+  }
+
   @Before
   public void setUp() throws Exception {
 
-    when(fieldWriter.getTaskDependentOn()).thenCallRealMethod();
-    when(fieldWriter.getExecutionOrder()).thenCallRealMethod();
-    when(huooWriter.getTaskDependentOn()).thenCallRealMethod();
-    when(huooWriter.getExecutionOrder()).thenCallRealMethod();
+    configureDefaultMockWriterBehaviour(fieldWriter);
+    configureDefaultMockWriterBehaviour(huooWriter);
+    configureDefaultMockWriterBehaviour(initialPwaMasterDetailWriter);
 
     applicationTasks = ApplicationTask.stream().collect(Collectors.toList());
     when(taskListService.getShownApplicationTasksForDetail(any()))
         .thenReturn(applicationTasks);
+
+    detail = new PwaApplicationDetail();
+    consent = new PwaConsent();
+    consent.setConsentType(PwaConsentType.INITIAL_PWA);
 
   }
 
   @Test
   public void updateConsentedData_allTasks_inOrder() {
 
-    var detail = new PwaApplicationDetail();
-    var consent = new PwaConsent();
+    consentWriterService.updateConsentedData(detail, consent);
+
+    var inOrder = Mockito.inOrder(fieldWriter, huooWriter, initialPwaMasterDetailWriter);
+
+    inOrder.verify(initialPwaMasterDetailWriter, times(1)).write(detail, consent);
+    inOrder.verify(fieldWriter, times(1)).write(detail, consent);
+    inOrder.verify(huooWriter, times(1)).write(detail, consent);
+
+  }
+
+  @Test
+  public void updateConsentedData_notInitialConsent_noInitialConsentWrite() {
+    consent.setConsentType(PwaConsentType.VARIATION);
+    consentWriterService.updateConsentedData(detail, consent);
+
+    verify(initialPwaMasterDetailWriter, times(0)).write(any(), any());
+
+  }
+
+  @Test
+  public void updateConsentedData_initialConsent_consentWrite() {
 
     consentWriterService.updateConsentedData(detail, consent);
 
-    var inOrder = Mockito.inOrder(fieldWriter, huooWriter);
-
-    inOrder.verify(fieldWriter, times(1)).write(detail, consent);
-    inOrder.verify(huooWriter, times(1)).write(detail, consent);
+    verify(initialPwaMasterDetailWriter, times(1)).write(detail, consent);
 
   }
 
@@ -80,9 +111,6 @@ public class ConsentWriterServiceTest {
   public void updateConsentedData_noFieldTask_noFieldWrite() {
 
     applicationTasks.remove(ApplicationTask.FIELD_INFORMATION);
-
-    var detail = new PwaApplicationDetail();
-    var consent = new PwaConsent();
 
     consentWriterService.updateConsentedData(detail, consent);
 
@@ -94,9 +122,6 @@ public class ConsentWriterServiceTest {
   public void updateConsentedData_noHuooTask_noHuooWrite() {
 
     applicationTasks.remove(ApplicationTask.HUOO);
-
-    var detail = new PwaApplicationDetail();
-    var consent = new PwaConsent();
 
     consentWriterService.updateConsentedData(detail, consent);
 
