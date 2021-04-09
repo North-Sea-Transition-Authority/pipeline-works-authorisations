@@ -2,8 +2,10 @@ package uk.co.ogauthority.pwa.service.pwaconsents.consentwriters;
 
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.util.Set;
 import org.junit.Before;
@@ -13,6 +15,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.model.entity.enums.MasterPwaDetailStatus;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
+import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsentType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
@@ -38,6 +41,7 @@ public class InitialPwaMasterDetailWriterTest {
     pwaConsent.setConsentType(PwaConsentType.INITIAL_PWA);
 
     initialPwaMasterDetailWriter = new InitialPwaMasterDetailWriter(masterPwaService);
+
   }
 
   @Test
@@ -62,12 +66,20 @@ public class InitialPwaMasterDetailWriterTest {
 
     var pwaAppDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     masterPwa = pwaAppDetail.getMasterPwa();
-    pwaConsent.setMasterPwa(masterPwa);
 
+    pwaConsent.setMasterPwa(masterPwa);
+    pwaConsent.setReference("consentRef");
+
+    var masterDetail = new MasterPwaDetail();
+    masterDetail.setMasterPwa(masterPwa);
+
+    when(masterPwaService.createNewDetailWithStatus(any(), any())).thenReturn(masterDetail);
 
     initialPwaMasterDetailWriter.write(pwaAppDetail, pwaConsent);
 
     verify(masterPwaService, times(1)).createNewDetailWithStatus(masterPwa, MasterPwaDetailStatus.CONSENTED);
+
+    verify(masterPwaService, times(1)).updateDetailReference(masterDetail, pwaConsent.getReference());
 
   }
 }
