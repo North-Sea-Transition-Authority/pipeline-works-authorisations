@@ -66,7 +66,7 @@ public class ModifyPipelineController {
             NamedPipeline::getPipelineName));
     var modelAndView = new ModelAndView("pwaApplication/shared/pipelines/importConsented")
         .addObject("consentedPipelines", pipelineSelection)
-        .addObject("cancelUrl", ReverseRouter.route(on(PipelinesController.class)
+        .addObject("cancelUrl", ReverseRouter.route(on(PipelinesTaskListController.class)
             .renderPipelinesOverview(detail.getMasterPwaApplicationId(), detail.getPwaApplicationType(), null)))
         .addObject("serviceStatuses", PipelineStatus.toOrderedListWithoutHistorical());
     applicationBreadcrumbService.fromPipelinesOverview(detail.getPwaApplication(), modelAndView,
@@ -99,7 +99,7 @@ public class ModifyPipelineController {
           modifyPipelineService.importPipeline(detail, form);
           FlashUtils.success(
               redirectAttributes, "Success", "The pipeline to be modified has been added to the pipelines listed below");
-          return ReverseRouter.redirect(on(PipelinesController.class)
+          return ReverseRouter.redirect(on(PipelinesTaskListController.class)
               .renderPipelinesOverview(applicationId, pwaApplicationType, null));
         });
   }
