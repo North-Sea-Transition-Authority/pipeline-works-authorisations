@@ -426,7 +426,7 @@ public class PwaApplicationDetailServiceTest {
     draftDetail.setVersionNo(1);
 
     when(applicationDetailRepository.findByPwaApplicationId(APP_ID)).thenReturn(List.of(draftDetail));
-    when(userTypeService.getPriorityUserType(user)).thenReturn(UserType.INDUSTRY);
+    when(userTypeService.getUserTypes(user)).thenReturn(Set.of(UserType.INDUSTRY));
 
     var latestDetailOpt = pwaApplicationDetailService.getLatestDetailForUser(APP_ID, user);
 
@@ -455,13 +455,71 @@ public class PwaApplicationDetailServiceTest {
     submittedDetail2.setTipFlag(true);
 
     when(applicationDetailRepository.findByPwaApplicationId(APP_ID)).thenReturn(List.of(draftDetail, submittedDetail1, submittedDetail2));
-    when(userTypeService.getPriorityUserType(user)).thenReturn(UserType.INDUSTRY);
+    when(userTypeService.getUserTypes(user)).thenReturn(Set.of(UserType.INDUSTRY));
 
     var latestDetailOpt = pwaApplicationDetailService.getLatestDetailForUser(APP_ID, user);
 
     assertThat(latestDetailOpt)
         .isPresent()
         .contains(submittedDetail2);
+
+  }
+
+  @Test
+  public void getLatestDetailForUser_industry_andOga_submittedVersionExists(){
+
+    var draftDetail = createDetail(PwaApplicationStatus.DRAFT, 1);
+    var submittedDetail1 = createDetail(PwaApplicationStatus.CASE_OFFICER_REVIEW, 2);
+    submittedDetail1.setSubmittedTimestamp(Instant.now().minusSeconds(86400));
+    var submittedDetail2 = createDetail(PwaApplicationStatus.CASE_OFFICER_REVIEW, 3);
+    submittedDetail2.setSubmittedTimestamp(Instant.now());
+    submittedDetail2.setTipFlag(true);
+
+    when(applicationDetailRepository.findByPwaApplicationId(APP_ID)).thenReturn(List.of(draftDetail, submittedDetail1, submittedDetail2));
+    when(userTypeService.getUserTypes(user)).thenReturn(Set.of(UserType.INDUSTRY, UserType.OGA));
+
+    var latestDetailOpt = pwaApplicationDetailService.getLatestDetailForUser(APP_ID, user);
+
+    assertThat(latestDetailOpt)
+        .isPresent()
+        .contains(submittedDetail2);
+
+  }
+
+  @Test
+  public void getLatestDetailForUser_industry_andOga_submittedVersions_draftVersionIsTip(){
+
+    var submittedDetail1 = createDetail(PwaApplicationStatus.CASE_OFFICER_REVIEW, 1);
+    var submittedDetail2 = createDetail(PwaApplicationStatus.CASE_OFFICER_REVIEW, 2);
+    submittedDetail2.setSubmittedTimestamp(Instant.now().minusSeconds(86400));
+    var draftDetail = createDetail(PwaApplicationStatus.UPDATE_REQUESTED, 3);
+    draftDetail.setTipFlag(true);
+
+    when(applicationDetailRepository.findByPwaApplicationId(APP_ID)).thenReturn(List.of(submittedDetail1, submittedDetail2, draftDetail));
+    when(userTypeService.getUserTypes(user)).thenReturn(Set.of(UserType.INDUSTRY, UserType.OGA));
+
+    var latestDetailOpt = pwaApplicationDetailService.getLatestDetailForUser(APP_ID, user);
+
+    assertThat(latestDetailOpt)
+        .isPresent()
+        .contains(submittedDetail2);
+
+  }
+
+  @Test
+  public void getLatestDetailForUser_industry_andOga_firstDraftVersionIsTip(){
+
+    var draftDetail = createDetail(PwaApplicationStatus.DRAFT, 1);
+    draftDetail.setTipFlag(true);
+
+    when(applicationDetailRepository.findByPwaApplicationId(APP_ID)).thenReturn(List.of(draftDetail));
+    when(userTypeService.getUserTypes(user)).thenReturn(Set.of(UserType.INDUSTRY, UserType.OGA));
+
+    var latestDetailOpt = pwaApplicationDetailService.getLatestDetailForUser(APP_ID, user);
+
+    assertThat(latestDetailOpt)
+        .isPresent()
+        .contains(draftDetail);
 
   }
 
@@ -476,7 +534,7 @@ public class PwaApplicationDetailServiceTest {
     submittedDetail2.setTipFlag(true);
 
     when(applicationDetailRepository.findByPwaApplicationId(APP_ID)).thenReturn(List.of(draftDetail, submittedDetail1, submittedDetail2));
-    when(userTypeService.getPriorityUserType(user)).thenReturn(UserType.OGA);
+    when(userTypeService.getUserTypes(user)).thenReturn(Set.of(UserType.OGA));
 
     var latestDetailOpt = pwaApplicationDetailService.getLatestDetailForUser(APP_ID, user);
 
@@ -502,7 +560,7 @@ public class PwaApplicationDetailServiceTest {
 
     when(applicationDetailRepository.findByPwaApplicationId(APP_ID))
         .thenReturn(List.of(draftDetail, satisfactoryDetail1, satisfactoryDetail2, submittedDetail));
-    when(userTypeService.getPriorityUserType(user)).thenReturn(UserType.CONSULTEE);
+    when(userTypeService.getUserTypes(user)).thenReturn(Set.of(UserType.CONSULTEE));
 
     var latestDetailOpt = pwaApplicationDetailService.getLatestDetailForUser(APP_ID, user);
 
