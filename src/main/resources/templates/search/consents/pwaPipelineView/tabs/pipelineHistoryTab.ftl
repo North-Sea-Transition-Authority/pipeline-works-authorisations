@@ -21,7 +21,7 @@
     </#if>
 
     <#if diffedPipelineSummaryModel.pipelineIdents?has_content>
-        <@fdsTimeline.timeline>
+        <@fdsTimeline.timeline timelineClass="fds-timeline--left-padding">
             <@fdsTimeline.timelineSection sectionHeading="">
                 <#list diffedPipelineSummaryModel.pipelineIdents as identView>
                     <@diffedPipelineViews.identViewTimelinePoint identView/>
