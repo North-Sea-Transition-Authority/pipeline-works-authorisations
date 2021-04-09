@@ -186,11 +186,12 @@ public class PipelineDiffableSummaryServiceTest {
   @Test
   public void getConsentedPipeline_multipleIdents_mappedAsExpected() {
     var pipelineId = new PipelineId(PIPELINE_ID);
+    var pipelineDetailId = PIPELINE_ID;
     var pipelineDetail = getPipelineDetail(pipelineId, BigDecimal.ONE, PipelineType.PRODUCTION_FLOWLINE);
 
-    when(pipelineDetailService.getLatestByPipelineId(pipelineId.asInt())).thenReturn(pipelineDetail);
+    when(pipelineDetailService.getByPipelineDetailId(pipelineDetailId)).thenReturn(pipelineDetail);
 
-    when(pipelineDetailIdentService.getSortedPipelineIdentViewsForPipeline(pipelineId))
+    when(pipelineDetailIdentService.getSortedPipelineIdentViewsForPipelineDetail(pipelineId, pipelineDetailId))
         .thenReturn(List.of(identStart, identMid, identEnd));
 
     var summary = pipelineDiffableSummaryService.getConsentedPipeline(pipelineId.asInt());

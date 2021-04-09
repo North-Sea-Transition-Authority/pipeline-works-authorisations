@@ -25,17 +25,13 @@
     </@fdsBackendTabs.tabList>
 
 
-    <#list availableTabs as tab>
+   <@fdsBackendTabs.tabContent tabAnchor=tab.anchor currentTab=currentProcessingTab.value tabValue=tab.value>
 
-      <@fdsBackendTabs.tabContent tabAnchor=tab.anchor currentTab=currentProcessingTab.value tabValue=tab.value>
+      <#if currentProcessingTab == "PIPELINE_HISTORY">
+          <@pipelineHistoryTab.tab diffedPipelineSummaryModel/>
+      </#if>
 
-        <#if currentProcessingTab == "PIPELINE_HISTORY">
-            <@pipelineHistoryTab.tab diffedPipelineSummaryModel/>
-        </#if>
-
-      </@fdsBackendTabs.tabContent>
-
-    </#list>
+    </@fdsBackendTabs.tabContent>
 
 
 
