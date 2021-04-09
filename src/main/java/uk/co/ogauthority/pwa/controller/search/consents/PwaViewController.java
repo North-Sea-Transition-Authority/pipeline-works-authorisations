@@ -39,7 +39,7 @@ public class PwaViewController {
                                     PwaContext pwaContext,
                                     AuthenticatedUserAccount authenticatedUserAccount) {
 
-    Map<String, ?> tabContentModelMap = pwaViewTabService.getTabContentModelMap(pwaContext, tab);
+    Map<String, Object> tabContentModelMap = pwaViewTabService.getTabContentModelMap(pwaContext, tab);
 
     var modelAndView = new ModelAndView("search/consents/pwaView")
         .addObject("consentSearchResultView", pwaContext.getConsentSearchResultView())

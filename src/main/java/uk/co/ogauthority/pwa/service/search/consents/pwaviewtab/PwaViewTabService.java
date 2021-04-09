@@ -29,7 +29,7 @@ public class PwaViewTabService {
   }
 
 
-  public Map<String, ?> getTabContentModelMap(PwaContext pwaContext,
+  public Map<String, Object> getTabContentModelMap(PwaContext pwaContext,
                                               PwaViewTab tab) {
 
     Map<String, Object> tabContentMap = new HashMap<>();

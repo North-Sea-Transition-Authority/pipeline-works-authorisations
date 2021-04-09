@@ -2,6 +2,8 @@ package uk.co.ogauthority.pwa.controller.appprocessing.prepareconsent;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
+import java.io.InputStream;
+import java.sql.Blob;
 import java.util.function.Supplier;
 import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -134,22 +136,29 @@ public class AppConsentDocController {
                 DocGenType.PREVIEW);
             var inputStream = blob.getBinaryStream();
 
-            try {
-              return ResponseEntity.ok()
-                  .contentType(MediaType.APPLICATION_OCTET_STREAM)
-                  .contentLength(blob.length())
-                  .header(HttpHeaders.CONTENT_DISPOSITION,
-                      String.format("attachment; filename=\"%s\"", "test-filename.pdf"))
-                  .body(new InputStreamResource(inputStream));
-            } catch (Exception e) {
-              throw new RuntimeException(String.format("Error serving file '%s'", "test-filename.pdf"), e);
-            }
+            return getResourceResponseEntity(blob, inputStream);
 
           } catch (Exception e) {
             throw new RuntimeException("Error serving document", e);
           }
 
         });
+
+  }
+
+  private ResponseEntity<Resource> getResourceResponseEntity(Blob blob, InputStream inputStream) {
+
+    try {
+      return ResponseEntity.ok()
+          .contentType(MediaType.APPLICATION_OCTET_STREAM)
+          .contentLength(blob.length())
+          .header(HttpHeaders.CONTENT_DISPOSITION,
+              String.format("attachment; filename=\"%s\"", "test-filename.pdf"))
+          .body(new InputStreamResource(inputStream));
+
+    } catch (Exception e) {
+      throw new RuntimeException(String.format("Error serving file '%s'", "test-filename.pdf"), e);
+    }
 
   }
 

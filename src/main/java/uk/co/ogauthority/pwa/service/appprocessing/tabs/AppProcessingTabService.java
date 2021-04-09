@@ -39,7 +39,7 @@ public class AppProcessingTabService {
 
   }
 
-  public Map<String, ?> getTabContentModelMap(PwaAppProcessingContext appProcessingContext,
+  public Map<String, Object> getTabContentModelMap(PwaAppProcessingContext appProcessingContext,
                                               AppProcessingTab tab) {
 
     var modelMap = new HashMap<String, Object>();

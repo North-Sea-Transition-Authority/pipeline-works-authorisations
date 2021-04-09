@@ -166,8 +166,9 @@ public class DocumentInstanceServiceTest {
     verify(instanceSectionClauseVersionRepository, times(1)).saveAll(clauseVersionsCaptor.capture());
 
     // map the new instance clauses to their version
-    Map<DocumentInstanceSectionClause, DocumentInstanceSectionClauseVersion> instanceClauseToVersionMap = clauseVersionsCaptor.getValue().stream()
-        .collect(Collectors.toMap(v -> (DocumentInstanceSectionClause) v.getClause(), Function.identity()));
+    List<DocumentInstanceSectionClauseVersion> clauseVersions = new ArrayList<>(clauseVersionsCaptor.getValue());
+    Map<DocumentInstanceSectionClause, DocumentInstanceSectionClauseVersion> instanceClauseToVersionMap = clauseVersions.stream()
+        .collect(Collectors.toMap(DocumentInstanceSectionClauseVersion::getDocumentInstanceSectionClause, Function.identity()));
 
     // check that for each section
     for (SectionDto section: docDto.getSections()) {
