@@ -6,7 +6,7 @@
 <#-- @ftlvariable name="pipelinesVersionSearchSelectorItems" type="java.util.Map<java.lang.String, java.lang.String>" -->
 
 
-<#macro tab diffedPipelineSummaryModel=[]>
+<#macro tab diffedPipelineSummaryModel>
 
     <@fdsForm.htmlForm actionUrl=springUrl(viewPwaPipelineUrl)>
         <@fdsSearchSelector.searchSelectorEnhanced path="form.pipelineDetailId" options=pipelinesVersionSearchSelectorItems labelText="Select version" />
@@ -16,24 +16,20 @@
 
     <@diffChanges.toggler/>
 
-    <#if diffedPipelineSummaryModel?has_content>
+    <#if diffedPipelineSummaryModel.pipelineHeader?has_content>
+        <@diffedPipelineViews.pipelineHeaderDetails pipelineHeader=diffedPipelineSummaryModel.pipelineHeader pipelineIdentsSize=diffedPipelineSummaryModel.pipelineIdents?size!0/>
+    </#if>
 
-        <#if diffedPipelineSummaryModel.pipelineHeader?has_content>
-            <@diffedPipelineViews.pipelineHeaderDetails pipelineHeader=diffedPipelineSummaryModel.pipelineHeader pipelineIdentsSize=diffedPipelineSummaryModel.pipelineIdents?size!0/>
-        </#if>
-
-        <#if diffedPipelineSummaryModel.pipelineIdents?has_content>
-            <@fdsTimeline.timeline>
-                <@fdsTimeline.timelineSection sectionHeading="">
-                    <#list diffedPipelineSummaryModel.pipelineIdents as identView>
-                        <@diffedPipelineViews.identViewTimelinePoint identView/>
-                    </#list>
-                </@fdsTimeline.timelineSection>
-            </@fdsTimeline.timeline>
-        <#else>
-            <@fdsInsetText.insetText>No idents have been added to this pipeline.</@fdsInsetText.insetText>
-        </#if>
-
+    <#if diffedPipelineSummaryModel.pipelineIdents?has_content>
+        <@fdsTimeline.timeline>
+            <@fdsTimeline.timelineSection sectionHeading="">
+                <#list diffedPipelineSummaryModel.pipelineIdents as identView>
+                    <@diffedPipelineViews.identViewTimelinePoint identView/>
+                </#list>
+            </@fdsTimeline.timelineSection>
+        </@fdsTimeline.timeline>
+    <#else>
+        <@fdsInsetText.insetText>No idents have been added to this pipeline.</@fdsInsetText.insetText>
     </#if>
 
 

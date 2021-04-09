@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.model.entity.enums.measurements.UnitMeasurement;
 import uk.co.ogauthority.pwa.model.form.pwa.PwaPipelineHistoryForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.pwaconsents.PipelineDetailService;
@@ -113,7 +114,8 @@ public class PwaPipelineViewController {
 
     modelAndView.addObject("diffedPipelineSummaryModel", diffedPipelineSummaryModel)
         .addObject("viewPwaPipelineUrl", viewPwaPipelineUrl)
-        .addObject("pipelinesVersionSearchSelectorItems", pipelinesVersionSearchSelectorItems);
+        .addObject("pipelinesVersionSearchSelectorItems", pipelinesVersionSearchSelectorItems)
+        .addObject("unitMeasurements", UnitMeasurement.toMap());
   }
 
 
