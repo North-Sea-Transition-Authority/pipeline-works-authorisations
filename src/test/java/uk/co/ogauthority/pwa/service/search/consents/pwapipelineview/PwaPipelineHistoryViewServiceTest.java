@@ -18,6 +18,7 @@ import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.PipelinesSummaryService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineDiffableSummaryService;
 import uk.co.ogauthority.pwa.service.pwaconsents.PipelineDetailService;
+import uk.co.ogauthority.pwa.service.pwaconsents.testutil.PipelineDetailTestUtil;
 import uk.co.ogauthority.pwa.service.search.consents.pwapipelineview.testutil.PwaPipelineViewTestUtil;
 import uk.co.ogauthority.pwa.util.DateUtils;
 
@@ -59,9 +60,9 @@ public class PwaPipelineHistoryViewServiceTest {
   @Test
   public void getPipelinesVersionSearchSelectorItems_onlyPipelinesChangedOnSameDayHaveOrderTag_itemsAreOrderedLatestFirst() {
 
-    var pipelineDetailCreatedTodayAfternoon = PwaPipelineViewTestUtil.createPipelineDetail(PIPELINE_DETAIL_ID3, PIPELINE_ID, TODAY_AFTERNOON);
-    var pipelineDetailCreatedTodayMorning = PwaPipelineViewTestUtil.createPipelineDetail(PIPELINE_DETAIL_ID2, PIPELINE_ID, TODAY_MORNING);
-    var pipelineDetailCreatedYesterday = PwaPipelineViewTestUtil.createPipelineDetail(PIPELINE_DETAIL_ID1, PIPELINE_ID, YESTERDAY);
+    var pipelineDetailCreatedTodayAfternoon = PipelineDetailTestUtil.createPipelineDetail(PIPELINE_DETAIL_ID3, PIPELINE_ID, TODAY_AFTERNOON);
+    var pipelineDetailCreatedTodayMorning = PipelineDetailTestUtil.createPipelineDetail(PIPELINE_DETAIL_ID2, PIPELINE_ID, TODAY_MORNING);
+    var pipelineDetailCreatedYesterday = PipelineDetailTestUtil.createPipelineDetail(PIPELINE_DETAIL_ID1, PIPELINE_ID, YESTERDAY);
 
     when(pipelineDetailService.getAllPipelineDetailsForPipeline(PIPELINE_ID)).thenReturn(
         List.of(pipelineDetailCreatedYesterday, pipelineDetailCreatedTodayAfternoon, pipelineDetailCreatedTodayMorning));
@@ -88,8 +89,8 @@ public class PwaPipelineHistoryViewServiceTest {
   @Test
   public void getPipelinesVersionSearchSelectorItems_consentReferenceDisplayedWhenAvailable_onlyLatestPipelineVersionHasLatestVersionText() {
     
-    var pipelineDetailNoConsentRef = PwaPipelineViewTestUtil.createPipelineDetail(PIPELINE_DETAIL_ID2, PIPELINE_ID, YESTERDAY);
-    var pipelineDetailHasConsentRef = PwaPipelineViewTestUtil.createPipelineDetail(
+    var pipelineDetailNoConsentRef = PipelineDetailTestUtil.createPipelineDetail(PIPELINE_DETAIL_ID2, PIPELINE_ID, YESTERDAY);
+    var pipelineDetailHasConsentRef = PipelineDetailTestUtil.createPipelineDetail(
         PIPELINE_DETAIL_ID1, PIPELINE_ID, TODAY_MORNING, PwaPipelineViewTestUtil.createPwaConsent("178/V/11"));
 
     when(pipelineDetailService.getAllPipelineDetailsForPipeline(PIPELINE_ID)).thenReturn(
@@ -106,13 +107,36 @@ public class PwaPipelineHistoryViewServiceTest {
 
 
   @Test
-  public void getPipelineSummary() {
+  public void getDiffedPipelineSummaryModel_hasPreviousVersion_selectedVersionDiffedAgainstPrevious() {
 
-    var summary = PwaPipelineViewTestUtil.createPipelineDiffableSummary(PIPELINE_DETAIL_ID1);
-    when(pipelineDiffableSummaryService.getConsentedPipeline(PIPELINE_DETAIL_ID1)).thenReturn(summary);
+    var pipelineDetailForSelectedVersion = PipelineDetailTestUtil.createPipelineDetail(PIPELINE_DETAIL_ID1, PIPELINE_ID, TODAY_MORNING);
+    var pipelineDetailForPreviousVersion = PipelineDetailTestUtil.createPipelineDetail(PIPELINE_DETAIL_ID2, PIPELINE_ID, YESTERDAY);
+    when(pipelineDetailService.getAllPipelineDetailsForPipeline(PIPELINE_ID)).thenReturn(
+        List.of(pipelineDetailForSelectedVersion, pipelineDetailForPreviousVersion));
 
-    pwaPipelineHistoryViewService.getDiffedPipelineSummaryModel(PIPELINE_DETAIL_ID1);
-    verify(pipelinesSummaryService, times(1)).produceDiffedPipelineModel(summary, summary);
+    var summaryForSelectedVersion = PwaPipelineViewTestUtil.createPipelineDiffableSummary(PIPELINE_ID.asInt());
+    when(pipelineDiffableSummaryService.getConsentedPipeline(PIPELINE_DETAIL_ID1)).thenReturn(summaryForSelectedVersion);
+
+    var summaryForPreviousVersion = PwaPipelineViewTestUtil.createPipelineDiffableSummary(PIPELINE_ID.asInt());
+    when(pipelineDiffableSummaryService.getConsentedPipeline(PIPELINE_DETAIL_ID2)).thenReturn(summaryForPreviousVersion);
+
+    pwaPipelineHistoryViewService.getDiffedPipelineSummaryModel(PIPELINE_DETAIL_ID1, PIPELINE_ID.asInt());
+    verify(pipelinesSummaryService, times(1)).produceDiffedPipelineModel(summaryForSelectedVersion, summaryForPreviousVersion);
+  }
+
+
+  @Test
+  public void getDiffedPipelineSummaryModel_doesNotHavePreviousVersion_selectedVersionDiffedAgainstItself() {
+
+    var pipelineDetailForSelectedVersion = PipelineDetailTestUtil.createPipelineDetail(PIPELINE_DETAIL_ID1, PIPELINE_ID, TODAY_MORNING);
+    when(pipelineDetailService.getAllPipelineDetailsForPipeline(PIPELINE_ID)).thenReturn(
+        List.of(pipelineDetailForSelectedVersion));
+
+    var summaryForSelectedVersion = PwaPipelineViewTestUtil.createPipelineDiffableSummary(PIPELINE_ID.asInt());
+    when(pipelineDiffableSummaryService.getConsentedPipeline(PIPELINE_DETAIL_ID1)).thenReturn(summaryForSelectedVersion);
+
+    pwaPipelineHistoryViewService.getDiffedPipelineSummaryModel(PIPELINE_DETAIL_ID1, PIPELINE_ID.asInt());
+    verify(pipelinesSummaryService, times(1)).produceDiffedPipelineModel(summaryForSelectedVersion, summaryForSelectedVersion);
   }
 
 

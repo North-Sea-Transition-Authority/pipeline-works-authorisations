@@ -80,7 +80,7 @@ public class PwaViewPipelineControllerTest extends PwaContextAbstractControllerT
     pipeline.setId(PIPELINE_ID);
     pipeline.setMasterPwa(masterPwa);
     when(pipelineService.getPipelineFromId(new PipelineId(PIPELINE_ID))).thenReturn(pipeline);
-    when(pwaPipelineHistoryViewService.getDiffedPipelineSummaryModel(PIPELINE_ID)).thenReturn(Map.of());
+    when(pwaPipelineHistoryViewService.getDiffedPipelineSummaryModel(any(), any())).thenReturn(Map.of());
     when(pwaPipelineHistoryViewService.getPipelinesVersionSearchSelectorItems(any())).thenReturn(Map.of());
   }
 

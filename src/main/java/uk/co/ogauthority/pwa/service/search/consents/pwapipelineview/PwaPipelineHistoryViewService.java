@@ -72,10 +72,24 @@ public class PwaPipelineHistoryViewService {
 
 
 
-  public Map<String, Object> getDiffedPipelineSummaryModel(Integer pipelineDetailId) {
+  public Map<String, Object> getDiffedPipelineSummaryModel(Integer selectedPipelineDetailId, Integer pipelineId) {
 
-    var diffableSummary = pipelineDiffableSummaryService.getConsentedPipeline(pipelineDetailId);
-    return pipelinesSummaryService.produceDiffedPipelineModel(diffableSummary, diffableSummary);
+    PipelineDetail previousVersionPipelineDetail = null;
+    var pipelineDetails = pipelineDetailService.getAllPipelineDetailsForPipeline(new PipelineId(pipelineId))
+        .stream().sorted(Comparator.comparing(PipelineDetail::getStartTimestamp))
+        .collect(Collectors.toList());
+
+    for (var x = 0; x < pipelineDetails.size(); x++) {
+      if (pipelineDetails.get(x).getId().equals(selectedPipelineDetailId) && x - 1 >= 0) {
+        previousVersionPipelineDetail = pipelineDetails.get(x - 1);
+        break;
+      }
+    }
+
+    var selectedDetailDiffableSummary = pipelineDiffableSummaryService.getConsentedPipeline(selectedPipelineDetailId);
+    var previousDetailDiffableSummary = previousVersionPipelineDetail != null
+        ? pipelineDiffableSummaryService.getConsentedPipeline(previousVersionPipelineDetail.getId()) : selectedDetailDiffableSummary;
+    return pipelinesSummaryService.produceDiffedPipelineModel(selectedDetailDiffableSummary, previousDetailDiffableSummary);
 
   }
 

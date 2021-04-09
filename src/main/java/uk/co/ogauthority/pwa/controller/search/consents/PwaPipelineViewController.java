@@ -5,19 +5,17 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.model.entity.enums.measurements.UnitMeasurement;
 import uk.co.ogauthority.pwa.model.form.pwa.PwaPipelineHistoryForm;
-import uk.co.ogauthority.pwa.model.form.pwa.PwaViewPipelineParams;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
-import uk.co.ogauthority.pwa.service.objects.FormObjectMapper;
 import uk.co.ogauthority.pwa.service.pwaconsents.PipelineDetailService;
 import uk.co.ogauthority.pwa.service.pwacontext.PwaContext;
 import uk.co.ogauthority.pwa.service.pwacontext.PwaPermission;
@@ -53,9 +51,9 @@ public class PwaPipelineViewController {
                                             PwaContext pwaContext,
                                             AuthenticatedUserAccount authenticatedUserAccount,
                                             @ModelAttribute("form") PwaPipelineHistoryForm form,
-                                            @ModelAttribute("pwaViewPipelineParams") PwaViewPipelineParams pwaViewPipelineParams) {
+                                            @RequestParam(value = "pipelineDetailId", required = false) Integer pipelineDetailId) {
 
-    return getModelAndView(tab, pwaContext, pipelineId, pwaViewPipelineParams);
+    return getModelAndView(tab, pwaContext, pipelineId, pipelineDetailId, form);
   }
 
   @PostMapping("/{pipelineId}/{tab}")
@@ -66,32 +64,35 @@ public class PwaPipelineViewController {
                                           AuthenticatedUserAccount authenticatedUserAccount,
                                           @ModelAttribute("form") PwaPipelineHistoryForm form) {
 
-    var searchParams = PwaViewPipelineParams.from(form);
 
-    var paramMap = new LinkedMultiValueMap<String, String>();
-    paramMap.setAll(FormObjectMapper.toMap(searchParams));
-
-    return ReverseRouter.redirectWithQueryParamMap(on(PwaPipelineViewController.class)
-        .renderViewPwaPipeline(pwaId, pipelineId, tab, pwaContext, authenticatedUserAccount, null, null), paramMap);
+    return ReverseRouter.redirect(on(PwaPipelineViewController.class)
+        .renderViewPwaPipeline(pwaId, pipelineId, tab, pwaContext, authenticatedUserAccount, null, form.getPipelineDetailId()));
   }
 
 
   private ModelAndView getModelAndView(PwaPipelineViewTab tab,
                                        PwaContext pwaContext,
-                                       Integer pipelineId, PwaViewPipelineParams pwaViewPipelineParams) {
+                                       Integer pipelineId,
+                                       Integer pipelineDetailId,
+                                       PwaPipelineHistoryForm form) {
 
-    var pipelineDetail = pipelineDetailService.getLatestByPipelineId(pipelineId);
+    var latestPipelineDetail = pipelineDetailService.getLatestByPipelineId(pipelineId);
 
     var modelAndView =  new ModelAndView("search/consents/pwaPipelineView/pwaPipelineView")
         .addObject("consentSearchResultView", pwaContext.getConsentSearchResultView())
         .addObject("availableTabs", PwaPipelineViewTab.stream().collect(Collectors.toList()))
         .addObject("currentProcessingTab", tab)
         .addObject("pwaPipelineViewUrlFactory", new PwaPipelineViewUrlFactory(pwaContext.getMasterPwa().getId(), pipelineId))
-        .addObject("pipelineReference", pipelineDetail.getPipelineNumber());
+        .addObject("pipelineReference", latestPipelineDetail.getPipelineNumber());
 
 
     if (tab.equals(PwaPipelineViewTab.PIPELINE_HISTORY)) {
-      setPipelineHistoryDataOnModelAndView(pipelineId, modelAndView, pwaViewPipelineParams.getPipelineDetailId());
+      var selectedPipelineDetailId = pipelineDetailId;
+      if (pipelineDetailId == null) {
+        selectedPipelineDetailId = latestPipelineDetail.getId();
+        form.setPipelineDetailId(latestPipelineDetail.getId());
+      }
+      setPipelineHistoryDataOnModelAndView(modelAndView, pwaContext, pipelineId, selectedPipelineDetailId);
     }
 
     searchPwaBreadcrumbService.fromPwaPipelineView(
@@ -101,16 +102,20 @@ public class PwaPipelineViewController {
   }
 
 
-  private void setPipelineHistoryDataOnModelAndView(Integer pipelineId, ModelAndView modelAndView,
+  private void setPipelineHistoryDataOnModelAndView(ModelAndView modelAndView,
+                                                    PwaContext pwaContext,
+                                                    Integer pipelineId,
                                                     Integer pipelineDetailId) {
 
-    var diffedPipelineSummaryModel = pipelineDetailId != null
-        ? pwaPipelineHistoryViewService.getDiffedPipelineSummaryModel(pipelineDetailId) : null;
+    var diffedPipelineSummaryModel = pwaPipelineHistoryViewService.getDiffedPipelineSummaryModel(pipelineDetailId, pipelineId);
+    var viewPwaPipelineUrl  = ReverseRouter.route(on(PwaPipelineViewController.class).renderViewPwaPipeline(
+        pwaContext.getMasterPwa().getId(), pipelineId, PwaPipelineViewTab.PIPELINE_HISTORY, pwaContext, null, null, null));
+    var pipelinesVersionSearchSelectorItems = pwaPipelineHistoryViewService.getPipelinesVersionSearchSelectorItems(pipelineId);
 
-    modelAndView.addObject("diffedPipelineSummaryModel", diffedPipelineSummaryModel);
-    modelAndView.addObject("unitMeasurements", UnitMeasurement.toMap());
-    modelAndView.addObject("pipelinesVersionSearchSelectorItems",
-        pwaPipelineHistoryViewService.getPipelinesVersionSearchSelectorItems(pipelineId));
+    modelAndView.addObject("diffedPipelineSummaryModel", diffedPipelineSummaryModel)
+        .addObject("viewPwaPipelineUrl", viewPwaPipelineUrl)
+        .addObject("pipelinesVersionSearchSelectorItems", pipelinesVersionSearchSelectorItems)
+        .addObject("unitMeasurements", UnitMeasurement.toMap());
   }
 
 
