@@ -1,14 +1,10 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines;
 
-import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
-
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Sets;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -24,14 +20,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BeanPropertyBindingResult;
-import org.springframework.validation.BindingResult;
-import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTypeCheck;
-import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelines.ModifyPipelineController;
-import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelines.PipelineIdentsController;
-import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelines.PipelinesController;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PadPipelineId;
-import uk.co.ogauthority.pwa.model.dto.pipelines.PadPipelineSummaryDto;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineHeaderFormContext;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineMaterial;
@@ -43,38 +33,25 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipe
 import uk.co.ogauthority.pwa.model.form.location.CoordinateForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.ModifyPipelineForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.PipelineHeaderForm;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.PipelineIdentForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PadPipelineOverview;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PadPipelineTaskListItem;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview;
-import uk.co.ogauthority.pwa.model.tasklist.TaskListEntry;
-import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.repository.pipelines.PipelineBundlePairDto;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.pipelines.PadPipelineRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
-import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
-import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
-import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskInfo;
-import uk.co.ogauthority.pwa.service.pwaapplications.options.PadOptionConfirmedService;
 import uk.co.ogauthority.pwa.service.pwaconsents.PipelineDetailService;
-import uk.co.ogauthority.pwa.service.validation.SummaryScreenValidationResult;
 import uk.co.ogauthority.pwa.util.CoordinateUtils;
 import uk.co.ogauthority.pwa.util.StreamUtils;
 
 @Service
-public class PadPipelineService implements ApplicationFormSectionService {
+public class PadPipelineService {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(PadPipelineService.class);
 
   private final PadPipelineRepository padPipelineRepository;
   private final PipelineService pipelineService;
   private final PipelineDetailService pipelineDetailService;
-  private final PipelineIdentFormValidator pipelineIdentFormValidator;
-  private final PadPipelineIdentService padPipelineIdentService;
   private final PadPipelinePersisterService padPipelinePersisterService;
   private final PipelineHeaderFormValidator pipelineHeaderFormValidator;
-  private final PadPipelineDataCopierService padPipelineDataCopierService;
-  private final PadOptionConfirmedService padOptionConfirmedService;
 
   private static final Set<PipelineStatus> DATA_REQUIRED_STATUSES = Set.of(PipelineStatus.IN_SERVICE, PipelineStatus.OUT_OF_USE_ON_SEABED);
 
@@ -82,28 +59,13 @@ public class PadPipelineService implements ApplicationFormSectionService {
   public PadPipelineService(PadPipelineRepository padPipelineRepository,
                             PipelineService pipelineService,
                             PipelineDetailService pipelineDetailService,
-                            PadPipelineIdentService padPipelineIdentService,
-                            PipelineIdentFormValidator pipelineIdentFormValidator,
                             PadPipelinePersisterService padPipelinePersisterService,
-                            PipelineHeaderFormValidator pipelineHeaderFormValidator,
-                            PadPipelineDataCopierService padPipelineDataCopierService,
-                            PadOptionConfirmedService padOptionConfirmedService) {
+                            PipelineHeaderFormValidator pipelineHeaderFormValidator) {
     this.padPipelineRepository = padPipelineRepository;
     this.pipelineService = pipelineService;
     this.pipelineDetailService = pipelineDetailService;
-    this.padPipelineIdentService = padPipelineIdentService;
-    this.pipelineIdentFormValidator = pipelineIdentFormValidator;
     this.padPipelinePersisterService = padPipelinePersisterService;
     this.pipelineHeaderFormValidator = pipelineHeaderFormValidator;
-    this.padPipelineDataCopierService = padPipelineDataCopierService;
-    this.padOptionConfirmedService = padOptionConfirmedService;
-  }
-
-  @Override
-  public boolean canShowInTaskList(PwaApplicationDetail pwaApplicationDetail) {
-    // do not do additional type checks as this is covered by the controller markup
-    return !PwaApplicationType.OPTIONS_VARIATION.equals(pwaApplicationDetail.getPwaApplicationType())
-        || padOptionConfirmedService.approvedOptionConfirmed(pwaApplicationDetail);
   }
 
   public List<PadPipeline> getPipelines(PwaApplicationDetail detail) {
@@ -119,7 +81,7 @@ public class PadPipelineService implements ApplicationFormSectionService {
     return padPipelineRepository.findPipelineAsSummaryDtoByPadPipeline(padPipeline)
         .map(padPipelineSummaryDto -> PadPipelineOverview.from(
             padPipelineSummaryDto,
-            doesPipelineHaveTasks(padPipelineSummaryDto)
+            false
         ))
         .orElseThrow(() -> new PwaEntityNotFoundException(
             "Pipeline Summary not found. Pad pipeline id: " + padPipeline.getId()));
@@ -130,95 +92,15 @@ public class PadPipelineService implements ApplicationFormSectionService {
     return padPipelineRepository.findAllPipelinesAsSummaryDtoByPwaApplicationDetail(detail).stream()
         .map(padPipelineSummaryDto -> PadPipelineOverview.from(
             padPipelineSummaryDto,
-            doesPipelineHaveTasks(padPipelineSummaryDto)
+            false
         ))
         .sorted(Comparator.comparing(PipelineOverview::getPipelineNumber))
         .collect(Collectors.toList());
 
   }
 
-  public List<PadPipelineTaskListItem> getPipelineTaskListItems(PwaApplicationDetail detail) {
-
-    var overviews = getApplicationPipelineOverviews(detail);
-    var padPipelineMap = getPadPipelineMapForOverviews(detail, overviews);
-
-    return overviews.stream()
-        .map(pipelineOverview -> new PadPipelineTaskListItem(
-            pipelineOverview,
-            createTaskListEntries(
-                detail, pipelineOverview,
-                padPipelineMap.get(new PadPipelineId(pipelineOverview.getPadPipelineId()))
-            )
-        ))
-        .collect(Collectors.toList());
-  }
-
-  private List<TaskListEntry> createTaskListEntries(PwaApplicationDetail pwaApplicationDetail,
-                                                    PipelineOverview pipelineOverview, PadPipeline padPipeline) {
-    var editPipelineHeaderUrl = getEditPipelineHeaderUrl(
-        pwaApplicationDetail.getMasterPwaApplicationId(),
-        pwaApplicationDetail.getPwaApplicationType(),
-        pipelineOverview.getPadPipelineId());
-
-    var identTaskUrl = getPipelineIdentOverviewUrl(
-        pwaApplicationDetail.getMasterPwaApplicationId(),
-        pwaApplicationDetail.getPwaApplicationType(),
-        pipelineOverview.getPadPipelineId()
-    );
-
-    return List.of(
-        new TaskListEntry(
-            "Header information",
-            editPipelineHeaderUrl,
-            isPadPipelineValid(padPipeline, pwaApplicationDetail.getPwaApplicationType()),
-            10),
-        new TaskListEntry(
-            "Idents",
-            identTaskUrl,
-            padPipelineIdentService.isSectionValid(padPipeline),
-            List.of(new TaskInfo("IDENT", pipelineOverview.getNumberOfIdents())),
-            20
-        )
-    );
-
-  }
-
-  @VisibleForTesting
-  boolean isValidationRequired(PadPipeline padPipeline) {
-    return DATA_REQUIRED_STATUSES.contains(padPipeline.getPipelineStatus());
-  }
-
-  @VisibleForTesting
-  boolean isPadPipelineValid(PadPipeline padPipeline, PwaApplicationType pwaApplicationType) {
-    if (isValidationRequired(padPipeline)) {
-      var form = new PipelineHeaderForm();
-      mapEntityToForm(form, padPipeline);
-      var bindingResult = new BeanPropertyBindingResult(form, "form");
-      var validationHints = new PipelineHeaderValidationHints(
-          padPipeline.getPipelineStatus(), canShowAlreadyExistsOnSeabedQuestions(padPipeline, pwaApplicationType));
-      pipelineHeaderFormValidator.validate(form, bindingResult, validationHints);
-      return !bindingResult.hasErrors();
-    }
-    return true;
-  }
-
-  private String getEditPipelineHeaderUrl(int applicationId, PwaApplicationType applicationType, int padPipelineId) {
-    return ReverseRouter.route(on(PipelinesController.class).renderEditPipeline(
-        applicationId,
-        applicationType,
-        padPipelineId,
-        null,
-        null,
-        null));
-  }
-
-  private String getPipelineIdentOverviewUrl(int applicationId, PwaApplicationType applicationType, int padPipelineId) {
-    return ReverseRouter.route(on(PipelineIdentsController.class).renderIdentOverview(
-        applicationId,
-        applicationType,
-        padPipelineId,
-        null,
-        null));
+  public boolean isValidationRequiredByStatus(PipelineStatus pipelineStatus) {
+    return DATA_REQUIRED_STATUSES.contains(pipelineStatus);
   }
 
   public boolean canShowAlreadyExistsOnSeabedQuestions(PadPipeline padPipeline, PwaApplicationType pwaApplicationType) {
@@ -396,17 +278,6 @@ public class PadPipelineService implements ApplicationFormSectionService {
 
   }
 
-  @Override
-  public boolean isComplete(PwaApplicationDetail detail) {
-    return getValidationResult(detail).isSectionComplete();
-  }
-
-  @Override
-  public BindingResult validate(Object form, BindingResult bindingResult, ValidationType validationType,
-                                PwaApplicationDetail pwaApplicationDetail) {
-    throw new AssertionError("Doesn't make sense to implement this.");
-  }
-
 
   public Map<String, String> getPipelineReferenceMap(PwaApplicationDetail pwaApplicationDetail) {
     return padPipelineRepository.getAllByPwaApplicationDetail(pwaApplicationDetail)
@@ -421,13 +292,6 @@ public class PadPipelineService implements ApplicationFormSectionService {
     return padPipelineRepository.countAllByPwaApplicationDetail(pwaApplicationDetail);
   }
 
-  //TODO: PWA-889 - Add functionality to show All Pipelines on HUOO summary where appropriate
-
-  public List<PadPipelineSummaryDto> getAllPadPipelineSummaryDtosForApplicationDetail(
-      PwaApplicationDetail pwaApplicationDetail) {
-    return padPipelineRepository.findAllPipelinesAsSummaryDtoByPwaApplicationDetail(
-        pwaApplicationDetail);
-  }
 
   /**
    * Get a lookup of by pipeline id to pipeline number.
@@ -506,93 +370,20 @@ public class PadPipelineService implements ApplicationFormSectionService {
     return newPadPipeline;
   }
 
-  public boolean canImportConsentedPipelines(PwaApplicationDetail pwaApplicationDetail) {
-    PwaApplicationType[] appTypes = ModifyPipelineController.class.getAnnotation(PwaApplicationTypeCheck.class).types();
-    return Arrays.asList(appTypes).contains(pwaApplicationDetail.getPwaApplicationType());
+  public boolean isPadPipelineValid(PadPipeline padPipeline, PwaApplicationType pwaApplicationType) {
+    if (isValidationRequiredByStatus(padPipeline.getPipelineStatus())) {
+      var form = new PipelineHeaderForm();
+      mapEntityToForm(form, padPipeline);
+      var bindingResult = new BeanPropertyBindingResult(form, "form");
+      var validationHints = new PipelineHeaderValidationHints(
+          padPipeline.getPipelineStatus(), canShowAlreadyExistsOnSeabedQuestions(padPipeline, pwaApplicationType));
+      pipelineHeaderFormValidator.validate(form, bindingResult, validationHints);
+      return !bindingResult.hasErrors();
+    }
+    return true;
   }
 
-  @VisibleForTesting
-  boolean doesPipelineHaveTasks(PadPipelineSummaryDto padPipelineSummaryDto) {
-    return DATA_REQUIRED_STATUSES.contains(padPipelineSummaryDto.getPipelineStatus());
-  }
-
-  @Override
-  public void cleanupData(PwaApplicationDetail detail) {
-
-    var updatedPipelinesList = getPipelines(detail).stream()
-        .filter(pipe -> DATA_REQUIRED_STATUSES.contains(pipe.getPipelineStatus()))
-        .peek(padPipeline -> {
-
-          if (!padPipeline.getTrenchedBuriedBackfilled()) {
-            padPipeline.setTrenchingMethodsDescription(null);
-          }
-
-          if (!padPipeline.getPipelineMaterial().equals(PipelineMaterial.OTHER)) {
-            padPipeline.setOtherPipelineMaterialUsed(null);
-          }
-
-        })
-        .collect(Collectors.toList());
-
-    padPipelineRepository.saveAll(updatedPipelinesList);
-
-  }
-
-  public SummaryScreenValidationResult getValidationResult(PwaApplicationDetail detail) {
-
-    Map<String, String> invalidPipelines = new LinkedHashMap<>();
-
-    // get sorted pipeline overviews so we can use the pipe name in the error messages
-    var overviews = getApplicationPipelineOverviews(detail);
-    var padPipelineMap = getPadPipelineMapForOverviews(detail, overviews);
-
-    // get all of the idents for the pipelines on the app, grouped by pad pipeline id
-    var padPipelineIdToIdentListMap = padPipelineIdentService.getAllIdentsByPadPipelineIds(
-        List.copyOf(padPipelineMap.keySet()))
-        .stream()
-        .collect(Collectors.groupingBy(ident -> new PadPipelineId(ident.getPadPipeline().getId())));
-
-    overviews.forEach(pipelineOverview -> {
-
-      var padPipeline = padPipelineMap.get(new PadPipelineId(pipelineOverview.getPadPipelineId()));
-      var padPipelineId = new PadPipelineId(pipelineOverview.getPadPipelineId());
-      boolean pipelineComplete = isPadPipelineValid(padPipeline, detail.getPwaApplicationType());
-
-      var idents = padPipelineIdToIdentListMap.getOrDefault(padPipelineId, List.of());
-
-      // validate each ident on the pipeline, if one is invalid, the whole pipeline is incomplete
-      if (isValidationRequired(padPipeline)) {
-        for (var ident : idents) {
-          var identForm = new PipelineIdentForm();
-          padPipelineIdentService.mapEntityToForm(ident, identForm);
-          BindingResult bindingResult = new BeanPropertyBindingResult(identForm, "form");
-          pipelineIdentFormValidator.validate(identForm, bindingResult, detail, pipelineOverview.getCoreType());
-          if (bindingResult.hasErrors()) {
-            pipelineComplete = false;
-          }
-        }
-      }
-
-      // if the pipeline has invalid idents (or no idents), it is invalid
-      if (!pipelineComplete || idents.isEmpty()) {
-        invalidPipelines.put(String.valueOf(padPipelineId.asInt()), pipelineOverview.getPipelineName());
-      }
-
-    });
-
-    // section is complete if there's at least 1 pipeline, and no invalid pipelines
-    boolean sectionComplete = !padPipelineIdToIdentListMap.isEmpty() && invalidPipelines.isEmpty();
-
-    String sectionIncompleteError = !sectionComplete
-        ? "At least one pipeline must be added with valid header information. Each pipeline must have at least one valid ident." : null;
-
-    return new SummaryScreenValidationResult(invalidPipelines, "pipeline", "must have all sections completed",
-        sectionComplete,
-        sectionIncompleteError);
-  }
-
-  @VisibleForTesting
-  Map<PadPipelineId, PadPipeline> getPadPipelineMapForOverviews(PwaApplicationDetail detail,
+  public Map<PadPipelineId, PadPipeline> getPadPipelineMapForOverviews(PwaApplicationDetail detail,
                                                                 Collection<PipelineOverview> overviews) {
     List<Integer> pipelineIds = overviews.stream()
         .map(padPipelineOverview -> (PadPipelineOverview) padPipelineOverview)
@@ -606,9 +397,5 @@ public class PadPipelineService implements ApplicationFormSectionService {
         ));
   }
 
-  @Override
-  public void copySectionInformation(PwaApplicationDetail fromDetail, PwaApplicationDetail toDetail) {
-    padPipelineDataCopierService.copyAllPadPipelineData(fromDetail, toDetail, () -> getPipelines(fromDetail));
-  }
 
 }

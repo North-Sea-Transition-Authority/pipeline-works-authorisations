@@ -226,121 +226,6 @@ public class PipelinesControllerTest extends PwaApplicationContextAbstractContro
   }
 
   @Test
-  public void renderPipelinesOverview_permissionSmokeTest() {
-
-    endpointTester.setRequestMethod(HttpMethod.GET)
-        .setEndpointUrlProducer((applicationDetail, type) ->
-            ReverseRouter.route(on(PipelinesController.class)
-                .renderPipelinesOverview(applicationDetail.getMasterPwaApplicationId(), type, null)));
-
-    endpointTester.performAppPermissionCheck(status().isOk(), status().isForbidden());
-
-  }
-
-  @Test
-  public void renderPipelinesOverview_appTypeSmokeTest() {
-
-    endpointTester.setRequestMethod(HttpMethod.GET)
-        .setEndpointUrlProducer((applicationDetail, type) ->
-            ReverseRouter.route(on(PipelinesController.class)
-                .renderPipelinesOverview(applicationDetail.getMasterPwaApplicationId(), type, null)));
-
-    endpointTester.performAppTypeChecks(status().isOk(), status().isForbidden());
-
-  }
-
-  @Test
-  public void renderPipelinesOverview_appStatusSmokeTest() {
-
-    endpointTester.setRequestMethod(HttpMethod.GET)
-        .setEndpointUrlProducer((applicationDetail, type) ->
-            ReverseRouter.route(on(PipelinesController.class)
-                .renderPipelinesOverview(applicationDetail.getMasterPwaApplicationId(), type, null)));
-
-    endpointTester.performAppStatusChecks(status().isOk(), status().isNotFound());
-
-  }
-
-  @Test
-  public void postPipelinesOverview_permissionSmokeTest() {
-
-    when(padPipelineService.isComplete(any())).thenReturn(true);
-    when(padPipelineService.getValidationResult(any())).thenReturn(SummaryScreenValidationResultTestUtils.completeResult());
-
-    endpointTester.setRequestMethod(HttpMethod.POST)
-        .setEndpointUrlProducer((applicationDetail, type) ->
-            ReverseRouter.route(on(PipelinesController.class)
-                .postPipelinesOverview(applicationDetail.getMasterPwaApplicationId(), type, null)));
-
-    endpointTester.performAppPermissionCheck(status().is3xxRedirection(), status().isForbidden());
-
-  }
-
-  @Test
-  public void postPipelinesOverview_appTypeSmokeTest() {
-
-    when(padPipelineService.isComplete(any())).thenReturn(true);
-    when(padPipelineService.getValidationResult(any())).thenReturn(SummaryScreenValidationResultTestUtils.completeResult());
-
-    endpointTester.setRequestMethod(HttpMethod.POST)
-        .setEndpointUrlProducer((applicationDetail, type) ->
-            ReverseRouter.route(on(PipelinesController.class)
-                .postPipelinesOverview(applicationDetail.getMasterPwaApplicationId(), type, null)));
-
-    endpointTester.performAppTypeChecks(status().is3xxRedirection(), status().isForbidden());
-
-  }
-
-  @Test
-  public void postPipelinesOverview_appStatusSmokeTest() {
-
-    when(padPipelineService.isComplete(any())).thenReturn(true);
-    when(padPipelineService.getValidationResult(any())).thenReturn(SummaryScreenValidationResultTestUtils.completeResult());
-
-    endpointTester.setRequestMethod(HttpMethod.POST)
-        .setEndpointUrlProducer((applicationDetail, type) ->
-            ReverseRouter.route(on(PipelinesController.class)
-                .postPipelinesOverview(applicationDetail.getMasterPwaApplicationId(), type, null)));
-
-    endpointTester.performAppStatusChecks(status().is3xxRedirection(), status().isNotFound());
-
-  }
-
-  @Test
-  public void postPipelinesOverview_validationFail_pipelinesInvalid() throws Exception {
-
-    when(padPipelineService.isComplete(pwaApplicationDetail)).thenReturn(false);
-
-    when(padPipelineService.getValidationResult(pwaApplicationDetail)).thenReturn(
-        SummaryScreenValidationResultTestUtils.incompleteResult());
-
-    mockMvc.perform(post(ReverseRouter.route(on(PipelinesController.class)
-        .postPipelinesOverview(pwaApplicationDetail.getMasterPwaApplicationId(),
-            pwaApplicationDetail.getPwaApplicationType(), null)))
-        .with(authenticatedUserAndSession(user))
-        .with(csrf()))
-        .andExpect(status().isOk())
-        .andExpect(view().name("pwaApplication/shared/pipelines/overview"))
-        .andExpect(model().attributeExists("pipelineSummaryValidationResult"));
-
-  }
-
-  @Test
-  public void postPipelinesOverview_validationPass() throws Exception {
-
-    when(padPipelineService.isComplete(pwaApplicationDetail)).thenReturn(true);
-    when(padPipelineService.getValidationResult(any())).thenReturn(SummaryScreenValidationResultTestUtils.completeResult());
-
-    mockMvc.perform(post(ReverseRouter.route(on(PipelinesController.class)
-        .postPipelinesOverview(pwaApplicationDetail.getMasterPwaApplicationId(),
-            pwaApplicationDetail.getPwaApplicationType(), null)))
-        .with(authenticatedUserAndSession(user))
-        .with(csrf()))
-        .andExpect(status().is3xxRedirection());
-
-  }
-
-  @Test
   public void renderRemovePipeline_permissionSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.GET)
@@ -385,8 +270,8 @@ public class PipelinesControllerTest extends PwaApplicationContextAbstractContro
   @Test
   public void postRemovePipeline_permissionSmokeTest() {
 
-    when(padPipelineService.isComplete(any())).thenReturn(true);
-    when(padPipelineService.getValidationResult(any())).thenReturn(SummaryScreenValidationResultTestUtils.completeResult());
+//    when(padPipelineService.isComplete(any())).thenReturn(true);
+//    when(padPipelineService.getValidationResult(any())).thenReturn(SummaryScreenValidationResultTestUtils.completeResult());
 
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) -> {
@@ -404,8 +289,8 @@ public class PipelinesControllerTest extends PwaApplicationContextAbstractContro
   @Test
   public void postRemovePipeline_appTypeSmokeTest() {
 
-    when(padPipelineService.isComplete(any())).thenReturn(true);
-    when(padPipelineService.getValidationResult(any())).thenReturn(SummaryScreenValidationResultTestUtils.completeResult());
+//    when(padPipelineService.isComplete(any())).thenReturn(true);
+//    when(padPipelineService.getValidationResult(any())).thenReturn(SummaryScreenValidationResultTestUtils.completeResult());
 
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) -> {
@@ -423,8 +308,8 @@ public class PipelinesControllerTest extends PwaApplicationContextAbstractContro
   @Test
   public void postRemovePipeline_appStatusSmokeTest() {
 
-    when(padPipelineService.isComplete(any())).thenReturn(true);
-    when(padPipelineService.getValidationResult(any())).thenReturn(SummaryScreenValidationResultTestUtils.completeResult());
+//    when(padPipelineService.isComplete(any())).thenReturn(true);
+//    when(padPipelineService.getValidationResult(any())).thenReturn(SummaryScreenValidationResultTestUtils.completeResult());
 
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) -> {

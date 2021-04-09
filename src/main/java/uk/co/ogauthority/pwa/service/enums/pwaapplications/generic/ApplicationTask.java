@@ -48,6 +48,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits.De
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits.PermanentDepositService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.PadPipelinesHuooService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.tasklist.PadPipelineTaskListService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinetechinfo.PadDesignOpConditionsService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinetechinfo.PadFluidCompositionInfoService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinetechinfo.PadPipelineOtherPropertiesService;
@@ -141,7 +142,7 @@ public enum ApplicationTask implements GeneralPurposeApplicationTask {
   PIPELINES(
       "Pipelines",
       PipelinesController.class,
-      PadPipelineService.class,
+      PadPipelineTaskListService.class,
       70, 70
   ),
 

@@ -38,6 +38,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbServic
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.tasklist.PadPipelineTaskListService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineControllerRouteUtils;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineHeaderFormValidator;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineHeaderValidationHints;
@@ -62,6 +63,9 @@ public class PipelinesController {
 
   private final PadPipelineService padPipelineService;
   private final PipelineRemovalService pipelineRemovalService;
+
+  private final PadPipelineTaskListService padPipelineTaskListService;
+
   private final ApplicationBreadcrumbService breadcrumbService;
   private final PipelineHeaderFormValidator pipelineHeaderFormValidator;
   private final PwaApplicationRedirectService applicationRedirectService;
@@ -70,12 +74,14 @@ public class PipelinesController {
   @Autowired
   public PipelinesController(PadPipelineService padPipelineService,
                              PipelineRemovalService pipelineRemovalService,
+                             PadPipelineTaskListService padPipelineTaskListService,
                              ApplicationBreadcrumbService breadcrumbService,
                              PipelineHeaderFormValidator pipelineHeaderFormValidator,
                              PwaApplicationRedirectService applicationRedirectService,
                              ControllerHelperService controllerHelperService) {
     this.padPipelineService = padPipelineService;
     this.pipelineRemovalService = pipelineRemovalService;
+    this.padPipelineTaskListService = padPipelineTaskListService;
     this.breadcrumbService = breadcrumbService;
     this.pipelineHeaderFormValidator = pipelineHeaderFormValidator;
     this.applicationRedirectService = applicationRedirectService;
@@ -85,11 +91,11 @@ public class PipelinesController {
   private ModelAndView getOverviewModelAndView(PwaApplicationDetail detail) {
 
     var modelAndView = new ModelAndView("pwaApplication/shared/pipelines/overview")
-        .addObject("pipelineTaskListItems", padPipelineService.getPipelineTaskListItems(detail).stream()
+        .addObject("pipelineTaskListItems", padPipelineTaskListService.getPipelineTaskListItems(detail).stream()
             .sorted(Comparator.comparing(PipelineOverview::getPipelineNumber))
             .collect(Collectors.toList()))
         .addObject("pipelineUrlFactory", new PipelineUrlFactory(detail))
-        .addObject("canImportConsentedPipeline", padPipelineService.canImportConsentedPipelines(detail))
+        .addObject("canImportConsentedPipeline", padPipelineTaskListService.canImportConsentedPipelines(detail))
         .addObject("taskListUrl", applicationRedirectService.getTaskListRoute(detail.getPwaApplication()));
 
     breadcrumbService.fromTaskList(detail.getPwaApplication(), modelAndView, "Pipelines");
@@ -101,37 +107,10 @@ public class PipelinesController {
   private ModelAndView getRemovePipelineModelAndView(PwaApplicationDetail detail, PadPipeline padPipeline) {
     var modelAndView = new ModelAndView("pwaApplication/shared/pipelines/removePipeline")
         .addObject("pipeline", padPipelineService.getPipelineOverview(padPipeline))
-        .addObject("backUrl", ReverseRouter.route(on(PipelinesController.class)
+        .addObject("backUrl", ReverseRouter.route(on(PipelinesTaskListController.class)
             .renderPipelinesOverview(detail.getMasterPwaApplicationId(), detail.getPwaApplicationType(), null)));
     breadcrumbService.fromPipelinesOverview(detail.getPwaApplication(), modelAndView, "Remove pipeline");
     return modelAndView;
-  }
-
-  @GetMapping
-  public ModelAndView renderPipelinesOverview(@PathVariable("applicationId") Integer applicationId,
-                                              @PathVariable("applicationType")
-                                              @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
-                                              PwaApplicationContext applicationContext) {
-    return getOverviewModelAndView(applicationContext.getApplicationDetail());
-  }
-
-  @PostMapping
-  public ModelAndView postPipelinesOverview(@PathVariable("applicationId") Integer applicationId,
-                                            @PathVariable("applicationType")
-                                            @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
-                                            PwaApplicationContext applicationContext) {
-
-    var detail = applicationContext.getApplicationDetail();
-
-    var pipelineSummaryValidationResult = padPipelineService.getValidationResult(detail);
-
-    if (!pipelineSummaryValidationResult.isSectionComplete()) {
-      return getOverviewModelAndView(applicationContext.getApplicationDetail())
-          .addObject("pipelineSummaryValidationResult", pipelineSummaryValidationResult);
-    }
-
-    return applicationRedirectService.getTaskListRedirect(applicationContext.getPwaApplication());
-
   }
 
   private ModelAndView getAddEditPipelineModelAndView(PwaApplicationDetail detail, ScreenActionType type,
@@ -142,7 +121,7 @@ public class PipelinesController {
             .collect(StreamUtils.toLinkedHashMap(Enum::name, PipelineType::getDisplayName)))
         .addObject("longDirections", LongitudeDirection.stream()
             .collect(StreamUtils.toLinkedHashMap(Enum::name, LongitudeDirection::getDisplayText)))
-        .addObject("cancelUrl", ReverseRouter.route(on(PipelinesController.class)
+        .addObject("cancelUrl", ReverseRouter.route(on(PipelinesTaskListController.class)
             .renderPipelinesOverview(detail.getMasterPwaApplicationId(), detail.getPwaApplicationType(), null)))
         .addObject("screenActionType", type)
         .addObject("pipelineFlexibilityTypes", PipelineFlexibility.asList())
@@ -192,7 +171,7 @@ public class PipelinesController {
           padPipelineService.addPipeline(applicationContext.getApplicationDetail(), form);
 
           return ReverseRouter.redirect(
-              on(PipelinesController.class).renderPipelinesOverview(applicationId, pwaApplicationType, null));
+              on(PipelinesTaskListController.class).renderPipelinesOverview(applicationId, pwaApplicationType, null));
 
         });
 
@@ -241,7 +220,7 @@ public class PipelinesController {
           () -> {
             padPipelineService.updatePipeline(padPipeline, form);
             return ReverseRouter.redirect(
-                on(PipelinesController.class).renderPipelinesOverview(applicationId, pwaApplicationType, null));
+                on(PipelinesTaskListController.class).renderPipelinesOverview(applicationId, pwaApplicationType, null));
           });
     });
 
@@ -264,7 +243,7 @@ public class PipelinesController {
                                          @PathVariable("padPipelineId") Integer padPipelineId,
                                          PwaApplicationContext applicationContext) {
     pipelineRemovalService.removePipeline(applicationContext.getPadPipeline());
-    return ReverseRouter.redirect(on(PipelinesController.class)
+    return ReverseRouter.redirect(on(PipelinesTaskListController.class)
         .renderPipelinesOverview(applicationId, pwaApplicationType, null));
   }
 

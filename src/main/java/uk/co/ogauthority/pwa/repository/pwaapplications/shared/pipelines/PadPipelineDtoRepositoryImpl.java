@@ -137,6 +137,13 @@ public class PadPipelineDtoRepositoryImpl implements PadPipelineDtoRepository {
   }
 
   @Override
+  public List<PadPipelineSummaryDto> findAllPipelinesAsSummaryDtoByPwaApplicationDetail(PwaApplicationDetail detail) {
+
+    return getPipelineSummaryDtosByAppDetailAndOptionalPadPipeline(detail, null);
+
+  }
+
+  @Override
   public Long countAllWithNoIdentsByPwaApplicationDetail(PwaApplicationDetail pwaApplicationDetail) {
     return entityManager.createQuery("" +
         "SELECT COUNT(pp) " +
