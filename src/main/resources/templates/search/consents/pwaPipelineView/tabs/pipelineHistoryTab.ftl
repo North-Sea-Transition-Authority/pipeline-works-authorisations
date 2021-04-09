@@ -2,16 +2,19 @@
 <#include '../../../../layout.ftl'>
 
 <#-- @ftlvariable name="diffedPipelineSummaryModel" type="java.util.Map<java.lang.String, Object>" -->
+<#-- @ftlvariable name="viewPwaPipelineUrl" type="java.lang.String" -->
+<#-- @ftlvariable name="pipelinesVersionSearchSelectorItems" type="java.util.Map<java.lang.String, java.lang.String>" -->
 
 
 <#macro tab diffedPipelineSummaryModel=[]>
 
-    <@fdsForm.htmlForm>
+    <@fdsForm.htmlForm actionUrl=springUrl(viewPwaPipelineUrl)>
         <@fdsSearchSelector.searchSelectorEnhanced path="form.pipelineDetailId" options=pipelinesVersionSearchSelectorItems labelText="Select version" />
 
         <@fdsAction.button buttonText="Show version"/>
     </@fdsForm.htmlForm>
 
+    <@diffChanges.toggler/>
 
     <#if diffedPipelineSummaryModel?has_content>
 
