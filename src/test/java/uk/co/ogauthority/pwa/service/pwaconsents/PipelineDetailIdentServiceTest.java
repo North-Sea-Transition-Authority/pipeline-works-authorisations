@@ -76,6 +76,33 @@ public class PipelineDetailIdentServiceTest {
 
   }
 
+  @Test
+  public void getSortedPipelineIdentViewsForPipelineDetail_sortsIdentsByNumber() {
+
+    var identData = List.of(
+        createPipelineIdentData(PIPELINE_ID, 2),
+        createPipelineIdentData(PIPELINE_ID, 1)
+    );
+
+    var idents = identData.stream()
+        .map(PipelineDetailIdentData::getPipelineDetailIdent)
+        .collect(toList());
+
+    var pipelineDetailId = 1;
+
+    when(pipelineDetailIdentRepository.findAllByPipelineDetail_id(pipelineDetailId)).thenReturn(idents);
+
+    when(pipelineDetailIdentDataRepository.getAllByPipelineDetailIdentIn(any())).thenReturn(identData);
+
+    var identViews = pipelineDetailIdentService.getSortedPipelineIdentViewsForPipelineDetail(PIPELINE_ID, pipelineDetailId);
+
+    assertThat(identViews).hasSize(2);
+
+    assertThat(identViews.get(0).getIdentNumber()).isEqualTo(1);
+    assertThat(identViews.get(1).getIdentNumber()).isEqualTo(2);
+
+  }
+
   private PipelineDetailIdentData createPipelineIdentData(PipelineId pipelineId, int identNumber) {
     var pipeline = new Pipeline();
     pipeline.setId(pipelineId.asInt());

@@ -60,4 +60,15 @@ public class PipelineDetailIdentService {
     );
   }
 
+  @Transactional(readOnly = true) // just a hint, not guaranteed to be enforced read only.
+  public List<IdentView> getSortedPipelineIdentViewsForPipelineDetail(PipelineId pipelineId, Integer pipelineDetailId) {
+    var pipelineIdToSortedIdentViewsMap = pipelineIdentViewCollectorService.getPipelineIdToIdentVewsMap(
+        PipelineDetailIdent.class,
+        PipelineDetailIdentData.class,
+        () -> pipelineDetailIdentRepository.findAllByPipelineDetail_id(pipelineDetailId),
+        pipelineDetailIdentDataRepository::getAllByPipelineDetailIdentIn
+    );
+    return pipelineIdToSortedIdentViewsMap.get(pipelineId);
+  }
+
 }
