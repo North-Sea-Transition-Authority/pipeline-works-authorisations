@@ -18,7 +18,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
-import uk.co.ogauthority.pwa.model.dto.appprocessing.ApplicationInvolvementDto;
 import uk.co.ogauthority.pwa.model.dto.appprocessing.ApplicationInvolvementDtoTestUtil;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
@@ -29,7 +28,6 @@ import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingConte
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingTask;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.TaskRequirement;
-import uk.co.ogauthority.pwa.service.enums.appprocessing.appinvolvement.OpenConsentReview;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.testutils.PwaAppProcessingContextDtoTestUtils;
@@ -179,17 +177,15 @@ public class PwaAppProcessingTaskListServiceTest {
 
   @Test
   @Transactional
-  public void getTaskListGroups_entriesLockedWhenOpenConsentReview() {
+  public void getTaskListGroups_entriesLockedWhenOpenConsentReview_andIsCaseOfficer() {
 
-    var appInvolvement = new ApplicationInvolvementDto(
+    var appInvolvement = ApplicationInvolvementDtoTestUtil.fromInvolvementFlags(
         pwaApplicationDetail.getPwaApplication(),
-        Set.of(),
-        null,
-        true,
-        false,
-        true,
-        Set.of(),
-        OpenConsentReview.YES);
+        Set.of(
+            ApplicationInvolvementDtoTestUtil.InvolvementFlag.CASE_OFFICER_STAGE_AND_USER_ASSIGNED,
+            ApplicationInvolvementDtoTestUtil.InvolvementFlag.AT_LEAST_ONE_SATISFACTORY_VERSION,
+            ApplicationInvolvementDtoTestUtil.InvolvementFlag.OPEN_CONSENT_REVIEW)
+    );
 
     processingContext = new PwaAppProcessingContext(
         pwaApplicationDetail,
@@ -217,14 +213,16 @@ public class PwaAppProcessingTaskListServiceTest {
 
   @Test
   @Transactional
-  public void getTaskListGroups_entriesLockedWhenIndustry() {
+  public void getTaskListGroups_entriesLockedWhenIndustry_appContact() {
 
     processingContext = new PwaAppProcessingContext(
         pwaApplicationDetail,
         null,
         EnumSet.of(PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY),
         null,
-        ApplicationInvolvementDtoTestUtil.generatePwaContactInvolvement(pwaApplicationDetail.getPwaApplication(), Set.of(PwaContactRole.PREPARER))
+        ApplicationInvolvementDtoTestUtil.generatePwaContactInvolvement(
+            pwaApplicationDetail.getPwaApplication(),
+            Set.of(PwaContactRole.PREPARER))
     );
 
     var taskListGroups = taskListService.getTaskListGroups(processingContext);
