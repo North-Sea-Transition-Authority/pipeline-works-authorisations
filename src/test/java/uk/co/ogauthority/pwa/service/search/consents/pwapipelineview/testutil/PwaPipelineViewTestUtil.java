@@ -1,10 +1,8 @@
 package uk.co.ogauthority.pwa.service.search.consents.pwapipelineview.testutil;
 
-import java.math.BigDecimal;
-import java.time.Instant;
 import java.util.List;
-import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
-import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineStatus;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
@@ -20,9 +18,9 @@ import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineDi
 public class PwaPipelineViewTestUtil {
 
 
+  private static final Logger LOGGER = LoggerFactory.getLogger(PwaPipelineViewTestUtil.class);
+
   private PwaPipelineViewTestUtil(){}
-
-
 
 
   public static PipelineDiffableSummary createPipelineDiffableSummary(int pipelineId) {
@@ -56,34 +54,13 @@ public class PwaPipelineViewTestUtil {
       identView = new IdentView(identData);
 
     } catch (IllegalAccessException e) {
-      e.printStackTrace();
+      LOGGER.debug("Unable to create pad pipeline via the PadPipelineTestUtil");
     }
 
 
     return PipelineDiffableSummary.from(new PipelineHeaderView(pipelineDetail), List.of(identView), null);
   }
 
-
-
-  public static PipelineDetail createPipelineDetail(Integer id, PipelineId pipelineId, Instant startTimestamp) {
-
-    var pipeline = new Pipeline();
-    pipeline.setId(pipelineId.asInt());
-    var pipelineDetail = new PipelineDetail(pipeline);
-    pipelineDetail.setId(id);
-    pipelineDetail.setStartTimestamp(startTimestamp);
-    pipelineDetail.setPwaConsent(new PwaConsent());
-    pipelineDetail.setPipelineType(PipelineType.PRODUCTION_FLOWLINE);
-    pipelineDetail.setMaxExternalDiameter(BigDecimal.valueOf(100));
-    pipelineDetail.setPipelineStatus(PipelineStatus.IN_SERVICE);
-    return pipelineDetail;
-  }
-
-  public static PipelineDetail createPipelineDetail(Integer id, PipelineId pipelineId, Instant startTimestamp, PwaConsent pwaConsent) {
-    var pipelineDetail = createPipelineDetail(id, pipelineId, startTimestamp);
-    pipelineDetail.setPwaConsent(pwaConsent);
-    return pipelineDetail;
-  }
 
   public static PwaConsent createPwaConsent(String reference) {
     var pwaConsent = new PwaConsent();

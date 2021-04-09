@@ -18,6 +18,7 @@ import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.PipelinesSummaryService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineDiffableSummaryService;
 import uk.co.ogauthority.pwa.service.pwaconsents.PipelineDetailService;
+import uk.co.ogauthority.pwa.service.pwaconsents.testutil.PipelineDetailTestUtil;
 import uk.co.ogauthority.pwa.service.search.consents.pwapipelineview.testutil.PwaPipelineViewTestUtil;
 import uk.co.ogauthority.pwa.util.DateUtils;
 
@@ -59,9 +60,9 @@ public class PwaPipelineHistoryViewServiceTest {
   @Test
   public void getPipelinesVersionSearchSelectorItems_onlyPipelinesChangedOnSameDayHaveOrderTag_itemsAreOrderedLatestFirst() {
 
-    var pipelineDetailCreatedTodayAfternoon = PwaPipelineViewTestUtil.createPipelineDetail(PIPELINE_DETAIL_ID3, PIPELINE_ID, TODAY_AFTERNOON);
-    var pipelineDetailCreatedTodayMorning = PwaPipelineViewTestUtil.createPipelineDetail(PIPELINE_DETAIL_ID2, PIPELINE_ID, TODAY_MORNING);
-    var pipelineDetailCreatedYesterday = PwaPipelineViewTestUtil.createPipelineDetail(PIPELINE_DETAIL_ID1, PIPELINE_ID, YESTERDAY);
+    var pipelineDetailCreatedTodayAfternoon = PipelineDetailTestUtil.createPipelineDetail(PIPELINE_DETAIL_ID3, PIPELINE_ID, TODAY_AFTERNOON);
+    var pipelineDetailCreatedTodayMorning = PipelineDetailTestUtil.createPipelineDetail(PIPELINE_DETAIL_ID2, PIPELINE_ID, TODAY_MORNING);
+    var pipelineDetailCreatedYesterday = PipelineDetailTestUtil.createPipelineDetail(PIPELINE_DETAIL_ID1, PIPELINE_ID, YESTERDAY);
 
     when(pipelineDetailService.getAllPipelineDetailsForPipeline(PIPELINE_ID)).thenReturn(
         List.of(pipelineDetailCreatedYesterday, pipelineDetailCreatedTodayAfternoon, pipelineDetailCreatedTodayMorning));
@@ -88,8 +89,8 @@ public class PwaPipelineHistoryViewServiceTest {
   @Test
   public void getPipelinesVersionSearchSelectorItems_consentReferenceDisplayedWhenAvailable_onlyLatestPipelineVersionHasLatestVersionText() {
     
-    var pipelineDetailNoConsentRef = PwaPipelineViewTestUtil.createPipelineDetail(PIPELINE_DETAIL_ID2, PIPELINE_ID, YESTERDAY);
-    var pipelineDetailHasConsentRef = PwaPipelineViewTestUtil.createPipelineDetail(
+    var pipelineDetailNoConsentRef = PipelineDetailTestUtil.createPipelineDetail(PIPELINE_DETAIL_ID2, PIPELINE_ID, YESTERDAY);
+    var pipelineDetailHasConsentRef = PipelineDetailTestUtil.createPipelineDetail(
         PIPELINE_DETAIL_ID1, PIPELINE_ID, TODAY_MORNING, PwaPipelineViewTestUtil.createPwaConsent("178/V/11"));
 
     when(pipelineDetailService.getAllPipelineDetailsForPipeline(PIPELINE_ID)).thenReturn(
@@ -108,8 +109,8 @@ public class PwaPipelineHistoryViewServiceTest {
   @Test
   public void getDiffedPipelineSummaryModel_hasPreviousVersion_selectedVersionDiffedAgainstPrevious() {
 
-    var pipelineDetailForSelectedVersion = PwaPipelineViewTestUtil.createPipelineDetail(PIPELINE_DETAIL_ID1, PIPELINE_ID, TODAY_MORNING);
-    var pipelineDetailForPreviousVersion = PwaPipelineViewTestUtil.createPipelineDetail(PIPELINE_DETAIL_ID2, PIPELINE_ID, YESTERDAY);
+    var pipelineDetailForSelectedVersion = PipelineDetailTestUtil.createPipelineDetail(PIPELINE_DETAIL_ID1, PIPELINE_ID, TODAY_MORNING);
+    var pipelineDetailForPreviousVersion = PipelineDetailTestUtil.createPipelineDetail(PIPELINE_DETAIL_ID2, PIPELINE_ID, YESTERDAY);
     when(pipelineDetailService.getAllPipelineDetailsForPipeline(PIPELINE_ID)).thenReturn(
         List.of(pipelineDetailForSelectedVersion, pipelineDetailForPreviousVersion));
 
@@ -127,7 +128,7 @@ public class PwaPipelineHistoryViewServiceTest {
   @Test
   public void getDiffedPipelineSummaryModel_doesNotHavePreviousVersion_selectedVersionDiffedAgainstItself() {
 
-    var pipelineDetailForSelectedVersion = PwaPipelineViewTestUtil.createPipelineDetail(PIPELINE_DETAIL_ID1, PIPELINE_ID, TODAY_MORNING);
+    var pipelineDetailForSelectedVersion = PipelineDetailTestUtil.createPipelineDetail(PIPELINE_DETAIL_ID1, PIPELINE_ID, TODAY_MORNING);
     when(pipelineDetailService.getAllPipelineDetailsForPipeline(PIPELINE_ID)).thenReturn(
         List.of(pipelineDetailForSelectedVersion));
 
