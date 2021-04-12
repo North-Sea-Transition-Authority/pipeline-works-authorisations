@@ -1,9 +1,9 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.tasklist;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.entry;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyVararg;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.times;
@@ -11,12 +11,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -24,34 +22,22 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.security.util.FieldUtils;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.ObjectError;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTypeCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelines.ModifyPipelineController;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PadPipelineId;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PadPipelineSummaryDto;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PadPipelineSummaryDtoTestUtils;
-import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
-import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineHeaderFormContext;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineMaterial;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineStatus;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
-import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipelineIdent;
 import uk.co.ogauthority.pwa.model.form.fds.ErrorItem;
-import uk.co.ogauthority.pwa.model.form.location.CoordinateForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.ModifyPipelineForm;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.PipelineHeaderForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PadPipelineOverview;
-import uk.co.ogauthority.pwa.model.location.CoordinatePair;
-import uk.co.ogauthority.pwa.model.location.LatitudeCoordinate;
-import uk.co.ogauthority.pwa.model.location.LongitudeCoordinate;
-import uk.co.ogauthority.pwa.repository.pipelines.PipelineBundlePairDto;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.pipelines.PadPipelineRepository;
 import uk.co.ogauthority.pwa.service.enums.location.LatitudeDirection;
 import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
@@ -59,15 +45,11 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.location.CoordinateFormValidator;
 import uk.co.ogauthority.pwa.service.pwaapplications.options.PadOptionConfirmedService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineIdentService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelinePersisterService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineHeaderFormValidator;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineIdentDataFormValidator;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineIdentFormValidator;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineService;
-import uk.co.ogauthority.pwa.service.pwaconsents.PipelineDetailService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
-import uk.co.ogauthority.pwa.util.CoordinateUtils;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PadPipelineTaskListServiceTest {
@@ -81,16 +63,7 @@ public class PadPipelineTaskListServiceTest {
   private PipelineService pipelineService;
 
   @Mock
-  private PipelineDetailService pipelineDetailService;
-
-  @Mock
-  private PadPipelinePersisterService padPipelinePersisterService;
-
-  @Mock
   private PadPipelineDataCopierService padPipelineDataCopierService;
-
-  @Mock
-  private PipelineHeaderFormValidator pipelineHeaderFormValidator;
 
   @Mock
   private PadOptionConfirmedService padOptionConfirmedService;
@@ -99,13 +72,10 @@ public class PadPipelineTaskListServiceTest {
   private PadPipelineIdentService padPipelineIdentService;
 
   @Mock
-  private PipelineIdentFormValidator mockValidator;
+  private PipelineIdentFormValidator mockIdentFormValidator;
 
   @Mock
   private PadPipelineService padPipelineService;
-
-  @Captor
-  private ArgumentCaptor<PadPipeline> padPipelineArgumentCaptor;
 
   @Captor
   private ArgumentCaptor<List<PadPipeline>> padPipelineListArgCaptor;
@@ -127,14 +97,6 @@ public class PadPipelineTaskListServiceTest {
 
     modifyPipelineForm = new ModifyPipelineForm();
 
-    // mimic save of new pipeline behaviour.
-    when(pipelineService.createApplicationPipeline(any())).thenAnswer(invocation -> {
-      var app = (PwaApplication) invocation.getArgument(0);
-      var pipeline = new Pipeline(app);
-      pipeline.setId(PIPELINE_ID);
-      return pipeline;
-    });
-
     detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     pipelineIdentFormValidator = new PipelineIdentFormValidator(new PipelineIdentDataFormValidator(),
         new CoordinateFormValidator());
@@ -152,6 +114,7 @@ public class PadPipelineTaskListServiceTest {
     padPipe1.setPipelineInBundle(false);
     padPipe1.setPipelineRef("TEMPORARY 1");
     padPipe1.setPipelineStatus(PipelineStatus.IN_SERVICE);
+    padPipe1.setPipelineType(PipelineType.PRODUCTION_FLOWLINE);
 
     pipe1 = new Pipeline();
     pipe1.setId(1);
@@ -160,23 +123,26 @@ public class PadPipelineTaskListServiceTest {
     ident = new PadPipelineIdent();
     ident.setPadPipeline(padPipe1);
 
-    when(padPipelineRepository.getAllByPwaApplicationDetailAndIdIn(detail, List.of(1)))
-        .thenReturn(List.of(padPipe1));
-
   }
 
   @Test
-  public void isComplete() {
+  public void isComplete_whenValidatorCreatesNoErrors() {
+
+    // Use mock ident validator instead of real one.
+    padPipelineTaskListService = new PadPipelineTaskListService(
+        padPipelineService,
+        padPipelineIdentService,
+        padOptionConfirmedService,
+        padPipelineRepository,
+        mockIdentFormValidator,
+        padPipelineDataCopierService);
 
     // no errors on validate
-    doAnswer(invocation -> invocation.getArgument(1)).when(mockValidator).validate(any(), any(), any());
+    doAnswer(invocation -> invocation.getArgument(1)).when(mockIdentFormValidator).validate(any(), any(), any());
 
-    when(padPipelineRepository.findAllPipelinesAsSummaryDtoByPwaApplicationDetail(detail)).thenReturn(List.of(
-        PadPipelineSummaryDtoTestUtils.generateFrom(padPipe1)
-    ));
+    mockPipelineWithOneIdent();
 
-    when(padPipelineIdentService.getAllIdentsByPadPipelineIds(eq(List.of(new PadPipelineId(1))))).thenReturn(
-        List.of(ident));
+    when(padPipelineService.isValidationRequiredByStatus(any())).thenReturn(true);
 
     var validationResult = padPipelineTaskListService.getValidationResult(detail);
     var isComplete = padPipelineTaskListService.isComplete(detail);
@@ -217,7 +183,8 @@ public class PadPipelineTaskListServiceTest {
     pipeline2.setOtherPipelineMaterialUsed("other");
     pipeline2.setPipelineStatus(PipelineStatus.OUT_OF_USE_ON_SEABED);
 
-    when(padPipelineRepository.getAllByPwaApplicationDetail(detail)).thenReturn(List.of(pipeline1, pipeline2));
+    when(padPipelineService.getPipelines(detail)).thenReturn(List.of(pipeline1, pipeline2));
+    when(padPipelineService.isValidationRequiredByStatus(any())).thenReturn(true);
 
     padPipelineTaskListService.cleanupData(detail);
 
@@ -248,7 +215,8 @@ public class PadPipelineTaskListServiceTest {
     pipeline2.setOtherPipelineMaterialUsed("other");
     pipeline2.setPipelineStatus(PipelineStatus.OUT_OF_USE_ON_SEABED);
 
-    when(padPipelineRepository.getAllByPwaApplicationDetail(detail)).thenReturn(List.of(pipeline1, pipeline2));
+    when(padPipelineService.getPipelines(detail)).thenReturn(List.of(pipeline1, pipeline2));
+    when(padPipelineService.isValidationRequiredByStatus(any())).thenReturn(true);
 
     padPipelineTaskListService.cleanupData(detail);
 
@@ -271,7 +239,8 @@ public class PadPipelineTaskListServiceTest {
     var pipeline2 = new PadPipeline();
     pipeline2.setPipelineStatus(PipelineStatus.NEVER_LAID);
 
-    when(padPipelineRepository.getAllByPwaApplicationDetail(detail)).thenReturn(List.of(pipeline1, pipeline2));
+    when(padPipelineService.getPipelines(detail)).thenReturn(List.of(pipeline1, pipeline2));
+    when(padPipelineService.isValidationRequiredByStatus(any())).thenReturn(false);
 
     padPipelineTaskListService.cleanupData(detail);
 
@@ -286,17 +255,23 @@ public class PadPipelineTaskListServiceTest {
   @Test
   public void getValidationResult_noErrors() {
 
-    // no errors on validate
-    doAnswer(invocation -> invocation.getArgument(1)).when(mockValidator).validate(any(), any(), any());
+    // Use mock ident validator instead of real one.
+    padPipelineTaskListService = new PadPipelineTaskListService(
+        padPipelineService,
+        padPipelineIdentService,
+        padOptionConfirmedService,
+        padPipelineRepository,
+        mockIdentFormValidator,
+        padPipelineDataCopierService);
 
-    when(padPipelineRepository.findAllPipelinesAsSummaryDtoByPwaApplicationDetail(detail)).thenReturn(List.of(
-        PadPipelineSummaryDtoTestUtils.generateFrom(padPipe1)
-    ));
+    mockPipelineWithOneIdent();
 
-    when(padPipelineIdentService.getAllIdentsByPadPipelineIds(eq(List.of(new PadPipelineId(1))))).thenReturn(
-        List.of(ident));
+    when(padPipelineService.isPadPipelineValid(any(), any())).thenReturn(true);
+    when(padPipelineService.isValidationRequiredByStatus(any())).thenReturn(true);
 
     var validationResult = padPipelineTaskListService.getValidationResult(detail);
+
+    verify(mockIdentFormValidator, times(1)).validate(any(), any(), anyVararg());
 
     assertThat(validationResult.isSectionComplete()).isTrue();
     assertThat(validationResult.getErrorItems()).isEmpty();
@@ -309,8 +284,6 @@ public class PadPipelineTaskListServiceTest {
   @Test
   public void getValidationResult_errors_noPipelines() {
 
-    when(padPipelineRepository.findAllPipelinesAsSummaryDtoByPwaApplicationDetail(detail)).thenReturn(List.of());
-
     var validationResult = padPipelineTaskListService.getValidationResult(detail);
 
     assertThat(validationResult.isSectionComplete()).isFalse();
@@ -322,14 +295,42 @@ public class PadPipelineTaskListServiceTest {
 
   }
 
+  private void mockPipelineWithZeroIdents(){
+    var overview = PadPipelineOverview.from(
+        PadPipelineSummaryDtoTestUtils.generateFrom(padPipe1), true
+    );
+    when(padPipelineService.getApplicationPipelineOverviews(detail)).thenReturn(List.of(
+        overview
+    ));
+
+    var padPipelineId = new PadPipelineId(1);
+    when(padPipelineIdentService.getAllIdentsByPadPipelineIds(eq(List.of(padPipelineId)))).thenReturn(List.of());
+    when(padPipelineService.getPadPipelineMapForOverviews(detail, List.of(overview)))
+        .thenReturn( Map.of(padPipelineId, padPipe1));
+  }
+
+  private void mockPipelineWithOneIdent(){
+    var overview = PadPipelineOverview.from(
+        PadPipelineSummaryDtoTestUtils.generateFrom(padPipe1), true
+    );
+    when(padPipelineService.getApplicationPipelineOverviews(detail)).thenReturn(List.of(
+        overview
+    ));
+
+    var padPipelineId = new PadPipelineId(1);
+    when(padPipelineService.getPadPipelineMapForOverviews(detail, List.of(overview)))
+        .thenReturn( Map.of(padPipelineId, padPipe1));
+    var ident = new PadPipelineIdent();
+    ident.setPadPipeline(padPipe1);
+
+    when(padPipelineIdentService.getAllIdentsByPadPipelineIds(eq(List.of(padPipelineId))))
+        .thenReturn(List.of(ident));
+  }
+
   @Test
   public void getValidationResult_errors_pipelineExists_noIdentsOnIt() {
 
-    when(padPipelineRepository.findAllPipelinesAsSummaryDtoByPwaApplicationDetail(detail)).thenReturn(List.of(
-        PadPipelineSummaryDtoTestUtils.generateFrom(padPipe1)
-    ));
-
-    when(padPipelineIdentService.getAllIdentsByPadPipelineIds(eq(List.of(new PadPipelineId(1))))).thenReturn(List.of());
+    mockPipelineWithZeroIdents();
 
     var validationResult = padPipelineTaskListService.getValidationResult(detail);
 
@@ -349,19 +350,25 @@ public class PadPipelineTaskListServiceTest {
   @Test
   public void getValidationResult_errors_pipelineExists_identValidationFails() {
 
-    when(padPipelineRepository.findAllPipelinesAsSummaryDtoByPwaApplicationDetail(detail)).thenReturn(List.of(
-        PadPipelineSummaryDtoTestUtils.generateFrom(padPipe1)
-    ));
+    // Use mock ident validator instead of real one.
+    padPipelineTaskListService = new PadPipelineTaskListService(
+        padPipelineService,
+        padPipelineIdentService,
+        padOptionConfirmedService,
+        padPipelineRepository,
+        mockIdentFormValidator,
+        padPipelineDataCopierService);
 
-    when(padPipelineIdentService.getAllIdentsByPadPipelineIds(eq(List.of(new PadPipelineId(1))))).thenReturn(
-        List.of(ident));
+    when(padPipelineService.isValidationRequiredByStatus(any())).thenReturn(true);
+
+    mockPipelineWithOneIdent();
 
     // force error when validating ident
     doAnswer(invocation -> {
       ((BindingResult) invocation.getArgument(1)).rejectValue("length",
           "length.invalid", "fake");
       return invocation;
-    }).when(mockValidator).validate(any(), any(), any());
+    }).when(mockIdentFormValidator).validate(any(), any(), any());
 
     var validationResult = padPipelineTaskListService.getValidationResult(detail);
 
@@ -379,31 +386,16 @@ public class PadPipelineTaskListServiceTest {
   }
 
   @Test
-  public void doesPipelineHaveTasks_false() {
-    EnumSet.of(PipelineStatus.RETURNED_TO_SHORE, PipelineStatus.NEVER_LAID).forEach(pipelineStatus -> {
-      padPipe1.setPipelineStatus(pipelineStatus);
-      var dto = createPadPipelineSummaryDto(padPipe1);
-      var result = padPipelineTaskListService.doesPipelineHaveTasks(dto);
-      assertThat(result).isFalse();
-    });
-  }
-
-  @Test
-  public void doesPipelineHaveTasks() {
+  public void doesPipelineHaveTasks_serviceInteractions() {
     var statusEnums = EnumSet.allOf(PipelineStatus.class);
     statusEnums.forEach(pipelineStatus -> {
 
       padPipe1.setPipelineStatus(pipelineStatus);
-      var dto = createPadPipelineSummaryDto(padPipe1);
-      var result = padPipelineTaskListService.doesPipelineHaveTasks(dto);
-
-      boolean expectedResult = List.of(PipelineStatus.IN_SERVICE, PipelineStatus.OUT_OF_USE_ON_SEABED).contains(pipelineStatus);
-
-      assertThat(result).isEqualTo(expectedResult);
+      padPipelineTaskListService.doesPipelineHaveTasks(PadPipelineSummaryDtoTestUtils.generateFrom(padPipe1));
+      verify(padPipelineService, times(1)).isValidationRequiredByStatus(pipelineStatus);
 
     });
   }
-
 
   private PadPipelineSummaryDto createPadPipelineSummaryDto(PadPipeline padPipeline) {
     return new PadPipelineSummaryDto(
