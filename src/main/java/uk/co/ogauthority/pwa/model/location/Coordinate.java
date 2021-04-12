@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.model.location;
 
 import java.math.BigDecimal;
+import org.apache.commons.lang3.ObjectUtils;
 
 /**
  * Data class for handling co-ordinate data.
@@ -44,4 +45,9 @@ public abstract class Coordinate {
   }
 
   public abstract String getDisplayString();
+
+  public boolean degMinSecPresent() {
+    return ObjectUtils.allNotNull(degrees, minutes, seconds);
+  }
+
 }

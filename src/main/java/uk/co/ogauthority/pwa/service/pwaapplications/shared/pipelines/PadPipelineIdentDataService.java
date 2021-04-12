@@ -135,9 +135,12 @@ public class PadPipelineIdentDataService {
     repository.saveAll(identData);
   }
 
-  public List<PadPipelineIdentData> getAllPipelineIdentDataForPwaApplicationDetail(
-      PwaApplicationDetail pwaApplicationDetail
-  ) {
+  public List<PadPipelineIdentData> getAllPipelineIdentDataForPwaApplicationDetail(PwaApplicationDetail pwaApplicationDetail) {
     return repository.getAllPadPipelineIdentDataByPwaApplicationDetail(pwaApplicationDetail);
   }
+
+  public List<PadPipelineIdentData> getAllPipelineIdentDataForPadPipelines(Collection<PadPipeline> padPipelines) {
+    return repository.getAllByPadPipelineIdent_PadPipelineIn(padPipelines);
+  }
+
 }

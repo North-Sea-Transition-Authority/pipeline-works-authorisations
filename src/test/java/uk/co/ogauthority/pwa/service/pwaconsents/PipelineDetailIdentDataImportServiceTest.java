@@ -21,6 +21,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipe
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipelineIdent;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipelineIdentData;
 import uk.co.ogauthority.pwa.model.location.Coordinate;
+import uk.co.ogauthority.pwa.model.location.CoordinatePair;
 import uk.co.ogauthority.pwa.model.location.LatitudeCoordinate;
 import uk.co.ogauthority.pwa.model.location.LongitudeCoordinate;
 import uk.co.ogauthority.pwa.repository.pipelines.PipelineDetailIdentDataRepository;
@@ -28,6 +29,9 @@ import uk.co.ogauthority.pwa.service.enums.location.LatitudeDirection;
 import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineIdentDataService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineIdentService;
+import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailIdentDataImportService;
+import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineIdentDataMappingService;
+import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineIdentMappingService;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PipelineDetailIdentDataImportServiceTest {
@@ -47,7 +51,6 @@ public class PipelineDetailIdentDataImportServiceTest {
   @Captor
   private ArgumentCaptor<List<PadPipelineIdentData>> identDataCaptor;
 
-
   private PipelineDetailIdentDataImportService pipelineDetailIdentDataImportService;
 
   private PadPipeline padPipeline;
@@ -57,8 +60,12 @@ public class PipelineDetailIdentDataImportServiceTest {
 
   @Before
   public void setUp() {
+
+    var identMappingService = new PipelineIdentMappingService();
+    var identDataMappingService = new PipelineIdentDataMappingService();
+
     pipelineDetailIdentDataImportService = new PipelineDetailIdentDataImportService(pipelineDetailIdentDataRepository,
-        padPipelineIdentService, padPipelineIdentDataService);
+        padPipelineIdentService, padPipelineIdentDataService, identDataMappingService, identMappingService);
     padPipeline = new PadPipeline();
     pipelineDetail = new PipelineDetail();
     pipelineDetailIdent = new PipelineDetailIdent();
@@ -111,25 +118,18 @@ public class PipelineDetailIdentDataImportServiceTest {
     detailIdent.setLength(BigDecimal.ONE);
 
     detailIdent.setFromLocation("from");
-    detailIdent.setFromLatitudeDegrees(1);
-    detailIdent.setFromLatitudeMinutes(1);
-    detailIdent.setFromLatitudeSeconds(BigDecimal.ONE);
-    detailIdent.setFromLatitudeDirection(LatitudeDirection.NORTH);
-    detailIdent.setFromLongitudeDegrees(2);
-    detailIdent.setFromLongitudeMinutes(2);
-    detailIdent.setFromLongitudeSeconds(BigDecimal.valueOf(2));
-    detailIdent.setFromLongitudeDirection(LongitudeDirection.EAST);
-    detailIdent.setToLocation("to");
-    detailIdent.setToLatitudeDegrees(3);
-    detailIdent.setToLatitudeMinutes(3);
-    detailIdent.setToLatitudeSeconds(BigDecimal.valueOf(3));
-    detailIdent.setToLatitudeDirection(LatitudeDirection.SOUTH);
-    detailIdent.setToLongitudeDegrees(4);
-    detailIdent.setToLongitudeMinutes(4);
-    detailIdent.setToLongitudeSeconds(BigDecimal.valueOf(4));
-    detailIdent.setToLongitudeDirection(LongitudeDirection.WEST);
-    detailIdent.setDefiningStructure(true);
+    detailIdent.setFromCoordinates(new CoordinatePair(
+        new LatitudeCoordinate(1, 1, BigDecimal.ONE, LatitudeDirection.NORTH),
+        new LongitudeCoordinate(2, 2, BigDecimal.valueOf(2), LongitudeDirection.EAST)
+    ));
 
+    detailIdent.setToLocation("to");
+    detailIdent.setToCoordinates(new CoordinatePair(
+        new LatitudeCoordinate(3, 3, BigDecimal.valueOf(3), LatitudeDirection.SOUTH),
+        new LongitudeCoordinate(4, 4, BigDecimal.valueOf(4), LongitudeDirection.WEST)
+    ));
+
+    detailIdent.setDefiningStructure(true);
 
     var result = pipelineDetailIdentDataImportService.mapIdentToPadPipelineIdent(padPipeline, detailIdent);
 

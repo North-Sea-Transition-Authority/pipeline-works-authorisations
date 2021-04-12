@@ -21,9 +21,10 @@ import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetailIdentData;
 import uk.co.ogauthority.pwa.repository.pipelines.PipelineDetailIdentDataRepository;
 import uk.co.ogauthority.pwa.repository.pipelines.PipelineDetailIdentRepository;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.pipelinedatautils.PipelineIdentViewCollectorService;
+import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailIdentViewService;
 
 @RunWith(MockitoJUnitRunner.class)
-public class PipelineDetailIdentServiceTest {
+public class PipelineDetailIdentViewServiceTest {
 
   private final PipelineId PIPELINE_ID = new PipelineId(1);
 
@@ -36,14 +37,14 @@ public class PipelineDetailIdentServiceTest {
   // do not mock so we use real code
   private PipelineIdentViewCollectorService pipelineIdentViewCollectorService;
 
-  private PipelineDetailIdentService pipelineDetailIdentService;
+  private PipelineDetailIdentViewService pipelineDetailIdentViewService;
 
   @Before
   public void setUp() throws Exception {
 
     pipelineIdentViewCollectorService = new PipelineIdentViewCollectorService();
 
-    pipelineDetailIdentService = new PipelineDetailIdentService(
+    pipelineDetailIdentViewService = new PipelineDetailIdentViewService(
         pipelineDetailIdentDataRepository,
         pipelineDetailIdentRepository,
         pipelineIdentViewCollectorService);
@@ -67,7 +68,7 @@ public class PipelineDetailIdentServiceTest {
 
     when(pipelineDetailIdentDataRepository.getAllByPipelineDetailIdentIn(any())).thenReturn(identData);
 
-    var identViews = pipelineDetailIdentService.getSortedPipelineIdentViewsForPipeline(PIPELINE_ID);
+    var identViews = pipelineDetailIdentViewService.getSortedPipelineIdentViewsForPipeline(PIPELINE_ID);
 
     assertThat(identViews).hasSize(2);
 
@@ -94,7 +95,7 @@ public class PipelineDetailIdentServiceTest {
 
     when(pipelineDetailIdentDataRepository.getAllByPipelineDetailIdentIn(any())).thenReturn(identData);
 
-    var identViews = pipelineDetailIdentService.getSortedPipelineIdentViewsForPipelineDetail(PIPELINE_ID, pipelineDetailId);
+    var identViews = pipelineDetailIdentViewService.getSortedPipelineIdentViewsForPipelineDetail(PIPELINE_ID, pipelineDetailId);
 
     assertThat(identViews).hasSize(2);
 

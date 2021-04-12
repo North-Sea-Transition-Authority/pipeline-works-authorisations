@@ -43,6 +43,10 @@ public class CoordinatePair implements DiffableAsString {
         StringUtils.defaultString(longString, "");
   }
 
+  public boolean hasValue() {
+    return latitude.hasValue() && longitude.hasValue();
+  }
+
   @Override
   public String getDiffableString() {
     return this.getDisplayString();
