@@ -2,8 +2,6 @@ package uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelines;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
-import java.util.Comparator;
-import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -27,7 +25,6 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.model.form.enums.ScreenActionType;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.PipelineHeaderForm;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
@@ -35,15 +32,12 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermiss
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
-import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.tasklist.PadPipelineTaskListService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineControllerRouteUtils;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineHeaderFormValidator;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineHeaderValidationHints;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineRemovalService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineUrlFactory;
 import uk.co.ogauthority.pwa.service.searchselector.SearchSelectorService;
 import uk.co.ogauthority.pwa.util.StreamUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
@@ -64,44 +58,21 @@ public class PipelinesController {
   private final PadPipelineService padPipelineService;
   private final PipelineRemovalService pipelineRemovalService;
 
-  private final PadPipelineTaskListService padPipelineTaskListService;
-
   private final ApplicationBreadcrumbService breadcrumbService;
   private final PipelineHeaderFormValidator pipelineHeaderFormValidator;
-  private final PwaApplicationRedirectService applicationRedirectService;
   private final ControllerHelperService controllerHelperService;
 
   @Autowired
   public PipelinesController(PadPipelineService padPipelineService,
                              PipelineRemovalService pipelineRemovalService,
-                             PadPipelineTaskListService padPipelineTaskListService,
                              ApplicationBreadcrumbService breadcrumbService,
                              PipelineHeaderFormValidator pipelineHeaderFormValidator,
-                             PwaApplicationRedirectService applicationRedirectService,
                              ControllerHelperService controllerHelperService) {
     this.padPipelineService = padPipelineService;
     this.pipelineRemovalService = pipelineRemovalService;
-    this.padPipelineTaskListService = padPipelineTaskListService;
     this.breadcrumbService = breadcrumbService;
     this.pipelineHeaderFormValidator = pipelineHeaderFormValidator;
-    this.applicationRedirectService = applicationRedirectService;
     this.controllerHelperService = controllerHelperService;
-  }
-
-  private ModelAndView getOverviewModelAndView(PwaApplicationDetail detail) {
-
-    var modelAndView = new ModelAndView("pwaApplication/shared/pipelines/overview")
-        .addObject("pipelineTaskListItems", padPipelineTaskListService.getPipelineTaskListItems(detail).stream()
-            .sorted(Comparator.comparing(PipelineOverview::getPipelineNumber))
-            .collect(Collectors.toList()))
-        .addObject("pipelineUrlFactory", new PipelineUrlFactory(detail))
-        .addObject("canImportConsentedPipeline", padPipelineTaskListService.canImportConsentedPipelines(detail))
-        .addObject("taskListUrl", applicationRedirectService.getTaskListRoute(detail.getPwaApplication()));
-
-    breadcrumbService.fromTaskList(detail.getPwaApplication(), modelAndView, "Pipelines");
-
-    return modelAndView;
-
   }
 
   private ModelAndView getRemovePipelineModelAndView(PwaApplicationDetail detail, PadPipeline padPipeline) {

@@ -46,7 +46,6 @@ import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbServic
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineHeaderFormValidator;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineRemovalService;
-import uk.co.ogauthority.pwa.service.validation.SummaryScreenValidationResultTestUtils;
 import uk.co.ogauthority.pwa.testutils.ControllerTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
@@ -270,9 +269,6 @@ public class PipelinesControllerTest extends PwaApplicationContextAbstractContro
   @Test
   public void postRemovePipeline_permissionSmokeTest() {
 
-//    when(padPipelineService.isComplete(any())).thenReturn(true);
-//    when(padPipelineService.getValidationResult(any())).thenReturn(SummaryScreenValidationResultTestUtils.completeResult());
-
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) -> {
           padPipeline.setPwaApplicationDetail(applicationDetail);
@@ -289,9 +285,6 @@ public class PipelinesControllerTest extends PwaApplicationContextAbstractContro
   @Test
   public void postRemovePipeline_appTypeSmokeTest() {
 
-//    when(padPipelineService.isComplete(any())).thenReturn(true);
-//    when(padPipelineService.getValidationResult(any())).thenReturn(SummaryScreenValidationResultTestUtils.completeResult());
-
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) -> {
           padPipeline.setPwaApplicationDetail(applicationDetail);
@@ -307,9 +300,6 @@ public class PipelinesControllerTest extends PwaApplicationContextAbstractContro
 
   @Test
   public void postRemovePipeline_appStatusSmokeTest() {
-
-//    when(padPipelineService.isComplete(any())).thenReturn(true);
-//    when(padPipelineService.getValidationResult(any())).thenReturn(SummaryScreenValidationResultTestUtils.completeResult());
 
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) -> {
