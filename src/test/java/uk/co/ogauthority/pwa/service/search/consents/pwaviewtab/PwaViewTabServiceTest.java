@@ -5,12 +5,14 @@ import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.EnumSet;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineStatus;
 import uk.co.ogauthority.pwa.repository.pwaconsents.PwaConsentApplicationDto;
 import uk.co.ogauthority.pwa.repository.pwaconsents.PwaConsentDtoRepository;
 import uk.co.ogauthority.pwa.service.pwaconsents.PipelineDetailService;
@@ -36,6 +38,7 @@ public class PwaViewTabServiceTest {
 
   private final String PIPELINE_REF_ID1 = "PLU001";
   private final String PIPELINE_REF_ID2 = "PL002";
+  private final String PIPELINE_REF_ID3 = "PL003";
 
 
 
@@ -53,14 +56,20 @@ public class PwaViewTabServiceTest {
   public void getTabContentModelMap_pipelinesTab_modelMapContainsPipelineViews_orderedByPipelineNumber() {
 
     var unOrderedPipelineOverviews = List.of(
-        PwaViewTabTestUtil.createPipelineOverview(PIPELINE_REF_ID2), PwaViewTabTestUtil.createPipelineOverview(PIPELINE_REF_ID1));
-    when(pipelineDetailService.getAllPipelineOverviewsForMasterPwa(pwaContext.getMasterPwa())).thenReturn(unOrderedPipelineOverviews);
+        PwaViewTabTestUtil.createPipelineOverview(PIPELINE_REF_ID2, PipelineStatus.DELETED),
+        PwaViewTabTestUtil.createPipelineOverview(PIPELINE_REF_ID3, PipelineStatus.PENDING),
+        PwaViewTabTestUtil.createPipelineOverview(PIPELINE_REF_ID1, PipelineStatus.IN_SERVICE));
+
+    var pipelineStatusFilter = EnumSet.allOf(PipelineStatus.class);
+    when(pipelineDetailService.getAllPipelineOverviewsForMasterPwaAndStatus(pwaContext.getMasterPwa(), pipelineStatusFilter))
+        .thenReturn(unOrderedPipelineOverviews);
 
     var modelMap = pwaViewTabService.getTabContentModelMap(pwaContext, PwaViewTab.PIPELINES);
     var actualPwaPipelineViews = (List<PwaPipelineView>) modelMap.get("pwaPipelineViews");
     assertThat(actualPwaPipelineViews).containsExactly(
-        new PwaPipelineView(unOrderedPipelineOverviews.get(1)),
-        new PwaPipelineView(unOrderedPipelineOverviews.get(0)));
+        new PwaPipelineView(unOrderedPipelineOverviews.get(2)),
+        new PwaPipelineView(unOrderedPipelineOverviews.get(0)),
+        new PwaPipelineView(unOrderedPipelineOverviews.get(1)));
 
   }
 
