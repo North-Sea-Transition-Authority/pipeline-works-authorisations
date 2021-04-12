@@ -1,6 +1,7 @@
 <#include '../../../layout.ftl'>
 <#import '../consentSearchTopLevelView.ftl' as consentSearchTopLevelView>
 <#import 'tabs/pipelineHistoryTab.ftl' as pipelineHistoryTab>
+<#import 'tabs/huooHistoryTab.ftl' as huooHistoryTab>
 
 
 <#-- @ftlvariable name="consentSearchResultView" type="uk.co.ogauthority.pwa.model.view.search.consents.ConsentSearchResultView" -->
@@ -8,6 +9,7 @@
 <#-- @ftlvariable name="currentProcessingTab" type="uk.co.ogauthority.pwa.service.search.consents.PwaViewTab" -->
 <#-- @ftlvariable name="pwaPipelineViewUrlFactory" type="uk.co.ogauthority.pwa.service.search.consents.pwaviewtab.PwaPipelineViewUrlFactory" -->
 <#-- @ftlvariable name="diffedPipelineSummaryModel" type="java.util.Map<java.lang.String, Object>" -->
+<#-- @ftlvariable name="diffedHuooSummary" type="uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.huoosummary.DiffedAllOrgRolePipelineGroups" -->
 
 
 
@@ -29,6 +31,8 @@
 
       <#if currentProcessingTab == "PIPELINE_HISTORY">
           <@pipelineHistoryTab.tab diffedPipelineSummaryModel/>
+      <#else>
+          <@huooHistoryTab.tab diffedHuooSummary/>
       </#if>
 
     </@fdsBackendTabs.tabContent>
