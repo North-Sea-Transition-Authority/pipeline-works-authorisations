@@ -10,13 +10,19 @@ import java.util.List;
 public class ConnectedPipelineIdentSummaryView {
 
   private final List<ConnectedPipelineIdentsView> connectedPipelineIdents;
+  private final String totalIdentLength;
 
   public ConnectedPipelineIdentSummaryView(
-      List<ConnectedPipelineIdentsView> connectedPipelineIdents) {
+      List<ConnectedPipelineIdentsView> connectedPipelineIdents, String totalIdentLength) {
     this.connectedPipelineIdents = connectedPipelineIdents;
+    this.totalIdentLength = totalIdentLength;
   }
 
   public List<ConnectedPipelineIdentsView> getConnectedPipelineIdents() {
     return connectedPipelineIdents;
+  }
+
+  public String getTotalIdentLength() {
+    return totalIdentLength;
   }
 }

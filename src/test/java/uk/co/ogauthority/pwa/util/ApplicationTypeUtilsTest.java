@@ -25,7 +25,7 @@ public class ApplicationTypeUtilsTest {
           assertThat(ApplicationTypeUtils.getFormattedDuration(type)).isEqualTo("6-8 weeks");
           break;
         case DECOMMISSIONING:
-          assertThat(ApplicationTypeUtils.getFormattedDuration(type)).isEqualTo("6+ months");
+          assertThat(ApplicationTypeUtils.getFormattedDuration(type)).isEqualTo("6 months");
           break;
       }
     });
@@ -46,12 +46,13 @@ public class ApplicationTypeUtilsTest {
         .filter(type -> type.getMedianLineImplication().equals(MedianLineImplication.TRUE))
         .forEach(type -> {
           switch (type) {
+            case INITIAL:
             case CAT_1_VARIATION:
             case DECOMMISSIONING:
-              assertThat(ApplicationTypeUtils.getFormattedMedianLineDuration(type)).isEqualTo("6+ months");
+              assertThat(ApplicationTypeUtils.getFormattedMedianLineDuration(type)).isEqualTo("more than 6 months");
               break;
             case CAT_2_VARIATION:
-              assertThat(ApplicationTypeUtils.getFormattedMedianLineDuration(type)).isEqualTo("8+ weeks");
+              assertThat(ApplicationTypeUtils.getFormattedMedianLineDuration(type)).isEqualTo("more than 8 weeks");
               break;
             default:
               throw new RuntimeException(String.format("PwaApplicationType.%s was not expected in test", type.name()));

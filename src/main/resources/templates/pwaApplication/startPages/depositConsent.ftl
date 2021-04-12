@@ -11,7 +11,8 @@
 
     <p class="govuk-body">For any deposits being laid to support or protect a pipeline which has been authorised under a PWA.</p>
 
-    <p class="govuk-body">Where there are no objections, it takes approximately ${formattedDuration} to authorisation</p>
+    <p class="govuk-body">Where there are no objections, it takes approximately ${formattedDuration} from receipt of a
+      satisfactory application to issuing the authorisation.</p>
 
   </@fdsStartPage.startPage>
 

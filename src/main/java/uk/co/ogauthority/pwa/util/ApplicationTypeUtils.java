@@ -31,8 +31,8 @@ public class ApplicationTypeUtils {
       minPeriod = pwaApplicationType.getMinProcessingPeriod().getMonths();
       maxPeriod = pwaApplicationType.getMaxProcessingPeriod().getMonths();
     }
-    if (minPeriod >= maxPeriod) {
-      return String.format("%d+ %s", minPeriod, durationMeasurement);
+    if (minPeriod == maxPeriod) {
+      return String.format("%d %s", minPeriod, durationMeasurement);
     } else {
       return String.format("%d-%d %s", minPeriod, maxPeriod, durationMeasurement);
     }
@@ -67,7 +67,7 @@ public class ApplicationTypeUtils {
           pwaApplicationType.getMaxProcessingPeriod().getMonths()
       );
     }
-    return String.format("%d+ %s", maxPeriod, durationMeasurement);
+    return String.format("more than %d %s", maxPeriod, durationMeasurement);
   }
 
 }

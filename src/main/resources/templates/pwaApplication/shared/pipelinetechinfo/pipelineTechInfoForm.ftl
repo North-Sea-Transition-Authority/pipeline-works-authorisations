@@ -9,10 +9,10 @@
     <@fdsForm.htmlForm>
         <@fdsTextInput.textInput path="form.estimatedFieldLife" labelText="What is the estimated life of the field?" suffix="years" inputClass="govuk-input--width-5"/>
 
-        <@fdsRadio.radioGroup path="form.pipelineDesignedToStandards" labelText="Have the pipeline systems been designed in accordance with industry recognised codes and standards?"
+        <@fdsRadio.radioGroup path="form.pipelineDesignedToStandards" labelText="Has the pipeline or pipeline system been designed in accordance with industry recognised codes and standards?"
             hintText="For example, PD 8010 n2004 Part 2 Subsea Pipelines" hiddenContent=true>
             <@fdsRadio.radioYes path="form.pipelineDesignedToStandards">
-                <@fdsTextarea.textarea path="form.pipelineStandardsDescription" nestingPath="form.pipelineDesignedToStandards" labelText="Provide the design codes/standards for the pipelines system" characterCount=true maxCharacterLength="4000"/>
+                <@fdsTextarea.textarea path="form.pipelineStandardsDescription" nestingPath="form.pipelineDesignedToStandards" labelText="Provide the design codes/standards for the pipeline or pipeline system" characterCount=true maxCharacterLength="4000"/>
             </@fdsRadio.radioYes>
             <@fdsRadio.radioNo path="form.pipelineDesignedToStandards"/>
         </@fdsRadio.radioGroup>

@@ -68,7 +68,7 @@ public class PwaAppProcessingTaskListServiceTest {
     processingContext = new PwaAppProcessingContext(
         pwaApplicationDetail,
         null,
-        EnumSet.complementOf(EnumSet.of(PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY)),
+        EnumSet.complementOf(EnumSet.of(PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY, PwaAppProcessingPermission.SHOW_ALL_TASKS_AS_PWA_MANAGER_ONLY)),
         null,
         involvement
     );

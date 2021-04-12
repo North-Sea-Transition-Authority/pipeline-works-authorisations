@@ -61,7 +61,8 @@ public class PwaContextArgumentResolver implements HandlerMethodArgumentResolver
     }
 
     var contextParams = new PwaContextParams(pwaId, authenticatedUser)
-        .requiredPwaPermissions(requiredRoles);
+        .requiredPwaPermissions(requiredRoles)
+        .withPipelineId(ArgumentResolverUtils.resolveIdFromRequestOrNull(nativeWebRequest, "pipelineId"));
 
     return pwaContextService.validateAndCreate(contextParams);
 

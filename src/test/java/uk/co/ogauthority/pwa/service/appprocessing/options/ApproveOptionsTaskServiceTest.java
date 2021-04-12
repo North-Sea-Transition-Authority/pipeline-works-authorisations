@@ -81,6 +81,25 @@ public class ApproveOptionsTaskServiceTest {
   }
 
   @Test
+  public void canShowInTaskList_showAllTasksPermissionAndOptionsAppType() {
+    pwaAppProcessingContext = PwaAppProcessingContextTestUtil.withPermissions(
+        pwaApplicationDetail,
+        EnumSet.of(PwaAppProcessingPermission.SHOW_ALL_TASKS_AS_PWA_MANAGER_ONLY)
+    );
+    assertThat(approveOptionsTaskService.canShowInTaskList(pwaAppProcessingContext)).isTrue();
+  }
+
+  @Test
+  public void canShowInTaskList_showAllTasksPermissionAndNotOptionsAppType() {
+    var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
+    pwaAppProcessingContext = PwaAppProcessingContextTestUtil.withPermissions(
+        detail,
+        EnumSet.of(PwaAppProcessingPermission.SHOW_ALL_TASKS_AS_PWA_MANAGER_ONLY)
+    );
+    assertThat(approveOptionsTaskService.canShowInTaskList(pwaAppProcessingContext)).isFalse();
+  }
+
+  @Test
   public void canShowInTaskList_whenApproveOptionsPermissionMissing() {
     pwaAppProcessingContext = PwaAppProcessingContextTestUtil.withPermissions(
         pwaApplicationDetail,

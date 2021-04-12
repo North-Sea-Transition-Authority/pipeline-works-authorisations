@@ -13,6 +13,7 @@ import uk.co.ogauthority.pwa.service.pwacontext.PwaContext;
 import uk.co.ogauthority.pwa.service.pwacontext.PwaPermission;
 import uk.co.ogauthority.pwa.service.pwacontext.PwaPermissionCheck;
 import uk.co.ogauthority.pwa.service.search.consents.PwaViewTab;
+import uk.co.ogauthority.pwa.service.search.consents.SearchPwaBreadcrumbService;
 import uk.co.ogauthority.pwa.service.search.consents.pwaviewtab.PwaViewTabService;
 import uk.co.ogauthority.pwa.service.search.consents.pwaviewtab.PwaViewUrlFactory;
 
@@ -22,10 +23,13 @@ import uk.co.ogauthority.pwa.service.search.consents.pwaviewtab.PwaViewUrlFactor
 public class PwaViewController {
 
   private final PwaViewTabService pwaViewTabService;
+  private final SearchPwaBreadcrumbService searchPwaBreadcrumbService;
 
   @Autowired
-  public PwaViewController(PwaViewTabService pwaViewTabService) {
+  public PwaViewController(PwaViewTabService pwaViewTabService,
+                           SearchPwaBreadcrumbService searchPwaBreadcrumbService) {
     this.pwaViewTabService = pwaViewTabService;
+    this.searchPwaBreadcrumbService = searchPwaBreadcrumbService;
   }
 
 
@@ -35,14 +39,18 @@ public class PwaViewController {
                                     PwaContext pwaContext,
                                     AuthenticatedUserAccount authenticatedUserAccount) {
 
-    Map<String, ?> tabContentModelMap = pwaViewTabService.getTabContentModelMap(pwaContext, tab);
+    Map<String, Object> tabContentModelMap = pwaViewTabService.getTabContentModelMap(pwaContext, tab);
 
-    return new ModelAndView("search/consents/pwaView")
+    var modelAndView = new ModelAndView("search/consents/pwaView")
         .addObject("consentSearchResultView", pwaContext.getConsentSearchResultView())
         .addObject("availableTabs", PwaViewTab.stream().collect(Collectors.toList()))
         .addObject("currentProcessingTab", tab)
         .addObject("pwaViewUrlFactory", new PwaViewUrlFactory(pwaId))
         .addAllObjects(tabContentModelMap);
+
+    searchPwaBreadcrumbService.fromPwaView(modelAndView, "View PWA");
+
+    return modelAndView;
   }
 
 

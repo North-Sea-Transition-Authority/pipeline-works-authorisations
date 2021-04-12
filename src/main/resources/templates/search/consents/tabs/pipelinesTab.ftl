@@ -1,8 +1,9 @@
 <#include '../../../layout.ftl'>
 
 <#-- @ftlvariable name="pwaPipelineViews" type="java.util.List<uk.co.ogauthority.pwa.service.search.consents.tabcontentviews.PwaPipelineView>" -->
+<#-- @ftlvariable name="urlFactory" type="uk.co.ogauthority.pwa.service.search.consents.pwaviewtab.PwaViewUrlFactory" -->
 
-<#macro tab pwaPipelineViews=[]>
+<#macro tab urlFactory pwaPipelineViews=[]>
 
   <table class="govuk-table">
     <thead class="govuk-table__head">
@@ -19,7 +20,8 @@
     <#list pwaPipelineViews as pwaPipelineView>
       <tr class="govuk-table__row">
         <td class="govuk-table__cell">
-          ${pwaPipelineView.pipelineNumber}
+          <@fdsAction.link linkText=pwaPipelineView.pipelineNumber linkUrl=springUrl(urlFactory.getPwaPipelineViewUrl(pwaPipelineView.pipelineId)) 
+              linkClass="govuk-link" linkScreenReaderText="Go to pipeline ${pwaPipelineView.pipelineNumber} view screen" openInNewTab=true/> 
         </td>
         <td class="govuk-table__cell">
           ${pwaPipelineView.status.getDisplayText()}
