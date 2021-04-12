@@ -16,6 +16,7 @@ import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineStatus;
 import uk.co.ogauthority.pwa.repository.pwaconsents.PwaConsentApplicationDto;
 import uk.co.ogauthority.pwa.repository.pwaconsents.PwaConsentDtoRepository;
 import uk.co.ogauthority.pwa.service.pwaconsents.PipelineDetailService;
+import uk.co.ogauthority.pwa.service.pwaconsents.testutil.PipelineDetailTestUtil;
 import uk.co.ogauthority.pwa.service.pwacontext.PwaContext;
 import uk.co.ogauthority.pwa.service.search.consents.PwaViewTab;
 import uk.co.ogauthority.pwa.service.search.consents.pwaviewtab.testutil.PwaViewTabTestUtil;
@@ -56,9 +57,9 @@ public class PwaViewTabServiceTest {
   public void getTabContentModelMap_pipelinesTab_modelMapContainsPipelineViews_orderedByPipelineNumber() {
 
     var unOrderedPipelineOverviews = List.of(
-        PwaViewTabTestUtil.createPipelineOverview(PIPELINE_REF_ID2, PipelineStatus.DELETED),
-        PwaViewTabTestUtil.createPipelineOverview(PIPELINE_REF_ID3, PipelineStatus.PENDING),
-        PwaViewTabTestUtil.createPipelineOverview(PIPELINE_REF_ID1, PipelineStatus.IN_SERVICE));
+        PipelineDetailTestUtil.createPipelineOverview(PIPELINE_REF_ID2, PipelineStatus.DELETED),
+        PipelineDetailTestUtil.createPipelineOverview(PIPELINE_REF_ID3, PipelineStatus.PENDING),
+        PipelineDetailTestUtil.createPipelineOverview(PIPELINE_REF_ID1, PipelineStatus.IN_SERVICE));
 
     var pipelineStatusFilter = EnumSet.allOf(PipelineStatus.class);
     when(pipelineDetailService.getAllPipelineOverviewsForMasterPwaAndStatus(pwaContext.getMasterPwa(), pipelineStatusFilter))
@@ -75,19 +76,19 @@ public class PwaViewTabServiceTest {
 
   @Test
   public void getTabContentModelMap_getPipelineNumberOnlyFromReference_refPrependedWithPLChars_charsRemoved() {
-    var pwaPipelineView = new PwaPipelineView(PwaViewTabTestUtil.createPipelineOverview(PIPELINE_REF_ID2));
+    var pwaPipelineView = new PwaPipelineView(PipelineDetailTestUtil.createPipelineOverview(PIPELINE_REF_ID2));
     assertThat(pwaPipelineView.getPipelineNumberOnlyFromReference()).isEqualTo("002");
   }
 
   @Test
   public void getTabContentModelMap_getPipelineNumberOnlyFromReference_refPrependedWithPLUChars_charsRemoved() {
-    var pwaPipelineView = new PwaPipelineView(PwaViewTabTestUtil.createPipelineOverview(PIPELINE_REF_ID1));
+    var pwaPipelineView = new PwaPipelineView(PipelineDetailTestUtil.createPipelineOverview(PIPELINE_REF_ID1));
     assertThat(pwaPipelineView.getPipelineNumberOnlyFromReference()).isEqualTo("001");
   }
 
   @Test
   public void getTabContentModelMap_getPipelineNumberOnlyFromReference_refPrependedWithWhitespace_whitespaceRemoved() {
-    var pwaPipelineView = new PwaPipelineView(PwaViewTabTestUtil.createPipelineOverview("  001"));
+    var pwaPipelineView = new PwaPipelineView(PipelineDetailTestUtil.createPipelineOverview("  001"));
     assertThat(pwaPipelineView.getPipelineNumberOnlyFromReference()).isEqualTo("001");
   }
 
