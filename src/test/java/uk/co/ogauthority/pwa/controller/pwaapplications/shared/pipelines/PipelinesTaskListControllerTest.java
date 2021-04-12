@@ -41,7 +41,6 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermiss
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineHeaderFormValidator;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.tasklist.PadPipelineTaskListService;
 import uk.co.ogauthority.pwa.service.validation.SummaryScreenValidationResultTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
@@ -61,9 +60,6 @@ public class PipelinesTaskListControllerTest extends PwaApplicationContextAbstra
 
   @SpyBean
   private ApplicationBreadcrumbService applicationBreadcrumbService;
-
-  @MockBean
-  private PipelineHeaderFormValidator validator;
 
   @MockBean
   private PadPipelineTaskListService padPipelineTaskListService;
