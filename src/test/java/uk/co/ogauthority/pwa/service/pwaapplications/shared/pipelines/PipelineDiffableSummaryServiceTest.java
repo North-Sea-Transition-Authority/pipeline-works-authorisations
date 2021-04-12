@@ -182,6 +182,38 @@ public class PipelineDiffableSummaryServiceTest {
 
   }
 
+
+  @Test
+  public void getConsentedPipeline_multipleIdents_mappedAsExpected() {
+    var pipelineId = new PipelineId(PIPELINE_ID);
+    var pipelineDetailId = PIPELINE_ID;
+    var pipelineDetail = getPipelineDetail(pipelineId, BigDecimal.ONE, PipelineType.PRODUCTION_FLOWLINE);
+
+    when(pipelineDetailService.getByPipelineDetailId(pipelineDetailId)).thenReturn(pipelineDetail);
+
+    when(pipelineDetailIdentService.getSortedPipelineIdentViewsForPipelineDetail(pipelineId, pipelineDetailId))
+        .thenReturn(List.of(identStart, identMid, identEnd));
+
+    var summary = pipelineDiffableSummaryService.getConsentedPipeline(pipelineId.asInt());
+
+    assertThat(summary.getIdentViews()).hasSize(3);
+    assertThat(summary.getIdentViews().get(0).getFromLocation()).isEqualTo(PIPELINE_POINT_1);
+    assertThat(summary.getIdentViews().get(0).getToLocation()).isEqualTo(PIPELINE_POINT_2);
+    assertThat(summary.getIdentViews().get(0).getConnectedToPrevious()).isFalse();
+    assertThat(summary.getIdentViews().get(0).getConnectedToNext()).isTrue();
+
+    assertThat(summary.getIdentViews().get(1).getFromLocation()).isEqualTo(PIPELINE_POINT_2);
+    assertThat(summary.getIdentViews().get(1).getToLocation()).isEqualTo(PIPELINE_POINT_3);
+    assertThat(summary.getIdentViews().get(1).getConnectedToPrevious()).isTrue();
+    assertThat(summary.getIdentViews().get(1).getConnectedToNext()).isTrue();
+
+    assertThat(summary.getIdentViews().get(2).getFromLocation()).isEqualTo(PIPELINE_POINT_3);
+    assertThat(summary.getIdentViews().get(2).getToLocation()).isEqualTo(PIPELINE_POINT_4);
+    assertThat(summary.getIdentViews().get(2).getConnectedToPrevious()).isTrue();
+    assertThat(summary.getIdentViews().get(2).getConnectedToNext()).isFalse();
+
+  }
+
   private PipelineDetail getPipelineDetail(PipelineId pipelineId,
                                            BigDecimal maxExternalDiameter,
                                            PipelineType pipelineType){

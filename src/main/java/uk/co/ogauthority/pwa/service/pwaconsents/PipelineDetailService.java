@@ -53,6 +53,12 @@ public class PipelineDetailService {
         .orElseThrow(() -> new PwaEntityNotFoundException("Could not find PipelineDetail with Pipeline ID: " + id));
   }
 
+  public PipelineDetail getByPipelineDetailId(Integer id) {
+    return pipelineDetailRepository.findById(id)
+        .orElseThrow(() -> new PwaEntityNotFoundException("Could not find PipelineDetail with ID: " + id));
+  }
+
+
   public boolean isPipelineConsented(Pipeline pipeline) {
     return pipelineDetailRepository.getByPipeline_IdAndTipFlagIsTrue(pipeline.getId()).isPresent();
   }
@@ -81,4 +87,9 @@ public class PipelineDetailService {
         pwaApplication.getMasterPwa()
     );
   }
+
+  public List<PipelineDetail> getAllPipelineDetailsForPipeline(PipelineId pipelineId) {
+    return pipelineDetailRepository.findAllByPipeline_Id(pipelineId.asInt());
+  }
+
 }
