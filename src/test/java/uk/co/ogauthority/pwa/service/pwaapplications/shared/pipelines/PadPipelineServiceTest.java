@@ -2,9 +2,7 @@ package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
-import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -12,8 +10,6 @@ import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
@@ -27,11 +23,8 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.security.util.FieldUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
-import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTypeCheck;
-import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelines.ModifyPipelineController;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PadPipelineId;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PadPipelineSummaryDto;
-import uk.co.ogauthority.pwa.model.dto.pipelines.PadPipelineSummaryDtoTestUtils;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineHeaderFormContext;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineMaterial;
@@ -43,7 +36,6 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipelineIdent;
-import uk.co.ogauthority.pwa.model.form.fds.ErrorItem;
 import uk.co.ogauthority.pwa.model.form.location.CoordinateForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.ModifyPipelineForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.PipelineHeaderForm;
@@ -424,82 +416,6 @@ public class PadPipelineServiceTest {
     when(padPipelineRepository.getAllByPwaApplicationDetail(detail)).thenReturn(pipelinesMocked);
 
     assertThat(padPipelineService.getPipelineReferenceMap(detail)).isEqualTo(pipeLinesExpected);
-  }
-
-  @Test
-  public void getApplicationOrConsentedPipelineNumberLookup_whenNoConsentedPipelines() {
-    var pipeline = new Pipeline();
-    pipeline.setId(1);
-
-    var padPipeline = new PadPipeline(detail);
-    padPipeline.setPipeline(pipeline);
-    padPipeline.setId(10);
-    padPipeline.setPipelineRef("PIPELINE_1");
-
-    when(padPipelineRepository.getAllByPwaApplicationDetail(detail)).thenReturn(List.of(padPipeline));
-
-    assertThat(padPipelineService.getApplicationOrConsentedPipelineNumberLookup(detail))
-        .containsExactly(
-            entry(new PipelineId(1), "PIPELINE_1")
-
-        );
-
-  }
-
-  @Test
-  public void getApplicationOrConsentedPipelineNumberLookup_whenPadPipelineImportedFromConsentedModel() {
-
-    var pipeline = new Pipeline();
-    pipeline.setId(1);
-
-    var padPipeline = new PadPipeline(detail);
-    padPipeline.setPipeline(pipeline);
-    padPipeline.setId(10);
-    padPipeline.setPipelineRef("APP_PIPELINE_1");
-
-    var pipelineDetail = new PipelineDetail(pipeline);
-    pipelineDetail.setPipelineNumber("CONSENTED_PIPELINE_1");
-
-
-    when(padPipelineRepository.getAllByPwaApplicationDetail(detail)).thenReturn(List.of(padPipeline));
-
-    when(pipelineDetailService.getActivePipelineDetailsForApplicationMasterPwa(detail.getPwaApplication()))
-        .thenReturn(List.of(pipelineDetail));
-
-    assertThat(padPipelineService.getApplicationOrConsentedPipelineNumberLookup(detail))
-        .containsExactly(
-            entry(PipelineId.from(pipeline), "APP_PIPELINE_1")
-
-        );
-
-  }
-
-  @Test
-  public void getApplicationOrConsentedPipelineNumberLookup_whenNoAppPipelines() {
-
-    var pipeline = new Pipeline();
-    pipeline.setId(1);
-    var pipelineDetail = new PipelineDetail(pipeline);
-    pipelineDetail.setPipelineNumber("CONSENTED_PIPELINE_1");
-
-    when(pipelineDetailService.getActivePipelineDetailsForApplicationMasterPwa(detail.getPwaApplication()))
-        .thenReturn(List.of(pipelineDetail));
-
-    assertThat(padPipelineService.getApplicationOrConsentedPipelineNumberLookup(detail))
-        .containsExactly(
-            entry(PipelineId.from(pipeline), "CONSENTED_PIPELINE_1")
-
-        );
-
-  }
-
-  @Test
-  public void getPipelineBundleNamesByDetail_repositoryInteraction() {
-    var bundlePairDto = new PipelineBundlePairDto(1, "bundle");
-    List<PipelineBundlePairDto> list = List.of(bundlePairDto);
-    when(padPipelineRepository.getBundleNamesByPwaApplicationDetail(detail)).thenReturn(list);
-    var result = padPipelineService.getPipelineBundleNamesByDetail(detail);
-    assertThat(result).containsExactly(bundlePairDto);
   }
 
   @Test

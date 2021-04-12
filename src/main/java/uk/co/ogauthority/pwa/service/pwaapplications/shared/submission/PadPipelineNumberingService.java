@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.service.pwaapplications.shared.submission;
 
 import com.google.common.annotations.VisibleForTesting;
 import javax.transaction.Transactional;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
@@ -38,6 +39,10 @@ public class PadPipelineNumberingService {
         padPipelineSubmissionRepository.saveAll(nonConsentedPipelines);
       }
     }
+  }
+
+  public boolean nonConsentedPadPipelineRequiresFullReference(PadPipeline padPipeline){
+    return StringUtils.isEmpty(padPipeline.getTemporaryRef());
   }
 
   @VisibleForTesting

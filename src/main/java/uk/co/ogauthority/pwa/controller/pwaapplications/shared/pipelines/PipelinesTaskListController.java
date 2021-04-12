@@ -1,7 +1,5 @@
 package uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelines;
 
-import java.util.Comparator;
-import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,8 +10,6 @@ import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationPermissionCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationStatusCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTypeCheck;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
@@ -49,17 +45,15 @@ public class PipelinesTaskListController {
     this.applicationRedirectService = applicationRedirectService;
   }
 
-  private ModelAndView getOverviewModelAndView(PwaApplicationDetail detail) {
+  private ModelAndView getOverviewModelAndView(PwaApplicationContext applicationContext) {
 
     var modelAndView = new ModelAndView("pwaApplication/shared/pipelines/overview")
-        .addObject("pipelineTaskListItems", padPipelineTaskListService.getPipelineTaskListItems(detail).stream()
-            .sorted(Comparator.comparing(PipelineOverview::getPipelineNumber))
-            .collect(Collectors.toList()))
-        .addObject("pipelineUrlFactory", new PipelineUrlFactory(detail))
-        .addObject("canImportConsentedPipeline", padPipelineTaskListService.canImportConsentedPipelines(detail))
-        .addObject("taskListUrl", applicationRedirectService.getTaskListRoute(detail.getPwaApplication()));
+        .addObject("pipelineTaskListItems", padPipelineTaskListService.getSortedPipelineTaskListItems(applicationContext))
+        .addObject("pipelineUrlFactory", new PipelineUrlFactory(applicationContext.getApplicationDetail()))
+        .addObject("canImportConsentedPipeline", padPipelineTaskListService.canImportConsentedPipelines(applicationContext.getApplicationDetail()))
+        .addObject("taskListUrl", applicationRedirectService.getTaskListRoute(applicationContext.getPwaApplication()));
 
-    breadcrumbService.fromTaskList(detail.getPwaApplication(), modelAndView, "Pipelines");
+    breadcrumbService.fromTaskList(applicationContext.getPwaApplication(), modelAndView, "Pipelines");
 
     return modelAndView;
 
@@ -70,7 +64,7 @@ public class PipelinesTaskListController {
                                               @PathVariable("applicationType")
                                               @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
                                               PwaApplicationContext applicationContext) {
-    return getOverviewModelAndView(applicationContext.getApplicationDetail());
+    return getOverviewModelAndView(applicationContext);
   }
 
   @PostMapping
@@ -84,7 +78,7 @@ public class PipelinesTaskListController {
     var pipelineSummaryValidationResult = padPipelineTaskListService.getValidationResult(detail);
 
     if (!pipelineSummaryValidationResult.isSectionComplete()) {
-      return getOverviewModelAndView(applicationContext.getApplicationDetail())
+      return getOverviewModelAndView(applicationContext)
           .addObject("pipelineSummaryValidationResult", pipelineSummaryValidationResult);
     }
 

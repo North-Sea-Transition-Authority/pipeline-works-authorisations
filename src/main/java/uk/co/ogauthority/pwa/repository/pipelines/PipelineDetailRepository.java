@@ -20,4 +20,6 @@ public interface PipelineDetailRepository extends CrudRepository<PipelineDetail,
 
   Optional<PipelineDetail> getByPipeline_IdAndTipFlagIsTrue(Integer pipelineId);
 
+  boolean existsByPipeline_IdAndTipFlagIsTrue(Integer pipelineId);
+
 }
