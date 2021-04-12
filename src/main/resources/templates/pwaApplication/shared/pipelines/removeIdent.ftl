@@ -74,7 +74,7 @@
       <dd class="govuk-summary-list__value">${productsToBeConveyed}</dd>
     </div>
     <div class="govuk-summary-list__row">
-      <dt class="govuk-summary-list__key">Description of component parts</dt>
+      <dt class="govuk-summary-list__key">Description of component part</dt>
       <dd class="govuk-summary-list__value">${identView.componentPartsDescription}</dd>
     </div>    
   </dl>

@@ -17,7 +17,7 @@
   <h2 class="govuk-heading-l">Draft a public notice</h2>
 
   <@fdsForm.htmlForm>
-    <@fdsTextarea.textarea path="form.coverLetterText" labelText="Cover letter text" characterCount=true maxCharacterLength="4000" inputClass="govuk-!-width-two-thirds"/>
+    <@fdsTextarea.textarea path="form.coverLetterText" labelText="Cover letter text" characterCount=true maxCharacterLength="4000" inputClass="govuk-!-width-full"/>
 
     <@grid.gridRow>
       <@grid.twoThirdsColumn>

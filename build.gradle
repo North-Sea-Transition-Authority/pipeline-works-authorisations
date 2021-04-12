@@ -42,9 +42,6 @@ repositories {
   maven {
     url("http://nexus.fivium.local:8081/repository/maven-releases/")
   }
-  maven {
-    url  "https://dl.bintray.com/gov-uk-notify/maven"
-  }
 }
 
 dependencies {
@@ -64,7 +61,7 @@ dependencies {
 
   compile 'org.flywaydb:flyway-core:5.2.1-FIVIUM'
   compile 'com.oracle:ojdbc7:12.1.0.2'
-  compile('uk.gov.service.notify:notifications-java-client:3.12.0-RELEASE')
+  compile('uk.gov.service.notify:notifications-java-client:3.17.0-RELEASE')
   compile 'org.springframework.session:spring-session-jdbc'
   compile 'org.camunda.bpm.springboot:camunda-bpm-spring-boot-starter:3.4.1'
 

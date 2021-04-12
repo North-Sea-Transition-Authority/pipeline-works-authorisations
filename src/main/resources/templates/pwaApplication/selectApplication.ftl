@@ -22,24 +22,26 @@
             <@fdsRadio.radioItem path="form.applicationType" itemMap={appTypeName: displayName}>
 
               <#if appTypeName == "INITIAL">
-                <p class="govuk-body">All new fields irrespective of pipeline lengths including 28-day public notice. Note this also includes cases where there are Median Line implications.</p>
+                <p class="govuk-body">All new fields irrespective of pipeline lengths. This requires a 28 day Public Notice. This also includes cases where there are Median Line implications.</p>
               <#elseif appTypeName == "DEPOSIT_CONSENT">
                 <p class="govuk-body">For any deposits being laid to support or protect a pipeline which has been authorised under a PWA</p>
               <#elseif appTypeName == "CAT_1_VARIATION">
-                <p class="govuk-body">Varying an existing PWA and any new pipeline being installed in the Variation work scope is more than 500m in length and outside an HSE recognised safety zone. This also requires a 28 day Public Notice.</p>
+                <p class="govuk-body">Varying an existing PWA where any new pipeline being installed in the Variation work scope is more than 500m in length and outside an HSE recognised safety zone. This requires a 28 day Public Notice.</p>
               <#elseif appTypeName == "CAT_2_VARIATION">
-                <h4 class="govuk-heading-s">Installation or Variation</h4>
-                <p class="govuk-body">Where any pipeline is less than 500m in length or totally within a HSE recognised safety zone or varying an existing pipeline in the PWA Regime.</p>
-                <h4 class="govuk-heading-s">Removal or Out of Use</h4>
-                <p class="govuk-body">Where an existing pipeline within the PWA Regime is to be partially or fully removed from the seabed or taken out of use. This is prior to agreement of COP approval.</p>
+                <p class="govuk-body">A category 2 variation is used when varying an existing PWA for the following reasons:</p>
+                <ul class="govuk-list govuk-list--bullet">
+                  <li>adding new pipelines less than 500m in length or totally within a HSE recognised safety zone</li>
+                  <li>varying an existing pipeline in the PWA Regime</li>
+                  <li>partially or fully removing an existing pipeline within the PWA Regime from the seabed or taking it out of use prior to agreement of Cessation of Production approval</li>
+                  <li>bringing a pipeline into the PWA Regime that already exists on the seabed</li>
+                </ul>
               <#elseif appTypeName == "HUOO_VARIATION">
-                <p class="govuk-body">The Holder must make an application to <a class="govuk-link govuk-link--no-visited-state" href="mailto:${contactEmail!""}">${contactEmail!""}</a> very early in the process regarding any proposed changes to the Holder, User, Operator or Owner information for OGA’s consideration using the HUOO template. If the OGA is content with the proposed changes the OGA will advise the Holder to resubmit the application nearer the execution date. The actual consent will not be issued until the deed has been executed.</p>
+                <p class="govuk-body">For any changes to the current holder, user, operator or owner information only.</p>
               <#elseif appTypeName == "OPTIONS_VARIATION">
-                <p class="govuk-body">Where the problem with a pipeline(s) may not be clearly identified and there may be various points of possible failure, OGA may consider an Options case. To apply under the above circumstances, the Holder should email <a class="govuk-link govuk-link--no-visited-state" href="mailto:${contactEmail!""}">${contactEmail!""}</a> detailing why they would like OGA to consider the case to be handled as an Options.</p>
+                <p class="govuk-body">Where the problem with a pipeline(s) may not be clearly identified and there may be various points of possible failure, OGA may consider an Options case. To apply under the above circumstances, the Holder should provide details to why they would like OGA to consider the case to be handled as an Options.</p>
               <#elseif appTypeName == "DECOMMISSIONING">
-                <p class="govuk-body">For proposed subsea pipeline works associated with Decommissioning- only to be used on the condition that OGA has agreed COP and the Operator has confirmed the last day of production in writing to OGA Operations</p>
+                <p class="govuk-body">For proposed subsea pipeline works associated with Decommissioning. This is only to be used on the condition that OGA has agreed Cessation of Production and the operator has confirmed the last day of production in writing to OGA Operations.</p>
               </#if>
-              </p>
             </@fdsRadio.radioItem>
 
           </#list>
