@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import uk.co.ogauthority.pwa.model.dto.consents.OrganisationPipelineRoleInstanceDto;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineStatus;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
+import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
 
 public class PwaConsentOrganisationPipelineRoleDtoRepositoryImpl implements PwaConsentOrganisationPipelineRoleDtoRepository {
 
@@ -46,6 +47,37 @@ public class PwaConsentOrganisationPipelineRoleDtoRepositoryImpl implements PwaC
         OrganisationPipelineRoleInstanceDto.class)
         .setParameter("masterPwa", masterPwa)
         .setParameter("importableHuooPipelineStatus", importableHuooPipelineStatus);
+    return query.getResultList();
+
+  }
+
+  @Override
+  public List<OrganisationPipelineRoleInstanceDto> findActiveOrganisationPipelineRolesByPipelineDetail(
+      PipelineDetail pipelineDetail) {
+
+    var query = entityManager.createQuery("" +
+            "SELECT new uk.co.ogauthority.pwa.model.dto.consents.OrganisationPipelineRoleInstanceDto( " +
+            "  cor.organisationUnitId, " +
+            "  cor.migratedOrganisationName, " +
+            "  cor.agreement, " +
+            "  cor.role, " +
+            "  cor.type, " +
+            "  cporl.pipeline.id, " +
+            "  cporl.fromLocation, " +
+            "  cporl.fromLocationIdentInclusionMode, " +
+            "  cporl.toLocation, " +
+            "  cporl.toLocationIdentInclusionMode, " +
+            "  cporl.sectionNumber " +
+            ") " +
+            "FROM PwaConsentPipelineOrganisationRoleLink cporl " +
+            "JOIN PipelineDetail pd ON cporl.pipeline = pd.pipeline " +
+            "JOIN PwaConsentOrganisationRole cor ON cporl.pwaConsentOrganisationRole = cor " +
+            "JOIN PwaConsent pc ON cor.addedByPwaConsent = pc " +
+            "WHERE pd.id  = :pipelineDetailId " +
+            "AND cor.endedByPwaConsent IS NULL " +
+            "AND cporl.endedByPwaConsent IS NULL ",
+        OrganisationPipelineRoleInstanceDto.class)
+        .setParameter("pipelineDetailId", pipelineDetail.getId());
     return query.getResultList();
 
   }

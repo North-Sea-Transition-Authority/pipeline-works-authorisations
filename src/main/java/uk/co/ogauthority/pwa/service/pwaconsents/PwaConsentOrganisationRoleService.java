@@ -33,6 +33,7 @@ import uk.co.ogauthority.pwa.model.entity.enums.HuooType;
 import uk.co.ogauthority.pwa.model.entity.enums.TreatyAgreement;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelinehuoo.OrgRoleInstanceType;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
+import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsentOrganisationRole;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsentPipelineOrganisationRoleLink;
@@ -141,6 +142,15 @@ public class PwaConsentOrganisationRoleService {
 
   }
 
+  public OrganisationRolesSummaryDto getOrganisationRoleSummary(PipelineDetail pipelineDetail) {
+
+    var organisationPipelineRole = pwaConsentPipelineOrganisationRoleLinkRepository.findActiveOrganisationPipelineRolesByPipelineDetail(
+        pipelineDetail);
+
+    return OrganisationRolesSummaryDto.aggregateOrganisationPipelineRoles(organisationPipelineRole);
+
+  }
+
   public Long getNumberOfHolders(MasterPwa masterPwa) {
     var pwaConsents = pwaConsentRepository.findByMasterPwa(masterPwa);
     return pwaConsentOrganisationRoleRepository.countByAddedByPwaConsentInAndRoleInAndEndTimestampIsNull(
@@ -212,6 +222,11 @@ public class PwaConsentOrganisationRoleService {
   public AllOrgRolePipelineGroupsView getAllOrganisationRolePipelineGroupView(MasterPwa masterPwa) {
 
     var orgRolesSummaryDto = getOrganisationRoleSummary(masterPwa);
+    return getAllOrganisationRolePipelineGroupView(masterPwa, orgRolesSummaryDto);
+  }
+
+  public AllOrgRolePipelineGroupsView getAllOrganisationRolePipelineGroupView(MasterPwa masterPwa,
+                                                                              OrganisationRolesSummaryDto orgRolesSummaryDto) {
 
     Comparator<OrganisationRolePipelineGroupView> viewComparator =
         Comparator.comparing(OrganisationRolePipelineGroupView::getCompanyName,  Comparator.nullsLast(Comparator.naturalOrder()));
