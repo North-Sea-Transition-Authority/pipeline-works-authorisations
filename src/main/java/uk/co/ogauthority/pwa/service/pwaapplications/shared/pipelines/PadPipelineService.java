@@ -1,7 +1,6 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.Sets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -10,15 +9,13 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import javax.transaction.Transactional;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.BooleanUtils;
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PadPipelineId;
@@ -291,49 +288,6 @@ public class PadPipelineService {
   public long getTotalPipelinesContainedInApplication(PwaApplicationDetail pwaApplicationDetail) {
     return padPipelineRepository.countAllByPwaApplicationDetail(pwaApplicationDetail);
   }
-
-
-  /**
-   * Get a lookup of by pipeline id to pipeline number.
-   * If a pipeline has been imported in the application, map pipelineId to the application's pipeline number,
-   * else use the consented model pipeline number.
-   */
-  public Map<PipelineId, String> getApplicationOrConsentedPipelineNumberLookup(
-      PwaApplicationDetail pwaApplicationDetail) {
-    Map<PipelineId, PipelineDetail> pipelineDetailsLookup = pipelineDetailService.getActivePipelineDetailsForApplicationMasterPwa(
-        pwaApplicationDetail.getPwaApplication()
-    ).stream()
-        .collect(Collectors.toMap(PipelineId::from, p -> p));
-
-    Map<PipelineId, PadPipeline> padPipelinesLookup = padPipelineRepository.getAllByPwaApplicationDetail(
-        pwaApplicationDetail
-    ).stream()
-        .collect(Collectors.toMap(PipelineId::from, p -> p));
-
-    var allPipelineIds = Sets.union(
-        pipelineDetailsLookup.keySet(),
-        padPipelinesLookup.keySet()
-    );
-
-    return allPipelineIds
-        .stream()
-        .map(pipelineId -> {
-          // this will blow up if we fail to find a reference from the application detail or the consented model for the pipelineId
-          if (padPipelinesLookup.containsKey(pipelineId)) {
-            return new ImmutablePair<PipelineId, String>(
-                pipelineId,
-                padPipelinesLookup.get(pipelineId).getPipelineRef());
-          }
-
-          return new ImmutablePair<PipelineId, String>(
-              pipelineId,
-              pipelineDetailsLookup.get(pipelineId).getPipelineNumber()
-          );
-
-        })
-        .collect(Collectors.toMap(Pair::getKey, Pair::getValue));
-  }
-
 
   @Transactional
   public PadPipeline copyDataToNewPadPipeline(PwaApplicationDetail detail, PipelineDetail pipelineDetail,

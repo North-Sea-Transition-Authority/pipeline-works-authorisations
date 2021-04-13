@@ -1,0 +1,76 @@
+package uk.co.ogauthority.pwa.service.pwaapplications.context;
+
+import java.util.Objects;
+import java.util.Set;
+import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupMemberRole;
+import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
+import uk.co.ogauthority.pwa.model.teams.PwaRegulatorRole;
+import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
+
+/**
+ * Essentially a cut down ApplicationInvolvement that simply deals with team membership on an application.
+ * No other flags not directly related to a user's team involvement should be added here.
+ */
+public class UserRolesForApplicationDto {
+
+  private final Set<PwaContactRole> userContactRoles;
+  private final Set<PwaOrganisationRole> userHolderTeamRoles;
+  private final Set<PwaRegulatorRole> userRegulatorRoles;
+  private final Set<ConsulteeGroupMemberRole> userConsulteeRoles;
+
+  UserRolesForApplicationDto(Set<PwaContactRole> userContactRoles,
+                             Set<PwaOrganisationRole> userHolderTeamRoles,
+                             Set<PwaRegulatorRole> userRegulatorRoles,
+                             Set<ConsulteeGroupMemberRole> userConsulteeRoles) {
+    this.userContactRoles = userContactRoles;
+    this.userHolderTeamRoles = userHolderTeamRoles;
+    this.userRegulatorRoles = userRegulatorRoles;
+    this.userConsulteeRoles = userConsulteeRoles;
+  }
+
+  public Set<PwaContactRole> getUserContactRoles() {
+    return userContactRoles;
+  }
+
+  public Set<PwaOrganisationRole> getUserHolderTeamRoles() {
+    return userHolderTeamRoles;
+  }
+
+  public Set<PwaRegulatorRole> getUserRegulatorRoles() {
+    return userRegulatorRoles;
+  }
+
+  public Set<ConsulteeGroupMemberRole> getUserConsulteeRoles() {
+    return userConsulteeRoles;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    UserRolesForApplicationDto that = (UserRolesForApplicationDto) o;
+    return Objects.equals(userContactRoles, that.userContactRoles)
+        && Objects.equals(userHolderTeamRoles, that.userHolderTeamRoles)
+        && Objects.equals(userRegulatorRoles, that.userRegulatorRoles)
+        && Objects.equals(userConsulteeRoles, that.userConsulteeRoles);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(userContactRoles, userHolderTeamRoles, userRegulatorRoles, userConsulteeRoles);
+  }
+
+  @Override
+  public String toString() {
+    return "UserRolesForApplicationDto{" +
+        "userContactRoles=" + userContactRoles +
+        ", userHolderTeamRoles=" + userHolderTeamRoles +
+        ", userRegulatorRoles=" + userRegulatorRoles +
+        ", userConsulteeRoles=" + userConsulteeRoles +
+        '}';
+  }
+}

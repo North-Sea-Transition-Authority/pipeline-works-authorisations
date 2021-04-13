@@ -74,4 +74,14 @@ public class PwaApplicationContext {
     return this.applicationDetail.getMasterPwaApplicationId();
   }
 
+  @Override
+  public String toString() {
+    return "PwaApplicationContext{" +
+        "applicationDetail=" + applicationDetail +
+        ", user=" + user +
+        ", permissions=" + permissions +
+        ", padPipeline=" + padPipeline +
+        ", padFile=" + padFile +
+        '}';
+  }
 }

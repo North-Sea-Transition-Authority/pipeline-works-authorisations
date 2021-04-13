@@ -15,6 +15,7 @@ import javax.persistence.OneToOne;
 import javax.persistence.PostLoad;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+import uk.co.ogauthority.pwa.model.dto.pipelines.PadPipelineId;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineCoreType;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineFlexibility;
@@ -158,6 +159,10 @@ public class PadPipeline implements ParentEntity, ChildEntity<Integer, PwaApplic
 
   public PadPipeline(PwaApplicationDetail pwaApplicationDetail) {
     this.pwaApplicationDetail = pwaApplicationDetail;
+  }
+
+  public PadPipelineId getPadPipelineId() {
+    return new PadPipelineId(this.id);
   }
 
   // ParentEntity Methods

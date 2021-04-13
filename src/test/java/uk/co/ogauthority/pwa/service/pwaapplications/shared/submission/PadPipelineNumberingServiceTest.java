@@ -93,4 +93,20 @@ public class PadPipelineNumberingServiceTest {
     padPipelineNumberingService.attachNewReference(padPipeline);
     assertThat(padPipeline.getPipelineRef()).isEqualTo(PipelineCoreType.MULTI_CORE.getReferencePrefix() + "1");
   }
+
+  @Test
+  public void nonConsentedPadPipelineRequiresFullReference_whenHasTemporaryRef() {
+    var padPipeline = new PadPipeline();
+    padPipeline.setTemporaryRef("something");
+    assertThat(padPipelineNumberingService.nonConsentedPadPipelineRequiresFullReference(padPipeline)).isFalse();
+
+  }
+
+  @Test
+  public void nonConsentedPadPipelineRequiresFullReference_whenHasNoTemporaryRef() {
+    var padPipeline = new PadPipeline();
+
+    assertThat(padPipelineNumberingService.nonConsentedPadPipelineRequiresFullReference(padPipeline)).isTrue();
+
+  }
 }

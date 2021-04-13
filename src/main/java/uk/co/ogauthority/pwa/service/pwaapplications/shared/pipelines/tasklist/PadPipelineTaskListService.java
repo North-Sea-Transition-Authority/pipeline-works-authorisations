@@ -3,12 +3,17 @@ package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.tasklist;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import com.google.common.annotations.VisibleForTesting;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BeanPropertyBindingResult;
@@ -21,9 +26,7 @@ import uk.co.ogauthority.pwa.model.dto.pipelines.PadPipelineId;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PadPipelineSummaryDto;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineMaterial;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.PipelineIdentForm;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PadPipelineOverview;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PadPipelineTaskListItem;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview;
 import uk.co.ogauthority.pwa.model.tasklist.TaskListEntry;
@@ -31,6 +34,7 @@ import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.pipelines.PadPipelineRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
+import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskInfo;
 import uk.co.ogauthority.pwa.service.pwaapplications.options.PadOptionConfirmedService;
@@ -42,12 +46,14 @@ import uk.co.ogauthority.pwa.service.validation.SummaryScreenValidationResult;
 @Service
 public class PadPipelineTaskListService implements ApplicationFormSectionService {
 
+  private static final Logger LOGGER = LoggerFactory.getLogger(PadPipelineTaskListService.class);
+
   private final PadPipelineService padPipelineService;
   private final PadPipelineIdentService padPipelineIdentService;
   private final PadOptionConfirmedService padOptionConfirmedService;
   private final PadPipelineRepository padPipelineRepository;
   private final PipelineIdentFormValidator pipelineIdentFormValidator;
-
+  private final RegulatorPipelineReferenceTaskService regulatorPipelineReferenceTaskService;
   private final PadPipelineDataCopierService padPipelineDataCopierService;
 
   @Autowired
@@ -56,12 +62,14 @@ public class PadPipelineTaskListService implements ApplicationFormSectionService
                                     PadOptionConfirmedService padOptionConfirmedService,
                                     PadPipelineRepository padPipelineRepository,
                                     PipelineIdentFormValidator pipelineIdentFormValidator,
+                                    RegulatorPipelineReferenceTaskService regulatorPipelineReferenceTaskService,
                                     PadPipelineDataCopierService padPipelineDataCopierService) {
     this.padPipelineService = padPipelineService;
     this.padPipelineIdentService = padPipelineIdentService;
     this.padOptionConfirmedService = padOptionConfirmedService;
     this.padPipelineRepository = padPipelineRepository;
     this.pipelineIdentFormValidator = pipelineIdentFormValidator;
+    this.regulatorPipelineReferenceTaskService = regulatorPipelineReferenceTaskService;
     this.padPipelineDataCopierService = padPipelineDataCopierService;
   }
 
@@ -85,7 +93,8 @@ public class PadPipelineTaskListService implements ApplicationFormSectionService
 
   @Override
   public void copySectionInformation(PwaApplicationDetail fromDetail, PwaApplicationDetail toDetail) {
-    padPipelineDataCopierService.copyAllPadPipelineData(fromDetail, toDetail, () -> padPipelineService.getPipelines(fromDetail));
+    padPipelineDataCopierService.copyAllPadPipelineData(fromDetail, toDetail,
+        () -> padPipelineService.getPipelines(fromDetail));
   }
 
   @Override
@@ -116,64 +125,91 @@ public class PadPipelineTaskListService implements ApplicationFormSectionService
   }
 
 
-  public List<PadPipelineTaskListItem> getPipelineTaskListItems(PwaApplicationDetail detail) {
+  public List<PadPipelineTaskListItem> getSortedPipelineTaskListItems(PwaApplicationContext applicationContext) {
 
-    var overviews = getApplicationPipelineOverviewsForTaskList(detail);
-    var padPipelineMap = padPipelineService.getPadPipelineMapForOverviews(detail, overviews);
+    var taskListItemHeaders = getPipelinesTaskListHeaders(applicationContext.getApplicationDetail());
 
-    return overviews.stream()
-        .map(pipelineOverview -> new PadPipelineTaskListItem(
-            pipelineOverview,
-            createTaskListEntries(
-                detail, pipelineOverview,
-                padPipelineMap.get(new PadPipelineId(pipelineOverview.getPadPipelineId()))
-            )
+    return taskListItemHeaders.stream()
+        .map(pipelineTaskListHeader -> new PadPipelineTaskListItem(
+            pipelineTaskListHeader,
+            createTaskListEntries(applicationContext, pipelineTaskListHeader)
         ))
+        .sorted(Comparator.comparing(PadPipelineTaskListItem::getPipelineName))
+        .collect(Collectors.toList());
+  }
+
+  private List<PadPipelineTaskListHeader> getPipelinesTaskListHeaders(PwaApplicationDetail pwaApplicationDetail) {
+
+    var allPadPipelines = padPipelineService.getPipelines(pwaApplicationDetail);
+    var padPipelineIdToOverviewMap = padPipelineService.getApplicationPipelineOverviews(pwaApplicationDetail)
+        .stream()
+        .collect(Collectors.toMap(PipelineOverview::getPadPipelineId, Function.identity()));
+
+    return allPadPipelines.stream()
+        .map(padPipeline -> {
+          var overviewOpt = Optional.ofNullable(padPipelineIdToOverviewMap.get(padPipeline.getId()));
+          LOGGER.debug("Overview for padPipelineId:{} is {}", padPipeline.getId(),
+              overviewOpt.isEmpty() ? "not found" : "found");
+
+          var identsNo = overviewOpt
+              .map(PipelineOverview::getNumberOfIdents)
+              .orElse(0L);
+
+          var pipelineName = overviewOpt
+              .map(PipelineOverview::getPipelineName)
+              .orElse(padPipeline.getPipelineRef());
+
+          return new PadPipelineTaskListHeader(
+              padPipeline,
+              identsNo,
+              padPipeline.getPipelineStatus(),
+              pipelineName
+          );
+
+        })
         .collect(Collectors.toList());
   }
 
 
-  public List<PipelineOverview> getApplicationPipelineOverviewsForTaskList(PwaApplicationDetail detail) {
+  private List<TaskListEntry> createTaskListEntries(PwaApplicationContext applicationContext,
+                                                    PadPipelineTaskListHeader padPipelineTaskListHeader) {
+    var padPipeline = padPipelineTaskListHeader.getPadPipeline();
 
-    return padPipelineRepository.findAllPipelinesAsSummaryDtoByPwaApplicationDetail(detail).stream()
-        .map(padPipelineSummaryDto -> PadPipelineOverview.from(
-            padPipelineSummaryDto,
-            doesPipelineHaveTasks(padPipelineSummaryDto)
-        ))
-        .sorted(Comparator.comparing(PipelineOverview::getPipelineNumber))
-        .collect(Collectors.toList());
-
-  }
-
-
-  private List<TaskListEntry> createTaskListEntries(PwaApplicationDetail pwaApplicationDetail,
-                                                    PipelineOverview pipelineOverview,
-                                                    PadPipeline padPipeline) {
     var editPipelineHeaderUrl = getEditPipelineHeaderUrl(
-        pwaApplicationDetail.getMasterPwaApplicationId(),
-        pwaApplicationDetail.getPwaApplicationType(),
-        pipelineOverview.getPadPipelineId());
+        applicationContext.getMasterPwaApplicationId(),
+        applicationContext.getApplicationType(),
+        padPipeline.getId());
 
     var identTaskUrl = getPipelineIdentOverviewUrl(
-        pwaApplicationDetail.getMasterPwaApplicationId(),
-        pwaApplicationDetail.getPwaApplicationType(),
-        pipelineOverview.getPadPipelineId()
+        applicationContext.getMasterPwaApplicationId(),
+        applicationContext.getApplicationType(),
+        padPipeline.getId()
     );
 
-    return List.of(
+    var entryList = new ArrayList<TaskListEntry>();
+
+    regulatorPipelineReferenceTaskService.getTaskListEntry(applicationContext, padPipelineTaskListHeader)
+        .ifPresent(entryList::add);
+
+    entryList.add(
         new TaskListEntry(
             "Header information",
             editPipelineHeaderUrl,
-            padPipelineService.isPadPipelineValid(padPipeline, pwaApplicationDetail.getPwaApplicationType()),
-            10),
+            padPipelineService.isPadPipelineValid(padPipeline, applicationContext.getApplicationType()),
+            10)
+    );
+    entryList.add(
         new TaskListEntry(
             "Idents",
             identTaskUrl,
             padPipelineIdentService.isSectionValid(padPipeline),
-            List.of(new TaskInfo("IDENT", pipelineOverview.getNumberOfIdents())),
+            List.of(new TaskInfo("IDENT", padPipelineTaskListHeader.getNumberOfIdents())),
             20
         )
     );
+
+
+    return entryList;
   }
 
   private String getEditPipelineHeaderUrl(int applicationId, PwaApplicationType applicationType, int padPipelineId) {
