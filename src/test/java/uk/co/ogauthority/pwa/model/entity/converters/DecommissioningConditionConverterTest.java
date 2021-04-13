@@ -1,8 +1,11 @@
 package uk.co.ogauthority.pwa.model.entity.converters;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertTrue;
 
+import java.util.Arrays;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.junit.Before;
 import org.junit.Test;
 import uk.co.ogauthority.pwa.model.entity.enums.DecommissioningCondition;
@@ -18,12 +21,20 @@ public class DecommissioningConditionConverterTest {
 
   @Test
   public void testConvertToDatabaseColumn_ValidSet() {
-    var result = converter.convertToDatabaseColumn(Set.of(
+    var decommissioningConditions = Set.of(
         DecommissioningCondition.EOL_REGULATION_STATEMENT,
-        DecommissioningCondition.EOL_REMOVAL_STATEMENT
-    ));
-    assertThat(result).contains(DecommissioningCondition.EOL_REGULATION_STATEMENT.name());
-    assertThat(result).contains(DecommissioningCondition.EOL_REMOVAL_STATEMENT.name());
+        DecommissioningCondition.EOL_REMOVAL_STATEMENT,
+        DecommissioningCondition.EOL_REMOVAL_PROPOSAL,
+        DecommissioningCondition.EOL_BUNDLES_STATEMENT
+    );
+    var result = converter.convertToDatabaseColumn(decommissioningConditions);
+
+    assertTrue(Arrays.asList(result.split(","))
+        .containsAll(decommissioningConditions.stream()
+            .map(DecommissioningCondition::name)
+            .collect(Collectors.toSet())
+        )
+    );
   }
 
   @Test

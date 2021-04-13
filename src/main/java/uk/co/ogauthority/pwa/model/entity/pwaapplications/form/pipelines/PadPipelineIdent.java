@@ -202,11 +202,13 @@ public class PadPipelineIdent implements PipelineIdent, ChildEntity<Integer, Pad
   }
 
   // Setters
+  @Override
   public void setFromCoordinates(CoordinatePair fromCoordinates) {
     this.fromCoordinates = fromCoordinates;
     updateFromCoordinateValues();
   }
 
+  @Override
   public void setToCoordinates(CoordinatePair toCoordinates) {
     this.toCoordinates = toCoordinates;
     updateToCoordinateValues();
@@ -220,22 +222,27 @@ public class PadPipelineIdent implements PipelineIdent, ChildEntity<Integer, Pad
     this.padPipeline = padPipeline;
   }
 
+  @Override
   public void setIdentNo(int identNo) {
     this.identNo = identNo;
   }
 
+  @Override
   public void setFromLocation(String fromLocation) {
     this.fromLocation = fromLocation;
   }
 
+  @Override
   public void setToLocation(String toLocation) {
     this.toLocation = toLocation;
   }
 
+  @Override
   public void setLength(BigDecimal length) {
     this.length = length;
   }
 
+  @Override
   public void setDefiningStructure(Boolean definingStructure) {
     isDefiningStructure = definingStructure;
   }

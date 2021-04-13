@@ -19,8 +19,8 @@ import uk.co.ogauthority.pwa.model.view.PipelineAndIdentView;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.IdentView;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineIdentService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
-import uk.co.ogauthority.pwa.service.pwaconsents.PipelineDetailIdentService;
-import uk.co.ogauthority.pwa.service.pwaconsents.PipelineDetailService;
+import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailIdentViewService;
+import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailService;
 
 /**
  * Service whose  job to is collect data from both the consented model and applications model in order to give a consistent view
@@ -33,17 +33,17 @@ public class PipelineAndIdentViewFactory {
   private final PadPipelineIdentService padPipelineIdentService;
 
   private final PipelineDetailService pipelineDetailService;
-  private PipelineDetailIdentService pipelineDetailIdentService;
+  private PipelineDetailIdentViewService pipelineDetailIdentViewService;
 
   @Autowired
   public PipelineAndIdentViewFactory(PadPipelineService padPipelineService,
                                      PadPipelineIdentService padPipelineIdentService,
                                      PipelineDetailService pipelineDetailService,
-                                     PipelineDetailIdentService pipelineDetailIdentService) {
+                                     PipelineDetailIdentViewService pipelineDetailIdentViewService) {
     this.padPipelineService = padPipelineService;
     this.padPipelineIdentService = padPipelineIdentService;
     this.pipelineDetailService = pipelineDetailService;
-    this.pipelineDetailIdentService = pipelineDetailIdentService;
+    this.pipelineDetailIdentViewService = pipelineDetailIdentViewService;
   }
 
   /**
@@ -76,7 +76,7 @@ public class PipelineAndIdentViewFactory {
       }
     });
 
-    var allConsentedPipelineIdtoIdentViewListMap = pipelineDetailIdentService.getSortedPipelineIdentViewsForPipelines(
+    var allConsentedPipelineIdtoIdentViewListMap = pipelineDetailIdentViewService.getSortedPipelineIdentViewsForPipelines(
         allAppAndMasterPwaPipelineIds
     );
 
@@ -160,7 +160,7 @@ public class PipelineAndIdentViewFactory {
     }
 
     return Collections.unmodifiableList(
-        pipelineDetailIdentService.getSortedPipelineIdentViewsForPipeline(pipelineId)
+        pipelineDetailIdentViewService.getSortedPipelineIdentViewsForPipeline(pipelineId)
     );
   }
 

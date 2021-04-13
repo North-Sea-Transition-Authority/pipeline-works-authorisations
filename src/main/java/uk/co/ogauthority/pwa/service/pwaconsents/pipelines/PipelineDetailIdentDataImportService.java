@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.service.pwaconsents;
+package uk.co.ogauthority.pwa.service.pwaconsents.pipelines;
 
 import com.google.common.annotations.VisibleForTesting;
 import java.util.Collection;
@@ -13,9 +13,6 @@ import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetailIdentData;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipelineIdent;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipelineIdentData;
-import uk.co.ogauthority.pwa.model.location.CoordinatePair;
-import uk.co.ogauthority.pwa.model.location.LatitudeCoordinate;
-import uk.co.ogauthority.pwa.model.location.LongitudeCoordinate;
 import uk.co.ogauthority.pwa.repository.pipelines.PipelineDetailIdentDataRepository;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineIdentDataService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineIdentService;
@@ -26,15 +23,21 @@ public class PipelineDetailIdentDataImportService {
   private final PipelineDetailIdentDataRepository pipelineDetailIdentDataRepository;
   private final PadPipelineIdentService padPipelineIdentService;
   private final PadPipelineIdentDataService padPipelineIdentDataService;
+  private final PipelineIdentDataMappingService pipelineIdentDataMappingService;
+  private final PipelineIdentMappingService pipelineIdentMappingService;
 
   @Autowired
   public PipelineDetailIdentDataImportService(
       PipelineDetailIdentDataRepository pipelineDetailIdentDataRepository,
       PadPipelineIdentService padPipelineIdentService,
-      PadPipelineIdentDataService padPipelineIdentDataService) {
+      PadPipelineIdentDataService padPipelineIdentDataService,
+      PipelineIdentDataMappingService pipelineIdentDataMappingService,
+      PipelineIdentMappingService pipelineIdentMappingService) {
     this.pipelineDetailIdentDataRepository = pipelineDetailIdentDataRepository;
     this.padPipelineIdentService = padPipelineIdentService;
     this.padPipelineIdentDataService = padPipelineIdentDataService;
+    this.pipelineIdentDataMappingService = pipelineIdentDataMappingService;
+    this.pipelineIdentMappingService = pipelineIdentMappingService;
   }
 
   public void importIdentsAndData(PipelineDetail pipelineDetail, PadPipeline padPipeline) {
@@ -72,28 +75,10 @@ public class PipelineDetailIdentDataImportService {
 
   @VisibleForTesting
   public PadPipelineIdent mapIdentToPadPipelineIdent(PadPipeline padPipeline, PipelineDetailIdent detailIdent) {
+
     var ident = new PadPipelineIdent(padPipeline, detailIdent.getIdentNo());
-    ident.setLength(detailIdent.getLength());
-    ident.setToLocation(detailIdent.getToLocation());
-    ident.setFromLocation(detailIdent.getFromLocation());
 
-    var fromCoordinates = new CoordinatePair(
-        new LatitudeCoordinate(detailIdent.getFromLatitudeDegrees(), detailIdent.getFromLatitudeMinutes(),
-            detailIdent.getFromLatitudeSeconds(), detailIdent.getFromLatitudeDirection()),
-        new LongitudeCoordinate(detailIdent.getFromLongitudeDegrees(), detailIdent.getFromLongitudeMinutes(),
-            detailIdent.getFromLongitudeSeconds(), detailIdent.getFromLongitudeDirection())
-    );
-
-    var toCoordinates = new CoordinatePair(
-        new LatitudeCoordinate(detailIdent.getToLatitudeDegrees(), detailIdent.getToLatitudeMinutes(),
-            detailIdent.getToLatitudeSeconds(), detailIdent.getToLatitudeDirection()),
-        new LongitudeCoordinate(detailIdent.getToLongitudeDegrees(), detailIdent.getToLongitudeMinutes(),
-            detailIdent.getToLongitudeSeconds(), detailIdent.getToLongitudeDirection())
-    );
-
-    ident.setFromCoordinates(fromCoordinates);
-    ident.setToCoordinates(toCoordinates);
-    ident.setDefiningStructure(detailIdent.getIsDefiningStructure());
+    pipelineIdentMappingService.mapIdent(ident, detailIdent);
 
     return ident;
   }
@@ -108,16 +93,11 @@ public class PipelineDetailIdentDataImportService {
 
   @VisibleForTesting
   public PadPipelineIdentData mapIdentDataToPadPipelineIdentData(PadPipelineIdent ident, PipelineDetailIdentData identData) {
+
     var padPipelineIdentData = new PadPipelineIdentData(ident);
-    padPipelineIdentData.setComponentPartsDesc(identData.getComponentPartsDesc());
-    padPipelineIdentData.setExternalDiameter(identData.getExternalDiameter());
-    padPipelineIdentData.setInternalDiameter(identData.getInternalDiameter());
-    padPipelineIdentData.setWallThickness(identData.getWallThickness());
-    padPipelineIdentData.setInsulationCoatingType(identData.getInsulationCoatingType());
-    padPipelineIdentData.setMaop(identData.getMaop());
-    padPipelineIdentData.setProductsToBeConveyed(identData.getProductsToBeConveyed());
-    // TODO: PWA-682 - Add MultiCore values to PipelineDetailIdentData
-    // Set multi core values
+
+    pipelineIdentDataMappingService.mapPipelineIdentData(padPipelineIdentData, identData);
+
     return padPipelineIdentData;
   }
 

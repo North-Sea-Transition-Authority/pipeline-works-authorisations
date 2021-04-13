@@ -17,7 +17,11 @@ public enum DecommissioningCondition {
       "I accept that if the condition of the mattresses or grout bags is such that they cannot be removed " +
           "safely or efficiently then any proposal to leave them in place must be supported by an appropriate " +
           "comparative assessment of the options.",
-      "Mattresses or grout bags assessment if not removed");
+      "Mattresses or grout bags assessment if not removed"),
+  EOL_BUNDLES_STATEMENT(40,
+      "We note that current OPRED guidance is that any new pipeline bundle(s) which are under construction" +
+          " will have been designed for future removal, as per current requirements on decommissioning programmes.",
+      "Bundle(s) under construction designed for future removal");
 
 
   private int displayOrder;

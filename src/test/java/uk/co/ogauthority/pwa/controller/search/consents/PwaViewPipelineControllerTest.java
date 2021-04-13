@@ -6,6 +6,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import java.time.Instant;
+import java.util.Map;
 import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
@@ -25,11 +26,12 @@ import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
-import uk.co.ogauthority.pwa.service.pwaconsents.PipelineDetailService;
+import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailService;
 import uk.co.ogauthority.pwa.service.pwacontext.PwaContextService;
 import uk.co.ogauthority.pwa.service.pwacontext.PwaPermission;
 import uk.co.ogauthority.pwa.service.pwacontext.PwaPermissionService;
 import uk.co.ogauthority.pwa.service.search.consents.PwaPipelineViewTab;
+import uk.co.ogauthority.pwa.service.search.consents.pwapipelineview.PwaPipelineHistoryViewService;
 import uk.co.ogauthority.pwa.testutils.PwaEndpointTestBuilder;
 
 @RunWith(SpringRunner.class)
@@ -46,6 +48,9 @@ public class PwaViewPipelineControllerTest extends PwaContextAbstractControllerT
 
   @MockBean
   protected PipelineDetailService pipelineDetailService;
+
+  @MockBean
+  protected PwaPipelineHistoryViewService pwaPipelineHistoryViewService;
 
   private static int PIPELINE_ID = 1;
 
@@ -75,6 +80,8 @@ public class PwaViewPipelineControllerTest extends PwaContextAbstractControllerT
     pipeline.setId(PIPELINE_ID);
     pipeline.setMasterPwa(masterPwa);
     when(pipelineService.getPipelineFromId(new PipelineId(PIPELINE_ID))).thenReturn(pipeline);
+    when(pwaPipelineHistoryViewService.getDiffedPipelineSummaryModel(any(), any())).thenReturn(Map.of());
+    when(pwaPipelineHistoryViewService.getPipelinesVersionSearchSelectorItems(any())).thenReturn(Map.of());
   }
 
 
@@ -85,7 +92,7 @@ public class PwaViewPipelineControllerTest extends PwaContextAbstractControllerT
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((masterPwa) ->
             ReverseRouter.route(on(PwaPipelineViewController.class)
-                .renderViewPwaPipeline(1, PIPELINE_ID, PwaPipelineViewTab.PIPELINE_HISTORY, null, null)));
+                .renderViewPwaPipeline(1, PIPELINE_ID, PwaPipelineViewTab.PIPELINE_HISTORY, null, null, null, null)));
 
     endpointTester.performProcessingPermissionCheck(status().isOk(), status().isForbidden());
 
@@ -98,7 +105,32 @@ public class PwaViewPipelineControllerTest extends PwaContextAbstractControllerT
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((masterPwa) ->
             ReverseRouter.route(on(PwaPipelineViewController.class)
-                .renderViewPwaPipeline(1, PIPELINE_ID, null, null, null)));
+                .renderViewPwaPipeline(1, PIPELINE_ID, null, null, null, null, null)));
+
+    endpointTester.performProcessingPermissionCheck(status().isNotFound(), status().isNotFound());
+
+  }
+
+  @Test
+  public void postViewPwaPipeline_processingPermissionSmokeTest() {
+
+    endpointTester.setRequestMethod(HttpMethod.GET)
+        .setEndpointUrlProducer((masterPwa) ->
+            ReverseRouter.route(on(PwaPipelineViewController.class)
+                .postViewPwaPipeline(1, PIPELINE_ID, PwaPipelineViewTab.PIPELINE_HISTORY, null, null, null)));
+
+    endpointTester.performProcessingPermissionCheck(status().isOk(), status().isForbidden());
+
+  }
+
+
+  @Test
+  public void postViewPwaPipeline_nullTab() {
+
+    endpointTester.setRequestMethod(HttpMethod.GET)
+        .setEndpointUrlProducer((masterPwa) ->
+            ReverseRouter.route(on(PwaPipelineViewController.class)
+                .postViewPwaPipeline(1, PIPELINE_ID, null, null, null, null)));
 
     endpointTester.performProcessingPermissionCheck(status().isNotFound(), status().isNotFound());
 

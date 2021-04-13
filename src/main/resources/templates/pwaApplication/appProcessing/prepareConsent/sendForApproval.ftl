@@ -24,7 +24,7 @@
 
   <@fdsForm.htmlForm>
 
-      <@fdsTextarea.textarea path="form.coverLetterText" labelText="Consent email cover letter" characterCount=true maxCharacterLength="4000" inputClass="govuk-!-width-two-thirds" />
+      <@fdsTextarea.textarea path="form.coverLetterText" labelText="Consent email cover letter" characterCount=true maxCharacterLength="4000" inputClass="govuk-!-width-full" />
 
       <@fdsAction.submitButtons primaryButtonText="Send for approval" linkSecondaryAction=true secondaryLinkText="Cancel" linkSecondaryActionUrl=springUrl(cancelUrl)/>
 

@@ -29,8 +29,8 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.IdentView;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineIdentService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
-import uk.co.ogauthority.pwa.service.pwaconsents.PipelineDetailIdentService;
-import uk.co.ogauthority.pwa.service.pwaconsents.PipelineDetailService;
+import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailIdentViewService;
+import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -56,7 +56,7 @@ public class PipelineAndIdentViewFactoryTest {
   private PipelineDetailService pipelineDetailService;
 
   @Mock
-  private PipelineDetailIdentService pipelineDetailIdentService;
+  private PipelineDetailIdentViewService pipelineDetailIdentViewService;
 
   @Mock
   private PipelineOverview consentedPipelineOverview;
@@ -88,7 +88,7 @@ public class PipelineAndIdentViewFactoryTest {
         padPipelineService,
         padPipelineIdentService,
         pipelineDetailService,
-        pipelineDetailIdentService
+        pipelineDetailIdentViewService
     );
 
     detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
@@ -122,7 +122,7 @@ public class PipelineAndIdentViewFactoryTest {
         // pretend Ident has been removed within the app so theres a difference in the lists
         Map.entry(CONSENTED_PIPELINE_ID, consentedPipelineIdentViews)
     );
-    when(pipelineDetailIdentService.getSortedPipelineIdentViewsForPipelines(allAppAndMasterPwaPipelineIds))
+    when(pipelineDetailIdentViewService.getSortedPipelineIdentViewsForPipelines(allAppAndMasterPwaPipelineIds))
         .thenReturn(consentedPipelineIdentMap);
 
 
@@ -163,7 +163,7 @@ public class PipelineAndIdentViewFactoryTest {
         // pretend Ident has been removed within the app so theres a difference in the lists
         Map.entry(CONSENTED_PIPELINE_ID, List.of(ident1View, ident2View, ident3View))
     );
-    when(pipelineDetailIdentService.getSortedPipelineIdentViewsForPipelines(allAppAndMasterPwaPipelineIds))
+    when(pipelineDetailIdentViewService.getSortedPipelineIdentViewsForPipelines(allAppAndMasterPwaPipelineIds))
         .thenReturn(consentedPipelineIdentMap);
 
 
@@ -203,7 +203,7 @@ public class PipelineAndIdentViewFactoryTest {
         // pretend Ident has been removed within the app so theres a difference in the lists
         Map.entry(CONSENTED_PIPELINE_ID, List.of(ident1View, ident2View, ident3View))
     );
-    when(pipelineDetailIdentService.getSortedPipelineIdentViewsForPipelines(allAppAndMasterPwaPipelineIds))
+    when(pipelineDetailIdentViewService.getSortedPipelineIdentViewsForPipelines(allAppAndMasterPwaPipelineIds))
         .thenReturn(consentedPipelineIdentMap);
 
 
@@ -234,7 +234,7 @@ public class PipelineAndIdentViewFactoryTest {
         // pretend Ident has been removed within the app so theres a difference in the lists
         Map.entry(CONSENTED_PIPELINE_ID, consentedPipelineIdentViews)
     );
-    when(pipelineDetailIdentService.getSortedPipelineIdentViewsForPipelines(allAppAndMasterPwaPipelineIds))
+    when(pipelineDetailIdentViewService.getSortedPipelineIdentViewsForPipelines(allAppAndMasterPwaPipelineIds))
         .thenReturn(consentedPipelineIdentMap);
 
     var sortedResult = pipelineAndIdentViewFactory.getAllAppAndMasterPwaPipelineAndIdentViews(detail).stream()
@@ -336,7 +336,7 @@ public class PipelineAndIdentViewFactoryTest {
 
     var identViewList = List.of(ident1View, ident2View);
 
-    when(pipelineDetailIdentService.getSortedPipelineIdentViewsForPipeline(PIPELINE_ID))
+    when(pipelineDetailIdentViewService.getSortedPipelineIdentViewsForPipeline(PIPELINE_ID))
         .thenReturn(identViewList);
 
     var idents = pipelineAndIdentViewFactory.getPipelineSortedIdentViews(detail, PIPELINE_ID);

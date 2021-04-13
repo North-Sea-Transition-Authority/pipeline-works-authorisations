@@ -30,4 +30,18 @@ public interface PipelineIdent {
 
   PipelineCoreType getPipelineCoreType();
 
+  void setIdentNo(int identNo);
+
+  void setFromLocation(String fromLocation);
+
+  void setFromCoordinates(CoordinatePair fromCoordinates);
+
+  void setToLocation(String toLocation);
+
+  void setToCoordinates(CoordinatePair toCoordinates);
+
+  void setLength(BigDecimal length);
+
+  void setDefiningStructure(Boolean isDefiningStructure);
+
 }
