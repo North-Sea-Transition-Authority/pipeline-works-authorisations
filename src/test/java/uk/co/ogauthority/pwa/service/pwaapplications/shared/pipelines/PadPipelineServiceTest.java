@@ -2,9 +2,7 @@ package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
-import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -12,8 +10,6 @@ import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
@@ -27,11 +23,8 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.security.util.FieldUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
-import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTypeCheck;
-import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelines.ModifyPipelineController;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PadPipelineId;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PadPipelineSummaryDto;
-import uk.co.ogauthority.pwa.model.dto.pipelines.PadPipelineSummaryDtoTestUtils;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineHeaderFormContext;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineMaterial;
@@ -43,7 +36,6 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipelineIdent;
-import uk.co.ogauthority.pwa.model.form.fds.ErrorItem;
 import uk.co.ogauthority.pwa.model.form.location.CoordinateForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.ModifyPipelineForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.PipelineHeaderForm;
@@ -58,6 +50,7 @@ import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.location.CoordinateFormValidator;
 import uk.co.ogauthority.pwa.service.pwaapplications.options.PadOptionConfirmedService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.tasklist.PadPipelineDataCopierService;
 import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.util.CoordinateUtils;
@@ -133,16 +126,14 @@ public class PadPipelineServiceTest {
     padPipelineService = new PadPipelineService(padPipelineRepository,
         pipelineService,
         pipelineDetailService,
-        padPipelineIdentService,
-        pipelineIdentFormValidator,
         padPipelinePersisterService,
-        pipelineHeaderFormValidator,
-        padPipelineDataCopierService,
-        padOptionConfirmedService);
+        pipelineHeaderFormValidator);
 
-    mockValidatorPadPipelineService = new PadPipelineService(padPipelineRepository, pipelineService,
-        pipelineDetailService, padPipelineIdentService, mockValidator, padPipelinePersisterService,
-        pipelineHeaderFormValidator, padPipelineDataCopierService, padOptionConfirmedService);
+    mockValidatorPadPipelineService = new PadPipelineService(padPipelineRepository,
+        pipelineService,
+        pipelineDetailService,
+        padPipelinePersisterService,
+        pipelineHeaderFormValidator);
 
     padPipe1 = new PadPipeline();
     padPipe1.setId(1);
@@ -404,26 +395,6 @@ public class PadPipelineServiceTest {
     assertThat(headerFormContext).isEqualTo(PipelineHeaderFormContext.CONSENTED_PIPELINE);
   }
 
-  @Test
-  public void isComplete() {
-
-    // no errors on validate
-    doAnswer(invocation -> invocation.getArgument(1)).when(mockValidator).validate(any(), any(), any());
-
-    when(padPipelineRepository.findAllPipelinesAsSummaryDtoByPwaApplicationDetail(detail)).thenReturn(List.of(
-        PadPipelineSummaryDtoTestUtils.generateFrom(padPipe1)
-    ));
-
-    when(padPipelineIdentService.getAllIdentsByPadPipelineIds(eq(List.of(new PadPipelineId(1))))).thenReturn(
-        List.of(ident));
-
-    var validationResult = mockValidatorPadPipelineService.getValidationResult(detail);
-    var isComplete = mockValidatorPadPipelineService.isComplete(detail);
-
-    assertThat(isComplete).isEqualTo(validationResult.isSectionComplete());
-
-  }
-
 
   @Test
   public void getPipelines() {
@@ -556,20 +527,6 @@ public class PadPipelineServiceTest {
     assertThat(result).isEmpty();
   }
 
-  @Test
-  public void canImportConsentedPipelines_applicationTypeSmokeTest() {
-    PwaApplicationType.stream()
-        .forEach(pwaApplicationType -> {
-          var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(pwaApplicationType);
-          var result = padPipelineService.canImportConsentedPipelines(detail);
-
-          var allowed = Arrays.asList(
-              ModifyPipelineController.class.getAnnotation(PwaApplicationTypeCheck.class).types()
-          ).contains(pwaApplicationType);
-
-          assertThat(result).isEqualTo(allowed);
-        });
-  }
 
   @Test
   public void getMasterPipelineIds_serviceInteraction() {
@@ -671,210 +628,6 @@ public class PadPipelineServiceTest {
   }
 
   @Test
-  public void cleanupData_hiddenData() {
-
-    var pipeline1 = new PadPipeline();
-    pipeline1.setTrenchedBuriedBackfilled(false);
-    pipeline1.setTrenchingMethodsDescription("desc");
-    pipeline1.setPipelineMaterial(PipelineMaterial.CARBON_STEEL);
-    pipeline1.setOtherPipelineMaterialUsed("other");
-    pipeline1.setPipelineStatus(PipelineStatus.IN_SERVICE);
-
-    var pipeline2 = new PadPipeline();
-    pipeline2.setTrenchedBuriedBackfilled(false);
-    pipeline2.setTrenchingMethodsDescription("desc");
-    pipeline2.setPipelineMaterial(PipelineMaterial.DUPLEX);
-    pipeline2.setOtherPipelineMaterialUsed("other");
-    pipeline2.setPipelineStatus(PipelineStatus.OUT_OF_USE_ON_SEABED);
-
-    when(padPipelineRepository.getAllByPwaApplicationDetail(detail)).thenReturn(List.of(pipeline1, pipeline2));
-
-    padPipelineService.cleanupData(detail);
-
-    assertThat(pipeline1.getTrenchingMethodsDescription()).isNull();
-    assertThat(pipeline1.getOtherPipelineMaterialUsed()).isNull();
-
-    assertThat(pipeline2.getTrenchingMethodsDescription()).isNull();
-    assertThat(pipeline2.getOtherPipelineMaterialUsed()).isNull();
-
-    verify(padPipelineRepository, times(1)).saveAll(eq(List.of(pipeline1, pipeline2)));
-
-  }
-
-  @Test
-  public void cleanupData_noHiddenData() {
-
-    var pipeline1 = new PadPipeline();
-    pipeline1.setTrenchedBuriedBackfilled(true);
-    pipeline1.setTrenchingMethodsDescription("desc");
-    pipeline1.setPipelineMaterial(PipelineMaterial.OTHER);
-    pipeline1.setOtherPipelineMaterialUsed("other");
-    pipeline1.setPipelineStatus(PipelineStatus.IN_SERVICE);
-
-    var pipeline2 = new PadPipeline();
-    pipeline2.setTrenchedBuriedBackfilled(true);
-    pipeline2.setTrenchingMethodsDescription("desc");
-    pipeline2.setPipelineMaterial(PipelineMaterial.OTHER);
-    pipeline2.setOtherPipelineMaterialUsed("other");
-    pipeline2.setPipelineStatus(PipelineStatus.OUT_OF_USE_ON_SEABED);
-
-    when(padPipelineRepository.getAllByPwaApplicationDetail(detail)).thenReturn(List.of(pipeline1, pipeline2));
-
-    padPipelineService.cleanupData(detail);
-
-    assertThat(pipeline1.getTrenchingMethodsDescription()).isNotNull();
-    assertThat(pipeline1.getOtherPipelineMaterialUsed()).isNotNull();
-
-    assertThat(pipeline2.getTrenchingMethodsDescription()).isNotNull();
-    assertThat(pipeline2.getOtherPipelineMaterialUsed()).isNotNull();
-
-    verify(padPipelineRepository, times(1)).saveAll(eq(List.of(pipeline1, pipeline2)));
-
-  }
-
-  @Test
-  public void cleanupData_dataNotRequired_notCleaned() {
-
-    var pipeline1 = new PadPipeline();
-    pipeline1.setPipelineStatus(PipelineStatus.RETURNED_TO_SHORE);
-
-    var pipeline2 = new PadPipeline();
-    pipeline2.setPipelineStatus(PipelineStatus.NEVER_LAID);
-
-    when(padPipelineRepository.getAllByPwaApplicationDetail(detail)).thenReturn(List.of(pipeline1, pipeline2));
-
-    padPipelineService.cleanupData(detail);
-
-    verify(padPipelineRepository, times(1)).saveAll(padPipelineListArgCaptor.capture());
-
-    var updatedPipeList = padPipelineListArgCaptor.getValue();
-
-    assertThat(updatedPipeList).isEmpty();
-
-  }
-
-  @Test
-  public void getValidationResult_noErrors() {
-
-    // no errors on validate
-    doAnswer(invocation -> invocation.getArgument(1)).when(mockValidator).validate(any(), any(), any());
-
-    when(padPipelineRepository.findAllPipelinesAsSummaryDtoByPwaApplicationDetail(detail)).thenReturn(List.of(
-        PadPipelineSummaryDtoTestUtils.generateFrom(padPipe1)
-    ));
-
-    when(padPipelineIdentService.getAllIdentsByPadPipelineIds(eq(List.of(new PadPipelineId(1))))).thenReturn(
-        List.of(ident));
-
-    var validationResult = mockValidatorPadPipelineService.getValidationResult(detail);
-
-    assertThat(validationResult.isSectionComplete()).isTrue();
-    assertThat(validationResult.getErrorItems()).isEmpty();
-    assertThat(validationResult.getSectionIncompleteError()).isNull();
-    assertThat(validationResult.getIdPrefix()).isEqualTo("pipeline-");
-    assertThat(validationResult.getInvalidObjectIds()).isEmpty();
-
-  }
-
-  @Test
-  public void getValidationResult_errors_noPipelines() {
-
-    when(padPipelineRepository.findAllPipelinesAsSummaryDtoByPwaApplicationDetail(detail)).thenReturn(List.of());
-
-    var validationResult = mockValidatorPadPipelineService.getValidationResult(detail);
-
-    assertThat(validationResult.isSectionComplete()).isFalse();
-    assertThat(validationResult.getErrorItems()).isEmpty();
-    assertThat(validationResult.getSectionIncompleteError()).isEqualTo(
-        "At least one pipeline must be added with valid header information. Each pipeline must have at least one valid ident.");
-    assertThat(validationResult.getIdPrefix()).isEqualTo("pipeline-");
-    assertThat(validationResult.getInvalidObjectIds()).isEmpty();
-
-  }
-
-  @Test
-  public void getValidationResult_errors_pipelineExists_noIdentsOnIt() {
-
-    when(padPipelineRepository.findAllPipelinesAsSummaryDtoByPwaApplicationDetail(detail)).thenReturn(List.of(
-        PadPipelineSummaryDtoTestUtils.generateFrom(padPipe1)
-    ));
-
-    when(padPipelineIdentService.getAllIdentsByPadPipelineIds(eq(List.of(new PadPipelineId(1))))).thenReturn(List.of());
-
-    var validationResult = mockValidatorPadPipelineService.getValidationResult(detail);
-
-    assertThat(validationResult.isSectionComplete()).isFalse();
-    assertThat(validationResult.getErrorItems())
-        .extracting(ErrorItem::getDisplayOrder, ErrorItem::getFieldName, ErrorItem::getErrorMessage)
-        .containsExactly(
-            tuple(1, "pipeline-1", "TEMPORARY 1 - Production Flowline must have all sections completed")
-        );
-    assertThat(validationResult.getSectionIncompleteError()).isEqualTo(
-        "At least one pipeline must be added with valid header information. Each pipeline must have at least one valid ident.");
-    assertThat(validationResult.getIdPrefix()).isEqualTo("pipeline-");
-    assertThat(validationResult.getInvalidObjectIds()).containsExactly("1");
-
-  }
-
-  @Test
-  public void getValidationResult_errors_pipelineExists_identValidationFails() {
-
-    when(padPipelineRepository.findAllPipelinesAsSummaryDtoByPwaApplicationDetail(detail)).thenReturn(List.of(
-        PadPipelineSummaryDtoTestUtils.generateFrom(padPipe1)
-    ));
-
-    when(padPipelineIdentService.getAllIdentsByPadPipelineIds(eq(List.of(new PadPipelineId(1))))).thenReturn(
-        List.of(ident));
-
-    // force error when validating ident
-    doAnswer(invocation -> {
-      ((BindingResult) invocation.getArgument(1)).rejectValue("length",
-          "length.invalid", "fake");
-      return invocation;
-    }).when(mockValidator).validate(any(), any(), any());
-
-    var validationResult = mockValidatorPadPipelineService.getValidationResult(detail);
-
-    assertThat(validationResult.isSectionComplete()).isFalse();
-    assertThat(validationResult.getErrorItems())
-        .extracting(ErrorItem::getDisplayOrder, ErrorItem::getFieldName, ErrorItem::getErrorMessage)
-        .containsExactly(
-            tuple(1, "pipeline-1", "TEMPORARY 1 - Production Flowline must have all sections completed")
-        );
-    assertThat(validationResult.getSectionIncompleteError()).isEqualTo(
-        "At least one pipeline must be added with valid header information. Each pipeline must have at least one valid ident.");
-    assertThat(validationResult.getIdPrefix()).isEqualTo("pipeline-");
-    assertThat(validationResult.getInvalidObjectIds()).containsExactly("1");
-
-  }
-
-  @Test
-  public void doesPipelineHaveTasks_false() {
-    EnumSet.of(PipelineStatus.RETURNED_TO_SHORE, PipelineStatus.NEVER_LAID).forEach(pipelineStatus -> {
-      padPipe1.setPipelineStatus(pipelineStatus);
-      var dto = createPadPipelineSummaryDto(padPipe1);
-      var result = padPipelineService.doesPipelineHaveTasks(dto);
-      assertThat(result).isFalse();
-    });
-  }
-
-  @Test
-  public void doesPipelineHaveTasks() {
-    var statusEnums = EnumSet.allOf(PipelineStatus.class);
-    statusEnums.forEach(pipelineStatus -> {
-
-      padPipe1.setPipelineStatus(pipelineStatus);
-      var dto = createPadPipelineSummaryDto(padPipe1);
-      var result = padPipelineService.doesPipelineHaveTasks(dto);
-
-      boolean expectedResult = List.of(PipelineStatus.IN_SERVICE, PipelineStatus.OUT_OF_USE_ON_SEABED).contains(pipelineStatus);
-
-      assertThat(result).isEqualTo(expectedResult);
-
-    });
-  }
-
-  @Test
   public void getPipelineOverviewMap_correctGrouping() {
     when(padPipelineRepository.getAllByPwaApplicationDetailAndIdIn(detail, List.of(padPipe1.getId())))
         .thenReturn(List.of(padPipe1));
@@ -886,16 +639,16 @@ public class PadPipelineServiceTest {
   }
 
   @Test
-  public void isIdentValidationRequired() {
+  public void isValidationRequiredByStatus_statusSmokeTest() {
     PipelineStatus.stream().forEach(pipelineStatus -> {
       padPipe1.setPipelineStatus(pipelineStatus);
       switch (pipelineStatus) {
         case IN_SERVICE:
         case OUT_OF_USE_ON_SEABED:
-          assertThat(padPipelineService.isValidationRequired(padPipe1)).isTrue();
+          assertThat(padPipelineService.isValidationRequiredByStatus(padPipe1.getPipelineStatus())).isTrue();
           break;
         default:
-          assertThat(padPipelineService.isValidationRequired(padPipe1)).isFalse();
+          assertThat(padPipelineService.isValidationRequiredByStatus(padPipe1.getPipelineStatus())).isFalse();
       }
     });
   }
@@ -961,46 +714,6 @@ public class PadPipelineServiceTest {
         padPipeline.getAlreadyExistsOnSeabed(),
         padPipeline.getPipelineInUse()
     );
-  }
-
-  @Test
-  public void copySectionInformation_serviceInteractions() {
-    var newDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL, 100, 100);
-    padPipelineService.copySectionInformation(detail, newDetail);
-    verify(padPipelineDataCopierService, times(1))
-        .copyAllPadPipelineData(eq(detail), eq(newDetail), any());
-  }
-
-  @Test
-  public void canShowInTaskList_notOptionsVariation() {
-    var notOptions = EnumSet.allOf(PwaApplicationType.class);
-    notOptions.remove(PwaApplicationType.OPTIONS_VARIATION);
-
-    for (PwaApplicationType type : notOptions) {
-      detail.getPwaApplication().setApplicationType(type);
-      assertThat(padPipelineService.canShowInTaskList(detail)).isTrue();
-    }
-
-  }
-
-  @Test
-  public void canShowInTaskList_OptionsVariation_optionsNotComplete() {
-    when(padOptionConfirmedService.approvedOptionConfirmed(detail)).thenReturn(false);
-
-    detail.getPwaApplication().setApplicationType(PwaApplicationType.OPTIONS_VARIATION);
-
-    assertThat(padPipelineService.canShowInTaskList(detail)).isFalse();
-
-  }
-
-  @Test
-  public void canShowInTaskList_OptionsVariation_optionsComplete() {
-    when(padOptionConfirmedService.approvedOptionConfirmed(detail)).thenReturn(true);
-
-    detail.getPwaApplication().setApplicationType(PwaApplicationType.OPTIONS_VARIATION);
-
-    assertThat(padPipelineService.canShowInTaskList(detail)).isTrue();
-
   }
 
 }
