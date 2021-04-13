@@ -161,7 +161,7 @@ public class PadPipeline implements ParentEntity, ChildEntity<Integer, PwaApplic
     this.pwaApplicationDetail = pwaApplicationDetail;
   }
 
-  public PadPipelineId getPadPipelineId(){
+  public PadPipelineId getPadPipelineId() {
     return new PadPipelineId(this.id);
   }
 

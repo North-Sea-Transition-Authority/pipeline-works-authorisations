@@ -63,7 +63,7 @@ public enum PwaApplicationPermission {
 
 
   /**
-   * Use this constructor when you simply want the user to have any of the specified roles to qualify for permission
+   * Use this constructor when you simply want the user to have any of the specified roles to qualify for permission.
    */
   PwaApplicationPermission(Set<PwaContactRole> contactRoles,
                            Set<PwaOrganisationRole> holderTeamRoles,

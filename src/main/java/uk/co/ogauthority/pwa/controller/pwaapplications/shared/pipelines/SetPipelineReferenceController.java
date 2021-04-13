@@ -62,13 +62,15 @@ public class SetPipelineReferenceController {
 
   }
 
-  private ModelAndView whenPipelineCanHaveReferenceSet(PwaApplicationContext applicationContext, Supplier<ModelAndView> modelAndViewSupplier) {
+  private ModelAndView whenPipelineCanHaveReferenceSet(PwaApplicationContext applicationContext,
+                                                       Supplier<ModelAndView> modelAndViewSupplier) {
 
     if (regulatorPipelineReferenceTaskService.pipelineTaskAccessible(
         applicationContext.getPermissions(), applicationContext.getPadPipeline())) {
       return modelAndViewSupplier.get();
     }
-     throw new AccessDeniedException("Not allowed to access set pipeline reference task. " + applicationContext.toString());
+    throw new AccessDeniedException(
+        "Not allowed to access set pipeline reference task. " + applicationContext.toString());
 
   }
 

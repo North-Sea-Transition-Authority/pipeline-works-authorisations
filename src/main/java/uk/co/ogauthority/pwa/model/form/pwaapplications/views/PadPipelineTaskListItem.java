@@ -9,7 +9,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.tasklist.P
 /**
  * Provides pipeline info and task list information for a given pipeline on an application.
  */
-public class PadPipelineTaskListItem{
+public class PadPipelineTaskListItem {
 
   private final int padPipelineId;
   private final long numberOfIdents;

@@ -50,7 +50,8 @@ public class PipelinesTaskListController {
     var modelAndView = new ModelAndView("pwaApplication/shared/pipelines/overview")
         .addObject("pipelineTaskListItems", padPipelineTaskListService.getSortedPipelineTaskListItems(applicationContext))
         .addObject("pipelineUrlFactory", new PipelineUrlFactory(applicationContext.getApplicationDetail()))
-        .addObject("canImportConsentedPipeline", padPipelineTaskListService.canImportConsentedPipelines(applicationContext.getApplicationDetail()))
+        .addObject("canImportConsentedPipeline", padPipelineTaskListService
+            .canImportConsentedPipelines(applicationContext.getApplicationDetail()))
         .addObject("taskListUrl", applicationRedirectService.getTaskListRoute(applicationContext.getPwaApplication()));
 
     breadcrumbService.fromTaskList(applicationContext.getPwaApplication(), modelAndView, "Pipelines");

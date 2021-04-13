@@ -41,7 +41,7 @@ public class PadPipelineNumberingService {
     }
   }
 
-  public boolean nonConsentedPadPipelineRequiresFullReference(PadPipeline padPipeline){
+  public boolean nonConsentedPadPipelineRequiresFullReference(PadPipeline padPipeline) {
     return StringUtils.isEmpty(padPipeline.getTemporaryRef());
   }
 
