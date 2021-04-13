@@ -23,8 +23,8 @@ import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.ModifyP
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.NamedPipeline;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PadPipelineOverview;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
-import uk.co.ogauthority.pwa.service.pwaconsents.PipelineDetailIdentDataImportService;
-import uk.co.ogauthority.pwa.service.pwaconsents.PipelineDetailService;
+import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailIdentDataImportService;
+import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 @RunWith(MockitoJUnitRunner.class)

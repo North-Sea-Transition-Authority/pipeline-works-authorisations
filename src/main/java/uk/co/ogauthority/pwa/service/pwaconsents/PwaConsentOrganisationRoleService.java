@@ -43,6 +43,7 @@ import uk.co.ogauthority.pwa.repository.pwaconsents.PwaConsentRepository;
 import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PipelineNumberAndSplitsService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.huoosummary.AllOrgRolePipelineGroupsView;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.huoosummary.OrganisationRolePipelineGroupView;
+import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailService;
 
 @Service
 public class PwaConsentOrganisationRoleService {

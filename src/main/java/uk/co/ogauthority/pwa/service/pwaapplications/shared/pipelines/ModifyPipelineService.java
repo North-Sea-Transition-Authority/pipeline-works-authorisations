@@ -13,8 +13,8 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipe
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.ModifyPipelineForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.NamedPipeline;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.NamedPipelineDto;
-import uk.co.ogauthority.pwa.service.pwaconsents.PipelineDetailIdentDataImportService;
-import uk.co.ogauthority.pwa.service.pwaconsents.PipelineDetailService;
+import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailIdentDataImportService;
+import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailService;
 
 /**
  * This service is used to both import and show consented pipeline data available to the current app detail.
