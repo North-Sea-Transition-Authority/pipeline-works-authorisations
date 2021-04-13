@@ -126,7 +126,6 @@ public class PipelinesSummaryService implements ApplicationSectionSummariser {
   List<Map<String, ?>> getDiffedPipelineSummaryList(List<PipelineDiffableSummary> applicationPipelines,
                                                     List<PipelineDiffableSummary> consentedPipelines) {
 
-
     List<Map<String, ?>> diffedPipelineSummaryList = new ArrayList<>();
 
     Map<PipelineId, PipelineDiffableSummary> consentedPipelinesMap = consentedPipelines.stream()

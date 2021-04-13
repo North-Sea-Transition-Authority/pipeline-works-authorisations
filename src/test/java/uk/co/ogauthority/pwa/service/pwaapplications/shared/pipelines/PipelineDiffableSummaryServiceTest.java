@@ -21,8 +21,8 @@ import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineHeaderView
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.PadTechnicalDrawingService;
-import uk.co.ogauthority.pwa.service.pwaconsents.PipelineDetailIdentService;
-import uk.co.ogauthority.pwa.service.pwaconsents.PipelineDetailService;
+import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailIdentViewService;
+import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -52,7 +52,7 @@ public class PipelineDiffableSummaryServiceTest {
   private PipelineDetailService pipelineDetailService;
 
   @Mock
-  private PipelineDetailIdentService pipelineDetailIdentService;
+  private PipelineDetailIdentViewService pipelineDetailIdentViewService;
 
   private PipelineDiffableSummaryService pipelineDiffableSummaryService;
 
@@ -86,7 +86,7 @@ public class PipelineDiffableSummaryServiceTest {
     pipelineDiffableSummaryService = new PipelineDiffableSummaryService(
         padPipelineService,
         padPipelineIdentService,
-        pipelineDetailIdentService,
+        pipelineDetailIdentViewService,
         pipelineDetailService,
         padTechnicalDrawingService);
   }
@@ -157,7 +157,7 @@ public class PipelineDiffableSummaryServiceTest {
         Set.of(pipelineId)
     )).thenReturn(List.of(pipelineDetail));
 
-    when(pipelineDetailIdentService.getSortedPipelineIdentViewsForPipeline(pipelineId))
+    when(pipelineDetailIdentViewService.getSortedPipelineIdentViewsForPipeline(pipelineId))
         .thenReturn(List.of(identStart, identMid, identEnd));
 
     var summaryList = pipelineDiffableSummaryService.getConsentedPipelines(pwaApplicationDetail.getPwaApplication(), Set.of(pipelineId));
@@ -191,7 +191,7 @@ public class PipelineDiffableSummaryServiceTest {
 
     when(pipelineDetailService.getByPipelineDetailId(pipelineDetailId)).thenReturn(pipelineDetail);
 
-    when(pipelineDetailIdentService.getSortedPipelineIdentViewsForPipelineDetail(pipelineId, pipelineDetailId))
+    when(pipelineDetailIdentViewService.getSortedPipelineIdentViewsForPipelineDetail(pipelineId, pipelineDetailId))
         .thenReturn(List.of(identStart, identMid, identEnd));
 
     var summary = pipelineDiffableSummaryService.getConsentedPipeline(pipelineId.asInt());

@@ -17,7 +17,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.PipelinesSummaryService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineDiffableSummaryService;
-import uk.co.ogauthority.pwa.service.pwaconsents.PipelineDetailService;
+import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailService;
 import uk.co.ogauthority.pwa.service.pwaconsents.testutil.PipelineDetailTestUtil;
 import uk.co.ogauthority.pwa.service.search.consents.pwapipelineview.testutil.PwaPipelineViewTestUtil;
 import uk.co.ogauthority.pwa.util.DateUtils;
@@ -88,7 +88,7 @@ public class PwaPipelineHistoryViewServiceTest {
 
   @Test
   public void getPipelinesVersionSearchSelectorItems_consentReferenceDisplayedWhenAvailable_onlyLatestPipelineVersionHasLatestVersionText() {
-    
+
     var pipelineDetailNoConsentRef = PipelineDetailTestUtil.createPipelineDetail(PIPELINE_DETAIL_ID2, PIPELINE_ID, YESTERDAY);
     var pipelineDetailHasConsentRef = PipelineDetailTestUtil.createPipelineDetail(
         PIPELINE_DETAIL_ID1, PIPELINE_ID, TODAY_MORNING, PwaPipelineViewTestUtil.createPwaConsent("178/V/11"));

@@ -16,7 +16,7 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.crossings.Crossin
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.permanentdeposits.PermanentDepositController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelinehuoo.PipelinesHuooController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelines.PipelineIdentsController;
-import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelines.PipelinesController;
+import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelines.PipelinesTaskListController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.techdrawings.TechnicalDrawingsController;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
@@ -90,7 +90,7 @@ public class ApplicationBreadcrumbService {
 
   public void fromPipelinesOverview(PwaApplication pwaApplication, ModelAndView modelAndView, String thisPage) {
     var map = taskList(pwaApplication);
-    map.put(ReverseRouter.route(on(PipelinesController.class)
+    map.put(ReverseRouter.route(on(PipelinesTaskListController.class)
         .renderPipelinesOverview(pwaApplication.getId(), pwaApplication.getApplicationType(), null)), "Pipelines");
     addAttrs(modelAndView, map, thisPage);
   }
@@ -114,7 +114,7 @@ public class ApplicationBreadcrumbService {
       ModelAndView modelAndView,
       String thisPage) {
     var map = taskList(pwaApplication);
-    map.put(ReverseRouter.route(on(PipelinesController.class)
+    map.put(ReverseRouter.route(on(PipelinesTaskListController.class)
         .renderPipelinesOverview(pwaApplication.getId(), pwaApplication.getApplicationType(), null)), "Pipelines");
     map.put(ReverseRouter.route(on(PipelineIdentsController.class)
             .renderIdentOverview(pwaApplication.getId(), pwaApplication.getApplicationType(), padPipeline.getId(), null,

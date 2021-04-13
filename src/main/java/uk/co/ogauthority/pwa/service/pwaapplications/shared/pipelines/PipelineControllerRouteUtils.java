@@ -8,7 +8,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelines.PipelinesController;
+import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelines.PipelinesTaskListController;
 import uk.co.ogauthority.pwa.exception.AccessDeniedException;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineStatus;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
@@ -28,7 +28,7 @@ public class PipelineControllerRouteUtils {
     var padPipeline = applicationContext.getPadPipeline();
     if (!isAccessible(padPipeline.getPipelineStatus())) {
       FlashUtils.error(redirectAttributes, padPipeline.getPipelineRef() + " information cannot be edited");
-      return ReverseRouter.redirect(on(PipelinesController.class)
+      return ReverseRouter.redirect(on(PipelinesTaskListController.class)
           .renderPipelinesOverview(applicationContext.getMasterPwaApplicationId(),
               applicationContext.getApplicationType(), null));
     }

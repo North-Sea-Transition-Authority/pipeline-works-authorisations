@@ -7,12 +7,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.model.dto.appprocessing.ConsultationInvolvementDto;
-import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupMemberRole;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
 import uk.co.ogauthority.pwa.model.teams.PwaRegulatorRole;
 import uk.co.ogauthority.pwa.service.appprocessing.ApplicationInvolvementService;
-import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
 import uk.co.ogauthority.pwa.service.teams.PwaHolderTeamService;
@@ -37,7 +34,7 @@ public class PwaApplicationPermissionService {
     this.applicationInvolvementService = applicationInvolvementService;
   }
 
-  public Set<PwaApplicationPermission> getPermissions(PwaApplicationDetail detail, Person person) {
+  private UserRolesForApplicationDto getUserRolesForApplication(PwaApplicationDetail detail, Person person) {
 
     var contactRoles = pwaContactService.getContactRoles(detail.getPwaApplication(), person);
 
@@ -54,28 +51,37 @@ public class PwaApplicationPermissionService {
         .map(ConsultationInvolvementDto::getConsulteeRoles)
         .orElse(Set.of());
 
+    return new UserRolesForApplicationDto(contactRoles, holderTeamRoles, regulatorRoles, consulteeRoles);
+
+  }
+
+  public Set<PwaApplicationPermission> getPermissions(PwaApplicationDetail detail, Person person) {
+
+    var userRolesForApplication = getUserRolesForApplication(detail, person);
+
     return PwaApplicationPermission.stream()
-        .filter(permission -> userHasPermission(permission, contactRoles, holderTeamRoles, regulatorRoles, consulteeRoles))
+        .filter(permission -> userHasPermission(permission, userRolesForApplication))
         .collect(Collectors.toSet());
 
   }
 
   private boolean userHasPermission(PwaApplicationPermission permission,
-                                    Set<PwaContactRole> userContactRoles,
-                                    Set<PwaOrganisationRole> userHolderTeamRoles,
-                                    Set<PwaRegulatorRole> userRegulatorRoles,
-                                    Set<ConsulteeGroupMemberRole> userConsulteeRoles) {
+                                    UserRolesForApplicationDto userRolesForApplication) {
 
-    boolean userHasContactRoles = userHasOneOrMoreRequiredPermissions(permission.getContactRoles(), userContactRoles);
+    boolean userHasContactRoles = userHasOneOrMoreRequiredPermissions(
+        permission.getContactRoles(), userRolesForApplication.getUserContactRoles());
 
-    boolean userHasHolderTeamRoles = userHasOneOrMoreRequiredPermissions(permission.getHolderTeamRoles(), userHolderTeamRoles);
+    boolean userHasHolderTeamRoles = userHasOneOrMoreRequiredPermissions(
+        permission.getHolderTeamRoles(), userRolesForApplication.getUserHolderTeamRoles());
 
-    boolean userHasRegulatorRoles = userHasOneOrMoreRequiredPermissions(permission.getRegulatorRoles(), userRegulatorRoles);
+    boolean userHasRegulatorRoles = userHasOneOrMoreRequiredPermissions(
+        permission.getRegulatorRoles(), userRolesForApplication.getUserRegulatorRoles());
 
-    boolean userHasConsulteeRoles = userHasOneOrMoreRequiredPermissions(permission.getConsulteeRoles(), userConsulteeRoles);
+    boolean userHasConsulteeRoles = userHasOneOrMoreRequiredPermissions(
+        permission.getConsulteeRoles(), userRolesForApplication.getUserConsulteeRoles());
 
-    return userHasContactRoles || userHasHolderTeamRoles || userHasRegulatorRoles || userHasConsulteeRoles;
-
+    return permission.getPermissionOverrideFunctionResult(userRolesForApplication)
+        || (userHasContactRoles || userHasHolderTeamRoles || userHasRegulatorRoles || userHasConsulteeRoles);
   }
 
   private <T> boolean userHasOneOrMoreRequiredPermissions(Set<T> userPermissions,

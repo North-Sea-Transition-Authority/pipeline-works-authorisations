@@ -16,12 +16,13 @@ import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.model.entity.enums.measurements.UnitMeasurement;
 import uk.co.ogauthority.pwa.model.form.pwa.PwaPipelineHistoryForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
-import uk.co.ogauthority.pwa.service.pwaconsents.PipelineDetailService;
+import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailService;
 import uk.co.ogauthority.pwa.service.pwacontext.PwaContext;
 import uk.co.ogauthority.pwa.service.pwacontext.PwaPermission;
 import uk.co.ogauthority.pwa.service.pwacontext.PwaPermissionCheck;
 import uk.co.ogauthority.pwa.service.search.consents.PwaPipelineViewTab;
 import uk.co.ogauthority.pwa.service.search.consents.SearchPwaBreadcrumbService;
+import uk.co.ogauthority.pwa.service.search.consents.pwapipelineview.PwaHuooHistoryViewService;
 import uk.co.ogauthority.pwa.service.search.consents.pwapipelineview.PwaPipelineHistoryViewService;
 import uk.co.ogauthority.pwa.service.search.consents.pwaviewtab.PwaPipelineViewUrlFactory;
 
@@ -32,14 +33,17 @@ public class PwaPipelineViewController {
 
   private final PipelineDetailService pipelineDetailService;
   private final PwaPipelineHistoryViewService pwaPipelineHistoryViewService;
+  private final PwaHuooHistoryViewService pwaHuooHistoryViewService;
   private final SearchPwaBreadcrumbService searchPwaBreadcrumbService;
 
   @Autowired
   public PwaPipelineViewController(PipelineDetailService pipelineDetailService,
                                    PwaPipelineHistoryViewService pwaPipelineHistoryViewService,
+                                   PwaHuooHistoryViewService pwaHuooHistoryViewService,
                                    SearchPwaBreadcrumbService searchPwaBreadcrumbService) {
     this.pipelineDetailService = pipelineDetailService;
     this.pwaPipelineHistoryViewService = pwaPipelineHistoryViewService;
+    this.pwaHuooHistoryViewService = pwaHuooHistoryViewService;
     this.searchPwaBreadcrumbService = searchPwaBreadcrumbService;
   }
 
@@ -93,6 +97,9 @@ public class PwaPipelineViewController {
         form.setPipelineDetailId(latestPipelineDetail.getId());
       }
       setPipelineHistoryDataOnModelAndView(modelAndView, pwaContext, pipelineId, selectedPipelineDetailId);
+
+    } else {
+      setHuooHistoryDataOnModelAndView(modelAndView, pwaContext, pipelineId, null);
     }
 
     searchPwaBreadcrumbService.fromPwaPipelineView(
@@ -116,6 +123,21 @@ public class PwaPipelineViewController {
         .addObject("viewPwaPipelineUrl", viewPwaPipelineUrl)
         .addObject("pipelinesVersionSearchSelectorItems", pipelinesVersionSearchSelectorItems)
         .addObject("unitMeasurements", UnitMeasurement.toMap());
+  }
+
+
+  private void setHuooHistoryDataOnModelAndView(ModelAndView modelAndView,
+                                                PwaContext pwaContext,
+                                                Integer pipelineId,
+                                                Integer pipelineDetailId) {
+
+    var diffedHuooSummary = pwaHuooHistoryViewService.getDiffedHuooSummaryModel(
+        pipelineDetailId, pipelineId, pwaContext.getMasterPwa());
+    var viewPwaPipelineUrl  = ReverseRouter.route(on(PwaPipelineViewController.class).renderViewPwaPipeline(
+        pwaContext.getMasterPwa().getId(), pipelineId, PwaPipelineViewTab.HUOO_HISTORY, pwaContext, null, null, null));
+
+    modelAndView.addObject("diffedHuooSummary", diffedHuooSummary)
+        .addObject("viewPwaPipelineUrl", viewPwaPipelineUrl);
   }
 
 
