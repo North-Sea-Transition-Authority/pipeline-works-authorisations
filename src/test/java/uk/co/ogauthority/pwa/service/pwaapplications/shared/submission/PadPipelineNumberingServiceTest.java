@@ -95,7 +95,7 @@ public class PadPipelineNumberingServiceTest {
   }
 
   @Test
-  void nonConsentedPadPipelineRequiresFullReference_whenHasTemporaryRef() {
+  public void nonConsentedPadPipelineRequiresFullReference_whenHasTemporaryRef() {
     var padPipeline = new PadPipeline();
     padPipeline.setTemporaryRef("something");
     assertThat(padPipelineNumberingService.nonConsentedPadPipelineRequiresFullReference(padPipeline)).isFalse();
@@ -103,7 +103,7 @@ public class PadPipelineNumberingServiceTest {
   }
 
   @Test
-  void nonConsentedPadPipelineRequiresFullReference_whenHasNoTemporaryRef() {
+  public void nonConsentedPadPipelineRequiresFullReference_whenHasNoTemporaryRef() {
     var padPipeline = new PadPipeline();
 
     assertThat(padPipelineNumberingService.nonConsentedPadPipelineRequiresFullReference(padPipeline)).isTrue();
