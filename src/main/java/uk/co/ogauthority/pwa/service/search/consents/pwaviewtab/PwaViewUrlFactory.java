@@ -39,7 +39,7 @@ public class PwaViewUrlFactory {
 
   public String getPwaPipelineViewUrl(Integer pipelineId) {
     return ReverseRouter.route(on(PwaPipelineViewController.class)
-        .renderViewPwaPipeline(pwaId, pipelineId, PwaPipelineViewTab.PIPELINE_HISTORY, null, null));
+        .renderViewPwaPipeline(pwaId, pipelineId, PwaPipelineViewTab.PIPELINE_HISTORY, null, null, null, null));
   }
 
 }

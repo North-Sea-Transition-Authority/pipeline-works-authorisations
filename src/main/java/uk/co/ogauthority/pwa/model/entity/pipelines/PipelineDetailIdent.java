@@ -1,10 +1,13 @@
 package uk.co.ogauthority.pwa.model.entity.pipelines;
 
 import java.math.BigDecimal;
+import java.util.Objects;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -14,23 +17,24 @@ import javax.persistence.Transient;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineCoreType;
 import uk.co.ogauthority.pwa.model.location.CoordinatePair;
-import uk.co.ogauthority.pwa.model.location.LatitudeCoordinate;
-import uk.co.ogauthority.pwa.model.location.LongitudeCoordinate;
+import uk.co.ogauthority.pwa.model.location.CoordinatePairEntity;
 import uk.co.ogauthority.pwa.service.enums.location.LatitudeDirection;
 import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
+import uk.co.ogauthority.pwa.util.CoordinateUtils;
 
 @Entity
 @Table(name = "pipeline_detail_idents")
-public class PipelineDetailIdent implements PipelineIdent {
+public class PipelineDetailIdent implements PipelineIdent, CoordinatePairEntity {
 
   @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Integer id;
 
   @ManyToOne
   @JoinColumn(name = "pipeline_detail_id")
   private PipelineDetail pipelineDetail;
 
-  private Integer identNo;
+  private int identNo;
 
   private String fromLocation;
 
@@ -122,6 +126,13 @@ public class PipelineDetailIdent implements PipelineIdent {
     this.toLongitudeDirection = this.toCoordinates.getLongitude().getDirection();
   }
 
+  public PipelineDetailIdent() {
+    // no-args for hibernate
+  }
+
+  public PipelineDetailIdent(PipelineDetail pipelineDetail) {
+    this.pipelineDetail = pipelineDetail;
+  }
 
   // Interface implementations
   @Override
@@ -179,23 +190,9 @@ public class PipelineDetailIdent implements PipelineIdent {
   // Custom Behaviour
   @PostLoad
   public void postLoad() {
-
-    this.fromCoordinates = new CoordinatePair(
-        new LatitudeCoordinate(this.fromLatitudeDegrees, this.fromLatitudeMinutes, this.fromLatitudeSeconds, this.fromLatitudeDirection),
-        new LongitudeCoordinate(
-            this.fromLongitudeDegrees,
-            this.fromLongitudeMinutes,
-            this.fromLongitudeSeconds,
-            this.fromLongitudeDirection)
-    );
-
-    this.toCoordinates = new CoordinatePair(
-        new LatitudeCoordinate(this.toLatitudeDegrees, this.toLatitudeMinutes, this.toLatitudeSeconds, this.toLatitudeDirection),
-        new LongitudeCoordinate(this.toLongitudeDegrees, this.toLongitudeMinutes, this.toLongitudeSeconds, this.toLongitudeDirection)
-    );
-
+    this.fromCoordinates = CoordinateUtils.buildFromCoordinatePair(this);
+    this.toCoordinates = CoordinateUtils.buildToCoordinatePair(this);
   }
-
 
   //  Getters
   public Integer getId() {
@@ -206,67 +203,83 @@ public class PipelineDetailIdent implements PipelineIdent {
     return pipelineDetail;
   }
 
-  public Integer getFromLatitudeDegrees() {
+  @Override
+  public Integer getFromLatDeg() {
     return fromLatitudeDegrees;
   }
 
-  public Integer getFromLatitudeMinutes() {
+  @Override
+  public Integer getFromLatMin() {
     return fromLatitudeMinutes;
   }
 
-  public BigDecimal getFromLatitudeSeconds() {
+  @Override
+  public BigDecimal getFromLatSec() {
     return fromLatitudeSeconds;
   }
 
-  public LatitudeDirection getFromLatitudeDirection() {
+  @Override
+  public LatitudeDirection getFromLatDir() {
     return fromLatitudeDirection;
   }
 
-  public Integer getFromLongitudeDegrees() {
+  @Override
+  public Integer getFromLongDeg() {
     return fromLongitudeDegrees;
   }
 
-  public Integer getFromLongitudeMinutes() {
+  @Override
+  public Integer getFromLongMin() {
     return fromLongitudeMinutes;
   }
 
-  public BigDecimal getFromLongitudeSeconds() {
+  @Override
+  public BigDecimal getFromLongSec() {
     return fromLongitudeSeconds;
   }
 
-  public LongitudeDirection getFromLongitudeDirection() {
+  @Override
+  public LongitudeDirection getFromLongDir() {
     return fromLongitudeDirection;
   }
 
-  public Integer getToLatitudeDegrees() {
+  @Override
+  public Integer getToLatDeg() {
     return toLatitudeDegrees;
   }
 
-  public Integer getToLatitudeMinutes() {
+  @Override
+  public Integer getToLatMin() {
     return toLatitudeMinutes;
   }
 
-  public BigDecimal getToLatitudeSeconds() {
+  @Override
+  public BigDecimal getToLatSec() {
     return toLatitudeSeconds;
   }
 
-  public LatitudeDirection getToLatitudeDirection() {
+  @Override
+  public LatitudeDirection getToLatDir() {
     return toLatitudeDirection;
   }
 
-  public Integer getToLongitudeDegrees() {
+  @Override
+  public Integer getToLongDeg() {
     return toLongitudeDegrees;
   }
 
-  public Integer getToLongitudeMinutes() {
+  @Override
+  public Integer getToLongMin() {
     return toLongitudeMinutes;
   }
 
-  public BigDecimal getToLongitudeSeconds() {
+  @Override
+  public BigDecimal getToLongSec() {
     return toLongitudeSeconds;
   }
 
-  public LongitudeDirection getToLongitudeDirection() {
+  @Override
+  public LongitudeDirection getToLongDir() {
     return toLongitudeDirection;
   }
 
@@ -276,11 +289,13 @@ public class PipelineDetailIdent implements PipelineIdent {
 
   // Setters
 
+  @Override
   public void setFromCoordinates(CoordinatePair fromCoordinates) {
     this.fromCoordinates = fromCoordinates;
     updateFromCoordinateValues();
   }
 
+  @Override
   public void setToCoordinates(CoordinatePair toCoordinates) {
     this.toCoordinates = toCoordinates;
     updateToCoordinateValues();
@@ -294,10 +309,12 @@ public class PipelineDetailIdent implements PipelineIdent {
     this.pipelineDetail = pipelineDetail;
   }
 
-  public void setIdentNo(Integer identNo) {
+  @Override
+  public void setIdentNo(int identNo) {
     this.identNo = identNo;
   }
 
+  @Override
   public void setFromLocation(String fromLocation) {
     this.fromLocation = fromLocation;
   }
@@ -334,6 +351,7 @@ public class PipelineDetailIdent implements PipelineIdent {
     this.fromLongitudeDirection = fromLongitudeDirection;
   }
 
+  @Override
   public void setToLocation(String toLocation) {
     this.toLocation = toLocation;
   }
@@ -370,11 +388,52 @@ public class PipelineDetailIdent implements PipelineIdent {
     this.toLongitudeDirection = toLongitudeDirection;
   }
 
+  @Override
   public void setLength(BigDecimal length) {
     this.length = length;
   }
 
+  @Override
   public void setDefiningStructure(Boolean definingStructure) {
     isDefiningStructure = definingStructure;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    PipelineDetailIdent that = (PipelineDetailIdent) o;
+    return identNo == that.identNo && Objects.equals(id, that.id) && Objects.equals(pipelineDetail,
+        that.pipelineDetail) && Objects.equals(fromLocation, that.fromLocation) && Objects.equals(
+        fromLatitudeDegrees, that.fromLatitudeDegrees) && Objects.equals(fromLatitudeMinutes,
+        that.fromLatitudeMinutes) && Objects.equals(fromLatitudeSeconds,
+        that.fromLatitudeSeconds) && fromLatitudeDirection == that.fromLatitudeDirection && Objects.equals(
+        fromLongitudeDegrees, that.fromLongitudeDegrees) && Objects.equals(fromLongitudeMinutes,
+        that.fromLongitudeMinutes) && Objects.equals(fromLongitudeSeconds,
+        that.fromLongitudeSeconds) && fromLongitudeDirection == that.fromLongitudeDirection && Objects.equals(
+        toLocation, that.toLocation) && Objects.equals(toLatitudeDegrees,
+        that.toLatitudeDegrees) && Objects.equals(toLatitudeMinutes,
+        that.toLatitudeMinutes) && Objects.equals(toLatitudeSeconds,
+        that.toLatitudeSeconds) && toLatitudeDirection == that.toLatitudeDirection && Objects.equals(
+        toLongitudeDegrees, that.toLongitudeDegrees) && Objects.equals(toLongitudeMinutes,
+        that.toLongitudeMinutes) && Objects.equals(toLongitudeSeconds,
+        that.toLongitudeSeconds) && toLongitudeDirection == that.toLongitudeDirection && Objects.equals(length,
+        that.length) && Objects.equals(isDefiningStructure,
+        that.isDefiningStructure) && Objects.equals(fromCoordinates,
+        that.fromCoordinates) && Objects.equals(toCoordinates, that.toCoordinates);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(id, pipelineDetail, identNo, fromLocation, fromLatitudeDegrees, fromLatitudeMinutes,
+        fromLatitudeSeconds, fromLatitudeDirection, fromLongitudeDegrees, fromLongitudeMinutes, fromLongitudeSeconds,
+        fromLongitudeDirection, toLocation, toLatitudeDegrees, toLatitudeMinutes, toLatitudeSeconds,
+        toLatitudeDirection,
+        toLongitudeDegrees, toLongitudeMinutes, toLongitudeSeconds, toLongitudeDirection, length, isDefiningStructure,
+        fromCoordinates, toCoordinates);
   }
 }

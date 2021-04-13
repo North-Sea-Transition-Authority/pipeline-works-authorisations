@@ -10,8 +10,8 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineHeaderView;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.PadTechnicalDrawingService;
-import uk.co.ogauthority.pwa.service.pwaconsents.PipelineDetailIdentService;
-import uk.co.ogauthority.pwa.service.pwaconsents.PipelineDetailService;
+import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailIdentViewService;
+import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailService;
 
 /**
  * Service to create diff friendly summaries of pipelines for an application or from a Master PWA.
@@ -22,19 +22,19 @@ public class PipelineDiffableSummaryService {
   private final PadPipelineService padPipelineService;
   private final PadPipelineIdentService padPipelineIdentService;
 
-  private final PipelineDetailIdentService pipelineDetailIdentService;
+  private final PipelineDetailIdentViewService pipelineDetailIdentViewService;
   private final PipelineDetailService pipelineDetailService;
   private final PadTechnicalDrawingService padTechnicalDrawingService;
 
   @Autowired
   public PipelineDiffableSummaryService(PadPipelineService padPipelineService,
                                         PadPipelineIdentService padPipelineIdentService,
-                                        PipelineDetailIdentService pipelineDetailIdentService,
+                                        PipelineDetailIdentViewService pipelineDetailIdentViewService,
                                         PipelineDetailService pipelineDetailService,
                                         PadTechnicalDrawingService padTechnicalDrawingService) {
     this.padPipelineService = padPipelineService;
     this.padPipelineIdentService = padPipelineIdentService;
-    this.pipelineDetailIdentService = pipelineDetailIdentService;
+    this.pipelineDetailIdentViewService = pipelineDetailIdentViewService;
     this.pipelineDetailService = pipelineDetailService;
     this.padTechnicalDrawingService = padTechnicalDrawingService;
   }
@@ -62,11 +62,20 @@ public class PipelineDiffableSummaryService {
 
     return consentedPipelineDetails.stream()
         .map(pipelineDetail ->  {
-          var identViews = pipelineDetailIdentService.getSortedPipelineIdentViewsForPipeline(pipelineDetail.getPipelineId());
+          var identViews = pipelineDetailIdentViewService.getSortedPipelineIdentViewsForPipeline(pipelineDetail.getPipelineId());
           PipelineHeaderView pipelineHeaderView = new PipelineHeaderView(pipelineDetail);
           return PipelineDiffableSummary.from(pipelineHeaderView, identViews, null);
         })
         .collect(Collectors.toList());
+  }
+
+  public PipelineDiffableSummary getConsentedPipeline(Integer pipelineDetailId) {
+
+    var pipelineDetail = pipelineDetailService.getByPipelineDetailId(pipelineDetailId);
+    var identViews = pipelineDetailIdentViewService.getSortedPipelineIdentViewsForPipelineDetail(
+        pipelineDetail.getPipelineId(), pipelineDetailId);
+    PipelineHeaderView pipelineHeaderView = new PipelineHeaderView(pipelineDetail);
+    return PipelineDiffableSummary.from(pipelineHeaderView, identViews, null);
   }
 
 }

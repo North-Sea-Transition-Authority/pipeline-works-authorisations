@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.service.pwaconsents;
+package uk.co.ogauthority.pwa.service.pwaconsents.pipelines;
 
 import static java.util.stream.Collectors.toSet;
 
@@ -17,18 +17,19 @@ import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.IdentView;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.pipelinedatautils.PipelineIdentViewCollectorService;
 
 /**
- * Retrieve and persist ident data for the consented model.
+ * Construct ident views based on the consented pipelines dataset.
  */
 @Service
-public class PipelineDetailIdentService {
+public class PipelineDetailIdentViewService {
+
   private final PipelineDetailIdentDataRepository pipelineDetailIdentDataRepository;
   private final PipelineDetailIdentRepository pipelineDetailIdentRepository;
   private final PipelineIdentViewCollectorService pipelineIdentViewCollectorService;
 
   @Autowired
-  public PipelineDetailIdentService(PipelineDetailIdentDataRepository pipelineDetailIdentDataRepository,
-                                    PipelineDetailIdentRepository pipelineDetailIdentRepository,
-                                    PipelineIdentViewCollectorService pipelineIdentViewCollectorService) {
+  public PipelineDetailIdentViewService(PipelineDetailIdentDataRepository pipelineDetailIdentDataRepository,
+                                        PipelineDetailIdentRepository pipelineDetailIdentRepository,
+                                        PipelineIdentViewCollectorService pipelineIdentViewCollectorService) {
     this.pipelineDetailIdentDataRepository = pipelineDetailIdentDataRepository;
     this.pipelineDetailIdentRepository = pipelineDetailIdentRepository;
     this.pipelineIdentViewCollectorService = pipelineIdentViewCollectorService;
@@ -58,6 +59,17 @@ public class PipelineDetailIdentService {
         ),
         pipelineDetailIdentDataRepository::getAllByPipelineDetailIdentIn
     );
+  }
+
+  @Transactional(readOnly = true) // just a hint, not guaranteed to be enforced read only.
+  public List<IdentView> getSortedPipelineIdentViewsForPipelineDetail(PipelineId pipelineId, Integer pipelineDetailId) {
+    var pipelineIdToSortedIdentViewsMap = pipelineIdentViewCollectorService.getPipelineIdToIdentVewsMap(
+        PipelineDetailIdent.class,
+        PipelineDetailIdentData.class,
+        () -> pipelineDetailIdentRepository.findAllByPipelineDetail_id(pipelineDetailId),
+        pipelineDetailIdentDataRepository::getAllByPipelineDetailIdentIn
+    );
+    return pipelineIdToSortedIdentViewsMap.get(pipelineId);
   }
 
 }
