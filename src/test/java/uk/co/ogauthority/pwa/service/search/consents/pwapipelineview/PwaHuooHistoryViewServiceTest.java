@@ -19,8 +19,8 @@ import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.HuooSummaryService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.huoosummary.AllOrgRolePipelineGroupsView;
-import uk.co.ogauthority.pwa.service.pwaconsents.PipelineDetailService;
 import uk.co.ogauthority.pwa.service.pwaconsents.PwaConsentOrganisationRoleService;
+import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailService;
 import uk.co.ogauthority.pwa.service.pwaconsents.testutil.PipelineDetailTestUtil;
 
 @RunWith(MockitoJUnitRunner.class)

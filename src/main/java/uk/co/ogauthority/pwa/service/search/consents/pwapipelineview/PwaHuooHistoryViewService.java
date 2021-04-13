@@ -5,8 +5,8 @@ import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.HuooSummaryService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.huoosummary.DiffedAllOrgRolePipelineGroups;
-import uk.co.ogauthority.pwa.service.pwaconsents.PipelineDetailService;
 import uk.co.ogauthority.pwa.service.pwaconsents.PwaConsentOrganisationRoleService;
+import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailService;
 
 @Service
 public class PwaHuooHistoryViewService {
