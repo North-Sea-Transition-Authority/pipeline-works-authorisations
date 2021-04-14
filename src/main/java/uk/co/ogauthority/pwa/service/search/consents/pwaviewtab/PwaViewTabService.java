@@ -63,7 +63,7 @@ public class PwaViewTabService {
   private List<PwaConsentApplicationDto> getConsentHistoryTabContent(PwaContext pwaContext) {
     return pwaConsentDtoRepository.getConsentAndApplicationDtos(pwaContext.getMasterPwa())
         .stream()
-        .sorted(Comparator.comparing(PwaConsentApplicationDto::getConsentInstant))
+        .sorted(Comparator.comparing(PwaConsentApplicationDto::getConsentInstant).reversed())
         .collect(Collectors.toList());
   }
 
