@@ -1,12 +1,14 @@
 package uk.co.ogauthority.pwa.service.search.consents.pwaviewtab;
 
 import java.util.Comparator;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineStatus;
 import uk.co.ogauthority.pwa.repository.pwaconsents.PwaConsentApplicationDto;
 import uk.co.ogauthority.pwa.repository.pwaconsents.PwaConsentDtoRepository;
 import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailService;
@@ -46,7 +48,11 @@ public class PwaViewTabService {
 
 
   private List<PwaPipelineView> getPipelineTabContent(PwaContext pwaContext) {
-    var pipelineOverviews = pipelineDetailService.getAllPipelineOverviewsForMasterPwa(pwaContext.getMasterPwa());
+
+    var pipelineStatusFilter = EnumSet.allOf(PipelineStatus.class);
+    var pipelineOverviews = pipelineDetailService.getAllPipelineOverviewsForMasterPwaAndStatus(
+        pwaContext.getMasterPwa(), pipelineStatusFilter);
+
     return pipelineOverviews
         .stream().map(PwaPipelineView::new)
         .sorted(Comparator.comparing(PwaPipelineView::getPipelineNumberOnlyFromReference))

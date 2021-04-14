@@ -55,6 +55,10 @@ public class PipelineDetailService {
     return pipelineDetailRepository.getAllPipelineOverviewsForMasterPwa(masterPwa);
   }
 
+  public List<PipelineOverview> getAllPipelineOverviewsForMasterPwaAndStatus(MasterPwa masterPwa, Set<PipelineStatus> statusFilter) {
+    return pipelineDetailRepository.getAllPipelineOverviewsForMasterPwaAndStatus(masterPwa, statusFilter);
+  }
+
   public Map<PipelineId, PipelineOverview> getAllPipelineOverviewsForMasterPwaMap(MasterPwa masterPwa) {
     return pipelineDetailRepository.getAllPipelineOverviewsForMasterPwa(masterPwa)
         .stream()
