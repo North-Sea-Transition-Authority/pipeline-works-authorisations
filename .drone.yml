@@ -3,7 +3,7 @@ type: docker
 name: default
 steps:
   - name: fetch-fds-submodule
-    image: alpine/git
+    image: alpine/git:v2.26.2
     commands:
       # Drone cannot auth to a ssh based repo, so override to https to make use of .netrc
       - git config submodule.fivium-design-system-core.url https://bitbucket.org/fiviumuk/fivium-design-system-core.git
@@ -33,7 +33,7 @@ steps:
       - ./gradlew test jacocoTestReport checkstyleMain bootWar bootJar sonarqube
 
   - name: publish-build-s3
-    image: plugins/s3
+    image: plugins/s3:linux-amd64
     settings:
       bucket: fivium-oga-pipelines-resources
       region: eu-west-2
@@ -49,17 +49,14 @@ steps:
       branch: [ develop, release/*, master ]
 
   - name: publish-docker-develop
-    image: plugins/docker
+    image: plugins/docker:19.03.8
     settings:
       registry: quay.io
       repo: quay.io/fivium/pipeline-works-authorisations
       tags:
         - develop
-    environment:
-      DOCKER_USERNAME:
-        from_secret: docker_username
-      DOCKER_PASSWORD:
-        from_secret: docker_password
+      config:
+        from_secret: docker_config
     when:
       branch:
         - develop
@@ -67,17 +64,14 @@ steps:
         - success
 
   - name: publish-docker
-    image: plugins/docker
+    image: plugins/docker:19.03.8
     settings:
       registry: quay.io
       repo: quay.io/fivium/pipeline-works-authorisations
       tags:
         - ${DRONE_BRANCH/\//-}-${DRONE_BUILD_NUMBER}
-    environment:
-      DOCKER_USERNAME:
-        from_secret: docker_username
-      DOCKER_PASSWORD:
-        from_secret: docker_password
+      config:
+        from_secret: docker_config
     when:
       branch:
         - master
@@ -86,16 +80,16 @@ steps:
       status:
         - success
 
-  - name: vulnerability-scan-java
-    image: openjdk:11-jdk-slim
-    commands:
-      - chmod +x gradlew
-      - ./gradlew dependencyCheckAnalyze
-    volumes:
-      - name: nvd-db
-        path: /var/nvd-db
-    when:
-      branch: develop
+#  - name: vulnerability-scan-java
+#    image: openjdk:11-jdk-slim
+#    commands:
+#      - chmod +x gradlew
+#      - ./gradlew dependencyCheckAnalyze
+#    volumes:
+#      - name: nvd-db
+#        path: /var/nvd-db
+#    when:
+#      branch: develop
 
   - name: vulnerability-scan-npm
     image: node:10.12.0
@@ -105,7 +99,7 @@ steps:
       branch: develop
 
   - name: sync-reports
-    image: alpine
+    image: alpine:3.12.1
     commands:
       - mkdir -p /var/webfiles/${DRONE_BUILD_NUMBER}
       - cp -r build/reports /var/webfiles/${DRONE_BUILD_NUMBER}
@@ -116,7 +110,7 @@ steps:
       status: [ success, failure ]
 
   - name: deploy-dev
-    image: appleboy/drone-ssh
+    image: appleboy/drone-ssh:linux-amd64
     settings:
       host: lemms1.fivium.local
       username: root
@@ -132,7 +126,7 @@ steps:
       branch: develop
 
   - name: deploy-st
-    image: appleboy/drone-ssh
+    image: appleboy/drone-ssh:linux-amd64
     settings:
       host: lemms1.fivium.local
       username: root
@@ -149,7 +143,7 @@ steps:
 
 
   - name: slack-all
-    image: plugins/slack
+    image: plugins/slack:linux-amd64
     settings:
       webhook: https://hooks.slack.com/services/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
       channel: oga-pipelines-builds
@@ -160,7 +154,7 @@ steps:
       status: [ success, failure ]
 
   - name: slack-failure
-    image: plugins/slack
+    image: plugins/slack:linux-amd64
     settings:
       webhook: https://hooks.slack.com/services/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
       channel: oga-pipelines

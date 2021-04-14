@@ -9,10 +9,12 @@
 <#-- @ftlvariable name="identUrlFactory" type="uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.IdentUrlFactory" -->
 <#-- @ftlvariable name="coreType" type="uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineCoreType" -->
 
-<@defaultPage htmlTitle="${pipelineOverview.getPipelineName()} idents" breadcrumbs=true fullWidthColumn=true  pageHeading="${pipelineOverview.getPipelineName()} idents">
+<@defaultPage htmlTitle="${pipelineOverview.getPipelineName()} idents" breadcrumbs=true fullWidthColumn=true>
 
     <@validationResult.singleErrorSummary summaryValidationResult=identSummaryValidationResult! />
     <@validationResult.errorSummary summaryValidationResult=identSummaryValidationResult! />
+
+    <h1 class="govuk-heading-xl">${pipelineOverview.getPipelineName()} idents</h1>
 
     <@fdsAction.link linkText="Add ident" linkUrl=springUrl(addIdentUrl) linkClass="govuk-button govuk-button--blue" />
 
@@ -21,9 +23,15 @@
             <p>Main component parts such as ESDV, Manifolds, SSIV, Termination Units or component(s) that affect flow should have their own ident with the from, to and description defined as that component. This only applies to the main production or umbilical pipeline.</p>
             <p>All idents are to follow the direction of flow.</p>
         </@fdsDetails.summaryDetails>
-            
+
 
     <#if summaryView?has_content && summaryView.connectedPipelineIdents?has_content>
+        <@fdsCheckAnswers.checkAnswers>
+            <@fdsCheckAnswers.checkAnswersRowNoAction keyText="Total idents length">
+                ${summaryView.totalIdentLength}
+            </@fdsCheckAnswers.checkAnswersRowNoAction>
+        </@fdsCheckAnswers.checkAnswers>
+
         <@fdsTimeline.timeline>
             <@fdsTimeline.timelineSection sectionHeading="">
                 <#assign pastFirstIteration = false/>
@@ -68,7 +76,7 @@
                                 <@dataValueForCoreType coreType=coreType key="Products to be conveyed" valueSingleCore=(identView.productsToBeConveyed)! valueMultiCore=(identView.productsToBeConveyedMultiCore)!/>
                             </@fdsDataItems.dataItem>
                             <@fdsDataItems.dataItem dataItemListClasses="fds-data-items-list--tight">
-                                <@dataValueForCoreType coreType=coreType key="Description of component parts" valueSingleCore=(identView.componentPartsDescription)! valueMultiCore=(identView.componentPartsDescription)!/>
+                                <@dataValueForCoreType coreType=coreType key="Description of component part" valueSingleCore=(identView.componentPartsDescription)! valueMultiCore=(identView.componentPartsDescription)!/>
                             </@fdsDataItems.dataItem>
                         </@fdsTimeline.timelineTimeStamp>
                     </#list>

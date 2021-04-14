@@ -26,11 +26,13 @@
 <#-- @ftlvariable name="crossingAgreementValidationResult" type="uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CrossingAgreementsValidationResult" -->
 <#-- @ftlvariable name="overview" type="uk.co.ogauthority.pwa.model.form.enums.CrossingOverview" -->
 
-<@defaultPage htmlTitle=overview.sectionTitle pageHeading=overview.sectionTitle breadcrumbs=true fullWidthColumn=true>
+<@defaultPage htmlTitle=overview.sectionTitle breadcrumbs=true fullWidthColumn=true>
 
     <#if errorMessage?has_content>
         <@fdsError.singleErrorSummary errorMessage=errorMessage />
     </#if>
+
+    <h1 class="govuk-heading-xl">${overview.sectionTitle}</h1>
 
     <#if overview == "LICENCE_AND_BLOCKS">
         <@blockCrossingManagement.blockCrossingManagement

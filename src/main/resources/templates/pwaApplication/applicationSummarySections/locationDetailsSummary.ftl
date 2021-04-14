@@ -76,7 +76,7 @@
         </#if>
 
         <#if requiredQuestions?seq_contains("TRANSPORTS_MATERIALS_TO_SHORE")>
-            <@fdsCheckAnswers.checkAnswersRow keyText="Will the pipeline be used to transport products / facilitate the transportation of products to shore?" actionUrl="" screenReaderActionText="" actionText="">
+            <@fdsCheckAnswers.checkAnswersRow keyText="Will the pipeline(s) be used to transport products / facilitate the transportation of products to shore?" actionUrl="" screenReaderActionText="" actionText="">
                 <#if locationDetailsView.transportsMaterialsToShore?has_content>
                     <@showYesNoForBool locationDetailsView.transportsMaterialsToShore/>
                 </#if>

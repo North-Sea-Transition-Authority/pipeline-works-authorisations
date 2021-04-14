@@ -2,7 +2,6 @@ package uk.co.ogauthority.pwa.service.workarea.consultations;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Function;
 import uk.co.ogauthority.pwa.service.consultations.search.ConsultationRequestSearchItem;
 import uk.co.ogauthority.pwa.service.workarea.ApplicationWorkAreaItem;
 import uk.co.ogauthority.pwa.service.workarea.WorkAreaColumnItemView;
@@ -24,10 +23,9 @@ public class ConsultationRequestWorkAreaItem extends ApplicationWorkAreaItem {
 
   private final String assignedResponderName;
 
-  public ConsultationRequestWorkAreaItem(ConsultationRequestSearchItem requestSearchItem,
-                                         Function<ConsultationRequestSearchItem, String> urlProducer) {
+  public ConsultationRequestWorkAreaItem(ConsultationRequestSearchItem requestSearchItem) {
 
-    super(requestSearchItem.getApplicationDetailView(), urlProducer.apply(requestSearchItem));
+    super(requestSearchItem.getApplicationDetailView());
 
     this.consultationRequestId = requestSearchItem.getConsultationRequestId();
 

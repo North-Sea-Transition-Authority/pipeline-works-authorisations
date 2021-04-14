@@ -1,13 +1,22 @@
 <#include '../../../layout.ftl'>
 
 <#-- @ftlvariable name="task" type="uk.co.ogauthority.pwa.model.tasklist.TaskListEntry" -->
+<#-- @ftlvariable name="taskGroupNameWarningMessageMap" type="java.util.Map<java.lang.String, java.lang.String>" -->
 
-<#macro tab taskListGroups industryFlag=false>
+<#macro tab taskListGroups industryFlag=false taskGroupNameWarningMessageMap=[]>
+
+
 
   <@fdsTaskList.taskList>
 
       <#list taskListGroups as taskGroup>
-          <@fdsTaskList.taskListSection sectionHeadingText=industryFlag?then("Status", taskGroup.groupName)>
+
+          <#assign warningText = ""/>
+          <#if taskGroupNameWarningMessageMap[taskGroup.groupName]?has_content>
+            <#assign warningText = taskGroupNameWarningMessageMap[taskGroup.groupName]/>
+          </#if>
+
+          <@fdsTaskList.taskListSection sectionHeadingText=industryFlag?then("Status", taskGroup.groupName) warningText=warningText>
               <#list taskGroup.taskListEntries as task>
 
                   <#if task.taskState != "LOCK">

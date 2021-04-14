@@ -6,11 +6,13 @@
 
 <#include '../layout.ftl'>
 
-<@defaultPage htmlTitle="Remove User" pageHeading="Are you sure you want to remove this user from the ${teamName} team?" backLink=true topNavigation=showTopNav twoThirdsColumn=false>
+<@defaultPage htmlTitle="Remove User" backLink=true topNavigation=showTopNav twoThirdsColumn=false>
 
     <#if error?has_content>
         <@fdsError.singleErrorSummary errorMessage=error/>
     </#if>
+
+    <h1 class="govuk-heading-xl">Are you sure you want to remove this user from the ${teamName} team?</h1>
 
     <@fdsForm.htmlForm>
 

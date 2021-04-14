@@ -1,28 +1,34 @@
 package uk.co.ogauthority.pwa.service.pwacontext;
 
 import com.google.common.annotations.VisibleForTesting;
+import java.util.Objects;
 import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.exception.AccessDeniedException;
-import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaManagementService;
+import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
+import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineService;
 import uk.co.ogauthority.pwa.service.search.consents.ConsentSearchService;
 
 @Service
 public class PwaContextService {
 
   private final PwaPermissionService pwaPermissionService;
-  private final MasterPwaManagementService masterPwaManagementService;
+  private final MasterPwaService masterPwaService;
   private final ConsentSearchService consentSearchService;
+  private final PipelineService pipelineService;
 
   @Autowired
   public PwaContextService(PwaPermissionService pwaPermissionService,
-                           MasterPwaManagementService masterPwaManagementService,
-                           ConsentSearchService consentSearchService) {
+                           MasterPwaService masterPwaService,
+                           ConsentSearchService consentSearchService,
+                           PipelineService pipelineService) {
     this.pwaPermissionService = pwaPermissionService;
-    this.masterPwaManagementService = masterPwaManagementService;
+    this.masterPwaService = masterPwaService;
     this.consentSearchService = consentSearchService;
+    this.pipelineService = pipelineService;
   }
 
   /**
@@ -41,6 +47,10 @@ public class PwaContextService {
         contextParams.getAuthenticatedUserAccount(),
         pwaId);
 
+    if (contextParams.getPipelineId() != null) {
+      getAndSetPipeline(context, contextParams.getPipelineId());
+    }
+
     return context;
 
   }
@@ -55,7 +65,7 @@ public class PwaContextService {
   PwaContext getPwaContext(Integer pwaId,
                            AuthenticatedUserAccount authenticatedUser) {
 
-    var masterPwa = masterPwaManagementService.getMasterPwaById(pwaId);
+    var masterPwa = masterPwaService.getMasterPwaById(pwaId);
     var pwaPermissions = pwaPermissionService.getPwaPermissions(masterPwa, authenticatedUser);
 
     if (pwaPermissions.isEmpty()) {
@@ -64,6 +74,7 @@ public class PwaContextService {
     }
 
     return new PwaContext(
+        masterPwa,
         authenticatedUser,
         pwaPermissions,
         consentSearchService.getConsentSearchResultView(pwaId));
@@ -107,6 +118,24 @@ public class PwaContextService {
             requiredPermissions
         )
     );
+  }
+
+
+  /**
+   * If a pipeline is found for the requested ID (and it's on the same master pwa as the context), then add to the context.
+   * Otherwise throw a relevant exception.
+   */
+  private void getAndSetPipeline(PwaContext context, int pipelineId) {
+
+    var pipeline = pipelineService.getPipelineFromId(new PipelineId(pipelineId));
+
+    if (!Objects.equals(pipeline.getMasterPwa(), context.getMasterPwa())) {
+      throw new AccessDeniedException(String.format("Pipeline master pwa (%s) didn't match the app context's master pwa (%s)",
+          pipeline.getMasterPwa().getId(),
+          context.getMasterPwa().getId()));
+    }
+
+    context.setPipeline(pipeline);
   }
 
 

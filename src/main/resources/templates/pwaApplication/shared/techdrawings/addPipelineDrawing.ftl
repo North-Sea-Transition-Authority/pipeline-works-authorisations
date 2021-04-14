@@ -1,5 +1,6 @@
 <#include '../../../layout.ftl'>
 
+<#-- @ftlvariable name="errorList" type="java.util.List<uk.co.ogauthority.pwa.model.form.fds.ErrorItem>" -->
 <#-- @ftlvariable name="backUrl" type="java.lang.String" -->
 <#-- @ftlvariable name="fileuploadMaxUploadSize" type="String" -->
 <#-- @ftlvariable name="fileuploadAllowedExtensions" type="java.util.List<String>" -->
@@ -10,15 +11,11 @@
 <#-- @ftlvariable name="actionType" type="uk.co.ogauthority.pwa.model.form.enums.ScreenActionType" -->
 <#-- @ftlvariable name="pipelineViews" type="java.util.List<uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview>" -->
 
-<@defaultPage htmlTitle="${actionType.actionText} a pipeline schematic" pageHeading="${actionType.actionText} a pipeline schematic" breadcrumbs=true fullWidthColumn=true>
-
-    <#if errorList?has_content>
-        <@fdsError.errorSummary errorItems=errorList />
-    </#if>
+<@defaultPage htmlTitle="${actionType.actionText} a pipeline schematic" pageHeading="${actionType.actionText} a pipeline schematic" breadcrumbs=true fullWidthColumn=true errorItems=errorList>
 
     <@fdsForm.htmlForm>
 
-        <@fdsTextInput.textInput path="form.reference" labelText="Schematic reference" inputClass="govuk-!-width-two-thirds"/>
+        <@fdsTextInput.textInput path="form.reference" labelText="Schematic reference" hintText="This reference must be displayed on the drawing provided" inputClass="govuk-!-width-two-thirds"/>
         <@fdsFileUpload.fileUpload id="doc-upload-file-id" path="form.uploadedFileWithDescriptionForms" uploadUrl=uploadUrl deleteUrl=deleteUrl maxAllowedSize=fileuploadMaxUploadSize allowedExtensions=imageFileUploadAllowedExtensions downloadUrl=downloadUrl existingFiles=uploadedFileViewList dropzoneText="Drag and drop your documents here" multiFile=false/>
 
       <hr class="govuk-section-break govuk-section-break--m"/>

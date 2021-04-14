@@ -12,5 +12,7 @@ public interface PipelineDetailIdentRepository extends CrudRepository<PipelineDe
       Collection<Integer> pipelineIds
   );
 
+  List<PipelineDetailIdent> findAllByPipelineDetail_id(Integer pipelineDetailId);
+
 
 }

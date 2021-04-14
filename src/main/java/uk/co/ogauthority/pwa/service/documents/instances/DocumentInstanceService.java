@@ -117,17 +117,14 @@ public class DocumentInstanceService {
 
     );
 
-    // set parent clauses as required, returning to list before saving
-    List<DocumentInstanceSectionClauseVersion> modifiedInstanceClauseVersions = templateClauseVersionToInstanceClauseVersionMap
-        .entrySet()
-        .stream()
-        .peek(entry -> setParentIfNeeded(entry.getKey(), entry.getValue(), templateClauseIdToNewInstanceClauseMap))
-        .map(Map.Entry::getValue)
-        .collect(Collectors.toList());
+    // set parent clauses on instance versions as required
+    templateClauseVersionToInstanceClauseVersionMap
+        .forEach((templateClauseVersion, instanceClauseVersion) ->
+            setParentIfNeeded(templateClauseVersion, instanceClauseVersion, templateClauseIdToNewInstanceClauseMap));
 
     documentInstanceRepository.save(instance);
     instanceSectionClauseRepository.saveAll(templateClauseIdToNewInstanceClauseMap.values());
-    instanceSectionClauseVersionRepository.saveAll(modifiedInstanceClauseVersions);
+    instanceSectionClauseVersionRepository.saveAll(templateClauseVersionToInstanceClauseVersionMap.values());
 
   }
 
@@ -404,17 +401,18 @@ public class DocumentInstanceService {
     var parent = newClauseVersion.getParentDocumentInstanceSectionClause();
 
     // increment the position of everything ahead of our new clause within its level, which will leave a gap
-    var updatedClauseVersions = instanceSectionClauseVersionRepository
+    var clauseVersionsToUpdate = instanceSectionClauseVersionRepository
         .findByDocumentInstanceSectionClause_DocumentInstanceAndParentDocumentInstanceSectionClause(docInstance, parent).stream()
         .filter(clauseVersion -> clauseVersion.getLevelOrder() > newClauseVersion.getLevelOrder())
-        .peek(clauseVersion -> clauseVersion.setLevelOrder(clauseVersion.getLevelOrder() + 1))
         .collect(Collectors.toList());
+
+    clauseVersionsToUpdate.forEach(clauseVersion -> clauseVersion.setLevelOrder(clauseVersion.getLevelOrder() + 1));
 
     // fill the gap left by the reordering by bumping the order on our new clause
     newClauseVersion.setLevelOrder(newClauseVersion.getLevelOrder() + 1);
-    updatedClauseVersions.add(newClauseVersion);
+    clauseVersionsToUpdate.add(newClauseVersion);
 
-    instanceSectionClauseVersionRepository.saveAll(updatedClauseVersions);
+    instanceSectionClauseVersionRepository.saveAll(clauseVersionsToUpdate);
 
   }
 

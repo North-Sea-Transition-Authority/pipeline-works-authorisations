@@ -24,7 +24,7 @@
         </#if>
     </@fdsCheckAnswers.checkAnswersRow>
 
-    <@fdsCheckAnswers.checkAnswersRow keyText="Have the pipeline systems been designed in accordance with industry recognised codes and standards?" actionUrl="" screenReaderActionText="" actionText="">
+    <@fdsCheckAnswers.checkAnswersRow keyText="Has the pipeline or pipeline system been designed in accordance with industry recognised codes and standards?" actionUrl="" screenReaderActionText="" actionText="">
         <#if generalTechInfoView.pipelineDesignedToStandards?has_content>
             ${generalTechInfoView.pipelineDesignedToStandards?then('Yes', 'No')}
         </#if>

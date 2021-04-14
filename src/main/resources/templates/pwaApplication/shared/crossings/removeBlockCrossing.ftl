@@ -1,12 +1,9 @@
 <#include '../../../layout.ftl'>
 
+<#-- @ftlvariable name="errorList" type="java.util.List<uk.co.ogauthority.pwa.model.form.fds.ErrorItem>" -->
 <#-- @ftlvariable name="backUrl" type="java.lang.String" -->
 
-<@defaultPage htmlTitle="Remove block crossing" pageHeading="Are you sure you want to remove this block crossing?" breadcrumbs=true>
-
-    <#if errorList?has_content>
-        <@fdsError.errorSummary errorItems=errorList errorTitle="Errors"/>
-    </#if>
+<@defaultPage htmlTitle="Remove block crossing" pageHeading="Are you sure you want to remove this block crossing?" breadcrumbs=true errorItems=errorList>
 
     <@fdsCheckAnswers.checkAnswers summaryListClass="">
 

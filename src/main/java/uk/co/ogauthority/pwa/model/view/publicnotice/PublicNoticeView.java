@@ -8,10 +8,38 @@ public class PublicNoticeView {
 
   private final PublicNoticeStatus status;
   private final String submittedTimestamp;
+  private final String latestDocumentComments;
+  private final String withdrawnByPersonName;
+  private final String withdrawnTimestamp;
+  private final String publicationStartTimestamp;
+  private final String publicationEndTimestamp;
 
+
+  //constructor for only the fields that are required as a minimum for a public notice view
   public PublicNoticeView(PublicNoticeStatus status, String submittedTimestamp) {
     this.status = status;
     this.submittedTimestamp = submittedTimestamp;
+    this.latestDocumentComments = null;
+    this.withdrawnByPersonName = null;
+    this.withdrawnTimestamp = null;
+    this.publicationStartTimestamp = null;
+    this.publicationEndTimestamp = null;
+  }
+
+  public PublicNoticeView(PublicNoticeStatus status,
+                          String submittedTimestamp,
+                          String latestDocumentComments,
+                          String withdrawnByPersonName,
+                          String withdrawnTimestamp,
+                          String publicationStartTimestamp,
+                          String publicationEndTimestamp) {
+    this.status = status;
+    this.submittedTimestamp = submittedTimestamp;
+    this.latestDocumentComments = latestDocumentComments;
+    this.withdrawnByPersonName = withdrawnByPersonName;
+    this.withdrawnTimestamp = withdrawnTimestamp;
+    this.publicationStartTimestamp = publicationStartTimestamp;
+    this.publicationEndTimestamp = publicationEndTimestamp;
   }
 
 
@@ -23,6 +51,25 @@ public class PublicNoticeView {
     return submittedTimestamp;
   }
 
+  public String getWithdrawnByPersonName() {
+    return withdrawnByPersonName;
+  }
+
+  public String getWithdrawnTimestamp() {
+    return withdrawnTimestamp;
+  }
+
+  public String getLatestDocumentComments() {
+    return latestDocumentComments;
+  }
+
+  public String getPublicationStartTimestamp() {
+    return publicationStartTimestamp;
+  }
+
+  public String getPublicationEndTimestamp() {
+    return publicationEndTimestamp;
+  }
 
   @Override
   public boolean equals(Object o) {
@@ -34,11 +81,17 @@ public class PublicNoticeView {
     }
     PublicNoticeView that = (PublicNoticeView) o;
     return status == that.status
-        && Objects.equals(submittedTimestamp, that.submittedTimestamp);
+        && Objects.equals(submittedTimestamp, that.submittedTimestamp)
+        && Objects.equals(latestDocumentComments, that.latestDocumentComments)
+        && Objects.equals(withdrawnByPersonName, that.withdrawnByPersonName)
+        && Objects.equals(withdrawnTimestamp, that.withdrawnTimestamp)
+        && Objects.equals(publicationStartTimestamp, that.publicationStartTimestamp)
+        && Objects.equals(publicationEndTimestamp, that.publicationEndTimestamp);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(status, submittedTimestamp);
+    return Objects.hash(status, submittedTimestamp, latestDocumentComments, withdrawnByPersonName,
+        withdrawnTimestamp, publicationStartTimestamp, publicationEndTimestamp);
   }
 }

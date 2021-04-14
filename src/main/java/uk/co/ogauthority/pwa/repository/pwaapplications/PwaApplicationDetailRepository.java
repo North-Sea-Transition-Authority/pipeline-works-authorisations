@@ -30,8 +30,12 @@ public interface PwaApplicationDetailRepository extends CrudRepository<PwaApplic
   @Query("SELECT pad FROM PwaApplicationDetail pad " +
       "JOIN PadVersionLookup psv ON psv.pwaApplicationId = pad.pwaApplication.id " +
       "AND psv.latestSubmittedTimestamp = pad.submittedTimestamp " +
+      // manual JOIN FETCH prevents N queries to fetch the app and master pwa for each detail by inlining those details
+      "JOIN FETCH pad.pwaApplication pa " +
+      "JOIN FETCH pa.masterPwa mp " +
       "WHERE pad.status in :status")
   List<PwaApplicationDetail> findLastSubmittedAppDetailsWithStatusIn(Collection<PwaApplicationStatus> status);
 
+  List<PwaApplicationDetail> findByPwaApplication(PwaApplication pwaApplication);
 
 }

@@ -9,6 +9,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.controller.appprocessing.processingcharges.IndustryPaymentController;
+import uk.co.ogauthority.pwa.controller.masterpwas.contacts.PwaContactController;
 import uk.co.ogauthority.pwa.model.tasklist.TaskListGroup;
 import uk.co.ogauthority.pwa.model.view.appprocessing.applicationupdates.ApplicationUpdateRequestView;
 import uk.co.ogauthority.pwa.model.view.banner.PageBannerView;
@@ -53,8 +54,9 @@ public class TasksTabContentService implements AppProcessingTabContentService {
     String taskListUrl = "";
 
     Optional<String> payForAppUrl = Optional.empty();
+    Optional<String> manageAppContactsUrl = Optional.empty();
 
-    boolean industryFlag = appProcessingContext.getAppProcessingPermissions().contains(PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY);
+    boolean industryFlag = appProcessingContext.getApplicationInvolvement().hasOnlyIndustryInvolvement();
 
     // only retrieve tasks if we're on the tasks tab to reduce load time
     if (currentTab == AppProcessingTab.TASKS) {
@@ -67,9 +69,11 @@ public class TasksTabContentService implements AppProcessingTabContentService {
           appProcessingContext.getApplicationDetail()
       );
 
-      publicNoticePageBannerViewOpt = publicNoticeDocumentUpdateService.getPublicNoticeUpdatePageBannerView(
-          appProcessingContext.getPwaApplication()
-      );
+      if (appProcessingContext.getAppProcessingPermissions().contains(PwaAppProcessingPermission.UPDATE_PUBLIC_NOTICE_DOC)) {
+        publicNoticePageBannerViewOpt = publicNoticeDocumentUpdateService.getPublicNoticeUpdatePageBannerView(
+            appProcessingContext.getPwaApplication()
+        );
+      }
 
       taskListUrl = pwaApplicationRedirectService.getTaskListRoute(appProcessingContext.getPwaApplication());
 
@@ -79,6 +83,11 @@ public class TasksTabContentService implements AppProcessingTabContentService {
         )));
       }
 
+      if (appProcessingContext.hasProcessingPermission(PwaAppProcessingPermission.MANAGE_APPLICATION_CONTACTS)) {
+        manageAppContactsUrl = Optional.of(ReverseRouter.route(on(PwaContactController.class).renderContactsScreen(
+           appProcessingContext.getApplicationType(),  appProcessingContext.getMasterPwaApplicationId(), null, null
+        )));
+      }
     }
 
     var modelMap = new HashMap<>(Map.of(
@@ -91,6 +100,7 @@ public class TasksTabContentService implements AppProcessingTabContentService {
     optionsApprovalPageBannerViewOpt.ifPresent(view -> modelMap.put("optionsApprovalPageBanner", view));
     publicNoticePageBannerViewOpt.ifPresent(view -> modelMap.put("publicNoticePageBannerView", view));
     payForAppUrl.ifPresent(s -> modelMap.put("payForAppUrl", s));
+    manageAppContactsUrl.ifPresent(s -> modelMap.put("manageAppContactsUrl", s));
 
     return modelMap;
 

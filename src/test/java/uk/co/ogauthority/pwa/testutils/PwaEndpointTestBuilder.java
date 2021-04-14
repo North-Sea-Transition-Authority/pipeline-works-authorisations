@@ -30,7 +30,7 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.search.consents.ConsentSearchItem;
 import uk.co.ogauthority.pwa.model.view.search.consents.ConsentSearchResultView;
-import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaManagementService;
+import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaService;
 import uk.co.ogauthority.pwa.service.pwacontext.PwaPermission;
 import uk.co.ogauthority.pwa.service.pwacontext.PwaPermissionService;
 import uk.co.ogauthority.pwa.service.search.consents.ConsentSearchService;
@@ -40,7 +40,7 @@ public class PwaEndpointTestBuilder {
   private MockMvc mockMvc;
   private Set<PwaPermission> allowedProcessingPermissions = Set.of();
 
-  private MasterPwaManagementService masterPwaManagementService;
+  private MasterPwaService masterPwaService;
 
   private ConsentSearchService consentSearchService;
 
@@ -60,9 +60,9 @@ public class PwaEndpointTestBuilder {
   private HttpMethod requestMethod;
 
   public PwaEndpointTestBuilder(MockMvc mockMvc,
-                                MasterPwaManagementService masterPwaManagementService) {
+                                MasterPwaService masterPwaService) {
     this.mockMvc = mockMvc;
-    this.masterPwaManagementService = masterPwaManagementService;
+    this.masterPwaService = masterPwaService;
 
     setupTestObjects();
     // do nothing by default
@@ -70,11 +70,11 @@ public class PwaEndpointTestBuilder {
   }
 
   public PwaEndpointTestBuilder(MockMvc mockMvc,
-                                MasterPwaManagementService masterPwaManagementService,
+                                MasterPwaService masterPwaService,
                                 PwaPermissionService pwaPermissionService,
                                 ConsentSearchService consentSearchService) {
     this.mockMvc = mockMvc;
-    this.masterPwaManagementService = masterPwaManagementService;
+    this.masterPwaService = masterPwaService;
     this.pwaPermissionService = pwaPermissionService;
     this.consentSearchService = consentSearchService;
 
@@ -184,9 +184,12 @@ public class PwaEndpointTestBuilder {
     this.masterPwa = new MasterPwa();
     this.masterPwa.setId(pwaId);
     this.masterPwa.setCreatedTimestamp(Instant.MIN);
-    when(masterPwaManagementService.getMasterPwaById(masterPwa.getId())).thenReturn(masterPwa);
+    when(masterPwaService.getMasterPwaById(masterPwa.getId())).thenReturn(masterPwa);
 
     var consentSearchItem = new ConsentSearchItem();
+    consentSearchItem.setPwaId(pwaId);
+    consentSearchItem.setPwaReference("1/W/02");
+
     consentSearchItem.setFirstConsentTimestamp(Instant.now());
     consentSearchItem.setLatestConsentTimestamp(Instant.now());
     consentSearchItem.setLatestConsentReference("latest consent reference");

@@ -8,7 +8,11 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
+import java.time.Clock;
 import java.time.Instant;
+import java.time.ZoneId;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,6 +20,8 @@ import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationGroup;
@@ -31,9 +37,11 @@ import uk.co.ogauthority.pwa.model.entity.enums.HuooType;
 import uk.co.ogauthority.pwa.model.entity.enums.TreatyAgreement;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
+import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsentOrganisationRole;
+import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsentOrganisationRoleTestUtil;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PadPipelineOverview;
 import uk.co.ogauthority.pwa.repository.pwaconsents.PwaConsentOrganisationRoleRepository;
 import uk.co.ogauthority.pwa.repository.pwaconsents.PwaConsentPipelineOrganisationRoleLinkRepository;
@@ -41,6 +49,7 @@ import uk.co.ogauthority.pwa.repository.pwaconsents.PwaConsentRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PipelineNumberAndSplitsService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.huoosummary.PipelineNumbersAndSplits;
+import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailService;
 import uk.co.ogauthority.pwa.testutils.PortalOrganisationTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
@@ -86,12 +95,18 @@ public class PwaConsentOrganisationRoleServiceTest {
   @Mock
   private MasterPwa masterPwa;
 
+  @Captor
+  private ArgumentCaptor<List<PwaConsentOrganisationRole>> consentRolesCaptor;
+
+  private Clock clock = Clock.fixed(Clock.systemUTC().instant(), ZoneId.systemDefault());
+
   private PwaConsentOrganisationRoleService pwaConsentOrganisationRoleService;
 
   private PwaConsentOrganisationRole pwaConsentHolderOrgRole;
 
   @Before
   public void setup() {
+
     when(organisationUnit1.getPortalOrganisationGroup()).thenReturn(organisationGroup1);
     when(organisationUnit1.getOuId()).thenReturn(ORG_UNIT_ID_1);
 
@@ -106,7 +121,7 @@ public class PwaConsentOrganisationRoleServiceTest {
         pwaConsentOrganisationRoleRepository,
         pwaConsentPipelineOrganisationRoleLinkRepository,
         pipelineNumberAndSplitsService, pipelineDetailService, pwaConsentRepository,
-        portalOrganisationsAccessor
+        portalOrganisationsAccessor, clock
     );
 
     pwaConsentHolderOrgRole = createOrgRole(pwaConsent, HuooRole.HOLDER, organisationUnit1);
@@ -228,9 +243,17 @@ public class PwaConsentOrganisationRoleServiceTest {
   }
 
   @Test
-  public void getOrganisationRoleSummary_serviceInteractions(){
+  public void getOrganisationRoleSummary_findByMasterPwa_serviceInteractions(){
     assertThat(pwaConsentOrganisationRoleService.getOrganisationRoleSummary(masterPwa)).isNotNull();
     verify(pwaConsentPipelineOrganisationRoleLinkRepository, times(1)).findActiveOrganisationPipelineRolesByMasterPwa(masterPwa);
+
+  }
+
+  @Test
+  public void getOrganisationRoleSummary_findByPipelineDetail_serviceInteractions() {
+    var pipelineDetail = new PipelineDetail();
+    assertThat(pwaConsentOrganisationRoleService.getOrganisationRoleSummary(pipelineDetail)).isNotNull();
+    verify(pwaConsentPipelineOrganisationRoleLinkRepository, times(1)).findActiveOrganisationPipelineRolesByPipelineDetail(pipelineDetail);
 
   }
 
@@ -251,7 +274,7 @@ public class PwaConsentOrganisationRoleServiceTest {
   @Test
   public void getAllOrganisationRolePipelineGroupView_includesPortalOrgsAndTreaty() {
 
-    var masterPwa = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL).getMasterPwaApplication();
+    var masterPwa = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL).getMasterPwa();
 
     //Organisation Roles Summary DTO
     var orgPipelineRoleInstanceDto1 = OrganisationRoleDtoTestUtil.createOrgUnitPipelineRoleInstance(
@@ -354,7 +377,100 @@ public class PwaConsentOrganisationRoleServiceTest {
 
   }
 
+  @Test
+  public void getActiveOrgRolesAddedByConsents() {
 
+    var consents = List.of(new PwaConsent());
 
+    pwaConsentOrganisationRoleService.getActiveOrgRolesAddedByConsents(consents);
+
+    verify(pwaConsentOrganisationRoleRepository, times(1)).findByAddedByPwaConsentInAndEndTimestampIsNull(consents);
+
+  }
+
+  @Test
+  public void endConsentOrgRoles() {
+
+    var orgRole1 = PwaConsentOrganisationRoleTestUtil
+        .createOrganisationRole(pwaConsent, new OrganisationUnitId(organisationUnit1.getOuId()), HuooRole.HOLDER);
+    var orgRole2 = PwaConsentOrganisationRoleTestUtil
+        .createOrganisationRole(pwaConsent, new OrganisationUnitId(organisationUnit2.getOuId()), HuooRole.OWNER);
+
+    var endingConsent = new PwaConsent();
+
+    pwaConsentOrganisationRoleService.endConsentOrgRoles(endingConsent, List.of(orgRole1, orgRole2));
+
+    verify(pwaConsentOrganisationRoleRepository, times(1)).saveAll(consentRolesCaptor.capture());
+
+    assertThat(consentRolesCaptor.getValue()).allSatisfy(role -> {
+      assertThat(role.getEndedByPwaConsent()).isEqualTo(endingConsent);
+      assertThat(role.getEndTimestamp()).isEqualTo(clock.instant());
+    });
+
+  }
+
+  @Test
+  public void createNewConsentOrgUnitRoles() {
+
+    Multimap<OrganisationUnitId, HuooRole> newRoleMultiMap = HashMultimap.create();
+    newRoleMultiMap.putAll(new OrganisationUnitId(1), Set.of(HuooRole.HOLDER, HuooRole.USER));
+    newRoleMultiMap.putAll(new OrganisationUnitId(2), Set.of(HuooRole.OWNER, HuooRole.OPERATOR));
+
+    pwaConsentOrganisationRoleService.createNewConsentOrgUnitRoles(pwaConsent, newRoleMultiMap);
+
+    verify(pwaConsentOrganisationRoleRepository, times(1)).saveAll(consentRolesCaptor.capture());
+
+    assertThat(consentRolesCaptor.getValue()).allSatisfy(role -> {
+      assertThat(role.getAddedByPwaConsent()).isEqualTo(pwaConsent);
+      assertThat(role.getStartTimestamp()).isEqualTo(clock.instant());
+      assertThat(role.getAgreement()).isNull();
+      assertThat(role.getEndedByPwaConsent()).isNull();
+      assertThat(role.getEndTimestamp()).isNull();
+      assertThat(role.getMigratedOrganisationName()).isNull();
+      assertThat(role.getType()).isEqualTo(HuooType.PORTAL_ORG);
+    });
+
+    assertThat(consentRolesCaptor.getValue())
+        .anySatisfy(role -> {
+          assertThat(role.getOrganisationUnitId()).isEqualTo(1);
+          assertThat(role.getRole()).isEqualTo(HuooRole.HOLDER);
+        })
+        .anySatisfy(role -> {
+          assertThat(role.getOrganisationUnitId()).isEqualTo(1);
+          assertThat(role.getRole()).isEqualTo(HuooRole.USER);
+        })
+        .anySatisfy(role -> {
+          assertThat(role.getOrganisationUnitId()).isEqualTo(2);
+          assertThat(role.getRole()).isEqualTo(HuooRole.OWNER);
+        })
+        .anySatisfy(role -> {
+          assertThat(role.getOrganisationUnitId()).isEqualTo(2);
+          assertThat(role.getRole()).isEqualTo(HuooRole.OPERATOR);
+        });
+
+  }
+
+  @Test
+  public void createNewConsentTreatyRoles() {
+
+    Multimap<TreatyAgreement, HuooRole> newRoleMultiMap = HashMultimap.create();
+    newRoleMultiMap.put(TreatyAgreement.ANY_TREATY_COUNTRY, HuooRole.USER);
+
+    pwaConsentOrganisationRoleService.createNewConsentTreatyRoles(pwaConsent, newRoleMultiMap);
+
+    verify(pwaConsentOrganisationRoleRepository, times(1)).saveAll(consentRolesCaptor.capture());
+
+    assertThat(consentRolesCaptor.getValue()).hasOnlyOneElementSatisfying(role -> {
+      assertThat(role.getAddedByPwaConsent()).isEqualTo(pwaConsent);
+      assertThat(role.getStartTimestamp()).isEqualTo(clock.instant());
+      assertThat(role.getAgreement()).isEqualTo(TreatyAgreement.ANY_TREATY_COUNTRY);
+      assertThat(role.getType()).isEqualTo(HuooType.TREATY_AGREEMENT);
+      assertThat(role.getEndedByPwaConsent()).isNull();
+      assertThat(role.getEndTimestamp()).isNull();
+      assertThat(role.getMigratedOrganisationName()).isNull();
+      assertThat(role.getOrganisationUnitId()).isNull();
+    });
+
+  }
 
 }

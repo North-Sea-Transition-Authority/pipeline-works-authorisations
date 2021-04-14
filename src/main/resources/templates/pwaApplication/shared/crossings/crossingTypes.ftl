@@ -1,12 +1,8 @@
 <#include '../../../layout.ftl'>
 
+<#-- @ftlvariable name="errorList" type="java.util.List<uk.co.ogauthority.pwa.model.form.fds.ErrorItem>" -->
 
-<@defaultPage htmlTitle="Which crossing sections are required?" breadcrumbs=true>
-
-    <#if errorList?has_content>
-        <@fdsError.errorSummary errorItems=errorList />
-    </#if>
-
+<@defaultPage htmlTitle="Which crossing sections are required?" breadcrumbs=true errorItems=errorList>
     <@fdsForm.htmlForm>
         <@fdsFieldset.fieldset legendHeading="Which crossing sections are required?" legendHeadingSize="h1" legendHeadingClass="govuk-fieldset__legend--xl">
             <@fdsRadio.radioGroup path="form.pipelinesCrossed" labelText="Are any pipelines crossed?">

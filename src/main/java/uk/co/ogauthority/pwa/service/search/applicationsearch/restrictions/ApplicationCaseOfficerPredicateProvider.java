@@ -6,7 +6,6 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaAppAssignmentView;
@@ -31,7 +30,7 @@ public class ApplicationCaseOfficerPredicateProvider implements ApplicationSearc
   @Override
   public boolean doesPredicateApply(ApplicationSearchContext applicationSearchContext,
                                     ApplicationSearchParameters applicationSearchParameters) {
-    return StringUtils.isNotBlank(applicationSearchParameters.getCaseOfficerId());
+    return applicationSearchParameters.getCaseOfficerPersonId() != null;
   }
 
   @Override
@@ -48,8 +47,10 @@ public class ApplicationCaseOfficerPredicateProvider implements ApplicationSearc
     subQuery.select(pwaAppAssignmentViewRoot.get(PwaAppAssignmentView_.PWA_APPLICATION_ID));
 
     subQuery.where(cb.and(
-        cb.equal(pwaAppAssignmentViewRoot.get(PwaAppAssignmentView_.assigneePersonId),
-            Integer.parseInt(applicationSearchParameters.getCaseOfficerId())),
+        cb.equal(
+            pwaAppAssignmentViewRoot.get(PwaAppAssignmentView_.assigneePersonId),
+            applicationSearchParameters.getCaseOfficerPersonId()
+        ),
         cb.equal(pwaAppAssignmentViewRoot.get(PwaAppAssignmentView_.assignment), WorkflowAssignment.CASE_OFFICER)
     ));
 

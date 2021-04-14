@@ -2,11 +2,7 @@
 
 <#-- @ftlvariable name="errorList" type="java.util.List<uk.co.ogauthority.pwa.model.form.fds.ErrorItem>"-->
 
-<@defaultPage htmlTitle="${screenAction.actionText} deposit drawing" pageHeading="${screenAction.actionText} deposit drawing" breadcrumbs=true>
-
-    <#if errorList?has_content>
-        <@fdsError.errorSummary errorItems=errorList errorTitle="Errors"/>
-    </#if>
+<@defaultPage htmlTitle="${screenAction.actionText} deposit drawing" pageHeading="${screenAction.actionText} deposit drawing" breadcrumbs=true errorItems=errorList>
 
     <@fdsForm.htmlForm>
         <@fdsTextInput.textInput path="form.reference" labelText="Drawing reference" inputClass="govuk-!-width-two-thirds"/>

@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.model.dto.appprocessing;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupMemberRole;
@@ -24,6 +25,9 @@ public class ApplicationInvolvementDto {
   private final boolean atLeastOneSatisfactoryVersion;
 
   private final boolean userInHolderTeam;
+  private final boolean userInAppContactTeam;
+
+  private final boolean userIsIndustryOnly;
 
   private final Set<PwaOrganisationRole> holderTeamRoles;
 
@@ -36,6 +40,7 @@ public class ApplicationInvolvementDto {
                                    boolean pwaManagerStage,
                                    boolean atLeastOneSatisfactoryVersion,
                                    Set<PwaOrganisationRole> holderTeamRoles,
+                                   boolean userIsIndustryOnly,
                                    OpenConsentReview openConsentReview) {
     this.pwaApplication = pwaApplication;
     this.contactRoles = contactRoles;
@@ -44,7 +49,9 @@ public class ApplicationInvolvementDto {
     this.pwaManagerStage = pwaManagerStage;
     this.atLeastOneSatisfactoryVersion = atLeastOneSatisfactoryVersion;
     this.userInHolderTeam = !holderTeamRoles.isEmpty();
+    this.userInAppContactTeam = !contactRoles.isEmpty();
     this.holderTeamRoles = holderTeamRoles;
+    this.userIsIndustryOnly = userIsIndustryOnly;
     this.openConsentReview = openConsentReview;
   }
 
@@ -74,7 +81,11 @@ public class ApplicationInvolvementDto {
   }
 
   public boolean hasAnyOfTheseHolderRoles(PwaOrganisationRole... roles) {
-    return Arrays.stream(roles)
+    return hasAnyOfTheseHolderRoles(Arrays.asList(roles));
+  }
+
+  public boolean hasAnyOfTheseHolderRoles(Collection<PwaOrganisationRole> roles) {
+    return roles.stream()
         .anyMatch(holderTeamRoles::contains);
   }
 
@@ -94,5 +105,13 @@ public class ApplicationInvolvementDto {
 
   public OpenConsentReview getOpenConsentReview() {
     return openConsentReview;
+  }
+
+  public boolean isUserInAppContactTeam() {
+    return userInAppContactTeam;
+  }
+
+  public boolean hasOnlyIndustryInvolvement() {
+    return userIsIndustryOnly;
   }
 }

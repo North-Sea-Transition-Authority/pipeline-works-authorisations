@@ -17,12 +17,12 @@ public class PadVersionLookupTestUtil {
   }
 
   public static PadVersionLookup createLookupForSubmittedApp(int appId,
-                                                             Instant lastSubmittedInstant,
+                                                             Integer lastSubmittedVersion,
                                                              Integer maxDraftVersion,
                                                              Instant lastSatisfactoryInstant) {
     var padVersionLookup = new PadVersionLookup();
     padVersionLookup.setPwaApplicationId(appId);
-    padVersionLookup.setLatestSubmittedTimestamp(lastSubmittedInstant);
+    padVersionLookup.setLatestSubmittedVersionNo(lastSubmittedVersion);
     padVersionLookup.setMaxDraftVersionNo(maxDraftVersion);
     padVersionLookup.setLatestConfirmedSatisfactoryTimestamp(lastSatisfactoryInstant);
     return padVersionLookup;

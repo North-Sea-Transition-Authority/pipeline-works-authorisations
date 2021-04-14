@@ -61,7 +61,7 @@ public class DocumentInstanceSectionClauseVersion extends SectionClauseVersion {
 
   @Override
   public SectionClause getClause() {
-    return documentInstanceSectionClause;
+    return getDocumentInstanceSectionClause();
   }
 
   public DocumentInstanceSectionClause getDocumentInstanceSectionClause() {

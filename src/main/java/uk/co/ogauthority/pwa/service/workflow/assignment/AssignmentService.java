@@ -77,4 +77,8 @@ public class AssignmentService {
 
   }
 
+  public List<Assignment> getAssignments(WorkflowSubject workflowSubject) {
+    return assignmentRepository.findByBusinessKeyAndWorkflowType(workflowSubject.getBusinessKey(), workflowSubject.getWorkflowType());
+  }
+
 }

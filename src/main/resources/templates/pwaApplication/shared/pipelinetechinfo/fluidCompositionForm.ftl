@@ -6,11 +6,7 @@
 <#-- @ftlvariable name="chemicals" type="java.util.List<Chemicals>" -->
 <#-- @ftlvariable name="fluidCompositionOptions" type="java.util.List<FluidCompositionOptions>" -->
 
-<@defaultPage htmlTitle="Fluid composition" pageHeading="What is the fluid composition of the products to be conveyed?" breadcrumbs=true>
-
-    <#if errorList?has_content>
-        <@fdsError.errorSummary errorItems=errorList errorTitle="Errors"/>
-    </#if>
+<@defaultPage htmlTitle="Fluid composition" pageHeading="What is the fluid composition of the products to be conveyed?" breadcrumbs=true errorItems=errorList>
 
     <@fdsForm.htmlForm>
 

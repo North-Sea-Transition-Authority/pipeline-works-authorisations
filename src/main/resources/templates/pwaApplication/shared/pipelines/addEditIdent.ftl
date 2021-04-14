@@ -8,11 +8,7 @@
 <#-- @ftlvariable name="errorList" type="java.util.List<uk.co.ogauthority.pwa.model.form.fds.ErrorItem>" -->
 <#-- @ftlvariable name="coreType" type="uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineCoreType" -->
 
-<@defaultPage htmlTitle="${screenActionType.actionText} ident" pageHeading="${screenActionType.actionText} ident" breadcrumbs=true>
-
-    <#if errorList?has_content>
-        <@fdsError.errorSummary errorItems=errorList />
-    </#if>
+<@defaultPage htmlTitle="${screenActionType.actionText} ident" pageHeading="${screenActionType.actionText} ident" breadcrumbs=true errorItems=errorList>
 
     <#assign coordinateGuidance>
         <@fdsDetails.details detailsTitle="When should I provide ident coordinates?" detailsText="Provide coordinates if this is a key point along the pipeline route." />
@@ -72,26 +68,26 @@
 
         <@fdsFieldset.fieldset legendHeading="Ident information" legendHeadingSize="h2" legendHeadingClass="govuk-fieldset__legend--l">
 
-            <@fdsTextarea.textarea path="form.dataForm.componentPartsDescription" labelText="Description of component parts" nestingPath="form.definingStructure"
+            <@fdsTextarea.textarea path="form.dataForm.componentPartsDescription" labelText="Description of component part" nestingPath="form.definingStructure"
              hintText="e.g. 10\" production flowline, electrical lead d B, 2 x 6\" Production Jumper within a Wellhead Bundle, 6\" flexible gas lift flowline, control umbilical etc" characterCount=true maxCharacterLength="4000"/>
             <@identDataTextInput coreType=coreType textInputPath="form.dataForm.productsToBeConveyed" textAreaPath="form.dataForm.productsToBeConveyedMultiCore" useTextArea=true labelText="Products to be conveyed" nestingPath="form.definingStructure"/>
-            
+
             <@fdsRadio.radioGroup path="form.definingStructure" labelText="Is this ident defining a structure?" hiddenContent=true>
-                <@fdsRadio.radioYes path="form.definingStructure">       
-                    <@fdsTextInput.textInput path="form.lengthOptional" labelText="Length" suffix="m" inputClass="govuk-input--width-5" optionalLabel=true nestingPath="form.definingStructure"/>                    
+                <@fdsRadio.radioYes path="form.definingStructure">
+                    <@fdsTextInput.textInput path="form.lengthOptional" labelText="Length" suffix="m" inputClass="govuk-input--width-5" optionalLabel=true nestingPath="form.definingStructure"/>
                 </@fdsRadio.radioYes>
 
-                <@fdsRadio.radioNo path="form.definingStructure">   
-                    <@fdsTextInput.textInput path="form.length" labelText="Length" suffix="m" inputClass="govuk-input--width-5" nestingPath="form.definingStructure"/>                    
+                <@fdsRadio.radioNo path="form.definingStructure">
+                    <@fdsTextInput.textInput path="form.length" labelText="Length" suffix="m" inputClass="govuk-input--width-5" nestingPath="form.definingStructure"/>
                     <@identDataTextInput coreType=coreType textInputPath="form.dataForm.externalDiameter" textAreaPath="form.dataForm.externalDiameterMultiCore" labelText="External diameter" suffix="mm" suffixScreenReaderPrompt="mm" nestingPath="form.definingStructure"/>
                     <@identDataTextInput coreType=coreType textInputPath="form.dataForm.internalDiameter" textAreaPath="form.dataForm.internalDiameterMultiCore" nestingPath="form.definingStructure"
                      labelText="Internal diameter" suffix="mm" suffixScreenReaderPrompt="mm" multiCoreHintText="Provide for each of the cores" nestingPath="form.definingStructure"/>
                     <@identDataTextInput coreType=coreType textInputPath="form.dataForm.wallThickness" textAreaPath="form.dataForm.wallThicknessMultiCore" nestingPath="form.definingStructure"
                      labelText="Wall thickness" suffix="mm" suffixScreenReaderPrompt="mm" multiCoreHintText="Provide for the outer casing not the internal casings"/>
                     <@identDataTextInput coreType=coreType textInputPath="form.dataForm.maop" textAreaPath="form.dataForm.maopMultiCore" labelText="MAOP" suffix="barg" nestingPath="form.definingStructure" suffixScreenReaderPrompt="barg" multiCoreHintText="Provide for each of the internal cores"/>
-                    <@identDataTextInput coreType=coreType textInputPath="form.dataForm.insulationCoatingType" textAreaPath="form.dataForm.insulationCoatingTypeMultiCore" nestingPath="form.definingStructure" useTextArea=true labelText="Insulation / coating type" multiCoreHintText="Provide for the outer casing"/>                                       
+                    <@identDataTextInput coreType=coreType textInputPath="form.dataForm.insulationCoatingType" textAreaPath="form.dataForm.insulationCoatingTypeMultiCore" nestingPath="form.definingStructure" useTextArea=true labelText="Insulation / coating type" multiCoreHintText="Provide for the outer casing"/>
                 </@fdsRadio.radioNo>
-            </@fdsRadio.radioGroup>           
+            </@fdsRadio.radioGroup>
 
         </@fdsFieldset.fieldset>
 

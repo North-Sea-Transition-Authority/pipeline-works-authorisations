@@ -35,7 +35,7 @@ public class WorkAreaTabServiceTest {
 
   @Test
   public void getDefaultTabForUser_regulator() {
-    when(userTypeService.getUserType(user)).thenReturn(UserType.OGA);
+    when(userTypeService.getPriorityUserType(user)).thenReturn(UserType.OGA);
 
     var defaultTabOpt = workAreaTabService.getDefaultTabForUser(user);
 
@@ -47,7 +47,7 @@ public class WorkAreaTabServiceTest {
 
   @Test
   public void getDefaultTabForUser_industry() {
-    when(userTypeService.getUserType(user)).thenReturn(UserType.INDUSTRY);
+    when(userTypeService.getPriorityUserType(user)).thenReturn(UserType.INDUSTRY);
 
     var defaultTabOpt = workAreaTabService.getDefaultTabForUser(user);
 
@@ -59,7 +59,7 @@ public class WorkAreaTabServiceTest {
 
   @Test
   public void getDefaultTabForUser_consultee() {
-    when(userTypeService.getUserType(user)).thenReturn(UserType.CONSULTEE);
+    when(userTypeService.getPriorityUserType(user)).thenReturn(UserType.CONSULTEE);
 
     var defaultTabOpt = workAreaTabService.getDefaultTabForUser(user);
 
@@ -80,7 +80,7 @@ public class WorkAreaTabServiceTest {
 
   @Test
   public void getTabsAvailableToUser_regulatorOnly() {
-    when(userTypeService.getUserType(user)).thenReturn(UserType.OGA);
+    when(userTypeService.getPriorityUserType(user)).thenReturn(UserType.OGA);
     var tabs = workAreaTabService.getTabsAvailableToUser(user);
 
     assertThat(tabs).containsExactly(WorkAreaTab.REGULATOR_REQUIRES_ATTENTION, WorkAreaTab.REGULATOR_WAITING_ON_OTHERS);
@@ -90,7 +90,7 @@ public class WorkAreaTabServiceTest {
   @Test
   public void getTabsAvailableToUser_industryOnly() {
 
-    when(userTypeService.getUserType(user)).thenReturn(UserType.INDUSTRY);
+    when(userTypeService.getPriorityUserType(user)).thenReturn(UserType.INDUSTRY);
 
     var tabs = workAreaTabService.getTabsAvailableToUser(user);
 
@@ -101,7 +101,7 @@ public class WorkAreaTabServiceTest {
   @Test
   public void getTabsAvailableToUser_consulteeOnly() {
 
-    when(userTypeService.getUserType(user)).thenReturn(UserType.CONSULTEE);
+    when(userTypeService.getPriorityUserType(user)).thenReturn(UserType.CONSULTEE);
 
     var tabs = workAreaTabService.getTabsAvailableToUser(user);
 

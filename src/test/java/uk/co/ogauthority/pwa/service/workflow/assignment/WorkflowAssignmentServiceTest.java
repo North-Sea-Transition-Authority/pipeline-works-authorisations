@@ -30,10 +30,10 @@ import uk.co.ogauthority.pwa.model.workflow.GenericMessageEvent;
 import uk.co.ogauthority.pwa.model.workflow.GenericWorkflowSubject;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupTeamService;
 import uk.co.ogauthority.pwa.service.consultations.ConsultationRequestService;
-import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationConsultationWorkflowTask;
-import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationWorkflowTask;
 import uk.co.ogauthority.pwa.service.enums.workflow.UserWorkflowTask;
 import uk.co.ogauthority.pwa.service.enums.workflow.WorkflowType;
+import uk.co.ogauthority.pwa.service.enums.workflow.application.PwaApplicationWorkflowTask;
+import uk.co.ogauthority.pwa.service.enums.workflow.consultation.PwaApplicationConsultationWorkflowTask;
 import uk.co.ogauthority.pwa.service.teammanagement.TeamManagementService;
 import uk.co.ogauthority.pwa.service.teams.PwaTeamService;
 import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
@@ -179,6 +179,44 @@ public class WorkflowAssignmentServiceTest {
 
     workflowAssignmentService.assign(app, PwaApplicationWorkflowTask.CASE_OFFICER_REVIEW, notCaseOfficerPerson,
         caseOfficerPerson);
+
+  }
+
+  @Test
+  public void assignTaskNoException_success() {
+
+    var app = new PwaApplication();
+
+    assertThat(workflowAssignmentService.assignTaskNoException(
+       app,
+       PwaApplicationWorkflowTask.CASE_OFFICER_REVIEW,
+        caseOfficerPerson,
+       notCaseOfficerPerson)
+    ).isEqualTo(WorkflowAssignmentService.AssignTaskResult.SUCCESS);
+
+    verify(camundaWorkflowService, times(1)).assignTaskToUser(
+        eq(new WorkflowTaskInstance(app, PwaApplicationWorkflowTask.CASE_OFFICER_REVIEW)),
+        eq(caseOfficerPerson));
+
+    verify(assignmentService, times(1))
+        .createOrUpdateAssignment(app, PwaApplicationWorkflowTask.CASE_OFFICER_REVIEW, caseOfficerPerson, notCaseOfficerPerson);
+
+  }
+
+  @Test
+  public void assignTaskNoException_invalidAssigneePerson() {
+
+    var app = new PwaApplication();
+
+    assertThat(workflowAssignmentService.assignTaskNoException(
+        app,
+        PwaApplicationWorkflowTask.CASE_OFFICER_REVIEW,
+        notCaseOfficerPerson,
+        notCaseOfficerPerson)
+    ).isEqualTo(WorkflowAssignmentService.AssignTaskResult.ASSIGNMENT_CANDIDATE_INVALID);
+
+    verify(camundaWorkflowService, times(0)).assignTaskToUser(any(), any());
+    verify(assignmentService, times(0)).createOrUpdateAssignment(any(), any(), any(), any());
 
   }
 

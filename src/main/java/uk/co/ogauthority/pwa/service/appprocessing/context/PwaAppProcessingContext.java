@@ -1,7 +1,10 @@
 package uk.co.ogauthority.pwa.service.appprocessing.context;
 
+import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.Optional;
 import java.util.Set;
+import org.apache.commons.collections4.SetUtils;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.dto.appprocessing.ApplicationInvolvementDto;
 import uk.co.ogauthority.pwa.model.dto.appprocessing.ConsultationInvolvementDto;
@@ -54,6 +57,14 @@ public class PwaAppProcessingContext {
 
   public boolean hasProcessingPermission(PwaAppProcessingPermission pwaAppProcessingPermission) {
     return appProcessingPermissions.contains(pwaAppProcessingPermission);
+  }
+
+  public boolean hasAnyProcessingPermission(PwaAppProcessingPermission... pwaAppProcessingPermissionsArray) {
+    var searchPermissions = EnumSet.noneOf(PwaAppProcessingPermission.class);
+    searchPermissions.addAll(Arrays.asList(pwaAppProcessingPermissionsArray));
+
+    return !SetUtils.intersection(searchPermissions, this.appProcessingPermissions).isEmpty();
+
   }
 
   public PwaApplication getPwaApplication() {

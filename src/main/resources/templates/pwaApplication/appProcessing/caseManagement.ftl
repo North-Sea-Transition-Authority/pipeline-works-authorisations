@@ -9,9 +9,12 @@
 <#-- @ftlvariable name="optionsApprovalPageBanner" type="uk.co.ogauthority.pwa.model.view.banner.PageBannerView" -->
 <#-- @ftlvariable name="publicNoticePageBannerView" type="uk.co.ogauthority.pwa.model.view.banner.PageBannerView" -->
 <#-- @ftlvariable name="payForAppUrl" type="java.lang.String" -->
+<#-- @ftlvariable name="manageAppContactsUrl" type="java.lang.String" -->
 
 <#-- @ftlvariable name="taskListUrl" type="String" -->
 <#-- @ftlvariable name="processingPermissions" type="java.util.Set<uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission> -->
+<#-- @ftlvariable name="taskGroupNameWarningMessageMap" type="java.util.Map<java.lang.String, java.lang.String>" -->
+
 
 <#include '../../layout.ftl'>
 <#import 'tabs/tasksTab.ftl' as tasksTab>
@@ -37,6 +40,9 @@
     <#if payForAppUrl?has_content>
         <@fdsAction.link linkText="Pay for application" linkUrl=springUrl(payForAppUrl) linkClass="govuk-button govuk-button--blue" role=true/>
     </#if>
+    <#if manageAppContactsUrl?has_content>
+        <@fdsAction.link linkText="Manage application users" linkUrl=springUrl(manageAppContactsUrl) linkClass="govuk-button govuk-button--blue" role=true/>
+    </#if>
 
   <@fdsBackendTabs.tabList>
       <#list availableTabs as tab>
@@ -48,17 +54,17 @@
 
       <@fdsBackendTabs.tabContent tabAnchor=tab.anchor currentTab=currentProcessingTab.value tabValue=tab.value>
 
-          <#if tab == "TASKS">
-              <@tasksTab.tab taskListGroups=taskListGroups industryFlag=industryFlag />
-          </#if>
+        <#if tab == "TASKS">
+            <@tasksTab.tab taskListGroups=taskListGroups industryFlag=industryFlag taskGroupNameWarningMessageMap=taskGroupNameWarningMessageMap/>
+        </#if>
 
-          <#if tab == "CASE_HISTORY">
-              <@caseHistoryTab.tab caseHistoryItems=caseHistoryItems />
-          </#if>
+        <#if tab == "CASE_HISTORY">
+            <@caseHistoryTab.tab caseHistoryItems=caseHistoryItems />
+        </#if>
 
-          <#if tab == "FIRS">
-              <@firsTab.tab />
-          </#if>
+        <#if tab == "FIRS">
+            <@firsTab.tab />
+        </#if>
 
       </@fdsBackendTabs.tabContent>
 

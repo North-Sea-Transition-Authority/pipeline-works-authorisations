@@ -1,10 +1,8 @@
 <#include '../../../layout.ftl'>
 
-<@defaultPage htmlTitle="Field information" breadcrumbs=true>
+<#-- @ftlvariable name="errorList" type="java.util.List<uk.co.ogauthority.pwa.model.form.fds.ErrorItem>" -->
 
-    <#if errorList?has_content>
-        <@fdsError.errorSummary errorItems=errorList />
-    </#if>
+<@defaultPage htmlTitle="Field information" breadcrumbs=true errorItems=errorList>
 
     <@fdsForm.htmlForm>
 

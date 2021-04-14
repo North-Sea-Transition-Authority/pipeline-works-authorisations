@@ -64,7 +64,7 @@ public class HuooSummaryService implements ApplicationSectionSummariser {
 
     var huooRolePipelineGroupsPadView = padOrganisationRoleService.getAllOrganisationRolePipelineGroupView(pwaApplicationDetail);
     var huooRolePipelineGroupsConsentedView = pwaConsentOrganisationRoleService.getAllOrganisationRolePipelineGroupView(
-        pwaApplicationDetail.getMasterPwaApplication());
+        pwaApplicationDetail.getMasterPwa());
 
     var diffedAllOrgRolePipelineGroups = getDiffedViewUsingSummaryViews(huooRolePipelineGroupsPadView, huooRolePipelineGroupsConsentedView);
 

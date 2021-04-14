@@ -26,6 +26,7 @@ import uk.co.ogauthority.pwa.repository.pwaapplications.PwaApplicationDetailRepo
 import uk.co.ogauthority.pwa.service.appprocessing.initialreview.InitialReviewPaymentDecision;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ApplicationState;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
+import uk.co.ogauthority.pwa.service.enums.users.UserType;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadFastTrackService;
 import uk.co.ogauthority.pwa.service.users.UserTypeService;
 
@@ -275,32 +276,44 @@ public class PwaApplicationDetailService {
 
   }
 
+  /**
+   * This is not designed to be used for Authorisation checks on its own, simply as a starting point for authorisation checks.
+   * See ApplicationInvolvementService.getApplicationInvolvement.
+   */
   public Optional<PwaApplicationDetail> getLatestDetailForUser(int applicationId,
                                                                AuthenticatedUserAccount user) {
 
     var details = pwaApplicationDetailRepository.findByPwaApplicationId(applicationId);
-    var userType = userTypeService.getUserType(user);
+    var userTypes = userTypeService.getUserTypes(user);
+    var tipDetail = details.stream()
+        .filter(PwaApplicationDetail::isTipFlag)
+        .findFirst()
+        .orElseThrow(() -> new RuntimeException(String.format("Requested AppId:%s has no tip detail", applicationId)));
 
-    switch (userType) {
+    var lastSubmittedDetail = details.stream()
+        .filter(d -> d.getSubmittedTimestamp() != null)
+        .max(Comparator.comparing(PwaApplicationDetail::getSubmittedTimestamp));
 
-      case INDUSTRY:
-      case OGA:
-        return details.stream()
-            .filter(d -> d.getSubmittedTimestamp() != null)
-            .max(Comparator.comparing(PwaApplicationDetail::getSubmittedTimestamp));
+    var latestSatisfactoryDetail = details.stream()
+        .filter(d -> d.getConfirmedSatisfactoryTimestamp() != null)
+        .max(Comparator.comparing(PwaApplicationDetail::getConfirmedSatisfactoryTimestamp));
 
-      case CONSULTEE:
-        return details.stream()
-            .filter(d -> d.getConfirmedSatisfactoryTimestamp() != null)
-            .max(Comparator.comparing(PwaApplicationDetail::getConfirmedSatisfactoryTimestamp));
-
-      default:
-        throw new IllegalStateException(String.format(
-            "Unrecognised user type [%s] encountered when retrieving app detail for user with WUA id [%s]",
-            userType.name(),
-            user.getWuaId()));
-
+    if (userTypes.contains(UserType.INDUSTRY) && tipDetail.isFirstVersion()) {
+      return Optional.of(tipDetail);
     }
+
+    if (userTypes.contains(UserType.OGA) || userTypes.contains(UserType.INDUSTRY)) {
+      return lastSubmittedDetail;
+    }
+
+    if (userTypes.contains(UserType.CONSULTEE)) {
+      return latestSatisfactoryDetail;
+    }
+
+    throw new IllegalStateException(String.format(
+        "Unrecognised user types [%s] encountered when retrieving app detail for user with WUA id [%s]",
+        userTypes,
+        user.getWuaId()));
 
   }
 
@@ -310,6 +323,10 @@ public class PwaApplicationDetailService {
         .stream()
         .map(detail -> detail.getPwaApplication().getId())
         .collect(Collectors.toList());
+  }
+
+  public List<PwaApplicationDetail> getAllDetailsForApplication(PwaApplication pwaApplication) {
+    return pwaApplicationDetailRepository.findByPwaApplication(pwaApplication);
   }
 
 }

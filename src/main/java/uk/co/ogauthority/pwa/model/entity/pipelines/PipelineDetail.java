@@ -1,8 +1,8 @@
 package uk.co.ogauthority.pwa.model.entity.pipelines;
 
-import com.google.common.annotations.VisibleForTesting;
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.Objects;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -144,11 +144,9 @@ public class PipelineDetail {
     // default for hibernate
   }
 
-  @VisibleForTesting
   public PipelineDetail(Pipeline pipeline) {
     this.setPipeline(pipeline);
   }
-
 
   public Integer getId() {
     return id;
@@ -498,4 +496,58 @@ public class PipelineDetail {
 
   }
 
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    PipelineDetail that = (PipelineDetail) o;
+    return Objects.equals(id, that.id) && Objects.equals(pipeline,
+        that.pipeline) && Objects.equals(startTimestamp, that.startTimestamp) && Objects.equals(
+        endTimestamp, that.endTimestamp) && Objects.equals(tipFlag,
+        that.tipFlag) && pipelineStatus == that.pipelineStatus && Objects.equals(pipelineStatusReason,
+        that.pipelineStatusReason) && Objects.equals(pipelineNumber,
+        that.pipelineNumber) && Objects.equals(maxExternalDiameter,
+        that.maxExternalDiameter) && Objects.equals(pipelineInBundle,
+        that.pipelineInBundle) && Objects.equals(bundleName, that.bundleName) && Objects.equals(
+        pwaConsent, that.pwaConsent) && pipelineType == that.pipelineType && Objects.equals(fromLocation,
+        that.fromLocation) && Objects.equals(fromLatitudeDegrees,
+        that.fromLatitudeDegrees) && Objects.equals(fromLatitudeMinutes,
+        that.fromLatitudeMinutes) && Objects.equals(fromLatitudeSeconds,
+        that.fromLatitudeSeconds) && fromLatitudeDirection == that.fromLatitudeDirection && Objects.equals(
+        fromLongitudeDegrees, that.fromLongitudeDegrees) && Objects.equals(fromLongitudeMinutes,
+        that.fromLongitudeMinutes) && Objects.equals(fromLongitudeSeconds,
+        that.fromLongitudeSeconds) && fromLongitudeDirection == that.fromLongitudeDirection && Objects.equals(
+        toLocation, that.toLocation) && Objects.equals(toLatitudeDegrees,
+        that.toLatitudeDegrees) && Objects.equals(toLatitudeMinutes,
+        that.toLatitudeMinutes) && Objects.equals(toLatitudeSeconds,
+        that.toLatitudeSeconds) && toLatitudeDirection == that.toLatitudeDirection && Objects.equals(
+        toLongitudeDegrees, that.toLongitudeDegrees) && Objects.equals(toLongitudeMinutes,
+        that.toLongitudeMinutes) && Objects.equals(toLongitudeSeconds,
+        that.toLongitudeSeconds) && toLongitudeDirection == that.toLongitudeDirection && Objects.equals(
+        componentPartsDesc, that.componentPartsDesc) && Objects.equals(length,
+        that.length) && Objects.equals(productsToBeConveyed,
+        that.productsToBeConveyed) && Objects.equals(trenchedBuriedFilledFlag,
+        that.trenchedBuriedFilledFlag) && Objects.equals(trenchingMethodsDesc,
+        that.trenchingMethodsDesc) && pipelineFlexibility == that.pipelineFlexibility && pipelineMaterial == that.pipelineMaterial
+        && Objects.equals(otherPipelineMaterialUsed, that.otherPipelineMaterialUsed) && Objects.equals(pipelineDesignLife,
+        that.pipelineDesignLife) && Objects.equals(fromCoordinates,
+        that.fromCoordinates) && Objects.equals(toCoordinates, that.toCoordinates);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(id, pipeline, startTimestamp, endTimestamp, tipFlag, pipelineStatus, pipelineStatusReason,
+        pipelineNumber, maxExternalDiameter, pipelineInBundle, bundleName, pwaConsent, pipelineType, fromLocation,
+        fromLatitudeDegrees, fromLatitudeMinutes, fromLatitudeSeconds, fromLatitudeDirection, fromLongitudeDegrees,
+        fromLongitudeMinutes, fromLongitudeSeconds, fromLongitudeDirection, toLocation, toLatitudeDegrees,
+        toLatitudeMinutes, toLatitudeSeconds, toLatitudeDirection, toLongitudeDegrees, toLongitudeMinutes,
+        toLongitudeSeconds, toLongitudeDirection, componentPartsDesc, length, productsToBeConveyed,
+        trenchedBuriedFilledFlag, trenchingMethodsDesc, pipelineFlexibility, pipelineMaterial,
+        otherPipelineMaterialUsed,
+        pipelineDesignLife, fromCoordinates, toCoordinates);
+  }
 }

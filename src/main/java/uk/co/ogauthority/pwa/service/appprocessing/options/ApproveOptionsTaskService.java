@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.service.appprocessing.options;
 
 import static uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission.APPROVE_OPTIONS;
 import static uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission.APPROVE_OPTIONS_VIEW;
+import static uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission.SHOW_ALL_TASKS_AS_PWA_MANAGER_ONLY;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,6 +17,7 @@ import uk.co.ogauthority.pwa.service.consultations.ConsultationRequestService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingTask;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.TaskStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ConsultationRequestStatus;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 
 @Service
 public class ApproveOptionsTaskService implements AppProcessingService {
@@ -46,7 +48,9 @@ public class ApproveOptionsTaskService implements AppProcessingService {
   }
 
   private boolean hasViewAccessPermissions(PwaAppProcessingContext pwaAppProcessingContext) {
-    return pwaAppProcessingContext.getAppProcessingPermissions().contains(APPROVE_OPTIONS_VIEW);
+    return pwaAppProcessingContext.getAppProcessingPermissions().contains(APPROVE_OPTIONS_VIEW)
+        || (pwaAppProcessingContext.getApplicationType().equals(PwaApplicationType.OPTIONS_VARIATION)
+        && pwaAppProcessingContext.getAppProcessingPermissions().contains(SHOW_ALL_TASKS_AS_PWA_MANAGER_ONLY));
   }
 
   public boolean taskAccessible(PwaAppProcessingContext pwaAppProcessingContext) {
@@ -117,7 +121,7 @@ public class ApproveOptionsTaskService implements AppProcessingService {
 
     if (optionsApproved) {
       taskStatus = TaskStatus.COMPLETED;
-    } else if (taskAccessible && !optionsApproved) {
+    } else if (taskAccessible) {
       taskStatus = TaskStatus.NOT_COMPLETED;
     } else {
       taskStatus = TaskStatus.CANNOT_START_YET;

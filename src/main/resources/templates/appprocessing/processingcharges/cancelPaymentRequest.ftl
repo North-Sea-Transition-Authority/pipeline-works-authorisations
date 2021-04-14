@@ -26,6 +26,8 @@
             <@pwaPayment.applicationPaymentDisplaySummary summary=appPaymentDisplaySummary />
 
             <@fdsForm.htmlForm>
+                <@fdsTextarea.textarea path="form.cancellationReason" labelText="Cancellation reason" maxCharacterLength="4000" characterCount=true/>
+
                 <@fdsAction.submitButtons primaryButtonText="Cancel payment request" linkSecondaryAction=true secondaryLinkText="Back" linkSecondaryActionUrl=springUrl(cancelUrl)/>
             </@fdsForm.htmlForm>
 

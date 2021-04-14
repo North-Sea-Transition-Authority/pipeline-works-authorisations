@@ -2,9 +2,7 @@ package uk.co.ogauthority.pwa.testutils;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.model.entity.search.consents.ConsentSearchItem;
-import uk.co.ogauthority.pwa.model.entity.search.consents.PwaHolderOrgUnit;
 
 public class ConsentSearchItemTestUtils {
 
@@ -25,17 +23,6 @@ public class ConsentSearchItemTestUtils {
     item.setLatestConsentTimestamp(firstConsentTimestamp.plus(400, ChronoUnit.DAYS));
     item.setLatestConsentReference("C/" + pwaId);
     return item;
-  }
-
-  public static PwaHolderOrgUnit createPwaHolderOrgUnit(int rowId, int pwaId, PortalOrganisationUnit organisationUnit) {
-
-    var orgUnit = new PwaHolderOrgUnit();
-    orgUnit.setRowId(rowId);
-    orgUnit.setPwaId(pwaId);
-    orgUnit.setOuId(organisationUnit.getOuId());
-    orgUnit.setOrgGrpId(organisationUnit.getPortalOrganisationGroup().getOrgGrpId());
-    return orgUnit;
-
   }
 
 }

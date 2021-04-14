@@ -4,11 +4,8 @@
 <#-- @ftlvariable name="pipelineViews" type="java.util.List<uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview>" -->
 <#-- @ftlvariable name="screenActionType" type="uk.co.ogauthority.pwa.model.form.enums.ScreenActionType" -->
 
-<@defaultPage htmlTitle="${screenActionType.getActionText()} work schedule" pageHeading="${screenActionType.getActionText()} work schedule" breadcrumbs=true fullWidthColumn=true >
+<@defaultPage htmlTitle="${screenActionType.getActionText()} work schedule" pageHeading="${screenActionType.getActionText()} work schedule" breadcrumbs=true fullWidthColumn=true errorItems=errorList>
 
-    <#if errorList?has_content>
-        <@fdsError.errorSummary errorItems=errorList errorTitle="Errors"/>
-    </#if>
    <@fdsForm.htmlForm>
        <@fdsNumberInput.twoNumberInputs pathOne="form.workStart.month" pathTwo="form.workStart.year" labelText="Expected start of work" formId="start-month-year" >
            <@fdsNumberInput.numberInputItem path="form.workStart.month" labelText="Month" inputClass="govuk-input--width-2"/>

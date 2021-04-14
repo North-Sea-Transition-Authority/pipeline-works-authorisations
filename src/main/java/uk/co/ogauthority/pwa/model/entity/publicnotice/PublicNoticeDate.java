@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.model.entity.publicnotice;
 
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -8,6 +9,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import uk.co.ogauthority.pwa.util.DateUtils;
 
 @Entity
 @Table(name = "public_notice_dates")
@@ -28,6 +30,17 @@ public class PublicNoticeDate {
   private Integer createdByPersonId;
   private Integer endedByPersonId;
 
+  public PublicNoticeDate() {
+    //default
+  }
+
+  public PublicNoticeDate(PublicNotice publicNotice, Instant publicationStartTimestamp,
+                          Instant publicationEndTimestamp, Integer createdByPersonId) {
+    this.publicNotice = publicNotice;
+    this.publicationStartTimestamp = publicationStartTimestamp;
+    this.publicationEndTimestamp = publicationEndTimestamp;
+    this.createdByPersonId = createdByPersonId;
+  }
 
   public Integer getId() {
     return id;
@@ -59,6 +72,11 @@ public class PublicNoticeDate {
 
   public void setPublicationEndTimestamp(Instant publicationEndTimestamp) {
     this.publicationEndTimestamp = publicationEndTimestamp;
+  }
+
+  public long getPublicationDaysLength() {
+    return ChronoUnit.DAYS.between(DateUtils.instantToLocalDate(publicationStartTimestamp),
+        DateUtils.instantToLocalDate(publicationEndTimestamp));
   }
 
   public Integer getCreatedByPersonId() {

@@ -20,16 +20,16 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
 import uk.co.ogauthority.pwa.repository.pwaapplications.search.PwaAppAssignmentViewRepository;
 import uk.co.ogauthority.pwa.service.appprocessing.application.ConfirmSatisfactoryApplicationService;
+import uk.co.ogauthority.pwa.service.appprocessing.consentreview.ConsentReviewService;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupDetailService;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupTeamService;
-import uk.co.ogauthority.pwa.service.appprocessing.prepareconsent.ConsentReviewService;
 import uk.co.ogauthority.pwa.service.consultations.ConsultationRequestService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.appinvolvement.OpenConsentReview;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 import uk.co.ogauthority.pwa.service.enums.users.UserType;
-import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationConsultationWorkflowTask;
-import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationWorkflowTask;
+import uk.co.ogauthority.pwa.service.enums.workflow.application.PwaApplicationWorkflowTask;
 import uk.co.ogauthority.pwa.service.enums.workflow.assignment.WorkflowAssignment;
+import uk.co.ogauthority.pwa.service.enums.workflow.consultation.PwaApplicationConsultationWorkflowTask;
 import uk.co.ogauthority.pwa.service.person.PersonService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
@@ -92,14 +92,14 @@ public class ApplicationInvolvementService {
   public ApplicationInvolvementDto getApplicationInvolvementDto(PwaApplicationDetail detail,
                                                                 AuthenticatedUserAccount user) {
 
-    var userType = userTypeService.getUserType(user);
+    var userTypes = userTypeService.getUserTypes(user);
     var application = detail.getPwaApplication();
 
     // INDUSTRY data
     Set<PwaContactRole> appContactRoles = Set.of();
     Set<PwaOrganisationRole> userHolderTeamRoles = Set.of();
 
-    if (userType == UserType.INDUSTRY) {
+    if (userTypes.contains(UserType.INDUSTRY)) {
 
       userHolderTeamRoles = pwaHolderTeamService.getRolesInHolderTeam(detail, user.getLinkedPerson());
 
@@ -109,7 +109,7 @@ public class ApplicationInvolvementService {
 
     // CONSULTEE data
     ConsultationInvolvementDto consultationInvolvement = null;
-    if (userType == UserType.CONSULTEE) {
+    if (userTypes.contains(UserType.CONSULTEE)) {
       consultationInvolvement = getConsultationInvolvement(application, user.getLinkedPerson())
           .orElseThrow(() -> new IllegalStateException(String.format(
               "Person with id [%s] has CONSULTEE priv but we have no consultation involvement object",
@@ -120,7 +120,7 @@ public class ApplicationInvolvementService {
     var userIsAssignedCaseOfficer = false;
     boolean pwaManagerStage = false;
 
-    if (userType == UserType.OGA) {
+    if (userTypes.contains(UserType.OGA)) {
 
       userIsAssignedCaseOfficer = assignmentService.getAssignmentsForPerson(application, user.getLinkedPerson()).stream()
           .anyMatch(ass -> WorkflowAssignment.CASE_OFFICER.equals(ass.getWorkflowAssignment()));
@@ -138,6 +138,9 @@ public class ApplicationInvolvementService {
         .map(openReview -> OpenConsentReview.YES)
         .orElse(OpenConsentReview.NO);
 
+    var userIsIndustryOnly = !(appContactRoles.isEmpty() && userHolderTeamRoles.isEmpty())
+         && !(consultationInvolvement != null || userTypes.contains(UserType.OGA));
+
     return new ApplicationInvolvementDto(
         application,
         appContactRoles,
@@ -146,6 +149,7 @@ public class ApplicationInvolvementService {
         pwaManagerStage,
         atLeastOneSatisfactoryVersion,
         userHolderTeamRoles,
+        userIsIndustryOnly,
         openConsentReview);
 
   }
@@ -223,8 +227,10 @@ public class ApplicationInvolvementService {
 
   }
 
-  //WARNING: This may return assignment views where the case officer is assigned on more that one app.
-  // Currently this is only called by the ApplicationSearchController where duplicate case officers are removed
+  /**
+   * WARNING: This may return assignment views where the case officer is assigned on more that one app.
+   * Currently this is only called by the ApplicationSearchController where duplicate case officers are removed.
+   */
   public List<PwaAppAssignmentView> getCaseOfficersAssignedToInProgressApps() {
     var inProgressApplicationIds = pwaApplicationDetailService.getInProgressApplicationIds();
     return pwaAppAssignmentViewRepository.findAllByAssignmentAndPwaApplicationIdIn(

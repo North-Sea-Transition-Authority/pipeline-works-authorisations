@@ -1,28 +1,22 @@
 <#-- @ftlvariable name="teamName" type="java.lang.String" -->
 <#-- @ftlvariable name="teamMemberViews" type="java.util.List<uk.co.ogauthority.pwa.model.teammanagement.TeamMemberView>" -->
 <#-- @ftlvariable name="addUserUrl" type="java.lang.String" -->
+<#-- @ftlvariable name="completeSectionUrl" type="java.lang.String" -->
+<#-- @ftlvariable name="caseManagementUrl" type="java.lang.String" -->
 <#-- @ftlvariable name="showBreadcrumbs" type="java.lang.Boolean" -->
 <#-- @ftlvariable name="userCanManageAccess" type="java.lang.Boolean" -->
+<#-- @ftlvariable name="userCanAccessTaskList" type="java.lang.Boolean" -->
+<#-- @ftlvariable name="showCaseManagementLink" type="java.lang.Boolean" -->
 <#-- @ftlvariable name="showTopNav" type="java.lang.Boolean" -->
 <#-- @ftlvariable name="allRoles" type="java.util.Map<String,String>" -->
 <#-- @ftlvariable name="orgGroupHolders" type="java.util.List<String>" -->
 <#-- @ftlvariable name="userType" type="java.util.List<uk.co.ogauthority.pwa.service.enums.users.UserType>" -->
+
 <#include "../layout.ftl">
 
 <@defaultPage htmlTitle=teamName backLink=!showBreadcrumbs pageHeading=teamName topNavigation=showTopNav twoThirdsColumn=false breadcrumbs=showBreadcrumbs>
 
     <#if allRoles??>
-      <@fdsDetails.summaryDetails summaryTitle="What does each role allow a user to do?" >
-        <@fdsCheckAnswers.checkAnswers summaryListClass="">
-            <#list allRoles as propName, propValue>
-              <#assign description = propValue?keep_before("(") >
-                  <@fdsCheckAnswers.checkAnswersRow keyText="${propName}" actionText="" actionUrl="" screenReaderActionText="">
-                    ${description}
-                  </@fdsCheckAnswers.checkAnswersRow>
-            </#list>
-        </@fdsCheckAnswers.checkAnswers>  
-      </@fdsDetails.summaryDetails>
-    
       <#if userType == "INDUSTRY">
         <#if appUser == true>
           <#assign groups>
@@ -39,13 +33,27 @@
           </@fdsInsetText.insetText>
         </#if>
         
-      </#if>  
-    </#if>  
+      </#if>
 
+      <@fdsDetails.summaryDetails summaryTitle="What does each role allow a user to do?" >
+          <@fdsCheckAnswers.checkAnswers summaryListClass="">
+              <#list allRoles as propName, propValue>
+                  <#assign description = propValue?keep_before("(") >
+                  <@fdsCheckAnswers.checkAnswersRow keyText="${propName}" actionText="" actionUrl="" screenReaderActionText="">
+                      ${description}
+                  </@fdsCheckAnswers.checkAnswersRow>
+              </#list>
+          </@fdsCheckAnswers.checkAnswers>
+      </@fdsDetails.summaryDetails>
 
+    </#if>
 
     <#if userCanManageAccess>
         <@fdsAction.link linkText="Add user" linkUrl=springUrl(addUserUrl) linkClass="govuk-button govuk-button--blue" role=true/>
+    </#if>
+
+    <#if showCaseManagementLink?has_content && showCaseManagementLink>
+        <@fdsAction.link linkText="View application management" linkClass="govuk-button govuk-button--secondary" role=true linkUrl=springUrl(caseManagementUrl)/>
     </#if>
 
     <#list teamMemberViews>
@@ -103,8 +111,8 @@
       </table>
     </#list>
 
-    <#if backUrl??>
-      <@fdsAction.link linkText="Complete section" linkClass="govuk-button"  linkUrl=springUrl(backUrl)/>
+    <#if userCanAccessTaskList?has_content && userCanAccessTaskList>
+      <@fdsAction.link linkText="Complete section" linkClass="govuk-button"  linkUrl=springUrl(completeSectionUrl) role=true/>
     </#if>
 
 </@defaultPage>

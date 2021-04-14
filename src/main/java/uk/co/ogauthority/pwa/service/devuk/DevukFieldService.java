@@ -47,7 +47,7 @@ public class DevukFieldService {
     );
   }
 
-  public SearchSelectionView getLinkedAndManualFieldEntries(List<String> fieldIds) {
+  public SearchSelectionView<DevukField> getLinkedAndManualFieldEntries(List<String> fieldIds) {
     return new SearchSelectionView<>(fieldIds,
         pickedFieldString -> findById(Integer.parseInt(pickedFieldString)));
   }

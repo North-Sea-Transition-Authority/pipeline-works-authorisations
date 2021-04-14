@@ -3,11 +3,7 @@
 <#-- @ftlvariable name="errorList" type="java.util.List<uk.co.ogauthority.pwa.model.form.fds.ErrorItem>" -->
 <#-- @ftlvariable name="ogaOptionsTemplateLink" type="java.lang.String" -->
 
-<@defaultPage htmlTitle="Options template" pageHeading="Options template" breadcrumbs=true>
-
-    <#if errorList?has_content>
-        <@fdsError.errorSummary errorItems=errorList />
-    </#if>
+<@defaultPage htmlTitle="Options template" pageHeading="Options template" breadcrumbs=true errorItems=errorList>
 
     <@fdsForm.htmlForm>
 

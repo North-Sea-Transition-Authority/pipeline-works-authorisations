@@ -10,8 +10,8 @@ public enum HuooRole {
   OPERATOR(30, "Operator"),
   OWNER(40, "Owner");
 
-  private int displayOrder;
-  private String displayText;
+  private final int displayOrder;
+  private final String displayText;
 
   HuooRole(int displayOrder, String displayText) {
     this.displayOrder = displayOrder;

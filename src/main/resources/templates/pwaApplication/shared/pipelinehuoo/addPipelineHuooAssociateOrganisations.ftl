@@ -1,6 +1,7 @@
 <#include '../../../layout.ftl'>
 <#import 'pipelineHuooTableSelection.ftl' as pwaPipelineHuooTableSelection/>
 
+<#-- @ftlvariable name="errorList" type="java.util.List<uk.co.ogauthority.pwa.model.form.fds.ErrorItem>" -->
 <#-- @ftlvariable name="pageHeading" type="java.lang.String" -->
 <#-- @ftlvariable name="backUrl" type="java.lang.String" -->
 <#-- @ftlvariable name="submitButtonText" type="java.lang.String" -->
@@ -8,10 +9,7 @@
 <#-- @ftlvariable name="availableTreatyOptions" type="java.util.List<java.lang.String>" -->
 <#-- @ftlvariable name="pickableOrgDetails" type="java.util.List<uk.co.ogauthority.pwa.model.form.pwaapplications.views.PickableOrganisationUnitDetail>" -->
 
-<@defaultPage htmlTitle=pageHeading pageHeading=pageHeading breadcrumbs=false fullWidthColumn=true>
-    <#if errorList?hasContent>
-        <@fdsError.errorSummary errorItems=errorList errorTitle="Errors"/>
-    </#if>
+<@defaultPage htmlTitle=pageHeading pageHeading=pageHeading breadcrumbs=false fullWidthColumn=true errorItems=errorList>
 
     <@fdsInsetText.insetText>
         You must select at least one option to assign to the selected pipelines

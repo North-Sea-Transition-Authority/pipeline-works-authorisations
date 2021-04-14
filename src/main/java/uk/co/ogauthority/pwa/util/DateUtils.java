@@ -21,6 +21,8 @@ public class DateUtils {
       .withLocale(Locale.UK)
       .withZone(ZoneId.systemDefault());
 
+  private static final DateTimeFormatter TWO_DIGIT_YEAR_FORMATTER = DateTimeFormatter.ofPattern("yy");
+
   public static String formatDate(LocalDate localDate) {
     return localDate.format(DATE_FORMATTER);
   }
@@ -39,6 +41,10 @@ public class DateUtils {
 
   public static String formatDateTime(Instant instant) {
     return DATE_TIME_FORMATTER.format(instant);
+  }
+
+  public static String getTwoDigitYear(LocalDate localDate) {
+    return localDate.format(TWO_DIGIT_YEAR_FORMATTER);
   }
 
   public static void consumeInstantFromIntegersElseNull(Integer year,

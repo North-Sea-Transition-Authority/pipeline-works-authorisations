@@ -7,14 +7,7 @@
 <#-- @ftlvariable name="facilityRestUrl" type="java.lang.String" -->
 <#-- @ftlvariable name="requiredQuestions" type="java.util.Set<uk.co.ogauthority.pwa.model.entity.enums.LocationDetailsQuestion>" -->
 
-
-
-
-<@defaultPage htmlTitle="Location details" pageHeading="Location details" breadcrumbs=true>
-
-    <#if errorList?has_content>
-        <@fdsError.errorSummary errorItems=errorList errorTitle="Errors"/>
-    </#if>
+<@defaultPage htmlTitle="Location details" pageHeading="Location details" breadcrumbs=true errorItems=errorList>
 
     <@fdsForm.htmlForm>
 
@@ -27,8 +20,8 @@
                 <#assign firstItem = true/>
                 <#list safetyZoneOptions as name, value>
                     <@fdsRadio.radioItem path="form.withinSafetyZone" itemMap={name:value} isFirstItem=firstItem>
-                        <#if name == "YES">                            
-                            <@safetyZoneQuestion formPath="form.completelyWithinSafetyZoneForm" preselectedItems=preselectedFacilitiesIfYes/>   
+                        <#if name == "YES">
+                            <@safetyZoneQuestion formPath="form.completelyWithinSafetyZoneForm" preselectedItems=preselectedFacilitiesIfYes/>
                         <#elseif name == "PARTIALLY">
                             <@safetyZoneQuestion formPath="form.partiallyWithinSafetyZoneForm" preselectedItems=preselectedFacilitiesIfPartially/>
                         </#if>
@@ -48,7 +41,7 @@
         </#if>
 
         <#if requiredQuestions?seq_contains("TRANSPORTS_MATERIALS_TO_SHORE")>
-            <@fdsRadio.radioGroup path="form.transportsMaterialsToShore" labelText="Will the pipeline be used to transport products / facilitate the transportation of products to shore?" hiddenContent=true>
+            <@fdsRadio.radioGroup path="form.transportsMaterialsToShore" labelText="Will the pipeline(s) be used to transport products / facilitate the transportation of products to shore?" hiddenContent=true>
                 <@fdsRadio.radioYes path="form.transportsMaterialsToShore">
                     <@fdsTextarea.textarea path="form.transportationMethod" labelText="State the method of transportation to shore" nestingPath="form.transportsMaterialsToShore" characterCount=true maxCharacterLength="4000" hintText="Processed oil is stored on the FPSO before being exported onshore by tanker. Gas is either exported via a 16\" flowline to Platform and onward to the SAGE system, or used as fuel or lift gas."/>
                 </@fdsRadio.radioYes>
@@ -88,9 +81,9 @@
 
 <#macro safetyZoneQuestion formPath preselectedItems={}>
 
-    <@fdsSearchSelector.searchSelectorRest path="${formPath}.facilities" labelText="Which structures are within 500m?" multiSelect=true restUrl=springUrl(facilityRestUrl) 
-    nestingPath="form.withinSafetyZone" preselectedItems=preselectedItems hintText="e.g the platform, FPSO, boat, or storage unit"/>    
-    
+    <@fdsSearchSelector.searchSelectorRest path="${formPath}.facilities" labelText="Which structures are within 500m?" multiSelect=true restUrl=springUrl(facilityRestUrl)
+    nestingPath="form.withinSafetyZone" preselectedItems=preselectedItems hintText="e.g the platform, FPSO, boat, or storage unit"/>
+
     <@fdsRadio.radioGroup path="${formPath}.psrNotificationSubmitted" labelText="Have you submitted a Pipelines Safety Regulations notification to HSE?" hintText="Timely submission in advance of work is advised to avoid potential delays" hiddenContent=true nestingPath="form.withinSafetyZone">
 
         <@fdsRadio.radioYes path="${formPath}.psrNotificationSubmitted">

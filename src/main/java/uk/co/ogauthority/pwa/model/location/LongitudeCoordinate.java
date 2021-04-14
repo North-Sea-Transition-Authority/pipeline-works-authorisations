@@ -36,6 +36,9 @@ public class LongitudeCoordinate extends Coordinate {
     ) : null;
   }
 
+  public boolean hasValue() {
+    return this.degMinSecPresent() && direction != null;
+  }
 
   @Override
   public boolean equals(Object o) {

@@ -3,15 +3,11 @@
 <#-- @ftlvariable name="errorList" type="java.util.List<uk.co.ogauthority.pwa.model.form.fds.ErrorItem>" -->
 <#-- @ftlvariable name="partnerLettersTemplateLink" type="String" -->
 
-<@defaultPage htmlTitle="Partner approval letters" pageHeading="Partner approval letters" breadcrumbs=true>
+<@defaultPage htmlTitle="Partner approval letters" pageHeading="Partner approval letters" breadcrumbs=true errorItems=errorList>
 
     <#assign templateLinkHtml>
         <@fdsAction.link linkUrl=partnerLettersTemplateLink linkText="template" linkClass="govuk-link govuk-link--no-visited-state" openInNewTab=true/>
     </#assign>
-
-    <#if errorList?has_content>
-        <@fdsError.errorSummary errorItems=errorList errorTitle="Errors"/>
-    </#if>
 
     <@fdsForm.htmlForm>
 

@@ -17,6 +17,7 @@ import uk.co.ogauthority.pwa.model.dto.appprocessing.ConsultationInvolvementDto;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
+import uk.co.ogauthority.pwa.model.teams.PwaRegulatorRole;
 import uk.co.ogauthority.pwa.model.teams.PwaRole;
 import uk.co.ogauthority.pwa.model.teams.PwaTeamMember;
 import uk.co.ogauthority.pwa.service.appprocessing.ApplicationInvolvementService;
@@ -26,6 +27,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
 import uk.co.ogauthority.pwa.service.teams.PwaHolderTeamService;
 import uk.co.ogauthority.pwa.service.teams.TeamService;
 import uk.co.ogauthority.pwa.testutils.AssertionTestUtils;
+import uk.co.ogauthority.pwa.testutils.TeamTestingUtils;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PwaApplicationPermissionServiceTest {
@@ -137,13 +139,41 @@ public class PwaApplicationPermissionServiceTest {
   }
 
   @Test
-  public void getPermissions_allRoles_allPermissions() {
+  public void getPermissions_allRoles_allStandardPermissions() {
 
     when(pwaContactService.getContactRoles(app, person)).thenReturn(EnumSet.allOf(PwaContactRole.class));
     when(pwaHolderTeamService.getRolesInHolderTeam(detail, person)).thenReturn(EnumSet.allOf(PwaOrganisationRole.class));
 
     assertThat(permissionService.getPermissions(detail, person))
-        .containsExactlyInAnyOrderElementsOf(EnumSet.allOf(PwaApplicationPermission.class));
+        .containsExactlyInAnyOrderElementsOf(EnumSet.of(
+            PwaApplicationPermission.SUBMIT,
+            PwaApplicationPermission.EDIT,
+            PwaApplicationPermission.VIEW,
+            PwaApplicationPermission.MANAGE_CONTACTS));
+
+  }
+
+  @Test
+  public void getPermissions_setPipelineReferencePermission_whenAppContact_andNotRegulator() {
+
+    when(pwaContactService.getContactRoles(app, person)).thenReturn(EnumSet.allOf(PwaContactRole.class));
+
+    assertThat(permissionService.getPermissions(detail, person))
+        .doesNotContain(PwaApplicationPermission.SET_PIPELINE_REFERENCE);
+
+  }
+
+  @Test
+  public void getPermissions_setPipelineReferencePermission_whenAppContactPreparer_andRegulator() {
+
+    when(pwaContactService.getContactRoles(app, person)).thenReturn(EnumSet.of(PwaContactRole.PREPARER));
+    var regTeam =TeamTestingUtils.getRegulatorTeam();
+    var regTeamMember = TeamTestingUtils.createRegulatorTeamMember(regTeam, person, EnumSet.allOf(PwaRegulatorRole.class));
+    when(teamService.getRegulatorTeam()).thenReturn(regTeam);
+    when(teamService.getMembershipOfPersonInTeam(regTeam, person)).thenReturn(Optional.of(regTeamMember));
+
+    assertThat(permissionService.getPermissions(detail, person))
+        .contains(PwaApplicationPermission.SET_PIPELINE_REFERENCE);
 
   }
 

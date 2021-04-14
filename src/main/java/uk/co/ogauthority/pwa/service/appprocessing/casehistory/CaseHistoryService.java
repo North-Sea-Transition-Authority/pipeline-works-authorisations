@@ -43,15 +43,19 @@ public class CaseHistoryService {
         .collect(Collectors.toMap(Person::getId, Function.identity()));
 
     // set the person name and email if label provided on each item view, sort by datetime desc and return list
-    return caseHistoryItemViews.stream()
-        .peek(item -> item.setPersonName(getPersonName(persons, item.getPersonId())))
-        .peek(item -> {
-          if (item.getPersonEmailLabel() != null) {
-            item.setPersonEmail(getPersonEmail(persons, item.getPersonId()));
-          }
-        })
-        .sorted(Comparator.comparing(CaseHistoryItemView::getDateTime, Collections.reverseOrder()))
-        .collect(Collectors.toList());
+    caseHistoryItemViews.forEach(item -> {
+
+      item.setPersonName(getPersonName(persons, item.getPersonId()));
+
+      if (item.getPersonEmailLabel() != null) {
+        item.setPersonEmail(getPersonEmail(persons, item.getPersonId()));
+      }
+
+    });
+
+    caseHistoryItemViews.sort(Comparator.comparing(CaseHistoryItemView::getDateTime, Collections.reverseOrder()));
+
+    return caseHistoryItemViews;
 
   }
 

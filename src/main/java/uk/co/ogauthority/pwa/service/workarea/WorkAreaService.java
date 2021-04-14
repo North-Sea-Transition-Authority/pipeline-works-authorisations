@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.service.workarea;
 
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -11,6 +12,7 @@ import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.model.entity.workflow.assignment.Assignment;
 import uk.co.ogauthority.pwa.service.appprocessing.publicnotice.PublicNoticeService;
 import uk.co.ogauthority.pwa.service.enums.workflow.WorkflowType;
+import uk.co.ogauthority.pwa.service.enums.workflow.application.PwaApplicationWorkflowTask;
 import uk.co.ogauthority.pwa.service.workarea.applications.IndustryWorkAreaPageService;
 import uk.co.ogauthority.pwa.service.workarea.applications.RegulatorWorkAreaPageService;
 import uk.co.ogauthority.pwa.service.workarea.consultations.ConsultationWorkAreaPageService;
@@ -71,6 +73,15 @@ public class WorkAreaService {
         if (authenticatedUserAccount.getUserPrivileges().contains(PwaUserPrivilege.PWA_MANAGER)) {
           businessKeys.addAll(getApplicationIdsForOpenPublicNotices());
         }
+        if (authenticatedUserAccount.hasPrivilege(PwaUserPrivilege.PWA_INDUSTRY)) {
+          businessKeys.addAll(
+              industryWorkAreaPageService.getBusinessKeysWhereUserIsAppPreparerAndTaskActive(
+                  authenticatedUserAccount,
+                  EnumSet.of(PwaApplicationWorkflowTask.PREPARE_APPLICATION,
+                      PwaApplicationWorkflowTask.UPDATE_APPLICATION))
+          );
+        }
+
         return new WorkAreaResult(
             regulatorWorkAreaPageService.getRequiresAttentionPageView(authenticatedUserAccount, businessKeys, page),
             null

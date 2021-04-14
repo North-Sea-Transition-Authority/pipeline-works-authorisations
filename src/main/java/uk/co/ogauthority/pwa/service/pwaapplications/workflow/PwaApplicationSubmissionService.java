@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ApplicationState;
-import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationSubmitResult;
+import uk.co.ogauthority.pwa.service.enums.workflow.application.PwaApplicationSubmitResult;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.PwaApplicationDataCleanupService;
 import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;

@@ -1,99 +1,141 @@
 package uk.co.ogauthority.pwa.service.pwaconsents;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.time.Clock;
 import java.time.Instant;
-import java.time.ZoneId;
+import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
-import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsentType;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
 import uk.co.ogauthority.pwa.repository.pwaconsents.PwaConsentRepository;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PwaConsentServiceTest {
 
-  private static final String REFERENCE = "REFERENCE";
-  private static final int VARIATION_NUMBER = 1;
-
   @Mock
   private PwaConsentRepository pwaConsentRepository;
 
-  private Clock clock = Clock.fixed(Instant.now(), ZoneId.systemDefault());
-  private Instant consentedInstant = Instant.MIN;
+  @Mock
+  private PwaConsentReferencingService referencingService;
 
-  private MasterPwa masterPwa;
+  @Mock
+  private Clock clock;
+
+  @Captor
+  private ArgumentCaptor<PwaConsent> consentCaptor;
 
   private PwaConsentService pwaConsentService;
+  private PwaApplicationDetail detail;
 
+  private Instant clockTime;
+  private static final String FAKE_REF = "99/X/99";
 
   @Before
-  public void setup() {
-    pwaConsentService = new PwaConsentService(pwaConsentRepository, clock);
-    masterPwa = new MasterPwa(clock.instant());
+  public void setUp() throws Exception {
+
+    pwaConsentService = new PwaConsentService(pwaConsentRepository, clock, referencingService);
+
+    when(referencingService.createConsentReference(any())).thenReturn(FAKE_REF);
+
+    clockTime = Instant.now();
+    when(clock.instant()).thenReturn(clockTime);
+
   }
 
   @Test
-  public void createPwaConsentWithoutApplication_createsConsentAsExpected_whenIsMigrated() {
-    var pwaApplication = pwaConsentService.createPwaConsentWithoutApplication(
-        masterPwa,
-        REFERENCE,
-        PwaConsentType.VARIATION,
-        consentedInstant,
-        VARIATION_NUMBER,
-        true
-    );
+  public void createConsent_newPwa() {
 
-    assertThat(pwaApplication.getMasterPwa()).isEqualTo(masterPwa);
-    assertThat(pwaApplication.getConsentInstant()).isEqualTo(consentedInstant);
-    assertThat(pwaApplication.getCreatedInstant()).isEqualTo(clock.instant());
-    assertThat(pwaApplication.getConsentType()).isEqualTo(PwaConsentType.VARIATION);
-    assertThat(pwaApplication.getVariationNumber()).isEqualTo(VARIATION_NUMBER);
-    assertThat(pwaApplication.isMigratedFlag()).isTrue();
-    assertThat(pwaApplication.getReference()).isEqualTo(REFERENCE);
-    assertThat(pwaApplication.getSourcePwaApplication()).isNull();
+    detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
+    pwaConsentService.createConsent(detail.getPwaApplication());
+
+    verify(pwaConsentRepository, times(1)).save(consentCaptor.capture());
+
+    assertThat(consentCaptor.getValue()).satisfies(consent -> {
+      assertThat(consent.getMasterPwa()).isEqualTo(detail.getPwaApplication().getMasterPwa());
+      assertThat(consent.getConsentType()).isEqualTo(detail.getPwaApplication().getApplicationType().getPwaConsentType());
+      assertThat(consent.getSourcePwaApplication()).isEqualTo(detail.getPwaApplication());
+      assertThat(consent.getConsentInstant()).isEqualTo(clockTime);
+      assertThat(consent.getCreatedInstant()).isEqualTo(clockTime);
+      assertThat(consent.getReference()).isEqualTo(FAKE_REF);
+      assertThat(consent.getVariationNumber()).isEqualTo(0);
+      assertThat(consent.isMigratedFlag()).isFalse();
+    });
+
   }
 
   @Test
-  public void createPwaConsentWithoutApplication_createsConsentAsExpected_whenNotMigrated() {
-    var pwaApplication = pwaConsentService.createPwaConsentWithoutApplication(
-        masterPwa,
-        REFERENCE,
-        PwaConsentType.VARIATION,
-        consentedInstant,
-        VARIATION_NUMBER,
-        false
-    );
+  public void createConsent_variation() {
 
-    assertThat(pwaApplication.getMasterPwa()).isEqualTo(masterPwa);
-    assertThat(pwaApplication.getConsentInstant()).isEqualTo(consentedInstant);
-    assertThat(pwaApplication.getCreatedInstant()).isEqualTo(clock.instant());
-    assertThat(pwaApplication.getConsentType()).isEqualTo(PwaConsentType.VARIATION);
-    assertThat(pwaApplication.getVariationNumber()).isEqualTo(VARIATION_NUMBER);
-    assertThat(pwaApplication.isMigratedFlag()).isFalse();
-    assertThat(pwaApplication.getReference()).isEqualTo(REFERENCE);
-    assertThat(pwaApplication.getSourcePwaApplication()).isNull();
+    var initialConsent = new PwaConsent();
+    initialConsent.setVariationNumber(0);
+    var firstVariation = new PwaConsent();
+    firstVariation.setVariationNumber(1);
+    var depCon = new PwaConsent();
+
+    when(pwaConsentRepository.findByMasterPwa(any())).thenReturn(List.of(initialConsent, firstVariation, depCon));
+
+    detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.CAT_1_VARIATION);
+    pwaConsentService.createConsent(detail.getPwaApplication());
+
+    verify(pwaConsentRepository, times(1)).save(consentCaptor.capture());
+
+    assertThat(consentCaptor.getValue()).satisfies(consent -> {
+      assertThat(consent.getMasterPwa()).isEqualTo(detail.getPwaApplication().getMasterPwa());
+      assertThat(consent.getConsentType()).isEqualTo(detail.getPwaApplication().getApplicationType().getPwaConsentType());
+      assertThat(consent.getSourcePwaApplication()).isEqualTo(detail.getPwaApplication());
+      assertThat(consent.getConsentInstant()).isEqualTo(clockTime);
+      assertThat(consent.getCreatedInstant()).isEqualTo(clockTime);
+      assertThat(consent.getReference()).isEqualTo(FAKE_REF);
+      assertThat(consent.getVariationNumber()).isEqualTo(2);
+      assertThat(consent.isMigratedFlag()).isFalse();
+    });
+
   }
 
   @Test
-  public void createPwaConsentWithoutApplication_mapsCorrectConsentType() {
-    for (PwaConsentType pwaConsentType : PwaConsentType.values()) {
-      var pwaApplication = pwaConsentService.createPwaConsentWithoutApplication(
-          masterPwa,
-          REFERENCE,
-          pwaConsentType,
-          consentedInstant,
-          VARIATION_NUMBER,
-          false
-      );
+  public void createConsent_depcon() {
 
-      assertThat(pwaApplication.getConsentType()).isEqualTo(pwaConsentType);
+    detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.DEPOSIT_CONSENT);
+    pwaConsentService.createConsent(detail.getPwaApplication());
 
-    }
+    verify(pwaConsentRepository, times(1)).save(consentCaptor.capture());
+
+    assertThat(consentCaptor.getValue()).satisfies(consent -> {
+      assertThat(consent.getMasterPwa()).isEqualTo(detail.getPwaApplication().getMasterPwa());
+      assertThat(consent.getConsentType()).isEqualTo(detail.getPwaApplication().getApplicationType().getPwaConsentType());
+      assertThat(consent.getSourcePwaApplication()).isEqualTo(detail.getPwaApplication());
+      assertThat(consent.getConsentInstant()).isEqualTo(clockTime);
+      assertThat(consent.getCreatedInstant()).isEqualTo(clockTime);
+      assertThat(consent.getReference()).isEqualTo(FAKE_REF);
+      assertThat(consent.getVariationNumber()).isNull();
+      assertThat(consent.isMigratedFlag()).isFalse();
+    });
+
+  }
+
+  @Test
+  public void getConsentsByMasterPwa() {
+
+    var masterPwa = new MasterPwa();
+
+    pwaConsentService.getConsentsByMasterPwa(masterPwa);
+
+    verify(pwaConsentRepository, times(1)).findByMasterPwa(masterPwa);
+
   }
 
 }

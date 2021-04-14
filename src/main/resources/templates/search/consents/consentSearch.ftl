@@ -15,10 +15,13 @@
         <@fdsSearch.searchFilter formActionUrl=springUrl(consentSearchUrlFactory.searchUrl)>
             <@fdsSearch.searchFilterList filterButtonItemText="PWAs" clearFilterText="Clear filters" clearFilterUrl=springUrl(consentSearchUrlFactory.searchUrl)>
                 <@fdsSearch.searchFilterItem itemName="Holder organisation" expanded=searchParams.holderOrgUnitId?has_content>
-                  <@fdsSearchSelector.searchSelectorEnhanced path="form.holderOuId" options=orgUnitFilterOptions labelText="Holder organisation" labelClass="govuk-visually-hidden" />
+                  <@fdsSearchSelector.searchSelectorEnhanced path="form.holderOuId" options=orgUnitFilterOptions labelText="Holder organisation" optionalInputDefault="Any" labelClass="govuk-visually-hidden" />
                 </@fdsSearch.searchFilterItem>
                 <@fdsSearch.searchFilterItem itemName="Consent reference" expanded=searchParams.consentReference?has_content>
                   <@fdsTextInput.textInput path="form.consentReference" labelText="Consent reference" labelClass="govuk-visually-hidden" />
+                </@fdsSearch.searchFilterItem>
+                <@fdsSearch.searchFilterItem itemName="Pipeline reference" expanded=searchParams.pipelineReference?has_content>
+                  <@fdsTextInput.textInput path="form.pipelineReference" labelText="Pipeline reference" labelClass="govuk-visually-hidden" />
                 </@fdsSearch.searchFilterItem>
             </@fdsSearch.searchFilterList>
         </@fdsSearch.searchFilter>

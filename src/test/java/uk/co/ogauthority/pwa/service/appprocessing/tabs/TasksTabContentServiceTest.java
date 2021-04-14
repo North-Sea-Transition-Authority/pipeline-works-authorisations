@@ -20,7 +20,10 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.controller.appprocessing.processingcharges.IndustryPaymentController;
+import uk.co.ogauthority.pwa.controller.masterpwas.contacts.PwaContactController;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
+import uk.co.ogauthority.pwa.model.dto.appprocessing.ApplicationInvolvementDto;
+import uk.co.ogauthority.pwa.model.dto.appprocessing.ApplicationInvolvementDtoTestUtil;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.tasklist.TaskListGroup;
 import uk.co.ogauthority.pwa.model.view.appprocessing.applicationupdates.ApplicationUpdateRequestView;
@@ -58,6 +61,10 @@ public class TasksTabContentServiceTest {
 
   private WebUserAccount wua;
 
+  private PwaAppProcessingContext processingContext;
+
+  private List<TaskListGroup> taskListGroupsList;
+
   @Before
   public void setUp() {
 
@@ -72,14 +79,23 @@ public class TasksTabContentServiceTest {
 
     wua = new WebUserAccount(1);
 
+    processingContext = createContextWithPermissions(PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY);
+
+    taskListGroupsList = List.of(new TaskListGroup("test", 10, List.of()));
+
+    when(taskListService.getTaskListGroups(processingContext)).thenReturn(taskListGroupsList);
+
+
   }
 
   @Test
-  public void getTabContentModelMap_tasksTab_populated() {
+  public void getTabContentModelMap_tasksTab_populated_industryOnlyPermission() {
 
-    var taskListGroupsList = List.of(new TaskListGroup("test", 10, List.of()));
-
-    var processingContext = createContextWithPermissions(PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY);
+    var involvement = ApplicationInvolvementDtoTestUtil.fromInvolvementFlags(null, Set.of(
+        ApplicationInvolvementDtoTestUtil.InvolvementFlag.INDUSTRY_INVOLVEMENT_ONLY));
+    processingContext = createContextFromInvolvementAndPermissions(
+        involvement,
+        PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY);
 
     when(taskListService.getTaskListGroups(processingContext)).thenReturn(taskListGroupsList);
 
@@ -103,13 +119,30 @@ public class TasksTabContentServiceTest {
   }
 
   @Test
-  public void getTabContentModelMap_tasksTab_populated_whenOptionsApproved() {
+  public void getTabContentModelMap_tasksTab_populated_industryAndRegulatorPermission() {
 
-    var taskListGroupsList = List.of(new TaskListGroup("test", 10, List.of()));
-
-    var processingContext = createContextWithPermissions(PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY);
+    processingContext = createContextFromInvolvementAndPermissions(
+        ApplicationInvolvementDtoTestUtil.noInvolvementAndNoFlags(null),
+        PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY,
+        PwaAppProcessingPermission.CASE_MANAGEMENT_OGA
+    );
 
     when(taskListService.getTaskListGroups(processingContext)).thenReturn(taskListGroupsList);
+
+    var modelMap = taskTabContentService.getTabContent(processingContext, AppProcessingTab.TASKS);
+
+    verify(taskListService, times(1)).getTaskListGroups(processingContext);
+
+    assertThat(modelMap)
+        .extractingFromEntries(Map.Entry::getKey, Map.Entry::getValue)
+        .contains(
+            tuple("industryFlag", false)
+        );
+
+  }
+
+  @Test
+  public void getTabContentModelMap_tasksTab_populated_whenOptionsApproved() {
 
     var optionsApprovedBanner = new PageBannerView.PageBannerViewBuilder().build();
     when(approveOptionsService.getOptionsApprovalPageBannerView(any(PwaApplicationDetail.class)))
@@ -130,9 +163,8 @@ public class TasksTabContentServiceTest {
   @Test
   public void getTabContentModelMap_tasksTab_populated_whenPublicNoticeUpdateRequested() {
 
-    var taskListGroupsList = List.of(new TaskListGroup("test", 10, List.of()));
-
-    var processingContext = createContextWithPermissions(PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY);
+    processingContext = createContextWithPermissions(
+        PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY, PwaAppProcessingPermission.UPDATE_PUBLIC_NOTICE_DOC);
 
     when(taskListService.getTaskListGroups(processingContext)).thenReturn(taskListGroupsList);
 
@@ -154,11 +186,13 @@ public class TasksTabContentServiceTest {
 
 
 
+  @Test
   public void getTabContentModelMap_tasksTab_populated_whenPaymentPermission() {
 
-    var taskListGroupsList = List.of(new TaskListGroup("test", 10, List.of()));
-
-    var processingContext = createContextWithPermissions(PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY, PwaAppProcessingPermission.PAY_FOR_APPLICATION);
+    processingContext = createContextWithPermissions(
+        PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY,
+        PwaAppProcessingPermission.PAY_FOR_APPLICATION
+    );
 
     when(taskListService.getTaskListGroups(processingContext)).thenReturn(taskListGroupsList);
 
@@ -180,9 +214,63 @@ public class TasksTabContentServiceTest {
   }
 
   @Test
+  public void getTabContentModelMap_tasksTab_populated_whenManageAppContactsPermission() {
+
+    var taskListGroupsList = List.of(new TaskListGroup("test", 10, List.of()));
+
+    var processingContext = createContextWithPermissions(
+        PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY,
+        PwaAppProcessingPermission.MANAGE_APPLICATION_CONTACTS
+    );
+
+    when(taskListService.getTaskListGroups(processingContext)).thenReturn(taskListGroupsList);
+
+    var optionsApprovedBanner = new PageBannerView.PageBannerViewBuilder().build();
+    when(approveOptionsService.getOptionsApprovalPageBannerView(any(PwaApplicationDetail.class)))
+        .thenReturn(Optional.of(optionsApprovedBanner));
+    var modelMap = taskTabContentService.getTabContent(processingContext, AppProcessingTab.TASKS);
+
+    verify(taskListService, times(1)).getTaskListGroups(processingContext);
+
+    assertThat(modelMap)
+        .extractingFromEntries(Map.Entry::getKey, Map.Entry::getValue)
+        .contains(
+            tuple("manageAppContactsUrl", ReverseRouter.route(on(PwaContactController.class).renderContactsScreen(
+                processingContext.getApplicationType(), processingContext.getMasterPwaApplicationId(),null, null
+            )))
+        );
+  }
+
+  @Test
+  public void getTabContentModelMap_tasksTab_populated_whenCaseManagementIndustryPermissionOnly() {
+
+    var taskListGroupsList = List.of(new TaskListGroup("test", 10, List.of()));
+
+    var processingContext = createContextWithPermissions(
+        PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY
+    );
+
+    when(taskListService.getTaskListGroups(processingContext)).thenReturn(taskListGroupsList);
+
+    var optionsApprovedBanner = new PageBannerView.PageBannerViewBuilder().build();
+    when(approveOptionsService.getOptionsApprovalPageBannerView(any(PwaApplicationDetail.class)))
+        .thenReturn(Optional.of(optionsApprovedBanner));
+    var modelMap = taskTabContentService.getTabContent(processingContext, AppProcessingTab.TASKS);
+
+    verify(taskListService, times(1)).getTaskListGroups(processingContext);
+
+    assertThat(modelMap).doesNotContainKeys("manageAppContactsUrl", "payForAppUrl");
+
+  }
+
+  @Test
   public void getTabContentModelMap_differentTab_empty() {
 
-    var processingContext = createContextWithPermissions(PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY);
+    var involvement = ApplicationInvolvementDtoTestUtil.fromInvolvementFlags(null, Set.of(
+        ApplicationInvolvementDtoTestUtil.InvolvementFlag.INDUSTRY_INVOLVEMENT_ONLY));
+    var processingContext = createContextFromInvolvementAndPermissions(
+        involvement,
+        PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY);
 
     var modelMap = taskTabContentService.getTabContent(processingContext, AppProcessingTab.CASE_HISTORY);
 
@@ -200,12 +288,20 @@ public class TasksTabContentServiceTest {
   }
 
   private PwaAppProcessingContext createContextWithPermissions(PwaAppProcessingPermission... permissions) {
+    return createContextFromInvolvementAndPermissions(
+        ApplicationInvolvementDtoTestUtil.noInvolvementAndNoFlags(null),
+        permissions
+    );
+  }
+
+  private PwaAppProcessingContext createContextFromInvolvementAndPermissions(ApplicationInvolvementDto applicationInvolvementDto,
+                                                                             PwaAppProcessingPermission... permissions) {
     return new PwaAppProcessingContext(
         PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL),
         wua,
         Set.of(permissions),
         null,
-        null);
+        applicationInvolvementDto);
   }
 
 

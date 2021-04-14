@@ -29,8 +29,8 @@ import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermiss
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingTask;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.TaskStatus;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
-import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationWorkflowMessageEvents;
-import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationWorkflowTask;
+import uk.co.ogauthority.pwa.service.enums.workflow.application.PwaApplicationWorkflowMessageEvents;
+import uk.co.ogauthority.pwa.service.enums.workflow.application.PwaApplicationWorkflowTask;
 import uk.co.ogauthority.pwa.service.notify.NotifyService;
 import uk.co.ogauthority.pwa.service.person.PersonService;
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
@@ -187,9 +187,8 @@ public class ApplicationUpdateRequestService implements AppProcessingService {
       );
 
     } else {
-      LOGGER.error(
-          String.format("Tried to send application update request email, but no recipients found. pwaApplication.id: %s",
-              pwaApplicationDetail.getMasterPwaApplicationId()));
+      LOGGER.error("Tried to send application update request email, but no recipients found. pwaApplication.id: {}",
+          pwaApplicationDetail.getMasterPwaApplicationId());
     }
 
   }

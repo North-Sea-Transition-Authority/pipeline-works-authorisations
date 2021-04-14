@@ -374,4 +374,18 @@ public class ApplicationDetailView implements ApplicationDetailItemView {
   public void setOpenConsentReviewFlag(boolean openConsentReviewFlag) {
     this.openConsentReviewFlag = openConsentReviewFlag;
   }
+
+  @Override
+  public String toString() {
+    return "ApplicationDetailView{" +
+        "pwaApplicationDetailId=" + pwaApplicationDetailId +
+        ", pwaApplicationId=" + pwaApplicationId +
+        ", pwaId=" + pwaId +
+        ", pwaDetailId=" + pwaDetailId +
+        ", applicationType=" + applicationType +
+        ", padStatus=" + padStatus +
+        ", tipFlag=" + tipFlag +
+        ", versionNo=" + versionNo +
+        '}';
+  }
 }

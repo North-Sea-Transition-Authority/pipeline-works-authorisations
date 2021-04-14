@@ -7,7 +7,9 @@ public class ApplicationSearchParametersBuilder {
 
   private Boolean includeCompletedOrWithdrawnApps;
 
-  private String caseOfficerId;
+  private Integer caseOfficerPersonId;
+
+  private Integer holderOrgUnitId;
 
   private PwaApplicationType pwaApplicationType;
 
@@ -21,8 +23,13 @@ public class ApplicationSearchParametersBuilder {
     return this;
   }
 
-  public ApplicationSearchParametersBuilder setCaseOfficerId(String caseOfficerId) {
-    this.caseOfficerId = caseOfficerId;
+  public ApplicationSearchParametersBuilder setCaseOfficerPersonId(Integer caseOfficerPersonId) {
+    this.caseOfficerPersonId = caseOfficerPersonId;
+    return this;
+  }
+
+  public ApplicationSearchParametersBuilder setHolderOrgUnitId(Integer holderOrgUnitId) {
+    this.holderOrgUnitId = holderOrgUnitId;
     return this;
   }
 
@@ -32,12 +39,21 @@ public class ApplicationSearchParametersBuilder {
   }
 
   public ApplicationSearchParameters createApplicationSearchParameters() {
-    return new ApplicationSearchParameters(appReference, includeCompletedOrWithdrawnApps, caseOfficerId,
-        pwaApplicationType);
+    return new ApplicationSearchParameters(
+        appReference,
+        includeCompletedOrWithdrawnApps,
+        caseOfficerPersonId,
+        holderOrgUnitId,
+        pwaApplicationType
+    );
   }
 
   public static ApplicationSearchParameters createEmptyParams() {
     return new ApplicationSearchParameters(
-        null, null, null, null);
+        null,
+        null,
+        null,
+        null,
+        null);
   }
 }

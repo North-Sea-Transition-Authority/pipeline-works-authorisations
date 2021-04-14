@@ -1,8 +1,11 @@
 package uk.co.ogauthority.pwa.model.entity.pipelines;
 
 import java.math.BigDecimal;
+import java.util.Objects;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -13,6 +16,7 @@ import javax.persistence.Table;
 public class PipelineDetailIdentData implements PipelineIdentData {
 
   @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Integer id;
 
   @ManyToOne
@@ -45,6 +49,13 @@ public class PipelineDetailIdentData implements PipelineIdentData {
   @Column(name = "products_to_be_conveyed_mc")
   private String productsToBeConveyedMultiCore;
 
+  public PipelineDetailIdentData() {
+    // no-args for hibernate
+  }
+
+  public PipelineDetailIdentData(PipelineDetailIdent pipelineDetailIdent) {
+    this.pipelineDetailIdent = pipelineDetailIdent;
+  }
 
   // Interface implementations
 
@@ -141,55 +152,101 @@ public class PipelineDetailIdentData implements PipelineIdentData {
     this.pipelineDetailIdent = pipelineDetailIdent;
   }
 
+  @Override
   public void setComponentPartsDesc(String componentPartsDesc) {
     this.componentPartsDesc = componentPartsDesc;
   }
 
+  @Override
   public void setExternalDiameter(BigDecimal externalDiameter) {
     this.externalDiameter = externalDiameter;
   }
 
+  @Override
   public void setInternalDiameter(BigDecimal internalDiameter) {
     this.internalDiameter = internalDiameter;
   }
 
+  @Override
   public void setWallThickness(BigDecimal wallThickness) {
     this.wallThickness = wallThickness;
   }
 
+  @Override
   public void setInsulationCoatingType(String insulationCoatingType) {
     this.insulationCoatingType = insulationCoatingType;
   }
 
+  @Override
   public void setMaop(BigDecimal maop) {
     this.maop = maop;
   }
 
+  @Override
   public void setProductsToBeConveyed(String productsToBeConveyed) {
     this.productsToBeConveyed = productsToBeConveyed;
   }
 
+  @Override
   public void setExternalDiameterMultiCore(String externalDiameterMultiCore) {
     this.externalDiameterMultiCore = externalDiameterMultiCore;
   }
 
+  @Override
   public void setInternalDiameterMultiCore(String internalDiameterMultiCore) {
     this.internalDiameterMultiCore = internalDiameterMultiCore;
   }
 
+  @Override
   public void setWallThicknessMultiCore(String wallThicknessMultiCore) {
     this.wallThicknessMultiCore = wallThicknessMultiCore;
   }
 
+  @Override
   public void setInsulationCoatingTypeMultiCore(String insulationCoatingTypeMultiCore) {
     this.insulationCoatingTypeMultiCore = insulationCoatingTypeMultiCore;
   }
 
+  @Override
   public void setMaopMultiCore(String maopMultiCore) {
     this.maopMultiCore = maopMultiCore;
   }
 
+  @Override
   public void setProductsToBeConveyedMultiCore(String productsToBeConveyedMultiCore) {
     this.productsToBeConveyedMultiCore = productsToBeConveyedMultiCore;
   }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    PipelineDetailIdentData that = (PipelineDetailIdentData) o;
+    return Objects.equals(id, that.id) && Objects.equals(pipelineDetailIdent,
+        that.pipelineDetailIdent) && Objects.equals(componentPartsDesc,
+        that.componentPartsDesc) && Objects.equals(externalDiameter,
+        that.externalDiameter) && Objects.equals(internalDiameter,
+        that.internalDiameter) && Objects.equals(wallThickness, that.wallThickness) && Objects.equals(
+        insulationCoatingType, that.insulationCoatingType) && Objects.equals(maop,
+        that.maop) && Objects.equals(productsToBeConveyed,
+        that.productsToBeConveyed) && Objects.equals(externalDiameterMultiCore,
+        that.externalDiameterMultiCore) && Objects.equals(internalDiameterMultiCore,
+        that.internalDiameterMultiCore) && Objects.equals(wallThicknessMultiCore,
+        that.wallThicknessMultiCore) && Objects.equals(insulationCoatingTypeMultiCore,
+        that.insulationCoatingTypeMultiCore) && Objects.equals(maopMultiCore,
+        that.maopMultiCore) && Objects.equals(productsToBeConveyedMultiCore,
+        that.productsToBeConveyedMultiCore);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(id, pipelineDetailIdent, componentPartsDesc, externalDiameter, internalDiameter, wallThickness,
+        insulationCoatingType, maop, productsToBeConveyed, externalDiameterMultiCore, internalDiameterMultiCore,
+        wallThicknessMultiCore, insulationCoatingTypeMultiCore, maopMultiCore, productsToBeConveyedMultiCore);
+  }
+
 }

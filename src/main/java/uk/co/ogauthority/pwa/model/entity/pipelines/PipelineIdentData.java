@@ -37,4 +37,29 @@ public interface PipelineIdentData {
 
   String getProductsToBeConveyedMultiCore();
 
+  void setComponentPartsDesc(String componentPartsDesc);
+
+  void setExternalDiameter(BigDecimal externalDiameter);
+
+  void setInternalDiameter(BigDecimal internalDiameter);
+
+  void setWallThickness(BigDecimal wallThickness);
+
+  void setInsulationCoatingType(String insulationCoatingType);
+
+  void setMaop(BigDecimal maop);
+
+  void setProductsToBeConveyed(String productsToBeConveyed);
+
+  void setExternalDiameterMultiCore(String externalDiameterMultiCore);
+
+  void setInternalDiameterMultiCore(String internalDiameterMultiCore);
+
+  void setWallThicknessMultiCore(String wallThicknessMultiCore);
+
+  void setInsulationCoatingTypeMultiCore(String insulationCoatingTypeMultiCore);
+
+  void setMaopMultiCore(String maopMultiCore);
+
+  void setProductsToBeConveyedMultiCore(String productsToBeConveyedMultiCore);
 }

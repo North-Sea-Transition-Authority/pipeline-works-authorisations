@@ -6,23 +6,20 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 
 import java.util.EnumSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.controller.WorkAreaController;
-import uk.co.ogauthority.pwa.controller.appprocessing.CaseManagementController;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailItemView;
 import uk.co.ogauthority.pwa.model.workflow.WorkflowBusinessKey;
 import uk.co.ogauthority.pwa.mvc.PageView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
-import uk.co.ogauthority.pwa.service.appprocessing.tabs.AppProcessingTab;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ApplicationState;
-import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
-import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationWorkflowTask;
+import uk.co.ogauthority.pwa.service.enums.workflow.UserWorkflowTask;
 import uk.co.ogauthority.pwa.service.enums.workflow.WorkflowType;
-import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
+import uk.co.ogauthority.pwa.service.enums.workflow.application.PwaApplicationWorkflowTask;
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaApplicationContactRoleDto;
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
 import uk.co.ogauthority.pwa.service.pwaapplications.search.WorkAreaApplicationDetailSearcher;
@@ -33,20 +30,22 @@ import uk.co.ogauthority.pwa.util.WorkAreaUtils;
 @Service
 public class IndustryWorkAreaPageService {
 
+  private static final Set<PwaApplicationWorkflowTask> ALL_APP_CONTACT_WORKFLOW_TASKS = EnumSet.of(
+      PwaApplicationWorkflowTask.PREPARE_APPLICATION,
+      PwaApplicationWorkflowTask.AWAIT_FEEDBACK,
+      PwaApplicationWorkflowTask.UPDATE_APPLICATION
+  );
+
   private final WorkAreaApplicationDetailSearcher workAreaApplicationDetailSearcher;
   private final PwaContactService pwaContactService;
-  private final PwaApplicationRedirectService pwaApplicationRedirectService;
   private final CamundaWorkflowService camundaWorkflowService;
 
   @Autowired
   public IndustryWorkAreaPageService(WorkAreaApplicationDetailSearcher workAreaApplicationDetailSearcher,
                                      PwaContactService pwaContactService,
-                                     PwaApplicationRedirectService pwaApplicationRedirectService,
                                      CamundaWorkflowService camundaWorkflowService) {
-
     this.workAreaApplicationDetailSearcher = workAreaApplicationDetailSearcher;
     this.pwaContactService = pwaContactService;
-    this.pwaApplicationRedirectService = pwaApplicationRedirectService;
     this.camundaWorkflowService = camundaWorkflowService;
   }
 
@@ -57,17 +56,17 @@ public class IndustryWorkAreaPageService {
     var workAreaUri = ReverseRouter.route(
         on(WorkAreaController.class).renderWorkAreaTab(null, WorkAreaTab.INDUSTRY_OPEN_APPLICATIONS, page));
 
-    var applicationIdFilter = getIndustryUserApplicationIds(authenticatedUserAccount);
+    var applicationIdFilter = getBusinessKeysWhereUserIsAppPreparerAndTaskActive(authenticatedUserAccount, ALL_APP_CONTACT_WORKFLOW_TASKS);
 
     return PageView.fromPage(
         workAreaApplicationDetailSearcher.searchWhereApplicationIdInAndWhereStatusInOrOpenUpdateRequest(
             WorkAreaUtils.getWorkAreaPageRequest(page, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
             applicationIdFilter,
-            ApplicationState.INDUSTRY_EDITABLE.getStatuses(),
+            ApplicationState.REQUIRES_INDUSTRY_ATTENTION.getStatuses(),
             true
         ),
         workAreaUri,
-        sr -> new PwaApplicationWorkAreaItem(sr, this::viewApplicationUrlProducer)
+        PwaApplicationWorkAreaItem::new
     );
 
   }
@@ -79,8 +78,10 @@ public class IndustryWorkAreaPageService {
     var workAreaUri = ReverseRouter.route(
         on(WorkAreaController.class).renderWorkAreaTab(null, WorkAreaTab.INDUSTRY_SUBMITTED_APPLICATIONS, page));
 
-    var applicationIdFilter = getIndustryUserApplicationIds(authenticatedUserAccount);
-    var notOpenApplicationStatusFilter =  EnumSet.complementOf(EnumSet.copyOf(ApplicationState.INDUSTRY_EDITABLE.getStatuses()));
+    var applicationIdFilter = getBusinessKeysWhereUserIsAppPreparerAndTaskActive(
+        authenticatedUserAccount,
+        ALL_APP_CONTACT_WORKFLOW_TASKS);
+    var notOpenApplicationStatusFilter =  EnumSet.complementOf(EnumSet.copyOf(ApplicationState.REQUIRES_INDUSTRY_ATTENTION.getStatuses()));
 
     return PageView.fromPage(
         workAreaApplicationDetailSearcher.searchWhereApplicationIdInAndWhereStatusInAndOpenUpdateRequest(
@@ -90,13 +91,13 @@ public class IndustryWorkAreaPageService {
             false
         ),
         workAreaUri,
-        sr -> new PwaApplicationWorkAreaItem(sr, this::viewApplicationUrlProducer)
+        PwaApplicationWorkAreaItem::new
     );
 
   }
 
-
-  private Set<Integer> getIndustryUserApplicationIds(WebUserAccount webUserAccount) {
+  public Set<Integer> getBusinessKeysWhereUserIsAppPreparerAndTaskActive(WebUserAccount webUserAccount,
+                                                                         Set<PwaApplicationWorkflowTask> applicationWorkflowTasks) {
 
     var applicationContactRoles = pwaContactService.getPwaContactRolesForWebUserAccount(
         webUserAccount,
@@ -107,30 +108,18 @@ public class IndustryWorkAreaPageService {
         .map(WorkflowBusinessKey::from)
         .collect(toSet());
 
+    // convert to generic workflow task Set.
+    Set<UserWorkflowTask> userTasks = applicationWorkflowTasks.stream()
+        .collect(Collectors.toUnmodifiableSet());
+
     return camundaWorkflowService.filterBusinessKeysByWorkflowTypeAndActiveTasksContains(
         WorkflowType.PWA_APPLICATION,
         targetBusinessKeys,
-        Set.of(
-            PwaApplicationWorkflowTask.PREPARE_APPLICATION,
-            PwaApplicationWorkflowTask.AWAIT_FEEDBACK,
-            PwaApplicationWorkflowTask.UPDATE_APPLICATION))
+        userTasks
+    )
         .stream()
         .map(workflowBusinessKey -> Integer.valueOf(workflowBusinessKey.getValue()))
         .collect(toImmutableSet());
-
-  }
-
-  private String viewApplicationUrlProducer(ApplicationDetailItemView applicationDetailSearchItem) {
-
-    var applicationId = applicationDetailSearchItem.getPwaApplicationId();
-    var applicationType = applicationDetailSearchItem.getApplicationType();
-
-    if (applicationDetailSearchItem.getPadStatus() == PwaApplicationStatus.DRAFT) {
-      return pwaApplicationRedirectService.getTaskListRoute(applicationId, applicationType);
-    }
-
-    return ReverseRouter.route(on(CaseManagementController.class)
-        .renderCaseManagement(applicationId, applicationType, AppProcessingTab.TASKS, null, null));
 
   }
 

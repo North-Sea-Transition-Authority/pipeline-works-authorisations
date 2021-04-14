@@ -1,9 +1,6 @@
 package uk.co.ogauthority.pwa.service.search.applicationsearch;
 
 
-
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
@@ -15,7 +12,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDeta
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailView;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
-import uk.co.ogauthority.pwa.util.CaseManagementUtils;
+import uk.co.ogauthority.pwa.service.workarea.ApplicationWorkAreaItemTestUtil;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ApplicationSearchDisplayItemCreatorTest {
@@ -54,12 +51,14 @@ public class ApplicationSearchDisplayItemCreatorTest {
   }
 
   @Test
-  public void createDisplayItem() {
+  public void createDisplayItem_usesDefaultAccessUrl() {
     // simple test to make sure we use the expected access url on results. Object construction done and tested as
     // part of ApplicationSearchDisplayItem.
 
-    var displayItem = applicationSearchDisplayItemCreator.createDisplayItem(applicationDetailItemView);
+    ApplicationWorkAreaItemTestUtil.test_getAccessUrl_assertDefaultAccessUrl(
+        applicationDetailItemView,
+        applicationSearchDisplayItemCreator::createDisplayItem
+    );
 
-    assertThat(displayItem.getAccessUrl()).isEqualTo(CaseManagementUtils.routeCaseManagement(APP_ID, TYPE));
   }
 }

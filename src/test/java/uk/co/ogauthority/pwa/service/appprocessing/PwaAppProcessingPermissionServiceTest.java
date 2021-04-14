@@ -28,6 +28,8 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.ApplicationState;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.testutils.AssertionTestUtils;
@@ -46,6 +48,7 @@ public class PwaAppProcessingPermissionServiceTest {
   private PwaApplicationDetail detail;
   private PwaApplication application;
   private static Set<PwaApplicationType> VALID_PUBLIC_NOTICE_APP_TYPES;
+  private static Set<PwaUserPrivilege> VALID_VIEW_CONSENT_DOC_PRIVILEGES;
 
   @Before
   public void setUp() {
@@ -56,6 +59,8 @@ public class PwaAppProcessingPermissionServiceTest {
     detail = new PwaApplicationDetail();
     detail.setPwaApplication(application);
     VALID_PUBLIC_NOTICE_APP_TYPES = Set.of(PwaApplicationType.INITIAL, PwaApplicationType.CAT_1_VARIATION);
+    VALID_VIEW_CONSENT_DOC_PRIVILEGES = Set.of(PwaUserPrivilege.PWA_CONSENT_SEARCH, PwaUserPrivilege.PWA_MANAGER,
+        PwaUserPrivilege.PWA_CASE_OFFICER, PwaUserPrivilege.PWA_REGULATOR, PwaUserPrivilege.PWA_REG_ORG_MANAGE, PwaUserPrivilege.PWA_INDUSTRY);
 
   }
 
@@ -109,6 +114,26 @@ public class PwaAppProcessingPermissionServiceTest {
 
     var permissions = processingPermissionService.getGenericProcessingPermissions(user);
     AssertionTestUtils.assertNotEmptyAndContains(permissions, PwaAppProcessingPermission.ADD_CASE_NOTE);
+
+  }
+
+  @Test
+  public void getGenericProcessingPermissions_hasShowAllTasks_pwaManagerOnly_hasPermission() {
+
+    replacePrivileges(user, PwaUserPrivilege.PWA_MANAGER);
+
+    var permissions = processingPermissionService.getGenericProcessingPermissions(user);
+    AssertionTestUtils.assertNotEmptyAndContains(permissions, PwaAppProcessingPermission.SHOW_ALL_TASKS_AS_PWA_MANAGER_ONLY);
+
+  }
+
+  @Test
+  public void getGenericProcessingPermissions_hasShowAllTasks_pwaManagerAndCaseOfficer_noPermission() {
+
+    replacePrivileges(user, PwaUserPrivilege.PWA_MANAGER, PwaUserPrivilege.PWA_CASE_OFFICER);
+
+    var permissions = processingPermissionService.getGenericProcessingPermissions(user);
+    AssertionTestUtils.assertNotEmptyAndDoesNotContain(permissions, PwaAppProcessingPermission.SHOW_ALL_TASKS_AS_PWA_MANAGER_ONLY);
 
   }
 
@@ -268,7 +293,8 @@ public class PwaAppProcessingPermissionServiceTest {
 
     var appInvolvement = ApplicationInvolvementDtoTestUtil.generateConsulteeInvolvement(
         application,
-        getConsultationInvolvement(false, Set.of(ConsulteeGroupMemberRole.RECIPIENT, ConsulteeGroupMemberRole.ACCESS_MANAGER))
+        getConsultationInvolvement(false,
+            Set.of(ConsulteeGroupMemberRole.RECIPIENT, ConsulteeGroupMemberRole.ACCESS_MANAGER))
     );
 
     when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
@@ -305,6 +331,71 @@ public class PwaAppProcessingPermissionServiceTest {
     AssertionTestUtils.assertNotEmptyAndDoesNotContain(permissions, PwaAppProcessingPermission.EDIT_CONSENT_DOCUMENT);
 
   }
+
+  @Test
+  public void getAppProcessingPermissions_hasEditConsentDocumentPermission_pwaManager() {
+
+    replacePrivileges(user, PwaUserPrivilege.PWA_MANAGER);
+
+    var appInvolvement = ApplicationInvolvementDtoTestUtil.fromInvolvementFlags(
+        application,
+        EnumSet.noneOf(ApplicationInvolvementDtoTestUtil.InvolvementFlag.class)
+    );
+    when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
+
+    var permissions = processingPermissionService.getProcessingPermissionsDto(detail, user).getProcessingPermissions();
+    AssertionTestUtils.assertNotEmptyAndContains(permissions, PwaAppProcessingPermission.EDIT_CONSENT_DOCUMENT);
+
+  }
+
+
+  @Test
+  public void getAppProcessingPermissions_hasViewConsentDocumentPermission_userInHolderTeam() {
+
+    user = new AuthenticatedUserAccount(user, VALID_VIEW_CONSENT_DOC_PRIVILEGES);
+
+    var appInvolvement = ApplicationInvolvementDtoTestUtil.generatePwaHolderTeamInvolvement(
+        application, Set.of(PwaOrganisationRole.APPLICATION_CREATOR));
+    when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
+
+    var permissions = processingPermissionService.getProcessingPermissionsDto(detail, user).getProcessingPermissions();
+    AssertionTestUtils.assertNotEmptyAndContains(permissions, PwaAppProcessingPermission.VIEW_CONSENT_DOCUMENT);
+
+  }
+
+  @Test
+  public void getAppProcessingPermissions_hasViewConsentDocumentPermission_validUserPrivileges() {
+
+    user = new AuthenticatedUserAccount(user, VALID_VIEW_CONSENT_DOC_PRIVILEGES);
+
+    var appInvolvement = ApplicationInvolvementDtoTestUtil.fromInvolvementFlags(
+        application,
+        EnumSet.noneOf(ApplicationInvolvementDtoTestUtil.InvolvementFlag.class)
+    );
+    when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
+
+    var permissions = processingPermissionService.getProcessingPermissionsDto(detail, user).getProcessingPermissions();
+    AssertionTestUtils.assertNotEmptyAndContains(permissions, PwaAppProcessingPermission.VIEW_CONSENT_DOCUMENT);
+
+  }
+
+  @Test
+  public void getAppProcessingPermissions_noViewConsentDocumentPermission_invalidUserPrivileges() {
+
+    var invalidViewConsentDocPrivileges = EnumSet.complementOf(EnumSet.copyOf(VALID_VIEW_CONSENT_DOC_PRIVILEGES));
+    user = new AuthenticatedUserAccount(user, invalidViewConsentDocPrivileges);
+
+    var appInvolvement = ApplicationInvolvementDtoTestUtil.fromInvolvementFlags(
+        application,
+        EnumSet.of(CASE_OFFICER_STAGE_AND_USER_ASSIGNED)
+    );
+    when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
+
+    var permissions = processingPermissionService.getProcessingPermissionsDto(detail, user).getProcessingPermissions();
+    assertThat(permissions).doesNotContain(PwaAppProcessingPermission.VIEW_CONSENT_DOCUMENT);
+
+  }
+
 
   @Test
   public void getAppPermissions_hasUpdateApplicationPermission_isContact_Preparer() {
@@ -437,7 +528,7 @@ public class PwaAppProcessingPermissionServiceTest {
     AssertionTestUtils.assertNotEmptyAndDoesNotContain(permissions, PwaAppProcessingPermission.APPROVE_OPTIONS);
   }
 
-  private void setUserAsIndustryContactPreparer(){
+  private void setUserAsIndustryContactPreparer() {
     var appInvolvement = ApplicationInvolvementDtoTestUtil.generatePwaContactInvolvement(
         application,
         Set.of(PwaContactRole.PREPARER)
@@ -446,7 +537,7 @@ public class PwaAppProcessingPermissionServiceTest {
     when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
   }
 
-  private void setUserAsHolderTeamMember(){
+  private void setUserAsHolderTeamMember() {
     var appInvolvement = ApplicationInvolvementDtoTestUtil.generatePwaHolderTeamInvolvement(
         application,
         EnumSet.allOf(PwaOrganisationRole.class)
@@ -454,7 +545,7 @@ public class PwaAppProcessingPermissionServiceTest {
     when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
   }
 
-  private void setUserAsCaseOfficer(){
+  private void setUserAsCaseOfficer() {
     replacePrivileges(user, PwaUserPrivilege.PWA_CASE_OFFICER);
 
     var appInvolvement = ApplicationInvolvementDtoTestUtil.fromInvolvementFlags(
@@ -907,7 +998,6 @@ public class PwaAppProcessingPermissionServiceTest {
   }
 
 
-
   @Test
   public void getAppProcessingPermissions_hasUpdatePublicNoticePermission_allInvalidAppTypes_validUserPrivilege() {
 
@@ -971,19 +1061,258 @@ public class PwaAppProcessingPermissionServiceTest {
 
 
   @Test
+  public void getAppProcessingPermissions_hasRequestPublicNoticeUpdatePermission_allInvalidAppTypes_caseOfficerPrivilege() {
+
+    PwaApplicationType.stream()
+        .filter(appType -> !VALID_PUBLIC_NOTICE_APP_TYPES.contains(appType))
+        .forEach(pwaApplicationType -> {
+
+          detail.getPwaApplication().setApplicationType(pwaApplicationType);
+          replacePrivileges(user, PwaUserPrivilege.PWA_CASE_OFFICER);
+
+          var appInvolvement = ApplicationInvolvementDtoTestUtil.fromInvolvementFlags(
+              application,
+              EnumSet.of(CASE_OFFICER_STAGE_AND_USER_ASSIGNED)
+          );
+          when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
+
+          var permissions = processingPermissionService.getProcessingPermissionsDto(detail, user).getProcessingPermissions();
+          AssertionTestUtils.assertNotEmptyAndDoesNotContain(permissions, PwaAppProcessingPermission.REQUEST_PUBLIC_NOTICE_UPDATE);
+        });
+  }
+
+
+  @Test
+  public void getAppProcessingPermissions_hasRequestPublicNoticeUpdatePermission_allValidAppTypes_assignedCaseOfficer() {
+
+    PwaApplicationType.stream()
+        .filter(appType -> VALID_PUBLIC_NOTICE_APP_TYPES.contains(appType))
+        .forEach(pwaApplicationType -> {
+
+          detail.getPwaApplication().setApplicationType(pwaApplicationType);
+          replacePrivileges(user, PwaUserPrivilege.PWA_CASE_OFFICER);
+
+          var appInvolvement = ApplicationInvolvementDtoTestUtil.fromInvolvementFlags(
+              application,
+              EnumSet.of(CASE_OFFICER_STAGE_AND_USER_ASSIGNED)
+          );
+          when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
+
+          var permissions = processingPermissionService.getProcessingPermissionsDto(detail, user).getProcessingPermissions();
+          AssertionTestUtils.assertNotEmptyAndContains(permissions, PwaAppProcessingPermission.REQUEST_PUBLIC_NOTICE_UPDATE);
+        });
+  }
+
+
+  @Test
+  public void getAppProcessingPermissions_hasRequestPublicNoticeUpdatePermission_notAssignedCaseOfficer() {
+
+    detail.getPwaApplication().setApplicationType(VALID_PUBLIC_NOTICE_APP_TYPES.iterator().next());
+    replacePrivileges(user, PwaUserPrivilege.PWA_CASE_OFFICER);
+
+    var appInvolvement = ApplicationInvolvementDtoTestUtil.noInvolvementAndNoFlags(application);
+    when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
+
+    var permissions = processingPermissionService.getProcessingPermissionsDto(detail, user).getProcessingPermissions();
+    AssertionTestUtils.assertNotEmptyAndDoesNotContain(permissions, PwaAppProcessingPermission.REQUEST_PUBLIC_NOTICE_UPDATE);
+
+  }
+
+  @Test
+  public void getAppProcessingPermissions_hasRequestPublicNoticeUpdatePermission_allInvalidAppTypes_assignedCaseOfficer() {
+
+    PwaApplicationType.stream()
+        .filter(appType -> !VALID_PUBLIC_NOTICE_APP_TYPES.contains(appType))
+        .forEach(pwaApplicationType -> {
+
+          detail.getPwaApplication().setApplicationType(pwaApplicationType);
+          replacePrivileges(user, PwaUserPrivilege.PWA_CASE_OFFICER);
+
+          var appInvolvement = ApplicationInvolvementDtoTestUtil.fromInvolvementFlags(
+              application,
+              EnumSet.of(CASE_OFFICER_STAGE_AND_USER_ASSIGNED)
+          );
+          when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
+
+          var permissions = processingPermissionService.getProcessingPermissionsDto(detail, user).getProcessingPermissions();
+          AssertionTestUtils.assertNotEmptyAndDoesNotContain(permissions, PwaAppProcessingPermission.REQUEST_PUBLIC_NOTICE_UPDATE);
+        });
+  }
+
+
+  @Test
+  public void getAppProcessingPermissions_hasWithdrawPublicNoticePermission_allInvalidAppTypes_caseOfficerPrivilege() {
+
+    PwaApplicationType.stream()
+        .filter(appType -> !VALID_PUBLIC_NOTICE_APP_TYPES.contains(appType))
+        .forEach(pwaApplicationType -> {
+
+          detail.getPwaApplication().setApplicationType(pwaApplicationType);
+          replacePrivileges(user, PwaUserPrivilege.PWA_CASE_OFFICER);
+
+          var appInvolvement = ApplicationInvolvementDtoTestUtil.fromInvolvementFlags(
+              application,
+              EnumSet.of(CASE_OFFICER_STAGE_AND_USER_ASSIGNED)
+          );
+          when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
+
+          var permissions = processingPermissionService.getProcessingPermissionsDto(detail, user).getProcessingPermissions();
+          AssertionTestUtils.assertNotEmptyAndDoesNotContain(permissions, PwaAppProcessingPermission.WITHDRAW_PUBLIC_NOTICE);
+        });
+  }
+
+
+  @Test
+  public void getAppProcessingPermissions_hasWithdrawPublicNoticePermission_allValidAppTypes_assignedCaseOfficer() {
+
+    PwaApplicationType.stream()
+        .filter(appType -> VALID_PUBLIC_NOTICE_APP_TYPES.contains(appType))
+        .forEach(pwaApplicationType -> {
+
+          detail.getPwaApplication().setApplicationType(pwaApplicationType);
+          replacePrivileges(user, PwaUserPrivilege.PWA_CASE_OFFICER);
+
+          var appInvolvement = ApplicationInvolvementDtoTestUtil.fromInvolvementFlags(
+              application,
+              EnumSet.of(CASE_OFFICER_STAGE_AND_USER_ASSIGNED)
+          );
+          when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
+
+          var permissions = processingPermissionService.getProcessingPermissionsDto(detail, user).getProcessingPermissions();
+          AssertionTestUtils.assertNotEmptyAndContains(permissions, PwaAppProcessingPermission.WITHDRAW_PUBLIC_NOTICE);
+        });
+  }
+
+
+  @Test
+  public void getAppProcessingPermissions_hasWithdrawPublicNoticePermission_notAssignedCaseOfficer() {
+
+    detail.getPwaApplication().setApplicationType(VALID_PUBLIC_NOTICE_APP_TYPES.iterator().next());
+    replacePrivileges(user, PwaUserPrivilege.PWA_CASE_OFFICER);
+
+    var appInvolvement = ApplicationInvolvementDtoTestUtil.noInvolvementAndNoFlags(application);
+    when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
+
+    var permissions = processingPermissionService.getProcessingPermissionsDto(detail, user).getProcessingPermissions();
+    AssertionTestUtils.assertNotEmptyAndDoesNotContain(permissions, PwaAppProcessingPermission.WITHDRAW_PUBLIC_NOTICE);
+
+  }
+
+  @Test
+  public void getAppProcessingPermissions_hasWithdrawPublicNoticePermission_allInvalidAppTypes_assignedCaseOfficer() {
+
+    PwaApplicationType.stream()
+        .filter(appType -> !VALID_PUBLIC_NOTICE_APP_TYPES.contains(appType))
+        .forEach(pwaApplicationType -> {
+
+          detail.getPwaApplication().setApplicationType(pwaApplicationType);
+          replacePrivileges(user, PwaUserPrivilege.PWA_CASE_OFFICER);
+
+          var appInvolvement = ApplicationInvolvementDtoTestUtil.fromInvolvementFlags(
+              application,
+              EnumSet.of(CASE_OFFICER_STAGE_AND_USER_ASSIGNED)
+          );
+          when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
+
+          var permissions = processingPermissionService.getProcessingPermissionsDto(detail, user).getProcessingPermissions();
+          AssertionTestUtils.assertNotEmptyAndDoesNotContain(permissions, PwaAppProcessingPermission.WITHDRAW_PUBLIC_NOTICE);
+        });
+  }
+
+
+  @Test
+  public void getAppProcessingPermissions_hasFinalisePublicNoticePermission_allInvalidAppTypes_caseOfficerPrivilege() {
+
+    PwaApplicationType.stream()
+        .filter(appType -> !VALID_PUBLIC_NOTICE_APP_TYPES.contains(appType))
+        .forEach(pwaApplicationType -> {
+
+          detail.getPwaApplication().setApplicationType(pwaApplicationType);
+          replacePrivileges(user, PwaUserPrivilege.PWA_CASE_OFFICER);
+
+          var appInvolvement = ApplicationInvolvementDtoTestUtil.fromInvolvementFlags(
+              application,
+              EnumSet.of(CASE_OFFICER_STAGE_AND_USER_ASSIGNED)
+          );
+          when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
+
+          var permissions = processingPermissionService.getProcessingPermissionsDto(detail, user).getProcessingPermissions();
+          AssertionTestUtils.assertNotEmptyAndDoesNotContain(permissions, PwaAppProcessingPermission.FINALISE_PUBLIC_NOTICE);
+        });
+  }
+
+
+  @Test
+  public void getAppProcessingPermissions_hasFinalisePublicNoticePermission_allValidAppTypes_assignedCaseOfficer() {
+
+    PwaApplicationType.stream()
+        .filter(appType -> VALID_PUBLIC_NOTICE_APP_TYPES.contains(appType))
+        .forEach(pwaApplicationType -> {
+
+          detail.getPwaApplication().setApplicationType(pwaApplicationType);
+          replacePrivileges(user, PwaUserPrivilege.PWA_CASE_OFFICER);
+
+          var appInvolvement = ApplicationInvolvementDtoTestUtil.fromInvolvementFlags(
+              application,
+              EnumSet.of(CASE_OFFICER_STAGE_AND_USER_ASSIGNED)
+          );
+          when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
+
+          var permissions = processingPermissionService.getProcessingPermissionsDto(detail, user).getProcessingPermissions();
+          AssertionTestUtils.assertNotEmptyAndContains(permissions, PwaAppProcessingPermission.FINALISE_PUBLIC_NOTICE);
+        });
+  }
+
+  @Test
+  public void getAppProcessingPermissions_hasFinalisePublicNoticePermission_notAssignedCaseOfficer() {
+
+    detail.getPwaApplication().setApplicationType(VALID_PUBLIC_NOTICE_APP_TYPES.iterator().next());
+    replacePrivileges(user, PwaUserPrivilege.PWA_CASE_OFFICER);
+
+    var appInvolvement = ApplicationInvolvementDtoTestUtil.noInvolvementAndNoFlags(application);
+    when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
+
+    var permissions = processingPermissionService.getProcessingPermissionsDto(detail, user).getProcessingPermissions();
+    AssertionTestUtils.assertNotEmptyAndDoesNotContain(permissions, PwaAppProcessingPermission.FINALISE_PUBLIC_NOTICE);
+
+  }
+
+  @Test
+  public void getAppProcessingPermissions_hasFinalisePublicNoticePermission_allInvalidAppTypes_assignedCaseOfficer() {
+
+    PwaApplicationType.stream()
+        .filter(appType -> !VALID_PUBLIC_NOTICE_APP_TYPES.contains(appType))
+        .forEach(pwaApplicationType -> {
+
+          detail.getPwaApplication().setApplicationType(pwaApplicationType);
+          replacePrivileges(user, PwaUserPrivilege.PWA_CASE_OFFICER);
+
+          var appInvolvement = ApplicationInvolvementDtoTestUtil.fromInvolvementFlags(
+              application,
+              EnumSet.of(CASE_OFFICER_STAGE_AND_USER_ASSIGNED)
+          );
+          when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
+
+          var permissions = processingPermissionService.getProcessingPermissionsDto(detail, user).getProcessingPermissions();
+          AssertionTestUtils.assertNotEmptyAndDoesNotContain(permissions, PwaAppProcessingPermission.FINALISE_PUBLIC_NOTICE);
+        });
+  }
+
+
+  @Test
   public void getAppProcessingPermissions_payForApplicationPermission_inAwaitingPaymentStatus_holderTeamFinanceRole() {
 
-      detail.setStatus(PwaApplicationStatus.AWAITING_APPLICATION_PAYMENT);
+    detail.setStatus(PwaApplicationStatus.AWAITING_APPLICATION_PAYMENT);
 
-      var appInvolvement = ApplicationInvolvementDtoTestUtil.generatePwaHolderTeamInvolvement(
-          application, EnumSet.of(PwaOrganisationRole.FINANCE_ADMIN)
-      );
+    var appInvolvement = ApplicationInvolvementDtoTestUtil.generatePwaHolderTeamInvolvement(
+        application, EnumSet.of(PwaOrganisationRole.FINANCE_ADMIN)
+    );
 
-      when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
+    when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
 
-      var permissions = processingPermissionService.getProcessingPermissionsDto(detail, user).getProcessingPermissions();
+    var permissions = processingPermissionService.getProcessingPermissionsDto(detail, user).getProcessingPermissions();
 
-      AssertionTestUtils.assertNotEmptyAndContains(permissions, PwaAppProcessingPermission.PAY_FOR_APPLICATION);
+    AssertionTestUtils.assertNotEmptyAndContains(permissions, PwaAppProcessingPermission.PAY_FOR_APPLICATION);
   }
 
   @Test
@@ -1083,6 +1412,103 @@ public class PwaAppProcessingPermissionServiceTest {
     AssertionTestUtils.assertNotEmptyAndDoesNotContain(permissions, PwaAppProcessingPermission.SEND_CONSENT_FOR_APPROVAL);
 
   }
+
+  @Test
+  public void getAppProcessingPermissions_manageAppContacts_noRequiredHolderRoles() {
+
+    var appInvolvement = ApplicationInvolvementDtoTestUtil.generatePwaHolderTeamInvolvement(
+        application,
+        Set.of(PwaOrganisationRole.FINANCE_ADMIN)
+    );
+    when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
+
+    var permissions = processingPermissionService.getProcessingPermissionsDto(detail, user).getProcessingPermissions();
+    AssertionTestUtils.assertNotEmptyAndDoesNotContain(permissions,
+        PwaAppProcessingPermission.MANAGE_APPLICATION_CONTACTS);
+
+  }
+
+  @Test
+  public void getAppProcessingPermissions_manageAppContacts_hasRequiredHolderRoles() {
+
+    var holderRoles = PwaApplicationPermission.MANAGE_CONTACTS.getHolderTeamRoles();
+    for (PwaOrganisationRole role : holderRoles) {
+      var appInvolvement = ApplicationInvolvementDtoTestUtil.generatePwaHolderTeamInvolvement(
+          application,
+          Set.of(role)
+      );
+      when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
+
+      var permissions = processingPermissionService.getProcessingPermissionsDto(detail,
+          user).getProcessingPermissions();
+      AssertionTestUtils.assertNotEmptyAndContains(permissions, PwaAppProcessingPermission.MANAGE_APPLICATION_CONTACTS);
+    }
+
+  }
+
+  @Test
+  public void getAppProcessingPermissions_manageAppContacts_hasAppContactAccessManager() {
+
+    var appInvolvement = ApplicationInvolvementDtoTestUtil.generatePwaContactInvolvement(
+        application,
+        Set.of(PwaContactRole.ACCESS_MANAGER)
+    );
+    when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
+
+    var permissions = processingPermissionService.getProcessingPermissionsDto(detail, user).getProcessingPermissions();
+    AssertionTestUtils.assertNotEmptyAndContains(permissions, PwaAppProcessingPermission.MANAGE_APPLICATION_CONTACTS);
+  }
+
+  @Test
+  public void getAppProcessingPermissions_manageAppContacts_AppContactButNotAccessManager() {
+
+    var appContactRoles = EnumSet.complementOf(EnumSet.of(PwaContactRole.ACCESS_MANAGER));
+
+    for (PwaContactRole contactrole: appContactRoles) {
+      var appInvolvement = ApplicationInvolvementDtoTestUtil.generatePwaContactInvolvement(
+          application,
+          Set.of(contactrole)
+      );
+      when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
+
+      var permissions = processingPermissionService.getProcessingPermissionsDto(detail, user).getProcessingPermissions();
+      AssertionTestUtils.assertNotEmptyAndDoesNotContain(permissions, PwaAppProcessingPermission.MANAGE_APPLICATION_CONTACTS);
+    }
+  }
+
+  @Test
+  public void getAppProcessingPermissions_manageAppContacts_hasAppContactAccessManager_appIsComplete() {
+
+
+    detail.setStatus(PwaApplicationStatus.WITHDRAWN);
+    var appInvolvement = ApplicationInvolvementDtoTestUtil.generatePwaContactInvolvement(
+        application,
+        Set.of(PwaContactRole.ACCESS_MANAGER)
+    );
+    when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
+
+    var permissions = processingPermissionService.getProcessingPermissionsDto(detail, user).getProcessingPermissions();
+    AssertionTestUtils.assertNotEmptyAndDoesNotContain(permissions, PwaAppProcessingPermission.MANAGE_APPLICATION_CONTACTS);
+
+  }
+
+  @Test
+  public void getAppProcessingPermissions_manageAppContacts_hasValidHolderRole_appIsInProgress() {
+
+    for (PwaApplicationStatus appStatus: ApplicationState.IN_PROGRESS.getStatuses()) {
+      detail.setStatus(appStatus);
+      var appInvolvement = ApplicationInvolvementDtoTestUtil.generatePwaHolderTeamInvolvement(
+          application,
+          Set.of(PwaOrganisationRole.APPLICATION_CREATOR)
+      );
+      when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
+
+      var permissions = processingPermissionService.getProcessingPermissionsDto(detail, user).getProcessingPermissions();
+      AssertionTestUtils.assertNotEmptyAndContains(permissions, PwaAppProcessingPermission.MANAGE_APPLICATION_CONTACTS);
+    }
+  }
+
+
 
   private void clearPrivileges(AuthenticatedUserAccount userArg) {
     user = new AuthenticatedUserAccount(userArg, Set.of());

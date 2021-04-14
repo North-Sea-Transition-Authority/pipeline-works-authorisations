@@ -1,10 +1,10 @@
 package uk.co.ogauthority.pwa.model.view.appprocessing.casehistory;
 
+import com.google.common.collect.Iterables;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
 import uk.co.ogauthority.pwa.model.form.files.UploadedFileView;
@@ -25,10 +25,10 @@ public class CaseHistoryItemView {
   private String personName;
   private String personEmail;
 
-  private final Map<String, String> dataItems;
+  private final List<DataItemRow> dataItemRows;
 
-  private List<UploadedFileView> uploadedFileViews;
-  private String fileDownloadUrl;
+  private final List<UploadedFileView> uploadedFileViews;
+  private final String fileDownloadUrl;
 
   private CaseHistoryItemView(Builder builder) {
     this.headerText = builder.headerText;
@@ -36,7 +36,7 @@ public class CaseHistoryItemView {
     this.dateTimeDisplay = DateUtils.formatDateTime(builder.dateTime);
     this.personLabelText = builder.personLabelText;
     this.personId = builder.personId;
-    this.dataItems = builder.dataItems;
+    this.dataItemRows = builder.dataItemRows;
     this.uploadedFileViews = builder.uploadedFileViews;
     this.fileDownloadUrl = builder.fileDownloadUrl;
     this.personEmailLabel = builder.personEmailLabel;
@@ -86,8 +86,8 @@ public class CaseHistoryItemView {
     this.personEmailLabel = personEmailLabel;
   }
 
-  public Map<String, String> getDataItems() {
-    return dataItems;
+  public List<DataItemRow> getDataItemRows() {
+    return dataItemRows;
   }
 
   public List<UploadedFileView> getUploadedFileViews() {
@@ -112,7 +112,7 @@ public class CaseHistoryItemView {
 
     // optional/customisable params
     private String personEmailLabel;
-    private Map<String, String> dataItems;
+    private List<DataItemRow> dataItemRows;
     private List<UploadedFileView> uploadedFileViews;
     private String fileDownloadUrl;
 
@@ -124,11 +124,17 @@ public class CaseHistoryItemView {
       this.personId = createdByPersonId;
       this.personLabelText = "Created by";
       this.uploadedFileViews = Collections.emptyList();
-      this.dataItems = new LinkedHashMap<>();
+      this.dataItemRows = new ArrayList<>();
+      this.dataItemRows.add(new DataItemRow());
     }
 
     public Builder addDataItem(String label, String value) {
-      this.dataItems.put(label, value);
+      Iterables.getLast(this.dataItemRows).getDataItems().put(label, value);
+      return this;
+    }
+
+    public Builder addDataItemRow() {
+      this.dataItemRows.add(new DataItemRow());
       return this;
     }
 
@@ -172,7 +178,7 @@ public class CaseHistoryItemView {
         && Objects.equals(personEmailLabel, that.personEmailLabel)
         && Objects.equals(personName, that.personName)
         && Objects.equals(personEmail, that.personEmail)
-        && Objects.equals(dataItems, that.dataItems)
+        && Objects.equals(dataItemRows, that.dataItemRows)
         && Objects.equals(uploadedFileViews, that.uploadedFileViews)
         && Objects.equals(fileDownloadUrl, that.fileDownloadUrl);
   }
@@ -180,7 +186,7 @@ public class CaseHistoryItemView {
   @Override
   public int hashCode() {
     return Objects.hash(headerText, dateTime, dateTimeDisplay, personLabelText, personId, personEmailLabel, personName,
-        personEmail, dataItems, uploadedFileViews, fileDownloadUrl);
+        personEmail, dataItemRows, uploadedFileViews, fileDownloadUrl);
   }
 
   @Override
@@ -194,7 +200,7 @@ public class CaseHistoryItemView {
         ", personEmailLabel='" + personEmailLabel + '\'' +
         ", personName='" + personName + '\'' +
         ", personEmail='" + personEmail + '\'' +
-        ", dataItems=" + dataItems +
+        ", dataItemRows=" + dataItemRows +
         ", uploadedFileViews=" + uploadedFileViews +
         ", fileDownloadUrl='" + fileDownloadUrl + '\'' +
         '}';

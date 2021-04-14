@@ -34,11 +34,7 @@
 
 <#macro _summaryMainContent pageHeading appSummaryView caseSummaryView=[] errorList="" aboveSummaryInsert="">
 
-    <@defaultPagePaneContent pageHeading=pageHeading>
-
-        <#if errorList?has_content>
-            <@fdsError.errorSummary errorItems=errorList />
-        </#if>
+    <@defaultPagePaneContent pageHeading=pageHeading errorItems=errorList>
 
         ${aboveSummaryInsert!}
 

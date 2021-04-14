@@ -2,6 +2,8 @@ package uk.co.ogauthority.pwa.controller.appprocessing.prepareconsent;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
+import java.io.InputStream;
+import java.sql.Blob;
 import java.util.function.Supplier;
 import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,7 +50,6 @@ import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
 @Controller
 @RequestMapping("/pwa-application/{applicationType}/{applicationId}/case-management/consent-document")
-@PwaApplicationStatusCheck(statuses = PwaApplicationStatus.CASE_OFFICER_REVIEW)
 @PwaAppProcessingPermissionCheck(permissions = PwaAppProcessingPermission.EDIT_CONSENT_DOCUMENT)
 public class AppConsentDocController {
 
@@ -78,6 +79,7 @@ public class AppConsentDocController {
   }
 
   @GetMapping
+  @PwaApplicationStatusCheck(statuses = {PwaApplicationStatus.CASE_OFFICER_REVIEW, PwaApplicationStatus.CONSENT_REVIEW})
   public ModelAndView renderConsentDocEditor(@PathVariable("applicationId") Integer applicationId,
                                              @PathVariable("applicationType")
                                              @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
@@ -115,6 +117,9 @@ public class AppConsentDocController {
 
   @GetMapping("/download")
   @ResponseBody
+  @PwaApplicationStatusCheck(statuses = {
+      PwaApplicationStatus.CASE_OFFICER_REVIEW, PwaApplicationStatus.CONSENT_REVIEW, PwaApplicationStatus.COMPLETE})
+  @PwaAppProcessingPermissionCheck(permissions = PwaAppProcessingPermission.VIEW_CONSENT_DOCUMENT)
   public ResponseEntity<Resource> downloadPdf(@PathVariable("applicationId") Integer applicationId,
                                               @PathVariable("applicationType")
                                               @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
@@ -131,16 +136,7 @@ public class AppConsentDocController {
                 DocGenType.PREVIEW);
             var inputStream = blob.getBinaryStream();
 
-            try {
-              return ResponseEntity.ok()
-                  .contentType(MediaType.APPLICATION_OCTET_STREAM)
-                  .contentLength(blob.length())
-                  .header(HttpHeaders.CONTENT_DISPOSITION,
-                      String.format("attachment; filename=\"%s\"", "test-filename.pdf"))
-                  .body(new InputStreamResource(inputStream));
-            } catch (Exception e) {
-              throw new RuntimeException(String.format("Error serving file '%s'", "test-filename.pdf"), e);
-            }
+            return getResourceResponseEntity(blob, inputStream);
 
           } catch (Exception e) {
             throw new RuntimeException("Error serving document", e);
@@ -150,7 +146,24 @@ public class AppConsentDocController {
 
   }
 
+  private ResponseEntity<Resource> getResourceResponseEntity(Blob blob, InputStream inputStream) {
+
+    try {
+      return ResponseEntity.ok()
+          .contentType(MediaType.APPLICATION_OCTET_STREAM)
+          .contentLength(blob.length())
+          .header(HttpHeaders.CONTENT_DISPOSITION,
+              String.format("attachment; filename=\"%s\"", "test-filename.pdf"))
+          .body(new InputStreamResource(inputStream));
+
+    } catch (Exception e) {
+      throw new RuntimeException(String.format("Error serving file '%s'", "test-filename.pdf"), e);
+    }
+
+  }
+
   @PostMapping
+  @PwaApplicationStatusCheck(statuses = {PwaApplicationStatus.CASE_OFFICER_REVIEW, PwaApplicationStatus.CONSENT_REVIEW})
   public ModelAndView postConsentDocEditor(@PathVariable("applicationId") Integer applicationId,
                                            @PathVariable("applicationType")
                                            @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
@@ -177,6 +190,7 @@ public class AppConsentDocController {
   }
 
   @GetMapping("/reload")
+  @PwaApplicationStatusCheck(statuses = {PwaApplicationStatus.CASE_OFFICER_REVIEW, PwaApplicationStatus.CONSENT_REVIEW})
   public ModelAndView renderReloadDocument(@PathVariable("applicationId") Integer applicationId,
                                            @PathVariable("applicationType")
                                            @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
@@ -195,6 +209,7 @@ public class AppConsentDocController {
   }
 
   @PostMapping("/reload")
+  @PwaApplicationStatusCheck(statuses = {PwaApplicationStatus.CASE_OFFICER_REVIEW, PwaApplicationStatus.CONSENT_REVIEW})
   public ModelAndView postReloadDocument(@PathVariable("applicationId") Integer applicationId,
                                          @PathVariable("applicationType")
                                          @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
@@ -241,6 +256,7 @@ public class AppConsentDocController {
   }
 
   @GetMapping("/send-for-approval")
+  @PwaApplicationStatusCheck(statuses = {PwaApplicationStatus.CASE_OFFICER_REVIEW, PwaApplicationStatus.CONSENT_REVIEW})
   @PwaAppProcessingPermissionCheck(permissions = PwaAppProcessingPermission.SEND_CONSENT_FOR_APPROVAL)
   public ModelAndView renderSendForApproval(@PathVariable("applicationId") Integer applicationId,
                                            @PathVariable("applicationType")
@@ -279,6 +295,7 @@ public class AppConsentDocController {
   }
 
   @PostMapping("/send-for-approval")
+  @PwaApplicationStatusCheck(statuses = {PwaApplicationStatus.CASE_OFFICER_REVIEW, PwaApplicationStatus.CONSENT_REVIEW})
   @PwaAppProcessingPermissionCheck(permissions = PwaAppProcessingPermission.SEND_CONSENT_FOR_APPROVAL)
   public ModelAndView sendForApproval(@PathVariable("applicationId") Integer applicationId,
                                       @PathVariable("applicationType")

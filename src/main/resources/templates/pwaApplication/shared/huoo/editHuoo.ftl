@@ -2,11 +2,7 @@
 
 <#include '../../../layout.ftl'>
 
-<@defaultPage htmlTitle="${screenActionType.actionText} a holder, user, operator, or owner" pageHeading="${screenActionType.actionText} a holder, user, operator, or owner" breadcrumbs=true>
-
-    <#if errorList?has_content>
-        <@fdsError.errorSummary errorItems=errorList errorTitle="Errors"/>
-    </#if>
+<@defaultPage htmlTitle="${screenActionType.actionText} a holder, user, operator, or owner" pageHeading="${screenActionType.actionText} a holder, user, operator, or owner" breadcrumbs=true errorItems=errorList>
 
     <@fdsForm.htmlForm>
         <#if huooType == "PORTAL_ORG">

@@ -80,7 +80,7 @@ public class PipelineIdentsController {
         .addObject("identUrlFactory",
             new IdentUrlFactory(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(),
                 padPipeline.getId()))
-        .addObject("backUrl", ReverseRouter.route(on(PipelinesController.class)
+        .addObject("backUrl", ReverseRouter.route(on(PipelinesTaskListController.class)
             .renderPipelinesOverview(detail.getMasterPwaApplicationId(), detail.getPwaApplicationType(), null)))
         .addObject("coreType", padPipeline.getCoreType());
 
@@ -144,7 +144,7 @@ public class PipelineIdentsController {
       var identSummaryValidationResult = padIdentService.getSummaryScreenValidationResult(
           applicationContext.getPadPipeline());
       if (identSummaryValidationResult.isSectionComplete()) {
-        return ReverseRouter.redirect(on(PipelinesController.class)
+        return ReverseRouter.redirect(on(PipelinesTaskListController.class)
             .renderPipelinesOverview(applicationId, pwaApplicationType, null));
       } else {
         var modelAndView = getIdentOverviewModelAndView(

@@ -27,11 +27,6 @@ public class PortalTeamType {
   @Column(name = "scoped_within")
   private PortalTeamScopeType portalTeamScopeType;
 
-  // TODO TEAMS_REFACTOR decide whether this working mapping from parent to children is required, or if child to parent only needed
-  //  @OneToMany(fetch = FetchType.LAZY, mappedBy = "resType")
-  //  private Set<PortalTeamTypeRole> portalTeamTypeRoles;
-
-
   public String getType() {
     return type;
   }

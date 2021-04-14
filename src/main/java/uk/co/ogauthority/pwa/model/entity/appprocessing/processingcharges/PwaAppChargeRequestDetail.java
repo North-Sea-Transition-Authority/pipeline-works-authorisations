@@ -56,6 +56,8 @@ public class PwaAppChargeRequestDetail {
 
   private String chargeWaivedReason;
 
+  private String chargeCancelledReason;
+
   public PwaAppChargeRequestDetail() {
     // default
   }
@@ -173,4 +175,11 @@ public class PwaAppChargeRequestDetail {
     this.chargeWaivedReason = chargeWaivedReason;
   }
 
+  public String getChargeCancelledReason() {
+    return chargeCancelledReason;
+  }
+
+  public void setChargeCancelledReason(String chargeCancelledReason) {
+    this.chargeCancelledReason = chargeCancelledReason;
+  }
 }

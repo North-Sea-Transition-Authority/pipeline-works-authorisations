@@ -51,6 +51,8 @@ import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelin
 
 public class PwaApplicationEndpointTestBuilder {
 
+  public static final int PAD_PIPELINE_ID = 99;
+
   private MockMvc mockMvc;
   private Set<PwaApplicationType> allowedTypes = Set.of();
   private Set<PwaApplicationStatus> allowedStatuses = Set.of();
@@ -267,7 +269,7 @@ public class PwaApplicationEndpointTestBuilder {
 
     this.detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     this.padPipeline = new PadPipeline();
-    padPipeline.setId(99);
+    padPipeline.setId(PAD_PIPELINE_ID);
     padPipeline.setPwaApplicationDetail(detail);
     padPipeline.setPipelineRef("TEMPORARY_1");
     padPipeline.setFromLocation("from");

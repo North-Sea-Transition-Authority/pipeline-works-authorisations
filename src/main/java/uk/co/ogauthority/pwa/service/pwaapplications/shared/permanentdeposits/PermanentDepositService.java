@@ -47,7 +47,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSect
 import uk.co.ogauthority.pwa.service.pwaapplications.options.PadOptionConfirmedService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.viewfactories.PipelineAndIdentViewFactory;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation.PadProjectInformationService;
-import uk.co.ogauthority.pwa.service.pwaconsents.PipelineDetailService;
+import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailService;
 import uk.co.ogauthority.pwa.util.validationgroups.FullValidation;
 import uk.co.ogauthority.pwa.util.validationgroups.PartialValidation;
 import uk.co.ogauthority.pwa.validators.PermanentDepositsValidator;
@@ -151,7 +151,7 @@ public class PermanentDepositService implements ApplicationFormSectionService {
       for (String pipelineId : form.getSelectedPipelines()) {
         if (!pipelineId.equals("")) {
           var pipeline = new Pipeline();
-          pipeline.setMasterPwa(detail.getMasterPwaApplication());
+          pipeline.setMasterPwa(detail.getMasterPwa());
           pipeline.setId(Integer.parseInt(pipelineId));
           var depositsForPipelines = new PadDepositPipeline(permanentDeposit, pipeline);
           padDepositPipelineRepository.save(depositsForPipelines);

@@ -26,7 +26,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 
 @Entity
 @Table(name = "pwa_application_details")
-public class PwaApplicationDetail implements ParentEntity {
+public final class PwaApplicationDetail implements ParentEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -260,7 +260,7 @@ public class PwaApplicationDetail implements ParentEntity {
     return this.pwaApplication.getId();
   }
 
-  public MasterPwa getMasterPwaApplication() {
+  public MasterPwa getMasterPwa() {
     return this.pwaApplication.getMasterPwa();
   }
 
@@ -282,6 +282,10 @@ public class PwaApplicationDetail implements ParentEntity {
 
   public boolean isFirstVersion() {
     return this.versionNo == 1;
+  }
+
+  public boolean isFirstDraft() {
+    return isFirstVersion() && PwaApplicationStatus.DRAFT.equals(this.status);
   }
 
   public Integer getStatusLastModifiedByWuaId() {

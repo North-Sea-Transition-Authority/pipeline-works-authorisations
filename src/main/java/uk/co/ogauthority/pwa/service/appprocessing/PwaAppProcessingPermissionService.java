@@ -16,6 +16,8 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.ApplicationState;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 
@@ -91,6 +93,9 @@ public class PwaAppProcessingPermissionService {
                   && (PwaApplicationType.INITIAL.equals(detail.getPwaApplicationType())
                   || PwaApplicationType.CAT_1_VARIATION.equals(detail.getPwaApplicationType()));
             case DRAFT_PUBLIC_NOTICE:
+            case REQUEST_PUBLIC_NOTICE_UPDATE:
+            case WITHDRAW_PUBLIC_NOTICE:
+            case FINALISE_PUBLIC_NOTICE:
               return userPrivileges.contains(PwaUserPrivilege.PWA_CASE_OFFICER)
                   && appInvolvement.isUserAssignedCaseOfficer()
                   && (PwaApplicationType.INITIAL.equals(detail.getPwaApplicationType())
@@ -107,10 +112,18 @@ public class PwaAppProcessingPermissionService {
             case CONFIRM_SATISFACTORY_APPLICATION:
             case EDIT_CONSULTATIONS:
             case WITHDRAW_CONSULTATION:
-            case EDIT_CONSENT_DOCUMENT:
             case SEND_CONSENT_FOR_APPROVAL:
-              return userPrivileges.contains(
-                  PwaUserPrivilege.PWA_CASE_OFFICER) && appInvolvement.isUserAssignedCaseOfficer();
+              return userPrivileges.contains(PwaUserPrivilege.PWA_CASE_OFFICER) && appInvolvement.isUserAssignedCaseOfficer();
+            case EDIT_CONSENT_DOCUMENT:
+              return (userPrivileges.contains(PwaUserPrivilege.PWA_CASE_OFFICER) && appInvolvement.isUserAssignedCaseOfficer())
+                  || userPrivileges.contains(PwaUserPrivilege.PWA_MANAGER);
+            case VIEW_CONSENT_DOCUMENT:
+              return (userPrivileges.contains(PwaUserPrivilege.PWA_CASE_OFFICER)
+                  || userPrivileges.contains(PwaUserPrivilege.PWA_MANAGER)
+                  || userPrivileges.contains(PwaUserPrivilege.PWA_CONSENT_SEARCH)
+                  || userPrivileges.contains(PwaUserPrivilege.PWA_REGULATOR)
+                  || userPrivileges.contains(PwaUserPrivilege.PWA_REG_ORG_MANAGE)
+                  || appInvolvement.isUserInHolderTeam());
             case REQUEST_APPLICATION_UPDATE:
             case WITHDRAW_APPLICATION:
               return (userPrivileges.contains(PwaUserPrivilege.PWA_CASE_OFFICER) && appInvolvement.isUserAssignedCaseOfficer())
@@ -118,6 +131,12 @@ public class PwaAppProcessingPermissionService {
             case CANCEL_PAYMENT:
               return PwaApplicationStatus.AWAITING_APPLICATION_PAYMENT.equals(detail.getStatus())
                   && userPrivileges.contains(PwaUserPrivilege.PWA_MANAGER);
+            case MANAGE_APPLICATION_CONTACTS:
+              return
+                  (
+                      appInvolvement.hasAnyOfTheseHolderRoles(PwaApplicationPermission.MANAGE_CONTACTS.getHolderTeamRoles())
+                      || appInvolvement.hasAnyOfTheseContactRoles(PwaContactRole.ACCESS_MANAGER)
+                  ) && !ApplicationState.COMPLETED.includes(detail.getStatus());
             default:
               return false;
           }
@@ -155,14 +174,13 @@ public class PwaAppProcessingPermissionService {
             case ADD_CASE_NOTE:
               return userPrivileges.contains(PwaUserPrivilege.PWA_MANAGER)
                   || userPrivileges.contains(PwaUserPrivilege.PWA_CASE_OFFICER);
+            case SHOW_ALL_TASKS_AS_PWA_MANAGER_ONLY:
+              return userPrivileges.contains(PwaUserPrivilege.PWA_MANAGER) && !userPrivileges.contains(PwaUserPrivilege.PWA_CASE_OFFICER);
             default:
               return false;
-
           }
-
         })
         .collect(Collectors.toSet());
-
   }
 
 }

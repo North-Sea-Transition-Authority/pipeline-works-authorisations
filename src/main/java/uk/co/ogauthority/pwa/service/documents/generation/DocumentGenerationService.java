@@ -60,9 +60,13 @@ public class DocumentGenerationService {
         .collect(Collectors.joining());
 
     // render the main consent doc template using the joined-up section html as the 'data'
+
+    // TODO PWA-992 update with consent ref
+    String consentRef = docGenType == DocGenType.PREVIEW ? "99/X/99" : pwaApplicationDetail.getPwaApplicationRef();
+
     Map<String, Object> docModelAndView = Map.of(
         "sectionHtml", combinedSectionHtml,
-        "consentRef", pwaApplicationDetail.getPwaApplicationRef(), // TODO PWA-872 update with consent ref
+        "consentRef", consentRef,
         "showWatermark", docGenType == DocGenType.PREVIEW
     );
 

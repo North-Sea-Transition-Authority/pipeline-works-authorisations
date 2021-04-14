@@ -24,13 +24,15 @@ import uk.co.ogauthority.pwa.model.entity.UserSession;
 import uk.co.ogauthority.pwa.service.FoxUrlService;
 import uk.co.ogauthority.pwa.service.UserSessionService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContextService;
-import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaManagementService;
+import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaService;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineService;
 import uk.co.ogauthority.pwa.service.pwacontext.PwaContextService;
 import uk.co.ogauthority.pwa.service.pwacontext.PwaPermissionService;
 import uk.co.ogauthority.pwa.service.search.consents.ConsentSearchService;
+import uk.co.ogauthority.pwa.service.search.consents.SearchPwaBreadcrumbService;
 import uk.co.ogauthority.pwa.service.tasklist.CrossingAgreementsTaskListService;
 import uk.co.ogauthority.pwa.service.teams.TeamService;
 import uk.co.ogauthority.pwa.service.users.UserTypeService;
@@ -47,6 +49,9 @@ public abstract class PwaContextAbstractControllerTest {
   protected PwaContextService pwaContextService;
 
   @MockBean
+  protected PipelineService pipelineService;
+
+  @MockBean
   protected ConsentSearchService consentSearchService;
 
   @MockBean
@@ -56,7 +61,7 @@ public abstract class PwaContextAbstractControllerTest {
   protected UserSessionService userSessionService;
 
   @MockBean
-  protected MasterPwaManagementService masterPwaManagementService;
+  protected MasterPwaService masterPwaService;
 
   @MockBean
   protected TeamService teamService;
@@ -66,6 +71,9 @@ public abstract class PwaContextAbstractControllerTest {
 
   @Autowired
   protected PwaPermissionService pwaPermissionService;
+
+  @SpyBean
+  private SearchPwaBreadcrumbService searchPwaBreadcrumbService;
 
   @SpyBean
   protected ApplicationBreadcrumbService breadcrumbService;

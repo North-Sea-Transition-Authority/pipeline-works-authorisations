@@ -61,10 +61,10 @@ public class AppFileService {
         .filter(fileView -> fileIdToFormMap.containsKey(fileView.getFileId()))
         .collect(Collectors.toList());
 
-    return formFileViewList.stream()
-        .peek(fileView -> fileView.setFileDescription(
-            fileIdToFormMap.get(fileView.getFileId()).getUploadedFileDescription()))
-        .collect(Collectors.toList());
+    formFileViewList.forEach(fileView ->
+        fileView.setFileDescription(fileIdToFormMap.get(fileView.getFileId()).getUploadedFileDescription()));
+
+    return formFileViewList;
 
   }
 
@@ -199,10 +199,12 @@ public class AppFileService {
                                                      AppFilePurpose purpose,
                                                      ApplicationFileLinkStatus fileLinkStatus) {
 
-    return appFileRepository.findAllAsFileViewByAppAndPurposeAndFileLinkStatus(
-        application, purpose, fileLinkStatus).stream()
-        .peek(ufv -> ufv.setFileUrl(getDownloadUrl(application, purpose, ufv.getFileId())))
-        .collect(Collectors.toList());
+    var views = appFileRepository
+        .findAllAsFileViewByAppAndPurposeAndFileLinkStatus(application, purpose, fileLinkStatus);
+
+    views.forEach(view -> view.setFileUrl(getDownloadUrl(application, purpose, view.getFileId())));
+
+    return views;
 
   }
 

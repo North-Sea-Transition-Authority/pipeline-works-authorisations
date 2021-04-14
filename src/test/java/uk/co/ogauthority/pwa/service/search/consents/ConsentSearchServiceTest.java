@@ -27,9 +27,13 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.PersonTestUtil;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationGroup;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
+import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
+import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
+import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
 import uk.co.ogauthority.pwa.model.entity.search.consents.ConsentSearchItem;
 import uk.co.ogauthority.pwa.model.entity.search.consents.PwaConsentView;
 import uk.co.ogauthority.pwa.model.entity.search.consents.PwaHolderOrgGrp;
+import uk.co.ogauthority.pwa.model.entity.search.consents.PwaHolderOrgUnitTestUtil;
 import uk.co.ogauthority.pwa.model.search.consents.ConsentSearchContext;
 import uk.co.ogauthority.pwa.model.search.consents.ConsentSearchParams;
 import uk.co.ogauthority.pwa.model.view.search.SearchScreenView;
@@ -269,6 +273,61 @@ public class ConsentSearchServiceTest {
 
   }
 
+
+  @Test
+  @Transactional
+  public void search_filterByPipelineReference_likeMatch_filteredAndReturned() {
+
+    var context = new ConsentSearchContext(ogaUser, UserType.OGA);
+    var params = new ConsentSearchParams();
+    params.setPipelineReference("pl1717");
+
+    setupPipelineRefSearchData(params.getPipelineReference().toUpperCase());
+
+    var result = consentSearchService.search(params, context);
+    var resultViewComparisonList = List.of(ConsentSearchResultView.fromSearchItem(pwa1Shell));
+
+    var screenView = new SearchScreenView<>(1, resultViewComparisonList);
+    assertThat(result).isEqualTo(screenView);
+  }
+
+  @Test
+  @Transactional
+  public void search_filterByPipelineReference_exactMatch_filteredAndReturned() {
+
+    var context = new ConsentSearchContext(ogaUser, UserType.OGA);
+    var params = new ConsentSearchParams();
+    params.setPipelineReference("PL1717");
+
+    setupPipelineRefSearchData(params.getPipelineReference());
+
+    var result = consentSearchService.search(params, context);
+    var resultViewComparisonList = List.of(ConsentSearchResultView.fromSearchItem(pwa1Shell));
+
+    var screenView = new SearchScreenView<>(1, resultViewComparisonList);
+    assertThat(result).isEqualTo(screenView);
+  }
+
+  @Test
+  @Transactional
+  public void search_filterByPipelineReference_searchAndPersistedRefAreDifferent_nothingFound() {
+
+    var context = new ConsentSearchContext(ogaUser, UserType.OGA);
+    var params = new ConsentSearchParams();
+    params.setPipelineReference("PL1184");
+
+    setupPipelineRefSearchData("PL1717");
+
+    var result = consentSearchService.search(params, context);
+
+    var screenView = new SearchScreenView<>(0, List.of());
+
+    assertThat(result).isEqualTo(screenView);
+    assertThat(result.resultsHaveBeenLimited()).isFalse();
+
+  }
+
+
   @Test
   @Transactional
   public void search_oga_resultsLimited() {
@@ -316,6 +375,25 @@ public class ConsentSearchServiceTest {
 
   }
 
+  private void setupPipelineRefSearchData(String pipelineReferenceToPersist) {
+
+    var masterPwa = new MasterPwa();
+    entityManager.persist(masterPwa);
+
+    var pipeline = new Pipeline();
+    pipeline.setMasterPwa(masterPwa);
+    entityManager.persist(pipeline);
+
+    var pipelineDetail = new PipelineDetail();
+    pipelineDetail.setPipelineNumber(pipelineReferenceToPersist);
+    pipelineDetail.setTipFlag(true);
+    pipelineDetail.setPipeline(pipeline);
+    entityManager.persist(pipelineDetail);
+
+    pwa1Shell = ConsentSearchItemTestUtils.createSearchItem(masterPwa.getId(), "PENGUIN", "SHELL", Instant.now().minus(18, ChronoUnit.DAYS));
+    entityManager.persist(pwa1Shell);
+  }
+
   private void setUpSearchData() {
 
     pwa1Shell = ConsentSearchItemTestUtils.createSearchItem(1, "PENGUIN", "SHELL", Instant.now().minus(18, ChronoUnit.DAYS));
@@ -327,10 +405,10 @@ public class ConsentSearchServiceTest {
     var pwa2OrgGrpShell = new PwaHolderOrgGrp(3, 2, shell.getOrgGrpId());
     var pwa2OrgGrpWintershall = new PwaHolderOrgGrp(4, 2, wintershall.getOrgGrpId());
 
-    var pwa1OrgUnit = ConsentSearchItemTestUtils.createPwaHolderOrgUnit(1, 1, shellOrg1);
-    var pwa2OrgUnit1 = ConsentSearchItemTestUtils.createPwaHolderOrgUnit(2, 2, shellOrg2);
-    var pwa2OrgUnit2 = ConsentSearchItemTestUtils.createPwaHolderOrgUnit(3, 2, wintershallOrg);
-    var pwa3OrgUnit = ConsentSearchItemTestUtils.createPwaHolderOrgUnit(4, 3, bpOrg);
+    var pwa1OrgUnit = PwaHolderOrgUnitTestUtil.createPwaHolderOrgUnit("1", 1, shellOrg1);
+    var pwa2OrgUnit1 = PwaHolderOrgUnitTestUtil.createPwaHolderOrgUnit("2", 2, shellOrg2);
+    var pwa2OrgUnit2 = PwaHolderOrgUnitTestUtil.createPwaHolderOrgUnit("3", 2, wintershallOrg);
+    var pwa3OrgUnit = PwaHolderOrgUnitTestUtil.createPwaHolderOrgUnit("4", 3, bpOrg);
 
     entityManager.persist(pwa1Shell);
     entityManager.persist(pwa3Bp);

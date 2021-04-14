@@ -1,7 +1,7 @@
 package uk.co.ogauthority.pwa.service.appprocessing.publicnotice;
 
 import uk.co.ogauthority.pwa.model.form.publicnotice.PublicNoticeApprovalForm;
-import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationPublicNoticeApprovalResult;
+import uk.co.ogauthority.pwa.service.enums.workflow.publicnotice.PwaApplicationPublicNoticeApprovalResult;
 
 public final class PublicNoticeApprovalTestUtil {
 

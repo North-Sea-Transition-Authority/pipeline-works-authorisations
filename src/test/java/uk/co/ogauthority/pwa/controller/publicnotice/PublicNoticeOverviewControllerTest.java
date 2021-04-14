@@ -74,7 +74,6 @@ public class PublicNoticeOverviewControllerTest extends PwaAppProcessingContextA
         pwaApplicationDetail.getPwaApplication()), EnumSet.allOf(PwaAppProcessingPermission.class));
 
     when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail, user)).thenReturn(permissionsDto);
-
   }
 
 

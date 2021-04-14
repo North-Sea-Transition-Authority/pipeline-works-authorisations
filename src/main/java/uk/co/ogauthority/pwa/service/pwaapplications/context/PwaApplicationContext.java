@@ -30,6 +30,10 @@ public class PwaApplicationContext {
     this.permissions = permissions;
   }
 
+  public boolean hasPermission(PwaApplicationPermission pwaApplicationPermission) {
+    return permissions.contains(pwaApplicationPermission);
+  }
+
   public PwaApplicationDetail getApplicationDetail() {
     return applicationDetail;
   }
@@ -70,4 +74,14 @@ public class PwaApplicationContext {
     return this.applicationDetail.getMasterPwaApplicationId();
   }
 
+  @Override
+  public String toString() {
+    return "PwaApplicationContext{" +
+        "applicationDetail=" + applicationDetail +
+        ", user=" + user +
+        ", permissions=" + permissions +
+        ", padPipeline=" + padPipeline +
+        ", padFile=" + padFile +
+        '}';
+  }
 }

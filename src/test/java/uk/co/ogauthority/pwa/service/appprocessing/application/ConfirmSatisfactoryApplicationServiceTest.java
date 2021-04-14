@@ -81,6 +81,17 @@ public class ConfirmSatisfactoryApplicationServiceTest {
   }
 
   @Test
+  public void canShowInTaskList_showAllTasksPermission_true() {
+
+    var processingContext = new PwaAppProcessingContext(null, null, Set.of(PwaAppProcessingPermission.SHOW_ALL_TASKS_AS_PWA_MANAGER_ONLY), null, null);
+
+    boolean canShow = confirmSatisfactoryApplicationService.canShowInTaskList(processingContext);
+
+    assertThat(canShow).isTrue();
+
+  }
+
+  @Test
   public void canShowInTaskList_noPermissions_false() {
 
     var processingContext = new PwaAppProcessingContext(null, null, Set.of(), null, null);
@@ -122,6 +133,23 @@ public class ConfirmSatisfactoryApplicationServiceTest {
     assertThat(taskListEntry.getRoute()).isEqualTo(PwaAppProcessingTask.CONFIRM_SATISFACTORY_APPLICATION.getRoute(processingContext));
     assertThat(taskListEntry.getTaskState()).isEqualTo(TaskState.LOCK);
     assertThat(taskListEntry.getTaskTag()).isEqualTo(TaskTag.from(TaskStatus.COMPLETED));
+    assertThat(taskListEntry.getTaskInfoList()).isEmpty();
+
+  }
+
+  @Test
+  public void getTaskListEntry_showAllTasksPermission_taskStateLocked() {
+
+    var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
+
+    var processingContext = new PwaAppProcessingContext(detail, null, Set.of(PwaAppProcessingPermission.SHOW_ALL_TASKS_AS_PWA_MANAGER_ONLY), null, null);
+
+    var taskListEntry = confirmSatisfactoryApplicationService.getTaskListEntry(PwaAppProcessingTask.CONFIRM_SATISFACTORY_APPLICATION, processingContext);
+
+    assertThat(taskListEntry.getTaskName()).isEqualTo(PwaAppProcessingTask.CONFIRM_SATISFACTORY_APPLICATION.getTaskName());
+    assertThat(taskListEntry.getRoute()).isEqualTo(PwaAppProcessingTask.CONFIRM_SATISFACTORY_APPLICATION.getRoute(processingContext));
+    assertThat(taskListEntry.getTaskState()).isEqualTo(TaskState.LOCK);
+    assertThat(taskListEntry.getTaskTag()).isEqualTo(TaskTag.from(TaskStatus.NOT_COMPLETED));
     assertThat(taskListEntry.getTaskInfoList()).isEmpty();
 
   }
@@ -178,6 +206,29 @@ public class ConfirmSatisfactoryApplicationServiceTest {
 
     assertThat(confirmSatisfactoryApplicationService.atLeastOneSatisfactoryVersion(new PwaApplication())).isFalse();
 
+  }
+
+  @Test
+  public void confirmSatisfactoryTaskRequired_detailIsFirstVersion_taskNotRequired() {
+
+    var firstVersionDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
+    assertThat(confirmSatisfactoryApplicationService.confirmSatisfactoryTaskRequired(firstVersionDetail)).isFalse();
+  }
+
+  @Test
+  public void confirmSatisfactoryTaskRequired_detailIsNotFirstVersion_detailIsSatisfactory_taskNotRequired() {
+
+    var firstVersionDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
+    firstVersionDetail.setConfirmedSatisfactoryTimestamp(Instant.now());
+    assertThat(confirmSatisfactoryApplicationService.confirmSatisfactoryTaskRequired(firstVersionDetail)).isFalse();
+  }
+
+  @Test
+  public void confirmSatisfactoryTaskRequired_detailIsNotFirstVersion_detailIsNotSatisfactory_taskRequired() {
+
+    var firstVersionDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
+    firstVersionDetail.setVersionNo(2);
+    assertThat(confirmSatisfactoryApplicationService.confirmSatisfactoryTaskRequired(firstVersionDetail)).isTrue();
   }
 
   @Test

@@ -29,7 +29,7 @@ import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.PwaAppProcessingContextAbstractControllerTest;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.exception.AccessDeniedException;
-import uk.co.ogauthority.pwa.exception.ViewNotFoundException;
+import uk.co.ogauthority.pwa.model.dto.appprocessing.ApplicationInvolvementDtoTestUtil;
 import uk.co.ogauthority.pwa.model.dto.appprocessing.ProcessingPermissionsDto;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.files.UploadedFileViewTestUtil;
@@ -88,8 +88,7 @@ public class PublicNoticeDocumentUpdateControllerTest extends PwaAppProcessingCo
     when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail, user)).thenReturn(permissionsDto);
 
     var publicNotice = PublicNoticeTestUtil.createInitialPublicNotice(pwaApplicationDetail.getPwaApplication());
-    when(publicNoticeService.getLatestPublicNotice(any()))
-        .thenReturn(publicNotice);
+    when(publicNoticeService.getLatestPublicNotice(any())).thenReturn(publicNotice);
 
     var publicNoticeRequest = PublicNoticeTestUtil.createInitialPublicNoticeRequest(publicNotice);
     when(publicNoticeService.getLatestPublicNoticeRequest(publicNotice))
@@ -98,8 +97,10 @@ public class PublicNoticeDocumentUpdateControllerTest extends PwaAppProcessingCo
     when(publicNoticeDocumentUpdateService.publicNoticeDocumentCanBeUpdated(any())).thenReturn(true);
 
     var fileView = UploadedFileViewTestUtil.createDefaultFileView();
-    when(publicNoticeDocumentUpdateService.getLatestPublicNoticeDocumentFileView(any()))
-        .thenReturn(fileView);
+    when(publicNoticeService.getLatestPublicNoticeDocumentFileView(any())).thenReturn(fileView);
+
+    var publicNoticeDocument = PublicNoticeTestUtil.createInitialPublicNoticeDocument(publicNotice);
+    when(publicNoticeService.getLatestPublicNoticeDocument(publicNotice)).thenReturn(publicNoticeDocument);
   }
 
 
@@ -131,7 +132,7 @@ public class PublicNoticeDocumentUpdateControllerTest extends PwaAppProcessingCo
   public void renderUpdatePublicNoticeDocument_noSatisfactoryVersions() throws Exception {
 
     when(processingPermissionService.getProcessingPermissionsDto(any(), any())).thenReturn(new ProcessingPermissionsDto(
-        PwaAppProcessingContextDtoTestUtils.emptyAppInvolvement(pwaApplicationDetail.getPwaApplication()),
+        ApplicationInvolvementDtoTestUtil.noInvolvementAndNoFlags(pwaApplicationDetail.getPwaApplication()),
         EnumSet.allOf(PwaAppProcessingPermission.class)));
 
     mockMvc.perform(get(ReverseRouter.route(on(PublicNoticeDocumentUpdateController.class).renderUpdatePublicNoticeDocument(
@@ -152,7 +153,7 @@ public class PublicNoticeDocumentUpdateControllerTest extends PwaAppProcessingCo
             pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null)))
         .with(authenticatedUserAndSession(user))
         .with(csrf()))
-        .andExpect(result -> assertThat(result.getResolvedException() instanceof AccessDeniedException).isTrue());
+        .andExpect(result -> assertThat(result.getResolvedException()).isInstanceOf(AccessDeniedException.class));
   }
 
 
@@ -203,7 +204,7 @@ public class PublicNoticeDocumentUpdateControllerTest extends PwaAppProcessingCo
   public void postUpdatePublicNoticeDocument_noSatisfactoryVersions() throws Exception {
 
     when(processingPermissionService.getProcessingPermissionsDto(any(), any())).thenReturn(new ProcessingPermissionsDto(
-        PwaAppProcessingContextDtoTestUtils.emptyAppInvolvement(pwaApplicationDetail.getPwaApplication()),
+        ApplicationInvolvementDtoTestUtil.noInvolvementAndNoFlags(pwaApplicationDetail.getPwaApplication()),
         EnumSet.allOf(PwaAppProcessingPermission.class)));
 
     mockMvc.perform(post(ReverseRouter.route(on(PublicNoticeDocumentUpdateController.class).postUpdatePublicNoticeDocument(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null)))
@@ -222,7 +223,7 @@ public class PublicNoticeDocumentUpdateControllerTest extends PwaAppProcessingCo
         .postUpdatePublicNoticeDocument(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null)))
         .with(authenticatedUserAndSession(user))
         .with(csrf()))
-        .andExpect(result -> assertThat(result.getResolvedException() instanceof AccessDeniedException).isTrue());
+        .andExpect(result -> assertThat(result.getResolvedException()).isInstanceOf(AccessDeniedException.class));
   }
 
 

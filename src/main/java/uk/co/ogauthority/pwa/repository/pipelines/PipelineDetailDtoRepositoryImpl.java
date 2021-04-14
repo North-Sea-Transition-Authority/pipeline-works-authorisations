@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.repository.pipelines;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import javax.persistence.EntityManager;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,16 +39,13 @@ public class PipelineDetailDtoRepositoryImpl implements PipelineDetailDtoReposit
         "AND pc.masterPwa = :master_pwa " +
         "AND pd.bundleName IS NOT NULL " +
         "AND pd.pipelineStatus IN :statusFilter ", PipelineBundlePairDto.class)
-        .setParameter("master_pwa", pwaApplicationDetail.getMasterPwaApplication())
+        .setParameter("master_pwa", pwaApplicationDetail.getMasterPwa())
         .setParameter("statusFilter", statusFilter)
         .getResultList();
   }
 
-
   @Override
-  public List<PipelineOverview> getAllPipelineOverviewsForMasterPwa(MasterPwa masterPwa) {
-
-    var statusFilter = PipelineStatus.currentStatusSet();
+  public List<PipelineOverview> getAllPipelineOverviewsForMasterPwaAndStatus(MasterPwa masterPwa, Set<PipelineStatus> statusFilter) {
 
     return entityManager.createQuery("" +
             "SELECT new uk.co.ogauthority.pwa.model.dto.pipelines.PipelineDetailSummaryDto(" +
@@ -143,6 +141,13 @@ public class PipelineDetailDtoRepositoryImpl implements PipelineDetailDtoReposit
         // so makes sense to avoid building extra restrictions into the query string itself for now.
         .filter(pipelineOverview -> statusFilter.contains(pipelineOverview.getPipelineStatus()))
         .collect(Collectors.toUnmodifiableList());
+  }
+
+
+  @Override
+  public List<PipelineOverview> getAllPipelineOverviewsForMasterPwa(MasterPwa masterPwa) {
+    var statusFilter = PipelineStatus.currentStatusSet();
+    return getAllPipelineOverviewsForMasterPwaAndStatus(masterPwa, statusFilter);
   }
 
 }

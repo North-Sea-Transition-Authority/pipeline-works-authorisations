@@ -17,7 +17,6 @@ import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.AppProcessingBreadcrumbService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.service.appprocessing.publicnotice.PublicNoticeService;
-import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingTask;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
@@ -33,16 +32,13 @@ public class PublicNoticeOverviewController {
 
   private final AppProcessingBreadcrumbService appProcessingBreadcrumbService;
   private final PublicNoticeService publicNoticeService;
-  private final ControllerHelperService controllerHelperService;
 
   @Autowired
   public PublicNoticeOverviewController(
       AppProcessingBreadcrumbService appProcessingBreadcrumbService,
-      PublicNoticeService publicNoticeService,
-      ControllerHelperService controllerHelperService) {
+      PublicNoticeService publicNoticeService) {
     this.appProcessingBreadcrumbService = appProcessingBreadcrumbService;
     this.publicNoticeService = publicNoticeService;
-    this.controllerHelperService = controllerHelperService;
   }
 
 
@@ -56,7 +52,7 @@ public class PublicNoticeOverviewController {
     return CaseManagementUtils.withAtLeastOneSatisfactoryVersion(
         processingContext,
         PwaAppProcessingTask.PUBLIC_NOTICE,
-        () -> getDraftPublicNoticeModelAndView(processingContext, authenticatedUserAccount));
+        () -> getPublicNoticeOverviewModelAndView(processingContext, authenticatedUserAccount));
   }
 
 
@@ -73,15 +69,27 @@ public class PublicNoticeOverviewController {
             .renderDraftPublicNotice(pwaApplicationId, applicationType, null, null, null)),
 
         PublicNoticeAction.APPROVE.name(), ReverseRouter.route(on(PublicNoticeApprovalController.class)
-            .renderApprovePublicNotice(pwaApplicationId, applicationType, null, null, null))
+            .renderApprovePublicNotice(pwaApplicationId, applicationType, null, null, null)),
+
+        PublicNoticeAction.REQUEST_DOCUMENT_UPDATE.name(), ReverseRouter.route(on(PublicNoticeDocumentUpdateRequestController.class)
+            .renderRequestPublicNoticeDocumentUpdate(pwaApplicationId, applicationType, null, null, null)),
+
+        PublicNoticeAction.FINALISE.name(), ReverseRouter.route(on(FinalisePublicNoticeController.class)
+            .renderFinalisePublicNotice(pwaApplicationId, applicationType, null, null, null)),
+
+        PublicNoticeAction.UPDATE_DATES.name(), ReverseRouter.route(on(FinalisePublicNoticeController.class)
+            .renderUpdatePublicNoticePublicationDates(pwaApplicationId, applicationType, null, null, null)),
+
+        PublicNoticeAction.WITHDRAW.name(), ReverseRouter.route(on(WithdrawPublicNoticeController.class)
+            .renderWithdrawPublicNotice(pwaApplicationId, applicationType, null, null, null))
     );
 
   }
 
 
 
-  private ModelAndView getDraftPublicNoticeModelAndView(PwaAppProcessingContext processingContext,
-                                                        AuthenticatedUserAccount authenticatedUserAccount) {
+  private ModelAndView getPublicNoticeOverviewModelAndView(PwaAppProcessingContext processingContext,
+                                                           AuthenticatedUserAccount authenticatedUserAccount) {
 
     var pwaApplication = processingContext.getPwaApplication();
     var allPublicNoticesView = publicNoticeService.getAllPublicNoticeViews(processingContext);

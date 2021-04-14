@@ -1,161 +1,55 @@
 package uk.co.ogauthority.pwa.model.form.pwaapplications.views;
 
-import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
-import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineFlexibility;
-import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineMaterial;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineStatus;
-import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
-import uk.co.ogauthority.pwa.model.location.CoordinatePair;
 import uk.co.ogauthority.pwa.model.tasklist.TaskListEntry;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.tasklist.PadPipelineTaskListHeader;
 
 /**
- * Provides pipeline overview and task list information for a given pipeline on an application.
+ * Provides pipeline info and task list information for a given pipeline on an application.
  */
-public class PadPipelineTaskListItem implements PipelineOverview {
+public class PadPipelineTaskListItem {
 
-  private final PipelineOverview pipelineOverview;
+  private final int padPipelineId;
+  private final long numberOfIdents;
+  private final PipelineStatus pipelineStatus;
+  private final String pipelineName;
+  private final boolean hasTasks;
+
   private final List<TaskListEntry> tasks;
 
-  public PadPipelineTaskListItem(PipelineOverview pipelineOverview, List<TaskListEntry> tasks) {
-    this.pipelineOverview = pipelineOverview;
+  public PadPipelineTaskListItem(PadPipelineTaskListHeader padPipelineTaskListHeader,
+                                 List<TaskListEntry> tasks) {
+    this.padPipelineId = padPipelineTaskListHeader.getPadPipelineId();
+    this.numberOfIdents = padPipelineTaskListHeader.getNumberOfIdents();
+    this.pipelineStatus = padPipelineTaskListHeader.getPipelineStatus();
+    this.pipelineName = padPipelineTaskListHeader.getPipelineName();
+    this.hasTasks = !tasks.isEmpty();
     this.tasks = tasks;
+  }
+
+  public int getPadPipelineId() {
+    return padPipelineId;
+  }
+
+  public long getNumberOfIdents() {
+    return numberOfIdents;
+  }
+
+  public PipelineStatus getPipelineStatus() {
+    return pipelineStatus;
+  }
+
+  public String getPipelineName() {
+    return pipelineName;
   }
 
   public List<TaskListEntry> getTaskList() {
     return Collections.unmodifiableList(this.tasks);
   }
 
-  @Override
-  public Integer getPadPipelineId() {
-    return this.pipelineOverview.getPadPipelineId();
-  }
-
-  @Override
-  public Integer getPipelineId() {
-    return this.pipelineOverview.getPipelineId();
-  }
-
-  @Override
-  public String getFromLocation() {
-    return this.pipelineOverview.getFromLocation();
-  }
-
-  @Override
-  public CoordinatePair getFromCoordinates() {
-    return this.pipelineOverview.getFromCoordinates();
-  }
-
-  @Override
-  public String getToLocation() {
-    return this.pipelineOverview.getToLocation();
-  }
-
-  @Override
-  public CoordinatePair getToCoordinates() {
-    return this.pipelineOverview.getToCoordinates();
-  }
-
-  @Override
-  public String getPipelineNumber() {
-    return this.pipelineOverview.getPipelineNumber();
-  }
-
-  @Override
-  public PipelineType getPipelineType() {
-    return this.pipelineOverview.getPipelineType();
-  }
-
-  @Override
-  public String getComponentParts() {
-    return this.pipelineOverview.getComponentParts();
-  }
-
-  @Override
-  public BigDecimal getLength() {
-    return this.pipelineOverview.getLength();
-  }
-
-  @Override
-  public String getProductsToBeConveyed() {
-    return this.pipelineOverview.getProductsToBeConveyed();
-  }
-
-  @Override
-  public Long getNumberOfIdents() {
-    return this.pipelineOverview.getNumberOfIdents();
-  }
-
-  @Override
-  public BigDecimal getMaxExternalDiameter() {
-    return this.pipelineOverview.getMaxExternalDiameter();
-  }
-
-  @Override
-  public Boolean getPipelineInBundle() {
-    return this.pipelineOverview.getPipelineInBundle();
-  }
-
-  @Override
-  public String getBundleName() {
-    return this.pipelineOverview.getBundleName();
-  }
-
-  @Override
-  public PipelineFlexibility getPipelineFlexibility() {
-    return this.pipelineOverview.getPipelineFlexibility();
-  }
-
-  @Override
-  public PipelineMaterial getPipelineMaterial() {
-    return this.pipelineOverview.getPipelineMaterial();
-  }
-
-  @Override
-  public String getOtherPipelineMaterialUsed() {
-    return this.pipelineOverview.getOtherPipelineMaterialUsed();
-  }
-
-  @Override
-  public Boolean getTrenchedBuriedBackfilled() {
-    return this.pipelineOverview.getTrenchedBuriedBackfilled();
-  }
-
-  @Override
-  public String getTrenchingMethodsDescription() {
-    return this.pipelineOverview.getTrenchingMethodsDescription();
-  }
-
-  @Override
-  public PipelineStatus getPipelineStatus() {
-    return this.pipelineOverview.getPipelineStatus();
-  }
-
-  @Override
-  public String getPipelineStatusReason() {
-    return this.pipelineOverview.getPipelineStatusReason();
-  }
-
-  @Override
-  public String getTemporaryPipelineNumber() {
-    return this.pipelineOverview.getTemporaryPipelineNumber();
-  }
-
-  @Override
-  public Boolean getAlreadyExistsOnSeabed() {
-    return this.pipelineOverview.getAlreadyExistsOnSeabed();
-  }
-
-  @Override
-  public Boolean getPipelineInUse() {
-    return this.pipelineOverview.getPipelineInUse();
-  }
-
   public Boolean getHasTasks() {
-    if (this.pipelineOverview instanceof PadPipelineOverview) {
-      return ((PadPipelineOverview) this.pipelineOverview).getHasTasks();
-    }
-    return false;
+    return hasTasks;
   }
 }

@@ -23,8 +23,8 @@ import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.ModifyP
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.NamedPipeline;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PadPipelineOverview;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
-import uk.co.ogauthority.pwa.service.pwaconsents.PipelineDetailIdentDataImportService;
-import uk.co.ogauthority.pwa.service.pwaconsents.PipelineDetailService;
+import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailIdentDataImportService;
+import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -71,7 +71,7 @@ public class ModifyPipelineServiceTest {
     nonConsentedPipelineDetail.setPipelineStatus(PipelineStatus.IN_SERVICE);
     nonConsentedPipelineDetail.setPipeline(nonConsentedPipeline);
 
-    when(pipelineDetailService.getNonDeletedPipelineDetailsForApplicationMasterPwa(detail.getMasterPwaApplication()))
+    when(pipelineDetailService.getNonDeletedPipelineDetailsForApplicationMasterPwa(detail.getMasterPwa()))
         .thenReturn(List.of(nonConsentedPipelineDetail));
 
     var result = modifyPipelineService.getConsentedPipelinesNotOnApplication(detail);
@@ -88,7 +88,7 @@ public class ModifyPipelineServiceTest {
     var consentedPipelineDetail = new PipelineDetail();
     consentedPipelineDetail.setPipeline(consentedPipeline);
 
-    when(pipelineDetailService.getNonDeletedPipelineDetailsForApplicationMasterPwa(detail.getMasterPwaApplication()))
+    when(pipelineDetailService.getNonDeletedPipelineDetailsForApplicationMasterPwa(detail.getMasterPwa()))
         .thenReturn(List.of(consentedPipelineDetail));
 
     var padPipeline = new PadPipeline();
@@ -120,7 +120,7 @@ public class ModifyPipelineServiceTest {
     nonConsentedPipelineDetail.setPipelineStatus(PipelineStatus.IN_SERVICE);
     nonConsentedPipelineDetail.setPipeline(nonConsentedPipeline);
 
-    when(pipelineDetailService.getNonDeletedPipelineDetailsForApplicationMasterPwa(detail.getMasterPwaApplication()))
+    when(pipelineDetailService.getNonDeletedPipelineDetailsForApplicationMasterPwa(detail.getMasterPwa()))
         .thenReturn(List.of(nonConsentedPipelineDetail));
 
     var result = modifyPipelineService.getConsentedPipelinesNotOnApplication(detail);
