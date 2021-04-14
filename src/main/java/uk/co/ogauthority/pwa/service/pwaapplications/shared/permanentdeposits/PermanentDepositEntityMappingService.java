@@ -4,7 +4,6 @@ import java.text.DecimalFormat;
 import java.util.Comparator;
 import java.util.Map;
 import java.util.stream.Collectors;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.entity.enums.measurements.UnitMeasurement;
@@ -16,7 +15,6 @@ import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PermanentDepositOv
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview;
 import uk.co.ogauthority.pwa.model.view.StringWithTag;
 import uk.co.ogauthority.pwa.model.view.Tag;
-import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadDepositPipelineRepository;
 import uk.co.ogauthority.pwa.util.CoordinateUtils;
 import uk.co.ogauthority.pwa.util.DateUtils;
 import uk.co.ogauthority.pwa.util.forminputs.twofielddate.TwoFieldDateInput;
@@ -29,12 +27,6 @@ import uk.co.ogauthority.pwa.util.forminputs.twofielddate.TwoFieldDateInput;
 public class PermanentDepositEntityMappingService {
   private static final DecimalFormat DECIMAL_FORMAT_2DP = new DecimalFormat("#.##");
 
-  private final PadDepositPipelineRepository padDepositPipelineRepository;
-
-  @Autowired
-  public PermanentDepositEntityMappingService(PadDepositPipelineRepository padDepositPipelineRepository) {
-    this.padDepositPipelineRepository = padDepositPipelineRepository;
-  }
 
   /**
    * Map Permanent Deposits stored data to form.
@@ -82,6 +74,7 @@ public class PermanentDepositEntityMappingService {
       form.setToCoordinateForm(new CoordinateForm());
       CoordinateUtils.mapCoordinatePairToForm(entity.getFromCoordinates(), form.getFromCoordinateForm());
       CoordinateUtils.mapCoordinatePairToForm(entity.getToCoordinates(), form.getToCoordinateForm());
+      form.setFootnote(entity.getFootnote());
     }
 
 
@@ -133,6 +126,7 @@ public class PermanentDepositEntityMappingService {
 
     entity.setFromCoordinates(CoordinateUtils.coordinatePairFromForm(form.getFromCoordinateForm()));
     entity.setToCoordinates(CoordinateUtils.coordinatePairFromForm(form.getToCoordinateForm()));
+    entity.setFootnote(form.getFootnote());
   }
 
 
@@ -167,8 +161,8 @@ public class PermanentDepositEntityMappingService {
         DECIMAL_FORMAT_2DP.format(entity.getQuantity()),
         entity.getContingencyAmount(),
         entity.getFromCoordinates(),
-        entity.getToCoordinates()
-    );
+        entity.getToCoordinates(),
+        entity.getFootnote());
 
 
   }

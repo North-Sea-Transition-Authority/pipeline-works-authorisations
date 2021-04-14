@@ -66,6 +66,8 @@ public class PadPermanentDeposit implements ChildEntity<Integer, PwaApplicationD
   @Transient
   private CoordinatePair toCoordinates;
 
+  private String footnote;
+
 
 
   @Column(name = "from_lat_deg")
@@ -530,6 +532,14 @@ public class PadPermanentDeposit implements ChildEntity<Integer, PwaApplicationD
     return this.toLongitudeDirection;
   }
 
+  public String getFootnote() {
+    return footnote;
+  }
+
+  public void setFootnote(String footnote) {
+    this.footnote = footnote;
+  }
+
   private void updateFromCoordinateValues() {
     this.fromLatitudeDegrees = this.fromCoordinates.getLatitude().getDegrees();
     this.fromLatitudeMinutes = this.fromCoordinates.getLatitude().getMinutes();
@@ -606,7 +616,8 @@ public class PadPermanentDeposit implements ChildEntity<Integer, PwaApplicationD
         && Objects.equals(toLongitudeDegrees, that.toLongitudeDegrees)
         && Objects.equals(toLongitudeMinutes, that.toLongitudeMinutes)
         && Objects.equals(toLongitudeSeconds, that.toLongitudeSeconds)
-        && toLongitudeDirection == that.toLongitudeDirection;
+        && toLongitudeDirection == that.toLongitudeDirection
+        && Objects.equals(footnote, that.footnote);
   }
 
   @Override
@@ -618,6 +629,6 @@ public class PadPermanentDeposit implements ChildEntity<Integer, PwaApplicationD
         fromLatitudeDegrees, fromLatitudeMinutes, fromLatitudeSeconds, fromLatitudeDirection, fromLongitudeDegrees,
         fromLongitudeMinutes, fromLongitudeSeconds, fromLongitudeDirection, toLatitudeDegrees,
         toLatitudeMinutes, toLatitudeSeconds, toLatitudeDirection, toLongitudeDegrees,
-        toLongitudeMinutes, toLongitudeSeconds, toLongitudeDirection);
+        toLongitudeMinutes, toLongitudeSeconds, toLongitudeDirection, footnote);
   }
 }

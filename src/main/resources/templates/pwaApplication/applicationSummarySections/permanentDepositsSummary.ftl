@@ -102,5 +102,14 @@
         <@pwaCoordinate.display coordinatePair=deposit.toCoordinates />
       </dd>
     </div>
+
+    <#if deposit.footnote?has_content>
+      <div class="govuk-summary-list__row">
+          <dt class="govuk-summary-list__key">Any other information</dt>
+          <dd class="govuk-summary-list__value">
+              ${deposit.footnote}
+          </dd>
+      </div>
+    </#if>
   </dl>
 </#macro>
