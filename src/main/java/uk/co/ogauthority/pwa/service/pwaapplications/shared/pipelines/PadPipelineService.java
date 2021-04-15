@@ -181,6 +181,8 @@ public class PadPipelineService {
       }
     }
 
+    padPipeline.setFootnote(form.getFootnote());
+
     padPipelinePersisterService.savePadPipelineAndMaterialiseIdentData(padPipeline);
   }
 
@@ -221,6 +223,8 @@ public class PadPipelineService {
       form.setAlreadyExistsOnSeabed(padPipeline.getAlreadyExistsOnSeabed());
       form.setPipelineInUse(padPipeline.getPipelineInUse());
     }
+
+    form.setFootnote(padPipeline.getFootnote());
   }
 
   @Transactional

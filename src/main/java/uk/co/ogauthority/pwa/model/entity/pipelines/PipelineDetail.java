@@ -55,6 +55,9 @@ public class PipelineDetail {
   private Boolean pipelineInBundle;
   private String bundleName;
 
+  private String footnote;
+
+
   @ManyToOne
   @JoinColumn(name = "pwa_consent_id")
   private PwaConsent pwaConsent;
@@ -352,6 +355,14 @@ public class PipelineDetail {
     this.maxExternalDiameter = maxExternalDiameter;
   }
 
+  public String getFootnote() {
+    return footnote;
+  }
+
+  public void setFootnote(String footnote) {
+    this.footnote = footnote;
+  }
+
   private void updateFromCoordinateValues() {
     this.fromLatitudeDegrees = this.fromCoordinates.getLatitude().getDegrees();
     this.fromLatitudeMinutes = this.fromCoordinates.getLatitude().getMinutes();
@@ -535,7 +546,8 @@ public class PipelineDetail {
         that.trenchingMethodsDesc) && pipelineFlexibility == that.pipelineFlexibility && pipelineMaterial == that.pipelineMaterial
         && Objects.equals(otherPipelineMaterialUsed, that.otherPipelineMaterialUsed) && Objects.equals(pipelineDesignLife,
         that.pipelineDesignLife) && Objects.equals(fromCoordinates,
-        that.fromCoordinates) && Objects.equals(toCoordinates, that.toCoordinates);
+        that.fromCoordinates) && Objects.equals(toCoordinates, that.toCoordinates)
+        && Objects.equals(footnote, that.footnote);
   }
 
   @Override
@@ -548,6 +560,6 @@ public class PipelineDetail {
         toLongitudeSeconds, toLongitudeDirection, componentPartsDesc, length, productsToBeConveyed,
         trenchedBuriedFilledFlag, trenchingMethodsDesc, pipelineFlexibility, pipelineMaterial,
         otherPipelineMaterialUsed,
-        pipelineDesignLife, fromCoordinates, toCoordinates);
+        pipelineDesignLife, fromCoordinates, toCoordinates, footnote);
   }
 }

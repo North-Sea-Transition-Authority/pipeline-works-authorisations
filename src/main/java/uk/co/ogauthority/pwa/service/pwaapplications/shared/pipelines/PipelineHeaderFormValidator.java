@@ -144,6 +144,10 @@ public class PipelineHeaderFormValidator implements SmartValidator {
       }
     }
 
+    if (form.getFootnote() != null) {
+      ValidatorUtils.validateDefaultStringLength(errors, "footnote", form::getFootnote, "Special features information");
+    }
+
 
   }
 

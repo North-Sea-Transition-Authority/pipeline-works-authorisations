@@ -43,6 +43,7 @@ public class PadPipelineSummaryDto {
   private final String pipelineStatusReason;
   private final Boolean alreadyExistsOnSeabed;
   private final Boolean pipelineInUse;
+  private final String footnote;
 
   public PadPipelineSummaryDto(Integer padPipelineId,
                                Integer pipelineId,
@@ -84,7 +85,8 @@ public class PadPipelineSummaryDto {
                                PipelineStatus pipelineStatus,
                                String pipelineStatusReason,
                                Boolean alreadyExistsOnSeabed,
-                               Boolean pipelineInUse) {
+                               Boolean pipelineInUse,
+                               String footnote) {
     this.padPipelineId = padPipelineId;
     this.pipelineId = pipelineId;
     this.fromLocation = fromLocation;
@@ -137,6 +139,7 @@ public class PadPipelineSummaryDto {
     this.trenchingMethodsDescription = trenchingMethodsDescription;
     this.alreadyExistsOnSeabed = alreadyExistsOnSeabed;
     this.pipelineInUse = pipelineInUse;
+    this.footnote = footnote;
   }
 
   public static PadPipelineSummaryDto from(PipelineDetail pipelineDetail) {
@@ -178,6 +181,7 @@ public class PadPipelineSummaryDto {
         pipelineDetail.getTrenchingMethodsDesc(),
         pipelineDetail.getPipelineStatus(),
         pipelineDetail.getPipelineStatusReason(),
+        null,
         null,
         null
     );
@@ -281,5 +285,9 @@ public class PadPipelineSummaryDto {
 
   public Boolean getPipelineInUse() {
     return pipelineInUse;
+  }
+
+  public String getFootnote() {
+    return footnote;
   }
 }

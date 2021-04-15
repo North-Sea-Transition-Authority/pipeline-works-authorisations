@@ -184,6 +184,7 @@ public class PadPipelineServiceTest {
     form.setTrenchedBuriedBackfilled(true);
     form.setTrenchingMethods("trench methods");
     form.setPipelineMaterial(PipelineMaterial.CARBON_STEEL);
+    form.setFootnote("footnote information");
 
     padPipelineService.addPipeline(detail, form);
 
@@ -237,6 +238,7 @@ public class PadPipelineServiceTest {
     assertThat(form.getTrenchingMethods()).isEqualTo(form.getTrenchingMethods());
 
     assertThat(newPadPipeline.getPipelineStatus()).isEqualTo(PipelineStatus.IN_SERVICE);
+    assertThat(newPadPipeline.getFootnote()).isEqualTo(form.getFootnote());
 
   }
 
@@ -636,7 +638,8 @@ public class PadPipelineServiceTest {
         padPipeline.getPipelineStatus(),
         padPipeline.getPipelineStatusReason(),
         padPipeline.getAlreadyExistsOnSeabed(),
-        padPipeline.getPipelineInUse()
+        padPipeline.getPipelineInUse(),
+        padPipeline.getFootnote()
     );
   }
 

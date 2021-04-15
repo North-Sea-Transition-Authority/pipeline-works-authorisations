@@ -152,6 +152,8 @@ public class PadPipeline implements ParentEntity, ChildEntity<Integer, PwaApplic
 
   private Boolean alreadyExistsOnSeabed;
   private Boolean pipelineInUse;
+  private String footnote;
+
 
 
   public PadPipeline() {
@@ -480,6 +482,14 @@ public class PadPipeline implements ParentEntity, ChildEntity<Integer, PwaApplic
     return this.toLongitudeDirection;
   }
 
+  public String getFootnote() {
+    return footnote;
+  }
+
+  public void setFootnote(String footnote) {
+    this.footnote = footnote;
+  }
+
   private void updateFromCoordinateValues() {
     this.fromLatitudeDegrees = this.fromCoordinates.getLatitude().getDegrees();
     this.fromLatitudeMinutes = this.fromCoordinates.getLatitude().getMinutes();
@@ -583,7 +593,8 @@ public class PadPipeline implements ParentEntity, ChildEntity<Integer, PwaApplic
         && Objects.equals(pipelineStatus, that.pipelineStatus)
         && Objects.equals(pipelineStatusReason, that.pipelineStatusReason)
         && Objects.equals(alreadyExistsOnSeabed, that.alreadyExistsOnSeabed)
-        && Objects.equals(pipelineInUse, that.pipelineInUse);
+        && Objects.equals(pipelineInUse, that.pipelineInUse)
+        && Objects.equals(footnote, that.footnote);
   }
 
   @Override
@@ -595,6 +606,7 @@ public class PadPipeline implements ParentEntity, ChildEntity<Integer, PwaApplic
         toLatitudeDirection, toLongitudeDegrees, toLongitudeMinutes, toLongitudeSeconds, toLongitudeDirection,
         componentPartsDescription, length, productsToBeConveyed, trenchedBuriedBackfilled, trenchingMethodsDescription,
         pipelineRef, fromCoordinates, toCoordinates, pipelineFlexibility, pipelineMaterial, otherPipelineMaterialUsed,
-        pipelineDesignLife, pipelineInBundle, bundleName, pipelineStatus, pipelineStatusReason, alreadyExistsOnSeabed, pipelineInUse);
+        pipelineDesignLife, pipelineInBundle, bundleName, pipelineStatus, pipelineStatusReason,
+        alreadyExistsOnSeabed, pipelineInUse, footnote);
   }
 }

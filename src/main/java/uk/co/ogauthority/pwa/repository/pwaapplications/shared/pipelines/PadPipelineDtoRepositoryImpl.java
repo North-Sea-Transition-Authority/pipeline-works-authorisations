@@ -68,6 +68,7 @@ public class PadPipelineDtoRepositoryImpl implements PadPipelineDtoRepository {
             ", pp.pipelineStatusReason " +
             ", pp.alreadyExistsOnSeabed" +
             ", pp.pipelineInUse" +
+            ", pp.footnote" +
             ") " +
             "FROM PadPipeline pp " +
             "JOIN Pipeline p ON pp.pipeline = p " +
@@ -115,7 +116,8 @@ public class PadPipelineDtoRepositoryImpl implements PadPipelineDtoRepository {
             ", pp.pipelineStatus" +
             ", pp.pipelineStatusReason " +
             ", pp.alreadyExistsOnSeabed" +
-            ", pp.pipelineInUse",
+            ", pp.pipelineInUse" +
+            ", pp.footnote",
         PadPipelineSummaryDto.class)
         .setParameter("detail", detail)
         .setParameter("padPipelineLineFilter", padPipeline)

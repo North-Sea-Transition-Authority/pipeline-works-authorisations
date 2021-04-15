@@ -38,7 +38,7 @@ public class PipelineMappingServiceTest {
     pipelineMappingService.mapPadPipelineToPipelineDetail(detail, padPipeline);
 
     ObjectTestUtils.assertAllExpectedFieldsHaveValue(detail,
-        List.of("id", "pipeline", "startTimestamp", "endTimestamp", "tipFlag", "pwaConsent"));
+        List.of("id", "pipeline", "startTimestamp", "endTimestamp", "tipFlag", "pwaConsent", "footnote"));
 
     assertThat(detail.getPipelineType()).isEqualTo(padPipeline.getPipelineType());
     assertThat(detail.getFromLocation()).isEqualTo(padPipeline.getFromLocation());

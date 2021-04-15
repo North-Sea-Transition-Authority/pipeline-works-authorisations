@@ -43,6 +43,7 @@ public class PipelineHeaderView implements PipelineOverview {
   private final Set<PipelineHeaderConditionalQuestion> questionsForPipelineStatus;
   private final Boolean alreadyExistsOnSeabed;
   private final Boolean pipelineInUse;
+  private final String footnote;
 
 
   public PipelineHeaderView() {
@@ -74,6 +75,7 @@ public class PipelineHeaderView implements PipelineOverview {
     this.questionsForPipelineStatus = null;
     this.alreadyExistsOnSeabed = null;
     this.pipelineInUse = null;
+    this.footnote = null;
   }
 
   public PipelineHeaderView(PipelineOverview pipelineOverview) {
@@ -107,6 +109,7 @@ public class PipelineHeaderView implements PipelineOverview {
         pipelineOverview.getPipelineStatus());
     this.alreadyExistsOnSeabed = pipelineOverview.getAlreadyExistsOnSeabed();
     this.pipelineInUse = pipelineOverview.getPipelineInUse();
+    this.footnote = pipelineOverview.getFootnote();
   }
 
   public PipelineHeaderView(PipelineDetail pipelineDetail) {
@@ -140,6 +143,7 @@ public class PipelineHeaderView implements PipelineOverview {
         pipelineDetail.getPipelineStatus());
     this.alreadyExistsOnSeabed = null;
     this.pipelineInUse = null;
+    this.footnote = null;
   }
 
 
@@ -277,6 +281,11 @@ public class PipelineHeaderView implements PipelineOverview {
     return pipelineInUse;
   }
 
+  @Override
+  public String getFootnote() {
+    return footnote;
+  }
+
   public Set<PipelineHeaderConditionalQuestion> getQuestionsForPipelineStatus() {
     return questionsForPipelineStatus;
   }
@@ -317,7 +326,8 @@ public class PipelineHeaderView implements PipelineOverview {
         && Objects.equals(pipelineStatusReason, that.pipelineStatusReason)
         && Objects.equals(questionsForPipelineStatus, that.questionsForPipelineStatus)
         && Objects.equals(alreadyExistsOnSeabed, that.alreadyExistsOnSeabed)
-        && Objects.equals(pipelineInUse, that.pipelineInUse);
+        && Objects.equals(pipelineInUse, that.pipelineInUse)
+        && Objects.equals(footnote, that.footnote);
   }
 
   @Override
@@ -327,6 +337,6 @@ public class PipelineHeaderView implements PipelineOverview {
         pipelineNumber, temporaryPipelineNumber, pipelineType, componentParts, length, productsToBeConveyed,
         numberOfIdents, maxExternalDiameter, pipelineInBundle, bundleName, pipelineFlexibility, pipelineMaterial,
         otherPipelineMaterialUsed, trenchedBuriedBackfilled, trenchingMethodsDescription, pipelineStatus,
-        pipelineStatusDisplayStr, pipelineStatusReason, questionsForPipelineStatus, alreadyExistsOnSeabed, pipelineInUse);
+        pipelineStatusDisplayStr, pipelineStatusReason, questionsForPipelineStatus, alreadyExistsOnSeabed, pipelineInUse, footnote);
   }
 }
