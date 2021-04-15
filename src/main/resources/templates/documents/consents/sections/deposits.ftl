@@ -27,8 +27,8 @@
     <tbody>
       <#list depositTableRowViews as depositTableRowView>
         <tr>
-          <td> ${depositTableRowView.pipelineNumber} </td>
-          <td> ${depositTableRowView.proposedDate} </td>
+          <td> ${depositTableRowView.pipelineNumbers} </td>
+          <td> ${depositTableRowView.proposedDate} </br> ${depositTableRowView.depositReference}</td>
           <td class="materialTypeAndSize"> ${depositTableRowView.typeAndSizeOfMaterials} </td>
           <td> ${depositTableRowView.quantity} </td>
           <td class="coordinateTableCell"> <@pwaCoordinate.display coordinatePair=depositTableRowView.fromCoordinates/> </td>
@@ -45,5 +45,18 @@
       </#list>
     </tbody>
   </table>
+
+  <p>
+    This Consent authorises only Deposits exactly as described, up to the maximum quantities specified in column 4 to be laid, in the positions listed and within the period stated within the Table - nothing else can be laid.  
+    If anything different to what has been authorised within this Consent is required you must have prior consent from OGA before it can be laid.
+  </p>
+
+  <p> 
+    <ul class="govuk-list">
+      <#list depositFootnotes as depositFootnote>
+        <li> ${depositFootnote} </li>
+      </#list>
+    </ul>
+  </p>
 
 </div>

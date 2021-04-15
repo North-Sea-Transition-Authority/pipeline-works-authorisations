@@ -6,7 +6,8 @@ import uk.co.ogauthority.pwa.model.location.CoordinatePair;
 
 public class DepositTableRowView {
 
-  private final String pipelineNumber;
+  private final String depositReference;
+  private final String pipelineNumbers;
   private final String proposedDate;
   private final String typeAndSizeOfMaterials;
   private final String quantity;
@@ -14,14 +15,16 @@ public class DepositTableRowView {
   private final CoordinatePair toCoordinates;
   private final List<String> drawingNumbers;
 
-  public DepositTableRowView(String pipelineNumber,
+  public DepositTableRowView(String depositReference,
+                             String pipelineNumbers,
                              String proposedDate,
                              String typeAndSizeOfMaterials,
                              String quantity,
                              CoordinatePair fromCoordinates,
                              CoordinatePair toCoordinates,
                              List<String> drawingNumbers) {
-    this.pipelineNumber = pipelineNumber;
+    this.depositReference = depositReference;
+    this.pipelineNumbers = pipelineNumbers;
     this.proposedDate = proposedDate;
     this.typeAndSizeOfMaterials = typeAndSizeOfMaterials;
     this.quantity = quantity;
@@ -31,8 +34,13 @@ public class DepositTableRowView {
   }
 
 
-  public String getPipelineNumber() {
-    return pipelineNumber;
+
+  public String getDepositReference() {
+    return depositReference;
+  }
+
+  public String getPipelineNumbers() {
+    return pipelineNumbers;
   }
 
   public String getProposedDate() {
@@ -69,7 +77,8 @@ public class DepositTableRowView {
       return false;
     }
     DepositTableRowView that = (DepositTableRowView) o;
-    return Objects.equals(pipelineNumber, that.pipelineNumber)
+    return Objects.equals(depositReference, that.depositReference)
+        && Objects.equals(pipelineNumbers, that.pipelineNumbers)
         && Objects.equals(proposedDate, that.proposedDate)
         && Objects.equals(typeAndSizeOfMaterials, that.typeAndSizeOfMaterials)
         && Objects.equals(quantity, that.quantity)
@@ -80,7 +89,7 @@ public class DepositTableRowView {
 
   @Override
   public int hashCode() {
-    return Objects.hash(pipelineNumber, proposedDate, typeAndSizeOfMaterials, quantity, fromCoordinates, toCoordinates,
-        drawingNumbers);
+    return Objects.hash(depositReference, pipelineNumbers, proposedDate, typeAndSizeOfMaterials, quantity, fromCoordinates,
+        toCoordinates, drawingNumbers);
   }
 }
