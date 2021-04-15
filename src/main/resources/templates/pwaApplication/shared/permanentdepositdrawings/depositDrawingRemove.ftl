@@ -10,7 +10,7 @@
 
     <@fdsForm.htmlForm>
         <@depositDrawingViewSummary depositDrawingView depositDrawingUrlFactory/>
-        <@fdsAction.submitButtons primaryButtonText="Remove" secondaryLinkText="Cancel" linkSecondaryAction=true linkSecondaryActionUrl=springUrl(backUrl)/>
+        <@fdsAction.submitButtons primaryButtonText="Remove" primaryButtonClass="govuk-button govuk-button--warning" secondaryLinkText="Cancel" linkSecondaryAction=true linkSecondaryActionUrl=springUrl(backUrl)/>
     </@fdsForm.htmlForm>
 
 </@defaultPage>

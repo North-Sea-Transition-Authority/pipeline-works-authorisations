@@ -29,6 +29,6 @@
     </@fdsCheckAnswers.checkAnswers>
 
     <@fdsForm.htmlForm>
-        <@fdsAction.submitButtons linkSecondaryAction=true primaryButtonText="Remove block crossing" secondaryLinkText="Back to licence and blocks" linkSecondaryActionUrl=springUrl(backUrl) />
+        <@fdsAction.submitButtons linkSecondaryAction=true primaryButtonText="Remove block crossing" primaryButtonClass="govuk-button govuk-button--warning" secondaryLinkText="Back to licence and blocks" linkSecondaryActionUrl=springUrl(backUrl) />
     </@fdsForm.htmlForm>
 </@defaultPage>

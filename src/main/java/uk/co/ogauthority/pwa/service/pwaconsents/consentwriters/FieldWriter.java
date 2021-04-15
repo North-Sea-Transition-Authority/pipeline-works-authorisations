@@ -45,7 +45,7 @@ public class FieldWriter implements ConsentWriter {
     var currentPwaDetail = masterPwaService.getCurrentDetailOrThrow(pwaApplicationDetail.getMasterPwa());
 
     // if first application for PWA, need to set the current master PWA detail to consented and write any fields to consented model
-    if (pwaConsent.getVariationNumber() == 0) {
+    if (pwaConsent.getVariationNumber() != null && pwaConsent.getVariationNumber() == 0) {
 
       masterPwaService.updateDetailFieldInfo(
           currentPwaDetail,

@@ -130,4 +130,48 @@ public class FieldWriterTest {
 
   }
 
+  @Test
+  public void write_depcon_changes() {
+
+    pwaConsent.setVariationNumber(null);
+
+    var pwaFieldLinksView = new PwaFieldLinksView(false, "desc", List.of());
+    var padFieldLinksView = new PwaFieldLinksView(true, null, List.of(new StringWithTag("fieldname")));
+
+    when(masterPwaDetailFieldService.getCurrentMasterPwaDetailFieldLinksView(detail.getPwaApplication()))
+        .thenReturn(pwaFieldLinksView);
+
+    when(padFieldService.getApplicationFieldLinksView(detail)).thenReturn(padFieldLinksView);
+
+    fieldWriter.write(detail, pwaConsent);
+
+    verify(masterPwaService, times(1)).createDuplicateNewDetail(masterPwa);
+    verify(masterPwaService, times(1)).updateDetailFieldInfo(masterPwaDetail, true, null);
+
+    verify(masterPwaDetailFieldService, times(1)).createMasterPwaFieldsFromPadFields(masterPwaDetail, fields);
+
+  }
+
+  @Test
+  public void write_depcon_noChanges() {
+
+    pwaConsent.setVariationNumber(null);
+
+    var padFieldLinksView = new PwaFieldLinksView(true, null, List.of(new StringWithTag("fieldname")));
+    var pwaFieldLinksView = new PwaFieldLinksView(true, null, List.of(new StringWithTag("fieldname")));
+
+    when(masterPwaDetailFieldService.getCurrentMasterPwaDetailFieldLinksView(detail.getPwaApplication()))
+        .thenReturn(pwaFieldLinksView);
+
+    when(padFieldService.getApplicationFieldLinksView(detail)).thenReturn(padFieldLinksView);
+
+    fieldWriter.write(detail, pwaConsent);
+
+    verify(masterPwaService, times(0)).createDuplicateNewDetail(any());
+    verify(masterPwaService, times(0)).updateDetailFieldInfo(any(), any(), any());
+
+    verify(masterPwaDetailFieldService, times(0)).createMasterPwaFieldsFromPadFields(any(), any());
+
+  }
+
 }

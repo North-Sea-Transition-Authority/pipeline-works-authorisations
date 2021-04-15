@@ -17,6 +17,6 @@
     </@fdsCheckAnswers.checkAnswers>
 
     <@fdsForm.htmlForm>
-        <@fdsAction.submitButtons linkSecondaryAction=true primaryButtonText="Remove pipeline crossing" secondaryLinkText="Back to pipeline crossings" linkSecondaryActionUrl=springUrl(backUrl)/>
+        <@fdsAction.submitButtons linkSecondaryAction=true primaryButtonText="Remove pipeline crossing" primaryButtonClass="govuk-button govuk-button--warning" secondaryLinkText="Back to pipeline crossings" linkSecondaryActionUrl=springUrl(backUrl)/>
     </@fdsForm.htmlForm>
 </@defaultPage>
