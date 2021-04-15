@@ -87,7 +87,7 @@
         </div>
         <#if deposit.footnote?has_content>
             <div class="govuk-summary-list__row">
-                <dt class="govuk-summary-list__key">Any other information</dt>
+                <dt class="govuk-summary-list__key">Other information</dt>
                 <dd class="govuk-summary-list__value">
                     <@multiLineText.multiLineText blockClass="footnote__text">${deposit.footnote}</@multiLineText.multiLineText> 
                 </dd>
