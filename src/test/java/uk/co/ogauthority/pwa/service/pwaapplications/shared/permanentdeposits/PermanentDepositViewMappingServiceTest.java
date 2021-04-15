@@ -8,14 +8,12 @@ import java.util.HashMap;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.model.entity.enums.permanentdeposits.MaterialType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PadPermanentDeposit;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PadPermanentDepositTestUtil;
 import uk.co.ogauthority.pwa.model.location.CoordinatePairTestUtil;
-import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadDepositPipelineRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
@@ -43,13 +41,10 @@ public class PermanentDepositViewMappingServiceTest {
 
   private PwaApplicationDetail pwaApplicationDetail;
 
-  @Mock
-  private PadDepositPipelineRepository padDepositPipelineRepository;
-
   @Before
   public void setUp() {
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
-    permanentDepositEntityMappingService = new PermanentDepositEntityMappingService(padDepositPipelineRepository);
+    permanentDepositEntityMappingService = new PermanentDepositEntityMappingService();
   }
 
   private PadPermanentDeposit getConcreteDeposit(int id, String reference) {
@@ -68,7 +63,8 @@ public class PermanentDepositViewMappingServiceTest {
         FROM_DATE,
         TO_DATE,
         CoordinatePairTestUtil.getDefaultCoordinate(),
-        CoordinatePairTestUtil.getDefaultCoordinate()
+        CoordinatePairTestUtil.getDefaultCoordinate(),
+        "footnote information"
     );
 
   }
