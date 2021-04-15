@@ -29,6 +29,7 @@ public class PermanentDepositOverview {
   private final String contingencyAmount;
   private final CoordinatePair fromCoordinates;
   private final CoordinatePair toCoordinates;
+  private final String footnote;
 
   public PermanentDepositOverview(Integer entityID,
                                   // this stores the enum name so decisions can be made easily when processing templates.
@@ -45,7 +46,8 @@ public class PermanentDepositOverview {
                                   String quantity,
                                   String contingencyAmount,
                                   CoordinatePair fromCoordinates,
-                                  CoordinatePair toCoordinates) {
+                                  CoordinatePair toCoordinates,
+                                  String footnote) {
     this.entityID = entityID;
     this.depositIsForConsentedPipeline = depositIsForConsentedPipeline;
     this.materialTypeLookup = materialTypeLookup;
@@ -63,6 +65,7 @@ public class PermanentDepositOverview {
     this.contingencyAmount = contingencyAmount;
     this.fromCoordinates = fromCoordinates;
     this.toCoordinates = toCoordinates;
+    this.footnote = footnote;
   }
 
   public Integer getEntityID() {
@@ -133,5 +136,7 @@ public class PermanentDepositOverview {
     return toCoordinates;
   }
 
-
+  public String getFootnote() {
+    return footnote;
+  }
 }

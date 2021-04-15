@@ -106,8 +106,8 @@ public class PermanentDepositSummaryServiceTest {
         "3",
         "4",
         CoordinatePairTestUtil.getDefaultCoordinate(),
-        CoordinatePairTestUtil.getDefaultCoordinate()
-    );
+        CoordinatePairTestUtil.getDefaultCoordinate(),
+        "footnote information");
 
   }
 }

@@ -46,6 +46,8 @@ public class PermanentDepositsForm extends UploadMultipleFilesWithDescriptionFor
   private CoordinateForm fromCoordinateForm;
   private CoordinateForm toCoordinateForm;
 
+  private String footnote;
+
 
   public Integer getEntityID() {
     return entityID;
@@ -271,6 +273,16 @@ public class PermanentDepositsForm extends UploadMultipleFilesWithDescriptionFor
     this.appRefAndPipelineNum = appRefAndPipelineNum;
   }
 
+  public String getFootnote() {
+    return footnote;
+  }
+
+  public void setFootnote(String footnote) {
+    this.footnote = footnote;
+  }
+
+
+
 
   @Override
   public boolean equals(Object o) {
@@ -308,7 +320,8 @@ public class PermanentDepositsForm extends UploadMultipleFilesWithDescriptionFor
         && Objects.equals(contingencyGroutBagsAmount, that.contingencyGroutBagsAmount)
         && Objects.equals(contingencyOtherAmount, that.contingencyOtherAmount)
         && Objects.equals(fromCoordinateForm, that.fromCoordinateForm)
-        && Objects.equals(toCoordinateForm, that.toCoordinateForm);
+        && Objects.equals(toCoordinateForm, that.toCoordinateForm)
+        && Objects.equals(footnote, that.footnote);
   }
 
   @Override
@@ -319,6 +332,6 @@ public class PermanentDepositsForm extends UploadMultipleFilesWithDescriptionFor
         otherMaterialSize, concreteMattressLength, concreteMattressWidth, concreteMattressDepth, groutBagsBioDegradable,
         bioGroutBagsNotUsedDescription, quantityConcrete, quantityRocks, quantityGroutBags, quantityOther,
         contingencyConcreteAmount, contingencyRocksAmount, contingencyGroutBagsAmount,
-        contingencyOtherAmount, fromCoordinateForm, toCoordinateForm);
+        contingencyOtherAmount, fromCoordinateForm, toCoordinateForm, footnote);
   }
 }

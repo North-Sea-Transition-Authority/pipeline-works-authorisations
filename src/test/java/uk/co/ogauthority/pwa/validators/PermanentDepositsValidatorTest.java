@@ -417,4 +417,14 @@ public class PermanentDepositsValidatorTest {
     );
   }
 
+  @Test
+  public void validate_footnote_lengthExceeded() {
+    var form = getPermanentDepositsFormWithCoordinates();
+    form.setFootnote(ValidatorTestUtils.over4000Chars());
+    Map<String, Set<String>> errorsMap = getErrorMap(form);
+    assertThat(errorsMap).contains(
+        entry("footnote", Set.of(FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.errorCode("footnote"))));
+  }
+
+
 }

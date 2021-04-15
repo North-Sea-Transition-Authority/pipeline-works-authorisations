@@ -112,6 +112,10 @@ public class PermanentDepositsValidator implements SmartValidator {
 
     ValidationUtils.invokeValidator(coordinateFormValidator, form.getToCoordinateForm(), errors,
         "toCoordinateForm", ValueRequirement.MANDATORY, "Finish point");
+
+    if (form.getFootnote() != null) {
+      ValidatorUtils.validateDefaultStringLength(errors, "footnote", form::getFootnote, "Other information");
+    }
   }
 
 
