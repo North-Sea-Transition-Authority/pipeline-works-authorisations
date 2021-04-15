@@ -45,11 +45,11 @@ public class RegulatorPipelineNumberTaskService {
 
   }
 
-  public void validateForm(PadPipeline padPipeline, SetPipelineNumberForm form, Errors errors){
+  public void validateForm(PadPipeline padPipeline, SetPipelineNumberForm form, Errors errors) {
     setPipelineNumberFormValidator.validate(form, errors, padPipeline, getValidationHint());
   }
 
-  private SetPipelineNumberValidationConfig getValidationHint(){
+  private SetPipelineNumberValidationConfig getValidationHint() {
     // TODO PWA-470 make range configurable and enforceable via migration patch.
     return SetPipelineNumberValidationConfig.rangeCreate(
         5000,
@@ -58,11 +58,11 @@ public class RegulatorPipelineNumberTaskService {
   }
 
   @Transactional
-  public void setPipelineNumber(PadPipeline padPipeline, String pipelineReference){
+  public void setPipelineNumber(PadPipeline padPipeline, String pipelineReference) {
     padPipelineNumberingService.setManualPipelineReference(padPipeline, pipelineReference);
   }
 
-  public Range<Integer> getPermittedPipelineNumberRange(){
+  public Range<Integer> getPermittedPipelineNumberRange() {
     return getValidationHint().getPipelineNumberRange();
   }
 

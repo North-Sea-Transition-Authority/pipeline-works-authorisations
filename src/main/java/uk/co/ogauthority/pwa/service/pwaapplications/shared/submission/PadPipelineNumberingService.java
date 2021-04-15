@@ -43,14 +43,13 @@ public class PadPipelineNumberingService {
     }
   }
 
-  private void setPipelineRefAndStoreTemporaryRefIfUnset(PadPipeline padPipeline, String pipelineRef){
+  private void setPipelineRefAndStoreTemporaryRefIfUnset(PadPipeline padPipeline, String pipelineRef) {
 
-    if(padPipeline.getTemporaryRef() == null) {
+    if (padPipeline.getTemporaryRef() == null) {
       padPipeline.setTemporaryRef(padPipeline.getPipelineRef());
     }
 
     padPipeline.setPipelineRef(pipelineRef);
-
   }
 
   public boolean nonConsentedPadPipelineRequiresFullReference(PadPipeline padPipeline) {
@@ -58,7 +57,7 @@ public class PadPipelineNumberingService {
   }
 
   @Transactional
-  public void setManualPipelineReference(PadPipeline padPipeline, String pipelineReference){
+  public void setManualPipelineReference(PadPipeline padPipeline, String pipelineReference) {
     setPipelineRefAndStoreTemporaryRefIfUnset(padPipeline, pipelineReference);
     padPipelineSubmissionRepository.save(padPipeline);
   }

@@ -85,7 +85,7 @@ public class PadPipelineService {
             "Pipeline Summary not found. Pad pipeline id: " + padPipeline.getId()));
   }
 
-  public List<PadPipeline> findSubmittedOrDraftPipelinesWithPipelineNumber(String pipelineNumber){
+  public List<PadPipeline> findSubmittedOrDraftPipelinesWithPipelineNumber(String pipelineNumber) {
     return padPipelineRepository.findApplicationsWherePipelineNumberExistsOnDraftOrLastSubmittedVersion(pipelineNumber);
   }
 

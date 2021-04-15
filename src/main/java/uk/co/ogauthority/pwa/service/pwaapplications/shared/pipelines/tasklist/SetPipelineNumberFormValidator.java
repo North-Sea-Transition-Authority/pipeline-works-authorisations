@@ -37,6 +37,11 @@ public class SetPipelineNumberFormValidator implements SmartValidator {
   }
 
   @Override
+  public void validate(Object target, Errors errors) {
+    throw new UnsupportedOperationException("Must use validate method with hints");
+  }
+
+  @Override
   public void validate(Object target, Errors errors, Object... validationHints) {
     var form = (SetPipelineNumberForm) target;
     var padPipeline = Arrays.stream(validationHints)
@@ -76,16 +81,17 @@ public class SetPipelineNumberFormValidator implements SmartValidator {
 
   private void checkPipelineNumberUniqueness(Errors errors,
                                              SetPipelineNumberForm form,
-                                             PadPipeline padPipeline){
-    var foundPadPipelines = padPipelineService.findSubmittedOrDraftPipelinesWithPipelineNumber(form.getPipelineNumber());
+                                             PadPipeline padPipeline) {
+    var foundPadPipelines = padPipelineService.findSubmittedOrDraftPipelinesWithPipelineNumber(
+        form.getPipelineNumber());
     var pipelineIdsWithMatchingNumber = foundPadPipelines
         .stream()
         .map(PadPipeline::getPipelineId)
         .collect(toSet());
 
-    var currentPipelineFound =  pipelineIdsWithMatchingNumber.contains(padPipeline.getPipelineId());
+    var currentPipelineFound = pipelineIdsWithMatchingNumber.contains(padPipeline.getPipelineId());
 
-    if(!currentPipelineFound && !pipelineIdsWithMatchingNumber.isEmpty()) {
+    if (!currentPipelineFound && !pipelineIdsWithMatchingNumber.isEmpty()) {
       var appRefsWithMatchingPipelineNumber = foundPadPipelines.stream()
           .map(padPipeline1 -> padPipeline1.getPwaApplicationDetail().getPwaApplicationRef())
           .distinct()
@@ -104,7 +110,7 @@ public class SetPipelineNumberFormValidator implements SmartValidator {
 
   private void pipelineNumberRangeCheck(Errors errors,
                                         SetPipelineNumberForm form,
-                                        SetPipelineNumberValidationConfig config){
+                                        SetPipelineNumberValidationConfig config) {
 
     var pattern = Pattern.compile(VALID_FORMAT_REGEX);
     Matcher matcher = pattern.matcher(form.getPipelineNumber());
@@ -114,7 +120,7 @@ public class SetPipelineNumberFormValidator implements SmartValidator {
 
     var extractedPipelineNumber = Integer.parseInt(matcher.group("number"));
 
-    if(!config.getPipelineNumberRange().contains(extractedPipelineNumber)){
+    if (!config.getPipelineNumberRange().contains(extractedPipelineNumber)) {
       var validRange = config.getPipelineNumberRange();
       errors.rejectValue(
           PIPELINE_NUM_ATTR,
@@ -129,7 +135,8 @@ public class SetPipelineNumberFormValidator implements SmartValidator {
 
   }
 
-  private void pipelineNumberFormatCheck(Errors errors, SetPipelineNumberForm form, SetPipelineNumberValidationConfig config){
+  private void pipelineNumberFormatCheck(Errors errors, SetPipelineNumberForm form,
+                                         SetPipelineNumberValidationConfig config) {
     var pattern = Pattern.compile(VALID_FORMAT_REGEX);
     Matcher matcher = pattern.matcher(form.getPipelineNumber());
 
@@ -145,10 +152,5 @@ public class SetPipelineNumberFormValidator implements SmartValidator {
           )
       );
     }
-  }
-
-  @Override
-  public void validate(Object target, Errors errors) {
-    throw new UnsupportedOperationException("Must use validate method with hints");
   }
 }

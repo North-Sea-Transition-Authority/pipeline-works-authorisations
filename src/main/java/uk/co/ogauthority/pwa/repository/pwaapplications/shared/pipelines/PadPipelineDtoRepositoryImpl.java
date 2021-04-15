@@ -191,14 +191,14 @@ public class PadPipelineDtoRepositoryImpl implements PadPipelineDtoRepository {
   @Override
   public List<PadPipeline> findApplicationsWherePipelineNumberExistsOnDraftOrLastSubmittedVersion(
       String pipelineNumber) {
-   return entityManager.createQuery("" +
+    return entityManager.createQuery("" +
         "SELECT pp " +
         "FROM PadPipeline pp " +
         "JOIN PwaApplicationDetail pad ON pp.pwaApplicationDetail = pad " +
         "JOIN PwaApplication pa ON pad.pwaApplication = pa " +
         "JOIN PadVersionLookup pvl ON pa.id = pvl.pwaApplicationId " +
         "WHERE pad.versionNo IN (pvl.maxDraftVersionNo, pvl.latestSubmittedVersionNo) " +
-        "AND pp.pipelineRef = :pipelineNum" , PadPipeline.class)
+        "AND pp.pipelineRef = :pipelineNum", PadPipeline.class)
         .setParameter("pipelineNum", pipelineNumber)
         .getResultList();
   }
