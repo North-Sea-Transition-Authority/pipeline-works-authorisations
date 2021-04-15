@@ -96,7 +96,7 @@ public class RegulatorPipelineNumberTaskServiceTest {
 
     assertThat(regulatorPipelineNumberTaskService.getTaskListEntry(context, taskListHeader)).isPresent()
         .hasValueSatisfying(taskListEntry -> {
-          assertThat(taskListEntry.getTaskName()).containsIgnoringCase("set pipeline reference");
+          assertThat(taskListEntry.getTaskName()).containsIgnoringCase("set pipeline number");
           assertThat(taskListEntry.isCompleted()).isTrue();
           assertThat(taskListEntry.getDisplayOrder()).isEqualTo(5);
           assertThat(taskListEntry.getRoute()).isNotNull();
