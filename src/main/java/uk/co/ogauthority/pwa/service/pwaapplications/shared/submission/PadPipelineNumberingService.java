@@ -1,5 +1,7 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.submission;
 
+import static java.util.stream.Collectors.toList;
+
 import com.google.common.annotations.VisibleForTesting;
 import javax.transaction.Transactional;
 import org.apache.commons.lang3.StringUtils;
@@ -30,24 +32,41 @@ public class PadPipelineNumberingService {
     var hasPipelinesTask = applicationTaskService.canShowTask(ApplicationTask.PIPELINES, detail);
 
     if (hasPipelinesTask) {
-      var nonConsentedPipelines = padPipelineSubmissionRepository.getNonConsentedPipelines(detail);
-      nonConsentedPipelines.forEach(padPipeline -> {
-        padPipeline.setTemporaryRef(padPipeline.getPipelineRef());
-        attachNewReference(padPipeline);
-      });
-      if (nonConsentedPipelines.size() > 0) {
-        padPipelineSubmissionRepository.saveAll(nonConsentedPipelines);
+      var nonConsentedPipelinesRequiringPipelineReference = padPipelineSubmissionRepository.getNonConsentedPipelines(detail)
+          .stream()
+          .filter(this::nonConsentedPadPipelineRequiresFullReference)
+          .collect(toList());
+      nonConsentedPipelinesRequiringPipelineReference.forEach(this::attachNewReference);
+      if (nonConsentedPipelinesRequiringPipelineReference.size() > 0) {
+        padPipelineSubmissionRepository.saveAll(nonConsentedPipelinesRequiringPipelineReference);
       }
     }
+  }
+
+  private void setPipelineRefAndStoreTemporaryRefIfUnset(PadPipeline padPipeline, String pipelineRef){
+
+    if(padPipeline.getTemporaryRef() == null) {
+      padPipeline.setTemporaryRef(padPipeline.getPipelineRef());
+    }
+
+    padPipeline.setPipelineRef(pipelineRef);
+
   }
 
   public boolean nonConsentedPadPipelineRequiresFullReference(PadPipeline padPipeline) {
     return StringUtils.isEmpty(padPipeline.getTemporaryRef());
   }
 
+  @Transactional
+  public void setManualPipelineReference(PadPipeline padPipeline, String pipelineReference){
+    setPipelineRefAndStoreTemporaryRefIfUnset(padPipeline, pipelineReference);
+    padPipelineSubmissionRepository.save(padPipeline);
+  }
+
   @VisibleForTesting
   void attachNewReference(PadPipeline padPipeline) {
     var referenceNumber = padPipelineSubmissionRepository.getNextPipelineReferenceNumber();
-    padPipeline.setPipelineRef(padPipeline.getCoreType().getReferencePrefix() + referenceNumber);
+    var newPipelineRef = padPipeline.getCoreType().getReferencePrefix() + referenceNumber;
+    setPipelineRefAndStoreTemporaryRefIfUnset(padPipeline, newPipelineRef);
   }
 }

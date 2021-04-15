@@ -4,9 +4,12 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 
 import java.util.Optional;
 import java.util.Set;
+import org.apache.commons.lang3.Range;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelines.SetPipelineReferenceController;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.Errors;
+import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelines.SetPipelineNumberController;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.model.tasklist.TaskListEntry;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
@@ -16,16 +19,20 @@ import uk.co.ogauthority.pwa.service.pwaapplications.shared.submission.PadPipeli
 import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailService;
 
 @Service
-public class RegulatorPipelineReferenceTaskService {
+public class RegulatorPipelineNumberTaskService {
 
   private final PadPipelineNumberingService padPipelineNumberingService;
   private final PipelineDetailService pipelineDetailService;
+  private final SetPipelineNumberFormValidator setPipelineNumberFormValidator;
 
   @Autowired
-  public RegulatorPipelineReferenceTaskService(PadPipelineNumberingService padPipelineNumberingService,
-                                               PipelineDetailService pipelineDetailService) {
+  public RegulatorPipelineNumberTaskService(PadPipelineNumberingService padPipelineNumberingService,
+                                            PipelineDetailService pipelineDetailService,
+                                            SetPipelineNumberFormValidator setPipelineNumberFormValidator) {
     this.padPipelineNumberingService = padPipelineNumberingService;
     this.pipelineDetailService = pipelineDetailService;
+    this.setPipelineNumberFormValidator = setPipelineNumberFormValidator;
+
   }
 
   public boolean pipelineTaskAccessible(Set<PwaApplicationPermission> pwaApplicationPermissionSet,
@@ -36,6 +43,27 @@ public class RegulatorPipelineReferenceTaskService {
 
     return !pipelineDetailService.isPipelineConsented(padPipeline.getPipeline());
 
+  }
+
+  public void validateForm(PadPipeline padPipeline, SetPipelineNumberForm form, Errors errors){
+    setPipelineNumberFormValidator.validate(form, errors, padPipeline, getValidationHint());
+  }
+
+  private SetPipelineNumberValidationConfig getValidationHint(){
+    // TODO PWA-470 make range configurable and enforceable via migration patch.
+    return SetPipelineNumberValidationConfig.rangeCreate(
+        5000,
+        6000
+    );
+  }
+
+  @Transactional
+  public void setPipelineNumber(PadPipeline padPipeline, String pipelineReference){
+    padPipelineNumberingService.setManualPipelineReference(padPipeline, pipelineReference);
+  }
+
+  public Range<Integer> getPermittedPipelineNumberRange(){
+    return getValidationHint().getPipelineNumberRange();
   }
 
   Optional<TaskListEntry> getTaskListEntry(PwaApplicationContext applicationContext,
@@ -51,16 +79,15 @@ public class RegulatorPipelineReferenceTaskService {
 
     return Optional.of(
         new TaskListEntry(
-            "Set pipeline reference",
-            ReverseRouter.route(on(SetPipelineReferenceController.class).renderSetPipelineReference(
+            "Set pipeline number",
+            ReverseRouter.route(on(SetPipelineNumberController.class).renderSetPipelineNumber(
                 applicationContext.getApplicationType(),
                 applicationContext.getMasterPwaApplicationId(),
                 padPipelineTaskListHeader.getPadPipelineId(),
-                null)),
+                null, null)),
             taskIsComplete,
             5)
     );
-
   }
 
 }

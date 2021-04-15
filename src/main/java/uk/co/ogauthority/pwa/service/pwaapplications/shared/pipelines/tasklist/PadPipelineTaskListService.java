@@ -53,7 +53,7 @@ public class PadPipelineTaskListService implements ApplicationFormSectionService
   private final PadOptionConfirmedService padOptionConfirmedService;
   private final PadPipelineRepository padPipelineRepository;
   private final PipelineIdentFormValidator pipelineIdentFormValidator;
-  private final RegulatorPipelineReferenceTaskService regulatorPipelineReferenceTaskService;
+  private final RegulatorPipelineNumberTaskService regulatorPipelineNumberTaskService;
   private final PadPipelineDataCopierService padPipelineDataCopierService;
 
   @Autowired
@@ -62,14 +62,14 @@ public class PadPipelineTaskListService implements ApplicationFormSectionService
                                     PadOptionConfirmedService padOptionConfirmedService,
                                     PadPipelineRepository padPipelineRepository,
                                     PipelineIdentFormValidator pipelineIdentFormValidator,
-                                    RegulatorPipelineReferenceTaskService regulatorPipelineReferenceTaskService,
+                                    RegulatorPipelineNumberTaskService regulatorPipelineNumberTaskService,
                                     PadPipelineDataCopierService padPipelineDataCopierService) {
     this.padPipelineService = padPipelineService;
     this.padPipelineIdentService = padPipelineIdentService;
     this.padOptionConfirmedService = padOptionConfirmedService;
     this.padPipelineRepository = padPipelineRepository;
     this.pipelineIdentFormValidator = pipelineIdentFormValidator;
-    this.regulatorPipelineReferenceTaskService = regulatorPipelineReferenceTaskService;
+    this.regulatorPipelineNumberTaskService = regulatorPipelineNumberTaskService;
     this.padPipelineDataCopierService = padPipelineDataCopierService;
   }
 
@@ -188,7 +188,7 @@ public class PadPipelineTaskListService implements ApplicationFormSectionService
 
     var entryList = new ArrayList<TaskListEntry>();
 
-    regulatorPipelineReferenceTaskService.getTaskListEntry(applicationContext, padPipelineTaskListHeader)
+    regulatorPipelineNumberTaskService.getTaskListEntry(applicationContext, padPipelineTaskListHeader)
         .ifPresent(entryList::add);
 
     entryList.add(

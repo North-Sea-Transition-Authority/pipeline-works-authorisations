@@ -82,7 +82,7 @@ public class PadPipelineTaskListServiceTest {
   private PadPipelineService padPipelineService;
 
   @Mock
-  private RegulatorPipelineReferenceTaskService regulatorPipelineReferenceTaskService;
+  private RegulatorPipelineNumberTaskService regulatorPipelineNumberTaskService;
 
   @Captor
   private ArgumentCaptor<PadPipeline> padPipelineArgumentCaptor;
@@ -117,7 +117,7 @@ public class PadPipelineTaskListServiceTest {
         padOptionConfirmedService,
         padPipelineRepository,
         pipelineIdentFormValidator,
-        regulatorPipelineReferenceTaskService,
+        regulatorPipelineNumberTaskService,
         padPipelineDataCopierService);
 
     padPipe1 = new PadPipeline();
@@ -143,7 +143,7 @@ public class PadPipelineTaskListServiceTest {
         padOptionConfirmedService,
         padPipelineRepository,
         mockIdentFormValidator,
-        regulatorPipelineReferenceTaskService,
+        regulatorPipelineNumberTaskService,
         padPipelineDataCopierService);
   }
 
@@ -508,7 +508,7 @@ public class PadPipelineTaskListServiceTest {
     when(padPipelineService.getPipelines(detail)).thenReturn(List.of(padPipe1));
 
     var taskListEntry = new TaskListEntry("example", "route", true, 1);
-    when(regulatorPipelineReferenceTaskService.getTaskListEntry(any(),any())).thenReturn(Optional.of(taskListEntry));
+    when(regulatorPipelineNumberTaskService.getTaskListEntry(any(),any())).thenReturn(Optional.of(taskListEntry));
 
     var taskListItems = padPipelineTaskListService.getSortedPipelineTaskListItems(context);
 
