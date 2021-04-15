@@ -86,7 +86,7 @@
             </#list>
         </@fdsRadio.radioGroup>
 
-        <h2 class="govuk-heading-m">Where is the start location?</h2>
+        <h2 class="govuk-heading-l">Where is the start location?</h2>
         <@coordinateInput.latitudeInput degreesLocationPath="form.fromCoordinateForm.latitudeDegrees"
                                         minutesLocationPath="form.fromCoordinateForm.latitudeMinutes"
                                         secondsLocationPath="form.fromCoordinateForm.latitudeSeconds"
@@ -102,7 +102,7 @@
                                         formId="fromLongitude"
                                         labelText="Start point longitude"/>
 
-        <h2 class="govuk-heading-m">Where is the end location?</h2>
+        <h2 class="govuk-heading-l">Where is the end location?</h2>
         <@coordinateInput.latitudeInput degreesLocationPath="form.toCoordinateForm.latitudeDegrees"
                                         minutesLocationPath="form.toCoordinateForm.latitudeMinutes"
                                         secondsLocationPath="form.toCoordinateForm.latitudeSeconds"
@@ -118,7 +118,7 @@
                                         formId="toLongitude"
                                         labelText="Finish point longitude"/>
 
-        <h2 class="govuk-heading-m">Other information</h2>
+        <h2 class="govuk-heading-l">Other information</h2>
         <@fdsTextarea.textarea path="form.footnote" labelText="Is there any other important information relevant to this deposit?" maxCharacterLength="4000" characterCount=true optionalLabel=true hintText="This will be included on the consent if granted"/>
         <@fdsDetails.summaryDetails summaryTitle="Show some examples of relevant information">
             <ol class="govuk-list govuk-list--number">
