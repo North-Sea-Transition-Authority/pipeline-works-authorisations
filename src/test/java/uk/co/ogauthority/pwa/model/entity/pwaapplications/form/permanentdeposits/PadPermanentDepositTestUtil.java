@@ -65,7 +65,8 @@ public final class PadPermanentDepositTestUtil {
         LocalDate.now().plusDays(1),
         LocalDate.now().plusDays(2),
         CoordinatePairTestUtil.getDefaultCoordinate(45, 0),
-        CoordinatePairTestUtil.getDefaultCoordinate(45, 0)
+        CoordinatePairTestUtil.getDefaultCoordinate(45, 0),
+        "footnote information"
         );
 
     pd.setOtherMaterialType("OTHER MATERIAL");
@@ -122,7 +123,8 @@ public final class PadPermanentDepositTestUtil {
       LocalDate fromDate,
       LocalDate toDate,
       CoordinatePair fromCoordPair,
-      CoordinatePair toCoordPair
+      CoordinatePair toCoordPair,
+      String footnote
   ) {
     var pd = new PadPermanentDeposit();
     pd.setDepositForConsentedPipeline(depositForConsentedPipeline);
@@ -143,6 +145,7 @@ public final class PadPermanentDepositTestUtil {
     pd.setToYear(toDate.getYear());
     pd.setFromMonth(fromDate.getMonthValue());
     pd.setFromYear(fromDate.getYear());
+    pd.setFootnote(footnote);
     return pd;
   }
 

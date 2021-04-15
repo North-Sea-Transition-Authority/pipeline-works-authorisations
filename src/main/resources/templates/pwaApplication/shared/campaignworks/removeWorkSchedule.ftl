@@ -12,6 +12,7 @@
         <@fdsAction.submitButtons
         linkSecondaryAction=true
         primaryButtonText="Remove scheduled work"
+        primaryButtonClass="govuk-button govuk-button--warning"
         secondaryLinkText="Back to overview"
         linkSecondaryActionUrl=springUrl(overviewUrl)/>
     </@fdsForm.htmlForm>

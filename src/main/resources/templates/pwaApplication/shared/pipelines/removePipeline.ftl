@@ -65,6 +65,6 @@
         </#if>
     </@fdsCheckAnswers.checkAnswers>
     <@fdsForm.htmlForm>
-        <@fdsAction.submitButtons linkSecondaryAction=true primaryButtonText="Remove pipeline" secondaryLinkText="Back to overview" linkSecondaryActionUrl=springUrl(backUrl)/>
+        <@fdsAction.submitButtons linkSecondaryAction=true primaryButtonClass="govuk-button govuk-button--warning" primaryButtonText="Remove pipeline" secondaryLinkText="Back to overview" linkSecondaryActionUrl=springUrl(backUrl)/>
     </@fdsForm.htmlForm>
 </@defaultPage>

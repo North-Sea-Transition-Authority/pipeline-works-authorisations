@@ -6,7 +6,6 @@ import java.math.BigDecimal;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.model.entity.enums.permanentdeposits.MaterialType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PadPermanentDeposit;
@@ -15,7 +14,6 @@ import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.PermanentDeposits
 import uk.co.ogauthority.pwa.model.location.CoordinatePair;
 import uk.co.ogauthority.pwa.model.location.LatitudeCoordinate;
 import uk.co.ogauthority.pwa.model.location.LongitudeCoordinate;
-import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadDepositPipelineRepository;
 import uk.co.ogauthority.pwa.service.enums.location.LatitudeDirection;
 import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
 import uk.co.ogauthority.pwa.util.CoordinateUtils;
@@ -26,12 +24,10 @@ public class PermanentDepositEntityMappingServiceTest {
 
   private PermanentDepositEntityMappingService permanentDepositEntityMappingService;
 
-  @Mock
-  private PadDepositPipelineRepository padDepositPipelineRepository;
 
   @Before
   public void setUp() {
-    permanentDepositEntityMappingService = new PermanentDepositEntityMappingService(padDepositPipelineRepository);
+    permanentDepositEntityMappingService = new PermanentDepositEntityMappingService();
   }
 
   //Common Properties
@@ -49,6 +45,7 @@ public class PermanentDepositEntityMappingServiceTest {
 
     baseEntity.setQuantity(Double.parseDouble("5.7"));
     baseEntity.setContingencyAmount("88");
+    baseEntity.setFootnote("footnote information");
 
 
     var fromCoordinateForm = new CoordinateForm();
@@ -100,6 +97,8 @@ public class PermanentDepositEntityMappingServiceTest {
     baseForm.getToCoordinateForm().setLongitudeMinutes(baseEntity.getToLongitudeMinutes());
     baseForm.getToCoordinateForm().setLongitudeSeconds(baseEntity.getToLongitudeSeconds());
     baseForm.getToCoordinateForm().setLongitudeDirection(baseEntity.getToLongitudeDirection());
+
+    baseForm.setFootnote(baseEntity.getFootnote());
     return baseForm;
   }
 
