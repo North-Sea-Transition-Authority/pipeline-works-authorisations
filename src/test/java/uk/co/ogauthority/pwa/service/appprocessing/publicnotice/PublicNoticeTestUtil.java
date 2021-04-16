@@ -132,11 +132,13 @@ public final class PublicNoticeTestUtil {
 
   static PublicNoticeView createCommentedPublicNoticeView(PublicNotice publicNotice, PublicNoticeRequest publicNoticeRequest, PublicNoticeDocument publicNoticeDocument) {
     return new PublicNoticeView(publicNotice.getStatus(),
-        DateUtils.formatDate(publicNoticeRequest.getSubmittedTimestamp()), publicNoticeDocument.getComments(), null, null, null, null);
+        DateUtils.formatDate(publicNoticeRequest.getSubmittedTimestamp()), publicNoticeDocument.getComments(),
+        null, null, null, null, null);
   }
 
   static PublicNoticeView createWithdrawnPublicNoticeView(PublicNotice publicNotice,
                                                           String withdrawingUsername,
+                                                          String withdrawalReason,
                                                           PublicNoticeRequest publicNoticeRequest) {
     return new PublicNoticeView(
         publicNotice.getStatus(),
@@ -144,6 +146,7 @@ public final class PublicNoticeTestUtil {
         null,
         withdrawingUsername,
         DateUtils.formatDate(publicNotice.getWithdrawalTimestamp()),
+        withdrawalReason,
         null, null
     );
   }
@@ -154,6 +157,7 @@ public final class PublicNoticeTestUtil {
     return new PublicNoticeView(
         publicNotice.getStatus(),
         DateUtils.formatDate(publicNoticeRequest.getSubmittedTimestamp()),
+        null,
         null,
         null,
         null,
