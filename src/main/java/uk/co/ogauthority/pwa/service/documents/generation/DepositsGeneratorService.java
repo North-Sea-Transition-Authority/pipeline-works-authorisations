@@ -110,10 +110,7 @@ public class DepositsGeneratorService implements DocumentSectionGenerator {
         .collect(Collectors.toList());
   }
 
-
-  private DepositTableRowView mapDepositAndPipelinesToTableRowView(
-      PadPermanentDeposit deposit, String pipelineColumnText, List<String> drawingRefs) {
-
+  private String getUnitMeasurementDisplay(PadPermanentDeposit deposit) {
     var unitMeasurementDisplay = "";
     if (deposit.getMaterialType().equals(MaterialType.ROCK)) {
       unitMeasurementDisplay = " " + UnitMeasurement.ROCK_GRADE.getSuffixDisplay();
@@ -122,22 +119,43 @@ public class DepositsGeneratorService implements DocumentSectionGenerator {
       unitMeasurementDisplay = UnitMeasurement.KILOGRAM.getSuffixDisplay();
     }
 
-    var materialSizeDisplay = deposit.getMaterialType().equals(MaterialType.CONCRETE_MATTRESSES)
-        ? String.format(", %sx%sx%s",
-        deposit.getConcreteMattressLength(), deposit.getConcreteMattressWidth(), deposit.getConcreteMattressDepth())
-        : ", " + deposit.getMaterialSize();
+    return unitMeasurementDisplay;
+  }
 
-    String materialPropertiesDisplay = "";
-    if (deposit.getMaterialType().equals(MaterialType.GROUT_BAGS)) {
-      materialPropertiesDisplay = deposit.getGroutBagsBioDegradable() ? ", Biodegradable" : ", Non-biodegradable";
+  private String getMaterialSizeDisplay(PadPermanentDeposit deposit) {
+    var joiner = ", ";
+    var materialSizeDisplay = joiner + deposit.getMaterialSize();
+
+    if (deposit.getMaterialType().equals(MaterialType.CONCRETE_MATTRESSES)) {
+      materialSizeDisplay = joiner + deposit.getConcreteMattressLength() + "x" +
+          deposit.getConcreteMattressWidth() + "x" + deposit.getConcreteMattressDepth();
     }
+
+    return materialSizeDisplay;
+  }
+
+  private String getMaterialsPropertiesDisplay(PadPermanentDeposit deposit) {
+    if (deposit.getMaterialType().equals(MaterialType.GROUT_BAGS)) {
+      return deposit.getGroutBagsBioDegradable() ? ", Biodegradable" : ", Non-biodegradable";
+    }
+    return "";
+  }
+
+
+  private DepositTableRowView mapDepositAndPipelinesToTableRowView(
+      PadPermanentDeposit deposit, String pipelineColumnText, List<String> drawingRefs) {
+
+    var proposedDate = DateUtils.createDateEstimateString(deposit.getFromMonth(), deposit.getFromYear()) + "-" +
+        DateUtils.createDateEstimateString(deposit.getToMonth(), deposit.getToYear());
+
+    var typeAndSizeOfMaterials = deposit.getMaterialType().getDisplayText() +
+        getMaterialSizeDisplay(deposit) + getUnitMeasurementDisplay(deposit) + getMaterialsPropertiesDisplay(deposit);
 
     return new DepositTableRowView(
         deposit.getReference(),
         pipelineColumnText,
-        DateUtils.createDateEstimateString(deposit.getFromMonth(), deposit.getFromYear()) + "-" +
-            DateUtils.createDateEstimateString(deposit.getToMonth(), deposit.getToYear()),
-        deposit.getMaterialType().getDisplayText() + materialSizeDisplay + unitMeasurementDisplay + materialPropertiesDisplay,
+        proposedDate,
+        typeAndSizeOfMaterials,
         deposit.getQuantity() % 1 == 0 ? String.valueOf((int) deposit.getQuantity()) : String.valueOf(deposit.getQuantity()),
         deposit.getFromCoordinates(),
         deposit.getToCoordinates(),

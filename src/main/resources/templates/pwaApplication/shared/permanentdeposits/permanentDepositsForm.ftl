@@ -124,7 +124,7 @@
             <ol class="govuk-list govuk-list--number">
                 <li> The above is for a change of date only and was previously consented under XX/D/YY which has now expired. </li>
                 <li> The above is for additional deposits, to those consented under XX/D/YY. </li>
-                <li> The coordinates are a central point, the deposits will be place in a X meter radius of this central point </li>
+                <li> The coordinates are a central point, the deposits will be placed in a X meter radius of this central point </li>
                 <li> Col 1 PLX (PWA XX/W/YY and PLY (ZZ/W/YY) which are covered under separate PWAS are PL that are piggy-backed.  Therefore the consent is requested un PLX (PWAXX/W/YY) but the deposits will cover both pipelines. </li>
             </ul>
         </@fdsDetails.summaryDetails>
