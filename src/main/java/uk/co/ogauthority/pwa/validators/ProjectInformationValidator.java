@@ -57,14 +57,11 @@ public class ProjectInformationValidator implements SmartValidator {
                                ProjectInformationFormValidationHints projectInfoValidationHints) {
 
     var requiredQuestions = projectInfoValidationHints.getRequiredQuestions();
-    var applicationType = projectInfoValidationHints.getPwaApplicationType();
     var validationType = projectInfoValidationHints.getValidationType();
 
     if (requiredQuestions.contains(ProjectInformationQuestion.PROJECT_NAME)) {
-      ValidationUtils.rejectIfEmptyOrWhitespace(errors, "projectName",
-          "projectName" + FieldValidationErrorCodes.REQUIRED.getCode(), "Enter the project name");
       ValidatorUtils.validateDefaultStringLength(
-          errors, "projectName", form::getProjectName, "Project name must be 4000 characters or fewer");
+          errors, "projectName", form::getProjectName, "Project name");
     }
 
     if (requiredQuestions.contains(ProjectInformationQuestion.PROPOSED_START_DATE) && validationType != ValidationType.FULL) {
@@ -74,25 +71,15 @@ public class ProjectInformationValidator implements SmartValidator {
     }
 
     if (requiredQuestions.contains(ProjectInformationQuestion.PROJECT_OVERVIEW)) {
-      ValidationUtils.rejectIfEmptyOrWhitespace(errors, "projectOverview",
-          "projectOverview" + FieldValidationErrorCodes.REQUIRED.getCode(), "Enter the project overview");
       ValidatorUtils.validateDefaultStringLength(
-          errors, "projectOverview", form::getProjectOverview, "Project overview must be 4000 characters or fewer");
+          errors, "projectOverview", form::getProjectOverview, "Project overview");
     }
 
-    if (requiredQuestions.contains(ProjectInformationQuestion.METHOD_OF_PIPELINE_DEPLOYMENT)) {
-
-      if (!ProjectInformationQuestion.METHOD_OF_PIPELINE_DEPLOYMENT.isOptionalForType(applicationType)) {
-        ValidationUtils.rejectIfEmptyOrWhitespace(errors, "methodOfPipelineDeployment",
-            "methodOfPipelineDeployment" + FieldValidationErrorCodes.REQUIRED.getCode(),
-            "Enter the pipeline installation method");
-      }
-
-      if (form.getMethodOfPipelineDeployment() != null) {
-        ValidatorUtils.validateDefaultStringLength(
-            errors, "methodOfPipelineDeployment", form::getMethodOfPipelineDeployment,
-            "Pipeline installation method must be 4000 characters or fewer");
-      }
+    if (requiredQuestions.contains(ProjectInformationQuestion.METHOD_OF_PIPELINE_DEPLOYMENT)
+        && form.getMethodOfPipelineDeployment() != null) {
+      ValidatorUtils.validateDefaultStringLength(
+          errors, "methodOfPipelineDeployment", form::getMethodOfPipelineDeployment,
+          "Pipeline installation method");
     }
 
     if (requiredQuestions.contains(ProjectInformationQuestion.MOBILISATION_DATE) && validationType != ValidationType.FULL) {
@@ -152,6 +139,24 @@ public class ProjectInformationValidator implements SmartValidator {
 
     var requiredQuestions = projectInfoValidationHints.getRequiredQuestions();
     var applicationType = projectInfoValidationHints.getPwaApplicationType();
+
+    if (requiredQuestions.contains(ProjectInformationQuestion.PROJECT_NAME)) {
+      ValidationUtils.rejectIfEmptyOrWhitespace(errors, "projectName",
+          "projectName" + FieldValidationErrorCodes.REQUIRED.getCode(), "Enter the project name");
+    }
+
+    if (requiredQuestions.contains(ProjectInformationQuestion.PROJECT_OVERVIEW)) {
+      ValidationUtils.rejectIfEmptyOrWhitespace(errors, "projectOverview",
+          "projectOverview" + FieldValidationErrorCodes.REQUIRED.getCode(), "Enter the project overview");
+    }
+
+    if (requiredQuestions.contains(ProjectInformationQuestion.METHOD_OF_PIPELINE_DEPLOYMENT)
+        && !ProjectInformationQuestion.METHOD_OF_PIPELINE_DEPLOYMENT.isOptionalForType(applicationType)) {
+
+      ValidationUtils.rejectIfEmptyOrWhitespace(errors, "methodOfPipelineDeployment",
+          "methodOfPipelineDeployment" + FieldValidationErrorCodes.REQUIRED.getCode(),
+          "Enter the pipeline installation method");
+    }
 
     var proposedStartDateValid = false;
     if (requiredQuestions.contains(ProjectInformationQuestion.PROPOSED_START_DATE)) {
