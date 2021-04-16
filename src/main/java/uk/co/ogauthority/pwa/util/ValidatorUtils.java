@@ -6,6 +6,7 @@ import static uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErro
 import java.math.BigDecimal;
 import java.time.DateTimeException;
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.Objects;
 import java.util.function.Supplier;
 import javax.annotation.Nullable;
@@ -111,11 +112,26 @@ public class ValidatorUtils {
     return year != null && year >= 1000 && year <= 4000;
   }
 
-  public static void validateYearWhenPresent(String fieldPrefix, String displayPrefix, Integer year, Errors errors) {
-    //The error message need to be placed on the "day" field otherwise FDS doesnt show the error message on the date input
-    if (year != null && !isYearValid(year)) {
+  private static boolean isDayValid(Integer day, Integer month, Integer year) {
+    if (ObjectUtils.allNotNull(day, month, year)) {
+      YearMonth yearMonth = YearMonth.of(year, month);
+      return day <= yearMonth.lengthOfMonth();
+    }
+    return false;
+  }
+
+  public static void validateDateWhenPresent(String fieldPrefix,
+                                             String displayPrefix,
+                                             @Nullable Integer day,
+                                             @Nullable Integer month,
+                                             @Nullable Integer year,
+                                              Errors errors) {
+
+    if (ObjectUtils.anyNotNull(day, month, year)
+        && (!isYearValid(year) || !isMonthValid(month) || !isDayValid(day, month, year))) {
+
       errors.rejectValue(fieldPrefix + "Day", FieldValidationErrorCodes.INVALID.errorCode(fieldPrefix + "Day"),
-          displayPrefix + " year must be valid");
+          String.format(DATE_INVALID_ERROR_FORMAT, displayPrefix));
       errors.rejectValue(fieldPrefix + "Month", FieldValidationErrorCodes.INVALID.errorCode(fieldPrefix + "Month"), "");
       errors.rejectValue(fieldPrefix + "Year", FieldValidationErrorCodes.INVALID.errorCode(fieldPrefix + "Year"), "");
     }
