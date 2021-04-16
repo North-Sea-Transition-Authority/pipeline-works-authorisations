@@ -30,16 +30,21 @@ public class PublicNoticeDate {
   private Integer createdByPersonId;
   private Integer endedByPersonId;
 
+  private Instant createdTimestamp;
+  private Instant endedTimestamp;
+
   public PublicNoticeDate() {
     //default
   }
 
   public PublicNoticeDate(PublicNotice publicNotice, Instant publicationStartTimestamp,
-                          Instant publicationEndTimestamp, Integer createdByPersonId) {
+                          Instant publicationEndTimestamp, Integer createdByPersonId,
+                          Instant createdTimestamp) {
     this.publicNotice = publicNotice;
     this.publicationStartTimestamp = publicationStartTimestamp;
     this.publicationEndTimestamp = publicationEndTimestamp;
     this.createdByPersonId = createdByPersonId;
+    this.createdTimestamp = createdTimestamp;
   }
 
   public Integer getId() {
@@ -93,5 +98,21 @@ public class PublicNoticeDate {
 
   public void setEndedByPersonId(Integer endedByPersonId) {
     this.endedByPersonId = endedByPersonId;
+  }
+
+  public Instant getCreatedTimestamp() {
+    return createdTimestamp;
+  }
+
+  public void setCreatedTimestamp(Instant createdTimestamp) {
+    this.createdTimestamp = createdTimestamp;
+  }
+
+  public Instant getEndedTimestamp() {
+    return endedTimestamp;
+  }
+
+  public void setEndedTimestamp(Instant endedTimestamp) {
+    this.endedTimestamp = endedTimestamp;
   }
 }
