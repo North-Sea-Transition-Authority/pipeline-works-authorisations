@@ -127,7 +127,7 @@
             </@fdsRadio.radioGroup>
         </#if>
 
-        <@fdsTextarea.textarea path="form.footnote" labelText="Advise of any special features of the pipeline" maxCharacterLength="4000" characterCount=true optionalLabel=true hintText=" For example it replaces another pipeline, it can run reverse flow, it was removed from another pipeline, etc"/>
+        <@fdsTextarea.textarea path="form.footnote" labelText="Advise of any special features of the pipeline" maxCharacterLength="4000" characterCount=true optionalLabel=true hintText="For example it replaces another pipeline, it can run reverse flow, it was removed from another pipeline, etc"/>
         <@fdsDetails.summaryDetails summaryTitle="Show me examples of special features to include">
             <p> The examples below are not an exhaustive list. You should replace the placeholder text identified inside square brackets with the information relevant to your pipeline. </p>
             <ul class="govuk-list govuk-list--bullet">
