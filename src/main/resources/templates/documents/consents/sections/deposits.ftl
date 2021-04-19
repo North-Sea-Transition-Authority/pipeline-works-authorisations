@@ -51,12 +51,14 @@
     If anything different to what has been authorised within this Consent is required you must have prior consent from OGA before it can be laid.
   </p>
 
-  <p> 
-    <ul class="govuk-list">
-      <#list depositFootnotes as depositFootnote>
-        <li> ${depositFootnote} </li>
-      </#list>
-    </ul>
-  </p>
+  <#if depositFootnotes?has_content>
+    <p> 
+      <ul class="govuk-list">
+        <#list depositFootnotes as depositFootnote>
+          <li> ${depositFootnote} </li>
+        </#list>
+      </ul>
+    </p>
+  </#if>
 
 </div>
