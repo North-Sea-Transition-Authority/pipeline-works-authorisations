@@ -22,10 +22,13 @@
             <td> REFERENCE DRAWING </td> <td> ${drawingForTableAView.drawingReference} </td>
           </tr>
         </table>
+
         <@tableA tableAView/>
+        <p> ${tableAView.footnote!} </p>        
       </div>
     </#list>
 
+    
     <div class="tableADrawing">
       <h4 class="govuk-heading-s">
         Reference Drawing: ${drawingForTableAView.drawingReference}

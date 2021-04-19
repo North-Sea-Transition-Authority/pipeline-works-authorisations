@@ -103,6 +103,7 @@ public class TableAGeneratorServiceTest {
       padPipeline = PadPipelineTestUtil.createPadPipeline(pwaApplicationDetail, pipeline, PipelineType.PRODUCTION_FLOWLINE);
     } catch (IllegalAccessException ignored) {}
     padPipeline.setPipelineRef(pipelineRef);
+    padPipeline.setFootnote("some footnote text");
     return padPipeline;
   }
 
@@ -140,8 +141,8 @@ public class TableAGeneratorServiceTest {
       tableAViews.add(new TableAView(
           summary.getPipelineHeaderView().getPipelineName(),
           headerRowView,
-          identRowViews
-      ));
+          identRowViews,
+          summary.getPipelineHeaderView().getFootnote()));
     });
 
     return new DrawingForTableAView(
