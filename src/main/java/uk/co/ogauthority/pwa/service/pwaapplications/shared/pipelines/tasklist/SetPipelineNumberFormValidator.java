@@ -101,7 +101,7 @@ public class SetPipelineNumberFormValidator implements SmartValidator {
       errors.rejectValue(
           PIPELINE_NUM_ATTR,
           FieldValidationErrorCodes.NOT_UNIQUE.errorCode(PIPELINE_NUM_ATTR),
-          "Enter a unique pipeline number. Applications where the last submitted or current draft version use this number are " +
+          "Enter a unique pipeline number, this number is used by " +
               String.join(", ", appRefsWithMatchingPipelineNumber)
       );
     }
