@@ -6,15 +6,18 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import java.util.Set;
+import org.assertj.core.util.IterableUtil;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineStatus;
+import uk.co.ogauthority.pwa.model.entity.migration.PipelineMigrationConfigTestUtil;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
+import uk.co.ogauthority.pwa.repository.migration.PipelineMigrationConfigRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
@@ -34,6 +37,9 @@ public class RegulatorPipelineNumberTaskServiceTest {
   @Mock
   private SetPipelineNumberFormValidator setPipelineNumberFormValidator;
 
+  @Mock
+  private PipelineMigrationConfigRepository pipelineMigrationConfigRepository;
+
   private RegulatorPipelineNumberTaskService regulatorPipelineNumberTaskService;
 
   private PadPipeline padPipeline;
@@ -46,8 +52,8 @@ public class RegulatorPipelineNumberTaskServiceTest {
     regulatorPipelineNumberTaskService = new RegulatorPipelineNumberTaskService(
         padPipelineNumberingService,
         pipelineDetailService,
-        setPipelineNumberFormValidator
-    );
+        setPipelineNumberFormValidator,
+        pipelineMigrationConfigRepository);
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     var pipeline = new Pipeline();
@@ -100,9 +106,7 @@ public class RegulatorPipelineNumberTaskServiceTest {
           assertThat(taskListEntry.isCompleted()).isTrue();
           assertThat(taskListEntry.getDisplayOrder()).isEqualTo(5);
           assertThat(taskListEntry.getRoute()).isNotNull();
-
         });
-
   }
 
   @Test
@@ -120,4 +124,27 @@ public class RegulatorPipelineNumberTaskServiceTest {
         });
 
   }
+
+  @Test
+  public void getPermittedPipelineNumberRange_serviceInteractions(){
+    var config = PipelineMigrationConfigTestUtil.create(5000, 6000);
+
+    when(pipelineMigrationConfigRepository.findAll()).thenReturn(IterableUtil.iterable(config));
+
+    assertThat(regulatorPipelineNumberTaskService.getPermittedPipelineNumberRange()).satisfies(integerRange -> {
+      assertThat(integerRange.getMinimum()).isEqualTo(5000);
+      assertThat(integerRange.getMaximum()).isEqualTo(6000);
+
+    });
+
+
+  }
+
+  @Test(expected = PipelineNumberConfigException.class)
+  public void getPermittedPipelineNumberRange_configNotFound(){
+    regulatorPipelineNumberTaskService.getPermittedPipelineNumberRange();
+
+
+  }
+
 }
