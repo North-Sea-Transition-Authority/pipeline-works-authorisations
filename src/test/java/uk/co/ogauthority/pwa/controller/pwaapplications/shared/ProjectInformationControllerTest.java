@@ -9,6 +9,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
@@ -16,6 +17,9 @@ import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSe
 
 import java.time.LocalDate;
 import java.util.EnumSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Before;
@@ -37,6 +41,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadProjectInformation;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.ProjectInformationForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
+import uk.co.ogauthority.pwa.service.enums.projectinformation.PermanentDepositMade;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
@@ -119,6 +124,32 @@ public class ProjectInformationControllerTest extends PwaApplicationContextAbstr
 
     }
 
+  }
+
+  @Test
+  public void renderProjectInformation_authenticatedUser_validPermanentDepositMadeForAppType() throws Exception {
+    for (var appType : PwaApplicationType.values()) {
+      try {
+        pwaApplication.setApplicationType(appType);
+        var result = mockMvc.perform(
+            get(ReverseRouter.route(
+                on(ProjectInformationController.class).renderProjectInformation(appType, APP_ID, null, null)))
+                .with(authenticatedUserAndSession(user))
+                .with(csrf()));
+        if (allowedApplicationTypes.contains(appType)) {
+          if (appType == PwaApplicationType.OPTIONS_VARIATION) {
+            result.andExpect(model().attribute("permanentDepositsMadeOptions",
+                List.of(PermanentDepositMade.YES, PermanentDepositMade.NONE)));
+          } else {
+            result.andExpect(model().attribute("permanentDepositsMadeOptions",
+                List.of(PermanentDepositMade.THIS_APP, PermanentDepositMade.LATER_APP, PermanentDepositMade.NONE)));          }
+        } else {
+          result.andExpect(status().isForbidden());
+        }
+      } catch (AssertionError e) {
+        throw new AssertionError("Failed at type:" + appType + "\n" + e.getMessage(), e);
+      }
+    }
   }
 
   @Test

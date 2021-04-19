@@ -10,7 +10,7 @@ import org.springframework.validation.SmartValidator;
 import org.springframework.validation.ValidationUtils;
 import uk.co.ogauthority.pwa.model.entity.enums.ProjectInformationQuestion;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.ProjectInformationForm;
-import uk.co.ogauthority.pwa.service.enums.projectinformation.PermanentDepositRadioOption;
+import uk.co.ogauthority.pwa.service.enums.projectinformation.PermanentDepositMade;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
@@ -133,8 +133,7 @@ public class ProjectInformationValidator implements SmartValidator {
     }
 
     if (requiredQuestions.contains(ProjectInformationQuestion.PERMANENT_DEPOSITS_BEING_MADE)
-        && PermanentDepositRadioOption.LATER_APP.equals(form.getPermanentDepositsMadeType()) && validationType != ValidationType.FULL) {
-
+        && PermanentDepositMade.LATER_APP.equals(form.getPermanentDepositsMadeType()) && validationType != ValidationType.FULL) {
       List<Object> toDateHints = new ArrayList<>();
       toDateHints.add(new FormInputLabel("deposit submission"));
       ValidatorUtils.invokeNestedValidator(
@@ -308,7 +307,7 @@ public class ProjectInformationValidator implements SmartValidator {
       if (form.getPermanentDepositsMadeType() == null) {
         errors.rejectValue("permanentDepositsMadeType", "permanentDepositsMadeType.notSelected",
             "Select yes if permanent deposits are being made");
-      } else if (form.getPermanentDepositsMadeType().equals(PermanentDepositRadioOption.LATER_APP)) {
+      } else if (form.getPermanentDepositsMadeType().equals(PermanentDepositMade.LATER_APP)) {
         List<Object> toDateHints = new ArrayList<>();
         toDateHints.add(new FormInputLabel("Submission date"));
         toDateHints.add(new OnOrAfterDateHint(LocalDate.now(), "current date"));
