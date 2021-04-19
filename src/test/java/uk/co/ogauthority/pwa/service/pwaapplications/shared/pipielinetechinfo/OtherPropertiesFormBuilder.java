@@ -41,8 +41,6 @@ public class OtherPropertiesFormBuilder {
     form.addPropertyData(OtherPipelineProperty.SOLID_CONTENT, createDataForm(PropertyAvailabilityOption.NOT_PRESENT));
     form.addPropertyData(OtherPipelineProperty.MERCURY, createDataForm(PropertyAvailabilityOption.AVAILABLE,
         new MinMaxInput(String.valueOf(3), String.valueOf(5))));
-    form.addPropertyData(OtherPipelineProperty.H2O, createDataForm(PropertyAvailabilityOption.AVAILABLE,
-        new MinMaxInput(String.valueOf(12), String.valueOf(15))));
   }
 
 

@@ -16,7 +16,7 @@
         <@minMaxInput minFormPath="form.pressureOpMinMax.minValue" maxFormPath="form.pressureOpMinMax.maxValue"
             labelText="What are the pressure operating conditions?" nestedPath="" unitMeasurement=unitMeasurements.BAR_G/>
 
-        <@fdsFieldset.fieldset legendHeading="What is the maximum designed pressure condition?" legendHeadingSize="h2" legendHeadingClass="govuk-fieldset__legend govuk-fieldset__legend--s">
+        <@fdsFieldset.fieldset legendHeading="What is the maximum design pressure condition?" legendHeadingSize="h2" legendHeadingClass="govuk-fieldset__legend govuk-fieldset__legend--s">
             <@fdsTextInput.textInput path="form.pressureDesignMax" labelText="max" suffix=stringUtils.superscriptConverter(unitMeasurements.BAR_G.suffixDisplay)
              suffixScreenReaderPrompt=unitMeasurements.BAR_G.suffixScreenReaderDisplay inputClass="govuk-input--width-5"/>
         </@fdsFieldset.fieldset>
