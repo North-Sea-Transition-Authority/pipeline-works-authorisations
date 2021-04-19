@@ -726,9 +726,9 @@ public class PublicNoticeServiceTest {
 
     var expectedCurrentPublicNoticeView = PublicNoticeTestUtil.createCommentedPublicNoticeView(currentPublicNotice, currentPublicNoticeRequest);
     var expectedEndedPublicNotice1View = PublicNoticeTestUtil.createWithdrawnPublicNoticeView(
-        endedPublicNotice1, withdrawingPerson.getFullName(), endedPublicNotice1Request);
+        endedPublicNotice1, withdrawingPerson.getFullName(), endedPublicNotice1.getWithdrawalReason(), endedPublicNotice1Request);
     var expectedEndedPublicNotice2View = PublicNoticeTestUtil.createWithdrawnPublicNoticeView(
-        endedPublicNotice2, withdrawingPerson.getFullName(), endedPublicNotice2Request);
+        endedPublicNotice2, withdrawingPerson.getFullName(), endedPublicNotice2.getWithdrawalReason(), endedPublicNotice2Request);
 
 
     assertThat(allPublicNoticesView.getCurrentPublicNotice()).isEqualTo(expectedCurrentPublicNoticeView);
@@ -805,9 +805,9 @@ public class PublicNoticeServiceTest {
     var allPublicNoticesView = publicNoticeService.getAllPublicNoticeViews(context);
 
     var expectedEndedPublicNotice1View = PublicNoticeTestUtil.createWithdrawnPublicNoticeView(
-        endedPublicNotice1, withdrawingPerson.getFullName(), endedPublicNotice1Request);
+        endedPublicNotice1, withdrawingPerson.getFullName(), endedPublicNotice1.getWithdrawalReason(), endedPublicNotice1Request);
     var expectedEndedPublicNotice2View = PublicNoticeTestUtil.createWithdrawnPublicNoticeView(
-        endedPublicNotice2, withdrawingPerson.getFullName(), endedPublicNotice2Request);
+        endedPublicNotice2, withdrawingPerson.getFullName(), endedPublicNotice2.getWithdrawalReason(), endedPublicNotice2Request);
 
     assertThat(allPublicNoticesView.getCurrentPublicNotice()).isNull();
     assertThat(allPublicNoticesView.getHistoricalPublicNotices()).containsOnly(expectedEndedPublicNotice1View, expectedEndedPublicNotice2View);
