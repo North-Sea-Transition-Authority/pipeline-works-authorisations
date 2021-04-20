@@ -1,6 +1,9 @@
 package uk.co.ogauthority.pwa.govukpay;
 
 import java.time.Duration;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -13,6 +16,8 @@ final class GovUkPayConfiguration {
 
   private static final String PAYMENTS_URL = "/v1/payments";
 
+  private static final String REQUEST_METADATA_CONTEXT_KEY = "SOURCE_CONTEXT_PATH";
+
   private final String apiKey;
 
   private final String govUkPayBaseUrl;
@@ -21,16 +26,22 @@ final class GovUkPayConfiguration {
 
   private final RestTemplate restTemplate;
 
+  private final Map<String, Object> defaultRequestMetadata;
+
   @Autowired
   GovUkPayConfiguration(RestTemplateBuilder restTemplateBuilder,
                         ClientHttpRequestFactory clientHttpRequestFactory,
                         @Value("${govukpay.apiKey}") String apiKey,
                         @Value("${govukpay.api.base-url}") String govUkPayBaseUrl,
                         @Value("${govukpay.connect-timeout-seconds:#{10}}") Long apiConnectionTimeoutSeconds,
-                        @Value("${govukpay.read-timeout-seconds:#{10}}") Long apiReadTimeoutSeconds) {
+                        @Value("${govukpay.read-timeout-seconds:#{10}}") Long apiReadTimeoutSeconds,
+                        @Value("${govukpay.request.metadata.app-context-path}") String requestSourceContextPath) {
     this.apiKey = apiKey;
     this.govUkPayBaseUrl = govUkPayBaseUrl;
     this.govukPayAuthorizationHeaderValue = "Bearer " + apiKey;
+
+    this.defaultRequestMetadata = new HashMap<>();
+    this.defaultRequestMetadata.put(REQUEST_METADATA_CONTEXT_KEY, requestSourceContextPath);
 
     this.restTemplate = restTemplateBuilder
         .setConnectTimeout(Duration.ofSeconds(apiConnectionTimeoutSeconds))
@@ -59,5 +70,9 @@ final class GovUkPayConfiguration {
 
   public String getApiKey() {
     return apiKey;
+  }
+
+  public Map<String, Object> getDefaultRequestMetadata() {
+    return Collections.unmodifiableMap(defaultRequestMetadata);
   }
 }
