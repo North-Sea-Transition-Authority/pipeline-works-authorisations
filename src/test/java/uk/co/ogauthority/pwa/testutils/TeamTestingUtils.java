@@ -10,6 +10,7 @@ import uk.co.ogauthority.pwa.energyportal.model.dto.teams.PortalTeamMemberDto;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationGroup;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
+import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
 import uk.co.ogauthority.pwa.model.teams.PwaOrganisationTeam;
 import uk.co.ogauthority.pwa.model.teams.PwaRegulatorRole;
 import uk.co.ogauthority.pwa.model.teams.PwaRegulatorTeam;
@@ -130,6 +131,16 @@ public class TeamTestingUtils {
         .collect(Collectors.toSet());
 
     return new PwaTeamMember(regulatorTeam, person, pwaRoles);
+
+  }
+
+  public static PwaTeamMember createOrganisationTeamMember(PwaOrganisationTeam orgTeam , Person person, Set<PwaOrganisationRole> pwaOrganisationRoles) {
+
+    var pwaRoles = pwaOrganisationRoles.stream()
+        .map(role -> new PwaRole(role.getPortalTeamRoleName(), "title", "desc", 10))
+        .collect(Collectors.toSet());
+
+    return new PwaTeamMember(orgTeam, person, pwaRoles);
 
   }
 

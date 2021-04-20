@@ -131,7 +131,7 @@ class OptionsCaseManagementEmailService {
 
   private List<String> getPwaApplicationConsentedHolderNames(PwaApplication pwaApplication) {
 
-    return pwaConsentOrganisationRoleService.getCurrentHoldersOrgRolesForMasterPwa(pwaApplication.getMasterPwa())
+    return pwaConsentOrganisationRoleService.getCurrentConsentedHoldersOrgRolesForMasterPwa(pwaApplication.getMasterPwa())
         .stream()
         .filter(masterPwaHolderDto -> masterPwaHolderDto.getHolderOrganisationUnit().isPresent())
         .map(masterPwaHolderDto -> masterPwaHolderDto.getHolderOrganisationUnit().get())

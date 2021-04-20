@@ -100,7 +100,7 @@ public class OptionsCaseManagementEmailServiceTest {
     var pwaConsent = new PwaConsent();
     masterPwaHolderDto = new MasterPwaHolderDto(organisationUnit, pwaConsent);
 
-    when(pwaConsentOrganisationRoleService.getCurrentHoldersOrgRolesForMasterPwa(masterPwa))
+    when(pwaConsentOrganisationRoleService.getCurrentConsentedHoldersOrgRolesForMasterPwa(masterPwa))
         .thenReturn(Set.of(masterPwaHolderDto));
 
     when(emailCaseLinkService.generateCaseManagementLink(pwaApplicationDetail.getPwaApplication()))
@@ -159,7 +159,7 @@ public class OptionsCaseManagementEmailServiceTest {
     var pwaConsent2 = new PwaConsent();
     var masterPwaHolderDto2 = new MasterPwaHolderDto(organisationUnit2, pwaConsent2);
 
-    when(pwaConsentOrganisationRoleService.getCurrentHoldersOrgRolesForMasterPwa(masterPwa))
+    when(pwaConsentOrganisationRoleService.getCurrentConsentedHoldersOrgRolesForMasterPwa(masterPwa))
         .thenReturn(Set.of(masterPwaHolderDto2, masterPwaHolderDto));
 
     optionsCaseManagementEmailService.sendInitialOptionsApprovedEmail(pwaApplicationDetail, deadline);
