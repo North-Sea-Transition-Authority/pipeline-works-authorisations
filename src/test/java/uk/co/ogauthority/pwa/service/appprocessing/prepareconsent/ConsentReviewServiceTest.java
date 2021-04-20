@@ -1,6 +1,8 @@
 package uk.co.ogauthority.pwa.service.appprocessing.prepareconsent;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
@@ -122,12 +124,13 @@ public class ConsentReviewServiceTest {
 
   }
 
+
   @Test(expected = RuntimeException.class)
   public void startConsentReview_openReviewExists() {
 
     var openReview = new ConsentReview();
     openReview.setStatus(ConsentReviewStatus.OPEN);
-    when(consentReviewRepository.findAllByPwaApplicationDetail(detail)).thenReturn(List.of(openReview));
+    when(consentReviewService.areThereAnyOpenReviews(detail)).thenReturn(true);
 
     consentReviewService.startConsentReview(detail, "error going to happen", caseOfficerPerson);
 
@@ -266,5 +269,22 @@ public class ConsentReviewServiceTest {
     consentReviewService.issueConsent(detail, returningUser);
 
   }
+
+  @Test
+  public void canStartConsentReview_canStart() {
+    var startedReview = new ConsentReview();
+    startedReview.setStatus(ConsentReviewStatus.APPROVED);
+    when(consentReviewRepository.findAllByPwaApplicationDetail(detail)).thenReturn(List.of(startedReview));
+    assertFalse(consentReviewService.areThereAnyOpenReviews(detail));
+  }
+
+  @Test
+  public void canStartConsentReview_cannotStart() {
+    var openReview = new ConsentReview();
+    openReview.setStatus(ConsentReviewStatus.OPEN);
+    when(consentReviewRepository.findAllByPwaApplicationDetail(detail)).thenReturn(List.of(openReview));
+    assertTrue(consentReviewService.areThereAnyOpenReviews(detail));
+  }
+
 
 }
