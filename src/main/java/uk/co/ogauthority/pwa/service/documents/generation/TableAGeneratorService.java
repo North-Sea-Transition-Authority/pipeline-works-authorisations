@@ -115,7 +115,7 @@ public class TableAGeneratorService implements DocumentSectionGenerator {
         .sorted(Comparator.comparing(TableARowView::getIdentNumber))
         .collect(Collectors.toList());
     var headerTableARowView = new TableARowView(headerView);
-    return new TableAView(headerView.getPipelineName(), headerTableARowView, identTableARowViews);
+    return new TableAView(headerView.getPipelineName(), headerTableARowView, identTableARowViews, headerView.getFootnote());
   }
 
 }

@@ -10,14 +10,16 @@ public class TableAView {
   private final TableARowView headerRow;
   private final List<TableARowView> identRows;
   private final Integer totalRows;
+  private final String footnote;
 
 
   public TableAView(String pipelineName, TableARowView headerRow,
-                    List<TableARowView> identRows) {
+                    List<TableARowView> identRows, String footnote) {
     this.pipelineName = pipelineName;
     this.headerRow = headerRow;
     this.identRows = identRows;
     this.totalRows = identRows.size() + 1;
+    this.footnote = footnote;
   }
 
   public String getPipelineName() {
@@ -36,6 +38,9 @@ public class TableAView {
     return totalRows;
   }
 
+  public String getFootnote() {
+    return footnote;
+  }
 
   @Override
   public boolean equals(Object o) {
@@ -49,11 +54,12 @@ public class TableAView {
     return Objects.equals(pipelineName, that.pipelineName)
         && Objects.equals(headerRow, that.headerRow)
         && Objects.equals(identRows, that.identRows)
-        && Objects.equals(totalRows, that.totalRows);
+        && Objects.equals(totalRows, that.totalRows)
+        && Objects.equals(footnote, that.footnote);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(pipelineName, headerRow, identRows, totalRows);
+    return Objects.hash(pipelineName, headerRow, identRows, totalRows, footnote);
   }
 }
