@@ -81,8 +81,7 @@ public class PrepareConsentTaskService implements AppProcessingService {
     if (processingContext.hasProcessingPermission(PwaAppProcessingPermission.CONSENT_REVIEW)
         && processingContext.getApplicationInvolvement().getOpenConsentReview() == OpenConsentReview.YES) {
       taskState = TaskState.EDIT;
-    } else if (processingContext.getApplicationInvolvement().getOpenConsentReview() == OpenConsentReview.YES
-        || processingContext.hasProcessingPermission(PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY)) {
+    } else if (processingContext.getApplicationInvolvement().getOpenConsentReview() == OpenConsentReview.YES) {
       taskState = TaskState.LOCK;
     }
 

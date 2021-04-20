@@ -6,6 +6,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -86,6 +87,7 @@ public class PublicNoticeService implements AppProcessingService {
 
   private static final AppFilePurpose FILE_PURPOSE = AppFilePurpose.PUBLIC_NOTICE;
   private static final Set<PublicNoticeStatus> ENDED_STATUSES = Set.of(PublicNoticeStatus.ENDED, PublicNoticeStatus.WITHDRAWN);
+  private static final Set<PwaApplicationType> PUBLIC_NOTICE_APP_TYPES = EnumSet.of(PwaApplicationType.INITIAL, PwaApplicationType.CAT_1_VARIATION);
 
   @Autowired
   public PublicNoticeService(
@@ -120,12 +122,15 @@ public class PublicNoticeService implements AppProcessingService {
 
   @Override
   public boolean canShowInTaskList(PwaAppProcessingContext processingContext) {
-    return processingContext.getAppProcessingPermissions().contains(PwaAppProcessingPermission.DRAFT_PUBLIC_NOTICE)
-        || processingContext.getAppProcessingPermissions().contains(PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY)
-        || processingContext.getAppProcessingPermissions().contains(PwaAppProcessingPermission.APPROVE_PUBLIC_NOTICE)
-        || (processingContext.getAppProcessingPermissions().contains(PwaAppProcessingPermission.SHOW_ALL_TASKS_AS_PWA_MANAGER_ONLY)
-        && Set.of(PwaApplicationType.INITIAL, PwaApplicationType.CAT_1_VARIATION).contains(processingContext.getApplicationType()));
+    return (
+        processingContext.getAppProcessingPermissions().contains(PwaAppProcessingPermission.DRAFT_PUBLIC_NOTICE)
+            || processingContext.getAppProcessingPermissions().contains(PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY)
+            || processingContext.getAppProcessingPermissions().contains(PwaAppProcessingPermission.APPROVE_PUBLIC_NOTICE)
+            || (processingContext.getAppProcessingPermissions().contains(PwaAppProcessingPermission.SHOW_ALL_TASKS_AS_PWA_MANAGER_ONLY))
+    )
+        && PUBLIC_NOTICE_APP_TYPES.contains(processingContext.getApplicationType());
   }
+
 
 
   private TaskStatus getPublicNoticeTaskStatus(PwaAppProcessingContext processingContext, boolean atLeastOneSatisfactoryVersion) {

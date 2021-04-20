@@ -237,7 +237,6 @@ public class PrepareConsentTaskServiceTest {
 
     assertThat(taskAccessible).isTrue();
 
-
   }
 
 
