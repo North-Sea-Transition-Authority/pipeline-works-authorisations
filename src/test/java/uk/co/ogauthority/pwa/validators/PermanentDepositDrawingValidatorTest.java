@@ -102,6 +102,15 @@ public class PermanentDepositDrawingValidatorTest {
     );
   }
 
+  @Test
+  public void validate_depositSelectionEmpty() {
+    var form = new PermanentDepositDrawingForm();
+    form.setSelectedDeposits(Set.of());
+    Map<String, Set<String>> errorsMap = getErrorMap(form);
+    assertThat(errorsMap).contains(
+        entry("selectedDeposits", Set.of(FieldValidationErrorCodes.REQUIRED.errorCode("selectedDeposits"))));
+  }
+
 
 
 
