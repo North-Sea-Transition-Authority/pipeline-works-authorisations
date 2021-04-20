@@ -2,7 +2,6 @@ package uk.co.ogauthority.pwa.service.pwaapplications.workflow;
 
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -22,6 +21,7 @@ import uk.co.ogauthority.pwa.service.appprocessing.applicationupdate.Application
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.workflow.application.PwaApplicationWorkflowTask;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.submission.PadPipelineNumberingService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -36,6 +36,9 @@ public class PwaApplicationUpdateRequestedSubmissionServiceTest {
   @Mock
   private ApplicationUpdateRequestService applicationUpdateRequestService;
 
+  @Mock
+  private PadPipelineNumberingService padPipelineNumberingService;
+
   private PwaApplicationDetail pwaApplicationDetail;
 
   private PwaApplicationUpdateRequestedSubmissionService pwaApplicationUpdateRequestedSubmissionService;
@@ -49,8 +52,8 @@ public class PwaApplicationUpdateRequestedSubmissionServiceTest {
 
     pwaApplicationUpdateRequestedSubmissionService = new PwaApplicationUpdateRequestedSubmissionService(
         applicationUpdateRequestService,
-        applicationInvolvementService
-    );
+        applicationInvolvementService,
+        padPipelineNumberingService);
 
     person = new Person(PERSON_ID.asInt(), "first", "second", "email", "tel");
 
@@ -71,10 +74,17 @@ public class PwaApplicationUpdateRequestedSubmissionServiceTest {
   public void doBeforeSubmit_serviceInteractions() {
     pwaApplicationUpdateRequestedSubmissionService.doBeforeSubmit(pwaApplicationDetail, person, SUBMISSION_DESC);
 
-    verify(applicationUpdateRequestService, times(1))
+    verify(applicationUpdateRequestService)
         .respondToApplicationOpenUpdateRequest(pwaApplicationDetail, person, SUBMISSION_DESC);
-    verifyNoMoreInteractions(applicationInvolvementService, applicationUpdateRequestService);
+
+    verify(padPipelineNumberingService).assignPipelineReferences(pwaApplicationDetail);
+    verifyNoMoreInteractions(
+        applicationInvolvementService,
+        applicationUpdateRequestService,
+        padPipelineNumberingService);
   }
+
+
 
   @Test
   public void doAfterSubmit_serviceInteractions() {
