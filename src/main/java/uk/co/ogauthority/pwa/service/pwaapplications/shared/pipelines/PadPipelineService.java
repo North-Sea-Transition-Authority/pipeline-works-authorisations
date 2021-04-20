@@ -25,6 +25,7 @@ import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineMaterial;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineStatus;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
 import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.model.form.location.CoordinateForm;
@@ -82,6 +83,10 @@ public class PadPipelineService {
         ))
         .orElseThrow(() -> new PwaEntityNotFoundException(
             "Pipeline Summary not found. Pad pipeline id: " + padPipeline.getId()));
+  }
+
+  public List<PadPipeline> findSubmittedOrDraftPipelinesWithPipelineNumber(String pipelineNumber) {
+    return padPipelineRepository.findApplicationsWherePipelineNumberExistsOnDraftOrLastSubmittedVersion(pipelineNumber);
   }
 
   public List<PipelineOverview> getApplicationPipelineOverviews(PwaApplicationDetail detail) {

@@ -941,8 +941,22 @@ public class ProjectInformationValidatorTest {
     var form = new ProjectInformationForm();
     var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form,
         new ProjectInformationFormValidationHints(PwaApplicationType.INITIAL, ValidationType.PARTIAL, EnumSet.allOf(ProjectInformationQuestion.class), false));
-    assertThat(errorsMap).containsOnlyKeys("projectName", "projectOverview", "methodOfPipelineDeployment");
+    assertThat(errorsMap).isEmpty();
   }
+
+  @Test
+  public void validate_partialValidation_stringLengthOver4000Chars() {
+    var form = new ProjectInformationForm();
+    form.setMethodOfPipelineDeployment(ValidatorTestUtils.over4000Chars());
+    form.setProjectOverview(ValidatorTestUtils.over4000Chars());
+    var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form,
+        new ProjectInformationFormValidationHints(PwaApplicationType.INITIAL, ValidationType.PARTIAL, EnumSet.allOf(ProjectInformationQuestion.class), false));
+
+    assertThat(errorsMap).contains(
+        entry("methodOfPipelineDeployment", Set.of("methodOfPipelineDeployment" + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode())),
+        entry("projectOverview", Set.of("projectOverview" + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode())));
+  }
+
 
   @Test
   public void validate_validationNotRequired_whenQuestionNotProvided() {

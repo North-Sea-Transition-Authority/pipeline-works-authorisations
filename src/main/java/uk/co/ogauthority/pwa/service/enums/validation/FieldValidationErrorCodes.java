@@ -14,7 +14,8 @@ public enum FieldValidationErrorCodes {
   EXCEEDED_MAXIMUM_FILE_UPLOAD_COUNT(".exceedsMaximumFileUploadCount"),
   TOO_MANY(".tooMany"),
   MAX_DP_EXCEEDED(".maxDpExceeded"),
-  MIN_FILE_COUNT_NOT_REACHED(".minFileCountNotReached");
+  MIN_FILE_COUNT_NOT_REACHED(".minFileCountNotReached"),
+  VALUE_OUT_OF_RANGE(".valueOutOfRange");
 
   private final String code;
 
