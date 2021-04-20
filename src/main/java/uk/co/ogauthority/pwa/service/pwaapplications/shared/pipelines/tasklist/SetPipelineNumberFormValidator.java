@@ -132,7 +132,6 @@ public class SetPipelineNumberFormValidator implements SmartValidator {
           )
       );
     }
-
   }
 
   private void pipelineNumberFormatCheck(Errors errors, SetPipelineNumberForm form,

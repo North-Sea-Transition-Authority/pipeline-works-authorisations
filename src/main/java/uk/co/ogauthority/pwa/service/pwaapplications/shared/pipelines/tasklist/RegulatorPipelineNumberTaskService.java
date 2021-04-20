@@ -4,6 +4,7 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 
 import java.util.Optional;
 import java.util.Set;
+import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.lang3.Range;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -13,6 +14,7 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelines.SetPipe
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.model.tasklist.TaskListEntry;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
+import uk.co.ogauthority.pwa.repository.migration.PipelineMigrationConfigRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.submission.PadPipelineNumberingService;
@@ -24,15 +26,17 @@ public class RegulatorPipelineNumberTaskService {
   private final PadPipelineNumberingService padPipelineNumberingService;
   private final PipelineDetailService pipelineDetailService;
   private final SetPipelineNumberFormValidator setPipelineNumberFormValidator;
+  private final PipelineMigrationConfigRepository pipelineMigrationConfigRepository;
 
   @Autowired
   public RegulatorPipelineNumberTaskService(PadPipelineNumberingService padPipelineNumberingService,
                                             PipelineDetailService pipelineDetailService,
-                                            SetPipelineNumberFormValidator setPipelineNumberFormValidator) {
+                                            SetPipelineNumberFormValidator setPipelineNumberFormValidator,
+                                            PipelineMigrationConfigRepository pipelineMigrationConfigRepository) {
     this.padPipelineNumberingService = padPipelineNumberingService;
     this.pipelineDetailService = pipelineDetailService;
     this.setPipelineNumberFormValidator = setPipelineNumberFormValidator;
-
+    this.pipelineMigrationConfigRepository = pipelineMigrationConfigRepository;
   }
 
   public boolean pipelineTaskAccessible(Set<PwaApplicationPermission> pwaApplicationPermissionSet,
@@ -50,11 +54,14 @@ public class RegulatorPipelineNumberTaskService {
   }
 
   private SetPipelineNumberValidationConfig getValidationHint() {
-    // TODO PWA-470 make range configurable and enforceable via migration patch.
-    return SetPipelineNumberValidationConfig.rangeCreate(
-        5000,
-        6000
-    );
+    return IterableUtils.toList(pipelineMigrationConfigRepository.findAll()).stream()
+        .findFirst()
+        .map(c -> SetPipelineNumberValidationConfig.rangeCreate(
+            c.getReservedPipelineNumberMin(),
+            c.getReservedPipelineNumberMax()
+        ))
+        .orElseThrow(() -> new PipelineNumberConfigException("Could not find migration pipeline number config"));
+
   }
 
   @Transactional
