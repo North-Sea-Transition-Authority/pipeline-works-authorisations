@@ -1,39 +1,40 @@
 package uk.co.ogauthority.pwa.service.pwaconsents.pipelines;
 
 import org.springframework.stereotype.Service;
-import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
+import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineEntity;
 
 @Service
 public class PipelineMappingService {
 
-  public void mapPadPipelineToPipelineDetail(PipelineDetail pipelineDetail, PadPipeline padPipeline) {
+  public void mapPipelineEntities(PipelineEntity pipelineEntityTo, PipelineEntity pipelineEntityFrom) {
 
-    pipelineDetail.setPipelineStatus(padPipeline.getPipelineStatus());
-    pipelineDetail.setPipelineStatusReason(padPipeline.getPipelineStatusReason());
+    pipelineEntityTo.setPipelineStatus(pipelineEntityFrom.getPipelineStatus());
+    pipelineEntityTo.setPipelineStatusReason(pipelineEntityFrom.getPipelineStatusReason());
 
-    pipelineDetail.setPipelineNumber(padPipeline.getPipelineRef());
-    pipelineDetail.setPipelineType(padPipeline.getPipelineType());
+    pipelineEntityTo.setPipelineNumber(pipelineEntityFrom.getPipelineNumber());
+    pipelineEntityTo.setPipelineType(pipelineEntityFrom.getPipelineType());
 
-    pipelineDetail.setFromLocation(padPipeline.getFromLocation());
-    pipelineDetail.setFromCoordinates(padPipeline.getFromCoordinates());
-    pipelineDetail.setToLocation(padPipeline.getToLocation());
-    pipelineDetail.setToCoordinates(padPipeline.getToCoordinates());
+    pipelineEntityTo.setFromLocation(pipelineEntityFrom.getFromLocation());
+    pipelineEntityTo.setFromCoordinates(pipelineEntityFrom.getFromCoordinates());
+    pipelineEntityTo.setToLocation(pipelineEntityFrom.getToLocation());
+    pipelineEntityTo.setToCoordinates(pipelineEntityFrom.getToCoordinates());
 
-    pipelineDetail.setComponentPartsDesc(padPipeline.getComponentPartsDescription());
-    pipelineDetail.setLength(padPipeline.getLength());
-    pipelineDetail.setMaxExternalDiameter(padPipeline.getMaxExternalDiameter());
-    pipelineDetail.setProductsToBeConveyed(padPipeline.getProductsToBeConveyed());
-    pipelineDetail.setTrenchedBuriedFilledFlag(padPipeline.getTrenchedBuriedBackfilled());
-    pipelineDetail.setTrenchingMethodsDesc(padPipeline.getTrenchingMethodsDescription());
+    pipelineEntityTo.setComponentPartsDescription(pipelineEntityFrom.getComponentPartsDescription());
+    pipelineEntityTo.setLength(pipelineEntityFrom.getLength());
+    pipelineEntityTo.setMaxExternalDiameter(pipelineEntityFrom.getMaxExternalDiameter());
+    pipelineEntityTo.setProductsToBeConveyed(pipelineEntityFrom.getProductsToBeConveyed());
+    pipelineEntityTo.setTrenchedBuriedBackfilled(pipelineEntityFrom.getTrenchedBuriedBackfilled());
+    pipelineEntityTo.setTrenchingMethodsDescription(pipelineEntityFrom.getTrenchingMethodsDescription());
 
-    pipelineDetail.setPipelineMaterial(padPipeline.getPipelineMaterial());
-    pipelineDetail.setOtherPipelineMaterialUsed(padPipeline.getOtherPipelineMaterialUsed());
-    pipelineDetail.setPipelineFlexibility(padPipeline.getPipelineFlexibility());
-    pipelineDetail.setPipelineDesignLife(padPipeline.getPipelineDesignLife());
+    pipelineEntityTo.setPipelineMaterial(pipelineEntityFrom.getPipelineMaterial());
+    pipelineEntityTo.setOtherPipelineMaterialUsed(pipelineEntityFrom.getOtherPipelineMaterialUsed());
+    pipelineEntityTo.setPipelineFlexibility(pipelineEntityFrom.getPipelineFlexibility());
+    pipelineEntityTo.setPipelineDesignLife(pipelineEntityFrom.getPipelineDesignLife());
 
-    pipelineDetail.setPipelineInBundle(padPipeline.getPipelineInBundle());
-    pipelineDetail.setBundleName(padPipeline.getBundleName());
+    pipelineEntityTo.setPipelineInBundle(pipelineEntityFrom.getPipelineInBundle());
+    pipelineEntityTo.setBundleName(pipelineEntityFrom.getBundleName());
+
+    pipelineEntityTo.setFootnote(pipelineEntityFrom.getFootnote());
 
   }
 

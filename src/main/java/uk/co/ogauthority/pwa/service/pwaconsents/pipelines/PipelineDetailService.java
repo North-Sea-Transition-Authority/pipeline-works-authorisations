@@ -159,7 +159,7 @@ public class PipelineDetailService {
     detail.setTipFlag(true);
     detail.setPwaConsent(pwaConsent);
 
-    pipelineMappingService.mapPadPipelineToPipelineDetail(detail, padPipelineDto.getPadPipeline());
+    pipelineMappingService.mapPipelineEntities(detail, padPipelineDto.getPadPipeline());
 
     return detail;
 

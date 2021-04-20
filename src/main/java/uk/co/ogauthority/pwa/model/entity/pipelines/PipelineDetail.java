@@ -32,7 +32,7 @@ import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
 
 @Entity
 @Table(name = "pipeline_details")
-public class PipelineDetail {
+public class PipelineDetail implements PipelineEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO, generator = "pipeline_detail_id_generator")
@@ -151,18 +151,22 @@ public class PipelineDetail {
     this.setPipeline(pipeline);
   }
 
+  @Override
   public Integer getId() {
     return id;
   }
 
+  @Override
   public void setId(Integer id) {
     this.id = id;
   }
 
+  @Override
   public Pipeline getPipeline() {
     return pipeline;
   }
 
+  @Override
   public void setPipeline(Pipeline pipeline) {
     this.pipeline = pipeline;
   }
@@ -191,18 +195,22 @@ public class PipelineDetail {
     this.tipFlag = tipFlag;
   }
 
+  @Override
   public PipelineStatus getPipelineStatus() {
     return pipelineStatus;
   }
 
+  @Override
   public void setPipelineStatus(PipelineStatus pipelineStatus) {
     this.pipelineStatus = pipelineStatus;
   }
 
+  @Override
   public String getPipelineNumber() {
     return pipelineNumber;
   }
 
+  @Override
   public void setPipelineNumber(String pipelineNumber) {
     this.pipelineNumber = pipelineNumber;
   }
@@ -215,18 +223,22 @@ public class PipelineDetail {
     this.pwaConsent = pwaConsent;
   }
 
+  @Override
   public PipelineType getPipelineType() {
     return pipelineType;
   }
 
+  @Override
   public void setPipelineType(PipelineType pipelineType) {
     this.pipelineType = pipelineType;
   }
 
+  @Override
   public String getFromLocation() {
     return fromLocation;
   }
 
+  @Override
   public void setFromLocation(String fromLocation) {
     this.fromLocation = fromLocation;
   }
@@ -263,10 +275,12 @@ public class PipelineDetail {
     return fromLongitudeDirection;
   }
 
+  @Override
   public String getToLocation() {
     return toLocation;
   }
 
+  @Override
   public void setToLocation(String toLocation) {
     this.toLocation = toLocation;
   }
@@ -303,62 +317,79 @@ public class PipelineDetail {
     return toLongitudeDirection;
   }
 
-  public String getComponentPartsDesc() {
+
+
+  @Override
+  public String getComponentPartsDescription() {
     return componentPartsDesc;
   }
 
-  public void setComponentPartsDesc(String componentPartsDesc) {
+  @Override
+  public void setComponentPartsDescription(String componentPartsDesc) {
     this.componentPartsDesc = componentPartsDesc;
   }
 
+  @Override
   public BigDecimal getLength() {
     return length;
   }
 
+  @Override
   public void setLength(BigDecimal length) {
     this.length = length;
   }
 
+  @Override
   public String getProductsToBeConveyed() {
     return productsToBeConveyed;
   }
 
+  @Override
   public void setProductsToBeConveyed(String productsToBeConveyed) {
     this.productsToBeConveyed = productsToBeConveyed;
   }
 
-  public Boolean getTrenchedBuriedFilledFlag() {
+  @Override
+  public Boolean getTrenchedBuriedBackfilled() {
     return trenchedBuriedFilledFlag;
   }
 
-  public void setTrenchedBuriedFilledFlag(Boolean trenchedBuriedFilledFlag) {
+  @Override
+  public void setTrenchedBuriedBackfilled(Boolean trenchedBuriedFilledFlag) {
     this.trenchedBuriedFilledFlag = trenchedBuriedFilledFlag;
   }
 
-  public String getTrenchingMethodsDesc() {
+  @Override
+  public String getTrenchingMethodsDescription() {
     return trenchingMethodsDesc;
   }
 
-  public void setTrenchingMethodsDesc(String trenchingMethodsDesc) {
+  @Override
+  public void setTrenchingMethodsDescription(String trenchingMethodsDesc) {
     this.trenchingMethodsDesc = trenchingMethodsDesc;
   }
 
+  @Override
   public PipelineId getPipelineId() {
     return this.getPipeline().getPipelineId();
   }
 
+  @Override
   public BigDecimal getMaxExternalDiameter() {
     return maxExternalDiameter;
   }
 
+  @Override
   public void setMaxExternalDiameter(BigDecimal maxExternalDiameter) {
     this.maxExternalDiameter = maxExternalDiameter;
   }
 
+  @Override
   public String getFootnote() {
     return footnote;
   }
 
+  @Override
   public void setFootnote(String footnote) {
     this.footnote = footnote;
   }
@@ -387,77 +418,95 @@ public class PipelineDetail {
     this.toLongitudeDirection = this.toCoordinates.getLongitude().getDirection();
   }
 
+  @Override
   public CoordinatePair getFromCoordinates() {
     return fromCoordinates;
   }
 
+  @Override
   public void setFromCoordinates(CoordinatePair fromCoordinates) {
     this.fromCoordinates = fromCoordinates;
     updateFromCoordinateValues();
   }
 
+  @Override
   public CoordinatePair getToCoordinates() {
     return toCoordinates;
   }
 
+  @Override
   public void setToCoordinates(CoordinatePair toCoordinates) {
     this.toCoordinates = toCoordinates;
     updateToCoordinateValues();
   }
 
+  @Override
   public Boolean getPipelineInBundle() {
     return pipelineInBundle;
   }
 
+  @Override
   public void setPipelineInBundle(Boolean pipelineInBundle) {
     this.pipelineInBundle = pipelineInBundle;
   }
 
+  @Override
   public String getBundleName() {
     return bundleName;
   }
 
+  @Override
   public void setBundleName(String bundleName) {
     this.bundleName = bundleName;
   }
 
+  @Override
   public String getPipelineStatusReason() {
     return pipelineStatusReason;
   }
 
+  @Override
   public void setPipelineStatusReason(String pipelineServiceStatusReason) {
     this.pipelineStatusReason = pipelineServiceStatusReason;
   }
 
+  @Override
   public PipelineFlexibility getPipelineFlexibility() {
     return pipelineFlexibility;
   }
 
+  @Override
   public void setPipelineFlexibility(
       PipelineFlexibility pipelineFlexibility) {
     this.pipelineFlexibility = pipelineFlexibility;
   }
 
+  @Override
   public PipelineMaterial getPipelineMaterial() {
     return pipelineMaterial;
   }
 
+  @Override
   public void setPipelineMaterial(PipelineMaterial pipelineMaterial) {
     this.pipelineMaterial = pipelineMaterial;
   }
 
+  @Override
   public String getOtherPipelineMaterialUsed() {
     return otherPipelineMaterialUsed;
   }
 
+  @Override
   public void setOtherPipelineMaterialUsed(String otherPipelineMaterialUsed) {
     this.otherPipelineMaterialUsed = otherPipelineMaterialUsed;
   }
 
+  @Override
   public Integer getPipelineDesignLife() {
     return pipelineDesignLife;
   }
 
+  @Override
   public void setPipelineDesignLife(Integer pipelineDesignLife) {
     this.pipelineDesignLife = pipelineDesignLife;
   }

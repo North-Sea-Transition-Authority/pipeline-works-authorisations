@@ -40,10 +40,10 @@ public class PwaPipelineViewTestUtil {
       pipelineDetail.setToLocation(padPipeline.getToLocation());
       pipelineDetail.setToCoordinates(padPipeline.getToCoordinates());
       pipelineDetail.setLength(padPipeline.getLength());
-      pipelineDetail.setComponentPartsDesc(padPipeline.getComponentPartsDescription());
+      pipelineDetail.setComponentPartsDescription(padPipeline.getComponentPartsDescription());
       pipelineDetail.setProductsToBeConveyed(padPipeline.getProductsToBeConveyed());
-      pipelineDetail.setTrenchedBuriedFilledFlag(padPipeline.getTrenchedBuriedBackfilled());
-      pipelineDetail.setTrenchingMethodsDesc(padPipeline.getTrenchingMethodsDescription());
+      pipelineDetail.setTrenchedBuriedBackfilled(padPipeline.getTrenchedBuriedBackfilled());
+      pipelineDetail.setTrenchingMethodsDescription(padPipeline.getTrenchingMethodsDescription());
       pipelineDetail.setPipelineFlexibility(padPipeline.getPipelineFlexibility());
       pipelineDetail.setPipelineMaterial(padPipeline.getPipelineMaterial());
       pipelineDetail.setOtherPipelineMaterialUsed(padPipeline.getOtherPipelineMaterialUsed());

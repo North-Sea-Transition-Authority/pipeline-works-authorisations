@@ -156,7 +156,7 @@ public class PipelineDetailServiceTest {
               .findFirst()
               .orElseThrow();
 
-          verify(pipelineMappingService, times(1)).mapPadPipelineToPipelineDetail(newDetail, padPipeline);
+          verify(pipelineMappingService, times(1)).mapPipelineEntities(newDetail, padPipeline);
 
         });
 
