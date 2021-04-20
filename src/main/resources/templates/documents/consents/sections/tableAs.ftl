@@ -24,7 +24,9 @@
         </table>
 
         <@tableA tableAView/>
-        <p> ${tableAView.footnote!} </p>        
+        <#if tableAView.footnote?has_content>
+          <p> ${tableAView.footnote} </p>      
+        </#if>  
       </div>
     </#list>
 
