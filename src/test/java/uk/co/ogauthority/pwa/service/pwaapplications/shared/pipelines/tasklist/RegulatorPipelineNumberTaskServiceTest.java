@@ -23,14 +23,18 @@ import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailService
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 @RunWith(MockitoJUnitRunner.class)
-public class RegulatorPipelineReferenceTaskServiceTest {
+public class RegulatorPipelineNumberTaskServiceTest {
 
   @Mock
   private PadPipelineNumberingService padPipelineNumberingService;
+
   @Mock
   private PipelineDetailService pipelineDetailService;
 
-  private RegulatorPipelineReferenceTaskService regulatorPipelineReferenceTaskService;
+  @Mock
+  private SetPipelineNumberFormValidator setPipelineNumberFormValidator;
+
+  private RegulatorPipelineNumberTaskService regulatorPipelineNumberTaskService;
 
   private PadPipeline padPipeline;
 
@@ -39,9 +43,10 @@ public class RegulatorPipelineReferenceTaskServiceTest {
   @Before
   public void setUp() {
 
-    regulatorPipelineReferenceTaskService = new RegulatorPipelineReferenceTaskService(
+    regulatorPipelineNumberTaskService = new RegulatorPipelineNumberTaskService(
         padPipelineNumberingService,
-        pipelineDetailService
+        pipelineDetailService,
+        setPipelineNumberFormValidator
     );
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
@@ -60,7 +65,7 @@ public class RegulatorPipelineReferenceTaskServiceTest {
   public void pipelineTaskAccessible_validPermissions_pipelineConsented() {
     when(pipelineDetailService.isPipelineConsented(padPipeline.getPipeline())).thenReturn(true);
 
-    assertThat(regulatorPipelineReferenceTaskService.pipelineTaskAccessible(
+    assertThat(regulatorPipelineNumberTaskService.pipelineTaskAccessible(
         Set.of(PwaApplicationPermission.SET_PIPELINE_REFERENCE), padPipeline))
         .isFalse();
   }
@@ -68,7 +73,7 @@ public class RegulatorPipelineReferenceTaskServiceTest {
   @Test
   public void pipelineTaskAccessible_validPermissions_pipelineNotConsented() {
 
-    assertThat(regulatorPipelineReferenceTaskService.pipelineTaskAccessible(
+    assertThat(regulatorPipelineNumberTaskService.pipelineTaskAccessible(
         Set.of(PwaApplicationPermission.SET_PIPELINE_REFERENCE), padPipeline))
         .isTrue();
   }
@@ -76,7 +81,7 @@ public class RegulatorPipelineReferenceTaskServiceTest {
   @Test
   public void pipelineTaskAccessible_invalidPermissions_pipelineNotConsented() {
 
-    assertThat(regulatorPipelineReferenceTaskService.pipelineTaskAccessible(Set.of(PwaApplicationPermission.EDIT),
+    assertThat(regulatorPipelineNumberTaskService.pipelineTaskAccessible(Set.of(PwaApplicationPermission.EDIT),
         padPipeline))
         .isFalse();
   }
@@ -89,9 +94,9 @@ public class RegulatorPipelineReferenceTaskServiceTest {
 
     when(padPipelineNumberingService.nonConsentedPadPipelineRequiresFullReference(any())).thenReturn(false);
 
-    assertThat(regulatorPipelineReferenceTaskService.getTaskListEntry(context, taskListHeader)).isPresent()
+    assertThat(regulatorPipelineNumberTaskService.getTaskListEntry(context, taskListHeader)).isPresent()
         .hasValueSatisfying(taskListEntry -> {
-          assertThat(taskListEntry.getTaskName()).containsIgnoringCase("set pipeline reference");
+          assertThat(taskListEntry.getTaskName()).containsIgnoringCase("set pipeline number");
           assertThat(taskListEntry.isCompleted()).isTrue();
           assertThat(taskListEntry.getDisplayOrder()).isEqualTo(5);
           assertThat(taskListEntry.getRoute()).isNotNull();
@@ -109,7 +114,7 @@ public class RegulatorPipelineReferenceTaskServiceTest {
 
     when(padPipelineNumberingService.nonConsentedPadPipelineRequiresFullReference(any())).thenReturn(true);
 
-    assertThat(regulatorPipelineReferenceTaskService.getTaskListEntry(context, taskListHeader)).isPresent()
+    assertThat(regulatorPipelineNumberTaskService.getTaskListEntry(context, taskListHeader)).isPresent()
         .hasValueSatisfying(taskListEntry -> {
           assertThat(taskListEntry.isCompleted()).isFalse();
         });
