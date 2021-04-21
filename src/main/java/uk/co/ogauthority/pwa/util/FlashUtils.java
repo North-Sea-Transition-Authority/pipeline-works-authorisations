@@ -35,6 +35,12 @@ public class FlashUtils {
     addTextAttributes(redirectAttributes, title, message);
   }
 
+  public static void errorWithBulletPoints(RedirectAttributes redirectAttributes, String title, String message, List<String> bulletPoints) {
+    redirectAttributes.addFlashAttribute("flashClass", "fds-flash--red");
+    addTextAttributes(redirectAttributes, title, message);
+    addBulletListAttribute(redirectAttributes, bulletPoints);
+  }
+
   public static void info(RedirectAttributes redirectAttributes, String title) {
     addTextAttributes(redirectAttributes, title, null);
   }
@@ -48,6 +54,10 @@ public class FlashUtils {
     redirectAttributes.addFlashAttribute("flashMessage", message);
   }
 
+  private static void addBulletListAttribute(RedirectAttributes redirectAttributes, List<String> bulletPoints) {
+    redirectAttributes.addFlashAttribute("flashBulletList",  bulletPoints);
+  }
+
   /**
    * If a flash message was added by the previous request, flash it again so it is available to the next request.
    * @param inputFlashMap map of flash attributes attached to the request
@@ -59,7 +69,7 @@ public class FlashUtils {
     if (inputFlashMap != null) {
 
       inputFlashMap.entrySet().stream()
-          .filter(entry -> List.of("flashTitle", "flashMessage", "flashClass").contains(entry.getKey()))
+          .filter(entry -> List.of("flashTitle", "flashMessage", "flashClass", "flashBulletList").contains(entry.getKey()))
           .forEach(entry -> redirectAttributes.addFlashAttribute(entry.getKey(), entry.getValue()));
 
     }

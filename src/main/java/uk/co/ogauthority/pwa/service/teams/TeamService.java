@@ -62,7 +62,7 @@ public class TeamService {
   }
 
   /**
-   * Return all organisation teams associated with org groups
+   * Return all organisation teams associated with org groups.
    */
   public List<PwaOrganisationTeam> getOrganisationTeamsForOrganisationGroups(
       Collection<PortalOrganisationGroup> organisationGroups) {

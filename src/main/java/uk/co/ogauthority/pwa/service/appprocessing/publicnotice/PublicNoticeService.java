@@ -87,7 +87,9 @@ public class PublicNoticeService implements AppProcessingService {
 
   private static final AppFilePurpose FILE_PURPOSE = AppFilePurpose.PUBLIC_NOTICE;
   private static final Set<PublicNoticeStatus> ENDED_STATUSES = Set.of(PublicNoticeStatus.ENDED, PublicNoticeStatus.WITHDRAWN);
-  private static final Set<PwaApplicationType> PUBLIC_NOTICE_APP_TYPES = EnumSet.of(PwaApplicationType.INITIAL, PwaApplicationType.CAT_1_VARIATION);
+  private static final Set<PwaApplicationType> PUBLIC_NOTICE_APP_TYPES = EnumSet.of(
+      PwaApplicationType.INITIAL, PwaApplicationType.CAT_1_VARIATION
+  );
 
   @Autowired
   public PublicNoticeService(
@@ -127,7 +129,7 @@ public class PublicNoticeService implements AppProcessingService {
             || processingContext.getAppProcessingPermissions().contains(PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY)
             || processingContext.getAppProcessingPermissions().contains(PwaAppProcessingPermission.APPROVE_PUBLIC_NOTICE)
             || (processingContext.getAppProcessingPermissions().contains(PwaAppProcessingPermission.SHOW_ALL_TASKS_AS_PWA_MANAGER_ONLY))
-    )
+      )
         && PUBLIC_NOTICE_APP_TYPES.contains(processingContext.getApplicationType());
   }
 
