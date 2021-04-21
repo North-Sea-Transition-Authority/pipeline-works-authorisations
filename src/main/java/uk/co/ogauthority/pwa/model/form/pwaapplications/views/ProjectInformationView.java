@@ -1,9 +1,8 @@
 package uk.co.ogauthority.pwa.model.form.pwaapplications.views;
 
-import org.apache.commons.lang3.BooleanUtils;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadProjectInformation;
 import uk.co.ogauthority.pwa.model.form.files.UploadedFileView;
-import uk.co.ogauthority.pwa.service.enums.projectinformation.PermanentDepositRadioOption;
+import uk.co.ogauthority.pwa.service.enums.projectinformation.PermanentDepositMade;
 import uk.co.ogauthority.pwa.util.DateUtils;
 
 public class ProjectInformationView {
@@ -27,7 +26,7 @@ public class ProjectInformationView {
 
   private final Boolean usingCampaignApproach;
 
-  private final PermanentDepositRadioOption permanentDepositsMadeType;
+  private final PermanentDepositMade permanentDepositsMadeType;
   private final String futureSubmissionDate;
 
   private final Boolean temporaryDepositsMade;
@@ -73,22 +72,14 @@ public class ProjectInformationView {
 
 
     if (padProjectInformation.getPermanentDepositsMade() != null) {
+      this.permanentDepositsMadeType = padProjectInformation.getPermanentDepositsMade();
 
-      if (BooleanUtils.isFalse(padProjectInformation.getPermanentDepositsMade())) {
-        this.permanentDepositsMadeType = PermanentDepositRadioOption.NONE;
-        this.futureSubmissionDate = null;
-
+      if (padProjectInformation.getFutureAppSubmissionMonth() != null
+          && padProjectInformation.getFutureAppSubmissionYear() != null) {
+        this.futureSubmissionDate =
+            padProjectInformation.getFutureAppSubmissionMonth() + "/" + padProjectInformation.getFutureAppSubmissionYear();
       } else {
-        if (padProjectInformation.getFutureAppSubmissionMonth() != null
-            && padProjectInformation.getFutureAppSubmissionYear() != null) {
-          this.permanentDepositsMadeType = PermanentDepositRadioOption.LATER_APP;
-          this.futureSubmissionDate =
-              padProjectInformation.getFutureAppSubmissionMonth() + "/" + padProjectInformation.getFutureAppSubmissionYear();
-        } else {
-          this.permanentDepositsMadeType = PermanentDepositRadioOption.THIS_APP;
-          this.futureSubmissionDate = null;
-        }
-
+        this.futureSubmissionDate = null;
       }
     } else {
       this.permanentDepositsMadeType = null;
@@ -98,7 +89,6 @@ public class ProjectInformationView {
     this.temporaryDepositsMade = padProjectInformation.getTemporaryDepositsMade();
     this.temporaryDepDescription = padProjectInformation.getTemporaryDepDescription();
 
-
     this.isFdpQuestionRequiredBasedOnField = isFdpQuestionRequiredBasedOnField;
     this.fdpOptionSelected = padProjectInformation.getFdpOptionSelected();
     this.fdpConfirmationFlag = padProjectInformation.getFdpConfirmationFlag();
@@ -106,7 +96,6 @@ public class ProjectInformationView {
 
     this.layoutDiagramFileView = layoutDiagramFileView;
   }
-
 
 
   public String getProjectName() {
@@ -153,7 +142,7 @@ public class ProjectInformationView {
     return usingCampaignApproach;
   }
 
-  public PermanentDepositRadioOption getPermanentDepositsMadeType() {
+  public PermanentDepositMade getPermanentDepositsMadeType() {
     return permanentDepositsMadeType;
   }
 
