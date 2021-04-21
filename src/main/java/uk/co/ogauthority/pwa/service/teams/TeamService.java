@@ -62,6 +62,23 @@ public class TeamService {
   }
 
   /**
+   * Return all organisation teams associated with org groups.
+   */
+  public List<PwaOrganisationTeam> getOrganisationTeamsForOrganisationGroups(
+      Collection<PortalOrganisationGroup> organisationGroups) {
+
+    var orgGroupUrefs = organisationGroups
+        .stream()
+        .map(PortalOrganisationGroup::getUrefValue).collect(Collectors.toSet());
+    List<PortalTeamDto> orgTeams = portalTeamAccessor.getPortalTeamsByPortalTeamType(PwaTeamType.ORGANISATION.getPortalTeamType())
+        .stream()
+        .filter(portalTeamDto -> orgGroupUrefs.contains(portalTeamDto.getScope().getPrimaryScope()))
+        .collect(Collectors.toUnmodifiableList());
+
+    return pwaTeamsDtoFactory.createOrganisationTeamList(orgTeams);
+  }
+
+  /**
    * Return the PwaTeam with the given resId.
    */
   public PwaTeam getTeamByResId(int resId) {
