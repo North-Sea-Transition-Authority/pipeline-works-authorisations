@@ -82,7 +82,7 @@ public class IndustryPaymentControllerTest extends PwaAppProcessingContextAbstra
 
     orgGroup1 = PortalOrganisationTestUtils.generateOrganisationGroup(1, "GROUP1", "1");
     orgGroup2 = PortalOrganisationTestUtils.generateOrganisationGroup(2, "GROUP2", "2");
-    when(pwaHolderTeamService.getHolderOrgGroups(any())).thenReturn(Set.of(orgGroup1, orgGroup2));
+    when(pwaHolderTeamService.getHolderOrgGroups(any(PwaApplicationDetail.class))).thenReturn(Set.of(orgGroup1, orgGroup2));
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(APP_TYPE, APP_ID, APP_DETAIL_ID);
     pwaApplicationDetail.setStatus(PwaApplicationStatus.AWAITING_APPLICATION_PAYMENT);

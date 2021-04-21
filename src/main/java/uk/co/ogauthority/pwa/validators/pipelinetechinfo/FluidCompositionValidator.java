@@ -13,10 +13,13 @@ import uk.co.ogauthority.pwa.util.ValidatorUtils;
 public class FluidCompositionValidator implements SmartValidator {
 
   private final FluidCompositionDataValidator fluidCompositionDataValidator;
+  private final FluidCompositionFormValidator fluidCompositionFormValidator;
 
   @Autowired
-  public FluidCompositionValidator(FluidCompositionDataValidator fluidCompositionDataValidator) {
+  public FluidCompositionValidator(FluidCompositionDataValidator fluidCompositionDataValidator,
+                                   FluidCompositionFormValidator fluidCompositionFormValidator) {
     this.fluidCompositionDataValidator = fluidCompositionDataValidator;
+    this.fluidCompositionFormValidator = fluidCompositionFormValidator;
   }
 
   @Override
@@ -31,14 +34,14 @@ public class FluidCompositionValidator implements SmartValidator {
 
     var chemicalDataFormMap = fluidCompositionForm.getChemicalDataFormMap();
 
+    fluidCompositionFormValidator.validate(fluidCompositionForm, errors);
+
     // sort form map by chemical display order to ensure the validation errors are ordered correctly
     chemicalDataFormMap.entrySet().stream()
         .sorted(Comparator.comparing(e -> e.getKey().getDisplayOrder()))
         .forEach(e -> ValidatorUtils.invokeNestedValidator(errors, fluidCompositionDataValidator,
             "chemicalDataFormMap[" + e.getKey() + "]", e.getValue(), e.getKey()));
-
   }
-
 
   @Override
   public void validate(Object target, Errors errors) {

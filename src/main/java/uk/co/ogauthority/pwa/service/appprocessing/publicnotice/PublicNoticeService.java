@@ -339,6 +339,7 @@ public class PublicNoticeService implements AppProcessingService {
         publicNotice, PublicNoticeDocumentType.IN_PROGRESS_DOCUMENT);
     String withdrawingPersonName = null;
     String withdrawnTimestamp = null;
+    String withdrawalReason = null;
     String publicationStartTimestamp = null;
     String publicationEndTimestamp = null;
 
@@ -346,6 +347,7 @@ public class PublicNoticeService implements AppProcessingService {
     if (publicNotice.getStatus().equals(PublicNoticeStatus.WITHDRAWN)) {
       withdrawingPersonName = personService.getPersonById(publicNotice.getWithdrawingPersonId()).getFullName();
       withdrawnTimestamp = DateUtils.formatDate(publicNotice.getWithdrawalTimestamp());
+      withdrawalReason = publicNotice.getWithdrawalReason();
     }
 
     var publicNoticeDateOpt = publicNoticeDatesRepository.getByPublicNoticeAndEndedByPersonIdIsNull(publicNotice);
@@ -361,6 +363,7 @@ public class PublicNoticeService implements AppProcessingService {
         latestDocumentComments.map(PublicNoticeDocument::getComments).orElse(null),
         withdrawingPersonName,
         withdrawnTimestamp,
+        withdrawalReason,
         publicationStartTimestamp,
         publicationEndTimestamp
     );

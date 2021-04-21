@@ -19,7 +19,7 @@ import org.springframework.validation.FieldError;
 import uk.co.ogauthority.pwa.model.entity.enums.ProjectInformationQuestion;
 import uk.co.ogauthority.pwa.model.form.files.UploadFileWithDescriptionForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.ProjectInformationForm;
-import uk.co.ogauthority.pwa.service.enums.projectinformation.PermanentDepositRadioOption;
+import uk.co.ogauthority.pwa.service.enums.projectinformation.PermanentDepositMade;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
@@ -32,9 +32,20 @@ public class ProjectInformationValidatorTest {
 
   private ProjectInformationValidator validator;
 
+  private Set<ProjectInformationQuestion> partialDateValidationQuestions;
+
   @Before
   public void setUp() {
     validator = new ProjectInformationValidator(new TwoFieldDateInputValidator());
+
+    partialDateValidationQuestions = Set.of(ProjectInformationQuestion.PROPOSED_START_DATE,
+        ProjectInformationQuestion.MOBILISATION_DATE,
+        ProjectInformationQuestion.EARLIEST_COMPLETION_DATE,
+        ProjectInformationQuestion.LATEST_COMPLETION_DATE,
+        ProjectInformationQuestion.LICENCE_TRANSFER_PLANNED,
+        ProjectInformationQuestion.LICENCE_TRANSFER_DATE,
+        ProjectInformationQuestion.COMMERCIAL_AGREEMENT_DATE,
+        ProjectInformationQuestion.PERMANENT_DEPOSITS_BEING_MADE);
   }
 
 
@@ -99,39 +110,49 @@ public class ProjectInformationValidatorTest {
         entry("methodOfPipelineDeployment", Set.of("methodOfPipelineDeployment" + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode())));
   }
 
+  private void setYearOnFormPartialDateQuestions(ProjectInformationForm form, int year) {
+    form.setProposedStartYear(year);
+    form.setMobilisationYear(year);
+    form.setEarliestCompletionYear(year);
+    form.setLatestCompletionYear(year);
+    form.setLicenceTransferPlanned(true);
+    form.setLicenceTransferYear(year);
+    form.setCommercialAgreementYear(year);
+    form.setPermanentDepositsMadeType(PermanentDepositMade.LATER_APP);
+    form.setFutureSubmissionDate(new TwoFieldDateInput(year, 1));
+  }
+
   @Test
-  public void validate_partialDates_yearsTooBig() {
+  public void validate_partialDates_yearTooBig() {
     var form = new ProjectInformationForm();
     int invalidLargeYear = 4001;
-    form.setProposedStartYear(invalidLargeYear);
-    form.setMobilisationYear(invalidLargeYear);
-    form.setEarliestCompletionYear(invalidLargeYear);
-    form.setLatestCompletionYear(invalidLargeYear);
-    form.setLicenceTransferPlanned(true);
-    form.setLicenceTransferYear(invalidLargeYear);
-    form.setCommercialAgreementYear(invalidLargeYear);
-    form.setPermanentDepositsMadeType(PermanentDepositRadioOption.LATER_APP);
-    form.setFutureSubmissionDate(new TwoFieldDateInput(invalidLargeYear, 1));
+    setYearOnFormPartialDateQuestions(form, invalidLargeYear);
 
     var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form,
         new ProjectInformationFormValidationHints(PwaApplicationType.INITIAL, ValidationType.PARTIAL,
-            Set.of(ProjectInformationQuestion.PROPOSED_START_DATE,
-                ProjectInformationQuestion.MOBILISATION_DATE,
-                ProjectInformationQuestion.EARLIEST_COMPLETION_DATE,
-                ProjectInformationQuestion.LATEST_COMPLETION_DATE,
-                ProjectInformationQuestion.LICENCE_TRANSFER_PLANNED,
-                ProjectInformationQuestion.LICENCE_TRANSFER_DATE,
-                ProjectInformationQuestion.COMMERCIAL_AGREEMENT_DATE,
-                ProjectInformationQuestion.PERMANENT_DEPOSITS_BEING_MADE),
+            partialDateValidationQuestions,
             false));
 
     assertThat(errorsMap).contains(
+        entry("proposedStartDay", Set.of("proposedStartDay" + FieldValidationErrorCodes.INVALID.getCode())),
+        entry("proposedStartMonth", Set.of("proposedStartMonth" + FieldValidationErrorCodes.INVALID.getCode())),
         entry("proposedStartYear", Set.of("proposedStartYear" + FieldValidationErrorCodes.INVALID.getCode())),
+        entry("mobilisationDay", Set.of("mobilisationDay" + FieldValidationErrorCodes.INVALID.getCode())),
+        entry("mobilisationMonth", Set.of("mobilisationMonth" + FieldValidationErrorCodes.INVALID.getCode())),
         entry("mobilisationYear", Set.of("mobilisationYear" + FieldValidationErrorCodes.INVALID.getCode())),
+        entry("earliestCompletionDay", Set.of("earliestCompletionDay" + FieldValidationErrorCodes.INVALID.getCode())),
+        entry("earliestCompletionMonth", Set.of("earliestCompletionMonth" + FieldValidationErrorCodes.INVALID.getCode())),
         entry("earliestCompletionYear", Set.of("earliestCompletionYear" + FieldValidationErrorCodes.INVALID.getCode())),
+        entry("latestCompletionDay", Set.of("latestCompletionDay" + FieldValidationErrorCodes.INVALID.getCode())),
+        entry("latestCompletionMonth", Set.of("latestCompletionMonth" + FieldValidationErrorCodes.INVALID.getCode())),
         entry("latestCompletionYear", Set.of("latestCompletionYear" + FieldValidationErrorCodes.INVALID.getCode())),
+        entry("licenceTransferDay", Set.of("licenceTransferDay" + FieldValidationErrorCodes.INVALID.getCode())),
+        entry("licenceTransferMonth", Set.of("licenceTransferMonth" + FieldValidationErrorCodes.INVALID.getCode())),
         entry("licenceTransferYear", Set.of("licenceTransferYear" + FieldValidationErrorCodes.INVALID.getCode())),
+        entry("commercialAgreementDay", Set.of("commercialAgreementDay" + FieldValidationErrorCodes.INVALID.getCode())),
+        entry("commercialAgreementMonth", Set.of("commercialAgreementMonth" + FieldValidationErrorCodes.INVALID.getCode())),
         entry("commercialAgreementYear", Set.of("commercialAgreementYear" + FieldValidationErrorCodes.INVALID.getCode())),
+        entry("futureSubmissionDate.month", Set.of("month" + FieldValidationErrorCodes.INVALID.getCode())),
         entry("futureSubmissionDate.year", Set.of("year" + FieldValidationErrorCodes.INVALID.getCode())));
   }
 
@@ -139,35 +160,33 @@ public class ProjectInformationValidatorTest {
   public void validate_partialDates_yearTooSmall() {
     var form = new ProjectInformationForm();
     int invalidSmallYear = 999;
-    form.setProposedStartYear(invalidSmallYear);
-    form.setMobilisationYear(invalidSmallYear);
-    form.setEarliestCompletionYear(invalidSmallYear);
-    form.setLatestCompletionYear(invalidSmallYear);
-    form.setLicenceTransferPlanned(true);
-    form.setLicenceTransferYear(invalidSmallYear);
-    form.setCommercialAgreementYear(invalidSmallYear);
-    form.setPermanentDepositsMadeType(PermanentDepositRadioOption.LATER_APP);
-    form.setFutureSubmissionDate(new TwoFieldDateInput(invalidSmallYear, 1));
+    setYearOnFormPartialDateQuestions(form, invalidSmallYear);
 
     var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form,
         new ProjectInformationFormValidationHints(PwaApplicationType.INITIAL, ValidationType.PARTIAL,
-            Set.of(ProjectInformationQuestion.PROPOSED_START_DATE,
-                ProjectInformationQuestion.MOBILISATION_DATE,
-                ProjectInformationQuestion.EARLIEST_COMPLETION_DATE,
-                ProjectInformationQuestion.LATEST_COMPLETION_DATE,
-                ProjectInformationQuestion.LICENCE_TRANSFER_PLANNED,
-                ProjectInformationQuestion.LICENCE_TRANSFER_DATE,
-                ProjectInformationQuestion.COMMERCIAL_AGREEMENT_DATE,
-                ProjectInformationQuestion.PERMANENT_DEPOSITS_BEING_MADE),
+            partialDateValidationQuestions,
             false));
 
     assertThat(errorsMap).contains(
+        entry("proposedStartDay", Set.of("proposedStartDay" + FieldValidationErrorCodes.INVALID.getCode())),
+        entry("proposedStartMonth", Set.of("proposedStartMonth" + FieldValidationErrorCodes.INVALID.getCode())),
         entry("proposedStartYear", Set.of("proposedStartYear" + FieldValidationErrorCodes.INVALID.getCode())),
+        entry("mobilisationDay", Set.of("mobilisationDay" + FieldValidationErrorCodes.INVALID.getCode())),
+        entry("mobilisationMonth", Set.of("mobilisationMonth" + FieldValidationErrorCodes.INVALID.getCode())),
         entry("mobilisationYear", Set.of("mobilisationYear" + FieldValidationErrorCodes.INVALID.getCode())),
+        entry("earliestCompletionDay", Set.of("earliestCompletionDay" + FieldValidationErrorCodes.INVALID.getCode())),
+        entry("earliestCompletionMonth", Set.of("earliestCompletionMonth" + FieldValidationErrorCodes.INVALID.getCode())),
         entry("earliestCompletionYear", Set.of("earliestCompletionYear" + FieldValidationErrorCodes.INVALID.getCode())),
+        entry("latestCompletionDay", Set.of("latestCompletionDay" + FieldValidationErrorCodes.INVALID.getCode())),
+        entry("latestCompletionMonth", Set.of("latestCompletionMonth" + FieldValidationErrorCodes.INVALID.getCode())),
         entry("latestCompletionYear", Set.of("latestCompletionYear" + FieldValidationErrorCodes.INVALID.getCode())),
+        entry("licenceTransferDay", Set.of("licenceTransferDay" + FieldValidationErrorCodes.INVALID.getCode())),
+        entry("licenceTransferMonth", Set.of("licenceTransferMonth" + FieldValidationErrorCodes.INVALID.getCode())),
         entry("licenceTransferYear", Set.of("licenceTransferYear" + FieldValidationErrorCodes.INVALID.getCode())),
+        entry("commercialAgreementDay", Set.of("commercialAgreementDay" + FieldValidationErrorCodes.INVALID.getCode())),
+        entry("commercialAgreementMonth", Set.of("commercialAgreementMonth" + FieldValidationErrorCodes.INVALID.getCode())),
         entry("commercialAgreementYear", Set.of("commercialAgreementYear" + FieldValidationErrorCodes.INVALID.getCode())),
+        entry("futureSubmissionDate.month", Set.of("month" + FieldValidationErrorCodes.INVALID.getCode())),
         entry("futureSubmissionDate.year", Set.of("year" + FieldValidationErrorCodes.INVALID.getCode())));
   }
 
@@ -777,7 +796,7 @@ public class ProjectInformationValidatorTest {
   @Test
   public void validate_permanentDepositType_LaterApp_noDate() {
     var form = new ProjectInformationForm();
-    form.setPermanentDepositsMadeType(PermanentDepositRadioOption.LATER_APP);
+    form.setPermanentDepositsMadeType(PermanentDepositMade.LATER_APP);
     form.setFutureSubmissionDate(new TwoFieldDateInput());
     Map<String, Set<String>> errorsMap = getErrorMap(form, new ProjectInformationFormValidationHints(
         PwaApplicationType.INITIAL, ValidationType.FULL, Set.of(ProjectInformationQuestion.PERMANENT_DEPOSITS_BEING_MADE), false));
@@ -790,7 +809,7 @@ public class ProjectInformationValidatorTest {
   @Test
   public void validate_permanentDepositType_LaterApp_pastDate() {
     var form = new ProjectInformationForm();
-    form.setPermanentDepositsMadeType(PermanentDepositRadioOption.LATER_APP);
+    form.setPermanentDepositsMadeType(PermanentDepositMade.LATER_APP);
     form.setFutureSubmissionDate(new TwoFieldDateInput(2020, 2));
     Map<String, Set<String>> errorsMap = getErrorMap(form, new ProjectInformationFormValidationHints(
         PwaApplicationType.INITIAL, ValidationType.FULL, Set.of(ProjectInformationQuestion.PERMANENT_DEPOSITS_BEING_MADE), false));
@@ -922,8 +941,22 @@ public class ProjectInformationValidatorTest {
     var form = new ProjectInformationForm();
     var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form,
         new ProjectInformationFormValidationHints(PwaApplicationType.INITIAL, ValidationType.PARTIAL, EnumSet.allOf(ProjectInformationQuestion.class), false));
-    assertThat(errorsMap).containsOnlyKeys("projectName", "projectOverview", "methodOfPipelineDeployment");
+    assertThat(errorsMap).isEmpty();
   }
+
+  @Test
+  public void validate_partialValidation_stringLengthOver4000Chars() {
+    var form = new ProjectInformationForm();
+    form.setMethodOfPipelineDeployment(ValidatorTestUtils.over4000Chars());
+    form.setProjectOverview(ValidatorTestUtils.over4000Chars());
+    var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form,
+        new ProjectInformationFormValidationHints(PwaApplicationType.INITIAL, ValidationType.PARTIAL, EnumSet.allOf(ProjectInformationQuestion.class), false));
+
+    assertThat(errorsMap).contains(
+        entry("methodOfPipelineDeployment", Set.of("methodOfPipelineDeployment" + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode())),
+        entry("projectOverview", Set.of("projectOverview" + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode())));
+  }
+
 
   @Test
   public void validate_validationNotRequired_whenQuestionNotProvided() {

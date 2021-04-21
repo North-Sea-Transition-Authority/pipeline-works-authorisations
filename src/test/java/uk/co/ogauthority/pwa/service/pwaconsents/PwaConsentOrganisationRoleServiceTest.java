@@ -164,12 +164,12 @@ public class PwaConsentOrganisationRoleServiceTest {
   }
 
   @Test
-  public void getCurrentHoldersOrgRolesForMasterPwa_whenZeroHolders() {
-    assertThat(pwaConsentOrganisationRoleService.getCurrentHoldersOrgRolesForMasterPwa(masterPwa)).isEmpty();
+  public void getCurrentConsentedHoldersOrgRolesForMasterPwa_whenZeroHolders() {
+    assertThat(pwaConsentOrganisationRoleService.getCurrentConsentedHoldersOrgRolesForMasterPwa(masterPwa)).isEmpty();
   }
 
   @Test
-  public void getCurrentHoldersOrgRolesForMasterPwa_whenOneHolder() {
+  public void getCurrentConsentedHoldersOrgRolesForMasterPwa_whenOneHolder() {
 
     when(pwaConsentOrganisationRoleRepository.findByAddedByPwaConsentInAndRoleInAndEndTimestampIsNull(
         List.of(pwaConsent),
@@ -179,7 +179,7 @@ public class PwaConsentOrganisationRoleServiceTest {
     when(portalOrganisationsAccessor.getOrganisationUnitsByIdIn(Set.of(ORG_UNIT_ID_1)))
         .thenReturn(List.of(organisationUnit1));
 
-    assertThat(pwaConsentOrganisationRoleService.getCurrentHoldersOrgRolesForMasterPwa(masterPwa)).hasOnlyOneElementSatisfying(
+    assertThat(pwaConsentOrganisationRoleService.getCurrentConsentedHoldersOrgRolesForMasterPwa(masterPwa)).hasOnlyOneElementSatisfying(
         masterPwaHolderDto -> {
           assertThat(masterPwaHolderDto.getHolderOrganisationGroup()).containsSame(organisationGroup1);
           assertThat(masterPwaHolderDto.getMasterPwa()).isEqualTo(masterPwa);
@@ -188,7 +188,7 @@ public class PwaConsentOrganisationRoleServiceTest {
   }
 
   @Test
-  public void getCurrentHoldersOrgRolesForMasterPwa_whenMultipleHolders_overMultipleConsents() {
+  public void getCurrentConsentedHoldersOrgRolesForMasterPwa_whenMultipleHolders_overMultipleConsents() {
     var secondConsent = mock(PwaConsent.class);
     when(secondConsent.getMasterPwa()).thenReturn(masterPwa);
     when(pwaConsentRepository.findByMasterPwa(masterPwa)).thenReturn(List.of(pwaConsent, secondConsent));
@@ -202,7 +202,7 @@ public class PwaConsentOrganisationRoleServiceTest {
     when(portalOrganisationsAccessor.getOrganisationUnitsByIdIn(Set.of(ORG_UNIT_ID_1, ORG_UNIT_ID_2)))
         .thenReturn(List.of(organisationUnit1, organisationUnit2));
 
-    var masterPwaHolders =  pwaConsentOrganisationRoleService.getCurrentHoldersOrgRolesForMasterPwa(masterPwa);
+    var masterPwaHolders =  pwaConsentOrganisationRoleService.getCurrentConsentedHoldersOrgRolesForMasterPwa(masterPwa);
 
     assertThat(masterPwaHolders).hasSize(2);
 
@@ -219,7 +219,7 @@ public class PwaConsentOrganisationRoleServiceTest {
   }
 
   @Test
-  public void getCurrentHoldersOrgRolesForMasterPwa_whenMultipleHolders_whereOneHolderIsNotCurrentOrgUnit() {
+  public void getCurrentConsentedHoldersOrgRolesForMasterPwa_whenMultipleHolders_whereOneHolderIsNotCurrentOrgUnit() {
     var secondConsent = mock(PwaConsent.class);
     when(pwaConsentRepository.findByMasterPwa(masterPwa)).thenReturn(List.of(pwaConsent, secondConsent));
 
@@ -232,7 +232,7 @@ public class PwaConsentOrganisationRoleServiceTest {
     when(portalOrganisationsAccessor.getOrganisationUnitsByIdIn(Set.of(ORG_UNIT_ID_1, ORG_UNIT_ID_2)))
         .thenReturn(List.of(organisationUnit1));
 
-    var masterPwaHolders =  pwaConsentOrganisationRoleService.getCurrentHoldersOrgRolesForMasterPwa(masterPwa);
+    var masterPwaHolders =  pwaConsentOrganisationRoleService.getCurrentConsentedHoldersOrgRolesForMasterPwa(masterPwa);
 
 
     assertThat(masterPwaHolders).hasOnlyOneElementSatisfying(masterPwaHolderDto -> {

@@ -40,7 +40,7 @@ public enum PwaApplicationPermission {
 
   VIEW(
       EnumSet.allOf(PwaContactRole.class),
-      EnumSet.of(PwaOrganisationRole.APPLICATION_SUBMITTER),
+      EnumSet.allOf(PwaOrganisationRole.class),
       EnumSet.allOf(PwaRegulatorRole.class),
       EnumSet.allOf(ConsulteeGroupMemberRole.class)),
 
