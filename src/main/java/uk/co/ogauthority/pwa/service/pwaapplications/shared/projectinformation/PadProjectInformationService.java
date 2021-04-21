@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.EnumSet;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import javax.transaction.Transactional;
@@ -190,6 +191,12 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
     } else if (pwaApplicationType == PwaApplicationType.DECOMMISSIONING) {
       hiddenQuestions = EnumSet.of(ProjectInformationQuestion.METHOD_OF_PIPELINE_DEPLOYMENT);
 
+    } else if (pwaApplicationType == PwaApplicationType.OPTIONS_VARIATION) {
+      hiddenQuestions = EnumSet.of(
+          ProjectInformationQuestion.LICENCE_TRANSFER_PLANNED,
+          ProjectInformationQuestion.USING_CAMPAIGN_APPROACH
+      );
+
     } else {
       hiddenQuestions = EnumSet.noneOf(ProjectInformationQuestion.class);
     }
@@ -218,7 +225,7 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
     }
 
     if (requiredQuestions.contains(ProjectInformationQuestion.PERMANENT_DEPOSITS_BEING_MADE)
-        && !projectInformation.getPermanentDepositsMade()) {
+        && !projectInformation.getPermanentDepositsMade().isPermanentDepositMade()) {
       // null out permanent deposit month and year if not "part of later application"
       projectInformation.setFutureAppSubmissionMonth(null);
       projectInformation.setFutureAppSubmissionYear(null);
@@ -257,7 +264,8 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
 
   public boolean getPermanentDepositsOnApplication(PwaApplicationDetail pwaApplicationDetail) {
     return padProjectInformationRepository.findByPwaApplicationDetail(pwaApplicationDetail)
-        .map(padProjectInformation -> BooleanUtils.isTrue(padProjectInformation.getPermanentDepositsMade()))
+        .map(padProjectInformation -> Objects.nonNull(padProjectInformation.getPermanentDepositsMade())
+            && padProjectInformation.getPermanentDepositsMade().isPermanentDepositMade())
         .orElse(false);
   }
 }

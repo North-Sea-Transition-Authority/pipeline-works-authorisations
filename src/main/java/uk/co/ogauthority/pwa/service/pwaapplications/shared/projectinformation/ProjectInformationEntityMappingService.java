@@ -4,7 +4,7 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadProjectInformation;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.ProjectInformationForm;
-import uk.co.ogauthority.pwa.service.enums.projectinformation.PermanentDepositRadioOption;
+import uk.co.ogauthority.pwa.service.enums.projectinformation.PermanentDepositMade;
 import uk.co.ogauthority.pwa.util.DateUtils;
 import uk.co.ogauthority.pwa.util.forminputs.twofielddate.TwoFieldDateInput;
 
@@ -70,22 +70,12 @@ public class ProjectInformationEntityMappingService {
     }
 
     if (padProjectInformation.getPermanentDepositsMade() != null) {
-
-      if (BooleanUtils.isFalse(padProjectInformation.getPermanentDepositsMade())) {
-        form.setPermanentDepositsMadeType(PermanentDepositRadioOption.NONE);
-      } else {
-
-        if (padProjectInformation.getFutureAppSubmissionMonth() != null
-            && padProjectInformation.getFutureAppSubmissionYear() != null) {
-          form.setPermanentDepositsMadeType(PermanentDepositRadioOption.LATER_APP);
-          form.setFutureSubmissionDate(new TwoFieldDateInput(padProjectInformation.getFutureAppSubmissionYear(),
-              padProjectInformation.getFutureAppSubmissionMonth()));
-        } else {
-          form.setPermanentDepositsMadeType(PermanentDepositRadioOption.THIS_APP);
-        }
-
+      form.setPermanentDepositsMadeType(padProjectInformation.getPermanentDepositsMade());
+      if (padProjectInformation.getFutureAppSubmissionMonth() != null
+          && padProjectInformation.getFutureAppSubmissionYear() != null) {
+        form.setFutureSubmissionDate(new TwoFieldDateInput(padProjectInformation.getFutureAppSubmissionYear(),
+            padProjectInformation.getFutureAppSubmissionMonth()));
       }
-
     }
 
     if (padProjectInformation.getTemporaryDepositsMade() != null) {
@@ -168,12 +158,10 @@ public class ProjectInformationEntityMappingService {
     if (form.getPermanentDepositsMadeType() != null) {
       padProjectInformation.setFutureAppSubmissionMonth(null);
       padProjectInformation.setFutureAppSubmissionYear(null);
-      padProjectInformation.setPermanentDepositsMade(true);
-      if (form.getPermanentDepositsMadeType().equals(PermanentDepositRadioOption.LATER_APP)) {
+      padProjectInformation.setPermanentDepositsMade(form.getPermanentDepositsMadeType());
+      if (form.getPermanentDepositsMadeType() == PermanentDepositMade.LATER_APP) {
         padProjectInformation.setFutureAppSubmissionMonth(Integer.parseInt(form.getFutureSubmissionDate().getMonth()));
         padProjectInformation.setFutureAppSubmissionYear(Integer.parseInt(form.getFutureSubmissionDate().getYear()));
-      } else if (form.getPermanentDepositsMadeType().equals(PermanentDepositRadioOption.NONE)) {
-        padProjectInformation.setPermanentDepositsMade(false);
       }
     }
 
@@ -189,8 +177,6 @@ public class ProjectInformationEntityMappingService {
         padProjectInformation.setFdpNotSelectedReason(form.getFdpNotSelectedReason());
       }
     }
-
-
   }
 
 }
