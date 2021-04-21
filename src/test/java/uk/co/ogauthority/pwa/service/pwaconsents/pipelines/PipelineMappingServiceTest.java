@@ -74,4 +74,41 @@ public class PipelineMappingServiceTest {
 
   }
 
+  @Test(expected = NullPointerException.class)
+  public void mapPadPipelineToPipelineDetail_noCoordinates() throws IllegalAccessException {
+
+    var appDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
+    var padPipelineIdentData = PadPipelineTestUtil.createPadPipeline(appDetail, PipelineType.METHANOL_PIPELINE);
+    var padPipeline = padPipelineIdentData.getPadPipelineIdent().getPadPipeline();
+    padPipeline.setFromCoordinates(null);
+    padPipeline.setToCoordinates(null);
+
+    var detail = new PipelineDetail();
+
+    pipelineMappingService.mapPipelineEntities(detail, padPipeline);
+
+    ObjectTestUtils.assertAllExpectedFieldsHaveValue(detail,
+        List.of("id", "pipeline", "startTimestamp", "endTimestamp", "tipFlag", "pwaConsent", "fromCoordinates", "toCoordinates"));
+
+  }
+
+  @Test
+  public void mapPadPipelineToPipelineDetail_pipelineTypeNull() throws IllegalAccessException {
+
+    var appDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
+    var padPipelineIdentData = PadPipelineTestUtil.createPadPipeline(appDetail, PipelineType.METHANOL_PIPELINE);
+    var padPipeline = padPipelineIdentData.getPadPipelineIdent().getPadPipeline();
+    padPipeline.setPipelineType(null);
+
+    var detail = new PipelineDetail();
+
+    pipelineMappingService.mapPipelineEntities(detail, padPipeline);
+
+    ObjectTestUtils.assertAllExpectedFieldsHaveValue(detail,
+        List.of("id", "pipeline", "startTimestamp", "endTimestamp", "tipFlag", "pwaConsent"));
+
+    assertThat(detail.getPipelineType()).isEqualTo((PipelineType.UNKNOWN));
+
+  }
+
 }

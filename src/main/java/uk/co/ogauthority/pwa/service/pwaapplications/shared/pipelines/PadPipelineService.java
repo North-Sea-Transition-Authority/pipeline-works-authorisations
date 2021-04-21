@@ -11,8 +11,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.BooleanUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,7 +21,6 @@ import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineHeaderFormContext;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineMaterial;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineStatus;
-import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
 import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
@@ -42,8 +39,6 @@ import uk.co.ogauthority.pwa.util.StreamUtils;
 
 @Service
 public class PadPipelineService {
-
-  private static final Logger LOGGER = LoggerFactory.getLogger(PadPipelineService.class);
 
   private final PadPipelineRepository padPipelineRepository;
   private final PipelineService pipelineService;
@@ -302,18 +297,11 @@ public class PadPipelineService {
                                               ModifyPipelineForm form) {
     // TODO: PWA-682 - Map added fields from PipelineDetail to newPadPipeline.
     var newPadPipeline = new PadPipeline(detail);
-    try {
-      pipelineMappingService.mapPipelineEntities(newPadPipeline, pipelineDetail);
-    } catch (NullPointerException npe) {
-      LOGGER.warn("PipelineDetail is missing valid coordinates", npe);
-    }
+    pipelineMappingService.mapPipelineEntities(newPadPipeline, pipelineDetail);
 
     newPadPipeline.setPipelineStatus(form.getPipelineStatus());
     if (newPadPipeline.getPipelineStatus() == PipelineStatus.OUT_OF_USE_ON_SEABED) {
       newPadPipeline.setPipelineStatusReason(form.getPipelineStatusReason());
-    }
-    if (pipelineDetail.getPipelineType() == null) {
-      newPadPipeline.setPipelineType(PipelineType.UNKNOWN);
     }
 
     padPipelineRepository.save(newPadPipeline);
