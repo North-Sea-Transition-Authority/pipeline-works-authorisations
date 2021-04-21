@@ -124,34 +124,16 @@ public class EnvironmentalDecommissioningValidator implements SmartValidator {
             "Enter a list of the permits you will submit at a later date");
       }
 
-      ValidatorUtils.validateYearWhenPresent(
-          "emtSubmission", "Permit submission",
-          form.getEmtSubmissionYear(), errors);
+      if (validationType == ValidationType.FULL) {
+        ValidatorUtils.validateDate(
+            "emtSubmission", "permit submission",
+            form.getEmtSubmissionDay(), form.getEmtSubmissionMonth(), form.getEmtSubmissionYear(), errors);
 
-      // if full do proper date validation, or if partial and they've entered at least one value
-      if (validationType == ValidationType.FULL
-          || ObjectUtils.anyNotNull(form.getEmtSubmissionYear(), form.getEmtSubmissionMonth(), form.getEmtSubmissionDay())) {
-
-        try {
-          LocalDate.of(
-              form.getEmtSubmissionYear(),
-              form.getEmtSubmissionMonth(),
-              form.getEmtSubmissionDay()
-          );
-        } catch (NullPointerException npe) {
-          errors.rejectValue("emtSubmissionDay", "emtSubmissionDay.notParsable",
-              "Enter a submission date");
-          errors.rejectValue("emtSubmissionMonth", "emtSubmissionMonth.notParsable", "");
-          errors.rejectValue("emtSubmissionYear", "emtSubmissionYear.notParsable", "");
-        } catch (DateTimeException dte) {
-          errors.rejectValue("emtSubmissionDay", "emtSubmissionDay.invalidDate",
-              "Enter a real date for submission");
-          errors.rejectValue("emtSubmissionMonth", "emtSubmissionMonth.invalidDate", "");
-          errors.rejectValue("emtSubmissionYear", "emtSubmissionYear.invalidDate", "");
-        }
-
+      } else {
+        ValidatorUtils.validateDateWhenPresent(
+            "emtSubmission", "permit submission",
+            form.getEmtSubmissionDay(), form.getEmtSubmissionMonth(), form.getEmtSubmissionYear(), errors);
       }
-
     }
 
   }

@@ -25,42 +25,45 @@
         <@fdsCheckAnswers.checkAnswers summaryListClass="">
 
             <#if !displayAsHistoricalRequest>
-                <@fdsCheckAnswers.checkAnswersRow keyText="Submitted" actionText="" actionUrl="" screenReaderActionText="">
+                <@fdsCheckAnswers.checkAnswersRowNoAction keyText="Submitted">
                     ${publicNoticeViewData.submittedTimestamp}
-                </@fdsCheckAnswers.checkAnswersRow>
+                </@fdsCheckAnswers.checkAnswersRowNoAction>
             </#if>
 
-            <@fdsCheckAnswers.checkAnswersRow keyText="Status" actionText="" actionUrl="" screenReaderActionText="">
+            <@fdsCheckAnswers.checkAnswersRowNoAction keyText="Status">
                 ${publicNoticeViewData.status.getDisplayText()}
-            </@fdsCheckAnswers.checkAnswersRow>
+            </@fdsCheckAnswers.checkAnswersRowNoAction>
 
             <#if publicNoticeViewData.status == "WITHDRAWN">
-                <@fdsCheckAnswers.checkAnswersRow keyText="Withdrawn by" actionText="" actionUrl="" screenReaderActionText="">
+                <@fdsCheckAnswers.checkAnswersRowNoAction keyText="Withdrawn by">
                     ${publicNoticeViewData.withdrawnByPersonName}
-                </@fdsCheckAnswers.checkAnswersRow>
-                <@fdsCheckAnswers.checkAnswersRow keyText="Withdrawn on" actionText="" actionUrl="" screenReaderActionText="">
+                </@fdsCheckAnswers.checkAnswersRowNoAction>
+                <@fdsCheckAnswers.checkAnswersRowNoAction keyText="Withdrawn on">
                     ${publicNoticeViewData.withdrawnTimestamp}
-                </@fdsCheckAnswers.checkAnswersRow>
+                </@fdsCheckAnswers.checkAnswersRowNoAction>
+                <@fdsCheckAnswers.checkAnswersRowNoAction keyText="Withdrawal reason">
+                    ${publicNoticeViewData.withdrawalReason}
+                </@fdsCheckAnswers.checkAnswersRowNoAction>
             </#if>
 
             <#if publicNoticeViewData.latestDocumentComments?has_content>
-                <@fdsCheckAnswers.checkAnswersRow keyText="Case officer comments" actionText="" actionUrl="" screenReaderActionText="">
+                <@fdsCheckAnswers.checkAnswersRowNoAction keyText="Case officer comments">
                    <@multiLineText.multiLineText>
                         <p class="govuk-body"> ${publicNoticeViewData.latestDocumentComments} </p> 
                     </@multiLineText.multiLineText>
-                </@fdsCheckAnswers.checkAnswersRow>
+                </@fdsCheckAnswers.checkAnswersRowNoAction>
             </#if>            
 
             <#if publicNoticeViewData.publicationStartTimestamp?has_content>
-                <@fdsCheckAnswers.checkAnswersRow keyText="Publication start date" actionText="" actionUrl="" screenReaderActionText="">
+                <@fdsCheckAnswers.checkAnswersRowNoAction keyText="Publication start date">
                    ${publicNoticeViewData.publicationStartTimestamp}
-                </@fdsCheckAnswers.checkAnswersRow>
+                </@fdsCheckAnswers.checkAnswersRowNoAction>
             </#if>
             
             <#if publicNoticeViewData.publicationEndTimestamp?has_content>
-                <@fdsCheckAnswers.checkAnswersRow keyText="Publication end date" actionText="" actionUrl="" screenReaderActionText="">
+                <@fdsCheckAnswers.checkAnswersRowNoAction keyText="Publication end date">
                    ${publicNoticeViewData.publicationEndTimestamp}
-                </@fdsCheckAnswers.checkAnswersRow>
+                </@fdsCheckAnswers.checkAnswersRowNoAction>
             </#if>
 
         </@fdsCheckAnswers.checkAnswers>    

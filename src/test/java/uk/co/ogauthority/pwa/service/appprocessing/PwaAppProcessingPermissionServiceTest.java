@@ -392,7 +392,7 @@ public class PwaAppProcessingPermissionServiceTest {
     when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
 
     var permissions = processingPermissionService.getProcessingPermissionsDto(detail, user).getProcessingPermissions();
-    assertThat(permissions).doesNotContain(PwaAppProcessingPermission.VIEW_CONSENT_DOCUMENT);
+    assertThat(permissions).isEmpty();
 
   }
 

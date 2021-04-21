@@ -14,8 +14,7 @@ public enum OtherPipelineProperty {
     SULPHUR_CONTENT("Sulphur content", UnitMeasurement.PERCENTAGE_WEIGHT),
     POUR_POINT("Pour point", UnitMeasurement.DEGREES_CELSIUS),
     SOLID_CONTENT("Solid content", UnitMeasurement.PERCENTAGE_WEIGHT),
-    MERCURY("Mercury", UnitMeasurement.MICROGRAM_METRE_CUBED),
-    H2O("H₂O", UnitMeasurement.PARTS_PER_MILLION);
+    MERCURY("Mercury", UnitMeasurement.MICROGRAM_METRE_CUBED);
 
   private final String displayText;
   private final UnitMeasurement unitMeasurement;

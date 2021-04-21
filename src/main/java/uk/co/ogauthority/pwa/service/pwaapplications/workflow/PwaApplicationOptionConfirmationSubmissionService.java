@@ -10,6 +10,7 @@ import uk.co.ogauthority.pwa.service.appprocessing.ApplicationInvolvementService
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.workflow.application.PwaApplicationSubmitResult;
 import uk.co.ogauthority.pwa.service.enums.workflow.application.PwaApplicationWorkflowTask;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.submission.PadPipelineNumberingService;
 
 /**
  * Service to to customise submission behaviour when an update request is responded to.
@@ -18,11 +19,14 @@ import uk.co.ogauthority.pwa.service.enums.workflow.application.PwaApplicationWo
 class PwaApplicationOptionConfirmationSubmissionService implements ApplicationSubmissionService {
 
   private final ApplicationInvolvementService applicationInvolvementService;
+  private final PadPipelineNumberingService padPipelineNumberingService;
 
   @Autowired
-  public PwaApplicationOptionConfirmationSubmissionService(ApplicationInvolvementService applicationInvolvementService) {
+  public PwaApplicationOptionConfirmationSubmissionService(ApplicationInvolvementService applicationInvolvementService,
+                                                           PadPipelineNumberingService padPipelineNumberingService) {
 
     this.applicationInvolvementService = applicationInvolvementService;
+    this.padPipelineNumberingService = padPipelineNumberingService;
   }
 
   @Override
@@ -49,9 +53,8 @@ class PwaApplicationOptionConfirmationSubmissionService implements ApplicationSu
   }
 
   @Override
-  public void doBeforeSubmit(PwaApplicationDetail pwaApplicationDetail, Person submittedByPerson,
-                             @Nullable String submissionDescription) {
-    // nothing to do here
+  public void doBeforeSubmit(PwaApplicationDetail pwaApplicationDetail, Person submittedByPerson, @Nullable String submissionDescription) {
+    padPipelineNumberingService.assignPipelineReferences(pwaApplicationDetail);
   }
 
   @Override

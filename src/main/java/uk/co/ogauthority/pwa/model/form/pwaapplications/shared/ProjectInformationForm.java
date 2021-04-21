@@ -1,7 +1,7 @@
 package uk.co.ogauthority.pwa.model.form.pwaapplications.shared;
 
 import uk.co.ogauthority.pwa.model.form.files.UploadMultipleFilesWithDescriptionForm;
-import uk.co.ogauthority.pwa.service.enums.projectinformation.PermanentDepositRadioOption;
+import uk.co.ogauthority.pwa.service.enums.projectinformation.PermanentDepositMade;
 import uk.co.ogauthority.pwa.util.forminputs.twofielddate.TwoFieldDateInput;
 
 public class ProjectInformationForm extends UploadMultipleFilesWithDescriptionForm {
@@ -39,7 +39,7 @@ public class ProjectInformationForm extends UploadMultipleFilesWithDescriptionFo
 
   private Boolean usingCampaignApproach;
 
-  private PermanentDepositRadioOption permanentDepositsMadeType;
+  private PermanentDepositMade permanentDepositsMadeType;
   private TwoFieldDateInput futureSubmissionDate;
 
   private Boolean temporaryDepositsMade;
@@ -234,11 +234,11 @@ public class ProjectInformationForm extends UploadMultipleFilesWithDescriptionFo
     this.licenceTransferPlanned = licenceTransferPlanned;
   }
 
-  public PermanentDepositRadioOption getPermanentDepositsMadeType() {
+  public PermanentDepositMade getPermanentDepositsMadeType() {
     return permanentDepositsMadeType;
   }
 
-  public void setPermanentDepositsMadeType(PermanentDepositRadioOption permanentDepositsMadeType) {
+  public void setPermanentDepositsMadeType(PermanentDepositMade permanentDepositsMadeType) {
     this.permanentDepositsMadeType = permanentDepositsMadeType;
   }
 

@@ -86,8 +86,6 @@ public class PipelineOtherPropertiesDataValidator implements SmartValidator {
     } else if (formProperty.equals(OtherPipelineProperty.MERCURY)) {
       validationHints = List.of(new PositiveNumberHint(), new IntegerHint());
 
-    } else if (formProperty.equals(OtherPipelineProperty.H2O)) {
-      validationHints = List.of(new PositiveNumberHint(), new IntegerHint());
     }
 
     ValidatorUtils.invokeNestedValidator(errors, minMaxInputValidator,

@@ -83,7 +83,7 @@
       -fs-table-paginate: paginate;
     }
 
-    .sectionTable {
+    .sectionTable, #depositsTableSection {
       width: 1000px;
     }
 

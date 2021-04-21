@@ -95,7 +95,7 @@ public class PwaConsentOrganisationRoleService {
   }
 
 
-  public Set<MasterPwaHolderDto> getCurrentHoldersOrgRolesForMasterPwa(MasterPwa masterPwa) {
+  public Set<MasterPwaHolderDto> getCurrentConsentedHoldersOrgRolesForMasterPwa(MasterPwa masterPwa) {
     var pwaConsents = pwaConsentRepository.findByMasterPwa(masterPwa);
     var activeHolders = pwaConsentOrganisationRoleRepository.findByAddedByPwaConsentInAndRoleInAndEndTimestampIsNull(
         pwaConsents,

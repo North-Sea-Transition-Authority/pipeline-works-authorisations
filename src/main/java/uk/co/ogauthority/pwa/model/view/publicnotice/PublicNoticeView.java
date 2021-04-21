@@ -11,6 +11,7 @@ public class PublicNoticeView {
   private final String latestDocumentComments;
   private final String withdrawnByPersonName;
   private final String withdrawnTimestamp;
+  private final String withdrawalReason;
   private final String publicationStartTimestamp;
   private final String publicationEndTimestamp;
 
@@ -22,6 +23,7 @@ public class PublicNoticeView {
     this.latestDocumentComments = null;
     this.withdrawnByPersonName = null;
     this.withdrawnTimestamp = null;
+    this.withdrawalReason = null;
     this.publicationStartTimestamp = null;
     this.publicationEndTimestamp = null;
   }
@@ -31,6 +33,7 @@ public class PublicNoticeView {
                           String latestDocumentComments,
                           String withdrawnByPersonName,
                           String withdrawnTimestamp,
+                          String withdrawalReason,
                           String publicationStartTimestamp,
                           String publicationEndTimestamp) {
     this.status = status;
@@ -38,6 +41,7 @@ public class PublicNoticeView {
     this.latestDocumentComments = latestDocumentComments;
     this.withdrawnByPersonName = withdrawnByPersonName;
     this.withdrawnTimestamp = withdrawnTimestamp;
+    this.withdrawalReason = withdrawalReason;
     this.publicationStartTimestamp = publicationStartTimestamp;
     this.publicationEndTimestamp = publicationEndTimestamp;
   }
@@ -57,6 +61,10 @@ public class PublicNoticeView {
 
   public String getWithdrawnTimestamp() {
     return withdrawnTimestamp;
+  }
+
+  public String getWithdrawalReason() {
+    return withdrawalReason;
   }
 
   public String getLatestDocumentComments() {
@@ -85,6 +93,7 @@ public class PublicNoticeView {
         && Objects.equals(latestDocumentComments, that.latestDocumentComments)
         && Objects.equals(withdrawnByPersonName, that.withdrawnByPersonName)
         && Objects.equals(withdrawnTimestamp, that.withdrawnTimestamp)
+        && Objects.equals(withdrawalReason, that.withdrawalReason)
         && Objects.equals(publicationStartTimestamp, that.publicationStartTimestamp)
         && Objects.equals(publicationEndTimestamp, that.publicationEndTimestamp);
   }
@@ -92,6 +101,6 @@ public class PublicNoticeView {
   @Override
   public int hashCode() {
     return Objects.hash(status, submittedTimestamp, latestDocumentComments, withdrawnByPersonName,
-        withdrawnTimestamp, publicationStartTimestamp, publicationEndTimestamp);
+        withdrawnTimestamp, withdrawalReason, publicationStartTimestamp, publicationEndTimestamp);
   }
 }
