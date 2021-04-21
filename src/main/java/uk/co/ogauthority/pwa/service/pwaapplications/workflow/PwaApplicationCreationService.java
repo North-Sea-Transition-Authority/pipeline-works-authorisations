@@ -15,10 +15,12 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.repository.pwaapplications.PwaApplicationRepository;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaDetailFieldService;
 import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
 import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadOrganisationRoleService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.fieldinformation.PadFieldService;
 import uk.co.ogauthority.pwa.service.pwaconsents.PwaConsentOrganisationRoleService;
 import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
 
@@ -36,6 +38,8 @@ public class PwaApplicationCreationService {
   private final PwaApplicationReferencingService pwaApplicationReferencingService;
   private final PwaConsentOrganisationRoleService pwaConsentOrganisationRoleService;
   private final PadOrganisationRoleService padOrganisationRoleService;
+  private final MasterPwaDetailFieldService masterPwaDetailFieldService;
+  private final PadFieldService padFieldService;
 
 
   @Autowired
@@ -46,7 +50,9 @@ public class PwaApplicationCreationService {
                                        PwaApplicationDetailService pwaApplicationDetailService,
                                        PwaApplicationReferencingService pwaApplicationReferencingService,
                                        PwaConsentOrganisationRoleService pwaConsentOrganisationRoleService,
-                                       PadOrganisationRoleService padOrganisationRoleService) {
+                                       PadOrganisationRoleService padOrganisationRoleService,
+                                       MasterPwaDetailFieldService masterPwaDetailFieldService,
+                                       PadFieldService padFieldService) {
     this.masterPwaService = masterPwaService;
     this.pwaApplicationRepository = pwaApplicationRepository;
     this.camundaWorkflowService = camundaWorkflowService;
@@ -55,6 +61,8 @@ public class PwaApplicationCreationService {
     this.pwaApplicationReferencingService = pwaApplicationReferencingService;
     this.pwaConsentOrganisationRoleService = pwaConsentOrganisationRoleService;
     this.padOrganisationRoleService = padOrganisationRoleService;
+    this.masterPwaDetailFieldService = masterPwaDetailFieldService;
+    this.padFieldService = padFieldService;
   }
 
   private PwaApplicationDetail createApplication(MasterPwa masterPwa,
@@ -122,6 +130,9 @@ public class PwaApplicationCreationService {
 
     var applicationDetail = createApplication(masterPwa, pwaApplicationType, 0, createdByUser);
 
+    var masterPwaDetailFields = masterPwaDetailFieldService.getMasterPwaDetailFields(masterPwa);
+    padFieldService.createAndSavePadFieldsFromMasterPwa(applicationDetail,
+        masterPwaService.getCurrentDetailOrThrow(masterPwa), masterPwaDetailFields);
     return applicationDetail;
 
   }
