@@ -43,14 +43,14 @@ public class PrepareConsentTaskService implements AppProcessingService {
     return !taskState.equals(TaskState.LOCK);
   }
 
-  private TaskState getTaskStateFromProcessingContextAndStatus(PwaAppProcessingContext processingContext, TaskStatus taskStatus){
+  private TaskState getTaskStateFromProcessingContextAndStatus(PwaAppProcessingContext processingContext, TaskStatus taskStatus) {
 
     var taskStatusIsAccessible = !getTaskStatus(processingContext).shouldForceInaccessible();
 
     var appInvolvement = processingContext.getApplicationInvolvement();
 
     // locked for industry
-    if(appInvolvement.hasOnlyIndustryInvolvement()){
+    if (appInvolvement.hasOnlyIndustryInvolvement()) {
       return TaskState.LOCK;
     }
 
@@ -59,7 +59,7 @@ public class PrepareConsentTaskService implements AppProcessingService {
       //TODO PWA-1243: is this correct, or is checking EDIT_CONSENT_DOCUMENT required as well when review not open?
       return appInvolvement.getOpenConsentReview() == OpenConsentReview.YES ? TaskState.EDIT : TaskState.LOCK;
       // for all other user types lock if consent review open
-    } else if(appInvolvement.getOpenConsentReview() == OpenConsentReview.YES){
+    } else if (appInvolvement.getOpenConsentReview() == OpenConsentReview.YES) {
       return TaskState.LOCK;
     }
 
