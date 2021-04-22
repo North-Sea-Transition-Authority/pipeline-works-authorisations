@@ -52,6 +52,7 @@ import uk.co.ogauthority.pwa.service.location.CoordinateFormValidator;
 import uk.co.ogauthority.pwa.service.pwaapplications.options.PadOptionConfirmedService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.tasklist.PadPipelineDataCopierService;
 import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailService;
+import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineMappingService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.util.CoordinateUtils;
 
@@ -86,6 +87,9 @@ public class PadPipelineServiceTest {
   private PwaApplicationDetail detail;
 
   private PipelineIdentFormValidator pipelineIdentFormValidator;
+
+  @Mock
+  private PipelineMappingService pipelineMappingService;
 
   @Mock
   private PadPipelineIdentService padPipelineIdentService;
@@ -127,13 +131,13 @@ public class PadPipelineServiceTest {
         pipelineService,
         pipelineDetailService,
         padPipelinePersisterService,
-        pipelineHeaderFormValidator);
+        pipelineHeaderFormValidator, pipelineMappingService);
 
     mockValidatorPadPipelineService = new PadPipelineService(padPipelineRepository,
         pipelineService,
         pipelineDetailService,
         padPipelinePersisterService,
-        pipelineHeaderFormValidator);
+        pipelineHeaderFormValidator, pipelineMappingService);
 
     padPipe1 = new PadPipeline();
     padPipe1.setId(1);
@@ -481,7 +485,7 @@ public class PadPipelineServiceTest {
     pipelineDetail.setBundleName("bundle");
     pipelineDetail.setPipelineNumber("ref");
     pipelineDetail.setPipeline(pipeline);
-    pipelineDetail.setComponentPartsDesc("comp desc");
+    pipelineDetail.setComponentPartsDescription("comp desc");
     pipelineDetail.setFromCoordinates(fromCoordinatePair);
     pipelineDetail.setFromLocation("a");
     pipelineDetail.setLength(BigDecimal.ONE);
@@ -495,28 +499,14 @@ public class PadPipelineServiceTest {
     modifyPipelineForm.setPipelineStatus(PipelineStatus.OUT_OF_USE_ON_SEABED);
     modifyPipelineForm.setPipelineStatusReason("reason");
 
-    var pipelineWithCopiedData = padPipelineService.copyDataToNewPadPipeline(detail, pipelineDetail,
-        modifyPipelineForm);
-
-    // TODO: PWA-682 - Assert added fields
-    assertThat(pipelineWithCopiedData.getBundleName()).isEqualTo(pipelineDetail.getBundleName());
-    assertThat(pipelineWithCopiedData.getPipeline()).isEqualTo(pipelineDetail.getPipeline());
-    assertThat(pipelineWithCopiedData.getFromCoordinates()).isEqualTo(pipelineDetail.getFromCoordinates());
-    assertThat(pipelineWithCopiedData.getFromLocation()).isEqualTo(pipelineDetail.getFromLocation());
-    assertThat(pipelineWithCopiedData.getLength()).isEqualTo(pipelineDetail.getLength());
-    assertThat(pipelineWithCopiedData.getPipelineInBundle()).isEqualTo(pipelineDetail.getPipelineInBundle());
-    assertThat(pipelineWithCopiedData.getPipelineType()).isEqualTo(pipelineDetail.getPipelineType());
-    assertThat(pipelineWithCopiedData.getProductsToBeConveyed()).isEqualTo(pipelineDetail.getProductsToBeConveyed());
-    assertThat(pipelineWithCopiedData.getToCoordinates()).isEqualTo(pipelineDetail.getToCoordinates());
-    assertThat(pipelineWithCopiedData.getToLocation()).isEqualTo(pipelineDetail.getToLocation());
-    assertThat(pipelineWithCopiedData.getComponentPartsDescription()).isEqualTo(pipelineDetail.getComponentPartsDesc());
-    assertThat(pipelineWithCopiedData.getPipelineRef()).isEqualTo(pipelineDetail.getPipelineNumber());
+    var pipelineWithCopiedData = padPipelineService.copyDataToNewPadPipeline(detail, pipelineDetail, modifyPipelineForm);
+    verify(pipelineMappingService, times(1)).mapPipelineEntities(any(PadPipeline.class), any(PipelineDetail.class));
     assertThat(pipelineWithCopiedData.getPipelineStatus()).isEqualTo(modifyPipelineForm.getPipelineStatus());
     assertThat(pipelineWithCopiedData.getPipelineStatusReason()).isEqualTo(
         modifyPipelineForm.getPipelineStatusReason());
-    assertThat(pipelineWithCopiedData.getMaxExternalDiameter()).isEqualTo(pipelineDetail.getMaxExternalDiameter());
 
   }
+
 
   @Test
   public void copyDataToNewPadPipeline_noReason_notOnSeabed() {

@@ -123,7 +123,7 @@ public class PipelineHeaderView implements PipelineOverview {
     this.pipelineNumber = pipelineDetail.getPipelineNumber();
     this.temporaryPipelineNumber = null; // never makes sense for this to have value here
     this.pipelineType = pipelineDetail.getPipelineType();
-    this.componentParts = pipelineDetail.getComponentPartsDesc();
+    this.componentParts = pipelineDetail.getComponentPartsDescription();
     this.length = String.valueOf(pipelineDetail.getLength());
     this.productsToBeConveyed = pipelineDetail.getProductsToBeConveyed();
     this.maxExternalDiameter = pipelineDetail.getMaxExternalDiameter() != null
@@ -143,7 +143,7 @@ public class PipelineHeaderView implements PipelineOverview {
         pipelineDetail.getPipelineStatus());
     this.alreadyExistsOnSeabed = null;
     this.pipelineInUse = null;
-    this.footnote = null;
+    this.footnote = pipelineDetail.getFootnote();
   }
 
 

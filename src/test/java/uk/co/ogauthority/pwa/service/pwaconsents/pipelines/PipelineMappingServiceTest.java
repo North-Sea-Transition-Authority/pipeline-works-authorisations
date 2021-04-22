@@ -35,10 +35,10 @@ public class PipelineMappingServiceTest {
 
     var detail = new PipelineDetail();
 
-    pipelineMappingService.mapPadPipelineToPipelineDetail(detail, padPipeline);
+    pipelineMappingService.mapPipelineEntities(detail, padPipeline);
 
     ObjectTestUtils.assertAllExpectedFieldsHaveValue(detail,
-        List.of("id", "pipeline", "startTimestamp", "endTimestamp", "tipFlag", "pwaConsent", "footnote"));
+        List.of("id", "pipeline", "startTimestamp", "endTimestamp", "tipFlag", "pwaConsent"));
 
     assertThat(detail.getPipelineType()).isEqualTo(padPipeline.getPipelineType());
     assertThat(detail.getFromLocation()).isEqualTo(padPipeline.getFromLocation());
@@ -59,17 +59,55 @@ public class PipelineMappingServiceTest {
     assertThat(detail.getToLongitudeMinutes()).isEqualTo(padPipeline.getToLongMin());
     assertThat(detail.getToLongitudeSeconds()).isEqualTo(padPipeline.getToLongSec());
     assertThat(detail.getToLongitudeDirection()).isEqualTo(padPipeline.getToLongDir());
-    assertThat(detail.getComponentPartsDesc()).isEqualTo(padPipeline.getComponentPartsDescription());
+    assertThat(detail.getComponentPartsDescription()).isEqualTo(padPipeline.getComponentPartsDescription());
     assertThat(detail.getLength()).isEqualTo(padPipeline.getLength());
     assertThat(detail.getProductsToBeConveyed()).isEqualTo(padPipeline.getProductsToBeConveyed());
-    assertThat(detail.getTrenchedBuriedFilledFlag()).isEqualTo(padPipeline.getTrenchedBuriedBackfilled());
-    assertThat(detail.getTrenchingMethodsDesc()).isEqualTo(padPipeline.getTrenchingMethodsDescription());
+    assertThat(detail.getTrenchedBuriedBackfilled()).isEqualTo(padPipeline.getTrenchedBuriedBackfilled());
+    assertThat(detail.getTrenchingMethodsDescription()).isEqualTo(padPipeline.getTrenchingMethodsDescription());
     assertThat(detail.getPipelineFlexibility()).isEqualTo(padPipeline.getPipelineFlexibility());
     assertThat(detail.getPipelineMaterial()).isEqualTo(padPipeline.getPipelineMaterial());
     assertThat(detail.getOtherPipelineMaterialUsed()).isEqualTo(padPipeline.getOtherPipelineMaterialUsed());
     assertThat(detail.getPipelineDesignLife()).isEqualTo(padPipeline.getPipelineDesignLife());
     assertThat(detail.getFromCoordinates()).isEqualTo(padPipeline.getFromCoordinates());
     assertThat(detail.getToCoordinates()).isEqualTo(padPipeline.getToCoordinates());
+    assertThat(detail.getFootnote()).isEqualTo(padPipeline.getFootnote());
+
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void mapPadPipelineToPipelineDetail_noCoordinates() throws IllegalAccessException {
+
+    var appDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
+    var padPipelineIdentData = PadPipelineTestUtil.createPadPipeline(appDetail, PipelineType.METHANOL_PIPELINE);
+    var padPipeline = padPipelineIdentData.getPadPipelineIdent().getPadPipeline();
+    padPipeline.setFromCoordinates(null);
+    padPipeline.setToCoordinates(null);
+
+    var detail = new PipelineDetail();
+
+    pipelineMappingService.mapPipelineEntities(detail, padPipeline);
+
+    ObjectTestUtils.assertAllExpectedFieldsHaveValue(detail,
+        List.of("id", "pipeline", "startTimestamp", "endTimestamp", "tipFlag", "pwaConsent", "fromCoordinates", "toCoordinates"));
+
+  }
+
+  @Test
+  public void mapPadPipelineToPipelineDetail_pipelineTypeNull() throws IllegalAccessException {
+
+    var appDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
+    var padPipelineIdentData = PadPipelineTestUtil.createPadPipeline(appDetail, PipelineType.METHANOL_PIPELINE);
+    var padPipeline = padPipelineIdentData.getPadPipelineIdent().getPadPipeline();
+    padPipeline.setPipelineType(null);
+
+    var detail = new PipelineDetail();
+
+    pipelineMappingService.mapPipelineEntities(detail, padPipeline);
+
+    ObjectTestUtils.assertAllExpectedFieldsHaveValue(detail,
+        List.of("id", "pipeline", "startTimestamp", "endTimestamp", "tipFlag", "pwaConsent"));
+
+    assertThat(detail.getPipelineType()).isEqualTo((PipelineType.UNKNOWN));
 
   }
 
