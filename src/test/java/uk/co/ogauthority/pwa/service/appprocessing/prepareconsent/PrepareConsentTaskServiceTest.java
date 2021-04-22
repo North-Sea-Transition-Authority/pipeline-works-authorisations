@@ -199,6 +199,27 @@ public class PrepareConsentTaskServiceTest {
   }
 
   @Test
+  public void getTaskListEntry_caseofficer_openReview() {
+
+    var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
+
+    var processingContext = new PwaAppProcessingContext(detail, null, Set.of(PwaAppProcessingPermission.CASE_OFFICER_REVIEW),
+        null,
+        ApplicationInvolvementDtoTestUtil.fromInvolvementFlags(detail.getPwaApplication(),
+            Set.of(
+                ApplicationInvolvementDtoTestUtil.InvolvementFlag.AT_LEAST_ONE_SATISFACTORY_VERSION,
+                ApplicationInvolvementDtoTestUtil.InvolvementFlag.OPEN_CONSENT_REVIEW,
+                ApplicationInvolvementDtoTestUtil.InvolvementFlag.CASE_OFFICER_STAGE_AND_USER_ASSIGNED
+            ))
+    );
+
+    var taskListEntry = prepareConsentTaskService.getTaskListEntry(PwaAppProcessingTask.PREPARE_CONSENT, processingContext);
+
+    assertThat(taskListEntry.getTaskState()).isEqualTo(TaskState.LOCK);
+
+  }
+
+  @Test
   public void getTaskListEntry_documentLoaded() {
 
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);

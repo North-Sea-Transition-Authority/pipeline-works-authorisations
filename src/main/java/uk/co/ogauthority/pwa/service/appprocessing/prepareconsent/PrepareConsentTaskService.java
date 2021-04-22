@@ -56,8 +56,11 @@ public class PrepareConsentTaskService implements AppProcessingService {
 
     // locked for consent reviewer when review is not open, unlocked when open
     if (processingContext.hasProcessingPermission(PwaAppProcessingPermission.CONSENT_REVIEW)) {
-      //TODO PWA-1243: is this correct, or is checking EDIT_CONSENT_DOCUMENT required as well?
+      //TODO PWA-1243: is this correct, or is checking EDIT_CONSENT_DOCUMENT required as well when review not open?
       return appInvolvement.getOpenConsentReview() == OpenConsentReview.YES ? TaskState.EDIT : TaskState.LOCK;
+      // for all other user types lock if consent review open
+    } else if(appInvolvement.getOpenConsentReview() == OpenConsentReview.YES){
+      return TaskState.LOCK;
     }
 
     // if no special case encountered, use the status to decide if task is locked or not.
