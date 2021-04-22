@@ -10,6 +10,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTa
 import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaDetailFieldService;
 import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.fieldinformation.PadFieldService;
+import uk.co.ogauthority.pwa.service.pwaconsents.consentwriters.pipelines.ConsentWriterDto;
 
 @Service
 public class FieldWriter implements ConsentWriter {
@@ -38,8 +39,9 @@ public class FieldWriter implements ConsentWriter {
   }
 
   @Override
-  public void write(PwaApplicationDetail pwaApplicationDetail,
-                    PwaConsent pwaConsent) {
+  public ConsentWriterDto write(PwaApplicationDetail pwaApplicationDetail,
+                                PwaConsent pwaConsent,
+                                ConsentWriterDto consentWriterDto) {
 
     boolean writeNewFieldDetails = false;
     var currentPwaDetail = masterPwaService.getCurrentDetailOrThrow(pwaApplicationDetail.getMasterPwa());
@@ -84,6 +86,8 @@ public class FieldWriter implements ConsentWriter {
       masterPwaDetailFieldService.createMasterPwaFieldsFromPadFields(currentPwaDetail, padFields);
 
     }
+
+    return consentWriterDto;
 
   }
 

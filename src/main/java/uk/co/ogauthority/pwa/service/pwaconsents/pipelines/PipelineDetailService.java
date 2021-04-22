@@ -26,6 +26,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview;
 import uk.co.ogauthority.pwa.repository.pipelines.PipelineBundlePairDto;
 import uk.co.ogauthority.pwa.repository.pipelines.PipelineDetailRepository;
+import uk.co.ogauthority.pwa.service.pwaconsents.consentwriters.pipelines.ConsentWriterDto;
 import uk.co.ogauthority.pwa.service.pwaconsents.consentwriters.pipelines.PadPipelineDto;
 
 @Service
@@ -113,7 +114,8 @@ public class PipelineDetailService {
   }
 
   public void createNewPipelineDetails(Map<Pipeline, PadPipelineDto> pipelineToPadPipelineDtoMap,
-                                       PwaConsent pwaConsent) {
+                                       PwaConsent pwaConsent,
+                                       ConsentWriterDto consentWriterDto) {
 
     // set up storage for pipeline details we are ending and new pipeline details mapped to appropriate pad pipeline dto
     var endedDetails = new ArrayList<PipelineDetail>();
@@ -138,6 +140,7 @@ public class PipelineDetailService {
       // create new detail for the pipeline and store
       var newDetail = createNewPipelineDetail(pipeline, padPipelineDto, pwaConsent);
       newPipelineDetailToPadPipelineDtoMap.put(newDetail, padPipelineDto);
+      consentWriterDto.storePipeline(pipeline, newDetail);
 
     });
 

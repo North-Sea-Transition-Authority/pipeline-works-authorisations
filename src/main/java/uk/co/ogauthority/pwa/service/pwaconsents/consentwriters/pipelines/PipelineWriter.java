@@ -39,8 +39,9 @@ public class PipelineWriter implements ConsentWriter {
   }
 
   @Override
-  public void write(PwaApplicationDetail pwaApplicationDetail,
-                    PwaConsent pwaConsent) {
+  public ConsentWriterDto write(PwaApplicationDetail pwaApplicationDetail,
+                                PwaConsent pwaConsent,
+                                ConsentWriterDto consentWriterDto) {
 
     // get all ident data grouped by ident that is linked to our application
     var identToIdentDataSetMap = padPipelineIdentDataService
@@ -67,7 +68,9 @@ public class PipelineWriter implements ConsentWriter {
 
     });
 
-    pipelineDetailService.createNewPipelineDetails(pipelineToPadPipelineDtoMap, pwaConsent);
+    pipelineDetailService.createNewPipelineDetails(pipelineToPadPipelineDtoMap, pwaConsent, consentWriterDto);
+
+    return consentWriterDto;
 
   }
 

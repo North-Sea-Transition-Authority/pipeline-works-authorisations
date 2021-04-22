@@ -2,12 +2,14 @@ package uk.co.ogauthority.pwa.service.pwaconsents.consentwriters;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskListService;
+import uk.co.ogauthority.pwa.service.pwaconsents.consentwriters.pipelines.ConsentWriterDto;
 
 @Service
 public class ConsentWriterService {
@@ -27,10 +29,16 @@ public class ConsentWriterService {
 
     var availableTasks = taskListService.getShownApplicationTasksForDetail(pwaApplicationDetail);
 
-    consentWriters.stream()
+    var consentWriterDto = new ConsentWriterDto();
+
+    var sortedWriters = consentWriters.stream()
         .filter(writer -> writer.writerIsApplicable(availableTasks, pwaConsent))
         .sorted(Comparator.comparing(ConsentWriter::getExecutionOrder))
-        .forEach(writer -> writer.write(pwaApplicationDetail, pwaConsent));
+        .collect(Collectors.toList());
+
+    for (ConsentWriter writer : sortedWriters) {
+      consentWriterDto = writer.write(pwaApplicationDetail, pwaConsent, consentWriterDto);
+    }
 
   }
 
