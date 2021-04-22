@@ -5,14 +5,13 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.transaction.Transactional;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BeanPropertyBindingResult;
@@ -37,13 +36,13 @@ import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSect
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.appdetailreconciliation.PadPipelineReconcilerService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation.PadProjectInformationService;
+import uk.co.ogauthority.pwa.service.validation.SummaryScreenValidationResult;
 import uk.co.ogauthority.pwa.util.CleanupUtils;
+import uk.co.ogauthority.pwa.util.DateUtils;
 import uk.co.ogauthority.pwa.util.forminputs.twofielddate.TwoFieldDateInput;
 
 @Service
 public class CampaignWorksService implements ApplicationFormSectionService {
-
-  private static final Logger LOGGER = LoggerFactory.getLogger(CampaignWorksService.class);
 
   private final PadProjectInformationService padProjectInformationService;
   private final PadPipelineService padPipelineService;
@@ -73,21 +72,31 @@ public class CampaignWorksService implements ApplicationFormSectionService {
 
   @Override
   public boolean isComplete(PwaApplicationDetail detail) {
-    return getCampaignWorksValidationResult(detail).isComplete();
+    return getCampaignWorksValidationResult(detail).isSectionComplete();
   }
 
-  public CampaignWorksSummaryValidationResult getCampaignWorksValidationResult(
+  public SummaryScreenValidationResult getCampaignWorksValidationResult(
       PwaApplicationDetail pwaApplicationDetail) {
 
     // create this once to avoid hitting the db for every form when the data will not have changed
     var campaignWorksHint = createCampaignWorksValidationHint(pwaApplicationDetail);
     var allCampaignWorkSchedules = padCampaignWorkScheduleRepository.findByPwaApplicationDetail(pwaApplicationDetail);
 
-    return new CampaignWorksSummaryValidationResult(pwaApplicationDetail,
-        allCampaignWorkSchedules,
-        padCampaignWorkSchedule -> getFormErrorsForCampaignWorkSchedule(padCampaignWorkSchedule, campaignWorksHint),
-        this::allApplicationPipelinesCoveredByWorkSchedules
-    );
+    var invalidWorkScheduleToErrorMap = new HashMap<String, String>();
+    allCampaignWorkSchedules.forEach(workSchedule -> {
+      if (getFormErrorsForCampaignWorkSchedule(workSchedule, campaignWorksHint).hasErrors()) {
+        invalidWorkScheduleToErrorMap.put(
+            String.valueOf(workSchedule.getId()), "Work schedule starting " + DateUtils.formatDate(workSchedule.getWorkFromDate()));
+      }
+    });
+
+    var sectionComplete = invalidWorkScheduleToErrorMap.isEmpty() &&  allApplicationPipelinesCoveredByWorkSchedules(pwaApplicationDetail);
+    String sectionIncompleteError = !sectionComplete
+        ? "All application pipelines must be covered by a work schedule and all work schedules must be valid" : null;
+
+    return new SummaryScreenValidationResult(invalidWorkScheduleToErrorMap, "work-schedule", "must not have errors",
+        sectionComplete,
+        sectionIncompleteError);
   }
 
   @Override

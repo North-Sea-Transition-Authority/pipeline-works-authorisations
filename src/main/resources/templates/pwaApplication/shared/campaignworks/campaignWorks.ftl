@@ -6,15 +6,19 @@
 <#-- @ftlvariable name="backUrl" type="java.lang.String" -->
 <#-- @ftlvariable name="urlFactory" type="uk.co.ogauthority.pwa.service.pwaapplications.shared.campaignworks.CampaignWorksUrlFactory" -->
 <#-- @ftlvariable name="workScheduleViewList" type="java.util.List<uk.co.ogauthority.pwa.model.form.pwaapplications.shared.campaignworks.WorkScheduleView>" -->
-<#-- @ftlvariable name="sectionValidationResult" type="uk.co.ogauthority.pwa.service.pwaapplications.shared.campaignworks.CampaignWorksSummaryValidationResult" -->
+<#-- @ftlvariable name="summaryValidationResult" type="uk.co.ogauthority.pwa.service.validation.SummaryScreenValidationResult" -->
+
 
 <#macro campaignWorkScheduleCard workSchedule cardIndex>
-    <#local hasErrors=sectionValidationResult.isWorkScheduleInvalid(workSchedule.getPadCampaignWorkScheduleId())/>
 
-    <@fdsCard.card cardClass=hasErrors?then("fds-card--error", "")>
+    <#assign cardId = validationResult.constructObjectId(summaryValidationResult!, workSchedule.getPadCampaignWorkScheduleId()) />
+    <#assign hasErrors = validationResult.hasErrors(summaryValidationResult!, cardId) />
+    <#assign cardErrorMessage = validationResult.errorMessageOrEmptyString(summaryValidationResult!, cardId) />
+
+    <@fdsCard.card cardId=cardId cardClass=hasErrors?then("fds-card--error", "")>
         <#local workScheduleFromTo="${workSchedule.getFormattedWorkStartDate()} to ${workSchedule.getFormattedWorkEndDate()}"/>
 
-        <@fdsCard.cardHeader cardHeadingText="Scheduled ${workScheduleFromTo}">
+        <@fdsCard.cardHeader cardHeadingText="Scheduled ${workScheduleFromTo}" cardErrorMessage=cardErrorMessage>
             <@fdsCard.cardAction cardLinkText="Edit"
             cardLinkScreenReaderText="Edit work schedule starting ${workScheduleFromTo}"
             cardLinkUrl=springUrl(urlFactory.editWorkScheduleUrl(workSchedule.getPadCampaignWorkScheduleId()))
@@ -39,9 +43,8 @@
 
 <@defaultPage htmlTitle="Campaign works" breadcrumbs=true fullWidthColumn=true>
 
-    <#if sectionValidationResult.getCompleteSectionErrorMessage()?has_content>
-        <@fdsError.singleErrorSummary errorMessage=sectionValidationResult.getCompleteSectionErrorMessage() />
-    </#if>
+    <@validationResult.singleErrorSummary summaryValidationResult=summaryValidationResult! />
+    <@validationResult.errorSummary summaryValidationResult=summaryValidationResult! />
 
     <h1 class="govuk-heading-xl">Campaign works</h1>
 
