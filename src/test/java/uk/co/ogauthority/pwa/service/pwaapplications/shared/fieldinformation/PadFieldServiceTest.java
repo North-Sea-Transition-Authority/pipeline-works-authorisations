@@ -21,8 +21,11 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.validation.Errors;
+import uk.co.ogauthority.pwa.energyportal.model.entity.devuk.DevukFieldId;
 import uk.co.ogauthority.pwa.model.entity.devuk.DevukField;
 import uk.co.ogauthority.pwa.model.entity.devuk.PadField;
+import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaDetail;
+import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaDetailField;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.fields.PwaFieldForm;
 import uk.co.ogauthority.pwa.model.searchselector.SearchSelectable;
@@ -220,6 +223,61 @@ public class PadFieldServiceTest {
 
     verifyNoMoreInteractions(devukFieldService, padFieldRepository);
 
+  }
+
+  @Test
+  public void createAndSavePadFieldsFromMasterPwa_noFieldData() {
+
+    padFieldService.createAndSavePadFieldsFromMasterPwa(pwaApplicationDetail, new MasterPwaDetail(), List.of());
+
+    verifyNoInteractions(pwaApplicationDetailService, devukFieldService, padFieldRepository,
+        searchSelectorService);
+
+  }
+
+  @Test
+  public void createAndSavePadFieldsFromMasterPwa_linkedToField_devukFieldAndManualEntry() {
+    var pwaDetail = new MasterPwaDetail();
+    pwaDetail.setLinkedToFields(true);
+
+    var devUkFieldId = new DevukFieldId(DEVUK_FIELD_ID);
+    var pwaDetailField = new MasterPwaDetailField(pwaDetail, devUkFieldId, null);
+    var pwaDetailFieldManual = new MasterPwaDetailField(pwaDetail, null, manuallyEnteredFieldName);
+    when(devukFieldService.findByDevukFieldIds(List.of(devUkFieldId))).thenReturn(List.of(devukField));
+
+    padFieldService.createAndSavePadFieldsFromMasterPwa(pwaApplicationDetail, pwaDetail, List.of(pwaDetailField, pwaDetailFieldManual));
+
+    verify(pwaApplicationDetailService, times(1)).setLinkedToFields(pwaApplicationDetail, true);
+    verify(padFieldRepository, times(2)).saveAll(padFieldsArgumentCaptor.capture());
+
+    var newFields = padFieldsArgumentCaptor.getAllValues();
+
+    assertThat(newFields.size()).isEqualTo(2);
+
+    var actualLinkedField = newFields.get(0);
+    assertThat(actualLinkedField.get(0).getPwaApplicationDetail()).isEqualTo(pwaApplicationDetail);
+    assertThat(actualLinkedField.get(0).getDevukField()).isEqualTo(devukField);
+    assertThat(actualLinkedField.get(0).getFieldName()).isNull();
+
+    var actualManuallyEnteredField = newFields.get(1);
+    assertThat(actualManuallyEnteredField.get(0).getPwaApplicationDetail()).isEqualTo(pwaApplicationDetail);
+    assertThat(actualManuallyEnteredField.get(0).getDevukField()).isNull();
+    assertThat(actualManuallyEnteredField.get(0).getFieldName()).isEqualTo(manuallyEnteredFieldName);
+
+  }
+
+  @Test
+  public void createAndSavePadFieldsFromMasterPwa_notLinkedToField() {
+
+    var pwaDetail = new MasterPwaDetail();
+    pwaDetail.setLinkedToFields(false);
+    pwaDetail.setPwaLinkedToDescription("description");
+
+    padFieldService.createAndSavePadFieldsFromMasterPwa(pwaApplicationDetail, pwaDetail, List.of());
+
+    verify(pwaApplicationDetailService, times(1)).setLinkedToFields(pwaApplicationDetail, false);
+    verify(pwaApplicationDetailService, times(1)).setNotLinkedFieldDescription(pwaApplicationDetail, "description");
+    verifyNoMoreInteractions(devukFieldService, padFieldRepository);
   }
 
   @Test

@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.fieldinformation;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,8 +12,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
+import uk.co.ogauthority.pwa.energyportal.model.entity.devuk.DevukFieldId;
 import uk.co.ogauthority.pwa.model.entity.devuk.DevukField;
 import uk.co.ogauthority.pwa.model.entity.devuk.PadField;
+import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaDetail;
+import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaDetailField;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.fields.PwaFieldForm;
 import uk.co.ogauthority.pwa.model.searchselector.SearchSelectable;
@@ -90,13 +94,13 @@ public class PadFieldService implements ApplicationFormSectionService {
    * @param pwaApplicationDetail The current application detail.
    * @param fieldNames           A list of field names to save as PadFields.
    */
-  private void addManuallyEnteredFields(PwaApplicationDetail pwaApplicationDetail, List<String> fieldNames) {
+  private void addManuallyEnteredFields(PwaApplicationDetail pwaApplicationDetail, List<String> fieldNames, boolean removePrefix) {
 
     List<PadField> newPadFields = fieldNames.stream()
         .map(fieldName -> {
           var padField = new PadField();
           padField.setPwaApplicationDetail(pwaApplicationDetail);
-          padField.setFieldName(searchSelectorService.removePrefix(fieldName));
+          padField.setFieldName(removePrefix ? searchSelectorService.removePrefix(fieldName) : fieldName);
           return padField;
         })
         .collect(Collectors.toList());
@@ -140,7 +144,7 @@ public class PadFieldService implements ApplicationFormSectionService {
         //differentiate between existing devUkFields and manually entered field names
         var reconciledOptions = devukFieldService.getLinkedAndManualFieldEntries(form.getFieldIds());
         addFields(applicationDetail, reconciledOptions.getLinkedEntries());
-        addManuallyEnteredFields(applicationDetail, reconciledOptions.getManualEntries());
+        addManuallyEnteredFields(applicationDetail, reconciledOptions.getManualEntries(), true);
 
       } else if (!form.getLinkedToField()) {
         // otherwise they've said no to field link, update linked field description
@@ -154,6 +158,38 @@ public class PadFieldService implements ApplicationFormSectionService {
     }
 
   }
+
+
+  public void createAndSavePadFieldsFromMasterPwa(PwaApplicationDetail pwaApplicationDetail,
+                                                  MasterPwaDetail masterPwaDetail,
+                                                  List<MasterPwaDetailField> masterPwaDetailFields) {
+
+    if (masterPwaDetail.getLinkedToFields() != null) {
+      pwaApplicationDetailService.setLinkedToFields(pwaApplicationDetail, masterPwaDetail.getLinkedToFields());
+
+      if (masterPwaDetail.getLinkedToFields()) {
+
+        var devUkFieldIds = new ArrayList<DevukFieldId>();
+        var manuallyEnteredFields = new ArrayList<String>();
+        masterPwaDetailFields.forEach(pwaDetailField -> {
+          if (pwaDetailField.getDevukFieldId() != null) {
+            devUkFieldIds.add(pwaDetailField.getDevukFieldId());
+          } else {
+            manuallyEnteredFields.add(pwaDetailField.getManualFieldName());
+          }
+        });
+
+        addFields(pwaApplicationDetail, devukFieldService.findByDevukFieldIds(devUkFieldIds));
+        addManuallyEnteredFields(pwaApplicationDetail, manuallyEnteredFields, false);
+
+      } else {
+        pwaApplicationDetailService.setNotLinkedFieldDescription(pwaApplicationDetail,
+            masterPwaDetail.getPwaLinkedToDescription());
+      }
+    }
+
+  }
+
 
   @Override
   public boolean isComplete(PwaApplicationDetail detail) {
