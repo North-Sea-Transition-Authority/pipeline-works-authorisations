@@ -30,6 +30,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadProjectInforma
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.ProjectInformationForm;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadProjectInformationRepository;
 import uk.co.ogauthority.pwa.service.entitycopier.EntityCopyingService;
+import uk.co.ogauthority.pwa.service.enums.projectinformation.PermanentDepositMade;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.fileupload.FileUpdateMode;
@@ -197,11 +198,22 @@ public class PadProjectInformationServiceTest {
   }
 
   @Test
+  public void getAvailableQuestions_optionsVariationAppType() {
+    var requiredQuestions = service.getRequiredQuestions(PwaApplicationType.OPTIONS_VARIATION);
+    assertThat(requiredQuestions).containsOnlyElementsOf(EnumSet.complementOf(EnumSet.of(
+        ProjectInformationQuestion.LICENCE_TRANSFER_PLANNED,
+        ProjectInformationQuestion.USING_CAMPAIGN_APPROACH
+    )));
+  }
+
+  @Test
   public void getAvailableQuestions_allAppTypesExceptDepConAndHuooAndDecom() {
     PwaApplicationType.stream()
         .filter(appType -> appType != PwaApplicationType.HUOO_VARIATION
             && appType != PwaApplicationType.DEPOSIT_CONSENT
-            && appType != PwaApplicationType.DECOMMISSIONING)
+            && appType != PwaApplicationType.DECOMMISSIONING
+            && appType != PwaApplicationType.OPTIONS_VARIATION
+        )
         .forEach(appType -> {
           var requiredQuestions = service.getRequiredQuestions(appType);
           assertThat(requiredQuestions).isEqualTo(EnumSet.allOf(ProjectInformationQuestion.class));
@@ -215,7 +227,7 @@ public class PadProjectInformationServiceTest {
     padProjectInformation.setLicenceTransferTimestamp(Instant.now());
     padProjectInformation.setCommercialAgreementTimestamp(Instant.now());
 
-    padProjectInformation.setPermanentDepositsMade(false);
+    padProjectInformation.setPermanentDepositsMade(PermanentDepositMade.NONE);
     padProjectInformation.setFutureAppSubmissionMonth(LocalDateTime.now().getMonthValue());
     padProjectInformation.setFutureAppSubmissionYear(LocalDateTime.now().getYear());
 
@@ -290,7 +302,7 @@ public class PadProjectInformationServiceTest {
     padProjectInformation.setLicenceTransferTimestamp(Instant.now());
     padProjectInformation.setCommercialAgreementTimestamp(Instant.now());
 
-    padProjectInformation.setPermanentDepositsMade(true);
+    padProjectInformation.setPermanentDepositsMade(PermanentDepositMade.LATER_APP);
     padProjectInformation.setFutureAppSubmissionMonth(LocalDateTime.now().getMonthValue());
     padProjectInformation.setFutureAppSubmissionYear(LocalDateTime.now().getYear());
 
@@ -359,7 +371,7 @@ public class PadProjectInformationServiceTest {
   @Test
   public void getPermanentDepositsOnApplication_depositMadeFalse() {
     PadProjectInformation projectInformation = new PadProjectInformation();
-    projectInformation.setPermanentDepositsMade(false);
+    projectInformation.setPermanentDepositsMade(PermanentDepositMade.NONE);
 
     when(padProjectInformationRepository.findByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(Optional.of(projectInformation));
 
@@ -369,7 +381,7 @@ public class PadProjectInformationServiceTest {
   @Test
   public void getPermanentDepositsOnApplication_depositMadeTrue() {
     PadProjectInformation projectInformation = new PadProjectInformation();
-    projectInformation.setPermanentDepositsMade(true);
+    projectInformation.setPermanentDepositsMade(PermanentDepositMade.THIS_APP);
 
     when(padProjectInformationRepository.findByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(Optional.of(projectInformation));
 

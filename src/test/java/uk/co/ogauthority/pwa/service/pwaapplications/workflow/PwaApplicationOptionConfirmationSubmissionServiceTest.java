@@ -2,7 +2,9 @@ package uk.co.ogauthority.pwa.service.pwaapplications.workflow;
 
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.Optional;
@@ -17,6 +19,7 @@ import uk.co.ogauthority.pwa.service.appprocessing.ApplicationInvolvementService
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.workflow.application.PwaApplicationWorkflowTask;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.submission.PadPipelineNumberingService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -24,6 +27,9 @@ public class PwaApplicationOptionConfirmationSubmissionServiceTest {
 
   @Mock
   private ApplicationInvolvementService applicationInvolvementService;
+
+  @Mock
+  private PadPipelineNumberingService padPipelineNumberingService;
 
   private PwaApplicationOptionConfirmationSubmissionService pwaApplicationOptionConfirmationSubmissionService;
 
@@ -35,8 +41,8 @@ public class PwaApplicationOptionConfirmationSubmissionServiceTest {
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.OPTIONS_VARIATION);
 
     pwaApplicationOptionConfirmationSubmissionService = new PwaApplicationOptionConfirmationSubmissionService(
-        applicationInvolvementService
-    );
+        applicationInvolvementService,
+        padPipelineNumberingService);
   }
 
   @Test
@@ -67,12 +73,18 @@ public class PwaApplicationOptionConfirmationSubmissionServiceTest {
   }
 
   @Test
-  public void doBeforeSubmit_doesNothing() {
-    verifyNoInteractions(applicationInvolvementService);
+  public void doBeforeSubmit_triesToAssignPipelineNumbers() {
+
+    pwaApplicationOptionConfirmationSubmissionService.doBeforeSubmit(pwaApplicationDetail, null ,null);
+
+    verify(padPipelineNumberingService).assignPipelineReferences(pwaApplicationDetail);
+
+    verifyNoMoreInteractions(applicationInvolvementService, padPipelineNumberingService);
   }
 
   @Test
   public void doAfterSubmit_doesNothing() {
-    verifyNoInteractions(applicationInvolvementService);
+
+    verifyNoInteractions(applicationInvolvementService, padPipelineNumberingService);
   }
 }

@@ -124,10 +124,9 @@ BEGIN
   INTO l_max_pipeline_detail_id
   FROM PWA.mig_pipeline_history mph;
 
-  SELECT MAX(TO_NUMBER(REGEXP_SUBSTR(mph.pipeline_number, '[A-Z]+([0-9]+)', 1, 1, NULL, 1)))
+  SELECT pmc.reserved_pipeline_number_max
   INTO l_max_pipeline_number
-  FROM PWA.mig_pipeline_history mph;
-
+  FROM PWA.pipeline_migration_config pmc;
 
 
   EXECUTE IMMEDIATE 'ALTER SEQUENCE PWA.pwas_id_seq INCREMENT BY ' || l_max_pa_id;

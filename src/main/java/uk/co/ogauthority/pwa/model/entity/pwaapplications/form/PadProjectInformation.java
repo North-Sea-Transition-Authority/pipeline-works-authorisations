@@ -2,6 +2,8 @@ package uk.co.ogauthority.pwa.model.entity.pwaapplications.form;
 
 import java.time.Instant;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -9,6 +11,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.entitycopier.ChildEntity;
+import uk.co.ogauthority.pwa.service.enums.projectinformation.PermanentDepositMade;
 
 @Entity(name = "pad_project_information")
 public class PadProjectInformation implements ChildEntity<Integer, PwaApplicationDetail> {
@@ -37,7 +40,8 @@ public class PadProjectInformation implements ChildEntity<Integer, PwaApplicatio
   private Instant licenceTransferTimestamp;
   private Instant commercialAgreementTimestamp;
 
-  private Boolean permanentDepositsMade;
+  @Enumerated(EnumType.STRING)
+  private PermanentDepositMade permanentDepositsMade;
   private Integer futureAppSubmissionMonth;
   private Integer futureAppSubmissionYear;
 
@@ -177,11 +181,11 @@ public class PadProjectInformation implements ChildEntity<Integer, PwaApplicatio
     this.commercialAgreementTimestamp = commercialAgreementTimestamp;
   }
 
-  public Boolean getPermanentDepositsMade() {
+  public PermanentDepositMade getPermanentDepositsMade() {
     return permanentDepositsMade;
   }
 
-  public void setPermanentDepositsMade(Boolean permanentDepositsMade) {
+  public void setPermanentDepositsMade(PermanentDepositMade permanentDepositsMade) {
     this.permanentDepositsMade = permanentDepositsMade;
   }
 
