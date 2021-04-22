@@ -47,6 +47,7 @@ public class PadPipelineOverview implements PipelineOverview {
 
   private Boolean alreadyExistsOnSeabed;
   private Boolean pipelineInUse;
+  private String footnote;
 
 
 
@@ -75,7 +76,8 @@ public class PadPipelineOverview implements PipelineOverview {
                               String pipelineStatusReason,
                               Boolean hasTasks,
                               Boolean alreadyExistsOnSeabed,
-                              Boolean pipelineInUse) {
+                              Boolean pipelineInUse,
+                              String footnote) {
     this.padPipelineId = padPipelineId;
     this.pipelineId = pipelineId;
     this.fromLocation = fromLocation;
@@ -102,6 +104,7 @@ public class PadPipelineOverview implements PipelineOverview {
     this.hasTasks = hasTasks;
     this.alreadyExistsOnSeabed = alreadyExistsOnSeabed;
     this.pipelineInUse = pipelineInUse;
+    this.footnote = footnote;
   }
 
   @VisibleForTesting
@@ -128,6 +131,7 @@ public class PadPipelineOverview implements PipelineOverview {
     this.pipelineStatus = padPipeline.getPipelineStatus();
     this.alreadyExistsOnSeabed = padPipeline.getAlreadyExistsOnSeabed();
     this.pipelineInUse = padPipeline.getPipelineInUse();
+    this.footnote = padPipeline.getFootnote();
   }
 
   @VisibleForTesting
@@ -145,6 +149,7 @@ public class PadPipelineOverview implements PipelineOverview {
     this.toCoordinates = padPipeline.getToCoordinates();
     this.componentParts = padPipeline.getComponentPartsDescription();
     this.length = padPipeline.getLength();
+    this.footnote = padPipeline.getFootnote();
   }
 
   public static PadPipelineOverview from(PipelineDetailSummaryDto pipelineDetailSummaryDto) {
@@ -173,6 +178,7 @@ public class PadPipelineOverview implements PipelineOverview {
         pipelineDetailSummaryDto.getPipelineStatus(),
         pipelineDetailSummaryDto.getPipelineStatusReason(),
         false,
+        null,
         null,
         null
     );
@@ -206,7 +212,8 @@ public class PadPipelineOverview implements PipelineOverview {
         padPipelineSummaryDto.getPipelineStatusReason(),
         hasTasks,
         padPipelineSummaryDto.getAlreadyExistsOnSeabed(),
-        padPipelineSummaryDto.getPipelineInUse()
+        padPipelineSummaryDto.getPipelineInUse(),
+        padPipelineSummaryDto.getFootnote()
     );
   }
 
@@ -333,6 +340,11 @@ public class PadPipelineOverview implements PipelineOverview {
   @Override
   public Boolean getPipelineInUse() {
     return this.pipelineInUse;
+  }
+
+  @Override
+  public String getFootnote() {
+    return this.footnote;
   }
 
   public Boolean getHasTasks() {

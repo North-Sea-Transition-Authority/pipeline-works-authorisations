@@ -98,7 +98,6 @@
 
         </#if>
 
-
         <@fdsCheckAnswers.checkAnswersRow keyText="Schematic drawing" actionUrl="" screenReaderActionText="" actionText="">
             <#if drawingSummaryView?has_content>
                 <@fdsAction.link linkText=drawingSummaryView.fileName linkUrl=springUrl(urlFactory.getPipelineDrawingDownloadUrl(drawingSummaryView.fileId)) 
@@ -106,7 +105,13 @@
             <#else>
                 No drawing uploaded
             </#if>
-        </@fdsCheckAnswers.checkAnswersRow>        
+        </@fdsCheckAnswers.checkAnswersRow>             
+
+        <#if pipelineHeader.canShowFootnote>
+            <@fdsCheckAnswers.checkAnswersRowNoAction keyText="Special features">
+                <@diffChanges.renderDiff diffedField=pipelineHeader.PipelineHeaderView_footnote multiLineTextBlockClass="govuk-summary-list"/>
+            </@fdsCheckAnswers.checkAnswersRowNoAction>
+        </#if>  
 
     </@fdsCheckAnswers.checkAnswers>
 

@@ -127,6 +127,18 @@
             </@fdsRadio.radioGroup>
         </#if>
 
+        <@fdsTextarea.textarea path="form.footnote" labelText="Advise of any special features of the pipeline" maxCharacterLength="4000" characterCount=true optionalLabel=true hintText="For example it replaces another pipeline, it can run reverse flow, it was removed from another pipeline, etc"/>
+        <@fdsDetails.summaryDetails summaryTitle="Show me examples of special features to include">
+            <p> The examples below are not an exhaustive list. You should replace the placeholder text identified inside square brackets with the information relevant to your pipeline. </p>
+            <ul class="govuk-list govuk-list--bullet">
+                <li> This Electrical Flying Lead replaces the functionality of failed Electrical Flying Lead in [PLUXXXX]. </li>
+                <li> Removed from [PLXXXX] and laid alongside </li>
+                <li> [PLXXXX] can run a reverse flow from [point x] to [point y] </li>
+                <li> [PLXXXX] will be disconnected from [point x] to [point y]. It will be flushed and filled with filtered seawater and the ends protected with wooden covers. It will remain in situ on the seabed. </li>
+                <li> Treaty between United Kingdom and the [named country] for the subject pipeline allows for gas flow in both directions. </li>
+            </ul>
+        </@fdsDetails.summaryDetails>
+
 
         <@fdsAction.submitButtons linkSecondaryAction=true primaryButtonText="${screenActionType.submitButtonText} pipeline" secondaryLinkText="Cancel" linkSecondaryActionUrl=springUrl(cancelUrl)/>
 

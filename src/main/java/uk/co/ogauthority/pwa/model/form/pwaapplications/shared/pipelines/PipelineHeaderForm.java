@@ -43,10 +43,9 @@ public class PipelineHeaderForm {
 
   private Boolean pipelineInUse;
 
+  private String footnote;
 
 
-  public PipelineHeaderForm() {
-  }
 
   public String getFromLocation() {
     return fromLocation;
@@ -200,4 +199,13 @@ public class PipelineHeaderForm {
   public void setPipelineInUse(Boolean pipelineInUse) {
     this.pipelineInUse = pipelineInUse;
   }
+
+  public String getFootnote() {
+    return footnote;
+  }
+
+  public void setFootnote(String footnote) {
+    this.footnote = footnote;
+  }
+
 }
