@@ -108,7 +108,7 @@ public enum PwaAppProcessingTask {
   PREPARE_CONSENT(
       "Prepare consent",
       TaskRequirement.REQUIRED,
-      TaskAutoLockable.YES,
+      TaskAutoLockable.NO,
       PrepareConsentTaskService.class, processingContext -> ReverseRouter.route(on(AppConsentDocController.class)
       .renderConsentDocEditor(processingContext.getMasterPwaApplicationId(), processingContext.getApplicationType(),
           null, null)),

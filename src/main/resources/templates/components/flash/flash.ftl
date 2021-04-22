@@ -9,7 +9,7 @@
           <#if flashBulletList?has_content>
               <ul class="govuk-list govuk-list--bullet">
                   <#list flashBulletList as bulletContent>
-                      <li>${bulletContent!"default"}</li>
+                      <li>${bulletContent!""}</li>
                   </#list>
               </ul>
           </#if>

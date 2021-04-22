@@ -37,7 +37,32 @@ public class PrepareConsentTaskService implements AppProcessingService {
 
 
   public boolean taskAccessible(PwaAppProcessingContext processingContext) {
-    return !getTaskStatus(processingContext).shouldForceInaccessible();
+
+    var taskState = getTaskStateFromProcessingContextAndStatus(processingContext, getTaskStatus(processingContext));
+
+    return !taskState.equals(TaskState.LOCK);
+  }
+
+  private TaskState getTaskStateFromProcessingContextAndStatus(PwaAppProcessingContext processingContext, TaskStatus taskStatus){
+
+    var taskStatusIsAccessible = !getTaskStatus(processingContext).shouldForceInaccessible();
+
+    var appInvolvement = processingContext.getApplicationInvolvement();
+
+    // locked for industry
+    if(appInvolvement.hasOnlyIndustryInvolvement()){
+      return TaskState.LOCK;
+    }
+
+    // locked for consent reviewer when review is not open, unlocked when open
+    if (processingContext.hasProcessingPermission(PwaAppProcessingPermission.CONSENT_REVIEW)) {
+      //TODO PWA-1243: is this correct, or is checking EDIT_CONSENT_DOCUMENT required as well?
+      return appInvolvement.getOpenConsentReview() == OpenConsentReview.YES ? TaskState.EDIT : TaskState.LOCK;
+    }
+
+    // if no special case encountered, use the status to decide if task is locked or not.
+    return taskStatusIsAccessible ? TaskState.EDIT : TaskState.LOCK;
+
   }
 
 
@@ -73,17 +98,7 @@ public class PrepareConsentTaskService implements AppProcessingService {
 
     var taskStatus = getTaskStatus(processingContext);
 
-    var taskAccessible = !taskStatus.shouldForceInaccessible();
-
-    var taskState = taskAccessible ? TaskState.EDIT : TaskState.LOCK;
-
-    // if we can do a consent review and there is one open, we can access the task, otherwise we lock it
-    if (processingContext.hasProcessingPermission(PwaAppProcessingPermission.CONSENT_REVIEW)
-        && processingContext.getApplicationInvolvement().getOpenConsentReview() == OpenConsentReview.YES) {
-      taskState = TaskState.EDIT;
-    } else if (processingContext.getApplicationInvolvement().getOpenConsentReview() == OpenConsentReview.YES) {
-      taskState = TaskState.LOCK;
-    }
+    var taskState = getTaskStateFromProcessingContextAndStatus(processingContext, taskStatus);
 
     return new TaskListEntry(
         task.getTaskName(),

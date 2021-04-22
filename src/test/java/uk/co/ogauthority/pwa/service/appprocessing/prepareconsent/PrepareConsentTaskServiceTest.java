@@ -5,6 +5,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
+import java.util.EnumSet;
 import java.util.Optional;
 import java.util.Set;
 import org.junit.Before;
@@ -12,10 +13,12 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import uk.co.ogauthority.pwa.model.dto.appprocessing.ApplicationInvolvementDtoTestUtil;
 import uk.co.ogauthority.pwa.model.entity.documents.instances.DocumentInstance;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.DocumentTemplateMnem;
 import uk.co.ogauthority.pwa.model.enums.tasklist.TaskState;
 import uk.co.ogauthority.pwa.model.tasklist.TaskTag;
+import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.service.appprocessing.options.ApproveOptionsService;
 import uk.co.ogauthority.pwa.service.appprocessing.options.OptionsApprovalStatus;
@@ -157,6 +160,45 @@ public class PrepareConsentTaskServiceTest {
   }
 
   @Test
+  public void getTaskListEntry_consentReviewer_noOpenReview() {
+
+    var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
+
+    var processingContext = new PwaAppProcessingContext(detail, null, Set.of(PwaAppProcessingPermission.CONSENT_REVIEW),
+        null,
+        ApplicationInvolvementDtoTestUtil.fromInvolvementFlags(detail.getPwaApplication(),
+            Set.of(
+                ApplicationInvolvementDtoTestUtil.InvolvementFlag.AT_LEAST_ONE_SATISFACTORY_VERSION
+            ))
+    );
+
+    var taskListEntry = prepareConsentTaskService.getTaskListEntry(PwaAppProcessingTask.PREPARE_CONSENT, processingContext);
+
+    assertThat(taskListEntry.getTaskState()).isEqualTo(TaskState.LOCK);
+
+  }
+
+  @Test
+  public void getTaskListEntry_consentReviewer_openReview() {
+
+    var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
+
+    var processingContext = new PwaAppProcessingContext(detail, null, Set.of(PwaAppProcessingPermission.CONSENT_REVIEW),
+        null,
+        ApplicationInvolvementDtoTestUtil.fromInvolvementFlags(detail.getPwaApplication(),
+            Set.of(
+                ApplicationInvolvementDtoTestUtil.InvolvementFlag.AT_LEAST_ONE_SATISFACTORY_VERSION,
+                ApplicationInvolvementDtoTestUtil.InvolvementFlag.OPEN_CONSENT_REVIEW
+            ))
+    );
+
+    var taskListEntry = prepareConsentTaskService.getTaskListEntry(PwaAppProcessingTask.PREPARE_CONSENT, processingContext);
+
+    assertThat(taskListEntry.getTaskState()).isEqualTo(TaskState.EDIT);
+
+  }
+
+  @Test
   public void getTaskListEntry_documentLoaded() {
 
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
@@ -189,6 +231,80 @@ public class PrepareConsentTaskServiceTest {
     var taskAccessible = prepareConsentTaskService.taskAccessible(processingContext);
 
     assertThat(taskAccessible).isTrue();
+
+  }
+
+  @Test
+  public void taskAccessible_SatisfactoryVersions_notOption_userIndustryOnly() {
+
+    var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
+
+    var processingContext = new PwaAppProcessingContext(detail, null, Set.of(), null,
+        ApplicationInvolvementDtoTestUtil.generatePwaHolderTeamInvolvement(detail.getPwaApplication(), EnumSet.allOf(PwaOrganisationRole.class)));
+    var taskAccessible = prepareConsentTaskService.taskAccessible(processingContext);
+
+    assertThat(taskAccessible).isFalse();
+
+  }
+
+  @Test
+  public void taskAccessible_SatisfactoryVersions_userHolder_andCaseOfficer() {
+
+    var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
+
+    var processingContext = new PwaAppProcessingContext(detail, null, Set.of(), null,
+        ApplicationInvolvementDtoTestUtil.generateAppInvolvement(detail.getPwaApplication(),
+            Set.of(
+                ApplicationInvolvementDtoTestUtil.InvolvementFlag.CASE_OFFICER_STAGE_AND_USER_ASSIGNED,
+                ApplicationInvolvementDtoTestUtil.InvolvementFlag.AT_LEAST_ONE_SATISFACTORY_VERSION
+            ),
+            Set.of(),
+            EnumSet.allOf(PwaOrganisationRole.class),
+            null
+        )
+    );
+    var taskAccessible = prepareConsentTaskService.taskAccessible(processingContext);
+
+    assertThat(taskAccessible).isTrue();
+
+  }
+
+  @Test
+  public void taskAccessible_SatisfactoryVersions_consentReviewPermission_openReview() {
+
+    var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
+
+    var processingContext = new PwaAppProcessingContext(detail, null, Set.of(PwaAppProcessingPermission.CONSENT_REVIEW),
+        null,
+        ApplicationInvolvementDtoTestUtil.fromInvolvementFlags(detail.getPwaApplication(),
+            Set.of(
+                ApplicationInvolvementDtoTestUtil.InvolvementFlag.PWA_MANAGER_STAGE,
+                ApplicationInvolvementDtoTestUtil.InvolvementFlag.AT_LEAST_ONE_SATISFACTORY_VERSION,
+                ApplicationInvolvementDtoTestUtil.InvolvementFlag.OPEN_CONSENT_REVIEW
+            ))
+    );
+    var taskAccessible = prepareConsentTaskService.taskAccessible(processingContext);
+
+    assertThat(taskAccessible).isTrue();
+
+  }
+
+  @Test
+  public void taskAccessible_SatisfactoryVersions_consentReviewPermission_noReview() {
+
+    var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
+
+    var processingContext = new PwaAppProcessingContext(detail, null, Set.of(PwaAppProcessingPermission.CONSENT_REVIEW),
+        null,
+        ApplicationInvolvementDtoTestUtil.fromInvolvementFlags(detail.getPwaApplication(),
+            Set.of(
+                ApplicationInvolvementDtoTestUtil.InvolvementFlag.PWA_MANAGER_STAGE,
+                ApplicationInvolvementDtoTestUtil.InvolvementFlag.AT_LEAST_ONE_SATISFACTORY_VERSION
+            ))
+    );
+    var taskAccessible = prepareConsentTaskService.taskAccessible(processingContext);
+
+    assertThat(taskAccessible).isFalse();
 
   }
 
@@ -238,7 +354,6 @@ public class PrepareConsentTaskServiceTest {
     assertThat(taskAccessible).isTrue();
 
   }
-
 
 
 }
