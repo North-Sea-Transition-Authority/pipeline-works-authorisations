@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.service.appprocessing.processingcharges.appcharges
 
 import static java.util.stream.Collectors.toList;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
+import static uk.co.ogauthority.pwa.model.entity.appprocessing.processingcharges.PwaAppChargeRequestStatus.WAIVED;
 import static uk.co.ogauthority.pwa.pwapay.PaymentRequestStatus.PAYMENT_COMPLETE;
 
 import java.time.Clock;
@@ -113,8 +114,9 @@ public class ApplicationChargeRequestService {
         .collect(toList());
     pwaAppChargeRequestItemRepository.saveAll(chargeItems);
 
-    appChargeEmailService.sendChargeRequestIssuedEmail(applicationChargeRequestSpecification.getPwaApplication());
-
+    if (applicationChargeRequestSpecification.getPwaAppChargeRequestStatus() != WAIVED) {
+      appChargeEmailService.sendChargeRequestIssuedEmail(applicationChargeRequestSpecification.getPwaApplication());
+    }
   }
 
   private void createAndSaveTipChargeRequestDetailFromSpec(PwaAppChargeRequest pwaAppChargeRequest,
@@ -166,12 +168,12 @@ public class ApplicationChargeRequestService {
       throw new UnsupportedOperationException("Cannot create charge request empty charge items");
     }
 
-    if (PwaAppChargeRequestStatus.WAIVED.equals(chargeRequestSpecification.getPwaAppChargeRequestStatus())
+    if (WAIVED.equals(chargeRequestSpecification.getPwaAppChargeRequestStatus())
         && StringUtils.isBlank(chargeRequestSpecification.getChargeWaivedReason())) {
       throw new UnsupportedOperationException("Cannot create WAIVED charge request with no reason provided");
     }
 
-    if (!PwaAppChargeRequestStatus.WAIVED.equals(chargeRequestSpecification.getPwaAppChargeRequestStatus())
+    if (!WAIVED.equals(chargeRequestSpecification.getPwaAppChargeRequestStatus())
         && !StringUtils.isBlank(chargeRequestSpecification.getChargeWaivedReason())) {
       throw new UnsupportedOperationException("Cannot create non-waived charge request with waived reason provided");
     }

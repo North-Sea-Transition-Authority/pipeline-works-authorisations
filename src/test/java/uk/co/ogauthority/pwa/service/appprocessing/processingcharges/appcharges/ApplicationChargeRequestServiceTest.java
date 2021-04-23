@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -270,6 +271,8 @@ public class ApplicationChargeRequestServiceTest {
           spec.getPwaAppChargeRequestStatus());
       assertThat(pwaAppChargeRequestDetail.getChargeWaivedReason()).isEqualTo(spec.getChargeWaivedReason());
     });
+
+    verify(appChargeEmailService, never()).sendChargeRequestIssuedEmail(pwaApplication);
   }
 
   @Test(expected = UnsupportedOperationException.class)
