@@ -122,6 +122,8 @@ public class HuooWriter implements ConsentWriter {
     // store newly added roles for use in later writers
     consentWriterDto.getActiveConsentRoles().addAll(orgUnitRoles);
     consentWriterDto.getActiveConsentRoles().addAll(treatyRoles);
+    consentWriterDto.getConsentRolesAdded().addAll(orgUnitRoles);
+    consentWriterDto.getConsentRolesAdded().addAll(treatyRoles);
 
     return consentWriterDto;
 

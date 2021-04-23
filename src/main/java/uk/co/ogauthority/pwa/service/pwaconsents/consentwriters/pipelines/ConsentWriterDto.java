@@ -14,12 +14,14 @@ import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsentOrganisationRole
 public class ConsentWriterDto {
 
   private List<PwaConsentOrganisationRole> activeConsentRoles;
+  private List<PwaConsentOrganisationRole> consentRolesAdded;
   private List<PwaConsentOrganisationRole> consentRolesEnded;
 
   private Map<Pipeline, PipelineDetail> pipelineToNewDetailMap;
 
   public ConsentWriterDto() {
     activeConsentRoles = new ArrayList<>();
+    consentRolesAdded = new ArrayList<>();
     consentRolesEnded = new ArrayList<>();
     pipelineToNewDetailMap = new HashMap<>();
   }
@@ -30,6 +32,14 @@ public class ConsentWriterDto {
 
   public void setActiveConsentRoles(List<PwaConsentOrganisationRole> activeConsentRoles) {
     this.activeConsentRoles = activeConsentRoles;
+  }
+
+  public List<PwaConsentOrganisationRole> getConsentRolesAdded() {
+    return consentRolesAdded;
+  }
+
+  public void setConsentRolesAdded(List<PwaConsentOrganisationRole> consentRolesAdded) {
+    this.consentRolesAdded = consentRolesAdded;
   }
 
   public List<PwaConsentOrganisationRole> getConsentRolesEnded() {

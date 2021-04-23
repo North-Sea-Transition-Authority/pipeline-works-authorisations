@@ -16,12 +16,15 @@ public class ConsentWriterService {
 
   private final List<ConsentWriter> consentWriters;
   private final TaskListService taskListService;
+  private final HolderChangeEmailService holderChangeEmailService;
 
   @Autowired
   public ConsentWriterService(List<ConsentWriter> consentWriters,
-                              TaskListService taskListService) {
+                              TaskListService taskListService,
+                              HolderChangeEmailService holderChangeEmailService) {
     this.consentWriters = consentWriters;
     this.taskListService = taskListService;
+    this.holderChangeEmailService = holderChangeEmailService;
   }
 
   @Transactional
@@ -39,6 +42,11 @@ public class ConsentWriterService {
     for (ConsentWriter writer : sortedWriters) {
       consentWriterDto = writer.write(pwaApplicationDetail, pwaConsent, consentWriterDto);
     }
+
+    holderChangeEmailService.sendHolderChangeEmail(
+        pwaApplicationDetail.getPwaApplication(),
+        consentWriterDto.getConsentRolesEnded(),
+        consentWriterDto.getConsentRolesAdded());
 
   }
 

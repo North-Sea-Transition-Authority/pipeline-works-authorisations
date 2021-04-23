@@ -22,6 +22,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
+import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsentOrganisationRole;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsentType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTask;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskListService;
@@ -56,6 +57,9 @@ public class ConsentWriterServiceTest {
   @MockBean
   private TaskListService taskListService;
 
+  @MockBean
+  private HolderChangeEmailService holderChangeEmailService;
+
   @Autowired
   private ConsentWriterService consentWriterService;
 
@@ -69,10 +73,15 @@ public class ConsentWriterServiceTest {
   private void configureDefaultMockWriterBehaviour(ConsentWriter consentWriterMock){
     when(consentWriterMock.writerIsApplicable(any(), any())).thenCallRealMethod();
     when(consentWriterMock.getExecutionOrder()).thenCallRealMethod();
+    when(consentWriterMock.write(any(), any(), any())).thenReturn(consentWriterDto);
   }
 
   @Before
   public void setUp() throws Exception {
+
+    consentWriterDto = new ConsentWriterDto();
+    consentWriterDto.setConsentRolesAdded(List.of(new PwaConsentOrganisationRole()));
+    consentWriterDto.setConsentRolesEnded(List.of(new PwaConsentOrganisationRole()));
 
     configureDefaultMockWriterBehaviour(fieldWriter);
     configureDefaultMockWriterBehaviour(huooWriter);
@@ -88,8 +97,6 @@ public class ConsentWriterServiceTest {
     consent = new PwaConsent();
     consent.setConsentType(PwaConsentType.INITIAL_PWA);
 
-    consentWriterDto = new ConsentWriterDto();
-
   }
 
   @Test
@@ -103,6 +110,11 @@ public class ConsentWriterServiceTest {
     inOrder.verify(fieldWriter, times(1)).write(eq(detail), eq(consent), any());
     inOrder.verify(huooWriter, times(1)).write(eq(detail), eq(consent), any());
     inOrder.verify(pipelineWriter, times(1)).write(eq(detail), eq(consent), any());
+
+    verify(holderChangeEmailService, times(1)).sendHolderChangeEmail(
+        detail.getPwaApplication(),
+        consentWriterDto.getConsentRolesEnded(),
+        consentWriterDto.getConsentRolesAdded());
 
   }
 

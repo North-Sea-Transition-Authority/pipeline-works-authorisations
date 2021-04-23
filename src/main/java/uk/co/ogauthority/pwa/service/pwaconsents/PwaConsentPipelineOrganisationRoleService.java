@@ -4,7 +4,6 @@ import java.time.Clock;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.apache.commons.collections4.IterableUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,13 +50,13 @@ public class PwaConsentPipelineOrganisationRoleService {
       Collection<PwaConsentOrganisationRole> activeConsentRoles,
       PwaConsent pwaConsent) {
 
-    var orgUnitRoles = activeConsentRoles.stream()
+    var orgUnitIdToRolesMap = activeConsentRoles.stream()
         .filter(r -> r.getOrganisationUnitId() != null)
-        .collect(Collectors.toMap(PwaConsentOrganisationRole::getOrganisationUnitId, Function.identity()));
+        .collect(Collectors.groupingBy(PwaConsentOrganisationRole::getOrganisationUnitId));
 
-    var treatyRoles = activeConsentRoles.stream()
+    var treatyToRolesMap = activeConsentRoles.stream()
         .filter(r -> r.getAgreement() != null)
-        .collect(Collectors.toMap(PwaConsentOrganisationRole::getAgreement, Function.identity()));
+        .collect(Collectors.groupingBy(PwaConsentOrganisationRole::getAgreement));
 
     var newConsentLinks = padPipeLinksToWriteToConsent.stream()
         .map(padLink -> {
@@ -66,12 +65,20 @@ public class PwaConsentPipelineOrganisationRoleService {
 
           // if org unit role exists on consent for pad link org, set on consent link
           Optional.ofNullable(padLink.getPadOrgRole().getOrganisationUnit())
-              .map(ou -> orgUnitRoles.get(ou.getOuId()))
+              .map(ou -> orgUnitIdToRolesMap.get(ou.getOuId()))
+              .map(List::stream)
+              .flatMap(ouRoles -> ouRoles
+                  .filter(r -> r.getRole() == padLink.getPadOrgRole().getRole())
+                  .findFirst())
               .ifPresent(consentLink::setPwaConsentOrganisationRole);
 
           // if treaty role exists on consent for pad link treaty, set on consent link
           Optional.ofNullable(padLink.getPadOrgRole().getAgreement())
-              .map(treatyRoles::get)
+              .map(treatyToRolesMap::get)
+              .map(List::stream)
+              .flatMap(treatyRoles -> treatyRoles
+                  .filter(r -> r.getRole() == padLink.getPadOrgRole().getRole())
+                  .findFirst())
               .ifPresent(consentLink::setPwaConsentOrganisationRole);
 
           // if consent link role is null there is a problem, throw
