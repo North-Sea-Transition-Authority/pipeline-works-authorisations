@@ -20,6 +20,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsentType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaService;
+import uk.co.ogauthority.pwa.service.pwaconsents.consentwriters.pipelines.ConsentWriterDto;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -33,6 +34,8 @@ public class InitialPwaMasterDetailWriterTest {
   private PwaConsent pwaConsent;
   private MasterPwa masterPwa;
 
+  private ConsentWriterDto consentWriterDto;
+
   @Before
   public void setUp() throws Exception {
     masterPwa = new MasterPwa();
@@ -41,6 +44,8 @@ public class InitialPwaMasterDetailWriterTest {
     pwaConsent.setConsentType(PwaConsentType.INITIAL_PWA);
 
     initialPwaMasterDetailWriter = new InitialPwaMasterDetailWriter(masterPwaService);
+
+    consentWriterDto = new ConsentWriterDto();
 
   }
 
@@ -75,7 +80,7 @@ public class InitialPwaMasterDetailWriterTest {
 
     when(masterPwaService.createNewDetailWithStatus(any(), any())).thenReturn(masterDetail);
 
-    initialPwaMasterDetailWriter.write(pwaAppDetail, pwaConsent);
+    initialPwaMasterDetailWriter.write(pwaAppDetail, pwaConsent, consentWriterDto);
 
     verify(masterPwaService, times(1)).createNewDetailWithStatus(masterPwa, MasterPwaDetailStatus.CONSENTED);
 

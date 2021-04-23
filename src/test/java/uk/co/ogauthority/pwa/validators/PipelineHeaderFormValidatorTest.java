@@ -294,6 +294,15 @@ public class PipelineHeaderFormValidatorTest {
         entry("pipelineInUse", Set.of("pipelineInUse" + FieldValidationErrorCodes.REQUIRED.getCode())));
   }
 
+  @Test
+  public void validate_footnote_lengthExceeded() {
+    var form = buildForm();
+    form.setFootnote(ValidatorTestUtils.over4000Chars());
+    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, validationHints);
+    assertThat(result).contains(
+        entry("footnote", Set.of(FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.errorCode("footnote"))));
+  }
+
 
   private PipelineHeaderForm buildForm() {
 

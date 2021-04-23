@@ -36,6 +36,8 @@ public class PipelineWriterTest {
 
   private Map<Pipeline, PadPipelineDto> pipelineToPadPipelineDtoMap;
 
+  private ConsentWriterDto consentWriterDto;
+
   @Before
   public void setUp() throws Exception {
 
@@ -52,6 +54,8 @@ public class PipelineWriterTest {
         .thenReturn(identData);
 
     pipelineWriter = new PipelineWriter(padPipelineIdentDataService, pipelineDetailService);
+
+    consentWriterDto = new ConsentWriterDto();
 
   }
 
@@ -77,9 +81,9 @@ public class PipelineWriterTest {
   public void write() {
 
     var consent = new PwaConsent();
-    pipelineWriter.write(detail, consent);
+    pipelineWriter.write(detail, consent, consentWriterDto);
 
-    verify(pipelineDetailService, times(1)).createNewPipelineDetails(pipelineToPadPipelineDtoMap, consent);
+    verify(pipelineDetailService, times(1)).createNewPipelineDetails(pipelineToPadPipelineDtoMap, consent, consentWriterDto);
 
   }
 

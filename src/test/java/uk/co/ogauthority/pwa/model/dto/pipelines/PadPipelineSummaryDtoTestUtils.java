@@ -53,7 +53,8 @@ public class PadPipelineSummaryDtoTestUtils {
         padPipeline.getPipelineStatus(),
         padPipeline.getPipelineStatusReason(),
         padPipeline.getAlreadyExistsOnSeabed(),
-        padPipeline.getPipelineInUse());
+        padPipeline.getPipelineInUse(),
+        padPipeline.getFootnote());
 
   }
 

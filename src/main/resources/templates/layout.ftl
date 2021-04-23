@@ -66,7 +66,7 @@ errorItems=[]>
           </#if>
 
           <#assign flash>
-            <@pwaFlash.flashContent flashTitle=flashTitle flashMessage=flashMessage flashClass=flashClass!"" />
+            <@pwaFlash.flashContent flashTitle=flashTitle flashMessage=flashMessage flashClass=flashClass!"" flashBulletList=flashBulletList![] />
           </#assign>
 
         <main class="${mainClasses}" id="main-content" role="main">

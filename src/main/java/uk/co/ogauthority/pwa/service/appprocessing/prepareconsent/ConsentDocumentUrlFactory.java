@@ -32,7 +32,7 @@ public class ConsentDocumentUrlFactory {
 
   public String getSendForApprovalUrl() {
     return ReverseRouter.route(on(AppConsentDocController.class)
-        .renderSendForApproval(application.getId(), application.getApplicationType(), null, null, null, null));
+        .renderSendForApproval(application.getId(), application.getApplicationType(), null, null, null));
   }
 
   public String getDownloadUrl() {

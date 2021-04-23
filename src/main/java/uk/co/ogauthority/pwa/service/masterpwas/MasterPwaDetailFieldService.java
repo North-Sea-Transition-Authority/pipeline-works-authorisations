@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.energyportal.model.entity.devuk.DevukFieldId;
 import uk.co.ogauthority.pwa.model.entity.devuk.DevukField;
 import uk.co.ogauthority.pwa.model.entity.devuk.PadField;
+import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaDetail;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaDetailField;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
@@ -60,6 +61,11 @@ public class MasterPwaDetailFieldService {
         .collect(Collectors.toList())
     );
 
+  }
+
+  public List<MasterPwaDetailField> getMasterPwaDetailFields(MasterPwa masterPwa) {
+    var currentMasterPwaDetail = masterPwaService.getCurrentDetailOrThrow(masterPwa);
+    return masterPwaDetailFieldRepository.findByMasterPwaDetail(currentMasterPwaDetail);
   }
 
   @Transactional

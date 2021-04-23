@@ -153,7 +153,7 @@ public class PadPipelinesHuooService implements ApplicationFormSectionService {
                                           BindingResult bindingResult,
                                           PickHuooPipelineValidationType pickHuooPipelineValidationType,
                                           HuooRole huooRole) {
-    
+
     pickHuooPipelinesFormValidator.validate(
         form,
         bindingResult, List.of(
@@ -390,6 +390,10 @@ public class PadPipelinesHuooService implements ApplicationFormSectionService {
   @Override
   public void copySectionInformation(PwaApplicationDetail fromDetail, PwaApplicationDetail toDetail) {
     // do nothing as pipeline org link copied elsewhere
+  }
+
+  public List<PadPipelineOrganisationRoleLink> getPadPipelineOrgRoleLinksForDetail(PwaApplicationDetail pwaApplicationDetail) {
+    return padPipelineOrganisationRoleLinkRepository.getAllByPadOrgRole_PwaApplicationDetail(pwaApplicationDetail);
   }
 
 }

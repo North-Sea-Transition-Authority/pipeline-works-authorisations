@@ -60,6 +60,7 @@ public class PadPipelineTestUtil {
     padPipeline.setTrenchingMethodsDescription("TRENCHING");
     padPipeline.setAlreadyExistsOnSeabed(true);
     padPipeline.setPipelineInUse(false);
+    padPipeline.setFootnote("Footnote information");
 
 
     ObjectTestUtils.assertAllFieldsNotNull(padPipeline, PadPipeline.class, Set.of(PadPipeline_.ID));

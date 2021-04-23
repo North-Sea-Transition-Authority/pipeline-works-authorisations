@@ -83,4 +83,11 @@ public enum PipelineStatus implements DiffableAsString {
   public String getDiffableString() {
     return getDisplayText();
   }
+
+  public static List<PipelineStatus> getStatusesWithState(PhysicalPipelineState state) {
+    return stream()
+        .filter(s -> s.getPhysicalPipelineState() == state)
+        .collect(Collectors.toList());
+  }
+
 }

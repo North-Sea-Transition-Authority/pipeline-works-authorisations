@@ -11,8 +11,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.BooleanUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,7 +21,6 @@ import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineHeaderFormContext;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineMaterial;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineStatus;
-import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
 import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
@@ -37,19 +34,19 @@ import uk.co.ogauthority.pwa.repository.pipelines.PipelineBundlePairDto;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.pipelines.PadPipelineRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailService;
+import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineMappingService;
 import uk.co.ogauthority.pwa.util.CoordinateUtils;
 import uk.co.ogauthority.pwa.util.StreamUtils;
 
 @Service
 public class PadPipelineService {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(PadPipelineService.class);
-
   private final PadPipelineRepository padPipelineRepository;
   private final PipelineService pipelineService;
   private final PipelineDetailService pipelineDetailService;
   private final PadPipelinePersisterService padPipelinePersisterService;
   private final PipelineHeaderFormValidator pipelineHeaderFormValidator;
+  private final PipelineMappingService pipelineMappingService;
 
   private static final Set<PipelineStatus> DATA_REQUIRED_STATUSES = Set.of(PipelineStatus.IN_SERVICE, PipelineStatus.OUT_OF_USE_ON_SEABED);
 
@@ -58,12 +55,14 @@ public class PadPipelineService {
                             PipelineService pipelineService,
                             PipelineDetailService pipelineDetailService,
                             PadPipelinePersisterService padPipelinePersisterService,
-                            PipelineHeaderFormValidator pipelineHeaderFormValidator) {
+                            PipelineHeaderFormValidator pipelineHeaderFormValidator,
+                            PipelineMappingService pipelineMappingService) {
     this.padPipelineRepository = padPipelineRepository;
     this.pipelineService = pipelineService;
     this.pipelineDetailService = pipelineDetailService;
     this.padPipelinePersisterService = padPipelinePersisterService;
     this.pipelineHeaderFormValidator = pipelineHeaderFormValidator;
+    this.pipelineMappingService = pipelineMappingService;
   }
 
   public List<PadPipeline> getPipelines(PwaApplicationDetail detail) {
@@ -186,6 +185,8 @@ public class PadPipelineService {
       }
     }
 
+    padPipeline.setFootnote(form.getFootnote());
+
     padPipelinePersisterService.savePadPipelineAndMaterialiseIdentData(padPipeline);
   }
 
@@ -226,6 +227,8 @@ public class PadPipelineService {
       form.setAlreadyExistsOnSeabed(padPipeline.getAlreadyExistsOnSeabed());
       form.setPipelineInUse(padPipeline.getPipelineInUse());
     }
+
+    form.setFootnote(padPipeline.getFootnote());
   }
 
   @Transactional
@@ -299,30 +302,11 @@ public class PadPipelineService {
                                               ModifyPipelineForm form) {
     // TODO: PWA-682 - Map added fields from PipelineDetail to newPadPipeline.
     var newPadPipeline = new PadPipeline(detail);
-    newPadPipeline.setBundleName(pipelineDetail.getBundleName());
-    newPadPipeline.setPipelineRef(pipelineDetail.getPipelineNumber());
-    newPadPipeline.setPipeline(pipelineDetail.getPipeline());
-    newPadPipeline.setComponentPartsDescription(pipelineDetail.getComponentPartsDesc());
-    newPadPipeline.setLength(pipelineDetail.getLength());
-    newPadPipeline.setPipelineInBundle(pipelineDetail.getPipelineInBundle());
+    pipelineMappingService.mapPipelineEntities(newPadPipeline, pipelineDetail);
+
     newPadPipeline.setPipelineStatus(form.getPipelineStatus());
     if (newPadPipeline.getPipelineStatus() == PipelineStatus.OUT_OF_USE_ON_SEABED) {
       newPadPipeline.setPipelineStatusReason(form.getPipelineStatusReason());
-    }
-    if (pipelineDetail.getPipelineType() == null) {
-      newPadPipeline.setPipelineType(PipelineType.UNKNOWN);
-    } else {
-      newPadPipeline.setPipelineType(pipelineDetail.getPipelineType());
-    }
-    newPadPipeline.setProductsToBeConveyed(pipelineDetail.getProductsToBeConveyed());
-    newPadPipeline.setFromLocation(pipelineDetail.getFromLocation());
-    newPadPipeline.setToLocation(pipelineDetail.getToLocation());
-    newPadPipeline.setMaxExternalDiameter(pipelineDetail.getMaxExternalDiameter());
-    try {
-      newPadPipeline.setFromCoordinates(pipelineDetail.getFromCoordinates());
-      newPadPipeline.setToCoordinates(pipelineDetail.getToCoordinates());
-    } catch (NullPointerException npe) {
-      LOGGER.warn("PipelineDetail is missing valid coordinates", npe);
     }
 
     padPipelineRepository.save(newPadPipeline);
