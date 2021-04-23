@@ -6,15 +6,15 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipe
 public class PadPipelineIdentLocationValidationResult {
 
   private final PadPipeline padPipeline;
-  private final boolean firstIdentMatchesHeader;
-  private final boolean lastIdentMatchesHeader;
+  private final boolean firstIdentFromMatchesHeader;
+  private final boolean lastIdentToMatchesHeader;
 
   public PadPipelineIdentLocationValidationResult(PadPipeline padPipeline,
-                                                  boolean firstIdentMatchesHeader,
-                                                  boolean lastIdentMatchesHeader) {
+                                                  boolean firstIdentFromMatchesHeader,
+                                                  boolean lastIdentToMatchesHeader) {
     this.padPipeline = padPipeline;
-    this.firstIdentMatchesHeader = firstIdentMatchesHeader;
-    this.lastIdentMatchesHeader = lastIdentMatchesHeader;
+    this.firstIdentFromMatchesHeader = firstIdentFromMatchesHeader;
+    this.lastIdentToMatchesHeader = lastIdentToMatchesHeader;
   }
 
   public static PadPipelineIdentLocationValidationResult createUnmatched(PadPipeline padPipeline) {
@@ -26,16 +26,16 @@ public class PadPipelineIdentLocationValidationResult {
     return padPipeline;
   }
 
-  public boolean firstIdentMatchesHeader() {
-    return firstIdentMatchesHeader;
+  public boolean firstIdentFromMatchesHeader() {
+    return firstIdentFromMatchesHeader;
   }
 
-  public boolean lastIdentMatchesHeader() {
-    return lastIdentMatchesHeader;
+  public boolean lastIdentToMatchesHeader() {
+    return lastIdentToMatchesHeader;
   }
 
   public boolean identsMatchHeaderLocation() {
-    return firstIdentMatchesHeader && lastIdentMatchesHeader;
+    return firstIdentFromMatchesHeader && lastIdentToMatchesHeader;
   }
 
   public PadPipelineId getPadPipelineId() {

@@ -332,11 +332,11 @@ public class PadPipelineTaskListService implements ApplicationFormSectionService
 
     invalidIdentHeaderLocationValidationResults.forEach(locationValidationResult -> {
           var identHeaderLocationErrors = new ArrayList<String>();
-          if (!locationValidationResult.firstIdentMatchesHeader()) {
+          if (!locationValidationResult.firstIdentFromMatchesHeader()) {
             identHeaderLocationErrors.add(
                 "from structure and coordinates of the first ident must match the from structure and coordinates in the pipeline header");
           }
-          if (!locationValidationResult.lastIdentMatchesHeader()) {
+          if (!locationValidationResult.lastIdentToMatchesHeader()) {
             identHeaderLocationErrors.add(
                 "to structure and coordinates of the last ident must match the to structure and coordinates in the pipeline header");
           }
