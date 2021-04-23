@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.controller.appprocessing.prepareconsent;
 import static org.hamcrest.Matchers.hasProperty;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -10,6 +11,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
@@ -36,6 +38,7 @@ import uk.co.ogauthority.pwa.model.entity.enums.documents.DocumentTemplateMnem;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.PwaAppProcessingPermissionService;
+import uk.co.ogauthority.pwa.service.appprocessing.consentreview.ConsentReviewService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContextService;
 import uk.co.ogauthority.pwa.service.appprocessing.prepareconsent.ConsentDocumentService;
 import uk.co.ogauthority.pwa.service.appprocessing.prepareconsent.FailedSendForApprovalCheckTestUtil;
@@ -69,6 +72,9 @@ public class AppConsentDocControllerTest extends PwaAppProcessingContextAbstract
 
   @MockBean
   private ConsentDocumentService consentDocumentService;
+
+  @MockBean
+  private ConsentReviewService consentReviewService;
 
   @MockBean
   private TemplateTextService templateTextService;
@@ -402,12 +408,13 @@ public class AppConsentDocControllerTest extends PwaAppProcessingContextAbstract
         .with(csrf()))
         .andExpect(status().is3xxRedirection());
 
-    verify(consentDocumentService, times(0)).sendForApproval(any(), any(), any());
+    verify(consentDocumentService, never()).sendForApproval(any(), any(), any());
 
   }
 
   @Test
   public void sendForApproval_sendAllowed() throws Exception {
+
 
     mockMvc.perform(post(ReverseRouter.route(on(AppConsentDocController.class).sendForApproval(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null, null)))
         .with(authenticatedUserAndSession(user))
@@ -415,8 +422,24 @@ public class AppConsentDocControllerTest extends PwaAppProcessingContextAbstract
         .param("coverLetterText", "mytext"))
         .andExpect(status().is3xxRedirection());
 
-    verify(consentDocumentService, times(1)).sendForApproval(pwaApplicationDetail, "mytext", user);
+    verify(consentDocumentService).sendForApproval(pwaApplicationDetail, "mytext", user);
 
   }
+
+  @Test
+  public void sendForApproval_alreadySent() throws Exception {
+
+    when(consentReviewService.areThereAnyOpenReviews(pwaApplicationDetail)).thenReturn(true);
+    mockMvc.perform(post(ReverseRouter.route(on(AppConsentDocController.class).sendForApproval(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null, null)))
+        .with(authenticatedUserAndSession(user))
+        .with(csrf())
+        .param("coverLetterText", "mytext"))
+        .andExpect(status().is3xxRedirection())
+        .andExpect(redirectedUrl("/work-area"));
+
+    verify(consentDocumentService, never()).sendForApproval(pwaApplicationDetail, "mytext", user);
+
+  }
+
 
 }

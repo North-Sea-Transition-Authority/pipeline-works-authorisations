@@ -66,16 +66,10 @@ public class ConsentReviewService {
   public void startConsentReview(PwaApplicationDetail pwaApplicationDetail,
                                  String coverLetterText,
                                  Person startingPerson) {
-
-    // check no open review first
-    boolean alreadyOpenReview = consentReviewRepository.findAllByPwaApplicationDetail(pwaApplicationDetail).stream()
-        .anyMatch(review -> ConsentReviewStatus.OPEN.equals(review.getStatus()));
-
-    if (alreadyOpenReview) {
+    if (areThereAnyOpenReviews(pwaApplicationDetail)) {
       throw new RuntimeException(String.format(
           "Can't start a new consent review as there is already an open one for PWA detail with id [%s]", pwaApplicationDetail.getId()));
     }
-
     var consentReview = new ConsentReview(pwaApplicationDetail, coverLetterText, startingPerson.getId(), clock.instant());
     consentReviewRepository.save(consentReview);
 
@@ -172,6 +166,11 @@ public class ConsentReviewService {
     workflowAssignmentService.clearAssignments(pwaApplicationDetail.getPwaApplication());
 
     return new IssuedConsentDto(consent.getReference());
+  }
+
+  public boolean areThereAnyOpenReviews(PwaApplicationDetail pwaApplicationDetail) {
+    return consentReviewRepository.findAllByPwaApplicationDetail(pwaApplicationDetail).stream()
+        .anyMatch(review -> ConsentReviewStatus.OPEN.equals(review.getStatus()));
   }
 
 }
