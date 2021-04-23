@@ -86,7 +86,8 @@ public class CampaignWorksService implements ApplicationFormSectionService {
     allCampaignWorkSchedules.forEach(workSchedule -> {
       if (getFormErrorsForCampaignWorkSchedule(workSchedule, campaignWorksHint).hasErrors()) {
         invalidWorkScheduleToErrorMap.put(
-            String.valueOf(workSchedule.getId()), "Work schedule starting " + DateUtils.formatDate(workSchedule.getWorkFromDate()));
+            String.valueOf(workSchedule.getId()), String.format("Work schedule %s to %s",
+                DateUtils.formatDate(workSchedule.getWorkFromDate()), DateUtils.formatDate(workSchedule.getWorkToDate())));
       }
     });
 
@@ -94,7 +95,7 @@ public class CampaignWorksService implements ApplicationFormSectionService {
     String sectionIncompleteError = !sectionComplete
         ? "All application pipelines must be covered by a work schedule and all work schedules must be valid" : null;
 
-    return new SummaryScreenValidationResult(invalidWorkScheduleToErrorMap, "work-schedule", "must not have errors",
+    return new SummaryScreenValidationResult(invalidWorkScheduleToErrorMap, "work-schedule", "has errors",
         sectionComplete,
         sectionIncompleteError);
   }

@@ -585,6 +585,25 @@ public class CampaignWorksServiceTest {
     }).when(workScheduleFormValidator).validate(any(), any(), any());
   }
 
+  private void setupValidationResultMocks_whenNotAllApplicationPipelinesWithinAWorkSchedule_andNoFormValidationHasErrors() {
+    when(padPipelineService.getTotalPipelinesContainedInApplication(pwaApplicationDetail))
+        .thenReturn(2L);
+
+    var schedulePipeline1 = new PadCampaignWorksPipeline(workSchedule, pipe1);
+    var schedulePipeline2 = new PadCampaignWorksPipeline(workSchedule, pipe1);
+
+    // support overall application schedule pipeline check
+    when(padCampaignWorksPipelineRepository.findAllByPadCampaignWorkSchedule_pwaApplicationDetail(pwaApplicationDetail))
+        .thenReturn(List.of(schedulePipeline1, schedulePipeline2));
+
+    // support form object construction
+    when(padCampaignWorksPipelineRepository.findAllByPadCampaignWorkSchedule(workSchedule))
+        .thenReturn(List.of(schedulePipeline1, schedulePipeline2));
+
+    when(padCampaignWorkScheduleRepository.findByPwaApplicationDetail(pwaApplicationDetail))
+        .thenReturn(List.of(workSchedule, workSchedule));
+  }
+
   @Test
   public void getCampaignWorksValidationResult_whenAllApplicationPipelinesWithinAWorkSchedule_andFormValidationErrors() {
     setupValidationResultMocks_whenAllApplicationPipelinesWithinAWorkSchedule_andFormValidationHasErrors();
@@ -592,6 +611,15 @@ public class CampaignWorksServiceTest {
     assertThat(result.isSectionComplete()).isFalse();
     assertThat(result.getInvalidObjectIds()).doesNotContain(String.valueOf(SCHEDULE_ID));
     assertThat(result.getInvalidObjectIds()).contains(String.valueOf(INVALID_SCHEDULE_ID));
+  }
+
+  @Test
+  public void getCampaignWorksValidationResult_whenNotAllApplicationPipelinesWithinAWorkSchedule_andNoFormValidationErrors() {
+    setupValidationResultMocks_whenNotAllApplicationPipelinesWithinAWorkSchedule_andNoFormValidationHasErrors();
+    var result = campaignWorksService.getCampaignWorksValidationResult(pwaApplicationDetail);
+    assertThat(result.isSectionComplete()).isFalse();
+    assertThat(result.getSectionIncompleteError()).isEqualTo(
+        "All application pipelines must be covered by a work schedule and all work schedules must be valid");
   }
 
   @Test

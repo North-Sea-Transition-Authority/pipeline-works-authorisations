@@ -29,13 +29,6 @@
             />
         </@fdsCard.cardHeader>
 
-        <#if hasErrors>
-          <span id="${workSchedule.getPadCampaignWorkScheduleId()}-error" class="govuk-error-message">
-            Edit this work schedule to fix validation errors
-          </span>
-
-        </#if>
-
         <@workScheduleView.pipelineList workSchedule=workSchedule tableIdx=cardIndex/>
 
     </@fdsCard.card>
