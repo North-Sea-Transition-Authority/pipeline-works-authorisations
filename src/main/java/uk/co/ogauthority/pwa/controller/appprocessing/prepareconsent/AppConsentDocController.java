@@ -5,6 +5,7 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 import java.io.InputStream;
 import java.sql.Blob;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
@@ -35,6 +36,7 @@ import uk.co.ogauthority.pwa.service.appprocessing.AppProcessingBreadcrumbServic
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.service.appprocessing.prepareconsent.ConsentDocumentService;
 import uk.co.ogauthority.pwa.service.appprocessing.prepareconsent.ConsentDocumentUrlFactory;
+import uk.co.ogauthority.pwa.service.appprocessing.prepareconsent.FailedSendForApprovalCheck;
 import uk.co.ogauthority.pwa.service.appprocessing.prepareconsent.PrepareConsentTaskService;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.documents.ClauseActionsUrlFactory;
@@ -263,7 +265,6 @@ public class AppConsentDocController {
                                            @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
                                            PwaAppProcessingContext processingContext,
                                            @ModelAttribute("form") SendConsentForApprovalForm form,
-                                           AuthenticatedUserAccount authenticatedUserAccount,
                                            RedirectAttributes redirectAttributes) {
 
     return whenSendForApprovalAvailable(
@@ -333,16 +334,22 @@ public class AppConsentDocController {
 
   }
 
-  public ModelAndView whenSendForApprovalAvailable(PwaAppProcessingContext processingContext,
+  private ModelAndView whenSendForApprovalAvailable(PwaAppProcessingContext processingContext,
                                                    RedirectAttributes redirectAttributes,
                                                    Supplier<ModelAndView> successSupplier) {
 
-    if (!consentDocumentService.canSendForApproval(processingContext.getApplicationDetail())) {
+    var reasonsToPreventSendForApproval = consentDocumentService
+        .getReasonsToPreventSendForApproval(processingContext.getApplicationDetail());
 
-      FlashUtils.error(redirectAttributes, "Tasks outstanding",
-          "The latest version of the application must be confirmed satisfactory, " +
-              "all update requests, consultations, public notices must be completed and " +
-              "the consent document must have at least one clause before sending the consent for approval.");
+    if (!reasonsToPreventSendForApproval.isEmpty()) {
+
+      FlashUtils.errorWithBulletPoints(redirectAttributes,
+          "Tasks outstanding",
+          "All outstanding tasks must be completed before sending the consent for approval.",
+          reasonsToPreventSendForApproval.stream()
+              .map(FailedSendForApprovalCheck::getReason)
+              .collect(Collectors.toList())
+      );
 
       return ReverseRouter.redirect(on(AppConsentDocController.class)
           .renderConsentDocEditor(processingContext.getMasterPwaApplicationId(), processingContext.getApplicationType(), null, null));
