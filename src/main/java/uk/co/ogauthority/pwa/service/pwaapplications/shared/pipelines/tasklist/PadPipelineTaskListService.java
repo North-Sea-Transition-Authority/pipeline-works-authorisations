@@ -6,6 +6,7 @@ import com.google.common.annotations.VisibleForTesting;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,6 +27,8 @@ import uk.co.ogauthority.pwa.model.dto.pipelines.PadPipelineId;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PadPipelineSummaryDto;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineMaterial;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipelineIdent;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.PipelineIdentForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PadPipelineTaskListItem;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview;
@@ -38,6 +41,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationConte
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskInfo;
 import uk.co.ogauthority.pwa.service.pwaapplications.options.PadOptionConfirmedService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineIdentLocationValidationResult;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineIdentService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineIdentFormValidator;
@@ -237,9 +241,43 @@ public class PadPipelineTaskListService implements ApplicationFormSectionService
     return Arrays.asList(appTypes).contains(pwaApplicationDetail.getPwaApplicationType());
   }
 
+  private PadPipelineIdentLocationValidationResult validateIdentsMatchHeaderLocation(PadPipeline padPipeline,
+                                                                                     List<PadPipelineIdent> idents) {
+
+    PadPipelineIdent firstIdent;
+    PadPipelineIdent lastIdent;
+
+    if (!idents.isEmpty()) {
+      idents.sort(Comparator.comparing(PadPipelineIdent::getIdentNo));
+      firstIdent = idents.get(0);
+      lastIdent = idents.get(idents.size() - 1);
+    } else {
+      return PadPipelineIdentLocationValidationResult.createUnmatched(padPipeline);
+    }
+
+    //first check if ident from and to location match header
+    var firstIdentMatches = firstIdent.getFromLocation().equals(padPipeline.getFromLocation());
+    var lastIdentMatches = lastIdent.getToLocation().equals(padPipeline.getToLocation());
+
+    if (firstIdentMatches && lastIdentMatches) {
+      //now check if coordinates match header only if they exist
+      firstIdentMatches = !firstIdent.getFromCoordinates().hasValue() || firstIdent.getFromCoordinates().equals(
+          padPipeline.getFromCoordinates());
+
+      lastIdentMatches = !lastIdent.getToCoordinates().hasValue() || lastIdent.getToCoordinates().equals(
+          padPipeline.getToCoordinates());
+    }
+
+    return new PadPipelineIdentLocationValidationResult(padPipeline, firstIdentMatches, lastIdentMatches);
+  }
+
+
   public SummaryScreenValidationResult getValidationResult(PwaApplicationDetail detail) {
 
-    Map<String, String> invalidPipelines = new LinkedHashMap<>();
+    Map<String, String> invalidPadPipelineIdAndDescriptorMap = new LinkedHashMap<>();
+    Map<String, List<String>> objectIdToItemErrorSuffixesMap = new HashMap<>();
+    var invalidIdentHeaderLocationValidationResults = new ArrayList<PadPipelineIdentLocationValidationResult>();
+    var invalidPadPipelines = new ArrayList<PadPipeline>();
 
     // get sorted pipeline overviews so we can use the pipe name in the error messages
     var overviews = padPipelineService.getApplicationPipelineOverviews(detail);
@@ -260,6 +298,7 @@ public class PadPipelineTaskListService implements ApplicationFormSectionService
       var idents = padPipelineIdToIdentListMap.getOrDefault(padPipelineId, List.of());
 
       // validate each ident on the pipeline, if one is invalid, the whole pipeline is incomplete
+      var identHeaderLocationValidationResult = PadPipelineIdentLocationValidationResult.createUnmatched(padPipeline);
       if (padPipelineService.isValidationRequiredByStatus(padPipeline.getPipelineStatus())) {
         for (var ident : idents) {
           var identForm = new PipelineIdentForm();
@@ -270,22 +309,46 @@ public class PadPipelineTaskListService implements ApplicationFormSectionService
             pipelineComplete = false;
           }
         }
+        identHeaderLocationValidationResult = validateIdentsMatchHeaderLocation(padPipeline, idents);
       }
 
       // if the pipeline has invalid idents (or no idents), it is invalid
       if (!pipelineComplete || idents.isEmpty()) {
-        invalidPipelines.put(String.valueOf(padPipelineId.asInt()), pipelineOverview.getPipelineName());
+        invalidPadPipelineIdAndDescriptorMap.put(String.valueOf(padPipelineId.asInt()), pipelineOverview.getPipelineName());
+        invalidPadPipelines.add(padPipeline);
+      } else if (!identHeaderLocationValidationResult.identsMatchHeaderLocation()) {
+        invalidPadPipelineIdAndDescriptorMap.put(String.valueOf(padPipelineId.asInt()), pipelineOverview.getPipelineName());
+        invalidIdentHeaderLocationValidationResults.add(identHeaderLocationValidationResult);
       }
 
     });
 
     // section is complete if there's at least 1 pipeline, and no invalid pipelines
-    boolean sectionComplete = !padPipelineIdToIdentListMap.isEmpty() && invalidPipelines.isEmpty();
+    boolean sectionComplete = !padPipelineIdToIdentListMap.isEmpty() && invalidPadPipelineIdAndDescriptorMap.isEmpty();
+
+    //create error messages
+    invalidPadPipelines.forEach(invalidPadPipeline -> objectIdToItemErrorSuffixesMap.put(
+        String.valueOf(invalidPadPipeline.getPadPipelineId().asInt()), List.of("must have all sections completed")));
+
+    invalidIdentHeaderLocationValidationResults.forEach(locationValidationResult -> {
+          var identHeaderLocationErrors = new ArrayList<String>();
+          if (!locationValidationResult.firstIdentMatchesHeader()) {
+            identHeaderLocationErrors.add(
+                "from structure and coordinates of the first ident must match the from structure and coordinates in the pipeline header");
+          }
+          if (!locationValidationResult.lastIdentMatchesHeader()) {
+            identHeaderLocationErrors.add(
+                "to structure and coordinates of the last ident must match the to structure and coordinates in the pipeline header");
+          }
+          objectIdToItemErrorSuffixesMap.put(
+              String.valueOf(locationValidationResult.getPadPipelineId().asInt()), identHeaderLocationErrors);
+        }
+    );
 
     String sectionIncompleteError = !sectionComplete
         ? "At least one pipeline must be added with valid header information. Each pipeline must have at least one valid ident." : null;
 
-    return new SummaryScreenValidationResult(invalidPipelines, "pipeline", "must have all sections completed",
+    return new SummaryScreenValidationResult(invalidPadPipelineIdAndDescriptorMap, "pipeline", objectIdToItemErrorSuffixesMap,
         sectionComplete,
         sectionIncompleteError);
   }
