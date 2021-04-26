@@ -85,9 +85,6 @@ public class PadPipelineTaskListServiceTest {
   private RegulatorPipelineNumberTaskService regulatorPipelineNumberTaskService;
 
   @Captor
-  private ArgumentCaptor<PadPipeline> padPipelineArgumentCaptor;
-
-  @Captor
   private ArgumentCaptor<List<PadPipeline>> padPipelineListArgCaptor;
 
   private PadPipelineTaskListService padPipelineTaskListService;
@@ -133,6 +130,8 @@ public class PadPipelineTaskListServiceTest {
 
     ident = new PadPipelineIdent();
     ident.setPadPipeline(padPipe1);
+
+    when(padPipelineService.isValidationRequiredByStatus(any())).thenReturn(true);
 
   }
 
@@ -389,18 +388,6 @@ public class PadPipelineTaskListServiceTest {
 
   }
 
-  @Test
-  public void doesPipelineHaveTasks_serviceInteractions() {
-    var statusEnums = EnumSet.allOf(PipelineStatus.class);
-    statusEnums.forEach(pipelineStatus -> {
-
-      padPipe1.setPipelineStatus(pipelineStatus);
-      padPipelineTaskListService.doesPipelineHaveTasks(PadPipelineSummaryDtoTestUtils.generateFrom(padPipe1));
-      verify(padPipelineService, times(1)).isValidationRequiredByStatus(pipelineStatus);
-
-    });
-  }
-
   private PadPipelineSummaryDto createPadPipelineSummaryDto(PadPipeline padPipeline) {
     return new PadPipelineSummaryDto(
         padPipeline.getId(),
@@ -481,6 +468,25 @@ public class PadPipelineTaskListServiceTest {
     var taskListItems = padPipelineTaskListService.getSortedPipelineTaskListItems(context);
 
     assertThat(taskListItems).isEmpty();
+
+  }
+
+  @Test
+  public void getSortedPipelineTaskListItems_whenPipelineIsNotRequiredToBeValidated() {
+
+    var context = new PwaApplicationContext(detail, null, Set.of(PwaApplicationPermission.EDIT));
+    padPipe1.setPipelineStatus(PipelineStatus.RETURNED_TO_SHORE);
+
+    mockPipelineWithOneIdent();
+    when(padPipelineService.getPipelines(detail)).thenReturn(List.of(padPipe1));
+
+    when(padPipelineService.isValidationRequiredByStatus(any())).thenReturn(false);
+
+    var taskListItems = padPipelineTaskListService.getSortedPipelineTaskListItems(context);
+
+    assertThat(taskListItems).hasSize(1);
+
+    assertThat(taskListItems.get(0).getTaskList()).isEmpty();
 
   }
 
