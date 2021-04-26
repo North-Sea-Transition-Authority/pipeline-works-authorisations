@@ -27,7 +27,7 @@
 
   <#if huooOrgs?has_content>
     <table class="govuk-table">
-      <h3 class="govuk-heading-m">Organisation HUOOs</h3>
+      <h2 class="govuk-heading-m">Organisation HUOOs</h2>
       <thead class="govuk-table__header">
       <tr class="govuk-table__row">
         <th class="govuk-table__cell" scope="col">Company number</th>
@@ -48,9 +48,7 @@
               <@fdsAction.link linkText="Edit" linkUrl=springUrl(org.editUrl) linkClass="govuk-link" linkScreenReaderText="Edit ${org.companyName}"/>
               <#if org.removeUrl?has_content>
                 <br/>
-                  <@fdsForm.htmlForm actionUrl=springUrl(org.removeUrl)>
-                      <@fdsAction.button buttonText="Remove" buttonClass="fds-link-button" buttonScreenReaderText="Remove ${org.companyName}"/>
-                  </@fdsForm.htmlForm>
+                  <@fdsAction.link linkText="Remove" linkClass="govuk-link" linkUrl=springUrl(org.removeUrl) linkScreenReaderText="Remove ${org.companyName}"/>
               </#if>
           </td>
         </tr>
@@ -62,7 +60,7 @@
 
   <#if treatyAgreements?has_content>
     <table class="govuk-table">
-      <h3 class="govuk-heading-m">Treaty agreement user</h3>
+      <h2 class="govuk-heading-m">Treaty agreement user</h2>
       <thead class="govuk-table__header">
       <tr class="govuk-table__row">
         <th class="govuk-table__cell" scope="col">Country</th>
@@ -79,9 +77,7 @@
           <td class="govuk-table__cell">${agreement.roles}</td>
           <td class="govuk-table__cell">
               <#if agreement.removeUrl?has_content>
-                  <@fdsForm.htmlForm actionUrl=springUrl(agreement.removeUrl)>
-                      <@fdsAction.button buttonText="Remove" buttonClass="fds-link-button" buttonScreenReaderText="Remove ${agreement.country}"/>
-                  </@fdsForm.htmlForm>
+                  <@fdsAction.link linkText="Remove" linkClass="govuk-link" linkUrl=springUrl(agreement.removeUrl) linkScreenReaderText="Remove ${agreement.country}"/>
               </#if>
           </td>
         </tr>
