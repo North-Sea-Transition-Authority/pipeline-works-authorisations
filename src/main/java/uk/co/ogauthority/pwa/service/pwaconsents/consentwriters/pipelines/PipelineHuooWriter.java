@@ -5,12 +5,14 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PhysicalPipelineState;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineStatus;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
+import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinehuoo.PadPipelineOrganisationRoleLink;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinehuoo.PipelineOrganisationRoleLink;
@@ -97,8 +99,7 @@ public class PipelineHuooWriter implements ConsentWriter {
   }
 
   /**
-   * Remove any app links to pipelines no longer on the seabed, this will avoid creating new roles for them
-   * and should end any consented roles for those pipelines.
+   * Remove any consented (newly or pre-existing) links to pipelines no longer on the seabed.
    */
   private void endLinksForPipelinesNoLongerOnSeabed(ConsentWriterDto consentWriterDto,
                                                     List<PwaConsentPipelineOrganisationRoleLink> activeConsentLinks,
@@ -107,16 +108,22 @@ public class PipelineHuooWriter implements ConsentWriter {
     var onSeabedStatuses = PipelineStatus.getStatusesWithState(PhysicalPipelineState.ON_SEABED);
     var linksToEnd = new ArrayList<PwaConsentPipelineOrganisationRoleLink>();
 
-    activeConsentLinks.forEach(link -> {
+    activeConsentLinks.forEach(link ->
 
-      var pipelineStatus = consentWriterDto.getPipelineToNewDetailMap().get(link.getPipeline()).getPipelineStatus();
-      boolean pipelineOnSeabed = onSeabedStatuses.contains(pipelineStatus);
+        // if the pipeline was on the app and transitioned to a 'not on seabed' status, end the links
+        Optional.ofNullable(consentWriterDto.getPipelineToNewDetailMap().get(link.getPipeline()))
+            .map(PipelineDetail::getPipelineStatus)
+            .ifPresent(pipelineStatus -> {
 
-      if (!pipelineOnSeabed) {
-        linksToEnd.add(link);
-      }
+              boolean pipelineOnSeabed = onSeabedStatuses.contains(pipelineStatus);
 
-    });
+              if (!pipelineOnSeabed) {
+                linksToEnd.add(link);
+              }
+
+            })
+
+    );
 
     pwaConsentOrganisationPipelineRoleService.endRoleLinks(linksToEnd, consent);
 

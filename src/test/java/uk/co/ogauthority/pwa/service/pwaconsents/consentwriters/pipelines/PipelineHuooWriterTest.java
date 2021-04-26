@@ -7,6 +7,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -400,6 +401,54 @@ public class PipelineHuooWriterTest {
     var nlEnded = List.of(pipe2ConsentOrg3Operator, pipe2ConsentTreatyUser);
 
     assertThat(consentOrgRoleLinksCaptor.getAllValues().get(1)).containsExactlyInAnyOrderElementsOf(nlEnded);
+
+  }
+
+  @Test
+  public void write_singlePipeOnApp_rts_noError() {
+
+    var consent = new PwaConsent();
+
+    // fake pipe1 being RTS
+    consentWriterDto.getPipelineToNewDetailMap().get(pipe1).setPipelineStatus(PipelineStatus.RETURNED_TO_SHORE);
+
+    // remove pipe2 from the 'app'
+    var map = new HashMap<Pipeline, PipelineDetail>();
+    map.put(pipe1, consentWriterDto.getPipelineToNewDetailMap().get(pipe1));
+    consentWriterDto.setPipelineToNewDetailMap(map);
+
+    var consentOrg3Owner = PwaConsentOrganisationRoleTestUtil
+        .createOrganisationRole(consent, new OrganisationUnitId(org3.getOuId()), HuooRole.OWNER);
+    var pipe1ConsentOrg3Owner = new PwaConsentPipelineOrganisationRoleLink(pipe1, consentOrg3Owner);
+
+    var padOrg2User = PadOrganisationRoleTestUtil.createOrgRole(HuooRole.USER, org2);
+    var pipe2PadOrg2User = new PadPipelineOrganisationRoleLink(padOrg2User, pipe2);
+    var padOrg2Operator = PadOrganisationRoleTestUtil.createOrgRole(HuooRole.OPERATOR, org2);
+    var pipe2PadOrg2Operator = new PadPipelineOrganisationRoleLink(padOrg2Operator, pipe2);
+
+    when(consentPipelineOrgRoleService.createRoleLinks(any(), any(), any()))
+        .thenReturn(List.of(pipe1ConsentOrg3Owner, pipe2ConsentOrg2Operator, pipe2ConsentOrg2Operator));
+
+    when(padPipelinesHuooService.getPadPipelineOrgRoleLinksForDetail(detail))
+        .thenReturn(List.of(pipe1PadOrg1Holder, pipe1PadOrg3Owner, pipe2PadOrg2User, pipe2PadOrg2Operator));
+
+    pipelineHuooWriter.write(detail, consent, consentWriterDto);
+
+    // some pipe1 roles ended as no longer on app
+    var endedRolesNoLongerOnApp = List.of(pipe1ConsentOrg1Owner);
+
+    verify(consentPipelineOrgRoleService, times(2)).endRoleLinks(consentOrgRoleLinksCaptor.capture(), eq(consent));
+
+    assertThat(consentOrgRoleLinksCaptor.getAllValues().get(0)).containsExactlyInAnyOrderElementsOf(endedRolesNoLongerOnApp);
+
+    // new pipe1 roles added
+    var expectedAddedRoles = List.of(pipe1PadOrg3Owner);
+    verify(consentPipelineOrgRoleService, times(1)).createRoleLinks(expectedAddedRoles, consentWriterDto.getActiveConsentRoles(), consent);
+
+    // previous pipe1 and new pipe1 roles ended due to RTS
+    var rtsEnded = List.of(pipe1ConsentOrg1Holder, pipe1ConsentOrg3Owner);
+
+    assertThat(consentOrgRoleLinksCaptor.getAllValues().get(1)).containsExactlyInAnyOrderElementsOf(rtsEnded);
 
   }
 
