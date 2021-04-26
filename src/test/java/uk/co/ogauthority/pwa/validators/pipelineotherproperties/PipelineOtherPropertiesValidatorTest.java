@@ -37,7 +37,7 @@ public class PipelineOtherPropertiesValidatorTest {
     var form = new PipelineOtherPropertiesForm();
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form);
     assertThat(errorsMap).contains(
-        entry("phasesSelection", Set.of("phasesSelection.required"))
+        entry("phasesSelection[OIL]", Set.of("phasesSelection.required"))
     );
   }
 
