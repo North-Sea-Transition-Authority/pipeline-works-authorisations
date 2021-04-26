@@ -22,7 +22,6 @@ import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineHeaderFormCont
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineMaterial;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineStatus;
 import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.model.form.location.CoordinateForm;
@@ -300,8 +299,8 @@ public class PadPipelineService {
   @Transactional
   public PadPipeline copyDataToNewPadPipeline(PwaApplicationDetail detail, PipelineDetail pipelineDetail,
                                               ModifyPipelineForm form) {
-    // TODO: PWA-682 - Map added fields from PipelineDetail to newPadPipeline.
     var newPadPipeline = new PadPipeline(detail);
+    newPadPipeline.setPipeline(pipelineDetail.getPipeline());
     pipelineMappingService.mapPipelineEntities(newPadPipeline, pipelineDetail);
 
     newPadPipeline.setPipelineStatus(form.getPipelineStatus());

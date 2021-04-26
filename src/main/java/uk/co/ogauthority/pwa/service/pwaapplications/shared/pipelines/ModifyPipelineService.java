@@ -22,18 +22,15 @@ import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailService
 @Service
 public class ModifyPipelineService {
 
-  private final PipelineService pipelineService;
   private final PadPipelineService padPipelineService;
   private final PipelineDetailService pipelineDetailService;
   private final PipelineDetailIdentDataImportService pipelineDetailIdentDataImportService;
 
   @Autowired
   public ModifyPipelineService(
-      PipelineService pipelineService,
       PadPipelineService padPipelineService,
       PipelineDetailService pipelineDetailService,
       PipelineDetailIdentDataImportService pipelineDetailIdentDataImportService) {
-    this.pipelineService = pipelineService;
     this.padPipelineService = padPipelineService;
     this.pipelineDetailService = pipelineDetailService;
     this.pipelineDetailIdentDataImportService = pipelineDetailIdentDataImportService;
