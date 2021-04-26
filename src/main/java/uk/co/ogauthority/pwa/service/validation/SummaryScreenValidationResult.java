@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 import uk.co.ogauthority.pwa.model.form.fds.ErrorItem;
 
 /**
@@ -80,13 +81,17 @@ public class SummaryScreenValidationResult {
     // use the error suffix corresponding to the objectId to create the error message for each object
     this.errorItems = new ArrayList<>();
 
-    invalidObjectIdToDescriptorMap.forEach((objectId, objectDescriptor) ->
-        objectIdToItemErrorSuffixesMap.get(objectId).forEach(errorSuffix ->
+    invalidObjectIdToDescriptorMap.forEach((objectId, objectDescriptor) -> {
+      AtomicInteger subIdPrefix = new AtomicInteger();
+
+      objectIdToItemErrorSuffixesMap.get(objectId).forEach(errorSuffix -> {
+        subIdPrefix.getAndIncrement();
         errorItems.add(new ErrorItem(
             errorItems.size() + 1,
-            this.idPrefix + objectId,
-            objectDescriptor + " " + errorSuffix))
-    ));
+            this.idPrefix + subIdPrefix + objectId,
+            objectDescriptor + " " + errorSuffix));
+      });
+    });
 
     this.sectionComplete = sectionComplete;
     this.sectionIncompleteError = sectionIncompleteError;

@@ -39,7 +39,6 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipe
 import uk.co.ogauthority.pwa.model.form.fds.ErrorItem;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.ModifyPipelineForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PadPipelineOverview;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview;
 import uk.co.ogauthority.pwa.model.location.CoordinatePairTestUtil;
 import uk.co.ogauthority.pwa.model.tasklist.TaskListEntry;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.pipelines.PadPipelineRepository;
@@ -87,9 +86,6 @@ public class PadPipelineTaskListServiceTest {
   private RegulatorPipelineNumberTaskService regulatorPipelineNumberTaskService;
 
   @Captor
-  private ArgumentCaptor<PadPipeline> padPipelineArgumentCaptor;
-
-  @Captor
   private ArgumentCaptor<List<PadPipeline>> padPipelineListArgCaptor;
 
   private PadPipelineTaskListService padPipelineTaskListService;
@@ -103,15 +99,6 @@ public class PadPipelineTaskListServiceTest {
   private Pipeline pipe1;
   private PadPipelineIdent ident;
   private ModifyPipelineForm modifyPipelineForm;
-
-  private final static String IDENT_FROM_LOCATION_MISMATCH_ERROR_MSG =
-      "from structure and coordinates of the first ident must match the from structure and coordinates in the pipeline header";
-
-  private final static String IDENT_TO_LOCATION_MISMATCH_ERROR_MSG =
-      "to structure and coordinates of the last ident must match the to structure and coordinates in the pipeline header";
-
-  private final static String SECTION_INCOMPLETE_ERROR_MSG =
-      "At least one pipeline must be added with valid header information. Each pipeline must have at least one valid ident.";
 
   @Before
   public void setUp() {
@@ -148,6 +135,8 @@ public class PadPipelineTaskListServiceTest {
 
     ident = new PadPipelineIdent();
     ident.setPadPipeline(padPipe1);
+
+    when(padPipelineService.isValidationRequiredByStatus(any())).thenReturn(true);
 
   }
 
@@ -347,10 +336,6 @@ public class PadPipelineTaskListServiceTest {
         .thenReturn( Map.of(padPipelineId, padPipe1));
     var ident = new PadPipelineIdent();
     ident.setPadPipeline(padPipe1);
-    ident.setFromLocation(padPipe1.getFromLocation());
-    ident.setFromCoordinates(padPipe1.getFromCoordinates());
-    ident.setToLocation(padPipe1.getToLocation());
-    ident.setToCoordinates(padPipe1.getToCoordinates());
 
     when(padPipelineIdentService.getAllIdentsByPadPipelineIds(eq(List.of(padPipelineId))))
         .thenReturn(List.of(ident));
@@ -406,242 +391,6 @@ public class PadPipelineTaskListServiceTest {
     assertThat(validationResult.getIdPrefix()).isEqualTo("pipeline-");
     assertThat(validationResult.getInvalidObjectIds()).containsExactly("1");
 
-  }
-
-
-  //All test names where identStart is mention refers to the first ident and where identTo is mentioned refers to the last ident
-  private void createMocksForIdentHeaderLocationValidation(PipelineOverview overview,
-                                                    PadPipelineId padPipelineId,
-                                                    PadPipeline padPipeline,
-                                                    List<PadPipelineIdent> idents) {
-    when(padPipelineService.getApplicationPipelineOverviews(detail)).thenReturn(List.of(overview));
-    when(padPipelineIdentService.getAllIdentsByPadPipelineIds(eq(List.of(padPipelineId)))).thenReturn(idents);
-    when(padPipelineService.getPadPipelineMapForOverviews(detail, List.of(overview)))
-        .thenReturn( Map.of(padPipelineId, padPipeline));
-    when(padPipelineService.isPadPipelineValid(any(), any())).thenReturn(true);
-    when(padPipelineService.isValidationRequiredByStatus(any())).thenReturn(true);
-  }
-
-  @Test
-  public void getValidationResult_identsStartAndToLocationDoesNotMatchHeader_invalid() {
-
-    // Use mock ident validator instead of real one.
-    padPipelineTaskListService = getTaskListServiceWithMockedIdentValidator();
-
-    //create padPipeline and idents and overview
-    var padPipeline = PadPipelineTaskListServiceTestUtil.createPadPipeline(detail, pipe1);
-    padPipeline.setId(PAD_PIPELINE_1_ID);
-    var padPipelineId = new PadPipelineId(PAD_PIPELINE_1_ID);
-    var fromIdent = PadPipelineTaskListServiceTestUtil.createIdentWithUnMatchingHeaderFromLocation(padPipeline);
-    var toIdent = PadPipelineTaskListServiceTestUtil.createIdentWithUnMatchingHeaderToLocation(padPipeline);
-    var overview = PadPipelineOverview.from(PadPipelineSummaryDtoTestUtils.generateFrom(padPipeline), true);
-    createMocksForIdentHeaderLocationValidation(overview, padPipelineId, padPipeline, List.of(fromIdent, toIdent));
-
-
-    //assert error messages match
-    var validationResult = padPipelineTaskListService.getValidationResult(detail);
-
-    assertThat(validationResult.isSectionComplete()).isFalse();
-    assertThat(validationResult.getErrorItems())
-        .extracting(ErrorItem::getDisplayOrder, ErrorItem::getFieldName, ErrorItem::getErrorMessage)
-        .containsExactly(
-            tuple(1, "pipeline-1", overview.getPipelineName() + " " + IDENT_FROM_LOCATION_MISMATCH_ERROR_MSG),
-            tuple(2, "pipeline-1", overview.getPipelineName() + " " + IDENT_TO_LOCATION_MISMATCH_ERROR_MSG)
-        );
-    assertThat(validationResult.getSectionIncompleteError()).isEqualTo(SECTION_INCOMPLETE_ERROR_MSG);
-    assertThat(validationResult.getIdPrefix()).isEqualTo("pipeline-");
-    assertThat(validationResult.getInvalidObjectIds()).containsExactly(String.valueOf(padPipelineId.asInt()));
-  }
-
-  @Test
-  public void getValidationResult_identStartLocationMatch_identToLocationDoesNotMatch_invalid() {
-
-    // Use mock ident validator instead of real one.
-    padPipelineTaskListService = getTaskListServiceWithMockedIdentValidator();
-
-    //create padPipeline and idents and overview
-    var padPipeline = PadPipelineTaskListServiceTestUtil.createPadPipeline(detail, pipe1);
-    padPipeline.setId(PAD_PIPELINE_1_ID);
-    var padPipelineId = new PadPipelineId(PAD_PIPELINE_1_ID);
-    var fromIdent = PadPipelineTaskListServiceTestUtil.createIdentWithMatchingHeaderFromLocation(padPipeline);
-    var toIdent = PadPipelineTaskListServiceTestUtil.createIdentWithUnMatchingHeaderToLocation(padPipeline);
-    var overview = PadPipelineOverview.from(PadPipelineSummaryDtoTestUtils.generateFrom(padPipeline), true);
-    createMocksForIdentHeaderLocationValidation(overview, padPipelineId, padPipeline, List.of(fromIdent, toIdent));
-
-
-    //assert error messages match
-    var validationResult = padPipelineTaskListService.getValidationResult(detail);
-
-    assertThat(validationResult.isSectionComplete()).isFalse();
-    assertThat(validationResult.getErrorItems())
-        .extracting(ErrorItem::getDisplayOrder, ErrorItem::getFieldName, ErrorItem::getErrorMessage)
-        .containsExactly(
-            tuple(1, "pipeline-1", overview.getPipelineName() + " " + IDENT_TO_LOCATION_MISMATCH_ERROR_MSG)
-        );
-    assertThat(validationResult.getSectionIncompleteError()).isEqualTo(SECTION_INCOMPLETE_ERROR_MSG);
-    assertThat(validationResult.getIdPrefix()).isEqualTo("pipeline-");
-    assertThat(validationResult.getInvalidObjectIds()).containsExactly(String.valueOf(padPipelineId.asInt()));
-  }
-
-  @Test
-  public void getValidationResult_identsStartAndEndLocationMatchHeader_noCoordinates_valid() {
-
-    // Use mock ident validator instead of real one.
-    padPipelineTaskListService = getTaskListServiceWithMockedIdentValidator();
-
-    //create padPipeline and idents and overview
-    var padPipeline = PadPipelineTaskListServiceTestUtil.createPadPipeline(detail, pipe1);
-    padPipeline.setId(PAD_PIPELINE_1_ID);
-    var padPipelineId = new PadPipelineId(PAD_PIPELINE_1_ID);
-    var fromIdent = PadPipelineTaskListServiceTestUtil.createIdentWithMatchingHeaderFromLocation(padPipeline);
-    fromIdent.setFromCoordinates(CoordinatePairTestUtil.getNullCoordinate());
-    var toIdent = PadPipelineTaskListServiceTestUtil.createIdentWithMatchingHeaderToLocation(padPipeline);
-    toIdent.setFromCoordinates(CoordinatePairTestUtil.getNullCoordinate());
-    var overview = PadPipelineOverview.from(PadPipelineSummaryDtoTestUtils.generateFrom(padPipeline), true);
-    createMocksForIdentHeaderLocationValidation(overview, padPipelineId, padPipeline, List.of(fromIdent, toIdent));
-
-
-    //assert error messages match
-    var validationResult = padPipelineTaskListService.getValidationResult(detail);
-
-    assertThat(validationResult.isSectionComplete()).isTrue();
-    assertThat(validationResult.getErrorItems()).isEmpty();
-    assertThat(validationResult.getSectionIncompleteError()).isNull();
-    assertThat(validationResult.getIdPrefix()).isEqualTo("pipeline-");
-    assertThat(validationResult.getInvalidObjectIds()).isEmpty();
-  }
-
-  @Test
-  public void getValidationResult_identsStartAndEndLocationMatchHeader_coordsExistAndDoesNotMatchHeader_invalid() {
-
-    // Use mock ident validator instead of real one.
-    padPipelineTaskListService = getTaskListServiceWithMockedIdentValidator();
-
-    //create padPipeline and idents and overview
-    var padPipeline = PadPipelineTaskListServiceTestUtil.createPadPipeline(detail, pipe1);
-    padPipeline.setId(PAD_PIPELINE_1_ID);
-    var padPipelineId = new PadPipelineId(PAD_PIPELINE_1_ID);
-    var fromIdent = PadPipelineTaskListServiceTestUtil.createIdentWithMatchingHeaderFromLocation(padPipeline);
-    fromIdent.setFromCoordinates(PadPipelineTaskListServiceTestUtil.createCoordinatePairUnMatchingHeaderFromLocation(padPipeline));
-    var toIdent = PadPipelineTaskListServiceTestUtil.createIdentWithMatchingHeaderToLocation(padPipeline);
-    toIdent.setToCoordinates(PadPipelineTaskListServiceTestUtil.createCoordinatePairUnMatchingHeaderToLocation(padPipeline));
-    var overview = PadPipelineOverview.from(PadPipelineSummaryDtoTestUtils.generateFrom(padPipeline), true);
-    createMocksForIdentHeaderLocationValidation(overview, padPipelineId, padPipeline, List.of(fromIdent, toIdent));
-
-    //assert error messages match
-    var validationResult = padPipelineTaskListService.getValidationResult(detail);
-
-    assertThat(validationResult.isSectionComplete()).isFalse();
-    assertThat(validationResult.getErrorItems())
-        .extracting(ErrorItem::getDisplayOrder, ErrorItem::getFieldName, ErrorItem::getErrorMessage)
-        .containsExactly(
-            tuple(1, "pipeline-1", overview.getPipelineName() + " " + IDENT_FROM_LOCATION_MISMATCH_ERROR_MSG),
-            tuple(2, "pipeline-1", overview.getPipelineName() + " " + IDENT_TO_LOCATION_MISMATCH_ERROR_MSG)
-        );
-    assertThat(validationResult.getSectionIncompleteError()).isEqualTo(SECTION_INCOMPLETE_ERROR_MSG);
-    assertThat(validationResult.getIdPrefix()).isEqualTo("pipeline-");
-    assertThat(validationResult.getInvalidObjectIds()).containsExactly(String.valueOf(padPipelineId.asInt()));
-  }
-
-  @Test
-  public void getValidationResult_identsStartAndEndLocationMatchHeader_fromCoordsExistAndDoesNotMatch_toExistsAndMatches_invalid() {
-
-    // Use mock ident validator instead of real one.
-    padPipelineTaskListService = getTaskListServiceWithMockedIdentValidator();
-
-    //create padPipeline and idents and overview
-    var padPipeline = PadPipelineTaskListServiceTestUtil.createPadPipeline(detail, pipe1);
-    padPipeline.setId(PAD_PIPELINE_1_ID);
-    var padPipelineId = new PadPipelineId(PAD_PIPELINE_1_ID);
-    var fromIdent = PadPipelineTaskListServiceTestUtil.createIdentWithMatchingHeaderFromLocation(padPipeline);
-    fromIdent.setFromCoordinates(PadPipelineTaskListServiceTestUtil.createCoordinatePairUnMatchingHeaderFromLocation(padPipeline));
-    var toIdent = PadPipelineTaskListServiceTestUtil.createIdentWithMatchingHeaderToLocation(padPipeline);
-    toIdent.setToCoordinates(padPipeline.getToCoordinates());
-    var overview = PadPipelineOverview.from(PadPipelineSummaryDtoTestUtils.generateFrom(padPipeline), true);
-    createMocksForIdentHeaderLocationValidation(overview, padPipelineId, padPipeline, List.of(fromIdent, toIdent));
-
-    //assert error messages match
-    var validationResult = padPipelineTaskListService.getValidationResult(detail);
-
-    assertThat(validationResult.isSectionComplete()).isFalse();
-    assertThat(validationResult.getErrorItems())
-        .extracting(ErrorItem::getDisplayOrder, ErrorItem::getFieldName, ErrorItem::getErrorMessage)
-        .containsExactly(
-            tuple(1, "pipeline-1", overview.getPipelineName() + " " + IDENT_FROM_LOCATION_MISMATCH_ERROR_MSG));
-    assertThat(validationResult.getSectionIncompleteError()).isEqualTo(SECTION_INCOMPLETE_ERROR_MSG);
-    assertThat(validationResult.getIdPrefix()).isEqualTo("pipeline-");
-    assertThat(validationResult.getInvalidObjectIds()).containsExactly(String.valueOf(padPipelineId.asInt()));
-  }
-
-  @Test
-  public void getValidationResult_identsStartAndEndLocationMatchHeader_fromCoordsExistAndMatches_toExistsAndDoesNotMatch_invalid() {
-
-    // Use mock ident validator instead of real one.
-    padPipelineTaskListService = getTaskListServiceWithMockedIdentValidator();
-
-    //create padPipeline and idents and overview
-    var padPipeline = PadPipelineTaskListServiceTestUtil.createPadPipeline(detail, pipe1);
-    padPipeline.setId(PAD_PIPELINE_1_ID);
-    var padPipelineId = new PadPipelineId(PAD_PIPELINE_1_ID);
-    var fromIdent = PadPipelineTaskListServiceTestUtil.createIdentWithMatchingHeaderFromLocation(padPipeline);
-    fromIdent.setFromCoordinates(padPipeline.getFromCoordinates());
-    var toIdent = PadPipelineTaskListServiceTestUtil.createIdentWithMatchingHeaderToLocation(padPipeline);
-    toIdent.setToCoordinates(PadPipelineTaskListServiceTestUtil.createCoordinatePairUnMatchingHeaderToLocation(padPipeline));
-    var overview = PadPipelineOverview.from(PadPipelineSummaryDtoTestUtils.generateFrom(padPipeline), true);
-    createMocksForIdentHeaderLocationValidation(overview, padPipelineId, padPipeline, List.of(fromIdent, toIdent));
-
-    //assert error messages match
-    var validationResult = padPipelineTaskListService.getValidationResult(detail);
-
-    assertThat(validationResult.isSectionComplete()).isFalse();
-    assertThat(validationResult.getErrorItems())
-        .extracting(ErrorItem::getDisplayOrder, ErrorItem::getFieldName, ErrorItem::getErrorMessage)
-        .containsExactly(
-            tuple(1, "pipeline-1", overview.getPipelineName() + " " + IDENT_TO_LOCATION_MISMATCH_ERROR_MSG));
-    assertThat(validationResult.getSectionIncompleteError()).isEqualTo(SECTION_INCOMPLETE_ERROR_MSG);
-    assertThat(validationResult.getIdPrefix()).isEqualTo("pipeline-");
-    assertThat(validationResult.getInvalidObjectIds()).containsExactly(String.valueOf(padPipelineId.asInt()));
-  }
-
-  @Test
-  public void getValidationResult_identsStartAndEndLocationMatchHeader_coordinatesExistAndMatchHeader_valid() {
-
-    // Use mock ident validator instead of real one.
-    padPipelineTaskListService = getTaskListServiceWithMockedIdentValidator();
-
-    //create padPipeline and idents and overview
-    var padPipeline = PadPipelineTaskListServiceTestUtil.createPadPipeline(detail, pipe1);
-    padPipeline.setId(PAD_PIPELINE_1_ID);
-    var padPipelineId = new PadPipelineId(PAD_PIPELINE_1_ID);
-    var fromIdent = PadPipelineTaskListServiceTestUtil.createIdentWithMatchingHeaderFromLocation(padPipeline);
-    fromIdent.setFromCoordinates(padPipeline.getFromCoordinates());
-    var toIdent = PadPipelineTaskListServiceTestUtil.createIdentWithMatchingHeaderToLocation(padPipeline);
-    toIdent.setToCoordinates(padPipeline.getToCoordinates());
-    var overview = PadPipelineOverview.from(PadPipelineSummaryDtoTestUtils.generateFrom(padPipeline), true);
-    createMocksForIdentHeaderLocationValidation(overview, padPipelineId, padPipeline, List.of(fromIdent, toIdent));
-
-    //assert error messages match
-    var validationResult = padPipelineTaskListService.getValidationResult(detail);
-
-    assertThat(validationResult.isSectionComplete()).isTrue();
-    assertThat(validationResult.getErrorItems()).isEmpty();
-    assertThat(validationResult.getSectionIncompleteError()).isNull();
-    assertThat(validationResult.getIdPrefix()).isEqualTo("pipeline-");
-    assertThat(validationResult.getInvalidObjectIds()).isEmpty();
-  }
-
-
-
-  @Test
-  public void doesPipelineHaveTasks_serviceInteractions() {
-    var statusEnums = EnumSet.allOf(PipelineStatus.class);
-    statusEnums.forEach(pipelineStatus -> {
-
-      padPipe1.setPipelineStatus(pipelineStatus);
-      padPipelineTaskListService.doesPipelineHaveTasks(PadPipelineSummaryDtoTestUtils.generateFrom(padPipe1));
-      verify(padPipelineService, times(1)).isValidationRequiredByStatus(pipelineStatus);
-
-    });
   }
 
   private PadPipelineSummaryDto createPadPipelineSummaryDto(PadPipeline padPipeline) {
