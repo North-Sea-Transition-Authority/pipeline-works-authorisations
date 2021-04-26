@@ -114,9 +114,11 @@ public class PermanentDepositController {
                                             @ModelAttribute("form") PermanentDepositsForm form,
                                             BindingResult bindingResult) {
 
-    if (!permanentDepositService.validateDepositOverview(applicationContext.getApplicationDetail())) {
+    var depositSummaryValidationResult = permanentDepositService.getDepositSummaryScreenValidationResult(
+        applicationContext.getApplicationDetail());
+    if (!depositSummaryValidationResult.isSectionComplete()) {
       return getOverviewPermanentDepositsModelAndView(applicationContext.getApplicationDetail())
-          .addObject("errorMessage", "Ensure that at least one deposit has been added and that they are all valid.");
+          .addObject("depositSummaryValidationResult", depositSummaryValidationResult);
     }
     return pwaApplicationRedirectService.getTaskListRedirect(applicationContext.getPwaApplication());
   }

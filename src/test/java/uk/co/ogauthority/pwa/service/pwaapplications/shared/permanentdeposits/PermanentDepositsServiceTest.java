@@ -2,6 +2,9 @@ package uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits;
 
 import static java.util.Map.entry;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -10,7 +13,6 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
@@ -25,6 +27,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.validation.BeanPropertyBindingResult;
+import org.springframework.validation.BindingResult;
 import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.permanentdeposits.PermanentDepositController;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
@@ -40,6 +43,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PadPermanentDeposit;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PadPermanentDepositTestUtil;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
+import uk.co.ogauthority.pwa.model.form.fds.ErrorItem;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.PermanentDepositsForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PadPipelineOverview;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineHeaderView;
@@ -186,20 +190,51 @@ public class PermanentDepositsServiceTest {
   }
 
   @Test
-  public void validateDepositOverview_valid() {
-    var entityMapper = new PermanentDepositEntityMappingServiceTest();
-    PadPermanentDeposit entity = entityMapper.buildBaseEntity();
-    entityMapper.setEntityConcreteProperties(entity);
-
-    when( permanentDepositInformationRepository.findByPwaApplicationDetailOrderByReferenceAsc(pwaApplicationDetail)).thenReturn(List.of(entity));
-    assertThat(permanentDepositService.validateDepositOverview(pwaApplicationDetail)).isEqualTo(true);
+  public void getDepositSummaryScreenValidationResult_noDeposits_incomplete() {
+    when( permanentDepositInformationRepository.findByPwaApplicationDetailOrderByReferenceAsc(pwaApplicationDetail)).thenReturn(List.of());
+    var summaryResult = permanentDepositService.getDepositSummaryScreenValidationResult(pwaApplicationDetail);
+    assertThat(summaryResult.isSectionComplete()).isEqualTo(false);
+    assertThat(summaryResult.getSectionIncompleteError()).isEqualTo("Ensure that at least one deposit has been added and that they are all valid.");
   }
 
+  @Test
+  public void getDepositSummaryScreenValidationResult_depositsInvalid_depositsHaveErrors() {
+    var entityMapper = new PermanentDepositEntityMappingServiceTest();
+    PadPermanentDeposit entity = entityMapper.buildBaseEntity();
+    PadPermanentDeposit entity2 = entityMapper.buildBaseEntity();
+    entity2.setId(entity2.getId() + 1);
+
+    when(permanentDepositInformationRepository.findByPwaApplicationDetailOrderByReferenceAsc(pwaApplicationDetail))
+        .thenReturn(List.of(entity, entity2));
+
+    doAnswer(invocation -> {
+      BindingResult result = invocation.getArgument(1);
+      result.rejectValue("materialType", "fake.code", "fake message");
+      return result;
+    }).when(validator).validate(any(), any(), any(), any());
+
+    var summaryResult = permanentDepositService.getDepositSummaryScreenValidationResult(pwaApplicationDetail);
+
+    assertThat(summaryResult.isSectionComplete()).isEqualTo(false);
+    assertThat(summaryResult.getInvalidObjectIds()).containsExactly(String.valueOf(entity.getId()), String.valueOf(entity2.getId()));
+    assertThat(summaryResult.getIdPrefix()).isEqualTo("deposit-");
+    assertThat(summaryResult.getErrorItems()).extracting(ErrorItem::getDisplayOrder, ErrorItem::getFieldName, ErrorItem::getErrorMessage)
+        .containsExactly(
+            tuple(1, "deposit-" + entity.getId(), entity.getReference() + " must have all sections completed without errors"),
+            tuple(2, "deposit-" + entity2.getId(), entity2.getReference() + " must have all sections completed without errors")
+        );
+  }
 
   @Test
-  public void validateDepositOverview_inValid() {
-    when( permanentDepositInformationRepository.findByPwaApplicationDetailOrderByReferenceAsc(pwaApplicationDetail)).thenReturn(new ArrayList<>());
-    assertThat(permanentDepositService.validateDepositOverview(pwaApplicationDetail)).isEqualTo(false);
+  public void getDepositSummaryScreenValidationResult_depositsValid_noErrors() {
+    var entityMapper = new PermanentDepositEntityMappingServiceTest();
+    PadPermanentDeposit entity = entityMapper.buildBaseEntity();
+    when(permanentDepositInformationRepository.findByPwaApplicationDetailOrderByReferenceAsc(pwaApplicationDetail)).thenReturn(List.of(entity));
+
+    var summaryResult = permanentDepositService.getDepositSummaryScreenValidationResult(pwaApplicationDetail);
+    assertThat(summaryResult.isSectionComplete()).isEqualTo(true);
+    assertThat(summaryResult.getSectionIncompleteError()).isNull();
+    assertThat(summaryResult.getInvalidObjectIds()).isEmpty();
   }
 
 

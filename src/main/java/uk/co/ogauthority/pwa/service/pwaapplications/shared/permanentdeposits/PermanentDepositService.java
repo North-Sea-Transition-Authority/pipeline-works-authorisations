@@ -48,6 +48,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.options.PadOptionConfirmedS
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.viewfactories.PipelineAndIdentViewFactory;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation.PadProjectInformationService;
 import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailService;
+import uk.co.ogauthority.pwa.service.validation.SummaryScreenValidationResult;
 import uk.co.ogauthority.pwa.util.validationgroups.FullValidation;
 import uk.co.ogauthority.pwa.util.validationgroups.PartialValidation;
 import uk.co.ogauthority.pwa.validators.PermanentDepositsValidator;
@@ -177,7 +178,7 @@ public class PermanentDepositService implements ApplicationFormSectionService {
 
   @Override
   public boolean isComplete(PwaApplicationDetail detail) {
-    return validateDepositOverview(detail);
+    return getDepositSummaryScreenValidationResult(detail).isSectionComplete();
   }
 
   @Override
@@ -195,9 +196,11 @@ public class PermanentDepositService implements ApplicationFormSectionService {
     return bindingResult;
   }
 
-  public boolean validateDepositOverview(PwaApplicationDetail pwaApplicationDetail) {
+  public SummaryScreenValidationResult getDepositSummaryScreenValidationResult(PwaApplicationDetail pwaApplicationDetail) {
     List<PadPermanentDeposit> padPermanentDeposits =
         permanentDepositRepository.findByPwaApplicationDetailOrderByReferenceAsc(pwaApplicationDetail);
+
+    Map<String, String> invalidDepositIdToDescriptorMap = new HashMap<>();
 
     for (PadPermanentDeposit padPermanentDeposit : padPermanentDeposits) {
       var depositForm = new PermanentDepositsForm();
@@ -206,11 +209,18 @@ public class PermanentDepositService implements ApplicationFormSectionService {
       BindingResult bindingResult = new BeanPropertyBindingResult(depositForm, "form");
       validate(depositForm, bindingResult, ValidationType.FULL, pwaApplicationDetail);
       if (bindingResult.hasErrors()) {
-        return false;
+        invalidDepositIdToDescriptorMap.put(
+            String.valueOf(padPermanentDeposit.getId()), padPermanentDeposit.getReference());
       }
     }
 
-    return padPermanentDeposits.size() > 0;
+    var sectionComplete = invalidDepositIdToDescriptorMap.isEmpty() && !padPermanentDeposits.isEmpty();
+    String sectionIncompleteError = !sectionComplete
+        ? "Ensure that at least one deposit has been added and that they are all valid." : null;
+
+    return new SummaryScreenValidationResult(invalidDepositIdToDescriptorMap, "deposit", "must have all sections completed without errors",
+        sectionComplete,
+        sectionIncompleteError);
   }
 
 
