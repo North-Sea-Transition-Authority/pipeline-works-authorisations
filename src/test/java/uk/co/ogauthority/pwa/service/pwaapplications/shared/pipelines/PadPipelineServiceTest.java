@@ -507,6 +507,20 @@ public class PadPipelineServiceTest {
 
   }
 
+  @Test
+  public void copyDataToNewPadPipeline_verifyPadPipelineAssociatedWithCorrectPipeline() {
+    var pipeline = new Pipeline();
+    pipeline.setId(10);
+    var pipelineDetail = new PipelineDetail(pipeline);
+
+    modifyPipelineForm.setPipelineStatus(PipelineStatus.IN_SERVICE);
+
+    var pipelineWithCopiedData = padPipelineService.copyDataToNewPadPipeline(detail, pipelineDetail, modifyPipelineForm);
+
+    assertThat(pipelineWithCopiedData.getPipeline()).isEqualTo(pipeline);
+
+  }
+
 
   @Test
   public void copyDataToNewPadPipeline_noReason_notOnSeabed() {
