@@ -200,7 +200,7 @@ public class PermanentDepositService implements ApplicationFormSectionService {
     List<PadPermanentDeposit> padPermanentDeposits =
         permanentDepositRepository.findByPwaApplicationDetailOrderByReferenceAsc(pwaApplicationDetail);
 
-    Map<String, String> invalidDepositIdToDescriptorMap = new HashMap<>();
+    Map<String, String> invalidDepositIdToDescriptorMap = new LinkedHashMap<>();
 
     for (PadPermanentDeposit padPermanentDeposit : padPermanentDeposits) {
       var depositForm = new PermanentDepositsForm();
