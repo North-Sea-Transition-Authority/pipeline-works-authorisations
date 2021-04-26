@@ -178,8 +178,8 @@ public class PadPipelineTaskListService implements ApplicationFormSectionService
         padPipeline.getId()
     );
 
-    if(!padPipelineService.isValidationRequiredByStatus(padPipeline.getPipelineStatus())) {
-        return List.of();
+    if (!padPipelineService.isValidationRequiredByStatus(padPipeline.getPipelineStatus())) {
+      return List.of();
     }
 
     var entryList = new ArrayList<TaskListEntry>();
