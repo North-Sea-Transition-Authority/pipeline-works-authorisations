@@ -1,10 +1,12 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdepositsdrawings;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.junit.Assert.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -19,6 +21,7 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.validation.BindingResult;
 import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
@@ -29,15 +32,16 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdepositd
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdepositdrawings.PadDepositDrawingLink;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PadPermanentDeposit;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PadPermanentDepositTestUtil;
+import uk.co.ogauthority.pwa.model.form.fds.ErrorItem;
 import uk.co.ogauthority.pwa.model.form.files.UploadFileWithDescriptionForm;
 import uk.co.ogauthority.pwa.model.form.files.UploadedFileView;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.PermanentDepositDrawingForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PermanentDepositDrawingView;
-import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadPermanentDepositRepository;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.permanentdepositdrawings.PadDepositDrawingLinkRepository;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.permanentdepositdrawings.PadDepositDrawingRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
+import uk.co.ogauthority.pwa.service.fileupload.PadFileTestUtil;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits.DepositDrawingsService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits.PermanentDepositService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
@@ -56,9 +60,6 @@ public class DepositDrawingsServiceTest {
   private PadDepositDrawingRepository padDepositDrawingRepository;
 
   @Mock
-  private PadPermanentDepositRepository padPermanentDepositRepository;
-
-  @Mock
   private PadDepositDrawingLinkRepository padDepositDrawingLinkRepository;
 
   @Mock
@@ -72,8 +73,6 @@ public class DepositDrawingsServiceTest {
 
   private PwaApplicationDetail pwaApplicationDetail;
 
-  public DepositDrawingsServiceTest() {
-  }
 
   @Before
   public void setUp() {
@@ -265,6 +264,71 @@ public class DepositDrawingsServiceTest {
 
 
   @Test
+  public void getDepositDrawingSummaryScreenValidationResult_depositsDoNotAllHaveDrawings_invalid() {
+
+    var deposit = PadPermanentDepositTestUtil.createPadDepositWithAllFieldsPopulated(pwaApplicationDetail);
+    when(permanentDepositService.getPermanentDeposits(pwaApplicationDetail)).thenReturn(List.of(deposit));
+
+    var summaryResult = depositDrawingsService.getDepositDrawingSummaryScreenValidationResult(pwaApplicationDetail);
+
+    assertThat(summaryResult.isSectionComplete()).isEqualTo(false);
+    assertThat(summaryResult.getSectionIncompleteError()).isNotEmpty();
+  }
+
+  @Test
+  public void getDepositDrawingSummaryScreenValidationResult_drawingsIncomplete_invalid() {
+
+    var padFile = PadFileTestUtil.createPadFileWithRandomFileIdAndData(
+        pwaApplicationDetail, ApplicationDetailFilePurpose.DEPOSIT_DRAWINGS).getPadFile();
+    var depositDrawing = PadPermanentDepositTestUtil.createPadDepositDrawing(pwaApplicationDetail, padFile);
+    when(padDepositDrawingRepository.getAllByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(List.of(depositDrawing));
+
+    var fileView = new UploadedFileView("1","_",Long.valueOf(1),"_", Instant.now(),"_");
+    when(padFileService.getUploadedFileView(pwaApplicationDetail, padFile.getFileId(),
+        ApplicationDetailFilePurpose.DEPOSIT_DRAWINGS, ApplicationFileLinkStatus.FULL)).thenReturn(fileView);
+
+    doAnswer(invocation -> {
+      BindingResult result = invocation.getArgument(1);
+      result.rejectValue("selectedDeposits", "fake.code", "fake message");
+      return result;
+    }).when(validator).validate(any(), any(), any(), any(), any());
+
+    var summaryResult = depositDrawingsService.getDepositDrawingSummaryScreenValidationResult(pwaApplicationDetail);
+
+    assertThat(summaryResult.isSectionComplete()).isEqualTo(false);
+    assertThat(summaryResult.getInvalidObjectIds()).containsExactly(String.valueOf(depositDrawing.getId()));
+    assertThat(summaryResult.getIdPrefix()).isEqualTo("deposit-drawing-");
+    assertThat(summaryResult.getErrorItems()).extracting(ErrorItem::getDisplayOrder, ErrorItem::getFieldName, ErrorItem::getErrorMessage)
+        .containsExactly(
+            tuple(1, "deposit-drawing-" + depositDrawing.getId(), depositDrawing.getReference() + " must have all sections completed without errors")
+        );
+  }
+
+  @Test
+  public void getDepositDrawingSummaryScreenValidationResult_depositsAllHaveDrawings_allDrawingsComplete_valid() {
+
+    var deposit = PadPermanentDepositTestUtil.createPadDepositWithAllFieldsPopulated(pwaApplicationDetail);
+    when(permanentDepositService.getPermanentDeposits(pwaApplicationDetail)).thenReturn(List.of(deposit));
+    when(padDepositDrawingLinkRepository.getAllByPadPermanentDeposit(deposit)).thenReturn(List.of(new PadDepositDrawingLink()));
+
+    var padFile = PadFileTestUtil.createPadFileWithRandomFileIdAndData(
+        pwaApplicationDetail, ApplicationDetailFilePurpose.DEPOSIT_DRAWINGS).getPadFile();
+    var depositDrawing = PadPermanentDepositTestUtil.createPadDepositDrawing(pwaApplicationDetail, padFile);
+    when(padDepositDrawingRepository.getAllByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(List.of(depositDrawing));
+
+    var fileView = new UploadedFileView("1","_",Long.valueOf(1),"_", Instant.now(),"_");
+    when(padFileService.getUploadedFileView(pwaApplicationDetail, padFile.getFileId(),
+        ApplicationDetailFilePurpose.DEPOSIT_DRAWINGS, ApplicationFileLinkStatus.FULL)).thenReturn(fileView);
+
+    var summaryResult = depositDrawingsService.getDepositDrawingSummaryScreenValidationResult(pwaApplicationDetail);
+
+    assertThat(summaryResult.isSectionComplete()).isEqualTo(true);
+    assertThat(summaryResult.getInvalidObjectIds()).isEmpty();
+    assertThat(summaryResult.getErrorItems()).isEmpty();
+  }
+
+
+  @Test
   public void isComplete_valid() {
     var depositDrawing = new PadDepositDrawing();
     var padFile = new PadFile();
@@ -277,9 +341,11 @@ public class DepositDrawingsServiceTest {
     when(padFileService.getUploadedFileView(pwaApplicationDetail,"1",
         ApplicationDetailFilePurpose.DEPOSIT_DRAWINGS, ApplicationFileLinkStatus.FULL)).thenReturn(fileView);
 
-    var deposit1 = new PadPermanentDeposit();
-    deposit1.setId(1);
-    deposit1.setReference("ref 1");
+    var deposit = new PadPermanentDeposit();
+    deposit.setId(1);
+    deposit.setReference("ref 1");
+    when(permanentDepositService.getPermanentDeposits(pwaApplicationDetail)).thenReturn(List.of(deposit));
+    when(padDepositDrawingLinkRepository.getAllByPadPermanentDeposit(deposit)).thenReturn(List.of(new PadDepositDrawingLink()));
 
     assertTrue(depositDrawingsService.isComplete(pwaApplicationDetail));
   }
@@ -326,12 +392,15 @@ public class DepositDrawingsServiceTest {
     deposit1.setId(1);
     var deposit2 = new PadPermanentDeposit();
     deposit2.setId(2);
+    when(permanentDepositService.getPermanentDeposits(pwaApplicationDetail)).thenReturn(List.of(deposit1, deposit2));
 
     var depositLink1 = new PadDepositDrawingLink();
     depositLink1.setPadPermanentDeposit(deposit1);
     var depositLink2 = new PadDepositDrawingLink();
     depositLink2.setPadPermanentDeposit(deposit2);
     depositLink2.setPadPermanentDeposit(deposit1);
+    when(padDepositDrawingLinkRepository.getAllByPadPermanentDeposit(deposit1)).thenReturn(List.of(depositLink1, depositLink2));
+    when(padDepositDrawingLinkRepository.getAllByPadPermanentDeposit(deposit2)).thenReturn(List.of(depositLink2));
 
     assertTrue(depositDrawingsService.isComplete(pwaApplicationDetail));
   }

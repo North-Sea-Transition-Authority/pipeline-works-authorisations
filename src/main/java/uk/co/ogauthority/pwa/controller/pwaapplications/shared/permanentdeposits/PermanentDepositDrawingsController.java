@@ -135,9 +135,12 @@ public class PermanentDepositDrawingsController extends PwaApplicationDetailData
                                             PwaApplicationContext applicationContext,
                                             @ModelAttribute("form") PermanentDepositDrawingForm form,
                                             BindingResult bindingResult) {
-    if (!depositDrawingsService.isComplete(applicationContext.getApplicationDetail())) {
+
+    var depositDrawingSummaryResult = depositDrawingsService.getDepositDrawingSummaryScreenValidationResult(
+        applicationContext.getApplicationDetail());
+    if (!depositDrawingSummaryResult.isSectionComplete()) {
       return getDepositDrawingsOverviewModelAndView(applicationContext.getApplicationDetail())
-          .addObject("errorMessage", "Ensure that all deposit drawings are valid");
+          .addObject("depositDrawingSummaryResult", depositDrawingSummaryResult);
     }
     return pwaApplicationRedirectService.getTaskListRedirect(applicationContext.getPwaApplication());
   }

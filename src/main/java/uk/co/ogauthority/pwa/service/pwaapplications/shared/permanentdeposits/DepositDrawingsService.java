@@ -3,14 +3,13 @@ package uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.transaction.Transactional;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BeanPropertyBindingResult;
@@ -35,6 +34,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationTyp
 import uk.co.ogauthority.pwa.service.fileupload.FileUpdateMode;
 import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
+import uk.co.ogauthority.pwa.service.validation.SummaryScreenValidationResult;
 import uk.co.ogauthority.pwa.util.validationgroups.FullValidation;
 import uk.co.ogauthority.pwa.util.validationgroups.MandatoryUploadValidation;
 import uk.co.ogauthority.pwa.validators.PermanentDepositsDrawingValidator;
@@ -43,7 +43,6 @@ import uk.co.ogauthority.pwa.validators.PermanentDepositsDrawingValidator;
 /* Service providing simplified API for Permanent Deposit Drawings app form */
 @Service
 public class DepositDrawingsService implements ApplicationFormSectionService {
-  private static final Logger LOGGER = LoggerFactory.getLogger(DepositDrawingsService.class);
 
   private final PadDepositDrawingRepository padDepositDrawingRepository;
   private final PadDepositDrawingLinkRepository padDepositDrawingLinkRepository;
@@ -241,15 +240,18 @@ public class DepositDrawingsService implements ApplicationFormSectionService {
             String.format("Couldn't find permanent deposit drawing with ID: %s", depositDrawingId)));
   }
 
+  public SummaryScreenValidationResult getDepositDrawingSummaryScreenValidationResult(PwaApplicationDetail detail) {
 
-  @Override
-  public boolean isComplete(PwaApplicationDetail detail) {
-    for (var deposit : permanentDepositService.getPermanentDeposits(detail)) {
+    var deposits = permanentDepositService.getPermanentDeposits(detail);
+    var allDepositsHaveDrawings = !deposits.isEmpty();
+    for (var deposit : deposits) {
       if (padDepositDrawingLinkRepository.getAllByPadPermanentDeposit(deposit).isEmpty()) {
-        return false;
+        allDepositsHaveDrawings = false;
+        break;
       }
     }
 
+    Map<String, String> invalidDrawingIdToDescriptorMap = new LinkedHashMap<>();
     var depositDrawings = padDepositDrawingRepository.getAllByPwaApplicationDetail(detail);
     for (var depositDrawing : depositDrawings) {
       var form = new PermanentDepositDrawingForm();
@@ -258,11 +260,27 @@ public class DepositDrawingsService implements ApplicationFormSectionService {
       BindingResult bindingResult = new BeanPropertyBindingResult(form, "form");
       validateDrawingEdit(form, bindingResult, ValidationType.FULL, detail, depositDrawing.getId());
       if (bindingResult.hasErrors()) {
-        return false;
+        invalidDrawingIdToDescriptorMap.put(
+            String.valueOf(depositDrawing.getId()), depositDrawing.getReference());
       }
     }
 
-    return depositDrawings.size() > 0;
+    var sectionComplete = invalidDrawingIdToDescriptorMap.isEmpty() && allDepositsHaveDrawings;
+    String sectionIncompleteError = !sectionComplete
+        ? "Ensure that all deposits are linked to a deposit drawing" : null;
+
+    return new SummaryScreenValidationResult(invalidDrawingIdToDescriptorMap,
+        "deposit-drawing",
+        "must have all sections completed without errors",
+        sectionComplete,
+        sectionIncompleteError);
+
+  }
+
+
+  @Override
+  public boolean isComplete(PwaApplicationDetail detail) {
+    return getDepositDrawingSummaryScreenValidationResult(detail).isSectionComplete();
   }
 
   @Override
