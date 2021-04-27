@@ -46,7 +46,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationTyp
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.campaignworks.CampaignWorksService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.campaignworks.CampaignWorksSummaryValidationResult;
+import uk.co.ogauthority.pwa.service.validation.SummaryScreenValidationResult;
 import uk.co.ogauthority.pwa.testutils.ControllerTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
@@ -81,7 +81,7 @@ public class CampaignWorksControllerTest extends PwaApplicationContextAbstractCo
   private PadCampaignWorkSchedule schedule;
 
   @Mock
-  private CampaignWorksSummaryValidationResult campaignWorksSummaryValidationResult;
+  private SummaryScreenValidationResult campaignWorksSummaryValidationResult;
 
   @Before
   public void setup() {

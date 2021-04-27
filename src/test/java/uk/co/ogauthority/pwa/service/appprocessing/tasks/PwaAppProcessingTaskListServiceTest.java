@@ -79,7 +79,7 @@ public class PwaAppProcessingTaskListServiceTest {
 
   @Test
   @Transactional
-  public void getTaskListGroups() {
+  public void getTaskListGroups_caseManagementIndustry_andPwaManager() {
 
     var taskListGroups = taskListService.getTaskListGroups(processingContext);
 
@@ -123,7 +123,12 @@ public class PwaAppProcessingTaskListServiceTest {
         .forEach(entry -> {
 
           var resolvedTask = PwaAppProcessingTask.resolveFromTaskName(entry.getTaskName());
-          var lockedTasks = List.of(PwaAppProcessingTask.APPROVE_OPTIONS, PwaAppProcessingTask.CLOSE_OUT_OPTIONS, PwaAppProcessingTask.CHANGE_OPTIONS_APPROVAL_DEADLINE);
+          var lockedTasks = List.of(
+              PwaAppProcessingTask.APPROVE_OPTIONS,
+              PwaAppProcessingTask.CLOSE_OUT_OPTIONS,
+              PwaAppProcessingTask.CHANGE_OPTIONS_APPROVAL_DEADLINE,
+              PwaAppProcessingTask.PREPARE_CONSENT
+          );
 
           if (lockedTasks.contains(resolvedTask)) {
             assertThat(entry.getTaskState()).isEqualTo(TaskState.LOCK);

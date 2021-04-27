@@ -477,6 +477,25 @@ public class PadPipelineTaskListServiceTest {
   }
 
   @Test
+  public void getSortedPipelineTaskListItems_whenPipelineIsNotRequiredToBeValidated() {
+
+    var context = new PwaApplicationContext(detail, null, Set.of(PwaApplicationPermission.EDIT));
+    padPipe1.setPipelineStatus(PipelineStatus.RETURNED_TO_SHORE);
+
+    mockPipelineWithOneIdent();
+    when(padPipelineService.getPipelines(detail)).thenReturn(List.of(padPipe1));
+
+    when(padPipelineService.isValidationRequiredByStatus(any())).thenReturn(false);
+
+    var taskListItems = padPipelineTaskListService.getSortedPipelineTaskListItems(context);
+
+    assertThat(taskListItems).hasSize(1);
+
+    assertThat(taskListItems.get(0).getTaskList()).isEmpty();
+
+  }
+
+  @Test
   public void getSortedPipelineTaskListItems_whenRegulatorPipelineServiceDoesNotProvideTask() {
     var context = new PwaApplicationContext(detail, null, Set.of(PwaApplicationPermission.EDIT));
 

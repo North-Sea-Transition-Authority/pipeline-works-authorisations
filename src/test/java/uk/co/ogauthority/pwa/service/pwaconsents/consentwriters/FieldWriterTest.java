@@ -24,6 +24,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaDetailFieldService;
 import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.fieldinformation.PadFieldService;
+import uk.co.ogauthority.pwa.service.pwaconsents.consentwriters.pipelines.ConsentWriterDto;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -47,6 +48,8 @@ public class FieldWriterTest {
 
   private List<PadField> fields;
 
+  private ConsentWriterDto consentWriterDto;
+
   @Before
   public void setUp() throws Exception {
 
@@ -66,6 +69,8 @@ public class FieldWriterTest {
     fields = List.of(new PadField());
     when(padFieldService.getActiveFieldsForApplicationDetail(detail)).thenReturn(fields);
 
+    consentWriterDto = new ConsentWriterDto();
+
   }
 
   @Test
@@ -74,7 +79,7 @@ public class FieldWriterTest {
     pwaConsent.setVariationNumber(0);
     masterPwaDetail.setMasterPwaDetailStatus(MasterPwaDetailStatus.APPLICATION);
 
-    fieldWriter.write(detail, pwaConsent);
+    fieldWriter.write(detail, pwaConsent, consentWriterDto);
 
     verify(masterPwaService, times(0)).createDuplicateNewDetail(any());
     verify(masterPwaService, times(1)).updateDetailFieldInfo(
@@ -99,7 +104,7 @@ public class FieldWriterTest {
 
     when(padFieldService.getApplicationFieldLinksView(detail)).thenReturn(padFieldLinksView);
 
-    fieldWriter.write(detail, pwaConsent);
+    fieldWriter.write(detail, pwaConsent, consentWriterDto);
 
     verify(masterPwaService, times(0)).createDuplicateNewDetail(any());
     verify(masterPwaService, times(0)).updateDetailFieldInfo(any(), any(), any());
@@ -121,7 +126,7 @@ public class FieldWriterTest {
 
     when(padFieldService.getApplicationFieldLinksView(detail)).thenReturn(padFieldLinksView);
 
-    fieldWriter.write(detail, pwaConsent);
+    fieldWriter.write(detail, pwaConsent, consentWriterDto);
 
     verify(masterPwaService, times(1)).createDuplicateNewDetail(masterPwa);
     verify(masterPwaService, times(1)).updateDetailFieldInfo(masterPwaDetail, true, null);
@@ -143,7 +148,7 @@ public class FieldWriterTest {
 
     when(padFieldService.getApplicationFieldLinksView(detail)).thenReturn(padFieldLinksView);
 
-    fieldWriter.write(detail, pwaConsent);
+    fieldWriter.write(detail, pwaConsent, consentWriterDto);
 
     verify(masterPwaService, times(1)).createDuplicateNewDetail(masterPwa);
     verify(masterPwaService, times(1)).updateDetailFieldInfo(masterPwaDetail, true, null);
@@ -165,7 +170,7 @@ public class FieldWriterTest {
 
     when(padFieldService.getApplicationFieldLinksView(detail)).thenReturn(padFieldLinksView);
 
-    fieldWriter.write(detail, pwaConsent);
+    fieldWriter.write(detail, pwaConsent, consentWriterDto);
 
     verify(masterPwaService, times(0)).createDuplicateNewDetail(any());
     verify(masterPwaService, times(0)).updateDetailFieldInfo(any(), any(), any());

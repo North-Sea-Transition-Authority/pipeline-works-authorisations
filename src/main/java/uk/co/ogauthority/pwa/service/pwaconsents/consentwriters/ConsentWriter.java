@@ -4,6 +4,7 @@ import java.util.Collection;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTask;
+import uk.co.ogauthority.pwa.service.pwaconsents.consentwriters.pipelines.ConsentWriterDto;
 
 /**
  * Implementations of this interface are responsible for updating specific areas of the consented PWA datasets.
@@ -14,6 +15,6 @@ public interface ConsentWriter {
 
   boolean writerIsApplicable(Collection<ApplicationTask> applicationTaskSet, PwaConsent pwaConsent);
 
-  void write(PwaApplicationDetail pwaApplicationDetail, PwaConsent pwaConsent);
+  ConsentWriterDto write(PwaApplicationDetail pwaApplicationDetail, PwaConsent pwaConsent, ConsentWriterDto consentWriterDto);
 
 }

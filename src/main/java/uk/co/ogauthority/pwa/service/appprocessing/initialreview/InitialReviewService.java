@@ -1,5 +1,7 @@
 package uk.co.ogauthority.pwa.service.appprocessing.initialreview;
 
+import static uk.co.ogauthority.pwa.service.appprocessing.initialreview.InitialReviewPaymentDecision.PAYMENT_WAIVED;
+
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -91,7 +93,7 @@ public class InitialReviewService implements AppProcessingService {
     workflowService.completeTask(new WorkflowTaskInstance(detail.getPwaApplication(), PwaApplicationWorkflowTask.APPLICATION_REVIEW));
 
     // If payment waived, assume workflow has migrated to the correct state and try to assign immediately.
-    if (initialReviewPaymentDecision.equals(InitialReviewPaymentDecision.PAYMENT_WAIVED)) {
+    if (initialReviewPaymentDecision.equals(PAYMENT_WAIVED)) {
       assignCaseOfficerService.assignCaseOfficer(caseOfficerPersonId, detail, acceptingUser);
     }
 

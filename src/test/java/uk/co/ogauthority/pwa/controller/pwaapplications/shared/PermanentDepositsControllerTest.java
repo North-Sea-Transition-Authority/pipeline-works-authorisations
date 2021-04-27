@@ -48,6 +48,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationTyp
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits.PermanentDepositService;
+import uk.co.ogauthority.pwa.service.validation.SummaryScreenValidationResultTestUtils;
 import uk.co.ogauthority.pwa.testutils.ControllerTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
@@ -359,7 +360,8 @@ public class PermanentDepositsControllerTest extends PwaApplicationContextAbstra
 
   @Test
   public void postPermanentDepositsOverview_appTypeSmokeTest() {
-    when(permanentDepositService.validateDepositOverview(any(PwaApplicationDetail.class))).thenReturn(true);
+    when(permanentDepositService.getDepositSummaryScreenValidationResult(any(PwaApplicationDetail.class)))
+        .thenReturn(SummaryScreenValidationResultTestUtils.completeResult());
     ControllerTestUtils.passValidationWhenPost(permanentDepositService, new PermanentDepositsForm(), ValidationType.FULL );
     endpointTester.setRequestMethod(HttpMethod.POST)
         .addRequestParam(ValidationType.FULL.getButtonText(), ValidationType.FULL.getButtonText())
@@ -372,7 +374,8 @@ public class PermanentDepositsControllerTest extends PwaApplicationContextAbstra
 
   @Test
   public void postPermanentDepositsOverview_appStatusSmokeTest() {
-    when(permanentDepositService.validateDepositOverview(any(PwaApplicationDetail.class))).thenReturn(true);
+    when(permanentDepositService.getDepositSummaryScreenValidationResult(any(PwaApplicationDetail.class)))
+        .thenReturn(SummaryScreenValidationResultTestUtils.completeResult());
     ControllerTestUtils.passValidationWhenPost(permanentDepositService, new PermanentDepositsForm(), ValidationType.FULL );
     endpointTester.setRequestMethod(HttpMethod.POST)
         .addRequestParam(ValidationType.FULL.getButtonText(), ValidationType.FULL.getButtonText())
@@ -386,7 +389,8 @@ public class PermanentDepositsControllerTest extends PwaApplicationContextAbstra
 
   @Test
   public void postPermanentDepositsOverview_permissionSmokeTest() {
-    when(permanentDepositService.validateDepositOverview(any(PwaApplicationDetail.class))).thenReturn(true);
+    when(permanentDepositService.getDepositSummaryScreenValidationResult(any(PwaApplicationDetail.class)))
+        .thenReturn(SummaryScreenValidationResultTestUtils.completeResult());
     ControllerTestUtils.passValidationWhenPost(permanentDepositService, new PermanentDepositsForm(), ValidationType.FULL );
     endpointTester.setRequestMethod(HttpMethod.POST)
         .addRequestParam(ValidationType.FULL.getButtonText(), ValidationType.FULL.getButtonText())
@@ -400,7 +404,8 @@ public class PermanentDepositsControllerTest extends PwaApplicationContextAbstra
 
   @Test
   public void postPermanentDepositsOverview_failValidation() {
-    when(permanentDepositService.validateDepositOverview(any(PwaApplicationDetail.class))).thenReturn(false);
+    when(permanentDepositService.getDepositSummaryScreenValidationResult(any(PwaApplicationDetail.class)))
+        .thenReturn(SummaryScreenValidationResultTestUtils.incompleteResult());
     ControllerTestUtils.passValidationWhenPost(permanentDepositService, new PermanentDepositsForm(), ValidationType.FULL );
     endpointTester.setRequestMethod(HttpMethod.POST)
         .addRequestParam(ValidationType.FULL.getButtonText(), ValidationType.FULL.getButtonText())
