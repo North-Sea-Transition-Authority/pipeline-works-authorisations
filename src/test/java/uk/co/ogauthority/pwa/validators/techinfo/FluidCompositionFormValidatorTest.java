@@ -32,7 +32,16 @@ public class FluidCompositionFormValidatorTest {
   }
 
   @Test
-  public void validateForm_invalid() {
+  public void validateForm_invalid_atLeastOneValue() {
+    fluidCompositionForm.setChemicalDataFormMap(Map.of());
+    Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, fluidCompositionForm);
+    assertThat(errorsMap).contains(
+        entry("chemicalDataFormMap", Set.of("chemicalDataFormMap" + FieldValidationErrorCodes.REQUIRED.getCode()))
+    );
+  }
+
+  @Test
+  public void validateForm_invalid_outOfRange() {
     var compositionDataForm1 = new FluidCompositionDataForm();
     compositionDataForm1.setFluidCompositionOption(FluidCompositionOption.HIGHER_AMOUNT);
     compositionDataForm1.setMoleValue(BigDecimal.valueOf(11.1));
