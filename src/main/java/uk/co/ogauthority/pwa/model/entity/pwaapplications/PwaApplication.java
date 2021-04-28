@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.model.entity.pwaapplications;
 import java.time.Instant;
 import java.util.Objects;
 import java.util.Optional;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -43,6 +44,10 @@ public class PwaApplication implements WorkflowSubject {
   private PwaApplicationDecision decision;
 
   private Instant decisionTimestamp;
+
+  @Column(name="app_created_timestamp")
+  private Instant applicationCreatedTimestamp;
+
 
   public PwaApplication() {
   }
@@ -115,6 +120,14 @@ public class PwaApplication implements WorkflowSubject {
 
   public void setDecisionTimestamp(Instant decisionTimestamp) {
     this.decisionTimestamp = decisionTimestamp;
+  }
+
+  public Instant getApplicationCreatedTimestamp() {
+    return applicationCreatedTimestamp;
+  }
+
+  public void setApplicationCreatedTimestamp(Instant applicationCreatedTimestamp) {
+    this.applicationCreatedTimestamp = applicationCreatedTimestamp;
   }
 
   @Override

@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.service.pwaconsents;
 
 import java.time.Clock;
+import java.time.Instant;
 import java.util.List;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,6 +66,11 @@ public class PwaConsentService {
 
   public List<PwaConsent> getConsentsByMasterPwa(MasterPwa masterPwa) {
     return pwaConsentRepository.findByMasterPwa(masterPwa);
+  }
+
+
+  public List<PwaConsent> getPwaConsentsWhereConsentInstantAfter(MasterPwa masterPwa, Instant searchStartInstant){
+    return pwaConsentRepository.findByMasterPwaAndConsentInstantIsAfter(masterPwa, searchStartInstant);
   }
 
 }
