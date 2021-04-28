@@ -85,11 +85,11 @@ public class SummaryScreenValidationResult {
       AtomicInteger subIdPrefix = new AtomicInteger();
 
       objectIdToItemErrorSuffixesMap.get(objectId).forEach(errorSuffix -> {
-        subIdPrefix.getAndIncrement();
         errorItems.add(new ErrorItem(
             errorItems.size() + 1,
             this.idPrefix + subIdPrefix + objectId,
             objectDescriptor + " " + errorSuffix));
+        subIdPrefix.getAndIncrement();
       });
     });
 

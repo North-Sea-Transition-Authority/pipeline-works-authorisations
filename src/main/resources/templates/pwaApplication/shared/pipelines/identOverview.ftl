@@ -48,13 +48,18 @@
                             <@fdsAction.link linkText="Remove ident" linkClass="govuk-link" linkUrl=springUrl(identUrlFactory.getRemoveUrl(identView.identId)) linkScreenReaderText="Remove ident ${identView.identNumber}" />
                         </#assign>
                         <@fdsTimeline.timelineTimeStamp timeStampHeading=identView.fromLocation nodeNumber=" " timeStampClass="fds-timeline__time-stamp" timelineActionContent=timelineAction>
-                            <#assign sectionId = validationResult.constructObjectId(identSummaryValidationResult!, "1" + identView.identId) />
-                            <#assign hasErrors = validationResult.hasErrors(identSummaryValidationResult!, sectionId) />
-                            <#assign sectionErrorMessage = validationResult.errorMessageOrEmptyString(identSummaryValidationResult!, sectionId) />
-                            <#if sectionErrorMessage?has_content>
-                                <span id=${sectionId} class="govuk-error-message">
-                                    <span class="govuk-visually-hidden">Error:</span> ${sectionErrorMessage}<br/>
-                                </span>
+                            <#if identSummaryValidationResult?has_content>
+                                <#list identSummaryValidationResult.errorItems as errorItem>
+                                    <#assign subIdPrefix = errorItem?index?c/>
+                                    <#assign sectionId = validationResult.constructObjectId(identSummaryValidationResult!, subIdPrefix + identView.identId) />
+                                    <#assign hasErrors = validationResult.hasErrors(identSummaryValidationResult!, sectionId) />
+                                    <#assign sectionErrorMessage = validationResult.errorMessageOrEmptyString(identSummaryValidationResult!, sectionId) />
+                                    <#if sectionErrorMessage?has_content>
+                                        <span id=${sectionId} class="govuk-error-message">
+                                            <span class="govuk-visually-hidden">Error:</span> ${sectionErrorMessage}<br/>
+                                        </span>
+                                    </#if>
+                                </#list>
                             </#if>
                             <@fdsDataItems.dataItem dataItemListClasses="fds-data-items-list--tight">
                                 <@fdsDataItems.dataValuesNumber smallNumber=true key="${identView.identNumber}" value="Ident number"/>
