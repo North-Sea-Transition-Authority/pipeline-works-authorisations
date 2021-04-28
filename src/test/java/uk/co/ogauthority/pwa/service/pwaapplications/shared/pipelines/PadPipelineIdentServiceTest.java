@@ -633,8 +633,8 @@ public class PadPipelineIdentServiceTest {
     assertThat(validationResult.getErrorItems())
         .extracting(ErrorItem::getDisplayOrder, ErrorItem::getFieldName, ErrorItem::getErrorMessage)
         .containsExactly(
-            tuple(1, "ident-1" + fromIdent.getId(), " " + IDENT_FROM_LOCATION_MISMATCH_ERROR_MSG),
-            tuple(2, "ident-1" + toIdent.getId(), " " + IDENT_TO_LOCATION_MISMATCH_ERROR_MSG));
+            tuple(1, "ident-0" + fromIdent.getId(), " " + IDENT_FROM_LOCATION_MISMATCH_ERROR_MSG),
+            tuple(2, "ident-0" + toIdent.getId(), " " + IDENT_TO_LOCATION_MISMATCH_ERROR_MSG));
     assertThat(validationResult.getIdPrefix()).isEqualTo("ident-");
     assertThat(validationResult.getInvalidObjectIds()).containsExactly(String.valueOf(fromIdent.getId()), String.valueOf(toIdent.getId()));
   }
@@ -662,7 +662,7 @@ public class PadPipelineIdentServiceTest {
     assertThat(validationResult.getErrorItems())
         .extracting(ErrorItem::getDisplayOrder, ErrorItem::getFieldName, ErrorItem::getErrorMessage)
         .containsExactly(
-            tuple(1, "ident-1" + toIdent.getId(), " " + IDENT_TO_LOCATION_MISMATCH_ERROR_MSG));
+            tuple(1, "ident-0" + toIdent.getId(), " " + IDENT_TO_LOCATION_MISMATCH_ERROR_MSG));
     assertThat(validationResult.getIdPrefix()).isEqualTo("ident-");
     assertThat(validationResult.getInvalidObjectIds()).containsExactly(String.valueOf(toIdent.getId()));
   }
@@ -719,8 +719,8 @@ public class PadPipelineIdentServiceTest {
     assertThat(validationResult.getErrorItems())
         .extracting(ErrorItem::getDisplayOrder, ErrorItem::getFieldName, ErrorItem::getErrorMessage)
         .containsExactly(
-            tuple(1, "ident-1" + fromIdent.getId(), " " + IDENT_FROM_LOCATION_MISMATCH_ERROR_MSG),
-            tuple(2, "ident-1" + toIdent.getId(), " " + IDENT_TO_LOCATION_MISMATCH_ERROR_MSG));
+            tuple(1, "ident-0" + fromIdent.getId(), " " + IDENT_FROM_LOCATION_MISMATCH_ERROR_MSG),
+            tuple(2, "ident-0" + toIdent.getId(), " " + IDENT_TO_LOCATION_MISMATCH_ERROR_MSG));
     assertThat(validationResult.getIdPrefix()).isEqualTo("ident-");
     assertThat(validationResult.getInvalidObjectIds()).containsExactly(String.valueOf(fromIdent.getId()), String.valueOf(toIdent.getId()));
   }
@@ -749,7 +749,7 @@ public class PadPipelineIdentServiceTest {
     assertThat(validationResult.getErrorItems())
         .extracting(ErrorItem::getDisplayOrder, ErrorItem::getFieldName, ErrorItem::getErrorMessage)
         .containsExactly(
-            tuple(1, "ident-1" + fromIdent.getId(), " " + IDENT_FROM_LOCATION_MISMATCH_ERROR_MSG));
+            tuple(1, "ident-0" + fromIdent.getId(), " " + IDENT_FROM_LOCATION_MISMATCH_ERROR_MSG));
     assertThat(validationResult.getIdPrefix()).isEqualTo("ident-");
     assertThat(validationResult.getInvalidObjectIds()).containsExactly(String.valueOf(fromIdent.getId()));
   }
@@ -778,7 +778,7 @@ public class PadPipelineIdentServiceTest {
     assertThat(validationResult.getErrorItems())
         .extracting(ErrorItem::getDisplayOrder, ErrorItem::getFieldName, ErrorItem::getErrorMessage)
         .containsExactly(
-            tuple(1, "ident-1" + toIdent.getId(), " " + IDENT_TO_LOCATION_MISMATCH_ERROR_MSG));
+            tuple(1, "ident-0" + toIdent.getId(), " " + IDENT_TO_LOCATION_MISMATCH_ERROR_MSG));
     assertThat(validationResult.getIdPrefix()).isEqualTo("ident-");
     assertThat(validationResult.getInvalidObjectIds()).containsExactly(String.valueOf(toIdent.getId()));
   }
