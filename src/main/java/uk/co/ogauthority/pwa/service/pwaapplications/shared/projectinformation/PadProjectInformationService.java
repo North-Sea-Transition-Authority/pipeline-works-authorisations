@@ -217,11 +217,10 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
       projectInformation.setCommercialAgreementTimestamp(null);
     }
 
-    if (requiredQuestions.contains(ProjectInformationQuestion.TEMPORARY_DEPOSITS_BEING_MADE)) {
-      // null out temporary deposit description if temporary deposits not made
-      if (!projectInformation.getTemporaryDepositsMade()) {
-        projectInformation.setTemporaryDepDescription(null);
-      }
+    // null out temporary deposit description if temporary deposits not made
+    if (requiredQuestions.contains(ProjectInformationQuestion.TEMPORARY_DEPOSITS_BEING_MADE)
+        && !projectInformation.getTemporaryDepositsMade()) {
+      projectInformation.setTemporaryDepDescription(null);
     }
 
     if (requiredQuestions.contains(ProjectInformationQuestion.PERMANENT_DEPOSITS_BEING_MADE)

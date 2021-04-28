@@ -5,8 +5,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BeanPropertyBindingResult;
@@ -27,7 +25,6 @@ import uk.co.ogauthority.pwa.validators.pipelinetechinfo.FluidCompositionValidat
 /* Service providing simplified API for Technical Information Fluid Composition app form */
 @Service
 public class PadFluidCompositionInfoService implements ApplicationFormSectionService {
-  private static final Logger LOGGER = LoggerFactory.getLogger(PadFluidCompositionInfoService.class);
 
   private final PadFluidCompositionInfoRepository padFluidCompositionInfoRepository;
   private final FluidCompositionValidator fluidCompositionValidator;
@@ -127,13 +124,14 @@ public class PadFluidCompositionInfoService implements ApplicationFormSectionSer
   public void cleanupData(PwaApplicationDetail detail) {
 
     // null out mole value for all non-higher amount entries
-    var updatedFluidCompositionInfos = getPadFluidCompositionInfoEntities(detail).stream()
+    var fluidCompositionEntitiesToClear = getPadFluidCompositionInfoEntities(detail).stream()
         .filter(fluidCompositionInfo ->
             !Objects.equals(fluidCompositionInfo.getFluidCompositionOption(), FluidCompositionOption.HIGHER_AMOUNT))
-        .peek(fluidCompositionInfo -> fluidCompositionInfo.setMoleValue(null))
         .collect(Collectors.toList());
 
-    padFluidCompositionInfoRepository.saveAll(updatedFluidCompositionInfos);
+    fluidCompositionEntitiesToClear.forEach(fluidCompositionInfo -> fluidCompositionInfo.setMoleValue(null));
+
+    padFluidCompositionInfoRepository.saveAll(fluidCompositionEntitiesToClear);
 
   }
 
