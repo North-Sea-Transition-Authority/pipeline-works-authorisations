@@ -24,4 +24,7 @@ public interface AssignmentRepository extends CrudRepository<Assignment, Integer
                                                                        WorkflowType workflowType,
                                                                        PersonId personId);
 
+  Optional<Assignment> findByBusinessKeyAndWorkflowAssignmentAndWorkflowType(Integer businessKey, WorkflowAssignment workflowAssignment,
+                                                                         WorkflowType workflowType);
+
 }

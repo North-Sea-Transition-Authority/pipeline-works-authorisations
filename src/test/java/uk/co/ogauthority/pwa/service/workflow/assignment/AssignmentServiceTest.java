@@ -166,4 +166,15 @@ public class AssignmentServiceTest {
 
   }
 
+  @Test
+  public void getAssignmentsForWorkflowAssignment() {
+
+    var workflowSubject = new GenericWorkflowSubject(1, WorkflowType.PWA_APPLICATION);
+    assignmentService.getAssignmentsForWorkflowAssignment(workflowSubject, WorkflowAssignment.CASE_OFFICER);
+
+    verify(assignmentRepository).findByBusinessKeyAndWorkflowAssignmentAndWorkflowType(workflowSubject.getBusinessKey(),
+        WorkflowAssignment.CASE_OFFICER, WorkflowType.PWA_APPLICATION);
+
+  }
+
 }

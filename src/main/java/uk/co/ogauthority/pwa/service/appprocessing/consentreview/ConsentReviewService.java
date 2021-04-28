@@ -14,14 +14,12 @@ import uk.co.ogauthority.pwa.exception.appprocessing.ConsentReviewException;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.prepareconsent.ConsentReview;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.enums.appprocessing.prepareconsent.ConsentReviewStatus;
-import uk.co.ogauthority.pwa.model.notify.emailproperties.applicationworkflow.ConsentReviewReturnedEmailProps;
 import uk.co.ogauthority.pwa.repository.appprocessing.prepareconsent.ConsentReviewRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.workflow.application.ConsentReviewDecision;
 import uk.co.ogauthority.pwa.service.enums.workflow.application.PwaApplicationWorkflowTask;
-import uk.co.ogauthority.pwa.service.notify.EmailCaseLinkService;
-import uk.co.ogauthority.pwa.service.notify.NotifyService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
+import uk.co.ogauthority.pwa.service.pwaconsents.ConsentEmailService;
 import uk.co.ogauthority.pwa.service.pwaconsents.PwaConsentService;
 import uk.co.ogauthority.pwa.service.pwaconsents.consentwriters.ConsentWriterService;
 import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
@@ -36,8 +34,7 @@ public class ConsentReviewService {
   private final PwaApplicationDetailService pwaApplicationDetailService;
   private final WorkflowAssignmentService workflowAssignmentService;
   private final CamundaWorkflowService camundaWorkflowService;
-  private final NotifyService notifyService;
-  private final EmailCaseLinkService emailCaseLinkService;
+  private final ConsentEmailService consentEmailService;
   private final PwaConsentService pwaConsentService;
   private final ConsentWriterService consentWriterService;
 
@@ -47,8 +44,7 @@ public class ConsentReviewService {
                               PwaApplicationDetailService pwaApplicationDetailService,
                               WorkflowAssignmentService workflowAssignmentService,
                               CamundaWorkflowService camundaWorkflowService,
-                              NotifyService notifyService,
-                              EmailCaseLinkService emailCaseLinkService,
+                              ConsentEmailService consentEmailService,
                               PwaConsentService pwaConsentService,
                               ConsentWriterService consentWriterService) {
     this.consentReviewRepository = consentReviewRepository;
@@ -56,8 +52,7 @@ public class ConsentReviewService {
     this.pwaApplicationDetailService = pwaApplicationDetailService;
     this.workflowAssignmentService = workflowAssignmentService;
     this.camundaWorkflowService = camundaWorkflowService;
-    this.notifyService = notifyService;
-    this.emailCaseLinkService = emailCaseLinkService;
+    this.consentEmailService = consentEmailService;
     this.pwaConsentService = pwaConsentService;
     this.consentWriterService = consentWriterService;
   }
@@ -115,14 +110,8 @@ public class ConsentReviewService {
         returningUser.getLinkedPerson());
 
     // email CO
-    var emailProps = new ConsentReviewReturnedEmailProps(
-        caseOfficerPerson.getFullName(),
-        pwaApplicationDetail.getPwaApplicationRef(),
-        returningUser.getLinkedPerson().getFullName(),
-        returnReason,
-        emailCaseLinkService.generateCaseManagementLink(pwaApplicationDetail.getPwaApplication()));
-
-    notifyService.sendEmail(emailProps, caseOfficerPerson.getEmailAddress());
+    consentEmailService.sendConsentReviewReturnedEmail(pwaApplicationDetail, caseOfficerPerson.getEmailAddress(),
+        caseOfficerPerson.getFullName(), returningUser.getLinkedPerson().getFullName(), returnReason);
 
   }
 
@@ -161,8 +150,10 @@ public class ConsentReviewService {
     consentReviewRepository.save(openReview);
 
     pwaApplicationDetailService.updateStatus(pwaApplicationDetail, PwaApplicationStatus.COMPLETE, issuingUser);
-
     completeWorkflowTaskWithDecision(pwaApplicationDetail, ConsentReviewDecision.APPROVE);
+
+    consentEmailService.sendConsentIssuedEmail(pwaApplicationDetail, issuingUser.getFullName());
+
     workflowAssignmentService.clearAssignments(pwaApplicationDetail.getPwaApplication());
 
     return new IssuedConsentDto(consent.getReference());
