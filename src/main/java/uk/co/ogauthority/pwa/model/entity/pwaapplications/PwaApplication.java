@@ -45,7 +45,7 @@ public class PwaApplication implements WorkflowSubject {
 
   private Instant decisionTimestamp;
 
-  @Column(name="app_created_timestamp")
+  @Column(name = "app_created_timestamp")
   private Instant applicationCreatedTimestamp;
 
 

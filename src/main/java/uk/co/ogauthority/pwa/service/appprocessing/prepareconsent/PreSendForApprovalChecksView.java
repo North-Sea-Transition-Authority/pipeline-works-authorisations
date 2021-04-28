@@ -3,7 +3,7 @@ package uk.co.ogauthority.pwa.service.appprocessing.prepareconsent;
 import java.util.List;
 
 /**
- * Materialise reasons for case officers to block sending for approval
+ * Materialise reasons for case officers to block sending for approval.
  */
 public final class PreSendForApprovalChecksView {
 

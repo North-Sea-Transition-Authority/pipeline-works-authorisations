@@ -80,7 +80,7 @@ public class SendForApprovalCheckerService {
 
   }
 
-  private Set<FailedSendForApprovalCheck> getFailedSendForApprovalChecks(PwaApplicationDetail detail){
+  private Set<FailedSendForApprovalCheck> getFailedSendForApprovalChecks(PwaApplicationDetail detail) {
     var failedChecks = new HashSet<FailedSendForApprovalCheck>();
 
     if (!(detail.isTipFlag() && detail.getConfirmedSatisfactoryTimestamp() != null)) {

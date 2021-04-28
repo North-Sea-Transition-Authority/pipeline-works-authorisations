@@ -69,7 +69,7 @@ public class PwaConsentService {
   }
 
 
-  public List<PwaConsent> getPwaConsentsWhereConsentInstantAfter(MasterPwa masterPwa, Instant searchStartInstant){
+  public List<PwaConsent> getPwaConsentsWhereConsentInstantAfter(MasterPwa masterPwa, Instant searchStartInstant) {
     return pwaConsentRepository.findByMasterPwaAndConsentInstantIsAfter(masterPwa, searchStartInstant);
   }
 
