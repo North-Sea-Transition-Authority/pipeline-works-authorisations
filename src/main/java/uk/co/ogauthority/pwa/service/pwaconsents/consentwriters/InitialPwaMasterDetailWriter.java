@@ -9,6 +9,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsentType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTask;
 import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaService;
+import uk.co.ogauthority.pwa.service.pwaconsents.consentwriters.pipelines.ConsentWriterDto;
 
 @Service
 public class InitialPwaMasterDetailWriter implements ConsentWriter {
@@ -31,8 +32,9 @@ public class InitialPwaMasterDetailWriter implements ConsentWriter {
   }
 
   @Override
-  public void write(PwaApplicationDetail pwaApplicationDetail,
-                    PwaConsent pwaConsent) {
+  public ConsentWriterDto write(PwaApplicationDetail pwaApplicationDetail,
+                                PwaConsent pwaConsent,
+                                ConsentWriterDto consentWriterDto) {
 
     var currentPwaDetail = masterPwaService.createNewDetailWithStatus(
         pwaApplicationDetail.getMasterPwa(),
@@ -40,6 +42,8 @@ public class InitialPwaMasterDetailWriter implements ConsentWriter {
     );
 
     masterPwaService.updateDetailReference(currentPwaDetail, pwaConsent.getReference());
+
+    return consentWriterDto;
 
   }
 

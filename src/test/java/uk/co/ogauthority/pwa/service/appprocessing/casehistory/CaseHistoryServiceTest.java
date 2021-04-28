@@ -114,6 +114,22 @@ public class CaseHistoryServiceTest {
   }
 
   @Test
+  public void getCaseHistory_whenHistoryItemsReturned_thenItemIndexesAreInOrder() {
+
+    when(caseNoteService.getCaseHistoryItemViews(any())).thenReturn(List.of(
+        firstCaseHistory,
+        secondCaseHistoryWithFiles
+    ));
+    when(applicationSubmissionCaseHistoryItemService.getCaseHistoryItemViews(any())).thenReturn(List.of());
+
+    var caseHistoryItemViews = caseHistoryService.getCaseHistory(pwaApplication);
+
+    assertThat(caseHistoryItemViews)
+        .extracting(CaseHistoryItemView::getDisplayIndex)
+        .containsExactly(1, 2);
+  }
+
+  @Test
   public void getCaseHistory_whenHistoryItemsReturned_thenPersonNameIsSet_andNotesInOrderOfDate() {
 
     var caseHistoryItemViews = caseHistoryService.getCaseHistory(pwaApplication);

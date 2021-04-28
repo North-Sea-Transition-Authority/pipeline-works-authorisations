@@ -2,7 +2,6 @@ package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.tasklist;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
-import com.google.common.annotations.VisibleForTesting;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -24,7 +23,6 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelines.ModifyP
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelines.PipelineIdentsController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelines.PipelinesController;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PadPipelineId;
-import uk.co.ogauthority.pwa.model.dto.pipelines.PadPipelineSummaryDto;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineMaterial;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
@@ -123,12 +121,6 @@ public class PadPipelineTaskListService implements ApplicationFormSectionService
 
   }
 
-  @VisibleForTesting
-  boolean doesPipelineHaveTasks(PadPipelineSummaryDto padPipelineSummaryDto) {
-    return padPipelineService.isValidationRequiredByStatus(padPipelineSummaryDto.getPipelineStatus());
-  }
-
-
   public List<PadPipelineTaskListItem> getSortedPipelineTaskListItems(PwaApplicationContext applicationContext) {
 
     var taskListItemHeaders = getPipelinesTaskListHeaders(applicationContext.getApplicationDetail());
@@ -189,6 +181,10 @@ public class PadPipelineTaskListService implements ApplicationFormSectionService
         applicationContext.getApplicationType(),
         padPipeline.getId()
     );
+
+    if (!padPipelineService.isValidationRequiredByStatus(padPipeline.getPipelineStatus())) {
+      return List.of();
+    }
 
     var entryList = new ArrayList<TaskListEntry>();
 

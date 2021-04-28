@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinehuoo;
 
 import java.util.Objects;
+import java.util.Optional;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -12,11 +13,14 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import org.apache.commons.lang3.ObjectUtils;
+import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
 import uk.co.ogauthority.pwa.model.dto.pipelines.IdentLocationInclusionMode;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineIdentifier;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineIdentifierVisitor;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineSection;
+import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
+import uk.co.ogauthority.pwa.model.entity.enums.TreatyAgreement;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelinehuoo.OrgRoleInstanceType;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.huoo.PadOrganisationRole;
@@ -24,7 +28,8 @@ import uk.co.ogauthority.pwa.service.entitycopier.ChildEntity;
 
 @Entity
 @Table(name = "pad_pipeline_org_role_links")
-public class PadPipelineOrganisationRoleLink implements PipelineIdentifierVisitor, ChildEntity<Integer, PadOrganisationRole> {
+public class PadPipelineOrganisationRoleLink implements PipelineIdentifierVisitor,
+    ChildEntity<Integer, PadOrganisationRole>, PipelineOrganisationRoleLink {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -100,6 +105,23 @@ public class PadPipelineOrganisationRoleLink implements PipelineIdentifierVisito
     this.padOrgRole = padOrgRole;
   }
 
+  @Override
+  public HuooRole getRole() {
+    return padOrgRole.getRole();
+  }
+
+  @Override
+  public Optional<OrganisationUnitId> getOrgUnitId() {
+    return Optional.ofNullable(padOrgRole.getOrganisationUnit())
+        .map(orgUnit -> new OrganisationUnitId(orgUnit.getOuId()));
+  }
+
+  @Override
+  public Optional<TreatyAgreement> getAgreement() {
+    return Optional.ofNullable(padOrgRole.getAgreement());
+  }
+
+  @Override
   public String getFromLocation() {
     return fromLocation;
   }
@@ -108,6 +130,7 @@ public class PadPipelineOrganisationRoleLink implements PipelineIdentifierVisito
     this.fromLocation = fromLocation;
   }
 
+  @Override
   public IdentLocationInclusionMode getFromLocationIdentInclusionMode() {
     return fromLocationIdentInclusionMode;
   }
@@ -117,6 +140,7 @@ public class PadPipelineOrganisationRoleLink implements PipelineIdentifierVisito
     this.fromLocationIdentInclusionMode = fromLocationIdentInclusionMode;
   }
 
+  @Override
   public String getToLocation() {
     return toLocation;
   }
@@ -125,6 +149,7 @@ public class PadPipelineOrganisationRoleLink implements PipelineIdentifierVisito
     this.toLocation = toLocation;
   }
 
+  @Override
   public IdentLocationInclusionMode getToLocationIdentInclusionMode() {
     return toLocationIdentInclusionMode;
   }
@@ -134,6 +159,7 @@ public class PadPipelineOrganisationRoleLink implements PipelineIdentifierVisito
     this.toLocationIdentInclusionMode = toLocationIdentInclusionMode;
   }
 
+  @Override
   public Integer getSectionNumber() {
     return sectionNumber;
   }

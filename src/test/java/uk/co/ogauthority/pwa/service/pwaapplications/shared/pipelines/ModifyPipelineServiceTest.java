@@ -31,9 +31,6 @@ import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 public class ModifyPipelineServiceTest {
 
   @Mock
-  private PipelineService pipelineService;
-
-  @Mock
   private PadPipelineService padPipelineService;
 
   @Mock
@@ -48,7 +45,9 @@ public class ModifyPipelineServiceTest {
 
   @Before
   public void setUp() {
-    modifyPipelineService = new ModifyPipelineService(pipelineService, padPipelineService, pipelineDetailService,
+    modifyPipelineService = new ModifyPipelineService(
+        padPipelineService,
+        pipelineDetailService,
         pipelineDetailIdentDataImportService);
     detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
   }

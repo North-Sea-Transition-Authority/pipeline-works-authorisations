@@ -173,7 +173,7 @@ public class PublicNoticeServiceTest {
   @Test
   public void canShowInTaskList_draftPublicNoticePermission_true() {
 
-    var processingContext = new PwaAppProcessingContext(null, null, Set.of(PwaAppProcessingPermission.DRAFT_PUBLIC_NOTICE), null, null);
+    var processingContext = new PwaAppProcessingContext(pwaApplicationDetail, null, Set.of(PwaAppProcessingPermission.DRAFT_PUBLIC_NOTICE), null, null);
 
     boolean canShow = publicNoticeService.canShowInTaskList(processingContext);
 
@@ -184,7 +184,7 @@ public class PublicNoticeServiceTest {
   @Test
   public void canShowInTaskList_caseManagementIndustryPermission_true() {
 
-    var processingContext = new PwaAppProcessingContext(null, null, Set.of(PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY), null, null);
+    var processingContext = new PwaAppProcessingContext(pwaApplicationDetail, null, Set.of(PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY), null, null);
 
     boolean canShow = publicNoticeService.canShowInTaskList(processingContext);
 
@@ -195,7 +195,7 @@ public class PublicNoticeServiceTest {
   @Test
   public void canShowInTaskList_approvePublicNoticePermission_true() {
 
-    var processingContext = new PwaAppProcessingContext(null, null, Set.of(PwaAppProcessingPermission.APPROVE_PUBLIC_NOTICE), null, null);
+    var processingContext = new PwaAppProcessingContext(pwaApplicationDetail, null, Set.of(PwaAppProcessingPermission.APPROVE_PUBLIC_NOTICE), null, null);
 
     boolean canShow = publicNoticeService.canShowInTaskList(processingContext);
 
@@ -227,9 +227,33 @@ public class PublicNoticeServiceTest {
   }
 
   @Test
+  public void canShowInTaskList_caseManagementIndustryPermission_invalidAppType_false() {
+
+    pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.OPTIONS_VARIATION);
+    var processingContext = new PwaAppProcessingContext(pwaApplicationDetail, null, Set.of(PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY), null, null);
+
+    boolean canShow = publicNoticeService.canShowInTaskList(processingContext);
+
+    assertThat(canShow).isFalse();
+
+  }
+
+  @Test
+  public void canShowInTaskList_caseOfficerPermission_invalidAppType_false() {
+
+    pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.OPTIONS_VARIATION);
+    var processingContext = new PwaAppProcessingContext(pwaApplicationDetail, null, Set.of(PwaAppProcessingPermission.CASE_OFFICER_REVIEW), null, null);
+
+    boolean canShow = publicNoticeService.canShowInTaskList(processingContext);
+
+    assertThat(canShow).isFalse();
+
+  }
+
+  @Test
   public void canShowInTaskList_noPermissions_false() {
 
-    var processingContext = new PwaAppProcessingContext(null, null, Set.of(), null, null);
+    var processingContext = new PwaAppProcessingContext(pwaApplicationDetail, null, Set.of(), null, null);
 
     boolean canShow = publicNoticeService.canShowInTaskList(processingContext);
 

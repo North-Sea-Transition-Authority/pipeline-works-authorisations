@@ -1,6 +1,8 @@
 package uk.co.ogauthority.pwa.model.entity.pwaconsents;
 
 import java.time.Instant;
+import java.util.Objects;
+import java.util.Optional;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -12,15 +14,19 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import org.apache.commons.lang3.ObjectUtils;
+import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
 import uk.co.ogauthority.pwa.model.dto.pipelines.IdentLocationInclusionMode;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineIdentifier;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineSection;
+import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
+import uk.co.ogauthority.pwa.model.entity.enums.TreatyAgreement;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelinehuoo.OrgRoleInstanceType;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinehuoo.PipelineOrganisationRoleLink;
 
 @Entity
 @Table(name = "pipeline_org_role_links")
-public class PwaConsentPipelineOrganisationRoleLink {
+public class PwaConsentPipelineOrganisationRoleLink implements PipelineOrganisationRoleLink {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -60,6 +66,15 @@ public class PwaConsentPipelineOrganisationRoleLink {
 
   private Instant endTimestamp;
 
+  public PwaConsentPipelineOrganisationRoleLink() {
+  }
+
+  public PwaConsentPipelineOrganisationRoleLink(Pipeline pipeline,
+                                                PwaConsentOrganisationRole pwaConsentOrganisationRole) {
+    this.pipeline = pipeline;
+    this.pwaConsentOrganisationRole = pwaConsentOrganisationRole;
+  }
+
   public Integer getId() {
     return id;
   }
@@ -68,6 +83,7 @@ public class PwaConsentPipelineOrganisationRoleLink {
     this.id = id;
   }
 
+  @Override
   public Pipeline getPipeline() {
     return pipeline;
   }
@@ -117,6 +133,23 @@ public class PwaConsentPipelineOrganisationRoleLink {
     this.endTimestamp = endTimestamp;
   }
 
+  @Override
+  public HuooRole getRole() {
+    return pwaConsentOrganisationRole.getRole();
+  }
+
+  @Override
+  public Optional<OrganisationUnitId> getOrgUnitId() {
+    return Optional.ofNullable(pwaConsentOrganisationRole.getOrganisationUnitId())
+        .map(OrganisationUnitId::new);
+  }
+
+  @Override
+  public Optional<TreatyAgreement> getAgreement() {
+    return Optional.ofNullable(pwaConsentOrganisationRole.getAgreement());
+  }
+
+  @Override
   public String getFromLocation() {
     return fromLocation;
   }
@@ -125,6 +158,7 @@ public class PwaConsentPipelineOrganisationRoleLink {
     this.fromLocation = fromLocation;
   }
 
+  @Override
   public IdentLocationInclusionMode getFromLocationIdentInclusionMode() {
     return fromLocationIdentInclusionMode;
   }
@@ -134,6 +168,7 @@ public class PwaConsentPipelineOrganisationRoleLink {
     this.fromLocationIdentInclusionMode = fromLocationIdentInclusionMode;
   }
 
+  @Override
   public String getToLocation() {
     return toLocation;
   }
@@ -142,6 +177,7 @@ public class PwaConsentPipelineOrganisationRoleLink {
     this.toLocation = toLocation;
   }
 
+  @Override
   public IdentLocationInclusionMode getToLocationIdentInclusionMode() {
     return toLocationIdentInclusionMode;
   }
@@ -151,6 +187,7 @@ public class PwaConsentPipelineOrganisationRoleLink {
     this.toLocationIdentInclusionMode = toLocationIdentInclusionMode;
   }
 
+  @Override
   public Integer getSectionNumber() {
     return sectionNumber;
   }
@@ -186,4 +223,31 @@ public class PwaConsentPipelineOrganisationRoleLink {
     return this.pipeline.getPipelineId();
   }
 
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    PwaConsentPipelineOrganisationRoleLink that = (PwaConsentPipelineOrganisationRoleLink) o;
+    return Objects.equals(id, that.id) && Objects.equals(pipeline,
+        that.pipeline) && Objects.equals(pwaConsentOrganisationRole,
+        that.pwaConsentOrganisationRole) && Objects.equals(addedByPwaConsent,
+        that.addedByPwaConsent) && Objects.equals(endedByPwaConsent,
+        that.endedByPwaConsent) && Objects.equals(fromLocation,
+        that.fromLocation) && fromLocationIdentInclusionMode == that.fromLocationIdentInclusionMode && Objects.equals(
+        toLocation,
+        that.toLocation) && toLocationIdentInclusionMode == that.toLocationIdentInclusionMode && Objects.equals(
+        sectionNumber, that.sectionNumber) && Objects.equals(startTimestamp,
+        that.startTimestamp) && Objects.equals(endTimestamp, that.endTimestamp);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(id, pipeline, pwaConsentOrganisationRole, addedByPwaConsent, endedByPwaConsent, fromLocation,
+        fromLocationIdentInclusionMode, toLocation, toLocationIdentInclusionMode, sectionNumber, startTimestamp,
+        endTimestamp);
+  }
 }

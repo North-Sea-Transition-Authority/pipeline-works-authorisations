@@ -30,6 +30,8 @@ public class CaseHistoryItemView {
   private final List<UploadedFileView> uploadedFileViews;
   private final String fileDownloadUrl;
 
+  private int displayIndex;
+
   private CaseHistoryItemView(Builder builder) {
     this.headerText = builder.headerText;
     this.dateTime = builder.dateTime;
@@ -96,6 +98,14 @@ public class CaseHistoryItemView {
 
   public String getFileDownloadUrl() {
     return fileDownloadUrl;
+  }
+
+  public int getDisplayIndex() {
+    return displayIndex;
+  }
+
+  public void setDisplayIndex(int displayIndex) {
+    this.displayIndex = displayIndex;
   }
 
   /**

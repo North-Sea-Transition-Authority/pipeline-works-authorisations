@@ -23,6 +23,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTa
 import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadOrganisationRoleService;
 import uk.co.ogauthority.pwa.service.pwaconsents.PwaConsentOrganisationRoleService;
 import uk.co.ogauthority.pwa.service.pwaconsents.PwaConsentService;
+import uk.co.ogauthority.pwa.service.pwaconsents.consentwriters.pipelines.ConsentWriterDto;
 
 @Service
 public class HuooWriter implements ConsentWriter {
@@ -51,7 +52,9 @@ public class HuooWriter implements ConsentWriter {
   }
 
   @Override
-  public void write(PwaApplicationDetail pwaApplicationDetail, PwaConsent pwaConsent) {
+  public ConsentWriterDto write(PwaApplicationDetail pwaApplicationDetail,
+                                PwaConsent pwaConsent,
+                                ConsentWriterDto consentWriterDto) {
 
     // get the app roles and separate by type, we always need these
     var appRoles = padOrganisationRoleService.getOrgRolesForDetail(pwaApplicationDetail);
@@ -96,6 +99,11 @@ public class HuooWriter implements ConsentWriter {
       // end any roles we no longer need
       pwaConsentOrganisationRoleService.endConsentOrgRoles(pwaConsent, consentRolesToEnd);
 
+      // store ended roles and currently active roles for access by later writers
+      consentWriterDto.getActiveConsentRoles().addAll(consentRoles);
+      consentWriterDto.getActiveConsentRoles().removeAll(consentRolesToEnd);
+      consentWriterDto.setConsentRolesEnded(consentRolesToEnd);
+
     } else {
 
       // if we're a new PWA, set up new roles for everything based on the application
@@ -105,8 +113,19 @@ public class HuooWriter implements ConsentWriter {
     }
 
     // create new org and treaty roles
-    pwaConsentOrganisationRoleService.createNewConsentOrgUnitRoles(pwaConsent, orgUnitConsentRolesToAdd);
-    pwaConsentOrganisationRoleService.createNewConsentTreatyRoles(pwaConsent, treatyConsentRolesToAdd);
+    var orgUnitRoles = pwaConsentOrganisationRoleService
+        .createNewConsentOrgUnitRoles(pwaConsent, orgUnitConsentRolesToAdd);
+
+    var treatyRoles = pwaConsentOrganisationRoleService
+        .createNewConsentTreatyRoles(pwaConsent, treatyConsentRolesToAdd);
+
+    // store newly added roles for use in later writers
+    consentWriterDto.getActiveConsentRoles().addAll(orgUnitRoles);
+    consentWriterDto.getActiveConsentRoles().addAll(treatyRoles);
+    consentWriterDto.getConsentRolesAdded().addAll(orgUnitRoles);
+    consentWriterDto.getConsentRolesAdded().addAll(treatyRoles);
+
+    return consentWriterDto;
 
   }
 
