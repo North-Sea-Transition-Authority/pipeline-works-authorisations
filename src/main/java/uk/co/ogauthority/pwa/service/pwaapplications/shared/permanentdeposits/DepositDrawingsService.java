@@ -271,7 +271,7 @@ public class DepositDrawingsService implements ApplicationFormSectionService {
 
     return new SummaryScreenValidationResult(invalidDrawingIdToDescriptorMap,
         "deposit-drawing",
-        "must have all sections completed without errors",
+        "has errors",
         sectionComplete,
         sectionIncompleteError);
 

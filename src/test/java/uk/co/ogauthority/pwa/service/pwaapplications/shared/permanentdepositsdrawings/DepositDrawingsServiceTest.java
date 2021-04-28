@@ -271,7 +271,7 @@ public class DepositDrawingsServiceTest {
 
     var summaryResult = depositDrawingsService.getDepositDrawingSummaryScreenValidationResult(pwaApplicationDetail);
 
-    assertThat(summaryResult.isSectionComplete()).isEqualTo(false);
+    assertThat(summaryResult.isSectionComplete()).isFalse();
     assertThat(summaryResult.getSectionIncompleteError()).isNotEmpty();
   }
 
@@ -283,7 +283,7 @@ public class DepositDrawingsServiceTest {
     var depositDrawing = PadPermanentDepositTestUtil.createPadDepositDrawing(pwaApplicationDetail, padFile);
     when(padDepositDrawingRepository.getAllByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(List.of(depositDrawing));
 
-    var fileView = new UploadedFileView("1","_",Long.valueOf(1),"_", Instant.now(),"_");
+    var fileView = new UploadedFileView("1","_", 1L,"_", Instant.now(),"_");
     when(padFileService.getUploadedFileView(pwaApplicationDetail, padFile.getFileId(),
         ApplicationDetailFilePurpose.DEPOSIT_DRAWINGS, ApplicationFileLinkStatus.FULL)).thenReturn(fileView);
 
@@ -295,12 +295,12 @@ public class DepositDrawingsServiceTest {
 
     var summaryResult = depositDrawingsService.getDepositDrawingSummaryScreenValidationResult(pwaApplicationDetail);
 
-    assertThat(summaryResult.isSectionComplete()).isEqualTo(false);
+    assertThat(summaryResult.isSectionComplete()).isFalse();
     assertThat(summaryResult.getInvalidObjectIds()).containsExactly(String.valueOf(depositDrawing.getId()));
     assertThat(summaryResult.getIdPrefix()).isEqualTo("deposit-drawing-");
     assertThat(summaryResult.getErrorItems()).extracting(ErrorItem::getDisplayOrder, ErrorItem::getFieldName, ErrorItem::getErrorMessage)
         .containsExactly(
-            tuple(1, "deposit-drawing-" + depositDrawing.getId(), depositDrawing.getReference() + " must have all sections completed without errors")
+            tuple(1, "deposit-drawing-" + depositDrawing.getId(), depositDrawing.getReference() + " has errors")
         );
   }
 
@@ -316,13 +316,13 @@ public class DepositDrawingsServiceTest {
     var depositDrawing = PadPermanentDepositTestUtil.createPadDepositDrawing(pwaApplicationDetail, padFile);
     when(padDepositDrawingRepository.getAllByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(List.of(depositDrawing));
 
-    var fileView = new UploadedFileView("1","_",Long.valueOf(1),"_", Instant.now(),"_");
+    var fileView = new UploadedFileView("1","_", 1L,"_", Instant.now(),"_");
     when(padFileService.getUploadedFileView(pwaApplicationDetail, padFile.getFileId(),
         ApplicationDetailFilePurpose.DEPOSIT_DRAWINGS, ApplicationFileLinkStatus.FULL)).thenReturn(fileView);
 
     var summaryResult = depositDrawingsService.getDepositDrawingSummaryScreenValidationResult(pwaApplicationDetail);
 
-    assertThat(summaryResult.isSectionComplete()).isEqualTo(true);
+    assertThat(summaryResult.isSectionComplete()).isTrue();
     assertThat(summaryResult.getInvalidObjectIds()).isEmpty();
     assertThat(summaryResult.getErrorItems()).isEmpty();
   }
@@ -337,7 +337,7 @@ public class DepositDrawingsServiceTest {
     depositDrawing.setFile(padFile);
     when(padDepositDrawingRepository.getAllByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(List.of(depositDrawing));
 
-    var fileView = new UploadedFileView("1","_",Long.valueOf(1),"_", Instant.now(),"_");
+    var fileView = new UploadedFileView("1","_", 1L,"_", Instant.now(),"_");
     when(padFileService.getUploadedFileView(pwaApplicationDetail,"1",
         ApplicationDetailFilePurpose.DEPOSIT_DRAWINGS, ApplicationFileLinkStatus.FULL)).thenReturn(fileView);
 
