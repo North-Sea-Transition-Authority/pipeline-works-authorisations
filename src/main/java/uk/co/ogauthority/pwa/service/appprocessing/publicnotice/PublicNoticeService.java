@@ -87,6 +87,8 @@ public class PublicNoticeService implements AppProcessingService {
 
   private static final AppFilePurpose FILE_PURPOSE = AppFilePurpose.PUBLIC_NOTICE;
   private static final Set<PublicNoticeStatus> ENDED_STATUSES = Set.of(PublicNoticeStatus.ENDED, PublicNoticeStatus.WITHDRAWN);
+  private static final Set<PublicNoticeStatus> APPLICANT_VIEW_STATUSES = Set.of(
+      PublicNoticeStatus.WAITING, PublicNoticeStatus.PUBLISHED, PublicNoticeStatus.ENDED);
   private static final Set<PwaApplicationType> PUBLIC_NOTICE_APP_TYPES = EnumSet.of(
       PwaApplicationType.INITIAL, PwaApplicationType.CAT_1_VARIATION
   );
@@ -337,6 +339,11 @@ public class PublicNoticeService implements AppProcessingService {
 
   private boolean isPublicNoticeStatusEnded(PublicNoticeStatus publicNoticeStatus) {
     return ENDED_STATUSES.contains(publicNoticeStatus);
+  }
+
+  public boolean canApplicantViewLatestPublicNotice(PwaApplication pwaApplication) {
+    var publicNotice = getLatestPublicNotice(pwaApplication);
+    return APPLICANT_VIEW_STATUSES.contains(publicNotice.getStatus());
   }
 
   private PublicNoticeView createViewFromPublicNotice(PublicNotice publicNotice) {

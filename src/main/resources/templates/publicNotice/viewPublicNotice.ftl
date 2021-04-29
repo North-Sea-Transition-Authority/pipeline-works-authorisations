@@ -1,0 +1,41 @@
+<#-- @ftlvariable name="errorList" type="java.util.Map<java.lang.String,java.util.List<java.lang.String,java.lang.String>>" -->
+<#-- @ftlvariable name="publicNoticeDocumentFileView" type="uk.co.ogauthority.pwa.model.form.files.UploadedFileView>" -->
+<#-- @ftlvariable name="appRef" type="java.lang.String" -->
+<#-- @ftlvariable name="coverLetter" type="java.lang.String" -->
+
+
+<#include '../layout.ftl'>
+
+<@defaultPage htmlTitle="${appRef} view public notice" topNavigation=true twoThirdsColumn=false breadcrumbs=true>
+
+  <#if errorList?has_content>
+    <@fdsError.errorSummary errorItems=errorList/>
+  </#if>
+
+  <@pwaCaseSummary.summary caseSummaryView=caseSummaryView />
+
+  <h2 class="govuk-heading-l">View public notice</h2>
+
+  <@fdsForm.htmlForm>
+
+    <h3 class="govuk-heading-m"> Cover letter </h3>    
+    <@grid.gridRow>
+      <@grid.twoThirdsColumn>
+        <@multiLineText.multiLineText blockClass="public-notice__text">
+            <p class="govuk-body"> ${coverLetter} </p>
+        </@multiLineText.multiLineText>
+      </@grid.twoThirdsColumn>
+    </@grid.gridRow>
+ 
+    <h3 class="govuk-heading-m"> Public notice document download </h3>
+    <p class="govuk-body">
+      <@fdsAction.link linkText=publicNoticeDocumentFileView.fileName linkUrl=springUrl(publicNoticeDocumentFileView.fileUrl) 
+      linkClass="govuk-link" linkScreenReaderText="Download document ${publicNoticeDocumentFileView.fileName}" role=false start=false openInNewTab=true/>
+    </p>
+
+    <@fdsAction.link linkText="Back" linkUrl=springUrl(cancelUrl) linkClass="govuk-button" linkScreenReaderText="Go back to previous page" role=false start=false/> 
+
+  </@fdsForm.htmlForm>
+
+
+</@defaultPage>
