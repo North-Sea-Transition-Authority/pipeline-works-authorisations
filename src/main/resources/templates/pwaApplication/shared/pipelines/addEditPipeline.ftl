@@ -102,7 +102,9 @@
                 <@fdsRadio.radioYes path="form.pipelineInBundle">
                     <@fdsSearchSelector.searchSelectorRest path="form.bundleName" restUrl=springUrl(bundleNameRestUrl) labelText="What is the name of the bundle?" hintText="Use the same bundle name on all pipelines in the same bundle. Each different bundle must be given a unique name." preselectedItems={"${form.bundleName!''}": "${form.bundleName!''}"}/>
                 </@fdsRadio.radioYes>
-                <@fdsRadio.radioNo path="form.pipelineInBundle"/>
+                <@fdsRadio.radioNo path="form.pipelineInBundle">
+                  <p class="govuk-body">If part of the pipeline is in a bundle add this information in the description of component part for the ident.</p>
+                </@fdsRadio.radioNo>
             </@fdsRadio.radioGroup>
 
         </@fdsFieldset.fieldset>
