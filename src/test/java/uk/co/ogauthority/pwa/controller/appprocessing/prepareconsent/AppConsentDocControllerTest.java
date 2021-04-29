@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.controller.appprocessing.prepareconsent;
 import static org.hamcrest.Matchers.hasProperty;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -27,6 +28,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.http.HttpMethod;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.validation.Errors;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.PwaAppProcessingContextAbstractControllerTest;
@@ -114,6 +116,12 @@ public class AppConsentDocControllerTest extends PwaAppProcessingContextAbstract
         pwaApplicationDetail.getPwaApplication()), EnumSet.allOf(PwaAppProcessingPermission.class));
 
     when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail, user)).thenReturn(permissionsDto);
+
+    doAnswer(invocation -> {
+      var errors = (Errors) invocation.getArgument(1);
+      errors.rejectValue("coverLetterText", "coverLetterText.error", "error message");
+      return invocation;
+    }).when(consentDocumentService).validateSendConsentFormUsingPreApprovalChecks(any(), any(), any());
 
   }
 
@@ -414,6 +422,10 @@ public class AppConsentDocControllerTest extends PwaAppProcessingContextAbstract
   @Test
   public void sendForApproval_sendAllowed() throws Exception {
 
+    // dont fail validation
+    doAnswer(invocation -> {
+           return invocation;
+    }).when(consentDocumentService).validateSendConsentFormUsingPreApprovalChecks(any(), any(), any());
 
     mockMvc.perform(post(ReverseRouter.route(on(AppConsentDocController.class).sendForApproval(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null, null)))
         .with(authenticatedUserAndSession(user))
