@@ -28,7 +28,8 @@ public class PwaHuooHistoryViewService {
 
 
   public DiffedAllOrgRolePipelineGroups getDiffedHuooSummaryModel(Integer selectedPipelineDetailId,
-                                                                  Integer pipelineId, MasterPwa masterPwa) {
+                                                                  Integer pipelineId,
+                                                                  MasterPwa masterPwa) {
 
     var pipelineDetail = pipelineDetailService.getLatestByPipelineId(pipelineId);
     var orgRoleSummaryDto = pwaConsentOrganisationRoleService.getOrganisationRoleSummary(pipelineDetail);

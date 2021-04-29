@@ -9,11 +9,14 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.energyportal.model.entity.PersonTestUtil;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
+import uk.co.ogauthority.pwa.model.entity.appprocessing.prepareconsent.SendConsentForApprovalFormValidator;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.form.appprocessing.prepareconsent.SendConsentForApprovalForm;
 import uk.co.ogauthority.pwa.service.appprocessing.consentreview.ConsentReviewService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
@@ -41,6 +44,9 @@ public class ConsentDocumentServiceTest {
   @Mock
   private SendForApprovalCheckerService sendforApprovalCheckerService;
 
+  @Mock
+  private SendConsentForApprovalFormValidator sendConsentForApprovalFormValidator;
+
   private ConsentDocumentService consentDocumentService;
 
   private PwaApplicationDetail detail;
@@ -56,7 +62,8 @@ public class ConsentDocumentServiceTest {
         consentDocumentEmailService,
         consentReviewService,
         camundaWorkflowService,
-        sendforApprovalCheckerService);
+        sendforApprovalCheckerService,
+        sendConsentForApprovalFormValidator);
 
     detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
 
@@ -76,6 +83,18 @@ public class ConsentDocumentServiceTest {
 
     var workflowTaskInstance = new WorkflowTaskInstance(detail.getPwaApplication(), PwaApplicationWorkflowTask.CASE_OFFICER_REVIEW);
     verify(camundaWorkflowService, times(1)).completeTask(workflowTaskInstance);
+
+  }
+
+  @Test
+  public void validate_serviceInteractions(){
+    var form = new SendConsentForApprovalForm();
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+    var preApprovalChecksView = PreSendForApprovalChecksViewTestUtil.createNoFailedChecksView();
+
+    consentDocumentService.validateSendConsentFormUsingPreApprovalChecks(form, bindingResult, preApprovalChecksView);
+
+    verify(sendConsentForApprovalFormValidator).validate(form, bindingResult, preApprovalChecksView);
 
   }
 
