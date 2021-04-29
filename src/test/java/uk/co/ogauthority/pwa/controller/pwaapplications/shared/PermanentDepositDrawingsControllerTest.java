@@ -45,6 +45,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbServic
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits.DepositDrawingsService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits.PermanentDepositService;
+import uk.co.ogauthority.pwa.service.validation.SummaryScreenValidationResultTestUtils;
 import uk.co.ogauthority.pwa.testutils.ControllerTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
@@ -144,7 +145,8 @@ public class PermanentDepositDrawingsControllerTest extends PwaApplicationContex
 
   @Test
   public void postDepositDrawingsOverview_appTypeSmokeTest() {
-    when(depositDrawingsService.isComplete(any(PwaApplicationDetail.class))).thenReturn(true);
+    when(depositDrawingsService.getDepositDrawingSummaryScreenValidationResult(any(PwaApplicationDetail.class)))
+        .thenReturn(SummaryScreenValidationResultTestUtils.completeResult());
     endpointTester.setRequestMethod(HttpMethod.POST)
         .addRequestParam(ValidationType.FULL.getButtonText(), ValidationType.FULL.getButtonText())
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -157,7 +159,8 @@ public class PermanentDepositDrawingsControllerTest extends PwaApplicationContex
 
   @Test
   public void postDepositDrawingsOverview_appStatusSmokeTest() {
-    when(depositDrawingsService.isComplete(any(PwaApplicationDetail.class))).thenReturn(true);
+    when(depositDrawingsService.getDepositDrawingSummaryScreenValidationResult(any(PwaApplicationDetail.class)))
+        .thenReturn(SummaryScreenValidationResultTestUtils.completeResult());
     endpointTester.setRequestMethod(HttpMethod.POST)
         .addRequestParam(ValidationType.FULL.getButtonText(), ValidationType.FULL.getButtonText())
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -170,7 +173,8 @@ public class PermanentDepositDrawingsControllerTest extends PwaApplicationContex
 
   @Test
   public void postDepositDrawingsOverview_permissionSmokeTest() {
-    when(depositDrawingsService.isComplete(any(PwaApplicationDetail.class))).thenReturn(true);
+    when(depositDrawingsService.getDepositDrawingSummaryScreenValidationResult(any(PwaApplicationDetail.class)))
+        .thenReturn(SummaryScreenValidationResultTestUtils.completeResult());
     endpointTester.setRequestMethod(HttpMethod.POST)
         .addRequestParam(ValidationType.FULL.getButtonText(), ValidationType.FULL.getButtonText())
         .setEndpointUrlProducer((applicationDetail, type) ->

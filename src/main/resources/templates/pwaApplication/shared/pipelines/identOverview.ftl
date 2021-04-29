@@ -8,6 +8,8 @@
 <#-- @ftlvariable name="lastConnectedPipelineIdentView" type="uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.ConnectedPipelineIdentsView" -->
 <#-- @ftlvariable name="identUrlFactory" type="uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.IdentUrlFactory" -->
 <#-- @ftlvariable name="coreType" type="uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineCoreType" -->
+<#-- @ftlvariable name="identSummaryValidationResult" type="uk.co.ogauthority.pwa.service.validation.SummaryScreenValidationResult" -->
+
 
 <@defaultPage htmlTitle="${pipelineOverview.getPipelineName()} idents" breadcrumbs=true fullWidthColumn=true>
 
@@ -46,10 +48,18 @@
                             <@fdsAction.link linkText="Remove ident" linkClass="govuk-link" linkUrl=springUrl(identUrlFactory.getRemoveUrl(identView.identId)) linkScreenReaderText="Remove ident ${identView.identNumber}" />
                         </#assign>
                         <@fdsTimeline.timelineTimeStamp timeStampHeading=identView.fromLocation nodeNumber=" " timeStampClass="fds-timeline__time-stamp" timelineActionContent=timelineAction>
-                            <#assign validationObjectId = validationResult.constructObjectId(identSummaryValidationResult!, identView.identNumber) />
-                            <#assign errorMessage = validationResult.errorMessageOrEmptyString(identSummaryValidationResult!, validationObjectId) />
-                            <#if errorMessage?has_content>
-                              <p id="ident-${identView.identNumber}" class="govuk-error-message">${errorMessage}</p>
+                            <#if identSummaryValidationResult?has_content>
+                                <#list identSummaryValidationResult.errorItems as errorItem>
+                                    <#assign subIdPrefix = errorItem?index?c/>
+                                    <#assign sectionId = validationResult.constructObjectId(identSummaryValidationResult!, subIdPrefix + identView.identId) />
+                                    <#assign hasErrors = validationResult.hasErrors(identSummaryValidationResult!, sectionId) />
+                                    <#assign sectionErrorMessage = validationResult.errorMessageOrEmptyString(identSummaryValidationResult!, sectionId) />
+                                    <#if sectionErrorMessage?has_content>
+                                        <span id=${sectionId} class="govuk-error-message">
+                                            <span class="govuk-visually-hidden">Error:</span> ${sectionErrorMessage}<br/>
+                                        </span>
+                                    </#if>
+                                </#list>
                             </#if>
                             <@fdsDataItems.dataItem dataItemListClasses="fds-data-items-list--tight">
                                 <@fdsDataItems.dataValuesNumber smallNumber=true key="${identView.identNumber}" value="Ident number"/>
