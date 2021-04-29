@@ -4,7 +4,9 @@ import static java.util.Map.entry;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doCallRealMethod;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -37,6 +39,7 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrgan
 import uk.co.ogauthority.pwa.energyportal.service.organisations.PortalOrganisationsAccessor;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooType;
+import uk.co.ogauthority.pwa.model.entity.enums.TreatyAgreement;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.huoo.PadOrganisationRole;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
@@ -76,6 +79,8 @@ public class AddHuooControllerTest extends PwaApplicationContextAbstractControll
   private EditHuooValidator editHuooValidator;
 
   private PwaApplicationDetail pwaApplicationDetail;
+  private final int ORG_ROLE_ID = 1;
+  private final int ORG_UNIT_ID = 2;
   private AuthenticatedUserAccount user = new AuthenticatedUserAccount(new WebUserAccount(1), EnumSet.allOf(
       PwaUserPrivilege.class));
 
@@ -103,8 +108,12 @@ public class AddHuooControllerTest extends PwaApplicationContextAbstractControll
     when(pwaApplicationDetailService.getTipDetail(pwaApplicationDetail.getMasterPwaApplicationId())).thenReturn(
         pwaApplicationDetail);
 
-    var portalOrgUnit = new PortalOrganisationUnit();
+    var portalOrgUnit = new PortalOrganisationUnit(ORG_UNIT_ID, "Organisation Unit");
     when(portalOrganisationsAccessor.getOrganisationUnitById(anyInt())).thenReturn(Optional.of(portalOrgUnit));
+
+    var padOrganisationRole = new PadOrganisationRole();
+    padOrganisationRole.setAgreement(TreatyAgreement.ANY_TREATY_COUNTRY);
+    when(padOrganisationRoleService.getOrganisationRole(pwaApplicationDetail, ORG_ROLE_ID)).thenReturn(padOrganisationRole);
   }
 
   @Test
@@ -210,7 +219,7 @@ public class AddHuooControllerTest extends PwaApplicationContextAbstractControll
                 .renderEditOrgHuoo(
                     type,
                     applicationDetail.getMasterPwaApplicationId(),
-                    1,
+                    ORG_UNIT_ID,
                     null,
                     null,
                     null)
@@ -229,7 +238,7 @@ public class AddHuooControllerTest extends PwaApplicationContextAbstractControll
                 .renderEditOrgHuoo(
                     type,
                     applicationDetail.getMasterPwaApplicationId(),
-                    1,
+                    ORG_UNIT_ID,
                     null,
                     null,
                     null)
@@ -248,7 +257,7 @@ public class AddHuooControllerTest extends PwaApplicationContextAbstractControll
                 .renderEditOrgHuoo(
                     type,
                     applicationDetail.getMasterPwaApplicationId(),
-                    1,
+                    ORG_UNIT_ID,
                     null,
                     null,
                     null)
@@ -267,7 +276,7 @@ public class AddHuooControllerTest extends PwaApplicationContextAbstractControll
                 .postEditOrgHuoo(
                     type,
                     applicationDetail.getMasterPwaApplicationId(),
-                    1,
+                    ORG_UNIT_ID,
                     null,
                     null,
                     null,
@@ -291,7 +300,114 @@ public class AddHuooControllerTest extends PwaApplicationContextAbstractControll
 
     mockMvc.perform(
         post(ReverseRouter.route(on(AddHuooController.class)
-            .postEditOrgHuoo(PwaApplicationType.INITIAL, APP_ID, 1, null, null, null, null)))
+            .postEditOrgHuoo(PwaApplicationType.INITIAL, APP_ID, ORG_UNIT_ID, null, null, null, null)))
+            .with(authenticatedUserAndSession(user))
+            .with(csrf())
+            .params(parameters)
+    ).andExpect(status().is3xxRedirection());
+
+  }
+
+  @Test
+  public void renderRemoveOrgHuoo_appStatusSmokeTest() {
+    endpointTester.setRequestMethod(HttpMethod.GET)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(AddHuooController.class)
+                .renderRemoveOrgHuoo(
+                    type,
+                    applicationDetail.getMasterPwaApplicationId(),
+                    ORG_UNIT_ID,
+                    null
+                    )
+            )
+        );
+
+    endpointTester.performAppStatusChecks(status().isOk(), status().isNotFound());
+
+  }
+
+  @Test
+  public void renderRemoveTreatyHuoo_appStatusSmokeTest() {
+    endpointTester.setRequestMethod(HttpMethod.GET)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(AddHuooController.class)
+                .renderRemoveTreatyHuoo(
+                    type,
+                    applicationDetail.getMasterPwaApplicationId(),
+                    ORG_UNIT_ID,
+                    null
+                )
+            )
+        );
+
+    endpointTester.performAppStatusChecks(status().isOk(), status().isNotFound());
+
+  }
+
+  @Test
+  public void renderRemoveOrgHuoo() throws Exception {
+
+    when(pwaApplicationPermissionService.getPermissions(any(), any())).thenReturn(EnumSet.allOf(PwaApplicationPermission.class));
+
+    var modelAndView = mockMvc.perform(
+        get(ReverseRouter.route(on(AddHuooController.class)
+            .renderRemoveOrgHuoo(PwaApplicationType.INITIAL, APP_ID, ORG_UNIT_ID, null)))
+            .with(authenticatedUserAndSession(user))
+            .with(csrf())
+    ).andExpect(status().isOk())
+        .andReturn().getModelAndView();
+
+    assertThat(modelAndView.getModel().get("huooName")).isEqualTo("Organisation Unit");
+
+  }
+
+  @Test
+  public void renderRemoveTreatyHuoo() throws Exception {
+
+    when(pwaApplicationPermissionService.getPermissions(any(), any())).thenReturn(EnumSet.allOf(PwaApplicationPermission.class));
+
+    var orgRole = new PadOrganisationRole();
+    when(padOrganisationRoleService.getOrganisationRole(pwaApplicationDetail, 1)).thenReturn(orgRole);
+
+    var modelAndView = mockMvc.perform(
+        get(ReverseRouter.route(on(AddHuooController.class)
+            .renderRemoveTreatyHuoo(PwaApplicationType.INITIAL, APP_ID, ORG_UNIT_ID, null)))
+            .with(authenticatedUserAndSession(user))
+            .with(csrf())
+    ).andExpect(status().isOk())
+        .andReturn().getModelAndView();
+
+    assertThat(modelAndView.getModel().get("huooName")).isEqualTo("Treaty agreement");
+
+  }
+
+  @Test
+  public void postRemoveTreatyHuoo() throws Exception {
+
+    when(pwaApplicationPermissionService.getPermissions(any(), any())).thenReturn(EnumSet.allOf(PwaApplicationPermission.class));
+
+    mockMvc.perform(
+        post(ReverseRouter.route(on(AddHuooController.class)
+            .postRemoveTreatyHuoo(PwaApplicationType.INITIAL, APP_ID, ORG_ROLE_ID, null, null)))
+            .with(authenticatedUserAndSession(user))
+            .with(csrf())
+    ).andExpect(status().is3xxRedirection());
+
+  }
+
+  @Test
+  public void postRemoveOrgHuoo() throws Exception {
+
+    when(pwaApplicationPermissionService.getPermissions(any(), any())).thenReturn(EnumSet.allOf(PwaApplicationPermission.class));
+
+    MultiValueMap parameters = new LinkedMultiValueMap<String, String>() {{
+      add("organisationUnitId", "2");
+      add("huooRoles", HuooRole.USER.name());
+    }};
+
+    mockMvc.perform(
+        post(ReverseRouter.route(on(AddHuooController.class)
+            .postRemoveOrgHuoo(PwaApplicationType.INITIAL, APP_ID, ORG_UNIT_ID, null, null)))
             .with(authenticatedUserAndSession(user))
             .with(csrf())
             .params(parameters)
