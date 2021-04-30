@@ -9,14 +9,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.controller.appprocessing.shared.PwaAppProcessingPermissionCheck;
-import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationStatusCheck;
 import uk.co.ogauthority.pwa.exception.AccessDeniedException;
 import uk.co.ogauthority.pwa.service.appprocessing.AppProcessingBreadcrumbService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.service.appprocessing.publicnotice.PublicNoticeService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingTask;
-import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.util.CaseManagementUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
@@ -24,7 +22,6 @@ import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 @Controller
 @RequestMapping("/pwa-application/{applicationType}/{applicationId}/view-public-notice")
 @PwaAppProcessingPermissionCheck(permissions = {PwaAppProcessingPermission.VIEW_PUBLIC_NOTICE})
-@PwaApplicationStatusCheck(statuses = PwaApplicationStatus.CASE_OFFICER_REVIEW)
 public class PublicNoticeApplicantViewController {
 
   private final AppProcessingBreadcrumbService appProcessingBreadcrumbService;
@@ -50,7 +47,7 @@ public class PublicNoticeApplicantViewController {
             return modelAndViewSupplier.get();
           }
           throw new AccessDeniedException(
-              "Access denied as the latest public notice has not been finalised or it may be withdrawn for application with id: " +
+              "Access denied as the status of the public notice is not valid in order for applicants to view for application with id: " +
                   processingContext.getMasterPwaApplicationId());
         });
   }

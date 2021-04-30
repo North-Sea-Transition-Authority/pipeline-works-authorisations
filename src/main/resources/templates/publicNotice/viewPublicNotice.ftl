@@ -1,4 +1,3 @@
-<#-- @ftlvariable name="errorList" type="java.util.Map<java.lang.String,java.util.List<java.lang.String,java.lang.String>>" -->
 <#-- @ftlvariable name="publicNoticeDocumentFileView" type="uk.co.ogauthority.pwa.model.form.files.UploadedFileView>" -->
 <#-- @ftlvariable name="appRef" type="java.lang.String" -->
 <#-- @ftlvariable name="coverLetter" type="java.lang.String" -->
@@ -27,6 +26,6 @@
     linkClass="govuk-link" linkScreenReaderText="Download document ${publicNoticeDocumentFileView.fileName}" role=false start=false openInNewTab=true/>
   </p>
 
-  <@fdsAction.link linkText="Back" linkUrl=springUrl(cancelUrl) linkClass="govuk-button" linkScreenReaderText="Go back to previous page" role=false start=false/> 
+  <@fdsAction.link linkText="Go back" linkUrl=springUrl(cancelUrl) linkClass="govuk-link govuk-!-font-size-19" linkScreenReaderText="Go back to previous page" role=false start=false/> 
 
 </@defaultPage>

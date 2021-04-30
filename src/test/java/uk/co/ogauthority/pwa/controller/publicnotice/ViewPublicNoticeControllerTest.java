@@ -59,7 +59,6 @@ public class ViewPublicNoticeControllerTest extends PwaAppProcessingContextAbstr
   public void setUp() {
 
     endpointTestBuilder = new PwaApplicationEndpointTestBuilder(mockMvc, pwaApplicationDetailService, pwaAppProcessingPermissionService)
-        .setAllowedStatuses(PwaApplicationStatus.CASE_OFFICER_REVIEW)
         .setAllowedProcessingPermissions(PwaAppProcessingPermission.VIEW_PUBLIC_NOTICE);
 
     user = new AuthenticatedUserAccount(new WebUserAccount(1), EnumSet.allOf(PwaUserPrivilege.class));
@@ -91,18 +90,6 @@ public class ViewPublicNoticeControllerTest extends PwaAppProcessingContextAbstr
     when(publicNoticeService.canApplicantViewLatestPublicNotice(any())).thenReturn(true);
   }
 
-
-  @Test
-  public void renderViewPublicNotice_appStatusSmokeTest() {
-
-    endpointTestBuilder.setRequestMethod(HttpMethod.GET)
-        .setEndpointUrlProducer((applicationDetail, type) ->
-            ReverseRouter.route(on(PublicNoticeApplicantViewController.class)
-                .renderViewPublicNotice(applicationDetail.getMasterPwaApplicationId(), type, null, null)));
-
-    endpointTestBuilder.performAppStatusChecks(status().isOk(), status().isNotFound());
-
-  }
 
   @Test
   public void renderViewPublicNotice_processingPermissionSmokeTest() {
