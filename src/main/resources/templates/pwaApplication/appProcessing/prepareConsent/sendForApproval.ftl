@@ -51,6 +51,7 @@
               fieldsetHeadingText="Review consents issued after application created"
               hintText="If the consent does not accurately reflect previous changes you must return the application to the applicant for update"
               hiddenContent=false
+              smallCheckboxes=true
               moreNestedContent=parallelConsentsReviewedMoreNestedContent>
                  <@fdsCheckbox.checkboxItem path="form.parallelConsentsReviewedIfApplicable" labelText="All required changes from previous consents are reflected in this consent"/>
             </@fdsCheckbox.checkboxGroup>
