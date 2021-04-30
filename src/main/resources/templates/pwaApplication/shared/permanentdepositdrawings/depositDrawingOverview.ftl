@@ -1,18 +1,14 @@
 <#include '../../../layout.ftl'>
 <#include 'depositsDrawingsViewSummary.ftl'>
 
-<#-- @ftlvariable name="errorMessage" type="String" -->
-<#-- @ftlvariable name="errorList" type="java.util.List<uk.co.ogauthority.pwa.model.form.fds.ErrorItem>" -->
+<#-- @ftlvariable name="depositDrawingSummaryViews" type="java.util.List<uk.co.ogauthority.pwa.model.form.pwaapplications.views.PermanentDepositDrawingView>" -->
+<#-- @ftlvariable name="depositDrawingSummaryResult" type="uk.co.ogauthority.pwa.service.validation.SummaryScreenValidationResult" -->
+
 
 <@defaultPage htmlTitle="Permanent deposit drawings" breadcrumbs=true>
 
-    <#if errorMessage?has_content>
-        <@fdsError.singleErrorSummary errorMessage=errorMessage />
-    </#if>
-
-    <#if errorList?has_content>
-        <@fdsError.errorSummary errorItems=errorList />
-    </#if>
+    <@validationResult.singleErrorSummary summaryValidationResult=depositDrawingSummaryResult! />
+    <@validationResult.errorSummary summaryValidationResult=depositDrawingSummaryResult! />
 
     <h1 class="govuk-heading-xl">Permanent deposit drawings</h1>
 
@@ -24,6 +20,16 @@
 
         <#list depositDrawingSummaryViews as depositDrawingView>
             <h2 class="govuk-heading-m">${depositDrawingView.reference}</h2>
+
+            <#assign sectionId = validationResult.constructObjectId(depositDrawingSummaryResult!, depositDrawingView.depositDrawingId) />
+            <#assign hasErrors = validationResult.hasErrors(depositDrawingSummaryResult!, sectionId) />
+            <#assign sectionErrorMessage = validationResult.errorMessageOrEmptyString(depositDrawingSummaryResult!, sectionId) />
+            <#if sectionErrorMessage?has_content>
+                <span id=${sectionId} class="govuk-error-message">
+                    <span class="govuk-visually-hidden">Error:</span> ${sectionErrorMessage}<br/>
+                </span>
+            </#if>
+
             <@fdsAction.link linkText="Edit" linkUrl=springUrl(depositDrawingUrlFactory.getEditDrawingUrl(depositDrawingView.depositDrawingId)) linkScreenReaderText="Edit ${depositDrawingView.reference}" linkClass="govuk-link govuk-!-font-size-19"/>&nbsp;
             <@fdsAction.link linkText="Remove" linkUrl=springUrl(depositDrawingUrlFactory.getRemoveDrawingUrl(depositDrawingView.depositDrawingId)) linkScreenReaderText="Remove ${depositDrawingView.reference}" linkClass="govuk-link govuk-!-font-size-19"/>
             <@depositDrawingViewSummary depositDrawingView depositDrawingUrlFactory/>

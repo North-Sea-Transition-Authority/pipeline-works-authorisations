@@ -28,6 +28,7 @@ import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.file.PadFileRepository;
 import uk.co.ogauthority.pwa.service.entitycopier.CopiedEntityIdTuple;
 import uk.co.ogauthority.pwa.service.entitycopier.EntityCopyingService;
+import uk.co.ogauthority.pwa.util.FileServiceUtils;
 
 /**
  * Service to handle file management for/linking files to PWA applications.
@@ -60,16 +61,9 @@ public class PadFileService {
                                                      PwaApplicationDetail detail,
                                                      ApplicationDetailFilePurpose purpose) {
 
-    Map<String, UploadFileWithDescriptionForm> fileIdToFormMap = getFileIdToFormMap(uploadForm);
+    var fileViewList = getUploadedFileViews(detail, purpose, ApplicationFileLinkStatus.ALL);
 
-    var formFileViewList = getUploadedFileViews(detail, purpose, ApplicationFileLinkStatus.ALL).stream()
-        .filter(fileView -> fileIdToFormMap.containsKey(fileView.getFileId()))
-        .collect(Collectors.toList());
-
-    return formFileViewList.stream()
-        .peek(fileView -> fileView.setFileDescription(
-            fileIdToFormMap.get(fileView.getFileId()).getUploadedFileDescription()))
-        .collect(Collectors.toList());
+    return FileServiceUtils.getFilesLinkedToForm(uploadForm, fileViewList);
 
   }
 
@@ -151,7 +145,7 @@ public class PadFileService {
                           FileUpdateMode updateMode,
                           WebUserAccount user) {
 
-    Map<String, UploadFileWithDescriptionForm> uploadedFileIdToFormMap = getFileIdToFormMap(uploadForm);
+    Map<String, UploadFileWithDescriptionForm> uploadedFileIdToFormMap = FileServiceUtils.getFileIdToFormMap(uploadForm);
 
     var existingLinkedFiles = padFileRepository.findAllByPwaApplicationDetailAndPurpose(pwaApplicationDetail, purpose);
 
@@ -179,12 +173,6 @@ public class PadFileService {
       deleteAppFileLinksAndUploadedFiles(filesToRemove, user);
     }
 
-  }
-
-  private Map<String, UploadFileWithDescriptionForm> getFileIdToFormMap(
-      UploadMultipleFilesWithDescriptionForm uploadForm) {
-    return uploadForm.getUploadedFileWithDescriptionForms().stream()
-        .collect(Collectors.toMap(UploadFileWithDescriptionForm::getUploadedFileId, f -> f));
   }
 
   private void updateFileDescriptionAndFullyLink(PadFile padFile, UploadFileWithDescriptionForm fileForm) {

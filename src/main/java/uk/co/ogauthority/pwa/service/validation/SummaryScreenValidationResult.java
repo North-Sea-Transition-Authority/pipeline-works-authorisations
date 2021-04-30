@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 import uk.co.ogauthority.pwa.model.form.fds.ErrorItem;
 
 /**
@@ -46,6 +47,51 @@ public class SummaryScreenValidationResult {
     for (Map.Entry<String, String> entry : invalidObjectIdToDescriptorMap.entrySet()) {
       errorItems.add(new ErrorItem(errorItems.size() + 1, this.idPrefix + entry.getKey(), entry.getValue() + " " + itemErrorSuffix));
     }
+
+    this.sectionComplete = sectionComplete;
+    this.sectionIncompleteError = sectionIncompleteError;
+
+  }
+
+
+  /**
+   * Construct a validation result object to pass through into the summary view template.
+   * @param invalidObjectIdToDescriptorMap map of id of invalid object (or entity) to a string that describes it
+   *                                       (to be shown in error summary) e.g. <1, "PL123">
+   * @param idPrefixString string to prefix the object id with to make a sensible identifier e.g. "pipeline" to be used in
+   *                       cards or check answer tags
+   * @param objectIdToItemErrorSuffixesMap map linking the objectID from invalidObjectIdToDescriptorMap to an object descriptor
+   *                                       to form the error message that appears per object
+   *                        in the error summary e.g. "is invalid"
+   * @param sectionComplete whether or not the section associated with the validation result is considered complete
+   * @param sectionIncompleteError string to be shown in the single error banner if the section is incomplete
+   */
+  public SummaryScreenValidationResult(Map<String, String> invalidObjectIdToDescriptorMap,
+                                       String idPrefixString,
+                                       Map<String, List<String>> objectIdToItemErrorSuffixesMap,
+                                       boolean sectionComplete,
+                                       String sectionIncompleteError) {
+
+    this.invalidObjectIds = invalidObjectIdToDescriptorMap.keySet();
+
+    this.idPrefix = idPrefixString + "-";
+
+    // construct error items for the invalid objects so that they can be shown in the error summary
+    // use the id prefix to create the ids that will be added to the cards/template items
+    // use the error suffix corresponding to the objectId to create the error message for each object
+    this.errorItems = new ArrayList<>();
+
+    invalidObjectIdToDescriptorMap.forEach((objectId, objectDescriptor) -> {
+      AtomicInteger subIdPrefix = new AtomicInteger();
+
+      objectIdToItemErrorSuffixesMap.get(objectId).forEach(errorSuffix -> {
+        errorItems.add(new ErrorItem(
+            errorItems.size() + 1,
+            this.idPrefix + subIdPrefix + objectId,
+            objectDescriptor + " " + errorSuffix));
+        subIdPrefix.getAndIncrement();
+      });
+    });
 
     this.sectionComplete = sectionComplete;
     this.sectionIncompleteError = sectionIncompleteError;

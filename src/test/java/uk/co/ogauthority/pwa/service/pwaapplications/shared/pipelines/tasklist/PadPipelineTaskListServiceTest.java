@@ -39,6 +39,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipe
 import uk.co.ogauthority.pwa.model.form.fds.ErrorItem;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.ModifyPipelineForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PadPipelineOverview;
+import uk.co.ogauthority.pwa.model.location.CoordinatePairTestUtil;
 import uk.co.ogauthority.pwa.model.tasklist.TaskListEntry;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.pipelines.PadPipelineRepository;
 import uk.co.ogauthority.pwa.service.enums.location.LatitudeDirection;
@@ -123,6 +124,10 @@ public class PadPipelineTaskListServiceTest {
     padPipe1.setPipelineRef("TEMPORARY 1");
     padPipe1.setPipelineStatus(PipelineStatus.IN_SERVICE);
     padPipe1.setPipelineType(PipelineType.PRODUCTION_FLOWLINE);
+    padPipe1.setFromLocation("Location A");
+    padPipe1.setFromCoordinates(CoordinatePairTestUtil.getDefaultCoordinate());
+    padPipe1.setToLocation("Location B");
+    padPipe1.setToCoordinates(CoordinatePairTestUtil.getDefaultCoordinate());
 
     pipe1 = new Pipeline();
     pipe1.setId(1);

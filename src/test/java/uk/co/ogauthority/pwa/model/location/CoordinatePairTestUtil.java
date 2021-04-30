@@ -20,4 +20,12 @@ public class CoordinatePairTestUtil {
     );
 
   }
+
+  public static CoordinatePair getNullCoordinate(){
+    return new CoordinatePair(
+        new LatitudeCoordinate(null, null, null, null),
+        new LongitudeCoordinate(null, null, null, null)
+    );
+
+  }
 }

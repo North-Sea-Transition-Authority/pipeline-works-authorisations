@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
@@ -31,26 +32,33 @@ import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipelineIdent;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipelineIdentData;
+import uk.co.ogauthority.pwa.model.form.fds.ErrorItem;
 import uk.co.ogauthority.pwa.model.form.location.CoordinateForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.PipelineIdentDataForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.PipelineIdentForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview;
 import uk.co.ogauthority.pwa.model.location.CoordinatePair;
+import uk.co.ogauthority.pwa.model.location.CoordinatePairTestUtil;
 import uk.co.ogauthority.pwa.model.location.LatitudeCoordinate;
 import uk.co.ogauthority.pwa.model.location.LongitudeCoordinate;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.pipelines.PadPipelineIdentRepository;
 import uk.co.ogauthority.pwa.service.enums.location.LatitudeDirection;
 import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.pipelinedatautils.PipelineIdentViewCollectorService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.tasklist.PadPipelineTaskListServiceTestUtil;
+import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.util.CoordinateUtils;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PadPipelineIdentServiceTest {
 
   private final static PipelineId PIPELINE_ID = new PipelineId(10);
+  private static final int PAD_PIPELINE_1_ID = 1;
 
   @Mock
   private PadPipelineIdentRepository padPipelineIdentRepository;
@@ -80,6 +88,14 @@ public class PadPipelineIdentServiceTest {
   private PadPipelineIdent ident;
   private PadPipelineIdentData identData;
 
+  private PwaApplicationDetail detail;
+
+  private final static String IDENT_FROM_LOCATION_MISMATCH_ERROR_MSG =
+      "The from structure and coordinates of the first ident must match the from structure and coordinates in the pipeline header";
+
+  private final static String IDENT_TO_LOCATION_MISMATCH_ERROR_MSG =
+      "The to structure and coordinates of the last ident must match the to structure and coordinates in the pipeline header";
+
   @Before
   public void setUp() {
 
@@ -100,6 +116,12 @@ public class PadPipelineIdentServiceTest {
     ident.setPadPipeline(padPipeline);
     identData = makeIdentData(ident);
     padPipeline.setLength(ident.getLength());
+    padPipeline.setFromLocation(ident.getFromLocation());
+    padPipeline.setFromCoordinates(ident.getFromCoordinates());
+    padPipeline.setToLocation(ident.getToLocation());
+    padPipeline.setToCoordinates(ident.getToCoordinates());
+
+    detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
 
   }
 
@@ -588,13 +610,213 @@ public class PadPipelineIdentServiceTest {
     assertThat(result).isEqualTo(List.of(ident));
   }
 
+
+  @Test
+  public void  getSummaryScreenValidationResult_identsStartAndToLocationDoesNotMatchHeader_invalid() {
+
+    //create padPipeline and idents and overview
+    var padPipeline = PadPipelineTaskListServiceTestUtil.createPadPipeline(detail, pipeline);
+    padPipeline.setId(PAD_PIPELINE_1_ID);
+    var fromIdent = PadPipelineTaskListServiceTestUtil.createIdentWithUnMatchingHeaderFromLocation(padPipeline);
+    fromIdent.setId(1);
+    fromIdent.setLength(padPipeline.getLength());
+    var toIdent = PadPipelineTaskListServiceTestUtil.createIdentWithUnMatchingHeaderToLocation(padPipeline);
+    toIdent.setId(2);
+    toIdent.setLength(BigDecimal.ZERO);
+
+    when(padPipelineIdentRepository.getAllByPadPipeline(padPipeline)).thenReturn(List.of(fromIdent, toIdent));
+
+    //assert error messages match
+    var validationResult = padPipelineIdentService.getSummaryScreenValidationResult(padPipeline);
+
+    assertThat(validationResult.isSectionComplete()).isFalse();
+    assertThat(validationResult.getErrorItems())
+        .extracting(ErrorItem::getDisplayOrder, ErrorItem::getFieldName, ErrorItem::getErrorMessage)
+        .containsExactly(
+            tuple(1, "ident-0" + fromIdent.getId(), " " + IDENT_FROM_LOCATION_MISMATCH_ERROR_MSG),
+            tuple(2, "ident-0" + toIdent.getId(), " " + IDENT_TO_LOCATION_MISMATCH_ERROR_MSG));
+    assertThat(validationResult.getIdPrefix()).isEqualTo("ident-");
+    assertThat(validationResult.getInvalidObjectIds()).containsExactly(String.valueOf(fromIdent.getId()), String.valueOf(toIdent.getId()));
+  }
+
+  @Test
+  public void  getSummaryScreenValidationResult_identStartLocationMatch_identToLocationDoesNotMatch_invalid() {
+
+    //create padPipeline and idents and overview
+    var padPipeline = PadPipelineTaskListServiceTestUtil.createPadPipeline(detail, pipeline);
+    padPipeline.setId(PAD_PIPELINE_1_ID);
+    var fromIdent = PadPipelineTaskListServiceTestUtil.createIdentWithMatchingHeaderFromLocation(padPipeline);
+    fromIdent.setId(1);
+    fromIdent.setLength(padPipeline.getLength());
+    var toIdent = PadPipelineTaskListServiceTestUtil.createIdentWithUnMatchingHeaderToLocation(padPipeline);
+    toIdent.setId(2);
+    toIdent.setLength(BigDecimal.ZERO);
+
+    when(padPipelineIdentRepository.getAllByPadPipeline(padPipeline)).thenReturn(List.of(fromIdent, toIdent));
+
+
+    //assert error messages match
+    var validationResult = padPipelineIdentService.getSummaryScreenValidationResult(padPipeline);
+
+    assertThat(validationResult.isSectionComplete()).isFalse();
+    assertThat(validationResult.getErrorItems())
+        .extracting(ErrorItem::getDisplayOrder, ErrorItem::getFieldName, ErrorItem::getErrorMessage)
+        .containsExactly(
+            tuple(1, "ident-0" + toIdent.getId(), " " + IDENT_TO_LOCATION_MISMATCH_ERROR_MSG));
+    assertThat(validationResult.getIdPrefix()).isEqualTo("ident-");
+    assertThat(validationResult.getInvalidObjectIds()).containsExactly(String.valueOf(toIdent.getId()));
+  }
+
+  @Test
+  public void  getSummaryScreenValidationResult_identsStartAndEndLocationMatchHeader_noCoordinates_valid() {
+
+    //create padPipeline and idents and overview
+    var padPipeline = PadPipelineTaskListServiceTestUtil.createPadPipeline(detail, pipeline);
+    padPipeline.setId(PAD_PIPELINE_1_ID);
+    var fromIdent = PadPipelineTaskListServiceTestUtil.createIdentWithMatchingHeaderFromLocation(padPipeline);
+    fromIdent.setFromCoordinates(CoordinatePairTestUtil.getNullCoordinate());
+    fromIdent.setId(1);
+    fromIdent.setLength(padPipeline.getLength());
+    var toIdent = PadPipelineTaskListServiceTestUtil.createIdentWithMatchingHeaderToLocation(padPipeline);
+    toIdent.setFromCoordinates(CoordinatePairTestUtil.getNullCoordinate());
+    toIdent.setId(2);
+    toIdent.setLength(BigDecimal.ZERO);
+
+    when(padPipelineIdentRepository.getAllByPadPipeline(padPipeline)).thenReturn(List.of(fromIdent, toIdent));
+
+
+    //assert error messages match
+    var validationResult = padPipelineIdentService.getSummaryScreenValidationResult(padPipeline);
+
+    assertThat(validationResult.isSectionComplete()).isTrue();
+    assertThat(validationResult.getErrorItems()).isEmpty();
+    assertThat(validationResult.getSectionIncompleteError()).isNull();
+    assertThat(validationResult.getIdPrefix()).isEqualTo("ident-");
+    assertThat(validationResult.getInvalidObjectIds()).isEmpty();
+  }
+
+  @Test
+  public void  getSummaryScreenValidationResult_identsStartAndEndLocationMatchHeader_coordsExistAndDoesNotMatchHeader_invalid() {
+
+    //create padPipeline and idents and overview
+    var padPipeline = PadPipelineTaskListServiceTestUtil.createPadPipeline(detail, pipeline);
+    padPipeline.setId(PAD_PIPELINE_1_ID);
+    var fromIdent = PadPipelineTaskListServiceTestUtil.createIdentWithMatchingHeaderFromLocation(padPipeline);
+    fromIdent.setFromCoordinates(PadPipelineTaskListServiceTestUtil.createCoordinatePairUnMatchingHeaderFromLocation(padPipeline));
+    fromIdent.setId(1);
+    fromIdent.setLength(padPipeline.getLength());
+    var toIdent = PadPipelineTaskListServiceTestUtil.createIdentWithMatchingHeaderToLocation(padPipeline);
+    toIdent.setToCoordinates(PadPipelineTaskListServiceTestUtil.createCoordinatePairUnMatchingHeaderToLocation(padPipeline));
+    toIdent.setId(2);
+    toIdent.setLength(BigDecimal.ZERO);
+
+    when(padPipelineIdentRepository.getAllByPadPipeline(padPipeline)).thenReturn(List.of(fromIdent, toIdent));
+
+    //assert error messages match
+    var validationResult = padPipelineIdentService.getSummaryScreenValidationResult(padPipeline);
+
+    assertThat(validationResult.isSectionComplete()).isFalse();
+    assertThat(validationResult.getErrorItems())
+        .extracting(ErrorItem::getDisplayOrder, ErrorItem::getFieldName, ErrorItem::getErrorMessage)
+        .containsExactly(
+            tuple(1, "ident-0" + fromIdent.getId(), " " + IDENT_FROM_LOCATION_MISMATCH_ERROR_MSG),
+            tuple(2, "ident-0" + toIdent.getId(), " " + IDENT_TO_LOCATION_MISMATCH_ERROR_MSG));
+    assertThat(validationResult.getIdPrefix()).isEqualTo("ident-");
+    assertThat(validationResult.getInvalidObjectIds()).containsExactly(String.valueOf(fromIdent.getId()), String.valueOf(toIdent.getId()));
+  }
+
+  @Test
+  public void  getSummaryScreenValidationResult_identsStartAndEndLocationMatchHeader_fromCoordsExistAndDoesNotMatch_toExistsAndMatches_invalid() {
+
+    //create padPipeline and idents and overview
+    var padPipeline = PadPipelineTaskListServiceTestUtil.createPadPipeline(detail, pipeline);
+    padPipeline.setId(PAD_PIPELINE_1_ID);
+    var fromIdent = PadPipelineTaskListServiceTestUtil.createIdentWithMatchingHeaderFromLocation(padPipeline);
+    fromIdent.setFromCoordinates(PadPipelineTaskListServiceTestUtil.createCoordinatePairUnMatchingHeaderFromLocation(padPipeline));
+    fromIdent.setId(1);
+    fromIdent.setLength(padPipeline.getLength());
+    var toIdent = PadPipelineTaskListServiceTestUtil.createIdentWithMatchingHeaderToLocation(padPipeline);
+    toIdent.setToCoordinates(padPipeline.getToCoordinates());
+    toIdent.setId(2);
+    toIdent.setLength(BigDecimal.ZERO);
+
+    when(padPipelineIdentRepository.getAllByPadPipeline(padPipeline)).thenReturn(List.of(fromIdent, toIdent));
+
+    //assert error messages match
+    var validationResult = padPipelineIdentService.getSummaryScreenValidationResult(padPipeline);
+
+    assertThat(validationResult.isSectionComplete()).isFalse();
+    assertThat(validationResult.getErrorItems())
+        .extracting(ErrorItem::getDisplayOrder, ErrorItem::getFieldName, ErrorItem::getErrorMessage)
+        .containsExactly(
+            tuple(1, "ident-0" + fromIdent.getId(), " " + IDENT_FROM_LOCATION_MISMATCH_ERROR_MSG));
+    assertThat(validationResult.getIdPrefix()).isEqualTo("ident-");
+    assertThat(validationResult.getInvalidObjectIds()).containsExactly(String.valueOf(fromIdent.getId()));
+  }
+
+  @Test
+  public void  getSummaryScreenValidationResult_identsStartAndEndLocationMatchHeader_fromCoordsExistAndMatches_toExistsAndDoesNotMatch_invalid() {
+
+    //create padPipeline and idents and overview
+    var padPipeline = PadPipelineTaskListServiceTestUtil.createPadPipeline(detail, pipeline);
+    padPipeline.setId(PAD_PIPELINE_1_ID);
+    var fromIdent = PadPipelineTaskListServiceTestUtil.createIdentWithMatchingHeaderFromLocation(padPipeline);
+    fromIdent.setLength(padPipeline.getLength());
+    fromIdent.setFromCoordinates(padPipeline.getFromCoordinates());
+    fromIdent.setId(1);
+    var toIdent = PadPipelineTaskListServiceTestUtil.createIdentWithMatchingHeaderToLocation(padPipeline);
+    toIdent.setToCoordinates(PadPipelineTaskListServiceTestUtil.createCoordinatePairUnMatchingHeaderToLocation(padPipeline));
+    toIdent.setId(2);
+    toIdent.setLength(BigDecimal.ZERO);
+
+    when(padPipelineIdentRepository.getAllByPadPipeline(padPipeline)).thenReturn(List.of(fromIdent, toIdent));
+
+    //assert error messages match
+    var validationResult = padPipelineIdentService.getSummaryScreenValidationResult(padPipeline);
+
+    assertThat(validationResult.isSectionComplete()).isFalse();
+    assertThat(validationResult.getErrorItems())
+        .extracting(ErrorItem::getDisplayOrder, ErrorItem::getFieldName, ErrorItem::getErrorMessage)
+        .containsExactly(
+            tuple(1, "ident-0" + toIdent.getId(), " " + IDENT_TO_LOCATION_MISMATCH_ERROR_MSG));
+    assertThat(validationResult.getIdPrefix()).isEqualTo("ident-");
+    assertThat(validationResult.getInvalidObjectIds()).containsExactly(String.valueOf(toIdent.getId()));
+  }
+
+  @Test
+  public void  getSummaryScreenValidationResult_identsStartAndEndLocationMatchHeader_coordinatesExistAndMatchHeader_valid() {
+
+    //create padPipeline and idents and overview
+    var padPipeline = PadPipelineTaskListServiceTestUtil.createPadPipeline(detail, pipeline);
+    padPipeline.setId(PAD_PIPELINE_1_ID);
+    var fromIdent = PadPipelineTaskListServiceTestUtil.createIdentWithMatchingHeaderFromLocation(padPipeline);
+    fromIdent.setLength(padPipeline.getLength());
+    fromIdent.setFromCoordinates(padPipeline.getFromCoordinates());
+    fromIdent.setId(1);
+    var toIdent = PadPipelineTaskListServiceTestUtil.createIdentWithMatchingHeaderToLocation(padPipeline);
+    toIdent.setToCoordinates(padPipeline.getToCoordinates());
+    toIdent.setId(2);
+    toIdent.setLength(BigDecimal.ZERO);
+
+    when(padPipelineIdentRepository.getAllByPadPipeline(padPipeline)).thenReturn(List.of(fromIdent, toIdent));
+
+    //assert error messages match
+    var validationResult = padPipelineIdentService.getSummaryScreenValidationResult(padPipeline);
+
+    assertThat(validationResult.isSectionComplete()).isTrue();
+    assertThat(validationResult.getErrorItems()).isEmpty();
+    assertThat(validationResult.getSectionIncompleteError()).isNull();
+    assertThat(validationResult.getIdPrefix()).isEqualTo("ident-");
+    assertThat(validationResult.getInvalidObjectIds()).isEmpty();
+  }
+
   @Test
   public void getSummaryScreenValidationResult_identsValidAndLengthMatchesPadPipeline_sectionComplete() {
     when(padPipelineIdentRepository.getAllByPadPipeline(padPipeline))
         .thenReturn(List.of(ident));
     var result = padPipelineIdentService.getSummaryScreenValidationResult(padPipeline);
-    assertThat(result.isSectionComplete()).isTrue();
     assertThat(result.getErrorItems()).isEmpty();
+    assertThat(result.isSectionComplete()).isTrue();
   }
 
   @Test
