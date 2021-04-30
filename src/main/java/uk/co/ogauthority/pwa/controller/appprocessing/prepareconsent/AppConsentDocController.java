@@ -320,24 +320,26 @@ public class AppConsentDocController {
         (preSendForApprovalChecksView) -> {
 
           consentDocumentService.validateSendConsentFormUsingPreApprovalChecks(
-              form, bindingResult, preSendForApprovalChecksView);
-
+              form,
+              bindingResult,
+              preSendForApprovalChecksView);
           return controllerHelperService.checkErrorsAndRedirect(
               bindingResult,
               getSendForApprovalModelAndView(processingContext, preSendForApprovalChecksView),
               () -> {
 
-                consentDocumentService
-                    .sendForApproval(processingContext.getApplicationDetail(), form.getCoverLetterText(), authUser);
+                consentDocumentService.sendForApproval(
+                    processingContext.getApplicationDetail(),
+                    form.getCoverLetterText(),
+                    authUser,
+                    preSendForApprovalChecksView.getParallelConsentViews());
 
-                FlashUtils.info(redirectAttributes,
-                    processingContext.getPwaApplication().getAppReference() + " consent sent for approval");
+                FlashUtils.info(redirectAttributes,processingContext.getPwaApplication().getAppReference() + " consent sent for approval");
 
                 return ReverseRouter.redirect(on(WorkAreaController.class).renderWorkArea(null, null, null));
 
               });
         });
-
   }
 
   public ModelAndView whenPrepareConsentAvailable(PwaAppProcessingContext processingContext,
