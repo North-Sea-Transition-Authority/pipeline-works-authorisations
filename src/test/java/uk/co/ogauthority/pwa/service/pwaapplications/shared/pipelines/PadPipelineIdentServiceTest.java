@@ -696,6 +696,36 @@ public class PadPipelineIdentServiceTest {
   }
 
   @Test
+  public void  getSummaryScreenValidationResult_identsStartAndEndLocationMatchHeader_coordsExistAndDoesNotMatchHeader_directionMatches_invalid() {
+
+    //create padPipeline and idents and overview
+    var padPipeline = PadPipelineTaskListServiceTestUtil.createPadPipeline(detail, pipeline);
+    padPipeline.setId(PAD_PIPELINE_1_ID);
+    var fromIdent = PadPipelineTaskListServiceTestUtil.createIdentWithMatchingHeaderFromLocation(padPipeline);
+    fromIdent.setFromCoordinates(PadPipelineTaskListServiceTestUtil.createCoordinatePairUnMatchingHeaderFromLocationDirectionUnchanged(padPipeline));
+    fromIdent.setId(1);
+    fromIdent.setLength(padPipeline.getLength());
+    var toIdent = PadPipelineTaskListServiceTestUtil.createIdentWithMatchingHeaderToLocation(padPipeline);
+    toIdent.setToCoordinates(PadPipelineTaskListServiceTestUtil.createCoordinatePairUnMatchingHeaderToLocationDirectionUnchanged(padPipeline));
+    toIdent.setId(2);
+    toIdent.setLength(BigDecimal.ZERO);
+
+    when(padPipelineIdentRepository.getAllByPadPipeline(padPipeline)).thenReturn(List.of(fromIdent, toIdent));
+
+    //assert error messages match
+    var validationResult = padPipelineIdentService.getSummaryScreenValidationResult(padPipeline);
+
+    assertThat(validationResult.isSectionComplete()).isFalse();
+    assertThat(validationResult.getErrorItems())
+        .extracting(ErrorItem::getDisplayOrder, ErrorItem::getFieldName, ErrorItem::getErrorMessage)
+        .containsExactly(
+            tuple(1, "ident-0" + fromIdent.getId(), " " + IDENT_FROM_LOCATION_MISMATCH_ERROR_MSG),
+            tuple(2, "ident-0" + toIdent.getId(), " " + IDENT_TO_LOCATION_MISMATCH_ERROR_MSG));
+    assertThat(validationResult.getIdPrefix()).isEqualTo("ident-");
+    assertThat(validationResult.getInvalidObjectIds()).containsExactly(String.valueOf(fromIdent.getId()), String.valueOf(toIdent.getId()));
+  }
+
+  @Test
   public void  getSummaryScreenValidationResult_identsStartAndEndLocationMatchHeader_coordsExistAndDoesNotMatchHeader_invalid() {
 
     //create padPipeline and idents and overview

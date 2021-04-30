@@ -86,12 +86,24 @@ public class PadPipelineTaskListServiceTestUtil {
     return coordinatePair;
   }
 
+  public static CoordinatePair createCoordinatePairUnMatchingHeaderFromLocationDirectionUnchanged(PadPipeline padPipeline) {
+    var coordinatePair = CoordinatePairTestUtil.getDefaultCoordinate(
+        padPipeline.getFromLatitudeDegrees() + 1, padPipeline.getFromLongDeg() + 1);
+    return coordinatePair;
+  }
+
   public static CoordinatePair createCoordinatePairUnMatchingHeaderToLocation(PadPipeline padPipeline) {
     var coordinatePair = CoordinatePairTestUtil.getDefaultCoordinate(
         padPipeline.getToLatDeg() + 1, padPipeline.getToLongDeg() + 1);
     var existingLongDirection = coordinatePair.getLongitude().getDirection();
     var oppositeLongDirection = existingLongDirection == LongitudeDirection.EAST ? LongitudeDirection.WEST : LongitudeDirection.EAST;
     coordinatePair.getLongitude().setDirection(oppositeLongDirection);
+    return coordinatePair;
+  }
+
+  public static CoordinatePair createCoordinatePairUnMatchingHeaderToLocationDirectionUnchanged(PadPipeline padPipeline) {
+    var coordinatePair = CoordinatePairTestUtil.getDefaultCoordinate(
+        padPipeline.getToLatDeg() + 1, padPipeline.getToLongDeg() + 1);
     return coordinatePair;
   }
 

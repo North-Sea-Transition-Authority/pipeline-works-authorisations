@@ -48,6 +48,9 @@ public class LongitudeCoordinate extends Coordinate {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
+    if (!super.equals(o)) {
+      return false;
+    }
     LongitudeCoordinate that = (LongitudeCoordinate) o;
     return direction == that.direction;
   }
