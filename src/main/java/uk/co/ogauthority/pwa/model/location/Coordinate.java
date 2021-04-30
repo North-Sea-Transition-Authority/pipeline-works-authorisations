@@ -60,9 +60,9 @@ public abstract class Coordinate {
       return false;
     }
     Coordinate that = (Coordinate) o;
-    return Objects.equals(degrees, that.degrees) &&
-        Objects.equals(minutes, that.minutes) &&
-        Objects.equals(seconds, that.seconds);
+    return Objects.equals(degrees, that.degrees)
+        && Objects.equals(minutes, that.minutes)
+        && Objects.equals(seconds, that.seconds);
   }
 
   @Override
