@@ -1,10 +1,12 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.workflow;
 
+import java.time.Clock;
 import java.util.EnumSet;
 import java.util.Set;
 import javax.transaction.Transactional;
 import org.apache.commons.lang3.RandomUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.enums.MasterPwaDetailStatus;
@@ -40,6 +42,7 @@ public class PwaApplicationCreationService {
   private final PadOrganisationRoleService padOrganisationRoleService;
   private final MasterPwaDetailFieldService masterPwaDetailFieldService;
   private final PadFieldService padFieldService;
+  private final Clock clock;
 
 
   @Autowired
@@ -52,7 +55,8 @@ public class PwaApplicationCreationService {
                                        PwaConsentOrganisationRoleService pwaConsentOrganisationRoleService,
                                        PadOrganisationRoleService padOrganisationRoleService,
                                        MasterPwaDetailFieldService masterPwaDetailFieldService,
-                                       PadFieldService padFieldService) {
+                                       PadFieldService padFieldService,
+                                       @Qualifier("utcClock") Clock clock) {
     this.masterPwaService = masterPwaService;
     this.pwaApplicationRepository = pwaApplicationRepository;
     this.camundaWorkflowService = camundaWorkflowService;
@@ -63,6 +67,7 @@ public class PwaApplicationCreationService {
     this.padOrganisationRoleService = padOrganisationRoleService;
     this.masterPwaDetailFieldService = masterPwaDetailFieldService;
     this.padFieldService = padFieldService;
+    this.clock = clock;
   }
 
   private PwaApplicationDetail createApplication(MasterPwa masterPwa,
@@ -72,6 +77,7 @@ public class PwaApplicationCreationService {
 
     var application = new PwaApplication(masterPwa, applicationType, variationNo);
     application.setAppReference(pwaApplicationReferencingService.createAppReference());
+    application.setApplicationCreatedTimestamp(clock.instant());
     pwaApplicationRepository.save(application);
 
     pwaContactService.updateContact(

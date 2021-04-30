@@ -1,8 +1,5 @@
 package uk.co.ogauthority.pwa.service.appprocessing.prepareconsent;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -37,13 +34,8 @@ public class ConsentDocumentService {
     this.sendforApprovalCheckerService = sendforApprovalCheckerService;
   }
 
-  public List<FailedSendForApprovalCheck> getReasonsToPreventSendForApproval(PwaApplicationDetail detail) {
-
-    return sendforApprovalCheckerService.getReasonsToPreventSendForApproval(detail)
-        .stream()
-        // basic sort to ensure consistency on screen.
-        .sorted(Comparator.comparing(FailedSendForApprovalCheck::getReason))
-        .collect(Collectors.toUnmodifiableList());
+  public PreSendForApprovalChecksView getPreSendForApprovalChecksView(PwaApplicationDetail detail) {
+    return sendforApprovalCheckerService.getPreSendForApprovalChecksView(detail);
   }
 
   @Transactional

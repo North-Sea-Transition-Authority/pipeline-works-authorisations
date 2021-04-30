@@ -11,6 +11,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.NamedAttributeNode;
+import javax.persistence.NamedEntityGraph;
 import javax.persistence.OneToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
@@ -19,6 +21,11 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 
 @Entity
 @Table(name = "pwa_consents")
+@NamedEntityGraph(name = "PwaConsent.masterPwaAndSourceApplications",
+    attributeNodes = {
+        @NamedAttributeNode(PwaConsent_.MASTER_PWA),
+        @NamedAttributeNode(PwaConsent_.SOURCE_PWA_APPLICATION)}
+)
 public class PwaConsent {
 
   @Id
