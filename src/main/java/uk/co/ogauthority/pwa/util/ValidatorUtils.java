@@ -14,6 +14,7 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.Range;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.validator.routines.EmailValidator;
 import org.springframework.validation.Errors;
@@ -381,7 +382,7 @@ public class ValidatorUtils {
   }
 
   public static void validateDecimalPlaces(Errors errors, String field, String fieldLabel, int decimalPlaces) {
-    if (errors.getFieldValue(field) == null) {
+    if (!NumberUtils.isCreatable(Objects.toString(errors.getFieldValue(field)))) {
       return;
     }
     var bigDecimal = new BigDecimal(Objects.requireNonNull(errors.getFieldValue(field)).toString());

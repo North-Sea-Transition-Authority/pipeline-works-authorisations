@@ -1,6 +1,5 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines;
 
-import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import org.springframework.validation.SmartValidator;
