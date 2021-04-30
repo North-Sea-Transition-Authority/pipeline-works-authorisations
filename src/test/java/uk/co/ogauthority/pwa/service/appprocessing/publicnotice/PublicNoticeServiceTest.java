@@ -147,6 +147,7 @@ public class PublicNoticeServiceTest {
   private ArgumentCaptor<PublicNoticeRequest> publicNoticeRequestArgumentCaptor;
 
   private static Set<PublicNoticeStatus> ENDED_STATUSES;
+  private static Set<PublicNoticeStatus> APPLICANT_VIEW_STATUSES;
 
 
   @Before
@@ -168,6 +169,7 @@ public class PublicNoticeServiceTest {
     pwaApplication = pwaApplicationDetail.getPwaApplication();
     user = new AuthenticatedUserAccount(new WebUserAccount(1, PersonTestUtil.createDefaultPerson()), List.of());
     ENDED_STATUSES = Set.of(PublicNoticeStatus.ENDED, PublicNoticeStatus.WITHDRAWN);
+    APPLICANT_VIEW_STATUSES = Set.of(PublicNoticeStatus.WAITING, PublicNoticeStatus.PUBLISHED, PublicNoticeStatus.ENDED);
   }
 
   @Test
@@ -604,6 +606,34 @@ public class PublicNoticeServiceTest {
     });
   }
 
+  @Test(expected = EntityLatestVersionNotFoundException.class)
+  public void canApplicantViewLatestPublicNotice_noPublicNoticeExists_exception() {
+    publicNoticeService.canApplicantViewLatestPublicNotice(pwaApplication);
+  }
+
+  @Test
+  public void canApplicantViewLatestPublicNotice_statusInvalid_cannotView() {
+
+    EnumSet.complementOf(EnumSet.copyOf(APPLICANT_VIEW_STATUSES)).forEach(status -> {
+      var publicNotice = new PublicNotice();
+      publicNotice.setStatus(status);
+      when(publicNoticeRepository.findFirstByPwaApplicationOrderByVersionDesc(pwaApplication)).thenReturn(Optional.of(publicNotice));
+      var canViewPublicNotice = publicNoticeService.canApplicantViewLatestPublicNotice(pwaApplication);
+      assertThat(canViewPublicNotice).isFalse();
+    });
+  }
+
+  @Test
+  public void canApplicantViewLatestPublicNotice_statusValid_canView() {
+
+    APPLICANT_VIEW_STATUSES.forEach(status -> {
+      var publicNotice = new PublicNotice();
+      publicNotice.setStatus(status);
+      when(publicNoticeRepository.findFirstByPwaApplicationOrderByVersionDesc(pwaApplication)).thenReturn(Optional.of(publicNotice));
+      var canViewPublicNotice = publicNoticeService.canApplicantViewLatestPublicNotice(pwaApplication);
+      assertThat(canViewPublicNotice).isTrue();
+    });
+  }
 
   @Test
   public void getAvailablePublicNoticeActions_draftPermissionAndNullStatus() {

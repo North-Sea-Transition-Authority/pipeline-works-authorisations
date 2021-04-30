@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.controller.appprocessing.processingcharges.IndustryPaymentController;
 import uk.co.ogauthority.pwa.controller.masterpwas.contacts.PwaContactController;
+import uk.co.ogauthority.pwa.controller.publicnotice.PublicNoticeApplicantViewController;
 import uk.co.ogauthority.pwa.model.tasklist.TaskListGroup;
 import uk.co.ogauthority.pwa.model.view.appprocessing.applicationupdates.ApplicationUpdateRequestView;
 import uk.co.ogauthority.pwa.model.view.banner.PageBannerView;
@@ -18,6 +19,7 @@ import uk.co.ogauthority.pwa.service.appprocessing.applicationupdate.Application
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.service.appprocessing.options.ApproveOptionsService;
 import uk.co.ogauthority.pwa.service.appprocessing.publicnotice.PublicNoticeDocumentUpdateService;
+import uk.co.ogauthority.pwa.service.appprocessing.publicnotice.PublicNoticeService;
 import uk.co.ogauthority.pwa.service.appprocessing.tasks.PwaAppProcessingTaskListService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
@@ -30,18 +32,21 @@ public class TasksTabContentService implements AppProcessingTabContentService {
   private final PwaApplicationRedirectService pwaApplicationRedirectService;
   private final ApproveOptionsService approveOptionsService;
   private final PublicNoticeDocumentUpdateService publicNoticeDocumentUpdateService;
+  private final PublicNoticeService publicNoticeService;
 
   @Autowired
   public TasksTabContentService(PwaAppProcessingTaskListService appProcessingTaskListService,
                                 ApplicationUpdateRequestViewService applicationUpdateRequestViewService,
                                 PwaApplicationRedirectService pwaApplicationRedirectService,
                                 ApproveOptionsService approveOptionsService,
-                                PublicNoticeDocumentUpdateService publicNoticeDocumentUpdateService) {
+                                PublicNoticeDocumentUpdateService publicNoticeDocumentUpdateService,
+                                PublicNoticeService publicNoticeService) {
     this.appProcessingTaskListService = appProcessingTaskListService;
     this.applicationUpdateRequestViewService = applicationUpdateRequestViewService;
     this.pwaApplicationRedirectService = pwaApplicationRedirectService;
     this.approveOptionsService = approveOptionsService;
     this.publicNoticeDocumentUpdateService = publicNoticeDocumentUpdateService;
+    this.publicNoticeService = publicNoticeService;
   }
 
   @Override
@@ -55,6 +60,7 @@ public class TasksTabContentService implements AppProcessingTabContentService {
 
     Optional<String> payForAppUrl = Optional.empty();
     Optional<String> manageAppContactsUrl = Optional.empty();
+    Optional<String> viewPublicNoticeUrl = Optional.empty();
 
     boolean industryFlag = appProcessingContext.getApplicationInvolvement().hasOnlyIndustryInvolvement();
 
@@ -88,6 +94,13 @@ public class TasksTabContentService implements AppProcessingTabContentService {
            appProcessingContext.getApplicationType(),  appProcessingContext.getMasterPwaApplicationId(), null, null
         )));
       }
+
+      if (appProcessingContext.getAppProcessingPermissions().contains(PwaAppProcessingPermission.VIEW_PUBLIC_NOTICE)
+          && publicNoticeService.canApplicantViewLatestPublicNotice(appProcessingContext.getPwaApplication())) {
+        viewPublicNoticeUrl = Optional.of(ReverseRouter.route(on(PublicNoticeApplicantViewController.class).renderViewPublicNotice(
+            appProcessingContext.getMasterPwaApplicationId(), appProcessingContext.getApplicationType(),  null, null
+        )));
+      }
     }
 
     var modelMap = new HashMap<>(Map.of(
@@ -101,6 +114,7 @@ public class TasksTabContentService implements AppProcessingTabContentService {
     publicNoticePageBannerViewOpt.ifPresent(view -> modelMap.put("publicNoticePageBannerView", view));
     payForAppUrl.ifPresent(s -> modelMap.put("payForAppUrl", s));
     manageAppContactsUrl.ifPresent(s -> modelMap.put("manageAppContactsUrl", s));
+    viewPublicNoticeUrl.ifPresent(s -> modelMap.put("viewPublicNoticeUrl", s));
 
     return modelMap;
 
