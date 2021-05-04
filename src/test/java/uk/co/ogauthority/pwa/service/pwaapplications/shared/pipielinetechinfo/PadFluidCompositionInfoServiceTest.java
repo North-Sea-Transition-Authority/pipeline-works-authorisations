@@ -32,6 +32,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationTyp
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinetechinfo.PadFluidCompositionInfoService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.validators.pipelinetechinfo.FluidCompositionDataValidator;
+import uk.co.ogauthority.pwa.validators.pipelinetechinfo.FluidCompositionFormValidator;
 import uk.co.ogauthority.pwa.validators.pipelinetechinfo.FluidCompositionValidator;
 
 
@@ -52,7 +53,7 @@ public class PadFluidCompositionInfoServiceTest {
 
   @Before
   public void setUp() {
-    validator = new FluidCompositionValidator(new FluidCompositionDataValidator());
+    validator = new FluidCompositionValidator(new FluidCompositionDataValidator(), new FluidCompositionFormValidator());
     padFluidCompositionInfoService = new PadFluidCompositionInfoService(
         padFluidCompositionInfoRepository,
         validator,
@@ -66,11 +67,15 @@ public class PadFluidCompositionInfoServiceTest {
     h20Form.setFluidCompositionOption(FluidCompositionOption.NONE);
     var n2Form = new FluidCompositionDataForm();
     n2Form.setFluidCompositionOption(FluidCompositionOption.TRACE);
+    var c1Form = new FluidCompositionDataForm();
+    c1Form.setFluidCompositionOption(FluidCompositionOption.HIGHER_AMOUNT);
+    c1Form.setMoleValue(BigDecimal.valueOf(100));
 
     var form = new FluidCompositionForm();
     Map<Chemical, FluidCompositionDataForm> chemicalDataFormMap = new HashMap<>();
     chemicalDataFormMap.put(Chemical.H2O, h20Form);
     chemicalDataFormMap.put(Chemical.N2, n2Form);
+    chemicalDataFormMap.put(Chemical.C1, c1Form);
     form.setChemicalDataFormMap(chemicalDataFormMap);
 
     return form;
@@ -84,6 +89,14 @@ public class PadFluidCompositionInfoServiceTest {
     return entity;
   }
 
+  private PadFluidCompositionInfo createValidEntityWithMoleValue(Chemical chemical, BigDecimal moleValue) {
+    var entity = new PadFluidCompositionInfo();
+    entity.setPwaApplicationDetail(pwaApplicationDetail);
+    entity.setChemicalName(chemical);
+    entity.setFluidCompositionOption(FluidCompositionOption.HIGHER_AMOUNT);
+    entity.setMoleValue(moleValue);
+    return entity;
+  }
 
   // Entity/Form  Retrieval/Mapping Tests
   @Test
@@ -110,23 +123,10 @@ public class PadFluidCompositionInfoServiceTest {
   public void mapEntityToForm() {
     var form = new FluidCompositionForm();
     padFluidCompositionInfoService.mapEntitiesToForm(form, List.of(createValidEntity(Chemical.H2O, FluidCompositionOption.NONE),
-        createValidEntity(Chemical.N2, FluidCompositionOption.TRACE)));
+        createValidEntity(Chemical.N2, FluidCompositionOption.TRACE), createValidEntityWithMoleValue(Chemical.C1,
+            BigDecimal.valueOf(100))));
 
     assertThat(form).isEqualTo(createValidForm());
-  }
-
-  @Test
-  public void mapEntityToForm_usingMolePercentage() {
-    var form = new FluidCompositionForm();
-    var n2Entity= createValidEntity(Chemical.N2, FluidCompositionOption.HIGHER_AMOUNT);
-    n2Entity.setMoleValue(BigDecimal.valueOf(1.2));
-
-    padFluidCompositionInfoService.mapEntitiesToForm(form, List.of(createValidEntity(Chemical.H2O, FluidCompositionOption.NONE), n2Entity));
-    var expectedForm = createValidForm();
-    expectedForm.getChemicalDataFormMap().get(Chemical.N2).setFluidCompositionOption(FluidCompositionOption.HIGHER_AMOUNT);
-    expectedForm.getChemicalDataFormMap().get(Chemical.N2).setMoleValue(BigDecimal.valueOf(1.2));
-
-    assertThat(form).isEqualTo(expectedForm);
   }
 
   @Test
@@ -157,7 +157,6 @@ public class PadFluidCompositionInfoServiceTest {
   }
 
 
-
   //Validation / Checking Tests
   @Test
   public void validate_valid() {
@@ -178,7 +177,8 @@ public class PadFluidCompositionInfoServiceTest {
 
   @Test
   public void isComplete_valid() {
-    when(padFluidCompositionInfoRepository.getAllByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(List.of(createValidEntity(Chemical.H2O, FluidCompositionOption.NONE)));
+    when(padFluidCompositionInfoRepository.getAllByPwaApplicationDetail(pwaApplicationDetail))
+        .thenReturn(List.of(createValidEntityWithMoleValue(Chemical.H2O, BigDecimal.valueOf(100))));
     var isValid = padFluidCompositionInfoService.isComplete(pwaApplicationDetail);
     assertTrue(isValid);
   }

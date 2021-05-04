@@ -48,8 +48,11 @@ public class PermanentDepositsDrawingValidator implements SmartValidator {
           "Upload one drawing");
     }
 
-    ValidationUtils.rejectIfEmptyOrWhitespace(errors, "selectedDeposits", "selectedDeposits.required",
-        "Select at least one deposit");
+    if (form.getSelectedDeposits() == null || form.getSelectedDeposits().isEmpty()) {
+      errors.rejectValue("selectedDeposits",
+          FieldValidationErrorCodes.REQUIRED.errorCode("selectedDeposits"),
+          "Select at least one deposit");
+    }
 
   }
 

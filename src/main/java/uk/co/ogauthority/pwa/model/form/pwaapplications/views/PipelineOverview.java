@@ -56,4 +56,6 @@ public interface PipelineOverview extends NamedPipeline {
 
   Boolean getPipelineInUse();
 
+  String getFootnote();
+
 }

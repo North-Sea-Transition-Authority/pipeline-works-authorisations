@@ -17,6 +17,7 @@ import uk.co.ogauthority.pwa.model.entity.enums.permanentdeposits.MaterialType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdepositdrawings.PadDepositDrawingLink;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PadPermanentDeposit;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview;
 import uk.co.ogauthority.pwa.service.documents.views.DepositTableRowView;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits.DepositDrawingsService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits.PermanentDepositService;
@@ -64,13 +65,15 @@ public class DepositsGeneratorService implements DocumentSectionGenerator {
           .map(padDepositPipeline -> padDepositPipeline.getPipeline().getPipelineId())
           .collect(Collectors.toList());
 
-      var pipelineOverviews = pipelineAndIdentViewFactory.getAllPipelineOverviewsFromAppAndMasterPwaByPipelineIds(
-          pwaApplicationDetail, pipelineIds).values();
+      var pipelineNumbersDisplay = pipelineAndIdentViewFactory.getAllPipelineOverviewsFromAppAndMasterPwaByPipelineIds(
+          pwaApplicationDetail, pipelineIds).values()
+          .stream().sorted(Comparator.comparing(PipelineOverview::getPipelineNumber))
+          .map(PipelineOverview::getPipelineNumber)
+          .collect(Collectors.joining(", "));
 
       var drawingRefs = getDrawingRefs(deposit, depositAndDrawingMap);
 
-      pipelineOverviews.forEach(pipelineOverview -> depositTableRowViews.add(
-          mapDepositAndPipelinesToTableRowView(deposit, pipelineOverview.getPipelineNumber(), drawingRefs)));
+      depositTableRowViews.add(mapDepositAndPipelinesToTableRowView(deposit, pipelineNumbersDisplay, drawingRefs));
     });
 
     depositsWithPipelinesFromOtherApps.forEach(deposit -> {
@@ -81,11 +84,18 @@ public class DepositsGeneratorService implements DocumentSectionGenerator {
       }
     });
 
-    depositTableRowViews.sort(Comparator.comparing(DepositTableRowView::getPipelineNumber));
+    depositTableRowViews.sort(Comparator.comparing(DepositTableRowView::getDepositReference));
+
+    var depositFootnotes = allDeposits.stream()
+        .filter(deposit -> deposit.getFootnote() != null)
+        .sorted(Comparator.comparing(PadPermanentDeposit::getReference))
+        .map(deposit -> String.format("[%s: %s]", deposit.getReference(), deposit.getFootnote()))
+        .collect(Collectors.toList());
 
     Map<String, Object> modelMap = Map.of(
         "sectionName", DocumentSection.DEPOSITS.getDisplayName(),
-        "depositTableRowViews", depositTableRowViews
+        "depositTableRowViews", depositTableRowViews,
+        "depositFootnotes", depositFootnotes
     );
 
     return new DocumentSectionData("documents/consents/sections/deposits", modelMap);
@@ -100,20 +110,52 @@ public class DepositsGeneratorService implements DocumentSectionGenerator {
         .collect(Collectors.toList());
   }
 
+  private String getUnitMeasurementDisplay(PadPermanentDeposit deposit) {
+    var unitMeasurementDisplay = "";
+    if (deposit.getMaterialType().equals(MaterialType.ROCK)) {
+      unitMeasurementDisplay = " " + UnitMeasurement.ROCK_GRADE.getSuffixDisplay();
+
+    } else if (deposit.getMaterialType().equals(MaterialType.GROUT_BAGS)) {
+      unitMeasurementDisplay = UnitMeasurement.KILOGRAM.getSuffixDisplay();
+    }
+
+    return unitMeasurementDisplay;
+  }
+
+  private String getMaterialSizeDisplay(PadPermanentDeposit deposit) {
+    var joiner = ", ";
+    var materialSizeDisplay = joiner + deposit.getMaterialSize();
+
+    if (deposit.getMaterialType().equals(MaterialType.CONCRETE_MATTRESSES)) {
+      materialSizeDisplay = joiner + deposit.getConcreteMattressLength() + "x" +
+          deposit.getConcreteMattressWidth() + "x" + deposit.getConcreteMattressDepth();
+    }
+
+    return materialSizeDisplay;
+  }
+
+  private String getMaterialsPropertiesDisplay(PadPermanentDeposit deposit) {
+    if (deposit.getMaterialType().equals(MaterialType.GROUT_BAGS)) {
+      return deposit.getGroutBagsBioDegradable() ? ", Biodegradable" : ", Non-biodegradable";
+    }
+    return "";
+  }
+
 
   private DepositTableRowView mapDepositAndPipelinesToTableRowView(
       PadPermanentDeposit deposit, String pipelineColumnText, List<String> drawingRefs) {
 
-    var materialUnitMeasurement = deposit.getMaterialType().equals(MaterialType.ROCK) ? UnitMeasurement.ROCK_GRADE.getSuffixDisplay() : "";
-    var materialSize = deposit.getMaterialType().equals(MaterialType.CONCRETE_MATTRESSES)
-        ? deposit.getConcreteMattressLength() + "x" + deposit.getConcreteMattressWidth() + "x" + deposit.getConcreteMattressDepth()
-        : deposit.getMaterialSize();
+    var proposedDate = DateUtils.createDateEstimateString(deposit.getFromMonth(), deposit.getFromYear()) + "-" +
+        DateUtils.createDateEstimateString(deposit.getToMonth(), deposit.getToYear());
+
+    var typeAndSizeOfMaterials = deposit.getMaterialType().getDisplayText() +
+        getMaterialSizeDisplay(deposit) + getUnitMeasurementDisplay(deposit) + getMaterialsPropertiesDisplay(deposit);
 
     return new DepositTableRowView(
+        deposit.getReference(),
         pipelineColumnText,
-        DateUtils.createDateEstimateString(deposit.getFromMonth(), deposit.getFromYear()) + "-" +
-            DateUtils.createDateEstimateString(deposit.getToMonth(), deposit.getToYear()),
-        deposit.getMaterialType().getDisplayText() + ", " + materialSize + " " + materialUnitMeasurement,
+        proposedDate,
+        typeAndSizeOfMaterials,
         deposit.getQuantity() % 1 == 0 ? String.valueOf((int) deposit.getQuantity()) : String.valueOf(deposit.getQuantity()),
         deposit.getFromCoordinates(),
         deposit.getToCoordinates(),

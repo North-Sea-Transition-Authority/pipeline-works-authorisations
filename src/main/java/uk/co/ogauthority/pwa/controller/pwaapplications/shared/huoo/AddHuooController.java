@@ -189,17 +189,28 @@ public class AddHuooController {
         });
   }
 
-
-  @PostMapping("/remove/org/{orgUnitId}")
-  public ModelAndView postDeleteOrgHuoo(@PathVariable("applicationType")
-                                        @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
+  @GetMapping("/remove/org/{orgUnitId}")
+  public ModelAndView renderRemoveOrgHuoo(@PathVariable("applicationType")
+                                          @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
                                         @PathVariable("applicationId") Integer applicationId,
                                         @PathVariable("orgUnitId") Integer orgUnitId,
-                                        PwaApplicationContext applicationContext,
-                                        @Valid @ModelAttribute("form") HuooForm form,
-                                        BindingResult bindingResult,
-                                        AuthenticatedUserAccount user,
-                                        RedirectAttributes redirectAttributes) {
+                                        PwaApplicationContext applicationContext) {
+    var detail = applicationContext.getApplicationDetail();
+    var orgUnit = portalOrganisationsAccessor.getOrganisationUnitById(orgUnitId)
+        .orElseThrow(() -> new PwaEntityNotFoundException("Unable to find organisation unit with ID: " + orgUnitId));
+    return getRemoveHuooModelAndView(detail)
+        .addObject("huooName", orgUnit.getName())
+        .addObject("backUrl", ReverseRouter.route(on(HuooController.class)
+            .renderHuooSummary(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null, null)));
+  }
+
+  @PostMapping("/remove/org/{orgUnitId}")
+  public ModelAndView postRemoveOrgHuoo(@PathVariable("applicationType")
+                                        @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
+                                      @PathVariable("applicationId") Integer applicationId,
+                                      @PathVariable("orgUnitId") Integer orgUnitId,
+                                      PwaApplicationContext applicationContext,
+                                      RedirectAttributes redirectAttributes) {
     var detail = applicationContext.getApplicationDetail();
     var orgUnit = portalOrganisationsAccessor.getOrganisationUnitById(orgUnitId)
         .orElseThrow(() -> new PwaEntityNotFoundException("Unable to find organisation unit with ID: " + orgUnitId));
@@ -213,16 +224,26 @@ public class AddHuooController {
         .renderHuooSummary(pwaApplicationType, detail.getMasterPwaApplicationId(), null, null));
   }
 
+  @GetMapping("/remove/treaty-agreement/{orgRoleId}")
+  public ModelAndView renderRemoveTreatyHuoo(@PathVariable("applicationType")
+                                               @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
+                                             @PathVariable("applicationId") Integer applicationId,
+                                             @PathVariable("orgRoleId") Integer orgRoleId,
+                                             PwaApplicationContext applicationContext) {
+    var detail = applicationContext.getApplicationDetail();
+    return getRemoveHuooModelAndView(detail)
+        .addObject("huooName", "Treaty agreement")
+        .addObject("backUrl", ReverseRouter.route(on(HuooController.class)
+            .renderHuooSummary(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null, null)));
+  }
+
   @PostMapping("/remove/treaty-agreement/{orgRoleId}")
-  public ModelAndView postDeleteTreatyHuoo(@PathVariable("applicationType")
-                                           @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
-                                           @PathVariable("applicationId") Integer applicationId,
-                                           @PathVariable("orgRoleId") Integer orgRoleId,
-                                           PwaApplicationContext applicationContext,
-                                           @Valid @ModelAttribute("form") HuooForm form,
-                                           BindingResult bindingResult,
-                                           AuthenticatedUserAccount user,
-                                           RedirectAttributes redirectAttributes) {
+  public ModelAndView postRemoveTreatyHuoo(@PathVariable("applicationType")
+                                        @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
+                                        @PathVariable("applicationId") Integer applicationId,
+                                        @PathVariable("orgRoleId") Integer orgRoleId,
+                                        PwaApplicationContext applicationContext,
+                                        RedirectAttributes redirectAttributes) {
     var detail = applicationContext.getApplicationDetail();
     var orgRole = padOrganisationRoleService.getOrganisationRole(detail, orgRoleId);
     padOrganisationRoleService.removeRoleOfTreatyAgreement(orgRole);
@@ -233,10 +254,10 @@ public class AddHuooController {
         .renderHuooSummary(pwaApplicationType, detail.getMasterPwaApplicationId(), null, null));
   }
 
-
-
-
-
-
+  private ModelAndView getRemoveHuooModelAndView(PwaApplicationDetail detail) {
+    return new ModelAndView("pwaApplication/shared/pipelinehuoo/removeHuoo")
+        .addObject("backUrl", ReverseRouter.route(on(HuooController.class)
+            .renderHuooSummary(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null, null)));
+  }
 
 }

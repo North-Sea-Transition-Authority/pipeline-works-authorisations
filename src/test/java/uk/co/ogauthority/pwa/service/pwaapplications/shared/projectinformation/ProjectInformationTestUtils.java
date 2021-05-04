@@ -6,7 +6,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadProjectInformation;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.ProjectInformationForm;
-import uk.co.ogauthority.pwa.service.enums.projectinformation.PermanentDepositRadioOption;
+import uk.co.ogauthority.pwa.service.enums.projectinformation.PermanentDepositMade;
 import uk.co.ogauthority.pwa.util.forminputs.twofielddate.TwoFieldDateInput;
 
 public class ProjectInformationTestUtils {
@@ -58,7 +58,7 @@ public class ProjectInformationTestUtils {
 
     form.setUploadedFileWithDescriptionForms(new ArrayList<>());
 
-    form.setPermanentDepositsMadeType(PermanentDepositRadioOption.LATER_APP);
+    form.setPermanentDepositsMadeType(PermanentDepositMade.LATER_APP);
     form.setFutureSubmissionDate(new TwoFieldDateInput(2020, 7));
     form.setTemporaryDepositsMade(true);
     form.setTemporaryDepDescription("some description..");
@@ -85,7 +85,7 @@ public class ProjectInformationTestUtils {
     entity.setLicenceTransferTimestamp(instant.plus(LICENCE_TRANSFER_DAY_MODIFIER, ChronoUnit.DAYS));
     entity.setCommercialAgreementTimestamp(instant.plus(COMMERCIAL_AGREEMENT_DAY_MODIFIER, ChronoUnit.DAYS));
 
-    entity.setPermanentDepositsMade(true);
+    entity.setPermanentDepositsMade(PermanentDepositMade.LATER_APP);
     entity.setFutureAppSubmissionMonth(07);
     entity.setFutureAppSubmissionYear(2020);
     entity.setTemporaryDepositsMade(true);

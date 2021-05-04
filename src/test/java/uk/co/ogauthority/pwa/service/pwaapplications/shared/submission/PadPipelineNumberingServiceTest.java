@@ -57,7 +57,7 @@ public class PadPipelineNumberingServiceTest {
   }
 
   @Test
-  public void assignPipelineReferences_canShow_withPipeline() {
+  public void assignPipelineReferences_canShow_withPipeline_noTemporaryRefSet() {
     var padPipeline = new PadPipeline();
     padPipeline.setPipelineType(PipelineType.CABLE);
     when(applicationTaskService.canShowTask(APP_TASK, detail)).thenReturn(true);
@@ -65,6 +65,18 @@ public class PadPipelineNumberingServiceTest {
 
     padPipelineNumberingService.assignPipelineReferences(detail);
     verify(padPipelineSubmissionRepository, times(1)).saveAll(List.of(padPipeline));
+  }
+
+  @Test
+  public void assignPipelineReferences_canShow_withPipeline_temporaryRefSet() {
+    var padPipeline = new PadPipeline();
+    padPipeline.setPipelineType(PipelineType.CABLE);
+    padPipeline.setTemporaryRef("temp ref");
+    when(applicationTaskService.canShowTask(APP_TASK, detail)).thenReturn(true);
+    when(padPipelineSubmissionRepository.getNonConsentedPipelines(detail)).thenReturn(List.of(padPipeline));
+
+    padPipelineNumberingService.assignPipelineReferences(detail);
+    verify(padPipelineSubmissionRepository, times(0)).saveAll(any());
   }
 
   @Test
@@ -107,6 +119,31 @@ public class PadPipelineNumberingServiceTest {
     var padPipeline = new PadPipeline();
 
     assertThat(padPipelineNumberingService.nonConsentedPadPipelineRequiresFullReference(padPipeline)).isTrue();
+
+  }
+
+  @Test
+  public void setManualPipelineReference_temporaryRefAlreadySet() {
+
+    var padPipeline = new PadPipeline();
+    padPipeline.setPipelineRef("123");
+    padPipeline.setTemporaryRef("abc");
+    padPipelineNumberingService.setManualPipelineReference(padPipeline, "xyz");
+
+    assertThat(padPipeline.getPipelineRef()).isEqualTo("xyz");
+    assertThat(padPipeline.getTemporaryRef()).isEqualTo("abc");
+
+  }
+
+  @Test
+  public void setManualPipelineReference_temporaryNotSet() {
+
+    var padPipeline = new PadPipeline();
+    padPipeline.setPipelineRef("123");
+    padPipelineNumberingService.setManualPipelineReference(padPipeline, "xyz");
+
+    assertThat(padPipeline.getPipelineRef()).isEqualTo("xyz");
+    assertThat(padPipeline.getTemporaryRef()).isEqualTo("123");
 
   }
 }

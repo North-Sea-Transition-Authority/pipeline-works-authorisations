@@ -2,6 +2,11 @@ package uk.co.ogauthority.pwa.util;
 
 import static java.util.Map.entry;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -443,6 +448,14 @@ public class ValidatorUtilsTest {
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     ValidatorUtils.validateDecimalPlaces(bindingResult, "externalDiameter", "External diameter", 2);
     assertThat(bindingResult.getAllErrors()).isEmpty();
+  }
+
+  @Test
+  public void validateDecimalPlaces_invalidNumber() {
+    var bindingResult = mock(BeanPropertyBindingResult.class);
+    when(bindingResult.getFieldValue("externalDiameter")).thenReturn("12.34Xyz");
+    ValidatorUtils.validateDecimalPlaces(bindingResult, "externalDiameter", "External diameter", 2);
+    verify(bindingResult, never()).rejectValue(any(), any(), any());
   }
 
   @Test

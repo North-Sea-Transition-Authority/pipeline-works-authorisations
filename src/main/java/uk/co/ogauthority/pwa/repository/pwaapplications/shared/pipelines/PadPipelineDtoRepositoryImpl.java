@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PadPipelineSummaryDto;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.repository.pipelines.PipelineBundlePairDto;
@@ -68,6 +69,7 @@ public class PadPipelineDtoRepositoryImpl implements PadPipelineDtoRepository {
             ", pp.pipelineStatusReason " +
             ", pp.alreadyExistsOnSeabed" +
             ", pp.pipelineInUse" +
+            ", pp.footnote" +
             ") " +
             "FROM PadPipeline pp " +
             "JOIN Pipeline p ON pp.pipeline = p " +
@@ -115,7 +117,8 @@ public class PadPipelineDtoRepositoryImpl implements PadPipelineDtoRepository {
             ", pp.pipelineStatus" +
             ", pp.pipelineStatusReason " +
             ", pp.alreadyExistsOnSeabed" +
-            ", pp.pipelineInUse",
+            ", pp.pipelineInUse" +
+            ", pp.footnote",
         PadPipelineSummaryDto.class)
         .setParameter("detail", detail)
         .setParameter("padPipelineLineFilter", padPipeline)
@@ -184,5 +187,21 @@ public class PadPipelineDtoRepositoryImpl implements PadPipelineDtoRepository {
         "WHERE pp.pwaApplicationDetail = :detail", Integer.class)
         .setParameter("detail", pwaApplicationDetail)
         .getSingleResult();
+  }
+
+
+  @Override
+  public List<PadPipeline> findApplicationsWherePipelineNumberExistsOnDraftOrLastSubmittedVersion(
+      String pipelineNumber) {
+    return entityManager.createQuery("" +
+        "SELECT pp " +
+        "FROM PadPipeline pp " +
+        "JOIN PwaApplicationDetail pad ON pp.pwaApplicationDetail = pad " +
+        "JOIN PwaApplication pa ON pad.pwaApplication = pa " +
+        "JOIN PadVersionLookup pvl ON pa.id = pvl.pwaApplicationId " +
+        "WHERE pad.versionNo IN (pvl.maxDraftVersionNo, pvl.latestSubmittedVersionNo) " +
+        "AND pp.pipelineRef = :pipelineNum", PadPipeline.class)
+        .setParameter("pipelineNum", pipelineNumber)
+        .getResultList();
   }
 }

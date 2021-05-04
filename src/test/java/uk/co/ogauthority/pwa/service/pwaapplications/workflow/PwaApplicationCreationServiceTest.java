@@ -8,10 +8,12 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
+import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
@@ -22,15 +24,18 @@ import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaDetail;
+import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaDetailField;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.repository.pwaapplications.PwaApplicationRepository;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaDetailFieldService;
 import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
 import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadOrganisationRoleService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.fieldinformation.PadFieldService;
 import uk.co.ogauthority.pwa.service.pwaconsents.PwaConsentOrganisationRoleService;
 import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
 
@@ -76,14 +81,22 @@ public class PwaApplicationCreationServiceTest {
   @Mock
   private PadOrganisationRoleService padOrganisationRoleService;
 
+  @Mock
+  private MasterPwaDetailFieldService masterPwaDetailFieldService;
+
+  @Mock
+  private PadFieldService padFieldService;
+
   private PwaApplicationCreationService pwaApplicationCreationService;
 
   private WebUserAccount user = new WebUserAccount(123);
 
-  private Instant fixedInstant = LocalDate
+  private Clock clock = Clock.fixed(LocalDate
       .of(2020, 2, 6)
       .atStartOfDay(ZoneId.systemDefault())
-      .toInstant();
+      .toInstant(), ZoneId.systemDefault());
+
+  private Instant fixedInstant = clock.instant();
 
   @Before
   public void setUp() {
@@ -100,7 +113,11 @@ public class PwaApplicationCreationServiceTest {
         pwaApplicationDetailService,
         pwaApplicationReferencingService,
         pwaConsentOrganisationRoleService,
-        padOrganisationRoleService);
+        padOrganisationRoleService,
+        masterPwaDetailFieldService,
+        padFieldService,
+        clock
+    );
   }
 
 
@@ -135,6 +152,7 @@ public class PwaApplicationCreationServiceTest {
     assertThat(application.getVariationNo()).isEqualTo(0);
     assertThat(application.getDecision()).isEmpty();
     assertThat(application.getDecisionTimestamp()).isEmpty();
+    assertThat(application.getApplicationCreatedTimestamp()).isEqualTo(clock.instant());
 
     assertThat(createdApplication.getPwaApplication()).isEqualTo(application);
     verify(masterPwaService, times(1)).updateDetailReference(masterPwaDetail, application.getAppReference());
@@ -196,6 +214,11 @@ public class PwaApplicationCreationServiceTest {
     MasterPwa masterPwa = new MasterPwa(fixedInstant);
     masterPwa.setId(1);
 
+    var masterPwaDetailField = new MasterPwaDetailField();
+    when(masterPwaDetailFieldService.getMasterPwaDetailFields(masterPwa)).thenReturn(List.of(masterPwaDetailField));
+    var masterPwaDetail = new MasterPwaDetail();
+    when(masterPwaService.getCurrentDetailOrThrow(masterPwa)).thenReturn(masterPwaDetail);
+
     PwaApplicationDetail createdApplication = pwaApplicationCreationService.createVariationPwaApplication(
         user,
         masterPwa,
@@ -213,6 +236,9 @@ public class PwaApplicationCreationServiceTest {
 
     verify(pwaContactService, times(1)).updateContact(application, user.getLinkedPerson(),
         Set.of(PwaContactRole.ACCESS_MANAGER, PwaContactRole.PREPARER));
+
+    verify(padFieldService, times(1)).createAndSavePadFieldsFromMasterPwa(
+        createdApplication, masterPwaDetail, List.of(masterPwaDetailField));;
 
     // check application set up correctly
     assertThat(application.getMasterPwa()).isEqualTo(masterPwa);

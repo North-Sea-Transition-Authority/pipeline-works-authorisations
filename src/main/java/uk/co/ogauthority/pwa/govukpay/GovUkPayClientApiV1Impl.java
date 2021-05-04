@@ -31,6 +31,7 @@ class GovUkPayClientApiV1Impl implements GovUkPayCardPaymentClient {
   @Override
   public GovPayNewCardPaymentResult createCardPaymentJourney(GovPayNewCardPaymentRequest govPayNewCardPaymentRequest) {
     var paymentRequest = apiV1RequestDataMapper.mapNewCardPaymentRequest(govPayNewCardPaymentRequest);
+    paymentRequest.addMetadata(govUkPayConfiguration.getDefaultRequestMetadata());
 
     RestTemplate restTemplate = govUkPayConfiguration.getConfiguredRestTemplate();
 

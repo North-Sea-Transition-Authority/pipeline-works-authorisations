@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.service.pwaconsents.consentwriters;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -21,9 +22,12 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
+import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsentOrganisationRole;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsentType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTask;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskListService;
+import uk.co.ogauthority.pwa.service.pwaconsents.consentwriters.pipelines.ConsentWriterDto;
+import uk.co.ogauthority.pwa.service.pwaconsents.consentwriters.pipelines.PipelineHuooWriter;
 import uk.co.ogauthority.pwa.service.pwaconsents.consentwriters.pipelines.PipelineWriter;
 
 @RunWith(SpringRunner.class)
@@ -48,7 +52,13 @@ public class ConsentWriterServiceTest {
   private PipelineWriter pipelineWriter;
 
   @MockBean
+  private PipelineHuooWriter pipelineHuooWriter;
+
+  @MockBean
   private TaskListService taskListService;
+
+  @MockBean
+  private HolderChangeEmailService holderChangeEmailService;
 
   @Autowired
   private ConsentWriterService consentWriterService;
@@ -58,18 +68,26 @@ public class ConsentWriterServiceTest {
   private PwaApplicationDetail detail;
   private PwaConsent consent;
 
+  private ConsentWriterDto consentWriterDto;
+
   private void configureDefaultMockWriterBehaviour(ConsentWriter consentWriterMock){
     when(consentWriterMock.writerIsApplicable(any(), any())).thenCallRealMethod();
     when(consentWriterMock.getExecutionOrder()).thenCallRealMethod();
+    when(consentWriterMock.write(any(), any(), any())).thenReturn(consentWriterDto);
   }
 
   @Before
   public void setUp() throws Exception {
 
+    consentWriterDto = new ConsentWriterDto();
+    consentWriterDto.setConsentRolesAdded(List.of(new PwaConsentOrganisationRole()));
+    consentWriterDto.setConsentRolesEnded(List.of(new PwaConsentOrganisationRole()));
+
     configureDefaultMockWriterBehaviour(fieldWriter);
     configureDefaultMockWriterBehaviour(huooWriter);
     configureDefaultMockWriterBehaviour(initialPwaMasterDetailWriter);
     configureDefaultMockWriterBehaviour(pipelineWriter);
+    configureDefaultMockWriterBehaviour(pipelineHuooWriter);
 
     applicationTasks = ApplicationTask.stream().collect(Collectors.toList());
     when(taskListService.getShownApplicationTasksForDetail(any()))
@@ -86,12 +104,17 @@ public class ConsentWriterServiceTest {
 
     consentWriterService.updateConsentedData(detail, consent);
 
-    var inOrder = Mockito.inOrder(fieldWriter, huooWriter, initialPwaMasterDetailWriter, pipelineWriter);
+    var inOrder = Mockito.inOrder(fieldWriter, huooWriter, initialPwaMasterDetailWriter, pipelineWriter, pipelineHuooWriter);
 
-    inOrder.verify(initialPwaMasterDetailWriter, times(1)).write(detail, consent);
-    inOrder.verify(fieldWriter, times(1)).write(detail, consent);
-    inOrder.verify(huooWriter, times(1)).write(detail, consent);
-    inOrder.verify(pipelineWriter, times(1)).write(detail, consent);
+    inOrder.verify(initialPwaMasterDetailWriter, times(1)).write(eq(detail), eq(consent), any());
+    inOrder.verify(fieldWriter, times(1)).write(eq(detail), eq(consent), any());
+    inOrder.verify(huooWriter, times(1)).write(eq(detail), eq(consent), any());
+    inOrder.verify(pipelineWriter, times(1)).write(eq(detail), eq(consent), any());
+
+    verify(holderChangeEmailService, times(1)).sendHolderChangeEmail(
+        detail.getPwaApplication(),
+        consentWriterDto.getConsentRolesEnded(),
+        consentWriterDto.getConsentRolesAdded());
 
   }
 
@@ -100,7 +123,7 @@ public class ConsentWriterServiceTest {
     consent.setConsentType(PwaConsentType.VARIATION);
     consentWriterService.updateConsentedData(detail, consent);
 
-    verify(initialPwaMasterDetailWriter, times(0)).write(any(), any());
+    verify(initialPwaMasterDetailWriter, times(0)).write(any(), any(), any());
 
   }
 
@@ -109,7 +132,7 @@ public class ConsentWriterServiceTest {
 
     consentWriterService.updateConsentedData(detail, consent);
 
-    verify(initialPwaMasterDetailWriter, times(1)).write(detail, consent);
+    verify(initialPwaMasterDetailWriter, times(1)).write(eq(detail), eq(consent), any());
 
   }
 
@@ -120,7 +143,7 @@ public class ConsentWriterServiceTest {
 
     consentWriterService.updateConsentedData(detail, consent);
 
-    verify(fieldWriter, times(0)).write(detail, consent);
+    verify(fieldWriter, times(0)).write(detail, consent, consentWriterDto);
 
   }
 
@@ -131,7 +154,7 @@ public class ConsentWriterServiceTest {
 
     consentWriterService.updateConsentedData(detail, consent);
 
-    verify(huooWriter, times(0)).write(detail, consent);
+    verify(huooWriter, times(0)).write(detail, consent, consentWriterDto);
 
   }
 
@@ -142,7 +165,18 @@ public class ConsentWriterServiceTest {
 
     consentWriterService.updateConsentedData(detail, consent);
 
-    verify(pipelineWriter, times(0)).write(detail, consent);
+    verify(pipelineWriter, times(0)).write(detail, consent, consentWriterDto);
+
+  }
+
+  @Test
+  public void updateConsentedData_noPipelineHuooTask_noPipelineHuooWrite() {
+
+    applicationTasks.remove(ApplicationTask.PIPELINES_HUOO);
+
+    consentWriterService.updateConsentedData(detail, consent);
+
+    verify(pipelineHuooWriter, times(0)).write(detail, consent, consentWriterDto);
 
   }
 

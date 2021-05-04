@@ -19,7 +19,7 @@ import org.springframework.validation.FieldError;
 import uk.co.ogauthority.pwa.model.entity.enums.ProjectInformationQuestion;
 import uk.co.ogauthority.pwa.model.form.files.UploadFileWithDescriptionForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.ProjectInformationForm;
-import uk.co.ogauthority.pwa.service.enums.projectinformation.PermanentDepositRadioOption;
+import uk.co.ogauthority.pwa.service.enums.projectinformation.PermanentDepositMade;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
@@ -118,7 +118,7 @@ public class ProjectInformationValidatorTest {
     form.setLicenceTransferPlanned(true);
     form.setLicenceTransferYear(year);
     form.setCommercialAgreementYear(year);
-    form.setPermanentDepositsMadeType(PermanentDepositRadioOption.LATER_APP);
+    form.setPermanentDepositsMadeType(PermanentDepositMade.LATER_APP);
     form.setFutureSubmissionDate(new TwoFieldDateInput(year, 1));
   }
 
@@ -796,7 +796,7 @@ public class ProjectInformationValidatorTest {
   @Test
   public void validate_permanentDepositType_LaterApp_noDate() {
     var form = new ProjectInformationForm();
-    form.setPermanentDepositsMadeType(PermanentDepositRadioOption.LATER_APP);
+    form.setPermanentDepositsMadeType(PermanentDepositMade.LATER_APP);
     form.setFutureSubmissionDate(new TwoFieldDateInput());
     Map<String, Set<String>> errorsMap = getErrorMap(form, new ProjectInformationFormValidationHints(
         PwaApplicationType.INITIAL, ValidationType.FULL, Set.of(ProjectInformationQuestion.PERMANENT_DEPOSITS_BEING_MADE), false));
@@ -809,7 +809,7 @@ public class ProjectInformationValidatorTest {
   @Test
   public void validate_permanentDepositType_LaterApp_pastDate() {
     var form = new ProjectInformationForm();
-    form.setPermanentDepositsMadeType(PermanentDepositRadioOption.LATER_APP);
+    form.setPermanentDepositsMadeType(PermanentDepositMade.LATER_APP);
     form.setFutureSubmissionDate(new TwoFieldDateInput(2020, 2));
     Map<String, Set<String>> errorsMap = getErrorMap(form, new ProjectInformationFormValidationHints(
         PwaApplicationType.INITIAL, ValidationType.FULL, Set.of(ProjectInformationQuestion.PERMANENT_DEPOSITS_BEING_MADE), false));
@@ -941,8 +941,22 @@ public class ProjectInformationValidatorTest {
     var form = new ProjectInformationForm();
     var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form,
         new ProjectInformationFormValidationHints(PwaApplicationType.INITIAL, ValidationType.PARTIAL, EnumSet.allOf(ProjectInformationQuestion.class), false));
-    assertThat(errorsMap).containsOnlyKeys("projectName", "projectOverview", "methodOfPipelineDeployment");
+    assertThat(errorsMap).isEmpty();
   }
+
+  @Test
+  public void validate_partialValidation_stringLengthOver4000Chars() {
+    var form = new ProjectInformationForm();
+    form.setMethodOfPipelineDeployment(ValidatorTestUtils.over4000Chars());
+    form.setProjectOverview(ValidatorTestUtils.over4000Chars());
+    var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form,
+        new ProjectInformationFormValidationHints(PwaApplicationType.INITIAL, ValidationType.PARTIAL, EnumSet.allOf(ProjectInformationQuestion.class), false));
+
+    assertThat(errorsMap).contains(
+        entry("methodOfPipelineDeployment", Set.of("methodOfPipelineDeployment" + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode())),
+        entry("projectOverview", Set.of("projectOverview" + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode())));
+  }
+
 
   @Test
   public void validate_validationNotRequired_whenQuestionNotProvided() {

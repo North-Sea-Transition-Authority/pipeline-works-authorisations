@@ -40,8 +40,13 @@
     <#if payForAppUrl?has_content>
         <@fdsAction.link linkText="Pay for application" linkUrl=springUrl(payForAppUrl) linkClass="govuk-button govuk-button--blue" role=true/>
     </#if>
+
     <#if manageAppContactsUrl?has_content>
         <@fdsAction.link linkText="Manage application users" linkUrl=springUrl(manageAppContactsUrl) linkClass="govuk-button govuk-button--blue" role=true/>
+    </#if>
+
+    <#if viewPublicNoticeUrl?has_content>
+        <@fdsAction.link linkText="View public notice" linkUrl=springUrl(viewPublicNoticeUrl) linkClass="govuk-button govuk-button--blue" role=true/>
     </#if>
 
   <@fdsBackendTabs.tabList>

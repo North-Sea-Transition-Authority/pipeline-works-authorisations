@@ -392,7 +392,7 @@ public class PwaAppProcessingPermissionServiceTest {
     when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
 
     var permissions = processingPermissionService.getProcessingPermissionsDto(detail, user).getProcessingPermissions();
-    assertThat(permissions).doesNotContain(PwaAppProcessingPermission.VIEW_CONSENT_DOCUMENT);
+    assertThat(permissions).isEmpty();
 
   }
 
@@ -996,6 +996,70 @@ public class PwaAppProcessingPermissionServiceTest {
           AssertionTestUtils.assertNotEmptyAndDoesNotContain(permissions, PwaAppProcessingPermission.DRAFT_PUBLIC_NOTICE);
         });
   }
+
+
+
+  @Test
+  public void getAppProcessingPermissions_hasViewPublicNoticePermission_allInvalidAppTypes_validUserPrivilege() {
+
+    PwaApplicationType.stream()
+        .filter(appType -> !VALID_PUBLIC_NOTICE_APP_TYPES.contains(appType))
+        .forEach(pwaApplicationType -> {
+
+          detail.getPwaApplication().setApplicationType(pwaApplicationType);
+          replacePrivileges(user, PwaUserPrivilege.PWA_INDUSTRY);
+
+          var appInvolvement = ApplicationInvolvementDtoTestUtil.generatePwaHolderTeamInvolvement(
+              application, EnumSet.of(PwaOrganisationRole.APPLICATION_SUBMITTER));
+          when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
+
+          var permissions = processingPermissionService.getProcessingPermissionsDto(detail, user).getProcessingPermissions();
+          assertThat(permissions).isNotEmpty();
+          assertThat(permissions).doesNotContain(PwaAppProcessingPermission.VIEW_PUBLIC_NOTICE);
+        });
+  }
+
+
+  @Test
+  public void getAppProcessingPermissions_hasViewPublicNoticePermission_allValidAppTypes_invalidUserPrivilege() {
+
+    PwaApplicationType.stream()
+        .filter(appType -> VALID_PUBLIC_NOTICE_APP_TYPES.contains(appType))
+        .forEach(pwaApplicationType -> {
+
+          detail.getPwaApplication().setApplicationType(pwaApplicationType);
+          replacePrivileges(user, PwaUserPrivilege.PWA_CASE_OFFICER);
+
+          var appInvolvement = ApplicationInvolvementDtoTestUtil.generatePwaHolderTeamInvolvement(
+              application, EnumSet.of(PwaOrganisationRole.APPLICATION_SUBMITTER));
+          when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
+
+          var permissions = processingPermissionService.getProcessingPermissionsDto(detail, user).getProcessingPermissions();
+          assertThat(permissions).isNotEmpty();
+          assertThat(permissions).doesNotContain(PwaAppProcessingPermission.VIEW_PUBLIC_NOTICE);
+        });
+  }
+
+  @Test
+  public void getAppProcessingPermissions_hasViewPublicNoticePermission_allValidAppTypes_validUserPrivilege() {
+
+    PwaApplicationType.stream()
+        .filter(appType -> VALID_PUBLIC_NOTICE_APP_TYPES.contains(appType))
+        .forEach(pwaApplicationType -> {
+
+          detail.getPwaApplication().setApplicationType(pwaApplicationType);
+          replacePrivileges(user, PwaUserPrivilege.PWA_INDUSTRY);
+
+          var appInvolvement = ApplicationInvolvementDtoTestUtil.generatePwaHolderTeamInvolvement(
+              application, EnumSet.of(PwaOrganisationRole.APPLICATION_SUBMITTER));
+          when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
+
+          var permissions = processingPermissionService.getProcessingPermissionsDto(detail, user).getProcessingPermissions();
+          AssertionTestUtils.assertNotEmptyAndContains(permissions, PwaAppProcessingPermission.VIEW_PUBLIC_NOTICE);
+        });
+  }
+
+
 
 
   @Test

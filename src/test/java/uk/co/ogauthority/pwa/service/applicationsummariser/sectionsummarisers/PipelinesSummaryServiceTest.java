@@ -10,6 +10,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
@@ -153,6 +154,23 @@ public class PipelinesSummaryServiceTest {
         any(), // how can we test what lambda Function are given?
         any());
 
+    var pipelineHeaderMap = (Map<String, Object>) diffedSummaryList.get(0).get("pipelineHeader");
+    var actualCanShowFootnote = (boolean) pipelineHeaderMap.get("canShowFootnote");
+    assertThat(actualCanShowFootnote).isFalse();
+
   }
+
+  @Test
+  public void getDiffedPipelineSummaryList_currentPipelineHasFootnote() {
+    when(pipelineHeaderView.getFootnote()).thenReturn("Some footnote information");
+    var appPipelineSummary = PipelineDiffableSummary.from(pipelineHeaderView, List.of(identStart, identMid, identEnd),
+        new PipelineDrawingSummaryView(new PadTechnicalDrawing(), List.of()));
+    var diffedSummaryList = pipelinesSummaryService.getDiffedPipelineSummaryList(List.of(appPipelineSummary), List.of());
+
+    var pipelineHeaderMap = (Map<String, Object>) diffedSummaryList.get(0).get("pipelineHeader");
+    var actualCanShowFootnote = (boolean) pipelineHeaderMap.get("canShowFootnote");
+    assertThat(actualCanShowFootnote).isTrue();
+  }
+
 
 }

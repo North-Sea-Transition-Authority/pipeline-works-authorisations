@@ -141,6 +141,20 @@ steps:
       status: success
       branch: develop
 
+  - name: deploy-dev-st
+    image: plugins/downstream
+    settings:
+      server: https://drone.fivium.co.uk
+      token:
+        from_secret: drone_token
+      fork: true
+      repositories:
+        - fiviumuk/oga-dev-app@master
+    when:
+      branch:
+        - develop
+      status:
+        - success
 
   - name: slack-all
     image: plugins/slack:linux-amd64

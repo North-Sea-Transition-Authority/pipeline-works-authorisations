@@ -7,8 +7,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BeanPropertyBindingResult;
@@ -34,7 +32,6 @@ import uk.co.ogauthority.pwa.validators.pipelinetechinfo.PipelineOtherProperties
 /* Service providing simplified API for Pipelines Other Properties app form */
 @Service
 public class PadPipelineOtherPropertiesService implements ApplicationFormSectionService {
-  private static final Logger LOGGER = LoggerFactory.getLogger(PadPipelineOtherPropertiesService.class);
 
   private final PadPipelineOtherPropertiesRepository padPipelineOtherPropertiesRepository;
   private final PipelineOtherPropertiesValidator pipelineOtherPropertiesValidator;
@@ -171,16 +168,17 @@ public class PadPipelineOtherPropertiesService implements ApplicationFormSection
   public void cleanupData(PwaApplicationDetail detail) {
 
     // null out min/max values of any properties that aren't present/available
-    var updatedPropertiesList = getPipelineOtherPropertyEntities(detail).stream()
+    var otherPropertiesToClear = getPipelineOtherPropertyEntities(detail).stream()
         .filter(otherProperty ->
             !Objects.equals(otherProperty.getAvailabilityOption(), PropertyAvailabilityOption.AVAILABLE))
-        .peek(otherProperty -> {
-          otherProperty.setMinValue(null);
-          otherProperty.setMaxValue(null);
-        })
         .collect(Collectors.toList());
 
-    padPipelineOtherPropertiesRepository.saveAll(updatedPropertiesList);
+    otherPropertiesToClear.forEach(otherProperty -> {
+      otherProperty.setMinValue(null);
+      otherProperty.setMaxValue(null);
+    });
+
+    padPipelineOtherPropertiesRepository.saveAll(otherPropertiesToClear);
 
   }
 

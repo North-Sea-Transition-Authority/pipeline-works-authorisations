@@ -1,11 +1,15 @@
 package uk.co.ogauthority.pwa.service.appprocessing.casehistory;
 
+import static java.util.stream.Collectors.toList;
+
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
@@ -29,9 +33,8 @@ public class CaseHistoryService {
 
   public List<CaseHistoryItemView> getCaseHistory(PwaApplication pwaApplication) {
 
-    var caseHistoryItemViews = itemServices.stream()
-        .flatMap(itemService -> itemService.getCaseHistoryItemViews(pwaApplication).stream())
-        .collect(Collectors.toList());
+    //get list with each item indexed according to its grouping order
+    var caseHistoryItemViews = getIndexedCaseHitoryItemViews(pwaApplication);
 
     // get all person ids associated with history items
     var personIds = caseHistoryItemViews.stream()
@@ -57,6 +60,19 @@ public class CaseHistoryService {
 
     return caseHistoryItemViews;
 
+  }
+
+  private List<CaseHistoryItemView> getIndexedCaseHitoryItemViews(PwaApplication pwaApplication) {
+    return itemServices.stream().map(caseHistoryItemService -> {
+      var views = caseHistoryItemService.getCaseHistoryItemViews(pwaApplication).stream()
+          .sorted(Comparator.comparing(CaseHistoryItemView::getDateTime).reversed())
+          .collect(toList());
+      IntStream
+          .range(0, views.size())
+          .forEach(integer -> views.get(integer).setDisplayIndex(integer + 1));
+      return views;
+    }).flatMap(Collection::stream)
+        .collect(toList());
   }
 
   private String getPersonName(Map<PersonId, Person> personIdToPersonMap, PersonId personId) {

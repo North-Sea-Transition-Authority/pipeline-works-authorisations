@@ -2,11 +2,8 @@ package uk.co.ogauthority.pwa.validators;
 
 import static uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes.REQUIRED;
 
-import java.time.DateTimeException;
-import java.time.LocalDate;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.NotImplementedException;
-import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -111,10 +108,10 @@ public class EnvironmentalDecommissioningValidator implements SmartValidator {
 
   private void validateBeisEmtPermits(Errors errors, EnvironmentalDecommissioningForm form, ValidationType validationType) {
 
-    if (BooleanUtils.isTrue(form.getEmtHasSubmittedPermits())) {
-      if (StringUtils.isBlank(form.getPermitsSubmitted()) && validationType == ValidationType.FULL) {
-        errors.rejectValue("permitsSubmitted", "permitsSubmitted.required", "Enter a list of the submitted permits");
-      }
+    if (BooleanUtils.isTrue(form.getEmtHasSubmittedPermits())
+        && StringUtils.isBlank(form.getPermitsSubmitted())
+        && validationType == ValidationType.FULL) {
+      errors.rejectValue("permitsSubmitted", "permitsSubmitted.required", "Enter a list of the submitted permits");
     }
 
     if (BooleanUtils.isTrue(form.getEmtHasOutstandingPermits())) {

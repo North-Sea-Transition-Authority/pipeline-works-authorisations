@@ -11,6 +11,7 @@ import uk.co.ogauthority.pwa.service.appprocessing.applicationupdate.Application
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.workflow.application.PwaApplicationSubmitResult;
 import uk.co.ogauthority.pwa.service.enums.workflow.application.PwaApplicationWorkflowTask;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.submission.PadPipelineNumberingService;
 
 /**
  * Service to to customise submission behaviour when an update request is responded to.
@@ -20,13 +21,16 @@ class PwaApplicationUpdateRequestedSubmissionService implements ApplicationSubmi
 
   private final ApplicationUpdateRequestService applicationUpdateRequestService;
   private final ApplicationInvolvementService applicationInvolvementService;
+  private final PadPipelineNumberingService padPipelineNumberingService;
 
   @Autowired
   public PwaApplicationUpdateRequestedSubmissionService(ApplicationUpdateRequestService applicationUpdateRequestService,
-                                                        ApplicationInvolvementService applicationInvolvementService) {
+                                                        ApplicationInvolvementService applicationInvolvementService,
+                                                        PadPipelineNumberingService padPipelineNumberingService) {
 
     this.applicationUpdateRequestService = applicationUpdateRequestService;
     this.applicationInvolvementService = applicationInvolvementService;
+    this.padPipelineNumberingService = padPipelineNumberingService;
   }
 
   @Override
@@ -55,6 +59,8 @@ class PwaApplicationUpdateRequestedSubmissionService implements ApplicationSubmi
   @Override
   public void doBeforeSubmit(PwaApplicationDetail pwaApplicationDetail, Person submittedByPerson,
                              @Nullable String submissionDescription) {
+    padPipelineNumberingService.assignPipelineReferences(pwaApplicationDetail);
+
     applicationUpdateRequestService.respondToApplicationOpenUpdateRequest(pwaApplicationDetail, submittedByPerson,
         submissionDescription);
   }

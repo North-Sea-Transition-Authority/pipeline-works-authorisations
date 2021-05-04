@@ -27,6 +27,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
 import uk.co.ogauthority.pwa.repository.pipelines.PipelineDetailRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.service.pwaconsents.consentwriters.pipelines.ConsentWriterDto;
 import uk.co.ogauthority.pwa.service.pwaconsents.consentwriters.pipelines.PadPipelineDto;
 import uk.co.ogauthority.pwa.service.pwaconsents.consentwriters.pipelines.PipelineWriterTestUtils;
 import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailIdentService;
@@ -123,9 +124,11 @@ public class PipelineDetailServiceTest {
 
     var consent = new PwaConsent();
 
+    var consentWriterDto = new ConsentWriterDto();
+
     when(pipelineDetailRepository.findAllByPipelineInAndEndTimestampIsNull(any())).thenReturn(List.of(currentDetail));
 
-    pipelineDetailService.createNewPipelineDetails(pipelineDtoMap, consent);
+    pipelineDetailService.createNewPipelineDetails(pipelineDtoMap, consent, consentWriterDto);
 
     verify(pipelineDetailRepository, times(2)).saveAll(pipelineDetailsArgCaptor.capture());
 
@@ -156,7 +159,9 @@ public class PipelineDetailServiceTest {
               .findFirst()
               .orElseThrow();
 
-          verify(pipelineMappingService, times(1)).mapPadPipelineToPipelineDetail(newDetail, padPipeline);
+          verify(pipelineMappingService, times(1)).mapPipelineEntities(newDetail, padPipeline);
+
+          assertThat(consentWriterDto.getPipelineToNewDetailMap().get(padPipeline.getPipeline())).isEqualTo(newDetail);
 
         });
 

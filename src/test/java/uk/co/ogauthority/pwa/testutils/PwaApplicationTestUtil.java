@@ -14,7 +14,7 @@ public class PwaApplicationTestUtil {
   public static PwaApplicationDetail createApplicationDetail(MasterPwa masterPwa,
                                                              PwaApplicationType applicationType,
                                                              PwaApplicationStatus pwaApplicationStatus,
-                                                              int appId,
+                                                             int appId,
                                                              int appDetailId,
                                                              int versionNumber) {
     var masterApp = new PwaApplication();
@@ -22,6 +22,7 @@ public class PwaApplicationTestUtil {
     masterApp.setApplicationType(applicationType);
     masterApp.setId(appId);
     masterApp.setAppReference("APP_REFERENCE/" + appId);
+    masterApp.setApplicationCreatedTimestamp(Instant.now());
 
     var detail = new PwaApplicationDetail();
     detail.setPwaApplication(masterApp);

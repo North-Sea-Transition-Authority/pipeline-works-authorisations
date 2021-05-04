@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.service.workflow.assignment;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,7 @@ import uk.co.ogauthority.pwa.repository.workflow.assignment.AssignmentRepository
 import uk.co.ogauthority.pwa.service.enums.workflow.UserWorkflowTask;
 import uk.co.ogauthority.pwa.service.enums.workflow.WorkflowSubject;
 import uk.co.ogauthority.pwa.service.enums.workflow.WorkflowType;
+import uk.co.ogauthority.pwa.service.enums.workflow.assignment.WorkflowAssignment;
 
 @Service
 public class AssignmentService {
@@ -79,6 +81,11 @@ public class AssignmentService {
 
   public List<Assignment> getAssignments(WorkflowSubject workflowSubject) {
     return assignmentRepository.findByBusinessKeyAndWorkflowType(workflowSubject.getBusinessKey(), workflowSubject.getWorkflowType());
+  }
+
+  public Optional<Assignment> getAssignmentsForWorkflowAssignment(WorkflowSubject workflowSubject, WorkflowAssignment workflowAssignment) {
+    return assignmentRepository.findByBusinessKeyAndWorkflowAssignmentAndWorkflowType(workflowSubject.getBusinessKey(), workflowAssignment,
+        workflowSubject.getWorkflowType());
   }
 
 }

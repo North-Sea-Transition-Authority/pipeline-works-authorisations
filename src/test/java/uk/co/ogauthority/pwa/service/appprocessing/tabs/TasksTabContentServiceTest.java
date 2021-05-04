@@ -21,6 +21,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.controller.appprocessing.processingcharges.IndustryPaymentController;
 import uk.co.ogauthority.pwa.controller.masterpwas.contacts.PwaContactController;
+import uk.co.ogauthority.pwa.controller.publicnotice.PublicNoticeApplicantViewController;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.dto.appprocessing.ApplicationInvolvementDto;
 import uk.co.ogauthority.pwa.model.dto.appprocessing.ApplicationInvolvementDtoTestUtil;
@@ -33,6 +34,7 @@ import uk.co.ogauthority.pwa.service.appprocessing.applicationupdate.Application
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.service.appprocessing.options.ApproveOptionsService;
 import uk.co.ogauthority.pwa.service.appprocessing.publicnotice.PublicNoticeDocumentUpdateService;
+import uk.co.ogauthority.pwa.service.appprocessing.publicnotice.PublicNoticeService;
 import uk.co.ogauthority.pwa.service.appprocessing.tasks.PwaAppProcessingTaskListService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
@@ -57,6 +59,9 @@ public class TasksTabContentServiceTest {
   @Mock
   private PublicNoticeDocumentUpdateService publicNoticeDocumentUpdateService;;
 
+  @Mock
+  private PublicNoticeService publicNoticeService;
+
   private TasksTabContentService taskTabContentService;
 
   private WebUserAccount wua;
@@ -73,7 +78,8 @@ public class TasksTabContentServiceTest {
         applicationUpdateRequestViewService,
         pwaApplicationRedirectService,
         approveOptionsService,
-        publicNoticeDocumentUpdateService);
+        publicNoticeDocumentUpdateService,
+        publicNoticeService);
 
     when(pwaApplicationRedirectService.getTaskListRoute(any())).thenReturn("#");
 
@@ -261,6 +267,34 @@ public class TasksTabContentServiceTest {
 
     assertThat(modelMap).doesNotContainKeys("manageAppContactsUrl", "payForAppUrl");
 
+  }
+
+
+
+  @Test
+  public void getTabContentModelMap_tasksTab_populated_whenViewPublicNoticePermissionAndApplicantCanView() {
+
+    var taskListGroupsList = List.of(new TaskListGroup("test", 10, List.of()));
+
+    var processingContext = createContextWithPermissions(
+        PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY,
+        PwaAppProcessingPermission.VIEW_PUBLIC_NOTICE
+    );
+
+    when(taskListService.getTaskListGroups(processingContext)).thenReturn(taskListGroupsList);
+    when(publicNoticeService.canApplicantViewLatestPublicNotice(processingContext.getPwaApplication())).thenReturn(true);
+
+    var modelMap = taskTabContentService.getTabContent(processingContext, AppProcessingTab.TASKS);
+
+    verify(taskListService, times(1)).getTaskListGroups(processingContext);
+
+    assertThat(modelMap)
+        .extractingFromEntries(Map.Entry::getKey, Map.Entry::getValue)
+        .contains(
+            tuple("viewPublicNoticeUrl", ReverseRouter.route(on(PublicNoticeApplicantViewController.class).renderViewPublicNotice(
+                processingContext.getMasterPwaApplicationId(), processingContext.getApplicationType(),  null, null
+            )))
+        );
   }
 
   @Test

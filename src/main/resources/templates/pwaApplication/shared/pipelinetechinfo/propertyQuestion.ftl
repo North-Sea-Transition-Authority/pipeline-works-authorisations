@@ -18,7 +18,7 @@
                         <#assign minMaxLabel="Provide the minimum and maximum measurement for ${property.getDisplayText()?lower_case}"/>
                     </#if>
                     <@minMaxInput minFormPath="form.propertyDataFormMap[${property}].minMaxInput.minValue" maxFormPath="form.propertyDataFormMap[${property}].minMaxInput.maxValue"
-                        nestedPath="form.propertyDataFormMap[${property}].propertyAvailabilityOption" labelText=minMaxLabel unitMeasurement=property.getUnitMeasurement()/>
+                        nestedPath="form.propertyDataFormMap[${property}].propertyAvailabilityOption" labelText=minMaxLabel unitMeasurement=property.getUnitMeasurement() formId=property/>
                 </#if>
             </@fdsRadio.radioItem>
         <#assign firstItem=false/>

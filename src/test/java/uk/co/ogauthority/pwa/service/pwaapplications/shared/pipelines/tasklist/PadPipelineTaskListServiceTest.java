@@ -39,6 +39,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipe
 import uk.co.ogauthority.pwa.model.form.fds.ErrorItem;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.ModifyPipelineForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PadPipelineOverview;
+import uk.co.ogauthority.pwa.model.location.CoordinatePairTestUtil;
 import uk.co.ogauthority.pwa.model.tasklist.TaskListEntry;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.pipelines.PadPipelineRepository;
 import uk.co.ogauthority.pwa.service.enums.location.LatitudeDirection;
@@ -82,10 +83,7 @@ public class PadPipelineTaskListServiceTest {
   private PadPipelineService padPipelineService;
 
   @Mock
-  private RegulatorPipelineReferenceTaskService regulatorPipelineReferenceTaskService;
-
-  @Captor
-  private ArgumentCaptor<PadPipeline> padPipelineArgumentCaptor;
+  private RegulatorPipelineNumberTaskService regulatorPipelineNumberTaskService;
 
   @Captor
   private ArgumentCaptor<List<PadPipeline>> padPipelineListArgCaptor;
@@ -117,7 +115,7 @@ public class PadPipelineTaskListServiceTest {
         padOptionConfirmedService,
         padPipelineRepository,
         pipelineIdentFormValidator,
-        regulatorPipelineReferenceTaskService,
+        regulatorPipelineNumberTaskService,
         padPipelineDataCopierService);
 
     padPipe1 = new PadPipeline();
@@ -126,6 +124,10 @@ public class PadPipelineTaskListServiceTest {
     padPipe1.setPipelineRef("TEMPORARY 1");
     padPipe1.setPipelineStatus(PipelineStatus.IN_SERVICE);
     padPipe1.setPipelineType(PipelineType.PRODUCTION_FLOWLINE);
+    padPipe1.setFromLocation("Location A");
+    padPipe1.setFromCoordinates(CoordinatePairTestUtil.getDefaultCoordinate());
+    padPipe1.setToLocation("Location B");
+    padPipe1.setToCoordinates(CoordinatePairTestUtil.getDefaultCoordinate());
 
     pipe1 = new Pipeline();
     pipe1.setId(1);
@@ -133,6 +135,8 @@ public class PadPipelineTaskListServiceTest {
 
     ident = new PadPipelineIdent();
     ident.setPadPipeline(padPipe1);
+
+    when(padPipelineService.isValidationRequiredByStatus(any())).thenReturn(true);
 
   }
 
@@ -143,7 +147,7 @@ public class PadPipelineTaskListServiceTest {
         padOptionConfirmedService,
         padPipelineRepository,
         mockIdentFormValidator,
-        regulatorPipelineReferenceTaskService,
+        regulatorPipelineNumberTaskService,
         padPipelineDataCopierService);
   }
 
@@ -389,18 +393,6 @@ public class PadPipelineTaskListServiceTest {
 
   }
 
-  @Test
-  public void doesPipelineHaveTasks_serviceInteractions() {
-    var statusEnums = EnumSet.allOf(PipelineStatus.class);
-    statusEnums.forEach(pipelineStatus -> {
-
-      padPipe1.setPipelineStatus(pipelineStatus);
-      padPipelineTaskListService.doesPipelineHaveTasks(PadPipelineSummaryDtoTestUtils.generateFrom(padPipe1));
-      verify(padPipelineService, times(1)).isValidationRequiredByStatus(pipelineStatus);
-
-    });
-  }
-
   private PadPipelineSummaryDto createPadPipelineSummaryDto(PadPipeline padPipeline) {
     return new PadPipelineSummaryDto(
         padPipeline.getId(),
@@ -429,7 +421,8 @@ public class PadPipelineTaskListServiceTest {
         padPipeline.getPipelineStatus(),
         padPipeline.getPipelineStatusReason(),
         padPipeline.getAlreadyExistsOnSeabed(),
-        padPipeline.getPipelineInUse()
+        padPipeline.getPipelineInUse(),
+        padPipeline.getFootnote()
     );
   }
 
@@ -484,6 +477,25 @@ public class PadPipelineTaskListServiceTest {
   }
 
   @Test
+  public void getSortedPipelineTaskListItems_whenPipelineIsNotRequiredToBeValidated() {
+
+    var context = new PwaApplicationContext(detail, null, Set.of(PwaApplicationPermission.EDIT));
+    padPipe1.setPipelineStatus(PipelineStatus.RETURNED_TO_SHORE);
+
+    mockPipelineWithOneIdent();
+    when(padPipelineService.getPipelines(detail)).thenReturn(List.of(padPipe1));
+
+    when(padPipelineService.isValidationRequiredByStatus(any())).thenReturn(false);
+
+    var taskListItems = padPipelineTaskListService.getSortedPipelineTaskListItems(context);
+
+    assertThat(taskListItems).hasSize(1);
+
+    assertThat(taskListItems.get(0).getTaskList()).isEmpty();
+
+  }
+
+  @Test
   public void getSortedPipelineTaskListItems_whenRegulatorPipelineServiceDoesNotProvideTask() {
     var context = new PwaApplicationContext(detail, null, Set.of(PwaApplicationPermission.EDIT));
 
@@ -508,7 +520,7 @@ public class PadPipelineTaskListServiceTest {
     when(padPipelineService.getPipelines(detail)).thenReturn(List.of(padPipe1));
 
     var taskListEntry = new TaskListEntry("example", "route", true, 1);
-    when(regulatorPipelineReferenceTaskService.getTaskListEntry(any(),any())).thenReturn(Optional.of(taskListEntry));
+    when(regulatorPipelineNumberTaskService.getTaskListEntry(any(),any())).thenReturn(Optional.of(taskListEntry));
 
     var taskListItems = padPipelineTaskListService.getSortedPipelineTaskListItems(context);
 

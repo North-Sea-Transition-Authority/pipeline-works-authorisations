@@ -4,6 +4,7 @@ import java.time.Instant;
 import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooType;
+import uk.co.ogauthority.pwa.model.entity.enums.TreatyAgreement;
 
 public class PwaConsentOrganisationRoleTestUtil {
 
@@ -21,6 +22,20 @@ public class PwaConsentOrganisationRoleTestUtil {
     orgRole.setOrganisationUnitId(organisationUnitId.asInt());
     orgRole.setRole(huooRole);
     orgRole.setType(HuooType.PORTAL_ORG);
+    orgRole.setStartTimestamp(Instant.now());
+    return orgRole;
+
+  }
+
+  public static PwaConsentOrganisationRole createTreatyRole(PwaConsent pwaConsent,
+                                                            TreatyAgreement treatyAgreement,
+                                                            HuooRole huooRole){
+
+    var orgRole = new PwaConsentOrganisationRole();
+    orgRole.setAddedByPwaConsent(pwaConsent);
+    orgRole.setAgreement(treatyAgreement);
+    orgRole.setRole(huooRole);
+    orgRole.setType(HuooType.TREATY_AGREEMENT);
     orgRole.setStartTimestamp(Instant.now());
     return orgRole;
 

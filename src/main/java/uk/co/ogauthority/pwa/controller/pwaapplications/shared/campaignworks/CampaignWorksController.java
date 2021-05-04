@@ -33,6 +33,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationConte
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.campaignworks.CampaignWorksService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.campaignworks.CampaignWorksUrlFactory;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
+import uk.co.ogauthority.pwa.service.validation.SummaryScreenValidationResult;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
 @Controller
@@ -87,7 +88,7 @@ public class CampaignWorksController {
                                     @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
                                     @PathVariable("applicationId") int applicationId,
                                     PwaApplicationContext applicationContext) {
-    return createSummaryModelAndView(applicationContext);
+    return createSummaryModelAndView(applicationContext, null);
   }
 
   @PostMapping
@@ -97,16 +98,17 @@ public class CampaignWorksController {
                                   PwaApplicationContext applicationContext) {
     // Seems to be the pattern to accept a post on summary pages.
     // when section is "complete" redirect to task list, else simply reload page.
-    var validationResult = campaignWorksService.getCampaignWorksValidationResult(
+    var summaryValidationResult = campaignWorksService.getCampaignWorksValidationResult(
         applicationContext.getApplicationDetail());
-    if (validationResult.isComplete()) {
+    if (summaryValidationResult.isSectionComplete()) {
       return pwaApplicationRedirectService.getTaskListRedirect(applicationContext.getPwaApplication());
     } else {
-      return createSummaryModelAndView(applicationContext);
+      return createSummaryModelAndView(applicationContext, summaryValidationResult);
     }
   }
 
-  private ModelAndView createSummaryModelAndView(PwaApplicationContext applicationContext) {
+  private ModelAndView createSummaryModelAndView(PwaApplicationContext applicationContext,
+                                                 SummaryScreenValidationResult summaryValidationResult) {
     var modelAndView = new ModelAndView("pwaApplication/shared/campaignworks/campaignWorks")
         .addObject("dependencySectionName", ApplicationTask.PROJECT_INFORMATION.getDisplayName())
         .addObject("dependencySectionUrl", ReverseRouter.route(on(ProjectInformationController.class)
@@ -117,8 +119,7 @@ public class CampaignWorksController {
                 null)))
         .addObject("backUrl", pwaApplicationRedirectService.getTaskListRoute(applicationContext.getPwaApplication()))
         .addObject("urlFactory", new CampaignWorksUrlFactory(applicationContext.getApplicationDetail()))
-        .addObject("sectionValidationResult",
-            campaignWorksService.getCampaignWorksValidationResult(applicationContext.getApplicationDetail()))
+        .addObject("summaryValidationResult", summaryValidationResult)
         .addObject("workScheduleViewList",
             campaignWorksService.getWorkScheduleViews(applicationContext.getApplicationDetail())
                 .stream()

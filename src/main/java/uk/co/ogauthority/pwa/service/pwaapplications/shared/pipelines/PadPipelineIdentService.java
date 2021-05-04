@@ -6,6 +6,8 @@ import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -95,36 +97,96 @@ public class PadPipelineIdentService {
         .reduce(BigDecimal.ZERO, BigDecimal::add);
   }
 
+
+  private PadPipelineIdentLocationValidationResult validateIdentsMatchHeaderLocation(PadPipeline padPipeline,
+                                                                                     List<PadPipelineIdent> idents) {
+
+    PadPipelineIdent firstIdent;
+    PadPipelineIdent lastIdent;
+
+    if (!idents.isEmpty()) {
+      firstIdent = idents.get(0);
+      lastIdent = idents.get(idents.size() - 1);
+    } else {
+      return PadPipelineIdentLocationValidationResult.createUnmatched(padPipeline);
+    }
+
+    //first check if ident from and to location match header
+    var firstIdentMatches = firstIdent.getFromLocation().equals(padPipeline.getFromLocation());
+    var lastIdentMatches = lastIdent.getToLocation().equals(padPipeline.getToLocation());
+
+    //now check if coordinates match header only if they exist
+    if (firstIdentMatches) {
+      firstIdentMatches = !firstIdent.getFromCoordinates().hasValue() || firstIdent.getFromCoordinates().equals(
+          padPipeline.getFromCoordinates());
+    }
+    if (lastIdentMatches) {
+      lastIdentMatches = !lastIdent.getToCoordinates().hasValue() || lastIdent.getToCoordinates().equals(
+          padPipeline.getToCoordinates());
+    }
+
+    return new PadPipelineIdentLocationValidationResult(padPipeline, firstIdent, lastIdent, firstIdentMatches, lastIdentMatches);
+  }
+
   public SummaryScreenValidationResult getSummaryScreenValidationResult(PadPipeline padPipeline) {
     List<PadPipelineIdent> idents = getAllIdents(padPipeline)
         .stream()
         .sorted(Comparator.comparing(PadPipelineIdent::getIdentNo))
         .collect(Collectors.toUnmodifiableList());
 
-    Map<String, String> invalidIdents = idents.stream()
-        .filter(padPipelineIdent -> !isIdentValid(padPipeline, padPipelineIdent))
-        .collect(StreamUtils.toLinkedHashMap(
-            padPipelineIdent -> String.valueOf(padPipelineIdent.getIdentNo()),
-            padPipelineIdent -> "Ident " + padPipelineIdent.getIdentNo()
-        ));
+    Map<String, String> invalidIdentIdAndDescriptorMap = new LinkedHashMap<>();
+    Map<String, List<String>> objectIdToItemErrorSuffixesMap = new HashMap<>();
+    idents.forEach(ident -> {
+      if (!isIdentValid(padPipeline, ident)) {
+        objectIdToItemErrorSuffixesMap.put(String.valueOf(ident.getPipelineIdentId()), List.of("must have all sections completed"));
+        invalidIdentIdAndDescriptorMap.put(String.valueOf(ident.getIdentNo()), "Ident " + ident.getIdentNo());
+      }
+    });
 
-    boolean allIdentsValid = invalidIdents.isEmpty() && !idents.isEmpty();
+
+    boolean allIdentsFormsValid = invalidIdentIdAndDescriptorMap.isEmpty() && !idents.isEmpty();
 
     String errorMessage = null;
-    if (!allIdentsValid) {
+    var lengthValidationValid = true;
+    if (!allIdentsFormsValid) {
+      lengthValidationValid = false;
       errorMessage = "Add at least one ident";
 
     } else if (!getTotalIdentLength(idents).equals(padPipeline.getLength())) {
-      allIdentsValid = false;
+      lengthValidationValid = false;
       errorMessage = "The total length of all idents must equal the total pipeline length of: " +
           (padPipeline.getLength().setScale(2, RoundingMode.HALF_UP).toPlainString() + "m");
     }
 
+
+    //ident forms are valid & ident lengths match header, now validate that ident locations match header
+    var identHeaderLocationValidationResult = validateIdentsMatchHeaderLocation(padPipeline, idents);
+    if (lengthValidationValid && !identHeaderLocationValidationResult.identsMatchHeaderLocation()) {
+
+      objectIdToItemErrorSuffixesMap.put(
+          identHeaderLocationValidationResult.getFirstIdentIdAsString(), new ArrayList<>());
+      objectIdToItemErrorSuffixesMap.put(
+          identHeaderLocationValidationResult.getLastIdentIdAsString(), new ArrayList<>());
+
+      if (!identHeaderLocationValidationResult.firstIdentFromMatchesHeader()) {
+        invalidIdentIdAndDescriptorMap.put(identHeaderLocationValidationResult.getFirstIdentIdAsString(), "");
+        objectIdToItemErrorSuffixesMap.get(identHeaderLocationValidationResult.getFirstIdentIdAsString()).add(
+                "The from structure and coordinates of the first ident must match the from structure " +
+                    "and coordinates in the pipeline header");
+      }
+
+      if (!identHeaderLocationValidationResult.lastIdentToMatchesHeader()) {
+        invalidIdentIdAndDescriptorMap.put(identHeaderLocationValidationResult.getLastIdentIdAsString(), "");
+        objectIdToItemErrorSuffixesMap.get(identHeaderLocationValidationResult.getLastIdentIdAsString()).add(
+                "The to structure and coordinates of the last ident must match the to structure and coordinates in the pipeline header");
+      }
+    }
+
     return new SummaryScreenValidationResult(
-        invalidIdents,
+        invalidIdentIdAndDescriptorMap,
         "ident",
-        "is incomplete",
-        allIdentsValid,
+        objectIdToItemErrorSuffixesMap,
+        lengthValidationValid && identHeaderLocationValidationResult.identsMatchHeaderLocation(),
         errorMessage
     );
   }

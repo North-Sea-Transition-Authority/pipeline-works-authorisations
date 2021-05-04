@@ -23,7 +23,7 @@ SELECT
 FROM ${datasource.user}.pwa_details pd
 JOIN ${datasource.user}.pwa_applications pa ON pd.pwa_id = pa.pwa_id
 JOIN ${datasource.user}.pwa_application_details pad ON pa.id = pad.pwa_application_id
-JOIN ${datasource.user}.pad_status_versions psv ON psv.pwa_application_id = pa.id AND pad.version_no = psv.latest_submission_v_no
+JOIN ${datasource.user}.pad_status_versions psv ON psv.pwa_application_id = pa.id AND pad.version_no = COALESCE(psv.latest_submission_v_no, psv.latest_draft_v_no)
 JOIN ${datasource.user}.pad_organisation_roles por ON por.application_detail_id = pad.id AND por.role = 'HOLDER' AND por.type = 'PORTAL_ORG'
 JOIN ${datasource.user}.portal_organisation_units pou ON pou.ou_id = por.ou_id
 WHERE pd.end_timestamp IS NULL
@@ -61,6 +61,7 @@ FROM ${datasource.user}.pwa_details pd
 LEFT JOIN ${datasource.user}.pwa_detail_fields pdf ON pdf.pwa_detail_id = pd.id
 LEFT JOIN ${datasource.user}.devuk_fields df ON df.field_id = pdf.devuk_field_id
 JOIN ${datasource.user}.vw_pwa_holder_org_units phou ON phou.pwa_id = pd.pwa_id
+-- this join is filtering out in-progress initial pwas because they have no linked consent
 JOIN ${datasource.user}.pwa_consents initial_consent ON initial_consent.pwa_id = pd.pwa_id AND initial_consent.variation_number = 0 AND initial_consent.consent_type = 'INITIAL_PWA'
 JOIN consents_fragment cf ON cf.pwa_id = pd.pwa_id
 JOIN ${datasource.user}.pwa_consents latest_consent ON latest_consent.pwa_id = cf.pwa_id AND latest_consent.variation_number = cf.max_variation_number

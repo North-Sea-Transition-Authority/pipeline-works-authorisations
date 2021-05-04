@@ -95,7 +95,7 @@ public class PwaConsentOrganisationRoleService {
   }
 
 
-  public Set<MasterPwaHolderDto> getCurrentHoldersOrgRolesForMasterPwa(MasterPwa masterPwa) {
+  public Set<MasterPwaHolderDto> getCurrentConsentedHoldersOrgRolesForMasterPwa(MasterPwa masterPwa) {
     var pwaConsents = pwaConsentRepository.findByMasterPwa(masterPwa);
     var activeHolders = pwaConsentOrganisationRoleRepository.findByAddedByPwaConsentInAndRoleInAndEndTimestampIsNull(
         pwaConsents,
@@ -298,7 +298,7 @@ public class PwaConsentOrganisationRoleService {
 
   }
 
-  public void createNewConsentOrgUnitRoles(PwaConsent pwaConsent,
+  public List<PwaConsentOrganisationRole> createNewConsentOrgUnitRoles(PwaConsent pwaConsent,
                                            Multimap<OrganisationUnitId, HuooRole> consentRolesToAdd) {
 
     var newOrgRoles = consentRolesToAdd.entries().stream()
@@ -307,9 +307,11 @@ public class PwaConsentOrganisationRoleService {
 
     pwaConsentOrganisationRoleRepository.saveAll(newOrgRoles);
 
+    return newOrgRoles;
+
   }
 
-  public void createNewConsentTreatyRoles(PwaConsent pwaConsent,
+  public List<PwaConsentOrganisationRole> createNewConsentTreatyRoles(PwaConsent pwaConsent,
                                           Multimap<TreatyAgreement, HuooRole> consentRolesToAdd) {
 
     var newOrgRoles = consentRolesToAdd.entries().stream()
@@ -317,6 +319,8 @@ public class PwaConsentOrganisationRoleService {
         .collect(Collectors.toList());
 
     pwaConsentOrganisationRoleRepository.saveAll(newOrgRoles);
+
+    return newOrgRoles;
 
   }
 

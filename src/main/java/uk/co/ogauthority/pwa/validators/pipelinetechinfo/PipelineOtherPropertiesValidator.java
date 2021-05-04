@@ -38,7 +38,7 @@ public class PipelineOtherPropertiesValidator implements SmartValidator {
     }
 
     if (pipelineOtherPropertiesForm.getPhasesSelection().isEmpty()) {
-      errors.rejectValue("phasesSelection", "phasesSelection" + FieldValidationErrorCodes.REQUIRED.getCode(),
+      errors.rejectValue("phasesSelection[OIL]", "phasesSelection" + FieldValidationErrorCodes.REQUIRED.getCode(),
           "Select at least one phase");
     }
     if (pipelineOtherPropertiesForm.getPhasesSelection().containsKey(PropertyPhase.OTHER)) {

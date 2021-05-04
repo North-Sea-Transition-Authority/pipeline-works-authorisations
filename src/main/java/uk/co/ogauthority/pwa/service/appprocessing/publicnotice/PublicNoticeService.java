@@ -6,6 +6,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -86,6 +87,11 @@ public class PublicNoticeService implements AppProcessingService {
 
   private static final AppFilePurpose FILE_PURPOSE = AppFilePurpose.PUBLIC_NOTICE;
   private static final Set<PublicNoticeStatus> ENDED_STATUSES = Set.of(PublicNoticeStatus.ENDED, PublicNoticeStatus.WITHDRAWN);
+  private static final Set<PublicNoticeStatus> APPLICANT_VIEW_STATUSES = Set.of(
+      PublicNoticeStatus.WAITING, PublicNoticeStatus.PUBLISHED, PublicNoticeStatus.ENDED);
+  private static final Set<PwaApplicationType> PUBLIC_NOTICE_APP_TYPES = EnumSet.of(
+      PwaApplicationType.INITIAL, PwaApplicationType.CAT_1_VARIATION
+  );
 
   @Autowired
   public PublicNoticeService(
@@ -120,12 +126,15 @@ public class PublicNoticeService implements AppProcessingService {
 
   @Override
   public boolean canShowInTaskList(PwaAppProcessingContext processingContext) {
-    return processingContext.getAppProcessingPermissions().contains(PwaAppProcessingPermission.DRAFT_PUBLIC_NOTICE)
-        || processingContext.getAppProcessingPermissions().contains(PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY)
-        || processingContext.getAppProcessingPermissions().contains(PwaAppProcessingPermission.APPROVE_PUBLIC_NOTICE)
-        || (processingContext.getAppProcessingPermissions().contains(PwaAppProcessingPermission.SHOW_ALL_TASKS_AS_PWA_MANAGER_ONLY)
-        && Set.of(PwaApplicationType.INITIAL, PwaApplicationType.CAT_1_VARIATION).contains(processingContext.getApplicationType()));
+    return (
+        processingContext.getAppProcessingPermissions().contains(PwaAppProcessingPermission.DRAFT_PUBLIC_NOTICE)
+            || processingContext.getAppProcessingPermissions().contains(PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY)
+            || processingContext.getAppProcessingPermissions().contains(PwaAppProcessingPermission.APPROVE_PUBLIC_NOTICE)
+            || (processingContext.getAppProcessingPermissions().contains(PwaAppProcessingPermission.SHOW_ALL_TASKS_AS_PWA_MANAGER_ONLY))
+      )
+        && PUBLIC_NOTICE_APP_TYPES.contains(processingContext.getApplicationType());
   }
+
 
 
   private TaskStatus getPublicNoticeTaskStatus(PwaAppProcessingContext processingContext, boolean atLeastOneSatisfactoryVersion) {
@@ -332,6 +341,11 @@ public class PublicNoticeService implements AppProcessingService {
     return ENDED_STATUSES.contains(publicNoticeStatus);
   }
 
+  public boolean canApplicantViewLatestPublicNotice(PwaApplication pwaApplication) {
+    var publicNotice = getLatestPublicNotice(pwaApplication);
+    return APPLICANT_VIEW_STATUSES.contains(publicNotice.getStatus());
+  }
+
   private PublicNoticeView createViewFromPublicNotice(PublicNotice publicNotice) {
 
     var publicNoticeRequest = getLatestPublicNoticeRequest(publicNotice);
@@ -339,6 +353,7 @@ public class PublicNoticeService implements AppProcessingService {
         publicNotice, PublicNoticeDocumentType.IN_PROGRESS_DOCUMENT);
     String withdrawingPersonName = null;
     String withdrawnTimestamp = null;
+    String withdrawalReason = null;
     String publicationStartTimestamp = null;
     String publicationEndTimestamp = null;
 
@@ -346,6 +361,7 @@ public class PublicNoticeService implements AppProcessingService {
     if (publicNotice.getStatus().equals(PublicNoticeStatus.WITHDRAWN)) {
       withdrawingPersonName = personService.getPersonById(publicNotice.getWithdrawingPersonId()).getFullName();
       withdrawnTimestamp = DateUtils.formatDate(publicNotice.getWithdrawalTimestamp());
+      withdrawalReason = publicNotice.getWithdrawalReason();
     }
 
     var publicNoticeDateOpt = publicNoticeDatesRepository.getByPublicNoticeAndEndedByPersonIdIsNull(publicNotice);
@@ -361,6 +377,7 @@ public class PublicNoticeService implements AppProcessingService {
         latestDocumentComments.map(PublicNoticeDocument::getComments).orElse(null),
         withdrawingPersonName,
         withdrawnTimestamp,
+        withdrawalReason,
         publicationStartTimestamp,
         publicationEndTimestamp
     );

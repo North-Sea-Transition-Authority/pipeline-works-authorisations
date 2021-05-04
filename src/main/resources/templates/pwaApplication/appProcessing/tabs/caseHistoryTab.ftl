@@ -16,7 +16,11 @@
               <#local stampClass = "fds-timeline__time-stamp" />
           </#if>
 
-          <@fdsTimeline.timelineTimeStamp timeStampHeading=item.headerText nodeNumber=" " timeStampClass=stampClass >
+            <#assign headingWithScreenReaderText>
+                ${item.headerText} <span class="govuk-visually-hidden">${item.displayIndex}</span>
+            </#assign>
+
+            <@fdsTimeline.timelineTimeStamp timeStampHeading=headingWithScreenReaderText nodeNumber=" " timeStampClass=stampClass >
 
               <@fdsTimeline.timelineEvent>
 

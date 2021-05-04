@@ -22,10 +22,15 @@
             <td> REFERENCE DRAWING </td> <td> ${drawingForTableAView.drawingReference} </td>
           </tr>
         </table>
+
         <@tableA tableAView/>
+        <#if tableAView.footnote?has_content>
+          <p> ${tableAView.footnote} </p>      
+        </#if>  
       </div>
     </#list>
 
+    
     <div class="tableADrawing">
       <h4 class="govuk-heading-s">
         Reference Drawing: ${drawingForTableAView.drawingReference}

@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.service.pwaconsents.consentwriters;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
@@ -33,6 +34,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadOrganisationRoleSer
 import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadOrganisationRoleTestUtil;
 import uk.co.ogauthority.pwa.service.pwaconsents.PwaConsentOrganisationRoleService;
 import uk.co.ogauthority.pwa.service.pwaconsents.PwaConsentService;
+import uk.co.ogauthority.pwa.service.pwaconsents.consentwriters.pipelines.ConsentWriterDto;
 import uk.co.ogauthority.pwa.testutils.PortalOrganisationTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
@@ -60,6 +62,10 @@ public class HuooWriterTest {
 
   private PwaConsentOrganisationRole consentOrg1Holder, consentOrg1Owner, consentOrg2User, consentOrg2Operator;
   private PadOrganisationRole padOrg1Holder, padOrg3Owner, padOrg3Operator, padTreatyUser;
+
+  private List<PwaConsentOrganisationRole> consentedRoles;
+
+  private ConsentWriterDto consentWriterDto;
 
   @Before
   public void setUp() throws Exception {
@@ -98,8 +104,9 @@ public class HuooWriterTest {
     consentOrg2Operator = PwaConsentOrganisationRoleTestUtil.createOrganisationRole(initialConsent, new OrganisationUnitId(org2.getOuId()), HuooRole.OPERATOR);
     consentOrg2User = PwaConsentOrganisationRoleTestUtil.createOrganisationRole(variationConsent, new OrganisationUnitId(org2.getOuId()), HuooRole.USER);
 
-    when(consentOrganisationRoleService.getActiveOrgRolesAddedByConsents(consents))
-        .thenReturn(List.of(consentOrg1Holder, consentOrg1Owner, consentOrg2Operator, consentOrg2User));
+    consentedRoles = List.of(consentOrg1Holder, consentOrg1Owner, consentOrg2Operator, consentOrg2User);
+
+    when(consentOrganisationRoleService.getActiveOrgRolesAddedByConsents(consents)).thenReturn(consentedRoles);
 
     padOrg1Holder = PadOrganisationRoleTestUtil.createOrgRole(HuooRole.HOLDER, org1);
 
@@ -110,6 +117,8 @@ public class HuooWriterTest {
 
     when(padOrganisationRoleService.getOrgRolesForDetail(detail)).thenReturn(List.of(padOrg1Holder, padOrg3Operator, padOrg3Owner, padTreatyUser));
 
+    consentWriterDto = new ConsentWriterDto();
+
   }
 
   @Test
@@ -117,7 +126,13 @@ public class HuooWriterTest {
 
     pwaConsent.setVariationNumber(0);
 
-    huooWriter.write(detail, pwaConsent);
+    when(consentOrganisationRoleService.createNewConsentOrgUnitRoles(any(), any())).thenReturn(List.of(consentOrg1Holder));
+
+    var treatyConsentRole = PwaConsentOrganisationRoleTestUtil
+        .createTreatyRole(pwaConsent, TreatyAgreement.ANY_TREATY_COUNTRY, HuooRole.USER);
+    when(consentOrganisationRoleService.createNewConsentTreatyRoles(any(), any())).thenReturn(List.of(treatyConsentRole));
+
+    huooWriter.write(detail, pwaConsent, consentWriterDto);
 
     // no interaction with consented data
     verifyNoInteractions(pwaConsentService);
@@ -134,7 +149,11 @@ public class HuooWriterTest {
     // all app treaty roles added
     Multimap<TreatyAgreement, HuooRole> expectedTreatyRolesCreated = HashMultimap.create();
     expectedTreatyRolesCreated.put(TreatyAgreement.ANY_TREATY_COUNTRY, HuooRole.USER);
+
     verify(consentOrganisationRoleService, times(1)).createNewConsentTreatyRoles(pwaConsent, expectedTreatyRolesCreated);
+
+    assertThat(consentWriterDto.getActiveConsentRoles()).containsOnly(consentOrg1Holder, treatyConsentRole);
+    assertThat(consentWriterDto.getConsentRolesEnded()).isEmpty();
 
   }
 
@@ -152,7 +171,7 @@ public class HuooWriterTest {
     when(padOrganisationRoleService.getOrgRolesForDetail(detail))
         .thenReturn(List.of(padOrg1Holder, padOrg1Owner, padOrg2Operator, padOrg2User));
 
-    huooWriter.write(detail, pwaConsent);
+    huooWriter.write(detail, pwaConsent, consentWriterDto);
 
     verify(consentOrganisationRoleService, times(1)).getActiveOrgRolesAddedByConsents(consents);
 
@@ -168,6 +187,9 @@ public class HuooWriterTest {
     Multimap<TreatyAgreement, HuooRole> expectedTreatyRolesCreated = HashMultimap.create();
     verify(consentOrganisationRoleService, times(1)).createNewConsentTreatyRoles(pwaConsent, expectedTreatyRolesCreated);
 
+    assertThat(consentWriterDto.getActiveConsentRoles()).containsAll(consentedRoles);
+    assertThat(consentWriterDto.getConsentRolesEnded()).isEmpty();
+
   }
 
   @Test
@@ -175,7 +197,7 @@ public class HuooWriterTest {
 
     pwaConsent.setVariationNumber(1);
 
-    huooWriter.write(detail, pwaConsent);
+    huooWriter.write(detail, pwaConsent, consentWriterDto);
 
     verify(consentOrganisationRoleService, times(1)).getActiveOrgRolesAddedByConsents(consents);
 
@@ -192,6 +214,9 @@ public class HuooWriterTest {
     Multimap<TreatyAgreement, HuooRole> expectedTreatyRolesCreated = HashMultimap.create();
     expectedTreatyRolesCreated.put(TreatyAgreement.ANY_TREATY_COUNTRY, HuooRole.USER);
     verify(consentOrganisationRoleService, times(1)).createNewConsentTreatyRoles(pwaConsent, expectedTreatyRolesCreated);
+
+    assertThat(consentWriterDto.getActiveConsentRoles()).containsOnly(consentOrg1Holder);
+    assertThat(consentWriterDto.getConsentRolesEnded()).containsOnlyElementsOf(expectedConsentRolesEnded);
 
   }
 

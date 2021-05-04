@@ -23,6 +23,7 @@ import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineMaterial;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineStatus;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
+import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineEntity;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.location.CoordinatePair;
 import uk.co.ogauthority.pwa.model.location.CoordinatePairEntity;
@@ -34,7 +35,7 @@ import uk.co.ogauthority.pwa.util.CoordinateUtils;
 
 @Entity
 @Table(name = "pad_pipelines")
-public class PadPipeline implements ParentEntity, ChildEntity<Integer, PwaApplicationDetail>, CoordinatePairEntity {
+public class PadPipeline implements PipelineEntity, ParentEntity, ChildEntity<Integer, PwaApplicationDetail>, CoordinatePairEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -152,6 +153,8 @@ public class PadPipeline implements ParentEntity, ChildEntity<Integer, PwaApplic
 
   private Boolean alreadyExistsOnSeabed;
   private Boolean pipelineInUse;
+  private String footnote;
+
 
 
   public PadPipeline() {
@@ -188,10 +191,12 @@ public class PadPipeline implements ParentEntity, ChildEntity<Integer, PwaApplic
   }
 
   // generated methods below
+  @Override
   public Integer getId() {
     return id;
   }
 
+  @Override
   public void setId(Integer id) {
     this.id = id;
   }
@@ -205,79 +210,97 @@ public class PadPipeline implements ParentEntity, ChildEntity<Integer, PwaApplic
     this.pwaApplicationDetail = pwaApplicationDetail;
   }
 
+  @Override
   public Pipeline getPipeline() {
     return pipeline;
   }
 
+  @Override
   public PipelineId getPipelineId() {
     return pipeline.getPipelineId();
   }
 
+  @Override
   public void setPipeline(Pipeline pipeline) {
     this.pipeline = pipeline;
   }
 
-
+  @Override
   public PipelineType getPipelineType() {
     return pipelineType;
   }
 
+  @Override
   public void setPipelineType(PipelineType pipelineType) {
     this.pipelineType = pipelineType;
   }
 
+  @Override
   public String getFromLocation() {
     return fromLocation;
   }
 
+  @Override
   public void setFromLocation(String fromLocation) {
     this.fromLocation = fromLocation;
   }
 
+  @Override
   public String getToLocation() {
     return toLocation;
   }
 
+  @Override
   public void setToLocation(String toLocation) {
     this.toLocation = toLocation;
   }
 
+  @Override
   public String getComponentPartsDescription() {
     return componentPartsDescription;
   }
 
+  @Override
   public void setComponentPartsDescription(String componentPartsDescription) {
     this.componentPartsDescription = componentPartsDescription;
   }
 
+  @Override
   public BigDecimal getLength() {
     return length;
   }
 
+  @Override
   public void setLength(BigDecimal length) {
     this.length = length;
   }
 
+  @Override
   public String getProductsToBeConveyed() {
     return productsToBeConveyed;
   }
 
+  @Override
   public void setProductsToBeConveyed(String productsToBeConveyed) {
     this.productsToBeConveyed = productsToBeConveyed;
   }
 
+  @Override
   public Boolean getTrenchedBuriedBackfilled() {
     return trenchedBuriedBackfilled;
   }
 
+  @Override
   public void setTrenchedBuriedBackfilled(Boolean trenchedBuriedBackfilled) {
     this.trenchedBuriedBackfilled = trenchedBuriedBackfilled;
   }
 
+  @Override
   public String getTrenchingMethodsDescription() {
     return trenchingMethodsDescription;
   }
 
+  @Override
   public void setTrenchingMethodsDescription(String trenchingMethodsDescription) {
     this.trenchingMethodsDescription = trenchingMethodsDescription;
   }
@@ -290,82 +313,111 @@ public class PadPipeline implements ParentEntity, ChildEntity<Integer, PwaApplic
     this.pipelineRef = pipelineRef;
   }
 
+  @Override
   public CoordinatePair getFromCoordinates() {
     return fromCoordinates;
   }
 
+  @Override
   public void setFromCoordinates(CoordinatePair fromCoordinates) {
     this.fromCoordinates = fromCoordinates;
     updateFromCoordinateValues();
   }
 
+  @Override
   public CoordinatePair getToCoordinates() {
     return toCoordinates;
   }
 
+  @Override
   public void setToCoordinates(CoordinatePair toCoordinates) {
     this.toCoordinates = toCoordinates;
     updateToCoordinateValues();
   }
 
+  @Override
   public PipelineFlexibility getPipelineFlexibility() {
     return pipelineFlexibility;
   }
 
+  @Override
   public void setPipelineFlexibility(PipelineFlexibility pipelineFlexibility) {
     this.pipelineFlexibility = pipelineFlexibility;
   }
 
+  @Override
   public PipelineMaterial getPipelineMaterial() {
     return pipelineMaterial;
   }
 
+  @Override
   public void setPipelineMaterial(PipelineMaterial pipelineMaterial) {
     this.pipelineMaterial = pipelineMaterial;
   }
 
+  @Override
   public String getOtherPipelineMaterialUsed() {
     return otherPipelineMaterialUsed;
   }
 
+  @Override
   public void setOtherPipelineMaterialUsed(String otherPipelineMaterialUsed) {
     this.otherPipelineMaterialUsed = otherPipelineMaterialUsed;
   }
 
+  @Override
   public Integer getPipelineDesignLife() {
     return pipelineDesignLife;
   }
 
+  @Override
   public void setPipelineDesignLife(Integer pipelineDesignLife) {
     this.pipelineDesignLife = pipelineDesignLife;
   }
 
+  @Override
   public PipelineCoreType getCoreType() {
     return pipelineType.getCoreType();
   }
 
+  @Override
   public BigDecimal getMaxExternalDiameter() {
     return maxExternalDiameter;
   }
 
+  @Override
   public void setMaxExternalDiameter(BigDecimal maxExternalDiameter) {
     this.maxExternalDiameter = maxExternalDiameter;
   }
 
+  @Override
   public Boolean getPipelineInBundle() {
     return pipelineInBundle;
   }
 
+  @Override
   public void setPipelineInBundle(Boolean pipelineInBundle) {
     this.pipelineInBundle = pipelineInBundle;
   }
 
+  @Override
   public String getBundleName() {
     return bundleName;
   }
 
+  @Override
   public void setBundleName(String bundleName) {
     this.bundleName = bundleName;
+  }
+
+  @Override
+  public String getPipelineNumber() {
+    return getPipelineRef();
+  }
+
+  @Override
+  public void setPipelineNumber(String pipelineNumber) {
+    setPipelineRef(pipelineNumber);
   }
 
   public String getTemporaryRef() {
@@ -480,6 +532,16 @@ public class PadPipeline implements ParentEntity, ChildEntity<Integer, PwaApplic
     return this.toLongitudeDirection;
   }
 
+  @Override
+  public String getFootnote() {
+    return footnote;
+  }
+
+  @Override
+  public void setFootnote(String footnote) {
+    this.footnote = footnote;
+  }
+
   private void updateFromCoordinateValues() {
     this.fromLatitudeDegrees = this.fromCoordinates.getLatitude().getDegrees();
     this.fromLatitudeMinutes = this.fromCoordinates.getLatitude().getMinutes();
@@ -583,7 +645,8 @@ public class PadPipeline implements ParentEntity, ChildEntity<Integer, PwaApplic
         && Objects.equals(pipelineStatus, that.pipelineStatus)
         && Objects.equals(pipelineStatusReason, that.pipelineStatusReason)
         && Objects.equals(alreadyExistsOnSeabed, that.alreadyExistsOnSeabed)
-        && Objects.equals(pipelineInUse, that.pipelineInUse);
+        && Objects.equals(pipelineInUse, that.pipelineInUse)
+        && Objects.equals(footnote, that.footnote);
   }
 
   @Override
@@ -595,6 +658,7 @@ public class PadPipeline implements ParentEntity, ChildEntity<Integer, PwaApplic
         toLatitudeDirection, toLongitudeDegrees, toLongitudeMinutes, toLongitudeSeconds, toLongitudeDirection,
         componentPartsDescription, length, productsToBeConveyed, trenchedBuriedBackfilled, trenchingMethodsDescription,
         pipelineRef, fromCoordinates, toCoordinates, pipelineFlexibility, pipelineMaterial, otherPipelineMaterialUsed,
-        pipelineDesignLife, pipelineInBundle, bundleName, pipelineStatus, pipelineStatusReason, alreadyExistsOnSeabed, pipelineInUse);
+        pipelineDesignLife, pipelineInBundle, bundleName, pipelineStatus, pipelineStatusReason,
+        alreadyExistsOnSeabed, pipelineInUse, footnote);
   }
 }

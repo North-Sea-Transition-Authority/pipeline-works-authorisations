@@ -2,10 +2,10 @@ package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.tasklist;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
-import com.google.common.annotations.VisibleForTesting;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,9 +23,10 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelines.ModifyP
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelines.PipelineIdentsController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelines.PipelinesController;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PadPipelineId;
-import uk.co.ogauthority.pwa.model.dto.pipelines.PadPipelineSummaryDto;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineMaterial;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipelineIdent;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.PipelineIdentForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PadPipelineTaskListItem;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview;
@@ -38,6 +39,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationConte
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskInfo;
 import uk.co.ogauthority.pwa.service.pwaapplications.options.PadOptionConfirmedService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineIdentLocationValidationResult;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineIdentService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineIdentFormValidator;
@@ -53,7 +55,7 @@ public class PadPipelineTaskListService implements ApplicationFormSectionService
   private final PadOptionConfirmedService padOptionConfirmedService;
   private final PadPipelineRepository padPipelineRepository;
   private final PipelineIdentFormValidator pipelineIdentFormValidator;
-  private final RegulatorPipelineReferenceTaskService regulatorPipelineReferenceTaskService;
+  private final RegulatorPipelineNumberTaskService regulatorPipelineNumberTaskService;
   private final PadPipelineDataCopierService padPipelineDataCopierService;
 
   @Autowired
@@ -62,14 +64,14 @@ public class PadPipelineTaskListService implements ApplicationFormSectionService
                                     PadOptionConfirmedService padOptionConfirmedService,
                                     PadPipelineRepository padPipelineRepository,
                                     PipelineIdentFormValidator pipelineIdentFormValidator,
-                                    RegulatorPipelineReferenceTaskService regulatorPipelineReferenceTaskService,
+                                    RegulatorPipelineNumberTaskService regulatorPipelineNumberTaskService,
                                     PadPipelineDataCopierService padPipelineDataCopierService) {
     this.padPipelineService = padPipelineService;
     this.padPipelineIdentService = padPipelineIdentService;
     this.padOptionConfirmedService = padOptionConfirmedService;
     this.padPipelineRepository = padPipelineRepository;
     this.pipelineIdentFormValidator = pipelineIdentFormValidator;
-    this.regulatorPipelineReferenceTaskService = regulatorPipelineReferenceTaskService;
+    this.regulatorPipelineNumberTaskService = regulatorPipelineNumberTaskService;
     this.padPipelineDataCopierService = padPipelineDataCopierService;
   }
 
@@ -118,12 +120,6 @@ public class PadPipelineTaskListService implements ApplicationFormSectionService
     padPipelineRepository.saveAll(updatedPipelinesList);
 
   }
-
-  @VisibleForTesting
-  boolean doesPipelineHaveTasks(PadPipelineSummaryDto padPipelineSummaryDto) {
-    return padPipelineService.isValidationRequiredByStatus(padPipelineSummaryDto.getPipelineStatus());
-  }
-
 
   public List<PadPipelineTaskListItem> getSortedPipelineTaskListItems(PwaApplicationContext applicationContext) {
 
@@ -186,9 +182,13 @@ public class PadPipelineTaskListService implements ApplicationFormSectionService
         padPipeline.getId()
     );
 
+    if (!padPipelineService.isValidationRequiredByStatus(padPipeline.getPipelineStatus())) {
+      return List.of();
+    }
+
     var entryList = new ArrayList<TaskListEntry>();
 
-    regulatorPipelineReferenceTaskService.getTaskListEntry(applicationContext, padPipelineTaskListHeader)
+    regulatorPipelineNumberTaskService.getTaskListEntry(applicationContext, padPipelineTaskListHeader)
         .ifPresent(entryList::add);
 
     entryList.add(
@@ -236,6 +236,8 @@ public class PadPipelineTaskListService implements ApplicationFormSectionService
     PwaApplicationType[] appTypes = ModifyPipelineController.class.getAnnotation(PwaApplicationTypeCheck.class).types();
     return Arrays.asList(appTypes).contains(pwaApplicationDetail.getPwaApplicationType());
   }
+
+
 
   public SummaryScreenValidationResult getValidationResult(PwaApplicationDetail detail) {
 

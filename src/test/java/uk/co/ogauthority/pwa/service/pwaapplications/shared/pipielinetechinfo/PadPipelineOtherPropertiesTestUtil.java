@@ -92,8 +92,6 @@ public class PadPipelineOtherPropertiesTestUtil {
         null, null));
     entities.add(createFullEntity(9, detail, PropertyAvailabilityOption.AVAILABLE, OtherPipelineProperty.MERCURY,
         BigDecimal.valueOf(3), BigDecimal.valueOf(5)));
-    entities.add(createFullEntity(10, detail, PropertyAvailabilityOption.AVAILABLE, OtherPipelineProperty.H2O,
-        BigDecimal.valueOf(12), BigDecimal.valueOf(15)));
 
     return entities;
   }

@@ -147,6 +147,7 @@ public class PublicNoticeServiceTest {
   private ArgumentCaptor<PublicNoticeRequest> publicNoticeRequestArgumentCaptor;
 
   private static Set<PublicNoticeStatus> ENDED_STATUSES;
+  private static Set<PublicNoticeStatus> APPLICANT_VIEW_STATUSES;
 
 
   @Before
@@ -168,12 +169,13 @@ public class PublicNoticeServiceTest {
     pwaApplication = pwaApplicationDetail.getPwaApplication();
     user = new AuthenticatedUserAccount(new WebUserAccount(1, PersonTestUtil.createDefaultPerson()), List.of());
     ENDED_STATUSES = Set.of(PublicNoticeStatus.ENDED, PublicNoticeStatus.WITHDRAWN);
+    APPLICANT_VIEW_STATUSES = Set.of(PublicNoticeStatus.WAITING, PublicNoticeStatus.PUBLISHED, PublicNoticeStatus.ENDED);
   }
 
   @Test
   public void canShowInTaskList_draftPublicNoticePermission_true() {
 
-    var processingContext = new PwaAppProcessingContext(null, null, Set.of(PwaAppProcessingPermission.DRAFT_PUBLIC_NOTICE), null, null);
+    var processingContext = new PwaAppProcessingContext(pwaApplicationDetail, null, Set.of(PwaAppProcessingPermission.DRAFT_PUBLIC_NOTICE), null, null);
 
     boolean canShow = publicNoticeService.canShowInTaskList(processingContext);
 
@@ -184,7 +186,7 @@ public class PublicNoticeServiceTest {
   @Test
   public void canShowInTaskList_caseManagementIndustryPermission_true() {
 
-    var processingContext = new PwaAppProcessingContext(null, null, Set.of(PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY), null, null);
+    var processingContext = new PwaAppProcessingContext(pwaApplicationDetail, null, Set.of(PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY), null, null);
 
     boolean canShow = publicNoticeService.canShowInTaskList(processingContext);
 
@@ -195,7 +197,7 @@ public class PublicNoticeServiceTest {
   @Test
   public void canShowInTaskList_approvePublicNoticePermission_true() {
 
-    var processingContext = new PwaAppProcessingContext(null, null, Set.of(PwaAppProcessingPermission.APPROVE_PUBLIC_NOTICE), null, null);
+    var processingContext = new PwaAppProcessingContext(pwaApplicationDetail, null, Set.of(PwaAppProcessingPermission.APPROVE_PUBLIC_NOTICE), null, null);
 
     boolean canShow = publicNoticeService.canShowInTaskList(processingContext);
 
@@ -227,9 +229,33 @@ public class PublicNoticeServiceTest {
   }
 
   @Test
+  public void canShowInTaskList_caseManagementIndustryPermission_invalidAppType_false() {
+
+    pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.OPTIONS_VARIATION);
+    var processingContext = new PwaAppProcessingContext(pwaApplicationDetail, null, Set.of(PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY), null, null);
+
+    boolean canShow = publicNoticeService.canShowInTaskList(processingContext);
+
+    assertThat(canShow).isFalse();
+
+  }
+
+  @Test
+  public void canShowInTaskList_caseOfficerPermission_invalidAppType_false() {
+
+    pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.OPTIONS_VARIATION);
+    var processingContext = new PwaAppProcessingContext(pwaApplicationDetail, null, Set.of(PwaAppProcessingPermission.CASE_OFFICER_REVIEW), null, null);
+
+    boolean canShow = publicNoticeService.canShowInTaskList(processingContext);
+
+    assertThat(canShow).isFalse();
+
+  }
+
+  @Test
   public void canShowInTaskList_noPermissions_false() {
 
-    var processingContext = new PwaAppProcessingContext(null, null, Set.of(), null, null);
+    var processingContext = new PwaAppProcessingContext(pwaApplicationDetail, null, Set.of(), null, null);
 
     boolean canShow = publicNoticeService.canShowInTaskList(processingContext);
 
@@ -580,6 +606,34 @@ public class PublicNoticeServiceTest {
     });
   }
 
+  @Test(expected = EntityLatestVersionNotFoundException.class)
+  public void canApplicantViewLatestPublicNotice_noPublicNoticeExists_exception() {
+    publicNoticeService.canApplicantViewLatestPublicNotice(pwaApplication);
+  }
+
+  @Test
+  public void canApplicantViewLatestPublicNotice_statusInvalid_cannotView() {
+
+    EnumSet.complementOf(EnumSet.copyOf(APPLICANT_VIEW_STATUSES)).forEach(status -> {
+      var publicNotice = new PublicNotice();
+      publicNotice.setStatus(status);
+      when(publicNoticeRepository.findFirstByPwaApplicationOrderByVersionDesc(pwaApplication)).thenReturn(Optional.of(publicNotice));
+      var canViewPublicNotice = publicNoticeService.canApplicantViewLatestPublicNotice(pwaApplication);
+      assertThat(canViewPublicNotice).isFalse();
+    });
+  }
+
+  @Test
+  public void canApplicantViewLatestPublicNotice_statusValid_canView() {
+
+    APPLICANT_VIEW_STATUSES.forEach(status -> {
+      var publicNotice = new PublicNotice();
+      publicNotice.setStatus(status);
+      when(publicNoticeRepository.findFirstByPwaApplicationOrderByVersionDesc(pwaApplication)).thenReturn(Optional.of(publicNotice));
+      var canViewPublicNotice = publicNoticeService.canApplicantViewLatestPublicNotice(pwaApplication);
+      assertThat(canViewPublicNotice).isTrue();
+    });
+  }
 
   @Test
   public void getAvailablePublicNoticeActions_draftPermissionAndNullStatus() {
@@ -726,9 +780,9 @@ public class PublicNoticeServiceTest {
 
     var expectedCurrentPublicNoticeView = PublicNoticeTestUtil.createCommentedPublicNoticeView(currentPublicNotice, currentPublicNoticeRequest);
     var expectedEndedPublicNotice1View = PublicNoticeTestUtil.createWithdrawnPublicNoticeView(
-        endedPublicNotice1, withdrawingPerson.getFullName(), endedPublicNotice1Request);
+        endedPublicNotice1, withdrawingPerson.getFullName(), endedPublicNotice1.getWithdrawalReason(), endedPublicNotice1Request);
     var expectedEndedPublicNotice2View = PublicNoticeTestUtil.createWithdrawnPublicNoticeView(
-        endedPublicNotice2, withdrawingPerson.getFullName(), endedPublicNotice2Request);
+        endedPublicNotice2, withdrawingPerson.getFullName(), endedPublicNotice2.getWithdrawalReason(), endedPublicNotice2Request);
 
 
     assertThat(allPublicNoticesView.getCurrentPublicNotice()).isEqualTo(expectedCurrentPublicNoticeView);
@@ -805,9 +859,9 @@ public class PublicNoticeServiceTest {
     var allPublicNoticesView = publicNoticeService.getAllPublicNoticeViews(context);
 
     var expectedEndedPublicNotice1View = PublicNoticeTestUtil.createWithdrawnPublicNoticeView(
-        endedPublicNotice1, withdrawingPerson.getFullName(), endedPublicNotice1Request);
+        endedPublicNotice1, withdrawingPerson.getFullName(), endedPublicNotice1.getWithdrawalReason(), endedPublicNotice1Request);
     var expectedEndedPublicNotice2View = PublicNoticeTestUtil.createWithdrawnPublicNoticeView(
-        endedPublicNotice2, withdrawingPerson.getFullName(), endedPublicNotice2Request);
+        endedPublicNotice2, withdrawingPerson.getFullName(), endedPublicNotice2.getWithdrawalReason(), endedPublicNotice2Request);
 
     assertThat(allPublicNoticesView.getCurrentPublicNotice()).isNull();
     assertThat(allPublicNoticesView.getHistoricalPublicNotices()).containsOnly(expectedEndedPublicNotice1View, expectedEndedPublicNotice2View);
