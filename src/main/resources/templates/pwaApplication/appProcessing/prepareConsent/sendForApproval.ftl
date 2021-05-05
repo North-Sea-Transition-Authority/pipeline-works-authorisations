@@ -38,7 +38,7 @@
                     <tbody class="govuk-table__body">
                         <#list parallelConsentViews as consentView>
                         <tr class="govuk-table__row">
-                            <th scope="row" class="govuk-table__header">${consentView.consentReference!""}</th>
+                            <td class="govuk-table__cell">${consentView.consentReference!""}</td>
                             <td class="govuk-table__cell">${consentView.applicationReference!""}</td>
                             <td class="govuk-table__cell">${consentView.formattedConsentDate!""}</td>
                         </tr>

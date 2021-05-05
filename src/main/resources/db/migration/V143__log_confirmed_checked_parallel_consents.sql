@@ -8,3 +8,6 @@ CREATE TABLE ${datasource.user}.parallel_consent_check_log (
 , check_confirmed_timestamp TIMESTAMP NOT NULL
 );
 
+CREATE INDEX ${datasource.user}.pccl_pad_consent_rev_id_fk_idx ON ${datasource.user}.parallel_consent_check_log(pad_consent_review_id);
+
+CREATE INDEX ${datasource.user}.pccl_pad_consent_id_fk_idx ON ${datasource.user}.parallel_consent_check_log(pwa_consent_id);
