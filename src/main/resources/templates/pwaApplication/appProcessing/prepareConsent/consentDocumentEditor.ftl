@@ -13,13 +13,17 @@
 
 <@defaultPagePane htmlTitle=pageHeading phaseBanner=false>
 
-    <#if docView?has_content>
-      <@defaultPagePaneSubNav>
-          <@fdsSubNavigation.subNavigation>
-              <@pwaClauseList.sidebarSections documentView=docView />
-          </@fdsSubNavigation.subNavigation>
-      </@defaultPagePaneSubNav>
-    </#if>
+    <@defaultPagePaneSubNav>
+          <#if docView?has_content>
+              <@fdsSubNavigation.subNavigation>
+                  <@pwaClauseList.sidebarSections documentView=docView />
+              </@fdsSubNavigation.subNavigation>
+          <#else>
+              <@fdsSubNavigation.subNavigation>
+                  <@fdsSubNavigation.subNavigationSection themeHeading="No document loaded"/>
+              </@fdsSubNavigation.subNavigation>
+          </#if>
+    </@defaultPagePaneSubNav>
 
     <@defaultPagePaneContent breadcrumbs=true>
 
