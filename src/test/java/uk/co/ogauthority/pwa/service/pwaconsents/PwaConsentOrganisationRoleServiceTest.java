@@ -37,7 +37,6 @@ import uk.co.ogauthority.pwa.model.entity.enums.HuooType;
 import uk.co.ogauthority.pwa.model.entity.enums.TreatyAgreement;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
-import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsentOrganisationRole;
@@ -250,13 +249,15 @@ public class PwaConsentOrganisationRoleServiceTest {
   }
 
   @Test
-  public void getOrganisationRoleSummary_findByPipelineDetail_serviceInteractions() {
-    var pipelineDetail = new PipelineDetail();
-    assertThat(pwaConsentOrganisationRoleService.getOrganisationRoleSummary(pipelineDetail)).isNotNull();
-    verify(pwaConsentPipelineOrganisationRoleLinkRepository, times(1)).findActiveOrganisationPipelineRolesByPipelineDetail(pipelineDetail);
+  public void getOrganisationRoleSummaryForConsentsAndPipeline_serviceInteractions(){
 
+    var consents = List.of(new PwaConsent());
+    var pipeline =  new Pipeline();
+    var orgRoleSummaryDto = pwaConsentOrganisationRoleService.getOrganisationRoleSummaryForConsentsAndPipeline(consents, pipeline);
+    assertThat(orgRoleSummaryDto).isNotNull();
+    verify(pwaConsentPipelineOrganisationRoleLinkRepository, times(1))
+        .findActiveOrganisationPipelineRolesByPwaConsent(consents, pipeline);
   }
-
 
   @Test
   public void getNumberOfHolders_variationPwa() {
