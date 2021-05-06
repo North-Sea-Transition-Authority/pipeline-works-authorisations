@@ -58,16 +58,15 @@ public class ConsentReviewService {
   }
 
   @Transactional
-  public void startConsentReview(PwaApplicationDetail pwaApplicationDetail,
-                                 String coverLetterText,
-                                 Person startingPerson) {
+  public ConsentReview startConsentReview(PwaApplicationDetail pwaApplicationDetail,
+                                          String coverLetterText,
+                                          Person startingPerson) {
     if (areThereAnyOpenReviews(pwaApplicationDetail)) {
       throw new RuntimeException(String.format(
           "Can't start a new consent review as there is already an open one for PWA detail with id [%s]", pwaApplicationDetail.getId()));
     }
     var consentReview = new ConsentReview(pwaApplicationDetail, coverLetterText, startingPerson.getId(), clock.instant());
-    consentReviewRepository.save(consentReview);
-
+    return consentReviewRepository.save(consentReview);
   }
 
   public Optional<ConsentReview> getOpenConsentReview(PwaApplicationDetail pwaApplicationDetail) {

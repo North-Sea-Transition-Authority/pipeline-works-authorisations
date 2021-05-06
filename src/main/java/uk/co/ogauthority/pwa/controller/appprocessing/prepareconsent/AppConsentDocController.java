@@ -7,7 +7,6 @@ import java.sql.Blob;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
-import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
@@ -311,27 +310,36 @@ public class AppConsentDocController {
                                       @PathVariable("applicationType")
                                       @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
                                       PwaAppProcessingContext processingContext,
-                                      @Valid @ModelAttribute("form") SendConsentForApprovalForm form,
+                                      @ModelAttribute("form") SendConsentForApprovalForm form,
                                       BindingResult bindingResult,
                                       AuthenticatedUserAccount authUser,
                                       RedirectAttributes redirectAttributes) {
     return whenSendForApprovalAvailable(
         processingContext,
         redirectAttributes,
-        (preSendForApprovalChecksView) -> controllerHelperService.checkErrorsAndRedirect(
-            bindingResult,
-            getSendForApprovalModelAndView(processingContext, preSendForApprovalChecksView),
-            () -> {
+        (preSendForApprovalChecksView) -> {
 
-              consentDocumentService
-                  .sendForApproval(processingContext.getApplicationDetail(), form.getCoverLetterText(), authUser);
+          consentDocumentService.validateSendConsentFormUsingPreApprovalChecks(
+              form,
+              bindingResult,
+              preSendForApprovalChecksView);
+          return controllerHelperService.checkErrorsAndRedirect(
+              bindingResult,
+              getSendForApprovalModelAndView(processingContext, preSendForApprovalChecksView),
+              () -> {
 
-              FlashUtils.info(redirectAttributes, processingContext.getPwaApplication().getAppReference() + " consent sent for approval");
+                consentDocumentService.sendForApproval(
+                    processingContext.getApplicationDetail(),
+                    form.getCoverLetterText(),
+                    authUser,
+                    preSendForApprovalChecksView.getParallelConsentViews());
 
-              return ReverseRouter.redirect(on(WorkAreaController.class).renderWorkArea(null, null, null));
+                FlashUtils.info(redirectAttributes,processingContext.getPwaApplication().getAppReference() + " consent sent for approval");
 
-            }));
+                return ReverseRouter.redirect(on(WorkAreaController.class).renderWorkArea(null, null, null));
 
+              });
+        });
   }
 
   public ModelAndView whenPrepareConsentAvailable(PwaAppProcessingContext processingContext,

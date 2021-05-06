@@ -1,11 +1,10 @@
 package uk.co.ogauthority.pwa.model.form.appprocessing.prepareconsent;
 
-import javax.validation.constraints.NotBlank;
-
 public class SendConsentForApprovalForm {
 
-  @NotBlank(message = "Enter some email cover letter text")
   private String coverLetterText;
+
+  private Boolean parallelConsentsReviewedIfApplicable;
 
   public String getCoverLetterText() {
     return coverLetterText;
@@ -15,4 +14,11 @@ public class SendConsentForApprovalForm {
     this.coverLetterText = coverLetterText;
   }
 
+  public Boolean getParallelConsentsReviewedIfApplicable() {
+    return parallelConsentsReviewedIfApplicable;
+  }
+
+  public void setParallelConsentsReviewedIfApplicable(Boolean parallelConsentsReviewedIfApplicable) {
+    this.parallelConsentsReviewedIfApplicable = parallelConsentsReviewedIfApplicable;
+  }
 }
