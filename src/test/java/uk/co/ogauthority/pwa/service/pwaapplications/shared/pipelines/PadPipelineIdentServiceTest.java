@@ -51,6 +51,7 @@ import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.pipelinedatautils.PipelineIdentViewCollectorService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.tasklist.PadPipelineTaskListServiceTestUtil;
+import uk.co.ogauthority.pwa.testutils.ControllerTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.util.CoordinateUtils;
 
@@ -622,6 +623,7 @@ public class PadPipelineIdentServiceTest {
     fromIdent.setLength(padPipeline.getLength());
 
     when(padPipelineIdentRepository.getAllByPadPipeline(padPipeline)).thenReturn(List.of(fromIdent));
+    ControllerTestUtils.mockSmartValidatorErrors(pipelineIdentFormValidator, List.of("length"));
 
     var validationResult = padPipelineIdentService.getSummaryScreenValidationResult(padPipeline);
     assertThat(validationResult.getInvalidObjectIds()).containsExactly(String.valueOf(fromIdent.getId()));
