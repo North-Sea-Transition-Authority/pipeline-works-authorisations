@@ -139,7 +139,7 @@ public class PadPipelineIdentService {
     idents.forEach(ident -> {
       if (!isIdentValid(padPipeline, ident)) {
         objectIdToItemErrorSuffixesMap.put(String.valueOf(ident.getPipelineIdentId()), List.of("must have all sections completed"));
-        invalidIdentIdAndDescriptorMap.put(String.valueOf(ident.getIdentNo()), "Ident " + ident.getIdentNo());
+        invalidIdentIdAndDescriptorMap.put(String.valueOf(ident.getPipelineIdentId()), "Ident " + ident.getIdentNo());
       }
     });
 
