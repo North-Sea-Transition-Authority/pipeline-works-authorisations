@@ -271,6 +271,17 @@ public class ValidatorUtils {
 
   }
 
+  public static void validateMaxStringLength(Errors errors,
+                                          String field,
+                                          Supplier<String> stringSupplier,
+                                          String messagePrefix,
+                                          int maxLength) {
+
+    validateMaxLength(errors, field, stringSupplier, messagePrefix + String.format(" must be %s characters or fewer", maxLength),
+        maxLength);
+
+  }
+
   private static void validateMaxLength(Errors errors,
                                         String fieldName,
                                         Supplier<String> stringSupplier,

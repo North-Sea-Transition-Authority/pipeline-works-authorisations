@@ -7,6 +7,7 @@ import java.math.BigDecimal;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -386,6 +387,16 @@ public class PermanentDepositsValidatorTest {
     form.setQuantityRocks("no num");
     Map<String, Set<String>> errorsMap = getErrorMap(form);
     assertThat(errorsMap).contains(entry("quantityOther", Set.of("quantityOther.invalid")));
+  }
+
+  @Test
+  public void validate_contingencyOtherAmount_maxCharLengthExceeded() {
+    var form = getPermanentDepositsFormWithCoordinates();
+    form.setMaterialType(MaterialType.OTHER);
+    form.setQuantityRocks("no num");
+    form.setContingencyOtherAmount(RandomStringUtils.randomAlphabetic(151));
+    Map<String, Set<String>> errorsMap = getErrorMap(form);
+    assertThat(errorsMap).contains(entry("contingencyOtherAmount", Set.of("contingencyOtherAmount.maxLengthExceeded")));
   }
 
   @Test

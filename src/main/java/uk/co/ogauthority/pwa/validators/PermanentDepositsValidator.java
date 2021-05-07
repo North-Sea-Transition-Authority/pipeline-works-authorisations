@@ -196,6 +196,8 @@ public class PermanentDepositsValidator implements SmartValidator {
         errors.rejectValue("quantityOther", "quantityOther.invalid",
             "Enter a valid quantity for the material type");
       }
+      ValidatorUtils.validateMaxStringLength(errors, "contingencyOtherAmount", form::getContingencyOtherAmount, "Contingency amount",
+          150);
     }
   }
 
