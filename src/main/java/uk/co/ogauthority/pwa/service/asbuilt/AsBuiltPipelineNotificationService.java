@@ -9,7 +9,7 @@ import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationGroupPipeli
 import uk.co.ogauthority.pwa.repository.asbuilt.AsBuiltNotificationGroupPipelineRepository;
 
 /**
- * Perform database interactions for specific pipeline as--built notifications
+ * Perform database interactions for specific pipeline as--built notifications.
  */
 @Component
 class AsBuiltPipelineNotificationService {

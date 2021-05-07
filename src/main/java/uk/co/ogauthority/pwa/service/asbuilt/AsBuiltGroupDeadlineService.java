@@ -11,7 +11,7 @@ import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationGroupDetail
 import uk.co.ogauthority.pwa.repository.asbuilt.AsBuiltNotificationGroupDetailRepository;
 
 /**
- * Perform database interactions for as--built notification group deadline changes
+ * Perform database interactions for as--built notification group deadline changes.
  */
 @Component
 class AsBuiltGroupDeadlineService {

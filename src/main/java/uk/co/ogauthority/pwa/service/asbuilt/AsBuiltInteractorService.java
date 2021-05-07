@@ -46,10 +46,10 @@ public class AsBuiltInteractorService {
   /**
    * Call this to create an as built notification.
    *
-   * @param pwaConsent                - which consent is the as-built notification being created against.
-   * @param reference                 - what should the as-built notification reference be?
-   * @param deadlineDate              - what is the original deadline date going to be for this as built notification?
-   * @param person                    - the person creating the as built notification. (System person when automatic or consent issuer person?).
+   * @param pwaConsent   - which consent is the as-built notification being created against.
+   * @param reference    - what should the as-built notification reference be?
+   * @param deadlineDate - what is the original deadline date going to be for this as built notification?
+   * @param person       - the person creating the as built notification. (System person when automatic or consent issuer person?).
    * @param pipelineNotificationSpecs A list of spec objects capturing which pipelines are included in the notification group.
    */
   @Transactional
