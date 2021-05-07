@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.config;
 
+import java.util.Arrays;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +14,7 @@ import uk.co.ogauthority.pwa.auth.FoxLoginCallbackFilter;
 import uk.co.ogauthority.pwa.auth.FoxSessionFilter;
 import uk.co.ogauthority.pwa.energyportal.service.SystemAreaAccessService;
 import uk.co.ogauthority.pwa.service.FoxUrlService;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 
 @Configuration
 @EnableWebSecurity
@@ -55,10 +57,22 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
         .antMatchers(
             "/start-application/**",
-            "/pwa-application/**/new",
             "/pwa-application/**/pick-pwa-for-application",
             "/pwa-application/create-initial-pwa/**")
           .hasAnyAuthority(systemAreaAccessService.getStartApplicationGrantedAuthorities())
+
+        //all application types
+        .mvcMatchers(
+            Arrays.stream(PwaApplicationType.values())
+                .map(pwaApplicationType -> String.format("/pwa-application/%s/new", pwaApplicationType.getUrlPathString()))
+                .toArray(String[]::new))
+        .hasAnyAuthority(systemAreaAccessService.getStartApplicationGrantedAuthorities())
+
+        .mvcMatchers(
+            Arrays.stream(PwaApplicationType.values())
+                .map(pwaApplicationType -> String.format("/pwa-application/%s/new", pwaApplicationType))
+                .toArray(String[]::new))
+        .hasAnyAuthority(systemAreaAccessService.getStartApplicationGrantedAuthorities())
 
         .antMatchers("/session-info", "/maps-test", "/notify/callback", "/test-controller/type-mismatch-test")
           .permitAll()
