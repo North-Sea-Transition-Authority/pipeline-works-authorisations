@@ -39,6 +39,7 @@ import uk.co.ogauthority.pwa.service.documents.instances.DocumentInstanceService
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.service.mailmerge.MailMergeService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
@@ -51,6 +52,9 @@ public class DocumentInstanceControllerTest extends PwaAppProcessingContextAbstr
 
   @MockBean
   private DocumentInstanceService documentInstanceService;
+
+  @MockBean
+  private MailMergeService mailMergeService;
 
   @SpyBean
   private ClauseFormValidator clauseFormValidator;

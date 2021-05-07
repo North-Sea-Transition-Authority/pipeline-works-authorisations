@@ -259,6 +259,19 @@ public class PwaApplicationDetailService {
     return pwaApplicationDetailRepository.findByPwaApplicationAndSubmittedTimestampIsNotNull(pwaApplication);
   }
 
+  public Optional<PwaApplicationDetail> getLatestSubmittedDetail(PwaApplication pwaApplication) {
+
+    var submittedDetails = getAllSubmittedApplicationDetailsForApplication(pwaApplication);
+
+    if (submittedDetails.isEmpty()) {
+      return Optional.empty();
+    }
+
+    return submittedDetails.stream()
+        .max(Comparator.comparing(PwaApplicationDetail::getSubmittedTimestamp));
+
+  }
+
   public List<PwaApplicationDetail> getAllWithdrawnApplicationDetailsForApplication(PwaApplication pwaApplication) {
     return pwaApplicationDetailRepository.findByPwaApplicationAndStatus(pwaApplication, PwaApplicationStatus.WITHDRAWN);
   }

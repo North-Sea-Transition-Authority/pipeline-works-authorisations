@@ -207,7 +207,10 @@ public class DocumentInstanceService {
         .filter(dto -> !SectionClauseVersionStatus.DELETED.equals(SectionClauseVersionStatus.valueOf(dto.getStatus())))
         .collect(Collectors.groupingBy(DocumentInstanceSectionClauseVersionDto::getSectionName));
 
-    var docView = new DocumentView(PwaDocumentType.INSTANCE, documentInstance.getDocumentTemplate().getMnem());
+    var docView = new DocumentView(
+        PwaDocumentType.INSTANCE,
+        documentInstance.getPwaApplication(),
+        documentInstance.getDocumentTemplate().getMnem());
 
     var sections = sectionToClauseVersionMap.entrySet().stream()
         .map(entry -> createSectionView(

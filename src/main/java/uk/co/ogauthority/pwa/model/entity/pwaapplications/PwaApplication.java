@@ -13,7 +13,9 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocumentSpec;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
+import uk.co.ogauthority.pwa.service.documents.DocumentSource;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationDecision;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.workflow.WorkflowSubject;
@@ -21,7 +23,7 @@ import uk.co.ogauthority.pwa.service.enums.workflow.WorkflowType;
 
 @Entity
 @Table(name = "pwa_applications")
-public class PwaApplication implements WorkflowSubject {
+public class PwaApplication implements WorkflowSubject, DocumentSource {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -164,4 +166,15 @@ public class PwaApplication implements WorkflowSubject {
   public WorkflowType getWorkflowType() {
     return WorkflowType.PWA_APPLICATION;
   }
+
+  @Override
+  public Object getSource() {
+    return this;
+  }
+
+  @Override
+  public DocumentSpec getDocumentSpec() {
+    return applicationType.getConsentDocumentSpec();
+  }
+
 }

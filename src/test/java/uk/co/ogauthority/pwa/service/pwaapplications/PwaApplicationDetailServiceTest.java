@@ -644,4 +644,44 @@ public class PwaApplicationDetailServiceTest {
 
   }
 
+  @Test
+  public void getAllSubmittedApplicationDetailsForApplication() {
+
+    var app = new PwaApplication();
+    pwaApplicationDetailService.getAllSubmittedApplicationDetailsForApplication(app);
+    verify(applicationDetailRepository, times(1)).findByPwaApplicationAndSubmittedTimestampIsNotNull(app);
+
+  }
+
+  @Test
+  public void getLatestSubmittedDetail_detailsFound() {
+
+    var app = new PwaApplication();
+    var subFirst = new PwaApplicationDetail();
+    subFirst.setSubmittedTimestamp(Instant.now().minusSeconds(5));
+    var subSecond = new PwaApplicationDetail();
+    subSecond.setSubmittedTimestamp(Instant.now());
+
+    when(applicationDetailRepository.findByPwaApplicationAndSubmittedTimestampIsNotNull(app))
+        .thenReturn(List.of(subFirst, subSecond));
+
+    var result = pwaApplicationDetailService.getLatestSubmittedDetail(app);
+
+    assertThat(result).contains(subSecond);
+
+  }
+
+  @Test
+  public void getLatestSubmittedDetail_noDetailsFound() {
+
+    var app = new PwaApplication();
+
+    when(applicationDetailRepository.findByPwaApplicationAndSubmittedTimestampIsNotNull(app)).thenReturn(List.of());
+
+    var result = pwaApplicationDetailService.getLatestSubmittedDetail(app);
+
+    assertThat(result).isEmpty();
+
+  }
+
 }

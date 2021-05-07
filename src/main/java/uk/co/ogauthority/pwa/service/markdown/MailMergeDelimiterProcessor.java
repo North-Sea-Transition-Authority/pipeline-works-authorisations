@@ -9,12 +9,12 @@ public class MailMergeDelimiterProcessor implements DelimiterProcessor {
 
   @Override
   public char getOpeningCharacter() {
-    return ManualMergeField.OPENING_DELIMITER.charAt(0);
+    return AutomaticMergeField.OPENING_DELIMITER.charAt(0);
   }
 
   @Override
   public char getClosingCharacter() {
-    return ManualMergeField.OPENING_DELIMITER.charAt(0);
+    return AutomaticMergeField.CLOSING_DELIMITER.charAt(0);
   }
 
   @Override
@@ -35,7 +35,7 @@ public class MailMergeDelimiterProcessor implements DelimiterProcessor {
   @Override
   public void process(Text opener, Text closer, int delimiterUse) {
     // Wrap nodes between delimiters in strikethrough.
-    Node mailMerge = new ManualMergeField();
+    Node mailMerge = new AutomaticMergeField();
 
     Node tmp = opener.getNext();
     while (tmp != null && tmp != closer) {

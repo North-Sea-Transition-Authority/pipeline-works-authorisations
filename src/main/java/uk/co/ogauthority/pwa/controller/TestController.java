@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.controller;
 
+import java.util.Map;
 import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -48,7 +49,7 @@ public class TestController {
 
   @PostMapping("/markdown")
   public ModelAndView postMarkdownTest(@Valid @ModelAttribute("form") MarkdownTestForm form) {
-    var html = markdownService.convertMarkdownToHtml(form.getMarkdown());
+    var html = markdownService.convertMarkdownToHtml(form.getMarkdown(), Map.of("FORENAME", "Joe", "SURNAME", "Bloggs"));
     return new ModelAndView("test/markdownTest")
         .addObject("form", form)
         .addObject("html", html);
