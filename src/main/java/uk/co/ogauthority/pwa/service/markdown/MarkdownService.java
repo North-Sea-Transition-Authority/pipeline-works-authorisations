@@ -1,7 +1,6 @@
 package uk.co.ogauthority.pwa.service.markdown;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.commonmark.Extension;
@@ -14,9 +13,9 @@ import org.springframework.stereotype.Service;
 @Service
 public class MarkdownService {
 
-  public String convertMarkdownToHtml(String markdown) {
+  public String convertMarkdownToHtml(String markdown, Map<String, String> mailMergeFieldValues) {
 
-    List<Extension> extensions = getExtensions();
+    List<Extension> extensions = Arrays.asList(TablesExtension.create(), MailMergeExtension.create(mailMergeFieldValues));
 
     Parser parser = Parser.builder()
         .extensions(extensions)
@@ -33,17 +32,7 @@ public class MarkdownService {
         .build();
 
     return renderer.render(document);
-  }
 
-  private List<Extension> getExtensions() {
-    return Arrays.asList(TablesExtension.create(), MailMergeExtension.create(getMailMergeFields()));
-  }
-
-  private Map<String, String> getMailMergeFields() {
-    var mailMergeFields = new HashMap<String, String>();
-    mailMergeFields.put("FORENAME", "Joe"); // TODO PWA-1067 remove test fields
-    mailMergeFields.put("SURNAME", "Bloggs");
-    return mailMergeFields;
   }
 
 }

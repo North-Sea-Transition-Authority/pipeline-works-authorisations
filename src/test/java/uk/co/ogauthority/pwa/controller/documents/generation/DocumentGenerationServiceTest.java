@@ -74,7 +74,7 @@ public class DocumentGenerationServiceTest {
     documentGenerationService = new DocumentGenerationService(springApplicationContext, templateRenderingService, pdfRenderingService, documentInstanceService);
 
     documentInstance = new DocumentInstance();
-    documentView = new DocumentView(PwaDocumentType.INSTANCE, DocumentTemplateMnem.PWA_CONSENT_DOCUMENT);
+    documentView = new DocumentView(PwaDocumentType.INSTANCE, pwaApplicationDetail.getPwaApplication(), DocumentTemplateMnem.PWA_CONSENT_DOCUMENT);
 
     when(documentInstanceService.getDocumentInstance(any(), any())).thenReturn(Optional.of(documentInstance));
     when(documentInstanceService.getDocumentView(any(), any())).thenReturn(documentView);

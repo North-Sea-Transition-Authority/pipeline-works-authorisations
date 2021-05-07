@@ -9,7 +9,7 @@ abstract class MailMergeNodeRenderer implements NodeRenderer {
 
   @Override
   public Set<Class<? extends Node>> getNodeTypes() {
-    return Collections.singleton(ManualMergeField.class);
+    return Collections.singleton(AutomaticMergeField.class);
   }
 
 }

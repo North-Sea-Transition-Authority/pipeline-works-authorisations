@@ -52,16 +52,16 @@ public class SendForApprovalCheckerServiceTest {
 
   @Mock
   private DocumentInstanceService documentInstanceService;
-  
+
   @Mock
   private MasterPwaService masterPwaService;
 
   @Mock
   private PwaConsentService pwaConsentService;
 
-  
+
   private SendForApprovalCheckerService sendforApprovalCheckerService;
-  
+
   private PwaApplicationDetail detail;
 
   private MasterPwaDetail masterPwaDetail;
@@ -95,7 +95,7 @@ public class SendForApprovalCheckerServiceTest {
     when(documentInstanceService.getDocumentInstance(detail.getPwaApplication(), DocumentTemplateMnem.PWA_CONSENT_DOCUMENT))
         .thenReturn(Optional.of(instance));
 
-    var docView = new DocumentView(PwaDocumentType.INSTANCE, DocumentTemplateMnem.PWA_CONSENT_DOCUMENT);
+    var docView = new DocumentView(PwaDocumentType.INSTANCE, detail.getPwaApplication(), DocumentTemplateMnem.PWA_CONSENT_DOCUMENT);
     var sectionView = new SectionView();
     sectionView.setClauses(List.of(new SectionClauseVersionView()));
     docView.setSections(List.of(sectionView));
@@ -107,7 +107,7 @@ public class SendForApprovalCheckerServiceTest {
   public void getPreSendForApprovalChecksView_latestVersionNotSatisfactory() {
 
     detail.setConfirmedSatisfactoryTimestamp(null);
-    
+
     var preSendApprovalCheckView = sendforApprovalCheckerService.getPreSendForApprovalChecksView(detail);
 
     assertThat(preSendApprovalCheckView.getFailedSendForApprovalChecks())
@@ -169,7 +169,7 @@ public class SendForApprovalCheckerServiceTest {
     when(documentInstanceService.getDocumentInstance(detail.getPwaApplication(), DocumentTemplateMnem.PWA_CONSENT_DOCUMENT))
         .thenReturn(Optional.of(instance));
 
-    var emptyDocView = new DocumentView(PwaDocumentType.INSTANCE, DocumentTemplateMnem.PWA_CONSENT_DOCUMENT);
+    var emptyDocView = new DocumentView(PwaDocumentType.INSTANCE, detail.getPwaApplication(), DocumentTemplateMnem.PWA_CONSENT_DOCUMENT);
     emptyDocView.setSections(List.of(new SectionView()));
     when(documentInstanceService.getDocumentView(instance)).thenReturn(emptyDocView);
 

@@ -53,7 +53,7 @@ public class VariationIntroductionGeneratorServiceTest {
     clauseList.add(SectionClauseVersionView.from(dto2));
     sectionView.setClauses(clauseList);
 
-    docView = new DocumentView(PwaDocumentType.INSTANCE, DocumentTemplateMnem.PWA_CONSENT_DOCUMENT);
+    docView = new DocumentView(PwaDocumentType.INSTANCE, detail.getPwaApplication(), DocumentTemplateMnem.PWA_CONSENT_DOCUMENT);
     docView.setSections(List.of(sectionView));
 
     when(documentInstanceService.getDocumentView(documentInstance, DocumentSection.VARIATION_INTRO))

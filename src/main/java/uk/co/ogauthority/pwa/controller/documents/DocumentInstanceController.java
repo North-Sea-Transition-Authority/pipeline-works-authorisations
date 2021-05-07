@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.controller.documents;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import java.util.List;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -18,6 +19,7 @@ import uk.co.ogauthority.pwa.controller.appprocessing.prepareconsent.AppConsentD
 import uk.co.ogauthority.pwa.controller.appprocessing.shared.PwaAppProcessingPermissionCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationStatusCheck;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.DocumentTemplateMnem;
+import uk.co.ogauthority.pwa.model.entity.mailmerge.MailMergeField;
 import uk.co.ogauthority.pwa.model.form.documents.ClauseForm;
 import uk.co.ogauthority.pwa.model.form.enums.ScreenActionType;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
@@ -29,6 +31,7 @@ import uk.co.ogauthority.pwa.service.documents.instances.DocumentInstanceService
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.service.mailmerge.MailMergeService;
 import uk.co.ogauthority.pwa.util.FlashUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 import uk.co.ogauthority.pwa.util.documents.DocumentInstanceRedirectUtils;
@@ -43,16 +46,19 @@ public class DocumentInstanceController {
   private final ControllerHelperService controllerHelperService;
   private final DocumentInstanceService documentInstanceService;
   private final ClauseFormValidator clauseFormValidator;
+  private final MailMergeService mailMergeService;
 
   @Autowired
   public DocumentInstanceController(AppProcessingBreadcrumbService breadcrumbService,
                                     ControllerHelperService controllerHelperService,
                                     DocumentInstanceService documentInstanceService,
-                                    ClauseFormValidator clauseFormValidator) {
+                                    ClauseFormValidator clauseFormValidator,
+                                    MailMergeService mailMergeService) {
     this.breadcrumbService = breadcrumbService;
     this.controllerHelperService = controllerHelperService;
     this.documentInstanceService = documentInstanceService;
     this.clauseFormValidator = clauseFormValidator;
+    this.mailMergeService = mailMergeService;
   }
 
   @GetMapping("/add-clause-after/{clauseIdToAddAfter}")
@@ -83,6 +89,13 @@ public class DocumentInstanceController {
 
     String thisPage = screenActionType.getActionText() + " clause";
     breadcrumbService.fromPrepareConsent(processingContext.getPwaApplication(), modelAndView, thisPage);
+
+    var mergeFieldNames = mailMergeService
+        .getMailMergeFieldsForDocumentSource(processingContext.getPwaApplication()).stream()
+        .map(MailMergeField::getDisplayString)
+        .collect(Collectors.toList());
+
+    modelAndView.addObject("mergeFieldNames", mergeFieldNames);
 
     return modelAndView;
 
