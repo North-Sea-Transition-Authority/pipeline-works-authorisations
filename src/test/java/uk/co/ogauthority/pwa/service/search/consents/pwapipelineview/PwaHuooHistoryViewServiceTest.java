@@ -90,11 +90,13 @@ public class PwaHuooHistoryViewServiceTest {
             expectedOrderTagNumber, consentCreatedTodayAfternoon.getReference()));
 
     expectedOrderTagNumber = 1;
-    assertThat(consentVersionSearchSelectorItems.get(String.valueOf(consentCreatedTodayMorning.getId()))).isEqualTo(
+    assertThat(consentVersionSearchSelectorItems).containsEntry(
+        String.valueOf(consentCreatedTodayMorning.getId()),
         String.format("%s (%s) - %s", DateUtils.formatDate(consentCreatedTodayMorning.getConsentInstant()),
             expectedOrderTagNumber, consentCreatedTodayMorning.getReference()));
 
-    assertThat(consentVersionSearchSelectorItems.get(String.valueOf(consentCreatedYesterday.getId()))).isEqualTo(
+    assertThat(consentVersionSearchSelectorItems).containsEntry(
+        String.valueOf(consentCreatedYesterday.getId()),
         DateUtils.formatDate(consentCreatedYesterday.getConsentInstant()) + " - " + consentCreatedYesterday.getReference());
 
   }
@@ -110,10 +112,12 @@ public class PwaHuooHistoryViewServiceTest {
 
     var consentVersionSearchSelectorItems = pwaHuooHistoryViewService.getConsentHistorySearchSelectorItems(masterPwa);
 
-    assertThat(consentVersionSearchSelectorItems.get(String.valueOf(consentWithRef.getId()))).isEqualTo(
+    assertThat(consentVersionSearchSelectorItems).containsEntry(
+        String.valueOf(consentWithRef.getId()),
         String.format("Latest version (%s - %s)", DateUtils.formatDate(consentWithRef.getConsentInstant()), consentWithRef.getReference()));
 
-    assertThat(consentVersionSearchSelectorItems.get(String.valueOf(consentWithoutRef.getId()))).isEqualTo(
+    assertThat(consentVersionSearchSelectorItems).containsEntry(
+        String.valueOf(consentWithoutRef.getId()),
         DateUtils.formatDate(consentWithoutRef.getConsentInstant()));
   }
 
