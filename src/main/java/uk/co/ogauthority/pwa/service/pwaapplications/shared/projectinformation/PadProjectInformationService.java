@@ -158,6 +158,11 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
     return Optional.ofNullable(projectInformation.getProposedStartTimestamp());
   }
 
+  public Optional<Instant> getLatestProjectCompletionDate(PwaApplicationDetail pwaApplicationDetail) {
+    var projectInformation = getPadProjectInformationData(pwaApplicationDetail);
+    return Optional.ofNullable(projectInformation.getLatestCompletionTimestamp());
+  }
+
   public Set<ProjectInformationQuestion> getRequiredQuestions(PwaApplicationType pwaApplicationType) {
 
     EnumSet<ProjectInformationQuestion> hiddenQuestions;

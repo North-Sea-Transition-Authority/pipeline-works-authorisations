@@ -7,6 +7,7 @@ import javax.persistence.EntityManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineDetailSummaryDto;
+import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineStatus;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
@@ -45,7 +46,8 @@ public class PipelineDetailDtoRepositoryImpl implements PipelineDetailDtoReposit
   }
 
   @Override
-  public List<PipelineOverview> getAllPipelineOverviewsForMasterPwaAndStatus(MasterPwa masterPwa, Set<PipelineStatus> statusFilter) {
+  public List<PipelineOverview> getAllPipelineOverviewsForMasterPwaAndStatus(MasterPwa masterPwa,
+                                                                             Set<PipelineStatus> statusFilter) {
 
     return entityManager.createQuery("" +
             "SELECT new uk.co.ogauthority.pwa.model.dto.pipelines.PipelineDetailSummaryDto(" +
@@ -150,4 +152,22 @@ public class PipelineDetailDtoRepositoryImpl implements PipelineDetailDtoReposit
     return getAllPipelineOverviewsForMasterPwaAndStatus(masterPwa, statusFilter);
   }
 
+  @Override
+  public List<CountPipelineDetailsForPipelineDto> getCountOfPipelineDetailsForPipelines(Set<PipelineId> pipelineIds) {
+
+    return entityManager.createQuery("" +
+            "SELECT new uk.co.ogauthority.pwa.repository.pipelines.CountPipelineDetailsForPipelineDto( " +
+            " p.id," +
+            " COUNT(pd.id) " +
+            ")" +
+            "FROM Pipeline p " +
+            "LEFT JOIN PipelineDetail pd ON pd.pipeline = p " +
+            "WHERE p.id IN :pipelineIdSet " +
+            "GROUP BY p.id",
+        CountPipelineDetailsForPipelineDto.class
+    )
+        .setParameter("pipelineIdSet", pipelineIds.stream().map(PipelineId::getPipelineIdAsInt).collect(Collectors.toSet()))
+        .getResultList();
+
+  }
 }
