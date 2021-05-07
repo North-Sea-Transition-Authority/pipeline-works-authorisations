@@ -9,7 +9,7 @@
 
     <@fdsForm.htmlForm actionUrl=springUrl(viewPwaPipelineUrl)>
         <@fdsSearchSelector.searchSelectorEnhanced path="form.consentId" options=consentVersionSearchSelectorItems labelText="Select version" />
-        <@fdsAction.button buttonText="Show version"/>
+        <@fdsAction.button buttonText="Show version" buttonScreenReaderText="Show HUOO information for the selected consent version"/>
     </@fdsForm.htmlForm>
 
     
