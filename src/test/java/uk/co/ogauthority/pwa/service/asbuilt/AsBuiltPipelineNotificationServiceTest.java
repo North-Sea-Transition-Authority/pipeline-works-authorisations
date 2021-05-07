@@ -14,7 +14,7 @@ public class AsBuiltPipelineNotificationServiceTest {
   public void setup() {
 
     // TODO PWA-1246 - do this after actually building auto generation in case changes needed.
-    /      asBuiltPipelineNotificationService = new AsBuiltPipelineNotificationService();
+    //      asBuiltPipelineNotificationService = new AsBuiltPipelineNotificationService();
 
   }
 
