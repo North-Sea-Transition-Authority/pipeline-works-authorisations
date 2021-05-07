@@ -33,7 +33,7 @@ import uk.co.ogauthority.pwa.model.entity.enums.HuooType;
 import uk.co.ogauthority.pwa.model.entity.enums.TreatyAgreement;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelinehuoo.OrgRoleInstanceType;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
-import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
+import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsentOrganisationRole;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsentPipelineOrganisationRoleLink;
@@ -142,10 +142,10 @@ public class PwaConsentOrganisationRoleService {
 
   }
 
-  public OrganisationRolesSummaryDto getOrganisationRoleSummary(PipelineDetail pipelineDetail) {
+  public OrganisationRolesSummaryDto getOrganisationRoleSummaryForConsentsAndPipeline(List<PwaConsent> pwaConsents, Pipeline pipeline) {
 
-    var organisationPipelineRole = pwaConsentPipelineOrganisationRoleLinkRepository.findActiveOrganisationPipelineRolesByPipelineDetail(
-        pipelineDetail);
+    var organisationPipelineRole = pwaConsentPipelineOrganisationRoleLinkRepository.findActiveOrganisationPipelineRolesByPwaConsent(
+        pwaConsents, pipeline);
 
     return OrganisationRolesSummaryDto.aggregateOrganisationPipelineRoles(organisationPipelineRole);
 

@@ -1,12 +1,14 @@
 package uk.co.ogauthority.pwa.repository.pwaconsents;
 
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.persistence.EntityManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import uk.co.ogauthority.pwa.model.dto.consents.OrganisationPipelineRoleInstanceDto;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineStatus;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
-import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
+import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
+import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
 
 public class PwaConsentOrganisationPipelineRoleDtoRepositoryImpl implements PwaConsentOrganisationPipelineRoleDtoRepository {
 
@@ -52,8 +54,8 @@ public class PwaConsentOrganisationPipelineRoleDtoRepositoryImpl implements PwaC
   }
 
   @Override
-  public List<OrganisationPipelineRoleInstanceDto> findActiveOrganisationPipelineRolesByPipelineDetail(
-      PipelineDetail pipelineDetail) {
+  public List<OrganisationPipelineRoleInstanceDto> findActiveOrganisationPipelineRolesByPwaConsent(
+      List<PwaConsent> pwaConsents, Pipeline pipeline) {
 
     var query = entityManager.createQuery("" +
             "SELECT new uk.co.ogauthority.pwa.model.dto.consents.OrganisationPipelineRoleInstanceDto( " +
@@ -70,14 +72,15 @@ public class PwaConsentOrganisationPipelineRoleDtoRepositoryImpl implements PwaC
             "  cporl.sectionNumber " +
             ") " +
             "FROM PwaConsentPipelineOrganisationRoleLink cporl " +
-            "JOIN PipelineDetail pd ON cporl.pipeline = pd.pipeline " +
             "JOIN PwaConsentOrganisationRole cor ON cporl.pwaConsentOrganisationRole = cor " +
             "JOIN PwaConsent pc ON cor.addedByPwaConsent = pc " +
-            "WHERE pd.id  = :pipelineDetailId " +
-            "AND cor.endedByPwaConsent IS NULL " +
-            "AND cporl.endedByPwaConsent IS NULL ",
+            "WHERE pc.id  in (:pwaConsentIds) " +
+            "AND (cor.endedByPwaConsent IS NULL OR cor.endedByPwaConsent NOT IN (:pwaConsentIds)) " +
+            "AND (cporl.endedByPwaConsent IS NULL OR cporl.endedByPwaConsent NOT IN (:pwaConsentIds)) " +
+            "AND cporl.pipeline = :pipeline ",
         OrganisationPipelineRoleInstanceDto.class)
-        .setParameter("pipelineDetailId", pipelineDetail.getId());
+        .setParameter("pwaConsentIds", pwaConsents.stream().map(PwaConsent::getId).collect(Collectors.toList()))
+        .setParameter("pipeline", pipeline);
     return query.getResultList();
 
   }

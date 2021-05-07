@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.repository.pwaconsents;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
@@ -17,4 +18,8 @@ public interface PwaConsentRepository extends CrudRepository<PwaConsent, Integer
   @EntityGraph(value = "PwaConsent.masterPwaAndSourceApplications")
   List<PwaConsent> findByMasterPwaAndConsentInstantIsAfter(MasterPwa masterPwa, Instant consentedAfterInstant);
 
+  @EntityGraph(value = "PwaConsent.masterPwaAndSourceApplications")
+  List<PwaConsent> findByMasterPwaAndConsentInstantIsBefore(MasterPwa masterPwa, Instant consentInstant);
+
+  Optional<PwaConsent> findFirstByMasterPwaOrderByConsentInstantDescVariationNumberDesc(MasterPwa masterPwa);
 }

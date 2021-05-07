@@ -2,9 +2,15 @@
 <#include '../../../../layout.ftl'>
 
 <#-- @ftlvariable name="diffedHuooSummary" type="uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.huoosummary.DiffedAllOrgRolePipelineGroups" -->
+<#-- @ftlvariable name="consentVersionSearchSelectorItems" type="java.util.Map<java.lang.String, java.lang.String>" -->
 
 
 <#macro tab diffedHuooSummary>
+
+    <@fdsForm.htmlForm actionUrl=springUrl(viewPwaPipelineUrl)>
+        <@fdsSearchSelector.searchSelectorEnhanced path="form.consentId" options=consentVersionSearchSelectorItems labelText="Select consent version" />
+        <@fdsAction.button buttonText="Show version" buttonScreenReaderText="Show HUOO information for the selected consent version"/>
+    </@fdsForm.htmlForm>
 
     
     <#if diffedHuooSummary?has_content>

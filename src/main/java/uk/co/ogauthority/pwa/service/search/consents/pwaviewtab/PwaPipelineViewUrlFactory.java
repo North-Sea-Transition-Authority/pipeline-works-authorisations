@@ -19,7 +19,7 @@ public class PwaPipelineViewUrlFactory {
   public String getTabUrl(String tabValue) {
     var tab = PwaPipelineViewTab.resolveByValue(tabValue);
     return ReverseRouter.route(on(PwaPipelineViewController.class)
-        .renderViewPwaPipeline(pwaId, pipelineId, tab, null, null, null, null));
+        .renderViewPwaPipeline(pwaId, pipelineId, tab, null, null, null, null, null));
   }
 
 }

@@ -26,8 +26,10 @@ import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
+import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.huoosummary.DiffedAllOrgRolePipelineGroups;
+import uk.co.ogauthority.pwa.service.pwaconsents.PwaConsentService;
 import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailService;
 import uk.co.ogauthority.pwa.service.pwacontext.PwaContextService;
 import uk.co.ogauthority.pwa.service.pwacontext.PwaPermission;
@@ -51,6 +53,9 @@ public class PwaViewPipelineControllerTest extends PwaContextAbstractControllerT
 
   @MockBean
   protected PipelineDetailService pipelineDetailService;
+
+  @MockBean
+  protected PwaConsentService pwaConsentService;
 
   @MockBean
   protected PwaPipelineHistoryViewService pwaPipelineHistoryViewService;
@@ -90,7 +95,9 @@ public class PwaViewPipelineControllerTest extends PwaContextAbstractControllerT
     when(pwaPipelineHistoryViewService.getDiffedPipelineSummaryModel(any(), any())).thenReturn(Map.of());
     when(pwaPipelineHistoryViewService.getPipelinesVersionSearchSelectorItems(any())).thenReturn(Map.of());
 
-    when(pwaHuooHistoryViewService.getDiffedHuooSummaryModel(any(), any(), any())).thenReturn(
+    when(pwaConsentService.getLatestConsent(any())).thenReturn(new PwaConsent());
+
+    when(pwaHuooHistoryViewService.getDiffedHuooSummaryAtTimeOfConsentAndPipeline(any(), any(), any())).thenReturn(
         new DiffedAllOrgRolePipelineGroups(List.of(), List.of(), List.of(), List.of()));
   }
 
@@ -102,7 +109,7 @@ public class PwaViewPipelineControllerTest extends PwaContextAbstractControllerT
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((masterPwa) ->
             ReverseRouter.route(on(PwaPipelineViewController.class)
-                .renderViewPwaPipeline(1, PIPELINE_ID, PwaPipelineViewTab.PIPELINE_HISTORY, null, null, null, null)));
+                .renderViewPwaPipeline(1, PIPELINE_ID, PwaPipelineViewTab.PIPELINE_HISTORY, null, null, null, null, null)));
 
     endpointTester.performProcessingPermissionCheck(status().isOk(), status().isForbidden());
 
@@ -114,7 +121,7 @@ public class PwaViewPipelineControllerTest extends PwaContextAbstractControllerT
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((masterPwa) ->
             ReverseRouter.route(on(PwaPipelineViewController.class)
-                .renderViewPwaPipeline(1, PIPELINE_ID, PwaPipelineViewTab.HUOO_HISTORY, null, null, null, null)));
+                .renderViewPwaPipeline(1, PIPELINE_ID, PwaPipelineViewTab.HUOO_HISTORY, null, null, null, null, null)));
 
     endpointTester.performProcessingPermissionCheck(status().isOk(), status().isForbidden());
 
@@ -126,7 +133,7 @@ public class PwaViewPipelineControllerTest extends PwaContextAbstractControllerT
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((masterPwa) ->
             ReverseRouter.route(on(PwaPipelineViewController.class)
-                .renderViewPwaPipeline(1, PIPELINE_ID, null, null, null, null, null)));
+                .renderViewPwaPipeline(1, PIPELINE_ID, null, null, null, null, null, null)));
 
     endpointTester.performProcessingPermissionCheck(status().isNotFound(), status().isNotFound());
 

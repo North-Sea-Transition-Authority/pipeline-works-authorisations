@@ -7,6 +7,8 @@ import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import uk.co.ogauthority.pwa.exception.EntityLatestVersionNotFoundException;
+import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
@@ -68,9 +70,23 @@ public class PwaConsentService {
     return pwaConsentRepository.findByMasterPwa(masterPwa);
   }
 
+  public PwaConsent getConsentsById(Integer consentId) {
+    return pwaConsentRepository.findById(consentId).orElseThrow(
+        () -> new PwaEntityNotFoundException("Pwa Consent could not be found for consent id: " + consentId));
+  }
 
   public List<PwaConsent> getPwaConsentsWhereConsentInstantAfter(MasterPwa masterPwa, Instant searchStartInstant) {
     return pwaConsentRepository.findByMasterPwaAndConsentInstantIsAfter(masterPwa, searchStartInstant);
+  }
+
+  public List<PwaConsent> getPwaConsentsWhereConsentInstantBefore(MasterPwa masterPwa, Instant searchStartInstant) {
+    return pwaConsentRepository.findByMasterPwaAndConsentInstantIsBefore(masterPwa, searchStartInstant);
+  }
+
+  public PwaConsent getLatestConsent(MasterPwa masterPwa) {
+    return pwaConsentRepository.findFirstByMasterPwaOrderByConsentInstantDescVariationNumberDesc(masterPwa)
+        .orElseThrow(() -> new EntityLatestVersionNotFoundException(
+            "The latest consent could not be found for master pwa with id: " + masterPwa.getId()));
   }
 
 }
