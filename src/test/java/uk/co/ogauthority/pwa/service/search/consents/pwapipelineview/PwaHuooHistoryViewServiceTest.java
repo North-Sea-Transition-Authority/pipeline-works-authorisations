@@ -19,12 +19,12 @@ import uk.co.ogauthority.pwa.model.dto.huooaggregations.OrganisationRolesSummary
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
+import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsentTestUtil;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.HuooSummaryService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.huoosummary.AllOrgRolePipelineGroupsView;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineService;
 import uk.co.ogauthority.pwa.service.pwaconsents.PwaConsentOrganisationRoleService;
 import uk.co.ogauthority.pwa.service.pwaconsents.PwaConsentService;
-import uk.co.ogauthority.pwa.service.search.consents.pwapipelineview.testutil.PwaHistoryViewTestUtil;
 import uk.co.ogauthority.pwa.service.search.consents.pwapipelineview.testutil.PwaPipelineViewTestUtil;
 import uk.co.ogauthority.pwa.util.DateUtils;
 
@@ -71,9 +71,9 @@ public class PwaHuooHistoryViewServiceTest {
   @Test
   public void getConsentHistorySearchSelectorItems_onlyConsentsChangedOnSameDayHaveOrderTag_itemsAreOrderedLatestFirst() {
 
-    var consentCreatedTodayAfternoon = PwaHistoryViewTestUtil.createPwaConsent(1, "5/V/21", TODAY, 2);
-    var consentCreatedTodayMorning = PwaHistoryViewTestUtil.createPwaConsent(2, "4/V/21", TODAY, 1);
-    var consentCreatedYesterday = PwaHistoryViewTestUtil.createPwaConsent(3, "44/V/12", YESTERDAY);
+    var consentCreatedTodayAfternoon = PwaConsentTestUtil.createPwaConsent(1, "5/V/21", TODAY, 2);
+    var consentCreatedTodayMorning = PwaConsentTestUtil.createPwaConsent(2, "4/V/21", TODAY, 1);
+    var consentCreatedYesterday = PwaConsentTestUtil.createPwaConsent(3, "44/V/12", YESTERDAY);
 
     when(pwaConsentService.getConsentsByMasterPwa(masterPwa)).thenReturn(
         List.of(consentCreatedYesterday, consentCreatedTodayAfternoon, consentCreatedTodayMorning));
@@ -102,8 +102,8 @@ public class PwaHuooHistoryViewServiceTest {
   @Test
   public void getConsentHistorySearchSelectorItems_consentReferenceDisplayedWhenAvailable_onlyLatestConsentHasLatestVersionText() {
 
-    var consentWithoutRef = PwaHistoryViewTestUtil.createPwaConsent(1, null, YESTERDAY);
-    var consentWithRef = PwaHistoryViewTestUtil.createPwaConsent(2, "4/V/21", TODAY);
+    var consentWithoutRef = PwaConsentTestUtil.createPwaConsent(1, null, YESTERDAY);
+    var consentWithRef = PwaConsentTestUtil.createPwaConsent(2, "4/V/21", TODAY);
 
     when(pwaConsentService.getConsentsByMasterPwa(masterPwa)).thenReturn(
         List.of(consentWithRef, consentWithoutRef));
@@ -120,7 +120,7 @@ public class PwaHuooHistoryViewServiceTest {
 
 
   @Test
-  public void getDiffedPipelineSummaryModel_diffedSummaryCreated_verifyServiceInteractions() {
+  public void getDiffedHuooSummaryAtTimeOfConsentAndPipeline_diffedSummaryCreated_verifyServiceInteractions() {
 
     var selectedConsent = PwaPipelineViewTestUtil.createPwaConsent("19/W/07");
     when(pwaConsentService.getConsentsById(CONSENT_ID)).thenReturn(selectedConsent);
