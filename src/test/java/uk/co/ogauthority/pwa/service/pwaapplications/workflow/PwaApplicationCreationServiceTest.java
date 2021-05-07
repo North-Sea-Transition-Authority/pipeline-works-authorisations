@@ -8,6 +8,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
+import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -90,10 +91,12 @@ public class PwaApplicationCreationServiceTest {
 
   private WebUserAccount user = new WebUserAccount(123);
 
-  private Instant fixedInstant = LocalDate
+  private Clock clock = Clock.fixed(LocalDate
       .of(2020, 2, 6)
       .atStartOfDay(ZoneId.systemDefault())
-      .toInstant();
+      .toInstant(), ZoneId.systemDefault());
+
+  private Instant fixedInstant = clock.instant();
 
   @Before
   public void setUp() {
@@ -112,7 +115,9 @@ public class PwaApplicationCreationServiceTest {
         pwaConsentOrganisationRoleService,
         padOrganisationRoleService,
         masterPwaDetailFieldService,
-        padFieldService);
+        padFieldService,
+        clock
+    );
   }
 
 
@@ -147,6 +152,7 @@ public class PwaApplicationCreationServiceTest {
     assertThat(application.getVariationNo()).isEqualTo(0);
     assertThat(application.getDecision()).isEmpty();
     assertThat(application.getDecisionTimestamp()).isEmpty();
+    assertThat(application.getApplicationCreatedTimestamp()).isEqualTo(clock.instant());
 
     assertThat(createdApplication.getPwaApplication()).isEqualTo(application);
     verify(masterPwaService, times(1)).updateDetailReference(masterPwaDetail, application.getAppReference());

@@ -4,6 +4,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 import org.junit.Before;
@@ -19,7 +22,9 @@ import uk.co.ogauthority.pwa.model.entity.documents.instances.DocumentInstance;
 import uk.co.ogauthority.pwa.model.entity.enums.MasterPwaDetailStatus;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.DocumentTemplateMnem;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaDetail;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
 import uk.co.ogauthority.pwa.model.enums.documents.PwaDocumentType;
 import uk.co.ogauthority.pwa.service.appprocessing.applicationupdate.ApplicationUpdateRequestService;
 import uk.co.ogauthority.pwa.service.appprocessing.publicnotice.PublicNoticeService;
@@ -27,10 +32,14 @@ import uk.co.ogauthority.pwa.service.consultations.ConsultationRequestService;
 import uk.co.ogauthority.pwa.service.documents.instances.DocumentInstanceService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaService;
+import uk.co.ogauthority.pwa.service.pwaconsents.PwaConsentService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SendForApprovalCheckerServiceTest {
+
+  private static final Instant APP_CREATION_INSTANT = LocalDateTime.of(2021, 1 ,1 ,0,0,0)
+      .toInstant(ZoneOffset.UTC);
 
   @Mock
   private ApplicationUpdateRequestService applicationUpdateRequestService;
@@ -46,7 +55,10 @@ public class SendForApprovalCheckerServiceTest {
   
   @Mock
   private MasterPwaService masterPwaService;
-  
+
+  @Mock
+  private PwaConsentService pwaConsentService;
+
   
   private SendForApprovalCheckerService sendforApprovalCheckerService;
   
@@ -61,9 +73,10 @@ public class SendForApprovalCheckerServiceTest {
         consultationRequestService,
         publicNoticeService,
         documentInstanceService,
-        masterPwaService
-    );
+        masterPwaService,
+        pwaConsentService);
     detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
+    detail.getPwaApplication().setApplicationCreatedTimestamp(APP_CREATION_INSTANT);
 
     masterPwaDetail = new MasterPwaDetail(detail.getMasterPwa(), MasterPwaDetailStatus.APPLICATION, "reference", Instant.now());
     when(masterPwaService.getCurrentDetailOrThrow(detail.getMasterPwa())).thenReturn(masterPwaDetail);
@@ -91,11 +104,13 @@ public class SendForApprovalCheckerServiceTest {
   }
 
   @Test
-  public void getReasonsToPreventSendForApproval_latestVersionNotSatisfactory() {
+  public void getPreSendForApprovalChecksView_latestVersionNotSatisfactory() {
 
     detail.setConfirmedSatisfactoryTimestamp(null);
+    
+    var preSendApprovalCheckView = sendforApprovalCheckerService.getPreSendForApprovalChecksView(detail);
 
-    assertThat(sendforApprovalCheckerService.getReasonsToPreventSendForApproval(detail))
+    assertThat(preSendApprovalCheckView.getFailedSendForApprovalChecks())
         .hasOnlyOneElementSatisfying(failedSendForApprovalCheck -> {
           assertThat(failedSendForApprovalCheck.getSendConsentForApprovalRequirement()).isEqualTo(SendConsentForApprovalRequirement.LATEST_APP_VERSION_IS_SATISFACTORY);
         });
@@ -104,11 +119,13 @@ public class SendForApprovalCheckerServiceTest {
   }
 
   @Test
-  public void getReasonsToPreventSendForApproval_updateInProgress() {
+  public void getPreSendForApprovalChecksView_updateInProgress() {
 
     when(applicationUpdateRequestService.applicationHasOpenUpdateRequest(detail)).thenReturn(true);
 
-    assertThat(sendforApprovalCheckerService.getReasonsToPreventSendForApproval(detail))
+    var preSendApprovalCheckView = sendforApprovalCheckerService.getPreSendForApprovalChecksView(detail);
+
+    assertThat(preSendApprovalCheckView.getFailedSendForApprovalChecks())
         .hasOnlyOneElementSatisfying(failedSendForApprovalCheck -> {
           assertThat(failedSendForApprovalCheck.getSendConsentForApprovalRequirement()).isEqualTo(SendConsentForApprovalRequirement.NO_UPDATE_IN_PROGRESS);
         });
@@ -116,12 +133,14 @@ public class SendForApprovalCheckerServiceTest {
   }
 
   @Test
-  public void getReasonsToPreventSendForApproval_consultationInProgress() {
+  public void getPreSendForApprovalChecksView_consultationInProgress() {
 
     when(consultationRequestService.getAllOpenRequestsByApplication(detail.getPwaApplication()))
         .thenReturn(List.of(new ConsultationRequest()));
 
-    assertThat(sendforApprovalCheckerService.getReasonsToPreventSendForApproval(detail))
+    var preSendApprovalCheckView = sendforApprovalCheckerService.getPreSendForApprovalChecksView(detail);
+
+    assertThat(preSendApprovalCheckView.getFailedSendForApprovalChecks())
         .hasOnlyOneElementSatisfying(failedSendForApprovalCheck -> {
           assertThat(failedSendForApprovalCheck.getSendConsentForApprovalRequirement()).isEqualTo(SendConsentForApprovalRequirement.NO_CONSULTATION_IN_PROGRESS);
         });
@@ -129,11 +148,13 @@ public class SendForApprovalCheckerServiceTest {
   }
 
   @Test
-  public void getReasonsToPreventSendForApproval_publicNoticeInProgress() {
+  public void getPreSendForApprovalChecksView_publicNoticeInProgress() {
 
     when(publicNoticeService.publicNoticeInProgress(detail.getPwaApplication())).thenReturn(true);
 
-    assertThat(sendforApprovalCheckerService.getReasonsToPreventSendForApproval(detail))
+    var preSendApprovalCheckView = sendforApprovalCheckerService.getPreSendForApprovalChecksView(detail);
+
+    assertThat(preSendApprovalCheckView.getFailedSendForApprovalChecks())
         .hasOnlyOneElementSatisfying(failedSendForApprovalCheck -> {
           assertThat(failedSendForApprovalCheck.getSendConsentForApprovalRequirement()).isEqualTo(SendConsentForApprovalRequirement.NO_PUBLIC_NOTICE_IN_PROGRESS);
         });
@@ -142,7 +163,7 @@ public class SendForApprovalCheckerServiceTest {
   }
 
   @Test
-  public void getReasonsToPreventSendForApproval_noDocumentClauses() {
+  public void getPreSendForApprovalChecksView_noDocumentClauses() {
 
     var instance = new DocumentInstance();
     when(documentInstanceService.getDocumentInstance(detail.getPwaApplication(), DocumentTemplateMnem.PWA_CONSENT_DOCUMENT))
@@ -152,36 +173,74 @@ public class SendForApprovalCheckerServiceTest {
     emptyDocView.setSections(List.of(new SectionView()));
     when(documentInstanceService.getDocumentView(instance)).thenReturn(emptyDocView);
 
-    assertThat(sendforApprovalCheckerService.getReasonsToPreventSendForApproval(detail))
+    var preSendApprovalCheckView = sendforApprovalCheckerService.getPreSendForApprovalChecksView(detail);
+
+    assertThat(preSendApprovalCheckView.getFailedSendForApprovalChecks())
         .hasOnlyOneElementSatisfying(failedSendForApprovalCheck -> {
           assertThat(failedSendForApprovalCheck.getSendConsentForApprovalRequirement()).isEqualTo(SendConsentForApprovalRequirement.DOCUMENT_HAS_CLAUSES);
         });
   }
 
   @Test
-  public void getReasonsToPreventSendForApproval_depositOnNonConsentedPwa() {
+  public void getPreSendForApprovalChecksView_depositOnNonConsentedPwa() {
 
     detail.getPwaApplication().setApplicationType(PwaApplicationType.DEPOSIT_CONSENT);
 
-    assertThat(sendforApprovalCheckerService.getReasonsToPreventSendForApproval(detail))
+    var preSendApprovalCheckView = sendforApprovalCheckerService.getPreSendForApprovalChecksView(detail);
+
+    assertThat(preSendApprovalCheckView.getFailedSendForApprovalChecks())
         .hasOnlyOneElementSatisfying(failedSendForApprovalCheck -> {
           assertThat(failedSendForApprovalCheck.getSendConsentForApprovalRequirement()).isEqualTo(SendConsentForApprovalRequirement.MASTER_PWA_IS_NOT_CONSENTED);
         });
   }
 
   @Test
-  public void getReasonsToPreventSendForApproval_depositOnConsentedPwa() {
+  public void getPreSendForApprovalChecksView_depositOnConsentedPwa() {
 
     detail.getPwaApplication().setApplicationType(PwaApplicationType.DEPOSIT_CONSENT);
     masterPwaDetail.setMasterPwaDetailStatus(MasterPwaDetailStatus.CONSENTED);
 
-    assertThat(sendforApprovalCheckerService.getReasonsToPreventSendForApproval(detail)).isEmpty();
+    var preSendApprovalCheckView = sendforApprovalCheckerService.getPreSendForApprovalChecksView(detail);
+
+    assertThat(preSendApprovalCheckView.getFailedSendForApprovalChecks()).isEmpty();
   }
 
   @Test
-  public void getReasonsToPreventSendForApproval_initialPWA() {
+  public void getPreSendForApprovalChecksView_parallelConsentFound() {
 
-    assertThat(sendforApprovalCheckerService.getReasonsToPreventSendForApproval(detail))
+    detail.getPwaApplication().setApplicationType(PwaApplicationType.DEPOSIT_CONSENT);
+    masterPwaDetail.setMasterPwaDetailStatus(MasterPwaDetailStatus.CONSENTED);
+
+    var application = new PwaApplication();
+    application.setAppReference("appReference");
+    var consent = new PwaConsent();
+    consent.setId(10);
+    consent.setReference("consentReference");
+    consent.setConsentInstant(APP_CREATION_INSTANT.plus(10, ChronoUnit.DAYS));
+    consent.setSourcePwaApplication(application);
+
+    when(pwaConsentService.getPwaConsentsWhereConsentInstantAfter(detail.getMasterPwa(), APP_CREATION_INSTANT))
+        .thenReturn(List.of(consent));
+
+    var preSendApprovalCheckView = sendforApprovalCheckerService.getPreSendForApprovalChecksView(detail);
+
+    assertThat(preSendApprovalCheckView.getFailedSendForApprovalChecks()).isEmpty();
+    assertThat(preSendApprovalCheckView.getParallelConsentViews()).hasOnlyOneElementSatisfying(parallelConsentView -> {
+      assertThat(parallelConsentView.getConsentInstant()).isEqualTo(consent.getConsentInstant());
+      assertThat(parallelConsentView.getPwaConsentId()).isEqualTo(consent.getId());
+      assertThat(parallelConsentView.getApplicationReference()).isEqualTo(application.getAppReference());
+      assertThat(parallelConsentView.getFormattedConsentDate()).isEqualTo("11 January 2021");
+    });
+  }
+
+  @Test
+  public void getPreSendForApprovalChecksView_initialPWA_noFailedChecks() {
+
+    var preSendApprovalCheckView = sendforApprovalCheckerService.getPreSendForApprovalChecksView(detail);
+
+    assertThat(preSendApprovalCheckView.getFailedSendForApprovalChecks())
+        .isEmpty();
+    assertThat(preSendApprovalCheckView.getParallelConsentViews())
         .isEmpty();
   }
 }

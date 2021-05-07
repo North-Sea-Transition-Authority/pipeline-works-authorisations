@@ -1,11 +1,12 @@
 <#include '../../layout.ftl'/>
 <#import '/spring.ftl' as spring>
 <#import '../utils/numberPad.ftl' as numberPad>
+<#import '../../fds/utilities/utilities.ftl' as fdsUtil>
 
 <#macro numberInputItem path labelText leftPadAmount=0 leftPadCharacter="0" inputClass="govuk-input--width-2">
     <@spring.bind path/>
 
-    <#local id=spring.status.expression?replace('[','')?replace(']','')>
+    <#local id=fdsUtil.sanitiseId(spring.status.expression)>
     <#local name=spring.status.expression>
     <#local value=spring.stringStatusValue>
     <#local hasError=(spring.status.errorMessages?size > 0)>

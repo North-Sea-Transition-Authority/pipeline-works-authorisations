@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.controller.appprocessing.prepareconsent;
 import static org.hamcrest.Matchers.hasProperty;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -28,6 +29,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.http.HttpMethod;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.validation.Errors;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.PwaAppProcessingContextAbstractControllerTest;
@@ -41,9 +43,8 @@ import uk.co.ogauthority.pwa.service.appprocessing.PwaAppProcessingPermissionSer
 import uk.co.ogauthority.pwa.service.appprocessing.consentreview.ConsentReviewService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContextService;
 import uk.co.ogauthority.pwa.service.appprocessing.prepareconsent.ConsentDocumentService;
-import uk.co.ogauthority.pwa.service.appprocessing.prepareconsent.FailedSendForApprovalCheckTestUtil;
+import uk.co.ogauthority.pwa.service.appprocessing.prepareconsent.PreSendForApprovalChecksViewTestUtil;
 import uk.co.ogauthority.pwa.service.appprocessing.prepareconsent.PrepareConsentTaskService;
-import uk.co.ogauthority.pwa.service.appprocessing.prepareconsent.SendConsentForApprovalRequirement;
 import uk.co.ogauthority.pwa.service.documents.DocumentService;
 import uk.co.ogauthority.pwa.service.documents.generation.DocumentGenerationService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
@@ -90,7 +91,8 @@ public class AppConsentDocControllerTest extends PwaAppProcessingContextAbstract
   public void setUp() {
 
     when(prepareConsentTaskService.taskAccessible(any())).thenReturn(true);
-    when(consentDocumentService.getReasonsToPreventSendForApproval(any())).thenReturn(List.of());
+    when(consentDocumentService.getPreSendForApprovalChecksView(any()))
+        .thenReturn(PreSendForApprovalChecksViewTestUtil.createNoFailedChecksView());
 
     editDocumentEndpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaApplicationDetailService, pwaAppProcessingPermissionService)
         .setAllowedStatuses(PwaApplicationStatus.CASE_OFFICER_REVIEW, PwaApplicationStatus.CONSENT_REVIEW)
@@ -115,6 +117,12 @@ public class AppConsentDocControllerTest extends PwaAppProcessingContextAbstract
         pwaApplicationDetail.getPwaApplication()), EnumSet.allOf(PwaAppProcessingPermission.class));
 
     when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail, user)).thenReturn(permissionsDto);
+
+    doAnswer(invocation -> {
+      var errors = (Errors) invocation.getArgument(1);
+      errors.rejectValue("coverLetterText", "coverLetterText.error", "error message");
+      return invocation;
+    }).when(consentDocumentService).validateSendConsentFormUsingPreApprovalChecks(any(), any(), any());
 
   }
 
@@ -350,8 +358,8 @@ public class AppConsentDocControllerTest extends PwaAppProcessingContextAbstract
   @Test
   public void renderSendForApproval_sendNotAllowed() throws Exception {
 
-    var failCheck = FailedSendForApprovalCheckTestUtil.create(SendConsentForApprovalRequirement.DOCUMENT_HAS_CLAUSES);
-    when(consentDocumentService.getReasonsToPreventSendForApproval(any())).thenReturn(List.of(failCheck));
+    var failCheck = PreSendForApprovalChecksViewTestUtil.createFailedChecksView();
+    when(consentDocumentService.getPreSendForApprovalChecksView(any())).thenReturn(failCheck);
 
     mockMvc.perform(get(ReverseRouter.route(on(AppConsentDocController.class).renderSendForApproval(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null)))
         .with(authenticatedUserAndSession(user))
@@ -400,21 +408,25 @@ public class AppConsentDocControllerTest extends PwaAppProcessingContextAbstract
   @Test
   public void sendForApproval_sendNotAllowed() throws Exception {
 
-    var failCheck = FailedSendForApprovalCheckTestUtil.create(SendConsentForApprovalRequirement.DOCUMENT_HAS_CLAUSES);
-    when(consentDocumentService.getReasonsToPreventSendForApproval(any())).thenReturn(List.of(failCheck));
+    var failCheck = PreSendForApprovalChecksViewTestUtil.createFailedChecksView();
+    when(consentDocumentService.getPreSendForApprovalChecksView(any())).thenReturn(failCheck);
 
     mockMvc.perform(post(ReverseRouter.route(on(AppConsentDocController.class).sendForApproval(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null, null)))
         .with(authenticatedUserAndSession(user))
         .with(csrf()))
         .andExpect(status().is3xxRedirection());
 
-    verify(consentDocumentService, never()).sendForApproval(any(), any(), any());
+    verify(consentDocumentService, never()).sendForApproval(any(), any(), any(), any());
 
   }
 
   @Test
-  public void sendForApproval_sendAllowed() throws Exception {
+  public void sendForApproval_sendAllowed_noParallelConsents() throws Exception {
 
+    // dont fail validation
+    doAnswer(invocation -> {
+           return invocation;
+    }).when(consentDocumentService).validateSendConsentFormUsingPreApprovalChecks(any(), any(), any());
 
     mockMvc.perform(post(ReverseRouter.route(on(AppConsentDocController.class).sendForApproval(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null, null)))
         .with(authenticatedUserAndSession(user))
@@ -422,7 +434,29 @@ public class AppConsentDocControllerTest extends PwaAppProcessingContextAbstract
         .param("coverLetterText", "mytext"))
         .andExpect(status().is3xxRedirection());
 
-    verify(consentDocumentService).sendForApproval(pwaApplicationDetail, "mytext", user);
+    verify(consentDocumentService).sendForApproval(pwaApplicationDetail, "mytext", user, List.of());
+
+  }
+
+  @Test
+  public void sendForApproval_sendAllowed_withParallelConsents() throws Exception {
+
+    // dont fail validation
+    doAnswer(invocation -> {
+      return invocation;
+    }).when(consentDocumentService).validateSendConsentFormUsingPreApprovalChecks(any(), any(), any());
+
+    var preSendApprovalView = PreSendForApprovalChecksViewTestUtil.createParallelConsentsChecksView();
+    when(consentDocumentService.getPreSendForApprovalChecksView(any()))
+        .thenReturn(preSendApprovalView);
+
+    mockMvc.perform(post(ReverseRouter.route(on(AppConsentDocController.class).sendForApproval(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null, null)))
+        .with(authenticatedUserAndSession(user))
+        .with(csrf())
+        .param("coverLetterText", "mytext"))
+        .andExpect(status().is3xxRedirection());
+
+    verify(consentDocumentService).sendForApproval(pwaApplicationDetail, "mytext", user, preSendApprovalView.getParallelConsentViews());
 
   }
 
@@ -437,7 +471,7 @@ public class AppConsentDocControllerTest extends PwaAppProcessingContextAbstract
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl("/work-area"));
 
-    verify(consentDocumentService, never()).sendForApproval(pwaApplicationDetail, "mytext", user);
+    verify(consentDocumentService, never()).sendForApproval(pwaApplicationDetail, "mytext", user, List.of());
 
   }
 
