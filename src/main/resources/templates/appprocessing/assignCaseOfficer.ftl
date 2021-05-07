@@ -3,16 +3,24 @@
 
 <#include '../layout.ftl'>
 
-<@defaultPage htmlTitle="Assign case officer" pageHeading="${appRef} assign case officer" topNavigation=true twoThirdsColumn=false>
+<@defaultPage htmlTitle="Assign case officer" pageHeading="Assign case officer" topNavigation=true twoThirdsColumn=false>
   <@fdsError.errorSummary errorItems=errorList />
 
-  <@fdsForm.htmlForm>
+  <@grid.gridRow>
+      <@grid.fullColumn>
+          <@pwaCaseSummary.summary caseSummaryView=caseSummaryView />
+      </@grid.fullColumn>
+  </@grid.gridRow>
 
+  <@grid.gridRow>
+      <@grid.twoThirdsColumn>
 
-    <@fdsSearchSelector.searchSelectorEnhanced path="form.caseOfficerPersonId" options=caseOfficerCandidates labelText="Select a case officer" />
+          <@fdsForm.htmlForm>
+              <@fdsSearchSelector.searchSelectorEnhanced path="form.caseOfficerPersonId" options=caseOfficerCandidates labelText="Select a case officer" />
+              <@fdsAction.submitButtons primaryButtonText="Assign case officer" linkSecondaryAction=true secondaryLinkText="Cancel" linkSecondaryActionUrl=springUrl(cancelUrl)/>
+          </@fdsForm.htmlForm>
 
+      </@grid.twoThirdsColumn>
+  </@grid.gridRow>
 
-
-    <@fdsAction.submitButtons primaryButtonText="Assign case officer" linkSecondaryAction=true secondaryLinkText="Cancel" linkSecondaryActionUrl=springUrl(cancelUrl)/>
-  </@fdsForm.htmlForm>
 </@defaultPage>
