@@ -11,7 +11,7 @@ public final class ParallelConsentView {
 
   private final int pwaConsentId;
   private final String consentReference;
-  private final int pwaApplicationId;
+  private final Integer pwaApplicationId;
   private final PwaApplicationType pwaApplicationType;
   private final String applicationReference;
   private final Instant consentInstant;
@@ -19,7 +19,7 @@ public final class ParallelConsentView {
 
   ParallelConsentView(int pwaConsentId,
                       String consentReference,
-                      int pwaApplicationId,
+                      Integer pwaApplicationId,
                       PwaApplicationType pwaApplicationType,
                       String applicationReference,
                       Instant consentInstant,
@@ -53,7 +53,7 @@ public final class ParallelConsentView {
     return formattedConsentDate;
   }
 
-  public int getPwaApplicationId() {
+  public Integer getPwaApplicationId() {
     return pwaApplicationId;
   }
 
