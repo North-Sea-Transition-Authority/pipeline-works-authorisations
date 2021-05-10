@@ -346,9 +346,9 @@ public class PublicNoticeService implements AppProcessingService {
   }
 
   public boolean canApplicantViewLatestPublicNotice(PwaApplication pwaApplication) {
-   return getLatestPublicNoticeOpt(pwaApplication)
-        .map( pn-> APPLICANT_VIEW_STATUSES.contains(pn.getStatus()))
-        .orElse(false);
+    return getLatestPublicNoticeOpt(pwaApplication)
+       .map(pn -> APPLICANT_VIEW_STATUSES.contains(pn.getStatus()))
+       .orElse(false);
   }
 
   private PublicNoticeView createViewFromPublicNotice(PublicNotice publicNotice) {

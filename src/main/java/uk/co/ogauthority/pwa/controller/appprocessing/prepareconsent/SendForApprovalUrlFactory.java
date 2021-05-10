@@ -19,7 +19,7 @@ public class SendForApprovalUrlFactory {
         ));
   }
 
-  public String getAppSummaryUrlByAppId(int appId){
+  public String getAppSummaryUrlByAppId(int appId) {
     return this.applicationAppSummaryUrls.get(appId);
   }
 }
