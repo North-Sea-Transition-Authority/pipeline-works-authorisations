@@ -1,6 +1,9 @@
 package uk.co.ogauthority.pwa.service.pwaconsents.consentwriters.asbuilt;
 
-import com.google.common.annotations.VisibleForTesting;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -14,6 +17,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
 import uk.co.ogauthority.pwa.service.asbuilt.AsBuiltInteractorService;
 import uk.co.ogauthority.pwa.service.asbuilt.AsBuiltPipelineNotificationSpec;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTask;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation.PadProjectInformationService;
@@ -73,7 +77,7 @@ public class ConsentAsBuiltWriterService implements ConsentWriter {
       var latestProjectCompletionDate = padProjectInformationService.getLatestProjectCompletionDate(appDetail)
           .orElseThrow(() ->
               new RuntimeException("Expected to find latest completion date for app but did not. padId:" + appDetail.getId()));
-      var deadlineDate = asBuiltInteractorService.createDefaultAsBuiltGroupDeadlineDate(
+      var deadlineDate = createDefaultAsBuiltGroupDeadlineDate(
           pwaConsent.getConsentInstant(),
           pwaConsent.getSourcePwaApplication().getApplicationType(),
           latestProjectCompletionDate
@@ -91,8 +95,7 @@ public class ConsentAsBuiltWriterService implements ConsentWriter {
     return consentWriterDto;
   }
 
-  @VisibleForTesting
-  List<AsBuiltPipelineNotificationSpec> extractAsBuiltPipelineNotificationSpecs(ConsentWriterDto consentWriterDto) {
+  private List<AsBuiltPipelineNotificationSpec> extractAsBuiltPipelineNotificationSpecs(ConsentWriterDto consentWriterDto) {
 
     var pipelinesWithNewDetailAfterConsent = consentWriterDto.getPipelineToNewDetailMap().keySet();
 
@@ -128,5 +131,25 @@ public class ConsentAsBuiltWriterService implements ConsentWriter {
           return new AsBuiltPipelineNotificationSpec(pipelineDetail.getPipelineDetailId(), changeCategory);
         })
         .collect(Collectors.toList());
+  }
+
+  private LocalDate createDefaultAsBuiltGroupDeadlineDate(Instant consentIssuedDateTime,
+                                                         PwaApplicationType consentApplicationType,
+                                                         Instant completionDateOnApplication) {
+
+    // By default the business rules outlining the default deadline for as built notifications are
+    // options application consents, this is 1 week (7 calendar days) after consent.
+    // for all other applications types, 1 week after completion date on application
+    if (consentApplicationType.equals(PwaApplicationType.OPTIONS_VARIATION)) {
+      return LocalDate.ofInstant(
+          consentIssuedDateTime.truncatedTo(ChronoUnit.DAYS).plus(7, ChronoUnit.DAYS),
+          ZoneId.systemDefault()
+      );
+    }
+
+    return LocalDate.ofInstant(
+        completionDateOnApplication.truncatedTo(ChronoUnit.DAYS).plus(7, ChronoUnit.DAYS),
+        ZoneId.systemDefault()
+    );
   }
 }
