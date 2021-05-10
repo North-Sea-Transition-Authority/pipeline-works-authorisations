@@ -226,16 +226,16 @@ public class PwaApplicationWorkAreaItemTest {
   }
 
   @Test
-  public void getApplicationColumn_whenInitialType(){
-    ApplicationWorkAreaItemTestUtil.test_getApplicationColumn_whenInitialType(
+  public void getApplicationColumn_whenApplicationNotComplete(){
+    ApplicationWorkAreaItemTestUtil.test_getApplicationColumn_whenApplicationNotCompleteOrInitial(
         workAreaApplicationDetailSearchItem,
         PwaApplicationWorkAreaItem::new);
 
   }
 
   @Test
-  public void getApplicationColumn_whenNotInitialType() {
-    ApplicationWorkAreaItemTestUtil.test_getApplicationColumn_whenNotInitialType(
+  public void getApplicationColumn_whenApplicationComplete() {
+    ApplicationWorkAreaItemTestUtil.test_getApplicationColumn_whenApplicationCompleteOrNotInitial(
         workAreaApplicationDetailSearchItem,
         PwaApplicationWorkAreaItem::new);
   }
