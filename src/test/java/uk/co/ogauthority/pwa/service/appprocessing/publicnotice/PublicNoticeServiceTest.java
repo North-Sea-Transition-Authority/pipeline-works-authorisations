@@ -606,9 +606,9 @@ public class PublicNoticeServiceTest {
     });
   }
 
-  @Test(expected = EntityLatestVersionNotFoundException.class)
-  public void canApplicantViewLatestPublicNotice_noPublicNoticeExists_exception() {
-    publicNoticeService.canApplicantViewLatestPublicNotice(pwaApplication);
+  @Test
+  public void canApplicantViewLatestPublicNotice_noPublicNoticeExists() {
+    assertThat(publicNoticeService.canApplicantViewLatestPublicNotice(pwaApplication)).isFalse();
   }
 
   @Test

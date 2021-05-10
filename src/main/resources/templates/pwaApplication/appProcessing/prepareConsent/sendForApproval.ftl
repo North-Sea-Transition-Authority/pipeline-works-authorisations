@@ -4,6 +4,7 @@
 <#-- @ftlvariable name="errorList" type="java.util.List<uk.co.ogauthority.pwa.model.form.fds.ErrorItem>" -->
 <#-- @ftlvariable name="parallelConsentViews" type="java.util.List<uk.co.ogauthority.pwa.service.appprocessing.prepareconsent.ParallelConsentView>" -->
 <#-- @ftlvariable name="cancelUrl" type="String" -->
+<#-- @ftlvariable name="urlFactory" type="uk.co.ogauthority.pwa.controller.appprocessing.prepareconsent.SendForApprovalUrlFactory" -->
 
 <#assign pageHeading = "${caseSummaryView.pwaApplicationRef} - Send consent for approval" />
 
@@ -39,7 +40,7 @@
                         <#list parallelConsentViews as consentView>
                         <tr class="govuk-table__row">
                             <td class="govuk-table__cell">${consentView.consentReference!""}</td>
-                            <td class="govuk-table__cell">${consentView.applicationReference!""}</td>
+                            <td class="govuk-table__cell"><@fdsAction.link linkText=consentView.applicationReference!"" linkUrl=springUrl(urlFactory.getAppSummaryUrlByAppId(consentView.pwaApplicationId)) linkScreenReaderText="View ${consentView.applicationReference} in new tab" openInNewTab=true /></td>
                             <td class="govuk-table__cell">${consentView.formattedConsentDate!""}</td>
                         </tr>
                         </#list>

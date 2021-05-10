@@ -290,11 +290,14 @@ public class AppConsentDocController {
   private ModelAndView getSendForApprovalModelAndView(PwaAppProcessingContext processingContext,
                                                       PreSendForApprovalChecksView preSendForApprovalChecksView) {
 
+    var urlFactory = new SendForApprovalUrlFactory(preSendForApprovalChecksView.getParallelConsentViews());
+
     var modelAndView = new ModelAndView("pwaApplication/appProcessing/prepareConsent/sendForApproval")
         .addObject("caseSummaryView", processingContext.getCaseSummaryView())
         .addObject("cancelUrl", ReverseRouter.route(on(AppConsentDocController.class)
             .renderConsentDocEditor(processingContext.getMasterPwaApplicationId(), processingContext.getApplicationType(), null, null)))
-        .addObject("parallelConsentViews", preSendForApprovalChecksView.getParallelConsentViews());
+        .addObject("parallelConsentViews", preSendForApprovalChecksView.getParallelConsentViews())
+        .addObject("urlFactory", urlFactory);
 
 
     breadcrumbService.fromPrepareConsent(processingContext.getPwaApplication(), modelAndView, "Send consent for approval");

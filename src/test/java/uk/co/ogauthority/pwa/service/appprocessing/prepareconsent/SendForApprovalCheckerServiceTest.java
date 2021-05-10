@@ -212,6 +212,8 @@ public class SendForApprovalCheckerServiceTest {
     masterPwaDetail.setMasterPwaDetailStatus(MasterPwaDetailStatus.CONSENTED);
 
     var application = new PwaApplication();
+    application.setId(5);
+    application.setApplicationType(PwaApplicationType.INITIAL);
     application.setAppReference("appReference");
     var consent = new PwaConsent();
     consent.setId(10);
@@ -230,6 +232,8 @@ public class SendForApprovalCheckerServiceTest {
       assertThat(parallelConsentView.getPwaConsentId()).isEqualTo(consent.getId());
       assertThat(parallelConsentView.getApplicationReference()).isEqualTo(application.getAppReference());
       assertThat(parallelConsentView.getFormattedConsentDate()).isEqualTo("11 January 2021");
+      assertThat(parallelConsentView.getPwaApplicationId()).isEqualTo(application.getId());
+      assertThat(parallelConsentView.getPwaApplicationType()).isEqualTo(application.getApplicationType());
     });
   }
 
