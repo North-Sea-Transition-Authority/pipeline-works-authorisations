@@ -109,9 +109,9 @@ public class ConsentDocumentServiceTest {
   public void sendForApproval_verifyServiceCalls_withParallelConsentViews() {
 
     var parallelConsentViews = List.of(
-        new ParallelConsentView(1, "", "", null, ""),
-        new ParallelConsentView(2, "", "", null, ""),
-        new ParallelConsentView(3, "", "", null, "")
+        new ParallelConsentView(1, "", 1, PwaApplicationType.INITIAL, "", null, ""),
+        new ParallelConsentView(2, "", 2, PwaApplicationType.CAT_1_VARIATION, "", null, ""),
+        new ParallelConsentView(3, "", 3, PwaApplicationType.CAT_2_VARIATION, "", null, "")
     );
 
     var consentReview = new ConsentReview();

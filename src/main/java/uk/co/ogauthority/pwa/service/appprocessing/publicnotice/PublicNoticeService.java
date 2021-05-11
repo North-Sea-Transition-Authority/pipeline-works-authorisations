@@ -187,6 +187,10 @@ public class PublicNoticeService implements AppProcessingService {
         "Couldn't find public notice with pwaApplication ID: %s", pwaApplication.getId())));
   }
 
+  private Optional<PublicNotice> getLatestPublicNoticeOpt(PwaApplication pwaApplication) {
+    return publicNoticeRepository.findFirstByPwaApplicationOrderByVersionDesc(pwaApplication);
+  }
+
   public PublicNoticeRequest getLatestPublicNoticeRequest(PublicNotice publicNotice) {
     return publicNoticeRequestRepository.findFirstByPublicNoticeOrderByVersionDesc(publicNotice)
         .orElseThrow(() -> new EntityLatestVersionNotFoundException(String.format(
@@ -342,8 +346,9 @@ public class PublicNoticeService implements AppProcessingService {
   }
 
   public boolean canApplicantViewLatestPublicNotice(PwaApplication pwaApplication) {
-    var publicNotice = getLatestPublicNotice(pwaApplication);
-    return APPLICANT_VIEW_STATUSES.contains(publicNotice.getStatus());
+    return getLatestPublicNoticeOpt(pwaApplication)
+       .map(pn -> APPLICANT_VIEW_STATUSES.contains(pn.getStatus()))
+       .orElse(false);
   }
 
   private PublicNoticeView createViewFromPublicNotice(PublicNotice publicNotice) {

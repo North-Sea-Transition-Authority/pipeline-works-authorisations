@@ -12,7 +12,7 @@
     <h2 class="govuk-heading-m">DEPOSIT OF MATERIALS</h2>
   </div>
 
-  <p class="multi-line-text" style="text-align: center">${introParagraph!}</p>
+  <p class="multi-line-text" style="text-align: center">${introParagraph?no_esc}</p>
 
   <@pwaClauseList.list documentView=docView clauseActionsUrlFactory="" showSectionHeading=false showClauseHeadings=sectionType.clauseDisplay == "SHOW_HEADING" />
 

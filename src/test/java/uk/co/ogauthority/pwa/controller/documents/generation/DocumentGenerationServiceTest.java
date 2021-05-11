@@ -35,6 +35,7 @@ import uk.co.ogauthority.pwa.service.documents.generation.DocumentSectionGenerat
 import uk.co.ogauthority.pwa.service.documents.instances.DocumentInstanceService;
 import uk.co.ogauthority.pwa.service.documents.pdf.PdfRenderingService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.service.mailmerge.MailMergeService;
 import uk.co.ogauthority.pwa.service.rendering.TemplateRenderingService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
@@ -52,6 +53,9 @@ public class DocumentGenerationServiceTest {
 
   @Mock
   private DocumentInstanceService documentInstanceService;
+
+  @Mock
+  private MailMergeService mailMergeService;
 
   @Captor
   private ArgumentCaptor<Map<String, Object>> modelMapCaptor;
@@ -71,7 +75,7 @@ public class DocumentGenerationServiceTest {
         1,
         1);
 
-    documentGenerationService = new DocumentGenerationService(springApplicationContext, templateRenderingService, pdfRenderingService, documentInstanceService);
+    documentGenerationService = new DocumentGenerationService(springApplicationContext, templateRenderingService, pdfRenderingService, documentInstanceService, mailMergeService);
 
     documentInstance = new DocumentInstance();
     documentView = new DocumentView(PwaDocumentType.INSTANCE, pwaApplicationDetail.getPwaApplication(), DocumentTemplateMnem.PWA_CONSENT_DOCUMENT);
@@ -79,13 +83,16 @@ public class DocumentGenerationServiceTest {
     when(documentInstanceService.getDocumentInstance(any(), any())).thenReturn(Optional.of(documentInstance));
     when(documentInstanceService.getDocumentView(any(), any())).thenReturn(documentView);
 
+    when(mailMergeService.mailMerge(any(), any())).thenReturn(documentView);
+
   }
 
   @Test
   public void generateConsentDocument_allDocSectionsProcessed() {
 
     var documentSectionGenerator = mock(DocumentSectionGenerator.class);
-    when(documentSectionGenerator.getDocumentSectionData(pwaApplicationDetail, documentInstance)).thenReturn(new DocumentSectionData("TEMPLATE", Map.of("test", "test")));
+    when(documentSectionGenerator.getDocumentSectionData(pwaApplicationDetail, documentInstance, DocGenType.PREVIEW))
+        .thenReturn(new DocumentSectionData("TEMPLATE", Map.of("test", "test")));
 
     when(springApplicationContext.getBean(any(Class.class))).thenAnswer(invocation -> documentSectionGenerator);
 
@@ -101,8 +108,9 @@ public class DocumentGenerationServiceTest {
     int numberOfClauseSections = sectionTypeToCountMap.get(SectionType.CLAUSE_LIST).intValue();
 
     verify(documentSectionGenerator, times(numberOfCustomSections)).getDocumentSectionData(pwaApplicationDetail,
-        documentInstance);
+        documentInstance, DocGenType.PREVIEW);
     verify(documentInstanceService, times(numberOfClauseSections)).getDocumentView(eq(documentInstance), any());
+    verify(mailMergeService, times(numberOfClauseSections)).mailMerge(documentView, DocGenType.PREVIEW);
 
     verify(templateRenderingService, times(1)).render(eq("documents/consents/consentDocument.ftl"), modelMapCaptor.capture(), eq(false));
 

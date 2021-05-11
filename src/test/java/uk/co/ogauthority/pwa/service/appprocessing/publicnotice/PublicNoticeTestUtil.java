@@ -192,8 +192,8 @@ public final class PublicNoticeTestUtil {
         publicNotice,
         startDate.atStartOfDay(ZoneId.systemDefault()).toInstant(),
         startDate.plusDays(28).atStartOfDay(ZoneId.systemDefault()).toInstant(),
-        1
-    );
+        1,
+        Instant.now());
   }
 
 

@@ -94,7 +94,11 @@
       </#if>
     </#if>
 
-    <@multiLineText.multiLineText blockClass="clause-list__text">${clauseView.text!}</@multiLineText.multiLineText>
+    <@multiLineText.multiLineText blockClass="clause-list__text">
+      <#if clauseView.text?has_content>
+        ${clauseView.text?no_esc}
+      </#if>
+    </@multiLineText.multiLineText>
 
     <#if clauseView.childClauses?has_content>
 

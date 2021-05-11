@@ -3,7 +3,11 @@ package uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -18,6 +22,7 @@ import org.springframework.validation.BindingResult;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.enums.ProjectInformationQuestion;
+import uk.co.ogauthority.pwa.model.entity.enums.mailmerge.MailMergeFieldMnem;
 import uk.co.ogauthority.pwa.model.entity.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadProjectInformation;
@@ -158,6 +163,11 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
     return Optional.ofNullable(projectInformation.getProposedStartTimestamp());
   }
 
+  public Optional<Instant> getLatestProjectCompletionDate(PwaApplicationDetail pwaApplicationDetail) {
+    var projectInformation = getPadProjectInformationData(pwaApplicationDetail);
+    return Optional.ofNullable(projectInformation.getLatestCompletionTimestamp());
+  }
+
   public Set<ProjectInformationQuestion> getRequiredQuestions(PwaApplicationType pwaApplicationType) {
 
     EnumSet<ProjectInformationQuestion> hiddenQuestions;
@@ -267,4 +277,49 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
             && padProjectInformation.getPermanentDepositsMade().isPermanentDepositMade())
         .orElse(false);
   }
+
+  @Override
+  public List<MailMergeFieldMnem> getAvailableMailMergeFields(PwaApplicationDetail pwaApplicationDetail) {
+
+    var questions = getRequiredQuestions(pwaApplicationDetail.getPwaApplicationType());
+    var mailMergeFieldList = new ArrayList<MailMergeFieldMnem>();
+
+    if (questions.contains(ProjectInformationQuestion.PROPOSED_START_DATE)) {
+      mailMergeFieldList.add(MailMergeFieldMnem.PROPOSED_START_OF_WORKS_DATE);
+    }
+
+    if (questions.contains(ProjectInformationQuestion.PROJECT_NAME)) {
+      mailMergeFieldList.add(MailMergeFieldMnem.PROJECT_NAME);
+    }
+
+    return mailMergeFieldList;
+
+  }
+
+  @Override
+  public Map<MailMergeFieldMnem, String> resolveMailMergeFields(PwaApplicationDetail pwaApplicationDetail) {
+
+    var availableMergeFields = getAvailableMailMergeFields(pwaApplicationDetail);
+
+    var map = new HashMap<MailMergeFieldMnem, String>();
+
+    if (!availableMergeFields.isEmpty()) {
+
+      var projectInformation = getPadProjectInformationData(pwaApplicationDetail);
+
+      if (availableMergeFields.contains(MailMergeFieldMnem.PROPOSED_START_OF_WORKS_DATE)) {
+        map.put(MailMergeFieldMnem.PROPOSED_START_OF_WORKS_DATE,
+            DateUtils.formatDate(projectInformation.getProposedStartTimestamp()));
+      }
+
+      if (availableMergeFields.contains(MailMergeFieldMnem.PROJECT_NAME)) {
+        map.put(MailMergeFieldMnem.PROJECT_NAME, projectInformation.getProjectName());
+      }
+
+    }
+
+    return map;
+
+  }
+
 }

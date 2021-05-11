@@ -1,10 +1,12 @@
 package uk.co.ogauthority.pwa.service.appprocessing.publicnotice;
 
+import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
@@ -41,6 +43,7 @@ public class FinalisePublicNoticeService {
   private final PwaContactService pwaContactService;
   private final NotifyService notifyService;
   private final EmailCaseLinkService emailCaseLinkService;
+  private final Clock clock;
 
 
   @Autowired
@@ -51,7 +54,8 @@ public class FinalisePublicNoticeService {
       PublicNoticeDatesRepository publicNoticeDatesRepository,
       @Value("${service.name}") String serviceName,
       PwaContactService pwaContactService, NotifyService notifyService,
-      EmailCaseLinkService emailCaseLinkService) {
+      EmailCaseLinkService emailCaseLinkService,
+      @Qualifier("utcClock") Clock clock) {
     this.publicNoticeService = publicNoticeService;
     this.finalisePublicNoticeValidator = finalisePublicNoticeValidator;
     this.camundaWorkflowService = camundaWorkflowService;
@@ -60,6 +64,7 @@ public class FinalisePublicNoticeService {
     this.pwaContactService = pwaContactService;
     this.notifyService = notifyService;
     this.emailCaseLinkService = emailCaseLinkService;
+    this.clock = clock;
   }
 
 
@@ -131,7 +136,8 @@ public class FinalisePublicNoticeService {
         publicNotice,
         startDate.atStartOfDay(ZoneId.systemDefault()).toInstant(),
         createPublicationEndDateInstant(startDate, form.getDaysToBePublishedFor()),
-        authenticatedUserAccount.getLinkedPerson().getId().asInt());
+        authenticatedUserAccount.getLinkedPerson().getId().asInt(),
+        clock.instant());
     publicNoticeDatesRepository.save(publicNoticeDate);
 
     if (startDate.isBefore(LocalDate.now()) || startDate.isEqual(LocalDate.now())) {
@@ -179,10 +185,12 @@ public class FinalisePublicNoticeService {
                                      FinalisePublicNoticeForm form,
                                      AuthenticatedUserAccount authenticatedUserAccount) {
 
+    var time = clock.instant();
     var publicNotice = publicNoticeService.getLatestPublicNotice(pwaApplication);
     var activePublicNoticeDate = getActivePublicNoticeDate(publicNotice);
 
     activePublicNoticeDate.setEndedByPersonId(authenticatedUserAccount.getLinkedPerson().getId().asInt());
+    activePublicNoticeDate.setEndedTimestamp(time);
     publicNoticeDatesRepository.save(activePublicNoticeDate);
 
     var startDate = LocalDate.of(form.getStartYear(), form.getStartMonth(), form.getStartDay());
@@ -190,7 +198,8 @@ public class FinalisePublicNoticeService {
         publicNotice,
         startDate.atStartOfDay(ZoneId.systemDefault()).toInstant(),
         createPublicationEndDateInstant(startDate, form.getDaysToBePublishedFor()),
-        authenticatedUserAccount.getLinkedPerson().getId().asInt());
+        authenticatedUserAccount.getLinkedPerson().getId().asInt(),
+        time);
     publicNoticeDatesRepository.save(newPublicNoticeDate);
 
     if (startDate.isBefore(LocalDate.now()) || startDate.isEqual(LocalDate.now())) {

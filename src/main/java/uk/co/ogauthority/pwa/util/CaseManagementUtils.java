@@ -7,6 +7,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.controller.appprocessing.CaseManagementController;
+import uk.co.ogauthority.pwa.controller.appsummary.ApplicationSummaryController;
 import uk.co.ogauthority.pwa.exception.AccessDeniedException;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
@@ -19,6 +20,12 @@ public class CaseManagementUtils {
 
   private CaseManagementUtils() {
     throw new AssertionError();
+  }
+
+  public static String routeApplicationSummary(Integer pwaApplicationId, PwaApplicationType applicationType) {
+
+    return ReverseRouter.route(on(ApplicationSummaryController.class)
+        .renderSummary(pwaApplicationId, applicationType, null, null));
   }
 
   public static String routeCaseManagement(Integer pwaApplicationId, PwaApplicationType applicationType) {

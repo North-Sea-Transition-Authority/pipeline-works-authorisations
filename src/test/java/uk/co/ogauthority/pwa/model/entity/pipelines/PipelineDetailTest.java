@@ -7,7 +7,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.security.util.FieldUtils;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.model.location.CoordinatePair;
 import uk.co.ogauthority.pwa.model.location.LatitudeCoordinate;
 import uk.co.ogauthority.pwa.model.location.LongitudeCoordinate;
@@ -57,7 +56,7 @@ public class PipelineDetailTest {
   @Test
   public void postLoad() throws IllegalAccessException {
 
-    var pipeline = new PadPipeline();
+    var pipeline = new PipelineDetail();
 
     FieldUtils.setProtectedFieldValue("fromLatitudeDegrees", pipeline, 49);
     FieldUtils.setProtectedFieldValue("fromLatitudeMinutes", pipeline, 4);
@@ -101,4 +100,15 @@ public class PipelineDetailTest {
 
   }
 
+  @Test(expected = NullPointerException.class)
+  public void getPipelineDetailId_whenIdIsNull() {
+    var pd = new PipelineDetail();
+    pd.getPipelineDetailId();
+  }
+
+  public void getPipelineDetailId_whenIdIsNotNull() {
+    var pd = new PipelineDetail();
+    pd.setId(1);
+    assertThat(pd.getPipelineDetailId().asInt()).isEqualTo(1);
+  }
 }

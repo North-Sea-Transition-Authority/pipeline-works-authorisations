@@ -1,7 +1,9 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.generic;
 
 import java.util.List;
+import java.util.Map;
 import org.springframework.validation.BindingResult;
+import uk.co.ogauthority.pwa.model.entity.enums.mailmerge.MailMergeFieldMnem;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 
@@ -62,6 +64,14 @@ public interface ApplicationFormSectionService {
 
   default boolean allowCopyOfSectionInformation(PwaApplicationDetail pwaApplicationDetail) {
     return canShowInTaskList(pwaApplicationDetail);
+  }
+
+  default List<MailMergeFieldMnem> getAvailableMailMergeFields(PwaApplicationDetail pwaApplicationDetail) {
+    return List.of();
+  }
+
+  default Map<MailMergeFieldMnem, String> resolveMailMergeFields(PwaApplicationDetail pwaApplicationDetail) {
+    return Map.of();
   }
 
 }

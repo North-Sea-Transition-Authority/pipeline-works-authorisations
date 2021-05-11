@@ -1,8 +1,8 @@
 package uk.co.ogauthority.pwa.service.mailmerge;
 
-import java.util.Collection;
+import java.util.List;
 import java.util.Map;
-import uk.co.ogauthority.pwa.model.entity.mailmerge.MailMergeField;
+import uk.co.ogauthority.pwa.model.entity.enums.mailmerge.MailMergeFieldMnem;
 import uk.co.ogauthority.pwa.service.documents.DocumentSource;
 
 /**
@@ -16,10 +16,11 @@ public interface DocumentSourceMailMergeResolver {
    */
   boolean supportsDocumentSource(DocumentSource documentSource);
 
+  List<MailMergeFieldMnem> getAvailableMailMergeFields(DocumentSource documentSource);
+
   /**
    * Taking a document source and some merge fields to resolve, return a map of field mnem name to resolved value.
    */
-  Map<String, String> resolveMergeFields(DocumentSource documentSource,
-                                         Collection<MailMergeField> mailMergeFields);
+  Map<String, String> resolveMergeFields(DocumentSource documentSource);
 
 }

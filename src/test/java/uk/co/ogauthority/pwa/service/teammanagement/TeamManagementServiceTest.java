@@ -32,13 +32,13 @@ import uk.co.ogauthority.pwa.model.form.teammanagement.UserRolesForm;
 import uk.co.ogauthority.pwa.model.teammanagement.TeamMemberView;
 import uk.co.ogauthority.pwa.model.teammanagement.TeamRoleView;
 import uk.co.ogauthority.pwa.model.teams.PwaOrganisationTeam;
+import uk.co.ogauthority.pwa.model.teams.PwaOrganisationUserRole;
 import uk.co.ogauthority.pwa.model.teams.PwaRegulatorTeam;
+import uk.co.ogauthority.pwa.model.teams.PwaRegulatorUserRole;
 import uk.co.ogauthority.pwa.model.teams.PwaRole;
 import uk.co.ogauthority.pwa.model.teams.PwaTeam;
 import uk.co.ogauthority.pwa.model.teams.PwaTeamMember;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
-import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaOrganisationUserRole;
-import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaRegulatorUserRole;
 import uk.co.ogauthority.pwa.service.teams.TeamService;
 import uk.co.ogauthority.pwa.testutils.TeamTestingUtils;
 

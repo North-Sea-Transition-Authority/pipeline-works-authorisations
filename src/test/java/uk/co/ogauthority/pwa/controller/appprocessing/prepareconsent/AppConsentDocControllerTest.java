@@ -50,6 +50,7 @@ import uk.co.ogauthority.pwa.service.documents.generation.DocumentGenerationServ
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.service.mailmerge.MailMergeService;
 import uk.co.ogauthority.pwa.service.template.TemplateTextService;
 import uk.co.ogauthority.pwa.testutils.PwaAppProcessingContextDtoTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
@@ -79,6 +80,9 @@ public class AppConsentDocControllerTest extends PwaAppProcessingContextAbstract
 
   @MockBean
   private TemplateTextService templateTextService;
+
+  @MockBean
+  private MailMergeService mailMergeService;
 
   private PwaApplicationEndpointTestBuilder editDocumentEndpointTester;
   private PwaApplicationEndpointTestBuilder sendForApprovalEndpointTester;

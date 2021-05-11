@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.model.documents.generation.DocumentSectionData;
 import uk.co.ogauthority.pwa.model.entity.documents.instances.DocumentInstance;
+import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocGenType;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocumentSection;
 import uk.co.ogauthority.pwa.model.entity.enums.measurements.UnitMeasurement;
 import uk.co.ogauthority.pwa.model.entity.enums.permanentdeposits.MaterialType;
@@ -44,7 +45,8 @@ public class DepositsGeneratorService implements DocumentSectionGenerator {
 
   @Override
   public DocumentSectionData getDocumentSectionData(PwaApplicationDetail pwaApplicationDetail,
-                                                    DocumentInstance documentInstance) {
+                                                    DocumentInstance documentInstance,
+                                                    DocGenType docGenType) {
 
     var depositForPipelinesMap = permanentDepositService.getDepositForDepositPipelinesMap(pwaApplicationDetail);
     var depositsWithPipelinesFromOtherApps = permanentDepositService.getAllDepositsWithPipelinesFromOtherApps(pwaApplicationDetail);
@@ -89,7 +91,7 @@ public class DepositsGeneratorService implements DocumentSectionGenerator {
     var depositFootnotes = allDeposits.stream()
         .filter(deposit -> deposit.getFootnote() != null)
         .sorted(Comparator.comparing(PadPermanentDeposit::getReference))
-        .map(deposit -> String.format("[%s: %s]", deposit.getReference(), deposit.getFootnote()))
+        .map(deposit -> String.format("%s: %s", deposit.getReference(), deposit.getFootnote()))
         .collect(Collectors.toList());
 
     Map<String, Object> modelMap = Map.of(

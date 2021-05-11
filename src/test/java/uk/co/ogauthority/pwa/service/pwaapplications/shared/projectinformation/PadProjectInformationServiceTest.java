@@ -12,6 +12,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.EnumSet;
+import java.util.Map;
 import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
@@ -23,6 +24,7 @@ import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.enums.ProjectInformationQuestion;
+import uk.co.ogauthority.pwa.model.entity.enums.mailmerge.MailMergeFieldMnem;
 import uk.co.ogauthority.pwa.model.entity.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
@@ -36,6 +38,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationTyp
 import uk.co.ogauthority.pwa.service.fileupload.FileUpdateMode;
 import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
+import uk.co.ogauthority.pwa.util.DateUtils;
 import uk.co.ogauthority.pwa.validators.ProjectInformationFormValidationHints;
 import uk.co.ogauthority.pwa.validators.ProjectInformationValidator;
 
@@ -388,5 +391,42 @@ public class PadProjectInformationServiceTest {
     assertThat(service.getPermanentDepositsOnApplication(pwaApplicationDetail)).isEqualTo(true);
   }
 
+  @Test
+  public void getAvailableMailMergeFields() {
+
+    PwaApplicationType.stream().forEach(appType -> {
+
+      var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(appType);
+
+      var mergeFields = service.getAvailableMailMergeFields(detail);
+
+      assertThat(mergeFields).containsExactlyInAnyOrder(MailMergeFieldMnem.PROPOSED_START_OF_WORKS_DATE, MailMergeFieldMnem.PROJECT_NAME);
+
+    });
+
+  }
+
+  @Test
+  public void resolveMailMergeFields() {
+
+    var projectInfoData = new PadProjectInformation();
+    projectInfoData.setProjectName("project name");
+    projectInfoData.setProposedStartTimestamp(Instant.now());
+
+    PwaApplicationType.stream().forEach(appType -> {
+
+      var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(appType);
+
+      when(padProjectInformationRepository.findByPwaApplicationDetail(detail)).thenReturn(Optional.of(projectInfoData));
+
+      var mergeFieldsMap = service.resolveMailMergeFields(detail);
+
+      assertThat(mergeFieldsMap).containsExactlyInAnyOrderEntriesOf(Map.of(
+          MailMergeFieldMnem.PROPOSED_START_OF_WORKS_DATE, DateUtils.formatDate(projectInfoData.getProposedStartTimestamp()),
+          MailMergeFieldMnem.PROJECT_NAME, projectInfoData.getProjectName()));
+
+    });
+
+  }
 
 }

@@ -8,6 +8,7 @@ import java.util.function.Function;
 import uk.co.ogauthority.pwa.controller.ApplicationLandingPageRouterController;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailItemView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 
 public class ApplicationWorkAreaItemTestUtil {
@@ -80,13 +81,14 @@ public class ApplicationWorkAreaItemTestUtil {
 
   }
 
-  public static void test_getApplicationColumn_whenInitialType(ApplicationDetailItemView applicationDetailSearchItem,
+  public static void test_getApplicationColumn_whenApplicationNotCompleteOrInitial(ApplicationDetailItemView applicationDetailSearchItem,
                                                                Function<ApplicationDetailItemView, ApplicationWorkAreaItem> workAreaItemFunction) {
 
 
     applicationDetailSearchItem.setApplicationType(PwaApplicationType.INITIAL);
+    applicationDetailSearchItem.setPadStatus(PwaApplicationStatus.DRAFT);
     applicationDetailSearchItem.setPadReference("PAD REFERENCE");
-    applicationDetailSearchItem.setPwaReference("PWA REFERENCE");
+    applicationDetailSearchItem.setPwaReference("PAD REFERENCE");
 
     var applicationWorkAreaItem = workAreaItemFunction.apply(applicationDetailSearchItem);
 
@@ -97,11 +99,12 @@ public class ApplicationWorkAreaItemTestUtil {
 
   }
 
-  public static void test_getApplicationColumn_whenNotInitialType(ApplicationDetailItemView applicationDetailSearchItem,
+  public static void test_getApplicationColumn_whenApplicationCompleteOrNotInitial(ApplicationDetailItemView applicationDetailSearchItem,
                                                                Function<ApplicationDetailItemView, ApplicationWorkAreaItem> workAreaItemFunction) {
 
 
     applicationDetailSearchItem.setApplicationType(PwaApplicationType.CAT_1_VARIATION);
+    applicationDetailSearchItem.setPadStatus(PwaApplicationStatus.COMPLETE);
     applicationDetailSearchItem.setPadReference("PAD REFERENCE");
     applicationDetailSearchItem.setPwaReference("PWA REFERENCE");
 
