@@ -24,7 +24,6 @@ public enum ProjectInformationQuestion {
   FIELD_DEVELOPMENT_PLAN((applicationType) -> false),
   PROJECT_LAYOUT_DIAGRAM((applicationType) -> false);
 
-
   private final Function<PwaApplicationType, Boolean> isOptional;
 
   ProjectInformationQuestion(Function<PwaApplicationType, Boolean> isOptional) {

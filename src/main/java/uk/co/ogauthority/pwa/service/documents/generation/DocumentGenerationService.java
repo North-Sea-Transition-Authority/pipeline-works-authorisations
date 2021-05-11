@@ -17,6 +17,7 @@ import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.SectionType
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.documents.instances.DocumentInstanceService;
 import uk.co.ogauthority.pwa.service.documents.pdf.PdfRenderingService;
+import uk.co.ogauthority.pwa.service.mailmerge.MailMergeService;
 import uk.co.ogauthority.pwa.service.rendering.TemplateRenderingService;
 
 @Service
@@ -26,16 +27,19 @@ public class DocumentGenerationService {
   private final TemplateRenderingService templateRenderingService;
   private final PdfRenderingService pdfRenderingService;
   private final DocumentInstanceService documentInstanceService;
+  private final MailMergeService mailMergeService;
 
   @Autowired
   public DocumentGenerationService(ApplicationContext springApplicationContext,
                                    TemplateRenderingService templateRenderingService,
                                    PdfRenderingService pdfRenderingService,
-                                   DocumentInstanceService documentInstanceService) {
+                                   DocumentInstanceService documentInstanceService,
+                                   MailMergeService mailMergeService) {
     this.springApplicationContext = springApplicationContext;
     this.templateRenderingService = templateRenderingService;
     this.pdfRenderingService = pdfRenderingService;
     this.documentInstanceService = documentInstanceService;
+    this.mailMergeService = mailMergeService;
   }
 
   public Blob generateConsentDocument(PwaApplicationDetail pwaApplicationDetail,
@@ -54,7 +58,7 @@ public class DocumentGenerationService {
     // 3. join onto previously rendered section
     var combinedSectionHtml = docSpec.getDocumentSectionDisplayOrderMap().entrySet().stream()
         .sorted(Map.Entry.comparingByValue())
-        .map(entry -> getDocumentSectionData(pwaApplicationDetail, docInstance, entry.getKey()))
+        .map(entry -> getDocumentSectionData(pwaApplicationDetail, docInstance, entry.getKey(), docGenType))
         .filter(Objects::nonNull)
         .map(sectionData -> templateRenderingService.render(sectionData.getTemplatePath(), sectionData.getTemplateModel(), false))
         .collect(Collectors.joining());
@@ -78,18 +82,24 @@ public class DocumentGenerationService {
 
   private DocumentSectionData getDocumentSectionData(PwaApplicationDetail pwaApplicationDetail,
                                                      DocumentInstance documentInstance,
-                                                     DocumentSection documentSection) {
+                                                     DocumentSection documentSection,
+                                                     DocGenType docGenType) {
 
     if (documentSection.getSectionType() == SectionType.CLAUSE_LIST) {
+
+      var docView = documentInstanceService.getDocumentView(documentInstance, documentSection);
+      docView = mailMergeService.mailMerge(docView, docGenType);
+
       return new DocumentSectionData(
           "documents/consents/clauseSection",
           Map.of(
-              "docView", documentInstanceService.getDocumentView(documentInstance, documentSection),
+              "docView", docView,
               "sectionType", documentSection));
+
     }
 
     return springApplicationContext.getBean(documentSection.getSectionGenerator())
-        .getDocumentSectionData(pwaApplicationDetail, documentInstance);
+        .getDocumentSectionData(pwaApplicationDetail, documentInstance, docGenType);
 
   }
 

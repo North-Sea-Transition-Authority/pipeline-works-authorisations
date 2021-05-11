@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.model.documents.generation.DocumentSectionData;
 import uk.co.ogauthority.pwa.model.entity.documents.instances.DocumentInstance;
+import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocGenType;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocumentSection;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdepositdrawings.PadDepositDrawing;
@@ -27,7 +28,8 @@ public class DepositDrawingsGeneratorService implements DocumentSectionGenerator
 
   @Override
   public DocumentSectionData getDocumentSectionData(PwaApplicationDetail pwaApplicationDetail,
-                                                    DocumentInstance documentInstance) {
+                                                    DocumentInstance documentInstance,
+                                                    DocGenType docGenType) {
 
     var drawings = depositDrawingsService.getAllDepositDrawingsForDetail(pwaApplicationDetail);
 

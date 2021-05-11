@@ -13,6 +13,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocGenType;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocumentSection;
 import uk.co.ogauthority.pwa.model.entity.enums.measurements.UnitMeasurement;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineStatus;
@@ -162,7 +163,7 @@ public class DepositGeneratorServiceTest {
 
 
 
-    var documentSectionData = depositsGeneratorService.getDocumentSectionData(pwaApplicationDetail, null);
+    var documentSectionData = depositsGeneratorService.getDocumentSectionData(pwaApplicationDetail, null, DocGenType.PREVIEW);
     var depositTableRowViews = (List<DepositTableRowView>) documentSectionData.getTemplateModel().get("depositTableRowViews");
     var sectionName = documentSectionData.getTemplateModel().get("sectionName");
 
@@ -228,7 +229,7 @@ public class DepositGeneratorServiceTest {
     when(permanentDepositService.getDepositForDepositPipelinesMap(pwaApplicationDetail)).thenReturn(Map.of());
     when(permanentDepositService.getAllDepositsWithPipelinesFromOtherApps(pwaApplicationDetail)).thenReturn(List.of());
 
-    var docSectionData = depositsGeneratorService.getDocumentSectionData(pwaApplicationDetail, null);
+    var docSectionData = depositsGeneratorService.getDocumentSectionData(pwaApplicationDetail, null, DocGenType.PREVIEW);
 
     assertThat(docSectionData).isNull();
 

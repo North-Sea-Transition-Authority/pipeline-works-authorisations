@@ -2,20 +2,31 @@ package uk.co.ogauthority.pwa.service.markdown;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
+import org.apache.commons.lang3.StringUtils;
 import org.commonmark.Extension;
 import org.commonmark.ext.gfm.tables.TablesExtension;
 import org.commonmark.node.Node;
 import org.commonmark.parser.Parser;
 import org.commonmark.renderer.html.HtmlRenderer;
 import org.springframework.stereotype.Service;
+import uk.co.ogauthority.pwa.service.markdown.automatic.AutomaticMailMergeExtension;
 
 @Service
 public class MarkdownService {
 
-  public String convertMarkdownToHtml(String markdown, Map<String, String> mailMergeFieldValues) {
+  public String convertMarkdownToHtml(String markdown,
+                                      MailMergeContainer mailMergeContainer) {
 
-    List<Extension> extensions = Arrays.asList(TablesExtension.create(), MailMergeExtension.create(mailMergeFieldValues));
+    if (StringUtils.isBlank(markdown)) {
+      return markdown;
+    }
+
+    List<Extension> extensions = Arrays.asList(
+        TablesExtension.create(),
+        AutomaticMailMergeExtension.create(mailMergeContainer));
+
+    // TODO PWA-1227 fix up
+    //    ManualMailMergeExtension.create(mailMergeContainer)
 
     Parser parser = Parser.builder()
         .extensions(extensions)

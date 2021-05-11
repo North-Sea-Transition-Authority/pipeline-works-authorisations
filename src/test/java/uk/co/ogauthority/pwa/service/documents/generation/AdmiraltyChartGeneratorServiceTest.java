@@ -15,6 +15,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
+import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocGenType;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocumentSection;
 import uk.co.ogauthority.pwa.model.entity.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.files.PadFile;
@@ -54,7 +55,7 @@ public class AdmiraltyChartGeneratorServiceTest {
   @Test
   public void getDocumentSectionData_admiraltyChartAvailable() {
 
-    var docSectionData = admiraltyChartGeneratorService.getDocumentSectionData(detail, null);
+    var docSectionData = admiraltyChartGeneratorService.getDocumentSectionData(detail, null, DocGenType.PREVIEW);
 
     verify(consentDocumentImageService, times(1)).convertFilesToImageSourceMap(Set.of("id1"));
 
@@ -72,7 +73,7 @@ public class AdmiraltyChartGeneratorServiceTest {
     when(padFileService.getAllByPwaApplicationDetailAndPurpose(detail, ApplicationDetailFilePurpose.ADMIRALTY_CHART))
         .thenReturn(List.of());
 
-    var docSectionData = admiraltyChartGeneratorService.getDocumentSectionData(detail, null);
+    var docSectionData = admiraltyChartGeneratorService.getDocumentSectionData(detail, null, DocGenType.PREVIEW);
 
     verify(consentDocumentImageService, times(0)).convertFilesToImageSourceMap(Set.of("id1"));
 

@@ -120,7 +120,7 @@ public class DocumentInstanceController {
                                          AuthenticatedUserAccount authenticatedUserAccount,
                                          RedirectAttributes redirectAttributes) {
 
-    clauseFormValidator.validate(form, bindingResult);
+    clauseFormValidator.validate(form, bindingResult, processingContext.getPwaApplication());
 
     return controllerHelperService
         .checkErrorsAndRedirect(bindingResult, getAddEditClauseModelAndView(processingContext, ScreenActionType.ADD), () -> {
@@ -165,7 +165,7 @@ public class DocumentInstanceController {
                                           AuthenticatedUserAccount authenticatedUserAccount,
                                           RedirectAttributes redirectAttributes) {
 
-    clauseFormValidator.validate(form, bindingResult);
+    clauseFormValidator.validate(form, bindingResult, processingContext.getPwaApplication());
 
     return controllerHelperService
         .checkErrorsAndRedirect(bindingResult, getAddEditClauseModelAndView(processingContext, ScreenActionType.ADD), () -> {
@@ -210,7 +210,7 @@ public class DocumentInstanceController {
                                           AuthenticatedUserAccount authenticatedUserAccount,
                                           RedirectAttributes redirectAttributes) {
 
-    clauseFormValidator.validate(form, bindingResult);
+    clauseFormValidator.validate(form, bindingResult, processingContext.getPwaApplication());
 
     return controllerHelperService
         .checkErrorsAndRedirect(bindingResult, getAddEditClauseModelAndView(processingContext, ScreenActionType.ADD), () -> {
@@ -257,7 +257,7 @@ public class DocumentInstanceController {
                                      AuthenticatedUserAccount authenticatedUserAccount,
                                      RedirectAttributes redirectAttributes) {
 
-    clauseFormValidator.validate(form, bindingResult);
+    clauseFormValidator.validate(form, bindingResult, processingContext.getPwaApplication());
 
     return controllerHelperService
         .checkErrorsAndRedirect(bindingResult, getAddEditClauseModelAndView(processingContext, ScreenActionType.EDIT, form), () -> {

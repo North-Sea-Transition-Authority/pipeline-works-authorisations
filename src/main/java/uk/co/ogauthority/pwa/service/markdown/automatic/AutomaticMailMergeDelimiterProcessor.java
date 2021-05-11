@@ -1,11 +1,11 @@
-package uk.co.ogauthority.pwa.service.markdown;
+package uk.co.ogauthority.pwa.service.markdown.automatic;
 
 import org.commonmark.node.Node;
 import org.commonmark.node.Text;
 import org.commonmark.parser.delimiter.DelimiterProcessor;
 import org.commonmark.parser.delimiter.DelimiterRun;
 
-public class MailMergeDelimiterProcessor implements DelimiterProcessor {
+public class AutomaticMailMergeDelimiterProcessor implements DelimiterProcessor {
 
   @Override
   public char getOpeningCharacter() {

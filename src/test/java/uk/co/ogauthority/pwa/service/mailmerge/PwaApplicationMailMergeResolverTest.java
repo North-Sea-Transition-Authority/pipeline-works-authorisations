@@ -14,12 +14,14 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.context.ApplicationContext;
 import uk.co.ogauthority.pwa.model.entity.enums.mailmerge.MailMergeFieldMnem;
-import uk.co.ogauthority.pwa.model.entity.mailmerge.MailMergeField;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadProjectInformation;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTask;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
+import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
+import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskListService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation.PadProjectInformationService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.util.DateUtils;
@@ -31,23 +33,27 @@ public class PwaApplicationMailMergeResolverTest {
   private PwaApplicationDetailService pwaApplicationDetailService;
 
   @Mock
+  private TaskListService taskListService;
+
+  @Mock
+  private ApplicationContext applicationContext;
+
+  @Mock
   private PadProjectInformationService padProjectInformationService;
+
+  @Mock
+  private ApplicationFormSectionService genericSectionService;
 
   private PwaApplicationMailMergeResolver pwaApplicationMailMergeResolver;
 
-  private List<MailMergeField> mailMergeFields;
+  private List<MailMergeFieldMnem> mailMergeFields;
 
   @Before
   public void setUp() throws Exception {
 
-    pwaApplicationMailMergeResolver = new PwaApplicationMailMergeResolver(pwaApplicationDetailService, padProjectInformationService);
+    pwaApplicationMailMergeResolver = new PwaApplicationMailMergeResolver(pwaApplicationDetailService, taskListService, applicationContext);
 
     mailMergeFields = Arrays.stream(MailMergeFieldMnem.values())
-        .map(v -> {
-          var f = new MailMergeField();
-          f.setMnem(v);
-          return f;
-        })
         .collect(Collectors.toList());
 
   }
@@ -64,6 +70,28 @@ public class PwaApplicationMailMergeResolverTest {
   }
 
   @Test
+  public void getAvailableMailMergeFields() {
+
+    var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
+
+    when(pwaApplicationDetailService.getLatestSubmittedDetail(detail.getPwaApplication()))
+        .thenReturn(Optional.of(detail));
+
+    var allTasks = ApplicationTask.stream()
+        .collect(Collectors.toList());
+    when(taskListService.getShownApplicationTasksForDetail(detail))
+        .thenReturn(List.of(ApplicationTask.PROJECT_INFORMATION));
+
+    when(applicationContext.getBean(PadProjectInformationService.class)).thenReturn(padProjectInformationService);
+    when(padProjectInformationService.getAvailableMailMergeFields(detail)).thenReturn(mailMergeFields);
+
+    var availableFields = pwaApplicationMailMergeResolver.getAvailableMailMergeFields(detail.getPwaApplication());
+
+    assertThat(availableFields).isEqualTo(mailMergeFields);
+
+  }
+
+  @Test
   public void resolveMergeFields() {
 
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
@@ -71,20 +99,26 @@ public class PwaApplicationMailMergeResolverTest {
     when(pwaApplicationDetailService.getLatestSubmittedDetail(detail.getPwaApplication()))
         .thenReturn(Optional.of(detail));
 
-    var start = Instant.now();
-    var projectInfo = new PadProjectInformation();
-    projectInfo.setProjectName("proj");
-    projectInfo.setProposedStartTimestamp(start);
+    var allTasks = ApplicationTask.stream()
+        .collect(Collectors.toList());
+    when(taskListService.getShownApplicationTasksForDetail(detail))
+        .thenReturn(List.of(ApplicationTask.PROJECT_INFORMATION));
 
-    when(padProjectInformationService.getPadProjectInformationData(detail)).thenReturn(projectInfo);
+    when(applicationContext.getBean(PadProjectInformationService.class)).thenReturn(padProjectInformationService);
 
-    var fieldToValueMap = pwaApplicationMailMergeResolver
-        .resolveMergeFields(detail.getPwaApplication(), mailMergeFields);
+    var resolvedFields = Map.of(
+        MailMergeFieldMnem.PROPOSED_START_OF_WORKS_DATE, DateUtils.formatDate(Instant.now()),
+        MailMergeFieldMnem.PROJECT_NAME, "project name"
+    );
 
-    assertThat(fieldToValueMap).containsExactlyInAnyOrderEntriesOf(Map.of(
-        MailMergeFieldMnem.PROPOSED_START_OF_WORKS_DATE.name(), DateUtils.formatDate(start),
-        MailMergeFieldMnem.PROJECT_NAME.name(), projectInfo.getProjectName()
-    ));
+    when(padProjectInformationService.resolveMailMergeFields(detail)).thenReturn(resolvedFields);
+
+    var resultMap = pwaApplicationMailMergeResolver.resolveMergeFields(detail.getPwaApplication());
+
+    var expectedResultMap = resolvedFields.entrySet().stream()
+        .collect(Collectors.toMap(e -> e.getKey().name(), Map.Entry::getValue));
+
+    assertThat(resultMap).containsExactlyInAnyOrderEntriesOf(expectedResultMap);
 
   }
 

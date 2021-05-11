@@ -48,6 +48,7 @@ import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermiss
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingTask;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.service.mailmerge.MailMergeService;
 import uk.co.ogauthority.pwa.service.template.TemplateTextService;
 import uk.co.ogauthority.pwa.util.FlashUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
@@ -65,6 +66,7 @@ public class AppConsentDocController {
   private final TemplateTextService templateTextService;
   private final ConsentDocumentService consentDocumentService;
   private final ConsentReviewService consentReviewService;
+  private final MailMergeService mailMergeService;
 
   @Autowired
   public AppConsentDocController(AppProcessingBreadcrumbService breadcrumbService,
@@ -74,7 +76,8 @@ public class AppConsentDocController {
                                  ControllerHelperService controllerHelperService,
                                  TemplateTextService templateTextService,
                                  ConsentDocumentService consentDocumentService,
-                                 ConsentReviewService consentReviewService) {
+                                 ConsentReviewService consentReviewService,
+                                 MailMergeService mailMergeService) {
     this.breadcrumbService = breadcrumbService;
     this.documentService = documentService;
     this.documentGenerationService = documentGenerationService;
@@ -83,6 +86,7 @@ public class AppConsentDocController {
     this.templateTextService = templateTextService;
     this.consentDocumentService = consentDocumentService;
     this.consentReviewService = consentReviewService;
+    this.mailMergeService = mailMergeService;
   }
 
   @GetMapping
@@ -102,6 +106,7 @@ public class AppConsentDocController {
 
           var docView = docInstanceOpt
               .map(documentService::getDocumentViewForInstance)
+              .map(documentView -> mailMergeService.mailMerge(documentView, DocGenType.PREVIEW))
               .orElse(null);
 
           var modelAndView = new ModelAndView("pwaApplication/appProcessing/prepareConsent/consentDocumentEditor")

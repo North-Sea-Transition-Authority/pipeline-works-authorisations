@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.service.markdown.MailMergeContainer;
 import uk.co.ogauthority.pwa.service.markdown.MarkdownService;
 import uk.co.ogauthority.pwa.service.markdown.MarkdownTestForm;
 
@@ -49,7 +50,9 @@ public class TestController {
 
   @PostMapping("/markdown")
   public ModelAndView postMarkdownTest(@Valid @ModelAttribute("form") MarkdownTestForm form) {
-    var html = markdownService.convertMarkdownToHtml(form.getMarkdown(), Map.of("FORENAME", "Joe", "SURNAME", "Bloggs"));
+    var container = new MailMergeContainer();
+    container.setMailMergeFields(Map.of("FORENAME", "Joe", "SURNAME", "Bloggs"));
+    var html = markdownService.convertMarkdownToHtml(form.getMarkdown(), container);
     return new ModelAndView("test/markdownTest")
         .addObject("form", form)
         .addObject("html", html);
