@@ -1,14 +1,6 @@
 package uk.co.ogauthority.pwa.service.search.consents.pwapipelineview;
 
-import static java.util.Comparator.naturalOrder;
-import static java.util.Comparator.nullsLast;
-import static java.util.stream.Collectors.groupingBy;
-
 import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
@@ -19,68 +11,34 @@ import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.h
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineService;
 import uk.co.ogauthority.pwa.service.pwaconsents.PwaConsentOrganisationRoleService;
 import uk.co.ogauthority.pwa.service.pwaconsents.PwaConsentService;
-import uk.co.ogauthority.pwa.util.DateUtils;
+import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailMigrationHuooDataService;
+import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailService;
 
 @Service
 public class PwaHuooHistoryViewService {
 
   private final HuooSummaryService huooSummaryService;
   private final PwaConsentOrganisationRoleService pwaConsentOrganisationRoleService;
+  private final PipelineDetailMigrationHuooDataService pipelineDetailMigrationHuooDataService;
   private final PwaConsentService pwaConsentService;
   private final PipelineService pipelineService;
+  private final PipelineDetailService pipelineDetailService;
 
 
   @Autowired
   public PwaHuooHistoryViewService(HuooSummaryService huooSummaryService,
                                    PwaConsentOrganisationRoleService pwaConsentOrganisationRoleService,
+                                   PipelineDetailMigrationHuooDataService pipelineDetailMigrationHuooDataService,
                                    PwaConsentService pwaConsentService,
-                                   PipelineService pipelineService) {
+                                   PipelineService pipelineService,
+                                   PipelineDetailService pipelineDetailService) {
     this.huooSummaryService = huooSummaryService;
     this.pwaConsentOrganisationRoleService = pwaConsentOrganisationRoleService;
+    this.pipelineDetailMigrationHuooDataService = pipelineDetailMigrationHuooDataService;
     this.pwaConsentService = pwaConsentService;
     this.pipelineService = pipelineService;
+    this.pipelineDetailService = pipelineDetailService;
   }
-
-
-
-  private String createConsentVersionOption(PwaConsent pwaConsent, Integer order) {
-
-    var orderTagDisplay = order != null ? String.format(" (%s)", order) : "";
-    var consentReferenceDisplay = pwaConsent.getReference() != null
-        ? " - " + pwaConsent.getReference() : "";
-    return DateUtils.formatDate(pwaConsent.getConsentInstant()) + orderTagDisplay + consentReferenceDisplay;
-  }
-
-  public Map<String, String> getConsentHistorySearchSelectorItems(MasterPwa masterPwa) {
-
-    var consents = pwaConsentService.getConsentsByMasterPwa(masterPwa);
-    //group all the consents by the day they were created (for easier order tagging of consents changed on the same day)
-    var dateToConsentsMap = consents.stream()
-        .sorted(Comparator.comparing(PwaConsent::getConsentInstant).reversed())
-        .collect(groupingBy(consent ->
-            DateUtils.instantToLocalDate(consent.getConsentInstant()), LinkedHashMap::new, Collectors.toList()));
-
-    Map<String, String> consentIdToOptionMap = new LinkedHashMap<>();
-    dateToConsentsMap.forEach((consentTimestamp, consentsForDate) -> {
-      //this list of consents are already ordered from newest, just need to sort by variation number for versions on the same day
-      consentsForDate.sort(nullsLast(Comparator.comparing(PwaConsent::getVariationNumber, nullsLast(naturalOrder())).reversed()));
-      for (var x  = 0; x < consentsForDate.size(); x++) {
-        var consent = consentsForDate.get(x);
-        var consentOrderTagNumber = consentsForDate.size() > 1 ? consentsForDate.size() - x : null;
-        consentIdToOptionMap.put(
-            String.valueOf(consent.getId()), createConsentVersionOption(consent, consentOrderTagNumber));
-      }
-    });
-
-    var latestConsentVersionEntryOpt = consentIdToOptionMap.entrySet().stream().findFirst();
-    if (latestConsentVersionEntryOpt.isPresent()) {
-      var latestConsentVersionEntry = latestConsentVersionEntryOpt.get();
-      latestConsentVersionEntry.setValue(String.format("Latest version (%s)", latestConsentVersionEntry.getValue()));
-    }
-
-    return consentIdToOptionMap;
-  }
-
 
 
   public DiffedAllOrgRolePipelineGroups getDiffedHuooSummaryAtTimeOfConsentAndPipeline(Integer selectedConsentId,
@@ -97,6 +55,18 @@ public class PwaHuooHistoryViewService {
     var pipeline = pipelineService.getPipelineFromId(pipelineId);
     var orgRoleSummaryDto = pwaConsentOrganisationRoleService.getOrganisationRoleSummaryForConsentsAndPipeline(
         selectedAndPreviousConsents, pipeline);
+    var huooRolePipelineGroupsView = pwaConsentOrganisationRoleService.getAllOrganisationRolePipelineGroupView(
+        masterPwa, orgRoleSummaryDto);
+
+    return huooSummaryService.getDiffedViewUsingSummaryViews(huooRolePipelineGroupsView, huooRolePipelineGroupsView);
+  }
+
+
+  public DiffedAllOrgRolePipelineGroups getOrganisationRoleSummaryForHuooMigratedData(MasterPwa masterPwa,
+                                                                                      Integer selectedPipelineDetailId) {
+
+    var selectedPipelineDetail = pipelineDetailService.getByPipelineDetailId(selectedPipelineDetailId);
+    var orgRoleSummaryDto = pipelineDetailMigrationHuooDataService.getOrganisationRoleSummaryForHuooMigratedData(selectedPipelineDetail);
     var huooRolePipelineGroupsView = pwaConsentOrganisationRoleService.getAllOrganisationRolePipelineGroupView(
         masterPwa, orgRoleSummaryDto);
 

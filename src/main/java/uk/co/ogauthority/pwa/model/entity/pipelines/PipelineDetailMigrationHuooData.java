@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.model.entity.pipelines;
 
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -24,6 +25,7 @@ public class PipelineDetailMigrationHuooData {
   @JoinColumn(name = "pipeline_detail_id")
   private PipelineDetail pipelineDetail;
 
+  @Column(name = "organisation_role")
   @Enumerated(EnumType.STRING)
   private HuooRole huooRole;
 

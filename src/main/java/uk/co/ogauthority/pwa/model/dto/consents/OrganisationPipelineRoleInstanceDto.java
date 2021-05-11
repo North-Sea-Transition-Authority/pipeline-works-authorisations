@@ -75,6 +75,22 @@ public final class OrganisationPipelineRoleInstanceDto {
     );
   }
 
+
+  public OrganisationPipelineRoleInstanceDto(Integer organisationUnitId,
+                                             String manualOrganisationName,
+                                             HuooRole huooRole,
+                                             Integer pipelineId) {
+
+    this.organisationRoleInstanceDto = new OrganisationRoleInstanceDto(
+        organisationUnitId,
+        manualOrganisationName,
+        null,
+        huooRole,
+        HuooType.PORTAL_ORG
+    );
+    this.pipelineIdentifier = pipelineId != null ? new PipelineId(pipelineId) : null;
+  }
+
   public OrganisationUnitId getOrganisationUnitId() {
     return this.organisationRoleInstanceDto.getOrganisationUnitId();
   }

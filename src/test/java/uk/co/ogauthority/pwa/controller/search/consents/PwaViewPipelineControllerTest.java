@@ -35,8 +35,10 @@ import uk.co.ogauthority.pwa.service.pwacontext.PwaContextService;
 import uk.co.ogauthority.pwa.service.pwacontext.PwaPermission;
 import uk.co.ogauthority.pwa.service.pwacontext.PwaPermissionService;
 import uk.co.ogauthority.pwa.service.search.consents.PwaPipelineViewTab;
+import uk.co.ogauthority.pwa.service.search.consents.pwapipelineview.PwaHuooHistoryItemType;
 import uk.co.ogauthority.pwa.service.search.consents.pwapipelineview.PwaHuooHistoryViewService;
 import uk.co.ogauthority.pwa.service.search.consents.pwapipelineview.PwaPipelineHistoryViewService;
+import uk.co.ogauthority.pwa.service.search.consents.pwapipelineview.ViewablePipelineHuooVersionService;
 import uk.co.ogauthority.pwa.testutils.PwaEndpointTestBuilder;
 
 @RunWith(SpringRunner.class)
@@ -59,6 +61,9 @@ public class PwaViewPipelineControllerTest extends PwaContextAbstractControllerT
 
   @MockBean
   protected PwaPipelineHistoryViewService pwaPipelineHistoryViewService;
+
+  @MockBean
+  protected ViewablePipelineHuooVersionService viewablePipelineHuooVersionService;
 
   @MockBean
   protected PwaHuooHistoryViewService pwaHuooHistoryViewService;
@@ -97,8 +102,17 @@ public class PwaViewPipelineControllerTest extends PwaContextAbstractControllerT
 
     when(pwaConsentService.getLatestConsent(any())).thenReturn(new PwaConsent());
 
+
+    when(viewablePipelineHuooVersionService.getHuooHistorySearchSelectorItems(any(), any())).thenReturn(Map.of(
+        PwaHuooHistoryItemType.PWA_CONSENT.getItemPrefix() + 1, "org"));
+    when(viewablePipelineHuooVersionService.getPwaHuooHistoryItemTypeFromHuooVersionId(any())).thenReturn(
+        PwaHuooHistoryItemType.PWA_CONSENT);
+    when(viewablePipelineHuooVersionService.getEntityIdFromHuooVersionId(any())).thenReturn(1);
     when(pwaHuooHistoryViewService.getDiffedHuooSummaryAtTimeOfConsentAndPipeline(any(), any(), any())).thenReturn(
         new DiffedAllOrgRolePipelineGroups(List.of(), List.of(), List.of(), List.of()));
+    when(pwaHuooHistoryViewService.getOrganisationRoleSummaryForHuooMigratedData(any(), any())).thenReturn(
+        new DiffedAllOrgRolePipelineGroups(List.of(), List.of(), List.of(), List.of()));
+
   }
 
 
