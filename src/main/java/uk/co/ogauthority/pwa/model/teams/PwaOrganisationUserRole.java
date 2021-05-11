@@ -17,7 +17,8 @@ public enum PwaOrganisationUserRole implements PwaUserRole {
 
   FINANCE_ADMIN("Finance administrator", "Can pay for any submitted PWA application (Finance administrator)", 50),
 
-  AS_BUILT_NOTIF_SUBMITTER("As-built notification submitter", "Can submit as-built notifications to the OGA (As-built notification submitter)", 60);
+  AS_BUILT_NOTIF_SUBMITTER("As-built notification submitter",
+      "Can submit as-built notifications to the OGA (As-built notification submitter)", 60);
 
   private final String roleName;
   private final String roleDescription;
