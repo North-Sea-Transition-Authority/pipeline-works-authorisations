@@ -28,4 +28,6 @@ public interface PipelineDetailRepository extends CrudRepository<PipelineDetail,
 
   List<PipelineDetail> findAllByPipelineInAndEndTimestampIsNull(Collection<Pipeline> pipelines);
 
+
+
 }
