@@ -89,7 +89,7 @@ public class DepositsGeneratorService implements DocumentSectionGenerator {
     var depositFootnotes = allDeposits.stream()
         .filter(deposit -> deposit.getFootnote() != null)
         .sorted(Comparator.comparing(PadPermanentDeposit::getReference))
-        .map(deposit -> String.format("[%s: %s]", deposit.getReference(), deposit.getFootnote()))
+        .map(deposit -> String.format("%s: %s", deposit.getReference(), deposit.getFootnote()))
         .collect(Collectors.toList());
 
     Map<String, Object> modelMap = Map.of(

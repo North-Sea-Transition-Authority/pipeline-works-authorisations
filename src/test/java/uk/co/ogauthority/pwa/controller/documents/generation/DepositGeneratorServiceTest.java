@@ -98,7 +98,9 @@ public class DepositGeneratorServiceTest {
   public void getDocumentSectionData() {
 
     var deposit1 = createDeposit(1);
+    deposit1.setFootnote("dep1 footnote");
     var deposit2 = createDeposit(2);
+    deposit2.setFootnote("dep2 footnote");
     var deposit3 = createDeposit(3);
     deposit3.setDepositIsForPipelinesOnOtherApp(true);
     deposit3.setAppRefAndPipelineNum("App refs and pipeline numbers xyz");
@@ -210,6 +212,13 @@ public class DepositGeneratorServiceTest {
     assertThat(depositTableRowViews.get(0)).isEqualTo(expectedTableRowViewForDeposit1);
     assertThat(depositTableRowViews.get(1)).isEqualTo(expectedTableRowViewForDeposit2);
     assertThat(depositTableRowViews.get(2)).isEqualTo(expectedTableRowViewForDeposit3);
+
+    var footnotes = (List<String>) documentSectionData.getTemplateModel().get("depositFootnotes");
+    assertThat(footnotes).containsExactly(
+        deposit1.getReference() + ": " + deposit1.getFootnote(),
+        deposit2.getReference() + ": " + deposit2.getFootnote()
+    );
+
   }
 
 
