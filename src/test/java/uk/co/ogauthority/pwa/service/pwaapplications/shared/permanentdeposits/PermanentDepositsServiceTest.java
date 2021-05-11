@@ -193,7 +193,7 @@ public class PermanentDepositsServiceTest {
   public void getDepositSummaryScreenValidationResult_noDeposits_incomplete() {
     when( permanentDepositInformationRepository.findByPwaApplicationDetailOrderByReferenceAsc(pwaApplicationDetail)).thenReturn(List.of());
     var summaryResult = permanentDepositService.getDepositSummaryScreenValidationResult(pwaApplicationDetail);
-    assertThat(summaryResult.isSectionComplete()).isEqualTo(false);
+    assertThat(summaryResult.isSectionComplete()).isFalse();
     assertThat(summaryResult.getSectionIncompleteError()).isEqualTo("Ensure that at least one deposit has been added and that they are all valid.");
   }
 
@@ -215,7 +215,7 @@ public class PermanentDepositsServiceTest {
 
     var summaryResult = permanentDepositService.getDepositSummaryScreenValidationResult(pwaApplicationDetail);
 
-    assertThat(summaryResult.isSectionComplete()).isEqualTo(false);
+    assertThat(summaryResult.isSectionComplete()).isFalse();
     assertThat(summaryResult.getInvalidObjectIds()).containsExactly(String.valueOf(entity.getId()), String.valueOf(entity2.getId()));
     assertThat(summaryResult.getIdPrefix()).isEqualTo("deposit-");
     assertThat(summaryResult.getErrorItems()).extracting(ErrorItem::getDisplayOrder, ErrorItem::getFieldName, ErrorItem::getErrorMessage)
@@ -232,7 +232,7 @@ public class PermanentDepositsServiceTest {
     when(permanentDepositInformationRepository.findByPwaApplicationDetailOrderByReferenceAsc(pwaApplicationDetail)).thenReturn(List.of(entity));
 
     var summaryResult = permanentDepositService.getDepositSummaryScreenValidationResult(pwaApplicationDetail);
-    assertThat(summaryResult.isSectionComplete()).isEqualTo(true);
+    assertThat(summaryResult.isSectionComplete()).isTrue();
     assertThat(summaryResult.getSectionIncompleteError()).isNull();
     assertThat(summaryResult.getInvalidObjectIds()).isEmpty();
   }

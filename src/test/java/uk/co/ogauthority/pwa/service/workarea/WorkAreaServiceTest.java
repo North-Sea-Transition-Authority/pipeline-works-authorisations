@@ -120,7 +120,7 @@ public class WorkAreaServiceTest {
     var workAreaResult = workAreaService.getWorkAreaResult(authenticatedUserAccount, WorkAreaTab.REGULATOR_REQUIRES_ATTENTION, 0);
 
     verify(regulatorWorkAreaPageService, times(1)).getRequiresAttentionPageView(
-        eq(authenticatedUserAccount), eq(Set.of(publicNotice.getPwaApplication().getId())), eq(0));
+        authenticatedUserAccount, Set.of(publicNotice.getPwaApplication().getId()), 0);
 
     assertThat(workAreaResult.getApplicationsTabPages()).isEqualTo(appPageView);
     assertThat(workAreaResult.getConsultationsTabPages()).isNull();

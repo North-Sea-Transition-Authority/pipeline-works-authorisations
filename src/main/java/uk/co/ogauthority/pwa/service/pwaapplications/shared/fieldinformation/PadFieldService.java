@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import javax.transaction.Transactional;
+import org.apache.commons.lang3.BooleanUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -167,7 +168,7 @@ public class PadFieldService implements ApplicationFormSectionService {
     if (masterPwaDetail.getLinkedToFields() != null) {
       pwaApplicationDetailService.setLinkedToFields(pwaApplicationDetail, masterPwaDetail.getLinkedToFields());
 
-      if (masterPwaDetail.getLinkedToFields()) {
+      if (BooleanUtils.isTrue(masterPwaDetail.getLinkedToFields())) {
 
         var devUkFieldIds = new ArrayList<DevukFieldId>();
         var manuallyEnteredFields = new ArrayList<String>();

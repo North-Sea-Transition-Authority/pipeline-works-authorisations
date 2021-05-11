@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.model.documents.generation.DocumentSectionData;
@@ -138,7 +139,7 @@ public class DepositsGeneratorService implements DocumentSectionGenerator {
 
   private String getMaterialsPropertiesDisplay(PadPermanentDeposit deposit) {
     if (deposit.getMaterialType().equals(MaterialType.GROUT_BAGS)) {
-      return deposit.getGroutBagsBioDegradable() ? ", Biodegradable" : ", Non-biodegradable";
+      return BooleanUtils.isTrue(deposit.getGroutBagsBioDegradable()) ? ", Biodegradable" : ", Non-biodegradable";
     }
     return "";
   }
