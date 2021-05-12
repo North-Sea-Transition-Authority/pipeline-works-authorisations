@@ -13,6 +13,7 @@ import static org.mockito.Mockito.when;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -122,9 +123,7 @@ public class ConsultationResponseServiceTest {
   @Test
   public void saveResponseAndCompleteWorkflow_confirmed_confirmedDescriptionNotProvided_caseOfficerAssigned() {
 
-    ConsultationRequest consultationRequest = new ConsultationRequest();
-    consultationRequest.setConsulteeGroup(groupDetail.getConsulteeGroup());
-    consultationRequest.setPwaApplication(application);
+    ConsultationRequest consultationRequest = buildConsultationRequest();
 
     var form = new ConsultationResponseForm();
     form.setConsultationResponseOption(ConsultationResponseOption.CONFIRMED);
@@ -163,9 +162,7 @@ public class ConsultationResponseServiceTest {
   @Test
   public void saveResponseAndCompleteWorkflow_confirmed_confirmedDescriptionProvided() {
 
-    ConsultationRequest consultationRequest = new ConsultationRequest();
-    consultationRequest.setConsulteeGroup(groupDetail.getConsulteeGroup());
-    consultationRequest.setPwaApplication(application);
+    ConsultationRequest consultationRequest = buildConsultationRequest();
 
     var form = new ConsultationResponseForm();
     form.setConsultationResponseOption(ConsultationResponseOption.CONFIRMED);
@@ -188,9 +185,7 @@ public class ConsultationResponseServiceTest {
   @Test
   public void saveResponseAndCompleteWorkflow_rejected_caseOfficerAssigned() {
 
-    ConsultationRequest consultationRequest = new ConsultationRequest();
-    consultationRequest.setConsulteeGroup(groupDetail.getConsulteeGroup());
-    consultationRequest.setPwaApplication(application);
+    ConsultationRequest consultationRequest = buildConsultationRequest();
 
     var form = new ConsultationResponseForm();
     form.setConsultationResponseOption(ConsultationResponseOption.REJECTED);
@@ -231,9 +226,7 @@ public class ConsultationResponseServiceTest {
   @Test(expected = WorkflowAssignmentException.class)
   public void saveResponseAndCompleteWorkflow_noCaseOfficer() {
 
-    ConsultationRequest consultationRequest = new ConsultationRequest();
-    consultationRequest.setConsulteeGroup(groupDetail.getConsulteeGroup());
-    consultationRequest.setPwaApplication(application);
+    ConsultationRequest consultationRequest = buildConsultationRequest();
 
     var form = new ConsultationResponseForm();
     form.setConsultationResponseOption(ConsultationResponseOption.REJECTED);
@@ -377,5 +370,40 @@ public class ConsultationResponseServiceTest {
 
   }
 
+  @Test
+  public void getLatestResponseForRequests_whenMultipleRequestsChecked_andLatestResponseFound() {
+    var request1 = buildConsultationRequest();
+    var request2 = buildConsultationRequest();
+    request1.setId(40);
+    request2.setId(41);
+    var response = new ConsultationResponse();
+    when(consultationResponseRepository.getFirstByConsultationRequestInOrderByResponseTimestampDesc(eq(List.of(request1, request2))))
+        .thenReturn(response);
+    assertThat(consultationResponseService.getLatestResponseForRequests(List.of(request1, request2))).isEqualTo(response);
+  }
+
+  @Test
+  public void isThereAtLeastOneApprovalFromAnyGroup_approvalsPresent() {
+    var request1 = buildConsultationRequest();
+    request1.setId(40);
+    request1.setStatus(ConsultationRequestStatus.RESPONDED);
+    var request2 = buildConsultationRequest();
+    request2.setStatus(ConsultationRequestStatus.RESPONDED);
+    request2.setId(41);
+    var response = new ConsultationResponse();
+    response.setResponseType(ConsultationResponseOption.CONFIRMED);
+    when(consultationResponseRepository.getFirstByConsultationRequestInOrderByResponseTimestampDesc(eq(List.of(request1, request2))))
+        .thenReturn(response);
+    when(consultationRequestService.getAllRequestsByApplication(application)).thenReturn(List.of(request1, request2));
+    consultationResponseService.isThereAtLeastOneApprovalFromAnyGroup(application);
+  }
+
+  private ConsultationRequest buildConsultationRequest() {
+    var request = new ConsultationRequest();
+    request.setConsulteeGroup(groupDetail.getConsulteeGroup());
+    request.setPwaApplication(application);
+    request.setConsulteeGroup(groupDetail.getConsulteeGroup());
+    return request;
+  }
 }
 

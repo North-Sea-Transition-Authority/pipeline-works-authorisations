@@ -14,6 +14,7 @@ import uk.co.ogauthority.pwa.service.appprocessing.applicationupdate.Application
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.service.appprocessing.tasks.AppProcessingService;
 import uk.co.ogauthority.pwa.service.consultations.ConsultationRequestService;
+import uk.co.ogauthority.pwa.service.consultations.ConsultationResponseService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingTask;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.TaskStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ConsultationRequestStatus;
@@ -28,13 +29,17 @@ public class ApproveOptionsTaskService implements AppProcessingService {
 
   private final ApplicationUpdateRequestService applicationUpdateRequestService;
 
+  private final ConsultationResponseService consultationResponseService;
+
   @Autowired
   public ApproveOptionsTaskService(ConsultationRequestService consultationRequestService,
                                    OptionsApplicationApprovalRepository optionsApplicationApprovalRepository,
-                                   ApplicationUpdateRequestService applicationUpdateRequestService) {
+                                   ApplicationUpdateRequestService applicationUpdateRequestService,
+                                   ConsultationResponseService consultationResponseService) {
     this.consultationRequestService = consultationRequestService;
     this.optionsApplicationApprovalRepository = optionsApplicationApprovalRepository;
     this.applicationUpdateRequestService = applicationUpdateRequestService;
+    this.consultationResponseService = consultationResponseService;
   }
 
 
@@ -72,7 +77,10 @@ public class ApproveOptionsTaskService implements AppProcessingService {
         pwaAppProcessingContext.getApplicationDetail()
     );
 
-    return openCount == 0 && respondedCount > 0 && !updateInProgress;
+    var atLeastOneApprovalFromAnyGroup = consultationResponseService.isThereAtLeastOneApprovalFromAnyGroup(
+        pwaAppProcessingContext.getPwaApplication());
+
+    return openCount == 0 && respondedCount > 0 && !updateInProgress && atLeastOneApprovalFromAnyGroup;
 
   }
 
@@ -136,4 +144,5 @@ public class ApproveOptionsTaskService implements AppProcessingService {
         atLeastOneSatisfactoryVersion && taskStatus.equals(TaskStatus.NOT_COMPLETED) && taskAccessible ? TaskState.EDIT : TaskState.LOCK,
         task.getDisplayOrder());
   }
+
 }
