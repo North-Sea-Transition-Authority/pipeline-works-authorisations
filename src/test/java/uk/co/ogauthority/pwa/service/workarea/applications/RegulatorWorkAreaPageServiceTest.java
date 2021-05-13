@@ -79,7 +79,7 @@ public class RegulatorWorkAreaPageServiceTest {
         .thenReturn(fakeResultPage);
 
     var workAreaPage = appWorkAreaPageService.getRequiresAttentionPageView(pwaManager, Set.of(), REQUESTED_PAGE);
-    assertThat(workAreaPage.getTotalElements()).isEqualTo(0);
+    assertThat(workAreaPage.getTotalElements()).isZero();
 
     var flagMap = getFlagMapWithDefaultValue(false);
     flagMap.put(WorkAreaFlag.OPEN_CONSENT_REVIEW_FOREGROUND_FLAG, true);

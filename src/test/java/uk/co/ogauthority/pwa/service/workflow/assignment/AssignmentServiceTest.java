@@ -1,7 +1,6 @@
 package uk.co.ogauthority.pwa.service.workflow.assignment;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -151,7 +150,7 @@ public class AssignmentServiceTest {
 
     assignmentService.clearAssignments(new GenericWorkflowSubject(1, WorkflowType.PWA_APPLICATION));
 
-    verify(assignmentRepository, times(1)).deleteAll(eq(List.of(assignment)));
+    verify(assignmentRepository, times(1)).deleteAll(List.of(assignment));
 
   }
 

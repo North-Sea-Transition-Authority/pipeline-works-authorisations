@@ -136,7 +136,7 @@ public class PadFieldServiceTest {
     verify(pwaApplicationDetailService, times(1)).setLinkedToFields(pwaApplicationDetail, true);
 
     verify(padFieldRepository, times(1)).getAllByPwaApplicationDetail(pwaApplicationDetail);
-    verify(padFieldRepository, times(1)).deleteAll(eq(List.of(existingField)));
+    verify(padFieldRepository, times(1)).deleteAll(List.of(existingField));
 
     verifyNoMoreInteractions(padFieldRepository, pwaApplicationDetailService, padProjectInformationService,
         devukFieldService);
@@ -160,7 +160,7 @@ public class PadFieldServiceTest {
     verify(pwaApplicationDetailService, times(1)).setLinkedToFields(pwaApplicationDetail, true);
 
     verify(padFieldRepository, times(1)).getAllByPwaApplicationDetail(pwaApplicationDetail);
-    verify(padFieldRepository, times(1)).deleteAll(eq(List.of(existingField)));
+    verify(padFieldRepository, times(1)).deleteAll(List.of(existingField));
 
     verify(padFieldRepository, times(2)).saveAll(padFieldsArgumentCaptor.capture());
 
@@ -193,7 +193,7 @@ public class PadFieldServiceTest {
     verify(pwaApplicationDetailService, times(1)).setLinkedToFields(pwaApplicationDetail, false);
 
     verify(padFieldRepository, times(1)).getAllByPwaApplicationDetail(pwaApplicationDetail);
-    verify(padFieldRepository, times(1)).deleteAll(eq(List.of(existingField)));
+    verify(padFieldRepository, times(1)).deleteAll(List.of(existingField));
 
     verify(pwaApplicationDetailService, times(1)).setNotLinkedFieldDescription(pwaApplicationDetail, null);
 
@@ -215,7 +215,7 @@ public class PadFieldServiceTest {
     verify(pwaApplicationDetailService, times(1)).setLinkedToFields(pwaApplicationDetail, false);
 
     verify(padFieldRepository, times(1)).getAllByPwaApplicationDetail(pwaApplicationDetail);
-    verify(padFieldRepository, times(1)).deleteAll(eq(List.of(existingField)));
+    verify(padFieldRepository, times(1)).deleteAll(List.of(existingField));
 
     verify(pwaApplicationDetailService, times(1)).setNotLinkedFieldDescription(pwaApplicationDetail, "description");
 

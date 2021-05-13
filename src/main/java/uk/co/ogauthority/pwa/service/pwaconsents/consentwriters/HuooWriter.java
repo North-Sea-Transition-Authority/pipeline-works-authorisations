@@ -135,19 +135,19 @@ public class HuooWriter implements ConsentWriter {
                                 List<PwaConsentOrganisationRole> consentRolesToEnd) {
 
     // for each consented org role key (either org unit id or treaty)
-    consentRoleMap.forEach((keyObject, consentRoles) -> {
+    consentRoleMap.forEach((keyObject, consentRoles) ->
 
-      // see if they are still available on the app, if they aren't, end all their consented roles
-      Optional.ofNullable(padRoleMap.get(keyObject))
-          .ifPresentOrElse(padRoles -> {
+        // see if they are still available on the app, if they aren't, end all their consented roles
+        Optional.ofNullable(padRoleMap.get(keyObject))
+            .ifPresentOrElse(padRoles -> {
 
-            // otherwise go through the app roles and see if we need to add/end any specific roles
-            var rolesToAdd = processConsentedRolesForUpdate(consentRoles, padRoles, consentRolesToEnd);
-            rolesToAdd.forEach(role -> rolesToAddMap.put(keyObject, role));
+              // otherwise go through the app roles and see if we need to add/end any specific roles
+              var rolesToAdd = processConsentedRolesForUpdate(consentRoles, padRoles, consentRolesToEnd);
+              rolesToAdd.forEach(role -> rolesToAddMap.put(keyObject, role));
 
-          }, () -> consentRolesToEnd.addAll(consentRoles));
+            }, () -> consentRolesToEnd.addAll(consentRoles))
 
-    });
+    );
 
     // for every new org role key on the app (not already in consented model), add all of their roles
     padRoleMap.entrySet().stream()

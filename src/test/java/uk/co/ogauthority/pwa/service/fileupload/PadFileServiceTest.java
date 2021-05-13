@@ -258,15 +258,15 @@ public class PadFileServiceTest {
         FileUpdateMode.DELETE_UNLINKED_FILES, wua);
 
     verifyNoInteractions(fileUploadService);
-    verify(padFileRepository, times(1)).saveAll(eq(Set.of()));
-    verify(padFileRepository, times(1)).deleteAll(eq(Set.of()));
+    verify(padFileRepository, times(1)).saveAll(Set.of());
+    verify(padFileRepository, times(1)).deleteAll(Set.of());
 
   }
 
   @Test
   public void deleteFileLinksAndUploadedFiles_uploadedFileRemoveSuccessful() {
     padFileService.deleteAppFileLinksAndUploadedFiles(List.of(file), wua);
-    verify(padFileRepository).deleteAll(eq(List.of(file)));
+    verify(padFileRepository).deleteAll(List.of(file));
   }
 
   @Test(expected = RuntimeException.class)
@@ -322,7 +322,7 @@ public class PadFileServiceTest {
 
     padFileService.cleanupFiles(pwaApplicationDetail, ApplicationDetailFilePurpose.DEPOSIT_DRAWINGS, List.of(1, 2, 3));
 
-    verify(padFileRepository, times(1)).deleteAll(eq(List.of(file4, file5)));
+    verify(padFileRepository, times(1)).deleteAll(List.of(file4, file5));
 
   }
 
@@ -346,7 +346,7 @@ public class PadFileServiceTest {
 
     padFileService.cleanupFiles(pwaApplicationDetail, ApplicationDetailFilePurpose.DEPOSIT_DRAWINGS, List.of());
 
-    verify(padFileRepository, times(1)).deleteAll(eq(List.of(file1, file2, file3)));
+    verify(padFileRepository, times(1)).deleteAll(List.of(file1, file2, file3));
 
   }
 

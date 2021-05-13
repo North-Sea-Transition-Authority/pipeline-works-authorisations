@@ -61,7 +61,7 @@ public class PipelineDetailIdentServiceTest {
 
     var newIdents = new ArrayList<>(pipelineDetailIdentsCaptor.getValue());
 
-    assertThat(newIdents).allSatisfy(ident -> assertThat(pipelineDetailToPadPipelineDtoMap.keySet()).contains(ident.getPipelineDetail()));
+    assertThat(newIdents).allSatisfy(ident -> assertThat(pipelineDetailToPadPipelineDtoMap).containsKey(ident.getPipelineDetail()));
 
     verify(pipelineDetailIdentDataService, times(1)).createPipelineDetailIdentData(identDataCreationMapCaptor.capture());
 

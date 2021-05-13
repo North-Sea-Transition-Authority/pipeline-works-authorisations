@@ -2,7 +2,6 @@ package uk.co.ogauthority.pwa.service.appprocessing.consultations;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 import java.time.Instant;
@@ -160,7 +159,7 @@ public class ConsulteeAdviceServiceTest {
         null,
         null
     );
-    when(consultationViewService.mapConsultationRequestToView(eq(historicalRequest), eq(historicalResponse), eq(consulteeGroupDetail)))
+    when(consultationViewService.mapConsultationRequestToView(historicalRequest, historicalResponse, consulteeGroupDetail))
         .thenReturn(requestView);
 
     var consulteeAdviceView = consulteeAdviceService.getConsulteeAdviceView(context);

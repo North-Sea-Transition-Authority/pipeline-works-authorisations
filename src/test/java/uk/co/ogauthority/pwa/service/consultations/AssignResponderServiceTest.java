@@ -145,7 +145,7 @@ public class AssignResponderServiceTest {
 
     assignResponderService.assignResponder(form, consultationRequest, assigningUser);
 
-    verify(camundaWorkflowService, times(1)).completeTask(eq(task));
+    verify(camundaWorkflowService, times(1)).completeTask(task);
 
     verify(workflowAssignmentService, times(1)).assign(
         consultationRequest,
@@ -239,7 +239,7 @@ public class AssignResponderServiceTest {
 
     assignResponderService.assignResponder(form, consultationRequest, assigningUser);
 
-    verify(camundaWorkflowService, times(0)).completeTask(eq(task));
+    verify(camundaWorkflowService, times(0)).completeTask(task);
 
     verify(workflowAssignmentService, times(1)).assign(
         consultationRequest,
@@ -290,7 +290,7 @@ public class AssignResponderServiceTest {
 
     assignResponderService.assignResponder(form, consultationRequest, assigningUser);
 
-    verify(camundaWorkflowService, times(0)).completeTask(eq(task));
+    verify(camundaWorkflowService, times(0)).completeTask(task);
 
     verify(workflowAssignmentService, times(1)).assign(
         consultationRequest,

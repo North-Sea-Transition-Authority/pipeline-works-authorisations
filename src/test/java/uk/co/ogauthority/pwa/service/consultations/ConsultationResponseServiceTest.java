@@ -174,7 +174,7 @@ public class ConsultationResponseServiceTest {
 
     consultationResponseService.saveResponseAndCompleteWorkflow(form, consultationRequest, user);
 
-    verify(camundaWorkflowService, times(1)).completeTask(eq(new WorkflowTaskInstance(consultationRequest, PwaApplicationConsultationWorkflowTask.RESPONSE)));
+    verify(camundaWorkflowService, times(1)).completeTask(new WorkflowTaskInstance(consultationRequest, PwaApplicationConsultationWorkflowTask.RESPONSE));
     verify(consultationResponseRepository, times(1)).save(responseCaptor.capture());
     verify(consultationRequestService, times(1)).saveConsultationRequest(consultationRequest);
     verify(workflowAssignmentService, times(1)).clearAssignments(consultationRequest);

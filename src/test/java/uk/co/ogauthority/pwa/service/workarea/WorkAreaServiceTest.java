@@ -182,7 +182,7 @@ public class WorkAreaServiceTest {
 
     var workAreaResult = workAreaService.getWorkAreaResult(authenticatedUserAccount, WorkAreaTab.REGULATOR_WAITING_ON_OTHERS, 0);
 
-    verify(regulatorWorkAreaPageService, times(1)).getWaitingOnOthersPageView(eq(authenticatedUserAccount), eq(Set.of(1,2)), eq(0));
+    verify(regulatorWorkAreaPageService, times(1)).getWaitingOnOthersPageView(authenticatedUserAccount, Set.of(1,2), 0);
 
     assertThat(workAreaResult.getApplicationsTabPages()).isEqualTo(appPageView);
     assertThat(workAreaResult.getConsultationsTabPages()).isNull();
@@ -196,7 +196,7 @@ public class WorkAreaServiceTest {
 
     var workAreaResult = workAreaService.getWorkAreaResult(authenticatedUserAccount, WorkAreaTab.REGULATOR_WAITING_ON_OTHERS, 1);
 
-    verify(regulatorWorkAreaPageService, times(1)).getWaitingOnOthersPageView(eq(authenticatedUserAccount), eq(Set.of()), eq(1));
+    verify(regulatorWorkAreaPageService, times(1)).getWaitingOnOthersPageView(authenticatedUserAccount, Set.of(), 1);
 
     assertThat(workAreaResult.getApplicationsTabPages()).isEqualTo(appPageView);
     assertThat(workAreaResult.getConsultationsTabPages()).isNull();
@@ -275,7 +275,7 @@ public class WorkAreaServiceTest {
 
     var workAreaResult = workAreaService.getWorkAreaResult(authenticatedUserAccount, WorkAreaTab.OPEN_CONSULTATIONS, 0);
 
-    verify(consultationWorkAreaPageService, times(1)).getPageView(eq(authenticatedUserAccount), eq(Set.of(3,4)), eq(0));
+    verify(consultationWorkAreaPageService, times(1)).getPageView(authenticatedUserAccount, Set.of(3,4), 0);
 
     assertThat(workAreaResult.getApplicationsTabPages()).isNull();
     assertThat(workAreaResult.getConsultationsTabPages()).isEqualTo(consultationPageView);
@@ -289,7 +289,7 @@ public class WorkAreaServiceTest {
 
     var workAreaResult = workAreaService.getWorkAreaResult(authenticatedUserAccount, WorkAreaTab.OPEN_CONSULTATIONS, 1);
 
-    verify(consultationWorkAreaPageService, times(1)).getPageView(eq(authenticatedUserAccount), eq(Set.of()), eq(1));
+    verify(consultationWorkAreaPageService, times(1)).getPageView(authenticatedUserAccount, Set.of(), 1);
 
     assertThat(workAreaResult.getApplicationsTabPages()).isNull();
     assertThat(workAreaResult.getConsultationsTabPages()).isEqualTo(consultationPageView);

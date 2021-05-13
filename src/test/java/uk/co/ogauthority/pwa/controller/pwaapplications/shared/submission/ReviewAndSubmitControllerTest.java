@@ -313,7 +313,7 @@ public class ReviewAndSubmitControllerTest extends PwaApplicationContextAbstract
         .andExpect(result -> result.getModelAndView().getViewName().equals(
             "pwaApplication/shared/submission/sentToSubmitter"));
 
-    verify(sendAppToSubmitterService, times(1)).sendToSubmitter(eq(detail), eq(user.getLinkedPerson()), eq(null), eq(user.getLinkedPerson()));
+    verify(sendAppToSubmitterService, times(1)).sendToSubmitter(detail, user.getLinkedPerson(), null, user.getLinkedPerson());
 
   }
 
@@ -333,7 +333,7 @@ public class ReviewAndSubmitControllerTest extends PwaApplicationContextAbstract
         .andExpect(result -> result.getModelAndView().getViewName().equals(
             "pwaApplication/shared/submission/sentToSubmitter"));
 
-    verify(sendAppToSubmitterService, times(1)).sendToSubmitter(eq(detail), eq(user.getLinkedPerson()), eq("desc"), eq(user.getLinkedPerson()));
+    verify(sendAppToSubmitterService, times(1)).sendToSubmitter(detail, user.getLinkedPerson(), "desc", user.getLinkedPerson());
 
   }
 

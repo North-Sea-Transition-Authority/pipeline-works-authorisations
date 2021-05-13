@@ -34,19 +34,19 @@ public class PipelineDetailIdentService {
     var pipelineDetailIdentToPadIdentDataSetMap = new HashMap<PipelineDetailIdent, Set<PadPipelineIdentData>>();
 
     // for each pipeline (detail) in the map
-    newPipelineDetailToPadPipelineDtoMap.forEach((pipelineDetail, padPipelineDto) -> {
+    newPipelineDetailToPadPipelineDtoMap.forEach((pipelineDetail, padPipelineDto) ->
 
-      // for each ident on the application version of that pipeline
-      padPipelineDto.getIdentToIdentDataSetMap().forEach((padPipelineIdent, padPipelineIdentDataSet) -> {
+        // for each ident on the application version of that pipeline
+        padPipelineDto.getIdentToIdentDataSetMap().forEach((padPipelineIdent, padPipelineIdentDataSet) -> {
 
-        // create a new ident and store it in a map along with the pad ident data set to be saved later
-        var newIdent = createNewPipelineDetailIdent(pipelineDetail, padPipelineIdent);
+          // create a new ident and store it in a map along with the pad ident data set to be saved later
+          var newIdent = createNewPipelineDetailIdent(pipelineDetail, padPipelineIdent);
 
-        pipelineDetailIdentToPadIdentDataSetMap.put(newIdent, padPipelineIdentDataSet);
+          pipelineDetailIdentToPadIdentDataSetMap.put(newIdent, padPipelineIdentDataSet);
 
-      });
+        })
 
-    });
+    );
 
     // save all of our newly created pipeline detail idents
     pipelineDetailIdentRepository.saveAll(pipelineDetailIdentToPadIdentDataSetMap.keySet());

@@ -580,8 +580,8 @@ public class PadTechnicalDrawingServiceTest {
 
     padTechnicalDrawingService.cleanupData(pwaApplicationDetail);
 
-    verify(padFileService, times(1)).cleanupFiles(eq(pwaApplicationDetail),
-        eq(ApplicationDetailFilePurpose.PIPELINE_DRAWINGS), eq(List.of(1, 2)));
+    verify(padFileService, times(1)).cleanupFiles(pwaApplicationDetail,
+        ApplicationDetailFilePurpose.PIPELINE_DRAWINGS, List.of(1, 2));
 
   }
 
