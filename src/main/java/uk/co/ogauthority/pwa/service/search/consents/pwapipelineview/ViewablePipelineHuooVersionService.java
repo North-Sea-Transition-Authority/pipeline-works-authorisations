@@ -16,6 +16,7 @@ import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
 import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetailMigrationHuooData;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.huoosummary.DiffedAllOrgRolePipelineGroups;
 import uk.co.ogauthority.pwa.service.pwaconsents.PwaConsentService;
 import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailMigrationHuooDataService;
 import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailService;
@@ -27,15 +28,18 @@ public class ViewablePipelineHuooVersionService {
   private final PwaConsentService pwaConsentService;
   private final PipelineDetailMigrationHuooDataService pipelineDetailMigrationHuooDataService;
   private final PipelineDetailService pipelineDetailService;
+  private final PwaHuooHistoryViewService pwaHuooHistoryViewService;
 
 
   @Autowired
   public ViewablePipelineHuooVersionService(PwaConsentService pwaConsentService,
                                             PipelineDetailMigrationHuooDataService pipelineDetailMigrationHuooDataService,
-                                            PipelineDetailService pipelineDetailService) {
+                                            PipelineDetailService pipelineDetailService,
+                                            PwaHuooHistoryViewService pwaHuooHistoryViewService) {
     this.pwaConsentService = pwaConsentService;
     this.pipelineDetailMigrationHuooDataService = pipelineDetailMigrationHuooDataService;
     this.pipelineDetailService = pipelineDetailService;
+    this.pwaHuooHistoryViewService = pwaHuooHistoryViewService;
   }
 
 
@@ -114,6 +118,29 @@ public class ViewablePipelineHuooVersionService {
   public Integer getEntityIdFromHuooVersionId(String huooVersionId) {
     var prefixEndIndex = huooVersionId.lastIndexOf("_");
     return Integer.parseInt(huooVersionId.substring(prefixEndIndex + 1));
+  }
+
+  // TODO PWA-1209: write simple tests e.g consent and pipeline detail input strings, call correct method.
+  public DiffedAllOrgRolePipelineGroups getDiffableOrgRolePipelineGroupsFromHuooVersionString(MasterPwa masterPwa,
+                                                                                              PipelineId pipelineId,
+                                                                                              String huooVersionId) {
+
+    var selectedItemVersionType = getPwaHuooHistoryItemTypeFromHuooVersionId(
+        huooVersionId);
+    var selectedItemVersionEntityId = getEntityIdFromHuooVersionId(
+        huooVersionId);
+
+    DiffedAllOrgRolePipelineGroups diffedHuooSummary;
+    if (PwaHuooHistoryItemType.PWA_CONSENT.equals(selectedItemVersionType)) {
+      diffedHuooSummary = pwaHuooHistoryViewService.getDiffedHuooSummaryAtTimeOfConsentAndPipeline(
+          selectedItemVersionEntityId, masterPwa, pipelineId);
+
+    } else {
+      diffedHuooSummary = pwaHuooHistoryViewService.getOrganisationRoleSummaryForHuooMigratedData(
+          masterPwa, selectedItemVersionEntityId);
+    }
+
+    return diffedHuooSummary;
   }
 
 
