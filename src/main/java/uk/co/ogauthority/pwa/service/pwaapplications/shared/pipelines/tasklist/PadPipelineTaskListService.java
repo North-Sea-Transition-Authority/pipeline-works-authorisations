@@ -5,7 +5,6 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,8 +24,6 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelines.Pipelin
 import uk.co.ogauthority.pwa.model.dto.pipelines.PadPipelineId;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineMaterial;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipelineIdent;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.PipelineIdentForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PadPipelineTaskListItem;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview;
@@ -39,7 +36,6 @@ import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationConte
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskInfo;
 import uk.co.ogauthority.pwa.service.pwaapplications.options.PadOptionConfirmedService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineIdentLocationValidationResult;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineIdentService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineIdentFormValidator;
