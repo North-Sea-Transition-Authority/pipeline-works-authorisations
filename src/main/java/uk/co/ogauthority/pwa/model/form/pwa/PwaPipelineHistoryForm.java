@@ -4,7 +4,7 @@ package uk.co.ogauthority.pwa.model.form.pwa;
 public class PwaPipelineHistoryForm {
 
   private Integer pipelineDetailId;
-  private Integer consentId;
+  private String huooVersionId;
 
   public Integer getPipelineDetailId() {
     return pipelineDetailId;
@@ -14,11 +14,11 @@ public class PwaPipelineHistoryForm {
     this.pipelineDetailId = pipelineDetailId;
   }
 
-  public Integer getConsentId() {
-    return consentId;
+  public String getHuooVersionId() {
+    return huooVersionId;
   }
 
-  public void setConsentId(Integer consentId) {
-    this.consentId = consentId;
+  public void setHuooVersionId(String huooVersionId) {
+    this.huooVersionId = huooVersionId;
   }
 }
