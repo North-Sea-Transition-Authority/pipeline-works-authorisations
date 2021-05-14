@@ -194,18 +194,16 @@ public class DefinePipelineHuooSectionsFormValidator implements SmartValidator {
             errors.rejectValue(
                 getSectionPointInputAttributePath(sectionIndex, SECTION_POINT_IDENT_STRING_ATTR),
                 FieldValidationErrorCodes.INVALID.errorCode(SECTION_POINT_IDENT_STRING_ATTR),
-                String.format("Section %s cannot include a point before %s",
-                    sectionIndex + 1,
-                    minimumIncludingIdentLocation.getDisplayString())
+                String.format("Select a Section %s start point not included in a previous section",
+                    sectionIndex + 1)
             );
           } else if (!currentSectionInput.getPointIncludedInSection()
               && selectedIdentLocation.compareTo(minimumNotIncludingIdentLocation) < 0) {
             errors.rejectValue(
                 getSectionPointInputAttributePath(sectionIndex, SECTION_POINT_IDENT_STRING_ATTR),
                 FieldValidationErrorCodes.INVALID.errorCode(SECTION_POINT_IDENT_STRING_ATTR),
-                String.format("Section %s cannot start before the point %s",
-                    sectionIndex + 1,
-                    minimumNotIncludingIdentLocation.getDisplayString())
+                String.format("Select a Section %s start point not included in a previous section", //Select a Section 3 start point not included in a previous section
+                    sectionIndex + 1)
             );
           }
         }
