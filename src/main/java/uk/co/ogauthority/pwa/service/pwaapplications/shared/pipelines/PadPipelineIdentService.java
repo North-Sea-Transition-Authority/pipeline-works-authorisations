@@ -155,7 +155,7 @@ public class PadPipelineIdentService {
     } else if (!getTotalIdentLength(idents).equals(padPipeline.getLength())) {
       lengthValidationValid = false;
       errorMessage = "The total length of all idents must equal the total pipeline length of: " +
-          (padPipeline.getLength().setScale(2, RoundingMode.HALF_UP).toPlainString() + "m");
+          (String.format("%,.2f", padPipeline.getLength().setScale(2, RoundingMode.HALF_UP)) + "m");
     }
 
 
@@ -251,7 +251,7 @@ public class PadPipelineIdentService {
         .reduce(BigDecimal.ZERO, BigDecimal::add);
 
     var totalIdentLengthDisplay = !totalIdentLength.equals(BigDecimal.ZERO)
-        ? totalIdentLength.setScale(2, RoundingMode.HALF_UP).toPlainString() + "m" : "0m";
+        ? String.format("%,.2f", totalIdentLength.setScale(2, RoundingMode.HALF_UP)) + "m" : "0m";
 
     return new ConnectedPipelineIdentSummaryView(connectedIdents, totalIdentLengthDisplay);
   }
