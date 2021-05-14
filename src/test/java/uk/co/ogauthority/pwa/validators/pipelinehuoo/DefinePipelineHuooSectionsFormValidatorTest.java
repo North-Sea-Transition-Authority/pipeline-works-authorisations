@@ -53,6 +53,13 @@ public class DefinePipelineHuooSectionsFormValidatorTest {
   private List<PickableIdentLocationOption> pipelineIdentLocationOptions;
   private PickableIdentLocationOption ident1LocationPoint1;
   private PickableIdentLocationOption ident1LocationPoint2;
+
+  private PickableIdentLocationOption ident2LocationPoint1;
+  private PickableIdentLocationOption ident2LocationPoint2;
+
+  private PickableIdentLocationOption ident3LocationPoint1;
+  private PickableIdentLocationOption ident3LocationPoint2;
+
   private PickableIdentLocationOption finalPickableIdentLocation;
 
   @Before
@@ -70,21 +77,27 @@ public class DefinePipelineHuooSectionsFormValidatorTest {
         NUMBER_OF_SECTIONS);
 
     ident1LocationPoint1 = new PickableIdentLocationOption(
-        1,
-        PickableIdentLocationOption.IdentPoint.FROM_LOCATION,
-        "POINT1");
+        1, PickableIdentLocationOption.IdentPoint.FROM_LOCATION, "POINT1");
     ident1LocationPoint2 = new PickableIdentLocationOption(
-        1,
-        PickableIdentLocationOption.IdentPoint.TO_LOCATION,
-        "POINT2");
+        1, PickableIdentLocationOption.IdentPoint.TO_LOCATION, "POINT2");
+
+    ident2LocationPoint1 = new PickableIdentLocationOption(
+        2, PickableIdentLocationOption.IdentPoint.FROM_LOCATION, "POINT2");
+    ident2LocationPoint2 = new PickableIdentLocationOption(
+        2, PickableIdentLocationOption.IdentPoint.TO_LOCATION, "POINT3");
+
+    ident3LocationPoint1 = new PickableIdentLocationOption(
+        3, PickableIdentLocationOption.IdentPoint.FROM_LOCATION, "POINT3");
+    ident3LocationPoint2 = new PickableIdentLocationOption(
+        3, PickableIdentLocationOption.IdentPoint.TO_LOCATION, "POINT4");
 
     pipelineIdentLocationOptions = List.of(
         ident1LocationPoint1,
         ident1LocationPoint2,
-        new PickableIdentLocationOption(2, PickableIdentLocationOption.IdentPoint.FROM_LOCATION, "POINT2"),
-        new PickableIdentLocationOption(2, PickableIdentLocationOption.IdentPoint.TO_LOCATION, "POINT3"),
-        new PickableIdentLocationOption(3, PickableIdentLocationOption.IdentPoint.FROM_LOCATION, "POINT3"),
-        new PickableIdentLocationOption(3, PickableIdentLocationOption.IdentPoint.TO_LOCATION, "POINT4")
+        ident2LocationPoint1,
+        ident2LocationPoint2,
+        ident3LocationPoint1,
+        ident3LocationPoint2
     );
 
     finalPickableIdentLocation = pipelineIdentLocationOptions.get(pipelineIdentLocationOptions.size() - 1);
@@ -205,11 +218,58 @@ public class DefinePipelineHuooSectionsFormValidatorTest {
   public void validate_whenSectionsStartLocationValid_andSequentialStartLocationsAreTheSame_andAllIncludePoint() {
     form.setPipelineSectionPoints(List.of(
         new PipelineSectionPointFormInput(ident1LocationPoint1.getPickableString(), true),
+        new PipelineSectionPointFormInput(ident1LocationPoint2.getPickableString(), true),
+        new PipelineSectionPointFormInput(ident1LocationPoint2.getPickableString(), true)
+    ));
+
+    var validationResult = ValidatorTestUtils.getFormValidationErrors(validator, form, defaultValidationHint);
+
+    assertThat(validationResult).containsExactlyInAnyOrderEntriesOf(Map.ofEntries(
+        entry(
+            DefinePipelineHuooSectionsFormValidator.getSectionPointInputAttributePath(
+                2,
+                SECTION_POINT_IDENT_INCLUDED_IN_SECTION_ATTR
+            ),
+            Set.of(NOT_UNIQUE.errorCode(SECTION_POINT_IDENT_INCLUDED_IN_SECTION_ATTR))
+        )
+    ));
+  }
+
+  @Test
+  public void validate_whenSectionStartPointsAreOutOfIdentPointOrder() {
+    form.setPipelineSectionPoints(List.of(
+        new PipelineSectionPointFormInput(ident1LocationPoint1.getPickableString(), true),
+        new PipelineSectionPointFormInput(ident3LocationPoint2.getPickableString(), true),
+        new PipelineSectionPointFormInput(ident2LocationPoint1.getPickableString(), true)
+    ));
+
+    var validationResult = ValidatorTestUtils.getFormValidationErrors(validator, form, defaultValidationHint);
+
+    assertThat(validationResult).containsExactlyInAnyOrderEntriesOf(Map.ofEntries(
+        entry(
+            DefinePipelineHuooSectionsFormValidator.getSectionPointInputAttributePath(
+                2,
+                SECTION_POINT_IDENT_STRING_ATTR
+            ),
+            Set.of(INVALID.errorCode(SECTION_POINT_IDENT_STRING_ATTR))
+        )
+    ));
+  }
+
+  @Test
+  public void validate_whenSectionsStartLocationValid_andAllStartLocationsAreTheSame_andAllIncludePoint() {
+    form.setPipelineSectionPoints(List.of(
         new PipelineSectionPointFormInput(ident1LocationPoint1.getPickableString(), true),
         new PipelineSectionPointFormInput(ident1LocationPoint1.getPickableString(), true)
     ));
 
-    var validationResult = ValidatorTestUtils.getFormValidationErrors(validator, form, defaultValidationHint);
+    var validationHint = new DefinePipelineHuooSectionValidationHint(
+        pwaApplicationDetail,
+        HUOO_ROLE,
+        PIPELINE_ID,
+        2);
+
+    var validationResult = ValidatorTestUtils.getFormValidationErrors(validator, form, validationHint);
 
     assertThat(validationResult).containsExactlyInAnyOrderEntriesOf(Map.ofEntries(
         entry(
@@ -218,27 +278,6 @@ public class DefinePipelineHuooSectionsFormValidatorTest {
                 SECTION_POINT_IDENT_INCLUDED_IN_SECTION_ATTR
             ),
             Set.of(NOT_UNIQUE.errorCode(SECTION_POINT_IDENT_INCLUDED_IN_SECTION_ATTR))
-        ),
-        entry(
-            DefinePipelineHuooSectionsFormValidator.getSectionPointInputAttributePath(
-                1,
-                SECTION_POINT_IDENT_STRING_ATTR
-            ),
-            Set.of(INVALID.errorCode(SECTION_POINT_IDENT_STRING_ATTR))
-        ),
-        entry(
-            DefinePipelineHuooSectionsFormValidator.getSectionPointInputAttributePath(
-                2,
-                SECTION_POINT_IDENT_INCLUDED_IN_SECTION_ATTR
-            ),
-            Set.of(NOT_UNIQUE.errorCode(SECTION_POINT_IDENT_INCLUDED_IN_SECTION_ATTR))
-        ),
-        entry(
-            DefinePipelineHuooSectionsFormValidator.getSectionPointInputAttributePath(
-                2,
-                SECTION_POINT_IDENT_STRING_ATTR
-            ),
-            Set.of(INVALID.errorCode(SECTION_POINT_IDENT_STRING_ATTR))
         )
     ));
   }
@@ -342,7 +381,7 @@ public class DefinePipelineHuooSectionsFormValidatorTest {
 
 
   @Test
-  public void validate_whenSectionStartPointsOverlapByNotIncludingTheStartPint() {
+  public void validate_whenSectionStartPointsOverlapByNotIncludingTheStartPoint() {
     form.setPipelineSectionPoints(List.of(
         new PipelineSectionPointFormInput(pipelineIdentLocationOptions.get(0).getPickableString(), true),
         new PipelineSectionPointFormInput(pipelineIdentLocationOptions.get(1).getPickableString(), false),
