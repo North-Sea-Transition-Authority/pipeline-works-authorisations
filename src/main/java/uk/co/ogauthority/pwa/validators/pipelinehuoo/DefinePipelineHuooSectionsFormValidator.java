@@ -61,7 +61,7 @@ public class DefinePipelineHuooSectionsFormValidator implements SmartValidator {
     validatePipelineSectionPointsLength(errors, form, defineSectionsValidationHint.getNumberOfSections());
     if (errors.hasErrors()) {
       // dont bother validating anything  else as the form does not include the expected number of sections.
-      // this is is not possible through the screens.
+      // this is not possible through the screens.
       return;
     }
 
@@ -195,7 +195,7 @@ public class DefinePipelineHuooSectionsFormValidator implements SmartValidator {
               FieldValidationErrorCodes.INVALID.errorCode(SECTION_POINT_IDENT_STRING_ATTR),
               String.format("Section %s cannot start before the point %s",
                   i + 1,
-                  minimumIncludingIdentLocation.getDisplayString())
+                  minimumNotIncludingIdentLocation.getDisplayString())
           );
         }
 
@@ -218,16 +218,15 @@ public class DefinePipelineHuooSectionsFormValidator implements SmartValidator {
             ? sortedValidOptions.get(indexOfSelectedOption + 1)
             : sortedValidOptions.get(indexOfSelectedOption);
 
-        if (currentSectionInput.getPointIncludedInSection() && sortedValidOptions.get(
-            indexOfSelectedOption).compareTo(
-            minimumIncludingIdentLocation) >= 0) {
+        if (currentSectionInput.getPointIncludedInSection()
+            && sortedValidOptions.get(indexOfSelectedOption).compareTo(minimumIncludingIdentLocation) >= 0) {
           // if the start point of section contains point and that point is same or after the previous minimum, set that to new minimum
           minimumIncludingIdentLocation = nextIdentOptionOrSelected;
           minimumNotIncludingIdentLocation = sortedValidOptions.get(indexOfSelectedOption);
         } else if (!currentSectionInput.getPointIncludedInSection()) {
           // else if the start point of section does not include ident location, next section can include current selected point
           minimumIncludingIdentLocation = sortedValidOptions.get(indexOfSelectedOption);
-          minimumNotIncludingIdentLocation = sortedValidOptions.get(indexOfSelectedOption);
+          minimumNotIncludingIdentLocation = nextIdentOptionOrSelected;
         }
 
       }
