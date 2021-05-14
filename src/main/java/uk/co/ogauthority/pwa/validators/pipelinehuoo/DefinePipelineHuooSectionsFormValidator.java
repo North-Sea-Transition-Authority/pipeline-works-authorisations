@@ -165,36 +165,36 @@ public class DefinePipelineHuooSectionsFormValidator implements SmartValidator {
     // if a section already starts at a location and includes, no other section can.
     Map<PickableIdentLocationOption, Integer> sectionsStartingAtAndIncludingIdentLocationLookup = new HashMap<>();
 
-    for (int i = 0; i < numberOfSections; i++) {
+    for (int sectionIndex = 0; sectionIndex < numberOfSections; sectionIndex++) {
 
-      var currentSectionInput = form.getSectionPointFormAtIndex(i).orElse(new PipelineSectionPointFormInput());
+      var currentSectionInput = form.getSectionPointFormAtIndex(sectionIndex).orElse(new PipelineSectionPointFormInput());
       // do mandatory and basic validity check per section
       validateSectionBasic(errors,
           currentSectionInput,
-          i,
+          sectionIndex,
           validOptionsLookup
       );
 
-      var currentSectionHasErrors = doesSectionPointInputHaveErrors(errors, i);
+      var currentSectionHasErrors = doesSectionPointInputHaveErrors(errors, sectionIndex);
 
       if (!currentSectionHasErrors) {
         var selectedIdentLocation = validOptionsLookup.get(currentSectionInput.getPickedPipelineIdentString());
         if (currentSectionInput.getPointIncludedInSection()
             && selectedIdentLocation.compareTo(minimumIncludingIdentLocation) < 0) {
           errors.rejectValue(
-              getSectionPointInputAttributePath(i, SECTION_POINT_IDENT_STRING_ATTR),
+              getSectionPointInputAttributePath(sectionIndex, SECTION_POINT_IDENT_STRING_ATTR),
               FieldValidationErrorCodes.INVALID.errorCode(SECTION_POINT_IDENT_STRING_ATTR),
               String.format("Section %s cannot include a point before %s",
-                  i + 1,
+                  sectionIndex + 1,
                   minimumIncludingIdentLocation.getDisplayString())
           );
         } else if (!currentSectionInput.getPointIncludedInSection()
             && selectedIdentLocation.compareTo(minimumNotIncludingIdentLocation) < 0) {
           errors.rejectValue(
-              getSectionPointInputAttributePath(i, SECTION_POINT_IDENT_STRING_ATTR),
+              getSectionPointInputAttributePath(sectionIndex, SECTION_POINT_IDENT_STRING_ATTR),
               FieldValidationErrorCodes.INVALID.errorCode(SECTION_POINT_IDENT_STRING_ATTR),
               String.format("Section %s cannot start before the point %s",
-                  i + 1,
+                  sectionIndex + 1,
                   minimumNotIncludingIdentLocation.getDisplayString())
           );
         }
@@ -202,14 +202,14 @@ public class DefinePipelineHuooSectionsFormValidator implements SmartValidator {
         if (currentSectionInput.getPointIncludedInSection()
             && sectionsStartingAtAndIncludingIdentLocationLookup.containsKey(selectedIdentLocation)) {
           errors.rejectValue(
-              getSectionPointInputAttributePath(i, SECTION_POINT_IDENT_INCLUDED_IN_SECTION_ATTR),
+              getSectionPointInputAttributePath(sectionIndex, SECTION_POINT_IDENT_INCLUDED_IN_SECTION_ATTR),
               FieldValidationErrorCodes.NOT_UNIQUE.errorCode(SECTION_POINT_IDENT_INCLUDED_IN_SECTION_ATTR),
               String.format("Section %s cannot include this point as it is included in section %s",
-                  i + 1,
+                  sectionIndex + 1,
                   sectionsStartingAtAndIncludingIdentLocationLookup.get(selectedIdentLocation))
           );
         } else if (currentSectionInput.getPointIncludedInSection()) {
-          sectionsStartingAtAndIncludingIdentLocationLookup.putIfAbsent(selectedIdentLocation, i + 1);
+          sectionsStartingAtAndIncludingIdentLocationLookup.putIfAbsent(selectedIdentLocation, sectionIndex + 1);
         }
 
         var indexOfSelectedOption = Collections.binarySearch(sortedValidOptions, selectedIdentLocation);
