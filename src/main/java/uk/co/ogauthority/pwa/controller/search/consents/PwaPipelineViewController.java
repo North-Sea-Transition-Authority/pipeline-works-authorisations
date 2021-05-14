@@ -25,7 +25,6 @@ import uk.co.ogauthority.pwa.service.pwacontext.PwaPermission;
 import uk.co.ogauthority.pwa.service.pwacontext.PwaPermissionCheck;
 import uk.co.ogauthority.pwa.service.search.consents.PwaPipelineViewTab;
 import uk.co.ogauthority.pwa.service.search.consents.SearchPwaBreadcrumbService;
-import uk.co.ogauthority.pwa.service.search.consents.pwapipelineview.PwaHuooHistoryViewService;
 import uk.co.ogauthority.pwa.service.search.consents.pwapipelineview.PwaPipelineHistoryViewService;
 import uk.co.ogauthority.pwa.service.search.consents.pwapipelineview.ViewablePipelineHuooVersionService;
 import uk.co.ogauthority.pwa.service.search.consents.pwaviewtab.PwaPipelineViewUrlFactory;
@@ -43,7 +42,6 @@ public class PwaPipelineViewController {
   @Autowired
   public PwaPipelineViewController(PipelineDetailService pipelineDetailService,
                                    PwaPipelineHistoryViewService pwaPipelineHistoryViewService,
-                                   PwaHuooHistoryViewService pwaHuooHistoryViewService,
                                    ViewablePipelineHuooVersionService viewablePipelineHuooVersionService,
                                    SearchPwaBreadcrumbService searchPwaBreadcrumbService) {
     this.pipelineDetailService = pipelineDetailService;

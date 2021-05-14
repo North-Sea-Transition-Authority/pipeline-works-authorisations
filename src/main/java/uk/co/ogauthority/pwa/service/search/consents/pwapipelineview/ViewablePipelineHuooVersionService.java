@@ -108,19 +108,19 @@ public class ViewablePipelineHuooVersionService {
   }
 
 
-  public PwaHuooHistoryItemType getPwaHuooHistoryItemTypeFromHuooVersionId(String huooVersionId) {
+  private PwaHuooHistoryItemType getPwaHuooHistoryItemTypeFromHuooVersionId(String huooVersionId) {
 
     var prefix = huooVersionId.substring(0, huooVersionId.lastIndexOf("_") + 1);
     return PwaHuooHistoryItemType.PWA_CONSENT.getItemPrefix().equals(prefix) ? PwaHuooHistoryItemType.PWA_CONSENT
         : PwaHuooHistoryItemType.PIPELINE_DETAIL_MIGRATED_HUOO;
   }
 
-  public Integer getEntityIdFromHuooVersionId(String huooVersionId) {
+  private Integer getEntityIdFromHuooVersionId(String huooVersionId) {
     var prefixEndIndex = huooVersionId.lastIndexOf("_");
     return Integer.parseInt(huooVersionId.substring(prefixEndIndex + 1));
   }
 
-  // TODO PWA-1209: write simple tests e.g consent and pipeline detail input strings, call correct method.
+
   public DiffedAllOrgRolePipelineGroups getDiffableOrgRolePipelineGroupsFromHuooVersionString(MasterPwa masterPwa,
                                                                                               PipelineId pipelineId,
                                                                                               String huooVersionId) {

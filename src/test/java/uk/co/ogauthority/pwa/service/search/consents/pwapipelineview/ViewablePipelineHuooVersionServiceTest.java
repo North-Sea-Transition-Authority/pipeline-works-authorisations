@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.service.search.consents.pwapipelineview;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static uk.co.ogauthority.pwa.service.search.consents.pwapipelineview.PwaHuooHistoryItemType.PIPELINE_DETAIL_MIGRATED_HUOO;
 import static uk.co.ogauthority.pwa.service.search.consents.pwapipelineview.PwaHuooHistoryItemType.PWA_CONSENT;
@@ -36,7 +37,10 @@ public class ViewablePipelineHuooVersionServiceTest {
   private PwaConsentService pwaConsentService;
 
   @Mock
-  private PipelineDetailMigrationHuooDataService pipelineDetailMigrationHuooDataService;;
+  private PipelineDetailMigrationHuooDataService pipelineDetailMigrationHuooDataService;
+
+  @Mock
+  private PwaHuooHistoryViewService pwaHuooHistoryViewService;
 
   private ViewablePipelineHuooVersionService viewablePipelineHuooVersionService;
 
@@ -55,8 +59,6 @@ public class ViewablePipelineHuooVersionServiceTest {
 
   @Before
   public void setUp() throws Exception {
-    //TODO PWA-1209 : use proper mock and make controller tests work.
-    PwaHuooHistoryViewService pwaHuooHistoryViewService = mock(PwaHuooHistoryViewService.class);
     viewablePipelineHuooVersionService = new ViewablePipelineHuooVersionService(pwaConsentService,
         pipelineDetailMigrationHuooDataService, pipelineDetailService, pwaHuooHistoryViewService);
 
@@ -183,26 +185,29 @@ public class ViewablePipelineHuooVersionServiceTest {
   }
 
 
+
   @Test
-  public void getPwaHuooHistoryItemTypeFromHuooVersionId_huooVersionIdIsForConsent() {
-    var pwaHuooHistoryItemType = viewablePipelineHuooVersionService.getPwaHuooHistoryItemTypeFromHuooVersionId(
-        PWA_CONSENT.getItemPrefix() + HUOO_VERSION_ENTITY_ID);
-    assertThat(pwaHuooHistoryItemType).isEqualTo(PWA_CONSENT);
+  public void getDiffableOrgRolePipelineGroupsFromHuooVersionString_huooVersionIdIsForConsent() {
+
+    var huooVersionId = PWA_CONSENT.getItemPrefix() + HUOO_VERSION_ENTITY_ID;
+    viewablePipelineHuooVersionService.getDiffableOrgRolePipelineGroupsFromHuooVersionString(
+        masterPwa, PIPELINE_ID, huooVersionId);
+
+    verify(pwaHuooHistoryViewService).getDiffedHuooSummaryAtTimeOfConsentAndPipeline(
+        HUOO_VERSION_ENTITY_ID, masterPwa, PIPELINE_ID);
   }
 
   @Test
-  public void getPwaHuooHistoryItemTypeFromHuooVersionId_huooVersionIdIsForMigratedHuoos() {
-    var pwaHuooHistoryItemType = viewablePipelineHuooVersionService.getPwaHuooHistoryItemTypeFromHuooVersionId(
-        PIPELINE_DETAIL_MIGRATED_HUOO.getItemPrefix() + HUOO_VERSION_ENTITY_ID);
-    assertThat(pwaHuooHistoryItemType).isEqualTo(PIPELINE_DETAIL_MIGRATED_HUOO);
+  public void getDiffableOrgRolePipelineGroupsFromHuooVersionString_huooVersionIdIsForMigratedHuoos() {
+
+    var huooVersionId = PIPELINE_DETAIL_MIGRATED_HUOO.getItemPrefix() + HUOO_VERSION_ENTITY_ID;
+    viewablePipelineHuooVersionService.getDiffableOrgRolePipelineGroupsFromHuooVersionString(
+        masterPwa, PIPELINE_ID, huooVersionId);
+
+    verify(pwaHuooHistoryViewService).getOrganisationRoleSummaryForHuooMigratedData(
+        masterPwa ,HUOO_VERSION_ENTITY_ID);
   }
 
-  @Test
-  public void getEntityIdFromHuooVersionId_entityIdReturned() {
-    var entityId = viewablePipelineHuooVersionService.getEntityIdFromHuooVersionId(
-        PIPELINE_DETAIL_MIGRATED_HUOO.getItemPrefix() + HUOO_VERSION_ENTITY_ID);
-    assertThat(entityId).isEqualTo(HUOO_VERSION_ENTITY_ID);
-  }
 
 
 

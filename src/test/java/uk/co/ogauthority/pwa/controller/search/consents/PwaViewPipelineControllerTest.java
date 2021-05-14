@@ -65,9 +65,6 @@ public class PwaViewPipelineControllerTest extends PwaContextAbstractControllerT
   @MockBean
   protected ViewablePipelineHuooVersionService viewablePipelineHuooVersionService;
 
-  @MockBean
-  protected PwaHuooHistoryViewService pwaHuooHistoryViewService;
-
   private static int PIPELINE_ID = 1;
 
 
@@ -105,14 +102,9 @@ public class PwaViewPipelineControllerTest extends PwaContextAbstractControllerT
 
     when(viewablePipelineHuooVersionService.getHuooHistorySearchSelectorItems(any(), any())).thenReturn(Map.of(
         PwaHuooHistoryItemType.PWA_CONSENT.getItemPrefix() + 1, "org"));
-    when(viewablePipelineHuooVersionService.getPwaHuooHistoryItemTypeFromHuooVersionId(any())).thenReturn(
-        PwaHuooHistoryItemType.PWA_CONSENT);
-    when(viewablePipelineHuooVersionService.getEntityIdFromHuooVersionId(any())).thenReturn(1);
-    when(pwaHuooHistoryViewService.getDiffedHuooSummaryAtTimeOfConsentAndPipeline(any(), any(), any())).thenReturn(
-        new DiffedAllOrgRolePipelineGroups(List.of(), List.of(), List.of(), List.of()));
-    when(pwaHuooHistoryViewService.getOrganisationRoleSummaryForHuooMigratedData(any(), any())).thenReturn(
-        new DiffedAllOrgRolePipelineGroups(List.of(), List.of(), List.of(), List.of()));
 
+    when(viewablePipelineHuooVersionService.getDiffableOrgRolePipelineGroupsFromHuooVersionString(any(), any(), any()))
+        .thenReturn(new DiffedAllOrgRolePipelineGroups(List.of(), List.of(), List.of(), List.of()));
   }
 
 
