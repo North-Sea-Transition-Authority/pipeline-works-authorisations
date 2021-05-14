@@ -4,8 +4,8 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.EnumSet;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -301,7 +301,7 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
 
     var availableMergeFields = getAvailableMailMergeFields(pwaApplicationDetail);
 
-    var map = new HashMap<MailMergeFieldMnem, String>();
+    EnumMap<MailMergeFieldMnem, String> map = new EnumMap<>(MailMergeFieldMnem.class);
 
     if (!availableMergeFields.isEmpty()) {
 

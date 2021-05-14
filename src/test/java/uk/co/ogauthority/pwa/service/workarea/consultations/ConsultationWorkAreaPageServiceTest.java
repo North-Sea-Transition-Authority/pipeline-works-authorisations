@@ -76,7 +76,7 @@ public class ConsultationWorkAreaPageServiceTest {
     when(consulteeGroupTeamService.getTeamMemberByPerson(user.getLinkedPerson())).thenReturn(Optional.empty());
 
     var workareaPage = consultationWorkAreaPageService.getPageView(user, Set.of(), REQUESTED_PAGE);
-    assertThat(workareaPage.getTotalElements()).isEqualTo(0);
+    assertThat(workareaPage.getTotalElements()).isZero();
 
     verify(consulteeGroupTeamService, times(1)).getTeamMemberByPerson(user.getLinkedPerson());
 

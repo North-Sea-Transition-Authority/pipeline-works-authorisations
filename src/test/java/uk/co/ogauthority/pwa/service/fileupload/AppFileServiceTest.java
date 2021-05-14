@@ -2,7 +2,6 @@ package uk.co.ogauthority.pwa.service.fileupload;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -213,15 +212,15 @@ public class AppFileServiceTest {
         FileUpdateMode.DELETE_UNLINKED_FILES, wua);
 
     verifyNoInteractions(fileUploadService);
-    verify(appFileRepository, times(1)).saveAll(eq(Set.of()));
-    verify(appFileRepository, times(1)).deleteAll(eq(Set.of()));
+    verify(appFileRepository, times(1)).saveAll(Set.of());
+    verify(appFileRepository, times(1)).deleteAll(Set.of());
 
   }
 
   @Test
   public void deleteFileLinksAndUploadedFiles_uploadedFileRemoveSuccessful() {
     appFileService.deleteAppFileLinksAndUploadedFiles(List.of(file), wua);
-    verify(appFileRepository).deleteAll(eq(List.of(file)));
+    verify(appFileRepository).deleteAll(List.of(file));
   }
 
   @Test(expected = RuntimeException.class)

@@ -164,8 +164,8 @@ public class WorkflowAssignmentServiceTest {
         caseOfficerPerson, notCaseOfficerPerson);
 
     verify(camundaWorkflowService, times(1)).assignTaskToUser(
-        eq(new WorkflowTaskInstance(app, PwaApplicationWorkflowTask.CASE_OFFICER_REVIEW)),
-        eq(caseOfficerPerson));
+        new WorkflowTaskInstance(app, PwaApplicationWorkflowTask.CASE_OFFICER_REVIEW),
+        caseOfficerPerson);
 
     verify(assignmentService, times(1))
         .createOrUpdateAssignment(app, PwaApplicationWorkflowTask.CASE_OFFICER_REVIEW, caseOfficerPerson, notCaseOfficerPerson);
@@ -256,7 +256,7 @@ public class WorkflowAssignmentServiceTest {
     var person = new Person(1, null, null, null, null);
 
     when(camundaWorkflowService.getAssignedPersonId(any())).thenReturn(Optional.of(new PersonId(1)));
-    when(teamManagementService.getPerson(eq(1))).thenReturn(person);
+    when(teamManagementService.getPerson(1)).thenReturn(person);
 
     var taskInstance = new WorkflowTaskInstance(new GenericWorkflowSubject(1, WorkflowType.PWA_APPLICATION), PwaApplicationWorkflowTask.CASE_OFFICER_REVIEW);
 
@@ -270,7 +270,7 @@ public class WorkflowAssignmentServiceTest {
   public void getAssignee_assigneeExists_personDoesntExist_error() {
 
     when(camundaWorkflowService.getAssignedPersonId(any())).thenReturn(Optional.of(new PersonId(1)));
-    when(teamManagementService.getPerson(eq(1))).thenThrow(PwaEntityNotFoundException.class);
+    when(teamManagementService.getPerson(1)).thenThrow(PwaEntityNotFoundException.class);
 
     var taskInstance = new WorkflowTaskInstance(new GenericWorkflowSubject(1, WorkflowType.PWA_APPLICATION), PwaApplicationWorkflowTask.CASE_OFFICER_REVIEW);
 

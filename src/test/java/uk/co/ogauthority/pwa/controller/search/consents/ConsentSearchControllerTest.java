@@ -91,7 +91,7 @@ public class ConsentSearchControllerTest extends AbstractControllerTest {
     params.setSearch(true);
 
     // search done when param present
-    verify(consentSearchContextCreator, times(1)).createContext(eq(permittedUser));
+    verify(consentSearchContextCreator, times(1)).createContext(permittedUser);
     verify(consentSearchService, times(1)).search(eq(params), any());
     verify(pwaOrganisationAccessor, times(1)).getOrgUnitsUserCanAccess(permittedUser);
 
@@ -111,7 +111,7 @@ public class ConsentSearchControllerTest extends AbstractControllerTest {
     params.setHolderOrgUnitId(22);
 
     // search done when param present
-    verify(consentSearchContextCreator, times(1)).createContext(eq(permittedUser));
+    verify(consentSearchContextCreator, times(1)).createContext(permittedUser);
     verify(consentSearchService, times(1)).search(eq(params), any());
 
   }

@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.junit.Assert.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.times;
@@ -450,7 +449,7 @@ public class DepositDrawingsServiceTest {
 
     depositDrawingsService.cleanupData(pwaApplicationDetail);
 
-    verify(padFileService, times(1)).cleanupFiles(eq(pwaApplicationDetail), eq(ApplicationDetailFilePurpose.DEPOSIT_DRAWINGS), eq(List.of(1, 2)));
+    verify(padFileService, times(1)).cleanupFiles(pwaApplicationDetail, ApplicationDetailFilePurpose.DEPOSIT_DRAWINGS, List.of(1, 2));
 
   }
 

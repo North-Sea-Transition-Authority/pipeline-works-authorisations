@@ -354,10 +354,10 @@ public class PadProjectInformationServiceTest {
 
     verify(padFileService, times(1))
         .copyPadFilesToPwaApplicationDetail(
-            eq(pwaApplicationDetail),
-            eq(copyToDetail),
-            eq(ApplicationDetailFilePurpose.PROJECT_INFORMATION),
-            eq(ApplicationFileLinkStatus.FULL));
+            pwaApplicationDetail,
+            copyToDetail,
+            ApplicationDetailFilePurpose.PROJECT_INFORMATION,
+            ApplicationFileLinkStatus.FULL);
 
   }
 

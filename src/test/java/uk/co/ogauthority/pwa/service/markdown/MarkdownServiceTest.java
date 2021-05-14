@@ -44,7 +44,7 @@ public class MarkdownServiceTest {
     var container = new MailMergeContainer();
     String html = markdownService.convertMarkdownToHtml(null, container);
 
-    assertThat(html).isEqualTo(null);
+    assertThat(html).isNull();
 
   }
 

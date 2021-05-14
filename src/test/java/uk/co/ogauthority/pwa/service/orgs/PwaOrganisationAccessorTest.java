@@ -1,7 +1,6 @@
 package uk.co.ogauthority.pwa.service.orgs;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -84,7 +83,7 @@ public class PwaOrganisationAccessorTest {
 
     pwaOrganisationAccessor.getOrgUnitsUserCanAccess(industryUser);
 
-    verify(portalOrganisationsAccessor, times(1)).getOrganisationUnitsForOrganisationGroupsIn(eq(List.of(organisationGroup1)));
+    verify(portalOrganisationsAccessor, times(1)).getOrganisationUnitsForOrganisationGroupsIn(List.of(organisationGroup1));
 
   }
 

@@ -140,7 +140,7 @@ public class InitialReviewServiceTest {
 
     verify(detailService, times(1)).setInitialReviewApproved(detail, pwaManagerUser, InitialReviewPaymentDecision.PAYMENT_WAIVED);
     verify(camundaWorkflowService, times(1))
-        .completeTask(eq(new WorkflowTaskInstance(app, PwaApplicationWorkflowTask.APPLICATION_REVIEW)));
+        .completeTask(new WorkflowTaskInstance(app, PwaApplicationWorkflowTask.APPLICATION_REVIEW));
     verify(camundaWorkflowService, times(1))
         .setWorkflowProperty(
             detail.getPwaApplication(),

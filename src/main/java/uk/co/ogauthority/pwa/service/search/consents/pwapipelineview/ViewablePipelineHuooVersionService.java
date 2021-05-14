@@ -43,7 +43,8 @@ public class ViewablePipelineHuooVersionService {
   private String createItemVersionOption(PwaHuooHistoryItemVersion itemVersion, Integer order) {
 
     var orderTagDisplay = order != null ? String.format(" (%s)", order) : "";
-    var consentReferenceDisplay = itemVersion.getReference() != null
+    var consentReferenceDisplay = itemVersion.getPwaHuooHistoryItemType().equals(PwaHuooHistoryItemType.PWA_CONSENT)
+        && itemVersion.getReference() != null
         ? " - " + itemVersion.getReference() : "";
     return DateUtils.formatDate(itemVersion.getStartTimestamp()) + orderTagDisplay + consentReferenceDisplay;
   }
