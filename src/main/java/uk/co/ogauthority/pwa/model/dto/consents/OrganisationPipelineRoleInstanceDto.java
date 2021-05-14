@@ -81,14 +81,18 @@ public final class OrganisationPipelineRoleInstanceDto {
                                              HuooRole huooRole,
                                              Integer pipelineId) {
 
-    this.organisationRoleInstanceDto = new OrganisationRoleInstanceDto(
-        organisationUnitId,
-        manualOrganisationName,
+    this(organisationUnitId,
+        manualOrganisationName, // manual org name always null
         null,
         huooRole,
-        HuooType.PORTAL_ORG
+        HuooType.PORTAL_ORG,
+        pipelineId,
+        null,
+        null,
+        null,
+        null,
+        null
     );
-    this.pipelineIdentifier = pipelineId != null ? new PipelineId(pipelineId) : null;
   }
 
   public OrganisationUnitId getOrganisationUnitId() {

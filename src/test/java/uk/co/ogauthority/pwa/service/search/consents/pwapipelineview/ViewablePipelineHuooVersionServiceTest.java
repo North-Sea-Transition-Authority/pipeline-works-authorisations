@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.service.search.consents.pwapipelineview;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static uk.co.ogauthority.pwa.service.search.consents.pwapipelineview.PwaHuooHistoryItemType.PIPELINE_DETAIL_MIGRATED_HUOO;
 import static uk.co.ogauthority.pwa.service.search.consents.pwapipelineview.PwaHuooHistoryItemType.PWA_CONSENT;
@@ -54,8 +55,10 @@ public class ViewablePipelineHuooVersionServiceTest {
 
   @Before
   public void setUp() throws Exception {
+    //TODO PWA-1209 : use proper mock and make controller tests work.
+    PwaHuooHistoryViewService pwaHuooHistoryViewService = mock(PwaHuooHistoryViewService.class);
     viewablePipelineHuooVersionService = new ViewablePipelineHuooVersionService(pwaConsentService,
-        pipelineDetailMigrationHuooDataService, pipelineDetailService);
+        pipelineDetailMigrationHuooDataService, pipelineDetailService, pwaHuooHistoryViewService);
 
     this.masterPwa = new MasterPwa();
     this.masterPwa.setId(1);
