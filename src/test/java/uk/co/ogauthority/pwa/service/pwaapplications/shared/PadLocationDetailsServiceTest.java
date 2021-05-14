@@ -3,7 +3,6 @@ package uk.co.ogauthority.pwa.service.pwaapplications.shared;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -489,7 +488,7 @@ public class PadLocationDetailsServiceTest {
 
     assertThat(padLocationDetails.getSurveyConcludedTimestamp()).isNull();
 
-    verify(facilityService, times(1)).setFacilities(eq(pwaApplicationDetail), eq(new LocationDetailsForm()));
+    verify(facilityService, times(1)).setFacilities(pwaApplicationDetail, new LocationDetailsForm());
 
     verify(padLocationDetailsRepository, times(1)).save(padLocationDetails);
 

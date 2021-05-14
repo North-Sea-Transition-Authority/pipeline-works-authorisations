@@ -30,18 +30,18 @@ public class PipelineDetailIdentDataService {
     var newIdentData = new ArrayList<PipelineDetailIdentData>();
 
     // for each ident in the map
-    pipelineDetailIdentToPadIdentDataSetMap.forEach(((pipelineDetailIdent, padPipelineIdentDataSet) -> {
+    pipelineDetailIdentToPadIdentDataSetMap.forEach((pipelineDetailIdent, padPipelineIdentDataSet) ->
 
-      // for each piece of pad ident data linked to that ident
-      padPipelineIdentDataSet.forEach(padPipelineIdentData -> {
+          // for each piece of pad ident data linked to that ident
+          padPipelineIdentDataSet.forEach(padPipelineIdentData -> {
 
-        // create a new ident data object and store it
-        var newData = createPipelineDetailIdentData(pipelineDetailIdent, padPipelineIdentData);
-        newIdentData.add(newData);
+            // create a new ident data object and store it
+            var newData = createPipelineDetailIdentData(pipelineDetailIdent, padPipelineIdentData);
+            newIdentData.add(newData);
 
-      });
+          })
 
-    }));
+    );
 
     // save all of our newly created ident data objects
     identDataRepository.saveAll(newIdentData);

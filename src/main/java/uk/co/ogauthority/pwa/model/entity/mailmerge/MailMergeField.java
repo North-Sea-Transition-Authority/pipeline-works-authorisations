@@ -22,6 +22,8 @@ public class MailMergeField {
   @Enumerated(EnumType.STRING)
   private MailMergeFieldType type;
 
+  private String text;
+
   public MailMergeFieldMnem getMnem() {
     return mnem;
   }
@@ -38,6 +40,14 @@ public class MailMergeField {
     this.type = type;
   }
 
+  public String getText() {
+    return text;
+  }
+
+  public void setText(String text) {
+    this.text = text;
+  }
+
   public String getDisplayString() {
     return type.getOpeningDelimiter() + mnem.name() + type.getClosingDelimiter();
   }
@@ -51,11 +61,12 @@ public class MailMergeField {
       return false;
     }
     MailMergeField that = (MailMergeField) o;
-    return mnem == that.mnem && type == that.type;
+    return mnem == that.mnem && type == that.type && Objects.equals(text, that.text);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(mnem, type);
+    return Objects.hash(mnem, type, text);
   }
+
 }

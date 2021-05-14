@@ -3,7 +3,6 @@ package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipielinetechinfo;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -209,7 +208,7 @@ public class PadPipelineOtherPropertiesServiceTest {
     assertThat(mercury.getMinValue()).isNull();
     assertThat(mercury.getMaxValue()).isNull();
 
-    verify(padPipelineOtherPropertiesRepository, times(1)).saveAll(eq(List.of(density, mercury)));
+    verify(padPipelineOtherPropertiesRepository, times(1)).saveAll(List.of(density, mercury));
 
   }
 
@@ -239,7 +238,7 @@ public class PadPipelineOtherPropertiesServiceTest {
     assertThat(mercury.getMinValue()).isNull();
     assertThat(mercury.getMaxValue()).isNull();
 
-    verify(padPipelineOtherPropertiesRepository, times(1)).saveAll(eq(List.of(mercury)));
+    verify(padPipelineOtherPropertiesRepository, times(1)).saveAll(List.of(mercury));
 
   }
 

@@ -20,12 +20,14 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.consultation.AssignCaseOfficerForm;
+import uk.co.ogauthority.pwa.model.notify.emailproperties.assignments.ApplicationAssignedToYouEmailProps;
 import uk.co.ogauthority.pwa.model.notify.emailproperties.assignments.CaseOfficerAssignedEmailProps;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.workflow.application.PwaApplicationWorkflowTask;
+import uk.co.ogauthority.pwa.service.notify.EmailCaseLinkService;
 import uk.co.ogauthority.pwa.service.notify.NotifyService;
 import uk.co.ogauthority.pwa.service.person.PersonService;
 import uk.co.ogauthority.pwa.service.teammanagement.TeamManagementService;
@@ -48,13 +50,17 @@ public class AssignCaseOfficerServiceTest {
   @Mock
   private PersonService personService;
   @Mock
+  private EmailCaseLinkService emailCaseLinkService;
+  @Mock
   private AssignCaseOfficerValidator assignCaseOfficerValidator;
 
   PwaApplicationDetail appDetail;
 
   @Captor
-  private ArgumentCaptor<CaseOfficerAssignedEmailProps> emailPropsCaptor;
+  private ArgumentCaptor<CaseOfficerAssignedEmailProps> caseOfficerAssignedEmailPropsCaptor;
 
+  @Captor
+  private ArgumentCaptor<ApplicationAssignedToYouEmailProps> applicationAssignedToYouEmailPropsCaptor;
 
   @Before
   public void setUp() {
@@ -63,10 +69,10 @@ public class AssignCaseOfficerServiceTest {
         teamManagementService,
         notifyService,
         personService,
-        assignCaseOfficerValidator);
+        assignCaseOfficerValidator,
+        emailCaseLinkService);
     appDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL, 1, 1);
   }
-
 
 
   @Test
@@ -85,20 +91,30 @@ public class AssignCaseOfficerServiceTest {
     appDetail.setSubmittedByPersonId(assigningPerson.getId());
     when(personService.getPersonById(appDetail.getSubmittedByPersonId())).thenReturn(assigningPerson);
 
+    when(emailCaseLinkService.generateCaseManagementLink(appDetail.getPwaApplication())).thenReturn("case link");
+
     assignCaseOfficerService.assignCaseOfficer(form.getCaseOfficerPerson(), appDetail, assigningUser);
 
     //verify new case officer assignment done and email is sent
     verify(workflowAssignmentService, times(1)).assign(
         appDetail.getPwaApplication(), PwaApplicationWorkflowTask.CASE_OFFICER_REVIEW, caseOfficerPerson, assigningUser.getLinkedPerson());
 
-    verify(notifyService, times(1)).sendEmail(emailPropsCaptor.capture(), eq(assigningUser.getLinkedPerson().getEmailAddress()));
+    verify(notifyService).sendEmail(caseOfficerAssignedEmailPropsCaptor.capture(), eq(assigningUser.getLinkedPerson().getEmailAddress()));
+    verify(notifyService).sendEmail(applicationAssignedToYouEmailPropsCaptor.capture(), eq(caseOfficerPerson.getEmailAddress()));
 
-    var emailProps = emailPropsCaptor.getValue();
-
-    assertThat(emailProps.getEmailPersonalisation()).contains(
+    var caseOfficerAssignedProps = caseOfficerAssignedEmailPropsCaptor.getValue();
+    assertThat(caseOfficerAssignedProps.getEmailPersonalisation()).contains(
         entry("RECIPIENT_FULL_NAME", assigningUser.getLinkedPerson().getFullName()),
         entry("CASE_OFFICER_NAME", caseOfficerPerson.getFullName()),
         entry("APPLICATION_REFERENCE", appDetail.getPwaApplicationRef())
+    );
+
+    var applicationAssignedToYouProps = applicationAssignedToYouEmailPropsCaptor.getValue();
+    assertThat(applicationAssignedToYouProps.getEmailPersonalisation()).contains(
+        entry("RECIPIENT_FULL_NAME", caseOfficerPerson.getFullName()),
+        entry("ASSIGNING_PERSON_FULL_NAME", assigningPerson.getFullName()),
+        entry("APPLICATION_REFERENCE", appDetail.getPwaApplicationRef()),
+        entry("CASE_MANAGEMENT_LINK", "case link")
     );
 
   }

@@ -13,6 +13,8 @@ public interface ConsultationResponseRepository extends CrudRepository<Consultat
 
   List<ConsultationResponse> getAllByConsultationRequestIn(List<ConsultationRequest> consultationRequests);
 
+  ConsultationResponse getFirstByConsultationRequestInOrderByResponseTimestampDesc(List<ConsultationRequest> consultationRequests);
+
   Optional<ConsultationResponse> findByConsultationRequest(ConsultationRequest consultationRequests);
 
   List<ConsultationResponse> findAllByConsultationRequest_consulteeGroup(ConsulteeGroup consulteeGroup);

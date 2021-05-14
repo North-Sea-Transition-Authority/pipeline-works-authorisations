@@ -146,7 +146,7 @@ public class PipelineDetailServiceTest {
     assertThat(newDetailsList).allSatisfy(newDetail -> {
       assertThat(newDetail.getTipFlag()).isTrue();
       assertThat(newDetail.getStartTimestamp()).isEqualTo(clockTime);
-      assertThat(pipelineDtoMap.keySet()).contains(newDetail.getPipeline());
+      assertThat(pipelineDtoMap).containsKey(newDetail.getPipeline());
     });
 
     // check that each app pipeline has been mapped onto its new detail after creation
@@ -161,7 +161,7 @@ public class PipelineDetailServiceTest {
 
           verify(pipelineMappingService, times(1)).mapPipelineEntities(newDetail, padPipeline);
 
-          assertThat(consentWriterDto.getPipelineToNewDetailMap().get(padPipeline.getPipeline())).isEqualTo(newDetail);
+          assertThat(consentWriterDto.getPipelineToNewDetailMap()).containsEntry(padPipeline.getPipeline(), newDetail);
 
         });
 

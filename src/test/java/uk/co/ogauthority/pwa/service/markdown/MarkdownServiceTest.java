@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
+import uk.co.ogauthority.pwa.util.MailMergeTestUtils;
 
 public class MarkdownServiceTest {
 
@@ -20,7 +21,8 @@ public class MarkdownServiceTest {
   @Test
   public void convertMarkdownToHtml_heading() {
 
-    String html = markdownService.convertMarkdownToHtml("### heading level 3", Map.of());
+    var container = new MailMergeContainer();
+    String html = markdownService.convertMarkdownToHtml("### heading level 3", container);
 
     assertThat(html).contains("<h3>heading level 3</h3>");
 
@@ -29,9 +31,20 @@ public class MarkdownServiceTest {
   @Test
   public void convertMarkdownToHtml_mailMergeFields() {
 
-    String html = markdownService.convertMarkdownToHtml("((PROJECT_NAME))", Map.of("PROJECT_NAME", "my proj"));
+    var container = MailMergeTestUtils.getMergeContainerWithMergeFields(Map.of("PROJECT_NAME", "my proj"));
+    String html = markdownService.convertMarkdownToHtml("((PROJECT_NAME))", container);
 
     assertThat(html).contains("<span>my proj</span>");
+
+  }
+
+  @Test
+  public void convertMarkdownToHtml_null_noError() {
+
+    var container = new MailMergeContainer();
+    String html = markdownService.convertMarkdownToHtml(null, container);
+
+    assertThat(html).isNull();
 
   }
 

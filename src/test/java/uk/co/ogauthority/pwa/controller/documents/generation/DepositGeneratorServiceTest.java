@@ -13,6 +13,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocGenType;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocumentSection;
 import uk.co.ogauthority.pwa.model.entity.enums.measurements.UnitMeasurement;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineStatus;
@@ -98,7 +99,9 @@ public class DepositGeneratorServiceTest {
   public void getDocumentSectionData() {
 
     var deposit1 = createDeposit(1);
+    deposit1.setFootnote("dep1 footnote");
     var deposit2 = createDeposit(2);
+    deposit2.setFootnote("dep2 footnote");
     var deposit3 = createDeposit(3);
     deposit3.setDepositIsForPipelinesOnOtherApp(true);
     deposit3.setAppRefAndPipelineNum("App refs and pipeline numbers xyz");
@@ -160,7 +163,7 @@ public class DepositGeneratorServiceTest {
 
 
 
-    var documentSectionData = depositsGeneratorService.getDocumentSectionData(pwaApplicationDetail, null);
+    var documentSectionData = depositsGeneratorService.getDocumentSectionData(pwaApplicationDetail, null, DocGenType.PREVIEW);
     var depositTableRowViews = (List<DepositTableRowView>) documentSectionData.getTemplateModel().get("depositTableRowViews");
     var sectionName = documentSectionData.getTemplateModel().get("sectionName");
 
@@ -210,6 +213,13 @@ public class DepositGeneratorServiceTest {
     assertThat(depositTableRowViews.get(0)).isEqualTo(expectedTableRowViewForDeposit1);
     assertThat(depositTableRowViews.get(1)).isEqualTo(expectedTableRowViewForDeposit2);
     assertThat(depositTableRowViews.get(2)).isEqualTo(expectedTableRowViewForDeposit3);
+
+    var footnotes = (List<String>) documentSectionData.getTemplateModel().get("depositFootnotes");
+    assertThat(footnotes).containsExactly(
+        deposit1.getReference() + ": " + deposit1.getFootnote(),
+        deposit2.getReference() + ": " + deposit2.getFootnote()
+    );
+
   }
 
 
@@ -219,7 +229,7 @@ public class DepositGeneratorServiceTest {
     when(permanentDepositService.getDepositForDepositPipelinesMap(pwaApplicationDetail)).thenReturn(Map.of());
     when(permanentDepositService.getAllDepositsWithPipelinesFromOtherApps(pwaApplicationDetail)).thenReturn(List.of());
 
-    var docSectionData = depositsGeneratorService.getDocumentSectionData(pwaApplicationDetail, null);
+    var docSectionData = depositsGeneratorService.getDocumentSectionData(pwaApplicationDetail, null, DocGenType.PREVIEW);
 
     assertThat(docSectionData).isNull();
 

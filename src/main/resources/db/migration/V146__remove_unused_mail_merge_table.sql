@@ -1,0 +1,1 @@
+DROP TABLE ${datasource.user}.mail_merge_field_doc_specs;

@@ -16,6 +16,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
+import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocGenType;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocumentSection;
 import uk.co.ogauthority.pwa.model.entity.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.files.PadFile;
@@ -64,7 +65,7 @@ public class DepositDrawingsGeneratorServiceTest {
   @Test
   public void getDocumentSectionData() {
 
-    var docSectionData = depositDrawingsGeneratorService.getDocumentSectionData(detail, null);
+    var docSectionData = depositDrawingsGeneratorService.getDocumentSectionData(detail, null, DocGenType.PREVIEW);
 
     verify(consentDocumentImageService, times(1)).convertFilesToImageSourceMap(Set.of("id1", "id2"));
 
@@ -82,7 +83,7 @@ public class DepositDrawingsGeneratorServiceTest {
 
     when(depositDrawingsService.getAllDepositDrawingsForDetail(detail)).thenReturn(List.of());
 
-    var docSectionData = depositDrawingsGeneratorService.getDocumentSectionData(detail, null);
+    var docSectionData = depositDrawingsGeneratorService.getDocumentSectionData(detail, null, DocGenType.PREVIEW);
 
     assertThat(docSectionData).isNull();
 

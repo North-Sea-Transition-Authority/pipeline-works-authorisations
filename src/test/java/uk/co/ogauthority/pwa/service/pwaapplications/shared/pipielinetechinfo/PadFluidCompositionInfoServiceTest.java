@@ -3,7 +3,6 @@ package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipielinetechinfo;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -211,7 +210,7 @@ public class PadFluidCompositionInfoServiceTest {
 
     assertThat(h2o.getMoleValue()).isNull();
 
-    verify(padFluidCompositionInfoRepository, times(1)).saveAll(eq(List.of(co2, h2o)));
+    verify(padFluidCompositionInfoRepository, times(1)).saveAll(List.of(co2, h2o));
 
   }
 
@@ -236,7 +235,7 @@ public class PadFluidCompositionInfoServiceTest {
 
     assertThat(h2o.getMoleValue()).isNull();
 
-    verify(padFluidCompositionInfoRepository, times(1)).saveAll(eq(List.of(h2o)));
+    verify(padFluidCompositionInfoRepository, times(1)).saveAll(List.of(h2o));
 
   }
 

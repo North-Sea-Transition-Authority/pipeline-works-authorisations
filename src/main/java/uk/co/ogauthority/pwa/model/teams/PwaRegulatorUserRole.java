@@ -1,9 +1,11 @@
-package uk.co.ogauthority.pwa.service.enums.pwaapplications;
+package uk.co.ogauthority.pwa.model.teams;
 
 import java.util.stream.Stream;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaUserRole;
 
 /**
  * Roles associated with PWA regulator team.
+ * TODO PWA-1149 this needs to be unified with PwaRegulatorRole.
  */
 public enum PwaRegulatorUserRole implements PwaUserRole {
 
@@ -15,7 +17,9 @@ public enum PwaRegulatorUserRole implements PwaUserRole {
 
   PWA_MANAGER("PWA Manager", "Accept applications and allocate case officers (PWA Manager)", 40),
 
-  RESOURCE_COORDINATOR("Team Administrator", "Manage access to the team (Team Administrator)", 50);
+  RESOURCE_COORDINATOR("Team Administrator", "Manage access to the team (Team Administrator)", 50),
+
+  AS_BUILT_NOTIF_ADMIN("As-built Notification Administrator", "Manage as-built notifications", 60);
 
   private final String roleName;
   private final String roleDescription;

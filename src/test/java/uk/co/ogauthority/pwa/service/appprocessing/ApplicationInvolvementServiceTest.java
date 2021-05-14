@@ -2,7 +2,6 @@ package uk.co.ogauthority.pwa.service.appprocessing;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -379,8 +378,8 @@ public class ApplicationInvolvementServiceTest {
 
     when(consultationRequestService.getAllRequestsByApplication(application)).thenReturn(List.of(request));
 
-    when(camundaWorkflowService.getAssignedPersonId(eq(new WorkflowTaskInstance(request,
-        PwaApplicationConsultationWorkflowTask.RESPONSE)))).thenReturn(Optional.of(new PersonId(99)));
+    when(camundaWorkflowService.getAssignedPersonId(new WorkflowTaskInstance(request,
+        PwaApplicationConsultationWorkflowTask.RESPONSE))).thenReturn(Optional.of(new PersonId(99)));
 
     var involvement = applicationInvolvementService.getApplicationInvolvementDto(detail, user);
 
@@ -425,8 +424,8 @@ public class ApplicationInvolvementServiceTest {
 
     when(consultationRequestService.getAllRequestsByApplication(application)).thenReturn(List.of(request));
 
-    when(camundaWorkflowService.getAssignedPersonId(eq(new WorkflowTaskInstance(request,
-        PwaApplicationConsultationWorkflowTask.RESPONSE)))).thenReturn(Optional.of(new PersonId(user.getLinkedPerson().getId().asInt())));
+    when(camundaWorkflowService.getAssignedPersonId(new WorkflowTaskInstance(request,
+        PwaApplicationConsultationWorkflowTask.RESPONSE))).thenReturn(Optional.of(new PersonId(user.getLinkedPerson().getId().asInt())));
 
     var involvement = applicationInvolvementService.getApplicationInvolvementDto(detail, user);
 

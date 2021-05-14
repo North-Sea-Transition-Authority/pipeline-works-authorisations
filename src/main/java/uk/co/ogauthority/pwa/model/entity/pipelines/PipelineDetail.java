@@ -17,6 +17,7 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import org.apache.commons.lang3.ObjectUtils;
+import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineDetailId;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineFlexibility;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineMaterial;
@@ -150,6 +151,13 @@ public class PipelineDetail implements PipelineEntity {
   public PipelineDetail(Pipeline pipeline) {
     this.setPipeline(pipeline);
   }
+
+
+  public PipelineDetailId getPipelineDetailId() {
+    // worry about caching this if it ever becomes a problem.
+    return new PipelineDetailId(this.id);
+  }
+
 
   @Override
   public Integer getId() {

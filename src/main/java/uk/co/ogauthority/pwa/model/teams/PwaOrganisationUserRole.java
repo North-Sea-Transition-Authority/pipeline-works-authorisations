@@ -1,6 +1,7 @@
-package uk.co.ogauthority.pwa.service.enums.pwaapplications;
+package uk.co.ogauthority.pwa.model.teams;
 
 import java.util.stream.Stream;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaUserRole;
 
 /**
  * Roles associated with organisation users.
@@ -14,7 +15,10 @@ public enum PwaOrganisationUserRole implements PwaUserRole {
 
   APPLICATION_SUBMITTER("Application submitter", "Can submit applications to the OGA (Application submitter)", 40),
 
-  FINANCE_ADMIN("Finance administrator", "Can pay for any submitted PWA application (Finance administrator)", 50);
+  FINANCE_ADMIN("Finance administrator", "Can pay for any submitted PWA application (Finance administrator)", 50),
+
+  AS_BUILT_NOTIF_SUBMITTER("As-built notification submitter",
+      "Can submit as-built notifications to the OGA (As-built notification submitter)", 60);
 
   private final String roleName;
   private final String roleDescription;

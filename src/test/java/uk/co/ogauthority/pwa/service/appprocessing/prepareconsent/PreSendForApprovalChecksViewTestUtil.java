@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.service.appprocessing.prepareconsent;
 
 import java.time.Instant;
 import java.util.List;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 
 public class PreSendForApprovalChecksViewTestUtil {
 
@@ -26,6 +27,8 @@ public class PreSendForApprovalChecksViewTestUtil {
             new ParallelConsentView(
                 1,
                 "CONSENT/REF",
+                1,
+                PwaApplicationType.INITIAL,
                 "APP/REF",
                 Instant.now(),
                 "FormattedDate"

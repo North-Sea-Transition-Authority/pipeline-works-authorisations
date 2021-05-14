@@ -2,6 +2,9 @@ package uk.co.ogauthority.pwa.service.documents.generation;
 
 import static java.util.Map.entry;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
@@ -17,10 +20,12 @@ import uk.co.ogauthority.pwa.model.documents.view.SectionClauseVersionView;
 import uk.co.ogauthority.pwa.model.documents.view.SectionView;
 import uk.co.ogauthority.pwa.model.entity.documents.instances.DocumentInstance;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.DocumentTemplateMnem;
+import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocGenType;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocumentSection;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.enums.documents.PwaDocumentType;
 import uk.co.ogauthority.pwa.service.documents.instances.DocumentInstanceService;
+import uk.co.ogauthority.pwa.service.mailmerge.MailMergeService;
 import uk.co.ogauthority.pwa.testutils.DocumentDtoTestUtils;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -29,9 +34,12 @@ public class VariationIntroductionGeneratorServiceTest {
   @Mock
   private DocumentInstanceService documentInstanceService;
 
+  @Mock
+  private MailMergeService mailMergeService;
+
   private VariationIntroductionGeneratorService variationIntroductionGeneratorService;
 
-  private DocumentInstance documentInstance;
+  private DocumentInstance documentInstance = new DocumentInstance();
 
   private PwaApplicationDetail detail = new PwaApplicationDetail();
 
@@ -40,7 +48,7 @@ public class VariationIntroductionGeneratorServiceTest {
   @Before
   public void setUp() throws Exception {
 
-    variationIntroductionGeneratorService = new VariationIntroductionGeneratorService(documentInstanceService);
+    variationIntroductionGeneratorService = new VariationIntroductionGeneratorService(documentInstanceService, mailMergeService);
 
     DocumentInstanceSectionClauseVersionDto dto1 = DocumentDtoTestUtils
         .getDocumentInstanceSectionClauseVersionDto(DocumentSection.VARIATION_INTRO.name(), "intro", 1, 1);
@@ -59,12 +67,16 @@ public class VariationIntroductionGeneratorServiceTest {
     when(documentInstanceService.getDocumentView(documentInstance, DocumentSection.VARIATION_INTRO))
         .thenReturn(docView);
 
+    when(mailMergeService.mailMerge(any(), any())).thenReturn(docView);
+
   }
 
   @Test
   public void getDocumentSectionData_dataPresent() {
 
-    var docSectionData = variationIntroductionGeneratorService.getDocumentSectionData(detail, null);
+    var docSectionData = variationIntroductionGeneratorService.getDocumentSectionData(detail, documentInstance, DocGenType.PREVIEW);
+
+    verify(mailMergeService, times(1)).mailMerge(docView, DocGenType.PREVIEW);
 
     // remove first clause from docview as it is used in intro paragraph
     docView.getSections().get(0).getClauses().remove(0);

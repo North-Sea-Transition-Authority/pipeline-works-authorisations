@@ -7,6 +7,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
+import java.time.Clock;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -70,6 +71,9 @@ public class FinalisePublicNoticeServiceTest {
   @Mock
   private EmailCaseLinkService emailCaseLinkService;
 
+  @Mock
+  private Clock clock;
+
   @Value("${service.name}")
   private String serviceName;
 
@@ -89,7 +93,7 @@ public class FinalisePublicNoticeServiceTest {
   public void setUp() {
 
     finalisePublicNoticeService = new FinalisePublicNoticeService(publicNoticeService, validator,
-        camundaWorkflowService, publicNoticeDatesRepository, serviceName, pwaContactService, notifyService, emailCaseLinkService);
+        camundaWorkflowService, publicNoticeDatesRepository, serviceName, pwaContactService, notifyService, emailCaseLinkService, clock);
 
     var pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     pwaApplication = pwaApplicationDetail.getPwaApplication();
@@ -179,6 +183,7 @@ public class FinalisePublicNoticeServiceTest {
     assertThat(actualPublicNoticeDate.getPublicationDaysLength()).isEqualTo(Long.valueOf(form.getDaysToBePublishedFor()));
     assertThat(actualPublicNoticeDate.getPublicNotice()).isEqualTo(publicNotice);
     assertThat(actualPublicNoticeDate.getCreatedByPersonId()).isEqualTo(user.getLinkedPerson().getId().asInt());
+    assertThat(actualPublicNoticeDate.getCreatedTimestamp()).isEqualTo(clock.instant());
   }
 
   @Test
@@ -267,11 +272,13 @@ public class FinalisePublicNoticeServiceTest {
     verify(publicNoticeDatesRepository, times(2)).save(publicNoticeDateArgumentCaptor.capture());
     var actualExistingPublicNoticeDate = publicNoticeDateArgumentCaptor.getAllValues().get(0);
     assertThat(actualExistingPublicNoticeDate.getEndedByPersonId()).isEqualTo(user.getLinkedPerson().getId().asInt());
+    assertThat(actualExistingPublicNoticeDate.getEndedTimestamp()).isEqualTo(clock.instant());
 
     var expectedStartDate = LocalDate.of(form.getStartYear(), form.getStartMonth(), form.getStartDay());
     var actualNewPublicNoticeDate = publicNoticeDateArgumentCaptor.getAllValues().get(1);
     var actualNewPublicationStartDate = DateUtils.instantToLocalDate(actualNewPublicNoticeDate.getPublicationStartTimestamp());
     assertThat(actualNewPublicationStartDate).isEqualTo(expectedStartDate);
+    assertThat(actualNewPublicNoticeDate.getCreatedTimestamp()).isEqualTo(clock.instant());
 
     var expectedEndDate = expectedStartDate.plusDays(form.getDaysToBePublishedFor());
     var actualNewPublicationEndDate = DateUtils.instantToLocalDate(actualNewPublicNoticeDate.getPublicationEndTimestamp());

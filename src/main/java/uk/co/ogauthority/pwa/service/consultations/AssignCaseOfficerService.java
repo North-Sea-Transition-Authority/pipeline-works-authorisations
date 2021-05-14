@@ -9,12 +9,14 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.consultation.AssignCaseOfficerForm;
+import uk.co.ogauthority.pwa.model.notify.emailproperties.assignments.ApplicationAssignedToYouEmailProps;
 import uk.co.ogauthority.pwa.model.notify.emailproperties.assignments.CaseOfficerAssignedEmailProps;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.service.appprocessing.tasks.AppProcessingService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.workflow.application.PwaApplicationWorkflowTask;
+import uk.co.ogauthority.pwa.service.notify.EmailCaseLinkService;
 import uk.co.ogauthority.pwa.service.notify.NotifyService;
 import uk.co.ogauthority.pwa.service.person.PersonService;
 import uk.co.ogauthority.pwa.service.teammanagement.TeamManagementService;
@@ -29,6 +31,7 @@ public class AssignCaseOfficerService implements AppProcessingService {
   private final NotifyService notifyService;
   private final PersonService personService;
   private final AssignCaseOfficerValidator assignCaseOfficerValidator;
+  private final EmailCaseLinkService emailCaseLinkService;
 
   @Autowired
   public AssignCaseOfficerService(
@@ -36,12 +39,14 @@ public class AssignCaseOfficerService implements AppProcessingService {
       TeamManagementService teamManagementService,
       NotifyService notifyService,
       PersonService personService,
-      AssignCaseOfficerValidator assignCaseOfficerValidator) {
+      AssignCaseOfficerValidator assignCaseOfficerValidator,
+      EmailCaseLinkService emailCaseLinkService) {
     this.workflowAssignmentService = workflowAssignmentService;
     this.teamManagementService = teamManagementService;
     this.notifyService = notifyService;
     this.personService = personService;
     this.assignCaseOfficerValidator = assignCaseOfficerValidator;
+    this.emailCaseLinkService = emailCaseLinkService;
   }
 
   public void assignCaseOfficer(PersonId caseOfficerPersonId,
@@ -57,9 +62,8 @@ public class AssignCaseOfficerService implements AppProcessingService {
         assigningUser.getLinkedPerson());
 
     sendCaseOfficerAssignedEmail(pwaApplicationDetail, caseOfficer);
-    //TODO: PWA-808 - Send email to new case officer when reassigning
+    sendCaseOfficerAssignedPersonalEmail(pwaApplicationDetail, caseOfficer, assigningUser.getLinkedPerson().getFullName());
   }
-
 
   private void sendCaseOfficerAssignedEmail(PwaApplicationDetail applicationDetail, Person caseOfficer) {
     var submitterPerson = personService.getPersonById(applicationDetail.getSubmittedByPersonId());
@@ -67,6 +71,15 @@ public class AssignCaseOfficerService implements AppProcessingService {
     var props = new CaseOfficerAssignedEmailProps(
         submitterPerson.getFullName(), applicationDetail.getPwaApplicationRef(), caseOfficer.getFullName());
     notifyService.sendEmail(props, submitterPerson.getEmailAddress());
+  }
+
+  private void sendCaseOfficerAssignedPersonalEmail(PwaApplicationDetail applicationDetail,
+                                                    Person caseOfficer,
+                                                    String assigningUserFullName) {
+    var props = new ApplicationAssignedToYouEmailProps(caseOfficer.getFullName(), applicationDetail.getPwaApplicationRef(),
+        assigningUserFullName,
+        emailCaseLinkService.generateCaseManagementLink(applicationDetail.getPwaApplication()));
+    notifyService.sendEmail(props, caseOfficer.getEmailAddress());
   }
 
   public BindingResult validate(AssignCaseOfficerForm form, BindingResult bindingResult,

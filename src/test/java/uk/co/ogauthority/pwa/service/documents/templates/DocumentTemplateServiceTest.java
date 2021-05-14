@@ -1,6 +1,5 @@
 package uk.co.ogauthority.pwa.service.documents.templates;
 
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -81,7 +80,7 @@ public class DocumentTemplateServiceTest {
 
     documentTemplateService.populateDocumentDtoFromTemplateMnem(DocumentTemplateMnem.PWA_CONSENT_DOCUMENT, docSpec);
 
-    verify(documentDtoFactory, times(1)).create(eq(sectionToClauseListMap));
+    verify(documentDtoFactory, times(1)).create(sectionToClauseListMap);
 
   }
 

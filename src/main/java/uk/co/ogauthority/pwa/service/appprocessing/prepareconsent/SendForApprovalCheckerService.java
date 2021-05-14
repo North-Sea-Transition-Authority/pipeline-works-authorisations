@@ -3,14 +3,12 @@ package uk.co.ogauthority.pwa.service.appprocessing.prepareconsent;
 
 import java.util.Comparator;
 import java.util.HashSet;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.model.entity.enums.MasterPwaDetailStatus;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.DocumentTemplateMnem;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.appprocessing.applicationupdate.ApplicationUpdateRequestService;
 import uk.co.ogauthority.pwa.service.appprocessing.publicnotice.PublicNoticeService;
@@ -58,15 +56,18 @@ public class SendForApprovalCheckerService {
 
     var parallelConsentViews = parallelConsents
         .stream()
-        .map(pwaConsent -> new ParallelConsentView(pwaConsent.getId(),
-            pwaConsent.getReference(),
-            Optional.ofNullable(pwaConsent.getSourcePwaApplication())
-            .map(PwaApplication::getAppReference)
-            .orElse(""),
-            pwaConsent.getConsentInstant(),
-            DateUtils.formatDate(pwaConsent.getConsentInstant())
-
-        ))
+        .map(pwaConsent -> {
+          var sourcePwaApplication = pwaConsent.getSourcePwaApplication();
+          return new ParallelConsentView(
+              pwaConsent.getId(),
+              pwaConsent.getReference(),
+              sourcePwaApplication != null ? sourcePwaApplication.getId() : null,
+              sourcePwaApplication != null ? sourcePwaApplication.getApplicationType() : null,
+              sourcePwaApplication != null ? sourcePwaApplication.getAppReference() : null,
+              pwaConsent.getConsentInstant(),
+              DateUtils.formatDate(pwaConsent.getConsentInstant())
+          );
+        })
         .sorted(Comparator.comparing(ParallelConsentView::getConsentInstant))
         .collect(Collectors.toList());
 
@@ -75,7 +76,7 @@ public class SendForApprovalCheckerService {
         failedChecks.stream()
             .sorted(Comparator.comparing(FailedSendForApprovalCheck::getReason))
             .collect(Collectors.toUnmodifiableList()),
-            parallelConsentViews
+        parallelConsentViews
     );
 
   }

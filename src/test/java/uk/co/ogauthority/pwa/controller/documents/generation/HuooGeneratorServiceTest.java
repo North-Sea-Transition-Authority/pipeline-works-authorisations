@@ -10,6 +10,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooType;
+import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocGenType;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocumentSection;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.documents.generation.HuooGeneratorService;
@@ -80,7 +81,7 @@ public class HuooGeneratorServiceTest {
         .thenReturn(allRoleDiffablePipelineGroupView);
 
 
-    var documentSectionData = huooGeneratorService.getDocumentSectionData(pwaApplicationDetail, null);
+    var documentSectionData = huooGeneratorService.getDocumentSectionData(pwaApplicationDetail, null, DocGenType.PREVIEW);
     var allRolePipelineGroupView = (AllRoleDiffablePipelineGroupView) documentSectionData.getTemplateModel().get("allRolePipelineGroupView");
     var sectionName = documentSectionData.getTemplateModel().get("sectionName");
 

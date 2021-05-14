@@ -1,0 +1,15 @@
+@import '../../../public/assets/govuk-frontend/govuk/core/typography';
+
+.pwa-mail-merge {
+
+  &__automatic--preview {
+    color: govuk-colour("dark-blue");
+    font-weight: bold;
+  }
+
+  &__manual--preview {
+    color: govuk-colour("orange");
+    font-weight: bold;
+  }
+
+}

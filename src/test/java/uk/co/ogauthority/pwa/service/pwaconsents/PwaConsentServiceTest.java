@@ -71,7 +71,7 @@ public class PwaConsentServiceTest {
       assertThat(consent.getConsentInstant()).isEqualTo(clockTime);
       assertThat(consent.getCreatedInstant()).isEqualTo(clockTime);
       assertThat(consent.getReference()).isEqualTo(FAKE_REF);
-      assertThat(consent.getVariationNumber()).isEqualTo(0);
+      assertThat(consent.getVariationNumber()).isZero();
       assertThat(consent.isMigratedFlag()).isFalse();
     });
 

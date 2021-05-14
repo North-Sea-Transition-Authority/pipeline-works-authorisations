@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.model.documents.generation.DocumentSectionData;
 import uk.co.ogauthority.pwa.model.entity.documents.instances.DocumentInstance;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
+import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocGenType;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocumentSection;
 import uk.co.ogauthority.pwa.model.entity.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.files.PadFile;
@@ -29,7 +30,8 @@ public class AdmiraltyChartGeneratorService implements DocumentSectionGenerator 
 
   @Override
   public DocumentSectionData getDocumentSectionData(PwaApplicationDetail pwaApplicationDetail,
-                                                    DocumentInstance documentInstance) {
+                                                    DocumentInstance documentInstance,
+                                                    DocGenType docGenType) {
 
     Optional<String> admiraltyChartFileId = padFileService
         .getAllByPwaApplicationDetailAndPurpose(pwaApplicationDetail, ApplicationDetailFilePurpose.ADMIRALTY_CHART).stream()

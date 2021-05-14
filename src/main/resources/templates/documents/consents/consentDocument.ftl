@@ -180,6 +180,16 @@
       display: block;
     }
 
+    .pwa-mail-merge__automatic--preview {
+      color: #003078;
+      font-weight: bold;
+    }
+
+    .pwa-mail-merge__manual--preview {
+      color: #003078;
+      font-weight: bold;
+    }
+
   </style>
 </head>
 <body>

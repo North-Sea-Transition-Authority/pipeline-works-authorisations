@@ -13,6 +13,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocGenType;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocumentSection;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineStatus;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
@@ -224,7 +225,7 @@ public class TableAGeneratorServiceTest {
     //assert that pipeline and drawing summaries have been mapped into TableA views
     // and ordered according to pipeline numbers within and across groups
     // and that any RTS & NL pipelines are excluded
-    var documentSectionData = tableAGeneratorService.getDocumentSectionData(pwaApplicationDetail, null);
+    var documentSectionData = tableAGeneratorService.getDocumentSectionData(pwaApplicationDetail, null, DocGenType.PREVIEW);
     var sectionName = documentSectionData.getTemplateModel().get("sectionName");
     var actualDrawingForTableAViews = (List<DrawingForTableAView>) documentSectionData.getTemplateModel().get("drawingForTableAViews");
 
@@ -245,7 +246,7 @@ public class TableAGeneratorServiceTest {
 
     when(pipelineDiffableSummaryService.getApplicationDetailPipelines(pwaApplicationDetail)).thenReturn(List.of());
 
-    var docSectionData = tableAGeneratorService.getDocumentSectionData(pwaApplicationDetail, null);
+    var docSectionData = tableAGeneratorService.getDocumentSectionData(pwaApplicationDetail, null, DocGenType.PREVIEW);
 
     assertThat(docSectionData).isNull();
 

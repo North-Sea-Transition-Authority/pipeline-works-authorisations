@@ -216,7 +216,7 @@ public abstract class ApplicationWorkAreaItem {
             this.applicationType.getDisplayName()
         ));
 
-    if (!PwaApplicationType.INITIAL.equals(this.applicationType)) {
+    if (this.applicationType != PwaApplicationType.INITIAL || this.applicationStatus == PwaApplicationStatus.COMPLETE) {
       columnItemList.add(
           WorkAreaColumnItemView.createTagItem(WorkAreaColumnItemView.TagType.NONE, this.masterPwaReference)
       );

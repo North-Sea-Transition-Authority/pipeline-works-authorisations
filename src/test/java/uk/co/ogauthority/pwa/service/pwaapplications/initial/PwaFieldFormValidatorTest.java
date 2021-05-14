@@ -59,7 +59,7 @@ public class PwaFieldFormValidatorTest {
 
     var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, ValidationType.FULL);
 
-    assertThat(errors.keySet()).containsOnly("fieldIds");
+    assertThat(errors).containsOnlyKeys("fieldIds");
     assertThat(errors.get("fieldIds")).containsOnly(REQUIRED.errorCode("fieldIds"));
 
   }
@@ -109,7 +109,7 @@ public class PwaFieldFormValidatorTest {
 
     var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, ValidationType.FULL);
 
-    assertThat(errors.keySet()).containsOnly("fieldIds");
+    assertThat(errors).containsOnlyKeys("fieldIds");
     assertThat(errors.get("fieldIds")).containsOnly(INVALID.errorCode("fieldIds"));
 
   }
@@ -124,7 +124,7 @@ public class PwaFieldFormValidatorTest {
 
     var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, ValidationType.PARTIAL);
 
-    assertThat(errors.keySet()).containsOnly("fieldIds");
+    assertThat(errors).containsOnlyKeys("fieldIds");
     assertThat(errors.get("fieldIds")).containsOnly(INVALID.errorCode("fieldIds"));
 
   }
@@ -136,7 +136,7 @@ public class PwaFieldFormValidatorTest {
 
     var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, ValidationType.FULL);
 
-    assertThat(errors.keySet()).containsOnly("noLinkedFieldDescription");
+    assertThat(errors).containsOnlyKeys("noLinkedFieldDescription");
     assertThat(errors.get("noLinkedFieldDescription")).containsOnly(REQUIRED.errorCode("noLinkedFieldDescription"));
 
   }

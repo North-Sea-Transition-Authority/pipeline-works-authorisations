@@ -24,6 +24,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview;
+import uk.co.ogauthority.pwa.repository.pipelines.CountPipelineDetailsForPipelineDto;
 import uk.co.ogauthority.pwa.repository.pipelines.PipelineBundlePairDto;
 import uk.co.ogauthority.pwa.repository.pipelines.PipelineDetailRepository;
 import uk.co.ogauthority.pwa.service.pwaconsents.consentwriters.pipelines.ConsentWriterDto;
@@ -56,7 +57,8 @@ public class PipelineDetailService {
     return pipelineDetailRepository.getAllPipelineOverviewsForMasterPwa(masterPwa);
   }
 
-  public List<PipelineOverview> getAllPipelineOverviewsForMasterPwaAndStatus(MasterPwa masterPwa, Set<PipelineStatus> statusFilter) {
+  public List<PipelineOverview> getAllPipelineOverviewsForMasterPwaAndStatus(MasterPwa masterPwa,
+                                                                             Set<PipelineStatus> statusFilter) {
     return pipelineDetailRepository.getAllPipelineOverviewsForMasterPwaAndStatus(masterPwa, statusFilter);
   }
 
@@ -91,7 +93,8 @@ public class PipelineDetailService {
   public List<PipelineDetail> getActivePipelineDetailsForApplicationMasterPwaById(PwaApplication pwaApplication,
                                                                                   Set<PipelineId> pipelineIds) {
     //revisit if performance is bad
-    return pipelineDetailRepository.findAllByPipeline_MasterPwaAndEndTimestampIsNull(pwaApplication.getMasterPwa()).stream()
+    return pipelineDetailRepository.findAllByPipeline_MasterPwaAndEndTimestampIsNull(
+        pwaApplication.getMasterPwa()).stream()
         .filter(pd -> pipelineIds.contains(pd.getPipelineId()))
         .collect(Collectors.toList());
   }
@@ -124,8 +127,8 @@ public class PipelineDetailService {
     // get current pipeline details for any pipelines that are on our application, store in a map
     var pipelineToCurrentDetailMap =
         getActivePipelineDetailsForPipelines(pipelineToPadPipelineDtoMap.keySet())
-        .stream()
-        .collect(Collectors.toMap(PipelineDetail::getPipeline, Function.identity()));
+            .stream()
+            .collect(Collectors.toMap(PipelineDetail::getPipeline, Function.identity()));
 
     // for each pipeline in our map
     pipelineToPadPipelineDtoMap.forEach((pipeline, padPipelineDto) -> {
@@ -166,6 +169,24 @@ public class PipelineDetailService {
 
     return detail;
 
+  }
+
+  public Map<PipelineId, Long> countPipelineDetailsPerPipeline(Set<Pipeline> pipelines) {
+
+    if (pipelines.isEmpty()) {
+      return Map.of();
+    }
+
+    var pipelineIdSet = pipelines.stream()
+        .map(Pipeline::getPipelineId)
+        .collect(Collectors.toSet());
+
+    return pipelineDetailRepository.getCountOfPipelineDetailsForPipelines(pipelineIdSet)
+        .stream()
+        .collect(Collectors.toMap(
+            CountPipelineDetailsForPipelineDto::getPipelineId,
+            CountPipelineDetailsForPipelineDto::getCountOfPipelineDetails)
+        );
   }
 
 }
