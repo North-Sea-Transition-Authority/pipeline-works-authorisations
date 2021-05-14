@@ -1,10 +1,13 @@
 package uk.co.ogauthority.pwa.service.consultations;
 
+import static uk.co.ogauthority.pwa.model.form.enums.ConsultationResponseOption.CONFIRMED;
+
 import java.time.Clock;
 import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -16,6 +19,7 @@ import uk.co.ogauthority.pwa.exception.WorkflowAssignmentException;
 import uk.co.ogauthority.pwa.model.dto.consultations.ConsultationRequestDto;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationResponse;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.form.consultation.ConsultationResponseForm;
 import uk.co.ogauthority.pwa.model.form.enums.ConsultationResponseOption;
 import uk.co.ogauthority.pwa.model.notify.emailproperties.consultations.ConsultationResponseReceivedEmailProps;
@@ -190,6 +194,23 @@ public class ConsultationResponseService implements AppProcessingService {
         PwaAppProcessingTask.CONSULTATION_RESPONSE.getDisplayOrder()
     );
 
+  }
+
+  public ConsultationResponse getLatestResponseForRequests(List<ConsultationRequest> requests) {
+    return consultationResponseRepository.getFirstByConsultationRequestInOrderByResponseTimestampDesc(requests);
+  }
+
+  public boolean isThereAtLeastOneApprovalFromAnyGroup(PwaApplication pwaApplication) {
+    var groupRequestMap = consultationRequestService.getAllRequestsByApplication(pwaApplication).stream()
+        .filter(consultationRequest -> consultationRequest.getStatus() == ConsultationRequestStatus.RESPONDED)
+        .collect(Collectors.groupingBy(ConsultationRequest::getConsulteeGroup));
+
+    var latestResponsesByGroup = groupRequestMap.keySet().stream()
+        .map(consulteeGroup -> getLatestResponseForRequests(groupRequestMap.get(consulteeGroup)))
+        .collect(Collectors.toList());
+
+    return latestResponsesByGroup.stream()
+        .anyMatch(consultationResponse -> consultationResponse.getResponseType() == CONFIRMED);
   }
 
 }

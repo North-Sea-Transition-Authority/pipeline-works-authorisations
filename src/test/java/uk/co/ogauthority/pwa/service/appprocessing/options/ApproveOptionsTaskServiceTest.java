@@ -19,7 +19,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.controller.appprocessing.options.ApproveOptionsController;
-import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.options.OptionsApplicationApproval;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.enums.tasklist.TaskState;
@@ -30,6 +29,7 @@ import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingConte
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContextTestUtil;
 import uk.co.ogauthority.pwa.service.consultations.ApplicationConsultationStatusViewTestUtil;
 import uk.co.ogauthority.pwa.service.consultations.ConsultationRequestService;
+import uk.co.ogauthority.pwa.service.consultations.ConsultationResponseService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ConsultationRequestStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
@@ -38,10 +38,11 @@ import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 @RunWith(MockitoJUnitRunner.class)
 public class ApproveOptionsTaskServiceTest {
 
-  private static final PersonId PERSON_ID = new PersonId(1);
-
   @Mock
   private ConsultationRequestService consultationRequestService;
+
+  @Mock
+  private ConsultationResponseService consultationResponseService;
 
   @Mock
   private OptionsApplicationApprovalRepository optionsApplicationApprovalRepository;
@@ -55,9 +56,9 @@ public class ApproveOptionsTaskServiceTest {
 
   private PwaAppProcessingContext pwaAppProcessingContext;
 
+
   @Before
   public void setUp() throws Exception {
-
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.OPTIONS_VARIATION);
 
     pwaAppProcessingContext = PwaAppProcessingContextTestUtil.withPermissions(
@@ -71,8 +72,10 @@ public class ApproveOptionsTaskServiceTest {
     approveOptionsTaskService = new ApproveOptionsTaskService(
         consultationRequestService,
         optionsApplicationApprovalRepository,
-        applicationUpdateRequestService);
+        applicationUpdateRequestService, consultationResponseService);
 
+    when(consultationResponseService.isThereAtLeastOneApprovalFromAnyGroup(pwaAppProcessingContext.getPwaApplication()))
+        .thenReturn(true);
   }
 
   @Test
@@ -224,6 +227,34 @@ public class ApproveOptionsTaskServiceTest {
 
     when(applicationUpdateRequestService.applicationHasOpenUpdateRequest(pwaApplicationDetail))
         .thenReturn(true);
+
+    var taskAccessible = approveOptionsTaskService.taskAccessible(pwaAppProcessingContext);
+
+    assertThat(taskAccessible).isFalse();
+
+  }
+
+  @Test
+  public void taskAccessible_hasPermission_hasRespondedRequests_noUnrespondedRequests_noOpenUpdateRequest_noApprovals() {
+
+    pwaAppProcessingContext = PwaAppProcessingContextTestUtil.withPermissions(
+        pwaApplicationDetail,
+        EnumSet.of(PwaAppProcessingPermission.APPROVE_OPTIONS)
+    );
+
+    var statusView = ApplicationConsultationStatusViewTestUtil.from(List.of(
+        ImmutablePair.of(ConsultationRequestStatus.RESPONDED, 1L),
+        ImmutablePair.of(ConsultationRequestStatus.WITHDRAWN, 1L)
+    ));
+
+    when(consultationRequestService.getApplicationConsultationStatusView(pwaApplicationDetail.getPwaApplication()))
+        .thenReturn(statusView);
+
+    when(applicationUpdateRequestService.applicationHasOpenUpdateRequest(pwaApplicationDetail))
+        .thenReturn(true);
+
+    when(consultationResponseService.isThereAtLeastOneApprovalFromAnyGroup(pwaAppProcessingContext.getPwaApplication()))
+        .thenReturn(false);
 
     var taskAccessible = approveOptionsTaskService.taskAccessible(pwaAppProcessingContext);
 
