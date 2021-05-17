@@ -69,7 +69,8 @@ public class AssignCaseOfficerService implements AppProcessingService {
     var submitterPerson = personService.getPersonById(applicationDetail.getSubmittedByPersonId());
 
     var props = new CaseOfficerAssignedEmailProps(
-        submitterPerson.getFullName(), applicationDetail.getPwaApplicationRef(), caseOfficer.getFullName());
+        submitterPerson.getFullName(), applicationDetail.getPwaApplicationRef(), caseOfficer.getFullName(),
+        emailCaseLinkService.generateCaseManagementLink(applicationDetail.getPwaApplication()));
     notifyService.sendEmail(props, submitterPerson.getEmailAddress());
   }
 

@@ -30,6 +30,7 @@ import uk.co.ogauthority.pwa.service.consultations.ConsultationRequestService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.service.notify.EmailCaseLinkService;
 import uk.co.ogauthority.pwa.service.notify.NotifyService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
@@ -53,6 +54,8 @@ public class WithdrawApplicationServiceTest {
   private NotifyService notifyService;
   @Mock
   private PwaContactService pwaContactService;
+  @Mock
+  private EmailCaseLinkService emailCaseLinkService;
 
   @Captor
   private ArgumentCaptor<PwaApplicationDetail> appDetailDeleteCaptor;
@@ -74,7 +77,8 @@ public class WithdrawApplicationServiceTest {
         camundaWorkflowService,
         consultationRequestService,
         notifyService,
-        pwaContactService);
+        pwaContactService,
+        emailCaseLinkService);
 
     var pwaApplication = new PwaApplication(null, PwaApplicationType.INITIAL, null);
     pwaApplicationDetail = new PwaApplicationDetail(pwaApplication, null, null, null);
@@ -95,8 +99,12 @@ public class WithdrawApplicationServiceTest {
         PwaContactRole.PREPARER
     )).thenReturn(List.of(withdrawingPerson, appPerson));
 
+    var caseManagementLink = "case management link url";
+    when(emailCaseLinkService.generateCaseManagementLink(pwaApplicationDetail.getPwaApplication())).thenReturn(caseManagementLink);
+
     var emailProps = new ApplicationWithdrawnEmailProps(
-        appPerson.getFullName(), pwaApplicationDetail.getPwaApplicationRef(), withdrawingUser.getFullName());
+        appPerson.getFullName(), pwaApplicationDetail.getPwaApplicationRef(), withdrawingUser.getFullName(),
+        caseManagementLink);
 
     withdrawApplicationService.withdrawApplication(form, pwaApplicationDetail, withdrawingUser);
 

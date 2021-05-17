@@ -11,6 +11,7 @@ import uk.co.ogauthority.pwa.model.teams.PwaRegulatorRole;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.workflow.application.PwaApplicationSubmitResult;
 import uk.co.ogauthority.pwa.service.enums.workflow.application.PwaApplicationWorkflowTask;
+import uk.co.ogauthority.pwa.service.notify.EmailCaseLinkService;
 import uk.co.ogauthority.pwa.service.notify.NotifyService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.submission.PadPipelineNumberingService;
 import uk.co.ogauthority.pwa.service.teams.PwaTeamService;
@@ -24,16 +25,19 @@ class PwaApplicationFirstDraftSubmissionService implements ApplicationSubmission
   private final NotifyService notifyService;
   private final PwaTeamService pwaTeamService;
   private final PadPipelineNumberingService padPipelineNumberingService;
+  private final EmailCaseLinkService emailCaseLinkService;
 
 
   @Autowired
   public PwaApplicationFirstDraftSubmissionService(NotifyService notifyService,
                                                    PwaTeamService pwaTeamService,
-                                                   PadPipelineNumberingService padPipelineNumberingService) {
+                                                   PadPipelineNumberingService padPipelineNumberingService,
+                                                   EmailCaseLinkService emailCaseLinkService) {
 
     this.notifyService = notifyService;
     this.pwaTeamService = pwaTeamService;
     this.padPipelineNumberingService = padPipelineNumberingService;
+    this.emailCaseLinkService = emailCaseLinkService;
   }
 
   @Override
@@ -70,7 +74,8 @@ class PwaApplicationFirstDraftSubmissionService implements ApplicationSubmission
       var submittedEmailProps = new ApplicationSubmittedEmailProps(
           pwaManager.getFullName(),
           detail.getPwaApplicationRef(),
-          detail.getPwaApplicationType().getDisplayName());
+          detail.getPwaApplicationType().getDisplayName(),
+          emailCaseLinkService.generateCaseManagementLink(detail.getPwaApplication()));
 
       notifyService.sendEmail(submittedEmailProps, pwaManager.getEmailAddress());
 

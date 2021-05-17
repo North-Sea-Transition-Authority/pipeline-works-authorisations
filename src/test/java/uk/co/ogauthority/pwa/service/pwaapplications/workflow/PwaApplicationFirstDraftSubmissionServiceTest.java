@@ -26,6 +26,7 @@ import uk.co.ogauthority.pwa.model.teams.PwaRegulatorRole;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.workflow.application.PwaApplicationSubmitResult;
 import uk.co.ogauthority.pwa.service.enums.workflow.application.PwaApplicationWorkflowTask;
+import uk.co.ogauthority.pwa.service.notify.EmailCaseLinkService;
 import uk.co.ogauthority.pwa.service.notify.NotifyService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.submission.PadPipelineNumberingService;
 import uk.co.ogauthority.pwa.service.teams.PwaTeamService;
@@ -46,6 +47,9 @@ public class PwaApplicationFirstDraftSubmissionServiceTest {
   @Mock
   private PadPipelineNumberingService padPipelineNumberingService;
 
+  @Mock
+  private EmailCaseLinkService emailCaseLinkService;
+
   @Captor
   private ArgumentCaptor<EmailProperties> emailPropsCaptor;
 
@@ -63,8 +67,8 @@ public class PwaApplicationFirstDraftSubmissionServiceTest {
     pwaApplicationFirstDraftSubmissionService = new PwaApplicationFirstDraftSubmissionService(
         notifyService,
         pwaTeamService,
-        padPipelineNumberingService
-    );
+        padPipelineNumberingService,
+        emailCaseLinkService);
 
     person = new Person(PERSON_ID.asInt(), "first", "second", "email", "tel");
   }
@@ -96,6 +100,9 @@ public class PwaApplicationFirstDraftSubmissionServiceTest {
 
     when(pwaTeamService.getPeopleWithRegulatorRole(PwaRegulatorRole.PWA_MANAGER)).thenReturn(Set.of(pwaManager1, pwaManager2));
 
+    String caseManagementLink = "case management link url";
+    when(emailCaseLinkService.generateCaseManagementLink(pwaApplicationDetail.getPwaApplication())).thenReturn(caseManagementLink);
+
     pwaApplicationFirstDraftSubmissionService.doAfterSubmit(pwaApplicationDetail);
 
     verify(notifyService, times(1)).sendEmail(emailPropsCaptor.capture(), eq("manager1@pwa.co.uk"));
@@ -111,7 +118,8 @@ public class PwaApplicationFirstDraftSubmissionServiceTest {
       assertThat(emailProps.getTemplate()).isEqualTo(NotifyTemplate.APPLICATION_SUBMITTED);
       assertThat(emailProps.getEmailPersonalisation()).contains(
           entry("APPLICATION_REFERENCE", pwaApplicationDetail.getPwaApplicationRef()),
-          entry("APPLICATION_TYPE", pwaApplicationDetail.getPwaApplicationType().getDisplayName())
+          entry("APPLICATION_TYPE", pwaApplicationDetail.getPwaApplicationType().getDisplayName()),
+          entry("CASE_MANAGEMENT_LINK", caseManagementLink)
       );
 
     });
