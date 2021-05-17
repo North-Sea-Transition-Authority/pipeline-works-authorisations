@@ -188,7 +188,7 @@ public class DefinePipelineHuooSectionsFormValidator implements SmartValidator {
             selectedIdentLocation);
 
         // do section validity checks only if start point checks completed ok to avoid double errors
-        if(!doesSectionPointInputHaveErrors(errors, sectionIndex)) {
+        if (!doesSectionPointInputHaveErrors(errors, sectionIndex)) {
           if (currentSectionInput.getPointIncludedInSection()
               && selectedIdentLocation.compareTo(minimumIncludingIdentLocation) < 0) {
             errors.rejectValue(
@@ -202,7 +202,7 @@ public class DefinePipelineHuooSectionsFormValidator implements SmartValidator {
             errors.rejectValue(
                 getSectionPointInputAttributePath(sectionIndex, SECTION_POINT_IDENT_STRING_ATTR),
                 FieldValidationErrorCodes.INVALID.errorCode(SECTION_POINT_IDENT_STRING_ATTR),
-                String.format("Select a Section %s start point not included in a previous section", //Select a Section 3 start point not included in a previous section
+                String.format("Select a Section %s start point not included in a previous section",
                     sectionIndex + 1)
             );
           }
@@ -229,11 +229,12 @@ public class DefinePipelineHuooSectionsFormValidator implements SmartValidator {
     }
   }
 
-  private void logSectionStartPointIfInclusiveAndEnsureNotAlreadyUsed(Errors errors,
-                                                                      Map<PickableIdentLocationOption, Integer> sectionsStartingAtAndIncludingIdentLocationLookup,
-                                                                      int sectionIndex,
-                                                                      PipelineSectionPointFormInput currentSectionInput,
-                                                                      PickableIdentLocationOption selectedIdentLocation) {
+  private void logSectionStartPointIfInclusiveAndEnsureNotAlreadyUsed(
+      Errors errors,
+      Map<PickableIdentLocationOption, Integer> sectionsStartingAtAndIncludingIdentLocationLookup,
+      int sectionIndex,
+      PipelineSectionPointFormInput currentSectionInput,
+      PickableIdentLocationOption selectedIdentLocation) {
     if (currentSectionInput.getPointIncludedInSection()
         && sectionsStartingAtAndIncludingIdentLocationLookup.containsKey(selectedIdentLocation)) {
       errors.rejectValue(
