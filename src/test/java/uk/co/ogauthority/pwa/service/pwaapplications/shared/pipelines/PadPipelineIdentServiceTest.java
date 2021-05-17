@@ -279,7 +279,7 @@ public class PadPipelineIdentServiceTest {
     var pipeline = new PadPipeline();
     var idents = List.of(identAStart, identAEnd, identB);
     when(padPipelineIdentRepository.getAllByPadPipeline(pipeline)).thenReturn(idents);
-    when(padPipelineIdentDataService.getDataFromIdentList(eq(idents)))
+    when(padPipelineIdentDataService.getDataFromIdentList(idents))
         .thenReturn(new LinkedHashMap<>() {{
           put(identAStart, identDataAStart);
           put(identAEnd, identDataAEnd);
