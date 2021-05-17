@@ -13,6 +13,10 @@ public class ConsulteeGroupMemberRoleConverter implements AttributeConverter<Set
 
   @Override
   public String convertToDatabaseColumn(Set<ConsulteeGroupMemberRole> consulteeGroupMemberRoles) {
+    if (consulteeGroupMemberRoles == null) {
+      return null;
+    }
+
     return consulteeGroupMemberRoles.stream()
         .map(Enum::name)
         .collect(Collectors.joining(","));

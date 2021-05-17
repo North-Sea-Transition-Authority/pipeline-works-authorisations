@@ -13,6 +13,9 @@ public class PwaContactRoleConverter implements AttributeConverter<Set<PwaContac
 
   @Override
   public String convertToDatabaseColumn(Set<PwaContactRole> pwaContactRoles) {
+    if (pwaContactRoles == null) {
+      return null;
+    }
     return pwaContactRoles.stream()
         .map(Enum::name)
         .collect(Collectors.joining(","));

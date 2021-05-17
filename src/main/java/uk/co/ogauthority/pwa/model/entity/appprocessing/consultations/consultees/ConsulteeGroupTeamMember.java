@@ -11,10 +11,15 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import org.hibernate.envers.AuditTable;
+import org.hibernate.envers.Audited;
+import org.hibernate.envers.RelationTargetAuditMode;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.model.entity.converters.ConsulteeGroupMemberRoleConverter;
 
 @Entity
+@Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED) // dont want to audit via envers the related ConsulteeGroup
+@AuditTable("consultee_grp_team_members_aud") // oracle 30 char limit requires slight change to audit table name
 @Table(name = "consultee_group_team_members")
 public class ConsulteeGroupTeamMember {
 
