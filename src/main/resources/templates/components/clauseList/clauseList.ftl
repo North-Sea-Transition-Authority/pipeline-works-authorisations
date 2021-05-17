@@ -24,6 +24,8 @@
 
     <#list documentView.sections as section>
 
+      <#assign addAndRemoveClauseAllowed = section.addAndRemoveClauseAllowed()/>
+
       <#if showSectionHeading>
         <h2 class="govuk-heading-l">${section.name}</h2>
       </#if>
@@ -33,7 +35,14 @@
         <#list section.clauses as clauseView>
 
           <#local isLastInList = clauseView?counter == section.clauses?size />
-          <@clause clauseView=clauseView clauseActionsUrlFactory=clauseActionsUrlFactory listClass=childListClass isLastInList=isLastInList showClauseHeading=showClauseHeadings/>
+
+            <@clause
+              clauseView=clauseView
+              clauseActionsUrlFactory=clauseActionsUrlFactory
+              listClass=childListClass
+              isLastInList=isLastInList
+              addAndRemoveClauseAllowed=addAndRemoveClauseAllowed
+              showClauseHeading=showClauseHeadings/>
 
         </#list>
 
@@ -45,7 +54,7 @@
 
 </#macro>
 
-<#macro clause clauseView clauseActionsUrlFactory listClass isLastInList
+<#macro clause clauseView clauseActionsUrlFactory listClass isLastInList addAndRemoveClauseAllowed
   headingSize="h3"
   headingClass="m"
   childHeadingSize="h4"
@@ -59,7 +68,7 @@
 
     <#if showClauseHeading>
       <${headingSize} class="govuk-heading-${headingClass} govuk-!-margin-bottom-2">${clauseView.name}</${headingSize}>
-      <#if clauseActionsFlag>
+      <#if clauseActionsFlag && addAndRemoveClauseAllowed>
         <@fdsActionDropdown.actionDropdown dropdownButtonText="Clause actions" dropdownButtonClass="govuk-!-margin-bottom-2">
           <@fdsActionDropdown.actionDropdownItem
             actionText="Add clause above"
@@ -91,6 +100,11 @@
             linkActionUrl=springUrl(clauseActionsUrlFactory.getRemoveClauseRoute(clauseView.clauseId))
             linkActionScreenReaderText=clauseView.name />
         </@fdsActionDropdown.actionDropdown>
+        <#elseif clauseActionsFlag && !addAndRemoveClauseAllowed>
+          <@fdsAction.link
+            linkText="Edit clause"
+            linkUrl=springUrl(clauseActionsUrlFactory.getEditClauseRoute(clauseView.clauseId))
+            linkScreenReaderText=clauseView.name />
       </#if>
     </#if>
 
@@ -116,6 +130,7 @@
               listClass=childListClass
               childHeadingSize="h5"
               isLastInList=isLast
+              addAndRemoveClauseAllowed=addAndRemoveClauseAllowed
               showClauseHeading=showClauseHeading/>
 
           </#list>

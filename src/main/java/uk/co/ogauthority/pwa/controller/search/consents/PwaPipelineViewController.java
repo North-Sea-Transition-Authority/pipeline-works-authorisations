@@ -13,19 +13,20 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.exception.EntityLatestVersionNotFoundException;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.entity.enums.measurements.UnitMeasurement;
+import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.form.pwa.PwaPipelineHistoryForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
-import uk.co.ogauthority.pwa.service.pwaconsents.PwaConsentService;
 import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailService;
 import uk.co.ogauthority.pwa.service.pwacontext.PwaContext;
 import uk.co.ogauthority.pwa.service.pwacontext.PwaPermission;
 import uk.co.ogauthority.pwa.service.pwacontext.PwaPermissionCheck;
 import uk.co.ogauthority.pwa.service.search.consents.PwaPipelineViewTab;
 import uk.co.ogauthority.pwa.service.search.consents.SearchPwaBreadcrumbService;
-import uk.co.ogauthority.pwa.service.search.consents.pwapipelineview.PwaHuooHistoryViewService;
 import uk.co.ogauthority.pwa.service.search.consents.pwapipelineview.PwaPipelineHistoryViewService;
+import uk.co.ogauthority.pwa.service.search.consents.pwapipelineview.ViewablePipelineHuooVersionService;
 import uk.co.ogauthority.pwa.service.search.consents.pwaviewtab.PwaPipelineViewUrlFactory;
 
 @Controller
@@ -34,21 +35,18 @@ import uk.co.ogauthority.pwa.service.search.consents.pwaviewtab.PwaPipelineViewU
 public class PwaPipelineViewController {
 
   private final PipelineDetailService pipelineDetailService;
-  private final PwaConsentService pwaConsentService;
   private final PwaPipelineHistoryViewService pwaPipelineHistoryViewService;
-  private final PwaHuooHistoryViewService pwaHuooHistoryViewService;
+  private final ViewablePipelineHuooVersionService viewablePipelineHuooVersionService;
   private final SearchPwaBreadcrumbService searchPwaBreadcrumbService;
 
   @Autowired
   public PwaPipelineViewController(PipelineDetailService pipelineDetailService,
-                                   PwaConsentService pwaConsentService,
                                    PwaPipelineHistoryViewService pwaPipelineHistoryViewService,
-                                   PwaHuooHistoryViewService pwaHuooHistoryViewService,
+                                   ViewablePipelineHuooVersionService viewablePipelineHuooVersionService,
                                    SearchPwaBreadcrumbService searchPwaBreadcrumbService) {
     this.pipelineDetailService = pipelineDetailService;
-    this.pwaConsentService = pwaConsentService;
     this.pwaPipelineHistoryViewService = pwaPipelineHistoryViewService;
-    this.pwaHuooHistoryViewService = pwaHuooHistoryViewService;
+    this.viewablePipelineHuooVersionService = viewablePipelineHuooVersionService;
     this.searchPwaBreadcrumbService = searchPwaBreadcrumbService;
   }
 
@@ -61,9 +59,9 @@ public class PwaPipelineViewController {
                                             AuthenticatedUserAccount authenticatedUserAccount,
                                             @ModelAttribute("form") PwaPipelineHistoryForm form,
                                             @RequestParam(value = "pipelineDetailId", required = false) Integer pipelineDetailId,
-                                            @RequestParam(value = "consentId", required = false) Integer consentId) {
+                                            @RequestParam(value = "huooVersionId", required = false) String huooVersionId) {
 
-    return getModelAndView(tab, pwaContext, pipelineId, pipelineDetailId, consentId,  form);
+    return getModelAndView(tab, pwaContext, pipelineId, pipelineDetailId, huooVersionId, form);
   }
 
   @PostMapping("/{pipelineId}/{tab}")
@@ -80,7 +78,7 @@ public class PwaPipelineViewController {
 
     } else {
       return ReverseRouter.redirect(on(PwaPipelineViewController.class)
-          .renderViewPwaPipeline(pwaId, pipelineId, tab, pwaContext, authenticatedUserAccount, null, null, form.getConsentId()));
+          .renderViewPwaPipeline(pwaId, pipelineId, tab, pwaContext, authenticatedUserAccount, null, null, form.getHuooVersionId()));
     }
   }
 
@@ -89,7 +87,7 @@ public class PwaPipelineViewController {
                                        PwaContext pwaContext,
                                        Integer pipelineId,
                                        Integer pipelineDetailId,
-                                       Integer consentId,
+                                       String huooVersionId,
                                        PwaPipelineHistoryForm form) {
 
     var latestPipelineDetail = pipelineDetailService.getLatestByPipelineId(pipelineId);
@@ -108,15 +106,18 @@ public class PwaPipelineViewController {
         selectedPipelineDetailId = latestPipelineDetail.getId();
         form.setPipelineDetailId(latestPipelineDetail.getId());
       }
+
       setPipelineHistoryDataOnModelAndView(modelAndView, pwaContext, pipelineId, selectedPipelineDetailId);
 
     } else {
-      var selectedConsentId = consentId;
-      if (selectedConsentId == null) {
-        selectedConsentId = pwaConsentService.getLatestConsent(pwaContext.getMasterPwa()).getId();
-        form.setConsentId(selectedConsentId);
-      }
-      setHuooHistoryDataOnModelAndView(modelAndView, pwaContext, pipelineId, selectedConsentId);
+      setPipelineHuooHistoryDataOnModelAndView(
+          modelAndView,
+          pwaContext.getMasterPwa(),
+          pwaContext.getPipeline().getPipelineId(),
+          huooVersionId,
+          form
+      );
+
     }
 
     searchPwaBreadcrumbService.fromPwaPipelineView(
@@ -142,23 +143,43 @@ public class PwaPipelineViewController {
         .addObject("unitMeasurements", UnitMeasurement.toMap());
   }
 
+  private void setPipelineHuooHistoryDataOnModelAndView(ModelAndView modelAndView,
+                                                        MasterPwa masterPwa,
+                                                        PipelineId pipelineId,
+                                                        String huooVersionId,
+                                                        PwaPipelineHistoryForm form) {
 
-  private void setHuooHistoryDataOnModelAndView(ModelAndView modelAndView,
-                                                PwaContext pwaContext,
-                                                Integer pipelineId,
-                                                Integer consentId) {
+    var versionSearchSelectorItems = viewablePipelineHuooVersionService.getHuooHistorySearchSelectorItems(
+        masterPwa, pipelineId.asInt());
 
-    var diffedHuooSummary = pwaHuooHistoryViewService.getDiffedHuooSummaryAtTimeOfConsentAndPipeline(
-        consentId, pwaContext.getMasterPwa(), new PipelineId(pipelineId));
-    var viewPwaPipelineUrl  = ReverseRouter.route(on(PwaPipelineViewController.class).renderViewPwaPipeline(
-        pwaContext.getMasterPwa().getId(), pipelineId, PwaPipelineViewTab.HUOO_HISTORY, pwaContext, null, null, null, null));
-    var consentVersionSearchSelectorItems = pwaHuooHistoryViewService.getConsentHistorySearchSelectorItems(pwaContext.getMasterPwa());
+    String latestHuooVersionString = versionSearchSelectorItems.entrySet()
+        .stream()
+        .findFirst()
+        .orElseThrow(() -> new EntityLatestVersionNotFoundException("Latest huoo history version not found"))
+        .getKey();
 
-    modelAndView.addObject("diffedHuooSummary", diffedHuooSummary)
+    String selectedHuuoVersion = huooVersionId != null && versionSearchSelectorItems.containsKey(huooVersionId)
+        ? huooVersionId
+        : latestHuooVersionString;
+
+    form.setHuooVersionId(huooVersionId);
+
+    var diffableHuooVersion = viewablePipelineHuooVersionService.getDiffableOrgRolePipelineGroupsFromHuooVersionString(
+        masterPwa,
+        pipelineId,
+        selectedHuuoVersion
+    );
+
+    var viewPwaPipelineUrl = ReverseRouter.route(on(PwaPipelineViewController.class).renderViewPwaPipeline(
+        masterPwa.getId(),
+        pipelineId.asInt(),
+        PwaPipelineViewTab.HUOO_HISTORY,
+        null, null, null, null, null));
+
+    modelAndView.addObject("diffedHuooSummary", diffableHuooVersion)
         .addObject("viewPwaPipelineUrl", viewPwaPipelineUrl)
-        .addObject("consentVersionSearchSelectorItems", consentVersionSearchSelectorItems);
+        .addObject("consentVersionSearchSelectorItems", versionSearchSelectorItems);
+
   }
-
-
 
 }

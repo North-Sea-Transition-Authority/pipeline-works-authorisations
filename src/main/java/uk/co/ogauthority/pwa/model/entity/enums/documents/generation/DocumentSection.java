@@ -12,13 +12,13 @@ import uk.co.ogauthority.pwa.service.documents.generation.VariationIntroductionG
 
 public enum DocumentSection {
 
-  INITIAL_INTRO("Introduction", InitialIntroductionGeneratorService.class),
+  INITIAL_INTRO("Introduction", InitialIntroductionGeneratorService.class, SectionType.OPENING_PARAGRAPH),
 
   INITIAL_TERMS_AND_CONDITIONS("Terms and conditions", SectionType.CLAUSE_LIST),
 
-  DEPCON_INTRO("Introduction", DepconIntroductionGeneratorService.class),
+  DEPCON_INTRO("Introduction", DepconIntroductionGeneratorService.class, SectionType.OPENING_PARAGRAPH),
 
-  VARIATION_INTRO("Introduction", VariationIntroductionGeneratorService.class),
+  VARIATION_INTRO("Introduction", VariationIntroductionGeneratorService.class, SectionType.OPENING_PARAGRAPH),
 
   HUOO("Schedule 1", HuooGeneratorService.class),
 
@@ -41,6 +41,15 @@ public enum DocumentSection {
                   Class<? extends DocumentSectionGenerator> sectionGenerator) {
     this.displayName = displayName;
     this.sectionType = SectionType.CUSTOM;
+    this.clauseDisplay = ClauseDisplay.HIDE_HEADING;
+    this.sectionGenerator = sectionGenerator;
+  }
+
+  DocumentSection(String displayName,
+                  Class<? extends DocumentSectionGenerator> sectionGenerator,
+                  SectionType sectionType) {
+    this.displayName = displayName;
+    this.sectionType = sectionType;
     this.clauseDisplay = ClauseDisplay.HIDE_HEADING;
     this.sectionGenerator = sectionGenerator;
   }

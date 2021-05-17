@@ -2,12 +2,15 @@ package uk.co.ogauthority.pwa.model.documents.view;
 
 import java.util.ArrayList;
 import java.util.List;
+import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.SectionType;
 import uk.co.ogauthority.pwa.model.view.sidebarnav.SidebarSectionLink;
 
 public class SectionView {
 
   private String name;
   private int displayOrder;
+
+  private SectionType sectionType;
 
   private List<SectionClauseVersionView> clauses;
 
@@ -33,6 +36,14 @@ public class SectionView {
     this.displayOrder = displayOrder;
   }
 
+  public SectionType getSectionType() {
+    return sectionType;
+  }
+
+  public void setSectionType(SectionType sectionType) {
+    this.sectionType = sectionType;
+  }
+
   public List<SectionClauseVersionView> getClauses() {
     return clauses;
   }
@@ -49,4 +60,9 @@ public class SectionView {
       List<SidebarSectionLink> sidebarSectionLinks) {
     this.sidebarSectionLinks = sidebarSectionLinks;
   }
+
+  public boolean addAndRemoveClauseAllowed() {
+    return sectionType != SectionType.OPENING_PARAGRAPH;
+  }
+
 }

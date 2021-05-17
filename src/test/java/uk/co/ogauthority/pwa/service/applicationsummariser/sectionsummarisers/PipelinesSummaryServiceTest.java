@@ -144,9 +144,9 @@ public class PipelinesSummaryServiceTest {
     assertThat(diffedSummaryList.get(0)).containsOnlyKeys("pipelineHeader", "pipelineIdents", "drawingSummaryView");
 
     verify(diffService, times(1)).diff(
-        eq(appPipelineSummary.getPipelineHeaderView()),
-        eq(new PipelineHeaderView()),
-        eq(Set.of("identViews", "pipelineStatus", "questionsForPipelineStatus")));
+        appPipelineSummary.getPipelineHeaderView(),
+        new PipelineHeaderView(),
+        Set.of("identViews", "pipelineStatus", "questionsForPipelineStatus"));
 
     verify(diffService, times(1)).diffComplexLists(
         eq(appPipelineSummary.getIdentViews()),
