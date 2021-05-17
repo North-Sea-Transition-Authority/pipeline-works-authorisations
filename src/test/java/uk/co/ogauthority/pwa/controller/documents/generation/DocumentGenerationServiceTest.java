@@ -105,10 +105,11 @@ public class DocumentGenerationServiceTest {
         .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
 
     int numberOfCustomSections = sectionTypeToCountMap.get(SectionType.CUSTOM).intValue();
+    int numberOfOpeningParagraphSections = sectionTypeToCountMap.get(SectionType.OPENING_PARAGRAPH).intValue();
     int numberOfClauseSections = sectionTypeToCountMap.get(SectionType.CLAUSE_LIST).intValue();
 
-    verify(documentSectionGenerator, times(numberOfCustomSections)).getDocumentSectionData(pwaApplicationDetail,
-        documentInstance, DocGenType.PREVIEW);
+    verify(documentSectionGenerator, times(numberOfCustomSections + numberOfOpeningParagraphSections))
+        .getDocumentSectionData(pwaApplicationDetail, documentInstance, DocGenType.PREVIEW);
     verify(documentInstanceService, times(numberOfClauseSections)).getDocumentView(eq(documentInstance), any());
     verify(mailMergeService, times(numberOfClauseSections)).mailMerge(documentView, DocGenType.PREVIEW);
 
