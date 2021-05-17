@@ -10,6 +10,11 @@ public enum SectionType {
   /**
    * The section relies on developer-made custom display using service data.
    */
-  CUSTOM
+  CUSTOM,
+
+  /**
+   * The section represents the opening page/paragraph of a document.
+   */
+  OPENING_PARAGRAPH
 
 }

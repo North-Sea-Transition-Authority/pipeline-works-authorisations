@@ -265,7 +265,7 @@ public class DefinePipelineHuooSectionsFormValidatorTest {
   }
 
   @Test
-  public void validate_whenSectionsFirstSectionStartPointIsNotExpectedFirstIdentPoint() {
+  public void validate_whenFirstSectionStartPointIsNotExpectedFirstIdentPoint() {
     form.setPipelineSectionPoints(List.of(
         new PipelineSectionPointFormInput(ident1LocationPoint2.getPickableString(), true),
         new PipelineSectionPointFormInput(),
@@ -338,6 +338,28 @@ public class DefinePipelineHuooSectionsFormValidatorTest {
     var validationResult = ValidatorTestUtils.getFormValidationErrors(validator, form, defaultValidationHint);
 
     assertThat(validationResult).isEmpty();
+  }
+
+
+  @Test
+  public void validate_whenSectionStartPointsOverlapByNotIncludingTheStartPint() {
+    form.setPipelineSectionPoints(List.of(
+        new PipelineSectionPointFormInput(pipelineIdentLocationOptions.get(0).getPickableString(), true),
+        new PipelineSectionPointFormInput(pipelineIdentLocationOptions.get(1).getPickableString(), false),
+        new PipelineSectionPointFormInput(pipelineIdentLocationOptions.get(1).getPickableString(), false)
+    ));
+
+    var validationResult = ValidatorTestUtils.getFormValidationErrors(validator, form, defaultValidationHint);
+
+    assertThat(validationResult).contains(
+        entry(
+            DefinePipelineHuooSectionsFormValidator.getSectionPointInputAttributePath(
+                2,
+                SECTION_POINT_IDENT_STRING_ATTR
+            ),
+            Set.of(INVALID.errorCode(SECTION_POINT_IDENT_STRING_ATTR))
+        )
+    );
   }
 
   @Test

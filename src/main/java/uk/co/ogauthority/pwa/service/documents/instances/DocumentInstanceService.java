@@ -235,6 +235,7 @@ public class DocumentInstanceService {
     var sectionView = new SectionView();
     sectionView.setName(documentSection.getDisplayName());
     sectionView.setDisplayOrder(documentSpec.getDisplayOrder(documentSection));
+    sectionView.setSectionType(documentSection.getSectionType());
 
     // group clauses according to their level in the hierarchy, i.e. 1 = top-level, 3 = lowest level, 2 is a child of 1 etc
     var clauseViewLevelToViewMap = clauseVersionDtos.stream()

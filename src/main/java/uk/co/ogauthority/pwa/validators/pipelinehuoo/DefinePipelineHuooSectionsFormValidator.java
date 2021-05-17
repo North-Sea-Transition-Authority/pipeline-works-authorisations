@@ -61,7 +61,7 @@ public class DefinePipelineHuooSectionsFormValidator implements SmartValidator {
     validatePipelineSectionPointsLength(errors, form, defineSectionsValidationHint.getNumberOfSections());
     if (errors.hasErrors()) {
       // dont bother validating anything  else as the form does not include the expected number of sections.
-      // this is is not possible through the screens.
+      // this is not possible through the screens.
       return;
     }
 
@@ -165,51 +165,51 @@ public class DefinePipelineHuooSectionsFormValidator implements SmartValidator {
     // if a section already starts at a location and includes, no other section can.
     Map<PickableIdentLocationOption, Integer> sectionsStartingAtAndIncludingIdentLocationLookup = new HashMap<>();
 
-    for (int i = 0; i < numberOfSections; i++) {
+    for (int sectionIndex = 0; sectionIndex < numberOfSections; sectionIndex++) {
 
-      var currentSectionInput = form.getSectionPointFormAtIndex(i).orElse(new PipelineSectionPointFormInput());
+      var currentSectionInput = form.getSectionPointFormAtIndex(sectionIndex).orElse(new PipelineSectionPointFormInput());
       // do mandatory and basic validity check per section
       validateSectionBasic(errors,
           currentSectionInput,
-          i,
+          sectionIndex,
           validOptionsLookup
       );
 
-      var currentSectionHasErrors = doesSectionPointInputHaveErrors(errors, i);
+      var currentSectionHasErrors = doesSectionPointInputHaveErrors(errors, sectionIndex);
 
       if (!currentSectionHasErrors) {
         var selectedIdentLocation = validOptionsLookup.get(currentSectionInput.getPickedPipelineIdentString());
         if (currentSectionInput.getPointIncludedInSection()
             && selectedIdentLocation.compareTo(minimumIncludingIdentLocation) < 0) {
           errors.rejectValue(
-              getSectionPointInputAttributePath(i, SECTION_POINT_IDENT_STRING_ATTR),
+              getSectionPointInputAttributePath(sectionIndex, SECTION_POINT_IDENT_STRING_ATTR),
               FieldValidationErrorCodes.INVALID.errorCode(SECTION_POINT_IDENT_STRING_ATTR),
               String.format("Section %s cannot include a point before %s",
-                  i + 1,
+                  sectionIndex + 1,
                   minimumIncludingIdentLocation.getDisplayString())
           );
         } else if (!currentSectionInput.getPointIncludedInSection()
             && selectedIdentLocation.compareTo(minimumNotIncludingIdentLocation) < 0) {
           errors.rejectValue(
-              getSectionPointInputAttributePath(i, SECTION_POINT_IDENT_STRING_ATTR),
+              getSectionPointInputAttributePath(sectionIndex, SECTION_POINT_IDENT_STRING_ATTR),
               FieldValidationErrorCodes.INVALID.errorCode(SECTION_POINT_IDENT_STRING_ATTR),
               String.format("Section %s cannot start before the point %s",
-                  i + 1,
-                  minimumIncludingIdentLocation.getDisplayString())
+                  sectionIndex + 1,
+                  minimumNotIncludingIdentLocation.getDisplayString())
           );
         }
 
         if (currentSectionInput.getPointIncludedInSection()
             && sectionsStartingAtAndIncludingIdentLocationLookup.containsKey(selectedIdentLocation)) {
           errors.rejectValue(
-              getSectionPointInputAttributePath(i, SECTION_POINT_IDENT_INCLUDED_IN_SECTION_ATTR),
+              getSectionPointInputAttributePath(sectionIndex, SECTION_POINT_IDENT_INCLUDED_IN_SECTION_ATTR),
               FieldValidationErrorCodes.NOT_UNIQUE.errorCode(SECTION_POINT_IDENT_INCLUDED_IN_SECTION_ATTR),
               String.format("Section %s cannot include this point as it is included in section %s",
-                  i + 1,
+                  sectionIndex + 1,
                   sectionsStartingAtAndIncludingIdentLocationLookup.get(selectedIdentLocation))
           );
         } else if (currentSectionInput.getPointIncludedInSection()) {
-          sectionsStartingAtAndIncludingIdentLocationLookup.putIfAbsent(selectedIdentLocation, i + 1);
+          sectionsStartingAtAndIncludingIdentLocationLookup.putIfAbsent(selectedIdentLocation, sectionIndex + 1);
         }
 
         var indexOfSelectedOption = Collections.binarySearch(sortedValidOptions, selectedIdentLocation);
@@ -218,16 +218,15 @@ public class DefinePipelineHuooSectionsFormValidator implements SmartValidator {
             ? sortedValidOptions.get(indexOfSelectedOption + 1)
             : sortedValidOptions.get(indexOfSelectedOption);
 
-        if (currentSectionInput.getPointIncludedInSection() && sortedValidOptions.get(
-            indexOfSelectedOption).compareTo(
-            minimumIncludingIdentLocation) >= 0) {
+        if (currentSectionInput.getPointIncludedInSection()
+            && sortedValidOptions.get(indexOfSelectedOption).compareTo(minimumIncludingIdentLocation) >= 0) {
           // if the start point of section contains point and that point is same or after the previous minimum, set that to new minimum
           minimumIncludingIdentLocation = nextIdentOptionOrSelected;
           minimumNotIncludingIdentLocation = sortedValidOptions.get(indexOfSelectedOption);
         } else if (!currentSectionInput.getPointIncludedInSection()) {
           // else if the start point of section does not include ident location, next section can include current selected point
           minimumIncludingIdentLocation = sortedValidOptions.get(indexOfSelectedOption);
-          minimumNotIncludingIdentLocation = sortedValidOptions.get(indexOfSelectedOption);
+          minimumNotIncludingIdentLocation = nextIdentOptionOrSelected;
         }
 
       }
