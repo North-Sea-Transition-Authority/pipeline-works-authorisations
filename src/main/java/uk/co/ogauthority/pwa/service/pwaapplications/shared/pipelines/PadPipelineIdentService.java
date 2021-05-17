@@ -2,7 +2,6 @@ package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines;
 
 import com.google.common.annotations.VisibleForTesting;
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -32,7 +31,7 @@ import uk.co.ogauthority.pwa.repository.pwaapplications.shared.pipelines.PadPipe
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.pipelinedatautils.PipelineIdentViewCollectorService;
 import uk.co.ogauthority.pwa.service.validation.SummaryScreenValidationResult;
 import uk.co.ogauthority.pwa.util.CoordinateUtils;
-import uk.co.ogauthority.pwa.util.StreamUtils;
+import uk.co.ogauthority.pwa.util.StringDisplayUtils;
 
 @Service
 public class PadPipelineIdentService {
@@ -155,7 +154,7 @@ public class PadPipelineIdentService {
     } else if (!getTotalIdentLength(idents).equals(padPipeline.getLength())) {
       lengthValidationValid = false;
       errorMessage = "The total length of all idents must equal the total pipeline length of: " +
-          (String.format("%,.2f", padPipeline.getLength().setScale(2, RoundingMode.HALF_UP)) + "m");
+          StringDisplayUtils.formatDecimal2DpSeparatedSuffixedOrNull(padPipeline.getLength(), "m");
     }
 
 
@@ -251,7 +250,7 @@ public class PadPipelineIdentService {
         .reduce(BigDecimal.ZERO, BigDecimal::add);
 
     var totalIdentLengthDisplay = !totalIdentLength.equals(BigDecimal.ZERO)
-        ? String.format("%,.2f", totalIdentLength.setScale(2, RoundingMode.HALF_UP)) + "m" : "0m";
+        ? StringDisplayUtils.formatDecimal2DpSeparatedSuffixedOrNull(totalIdentLength, "m") : "0m";
 
     return new ConnectedPipelineIdentSummaryView(connectedIdents, totalIdentLengthDisplay);
   }
