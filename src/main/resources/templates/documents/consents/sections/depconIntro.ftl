@@ -6,10 +6,12 @@
 
 <div>
 
-  <div class="clauseSectionHeader" style="text-align:center">
-    <h2 class="govuk-heading-m">THE OIL AND GAS AUTHORITY</h2>
-    <h2 class="govuk-heading-m">PETROLEUM ACT 1998</h2>
-    <h2 class="govuk-heading-m">DEPOSIT OF MATERIALS</h2>
+  <div class="pwa-clause-section-header">
+    <h2 class="govuk-heading-m">
+      THE OIL AND GAS AUTHORITY<br/>
+      PETROLEUM ACT 1998<br/>
+      DEPOSIT OF MATERIALS
+    </h2>
   </div>
 
   <p class="multi-line-text" style="text-align: center">${introParagraph?no_esc}</p>

@@ -2,7 +2,6 @@ package uk.co.ogauthority.pwa.service.documents.generation;
 
 import static java.util.Map.entry;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -66,8 +65,6 @@ public class DepconIntroductionGeneratorServiceTest {
 
     when(documentInstanceService.getDocumentView(documentInstance, DocumentSection.DEPCON_INTRO))
         .thenReturn(docView);
-
-    when(mailMergeService.mailMerge(any(), any())).thenReturn(docView);
 
   }
 

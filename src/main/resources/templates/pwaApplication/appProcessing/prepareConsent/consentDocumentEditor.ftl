@@ -8,6 +8,8 @@
 <#-- @ftlvariable name="clauseActionsUrlFactory" type="uk.co.ogauthority.pwa.service.documents.ClauseActionsUrlFactory" -->
 <#-- @ftlvariable name="docView" type="uk.co.ogauthority.pwa.model.documents.view.DocumentView" -->
 <#-- @ftlvariable name="userProcessingPermissions" type="java.util.Set<uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission>" -->
+<#-- @ftlvariable name="automaticMailMergePreviewClasses" type="String" -->
+<#-- @ftlvariable name="manualMailMergePreviewClasses" type="String" -->
 
 <#assign pageHeading = "${caseSummaryView.pwaApplicationRef} - Prepare consent" />
 
@@ -42,7 +44,14 @@
       </#if>
 
       <#if docView?has_content>
+
+        <@fdsInsetText.insetText>
+          <p>Information pulled in from the application is shown in <span class="${automaticMailMergePreviewClasses}">blue</span>.</p>
+          <p>Phrases shown in <span class="${manualMailMergePreviewClasses}">red</span> must be edited before the consent can be sent for approval.</p>
+        </@fdsInsetText.insetText>
+
         <@pwaClauseList.list documentView=docView clauseActionsUrlFactory=clauseActionsUrlFactory/>
+
       </#if>
 
     </@defaultPagePaneContent>

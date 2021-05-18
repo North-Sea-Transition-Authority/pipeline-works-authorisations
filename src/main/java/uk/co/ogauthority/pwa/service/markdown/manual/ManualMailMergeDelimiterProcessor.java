@@ -34,16 +34,18 @@ public class ManualMailMergeDelimiterProcessor implements DelimiterProcessor {
 
   @Override
   public void process(Text opener, Text closer, int delimiterUse) {
-    // Wrap nodes between delimiters in strikethrough.
+
     Node mailMerge = new ManualMergeField();
 
     Node tmp = opener.getNext();
-    while (tmp != closer) {
+    while (tmp != null && tmp != closer) {
       Node next = tmp.getNext();
       mailMerge.appendChild(tmp);
       tmp = next;
     }
 
     opener.insertAfter(mailMerge);
+
   }
+
 }

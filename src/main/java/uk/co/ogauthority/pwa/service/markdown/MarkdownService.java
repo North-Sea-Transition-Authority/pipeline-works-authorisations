@@ -10,6 +10,7 @@ import org.commonmark.parser.Parser;
 import org.commonmark.renderer.html.HtmlRenderer;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.service.markdown.automatic.AutomaticMailMergeExtension;
+import uk.co.ogauthority.pwa.service.markdown.manual.ManualMailMergeExtension;
 
 @Service
 public class MarkdownService {
@@ -23,10 +24,8 @@ public class MarkdownService {
 
     List<Extension> extensions = Arrays.asList(
         TablesExtension.create(),
-        AutomaticMailMergeExtension.create(mailMergeContainer));
-
-    // TODO PWA-1227 fix up
-    //    ManualMailMergeExtension.create(mailMergeContainer)
+        AutomaticMailMergeExtension.create(mailMergeContainer),
+        ManualMailMergeExtension.create(mailMergeContainer));
 
     Parser parser = Parser.builder()
         .extensions(extensions)

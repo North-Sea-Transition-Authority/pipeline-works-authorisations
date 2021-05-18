@@ -7,7 +7,7 @@
 
 <div>
 
-  <div style="text-align:center">
+  <div class="pwa-clause-section-header">
     <h2 class="govuk-heading-m">${fieldNameOrOther} DEVELOPMENT</h2>
     <h2 class="govuk-heading-m" style="text-decoration: underline">
       THE OIL AND GAS AUTHORITY<br/>

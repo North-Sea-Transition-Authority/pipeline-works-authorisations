@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import org.springframework.validation.SmartValidator;
 import org.springframework.validation.ValidationUtils;
+import uk.co.ogauthority.pwa.model.entity.enums.mailmerge.MailMergeFieldType;
 import uk.co.ogauthority.pwa.model.form.documents.ClauseForm;
 import uk.co.ogauthority.pwa.service.documents.DocumentSource;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
@@ -46,9 +47,10 @@ public class ClauseFormValidator implements SmartValidator {
                 String.format("Remove invalid mail merge fields: %s", String.join(", ", invalidMergeFields)));
           }
 
-          if (text.contains("[[") || text.contains("]]")) {
+          if (text.contains(MailMergeFieldType.MANUAL.getOpeningDelimiter())
+              || text.contains(MailMergeFieldType.MANUAL.getClosingDelimiter())) {
             errors.rejectValue("text", FieldValidationErrorCodes.INVALID.errorCode("text"),
-                "Remove [[ and ]] characters from the clause text");
+                String.format("Remove '%s' from the clause text", MailMergeFieldType.MANUAL.getOpeningDelimiter()));
           }
 
         });

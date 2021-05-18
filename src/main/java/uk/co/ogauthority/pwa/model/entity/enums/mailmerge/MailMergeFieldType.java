@@ -3,7 +3,7 @@ package uk.co.ogauthority.pwa.model.entity.enums.mailmerge;
 public enum MailMergeFieldType {
 
   AUTOMATIC("((", "))"),
-  MANUAL("[[", "]]");
+  MANUAL("??", "??");
 
   private final String openingDelimiter;
   private final String closingDelimiter;

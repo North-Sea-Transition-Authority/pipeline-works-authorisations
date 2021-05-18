@@ -6,7 +6,7 @@
 
 <div>
 
-  <div class="clauseSectionHeader" style="text-align:center">
+  <div class="pwa-clause-section-header">
     <h2 class="govuk-heading-m">THE OIL AND GAS AUTHORITY</h2>
     <h2 class="govuk-heading-m">PETROLEUM ACT 1998</h2>
     <h2 class="govuk-heading-m">CONSENT TO THE MODIFICATION</h2>

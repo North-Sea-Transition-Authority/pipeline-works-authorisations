@@ -25,6 +25,7 @@
 <#import 'components/sidebarSectionLink/sidebarSectionLink.ftl' as pwaSidebarSectionLink>
 <#import 'components/tableSelectorToggler/tableSelectorToggler.ftl' as pwaTableSelectionToggler>
 <#import 'components/payment/payment.ftl' as pwaPayment>
+<#import 'components/mailMerge/mailMergeFieldList.ftl' as pwaMailMerge>
 
 <#function springUrl url>
     <#local springUrl>

@@ -97,13 +97,13 @@ public class MailMergeServiceTest {
 
     var container = new MailMergeContainer();
     container.setMailMergeFields(resolvedMergeFields);
-    container.setAutomaticMailMergeDataHtmlAttributeMap(Map.of("class", "pwa-mail-merge__automatic--preview"));
-    container.setManualMailMergeDataHtmlAttributeMap(Map.of("class", "pwa-mail-merge__manual--preview"));
+    container.setAutomaticMailMergeDataHtmlAttributeMap(Map.of("class", "pwa-mail-merge__preview pwa-mail-merge__preview--automatic"));
+    container.setManualMailMergeDataHtmlAttributeMap(Map.of("class", "pwa-mail-merge__preview pwa-mail-merge__preview--manual"));
 
-    var mergedView = mailMergeService.mailMerge(docView, DocGenType.PREVIEW);
+    mailMergeService.mailMerge(docView, DocGenType.PREVIEW);
 
     var originalFlattenedClauseList = getFlattenedClauseList(setupDocView());
-    var mergedFlattenedClauseList = getFlattenedClauseList(mergedView);
+    var mergedFlattenedClauseList = getFlattenedClauseList(docView);
 
     verify(markdownService, times(originalFlattenedClauseList.size())).convertMarkdownToHtml(any(), eq(container));
 
@@ -133,10 +133,10 @@ public class MailMergeServiceTest {
     var container = new MailMergeContainer();
     container.setMailMergeFields(resolvedMergeFields);
 
-    var mergedView = mailMergeService.mailMerge(docView, DocGenType.FULL);
+    mailMergeService.mailMerge(docView, DocGenType.FULL);
 
     var originalFlattenedClauseList = getFlattenedClauseList(setupDocView());
-    var mergedFlattenedClauseList = getFlattenedClauseList(mergedView);
+    var mergedFlattenedClauseList = getFlattenedClauseList(docView);
 
     verify(markdownService, times(originalFlattenedClauseList.size())).convertMarkdownToHtml(any(), eq(container));
 

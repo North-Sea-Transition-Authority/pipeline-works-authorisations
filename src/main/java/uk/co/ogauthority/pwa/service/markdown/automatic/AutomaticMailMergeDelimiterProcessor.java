@@ -34,7 +34,7 @@ public class AutomaticMailMergeDelimiterProcessor implements DelimiterProcessor 
 
   @Override
   public void process(Text opener, Text closer, int delimiterUse) {
-    // Wrap nodes between delimiters in strikethrough.
+
     Node mailMerge = new AutomaticMergeField();
 
     Node tmp = opener.getNext();

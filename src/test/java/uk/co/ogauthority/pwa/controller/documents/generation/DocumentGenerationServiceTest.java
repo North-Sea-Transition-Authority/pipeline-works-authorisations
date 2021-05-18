@@ -83,8 +83,6 @@ public class DocumentGenerationServiceTest {
     when(documentInstanceService.getDocumentInstance(any(), any())).thenReturn(Optional.of(documentInstance));
     when(documentInstanceService.getDocumentView(any(), any())).thenReturn(documentView);
 
-    when(mailMergeService.mailMerge(any(), any())).thenReturn(documentView);
-
   }
 
   @Test

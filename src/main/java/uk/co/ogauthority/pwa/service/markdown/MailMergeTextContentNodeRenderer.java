@@ -1,10 +1,13 @@
 package uk.co.ogauthority.pwa.service.markdown;
 
+import java.util.Set;
 import org.commonmark.node.Node;
+import org.commonmark.renderer.NodeRenderer;
 import org.commonmark.renderer.text.TextContentNodeRendererContext;
 import org.commonmark.renderer.text.TextContentWriter;
+import uk.co.ogauthority.pwa.service.markdown.manual.ManualMergeField;
 
-public class MailMergeTextContentNodeRenderer extends MailMergeNodeRenderer {
+public class MailMergeTextContentNodeRenderer implements NodeRenderer {
 
   private final TextContentNodeRendererContext context;
   private final TextContentWriter textContent;
@@ -12,6 +15,11 @@ public class MailMergeTextContentNodeRenderer extends MailMergeNodeRenderer {
   public MailMergeTextContentNodeRenderer(TextContentNodeRendererContext context) {
     this.context = context;
     this.textContent = context.getWriter();
+  }
+
+  @Override
+  public Set<Class<? extends Node>> getNodeTypes() {
+    return Set.of(AutomaticMergeField.class, ManualMergeField.class);
   }
 
   @Override
@@ -29,4 +37,5 @@ public class MailMergeTextContentNodeRenderer extends MailMergeNodeRenderer {
       node = next;
     }
   }
+
 }

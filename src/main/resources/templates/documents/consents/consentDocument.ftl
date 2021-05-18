@@ -180,14 +180,18 @@
       display: block;
     }
 
-    .pwa-mail-merge__automatic--preview {
+    .pwa-mail-merge__preview--automatic {
       color: #003078;
       font-weight: bold;
     }
 
-    .pwa-mail-merge__manual--preview {
-      color: #003078;
+    .pwa-mail-merge__preview--manual {
+      color: #b10e1e;
       font-weight: bold;
+    }
+
+    .pwa-clause-section-header {
+      text-align: center;
     }
 
   </style>
