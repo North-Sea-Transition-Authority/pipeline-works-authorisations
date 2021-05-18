@@ -22,6 +22,7 @@ public interface NamedPipeline {
   /**
    * pipelineName is used for PWA users to easily identify a pipeline on an application,
    * where as the pipeline number uniquely identifies a pipeline and is used as the main reference by external applications.
+   * Note: Pipeline Name logic is duplicated in 'api_vw_pwa_pipeline_details'. Remember to update  that view should this change.
    */
   default String getPipelineName() {
     var pipelineName = getPipelineNumber() + " - ";
