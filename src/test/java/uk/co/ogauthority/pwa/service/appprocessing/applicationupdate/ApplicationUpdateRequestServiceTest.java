@@ -45,6 +45,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.workflow.WorkflowMessageEvent;
 import uk.co.ogauthority.pwa.service.enums.workflow.application.PwaApplicationWorkflowMessageEvents;
 import uk.co.ogauthority.pwa.service.enums.workflow.application.PwaApplicationWorkflowTask;
+import uk.co.ogauthority.pwa.service.notify.EmailCaseLinkService;
 import uk.co.ogauthority.pwa.service.notify.NotifyService;
 import uk.co.ogauthority.pwa.service.person.PersonService;
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
@@ -70,6 +71,7 @@ public class ApplicationUpdateRequestServiceTest {
   private static final String PREPARER_2_EMAIL = "PREP_2@email.com";
 
   private static final String REASON = "REASON";
+  private static final String CASE_MANAGEMENT_LINK = "case management link url";
 
   private static final PersonId REQUESTER_PERSON_ID = new PersonId(10);
   private static final PersonId RESPONDER_PERSON_ID = new PersonId(20);
@@ -94,6 +96,9 @@ public class ApplicationUpdateRequestServiceTest {
 
   @Mock
   private ApproveOptionsService approveOptionsService;
+
+  @Mock
+  private EmailCaseLinkService emailCaseLinkService;
 
   private Clock clock = Clock.fixed(Instant.now(), ZoneId.systemDefault());
 
@@ -140,13 +145,15 @@ public class ApplicationUpdateRequestServiceTest {
         pwaApplicationDetailVersioningService,
         workflowAssignmentService,
         personService,
-        approveOptionsService);
+        approveOptionsService,
+        emailCaseLinkService);
 
     defaultUpdateRequest = new ApplicationUpdateRequest();
     defaultUpdateRequest.setRequestedByPersonId(REQUESTER_PERSON_ID);
     defaultUpdateRequest.setStatus(ApplicationUpdateRequestStatus.OPEN);
 
     when(personService.getPersonById(REQUESTER_PERSON_ID)).thenReturn(requesterPerson);
+    when(emailCaseLinkService.generateCaseManagementLink(pwaApplicationDetail.getPwaApplication())).thenReturn(CASE_MANAGEMENT_LINK);
   }
 
   @Test
@@ -253,7 +260,8 @@ public class ApplicationUpdateRequestServiceTest {
 
     assertThat(emailProperties.getEmailPersonalisation()).contains(
         entry("REQUESTER_NAME", responderPerson.getFullName()),
-        entry("APPLICATION_REFERENCE", pwaApplicationDetail.getPwaApplicationRef())
+        entry("APPLICATION_REFERENCE", pwaApplicationDetail.getPwaApplicationRef()),
+        entry("CASE_MANAGEMENT_LINK", CASE_MANAGEMENT_LINK)
     );
     assertThat(emailProperties.getRecipientFullName()).isEqualTo(recipientFullName);
 
@@ -314,6 +322,7 @@ public class ApplicationUpdateRequestServiceTest {
       assertThat(emailProperties.getRecipientFullName()).isEqualTo(requesterPerson.getFullName());
       assertThat(emailProperties.getTemplate()).isEqualTo(NotifyTemplate.APPLICATION_UPDATE_RESPONDED);
       assertThat(emailProperties.getEmailPersonalisation()).containsEntry("APPLICATION_REFERENCE", pwaApplicationDetail.getPwaApplicationRef());
+      assertThat(emailProperties.getEmailPersonalisation()).containsEntry("CASE_MANAGEMENT_LINK", CASE_MANAGEMENT_LINK);
     });
 
   }
@@ -350,6 +359,8 @@ public class ApplicationUpdateRequestServiceTest {
       assertThat(emailProperties.getTemplate()).isEqualTo(NotifyTemplate.APPLICATION_UPDATE_RESPONDED);
       assertThat(emailProperties.getEmailPersonalisation().get("APPLICATION_REFERENCE"))
           .isEqualTo(pwaApplicationDetail.getPwaApplicationRef());
+      assertThat(emailProperties.getEmailPersonalisation().get("CASE_MANAGEMENT_LINK"))
+          .isEqualTo(CASE_MANAGEMENT_LINK);
     });
 
   }

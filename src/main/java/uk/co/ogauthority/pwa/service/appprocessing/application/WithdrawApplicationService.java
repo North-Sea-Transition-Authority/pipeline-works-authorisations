@@ -12,6 +12,7 @@ import uk.co.ogauthority.pwa.service.appprocessing.tasks.AppProcessingService;
 import uk.co.ogauthority.pwa.service.consultations.ConsultationRequestService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
+import uk.co.ogauthority.pwa.service.notify.EmailCaseLinkService;
 import uk.co.ogauthority.pwa.service.notify.NotifyService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
@@ -27,6 +28,7 @@ public class WithdrawApplicationService implements AppProcessingService {
   private final ConsultationRequestService consultationRequestService;
   private final NotifyService notifyService;
   private final PwaContactService pwaContactService;
+  private final EmailCaseLinkService emailCaseLinkService;
 
   @Autowired
   public WithdrawApplicationService(
@@ -35,13 +37,15 @@ public class WithdrawApplicationService implements AppProcessingService {
       CamundaWorkflowService camundaWorkflowService,
       ConsultationRequestService consultationRequestService,
       NotifyService notifyService,
-      PwaContactService pwaContactService) {
+      PwaContactService pwaContactService,
+      EmailCaseLinkService emailCaseLinkService) {
     this.withdrawApplicationValidator = withdrawApplicationValidator;
     this.pwaApplicationDetailService = pwaApplicationDetailService;
     this.camundaWorkflowService = camundaWorkflowService;
     this.consultationRequestService = consultationRequestService;
     this.notifyService = notifyService;
     this.pwaContactService = pwaContactService;
+    this.emailCaseLinkService = emailCaseLinkService;
   }
 
 
@@ -62,7 +66,8 @@ public class WithdrawApplicationService implements AppProcessingService {
     );
     emailRecipients.forEach(recipient -> {
       var emailProps = new ApplicationWithdrawnEmailProps(
-          recipient.getFullName(), pwaApplicationDetail.getPwaApplicationRef(), withdrawingUser.getFullName());
+          recipient.getFullName(), pwaApplicationDetail.getPwaApplicationRef(), withdrawingUser.getFullName(),
+          emailCaseLinkService.generateCaseManagementLink(pwaApplicationDetail.getPwaApplication()));
       notifyService.sendEmail(emailProps, recipient.getEmailAddress());
     });
   }
