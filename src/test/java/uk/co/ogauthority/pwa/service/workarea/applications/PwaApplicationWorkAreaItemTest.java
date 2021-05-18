@@ -241,10 +241,25 @@ public class PwaApplicationWorkAreaItemTest {
   }
 
   @Test
-  public void getApplicationColumn_whenUpdate() {
-    ApplicationWorkAreaItemTestUtil.test_getApplicationColumn_whenUpdateRequest(
+  public void getApplicationColumn_whenUpdate_withinDeadline() {
+    ApplicationWorkAreaItemTestUtil.test_getApplicationColumn_whenUpdateRequest_withinDeadline(
+        workAreaApplicationDetailSearchItem,
+        PwaApplicationWorkAreaItem::new);
+  }
+
+  @Test
+  public void getApplicationColumn_whenUpdate_dueToday() {
+    ApplicationWorkAreaItemTestUtil.test_getApplicationColumn_whenUpdateRequest_dueToday(
+        workAreaApplicationDetailSearchItem,
+        PwaApplicationWorkAreaItem::new);
+  }
+
+  @Test
+  public void getApplicationColumn_whenUpdate_overdue() {
+    ApplicationWorkAreaItemTestUtil.test_getApplicationColumn_whenUpdateRequest_overdue(
         workAreaApplicationDetailSearchItem,
         PwaApplicationWorkAreaItem::new);
   }
 
 }
+

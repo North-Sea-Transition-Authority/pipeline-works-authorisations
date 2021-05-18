@@ -2,6 +2,9 @@ package uk.co.ogauthority.pwa.service.appprocessing.applicationupdate;
 
 import com.google.common.annotations.VisibleForTesting;
 import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +18,7 @@ import uk.co.ogauthority.pwa.model.entity.appprocessing.applicationupdates.Appli
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.enums.appprocessing.applicationupdates.ApplicationUpdateRequestStatus;
 import uk.co.ogauthority.pwa.model.enums.tasklist.TaskState;
+import uk.co.ogauthority.pwa.model.form.appprocessing.applicationupdate.ApplicationUpdateRequestForm;
 import uk.co.ogauthority.pwa.model.notify.emailproperties.updaterequests.ApplicationUpdateRequestEmailProps;
 import uk.co.ogauthority.pwa.model.notify.emailproperties.updaterequests.ApplicationUpdateResponseEmailProps;
 import uk.co.ogauthority.pwa.model.tasklist.TaskListEntry;
@@ -36,6 +40,7 @@ import uk.co.ogauthority.pwa.service.person.PersonService;
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.PwaApplicationDetailVersioningService;
 import uk.co.ogauthority.pwa.service.workflow.assignment.WorkflowAssignmentService;
+import uk.co.ogauthority.pwa.util.DateUtils;
 
 @Service
 public class ApplicationUpdateRequestService implements AppProcessingService {
@@ -74,10 +79,12 @@ public class ApplicationUpdateRequestService implements AppProcessingService {
   @Transactional
   public void submitApplicationUpdateRequest(PwaApplicationDetail pwaApplicationDetail,
                                              WebUserAccount requestingUser,
-                                             String requestReason) {
+                                             ApplicationUpdateRequestForm form) {
 
     // The update request was made for a specific version, so the original is linked.
-    createApplicationUpdateRequest(pwaApplicationDetail, requestingUser.getLinkedPerson(), requestReason);
+    var deadlineTimestamp = DateUtils.datePickerStringToDate(form.getDeadlineTimestampStr())
+        .atStartOfDay(ZoneId.systemDefault()).toInstant();
+    createApplicationUpdateRequest(pwaApplicationDetail, requestingUser.getLinkedPerson(), form.getRequestReason(), deadlineTimestamp);
 
     // then a new detail is created which is what will be resubmitted with any changes.
     var newTipDetail = pwaApplicationDetailVersioningService
@@ -152,15 +159,21 @@ public class ApplicationUpdateRequestService implements AppProcessingService {
             "Expected to find open update request for pad_id:" + pwaApplicationDetail.getId()));
   }
 
+  public List<ApplicationUpdateRequest> getApplicationUpdateRequests(List<PwaApplicationDetail> applicationDetails) {
+    return applicationUpdateRequestRepository.findAllByPwaApplicationDetailIn(applicationDetails);
+  }
+
   @VisibleForTesting
   void createApplicationUpdateRequest(PwaApplicationDetail pwaApplicationDetail,
                                       Person requestingPerson,
-                                      String requestReason) {
+                                      String requestReason,
+                                      Instant deadlineTimestamp) {
     var updateRequest = ApplicationUpdateRequest.createRequest(
         pwaApplicationDetail,
         requestingPerson,
         clock,
-        requestReason);
+        requestReason,
+        deadlineTimestamp);
 
     applicationUpdateRequestRepository.save(updateRequest);
 

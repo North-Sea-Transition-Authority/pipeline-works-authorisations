@@ -6,6 +6,8 @@ public class ApplicationUpdateSummaryView {
 
   private final String requestReason;
 
+  private final String deadlineTimestamp;
+
   private final String requestedTimestamp;
 
   private final String responseByPersonName;
@@ -17,11 +19,13 @@ public class ApplicationUpdateSummaryView {
 
 
   private ApplicationUpdateSummaryView(String requestReason,
+                                       String deadlineTimestamp,
                                        String requestedTimestamp,
                                        String responseByPersonName,
                                        String responseTimestamp,
                                        String responseOtherChanges) {
     this.requestReason = requestReason;
+    this.deadlineTimestamp = deadlineTimestamp;
     this.requestedTimestamp = requestedTimestamp;
     this.responseByPersonName = responseByPersonName;
     this.responseTimestamp = responseTimestamp;
@@ -33,6 +37,7 @@ public class ApplicationUpdateSummaryView {
                                                   String responseByPersonName) {
     return new ApplicationUpdateSummaryView(
         view.getRequestReason(),
+        view.getDeadlineTimestampDisplay(),
         view.getRequestedTimestampDisplay(),
         responseByPersonName,
         view.getResponseTimestampDisplay(),
@@ -43,6 +48,10 @@ public class ApplicationUpdateSummaryView {
 
   public String getRequestReason() {
     return requestReason;
+  }
+
+  public String getDeadlineTimestamp() {
+    return deadlineTimestamp;
   }
 
   public String getRequestedTimestamp() {

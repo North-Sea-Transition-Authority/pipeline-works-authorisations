@@ -11,7 +11,10 @@ import static org.mockito.Mockito.when;
 
 import java.time.Clock;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalUnit;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -31,6 +34,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.enums.appprocessing.applicationupdates.ApplicationUpdateRequestStatus;
 import uk.co.ogauthority.pwa.model.enums.notify.NotifyTemplate;
 import uk.co.ogauthority.pwa.model.enums.tasklist.TaskState;
+import uk.co.ogauthority.pwa.model.form.appprocessing.applicationupdate.ApplicationUpdateRequestForm;
 import uk.co.ogauthority.pwa.model.notify.emailproperties.EmailProperties;
 import uk.co.ogauthority.pwa.model.tasklist.TaskTag;
 import uk.co.ogauthority.pwa.repository.appprocessing.applicationupdates.ApplicationUpdateRequestRepository;
@@ -51,6 +55,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.PwaApplicationDetailVersioningService;
 import uk.co.ogauthority.pwa.service.workflow.assignment.WorkflowAssignmentService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
+import uk.co.ogauthority.pwa.util.DateUtils;
 
 
 @RunWith(MockitoJUnitRunner.class)
@@ -152,13 +157,15 @@ public class ApplicationUpdateRequestServiceTest {
   @Test
   public void createApplicationUpdateRequest_savedRequestHasExpectedAttributes() {
 
-    applicationUpdateRequestService.createApplicationUpdateRequest(pwaApplicationDetail, responderPerson, REASON);
+    var deadlineDate = clock.instant().plus(5, ChronoUnit.DAYS);
+    applicationUpdateRequestService.createApplicationUpdateRequest(pwaApplicationDetail, responderPerson, REASON, deadlineDate);
 
     verify(applicationUpdateRequestRepository, times(1)).save(appUpdateArgCapture.capture());
 
     var updateRequest = appUpdateArgCapture.getValue();
 
     assertThat(updateRequest.getRequestReason()).isEqualTo(REASON);
+    assertThat(updateRequest.getDeadlineTimestamp()).isEqualTo(deadlineDate);
     assertThat(updateRequest.getRequestedByPersonId()).isEqualTo(RESPONDER_PERSON_ID);
     assertThat(updateRequest.getRequestedTimestamp()).isEqualTo(clock.instant());
     assertThat(updateRequest.getPwaApplicationDetail()).isEqualTo(pwaApplicationDetail);
@@ -233,7 +240,11 @@ public class ApplicationUpdateRequestServiceTest {
     when(pwaApplicationDetailVersioningService.createNewApplicationVersion(pwaApplicationDetail, user))
         .thenReturn(pwaApplicationDetail);
 
-    applicationUpdateRequestService.submitApplicationUpdateRequest(pwaApplicationDetail, user, REASON);
+    var form = new ApplicationUpdateRequestForm();
+    form.setRequestReason(REASON);
+    form.setDeadlineTimestampStr(DateUtils.formatToDatePickerString(LocalDate.now()));
+
+    applicationUpdateRequestService.submitApplicationUpdateRequest(pwaApplicationDetail, user, form);
     verify(applicationUpdateRequestRepository, times(1)).save(any());
     verify(notifyService, times(1)).sendEmail(any(), eq(PREPARER_1_EMAIL));
     verify(pwaApplicationDetailVersioningService, times(1)).createNewApplicationVersion(pwaApplicationDetail, user);

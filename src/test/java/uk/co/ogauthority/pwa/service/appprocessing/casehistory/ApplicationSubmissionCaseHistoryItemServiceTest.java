@@ -13,12 +13,15 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
+import uk.co.ogauthority.pwa.model.entity.appprocessing.applicationupdates.ApplicationUpdateRequest;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.view.appprocessing.casehistory.CaseHistoryItemView;
+import uk.co.ogauthority.pwa.service.appprocessing.applicationupdate.ApplicationUpdateRequestService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
+import uk.co.ogauthority.pwa.util.DateUtils;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ApplicationSubmissionCaseHistoryItemServiceTest {
@@ -38,6 +41,9 @@ public class ApplicationSubmissionCaseHistoryItemServiceTest {
   @Mock
   private PwaApplicationDetailService pwaApplicationDetailService;
 
+  @Mock
+  private ApplicationUpdateRequestService applicationUpdateRequestService;
+
   private ApplicationSubmissionCaseHistoryItemService applicationSubmissionCaseHistoryItemService;
 
   private PwaApplicationDetail detail1;
@@ -49,8 +55,7 @@ public class ApplicationSubmissionCaseHistoryItemServiceTest {
   public void setUp() throws Exception {
 
     applicationSubmissionCaseHistoryItemService = new ApplicationSubmissionCaseHistoryItemService(
-        pwaApplicationDetailService
-    );
+        pwaApplicationDetailService, applicationUpdateRequestService);
 
     detail1 = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL, APP_ID, APP_DETAIL_1_ID,
         1);
@@ -67,8 +72,20 @@ public class ApplicationSubmissionCaseHistoryItemServiceTest {
 
   @Test
   public void getCaseHistoryItemViews_whenMultipleVersions() {
+
+    var details = List.of(detail1, detail2);
     when(pwaApplicationDetailService.getAllSubmittedApplicationDetailsForApplication(application))
-        .thenReturn(List.of(detail1, detail2));
+        .thenReturn(details);
+
+    var detail1AppUpdateRequest = new ApplicationUpdateRequest();
+    detail1AppUpdateRequest.setPwaApplicationDetail(detail1);
+    detail1AppUpdateRequest.setDeadlineTimestamp(Instant.now());
+    var detail2AppUpdateRequest = new ApplicationUpdateRequest();
+    detail2AppUpdateRequest.setPwaApplicationDetail(detail2);
+    detail2AppUpdateRequest.setDeadlineTimestamp(Instant.now().plus(1, ChronoUnit.DAYS));
+
+    when(applicationUpdateRequestService.getApplicationUpdateRequests(details))
+        .thenReturn(List.of(detail1AppUpdateRequest, detail2AppUpdateRequest));
 
     var historyItems = applicationSubmissionCaseHistoryItemService.getCaseHistoryItemViews(application);
 
@@ -76,12 +93,34 @@ public class ApplicationSubmissionCaseHistoryItemServiceTest {
         new CaseHistoryItemView.Builder("Application version 1 submitted", APP_DETAIL_1_SUBMITTED, PERSON_ID1)
             .setPersonLabelText("Submitted by")
             .setPersonEmailLabel("Contact email")
+            .addDataItem("Update Request deadline",
+                DateUtils.formatDate(detail1AppUpdateRequest.getDeadlineTimestamp()))
             .build(),
         new CaseHistoryItemView.Builder("Application version 2 submitted", APP_DETAIL_2_SUBMITTED, PERSON_ID2)
+            .setPersonLabelText("Submitted by")
+            .setPersonEmailLabel("Contact email")
+            .addDataItem("Update Request deadline",
+                DateUtils.formatDate(detail2AppUpdateRequest.getDeadlineTimestamp()))
+            .build()
+    );
+
+  }
+
+  @Test
+  public void getCaseHistoryItemViews_only1VersionExists_noUpdateRequest() {
+
+    when(pwaApplicationDetailService.getAllSubmittedApplicationDetailsForApplication(application))
+        .thenReturn(List.of(detail1));
+
+    var historyItems = applicationSubmissionCaseHistoryItemService.getCaseHistoryItemViews(application);
+
+    assertThat(historyItems).containsExactly(
+        new CaseHistoryItemView.Builder("Application version 1 submitted", APP_DETAIL_1_SUBMITTED, PERSON_ID1)
             .setPersonLabelText("Submitted by")
             .setPersonEmailLabel("Contact email")
             .build()
     );
 
   }
+
 }

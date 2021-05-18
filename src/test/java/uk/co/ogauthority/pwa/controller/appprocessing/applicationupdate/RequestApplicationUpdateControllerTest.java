@@ -4,6 +4,8 @@ package uk.co.ogauthority.pwa.controller.appprocessing.applicationupdate;
 import static java.util.Map.entry;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -28,6 +30,9 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.http.HttpMethod;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.validation.BeanPropertyBindingResult;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.ObjectError;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.PwaAppProcessingContextAbstractControllerTest;
@@ -44,9 +49,11 @@ import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermiss
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.workflow.assignment.WorkflowAssignmentService;
+import uk.co.ogauthority.pwa.testutils.ControllerTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
+import uk.co.ogauthority.pwa.validators.appprocessing.appupdaterequest.ApplicationUpdateRequestValidator;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(controllers = RequestApplicationUpdateController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {PwaAppProcessingContextService.class}))
@@ -71,6 +78,9 @@ public class RequestApplicationUpdateControllerTest extends PwaAppProcessingCont
   @MockBean
   private ApplicationUpdateRequestService applicationUpdateRequestService;
 
+  @MockBean
+  private ApplicationUpdateRequestValidator applicationUpdateRequestValidator;
+
   private PwaApplicationDetail pwaApplicationDetail;
   private Person person;
   private AuthenticatedUserAccount user;
@@ -94,6 +104,7 @@ public class RequestApplicationUpdateControllerTest extends PwaAppProcessingCont
         pwaAppProcessingPermissionService)
         .setAllowedStatuses(PwaApplicationStatus.CASE_OFFICER_REVIEW)
         .setAllowedProcessingPermissions(PwaAppProcessingPermission.REQUEST_APPLICATION_UPDATE);
+
   }
 
   @Test
@@ -171,6 +182,12 @@ public class RequestApplicationUpdateControllerTest extends PwaAppProcessingCont
     when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail, user))
         .thenReturn(permissionsDto);
 
+    doAnswer(invocation -> {
+      var bindingResult = (BindingResult) invocation.getArgument(1);
+      bindingResult.addError(new ObjectError(REQUEST_REASON_ATTR, ""));
+      return null;
+    }).when(applicationUpdateRequestValidator).validate(any(), any());
+
     mockMvc.perform(
         post(ReverseRouter.route(on(RequestApplicationUpdateController.class)
             .requestUpdate(APP_ID, APP_TYPE, null, null, null, null)
@@ -195,6 +212,12 @@ public class RequestApplicationUpdateControllerTest extends PwaAppProcessingCont
     when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail, user))
         .thenReturn(permissionsDto);
 
+    doAnswer(invocation -> {
+      var bindingResult = (BindingResult) invocation.getArgument(1);
+      bindingResult.addError(new ObjectError(REQUEST_REASON_ATTR, ""));
+      return null;
+    }).when(applicationUpdateRequestValidator).validate(any(), any());
+
     mockMvc.perform(
         post(ReverseRouter.route(on(RequestApplicationUpdateController.class)
             .requestUpdate(APP_ID, APP_TYPE, null, null, null, null)
@@ -218,21 +241,25 @@ public class RequestApplicationUpdateControllerTest extends PwaAppProcessingCont
     var permissionsDto = new ProcessingPermissionsDto(null, Set.of(PwaAppProcessingPermission.REQUEST_APPLICATION_UPDATE));
     when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail, user))
         .thenReturn(permissionsDto);
+    var form = new ApplicationUpdateRequestForm();
+    form.setRequestReason(REQUEST_REASON_VALID);
+    form.setDeadlineTimestampStr("01/01/2021");
 
     mockMvc.perform(
         post(ReverseRouter.route(on(RequestApplicationUpdateController.class)
-            .requestUpdate(APP_ID, APP_TYPE, null, null, null, null)
+            .requestUpdate(APP_ID, APP_TYPE, null, null, form, null)
         ))
             .with(authenticatedUserAndSession(user))
             .with(csrf())
             .param(REQUEST_REASON_ATTR, REQUEST_REASON_VALID)
+            .param("deadlineTimestampStr", form.getDeadlineTimestampStr())
 
     ).andExpect(status().is3xxRedirection())
         .andExpect(model().attributeHasNoErrors())
         .andReturn();
     verify(applicationUpdateRequestService, times(1)).applicationHasOpenUpdateRequest(pwaApplicationDetail);
-    verify(applicationUpdateRequestService, times(1)).submitApplicationUpdateRequest(pwaApplicationDetail, user,
-        REQUEST_REASON_VALID);
+    verify(applicationUpdateRequestService, times(1)).submitApplicationUpdateRequest(
+        pwaApplicationDetail, user, form);
 
   }
 

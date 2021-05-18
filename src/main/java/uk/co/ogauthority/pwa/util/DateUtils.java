@@ -76,4 +76,12 @@ public class DateUtils {
     }
   }
 
+  public static LocalDate datePickerStringToDate(String dateStr) {
+    return LocalDate.parse(dateStr, DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+  }
+
+  public static String formatToDatePickerString(LocalDate date) {
+    return date.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+  }
+
 }

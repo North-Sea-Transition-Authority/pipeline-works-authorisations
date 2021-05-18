@@ -26,6 +26,7 @@ CREATE OR REPLACE FORCE VIEW ${datasource.user}.application_detail_view (
 , open_consultation_req_flag
 , public_notice_status
 , open_update_request_flag
+, open_update_deadline_ts
 , open_consent_review_flag
 ) AS
 WITH open_update_app_details AS (
@@ -33,6 +34,7 @@ WITH open_update_app_details AS (
     pad.pwa_application_id
   , pad.id pad_id
   , aur.id aur_id
+  , aur.deadline_timestamp deadline_timestamp
   , pcoo.id pcoo_id
   , CASE WHEN aur.id IS NOT NULL THEN 1 ELSE 0 END open_app_update
   , CASE WHEN oaa.id IS NOT NULL AND pcoo.id IS NULL THEN 1 ELSE 0 END unresponded_option_approval
@@ -100,6 +102,7 @@ SELECT
   END open_consultation_req_flag
 , pn.status public_notice_status
 , CASE WHEN ouad.pad_id IS NOT NULL THEN 1 ELSE 0 END open_update_request_flag
+, ouad.deadline_timestamp
 , CASE WHEN pcr.id IS NOT NULL THEN 1 ELSE 0 END open_consent_review_flag
 FROM ${datasource.user}.pwa_application_details pad -- want 1 row per detail for maximum query flexibility. intended to be the only introduced cardinality
 JOIN ${datasource.user}.pwa_applications pa ON pad.pwa_application_id = pa.id

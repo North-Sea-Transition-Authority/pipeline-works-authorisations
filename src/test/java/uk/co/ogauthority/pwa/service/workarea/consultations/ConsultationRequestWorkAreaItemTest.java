@@ -294,7 +294,7 @@ public class ConsultationRequestWorkAreaItemTest {
 
   @Test
   public void getApplicationColumn_whenUpdate() {
-    ApplicationWorkAreaItemTestUtil.test_getApplicationColumn_whenUpdateRequest(
+    ApplicationWorkAreaItemTestUtil.test_getApplicationColumn_whenUpdateRequest_withinDeadline(
         applicationDetailView,
         PwaApplicationWorkAreaItem::new);
   }
