@@ -94,7 +94,7 @@ public abstract class PwaApplicationContextAbstractControllerTest {
   protected PwaApplicationPermissionService pwaApplicationPermissionService;
 
   @MockBean
-  private PwaHolderTeamService pwaHolderTeamService;
+  protected PwaHolderTeamService pwaHolderTeamService;
 
   @MockBean
   private PwaContextService pwaContextService;

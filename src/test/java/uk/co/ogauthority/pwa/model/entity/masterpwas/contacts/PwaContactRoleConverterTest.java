@@ -15,15 +15,18 @@ public class PwaContactRoleConverterTest {
   private PwaContactRoleConverter converter = new PwaContactRoleConverter();
 
   @Test
-  public void convertToDatabaseColumn() {
+  public void convertToDatabaseColumn_whenNotNull() {
 
     String csvRoleList = converter.convertToDatabaseColumn(Set.of(PwaContactRole.ACCESS_MANAGER));
 
-    try {
-      assertThat(csvRoleList).isEqualTo("ACCESS_MANAGER");
-    } catch (AssertionError e) {
-      assertThat(csvRoleList).isEqualTo("ACCESS_MANAGER");
-    }
+    assertThat(csvRoleList).isEqualTo("ACCESS_MANAGER");
+
+  }
+
+  @Test
+  public void convertToDatabaseColumn_whenNull() {
+
+    assertThat(converter.convertToDatabaseColumn(null)).isNull();
 
   }
 

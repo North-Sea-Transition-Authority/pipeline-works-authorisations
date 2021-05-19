@@ -28,7 +28,7 @@ import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationPermissionCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationStatusCheck;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
-import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
+import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationGroup;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.contacts.PwaContact;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
@@ -47,9 +47,9 @@ import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectServi
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.AddPwaContactFormValidator;
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
-import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadOrganisationRoleService;
 import uk.co.ogauthority.pwa.service.teammanagement.LastAdministratorException;
 import uk.co.ogauthority.pwa.service.teammanagement.TeamManagementService;
+import uk.co.ogauthority.pwa.service.teams.PwaHolderTeamService;
 import uk.co.ogauthority.pwa.util.CaseManagementUtils;
 import uk.co.ogauthority.pwa.util.EnumUtils;
 import uk.co.ogauthority.pwa.util.StreamUtils;
@@ -69,7 +69,7 @@ public class PwaContactController {
   private final TeamManagementService teamManagementService;
   private final AddPwaContactFormValidator addPwaContactFormValidator;
   private final ControllerHelperService controllerHelperService;
-  private final PadOrganisationRoleService padOrganisationRoleService;
+  private final PwaHolderTeamService pwaHolderTeamService;
   private final PwaApplicationRedirectService pwaApplicationRedirectService;
 
   private final Map<String, String> rolesCheckboxMap;
@@ -82,7 +82,7 @@ public class PwaContactController {
                               TeamManagementService teamManagementService,
                               AddPwaContactFormValidator addPwaContactFormValidator,
                               ControllerHelperService controllerHelperService,
-                              PadOrganisationRoleService padOrganisationRoleService,
+                              PwaHolderTeamService pwaHolderTeamService,
                               PwaApplicationRedirectService pwaApplicationRedirectService,
                               @Value("${oga.registration.link}") String ogaRegistrationLink) {
     this.pwaContactService = pwaContactService;
@@ -90,7 +90,7 @@ public class PwaContactController {
     this.teamManagementService = teamManagementService;
     this.addPwaContactFormValidator = addPwaContactFormValidator;
     this.controllerHelperService = controllerHelperService;
-    this.padOrganisationRoleService = padOrganisationRoleService;
+    this.pwaHolderTeamService = pwaHolderTeamService;
     this.pwaApplicationRedirectService = pwaApplicationRedirectService;
     this.ogaRegistrationLink = ogaRegistrationLink;
 
@@ -120,11 +120,8 @@ public class PwaContactController {
         .sorted(Comparator.comparing(TeamMemberView::getFullName))
         .collect(Collectors.toList());
 
-    Set<String> orgGroupHolders = padOrganisationRoleService
-        .getOrgRolesForDetailAndRole(applicationContext.getApplicationDetail(), HuooRole.HOLDER)
-        .stream()
-        .filter(orgRole -> orgRole.getOrganisationUnit() != null)
-        .map(orgRole -> orgRole.getOrganisationUnit().getPortalOrganisationGroup().getName())
+    Set<String> orgGroupHolders = pwaHolderTeamService.getHolderOrgGroups(pwaApplication.getMasterPwa()).stream()
+        .map(PortalOrganisationGroup::getName)
         .collect(Collectors.toSet());
 
     var userCanAccessTaskList = applicationContext.hasPermission(PwaApplicationPermission.EDIT)

@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import javax.persistence.EntityManager;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -20,6 +21,8 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.transaction.annotation.Transactional;
+import uk.co.ogauthority.pwa.energyportal.model.entity.PersonTestUtil;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
@@ -47,6 +50,7 @@ import uk.co.ogauthority.pwa.testutils.AssertionTestUtils;
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @ActiveProfiles("integration-test")
 @SuppressWarnings({"JpaQueryApiInspection", "SqlNoDataSourceInspection"})
+@Transactional
 // IJ seems to give spurious warnings when running with embedded H2
 public class TaskListServiceIntegrationTest {
 
@@ -57,6 +61,9 @@ public class TaskListServiceIntegrationTest {
 
   @Autowired
   private TaskListEntryFactory taskListEntryFactory;
+
+  @Autowired
+  private EntityManager entityManager;
 
   @Autowired
   private ApplicationTaskService applicationTaskService;
@@ -86,11 +93,16 @@ public class TaskListServiceIntegrationTest {
   private PwaApplication pwaApplication;
   private PwaApplicationDetail pwaApplicationDetail;
 
+
   @Before
   public void setup() {
 
+    var person = PersonTestUtil.createDefaultPerson();
+    entityManager.persist(person);
+    var systemWua = new WebUserAccount(1, person);
+
     // by default, conditional app tasks not shown
-    pwaApplicationDetail = pwaApplicationCreationService.createInitialPwaApplication(new WebUserAccount(1));
+    pwaApplicationDetail = pwaApplicationCreationService.createInitialPwaApplication(systemWua);
     pwaApplication = pwaApplicationDetail.getPwaApplication();
     taskListService = new TaskListService(
 

@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.model.entity.documents;
 
 import java.time.Instant;
 import java.util.Optional;
+import javax.persistence.Basic;
 import javax.persistence.Convert;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -28,11 +29,13 @@ public abstract class SectionClauseVersion {
 
   private Instant createdTimestamp;
 
+  @Basic
   @Convert(converter = PersonIdConverter.class)
   private PersonId createdByPersonId;
 
   private Instant endedTimestamp;
 
+  @Basic
   @Convert(converter = PersonIdConverter.class)
   private PersonId endedByPersonId;
 

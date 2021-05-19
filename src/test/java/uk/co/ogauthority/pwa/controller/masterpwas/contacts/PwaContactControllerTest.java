@@ -11,7 +11,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
 
-import java.util.List;
 import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
@@ -27,9 +26,8 @@ import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.controller.PwaApplicationContextAbstractControllerTest;
 import uk.co.ogauthority.pwa.energyportal.model.entity.PersonTestUtil;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
-import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
+import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.huoo.PadOrganisationRole;
 import uk.co.ogauthority.pwa.model.teammanagement.TeamMemberView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ApplicationState;
@@ -39,7 +37,6 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.AddPwaContactFormValidator;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
-import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadOrganisationRoleService;
 import uk.co.ogauthority.pwa.service.teammanagement.TeamManagementService;
 import uk.co.ogauthority.pwa.testutils.PortalOrganisationTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
@@ -57,9 +54,6 @@ public class PwaContactControllerTest extends PwaApplicationContextAbstractContr
 
   @MockBean
   private AddPwaContactFormValidator addPwaContactFormValidator;
-
-  @MockBean
-  private PadOrganisationRoleService padOrganisationRoleService;
 
   private AuthenticatedUserAccount user = new AuthenticatedUserAccount(new WebUserAccount(1, PersonTestUtil.createDefaultPerson()), Set.of());
 
@@ -361,17 +355,7 @@ public class PwaContactControllerTest extends PwaApplicationContextAbstractContr
 
     var orgGroup = PortalOrganisationTestUtils.generateOrganisationGroup(1, "ORGGRP", "OG");
 
-    // two org units, both with same group
-    var orgUnit1 = PortalOrganisationTestUtils.generateOrganisationUnit(2, "OU1", orgGroup);
-    var orgUnit2 = PortalOrganisationTestUtils.generateOrganisationUnit(3, "OU2", orgGroup);
-
-    var role1 = new PadOrganisationRole();
-    role1.setOrganisationUnit(orgUnit1);
-
-    var role2 = new PadOrganisationRole();
-    role2.setOrganisationUnit(orgUnit2);
-
-    when(padOrganisationRoleService.getOrgRolesForDetailAndRole(detail, HuooRole.HOLDER)).thenReturn(List.of(role1, role2));
+    when(pwaHolderTeamService.getHolderOrgGroups(any(MasterPwa.class))).thenReturn(Set.of(orgGroup));
 
     mockMvc.perform(get(ReverseRouter.route(on(PwaContactController.class)
         .renderContactsScreen(PwaApplicationType.INITIAL, 1, null, null)))
