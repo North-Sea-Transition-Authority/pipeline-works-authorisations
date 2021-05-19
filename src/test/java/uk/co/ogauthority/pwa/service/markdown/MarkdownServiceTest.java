@@ -34,7 +34,7 @@ public class MarkdownServiceTest {
     var container = MailMergeTestUtils.getMergeContainerWithMergeFields(Map.of("PROJECT_NAME", "my proj"));
     String html = markdownService.convertMarkdownToHtml("((PROJECT_NAME))", container);
 
-    assertThat(html).contains("<span>my proj</span>");
+    assertThat(html).contains("<span><span class=\"govuk-visually-hidden\">Automatic merge field</span>my proj</span>");
 
   }
 

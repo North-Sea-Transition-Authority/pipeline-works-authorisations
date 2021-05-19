@@ -91,7 +91,8 @@ public class AssignCaseOfficerServiceTest {
     appDetail.setSubmittedByPersonId(assigningPerson.getId());
     when(personService.getPersonById(appDetail.getSubmittedByPersonId())).thenReturn(assigningPerson);
 
-    when(emailCaseLinkService.generateCaseManagementLink(appDetail.getPwaApplication())).thenReturn("case link");
+    var caseLink = "case link";
+    when(emailCaseLinkService.generateCaseManagementLink(appDetail.getPwaApplication())).thenReturn(caseLink);
 
     assignCaseOfficerService.assignCaseOfficer(form.getCaseOfficerPerson(), appDetail, assigningUser);
 
@@ -106,7 +107,8 @@ public class AssignCaseOfficerServiceTest {
     assertThat(caseOfficerAssignedProps.getEmailPersonalisation()).contains(
         entry("RECIPIENT_FULL_NAME", assigningUser.getLinkedPerson().getFullName()),
         entry("CASE_OFFICER_NAME", caseOfficerPerson.getFullName()),
-        entry("APPLICATION_REFERENCE", appDetail.getPwaApplicationRef())
+        entry("APPLICATION_REFERENCE", appDetail.getPwaApplicationRef()),
+        entry("CASE_MANAGEMENT_LINK", caseLink)
     );
 
     var applicationAssignedToYouProps = applicationAssignedToYouEmailPropsCaptor.getValue();

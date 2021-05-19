@@ -88,7 +88,7 @@ public class DocumentGenerationService {
     if (documentSection.getSectionType() == SectionType.CLAUSE_LIST) {
 
       var docView = documentInstanceService.getDocumentView(documentInstance, documentSection);
-      docView = mailMergeService.mailMerge(docView, docGenType);
+      mailMergeService.mailMerge(docView, docGenType);
 
       return new DocumentSectionData(
           "documents/consents/clauseSection",

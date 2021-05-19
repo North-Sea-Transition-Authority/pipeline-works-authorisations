@@ -8,8 +8,8 @@
     </thead>
     <tbody class="govuk-table__body">
     <#list mergeFields?sort as mergeField>
-      <tr>
-        <td>${mergeField}</td>
+      <tr class="govuk-table__row">
+        <td class="govuk-table__cell">${mergeField}</td>
       </tr>
     </#list>
     </tbody>

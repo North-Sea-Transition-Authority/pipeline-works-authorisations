@@ -32,7 +32,7 @@ public class DepconIntroductionGeneratorService implements DocumentSectionGenera
                                                     DocGenType docGenType) {
 
     var docView = documentInstanceService.getDocumentView(documentInstance, SECTION);
-    docView = mailMergeService.mailMerge(docView, docGenType);
+    mailMergeService.mailMerge(docView, docGenType);
 
     // extract the first clause from the doc to be our intro paragraph, remove from list
     String introParagraph = docView.getSections().get(0).getClauses().get(0).getText();

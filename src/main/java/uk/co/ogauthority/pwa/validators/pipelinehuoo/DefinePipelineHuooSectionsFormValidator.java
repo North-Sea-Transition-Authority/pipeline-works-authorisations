@@ -179,37 +179,33 @@ public class DefinePipelineHuooSectionsFormValidator implements SmartValidator {
 
       if (!currentSectionHasErrors) {
         var selectedIdentLocation = validOptionsLookup.get(currentSectionInput.getPickedPipelineIdentString());
-        if (currentSectionInput.getPointIncludedInSection()
-            && selectedIdentLocation.compareTo(minimumIncludingIdentLocation) < 0) {
-          errors.rejectValue(
-              getSectionPointInputAttributePath(sectionIndex, SECTION_POINT_IDENT_STRING_ATTR),
-              FieldValidationErrorCodes.INVALID.errorCode(SECTION_POINT_IDENT_STRING_ATTR),
-              String.format("Section %s cannot include a point before %s",
-                  sectionIndex + 1,
-                  minimumIncludingIdentLocation.getDisplayString())
-          );
-        } else if (!currentSectionInput.getPointIncludedInSection()
-            && selectedIdentLocation.compareTo(minimumNotIncludingIdentLocation) < 0) {
-          errors.rejectValue(
-              getSectionPointInputAttributePath(sectionIndex, SECTION_POINT_IDENT_STRING_ATTR),
-              FieldValidationErrorCodes.INVALID.errorCode(SECTION_POINT_IDENT_STRING_ATTR),
-              String.format("Section %s cannot start before the point %s",
-                  sectionIndex + 1,
-                  minimumNotIncludingIdentLocation.getDisplayString())
-          );
-        }
 
-        if (currentSectionInput.getPointIncludedInSection()
-            && sectionsStartingAtAndIncludingIdentLocationLookup.containsKey(selectedIdentLocation)) {
-          errors.rejectValue(
-              getSectionPointInputAttributePath(sectionIndex, SECTION_POINT_IDENT_INCLUDED_IN_SECTION_ATTR),
-              FieldValidationErrorCodes.NOT_UNIQUE.errorCode(SECTION_POINT_IDENT_INCLUDED_IN_SECTION_ATTR),
-              String.format("Section %s cannot include this point as it is included in section %s",
-                  sectionIndex + 1,
-                  sectionsStartingAtAndIncludingIdentLocationLookup.get(selectedIdentLocation))
-          );
-        } else if (currentSectionInput.getPointIncludedInSection()) {
-          sectionsStartingAtAndIncludingIdentLocationLookup.putIfAbsent(selectedIdentLocation, sectionIndex + 1);
+        logSectionStartPointIfInclusiveAndEnsureNotAlreadyUsed(
+            errors,
+            sectionsStartingAtAndIncludingIdentLocationLookup,
+            sectionIndex,
+            currentSectionInput,
+            selectedIdentLocation);
+
+        // do section validity checks only if start point checks completed ok to avoid double errors
+        if (!doesSectionPointInputHaveErrors(errors, sectionIndex)) {
+          if (currentSectionInput.getPointIncludedInSection()
+              && selectedIdentLocation.compareTo(minimumIncludingIdentLocation) < 0) {
+            errors.rejectValue(
+                getSectionPointInputAttributePath(sectionIndex, SECTION_POINT_IDENT_STRING_ATTR),
+                FieldValidationErrorCodes.INVALID.errorCode(SECTION_POINT_IDENT_STRING_ATTR),
+                String.format("Select a Section %s start point not included in a previous section",
+                    sectionIndex + 1)
+            );
+          } else if (!currentSectionInput.getPointIncludedInSection()
+              && selectedIdentLocation.compareTo(minimumNotIncludingIdentLocation) < 0) {
+            errors.rejectValue(
+                getSectionPointInputAttributePath(sectionIndex, SECTION_POINT_IDENT_STRING_ATTR),
+                FieldValidationErrorCodes.INVALID.errorCode(SECTION_POINT_IDENT_STRING_ATTR),
+                String.format("Select a Section %s start point not included in a previous section",
+                    sectionIndex + 1)
+            );
+          }
         }
 
         var indexOfSelectedOption = Collections.binarySearch(sortedValidOptions, selectedIdentLocation);
@@ -230,6 +226,26 @@ public class DefinePipelineHuooSectionsFormValidator implements SmartValidator {
         }
 
       }
+    }
+  }
+
+  private void logSectionStartPointIfInclusiveAndEnsureNotAlreadyUsed(
+      Errors errors,
+      Map<PickableIdentLocationOption, Integer> sectionsStartingAtAndIncludingIdentLocationLookup,
+      int sectionIndex,
+      PipelineSectionPointFormInput currentSectionInput,
+      PickableIdentLocationOption selectedIdentLocation) {
+    if (currentSectionInput.getPointIncludedInSection()
+        && sectionsStartingAtAndIncludingIdentLocationLookup.containsKey(selectedIdentLocation)) {
+      errors.rejectValue(
+          getSectionPointInputAttributePath(sectionIndex, SECTION_POINT_IDENT_INCLUDED_IN_SECTION_ATTR),
+          FieldValidationErrorCodes.NOT_UNIQUE.errorCode(SECTION_POINT_IDENT_INCLUDED_IN_SECTION_ATTR),
+          String.format("Section %s cannot include this point as it is included in section %s",
+              sectionIndex + 1,
+              sectionsStartingAtAndIncludingIdentLocationLookup.get(selectedIdentLocation))
+      );
+    } else if (currentSectionInput.getPointIncludedInSection()) {
+      sectionsStartingAtAndIncludingIdentLocationLookup.putIfAbsent(selectedIdentLocation, sectionIndex + 1);
     }
   }
 

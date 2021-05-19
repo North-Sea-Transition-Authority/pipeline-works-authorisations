@@ -30,6 +30,7 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationSta
 import uk.co.ogauthority.pwa.exception.AccessDeniedException;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.DocumentTemplateMnem;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocGenType;
+import uk.co.ogauthority.pwa.model.entity.enums.mailmerge.MailMergeFieldType;
 import uk.co.ogauthority.pwa.model.form.appprocessing.prepareconsent.SendConsentForApprovalForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.AppProcessingBreadcrumbService;
@@ -106,8 +107,11 @@ public class AppConsentDocController {
 
           var docView = docInstanceOpt
               .map(documentService::getDocumentViewForInstance)
-              .map(documentView -> mailMergeService.mailMerge(documentView, DocGenType.PREVIEW))
               .orElse(null);
+
+          if (docView != null) {
+            mailMergeService.mailMerge(docView, DocGenType.PREVIEW);
+          }
 
           var modelAndView = new ModelAndView("pwaApplication/appProcessing/prepareConsent/consentDocumentEditor")
               .addObject("caseSummaryView", processingContext.getCaseSummaryView())
@@ -117,7 +121,9 @@ public class AppConsentDocController {
               .addObject("clauseActionsUrlFactory",
                   new ClauseActionsUrlFactory(processingContext.getPwaApplication(), docView))
               .addObject("docView", docView)
-              .addObject("userProcessingPermissions", processingContext.getAppProcessingPermissions());
+              .addObject("userProcessingPermissions", processingContext.getAppProcessingPermissions())
+              .addObject("automaticMailMergePreviewClasses", mailMergeService.getMailMergePreviewClasses(MailMergeFieldType.AUTOMATIC))
+              .addObject("manualMailMergePreviewClasses", mailMergeService.getMailMergePreviewClasses(MailMergeFieldType.MANUAL));
 
           breadcrumbService.fromCaseManagement(processingContext.getPwaApplication(), modelAndView, "Prepare consent");
 

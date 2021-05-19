@@ -11,6 +11,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import uk.co.ogauthority.pwa.model.entity.enums.mailmerge.MailMergeFieldType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.documents.ClauseForm;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
@@ -101,7 +102,8 @@ public class ClauseFormValidatorTest {
   @Test
   public void validate_noInvalidMergeFields_manualMergeDelimsPresent_error() {
 
-    var form = getClauseForm("text [[optional thing here]]");
+    var form = getClauseForm(String.format("text %soptional thing here%s",
+        MailMergeFieldType.MANUAL.getOpeningDelimiter(), MailMergeFieldType.MANUAL.getClosingDelimiter()));
 
     when(mailMergeService.validateMailMergeFields(detail.getPwaApplication(), form.getText())).thenReturn(Set.of());
 

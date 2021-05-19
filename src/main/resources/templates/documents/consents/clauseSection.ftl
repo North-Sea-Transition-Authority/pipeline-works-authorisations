@@ -16,7 +16,7 @@
   <#switch sectionType>
 
       <#case "SCHEDULE_2">
-        <div class="clauseSectionHeader" style="text-align:center">
+        <div class="pwa-clause-section-header">
           <h2 class="govuk-heading-l">${sectionType.displayName}</h2>
           <p style="text-decoration: underline">Provision of Works Authorisations and Notifications Required</p>
         </div>

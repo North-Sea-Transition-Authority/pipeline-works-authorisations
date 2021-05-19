@@ -13,6 +13,7 @@ import uk.co.ogauthority.pwa.model.documents.view.DocumentView;
 import uk.co.ogauthority.pwa.model.documents.view.SectionClauseVersionView;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocGenType;
 import uk.co.ogauthority.pwa.model.entity.enums.mailmerge.MailMergeFieldMnem;
+import uk.co.ogauthority.pwa.model.entity.enums.mailmerge.MailMergeFieldType;
 import uk.co.ogauthority.pwa.model.entity.mailmerge.MailMergeField;
 import uk.co.ogauthority.pwa.repository.mailmerge.MailMergeFieldRepository;
 import uk.co.ogauthority.pwa.service.documents.DocumentSource;
@@ -43,7 +44,7 @@ public class MailMergeService {
     return mailMergeFieldRepository.findAllByMnemIn(availableFieldMnems);
   }
 
-  public DocumentView mailMerge(DocumentView documentView, DocGenType docGenType) {
+  public void mailMerge(DocumentView documentView, DocGenType docGenType) {
 
     var resolver = getMailMergeResolver(documentView.getDocumentSource());
     var resolvedMergeFieldNameToValueMap = new HashMap<>(resolver.resolveMergeFields(documentView.getDocumentSource()));
@@ -52,8 +53,8 @@ public class MailMergeService {
     container.setMailMergeFields(resolvedMergeFieldNameToValueMap);
 
     if (docGenType == DocGenType.PREVIEW) {
-      container.setAutomaticMailMergeDataHtmlAttributeMap(Map.of("class", "pwa-mail-merge__automatic--preview"));
-      container.setManualMailMergeDataHtmlAttributeMap(Map.of("class", "pwa-mail-merge__manual--preview"));
+      container.setAutomaticMailMergeDataHtmlAttributeMap(Map.of("class", getMailMergePreviewClasses(MailMergeFieldType.AUTOMATIC)));
+      container.setManualMailMergeDataHtmlAttributeMap(Map.of("class", getMailMergePreviewClasses(MailMergeFieldType.MANUAL)));
     }
 
     documentView.getSections().forEach(section ->
@@ -62,8 +63,10 @@ public class MailMergeService {
 
     );
 
-    return documentView;
+  }
 
+  public String getMailMergePreviewClasses(MailMergeFieldType mailMergeFieldType) {
+    return String.format("pwa-mail-merge__preview pwa-mail-merge__preview--%s", mailMergeFieldType.name().toLowerCase());
   }
 
   private void mergeClauseText(SectionClauseVersionView clause,

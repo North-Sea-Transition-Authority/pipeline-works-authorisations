@@ -2,14 +2,18 @@
 
 .pwa-mail-merge {
 
-  &__automatic--preview {
-    color: govuk-colour("dark-blue");
-    font-weight: bold;
-  }
+  &__preview {
 
-  &__manual--preview {
-    color: govuk-colour("orange");
     font-weight: bold;
+
+    &--automatic {
+      color: govuk-colour("dark-blue");
+    }
+
+    &--manual {
+      color: govuk-colour("red");
+    }
+
   }
 
 }
