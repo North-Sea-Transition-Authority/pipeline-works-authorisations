@@ -10,7 +10,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.persistence.EntityManager;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -19,9 +18,6 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureDataJpa;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -103,9 +99,7 @@ public class TaskListServiceIntegrationTest {
 
     var person = PersonTestUtil.createDefaultPerson();
     entityManager.persist(person);
-    var systemWua = new WebUserAccount(1 ,person);
-    Authentication auth = new UsernamePasswordAuthenticationToken(systemWua, null);
-    //SecurityContextHolder.getContext().setAuthentication(auth);
+    var systemWua = new WebUserAccount(1, person);
 
     // by default, conditional app tasks not shown
     pwaApplicationDetail = pwaApplicationCreationService.createInitialPwaApplication(systemWua);
@@ -119,11 +113,6 @@ public class TaskListServiceIntegrationTest {
     when(optionsTemplateService.canShowInTaskList(any())).thenReturn(true);
     when(supplementaryDocumentsService.canShowInTaskList(any())).thenReturn(true);
 
-  }
-
-  @After
-  public void cleanup(){
-    SecurityContextHolder.clearContext();
   }
 
   @Test

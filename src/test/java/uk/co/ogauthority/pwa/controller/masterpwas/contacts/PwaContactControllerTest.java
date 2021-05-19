@@ -355,16 +355,6 @@ public class PwaContactControllerTest extends PwaApplicationContextAbstractContr
 
     var orgGroup = PortalOrganisationTestUtils.generateOrganisationGroup(1, "ORGGRP", "OG");
 
-//    // two org units, both with same group
-//    var orgUnit1 = PortalOrganisationTestUtils.generateOrganisationUnit(2, "OU1", orgGroup);
-//    var orgUnit2 = PortalOrganisationTestUtils.generateOrganisationUnit(3, "OU2", orgGroup);
-//
-//    var role1 = new PadOrganisationRole();
-//    role1.setOrganisationUnit(orgUnit1);
-//
-//    var role2 = new PadOrganisationRole();
-//    role2.setOrganisationUnit(orgUnit2);
-
     when(pwaHolderTeamService.getHolderOrgGroups(any(MasterPwa.class))).thenReturn(Set.of(orgGroup));
 
     mockMvc.perform(get(ReverseRouter.route(on(PwaContactController.class)
