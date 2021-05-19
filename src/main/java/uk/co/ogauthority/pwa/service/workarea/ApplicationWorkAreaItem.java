@@ -3,6 +3,8 @@ package uk.co.ogauthority.pwa.service.workarea;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.Period;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -17,6 +19,7 @@ import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTask;
+import uk.co.ogauthority.pwa.util.DateUtils;
 import uk.co.ogauthority.pwa.util.WorkAreaUtils;
 
 /**
@@ -62,6 +65,7 @@ public abstract class ApplicationWorkAreaItem {
   private String caseOfficerName;
 
   private final boolean openUpdateRequestFlag;
+  private final Instant openUpdateDeadlineTimestamp;
 
   private final String accessUrl;
 
@@ -104,6 +108,7 @@ public abstract class ApplicationWorkAreaItem {
     }
 
     this.openUpdateRequestFlag = applicationDetailItemView.getOpenUpdateRequestFlag();
+    this.openUpdateDeadlineTimestamp = applicationDetailItemView.getOpenUpdateDeadlineTimestamp();
 
   }
 
@@ -223,7 +228,18 @@ public abstract class ApplicationWorkAreaItem {
     }
 
     if (this.openUpdateRequestFlag) {
-      columnItemList.add(WorkAreaColumnItemView.createTagItem(WorkAreaColumnItemView.TagType.DEFAULT, "UPDATE REQUESTED"));
+
+      var periodTillUpdateDue = Period.between(LocalDate.now(), DateUtils.instantToLocalDate(openUpdateDeadlineTimestamp));
+      String updateDueTimeText;
+      if (periodTillUpdateDue.isNegative()) {
+        updateDueTimeText = "UPDATE OVERDUE";
+      } else if (periodTillUpdateDue.isZero()) {
+        updateDueTimeText = "UPDATE DUE TODAY";
+      } else {
+        updateDueTimeText = "UPDATE DUE IN " + periodTillUpdateDue.getDays() + " DAYS";
+      }
+
+      columnItemList.add(WorkAreaColumnItemView.createTagItem(WorkAreaColumnItemView.TagType.DEFAULT, updateDueTimeText));
     }
 
     if (PublicNoticeStatus.APPLICANT_UPDATE.equals(this.publicNoticeStatus)) {

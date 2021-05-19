@@ -82,6 +82,9 @@ public class ApplicationDetailView implements ApplicationDetailItemView {
 
   private boolean openUpdateRequestFlag;
 
+  @Column(name = "open_update_deadline_ts")
+  private Instant openUpdateDeadlineTimestamp;
+
   @Column(name = "open_consultation_req_flag")
   private boolean openConsultationRequestFlag;
 
@@ -328,6 +331,16 @@ public class ApplicationDetailView implements ApplicationDetailItemView {
   @Override
   public void setOpenUpdateRequestFlag(Boolean openUpdateRequestFlag) {
     this.openUpdateRequestFlag = openUpdateRequestFlag;
+  }
+
+  @Override
+  public Instant getOpenUpdateDeadlineTimestamp() {
+    return openUpdateDeadlineTimestamp;
+  }
+
+  @Override
+  public void setOpenUpdateDeadlineTimestamp(Instant openUpdateDeadlineTimestamp) {
+    this.openUpdateDeadlineTimestamp = openUpdateDeadlineTimestamp;
   }
 
   @Override

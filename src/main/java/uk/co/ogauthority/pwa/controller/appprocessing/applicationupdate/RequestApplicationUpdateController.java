@@ -28,6 +28,7 @@ import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
+import uk.co.ogauthority.pwa.validators.appprocessing.appupdaterequest.ApplicationUpdateRequestValidator;
 
 @Controller
 @RequestMapping("/pwa-application/{applicationType}/{applicationId}/request-application-update")
@@ -36,14 +37,17 @@ public class RequestApplicationUpdateController {
 
   private final ControllerHelperService controllerHelperService;
   private final ApplicationUpdateRequestService applicationUpdateRequestService;
+  private final ApplicationUpdateRequestValidator applicationUpdateRequestValidator;
   private final AppProcessingBreadcrumbService appProcessingBreadcrumbService;
 
   @Autowired
   public RequestApplicationUpdateController(ControllerHelperService controllerHelperService,
                                             ApplicationUpdateRequestService applicationUpdateRequestService,
+                                            ApplicationUpdateRequestValidator applicationUpdateRequestValidator,
                                             AppProcessingBreadcrumbService appProcessingBreadcrumbService) {
     this.controllerHelperService = controllerHelperService;
     this.applicationUpdateRequestService = applicationUpdateRequestService;
+    this.applicationUpdateRequestValidator = applicationUpdateRequestValidator;
     this.appProcessingBreadcrumbService = appProcessingBreadcrumbService;
   }
 
@@ -70,6 +74,7 @@ public class RequestApplicationUpdateController {
                                     BindingResult bindingResult) {
     return whenZeroOpenUpdateRequests(processingContext, pwaApplicationDetail -> {
           var modelAndView = getModelAndView(processingContext);
+          applicationUpdateRequestValidator.validate(form, bindingResult);
           return controllerHelperService.checkErrorsAndRedirect(
               bindingResult,
               modelAndView,
@@ -77,7 +82,7 @@ public class RequestApplicationUpdateController {
                 applicationUpdateRequestService.submitApplicationUpdateRequest(
                     processingContext.getApplicationDetail(),
                     authenticatedUserAccount,
-                    form.getRequestReason()
+                    form
                 );
                 return ReverseRouter.redirect(on(CaseManagementController.class)
                     .renderCaseManagement(applicationId, pwaApplicationType, AppProcessingTab.TASKS, null, null));

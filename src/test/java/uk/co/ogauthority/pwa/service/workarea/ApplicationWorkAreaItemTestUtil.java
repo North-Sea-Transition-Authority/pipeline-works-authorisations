@@ -3,6 +3,9 @@ package uk.co.ogauthority.pwa.service.workarea;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.function.Function;
 import uk.co.ogauthority.pwa.controller.ApplicationLandingPageRouterController;
@@ -118,11 +121,12 @@ public class ApplicationWorkAreaItemTestUtil {
 
   }
 
-  public static void test_getApplicationColumn_whenUpdateRequest(ApplicationDetailItemView applicationDetailSearchItem,
-                                                                 Function<ApplicationDetailItemView, ApplicationWorkAreaItem> workAreaItemFunction) {
+  public static void testGetApplicationColumnWhenUpdateRequestWithinDeadline(ApplicationDetailItemView applicationDetailSearchItem,
+                                                                             Function<ApplicationDetailItemView, ApplicationWorkAreaItem> workAreaItemFunction) {
 
     applicationDetailSearchItem.setApplicationType(PwaApplicationType.CAT_1_VARIATION);
     applicationDetailSearchItem.setOpenUpdateRequestFlag(true);
+    applicationDetailSearchItem.setOpenUpdateDeadlineTimestamp(Instant.now().plus(5, ChronoUnit.DAYS));
 
     applicationDetailSearchItem.setPadReference("PAD REFERENCE");
     applicationDetailSearchItem.setPwaReference("PWA REFERENCE");
@@ -133,7 +137,50 @@ public class ApplicationWorkAreaItemTestUtil {
         WorkAreaColumnItemView.createLinkItem("PAD REFERENCE", applicationWorkAreaItem.getAccessUrl()),
         WorkAreaColumnItemView.createTagItem(WorkAreaColumnItemView.TagType.NONE, PwaApplicationType.CAT_1_VARIATION.getDisplayName()),
         WorkAreaColumnItemView.createTagItem(WorkAreaColumnItemView.TagType.NONE, "PWA REFERENCE"),
-        WorkAreaColumnItemView.createTagItem(WorkAreaColumnItemView.TagType.DEFAULT, "UPDATE REQUESTED")
+        WorkAreaColumnItemView.createTagItem(WorkAreaColumnItemView.TagType.DEFAULT,
+            "UPDATE DUE IN 5 DAYS")
+    );
+
+  }
+
+  public static void testGetApplicationColumnWhenUpdateRequestDueToday(ApplicationDetailItemView applicationDetailSearchItem,
+                                                                       Function<ApplicationDetailItemView, ApplicationWorkAreaItem> workAreaItemFunction) {
+
+    applicationDetailSearchItem.setApplicationType(PwaApplicationType.CAT_1_VARIATION);
+    applicationDetailSearchItem.setOpenUpdateRequestFlag(true);
+    applicationDetailSearchItem.setOpenUpdateDeadlineTimestamp(Instant.now());
+
+    applicationDetailSearchItem.setPadReference("PAD REFERENCE");
+    applicationDetailSearchItem.setPwaReference("PWA REFERENCE");
+
+    var applicationWorkAreaItem = workAreaItemFunction.apply(applicationDetailSearchItem);
+
+    assertThat(applicationWorkAreaItem.getApplicationColumn()).containsExactly(
+        WorkAreaColumnItemView.createLinkItem("PAD REFERENCE", applicationWorkAreaItem.getAccessUrl()),
+        WorkAreaColumnItemView.createTagItem(WorkAreaColumnItemView.TagType.NONE, PwaApplicationType.CAT_1_VARIATION.getDisplayName()),
+        WorkAreaColumnItemView.createTagItem(WorkAreaColumnItemView.TagType.NONE, "PWA REFERENCE"),
+        WorkAreaColumnItemView.createTagItem(WorkAreaColumnItemView.TagType.DEFAULT, "UPDATE DUE TODAY")
+    );
+
+  }
+
+  public static void testGetApplicationColumnWhenUpdateRequestOverdue(ApplicationDetailItemView applicationDetailSearchItem,
+                                                                      Function<ApplicationDetailItemView, ApplicationWorkAreaItem> workAreaItemFunction) {
+
+    applicationDetailSearchItem.setApplicationType(PwaApplicationType.CAT_1_VARIATION);
+    applicationDetailSearchItem.setOpenUpdateRequestFlag(true);
+    applicationDetailSearchItem.setOpenUpdateDeadlineTimestamp(Instant.now().minus(1, ChronoUnit.DAYS));
+
+    applicationDetailSearchItem.setPadReference("PAD REFERENCE");
+    applicationDetailSearchItem.setPwaReference("PWA REFERENCE");
+
+    var applicationWorkAreaItem = workAreaItemFunction.apply(applicationDetailSearchItem);
+
+    assertThat(applicationWorkAreaItem.getApplicationColumn()).containsExactly(
+        WorkAreaColumnItemView.createLinkItem("PAD REFERENCE", applicationWorkAreaItem.getAccessUrl()),
+        WorkAreaColumnItemView.createTagItem(WorkAreaColumnItemView.TagType.NONE, PwaApplicationType.CAT_1_VARIATION.getDisplayName()),
+        WorkAreaColumnItemView.createTagItem(WorkAreaColumnItemView.TagType.NONE, "PWA REFERENCE"),
+        WorkAreaColumnItemView.createTagItem(WorkAreaColumnItemView.TagType.DEFAULT, "UPDATE OVERDUE")
     );
 
   }

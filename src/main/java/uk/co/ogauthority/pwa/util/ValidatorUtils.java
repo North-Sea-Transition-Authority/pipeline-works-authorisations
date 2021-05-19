@@ -7,6 +7,7 @@ import java.math.BigDecimal;
 import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.time.YearMonth;
+import java.time.format.DateTimeParseException;
 import java.util.Objects;
 import java.util.function.Supplier;
 import javax.annotation.Nullable;
@@ -167,6 +168,49 @@ public class ValidatorUtils {
         errors
     );
   }
+
+
+
+  /**
+   * Provide standardised error messages to ensure consistent date validation.
+   * Ensures that the date is valid, and the date is either the current day, or is in the future.
+   *
+   * @param fieldName     The name of the field on the form for the error to bind to.
+   * @param displayPrefix The grouped name in the error message. EG: "proposed start".
+   * @param dateStr       The String date to parsed, must be in the format (dd/mm/yyyy) to be successfully parsed
+   * @param errors        Errors object to add rejection codes and messages to.
+   * @return True if date is valid with no errors.
+   */
+  public static boolean validateDatePickerDateIsPresentOrFuture(String fieldName,
+                                                                String displayPrefix,
+                                                                String dateStr,
+                                                                Errors errors) {
+    displayPrefix = displayPrefix.toLowerCase();
+    try {
+
+      ValidationUtils.rejectIfEmptyOrWhitespace(errors, fieldName, REQUIRED.errorCode(fieldName), "Enter a " + displayPrefix);
+
+      if (dateStr != null) {
+        var deadlineDate = DateUtils.datePickerStringToDate(dateStr);
+        if (deadlineDate.isBefore(LocalDate.now())) {
+          errors.rejectValue(fieldName, FieldValidationErrorCodes.BEFORE_TODAY.errorCode(fieldName),
+              StringUtils.capitalize(displayPrefix) + " must be on or after today");
+          return false;
+        }
+        return true;
+      }
+
+      return false;
+
+    } catch (DateTimeParseException e) {
+      errors.rejectValue(fieldName, FieldValidationErrorCodes.INVALID.errorCode(fieldName),
+          StringUtils.capitalize(displayPrefix) + " must be a valid date in the format dd/mm/yyyy");
+      return false;
+    }
+
+  }
+
+
 
   /**
    * Provide standardised error messages to ensure consistent date validation.

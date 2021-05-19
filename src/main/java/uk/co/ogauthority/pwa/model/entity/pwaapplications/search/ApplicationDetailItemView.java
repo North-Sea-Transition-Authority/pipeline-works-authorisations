@@ -57,6 +57,8 @@ public interface ApplicationDetailItemView {
 
   boolean getOpenUpdateRequestFlag();
 
+  Instant getOpenUpdateDeadlineTimestamp();
+
   boolean isOpenConsultationRequestFlag();
 
   PublicNoticeStatus getPublicNoticeStatus();
@@ -134,6 +136,9 @@ public interface ApplicationDetailItemView {
 
   @VisibleForTesting
   void setOpenUpdateRequestFlag(Boolean openUpdateRequestFlag);
+
+  @VisibleForTesting
+  void setOpenUpdateDeadlineTimestamp(Instant deadlineTimestamp);
 
   @VisibleForTesting
   void setOpenConsultationRequestFlag(boolean openConsultationRequestFlag);

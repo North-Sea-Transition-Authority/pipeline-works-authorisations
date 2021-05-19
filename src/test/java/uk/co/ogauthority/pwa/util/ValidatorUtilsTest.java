@@ -7,6 +7,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes.REQUIRED;
+import static uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes.INVALID;
+import static uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes.BEFORE_TODAY;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -19,6 +22,7 @@ import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.Errors;
 import org.springframework.validation.ObjectError;
+import uk.co.ogauthority.pwa.model.form.appprocessing.applicationupdate.ApplicationUpdateRequestForm;
 import uk.co.ogauthority.pwa.model.form.location.CoordinateForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.ProjectInformationForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.PipelineIdentDataForm;
@@ -29,6 +33,8 @@ import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 public class ValidatorUtilsTest {
 
   private ProjectInformationForm projectInformationForm;
+
+  private final String DATE_PICKER_FIELD_NAME = "deadlineTimestampStr";
 
   @Before
   public void setUp() {
@@ -168,6 +174,86 @@ public class ValidatorUtilsTest {
         .doesNotContain("proposedStartDay", "proposedStartMonth", "proposedStartYear");
     assertThat(validationNoErrors).isTrue();
   }
+
+  @Test
+  public void validateDatePickerDateIsPresentOrFuture_null() {
+
+    var form = new ApplicationUpdateRequestForm();
+    Errors errors = new BeanPropertyBindingResult(form, "form");
+    var isDateValid = ValidatorUtils.validateDatePickerDateIsPresentOrFuture(
+        DATE_PICKER_FIELD_NAME, "deadline date", null, errors);
+    assertThat(errors.getAllErrors()).extracting(DefaultMessageSourceResolvable::getCode)
+        .containsExactlyInAnyOrder(REQUIRED.errorCode(DATE_PICKER_FIELD_NAME));
+    assertThat(isDateValid).isFalse();
+  }
+
+
+
+  @Test
+  public void validateDatePickerDateIsPresentOrFuture_invalidDatePickerFormat() {
+
+    var form = new ApplicationUpdateRequestForm();
+    form.setDeadlineTimestampStr("12th Jan 2021");
+
+    Errors errors = new BeanPropertyBindingResult(form, "form");
+    var isDateValid = ValidatorUtils.validateDatePickerDateIsPresentOrFuture(
+        DATE_PICKER_FIELD_NAME, "deadline date", form.getDeadlineTimestampStr(), errors);
+    assertThat(errors.getAllErrors()).extracting(DefaultMessageSourceResolvable::getCode)
+        .containsOnly(INVALID.errorCode(DATE_PICKER_FIELD_NAME));
+    assertThat(isDateValid).isFalse();
+  }
+
+  @Test
+  public void validateDatePickerDateIsPresentOrFuture_dateInThePast() {
+
+    var form = new ApplicationUpdateRequestForm();
+    form.setDeadlineTimestampStr(DateUtils.formatToDatePickerString(LocalDate.now().minusDays(1)));
+
+    Errors errors = new BeanPropertyBindingResult(form, "form");
+    var isDateValid = ValidatorUtils.validateDatePickerDateIsPresentOrFuture(DATE_PICKER_FIELD_NAME, "deadline date",
+        form.getDeadlineTimestampStr(), errors);
+    assertThat(errors.getAllErrors()).extracting(DefaultMessageSourceResolvable::getCode)
+        .containsOnly(BEFORE_TODAY.errorCode(DATE_PICKER_FIELD_NAME));
+    assertThat(isDateValid).isFalse();
+  }
+
+  @Test
+  public void validateDatePickerDateIsPresentOrFuture_dateIsToday() {
+
+    var form = new ApplicationUpdateRequestForm();
+    form.setDeadlineTimestampStr(DateUtils.formatToDatePickerString(LocalDate.now()));
+
+    Errors errors = new BeanPropertyBindingResult(form, "form");
+    var isDateValid = ValidatorUtils.validateDatePickerDateIsPresentOrFuture(DATE_PICKER_FIELD_NAME, "deadline date",
+        form.getDeadlineTimestampStr(), errors);
+    assertThat(errors.getAllErrors()).extracting(DefaultMessageSourceResolvable::getCode)
+        .doesNotContain(
+            REQUIRED.errorCode(DATE_PICKER_FIELD_NAME),
+            INVALID.errorCode(DATE_PICKER_FIELD_NAME),
+            BEFORE_TODAY.errorCode(DATE_PICKER_FIELD_NAME)
+        );
+    assertThat(isDateValid).isTrue();
+  }
+
+  @Test
+  public void validateDatePickerDateIsPresentOrFuture_dateIsInFuture() {
+
+    var form = new ApplicationUpdateRequestForm();
+    form.setDeadlineTimestampStr(DateUtils.formatToDatePickerString(LocalDate.now().plusDays(1)));
+
+    Errors errors = new BeanPropertyBindingResult(form, "form");
+    var isDateValid = ValidatorUtils.validateDatePickerDateIsPresentOrFuture(DATE_PICKER_FIELD_NAME, "deadline date",
+        form.getDeadlineTimestampStr(), errors);
+    assertThat(errors.getAllErrors()).extracting(DefaultMessageSourceResolvable::getCode)
+        .doesNotContain(
+            REQUIRED.errorCode(DATE_PICKER_FIELD_NAME),
+            INVALID.errorCode(DATE_PICKER_FIELD_NAME),
+            BEFORE_TODAY.errorCode(DATE_PICKER_FIELD_NAME)
+        );
+    assertThat(isDateValid).isTrue();
+  }
+
+
 
   @Test
   public void validateDateIsPastOrPresent_Past() {

@@ -15,6 +15,8 @@
 
     <@fdsTextarea.textarea path="form.requestReason" labelText="Why is an update required?" characterCount=true maxCharacterLength="4000" inputClass="govuk-!-width-two-thirds"/>
 
+    <@fdsDatePicker.datePicker path="form.deadlineTimestampStr" labelText="Select a due date for the response of the update request" labelClass="govuk-label--m"/>
+
     <@fdsAction.submitButtons primaryButtonText="Request application update" linkSecondaryAction=true secondaryLinkText="Cancel" linkSecondaryActionUrl=springUrl(cancelUrl)/>
 
   </@fdsForm.htmlForm>

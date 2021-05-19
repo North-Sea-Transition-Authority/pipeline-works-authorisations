@@ -40,6 +40,8 @@ public class ApplicationUpdateRequest {
 
   private String requestReason;
 
+  private Instant deadlineTimestamp;
+
   @Enumerated(EnumType.STRING)
   private ApplicationUpdateRequestStatus status;
 
@@ -59,11 +61,13 @@ public class ApplicationUpdateRequest {
   public static ApplicationUpdateRequest createRequest(PwaApplicationDetail pwaApplicationDetail,
                                          Person creatorPerson,
                                          Clock clock,
-                                         String requestReason) {
+                                         String requestReason,
+                                         Instant deadlineTimestamp) {
     var updateRequest = new ApplicationUpdateRequest();
     updateRequest.setPwaApplicationDetail(pwaApplicationDetail);
     updateRequest.setRequestedByPersonId(creatorPerson.getId());
     updateRequest.setRequestReason(requestReason);
+    updateRequest.setDeadlineTimestamp(deadlineTimestamp);
     updateRequest.setRequestedTimestamp(clock.instant());
     updateRequest.setStatus(ApplicationUpdateRequestStatus.OPEN);
     return updateRequest;
@@ -108,6 +112,14 @@ public class ApplicationUpdateRequest {
 
   public void setRequestReason(String requestReason) {
     this.requestReason = requestReason;
+  }
+
+  public Instant getDeadlineTimestamp() {
+    return deadlineTimestamp;
+  }
+
+  public void setDeadlineTimestamp(Instant deadlineTimestamp) {
+    this.deadlineTimestamp = deadlineTimestamp;
   }
 
   public ApplicationUpdateRequestStatus getStatus() {

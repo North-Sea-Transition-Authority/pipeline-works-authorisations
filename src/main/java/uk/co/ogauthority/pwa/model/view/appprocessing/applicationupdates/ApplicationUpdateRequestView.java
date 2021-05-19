@@ -16,6 +16,12 @@ public interface ApplicationUpdateRequestView {
 
   String getRequestReason();
 
+  Instant getDeadlineTimestamp();
+
+  default String getDeadlineTimestampDisplay() {
+    return DateUtils.formatDate(getDeadlineTimestamp());
+  }
+
   Instant getRequestedTimestamp();
 
   default String getRequestedTimestampDisplay() {
