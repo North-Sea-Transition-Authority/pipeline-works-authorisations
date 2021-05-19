@@ -152,7 +152,7 @@ public class ApplicationSearchDisplayItemTest {
 
   @Test
   public void getApplicationColumn_whenUpdate() {
-    ApplicationWorkAreaItemTestUtil.test_getApplicationColumn_whenUpdateRequest_withinDeadline(
+    ApplicationWorkAreaItemTestUtil.testGetApplicationColumnWhenUpdateRequestWithinDeadline(
         applicationDetailItemView,
         ApplicationSearchDisplayItem::new);
   }

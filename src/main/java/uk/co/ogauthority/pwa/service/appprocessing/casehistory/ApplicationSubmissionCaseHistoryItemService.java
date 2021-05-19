@@ -50,7 +50,7 @@ public class ApplicationSubmissionCaseHistoryItemService implements CaseHistoryI
               .setPersonEmailLabel("Contact email");
 
           if (updateRequestAppDetailMap.containsKey(pwaApplicationDetail)) {
-            builder.addDataItem("Update Request deadline",
+            builder.addDataItem("Update request deadline",
                 DateUtils.formatDate(updateRequestAppDetailMap.get(pwaApplicationDetail).getDeadlineTimestamp()));
           }
 

@@ -182,11 +182,7 @@ public class RequestApplicationUpdateControllerTest extends PwaAppProcessingCont
     when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail, user))
         .thenReturn(permissionsDto);
 
-    doAnswer(invocation -> {
-      var bindingResult = (BindingResult) invocation.getArgument(1);
-      bindingResult.addError(new ObjectError(REQUEST_REASON_ATTR, ""));
-      return null;
-    }).when(applicationUpdateRequestValidator).validate(any(), any());
+    ControllerTestUtils.mockValidatorErrors(applicationUpdateRequestValidator, List.of(REQUEST_REASON_ATTR));
 
     mockMvc.perform(
         post(ReverseRouter.route(on(RequestApplicationUpdateController.class)
@@ -212,11 +208,7 @@ public class RequestApplicationUpdateControllerTest extends PwaAppProcessingCont
     when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail, user))
         .thenReturn(permissionsDto);
 
-    doAnswer(invocation -> {
-      var bindingResult = (BindingResult) invocation.getArgument(1);
-      bindingResult.addError(new ObjectError(REQUEST_REASON_ATTR, ""));
-      return null;
-    }).when(applicationUpdateRequestValidator).validate(any(), any());
+    ControllerTestUtils.mockValidatorErrors(applicationUpdateRequestValidator, List.of(REQUEST_REASON_ATTR));
 
     mockMvc.perform(
         post(ReverseRouter.route(on(RequestApplicationUpdateController.class)

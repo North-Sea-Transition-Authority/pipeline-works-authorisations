@@ -121,8 +121,8 @@ public class ApplicationWorkAreaItemTestUtil {
 
   }
 
-  public static void test_getApplicationColumn_whenUpdateRequest_withinDeadline(ApplicationDetailItemView applicationDetailSearchItem,
-                                                                                Function<ApplicationDetailItemView, ApplicationWorkAreaItem> workAreaItemFunction) {
+  public static void testGetApplicationColumnWhenUpdateRequestWithinDeadline(ApplicationDetailItemView applicationDetailSearchItem,
+                                                                             Function<ApplicationDetailItemView, ApplicationWorkAreaItem> workAreaItemFunction) {
 
     applicationDetailSearchItem.setApplicationType(PwaApplicationType.CAT_1_VARIATION);
     applicationDetailSearchItem.setOpenUpdateRequestFlag(true);
@@ -143,8 +143,8 @@ public class ApplicationWorkAreaItemTestUtil {
 
   }
 
-  public static void test_getApplicationColumn_whenUpdateRequest_dueToday(ApplicationDetailItemView applicationDetailSearchItem,
-                                                                                Function<ApplicationDetailItemView, ApplicationWorkAreaItem> workAreaItemFunction) {
+  public static void testGetApplicationColumnWhenUpdateRequestDueToday(ApplicationDetailItemView applicationDetailSearchItem,
+                                                                       Function<ApplicationDetailItemView, ApplicationWorkAreaItem> workAreaItemFunction) {
 
     applicationDetailSearchItem.setApplicationType(PwaApplicationType.CAT_1_VARIATION);
     applicationDetailSearchItem.setOpenUpdateRequestFlag(true);
@@ -164,8 +164,8 @@ public class ApplicationWorkAreaItemTestUtil {
 
   }
 
-  public static void test_getApplicationColumn_whenUpdateRequest_overdue(ApplicationDetailItemView applicationDetailSearchItem,
-                                                                                Function<ApplicationDetailItemView, ApplicationWorkAreaItem> workAreaItemFunction) {
+  public static void testGetApplicationColumnWhenUpdateRequestOverdue(ApplicationDetailItemView applicationDetailSearchItem,
+                                                                      Function<ApplicationDetailItemView, ApplicationWorkAreaItem> workAreaItemFunction) {
 
     applicationDetailSearchItem.setApplicationType(PwaApplicationType.CAT_1_VARIATION);
     applicationDetailSearchItem.setOpenUpdateRequestFlag(true);

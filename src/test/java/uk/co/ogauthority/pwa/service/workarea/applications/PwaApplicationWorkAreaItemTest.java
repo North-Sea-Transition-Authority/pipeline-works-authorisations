@@ -242,21 +242,21 @@ public class PwaApplicationWorkAreaItemTest {
 
   @Test
   public void getApplicationColumn_whenUpdate_withinDeadline() {
-    ApplicationWorkAreaItemTestUtil.test_getApplicationColumn_whenUpdateRequest_withinDeadline(
+    ApplicationWorkAreaItemTestUtil.testGetApplicationColumnWhenUpdateRequestWithinDeadline(
         workAreaApplicationDetailSearchItem,
         PwaApplicationWorkAreaItem::new);
   }
 
   @Test
   public void getApplicationColumn_whenUpdate_dueToday() {
-    ApplicationWorkAreaItemTestUtil.test_getApplicationColumn_whenUpdateRequest_dueToday(
+    ApplicationWorkAreaItemTestUtil.testGetApplicationColumnWhenUpdateRequestDueToday(
         workAreaApplicationDetailSearchItem,
         PwaApplicationWorkAreaItem::new);
   }
 
   @Test
   public void getApplicationColumn_whenUpdate_overdue() {
-    ApplicationWorkAreaItemTestUtil.test_getApplicationColumn_whenUpdateRequest_overdue(
+    ApplicationWorkAreaItemTestUtil.testGetApplicationColumnWhenUpdateRequestOverdue(
         workAreaApplicationDetailSearchItem,
         PwaApplicationWorkAreaItem::new);
   }

@@ -188,7 +188,7 @@ public class ValidatorUtils {
     displayPrefix = displayPrefix.toLowerCase();
     try {
 
-      ValidationUtils.rejectIfEmptyOrWhitespace(errors, fieldName, REQUIRED.errorCode(fieldName), "You must enter a " + displayPrefix);
+      ValidationUtils.rejectIfEmptyOrWhitespace(errors, fieldName, REQUIRED.errorCode(fieldName), "Enter a " + displayPrefix);
 
       if (dateStr != null) {
         var deadlineDate = DateUtils.datePickerStringToDate(dateStr);

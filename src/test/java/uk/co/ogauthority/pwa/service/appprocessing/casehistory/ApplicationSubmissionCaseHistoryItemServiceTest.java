@@ -93,13 +93,13 @@ public class ApplicationSubmissionCaseHistoryItemServiceTest {
         new CaseHistoryItemView.Builder("Application version 1 submitted", APP_DETAIL_1_SUBMITTED, PERSON_ID1)
             .setPersonLabelText("Submitted by")
             .setPersonEmailLabel("Contact email")
-            .addDataItem("Update Request deadline",
+            .addDataItem("Update request deadline",
                 DateUtils.formatDate(detail1AppUpdateRequest.getDeadlineTimestamp()))
             .build(),
         new CaseHistoryItemView.Builder("Application version 2 submitted", APP_DETAIL_2_SUBMITTED, PERSON_ID2)
             .setPersonLabelText("Submitted by")
             .setPersonEmailLabel("Contact email")
-            .addDataItem("Update Request deadline",
+            .addDataItem("Update request deadline",
                 DateUtils.formatDate(detail2AppUpdateRequest.getDeadlineTimestamp()))
             .build()
     );
