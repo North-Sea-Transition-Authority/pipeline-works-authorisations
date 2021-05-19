@@ -1,9 +1,8 @@
 package uk.co.ogauthority.pwa.model.documents.view;
 
-import com.google.common.annotations.VisibleForTesting;
 import java.util.ArrayList;
 import java.util.List;
-import uk.co.ogauthority.pwa.model.documents.instances.DocumentInstanceSectionClauseVersionDto;
+import uk.co.ogauthority.pwa.model.documents.SectionClauseVersionDto;
 
 public class SectionClauseVersionView {
 
@@ -23,7 +22,6 @@ public class SectionClauseVersionView {
 
   private List<SectionClauseVersionView> childClauses;
 
-  @VisibleForTesting
   public SectionClauseVersionView() {
 
   }
@@ -45,13 +43,13 @@ public class SectionClauseVersionView {
     childClauses = new ArrayList<>();
   }
 
-  public static SectionClauseVersionView from(DocumentInstanceSectionClauseVersionDto instanceSectionClauseVersionDto) {
+  public static SectionClauseVersionView from(SectionClauseVersionDto instanceSectionClauseVersionDto) {
     return new SectionClauseVersionView(
-        instanceSectionClauseVersionDto.getDiscvId(),
-        instanceSectionClauseVersionDto.getDiscId(),
+        instanceSectionClauseVersionDto.getVersionId(),
+        instanceSectionClauseVersionDto.getClauseId(),
         instanceSectionClauseVersionDto.getName(),
         instanceSectionClauseVersionDto.getText(),
-        instanceSectionClauseVersionDto.getParentDiscId(),
+        instanceSectionClauseVersionDto.getParentClauseId(),
         instanceSectionClauseVersionDto.getLevelNumber(),
         instanceSectionClauseVersionDto.getLevelOrder()
     );

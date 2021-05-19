@@ -7,7 +7,7 @@
 
   <@sectionHeader sectionType=sectionType />
 
-  <@pwaClauseList.list documentView=docView clauseActionsUrlFactory="" showSectionHeading=false showClauseHeadings=sectionType.clauseDisplay == "SHOW_HEADING" />
+  <@pwaClauseList.list documentView=docView clauseActionsUrlProvider="" showSectionHeading=false showClauseHeadings=sectionType.clauseDisplay == "SHOW_HEADING" />
 
 </div>
 

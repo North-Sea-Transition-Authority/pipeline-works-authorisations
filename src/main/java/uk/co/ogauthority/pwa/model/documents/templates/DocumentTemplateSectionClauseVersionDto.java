@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.model.documents.instances;
+package uk.co.ogauthority.pwa.model.documents.templates;
 
 import java.time.Instant;
 import javax.persistence.Basic;
@@ -13,25 +13,31 @@ import org.hibernate.annotations.Immutable;
 import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
 import uk.co.ogauthority.pwa.model.documents.SectionClauseVersionDto;
 import uk.co.ogauthority.pwa.model.entity.converters.PersonIdConverter;
+import uk.co.ogauthority.pwa.model.entity.enums.documents.DocumentTemplateMnem;
+import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocumentSection;
 import uk.co.ogauthority.pwa.model.enums.documents.SectionClauseVersionStatus;
 
 @Entity
 @Immutable
-@Table(name = "vw_di_clause_versions")
-public class DocumentInstanceSectionClauseVersionDto implements SectionClauseVersionDto {
+@Table(name = "vw_dt_clause_versions")
+public class DocumentTemplateSectionClauseVersionDto implements SectionClauseVersionDto {
 
   @Id
-  @Column(name = "discv_id")
-  private Integer discvId;
+  @Column(name = "scv_id")
+  private Integer scvId;
 
-  // not mapped for performance benefit, not needed beyond querying
-  @Column(name = "di_id")
-  private Integer diId;
+  private Integer dtId;
 
-  private String sectionName;
+  @Column(name = "dt_mnem")
+  @Enumerated(EnumType.STRING)
+  private DocumentTemplateMnem documentTemplateMnem;
 
-  @Column(name = "di_sc_id")
-  private Integer discId;
+  @Column(name = "section_name")
+  @Enumerated(EnumType.STRING)
+  private DocumentSection section;
+
+  @Column(name = "sc_id")
+  private Integer scId;
 
   private Integer versionNo;
 
@@ -41,8 +47,8 @@ public class DocumentInstanceSectionClauseVersionDto implements SectionClauseVer
 
   private String text;
 
-  @Column(name = "parent_di_sc_id")
-  private Integer parentDiscId;
+  @Column(name = "parent_sc_id")
+  private Integer parentScId;
 
   private Integer levelNumber;
 
@@ -65,42 +71,59 @@ public class DocumentInstanceSectionClauseVersionDto implements SectionClauseVer
   @Column(name = "ended_by_person_id")
   private PersonId endedByPersonId;
 
-  public DocumentInstanceSectionClauseVersionDto() {
+  public DocumentTemplateSectionClauseVersionDto() {
   }
 
-  public Integer getDiscvId() {
-    return discvId;
+  public Integer getScvId() {
+    return scvId;
   }
 
   @Override
   public Integer getVersionId() {
-    return getDiscvId();
+    return getScvId();
   }
 
-  public void setDiscvId(Integer discvId) {
-    this.discvId = discvId;
+  public void setScvId(Integer scvId) {
+    this.scvId = scvId;
   }
 
-  public void setDiId(Integer diId) {
-    this.diId = diId;
+  public Integer getDtId() {
+    return dtId;
+  }
+
+  public void setDtId(Integer dtId) {
+    this.dtId = dtId;
+  }
+
+  public DocumentTemplateMnem getDocumentTemplateMnem() {
+    return documentTemplateMnem;
+  }
+
+  public void setDocumentTemplateMnem(
+      DocumentTemplateMnem documentTemplateMnem) {
+    this.documentTemplateMnem = documentTemplateMnem;
+  }
+
+  public DocumentSection getSection() {
+    return section;
+  }
+
+  public void setSection(DocumentSection section) {
+    this.section = section;
   }
 
   @Override
   public String getSectionName() {
-    return sectionName;
-  }
-
-  public void setSectionName(String sectionName) {
-    this.sectionName = sectionName;
+    return section.name();
   }
 
   @Override
   public Integer getClauseId() {
-    return discId;
+    return scId;
   }
 
-  public void setClauseId(Integer discId) {
-    this.discId = discId;
+  public void setClauseId(Integer scId) {
+    this.scId = scId;
   }
 
   @Override
@@ -141,11 +164,11 @@ public class DocumentInstanceSectionClauseVersionDto implements SectionClauseVer
 
   @Override
   public Integer getParentClauseId() {
-    return parentDiscId;
+    return parentScId;
   }
 
-  public void setParentClauseId(Integer parentDiscId) {
-    this.parentDiscId = parentDiscId;
+  public void setParentClauseId(Integer parentScId) {
+    this.parentScId = parentScId;
   }
 
   @Override

@@ -18,9 +18,9 @@
 
 </#macro>
 
-<#macro list documentView clauseActionsUrlFactory listClass="number" childListClass="lower-alpha" showSectionHeading=true showClauseHeadings=true>
+<#macro list documentView clauseActionsUrlProvider listClass="number" childListClass="lower-alpha" showSectionHeading=true showClauseHeadings=true>
 
-  <div class="clause-list">
+  <div class="pwa-clause-list">
 
     <#list documentView.sections as section>
 
@@ -30,7 +30,7 @@
         <h2 class="govuk-heading-l">${section.name}</h2>
       </#if>
 
-      <ol class="govuk-list govuk-list--${listClass} clause-list__list clause-list__list--${listClass}">
+      <ol class="govuk-list govuk-list--${listClass} pwa-clause-list__list pwa-clause-list__list--${listClass}">
 
         <#list section.clauses as clauseView>
 
@@ -38,7 +38,7 @@
 
             <@clause
               clauseView=clauseView
-              clauseActionsUrlFactory=clauseActionsUrlFactory
+              clauseActionsUrlProvider=clauseActionsUrlProvider
               listClass=childListClass
               isLastInList=isLastInList
               addAndRemoveClauseAllowed=addAndRemoveClauseAllowed
@@ -54,7 +54,7 @@
 
 </#macro>
 
-<#macro clause clauseView clauseActionsUrlFactory listClass isLastInList addAndRemoveClauseAllowed
+<#macro clause clauseView clauseActionsUrlProvider listClass isLastInList addAndRemoveClauseAllowed
   headingSize="h3"
   headingClass="m"
   childHeadingSize="h4"
@@ -62,9 +62,9 @@
   childListClass="lower-roman"
   showClauseHeading=true>
 
-  <#assign clauseActionsFlag = clauseActionsUrlFactory?has_content />
+  <#assign clauseActionsFlag = clauseActionsUrlProvider?has_content />
 
-  <li id="clauseId-${clauseView.clauseId?c}" class="clause-list__list-item">
+  <li id="clauseId-${clauseView.clauseId?c}" class="pwa-clause-list__list-item">
 
     <#if showClauseHeading>
       <${headingSize} class="govuk-heading-${headingClass} govuk-!-margin-bottom-2">${clauseView.name}</${headingSize}>
@@ -73,42 +73,42 @@
           <@fdsActionDropdown.actionDropdownItem
             actionText="Add clause above"
             linkAction=true
-            linkActionUrl=springUrl(clauseActionsUrlFactory.getAddClauseBeforeRoute(clauseView.clauseId))
+            linkActionUrl=springUrl(clauseActionsUrlProvider.getAddClauseBeforeRoute(clauseView.clauseId))
             linkActionScreenReaderText=clauseView.name/>
           <#if isLastInList>
             <@fdsActionDropdown.actionDropdownItem
               actionText="Add clause below"
               linkAction=true
-              linkActionUrl=springUrl(clauseActionsUrlFactory.getAddClauseAfterRoute(clauseView.clauseId))
+              linkActionUrl=springUrl(clauseActionsUrlProvider.getAddClauseAfterRoute(clauseView.clauseId))
               linkActionScreenReaderText="after ${clauseView.name}" />
           </#if>
           <#if !clauseView.childClauses?has_content && (clauseView.levelNumber == 1 || clauseView.levelNumber == 2)>
             <@fdsActionDropdown.actionDropdownItem
               actionText="Add sub-clause"
               linkAction=true
-              linkActionUrl=springUrl(clauseActionsUrlFactory.getAddSubClauseRoute(clauseView.clauseId))
+              linkActionUrl=springUrl(clauseActionsUrlProvider.getAddSubClauseRoute(clauseView.clauseId))
               linkActionScreenReaderText="for ${clauseView.name}"/>
           </#if>
           <@fdsActionDropdown.actionDropdownItem
             actionText="Edit clause"
             linkAction=true
-            linkActionUrl=springUrl(clauseActionsUrlFactory.getEditClauseRoute(clauseView.clauseId))
+            linkActionUrl=springUrl(clauseActionsUrlProvider.getEditClauseRoute(clauseView.clauseId))
             linkActionScreenReaderText=clauseView.name />
           <@fdsActionDropdown.actionDropdownItem
             actionText="Remove"
             linkAction=true
-            linkActionUrl=springUrl(clauseActionsUrlFactory.getRemoveClauseRoute(clauseView.clauseId))
+            linkActionUrl=springUrl(clauseActionsUrlProvider.getRemoveClauseRoute(clauseView.clauseId))
             linkActionScreenReaderText=clauseView.name />
         </@fdsActionDropdown.actionDropdown>
         <#elseif clauseActionsFlag && !addAndRemoveClauseAllowed>
           <@fdsAction.link
             linkText="Edit clause"
-            linkUrl=springUrl(clauseActionsUrlFactory.getEditClauseRoute(clauseView.clauseId))
+            linkUrl=springUrl(clauseActionsUrlProvider.getEditClauseRoute(clauseView.clauseId))
             linkScreenReaderText=clauseView.name />
       </#if>
     </#if>
 
-    <@multiLineText.multiLineText blockClass="clause-list__text">
+    <@multiLineText.multiLineText blockClass="pwa-clause-list__text">
       <#if clauseView.text?has_content>
         ${clauseView.text?no_esc}
       </#if>
@@ -116,7 +116,7 @@
 
     <#if clauseView.childClauses?has_content>
 
-      <ol class="govuk-list govuk-list--${listClass} clause-list__list clause-list__list--${listClass}">
+      <ol class="govuk-list govuk-list--${listClass} pwa-clause-list__list pwa-clause-list__list--${listClass}">
 
           <#list clauseView.childClauses as child>
 
@@ -124,7 +124,7 @@
 
             <@clause
               clauseView=child
-              clauseActionsUrlFactory=clauseActionsUrlFactory
+              clauseActionsUrlProvider=clauseActionsUrlProvider
               headingSize=childHeadingSize
               headingClass=childHeadingClass
               listClass=childListClass

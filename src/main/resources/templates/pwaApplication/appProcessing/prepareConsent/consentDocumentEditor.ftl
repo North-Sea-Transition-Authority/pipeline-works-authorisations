@@ -4,8 +4,8 @@
 
 <#-- @ftlvariable name="caseSummaryView" type="uk.co.ogauthority.pwa.service.appprocessing.context.CaseSummaryView" -->
 <#-- @ftlvariable name="docInstanceExists" type="java.lang.Boolean" -->
-<#-- @ftlvariable name="consentDocumentUrlFactory" type="uk.co.ogauthority.pwa.service.appprocessing.prepareconsent.ConsentDocumentUrlFactory" -->
-<#-- @ftlvariable name="clauseActionsUrlFactory" type="uk.co.ogauthority.pwa.service.documents.ClauseActionsUrlFactory" -->
+<#-- @ftlvariable name="consentDocumentUrlProvider" type="uk.co.ogauthority.pwa.service.appprocessing.prepareconsent.ConsentDocumentUrlProvider" -->
+<#-- @ftlvariable name="clauseActionsUrlProvider" type="uk.co.ogauthority.pwa.service.documents.ClauseActionsUrlProvider" -->
 <#-- @ftlvariable name="docView" type="uk.co.ogauthority.pwa.model.documents.view.DocumentView" -->
 <#-- @ftlvariable name="userProcessingPermissions" type="java.util.Set<uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission>" -->
 <#-- @ftlvariable name="automaticMailMergePreviewClasses" type="String" -->
@@ -33,13 +33,13 @@
 
       <#if !docInstanceExists>
 
-          <@fdsForm.htmlForm actionUrl=springUrl(consentDocumentUrlFactory.loadDocumentUrl)>
+          <@fdsForm.htmlForm actionUrl=springUrl(consentDocumentUrlProvider.loadDocumentUrl)>
               <@fdsAction.button buttonText="Load document" />
           </@fdsForm.htmlForm>
 
       <#else>
 
-          <@consentActions.actions userProcessingPermissions consentDocumentUrlFactory />
+          <@consentActions.actions userProcessingPermissions consentDocumentUrlProvider />
 
       </#if>
 
@@ -50,8 +50,7 @@
           <p>Phrases shown in <span class="${manualMailMergePreviewClasses}">red</span> must be edited before the consent can be sent for approval.</p>
         </@fdsInsetText.insetText>
 
-        <@pwaClauseList.list documentView=docView clauseActionsUrlFactory=clauseActionsUrlFactory/>
-
+        <@pwaClauseList.list documentView=docView clauseActionsUrlProvider=clauseActionsUrlProvider/>
       </#if>
 
     </@defaultPagePaneContent>

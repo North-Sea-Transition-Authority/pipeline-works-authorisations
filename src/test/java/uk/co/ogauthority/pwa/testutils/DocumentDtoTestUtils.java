@@ -180,12 +180,12 @@ public class DocumentDtoTestUtils {
                                                                                              int levelNumber,
                                                                                              int discId) {
     var dto1 = new DocumentInstanceSectionClauseVersionDto();
-    dto1.setStatus(SectionClauseVersionStatus.ACTIVE.name());
+    dto1.setStatus(SectionClauseVersionStatus.ACTIVE);
     dto1.setSectionName(sectionName);
     dto1.setName("name1");
     dto1.setText(text);
     dto1.setLevelNumber(levelNumber);
-    dto1.setDiscId(discId);
+    dto1.setClauseId(discId);
     return dto1;
   }
 

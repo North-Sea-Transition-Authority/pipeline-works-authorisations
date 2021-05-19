@@ -50,7 +50,7 @@ public class DocumentServiceTest {
 
     when(documentTemplateService.populateDocumentDtoFromTemplateMnem(DocumentTemplateMnem.PWA_CONSENT_DOCUMENT, PwaApplicationType.INITIAL.getConsentDocumentSpec())).thenReturn(docDto);
 
-    documentService.createDocumentInstance(app, DocumentTemplateMnem.PWA_CONSENT_DOCUMENT, person);
+    documentService.createDocumentInstance(app, person);
 
     verify(documentTemplateService, times(1)).populateDocumentDtoFromTemplateMnem(DocumentTemplateMnem.PWA_CONSENT_DOCUMENT, PwaApplicationType.INITIAL.getConsentDocumentSpec());
 
@@ -64,7 +64,7 @@ public class DocumentServiceTest {
     var app = new PwaApplication();
     app.setApplicationType(PwaApplicationType.INITIAL);
 
-    documentService.reloadDocumentInstance(app, DocumentTemplateMnem.PWA_CONSENT_DOCUMENT, new Person());
+    documentService.reloadDocumentInstance(app, new Person());
 
     verify(documentInstanceService, times(1)).clearClauses(app, DocumentTemplateMnem.PWA_CONSENT_DOCUMENT);
 

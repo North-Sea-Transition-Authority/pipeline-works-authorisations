@@ -37,14 +37,14 @@ import uk.co.ogauthority.pwa.service.appprocessing.AppProcessingBreadcrumbServic
 import uk.co.ogauthority.pwa.service.appprocessing.consentreview.ConsentReviewService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.service.appprocessing.prepareconsent.ConsentDocumentService;
-import uk.co.ogauthority.pwa.service.appprocessing.prepareconsent.ConsentDocumentUrlFactory;
+import uk.co.ogauthority.pwa.service.appprocessing.prepareconsent.ConsentDocumentUrlProvider;
 import uk.co.ogauthority.pwa.service.appprocessing.prepareconsent.FailedSendForApprovalCheck;
 import uk.co.ogauthority.pwa.service.appprocessing.prepareconsent.PreSendForApprovalChecksView;
 import uk.co.ogauthority.pwa.service.appprocessing.prepareconsent.PrepareConsentTaskService;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
-import uk.co.ogauthority.pwa.service.documents.ClauseActionsUrlFactory;
 import uk.co.ogauthority.pwa.service.documents.DocumentService;
 import uk.co.ogauthority.pwa.service.documents.generation.DocumentGenerationService;
+import uk.co.ogauthority.pwa.service.documents.instances.DocumentInstanceClauseActionsUrlProvider;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingTask;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
@@ -116,10 +116,10 @@ public class AppConsentDocController {
           var modelAndView = new ModelAndView("pwaApplication/appProcessing/prepareConsent/consentDocumentEditor")
               .addObject("caseSummaryView", processingContext.getCaseSummaryView())
               .addObject("docInstanceExists", docInstanceOpt.isPresent())
-              .addObject("consentDocumentUrlFactory",
-                  new ConsentDocumentUrlFactory(processingContext.getPwaApplication()))
-              .addObject("clauseActionsUrlFactory",
-                  new ClauseActionsUrlFactory(processingContext.getPwaApplication(), docView))
+              .addObject("consentDocumentUrlProvider",
+                  new ConsentDocumentUrlProvider(processingContext.getPwaApplication()))
+              .addObject("clauseActionsUrlProvider",
+                  new DocumentInstanceClauseActionsUrlProvider(processingContext.getPwaApplication(), docView))
               .addObject("docView", docView)
               .addObject("userProcessingPermissions", processingContext.getAppProcessingPermissions())
               .addObject("automaticMailMergePreviewClasses", mailMergeService.getMailMergePreviewClasses(MailMergeFieldType.AUTOMATIC))
@@ -195,7 +195,6 @@ public class AppConsentDocController {
 
           documentService.createDocumentInstance(
               processingContext.getPwaApplication(),
-              DocumentTemplateMnem.PWA_CONSENT_DOCUMENT,
               authenticatedUserAccount.getLinkedPerson());
 
           FlashUtils.info(redirectAttributes, "Document loaded");
@@ -221,8 +220,8 @@ public class AppConsentDocController {
         redirectAttributes,
         () -> new ModelAndView("pwaApplication/appProcessing/prepareConsent/reloadDocumentConfirm")
             .addObject("appRef", processingContext.getPwaApplication().getAppReference())
-            .addObject("consentDocumentUrlFactory",
-                new ConsentDocumentUrlFactory(processingContext.getPwaApplication())));
+            .addObject("consentDocumentUrlProvider",
+                new ConsentDocumentUrlProvider(processingContext.getPwaApplication())));
 
   }
 
@@ -242,7 +241,6 @@ public class AppConsentDocController {
 
           documentService.reloadDocumentInstance(
               processingContext.getPwaApplication(),
-              DocumentTemplateMnem.PWA_CONSENT_DOCUMENT,
               authenticatedUserAccount.getLinkedPerson());
 
           FlashUtils.info(redirectAttributes, "Document reloaded");

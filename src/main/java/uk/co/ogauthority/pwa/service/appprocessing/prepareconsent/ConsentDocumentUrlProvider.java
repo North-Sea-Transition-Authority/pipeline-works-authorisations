@@ -7,11 +7,11 @@ import uk.co.ogauthority.pwa.controller.appprocessing.prepareconsent.ConsentRevi
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 
-public class ConsentDocumentUrlFactory {
+public class ConsentDocumentUrlProvider {
 
   private final PwaApplication application;
 
-  public ConsentDocumentUrlFactory(PwaApplication application) {
+  public ConsentDocumentUrlProvider(PwaApplication application) {
     this.application = application;
   }
 

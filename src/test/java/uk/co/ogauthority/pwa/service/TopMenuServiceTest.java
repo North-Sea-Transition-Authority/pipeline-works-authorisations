@@ -77,4 +77,15 @@ public class TopMenuServiceTest {
         .containsExactly(TopMenuService.CONSENT_SEARCH_TITLE);
   }
 
+  @Test
+  public void getTopMenuItems_templateClauseManagementOnly() {
+
+    when(systemAreaAccessService.canAccessTemplateClauseManagement(any())).thenReturn(true);
+
+    assertThat(topMenuService.getTopMenuItems(userAccount))
+        .extracting(TopMenuItem::getDisplayName)
+        .containsExactly(TopMenuService.TEMPLATE_CLAUSE_MANAGE_TITLE);
+
+  }
+
 }

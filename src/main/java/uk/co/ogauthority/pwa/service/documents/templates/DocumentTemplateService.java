@@ -6,15 +6,20 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.exception.documents.DocumentTemplateException;
+import uk.co.ogauthority.pwa.model.documents.SectionClauseVersionDto;
 import uk.co.ogauthority.pwa.model.documents.templates.DocumentTemplateDto;
+import uk.co.ogauthority.pwa.model.documents.view.DocumentView;
 import uk.co.ogauthority.pwa.model.entity.documents.templates.DocumentTemplateSection;
 import uk.co.ogauthority.pwa.model.entity.documents.templates.DocumentTemplateSectionClauseVersion;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.DocumentTemplateMnem;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocumentSpec;
 import uk.co.ogauthority.pwa.model.enums.documents.DocumentTemplateSectionStatus;
+import uk.co.ogauthority.pwa.model.enums.documents.PwaDocumentType;
+import uk.co.ogauthority.pwa.repository.documents.templates.DocumentTemplateSectionClauseVersionDtoRepository;
 import uk.co.ogauthority.pwa.repository.documents.templates.DocumentTemplateSectionClauseVersionRepository;
 import uk.co.ogauthority.pwa.repository.documents.templates.DocumentTemplateSectionRepository;
 import uk.co.ogauthority.pwa.service.documents.DocumentDtoFactory;
+import uk.co.ogauthority.pwa.service.documents.DocumentViewService;
 
 @Service
 public class DocumentTemplateService {
@@ -22,14 +27,20 @@ public class DocumentTemplateService {
   private final DocumentTemplateSectionRepository sectionRepository;
   private final DocumentTemplateSectionClauseVersionRepository clauseVersionRepository;
   private final DocumentDtoFactory documentDtoFactory;
+  private final DocumentViewService documentViewService;
+  private final DocumentTemplateSectionClauseVersionDtoRepository sectionClauseVersionDtoRepository;
 
   @Autowired
   public DocumentTemplateService(DocumentTemplateSectionRepository sectionRepository,
                                  DocumentTemplateSectionClauseVersionRepository clauseVersionRepository,
-                                 DocumentDtoFactory documentDtoFactory) {
+                                 DocumentDtoFactory documentDtoFactory,
+                                 DocumentViewService documentViewService,
+                                 DocumentTemplateSectionClauseVersionDtoRepository sectionClauseVersionDtoRepository) {
     this.sectionRepository = sectionRepository;
     this.clauseVersionRepository = clauseVersionRepository;
     this.documentDtoFactory = documentDtoFactory;
+    this.documentViewService = documentViewService;
+    this.sectionClauseVersionDtoRepository = sectionClauseVersionDtoRepository;
   }
 
   /**
@@ -60,6 +71,24 @@ public class DocumentTemplateService {
         .collect(Collectors.groupingBy(version -> version.getClause().getDocumentTemplateSection()));
 
     return documentDtoFactory.create(sectionToCurrentClauseVersionMap);
+
+  }
+
+  public DocumentView getDocumentView(DocumentSpec documentSpec) {
+
+    var templateMnem = DocumentTemplateMnem.getMnemFromDocumentSpec(documentSpec);
+
+    var docSource = new TemplateDocumentSource(templateMnem, documentSpec);
+
+    var sections = documentSpec.getDocumentSectionDisplayOrderMap().keySet();
+
+    var clauseVersionDtos = sectionClauseVersionDtoRepository
+        .findAllByDocumentTemplateMnemAndSectionIn(templateMnem, sections)
+        .stream()
+        .map(SectionClauseVersionDto.class::cast)
+        .collect(Collectors.toList());
+
+    return documentViewService.createDocumentView(PwaDocumentType.TEMPLATE, docSource, clauseVersionDtos);
 
   }
 

@@ -36,7 +36,6 @@ import uk.co.ogauthority.pwa.controller.PwaAppProcessingContextAbstractControlle
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.dto.appprocessing.ProcessingPermissionsDto;
 import uk.co.ogauthority.pwa.model.entity.documents.instances.DocumentInstance;
-import uk.co.ogauthority.pwa.model.entity.enums.documents.DocumentTemplateMnem;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.PwaAppProcessingPermissionService;
@@ -198,7 +197,7 @@ public class AppConsentDocControllerTest extends PwaAppProcessingContextAbstract
         .with(csrf()))
         .andExpect(status().is3xxRedirection());
 
-    verify(documentService, times(1)).createDocumentInstance(pwaApplicationDetail.getPwaApplication(), DocumentTemplateMnem.PWA_CONSENT_DOCUMENT, user.getLinkedPerson());
+    verify(documentService, times(1)).createDocumentInstance(pwaApplicationDetail.getPwaApplication(), user.getLinkedPerson());
 
   }
 
@@ -303,7 +302,7 @@ public class AppConsentDocControllerTest extends PwaAppProcessingContextAbstract
         .with(csrf()))
         .andExpect(status().is3xxRedirection());
 
-    verify(documentService, times(1)).reloadDocumentInstance(pwaApplicationDetail.getPwaApplication(), DocumentTemplateMnem.PWA_CONSENT_DOCUMENT, user.getLinkedPerson());
+    verify(documentService, times(1)).reloadDocumentInstance(pwaApplicationDetail.getPwaApplication(), user.getLinkedPerson());
 
   }
 
@@ -317,7 +316,7 @@ public class AppConsentDocControllerTest extends PwaAppProcessingContextAbstract
         .with(csrf()))
         .andExpect(status().is3xxRedirection());
 
-    verify(documentService, times(0)).reloadDocumentInstance(pwaApplicationDetail.getPwaApplication(), DocumentTemplateMnem.PWA_CONSENT_DOCUMENT, user.getLinkedPerson());
+    verify(documentService, times(0)).reloadDocumentInstance(pwaApplicationDetail.getPwaApplication(), user.getLinkedPerson());
 
   }
 
@@ -331,7 +330,7 @@ public class AppConsentDocControllerTest extends PwaAppProcessingContextAbstract
         .with(csrf()))
         .andExpect(status().is3xxRedirection());
 
-    verify(documentService, times(0)).reloadDocumentInstance(any(), any(), any());
+    verify(documentService, times(0)).reloadDocumentInstance(any(), any());
 
   }
 

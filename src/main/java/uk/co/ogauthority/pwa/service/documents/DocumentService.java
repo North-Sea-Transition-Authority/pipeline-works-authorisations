@@ -28,17 +28,19 @@ public class DocumentService {
   /**
    * Create a document instance based on a document template.
    * @param application document is being created for
-   * @param templateMnem identifier to allow use of correct template
    * @param creatingUser person creating document
    *
    */
   @Transactional
   public void createDocumentInstance(PwaApplication application,
-                                     DocumentTemplateMnem templateMnem,
                                      Person creatingUser) {
 
+    var documentSpec = application.getApplicationType().getConsentDocumentSpec();
+
+    var templateMnem = DocumentTemplateMnem.getMnemFromDocumentSpec(documentSpec);
+
     var documentDto = documentTemplateService
-        .populateDocumentDtoFromTemplateMnem(templateMnem, application.getApplicationType().getConsentDocumentSpec());
+        .populateDocumentDtoFromTemplateMnem(templateMnem, documentSpec);
 
     documentInstanceService.createFromDocumentDto(application, documentDto, creatingUser);
 
@@ -47,17 +49,17 @@ public class DocumentService {
   /**
    * Remove all clauses linked to a document instance before re-inserting them based on the latest template.
    * @param pwaApplication that document is being reloaded for
-   * @param templateMnem identifier of document based on template used
    * @param reloadingPerson person reloading document
    */
   @Transactional
   public void reloadDocumentInstance(PwaApplication pwaApplication,
-                                     DocumentTemplateMnem templateMnem,
                                      Person reloadingPerson) {
+
+    var templateMnem = DocumentTemplateMnem.getMnemFromDocumentSpec(pwaApplication.getDocumentSpec());
 
     documentInstanceService.clearClauses(pwaApplication, templateMnem);
 
-    createDocumentInstance(pwaApplication, templateMnem, reloadingPerson);
+    createDocumentInstance(pwaApplication, reloadingPerson);
 
   }
 

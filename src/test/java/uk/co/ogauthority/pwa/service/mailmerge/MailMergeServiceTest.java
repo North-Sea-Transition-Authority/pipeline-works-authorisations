@@ -214,11 +214,11 @@ public class MailMergeServiceTest {
 
     var dto1Child1 = DocumentDtoTestUtils
         .getDocumentInstanceSectionClauseVersionDto(DocumentSection.INITIAL_TERMS_AND_CONDITIONS.name(), "init1Child1", 2, 5);
-    dto1Child1.setParentDiscId(1);
+    dto1Child1.setParentClauseId(1);
 
     var dto1Child1Child = DocumentDtoTestUtils
         .getDocumentInstanceSectionClauseVersionDto(DocumentSection.INITIAL_TERMS_AND_CONDITIONS.name(), "init1Child1Child", 3, 6);
-    dto1Child1Child.setParentDiscId(5);
+    dto1Child1Child.setParentClauseId(5);
 
     var dto3 = DocumentDtoTestUtils
         .getDocumentInstanceSectionClauseVersionDto(DocumentSection.SCHEDULE_2.name(), "sched21", 1, 3);

@@ -1,4 +1,4 @@
-.clause-list {
+.pwa-clause-list {
 
   &__action {
 
@@ -13,9 +13,9 @@
     display: block;
   }
 
-  .clause-list__list {
+  .pwa-clause-list__list {
 
-    > li.clause-list__list-item::marker {
+    > li.pwa-clause-list__list-item::marker {
       font-weight: bold;
     }
 

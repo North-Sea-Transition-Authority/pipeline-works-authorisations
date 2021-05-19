@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.service.documents;
+package uk.co.ogauthority.pwa.service.documents.instances;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
@@ -6,17 +6,19 @@ import uk.co.ogauthority.pwa.controller.documents.DocumentInstanceController;
 import uk.co.ogauthority.pwa.model.documents.view.DocumentView;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
+import uk.co.ogauthority.pwa.service.documents.ClauseActionsUrlProvider;
 
-public class ClauseActionsUrlFactory {
+public class DocumentInstanceClauseActionsUrlProvider implements ClauseActionsUrlProvider {
 
   private final PwaApplication pwaApplication;
   private final DocumentView documentView;
 
-  public ClauseActionsUrlFactory(PwaApplication pwaApplication, DocumentView docView) {
+  public DocumentInstanceClauseActionsUrlProvider(PwaApplication pwaApplication, DocumentView docView) {
     this.pwaApplication = pwaApplication;
     documentView = docView;
   }
 
+  @Override
   public String getAddClauseAfterRoute(Integer clauseIdToAddAfter) {
 
     return ReverseRouter.route(on(DocumentInstanceController.class)
@@ -31,6 +33,7 @@ public class ClauseActionsUrlFactory {
 
   }
 
+  @Override
   public String getAddClauseBeforeRoute(Integer clauseIdToAddBefore) {
 
     return ReverseRouter.route(on(DocumentInstanceController.class)
@@ -45,6 +48,7 @@ public class ClauseActionsUrlFactory {
 
   }
 
+  @Override
   public String getAddSubClauseRoute(Integer clauseIdToAddSubFor) {
 
     return ReverseRouter.route(on(DocumentInstanceController.class)
@@ -59,6 +63,7 @@ public class ClauseActionsUrlFactory {
 
   }
 
+  @Override
   public String getEditClauseRoute(Integer editingClauseId) {
 
     return ReverseRouter.route(on(DocumentInstanceController.class)
@@ -73,6 +78,7 @@ public class ClauseActionsUrlFactory {
 
   }
 
+  @Override
   public String getRemoveClauseRoute(Integer clauseIdToRemove) {
 
     return ReverseRouter.route(on(DocumentInstanceController.class)

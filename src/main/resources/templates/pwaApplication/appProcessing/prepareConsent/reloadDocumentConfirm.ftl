@@ -1,7 +1,7 @@
 <#include '../../../layout.ftl'>
 
 <#-- @ftlvariable name="appRef" type="java.lang.String" -->
-<#-- @ftlvariable name="consentDocumentUrlFactory" type="uk.co.ogauthority.pwa.service.appprocessing.prepareconsent.ConsentDocumentUrlFactory" -->
+<#-- @ftlvariable name="consentDocumentUrlProvider" type="uk.co.ogauthority.pwa.service.appprocessing.prepareconsent.ConsentDocumentUrlProvider" -->
 
 <@defaultPage htmlTitle="${appRef} - Reload document" breadcrumbs=false fullWidthColumn=true>
 
@@ -14,7 +14,7 @@
   </@fdsWarning.warning>
 
   <@fdsForm.htmlForm>
-    <@fdsAction.submitButtons primaryButtonText="Reload document" primaryButtonClass="govuk-button govuk-button--warning" linkSecondaryAction=true secondaryLinkText="Don't reload" linkSecondaryActionUrl=springUrl(consentDocumentUrlFactory.renderEditorUrl)/>
+    <@fdsAction.submitButtons primaryButtonText="Reload document" primaryButtonClass="govuk-button govuk-button--warning" linkSecondaryAction=true secondaryLinkText="Don't reload" linkSecondaryActionUrl=springUrl(consentDocumentUrlProvider.renderEditorUrl)/>
   </@fdsForm.htmlForm>
 
 </@defaultPage>

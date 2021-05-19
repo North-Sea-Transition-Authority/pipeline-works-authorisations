@@ -27,6 +27,8 @@ public class SystemAreaAccessService {
       PwaUserPrivilege.PWA_CONSENT_SEARCH, PwaUserPrivilege.PWA_MANAGER, PwaUserPrivilege.PWA_CASE_OFFICER,
       PwaUserPrivilege.PWA_REGULATOR, PwaUserPrivilege.PWA_REG_ORG_MANAGE);
 
+  public final Set<PwaUserPrivilege> validDocumentTemplatePrivileges = EnumSet.of(PwaUserPrivilege.PWA_TEMPLATE_CLAUSE_MANAGE);
+
   /**
    * For use in WebSecurityConfig. In other instances call canAccessTeamManagement
    */
@@ -96,6 +98,17 @@ public class SystemAreaAccessService {
   public boolean canAccessConsentSearch(AuthenticatedUserAccount user) {
     return user.getUserPrivileges().stream()
         .anyMatch(validConsentSearchPrivileges::contains);
+  }
+
+  public String[] getValidDocumentTemplateGrantedAuthorities() {
+    return validDocumentTemplatePrivileges.stream()
+        .map(PwaUserPrivilege::name)
+        .toArray(String[]::new);
+  }
+
+  public boolean canAccessTemplateClauseManagement(AuthenticatedUserAccount user) {
+    return user.getUserPrivileges().stream()
+        .anyMatch(validDocumentTemplatePrivileges::contains);
   }
 
 }

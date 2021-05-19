@@ -170,7 +170,7 @@
       page-break-inside:avoid;
     }
 
-    .clause-list__list-item {
+    .pwa-clause-list__list-item {
       margin-top: 15px;
     }
 
@@ -192,6 +192,10 @@
 
     .pwa-clause-section-header {
       text-align: center;
+    }
+
+    .govuk-visually-hidden {
+      display: none;
     }
 
   </style>

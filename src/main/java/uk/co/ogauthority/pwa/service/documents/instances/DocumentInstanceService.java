@@ -3,12 +3,9 @@ package uk.co.ogauthority.pwa.service.documents.instances;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
@@ -20,28 +17,26 @@ import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.exception.documents.DocumentInstanceException;
-import uk.co.ogauthority.pwa.model.documents.instances.DocumentInstanceSectionClauseVersionDto;
+import uk.co.ogauthority.pwa.model.documents.SectionClauseVersionDto;
 import uk.co.ogauthority.pwa.model.documents.templates.DocumentTemplateDto;
 import uk.co.ogauthority.pwa.model.documents.templates.TemplateSectionClauseVersionDto;
 import uk.co.ogauthority.pwa.model.documents.view.DocumentView;
 import uk.co.ogauthority.pwa.model.documents.view.SectionClauseVersionView;
-import uk.co.ogauthority.pwa.model.documents.view.SectionView;
 import uk.co.ogauthority.pwa.model.entity.documents.instances.DocumentInstance;
 import uk.co.ogauthority.pwa.model.entity.documents.instances.DocumentInstanceSectionClause;
 import uk.co.ogauthority.pwa.model.entity.documents.instances.DocumentInstanceSectionClauseVersion;
 import uk.co.ogauthority.pwa.model.entity.documents.templates.DocumentTemplateSection;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.DocumentTemplateMnem;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocumentSection;
-import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocumentSpec;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.enums.documents.PwaDocumentType;
 import uk.co.ogauthority.pwa.model.enums.documents.SectionClauseVersionStatus;
 import uk.co.ogauthority.pwa.model.form.documents.ClauseForm;
-import uk.co.ogauthority.pwa.model.view.sidebarnav.SidebarSectionLink;
 import uk.co.ogauthority.pwa.repository.documents.instances.DocumentInstanceRepository;
 import uk.co.ogauthority.pwa.repository.documents.instances.DocumentInstanceSectionClauseRepository;
 import uk.co.ogauthority.pwa.repository.documents.instances.DocumentInstanceSectionClauseVersionDtoRepository;
 import uk.co.ogauthority.pwa.repository.documents.instances.DocumentInstanceSectionClauseVersionRepository;
+import uk.co.ogauthority.pwa.service.documents.DocumentViewService;
 import uk.co.ogauthority.pwa.service.documents.SectionClauseCreator;
 
 @Service
@@ -53,6 +48,7 @@ public class DocumentInstanceService {
   private final SectionClauseCreator sectionClauseCreator;
   private final Clock clock;
   private final DocumentInstanceSectionClauseVersionDtoRepository sectionClauseVersionDtoRepository;
+  private final DocumentViewService documentViewService;
 
   @Autowired
   public DocumentInstanceService(DocumentInstanceRepository documentInstanceRepository,
@@ -60,13 +56,15 @@ public class DocumentInstanceService {
                                  DocumentInstanceSectionClauseVersionRepository instanceSectionClauseVersionRepository,
                                  SectionClauseCreator sectionClauseCreator,
                                  @Qualifier("utcClock") Clock clock,
-                                 DocumentInstanceSectionClauseVersionDtoRepository sectionClauseVersionDtoRepository) {
+                                 DocumentInstanceSectionClauseVersionDtoRepository sectionClauseVersionDtoRepository,
+                                 DocumentViewService documentViewService) {
     this.documentInstanceRepository = documentInstanceRepository;
     this.instanceSectionClauseRepository = instanceSectionClauseRepository;
     this.instanceSectionClauseVersionRepository = instanceSectionClauseVersionRepository;
     this.sectionClauseCreator = sectionClauseCreator;
     this.clock = clock;
     this.sectionClauseVersionDtoRepository = sectionClauseVersionDtoRepository;
+    this.documentViewService = documentViewService;
   }
 
   /**
@@ -185,115 +183,30 @@ public class DocumentInstanceService {
 
   public DocumentView getDocumentView(DocumentInstance instance) {
 
-    var clauseVersionDtos = sectionClauseVersionDtoRepository.findAllByDiId(instance.getId());
+    var clauseVersionDtos = sectionClauseVersionDtoRepository.findAllByDiId(instance.getId())
+        .stream()
+        .map(SectionClauseVersionDto.class::cast)
+        .collect(Collectors.toList());
 
-    return buildDocumentViewFromClauseVersionDtos(instance, clauseVersionDtos);
+    return documentViewService.createDocumentView(
+        PwaDocumentType.INSTANCE,
+        instance.getPwaApplication(),
+        clauseVersionDtos);
 
   }
 
   public DocumentView getDocumentView(DocumentInstance instance,
                                       DocumentSection documentSection) {
 
-    var clauseVersionDtos = sectionClauseVersionDtoRepository.findAllByDiId_AndSectionNameEquals(instance.getId(), documentSection.name());
-
-    return buildDocumentViewFromClauseVersionDtos(instance, clauseVersionDtos);
-
-  }
-
-  private DocumentView buildDocumentViewFromClauseVersionDtos(DocumentInstance documentInstance,
-                                                              Collection<DocumentInstanceSectionClauseVersionDto> clauseVersionDtos) {
-
-    var sectionToClauseVersionMap = clauseVersionDtos.stream()
-        .filter(dto -> !SectionClauseVersionStatus.DELETED.equals(SectionClauseVersionStatus.valueOf(dto.getStatus())))
-        .collect(Collectors.groupingBy(DocumentInstanceSectionClauseVersionDto::getSectionName));
-
-    var docView = new DocumentView(
-        PwaDocumentType.INSTANCE,
-        documentInstance.getPwaApplication(),
-        documentInstance.getDocumentTemplate().getMnem());
-
-    var sections = sectionToClauseVersionMap.entrySet().stream()
-        .map(entry -> createSectionView(
-            documentInstance.getPwaApplication().getApplicationType().getConsentDocumentSpec(),
-            DocumentSection.valueOf(entry.getKey()),
-            entry.getValue()))
+    var clauseVersionDtos = sectionClauseVersionDtoRepository.findAllByDiId_AndSectionNameEquals(instance.getId(), documentSection.name())
+        .stream()
+        .map(SectionClauseVersionDto.class::cast)
         .collect(Collectors.toList());
 
-    docView.setSections(sections);
-
-    docView.getSections()
-        .sort(Comparator.comparingInt(SectionView::getDisplayOrder));
-
-    return docView;
-
-  }
-
-  private SectionView createSectionView(DocumentSpec documentSpec,
-                                        DocumentSection documentSection,
-                                        List<DocumentInstanceSectionClauseVersionDto> clauseVersionDtos) {
-
-    var sectionView = new SectionView();
-    sectionView.setName(documentSection.getDisplayName());
-    sectionView.setDisplayOrder(documentSpec.getDisplayOrder(documentSection));
-    sectionView.setSectionType(documentSection.getSectionType());
-
-    // group clauses according to their level in the hierarchy, i.e. 1 = top-level, 3 = lowest level, 2 is a child of 1 etc
-    var clauseViewLevelToViewMap = clauseVersionDtos.stream()
-        .map(SectionClauseVersionView::from)
-        .collect(Collectors.groupingBy(SectionClauseVersionView::getLevelNumber));
-
-    // set lowest level children on their parents
-    updateParentsWithChildren(clauseViewLevelToViewMap, 3);
-
-    // set mid level children on their parents
-    updateParentsWithChildren(clauseViewLevelToViewMap, 2);
-
-    // now we've built the hierarchy, set the top-level clauses (now containing their children) onto the section view
-    sectionView.setClauses(clauseViewLevelToViewMap.get(1));
-
-    buildSidebarLinks(sectionView);
-
-    return sectionView;
-
-  }
-
-  private void updateParentsWithChildren(Map<Integer, List<SectionClauseVersionView>> levelNumberToClauseVersionMap,
-                                         Integer childLevel) {
-
-    int parentLevel = childLevel - 1;
-
-    levelNumberToClauseVersionMap.getOrDefault(childLevel, List.of()).forEach(child ->
-
-        levelNumberToClauseVersionMap.get(parentLevel).stream()
-            .filter(parent -> Objects.equals(parent.getClauseId(), child.getParentClauseId()))
-            .findFirst()
-            .ifPresent(parent -> parent.getChildClauses().add(child))
-
-    );
-
-  }
-
-  private void buildSidebarLinks(SectionView sectionView) {
-
-    var sidebarLinks = new ArrayList<SidebarSectionLink>();
-
-    sectionView.getClauses().forEach(clause -> {
-
-      var link = SidebarSectionLink.createAnchorLink(clause.getName(), "#clauseId-" + clause.getClauseId());
-
-      sidebarLinks.add(link);
-
-      clause.getChildClauses().forEach(child -> {
-
-        var l = SidebarSectionLink.createAnchorLink(child.getName(), "#clauseId-" + child.getClauseId());
-
-        sidebarLinks.add(l);
-
-      });
-
-    });
-
-    sectionView.setSidebarSectionLinks(sidebarLinks);
+    return documentViewService.createDocumentView(
+        PwaDocumentType.INSTANCE,
+        instance.getPwaApplication(),
+        clauseVersionDtos);
 
   }
 

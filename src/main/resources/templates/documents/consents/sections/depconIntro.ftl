@@ -16,6 +16,6 @@
 
   <p class="multi-line-text" style="text-align: center">${introParagraph?no_esc}</p>
 
-  <@pwaClauseList.list documentView=docView clauseActionsUrlFactory="" showSectionHeading=false showClauseHeadings=sectionType.clauseDisplay == "SHOW_HEADING" />
+  <@pwaClauseList.list documentView=docView clauseActionsUrlProvider="" showSectionHeading=false showClauseHeadings=sectionType.clauseDisplay == "SHOW_HEADING" />
 
 </div>

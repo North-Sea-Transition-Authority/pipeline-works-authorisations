@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.controller.WorkAreaController;
+import uk.co.ogauthority.pwa.controller.documents.DocumentTemplateSelectController;
 import uk.co.ogauthority.pwa.controller.search.applicationsearch.ApplicationSearchController;
 import uk.co.ogauthority.pwa.controller.search.consents.ConsentSearchController;
 import uk.co.ogauthority.pwa.controller.teams.ManageTeamsController;
@@ -21,6 +22,7 @@ public class TopMenuService {
   public static final String TEAM_MANAGEMENT_TITLE = "Manage teams";
   public static final String APPLICATION_SEARCH_TITLE = "Search applications";
   public static final String CONSENT_SEARCH_TITLE = "Search PWAs";
+  public static final String TEMPLATE_CLAUSE_MANAGE_TITLE = "Manage template clauses";
 
   private final SystemAreaAccessService systemAreaAccessService;
 
@@ -54,6 +56,10 @@ public class TopMenuService {
           .renderSearch(null, null))));
     }
 
+    if (systemAreaAccessService.canAccessTemplateClauseManagement(user)) {
+      menuItems.add(new TopMenuItem(TEMPLATE_CLAUSE_MANAGE_TITLE, ReverseRouter.route(on(DocumentTemplateSelectController.class)
+          .getTemplatesForSelect(null))));
+    }
     return menuItems;
   }
 
