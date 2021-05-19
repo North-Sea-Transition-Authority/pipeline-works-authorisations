@@ -11,7 +11,7 @@
 <@defaultPage htmlTitle="${screenActionType.actionText} ident" pageHeading="${screenActionType.actionText} ident" breadcrumbs=true errorItems=errorList>
 
     <#assign coordinateGuidance>
-        <@fdsDetails.details detailsTitle="When should I provide ident coordinates?" detailsText="Provide coordinates if this is a key point along the pipeline route." />
+        <@fdsDetails.details detailsTitle="When should I provide ident coordinates?" detailsText="Provide coordinates if this is a key point along the pipeline route or a cut point." />
     </#assign>
 
     <@fdsForm.htmlForm>
