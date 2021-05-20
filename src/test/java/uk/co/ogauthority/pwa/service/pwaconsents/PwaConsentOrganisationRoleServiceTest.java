@@ -243,7 +243,7 @@ public class PwaConsentOrganisationRoleServiceTest {
 
   @Test
   public void getOrganisationRoleSummary_findByMasterPwa_serviceInteractions(){
-    assertThat(pwaConsentOrganisationRoleService.getOrganisationRoleSummary(masterPwa)).isNotNull();
+    assertThat(pwaConsentOrganisationRoleService.getActiveOrganisationRoleSummaryForSeabedPipelines(masterPwa)).isNotNull();
     verify(pwaConsentPipelineOrganisationRoleLinkRepository, times(1)).findActiveOrganisationPipelineRolesByMasterPwa(masterPwa);
 
   }

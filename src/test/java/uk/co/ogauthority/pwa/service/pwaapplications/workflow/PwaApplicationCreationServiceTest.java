@@ -205,7 +205,7 @@ public class PwaApplicationCreationServiceTest {
     }
 
     verifyNoInteractions(padOrganisationRoleService);
-    verify(pwaConsentOrganisationRoleService, never()).getOrganisationRoleSummary(masterPwa);
+    verify(pwaConsentOrganisationRoleService, never()).getActiveOrganisationRoleSummaryForSeabedPipelines(masterPwa);
   }
 
 
