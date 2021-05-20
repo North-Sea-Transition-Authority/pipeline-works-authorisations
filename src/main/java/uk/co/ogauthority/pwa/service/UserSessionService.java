@@ -4,8 +4,8 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Stopwatch;
 import java.time.Clock;
 import java.time.Duration;
-import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,7 +61,7 @@ public class UserSessionService {
                 userSession.getId())
             ));
 
-        List<PwaUserPrivilege> privileges = teamService.getAllUserPrivilegesForPerson(webUserAccount.getLinkedPerson());
+        Set<PwaUserPrivilege> privileges = teamService.getAllUserPrivilegesForPerson(webUserAccount.getLinkedPerson());
 
         var authenticatedUserAccount = new AuthenticatedUserAccount(webUserAccount, privileges);
         userSession.setAuthenticatedUserAccount(authenticatedUserAccount);

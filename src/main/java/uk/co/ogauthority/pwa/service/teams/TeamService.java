@@ -207,7 +207,7 @@ public class TeamService {
 
   }
 
-  public List<PwaUserPrivilege> getAllUserPrivilegesForPerson(Person person) {
+  public Set<PwaUserPrivilege> getAllUserPrivilegesForPerson(Person person) {
 
     // get privs available to the user through res type role membership
     var portalPrivSet = pwaTeamsDtoFactory.createPwaUserPrivilegeSet(
@@ -219,7 +219,7 @@ public class TeamService {
 
     var combinedPrivSet = SetUtils.union(portalPrivSet, appPrivSet);
 
-    return List.copyOf(combinedPrivSet);
+    return Set.copyOf(combinedPrivSet);
 
   }
 

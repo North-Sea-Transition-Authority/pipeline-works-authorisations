@@ -5,6 +5,7 @@ import static java.util.stream.Collectors.toList;
 import java.util.List;
 import java.util.function.Function;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 
 /**
@@ -117,7 +118,7 @@ public class PageView<T> {
         .collect(toList());
 
     return new PageView<>(page.getNumber(), page.getTotalPages(), pageContent, pageUriFunction,
-        Math.toIntExact(page.getTotalElements()), page.getPageable().getPageSize());
+        Math.toIntExact(page.getTotalElements()), page.getPageable() == Pageable.unpaged() ? 0 : page.getPageable().getPageSize());
   }
 
   public PageView(int currentPage,

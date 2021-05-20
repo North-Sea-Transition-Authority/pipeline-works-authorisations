@@ -40,6 +40,9 @@ import uk.co.ogauthority.pwa.testutils.WorkAreaTestUtils;
 public class WorkAreaServiceTest {
 
   @Mock
+  private AsBuiltWorkareaPageService asBuiltWorkareaPageService;
+
+  @Mock
   private IndustryWorkAreaPageService industryWorkAreaPageService;
 
   @Mock
@@ -66,7 +69,7 @@ public class WorkAreaServiceTest {
   public void setUp() {
 
     this.workAreaService = new WorkAreaService(
-        industryWorkAreaPageService,
+        asBuiltWorkareaPageService, industryWorkAreaPageService,
         consultationWorkAreaPageService,
         regulatorWorkAreaPageService,
         publicNoticeService,
@@ -252,6 +255,16 @@ public class WorkAreaServiceTest {
 
     assertThat(workAreaResult.getApplicationsTabPages()).isEqualTo(appPageView);
     assertThat(workAreaResult.getConsultationsTabPages()).isNull();
+
+  }
+
+  //TODO: IMPROVE AS-BUILT NOTIFICATIONS TAB TESTS PWA-1248
+  @Test
+  public void getWorkAreaResult_asBuiltNotificationsTab() {
+
+    var workAreaResult = workAreaService.getWorkAreaResult(authenticatedUserAccount, WorkAreaTab.AS_BUILT_NOTIFICATIONS, 0);
+
+    verify(asBuiltWorkareaPageService, times(1)).getAsBuiltNotificationsPageView(0);
 
   }
 
