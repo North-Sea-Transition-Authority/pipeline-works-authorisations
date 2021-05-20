@@ -18,6 +18,7 @@ import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.energyportal.model.entity.PersonTestUtil;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
+import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationTestUtils;
 import uk.co.ogauthority.pwa.energyportal.service.organisations.PortalOrganisationsAccessor;
 import uk.co.ogauthority.pwa.model.dto.consultations.ConsulteeGroupId;
 import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
@@ -28,7 +29,6 @@ import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.Cons
 import uk.co.ogauthority.pwa.service.enums.users.UserType;
 import uk.co.ogauthority.pwa.service.teams.TeamService;
 import uk.co.ogauthority.pwa.service.users.UserTypeService;
-import uk.co.ogauthority.pwa.testutils.PortalOrganisationTestUtils;
 import uk.co.ogauthority.pwa.testutils.TeamTestingUtils;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -71,8 +71,8 @@ public class ApplicationSearchContextCreatorTest {
     var userType = UserType.INDUSTRY;
     when(userTypeService.getUserTypes(authenticatedUserAccount)).thenReturn(Set.of(userType));
 
-    var orgUnit = PortalOrganisationTestUtils.getOrganisationUnit();
-    var orgGrp = orgUnit.getPortalOrganisationGroup();
+    var orgUnit = PortalOrganisationTestUtils.getOrganisationUnitInOrgGroup();
+    var orgGrp = orgUnit.getPortalOrganisationGroup().get();
     var orgTeam = TeamTestingUtils.getOrganisationTeam(orgGrp);
     consulteeGroup = new ConsulteeGroup();
     consulteeGroup.setId(1);

@@ -238,7 +238,7 @@ public class BlockCrossingController {
   }
 
   private void addGenericBlockCrossingModelAttributes(ModelAndView modelAndView, PwaApplicationContext context) {
-    var sortedOrganisationUnits = portalOrganisationsAccessor.getAllOrganisationUnits()
+    var sortedOrganisationUnits = portalOrganisationsAccessor.getAllActiveOrganisationUnits()
         .stream()
         .sorted(Comparator.comparing(o -> o.getName().toLowerCase()))
         .collect(StreamUtils.toLinkedHashMap(o -> String.valueOf(o.getOuId()), PortalOrganisationUnit::getName));

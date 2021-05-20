@@ -19,6 +19,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
+import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationTestUtils;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.integration.PwaApplicationIntegrationTestHelper;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.options.OptionsApplicationApproval;
@@ -165,8 +166,8 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
 
     entityManager.persist(pearsLicence);
 
-    portalOrganisationUnit1 = new PortalOrganisationUnit(OU_ID_1, "Org 1 name");
-    portalOrganisationUnit2 = new PortalOrganisationUnit(OU_ID_2, "Org 2 name");
+    portalOrganisationUnit1 = PortalOrganisationTestUtils.generateOrganisationUnit(OU_ID_1, "Org 1 name");
+    portalOrganisationUnit2 = PortalOrganisationTestUtils.generateOrganisationUnit(OU_ID_2, "Org 2 name");
     entityManager.persist(portalOrganisationUnit1);
     entityManager.persist(portalOrganisationUnit2);
 

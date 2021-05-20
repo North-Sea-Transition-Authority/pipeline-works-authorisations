@@ -8,7 +8,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
-import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
+import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationTestUtils;
 import uk.co.ogauthority.pwa.model.dto.consents.OrganisationRoleOwnerDto;
 import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitDetailDto;
 import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
@@ -17,7 +17,6 @@ import uk.co.ogauthority.pwa.model.entity.enums.HuooType;
 import uk.co.ogauthority.pwa.model.entity.enums.TreatyAgreement;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.huoosummary.OrganisationRolePipelineGroupView;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.huoosummary.PipelineNumbersAndSplits;
-import uk.co.ogauthority.pwa.testutils.PortalOrganisationTestUtils;
 
 
 
@@ -36,7 +35,7 @@ public class DiffableOrgRolePipelineGroupCreatorTest {
   public void createDiffableView_orgRoleViewHasPortalOrgWithUnitDetail_allPipelineOverrideFlagIsFalse() {
 
     var portalOrgUnitDetail1 = PortalOrganisationTestUtils.generateOrganisationUnitDetail(
-        new PortalOrganisationUnit(1, "company"), "address", "111");
+        PortalOrganisationTestUtils.generateOrganisationUnit(1, "company"), "address", "111");
     var organisationUnitDetail = OrganisationUnitDetailDto.from(portalOrgUnitDetail1);
     var organisationRoleOwnerDto1 = OrganisationRoleOwnerDto.fromOrganisationUnitId(new OrganisationUnitId(1));
     var pipelineNumbersAndSplits = List.of(new PipelineNumbersAndSplits(new PipelineId(1), "ppl1", null));
@@ -69,7 +68,7 @@ public class DiffableOrgRolePipelineGroupCreatorTest {
   public void createDiffableView_orgRoleViewHasPortalOrgWithUnitDetail_allPipelineOverrideFlagIsTrue() {
 
     var portalOrgUnitDetail1 = PortalOrganisationTestUtils.generateOrganisationUnitDetail(
-        new PortalOrganisationUnit(1, "company"), "address", "111");
+        PortalOrganisationTestUtils.generateOrganisationUnit(1, "company"), "address", "111");
     var organisationUnitDetail = OrganisationUnitDetailDto.from(portalOrgUnitDetail1);
     var organisationRoleOwnerDto1 = OrganisationRoleOwnerDto.fromOrganisationUnitId(new OrganisationUnitId(1));
     var pipelineNumbersAndSplits = List.of(new PipelineNumbersAndSplits(new PipelineId(1), "ppl1", null));

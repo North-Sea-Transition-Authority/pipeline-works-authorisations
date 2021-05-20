@@ -4,13 +4,18 @@ GRANT SELECT ON decmgr.current_organisation_groups TO ${datasource.user};
 GRANT SELECT ON decmgr.organisation_address_details TO ${datasource.user};
 
 CREATE OR REPLACE VIEW ${datasource.user}.portal_organisation_units AS
-SELECT xou.organ_id ou_id, xou.name, cog.id org_grp_id
+SELECT
+  xou.organ_id ou_id
+, xou.name
+, cog.id org_grp_id
+, xou.start_date start_date -- organisation started, not record started
+, xou.end_date end_date -- organisation ended, not record ended
+, CASE WHEN xou.is_duplicate = 'Y' THEN 1 ELSE 0 END is_duplicate
+, CASE WHEN xou.is_duplicate = 'Y' OR xou.end_date IS NOT NULL THEN 0 ELSE 1 END is_active
 FROM decmgr.xview_organisation_units xou
-JOIN decmgr.current_org_grp_organisations cogo ON cogo.organ_id = xou.organ_id
-JOIN decmgr.current_organisation_groups cog ON cog.id = cogo.org_grp_id
-WHERE xou.end_date IS NULL
-AND cog.org_grp_type = 'REG'
-AND xou.is_duplicate IS NULL;
+LEFT JOIN decmgr.current_org_grp_organisations cogo ON cogo.organ_id = xou.organ_id
+LEFT JOIN decmgr.current_organisation_groups cog ON cog.id = cogo.org_grp_id
+WHERE (cogo.organ_id IS NULL OR cog.org_grp_type = 'REG');
 
 CREATE OR REPLACE VIEW ${datasource.user}.portal_organisation_groups AS
 SELECT cog.id org_grp_id
@@ -28,6 +33,4 @@ SELECT
 , oad.legal_address
 , oad.registered_number
 FROM decmgr.xview_organisation_units xou
-LEFT JOIN decmgr.organisation_address_details oad ON oad.organ_id = xou.organ_id
-WHERE xou.end_date IS NULL
-AND xou.is_duplicate IS NULL;
+LEFT JOIN decmgr.organisation_address_details oad ON oad.organ_id = xou.organ_id;

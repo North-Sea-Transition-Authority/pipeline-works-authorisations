@@ -17,7 +17,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
-import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
+import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationTestUtils;
 import uk.co.ogauthority.pwa.energyportal.service.organisations.PortalOrganisationsAccessor;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
@@ -108,7 +108,7 @@ public class PadPipelineCrossingServiceTest {
         .thenReturn(List.of(padPipelineCrossing));
 
     var UNIT_NAME = "UNIT";
-    var orgUnit = new PortalOrganisationUnit(1, UNIT_NAME);
+    var orgUnit = PortalOrganisationTestUtils.generateOrganisationUnit(1, UNIT_NAME);
 
     var owner = new PadPipelineCrossingOwner();
     owner.setOrganisationUnit(orgUnit);
@@ -169,7 +169,7 @@ public class PadPipelineCrossingServiceTest {
     padPipelineCrossing.setId(1);
 
     var UNIT_NAME = "UNIT";
-    var orgUnit = new PortalOrganisationUnit(1, UNIT_NAME);
+    var orgUnit = PortalOrganisationTestUtils.generateOrganisationUnit(1, UNIT_NAME);
 
     var owner = new PadPipelineCrossingOwner();
     owner.setOrganisationUnit(orgUnit);
@@ -214,7 +214,7 @@ public class PadPipelineCrossingServiceTest {
   public void getPrepopulatedSearchSelectorItems_NotEmpty() {
     var selectionIds = List.of("1", SearchSelectable.FREE_TEXT_PREFIX + "Test");
     when(portalOrganisationsAccessor.getOrganisationUnitsByIdIn(any())).thenReturn(List.of(
-        new PortalOrganisationUnit(1, "Test")
+        PortalOrganisationTestUtils.generateOrganisationUnit(1, "Test")
     ));
     var result = padPipelineCrossingService.getPrepopulatedSearchSelectorItems(selectionIds);
     assertThat(result).containsExactly(

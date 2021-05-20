@@ -26,6 +26,7 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
 import uk.co.ogauthority.pwa.energyportal.model.entity.PersonTestUtil;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationGroup;
+import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationTestUtils;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
@@ -42,7 +43,6 @@ import uk.co.ogauthority.pwa.repository.search.consents.ConsentSearchItemReposit
 import uk.co.ogauthority.pwa.service.enums.users.UserType;
 import uk.co.ogauthority.pwa.service.search.consents.predicates.ConsentSearchPredicateProvider;
 import uk.co.ogauthority.pwa.testutils.ConsentSearchItemTestUtils;
-import uk.co.ogauthority.pwa.testutils.PortalOrganisationTestUtils;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest

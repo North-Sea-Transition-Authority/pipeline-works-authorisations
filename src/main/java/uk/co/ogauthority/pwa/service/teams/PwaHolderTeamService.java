@@ -62,6 +62,7 @@ public class PwaHolderTeamService {
     var organisationTeams = teamService.getOrganisationTeamListIfPersonInRole(
         webUserAccount.getLinkedPerson(), Set.of(pwaOrganisationRole));
 
+    // all org units, including ended ones, if they still exist in the org grp.
     return portalOrganisationsAccessor.getOrganisationUnitsForOrganisationGroupsIn(
         organisationTeams.stream()
             .map(PwaOrganisationTeam::getPortalOrganisationGroup)
@@ -75,6 +76,7 @@ public class PwaHolderTeamService {
     var organisationTeams = teamService.getOrganisationTeamListIfPersonInRole(
         webUserAccount.getLinkedPerson(), pwaOrganisationRoles);
 
+    // all org units, including ended ones, if they still exist in the org grp.
     return portalOrganisationsAccessor.getOrganisationUnitsForOrganisationGroupsIn(
         organisationTeams.stream()
             .map(PwaOrganisationTeam::getPortalOrganisationGroup)

@@ -26,6 +26,7 @@ import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
+import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationTestUtils;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnitDetail;
 import uk.co.ogauthority.pwa.energyportal.service.organisations.PortalOrganisationsAccessor;
@@ -57,7 +58,6 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.options.PadOptionConfirmedService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.huoosummary.PipelineNumbersAndSplits;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.viewfactories.PipelineAndIdentViewFactory;
-import uk.co.ogauthority.pwa.testutils.PortalOrganisationTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -362,12 +362,12 @@ public class PadOrganisationRoleServiceTest {
     form.setOrganisationUnitId(2);
     form.setHuooRoles(Set.of(HuooRole.HOLDER, HuooRole.OPERATOR));
 
-    var existingOrgUnit = PortalOrganisationTestUtils.getOrganisationUnit();
+    var existingOrgUnit = PortalOrganisationTestUtils.getOrganisationUnitInOrgGroup();
     var existingOrgRole = PadOrganisationRoleTestUtil.createOrgRole(HuooRole.HOLDER, existingOrgUnit);
     when(padOrganisationRolesRepository.getAllByPwaApplicationDetailAndOrganisationUnit(detail, existingOrgUnit))
         .thenReturn(List.of(existingOrgRole));
 
-    var orgUnitToAdd = PortalOrganisationTestUtils.getOrganisationUnit();
+    var orgUnitToAdd = PortalOrganisationTestUtils.getOrganisationUnitInOrgGroup();
     when(portalOrganisationsAccessor.getOrganisationUnitById(form.getOrganisationUnitId())).thenReturn(Optional.of(orgUnitToAdd));
 
     padOrganisationRoleService.updateOrgRolesUsingForm(detail, form, existingOrgUnit);
@@ -401,7 +401,7 @@ public class PadOrganisationRoleServiceTest {
     form.setOrganisationUnitId(2);
     form.setHuooRoles(EnumSet.complementOf(EnumSet.of(HuooRole.OWNER)));
 
-    var existingOrgUnit = PortalOrganisationTestUtils.getOrganisationUnit();
+    var existingOrgUnit = PortalOrganisationTestUtils.getOrganisationUnitInOrgGroup();
     var existingOrgHolder = PadOrganisationRoleTestUtil.createOrgRole(HuooRole.HOLDER, existingOrgUnit);
     var existingOrgUser = PadOrganisationRoleTestUtil.createOrgRole(HuooRole.USER, existingOrgUnit);
     var existingOrgOperator = PadOrganisationRoleTestUtil.createOrgRole(HuooRole.OPERATOR, existingOrgUnit);
@@ -409,7 +409,7 @@ public class PadOrganisationRoleServiceTest {
     when(padOrganisationRolesRepository.getAllByPwaApplicationDetailAndOrganisationUnit(detail, existingOrgUnit))
         .thenReturn(List.of(existingOrgHolder, existingOrgUser, existingOrgOperator, existingOrgOwner));
 
-    var orgUnitToAdd = PortalOrganisationTestUtils.getOrganisationUnit();
+    var orgUnitToAdd = PortalOrganisationTestUtils.getOrganisationUnitInOrgGroup();
     when(portalOrganisationsAccessor.getOrganisationUnitById(form.getOrganisationUnitId())).thenReturn(Optional.of(orgUnitToAdd));
 
     var pipeline = new Pipeline();
@@ -451,7 +451,7 @@ public class PadOrganisationRoleServiceTest {
     form.setOrganisationUnitId(2);
     form.setHuooRoles(EnumSet.complementOf(EnumSet.of(HuooRole.OWNER)));
 
-    var existingOrgUnit = PortalOrganisationTestUtils.getOrganisationUnit();
+    var existingOrgUnit = PortalOrganisationTestUtils.getOrganisationUnitInOrgGroup();
     var existingOrgHolder = PadOrganisationRoleTestUtil.createOrgRole(HuooRole.HOLDER, existingOrgUnit);
     var existingOrgUser = PadOrganisationRoleTestUtil.createOrgRole(HuooRole.USER, existingOrgUnit);
     var existingOrgOperator = PadOrganisationRoleTestUtil.createOrgRole(HuooRole.OPERATOR, existingOrgUnit);
@@ -459,7 +459,7 @@ public class PadOrganisationRoleServiceTest {
     when(padOrganisationRolesRepository.getAllByPwaApplicationDetailAndOrganisationUnit(detail, existingOrgUnit))
         .thenReturn(List.of(existingOrgHolder, existingOrgUser, existingOrgOperator, existingOrgOwner));
 
-    var orgUnitToAdd = PortalOrganisationTestUtils.getOrganisationUnit();
+    var orgUnitToAdd = PortalOrganisationTestUtils.getOrganisationUnitInOrgGroup();
     when(portalOrganisationsAccessor.getOrganisationUnitById(form.getOrganisationUnitId())).thenReturn(Optional.of(orgUnitToAdd));
 
     var ownerOrgRoleSplitLink = PadOrganisationRoleTestUtil.createOrgRoleInclusivePipelineSplitLink(
@@ -503,7 +503,7 @@ public class PadOrganisationRoleServiceTest {
   @Test
   public void removePipelineLinksForOrgsWithRoles_fullPipeline_splitPipelinesWithSingleAndDuplicateLinks() {
 
-    var existingOrgUnit = PortalOrganisationTestUtils.getOrganisationUnit();
+    var existingOrgUnit = PortalOrganisationTestUtils.getOrganisationUnitInOrgGroup();
     var existingOrgHolder = PadOrganisationRoleTestUtil.createOrgRole(HuooRole.HOLDER, existingOrgUnit);
     var existingOrgUser = PadOrganisationRoleTestUtil.createOrgRole(HuooRole.USER, existingOrgUnit);
     var existingOrgOperator = PadOrganisationRoleTestUtil.createOrgRole(HuooRole.OPERATOR, existingOrgUnit);
@@ -544,7 +544,7 @@ public class PadOrganisationRoleServiceTest {
   public void saveEntityUsingForm_org() {
 
     var form = new HuooForm();
-    var newOrgUnit = PortalOrganisationTestUtils.getOrganisationUnit();
+    var newOrgUnit = PortalOrganisationTestUtils.getOrganisationUnitInOrgGroup();
 
     form.setHuooType(HuooType.PORTAL_ORG);
     form.setOrganisationUnitId(newOrgUnit.getOuId());
@@ -647,7 +647,7 @@ public class PadOrganisationRoleServiceTest {
    @Test
   public void addHolder() {
 
-    var newOrgUnit = PortalOrganisationTestUtils.getOrganisationUnit();
+    var newOrgUnit = PortalOrganisationTestUtils.getOrganisationUnitInOrgGroup();
 
     padOrganisationRoleService.addHolder(detail, newOrgUnit);
 
@@ -1146,15 +1146,15 @@ public class PadOrganisationRoleServiceTest {
 
     //Portal org units
     var portalOrgUnitDetail1 = PortalOrganisationTestUtils.generateOrganisationUnitDetail(
-        new PortalOrganisationUnit(1, "company"), "address", "123");
+        PortalOrganisationTestUtils.generateOrganisationUnit(1, "company"), "address", "123");
     var organisationUnitDetailDto1 = OrganisationUnitDetailDto.from(portalOrgUnitDetail1);
 
     var portalOrgUnitDetail3 = PortalOrganisationTestUtils.generateOrganisationUnitDetail(
-        new PortalOrganisationUnit(3, "company3"), "address3", "1234");
+        PortalOrganisationTestUtils.generateOrganisationUnit(3, "company3"), "address3", "1234");
     var organisationUnitDetailDto3 = OrganisationUnitDetailDto.from(portalOrgUnitDetail3);
 
     var portalOrgUnitDetail4 = PortalOrganisationTestUtils.generateOrganisationUnitDetail(
-        new PortalOrganisationUnit(4, "company4"), "address4", "12345");
+        PortalOrganisationTestUtils.generateOrganisationUnit(4, "company4"), "address4", "12345");
     var organisationUnitDetailDto4 = OrganisationUnitDetailDto.from(portalOrgUnitDetail4);
 
     when(portalOrganisationsAccessor.getOrganisationUnitDetailDtosByOrganisationUnitId(

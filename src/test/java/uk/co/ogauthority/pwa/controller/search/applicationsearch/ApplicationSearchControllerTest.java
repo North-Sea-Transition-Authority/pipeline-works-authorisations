@@ -33,6 +33,7 @@ import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.AbstractControllerTest;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
+import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationTestUtils;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.energyportal.service.organisations.PortalOrganisationsAccessor;
 import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
@@ -55,7 +56,6 @@ import uk.co.ogauthority.pwa.service.search.applicationsearch.ApplicationSearchD
 import uk.co.ogauthority.pwa.service.search.applicationsearch.ApplicationSearchParameters;
 import uk.co.ogauthority.pwa.service.search.applicationsearch.ApplicationSearchParametersBuilder;
 import uk.co.ogauthority.pwa.service.teams.PwaHolderTeamService;
-import uk.co.ogauthority.pwa.testutils.PortalOrganisationTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 @RunWith(SpringRunner.class)
@@ -96,7 +96,7 @@ public class ApplicationSearchControllerTest extends AbstractControllerTest {
   @MockBean
   private PwaHolderTeamService pwaHolderTeamService;
 
-  private PortalOrganisationUnit portalOrganisationUnit = PortalOrganisationTestUtils.getOrganisationUnit();
+  private PortalOrganisationUnit portalOrganisationUnit = PortalOrganisationTestUtils.getOrganisationUnitInOrgGroup();
 
   private ApplicationSearchContext permittedUserSearchContext;
 
