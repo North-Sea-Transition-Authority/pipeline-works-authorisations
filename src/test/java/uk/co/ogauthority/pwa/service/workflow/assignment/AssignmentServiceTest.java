@@ -18,6 +18,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
 import uk.co.ogauthority.pwa.energyportal.model.entity.PersonTestUtil;
+import uk.co.ogauthority.pwa.exception.WorkflowAssignmentException;
 import uk.co.ogauthority.pwa.model.entity.workflow.assignment.Assignment;
 import uk.co.ogauthority.pwa.model.workflow.GenericWorkflowSubject;
 import uk.co.ogauthority.pwa.repository.workflow.assignment.AssignmentRepository;
@@ -174,6 +175,35 @@ public class AssignmentServiceTest {
     verify(assignmentRepository).findByBusinessKeyAndWorkflowAssignmentAndWorkflowType(workflowSubject.getBusinessKey(),
         WorkflowAssignment.CASE_OFFICER, WorkflowType.PWA_APPLICATION);
 
+  }
+
+  @Test
+  public void getCaseOfficerAssignment_verifyRepoInteraction_noException() {
+
+    var workflowSubject = new GenericWorkflowSubject(1, WorkflowType.PWA_APPLICATION);
+    var assignment = new Assignment(
+        workflowSubject.getBusinessKey(), workflowSubject.getWorkflowType(), WorkflowAssignment.CASE_OFFICER, new PersonId(1));
+
+    when(assignmentRepository.findByBusinessKeyAndWorkflowAssignmentAndWorkflowType(
+        workflowSubject.getBusinessKey(), WorkflowAssignment.CASE_OFFICER, workflowSubject.getWorkflowType()))
+        .thenReturn(Optional.of(assignment));
+
+    assignmentService.getCaseOfficerAssignment(workflowSubject);
+    verify(assignmentRepository).findByBusinessKeyAndWorkflowAssignmentAndWorkflowType(workflowSubject.getBusinessKey(),
+        WorkflowAssignment.CASE_OFFICER, WorkflowType.PWA_APPLICATION);
+  }
+
+  @Test(expected = WorkflowAssignmentException.class)
+  public void getCaseOfficerAssignment_verifyRepoInteraction_noAssignmentFound_exceptionThrown() {
+
+    var workflowSubject = new GenericWorkflowSubject(1, WorkflowType.PWA_APPLICATION);
+    when(assignmentRepository.findByBusinessKeyAndWorkflowAssignmentAndWorkflowType(
+        workflowSubject.getBusinessKey(), WorkflowAssignment.CASE_OFFICER, workflowSubject.getWorkflowType()))
+        .thenReturn(Optional.empty());
+
+    assignmentService.getCaseOfficerAssignment(workflowSubject);
+    verify(assignmentRepository).findByBusinessKeyAndWorkflowAssignmentAndWorkflowType(workflowSubject.getBusinessKey(),
+        WorkflowAssignment.CASE_OFFICER, workflowSubject.getWorkflowType());
   }
 
 }

@@ -24,18 +24,23 @@ import uk.co.ogauthority.pwa.model.entity.publicnotice.PublicNotice;
 import uk.co.ogauthority.pwa.model.entity.publicnotice.PublicNoticeRequest;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.entity.workflow.assignment.Assignment;
 import uk.co.ogauthority.pwa.model.form.publicnotice.PublicNoticeApprovalForm;
 import uk.co.ogauthority.pwa.model.notify.emailproperties.publicnotices.PublicNoticeApprovedEmailProps;
 import uk.co.ogauthority.pwa.model.notify.emailproperties.publicnotices.PublicNoticeRejectedEmailProps;
 import uk.co.ogauthority.pwa.model.teams.PwaRegulatorRole;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.service.enums.workflow.WorkflowType;
+import uk.co.ogauthority.pwa.service.enums.workflow.assignment.WorkflowAssignment;
 import uk.co.ogauthority.pwa.service.enums.workflow.publicnotice.PwaApplicationPublicNoticeWorkflowTask;
 import uk.co.ogauthority.pwa.service.notify.EmailCaseLinkService;
 import uk.co.ogauthority.pwa.service.notify.NotifyService;
+import uk.co.ogauthority.pwa.service.person.PersonService;
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
 import uk.co.ogauthority.pwa.service.teams.TeamService;
 import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
+import uk.co.ogauthority.pwa.service.workflow.assignment.AssignmentService;
 import uk.co.ogauthority.pwa.service.workflow.task.WorkflowTaskInstance;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.testutils.TeamTestingUtils;
@@ -65,10 +70,13 @@ public class PublicNoticeApprovalServiceTest {
   private EmailCaseLinkService emailCaseLinkService;
 
   @Mock
-  private TeamService teamService;
+  private PwaContactService pwaContactService;
 
   @Mock
-  private PwaContactService pwaContactService;
+  private PersonService personService;
+
+  @Mock
+  private AssignmentService assignmentService;
 
   @Captor
   private ArgumentCaptor<PublicNotice> publicNoticeArgumentCaptor;
@@ -87,7 +95,8 @@ public class PublicNoticeApprovalServiceTest {
   public void setUp() {
 
     publicNoticeApprovalService = new PublicNoticeApprovalService(publicNoticeService, validator,
-        camundaWorkflowService, clock, notifyService, emailCaseLinkService, teamService, pwaContactService);
+        camundaWorkflowService, clock, notifyService, emailCaseLinkService, pwaContactService,
+        personService, assignmentService);
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     pwaApplication = pwaApplicationDetail.getPwaApplication();
@@ -173,12 +182,12 @@ public class PublicNoticeApprovalServiceTest {
 
     String caseManagementLink = "case management link url";
     when(emailCaseLinkService.generateCaseManagementLink(pwaApplication)).thenReturn(caseManagementLink);
-    var regulatorTeam = TeamTestingUtils.getRegulatorTeam();
-    when(teamService.getRegulatorTeam()).thenReturn(regulatorTeam);
-    var regulatorTeamMember = TeamTestingUtils.createRegulatorTeamMember(
-        regulatorTeam, PersonTestUtil.createDefaultPerson(), Set.of(PwaRegulatorRole.CASE_OFFICER));
-    var regulatorTeamMembers = List.of(regulatorTeamMember);
-    when(teamService.getTeamMembers(regulatorTeam)).thenReturn(regulatorTeamMembers);
+
+    var caseOfficerPerson = PersonTestUtil.createDefaultPerson();
+    var caseOfficerAssignment = new Assignment
+        (pwaApplication.getBusinessKey(), WorkflowType.PWA_APPLICATION, WorkflowAssignment.CASE_OFFICER, caseOfficerPerson.getId());
+    when(assignmentService.getCaseOfficerAssignment(pwaApplication)).thenReturn(caseOfficerAssignment);
+    when(personService.getPersonById(caseOfficerAssignment.getAssigneePersonId())).thenReturn(caseOfficerPerson);
 
     var form = PublicNoticeApprovalTestUtil.createRejectedPublicNoticeForm();
     publicNoticeApprovalService.updatePublicNoticeRequest(form, pwaApplication, user);
@@ -199,14 +208,14 @@ public class PublicNoticeApprovalServiceTest {
     verify(camundaWorkflowService, times(1)).completeTask(new WorkflowTaskInstance(publicNotice,
         PwaApplicationPublicNoticeWorkflowTask.MANAGER_APPROVAL));
 
-    regulatorTeamMembers.forEach(teamMember -> {
+    List.of(caseOfficerPerson).forEach(teamMember -> {
       var expectedEmailProps = new PublicNoticeRejectedEmailProps(
-          teamMember.getPerson().getFullName(),
+          caseOfficerPerson.getFullName(),
           pwaApplication.getAppReference(),
           form.getRequestRejectedReason(),
           caseManagementLink);
 
-      verify(notifyService, times(1)).sendEmail(expectedEmailProps, teamMember.getPerson().getEmailAddress());
+      verify(notifyService, times(1)).sendEmail(expectedEmailProps, caseOfficerPerson.getEmailAddress());
     });
 
   }
