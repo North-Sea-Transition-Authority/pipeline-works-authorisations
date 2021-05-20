@@ -83,7 +83,7 @@ public class PwaOrganisationAccessorTest {
 
     pwaOrganisationAccessor.getOrgUnitsUserCanAccess(industryUser);
 
-    verify(portalOrganisationsAccessor, times(1)).getOrganisationUnitsForOrganisationGroupsIn(List.of(organisationGroup1));
+    verify(portalOrganisationsAccessor, times(1)).getActiveOrganisationUnitsForOrganisationGroupsIn(List.of(organisationGroup1));
 
   }
 
