@@ -35,12 +35,14 @@ WITH open_update_app_details AS (
   , pad.id pad_id
   , aur.id aur_id
   , aur.deadline_timestamp deadline_timestamp
+  , oaadh.deadline_date opt_approval_deadline_date
   , pcoo.id pcoo_id
   , CASE WHEN aur.id IS NOT NULL THEN 1 ELSE 0 END open_app_update
   , CASE WHEN oaa.id IS NOT NULL AND pcoo.id IS NULL THEN 1 ELSE 0 END unresponded_option_approval
   FROM ${datasource.user}.pwa_application_details pad
   LEFT JOIN ${datasource.user}.application_update_requests aur ON aur.pad_id = pad.id AND aur.status = 'OPEN'
   LEFT JOIN ${datasource.user}.options_application_approvals oaa ON oaa.pwa_application_id = pad.pwa_application_id
+  LEFT JOIN ${datasource.user}.options_app_appr_deadline_hist oaadh ON oaadh.options_app_approval_id = oaa.id AND oaadh.tip_flag = 1
   LEFT JOIN ${datasource.user}.pad_confirmation_of_option pcoo ON pcoo.application_detail_id = pad.id
 )
 SELECT
@@ -102,7 +104,7 @@ SELECT
   END open_consultation_req_flag
 , pn.status public_notice_status
 , CASE WHEN ouad.pad_id IS NOT NULL THEN 1 ELSE 0 END open_update_request_flag
-, ouad.deadline_timestamp
+, COALESCE(ouad.deadline_timestamp, ouad.opt_approval_deadline_date)
 , CASE WHEN pcr.id IS NOT NULL THEN 1 ELSE 0 END open_consent_review_flag
 FROM ${datasource.user}.pwa_application_details pad -- want 1 row per detail for maximum query flexibility. intended to be the only introduced cardinality
 JOIN ${datasource.user}.pwa_applications pa ON pad.pwa_application_id = pa.id
