@@ -79,16 +79,26 @@ public class HuooWriter implements ConsentWriter {
       var consents = pwaConsentService.getConsentsByMasterPwa(pwaApplicationDetail.getMasterPwa());
       var consentRoles = pwaConsentOrganisationRoleService.getActiveOrgRolesAddedByConsents(consents);
 
+      var consentRolesToEnd = new ArrayList<PwaConsentOrganisationRole>();
+
+      // any remaining consented org roles that are not associated with an actual org unit should be ended.
+      // If needed the app should have added replacements using actual org units.
+      var consentedMigratedOrgRoles = consentRoles.stream()
+          .filter(role -> role.getType() == HuooType.PORTAL_ORG)
+          .filter(role -> role.getMigratedOrganisationName() != null)
+          .collect(Collectors.toList());
+
+      consentRolesToEnd.addAll(consentedMigratedOrgRoles);
+
       // split into org unit and treaty maps
       var consentOrgUnitRoles = consentRoles.stream()
           .filter(role -> role.getType() == HuooType.PORTAL_ORG)
+          .filter(role -> role.getOrganisationUnitId() != null)
           .collect(Collectors.groupingBy(r -> new OrganisationUnitId(r.getOrganisationUnitId())));
 
       var consentTreatyRoles = consentRoles.stream()
           .filter(role -> role.getType() == HuooType.TREATY_AGREEMENT)
           .collect(Collectors.groupingBy(PwaConsentOrganisationRole::getAgreement));
-
-      var consentRolesToEnd = new ArrayList<PwaConsentOrganisationRole>();
 
       // process org unit roles
       processRoles(consentOrgUnitRoles, appOrgUnitRoles, orgUnitConsentRolesToAdd, consentRolesToEnd);

@@ -13,6 +13,20 @@ public class PwaConsentOrganisationRoleTestUtil {
   }
 
 
+  public static PwaConsentOrganisationRole createMigratedOrgRole(PwaConsent pwaConsent,
+                                                                  String migratedOrgRoleName,
+                                                                  HuooRole huooRole){
+
+    var orgRole = new PwaConsentOrganisationRole();
+    orgRole.setAddedByPwaConsent(pwaConsent);
+    orgRole.setMigratedOrganisationName(migratedOrgRoleName);
+    orgRole.setRole(huooRole);
+    orgRole.setType(HuooType.PORTAL_ORG);
+    orgRole.setStartTimestamp(Instant.now());
+    return orgRole;
+
+  }
+
   public static PwaConsentOrganisationRole createOrganisationRole(PwaConsent pwaConsent,
                                                                   OrganisationUnitId organisationUnitId,
                                                                   HuooRole huooRole){
