@@ -221,8 +221,6 @@ public class HuooWriterTest {
 
     verify(consentOrganisationRoleService, times(1)).getActiveOrgRolesAddedByConsents(consents);
 
-    // expect end method is called with empty list, nothing to do
-    var expectedConsentRolesEnded = new ArrayList<PwaConsentOrganisationRole>();
     verify(consentOrganisationRoleService, times(1))
         .endConsentOrgRoles(pwaConsent, List.of(migratedHolderOrg, migratedUserOrg, migratedOwnerOrg, migratedOperatorOrg));
 
