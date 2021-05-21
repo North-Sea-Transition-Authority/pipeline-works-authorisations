@@ -193,6 +193,51 @@ public class HuooWriterTest {
   }
 
   @Test
+  public void write_variation_noAdditions_existingMigratedOrgRoles() {
+
+    var initialConsent = new PwaConsent();
+    initialConsent.setVariationNumber(0);
+    initialConsent.setConsentType(PwaConsentType.INITIAL_PWA);
+
+    var migratedHolderOrg = PwaConsentOrganisationRoleTestUtil
+        .createMigratedOrgRole(initialConsent, "Some org", HuooRole.HOLDER);
+    var migratedUserOrg = PwaConsentOrganisationRoleTestUtil
+        .createMigratedOrgRole(initialConsent, "Some org", HuooRole.USER);
+    var migratedOwnerOrg = PwaConsentOrganisationRoleTestUtil
+        .createMigratedOrgRole(initialConsent, "Some org", HuooRole.OWNER);
+    var migratedOperatorOrg = PwaConsentOrganisationRoleTestUtil
+        .createMigratedOrgRole(initialConsent, "Some org", HuooRole.OPERATOR);
+
+    consentedRoles = List.of(migratedHolderOrg, migratedUserOrg, migratedOwnerOrg, migratedOperatorOrg);
+
+    when(consentOrganisationRoleService.getActiveOrgRolesAddedByConsents(consents)).thenReturn(consentedRoles);
+
+    pwaConsent.setVariationNumber(1);
+
+    when(padOrganisationRoleService.getOrgRolesForDetail(detail))
+        .thenReturn(List.of());
+
+    huooWriter.write(detail, pwaConsent, consentWriterDto);
+
+    verify(consentOrganisationRoleService, times(1)).getActiveOrgRolesAddedByConsents(consents);
+
+    verify(consentOrganisationRoleService, times(1))
+        .endConsentOrgRoles(pwaConsent, List.of(migratedHolderOrg, migratedUserOrg, migratedOwnerOrg, migratedOperatorOrg));
+
+    // expect add org method is called with empty map, nothing to do
+    Multimap<OrganisationUnitId, HuooRole> expectedOrgUnitRolesCreated = HashMultimap.create();
+    verify(consentOrganisationRoleService, times(1)).createNewConsentOrgUnitRoles(pwaConsent, expectedOrgUnitRolesCreated);
+
+    // expect add treaty method is called with empty map, nothing to do
+    Multimap<TreatyAgreement, HuooRole> expectedTreatyRolesCreated = HashMultimap.create();
+    verify(consentOrganisationRoleService, times(1)).createNewConsentTreatyRoles(pwaConsent, expectedTreatyRolesCreated);
+
+    assertThat(consentWriterDto.getActiveConsentRoles()).isEmpty();
+    assertThat(consentWriterDto.getConsentRolesEnded()).containsAll(consentedRoles);
+
+  }
+
+  @Test
   public void write_variation_changes() {
 
     pwaConsent.setVariationNumber(1);
