@@ -177,7 +177,7 @@ public class AssignmentServiceTest {
   }
 
   @Test
-  public void getAssignmentForWorkflowAssignment_verifyRepoInteraction_noException() {
+  public void getAssignmentOrError_verifyRepoInteraction_noException() {
 
     var workflowSubject = new GenericWorkflowSubject(1, WorkflowType.PWA_APPLICATION);
     var assignment = new Assignment(
@@ -193,7 +193,7 @@ public class AssignmentServiceTest {
   }
 
   @Test(expected = IllegalStateException.class)
-  public void getAssignmentForWorkflowAssignment_verifyRepoInteraction_noAssignmentFound_exceptionThrown() {
+  public void getAssignmentOrError_verifyRepoInteraction_noAssignmentFound_exceptionThrown() {
 
     var workflowSubject = new GenericWorkflowSubject(1, WorkflowType.PWA_APPLICATION);
     when(assignmentRepository.findByBusinessKeyAndWorkflowAssignmentAndWorkflowType(
