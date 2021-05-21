@@ -102,7 +102,7 @@ SELECT
   END open_consultation_req_flag
 , pn.status public_notice_status
 , CASE WHEN ouad.pad_id IS NOT NULL THEN 1 ELSE 0 END open_update_request_flag
-, COALESCE(ouad.deadline_timestamp, ouad.opt_approval_deadline_date)
+, COALESCE(ouad.deadline_timestamp, ouad.opt_approval_deadline_date) deadline_timestamp
 , CASE WHEN pcr.id IS NOT NULL THEN 1 ELSE 0 END open_consent_review_flag
 FROM ${datasource.user}.pwa_application_details pad -- want 1 row per detail for maximum query flexibility. intended to be the only introduced cardinality
 JOIN ${datasource.user}.pwa_applications pa ON pad.pwa_application_id = pa.id
