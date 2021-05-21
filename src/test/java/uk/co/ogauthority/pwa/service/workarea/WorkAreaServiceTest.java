@@ -24,6 +24,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.workflow.assignment.Assignment;
 import uk.co.ogauthority.pwa.model.workflow.GenericWorkflowSubject;
 import uk.co.ogauthority.pwa.mvc.PageView;
+import uk.co.ogauthority.pwa.repository.asbuilt.AsBuiltNotificationWorkAreaItem;
 import uk.co.ogauthority.pwa.service.appprocessing.publicnotice.PublicNoticeService;
 import uk.co.ogauthority.pwa.service.appprocessing.publicnotice.PublicNoticeTestUtil;
 import uk.co.ogauthority.pwa.service.enums.workflow.WorkflowType;
@@ -31,6 +32,7 @@ import uk.co.ogauthority.pwa.service.enums.workflow.assignment.WorkflowAssignmen
 import uk.co.ogauthority.pwa.service.workarea.applications.IndustryWorkAreaPageService;
 import uk.co.ogauthority.pwa.service.workarea.applications.PwaApplicationWorkAreaItem;
 import uk.co.ogauthority.pwa.service.workarea.applications.RegulatorWorkAreaPageService;
+import uk.co.ogauthority.pwa.service.workarea.asbuilt.AsBuiltWorkAreaPageService;
 import uk.co.ogauthority.pwa.service.workarea.consultations.ConsultationRequestWorkAreaItem;
 import uk.co.ogauthority.pwa.service.workarea.consultations.ConsultationWorkAreaPageService;
 import uk.co.ogauthority.pwa.service.workflow.assignment.AssignmentService;
@@ -40,7 +42,7 @@ import uk.co.ogauthority.pwa.testutils.WorkAreaTestUtils;
 public class WorkAreaServiceTest {
 
   @Mock
-  private AsBuiltWorkareaPageService asBuiltWorkareaPageService;
+  private AsBuiltWorkAreaPageService asBuiltWorkAreaPageService;
 
   @Mock
   private IndustryWorkAreaPageService industryWorkAreaPageService;
@@ -61,6 +63,7 @@ public class WorkAreaServiceTest {
 
   private PageView<PwaApplicationWorkAreaItem> appPageView;
   private PageView<ConsultationRequestWorkAreaItem> consultationPageView;
+  private PageView<AsBuiltNotificationWorkAreaItem> asBuiltNotificationPageView;
 
   private AuthenticatedUserAccount authenticatedUserAccount = new AuthenticatedUserAccount(new WebUserAccount(1,
       PersonTestUtil.createDefaultPerson()), List.of());
@@ -69,7 +72,7 @@ public class WorkAreaServiceTest {
   public void setUp() {
 
     this.workAreaService = new WorkAreaService(
-        asBuiltWorkareaPageService, industryWorkAreaPageService,
+        asBuiltWorkAreaPageService, industryWorkAreaPageService,
         consultationWorkAreaPageService,
         regulatorWorkAreaPageService,
         publicNoticeService,
@@ -83,6 +86,10 @@ public class WorkAreaServiceTest {
 
     consultationPageView = WorkAreaTestUtils.setUpFakeConsultationPageView(0);
     when(consultationWorkAreaPageService.getPageView(any(), any(), anyInt())).thenReturn(consultationPageView);
+
+    asBuiltNotificationPageView = WorkAreaTestUtils.setUpFakeAsBuiltNotificationPageView(0);
+    when(asBuiltWorkAreaPageService.getAsBuiltNotificationsPageView(any(), anyInt()))
+        .thenReturn(asBuiltNotificationPageView);
   }
 
   @Test
@@ -258,13 +265,16 @@ public class WorkAreaServiceTest {
 
   }
 
-  //TODO: IMPROVE AS-BUILT NOTIFICATIONS TAB TESTS PWA-1248
   @Test
-  public void getWorkAreaResult_asBuiltNotificationsTab() {
+  public void getWorkAreaResult_asBuiltNotificationsTab_resultsExist() {
 
     var workAreaResult = workAreaService.getWorkAreaResult(authenticatedUserAccount, WorkAreaTab.AS_BUILT_NOTIFICATIONS, 0);
 
-    verify(asBuiltWorkareaPageService, times(1)).getAsBuiltNotificationsPageView(0);
+    verify(asBuiltWorkAreaPageService).getAsBuiltNotificationsPageView(authenticatedUserAccount, 0);
+
+    assertThat(workAreaResult.getApplicationsTabPages()).isNull();
+    assertThat(workAreaResult.getConsultationsTabPages()).isNull();
+    assertThat(workAreaResult.getAsBuiltNotificationTabPages()).isEqualTo(asBuiltNotificationPageView);
 
   }
 
