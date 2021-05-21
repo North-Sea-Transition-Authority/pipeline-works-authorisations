@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
+import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -13,6 +14,7 @@ import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.service.enums.users.UserType;
+import uk.co.ogauthority.pwa.service.teams.TeamService;
 import uk.co.ogauthority.pwa.service.users.UserTypeService;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -26,10 +28,13 @@ public class WorkAreaTabServiceTest {
   @Mock
   private UserTypeService userTypeService;
 
+  @Mock
+  private TeamService teamService;
+
   @Before
   public void setUp() {
 
-    workAreaTabService = new WorkAreaTabService(userTypeService);
+    workAreaTabService = new WorkAreaTabService(userTypeService, teamService);
 
   }
 
@@ -116,6 +121,21 @@ public class WorkAreaTabServiceTest {
     var tabs = workAreaTabService.getTabsAvailableToUser(user);
 
     assertThat(tabs).isEmpty();
+
+  }
+
+
+  @Test
+  public void getTabsAvailableToUser_filterByPwaUserPriviledge_asBuiltNotifications() {
+
+    when(userTypeService.getPriorityUserType(user)).thenReturn(UserType.OGA);
+    when(teamService.getAllUserPrivilegesForPerson(user.getLinkedPerson()))
+        .thenReturn(Set.of(PwaUserPrivilege.PWA_ASBUILT_WORKAREA));
+
+    var tabs = workAreaTabService.getTabsAvailableToUser(user);
+
+    assertThat(tabs).containsExactly(WorkAreaTab.REGULATOR_REQUIRES_ATTENTION, WorkAreaTab.REGULATOR_WAITING_ON_OTHERS,
+        WorkAreaTab.AS_BUILT_NOTIFICATIONS);
 
   }
 

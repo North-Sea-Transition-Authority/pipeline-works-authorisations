@@ -100,22 +100,22 @@ public class TeamManagementServiceTest {
     var manageAnyOrgRegulatorPerson = new Person(4, "regOrg", "manage", "regOrg@manage.com", "0");
     manageAnyOrgRegulatorUser = new AuthenticatedUserAccount(new WebUserAccount(4, manageAnyOrgRegulatorPerson), List.of());
     when(teamService.getAllUserPrivilegesForPerson(manageAnyOrgRegulatorPerson))
-        .thenReturn(List.of(PwaUserPrivilege.PWA_REG_ORG_MANAGE));
+        .thenReturn(Set.of(PwaUserPrivilege.PWA_REG_ORG_MANAGE));
 
     var manageRegTeamRegulatorPerson = new Person(5, "regTeam", "manage", "regTeam@manage.com", "0");
     manageRegTeamRegulatorUser = new AuthenticatedUserAccount(new WebUserAccount(5, manageRegTeamRegulatorPerson), List.of());
     when(teamService.getAllUserPrivilegesForPerson(manageRegTeamRegulatorPerson))
-        .thenReturn(List.of(PwaUserPrivilege.PWA_REGULATOR_ADMIN));
+        .thenReturn(Set.of(PwaUserPrivilege.PWA_REGULATOR_ADMIN));
 
     var manageAllTeamsPerson = new Person(6, "all", "manage", "all@manage.com", "0");
     manageAllTeamsUser = new AuthenticatedUserAccount(new WebUserAccount(6, manageAllTeamsPerson), List.of());
     when(teamService.getAllUserPrivilegesForPerson(manageAllTeamsPerson))
-        .thenReturn(List.of(PwaUserPrivilege.PWA_REGULATOR_ADMIN, PwaUserPrivilege.PWA_REG_ORG_MANAGE));
+        .thenReturn(Set.of(PwaUserPrivilege.PWA_REGULATOR_ADMIN, PwaUserPrivilege.PWA_REG_ORG_MANAGE));
 
     var workareaOnlyPerson = new Person(7, "workarea", "only", "workarea@only.com", "0");
     workareaOnlyUser = new AuthenticatedUserAccount(new WebUserAccount(7, workareaOnlyPerson), List.of());
     when(teamService.getAllUserPrivilegesForPerson(workareaOnlyPerson))
-        .thenReturn(List.of(PwaUserPrivilege.PWA_WORKAREA));
+        .thenReturn(Set.of(PwaUserPrivilege.PWA_WORKAREA));
 
     var portalOrganisationGroup1 = TeamTestingUtils.generateOrganisationGroup(111, "GROUP1", "GRP1");
     organisationTeam1 = new PwaOrganisationTeam(222, "team1", "team1", portalOrganisationGroup1);
@@ -373,20 +373,20 @@ public class TeamManagementServiceTest {
 
   @Test
   public void canManageAnyOrgTeam() {
-    assertThat(teamManagementService.canManageAnyOrgTeam(List.of(PwaUserPrivilege.PWA_REG_ORG_MANAGE))).isTrue();
-    assertThat(teamManagementService.canManageAnyOrgTeam(List.of(PwaUserPrivilege.PWA_WORKAREA, PwaUserPrivilege.PWA_REG_ORG_MANAGE))).isTrue();
+    assertThat(teamManagementService.canManageAnyOrgTeam(Set.of(PwaUserPrivilege.PWA_REG_ORG_MANAGE))).isTrue();
+    assertThat(teamManagementService.canManageAnyOrgTeam(Set.of(PwaUserPrivilege.PWA_WORKAREA, PwaUserPrivilege.PWA_REG_ORG_MANAGE))).isTrue();
 
-    assertThat(teamManagementService.canManageAnyOrgTeam(List.of(PwaUserPrivilege.PWA_WORKAREA))).isFalse();
-    assertThat(teamManagementService.canManageAnyOrgTeam(List.of(PwaUserPrivilege.PWA_WORKAREA, PwaUserPrivilege.PWA_REGULATOR_ADMIN))).isFalse();
+    assertThat(teamManagementService.canManageAnyOrgTeam(Set.of(PwaUserPrivilege.PWA_WORKAREA))).isFalse();
+    assertThat(teamManagementService.canManageAnyOrgTeam(Set.of(PwaUserPrivilege.PWA_WORKAREA, PwaUserPrivilege.PWA_REGULATOR_ADMIN))).isFalse();
   }
 
   @Test
   public void canManageRegulatorTeam() {
-    assertThat(teamManagementService.canManageRegulatorTeam(List.of(PwaUserPrivilege.PWA_REGULATOR_ADMIN))).isTrue();
-    assertThat(teamManagementService.canManageRegulatorTeam(List.of(PwaUserPrivilege.PWA_WORKAREA, PwaUserPrivilege.PWA_REGULATOR_ADMIN))).isTrue();
+    assertThat(teamManagementService.canManageRegulatorTeam(Set.of(PwaUserPrivilege.PWA_REGULATOR_ADMIN))).isTrue();
+    assertThat(teamManagementService.canManageRegulatorTeam(Set.of(PwaUserPrivilege.PWA_WORKAREA, PwaUserPrivilege.PWA_REGULATOR_ADMIN))).isTrue();
 
-    assertThat(teamManagementService.canManageRegulatorTeam(List.of(PwaUserPrivilege.PWA_WORKAREA))).isFalse();
-    assertThat(teamManagementService.canManageRegulatorTeam(List.of(PwaUserPrivilege.PWA_WORKAREA, PwaUserPrivilege.PWA_REG_ORG_MANAGE))).isFalse();
+    assertThat(teamManagementService.canManageRegulatorTeam(Set.of(PwaUserPrivilege.PWA_WORKAREA))).isFalse();
+    assertThat(teamManagementService.canManageRegulatorTeam(Set.of(PwaUserPrivilege.PWA_WORKAREA, PwaUserPrivilege.PWA_REG_ORG_MANAGE))).isFalse();
   }
 
 

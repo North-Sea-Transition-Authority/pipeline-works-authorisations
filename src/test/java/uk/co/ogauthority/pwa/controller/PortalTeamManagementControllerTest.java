@@ -31,6 +31,7 @@ import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.teams.PortalTeamManagementController;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
+import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationTestUtils;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.form.teammanagement.UserRolesForm;
 import uk.co.ogauthority.pwa.model.teammanagement.TeamMemberView;
@@ -86,7 +87,9 @@ public class PortalTeamManagementControllerTest extends AbstractControllerTest {
     organisationTeamAdminPerson = new Person(2, "Organisation", "Admin", "org@admin.org", "0");
 
     regulatorTeam = TeamTestingUtils.getRegulatorTeam();
-    organisationTeam = TeamTestingUtils.getOrganisationTeam(TeamTestingUtils.createOrgUnit().getPortalOrganisationGroup());
+    organisationTeam = TeamTestingUtils.getOrganisationTeam(
+        PortalOrganisationTestUtils.generateOrganisationGroup(100, "ORGANISATION_GROUP", "ORG_GRP")
+    );
 
     when(teamManagementService.getTeamOrError(regulatorTeam.getId())).thenReturn(regulatorTeam);
     when(teamManagementService.getTeamOrError(UNKNOWN_RES_ID)).thenThrow(new PwaEntityNotFoundException(""));

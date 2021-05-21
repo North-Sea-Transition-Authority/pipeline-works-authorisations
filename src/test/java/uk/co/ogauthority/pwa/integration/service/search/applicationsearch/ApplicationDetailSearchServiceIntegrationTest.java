@@ -23,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationGroup;
+import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationTestUtils;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.model.dto.consultations.ConsulteeGroupId;
 import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
@@ -49,7 +50,6 @@ import uk.co.ogauthority.pwa.service.search.applicationsearch.ApplicationSearchC
 import uk.co.ogauthority.pwa.service.search.applicationsearch.ApplicationSearchContextTestUtil;
 import uk.co.ogauthority.pwa.service.search.applicationsearch.ApplicationSearchParameters;
 import uk.co.ogauthority.pwa.service.search.applicationsearch.ApplicationSearchParametersBuilder;
-import uk.co.ogauthority.pwa.testutils.PortalOrganisationTestUtils;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest

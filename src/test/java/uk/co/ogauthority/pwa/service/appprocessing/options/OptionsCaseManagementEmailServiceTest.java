@@ -27,6 +27,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
 import uk.co.ogauthority.pwa.energyportal.model.entity.PersonTestUtil;
+import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationTestUtils;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
@@ -41,7 +42,6 @@ import uk.co.ogauthority.pwa.service.notify.NotifyService;
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
 import uk.co.ogauthority.pwa.service.pwaconsents.MasterPwaHolderDto;
 import uk.co.ogauthority.pwa.service.pwaconsents.PwaConsentOrganisationRoleService;
-import uk.co.ogauthority.pwa.testutils.PortalOrganisationTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -96,7 +96,7 @@ public class OptionsCaseManagementEmailServiceTest {
     preparerContactPerson = PersonTestUtil.createPersonFrom(PREPARER_PERSON_ID, "contact@email.com");
     caseOfficerPerson = PersonTestUtil.createPersonFrom(CASE_OFFICER_PERSON_ID, "caseOfficer@email.com");
 
-    organisationUnit = PortalOrganisationTestUtils.getOrganisationUnit();
+    organisationUnit = PortalOrganisationTestUtils.getOrganisationUnitInOrgGroup();
     var pwaConsent = new PwaConsent();
     masterPwaHolderDto = new MasterPwaHolderDto(organisationUnit, pwaConsent);
 

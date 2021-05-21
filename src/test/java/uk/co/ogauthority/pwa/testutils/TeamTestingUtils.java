@@ -9,6 +9,7 @@ import uk.co.ogauthority.pwa.energyportal.model.dto.teams.PortalTeamDto;
 import uk.co.ogauthority.pwa.energyportal.model.dto.teams.PortalTeamMemberDto;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationGroup;
+import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationTestUtils;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
 import uk.co.ogauthority.pwa.model.teams.PwaOrganisationTeam;
@@ -97,16 +98,8 @@ public class TeamTestingUtils {
 
   private static PortalOrganisationUnit generateOrganisationUnit(int ouId, String name,
                                                                 PortalOrganisationGroup portalOrganisationGroup) {
-    PortalOrganisationUnit organisationUnit = new PortalOrganisationUnit();
-    try {
-      FieldUtils.writeField(organisationUnit, "ouId", ouId, true);
-      FieldUtils.writeField(organisationUnit, "name", name, true);
-      FieldUtils.writeField(organisationUnit, "portalOrganisationGroup", portalOrganisationGroup, true);
-    } catch (IllegalAccessException e) {
-      e.printStackTrace();
-    }
-
-    return organisationUnit;
+    return PortalOrganisationTestUtils.generateOrganisationUnit(
+        ouId, name, portalOrganisationGroup);
   }
 
   public static PortalOrganisationGroup generateOrganisationGroup(int orgGrpId, String name, String shortName) {

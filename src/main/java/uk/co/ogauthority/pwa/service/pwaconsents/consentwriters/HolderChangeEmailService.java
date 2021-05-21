@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationGroup;
@@ -19,6 +22,8 @@ import uk.co.ogauthority.pwa.service.teams.TeamService;
 
 @Service
 public class HolderChangeEmailService {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(HolderChangeEmailService.class);
 
   private final PortalOrganisationsAccessor portalOrganisationsAccessor;
   private final TeamService teamService;
@@ -54,8 +59,21 @@ public class HolderChangeEmailService {
     holderOuIds.addAll(holderOuIdsEnded);
     holderOuIds.addAll(holderOuIdsAdded);
 
-    var ouIdToOrgGroupMap = portalOrganisationsAccessor.getOrganisationUnitsByIdIn(holderOuIds).stream()
-        .collect(Collectors.toMap(PortalOrganisationUnit::getOuId, PortalOrganisationUnit::getPortalOrganisationGroup));
+    var holderOrgUnits = portalOrganisationsAccessor.getOrganisationUnitsByIdIn(holderOuIds);
+
+    var ouIdsWithNoOrgGroupCsv = holderOrgUnits.stream()
+        .filter(o -> o.getPortalOrganisationGroup().isEmpty())
+        .map(o -> String.valueOf(o.getOuId()))
+        .collect(Collectors.joining(","));
+
+    if (!StringUtils.isEmpty(ouIdsWithNoOrgGroupCsv)) {
+      LOGGER.error("Found holder org units not associated with org groups and cannot email. paId={} ouIds={}",
+          pwaApplication.getId(), ouIdsWithNoOrgGroupCsv);
+    }
+
+    var ouIdToOrgGroupMap = holderOrgUnits.stream()
+        .filter(o -> o.getPortalOrganisationGroup().isPresent())
+        .collect(Collectors.toMap(PortalOrganisationUnit::getOuId, o -> o.getPortalOrganisationGroup().get()));
 
     var oldHolderCsv = getHolderNameCsv(holderOuIdsEnded, ouIdToOrgGroupMap);
 

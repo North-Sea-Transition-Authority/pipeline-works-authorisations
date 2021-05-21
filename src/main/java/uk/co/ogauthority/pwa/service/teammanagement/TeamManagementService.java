@@ -121,7 +121,7 @@ public class TeamManagementService {
   public List<PwaTeam> getAllPwaTeamsUserCanManage(AuthenticatedUserAccount user) {
     List<PwaTeam> teamList = new ArrayList<>();
 
-    List<PwaUserPrivilege> userPrivileges = teamService.getAllUserPrivilegesForPerson(user.getLinkedPerson());
+    Set<PwaUserPrivilege> userPrivileges = teamService.getAllUserPrivilegesForPerson(user.getLinkedPerson());
 
     //If the logged in user is the team administrator for the regulator admin team then get the regulator team
     if (canManageRegulatorTeam(userPrivileges)) {
@@ -279,7 +279,7 @@ public class TeamManagementService {
   public boolean canManageTeam(PwaTeam team, AuthenticatedUserAccount user) {
     // This does a full reload of privs which is slow.
     // Could use the ones cached against the AuthenticatedUserAccount if performance is an issue.
-    List<PwaUserPrivilege> userPrivileges = teamService.getAllUserPrivilegesForPerson(user.getLinkedPerson());
+    Set<PwaUserPrivilege> userPrivileges = teamService.getAllUserPrivilegesForPerson(user.getLinkedPerson());
 
     if (canManageAnyOrgTeam(userPrivileges) && team.getType().equals(PwaTeamType.ORGANISATION)) {
       // If the logged in user is a regulator with the organisation manage priv then they can manage any organisation team
@@ -330,13 +330,13 @@ public class TeamManagementService {
   }
 
   @VisibleForTesting
-  boolean canManageRegulatorTeam(List<PwaUserPrivilege> userPrivileges) {
+  boolean canManageRegulatorTeam(Set<PwaUserPrivilege> userPrivileges) {
     return userPrivileges.stream()
         .anyMatch(p -> p.equals(PwaUserPrivilege.PWA_REGULATOR_ADMIN));
   }
 
   @VisibleForTesting
-  boolean canManageAnyOrgTeam(List<PwaUserPrivilege> userPrivileges) {
+  boolean canManageAnyOrgTeam(Set<PwaUserPrivilege> userPrivileges) {
     return userPrivileges.stream()
         .anyMatch(p -> p.equals(PwaUserPrivilege.PWA_REG_ORG_MANAGE));
   }

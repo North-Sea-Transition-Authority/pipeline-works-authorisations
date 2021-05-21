@@ -17,12 +17,12 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
 import uk.co.ogauthority.pwa.energyportal.model.entity.PersonTestUtil;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationGroup;
+import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationTestUtils;
 import uk.co.ogauthority.pwa.energyportal.service.organisations.PortalOrganisationsAccessor;
 import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
 import uk.co.ogauthority.pwa.service.enums.users.UserType;
 import uk.co.ogauthority.pwa.service.teams.TeamService;
 import uk.co.ogauthority.pwa.service.users.UserTypeService;
-import uk.co.ogauthority.pwa.testutils.PortalOrganisationTestUtils;
 import uk.co.ogauthority.pwa.testutils.TeamTestingUtils;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -83,7 +83,7 @@ public class PwaOrganisationAccessorTest {
 
     pwaOrganisationAccessor.getOrgUnitsUserCanAccess(industryUser);
 
-    verify(portalOrganisationsAccessor, times(1)).getOrganisationUnitsForOrganisationGroupsIn(List.of(organisationGroup1));
+    verify(portalOrganisationsAccessor, times(1)).getActiveOrganisationUnitsForOrganisationGroupsIn(List.of(organisationGroup1));
 
   }
 
@@ -101,7 +101,7 @@ public class PwaOrganisationAccessorTest {
 
     pwaOrganisationAccessor.getOrgUnitsUserCanAccess(ogaUser);
 
-    verify(portalOrganisationsAccessor, times(1)).getAllOrganisationUnits();
+    verify(portalOrganisationsAccessor, times(1)).getAllActiveOrganisationUnits();
 
   }
 

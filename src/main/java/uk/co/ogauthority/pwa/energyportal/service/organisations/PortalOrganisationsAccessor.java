@@ -32,10 +32,9 @@ public class PortalOrganisationsAccessor {
   private final PortalOrganisationUnitDetailRepository organisationUnitDetailRepository;
 
   @Autowired
-  public PortalOrganisationsAccessor(
-      PortalOrganisationGroupRepository organisationGroupRepository,
-      PortalOrganisationUnitRepository organisationUnitRepository,
-      PortalOrganisationUnitDetailRepository organisationUnitDetailRepository) {
+  public PortalOrganisationsAccessor(PortalOrganisationGroupRepository organisationGroupRepository,
+                                     PortalOrganisationUnitRepository organisationUnitRepository,
+                                     PortalOrganisationUnitDetailRepository organisationUnitDetailRepository) {
     this.organisationGroupRepository = organisationGroupRepository;
     this.organisationUnitRepository = organisationUnitRepository;
     this.organisationUnitDetailRepository = organisationUnitDetailRepository;
@@ -61,30 +60,20 @@ public class PortalOrganisationsAccessor {
   }
 
   /**
-   * Return a list of  all organisation units where the search term is contained within the actual name.
+   * Return a list of all active organisation units where the search term is contained within the actual name.
    *
    * @param searchString find org units with name containing this string
    * @return organisation unit Entities matching search term.
    */
-  public List<PortalOrganisationUnit> findOrganisationUnitsWhereNameContains(String searchString) {
-    return organisationUnitRepository.findByNameContainingIgnoreCase(searchString);
+  public List<PortalOrganisationUnit> findActiveOrganisationUnitsWhereNameContains(String searchString, Pageable pageable) {
+    return organisationUnitRepository.findByNameContainingIgnoreCaseAndIsActiveIsTrue(searchString, pageable);
   }
 
   /**
-   * Return a list of  all organisation units where the search term is contained within the actual name.
-   *
-   * @param searchString find org units with name containing this string
-   * @return organisation unit Entities matching search term.
+   * Returns a list of all active organisation units.
    */
-  public List<PortalOrganisationUnit> findOrganisationUnitsWhereNameContains(String searchString, Pageable pageable) {
-    return organisationUnitRepository.findByNameContainingIgnoreCase(searchString, pageable);
-  }
-
-  /**
-   * Returns a list of all organisation units.
-   */
-  public List<PortalOrganisationUnit> getAllOrganisationUnits() {
-    return organisationUnitRepository.findAll();
+  public List<PortalOrganisationUnit> getAllActiveOrganisationUnits() {
+    return organisationUnitRepository.findByIsActiveIsTrue();
   }
 
   /**
@@ -156,6 +145,14 @@ public class PortalOrganisationsAccessor {
   public List<PortalOrganisationUnit> getOrganisationUnitsForOrganisationGroupsIn(
       Collection<PortalOrganisationGroup> organisationGroups) {
     return organisationUnitRepository.findByPortalOrganisationGroupIn(List.copyOf(organisationGroups));
+  }
+
+  /**
+   * Returns a list of Active organisation units which belong to organisation groups in the provided list.
+   */
+  public List<PortalOrganisationUnit> getActiveOrganisationUnitsForOrganisationGroupsIn(
+      Collection<PortalOrganisationGroup> organisationGroups) {
+    return organisationUnitRepository.findByPortalOrganisationGroupInAndIsActiveIsTrue(List.copyOf(organisationGroups));
   }
 
 }

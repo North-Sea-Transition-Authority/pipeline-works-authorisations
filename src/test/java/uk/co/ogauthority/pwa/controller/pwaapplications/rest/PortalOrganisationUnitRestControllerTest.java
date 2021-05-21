@@ -1,14 +1,11 @@
 package uk.co.ogauthority.pwa.controller.pwaapplications.rest;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
 
-import java.util.List;
 import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
@@ -40,7 +37,6 @@ public class PortalOrganisationUnitRestControllerTest extends PwaApplicationCont
 
   @Before
   public void setUp() {
-    when(portalOrganisationsAccessor.findOrganisationUnitsWhereNameContains(any())).thenReturn(List.of());
     user = new AuthenticatedUserAccount(new WebUserAccount(), Set.of());
   }
 

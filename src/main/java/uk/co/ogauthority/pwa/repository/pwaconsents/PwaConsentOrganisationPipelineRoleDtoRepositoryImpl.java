@@ -5,6 +5,7 @@ import java.util.stream.Collectors;
 import javax.persistence.EntityManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import uk.co.ogauthority.pwa.model.dto.consents.OrganisationPipelineRoleInstanceDto;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PhysicalPipelineState;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineStatus;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
@@ -21,7 +22,7 @@ public class PwaConsentOrganisationPipelineRoleDtoRepositoryImpl implements PwaC
 
   @Override
   public List<OrganisationPipelineRoleInstanceDto> findActiveOrganisationPipelineRolesByMasterPwa(MasterPwa masterPwa) {
-    var importableHuooPipelineStatus = PipelineStatus.currentStatusSet();
+    var importableHuooPipelineStatus = PipelineStatus.getStatusesWithState(PhysicalPipelineState.ON_SEABED);
 
     var query = entityManager.createQuery("" +
             "SELECT new uk.co.ogauthority.pwa.model.dto.consents.OrganisationPipelineRoleInstanceDto( " +

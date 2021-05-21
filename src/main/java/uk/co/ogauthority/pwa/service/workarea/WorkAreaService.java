@@ -23,6 +23,7 @@ public class WorkAreaService {
 
   public static final int PAGE_SIZE = 10;
 
+  private final AsBuiltWorkareaPageService asBuiltWorkareaPageService;
   private final IndustryWorkAreaPageService industryWorkAreaPageService;
   private final ConsultationWorkAreaPageService consultationWorkAreaPageService;
   private final RegulatorWorkAreaPageService regulatorWorkAreaPageService;
@@ -30,11 +31,14 @@ public class WorkAreaService {
   private final AssignmentService assignmentService;
 
   @Autowired
-  public WorkAreaService(IndustryWorkAreaPageService industryWorkAreaPageService,
-                         ConsultationWorkAreaPageService consultationWorkAreaPageService,
-                         RegulatorWorkAreaPageService regulatorWorkAreaPageService,
-                         PublicNoticeService publicNoticeService,
-                         AssignmentService assignmentService) {
+  public WorkAreaService(
+      AsBuiltWorkareaPageService asBuiltWorkareaPageService,
+      IndustryWorkAreaPageService industryWorkAreaPageService,
+      ConsultationWorkAreaPageService consultationWorkAreaPageService,
+      RegulatorWorkAreaPageService regulatorWorkAreaPageService,
+      PublicNoticeService publicNoticeService,
+      AssignmentService assignmentService) {
+    this.asBuiltWorkareaPageService = asBuiltWorkareaPageService;
     this.industryWorkAreaPageService = industryWorkAreaPageService;
     this.consultationWorkAreaPageService = consultationWorkAreaPageService;
     this.regulatorWorkAreaPageService = regulatorWorkAreaPageService;
@@ -98,6 +102,9 @@ public class WorkAreaService {
         businessKeys = getBusinessKeysFromWorkflowToTaskMap(workflowTypeToAssignmentMap, WorkflowType.PWA_APPLICATION_CONSULTATION);
         return new WorkAreaResult(null,
             consultationWorkAreaPageService.getPageView(authenticatedUserAccount, businessKeys, page));
+
+      case AS_BUILT_NOTIFICATIONS:
+        return new WorkAreaResult(asBuiltWorkareaPageService.getAsBuiltNotificationsPageView(page), null);
 
       default:
         throw new RuntimeException(String.format(

@@ -10,11 +10,11 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrgan
 public interface PortalOrganisationUnitRepository extends CrudRepository<PortalOrganisationUnit, Integer> {
 
   @EntityGraph(attributePaths = "portalOrganisationGroup")
-  List<PortalOrganisationUnit> findAll();
+  List<PortalOrganisationUnit> findByIsActiveIsTrue();
 
-  List<PortalOrganisationUnit> findByNameContainingIgnoreCase(String searchTerm);
-
-  List<PortalOrganisationUnit> findByNameContainingIgnoreCase(String searchTerm, Pageable pageable);
+  List<PortalOrganisationUnit> findByNameContainingIgnoreCaseAndIsActiveIsTrue(String searchTerm, Pageable pageable);
 
   List<PortalOrganisationUnit> findByPortalOrganisationGroupIn(List<PortalOrganisationGroup> organisationGroups);
+
+  List<PortalOrganisationUnit> findByPortalOrganisationGroupInAndIsActiveIsTrue(List<PortalOrganisationGroup> organisationGroups);
 }

@@ -6,7 +6,7 @@ import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
-import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
+import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationTestUtils;
 import uk.co.ogauthority.pwa.model.dto.consents.OrganisationRoleOwnerDto;
 import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitDetailDto;
 import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
@@ -16,7 +16,6 @@ import uk.co.ogauthority.pwa.model.entity.enums.HuooType;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.huoosummary.AllOrgRolePipelineGroupsView;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.huoosummary.OrganisationRolePipelineGroupView;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.huoosummary.PipelineNumbersAndSplits;
-import uk.co.ogauthority.pwa.testutils.PortalOrganisationTestUtils;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AllOrgRolePipelineGroupsViewTest {
@@ -31,7 +30,7 @@ public class AllOrgRolePipelineGroupsViewTest {
 
   private OrganisationRolePipelineGroupView createOrgRolePipelineGroupView(int orgId, int pipelineId) {
     var portalOrgUnitDetail = PortalOrganisationTestUtils.generateOrganisationUnitDetail(
-        new PortalOrganisationUnit(orgId, "company" + orgId), "address" + orgId, "11" + orgId);
+        PortalOrganisationTestUtils.generateOrganisationUnit(orgId, "company" + orgId), "address" + orgId, "11" + orgId);
     var organisationUnitDetail = OrganisationUnitDetailDto.from(portalOrgUnitDetail);
     var organisationRoleOwnerDto = OrganisationRoleOwnerDto.fromOrganisationUnitId(new OrganisationUnitId(1));
     var pipelineNumbersAndSplits = List.of(new PipelineNumbersAndSplits(new PipelineId(pipelineId), "ppl" + pipelineId, null));

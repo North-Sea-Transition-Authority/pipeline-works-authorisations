@@ -16,7 +16,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
+import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationTestUtils;
 import uk.co.ogauthority.pwa.model.diff.DiffedField;
 import uk.co.ogauthority.pwa.model.dto.consents.OrganisationRoleOwnerDto;
 import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitDetailDto;
@@ -36,7 +36,6 @@ import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.h
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.huoosummary.PipelineNumbersAndSplits;
 import uk.co.ogauthority.pwa.service.pwaconsents.PwaConsentOrganisationRoleService;
 import uk.co.ogauthority.pwa.service.pwaconsents.orgrolediffablepipelineservices.DiffableOrgRolePipelineGroupCreator;
-import uk.co.ogauthority.pwa.testutils.PortalOrganisationTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -232,7 +231,7 @@ public class HuooSummaryServiceTest {
 
   private OrganisationRolePipelineGroupView createOrgRolePipelineGroupView(int orgId, int pipelineId) {
     var portalOrgUnitDetail1 = PortalOrganisationTestUtils.generateOrganisationUnitDetail(
-        new PortalOrganisationUnit(orgId, "company" + orgId), "address" + orgId, "11" + orgId);
+        PortalOrganisationTestUtils.generateOrganisationUnit(orgId, "company" + orgId), "address" + orgId, "11" + orgId);
     var organisationUnitDetail1 = OrganisationUnitDetailDto.from(portalOrgUnitDetail1);
     var organisationRoleOwnerDto1 = OrganisationRoleOwnerDto.fromOrganisationUnitId(new OrganisationUnitId(1));
     var pipelineNumbersAndSplits1 = List.of(new PipelineNumbersAndSplits(new PipelineId(pipelineId), "ppl" + pipelineId, null));
@@ -243,7 +242,7 @@ public class HuooSummaryServiceTest {
 
   private OrganisationRolePipelineGroupView createOrgRolePipelineGroupViewWithNoPipelines(int orgId) {
     var portalOrgUnitDetail1 = PortalOrganisationTestUtils.generateOrganisationUnitDetail(
-        new PortalOrganisationUnit(orgId, "company" + orgId), "address" + orgId, "11" + orgId);
+        PortalOrganisationTestUtils.generateOrganisationUnit(orgId, "company" + orgId), "address" + orgId, "11" + orgId);
     var organisationUnitDetail1 = OrganisationUnitDetailDto.from(portalOrgUnitDetail1);
     var organisationRoleOwnerDto1 = OrganisationRoleOwnerDto.fromOrganisationUnitId(new OrganisationUnitId(1));
     return new OrganisationRolePipelineGroupView(

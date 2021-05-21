@@ -90,7 +90,7 @@ public class PwaHolderControllerTest extends AbstractControllerTest {
 
     orgUnit = TeamTestingUtils.createOrgUnit();
     when(portalOrganisationsAccessor.getOrganisationUnitById(111)).thenReturn(Optional.of(orgUnit));
-    when(portalOrganisationsAccessor.getOrganisationUnitsForOrganisationGroupsIn(any())).thenReturn(List.of(orgUnit));
+    when(portalOrganisationsAccessor.getActiveOrganisationUnitsForOrganisationGroupsIn(any())).thenReturn(List.of(orgUnit));
 
   }
 
@@ -171,7 +171,7 @@ public class PwaHolderControllerTest extends AbstractControllerTest {
     when(pwaApplicationDetailService.getTipDetail(detail.getPwaApplication().getId())).thenReturn(detail);
 
     when(portalOrganisationsAccessor.getOrganisationUnitById(44)).thenReturn(Optional.of(orgUnit));
-    when(portalOrganisationsAccessor.getOrganisationUnitsForOrganisationGroupsIn(any())).thenReturn(List.of());
+    when(portalOrganisationsAccessor.getActiveOrganisationUnitsForOrganisationGroupsIn(any())).thenReturn(List.of());
 
     mockMvc.perform(post(ReverseRouter.route(on(PwaHolderController.class)
         .postHolderScreen(null, null, null)))

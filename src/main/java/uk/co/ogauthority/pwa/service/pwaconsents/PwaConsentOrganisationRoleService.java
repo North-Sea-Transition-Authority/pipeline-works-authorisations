@@ -132,7 +132,7 @@ public class PwaConsentOrganisationRoleService {
   }
 
 
-  public OrganisationRolesSummaryDto getOrganisationRoleSummary(MasterPwa masterPwa) {
+  public OrganisationRolesSummaryDto getActiveOrganisationRoleSummaryForSeabedPipelines(MasterPwa masterPwa) {
 
     var allOrganisationPipelineRoles = pwaConsentPipelineOrganisationRoleLinkRepository.findActiveOrganisationPipelineRolesByMasterPwa(
         masterPwa
@@ -221,7 +221,7 @@ public class PwaConsentOrganisationRoleService {
 
   public AllOrgRolePipelineGroupsView getAllOrganisationRolePipelineGroupView(MasterPwa masterPwa) {
 
-    var orgRolesSummaryDto = getOrganisationRoleSummary(masterPwa);
+    var orgRolesSummaryDto = getActiveOrganisationRoleSummaryForSeabedPipelines(masterPwa);
     return getAllOrganisationRolePipelineGroupView(masterPwa, orgRolesSummaryDto);
   }
 
