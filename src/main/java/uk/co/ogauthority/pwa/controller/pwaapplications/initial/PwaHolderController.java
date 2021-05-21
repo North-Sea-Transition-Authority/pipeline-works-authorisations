@@ -150,7 +150,7 @@ public class PwaHolderController {
   }
 
   private List<PortalOrganisationUnit> getOrgUnitsUserCanAccess(AuthenticatedUserAccount user) {
-    return portalOrganisationsAccessor.getOrganisationUnitsForOrganisationGroupsIn(getOrgGroupsUserCanAccess(user));
+    return portalOrganisationsAccessor.getActiveOrganisationUnitsForOrganisationGroupsIn(getOrgGroupsUserCanAccess(user));
   }
 
 }

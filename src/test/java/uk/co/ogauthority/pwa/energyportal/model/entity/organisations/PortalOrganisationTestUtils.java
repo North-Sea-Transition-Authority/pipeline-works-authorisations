@@ -1,9 +1,7 @@
-package uk.co.ogauthority.pwa.testutils;
+package uk.co.ogauthority.pwa.energyportal.model.entity.organisations;
 
+import java.time.LocalDate;
 import org.apache.commons.lang3.reflect.FieldUtils;
-import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationGroup;
-import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
-import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnitDetail;
 
 public class PortalOrganisationTestUtils {
 
@@ -14,28 +12,69 @@ public class PortalOrganisationTestUtils {
   private final static String DEFAULT_GROUP_SHORT_NAME = "ORG_GRP";
   private final static String DEFAULT_UNIT_NAME = "ORGANISATION_UNIT";
 
-  public static PortalOrganisationUnit getOrganisationUnit() {
 
-    PortalOrganisationGroup portalOrganisationGroup = generateOrganisationGroup(
+  public static PortalOrganisationGroup getOrganisationGroup() {
+
+    return generateOrganisationGroup(
         DEFAULT_GROUP_ID,
         DEFAULT_GROUP_NAME,
         DEFAULT_GROUP_SHORT_NAME
     );
+  }
+
+  public static PortalOrganisationUnit getOrganisationUnitInOrgGroup() {
+
+    PortalOrganisationGroup portalOrganisationGroup = getOrganisationGroup();
     return generateOrganisationUnit(DEFAULT_UNIT_ID, DEFAULT_UNIT_NAME, portalOrganisationGroup);
+  }
+
+  public static PortalOrganisationUnit getInactiveOrganisationUnitInOrgGroup() {
+
+    PortalOrganisationGroup portalOrganisationGroup = getOrganisationGroup();
+    return genInactiveOrgUnitHelper(DEFAULT_UNIT_ID, DEFAULT_UNIT_NAME, portalOrganisationGroup);
+  }
+
+
+  private static PortalOrganisationUnit genInactiveOrgUnitHelper(int ouId,
+                                                               String name,
+                                                               PortalOrganisationGroup portalOrganisationGroup) {
+    return new PortalOrganisationUnit(
+        ouId,
+        name,
+        portalOrganisationGroup,
+        LocalDate.of(2000, 1, 1),
+        null,
+        false,
+        false);
+  }
+
+  private static PortalOrganisationUnit genActiveOrgUnitHelper(int ouId,
+                                                               String name,
+                                                               PortalOrganisationGroup portalOrganisationGroup) {
+    return new PortalOrganisationUnit(
+        ouId,
+        name,
+        portalOrganisationGroup,
+        LocalDate.of(2000, 1, 1),
+        null,
+        false,
+        true);
+  }
+
+  public static PortalOrganisationUnit generateOrganisationUnit(int ouId, String name) {
+    return genActiveOrgUnitHelper(
+        ouId,
+        name,
+        null
+    );
+
+
   }
 
 
   public static PortalOrganisationUnit generateOrganisationUnit(int ouId, String name,
                                                                 PortalOrganisationGroup portalOrganisationGroup) {
-    PortalOrganisationUnit organisationUnit = new PortalOrganisationUnit();
-    try {
-      FieldUtils.writeField(organisationUnit, "ouId", ouId, true);
-      FieldUtils.writeField(organisationUnit, "name", name, true);
-      FieldUtils.writeField(organisationUnit, "portalOrganisationGroup", portalOrganisationGroup, true);
-    } catch (IllegalAccessException e) {
-      e.printStackTrace();
-    }
-
+    PortalOrganisationUnit organisationUnit = genActiveOrgUnitHelper(ouId, name, portalOrganisationGroup);
     return organisationUnit;
   }
 

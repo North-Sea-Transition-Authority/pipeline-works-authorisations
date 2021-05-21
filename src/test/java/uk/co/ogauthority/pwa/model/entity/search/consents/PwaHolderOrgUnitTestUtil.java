@@ -1,12 +1,14 @@
 package uk.co.ogauthority.pwa.model.entity.search.consents;
 
+import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationGroup;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
 
 public final class PwaHolderOrgUnitTestUtil {
 
-  private PwaHolderOrgUnitTestUtil(){
+  private PwaHolderOrgUnitTestUtil() {
     throw new UnsupportedOperationException("no util for you!");
   }
+
   public static PwaHolderOrgUnit createPwaHolderOrgUnit(String compositeId, int pwaId,
                                                         PortalOrganisationUnit organisationUnit) {
 
@@ -14,7 +16,11 @@ public final class PwaHolderOrgUnitTestUtil {
     orgUnit.setCompositeId(compositeId);
     orgUnit.setPwaId(pwaId);
     orgUnit.setOuId(organisationUnit.getOuId());
-    orgUnit.setOrgGrpId(organisationUnit.getPortalOrganisationGroup().getOrgGrpId());
+    orgUnit.setOrgGrpId(
+        organisationUnit.getPortalOrganisationGroup()
+            .map(PortalOrganisationGroup::getOrgGrpId)
+            .orElse(null)
+    );
     return orgUnit;
 
   }

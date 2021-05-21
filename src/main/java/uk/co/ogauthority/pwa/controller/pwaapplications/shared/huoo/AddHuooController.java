@@ -93,7 +93,7 @@ public class AddHuooController {
         .addObject("huooTypes", HuooType.streamSelectable()
             .sorted(Comparator.comparing(HuooType::getDisplayOrder))
             .collect(StreamUtils.toLinkedHashMap(Enum::name, HuooType::getDisplayText)))
-        .addObject("portalOrgs", portalOrganisationsAccessor.getAllOrganisationUnits()
+        .addObject("portalOrgs", portalOrganisationsAccessor.getAllActiveOrganisationUnits()
             .stream()
             .sorted(Comparator.comparing(PortalOrganisationUnit::getName))
             .collect(

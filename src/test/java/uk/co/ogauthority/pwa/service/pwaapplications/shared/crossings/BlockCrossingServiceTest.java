@@ -20,6 +20,7 @@ import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
+import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationTestUtils;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.energyportal.service.organisations.PortalOrganisationsAccessor;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
@@ -40,7 +41,6 @@ import uk.co.ogauthority.pwa.service.entitycopier.EntityCopyingService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
 import uk.co.ogauthority.pwa.service.licence.PearsBlockService;
-import uk.co.ogauthority.pwa.testutils.PortalOrganisationTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 @SuppressWarnings("unchecked")
@@ -128,7 +128,7 @@ public class BlockCrossingServiceTest {
     addBlockForm = new AddBlockCrossingForm();
     editBlockForm = new EditBlockCrossingForm();
 
-    organisationUnit = PortalOrganisationTestUtils.getOrganisationUnit();
+    organisationUnit = PortalOrganisationTestUtils.getOrganisationUnitInOrgGroup();
   }
 
   @Test
@@ -197,7 +197,7 @@ public class BlockCrossingServiceTest {
 
   @Test
   public void getCrossedBlockViews_whenOrgUnitIsOwner_andUnlicensedBlock() {
-    var orgUnit = PortalOrganisationTestUtils.getOrganisationUnit();
+    var orgUnit = PortalOrganisationTestUtils.getOrganisationUnitInOrgGroup();
     var owner = new PadCrossedBlockOwner(padCrossedBlock, PortalOrganisationTestUtils.DEFAULT_UNIT_ID, null);
     padCrossedBlock.setBlockOwner(CrossedBlockOwner.PORTAL_ORGANISATION);
 

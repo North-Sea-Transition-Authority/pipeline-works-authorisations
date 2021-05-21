@@ -46,6 +46,7 @@ public class ApplicationSearchContextCreator {
         .map(PwaOrganisationTeam::getPortalOrganisationGroup)
         .collect(toSet());
 
+    // Do not limit by active orgs to ensure we can still access historic applications and PWA's.
     var orgUnitIdsAssociatedWithHolderTeamMembership = portalOrganisationsAccessor.getOrganisationUnitsForOrganisationGroupsIn(
         orgGroupsWhereMemberOfHolderTeam)
         .stream()

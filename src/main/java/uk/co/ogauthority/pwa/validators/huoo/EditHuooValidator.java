@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.validators.huoo;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -12,6 +13,7 @@ import org.springframework.validation.SmartValidator;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.energyportal.service.organisations.PortalOrganisationsAccessor;
+import uk.co.ogauthority.pwa.exception.ActionNotAllowedException;
 import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooType;
@@ -55,8 +57,28 @@ public class EditHuooValidator implements SmartValidator {
   @Override
   public void validate(Object target, Errors errors, Object... validationHints) {
     var form = (HuooForm) target;
-    var detail = (PwaApplicationDetail) validationHints[0];
-    var huooValidationView = (HuooValidationView) validationHints[1];
+    var detail = Arrays.stream(validationHints)
+        .filter(o -> o.getClass().equals(PwaApplicationDetail.class))
+        .map(o -> (PwaApplicationDetail) o)
+        .findFirst()
+        .orElseThrow(() ->
+            new ActionNotAllowedException("Expected instance of PwaApplicationDetail but not found"
+            ));
+    var huooValidationView = Arrays.stream(validationHints)
+        .filter(o -> o.getClass().equals(HuooValidationView.class))
+        .map(o -> (HuooValidationView) o)
+        .findFirst()
+        .orElseThrow(() ->
+            new ActionNotAllowedException("Expected instance of HuooValidationView but not found"
+            ));
+    var authenticatedUser = Arrays.stream(validationHints)
+        .filter(o -> o.getClass().equals(AuthenticatedUserAccount.class))
+        .map(o -> (AuthenticatedUserAccount) o)
+        .findFirst()
+        .orElseThrow(() ->
+            new ActionNotAllowedException("Expected instance of AuthenticatedUserAccount but not found"
+            ));
+
     var roles = padOrganisationRoleService.getOrgRolesForDetail(detail);
     if (form.getHuooType() == null) {
       errors.rejectValue("huooType", "huooType.required",
@@ -88,17 +110,22 @@ public class EditHuooValidator implements SmartValidator {
           || (!SetUtils.emptyIfNull(form.getHuooRoles()).contains(HuooRole.HOLDER)
           && SetUtils.emptyIfNull(huooValidationView.getRoles()).contains(HuooRole.HOLDER));
 
-      if (validationHints.length >= 3 && validationHints[2] instanceof AuthenticatedUserAccount
-          && detail.getPwaApplicationType().equals(PwaApplicationType.INITIAL) && holderSelected) {
+      if (detail.getPwaApplicationType().equals(PwaApplicationType.INITIAL) && holderSelected) {
 
-        var user = (AuthenticatedUserAccount) validationHints[2];
-        var userCanAccessOrgUnit = getOrgUnitsUserCanAccess(user).stream()
-            .anyMatch(organisationUnit -> formOrgUnitId.equals(OrganisationUnitId.from(organisationUnit)));
+        var userAccessibleOrgUnitIdToOrgUnitMap = getOrgUnitsUserCanAccess(authenticatedUser)
+            .stream()
+            .collect(Collectors.toMap(OrganisationUnitId::from, o -> o));
+
+        var userCanAccessOrgUnit =  userAccessibleOrgUnitIdToOrgUnitMap.containsKey(formOrgUnitId);
 
         if (!userCanAccessOrgUnit) {
           errors.rejectValue("organisationUnitId",
               "organisationUnitId" + FieldValidationErrorCodes.INVALID.getCode(),
               "You must be a member of this organisation's team to assign this organisation");
+        } else if (!userAccessibleOrgUnitIdToOrgUnitMap.get(formOrgUnitId).isActive()) {
+          errors.rejectValue("organisationUnitId",
+              "organisationUnitId.orgUnitNotActive",
+              "Select an organisation which is active");
         }
       }
 

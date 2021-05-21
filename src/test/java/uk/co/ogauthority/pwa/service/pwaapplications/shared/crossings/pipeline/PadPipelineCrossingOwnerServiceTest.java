@@ -16,6 +16,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
+import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationTestUtils;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.energyportal.service.organisations.PortalOrganisationsAccessor;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
@@ -60,7 +61,7 @@ public class PadPipelineCrossingOwnerServiceTest {
     when(padPipelineCrossingOwnerRepository.findAllByPadPipelineCrossing(padPipelineCrossing))
         .thenReturn(List.of(padPipelineCrossingOwner));
 
-    portalOrganisationUnit = new PortalOrganisationUnit(ORG_ID, ORG_NAME);
+    portalOrganisationUnit = PortalOrganisationTestUtils.generateOrganisationUnit(ORG_ID, ORG_NAME);
   }
 
   @Test

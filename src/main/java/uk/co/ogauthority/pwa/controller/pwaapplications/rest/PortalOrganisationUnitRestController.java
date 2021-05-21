@@ -29,10 +29,13 @@ public class PortalOrganisationUnitRestController {
     this.searchSelectorService = searchSelectorService;
   }
 
+  /**
+   * Return active org units where search term is contained in the name and adds search term as manual entry to result.
+   */
   @GetMapping("/orgs/lax/units")
   @ResponseBody
   public RestSearchResult searchPortalOrgUnits(@RequestParam("term") String searchTerm) {
-    var queryList = portalOrganisationsAccessor.findOrganisationUnitsWhereNameContains(
+    var queryList = portalOrganisationsAccessor.findActiveOrganisationUnitsWhereNameContains(
         searchTerm, PageRequest.of(0, 15)
     );
     var searchResults = searchSelectorService.search(searchTerm, queryList)
@@ -43,10 +46,13 @@ public class PortalOrganisationUnitRestController {
     return new RestSearchResult(searchResults);
   }
 
+  /**
+   * Return active org units where search term is contained in the name.
+   */
   @GetMapping("/orgs/strict/units/")
   @ResponseBody
   public RestSearchResult searchPortalOrgUnitsNoManualEntry(@RequestParam("term") String searchTerm) {
-    var queryList = portalOrganisationsAccessor.findOrganisationUnitsWhereNameContains(
+    var queryList = portalOrganisationsAccessor.findActiveOrganisationUnitsWhereNameContains(
         searchTerm, PageRequest.of(0, 15)
     );
     var searchResults = searchSelectorService.search(searchTerm, queryList)

@@ -29,7 +29,7 @@ public class MasterPwaHolderDto {
   }
 
   public Optional<PortalOrganisationGroup> getHolderOrganisationGroup() {
-    return Optional.ofNullable(this.organisationUnit.getPortalOrganisationGroup());
+    return this.organisationUnit.getPortalOrganisationGroup();
   }
 
   public Optional<PortalOrganisationUnit> getHolderOrganisationUnit() {

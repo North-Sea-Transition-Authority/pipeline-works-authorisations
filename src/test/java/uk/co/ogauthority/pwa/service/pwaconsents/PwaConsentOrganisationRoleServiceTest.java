@@ -16,6 +16,7 @@ import java.time.ZoneId;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
@@ -25,6 +26,7 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationGroup;
+import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationTestUtils;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.energyportal.service.organisations.PortalOrganisationsAccessor;
 import uk.co.ogauthority.pwa.model.dto.consents.OrganisationRoleDtoTestUtil;
@@ -49,7 +51,6 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PipelineNumberAndSplitsService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.huoosummary.PipelineNumbersAndSplits;
 import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailService;
-import uk.co.ogauthority.pwa.testutils.PortalOrganisationTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -106,10 +107,10 @@ public class PwaConsentOrganisationRoleServiceTest {
   @Before
   public void setup() {
 
-    when(organisationUnit1.getPortalOrganisationGroup()).thenReturn(organisationGroup1);
+    when(organisationUnit1.getPortalOrganisationGroup()).thenReturn(Optional.of(organisationGroup1));
     when(organisationUnit1.getOuId()).thenReturn(ORG_UNIT_ID_1);
 
-    when(organisationUnit2.getPortalOrganisationGroup()).thenReturn(organisationGroup2);
+    when(organisationUnit2.getPortalOrganisationGroup()).thenReturn(Optional.of(organisationGroup2));
     when(organisationUnit2.getOuId()).thenReturn(ORG_UNIT_ID_2);
 
     when(pwaConsent.getMasterPwa()).thenReturn(masterPwa);
@@ -307,15 +308,15 @@ public class PwaConsentOrganisationRoleServiceTest {
 
     //Portal org units
     var portalOrgUnitDetail1 = PortalOrganisationTestUtils.generateOrganisationUnitDetail(
-        new PortalOrganisationUnit(1, "company"), "address", "123");
+        PortalOrganisationTestUtils.generateOrganisationUnit(1, "company"), "address", "123");
     var organisationUnitDetailDto1 = OrganisationUnitDetailDto.from(portalOrgUnitDetail1);
 
     var portalOrgUnitDetail3 = PortalOrganisationTestUtils.generateOrganisationUnitDetail(
-        new PortalOrganisationUnit(3, "company3"), "address3", "1234");
+        PortalOrganisationTestUtils.generateOrganisationUnit(3, "company3"), "address3", "1234");
     var organisationUnitDetailDto3 = OrganisationUnitDetailDto.from(portalOrgUnitDetail3);
 
     var portalOrgUnitDetail4 = PortalOrganisationTestUtils.generateOrganisationUnitDetail(
-        new PortalOrganisationUnit(4, "company4"), "address4", "12345");
+        PortalOrganisationTestUtils.generateOrganisationUnit(4, "company4"), "address4", "12345");
     var organisationUnitDetailDto4 = OrganisationUnitDetailDto.from(portalOrgUnitDetail4);
 
     when(portalOrganisationsAccessor.getOrganisationUnitDetailDtosByOrganisationUnitId(
