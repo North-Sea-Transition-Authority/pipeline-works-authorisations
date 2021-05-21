@@ -23,6 +23,7 @@ import uk.co.ogauthority.pwa.model.view.banner.PageBannerView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.repository.publicnotice.PublicNoticeDocumentLinkRepository;
 import uk.co.ogauthority.pwa.repository.publicnotice.PublicNoticeDocumentRepository;
+import uk.co.ogauthority.pwa.service.enums.workflow.assignment.WorkflowAssignment;
 import uk.co.ogauthority.pwa.service.enums.workflow.publicnotice.PwaApplicationPublicNoticeWorkflowTask;
 import uk.co.ogauthority.pwa.service.fileupload.AppFileService;
 import uk.co.ogauthority.pwa.service.fileupload.FileUpdateMode;
@@ -130,8 +131,8 @@ public class PublicNoticeDocumentUpdateService {
 
   private void sendPublicNoticeDocumentReviewRequestEmail(PwaApplication pwaApplication) {
 
-    var assignedCaseOfficer = assignmentService.getCaseOfficerAssignment(pwaApplication);
-    var caseOfficerPerson = personService.getPersonById(assignedCaseOfficer.getAssigneePersonId());
+    var caseOfficerAssignment = assignmentService.getAssignmentOrError(pwaApplication, WorkflowAssignment.CASE_OFFICER);
+    var caseOfficerPerson = personService.getPersonById(caseOfficerAssignment.getAssigneePersonId());
 
     var caseManagementLink = emailCaseLinkService.generateCaseManagementLink(pwaApplication);
     var emailProps = new PublicNoticeDocumentReviewRequestEmailProps(

@@ -16,6 +16,7 @@ import uk.co.ogauthority.pwa.model.notify.emailproperties.EmailProperties;
 import uk.co.ogauthority.pwa.model.notify.emailproperties.publicnotices.PublicNoticeApprovedEmailProps;
 import uk.co.ogauthority.pwa.model.notify.emailproperties.publicnotices.PublicNoticeRejectedEmailProps;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
+import uk.co.ogauthority.pwa.service.enums.workflow.assignment.WorkflowAssignment;
 import uk.co.ogauthority.pwa.service.enums.workflow.publicnotice.PwaApplicationPublicNoticeApprovalResult;
 import uk.co.ogauthority.pwa.service.enums.workflow.publicnotice.PwaApplicationPublicNoticeWorkflowTask;
 import uk.co.ogauthority.pwa.service.notify.EmailCaseLinkService;
@@ -115,7 +116,7 @@ public class PublicNoticeApprovalService {
       );
 
     } else {
-      var caseOfficerAssignment = assignmentService.getCaseOfficerAssignment(pwaApplication);
+      var caseOfficerAssignment = assignmentService.getAssignmentOrError(pwaApplication, WorkflowAssignment.CASE_OFFICER);
       return List.of(personService.getPersonById(caseOfficerAssignment.getAssigneePersonId()));
     }
 

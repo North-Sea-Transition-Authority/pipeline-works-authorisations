@@ -8,7 +8,6 @@ import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
-import uk.co.ogauthority.pwa.exception.WorkflowAssignmentException;
 import uk.co.ogauthority.pwa.model.entity.workflow.assignment.Assignment;
 import uk.co.ogauthority.pwa.repository.workflow.assignment.AssignmentRepository;
 import uk.co.ogauthority.pwa.service.enums.workflow.UserWorkflowTask;
@@ -89,10 +88,10 @@ public class AssignmentService {
         workflowSubject.getWorkflowType());
   }
 
-  public Assignment getCaseOfficerAssignment(WorkflowSubject workflowSubject) {
-    return getAssignmentsForWorkflowAssignment(workflowSubject, WorkflowAssignment.CASE_OFFICER)
-        .orElseThrow(() -> new WorkflowAssignmentException(
-        "The assigned case officer could not be found for workflow subject with business key: " + workflowSubject.getBusinessKey()));
+  public Assignment getAssignmentOrError(WorkflowSubject workflowSubject, WorkflowAssignment workflowAssignment) {
+    return getAssignmentsForWorkflowAssignment(workflowSubject, workflowAssignment).orElseThrow(
+        () -> new IllegalStateException(String.format("Cannot find assignment for business key %s and workflow assignment %s",
+                workflowSubject.getBusinessKey(), workflowAssignment)));
   }
 
 }

@@ -7,7 +7,6 @@ import static org.mockito.Mockito.when;
 
 import java.time.Clock;
 import java.util.List;
-import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -28,7 +27,6 @@ import uk.co.ogauthority.pwa.model.entity.workflow.assignment.Assignment;
 import uk.co.ogauthority.pwa.model.form.publicnotice.PublicNoticeApprovalForm;
 import uk.co.ogauthority.pwa.model.notify.emailproperties.publicnotices.PublicNoticeApprovedEmailProps;
 import uk.co.ogauthority.pwa.model.notify.emailproperties.publicnotices.PublicNoticeRejectedEmailProps;
-import uk.co.ogauthority.pwa.model.teams.PwaRegulatorRole;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.workflow.WorkflowType;
@@ -38,12 +36,10 @@ import uk.co.ogauthority.pwa.service.notify.EmailCaseLinkService;
 import uk.co.ogauthority.pwa.service.notify.NotifyService;
 import uk.co.ogauthority.pwa.service.person.PersonService;
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
-import uk.co.ogauthority.pwa.service.teams.TeamService;
 import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
 import uk.co.ogauthority.pwa.service.workflow.assignment.AssignmentService;
 import uk.co.ogauthority.pwa.service.workflow.task.WorkflowTaskInstance;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
-import uk.co.ogauthority.pwa.testutils.TeamTestingUtils;
 import uk.co.ogauthority.pwa.validators.publicnotice.PublicNoticeApprovalValidator;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -186,7 +182,7 @@ public class PublicNoticeApprovalServiceTest {
     var caseOfficerPerson = PersonTestUtil.createDefaultPerson();
     var caseOfficerAssignment = new Assignment
         (pwaApplication.getBusinessKey(), WorkflowType.PWA_APPLICATION, WorkflowAssignment.CASE_OFFICER, caseOfficerPerson.getId());
-    when(assignmentService.getCaseOfficerAssignment(pwaApplication)).thenReturn(caseOfficerAssignment);
+    when(assignmentService.getAssignmentOrError(pwaApplication, WorkflowAssignment.CASE_OFFICER)).thenReturn(caseOfficerAssignment);
     when(personService.getPersonById(caseOfficerAssignment.getAssigneePersonId())).thenReturn(caseOfficerPerson);
 
     var form = PublicNoticeApprovalTestUtil.createRejectedPublicNoticeForm();

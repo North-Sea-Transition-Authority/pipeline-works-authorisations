@@ -215,7 +215,7 @@ public class PublicNoticeDocumentUpdateServiceTest {
     var caseOfficerPerson = PersonTestUtil.createDefaultPerson();
     var caseOfficerAssignment = new Assignment
         (pwaApplication.getBusinessKey(), WorkflowType.PWA_APPLICATION, WorkflowAssignment.CASE_OFFICER, caseOfficerPerson.getId());
-    when(assignmentService.getCaseOfficerAssignment(pwaApplication)).thenReturn(caseOfficerAssignment);
+    when(assignmentService.getAssignmentOrError(pwaApplication, WorkflowAssignment.CASE_OFFICER)).thenReturn(caseOfficerAssignment);
     when(personService.getPersonById(caseOfficerAssignment.getAssigneePersonId())).thenReturn(caseOfficerPerson);
 
     var form = new UpdatePublicNoticeDocumentForm();
