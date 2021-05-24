@@ -90,8 +90,9 @@ public class AssignmentService {
 
   public Assignment getAssignmentOrError(WorkflowSubject workflowSubject, WorkflowAssignment workflowAssignment) {
     return getAssignmentsForWorkflowAssignment(workflowSubject, workflowAssignment).orElseThrow(
-        () -> new IllegalStateException(String.format("Cannot find assignment for business key %s and workflow assignment %s",
-                workflowSubject.getBusinessKey(), workflowAssignment)));
+        () -> new IllegalStateException(String.format(
+            "Cannot find assignment for workflow type: %s with business key %s and workflow assignment %s",
+                workflowSubject.getWorkflowType(), workflowSubject.getBusinessKey(), workflowAssignment)));
   }
 
 }
