@@ -18,7 +18,6 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.PersonTestUtil;
 import uk.co.ogauthority.pwa.model.documents.SectionClauseVersionDto;
 import uk.co.ogauthority.pwa.model.documents.view.DocumentView;
 import uk.co.ogauthority.pwa.model.documents.view.SectionClauseVersionView;
-import uk.co.ogauthority.pwa.model.entity.enums.documents.DocumentTemplateMnem;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocumentSection;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocumentSpec;
 import uk.co.ogauthority.pwa.model.enums.documents.PwaDocumentType;
@@ -74,7 +73,7 @@ public class DocumentViewServiceTest {
         .map(SectionClauseVersionDto.class::cast)
         .collect(Collectors.toList());
 
-    var docSource = new TemplateDocumentSource(DocumentTemplateMnem.PWA_CONSENT_DOCUMENT, DocumentSpec.INITIAL_APP_CONSENT_DOCUMENT);
+    var docSource = new TemplateDocumentSource(DocumentSpec.INITIAL_APP_CONSENT_DOCUMENT);
 
     var docView = documentViewService.createDocumentView(PwaDocumentType.TEMPLATE, docSource, clauseDtos);
 

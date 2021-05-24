@@ -77,13 +77,11 @@ public class PwaApplicationMailMergeResolverTest {
     when(pwaApplicationDetailService.getLatestSubmittedDetail(detail.getPwaApplication()))
         .thenReturn(Optional.of(detail));
 
-    var allTasks = ApplicationTask.stream()
-        .collect(Collectors.toList());
     when(taskListService.getShownApplicationTasksForDetail(detail))
         .thenReturn(List.of(ApplicationTask.PROJECT_INFORMATION));
 
     when(applicationContext.getBean(PadProjectInformationService.class)).thenReturn(padProjectInformationService);
-    when(padProjectInformationService.getAvailableMailMergeFields(detail)).thenReturn(mailMergeFields);
+    when(padProjectInformationService.getAvailableMailMergeFields(detail.getPwaApplicationType())).thenReturn(mailMergeFields);
 
     var availableFields = pwaApplicationMailMergeResolver.getAvailableMailMergeFields(detail.getPwaApplication());
 

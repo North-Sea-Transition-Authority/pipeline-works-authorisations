@@ -128,4 +128,8 @@ public abstract class SectionClauseVersion {
 
   public abstract Optional<SectionClause> getParentClause();
 
+  public abstract void setClause(SectionClause clause);
+
+  public abstract void setParentClause(SectionClause parentClause);
+
 }

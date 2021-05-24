@@ -8,4 +8,6 @@ public interface SectionClause {
 
   DocumentTemplateSection getSection();
 
+  void setSection(DocumentTemplateSection section);
+
 }

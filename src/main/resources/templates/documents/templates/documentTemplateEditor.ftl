@@ -18,7 +18,7 @@
 
       <h1 class="govuk-heading-xl">${documentSpec.displayName}</h1>
 
-      <@pwaClauseList.list documentView=docView clauseActionsUrlProvider=""/>
+      <@pwaClauseList.list documentView=docView clauseActionsUrlProvider=clauseActionsUrlProvider/>
 
     </@defaultPagePaneContent>
 

@@ -43,7 +43,7 @@ public class PwaApplicationMailMergeResolver implements DocumentSourceMailMergeR
 
     return taskListService.getShownApplicationTasksForDetail(detail).stream()
         .map(task -> applicationContext.getBean(task.getServiceClass()))
-        .flatMap(taskService -> taskService.getAvailableMailMergeFields(detail).stream())
+        .flatMap(taskService -> taskService.getAvailableMailMergeFields(detail.getPwaApplicationType()).stream())
         .collect(Collectors.toList());
 
   }

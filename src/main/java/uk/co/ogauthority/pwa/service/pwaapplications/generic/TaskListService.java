@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.tasklist.TaskListEntry;
 import uk.co.ogauthority.pwa.model.tasklist.TaskListGroup;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTask;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTaskGroup;
 
@@ -94,6 +95,9 @@ public class TaskListService {
         .collect(Collectors.toList());
   }
 
+  /**
+   * Check the application type AND specific information about the detail passed in to determine which tasks are relevant.
+   */
   public List<ApplicationTask> getShownApplicationTasksForDetail(PwaApplicationDetail detail) {
 
     return ApplicationTask.stream()
@@ -101,4 +105,16 @@ public class TaskListService {
         .collect(Collectors.toList());
 
   }
+
+  /**
+   * Return tasks that by default should be shown for the app type.
+   */
+  public List<ApplicationTask> getApplicationTasksForAppType(PwaApplicationType pwaApplicationType) {
+
+    return ApplicationTask.stream()
+        .filter(task -> applicationTaskService.appTypeSupportsTask(pwaApplicationType, task))
+        .collect(Collectors.toList());
+
+  }
+
 }

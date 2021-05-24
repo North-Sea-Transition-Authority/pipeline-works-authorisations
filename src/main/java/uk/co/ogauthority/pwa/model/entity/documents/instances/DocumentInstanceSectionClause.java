@@ -105,6 +105,11 @@ public class DocumentInstanceSectionClause implements SectionClause {
   }
 
   @Override
+  public void setSection(DocumentTemplateSection section) {
+    setDocumentTemplateSection(section);
+  }
+
+  @Override
   public boolean equals(Object o) {
     if (this == o) {
       return true;

@@ -11,9 +11,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocumentSpec;
 import uk.co.ogauthority.pwa.model.entity.enums.mailmerge.MailMergeFieldType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.documents.ClauseForm;
+import uk.co.ogauthority.pwa.service.documents.templates.TemplateDocumentSource;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.mailmerge.MailMergeService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
@@ -100,7 +102,7 @@ public class ClauseFormValidatorTest {
   }
 
   @Test
-  public void validate_noInvalidMergeFields_manualMergeDelimsPresent_error() {
+  public void validate_noInvalidMergeFields_manualMergeDelimsPresent_manualMergeNotAllowed_error() {
 
     var form = getClauseForm(String.format("text %soptional thing here%s",
         MailMergeFieldType.MANUAL.getOpeningDelimiter(), MailMergeFieldType.MANUAL.getClosingDelimiter()));
@@ -110,6 +112,20 @@ public class ClauseFormValidatorTest {
     var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, detail.getPwaApplication());
 
     assertThat(errors).contains(entry("text", Set.of("text.invalid")));
+
+  }
+
+  @Test
+  public void validate_noInvalidMergeFields_manualMergeDelimsPresent_manualMergeAllowed_ok() {
+
+    var form = getClauseForm(String.format("text %soptional thing here%s",
+        MailMergeFieldType.MANUAL.getOpeningDelimiter(), MailMergeFieldType.MANUAL.getClosingDelimiter()));
+
+    var docSource = new TemplateDocumentSource(DocumentSpec.INITIAL_APP_CONSENT_DOCUMENT);
+
+    var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, docSource);
+
+    assertThat(errors).isEmpty();
 
   }
 

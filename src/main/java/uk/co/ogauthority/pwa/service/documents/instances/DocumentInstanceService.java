@@ -22,6 +22,7 @@ import uk.co.ogauthority.pwa.model.documents.templates.DocumentTemplateDto;
 import uk.co.ogauthority.pwa.model.documents.templates.TemplateSectionClauseVersionDto;
 import uk.co.ogauthority.pwa.model.documents.view.DocumentView;
 import uk.co.ogauthority.pwa.model.documents.view.SectionClauseVersionView;
+import uk.co.ogauthority.pwa.model.entity.documents.SectionClauseVersion;
 import uk.co.ogauthority.pwa.model.entity.documents.instances.DocumentInstance;
 import uk.co.ogauthority.pwa.model.entity.documents.instances.DocumentInstanceSectionClause;
 import uk.co.ogauthority.pwa.model.entity.documents.instances.DocumentInstanceSectionClauseVersion;
@@ -36,6 +37,7 @@ import uk.co.ogauthority.pwa.repository.documents.instances.DocumentInstanceRepo
 import uk.co.ogauthority.pwa.repository.documents.instances.DocumentInstanceSectionClauseRepository;
 import uk.co.ogauthority.pwa.repository.documents.instances.DocumentInstanceSectionClauseVersionDtoRepository;
 import uk.co.ogauthority.pwa.repository.documents.instances.DocumentInstanceSectionClauseVersionRepository;
+import uk.co.ogauthority.pwa.service.documents.DocumentClauseService;
 import uk.co.ogauthority.pwa.service.documents.DocumentViewService;
 import uk.co.ogauthority.pwa.service.documents.SectionClauseCreator;
 
@@ -49,6 +51,7 @@ public class DocumentInstanceService {
   private final Clock clock;
   private final DocumentInstanceSectionClauseVersionDtoRepository sectionClauseVersionDtoRepository;
   private final DocumentViewService documentViewService;
+  private final DocumentClauseService documentClauseService;
 
   @Autowired
   public DocumentInstanceService(DocumentInstanceRepository documentInstanceRepository,
@@ -57,7 +60,8 @@ public class DocumentInstanceService {
                                  SectionClauseCreator sectionClauseCreator,
                                  @Qualifier("utcClock") Clock clock,
                                  DocumentInstanceSectionClauseVersionDtoRepository sectionClauseVersionDtoRepository,
-                                 DocumentViewService documentViewService) {
+                                 DocumentViewService documentViewService,
+                                 DocumentClauseService documentClauseService) {
     this.documentInstanceRepository = documentInstanceRepository;
     this.instanceSectionClauseRepository = instanceSectionClauseRepository;
     this.instanceSectionClauseVersionRepository = instanceSectionClauseVersionRepository;
@@ -65,6 +69,7 @@ public class DocumentInstanceService {
     this.clock = clock;
     this.sectionClauseVersionDtoRepository = sectionClauseVersionDtoRepository;
     this.documentViewService = documentViewService;
+    this.documentClauseService = documentClauseService;
   }
 
   /**
@@ -289,13 +294,16 @@ public class DocumentInstanceService {
    */
   @Transactional
   public void addClauseAfter(DocumentInstanceSectionClauseVersion versionToAddAfter, ClauseForm form, Person creatingPerson) {
-    addClause(
-        versionToAddAfter.getDocumentInstanceSectionClause().getDocumentInstance(),
-        versionToAddAfter.getDocumentInstanceSectionClause().getSection(),
-        versionToAddAfter.getParentDocumentInstanceSectionClause(),
-        versionToAddAfter.getLevelOrder() + 1,
-        form,
-        creatingPerson);
+
+    var newVersion = (DocumentInstanceSectionClauseVersion) documentClauseService
+        .addClauseAfter(PwaDocumentType.INSTANCE, versionToAddAfter, form, creatingPerson);
+
+    newVersion.getDocumentInstanceSectionClause()
+        .setDocumentInstance(versionToAddAfter.getDocumentInstanceSectionClause().getDocumentInstance());
+
+    instanceSectionClauseRepository.save(newVersion.getDocumentInstanceSectionClause());
+    instanceSectionClauseVersionRepository.save(newVersion);
+
   }
 
   /**
@@ -305,31 +313,37 @@ public class DocumentInstanceService {
   @Transactional
   public void addClauseBefore(DocumentInstanceSectionClauseVersion versionToAddBefore, ClauseForm form, Person creatingPerson) {
 
-    // add a new clause one position higher than the one we are adding before
-    var newClauseVersion = addClause(
-        versionToAddBefore.getDocumentInstanceSectionClause().getDocumentInstance(),
-        versionToAddBefore.getDocumentInstanceSectionClause().getSection(),
-        versionToAddBefore.getParentDocumentInstanceSectionClause(),
-        versionToAddBefore.getLevelOrder() - 1,
+    var docInstance = versionToAddBefore.getDocumentInstanceSectionClause().getDocumentInstance();
+    var parentClause = versionToAddBefore.getParentDocumentInstanceSectionClause();
+
+    var clauseVersionsToUpdate = documentClauseService.addClauseBefore(
+        PwaDocumentType.INSTANCE,
+        versionToAddBefore,
         form,
-        creatingPerson);
+        creatingPerson,
+        () -> instanceSectionClauseVersionRepository
+            .findByDocumentInstanceSectionClause_DocumentInstanceAndParentDocumentInstanceSectionClause(docInstance, parentClause)
+            .stream()
+            .map(SectionClauseVersion.class::cast)
+    );
 
-    var docInstance = newClauseVersion.getDocumentInstanceSectionClause().getDocumentInstance();
-    var parent = newClauseVersion.getParentDocumentInstanceSectionClause();
-
-    // increment the position of everything ahead of our new clause within its level, which will leave a gap
-    var clauseVersionsToUpdate = instanceSectionClauseVersionRepository
-        .findByDocumentInstanceSectionClause_DocumentInstanceAndParentDocumentInstanceSectionClause(docInstance, parent).stream()
-        .filter(clauseVersion -> clauseVersion.getLevelOrder() > newClauseVersion.getLevelOrder())
+    var castVersionList = clauseVersionsToUpdate.stream()
+        .map(DocumentInstanceSectionClauseVersion.class::cast)
         .collect(Collectors.toList());
 
-    clauseVersionsToUpdate.forEach(clauseVersion -> clauseVersion.setLevelOrder(clauseVersion.getLevelOrder() + 1));
+    var newClause = castVersionList.stream()
+        .map(DocumentInstanceSectionClauseVersion::getDocumentInstanceSectionClause)
+        .filter(c -> c.getDocumentInstance() == null)
+        .findFirst()
+        .orElseThrow(() -> new DocumentInstanceException(
+            String.format("Expected new clause to have a null document instance, all clauses have document instances." +
+                    "Adding before doc instance clause version with id: [%s]", versionToAddBefore.getId())));
 
-    // fill the gap left by the reordering by bumping the order on our new clause
-    newClauseVersion.setLevelOrder(newClauseVersion.getLevelOrder() + 1);
-    clauseVersionsToUpdate.add(newClauseVersion);
+    newClause.setDocumentInstance(docInstance);
 
-    instanceSectionClauseVersionRepository.saveAll(clauseVersionsToUpdate);
+    instanceSectionClauseRepository.save(newClause);
+
+    instanceSectionClauseVersionRepository.saveAll(castVersionList);
 
   }
 

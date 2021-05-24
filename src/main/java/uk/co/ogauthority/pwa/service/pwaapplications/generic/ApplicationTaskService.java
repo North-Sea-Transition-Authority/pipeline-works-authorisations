@@ -43,12 +43,20 @@ public class ApplicationTaskService {
    * app specific checks are met.
    */
   public boolean canShowTask(GeneralPurposeApplicationTask applicationTask, PwaApplicationDetail pwaApplicationDetail) {
+
     var taskService = getTaskService(applicationTask);
-    var taskAppTypes = getValidApplicationTypesForTask(applicationTask);
 
     // Is the task valid for app type and does the specific app detail qualify for task?
-    return taskAppTypes.contains(pwaApplicationDetail.getPwaApplicationType())
+    return appTypeSupportsTask(pwaApplicationDetail.getPwaApplicationType(), applicationTask)
         && taskService.canShowInTaskList(pwaApplicationDetail);
+  }
+
+  public boolean appTypeSupportsTask(PwaApplicationType pwaApplicationType, GeneralPurposeApplicationTask applicationTask) {
+
+    var taskAppTypes = getValidApplicationTypesForTask(applicationTask);
+
+    return taskAppTypes.contains(pwaApplicationType);
+
   }
 
   /**

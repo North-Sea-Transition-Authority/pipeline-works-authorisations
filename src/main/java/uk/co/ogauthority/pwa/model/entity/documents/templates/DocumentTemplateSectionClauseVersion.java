@@ -47,8 +47,16 @@ public class DocumentTemplateSectionClauseVersion extends SectionClauseVersion {
     return documentTemplateSectionClause;
   }
 
-  public void setDocumentTemplateSectionClause(
-      DocumentTemplateSectionClause documentTemplateSectionClause) {
+  @Override
+  public void setClause(SectionClause clause) {
+    this.documentTemplateSectionClause = (DocumentTemplateSectionClause) clause;
+  }
+
+  public DocumentTemplateSectionClause getDocumentTemplateSectionClause() {
+    return getClause();
+  }
+
+  public void setDocumentTemplateSectionClause(DocumentTemplateSectionClause documentTemplateSectionClause) {
     this.documentTemplateSectionClause = documentTemplateSectionClause;
   }
 
@@ -57,9 +65,17 @@ public class DocumentTemplateSectionClauseVersion extends SectionClauseVersion {
     return Optional.ofNullable(parentDocumentTemplateSectionClause);
   }
 
-  public void setParentDocumentTemplateSectionClause(
-      DocumentTemplateSectionClause parentDocumentTemplateSectionClause) {
+  @Override
+  public void setParentClause(SectionClause parentClause) {
+    this.parentDocumentTemplateSectionClause = (DocumentTemplateSectionClause) parentClause;
+  }
+
+  public void setParentDocumentTemplateSectionClause(DocumentTemplateSectionClause parentDocumentTemplateSectionClause) {
     this.parentDocumentTemplateSectionClause = parentDocumentTemplateSectionClause;
+  }
+
+  public DocumentTemplateSectionClause getParentDocumentTemplateSectionClause() {
+    return parentDocumentTemplateSectionClause;
   }
 
 }

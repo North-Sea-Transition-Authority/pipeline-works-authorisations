@@ -5,6 +5,7 @@ import java.util.Map;
 import org.springframework.validation.BindingResult;
 import uk.co.ogauthority.pwa.model.entity.enums.mailmerge.MailMergeFieldMnem;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 
 /**
@@ -66,7 +67,7 @@ public interface ApplicationFormSectionService {
     return canShowInTaskList(pwaApplicationDetail);
   }
 
-  default List<MailMergeFieldMnem> getAvailableMailMergeFields(PwaApplicationDetail pwaApplicationDetail) {
+  default List<MailMergeFieldMnem> getAvailableMailMergeFields(PwaApplicationType pwaApplicationType) {
     return List.of();
   }
 

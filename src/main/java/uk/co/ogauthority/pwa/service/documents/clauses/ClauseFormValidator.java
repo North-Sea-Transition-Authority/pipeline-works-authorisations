@@ -47,8 +47,7 @@ public class ClauseFormValidator implements SmartValidator {
                 String.format("Remove invalid mail merge fields: %s", String.join(", ", invalidMergeFields)));
           }
 
-          if (text.contains(MailMergeFieldType.MANUAL.getOpeningDelimiter())
-              || text.contains(MailMergeFieldType.MANUAL.getClosingDelimiter())) {
+          if (!docSource.manualMergeAllowed() && textContainsManualMergeDelimiters(text)) {
             errors.rejectValue("text", FieldValidationErrorCodes.INVALID.errorCode("text"),
                 String.format("Remove '%s' from the clause text", MailMergeFieldType.MANUAL.getOpeningDelimiter()));
           }
@@ -61,4 +60,9 @@ public class ClauseFormValidator implements SmartValidator {
   public void validate(Object target, Errors errors) {
     throw new NotImplementedException("Use other method.");
   }
+
+  private boolean textContainsManualMergeDelimiters(String text) {
+    return text.contains(MailMergeFieldType.MANUAL.getOpeningDelimiter()) || text.contains(MailMergeFieldType.MANUAL.getClosingDelimiter());
+  }
+
 }

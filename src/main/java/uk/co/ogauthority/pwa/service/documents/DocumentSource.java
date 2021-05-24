@@ -11,4 +11,11 @@ public interface DocumentSource {
 
   DocumentSpec getDocumentSpec();
 
+  /**
+   * Whether or not manual merge data can be saved in clauses by users.
+   */
+  default boolean manualMergeAllowed() {
+    return false;
+  }
+
 }

@@ -2,10 +2,12 @@ package uk.co.ogauthority.pwa.repository.documents.templates;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 import uk.co.ogauthority.pwa.model.entity.documents.templates.DocumentTemplateSection;
+import uk.co.ogauthority.pwa.model.entity.documents.templates.DocumentTemplateSectionClause;
 import uk.co.ogauthority.pwa.model.entity.documents.templates.DocumentTemplateSectionClauseVersion;
 
 @Repository
@@ -17,5 +19,21 @@ public interface DocumentTemplateSectionClauseVersionRepository extends CrudRepo
   })
   List<DocumentTemplateSectionClauseVersion> getAllByDocumentTemplateSectionClause_DocumentTemplateSectionInAndTipFlagIsTrue(
       Collection<DocumentTemplateSection> section);
+
+  @EntityGraph(attributePaths = {
+      "documentTemplateSectionClause.documentTemplateSection.documentTemplate",
+      "parentDocumentTemplateSectionClause.documentTemplateSection.documentTemplate",
+  })
+  Optional<DocumentTemplateSectionClauseVersion> findByDocumentTemplateSectionClause_IdAndTipFlagIsTrue(Integer id);
+
+  @EntityGraph(attributePaths = {
+      "documentTemplateSectionClause.documentTemplateSection.documentTemplate",
+      "parentDocumentTemplateSectionClause.documentTemplateSection.documentTemplate",
+  })
+  List<DocumentTemplateSectionClauseVersion>
+      findByDocumentTemplateSectionClause_DocumentTemplateSectionAndParentDocumentTemplateSectionClause(
+      DocumentTemplateSection documentTemplateSection,
+      DocumentTemplateSectionClause parentDocumentTemplateSectionClause
+  );
 
 }

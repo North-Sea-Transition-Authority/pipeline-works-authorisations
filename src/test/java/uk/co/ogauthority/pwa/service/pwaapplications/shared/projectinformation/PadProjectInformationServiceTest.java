@@ -398,7 +398,7 @@ public class PadProjectInformationServiceTest {
 
       var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(appType);
 
-      var mergeFields = service.getAvailableMailMergeFields(detail);
+      var mergeFields = service.getAvailableMailMergeFields(detail.getPwaApplicationType());
 
       assertThat(mergeFields).containsExactlyInAnyOrder(MailMergeFieldMnem.PROPOSED_START_OF_WORKS_DATE, MailMergeFieldMnem.PROJECT_NAME);
 

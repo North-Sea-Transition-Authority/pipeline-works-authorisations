@@ -40,14 +40,18 @@ public class DocumentTemplateSectionClause implements SectionClause {
     return documentTemplateSection;
   }
 
-  public void setDocumentTemplateSection(
-      DocumentTemplateSection documentTemplateSection) {
+  public void setDocumentTemplateSection(DocumentTemplateSection documentTemplateSection) {
     this.documentTemplateSection = documentTemplateSection;
   }
 
   @Override
   public DocumentTemplateSection getSection() {
     return getDocumentTemplateSection();
+  }
+
+  @Override
+  public void setSection(DocumentTemplateSection section) {
+    setDocumentTemplateSection(section);
   }
 
   @Override

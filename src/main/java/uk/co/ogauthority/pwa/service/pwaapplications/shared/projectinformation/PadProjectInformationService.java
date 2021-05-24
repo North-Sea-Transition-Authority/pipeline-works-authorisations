@@ -279,9 +279,9 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
   }
 
   @Override
-  public List<MailMergeFieldMnem> getAvailableMailMergeFields(PwaApplicationDetail pwaApplicationDetail) {
+  public List<MailMergeFieldMnem> getAvailableMailMergeFields(PwaApplicationType pwaApplicationType) {
 
-    var questions = getRequiredQuestions(pwaApplicationDetail.getPwaApplicationType());
+    var questions = getRequiredQuestions(pwaApplicationType);
     var mailMergeFieldList = new ArrayList<MailMergeFieldMnem>();
 
     if (questions.contains(ProjectInformationQuestion.PROPOSED_START_DATE)) {
@@ -299,7 +299,7 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
   @Override
   public Map<MailMergeFieldMnem, String> resolveMailMergeFields(PwaApplicationDetail pwaApplicationDetail) {
 
-    var availableMergeFields = getAvailableMailMergeFields(pwaApplicationDetail);
+    var availableMergeFields = getAvailableMailMergeFields(pwaApplicationDetail.getPwaApplicationType());
 
     EnumMap<MailMergeFieldMnem, String> map = new EnumMap<>(MailMergeFieldMnem.class);
 

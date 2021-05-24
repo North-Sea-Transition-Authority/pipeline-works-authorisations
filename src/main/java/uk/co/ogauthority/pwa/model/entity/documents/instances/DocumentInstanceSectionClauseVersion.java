@@ -44,12 +44,6 @@ public class DocumentInstanceSectionClauseVersion extends SectionClauseVersion {
   public DocumentInstanceSectionClauseVersion() {
   }
 
-  public DocumentInstanceSectionClauseVersion(DocumentInstanceSectionClause masterClause,
-                                              DocumentInstanceSectionClause parentClause) {
-    this.documentInstanceSectionClause = masterClause;
-    this.parentDocumentInstanceSectionClause = parentClause;
-  }
-
   @Override
   public Integer getId() {
     return id;
@@ -64,6 +58,11 @@ public class DocumentInstanceSectionClauseVersion extends SectionClauseVersion {
     return getDocumentInstanceSectionClause();
   }
 
+  @Override
+  public void setClause(SectionClause clause) {
+    this.documentInstanceSectionClause = (DocumentInstanceSectionClause) clause;
+  }
+
   public DocumentInstanceSectionClause getDocumentInstanceSectionClause() {
     return documentInstanceSectionClause;
   }
@@ -75,6 +74,11 @@ public class DocumentInstanceSectionClauseVersion extends SectionClauseVersion {
   @Override
   public Optional<SectionClause> getParentClause() {
     return Optional.ofNullable(parentDocumentInstanceSectionClause);
+  }
+
+  @Override
+  public void setParentClause(SectionClause parentClause) {
+    this.parentDocumentInstanceSectionClause = (DocumentInstanceSectionClause) parentClause;
   }
 
   public DocumentInstanceSectionClause getParentDocumentInstanceSectionClause() {

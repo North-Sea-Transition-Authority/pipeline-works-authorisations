@@ -11,10 +11,8 @@ public class TemplateDocumentSource implements DocumentSource {
 
   private DocumentSpec documentSpec;
 
-  public TemplateDocumentSource(
-      DocumentTemplateMnem documentTemplateMnem,
-      DocumentSpec documentSpec) {
-    this.documentTemplateMnem = documentTemplateMnem;
+  public TemplateDocumentSource(DocumentSpec documentSpec) {
+    this.documentTemplateMnem = DocumentTemplateMnem.getMnemFromDocumentSpec(documentSpec);
     this.documentSpec = documentSpec;
   }
 
@@ -39,6 +37,11 @@ public class TemplateDocumentSource implements DocumentSource {
 
   public void setDocumentSpec(DocumentSpec documentSpec) {
     this.documentSpec = documentSpec;
+  }
+
+  @Override
+  public boolean manualMergeAllowed() {
+    return true;
   }
 
   @Override

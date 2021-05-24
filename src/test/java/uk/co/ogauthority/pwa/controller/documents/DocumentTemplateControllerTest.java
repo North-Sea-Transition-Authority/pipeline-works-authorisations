@@ -2,9 +2,15 @@ package uk.co.ogauthority.pwa.controller.documents;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
 
 import java.util.List;
@@ -20,13 +26,16 @@ import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.AbstractControllerTest;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.documents.view.DocumentView;
-import uk.co.ogauthority.pwa.model.entity.enums.documents.DocumentTemplateMnem;
+import uk.co.ogauthority.pwa.model.entity.documents.templates.DocumentTemplateSectionClauseVersion;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocumentSpec;
 import uk.co.ogauthority.pwa.model.enums.documents.PwaDocumentType;
+import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContextService;
+import uk.co.ogauthority.pwa.service.documents.clauses.ClauseFormValidator;
 import uk.co.ogauthority.pwa.service.documents.templates.DocumentTemplateService;
 import uk.co.ogauthority.pwa.service.documents.templates.TemplateDocumentSource;
 import uk.co.ogauthority.pwa.service.generic.GenericBreadcrumbService;
+import uk.co.ogauthority.pwa.service.mailmerge.MailMergeService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
 
 @RunWith(SpringRunner.class)
@@ -42,8 +51,14 @@ public class DocumentTemplateControllerTest extends AbstractControllerTest {
   @MockBean
   private DocumentTemplateService documentTemplateService;
 
+  @MockBean
+  private MailMergeService mailMergeService;
+
   @SpyBean
   private GenericBreadcrumbService genericBreadcrumbService;
+
+  @SpyBean
+  private ClauseFormValidator clauseFormValidator;
 
   private AuthenticatedUserAccount templateClauseManager, caseOfficer;
 
@@ -55,11 +70,14 @@ public class DocumentTemplateControllerTest extends AbstractControllerTest {
     templateClauseManager = new AuthenticatedUserAccount(new WebUserAccount(1), List.of(PwaUserPrivilege.PWA_TEMPLATE_CLAUSE_MANAGE));
     caseOfficer = new AuthenticatedUserAccount(new WebUserAccount(1), List.of(PwaUserPrivilege.PWA_CASE_OFFICER));
 
-    var docSource = new TemplateDocumentSource(DocumentTemplateMnem.PWA_CONSENT_DOCUMENT, DocumentSpec.INITIAL_APP_CONSENT_DOCUMENT);
+    var docSource = new TemplateDocumentSource(DocumentSpec.INITIAL_APP_CONSENT_DOCUMENT);
 
     documentView = new DocumentView(PwaDocumentType.TEMPLATE, docSource, docSource.getDocumentTemplateMnem());
 
     when(documentTemplateService.getDocumentView(any())).thenReturn(documentView);
+
+    var clause = new DocumentTemplateSectionClauseVersion();
+    when(documentTemplateService.getTemplateClauseVersionByClauseIdOrThrow(any())).thenReturn(clause);
 
   }
 
@@ -103,5 +121,100 @@ public class DocumentTemplateControllerTest extends AbstractControllerTest {
 
   }
 
+  @Test
+  public void renderAddClauseAfter_correctPermission() throws Exception {
+
+    mockMvc.perform(get(ReverseRouter.route(on(DocumentTemplateController.class)
+        .renderAddClauseAfter(DocumentSpec.INITIAL_APP_CONSENT_DOCUMENT, 1, null, null)))
+        .with(authenticatedUserAndSession(templateClauseManager)))
+        .andExpect(status().isOk());
+
+  }
+
+  @Test
+  public void renderAddClauseAfter_wrongPermission() throws Exception {
+
+    mockMvc.perform(get(ReverseRouter.route(on(DocumentTemplateController.class)
+        .renderAddClauseAfter(DocumentSpec.INITIAL_APP_CONSENT_DOCUMENT, 1, null, null)))
+        .with(authenticatedUserAndSession(caseOfficer)))
+        .andExpect(status().isForbidden());
+
+  }
+
+  @Test
+  public void postAddClauseAfter_success() throws Exception {
+
+    mockMvc.perform(post(ReverseRouter.route(on(DocumentTemplateController.class)
+        .postAddClauseAfter(DocumentSpec.INITIAL_APP_CONSENT_DOCUMENT, 1,null, null, null, null)))
+        .with(authenticatedUserAndSession(templateClauseManager))
+        .with(csrf())
+        .param("name", "name")
+        .param("text", "text"))
+        .andExpect(status().is3xxRedirection());
+
+    verify(documentTemplateService, times(1)).addClauseAfter(any(), any(), eq(templateClauseManager.getLinkedPerson()));
+
+  }
+
+  @Test
+  public void postAddClauseAfter_validationFail() throws Exception {
+
+    mockMvc.perform(post(ReverseRouter.route(on(DocumentTemplateController.class)
+        .postAddClauseAfter(DocumentSpec.INITIAL_APP_CONSENT_DOCUMENT, 1,null, null, null, null)))
+        .with(authenticatedUserAndSession(templateClauseManager))
+        .with(csrf()))
+        .andExpect(status().isOk());
+
+    verify(documentTemplateService, times(0)).addClauseAfter(any(), any(), eq(templateClauseManager.getLinkedPerson()));
+
+  }
+
+  @Test
+  public void renderAddClauseBefore_correctPermission() throws Exception {
+
+    mockMvc.perform(get(ReverseRouter.route(on(DocumentTemplateController.class)
+        .renderAddClauseBefore(DocumentSpec.INITIAL_APP_CONSENT_DOCUMENT, 1, null, null)))
+        .with(authenticatedUserAndSession(templateClauseManager)))
+        .andExpect(status().isOk());
+
+  }
+
+  @Test
+  public void renderAddClauseBefore_wrongPermission() throws Exception {
+
+    mockMvc.perform(get(ReverseRouter.route(on(DocumentTemplateController.class)
+        .renderAddClauseBefore(DocumentSpec.INITIAL_APP_CONSENT_DOCUMENT, 1, null, null)))
+        .with(authenticatedUserAndSession(caseOfficer)))
+        .andExpect(status().isForbidden());
+
+  }
+
+  @Test
+  public void postAddClauseBefore_success() throws Exception {
+
+    mockMvc.perform(post(ReverseRouter.route(on(DocumentTemplateController.class)
+        .postAddClauseBefore(DocumentSpec.INITIAL_APP_CONSENT_DOCUMENT, 1, null, null, null, null)))
+        .with(authenticatedUserAndSession(templateClauseManager))
+        .with(csrf())
+        .param("name", "name")
+        .param("text", "text"))
+        .andExpect(status().is3xxRedirection());
+
+    verify(documentTemplateService, times(1)).addClauseBefore(any(), any(), eq(templateClauseManager.getLinkedPerson()));
+
+  }
+
+  @Test
+  public void postAddClauseBefore_validationFail() throws Exception {
+
+    mockMvc.perform(post(ReverseRouter.route(on(DocumentTemplateController.class)
+        .postAddClauseBefore(DocumentSpec.INITIAL_APP_CONSENT_DOCUMENT, 1, null, null, null, null)))
+        .with(authenticatedUserAndSession(templateClauseManager))
+        .with(csrf()))
+        .andExpect(status().isOk());
+
+    verify(documentTemplateService, times(0)).addClauseBefore(any(), any(), eq(templateClauseManager.getLinkedPerson()));
+
+  }
 
 }
