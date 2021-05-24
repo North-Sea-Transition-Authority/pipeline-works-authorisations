@@ -135,7 +135,8 @@ public class HuooSummaryServiceTest {
     var padView = new AllOrgRolePipelineGroupsView(List.of(holderApp), List.of(), List.of(), List.of());
     var consentedView = new AllOrgRolePipelineGroupsView(List.of(holderConsented), List.of(), List.of(), List.of());
 
-    var diffedAllOrgRolePipelineGroups = huooSummaryService.getDiffedViewUsingSummaryViews(padView, consentedView);
+    var diffedAllOrgRolePipelineGroups = huooSummaryService.getDiffedViewUsingSummaryViews(
+        padView, consentedView, HuooSummaryService.PipelineLabelAction.REDUCE_GROUP_TO_ALL_PIPELINES_LABEL_IF_POSSIBLE);
 
     var diffedHolder = diffedAllOrgRolePipelineGroups.getHolderOrgRolePipelineGroups().get(0);
     assertThat(diffedHolder).containsKey("DiffableOrgRolePipelineGroup_roleOwner");
@@ -151,6 +152,60 @@ public class HuooSummaryServiceTest {
     verify(diffableOrgRolePipelineGroupCreator, times(1)).createDiffableView(holderApp, allPipelinesLabelOverride);
     verify(diffableOrgRolePipelineGroupCreator, times(1)).createDiffableView(holderConsented, allPipelinesLabelOverride);
 
+  }
+
+
+  @Test
+  public void getDiffedViewUsingSummaryViews_pipelineLabelActionIsReduceToAllPipelines_allPipelinesOverrideFlagTrue() {
+
+    var allPipelinesLabelOverride = true;
+    var holderApp = createOrgRolePipelineGroupView(ORG_1_ID, PIPELINE_ID_1);
+    var appDiffableOrgRolePipelineGroup = createDiffableOrgRolePipelineGroup(holderApp, allPipelinesLabelOverride);
+    when(diffableOrgRolePipelineGroupCreator.createDiffableView(holderApp, allPipelinesLabelOverride))
+        .thenReturn(appDiffableOrgRolePipelineGroup);
+
+    var holderConsented = createOrgRolePipelineGroupView(ORG_2_ID, PIPELINE_ID_2);
+    var consentedDiffableOrgRolePipelineGroup = createDiffableOrgRolePipelineGroup(holderConsented, allPipelinesLabelOverride);
+    when(diffableOrgRolePipelineGroupCreator.createDiffableView(holderConsented, allPipelinesLabelOverride))
+        .thenReturn(consentedDiffableOrgRolePipelineGroup);
+
+
+    var padView = new AllOrgRolePipelineGroupsView(List.of(holderApp), List.of(), List.of(), List.of());
+    var consentedView = new AllOrgRolePipelineGroupsView(List.of(holderConsented), List.of(), List.of(), List.of());
+
+    var diffedAllOrgRolePipelineGroups = huooSummaryService.getDiffedViewUsingSummaryViews(
+        padView, consentedView, HuooSummaryService.PipelineLabelAction.REDUCE_GROUP_TO_ALL_PIPELINES_LABEL_IF_POSSIBLE);
+
+    var diffedHolder = diffedAllOrgRolePipelineGroups.getHolderOrgRolePipelineGroups().get(0);
+    var actualAllPipelinesLabel = (List<DiffedField>) diffedHolder.get("DiffableOrgRolePipelineGroup_pipelineAndSplitsList");
+    assertThat(actualAllPipelinesLabel.get(0).getCurrentValue()).isEqualTo("All pipelines");
+    verify(diffableOrgRolePipelineGroupCreator, times(1)).createDiffableView(holderApp, allPipelinesLabelOverride);
+    verify(diffableOrgRolePipelineGroupCreator, times(1)).createDiffableView(holderConsented, allPipelinesLabelOverride);
+
+  }
+
+  @Test
+  public void getDiffedViewUsingSummaryViews_pipelineLabelActionIsShowEveryPipeline_allPipelinesOverrideFlagFalse() {
+
+    var allPipelinesLabelOverride = false;
+    var holderApp = createOrgRolePipelineGroupView(ORG_1_ID, PIPELINE_ID_1);
+    var appDiffableOrgRolePipelineGroup = createDiffableOrgRolePipelineGroup(holderApp, allPipelinesLabelOverride);
+    when(diffableOrgRolePipelineGroupCreator.createDiffableView(holderApp, allPipelinesLabelOverride))
+        .thenReturn(appDiffableOrgRolePipelineGroup);
+
+    var holderConsented = createOrgRolePipelineGroupView(ORG_2_ID, PIPELINE_ID_2);
+    var consentedDiffableOrgRolePipelineGroup = createDiffableOrgRolePipelineGroup(holderConsented, allPipelinesLabelOverride);
+    when(diffableOrgRolePipelineGroupCreator.createDiffableView(holderConsented, allPipelinesLabelOverride))
+        .thenReturn(consentedDiffableOrgRolePipelineGroup);
+
+
+    var padView = new AllOrgRolePipelineGroupsView(List.of(holderApp), List.of(), List.of(), List.of());
+    var consentedView = new AllOrgRolePipelineGroupsView(List.of(holderConsented), List.of(), List.of(), List.of());
+
+    huooSummaryService.getDiffedViewUsingSummaryViews(padView, consentedView, HuooSummaryService.PipelineLabelAction.SHOW_EVERY_PIPELINE_WITHIN_GROUP);
+
+    verify(diffableOrgRolePipelineGroupCreator, times(1)).createDiffableView(holderApp, allPipelinesLabelOverride);
+    verify(diffableOrgRolePipelineGroupCreator, times(1)).createDiffableView(holderConsented, allPipelinesLabelOverride);
   }
 
 
@@ -172,7 +227,8 @@ public class HuooSummaryServiceTest {
     var padView = new AllOrgRolePipelineGroupsView(List.of(holderApp), List.of(), List.of(), List.of());
     var consentedView = new AllOrgRolePipelineGroupsView(List.of(holderConsented), List.of(), List.of(), List.of());
 
-    var diffedAllOrgRolePipelineGroups = huooSummaryService.getDiffedViewUsingSummaryViews(padView, consentedView);
+    var diffedAllOrgRolePipelineGroups = huooSummaryService.getDiffedViewUsingSummaryViews(
+        padView, consentedView, HuooSummaryService.PipelineLabelAction.REDUCE_GROUP_TO_ALL_PIPELINES_LABEL_IF_POSSIBLE);
 
     var diffedHolder = diffedAllOrgRolePipelineGroups.getHolderOrgRolePipelineGroups().get(0);
     assertThat(diffedHolder).containsKey("DiffableOrgRolePipelineGroup_roleOwner");
@@ -212,7 +268,8 @@ public class HuooSummaryServiceTest {
     var padView = new AllOrgRolePipelineGroupsView(List.of(), List.of(), List.of(operatorApp1, operatorApp2), List.of());
     var consentedView = new AllOrgRolePipelineGroupsView(List.of(), List.of(), List.of(operatorConsented), List.of());
 
-    var diffedAllOrgRolePipelineGroups = huooSummaryService.getDiffedViewUsingSummaryViews(padView, consentedView);
+    var diffedAllOrgRolePipelineGroups = huooSummaryService.getDiffedViewUsingSummaryViews(
+        padView, consentedView, HuooSummaryService.PipelineLabelAction.REDUCE_GROUP_TO_ALL_PIPELINES_LABEL_IF_POSSIBLE);
 
     var diffedHolder = diffedAllOrgRolePipelineGroups.getOperatorOrgRolePipelineGroups().get(0);
     assertThat(diffedHolder).containsKey("DiffableOrgRolePipelineGroup_roleOwner");

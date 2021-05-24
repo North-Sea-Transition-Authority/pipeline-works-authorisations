@@ -14,10 +14,11 @@
 
     
     <#if diffedHuooSummary?has_content>
-        <@diffedHuooView.huooDetails diffedHuoos=diffedHuooSummary.holderOrgRolePipelineGroups  role="Holders" showNoRolesWarning=false/>
-        <@diffedHuooView.huooDetails diffedHuoos=diffedHuooSummary.userOrgRolePipelineGroups  role="Users" showNoRolesWarning=false />
-        <@diffedHuooView.huooDetails diffedHuoos=diffedHuooSummary.operatorOrgRolePipelineGroups  role="Operators" showNoRolesWarning=false />
-        <@diffedHuooView.huooDetails diffedHuoos=diffedHuooSummary.ownerOrgRolePipelineGroups  role="Owners" showNoRolesWarning=false />
+        <#assign pipelinesDataRowKey = "Pipeline sections"/>
+        <@diffedHuooView.huooDetails diffedHuoos=diffedHuooSummary.holderOrgRolePipelineGroups  role="Holders" showNoRolesWarning=false pipelinesDataRowKey=pipelinesDataRowKey />
+        <@diffedHuooView.huooDetails diffedHuoos=diffedHuooSummary.userOrgRolePipelineGroups  role="Users" showNoRolesWarning=false pipelinesDataRowKey=pipelinesDataRowKey />
+        <@diffedHuooView.huooDetails diffedHuoos=diffedHuooSummary.operatorOrgRolePipelineGroups  role="Operators" showNoRolesWarning=false pipelinesDataRowKey=pipelinesDataRowKey />
+        <@diffedHuooView.huooDetails diffedHuoos=diffedHuooSummary.ownerOrgRolePipelineGroups  role="Owners" showNoRolesWarning=false pipelinesDataRowKey=pipelinesDataRowKey />
     </#if>
 
 
