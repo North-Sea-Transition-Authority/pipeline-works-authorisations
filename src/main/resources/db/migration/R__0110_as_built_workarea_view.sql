@@ -22,7 +22,7 @@ JOIN ${datasource.user}.as_built_notif_grp_status_hist ngsh ON ngsh.as_built_not
 JOIN ${datasource.user}.pwa_consents pc ON ng.pwa_consent_id = pc.id
 -- join app details
 JOIN ${datasource.user}.pwa_application_details pad ON pc.source_pwa_application_id = pad.pwa_application_id
-JOIN pwa_zr.pwa_applications pa ON pad.pwa_application_id = pa.id
+JOIN ${datasource.user}.pwa_applications pa ON pad.pwa_application_id = pa.id
 -- join master pwa detail
 JOIN ${datasource.user}.pwa_details pwad ON pc.pwa_id = pwad.pwa_id
 JOIN ${datasource.user}.pad_project_information ppi ON ppi.application_detail_id = pad.id
