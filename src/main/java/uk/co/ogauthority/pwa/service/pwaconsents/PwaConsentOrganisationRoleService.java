@@ -160,12 +160,13 @@ public class PwaConsentOrganisationRoleService {
 
 
 
-  public Set<PipelineIdentifier> getPipelineSplitsForRole(MasterPwa masterPwa) {
+  private Set<PipelineIdentifier> getPipelineSplitsForRole(MasterPwa masterPwa, HuooRole huooRole) {
 
     return pwaConsentPipelineOrganisationRoleLinkRepository.findByAddedByPwaConsent_MasterPwaAndEndedByPwaConsentIsNull(
         masterPwa)
         .stream()
-        .filter(r -> r.getOrgRoleInstanceType().equals(OrgRoleInstanceType.SPLIT_PIPELINE))
+        .filter(orgRoleLink -> orgRoleLink.getRole().equals(huooRole))
+        .filter(orgRoleLink -> orgRoleLink.getOrgRoleInstanceType().equals(OrgRoleInstanceType.SPLIT_PIPELINE))
         .map(PwaConsentPipelineOrganisationRoleLink::getPipelineIdentifier)
         .collect(toSet());
   }
@@ -175,17 +176,17 @@ public class PwaConsentOrganisationRoleService {
   private List<OrganisationRolePipelineGroupView> getOrgRolePipelineGroupView(
       MasterPwa masterPwa,
       Map<OrganisationUnitId, OrganisationUnitDetailDto> orgUnitDetailsAndIdsMap,
-      Set<OrganisationRolePipelineGroupDto> preComputedOrgRolePipelineGroups) {
+      Set<OrganisationRolePipelineGroupDto> preComputedOrgRolePipelineGroups,
+      HuooRole huooRole) {
 
     var allPipelineSplitInfoForRole = pipelineNumberAndSplitsService.getAllPipelineNumbersAndSplitsRole(
         () -> pipelineDetailService.getAllPipelineOverviewsForMasterPwaMap(masterPwa),
-        () -> getPipelineSplitsForRole(masterPwa)
-    );
+        () -> getPipelineSplitsForRole(masterPwa, huooRole));
 
     var views = new ArrayList<OrganisationRolePipelineGroupView>();
     preComputedOrgRolePipelineGroups.forEach(orgRolePipelineGroup -> {
       var numbersAndSplits = orgRolePipelineGroup.getPipelineIdentifiers().stream()
-          .map(pipelineIdentifier -> allPipelineSplitInfoForRole.get(pipelineIdentifier))
+          .map(allPipelineSplitInfoForRole::get)
           .collect(toList());
 
       var orgRolePipelineGroupView = new OrganisationRolePipelineGroupView(
@@ -240,7 +241,8 @@ public class PwaConsentOrganisationRoleService {
     List<OrganisationRolePipelineGroupView> holderOrgRolePipelineGroups = getOrgRolePipelineGroupView(
         masterPwa,
         orgUnitDetailsAndIdsMap,
-        holderOrgUnitGroups
+        holderOrgUnitGroups,
+        HuooRole.HOLDER
     );
     holderOrgRolePipelineGroups.sort(viewComparator);
 
@@ -250,7 +252,8 @@ public class PwaConsentOrganisationRoleService {
     List<OrganisationRolePipelineGroupView> userOrgRolePipelineGroups = getOrgRolePipelineGroupView(
         masterPwa,
         orgUnitDetailsAndIdsMap,
-        userOrgUnitGroups
+        userOrgUnitGroups,
+        HuooRole.USER
     );
     userOrgRolePipelineGroups.sort(viewComparator);
 
@@ -260,7 +263,8 @@ public class PwaConsentOrganisationRoleService {
     List<OrganisationRolePipelineGroupView> operatorOrgRolePipelineGroups = getOrgRolePipelineGroupView(
         masterPwa,
         orgUnitDetailsAndIdsMap,
-        operatorOrgUnitGroups
+        operatorOrgUnitGroups,
+        HuooRole.OPERATOR
     );
     operatorOrgRolePipelineGroups.sort(viewComparator);
 
@@ -270,7 +274,8 @@ public class PwaConsentOrganisationRoleService {
     List<OrganisationRolePipelineGroupView> ownerOrgRolePipelineGroups = getOrgRolePipelineGroupView(
         masterPwa,
         orgUnitDetailsAndIdsMap,
-        ownerOrgUnitGroups
+        ownerOrgUnitGroups,
+        HuooRole.OWNER
     );
     ownerOrgRolePipelineGroups.sort(viewComparator);
 

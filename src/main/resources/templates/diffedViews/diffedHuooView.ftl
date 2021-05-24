@@ -2,7 +2,7 @@
 
 
 
-<#macro huooDetails diffedHuoos role showNoRolesWarning=true>
+<#macro huooDetails diffedHuoos role showNoRolesWarning=true pipelinesDataRowKey="Pipelines">
 
     <h3 class="govuk-heading-m"> ${role} </h3>
     
@@ -34,7 +34,7 @@
             </#if>
 
 
-            <@fdsCheckAnswers.checkAnswersRowNoAction keyText="Pipelines" rowClass=isRemovedOrg?then(diffHideGroup, "")>
+            <@fdsCheckAnswers.checkAnswersRowNoAction keyText=pipelinesDataRowKey rowClass=isRemovedOrg?then(diffHideGroup, "")>
                 <ul class="govuk-list">
                     <#list diffedHuoo.DiffableOrgRolePipelineGroup_pipelineAndSplitsList as diffedPipelineNumber>
                         <li><@diffChanges.renderDiff diffedField=diffedPipelineNumber /></li>

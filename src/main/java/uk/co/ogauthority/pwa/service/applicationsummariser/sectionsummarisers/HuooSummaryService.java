@@ -66,7 +66,8 @@ public class HuooSummaryService implements ApplicationSectionSummariser {
     var huooRolePipelineGroupsConsentedView = pwaConsentOrganisationRoleService.getAllOrganisationRolePipelineGroupView(
         pwaApplicationDetail.getMasterPwa());
 
-    var diffedAllOrgRolePipelineGroups = getDiffedViewUsingSummaryViews(huooRolePipelineGroupsPadView, huooRolePipelineGroupsConsentedView);
+    var diffedAllOrgRolePipelineGroups = getDiffedViewUsingSummaryViews(huooRolePipelineGroupsPadView, huooRolePipelineGroupsConsentedView,
+        PipelineLabelAction.REDUCE_GROUP_TO_ALL_PIPELINES_LABEL_IF_POSSIBLE);
 
     var sectionDisplayText = ApplicationTask.HUOO.getDisplayName();
     Map<String, Object> summaryModel = new HashMap<>();
@@ -85,30 +86,36 @@ public class HuooSummaryService implements ApplicationSectionSummariser {
 
 
   private List<Map<String, ?>> getDiffedModelForAppAndConsentForRole(AllOrgRolePipelineGroupsView huooRolePipelineGroupsPadView,
-                                                             AllOrgRolePipelineGroupsView huooRolePipelineGroupsConsentedView,
-                                                              HuooRole role) {
+                                                                     AllOrgRolePipelineGroupsView huooRolePipelineGroupsConsentedView,
+                                                                     HuooRole role,
+                                                                     PipelineLabelAction pipelineLabelAction) {
 
     //determine weather we need to show 'All pipelines' or each individual pipeline
-    var appGroupShowAllPipelineFlag = huooRolePipelineGroupsPadView.hasOnlyOneGroupOfPipelineIdentifiersForRole(role);
-    var consentedGroupShowAllPipelineFlag = huooRolePipelineGroupsConsentedView.hasOnlyOneGroupOfPipelineIdentifiersForRole(role);
+    boolean allPipelinesLabelOverride = false;
+    if (pipelineLabelAction.equals(PipelineLabelAction.REDUCE_GROUP_TO_ALL_PIPELINES_LABEL_IF_POSSIBLE)) {
+      var appGroupShowAllPipelineFlag = huooRolePipelineGroupsPadView.hasOnlyOneGroupOfPipelineIdentifiersForRole(role);
+      var consentedGroupShowAllPipelineFlag = huooRolePipelineGroupsConsentedView.hasOnlyOneGroupOfPipelineIdentifiersForRole(
+          role);
 
-    var appGroupHasPipelines = huooRolePipelineGroupsPadView.getOrgRolePipelineGroupView(role)
-        .stream().anyMatch(group -> !group.getPipelineNumbersAndSplits().isEmpty());
-    var consentedGroupHasPipelines = huooRolePipelineGroupsConsentedView.getOrgRolePipelineGroupView(role)
-        .stream().anyMatch(group -> !group.getPipelineNumbersAndSplits().isEmpty());
+      var appGroupHasPipelines = huooRolePipelineGroupsPadView.getOrgRolePipelineGroupView(role)
+          .stream().anyMatch(group -> !group.getPipelineNumbersAndSplits().isEmpty());
+      var consentedGroupHasPipelines = huooRolePipelineGroupsConsentedView.getOrgRolePipelineGroupView(role)
+          .stream().anyMatch(group -> !group.getPipelineNumbersAndSplits().isEmpty());
 
-    var allPipelinesLabelOverride = appGroupShowAllPipelineFlag && consentedGroupShowAllPipelineFlag
-        && appGroupHasPipelines && consentedGroupHasPipelines;
+      allPipelinesLabelOverride = appGroupShowAllPipelineFlag && consentedGroupShowAllPipelineFlag
+          && appGroupHasPipelines && consentedGroupHasPipelines;
+    }
 
     //for the given role and for the app & consented versions, extract the org pipeline group view and create a diffable view from it
+    boolean finalAllPipelinesLabelOverride = allPipelinesLabelOverride;
     var appDiffableOrgRolePipelineGroup = huooRolePipelineGroupsPadView.getOrgRolePipelineGroupView(role)
         .stream()
-        .map(o -> diffableOrgRolePipelineGroupCreator.createDiffableView(o, allPipelinesLabelOverride))
+        .map(o -> diffableOrgRolePipelineGroupCreator.createDiffableView(o, finalAllPipelinesLabelOverride))
         .collect(Collectors.toList());
 
     var consentedDiffableOrgRolePipelineGroup = huooRolePipelineGroupsConsentedView.getOrgRolePipelineGroupView(role)
         .stream()
-        .map(o -> diffableOrgRolePipelineGroupCreator.createDiffableView(o, allPipelinesLabelOverride))
+        .map(o -> diffableOrgRolePipelineGroupCreator.createDiffableView(o, finalAllPipelinesLabelOverride))
         .collect(Collectors.toList());
 
     //diff both the app and consented diffable views
@@ -125,16 +132,17 @@ public class HuooSummaryService implements ApplicationSectionSummariser {
    * @return a diffed version of the pad and consented organisation pipeline groups
    */
   public DiffedAllOrgRolePipelineGroups getDiffedViewUsingSummaryViews(AllOrgRolePipelineGroupsView huooRolePipelineGroupsPadView,
-                                                                       AllOrgRolePipelineGroupsView huooRolePipelineGroupsConsentedView) {
+                                                                       AllOrgRolePipelineGroupsView huooRolePipelineGroupsConsentedView,
+                                                                       PipelineLabelAction pipelineLabelAction) {
 
     var diffedHolders = getDiffedModelForAppAndConsentForRole(
-        huooRolePipelineGroupsPadView, huooRolePipelineGroupsConsentedView, HuooRole.HOLDER);
+        huooRolePipelineGroupsPadView, huooRolePipelineGroupsConsentedView, HuooRole.HOLDER, pipelineLabelAction);
     var diffedUsers = getDiffedModelForAppAndConsentForRole(
-        huooRolePipelineGroupsPadView, huooRolePipelineGroupsConsentedView, HuooRole.USER);
+        huooRolePipelineGroupsPadView, huooRolePipelineGroupsConsentedView, HuooRole.USER, pipelineLabelAction);
     var diffedOperators = getDiffedModelForAppAndConsentForRole(
-        huooRolePipelineGroupsPadView, huooRolePipelineGroupsConsentedView, HuooRole.OPERATOR);
+        huooRolePipelineGroupsPadView, huooRolePipelineGroupsConsentedView, HuooRole.OPERATOR, pipelineLabelAction);
     var diffedOwners = getDiffedModelForAppAndConsentForRole(
-        huooRolePipelineGroupsPadView, huooRolePipelineGroupsConsentedView, HuooRole.OWNER);
+        huooRolePipelineGroupsPadView, huooRolePipelineGroupsConsentedView, HuooRole.OWNER, pipelineLabelAction);
 
     return new DiffedAllOrgRolePipelineGroups(
         diffedHolders,
@@ -147,6 +155,12 @@ public class HuooSummaryService implements ApplicationSectionSummariser {
 
   private OrganisationRoleOwnerDto findOrgRoleOwner(DiffableOrgRolePipelineGroup diffableOrgRolePipelineGroup) {
     return diffableOrgRolePipelineGroup.getRoleOwner();
+  }
+
+
+  public enum PipelineLabelAction {
+    REDUCE_GROUP_TO_ALL_PIPELINES_LABEL_IF_POSSIBLE,
+    SHOW_EVERY_PIPELINE_WITHIN_GROUP
   }
 
 

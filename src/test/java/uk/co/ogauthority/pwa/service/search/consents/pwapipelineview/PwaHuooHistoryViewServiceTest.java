@@ -86,7 +86,8 @@ public class PwaHuooHistoryViewServiceTest {
     when(pwaConsentOrganisationRoleService.getAllOrganisationRolePipelineGroupView(masterPwa, orgRoleSummary)).thenReturn(allOrgRolePipelineGroupsView);
 
     pwaHuooHistoryViewService.getDiffedHuooSummaryAtTimeOfConsentAndPipeline(consentId, masterPwa, pipelineId);
-    verify(huooSummaryService, times(1)).getDiffedViewUsingSummaryViews(allOrgRolePipelineGroupsView, allOrgRolePipelineGroupsView);
+    verify(huooSummaryService, times(1)).getDiffedViewUsingSummaryViews(
+        allOrgRolePipelineGroupsView, allOrgRolePipelineGroupsView, HuooSummaryService.PipelineLabelAction.SHOW_EVERY_PIPELINE_WITHIN_GROUP);
   }
 
 
@@ -106,7 +107,8 @@ public class PwaHuooHistoryViewServiceTest {
     when(pwaConsentOrganisationRoleService.getAllOrganisationRolePipelineGroupView(masterPwa, orgRoleSummary)).thenReturn(allOrgRolePipelineGroupsView);
 
     pwaHuooHistoryViewService.getOrganisationRoleSummaryForHuooMigratedData(masterPwa, selectedPipelineDetailId);
-    verify(huooSummaryService, times(1)).getDiffedViewUsingSummaryViews(allOrgRolePipelineGroupsView, allOrgRolePipelineGroupsView);
+    verify(huooSummaryService, times(1)).getDiffedViewUsingSummaryViews(
+        allOrgRolePipelineGroupsView, allOrgRolePipelineGroupsView, HuooSummaryService.PipelineLabelAction.SHOW_EVERY_PIPELINE_WITHIN_GROUP);
   }
 
 
