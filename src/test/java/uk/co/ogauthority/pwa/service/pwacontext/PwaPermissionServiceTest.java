@@ -12,13 +12,13 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.teams.PwaRegulatorRole;
 import uk.co.ogauthority.pwa.model.teams.PwaRegulatorTeam;
 import uk.co.ogauthority.pwa.service.teams.PwaHolderTeamService;
 import uk.co.ogauthority.pwa.service.teams.TeamService;
-import uk.co.ogauthority.pwa.testutils.AssertionTestUtils;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PwaPermissionServiceTest {
@@ -51,8 +51,20 @@ public class PwaPermissionServiceTest {
         .thenReturn(true);
 
     var permissions = pwaPermissionService.getPwaPermissions(masterPwa, user);
+    assertThat(permissions).containsExactlyInAnyOrder(
+        PwaPermission.VIEW_PWA,
+        PwaPermission.VIEW_PWA_PIPELINE,
+        PwaPermission.SHOW_PWA_NAVIGATION
+    );
+  }
 
-    AssertionTestUtils.assertNotEmptyAndContains(permissions, PwaPermission.VIEW_PWA);
+  @Test
+  public void getPwaPermissions_userNotInHolderTeamOrRegulatorTeam_hasViewPipelinePermission() {
+
+    user = new AuthenticatedUserAccount(new WebUserAccount(1), List.of(PwaUserPrivilege.PIPELINE_VIEW));
+
+    var permissions = pwaPermissionService.getPwaPermissions(masterPwa, user);
+    assertThat(permissions).containsExactlyInAnyOrder(PwaPermission.VIEW_PWA_PIPELINE);
   }
 
 
@@ -68,8 +80,11 @@ public class PwaPermissionServiceTest {
         .thenReturn(Optional.of(regulatorTeam));
 
     var permissions = pwaPermissionService.getPwaPermissions(masterPwa, user);
-    AssertionTestUtils.assertNotEmptyAndContains(permissions, PwaPermission.VIEW_PWA);
-
+    assertThat(permissions).containsExactlyInAnyOrder(
+        PwaPermission.VIEW_PWA,
+        PwaPermission.VIEW_PWA_PIPELINE,
+        PwaPermission.SHOW_PWA_NAVIGATION
+    );
   }
 
   @Test

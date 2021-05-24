@@ -28,4 +28,8 @@ public enum PwaUserPrivilege {
   PWA_CONSULTEE_GROUP_ADMIN,
   PWA_CONSULTEE,
 
+  // EXTERNAL ACCESS
+  PIPELINE_VIEW
+
+
 }

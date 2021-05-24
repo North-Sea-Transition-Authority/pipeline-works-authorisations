@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.teams.PwaRegulatorRole;
@@ -31,12 +32,20 @@ public class PwaPermissionService {
                                               AuthenticatedUserAccount user) {
     return Arrays.stream(PwaPermission.values())
         .filter(permission -> {
-          if (permission == PwaPermission.VIEW_PWA) {
-            return pwaHolderTeamService.isPersonInHolderTeam(masterPwa, user.getLinkedPerson()) || userHasRegulatorRole(
-                user.getLinkedPerson());
+          switch (permission) {
+            case VIEW_PWA_PIPELINE:
+              return pwaHolderTeamService.isPersonInHolderTeam(masterPwa, user.getLinkedPerson())
+                  || userHasRegulatorRole(user.getLinkedPerson())
+                  || user.hasPrivilege(PwaUserPrivilege.PIPELINE_VIEW);
+            case VIEW_PWA:
+            case SHOW_PWA_NAVIGATION:
+              // split out show nav priv so users with external access only do not see other system areas they cannot access.
+              return pwaHolderTeamService.isPersonInHolderTeam(masterPwa,
+                  user.getLinkedPerson()) || userHasRegulatorRole(
+                  user.getLinkedPerson());
+            default:
+              return false;
           }
-          return false;
-
         })
         .collect(Collectors.toSet());
   }

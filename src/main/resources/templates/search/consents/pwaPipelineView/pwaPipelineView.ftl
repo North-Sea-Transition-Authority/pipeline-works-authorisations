@@ -10,11 +10,12 @@
 <#-- @ftlvariable name="pwaPipelineViewUrlFactory" type="uk.co.ogauthority.pwa.service.search.consents.pwaviewtab.PwaPipelineViewUrlFactory" -->
 <#-- @ftlvariable name="diffedPipelineSummaryModel" type="java.util.Map<java.lang.String, Object>" -->
 <#-- @ftlvariable name="diffedHuooSummary" type="uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.huoosummary.DiffedAllOrgRolePipelineGroups" -->
+<#-- @ftlvariable name="showPwaNavigation" type="java.lang.Boolean" -->
 
 
 
 
-<@defaultPage htmlTitle="View PWA pipeline ${pipelineReference}" fullWidthColumn=true topNavigation=true breadcrumbs=true wrapperWidth=true caption="View pipeline (PWA - ${consentSearchResultView.pwaReference})">
+<@defaultPage htmlTitle="View PWA pipeline ${pipelineReference}" fullWidthColumn=true topNavigation=showPwaNavigation breadcrumbs=showPwaNavigation wrapperWidth=true caption="View pipeline (PWA - ${consentSearchResultView.pwaReference})">
 
     <h1 class="govuk-heading-xl">${pipelineReference}</h1>
 
