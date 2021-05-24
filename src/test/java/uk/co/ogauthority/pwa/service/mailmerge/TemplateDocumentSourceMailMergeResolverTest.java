@@ -72,7 +72,9 @@ public class TemplateDocumentSourceMailMergeResolverTest {
 
     var availableFields = templateDocumentSourceMailMergeResolver.getAvailableMailMergeFields(source);
 
-    assertThat(availableFields).isEqualTo(mailMergeFields);
+    assertThat(availableFields)
+        .hasSize(mailMergeFields.size())
+        .containsAll(mailMergeFields);
 
   }
 
