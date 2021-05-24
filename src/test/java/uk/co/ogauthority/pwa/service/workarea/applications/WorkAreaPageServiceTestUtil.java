@@ -15,6 +15,11 @@ import uk.co.ogauthority.pwa.service.workflow.task.WorkflowTaskInstance;
 
 public class WorkAreaPageServiceTestUtil {
 
+  public static Pageable getWorkAreaViewPageable(int requestedPage, String sortProperty) {
+    return PageRequest.of(requestedPage, WorkAreaService.PAGE_SIZE,
+        Sort.by(Sort.Order.asc(sortProperty).nullsLast()));
+  }
+
   public static Pageable getWorkAreaViewPageable(int requestedPage, ApplicationWorkAreaSort applicationWorkAreaSort) {
     return PageRequest.of(requestedPage, WorkAreaService.PAGE_SIZE,
         applicationWorkAreaSort.getSort());
@@ -29,12 +34,10 @@ public class WorkAreaPageServiceTestUtil {
   public static Page<WorkAreaApplicationDetailSearchItem> getFakeApplicationSearchResultPage(
       List<WorkAreaApplicationDetailSearchItem> results, int page) {
 
-    var fakePage = new PageImpl<>(
+    return new PageImpl<>(
         results,
         getWorkAreaViewPageable(page, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC),
         results.size());
-
-    return fakePage;
 
   }
 

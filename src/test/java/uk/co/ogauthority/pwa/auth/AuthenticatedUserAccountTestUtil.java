@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.auth;
 
 import java.util.EnumSet;
+import java.util.Set;
 import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
 import uk.co.ogauthority.pwa.energyportal.model.entity.PersonTestUtil;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
@@ -18,6 +19,26 @@ public final class AuthenticatedUserAccountTestUtil {
         EnumSet.allOf(PwaUserPrivilege.class)
     );
 
+  }
+
+  public static AuthenticatedUserAccount createAllPrivUserAccount(Integer personId){
+    return new AuthenticatedUserAccount(
+        new WebUserAccount(
+            WUA_ID,
+            PersonTestUtil.createPersonFrom(new PersonId(personId))
+        ),
+        EnumSet.allOf(PwaUserPrivilege.class)
+    );
+  }
+
+  public static AuthenticatedUserAccount createNoPrivUserAccount(Integer personId){
+    return new AuthenticatedUserAccount(
+        new WebUserAccount(
+            WUA_ID,
+            PersonTestUtil.createPersonFrom(new PersonId(personId))
+        ),
+        Set.of()
+    );
   }
 
 }

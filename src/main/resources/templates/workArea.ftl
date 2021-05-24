@@ -1,6 +1,7 @@
 <#include 'layout.ftl'>
 <#import 'workarea/applicationsTab.ftl' as applicationsTab>
 <#import 'workarea/consultationsTab.ftl' as consultationsTab>
+<#import 'workarea/asBuiltNotificationsTab.ftl' as asBuiltNotificationsTab>
 
 <#-- @ftlvariable name="startPwaApplicationUrl" type="java.lang.String" -->
 <#-- @ftlvariable name="workAreaResult" type="uk.co.ogauthority.pwa.service.workarea.WorkAreaResult" -->
@@ -27,8 +28,10 @@
 
                 <#if tab == "OPEN_CONSULTATIONS">
                     <@consultationsTab.tab workAreaPageView=workAreaResult.getConsultationsTabPages()! />
+                 <#elseif tab == "AS_BUILT_NOTIFICATIONS">
+                     <@asBuiltNotificationsTab.tab workAreaPageView=workAreaResult.getAsBuiltNotificationTabPages()! />
                  <#else>
-                     <@applicationsTab.tab workAreaPageView=workAreaResult.getApplicationsTabPages()! />
+                    <@applicationsTab.tab workAreaPageView=workAreaResult.getApplicationsTabPages()! />
                 </#if>
 
             </@fdsBackendTabs.tabContent>

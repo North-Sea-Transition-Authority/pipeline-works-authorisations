@@ -15,6 +15,7 @@ import uk.co.ogauthority.pwa.service.enums.workflow.WorkflowType;
 import uk.co.ogauthority.pwa.service.enums.workflow.application.PwaApplicationWorkflowTask;
 import uk.co.ogauthority.pwa.service.workarea.applications.IndustryWorkAreaPageService;
 import uk.co.ogauthority.pwa.service.workarea.applications.RegulatorWorkAreaPageService;
+import uk.co.ogauthority.pwa.service.workarea.asbuilt.AsBuiltWorkAreaPageService;
 import uk.co.ogauthority.pwa.service.workarea.consultations.ConsultationWorkAreaPageService;
 import uk.co.ogauthority.pwa.service.workflow.assignment.AssignmentService;
 
@@ -23,7 +24,7 @@ public class WorkAreaService {
 
   public static final int PAGE_SIZE = 10;
 
-  private final AsBuiltWorkareaPageService asBuiltWorkareaPageService;
+  private final AsBuiltWorkAreaPageService asBuiltWorkAreaPageService;
   private final IndustryWorkAreaPageService industryWorkAreaPageService;
   private final ConsultationWorkAreaPageService consultationWorkAreaPageService;
   private final RegulatorWorkAreaPageService regulatorWorkAreaPageService;
@@ -32,13 +33,13 @@ public class WorkAreaService {
 
   @Autowired
   public WorkAreaService(
-      AsBuiltWorkareaPageService asBuiltWorkareaPageService,
+      AsBuiltWorkAreaPageService asBuiltWorkAreaPageService,
       IndustryWorkAreaPageService industryWorkAreaPageService,
       ConsultationWorkAreaPageService consultationWorkAreaPageService,
       RegulatorWorkAreaPageService regulatorWorkAreaPageService,
       PublicNoticeService publicNoticeService,
       AssignmentService assignmentService) {
-    this.asBuiltWorkareaPageService = asBuiltWorkareaPageService;
+    this.asBuiltWorkAreaPageService = asBuiltWorkAreaPageService;
     this.industryWorkAreaPageService = industryWorkAreaPageService;
     this.consultationWorkAreaPageService = consultationWorkAreaPageService;
     this.regulatorWorkAreaPageService = regulatorWorkAreaPageService;
@@ -63,14 +64,14 @@ public class WorkAreaService {
       case INDUSTRY_OPEN_APPLICATIONS:
         return new WorkAreaResult(
             industryWorkAreaPageService.getOpenApplicationsPageView(authenticatedUserAccount, page),
-            null
-        );
+            null,
+            null);
 
       case INDUSTRY_SUBMITTED_APPLICATIONS:
         return new WorkAreaResult(
             industryWorkAreaPageService.getSubmittedApplicationsPageView(authenticatedUserAccount, page),
-            null
-        );
+            null,
+            null);
 
       case REGULATOR_REQUIRES_ATTENTION:
         businessKeys = getBusinessKeysFromWorkflowToTaskMap(workflowTypeToAssignmentMap, WorkflowType.PWA_APPLICATION);
@@ -88,23 +89,26 @@ public class WorkAreaService {
 
         return new WorkAreaResult(
             regulatorWorkAreaPageService.getRequiresAttentionPageView(authenticatedUserAccount, businessKeys, page),
-            null
-        );
+            null,
+            null);
 
       case REGULATOR_WAITING_ON_OTHERS:
         businessKeys = getBusinessKeysFromWorkflowToTaskMap(workflowTypeToAssignmentMap, WorkflowType.PWA_APPLICATION);
         return new WorkAreaResult(
             regulatorWorkAreaPageService.getWaitingOnOthersPageView(authenticatedUserAccount, businessKeys, page),
-            null
-        );
+            null,
+            null);
 
       case OPEN_CONSULTATIONS:
         businessKeys = getBusinessKeysFromWorkflowToTaskMap(workflowTypeToAssignmentMap, WorkflowType.PWA_APPLICATION_CONSULTATION);
         return new WorkAreaResult(null,
-            consultationWorkAreaPageService.getPageView(authenticatedUserAccount, businessKeys, page));
+            consultationWorkAreaPageService.getPageView(authenticatedUserAccount, businessKeys, page),
+            null);
 
       case AS_BUILT_NOTIFICATIONS:
-        return new WorkAreaResult(asBuiltWorkareaPageService.getAsBuiltNotificationsPageView(page), null);
+        return new WorkAreaResult(null,
+            null,
+            asBuiltWorkAreaPageService.getAsBuiltNotificationsPageView(authenticatedUserAccount, page));
 
       default:
         throw new RuntimeException(String.format(

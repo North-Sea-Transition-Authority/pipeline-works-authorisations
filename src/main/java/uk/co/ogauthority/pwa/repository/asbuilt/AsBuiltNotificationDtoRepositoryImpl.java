@@ -1,0 +1,110 @@
+package uk.co.ogauthority.pwa.repository.asbuilt;
+
+import static java.util.stream.Collectors.toSet;
+
+import java.util.List;
+import javax.persistence.EntityManager;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+import javax.persistence.criteria.Subquery;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
+import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationGroup;
+import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationWorkareaView;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailView_;
+import uk.co.ogauthority.pwa.model.entity.search.consents.PwaHolderOrgUnit;
+import uk.co.ogauthority.pwa.model.entity.search.consents.PwaHolderOrgUnit_;
+import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
+import uk.co.ogauthority.pwa.model.teams.PwaRegulatorRole;
+import uk.co.ogauthority.pwa.service.teams.PwaHolderTeamService;
+import uk.co.ogauthority.pwa.service.teams.PwaTeamService;
+
+@Service
+public class AsBuiltNotificationDtoRepositoryImpl implements AsBuiltNotificationDtoRepository {
+
+  private final EntityManager entityManager;
+
+  private final PwaTeamService pwaTeamService;
+  private final PwaHolderTeamService pwaHolderTeamService;
+
+  @Autowired
+  public AsBuiltNotificationDtoRepositoryImpl(EntityManager entityManager,
+                                              PwaTeamService pwaTeamService,
+                                              PwaHolderTeamService pwaHolderTeamService) {
+    this.entityManager = entityManager;
+    this.pwaTeamService = pwaTeamService;
+    this.pwaHolderTeamService = pwaHolderTeamService;
+  }
+
+  private boolean isUserAsBuiltNotificationAdmin(Person person) {
+    return pwaTeamService.getPeopleWithRegulatorRole(PwaRegulatorRole.AS_BUILT_NOTIFICATION_ADMIN).contains(person);
+  }
+
+  @Override
+  public Page<AsBuiltNotificationWorkareaView> findAllAsBuiltNotificationsForUser(AuthenticatedUserAccount authenticatedUserAccount,
+                                                                                  Pageable pageable) {
+    CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+    CriteriaQuery<AsBuiltNotificationWorkareaView> cq = cb.createQuery(AsBuiltNotificationWorkareaView.class);
+
+    Root<AsBuiltNotificationWorkareaView> asBuiltNotificationWorkareaViewRoot = cq.from(AsBuiltNotificationWorkareaView.class);
+
+    //count query
+    CriteriaQuery<Long> countResultsQuery = cb.createQuery(Long.class);
+    Root<AsBuiltNotificationWorkareaView> countResultsRoot = countResultsQuery.from(
+        AsBuiltNotificationWorkareaView.class);
+    countResultsQuery
+        .select(cb.count(countResultsRoot));
+
+    if (!isUserAsBuiltNotificationAdmin(authenticatedUserAccount.getLinkedPerson())) {
+      var groupsUserCanAccess = getOrgGroupsUserCanAccess(authenticatedUserAccount);
+      cq.where(getHolderOrgApplicationsPredicate(groupsUserCanAccess, cq, asBuiltNotificationWorkareaViewRoot));
+      countResultsQuery.where(getHolderOrgApplicationsPredicate(groupsUserCanAccess, countResultsQuery, countResultsRoot));
+    }
+
+    TypedQuery<AsBuiltNotificationWorkareaView> query = entityManager.createQuery(cq
+        .orderBy(cb.asc(asBuiltNotificationWorkareaViewRoot.get("deadlineDate")))
+    );
+
+    var totalResults = entityManager.createQuery(countResultsQuery).getSingleResult();
+
+    return new PageImpl<>(query.getResultList(), pageable, totalResults);
+  }
+
+  private List<PortalOrganisationGroup> getOrgGroupsUserCanAccess(AuthenticatedUserAccount user) {
+    return pwaHolderTeamService.getPortalOrganisationGroupsWhereUserHasOrgRole(user, PwaOrganisationRole.AS_BUILT_NOTIFICATION_SUBMITTER);
+  }
+
+  private Predicate getHolderOrgApplicationsPredicate(List<PortalOrganisationGroup> organisationGroups,
+                                                      CriteriaQuery<?> searchCoreQuery,
+                                                      Root<AsBuiltNotificationWorkareaView> searchCoreRoot) {
+    CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+
+    var holderOrgGroupIds = organisationGroups
+        .stream()
+        .map(PortalOrganisationGroup::getOrgGrpId)
+        .collect(toSet());
+
+    if (holderOrgGroupIds.isEmpty()) {
+      // always false
+      return cb.isFalse(cb.literal(true));
+    }
+
+    Subquery<Integer> applicationSubQuery = searchCoreQuery.subquery(Integer.class);
+    Root<PwaHolderOrgUnit> holderOrgUnitRoot = applicationSubQuery.from(PwaHolderOrgUnit.class);
+
+    // return master pwa ids from subquery where a holder is one of the org units within searchers org group(s)
+    applicationSubQuery.select(holderOrgUnitRoot.get(PwaHolderOrgUnit_.PWA_ID));
+    applicationSubQuery.where(cb.in(holderOrgUnitRoot.get(PwaHolderOrgUnit_.ORG_GRP_ID)).value(holderOrgGroupIds));
+
+    return cb.in(searchCoreRoot.get(ApplicationDetailView_.PWA_ID)).value(applicationSubQuery);
+  }
+
+}

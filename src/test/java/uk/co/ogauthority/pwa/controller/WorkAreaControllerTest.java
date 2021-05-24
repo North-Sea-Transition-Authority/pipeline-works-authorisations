@@ -60,7 +60,8 @@ public class WorkAreaControllerTest extends AbstractControllerTest {
   public void setup() {
 
     var emptyResultPageView = setupFakeWorkAreaResultPageView(0);
-    when(workAreaService.getWorkAreaResult(any(), eq(WorkAreaTab.REGULATOR_REQUIRES_ATTENTION), anyInt())).thenReturn(new WorkAreaResult(emptyResultPageView, null));
+    when(workAreaService.getWorkAreaResult(any(), eq(WorkAreaTab.REGULATOR_REQUIRES_ATTENTION), anyInt())).thenReturn(new WorkAreaResult(emptyResultPageView, null,
+        null));
     when(workAreaTabService.getTabsAvailableToUser(any())).thenReturn(List.of(WorkAreaTab.values()));
 
   }
