@@ -279,9 +279,9 @@ public class InitialReviewServiceTest {
   }
 
   @Test
-  public void canShowInTaskList_initialReviewPermission_true() {
+  public void canShowInTaskList_ogaCaseManagementPermission_true() {
 
-    var processingContext = new PwaAppProcessingContext(null, null, Set.of(PwaAppProcessingPermission.ACCEPT_INITIAL_REVIEW), null, null);
+    var processingContext = new PwaAppProcessingContext(null, null, Set.of(PwaAppProcessingPermission.CASE_MANAGEMENT_OGA), null, null);
 
     boolean canShow = initialReviewService.canShowInTaskList(processingContext);
 
@@ -359,11 +359,28 @@ public class InitialReviewServiceTest {
   }
 
   @Test
-  public void getTaskListEntry_initialReviewNotCompleted() {
+  public void getTaskListEntry_initialReviewNotCompleted_noAcceptInitialReviewPermission() {
 
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
 
     var processingContext = new PwaAppProcessingContext(detail, null, Set.of(), null, null);
+
+    var taskListEntry = initialReviewService.getTaskListEntry(PwaAppProcessingTask.INITIAL_REVIEW, processingContext);
+
+    assertThat(taskListEntry.getTaskName()).isEqualTo(PwaAppProcessingTask.INITIAL_REVIEW.getTaskName());
+    assertThat(taskListEntry.getRoute()).isEqualTo(PwaAppProcessingTask.INITIAL_REVIEW.getRoute(processingContext));
+    assertThat(taskListEntry.getTaskTag()).isEqualTo(TaskTag.from(TaskStatus.NOT_STARTED));
+    assertThat(taskListEntry.getTaskState()).isEqualTo(TaskState.LOCK);
+    assertThat(taskListEntry.getTaskInfoList()).isEmpty();
+
+  }
+
+  @Test
+  public void getTaskListEntry_initialReviewNotCompleted_whenAcceptInitialReviewPermission() {
+
+    var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
+
+    var processingContext = new PwaAppProcessingContext(detail, null, Set.of(PwaAppProcessingPermission.ACCEPT_INITIAL_REVIEW), null, null);
 
     var taskListEntry = initialReviewService.getTaskListEntry(PwaAppProcessingTask.INITIAL_REVIEW, processingContext);
 

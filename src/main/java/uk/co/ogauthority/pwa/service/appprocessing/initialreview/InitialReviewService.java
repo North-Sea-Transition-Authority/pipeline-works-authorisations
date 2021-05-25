@@ -2,7 +2,9 @@ package uk.co.ogauthority.pwa.service.appprocessing.initialreview;
 
 import static uk.co.ogauthority.pwa.service.appprocessing.initialreview.InitialReviewPaymentDecision.PAYMENT_WAIVED;
 
+import java.util.EnumSet;
 import javax.transaction.Transactional;
+import org.apache.commons.collections4.SetUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
@@ -101,8 +103,21 @@ public class InitialReviewService implements AppProcessingService {
 
   @Override
   public boolean canShowInTaskList(PwaAppProcessingContext processingContext) {
-    return processingContext.getAppProcessingPermissions().contains(PwaAppProcessingPermission.ACCEPT_INITIAL_REVIEW)
-        || processingContext.getAppProcessingPermissions().contains(PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY);
+    var showPermissions = EnumSet.of(
+        PwaAppProcessingPermission.CASE_MANAGEMENT_OGA,
+        PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY
+    );
+    return !SetUtils.intersection(showPermissions, processingContext.getAppProcessingPermissions()).isEmpty();
+  }
+
+  private boolean taskAccessible(PwaAppProcessingContext processingContext, TaskStatus taskStatus) {
+
+    boolean openUpdateRequest = applicationUpdateRequestService.applicationHasOpenUpdateRequest(processingContext.getApplicationDetail());
+
+    return !openUpdateRequest && (
+        !TaskStatus.COMPLETED.equals(taskStatus)
+        && processingContext.getAppProcessingPermissions().contains(PwaAppProcessingPermission.ACCEPT_INITIAL_REVIEW)
+      );
   }
 
   @Override
@@ -113,12 +128,11 @@ public class InitialReviewService implements AppProcessingService {
         .stream()
         .anyMatch(d -> d.getInitialReviewApprovedTimestamp() != null);
 
-    boolean openUpdateRequest = applicationUpdateRequestService.applicationHasOpenUpdateRequest(processingContext.getApplicationDetail());
-
     var taskStatus = initialReviewCompleted ? TaskStatus.COMPLETED : TaskStatus.NOT_STARTED;
-    var taskState = taskStatus.equals(TaskStatus.COMPLETED) || openUpdateRequest
-        ? TaskState.LOCK
-        : TaskState.EDIT;
+
+    var taskState = taskAccessible(processingContext, taskStatus)
+        ? TaskState.EDIT
+        : TaskState.LOCK;
 
     return new TaskListEntry(
         task.getTaskName(),
