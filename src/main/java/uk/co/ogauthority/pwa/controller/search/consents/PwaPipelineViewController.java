@@ -31,7 +31,7 @@ import uk.co.ogauthority.pwa.service.search.consents.pwaviewtab.PwaPipelineViewU
 
 @Controller
 @RequestMapping("/consents/pwa-view/{pwaId}/pipeline")
-@PwaPermissionCheck(permissions = PwaPermission.VIEW_PWA)
+@PwaPermissionCheck(permissions = PwaPermission.VIEW_PWA_PIPELINE)
 public class PwaPipelineViewController {
 
   private final PipelineDetailService pipelineDetailService;
@@ -97,7 +97,8 @@ public class PwaPipelineViewController {
         .addObject("availableTabs", PwaPipelineViewTab.stream().collect(Collectors.toList()))
         .addObject("currentProcessingTab", tab)
         .addObject("pwaPipelineViewUrlFactory", new PwaPipelineViewUrlFactory(pwaContext.getMasterPwa().getId(), pipelineId))
-        .addObject("pipelineReference", latestPipelineDetail.getPipelineNumber());
+        .addObject("pipelineReference", latestPipelineDetail.getPipelineNumber())
+        .addObject("showPwaNavigation", pwaContext.getPwaPermissions().contains(PwaPermission.SHOW_PWA_NAVIGATION));
 
 
     if (tab.equals(PwaPipelineViewTab.PIPELINE_HISTORY)) {

@@ -36,7 +36,6 @@ import uk.co.ogauthority.pwa.service.pwacontext.PwaPermission;
 import uk.co.ogauthority.pwa.service.pwacontext.PwaPermissionService;
 import uk.co.ogauthority.pwa.service.search.consents.PwaPipelineViewTab;
 import uk.co.ogauthority.pwa.service.search.consents.pwapipelineview.PwaHuooHistoryItemType;
-import uk.co.ogauthority.pwa.service.search.consents.pwapipelineview.PwaHuooHistoryViewService;
 import uk.co.ogauthority.pwa.service.search.consents.pwapipelineview.PwaPipelineHistoryViewService;
 import uk.co.ogauthority.pwa.service.search.consents.pwapipelineview.ViewablePipelineHuooVersionService;
 import uk.co.ogauthority.pwa.testutils.PwaEndpointTestBuilder;
@@ -72,7 +71,7 @@ public class PwaViewPipelineControllerTest extends PwaContextAbstractControllerT
   public void setUp() {
 
     endpointTester = new PwaEndpointTestBuilder(mockMvc, masterPwaService, pwaPermissionService, consentSearchService)
-        .setAllowedProcessingPermissions(PwaPermission.VIEW_PWA);
+        .setAllowedProcessingPermissions(PwaPermission.VIEW_PWA_PIPELINE);
 
     user = new AuthenticatedUserAccount(
         new WebUserAccount(1),
@@ -83,7 +82,7 @@ public class PwaViewPipelineControllerTest extends PwaContextAbstractControllerT
     this.masterPwa.setCreatedTimestamp(Instant.MIN);
     when(masterPwaService.getMasterPwaById(masterPwa.getId())).thenReturn(masterPwa);
 
-    when(pwaPermissionService.getPwaPermissions(masterPwa, user)).thenReturn(Set.of(PwaPermission.VIEW_PWA));
+    when(pwaPermissionService.getPwaPermissions(masterPwa, user)).thenReturn(Set.of(PwaPermission.VIEW_PWA_PIPELINE));
 
     var pipelineDetail = new PipelineDetail();
     pipelineDetail.setPipelineNumber("PL1");

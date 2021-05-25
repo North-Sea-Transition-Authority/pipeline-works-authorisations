@@ -5,7 +5,9 @@ package uk.co.ogauthority.pwa.service.pwacontext;
  */
 public enum PwaPermission {
 
-  VIEW_PWA;
+  VIEW_PWA,
+  VIEW_PWA_PIPELINE,
+  SHOW_PWA_NAVIGATION;
 
 
 }
