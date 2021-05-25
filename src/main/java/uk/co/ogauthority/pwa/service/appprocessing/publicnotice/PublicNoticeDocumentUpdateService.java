@@ -3,7 +3,6 @@ package uk.co.ogauthority.pwa.service.appprocessing.publicnotice;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import java.util.Optional;
-import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,21 +18,20 @@ import uk.co.ogauthority.pwa.model.entity.publicnotice.PublicNoticeDocument;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.form.publicnotice.UpdatePublicNoticeDocumentForm;
 import uk.co.ogauthority.pwa.model.notify.emailproperties.publicnotices.PublicNoticeDocumentReviewRequestEmailProps;
-import uk.co.ogauthority.pwa.model.teams.PwaRegulatorRole;
-import uk.co.ogauthority.pwa.model.teams.PwaRole;
-import uk.co.ogauthority.pwa.model.teams.PwaTeamMember;
 import uk.co.ogauthority.pwa.model.view.banner.BannerLink;
 import uk.co.ogauthority.pwa.model.view.banner.PageBannerView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.repository.publicnotice.PublicNoticeDocumentLinkRepository;
 import uk.co.ogauthority.pwa.repository.publicnotice.PublicNoticeDocumentRepository;
+import uk.co.ogauthority.pwa.service.enums.workflow.assignment.WorkflowAssignment;
 import uk.co.ogauthority.pwa.service.enums.workflow.publicnotice.PwaApplicationPublicNoticeWorkflowTask;
 import uk.co.ogauthority.pwa.service.fileupload.AppFileService;
 import uk.co.ogauthority.pwa.service.fileupload.FileUpdateMode;
 import uk.co.ogauthority.pwa.service.notify.EmailCaseLinkService;
 import uk.co.ogauthority.pwa.service.notify.NotifyService;
-import uk.co.ogauthority.pwa.service.teams.TeamService;
+import uk.co.ogauthority.pwa.service.person.PersonService;
 import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
+import uk.co.ogauthority.pwa.service.workflow.assignment.AssignmentService;
 import uk.co.ogauthority.pwa.service.workflow.task.WorkflowTaskInstance;
 import uk.co.ogauthority.pwa.util.DateUtils;
 import uk.co.ogauthority.pwa.validators.publicnotice.PublicNoticeDocumentUpdateValidator;
@@ -48,7 +46,8 @@ public class PublicNoticeDocumentUpdateService {
   private final PublicNoticeDocumentRepository publicNoticeDocumentRepository;
   private final PublicNoticeDocumentLinkRepository publicNoticeDocumentLinkRepository;
   private final CamundaWorkflowService camundaWorkflowService;
-  private final TeamService teamService;
+  private final PersonService personService;
+  private final AssignmentService assignmentService;
   private final EmailCaseLinkService emailCaseLinkService;
   private final NotifyService notifyService;
 
@@ -61,15 +60,19 @@ public class PublicNoticeDocumentUpdateService {
       AppFileService appFileService,
       PublicNoticeDocumentRepository publicNoticeDocumentRepository,
       PublicNoticeDocumentLinkRepository publicNoticeDocumentLinkRepository,
-      CamundaWorkflowService camundaWorkflowService, TeamService teamService,
-      EmailCaseLinkService emailCaseLinkService, NotifyService notifyService) {
+      CamundaWorkflowService camundaWorkflowService,
+      PersonService personService,
+      AssignmentService assignmentService,
+      EmailCaseLinkService emailCaseLinkService,
+      NotifyService notifyService) {
     this.publicNoticeService = publicNoticeService;
     this.publicNoticeDocumentUpdateValidator = publicNoticeDocumentUpdateValidator;
     this.appFileService = appFileService;
     this.publicNoticeDocumentRepository = publicNoticeDocumentRepository;
     this.publicNoticeDocumentLinkRepository = publicNoticeDocumentLinkRepository;
     this.camundaWorkflowService = camundaWorkflowService;
-    this.teamService = teamService;
+    this.personService = personService;
+    this.assignmentService = assignmentService;
     this.emailCaseLinkService = emailCaseLinkService;
     this.notifyService = notifyService;
   }
@@ -128,21 +131,15 @@ public class PublicNoticeDocumentUpdateService {
 
   private void sendPublicNoticeDocumentReviewRequestEmail(PwaApplication pwaApplication) {
 
-    var recipients = teamService.getTeamMembers(teamService.getRegulatorTeam()).stream()
-        .filter(member -> member.getRoleSet().stream()
-            .map(PwaRole::getName)
-            .anyMatch(roleName -> roleName.equals(PwaRegulatorRole.CASE_OFFICER.getPortalTeamRoleName())))
-        .map(PwaTeamMember::getPerson)
-        .collect(Collectors.toList());
+    var caseOfficerAssignment = assignmentService.getAssignmentOrError(pwaApplication, WorkflowAssignment.CASE_OFFICER);
+    var caseOfficerPerson = personService.getPersonById(caseOfficerAssignment.getAssigneePersonId());
 
     var caseManagementLink = emailCaseLinkService.generateCaseManagementLink(pwaApplication);
-    recipients.forEach(recipient -> {
-      var emailProps = new PublicNoticeDocumentReviewRequestEmailProps(
-          recipient.getFullName(),
-          pwaApplication.getAppReference(),
-          caseManagementLink);
-      notifyService.sendEmail(emailProps, recipient.getEmailAddress());
-    });
+    var emailProps = new PublicNoticeDocumentReviewRequestEmailProps(
+        caseOfficerPerson.getFullName(),
+        pwaApplication.getAppReference(),
+        caseManagementLink);
+    notifyService.sendEmail(emailProps, caseOfficerPerson.getEmailAddress());
   }
 
   @Transactional

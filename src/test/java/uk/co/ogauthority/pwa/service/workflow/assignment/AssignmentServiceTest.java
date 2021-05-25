@@ -176,4 +176,33 @@ public class AssignmentServiceTest {
 
   }
 
+  @Test
+  public void getAssignmentOrError_verifyRepoInteraction_noException() {
+
+    var workflowSubject = new GenericWorkflowSubject(1, WorkflowType.PWA_APPLICATION);
+    var assignment = new Assignment(
+        workflowSubject.getBusinessKey(), workflowSubject.getWorkflowType(), WorkflowAssignment.CASE_OFFICER, new PersonId(1));
+
+    when(assignmentRepository.findByBusinessKeyAndWorkflowAssignmentAndWorkflowType(
+        workflowSubject.getBusinessKey(), WorkflowAssignment.CASE_OFFICER, workflowSubject.getWorkflowType()))
+        .thenReturn(Optional.of(assignment));
+
+    assignmentService.getAssignmentOrError(workflowSubject, WorkflowAssignment.CASE_OFFICER);
+    verify(assignmentRepository).findByBusinessKeyAndWorkflowAssignmentAndWorkflowType(workflowSubject.getBusinessKey(),
+        WorkflowAssignment.CASE_OFFICER, WorkflowType.PWA_APPLICATION);
+  }
+
+  @Test(expected = IllegalStateException.class)
+  public void getAssignmentOrError_verifyRepoInteraction_noAssignmentFound_exceptionThrown() {
+
+    var workflowSubject = new GenericWorkflowSubject(1, WorkflowType.PWA_APPLICATION);
+    when(assignmentRepository.findByBusinessKeyAndWorkflowAssignmentAndWorkflowType(
+        workflowSubject.getBusinessKey(), WorkflowAssignment.CASE_OFFICER, workflowSubject.getWorkflowType()))
+        .thenReturn(Optional.empty());
+
+    assignmentService.getAssignmentOrError(workflowSubject, WorkflowAssignment.CASE_OFFICER);
+    verify(assignmentRepository).findByBusinessKeyAndWorkflowAssignmentAndWorkflowType(workflowSubject.getBusinessKey(),
+        WorkflowAssignment.CASE_OFFICER, workflowSubject.getWorkflowType());
+  }
+
 }

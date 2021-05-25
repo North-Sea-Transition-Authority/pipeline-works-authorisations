@@ -2,7 +2,6 @@ package uk.co.ogauthority.pwa.service.appprocessing.publicnotice;
 
 import java.time.Clock;
 import java.util.List;
-import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -16,17 +15,16 @@ import uk.co.ogauthority.pwa.model.form.publicnotice.PublicNoticeApprovalForm;
 import uk.co.ogauthority.pwa.model.notify.emailproperties.EmailProperties;
 import uk.co.ogauthority.pwa.model.notify.emailproperties.publicnotices.PublicNoticeApprovedEmailProps;
 import uk.co.ogauthority.pwa.model.notify.emailproperties.publicnotices.PublicNoticeRejectedEmailProps;
-import uk.co.ogauthority.pwa.model.teams.PwaRegulatorRole;
-import uk.co.ogauthority.pwa.model.teams.PwaRole;
-import uk.co.ogauthority.pwa.model.teams.PwaTeamMember;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
+import uk.co.ogauthority.pwa.service.enums.workflow.assignment.WorkflowAssignment;
 import uk.co.ogauthority.pwa.service.enums.workflow.publicnotice.PwaApplicationPublicNoticeApprovalResult;
 import uk.co.ogauthority.pwa.service.enums.workflow.publicnotice.PwaApplicationPublicNoticeWorkflowTask;
 import uk.co.ogauthority.pwa.service.notify.EmailCaseLinkService;
 import uk.co.ogauthority.pwa.service.notify.NotifyService;
+import uk.co.ogauthority.pwa.service.person.PersonService;
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
-import uk.co.ogauthority.pwa.service.teams.TeamService;
 import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
+import uk.co.ogauthority.pwa.service.workflow.assignment.AssignmentService;
 import uk.co.ogauthority.pwa.service.workflow.task.WorkflowTaskInstance;
 import uk.co.ogauthority.pwa.validators.publicnotice.PublicNoticeApprovalValidator;
 
@@ -40,8 +38,9 @@ public class PublicNoticeApprovalService {
   private final Clock clock;
   private final NotifyService notifyService;
   private final EmailCaseLinkService emailCaseLinkService;
-  private final TeamService teamService;
   private final PwaContactService pwaContactService;
+  private final PersonService personService;
+  private final AssignmentService assignmentService;
 
   @Autowired
   public PublicNoticeApprovalService(
@@ -50,16 +49,18 @@ public class PublicNoticeApprovalService {
       CamundaWorkflowService camundaWorkflowService,
       @Qualifier("utcClock") Clock clock,
       NotifyService notifyService,
-      EmailCaseLinkService emailCaseLinkService, TeamService teamService,
-      PwaContactService pwaContactService) {
+      EmailCaseLinkService emailCaseLinkService,
+      PwaContactService pwaContactService,
+      PersonService personService, AssignmentService assignmentService) {
     this.publicNoticeService = publicNoticeService;
     this.publicNoticeApprovalValidator = publicNoticeApprovalValidator;
     this.camundaWorkflowService = camundaWorkflowService;
     this.clock = clock;
     this.notifyService = notifyService;
     this.emailCaseLinkService = emailCaseLinkService;
-    this.teamService = teamService;
     this.pwaContactService = pwaContactService;
+    this.personService = personService;
+    this.assignmentService = assignmentService;
   }
 
 
@@ -107,6 +108,7 @@ public class PublicNoticeApprovalService {
 
 
   private List<Person> getRecipientsForApprovalEmail(PwaApplication pwaApplication, boolean requestApproved) {
+
     if (requestApproved) {
       return pwaContactService.getPeopleInRoleForPwaApplication(
           pwaApplication,
@@ -114,12 +116,8 @@ public class PublicNoticeApprovalService {
       );
 
     } else {
-      return teamService.getTeamMembers(teamService.getRegulatorTeam()).stream()
-          .filter(member -> member.getRoleSet().stream()
-              .map(PwaRole::getName)
-              .anyMatch(roleName -> roleName.equals(PwaRegulatorRole.CASE_OFFICER.getPortalTeamRoleName())))
-          .map(PwaTeamMember::getPerson)
-          .collect(Collectors.toList());
+      var caseOfficerAssignment = assignmentService.getAssignmentOrError(pwaApplication, WorkflowAssignment.CASE_OFFICER);
+      return List.of(personService.getPersonById(caseOfficerAssignment.getAssigneePersonId()));
     }
 
   }
