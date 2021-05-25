@@ -161,7 +161,7 @@ public class AssignResponderService implements AppProcessingService {
 
     var taskTag = assignedPerson != null
         ? new TaskTag(assignedPerson.getFullName(), "govuk-tag--purple")
-        : TaskTag.from(TaskStatus.NOT_COMPLETED);
+        : TaskTag.from(TaskStatus.NOT_STARTED);
 
     return new TaskListEntry(
         task.getTaskName(),

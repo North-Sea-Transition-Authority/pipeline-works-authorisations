@@ -365,7 +365,7 @@ public class ConsultationResponseServiceTest {
 
     assertThat(taskListEntry.getTaskName()).isEqualTo(PwaAppProcessingTask.CONSULTATION_RESPONSE.getTaskName());
     assertThat(taskListEntry.getRoute()).isEqualTo(PwaAppProcessingTask.CONSULTATION_RESPONSE.getRoute(processingContext));
-    assertThat(taskListEntry.getTaskTag()).isEqualTo(TaskTag.from(TaskStatus.NOT_COMPLETED));
+    assertThat(taskListEntry.getTaskTag()).isEqualTo(TaskTag.from(TaskStatus.NOT_STARTED));
     assertThat(taskListEntry.getDisplayOrder()).isEqualTo(PwaAppProcessingTask.CONSULTATION_RESPONSE.getDisplayOrder());
 
   }

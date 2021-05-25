@@ -108,7 +108,7 @@ public class ApproveOptionsTaskService implements AppProcessingService {
     if (optionsApproved) {
       taskStatus = TaskStatus.COMPLETED;
     } else {
-      taskStatus = TaskStatus.NOT_COMPLETED;
+      taskStatus = TaskStatus.NOT_STARTED;
     }
 
     return new TaskListEntry(
@@ -130,7 +130,7 @@ public class ApproveOptionsTaskService implements AppProcessingService {
     if (optionsApproved) {
       taskStatus = TaskStatus.COMPLETED;
     } else if (taskAccessible) {
-      taskStatus = TaskStatus.NOT_COMPLETED;
+      taskStatus = TaskStatus.NOT_STARTED;
     } else {
       taskStatus = TaskStatus.CANNOT_START_YET;
     }
@@ -141,7 +141,7 @@ public class ApproveOptionsTaskService implements AppProcessingService {
         task.getTaskName(),
         task.getRoute(processingContext),
         atLeastOneSatisfactoryVersion ? TaskTag.from(taskStatus) : TaskTag.from(TaskStatus.CANNOT_START_YET),
-        atLeastOneSatisfactoryVersion && taskStatus.equals(TaskStatus.NOT_COMPLETED) && taskAccessible ? TaskState.EDIT : TaskState.LOCK,
+        atLeastOneSatisfactoryVersion && taskStatus.equals(TaskStatus.NOT_STARTED) && taskAccessible ? TaskState.EDIT : TaskState.LOCK,
         task.getDisplayOrder());
   }
 

@@ -366,7 +366,7 @@ public class InitialReviewServiceTest {
 
     assertThat(taskListEntry.getTaskName()).isEqualTo(PwaAppProcessingTask.INITIAL_REVIEW.getTaskName());
     assertThat(taskListEntry.getRoute()).isEqualTo(PwaAppProcessingTask.INITIAL_REVIEW.getRoute(processingContext));
-    assertThat(taskListEntry.getTaskTag()).isEqualTo(TaskTag.from(TaskStatus.NOT_COMPLETED));
+    assertThat(taskListEntry.getTaskTag()).isEqualTo(TaskTag.from(TaskStatus.NOT_STARTED));
     assertThat(taskListEntry.getTaskState()).isEqualTo(TaskState.EDIT);
     assertThat(taskListEntry.getTaskInfoList()).isEmpty();
 
@@ -385,7 +385,7 @@ public class InitialReviewServiceTest {
 
     assertThat(taskListEntry.getTaskName()).isEqualTo(PwaAppProcessingTask.INITIAL_REVIEW.getTaskName());
     assertThat(taskListEntry.getRoute()).isEqualTo(PwaAppProcessingTask.INITIAL_REVIEW.getRoute(processingContext));
-    assertThat(taskListEntry.getTaskTag()).isEqualTo(TaskTag.from(TaskStatus.NOT_COMPLETED));
+    assertThat(taskListEntry.getTaskTag()).isEqualTo(TaskTag.from(TaskStatus.NOT_STARTED));
     assertThat(taskListEntry.getTaskState()).isEqualTo(TaskState.LOCK);
     assertThat(taskListEntry.getTaskInfoList()).isEmpty();
 

@@ -113,7 +113,7 @@ public class InitialReviewService implements AppProcessingService {
         .stream()
         .anyMatch(d -> d.getInitialReviewApprovedTimestamp() != null);
 
-    var taskStatus = initialReviewCompleted ? TaskStatus.COMPLETED : TaskStatus.NOT_COMPLETED;
+    var taskStatus = initialReviewCompleted ? TaskStatus.COMPLETED : TaskStatus.NOT_STARTED;
 
     boolean openUpdateRequest = applicationUpdateRequestService.applicationHasOpenUpdateRequest(processingContext.getApplicationDetail());
 
