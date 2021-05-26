@@ -8,6 +8,7 @@ import java.util.Set;
 import org.junit.Test;
 import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
+import uk.co.ogauthority.pwa.service.enums.users.UserType;
 
 public class ApplicationInvolvementDtoTest {
 
@@ -22,8 +23,8 @@ public class ApplicationInvolvementDtoTest {
         false,
         Set.of(),
         false,
-        null
-    );
+        null,
+        Set.of(UserType.OGA));
 
     assertThat(involvement.isUserInAppContactTeam()).isTrue();
 
@@ -40,8 +41,8 @@ public class ApplicationInvolvementDtoTest {
         false,
         Set.of(),
         false,
-        null
-    );
+        null,
+        Set.of());
 
     assertThat(involvement.isUserInAppContactTeam()).isFalse();
   }
@@ -59,8 +60,8 @@ public class ApplicationInvolvementDtoTest {
         false,
         Set.of(PwaOrganisationRole.APPLICATION_CREATOR),
         false,
-        null
-    );
+        null,
+        Set.of(UserType.OGA));
 
     assertThat(involvement.isUserInHolderTeam()).isTrue();
 
@@ -77,8 +78,8 @@ public class ApplicationInvolvementDtoTest {
         false,
         Set.of(),
         false,
-        null
-    );
+        null,
+        Set.of(UserType.OGA));
 
     assertThat(involvement.isUserInHolderTeam()).isFalse();
   }

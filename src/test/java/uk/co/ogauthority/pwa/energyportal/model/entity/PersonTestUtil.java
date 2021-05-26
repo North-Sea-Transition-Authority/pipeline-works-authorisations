@@ -44,5 +44,15 @@ public class PersonTestUtil {
     );
   }
 
+  public static Person createDefaultPerson(PersonId personId) {
+    return new Person(
+        personId.asInt(),
+        "firstname",
+        "surname",
+        "email@email.com",
+        "0123456789"
+    );
+  }
+
 
 }

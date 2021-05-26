@@ -12,6 +12,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.appinvolvement.OpenConsentReview;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
+import uk.co.ogauthority.pwa.service.enums.users.UserType;
 
 public final class ApplicationInvolvementDtoTestUtil {
 
@@ -37,6 +38,17 @@ public final class ApplicationInvolvementDtoTestUtil {
                                                                  Set<PwaContactRole> pwaContactRoles,
                                                                  Set<PwaOrganisationRole> pwaOrganisationRoles,
                                                                  ConsultationInvolvementDto consultationInvolvementDto) {
+    return generateAppInvolvement(
+        pwaApplication, versionFlags, pwaContactRoles, pwaOrganisationRoles, consultationInvolvementDto, Set.of(UserType.INDUSTRY));
+
+  }
+
+  public static ApplicationInvolvementDto generateAppInvolvement(PwaApplication pwaApplication,
+                                                                 Set<InvolvementFlag> versionFlags,
+                                                                 Set<PwaContactRole> pwaContactRoles,
+                                                                 Set<PwaOrganisationRole> pwaOrganisationRoles,
+                                                                 ConsultationInvolvementDto consultationInvolvementDto,
+                                                                 Set<UserType> userTypes) {
     return new ApplicationInvolvementDto(
         pwaApplication,
         pwaContactRoles,
@@ -46,8 +58,8 @@ public final class ApplicationInvolvementDtoTestUtil {
         versionFlags.contains(AT_LEAST_ONE_SATISFACTORY_VERSION),
         pwaOrganisationRoles,
         versionFlags.contains(INDUSTRY_INVOLVEMENT_ONLY),
-        versionFlags.contains(OPEN_CONSENT_REVIEW) ? OpenConsentReview.YES : OpenConsentReview.NO
-    );
+        versionFlags.contains(OPEN_CONSENT_REVIEW) ? OpenConsentReview.YES : OpenConsentReview.NO,
+        userTypes);
 
   }
 
@@ -120,6 +132,18 @@ public final class ApplicationInvolvementDtoTestUtil {
         EnumSet.noneOf(PwaContactRole.class),
         EnumSet.noneOf(PwaOrganisationRole.class),
         null
+    );
+
+  }
+
+  public static ApplicationInvolvementDto fromUserTypes(PwaApplication pwaApplication, Set<UserType> userTypes) {
+    return generateAppInvolvement(
+        pwaApplication,
+        Set.of(),
+        EnumSet.noneOf(PwaContactRole.class),
+        EnumSet.noneOf(PwaOrganisationRole.class),
+        null,
+        userTypes
     );
 
   }

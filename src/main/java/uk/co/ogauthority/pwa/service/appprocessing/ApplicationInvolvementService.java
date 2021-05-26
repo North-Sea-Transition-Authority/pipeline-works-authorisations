@@ -150,7 +150,8 @@ public class ApplicationInvolvementService {
         atLeastOneSatisfactoryVersion,
         userHolderTeamRoles,
         userIsIndustryOnly,
-        openConsentReview);
+        openConsentReview,
+        userTypes);
 
   }
 

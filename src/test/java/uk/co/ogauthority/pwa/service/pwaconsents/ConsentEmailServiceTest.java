@@ -3,9 +3,11 @@ package uk.co.ogauthority.pwa.service.pwaconsents;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -25,6 +27,8 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.workflow.assignment.Assignment;
 import uk.co.ogauthority.pwa.model.notify.emailproperties.applicationworkflow.ConsentIssuedEmailProps;
 import uk.co.ogauthority.pwa.model.notify.emailproperties.applicationworkflow.ConsentReviewReturnedEmailProps;
+import uk.co.ogauthority.pwa.model.notify.emailproperties.applicationworkflow.HolderSubmitterConsentIssuedEmailProps;
+import uk.co.ogauthority.pwa.model.notify.emailproperties.applicationworkflow.NonHolderConsentIssuedEmailProps;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.workflow.WorkflowType;
 import uk.co.ogauthority.pwa.service.enums.workflow.assignment.WorkflowAssignment;
@@ -54,6 +58,12 @@ public class ConsentEmailServiceTest {
 
   @Captor
   private ArgumentCaptor<ConsentIssuedEmailProps> consentIssuedEmailCaptor;
+
+  @Captor
+  private ArgumentCaptor<HolderSubmitterConsentIssuedEmailProps> holderSubmitterConsentIssuedEmailProps;
+
+  @Captor
+  private ArgumentCaptor<NonHolderConsentIssuedEmailProps> nonHolderConsentIssuedEmailProps;
 
   private ConsentEmailService consentEmailService;
 
@@ -105,4 +115,51 @@ public class ConsentEmailServiceTest {
         "ISSUING_PERSON_NAME", "PWA Admin"
     ));
   }
+
+  @Test
+  public void sendHolderAndSubmitterConsentIssuedEmail() {
+
+    var emailRecipientPersons = List.of(
+        PersonTestUtil.createDefaultPerson(new PersonId(100)), PersonTestUtil.createDefaultPerson(new PersonId(200)));
+    var coverLetterText = "cover letter text";
+
+    consentEmailService.sendHolderAndSubmitterConsentIssuedEmail(pwaApplicationDetail, coverLetterText, emailRecipientPersons);
+
+    emailRecipientPersons.forEach(recipientPerson -> {
+      verify(notifyService, atLeastOnce()).sendEmail(holderSubmitterConsentIssuedEmailProps.capture(),
+          eq(recipientPerson.getEmailAddress()));
+
+      assertThat(holderSubmitterConsentIssuedEmailProps.getValue().getEmailPersonalisation()).containsAllEntriesOf(Map.of(
+          "RECIPIENT_FULL_NAME", recipientPerson.getFullName(),
+          "APPLICATION_REFERENCE", pwaApplicationDetail.getPwaApplicationRef(),
+          "COVER_LETTER_TEXT", coverLetterText,
+          "CASE_MANAGEMENT_LINK", emailCaseLinkService.generateCaseManagementLink(pwaApplicationDetail.getPwaApplication())
+      ));
+    });
+
+  }
+
+  @Test
+  public void sendNonHolderConsentIssuedEmail() {
+
+    var emailRecipientPersons = List.of(
+        PersonTestUtil.createDefaultPerson(new PersonId(100)), PersonTestUtil.createDefaultPerson(new PersonId(200)));
+    var coverLetterText = "cover letter text";
+
+    consentEmailService.sendNonHolderConsentIssuedEmail(pwaApplicationDetail, coverLetterText, emailRecipientPersons);
+
+    emailRecipientPersons.forEach(recipientPerson -> {
+      verify(notifyService, atLeastOnce()).sendEmail(nonHolderConsentIssuedEmailProps.capture(),
+          eq(recipientPerson.getEmailAddress()));
+
+      assertThat(nonHolderConsentIssuedEmailProps.getValue().getEmailPersonalisation()).containsAllEntriesOf(Map.of(
+          "RECIPIENT_FULL_NAME", recipientPerson.getFullName(),
+          "APPLICATION_REFERENCE", pwaApplicationDetail.getPwaApplicationRef(),
+          "COVER_LETTER_TEXT", coverLetterText
+      ));
+    });
+
+  }
+
+
 }

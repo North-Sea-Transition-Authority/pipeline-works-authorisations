@@ -49,6 +49,10 @@
         <@fdsAction.link linkText="View public notice" linkUrl=springUrl(viewPublicNoticeUrl) linkClass="govuk-button govuk-button--blue" role=true/>
     </#if>
 
+    <#if consentHistoryUrl?has_content>
+        <@fdsAction.link linkText="View consent" linkUrl=springUrl(consentHistoryUrl) linkClass="govuk-button govuk-button--blue" role=true openInNewTab=true/>
+    </#if>
+
   <@fdsBackendTabs.tabList>
       <#list availableTabs as tab>
           <@fdsBackendTabs.tab tabLabel=tab.getLabel(industryFlag) tabUrl=tabUrlFactory.getTabUrl(tab.value) tabAnchor=tab.anchor currentTab=currentProcessingTab.value tabValue=tab.value />
