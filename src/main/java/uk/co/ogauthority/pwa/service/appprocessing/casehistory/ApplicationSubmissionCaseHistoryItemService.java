@@ -37,7 +37,7 @@ public class ApplicationSubmissionCaseHistoryItemService implements CaseHistoryI
 
     var updateRequestAppDetailMap = applicationUpdateRequestService.getApplicationUpdateRequests(appDetails)
         .stream()
-        .collect(Collectors.toMap(ApplicationUpdateRequest::getPwaApplicationDetail, Function.identity()));;
+        .collect(Collectors.toMap(ApplicationUpdateRequest::getPwaApplicationDetail, Function.identity()));
 
     return appDetails.stream()
         .map(pwaApplicationDetail -> {

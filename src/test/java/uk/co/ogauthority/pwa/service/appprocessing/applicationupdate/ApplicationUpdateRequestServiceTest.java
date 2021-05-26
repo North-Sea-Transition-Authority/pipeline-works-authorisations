@@ -370,8 +370,7 @@ public class ApplicationUpdateRequestServiceTest {
       assertThat(emailProperties.getTemplate()).isEqualTo(NotifyTemplate.APPLICATION_UPDATE_RESPONDED);
       assertThat(emailProperties.getEmailPersonalisation().get("APPLICATION_REFERENCE"))
           .isEqualTo(pwaApplicationDetail.getPwaApplicationRef());
-      assertThat(emailProperties.getEmailPersonalisation().get("CASE_MANAGEMENT_LINK"))
-          .isEqualTo(CASE_MANAGEMENT_LINK);
+      assertThat(emailProperties.getEmailPersonalisation()).containsEntry("CASE_MANAGEMENT_LINK", CASE_MANAGEMENT_LINK);
     });
 
   }

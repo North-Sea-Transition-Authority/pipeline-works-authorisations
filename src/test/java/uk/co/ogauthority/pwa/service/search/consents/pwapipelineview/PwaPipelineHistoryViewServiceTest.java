@@ -78,10 +78,12 @@ public class PwaPipelineHistoryViewServiceTest {
         String.format("%s (%s)", DateUtils.formatDate(pipelineDetailCreatedTodayAfternoon.getStartTimestamp()), expectedOrderTagNumber));
 
     expectedOrderTagNumber = 1;
-    assertThat(pipelinesVersionSearchSelectorItems.get(pipelineDetailCreatedTodayMorning.getId().toString())).isEqualTo(
+    assertThat(pipelinesVersionSearchSelectorItems).containsEntry(
+        pipelineDetailCreatedTodayMorning.getId().toString(),
         String.format("%s (%s)", DateUtils.formatDate(pipelineDetailCreatedTodayMorning.getStartTimestamp()), expectedOrderTagNumber));
 
-    assertThat(pipelinesVersionSearchSelectorItems.get(pipelineDetailCreatedYesterday.getId().toString())).isEqualTo(
+    assertThat(pipelinesVersionSearchSelectorItems).containsEntry(
+        pipelineDetailCreatedYesterday.getId().toString(),
         DateUtils.formatDate(pipelineDetailCreatedYesterday.getStartTimestamp()));
 
   }
@@ -98,10 +100,13 @@ public class PwaPipelineHistoryViewServiceTest {
 
     var pipelinesVersionSearchSelectorItems = pwaPipelineHistoryViewService.getPipelinesVersionSearchSelectorItems(PIPELINE_ID.asInt());
 
-    assertThat(pipelinesVersionSearchSelectorItems.get(pipelineDetailHasConsentRef.getId().toString())).isEqualTo(
-        String.format("Latest version (%s - %s)", DateUtils.formatDate(pipelineDetailHasConsentRef.getStartTimestamp()), pipelineDetailHasConsentRef.getPwaConsent().getReference()));
+    assertThat(pipelinesVersionSearchSelectorItems).containsEntry(
+        pipelineDetailHasConsentRef.getId().toString(),
+        String.format("Latest version (%s - %s)",
+            DateUtils.formatDate(pipelineDetailHasConsentRef.getStartTimestamp()), pipelineDetailHasConsentRef.getPwaConsent().getReference()));
 
-    assertThat(pipelinesVersionSearchSelectorItems.get(pipelineDetailNoConsentRef.getId().toString())).isEqualTo(
+    assertThat(pipelinesVersionSearchSelectorItems).containsEntry(
+        pipelineDetailNoConsentRef.getId().toString(),
         DateUtils.formatDate(pipelineDetailNoConsentRef.getStartTimestamp()));
   }
 
