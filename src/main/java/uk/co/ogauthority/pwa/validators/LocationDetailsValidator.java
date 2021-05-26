@@ -49,8 +49,6 @@ public class LocationDetailsValidator implements SmartValidator {
 
   }
 
-
-
   private void validatePartial(LocationDetailsForm form, Errors errors, Set<LocationDetailsQuestion> requiredQuestions) {
 
     if (requiredQuestions.contains(LocationDetailsQuestion.APPROXIMATE_PROJECT_LOCATION_FROM_SHORE)) {
@@ -59,27 +57,8 @@ public class LocationDetailsValidator implements SmartValidator {
           "Approximate project location from shore must be 4000 characters or fewer");
     }
 
-    if (requiredQuestions.contains(LocationDetailsQuestion.WITHIN_SAFETY_ZONE) && form.getWithinSafetyZone() != null) {
-      switch (form.getWithinSafetyZone()) {
-        case YES:
-          ValidatorUtils.invokeNestedValidator(
-              errors,
-              safetyZoneValidator,
-              "completelyWithinSafetyZoneForm",
-              form.getCompletelyWithinSafetyZoneForm(),
-              ValidationType.PARTIAL);
-          break;
-        case PARTIALLY:
-          ValidatorUtils.invokeNestedValidator(
-              errors,
-              safetyZoneValidator,
-              "partiallyWithinSafetyZoneForm",
-              form.getPartiallyWithinSafetyZoneForm(),
-              ValidationType.PARTIAL);
-          break;
-        default:
-          break;
-      }
+    if (requiredQuestions.contains(LocationDetailsQuestion.WITHIN_SAFETY_ZONE)) {
+      validateWithinSafetyZone(form, errors, ValidationType.PARTIAL);
     }
 
     if (requiredQuestions.contains(LocationDetailsQuestion.TRANSPORTS_MATERIALS_TO_SHORE)) {
@@ -108,9 +87,7 @@ public class LocationDetailsValidator implements SmartValidator {
     }
   }
 
-
   private void validateFull(LocationDetailsForm form, Errors errors, Set<LocationDetailsQuestion> requiredQuestions) {
-
 
     if (requiredQuestions.contains(LocationDetailsQuestion.APPROXIMATE_PROJECT_LOCATION_FROM_SHORE)) {
       ValidationUtils.rejectIfEmpty(errors, "approximateProjectLocationFromShore",
@@ -118,34 +95,7 @@ public class LocationDetailsValidator implements SmartValidator {
     }
 
     if (requiredQuestions.contains(LocationDetailsQuestion.WITHIN_SAFETY_ZONE)) {
-      if (form.getWithinSafetyZone() == null) {
-        errors.rejectValue("withinSafetyZone",
-            "withinSafetyZone" + FieldValidationErrorCodes.REQUIRED.getCode(),
-            "Enter information on work carried out within 500m of a safety zone");
-
-      } else {
-        switch (form.getWithinSafetyZone()) {
-          case YES:
-            ValidatorUtils.invokeNestedValidator(
-                errors,
-                safetyZoneValidator,
-                "completelyWithinSafetyZoneForm",
-                form.getCompletelyWithinSafetyZoneForm(),
-                ValidationType.FULL);
-            break;
-          case PARTIALLY:
-            ValidatorUtils.invokeNestedValidator(
-                errors,
-                safetyZoneValidator,
-                "partiallyWithinSafetyZoneForm",
-                form.getPartiallyWithinSafetyZoneForm(),
-                ValidationType.FULL);
-            break;
-          default:
-            break;
-        }
-
-      }
+      validateWithinSafetyZone(form, errors, ValidationType.FULL);
     }
 
     if (requiredQuestions.contains(LocationDetailsQuestion.FACILITIES_OFFSHORE)) {
@@ -196,9 +146,40 @@ public class LocationDetailsValidator implements SmartValidator {
     }
   }
 
+  private void validateWithinSafetyZone(LocationDetailsForm form,
+                                        Errors errors,
+                                        ValidationType validationType) {
 
+    if (validationType.equals(ValidationType.FULL) && form.getWithinSafetyZone() == null) {
+      errors.rejectValue("withinSafetyZone",
+          "withinSafetyZone" + FieldValidationErrorCodes.REQUIRED.getCode(),
+          "Enter information on work carried out within 500m of a safety zone");
 
+    } else if (form.getWithinSafetyZone() != null) {
 
+      switch (form.getWithinSafetyZone()) {
+        case YES:
+          ValidatorUtils.invokeNestedValidator(
+              errors,
+              safetyZoneValidator,
+              "completelyWithinSafetyZoneForm",
+              form.getCompletelyWithinSafetyZoneForm(),
+              validationType);
+          break;
+        case PARTIALLY:
+          ValidatorUtils.invokeNestedValidator(
+              errors,
+              safetyZoneValidator,
+              "partiallyWithinSafetyZoneForm",
+              form.getPartiallyWithinSafetyZoneForm(),
+              validationType);
+          break;
+        default:
+          break;
+      }
 
+    }
+
+  }
 
 }
