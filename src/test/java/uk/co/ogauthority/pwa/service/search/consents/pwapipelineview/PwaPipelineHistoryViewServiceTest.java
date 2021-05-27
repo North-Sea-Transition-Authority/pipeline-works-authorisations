@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.service.search.consents.pwapipelineview;
 
+import static java.util.Map.entry;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -78,13 +79,13 @@ public class PwaPipelineHistoryViewServiceTest {
         String.format("%s (%s)", DateUtils.formatDate(pipelineDetailCreatedTodayAfternoon.getStartTimestamp()), expectedOrderTagNumber));
 
     expectedOrderTagNumber = 1;
-    assertThat(pipelinesVersionSearchSelectorItems).containsEntry(
-        pipelineDetailCreatedTodayMorning.getId().toString(),
-        String.format("%s (%s)", DateUtils.formatDate(pipelineDetailCreatedTodayMorning.getStartTimestamp()), expectedOrderTagNumber));
+    assertThat(pipelinesVersionSearchSelectorItems).contains(
+        entry(pipelineDetailCreatedTodayMorning.getId().toString(),
+            String.format("%s (%s)", DateUtils.formatDate(pipelineDetailCreatedTodayMorning.getStartTimestamp()), expectedOrderTagNumber)),
 
-    assertThat(pipelinesVersionSearchSelectorItems).containsEntry(
-        pipelineDetailCreatedYesterday.getId().toString(),
-        DateUtils.formatDate(pipelineDetailCreatedYesterday.getStartTimestamp()));
+        entry(pipelineDetailCreatedYesterday.getId().toString(),
+            DateUtils.formatDate(pipelineDetailCreatedYesterday.getStartTimestamp()))
+    );
 
   }
 
@@ -100,14 +101,13 @@ public class PwaPipelineHistoryViewServiceTest {
 
     var pipelinesVersionSearchSelectorItems = pwaPipelineHistoryViewService.getPipelinesVersionSearchSelectorItems(PIPELINE_ID.asInt());
 
-    assertThat(pipelinesVersionSearchSelectorItems).containsEntry(
-        pipelineDetailHasConsentRef.getId().toString(),
-        String.format("Latest version (%s - %s)",
-            DateUtils.formatDate(pipelineDetailHasConsentRef.getStartTimestamp()), pipelineDetailHasConsentRef.getPwaConsent().getReference()));
+    assertThat(pipelinesVersionSearchSelectorItems).contains(
+        entry(pipelineDetailHasConsentRef.getId().toString(),
+            String.format("Latest version (%s - %s)",
+            DateUtils.formatDate(pipelineDetailHasConsentRef.getStartTimestamp()), pipelineDetailHasConsentRef.getPwaConsent().getReference())),
 
-    assertThat(pipelinesVersionSearchSelectorItems).containsEntry(
-        pipelineDetailNoConsentRef.getId().toString(),
-        DateUtils.formatDate(pipelineDetailNoConsentRef.getStartTimestamp()));
+        entry(pipelineDetailNoConsentRef.getId().toString(), DateUtils.formatDate(pipelineDetailNoConsentRef.getStartTimestamp()))
+    );
   }
 
 
