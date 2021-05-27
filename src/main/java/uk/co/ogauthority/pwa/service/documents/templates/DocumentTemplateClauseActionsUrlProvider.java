@@ -29,7 +29,8 @@ public class DocumentTemplateClauseActionsUrlProvider implements ClauseActionsUr
 
   @Override
   public String getAddSubClauseRoute(Integer clauseIdToAddSubFor) {
-    return "";
+    return ReverseRouter.route(on(DocumentTemplateController.class)
+        .renderAddSubClauseFor(documentSpec, clauseIdToAddSubFor, null, null));
   }
 
   @Override

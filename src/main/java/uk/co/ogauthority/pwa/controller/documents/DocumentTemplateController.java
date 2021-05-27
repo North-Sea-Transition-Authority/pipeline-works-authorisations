@@ -183,6 +183,45 @@ public class DocumentTemplateController {
 
   }
 
+  @GetMapping("/add-sub-clause/{clauseId}")
+  public ModelAndView renderAddSubClauseFor(@PathVariable("documentSpec") DocumentSpec documentSpec,
+                                            @PathVariable("clauseId") Integer clauseId,
+                                            @ModelAttribute("form") ClauseForm form,
+                                            AuthenticatedUserAccount authenticatedUserAccount) {
+
+    documentTemplateService.getTemplateClauseVersionByClauseIdOrThrow(clauseId);
+
+    return getAddEditClauseModelAndView(documentSpec, ScreenActionType.ADD);
+
+  }
+
+  @PostMapping("/add-sub-clause/{clauseId}")
+  public ModelAndView postAddSubClauseFor(@PathVariable("documentSpec") DocumentSpec documentSpec,
+                                          @PathVariable("clauseId") Integer clauseId,
+                                          @ModelAttribute("form") ClauseForm form,
+                                          BindingResult bindingResult,
+                                          AuthenticatedUserAccount authenticatedUserAccount,
+                                          RedirectAttributes redirectAttributes) {
+
+    var docSource = new TemplateDocumentSource(documentSpec);
+
+    clauseFormValidator.validate(form, bindingResult, docSource);
+
+    return controllerHelperService
+        .checkErrorsAndRedirect(bindingResult, getAddEditClauseModelAndView(documentSpec, ScreenActionType.ADD), () -> {
+
+          var clauseVersion = documentTemplateService.getTemplateClauseVersionByClauseIdOrThrow(clauseId);
+
+          documentTemplateService.addSubClause(clauseVersion, form, authenticatedUserAccount.getLinkedPerson());
+
+          FlashUtils.success(redirectAttributes, "Clause added");
+
+          return getOverviewRedirect(documentSpec);
+
+        });
+
+  }
+
   public ModelAndView getOverviewRedirect(DocumentSpec documentSpec) {
 
     return ReverseRouter.redirect(on(DocumentTemplateController.class)

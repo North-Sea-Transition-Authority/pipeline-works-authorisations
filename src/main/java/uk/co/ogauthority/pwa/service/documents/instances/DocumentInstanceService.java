@@ -353,13 +353,14 @@ public class DocumentInstanceService {
   @Transactional
   public void addSubClause(DocumentInstanceSectionClauseVersion versionToAddSubFor, ClauseForm form, Person creatingPerson) {
 
-    addClause(
-        versionToAddSubFor.getDocumentInstanceSectionClause().getDocumentInstance(),
-        versionToAddSubFor.getDocumentInstanceSectionClause().getSection(),
-        versionToAddSubFor.getDocumentInstanceSectionClause(),
-        1,
-        form,
-        creatingPerson);
+    var newVersion = (DocumentInstanceSectionClauseVersion) documentClauseService
+        .addSubClause(PwaDocumentType.INSTANCE, versionToAddSubFor, form, creatingPerson);
+
+    newVersion.getDocumentInstanceSectionClause()
+        .setDocumentInstance(versionToAddSubFor.getDocumentInstanceSectionClause().getDocumentInstance());
+
+    instanceSectionClauseRepository.save(newVersion.getDocumentInstanceSectionClause());
+    instanceSectionClauseVersionRepository.save(newVersion);
 
   }
 

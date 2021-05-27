@@ -159,4 +159,16 @@ public class DocumentTemplateService {
 
   }
 
+  public void addSubClause(DocumentTemplateSectionClauseVersion versionToAddSubFor,
+                           ClauseForm form,
+                           Person creatingPerson) {
+
+    var newVersion = (DocumentTemplateSectionClauseVersion) documentClauseService
+        .addSubClause(PwaDocumentType.TEMPLATE, versionToAddSubFor, form, creatingPerson);
+
+    documentTemplateSectionClauseRepository.save(newVersion.getClause());
+    clauseVersionRepository.save(newVersion);
+
+  }
+
 }

@@ -156,6 +156,32 @@ public class DocumentClauseServiceTest {
 
   }
 
+  @Test
+  public void addSubClauseFor() {
+
+    clauseRecord.setDocumentTemplateSectionClause(templateClause);
+
+    var newClauseVersion = documentClauseService.addSubClause(PwaDocumentType.INSTANCE, clauseVersion, buildClauseForm(), person);
+
+    var newClause = newClauseVersion.getClause();
+    assertThat(newClause.getSection()).isEqualTo(section);
+
+    assertThat(newClauseVersion.getName()).isEqualTo(buildClauseForm().getName());
+    assertThat(newClauseVersion.getText()).isEqualTo(buildClauseForm().getText());
+    assertThat(newClauseVersion.getClause()).isEqualTo(newClause);
+    assertThat(newClauseVersion.getLevelOrder()).isEqualTo(1);
+    assertThat(newClauseVersion.getVersionNo()).isEqualTo(1);
+    assertThat(newClauseVersion.getTipFlag()).isTrue();
+    assertThat(newClauseVersion.getStatus()).isEqualTo(SectionClauseVersionStatus.ACTIVE);
+    assertThat(newClauseVersion.getCreatedByPersonId()).isEqualTo(person.getId());
+    assertThat(newClauseVersion.getCreatedTimestamp()).isEqualTo(clock.instant());
+
+    assertThat(newClauseVersion.getParentClause()).contains(clauseRecord);
+
+    ObjectTestUtils.assertAllExpectedFieldsHaveValue(newClauseVersion, List.of("id", "endedByPersonId", "endedTimestamp"));
+
+  }
+
   private ClauseForm buildClauseForm() {
     var form = new ClauseForm();
     form.setName("name");
