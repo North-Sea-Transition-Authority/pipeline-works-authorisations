@@ -395,7 +395,7 @@ public class ConsultationResponseServiceTest {
     when(consultationResponseRepository.getFirstByConsultationRequestInOrderByResponseTimestampDesc(eq(List.of(request1, request2))))
         .thenReturn(response);
     when(consultationRequestService.getAllRequestsByApplication(application)).thenReturn(List.of(request1, request2));
-    consultationResponseService.isThereAtLeastOneApprovalFromAnyGroup(application);
+    assertThat(consultationResponseService.isThereAtLeastOneApprovalFromAnyGroup(application)).isTrue();
   }
 
   private ConsultationRequest buildConsultationRequest() {

@@ -35,7 +35,7 @@ public class LocationDetailsValidatorTest {
   }
 
 
-  private LocationDetailsFormValidationHints getValidationHints(Set<LocationDetailsQuestion> requiredQuestions) {
+  private LocationDetailsFormValidationHints getValidationHintsFull(Set<LocationDetailsQuestion> requiredQuestions) {
     return new LocationDetailsFormValidationHints(
         ValidationType.FULL, requiredQuestions);
   }
@@ -46,10 +46,10 @@ public class LocationDetailsValidatorTest {
   }
 
   @Test
-  public void validate_nulls() {
+  public void validate_full_allQuestionsRequired_formAllNulls() {
     var form = new LocationDetailsForm();
     var result = ValidatorTestUtils.getFormValidationErrors(locationDetailsValidator, form,
-        getValidationHints(EnumSet.allOf(LocationDetailsQuestion.class)));
+        getValidationHintsFull(EnumSet.allOf(LocationDetailsQuestion.class)));
     assertThat(result).containsOnly(
         entry("withinSafetyZone", Set.of("withinSafetyZone" + FieldValidationErrorCodes.REQUIRED.getCode())),
         entry("transportsMaterialsToShore",
@@ -64,14 +64,26 @@ public class LocationDetailsValidatorTest {
   }
 
   @Test
-  public void validate_emptyText() {
+  public void validate_partial_allQuestionsRequired_formAllNulls() {
+    var form = new LocationDetailsForm();
+    var errors = new BeanPropertyBindingResult(form, "form");
+    locationDetailsValidator.validate(form, errors,
+        getValidationHintsPartial(EnumSet.allOf(LocationDetailsQuestion.class)));
+    var result = errors.getFieldErrors().stream()
+        .collect(
+            Collectors.groupingBy(FieldError::getField, Collectors.mapping(FieldError::getCode, Collectors.toSet())));
+    assertThat(result).isEmpty();
+  }
+
+  @Test
+  public void validate_full_formAllEmptyText() {
     var form = new LocationDetailsForm();
     form.setApproximateProjectLocationFromShore("");
     form.setTransportationMethod("");
     form.setPipelineRouteDetails("");
     form.setTransportsMaterialsToShore(true);
     var result = ValidatorTestUtils.getFormValidationErrors(locationDetailsValidator, form,
-        getValidationHints(EnumSet.allOf(LocationDetailsQuestion.class)));
+        getValidationHintsFull(EnumSet.allOf(LocationDetailsQuestion.class)));
     assertThat(result).containsOnly(
         entry("withinSafetyZone", Set.of("withinSafetyZone" + FieldValidationErrorCodes.REQUIRED.getCode())),
         entry("transportationMethod", Set.of("transportationMethod" + FieldValidationErrorCodes.REQUIRED.getCode())),
@@ -85,62 +97,109 @@ public class LocationDetailsValidatorTest {
   }
 
   @Test
-  public void validate_withinSafetyZone_no() {
+  public void validate_full_withinSafetyZone_no() {
     var form = new LocationDetailsForm();
     form.setWithinSafetyZone(HseSafetyZone.NO);
     var result = ValidatorTestUtils.getFormValidationErrors(locationDetailsValidator, form,
-        getValidationHints(Set.of(LocationDetailsQuestion.WITHIN_SAFETY_ZONE)));
+        getValidationHintsFull(Set.of(LocationDetailsQuestion.WITHIN_SAFETY_ZONE)));
     assertThat(result).doesNotContainKeys("withinSafetyZone");
   }
 
   @Test
-  public void validate_withinSafetyZone_partially_nullFacilities() {
+  public void validate_partial_withinSafetyZone_no() {
+    var form = new LocationDetailsForm();
+    form.setWithinSafetyZone(HseSafetyZone.NO);
+    var result = ValidatorTestUtils.getFormValidationErrors(locationDetailsValidator, form,
+        getValidationHintsPartial(Set.of(LocationDetailsQuestion.WITHIN_SAFETY_ZONE)));
+    assertThat(result).doesNotContainKeys("withinSafetyZone");
+  }
+
+  @Test
+  public void validate_full_withinSafetyZone_partially_nullFacilities() {
     var form = new LocationDetailsForm();
     form.setWithinSafetyZone(HseSafetyZone.PARTIALLY);
     var result = ValidatorTestUtils.getFormValidationErrors(locationDetailsValidator, form,
-        getValidationHints(Set.of(LocationDetailsQuestion.WITHIN_SAFETY_ZONE)));
+        getValidationHintsFull(Set.of(LocationDetailsQuestion.WITHIN_SAFETY_ZONE)));
     assertThat(result).doesNotContainKeys("withinSafetyZone");
     assertThat(result).contains(
         entry("partiallyWithinSafetyZoneForm.facilities", Set.of("facilities" + FieldValidationErrorCodes.REQUIRED.getCode())));
   }
 
   @Test
-  public void validate_withinSafetyZone_partially_withFacilities() {
+  public void validate_partial_withinSafetyZone_partially_nullFacilities() {
+    var form = new LocationDetailsForm();
+    form.setWithinSafetyZone(HseSafetyZone.PARTIALLY);
+    var result = ValidatorTestUtils.getFormValidationErrors(locationDetailsValidator, form,
+        getValidationHintsPartial(Set.of(LocationDetailsQuestion.WITHIN_SAFETY_ZONE)));
+    assertThat(result).isEmpty();
+  }
+
+  @Test
+  public void validate_full_withinSafetyZone_partially_withFacilities() {
     var form = new LocationDetailsForm();
     form.setWithinSafetyZone(HseSafetyZone.PARTIALLY);
     form.getPartiallyWithinSafetyZoneForm().setFacilities(List.of("1"));
     var result = ValidatorTestUtils.getFormValidationErrors(locationDetailsValidator, form,
-        getValidationHints(Set.of(LocationDetailsQuestion.WITHIN_SAFETY_ZONE)));
+        getValidationHintsFull(Set.of(LocationDetailsQuestion.WITHIN_SAFETY_ZONE)));
     assertThat(result).doesNotContainKeys("withinSafetyZone", "partiallyWithinSafetyZoneForm.facilities");
   }
 
   @Test
-  public void validate_withinSafetyZone_yes_nullFacilities() {
+  public void validate_partial_withinSafetyZone_partially_withFacilities() {
+    var form = new LocationDetailsForm();
+    form.setWithinSafetyZone(HseSafetyZone.PARTIALLY);
+    form.getPartiallyWithinSafetyZoneForm().setFacilities(List.of("1"));
+    var result = ValidatorTestUtils.getFormValidationErrors(locationDetailsValidator, form,
+        getValidationHintsPartial(Set.of(LocationDetailsQuestion.WITHIN_SAFETY_ZONE)));
+    assertThat(result).isEmpty();
+  }
+
+  @Test
+  public void validate_full_withinSafetyZone_yes_nullFacilities() {
     var form = new LocationDetailsForm();
     form.setWithinSafetyZone(HseSafetyZone.YES);
     var result = ValidatorTestUtils.getFormValidationErrors(locationDetailsValidator, form,
-        getValidationHints(Set.of(LocationDetailsQuestion.WITHIN_SAFETY_ZONE)));
+        getValidationHintsFull(Set.of(LocationDetailsQuestion.WITHIN_SAFETY_ZONE)));
     assertThat(result).doesNotContainKeys("withinSafetyZone");
     assertThat(result).contains(
         entry("completelyWithinSafetyZoneForm.facilities", Set.of("facilities" + FieldValidationErrorCodes.REQUIRED.getCode())));
   }
 
   @Test
-  public void validate_withinSafetyZone_yes_withFacilities() {
+  public void validate_partial_withinSafetyZone_yes_nullFacilities() {
+    var form = new LocationDetailsForm();
+    form.setWithinSafetyZone(HseSafetyZone.YES);
+    var result = ValidatorTestUtils.getFormValidationErrors(locationDetailsValidator, form,
+        getValidationHintsPartial(Set.of(LocationDetailsQuestion.WITHIN_SAFETY_ZONE)));
+    assertThat(result).isEmpty();
+  }
+
+  @Test
+  public void validate_full_withinSafetyZone_yes_withFacilities() {
     var form = new LocationDetailsForm();
     form.setWithinSafetyZone(HseSafetyZone.YES);
     form.getCompletelyWithinSafetyZoneForm().setFacilities(List.of("1"));
     var result = ValidatorTestUtils.getFormValidationErrors(locationDetailsValidator, form,
-        getValidationHints(Set.of(LocationDetailsQuestion.WITHIN_SAFETY_ZONE)));
+        getValidationHintsFull(Set.of(LocationDetailsQuestion.WITHIN_SAFETY_ZONE)));
     assertThat(result).doesNotContainKeys("withinSafetyZone", "completelyWithinSafetyZoneForm.facilities");
   }
 
   @Test
-  public void validate_surveyConcludedDate_nulls() {
+  public void validate_partial_withinSafetyZone_yes_withFacilities() {
+    var form = new LocationDetailsForm();
+    form.setWithinSafetyZone(HseSafetyZone.YES);
+    form.getCompletelyWithinSafetyZoneForm().setFacilities(List.of("1"));
+    var result = ValidatorTestUtils.getFormValidationErrors(locationDetailsValidator, form,
+        getValidationHintsPartial(Set.of(LocationDetailsQuestion.WITHIN_SAFETY_ZONE)));
+    assertThat(result).isEmpty();
+  }
+
+  @Test
+  public void validate_full_surveyConcludedDate_nulls() {
     var form = new LocationDetailsForm();
     form.setRouteSurveyUndertaken(true);
     var result = ValidatorTestUtils.getFormValidationErrors(locationDetailsValidator, form,
-        getValidationHints(Set.of(LocationDetailsQuestion.ROUTE_SURVEY_UNDERTAKEN)));
+        getValidationHintsFull(Set.of(LocationDetailsQuestion.ROUTE_SURVEY_UNDERTAKEN)));
     assertThat(result).contains(
         entry("surveyConcludedDay", Set.of("surveyConcludedDay" + FieldValidationErrorCodes.REQUIRED.getCode())),
         entry("surveyConcludedMonth", Set.of("surveyConcludedMonth" + FieldValidationErrorCodes.REQUIRED.getCode())),
@@ -149,92 +208,92 @@ public class LocationDetailsValidatorTest {
   }
 
   @Test
-  public void validate_surveyConcludedDate_yearTooBig() {
+  public void validate_full_surveyConcludedDate_yearTooBig() {
     var form = new LocationDetailsForm();
     form.setRouteSurveyUndertaken(true);
     form.setSurveyConcludedYear(4001);
     var result = ValidatorTestUtils.getFormValidationErrors(locationDetailsValidator, form,
-        getValidationHints(Set.of(LocationDetailsQuestion.ROUTE_SURVEY_UNDERTAKEN)));
+        getValidationHintsFull(Set.of(LocationDetailsQuestion.ROUTE_SURVEY_UNDERTAKEN)));
     assertThat(result).contains(
         entry("surveyConcludedYear", Set.of("surveyConcludedYear" + FieldValidationErrorCodes.INVALID.getCode()))
     );
   }
 
   @Test
-  public void validate_surveyConcludedDate_yearTooSmall() {
+  public void validate_full_surveyConcludedDate_yearTooSmall() {
     var form = new LocationDetailsForm();
     form.setRouteSurveyUndertaken(true);
     form.setSurveyConcludedYear(999);
     var result = ValidatorTestUtils.getFormValidationErrors(locationDetailsValidator, form,
-        getValidationHints(Set.of(LocationDetailsQuestion.ROUTE_SURVEY_UNDERTAKEN)));
+        getValidationHintsFull(Set.of(LocationDetailsQuestion.ROUTE_SURVEY_UNDERTAKEN)));
     assertThat(result).contains(
         entry("surveyConcludedYear", Set.of("surveyConcludedYear" + FieldValidationErrorCodes.INVALID.getCode()))
     );
   }
 
   @Test
-  public void validate_surveyConcludedDate_valid() {
+  public void validate_full_surveyConcludedDate_valid() {
     var form = new LocationDetailsForm();
     form.setRouteSurveyUndertaken(true);
     form.setSurveyConcludedDay(1);
     form.setSurveyConcludedMonth(1);
     form.setSurveyConcludedYear(2020);
     var result = ValidatorTestUtils.getFormValidationErrors(locationDetailsValidator, form,
-        getValidationHints(Set.of(LocationDetailsQuestion.ROUTE_SURVEY_UNDERTAKEN)));
+        getValidationHintsFull(Set.of(LocationDetailsQuestion.ROUTE_SURVEY_UNDERTAKEN)));
     assertThat(result).doesNotContainKeys("surveyConcludedDay", "surveyConcludedMonth", "surveyConcludedYear");
   }
 
   @Test
-  public void validate_pipelineRouteDetails_noText_routeUndertaken() {
+  public void validate_full_pipelineRouteDetails_noText_routeUndertaken() {
     var form = new LocationDetailsForm();
     form.setRouteSurveyUndertaken(true);
     var result = ValidatorTestUtils.getFormValidationErrors(locationDetailsValidator, form,
-        getValidationHints(Set.of(LocationDetailsQuestion.ROUTE_SURVEY_UNDERTAKEN)));
+        getValidationHintsFull(Set.of(LocationDetailsQuestion.ROUTE_SURVEY_UNDERTAKEN)));
     assertThat(result).containsKeys("pipelineRouteDetails");
   }
 
   @Test
-  public void validate_pipelineRouteDetails_withText_routeUndertaken() {
+  public void validate_full_pipelineRouteDetails_withText_routeUndertaken() {
     var form = new LocationDetailsForm();
     form.setRouteSurveyUndertaken(true);
     form.setPipelineRouteDetails("route");
     var result = ValidatorTestUtils.getFormValidationErrors(locationDetailsValidator, form,
-        getValidationHints(Set.of(LocationDetailsQuestion.ROUTE_SURVEY_UNDERTAKEN)));
+        getValidationHintsFull(Set.of(LocationDetailsQuestion.ROUTE_SURVEY_UNDERTAKEN)));
     assertThat(result).doesNotContainKeys("pipelineRouteDetails");
   }
 
   @Test
-  public void validate_pipelineRouteDetails_noText_routeNotUndertaken() {
+  public void validate_full_pipelineRouteDetails_noText_routeNotUndertaken() {
     var form = new LocationDetailsForm();
     form.setRouteSurveyUndertaken(false);
     var result = ValidatorTestUtils.getFormValidationErrors(locationDetailsValidator, form,
-        getValidationHints(Set.of(LocationDetailsQuestion.ROUTE_SURVEY_UNDERTAKEN)));
+        getValidationHintsFull(Set.of(LocationDetailsQuestion.ROUTE_SURVEY_UNDERTAKEN)));
     assertThat(result).doesNotContainKeys("pipelineRouteDetails");
   }
 
   @Test
-  public void validate_routeNotUndertakenReason_null() {
+  public void validate_full_routeNotUndertakenReason_null() {
     var form = new LocationDetailsForm();
     form.setRouteSurveyUndertaken(false);
     var result = ValidatorTestUtils.getFormValidationErrors(locationDetailsValidator, form,
-        getValidationHints(Set.of(LocationDetailsQuestion.ROUTE_SURVEY_UNDERTAKEN)));
+        getValidationHintsFull(Set.of(LocationDetailsQuestion.ROUTE_SURVEY_UNDERTAKEN)));
     assertThat(result).contains(
         Map.entry("routeSurveyNotUndertakenReason", Set.of("routeSurveyNotUndertakenReason" + FieldValidationErrorCodes.REQUIRED.getCode())));
   }
 
   @Test
-  public void validate_routeNotUndertakenReason_tooLong() {
+  public void validate_full_routeNotUndertakenReason_tooLong() {
     var form = new LocationDetailsForm();
     form.setRouteSurveyUndertaken(false);
     form.setRouteSurveyNotUndertakenReason(ValidatorTestUtils.over4000Chars());
     var result = ValidatorTestUtils.getFormValidationErrors(locationDetailsValidator, form,
-        getValidationHints(Set.of(LocationDetailsQuestion.ROUTE_SURVEY_UNDERTAKEN)));
+        getValidationHintsFull(Set.of(LocationDetailsQuestion.ROUTE_SURVEY_UNDERTAKEN)));
     assertThat(result).contains(
         Map.entry("routeSurveyNotUndertakenReason", Set.of("routeSurveyNotUndertakenReason" + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode())));
   }
 
   @Test
-  public void validate_valid() {
+  public void validate_full_valid() {
     var form = new LocationDetailsForm();
     form.setWithinSafetyZone(HseSafetyZone.NO);
     form.setTransportsMaterialsToShore(true);
@@ -246,24 +305,12 @@ public class LocationDetailsValidatorTest {
     form.setPipelineRouteDetails("Detail text");
     form.setWithinLimitsOfDeviation(true);
     var result = ValidatorTestUtils.getFormValidationErrors(locationDetailsValidator, form,
-        getValidationHints(EnumSet.allOf(LocationDetailsQuestion.class)));
+        getValidationHintsFull(EnumSet.allOf(LocationDetailsQuestion.class)));
     assertThat(result).isEmpty();
   }
 
   @Test
-  public void validatePartial_nulls() {
-    var form = new LocationDetailsForm();
-    var errors = new BeanPropertyBindingResult(form, "form");
-    locationDetailsValidator.validate(form, errors,
-        getValidationHintsPartial(EnumSet.allOf(LocationDetailsQuestion.class)));
-    var result = errors.getFieldErrors().stream()
-        .collect(
-            Collectors.groupingBy(FieldError::getField, Collectors.mapping(FieldError::getCode, Collectors.toSet())));
-    assertThat(result).isEmpty();
-  }
-
-  @Test
-  public void validatePartial_tooManyCharacters() {
+  public void validate_partial_tooManyCharacters() {
     var form = new LocationDetailsForm();
     form.setApproximateProjectLocationFromShore(ValidatorTestUtils.over4000Chars());
     form.setTransportationMethod(ValidatorTestUtils.over4000Chars());
@@ -288,7 +335,7 @@ public class LocationDetailsValidatorTest {
   }
 
   @Test
-  public void validatePartial_invalidDate() {
+  public void validate_partial_invalidDate() {
     var form = new LocationDetailsForm();
     form.setRouteSurveyUndertaken(true);
     form.setSurveyConcludedDay(1);
@@ -307,7 +354,7 @@ public class LocationDetailsValidatorTest {
   }
 
   @Test
-  public void validatePartial_valid() {
+  public void validate_partial_valid() {
     var form = new LocationDetailsForm();
     form.setRouteSurveyUndertaken(true);
     form.setSurveyConcludedDay(1);
@@ -324,50 +371,50 @@ public class LocationDetailsValidatorTest {
   }
 
   @Test
-  public void validate_facilitiesOffshore_false_noText() {
+  public void validate_full_facilitiesOffshore_false_noText() {
     var form = new LocationDetailsForm();
     form.setFacilitiesOffshore(false);
     var result = ValidatorTestUtils.getFormValidationErrors(locationDetailsValidator, form,
-        getValidationHints(Set.of(LocationDetailsQuestion.FACILITIES_OFFSHORE)));
+        getValidationHintsFull(Set.of(LocationDetailsQuestion.FACILITIES_OFFSHORE)));
     assertThat(result).containsKeys("pipelineAshoreLocation");
   }
 
   @Test
-  public void validate_facilitiesOffshore_false_withText() {
+  public void validate_full_facilitiesOffshore_false_withText() {
     var form = new LocationDetailsForm();
     form.setFacilitiesOffshore(false);
     form.setPipelineAshoreLocation("Test");
     var result = ValidatorTestUtils.getFormValidationErrors(locationDetailsValidator, form,
-        getValidationHints(Set.of(LocationDetailsQuestion.FACILITIES_OFFSHORE)));
+        getValidationHintsFull(Set.of(LocationDetailsQuestion.FACILITIES_OFFSHORE)));
     assertThat(result).doesNotContainKeys("pipelineAshoreLocation");
   }
 
   @Test
-  public void validate_transportMethod_true_noText() {
+  public void validate_full_transportMethod_true_noText() {
     var form = new LocationDetailsForm();
     form.setTransportsMaterialsToShore(true);
     var result = ValidatorTestUtils.getFormValidationErrors(locationDetailsValidator, form,
-        getValidationHints(Set.of(LocationDetailsQuestion.TRANSPORTS_MATERIALS_TO_SHORE)));
+        getValidationHintsFull(Set.of(LocationDetailsQuestion.TRANSPORTS_MATERIALS_TO_SHORE)));
     assertThat(result).containsKeys("transportationMethod");
     assertThat(result).doesNotContainKeys("transportsMaterialsToShore");
   }
 
   @Test
-  public void validate_transportMethod_false() {
+  public void validate_full_transportMethod_false() {
     var form = new LocationDetailsForm();
     form.setTransportsMaterialsToShore(false);
     var result = ValidatorTestUtils.getFormValidationErrors(locationDetailsValidator, form,
-        getValidationHints(Set.of(LocationDetailsQuestion.TRANSPORTS_MATERIALS_TO_SHORE)));
+        getValidationHintsFull(Set.of(LocationDetailsQuestion.TRANSPORTS_MATERIALS_TO_SHORE)));
     assertThat(result).doesNotContainKeys("transportsMaterialsToShore");
   }
 
   @Test
-  public void validate_transportMethod_true_withText() {
+  public void validate_full_transportMethod_true_withText() {
     var form = new LocationDetailsForm();
     form.setTransportsMaterialsToShore(true);
     form.setTransportationMethod("Test");
     var result = ValidatorTestUtils.getFormValidationErrors(locationDetailsValidator, form,
-        getValidationHints(Set.of(LocationDetailsQuestion.TRANSPORTS_MATERIALS_TO_SHORE)));
+        getValidationHintsFull(Set.of(LocationDetailsQuestion.TRANSPORTS_MATERIALS_TO_SHORE)));
     assertThat(result).doesNotContainKeys("transportationMethod", "transportsMaterialsToShore");
   }
 
