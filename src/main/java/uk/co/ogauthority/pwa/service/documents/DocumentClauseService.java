@@ -125,4 +125,23 @@ public class DocumentClauseService {
 
   }
 
+  /**
+   * Add a child clause for the passed-in clause.
+   */
+  @Transactional
+  public SectionClauseVersion addSubClause(PwaDocumentType documentType,
+                                           SectionClauseVersion versionToAddSubFor,
+                                           ClauseForm form,
+                                           Person creatingPerson) {
+
+    return addClause(
+        documentType,
+        versionToAddSubFor.getClause().getSection(),
+        versionToAddSubFor.getClause(),
+        1,
+        form,
+        creatingPerson);
+
+  }
+
 }

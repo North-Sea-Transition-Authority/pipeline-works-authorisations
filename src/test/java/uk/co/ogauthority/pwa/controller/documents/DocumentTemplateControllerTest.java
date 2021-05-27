@@ -217,4 +217,52 @@ public class DocumentTemplateControllerTest extends AbstractControllerTest {
 
   }
 
+  @Test
+  public void renderAddSubClauseFor_correctPermission() throws Exception {
+
+    mockMvc.perform(get(ReverseRouter.route(on(DocumentTemplateController.class)
+        .renderAddSubClauseFor(DocumentSpec.INITIAL_APP_CONSENT_DOCUMENT, 1, null, null)))
+        .with(authenticatedUserAndSession(templateClauseManager)))
+        .andExpect(status().isOk());
+
+  }
+
+  @Test
+  public void renderAddSubClauseFor_wrongPermission() throws Exception {
+
+    mockMvc.perform(get(ReverseRouter.route(on(DocumentTemplateController.class)
+        .renderAddSubClauseFor(DocumentSpec.INITIAL_APP_CONSENT_DOCUMENT, 1, null, null)))
+        .with(authenticatedUserAndSession(caseOfficer)))
+        .andExpect(status().isForbidden());
+
+  }
+
+  @Test
+  public void postAddSubClauseFor_success() throws Exception {
+
+    mockMvc.perform(post(ReverseRouter.route(on(DocumentTemplateController.class)
+        .postAddSubClauseFor(DocumentSpec.INITIAL_APP_CONSENT_DOCUMENT, 1, null, null, null, null)))
+        .with(authenticatedUserAndSession(templateClauseManager))
+        .with(csrf())
+        .param("name", "name")
+        .param("text", "text"))
+        .andExpect(status().is3xxRedirection());
+
+    verify(documentTemplateService, times(1)).addSubClause(any(), any(), eq(templateClauseManager.getLinkedPerson()));
+
+  }
+
+  @Test
+  public void postAddSubClauseFor_validationFail() throws Exception {
+
+    mockMvc.perform(post(ReverseRouter.route(on(DocumentTemplateController.class)
+        .postAddSubClauseFor(DocumentSpec.INITIAL_APP_CONSENT_DOCUMENT, 1, null, null, null, null)))
+        .with(authenticatedUserAndSession(templateClauseManager))
+        .with(csrf()))
+        .andExpect(status().isOk());
+
+    verify(documentTemplateService, times(0)).addSubClause(any(), any(), any());
+
+  }
+
 }

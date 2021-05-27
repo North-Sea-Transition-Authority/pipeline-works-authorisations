@@ -446,68 +446,26 @@ public class DocumentInstanceServiceTest {
   }
 
   @Test
-  public void addSubClauseFor_clauseIsNotLinkedToTemplateClause() {
+  public void addSubClauseFor() {
 
-    clauseRecord.setDocumentTemplateSection(section);
+    var docInstance = new DocumentInstance();
 
-    documentInstanceService.addSubClause(clauseVersion, buildClauseForm(), person);
+    var addSubVersion = new DocumentInstanceSectionClauseVersion();
+    var addSubClause = new DocumentInstanceSectionClause();
+    addSubClause.setDocumentInstance(docInstance);
+    addSubVersion.setDocumentInstanceSectionClause(addSubClause);
 
-    verify(instanceSectionClauseRepository, times(1)).save(singleClauseCaptor.capture());
-    verify(instanceSectionClauseVersionRepository, times(1)).save(singleClauseVersionCaptor.capture());
+    var version = new DocumentInstanceSectionClauseVersion();
+    var clause = new DocumentInstanceSectionClause();
+    version.setClause(clause);
 
-    var newClause = singleClauseCaptor.getValue();
-    assertThat(newClause.getDocumentInstance()).isEqualTo(clauseRecord.getDocumentInstance());
-    assertThat(newClause.getDocumentTemplateSectionClause()).isEmpty();
-    assertThat(newClause.getDocumentTemplateSection()).contains(section);
+    when(documentClauseService.addSubClause(eq(PwaDocumentType.INSTANCE), any(), any(), any())).thenReturn(version);
 
-    var newClauseVersion = singleClauseVersionCaptor.getValue();
+    documentInstanceService.addSubClause(addSubVersion, new ClauseForm(), person);
 
-    assertThat(newClauseVersion.getName()).isEqualTo(buildClauseForm().getName());
-    assertThat(newClauseVersion.getText()).isEqualTo(buildClauseForm().getText());
-    assertThat(newClauseVersion.getDocumentInstanceSectionClause()).isEqualTo(newClause);
-    assertThat(newClauseVersion.getLevelOrder()).isEqualTo(1);
-    assertThat(newClauseVersion.getVersionNo()).isEqualTo(1);
-    assertThat(newClauseVersion.getTipFlag()).isTrue();
-    assertThat(newClauseVersion.getStatus()).isEqualTo(SectionClauseVersionStatus.ACTIVE);
-    assertThat(newClauseVersion.getCreatedByPersonId()).isEqualTo(person.getId());
-    assertThat(newClauseVersion.getCreatedTimestamp()).isEqualTo(clock.instant());
+    verify(instanceSectionClauseRepository, times(1)).save(clause);
 
-    assertThat(newClauseVersion.getParentDocumentInstanceSectionClause()).isEqualTo(clauseRecord);
-
-    ObjectTestUtils.assertAllExpectedFieldsHaveValue(newClauseVersion, List.of("id", "endedByPersonId", "endedTimestamp"));
-
-  }
-
-  @Test
-  public void addSubClauseFor_clauseIsLinkedToTemplateClause() {
-
-    clauseRecord.setDocumentTemplateSectionClause(templateClause);
-
-    documentInstanceService.addSubClause(clauseVersion, buildClauseForm(), person);
-
-    verify(instanceSectionClauseRepository, times(1)).save(singleClauseCaptor.capture());
-    verify(instanceSectionClauseVersionRepository, times(1)).save(singleClauseVersionCaptor.capture());
-
-    var newClause = singleClauseCaptor.getValue();
-    assertThat(newClause.getDocumentInstance()).isEqualTo(clauseRecord.getDocumentInstance());
-    assertThat(newClause.getDocumentTemplateSectionClause()).isEmpty();
-    assertThat(newClause.getDocumentTemplateSection()).contains(section);
-
-    var newClauseVersion = singleClauseVersionCaptor.getValue();
-
-    assertThat(newClauseVersion.getName()).isEqualTo(buildClauseForm().getName());
-    assertThat(newClauseVersion.getText()).isEqualTo(buildClauseForm().getText());
-    assertThat(newClauseVersion.getDocumentInstanceSectionClause()).isEqualTo(newClause);
-    assertThat(newClauseVersion.getLevelOrder()).isEqualTo(1);
-    assertThat(newClauseVersion.getVersionNo()).isEqualTo(1);
-    assertThat(newClauseVersion.getTipFlag()).isTrue();
-    assertThat(newClauseVersion.getStatus()).isEqualTo(SectionClauseVersionStatus.ACTIVE);
-    assertThat(newClauseVersion.getCreatedByPersonId()).isEqualTo(person.getId());
-    assertThat(newClauseVersion.getCreatedTimestamp()).isEqualTo(clock.instant());
-
-    assertThat(newClauseVersion.getParentDocumentInstanceSectionClause()).isEqualTo(clauseRecord);
-
-    ObjectTestUtils.assertAllExpectedFieldsHaveValue(newClauseVersion, List.of("id", "endedByPersonId", "endedTimestamp"));
+    verify(instanceSectionClauseVersionRepository, times(1)).save(version);
 
   }
 

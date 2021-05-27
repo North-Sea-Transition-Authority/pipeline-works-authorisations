@@ -31,6 +31,7 @@ import uk.co.ogauthority.pwa.service.consultations.ApplicationConsultationStatus
 import uk.co.ogauthority.pwa.service.consultations.ConsultationRequestService;
 import uk.co.ogauthority.pwa.service.consultations.ConsultationResponseService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
+import uk.co.ogauthority.pwa.service.enums.appprocessing.TaskStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ConsultationRequestStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
@@ -322,7 +323,7 @@ public class ApproveOptionsTaskServiceTest {
     assertThat(taskListEntry.getDisplayOrder()).isEqualTo(APPROVE_OPTIONS.getDisplayOrder());
     assertThat(taskListEntry.getTaskName()).isEqualTo(APPROVE_OPTIONS.getTaskName());
     assertThat(taskListEntry.getTaskState()).isEqualTo(TaskState.EDIT);
-    assertThat(taskListEntry.getTaskTag().getTagText()).isEqualToIgnoringCase("not completed");
+    assertThat(taskListEntry.getTaskTag().getTagText()).isEqualToIgnoringCase(TaskStatus.NOT_STARTED.getDisplayText());
 
   }
 
@@ -431,7 +432,7 @@ public class ApproveOptionsTaskServiceTest {
     assertThat(taskListEntry.getDisplayOrder()).isEqualTo(APPROVE_OPTIONS.getDisplayOrder());
     assertThat(taskListEntry.getTaskName()).isEqualTo(APPROVE_OPTIONS.getTaskName());
     assertThat(taskListEntry.getTaskState()).isEqualTo(TaskState.LOCK);
-    assertThat(taskListEntry.getTaskTag().getTagText()).isEqualToIgnoringCase("not completed");
+    assertThat(taskListEntry.getTaskTag().getTagText()).isEqualToIgnoringCase(TaskStatus.NOT_STARTED.getDisplayText());
   }
 
 }

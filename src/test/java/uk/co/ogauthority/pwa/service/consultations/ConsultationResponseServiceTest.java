@@ -368,7 +368,7 @@ public class ConsultationResponseServiceTest {
 
     assertThat(taskListEntry.getTaskName()).isEqualTo(PwaAppProcessingTask.CONSULTATION_RESPONSE.getTaskName());
     assertThat(taskListEntry.getRoute()).isEqualTo(PwaAppProcessingTask.CONSULTATION_RESPONSE.getRoute(processingContext));
-    assertThat(taskListEntry.getTaskTag()).isEqualTo(TaskTag.from(TaskStatus.NOT_COMPLETED));
+    assertThat(taskListEntry.getTaskTag()).isEqualTo(TaskTag.from(TaskStatus.NOT_STARTED));
     assertThat(taskListEntry.getDisplayOrder()).isEqualTo(PwaAppProcessingTask.CONSULTATION_RESPONSE.getDisplayOrder());
 
   }
@@ -398,7 +398,7 @@ public class ConsultationResponseServiceTest {
     when(consultationResponseRepository.getFirstByConsultationRequestInOrderByResponseTimestampDesc(eq(List.of(request1, request2))))
         .thenReturn(response);
     when(consultationRequestService.getAllRequestsByApplication(application)).thenReturn(List.of(request1, request2));
-    consultationResponseService.isThereAtLeastOneApprovalFromAnyGroup(application);
+    assertThat(consultationResponseService.isThereAtLeastOneApprovalFromAnyGroup(application)).isTrue();
   }
 
   private ConsultationRequest buildConsultationRequest() {

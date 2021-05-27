@@ -61,7 +61,7 @@ public class ConfirmSatisfactoryApplicationService implements AppProcessingServi
     return new TaskListEntry(
         task.getTaskName(),
         task.getRoute(processingContext),
-        !isSatisfactory ? TaskTag.from(TaskStatus.NOT_COMPLETED) : TaskTag.from(TaskStatus.COMPLETED),
+        !isSatisfactory ? TaskTag.from(TaskStatus.NOT_STARTED) : TaskTag.from(TaskStatus.COMPLETED),
         taskState,
         task.getDisplayOrder());
 

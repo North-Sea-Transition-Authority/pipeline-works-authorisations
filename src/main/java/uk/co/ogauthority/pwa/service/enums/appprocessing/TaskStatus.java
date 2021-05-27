@@ -7,8 +7,7 @@ public enum TaskStatus {
   ACTION_REQUIRED("Action required"),
   NOT_REQUIRED("Not required", null, true),
   CANNOT_START_YET("Cannot start yet", "govuk-tag--grey", true),
-  COMPLETED("Completed", "fds-task-list__task-completed"),
-  NOT_COMPLETED("Not completed", "govuk-tag--grey fds-task-list__task-not-completed");
+  COMPLETED("Completed", "fds-task-list__task-completed");
 
   private final String displayText;
   private final String tagClass;

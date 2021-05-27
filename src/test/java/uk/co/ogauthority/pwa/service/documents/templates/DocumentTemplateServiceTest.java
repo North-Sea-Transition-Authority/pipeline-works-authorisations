@@ -229,4 +229,23 @@ public class DocumentTemplateServiceTest {
 
   }
 
+  @Test
+  public void addSubClauseFor() {
+
+    var addSubFor = new DocumentTemplateSectionClauseVersion();
+
+    var version = new DocumentTemplateSectionClauseVersion();
+    var clause = new DocumentTemplateSectionClause();
+    version.setClause(clause);
+
+    when(documentClauseService.addSubClause(eq(PwaDocumentType.TEMPLATE), any(), any(), any())).thenReturn(version);
+
+    documentTemplateService.addSubClause(addSubFor, new ClauseForm(), person);
+
+    verify(documentTemplateSectionClauseRepository, times(1)).save(clause);
+
+    verify(templateSectionClauseVersionRepository, times(1)).save(version);
+
+  }
+
 }
