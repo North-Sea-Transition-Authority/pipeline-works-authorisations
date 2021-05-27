@@ -20,7 +20,8 @@ public class PwaAppProcessingContextTestUtil {
         null,
         permissions,
         null,
-        PwaAppProcessingContextDtoTestUtils.appInvolvementSatisfactoryVersions(pwaApplicationDetail.getPwaApplication()));
+        PwaAppProcessingContextDtoTestUtils.appInvolvementSatisfactoryVersions(pwaApplicationDetail.getPwaApplication()),
+        Set.of());
 
   }
 
@@ -32,8 +33,7 @@ public class PwaAppProcessingContextTestUtil {
         null,
         permissions,
         null,
-        PwaAppProcessingContextDtoTestUtils.emptyAppInvolvement(pwaApplicationDetail.getPwaApplication()));
+        PwaAppProcessingContextDtoTestUtils.emptyAppInvolvement(pwaApplicationDetail.getPwaApplication()), Set.of());
 
   }
-
 }

@@ -32,6 +32,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.fileupload.AppFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
+import uk.co.ogauthority.pwa.service.users.UserTypeService;
 import uk.co.ogauthority.pwa.testutils.ConsulteeGroupTestingUtils;
 import uk.co.ogauthority.pwa.testutils.PwaAppProcessingContextDtoTestUtils;
 
@@ -49,6 +50,9 @@ public class PwaAppProcessingContextServiceTest {
 
   @Mock
   private AppFileService appFileService;
+
+  @Mock
+  private UserTypeService userTypeService;
 
   private PwaAppProcessingContextService contextService;
 
@@ -72,7 +76,8 @@ public class PwaAppProcessingContextServiceTest {
         detailService,
         appProcessingPermissionService,
         caseSummaryViewService,
-        appFileService);
+        appFileService,
+        userTypeService);
 
     when(detailService.getLatestDetailForUser(detail.getMasterPwaApplicationId(), user))
         .thenReturn(Optional.of(detail));

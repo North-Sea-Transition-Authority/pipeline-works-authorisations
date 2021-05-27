@@ -61,7 +61,8 @@ public class ConfirmSatisfactoryApplicationServiceTest {
   @Test
   public void canShowInTaskList_confirmSatisfactoryApplicationPermission_true() {
 
-    var processingContext = new PwaAppProcessingContext(null, null, Set.of(PwaAppProcessingPermission.CONFIRM_SATISFACTORY_APPLICATION), null, null);
+    var processingContext = new PwaAppProcessingContext(null, null, Set.of(PwaAppProcessingPermission.CONFIRM_SATISFACTORY_APPLICATION), null, null,
+        Set.of());
 
     boolean canShow = confirmSatisfactoryApplicationService.canShowInTaskList(processingContext);
 
@@ -72,7 +73,8 @@ public class ConfirmSatisfactoryApplicationServiceTest {
   @Test
   public void canShowInTaskList_caseManagementIndustryPermission_true() {
 
-    var processingContext = new PwaAppProcessingContext(null, null, Set.of(PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY), null, null);
+    var processingContext = new PwaAppProcessingContext(null, null, Set.of(PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY), null, null,
+        Set.of());
 
     boolean canShow = confirmSatisfactoryApplicationService.canShowInTaskList(processingContext);
 
@@ -83,7 +85,8 @@ public class ConfirmSatisfactoryApplicationServiceTest {
   @Test
   public void canShowInTaskList_showAllTasksPermission_true() {
 
-    var processingContext = new PwaAppProcessingContext(null, null, Set.of(PwaAppProcessingPermission.SHOW_ALL_TASKS_AS_PWA_MANAGER_ONLY), null, null);
+    var processingContext = new PwaAppProcessingContext(null, null, Set.of(PwaAppProcessingPermission.SHOW_ALL_TASKS_AS_PWA_MANAGER_ONLY), null, null,
+        Set.of());
 
     boolean canShow = confirmSatisfactoryApplicationService.canShowInTaskList(processingContext);
 
@@ -94,7 +97,7 @@ public class ConfirmSatisfactoryApplicationServiceTest {
   @Test
   public void canShowInTaskList_noPermissions_false() {
 
-    var processingContext = new PwaAppProcessingContext(null, null, Set.of(), null, null);
+    var processingContext = new PwaAppProcessingContext(null, null, Set.of(), null, null, Set.of());
 
     boolean canShow = confirmSatisfactoryApplicationService.canShowInTaskList(processingContext);
 
@@ -107,7 +110,7 @@ public class ConfirmSatisfactoryApplicationServiceTest {
 
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
 
-    var processingContext = new PwaAppProcessingContext(detail, null, Set.of(), null, null);
+    var processingContext = new PwaAppProcessingContext(detail, null, Set.of(), null, null, Set.of());
 
     var taskListEntry = confirmSatisfactoryApplicationService.getTaskListEntry(PwaAppProcessingTask.CONFIRM_SATISFACTORY_APPLICATION, processingContext);
 
@@ -125,7 +128,7 @@ public class ConfirmSatisfactoryApplicationServiceTest {
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     detail.setConfirmedSatisfactoryTimestamp(Instant.now());
 
-    var processingContext = new PwaAppProcessingContext(detail, null, Set.of(), null, null);
+    var processingContext = new PwaAppProcessingContext(detail, null, Set.of(), null, null, Set.of());
 
     var taskListEntry = confirmSatisfactoryApplicationService.getTaskListEntry(PwaAppProcessingTask.CONFIRM_SATISFACTORY_APPLICATION, processingContext);
 
@@ -142,7 +145,8 @@ public class ConfirmSatisfactoryApplicationServiceTest {
 
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
 
-    var processingContext = new PwaAppProcessingContext(detail, null, Set.of(PwaAppProcessingPermission.SHOW_ALL_TASKS_AS_PWA_MANAGER_ONLY), null, null);
+    var processingContext = new PwaAppProcessingContext(detail, null, Set.of(PwaAppProcessingPermission.SHOW_ALL_TASKS_AS_PWA_MANAGER_ONLY), null, null,
+        Set.of());
 
     var taskListEntry = confirmSatisfactoryApplicationService.getTaskListEntry(PwaAppProcessingTask.CONFIRM_SATISFACTORY_APPLICATION, processingContext);
 
@@ -159,7 +163,7 @@ public class ConfirmSatisfactoryApplicationServiceTest {
 
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
 
-    var processingContext = new PwaAppProcessingContext(detail, null, Set.of(), null, null);
+    var processingContext = new PwaAppProcessingContext(detail, null, Set.of(), null, null, Set.of());
 
     assertThat(confirmSatisfactoryApplicationService.taskAccessible(processingContext)).isTrue();
     assertThat(confirmSatisfactoryApplicationService.isSatisfactory(detail)).isFalse();
@@ -172,7 +176,7 @@ public class ConfirmSatisfactoryApplicationServiceTest {
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     detail.setConfirmedSatisfactoryTimestamp(Instant.now());
 
-    var processingContext = new PwaAppProcessingContext(detail, null, Set.of(), null, null);
+    var processingContext = new PwaAppProcessingContext(detail, null, Set.of(), null, null, Set.of());
 
     assertThat(confirmSatisfactoryApplicationService.taskAccessible(processingContext)).isFalse();
     assertThat(confirmSatisfactoryApplicationService.isSatisfactory(detail)).isTrue();

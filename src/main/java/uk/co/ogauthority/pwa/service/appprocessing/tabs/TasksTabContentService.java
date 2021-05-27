@@ -111,7 +111,7 @@ public class TasksTabContentService implements AppProcessingTabContentService {
       }
 
       if (consentReviewService.isApplicationConsented(appProcessingContext.getApplicationDetail())
-          && (appProcessingContext.getApplicationInvolvement().getUserTypes().contains(UserType.OGA)
+          && (appProcessingContext.getUserTypes().contains(UserType.OGA)
           || appProcessingContext.getApplicationInvolvement().isUserInHolderTeam())) {
         consentHistoryUrl = Optional.of(ReverseRouter.route(on(PwaViewController.class).renderViewPwa(
             appProcessingContext.getPwaApplication().getMasterPwa().getId(), PwaViewTab.CONSENT_HISTORY,  null, null

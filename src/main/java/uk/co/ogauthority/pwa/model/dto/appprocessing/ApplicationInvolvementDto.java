@@ -9,7 +9,6 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.appinvolvement.OpenConsentReview;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
-import uk.co.ogauthority.pwa.service.enums.users.UserType;
 
 public class ApplicationInvolvementDto {
 
@@ -34,8 +33,6 @@ public class ApplicationInvolvementDto {
 
   private final OpenConsentReview openConsentReview;
 
-  private final Set<UserType> userTypes;
-
   public ApplicationInvolvementDto(PwaApplication pwaApplication,
                                    Set<PwaContactRole> contactRoles,
                                    ConsultationInvolvementDto consultationInvolvement,
@@ -44,8 +41,7 @@ public class ApplicationInvolvementDto {
                                    boolean atLeastOneSatisfactoryVersion,
                                    Set<PwaOrganisationRole> holderTeamRoles,
                                    boolean userIsIndustryOnly,
-                                   OpenConsentReview openConsentReview,
-                                   Set<UserType> userTypes) {
+                                   OpenConsentReview openConsentReview) {
     this.pwaApplication = pwaApplication;
     this.contactRoles = contactRoles;
     this.consultationInvolvement = consultationInvolvement;
@@ -57,7 +53,6 @@ public class ApplicationInvolvementDto {
     this.holderTeamRoles = holderTeamRoles;
     this.userIsIndustryOnly = userIsIndustryOnly;
     this.openConsentReview = openConsentReview;
-    this.userTypes = userTypes;
   }
 
   public PwaApplication getPwaApplication() {
@@ -120,7 +115,4 @@ public class ApplicationInvolvementDto {
     return userIsIndustryOnly;
   }
 
-  public Set<UserType> getUserTypes() {
-    return userTypes;
-  }
 }

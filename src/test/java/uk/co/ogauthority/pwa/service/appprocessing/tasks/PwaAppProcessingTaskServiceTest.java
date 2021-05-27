@@ -6,6 +6,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.EnumSet;
+import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -56,7 +57,8 @@ public class PwaAppProcessingTaskServiceTest {
         new WebUserAccount(1),
         EnumSet.allOf(PwaAppProcessingPermission.class),
         null,
-        PwaAppProcessingContextDtoTestUtils.appInvolvementWithConsultationRequest("group", new ConsultationRequest()));
+        PwaAppProcessingContextDtoTestUtils.appInvolvementWithConsultationRequest("group", new ConsultationRequest()),
+        Set.of());
 
     processingTaskService = new PwaAppProcessingTaskService(springApplicationContext);
 

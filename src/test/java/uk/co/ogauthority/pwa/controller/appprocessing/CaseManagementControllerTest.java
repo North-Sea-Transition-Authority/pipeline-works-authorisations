@@ -118,7 +118,7 @@ public class CaseManagementControllerTest extends PwaAppProcessingContextAbstrac
         caseOfficer,
         Set.of(),
         null,
-        appInvolvement);
+        appInvolvement, Set.of());
 
     caseManagementController = new CaseManagementController(appProcessingTabService, confirmSatisfactoryApplicationService);
 
@@ -146,7 +146,7 @@ public class CaseManagementControllerTest extends PwaAppProcessingContextAbstrac
         user,
         Set.of(),
         null,
-        appInvolvement);
+        appInvolvement, Set.of());
 
     caseManagementController = new CaseManagementController(appProcessingTabService, confirmSatisfactoryApplicationService);
 

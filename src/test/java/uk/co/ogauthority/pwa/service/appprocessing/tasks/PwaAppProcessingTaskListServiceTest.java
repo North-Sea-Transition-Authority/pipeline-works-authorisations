@@ -70,8 +70,8 @@ public class PwaAppProcessingTaskListServiceTest {
         null,
         EnumSet.complementOf(EnumSet.of(PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY, PwaAppProcessingPermission.SHOW_ALL_TASKS_AS_PWA_MANAGER_ONLY)),
         null,
-        involvement
-    );
+        involvement,
+        Set.of());
 
     taskListService = new PwaAppProcessingTaskListService(processingTaskService);
 
@@ -155,8 +155,8 @@ public class PwaAppProcessingTaskListServiceTest {
             PwaAppProcessingPermission.ASSIGN_RESPONDER,
             PwaAppProcessingPermission.CONSULTATION_RESPONDER),
         null,
-        PwaAppProcessingContextDtoTestUtils.appInvolvementWithConsultationRequest("name", request, true)
-    );
+        PwaAppProcessingContextDtoTestUtils.appInvolvementWithConsultationRequest("name", request, true),
+        Set.of());
 
     var taskListGroups = taskListService.getTaskListGroups(processingContext);
 
@@ -197,8 +197,8 @@ public class PwaAppProcessingTaskListServiceTest {
         null,
         EnumSet.of(PwaAppProcessingPermission.CASE_MANAGEMENT_OGA),
         null,
-        appInvolvement
-    );
+        appInvolvement,
+        Set.of());
 
     var taskListGroups = taskListService.getTaskListGroups(processingContext);
 
@@ -227,8 +227,8 @@ public class PwaAppProcessingTaskListServiceTest {
         null,
         ApplicationInvolvementDtoTestUtil.generatePwaContactInvolvement(
             pwaApplicationDetail.getPwaApplication(),
-            Set.of(PwaContactRole.PREPARER))
-    );
+            Set.of(PwaContactRole.PREPARER)),
+        Set.of());
 
     var taskListGroups = taskListService.getTaskListGroups(processingContext);
 

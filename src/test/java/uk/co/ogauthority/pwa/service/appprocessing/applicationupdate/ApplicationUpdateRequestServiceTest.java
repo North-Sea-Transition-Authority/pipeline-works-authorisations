@@ -14,7 +14,6 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalUnit;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -286,7 +285,8 @@ public class ApplicationUpdateRequestServiceTest {
         null,
         Set.of(PwaAppProcessingPermission.REQUEST_APPLICATION_UPDATE),
         null,
-        null);
+        null,
+        Set.of());
 
     boolean canShow = applicationUpdateRequestService.canShowInTaskList(processingContext);
 
@@ -297,7 +297,7 @@ public class ApplicationUpdateRequestServiceTest {
   @Test
   public void canShowInTaskList_noPermission() {
 
-    var processingContext = new PwaAppProcessingContext(null, null, Set.of(), null, null);
+    var processingContext = new PwaAppProcessingContext(null, null, Set.of(), null, null, Set.of());
 
     boolean canShow = applicationUpdateRequestService.canShowInTaskList(processingContext);
 
@@ -414,7 +414,7 @@ public class ApplicationUpdateRequestServiceTest {
 
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
 
-    var processingContext = new PwaAppProcessingContext(detail, null, Set.of(), null, null);
+    var processingContext = new PwaAppProcessingContext(detail, null, Set.of(), null, null, Set.of());
 
     var updateRequest = new ApplicationUpdateRequest();
     when(applicationUpdateRequestRepository.findByPwaApplicationDetail_pwaApplicationAndStatus(any(), any())).thenReturn(Optional.of(updateRequest));
@@ -434,7 +434,7 @@ public class ApplicationUpdateRequestServiceTest {
 
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
 
-    var processingContext = new PwaAppProcessingContext(detail, null, Set.of(), null, null);
+    var processingContext = new PwaAppProcessingContext(detail, null, Set.of(), null, null, Set.of());
 
     when(applicationUpdateRequestRepository.findByPwaApplicationDetail_pwaApplicationAndStatus(any(), any())).thenReturn(Optional.empty());
 
@@ -453,7 +453,7 @@ public class ApplicationUpdateRequestServiceTest {
 
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
 
-    var processingContext = new PwaAppProcessingContext(detail, null, Set.of(), null, null);
+    var processingContext = new PwaAppProcessingContext(detail, null, Set.of(), null, null, Set.of());
 
     when(approveOptionsService.getOptionsApprovalStatus(detail)).thenReturn(OptionsApprovalStatus.APPROVED_UNRESPONDED);
 

@@ -313,9 +313,13 @@ public class TasksTabContentServiceTest {
 
     var taskListGroupsList = List.of(new TaskListGroup("test", 10, List.of()));
 
-    var processingContext = createContextFromInvolvementAndPermissions(
-        ApplicationInvolvementDtoTestUtil.fromUserTypes(null, Set.of(UserType.OGA)),
-        PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY);
+    var processingContext = new PwaAppProcessingContext(
+        PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL),
+        wua,
+        Set.of(PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY),
+        null,
+        ApplicationInvolvementDtoTestUtil.noInvolvementAndNoFlags(null),
+        Set.of(UserType.OGA));
 
     when(taskListService.getTaskListGroups(processingContext)).thenReturn(taskListGroupsList);
     when(consentReviewService.isApplicationConsented(any())).thenReturn(true);
@@ -398,8 +402,10 @@ public class TasksTabContentServiceTest {
         wua,
         Set.of(permissions),
         null,
-        applicationInvolvementDto);
+        applicationInvolvementDto,
+        Set.of());
   }
+
 
 
 }

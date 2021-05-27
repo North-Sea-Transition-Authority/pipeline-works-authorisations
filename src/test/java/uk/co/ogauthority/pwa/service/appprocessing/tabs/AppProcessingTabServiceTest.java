@@ -96,7 +96,7 @@ public class AppProcessingTabServiceTest {
   @Test
   public void getTabContentModelMap_allTabContentRetrieved() {
 
-    var context = new PwaAppProcessingContext(null, null, null, null, null);
+    var context = new PwaAppProcessingContext(null, null, null, null, null, Set.of());
 
     tabService.getTabContentModelMap(context, AppProcessingTab.TASKS);
 

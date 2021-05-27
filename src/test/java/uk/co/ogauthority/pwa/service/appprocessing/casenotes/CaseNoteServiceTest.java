@@ -75,7 +75,7 @@ public class CaseNoteServiceTest {
   public void canShowInTaskList() {
 
     var processingContext = new PwaAppProcessingContext(null, null, Set.of(PwaAppProcessingPermission.ADD_CASE_NOTE), null,
-        null);
+        null, Set.of());
 
     boolean canShow = caseNoteService.canShowInTaskList(processingContext);
 
@@ -87,7 +87,7 @@ public class CaseNoteServiceTest {
   public void canShowInTaskList_industry() {
 
     var processingContext = new PwaAppProcessingContext(null, null, Set.of(PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY), null,
-        null);
+        null, Set.of());
 
     boolean canShow = caseNoteService.canShowInTaskList(processingContext);
 
