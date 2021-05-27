@@ -44,13 +44,11 @@ public class PersonTestUtil {
     );
   }
 
-  public static Person createDefaultPerson(PersonId personId) {
-    return new Person(
-        personId.asInt(),
-        "firstname",
-        "surname",
+  public static Person createPersonWithNameFrom(PersonId personId) {
+    return createPersonFrom(
+        personId,
         "email@email.com",
-        "0123456789"
+        "surname"
     );
   }
 

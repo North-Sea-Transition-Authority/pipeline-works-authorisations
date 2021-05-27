@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.service.pwaconsents;
 
+import java.util.Collection;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -65,13 +66,15 @@ public class ConsentEmailService {
 
   public void sendHolderAndSubmitterConsentIssuedEmail(PwaApplicationDetail pwaApplicationDetail,
                                                        String coverLetter,
-                                                       List<Person> emailRecipientPersons) {
+                                                       Collection<Person> emailRecipientPersons) {
+
+    var caseManagementLink = emailCaseLinkService.generateCaseManagementLink(pwaApplicationDetail.getPwaApplication());
     emailRecipientPersons.forEach(emailRecipientPerson -> {
       var emailProps = new HolderSubmitterConsentIssuedEmailProps(
           emailRecipientPerson.getFullName(),
           pwaApplicationDetail.getPwaApplicationRef(),
           coverLetter,
-          emailCaseLinkService.generateCaseManagementLink(pwaApplicationDetail.getPwaApplication())
+          caseManagementLink
       );
       notifyService.sendEmail(emailProps, emailRecipientPerson.getEmailAddress());
     });

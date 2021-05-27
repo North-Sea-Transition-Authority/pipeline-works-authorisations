@@ -17,7 +17,6 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.exception.ActionNotAllowedException;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.contacts.PwaContactTestUtil;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
 import uk.co.ogauthority.pwa.service.appprocessing.consentreview.IssueConsentEmailsService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.person.PersonService;
@@ -44,7 +43,7 @@ public class IssueConsentEmailsServiceTest {
   private IssueConsentEmailsService issueConsentEmailsService;
 
   private final PwaApplicationDetail pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
-  private final AuthenticatedUserAccount issuingUser = new AuthenticatedUserAccount(new WebUserAccount(1, PersonTestUtil.createDefaultPerson(new PersonId(100))), Set.of());
+  private final AuthenticatedUserAccount issuingUser = new AuthenticatedUserAccount(new WebUserAccount(1, PersonTestUtil.createPersonWithNameFrom(new PersonId(100))), Set.of());
 
 
   @Before
@@ -65,10 +64,8 @@ public class IssueConsentEmailsServiceTest {
     when(pwaContactService.getContactsForPwaApplication(pwaApplicationDetail.getPwaApplication()))
         .thenReturn(List.of(holderTeamContact, nonHolderTeamContact));
 
-    when(pwaHolderTeamService.getRolesInHolderTeam(pwaApplicationDetail, holderTeamContact.getPerson()))
-        .thenReturn(Set.of(PwaOrganisationRole.APPLICATION_SUBMITTER));
-    when(pwaHolderTeamService.getRolesInHolderTeam(pwaApplicationDetail, nonHolderTeamContact.getPerson()))
-        .thenReturn(Set.of());
+    when(pwaHolderTeamService.getPersonsInHolderTeam(pwaApplicationDetail))
+        .thenReturn(Set.of(holderTeamContact.getPerson()));
 
     pwaApplicationDetail.setSubmittedByPersonId(holderTeamContact.getPerson().getId());
     when(personService.getPersonById(pwaApplicationDetail.getSubmittedByPersonId())).thenReturn(holderTeamContact.getPerson());
@@ -79,7 +76,7 @@ public class IssueConsentEmailsServiceTest {
     verify(consentEmailService).sendConsentIssuedEmail(pwaApplicationDetail, issuingUser.getFullName());
 
     verify(consentEmailService).sendHolderAndSubmitterConsentIssuedEmail(
-        pwaApplicationDetail, consentReview.getCoverLetterText(), List.of(holderTeamContact.getPerson()));
+        pwaApplicationDetail, consentReview.getCoverLetterText(), Set.of(holderTeamContact.getPerson()));
 
     verify(consentEmailService).sendNonHolderConsentIssuedEmail(
         pwaApplicationDetail, consentReview.getCoverLetterText(), List.of(nonHolderTeamContact.getPerson()));
@@ -95,8 +92,8 @@ public class IssueConsentEmailsServiceTest {
     when(pwaContactService.getContactsForPwaApplication(pwaApplicationDetail.getPwaApplication()))
         .thenReturn(List.of(holderTeamContact));
 
-    when(pwaHolderTeamService.getRolesInHolderTeam(pwaApplicationDetail, holderTeamContact.getPerson()))
-        .thenReturn(Set.of(PwaOrganisationRole.APPLICATION_SUBMITTER));
+    when(pwaHolderTeamService.getPersonsInHolderTeam(pwaApplicationDetail))
+        .thenReturn(Set.of(holderTeamContact.getPerson()));
 
     var appSubmitterPerson = PersonTestUtil.createPersonFrom(new PersonId(400));
     pwaApplicationDetail.setSubmittedByPersonId(appSubmitterPerson.getId());
@@ -106,7 +103,7 @@ public class IssueConsentEmailsServiceTest {
         pwaApplicationDetail, consentReview.getCoverLetterText(), issuingUser.getFullName());
 
     verify(consentEmailService).sendHolderAndSubmitterConsentIssuedEmail(
-        pwaApplicationDetail, consentReview.getCoverLetterText(), List.of(holderTeamContact.getPerson(), appSubmitterPerson));
+        pwaApplicationDetail, consentReview.getCoverLetterText(), Set.of(holderTeamContact.getPerson(), appSubmitterPerson));
   }
 
   @Test(expected = ActionNotAllowedException.class)

@@ -149,6 +149,16 @@ public class PwaHolderTeamServiceTest {
 
   }
 
+
+  @Test
+  public void getPersonsInHolderTeam_singlePersonInHolderTeam() {
+
+
+    var people = pwaHolderTeamService.getPersonsInHolderTeam(detail);
+    assertThat(people).containsOnly(person);
+
+  }
+
   @Test
   public void getPortalOrganisationUnitsWhereUserHasAnyOrgRole_userHasRole(){
 

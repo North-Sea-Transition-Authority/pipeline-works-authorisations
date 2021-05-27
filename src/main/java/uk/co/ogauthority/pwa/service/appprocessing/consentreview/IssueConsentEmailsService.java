@@ -1,7 +1,10 @@
 package uk.co.ogauthority.pwa.service.appprocessing.consentreview;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
@@ -37,7 +40,7 @@ public class IssueConsentEmailsService {
 
     consentEmailService.sendConsentIssuedEmail(pwaApplicationDetail, issuingUserName);
 
-    var holderContactsAndAppSubmitterRecipients = new ArrayList<Person>();
+    var holderContactsAndAppSubmitterRecipients = new HashSet<Person>();
     var nonHolderContactsRecipients = new ArrayList<Person>();
     setHolderAndNonHolderRecipients(holderContactsAndAppSubmitterRecipients, nonHolderContactsRecipients, pwaApplicationDetail);
     addLatestAppSubmitterToRecipientsIfDoesntExist(pwaApplicationDetail, holderContactsAndAppSubmitterRecipients);
@@ -47,24 +50,24 @@ public class IssueConsentEmailsService {
     consentEmailService.sendNonHolderConsentIssuedEmail(pwaApplicationDetail, coverLetterText, nonHolderContactsRecipients);
   }
 
-  private void setHolderAndNonHolderRecipients(ArrayList<Person> holderContactsAndAppSubmitterRecipients,
-                                               ArrayList<Person> nonHolderContactsRecipients,
+  private void setHolderAndNonHolderRecipients(Collection<Person> holderContactsAndAppSubmitterRecipients,
+                                               List<Person> nonHolderContactsRecipients,
                                                PwaApplicationDetail pwaApplicationDetail) {
 
+    var holderTeamPeople = pwaHolderTeamService.getPersonsInHolderTeam(pwaApplicationDetail);
     pwaContactService.getContactsForPwaApplication(pwaApplicationDetail.getPwaApplication())
         .forEach(appContact -> {
-          var holderTeamRoles = pwaHolderTeamService.getRolesInHolderTeam(pwaApplicationDetail, appContact.getPerson());
-          if (holderTeamRoles.isEmpty()) {
-            nonHolderContactsRecipients.add(appContact.getPerson());
+          if (holderTeamPeople.contains(appContact.getPerson())) {
+            holderContactsAndAppSubmitterRecipients.add(appContact.getPerson());
 
           } else {
-            holderContactsAndAppSubmitterRecipients.add(appContact.getPerson());
+            nonHolderContactsRecipients.add(appContact.getPerson());
           }
         });
   }
 
 
-  private void addLatestAppSubmitterToRecipientsIfDoesntExist(PwaApplicationDetail pwaApplicationDetail, List<Person> recipients) {
+  private void addLatestAppSubmitterToRecipientsIfDoesntExist(PwaApplicationDetail pwaApplicationDetail, Set<Person> recipients) {
 
     if (!pwaApplicationDetail.isTipFlag()) {
       throw new ActionNotAllowedException(
@@ -73,9 +76,16 @@ public class IssueConsentEmailsService {
     }
 
     var latestAppSubmitter = personService.getPersonById(pwaApplicationDetail.getSubmittedByPersonId());
-    if (!recipients.contains(latestAppSubmitter)) {
-      recipients.add(latestAppSubmitter);
-    }
+    recipients.add(latestAppSubmitter);
+  }
+
+
+  public void sendConsentReviewReturnedEmail(PwaApplicationDetail pwaApplicationDetail,
+                                             Person caseOfficerPerson,
+                                             String returningUserName,
+                                             String returnReason) {
+    consentEmailService.sendConsentReviewReturnedEmail(pwaApplicationDetail, caseOfficerPerson.getEmailAddress(),
+        caseOfficerPerson.getFullName(), returningUserName, returnReason);
   }
 
 

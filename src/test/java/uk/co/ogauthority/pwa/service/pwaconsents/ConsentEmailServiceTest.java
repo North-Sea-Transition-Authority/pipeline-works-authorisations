@@ -120,7 +120,7 @@ public class ConsentEmailServiceTest {
   public void sendHolderAndSubmitterConsentIssuedEmail() {
 
     var emailRecipientPersons = List.of(
-        PersonTestUtil.createDefaultPerson(new PersonId(100)), PersonTestUtil.createDefaultPerson(new PersonId(200)));
+        PersonTestUtil.createPersonWithNameFrom(new PersonId(100)), PersonTestUtil.createPersonWithNameFrom(new PersonId(200)));
     var coverLetterText = "cover letter text";
 
     consentEmailService.sendHolderAndSubmitterConsentIssuedEmail(pwaApplicationDetail, coverLetterText, emailRecipientPersons);
@@ -129,11 +129,13 @@ public class ConsentEmailServiceTest {
       verify(notifyService, atLeastOnce()).sendEmail(holderSubmitterConsentIssuedEmailProps.capture(),
           eq(recipientPerson.getEmailAddress()));
 
+      var caseManagementLink = emailCaseLinkService.generateCaseManagementLink(pwaApplicationDetail.getPwaApplication());
+
       assertThat(holderSubmitterConsentIssuedEmailProps.getValue().getEmailPersonalisation()).containsAllEntriesOf(Map.of(
           "RECIPIENT_FULL_NAME", recipientPerson.getFullName(),
           "APPLICATION_REFERENCE", pwaApplicationDetail.getPwaApplicationRef(),
           "COVER_LETTER_TEXT", coverLetterText,
-          "CASE_MANAGEMENT_LINK", emailCaseLinkService.generateCaseManagementLink(pwaApplicationDetail.getPwaApplication())
+          "CASE_MANAGEMENT_LINK", caseManagementLink
       ));
     });
 
@@ -143,7 +145,7 @@ public class ConsentEmailServiceTest {
   public void sendNonHolderConsentIssuedEmail() {
 
     var emailRecipientPersons = List.of(
-        PersonTestUtil.createDefaultPerson(new PersonId(100)), PersonTestUtil.createDefaultPerson(new PersonId(200)));
+        PersonTestUtil.createPersonWithNameFrom(new PersonId(100)), PersonTestUtil.createPersonWithNameFrom(new PersonId(200)));
     var coverLetterText = "cover letter text";
 
     consentEmailService.sendNonHolderConsentIssuedEmail(pwaApplicationDetail, coverLetterText, emailRecipientPersons);

@@ -19,7 +19,6 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.workflow.application.ConsentReviewDecision;
 import uk.co.ogauthority.pwa.service.enums.workflow.application.PwaApplicationWorkflowTask;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
-import uk.co.ogauthority.pwa.service.pwaconsents.ConsentEmailService;
 import uk.co.ogauthority.pwa.service.pwaconsents.PwaConsentService;
 import uk.co.ogauthority.pwa.service.pwaconsents.consentwriters.ConsentWriterService;
 import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
@@ -34,7 +33,6 @@ public class ConsentReviewService {
   private final PwaApplicationDetailService pwaApplicationDetailService;
   private final WorkflowAssignmentService workflowAssignmentService;
   private final CamundaWorkflowService camundaWorkflowService;
-  private final ConsentEmailService consentEmailService;
   private final PwaConsentService pwaConsentService;
   private final ConsentWriterService consentWriterService;
   private final IssueConsentEmailsService issueConsentEmailsService;
@@ -45,7 +43,6 @@ public class ConsentReviewService {
                               PwaApplicationDetailService pwaApplicationDetailService,
                               WorkflowAssignmentService workflowAssignmentService,
                               CamundaWorkflowService camundaWorkflowService,
-                              ConsentEmailService consentEmailService,
                               PwaConsentService pwaConsentService,
                               ConsentWriterService consentWriterService,
                               IssueConsentEmailsService issueConsentEmailsService) {
@@ -54,7 +51,6 @@ public class ConsentReviewService {
     this.pwaApplicationDetailService = pwaApplicationDetailService;
     this.workflowAssignmentService = workflowAssignmentService;
     this.camundaWorkflowService = camundaWorkflowService;
-    this.consentEmailService = consentEmailService;
     this.pwaConsentService = pwaConsentService;
     this.consentWriterService = consentWriterService;
     this.issueConsentEmailsService = issueConsentEmailsService;
@@ -112,8 +108,8 @@ public class ConsentReviewService {
         returningUser.getLinkedPerson());
 
     // email CO
-    consentEmailService.sendConsentReviewReturnedEmail(pwaApplicationDetail, caseOfficerPerson.getEmailAddress(),
-        caseOfficerPerson.getFullName(), returningUser.getLinkedPerson().getFullName(), returnReason);
+    issueConsentEmailsService.sendConsentReviewReturnedEmail(
+        pwaApplicationDetail, caseOfficerPerson, returningUser.getLinkedPerson().getFullName(), returnReason);
 
   }
 

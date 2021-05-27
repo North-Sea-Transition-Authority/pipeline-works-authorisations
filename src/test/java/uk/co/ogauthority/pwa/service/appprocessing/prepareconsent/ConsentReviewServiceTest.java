@@ -63,9 +63,6 @@ public class ConsentReviewServiceTest {
   private WorkflowAssignmentService workflowAssignmentService;
 
   @Mock
-  private ConsentEmailService consentEmailService;
-
-  @Mock
   private PwaConsentService pwaConsentService;
 
   @Mock
@@ -93,7 +90,7 @@ public class ConsentReviewServiceTest {
 
     consentReviewService = new ConsentReviewService(
         consentReviewRepository, clock, pwaApplicationDetailService, workflowAssignmentService,
-        camundaWorkflowService, consentEmailService, pwaConsentService, consentWriterService, issueConsentEmailsService);
+        camundaWorkflowService, pwaConsentService, consentWriterService, issueConsentEmailsService);
 
   }
 
@@ -185,8 +182,8 @@ public class ConsentReviewServiceTest {
         caseOfficerPerson,
         returningUser.getLinkedPerson());
 
-    verify(consentEmailService).sendConsentReviewReturnedEmail(detail, caseOfficerPerson.getEmailAddress(),
-        caseOfficerPerson.getFullName(), returningUser.getLinkedPerson().getFullName(), "return reason");
+    verify(issueConsentEmailsService).sendConsentReviewReturnedEmail(
+        detail, caseOfficerPerson, returningUser.getLinkedPerson().getFullName(), "return reason");
 
   }
 
