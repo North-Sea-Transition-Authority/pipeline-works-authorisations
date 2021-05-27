@@ -1,7 +1,7 @@
 package uk.co.ogauthority.pwa.service.search.consents.pwapipelineview;
 
+import static java.util.Map.entry;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static uk.co.ogauthority.pwa.service.search.consents.pwapipelineview.PwaHuooHistoryItemType.PIPELINE_DETAIL_MIGRATED_HUOO;
@@ -123,14 +123,14 @@ public class ViewablePipelineHuooVersionServiceTest {
             expectedOrderTagNumber, consentCreatedTodayAfternoon.getReference()));
 
     expectedOrderTagNumber = 1;
-    assertThat(huooVersionSearchSelectorItems).containsEntry(
-        PWA_CONSENT.getItemPrefix() + consentCreatedTodayMorning.getId(),
+    assertThat(huooVersionSearchSelectorItems).contains(
+        entry(PWA_CONSENT.getItemPrefix() + consentCreatedTodayMorning.getId(),
         String.format("%s (%s) - %s", DateUtils.formatDate(consentCreatedTodayMorning.getConsentInstant()),
-            expectedOrderTagNumber, consentCreatedTodayMorning.getReference()));
+            expectedOrderTagNumber, consentCreatedTodayMorning.getReference())),
 
-    assertThat(huooVersionSearchSelectorItems).containsEntry(
-        PIPELINE_DETAIL_MIGRATED_HUOO.getItemPrefix() + pipelineDetailCreatedYesterday.getId(),
-        DateUtils.formatDate(pipelineDetailCreatedYesterday.getStartTimestamp()));
+        entry(PIPELINE_DETAIL_MIGRATED_HUOO.getItemPrefix() + pipelineDetailCreatedYesterday.getId(),
+        DateUtils.formatDate(pipelineDetailCreatedYesterday.getStartTimestamp()))
+    );
 
   }
 
@@ -150,13 +150,13 @@ public class ViewablePipelineHuooVersionServiceTest {
 
     var huooVersionSearchSelectorItems = viewablePipelineHuooVersionService.getHuooHistorySearchSelectorItems(masterPwa, PIPELINE_ID.asInt());
 
-    assertThat(huooVersionSearchSelectorItems).containsEntry(
-        PWA_CONSENT.getItemPrefix() + consentWithRef.getId(),
-        String.format("Latest version (%s - %s)", DateUtils.formatDate(consentWithRef.getConsentInstant()), consentWithRef.getReference()));
+    assertThat(huooVersionSearchSelectorItems).contains(
+        entry(PWA_CONSENT.getItemPrefix() + consentWithRef.getId(),
+        String.format("Latest version (%s - %s)", DateUtils.formatDate(consentWithRef.getConsentInstant()), consentWithRef.getReference())),
 
-    assertThat(huooVersionSearchSelectorItems).containsEntry(
-        PIPELINE_DETAIL_MIGRATED_HUOO.getItemPrefix() + pipelineDetailWithoutRef.getId(),
-        DateUtils.formatDate(pipelineDetailWithoutRef.getStartTimestamp()));
+        entry(PIPELINE_DETAIL_MIGRATED_HUOO.getItemPrefix() + pipelineDetailWithoutRef.getId(),
+        DateUtils.formatDate(pipelineDetailWithoutRef.getStartTimestamp()))
+    );
   }
 
 
@@ -175,13 +175,13 @@ public class ViewablePipelineHuooVersionServiceTest {
 
     var huooVersionSearchSelectorItems = viewablePipelineHuooVersionService.getHuooHistorySearchSelectorItems(masterPwa, PIPELINE_ID.asInt());
 
-    assertThat(huooVersionSearchSelectorItems).containsEntry(
-        PWA_CONSENT.getItemPrefix() + consentWithRef.getId(),
-        String.format("Latest version (%s - %s)", DateUtils.formatDate(consentWithRef.getConsentInstant()), consentWithRef.getReference()));
+    assertThat(huooVersionSearchSelectorItems).contains(
+        entry(PWA_CONSENT.getItemPrefix() + consentWithRef.getId(),
+        String.format("Latest version (%s - %s)", DateUtils.formatDate(consentWithRef.getConsentInstant()), consentWithRef.getReference())),
 
-    assertThat(huooVersionSearchSelectorItems).containsEntry(
-        PIPELINE_DETAIL_MIGRATED_HUOO.getItemPrefix() + pipelineDetailWithRef.getId(),
-        DateUtils.formatDate(pipelineDetailWithRef.getStartTimestamp()));
+        entry(PIPELINE_DETAIL_MIGRATED_HUOO.getItemPrefix() + pipelineDetailWithRef.getId(),
+        DateUtils.formatDate(pipelineDetailWithRef.getStartTimestamp()))
+    );
   }
 
 
