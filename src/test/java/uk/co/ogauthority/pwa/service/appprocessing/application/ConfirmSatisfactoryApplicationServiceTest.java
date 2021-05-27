@@ -114,7 +114,7 @@ public class ConfirmSatisfactoryApplicationServiceTest {
     assertThat(taskListEntry.getTaskName()).isEqualTo(PwaAppProcessingTask.CONFIRM_SATISFACTORY_APPLICATION.getTaskName());
     assertThat(taskListEntry.getRoute()).isEqualTo(PwaAppProcessingTask.CONFIRM_SATISFACTORY_APPLICATION.getRoute(processingContext));
     assertThat(taskListEntry.getTaskState()).isEqualTo(TaskState.EDIT);
-    assertThat(taskListEntry.getTaskTag()).isEqualTo(TaskTag.from(TaskStatus.NOT_COMPLETED));
+    assertThat(taskListEntry.getTaskTag()).isEqualTo(TaskTag.from(TaskStatus.NOT_STARTED));
     assertThat(taskListEntry.getTaskInfoList()).isEmpty();
 
   }
@@ -149,7 +149,7 @@ public class ConfirmSatisfactoryApplicationServiceTest {
     assertThat(taskListEntry.getTaskName()).isEqualTo(PwaAppProcessingTask.CONFIRM_SATISFACTORY_APPLICATION.getTaskName());
     assertThat(taskListEntry.getRoute()).isEqualTo(PwaAppProcessingTask.CONFIRM_SATISFACTORY_APPLICATION.getRoute(processingContext));
     assertThat(taskListEntry.getTaskState()).isEqualTo(TaskState.LOCK);
-    assertThat(taskListEntry.getTaskTag()).isEqualTo(TaskTag.from(TaskStatus.NOT_COMPLETED));
+    assertThat(taskListEntry.getTaskTag()).isEqualTo(TaskTag.from(TaskStatus.NOT_STARTED));
     assertThat(taskListEntry.getTaskInfoList()).isEmpty();
 
   }

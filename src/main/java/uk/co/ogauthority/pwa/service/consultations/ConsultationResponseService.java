@@ -190,7 +190,7 @@ public class ConsultationResponseService implements AppProcessingService {
     return new TaskListEntry(
         PwaAppProcessingTask.CONSULTATION_RESPONSE.getTaskName(),
         PwaAppProcessingTask.CONSULTATION_RESPONSE.getRoute(processingContext),
-        TaskTag.from(TaskStatus.NOT_COMPLETED),
+        TaskTag.from(TaskStatus.NOT_STARTED),
         PwaAppProcessingTask.CONSULTATION_RESPONSE.getDisplayOrder()
     );
 
