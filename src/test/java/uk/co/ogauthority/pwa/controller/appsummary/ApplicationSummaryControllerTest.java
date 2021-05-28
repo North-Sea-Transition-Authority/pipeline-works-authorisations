@@ -6,6 +6,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import java.util.List;
+import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -39,7 +40,8 @@ public class ApplicationSummaryControllerTest extends PwaAppProcessingContextAbs
   @Before
   public void setUp() {
 
-    when(applicationSummaryViewService.getApplicationSummaryView(any())).thenReturn(new ApplicationSummaryView("<html>", List.of()));
+    when(applicationSummaryViewService.getAppDetailVersionSearchSelectorItems(any())).thenReturn(Map.of());
+    when(applicationSummaryViewService.getApplicationSummaryViewForId(any())).thenReturn(new ApplicationSummaryView("<html>", List.of()));
 
     endpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaApplicationDetailService, pwaAppProcessingPermissionService)
         .setAllowedProcessingPermissions(PwaAppProcessingPermission.VIEW_APPLICATION_SUMMARY);
@@ -52,7 +54,19 @@ public class ApplicationSummaryControllerTest extends PwaAppProcessingContextAbs
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(ApplicationSummaryController.class)
-                .renderSummary(applicationDetail.getMasterPwaApplicationId(), type, null, null)));
+                .renderSummary(applicationDetail.getMasterPwaApplicationId(), type, null, null, null, null)));
+
+    endpointTester.performProcessingPermissionCheck(status().isOk(), status().isForbidden());
+
+  }
+
+  @Test
+  public void postViewSummary_permissionSmokeTest() {
+
+    endpointTester.setRequestMethod(HttpMethod.GET)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(ApplicationSummaryController.class)
+                .postViewSummary(applicationDetail.getMasterPwaApplicationId(), type, null, null, null)));
 
     endpointTester.performProcessingPermissionCheck(status().isOk(), status().isForbidden());
 

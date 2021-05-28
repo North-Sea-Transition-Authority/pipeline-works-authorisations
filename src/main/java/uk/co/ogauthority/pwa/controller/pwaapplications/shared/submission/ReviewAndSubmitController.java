@@ -106,7 +106,8 @@ public class ReviewAndSubmitController {
         .addObject("form", form)
         .addObject("userPermissions", applicationContext.getPermissions())
         .addObject("submitUrl", ReverseRouter.route(on(ReviewAndSubmitController.class)
-            .submit(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null, null, null)));
+            .submit(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null, null, null)))
+        .addObject("showDiffCheckbox", true);
 
     // if there's an open update request, include it
     applicationUpdateRequestViewService.getOpenRequestView(detail.getPwaApplication())

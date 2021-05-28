@@ -122,7 +122,7 @@ public class CaseSummaryView {
   // used in ftl template
   public String getAppSummaryUrl() {
     return ReverseRouter.route(on(ApplicationSummaryController.class).renderSummary(pwaApplicationId,
-        pwaApplicationType, null, null));
+        pwaApplicationType, null, null, null, null));
   }
 
   @Override

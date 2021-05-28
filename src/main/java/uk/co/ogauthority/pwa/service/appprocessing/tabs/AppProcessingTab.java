@@ -18,13 +18,6 @@ public enum AppProcessingTab {
       "case-history",
       "caseHistory",
       20
-  ),
-  FIRS(
-      "FIRs",
-      "FIRs",
-      "firs",
-      "firs",
-      30
   );
 
   private final String regulatorConsulteeLabel;
