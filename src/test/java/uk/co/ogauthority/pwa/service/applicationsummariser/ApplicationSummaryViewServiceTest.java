@@ -19,6 +19,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
+import uk.co.ogauthority.pwa.energyportal.model.entity.PersonTestUtil;
+import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.view.sidebarnav.SidebarSectionLink;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
@@ -41,6 +45,7 @@ public class ApplicationSummaryViewServiceTest {
   private ApplicationSummaryViewService applicationSummaryViewService;
 
   private PwaApplicationDetail detail;
+  private AuthenticatedUserAccount user;
 
   private static int APP_ID = 100;
   private static int APP_DETAIL_ID1 = 1;
@@ -57,9 +62,9 @@ public class ApplicationSummaryViewServiceTest {
 
   @Before
   public void setUp() {
-    applicationSummaryViewService = new ApplicationSummaryViewService(applicationSummaryService, templateRenderingService,
-        pwaApplicationDetailService);
+    applicationSummaryViewService = new ApplicationSummaryViewService(applicationSummaryService, templateRenderingService, pwaApplicationDetailService);
     detail = new PwaApplicationDetail();
+    user = new AuthenticatedUserAccount(new WebUserAccount(1, PersonTestUtil.createDefaultPerson()), List.of());
 
     var today = LocalDate.now().atStartOfDay();
     TODAY_AFTERNOON = today.plusHours(13).atZone(ZoneId.systemDefault()).toInstant();
@@ -106,7 +111,7 @@ public class ApplicationSummaryViewServiceTest {
     when(pwaApplicationDetailService.getAllDetailsForApplication(pwaApplication)).thenReturn(
         List.of(appDetailCreatedYesterday, appDetailCreatedTodayAfternoon, appDetailCreatedTodayMorning));
 
-    var appDetailVersionSearchSelectorItems = applicationSummaryViewService.getAppDetailVersionSearchSelectorItems(pwaApplication);
+    var appDetailVersionSearchSelectorItems = applicationSummaryViewService.getAppDetailVersionSearchSelectorItems(pwaApplication, user);
 
     assertThat(appDetailVersionSearchSelectorItems.keySet()).containsExactly(
         appDetailCreatedTodayAfternoon.getId().toString(), appDetailCreatedTodayMorning.getId().toString(), appDetailCreatedYesterday.getId().toString()
@@ -135,7 +140,7 @@ public class ApplicationSummaryViewServiceTest {
     when(pwaApplicationDetailService.getAllDetailsForApplication(pwaApplication)).thenReturn(
         List.of(appDetailCreatedTodayMorning, appDetailCreatedYesterday));
 
-    var appDetailVersionSearchSelectorItems = applicationSummaryViewService.getAppDetailVersionSearchSelectorItems(pwaApplication);
+    var appDetailVersionSearchSelectorItems = applicationSummaryViewService.getAppDetailVersionSearchSelectorItems(pwaApplication, user);
 
     assertThat(appDetailVersionSearchSelectorItems).containsEntry(appDetailCreatedTodayMorning.getId().toString(),
         String.format("Latest version (%s)", DateUtils.formatDate(appDetailCreatedTodayMorning.getCreatedTimestamp())));
@@ -155,11 +160,31 @@ public class ApplicationSummaryViewServiceTest {
     when(pwaApplicationDetailService.getAllDetailsForApplication(pwaApplication)).thenReturn(
         List.of(appDetailNoUpdateRequested, appDetailUpdateRequested));
 
-    var appDetailVersionSearchSelectorItems = applicationSummaryViewService.getAppDetailVersionSearchSelectorItems(pwaApplication);
+    var appDetailVersionSearchSelectorItems = applicationSummaryViewService.getAppDetailVersionSearchSelectorItems(pwaApplication, user);
 
     assertThat(appDetailVersionSearchSelectorItems).containsOnly(entry(
         appDetailNoUpdateRequested.getId().toString(),
         String.format("Latest version (%s)", DateUtils.formatDate(appDetailNoUpdateRequested.getCreatedTimestamp()))
+    ));
+  }
+
+  @Test
+  public void getAppDetailVersionSearchSelectorItems_userIsConsultee_versionsAreSatisfactoryAndNonSatisfactory_onlySatisfactoryVersionIncludedInOptions() {
+
+    var appDetailSatisfactory = PwaApplicationTestUtil.createDefaultApplicationDetail(APP_ID, APP_DETAIL_ID2, VERSION_2, TODAY_MORNING, CASE_OFFICER_REVIEW);
+    appDetailSatisfactory.setConfirmedSatisfactoryTimestamp(Instant.now());
+    var appDetailNonSatisfactory = PwaApplicationTestUtil.createDefaultApplicationDetail(APP_ID, APP_DETAIL_ID1, VERSION_1, YESTERDAY, CASE_OFFICER_REVIEW);
+    var pwaApplication = appDetailSatisfactory.getPwaApplication();
+
+    when(pwaApplicationDetailService.getAllDetailsForApplication(pwaApplication)).thenReturn(
+        List.of(appDetailNonSatisfactory, appDetailSatisfactory));
+
+    user = new AuthenticatedUserAccount(new WebUserAccount(1, PersonTestUtil.createDefaultPerson()), List.of(PwaUserPrivilege.PWA_CONSULTEE));
+    var appDetailVersionSearchSelectorItems = applicationSummaryViewService.getAppDetailVersionSearchSelectorItems(pwaApplication, user);
+
+    assertThat(appDetailVersionSearchSelectorItems).containsOnly(entry(
+        appDetailSatisfactory.getId().toString(),
+        String.format("Latest version (%s)", DateUtils.formatDate(appDetailSatisfactory.getCreatedTimestamp()))
     ));
   }
 

@@ -40,7 +40,7 @@ public class ApplicationSummaryControllerTest extends PwaAppProcessingContextAbs
   @Before
   public void setUp() {
 
-    when(applicationSummaryViewService.getAppDetailVersionSearchSelectorItems(any())).thenReturn(Map.of());
+    when(applicationSummaryViewService.getAppDetailVersionSearchSelectorItems(any(), any())).thenReturn(Map.of());
     when(applicationSummaryViewService.getApplicationSummaryViewForAppDetailId(any())).thenReturn(new ApplicationSummaryView("<html>", List.of()));
 
     endpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaApplicationDetailService, pwaAppProcessingPermissionService)

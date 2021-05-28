@@ -52,7 +52,7 @@ public class ApplicationSummaryController {
     }
 
     var appDetailVersionSearchSelectorItems = applicationSummaryViewService.getAppDetailVersionSearchSelectorItems(
-        processingContext.getPwaApplication());
+        processingContext.getPwaApplication(), authenticatedUserAccount);
 
     var viewAppSummaryUrl  = ReverseRouter.route(on(ApplicationSummaryController.class).renderSummary(
         applicationId, pwaApplicationType, null, null, null, null));

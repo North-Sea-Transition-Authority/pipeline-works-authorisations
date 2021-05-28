@@ -9,6 +9,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.view.appsummary.ApplicationSummaryView;
@@ -63,11 +65,17 @@ public class ApplicationSummaryViewService {
     return DateUtils.formatDate(appDetail.getCreatedTimestamp()) + orderTagDisplay;
   }
 
-  public Map<String, String> getAppDetailVersionSearchSelectorItems(PwaApplication pwaApplication) {
+  public Map<String, String> getAppDetailVersionSearchSelectorItems(PwaApplication pwaApplication, AuthenticatedUserAccount user) {
 
     var applicationDetails = pwaApplicationDetailService.getAllDetailsForApplication(pwaApplication)
         .stream().filter(detail -> !PwaApplicationStatus.UPDATE_REQUESTED.equals(detail.getStatus()))
         .collect(Collectors.toList());
+
+    if (user.getUserPrivileges().contains(PwaUserPrivilege.PWA_CONSULTEE)) {
+      applicationDetails = applicationDetails.stream()
+          .filter(pwaApplicationDetail -> pwaApplicationDetail.getConfirmedSatisfactoryTimestamp() != null)
+          .collect(Collectors.toList());
+    }
 
     //group all the details by the day they were created (for easier order tagging of updates made on the same day)
     var dateToAppDetailsMap = applicationDetails.stream()
