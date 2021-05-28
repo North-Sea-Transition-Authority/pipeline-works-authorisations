@@ -66,7 +66,7 @@ public class ApplicationSummaryViewService {
   public Map<String, String> getAppDetailVersionSearchSelectorItems(PwaApplication pwaApplication) {
 
     var applicationDetails = pwaApplicationDetailService.getAllDetailsForApplication(pwaApplication)
-        .stream().filter(detail -> !PwaApplicationStatus.DRAFT.equals(detail.getStatus()))
+        .stream().filter(detail -> !PwaApplicationStatus.UPDATE_REQUESTED.equals(detail.getStatus()))
         .collect(Collectors.toList());
 
     //group all the details by the day they were created (for easier order tagging of updates made on the same day)

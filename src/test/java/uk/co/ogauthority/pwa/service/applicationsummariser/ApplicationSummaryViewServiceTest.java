@@ -1,12 +1,13 @@
 package uk.co.ogauthority.pwa.service.applicationsummariser;
 
+import static java.util.Map.entry;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus.CASE_OFFICER_REVIEW;
-import static uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus.DRAFT;
+import static uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus.UPDATE_REQUESTED;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -145,19 +146,21 @@ public class ApplicationSummaryViewServiceTest {
   }
 
   @Test
-  public void getAppDetailVersionSearchSelectorItems_appHasDraftAndNonDraftVersions_draftVersionNotIncludedInSelectorOptions() {
+  public void getAppDetailVersionSearchSelectorItems_appHasUpdateRequestAndNonUpdateRequestVersions_updateRequestVersionNotIncludedInSelectorOptions() {
 
-    var appDetailDraft = PwaApplicationTestUtil.createDefaultApplicationDetail(APP_ID, APP_DETAIL_ID2, VERSION_2, TODAY_MORNING, DRAFT);
-    var appDetailNonDraft = PwaApplicationTestUtil.createDefaultApplicationDetail(APP_ID, APP_DETAIL_ID1, VERSION_1, YESTERDAY, CASE_OFFICER_REVIEW);
-    var pwaApplication = appDetailDraft.getPwaApplication();
+    var appDetailUpdateRequested = PwaApplicationTestUtil.createDefaultApplicationDetail(APP_ID, APP_DETAIL_ID2, VERSION_2, TODAY_MORNING, UPDATE_REQUESTED);
+    var appDetailNoUpdateRequested = PwaApplicationTestUtil.createDefaultApplicationDetail(APP_ID, APP_DETAIL_ID1, VERSION_1, YESTERDAY, CASE_OFFICER_REVIEW);
+    var pwaApplication = appDetailUpdateRequested.getPwaApplication();
 
     when(pwaApplicationDetailService.getAllDetailsForApplication(pwaApplication)).thenReturn(
-        List.of(appDetailNonDraft, appDetailDraft));
+        List.of(appDetailNoUpdateRequested, appDetailUpdateRequested));
 
     var appDetailVersionSearchSelectorItems = applicationSummaryViewService.getAppDetailVersionSearchSelectorItems(pwaApplication);
 
-    assertThat(appDetailVersionSearchSelectorItems).containsEntry(appDetailNonDraft.getId().toString(),
-        String.format("Latest version (%s)", DateUtils.formatDate(appDetailNonDraft.getCreatedTimestamp())));
+    assertThat(appDetailVersionSearchSelectorItems).containsOnly(entry(
+        appDetailNoUpdateRequested.getId().toString(),
+        String.format("Latest version (%s)", DateUtils.formatDate(appDetailNoUpdateRequested.getCreatedTimestamp()))
+    ));
   }
 
 
