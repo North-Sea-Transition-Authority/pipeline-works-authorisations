@@ -5,6 +5,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus.CASE_OFFICER_REVIEW;
+import static uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus.DRAFT;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -86,7 +88,7 @@ public class ApplicationSummaryViewServiceTest {
   @Test
   public void getApplicationSummaryViewForId_verifyServiceInteractions() {
     when(pwaApplicationDetailService.getDetailById(APP_DETAIL_ID3)).thenReturn(detail);
-    applicationSummaryViewService.getApplicationSummaryViewForId(APP_DETAIL_ID3);
+    applicationSummaryViewService.getApplicationSummaryViewForAppDetailId(APP_DETAIL_ID3);
     verify(pwaApplicationDetailService).getDetailById(APP_DETAIL_ID3);
     verify(applicationSummaryService).summarise(detail);
   }
@@ -95,9 +97,9 @@ public class ApplicationSummaryViewServiceTest {
   @Test
   public void getAppDetailVersionSearchSelectorItems_onlyDetailsUpdatedOnSameDayHaveOrderTag_itemsAreOrderedLatestFirst() {
 
-    var appDetailCreatedTodayAfternoon = PwaApplicationTestUtil.createDefaultApplicationDetail(APP_ID, APP_DETAIL_ID3, VERSION_3, TODAY_AFTERNOON);
-    var appDetailCreatedTodayMorning = PwaApplicationTestUtil.createDefaultApplicationDetail(APP_ID, APP_DETAIL_ID2, VERSION_2, TODAY_MORNING);
-    var appDetailCreatedYesterday = PwaApplicationTestUtil.createDefaultApplicationDetail(APP_ID, APP_DETAIL_ID1, VERSION_1, YESTERDAY);
+    var appDetailCreatedTodayAfternoon = PwaApplicationTestUtil.createDefaultApplicationDetail(APP_ID, APP_DETAIL_ID3, VERSION_3, TODAY_AFTERNOON, CASE_OFFICER_REVIEW);
+    var appDetailCreatedTodayMorning = PwaApplicationTestUtil.createDefaultApplicationDetail(APP_ID, APP_DETAIL_ID2, VERSION_2, TODAY_MORNING, CASE_OFFICER_REVIEW);
+    var appDetailCreatedYesterday = PwaApplicationTestUtil.createDefaultApplicationDetail(APP_ID, APP_DETAIL_ID1, VERSION_1, YESTERDAY, CASE_OFFICER_REVIEW);
     var pwaApplication = appDetailCreatedTodayAfternoon.getPwaApplication();
 
     when(pwaApplicationDetailService.getAllDetailsForApplication(pwaApplication)).thenReturn(
@@ -125,8 +127,8 @@ public class ApplicationSummaryViewServiceTest {
   @Test
   public void getAppDetailVersionSearchSelectorItems_onlyLatestDetailVersionHasLatestVersionText() {
 
-    var appDetailCreatedYesterday = PwaApplicationTestUtil.createDefaultApplicationDetail(APP_ID, APP_DETAIL_ID2, VERSION_2, YESTERDAY);
-    var appDetailCreatedTodayMorning = PwaApplicationTestUtil.createDefaultApplicationDetail(APP_ID, APP_DETAIL_ID1, VERSION_1, TODAY_MORNING);
+    var appDetailCreatedYesterday = PwaApplicationTestUtil.createDefaultApplicationDetail(APP_ID, APP_DETAIL_ID2, VERSION_2, YESTERDAY, CASE_OFFICER_REVIEW);
+    var appDetailCreatedTodayMorning = PwaApplicationTestUtil.createDefaultApplicationDetail(APP_ID, APP_DETAIL_ID1, VERSION_1, TODAY_MORNING, CASE_OFFICER_REVIEW);
     var pwaApplication = appDetailCreatedYesterday.getPwaApplication();
 
     when(pwaApplicationDetailService.getAllDetailsForApplication(pwaApplication)).thenReturn(
@@ -140,6 +142,22 @@ public class ApplicationSummaryViewServiceTest {
     assertThat(appDetailVersionSearchSelectorItems).containsEntry(appDetailCreatedYesterday.getId().toString(),
         DateUtils.formatDate(appDetailCreatedYesterday.getCreatedTimestamp()));
 
+  }
+
+  @Test
+  public void getAppDetailVersionSearchSelectorItems_appHasDraftAndNonDraftVersions_draftVersionNotIncludedInSelectorOptions() {
+
+    var appDetailDraft = PwaApplicationTestUtil.createDefaultApplicationDetail(APP_ID, APP_DETAIL_ID2, VERSION_2, TODAY_MORNING, DRAFT);
+    var appDetailNonDraft = PwaApplicationTestUtil.createDefaultApplicationDetail(APP_ID, APP_DETAIL_ID1, VERSION_1, YESTERDAY, CASE_OFFICER_REVIEW);
+    var pwaApplication = appDetailDraft.getPwaApplication();
+
+    when(pwaApplicationDetailService.getAllDetailsForApplication(pwaApplication)).thenReturn(
+        List.of(appDetailNonDraft, appDetailDraft));
+
+    var appDetailVersionSearchSelectorItems = applicationSummaryViewService.getAppDetailVersionSearchSelectorItems(pwaApplication);
+
+    assertThat(appDetailVersionSearchSelectorItems).containsEntry(appDetailNonDraft.getId().toString(),
+        String.format("Latest version (%s)", DateUtils.formatDate(appDetailNonDraft.getCreatedTimestamp())));
   }
 
 

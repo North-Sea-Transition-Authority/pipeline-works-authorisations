@@ -58,7 +58,7 @@ public class ApplicationSummaryController {
         applicationId, pwaApplicationType, null, null, null, null));
 
     return new ModelAndView("pwaApplication/appProcessing/appSummary/viewAppSummary")
-        .addObject("appSummaryView", applicationSummaryViewService.getApplicationSummaryViewForId(selectedAppDetailId))
+        .addObject("appSummaryView", applicationSummaryViewService.getApplicationSummaryViewForAppDetailId(selectedAppDetailId))
         .addObject("caseSummaryView", processingContext.getCaseSummaryView())
         .addObject("appDetailVersionSearchSelectorItems", appDetailVersionSearchSelectorItems)
         .addObject("showVersionSelector", true)
@@ -69,11 +69,11 @@ public class ApplicationSummaryController {
 
   @PostMapping()
   public ModelAndView postViewSummary(@PathVariable("applicationId") Integer applicationId,
-                                           @PathVariable("applicationType")
-                                          @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
-                                           PwaAppProcessingContext processingContext,
-                                           AuthenticatedUserAccount authenticatedUserAccount,
-                                           @ModelAttribute("form") PwaApplicationDetailVersionForm form) {
+                                      @PathVariable("applicationType")
+                                      @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
+                                      PwaAppProcessingContext processingContext,
+                                      AuthenticatedUserAccount authenticatedUserAccount,
+                                      @ModelAttribute("form") PwaApplicationDetailVersionForm form) {
 
     return ReverseRouter.redirect(on(ApplicationSummaryController.class)
         .renderSummary(applicationId, pwaApplicationType, null, null, null, form.getApplicationDetailId()));

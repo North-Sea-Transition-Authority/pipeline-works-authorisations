@@ -13,6 +13,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.view.appsummary.ApplicationSummaryView;
 import uk.co.ogauthority.pwa.model.view.sidebarnav.SidebarSectionLink;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.rendering.TemplateRenderingService;
 import uk.co.ogauthority.pwa.util.DateUtils;
@@ -50,7 +51,7 @@ public class ApplicationSummaryViewService {
   }
 
 
-  public ApplicationSummaryView getApplicationSummaryViewForId(Integer appDetailId) {
+  public ApplicationSummaryView getApplicationSummaryViewForAppDetailId(Integer appDetailId) {
     var pwaApplicationDetail = pwaApplicationDetailService.getDetailById(appDetailId);
     return getApplicationSummaryView(pwaApplicationDetail);
   }
@@ -64,7 +65,10 @@ public class ApplicationSummaryViewService {
 
   public Map<String, String> getAppDetailVersionSearchSelectorItems(PwaApplication pwaApplication) {
 
-    var applicationDetails = pwaApplicationDetailService.getAllDetailsForApplication(pwaApplication);
+    var applicationDetails = pwaApplicationDetailService.getAllDetailsForApplication(pwaApplication)
+        .stream().filter(detail -> !PwaApplicationStatus.DRAFT.equals(detail.getStatus()))
+        .collect(Collectors.toList());
+
     //group all the details by the day they were created (for easier order tagging of updates made on the same day)
     var dateToAppDetailsMap = applicationDetails.stream()
         .sorted(Comparator.comparing(PwaApplicationDetail::getCreatedTimestamp).reversed())
