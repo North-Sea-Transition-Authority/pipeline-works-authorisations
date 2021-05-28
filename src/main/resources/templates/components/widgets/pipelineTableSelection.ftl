@@ -36,13 +36,13 @@
                   <#assign checkboxId = id>
               </#if>
           <#-- pipelineId must be converted to a string to check seq_contains. -->
-              <#assign isSelected = selectedItems?seq_contains("${pipeline.getPadPipelineId()}")>
+              <#assign isSelected = selectedItems?seq_contains("${pipeline.getPadPipelineId()?c}")>
             <tr class="govuk-table__row">
               <td class="govuk-table__cell">
                 <div class="govuk-checkboxes govuk-checkboxes--small">
                   <div class="govuk-checkboxes__item">
                     <input class="govuk-checkboxes__input" id="pipeline-checkbox-${checkboxId}"
-                           name="${spring.status.expression}" type="checkbox" value="${pipeline.getPadPipelineId()}"
+                           name="${spring.status.expression}" type="checkbox" value="${pipeline.getPadPipelineId()?c}"
                            <#if isSelected>checked</#if>>
                     <label class="govuk-label govuk-checkboxes__label" for="pipeline-checkbox-${checkboxId}"><span
                         class="govuk-visually-hidden">Select or de-select ${pipeline.getPipelineNumber()}</span>&nbsp;</label>
