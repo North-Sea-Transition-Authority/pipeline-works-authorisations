@@ -115,6 +115,29 @@ public class PwaHolderTeamServiceTest {
 
   }
 
+  @Test
+  public void isPersonInHolderTeamWithRole_holderExists_personInHolderTeamWithRole() {
+
+    when(teamService.getOrganisationTeamListIfPersonInRole(person, List.of(PwaOrganisationRole.AS_BUILT_NOTIFICATION_SUBMITTER)))
+        .thenReturn(List.of(holderOrgTeam));
+
+    boolean inTeam = pwaHolderTeamService.isPersonInHolderTeamWithRole(detail.getMasterPwa(), person, PwaOrganisationRole.AS_BUILT_NOTIFICATION_SUBMITTER);
+
+    assertThat(inTeam).isTrue();
+
+  }
+
+  @Test
+  public void isPersonInHolderTeamWithRole_holderExists_personNotInHolderTeamWithRole() {
+
+    when(teamService.getOrganisationTeamListIfPersonInRole(person, List.of(PwaOrganisationRole.AS_BUILT_NOTIFICATION_SUBMITTER)))
+        .thenReturn(List.of());
+
+    boolean inTeam = pwaHolderTeamService.isPersonInHolderTeamWithRole(detail.getMasterPwa(), person, PwaOrganisationRole.AS_BUILT_NOTIFICATION_SUBMITTER);
+
+    assertThat(inTeam).isFalse();
+
+  }
 
   @Test
   public void getRolesInHolderTeam_holderExists_personNotInHolderTeam() {
