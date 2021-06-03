@@ -114,4 +114,5 @@ public class ApplicationInvolvementDto {
   public boolean hasOnlyIndustryInvolvement() {
     return userIsIndustryOnly;
   }
+
 }

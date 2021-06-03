@@ -14,6 +14,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.service.enums.users.UserType;
 
 /**
  * A data class to store contextual information related to processing a PWA application to allow
@@ -28,6 +29,7 @@ public class PwaAppProcessingContext {
   private final Set<PwaAppProcessingPermission> appProcessingPermissions;
   private final CaseSummaryView caseSummaryView;
   private final ApplicationInvolvementDto applicationInvolvement;
+  private final Set<UserType> userTypes;
 
   private AppFile appFile;
 
@@ -35,12 +37,14 @@ public class PwaAppProcessingContext {
                                  WebUserAccount user,
                                  Set<PwaAppProcessingPermission> appProcessingPermissions,
                                  CaseSummaryView caseSummaryView,
-                                 ApplicationInvolvementDto applicationInvolvement) {
+                                 ApplicationInvolvementDto applicationInvolvement,
+                                 Set<UserType> userTypes) {
     this.applicationDetail = applicationDetail;
     this.user = user;
     this.appProcessingPermissions = appProcessingPermissions;
     this.caseSummaryView = caseSummaryView;
     this.applicationInvolvement = applicationInvolvement;
+    this.userTypes = userTypes;
   }
 
   public PwaApplicationDetail getApplicationDetail() {
@@ -99,6 +103,10 @@ public class PwaAppProcessingContext {
     return getActiveConsultationRequest()
         .map(dto -> dto.getConsultationRequest().getId())
         .orElse(null);
+  }
+
+  public Set<UserType> getUserTypes() {
+    return userTypes;
   }
 
   public AppFile getAppFile() {

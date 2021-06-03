@@ -22,15 +22,18 @@ import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.controller.appprocessing.processingcharges.IndustryPaymentController;
 import uk.co.ogauthority.pwa.controller.masterpwas.contacts.PwaContactController;
 import uk.co.ogauthority.pwa.controller.publicnotice.PublicNoticeApplicantViewController;
+import uk.co.ogauthority.pwa.controller.search.consents.PwaViewController;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.dto.appprocessing.ApplicationInvolvementDto;
 import uk.co.ogauthority.pwa.model.dto.appprocessing.ApplicationInvolvementDtoTestUtil;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.tasklist.TaskListGroup;
+import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
 import uk.co.ogauthority.pwa.model.view.appprocessing.applicationupdates.ApplicationUpdateRequestView;
 import uk.co.ogauthority.pwa.model.view.banner.PageBannerView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.applicationupdate.ApplicationUpdateRequestViewService;
+import uk.co.ogauthority.pwa.service.appprocessing.consentreview.ConsentReviewService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.service.appprocessing.options.ApproveOptionsService;
 import uk.co.ogauthority.pwa.service.appprocessing.publicnotice.PublicNoticeDocumentUpdateService;
@@ -38,7 +41,9 @@ import uk.co.ogauthority.pwa.service.appprocessing.publicnotice.PublicNoticeServ
 import uk.co.ogauthority.pwa.service.appprocessing.tasks.PwaAppProcessingTaskListService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.service.enums.users.UserType;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
+import uk.co.ogauthority.pwa.service.search.consents.PwaViewTab;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -57,10 +62,13 @@ public class TasksTabContentServiceTest {
   private ApproveOptionsService approveOptionsService;
 
   @Mock
-  private PublicNoticeDocumentUpdateService publicNoticeDocumentUpdateService;;
+  private PublicNoticeDocumentUpdateService publicNoticeDocumentUpdateService;
 
   @Mock
   private PublicNoticeService publicNoticeService;
+
+  @Mock
+  private ConsentReviewService consentReviewService;
 
   private TasksTabContentService taskTabContentService;
 
@@ -79,7 +87,8 @@ public class TasksTabContentServiceTest {
         pwaApplicationRedirectService,
         approveOptionsService,
         publicNoticeDocumentUpdateService,
-        publicNoticeService);
+        publicNoticeService,
+        consentReviewService);
 
     when(pwaApplicationRedirectService.getTaskListRoute(any())).thenReturn("#");
 
@@ -297,6 +306,64 @@ public class TasksTabContentServiceTest {
         );
   }
 
+
+
+  @Test
+  public void getTabContentModelMap_tasksTab_populated_whenAppIsConsented_userTypeIsOga() {
+
+    var taskListGroupsList = List.of(new TaskListGroup("test", 10, List.of()));
+
+    var processingContext = new PwaAppProcessingContext(
+        PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL),
+        wua,
+        Set.of(PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY),
+        null,
+        ApplicationInvolvementDtoTestUtil.noInvolvementAndNoFlags(null),
+        Set.of(UserType.OGA));
+
+    when(taskListService.getTaskListGroups(processingContext)).thenReturn(taskListGroupsList);
+    when(consentReviewService.isApplicationConsented(any())).thenReturn(true);
+
+    var modelMap = taskTabContentService.getTabContent(processingContext, AppProcessingTab.TASKS);
+
+    verify(taskListService, times(1)).getTaskListGroups(processingContext);
+
+    assertThat(modelMap)
+        .extractingFromEntries(Map.Entry::getKey, Map.Entry::getValue)
+        .contains(
+            tuple("consentHistoryUrl", ReverseRouter.route(on(PwaViewController.class).renderViewPwa(
+                processingContext.getPwaApplication().getMasterPwa().getId(), PwaViewTab.CONSENT_HISTORY,  null, null
+            )))
+        );
+  }
+
+  @Test
+  public void getTabContentModelMap_tasksTab_populated_whenAppIsConsented_userInHolderTeam() {
+
+    var taskListGroupsList = List.of(new TaskListGroup("test", 10, List.of()));
+
+    var processingContext = createContextFromInvolvementAndPermissions(
+        ApplicationInvolvementDtoTestUtil.generatePwaHolderTeamInvolvement(null, Set.of(PwaOrganisationRole.APPLICATION_SUBMITTER)),
+        PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY);
+
+    when(taskListService.getTaskListGroups(processingContext)).thenReturn(taskListGroupsList);
+    when(consentReviewService.isApplicationConsented(any())).thenReturn(true);
+
+    var modelMap = taskTabContentService.getTabContent(processingContext, AppProcessingTab.TASKS);
+
+    verify(taskListService, times(1)).getTaskListGroups(processingContext);
+
+    assertThat(modelMap)
+        .extractingFromEntries(Map.Entry::getKey, Map.Entry::getValue)
+        .contains(
+            tuple("consentHistoryUrl", ReverseRouter.route(on(PwaViewController.class).renderViewPwa(
+                processingContext.getPwaApplication().getMasterPwa().getId(), PwaViewTab.CONSENT_HISTORY,  null, null
+            )))
+        );
+  }
+
+
+
   @Test
   public void getTabContentModelMap_differentTab_empty() {
 
@@ -335,8 +402,10 @@ public class TasksTabContentServiceTest {
         wua,
         Set.of(permissions),
         null,
-        applicationInvolvementDto);
+        applicationInvolvementDto,
+        Set.of());
   }
+
 
 
 }

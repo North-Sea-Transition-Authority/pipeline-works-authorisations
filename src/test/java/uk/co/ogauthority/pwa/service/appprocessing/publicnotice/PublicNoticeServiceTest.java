@@ -175,7 +175,8 @@ public class PublicNoticeServiceTest {
   @Test
   public void canShowInTaskList_draftPublicNoticePermission_true() {
 
-    var processingContext = new PwaAppProcessingContext(pwaApplicationDetail, null, Set.of(PwaAppProcessingPermission.DRAFT_PUBLIC_NOTICE), null, null);
+    var processingContext = new PwaAppProcessingContext(pwaApplicationDetail, null, Set.of(PwaAppProcessingPermission.DRAFT_PUBLIC_NOTICE), null, null,
+        Set.of());
 
     boolean canShow = publicNoticeService.canShowInTaskList(processingContext);
 
@@ -186,7 +187,8 @@ public class PublicNoticeServiceTest {
   @Test
   public void canShowInTaskList_caseManagementIndustryPermission_true() {
 
-    var processingContext = new PwaAppProcessingContext(pwaApplicationDetail, null, Set.of(PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY), null, null);
+    var processingContext = new PwaAppProcessingContext(pwaApplicationDetail, null, Set.of(PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY), null, null,
+        Set.of());
 
     boolean canShow = publicNoticeService.canShowInTaskList(processingContext);
 
@@ -197,7 +199,8 @@ public class PublicNoticeServiceTest {
   @Test
   public void canShowInTaskList_approvePublicNoticePermission_true() {
 
-    var processingContext = new PwaAppProcessingContext(pwaApplicationDetail, null, Set.of(PwaAppProcessingPermission.APPROVE_PUBLIC_NOTICE), null, null);
+    var processingContext = new PwaAppProcessingContext(pwaApplicationDetail, null, Set.of(PwaAppProcessingPermission.APPROVE_PUBLIC_NOTICE), null, null,
+        Set.of());
 
     boolean canShow = publicNoticeService.canShowInTaskList(processingContext);
 
@@ -208,7 +211,8 @@ public class PublicNoticeServiceTest {
   @Test
   public void canShowInTaskList_showAllTasksPublicNoticePermission_validAppType_true() {
 
-    var processingContext = new PwaAppProcessingContext(pwaApplicationDetail, null, Set.of(PwaAppProcessingPermission.SHOW_ALL_TASKS_AS_PWA_MANAGER_ONLY), null, null);
+    var processingContext = new PwaAppProcessingContext(pwaApplicationDetail, null, Set.of(PwaAppProcessingPermission.SHOW_ALL_TASKS_AS_PWA_MANAGER_ONLY), null, null,
+        Set.of());
 
     boolean canShow = publicNoticeService.canShowInTaskList(processingContext);
 
@@ -220,7 +224,8 @@ public class PublicNoticeServiceTest {
   public void canShowInTaskList_showAllTasksPublicNoticePermission_invalidAppType_false() {
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.OPTIONS_VARIATION);
-    var processingContext = new PwaAppProcessingContext(pwaApplicationDetail, null, Set.of(PwaAppProcessingPermission.SHOW_ALL_TASKS_AS_PWA_MANAGER_ONLY), null, null);
+    var processingContext = new PwaAppProcessingContext(pwaApplicationDetail, null, Set.of(PwaAppProcessingPermission.SHOW_ALL_TASKS_AS_PWA_MANAGER_ONLY), null, null,
+        Set.of());
 
     boolean canShow = publicNoticeService.canShowInTaskList(processingContext);
 
@@ -232,7 +237,8 @@ public class PublicNoticeServiceTest {
   public void canShowInTaskList_caseManagementIndustryPermission_invalidAppType_false() {
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.OPTIONS_VARIATION);
-    var processingContext = new PwaAppProcessingContext(pwaApplicationDetail, null, Set.of(PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY), null, null);
+    var processingContext = new PwaAppProcessingContext(pwaApplicationDetail, null, Set.of(PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY), null, null,
+        Set.of());
 
     boolean canShow = publicNoticeService.canShowInTaskList(processingContext);
 
@@ -244,7 +250,8 @@ public class PublicNoticeServiceTest {
   public void canShowInTaskList_caseOfficerPermission_invalidAppType_false() {
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.OPTIONS_VARIATION);
-    var processingContext = new PwaAppProcessingContext(pwaApplicationDetail, null, Set.of(PwaAppProcessingPermission.CASE_OFFICER_REVIEW), null, null);
+    var processingContext = new PwaAppProcessingContext(pwaApplicationDetail, null, Set.of(PwaAppProcessingPermission.CASE_OFFICER_REVIEW), null, null,
+        Set.of());
 
     boolean canShow = publicNoticeService.canShowInTaskList(processingContext);
 
@@ -255,7 +262,7 @@ public class PublicNoticeServiceTest {
   @Test
   public void canShowInTaskList_noPermissions_false() {
 
-    var processingContext = new PwaAppProcessingContext(pwaApplicationDetail, null, Set.of(), null, null);
+    var processingContext = new PwaAppProcessingContext(pwaApplicationDetail, null, Set.of(), null, null, Set.of());
 
     boolean canShow = publicNoticeService.canShowInTaskList(processingContext);
 
@@ -269,7 +276,8 @@ public class PublicNoticeServiceTest {
 
     var appInvolvementDto = ApplicationInvolvementDtoTestUtil.fromInvolvementFlags(
         pwaApplication, Set.of(ApplicationInvolvementDtoTestUtil.InvolvementFlag.AT_LEAST_ONE_SATISFACTORY_VERSION));
-    var processingContext = new PwaAppProcessingContext(pwaApplicationDetail, null, Set.of(PwaAppProcessingPermission.APPROVE_PUBLIC_NOTICE), null, appInvolvementDto);
+    var processingContext = new PwaAppProcessingContext(pwaApplicationDetail, null, Set.of(PwaAppProcessingPermission.APPROVE_PUBLIC_NOTICE), null, appInvolvementDto,
+        Set.of());
 
     var publicNotice = PublicNoticeTestUtil.createInitialPublicNotice(pwaApplication);
     when(publicNoticeRepository.findFirstByPwaApplicationOrderByVersionDesc(processingContext.getPwaApplication()))
@@ -286,7 +294,8 @@ public class PublicNoticeServiceTest {
 
     var appInvolvementDto = ApplicationInvolvementDtoTestUtil.fromInvolvementFlags(
         pwaApplication, Set.of(ApplicationInvolvementDtoTestUtil.InvolvementFlag.AT_LEAST_ONE_SATISFACTORY_VERSION));
-    var processingContext = new PwaAppProcessingContext(pwaApplicationDetail, null, Set.of(), null, appInvolvementDto);
+    var processingContext = new PwaAppProcessingContext(pwaApplicationDetail, null, Set.of(), null, appInvolvementDto,
+        Set.of());
 
     var publicNotice = PublicNoticeTestUtil.createEndedPublicNotice(pwaApplication);
     when(publicNoticeRepository.findFirstByPwaApplicationOrderByVersionDesc(processingContext.getPwaApplication()))
@@ -303,7 +312,8 @@ public class PublicNoticeServiceTest {
 
     var appInvolvementDto = ApplicationInvolvementDtoTestUtil.fromInvolvementFlags(
         pwaApplication, Set.of(ApplicationInvolvementDtoTestUtil.InvolvementFlag.AT_LEAST_ONE_SATISFACTORY_VERSION));
-    var processingContext = new PwaAppProcessingContext(pwaApplicationDetail, null, Set.of(), null, appInvolvementDto);
+    var processingContext = new PwaAppProcessingContext(pwaApplicationDetail, null, Set.of(), null, appInvolvementDto,
+        Set.of());
 
     var publicNotice = PublicNoticeTestUtil.createCaseOfficerReviewPublicNotice(pwaApplication);
     when(publicNoticeRepository.findFirstByPwaApplicationOrderByVersionDesc(processingContext.getPwaApplication()))
@@ -320,7 +330,8 @@ public class PublicNoticeServiceTest {
 
     var appInvolvementDto = ApplicationInvolvementDtoTestUtil.fromInvolvementFlags(
         pwaApplication, Set.of(ApplicationInvolvementDtoTestUtil.InvolvementFlag.AT_LEAST_ONE_SATISFACTORY_VERSION));
-    var processingContext = new PwaAppProcessingContext(pwaApplicationDetail, null, Set.of(), null, appInvolvementDto);
+    var processingContext = new PwaAppProcessingContext(pwaApplicationDetail, null, Set.of(), null, appInvolvementDto,
+        Set.of());
 
     var taskListEntry = publicNoticeService.getTaskListEntry(PwaAppProcessingTask.PUBLIC_NOTICE, processingContext);
 
@@ -335,7 +346,8 @@ public class PublicNoticeServiceTest {
   public void getTaskListEntry_noPublicNotice_appNotSatisfactory_taskStatusIsCannotStart() {
 
     var appInvolvementDto = ApplicationInvolvementDtoTestUtil.noInvolvementAndNoFlags(pwaApplication);
-    var processingContext = new PwaAppProcessingContext(pwaApplicationDetail, null, Set.of(), null, appInvolvementDto);
+    var processingContext = new PwaAppProcessingContext(pwaApplicationDetail, null, Set.of(), null, appInvolvementDto,
+        Set.of());
 
     var taskListEntry = publicNoticeService.getTaskListEntry(PwaAppProcessingTask.PUBLIC_NOTICE, processingContext);
 

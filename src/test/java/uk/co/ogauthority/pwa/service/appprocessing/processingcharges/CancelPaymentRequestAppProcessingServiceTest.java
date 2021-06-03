@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
 import java.util.EnumSet;
+import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -58,8 +59,7 @@ public class CancelPaymentRequestAppProcessingServiceTest {
         null,
         permissionSet,
         null,
-        ApplicationInvolvementDtoTestUtil.noInvolvementAndNoFlags(pwaApplication)
-    );
+        ApplicationInvolvementDtoTestUtil.noInvolvementAndNoFlags(pwaApplication), Set.of());
   }
 
   @Test

@@ -289,7 +289,7 @@ public class ConsultationResponseServiceTest {
         null,
         Set.of(PwaAppProcessingPermission.CONSULTATION_RESPONDER),
         null,
-        PwaAppProcessingContextDtoTestUtils.appInvolvementWithConsultationRequest("name", request));
+        PwaAppProcessingContextDtoTestUtils.appInvolvementWithConsultationRequest("name", request), Set.of());
 
     boolean canShow = consultationResponseService.canShowInTaskList(processingContext);
 
@@ -310,7 +310,7 @@ public class ConsultationResponseServiceTest {
         null,
         Set.of(PwaAppProcessingPermission.CONSULTATION_RESPONDER),
         null,
-        PwaAppProcessingContextDtoTestUtils.appInvolvementWithConsultationRequest("name", request));
+        PwaAppProcessingContextDtoTestUtils.appInvolvementWithConsultationRequest("name", request), Set.of());
 
     boolean canShow = consultationResponseService.canShowInTaskList(processingContext);
 
@@ -326,7 +326,8 @@ public class ConsultationResponseServiceTest {
         null,
         Set.of(PwaAppProcessingPermission.CASE_OFFICER_REVIEW),
         null,
-        PwaAppProcessingContextDtoTestUtils.appInvolvementWithConsultationRequest("group", new ConsultationRequest()));
+        PwaAppProcessingContextDtoTestUtils.appInvolvementWithConsultationRequest("group", new ConsultationRequest()),
+        Set.of());
 
     boolean canShow = consultationResponseService.canShowInTaskList(processingContext);
 
@@ -342,7 +343,8 @@ public class ConsultationResponseServiceTest {
         null,
         Set.of(PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY),
         null,
-        PwaAppProcessingContextDtoTestUtils.appInvolvementWithConsultationRequest("group", new ConsultationRequest()));
+        PwaAppProcessingContextDtoTestUtils.appInvolvementWithConsultationRequest("group", new ConsultationRequest()),
+        Set.of());
 
     boolean canShow = consultationResponseService.canShowInTaskList(processingContext);
 
@@ -359,7 +361,8 @@ public class ConsultationResponseServiceTest {
         null,
         Set.of(),
         null,
-        PwaAppProcessingContextDtoTestUtils.appInvolvementWithConsultationRequest("group", new ConsultationRequest()));
+        PwaAppProcessingContextDtoTestUtils.appInvolvementWithConsultationRequest("group", new ConsultationRequest()),
+        Set.of());
 
     var taskListEntry = consultationResponseService.getTaskListEntry(PwaAppProcessingTask.CONSULTATION_RESPONSE, processingContext);
 

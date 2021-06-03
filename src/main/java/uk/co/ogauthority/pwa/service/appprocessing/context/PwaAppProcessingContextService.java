@@ -12,6 +12,7 @@ import uk.co.ogauthority.pwa.service.appprocessing.PwaAppProcessingPermissionSer
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.fileupload.AppFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
+import uk.co.ogauthority.pwa.service.users.UserTypeService;
 import uk.co.ogauthority.pwa.util.ApplicationContextUtils;
 
 @Service
@@ -21,16 +22,19 @@ public class PwaAppProcessingContextService {
   private final PwaAppProcessingPermissionService appProcessingPermissionService;
   private final CaseSummaryViewService caseSummaryViewService;
   private final AppFileService appFileService;
+  private final UserTypeService userTypeService;
 
   @Autowired
   public PwaAppProcessingContextService(PwaApplicationDetailService detailService,
                                         PwaAppProcessingPermissionService appProcessingPermissionService,
                                         CaseSummaryViewService caseSummaryViewService,
-                                        AppFileService appFileService) {
+                                        AppFileService appFileService,
+                                        UserTypeService userTypeService) {
     this.detailService = detailService;
     this.appProcessingPermissionService = appProcessingPermissionService;
     this.caseSummaryViewService = caseSummaryViewService;
     this.appFileService = appFileService;
+    this.userTypeService = userTypeService;
   }
 
   /**
@@ -89,8 +93,8 @@ public class PwaAppProcessingContextService {
         authenticatedUser,
         processingPermissionsDto.getProcessingPermissions(),
         caseSummaryView,
-        processingPermissionsDto.getApplicationInvolvement()
-    );
+        processingPermissionsDto.getApplicationInvolvement(),
+        userTypeService.getUserTypes(authenticatedUser));
 
   }
 

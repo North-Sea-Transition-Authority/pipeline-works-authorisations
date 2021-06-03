@@ -67,7 +67,8 @@ public class ConsulteeAdviceServiceTest {
     var appInvolvement = ApplicationInvolvementDtoTestUtil.generateConsulteeInvolvement(
         detail.getPwaApplication(), consultationInvolvement);
 
-    var context = new PwaAppProcessingContext(detail, user, Set.of(PwaAppProcessingPermission.CASE_MANAGEMENT_CONSULTEE), null, appInvolvement);
+    var context = new PwaAppProcessingContext(detail, user, Set.of(PwaAppProcessingPermission.CASE_MANAGEMENT_CONSULTEE), null, appInvolvement,
+        Set.of());
 
     boolean canShow = consulteeAdviceService.canShowInTaskList(context);
 
@@ -82,7 +83,8 @@ public class ConsulteeAdviceServiceTest {
     var appInvolvement = ApplicationInvolvementDtoTestUtil.generateConsulteeInvolvement(
         detail.getPwaApplication(), consultationInvolvement);
 
-    var context = new PwaAppProcessingContext(detail, user, Set.of(PwaAppProcessingPermission.CONSULTEE_ADVICE), null, appInvolvement);
+    var context = new PwaAppProcessingContext(detail, user, Set.of(PwaAppProcessingPermission.CONSULTEE_ADVICE), null, appInvolvement,
+        Set.of());
 
     boolean canShow = consulteeAdviceService.canShowInTaskList(context);
 
@@ -95,7 +97,8 @@ public class ConsulteeAdviceServiceTest {
 
     var appInvolvement = PwaAppProcessingContextDtoTestUtils.emptyAppInvolvement(detail.getPwaApplication());
 
-    var context = new PwaAppProcessingContext(detail, user, Set.of(PwaAppProcessingPermission.CASE_MANAGEMENT_OGA), null, appInvolvement);
+    var context = new PwaAppProcessingContext(detail, user, Set.of(PwaAppProcessingPermission.CASE_MANAGEMENT_OGA), null, appInvolvement,
+        Set.of());
 
     boolean canShow = consulteeAdviceService.canShowInTaskList(context);
 
@@ -108,7 +111,8 @@ public class ConsulteeAdviceServiceTest {
 
     var appInvolvement = PwaAppProcessingContextDtoTestUtils.emptyAppInvolvement(detail.getPwaApplication());
 
-    var context = new PwaAppProcessingContext(detail, user, Set.of(PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY), null, appInvolvement);
+    var context = new PwaAppProcessingContext(detail, user, Set.of(PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY), null, appInvolvement,
+        Set.of());
 
     boolean canShow = consulteeAdviceService.canShowInTaskList(context);
 
@@ -120,7 +124,7 @@ public class ConsulteeAdviceServiceTest {
   public void getTaskListEntry_default() {
 
 
-    var context = new PwaAppProcessingContext(detail, user, Set.of(), null, null);
+    var context = new PwaAppProcessingContext(detail, user, Set.of(), null, null, Set.of());
     var taskListEntry = consulteeAdviceService.getTaskListEntry(PwaAppProcessingTask.CONSULTEE_ADVICE, context);
 
     assertThat(taskListEntry.getTaskName()).isEqualTo(PwaAppProcessingTask.CONSULTEE_ADVICE.getTaskName());
@@ -147,7 +151,8 @@ public class ConsulteeAdviceServiceTest {
     var appInvolvement = ApplicationInvolvementDtoTestUtil.generateConsulteeInvolvement(
         detail.getPwaApplication(), consultationInvolvement);
 
-    var context = new PwaAppProcessingContext(detail, user, Set.of(PwaAppProcessingPermission.CONSULTEE_ADVICE), null, appInvolvement);
+    var context = new PwaAppProcessingContext(detail, user, Set.of(PwaAppProcessingPermission.CONSULTEE_ADVICE), null, appInvolvement,
+        Set.of());
 
     var requestView = new ConsultationRequestView(
         null,
@@ -189,7 +194,8 @@ public class ConsulteeAdviceServiceTest {
     var appInvolvement = ApplicationInvolvementDtoTestUtil.generateConsulteeInvolvement(
         detail.getPwaApplication(), consultationInvolvement);
 
-    var context = new PwaAppProcessingContext(detail, user, Set.of(PwaAppProcessingPermission.CONSULTEE_ADVICE), null, appInvolvement);
+    var context = new PwaAppProcessingContext(detail, user, Set.of(PwaAppProcessingPermission.CONSULTEE_ADVICE), null, appInvolvement,
+        Set.of());
 
     var historicRequestView = new ConsultationRequestView(
         null,

@@ -12,6 +12,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.appinvolvement.OpenConsentReview;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
+import uk.co.ogauthority.pwa.service.enums.users.UserType;
 
 public final class ApplicationInvolvementDtoTestUtil {
 
@@ -46,8 +47,7 @@ public final class ApplicationInvolvementDtoTestUtil {
         versionFlags.contains(AT_LEAST_ONE_SATISFACTORY_VERSION),
         pwaOrganisationRoles,
         versionFlags.contains(INDUSTRY_INVOLVEMENT_ONLY),
-        versionFlags.contains(OPEN_CONSENT_REVIEW) ? OpenConsentReview.YES : OpenConsentReview.NO
-    );
+        versionFlags.contains(OPEN_CONSENT_REVIEW) ? OpenConsentReview.YES : OpenConsentReview.NO);
 
   }
 
@@ -123,7 +123,6 @@ public final class ApplicationInvolvementDtoTestUtil {
     );
 
   }
-
 
   public static ApplicationInvolvementDto generatePwaContactInvolvement(PwaApplication pwaApplication,
                                                                         Set<PwaContactRole> pwaContactRoleSet) {

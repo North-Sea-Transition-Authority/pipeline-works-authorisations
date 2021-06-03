@@ -281,7 +281,8 @@ public class InitialReviewServiceTest {
   @Test
   public void canShowInTaskList_ogaCaseManagementPermission_true() {
 
-    var processingContext = new PwaAppProcessingContext(null, null, Set.of(PwaAppProcessingPermission.CASE_MANAGEMENT_OGA), null, null);
+    var processingContext = new PwaAppProcessingContext(
+        null, null, Set.of(PwaAppProcessingPermission.CASE_MANAGEMENT_OGA), null, null, Set.of());
 
     boolean canShow = initialReviewService.canShowInTaskList(processingContext);
 
@@ -292,7 +293,8 @@ public class InitialReviewServiceTest {
   @Test
   public void canShowInTaskList_caseManagementIndustryPermission_true() {
 
-    var processingContext = new PwaAppProcessingContext(null, null, Set.of(PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY), null, null);
+    var processingContext = new PwaAppProcessingContext(null, null, Set.of(PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY), null, null,
+        Set.of());
 
     boolean canShow = initialReviewService.canShowInTaskList(processingContext);
 
@@ -303,7 +305,7 @@ public class InitialReviewServiceTest {
   @Test
   public void canShowInTaskList_noPermissions_false() {
 
-    var processingContext = new PwaAppProcessingContext(null, null, Set.of(), null, null);
+    var processingContext = new PwaAppProcessingContext(null, null, Set.of(), null, null, Set.of());
 
     boolean canShow = initialReviewService.canShowInTaskList(processingContext);
 
@@ -317,7 +319,7 @@ public class InitialReviewServiceTest {
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     detail.setInitialReviewApprovedTimestamp(Instant.now());
 
-    var processingContext = new PwaAppProcessingContext(detail, null, Set.of(), null, null);
+    var processingContext = new PwaAppProcessingContext(detail, null, Set.of(), null, null, Set.of());
 
     when(detailService.getAllSubmittedApplicationDetailsForApplication(any())).thenReturn(List.of(detail));
 
@@ -332,8 +334,16 @@ public class InitialReviewServiceTest {
   }
 
   @Test
+  public void getTaskListEntry_initialReviewCompleted_previousDetailReviewed_currentDetailNotReviewed() {
+
+    var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
+    detail.setVersionNo(2);
+    assertThat(detail.getInitialReviewApprovedTimestamp()).isNull();
+  }
+
   public void getTaskListEntry_previousDetailReviewed_currentDetailNotReviewed() {
 
+    var processingContext = new PwaAppProcessingContext(detail, null, Set.of(), null, null, Set.of());
     var previousDetailInitialReviewed = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     previousDetailInitialReviewed.setVersionNo(1);
     previousDetailInitialReviewed.setTipFlag(false);
@@ -344,8 +354,6 @@ public class InitialReviewServiceTest {
         2,
         null, null);
     currentDetailNotReviewed.setVersionNo(2);
-
-    var processingContext = new PwaAppProcessingContext(currentDetailNotReviewed, null, Set.of(), null, null);
 
     when(detailService.getAllSubmittedApplicationDetailsForApplication(any())).thenReturn(List.of(currentDetailNotReviewed, previousDetailInitialReviewed));
 
@@ -363,7 +371,7 @@ public class InitialReviewServiceTest {
 
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
 
-    var processingContext = new PwaAppProcessingContext(detail, null, Set.of(), null, null);
+    var processingContext = new PwaAppProcessingContext(detail, null, Set.of(), null, null, Set.of());
 
     var taskListEntry = initialReviewService.getTaskListEntry(PwaAppProcessingTask.INITIAL_REVIEW, processingContext);
 
@@ -380,7 +388,8 @@ public class InitialReviewServiceTest {
 
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
 
-    var processingContext = new PwaAppProcessingContext(detail, null, Set.of(PwaAppProcessingPermission.ACCEPT_INITIAL_REVIEW), null, null);
+    var processingContext = new PwaAppProcessingContext(
+        detail, null, Set.of(PwaAppProcessingPermission.ACCEPT_INITIAL_REVIEW), null, null, Set.of());
 
     var taskListEntry = initialReviewService.getTaskListEntry(PwaAppProcessingTask.INITIAL_REVIEW, processingContext);
 
@@ -397,7 +406,7 @@ public class InitialReviewServiceTest {
 
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
 
-    var processingContext = new PwaAppProcessingContext(detail, null, Set.of(), null, null);
+    var processingContext = new PwaAppProcessingContext(detail, null, Set.of(), null, null, Set.of());
 
     when(applicationUpdateRequestService.applicationHasOpenUpdateRequest(detail)).thenReturn(true);
 

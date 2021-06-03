@@ -1,7 +1,6 @@
 package uk.co.ogauthority.pwa.model.dto.appprocessing;
 
 
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Set;
@@ -22,8 +21,7 @@ public class ApplicationInvolvementDtoTest {
         false,
         Set.of(),
         false,
-        null
-    );
+        null);
 
     assertThat(involvement.isUserInAppContactTeam()).isTrue();
 
@@ -40,8 +38,7 @@ public class ApplicationInvolvementDtoTest {
         false,
         Set.of(),
         false,
-        null
-    );
+        null);
 
     assertThat(involvement.isUserInAppContactTeam()).isFalse();
   }
@@ -59,8 +56,7 @@ public class ApplicationInvolvementDtoTest {
         false,
         Set.of(PwaOrganisationRole.APPLICATION_CREATOR),
         false,
-        null
-    );
+        null);
 
     assertThat(involvement.isUserInHolderTeam()).isTrue();
 
@@ -77,8 +73,7 @@ public class ApplicationInvolvementDtoTest {
         false,
         Set.of(),
         false,
-        null
-    );
+        null);
 
     assertThat(involvement.isUserInHolderTeam()).isFalse();
   }

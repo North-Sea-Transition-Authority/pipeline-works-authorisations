@@ -44,5 +44,13 @@ public class PersonTestUtil {
     );
   }
 
+  public static Person createPersonWithNameFrom(PersonId personId) {
+    return createPersonFrom(
+        personId,
+        "email@email.com",
+        "surname"
+    );
+  }
+
 
 }

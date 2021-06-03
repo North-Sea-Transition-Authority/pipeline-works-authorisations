@@ -157,4 +157,15 @@ public class PwaHolderTeamService {
 
   }
 
+  public Set<Person> getPersonsInHolderTeam(PwaApplicationDetail detail) {
+
+    var holderOrgGroups = getHolderOrgGroups(detail);
+    var orgTeams = teamService.getOrganisationTeamsForOrganisationGroups(holderOrgGroups);
+
+    return orgTeams.stream()
+        .flatMap(holderOrgTeam -> teamService.getTeamMembers(holderOrgTeam).stream())
+        .map(PwaTeamMember::getPerson)
+        .collect(toSet());
+  }
+
 }

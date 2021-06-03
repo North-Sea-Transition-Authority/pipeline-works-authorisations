@@ -120,7 +120,7 @@ public class WithdrawApplicationServiceTest {
   public void canShowInTaskList() {
 
     var processingContext = new PwaAppProcessingContext(null, null, Set.of(PwaAppProcessingPermission.WITHDRAW_APPLICATION), null,
-        null);
+        null, Set.of());
 
     boolean canShow = withdrawApplicationService.canShowInTaskList(processingContext);
 
@@ -132,7 +132,7 @@ public class WithdrawApplicationServiceTest {
   public void canShowInTaskList_industry() {
 
     var processingContext = new PwaAppProcessingContext(null, null, Set.of(PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY), null,
-        null);
+        null, Set.of());
 
     boolean canShow = withdrawApplicationService.canShowInTaskList(processingContext);
 

@@ -84,7 +84,8 @@ public class CaseHistoryTabContentServiceTest {
         wua,
         Set.of(permissions),
         null,
-        null);
+        null,
+        Set.of());
   }
 
 }

@@ -30,6 +30,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
 import uk.co.ogauthority.pwa.model.enums.appprocessing.prepareconsent.ConsentReviewStatus;
 import uk.co.ogauthority.pwa.repository.appprocessing.prepareconsent.ConsentReviewRepository;
 import uk.co.ogauthority.pwa.service.appprocessing.consentreview.ConsentReviewService;
+import uk.co.ogauthority.pwa.service.appprocessing.consentreview.IssueConsentEmailsService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.workflow.application.ConsentReviewDecision;
@@ -62,13 +63,14 @@ public class ConsentReviewServiceTest {
   private WorkflowAssignmentService workflowAssignmentService;
 
   @Mock
-  private ConsentEmailService consentEmailService;
-
-  @Mock
   private PwaConsentService pwaConsentService;
 
   @Mock
   private ConsentWriterService consentWriterService;
+
+  @Mock
+  private IssueConsentEmailsService issueConsentEmailsService;
+
 
   private ConsentReviewService consentReviewService;
 
@@ -88,7 +90,7 @@ public class ConsentReviewServiceTest {
 
     consentReviewService = new ConsentReviewService(
         consentReviewRepository, clock, pwaApplicationDetailService, workflowAssignmentService,
-        camundaWorkflowService, consentEmailService, pwaConsentService, consentWriterService);
+        camundaWorkflowService, pwaConsentService, consentWriterService, issueConsentEmailsService);
 
   }
 
@@ -180,8 +182,8 @@ public class ConsentReviewServiceTest {
         caseOfficerPerson,
         returningUser.getLinkedPerson());
 
-    verify(consentEmailService).sendConsentReviewReturnedEmail(detail, caseOfficerPerson.getEmailAddress(),
-        caseOfficerPerson.getFullName(), returningUser.getLinkedPerson().getFullName(), "return reason");
+    verify(issueConsentEmailsService).sendConsentReviewReturnedEmail(
+        detail, caseOfficerPerson, returningUser.getLinkedPerson().getFullName(), "return reason");
 
   }
 
@@ -216,6 +218,8 @@ public class ConsentReviewServiceTest {
     consent.setReference("exampleRef");
     when(pwaConsentService.createConsent(detail.getPwaApplication())).thenReturn(consent);
 
+    when(consentReviewRepository.save(openReview)).thenReturn(openReview);
+
     var issuedConsentDto = consentReviewService.issueConsent(detail, returningUser);
 
     verify(pwaConsentService, times(1)).createConsent(detail.getPwaApplication());
@@ -238,7 +242,7 @@ public class ConsentReviewServiceTest {
     var workflowTaskInstance = new WorkflowTaskInstance(detail.getPwaApplication(), PwaApplicationWorkflowTask.CONSENT_REVIEW);
     verify(camundaWorkflowService, times(1)).completeTask(workflowTaskInstance);
 
-    verify(consentEmailService).sendConsentIssuedEmail(detail, returningUser.getFullName());
+    verify(issueConsentEmailsService).sendConsentIssuedEmails(detail, openReview.getCoverLetterText(), returningUser.getFullName());
 
     verify(workflowAssignmentService, times(1)).clearAssignments(detail.getPwaApplication());
 

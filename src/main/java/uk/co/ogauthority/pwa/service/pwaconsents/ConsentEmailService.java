@@ -1,11 +1,15 @@
 package uk.co.ogauthority.pwa.service.pwaconsents;
 
+import java.util.Collection;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.notify.emailproperties.applicationworkflow.ConsentIssuedEmailProps;
 import uk.co.ogauthority.pwa.model.notify.emailproperties.applicationworkflow.ConsentReviewReturnedEmailProps;
+import uk.co.ogauthority.pwa.model.notify.emailproperties.applicationworkflow.HolderSubmitterConsentIssuedEmailProps;
+import uk.co.ogauthority.pwa.model.notify.emailproperties.applicationworkflow.NonHolderConsentIssuedEmailProps;
 import uk.co.ogauthority.pwa.service.enums.workflow.assignment.WorkflowAssignment;
 import uk.co.ogauthority.pwa.service.notify.EmailCaseLinkService;
 import uk.co.ogauthority.pwa.service.notify.NotifyService;
@@ -58,6 +62,35 @@ public class ConsentEmailService {
 
     notifyService.sendEmail(emailProps, caseOfficerPerson.getEmailAddress());
 
+  }
+
+  public void sendHolderAndSubmitterConsentIssuedEmail(PwaApplicationDetail pwaApplicationDetail,
+                                                       String coverLetter,
+                                                       Collection<Person> emailRecipientPersons) {
+
+    var caseManagementLink = emailCaseLinkService.generateCaseManagementLink(pwaApplicationDetail.getPwaApplication());
+    emailRecipientPersons.forEach(emailRecipientPerson -> {
+      var emailProps = new HolderSubmitterConsentIssuedEmailProps(
+          emailRecipientPerson.getFullName(),
+          pwaApplicationDetail.getPwaApplicationRef(),
+          coverLetter,
+          caseManagementLink
+      );
+      notifyService.sendEmail(emailProps, emailRecipientPerson.getEmailAddress());
+    });
+  }
+
+  public void sendNonHolderConsentIssuedEmail(PwaApplicationDetail pwaApplicationDetail,
+                                              String coverLetter,
+                                              List<Person> emailRecipientPersons) {
+    emailRecipientPersons.forEach(emailRecipientPerson -> {
+      var emailProps = new NonHolderConsentIssuedEmailProps(
+          emailRecipientPerson.getFullName(),
+          pwaApplicationDetail.getPwaApplicationRef(),
+          coverLetter
+      );
+      notifyService.sendEmail(emailProps, emailRecipientPerson.getEmailAddress());
+    });
   }
 
   private Person getAssignedCaseOfficerPerson(PwaApplicationDetail pwaApplicationDetail) {
