@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.controller.appsummary;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
+import java.util.Objects;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,7 +14,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.controller.appprocessing.shared.PwaAppProcessingPermissionCheck;
+import uk.co.ogauthority.pwa.exception.ApplicationDetailNotFoundException;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.form.appsummary.PwaApplicationDetailVersionForm;
+import uk.co.ogauthority.pwa.model.view.appsummary.VisibleApplicationVersionOptionsForUser;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.applicationsummariser.ApplicationSummaryViewService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
@@ -51,8 +55,8 @@ public class ApplicationSummaryController {
       form.setApplicationDetailId(latestAppDetail.getId());
     }
 
-    var appDetailVersionSearchSelectorItems = applicationSummaryViewService.getAppDetailVersionSearchSelectorItems(
-        processingContext.getPwaApplication(), authenticatedUserAccount);
+    var visibleApplicationVersionOptionsForUser =
+        getVisibleAppVersionOptionsForUser(processingContext.getPwaApplication(), authenticatedUserAccount, applicationDetailId);
 
     var viewAppSummaryUrl  = ReverseRouter.route(on(ApplicationSummaryController.class).renderSummary(
         applicationId, pwaApplicationType, null, null, null, null));
@@ -60,7 +64,7 @@ public class ApplicationSummaryController {
     return new ModelAndView("pwaApplication/appProcessing/appSummary/viewAppSummary")
         .addObject("appSummaryView", applicationSummaryViewService.getApplicationSummaryViewForAppDetailId(selectedAppDetailId))
         .addObject("caseSummaryView", processingContext.getCaseSummaryView())
-        .addObject("appDetailVersionSearchSelectorItems", appDetailVersionSearchSelectorItems)
+        .addObject("appDetailVersionSearchSelectorItems", visibleApplicationVersionOptionsForUser.getApplicationVersionOptions())
         .addObject("showVersionSelector", true)
         .addObject("viewAppSummaryUrl", viewAppSummaryUrl)
         .addObject("showDiffCheckbox", !PwaApplicationStatus.COMPLETE.equals(latestAppDetail.getStatus()));
@@ -77,6 +81,25 @@ public class ApplicationSummaryController {
 
     return ReverseRouter.redirect(on(ApplicationSummaryController.class)
         .renderSummary(applicationId, pwaApplicationType, null, null, null, form.getApplicationDetailId()));
+  }
+
+  private VisibleApplicationVersionOptionsForUser getVisibleAppVersionOptionsForUser(PwaApplication pwaApplication,
+                                                                                           AuthenticatedUserAccount user,
+                                                                                           Integer applicationDetailId) {
+    var visibleApplicationVersionOptionsForUser = applicationSummaryViewService
+        .getVisibleApplicationVersionOptionsForUser(pwaApplication, user);
+    if (Objects.nonNull(applicationDetailId)) {
+      checkAppVersionOptionIsAccessible(visibleApplicationVersionOptionsForUser, applicationDetailId);
+    }
+    return visibleApplicationVersionOptionsForUser;
+  }
+
+  private void checkAppVersionOptionIsAccessible(VisibleApplicationVersionOptionsForUser visibleOptionsForUser,
+                                                 Integer applicationDetailId) {
+    if (!visibleOptionsForUser.isApplicationDetailPresent(applicationDetailId)) {
+      throw new ApplicationDetailNotFoundException(String.format("Application detail with id %s could not be found",
+          applicationDetailId));
+    }
   }
 
 }

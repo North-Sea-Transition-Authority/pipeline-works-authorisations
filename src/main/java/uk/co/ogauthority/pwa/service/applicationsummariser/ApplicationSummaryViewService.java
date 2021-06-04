@@ -14,6 +14,7 @@ import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.view.appsummary.ApplicationSummaryView;
+import uk.co.ogauthority.pwa.model.view.appsummary.VisibleApplicationVersionOptionsForUser;
 import uk.co.ogauthority.pwa.model.view.sidebarnav.SidebarSectionLink;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
@@ -65,7 +66,8 @@ public class ApplicationSummaryViewService {
     return DateUtils.formatDate(appDetail.getCreatedTimestamp()) + orderTagDisplay;
   }
 
-  public Map<String, String> getAppDetailVersionSearchSelectorItems(PwaApplication pwaApplication, AuthenticatedUserAccount user) {
+  public VisibleApplicationVersionOptionsForUser getVisibleApplicationVersionOptionsForUser(PwaApplication pwaApplication,
+                                                                                            AuthenticatedUserAccount user) {
 
     var applicationDetails = pwaApplicationDetailService.getAllDetailsForApplication(pwaApplication)
         .stream().filter(detail -> !PwaApplicationStatus.UPDATE_REQUESTED.equals(detail.getStatus()))
@@ -100,7 +102,7 @@ public class ApplicationSummaryViewService {
       latestAppDetailVersionEntry.setValue(String.format("Latest version (%s)", latestAppDetailVersionEntry.getValue()));
     }
 
-    return detailIdToOptionMap;
+    return new VisibleApplicationVersionOptionsForUser(detailIdToOptionMap);
   }
 
 
