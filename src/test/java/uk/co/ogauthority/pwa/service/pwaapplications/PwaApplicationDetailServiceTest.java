@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.reflect.FieldUtils;
@@ -36,6 +37,7 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
 import uk.co.ogauthority.pwa.energyportal.model.entity.PersonTestUtil;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
+import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelineotherproperties.PropertyPhase;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
@@ -682,6 +684,18 @@ public class PwaApplicationDetailServiceTest {
 
     assertThat(result).isEmpty();
 
+  }
+
+  @Test
+  public void getDetailById_verifyRepoInteraction() {
+    when(applicationDetailRepository.findById(1)).thenReturn(Optional.of(pwaApplicationDetail));
+    pwaApplicationDetailService.getDetailById(1);
+    verify(applicationDetailRepository).findById(1);
+  }
+
+  @Test(expected = PwaEntityNotFoundException.class)
+  public void getDetailById_entityNotFound() {
+    pwaApplicationDetailService.getDetailById(1);
   }
 
 }

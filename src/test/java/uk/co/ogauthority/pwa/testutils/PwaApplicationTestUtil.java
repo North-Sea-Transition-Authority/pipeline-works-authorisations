@@ -55,6 +55,13 @@ public class PwaApplicationTestUtil {
     return createApplicationDetail(masterPwa, applicationType, PwaApplicationStatus.DRAFT, appId, appDetailId, versionNumber);
   }
 
+  public static PwaApplicationDetail createDefaultApplicationDetail(int appId, int appDetailId, int versionNumber, Instant createdTimestamp, PwaApplicationStatus status) {
+    var detail = createDefaultApplicationDetail(PwaApplicationType.INITIAL, appId, appDetailId, versionNumber);
+    detail.setCreatedTimestamp(createdTimestamp);
+    detail.setStatus(status);
+    return detail;
+  }
+
   public static void tryAssertionWithStatus(PwaApplicationStatus status, Consumer<PwaApplicationStatus> tryBlock){
     try{
       tryBlock.accept(status);

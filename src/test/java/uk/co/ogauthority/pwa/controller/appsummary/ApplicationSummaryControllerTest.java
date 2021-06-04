@@ -6,6 +6,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import java.util.List;
+import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -17,6 +18,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.ogauthority.pwa.controller.PwaAppProcessingContextAbstractControllerTest;
 import uk.co.ogauthority.pwa.model.view.appsummary.ApplicationSummaryView;
+import uk.co.ogauthority.pwa.model.view.appsummary.VisibleApplicationVersionOptionsForUser;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.applicationsummariser.ApplicationSummaryViewService;
 import uk.co.ogauthority.pwa.service.appprocessing.PwaAppProcessingPermissionService;
@@ -39,7 +41,9 @@ public class ApplicationSummaryControllerTest extends PwaAppProcessingContextAbs
   @Before
   public void setUp() {
 
-    when(applicationSummaryViewService.getApplicationSummaryView(any())).thenReturn(new ApplicationSummaryView("<html>", List.of()));
+    when(applicationSummaryViewService.getVisibleApplicationVersionOptionsForUser(any(), any()))
+        .thenReturn(new VisibleApplicationVersionOptionsForUser(Map.of()));
+    when(applicationSummaryViewService.getApplicationSummaryViewForAppDetailId(any())).thenReturn(new ApplicationSummaryView("<html>", List.of()));
 
     endpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaApplicationDetailService, pwaAppProcessingPermissionService)
         .setAllowedProcessingPermissions(PwaAppProcessingPermission.VIEW_APPLICATION_SUMMARY);
@@ -52,7 +56,34 @@ public class ApplicationSummaryControllerTest extends PwaAppProcessingContextAbs
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(ApplicationSummaryController.class)
-                .renderSummary(applicationDetail.getMasterPwaApplicationId(), type, null, null)));
+                .renderSummary(applicationDetail.getMasterPwaApplicationId(), type, null, null, null, null)));
+
+    endpointTester.performProcessingPermissionCheck(status().isOk(), status().isForbidden());
+
+  }
+
+  @Test
+  public void renderSummary_applicationDetailNonAvailable_throwsApplicationDetailNotFoundException() {
+
+    when(applicationSummaryViewService.getVisibleApplicationVersionOptionsForUser(any(), any()))
+        .thenReturn(new VisibleApplicationVersionOptionsForUser(Map.of("66", "Version 66")));
+
+    endpointTester.setRequestMethod(HttpMethod.GET)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(ApplicationSummaryController.class)
+                .renderSummary(applicationDetail.getMasterPwaApplicationId(), type, null, null, null, 65)));
+
+    endpointTester.performProcessingPermissionCheck(status().isNotFound(), status().isForbidden());
+
+  }
+
+  @Test
+  public void postViewSummary_permissionSmokeTest() {
+
+    endpointTester.setRequestMethod(HttpMethod.GET)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(ApplicationSummaryController.class)
+                .postViewSummary(applicationDetail.getMasterPwaApplicationId(), type, null, null, null)));
 
     endpointTester.performProcessingPermissionCheck(status().isOk(), status().isForbidden());
 

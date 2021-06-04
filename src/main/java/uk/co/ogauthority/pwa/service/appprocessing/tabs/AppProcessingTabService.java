@@ -31,10 +31,6 @@ public class AppProcessingTabService {
       tabList.add(AppProcessingTab.CASE_HISTORY);
     }
 
-    if (userPrivs.contains(PwaUserPrivilege.PWA_INDUSTRY)) {
-      tabList.add(AppProcessingTab.FIRS);
-    }
-
     return tabList;
 
   }

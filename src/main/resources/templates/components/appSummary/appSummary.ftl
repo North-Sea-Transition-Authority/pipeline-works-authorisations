@@ -1,6 +1,11 @@
 <#include '../../layoutPane.ftl'>
 
 <#-- @ftlvariable name="appSummaryView" type="uk.co.ogauthority.pwa.model.view.appsummary.ApplicationSummaryView" -->
+<#-- @ftlvariable name="appDetailVersionSearchSelectorItems" type="java.util.Map<java.lang.String, java.lang.String>" -->
+<#-- @ftlvariable name="viewAppSummaryUrl" type="java.lang.String" -->
+<#-- @ftlvariable name="showDiffCheckbox" type="java.lang.boolean" -->
+
+
 
 <#macro summary pageHeading appSummaryView sidebarHeading caseSummaryView=[] errorList="" aboveSummaryInsert="">
 
@@ -42,7 +47,16 @@
             <@pwaCaseSummary.summary caseSummaryView=caseSummaryView showAppSummaryLink=false />
         </#if>
 
-        <@diffChanges.toggler togglerLabel="Show differences from consented data"/>
+        <#if showVersionSelector?has_content && showVersionSelector>
+            <@fdsForm.htmlForm actionUrl=springUrl(viewAppSummaryUrl)>
+                <@fdsSearchSelector.searchSelectorEnhanced path="form.applicationDetailId" options=appDetailVersionSearchSelectorItems labelText="Select version" />
+                <@fdsAction.button buttonText="Show version"/>
+            </@fdsForm.htmlForm>
+        </#if>
+
+        <#if showDiffCheckbox>
+            <@diffChanges.toggler togglerLabel="Show differences from consented data"/>
+        </#if>
         ${appSummaryView.summaryHtml?no_esc}
 
         <#nested>

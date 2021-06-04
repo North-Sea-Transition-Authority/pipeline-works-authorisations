@@ -25,7 +25,7 @@ public class CaseManagementUtils {
   public static String routeApplicationSummary(Integer pwaApplicationId, PwaApplicationType applicationType) {
 
     return ReverseRouter.route(on(ApplicationSummaryController.class)
-        .renderSummary(pwaApplicationId, applicationType, null, null));
+        .renderSummary(pwaApplicationId, applicationType, null, null, null, null));
   }
 
   public static String routeCaseManagement(Integer pwaApplicationId, PwaApplicationType applicationType) {

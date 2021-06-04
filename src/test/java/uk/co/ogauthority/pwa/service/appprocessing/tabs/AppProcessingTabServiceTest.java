@@ -48,8 +48,7 @@ public class AppProcessingTabServiceTest {
 
     assertThat(tabs).containsExactly(
         AppProcessingTab.TASKS,
-        AppProcessingTab.CASE_HISTORY,
-        AppProcessingTab.FIRS
+        AppProcessingTab.CASE_HISTORY
     );
 
   }
@@ -62,8 +61,7 @@ public class AppProcessingTabServiceTest {
     var tabs = tabService.getTabsAvailableToUser(authenticatedUserAccount);
 
     assertThat(tabs).containsExactly(
-        AppProcessingTab.TASKS,
-        AppProcessingTab.FIRS
+        AppProcessingTab.TASKS
     );
 
   }

@@ -342,4 +342,10 @@ public class PwaApplicationDetailService {
     return pwaApplicationDetailRepository.findByPwaApplication(pwaApplication);
   }
 
+  public PwaApplicationDetail getDetailById(Integer appDetailId) {
+    return pwaApplicationDetailRepository.findById(appDetailId).orElseThrow(() ->
+        new PwaEntityNotFoundException(String.format("Couldn't find PwaApplicationDetail for PwaApplicationDetail ID: %s", appDetailId))
+    );
+  }
+
 }
