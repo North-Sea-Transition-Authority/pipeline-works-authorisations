@@ -248,4 +248,19 @@ public class DocumentTemplateServiceTest {
 
   }
 
+  @Test
+  public void editClause_updatedClauseVersionsSaved() {
+
+    var originalClauseVersion = new DocumentTemplateSectionClauseVersion();
+    var newClauseVersion = new DocumentTemplateSectionClauseVersion();
+
+    when(documentClauseService.editClause(eq(PwaDocumentType.TEMPLATE), eq(originalClauseVersion), any(), any()))
+        .thenReturn(List.of(originalClauseVersion, newClauseVersion));
+
+    documentTemplateService.editClause(originalClauseVersion, new ClauseForm(), person);
+
+    verify(templateSectionClauseVersionRepository, times(1)).saveAll(eq(List.of(originalClauseVersion, newClauseVersion)));
+
+  }
+
 }

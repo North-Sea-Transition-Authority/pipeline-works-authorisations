@@ -4,7 +4,6 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -367,26 +366,13 @@ public class DocumentInstanceService {
   @Transactional
   public void editClause(DocumentInstanceSectionClauseVersion clauseBeingEdited, ClauseForm form, Person editingPerson) {
 
-    var newClauseVersion = new DocumentInstanceSectionClauseVersion();
+    var updatedVersions = documentClauseService
+        .editClause(PwaDocumentType.INSTANCE, clauseBeingEdited, form, editingPerson)
+        .stream()
+        .map(DocumentInstanceSectionClauseVersion.class::cast)
+        .collect(Collectors.toList());
 
-    newClauseVersion.setDocumentInstanceSectionClause(clauseBeingEdited.getDocumentInstanceSectionClause());
-    newClauseVersion.setParentDocumentInstanceSectionClause(clauseBeingEdited.getParentDocumentInstanceSectionClause());
-
-    sectionClauseCreator.setCommonData(
-        newClauseVersion,
-        form.getName(),
-        form.getText(),
-        clauseBeingEdited.getLevelOrder(),
-        SectionClauseVersionStatus.ACTIVE,
-        clauseBeingEdited.getVersionNo() + 1,
-        editingPerson);
-
-    clauseBeingEdited.setTipFlag(false);
-    clauseBeingEdited.setEndedTimestamp(clock.instant());
-    clauseBeingEdited.setEndedByPersonId(editingPerson.getId());
-    clauseBeingEdited.setStatus(SectionClauseVersionStatus.DELETED);
-
-    instanceSectionClauseVersionRepository.saveAll(List.of(clauseBeingEdited, newClauseVersion));
+    instanceSectionClauseVersionRepository.saveAll(updatedVersions);
 
   }
 

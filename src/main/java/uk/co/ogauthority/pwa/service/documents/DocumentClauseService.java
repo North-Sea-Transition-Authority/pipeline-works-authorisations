@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.service.documents;
 
+import java.time.Clock;
 import java.util.List;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -7,6 +8,7 @@ import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.model.entity.documents.SectionClause;
@@ -21,12 +23,15 @@ public class DocumentClauseService {
 
   private final SectionClauseCreator sectionClauseCreator;
   private final DocumentClauseFactory documentClauseFactory;
+  private final Clock clock;
 
   @Autowired
   public DocumentClauseService(SectionClauseCreator sectionClauseCreator,
-                               DocumentClauseFactory documentClauseFactory) {
+                               DocumentClauseFactory documentClauseFactory,
+                               @Qualifier("utcClock") Clock clock) {
     this.sectionClauseCreator = sectionClauseCreator;
     this.documentClauseFactory = documentClauseFactory;
+    this.clock = clock;
   }
 
   /**
@@ -141,6 +146,38 @@ public class DocumentClauseService {
         1,
         form,
         creatingPerson);
+
+  }
+
+  @Transactional
+  public List<SectionClauseVersion> editClause(PwaDocumentType documentType,
+                                               SectionClauseVersion clauseBeingEdited,
+                                               ClauseForm form,
+                                               Person editingPerson) {
+
+    var newClauseVersion = documentClauseFactory.createSectionClauseVersion(documentType);
+
+    var parentClause = clauseBeingEdited.getParentClause()
+        .orElse(null);
+
+    newClauseVersion.setClause(clauseBeingEdited.getClause());
+    newClauseVersion.setParentClause(parentClause);
+
+    sectionClauseCreator.setCommonData(
+        newClauseVersion,
+        form.getName(),
+        form.getText(),
+        clauseBeingEdited.getLevelOrder(),
+        SectionClauseVersionStatus.ACTIVE,
+        clauseBeingEdited.getVersionNo() + 1,
+        editingPerson);
+
+    clauseBeingEdited.setTipFlag(false);
+    clauseBeingEdited.setEndedTimestamp(clock.instant());
+    clauseBeingEdited.setEndedByPersonId(editingPerson.getId());
+    clauseBeingEdited.setStatus(SectionClauseVersionStatus.DELETED);
+
+    return List.of(clauseBeingEdited, newClauseVersion);
 
   }
 

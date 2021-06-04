@@ -24,7 +24,6 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
-import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
 import uk.co.ogauthority.pwa.model.documents.SectionClauseVersionDto;
 import uk.co.ogauthority.pwa.model.documents.SectionDto;
 import uk.co.ogauthority.pwa.model.documents.instances.DocumentInstanceSectionClauseVersionDto;
@@ -51,7 +50,6 @@ import uk.co.ogauthority.pwa.service.documents.DocumentViewService;
 import uk.co.ogauthority.pwa.service.documents.SectionClauseCreator;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.testutils.DocumentDtoTestUtils;
-import uk.co.ogauthority.pwa.testutils.ObjectTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.testutils.SectionClauseVersionDtoTestUtils;
 
@@ -470,57 +468,17 @@ public class DocumentInstanceServiceTest {
   }
 
   @Test
-  public void editClause_newClauseCreated_originalClauseEnded() {
+  public void editClause_updatedClauseVersionsSaved() {
 
-    var clause = new DocumentInstanceSectionClause();
-    var parent = new DocumentInstanceSectionClause();
     var originalClauseVersion = new DocumentInstanceSectionClauseVersion();
+    var newClauseVersion = new DocumentInstanceSectionClauseVersion();
 
-    originalClauseVersion.setId(1);
-    originalClauseVersion.setDocumentInstanceSectionClause(clause);
-    originalClauseVersion.setParentDocumentInstanceSectionClause(parent);
-    originalClauseVersion.setStatus(SectionClauseVersionStatus.ACTIVE);
-    originalClauseVersion.setTipFlag(true);
-    originalClauseVersion.setName("original_name");
-    originalClauseVersion.setText("original_text");
-    originalClauseVersion.setVersionNo(1);
-    originalClauseVersion.setLevelOrder(5);
-    originalClauseVersion.setCreatedByPersonId(person.getId());
-    originalClauseVersion.setCreatedTimestamp(clock.instant());
+    when(documentClauseService.editClause(eq(PwaDocumentType.INSTANCE), eq(originalClauseVersion), any(), any()))
+        .thenReturn(List.of(originalClauseVersion, newClauseVersion));
 
-    documentInstanceService.editClause(originalClauseVersion, buildClauseForm(), new Person(222, null, null, null, null));
+    documentInstanceService.editClause(originalClauseVersion, buildClauseForm(), person);
 
-    verify(instanceSectionClauseVersionRepository, times(1)).saveAll(clauseVersionsCaptor.capture());
-
-    originalClauseVersion = clauseVersionsCaptor.getValue().stream()
-        .filter(v -> v.getId() == 1)
-        .findFirst()
-        .orElseThrow();
-
-    // initial version updated properly
-    assertThat(originalClauseVersion.getStatus()).isEqualTo(SectionClauseVersionStatus.DELETED);
-    assertThat(originalClauseVersion.getEndedByPersonId()).isEqualTo(new PersonId(222));
-    assertThat(originalClauseVersion.getEndedTimestamp()).isEqualTo(clock.instant());
-    assertThat(originalClauseVersion.getTipFlag()).isFalse();
-
-    var newVersion = clauseVersionsCaptor.getValue().stream()
-        .filter(v -> v.getId() == null)
-        .findFirst()
-        .orElseThrow();
-
-    // new version set properly
-    assertThat(newVersion.getDocumentInstanceSectionClause()).isEqualTo(clause);
-    assertThat(newVersion.getParentDocumentInstanceSectionClause()).isEqualTo(parent);
-    assertThat(newVersion.getStatus()).isEqualTo(SectionClauseVersionStatus.ACTIVE);
-    assertThat(newVersion.getTipFlag()).isTrue();
-    assertThat(newVersion.getName()).isEqualTo(buildClauseForm().getName());
-    assertThat(newVersion.getText()).isEqualTo(buildClauseForm().getText());
-    assertThat(newVersion.getVersionNo()).isEqualTo(originalClauseVersion.getVersionNo() + 1);
-    assertThat(newVersion.getLevelOrder()).isEqualTo(originalClauseVersion.getLevelOrder());
-    assertThat(newVersion.getCreatedByPersonId()).isEqualTo(new PersonId(222));
-    assertThat(newVersion.getCreatedTimestamp()).isEqualTo(clock.instant());
-
-    ObjectTestUtils.assertAllExpectedFieldsHaveValue(newVersion, List.of("id", "endedTimestamp", "endedByPersonId"));
+    verify(instanceSectionClauseVersionRepository, times(1)).saveAll(eq(List.of(originalClauseVersion, newClauseVersion)));
 
   }
 

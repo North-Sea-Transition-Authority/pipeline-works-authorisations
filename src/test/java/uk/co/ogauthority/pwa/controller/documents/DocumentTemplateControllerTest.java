@@ -265,4 +265,52 @@ public class DocumentTemplateControllerTest extends AbstractControllerTest {
 
   }
 
+  @Test
+  public void renderEditClause_correctPermission() throws Exception {
+
+    mockMvc.perform(get(ReverseRouter.route(on(DocumentTemplateController.class)
+        .renderEditClause(DocumentSpec.INITIAL_APP_CONSENT_DOCUMENT, 1, null, null)))
+        .with(authenticatedUserAndSession(templateClauseManager)))
+        .andExpect(status().isOk());
+
+  }
+
+  @Test
+  public void renderEditClause_wrongPermission() throws Exception {
+
+    mockMvc.perform(get(ReverseRouter.route(on(DocumentTemplateController.class)
+        .renderEditClause(DocumentSpec.INITIAL_APP_CONSENT_DOCUMENT, 1, null, null)))
+        .with(authenticatedUserAndSession(caseOfficer)))
+        .andExpect(status().isForbidden());
+
+  }
+
+  @Test
+  public void postEditClause_success() throws Exception {
+
+    mockMvc.perform(post(ReverseRouter.route(on(DocumentTemplateController.class)
+        .postEditClause(DocumentSpec.INITIAL_APP_CONSENT_DOCUMENT, 1, null, null, null, null)))
+        .with(authenticatedUserAndSession(templateClauseManager))
+        .with(csrf())
+        .param("name", "name")
+        .param("text", "text"))
+        .andExpect(status().is3xxRedirection());
+
+    verify(documentTemplateService, times(1)).editClause(any(), any(), eq(templateClauseManager.getLinkedPerson()));
+
+  }
+
+  @Test
+  public void postEditClause_validationFail() throws Exception {
+
+    mockMvc.perform(post(ReverseRouter.route(on(DocumentTemplateController.class)
+        .postEditClause(DocumentSpec.INITIAL_APP_CONSENT_DOCUMENT, 1, null, null, null, null)))
+        .with(authenticatedUserAndSession(templateClauseManager))
+        .with(csrf()))
+        .andExpect(status().isOk());
+
+    verify(documentTemplateService, times(0)).editClause(any(), any(), eq(templateClauseManager.getLinkedPerson()));
+
+  }
+
 }

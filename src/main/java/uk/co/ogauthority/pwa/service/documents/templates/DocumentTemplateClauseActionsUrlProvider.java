@@ -35,7 +35,8 @@ public class DocumentTemplateClauseActionsUrlProvider implements ClauseActionsUr
 
   @Override
   public String getEditClauseRoute(Integer editingClauseId) {
-    return "";
+    return ReverseRouter.route(on(DocumentTemplateController.class)
+        .renderEditClause(documentSpec, editingClauseId, null, null));
   }
 
   @Override

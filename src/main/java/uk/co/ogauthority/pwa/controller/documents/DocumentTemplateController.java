@@ -222,6 +222,47 @@ public class DocumentTemplateController {
 
   }
 
+  @GetMapping("/edit-clause/{clauseId}")
+  public ModelAndView renderEditClause(@PathVariable("documentSpec") DocumentSpec documentSpec,
+                                       @PathVariable("clauseId") Integer clauseId,
+                                       @ModelAttribute("form") ClauseForm form,
+                                       AuthenticatedUserAccount authenticatedUserAccount) {
+
+    var clauseVersion = documentTemplateService.getTemplateClauseVersionByClauseIdOrThrow(clauseId);
+    form.setName(clauseVersion.getName());
+    form.setText(clauseVersion.getText());
+
+    return getAddEditClauseModelAndView(documentSpec, ScreenActionType.EDIT, form);
+
+  }
+
+  @PostMapping("/edit-clause/{clauseId}")
+  public ModelAndView postEditClause(@PathVariable("documentSpec") DocumentSpec documentSpec,
+                                     @PathVariable("clauseId") Integer clauseId,
+                                     @ModelAttribute("form") ClauseForm form,
+                                     BindingResult bindingResult,
+                                     AuthenticatedUserAccount authenticatedUserAccount,
+                                     RedirectAttributes redirectAttributes) {
+
+    var docSource = new TemplateDocumentSource(documentSpec);
+
+    clauseFormValidator.validate(form, bindingResult, docSource);
+
+    return controllerHelperService
+        .checkErrorsAndRedirect(bindingResult, getAddEditClauseModelAndView(documentSpec, ScreenActionType.EDIT, form), () -> {
+
+          var clauseVersion = documentTemplateService.getTemplateClauseVersionByClauseIdOrThrow(clauseId);
+
+          documentTemplateService.editClause(clauseVersion, form, authenticatedUserAccount.getLinkedPerson());
+
+          FlashUtils.success(redirectAttributes, "Clause updated");
+
+          return getOverviewRedirect(documentSpec);
+
+        });
+
+  }
+
   public ModelAndView getOverviewRedirect(DocumentSpec documentSpec) {
 
     return ReverseRouter.redirect(on(DocumentTemplateController.class)

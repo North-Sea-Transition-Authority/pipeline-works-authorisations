@@ -171,4 +171,17 @@ public class DocumentTemplateService {
 
   }
 
+  @Transactional
+  public void editClause(DocumentTemplateSectionClauseVersion clauseBeingEdited, ClauseForm form, Person editingPerson) {
+
+    var updatedVersions = documentClauseService
+        .editClause(PwaDocumentType.TEMPLATE, clauseBeingEdited, form, editingPerson)
+        .stream()
+        .map(DocumentTemplateSectionClauseVersion.class::cast)
+        .collect(Collectors.toList());
+
+    clauseVersionRepository.saveAll(updatedVersions);
+
+  }
+
 }
