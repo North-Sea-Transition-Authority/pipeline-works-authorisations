@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.integration.service.asbuilt;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 import javax.persistence.EntityManager;
@@ -133,11 +134,11 @@ public class AsBuiltNotificationWorkAreaIntegrationTest {
 
   private void setupViews() {
     view1 = AsBuiltNotificationWorkareaViewTestUtil.createAsBuiltNotificationViewFrom(1, 10, "Antarctica project",
-        AsBuiltNotificationGroupStatus.NOT_STARTED);
+        AsBuiltNotificationGroupStatus.NOT_STARTED, LocalDate.of(2000, 10, 10));
     view2 = AsBuiltNotificationWorkareaViewTestUtil.createAsBuiltNotificationViewFrom(2, 20, "Canada project",
-        AsBuiltNotificationGroupStatus.COMPLETE);
+        AsBuiltNotificationGroupStatus.COMPLETE, LocalDate.of(2010, 10, 10));
     view3 = AsBuiltNotificationWorkareaViewTestUtil.createAsBuiltNotificationViewFrom(3, 30, "New Zealand project",
-        AsBuiltNotificationGroupStatus.COMPLETE);
+        AsBuiltNotificationGroupStatus.COMPLETE, LocalDate.of(2020, 10, 10));
   }
 
   private void setupPwaHolderUnits() {
