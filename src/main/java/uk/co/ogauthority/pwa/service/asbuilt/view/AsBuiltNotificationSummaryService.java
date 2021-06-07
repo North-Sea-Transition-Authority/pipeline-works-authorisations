@@ -36,7 +36,7 @@ class AsBuiltNotificationSummaryService {
         .map(PortalOrganisationGroup::getName).collect(Collectors.joining(", "));
     var deadline = DateUtils.formatDate(asBuiltNotificationGroupDetail.getDeadlineDate());
     var accessLink = ReverseRouter.route(on(ApplicationSummaryController.class).renderSummary(pwaApplication.getId(),
-        pwaApplication.getApplicationType(), null, null));
+        pwaApplication.getApplicationType(), null, null, null, null));
     return new AsBuiltNotificationGroupSummaryView(appTypeDisplay, pwaReference, appReference, holders, deadline, accessLink);
   }
 
