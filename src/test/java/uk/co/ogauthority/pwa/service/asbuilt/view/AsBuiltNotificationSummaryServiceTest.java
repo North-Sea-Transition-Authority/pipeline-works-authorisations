@@ -63,7 +63,8 @@ public class AsBuiltNotificationSummaryServiceTest {
     assertThat(asBuiltSummaryView.getHolder()).isEqualTo(portalOrganisationGroup.getName());
     assertThat(asBuiltSummaryView.getApplicationTypeDisplay()).isEqualTo(applicationDetail.getPwaApplication().getApplicationType().getDisplayName());
     assertThat(asBuiltSummaryView.getAccessLink()).isEqualTo(ReverseRouter.route(on(ApplicationSummaryController.class)
-        .renderSummary(applicationDetail.getPwaApplication().getId(), applicationDetail.getPwaApplication().getApplicationType(), null, null)));
+        .renderSummary(applicationDetail.getPwaApplication().getId(), applicationDetail.getPwaApplication().getApplicationType(),
+            null, null, null, null)));
   }
 
 }
