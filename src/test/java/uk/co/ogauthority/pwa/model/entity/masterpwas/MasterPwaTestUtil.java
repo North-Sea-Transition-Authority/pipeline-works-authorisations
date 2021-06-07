@@ -13,4 +13,12 @@ public class MasterPwaTestUtil {
     masterPwa.setCreatedTimestamp(Instant.now());
     return masterPwa;
   }
+
+  public static MasterPwa create(Integer id) {
+    var masterPwa = new MasterPwa();
+    masterPwa.setId(id);
+    masterPwa.setCreatedTimestamp(Instant.now());
+    return masterPwa;
+  }
+
 }

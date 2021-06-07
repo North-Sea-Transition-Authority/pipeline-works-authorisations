@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.repository.asbuilt;
 
+import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 import static uk.co.ogauthority.pwa.service.workarea.ApplicationWorkAreaItem.STATUS_LABEL;
 
 import java.time.Instant;
@@ -7,8 +8,10 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import uk.co.ogauthority.pwa.controller.asbuilt.AsBuiltNotificationController;
 import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationGroupStatus;
 import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationWorkareaView;
+import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.workarea.WorkAreaColumnItemView;
 import uk.co.ogauthority.pwa.util.WorkAreaUtils;
 
@@ -30,7 +33,8 @@ public class AsBuiltNotificationWorkAreaItem {
 
 
   public AsBuiltNotificationWorkAreaItem(AsBuiltNotificationWorkareaView asBuiltNotificationWorkareaView) {
-    this(asBuiltNotificationWorkareaView, "tempUrl");
+    this(asBuiltNotificationWorkareaView, ReverseRouter.route(on(AsBuiltNotificationController.class)
+        .getAsBuiltNotificationDashboard(asBuiltNotificationWorkareaView.getNgId(), null)));
   }
 
   public AsBuiltNotificationWorkAreaItem(AsBuiltNotificationWorkareaView asBuiltNotificationWorkareaView, String accessUrl) {

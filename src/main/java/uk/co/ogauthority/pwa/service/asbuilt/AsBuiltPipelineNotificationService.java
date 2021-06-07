@@ -1,25 +1,31 @@
 package uk.co.ogauthority.pwa.service.asbuilt;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationGroup;
 import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationGroupPipeline;
+import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
 import uk.co.ogauthority.pwa.repository.asbuilt.AsBuiltNotificationGroupPipelineRepository;
+import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailService;
 
 /**
  * Perform database interactions for specific pipeline as--built notifications.
  */
 @Component
-class AsBuiltPipelineNotificationService {
+public class AsBuiltPipelineNotificationService {
 
   private final AsBuiltNotificationGroupPipelineRepository asBuiltNotificationGroupPipelineRepository;
+  private final PipelineDetailService pipelineDetailService;
 
   @Autowired
   AsBuiltPipelineNotificationService(
-      AsBuiltNotificationGroupPipelineRepository asBuiltNotificationGroupPipelineRepository) {
+      AsBuiltNotificationGroupPipelineRepository asBuiltNotificationGroupPipelineRepository,
+      PipelineDetailService pipelineDetailService) {
     this.asBuiltNotificationGroupPipelineRepository = asBuiltNotificationGroupPipelineRepository;
+    this.pipelineDetailService = pipelineDetailService;
   }
 
 
@@ -37,6 +43,15 @@ class AsBuiltPipelineNotificationService {
 
     asBuiltNotificationGroupPipelineRepository.saveAll(newPipelineNotifications);
 
-
   }
+
+  public List<PipelineDetail> getPipelineDetailsForAsBuiltNotificationGroup(Integer asBuiltNotificationGroupId) {
+    var asBuiltGroupPipelines = asBuiltNotificationGroupPipelineRepository
+        .findAllByAsBuiltNotificationGroup_Id(asBuiltNotificationGroupId);
+
+    return asBuiltGroupPipelines.stream()
+        .map(ngGroupPipeline -> pipelineDetailService.getByPipelineDetailId(ngGroupPipeline.getPipelineDetailId().asInt()))
+        .collect(Collectors.toList());
+  }
+
 }

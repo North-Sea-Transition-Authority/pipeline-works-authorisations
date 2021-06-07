@@ -39,7 +39,6 @@ public class PwaHolderTeamService {
     this.pwaHolderOrgUnitRepository = pwaHolderOrgUnitRepository;
   }
 
-
   public boolean isPersonInHolderTeam(MasterPwa masterPwa, Person person) {
 
     var holderOrgGroups = getHolderOrgGroups(masterPwa);
@@ -54,6 +53,17 @@ public class PwaHolderTeamService {
   // overload
   public boolean isPersonInHolderTeam(PwaApplicationDetail detail, Person person) {
     return isPersonInHolderTeam(detail.getMasterPwa(), person);
+  }
+
+  public boolean isPersonInHolderTeamWithRole(MasterPwa masterPwa, Person person, PwaOrganisationRole pwaOrganisationRole) {
+
+    var holderOrgGroups = getHolderOrgGroups(masterPwa);
+
+    return teamService
+        .getOrganisationTeamListIfPersonInRole(person, List.of(pwaOrganisationRole))
+        .stream()
+        .map(PwaOrganisationTeam::getPortalOrganisationGroup)
+        .anyMatch(holderOrgGroups::contains);
   }
 
   public List<PortalOrganisationUnit> getPortalOrganisationUnitsWhereUserHasOrgRole(WebUserAccount webUserAccount,

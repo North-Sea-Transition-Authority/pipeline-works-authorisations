@@ -2,7 +2,9 @@ package uk.co.ogauthority.pwa.service.asbuilt;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
+import java.time.Instant;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
@@ -16,13 +18,23 @@ import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationGroup;
 import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationGroupPipeline;
 import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationGroupTestUtil;
 import uk.co.ogauthority.pwa.model.entity.asbuilt.PipelineChangeCategory;
+import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
+import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.repository.asbuilt.AsBuiltNotificationGroupPipelineRepository;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailService;
+import uk.co.ogauthority.pwa.service.pwaconsents.testutil.PipelineDetailTestUtil;
+import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AsBuiltPipelineNotificationServiceTest {
 
   @Mock
   private AsBuiltNotificationGroupPipelineRepository asBuiltNotificationGroupPipelineRepository;
+
+  @Mock
+  private PipelineDetailService pipelineDetailService;
 
   @Captor
   private ArgumentCaptor<List<AsBuiltNotificationGroupPipeline>> notificationGroupPipelineListCaptor;
@@ -31,12 +43,23 @@ public class AsBuiltPipelineNotificationServiceTest {
 
   private AsBuiltNotificationGroup asBuiltNotificationGroup;
 
+  private final PwaApplicationDetail pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL, 5);
+  private final Pipeline pipeline = new Pipeline(pwaApplicationDetail.getPwaApplication());
+  private PipelineDetail pipelineDetail;
+  private AsBuiltNotificationGroupPipeline asBuiltNotificationGroupPipeline;
+
   @Before
   public void setup() {
 
-    asBuiltNotificationGroup = AsBuiltNotificationGroupTestUtil.createDefaultGroupWithConsent();
+    asBuiltNotificationGroup = AsBuiltNotificationGroupTestUtil.createGroupWithConsent(30, "APP_REF");
     asBuiltPipelineNotificationService = new AsBuiltPipelineNotificationService(
-        asBuiltNotificationGroupPipelineRepository);
+        asBuiltNotificationGroupPipelineRepository, pipelineDetailService);
+
+    pipeline.setId(20);
+    pipelineDetail = PipelineDetailTestUtil.createPipelineDetail(30, pipeline.getPipelineId(), Instant.now());
+    asBuiltNotificationGroupPipeline =
+        new AsBuiltNotificationGroupPipeline(asBuiltNotificationGroup, pipelineDetail.getPipelineDetailId(),
+            PipelineChangeCategory.NEW_PIPELINE);
 
   }
 
@@ -78,4 +101,16 @@ public class AsBuiltPipelineNotificationServiceTest {
         });
 
   }
+
+  @Test
+  public void getPipelineDetailsForAsBuiltNotificationGroup() {
+    when(asBuiltNotificationGroupPipelineRepository.findAllByAsBuiltNotificationGroup_Id(asBuiltNotificationGroup.getId()))
+        .thenReturn(List.of(asBuiltNotificationGroupPipeline));
+    when(pipelineDetailService.getByPipelineDetailId(asBuiltNotificationGroupPipeline.getPipelineDetailId().asInt())).thenReturn(pipelineDetail);
+
+    assertThat(asBuiltPipelineNotificationService
+        .getPipelineDetailsForAsBuiltNotificationGroup(asBuiltNotificationGroupPipeline.getPipelineDetailId().asInt()))
+        .containsExactly(pipelineDetail);
+  }
+
 }
