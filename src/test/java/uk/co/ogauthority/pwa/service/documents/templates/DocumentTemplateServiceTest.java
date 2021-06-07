@@ -18,6 +18,8 @@ import java.util.stream.Collectors;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
@@ -70,6 +72,9 @@ public class DocumentTemplateServiceTest {
 
   @Mock
   private DocumentClauseService documentClauseService;
+
+  @Captor
+  private ArgumentCaptor<List<DocumentTemplateSectionClauseVersion>> clauseVersionsCaptor;
 
   private DocumentTemplateService documentTemplateService;
 
@@ -260,6 +265,40 @@ public class DocumentTemplateServiceTest {
     documentTemplateService.editClause(originalClauseVersion, new ClauseForm(), person);
 
     verify(templateSectionClauseVersionRepository, times(1)).saveAll(eq(List.of(originalClauseVersion, newClauseVersion)));
+
+  }
+
+  @Test
+  public void removeClause_updatedClausesSaved() {
+
+    var parentClauseVersion = new DocumentTemplateSectionClauseVersion();
+    var parentClause = new DocumentTemplateSectionClause();
+    var documentTemplateSection = new DocumentTemplateSection();
+    parentClause.setDocumentTemplateSection(documentTemplateSection);
+    parentClauseVersion.setDocumentTemplateSectionClause(parentClause);
+
+    when(templateSectionClauseVersionRepository.findByDocumentTemplateSectionClause_IdAndTipFlagIsTrue(1))
+        .thenReturn(Optional.of(parentClauseVersion));
+
+    var childClauseVersion = new DocumentTemplateSectionClauseVersion();
+    var subChildClauseVersion = new DocumentTemplateSectionClauseVersion();
+
+    var updatedList = List.of(parentClauseVersion, childClauseVersion, subChildClauseVersion);
+
+    var castList = updatedList.stream()
+        .map(SectionClauseVersion.class::cast)
+        .collect(Collectors.toList());
+
+    when(documentClauseService.removeClause(eq(parentClauseVersion), eq(person), any(), any()))
+        .thenReturn(castList);
+
+    documentTemplateService.removeClause(1, person);
+
+    verify(templateSectionClauseVersionRepository, times(1)).saveAll(clauseVersionsCaptor.capture());
+
+    assertThat(clauseVersionsCaptor.getValue())
+        .hasSize(updatedList.size())
+        .containsAll(updatedList);
 
   }
 

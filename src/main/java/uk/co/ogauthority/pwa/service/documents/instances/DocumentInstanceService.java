@@ -1,36 +1,32 @@
 package uk.co.ogauthority.pwa.service.documents.instances;
 
 import java.time.Clock;
-import java.time.Instant;
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import javax.annotation.Nullable;
 import javax.persistence.EntityNotFoundException;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
-import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.exception.documents.DocumentInstanceException;
 import uk.co.ogauthority.pwa.model.documents.SectionClauseVersionDto;
 import uk.co.ogauthority.pwa.model.documents.templates.DocumentTemplateDto;
 import uk.co.ogauthority.pwa.model.documents.templates.TemplateSectionClauseVersionDto;
 import uk.co.ogauthority.pwa.model.documents.view.DocumentView;
-import uk.co.ogauthority.pwa.model.documents.view.SectionClauseVersionView;
+import uk.co.ogauthority.pwa.model.entity.documents.SectionClause;
 import uk.co.ogauthority.pwa.model.entity.documents.SectionClauseVersion;
 import uk.co.ogauthority.pwa.model.entity.documents.instances.DocumentInstance;
 import uk.co.ogauthority.pwa.model.entity.documents.instances.DocumentInstanceSectionClause;
 import uk.co.ogauthority.pwa.model.entity.documents.instances.DocumentInstanceSectionClauseVersion;
-import uk.co.ogauthority.pwa.model.entity.documents.templates.DocumentTemplateSection;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.DocumentTemplateMnem;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocumentSection;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.enums.documents.PwaDocumentType;
-import uk.co.ogauthority.pwa.model.enums.documents.SectionClauseVersionStatus;
 import uk.co.ogauthority.pwa.model.form.documents.ClauseForm;
 import uk.co.ogauthority.pwa.repository.documents.instances.DocumentInstanceRepository;
 import uk.co.ogauthority.pwa.repository.documents.instances.DocumentInstanceSectionClauseRepository;
@@ -214,78 +210,10 @@ public class DocumentInstanceService {
 
   }
 
-  public SectionClauseVersionView getSectionClauseView(Integer clauseId) {
-
-    var docInstanceSectionClauseVersion = getInstanceClauseVersionByClauseIdOrThrow(clauseId);
-    var docInstance = docInstanceSectionClauseVersion.getDocumentInstanceSectionClause().getDocumentInstance();
-    var docView = getDocumentView(docInstance);
-
-    Map<Integer, SectionClauseVersionView> allLevelsSectionClauseVersionViewsMap = new HashMap<>();
-    docView.getSections().stream()
-        .flatMap(sectionView -> sectionView.getClauses().stream())
-        .forEach(sectionClauseVersionView -> {
-          allLevelsSectionClauseVersionViewsMap.put(sectionClauseVersionView.getClauseId(), sectionClauseVersionView);
-          sectionClauseVersionView.getChildClauses().forEach(childClause -> {
-            allLevelsSectionClauseVersionViewsMap.put(childClause.getClauseId(), childClause);
-            childClause.getChildClauses().forEach(
-                subChildClause -> allLevelsSectionClauseVersionViewsMap.put(subChildClause.getClauseId(), subChildClause));
-          });
-        });
-
-    var sectionClauseView = allLevelsSectionClauseVersionViewsMap.get(clauseId);
-    if (sectionClauseView != null) {
-      return sectionClauseView;
-    }
-    throw(new PwaEntityNotFoundException("Could not find SectionClauseVersionView with clause id " + clauseId));
-  }
-
   public DocumentInstanceSectionClauseVersion getInstanceClauseVersionByClauseIdOrThrow(Integer clauseId) {
     return instanceSectionClauseVersionRepository
         .findByDocumentInstanceSectionClause_IdAndTipFlagIsTrue(clauseId)
         .orElseThrow(() -> new DocumentInstanceException(String.format("Couldn't find instance clause with ID: [%s]", clauseId)));
-  }
-
-  /**
-   * Add a new instance clause to a doc instance.
-   * @param documentInstance clause is being added to
-   * @param section clause is being added to
-   * @param newParent clause that should be set as the parent on the new clause
-   * @param form containing clause info to set
-   * @param creatingPerson person creating clause
-   * @param levelOrder to set for the new clause
-   * @return the newly created version
-   */
-  private DocumentInstanceSectionClauseVersion addClause(DocumentInstance documentInstance,
-                                                         DocumentTemplateSection section,
-                                                         @Nullable DocumentInstanceSectionClause newParent,
-                                                         Integer levelOrder,
-                                                         ClauseForm form,
-                                                         Person creatingPerson) {
-
-    var newClause = new DocumentInstanceSectionClause();
-    var newClauseVersion = new DocumentInstanceSectionClauseVersion();
-
-    newClause.setDocumentInstance(documentInstance);
-    newClause.setDocumentTemplateSection(section);
-
-    newClauseVersion.setParentDocumentInstanceSectionClause(newParent);
-
-    newClauseVersion.setDocumentInstanceSectionClause(newClause);
-
-    sectionClauseCreator.setCommonData(
-        newClauseVersion,
-        form.getName(),
-        form.getText(),
-        levelOrder,
-        SectionClauseVersionStatus.ACTIVE,
-        1,
-        creatingPerson);
-
-    instanceSectionClauseRepository.save(newClause);
-    instanceSectionClauseVersionRepository.save(newClauseVersion);
-
-    return newClauseVersion;
-
   }
 
   /**
@@ -379,40 +307,49 @@ public class DocumentInstanceService {
   @Transactional
   public void removeClause(Integer clauseId, Person removingPerson) {
 
-    var parentClauses = getInstanceClauseVersionByClauseIdOrThrow(clauseId);
-    var endTime = clock.instant();
+    var parentClause = getInstanceClauseVersionByClauseIdOrThrow(clauseId);
 
-    setClauseAsDeleted(parentClauses, removingPerson, endTime);
+    var docInstance = parentClause.getDocumentInstanceSectionClause().getDocumentInstance();
 
-    var childClauses =
-        instanceSectionClauseVersionRepository.findByDocumentInstanceSectionClause_DocumentInstanceAndParentDocumentInstanceSectionClause(
-        parentClauses.getDocumentInstanceSectionClause().getDocumentInstance(),
-        parentClauses.getDocumentInstanceSectionClause()
-    );
+    var deletedClauseVersions = documentClauseService.removeClause(
+        parentClause,
+        removingPerson,
+        clause -> getChildClausesOfParent(docInstance, clause),
+        clauses -> getChildClausesOfParents(docInstance, clauses))
+        .stream()
+        .map(DocumentInstanceSectionClauseVersion.class::cast)
+        .collect(Collectors.toList());
 
-    var subChildClauses = new ArrayList<DocumentInstanceSectionClauseVersion>();
-    childClauses.forEach(childClause -> {
-      setClauseAsDeleted(childClause, removingPerson, endTime);
-      var activeSubChildClauses =
-          instanceSectionClauseVersionRepository.findByDocumentInstanceSectionClause_DocumentInstanceAndParentDocumentInstanceSectionClause(
-              childClause.getDocumentInstanceSectionClause().getDocumentInstance(),
-              childClause.getDocumentInstanceSectionClause()
-          );
-      activeSubChildClauses.forEach(subChildClause -> {
-        setClauseAsDeleted(subChildClause, removingPerson, endTime);
-        subChildClauses.add(subChildClause);
-      });
-    });
+    instanceSectionClauseVersionRepository.saveAll(deletedClauseVersions);
 
-    instanceSectionClauseVersionRepository.save(parentClauses);
-    instanceSectionClauseVersionRepository.saveAll(childClauses);
-    instanceSectionClauseVersionRepository.saveAll(subChildClauses);
   }
 
-  private void setClauseAsDeleted(DocumentInstanceSectionClauseVersion sectionClauseVersion, Person removingPerson, Instant endTime) {
-    sectionClauseVersion.setStatus(SectionClauseVersionStatus.DELETED);
-    sectionClauseVersion.setEndedByPersonId(removingPerson.getId());
-    sectionClauseVersion.setEndedTimestamp(endTime);
+  private List<SectionClauseVersion> getChildClausesOfParent(DocumentInstance documentInstance,
+                                                             SectionClause clause) {
+
+    var castClause = (DocumentInstanceSectionClause) clause;
+
+    return instanceSectionClauseVersionRepository
+        .findByDocumentInstanceSectionClause_DocumentInstanceAndParentDocumentInstanceSectionClause(documentInstance, castClause)
+        .stream()
+        .map(SectionClauseVersion.class::cast)
+        .collect(Collectors.toList());
+
+  }
+
+  private List<SectionClauseVersion> getChildClausesOfParents(DocumentInstance documentInstance,
+                                                              Collection<SectionClause> clauses) {
+
+    var castClauses = clauses.stream()
+        .map(DocumentInstanceSectionClause.class::cast)
+        .collect(Collectors.toList());
+
+    return instanceSectionClauseVersionRepository
+        .findByDocumentInstanceSectionClause_DocumentInstanceAndParentDocumentInstanceSectionClauseIn(
+            documentInstance, castClauses).stream()
+        .map(SectionClauseVersion.class::cast)
+        .collect(Collectors.toList());
+
   }
 
 }

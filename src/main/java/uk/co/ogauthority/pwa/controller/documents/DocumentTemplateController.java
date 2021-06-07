@@ -263,10 +263,48 @@ public class DocumentTemplateController {
 
   }
 
+  @GetMapping("/remove-clause/{clauseId}")
+  public ModelAndView renderRemoveClause(@PathVariable("documentSpec") DocumentSpec documentSpec,
+                                         @PathVariable("clauseId") Integer clauseId,
+                                         AuthenticatedUserAccount authenticatedUserAccount) {
+    return getRemoveClauseModelAndView(documentSpec, clauseId);
+  }
+
+  @PostMapping("/remove-clause/{clauseId}")
+  public ModelAndView postRemoveClause(@PathVariable("documentSpec") DocumentSpec documentSpec,
+                                       @PathVariable("clauseId") Integer clauseId,
+                                       AuthenticatedUserAccount authenticatedUserAccount,
+                                       RedirectAttributes redirectAttributes) {
+
+    documentTemplateService.removeClause(clauseId, authenticatedUserAccount.getLinkedPerson());
+    FlashUtils.success(redirectAttributes, "Clause removed");
+    return getOverviewRedirect(documentSpec);
+
+  }
+
   public ModelAndView getOverviewRedirect(DocumentSpec documentSpec) {
 
     return ReverseRouter.redirect(on(DocumentTemplateController.class)
         .renderConsentDocEditor(documentSpec, null));
+
+  }
+
+  private ModelAndView getRemoveClauseModelAndView(DocumentSpec documentSpec, Integer clauseId) {
+
+    var cancelUrl = ReverseRouter.route(on(DocumentTemplateController.class)
+        .renderConsentDocEditor(documentSpec, null));
+
+    var docView = documentTemplateService.getDocumentView(documentSpec);
+
+    var modelAndView = new ModelAndView("documents/clauses/removeClause")
+        .addObject("errorList", List.of())
+        .addObject("cancelUrl", cancelUrl)
+        .addObject("sectionClauseView", docView.getSectionClauseView(clauseId));
+
+    String thisPage = "Remove clause";
+    breadcrumbService.fromDocTemplateOverview(documentSpec, modelAndView, thisPage);
+
+    return modelAndView;
 
   }
 

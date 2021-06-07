@@ -1,7 +1,11 @@
 package uk.co.ogauthority.pwa.service.documents;
 
 import java.time.Clock;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -179,6 +183,49 @@ public class DocumentClauseService {
 
     return List.of(clauseBeingEdited, newClauseVersion);
 
+  }
+
+  /**
+   * Mark a clause and its child clauses as deleted.
+   * @param parentClauseVersion clause being deleted
+   * @param removingPerson person doing the deletion
+   * @param childClauseFunction a function to return the clauses that are direct descendants of the clause being deleted
+   * @param subChildClauseFunction a function to return the clauses that are children of the direct descendants of the clause being deleted
+   * @return a list of the clause versions that have been marked as deleted
+   */
+  @Transactional
+  public List<SectionClauseVersion> removeClause(SectionClauseVersion parentClauseVersion,
+                                                 Person removingPerson,
+                                                 Function<SectionClause, List<SectionClauseVersion>> childClauseFunction,
+                                                 Function<Collection<SectionClause>, List<SectionClauseVersion>> subChildClauseFunction) {
+
+    var deletedClauseVersions = new ArrayList<SectionClauseVersion>();
+
+    deletedClauseVersions.add(parentClauseVersion);
+
+    var childClauseVersions = childClauseFunction.apply(parentClauseVersion.getClause());
+    deletedClauseVersions.addAll(childClauseVersions);
+
+    var childClauses = childClauseVersions.stream()
+        .map(SectionClauseVersion::getClause)
+        .collect(Collectors.toList());
+
+    var subChildClauseVersions = subChildClauseFunction.apply(childClauses);
+    deletedClauseVersions.addAll(subChildClauseVersions);
+
+    var endTime = clock.instant();
+    deletedClauseVersions.forEach(version -> setClauseAsDeleted(version, removingPerson, endTime));
+
+    return deletedClauseVersions;
+
+  }
+
+  private void setClauseAsDeleted(SectionClauseVersion sectionClauseVersion,
+                                  Person removingPerson,
+                                  Instant endTime) {
+    sectionClauseVersion.setStatus(SectionClauseVersionStatus.DELETED);
+    sectionClauseVersion.setEndedByPersonId(removingPerson.getId());
+    sectionClauseVersion.setEndedTimestamp(endTime);
   }
 
 }

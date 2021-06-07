@@ -41,7 +41,8 @@ public class DocumentTemplateClauseActionsUrlProvider implements ClauseActionsUr
 
   @Override
   public String getRemoveClauseRoute(Integer clauseIdToRemove) {
-    return "";
+    return ReverseRouter.route(on(DocumentTemplateController.class)
+        .renderRemoveClause(documentSpec, clauseIdToRemove, null));
   }
 
 }

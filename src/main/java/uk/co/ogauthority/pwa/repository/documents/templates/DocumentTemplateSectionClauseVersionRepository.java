@@ -36,4 +36,14 @@ public interface DocumentTemplateSectionClauseVersionRepository extends CrudRepo
       DocumentTemplateSectionClause parentDocumentTemplateSectionClause
   );
 
+  @EntityGraph(attributePaths = {
+      "documentTemplateSectionClause.documentTemplateSection.documentTemplate",
+      "parentDocumentTemplateSectionClause.documentTemplateSection.documentTemplate",
+  })
+  List<DocumentTemplateSectionClauseVersion>
+      findByDocumentTemplateSectionClause_DocumentTemplateSectionAndParentDocumentTemplateSectionClauseIn(
+      DocumentTemplateSection documentTemplateSection,
+      Collection<DocumentTemplateSectionClause> parentDocumentTemplateSectionClauses
+  );
+
 }

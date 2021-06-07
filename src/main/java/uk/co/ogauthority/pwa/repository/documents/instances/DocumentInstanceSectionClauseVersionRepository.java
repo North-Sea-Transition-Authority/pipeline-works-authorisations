@@ -39,8 +39,12 @@ public interface DocumentInstanceSectionClauseVersionRepository extends CrudRepo
   Optional<DocumentInstanceSectionClauseVersion> findByDocumentInstanceSectionClause_IdAndTipFlagIsTrue(Integer clauseId);
 
   List<DocumentInstanceSectionClauseVersion> findByDocumentInstanceSectionClause_DocumentInstanceAndParentDocumentInstanceSectionClause(
-      DocumentInstance documentInstant,
+      DocumentInstance documentInstance,
       DocumentInstanceSectionClause parentClause);
+
+  List<DocumentInstanceSectionClauseVersion> findByDocumentInstanceSectionClause_DocumentInstanceAndParentDocumentInstanceSectionClauseIn(
+      DocumentInstance documentInstance,
+      Collection<DocumentInstanceSectionClause> parentClauses);
 
 
 }

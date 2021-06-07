@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.controller.documents;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -26,6 +27,7 @@ import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.AbstractControllerTest;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.documents.view.DocumentView;
+import uk.co.ogauthority.pwa.model.documents.view.SectionClauseVersionView;
 import uk.co.ogauthority.pwa.model.entity.documents.templates.DocumentTemplateSectionClauseVersion;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocumentSpec;
 import uk.co.ogauthority.pwa.model.enums.documents.PwaDocumentType;
@@ -310,6 +312,47 @@ public class DocumentTemplateControllerTest extends AbstractControllerTest {
         .andExpect(status().isOk());
 
     verify(documentTemplateService, times(0)).editClause(any(), any(), eq(templateClauseManager.getLinkedPerson()));
+
+  }
+
+  @Test
+  public void renderRemoveClause_correctPermission() throws Exception {
+
+    var docView = mock(DocumentView.class);
+    when(documentTemplateService.getDocumentView(any())).thenReturn(docView);
+
+    var sectionView = new SectionClauseVersionView(1, 1, "a", "a", null, null, null);
+    when(docView.getSectionClauseView(1)).thenReturn(sectionView);
+
+    mockMvc.perform(get(ReverseRouter.route(on(DocumentTemplateController.class)
+        .renderRemoveClause(DocumentSpec.INITIAL_APP_CONSENT_DOCUMENT, 1, null)))
+        .with(authenticatedUserAndSession(templateClauseManager)))
+        .andExpect(status().isOk());
+
+  }
+
+  @Test
+  public void renderRemoveClause_wrongPermission() throws Exception {
+
+    mockMvc.perform(get(ReverseRouter.route(on(DocumentTemplateController.class)
+        .renderRemoveClause(DocumentSpec.INITIAL_APP_CONSENT_DOCUMENT, 1, null)))
+        .with(authenticatedUserAndSession(caseOfficer)))
+        .andExpect(status().isForbidden());
+
+  }
+
+  @Test
+  public void postRemoveClause_success() throws Exception {
+
+    mockMvc.perform(post(ReverseRouter.route(on(DocumentTemplateController.class)
+        .postRemoveClause(DocumentSpec.INITIAL_APP_CONSENT_DOCUMENT, 1, null, null)))
+        .with(authenticatedUserAndSession(templateClauseManager))
+        .with(csrf())
+        .param("name", "name")
+        .param("text", "text"))
+        .andExpect(status().is3xxRedirection());
+
+    verify(documentTemplateService, times(1)).removeClause(any(), eq(templateClauseManager.getLinkedPerson()));
 
   }
 

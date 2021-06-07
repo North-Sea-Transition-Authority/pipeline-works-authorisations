@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.service.documents.templates;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -11,8 +12,10 @@ import uk.co.ogauthority.pwa.exception.documents.DocumentTemplateException;
 import uk.co.ogauthority.pwa.model.documents.SectionClauseVersionDto;
 import uk.co.ogauthority.pwa.model.documents.templates.DocumentTemplateDto;
 import uk.co.ogauthority.pwa.model.documents.view.DocumentView;
+import uk.co.ogauthority.pwa.model.entity.documents.SectionClause;
 import uk.co.ogauthority.pwa.model.entity.documents.SectionClauseVersion;
 import uk.co.ogauthority.pwa.model.entity.documents.templates.DocumentTemplateSection;
+import uk.co.ogauthority.pwa.model.entity.documents.templates.DocumentTemplateSectionClause;
 import uk.co.ogauthority.pwa.model.entity.documents.templates.DocumentTemplateSectionClauseVersion;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.DocumentTemplateMnem;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocumentSpec;
@@ -181,6 +184,54 @@ public class DocumentTemplateService {
         .collect(Collectors.toList());
 
     clauseVersionRepository.saveAll(updatedVersions);
+
+  }
+
+  @Transactional
+  public void removeClause(Integer clauseId, Person removingPerson) {
+
+    var parentClauseVersion = getTemplateClauseVersionByClauseIdOrThrow(clauseId);
+    var docTemplateSection = parentClauseVersion.getDocumentTemplateSectionClause().getDocumentTemplateSection();
+
+    var deletedClauseVersions = documentClauseService.removeClause(
+        parentClauseVersion,
+        removingPerson,
+        clause -> getChildClausesOfParent(docTemplateSection, clause),
+        clauses -> getChildClausesOfParents(docTemplateSection, clauses))
+        .stream()
+        .map(DocumentTemplateSectionClauseVersion.class::cast)
+        .collect(Collectors.toList());
+
+    clauseVersionRepository.saveAll(deletedClauseVersions);
+
+  }
+
+  private List<SectionClauseVersion> getChildClausesOfParent(DocumentTemplateSection documentTemplateSection, SectionClause clause) {
+
+    var castClause = (DocumentTemplateSectionClause) clause;
+
+    return clauseVersionRepository
+        .findByDocumentTemplateSectionClause_DocumentTemplateSectionAndParentDocumentTemplateSectionClause(
+            documentTemplateSection,
+            castClause)
+        .stream()
+        .map(SectionClauseVersion.class::cast)
+        .collect(Collectors.toList());
+
+  }
+
+  private List<SectionClauseVersion> getChildClausesOfParents(DocumentTemplateSection documentTemplateSection,
+                                                              Collection<SectionClause> clauses) {
+
+    var castClauses = clauses.stream()
+        .map(DocumentTemplateSectionClause.class::cast)
+        .collect(Collectors.toList());
+
+    return clauseVersionRepository
+        .findByDocumentTemplateSectionClause_DocumentTemplateSectionAndParentDocumentTemplateSectionClauseIn(
+            documentTemplateSection, castClauses).stream()
+        .map(SectionClauseVersion.class::cast)
+        .collect(Collectors.toList());
 
   }
 

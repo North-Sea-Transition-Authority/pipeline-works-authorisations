@@ -277,11 +277,10 @@ public class DocumentInstanceController {
   @GetMapping("/remove-clause/{clauseId}")
   public ModelAndView renderRemoveClause(@PathVariable("applicationId") Integer applicationId,
                                          @PathVariable("applicationType")
-                                       @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
+                                         @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
                                          PwaAppProcessingContext processingContext,
                                          @PathVariable("documentTemplateMnem") DocumentTemplateMnem documentTemplateMnem,
                                          @PathVariable("clauseId") Integer clauseId,
-                                         @ModelAttribute("form") ClauseForm form,
                                          AuthenticatedUserAccount authenticatedUserAccount) {
 
     return getRemoveClauseModelAndView(processingContext, clauseId);
@@ -290,13 +289,13 @@ public class DocumentInstanceController {
 
   @PostMapping("/remove-clause/{clauseId}")
   public ModelAndView postRemoveClause(@PathVariable("applicationId") Integer applicationId,
-                                     @PathVariable("applicationType")
-                                     @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
-                                     PwaAppProcessingContext processingContext,
+                                       @PathVariable("applicationType")
+                                       @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
+                                       PwaAppProcessingContext processingContext,
                                        @PathVariable("documentTemplateMnem") DocumentTemplateMnem documentTemplateMnem,
-                                     @PathVariable("clauseId") Integer clauseId,
-                                     AuthenticatedUserAccount authenticatedUserAccount,
-                                     RedirectAttributes redirectAttributes) {
+                                       @PathVariable("clauseId") Integer clauseId,
+                                       AuthenticatedUserAccount authenticatedUserAccount,
+                                       RedirectAttributes redirectAttributes) {
 
     documentInstanceService.removeClause(clauseId, authenticatedUserAccount.getLinkedPerson());
     FlashUtils.success(redirectAttributes, "Clause removed");
@@ -308,10 +307,13 @@ public class DocumentInstanceController {
     var cancelUrl = ReverseRouter.route(on(AppConsentDocController.class)
         .renderConsentDocEditor(processingContext.getPwaApplication().getId(), processingContext.getApplicationType(), null, null));
 
+    var clauseVersion = documentInstanceService.getInstanceClauseVersionByClauseIdOrThrow(clauseId);
+    var docView = documentInstanceService.getDocumentView(clauseVersion.getDocumentInstanceSectionClause().getDocumentInstance());
+
     var modelAndView = new ModelAndView("documents/clauses/removeClause")
         .addObject("errorList", List.of())
         .addObject("cancelUrl", cancelUrl)
-        .addObject("sectionClauseView", documentInstanceService.getSectionClauseView(clauseId));
+        .addObject("sectionClauseView", docView.getSectionClauseView(clauseId));
 
     String thisPage = "Remove clause";
     breadcrumbService.fromPrepareConsent(processingContext.getPwaApplication(), modelAndView, thisPage);

@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.controller.documents;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -27,8 +28,11 @@ import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.PwaAppProcessingContextAbstractControllerTest;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
+import uk.co.ogauthority.pwa.model.documents.view.DocumentView;
 import uk.co.ogauthority.pwa.model.documents.view.SectionClauseVersionView;
 import uk.co.ogauthority.pwa.model.dto.appprocessing.ProcessingPermissionsDto;
+import uk.co.ogauthority.pwa.model.entity.documents.instances.DocumentInstance;
+import uk.co.ogauthority.pwa.model.entity.documents.instances.DocumentInstanceSectionClause;
 import uk.co.ogauthority.pwa.model.entity.documents.instances.DocumentInstanceSectionClauseVersion;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.DocumentTemplateMnem;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
@@ -474,12 +478,24 @@ public class DocumentInstanceControllerTest extends PwaAppProcessingContextAbstr
   @Test
   public void renderRemoveClause_statusSmokeTest() {
 
+    var docView = mock(DocumentView.class);
+    when(documentInstanceService.getDocumentView(any())).thenReturn(docView);
+
     var sectionView = new SectionClauseVersionView(1, 1, "a", "a", null, null, null);
-    when(documentInstanceService.getSectionClauseView(1)).thenReturn(sectionView);
+    when(docView.getSectionClauseView(1)).thenReturn(sectionView);
+
+    var clauseVersion = new DocumentInstanceSectionClauseVersion();
+    var clause = new DocumentInstanceSectionClause();
+    clause.setDocumentInstance(new DocumentInstance());
+    clauseVersion.setClause(clause);
+
+    when(documentInstanceService.getInstanceClauseVersionByClauseIdOrThrow(1)).thenReturn(clauseVersion);
+
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(DocumentInstanceController.class)
-                .renderRemoveClause(applicationDetail.getMasterPwaApplicationId(), type, null, DocumentTemplateMnem.PWA_CONSENT_DOCUMENT, 1, null, null)));
+                .renderRemoveClause(applicationDetail.getMasterPwaApplicationId(), type, null, DocumentTemplateMnem.PWA_CONSENT_DOCUMENT, 1,
+                    null)));
 
     endpointTester.performAppStatusChecks(status().isOk(), status().isNotFound());
 
@@ -488,12 +504,24 @@ public class DocumentInstanceControllerTest extends PwaAppProcessingContextAbstr
   @Test
   public void renderRemoveClause_permissionSmokeTest() {
 
+    var docView = mock(DocumentView.class);
+    when(documentInstanceService.getDocumentView(any())).thenReturn(docView);
+
     var sectionView = new SectionClauseVersionView(1, 1, "a", "a", null, null, null);
-    when(documentInstanceService.getSectionClauseView(1)).thenReturn(sectionView);
+    when(docView.getSectionClauseView(1)).thenReturn(sectionView);
+
+    var clauseVersion = new DocumentInstanceSectionClauseVersion();
+    var clause = new DocumentInstanceSectionClause();
+    clause.setDocumentInstance(new DocumentInstance());
+    clauseVersion.setClause(clause);
+
+    when(documentInstanceService.getInstanceClauseVersionByClauseIdOrThrow(1)).thenReturn(clauseVersion);
+
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(DocumentInstanceController.class)
-                .renderRemoveClause(applicationDetail.getMasterPwaApplicationId(), type, null, DocumentTemplateMnem.PWA_CONSENT_DOCUMENT, 1, null, null)));
+                .renderRemoveClause(applicationDetail.getMasterPwaApplicationId(), type, null, DocumentTemplateMnem.PWA_CONSENT_DOCUMENT, 1,
+                    null)));
 
     endpointTester.performProcessingPermissionCheck(status().isOk(), status().isForbidden());
 

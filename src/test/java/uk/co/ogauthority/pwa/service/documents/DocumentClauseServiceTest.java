@@ -241,6 +241,58 @@ public class DocumentClauseServiceTest {
 
   }
 
+  @Test
+  public void removeClause() {
+
+    //sub child clause
+    var subChildDocumentInstance = new DocumentInstance();
+    var subChildDocumentInstanceSectionClause = new DocumentInstanceSectionClause();
+    var subChildDocumentInstanceSectionClauseVersion = new DocumentInstanceSectionClauseVersion();
+    subChildDocumentInstanceSectionClauseVersion.setDocumentInstanceSectionClause(subChildDocumentInstanceSectionClause);
+    subChildDocumentInstanceSectionClauseVersion.getDocumentInstanceSectionClause().setDocumentInstance(subChildDocumentInstance);
+
+    //child clause
+    var childDocumentInstance = new DocumentInstance();
+    var childDocumentInstanceSectionClause = new DocumentInstanceSectionClause();
+    var childDocumentInstanceSectionClauseVersion = new DocumentInstanceSectionClauseVersion();
+    childDocumentInstanceSectionClauseVersion.setDocumentInstanceSectionClause(childDocumentInstanceSectionClause);
+    childDocumentInstanceSectionClauseVersion.getDocumentInstanceSectionClause().setDocumentInstance(childDocumentInstance);
+
+    var child2DocumentInstanceSectionClause = new DocumentInstanceSectionClause();
+    var child2DocumentInstanceSectionClauseVersion = new DocumentInstanceSectionClauseVersion();
+    child2DocumentInstanceSectionClauseVersion.setDocumentInstanceSectionClause(child2DocumentInstanceSectionClause);
+    child2DocumentInstanceSectionClauseVersion.getDocumentInstanceSectionClause().setDocumentInstance(childDocumentInstance);
+
+    //parent clause
+    var documentInstance = new DocumentInstance();
+    var documentInstanceSectionClause = new DocumentInstanceSectionClause();
+    var documentInstanceSectionClauseVersion = new DocumentInstanceSectionClauseVersion();
+    documentInstanceSectionClauseVersion.setDocumentInstanceSectionClause(documentInstanceSectionClause);
+    documentInstanceSectionClauseVersion.getDocumentInstanceSectionClause().setDocumentInstance(documentInstance);
+
+    var person = new Person(1, "name", null, null, null);
+
+    documentClauseService.removeClause(
+        documentInstanceSectionClauseVersion,
+        person,
+        clause -> List.of(childDocumentInstanceSectionClauseVersion, child2DocumentInstanceSectionClauseVersion),
+        clauses -> List.of(subChildDocumentInstanceSectionClauseVersion)
+    );
+
+    assertThat(List.of(
+        documentInstanceSectionClauseVersion,
+        childDocumentInstanceSectionClauseVersion,
+        child2DocumentInstanceSectionClauseVersion,
+        subChildDocumentInstanceSectionClauseVersion)).allSatisfy(clauseVersion -> {
+
+      assertThat(clauseVersion.getStatus()).isEqualTo(SectionClauseVersionStatus.DELETED);
+      assertThat(clauseVersion.getEndedByPersonId()).isEqualTo(person.getId());
+      assertThat(clauseVersion.getEndedTimestamp()).isEqualTo(clock.instant());
+
+    });
+
+  }
+
   private ClauseForm buildClauseForm() {
     var form = new ClauseForm();
     form.setName("name");

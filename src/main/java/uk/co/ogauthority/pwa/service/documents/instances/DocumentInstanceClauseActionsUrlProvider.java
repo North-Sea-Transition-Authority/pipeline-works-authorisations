@@ -88,7 +88,6 @@ public class DocumentInstanceClauseActionsUrlProvider implements ClauseActionsUr
             null,
             documentView.getDocumentTemplateMnem(),
             clauseIdToRemove,
-            null,
             null));
 
   }
