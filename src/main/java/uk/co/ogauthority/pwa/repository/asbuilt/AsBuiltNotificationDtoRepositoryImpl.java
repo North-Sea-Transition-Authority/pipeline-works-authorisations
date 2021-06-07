@@ -54,28 +54,20 @@ public class AsBuiltNotificationDtoRepositoryImpl implements AsBuiltNotification
     CriteriaBuilder cb = entityManager.getCriteriaBuilder();
     CriteriaQuery<AsBuiltNotificationWorkareaView> cq = cb.createQuery(AsBuiltNotificationWorkareaView.class);
 
-    Root<AsBuiltNotificationWorkareaView> asBuiltNotificationWorkareaViewRoot = cq.from(AsBuiltNotificationWorkareaView.class);
+    Root<AsBuiltNotificationWorkareaView> root = cq.from(AsBuiltNotificationWorkareaView.class);
 
     //count query
     CriteriaQuery<Long> countResultsQuery = cb.createQuery(Long.class);
-    Root<AsBuiltNotificationWorkareaView> countResultsRoot = countResultsQuery.from(
-        AsBuiltNotificationWorkareaView.class);
-    countResultsQuery
-        .select(cb.count(countResultsRoot));
+    Root<AsBuiltNotificationWorkareaView> countQueryRoot = countResultsQuery.from(AsBuiltNotificationWorkareaView.class);
+    countResultsQuery.select(cb.count(root));
 
-    if (!isUserAsBuiltNotificationAdmin(authenticatedUserAccount.getLinkedPerson())) {
-      var groupsUserCanAccess = getOrgGroupsUserCanAccess(authenticatedUserAccount);
-      cq.where(getHolderOrgApplicationsPredicate(groupsUserCanAccess, cq, asBuiltNotificationWorkareaViewRoot));
-      countResultsQuery.where(getHolderOrgApplicationsPredicate(groupsUserCanAccess, countResultsQuery, countResultsRoot));
-    }
+    //needs to apply same predicates to both result query and count query
+    applyQueryPredicatesBasedOnUserType(authenticatedUserAccount, cq, countResultsQuery, root);
 
-    TypedQuery<AsBuiltNotificationWorkareaView> query = entityManager.createQuery(cq
-        .orderBy(cb.asc(asBuiltNotificationWorkareaViewRoot.get("deadlineDate")))
-    );
+    var resultsQuery = createAsBuiltWorkAreaResultsQuery(cb, cq, root, pageable);
+    var totalResultCount = entityManager.createQuery(countResultsQuery).getSingleResult();
 
-    var totalResults = entityManager.createQuery(countResultsQuery).getSingleResult();
-
-    return new PageImpl<>(query.getResultList(), pageable, totalResults);
+    return new PageImpl<>(resultsQuery.getResultList(), pageable, totalResultCount);
   }
 
   private List<PortalOrganisationGroup> getOrgGroupsUserCanAccess(AuthenticatedUserAccount user) {
@@ -105,6 +97,29 @@ public class AsBuiltNotificationDtoRepositoryImpl implements AsBuiltNotification
     applicationSubQuery.where(cb.in(holderOrgUnitRoot.get(PwaHolderOrgUnit_.ORG_GRP_ID)).value(holderOrgGroupIds));
 
     return cb.in(searchCoreRoot.get(ApplicationDetailView_.PWA_ID)).value(applicationSubQuery);
+  }
+
+  private void applyQueryPredicatesBasedOnUserType(AuthenticatedUserAccount user,
+                                          CriteriaQuery<AsBuiltNotificationWorkareaView> query,
+                                          CriteriaQuery<Long> countQuery,
+                                          Root<AsBuiltNotificationWorkareaView> root) {
+    if (!isUserAsBuiltNotificationAdmin(user.getLinkedPerson())) {
+      var groupsUserCanAccess = getOrgGroupsUserCanAccess(user);
+      query.where(getHolderOrgApplicationsPredicate(groupsUserCanAccess, query, root));
+      countQuery.where(getHolderOrgApplicationsPredicate(groupsUserCanAccess, countQuery, root));
+    }
+  }
+
+  private TypedQuery<AsBuiltNotificationWorkareaView> createAsBuiltWorkAreaResultsQuery(CriteriaBuilder cb,
+                                                                  CriteriaQuery<AsBuiltNotificationWorkareaView> cq,
+                                                                  Root<AsBuiltNotificationWorkareaView> asBuiltNotificationWorkareaViewRoot,
+                                                                  Pageable pageable) {
+    TypedQuery<AsBuiltNotificationWorkareaView> query = entityManager.createQuery(cq
+        .orderBy(cb.asc(asBuiltNotificationWorkareaViewRoot.get("deadlineDate")))
+    );
+    query.setFirstResult(pageable.getPageSize() * pageable.getPageNumber());
+    query.setMaxResults(pageable.getPageSize());
+    return query;
   }
 
 }
