@@ -1,6 +1,8 @@
 package uk.co.ogauthority.pwa.service.users;
 
+import java.util.Collection;
 import java.util.Comparator;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
@@ -12,9 +14,7 @@ public class UserTypeService {
 
   public UserType getPriorityUserType(AuthenticatedUserAccount authenticatedUserAccount) {
 
-    return getUserTypes(authenticatedUserAccount)
-        .stream()
-        .max(Comparator.comparing(UserType::getPriority))
+    return findPriorityUserTypeFrom(getUserTypes(authenticatedUserAccount))
         .orElseThrow(() -> new IllegalStateException(
                 String.format(
                     "User with WUA ID: %s doesn't match a recognised user type.",
@@ -23,6 +23,12 @@ public class UserTypeService {
             )
         );
 
+  }
+
+  public Optional<UserType> findPriorityUserTypeFrom(Collection<UserType> userTypeCollection) {
+    return userTypeCollection
+        .stream()
+        .max(Comparator.comparing(UserType::getPriority));
 
   }
 

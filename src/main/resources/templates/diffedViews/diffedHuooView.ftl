@@ -5,6 +5,7 @@
 <#macro huooDetails diffedHuoos role showNoRolesWarning=true pipelinesDataRowKey="Pipelines">
 
     <h3 class="govuk-heading-m"> ${role} </h3>
+    <#local multiLineTextBlockClass = "govuk-summary-list" />
     
     <#list diffedHuoos as diffedHuoo>
 
@@ -24,7 +25,7 @@
                 </@fdsCheckAnswers.checkAnswersRowNoAction>
 
                 <@fdsCheckAnswers.checkAnswersRowNoAction keyText="Legal entity address" rowClass=(hasCompanyData == false)?then(diffHideGroup, "")>
-                    <@diffChanges.renderDiff diffedField=diffedHuoo.DiffableOrgRolePipelineGroup_companyAddress/>
+                    <@diffChanges.renderDiff diffedField=diffedHuoo.DiffableOrgRolePipelineGroup_companyAddress multiLineTextBlockClass=multiLineTextBlockClass/>
                 </@fdsCheckAnswers.checkAnswersRowNoAction>
 
             <#elseif diffedHuoo.DiffableOrgRolePipelineGroup_isManuallyEnteredName.currentValue?upper_case == "NO">

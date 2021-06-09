@@ -1,5 +1,7 @@
 package uk.co.ogauthority.pwa.auth;
 
+import java.util.List;
+
 public enum PwaUserPrivilege {
 
   // GENERIC
@@ -29,7 +31,11 @@ public enum PwaUserPrivilege {
   PWA_CONSULTEE,
 
   // EXTERNAL ACCESS
-  PIPELINE_VIEW
+  PIPELINE_VIEW;
+
+  public static List<PwaUserPrivilege> asList() {
+    return List.of(PwaUserPrivilege.values());
+  }
 
 
 }

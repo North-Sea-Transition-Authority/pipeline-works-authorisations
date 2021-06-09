@@ -66,8 +66,11 @@ public class WithdrawApplicationService implements AppProcessingService {
     );
     emailRecipients.forEach(recipient -> {
       var emailProps = new ApplicationWithdrawnEmailProps(
-          recipient.getFullName(), pwaApplicationDetail.getPwaApplicationRef(), withdrawingUser.getFullName(),
-          emailCaseLinkService.generateCaseManagementLink(pwaApplicationDetail.getPwaApplication()));
+          recipient.getFullName(),
+          pwaApplicationDetail.getPwaApplicationRef(),
+          withdrawingUser.getFullName(),
+          emailCaseLinkService.generateCaseManagementLink(pwaApplicationDetail.getPwaApplication())
+      );
       notifyService.sendEmail(emailProps, recipient.getEmailAddress());
     });
   }

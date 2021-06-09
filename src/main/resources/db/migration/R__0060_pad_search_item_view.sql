@@ -1,3 +1,43 @@
+-- helper view
+CREATE OR REPLACE FORCE VIEW ${datasource.user}.open_applications AS
+SELECT
+  pad.pwa_application_id
+, pad.id pad_id
+, pa.pwa_id
+, pad.status
+, pa.app_reference
+, pa.application_type
+, psv.latest_version_number
+, psv.latest_draft_v_no
+, psv.latest_submission_v_no
+, psv.latest_satisfactory_v_no
+FROM ${datasource.user}.pwa_application_details pad
+JOIN ${datasource.user}.pad_status_versions psv ON pad.pwa_application_id = psv.pwa_application_id
+JOIN ${datasource.user}.pwa_applications pa ON pad.pwa_application_id = pa.id
+-- only get the last submitted version, or first draft if none submitted
+WHERE NOT (pad.status IN ('COMPLETE', 'WITHDRAWN', 'DELETED'))
+AND pad.version_no = COALESCE(psv.latest_submission_v_no, psv.latest_draft_v_no);
+
+
+CREATE OR REPLACE FORCE VIEW ${datasource.user}.open_public_notices AS
+SELECT
+  opn.pwa_application_id
+, opn.public_notice_version
+, pn.status public_notice_status
+FROM ${datasource.user}.public_notices pn
+  JOIN (
+  -- get the version of the latest open public notice for an application to se get the current status
+  SELECT
+  oa.pwa_application_id, MAX (pn.version) public_notice_version
+  FROM ${datasource.user}.open_applications oa
+  JOIN ${datasource.user}.public_notices pn ON oa.pwa_application_id = pn.application_id
+  WHERE pn.withdrawal_timestamp IS NULL
+  GROUP BY oa.pwa_application_id
+  ) opn ON pn.application_id = opn.pwa_application_id
+WHERE opn.public_notice_version = pn.version
+AND pn.status NOT IN ('WAITING', 'WITHDRAWN', 'PUBLISHED', 'ENDED');
+
+
 CREATE OR REPLACE FORCE VIEW ${datasource.user}.workarea_search_items (
   pwa_id
 , pwa_detail_id
@@ -51,8 +91,8 @@ SELECT
 , pad.id pwa_application_detail_id
 
 , pd.reference pwa_reference
-, pa.app_reference pad_reference
-, pa.application_type
+, oa.app_reference pad_reference
+, oa.application_type
 
 , pad.status pad_status
 , pad.created_timestamp pad_created_timestamp
@@ -100,31 +140,78 @@ SELECT
     ) > 0 THEN 1
     ELSE 0
   END open_consultation_req_flag
-, pn.status public_notice_status
+, opn.public_notice_status
 , CASE WHEN ouad.pad_id IS NOT NULL THEN 1 ELSE 0 END open_update_request_flag
 , COALESCE(ouad.deadline_timestamp, ouad.opt_approval_deadline_date) deadline_timestamp
 , CASE WHEN pcr.id IS NOT NULL THEN 1 ELSE 0 END open_consent_review_flag
-FROM ${datasource.user}.pwa_application_details pad -- want 1 row per detail for maximum query flexibility. intended to be the only introduced cardinality
-JOIN ${datasource.user}.pwa_applications pa ON pad.pwa_application_id = pa.id
-JOIN ${datasource.user}.pad_status_versions psv ON pa.id = psv.pwa_application_id
-JOIN ${datasource.user}.pwas p ON pa.pwa_id = p.id
+FROM ${datasource.user}.open_applications oa
+JOIN ${datasource.user}.pwa_application_details pad ON oa.pad_id = pad.id
+JOIN ${datasource.user}.pwas p ON p.id = oa.pwa_id
 JOIN ${datasource.user}.pwa_details pd ON pd.pwa_id = p.id
 LEFT JOIN ${datasource.user}.pwa_app_assignments paa ON paa.pwa_application_id = pad.pwa_application_id AND paa.assignment = 'CASE_OFFICER'
 LEFT JOIN ${datasource.user}.pad_project_information ppi ON ppi.application_detail_id = pad.id
-LEFT JOIN ${datasource.user}.public_notices pn ON pn.application_id = pa.id AND pn.status NOT IN ('WITHDRAWN', 'PUBLISHED')
+LEFT JOIN ${datasource.user}.open_public_notices opn ON opn.pwa_application_id = pad.pwa_application_id
 LEFT JOIN open_update_app_details ouad ON ouad.pad_id = pad.id AND (ouad.open_app_update = 1 OR ouad.unresponded_option_approval = 1)
 LEFT JOIN ${datasource.user}.pad_consent_reviews pcr ON pcr.pad_id = pad.id AND pcr.end_timestamp IS NULL
-WHERE pd.end_timestamp IS NULL
-AND (
-
-  -- if there's a submitted version, always show the latest submitted version
-  (psv.latest_submission_ts IS NOT NULL AND pad.submitted_timestamp = psv.latest_submission_ts)
-
-  OR
-
-  -- otherwise there should be a draft version we can show instead
-  (psv.latest_submission_ts IS NULL AND pad.version_no = psv.latest_draft_v_no)
-
-);
+WHERE pd.end_timestamp IS NULL;
 
 
+
+CREATE OR REPLACE FORCE VIEW ${datasource.user}.workarea_app_lifecycle_events (
+  pwa_application_id
+, flag
+) AS
+-- case officer specific event for when app is not being worked in on a different context by some other user
+SELECT oa.pwa_application_id, 'APPLICATION_NOT_BEING_WORKED_ON' flag
+FROM ${datasource.user}.open_applications oa
+LEFT JOIN (
+  SELECT MAX(creq.application_id) pwa_application_id
+  FROM ${datasource.user}.consultation_requests creq --ON creq.application_id = oa.pwa_application_id
+  GROUP BY creq.application_id
+  HAVING SUM(
+    CASE
+      WHEN COALESCE(creq.status, 'NONE') NOT IN ('WITHDRAWN', 'RESPONDED', 'NONE')
+        THEN 1
+      ELSE 0
+      END) = 0
+) apps_with_no_open_consultation ON apps_with_no_open_consultation.pwa_application_id = oa.pwa_application_id
+LEFT JOIN open_public_notices opn ON opn.pwa_application_id = oa.pwa_application_id
+WHERE oa.status = 'CASE_OFFICER_REVIEW' -- event is only generated when app in this status
+-- if theres an open consultation, case officer not interested
+AND apps_with_no_open_consultation.pwa_application_id IS NOT NULL
+-- if theres an open public notice with the the applicant or pwa manager
+AND COALESCE(opn.public_notice_status, 'NOT_OPEN') NOT IN ('APPLICANT_UPDATE', 'MANAGER_APPROVAL')
+-- if theres a ongoing update with the applicant
+AND  COALESCE(oa.latest_draft_v_no, 0) < oa.latest_submission_v_no
+-- TODO PWA-1172: do we even need the latest satisfactory version check? we want to see the case unless the above cases are true, that doesnt care about the satisfactory version check.
+UNION ALL
+-- public notice attention required events
+SELECT
+  opn.pwa_application_id
+, CASE
+    WHEN opn.public_notice_status = 'APPLICANT_UPDATE' THEN 'PUBLIC_NOTICE_WAITING_ON_APP_CONTACT'
+    WHEN opn.public_notice_status = 'MANAGER_APPROVAL' THEN 'PUBLIC_NOTICE_WAITING_ON_PWA_MANAGER'
+    ELSE 'PUBLIC_NOTICE_WAITING_ON_CASE_OFFICER'
+  END flag
+FROM open_public_notices opn
+UNION ALL
+-- mutually exclusive status based events
+SELECT
+  oa.pwa_application_id
+, CASE
+    WHEN oa.status IN ('DRAFT', 'UPDATE_REQUESTED') THEN 'UPDATE_REQUIRED'
+    WHEN oa.status = 'INITIAL_SUBMISSION_REVIEW' THEN 'INITIAL_REVIEW_REQUIRED'
+    WHEN oa.status = 'AWAITING_APPLICATION_PAYMENT' THEN 'PAYMENT_REQUIRED'
+    WHEN oa.status = 'CONSENT_REVIEW' THEN 'CONSENT_DOCUMENT_REQUIRES_PWA_MANAGER_SIGN_OFF'
+  END flag
+FROM open_applications oa
+WHERE oa.status IN ('DRAFT', 'UPDATE_REQUESTED', 'INITIAL_SUBMISSION_REVIEW', 'AWAITING_APPLICATION_PAYMENT', 'CONSENT_REVIEW')
+-- UNION ALL
+-- -- satisfactory flag not set on last submitted version
+-- SELECT oa.pwa_application_id
+-- , 'SATISFACTORY_VERSION_CHECK_REQUIRED' flag
+-- FROM open_applications oa
+-- JOIN ${datasource.user}.pad_status_versions psv ON psv.pwa_application_id = oa.pwa_application_id
+-- WHERE psv.latest_satisfactory_v_no != psv.latest_submission_v_no
+-- AND psv.latest_submission_v_no IS NOT NULL
+;
