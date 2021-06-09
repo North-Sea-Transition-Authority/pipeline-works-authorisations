@@ -27,7 +27,7 @@ public class PwaContact {
   private Integer id;
 
   @OneToOne
-  @JoinColumn(name = "pwa_application_id")
+  @JoinColumn(name = "pwa_application_id", referencedColumnName = "id")
   private PwaApplication pwaApplication;
 
   @OneToOne
