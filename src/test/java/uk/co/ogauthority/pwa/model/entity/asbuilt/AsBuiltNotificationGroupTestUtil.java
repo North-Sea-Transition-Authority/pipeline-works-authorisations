@@ -15,11 +15,10 @@ public final class AsBuiltNotificationGroupTestUtil {
     return new AsBuiltNotificationGroup(consent, "DEFAULT_AS_BUILT_REFERENCE", Instant.now());
   }
 
-  public static AsBuiltNotificationGroup createGroupWithConsent(Integer ngId, String ref){
+  public static AsBuiltNotificationGroup createGroupWithConsent_withNgId(Integer ngId){
     var consent = PwaConsentTestUtil.createInitial(null);
     var group = new AsBuiltNotificationGroup(consent, "DEFAULT_AS_BUILT_REFERENCE", Instant.now());
     group.setId(ngId);
-    group.setReference(ref);
     return group;
   }
 

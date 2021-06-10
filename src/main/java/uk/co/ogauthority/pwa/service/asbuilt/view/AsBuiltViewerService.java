@@ -46,7 +46,7 @@ public class AsBuiltViewerService {
   public List<AsBuiltPipelineNotificationSubmissionView> getAsBuiltPipelineNotificationSubmissionViews(Integer notificationGroupId) {
     var pipelineDetails = asBuiltPipelineNotificationService
         .getPipelineDetailsForAsBuiltNotificationGroup(notificationGroupId);
-    return asBuiltNotificationViewService.getAsBuiltPipelineNotificationSubmissionViews(pipelineDetails);
+    return asBuiltNotificationViewService.getAsBuiltPipelineNotificationSubmissionViews(notificationGroupId, pipelineDetails);
   }
 
   private AsBuiltNotificationGroup getNotificationGroup(Integer notificationGroupId) {

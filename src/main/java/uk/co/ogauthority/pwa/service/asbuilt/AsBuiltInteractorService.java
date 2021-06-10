@@ -6,10 +6,13 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationGroup;
+import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationGroupPipeline;
 import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationGroupStatus;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
+import uk.co.ogauthority.pwa.model.form.asbuilt.AsBuiltNotificationSubmissionForm;
 import uk.co.ogauthority.pwa.repository.asbuilt.AsBuiltNotificationGroupRepository;
 
 /**
@@ -22,6 +25,7 @@ public class AsBuiltInteractorService {
   private final AsBuiltGroupStatusService asBuiltGroupStatusService;
   private final AsBuiltGroupDeadlineService asBuiltGroupDeadlineService;
   private final AsBuiltPipelineNotificationService asBuiltPipelineNotificationService;
+  private final AsBuiltNotificationSubmissionService asBuiltNotificationSubmissionService;
 
 
   private final Clock clock;
@@ -30,11 +34,13 @@ public class AsBuiltInteractorService {
                                   AsBuiltGroupStatusService asBuiltGroupStatusService,
                                   AsBuiltGroupDeadlineService asBuiltGroupDeadlineService,
                                   AsBuiltPipelineNotificationService asBuiltPipelineNotificationService,
+                                  AsBuiltNotificationSubmissionService asBuiltNotificationSubmissionService,
                                   @Qualifier("utcClock") Clock clock) {
     this.asBuiltNotificationGroupRepository = asBuiltNotificationGroupRepository;
     this.asBuiltGroupStatusService = asBuiltGroupStatusService;
     this.asBuiltGroupDeadlineService = asBuiltGroupDeadlineService;
     this.asBuiltPipelineNotificationService = asBuiltPipelineNotificationService;
+    this.asBuiltNotificationSubmissionService = asBuiltNotificationSubmissionService;
     this.clock = clock;
   }
 
@@ -70,6 +76,13 @@ public class AsBuiltInteractorService {
     var group = new AsBuiltNotificationGroup(pwaConsent, reference, instant);
 
     return asBuiltNotificationGroupRepository.save(group);
+  }
+
+  @Transactional
+  public void submitAsBuiltNotification(AsBuiltNotificationGroupPipeline abngPipeline,
+                                        AsBuiltNotificationSubmissionForm form,
+                                        AuthenticatedUserAccount user) {
+    asBuiltNotificationSubmissionService.submitAsBuiltNotification(abngPipeline, form, user);
   }
 
 }

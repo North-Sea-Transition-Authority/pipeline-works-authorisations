@@ -1,0 +1,72 @@
+package uk.co.ogauthority.pwa.validators.asbuilt;
+
+import org.springframework.stereotype.Service;
+import org.springframework.validation.Errors;
+import org.springframework.validation.SmartValidator;
+import org.springframework.validation.ValidationUtils;
+import uk.co.ogauthority.pwa.model.entity.asbuilt.PipelineChangeCategory;
+import uk.co.ogauthority.pwa.model.form.asbuilt.AsBuiltNotificationSubmissionForm;
+import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
+import uk.co.ogauthority.pwa.util.ValidatorUtils;
+
+@Service
+public class AsBuiltNotificationSubmissionValidator implements SmartValidator {
+
+  @Override
+  public void validate(Object target, Errors errors) {
+    validate(target, errors, new Object[0]);
+  }
+
+  @Override
+  public void validate(Object o, Errors errors, Object... validationHints) {
+    var form = (AsBuiltNotificationSubmissionForm) o;
+    var validationHint = (AsBuiltNotificationSubmissionValidatorHint) validationHints[0];
+
+    if (form.getAsBuiltNotificationStatus() == null) {
+      errors.rejectValue("asBuiltNotificationStatus",
+          "asBuiltNotificationStatus" + FieldValidationErrorCodes.REQUIRED.getCode(), "Select at least one of the options");
+    } else {
+      validateAsBuiltStatuses(form, errors, validationHint);
+    }
+
+    if (validationHint.isOgaUser()) {
+      ValidationUtils.rejectIfEmptyOrWhitespace(errors, "ogaSubmissionReason",
+          "ogaSubmissionReason" + FieldValidationErrorCodes.REQUIRED.getCode(),
+          "You must provide a reason for submitting the notification on behalf of the Holder");
+    }
+
+  }
+
+  private void validateAsBuiltStatuses(AsBuiltNotificationSubmissionForm form, Errors errors,
+                                       AsBuiltNotificationSubmissionValidatorHint hint) {
+    switch (form.getAsBuiltNotificationStatus()) {
+      case PER_CONSENT:
+        ValidatorUtils.validateDatePickerDateExistsAndIsValid("perConsentDateLaidTimestampStr", "Date laid",
+            form.getPerConsentDateLaidTimestampStr(), errors);
+        if (hint.getPipelineChangeCategory() == PipelineChangeCategory.NEW_PIPELINE) {
+          ValidatorUtils.validateDatePickerDateExistsAndIsValid("perConsentDateBroughtIntoUseTimestampStr",
+              "Date pipeline brought into use", form.getPerConsentDateBroughtIntoUseTimestampStr(), errors);
+        }
+        break;
+      case NOT_PER_CONSENT:
+        ValidatorUtils.validateDatePickerDateExistsAndIsValid("notPerConsentDateLaidTimestampStr", "Date laid",
+            form.getNotPerConsentDateLaidTimestampStr(), errors);
+        if (hint.getPipelineChangeCategory() == PipelineChangeCategory.NEW_PIPELINE) {
+          ValidatorUtils.validateDatePickerDateExistsAndIsValid("notPerConsentDateBroughtIntoUseTimestampStr",
+              "Date pipeline brought into use", form.getNotPerConsentDateBroughtIntoUseTimestampStr(), errors);
+        }
+        break;
+      case NOT_LAID_CONSENT_TIMEFRAME:
+        ValidatorUtils.validateDatePickerDateExistsAndIsValid("notInConsentTimeframeDateLaidTimestampStr",
+            "Estimated date pipeline will be laid", form.getNotInConsentTimeframeDateLaidTimestampStr(), errors);
+        break;
+      default:
+    }
+  }
+
+  @Override
+  public boolean supports(Class<?> clazz) {
+    return clazz.equals(AsBuiltNotificationSubmissionForm.class);
+  }
+
+}

@@ -12,7 +12,7 @@
 
   <@fdsCard.card>
       <@fdsCard.cardHeader cardHeadingText="${pipelineAsBuiltSubmissionView.pipelineNumber} - ${pipelineAsBuiltSubmissionView.pipelineTypeDisplay}">
-          <@fdsCard.cardAction cardLinkText=submitButtonText cardLinkUrl="#" cardLinkScreenReaderText="Card with card actions and file list"/>
+          <@fdsCard.cardAction cardLinkText=submitButtonText cardLinkUrl=springUrl(pipelineAsBuiltSubmissionView.submissionLink) cardLinkScreenReaderText="Card with card actions and file list"/>
       </@fdsCard.cardHeader>
       <#if pipelineAsBuiltSubmissionView.submittedOnInstant?hasContent>
         <dl class="govuk-summary-list">
