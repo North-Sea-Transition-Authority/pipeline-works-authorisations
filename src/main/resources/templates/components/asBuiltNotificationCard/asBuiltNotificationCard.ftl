@@ -1,13 +1,13 @@
 <#import '../../fds/components/card/card.ftl' as fdsCard>
 
-<#-- @ftlvariable name="pipelineAsBuiltSubmissionView" type="uk.co.ogauthority.pwa.model.view.asbuilt.AsBuiltPipelineNotificationSubmissionView"-->
+<#-- @ftlvariable name="pipelineAsBuiltSubmissionView" type="uk.co.ogauthority.pwa.model.view.asbuilt.AsBuiltNotificationView"-->
 
 <#macro asBuiltNotificationCard pipelineAsBuiltSubmissionView>
 
   <#if pipelineAsBuiltSubmissionView.submittedOnInstant?hasContent>
-      <#assign submitButtonText = "Submit update"/>
+      <#assign submitButtonText = "Update notification"/>
     <#else>
-      <#assign submitButtonText = "Submit"/>
+      <#assign submitButtonText = "Submit notification"/>
   </#if>
 
   <@fdsCard.card>
@@ -15,7 +15,7 @@
           <@fdsCard.cardAction cardLinkText=submitButtonText cardLinkUrl=springUrl(pipelineAsBuiltSubmissionView.submissionLink) cardLinkScreenReaderText="Card with card actions and file list"/>
       </@fdsCard.cardHeader>
       <#if pipelineAsBuiltSubmissionView.submittedOnInstant?hasContent>
-        <dl class="govuk-summary-list">
+        <dl class="govuk-summary-list govuk-!-margin-bottom-0">
           <#if pipelineAsBuiltSubmissionView.submittedByPersonName?hasContent>
             <div class="govuk-summary-list__row">
               <dt class="govuk-summary-list__key">
@@ -55,7 +55,7 @@
                 ${pipelineAsBuiltSubmissionView.dateLaidDisplay}
               </dd>
             </div>
-            <#elseIf pipelineAsBuiltSubmissionView.expectedDateLaid?hasContent>
+            <#elseIf pipelineAsBuiltSubmissionView.expectedLaidDate?hasContent>
               <div class="govuk-summary-list__row">
                 <dt class="govuk-summary-list__key">
                   Expected laid date

@@ -7,7 +7,7 @@ import uk.co.ogauthority.pwa.util.DateUtils;
 /**
  * A class to contains user displayable info about an individual as-built pipeline notification submission within a notification group.
  */
-public class AsBuiltPipelineNotificationSubmissionView {
+public class AsBuiltNotificationView {
 
   private final String pipelineNumber;
   private final String pipelineTypeDisplay;
@@ -23,9 +23,9 @@ public class AsBuiltPipelineNotificationSubmissionView {
   private String dateBroughtIntoUseDisplay;
   private final String submissionLink;
 
-  public AsBuiltPipelineNotificationSubmissionView(String pipelineNumber, String pipelineTypeDisplay, String submittedByPersonName,
-                                                   Instant submittedOnInstant, String asBuiltNotificationStatusDisplay, LocalDate dateLaid,
-                                                   LocalDate expectedLaidDate, LocalDate dateBroughtIntoUse, String submissionLink) {
+  public AsBuiltNotificationView(String pipelineNumber, String pipelineTypeDisplay, String submittedByPersonName,
+                                 Instant submittedOnInstant, String asBuiltNotificationStatusDisplay, LocalDate dateLaid,
+                                 LocalDate expectedLaidDate, LocalDate dateBroughtIntoUse, String submissionLink) {
     this.pipelineNumber = pipelineNumber;
     this.pipelineTypeDisplay = pipelineTypeDisplay;
     this.submittedByPersonName = submittedByPersonName;
