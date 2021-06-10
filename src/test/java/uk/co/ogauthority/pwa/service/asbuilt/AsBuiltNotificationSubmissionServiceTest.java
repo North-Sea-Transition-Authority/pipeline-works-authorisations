@@ -2,8 +2,11 @@ package uk.co.ogauthority.pwa.service.asbuilt;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.time.Instant;
+import java.time.LocalDate;
+import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -17,6 +20,7 @@ import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationGroup;
 import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationGroupPipeline;
 import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationGroupPipelineUtil;
+import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationGroupStatus;
 import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationGroupTestUtil;
 import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationSubmission;
 import uk.co.ogauthority.pwa.model.entity.asbuilt.PipelineChangeCategory;
@@ -33,6 +37,12 @@ public class AsBuiltNotificationSubmissionServiceTest {
   @Mock
   private AsBuiltNotificationSubmissionRepository asBuiltNotificationSubmissionRepository;
 
+  @Mock
+  private AsBuiltPipelineNotificationService asBuiltPipelineNotificationService;
+
+  @Mock
+  private AsBuiltNotificationGroupStatusService asBuiltNotificationGroupStatusService;
+
   private AsBuiltNotificationSubmissionService asBuiltNotificationSubmissionService;
 
   @Captor
@@ -48,33 +58,61 @@ public class AsBuiltNotificationSubmissionServiceTest {
   private final PipelineDetail pipelineDetail = PipelineDetailTestUtil
       .createPipelineDetail_withDefaultPipelineNumber(PIPElINE_DETAIL_ID, new PipelineId(50), Instant.now());
   private final AsBuiltNotificationGroupPipeline asBuiltNotificationGroupPipeline = AsBuiltNotificationGroupPipelineUtil
-      .createAsBuiltNotificationGroupPipeline(asBuiltNotificationGroup, pipelineDetail.getPipelineDetailId(),
-          PipelineChangeCategory.NEW_PIPELINE);
-  private final AsBuiltNotificationSubmissionForm asBuiltNotificationSubmissionForm = getAsBuiltNotificationSubmissionForm();
-
+      .createAsBuiltNotificationGroupPipeline(asBuiltNotificationGroup, pipelineDetail.getPipelineDetailId(), PipelineChangeCategory.NEW_PIPELINE);
+  private final AsBuiltNotificationSubmissionForm form = getAsBuiltNotificationSubmissionForm();
+  private final AsBuiltNotificationSubmission asBuiltNotificationSubmission = getAsBuiltNotificationSubmission();
 
   @Before
   public void setup() {
-    asBuiltNotificationSubmissionService = new AsBuiltNotificationSubmissionService(asBuiltNotificationSubmissionRepository);
+    asBuiltNotificationSubmissionService = new AsBuiltNotificationSubmissionService(asBuiltNotificationSubmissionRepository,
+        asBuiltNotificationGroupStatusService, asBuiltPipelineNotificationService);
+    when(asBuiltPipelineNotificationService.getAllAsBuiltNotificationGroupPipelines(asBuiltNotificationGroup.getId()))
+        .thenReturn(List.of(asBuiltNotificationGroupPipeline));
+    when(asBuiltNotificationSubmissionRepository.findAllByAsBuiltNotificationGroupPipelineIn(List.of(asBuiltNotificationGroupPipeline)))
+        .thenReturn(List.of(asBuiltNotificationSubmission));
   }
 
   @Test
-  public void submitAsBuiltNotification() {
-    asBuiltNotificationSubmissionService.submitAsBuiltNotification(asBuiltNotificationGroupPipeline, asBuiltNotificationSubmissionForm,
-        user);
+  public void submitAsBuiltNotification_submitsSuccessfully_setsInProgressStatus() {
+    asBuiltNotificationSubmissionService.submitAsBuiltNotification(asBuiltNotificationGroupPipeline, form, user);
     verify(asBuiltNotificationSubmissionRepository).save(asBuiltSubmissionArgumentCaptor.capture());
 
     var asBuiltNotification = asBuiltSubmissionArgumentCaptor.getValue();
     assertThat(asBuiltNotification.getSubmittedByPersonId()).isEqualTo(user.getLinkedPerson().getId());
     assertThat(asBuiltNotification.getAsBuiltNotificationStatus())
-        .isEqualTo(asBuiltNotificationSubmissionForm.getAsBuiltNotificationStatus());
+        .isEqualTo(form.getAsBuiltNotificationStatus());
     assertThat(asBuiltNotification.getDateLaid())
-        .isEqualTo(DateUtils.datePickerStringToDate(asBuiltNotificationSubmissionForm.getPerConsentDateLaidTimestampStr()));
+        .isEqualTo(DateUtils.datePickerStringToDate(form.getPerConsentDateLaidTimestampStr()));
     assertThat(asBuiltNotification.getDatePipelineBroughtIntoUse())
-        .isEqualTo(DateUtils.datePickerStringToDate(asBuiltNotificationSubmissionForm.getPerConsentDateBroughtIntoUseTimestampStr()));
+        .isEqualTo(DateUtils.datePickerStringToDate(form.getPerConsentDateBroughtIntoUseTimestampStr()));
     assertThat(asBuiltNotification.getRegulatorSubmissionReason())
-        .isEqualTo(asBuiltNotificationSubmissionForm.getOgaSubmissionReason());
+        .isEqualTo(form.getOgaSubmissionReason());
     assertThat(asBuiltNotification.getSubmittedTimestamp()).isNotNull();
+
+    verify(asBuiltNotificationGroupStatusService).setGroupStatus(asBuiltNotificationGroup, AsBuiltNotificationGroupStatus.IN_PROGRESS,
+        user.getLinkedPerson());
+  }
+
+  @Test
+  public void submitAsBuiltNotification_submitsSuccessfully_setsCompleteStatus() {
+    asBuiltNotificationSubmission.setAsBuiltNotificationStatus(AsBuiltNotificationStatus.PER_CONSENT);
+    asBuiltNotificationSubmissionService.submitAsBuiltNotification(asBuiltNotificationGroupPipeline, form, user);
+    verify(asBuiltNotificationSubmissionRepository).save(asBuiltSubmissionArgumentCaptor.capture());
+
+    var asBuiltNotification = asBuiltSubmissionArgumentCaptor.getValue();
+    assertThat(asBuiltNotification.getSubmittedByPersonId()).isEqualTo(user.getLinkedPerson().getId());
+    assertThat(asBuiltNotification.getAsBuiltNotificationStatus())
+        .isEqualTo(form.getAsBuiltNotificationStatus());
+    assertThat(asBuiltNotification.getDateLaid())
+        .isEqualTo(DateUtils.datePickerStringToDate(form.getPerConsentDateLaidTimestampStr()));
+    assertThat(asBuiltNotification.getDatePipelineBroughtIntoUse())
+        .isEqualTo(DateUtils.datePickerStringToDate(form.getPerConsentDateBroughtIntoUseTimestampStr()));
+    assertThat(asBuiltNotification.getRegulatorSubmissionReason())
+        .isEqualTo(form.getOgaSubmissionReason());
+    assertThat(asBuiltNotification.getSubmittedTimestamp()).isNotNull();
+
+    verify(asBuiltNotificationGroupStatusService).setGroupStatus(asBuiltNotificationGroup, AsBuiltNotificationGroupStatus.COMPLETE,
+        user.getLinkedPerson());
   }
 
   private AsBuiltNotificationSubmissionForm getAsBuiltNotificationSubmissionForm() {
@@ -86,4 +124,9 @@ public class AsBuiltNotificationSubmissionServiceTest {
     return form;
   }
 
+  private AsBuiltNotificationSubmission getAsBuiltNotificationSubmission() {
+    return new AsBuiltNotificationSubmission(1,
+        asBuiltNotificationGroupPipeline, user.getLinkedPerson().getId(), Instant.now(), AsBuiltNotificationStatus.NOT_PROVIDED,
+        LocalDate.now(), LocalDate.now(), "");
+  }
 }

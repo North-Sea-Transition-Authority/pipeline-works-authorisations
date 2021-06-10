@@ -53,12 +53,15 @@ public class AsBuiltPipelineNotificationService {
   }
 
   public List<PipelineDetail> getPipelineDetailsForAsBuiltNotificationGroup(Integer asBuiltNotificationGroupId) {
-    var asBuiltGroupPipelines = asBuiltNotificationGroupPipelineRepository
-        .findAllByAsBuiltNotificationGroup_Id(asBuiltNotificationGroupId);
+    var asBuiltGroupPipelines = getAllAsBuiltNotificationGroupPipelines(asBuiltNotificationGroupId);
 
     return asBuiltGroupPipelines.stream()
         .map(ngGroupPipeline -> pipelineDetailService.getByPipelineDetailId(ngGroupPipeline.getPipelineDetailId().asInt()))
         .collect(Collectors.toList());
+  }
+
+  List<AsBuiltNotificationGroupPipeline> getAllAsBuiltNotificationGroupPipelines(Integer asBuiltNotificationGroupId) {
+    return asBuiltNotificationGroupPipelineRepository.findAllByAsBuiltNotificationGroup_Id(asBuiltNotificationGroupId);
   }
 
   public PipelineDetail getPipelineDetail(Integer pipelineDetailId) {
