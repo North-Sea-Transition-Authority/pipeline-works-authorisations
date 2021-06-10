@@ -140,7 +140,7 @@ public class PipelineIdentsController {
                                         PwaApplicationContext applicationContext,
                                         RedirectAttributes redirectAttributes) {
 
-    return PipelineControllerRouteUtils.ifAllowedFromOverviewOrError(applicationContext, redirectAttributes, () -> {
+    return PipelineControllerRouteUtils.ifAllowedFromOverviewOrError(applicationContext, () -> {
       var identSummaryValidationResult = padIdentService.getSummaryScreenValidationResult(
           applicationContext.getPadPipeline());
       if (identSummaryValidationResult.isSectionComplete()) {
@@ -220,7 +220,7 @@ public class PipelineIdentsController {
                                            BindingResult bindingResult,
                                            RedirectAttributes redirectAttributes) {
 
-    return PipelineControllerRouteUtils.ifAllowedFromOverviewOrError(applicationContext, redirectAttributes, () -> {
+    return PipelineControllerRouteUtils.ifAllowedFromOverviewOrError(applicationContext, () -> {
       var coreType = applicationContext.getPadPipeline().getCoreType();
       var nextIdent = padIdentService.getIdent(applicationContext.getPadPipeline(), insertAboveIdentId);
       validator.validate(form, bindingResult, applicationContext, coreType);
@@ -247,7 +247,7 @@ public class PipelineIdentsController {
                                    BindingResult bindingResult,
                                    RedirectAttributes redirectAttributes) {
 
-    return PipelineControllerRouteUtils.ifAllowedFromOverviewOrError(applicationContext, redirectAttributes, () -> {
+    return PipelineControllerRouteUtils.ifAllowedFromOverviewOrError(applicationContext, () -> {
 
       validator.validate(form, bindingResult, applicationContext,
           applicationContext.getPadPipeline().getCoreType());
@@ -288,7 +288,7 @@ public class PipelineIdentsController {
                                       @PathVariable("identId") Integer identId,
                                       RedirectAttributes redirectAttributes) {
     var ident = padIdentService.getIdent(applicationContext.getPadPipeline(), identId);
-    return PipelineControllerRouteUtils.ifAllowedFromOverviewOrError(applicationContext, redirectAttributes,
+    return PipelineControllerRouteUtils.ifAllowedFromOverviewOrError(applicationContext,
         () -> {
           padIdentService.removeIdent(ident);
           return ReverseRouter.redirect(on(PipelineIdentsController.class)
@@ -329,7 +329,7 @@ public class PipelineIdentsController {
 
     var ident = padIdentService.getIdent(applicationContext.getPadPipeline(), identId);
 
-    return PipelineControllerRouteUtils.ifAllowedFromOverviewOrError(applicationContext, redirectAttributes,
+    return PipelineControllerRouteUtils.ifAllowedFromOverviewOrError(applicationContext,
         () -> {
           validator.validate(form, bindingResult, applicationContext,
               applicationContext.getPadPipeline().getCoreType());

@@ -17,6 +17,10 @@ import uk.co.ogauthority.pwa.util.FlashUtils;
 
 public class PipelineControllerRouteUtils {
 
+  private PipelineControllerRouteUtils() {
+    throw new AssertionError();
+  }
+
   @VisibleForTesting
   static final Set<PipelineStatus> disallowedStatuses = Set.of(
       PipelineStatus.NEVER_LAID, PipelineStatus.RETURNED_TO_SHORE
@@ -36,7 +40,6 @@ public class PipelineControllerRouteUtils {
   }
 
   public static ModelAndView ifAllowedFromOverviewOrError(PwaApplicationContext applicationContext,
-                                                          RedirectAttributes redirectAttributes,
                                                           Supplier<ModelAndView> modelAndViewIfAllowed) {
     var padPipeline = applicationContext.getPadPipeline();
     if (!isAccessible(padPipeline.getPipelineStatus())) {

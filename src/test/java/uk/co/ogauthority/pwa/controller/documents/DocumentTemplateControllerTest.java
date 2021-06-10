@@ -1,6 +1,5 @@
 package uk.co.ogauthority.pwa.controller.documents;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -95,7 +94,7 @@ public class DocumentTemplateControllerTest extends AbstractControllerTest {
             .andExpect(status().isOk());
 
       } catch (Exception e) {
-        assertThat(false).isTrue();
+        throw new AssertionError(e);
       }
 
     });
@@ -116,7 +115,7 @@ public class DocumentTemplateControllerTest extends AbstractControllerTest {
             .andExpect(status().isForbidden());
 
       } catch (Exception e) {
-        assertThat(false).isTrue();
+        throw new AssertionError(e);
       }
 
     });

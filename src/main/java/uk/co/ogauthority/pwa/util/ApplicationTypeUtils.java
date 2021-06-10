@@ -6,7 +6,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 
 public class ApplicationTypeUtils {
 
-  public ApplicationTypeUtils() {
+  private ApplicationTypeUtils() {
     throw new AssertionError();
   }
 

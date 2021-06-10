@@ -74,16 +74,15 @@ public class LocationDetailsValidator implements SmartValidator {
     }
 
 
-    if (requiredQuestions.contains(LocationDetailsQuestion.ROUTE_SURVEY_UNDERTAKEN)) {
-      if (BooleanUtils.isTrue(form.getRouteSurveyUndertaken())) {
-        ValidatorUtils.validateDateIsPastOrPresent(
-            "surveyConcluded", "survey concluded",
-            form.getSurveyConcludedDay(),
-            form.getSurveyConcludedMonth(),
-            form.getSurveyConcludedYear(),
-            errors
-        );
-      }
+    if (requiredQuestions.contains(LocationDetailsQuestion.ROUTE_SURVEY_UNDERTAKEN)
+        && BooleanUtils.isTrue(form.getRouteSurveyUndertaken())) {
+      ValidatorUtils.validateDateIsPastOrPresent(
+          "surveyConcluded", "survey concluded",
+          form.getSurveyConcludedDay(),
+          form.getSurveyConcludedMonth(),
+          form.getSurveyConcludedYear(),
+          errors
+      );
     }
   }
 

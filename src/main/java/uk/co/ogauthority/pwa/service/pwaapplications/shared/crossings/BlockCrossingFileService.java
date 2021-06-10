@@ -2,8 +2,6 @@ package uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BeanPropertyBindingResult;
@@ -21,7 +19,6 @@ import uk.co.ogauthority.pwa.util.validationgroups.MandatoryUploadValidation;
 
 @Service
 public class BlockCrossingFileService implements ApplicationFormSectionService {
-  private static final Logger LOGGER = LoggerFactory.getLogger(BlockCrossingFileService.class);
 
   private final PadCrossedBlockRepository padCrossedBlockRepository;
   private final PadFileService padFileService;
@@ -68,6 +65,6 @@ public class BlockCrossingFileService implements ApplicationFormSectionService {
 
   @Override
   public void copySectionInformation(PwaApplicationDetail fromDetail, PwaApplicationDetail toDetail) {
-    LOGGER.warn("TODO PWA-816: " + this.getClass().getName());
+    // files copied in BlockCrossingService
   }
 }

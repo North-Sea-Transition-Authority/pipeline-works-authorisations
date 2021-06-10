@@ -27,7 +27,7 @@ public class TemplateDocumentSource implements DocumentSource {
 
   @Override
   public Object getSource() {
-    return documentTemplateMnem;
+    return getDocumentTemplateMnem();
   }
 
   @Override

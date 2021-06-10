@@ -15,6 +15,10 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
  */
 public class FlashUtils {
 
+  private FlashUtils() {
+    throw new AssertionError();
+  }
+
   public static void success(RedirectAttributes redirectAttributes, String title) {
     redirectAttributes.addFlashAttribute("flashClass", "fds-flash--green");
     addTextAttributes(redirectAttributes, title, null);

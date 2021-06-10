@@ -174,10 +174,9 @@ public class PipelinesController {
                                        @PathVariable("padPipelineId") Integer padPipelineId,
                                        PwaApplicationContext applicationContext,
                                        @ModelAttribute("form") PipelineHeaderForm form,
-                                       BindingResult bindingResult,
-                                       RedirectAttributes redirectAttributes) {
+                                       BindingResult bindingResult) {
 
-    return PipelineControllerRouteUtils.ifAllowedFromOverviewOrError(applicationContext, redirectAttributes, () -> {
+    return PipelineControllerRouteUtils.ifAllowedFromOverviewOrError(applicationContext, () -> {
 
       var padPipeline = applicationContext.getPadPipeline();
 

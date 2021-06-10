@@ -70,7 +70,6 @@ public class PipelineControllerRouteUtilsTest {
     padPipeline.setPipelineStatus(PipelineStatus.IN_SERVICE);
     var result = PipelineControllerRouteUtils.ifAllowedFromOverviewOrError(
         applicationContext,
-        redirectAttributes,
         () -> modelAndViewOk
     );
     assertThat(Objects.requireNonNull(result.getStatus())).isEqualTo(HttpStatus.OK);
@@ -81,7 +80,6 @@ public class PipelineControllerRouteUtilsTest {
     padPipeline.setPipelineStatus(PipelineStatus.NEVER_LAID);
     PipelineControllerRouteUtils.ifAllowedFromOverviewOrError(
         applicationContext,
-        redirectAttributes,
         () -> modelAndViewOk
     );
   }

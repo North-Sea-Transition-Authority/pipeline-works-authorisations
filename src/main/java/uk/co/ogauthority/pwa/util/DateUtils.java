@@ -12,7 +12,7 @@ import java.util.function.Consumer;
 
 public class DateUtils {
 
-  public DateUtils() {
+  private DateUtils() {
     throw new AssertionError();
   }
 

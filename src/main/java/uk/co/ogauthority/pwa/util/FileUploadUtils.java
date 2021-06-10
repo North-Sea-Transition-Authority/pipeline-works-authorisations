@@ -11,7 +11,7 @@ import uk.co.ogauthority.pwa.util.validationgroups.MandatoryUploadValidation;
 
 public class FileUploadUtils {
 
-  public FileUploadUtils() {
+  private FileUploadUtils() {
     throw new AssertionError();
   }
 

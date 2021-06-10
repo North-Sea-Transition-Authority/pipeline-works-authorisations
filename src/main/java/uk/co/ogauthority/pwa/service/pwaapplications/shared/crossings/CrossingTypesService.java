@@ -1,7 +1,5 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 import uk.co.ogauthority.pwa.exception.ActionNotAllowedException;
@@ -13,7 +11,6 @@ import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.pipeline.C
 
 @Service
 public class CrossingTypesService implements ApplicationFormSectionService {
-  private static final Logger LOGGER = LoggerFactory.getLogger(CrossingTypesService.class);
 
   public void mapApplicationDetailToForm(PwaApplicationDetail detail, CrossingTypesForm form) {
     form.setMedianLineCrossed(detail.getMedianLineCrossed());

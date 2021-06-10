@@ -31,7 +31,7 @@ public class ValidatorUtils {
   private static final String DATE_INVALID_ERROR_FORMAT = "Enter a valid %s date using the format day " +
       "(1-31), month (1-12), year (4 digits)";
 
-  public ValidatorUtils() {
+  private ValidatorUtils() {
     throw new AssertionError();
   }
 
