@@ -1,6 +1,9 @@
 package uk.co.ogauthority.pwa.service.asbuilt;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -43,6 +46,9 @@ public class AsBuiltNotificationSubmissionServiceTest {
   @Mock
   private AsBuiltNotificationGroupStatusService asBuiltNotificationGroupStatusService;
 
+  @Mock
+  private AsBuiltNotificationEmailService asBuiltNotificationEmailService;
+
   private AsBuiltNotificationSubmissionService asBuiltNotificationSubmissionService;
 
   @Captor
@@ -65,7 +71,8 @@ public class AsBuiltNotificationSubmissionServiceTest {
   @Before
   public void setup() {
     asBuiltNotificationSubmissionService = new AsBuiltNotificationSubmissionService(asBuiltNotificationSubmissionRepository,
-        asBuiltNotificationGroupStatusService, asBuiltPipelineNotificationService);
+        asBuiltNotificationGroupStatusService, asBuiltPipelineNotificationService, asBuiltNotificationEmailService,
+        "consents@oga.co.uk");
     when(asBuiltPipelineNotificationService.getAllAsBuiltNotificationGroupPipelines(asBuiltNotificationGroup.getId()))
         .thenReturn(List.of(asBuiltNotificationGroupPipeline));
     when(asBuiltNotificationSubmissionRepository.findAllByAsBuiltNotificationGroupPipelineIn(List.of(asBuiltNotificationGroupPipeline)))
@@ -91,6 +98,7 @@ public class AsBuiltNotificationSubmissionServiceTest {
 
     verify(asBuiltNotificationGroupStatusService).setGroupStatus(asBuiltNotificationGroup, AsBuiltNotificationGroupStatus.IN_PROGRESS,
         user.getLinkedPerson());
+    verify(asBuiltNotificationEmailService, never()).sendAsBuiltNotificationNotPerConsentEmail(any(), any(), any(), any(), any());
   }
 
   @Test
@@ -113,6 +121,36 @@ public class AsBuiltNotificationSubmissionServiceTest {
 
     verify(asBuiltNotificationGroupStatusService).setGroupStatus(asBuiltNotificationGroup, AsBuiltNotificationGroupStatus.COMPLETE,
         user.getLinkedPerson());
+    verify(asBuiltNotificationEmailService, never()).sendAsBuiltNotificationNotPerConsentEmail(any(), any(), any(), any(), any());
+  }
+
+
+  @Test
+  public void submitAsBuiltNotification_submitsSuccessfully_sendsOgaEmail() {
+    when(asBuiltPipelineNotificationService.getPipelineDetail(pipelineDetail.getPipelineDetailId().asInt()))
+        .thenReturn(pipelineDetail);
+
+    asBuiltNotificationSubmission.setAsBuiltNotificationStatus(AsBuiltNotificationStatus.NOT_PER_CONSENT);
+    var notPerConsentForm = getNotPerConsentAsBuiltNotificationSubmissionForm();
+    asBuiltNotificationSubmissionService.submitAsBuiltNotification(asBuiltNotificationGroupPipeline, notPerConsentForm, user);
+    verify(asBuiltNotificationSubmissionRepository).save(asBuiltSubmissionArgumentCaptor.capture());
+
+    var asBuiltNotification = asBuiltSubmissionArgumentCaptor.getValue();
+    assertThat(asBuiltNotification.getSubmittedByPersonId()).isEqualTo(user.getLinkedPerson().getId());
+    assertThat(asBuiltNotification.getAsBuiltNotificationStatus())
+        .isEqualTo(notPerConsentForm.getAsBuiltNotificationStatus());
+    assertThat(asBuiltNotification.getDateLaid())
+        .isEqualTo(DateUtils.datePickerStringToDate(notPerConsentForm.getNotPerConsentDateLaidTimestampStr()));
+    assertThat(asBuiltNotification.getDatePipelineBroughtIntoUse())
+        .isEqualTo(DateUtils.datePickerStringToDate(notPerConsentForm.getNotPerConsentDateBroughtIntoUseTimestampStr()));
+    assertThat(asBuiltNotification.getRegulatorSubmissionReason())
+        .isEqualTo(notPerConsentForm.getOgaSubmissionReason());
+    assertThat(asBuiltNotification.getSubmittedTimestamp()).isNotNull();
+
+    verify(asBuiltNotificationGroupStatusService).setGroupStatus(asBuiltNotificationGroup, AsBuiltNotificationGroupStatus.COMPLETE,
+        user.getLinkedPerson());
+    verify(asBuiltNotificationEmailService).sendAsBuiltNotificationNotPerConsentEmail(any(), any(), eq(asBuiltNotificationGroup),
+        eq(pipelineDetail.getPipelineNumber()), eq(notPerConsentForm.getAsBuiltNotificationStatus()));
   }
 
   private AsBuiltNotificationSubmissionForm getAsBuiltNotificationSubmissionForm() {
@@ -124,9 +162,19 @@ public class AsBuiltNotificationSubmissionServiceTest {
     return form;
   }
 
+  private AsBuiltNotificationSubmissionForm getNotPerConsentAsBuiltNotificationSubmissionForm() {
+    var form = new AsBuiltNotificationSubmissionForm();
+    form.setNotPerConsentDateLaidTimestampStr("01/01/2010");
+    form.setNotPerConsentDateBroughtIntoUseTimestampStr("02/02/2020");
+    form.setAsBuiltNotificationStatus(AsBuiltNotificationStatus.NOT_PER_CONSENT);
+    form.setOgaSubmissionReason("Reason");
+    return form;
+  }
+
   private AsBuiltNotificationSubmission getAsBuiltNotificationSubmission() {
     return new AsBuiltNotificationSubmission(1,
         asBuiltNotificationGroupPipeline, user.getLinkedPerson().getId(), Instant.now(), AsBuiltNotificationStatus.NOT_PROVIDED,
         LocalDate.now(), LocalDate.now(), "");
   }
+
 }

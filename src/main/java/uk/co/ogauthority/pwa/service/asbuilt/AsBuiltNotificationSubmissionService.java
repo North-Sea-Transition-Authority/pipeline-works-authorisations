@@ -6,13 +6,16 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
+import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineDetailId;
 import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationGroup;
 import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationGroupPipeline;
 import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationGroupStatus;
 import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationSubmission;
+import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
 import uk.co.ogauthority.pwa.model.enums.aabuilt.AsBuiltNotificationStatus;
 import uk.co.ogauthority.pwa.model.form.asbuilt.AsBuiltNotificationSubmissionForm;
 import uk.co.ogauthority.pwa.repository.asbuilt.AsBuiltNotificationSubmissionRepository;
@@ -24,15 +27,21 @@ class AsBuiltNotificationSubmissionService {
   private final AsBuiltNotificationSubmissionRepository asBuiltNotificationSubmissionRepository;
   private final AsBuiltNotificationGroupStatusService asBuiltNotificationGroupStatusService;
   private final AsBuiltPipelineNotificationService asBuiltPipelineNotificationService;
+  private final AsBuiltNotificationEmailService asBuiltNotificationEmailService;
+  private final String ogaConsentsEmail;
 
   @Autowired
   AsBuiltNotificationSubmissionService(
       AsBuiltNotificationSubmissionRepository asBuiltNotificationSubmissionRepository,
       AsBuiltNotificationGroupStatusService asBuiltNotificationGroupStatusService,
-      AsBuiltPipelineNotificationService asBuiltPipelineNotificationService) {
+      AsBuiltPipelineNotificationService asBuiltPipelineNotificationService,
+      AsBuiltNotificationEmailService asBuiltNotificationEmailService,
+      @Value("${oga.consents.email}") String ogaConsentsEmail) {
     this.asBuiltNotificationSubmissionRepository = asBuiltNotificationSubmissionRepository;
     this.asBuiltNotificationGroupStatusService = asBuiltNotificationGroupStatusService;
     this.asBuiltPipelineNotificationService = asBuiltPipelineNotificationService;
+    this.asBuiltNotificationEmailService = asBuiltNotificationEmailService;
+    this.ogaConsentsEmail = ogaConsentsEmail;
   }
 
   void submitAsBuiltNotification(AsBuiltNotificationGroupPipeline abngPipeline, AsBuiltNotificationSubmissionForm form,
@@ -43,6 +52,11 @@ class AsBuiltNotificationSubmissionService {
     mapFormToEntity(form, asBuiltSubmission);
     saveAsBuiltNotificationSubmission(asBuiltSubmission);
     updateAsBuiltGroupStatus(abngPipeline.getAsBuiltNotificationGroup(), user.getLinkedPerson());
+    if (doesOgaNeedToBeNotified(form)) {
+      var pipelineDetail = getPipelineDetail(abngPipeline.getPipelineDetailId());
+      notifyOgaIfNotificationNotPerConsent(asBuiltSubmission.getAsBuiltNotificationGroupPipeline().getAsBuiltNotificationGroup(),
+          pipelineDetail.getPipelineNumber(), form.getAsBuiltNotificationStatus());
+    }
   }
 
   private void updateAsBuiltGroupStatus(AsBuiltNotificationGroup asBuiltNotificationGroup, Person person) {
@@ -112,7 +126,20 @@ class AsBuiltNotificationSubmissionService {
     if (Objects.nonNull(dateBroughtIntoUseStr)) {
       asBuiltSubmission.setDatePipelineBroughtIntoUse(DateUtils.datePickerStringToDate(dateBroughtIntoUseStr));
     }
+  }
 
+  private PipelineDetail getPipelineDetail(PipelineDetailId pipelineDetailId) {
+    return asBuiltPipelineNotificationService.getPipelineDetail(pipelineDetailId.asInt());
+  }
+
+  private boolean doesOgaNeedToBeNotified(AsBuiltNotificationSubmissionForm form) {
+    return form.getAsBuiltNotificationStatus() != AsBuiltNotificationStatus.PER_CONSENT;
+  }
+
+  private void notifyOgaIfNotificationNotPerConsent(AsBuiltNotificationGroup asBuiltNotificationGroup,
+                                                    String pipelineNumber, AsBuiltNotificationStatus asBuiltNotificationStatus) {
+    asBuiltNotificationEmailService.sendAsBuiltNotificationNotPerConsentEmail(ogaConsentsEmail,
+        "Consents team", asBuiltNotificationGroup, pipelineNumber, asBuiltNotificationStatus);
   }
 
 }
