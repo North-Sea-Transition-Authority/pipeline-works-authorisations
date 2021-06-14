@@ -84,6 +84,7 @@
     This statement was prepared on 14 June 2021. It was last reviewed on 14 June 2021.
   </p>
   <p class="govuk-body">
+    <#--  TODO PWA-1341: update last tested date  -->
     This website was last tested on 25th March 2021. The test was carried out by Fivium Ltd.
   </p>
   <p class="govuk-body">
