@@ -22,6 +22,7 @@ import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfig
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
+import uk.co.ogauthority.pwa.config.ServiceProperties;
 import uk.co.ogauthority.pwa.config.fileupload.FileUploadProperties;
 import uk.co.ogauthority.pwa.energyportal.service.SystemAreaAccessService;
 import uk.co.ogauthority.pwa.energyportal.service.TopMenuService;
@@ -32,6 +33,7 @@ import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingConte
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.devuk.DevukFieldService;
 import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
+import uk.co.ogauthority.pwa.service.footer.FooterService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
@@ -102,6 +104,12 @@ public abstract class PwaApplicationContextAbstractControllerTest {
   @SpyBean
   private ControllerHelperService controllerHelperService;
 
+  @MockBean
+  protected ServiceProperties serviceProperties;
+
+  @SpyBean
+  protected FooterService footerServices;
+
   @Before
   public void abstractControllerTestSetup() {
 
@@ -118,6 +126,9 @@ public abstract class PwaApplicationContextAbstractControllerTest {
     when(pwaApplicationRedirectService.getTaskListRedirect(any())).thenCallRealMethod();
     when(pwaApplicationRedirectService.getTaskListRoute(any())).thenCallRealMethod();
     when(pwaApplicationRedirectService.getTaskListRoute(anyInt(), any())).thenCallRealMethod();
+
+    when(serviceProperties.getCustomerName()).thenReturn("oga");
+    when(serviceProperties.getServiceName()).thenReturn("pwa");
 
   }
 

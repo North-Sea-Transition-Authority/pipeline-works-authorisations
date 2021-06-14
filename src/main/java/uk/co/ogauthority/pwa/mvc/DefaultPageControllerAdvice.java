@@ -10,9 +10,11 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import uk.co.ogauthority.pwa.auth.CurrentUserView;
+import uk.co.ogauthority.pwa.config.ServiceProperties;
 import uk.co.ogauthority.pwa.energyportal.service.TopMenuService;
 import uk.co.ogauthority.pwa.service.FoxUrlService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
+import uk.co.ogauthority.pwa.service.footer.FooterService;
 import uk.co.ogauthority.pwa.util.SecurityUtils;
 
 /**
@@ -24,12 +26,20 @@ public class DefaultPageControllerAdvice {
   private final FoxUrlService foxUrlService;
   private final TopMenuService topMenuService;
   private final HttpServletRequest request;
+  private final ServiceProperties serviceProperties;
+  private final FooterService footerService;
 
   @Autowired
-  public DefaultPageControllerAdvice(FoxUrlService foxUrlService, TopMenuService topMenuService, HttpServletRequest request) {
+  public DefaultPageControllerAdvice(FoxUrlService foxUrlService,
+                                     TopMenuService topMenuService,
+                                     HttpServletRequest request,
+                                     ServiceProperties serviceProperties,
+                                     FooterService footerService) {
     this.foxUrlService = foxUrlService;
     this.topMenuService = topMenuService;
     this.request = request;
+    this.serviceProperties = serviceProperties;
+    this.footerService = footerService;
   }
 
   @InitBinder
@@ -44,6 +54,8 @@ public class DefaultPageControllerAdvice {
     addLogoutUrl(model);
     addTopMenuItems(model, request);
     addSubmitButtonText(model);
+    footerService.addFooterUrlsToModel(model);
+    model.addAttribute("service", serviceProperties);
   }
 
   private void addCurrentUserView(Model model) {
