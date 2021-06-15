@@ -17,6 +17,7 @@ import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfig
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
+import uk.co.ogauthority.pwa.config.ServiceProperties;
 import uk.co.ogauthority.pwa.config.fileupload.FileUploadProperties;
 import uk.co.ogauthority.pwa.energyportal.service.SystemAreaAccessService;
 import uk.co.ogauthority.pwa.energyportal.service.TopMenuService;
@@ -33,6 +34,7 @@ import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingConte
 import uk.co.ogauthority.pwa.service.consultations.ConsultationRequestService;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.fileupload.AppFileService;
+import uk.co.ogauthority.pwa.service.footer.FooterService;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
@@ -107,6 +109,12 @@ public abstract class PwaAppProcessingContextAbstractControllerTest {
   @MockBean
   protected CaseSummaryViewService caseSummaryViewService;
 
+  @MockBean
+  protected ServiceProperties serviceProperties;
+
+  @SpyBean
+  protected FooterService footerServices;
+
   @Before
   public void abstractControllerTestSetup() {
     mockMvc = MockMvcBuilders
@@ -123,6 +131,8 @@ public abstract class PwaAppProcessingContextAbstractControllerTest {
     var caseSummaryView = CaseSummaryView.from(appDetailView);
     when(caseSummaryViewService.getCaseSummaryViewForAppDetail(any())).thenReturn(Optional.of(caseSummaryView));
 
+    when(serviceProperties.getCustomerName()).thenReturn("oga");
+    when(serviceProperties.getServiceName()).thenReturn("pwa");
   }
 
   @TestConfiguration

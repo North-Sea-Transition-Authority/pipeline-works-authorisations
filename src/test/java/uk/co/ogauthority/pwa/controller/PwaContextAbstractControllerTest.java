@@ -17,6 +17,7 @@ import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfig
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
+import uk.co.ogauthority.pwa.config.ServiceProperties;
 import uk.co.ogauthority.pwa.config.fileupload.FileUploadProperties;
 import uk.co.ogauthority.pwa.energyportal.service.SystemAreaAccessService;
 import uk.co.ogauthority.pwa.energyportal.service.TopMenuService;
@@ -24,6 +25,7 @@ import uk.co.ogauthority.pwa.model.entity.UserSession;
 import uk.co.ogauthority.pwa.service.FoxUrlService;
 import uk.co.ogauthority.pwa.service.UserSessionService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContextService;
+import uk.co.ogauthority.pwa.service.footer.FooterService;
 import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaService;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
@@ -93,6 +95,12 @@ public abstract class PwaContextAbstractControllerTest {
   @MockBean
   protected PwaAppProcessingContextService pwaAppProcessingContextService;
 
+  @MockBean
+  protected ServiceProperties serviceProperties;
+
+  @SpyBean
+  protected FooterService footerServices;
+
 
 
   @Before
@@ -106,6 +114,9 @@ public abstract class PwaContextAbstractControllerTest {
     when(foxUrlService.getFoxLogoutUrl()).thenReturn("testLogoutUrl");
 
     when(userSessionService.getAndValidateSession(any(), anyBoolean())).thenReturn(Optional.of(new UserSession()));
+
+    when(serviceProperties.getCustomerName()).thenReturn("oga");
+    when(serviceProperties.getServiceName()).thenReturn("pwa");
 
   }
 

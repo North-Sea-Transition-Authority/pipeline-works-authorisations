@@ -134,7 +134,13 @@ errorItems=[]>
     </#if>
 
     <#--Footer-->
-        <@fdsFooter.footer wrapperWidth=wrapperWidth/>
+    <#local footerMetaContent>
+      <@fdsFooter.footerMeta footerMetaHiddenHeading="Support links">
+        <@fdsFooter.footerMetaLink linkText="Accessibility statement" linkUrl=springUrl(accessibilityStatementUrl)/>
+      </@fdsFooter.footerMeta>
+    </#local>
+    <@fdsFooter.footer wrapperWidth=wrapperWidth metaLinks=true footerMetaContent=footerMetaContent/>
+
 
     <#--Custom scripts go here-->
         <script src="<@spring.url '/assets/static/js/pwa/tableSelectionToggler.js'/>"></script>
