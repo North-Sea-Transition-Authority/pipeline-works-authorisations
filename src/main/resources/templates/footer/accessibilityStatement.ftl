@@ -11,7 +11,7 @@
 
   <#assign customerName = service.customerName />
 
-  <h2 class="govuk-heading-m">Using this website</h2>
+  <h2 class="govuk-heading-m" id="using-website">Using this website</h2>
   <p class="govuk-body">
     This website is run by the ${customerName}. We want as many people as possible to be able to use this website.
   </p>
@@ -23,7 +23,7 @@
     making your device easier to use if you have a disability.
   </p>
 
-  <h2 class="govuk-heading-m">How accessible is this website</h2>
+  <h2 class="govuk-heading-m" id="accessibility-coverage">How accessible is this website</h2>
   <p class="govuk-body">
     We know some parts of this website are not fully accessible. We've listed the issues we know about
     in the <a href="#non-accessible-content" class="govuk-link">non-accessible content</a> section.
@@ -32,7 +32,7 @@
     For users of voice dictation software you may have to use in built features in order to input information.
   </p>
 
-  <h2 class="govuk-heading-m">Reporting accessibility problems with this website</h2>
+  <h2 class="govuk-heading-m" id="reporting-accessibility-problem">Reporting accessibility problems with this website</h2>
   <p class="govuk-body">
     We are always looking to improve the accessibility of this website. If you need information on this website in a
     different format like accessible PDF, large print, easy read, audio recording or braille or if you find any problems
@@ -44,13 +44,13 @@
     We will consider your request and get back to you in 5 working days.
   </p>
 
-  <h2 class="govuk-heading-m">Technical information about this website’s accessibility</h2>
+  <h2 class="govuk-heading-m" id="technical-info">Technical information about this website’s accessibility</h2>
   <p class="govuk-body">
     The ${customerName} is committed to making this website accessible, in accordance with the Public Sector Bodies
     (Websites and Mobile Applications) (No.2) Accessibility Regulations 2018.
   </p>
 
-  <h2 class="govuk-heading-m">Compliance status</h2>
+  <h2 class="govuk-heading-m" id="compliance-status">Compliance status</h2>
   <p class="govuk-body">
     This website is partially compliant with the
     <@fdsAction.link
@@ -79,7 +79,7 @@
     </li>
   </ul>
 
-  <h2 class="govuk-heading-m">Preparation of this accessibility statement</h2>
+  <h2 class="govuk-heading-m" id="preparation-statement">Preparation of this accessibility statement</h2>
   <p class="govuk-body">
     This statement was prepared on 14 June 2021. It was last reviewed on 14 June 2021.
   </p>
