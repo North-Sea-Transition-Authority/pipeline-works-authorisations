@@ -73,7 +73,7 @@ public class AsBuiltViewerServiceTest {
   @Test
   public void getAsBuiltPipelineNotificationSubmissionViews_serviceCalledSuccessfully() {
     asBuiltViewerService.getAsBuiltPipelineNotificationSubmissionViews(asBuiltNotificationGroup.getId());
-    verify(asBuiltNotificationViewService).getAsBuiltPipelineNotificationSubmissionViews(List.of());
+    verify(asBuiltNotificationViewService).getAsBuiltPipelineNotificationSubmissionViews(asBuiltNotificationGroup.getId(), List.of());
   }
 
 }

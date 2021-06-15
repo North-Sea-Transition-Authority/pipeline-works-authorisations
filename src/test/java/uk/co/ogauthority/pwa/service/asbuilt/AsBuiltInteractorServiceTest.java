@@ -19,14 +19,16 @@ import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
-import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
-import uk.co.ogauthority.pwa.energyportal.model.entity.PersonTestUtil;
+import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccountTestUtil;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineDetailId;
 import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationGroup;
+import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationGroupPipeline;
 import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationGroupStatus;
 import uk.co.ogauthority.pwa.model.entity.asbuilt.PipelineChangeCategory;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsentTestUtil;
+import uk.co.ogauthority.pwa.model.form.asbuilt.AsBuiltNotificationSubmissionForm;
 import uk.co.ogauthority.pwa.repository.asbuilt.AsBuiltNotificationGroupRepository;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -47,6 +49,9 @@ public class AsBuiltInteractorServiceTest {
   @Mock
   private AsBuiltPipelineNotificationService asBuiltPipelineNotificationService;
 
+  @Mock
+  private AsBuiltNotificationSubmissionService asBuiltNotificationSubmissionService;
+
   @Captor
   private ArgumentCaptor<AsBuiltNotificationGroup> notificationGroupArgumentCaptor;
 
@@ -56,7 +61,7 @@ public class AsBuiltInteractorServiceTest {
 
   private PwaConsent pwaConsent;
 
-  private Person person;
+  private final AuthenticatedUserAccount user = AuthenticatedUserAccountTestUtil.createAllPrivUserAccount(100);
 
   private Object[] getAllMockedServices(){
     return new Object[] {
@@ -75,10 +80,9 @@ public class AsBuiltInteractorServiceTest {
         asBuiltGroupStatusService,
         asBuiltGroupDeadlineService,
         asBuiltPipelineNotificationService,
-        clock
+        asBuiltNotificationSubmissionService, clock
     );
 
-    person= PersonTestUtil.createDefaultPerson();
     pwaConsent = PwaConsentTestUtil.createInitial(null);
 
     when(asBuiltNotificationGroupRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
@@ -93,7 +97,7 @@ public class AsBuiltInteractorServiceTest {
         new AsBuiltPipelineNotificationSpec(new PipelineDetailId(1), PipelineChangeCategory.NEW_PIPELINE)
     );
 
-    asBuiltInteractorService.createAsBuiltNotification(pwaConsent, AS_BUILT_REFERENCE, DEADLINE_DATE, person, pipelineSpecs);
+    asBuiltInteractorService.createAsBuiltNotification(pwaConsent, AS_BUILT_REFERENCE, DEADLINE_DATE, user.getLinkedPerson(), pipelineSpecs);
 
     InOrder inOrder = Mockito.inOrder(getAllMockedServices());
 
@@ -101,8 +105,8 @@ public class AsBuiltInteractorServiceTest {
     inOrder.verify(asBuiltNotificationGroupRepository).save(notificationGroupArgumentCaptor.capture());
     var newGroup = notificationGroupArgumentCaptor.getValue();
 
-    inOrder.verify(asBuiltGroupStatusService).setNewTipStatus(newGroup, AsBuiltNotificationGroupStatus.NOT_STARTED, person);
-    inOrder.verify(asBuiltGroupDeadlineService).setNewDeadline(newGroup, DEADLINE_DATE, person);
+    inOrder.verify(asBuiltGroupStatusService).setNewTipStatus(newGroup, AsBuiltNotificationGroupStatus.NOT_STARTED, user.getLinkedPerson());
+    inOrder.verify(asBuiltGroupDeadlineService).setNewDeadline(newGroup, DEADLINE_DATE, user.getLinkedPerson());
     inOrder.verify(asBuiltPipelineNotificationService).addPipelineDetailsToAsBuiltNotificationGroup(newGroup, pipelineSpecs);
 
     inOrder.verifyNoMoreInteractions();
@@ -116,7 +120,7 @@ public class AsBuiltInteractorServiceTest {
         new AsBuiltPipelineNotificationSpec(new PipelineDetailId(1), PipelineChangeCategory.NEW_PIPELINE)
     );
 
-    asBuiltInteractorService.createAsBuiltNotification(pwaConsent, AS_BUILT_REFERENCE, DEADLINE_DATE, person, pipelineSpecs);
+    asBuiltInteractorService.createAsBuiltNotification(pwaConsent, AS_BUILT_REFERENCE, DEADLINE_DATE, user.getLinkedPerson(), pipelineSpecs);
 
 
     verify(asBuiltNotificationGroupRepository).save(notificationGroupArgumentCaptor.capture());
@@ -129,4 +133,13 @@ public class AsBuiltInteractorServiceTest {
     });
 
   }
+
+  @Test
+  public void submitAsBuiltNotification_callsSubmissionService() {
+    var abngPipeline = new AsBuiltNotificationGroupPipeline();
+    var form = new AsBuiltNotificationSubmissionForm();
+    asBuiltInteractorService.submitAsBuiltNotification(abngPipeline, form, user);
+    verify(asBuiltNotificationSubmissionService).submitAsBuiltNotification(abngPipeline, form, user);
+  }
+
 }

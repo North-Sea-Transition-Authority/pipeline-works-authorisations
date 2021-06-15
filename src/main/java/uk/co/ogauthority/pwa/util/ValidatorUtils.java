@@ -169,7 +169,38 @@ public class ValidatorUtils {
     );
   }
 
+  /**
+   * Provide standardised error messages to ensure consistent date validation.
+   * Ensures that the date is valid and parseable.
+   *
+   * @param fieldName     The name of the field on the form for the error to bind to.
+   * @param displayPrefix The grouped name in the error message. EG: "proposed start".
+   * @param dateStr       The String date to parsed, must be in the format (dd/mm/yyyy) to be successfully parsed
+   * @param errors        Errors object to add rejection codes and messages to.
+   * @return True if date is valid with no errors.
+   */
+  public static boolean validateDatePickerDateExistsAndIsValid(String fieldName,
+                                                                String displayPrefix,
+                                                                String dateStr,
+                                                                Errors errors) {
+    displayPrefix = displayPrefix.toLowerCase();
+    try {
 
+      ValidationUtils.rejectIfEmptyOrWhitespace(errors, fieldName, REQUIRED.errorCode(fieldName), "Enter a " + displayPrefix);
+
+      if (dateStr != null) {
+        DateUtils.datePickerStringToDate(dateStr);
+        return true;
+      }
+      return false;
+
+    } catch (DateTimeParseException e) {
+      errors.rejectValue(fieldName, FieldValidationErrorCodes.INVALID.errorCode(fieldName),
+          StringUtils.capitalize(displayPrefix) + " must be a valid date in the format dd/mm/yyyy");
+      return false;
+    }
+
+  }
 
   /**
    * Provide standardised error messages to ensure consistent date validation.
@@ -209,8 +240,6 @@ public class ValidatorUtils {
     }
 
   }
-
-
 
   /**
    * Provide standardised error messages to ensure consistent date validation.

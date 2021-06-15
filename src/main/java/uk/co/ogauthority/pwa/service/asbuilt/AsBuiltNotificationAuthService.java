@@ -30,7 +30,7 @@ public class AsBuiltNotificationAuthService {
     return isPersonAsBuiltNotificationAdmin(person) || isPersonAsBuiltSubmitterInHolderTeam(person, masterPwa);
   }
 
-  private boolean isPersonAsBuiltNotificationAdmin(Person person) {
+  public boolean isPersonAsBuiltNotificationAdmin(Person person) {
     return pwaTeamService.getPeopleWithRegulatorRole(PwaRegulatorRole.AS_BUILT_NOTIFICATION_ADMIN).contains(person);
   }
 

@@ -68,4 +68,14 @@ public class AsBuiltNotificationAuthServiceTest {
     assertFalse(asBuiltNotificationAuthService.canPersonAccessAsbuiltNotificationGroup(industryUnauthorized, NOTIFICATION_GROUP_ID));
   }
 
+  @Test
+  public void isPersonAsBuiltNotificationAdmin_industryUser() {
+    assertFalse(asBuiltNotificationAuthService.isPersonAsBuiltNotificationAdmin(industryAsBuiltSubmitter));
+  }
+
+  @Test
+  public void isPersonAsBuiltNotificationAdmin_OgaUser() {
+    assertTrue(asBuiltNotificationAuthService.isPersonAsBuiltNotificationAdmin(regulator));
+  }
+
 }

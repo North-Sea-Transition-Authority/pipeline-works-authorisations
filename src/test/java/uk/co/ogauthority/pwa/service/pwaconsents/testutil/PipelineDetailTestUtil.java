@@ -44,6 +44,11 @@ public class PipelineDetailTestUtil {
     return pipelineDetail;
   }
 
+  public static PipelineDetail createPipelineDetail_withDefaultPipelineNumber(Integer id, PipelineId pipelineId, Instant startTimestamp) {
+    var pipelineDetail = createPipelineDetail(id, pipelineId, startTimestamp);
+    pipelineDetail.setPipelineNumber("PL6001");
+    return pipelineDetail;
+  }
 
   public static PipelineOverview createPipelineOverview(String referenceId) {
     PadPipeline padPipeline = createPadPipeline();
