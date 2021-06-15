@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.model.entity.enums;
+package uk.co.ogauthority.pwa.model.entity.enums.locationdetails;
 
 import java.util.Arrays;
 import java.util.stream.Stream;

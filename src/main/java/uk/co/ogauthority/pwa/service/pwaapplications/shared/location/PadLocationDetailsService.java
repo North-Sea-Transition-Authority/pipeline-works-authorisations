@@ -16,8 +16,9 @@ import org.springframework.validation.BindingResult;
 import uk.co.ogauthority.pwa.model.entity.devuk.DevukFacility;
 import uk.co.ogauthority.pwa.model.entity.devuk.PadFacility;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
-import uk.co.ogauthority.pwa.model.entity.enums.HseSafetyZone;
 import uk.co.ogauthority.pwa.model.entity.enums.LocationDetailsQuestion;
+import uk.co.ogauthority.pwa.model.entity.enums.locationdetails.HseSafetyZone;
+import uk.co.ogauthority.pwa.model.entity.enums.locationdetails.PsrNotification;
 import uk.co.ogauthority.pwa.model.entity.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadLocationDetails;
@@ -84,33 +85,22 @@ public class PadLocationDetailsService implements ApplicationFormSectionService 
         padLocationDetails.getApproximateProjectLocationFromShore());
     locationDetailsForm.setWithinSafetyZone(padLocationDetails.getWithinSafetyZone());
 
-    if (HseSafetyZone.YES.equals(padLocationDetails.getWithinSafetyZone())) {
-      locationDetailsForm.getCompletelyWithinSafetyZoneForm().setPsrNotificationSubmitted(padLocationDetails.getPsrNotificationSubmitted());
-      if (BooleanUtils.isTrue(padLocationDetails.getPsrNotificationSubmitted())) {
-        var twoFieldDate = new TwoFieldDateInput(
-            padLocationDetails.getPsrNotificationSubmittedYear(), padLocationDetails.getPsrNotificationSubmittedMonth());
-        locationDetailsForm.getCompletelyWithinSafetyZoneForm().setPsrNotificationSubmittedDate(twoFieldDate);
+    locationDetailsForm.setPsrNotificationSubmittedOption(padLocationDetails.getPsrNotificationSubmittedOption());
+    if (PsrNotification.YES.equals(locationDetailsForm.getPsrNotificationSubmittedOption())) {
+      var twoFieldDate = new TwoFieldDateInput(
+          padLocationDetails.getPsrNotificationSubmittedYear(), padLocationDetails.getPsrNotificationSubmittedMonth());
+      locationDetailsForm.setPsrNotificationSubmittedDate(twoFieldDate);
 
-      } else if (BooleanUtils.isFalse(padLocationDetails.getPsrNotificationSubmitted())) {
-        var twoFieldDate = new TwoFieldDateInput(
-            padLocationDetails.getPsrNotificationExpectedSubmissionYear(), padLocationDetails.getPsrNotificationExpectedSubmissionMonth());
-        locationDetailsForm.getCompletelyWithinSafetyZoneForm().setPsrNotificationExpectedSubmissionDate(twoFieldDate);
-      }
+    } else if (PsrNotification.NO.equals(locationDetailsForm.getPsrNotificationSubmittedOption())) {
+      var twoFieldDate = new TwoFieldDateInput(
+          padLocationDetails.getPsrNotificationExpectedSubmissionYear(), padLocationDetails.getPsrNotificationExpectedSubmissionMonth());
+      locationDetailsForm.setPsrNotificationExpectedSubmissionDate(twoFieldDate);
 
-    } else if (HseSafetyZone.PARTIALLY.equals(padLocationDetails.getWithinSafetyZone())) {
-      locationDetailsForm.getPartiallyWithinSafetyZoneForm().setPsrNotificationSubmitted(padLocationDetails.getPsrNotificationSubmitted());
-      if (BooleanUtils.isTrue(padLocationDetails.getPsrNotificationSubmitted())) {
-        var twoFieldDate = new TwoFieldDateInput(
-            padLocationDetails.getPsrNotificationSubmittedYear(), padLocationDetails.getPsrNotificationSubmittedMonth());
-        locationDetailsForm.getPartiallyWithinSafetyZoneForm().setPsrNotificationSubmittedDate(twoFieldDate);
-
-      } else if (BooleanUtils.isFalse(padLocationDetails.getPsrNotificationSubmitted())) {
-        var twoFieldDate = new TwoFieldDateInput(
-            padLocationDetails.getPsrNotificationExpectedSubmissionYear(), padLocationDetails.getPsrNotificationExpectedSubmissionMonth());
-        locationDetailsForm.getPartiallyWithinSafetyZoneForm().setPsrNotificationExpectedSubmissionDate(twoFieldDate);
-      }
+    } else if (PsrNotification.NOT_REQUIRED.equals(locationDetailsForm.getPsrNotificationSubmittedOption())) {
+      locationDetailsForm.setPsrNotificationNotRequiredReason(padLocationDetails.getPsrNotificationNotRequiredReason());
     }
 
+    locationDetailsForm.setDiversUsed(padLocationDetails.getDiversUsed());
     locationDetailsForm.setFacilitiesOffshore(padLocationDetails.getFacilitiesOffshore());
     locationDetailsForm.setTransportsMaterialsToShore(padLocationDetails.getTransportsMaterialsToShore());
     locationDetailsForm.setTransportationMethod(padLocationDetails.getTransportationMethod());
@@ -152,29 +142,18 @@ public class PadLocationDetailsService implements ApplicationFormSectionService 
         locationDetailsForm.getApproximateProjectLocationFromShore());
     padLocationDetails.setWithinSafetyZone(locationDetailsForm.getWithinSafetyZone());
 
-    if (HseSafetyZone.YES.equals(locationDetailsForm.getWithinSafetyZone())) {
-      padLocationDetails.setPsrNotificationSubmitted(locationDetailsForm.getCompletelyWithinSafetyZoneForm().getPsrNotificationSubmitted());
-      if (BooleanUtils.isTrue(locationDetailsForm.getCompletelyWithinSafetyZoneForm().getPsrNotificationSubmitted())) {
-        setNotificationSubmittedDate(
-            padLocationDetails, locationDetailsForm.getCompletelyWithinSafetyZoneForm().getPsrNotificationSubmittedDate());
+    padLocationDetails.setPsrNotificationSubmittedOption(locationDetailsForm.getPsrNotificationSubmittedOption());
+    if (PsrNotification.YES.equals(locationDetailsForm.getPsrNotificationSubmittedOption())) {
+      setNotificationSubmittedDate(padLocationDetails, locationDetailsForm.getPsrNotificationSubmittedDate());
 
-      } else if (BooleanUtils.isFalse(locationDetailsForm.getCompletelyWithinSafetyZoneForm().getPsrNotificationSubmitted())) {
-        setNotificationExpectedSubmissionDate(
-            padLocationDetails, locationDetailsForm.getCompletelyWithinSafetyZoneForm().getPsrNotificationExpectedSubmissionDate());
-      }
+    } else if (PsrNotification.NO.equals(locationDetailsForm.getPsrNotificationSubmittedOption())) {
+      setNotificationExpectedSubmissionDate(padLocationDetails, locationDetailsForm.getPsrNotificationExpectedSubmissionDate());
 
-    } else if (HseSafetyZone.PARTIALLY.equals(locationDetailsForm.getWithinSafetyZone())) {
-      padLocationDetails.setPsrNotificationSubmitted(locationDetailsForm.getPartiallyWithinSafetyZoneForm().getPsrNotificationSubmitted());
-      if (BooleanUtils.isTrue(locationDetailsForm.getPartiallyWithinSafetyZoneForm().getPsrNotificationSubmitted())) {
-        setNotificationSubmittedDate(
-            padLocationDetails, locationDetailsForm.getPartiallyWithinSafetyZoneForm().getPsrNotificationSubmittedDate());
-
-      } else if (BooleanUtils.isFalse(locationDetailsForm.getPartiallyWithinSafetyZoneForm().getPsrNotificationSubmitted())) {
-        setNotificationExpectedSubmissionDate(
-            padLocationDetails, locationDetailsForm.getPartiallyWithinSafetyZoneForm().getPsrNotificationExpectedSubmissionDate());
-      }
+    } else if (PsrNotification.NOT_REQUIRED.equals(locationDetailsForm.getPsrNotificationSubmittedOption())) {
+      padLocationDetails.setPsrNotificationNotRequiredReason(locationDetailsForm.getPsrNotificationNotRequiredReason());
     }
 
+    padLocationDetails.setDiversUsed(locationDetailsForm.getDiversUsed());
     padLocationDetails.setFacilitiesOffshore(locationDetailsForm.getFacilitiesOffshore());
     padLocationDetails.setTransportsMaterialsToShore(locationDetailsForm.getTransportsMaterialsToShore());
     padLocationDetails.setTransportationMethod(locationDetailsForm.getTransportationMethod());
@@ -220,15 +199,23 @@ public class PadLocationDetailsService implements ApplicationFormSectionService 
     List<UploadedFileView> uploadedFileViews = padFileService.getUploadedFileViews(
         pwaApplicationDetail, ApplicationDetailFilePurpose.LOCATION_DETAILS, ApplicationFileLinkStatus.FULL);
 
+    String psrSubmissionDate = null;
+    if (PsrNotification.YES.equals(locationDetails.getPsrNotificationSubmittedOption())) {
+      psrSubmissionDate = getDateEstimate(
+          locationDetails.getPsrNotificationSubmittedMonth(), locationDetails.getPsrNotificationSubmittedYear());
+
+    } else if (PsrNotification.NO.equals(locationDetails.getPsrNotificationSubmittedOption())) {
+      psrSubmissionDate = getDateEstimate(
+          locationDetails.getPsrNotificationExpectedSubmissionMonth(), locationDetails.getPsrNotificationExpectedSubmissionYear());
+    }
+
     return new LocationDetailsView(
         locationDetails.getApproximateProjectLocationFromShore(),
         locationDetails.getWithinSafetyZone(),
-        locationDetails.getPsrNotificationSubmitted(),
-        BooleanUtils.isTrue(locationDetails.getPsrNotificationSubmitted())
-            ? getDateEstimate(locationDetails.getPsrNotificationSubmittedMonth(),
-            locationDetails.getPsrNotificationSubmittedYear())
-            : getDateEstimate(locationDetails.getPsrNotificationExpectedSubmissionMonth(),
-            locationDetails.getPsrNotificationExpectedSubmissionYear()),
+        locationDetails.getPsrNotificationSubmittedOption(),
+        psrSubmissionDate,
+        locationDetails.psrNotificationNotRequired() ? locationDetails.getPsrNotificationNotRequiredReason() : null,
+        locationDetails.getDiversUsed(),
         HseSafetyZone.YES.equals(locationDetails.getWithinSafetyZone()) ? facilityNames : List.of(),
         HseSafetyZone.PARTIALLY.equals(locationDetails.getWithinSafetyZone()) ? facilityNames : List.of(),
         locationDetails.getFacilitiesOffshore(),
@@ -264,12 +251,21 @@ public class PadLocationDetailsService implements ApplicationFormSectionService 
       case DEPOSIT_CONSENT:
         return EnumSet.of(
             LocationDetailsQuestion.APPROXIMATE_PROJECT_LOCATION_FROM_SHORE,
-            LocationDetailsQuestion.WITHIN_SAFETY_ZONE
+            LocationDetailsQuestion.WITHIN_SAFETY_ZONE,
+            LocationDetailsQuestion.PSR_NOTIFICATION,
+            LocationDetailsQuestion.DIVERS_USED
         );
 
       case DECOMMISSIONING:
         return LocationDetailsQuestion.getAllExcluding(
             LocationDetailsQuestion.WITHIN_LIMITS_OF_DEVIATION
+        );
+
+      case HUOO_VARIATION:
+      case OPTIONS_VARIATION:
+        return LocationDetailsQuestion.getAllExcluding(
+            LocationDetailsQuestion.PSR_NOTIFICATION,
+            LocationDetailsQuestion.DIVERS_USED
         );
 
       default:

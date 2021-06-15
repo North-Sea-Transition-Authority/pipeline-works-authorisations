@@ -44,8 +44,6 @@
                         </#list>
                     </ul>
                 </@fdsCheckAnswers.checkAnswersRow>
-
-                <@psrQuestion locationDetailsView.psrNotificationSubmissionDate locationDetailsView.psrNotificationSubmitted/>
             </#if>
 
             <#if locationDetailsView.withinSafetyZone?has_content && locationDetailsView.withinSafetyZone == "PARTIALLY">
@@ -56,9 +54,19 @@
                         </#list>
                     </ul>
                 </@fdsCheckAnswers.checkAnswersRow>
-
-                <@psrQuestion locationDetailsView.psrNotificationSubmissionDate locationDetailsView.psrNotificationSubmitted/>
             </#if>
+        </#if>
+
+        <#if requiredQuestions?seq_contains("PSR_NOTIFICATION")>
+            <@psrQuestion locationDetailsView.psrNotificationSubmittedOption locationDetailsView.psrNotificationSubmissionDate locationDetailsView.psrNotificationNotRequiredReason/>
+        </#if>
+
+        <#if requiredQuestions?seq_contains("DIVERS_USED")>
+             <@fdsCheckAnswers.checkAnswersRow keyText="Will divers be used?" actionUrl="" screenReaderActionText="" actionText="">
+                <#if locationDetailsView.diversUsed?has_content> 
+                    <@showYesNoForBool locationDetailsView.diversUsed/>
+                </#if>
+            </@fdsCheckAnswers.checkAnswersRow>
         </#if>
 
         <#if requiredQuestions?seq_contains("FACILITIES_OFFSHORE")>
@@ -141,21 +149,26 @@
 
 
 
-<#macro psrQuestion notificationSubmissionDate notificationSubmitted=[]>
+<#macro psrQuestion psrSubmittedOption=[] psrSubmissionDate=[] psrNotRequiredReason=[]>
    <@fdsCheckAnswers.checkAnswersRow keyText="Have you submitted a Pipelines Safety Regulations notification to HSE?" actionUrl="" screenReaderActionText="" actionText="">
-        <#if locationDetailsView.psrNotificationSubmitted?has_content>
-            <@showYesNoForBool notificationSubmitted/>
+        <#if psrSubmittedOption?has_content>
+            ${psrSubmittedOption.getDisplayText()}
         </#if>                    
     </@fdsCheckAnswers.checkAnswersRow>
 
-    <#if notificationSubmitted?has_content && notificationSubmitted>
+    <#if psrSubmittedOption?has_content && psrSubmittedOption == "YES">
         <@fdsCheckAnswers.checkAnswersRow keyText="Date submitted" actionUrl="" screenReaderActionText="" actionText="">
-            ${notificationSubmissionDate}
+            ${psrSubmissionDate}
         </@fdsCheckAnswers.checkAnswersRow>
 
-    <#elseif notificationSubmitted?has_content && !notificationSubmitted>
+    <#elseif psrSubmittedOption?has_content && psrSubmittedOption == "NO">
         <@fdsCheckAnswers.checkAnswersRow keyText="Expected submission date" actionUrl="" screenReaderActionText="" actionText="">
-            ${notificationSubmissionDate}
+            ${psrSubmissionDate}
+        </@fdsCheckAnswers.checkAnswersRow>
+
+    <#elseif psrSubmittedOption?has_content && psrSubmittedOption == "NOT_REQUIRED">
+        <@fdsCheckAnswers.checkAnswersRow keyText="Why is a PSR notification not required?" actionUrl="" screenReaderActionText="" actionText="">
+            ${psrNotRequiredReason}
         </@fdsCheckAnswers.checkAnswersRow>
     </#if>
 </#macro>

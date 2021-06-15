@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.validators;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 
+import java.time.LocalDate;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
@@ -12,26 +13,29 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.FieldError;
-import uk.co.ogauthority.pwa.model.entity.enums.HseSafetyZone;
 import uk.co.ogauthority.pwa.model.entity.enums.LocationDetailsQuestion;
+import uk.co.ogauthority.pwa.model.entity.enums.locationdetails.HseSafetyZone;
+import uk.co.ogauthority.pwa.model.entity.enums.locationdetails.PsrNotification;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.location.LocationDetailsForm;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
+import uk.co.ogauthority.pwa.util.forminputs.twofielddate.TwoFieldDateInput;
 import uk.co.ogauthority.pwa.util.forminputs.twofielddate.TwoFieldDateInputValidator;
 
 public class LocationDetailsValidatorTest {
 
   private LocationDetailsValidator locationDetailsValidator;
-  private LocationDetailsSafetyZoneValidator safetyZoneValidator;
-  private TwoFieldDateInputValidator twoFieldDateInputValidator;
+
+  private static int INVALID_LARGE_YEAR = 4001;
+  private static int INVALID_SMALL_YEAR = 999;
 
 
   @Before
   public void setUp() {
-    twoFieldDateInputValidator = new TwoFieldDateInputValidator();
-    safetyZoneValidator = new LocationDetailsSafetyZoneValidator(twoFieldDateInputValidator);
-    locationDetailsValidator = new LocationDetailsValidator(safetyZoneValidator);
+    TwoFieldDateInputValidator twoFieldDateInputValidator = new TwoFieldDateInputValidator();
+    LocationDetailsSafetyZoneValidator safetyZoneValidator = new LocationDetailsSafetyZoneValidator();
+    locationDetailsValidator = new LocationDetailsValidator(safetyZoneValidator, twoFieldDateInputValidator);
   }
 
 
@@ -52,6 +56,8 @@ public class LocationDetailsValidatorTest {
         getValidationHintsFull(EnumSet.allOf(LocationDetailsQuestion.class)));
     assertThat(result).containsOnly(
         entry("withinSafetyZone", Set.of("withinSafetyZone" + FieldValidationErrorCodes.REQUIRED.getCode())),
+        entry("psrNotificationSubmittedOption", Set.of("psrNotificationSubmittedOption" + FieldValidationErrorCodes.REQUIRED.getCode())),
+        entry("diversUsed", Set.of("diversUsed" + FieldValidationErrorCodes.REQUIRED.getCode())),
         entry("transportsMaterialsToShore",
             Set.of("transportsMaterialsToShore" + FieldValidationErrorCodes.REQUIRED.getCode())),
         entry("approximateProjectLocationFromShore",
@@ -82,10 +88,14 @@ public class LocationDetailsValidatorTest {
     form.setTransportationMethod("");
     form.setPipelineRouteDetails("");
     form.setTransportsMaterialsToShore(true);
+    form.setPsrNotificationSubmittedOption(PsrNotification.NOT_REQUIRED);
+    form.setPsrNotificationNotRequiredReason("");
     var result = ValidatorTestUtils.getFormValidationErrors(locationDetailsValidator, form,
         getValidationHintsFull(EnumSet.allOf(LocationDetailsQuestion.class)));
     assertThat(result).containsOnly(
         entry("withinSafetyZone", Set.of("withinSafetyZone" + FieldValidationErrorCodes.REQUIRED.getCode())),
+        entry("psrNotificationNotRequiredReason", Set.of("psrNotificationNotRequiredReason" + FieldValidationErrorCodes.REQUIRED.getCode())),
+        entry("diversUsed", Set.of("diversUsed" + FieldValidationErrorCodes.REQUIRED.getCode())),
         entry("transportationMethod", Set.of("transportationMethod" + FieldValidationErrorCodes.REQUIRED.getCode())),
         entry("approximateProjectLocationFromShore",
             Set.of("approximateProjectLocationFromShore" + FieldValidationErrorCodes.REQUIRED.getCode())),
@@ -296,6 +306,9 @@ public class LocationDetailsValidatorTest {
   public void validate_full_valid() {
     var form = new LocationDetailsForm();
     form.setWithinSafetyZone(HseSafetyZone.NO);
+    form.setPsrNotificationSubmittedOption(PsrNotification.YES);
+    form.setPsrNotificationSubmittedDate(new TwoFieldDateInput(2021, 6));
+    form.setDiversUsed(true);
     form.setTransportsMaterialsToShore(true);
     form.setApproximateProjectLocationFromShore("Approx");
     form.setTransportationMethod("Method");
@@ -315,13 +328,16 @@ public class LocationDetailsValidatorTest {
     form.setApproximateProjectLocationFromShore(ValidatorTestUtils.over4000Chars());
     form.setTransportationMethod(ValidatorTestUtils.over4000Chars());
     form.setPipelineAshoreLocation(ValidatorTestUtils.over4000Chars());
+    form.setPsrNotificationSubmittedOption(PsrNotification.NOT_REQUIRED);
+    form.setPsrNotificationNotRequiredReason(ValidatorTestUtils.over4000Chars());
 
     var errors = new BeanPropertyBindingResult(form, "form");
     locationDetailsValidator.validate(form, errors,
         getValidationHintsPartial(Set.of(
             LocationDetailsQuestion.APPROXIMATE_PROJECT_LOCATION_FROM_SHORE,
             LocationDetailsQuestion.TRANSPORTS_MATERIALS_TO_SHORE,
-            LocationDetailsQuestion.FACILITIES_OFFSHORE
+            LocationDetailsQuestion.FACILITIES_OFFSHORE,
+            LocationDetailsQuestion.PSR_NOTIFICATION
         )));
 
     var result = errors.getFieldErrors().stream()
@@ -330,7 +346,8 @@ public class LocationDetailsValidatorTest {
     assertThat(result).contains(
         entry("approximateProjectLocationFromShore", Set.of("approximateProjectLocationFromShore" + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode())),
         entry("transportationMethod", Set.of("transportationMethod" + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode())),
-        entry("pipelineAshoreLocation", Set.of("pipelineAshoreLocation" + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode()))
+        entry("pipelineAshoreLocation", Set.of("pipelineAshoreLocation" + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode())),
+        entry("psrNotificationNotRequiredReason", Set.of("psrNotificationNotRequiredReason" + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode()))
     );
   }
 
@@ -416,6 +433,98 @@ public class LocationDetailsValidatorTest {
     var result = ValidatorTestUtils.getFormValidationErrors(locationDetailsValidator, form,
         getValidationHintsFull(Set.of(LocationDetailsQuestion.TRANSPORTS_MATERIALS_TO_SHORE)));
     assertThat(result).doesNotContainKeys("transportationMethod", "transportsMaterialsToShore");
+  }
+
+  @Test
+  public void validate_notificationSubmittedYes_submittedDateNotEntered() {
+    var form = new LocationDetailsForm();
+    form.setPsrNotificationSubmittedOption(PsrNotification.YES);
+    form.setPsrNotificationSubmittedDate(new TwoFieldDateInput());
+    var result = ValidatorTestUtils.getFormValidationErrors(locationDetailsValidator, form,
+        getValidationHintsFull(Set.of(LocationDetailsQuestion.PSR_NOTIFICATION)));
+    assertThat(result).contains(
+        entry("psrNotificationSubmittedDate.month", Set.of("month" + FieldValidationErrorCodes.REQUIRED.getCode())),
+        entry("psrNotificationSubmittedDate.year", Set.of("year" + FieldValidationErrorCodes.REQUIRED.getCode())));
+  }
+
+  @Test
+  public void validate_notificationSubmittedYes_submittedDateAfterToday() {
+    var form = new LocationDetailsForm();
+    form.setPsrNotificationSubmittedOption(PsrNotification.YES);
+    form.setPsrNotificationSubmittedDate(new TwoFieldDateInput(LocalDate.now().getYear() + 1, 1));
+    var result = ValidatorTestUtils.getFormValidationErrors(
+        locationDetailsValidator, form, getValidationHintsFull(Set.of(LocationDetailsQuestion.PSR_NOTIFICATION)));
+    assertThat(result).contains(
+        entry("psrNotificationSubmittedDate.month", Set.of("month" + FieldValidationErrorCodes.BEFORE_SOME_DATE.getCode())),
+        entry("psrNotificationSubmittedDate.year", Set.of("year" + FieldValidationErrorCodes.BEFORE_SOME_DATE.getCode())));
+  }
+
+  @Test
+  public void validate_notificationSubmittedNo_expectedSubmissionDateNotEntered() {
+    var form = new LocationDetailsForm();
+    form.setPsrNotificationSubmittedOption(PsrNotification.NO);
+    form.setPsrNotificationExpectedSubmissionDate(new TwoFieldDateInput());
+    var result = ValidatorTestUtils.getFormValidationErrors(
+        locationDetailsValidator, form, getValidationHintsFull(Set.of(LocationDetailsQuestion.PSR_NOTIFICATION)));
+    assertThat(result).contains(
+        entry("psrNotificationExpectedSubmissionDate.month", Set.of("month" + FieldValidationErrorCodes.REQUIRED.getCode())),
+        entry("psrNotificationExpectedSubmissionDate.year", Set.of("year" + FieldValidationErrorCodes.REQUIRED.getCode())));
+  }
+
+  @Test
+  public void validate_notificationSubmittedNo_expectedSubmissionDateBeforeToday() {
+    var form = new LocationDetailsForm();
+    form.setPsrNotificationSubmittedOption(PsrNotification.NO);
+    form.setPsrNotificationExpectedSubmissionDate(new TwoFieldDateInput(LocalDate.now().getYear() - 1, 1));
+    var result = ValidatorTestUtils.getFormValidationErrors(
+        locationDetailsValidator, form, getValidationHintsFull(Set.of(LocationDetailsQuestion.PSR_NOTIFICATION)));
+    assertThat(result).contains(
+        entry("psrNotificationExpectedSubmissionDate.month", Set.of("month" + FieldValidationErrorCodes.AFTER_SOME_DATE.getCode())),
+        entry("psrNotificationExpectedSubmissionDate.year", Set.of("year" + FieldValidationErrorCodes.AFTER_SOME_DATE.getCode())));
+  }
+
+  @Test
+  public void validate_notificationSubmittedYes_yearTooBig() {
+    var form = new LocationDetailsForm();
+    form.setPsrNotificationSubmittedOption(PsrNotification.YES);
+    form.setPsrNotificationSubmittedDate(new TwoFieldDateInput(INVALID_LARGE_YEAR, 1));
+    var result = ValidatorTestUtils.getFormValidationErrors(
+        locationDetailsValidator, form, getValidationHintsFull(Set.of(LocationDetailsQuestion.PSR_NOTIFICATION)));
+    assertThat(result).contains(
+        entry("psrNotificationSubmittedDate.year", Set.of("year" + FieldValidationErrorCodes.INVALID.getCode())));
+  }
+
+  @Test
+  public void validate_notificationSubmittedYes_yearTooSmall() {
+    var form = new LocationDetailsForm();
+    form.setPsrNotificationSubmittedOption(PsrNotification.YES);
+    form.setPsrNotificationSubmittedDate(new TwoFieldDateInput(INVALID_SMALL_YEAR, 1));
+    var result = ValidatorTestUtils.getFormValidationErrors(
+        locationDetailsValidator, form, getValidationHintsFull(Set.of(LocationDetailsQuestion.PSR_NOTIFICATION)));
+    assertThat(result).contains(
+        entry("psrNotificationSubmittedDate.year", Set.of("year" + FieldValidationErrorCodes.INVALID.getCode())));
+  }
+
+  @Test
+  public void validate_notificationSubmittedNo_yearTooBig() {
+    var form = new LocationDetailsForm();
+    form.setPsrNotificationSubmittedOption(PsrNotification.NO);
+    form.setPsrNotificationExpectedSubmissionDate(new TwoFieldDateInput(INVALID_LARGE_YEAR, 1));
+    var result = ValidatorTestUtils.getFormValidationErrors(
+        locationDetailsValidator, form, getValidationHintsFull(Set.of(LocationDetailsQuestion.PSR_NOTIFICATION)));
+    assertThat(result).contains(
+        entry("psrNotificationExpectedSubmissionDate.year", Set.of("year" + FieldValidationErrorCodes.INVALID.getCode())));
+  }
+
+  @Test
+  public void validate_notificationSubmittedNo_yearTooSmall() {
+    var form = new LocationDetailsForm();
+    form.setPsrNotificationSubmittedOption(PsrNotification.NO);
+    form.setPsrNotificationExpectedSubmissionDate(new TwoFieldDateInput(INVALID_SMALL_YEAR, 1));
+    var result = ValidatorTestUtils.getFormValidationErrors(
+        locationDetailsValidator, form, getValidationHintsFull(Set.of(LocationDetailsQuestion.PSR_NOTIFICATION)));
+    assertThat(result).contains(
+        entry("psrNotificationExpectedSubmissionDate.year", Set.of("year" + FieldValidationErrorCodes.INVALID.getCode())));
   }
 
 }
