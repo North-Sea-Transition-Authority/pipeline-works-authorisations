@@ -21,7 +21,7 @@
 <#macro _summarySideNav appSummaryView sidebarHeading>
 
     <@defaultPagePaneSubNav>
-        <@fdsSubNavigation.subNavigation>
+        <@fdsSubNavigation.subNavigation sticky=true>
 
             <@fdsSubNavigation.subNavigationSection themeHeading=sidebarHeading>
 

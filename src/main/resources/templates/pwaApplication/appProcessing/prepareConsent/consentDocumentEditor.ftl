@@ -17,11 +17,11 @@
 
     <@defaultPagePaneSubNav>
           <#if docView?has_content>
-              <@fdsSubNavigation.subNavigation>
+              <@fdsSubNavigation.subNavigation sticky=true>
                   <@pwaClauseList.sidebarSections documentView=docView />
               </@fdsSubNavigation.subNavigation>
           <#else>
-              <@fdsSubNavigation.subNavigation>
+              <@fdsSubNavigation.subNavigation sticky=true>
                   <@fdsSubNavigation.subNavigationSection themeHeading="No document loaded"/>
               </@fdsSubNavigation.subNavigation>
           </#if>
