@@ -4,6 +4,7 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import uk.co.ogauthority.pwa.controller.asbuilt.AsBuiltNotificationController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.submission.ReviewAndSubmitController;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
@@ -25,6 +26,11 @@ public class EmailCaseLinkService {
   public String generateReviewAndSubmitLink(PwaApplication application) {
     return pwaUrlBase + contextPath + ReverseRouter.route(on(ReviewAndSubmitController.class)
         .review(application.getApplicationType(), application.getId(), null, null));
+  }
+
+  public String generateAsBuiltNotificationDashboardLink(Integer notificationGroupId) {
+    return pwaUrlBase + contextPath + ReverseRouter.route(on(AsBuiltNotificationController.class)
+        .getAsBuiltNotificationDashboard(notificationGroupId, null));
   }
 
 }
