@@ -13,7 +13,9 @@ import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationGroupPipeli
 import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationGroupStatus;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
 import uk.co.ogauthority.pwa.model.form.asbuilt.AsBuiltNotificationSubmissionForm;
+import uk.co.ogauthority.pwa.model.form.asbuilt.ChangeAsBuiltNotificationGroupDeadlineForm;
 import uk.co.ogauthority.pwa.repository.asbuilt.AsBuiltNotificationGroupRepository;
+import uk.co.ogauthority.pwa.util.DateUtils;
 
 /**
  * Allows interaction with the as built notification domain.
@@ -83,6 +85,14 @@ public class AsBuiltInteractorService {
                                         AsBuiltNotificationSubmissionForm form,
                                         AuthenticatedUserAccount user) {
     asBuiltNotificationSubmissionService.submitAsBuiltNotification(abngPipeline, form, user);
+  }
+
+  @Transactional
+  public void setNewDeadlineDateForGroup(AsBuiltNotificationGroup asBuiltNotificationGroup,
+                                         ChangeAsBuiltNotificationGroupDeadlineForm form,
+                                         AuthenticatedUserAccount user) {
+    var deadlineDate = DateUtils.datePickerStringToDate(form.getNewDeadlineDateTimestampStr());
+    asBuiltGroupDeadlineService.setNewDeadline(asBuiltNotificationGroup, deadlineDate, user.getLinkedPerson());
   }
 
 }

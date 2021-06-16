@@ -124,7 +124,7 @@ public class AsBuiltNotificationSubmissionController {
         .addObject("isOgaUser", isPersonOgaUser)
         .addObject("cancelUrl", cancelUrl)
         .addObject("errorList", List.of());
-    asBuiltBreadCrumbService.fromDashboard(asBuiltNotificationGroup, modelAndView,
+    asBuiltBreadCrumbService.fromDashboard(asBuiltNotificationGroup.getId(), asBuiltNotificationGroup.getReference(), modelAndView,
         pipelineDetail.getPipelineNumber() + " notification");
     return modelAndView;
   }
