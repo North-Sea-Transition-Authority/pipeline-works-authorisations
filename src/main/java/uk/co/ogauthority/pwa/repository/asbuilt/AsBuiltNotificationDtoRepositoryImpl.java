@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.repository.asbuilt;
 
 import static java.util.stream.Collectors.toSet;
 
+import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationGroup;
+import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationGroupStatus;
 import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationWorkareaView;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailView_;
 import uk.co.ogauthority.pwa.model.entity.search.consents.PwaHolderOrgUnit;
@@ -61,8 +63,13 @@ public class AsBuiltNotificationDtoRepositoryImpl implements AsBuiltNotification
     Root<AsBuiltNotificationWorkareaView> countQueryRoot = countResultsQuery.from(AsBuiltNotificationWorkareaView.class);
     countResultsQuery.select(cb.count(root));
 
+    List<Predicate> predicates = new ArrayList<Predicate>();
+    addPredicateToFilterBasedOnUserType(predicates, authenticatedUserAccount, cq, countResultsQuery, root);
+    addPredicateToFilterGroupsWithCompleteStatus(predicates, cq, countResultsQuery, root);
+
     //needs to apply same predicates to both result query and count query
-    applyQueryPredicatesBasedOnUserType(authenticatedUserAccount, cq, countResultsQuery, root);
+    cq.where(predicates.toArray(new Predicate[]{}));
+    countResultsQuery.where(predicates.toArray(new Predicate[]{}));
 
     var resultsQuery = createAsBuiltWorkAreaResultsQuery(cb, cq, root, pageable);
     var totalResultCount = entityManager.createQuery(countResultsQuery).getSingleResult();
@@ -99,15 +106,22 @@ public class AsBuiltNotificationDtoRepositoryImpl implements AsBuiltNotification
     return cb.in(searchCoreRoot.get(ApplicationDetailView_.PWA_ID)).value(applicationSubQuery);
   }
 
-  private void applyQueryPredicatesBasedOnUserType(AuthenticatedUserAccount user,
+  private void addPredicateToFilterBasedOnUserType(List<Predicate> predicates, AuthenticatedUserAccount user,
                                           CriteriaQuery<AsBuiltNotificationWorkareaView> query,
                                           CriteriaQuery<Long> countQuery,
                                           Root<AsBuiltNotificationWorkareaView> root) {
     if (!isUserAsBuiltNotificationAdmin(user.getLinkedPerson())) {
       var groupsUserCanAccess = getOrgGroupsUserCanAccess(user);
-      query.where(getHolderOrgApplicationsPredicate(groupsUserCanAccess, query, root));
-      countQuery.where(getHolderOrgApplicationsPredicate(groupsUserCanAccess, countQuery, root));
+      predicates.add(getHolderOrgApplicationsPredicate(groupsUserCanAccess, query, root));
     }
+  }
+
+  private void addPredicateToFilterGroupsWithCompleteStatus(List<Predicate> predicates,
+                                                                  CriteriaQuery<AsBuiltNotificationWorkareaView> query,
+                                                                  CriteriaQuery<Long> countQuery,
+                                                                  Root<AsBuiltNotificationWorkareaView> root) {
+    CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+    predicates.add(cb.notEqual(root.get("status"), AsBuiltNotificationGroupStatus.COMPLETE));
   }
 
   private TypedQuery<AsBuiltNotificationWorkareaView> createAsBuiltWorkAreaResultsQuery(CriteriaBuilder cb,

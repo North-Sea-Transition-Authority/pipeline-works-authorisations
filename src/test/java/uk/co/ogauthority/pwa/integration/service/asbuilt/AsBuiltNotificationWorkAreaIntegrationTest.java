@@ -88,7 +88,7 @@ public class AsBuiltNotificationWorkAreaIntegrationTest {
 
   @Transactional
   @Test
-  public void getAsBuiltNotifications_adminUser_getsAllAsBuiltNotifications() {
+  public void getAsBuiltNotifications_adminUser_getsAllNonCompleteAsBuiltNotifications() {
     when(pwaHolderTeamService.getPortalOrganisationGroupsWhereUserHasOrgRole(adminUser,
         PwaOrganisationRole.AS_BUILT_NOTIFICATION_SUBMITTER)).thenReturn(List.of(group1, group2));
 
@@ -98,13 +98,13 @@ public class AsBuiltNotificationWorkAreaIntegrationTest {
     );
 
     assertThat(result.get()).containsExactly(
-        view1, view2, view3
+        view1, view3
     );
   }
 
   @Transactional
   @Test
-  public void getAsBuiltNotifications_industryUser_getsOnlyOwnOrganisationAsBuiltNotifications() {
+  public void getAsBuiltNotifications_industryUser_getsOnlyOwnOrganisationNonCompleteAsBuiltNotifications() {
     when(pwaHolderTeamService.getPortalOrganisationGroupsWhereUserHasOrgRole(industryUser,
         PwaOrganisationRole.AS_BUILT_NOTIFICATION_SUBMITTER)).thenReturn(List.of(group1));
 
@@ -113,16 +113,14 @@ public class AsBuiltNotificationWorkAreaIntegrationTest {
         WorkAreaPageServiceTestUtil.getWorkAreaViewPageable(0, "deadlineDate")
     );
 
-    assertThat(result.get()).containsExactly(
-        view1, view2
-    );
+    assertThat(result.get()).containsExactly(view1);
   }
 
   @Transactional
   @Test
   public void getAsBuiltNotifications_unrelatedUser_getsNoAsBuiltNotifications() {
     when(pwaHolderTeamService.getPortalOrganisationGroupsWhereUserHasOrgRole(unrelatedUser, PwaOrganisationRole.AS_BUILT_NOTIFICATION_SUBMITTER))
-        .thenReturn(List.of(group1));
+        .thenReturn(List.of());
 
     var result = asBuiltNotificationDtoRepository.findAllAsBuiltNotificationsForUser(
         industryUser,
@@ -138,7 +136,7 @@ public class AsBuiltNotificationWorkAreaIntegrationTest {
     view2 = AsBuiltNotificationWorkareaViewTestUtil.createAsBuiltNotificationViewFrom(2, 20, "Canada project",
         AsBuiltNotificationGroupStatus.COMPLETE, LocalDate.of(2010, 10, 10));
     view3 = AsBuiltNotificationWorkareaViewTestUtil.createAsBuiltNotificationViewFrom(3, 30, "New Zealand project",
-        AsBuiltNotificationGroupStatus.COMPLETE, LocalDate.of(2020, 10, 10));
+        AsBuiltNotificationGroupStatus.NOT_STARTED, LocalDate.of(2020, 10, 10));
   }
 
   private void setupPwaHolderUnits() {
