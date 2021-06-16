@@ -388,9 +388,7 @@ public class PadLocationDetailsServiceTest {
   private Set<PwaApplicationType> getAppTypesWithCustomQuestionSets(){
     return Set.of(
         PwaApplicationType.DEPOSIT_CONSENT,
-        PwaApplicationType.DECOMMISSIONING,
-        PwaApplicationType.HUOO_VARIATION,
-        PwaApplicationType.OPTIONS_VARIATION);
+        PwaApplicationType.DECOMMISSIONING);
   }
 
   @Test
@@ -410,18 +408,6 @@ public class PadLocationDetailsServiceTest {
     var expectedQuestions = EnumSet.allOf(LocationDetailsQuestion.class);
     expectedQuestions.remove(LocationDetailsQuestion.WITHIN_LIMITS_OF_DEVIATION);
     assertThat(requiredQuestions).containsAll(expectedQuestions);
-  }
-
-  @Test
-  public void getRequiredQuestions_huooAndOptionsAppTypes() {
-    List.of(PwaApplicationType.HUOO_VARIATION, PwaApplicationType.OPTIONS_VARIATION)
-        .forEach(appType -> {
-          var requiredQuestions = padLocationDetailsService.getRequiredQuestions(appType);
-          var expectedQuestions = LocationDetailsQuestion.getAllExcluding(
-              LocationDetailsQuestion.PSR_NOTIFICATION,
-              LocationDetailsQuestion.DIVERS_USED);
-          assertThat(requiredQuestions).containsAll(expectedQuestions);
-        });
   }
 
   @Test

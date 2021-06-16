@@ -15,6 +15,6 @@ ALTER TABLE ${datasource.user}.pad_location_details DROP COLUMN psr_notification
 
 ALTER TABLE ${datasource.user}.pad_location_details ADD (
     psr_not_required_reason VARCHAR2(4000),
-    divers_used VARCHAR2(4000)
+    divers_used NUMBER(1)
     CONSTRAINT divers_used CHECK(divers_used IN (0, 1) OR divers_used IS NULL)
 );

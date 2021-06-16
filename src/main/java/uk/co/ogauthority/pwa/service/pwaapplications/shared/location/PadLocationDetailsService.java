@@ -261,13 +261,6 @@ public class PadLocationDetailsService implements ApplicationFormSectionService 
             LocationDetailsQuestion.WITHIN_LIMITS_OF_DEVIATION
         );
 
-      case HUOO_VARIATION:
-      case OPTIONS_VARIATION:
-        return LocationDetailsQuestion.getAllExcluding(
-            LocationDetailsQuestion.PSR_NOTIFICATION,
-            LocationDetailsQuestion.DIVERS_USED
-        );
-
       default:
         return EnumSet.allOf(LocationDetailsQuestion.class);
     }
