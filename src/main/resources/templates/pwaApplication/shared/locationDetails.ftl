@@ -32,7 +32,7 @@
         </#if>
 
         <#if requiredQuestions?seq_contains("PSR_NOTIFICATION")>
-            <@fdsRadio.radioGroup path="form.psrNotificationSubmittedOption" labelText="Have you submitted a Pipelines Safety Regulations notification to HSE?" hintText="Timely submission in advance of work is advised to avoid potential delays" hiddenContent=true nestingPath="form.withinSafetyZone">                
+            <@fdsRadio.radioGroup path="form.psrNotificationSubmittedOption" labelText="Have you submitted a Pipelines Safety Regulations (PSR) notification to HSE?" hintText="Timely submission in advance of work is advised to avoid potential delays" hiddenContent=true nestingPath="form.withinSafetyZone">                
                 <#assign firstItem = true/>
                 <#list psrNotificationOptions as name, value>
                     <@fdsRadio.radioItem path="form.psrNotificationSubmittedOption" itemMap={name:value} isFirstItem=firstItem>
