@@ -35,6 +35,30 @@ CREATE OR REPLACE PACKAGE ${datasource.user}.TEAM_MANAGEMENT AS
   , p_requesting_wua_id NUMBER
   );
 
+
+
+  /**
+  * Create a new team (decmgr.resource) in the decmgr model. This is a wrapper for
+  * for the decmgr.contact.create_default_team function.
+  *
+  * @param p_resource_type The resource type of the team to create
+  * @param p_resource_name The user friendly name for the team being created
+  * @param p_resource_description A user friendly description of the team being created
+  * @param p_uref The primary data uref for the team being created
+  * @param p_requesting_wua_id The web user account id of the person creating the team
+  * @param po_resource_id The resource id of the newly created team
+  */
+  PROCEDURE create_team(
+      p_resource_type IN decmgr.resources.res_type%TYPE
+                       , p_resource_name IN VARCHAR2
+                       , p_resource_description IN VARCHAR2
+                       , p_uref IN VARCHAR2
+                       , p_requesting_wua_id IN NUMBER
+                       , po_resource_id OUT NUMBER
+  );
+
+
+
 END TEAM_MANAGEMENT;
 /
 
@@ -79,5 +103,34 @@ CREATE OR REPLACE PACKAGE BODY ${datasource.user}.TEAM_MANAGEMENT AS
     );
 
   END remove_user_from_team;
+
+
+
+  PROCEDURE create_team(
+      p_resource_type IN decmgr.resources.res_type%TYPE
+                       , p_resource_name IN VARCHAR2
+                       , p_resource_description IN VARCHAR2
+                       , p_uref IN VARCHAR2
+                       , p_requesting_wua_id IN NUMBER
+                       , po_resource_id OUT NUMBER
+  )
+      IS
+
+      l_resource_id NUMBER;
+
+  BEGIN
+
+      l_resource_id := decmgr.contact.create_default_team(
+              p_resource_type => p_resource_type
+          , p_resource_name => p_resource_name
+          , p_resource_desc => p_resource_description
+          , p_uref => p_uref
+          , p_uref_purpose => 'PRIMARY_DATA'
+          , p_creating_wua_id => p_requesting_wua_id
+          );
+
+      po_resource_id := l_resource_id;
+
+  END create_team;
 
 END TEAM_MANAGEMENT;

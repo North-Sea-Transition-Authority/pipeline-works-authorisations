@@ -29,11 +29,20 @@ public class SystemAreaAccessService {
 
   public final Set<PwaUserPrivilege> validDocumentTemplatePrivileges = EnumSet.of(PwaUserPrivilege.PWA_TEMPLATE_CLAUSE_MANAGE);
 
+  public final Set<PwaUserPrivilege> validCreateOrganisationTeamPrivileges = EnumSet.of(
+      PwaUserPrivilege.PWA_REG_ORG_MANAGE);
+
   /**
    * For use in WebSecurityConfig. In other instances call canAccessTeamManagement
    */
   public String[] getValidTeamManagementGrantedAuthorities() {
     return validTeamManagementPrivileges.stream()
+        .map(PwaUserPrivilege::name)
+        .toArray(String[]::new);
+  }
+
+  public String[] getValidCreateOrganisationTeamGrantedAuthorities() {
+    return validCreateOrganisationTeamPrivileges.stream()
         .map(PwaUserPrivilege::name)
         .toArray(String[]::new);
   }

@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.exception.AccessDeniedException;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
@@ -79,7 +80,10 @@ public class PortalTeamManagementController {
         .collect(Collectors.toList());
 
     if (teamViews.size() > 1) {
-      modelAndView.addObject("teamViewList", teamViews);
+      modelAndView.addObject("teamViewList", teamViews)
+          .addObject("canCreateOrgTeam", currentUser.hasPrivilege(PwaUserPrivilege.PWA_REG_ORG_MANAGE))
+          .addObject("createOrgTeamUrl",
+          ReverseRouter.route(on(CreateTeamsController.class).getNewOrganisationTeam(null)));
     } else if (teamViews.size() == 1) {
       // Dont show team list if there's only 1
       return new ModelAndView("redirect:" + teamViews.get(0).getSelectRoute());

@@ -55,6 +55,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         .antMatchers("/portal-team-management", "/portal-team-management/**")
           .hasAnyAuthority(systemAreaAccessService.getValidTeamManagementGrantedAuthorities())
 
+        .antMatchers("/create-organisation-team/**")
+          .hasAnyAuthority(systemAreaAccessService.getValidCreateOrganisationTeamGrantedAuthorities())
+
         .mvcMatchers("/document-templates/**")
           .hasAnyAuthority(systemAreaAccessService.getValidDocumentTemplateGrantedAuthorities())
 

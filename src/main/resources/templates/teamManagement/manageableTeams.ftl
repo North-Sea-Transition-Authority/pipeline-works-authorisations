@@ -1,6 +1,11 @@
 <#include '../layout.ftl'>
 
 <@defaultPage htmlTitle="Select Team" pageHeading="Select a team" topNavigation=true twoThirdsColumn=false backLink=true>
+
+  <#if canCreateOrgTeam>
+    <@fdsAction.link linkText="Create organisation team" linkUrl=springUrl(createOrgTeamUrl) linkClass="govuk-button govuk-button--blue" role=true/>
+  </#if>
+
   <table class="govuk-table">
     <thead class="govuk-table__head">
     <tr class="govuk-table__row">
