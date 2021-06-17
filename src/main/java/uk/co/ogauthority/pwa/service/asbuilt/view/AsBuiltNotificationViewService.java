@@ -2,37 +2,52 @@ package uk.co.ogauthority.pwa.service.asbuilt.view;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
-import java.time.LocalDate;
-import java.util.List;
-import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.controller.asbuilt.AsBuiltNotificationSubmissionController;
+import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationSubmission;
 import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
-import uk.co.ogauthority.pwa.model.view.asbuilt.AsBuiltPipelineNotificationSubmissionView;
+import uk.co.ogauthority.pwa.model.enums.aabuilt.AsBuiltNotificationStatus;
+import uk.co.ogauthority.pwa.model.view.asbuilt.AsBuiltNotificationView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
-
-//TODO: PWA-1253 this class will be changed when an actual AsBuiltNotification model will exist and can be mapped to an actual view.
+import uk.co.ogauthority.pwa.service.person.PersonService;
 
 @Service
 class AsBuiltNotificationViewService {
 
+  private final PersonService personService;
+
   @Autowired
-  AsBuiltNotificationViewService() {
+  AsBuiltNotificationViewService(PersonService personService) {
+    this.personService = personService;
   }
 
-  List<AsBuiltPipelineNotificationSubmissionView> getAsBuiltPipelineNotificationSubmissionViews(Integer asBuiltNotificationGroupId,
-                                                                                                List<PipelineDetail> pipelineDetails) {
-    return pipelineDetails.stream()
-        .map(pipelineDetail -> mapToAsBuiltNotificationView(pipelineDetail,
-            ReverseRouter.route(on(AsBuiltNotificationSubmissionController.class)
-                .renderSubmitAsBuiltNotificationForm(asBuiltNotificationGroupId, pipelineDetail.getPipelineDetailId().asInt(),
-                    null, null))))
-        .collect(Collectors.toList());
+  AsBuiltNotificationView mapToAsBuiltNotificationView(PipelineDetail pipelineDetail,
+                                                       AsBuiltNotificationSubmission asBuiltNotificationSubmission) {
+    var accessLink = ReverseRouter.route(on(AsBuiltNotificationSubmissionController.class)
+        .renderSubmitAsBuiltNotificationForm(
+            asBuiltNotificationSubmission.getAsBuiltNotificationGroupPipeline().getAsBuiltNotificationGroup().getId(),
+            pipelineDetail.getPipelineDetailId().asInt(), null, null));
+    var person = personService.getPersonById(asBuiltNotificationSubmission.getSubmittedByPersonId());
+    return new AsBuiltNotificationView(
+        pipelineDetail.getPipelineNumber(),
+        pipelineDetail.getPipelineType().getDisplayName(),
+        person.getFullName(),
+        asBuiltNotificationSubmission.getSubmittedTimestamp(),
+        asBuiltNotificationSubmission.getAsBuiltNotificationStatus().getDisplayName(),
+        asBuiltNotificationSubmission.getAsBuiltNotificationStatus() != AsBuiltNotificationStatus.NOT_LAID_CONSENT_TIMEFRAME
+            ? asBuiltNotificationSubmission.getDateLaid() : null,
+        asBuiltNotificationSubmission.getAsBuiltNotificationStatus() == AsBuiltNotificationStatus.NOT_LAID_CONSENT_TIMEFRAME
+            ? asBuiltNotificationSubmission.getDateLaid() : null,
+        asBuiltNotificationSubmission.getDatePipelineBroughtIntoUse(),
+        accessLink);
   }
 
-  private AsBuiltPipelineNotificationSubmissionView mapToAsBuiltNotificationView(PipelineDetail pipelineDetail, String accessLink) {
-    return new AsBuiltPipelineNotificationSubmissionView(
+  AsBuiltNotificationView mapToAsBuiltNotificationViewWithNoSubmission(Integer asBuiltNotificationGroupId, PipelineDetail pipelineDetail) {
+    var accessLink = ReverseRouter.route(on(AsBuiltNotificationSubmissionController.class)
+        .renderSubmitAsBuiltNotificationForm(asBuiltNotificationGroupId, pipelineDetail.getPipelineDetailId().asInt(),
+            null, null));
+    return new AsBuiltNotificationView(
         pipelineDetail.getPipelineNumber(),
         pipelineDetail.getPipelineType().getDisplayName(),
         null,
@@ -40,7 +55,7 @@ class AsBuiltNotificationViewService {
         null,
         null,
         null,
-        LocalDate.now(),
+        null,
         accessLink);
   }
 
