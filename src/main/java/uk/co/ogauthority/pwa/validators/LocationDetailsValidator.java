@@ -1,5 +1,8 @@
 package uk.co.ogauthority.pwa.validators;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,21 +12,29 @@ import org.springframework.validation.SmartValidator;
 import org.springframework.validation.ValidationUtils;
 import uk.co.ogauthority.pwa.exception.ActionNotAllowedException;
 import uk.co.ogauthority.pwa.model.entity.enums.LocationDetailsQuestion;
+import uk.co.ogauthority.pwa.model.entity.enums.locationdetails.PsrNotification;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.location.LocationDetailsForm;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.util.ValidatorUtils;
+import uk.co.ogauthority.pwa.util.forminputs.FormInputLabel;
+import uk.co.ogauthority.pwa.util.forminputs.twofielddate.OnOrAfterDateHint;
+import uk.co.ogauthority.pwa.util.forminputs.twofielddate.OnOrBeforeDateHint;
+import uk.co.ogauthority.pwa.util.forminputs.twofielddate.TwoFieldDateInputValidator;
 
 @Service
 public class LocationDetailsValidator implements SmartValidator {
 
   private final LocationDetailsSafetyZoneValidator safetyZoneValidator;
+  private final TwoFieldDateInputValidator twoFieldDateInputValidator;
 
 
   @Autowired
   public LocationDetailsValidator(
-      LocationDetailsSafetyZoneValidator safetyZoneValidator) {
+      LocationDetailsSafetyZoneValidator safetyZoneValidator,
+      TwoFieldDateInputValidator twoFieldDateInputValidator) {
     this.safetyZoneValidator = safetyZoneValidator;
+    this.twoFieldDateInputValidator = twoFieldDateInputValidator;
   }
 
   @Override
@@ -61,6 +72,28 @@ public class LocationDetailsValidator implements SmartValidator {
       validateWithinSafetyZone(form, errors, ValidationType.PARTIAL);
     }
 
+    if (requiredQuestions.contains(LocationDetailsQuestion.PSR_NOTIFICATION)) {
+      if (PsrNotification.YES.equals(form.getPsrNotificationSubmittedOption())) {
+        ValidatorUtils.invokeNestedValidator(
+            errors,
+            twoFieldDateInputValidator,
+            "psrNotificationSubmittedDate",
+            form.getPsrNotificationSubmittedDate(),
+            List.of(new FormInputLabel("submitted")).toArray());
+
+      } else if (PsrNotification.NO.equals(form.getPsrNotificationSubmittedOption())) {
+        ValidatorUtils.invokeNestedValidator(
+            errors,
+            twoFieldDateInputValidator,
+            "psrNotificationExpectedSubmissionDate",
+            form.getPsrNotificationExpectedSubmissionDate(),
+            List.of(new FormInputLabel("expected submission")).toArray());
+
+      } else if (PsrNotification.NOT_REQUIRED.equals(form.getPsrNotificationSubmittedOption())) {
+        validatePsrNotificationNotRequired(form, errors);
+      }
+    }
+
     if (requiredQuestions.contains(LocationDetailsQuestion.TRANSPORTS_MATERIALS_TO_SHORE)) {
       ValidatorUtils.validateDefaultStringLength(
           errors, "transportationMethod", form::getTransportationMethod,
@@ -95,6 +128,46 @@ public class LocationDetailsValidator implements SmartValidator {
 
     if (requiredQuestions.contains(LocationDetailsQuestion.WITHIN_SAFETY_ZONE)) {
       validateWithinSafetyZone(form, errors, ValidationType.FULL);
+    }
+
+    if (requiredQuestions.contains(LocationDetailsQuestion.PSR_NOTIFICATION)) {
+      ValidationUtils.rejectIfEmpty(errors, "psrNotificationSubmittedOption",
+          "psrNotificationSubmittedOption" + FieldValidationErrorCodes.REQUIRED.getCode(),
+          "Select 'Yes' if you have submitted a Pipelines Safety Regulations notification to HSE");
+
+      if (PsrNotification.YES.equals(form.getPsrNotificationSubmittedOption())) {
+        List<Object> dateHints = new ArrayList<>();
+        dateHints.add(new FormInputLabel("submitted"));
+        dateHints.add(new OnOrBeforeDateHint(LocalDate.now(), "today's date"));
+
+        ValidatorUtils.invokeNestedValidator(
+            errors,
+            twoFieldDateInputValidator,
+            "psrNotificationSubmittedDate",
+            form.getPsrNotificationSubmittedDate(),
+            dateHints.toArray());
+
+      } else if (PsrNotification.NO.equals(form.getPsrNotificationSubmittedOption())) {
+        List<Object> dateHints = new ArrayList<>();
+        dateHints.add(new FormInputLabel("expected submission"));
+        dateHints.add(new OnOrAfterDateHint(LocalDate.now(), "today's date"));
+
+        ValidatorUtils.invokeNestedValidator(
+            errors,
+            twoFieldDateInputValidator,
+            "psrNotificationExpectedSubmissionDate",
+            form.getPsrNotificationExpectedSubmissionDate(),
+            dateHints.toArray());
+
+      } else if (PsrNotification.NOT_REQUIRED.equals(form.getPsrNotificationSubmittedOption())) {
+        validatePsrNotificationNotRequired(form, errors);
+      }
+    }
+
+    if (requiredQuestions.contains(LocationDetailsQuestion.DIVERS_USED)) {
+      ValidationUtils.rejectIfEmpty(errors, "diversUsed",
+          "diversUsed" + FieldValidationErrorCodes.REQUIRED.getCode(),
+          "Select 'Yes' if divers will be used");
     }
 
     if (requiredQuestions.contains(LocationDetailsQuestion.FACILITIES_OFFSHORE)) {
@@ -142,6 +215,18 @@ public class LocationDetailsValidator implements SmartValidator {
           form.getWithinLimitsOfDeviation(),
           "withinLimitsOfDeviation",
           "Confirm that the limit of deviation during construction will be ±100m");
+    }
+  }
+
+  private void validatePsrNotificationNotRequired(LocationDetailsForm form, Errors errors) {
+    ValidationUtils.rejectIfEmpty(errors, "psrNotificationNotRequiredReason",
+        "psrNotificationNotRequiredReason" + FieldValidationErrorCodes.REQUIRED.getCode(),
+        "Enter a reason for why a PSR notification is not required");
+
+    if (form.getPsrNotificationNotRequiredReason() != null) {
+      ValidatorUtils.validateDefaultStringLength(
+          errors, "psrNotificationNotRequiredReason", form::getPsrNotificationNotRequiredReason,
+          "The reason for why a PSR notification is not required");
     }
   }
 

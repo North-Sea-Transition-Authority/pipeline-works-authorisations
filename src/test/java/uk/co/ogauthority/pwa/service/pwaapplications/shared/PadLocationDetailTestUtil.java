@@ -2,7 +2,8 @@ package uk.co.ogauthority.pwa.service.pwaapplications.shared;
 
 import java.time.Instant;
 import java.util.Set;
-import uk.co.ogauthority.pwa.model.entity.enums.HseSafetyZone;
+import uk.co.ogauthority.pwa.model.entity.enums.locationdetails.HseSafetyZone;
+import uk.co.ogauthority.pwa.model.entity.enums.locationdetails.PsrNotification;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadLocationDetails;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadLocationDetails_;
@@ -19,11 +20,13 @@ public class PadLocationDetailTestUtil {
     var pl = new PadLocationDetails();
     pl.setPwaApplicationDetail(pwaApplicationDetail);
     pl.setWithinSafetyZone(HseSafetyZone.YES);
-    pl.setPsrNotificationSubmitted(true);
+    pl.setPsrNotificationSubmittedOption(PsrNotification.YES);
     pl.setPsrNotificationSubmittedMonth(5);
     pl.setPsrNotificationSubmittedYear(2020);
     pl.setPsrNotificationExpectedSubmissionMonth(5);
     pl.setPsrNotificationExpectedSubmissionYear(20201);
+    pl.setPsrNotificationNotRequiredReason("reason");
+    pl.setDiversUsed(true);
     pl.setFacilitiesOffshore(true);
     pl.setPipelineAshoreLocation("ashore");
     pl.setTransportsMaterialsToShore(false);

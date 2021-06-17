@@ -10,7 +10,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import uk.co.ogauthority.pwa.model.entity.enums.HseSafetyZone;
+import uk.co.ogauthority.pwa.model.entity.enums.locationdetails.HseSafetyZone;
+import uk.co.ogauthority.pwa.model.entity.enums.locationdetails.PsrNotification;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.entitycopier.ChildEntity;
 
@@ -31,7 +32,9 @@ public class PadLocationDetails implements ChildEntity<Integer, PwaApplicationDe
   @Enumerated(EnumType.STRING)
   private HseSafetyZone withinSafetyZone;
 
-  private Boolean psrNotificationSubmitted;
+  @Enumerated(EnumType.STRING)
+  @Column(name = "psr_submitted_option")
+  private PsrNotification psrNotificationSubmittedOption;
 
   @Column(name = "psr_submitted_month")
   private Integer psrNotificationSubmittedMonth;
@@ -42,6 +45,11 @@ public class PadLocationDetails implements ChildEntity<Integer, PwaApplicationDe
   private Integer psrNotificationExpectedSubmissionMonth;
   @Column(name = "psr_expected_submission_year")
   private Integer psrNotificationExpectedSubmissionYear;
+
+  @Column(name = "psr_not_required_reason")
+  private String psrNotificationNotRequiredReason;
+
+  private Boolean diversUsed;
 
   private Boolean facilitiesOffshore;
   private Boolean transportsMaterialsToShore;
@@ -103,12 +111,16 @@ public class PadLocationDetails implements ChildEntity<Integer, PwaApplicationDe
     this.withinSafetyZone = withinSafetyZone;
   }
 
-  public Boolean getPsrNotificationSubmitted() {
-    return psrNotificationSubmitted;
+  public PsrNotification getPsrNotificationSubmittedOption() {
+    return psrNotificationSubmittedOption;
   }
 
-  public void setPsrNotificationSubmitted(Boolean psrNotificationSubmitted) {
-    this.psrNotificationSubmitted = psrNotificationSubmitted;
+  public void setPsrNotificationSubmittedOption(PsrNotification psrNotificationSubmittedOption) {
+    this.psrNotificationSubmittedOption = psrNotificationSubmittedOption;
+  }
+
+  public boolean psrNotificationNotRequired() {
+    return PsrNotification.NOT_REQUIRED.equals(psrNotificationSubmittedOption);
   }
 
   public Integer getPsrNotificationSubmittedMonth() {
@@ -141,6 +153,22 @@ public class PadLocationDetails implements ChildEntity<Integer, PwaApplicationDe
 
   public void setPsrNotificationExpectedSubmissionYear(Integer psrNotificationExpectedSubmissionYear) {
     this.psrNotificationExpectedSubmissionYear = psrNotificationExpectedSubmissionYear;
+  }
+
+  public String getPsrNotificationNotRequiredReason() {
+    return psrNotificationNotRequiredReason;
+  }
+
+  public void setPsrNotificationNotRequiredReason(String psrNotificationNotRequiredReason) {
+    this.psrNotificationNotRequiredReason = psrNotificationNotRequiredReason;
+  }
+
+  public Boolean getDiversUsed() {
+    return diversUsed;
+  }
+
+  public void setDiversUsed(Boolean diversUsed) {
+    this.diversUsed = diversUsed;
   }
 
   public Boolean getFacilitiesOffshore() {

@@ -31,6 +31,37 @@
             </@fdsRadio.radioGroup>
         </#if>
 
+        <#if requiredQuestions?seq_contains("PSR_NOTIFICATION")>
+            <@fdsRadio.radioGroup path="form.psrNotificationSubmittedOption" labelText="Have you submitted a Pipelines Safety Regulations (PSR) notification to HSE?" hintText="Timely submission in advance of work is advised to avoid potential delays" hiddenContent=true nestingPath="form.withinSafetyZone">                
+                <#assign firstItem = true/>
+                <#list psrNotificationOptions as name, value>
+                    <@fdsRadio.radioItem path="form.psrNotificationSubmittedOption" itemMap={name:value} isFirstItem=firstItem>
+                        <#if name == "YES">
+                        <@fdsNumberInput.twoNumberInputs pathOne="form.psrNotificationSubmittedDate.month" pathTwo="form.psrNotificationSubmittedDate.year" labelText="Date submitted" formId="submitted-month-year" nestingPath="form.psrNotificationSubmittedOption">
+                            <@fdsNumberInput.numberInputItem path="form.psrNotificationSubmittedDate.month" labelText="Month" inputClass="govuk-input--width-2"/>
+                            <@fdsNumberInput.numberInputItem path="form.psrNotificationSubmittedDate.year" labelText="Year" inputClass="govuk-input--width-4"/>
+                        </@fdsNumberInput.twoNumberInputs>
+                        <#elseif name == "NO">
+                            <@fdsNumberInput.twoNumberInputs pathOne="form.psrNotificationExpectedSubmissionDate.month" pathTwo="form.psrNotificationExpectedSubmissionDate.year" labelText="Expected submission date" formId="expected-submission-month-year" nestingPath="form.psrNotificationSubmittedOption">
+                                <@fdsNumberInput.numberInputItem path="form.psrNotificationExpectedSubmissionDate.month" labelText="Month" inputClass="govuk-input--width-2"/>
+                                <@fdsNumberInput.numberInputItem path="form.psrNotificationExpectedSubmissionDate.year" labelText="Year" inputClass="govuk-input--width-4"/>
+                            </@fdsNumberInput.twoNumberInputs>
+                        <#else>
+                            <@fdsTextarea.textarea path="form.psrNotificationNotRequiredReason" labelText="Why is a PSR notification not required?" characterCount=true maxCharacterLength="4000" nestingPath="form.psrNotificationSubmittedOption"/>
+                        </#if>
+                    </@fdsRadio.radioItem>
+                    <#assign firstItem = false/>
+                </#list>
+            </@fdsRadio.radioGroup>
+        </#if>
+
+        <#if requiredQuestions?seq_contains("DIVERS_USED")>
+            <@fdsRadio.radioGroup path="form.diversUsed" labelText="Will divers be used?">
+                <@fdsRadio.radioYes path="form.diversUsed"/>
+                <@fdsRadio.radioNo path="form.diversUsed"/>
+            </@fdsRadio.radioGroup>
+        </#if>
+
         <#if requiredQuestions?seq_contains("FACILITIES_OFFSHORE")>
             <@fdsRadio.radioGroup path="form.facilitiesOffshore" labelText="Are all facilities wholly offshore and subsea?" hiddenContent=true>
                 <@fdsRadio.radioYes path="form.facilitiesOffshore"/>
@@ -83,22 +114,4 @@
 
     <@fdsSearchSelector.searchSelectorRest path="${formPath}.facilities" labelText="Which structures are within 500m?" multiSelect=true restUrl=springUrl(facilityRestUrl)
     nestingPath="form.withinSafetyZone" preselectedItems=preselectedItems hintText="e.g the platform, FPSO, boat, or storage unit"/>
-
-    <@fdsRadio.radioGroup path="${formPath}.psrNotificationSubmitted" labelText="Have you submitted a Pipelines Safety Regulations notification to HSE?" hintText="Timely submission in advance of work is advised to avoid potential delays" hiddenContent=true nestingPath="form.withinSafetyZone">
-
-        <@fdsRadio.radioYes path="${formPath}.psrNotificationSubmitted">
-            <@fdsNumberInput.twoNumberInputs pathOne="${formPath}.psrNotificationSubmittedDate.month" pathTwo="${formPath}.psrNotificationSubmittedDate.year" labelText="Date submitted" formId="submitted-month-year" nestingPath="${formPath}.psrNotificationSubmitted">
-                <@fdsNumberInput.numberInputItem path="${formPath}.psrNotificationSubmittedDate.month" labelText="Month" inputClass="govuk-input--width-2"/>
-                <@fdsNumberInput.numberInputItem path="${formPath}.psrNotificationSubmittedDate.year" labelText="Year" inputClass="govuk-input--width-4"/>
-            </@fdsNumberInput.twoNumberInputs>
-        </@fdsRadio.radioYes>
-
-        <@fdsRadio.radioNo path="${formPath}.psrNotificationSubmitted">
-            <@fdsNumberInput.twoNumberInputs pathOne="${formPath}.psrNotificationExpectedSubmissionDate.month" pathTwo="${formPath}.psrNotificationExpectedSubmissionDate.year" labelText="Expected submission date" formId="expected-submission-month-year" nestingPath="${formPath}.psrNotificationSubmitted">
-                <@fdsNumberInput.numberInputItem path="${formPath}.psrNotificationExpectedSubmissionDate.month" labelText="Month" inputClass="govuk-input--width-2"/>
-                <@fdsNumberInput.numberInputItem path="${formPath}.psrNotificationExpectedSubmissionDate.year" labelText="Year" inputClass="govuk-input--width-4"/>
-            </@fdsNumberInput.twoNumberInputs>
-        </@fdsRadio.radioNo>
-    </@fdsRadio.radioGroup>
-
 </#macro>

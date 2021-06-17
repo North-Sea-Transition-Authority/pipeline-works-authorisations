@@ -1,15 +1,26 @@
 package uk.co.ogauthority.pwa.model.form.pwaapplications.shared.location;
 
 import java.util.Objects;
-import uk.co.ogauthority.pwa.model.entity.enums.HseSafetyZone;
+import uk.co.ogauthority.pwa.model.entity.enums.locationdetails.HseSafetyZone;
+import uk.co.ogauthority.pwa.model.entity.enums.locationdetails.PsrNotification;
 import uk.co.ogauthority.pwa.model.form.files.UploadMultipleFilesWithDescriptionForm;
+import uk.co.ogauthority.pwa.util.forminputs.twofielddate.TwoFieldDateInput;
 
 public class LocationDetailsForm extends UploadMultipleFilesWithDescriptionForm {
 
   private String approximateProjectLocationFromShore;
+
   private HseSafetyZone withinSafetyZone;
   private LocationDetailsSafetyZoneForm completelyWithinSafetyZoneForm = new LocationDetailsSafetyZoneForm();
   private LocationDetailsSafetyZoneForm partiallyWithinSafetyZoneForm = new LocationDetailsSafetyZoneForm();
+
+  private PsrNotification psrNotificationSubmittedOption;
+  private TwoFieldDateInput psrNotificationSubmittedDate;
+  private TwoFieldDateInput psrNotificationExpectedSubmissionDate;
+  private String psrNotificationNotRequiredReason;
+
+  private Boolean diversUsed;
+
   private Boolean facilitiesOffshore;
   private Boolean transportsMaterialsToShore;
 
@@ -59,6 +70,49 @@ public class LocationDetailsForm extends UploadMultipleFilesWithDescriptionForm 
   public void setPartiallyWithinSafetyZoneForm(
       LocationDetailsSafetyZoneForm partiallyWithinSafetyZoneForm) {
     this.partiallyWithinSafetyZoneForm = partiallyWithinSafetyZoneForm;
+  }
+
+  public PsrNotification getPsrNotificationSubmittedOption() {
+    return psrNotificationSubmittedOption;
+  }
+
+  public void setPsrNotificationSubmittedOption(
+      PsrNotification psrNotificationSubmittedOption) {
+    this.psrNotificationSubmittedOption = psrNotificationSubmittedOption;
+  }
+
+  public TwoFieldDateInput getPsrNotificationSubmittedDate() {
+    return psrNotificationSubmittedDate;
+  }
+
+  public void setPsrNotificationSubmittedDate(
+      TwoFieldDateInput psrNotificationSubmittedDate) {
+    this.psrNotificationSubmittedDate = psrNotificationSubmittedDate;
+  }
+
+  public TwoFieldDateInput getPsrNotificationExpectedSubmissionDate() {
+    return psrNotificationExpectedSubmissionDate;
+  }
+
+  public void setPsrNotificationExpectedSubmissionDate(
+      TwoFieldDateInput psrNotificationExpectedSubmissionDate) {
+    this.psrNotificationExpectedSubmissionDate = psrNotificationExpectedSubmissionDate;
+  }
+
+  public String getPsrNotificationNotRequiredReason() {
+    return psrNotificationNotRequiredReason;
+  }
+
+  public void setPsrNotificationNotRequiredReason(String psrNotificationNotRequiredReason) {
+    this.psrNotificationNotRequiredReason = psrNotificationNotRequiredReason;
+  }
+
+  public Boolean getDiversUsed() {
+    return diversUsed;
+  }
+
+  public void setDiversUsed(Boolean diversUsed) {
+    this.diversUsed = diversUsed;
   }
 
   public Boolean getFacilitiesOffshore() {
@@ -164,6 +218,11 @@ public class LocationDetailsForm extends UploadMultipleFilesWithDescriptionForm 
         && withinSafetyZone == that.withinSafetyZone
         && Objects.equals(completelyWithinSafetyZoneForm, that.completelyWithinSafetyZoneForm)
         && Objects.equals(partiallyWithinSafetyZoneForm, that.partiallyWithinSafetyZoneForm)
+        && Objects.equals(psrNotificationSubmittedOption, that.psrNotificationSubmittedOption)
+        && Objects.equals(psrNotificationSubmittedDate, that.psrNotificationSubmittedDate)
+        && Objects.equals(psrNotificationExpectedSubmissionDate, that.psrNotificationExpectedSubmissionDate)
+        && Objects.equals(psrNotificationNotRequiredReason, that.psrNotificationNotRequiredReason)
+        && Objects.equals(diversUsed, that.diversUsed)
         && Objects.equals(facilitiesOffshore, that.facilitiesOffshore)
         && Objects.equals(transportsMaterialsToShore, that.transportsMaterialsToShore)
         && Objects.equals(transportationMethod, that.transportationMethod)
@@ -180,7 +239,8 @@ public class LocationDetailsForm extends UploadMultipleFilesWithDescriptionForm 
   @Override
   public int hashCode() {
     return Objects.hash(approximateProjectLocationFromShore, withinSafetyZone, completelyWithinSafetyZoneForm,
-        partiallyWithinSafetyZoneForm, facilitiesOffshore, transportsMaterialsToShore, transportationMethod,
+        partiallyWithinSafetyZoneForm, psrNotificationSubmittedOption, psrNotificationSubmittedDate, psrNotificationExpectedSubmissionDate,
+        psrNotificationNotRequiredReason, diversUsed, facilitiesOffshore, transportsMaterialsToShore, transportationMethod,
         pipelineRouteDetails, routeSurveyUndertaken, routeSurveyNotUndertakenReason, withinLimitsOfDeviation,
         surveyConcludedDay, surveyConcludedMonth, surveyConcludedYear, pipelineAshoreLocation);
   }

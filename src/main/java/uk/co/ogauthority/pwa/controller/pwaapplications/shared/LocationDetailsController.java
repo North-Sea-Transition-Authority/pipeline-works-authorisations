@@ -22,7 +22,8 @@ import uk.co.ogauthority.pwa.config.fileupload.FileUploadResult;
 import uk.co.ogauthority.pwa.controller.files.PwaApplicationDetailDataFileUploadAndDownloadController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.rest.DevukRestController;
 import uk.co.ogauthority.pwa.model.entity.devuk.DevukFacility;
-import uk.co.ogauthority.pwa.model.entity.enums.HseSafetyZone;
+import uk.co.ogauthority.pwa.model.entity.enums.locationdetails.HseSafetyZone;
+import uk.co.ogauthority.pwa.model.entity.enums.locationdetails.PsrNotification;
 import uk.co.ogauthority.pwa.model.entity.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.location.LocationDetailsForm;
@@ -91,10 +92,15 @@ public class LocationDetailsController extends PwaApplicationDetailDataFileUploa
         form
     );
 
+    var safetyZoneOptions = HseSafetyZone.stream().sorted()
+        .collect(StreamUtils.toLinkedHashMap(Enum::name, HseSafetyZone::getDisplayText));
+
+    var psrNotificationOptions = PsrNotification.stream().sorted()
+        .collect(StreamUtils.toLinkedHashMap(Enum::name, PsrNotification::getDisplayText));
+
     var facilities = devukFacilityService.getFacilities("");
-    modelAndView.addObject("safetyZoneOptions", HseSafetyZone.stream()
-        .sorted()
-        .collect(StreamUtils.toLinkedHashMap(Enum::name, HseSafetyZone::getDisplayText)))
+    modelAndView.addObject("safetyZoneOptions", safetyZoneOptions)
+        .addObject("psrNotificationOptions", psrNotificationOptions)
         .addObject("facilityOptions", facilities.stream()
             .collect(
                 StreamUtils.toLinkedHashMap(facility -> facility.getId().toString(), DevukFacility::getFacilityName)))

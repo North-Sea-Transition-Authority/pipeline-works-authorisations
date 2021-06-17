@@ -1,15 +1,18 @@
 package uk.co.ogauthority.pwa.model.form.pwaapplications.views;
 
 import java.util.List;
-import uk.co.ogauthority.pwa.model.entity.enums.HseSafetyZone;
+import uk.co.ogauthority.pwa.model.entity.enums.locationdetails.HseSafetyZone;
+import uk.co.ogauthority.pwa.model.entity.enums.locationdetails.PsrNotification;
 import uk.co.ogauthority.pwa.model.form.files.UploadedFileView;
 
 public class LocationDetailsView {
 
   private final String approximateProjectLocationFromShore;
   private final HseSafetyZone withinSafetyZone;
-  private final Boolean psrNotificationSubmitted;
+  private final PsrNotification psrNotificationSubmittedOption;
   private final String psrNotificationSubmissionDate;
+  private final String psrNotificationNotRequiredReason;
+  private final Boolean diversUsed;
   private final List<String> facilitiesIfYes;
   private final List<String> facilitiesIfPartially;
   private final Boolean facilitiesOffshore;
@@ -31,8 +34,10 @@ public class LocationDetailsView {
 
   public LocationDetailsView(String approximateProjectLocationFromShore,
                              HseSafetyZone withinSafetyZone,
-                             Boolean psrNotificationSubmitted,
+                             PsrNotification psrNotificationSubmittedOption,
                              String psrNotificationSubmissionDate,
+                             String psrNotificationNotRequiredReason,
+                             Boolean diversUsed,
                              List<String> facilitiesIfYes,
                              List<String> facilitiesIfPartially,
                              Boolean facilitiesOffshore,
@@ -47,8 +52,10 @@ public class LocationDetailsView {
                              List<UploadedFileView> uploadedLetterFileViews) {
     this.approximateProjectLocationFromShore = approximateProjectLocationFromShore;
     this.withinSafetyZone = withinSafetyZone;
-    this.psrNotificationSubmitted = psrNotificationSubmitted;
+    this.psrNotificationSubmittedOption = psrNotificationSubmittedOption;
     this.psrNotificationSubmissionDate = psrNotificationSubmissionDate;
+    this.psrNotificationNotRequiredReason = psrNotificationNotRequiredReason;
+    this.diversUsed = diversUsed;
     this.facilitiesIfYes = facilitiesIfYes;
     this.facilitiesIfPartially = facilitiesIfPartially;
     this.facilitiesOffshore = facilitiesOffshore;
@@ -75,12 +82,20 @@ public class LocationDetailsView {
     return withinSafetyZone;
   }
 
-  public Boolean getPsrNotificationSubmitted() {
-    return psrNotificationSubmitted;
+  public PsrNotification getPsrNotificationSubmittedOption() {
+    return psrNotificationSubmittedOption;
   }
 
   public String getPsrNotificationSubmissionDate() {
     return psrNotificationSubmissionDate;
+  }
+
+  public String getPsrNotificationNotRequiredReason() {
+    return psrNotificationNotRequiredReason;
+  }
+
+  public Boolean getDiversUsed() {
+    return diversUsed;
   }
 
   public List<String> getFacilitiesIfYes() {
