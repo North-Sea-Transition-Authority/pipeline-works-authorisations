@@ -7,7 +7,7 @@
 
 <#include '../../layout.ftl'>
 
-<#assign pageHeadingWithAppRef="${pageRef} ${appRef}" />
+<#assign pageHeadingWithAppRef="${appRef} ${pageRef}" />
 
 <@defaultPage htmlTitle="${pageHeadingWithAppRef}" topNavigation=true breadcrumbs=true fullWidthColumn=true>
 
