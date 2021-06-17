@@ -290,7 +290,7 @@ public class PipelineIdentFormValidatorTest {
 
     var dataForm = new PipelineIdentDataForm();
     dataForm.setExternalDiameter(BigDecimal.valueOf(12.1));
-    dataForm.setInternalDiameter(BigDecimal.valueOf(12.1));
+    dataForm.setInternalDiameter(dataForm.getExternalDiameter().subtract(BigDecimal.ONE));
     dataForm.setWallThickness(BigDecimal.valueOf(12.1));
     dataForm.setMaop(BigDecimal.valueOf(12.1));
     dataForm.setProductsToBeConveyed("prod");

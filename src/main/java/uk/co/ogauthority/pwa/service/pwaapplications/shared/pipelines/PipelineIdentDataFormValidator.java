@@ -111,6 +111,12 @@ public class PipelineIdentDataFormValidator implements SmartValidator {
             "internalDiameter" + FieldValidationErrorCodes.REQUIRED.getCode(), "Enter the internal diameter");
         ValidatorUtils.validateDecimalPlaces(errors, fieldPrefix + "internalDiameter", "Internal diameter", 2);
 
+        if ((form.getInternalDiameter() != null && form.getExternalDiameter() != null)
+            && form.getInternalDiameter().compareTo(form.getExternalDiameter()) > -1) {
+          errors.rejectValue(fieldPrefix + "internalDiameter", "internalDiameter" + FieldValidationErrorCodes.INVALID.getCode(),
+              "The internal diameter must be smaller than the external diameter");
+        }
+
         ValidationUtils.rejectIfEmptyOrWhitespace(errors, fieldPrefix + "wallThickness",
             "wallThickness" + FieldValidationErrorCodes.REQUIRED.getCode(), "Enter the wall thickness");
         ValidatorUtils.validateDecimalPlaces(errors, fieldPrefix + "wallThickness", "Wall thickness", 2);
