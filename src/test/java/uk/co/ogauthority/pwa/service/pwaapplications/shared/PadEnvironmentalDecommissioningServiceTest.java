@@ -280,7 +280,7 @@ public class PadEnvironmentalDecommissioningServiceTest {
   }
 
   @Test
-  public void getAvailableQuestions_notCat2OrDepcon() {
+  public void getAvailableQuestions_notCat2OrDepconOrDecom() {
 
     var detail = new PwaApplicationDetail();
     var app = new PwaApplication();
@@ -288,7 +288,8 @@ public class PadEnvironmentalDecommissioningServiceTest {
 
     PwaApplicationType.stream()
         .filter(applicationType -> applicationType != PwaApplicationType.CAT_2_VARIATION
-            && applicationType != PwaApplicationType.DEPOSIT_CONSENT)
+            && applicationType != PwaApplicationType.DEPOSIT_CONSENT
+            && applicationType != PwaApplicationType.DECOMMISSIONING)
         .forEach(applicationType -> {
 
           app.setApplicationType(applicationType);
