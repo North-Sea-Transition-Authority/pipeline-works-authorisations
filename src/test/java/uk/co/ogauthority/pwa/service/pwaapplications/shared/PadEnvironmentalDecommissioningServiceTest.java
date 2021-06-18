@@ -325,4 +325,17 @@ public class PadEnvironmentalDecommissioningServiceTest {
 
   }
 
+  @Test
+  public void getAvailableQuestions_decom() {
+
+    var detail = new PwaApplicationDetail();
+    var app = new PwaApplication();
+    app.setApplicationType(PwaApplicationType.DECOMMISSIONING);
+    detail.setPwaApplication(app);
+
+    assertThat(padEnvironmentalDecommissioningService.getAvailableQuestions(detail))
+        .containsExactlyElementsOf(EnumSet.complementOf(EnumSet.of(EnvDecomQuestion.DECOMMISSIONING)));
+
+  }
+
 }

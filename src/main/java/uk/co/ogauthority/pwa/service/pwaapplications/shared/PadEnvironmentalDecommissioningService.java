@@ -54,6 +54,8 @@ public class PadEnvironmentalDecommissioningService implements ApplicationFormSe
     if (detail.getPwaApplicationType() == PwaApplicationType.CAT_2_VARIATION
         || detail.getPwaApplicationType() == PwaApplicationType.DEPOSIT_CONSENT) {
       return Set.of(EnvDecomQuestion.BEIS_EMT_PERMITS);
+    } else if (detail.getPwaApplicationType() == PwaApplicationType.DECOMMISSIONING) {
+      return EnumSet.complementOf(EnumSet.of(EnvDecomQuestion.DECOMMISSIONING));
     }
 
     return EnumSet.allOf(EnvDecomQuestion.class);
