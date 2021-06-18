@@ -18,4 +18,12 @@ public interface PortalTeamRepository extends CrudRepository<PortalTeam, Integer
                           @Param("p_person_id") Integer personId,
                           @Param("p_requesting_wua_id") Integer wuaId);
 
+
+  @Procedure(value = "team_management.create_team", outputParameterName = "po_resource_id")
+  Integer createTeam(@Param("p_resource_type") String resourceType,
+                     @Param("p_resource_name") String resourceName,
+                     @Param("p_resource_description") String resourceDescription,
+                     @Param("p_uref") String primaryDataUref,
+                     @Param("p_requesting_wua_id") Integer wuaId);
+
 }

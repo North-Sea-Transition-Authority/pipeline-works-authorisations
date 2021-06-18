@@ -7,14 +7,17 @@ import static org.mockito.Mockito.verify;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import javax.persistence.EntityManager;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
+import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationGroup;
 import uk.co.ogauthority.pwa.energyportal.repository.teams.PortalTeamRepository;
 import uk.co.ogauthority.pwa.energyportal.service.teams.PortalTeamAccessor;
 
@@ -34,6 +37,7 @@ public class PortalTeamAccessorTest {
 
   private Person targetPerson;
   private WebUserAccount actionPerformedBy;
+  private AuthenticatedUserAccount user;
 
   private PortalTeamAccessor portalTeamAccessor;
 
@@ -44,6 +48,7 @@ public class PortalTeamAccessorTest {
 
     targetPerson = new Person(1, "fname", "sname", "email", "0");
     actionPerformedBy = new WebUserAccount(9);
+    user = new AuthenticatedUserAccount(actionPerformedBy, List.of());
   }
 
 
@@ -83,5 +88,17 @@ public class PortalTeamAccessorTest {
     Collection<String> roles = Arrays.asList("ROLE1", "ROLE2");
     portalTeamAccessor.addPersonToTeamWithRoles(TEAM_RES_ID, targetPerson, roles, actionPerformedBy);
 
+  }
+
+  @Test(expected = RuntimeException.class)
+  public void createOrganisationGroupTeam_caughtExceptionIsRethrown() {
+    doThrow(new NullPointerException()).when(portalTeamRepository).createTeam(any(), any(), any(), any(), any());
+    portalTeamAccessor.createOrganisationGroupTeam(new PortalOrganisationGroup(), user);
+  }
+
+  @Test
+  public void createOrganisationGroupTeam_verifyRepositoryInteraction() {
+    portalTeamAccessor.createOrganisationGroupTeam(new PortalOrganisationGroup(), user);
+    verify(portalTeamRepository, times(1)).createTeam(any(), any(), any(), any(), any());
   }
 }

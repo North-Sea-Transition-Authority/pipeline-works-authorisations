@@ -6,6 +6,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
@@ -19,6 +20,7 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationGroup;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationTestUtils;
 import uk.co.ogauthority.pwa.energyportal.service.organisations.PortalOrganisationsAccessor;
+import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
 import uk.co.ogauthority.pwa.service.enums.users.UserType;
 import uk.co.ogauthority.pwa.service.teams.TeamService;
@@ -72,6 +74,20 @@ public class PwaOrganisationAccessorTest {
     assertThat(groups).containsExactly(organisationGroup1);
 
   }
+
+
+  @Test(expected = PwaEntityNotFoundException.class)
+  public void getOrganisationGroupOrError_orgGroupNotFound() {
+    pwaOrganisationAccessor.getOrganisationGroupOrError(1);
+  }
+
+  @Test
+  public void getOrganisationGroupOrError_orgGroupFound() {
+    var portalOrgGroup = new PortalOrganisationGroup();
+    when(portalOrganisationsAccessor.getOrganisationGroupById(1)).thenReturn(Optional.of(portalOrgGroup));
+    assertThat(pwaOrganisationAccessor.getOrganisationGroupOrError(1)).isEqualTo(portalOrgGroup);
+  }
+
 
   @Test
   public void industryUser_getOrgUnits_restricted() {

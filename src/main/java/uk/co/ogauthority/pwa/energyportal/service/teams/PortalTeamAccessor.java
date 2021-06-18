@@ -13,6 +13,7 @@ import javax.persistence.NoResultException;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.energyportal.exceptions.teams.PortalTeamNotFoundException;
 import uk.co.ogauthority.pwa.energyportal.model.dto.teams.PortalRoleDto;
 import uk.co.ogauthority.pwa.energyportal.model.dto.teams.PortalSystemPrivilegeDto;
@@ -21,10 +22,12 @@ import uk.co.ogauthority.pwa.energyportal.model.dto.teams.PortalTeamMemberDto;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
+import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationGroup;
 import uk.co.ogauthority.pwa.energyportal.model.entity.teams.PortalTeam;
 import uk.co.ogauthority.pwa.energyportal.model.entity.teams.PortalTeamTypeRole;
 import uk.co.ogauthority.pwa.energyportal.model.entity.teams.PortalTeamUsagePurpose;
 import uk.co.ogauthority.pwa.energyportal.repository.teams.PortalTeamRepository;
+import uk.co.ogauthority.pwa.model.teams.PwaTeamType;
 
 
 @Service
@@ -119,6 +122,27 @@ public class PortalTeamAccessor {
         teamMemberRoleResult.getRoleDescription(),
         teamMemberRoleResult.getRoleDisplaySequence()
     );
+  }
+
+  public Optional<PortalTeamDto> findPortalTeamByOrganisationGroup(PortalOrganisationGroup portalOrganisationGroup) {
+    try {
+      return Optional.of(entityManager.createQuery("" +
+              "SELECT new uk.co.ogauthority.pwa.energyportal.model.dto.teams.PortalTeamDto(" +
+              "  pt.resId, pt.name, pt.description, ptt.type, ptu.uref " +
+              ") " +
+              "FROM PortalTeam pt " +
+              "JOIN PortalTeamType ptt ON pt.portalTeamType = ptt " +
+              "LEFT JOIN PortalTeamUsage ptu ON ptu.portalTeam = pt " +
+              "LEFT JOIN PortalOrganisationGroup pog ON pog.urefValue = ptu.uref " +
+              "WHERE ptt.type = :portalTeamType " +
+              "AND pog.orgGrpId = :organisationGroupId",
+          PortalTeamDto.class)
+          .setParameter("portalTeamType", PwaTeamType.ORGANISATION.getPortalTeamType())
+          .setParameter("organisationGroupId", portalOrganisationGroup.getOrgGrpId())
+          .getSingleResult());
+    } catch (NoResultException e) {
+      return Optional.empty();
+    }
   }
 
   /**
@@ -296,6 +320,47 @@ public class PortalTeamAccessor {
         PortalSystemPrivilegeDto.class)
         .setParameter("personId", person.getId().asInt())
         .getResultList();
+
+  }
+
+
+  @Transactional
+  public Integer createOrganisationGroupTeam(PortalOrganisationGroup organisationGroup,
+                                             AuthenticatedUserAccount user) {
+
+    final var teamType = PwaTeamType.ORGANISATION;
+    final var portalTeamType = teamType.getPortalTeamType();
+    final var resourceTypeDisplayName = teamType.getPortalTeamTypeDisplayName();
+    final var resourceDescription = String.format("%s - %s", resourceTypeDisplayName, organisationGroup.getName());
+    final var organisationUref = organisationGroup.getUrefValue();
+    final var webUserAccountId = user.getWuaId();
+
+    try {
+      return portalTeamRepository.createTeam(
+          portalTeamType,
+          resourceTypeDisplayName,
+          resourceDescription,
+          organisationUref,
+          webUserAccountId
+      );
+    } catch (Exception e) {
+
+      var message = String.format(
+          "Error creating organisation group team with " +
+              "p_resource_type: %s, " +
+              "p_resource_name: %s, " +
+              "p_resource_description: %s, " +
+              "p_uref: %s, " +
+              "p_requesting_wua_id: %s",
+          portalTeamType,
+          resourceTypeDisplayName,
+          resourceDescription,
+          organisationUref,
+          webUserAccountId
+      );
+
+      throw new RuntimeException(message, e);
+    }
 
   }
 

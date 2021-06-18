@@ -26,10 +26,12 @@ import uk.co.ogauthority.pwa.energyportal.model.dto.teams.PortalTeamScopeDto;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationGroup;
+import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationTestUtils;
 import uk.co.ogauthority.pwa.energyportal.model.entity.teams.PortalTeamUsagePurpose;
 import uk.co.ogauthority.pwa.energyportal.repository.PersonRepository;
 import uk.co.ogauthority.pwa.energyportal.repository.teams.PortalTeamRepository;
 import uk.co.ogauthority.pwa.energyportal.service.teams.PortalTeamAccessor;
+import uk.co.ogauthority.pwa.model.teams.PwaTeamType;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -57,16 +59,20 @@ public class PortalTeamAccessorIntegrationTest {
   private final String UNSCOPED_TEAM_NAME = "PwaRegulatorTeam";
   private final String UNSCOPED_TEAM_DESCRIPTION = "RegulatorTeamDescription";
 
-  private final String SCOPED_TEAM_PORTAL_TYPE = "SCOPED_TEAM_TYPE";
+  private final PortalOrganisationGroup PORTAL_ORGANISATION_GROUP =
+      PortalOrganisationTestUtils.generateOrganisationGroup(1, "name", "short name");
+
+  private final String SCOPED_TEAM_PORTAL_TYPE = PwaTeamType.ORGANISATION.getPortalTeamType();
   private final int SCOPED_TEAM_RES_ID = 200;
   private final String SCOPED_TEAM_NAME = "Org1Team";
   private final String SCOPED_TEAM_DESCRIPTION = "Org1TeamDescription";
-  private final String SCOPED_TEAM_UREF = constructOrgGroupUref(20);
+  private final String SCOPED_TEAM_UREF = constructOrgGroupUref(PORTAL_ORGANISATION_GROUP.getOrgGrpId());
 
   private final int NO_MEMBER_SCOPED_TEAM_RES_ID = 300;
   private final String NO_MEMBER_SCOPED_TEAM_NAME = "Org2Team";
   private final String NO_MEMBER_SCOPED_TEAM_DESCRIPTION = "Org2TeamDescription";
   private final String NO_MEMBER_SCOPED_TEAM_UREF = constructOrgGroupUref(30);
+
 
   @Autowired
   private PersonRepository personRepository;
@@ -94,11 +100,14 @@ public class PortalTeamAccessorIntegrationTest {
     insertPerson(30);
     scopedTeamMemberPerson_1Role = personRepository.findById(30).orElse(null);
 
+    insertPortalOrganisationGroup(PORTAL_ORGANISATION_GROUP);
+
     insertPortalTeamTypes();
     insertPortalTeamTypeRoles();
     insertPortalTeamInstancesAndUsages();
 
     insertTeamMembers();
+
   }
 
   @Test
@@ -651,6 +660,56 @@ public void getTeamsWherePersonMemberOfTeamTypeAndHasRoleMatching_whenPersonIsTe
 
   private String constructOrgGroupUref(int id) {
     return id + PortalOrganisationGroup.UREF_TYPE;
+  }
+
+
+
+
+  @Test
+  @Transactional
+  public void findPortalTeamByOrganisationGroup_whenNotFound_thenEmptyOptionalReturned() {
+
+    var nonPersistedOrganisationGroup = PortalOrganisationTestUtils.generateOrganisationGroup(
+        123,
+        "My first organisation",
+        "Organisation"
+    );
+
+    var result = portalTeamAccessor.findPortalTeamByOrganisationGroup(nonPersistedOrganisationGroup);
+
+    assertThat(result).isNotPresent();
+  }
+
+  @Test
+  @Transactional
+  public void findPortalTeamByOrganisationGroup_whenFound_thenReturn() {
+    var result = portalTeamAccessor.findPortalTeamByOrganisationGroup(PORTAL_ORGANISATION_GROUP);
+    assertThat(result).isPresent();
+    assertPortalTeamInstanceDtoMappingAsExpected(
+        result.get(),
+        constructOrgGroupUref(PORTAL_ORGANISATION_GROUP.getOrgGrpId()),
+        SCOPED_TEAM_RES_ID,
+        SCOPED_TEAM_PORTAL_TYPE,
+        SCOPED_TEAM_NAME,
+        SCOPED_TEAM_PORTAL_TYPE_DESCRIPTION
+    );
+  }
+
+
+
+  private void insertPortalOrganisationGroup(PortalOrganisationGroup portalOrganisationGroup) {
+    entityManager.createNativeQuery(
+        "INSERT INTO portal_organisation_groups (org_grp_id, name, short_name, uref_value) VALUES (" +
+            "  :org_grp_id" +
+            ", :name" +
+            ", :short_name" +
+            ", :uref_value)"
+    )
+        .setParameter("org_grp_id", portalOrganisationGroup.getOrgGrpId())
+        .setParameter("name", portalOrganisationGroup.getName())
+        .setParameter("short_name", portalOrganisationGroup.getShortName())
+        .setParameter("uref_value", constructOrgGroupUref(portalOrganisationGroup.getOrgGrpId()))
+        .executeUpdate();
   }
 
 }

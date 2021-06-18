@@ -126,6 +126,13 @@ public class PortalOrganisationsAccessor {
   }
 
   /**
+   * Return a list of all organisation groups where the name contains the search term.
+   */
+  public List<PortalOrganisationGroup> getAllOrganisationGroupsWhereNameContains(String searchTerm) {
+    return organisationGroupRepository.findByNameContainingIgnoreCase(searchTerm);
+  }
+
+  /**
    * Return a list of organisation groups who have a uref value matching a value in the given list.
    */
   public List<PortalOrganisationGroup> getAllOrganisationGroupsWithUrefIn(List<String> organisationGroupUref) {
@@ -137,6 +144,17 @@ public class PortalOrganisationsAccessor {
    */
   public List<PortalOrganisationGroup> getOrganisationGroupsWhereIdIn(List<Integer> organisationGroupId) {
     return IterableUtils.toList(organisationGroupRepository.findAllById(organisationGroupId));
+  }
+
+
+
+  /**
+   * Get the PortalOrganisationGroup for the specified id.
+   * @param orgGrpId id of the PortalOrganisationGroup
+   * @return optional of the PortalOrganisationGroup with the specified id
+   */
+  public Optional<PortalOrganisationGroup> getOrganisationGroupById(Integer orgGrpId) {
+    return organisationGroupRepository.findById(orgGrpId);
   }
 
   /**

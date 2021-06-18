@@ -8,4 +8,6 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrgan
 public interface PortalOrganisationGroupRepository extends CrudRepository<PortalOrganisationGroup, Integer> {
 
   List<PortalOrganisationGroup> findByUrefValueIn(List<String> organisationGroupUrefValues);
+
+  List<PortalOrganisationGroup> findByNameContainingIgnoreCase(String searchTerm);
 }

@@ -8,6 +8,7 @@ import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationGroup;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.energyportal.service.organisations.PortalOrganisationsAccessor;
+import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
 import uk.co.ogauthority.pwa.model.teams.PwaOrganisationTeam;
 import uk.co.ogauthority.pwa.service.enums.users.UserType;
@@ -43,6 +44,18 @@ public class PwaOrganisationAccessor {
         .stream()
         .map(PwaOrganisationTeam::getPortalOrganisationGroup)
         .collect(Collectors.toList());
+  }
+
+
+  public List<PortalOrganisationGroup> findOrganisationGroupsWhereNameContains(String searchTerm) {
+    return portalOrganisationsAccessor.getAllOrganisationGroupsWhereNameContains(searchTerm);
+  }
+
+  public PortalOrganisationGroup getOrganisationGroupOrError(Integer orgGrpId) {
+    return portalOrganisationsAccessor.getOrganisationGroupById(orgGrpId)
+        .orElseThrow(() -> new PwaEntityNotFoundException(
+            String.format("Unable to find organisation group with id %d", orgGrpId))
+        );
   }
 
   public List<PortalOrganisationUnit> getOrgUnitsUserCanAccess(AuthenticatedUserAccount user) {

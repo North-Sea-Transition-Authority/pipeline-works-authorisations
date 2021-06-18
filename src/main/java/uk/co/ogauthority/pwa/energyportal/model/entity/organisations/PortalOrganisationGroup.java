@@ -5,12 +5,13 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import org.hibernate.annotations.Immutable;
+import uk.co.ogauthority.pwa.model.searchselector.SearchSelectable;
 
 
 @Entity
 @Table(name = "portal_organisation_groups")
 @Immutable
-public class PortalOrganisationGroup {
+public class PortalOrganisationGroup implements SearchSelectable {
 
   public static final String UREF_TYPE = "++REGOGRGRP";
 
@@ -38,6 +39,19 @@ public class PortalOrganisationGroup {
   public String getUrefValue() {
     return urefValue;
   }
+
+
+
+  @Override
+  public String getSelectionId() {
+    return getOrgGrpId().toString();
+  }
+
+  @Override
+  public String getSelectionText() {
+    return getName();
+  }
+
 
   @Override
   public boolean equals(Object o) {
