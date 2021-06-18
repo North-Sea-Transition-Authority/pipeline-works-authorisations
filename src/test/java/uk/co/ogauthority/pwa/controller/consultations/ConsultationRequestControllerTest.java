@@ -159,7 +159,7 @@ public class ConsultationRequestControllerTest extends PwaAppProcessingContextAb
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(ConsultationRequestController.class)
-                .postRequestConsultation(applicationDetail.getMasterPwaApplicationId(), type, null, null, null, null)));
+                .postRequestConsultation(applicationDetail.getMasterPwaApplicationId(), type, null, null, null, null, null)));
 
     endpointTester.performAppStatusChecks(status().is3xxRedirection(), status().isNotFound());
 
@@ -173,7 +173,7 @@ public class ConsultationRequestControllerTest extends PwaAppProcessingContextAb
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(ConsultationRequestController.class)
-                .postRequestConsultation(applicationDetail.getMasterPwaApplicationId(), type, null, null, null, null)));
+                .postRequestConsultation(applicationDetail.getMasterPwaApplicationId(), type, null, null, null, null, null)));
 
     endpointTester.performProcessingPermissionCheck(status().is3xxRedirection(), status().isForbidden());
 
@@ -185,7 +185,7 @@ public class ConsultationRequestControllerTest extends PwaAppProcessingContextAb
     when(consultationRequestService.validate(any(), any(), any())).thenReturn(new BeanPropertyBindingResult(new ConsultationRequestForm(), "form"));
 
     mockMvc.perform(post(ReverseRouter.route(on(ConsultationRequestController.class)
-        .postRequestConsultation(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null)))
+        .postRequestConsultation(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null, null)))
         .with(authenticatedUserAndSession(user))
         .param("consulteeGroupSelection", "")
         .param("daysToRespond", "28")
@@ -204,7 +204,7 @@ public class ConsultationRequestControllerTest extends PwaAppProcessingContextAb
     when(consultationRequestService.validate(any(), any(), any())).thenReturn(failedBindingResult);
 
     mockMvc.perform(post(ReverseRouter.route(on(ConsultationRequestController.class)
-        .postRequestConsultation(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null)))
+        .postRequestConsultation(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null, null)))
         .with(authenticatedUserAndSession(user))
         .param("consulteeGroupSelection", "")
         .param("daysToRespond", "28")
@@ -221,7 +221,7 @@ public class ConsultationRequestControllerTest extends PwaAppProcessingContextAb
         PwaAppProcessingContextDtoTestUtils.emptyAppInvolvement(pwaApplicationDetail.getPwaApplication()),
         EnumSet.allOf(PwaAppProcessingPermission.class)));
 
-    mockMvc.perform(post(ReverseRouter.route(on(ConsultationRequestController.class).postRequestConsultation(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null)))
+    mockMvc.perform(post(ReverseRouter.route(on(ConsultationRequestController.class).postRequestConsultation(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null, null)))
         .with(authenticatedUserAndSession(user))
         .with(csrf()))
         .andExpect(status().isForbidden());

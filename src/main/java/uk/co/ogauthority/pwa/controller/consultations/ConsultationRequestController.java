@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.controller.appprocessing.shared.PwaAppProcessingPermissionCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationStatusCheck;
@@ -29,6 +30,7 @@ import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingTask;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.util.CaseManagementUtils;
+import uk.co.ogauthority.pwa.util.FlashUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
 @Controller
@@ -72,7 +74,8 @@ public class ConsultationRequestController {
                                               PwaAppProcessingContext processingContext,
                                               AuthenticatedUserAccount authenticatedUserAccount,
                                               @ModelAttribute("form") ConsultationRequestForm form,
-                                              BindingResult bindingResult) {
+                                              BindingResult bindingResult,
+                                              RedirectAttributes redirectAttributes) {
 
     return CaseManagementUtils.withAtLeastOneSatisfactoryVersion(
         processingContext,
@@ -87,6 +90,7 @@ public class ConsultationRequestController {
           return controllerHelperService.checkErrorsAndRedirect(validatedBindingResult,
               getRequestConsultationModelAndView(processingContext), () -> {
                 consultationRequestService.saveEntitiesAndStartWorkflow(form, appDetail, authenticatedUserAccount);
+                FlashUtils.info(redirectAttributes, "Consultation requests sent");
                 return ReverseRouter.redirect(on(ConsultationController.class).renderConsultations(
                     appDetail.getMasterPwaApplicationId(), appDetail.getPwaApplicationType(), null, null));
               });
