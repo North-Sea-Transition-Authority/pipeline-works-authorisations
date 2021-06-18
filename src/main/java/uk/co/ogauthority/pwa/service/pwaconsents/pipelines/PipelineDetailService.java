@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.service.pwaconsents.pipelines;
 
+import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 
 import java.time.Clock;
@@ -8,6 +9,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
@@ -16,6 +18,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
+import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationSubmission;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineStatus;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
@@ -23,10 +26,12 @@ import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PadPipelineOverview;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview;
 import uk.co.ogauthority.pwa.repository.pipelines.CountPipelineDetailsForPipelineDto;
 import uk.co.ogauthority.pwa.repository.pipelines.PipelineBundlePairDto;
 import uk.co.ogauthority.pwa.repository.pipelines.PipelineDetailRepository;
+import uk.co.ogauthority.pwa.service.asbuilt.view.AsBuiltViewerService;
 import uk.co.ogauthority.pwa.service.pwaconsents.consentwriters.pipelines.ConsentWriterDto;
 import uk.co.ogauthority.pwa.service.pwaconsents.consentwriters.pipelines.PadPipelineDto;
 
@@ -37,15 +42,18 @@ public class PipelineDetailService {
   private final Clock clock;
   private final PipelineMappingService pipelineMappingService;
   private final PipelineDetailIdentService pipelineDetailIdentService;
+  private final AsBuiltViewerService asBuiltViewerService;
 
   public PipelineDetailService(PipelineDetailRepository pipelineDetailRepository,
                                @Qualifier("utcClock") Clock clock,
                                PipelineMappingService pipelineMappingService,
-                               PipelineDetailIdentService pipelineDetailIdentService) {
+                               PipelineDetailIdentService pipelineDetailIdentService,
+                               AsBuiltViewerService asBuiltViewerService) {
     this.pipelineDetailRepository = pipelineDetailRepository;
     this.clock = clock;
     this.pipelineMappingService = pipelineMappingService;
     this.pipelineDetailIdentService = pipelineDetailIdentService;
+    this.asBuiltViewerService = asBuiltViewerService;
   }
 
   // TODO PWA-1046 - this has a misleading name. No "similar" check is done.
@@ -57,9 +65,11 @@ public class PipelineDetailService {
     return pipelineDetailRepository.getAllPipelineOverviewsForMasterPwa(masterPwa);
   }
 
-  public List<PipelineOverview> getAllPipelineOverviewsForMasterPwaAndStatus(MasterPwa masterPwa,
+  public List<PipelineOverview> getCompletePipelineOverviewsForMasterPwaAndStatus(MasterPwa masterPwa,
                                                                              Set<PipelineStatus> statusFilter) {
-    return pipelineDetailRepository.getAllPipelineOverviewsForMasterPwaAndStatus(masterPwa, statusFilter);
+    var basicOverviews = pipelineDetailRepository
+        .getAllPipelineOverviewsForMasterPwaAndStatus(masterPwa, statusFilter);
+    return getOverviewsWithAsBuiltStatus(basicOverviews);
   }
 
   public Map<PipelineId, PipelineOverview> getAllPipelineOverviewsForMasterPwaMap(MasterPwa masterPwa) {
@@ -187,6 +197,28 @@ public class PipelineDetailService {
             CountPipelineDetailsForPipelineDto::getPipelineId,
             CountPipelineDetailsForPipelineDto::getCountOfPipelineDetails)
         );
+  }
+
+  private List<PipelineOverview> getOverviewsWithAsBuiltStatus(List<PipelineOverview> pipelineOverviews) {
+    var pipelineIds = pipelineOverviews.stream()
+        .map(PipelineOverview::getPipelineId)
+        .collect(toList());
+    var pipelineIdToDetailMap = pipelineDetailRepository.findAllByPipeline_IdInAndTipFlagIsTrue(pipelineIds).stream()
+        .collect(Collectors.toMap(PipelineDetail::getPipelineId, PipelineDetail::getPipelineDetailId));
+    var latestSubmissionsForEachPipelineDetailId = asBuiltViewerService
+        .getLatestSubmissionsForEachPipelineDetailId(new ArrayList<>(pipelineIdToDetailMap.values()));
+    Map<Integer, AsBuiltNotificationSubmission> pipelineIdToSubmissionMap = new HashMap<>();
+    for (PipelineId pipelineId : pipelineIdToDetailMap.keySet()) {
+      pipelineIdToSubmissionMap.put(pipelineId.asInt(), latestSubmissionsForEachPipelineDetailId
+          .get(pipelineIdToDetailMap.get(pipelineId)));
+    }
+    return pipelineOverviews.stream().map(pipelineOverview -> {
+      var submission = pipelineIdToSubmissionMap.get(pipelineOverview.getPipelineId());
+      if (Objects.nonNull(submission)) {
+        return PadPipelineOverview.from(pipelineOverview, submission.getAsBuiltNotificationStatus());
+      }
+      return pipelineOverview;
+    }).collect(toList());
   }
 
 }

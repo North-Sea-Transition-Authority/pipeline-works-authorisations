@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.service.pwaconsents;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -9,6 +10,7 @@ import static org.mockito.Mockito.when;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -20,12 +22,17 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
+import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationSubmissionUtil;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineStatus;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
+import uk.co.ogauthority.pwa.model.enums.aabuilt.AsBuiltNotificationStatus;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview;
 import uk.co.ogauthority.pwa.repository.pipelines.PipelineDetailRepository;
+import uk.co.ogauthority.pwa.service.asbuilt.view.AsBuiltViewerService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaconsents.consentwriters.pipelines.ConsentWriterDto;
 import uk.co.ogauthority.pwa.service.pwaconsents.consentwriters.pipelines.PadPipelineDto;
@@ -33,6 +40,7 @@ import uk.co.ogauthority.pwa.service.pwaconsents.consentwriters.pipelines.Pipeli
 import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailIdentService;
 import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailService;
 import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineMappingService;
+import uk.co.ogauthority.pwa.service.pwaconsents.testutil.PipelineDetailTestUtil;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -53,6 +61,9 @@ public class PipelineDetailServiceTest {
   @Mock
   private PipelineMappingService pipelineMappingService;
 
+  @Mock
+  private AsBuiltViewerService asBuiltViewerService;
+
   private PipelineDetailService pipelineDetailService;
   private PwaApplicationDetail detail;
 
@@ -64,7 +75,8 @@ public class PipelineDetailServiceTest {
     clockTime = Instant.now();
     when(clock.instant()).thenReturn(clockTime);
 
-    pipelineDetailService = new PipelineDetailService(pipelineDetailRepository, clock, pipelineMappingService, pipelineDetailIdentService);
+    pipelineDetailService = new PipelineDetailService(pipelineDetailRepository, clock, pipelineMappingService, pipelineDetailIdentService,
+        asBuiltViewerService);
 
     detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
 
@@ -81,7 +93,9 @@ public class PipelineDetailServiceTest {
   public void getNonDeletedPipelineDetailsForApplicationMasterPwaWithTipFlag_serviceInteraction() {
     var master = detail.getMasterPwa();
     var pipelineDetail = new PipelineDetail();
-    when(pipelineDetailRepository.findAllByPipeline_MasterPwaAndPipelineStatusIsNotInAndTipFlagIsTrue(master, PipelineStatus.historicalStatusSet()))        .thenReturn(List.of(pipelineDetail));
+    when(pipelineDetailRepository.findAllByPipeline_MasterPwaAndPipelineStatusIsNotInAndTipFlagIsTrue(master,
+        PipelineStatus.historicalStatusSet()))
+        .thenReturn(List.of(pipelineDetail));
     var result = pipelineDetailService.getNonDeletedPipelineDetailsForApplicationMasterPwa(master);
     assertThat(result).containsExactly(pipelineDetail);
   }
@@ -173,6 +187,46 @@ public class PipelineDetailServiceTest {
     // verify call to ident creation method
     verify(pipelineDetailIdentService, times(1)).createPipelineDetailIdents(identCreationMap);
 
+  }
+
+  @Test
+  public void getCompletePipelineOverviewsForMasterPwaAndStatus_getsOverviewWithNoAsBuiltStatus() {
+    var pipelineStatusFilter = EnumSet.allOf(PipelineStatus.class);
+    var overview = PipelineDetailTestUtil
+        .createPipelineOverview("REF", PipelineStatus.IN_SERVICE);
+    var pipelineDetail = PipelineDetailTestUtil.createPipelineDetail(10, new PipelineId(overview.getPipelineId()), Instant.now());
+
+    when(pipelineDetailRepository.getAllPipelineOverviewsForMasterPwaAndStatus(detail.getMasterPwa(), pipelineStatusFilter))
+        .thenReturn(List.of(overview));
+    when(pipelineDetailRepository.findAllByPipeline_IdInAndTipFlagIsTrue(List.of(pipelineDetail.getPipeline().getId())))
+        .thenReturn(List.of(pipelineDetail));
+    when(asBuiltViewerService.getLatestSubmissionsForEachPipelineDetailId(List.of(pipelineDetail.getPipelineDetailId())))
+        .thenReturn(Map.of());
+
+    assertThat(pipelineDetailService.getCompletePipelineOverviewsForMasterPwaAndStatus(detail.getMasterPwa(), pipelineStatusFilter))
+        .extracting(PipelineOverview::getPipelineId, PipelineOverview::getAsBuiltNotificationStatus)
+        .containsExactly(tuple(overview.getPipelineId(), null));
+  }
+
+  @Test
+  public void getCompletePipelineOverviewsForMasterPwaAndStatus_getsOverviewWithAsBuiltStatus() {
+    var pipelineStatusFilter = EnumSet.allOf(PipelineStatus.class);
+    var overview = PipelineDetailTestUtil
+        .createPipelineOverviewWithAsBuiltStatus("REF", PipelineStatus.IN_SERVICE, AsBuiltNotificationStatus.PER_CONSENT);
+    var pipelineDetail = PipelineDetailTestUtil.createPipelineDetail(10, new PipelineId(overview.getPipelineId()), Instant.now());
+    var submission = AsBuiltNotificationSubmissionUtil
+        .createDefaultAsBuiltNotificationSubmission_fromPipelineDetail(pipelineDetail, overview.getAsBuiltNotificationStatus());
+
+    when(pipelineDetailRepository.getAllPipelineOverviewsForMasterPwaAndStatus(detail.getMasterPwa(), pipelineStatusFilter))
+        .thenReturn(List.of(overview));
+    when(pipelineDetailRepository.findAllByPipeline_IdInAndTipFlagIsTrue(List.of(pipelineDetail.getPipeline().getId())))
+        .thenReturn(List.of(pipelineDetail));
+    when(asBuiltViewerService.getLatestSubmissionsForEachPipelineDetailId(List.of(pipelineDetail.getPipelineDetailId())))
+        .thenReturn(Map.of(pipelineDetail.getPipelineDetailId(), submission));
+
+    assertThat(pipelineDetailService.getCompletePipelineOverviewsForMasterPwaAndStatus(detail.getMasterPwa(), pipelineStatusFilter))
+        .extracting(PipelineOverview::getPipelineId, PipelineOverview::getAsBuiltNotificationStatus)
+        .containsExactly(tuple(overview.getPipelineId(), submission.getAsBuiltNotificationStatus()));
   }
 
 }

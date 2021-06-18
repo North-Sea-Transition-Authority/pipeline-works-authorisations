@@ -13,10 +13,11 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineStatus;
+import uk.co.ogauthority.pwa.model.enums.aabuilt.AsBuiltNotificationStatus;
 import uk.co.ogauthority.pwa.repository.pwaconsents.PwaConsentApplicationDto;
 import uk.co.ogauthority.pwa.repository.pwaconsents.PwaConsentDtoRepository;
-import uk.co.ogauthority.pwa.service.pwaconsents.testutil.PipelineDetailTestUtil;
 import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailService;
+import uk.co.ogauthority.pwa.service.pwaconsents.testutil.PipelineDetailTestUtil;
 import uk.co.ogauthority.pwa.service.pwacontext.PwaContext;
 import uk.co.ogauthority.pwa.service.search.consents.PwaViewTab;
 import uk.co.ogauthority.pwa.service.search.consents.pwaviewtab.testutil.PwaViewTabTestUtil;
@@ -62,7 +63,7 @@ public class PwaViewTabServiceTest {
         PipelineDetailTestUtil.createPipelineOverview(PIPELINE_REF_ID1, PipelineStatus.IN_SERVICE));
 
     var pipelineStatusFilter = EnumSet.allOf(PipelineStatus.class);
-    when(pipelineDetailService.getAllPipelineOverviewsForMasterPwaAndStatus(pwaContext.getMasterPwa(), pipelineStatusFilter))
+    when(pipelineDetailService.getCompletePipelineOverviewsForMasterPwaAndStatus(pwaContext.getMasterPwa(), pipelineStatusFilter))
         .thenReturn(unOrderedPipelineOverviews);
 
     var modelMap = pwaViewTabService.getTabContentModelMap(pwaContext, PwaViewTab.PIPELINES);
@@ -72,6 +73,21 @@ public class PwaViewTabServiceTest {
         new PwaPipelineView(unOrderedPipelineOverviews.get(0)),
         new PwaPipelineView(unOrderedPipelineOverviews.get(1)));
 
+  }
+
+  @Test
+  public void getTabContentModelMap_pipelinesTab_modelMapContainsPipelineViews_containsAsBuiltStatus() {
+
+    var unOrderedPipelineOverviews = List.of(PipelineDetailTestUtil.createPipelineOverviewWithAsBuiltStatus(PIPELINE_REF_ID1,
+        PipelineStatus.IN_SERVICE, AsBuiltNotificationStatus.PER_CONSENT));
+
+    var pipelineStatusFilter = EnumSet.allOf(PipelineStatus.class);
+    when(pipelineDetailService.getCompletePipelineOverviewsForMasterPwaAndStatus(pwaContext.getMasterPwa(), pipelineStatusFilter))
+        .thenReturn(unOrderedPipelineOverviews);
+
+    var modelMap = pwaViewTabService.getTabContentModelMap(pwaContext, PwaViewTab.PIPELINES);
+    var actualPwaPipelineViews = (List<PwaPipelineView>) modelMap.get("pwaPipelineViews");
+    assertThat(actualPwaPipelineViews).containsExactly(new PwaPipelineView(unOrderedPipelineOverviews.get(0)));
   }
 
   @Test

@@ -50,7 +50,7 @@ public class PwaViewTabService {
   private List<PwaPipelineView> getPipelineTabContent(PwaContext pwaContext) {
 
     var pipelineStatusFilter = EnumSet.allOf(PipelineStatus.class);
-    var pipelineOverviews = pipelineDetailService.getAllPipelineOverviewsForMasterPwaAndStatus(
+    var pipelineOverviews = pipelineDetailService.getCompletePipelineOverviewsForMasterPwaAndStatus(
         pwaContext.getMasterPwa(), pipelineStatusFilter);
 
     return pipelineOverviews
