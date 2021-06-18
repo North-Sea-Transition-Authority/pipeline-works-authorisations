@@ -26,7 +26,7 @@ public class OrganisationGroupRestController {
   }
 
 
-  @GetMapping("/organisations")
+  @GetMapping("/organisation-groups")
   @ResponseBody
   public RestSearchResult searchOrganisations(@Nullable @RequestParam("term") String searchTerm) {
     return new RestSearchResult(
