@@ -4,6 +4,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -72,6 +73,10 @@ public class AsBuiltViewerService {
   private List<AsBuiltNotificationSubmission> getAsBuiltNotificationSubmissions(List<AsBuiltNotificationGroupPipeline>
                                                                                    asBuiltNotificationGroupPipelines) {
     return asBuiltNotificationSubmissionRepository.findAllByAsBuiltNotificationGroupPipelineIn(asBuiltNotificationGroupPipelines);
+  }
+
+  public Optional<AsBuiltNotificationGroup> getNotificationGroupOptional(Integer notificationGroupId) {
+    return asBuiltNotificationGroupService.getAsBuiltNotificationGroup(notificationGroupId);
   }
 
   private AsBuiltNotificationGroup getNotificationGroup(Integer notificationGroupId) {
