@@ -32,7 +32,7 @@ errorItems=[]>
     <@genericLayout htmlTitle=htmlTitle htmlAppTitle="OGA Pipelines" errorCheck=errorCheck noIndex=noIndex>
 
     <#--Header-->
-        <@pipelinesHeader.header logoText="OGA" logoProductText="" headerNav=true serviceName="Pipeline Works Authorisations" topNavigation=topNavigation wrapperWidth=wrapperWidth headerIcon=headerIcon/>
+        <@pipelinesHeader.header logoText="OGA" logoProductText="" headerNav=true serviceName="Pipeline Works Authorisations" topNavigation=topNavigation wrapperWidth=wrapperWidth headerIcon=""/>
 
     <#--Phase banner-->
         <#if phaseBanner>
@@ -144,11 +144,6 @@ errorItems=[]>
 
     <#--Custom scripts go here-->
         <script src="<@spring.url '/assets/static/js/pwa/tableSelectionToggler.js'/>"></script>
-
-      <script src="<@spring.url '/assets/static/js/vendor/jquery/jquery.iframe-transport.min.js'/>"></script>
-      <!-- TODO remove jquery UI dependency, investigate impact on modals -->
-      <script src="<@spring.url '/assets/static/js/vendor/jquery/jquery-ui.min.js'/>"></script>
-      <script src="<@spring.url '/assets/static/js/vendor/jquery/jquery.fileupload.min.js'/>"></script>
 
     </@genericLayout>
 </#macro>
