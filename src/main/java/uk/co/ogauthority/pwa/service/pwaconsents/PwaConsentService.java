@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.service.pwaconsents;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -87,6 +88,10 @@ public class PwaConsentService {
     return pwaConsentRepository.findFirstByMasterPwaOrderByConsentInstantDescVariationNumberDesc(masterPwa)
         .orElseThrow(() -> new EntityLatestVersionNotFoundException(
             "The latest consent could not be found for master pwa with id: " + masterPwa.getId()));
+  }
+
+  public Optional<PwaConsent> getConsentByPwaApplication(PwaApplication pwaApplication) {
+    return pwaConsentRepository.findBySourcePwaApplication(pwaApplication);
   }
 
 }

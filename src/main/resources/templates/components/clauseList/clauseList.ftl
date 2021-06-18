@@ -64,6 +64,7 @@
 
   <#assign clauseActionsFlag = clauseActionsUrlProvider?has_content />
 
+  <#-- docgenAutoDownloader.js uses this id string to ignore clause focusing in URLs, if changing this id make sure to update the JS also -->
   <li id="clauseId-${clauseView.clauseId?c}" class="pwa-clause-list__list-item">
 
     <#if showClauseHeading>

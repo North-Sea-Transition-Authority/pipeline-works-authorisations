@@ -12,9 +12,13 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.exception.appprocessing.ConsentReviewException;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.prepareconsent.ConsentReview;
+import uk.co.ogauthority.pwa.model.entity.enums.documents.DocumentTemplateMnem;
+import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocGenType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.enums.appprocessing.prepareconsent.ConsentReviewStatus;
 import uk.co.ogauthority.pwa.repository.appprocessing.prepareconsent.ConsentReviewRepository;
+import uk.co.ogauthority.pwa.service.docgen.DocgenService;
+import uk.co.ogauthority.pwa.service.documents.instances.DocumentInstanceService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.workflow.application.ConsentReviewDecision;
 import uk.co.ogauthority.pwa.service.enums.workflow.application.PwaApplicationWorkflowTask;
@@ -36,6 +40,8 @@ public class ConsentReviewService {
   private final PwaConsentService pwaConsentService;
   private final ConsentWriterService consentWriterService;
   private final IssueConsentEmailsService issueConsentEmailsService;
+  private final DocgenService docgenService;
+  private final DocumentInstanceService documentInstanceService;
 
   @Autowired
   public ConsentReviewService(ConsentReviewRepository consentReviewRepository,
@@ -45,7 +51,9 @@ public class ConsentReviewService {
                               CamundaWorkflowService camundaWorkflowService,
                               PwaConsentService pwaConsentService,
                               ConsentWriterService consentWriterService,
-                              IssueConsentEmailsService issueConsentEmailsService) {
+                              IssueConsentEmailsService issueConsentEmailsService,
+                              DocgenService docgenService,
+                              DocumentInstanceService documentInstanceService) {
     this.consentReviewRepository = consentReviewRepository;
     this.clock = clock;
     this.pwaApplicationDetailService = pwaApplicationDetailService;
@@ -54,6 +62,8 @@ public class ConsentReviewService {
     this.pwaConsentService = pwaConsentService;
     this.consentWriterService = consentWriterService;
     this.issueConsentEmailsService = issueConsentEmailsService;
+    this.docgenService = docgenService;
+    this.documentInstanceService = documentInstanceService;
   }
 
   @Transactional
@@ -155,7 +165,13 @@ public class ConsentReviewService {
 
     workflowAssignmentService.clearAssignments(pwaApplicationDetail.getPwaApplication());
 
+    var docInstance = documentInstanceService
+        .getDocumentInstanceOrError(pwaApplicationDetail.getPwaApplication(), DocumentTemplateMnem.PWA_CONSENT_DOCUMENT);
+
+    docgenService.scheduleDocumentGeneration(docInstance, DocGenType.FULL, issuingUser.getLinkedPerson());
+
     return new IssuedConsentDto(consent.getReference());
+
   }
 
   public boolean areThereAnyOpenReviews(PwaApplicationDetail pwaApplicationDetail) {

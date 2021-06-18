@@ -28,6 +28,9 @@ import uk.co.ogauthority.pwa.controller.WorkAreaController;
 import uk.co.ogauthority.pwa.controller.appprocessing.shared.PwaAppProcessingPermissionCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationStatusCheck;
 import uk.co.ogauthority.pwa.exception.AccessDeniedException;
+import uk.co.ogauthority.pwa.exception.documents.DocumentInstanceException;
+import uk.co.ogauthority.pwa.model.docgen.DocgenRun;
+import uk.co.ogauthority.pwa.model.docgen.DocgenRunStatusResult;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.DocumentTemplateMnem;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocGenType;
 import uk.co.ogauthority.pwa.model.entity.enums.mailmerge.MailMergeFieldType;
@@ -42,8 +45,8 @@ import uk.co.ogauthority.pwa.service.appprocessing.prepareconsent.FailedSendForA
 import uk.co.ogauthority.pwa.service.appprocessing.prepareconsent.PreSendForApprovalChecksView;
 import uk.co.ogauthority.pwa.service.appprocessing.prepareconsent.PrepareConsentTaskService;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
+import uk.co.ogauthority.pwa.service.docgen.DocgenService;
 import uk.co.ogauthority.pwa.service.documents.DocumentService;
-import uk.co.ogauthority.pwa.service.documents.generation.DocumentGenerationService;
 import uk.co.ogauthority.pwa.service.documents.instances.DocumentInstanceClauseActionsUrlProvider;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingTask;
@@ -61,33 +64,33 @@ public class AppConsentDocController {
 
   private final AppProcessingBreadcrumbService breadcrumbService;
   private final DocumentService documentService;
-  private final DocumentGenerationService documentGenerationService;
   private final PrepareConsentTaskService prepareConsentTaskService;
   private final ControllerHelperService controllerHelperService;
   private final TemplateTextService templateTextService;
   private final ConsentDocumentService consentDocumentService;
   private final ConsentReviewService consentReviewService;
   private final MailMergeService mailMergeService;
+  private final DocgenService docgenService;
 
   @Autowired
   public AppConsentDocController(AppProcessingBreadcrumbService breadcrumbService,
                                  DocumentService documentService,
-                                 DocumentGenerationService documentGenerationService,
                                  PrepareConsentTaskService prepareConsentTaskService,
                                  ControllerHelperService controllerHelperService,
                                  TemplateTextService templateTextService,
                                  ConsentDocumentService consentDocumentService,
                                  ConsentReviewService consentReviewService,
-                                 MailMergeService mailMergeService) {
+                                 MailMergeService mailMergeService,
+                                 DocgenService docgenService) {
     this.breadcrumbService = breadcrumbService;
     this.documentService = documentService;
-    this.documentGenerationService = documentGenerationService;
     this.prepareConsentTaskService = prepareConsentTaskService;
     this.controllerHelperService = controllerHelperService;
     this.templateTextService = templateTextService;
     this.consentDocumentService = consentDocumentService;
     this.consentReviewService = consentReviewService;
     this.mailMergeService = mailMergeService;
+    this.docgenService = docgenService;
   }
 
   @GetMapping
@@ -133,14 +136,107 @@ public class AppConsentDocController {
 
   }
 
-  @GetMapping("/download")
+  @GetMapping("/{docgenRunId}/status")
   @ResponseBody
-  @PwaApplicationStatusCheck(statuses = {
-      PwaApplicationStatus.CASE_OFFICER_REVIEW, PwaApplicationStatus.CONSENT_REVIEW, PwaApplicationStatus.COMPLETE})
-  @PwaAppProcessingPermissionCheck(permissions = PwaAppProcessingPermission.VIEW_CONSENT_DOCUMENT)
+  @PwaApplicationStatusCheck(statuses = {PwaApplicationStatus.CASE_OFFICER_REVIEW, PwaApplicationStatus.CONSENT_REVIEW})
+  public DocgenRunStatusResult getDocgenRunStatus(@PathVariable("applicationId") Integer applicationId,
+                                                  @PathVariable("applicationType")
+                                                  @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
+                                                  @PathVariable Long docgenRunId,
+                                                  PwaAppProcessingContext processingContext) {
+
+    if (!prepareConsentTaskService.taskAccessible(processingContext)) {
+      throwAccessDeniedException(processingContext);
+    }
+
+    var docgenRun = docgenService.getDocgenRun(docgenRunId);
+
+    checkDocgenRunAccessible(docgenRun, processingContext);
+
+    return docgenService.getDocgenRunStatus(docgenRunId,
+        ReverseRouter.route(on(AppConsentDocController.class).renderConsentDocEditor(applicationId, pwaApplicationType, null, null)));
+
+  }
+
+  @PostMapping("/preview")
+  @PwaApplicationStatusCheck(statuses = {PwaApplicationStatus.CASE_OFFICER_REVIEW, PwaApplicationStatus.CONSENT_REVIEW})
+  public ModelAndView schedulePreview(@PathVariable("applicationId") Integer applicationId,
+                                      @PathVariable("applicationType")
+                                      @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
+                                      PwaAppProcessingContext processingContext,
+                                      AuthenticatedUserAccount authenticatedUserAccount) {
+
+    return whenPrepareConsentAvailable(processingContext, () -> {
+
+      var docInstance = documentService
+          .getDocumentInstance(processingContext.getPwaApplication(), DocumentTemplateMnem.PWA_CONSENT_DOCUMENT)
+          .orElseThrow(() -> new DocumentInstanceException(String.format("Couldn't find doc instance for app with id: %s",
+              applicationId)));
+
+      var run = docgenService.scheduleDocumentGeneration(docInstance, DocGenType.PREVIEW, authenticatedUserAccount.getLinkedPerson());
+
+      return ReverseRouter.redirect(on(AppConsentDocController.class)
+          .renderDocumentGenerating(applicationId, pwaApplicationType, run.getId(), null, null));
+
+    });
+
+  }
+
+  @GetMapping("/{docgenRunId}/generating")
+  @PwaApplicationStatusCheck(statuses = {PwaApplicationStatus.CASE_OFFICER_REVIEW, PwaApplicationStatus.CONSENT_REVIEW})
+  public ModelAndView renderDocumentGenerating(@PathVariable("applicationId") Integer applicationId,
+                                               @PathVariable("applicationType")
+                                               @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
+                                               @PathVariable Long docgenRunId,
+                                               PwaAppProcessingContext processingContext,
+                                               AuthenticatedUserAccount authenticatedUserAccount) {
+
+    return whenPrepareConsentAvailable(processingContext, () -> {
+
+      var docgenRun = docgenService.getDocgenRun(docgenRunId);
+
+      checkDocgenRunAccessible(docgenRun, processingContext);
+
+      var statusUrl = ReverseRouter.route(on(AppConsentDocController.class)
+          .getDocgenRunStatus(applicationId, pwaApplicationType, docgenRunId, null));
+
+      ModelAndView modelAndView = new ModelAndView("docgen/documentGenerating");
+      modelAndView.addObject("statusUrl", statusUrl);
+      modelAndView.addObject("returnUrl",
+          ReverseRouter.route(on(AppConsentDocController.class)
+              .renderConsentDocEditor(applicationId, pwaApplicationType, null, null)));
+
+      return modelAndView;
+
+    });
+
+  }
+
+  private void checkDocgenRunAccessible(DocgenRun docgenRun,
+                                        PwaAppProcessingContext processingContext) {
+
+    var applicationId = processingContext.getMasterPwaApplicationId();
+
+    if (!docgenRun.getDocumentInstance().getPwaApplication().getId().equals(applicationId)) {
+      throw new AccessDeniedException(
+          String.format("User tried to access docgen run for a different application (ID: %s) than the " +
+              "one they are viewing (ID: %s)", docgenRun.getDocumentInstance().getPwaApplication().getId(), applicationId));
+    }
+
+    if (docgenRun.getDocGenType() != DocGenType.PREVIEW) {
+      throw new AccessDeniedException(String.format(
+          "User tried to access a non-PREVIEW docgen run using the preview endpoint for app with ID: %s", applicationId));
+    }
+
+  }
+
+  @GetMapping("/download/{docgenRunId}")
+  @ResponseBody
+  @PwaApplicationStatusCheck(statuses = { PwaApplicationStatus.CASE_OFFICER_REVIEW, PwaApplicationStatus.CONSENT_REVIEW})
   public ResponseEntity<Resource> downloadPdf(@PathVariable("applicationId") Integer applicationId,
                                               @PathVariable("applicationType")
                                               @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
+                                              @PathVariable Long docgenRunId,
                                               PwaAppProcessingContext processingContext,
                                               AuthenticatedUserAccount authenticatedUserAccount) {
 
@@ -150,11 +246,16 @@ public class AppConsentDocController {
 
           try {
 
-            var blob = documentGenerationService.generateConsentDocument(processingContext.getApplicationDetail(),
-                DocGenType.PREVIEW);
+            var docgenRun = docgenService.getDocgenRun(docgenRunId);
+
+            checkDocgenRunAccessible(docgenRun, processingContext);
+
+            var blob = docgenService.getDocgenRun(docgenRunId).getGeneratedDocument();
+
             var inputStream = blob.getBinaryStream();
 
-            return getResourceResponseEntity(blob, inputStream);
+            String filename = processingContext.getPwaApplication().getAppReference().replace("/", "-") + " consent preview.pdf";
+            return getResourceResponseEntity(blob, inputStream, filename);
 
           } catch (Exception e) {
             throw new RuntimeException("Error serving document", e);
@@ -164,18 +265,18 @@ public class AppConsentDocController {
 
   }
 
-  private ResponseEntity<Resource> getResourceResponseEntity(Blob blob, InputStream inputStream) {
+  private ResponseEntity<Resource> getResourceResponseEntity(Blob blob, InputStream inputStream, String filename) {
 
     try {
       return ResponseEntity.ok()
           .contentType(MediaType.APPLICATION_OCTET_STREAM)
           .contentLength(blob.length())
           .header(HttpHeaders.CONTENT_DISPOSITION,
-              String.format("attachment; filename=\"%s\"", "test-filename.pdf"))
+              String.format("attachment; filename=\"%s\"", filename))
           .body(new InputStreamResource(inputStream));
 
     } catch (Exception e) {
-      throw new RuntimeException(String.format("Error serving file '%s'", "test-filename.pdf"), e);
+      throw new RuntimeException(String.format("Error serving file '%s'", filename), e);
     }
 
   }
