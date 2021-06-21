@@ -19,7 +19,10 @@ public enum PwaRegulatorUserRole implements PwaUserRole {
 
   RESOURCE_COORDINATOR("Team Administrator", "Manage access to the team (Team Administrator)", 50),
 
-  AS_BUILT_NOTIF_ADMIN("As-built Notification Administrator", "Manage as-built notifications", 60);
+  AS_BUILT_NOTIF_ADMIN("As-built Notification Administrator", "Manage as-built notifications", 60),
+
+  TEMPLATE_CLAUSE_MANAGER("Template Clause Manager", "Manage document template clauses", 70);
+
 
   private final String roleName;
   private final String roleDescription;
