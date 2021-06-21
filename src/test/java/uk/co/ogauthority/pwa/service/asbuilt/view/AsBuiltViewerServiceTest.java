@@ -93,8 +93,10 @@ public class AsBuiltViewerServiceTest {
         .thenReturn(Optional.of(asBuiltNotificationGroup));
     when(asBuiltNotificationGroupDetailService.getAsBuiltNotificationGroupDetail(asBuiltNotificationGroup))
         .thenReturn(Optional.of(asBuiltNotificationGroupDetail));
-    when(pipelineDetailService.getLatestByPipelineId(pipelineDetail.getPipelineDetailId().asInt())).thenReturn(pipelineDetail);
-    when(pipelineDetailService.getLatestByPipelineId(pipelineDetail2.getPipelineDetailId().asInt())).thenReturn(pipelineDetail2);
+
+    when(pipelineDetailService.getByPipelineDetailId(pipelineDetail.getPipelineDetailId().asInt())).thenReturn(pipelineDetail);
+    when(pipelineDetailService.getByPipelineDetailId(pipelineDetail2.getPipelineDetailId().asInt())).thenReturn(pipelineDetail2);
+
     when(asBuiltNotificationGroupPipelineRepository.findAllByAsBuiltNotificationGroup_Id(asBuiltNotificationGroup.getId()))
         .thenReturn(List.of(asBuiltNotificationGroupPipeline, asBuiltNotificationGroupPipeline2));
     when(asBuiltNotificationSubmissionRepository.findAllByAsBuiltNotificationGroupPipelineIn(List.of(asBuiltNotificationGroupPipeline,

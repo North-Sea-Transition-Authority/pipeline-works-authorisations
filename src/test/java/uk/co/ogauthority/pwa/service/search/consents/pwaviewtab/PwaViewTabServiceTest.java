@@ -69,6 +69,7 @@ public class PwaViewTabServiceTest {
     var pipelineStatusFilter = EnumSet.allOf(PipelineStatus.class);
     when(pipelineDetailService.getAllPipelineOverviewsForMasterPwaAndStatus(pwaContext.getMasterPwa(), pipelineStatusFilter))
         .thenReturn(unOrderedPipelineOverviews);
+    when(asBuiltViewerService.getOverviewsWithAsBuiltStatus(unOrderedPipelineOverviews)).thenReturn(unOrderedPipelineOverviews);
 
     var modelMap = pwaViewTabService.getTabContentModelMap(pwaContext, PwaViewTab.PIPELINES);
     var actualPwaPipelineViews = (List<PwaPipelineView>) modelMap.get("pwaPipelineViews");
