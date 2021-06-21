@@ -248,21 +248,24 @@ public class PublicNoticeServiceTest {
   }
 
   @Test
-  public void getTaskListEntry_publicNoticeEnded_taskStatusIsCompleted() {
+  public void getTaskListEntry_publicNoticeHasEndedTypeStatus_taskStatusIsCompleted() {
 
     var appInvolvementDto = ApplicationInvolvementDtoTestUtil.fromInvolvementFlags(
         pwaApplication, Set.of(ApplicationInvolvementDtoTestUtil.InvolvementFlag.AT_LEAST_ONE_SATISFACTORY_VERSION));
     var processingContext = new PwaAppProcessingContext(pwaApplicationDetail, null, Set.of(), null, appInvolvementDto,
         Set.of());
 
-    var publicNotice = PublicNoticeTestUtil.createEndedPublicNotice(pwaApplication);
-    when(publicNoticeRepository.findFirstByPwaApplicationOrderByVersionDesc(processingContext.getPwaApplication()))
-        .thenReturn(Optional.of(publicNotice));
+    ENDED_STATUSES.forEach(status -> {
+      var publicNotice = PublicNoticeTestUtil.createPublicNoticeWithStatus(status);
+      when(publicNoticeRepository.findFirstByPwaApplicationOrderByVersionDesc(processingContext.getPwaApplication()))
+          .thenReturn(Optional.of(publicNotice));
 
-    var taskListEntry = publicNoticeService.getTaskListEntry(PwaAppProcessingTask.PUBLIC_NOTICE, processingContext);
+      var taskListEntry = publicNoticeService.getTaskListEntry(PwaAppProcessingTask.PUBLIC_NOTICE, processingContext);
 
-    assertThat(taskListEntry.getTaskTag()).isEqualTo(TaskTag.from(TaskStatus.COMPLETED));
-    assertThat(taskListEntry.getTaskState()).isEqualTo(TaskState.EDIT);
+      assertThat(taskListEntry.getTaskTag()).isEqualTo(TaskTag.from(TaskStatus.COMPLETED));
+      assertThat(taskListEntry.getTaskState()).isEqualTo(TaskState.EDIT);
+    });
+
   }
 
   @Test

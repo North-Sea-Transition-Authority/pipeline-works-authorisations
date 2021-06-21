@@ -119,7 +119,7 @@ public class PublicNoticeService implements AppProcessingService {
         && PublicNoticeStatus.MANAGER_APPROVAL.equals(latestPublicNoticeOpt.get().getStatus())) {
       return TaskStatus.ACTION_REQUIRED;
 
-    } else if (latestPublicNoticeOpt.isPresent() && PublicNoticeStatus.ENDED.equals(latestPublicNoticeOpt.get().getStatus())) {
+    } else if (latestPublicNoticeOpt.isPresent() && isPublicNoticeStatusEnded(latestPublicNoticeOpt.get().getStatus())) {
       return TaskStatus.COMPLETED;
 
     } else if (latestPublicNoticeOpt.isPresent()) {
