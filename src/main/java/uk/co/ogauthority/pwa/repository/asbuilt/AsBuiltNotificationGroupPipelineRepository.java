@@ -13,4 +13,6 @@ public interface AsBuiltNotificationGroupPipelineRepository extends CrudReposito
 
   List<AsBuiltNotificationGroupPipeline> findAllByAsBuiltNotificationGroup_Id(Integer asBuiltNotificationGroupId);
 
+  List<AsBuiltNotificationGroupPipeline> findAllByPipelineDetailIdIn(List<PipelineDetailId> pipelineDetailIds);
+
 }

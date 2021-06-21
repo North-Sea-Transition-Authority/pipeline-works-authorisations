@@ -1,5 +1,7 @@
 package uk.co.ogauthority.pwa.service.asbuilt.view;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -22,9 +24,12 @@ import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationGroupPipeli
 import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationSubmission;
 import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationSubmissionUtil;
 import uk.co.ogauthority.pwa.model.entity.asbuilt.PipelineChangeCategory;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineStatus;
 import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsentTestUtil;
+import uk.co.ogauthority.pwa.model.enums.aabuilt.AsBuiltNotificationStatus;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview;
 import uk.co.ogauthority.pwa.repository.asbuilt.AsBuiltNotificationGroupPipelineRepository;
 import uk.co.ogauthority.pwa.repository.asbuilt.AsBuiltNotificationSubmissionRepository;
 import uk.co.ogauthority.pwa.service.asbuilt.AsBuiltNotificationGroupDetailService;
@@ -88,8 +93,10 @@ public class AsBuiltViewerServiceTest {
         .thenReturn(Optional.of(asBuiltNotificationGroup));
     when(asBuiltNotificationGroupDetailService.getAsBuiltNotificationGroupDetail(asBuiltNotificationGroup))
         .thenReturn(Optional.of(asBuiltNotificationGroupDetail));
+
     when(pipelineDetailService.getByPipelineDetailId(pipelineDetail.getPipelineDetailId().asInt())).thenReturn(pipelineDetail);
     when(pipelineDetailService.getByPipelineDetailId(pipelineDetail2.getPipelineDetailId().asInt())).thenReturn(pipelineDetail2);
+
     when(asBuiltNotificationGroupPipelineRepository.findAllByAsBuiltNotificationGroup_Id(asBuiltNotificationGroup.getId()))
         .thenReturn(List.of(asBuiltNotificationGroupPipeline, asBuiltNotificationGroupPipeline2));
     when(asBuiltNotificationSubmissionRepository.findAllByAsBuiltNotificationGroupPipelineIn(List.of(asBuiltNotificationGroupPipeline,
@@ -113,6 +120,26 @@ public class AsBuiltViewerServiceTest {
   public void getAsBuiltPipelineNotificationSubmissionViews_viewWithNoSubmission_callsCorrectMappingMethod() {
     asBuiltViewerService.getAsBuiltPipelineNotificationSubmissionViews(NOTIFICATION_GROUP_ID);
     verify(asBuiltNotificationViewService).mapToAsBuiltNotificationViewWithNoSubmission(NOTIFICATION_GROUP_ID, pipelineDetail2);
+  }
+
+  @Test
+  public void getOverviewsWithAsBuiltStatus() {
+    var overview = PipelineDetailTestUtil
+        .createPipelineOverviewWithAsBuiltStatus("REF", PipelineStatus.IN_SERVICE, AsBuiltNotificationStatus.PER_CONSENT);
+    var pipelineDetailFromOverview = PipelineDetailTestUtil.createPipelineDetail(10, new PipelineId(overview.getPipelineId()), Instant.now());
+    var submission = AsBuiltNotificationSubmissionUtil
+        .createDefaultAsBuiltNotificationSubmission_fromPipelineDetail(pipelineDetailFromOverview, overview.getAsBuiltNotificationStatus());
+
+    when(pipelineDetailService.getLatestPipelineDetailsForIds(List.of(pipelineDetailFromOverview.getPipeline().getId())))
+        .thenReturn(List.of(pipelineDetailFromOverview));
+    when(asBuiltNotificationGroupPipelineRepository.findAllByPipelineDetailIdIn(List.of(pipelineDetailFromOverview.getPipelineDetailId())))
+        .thenReturn(List.of(asBuiltNotificationGroupPipeline));
+    when(asBuiltNotificationSubmissionRepository.findAllByAsBuiltNotificationGroupPipelineIn(List.of(asBuiltNotificationGroupPipeline)))
+        .thenReturn(List.of(submission));
+
+    assertThat(asBuiltViewerService.getOverviewsWithAsBuiltStatus(List.of(overview)))
+        .extracting(PipelineOverview::getPipelineId, PipelineOverview::getAsBuiltNotificationStatus)
+        .containsExactly(tuple(overview.getPipelineId(), submission.getAsBuiltNotificationStatus()));
   }
 
 }

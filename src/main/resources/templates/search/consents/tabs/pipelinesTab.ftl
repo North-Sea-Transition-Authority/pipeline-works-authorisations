@@ -9,7 +9,7 @@
     <thead class="govuk-table__head">
       <tr class="govuk-table__row">
         <th class="govuk-table__header" scope="col">Pipeline number</th>
-        <th class="govuk-table__header" scope="col">Status</th>
+        <th class="govuk-table__header" scope="col">Pipeline status/As-built status</th>
         <th class="govuk-table__header" scope="col">Start location (WGS 84)</th>
         <th class="govuk-table__header" scope="col">End location (WGS 84)</th>
         <th class="govuk-table__header" scope="col">Length (metres)</th>        
@@ -25,6 +25,10 @@
         </td>
         <td class="govuk-table__cell">
           ${pwaPipelineView.status.getDisplayText()}
+          <br>
+          <#if pwaPipelineView.asBuiltNotificationStatus?hasContent>
+            ${pwaPipelineView.asBuiltNotificationStatus.getDisplayName()}
+          </#if>
         </td>
         <td class="govuk-table__cell">
           <div>

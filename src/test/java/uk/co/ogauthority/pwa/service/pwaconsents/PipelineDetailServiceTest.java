@@ -9,6 +9,7 @@ import static org.mockito.Mockito.when;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -20,11 +21,13 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineStatus;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview;
 import uk.co.ogauthority.pwa.repository.pipelines.PipelineDetailRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaconsents.consentwriters.pipelines.ConsentWriterDto;
@@ -33,6 +36,7 @@ import uk.co.ogauthority.pwa.service.pwaconsents.consentwriters.pipelines.Pipeli
 import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailIdentService;
 import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailService;
 import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineMappingService;
+import uk.co.ogauthority.pwa.service.pwaconsents.testutil.PipelineDetailTestUtil;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -81,7 +85,9 @@ public class PipelineDetailServiceTest {
   public void getNonDeletedPipelineDetailsForApplicationMasterPwaWithTipFlag_serviceInteraction() {
     var master = detail.getMasterPwa();
     var pipelineDetail = new PipelineDetail();
-    when(pipelineDetailRepository.findAllByPipeline_MasterPwaAndPipelineStatusIsNotInAndTipFlagIsTrue(master, PipelineStatus.historicalStatusSet()))        .thenReturn(List.of(pipelineDetail));
+    when(pipelineDetailRepository.findAllByPipeline_MasterPwaAndPipelineStatusIsNotInAndTipFlagIsTrue(master,
+        PipelineStatus.historicalStatusSet()))
+        .thenReturn(List.of(pipelineDetail));
     var result = pipelineDetailService.getNonDeletedPipelineDetailsForApplicationMasterPwa(master);
     assertThat(result).containsExactly(pipelineDetail);
   }
@@ -173,6 +179,31 @@ public class PipelineDetailServiceTest {
     // verify call to ident creation method
     verify(pipelineDetailIdentService, times(1)).createPipelineDetailIdents(identCreationMap);
 
+  }
+
+  @Test
+  public void getAllPipelineOverviewsForMasterPwa_getsOverviewsSuccessfully() {
+    var pipelineStatusFilter = EnumSet.allOf(PipelineStatus.class);
+    var overview = PipelineDetailTestUtil
+        .createPipelineOverview("REF", PipelineStatus.IN_SERVICE);
+
+    when(pipelineDetailRepository.getAllPipelineOverviewsForMasterPwaAndStatus(detail.getMasterPwa(), pipelineStatusFilter))
+        .thenReturn(List.of(overview));
+
+    assertThat(pipelineDetailService.getAllPipelineOverviewsForMasterPwaAndStatus(detail.getMasterPwa(), pipelineStatusFilter))
+        .extracting(PipelineOverview::getPipelineId)
+        .containsExactly(overview.getPipelineId());
+  }
+
+  @Test
+  public void getLatestPipelineDetailsForIds() {
+    var pipelineDetail = PipelineDetailTestUtil.createPipelineDetail(20, new PipelineId(10), Instant.now());
+
+    when(pipelineDetailRepository.findAllByPipeline_IdInAndTipFlagIsTrue(List.of(pipelineDetail.getPipeline().getId())))
+        .thenReturn(List.of(pipelineDetail));
+
+    assertThat(pipelineDetailService.getLatestPipelineDetailsForIds(List.of(pipelineDetail.getPipeline().getId())))
+        .containsExactly((pipelineDetail));
   }
 
 }

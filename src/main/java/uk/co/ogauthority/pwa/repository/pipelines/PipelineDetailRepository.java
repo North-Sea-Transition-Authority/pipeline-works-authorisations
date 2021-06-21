@@ -26,8 +26,8 @@ public interface PipelineDetailRepository extends CrudRepository<PipelineDetail,
 
   List<PipelineDetail> findAllByPipeline_Id(Integer pipelineId);
 
+  List<PipelineDetail> findAllByPipeline_IdInAndTipFlagIsTrue(List<Integer> pipelineIds);
+
   List<PipelineDetail> findAllByPipelineInAndEndTimestampIsNull(Collection<Pipeline> pipelines);
-
-
 
 }

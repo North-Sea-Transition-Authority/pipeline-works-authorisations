@@ -1,9 +1,13 @@
 package uk.co.ogauthority.pwa.service.asbuilt.view;
 
+import static java.util.stream.Collectors.toList;
+
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.persistence.EntityNotFoundException;
@@ -11,11 +15,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.exception.AsBuiltNotificationGroupNotFoundException;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineDetailId;
+import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationGroup;
 import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationGroupDetail;
 import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationGroupPipeline;
 import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationSubmission;
 import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PadPipelineOverview;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview;
 import uk.co.ogauthority.pwa.model.view.asbuilt.AsBuiltNotificationGroupSummaryView;
 import uk.co.ogauthority.pwa.model.view.asbuilt.AsBuiltNotificationView;
 import uk.co.ogauthority.pwa.repository.asbuilt.AsBuiltNotificationGroupPipelineRepository;
@@ -95,6 +102,14 @@ public class AsBuiltViewerService {
                 asBuiltNotificationGroup.getId())));
   }
 
+  public Map<PipelineDetailId, AsBuiltNotificationSubmission> getLatestSubmissionsForEachPipelineDetailId(List<PipelineDetailId>
+                                                                                                              pipelineDetailIds) {
+    var asBuiltNotificationGroupPipelines = asBuiltNotificationGroupPipelineRepository
+        .findAllByPipelineDetailIdIn(pipelineDetailIds);
+    var submissionsForAsGroupPipelines = getAsBuiltNotificationSubmissions(asBuiltNotificationGroupPipelines);
+    return getLatestSubmissionsForEachPipeline(asBuiltNotificationGroupPipelines, submissionsForAsGroupPipelines);
+  }
+
   private Map<PipelineDetailId, AsBuiltNotificationSubmission> getLatestSubmissionsForEachPipeline(List<AsBuiltNotificationGroupPipeline>
                                                                                                 asBuiltNotificationGroupPipelines,
                                                                                                    List<AsBuiltNotificationSubmission>
@@ -144,6 +159,28 @@ public class AsBuiltViewerService {
             () -> new EntityNotFoundException(
                 String.format("Pipeline detail with id %s could not be found within as-built pipeline group with id %s",
                     pipelineDetailId.asInt(), asBuiltPipelineGroupId)));
+  }
+
+  public List<PipelineOverview> getOverviewsWithAsBuiltStatus(List<PipelineOverview> pipelineOverviews) {
+    var pipelineIds = pipelineOverviews.stream()
+        .map(PipelineOverview::getPipelineId)
+        .collect(toList());
+    var pipelineIdToDetailMap = pipelineDetailService.getLatestPipelineDetailsForIds(pipelineIds).stream()
+        .collect(Collectors.toMap(PipelineDetail::getPipelineId, PipelineDetail::getPipelineDetailId));
+    var latestSubmissionsForEachPipelineDetailId = getLatestSubmissionsForEachPipelineDetailId(
+        new ArrayList<>(pipelineIdToDetailMap.values()));
+    Map<Integer, AsBuiltNotificationSubmission> pipelineIdToSubmissionMap = new HashMap<>();
+    for (PipelineId pipelineId : pipelineIdToDetailMap.keySet()) {
+      pipelineIdToSubmissionMap.put(pipelineId.asInt(), latestSubmissionsForEachPipelineDetailId
+          .get(pipelineIdToDetailMap.get(pipelineId)));
+    }
+    return pipelineOverviews.stream().map(pipelineOverview -> {
+      var submission = pipelineIdToSubmissionMap.get(pipelineOverview.getPipelineId());
+      if (Objects.nonNull(submission)) {
+        return PadPipelineOverview.from(pipelineOverview, submission.getAsBuiltNotificationStatus());
+      }
+      return pipelineOverview;
+    }).collect(toList());
   }
 
 }
