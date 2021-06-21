@@ -165,7 +165,7 @@ public class PublicNoticeDocumentUpdateControllerTest extends PwaAppProcessingCo
     endpointTestBuilder.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PublicNoticeDocumentUpdateController.class)
-                .postUpdatePublicNoticeDocument(applicationDetail.getMasterPwaApplicationId(), type, null, null, null, null)));
+                .postUpdatePublicNoticeDocument(applicationDetail.getMasterPwaApplicationId(), type, null, null, null, null, null)));
 
     endpointTestBuilder.performAppStatusChecks(status().is3xxRedirection(), status().isNotFound());
 
@@ -179,7 +179,7 @@ public class PublicNoticeDocumentUpdateControllerTest extends PwaAppProcessingCo
     endpointTestBuilder.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PublicNoticeDocumentUpdateController.class)
-                .postUpdatePublicNoticeDocument(applicationDetail.getMasterPwaApplicationId(), type, null, null, null, null)));
+                .postUpdatePublicNoticeDocument(applicationDetail.getMasterPwaApplicationId(), type, null, null, null, null, null)));
 
     endpointTestBuilder.performProcessingPermissionCheck(status().is3xxRedirection(), status().isForbidden());
 
@@ -193,7 +193,7 @@ public class PublicNoticeDocumentUpdateControllerTest extends PwaAppProcessingCo
     when(publicNoticeDocumentUpdateService.validate(any(), any())).thenReturn(failedBindingResult);
 
     mockMvc.perform(post(ReverseRouter.route(on(PublicNoticeDocumentUpdateController.class)
-        .postUpdatePublicNoticeDocument(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null)))
+        .postUpdatePublicNoticeDocument(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null, null)))
         .with(authenticatedUserAndSession(user))
         .with(csrf()))
         .andExpect(status().isOk())
@@ -207,7 +207,7 @@ public class PublicNoticeDocumentUpdateControllerTest extends PwaAppProcessingCo
         ApplicationInvolvementDtoTestUtil.noInvolvementAndNoFlags(pwaApplicationDetail.getPwaApplication()),
         EnumSet.allOf(PwaAppProcessingPermission.class)));
 
-    mockMvc.perform(post(ReverseRouter.route(on(PublicNoticeDocumentUpdateController.class).postUpdatePublicNoticeDocument(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null)))
+    mockMvc.perform(post(ReverseRouter.route(on(PublicNoticeDocumentUpdateController.class).postUpdatePublicNoticeDocument(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null, null)))
         .with(authenticatedUserAndSession(user))
         .with(csrf()))
         .andExpect(status().isForbidden());
@@ -220,7 +220,7 @@ public class PublicNoticeDocumentUpdateControllerTest extends PwaAppProcessingCo
     when(publicNoticeDocumentUpdateService.publicNoticeDocumentCanBeUpdated(any())).thenReturn(false);
 
     mockMvc.perform(post(ReverseRouter.route(on(PublicNoticeDocumentUpdateController.class)
-        .postUpdatePublicNoticeDocument(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null)))
+        .postUpdatePublicNoticeDocument(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null, null)))
         .with(authenticatedUserAndSession(user))
         .with(csrf()))
         .andExpect(result -> assertThat(result.getResolvedException()).isInstanceOf(AccessDeniedException.class));

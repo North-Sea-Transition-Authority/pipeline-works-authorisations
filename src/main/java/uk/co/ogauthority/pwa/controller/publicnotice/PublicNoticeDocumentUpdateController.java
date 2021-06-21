@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.config.fileupload.FileDeleteResult;
 import uk.co.ogauthority.pwa.config.fileupload.FileUploadResult;
@@ -39,6 +40,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.fileupload.AppFileService;
 import uk.co.ogauthority.pwa.util.CaseManagementUtils;
+import uk.co.ogauthority.pwa.util.FlashUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
 @Controller
@@ -103,12 +105,13 @@ public class PublicNoticeDocumentUpdateController extends PwaApplicationDataFile
 
   @PostMapping
   public ModelAndView postUpdatePublicNoticeDocument(@PathVariable("applicationId") Integer applicationId,
-                                            @PathVariable("applicationType")
+                                                     @PathVariable("applicationType")
                                             @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
-                                            PwaAppProcessingContext processingContext,
-                                            AuthenticatedUserAccount authenticatedUserAccount,
-                                            @ModelAttribute("form") UpdatePublicNoticeDocumentForm form,
-                                            BindingResult bindingResult) {
+                                                     PwaAppProcessingContext processingContext,
+                                                     AuthenticatedUserAccount authenticatedUserAccount,
+                                                     @ModelAttribute("form") UpdatePublicNoticeDocumentForm form,
+                                                     BindingResult bindingResult,
+                                                     RedirectAttributes redirectAttributes) {
 
     return publicNoticeInValidState(processingContext, () -> {
       var validatedBindingResult = publicNoticeDocumentUpdateService.validate(form, bindingResult);
@@ -118,6 +121,7 @@ public class PublicNoticeDocumentUpdateController extends PwaApplicationDataFile
 
             publicNoticeDocumentUpdateService.updatePublicNoticeDocumentAndTransitionWorkflow(
                 processingContext.getPwaApplication(), form, authenticatedUserAccount);
+            FlashUtils.success(redirectAttributes, "Public notice document updated");
             return  ReverseRouter.redirect(on(WorkAreaController.class).renderWorkArea(null, null, null));
           });
     });
