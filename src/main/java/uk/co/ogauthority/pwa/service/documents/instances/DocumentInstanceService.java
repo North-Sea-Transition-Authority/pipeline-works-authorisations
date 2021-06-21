@@ -181,6 +181,13 @@ public class DocumentInstanceService {
     return documentInstanceRepository.findByPwaApplicationAndDocumentTemplate_Mnem(application, templateMnem);
   }
 
+  public DocumentInstance getDocumentInstanceOrError(PwaApplication application,
+                                                     DocumentTemplateMnem templateMnem) {
+    return getDocumentInstance(application, templateMnem)
+        .orElseThrow(() -> new DocumentInstanceException(String.format(
+            "Couldn't find doc instance for app with id %s and template mnem %s", application.getId(), templateMnem.name())));
+  }
+
   public DocumentView getDocumentView(DocumentInstance instance) {
 
     var clauseVersionDtos = sectionClauseVersionDtoRepository.findAllByDiId(instance.getId())

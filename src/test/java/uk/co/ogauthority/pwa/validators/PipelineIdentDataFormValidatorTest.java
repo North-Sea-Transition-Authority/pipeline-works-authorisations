@@ -11,6 +11,7 @@ import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineCoreType;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.PipelineIdentDataForm;
+import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineIdentDataFormValidator;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineIdentDataValidationRule;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
@@ -157,12 +158,54 @@ public class PipelineIdentDataFormValidatorTest {
 
   }
 
+  @Test
+  public void failed_internalDiameterLargerThanExternal() {
+
+    var form = new PipelineIdentDataForm();
+    form.setInternalDiameter(BigDecimal.valueOf(5));
+    form.setExternalDiameter(BigDecimal.valueOf(4));
+    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, (Object) null, PipelineCoreType.SINGLE_CORE, PipelineIdentDataValidationRule.AS_SECTION);
+
+    assertThat(result).contains(
+        entry("internalDiameter", Set.of(FieldValidationErrorCodes.INVALID.errorCode("internalDiameter")))
+    );
+
+  }
+
+  @Test
+  public void failed_internalDiameterEqualsExternal() {
+
+    var form = new PipelineIdentDataForm();
+    form.setInternalDiameter(BigDecimal.valueOf(5));
+    form.setExternalDiameter(BigDecimal.valueOf(5));
+    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, (Object) null, PipelineCoreType.SINGLE_CORE, PipelineIdentDataValidationRule.AS_SECTION);
+
+    assertThat(result).contains(
+        entry("internalDiameter", Set.of(FieldValidationErrorCodes.INVALID.errorCode("internalDiameter")))
+    );
+
+  }
+
+  @Test
+  public void valid_internalDiameterSmallerThanExternal() {
+
+    var form = new PipelineIdentDataForm();
+    form.setInternalDiameter(BigDecimal.valueOf(4));
+    form.setExternalDiameter(BigDecimal.valueOf(5));
+    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, (Object) null, PipelineCoreType.SINGLE_CORE, PipelineIdentDataValidationRule.AS_SECTION);
+
+    assertThat(result).doesNotContain(
+        entry("internalDiameter", Set.of(FieldValidationErrorCodes.INVALID.errorCode("internalDiameter")))
+    );
+
+  }
+
   private PipelineIdentDataForm buildForm() {
 
     var form = new PipelineIdentDataForm();
 
     form.setExternalDiameter(BigDecimal.valueOf(10.1));
-    form.setInternalDiameter(BigDecimal.valueOf(11.12));
+    form.setInternalDiameter(form.getExternalDiameter().subtract(BigDecimal.ONE));
     form.setWallThickness(BigDecimal.valueOf(12));
     form.setMaop(BigDecimal.valueOf(400));
     form.setComponentPartsDescription("comp");

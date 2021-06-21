@@ -6,7 +6,7 @@
 <#include '../../layout.ftl'>
 
 <#assign pageHeading="Application payment complete" />
-<#assign pageHeadingWithAppRef="${pageHeading} ${appRef}" />
+<#assign pageHeadingWithAppRef="${appRef} ${pageHeading}" />
 
 <@defaultPage htmlTitle="${pageHeadingWithAppRef}" topNavigation=true breadcrumbs=false fullWidthColumn=true>
 

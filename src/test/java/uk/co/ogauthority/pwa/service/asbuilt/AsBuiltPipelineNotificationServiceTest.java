@@ -2,7 +2,6 @@ package uk.co.ogauthority.pwa.service.asbuilt;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import java.time.Instant;
 import java.util.List;
@@ -14,11 +13,11 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineDetailId;
+import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationGroup;
 import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationGroupPipeline;
 import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationGroupTestUtil;
 import uk.co.ogauthority.pwa.model.entity.asbuilt.PipelineChangeCategory;
-import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.repository.asbuilt.AsBuiltNotificationGroupPipelineRepository;
@@ -44,9 +43,8 @@ public class AsBuiltPipelineNotificationServiceTest {
   private AsBuiltNotificationGroup asBuiltNotificationGroup;
 
   private final PwaApplicationDetail pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL, 5);
-  private final Pipeline pipeline = new Pipeline(pwaApplicationDetail.getPwaApplication());
-  private PipelineDetail pipelineDetail;
-  private AsBuiltNotificationGroupPipeline asBuiltNotificationGroupPipeline;
+  private final PipelineDetail pipelineDetail = PipelineDetailTestUtil.createPipelineDetail(10, new PipelineId(20),
+      Instant.now());
 
   @Before
   public void setup() {
@@ -54,12 +52,6 @@ public class AsBuiltPipelineNotificationServiceTest {
     asBuiltNotificationGroup = AsBuiltNotificationGroupTestUtil.createGroupWithConsent_withNgId(30);
     asBuiltPipelineNotificationService = new AsBuiltPipelineNotificationService(
         asBuiltNotificationGroupPipelineRepository, pipelineDetailService);
-
-    pipeline.setId(20);
-    pipelineDetail = PipelineDetailTestUtil.createPipelineDetail(30, pipeline.getPipelineId(), Instant.now());
-    asBuiltNotificationGroupPipeline =
-        new AsBuiltNotificationGroupPipeline(asBuiltNotificationGroup, pipelineDetail.getPipelineDetailId(),
-            PipelineChangeCategory.NEW_PIPELINE);
 
   }
 
@@ -103,14 +95,24 @@ public class AsBuiltPipelineNotificationServiceTest {
   }
 
   @Test
-  public void getPipelineDetailsForAsBuiltNotificationGroup() {
-    when(asBuiltNotificationGroupPipelineRepository.findAllByAsBuiltNotificationGroup_Id(asBuiltNotificationGroup.getId()))
-        .thenReturn(List.of(asBuiltNotificationGroupPipeline));
-    when(pipelineDetailService.getByPipelineDetailId(asBuiltNotificationGroupPipeline.getPipelineDetailId().asInt())).thenReturn(pipelineDetail);
+  public void getAsBuiltNotificationGroupPipeline() {
+    asBuiltPipelineNotificationService.getAsBuiltNotificationGroupPipeline(asBuiltNotificationGroup.getId(),
+        pipelineDetail.getPipelineDetailId());
+    verify(asBuiltNotificationGroupPipelineRepository)
+        .findByAsBuiltNotificationGroup_IdAndPipelineDetailId(asBuiltNotificationGroup.getId(),
+            pipelineDetail.getPipelineDetailId());
+  }
 
-    assertThat(asBuiltPipelineNotificationService
-        .getPipelineDetailsForAsBuiltNotificationGroup(asBuiltNotificationGroupPipeline.getPipelineDetailId().asInt()))
-        .containsExactly(pipelineDetail);
+  @Test
+  public void getAllAsBuiltNotificationGroupPipelines() {
+    asBuiltPipelineNotificationService.getAllAsBuiltNotificationGroupPipelines(asBuiltNotificationGroup.getId());
+    verify(asBuiltNotificationGroupPipelineRepository).findAllByAsBuiltNotificationGroup_Id(asBuiltNotificationGroup.getId());
+  }
+
+  @Test
+  public void getPipelineDetail() {
+    asBuiltPipelineNotificationService.getPipelineDetail(pipelineDetail.getPipelineDetailId().asInt());
+    verify(pipelineDetailService).getByPipelineDetailId(pipelineDetail.getPipelineDetailId().asInt());
   }
 
 }

@@ -20,7 +20,6 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.context.ApplicationContext;
-import uk.co.ogauthority.pwa.exception.documents.DocumentInstanceException;
 import uk.co.ogauthority.pwa.model.documents.generation.DocumentSectionData;
 import uk.co.ogauthority.pwa.model.documents.view.DocumentView;
 import uk.co.ogauthority.pwa.model.entity.documents.instances.DocumentInstance;
@@ -29,18 +28,21 @@ import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocGenType;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocumentSection;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.SectionType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
 import uk.co.ogauthority.pwa.model.enums.documents.PwaDocumentType;
-import uk.co.ogauthority.pwa.service.documents.generation.DocumentGenerationService;
+import uk.co.ogauthority.pwa.service.documents.generation.DocumentCreationService;
 import uk.co.ogauthority.pwa.service.documents.generation.DocumentSectionGenerator;
 import uk.co.ogauthority.pwa.service.documents.instances.DocumentInstanceService;
 import uk.co.ogauthority.pwa.service.documents.pdf.PdfRenderingService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.mailmerge.MailMergeService;
+import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
+import uk.co.ogauthority.pwa.service.pwaconsents.PwaConsentService;
 import uk.co.ogauthority.pwa.service.rendering.TemplateRenderingService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 @RunWith(MockitoJUnitRunner.class)
-public class DocumentGenerationServiceTest {
+public class DocumentCreationServiceTest {
 
   @Mock
   private ApplicationContext springApplicationContext;
@@ -57,10 +59,16 @@ public class DocumentGenerationServiceTest {
   @Mock
   private MailMergeService mailMergeService;
 
+  @Mock
+  private PwaApplicationDetailService pwaApplicationDetailService;
+
+  @Mock
+  private PwaConsentService pwaConsentService;
+
   @Captor
   private ArgumentCaptor<Map<String, Object>> modelMapCaptor;
 
-  private DocumentGenerationService documentGenerationService;
+  private DocumentCreationService documentCreationService;
 
   private PwaApplicationDetail pwaApplicationDetail;
 
@@ -75,26 +83,53 @@ public class DocumentGenerationServiceTest {
         1,
         1);
 
-    documentGenerationService = new DocumentGenerationService(springApplicationContext, templateRenderingService, pdfRenderingService, documentInstanceService, mailMergeService);
+    documentCreationService = new DocumentCreationService(
+        springApplicationContext,
+        templateRenderingService,
+        pdfRenderingService,
+        documentInstanceService,
+        mailMergeService,
+        pwaApplicationDetailService,
+        pwaConsentService);
 
     documentInstance = new DocumentInstance();
+    documentInstance.setPwaApplication(pwaApplicationDetail.getPwaApplication());
     documentView = new DocumentView(PwaDocumentType.INSTANCE, pwaApplicationDetail.getPwaApplication(), DocumentTemplateMnem.PWA_CONSENT_DOCUMENT);
 
-    when(documentInstanceService.getDocumentInstance(any(), any())).thenReturn(Optional.of(documentInstance));
     when(documentInstanceService.getDocumentView(any(), any())).thenReturn(documentView);
+
+    when(pwaApplicationDetailService.getLatestSubmittedDetail(pwaApplicationDetail.getPwaApplication())).thenReturn(Optional.of(pwaApplicationDetail));
 
   }
 
   @Test
-  public void generateConsentDocument_allDocSectionsProcessed() {
+  public void generateConsentDocument_allDocSectionsProcessed_preview() {
+
+    testAndAssertGeneration(DocGenType.PREVIEW, true, pwaApplicationDetail.getPwaApplicationRef());
+
+  }
+
+  @Test
+  public void generateConsentDocument_full_consentRefPresent_noWatermark() {
+
+    var consent = new PwaConsent();
+    consent.setReference("consent/reference");
+
+    when(pwaConsentService.getConsentByPwaApplication(pwaApplicationDetail.getPwaApplication())).thenReturn(Optional.of(consent));
+
+    testAndAssertGeneration(DocGenType.FULL, false, consent.getReference());
+
+  }
+
+  private void testAndAssertGeneration(DocGenType docGenType, boolean watermarkShown, String expectedReference) {
 
     var documentSectionGenerator = mock(DocumentSectionGenerator.class);
-    when(documentSectionGenerator.getDocumentSectionData(pwaApplicationDetail, documentInstance, DocGenType.PREVIEW))
+    when(documentSectionGenerator.getDocumentSectionData(pwaApplicationDetail, documentInstance, docGenType))
         .thenReturn(new DocumentSectionData("TEMPLATE", Map.of("test", "test")));
 
     when(springApplicationContext.getBean(any(Class.class))).thenAnswer(invocation -> documentSectionGenerator);
 
-    documentGenerationService.generateConsentDocument(pwaApplicationDetail, DocGenType.PREVIEW);
+    documentCreationService.createConsentDocument(documentInstance, docGenType);
 
     var docSpec = pwaApplicationDetail.getPwaApplicationType().getConsentDocumentSpec();
 
@@ -107,24 +142,16 @@ public class DocumentGenerationServiceTest {
     int numberOfClauseSections = sectionTypeToCountMap.get(SectionType.CLAUSE_LIST).intValue();
 
     verify(documentSectionGenerator, times(numberOfCustomSections + numberOfOpeningParagraphSections))
-        .getDocumentSectionData(pwaApplicationDetail, documentInstance, DocGenType.PREVIEW);
+        .getDocumentSectionData(pwaApplicationDetail, documentInstance, docGenType);
     verify(documentInstanceService, times(numberOfClauseSections)).getDocumentView(eq(documentInstance), any());
-    verify(mailMergeService, times(numberOfClauseSections)).mailMerge(documentView, DocGenType.PREVIEW);
+    verify(mailMergeService, times(numberOfClauseSections)).mailMerge(documentView, docGenType);
 
     verify(templateRenderingService, times(1)).render(eq("documents/consents/consentDocument.ftl"), modelMapCaptor.capture(), eq(false));
 
     assertThat(modelMapCaptor.getValue()).containsAllEntriesOf(Map.of(
-        "showWatermark", true,
-        "consentRef", "99/X/99"
+        "showWatermark", watermarkShown,
+        "consentRef", expectedReference
     ));
-
-  }
-
-  @Test(expected = DocumentInstanceException.class)
-  public void generateConsentDocument_noDocInstance() {
-
-    when(documentInstanceService.getDocumentInstance(any(), any())).thenReturn(Optional.empty());
-    documentGenerationService.generateConsentDocument(pwaApplicationDetail, DocGenType.PREVIEW);
 
   }
 

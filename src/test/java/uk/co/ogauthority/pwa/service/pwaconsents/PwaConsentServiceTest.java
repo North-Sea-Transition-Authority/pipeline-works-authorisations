@@ -9,6 +9,7 @@ import static org.mockito.Mockito.when;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -17,6 +18,7 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
 import uk.co.ogauthority.pwa.repository.pwaconsents.PwaConsentRepository;
@@ -135,6 +137,26 @@ public class PwaConsentServiceTest {
     pwaConsentService.getConsentsByMasterPwa(masterPwa);
 
     verify(pwaConsentRepository, times(1)).findByMasterPwa(masterPwa);
+
+  }
+
+  @Test
+  public void getConsentByPwaApplication_found() {
+
+    var consent = new PwaConsent();
+
+    when(pwaConsentRepository.findBySourcePwaApplication(any())).thenReturn(Optional.of(consent));
+
+    assertThat(pwaConsentService.getConsentByPwaApplication(new PwaApplication())).contains(consent);
+
+  }
+
+  @Test
+  public void getConsentByPwaApplication_notFound() {
+
+    when(pwaConsentRepository.findBySourcePwaApplication(any())).thenReturn(Optional.empty());
+
+    assertThat(pwaConsentService.getConsentByPwaApplication(new PwaApplication())).isEmpty();
 
   }
 

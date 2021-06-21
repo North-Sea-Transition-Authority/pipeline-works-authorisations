@@ -14,13 +14,23 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.energyportal.model.entity.PersonTestUtil;
+import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationGroup;
 import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationGroupDetail;
+import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationGroupPipeline;
+import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationGroupPipelineUtil;
+import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationSubmission;
+import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationSubmissionUtil;
+import uk.co.ogauthority.pwa.model.entity.asbuilt.PipelineChangeCategory;
+import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsentTestUtil;
+import uk.co.ogauthority.pwa.repository.asbuilt.AsBuiltNotificationGroupPipelineRepository;
+import uk.co.ogauthority.pwa.repository.asbuilt.AsBuiltNotificationSubmissionRepository;
 import uk.co.ogauthority.pwa.service.asbuilt.AsBuiltNotificationGroupDetailService;
 import uk.co.ogauthority.pwa.service.asbuilt.AsBuiltNotificationGroupService;
-import uk.co.ogauthority.pwa.service.asbuilt.AsBuiltPipelineNotificationService;
+import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailService;
+import uk.co.ogauthority.pwa.service.pwaconsents.testutil.PipelineDetailTestUtil;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AsBuiltViewerServiceTest {
@@ -40,28 +50,51 @@ public class AsBuiltViewerServiceTest {
   private AsBuiltNotificationGroupDetailService asBuiltNotificationGroupDetailService;
 
   @Mock
-  private AsBuiltPipelineNotificationService asBuiltPipelineNotificationService;
+  private PipelineDetailService pipelineDetailService;
+
+  @Mock
+  private AsBuiltNotificationSubmissionRepository asBuiltNotificationSubmissionRepository;
+
+  @Mock
+  private AsBuiltNotificationGroupPipelineRepository asBuiltNotificationGroupPipelineRepository;
 
   private static final int NOTIFICATION_GROUP_ID = 1;
   private final Person person = PersonTestUtil.createDefaultPerson();
   private final PwaConsent pwaConsent = PwaConsentTestUtil.createPwaConsent(40, "CONSENT_REF", Instant.now());
-  private final AsBuiltNotificationGroup asBuiltNotificationGroup = new AsBuiltNotificationGroup(pwaConsent, "APP_REF", Instant.now());
+  private final AsBuiltNotificationGroup asBuiltNotificationGroup = new AsBuiltNotificationGroup(pwaConsent, "APP_REF",
+      Instant.now());
   private final AsBuiltNotificationGroupDetail
-      asBuiltNotificationGroupDetail = new AsBuiltNotificationGroupDetail(asBuiltNotificationGroup, LocalDate
-      .now(), person.getId(), Instant.now());
+      asBuiltNotificationGroupDetail = new AsBuiltNotificationGroupDetail(asBuiltNotificationGroup, LocalDate.now(), person.getId(),
+      Instant.now());
+  private final PipelineDetail pipelineDetail = PipelineDetailTestUtil.createPipelineDetail(20, new PipelineId(30), Instant.now());
+  private final PipelineDetail pipelineDetail2 = PipelineDetailTestUtil.createPipelineDetail(21, new PipelineId(31), Instant.now());
+  private final AsBuiltNotificationGroupPipeline asBuiltNotificationGroupPipeline =
+      AsBuiltNotificationGroupPipelineUtil.createAsBuiltNotificationGroupPipeline(asBuiltNotificationGroup,
+          pipelineDetail.getPipelineDetailId(), PipelineChangeCategory.NEW_PIPELINE);
+  private final AsBuiltNotificationGroupPipeline asBuiltNotificationGroupPipeline2 =
+      AsBuiltNotificationGroupPipelineUtil.createAsBuiltNotificationGroupPipeline(asBuiltNotificationGroup,
+          pipelineDetail2.getPipelineDetailId(), PipelineChangeCategory.NEW_PIPELINE);
+  private final AsBuiltNotificationSubmission asBuiltNotificationSubmission = AsBuiltNotificationSubmissionUtil
+      .createAsBuiltNotificationSubmission_withPerson(asBuiltNotificationGroupPipeline, person);
 
   @Before
   public void setup() {
     asBuiltViewerService = new AsBuiltViewerService(asBuiltNotificationViewService, asBuiltNotificationSummaryService,
-        asBuiltNotificationGroupService, asBuiltNotificationGroupDetailService, asBuiltPipelineNotificationService);
+        asBuiltNotificationGroupService, asBuiltNotificationGroupDetailService, asBuiltNotificationSubmissionRepository,
+        asBuiltNotificationGroupPipelineRepository, pipelineDetailService);
 
     asBuiltNotificationGroup.setId(NOTIFICATION_GROUP_ID);
     when(asBuiltNotificationGroupService.getAsBuiltNotificationGroup(asBuiltNotificationGroup.getId()))
         .thenReturn(Optional.of(asBuiltNotificationGroup));
     when(asBuiltNotificationGroupDetailService.getAsBuiltNotificationGroupDetail(asBuiltNotificationGroup))
         .thenReturn(Optional.of(asBuiltNotificationGroupDetail));
-    when(asBuiltPipelineNotificationService.getPipelineDetailsForAsBuiltNotificationGroup(asBuiltNotificationGroup.getId()))
-        .thenReturn(List.of());
+    when(pipelineDetailService.getByPipelineDetailId(pipelineDetail.getPipelineDetailId().asInt())).thenReturn(pipelineDetail);
+    when(pipelineDetailService.getByPipelineDetailId(pipelineDetail2.getPipelineDetailId().asInt())).thenReturn(pipelineDetail2);
+    when(asBuiltNotificationGroupPipelineRepository.findAllByAsBuiltNotificationGroup_Id(asBuiltNotificationGroup.getId()))
+        .thenReturn(List.of(asBuiltNotificationGroupPipeline, asBuiltNotificationGroupPipeline2));
+    when(asBuiltNotificationSubmissionRepository.findAllByAsBuiltNotificationGroupPipelineIn(List.of(asBuiltNotificationGroupPipeline,
+        asBuiltNotificationGroupPipeline2)))
+        .thenReturn(List.of(asBuiltNotificationSubmission));
   }
 
   @Test
@@ -71,9 +104,15 @@ public class AsBuiltViewerServiceTest {
   }
 
   @Test
-  public void getAsBuiltPipelineNotificationSubmissionViews_serviceCalledSuccessfully() {
-    asBuiltViewerService.getAsBuiltPipelineNotificationSubmissionViews(asBuiltNotificationGroup.getId());
-    verify(asBuiltNotificationViewService).getAsBuiltPipelineNotificationSubmissionViews(asBuiltNotificationGroup.getId(), List.of());
+  public void getAsBuiltPipelineNotificationSubmissionViews_viewWithSubmission_callsCorrectMappingMethod() {
+    asBuiltViewerService.getAsBuiltPipelineNotificationSubmissionViews(NOTIFICATION_GROUP_ID);
+    verify(asBuiltNotificationViewService).mapToAsBuiltNotificationView(pipelineDetail, asBuiltNotificationSubmission);
+  }
+
+  @Test
+  public void getAsBuiltPipelineNotificationSubmissionViews_viewWithNoSubmission_callsCorrectMappingMethod() {
+    asBuiltViewerService.getAsBuiltPipelineNotificationSubmissionViews(NOTIFICATION_GROUP_ID);
+    verify(asBuiltNotificationViewService).mapToAsBuiltNotificationViewWithNoSubmission(NOTIFICATION_GROUP_ID, pipelineDetail2);
   }
 
 }

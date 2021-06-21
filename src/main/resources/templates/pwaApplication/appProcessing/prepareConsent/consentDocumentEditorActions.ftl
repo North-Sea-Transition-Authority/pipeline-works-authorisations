@@ -8,22 +8,25 @@
     <#assign consentReviewPermission = userProcessingPermissions?seq_contains("CONSENT_REVIEW") />
     <#assign sendForApprovalPermission = userProcessingPermissions?seq_contains("SEND_CONSENT_FOR_APPROVAL") />
 
-    <#if consentReviewPermission>
-        <@fdsAction.link linkText="Issue consent" linkUrl=springUrl(consentDocumentUrlProvider.issueConsentUrl) linkClass="govuk-button govuk-button--green" />
-        <@fdsAction.link linkText="Return to case officer" linkUrl=springUrl(consentDocumentUrlProvider.returnToCaseOfficerUrl) linkClass="govuk-button govuk-button--blue" />
-    </#if>
+    <div class="govuk-button-group">
 
-    <#if sendForApprovalPermission>
-        <@fdsAction.link linkText="Send for approval" linkUrl=springUrl(consentDocumentUrlProvider.sendForApprovalUrl) linkClass="govuk-button govuk-button--green" />
-    </#if>
+        <#if consentReviewPermission>
+            <@fdsAction.link linkText="Issue consent" linkUrl=springUrl(consentDocumentUrlProvider.issueConsentUrl) linkClass="govuk-button govuk-button--green" />
+            <@fdsAction.link linkText="Return to case officer" linkUrl=springUrl(consentDocumentUrlProvider.returnToCaseOfficerUrl) linkClass="govuk-button govuk-button--blue" />
+        </#if>
 
-    <@fdsAction.link
-      linkText="Preview document"
-      linkUrl=springUrl(consentDocumentUrlProvider.downloadUrl)
-      linkClass="govuk-button govuk-button--" + consentReviewPermission?then("secondary", "blue") />
+        <#if sendForApprovalPermission>
+            <@fdsAction.link linkText="Send for approval" linkUrl=springUrl(consentDocumentUrlProvider.sendForApprovalUrl) linkClass="govuk-button govuk-button--green" />
+        </#if>
 
-    <#if !consentReviewPermission>
-        <@fdsAction.link linkText="Reload document" linkUrl=springUrl(consentDocumentUrlProvider.reloadDocumentUrl) linkClass="govuk-button govuk-button--secondary" />
-    </#if>
+        <@fdsForm.htmlForm actionUrl=springUrl(consentDocumentUrlProvider.previewUrl)>
+            <@fdsAction.button buttonText="Preview document" buttonClass="govuk-button govuk-button--" + consentReviewPermission?then("secondary", "blue") />
+        </@fdsForm.htmlForm>
+
+        <#if !consentReviewPermission>
+            <@fdsAction.link linkText="Reload document" linkUrl=springUrl(consentDocumentUrlProvider.reloadDocumentUrl) linkClass="govuk-button govuk-button--secondary" />
+        </#if>
+
+    </div>
 
 </#macro>

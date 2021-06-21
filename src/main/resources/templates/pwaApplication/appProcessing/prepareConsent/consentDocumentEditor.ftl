@@ -15,6 +15,9 @@
 
 <@defaultPagePane htmlTitle=pageHeading phaseBanner=false>
 
+    <#-- this link is used to provide the download url to docgenAutoDownloader.js -->
+    <a id="doc-download-link" style="display:none" href="${springUrl(consentDocumentUrlProvider.downloadUrl)}"/>
+
     <@defaultPagePaneSubNav>
           <#if docView?has_content>
               <@fdsSubNavigation.subNavigation sticky=true>
@@ -54,5 +57,7 @@
       </#if>
 
     </@defaultPagePaneContent>
+
+  <script src="${springUrl("/assets/static/js/pwa/docgenAutoDownloader.js")}"></script>
 
 </@defaultPagePane>

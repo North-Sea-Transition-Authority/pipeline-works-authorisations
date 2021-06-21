@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.model.entity.documents.instances;
 
 import java.time.Instant;
+import java.util.Objects;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -70,5 +71,24 @@ public class DocumentInstance {
 
   public void setCreatedTimestamp(Instant createdTimestamp) {
     this.createdTimestamp = createdTimestamp;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    DocumentInstance that = (DocumentInstance) o;
+    return Objects.equals(id, that.id) && Objects.equals(documentTemplate,
+        that.documentTemplate) && Objects.equals(pwaApplication,
+        that.pwaApplication) && Objects.equals(createdTimestamp, that.createdTimestamp);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(id, documentTemplate, pwaApplication, createdTimestamp);
   }
 }

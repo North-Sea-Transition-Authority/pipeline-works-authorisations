@@ -35,9 +35,14 @@ public class ConsentDocumentUrlProvider {
         .renderSendForApproval(application.getId(), application.getApplicationType(), null, null, null));
   }
 
+  public String getPreviewUrl() {
+    return ReverseRouter.route(on(AppConsentDocController.class)
+        .schedulePreview(application.getId(), application.getApplicationType(), null, null));
+  }
+
   public String getDownloadUrl() {
     return ReverseRouter.route(on(AppConsentDocController.class)
-        .downloadPdf(application.getId(), application.getApplicationType(), null, null));
+        .downloadPdf(application.getId(), application.getApplicationType(), null, null, null));
   }
 
   public String getReturnToCaseOfficerUrl() {

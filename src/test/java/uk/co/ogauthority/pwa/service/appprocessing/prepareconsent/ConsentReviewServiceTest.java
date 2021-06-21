@@ -25,18 +25,22 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.PersonTestUtil;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.exception.appprocessing.ConsentReviewException;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.prepareconsent.ConsentReview;
+import uk.co.ogauthority.pwa.model.entity.documents.instances.DocumentInstance;
+import uk.co.ogauthority.pwa.model.entity.enums.documents.DocumentTemplateMnem;
+import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocGenType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
 import uk.co.ogauthority.pwa.model.enums.appprocessing.prepareconsent.ConsentReviewStatus;
 import uk.co.ogauthority.pwa.repository.appprocessing.prepareconsent.ConsentReviewRepository;
 import uk.co.ogauthority.pwa.service.appprocessing.consentreview.ConsentReviewService;
 import uk.co.ogauthority.pwa.service.appprocessing.consentreview.IssueConsentEmailsService;
+import uk.co.ogauthority.pwa.service.docgen.DocgenService;
+import uk.co.ogauthority.pwa.service.documents.instances.DocumentInstanceService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.workflow.application.ConsentReviewDecision;
 import uk.co.ogauthority.pwa.service.enums.workflow.application.PwaApplicationWorkflowTask;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
-import uk.co.ogauthority.pwa.service.pwaconsents.ConsentEmailService;
 import uk.co.ogauthority.pwa.service.pwaconsents.PwaConsentService;
 import uk.co.ogauthority.pwa.service.pwaconsents.consentwriters.ConsentWriterService;
 import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
@@ -71,6 +75,11 @@ public class ConsentReviewServiceTest {
   @Mock
   private IssueConsentEmailsService issueConsentEmailsService;
 
+  @Mock
+  private DocumentInstanceService documentInstanceService;
+
+  @Mock
+  private DocgenService docgenService;
 
   private ConsentReviewService consentReviewService;
 
@@ -90,7 +99,8 @@ public class ConsentReviewServiceTest {
 
     consentReviewService = new ConsentReviewService(
         consentReviewRepository, clock, pwaApplicationDetailService, workflowAssignmentService,
-        camundaWorkflowService, pwaConsentService, consentWriterService, issueConsentEmailsService);
+        camundaWorkflowService, pwaConsentService, consentWriterService, issueConsentEmailsService,
+        docgenService, documentInstanceService);
 
   }
 
@@ -220,6 +230,10 @@ public class ConsentReviewServiceTest {
 
     when(consentReviewRepository.save(openReview)).thenReturn(openReview);
 
+    var docInstance = new DocumentInstance();
+    when(documentInstanceService.getDocumentInstanceOrError(detail.getPwaApplication(), DocumentTemplateMnem.PWA_CONSENT_DOCUMENT))
+        .thenReturn(docInstance);
+
     var issuedConsentDto = consentReviewService.issueConsent(detail, returningUser);
 
     verify(pwaConsentService, times(1)).createConsent(detail.getPwaApplication());
@@ -245,6 +259,8 @@ public class ConsentReviewServiceTest {
     verify(issueConsentEmailsService).sendConsentIssuedEmails(detail, openReview.getCoverLetterText(), returningUser.getFullName());
 
     verify(workflowAssignmentService, times(1)).clearAssignments(detail.getPwaApplication());
+
+    verify(docgenService, times(1)).scheduleDocumentGeneration(docInstance, DocGenType.FULL, returningUser.getLinkedPerson());
 
   }
 

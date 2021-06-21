@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.controller.appprocessing.prepareconsent;
 import static org.hamcrest.Matchers.hasProperty;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -11,6 +12,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -28,14 +30,20 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.validation.Errors;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.PwaAppProcessingContextAbstractControllerTest;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
+import uk.co.ogauthority.pwa.model.docgen.DocgenRun;
+import uk.co.ogauthority.pwa.model.docgen.DocgenRunStatus;
+import uk.co.ogauthority.pwa.model.docgen.DocgenRunStatusResult;
 import uk.co.ogauthority.pwa.model.dto.appprocessing.ProcessingPermissionsDto;
 import uk.co.ogauthority.pwa.model.entity.documents.instances.DocumentInstance;
+import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocGenType;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.PwaAppProcessingPermissionService;
@@ -44,8 +52,8 @@ import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingConte
 import uk.co.ogauthority.pwa.service.appprocessing.prepareconsent.ConsentDocumentService;
 import uk.co.ogauthority.pwa.service.appprocessing.prepareconsent.PreSendForApprovalChecksViewTestUtil;
 import uk.co.ogauthority.pwa.service.appprocessing.prepareconsent.PrepareConsentTaskService;
+import uk.co.ogauthority.pwa.service.docgen.DocgenService;
 import uk.co.ogauthority.pwa.service.documents.DocumentService;
-import uk.co.ogauthority.pwa.service.documents.generation.DocumentGenerationService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
@@ -66,9 +74,6 @@ public class AppConsentDocControllerTest extends PwaAppProcessingContextAbstract
   private DocumentService documentService;
 
   @MockBean
-  private DocumentGenerationService documentGenerationService;
-
-  @MockBean
   private PrepareConsentTaskService prepareConsentTaskService;
 
   @MockBean
@@ -82,6 +87,9 @@ public class AppConsentDocControllerTest extends PwaAppProcessingContextAbstract
 
   @MockBean
   private MailMergeService mailMergeService;
+
+  @MockBean
+  private DocgenService docgenService;
 
   private PwaApplicationEndpointTestBuilder editDocumentEndpointTester;
   private PwaApplicationEndpointTestBuilder sendForApprovalEndpointTester;
@@ -210,6 +218,244 @@ public class AppConsentDocControllerTest extends PwaAppProcessingContextAbstract
         .with(authenticatedUserAndSession(user))
         .with(csrf()))
         .andExpect(status().isForbidden());
+
+  }
+
+  @Test
+  public void schedulePreview_permissionSmokeTest() {
+
+    when(documentService.getDocumentInstance(any(), any())).thenReturn(Optional.of(new DocumentInstance()));
+    var run = new DocgenRun();
+    run.setId(1);
+    when(docgenService.scheduleDocumentGeneration(any(), any(), any())).thenReturn(run);
+
+    editDocumentEndpointTester.setRequestMethod(HttpMethod.POST)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(AppConsentDocController.class)
+                .schedulePreview(applicationDetail.getMasterPwaApplicationId(), type, null, null)));
+
+    editDocumentEndpointTester.performProcessingPermissionCheck(status().is3xxRedirection(), status().isForbidden());
+
+  }
+
+  @Test
+  public void schedulePreview_statusSmokeTest() {
+
+    when(documentService.getDocumentInstance(any(), any())).thenReturn(Optional.of(new DocumentInstance()));
+    var run = new DocgenRun();
+    run.setId(1);
+    when(docgenService.scheduleDocumentGeneration(any(), any(), any())).thenReturn(run);
+
+    editDocumentEndpointTester.setRequestMethod(HttpMethod.POST)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(AppConsentDocController.class)
+                .schedulePreview(applicationDetail.getMasterPwaApplicationId(), type, null, null)));
+
+    editDocumentEndpointTester.performAppStatusChecks(status().is3xxRedirection(), status().isNotFound());
+
+  }
+
+  @Test
+  public void schedulePreview_success() throws Exception {
+
+    var instance = new DocumentInstance();
+    when(documentService.getDocumentInstance(any(), any())).thenReturn(Optional.of(instance));
+    var run = new DocgenRun();
+    run.setId(1);
+    when(docgenService.scheduleDocumentGeneration(any(), any(), any())).thenReturn(run);
+
+    mockMvc.perform(post(ReverseRouter.route(on(AppConsentDocController.class)
+        .schedulePreview(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null)))
+        .with(authenticatedUserAndSession(user))
+        .with(csrf()))
+        .andExpect(status().is3xxRedirection());
+
+    verify(docgenService, times(1)).scheduleDocumentGeneration(instance, DocGenType.PREVIEW, user.getLinkedPerson());
+
+  }
+
+  @Test
+  public void schedulePreview_prepareConsentTaskNotAccessible() throws Exception {
+
+    when(prepareConsentTaskService.taskAccessible(any())).thenReturn(false);
+
+    mockMvc.perform(post(ReverseRouter.route(on(AppConsentDocController.class)
+        .schedulePreview(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null)))
+        .with(authenticatedUserAndSession(user))
+        .with(csrf()))
+        .andExpect(status().isForbidden());
+
+  }
+
+  @Test
+  public void renderDocumentGenerating_permissionSmokeTest() {
+
+    setupDocRunCheckEndpoint();
+
+    editDocumentEndpointTester.setRequestMethod(HttpMethod.GET)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(AppConsentDocController.class)
+                .renderDocumentGenerating(applicationDetail.getMasterPwaApplicationId(), type, Long.valueOf(
+                    applicationDetail.getMasterPwaApplicationId()), null, null)));
+
+    editDocumentEndpointTester.performProcessingPermissionCheck(status().isOk(), status().isForbidden());
+
+  }
+
+  private void setupDocRunCheckEndpoint() {
+    when(docgenService.getDocgenRun(anyLong())).thenAnswer(invocationOnMock -> {
+      var run = new DocgenRun();
+      run.setId(invocationOnMock.getArgument(0));
+      var docInstance = new DocumentInstance();
+      var app = new PwaApplication();
+      app.setId(Math.toIntExact(invocationOnMock.getArgument(0)));
+      docInstance.setPwaApplication(app);
+      run.setDocumentInstance(docInstance);
+      run.setDocGenType(DocGenType.PREVIEW);
+      return run;
+    });
+  }
+
+  @Test
+  public void renderDocumentGenerating_statusSmokeTest() {
+
+    setupDocRunCheckEndpoint();
+
+    editDocumentEndpointTester.setRequestMethod(HttpMethod.GET)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(AppConsentDocController.class)
+                .renderDocumentGenerating(applicationDetail.getMasterPwaApplicationId(), type, Long.valueOf(applicationDetail.getMasterPwaApplicationId()), null, null)));
+
+    editDocumentEndpointTester.performAppStatusChecks(status().isOk(), status().isNotFound());
+
+  }
+
+  @Test
+  public void renderDocumentGenerating_prepareConsentTaskNotAccessible() throws Exception {
+
+    setupDocRunCheckEndpoint();
+
+    when(prepareConsentTaskService.taskAccessible(any())).thenReturn(false);
+
+    mockMvc.perform(get(ReverseRouter.route(on(AppConsentDocController.class)
+        .renderDocumentGenerating(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), 1L, null, null)))
+        .with(authenticatedUserAndSession(user))
+        .with(csrf()))
+        .andExpect(status().isForbidden());
+
+  }
+
+  @Test
+  public void renderDocumentGenerating_docgenRunIsNotPreview_error() throws Exception {
+
+    when(docgenService.getDocgenRun(anyLong())).thenAnswer(invocationOnMock -> {
+      var run = new DocgenRun();
+      run.setId(invocationOnMock.getArgument(0));
+      var docInstance = new DocumentInstance();
+      var app = new PwaApplication();
+      app.setId(Math.toIntExact(invocationOnMock.getArgument(0)));
+      docInstance.setPwaApplication(app);
+      run.setDocumentInstance(docInstance);
+      run.setDocGenType(DocGenType.FULL);
+      return run;
+    });
+
+    mockMvc.perform(get(ReverseRouter.route(on(AppConsentDocController.class)
+        .renderDocumentGenerating(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), 1L, null, null)))
+        .with(authenticatedUserAndSession(user))
+        .with(csrf()))
+        .andExpect(status().isForbidden());
+
+  }
+
+  @Test
+  public void renderDocumentGenerating_docgenRunDoesntMatchApp_error() throws Exception {
+
+    when(docgenService.getDocgenRun(anyLong())).thenAnswer(invocationOnMock -> {
+      var run = new DocgenRun();
+      run.setId(invocationOnMock.getArgument(0));
+      var docInstance = new DocumentInstance();
+      var app = new PwaApplication();
+      app.setId(Math.toIntExact(999999));
+      docInstance.setPwaApplication(app);
+      run.setDocumentInstance(docInstance);
+      run.setDocGenType(DocGenType.PREVIEW);
+      return run;
+    });
+
+    mockMvc.perform(get(ReverseRouter.route(on(AppConsentDocController.class)
+        .renderDocumentGenerating(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), 1L, null, null)))
+        .with(authenticatedUserAndSession(user))
+        .with(csrf()))
+        .andExpect(status().isForbidden());
+
+  }
+
+  @Test
+  public void getDocgenRunStatus_permissionSmokeTest() {
+
+    setupDocRunCheckEndpoint();
+
+    editDocumentEndpointTester.setRequestMethod(HttpMethod.GET)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(AppConsentDocController.class)
+                .getDocgenRunStatus(applicationDetail.getMasterPwaApplicationId(), type, Long.valueOf(
+                    applicationDetail.getMasterPwaApplicationId()), null)));
+
+    editDocumentEndpointTester.performProcessingPermissionCheck(status().isOk(), status().isForbidden());
+
+  }
+
+  @Test
+  public void getDocgenRunStatus_statusSmokeTest() {
+
+    setupDocRunCheckEndpoint();
+
+    editDocumentEndpointTester.setRequestMethod(HttpMethod.GET)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(AppConsentDocController.class)
+                .getDocgenRunStatus(applicationDetail.getMasterPwaApplicationId(), type, Long.valueOf(applicationDetail.getMasterPwaApplicationId()), null)));
+
+    editDocumentEndpointTester.performAppStatusChecks(status().isOk(), status().isNotFound());
+
+  }
+
+  @Test
+  public void getDocgenRunStatus_prepareConsentTaskNotAccessible() throws Exception {
+
+    setupDocRunCheckEndpoint();
+
+    when(prepareConsentTaskService.taskAccessible(any())).thenReturn(false);
+
+    mockMvc.perform(get(ReverseRouter.route(on(AppConsentDocController.class)
+        .getDocgenRunStatus(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), 1L, null)))
+        .with(authenticatedUserAndSession(user))
+        .with(csrf()))
+        .andExpect(status().isForbidden());
+
+  }
+
+  @Test
+  public void getDocgenRunStatus_success() throws Exception {
+
+    setupDocRunCheckEndpoint();
+
+    var run = new DocgenRun();
+    run.setId(1L);
+    run.setStatus(DocgenRunStatus.COMPLETE);
+    var docgenStatusResult = new DocgenRunStatusResult(run, "onCompleteUrl");
+
+    when(docgenService.getDocgenRunStatus(anyLong(), any())).thenReturn(docgenStatusResult);
+
+    mockMvc.perform(get(ReverseRouter.route(on(AppConsentDocController.class)
+        .getDocgenRunStatus(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), 1L, null)))
+        .with(authenticatedUserAndSession(user))
+        .with(csrf())
+        .accept(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.docgenRunId").value("1"))
+        .andExpect(jsonPath("$.status").value("COMPLETE"))
+        .andExpect(jsonPath("$.onCompleteUrl").value("onCompleteUrl"));
 
   }
 

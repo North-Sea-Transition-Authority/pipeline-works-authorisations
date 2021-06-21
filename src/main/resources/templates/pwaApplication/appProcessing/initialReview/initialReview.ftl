@@ -10,7 +10,7 @@
 <#-- @ftlvariable name="cancelUrl" type="String" -->
 <#-- @ftlvariable name="appPaymentDisplaySummary" type="uk.co.ogauthority.pwa.service.appprocessing.processingcharges.display.ApplicationPaymentDisplaySummary" -->
 
-<@defaultPage htmlTitle="Accept application ${appRef}" breadcrumbs=true fullWidthColumn=true>
+<@defaultPage htmlTitle="${appRef} Accept application" breadcrumbs=true fullWidthColumn=true>
 
     <@grid.gridRow>
       <@grid.twoThirdsColumn>
