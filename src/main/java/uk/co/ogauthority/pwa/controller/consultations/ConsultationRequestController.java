@@ -90,7 +90,7 @@ public class ConsultationRequestController {
           return controllerHelperService.checkErrorsAndRedirect(validatedBindingResult,
               getRequestConsultationModelAndView(processingContext), () -> {
                 consultationRequestService.saveEntitiesAndStartWorkflow(form, appDetail, authenticatedUserAccount);
-                FlashUtils.info(redirectAttributes, "Consultation requests sent");
+                FlashUtils.success(redirectAttributes, "Consultation requests sent");
                 return ReverseRouter.redirect(on(ConsultationController.class).renderConsultations(
                     appDetail.getMasterPwaApplicationId(), appDetail.getPwaApplicationType(), null, null));
               });
