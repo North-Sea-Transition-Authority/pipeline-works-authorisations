@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
+import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeRequestStatus;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeStatus;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.form.publicnotice.PublicNoticeApprovalForm;
@@ -85,10 +86,12 @@ public class PublicNoticeApprovalService {
     publicNoticeRequest.setResponseTimestamp(clock.instant());
 
     if (!requestIsApproved) {
+      publicNoticeRequest.setStatus(PublicNoticeRequestStatus.REJECTED);
       publicNoticeRequest.setRejectionReason(form.getRequestRejectedReason());
       publicNotice.setStatus(PublicNoticeStatus.DRAFT);
 
     } else {
+      publicNoticeRequest.setStatus(PublicNoticeRequestStatus.APPROVED);
       publicNotice.setStatus(PublicNoticeStatus.APPLICANT_UPDATE);
     }
 

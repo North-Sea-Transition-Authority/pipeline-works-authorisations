@@ -37,6 +37,7 @@ import uk.co.ogauthority.pwa.model.form.publicnotice.PublicNoticeDraftForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.PwaAppProcessingPermissionService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContextService;
+import uk.co.ogauthority.pwa.service.appprocessing.publicnotice.PublicNoticeDraftService;
 import uk.co.ogauthority.pwa.service.appprocessing.publicnotice.PublicNoticeService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
@@ -56,6 +57,9 @@ public class PublicNoticeDraftControllerTest extends PwaAppProcessingContextAbst
 
   @MockBean
   private PublicNoticeService publicNoticeService;
+
+  @MockBean
+  private PublicNoticeDraftService publicNoticeDraftService;
 
   private PwaApplicationDetail pwaApplicationDetail;
   private AuthenticatedUserAccount user;
