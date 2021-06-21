@@ -1,8 +1,6 @@
 package uk.co.ogauthority.pwa.service.appprocessing.publicnotice;
 
 import com.google.common.annotations.VisibleForTesting;
-import java.time.Clock;
-import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -14,17 +12,13 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
-import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
-import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.exception.EntityLatestVersionNotFoundException;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeAction;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeDocumentType;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeRequestReason;
-import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeRequestStatus;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeStatus;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.TemplateTextType;
 import uk.co.ogauthority.pwa.model.entity.files.AppFile;
@@ -39,10 +33,8 @@ import uk.co.ogauthority.pwa.model.enums.tasklist.TaskState;
 import uk.co.ogauthority.pwa.model.form.files.UploadFileWithDescriptionForm;
 import uk.co.ogauthority.pwa.model.form.files.UploadedFileView;
 import uk.co.ogauthority.pwa.model.form.publicnotice.PublicNoticeDraftForm;
-import uk.co.ogauthority.pwa.model.notify.emailproperties.publicnotices.PublicNoticeApprovalRequestEmailProps;
 import uk.co.ogauthority.pwa.model.tasklist.TaskListEntry;
 import uk.co.ogauthority.pwa.model.tasklist.TaskTag;
-import uk.co.ogauthority.pwa.model.teams.PwaRegulatorRole;
 import uk.co.ogauthority.pwa.model.view.publicnotice.AllPublicNoticesView;
 import uk.co.ogauthority.pwa.model.view.publicnotice.PublicNoticeView;
 import uk.co.ogauthority.pwa.repository.publicnotice.PublicNoticeDatesRepository;
@@ -57,13 +49,8 @@ import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingTask;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.TaskStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.fileupload.AppFileService;
-import uk.co.ogauthority.pwa.service.fileupload.FileUpdateMode;
-import uk.co.ogauthority.pwa.service.notify.EmailCaseLinkService;
-import uk.co.ogauthority.pwa.service.notify.NotifyService;
 import uk.co.ogauthority.pwa.service.person.PersonService;
-import uk.co.ogauthority.pwa.service.teams.PwaTeamService;
 import uk.co.ogauthority.pwa.service.template.TemplateTextService;
-import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
 import uk.co.ogauthority.pwa.util.DateUtils;
 import uk.co.ogauthority.pwa.validators.publicnotice.PublicNoticeDraftValidator;
 
@@ -78,11 +65,6 @@ public class PublicNoticeService implements AppProcessingService {
   private final PublicNoticeDocumentRepository publicNoticeDocumentRepository;
   private final PublicNoticeDocumentLinkRepository publicNoticeDocumentLinkRepository;
   private final PublicNoticeDatesRepository publicNoticeDatesRepository;
-  private final CamundaWorkflowService camundaWorkflowService;
-  private final Clock clock;
-  private final NotifyService notifyService;
-  private final EmailCaseLinkService emailCaseLinkService;
-  private final PwaTeamService pwaTeamService;
   private final PersonService personService;
 
   private static final AppFilePurpose FILE_PURPOSE = AppFilePurpose.PUBLIC_NOTICE;
@@ -103,10 +85,6 @@ public class PublicNoticeService implements AppProcessingService {
       PublicNoticeDocumentRepository publicNoticeDocumentRepository,
       PublicNoticeDocumentLinkRepository publicNoticeDocumentLinkRepository,
       PublicNoticeDatesRepository publicNoticeDatesRepository,
-      CamundaWorkflowService camundaWorkflowService,
-      @Qualifier("utcClock") Clock clock, NotifyService notifyService,
-      EmailCaseLinkService emailCaseLinkService,
-      PwaTeamService pwaTeamService,
       PersonService personService) {
     this.templateTextService = templateTextService;
     this.publicNoticeDraftValidator = publicNoticeDraftValidator;
@@ -116,11 +94,6 @@ public class PublicNoticeService implements AppProcessingService {
     this.publicNoticeDocumentRepository = publicNoticeDocumentRepository;
     this.publicNoticeDocumentLinkRepository = publicNoticeDocumentLinkRepository;
     this.publicNoticeDatesRepository = publicNoticeDatesRepository;
-    this.camundaWorkflowService = camundaWorkflowService;
-    this.clock = clock;
-    this.notifyService = notifyService;
-    this.emailCaseLinkService = emailCaseLinkService;
-    this.pwaTeamService = pwaTeamService;
     this.personService = personService;
   }
 
@@ -146,7 +119,7 @@ public class PublicNoticeService implements AppProcessingService {
         && PublicNoticeStatus.MANAGER_APPROVAL.equals(latestPublicNoticeOpt.get().getStatus())) {
       return TaskStatus.ACTION_REQUIRED;
 
-    } else if (latestPublicNoticeOpt.isPresent() && PublicNoticeStatus.ENDED.equals(latestPublicNoticeOpt.get().getStatus())) {
+    } else if (latestPublicNoticeOpt.isPresent() && isPublicNoticeStatusEnded(latestPublicNoticeOpt.get().getStatus())) {
       return TaskStatus.COMPLETED;
 
     } else if (latestPublicNoticeOpt.isPresent()) {
@@ -177,6 +150,10 @@ public class PublicNoticeService implements AppProcessingService {
     return publicNoticeRepository.findAllByStatus(publicNoticeStatus);
   }
 
+  public Optional<PublicNotice> getDraftPublicNoticeForApp(PwaApplication pwaApplication) {
+    return publicNoticeRepository.findByStatusAndPwaApplication(PublicNoticeStatus.DRAFT, pwaApplication);
+  }
+
   public List<PublicNotice> getOpenPublicNotices() {
     return publicNoticeRepository.findAllByStatusNotIn(ENDED_STATUSES);
   }
@@ -187,7 +164,7 @@ public class PublicNoticeService implements AppProcessingService {
         "Couldn't find public notice with pwaApplication ID: %s", pwaApplication.getId())));
   }
 
-  private Optional<PublicNotice> getLatestPublicNoticeOpt(PwaApplication pwaApplication) {
+  public Optional<PublicNotice> getLatestPublicNoticeOpt(PwaApplication pwaApplication) {
     return publicNoticeRepository.findFirstByPwaApplicationOrderByVersionDesc(pwaApplication);
   }
 
@@ -231,6 +208,15 @@ public class PublicNoticeService implements AppProcessingService {
     return publicNoticeRepository.save(publicNotice);
   }
 
+  public PublicNoticeDocument savePublicNoticeDocument(PublicNoticeDocument publicNoticeDocument) {
+    return publicNoticeDocumentRepository.save(publicNoticeDocument);
+  }
+
+  public PublicNoticeDocumentLink savePublicNoticeDocumentLink(PublicNoticeDocumentLink publicNoticeDocumentLink) {
+    return publicNoticeDocumentLinkRepository.save(publicNoticeDocumentLink);
+  }
+
+
   public void endPublicNotices(List<PublicNotice> publicNotices) {
     publicNotices.forEach(publicNotice -> publicNotice.setStatus(PublicNoticeStatus.ENDED));
     publicNoticeRepository.saveAll(publicNotices);
@@ -239,11 +225,6 @@ public class PublicNoticeService implements AppProcessingService {
   void archivePublicNoticeDocument(PublicNoticeDocument publicNoticeDocument) {
     publicNoticeDocument.setDocumentType(PublicNoticeDocumentType.ARCHIVED);
     publicNoticeDocumentRepository.save(publicNoticeDocument);
-  }
-
-  private Integer getPublicNoticeLatestVersionNumber(PwaApplication pwaApplication) {
-    var latestPublicNoticeOpt = publicNoticeRepository.findFirstByPwaApplicationOrderByVersionDesc(pwaApplication);
-    return latestPublicNoticeOpt.isPresent() ? latestPublicNoticeOpt.get().getVersion() : 0;
   }
 
   public void mapPublicNoticeDraftToForm(PwaApplication pwaApplication, PublicNoticeDraftForm form) {
@@ -258,74 +239,14 @@ public class PublicNoticeService implements AppProcessingService {
       if (PublicNoticeRequestReason.CONSULTEES_NOT_ALL_CONTENT.equals(form.getReason())) {
         form.setReasonDescription(publicNoticeRequest.getReasonDescription());
       }
-      appFileService.mapFilesToForm(form, pwaApplication, FILE_PURPOSE);
+
+      var appFileView = getPublicNoticeDocumentFileViewForPublicNotice(draftPublicNoticeOpt.get(), pwaApplication);
+      appFileService.mapFileToForm(form, appFileView);
     }
 
     form.setCoverLetterText(coverLetterText);
   }
 
-
-  private PublicNoticeRequest createInitialPublicNoticeRequestFromForm(PublicNoticeDraftForm form,
-                                                                       PublicNotice publicNotice,
-                                                                       Person person) {
-    var publicNoticeRequest = new PublicNoticeRequest();
-    publicNoticeRequest.setPublicNotice(publicNotice);
-    publicNoticeRequest.setCoverLetterText(form.getCoverLetterText());
-    publicNoticeRequest.setStatus(PublicNoticeRequestStatus.WAITING_MANAGER_APPROVAL);
-    publicNoticeRequest.setReason(form.getReason());
-    publicNoticeRequest.setReasonDescription(
-        PublicNoticeRequestReason.CONSULTEES_NOT_ALL_CONTENT.equals(form.getReason()) ? form.getReasonDescription() : null);
-    publicNoticeRequest.setVersion(1);
-    publicNoticeRequest.setSubmittedTimestamp(Instant.now(clock));
-    publicNoticeRequest.setCreatedByPersonId(person.getId().asInt());
-    return publicNoticeRequest;
-  }
-
-
-  private void sendPublicNoticeApprovalEmails(PwaApplication pwaApplication, String publicNoticeReason) {
-
-    var caseManagementLink = emailCaseLinkService.generateCaseManagementLink(pwaApplication);
-
-    var pwaManagers = pwaTeamService.getPeopleWithRegulatorRole(PwaRegulatorRole.PWA_MANAGER);
-
-    pwaManagers.forEach(pwaManager -> {
-
-      var emailProps = new PublicNoticeApprovalRequestEmailProps(
-          pwaManager.getFullName(),
-          pwaApplication.getAppReference(),
-          publicNoticeReason,
-          caseManagementLink);
-      notifyService.sendEmail(emailProps, pwaManager.getEmailAddress());
-    });
-  }
-
-  @Transactional
-  public void createPublicNoticeAndStartWorkflow(PublicNoticeDraftForm form,
-                                                 PwaApplication pwaApplication,
-                                                 AuthenticatedUserAccount userAccount) {
-
-    var publicNotice = new PublicNotice(
-        pwaApplication, PublicNoticeStatus.MANAGER_APPROVAL, getPublicNoticeLatestVersionNumber(pwaApplication) + 1);
-    publicNotice = publicNoticeRepository.save(publicNotice);
-
-    appFileService.updateFiles(form, pwaApplication, FILE_PURPOSE, FileUpdateMode.KEEP_UNLINKED_FILES, userAccount);
-
-    var publicNoticeDocVersion = 1;
-    var publicNoticeDocument = new PublicNoticeDocument(
-        publicNotice, publicNoticeDocVersion, PublicNoticeDocumentType.IN_PROGRESS_DOCUMENT);
-    publicNoticeDocument = publicNoticeDocumentRepository.save(publicNoticeDocument);
-
-    //accessing list at index 0 as validator ensures there is always and only 1 file
-    var publicNoticeDocumentLink = createPublicNoticeDocumentLinkFromForm(
-        pwaApplication, form.getUploadedFileWithDescriptionForms().get(0), publicNoticeDocument);
-    publicNoticeDocumentLinkRepository.save(publicNoticeDocumentLink);
-
-    var publicNoticeRequest = createInitialPublicNoticeRequestFromForm(form, publicNotice, userAccount.getLinkedPerson());
-    publicNoticeRequestRepository.save(publicNoticeRequest);
-
-    camundaWorkflowService.startWorkflow(publicNotice);
-    sendPublicNoticeApprovalEmails(pwaApplication, form.getReason().getReasonText());
-  }
 
   public PublicNoticeDocumentLink createPublicNoticeDocumentLinkFromForm(PwaApplication pwaApplication,
                                                                          UploadFileWithDescriptionForm form,
@@ -337,11 +258,12 @@ public class PublicNoticeService implements AppProcessingService {
 
   public boolean canCreatePublicNoticeDraft(PwaApplication pwaApplication) {
     var latestPublicNoticeOptional = publicNoticeRepository.findFirstByPwaApplicationOrderByVersionDesc(pwaApplication);
-    return latestPublicNoticeOptional.map(publicNotice -> isPublicNoticeStatusEnded(publicNotice.getStatus()))
+    return latestPublicNoticeOptional.map(publicNotice ->
+        isPublicNoticeStatusEnded(publicNotice.getStatus()) || PublicNoticeStatus.DRAFT.equals(publicNotice.getStatus()))
         .orElse(true);
   }
 
-  private boolean isPublicNoticeStatusEnded(PublicNoticeStatus publicNoticeStatus) {
+  public boolean isPublicNoticeStatusEnded(PublicNoticeStatus publicNoticeStatus) {
     return ENDED_STATUSES.contains(publicNoticeStatus);
   }
 
@@ -459,9 +381,8 @@ public class PublicNoticeService implements AppProcessingService {
             "Couldn't find public notice document with public notice ID: %s", publicNotice.getId())));
   }
 
-  public UploadedFileView getLatestPublicNoticeDocumentFileView(PwaApplication pwaApplication) {
 
-    var publicNotice = getLatestPublicNotice(pwaApplication);
+  private UploadedFileView getPublicNoticeDocumentFileViewForPublicNotice(PublicNotice publicNotice, PwaApplication pwaApplication) {
     var latestPublicNoticeDocument = getLatestPublicNoticeDocument(publicNotice);
     var documentLink = publicNoticeDocumentLinkRepository.findByPublicNoticeDocument(latestPublicNoticeDocument)
         .orElseThrow(() -> new EntityLatestVersionNotFoundException(String.format(
@@ -469,6 +390,12 @@ public class PublicNoticeService implements AppProcessingService {
 
     return appFileService.getUploadedFileView(
         pwaApplication, documentLink.getAppFile().getFileId(), FILE_PURPOSE, ApplicationFileLinkStatus.FULL);
+  }
+
+  public UploadedFileView getLatestPublicNoticeDocumentFileView(PwaApplication pwaApplication) {
+
+    var publicNotice = getLatestPublicNotice(pwaApplication);
+    return getPublicNoticeDocumentFileViewForPublicNotice(publicNotice, pwaApplication);
   }
 
 

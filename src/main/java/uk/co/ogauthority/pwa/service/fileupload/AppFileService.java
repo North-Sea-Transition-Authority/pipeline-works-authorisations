@@ -82,6 +82,13 @@ public class AppFileService {
 
   }
 
+  public void mapFileToForm(UploadMultipleFilesWithDescriptionForm uploadForm,
+                             UploadedFileView uploadedFileView) {
+
+    var uploadedFileForm = fileUploadService.createUploadFileWithDescriptionFormFromView(uploadedFileView);
+    uploadForm.setUploadedFileWithDescriptionForms(List.of(uploadedFileForm));
+  }
+
   /**
    * Upload a file and create a temporary link between the file and the application it was uploaded to, alongside the file purpose.
    *

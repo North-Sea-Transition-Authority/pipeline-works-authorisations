@@ -103,53 +103,53 @@ public class ApplicationSummaryViewServiceTest {
   @Test
   public void getAppDetailVersionSearchSelectorItems_onlyDetailsUpdatedOnSameDayHaveOrderTag_itemsAreOrderedLatestFirst() {
 
-    var appDetailCreatedTodayAfternoon = PwaApplicationTestUtil.createDefaultApplicationDetail(APP_ID, APP_DETAIL_ID3, VERSION_3, TODAY_AFTERNOON, CASE_OFFICER_REVIEW);
-    var appDetailCreatedTodayMorning = PwaApplicationTestUtil.createDefaultApplicationDetail(APP_ID, APP_DETAIL_ID2, VERSION_2, TODAY_MORNING, CASE_OFFICER_REVIEW);
-    var appDetailCreatedYesterday = PwaApplicationTestUtil.createDefaultApplicationDetail(APP_ID, APP_DETAIL_ID1, VERSION_1, YESTERDAY, CASE_OFFICER_REVIEW);
-    var pwaApplication = appDetailCreatedTodayAfternoon.getPwaApplication();
+    var appDetailSubmittedTodayAfternoon = PwaApplicationTestUtil.createDefaultApplicationDetail(APP_ID, APP_DETAIL_ID3, VERSION_3, TODAY_AFTERNOON, CASE_OFFICER_REVIEW);
+    var appDetailSubmittedTodayMorning = PwaApplicationTestUtil.createDefaultApplicationDetail(APP_ID, APP_DETAIL_ID2, VERSION_2, TODAY_MORNING, CASE_OFFICER_REVIEW);
+    var appDetailSubmittedYesterday = PwaApplicationTestUtil.createDefaultApplicationDetail(APP_ID, APP_DETAIL_ID1, VERSION_1, YESTERDAY, CASE_OFFICER_REVIEW);
+    var pwaApplication = appDetailSubmittedTodayAfternoon.getPwaApplication();
 
     when(pwaApplicationDetailService.getAllDetailsForApplication(pwaApplication)).thenReturn(
-        List.of(appDetailCreatedYesterday, appDetailCreatedTodayAfternoon, appDetailCreatedTodayMorning));
+        List.of(appDetailSubmittedYesterday, appDetailSubmittedTodayAfternoon, appDetailSubmittedTodayMorning));
 
     var visibleApplicationVersionOptionsForUser = applicationSummaryViewService
         .getVisibleApplicationVersionOptionsForUser(pwaApplication, user);
     var visibleApplicationVersionOptionsForUserEntries = visibleApplicationVersionOptionsForUser.getApplicationVersionOptions();
 
     assertThat(visibleApplicationVersionOptionsForUserEntries.keySet()).containsExactly(
-        appDetailCreatedTodayAfternoon.getId().toString(), appDetailCreatedTodayMorning.getId().toString(), appDetailCreatedYesterday.getId().toString()
+        appDetailSubmittedTodayAfternoon.getId().toString(), appDetailSubmittedTodayMorning.getId().toString(), appDetailSubmittedYesterday.getId().toString()
     );
 
     var expectedOrderTagNumber = 2;
-    assertThat(visibleApplicationVersionOptionsForUserEntries.get(appDetailCreatedTodayAfternoon.getId().toString())).contains(
-        String.format("%s (%s)", DateUtils.formatDate(appDetailCreatedTodayAfternoon.getCreatedTimestamp()), expectedOrderTagNumber));
+    assertThat(visibleApplicationVersionOptionsForUserEntries.get(appDetailSubmittedTodayAfternoon.getId().toString())).contains(
+        String.format("%s (%s)", DateUtils.formatDate(appDetailSubmittedTodayAfternoon.getSubmittedTimestamp()), expectedOrderTagNumber));
 
     expectedOrderTagNumber = 1;
-    assertThat(visibleApplicationVersionOptionsForUserEntries).containsEntry(appDetailCreatedTodayMorning.getId().toString(),
-        String.format("%s (%s)", DateUtils.formatDate(appDetailCreatedTodayMorning.getCreatedTimestamp()), expectedOrderTagNumber));
+    assertThat(visibleApplicationVersionOptionsForUserEntries).containsEntry(appDetailSubmittedTodayMorning.getId().toString(),
+        String.format("%s (%s)", DateUtils.formatDate(appDetailSubmittedTodayMorning.getSubmittedTimestamp()), expectedOrderTagNumber));
 
-    assertThat(visibleApplicationVersionOptionsForUserEntries).containsEntry(appDetailCreatedYesterday.getId().toString(),
-        DateUtils.formatDate(appDetailCreatedYesterday.getCreatedTimestamp()));
+    assertThat(visibleApplicationVersionOptionsForUserEntries).containsEntry(appDetailSubmittedYesterday.getId().toString(),
+        DateUtils.formatDate(appDetailSubmittedYesterday.getSubmittedTimestamp()));
 
   }
 
   @Test
   public void getAppDetailVersionSearchSelectorItems_onlyLatestDetailVersionHasLatestVersionText() {
 
-    var appDetailCreatedYesterday = PwaApplicationTestUtil.createDefaultApplicationDetail(APP_ID, APP_DETAIL_ID2, VERSION_2, YESTERDAY, CASE_OFFICER_REVIEW);
-    var appDetailCreatedTodayMorning = PwaApplicationTestUtil.createDefaultApplicationDetail(APP_ID, APP_DETAIL_ID1, VERSION_1, TODAY_MORNING, CASE_OFFICER_REVIEW);
-    var pwaApplication = appDetailCreatedYesterday.getPwaApplication();
+    var appDetailSubmittedYesterday = PwaApplicationTestUtil.createDefaultApplicationDetail(APP_ID, APP_DETAIL_ID2, VERSION_2, YESTERDAY, CASE_OFFICER_REVIEW);
+    var appDetailSubmittedTodayMorning = PwaApplicationTestUtil.createDefaultApplicationDetail(APP_ID, APP_DETAIL_ID1, VERSION_1, TODAY_MORNING, CASE_OFFICER_REVIEW);
+    var pwaApplication = appDetailSubmittedYesterday.getPwaApplication();
 
     when(pwaApplicationDetailService.getAllDetailsForApplication(pwaApplication)).thenReturn(
-        List.of(appDetailCreatedTodayMorning, appDetailCreatedYesterday));
+        List.of(appDetailSubmittedTodayMorning, appDetailSubmittedYesterday));
 
     var visibleApplicationVersionOptionsForUser = applicationSummaryViewService.getVisibleApplicationVersionOptionsForUser(pwaApplication, user);
     var visibleApplicationVersionOptionsForUserEntries = visibleApplicationVersionOptionsForUser.getApplicationVersionOptions();
 
-    assertThat(visibleApplicationVersionOptionsForUserEntries).containsEntry(appDetailCreatedTodayMorning.getId().toString(),
-        String.format("Latest version (%s)", DateUtils.formatDate(appDetailCreatedTodayMorning.getCreatedTimestamp())));
+    assertThat(visibleApplicationVersionOptionsForUserEntries).containsEntry(appDetailSubmittedTodayMorning.getId().toString(),
+        String.format("Latest version (%s)", DateUtils.formatDate(appDetailSubmittedTodayMorning.getSubmittedTimestamp())));
 
-    assertThat(visibleApplicationVersionOptionsForUserEntries).containsEntry(appDetailCreatedYesterday.getId().toString(),
-        DateUtils.formatDate(appDetailCreatedYesterday.getCreatedTimestamp()));
+    assertThat(visibleApplicationVersionOptionsForUserEntries).containsEntry(appDetailSubmittedYesterday.getId().toString(),
+        DateUtils.formatDate(appDetailSubmittedYesterday.getSubmittedTimestamp()));
 
   }
 
@@ -170,7 +170,7 @@ public class ApplicationSummaryViewServiceTest {
 
     assertThat(visibleApplicationVersionOptionsForUserEntries).containsOnly(entry(
         appDetailNoUpdateRequested.getId().toString(),
-        String.format("Latest version (%s)", DateUtils.formatDate(appDetailNoUpdateRequested.getCreatedTimestamp()))
+        String.format("Latest version (%s)", DateUtils.formatDate(appDetailNoUpdateRequested.getSubmittedTimestamp()))
     ));
   }
 
@@ -193,7 +193,7 @@ public class ApplicationSummaryViewServiceTest {
 
     assertThat(visibleApplicationVersionOptionsForUserEntries).containsOnly(entry(
         appDetailSatisfactory.getId().toString(),
-        String.format("Latest version (%s)", DateUtils.formatDate(appDetailSatisfactory.getCreatedTimestamp()))
+        String.format("Latest version (%s)", DateUtils.formatDate(appDetailSatisfactory.getSubmittedTimestamp()))
     ));
   }
 

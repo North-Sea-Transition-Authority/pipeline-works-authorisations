@@ -18,6 +18,7 @@ import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.energyportal.model.entity.PersonTestUtil;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
+import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeRequestStatus;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeStatus;
 import uk.co.ogauthority.pwa.model.entity.publicnotice.PublicNotice;
 import uk.co.ogauthority.pwa.model.entity.publicnotice.PublicNoticeRequest;
@@ -152,6 +153,7 @@ public class PublicNoticeApprovalServiceTest {
     assertThat(actualPublicNoticeRequest.getRequestApproved()).isTrue();
     assertThat(actualPublicNoticeRequest.getResponderPersonId()).isEqualTo(user.getLinkedPerson().getId().asInt());
     assertThat(actualPublicNoticeRequest.getResponseTimestamp()).isEqualTo(clock.instant());
+    assertThat(actualPublicNoticeRequest.getStatus()).isEqualTo(PublicNoticeRequestStatus.APPROVED);
 
     verify(camundaWorkflowService, times(1)).setWorkflowProperty(publicNotice, form.getRequestApproved());
     verify(camundaWorkflowService, times(1)).completeTask(new WorkflowTaskInstance(publicNotice,
@@ -199,6 +201,7 @@ public class PublicNoticeApprovalServiceTest {
     assertThat(actualPublicNoticeRequest.getResponderPersonId()).isEqualTo(user.getLinkedPerson().getId().asInt());
     assertThat(actualPublicNoticeRequest.getResponseTimestamp()).isEqualTo(clock.instant());
     assertThat(actualPublicNoticeRequest.getRejectionReason()).isEqualTo(form.getRequestRejectedReason());
+    assertThat(actualPublicNoticeRequest.getStatus()).isEqualTo(PublicNoticeRequestStatus.REJECTED);
 
     verify(camundaWorkflowService, times(1)).setWorkflowProperty(publicNotice, form.getRequestApproved());
     verify(camundaWorkflowService, times(1)).completeTask(new WorkflowTaskInstance(publicNotice,

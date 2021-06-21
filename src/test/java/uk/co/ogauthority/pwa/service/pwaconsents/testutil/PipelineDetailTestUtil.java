@@ -13,6 +13,8 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipelineTestUtil;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
+import uk.co.ogauthority.pwa.model.enums.aabuilt.AsBuiltNotificationStatus;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PadPipelineOverview;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineHeaderView;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview;
 
@@ -61,6 +63,13 @@ public class PipelineDetailTestUtil {
     var pipelineDetail = createPipelineDetail(padPipeline, referenceId);
     pipelineDetail.setPipelineStatus(pipelineStatus);
     return new PipelineHeaderView(pipelineDetail);
+  }
+
+  public static PipelineOverview createPipelineOverviewWithAsBuiltStatus(String referenceId, PipelineStatus pipelineStatus,
+                                                                         AsBuiltNotificationStatus asBuiltNotificationStatus) {
+    PadPipeline padPipeline = createPadPipeline();
+    var padPipelineOverView = new PadPipelineOverview(padPipeline, 1L);
+    return PadPipelineOverview.from(padPipelineOverView, asBuiltNotificationStatus);
   }
 
   private static PadPipeline createPadPipeline() {

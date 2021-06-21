@@ -5,6 +5,7 @@ import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineCoreType;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineFlexibility;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineMaterial;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineStatus;
+import uk.co.ogauthority.pwa.model.enums.aabuilt.AsBuiltNotificationStatus;
 import uk.co.ogauthority.pwa.model.location.CoordinatePair;
 
 /* Regardless of application or consented status, provide consistent interface for basic summarised pipeline data */
@@ -57,5 +58,9 @@ public interface PipelineOverview extends NamedPipeline {
   Boolean getPipelineInUse();
 
   String getFootnote();
+
+  default AsBuiltNotificationStatus getAsBuiltNotificationStatus() {
+    return null;
+  }
 
 }

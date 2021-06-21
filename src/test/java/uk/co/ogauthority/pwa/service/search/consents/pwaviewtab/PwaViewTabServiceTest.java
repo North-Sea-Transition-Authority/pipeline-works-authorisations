@@ -13,10 +13,12 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineStatus;
+import uk.co.ogauthority.pwa.model.enums.aabuilt.AsBuiltNotificationStatus;
 import uk.co.ogauthority.pwa.repository.pwaconsents.PwaConsentApplicationDto;
 import uk.co.ogauthority.pwa.repository.pwaconsents.PwaConsentDtoRepository;
-import uk.co.ogauthority.pwa.service.pwaconsents.testutil.PipelineDetailTestUtil;
+import uk.co.ogauthority.pwa.service.asbuilt.view.AsBuiltViewerService;
 import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailService;
+import uk.co.ogauthority.pwa.service.pwaconsents.testutil.PipelineDetailTestUtil;
 import uk.co.ogauthority.pwa.service.pwacontext.PwaContext;
 import uk.co.ogauthority.pwa.service.search.consents.PwaViewTab;
 import uk.co.ogauthority.pwa.service.search.consents.pwaviewtab.testutil.PwaViewTabTestUtil;
@@ -32,6 +34,9 @@ public class PwaViewTabServiceTest {
   @Mock
   private PwaConsentDtoRepository pwaConsentDtoRepository;
 
+  @Mock
+  private AsBuiltViewerService asBuiltViewerService;
+
   private PwaViewTabService pwaViewTabService;
 
   private PwaContext pwaContext;
@@ -46,7 +51,7 @@ public class PwaViewTabServiceTest {
   @Before
   public void setUp() throws Exception {
 
-    pwaViewTabService = new PwaViewTabService(pipelineDetailService, pwaConsentDtoRepository);
+    pwaViewTabService = new PwaViewTabService(pipelineDetailService, pwaConsentDtoRepository, asBuiltViewerService);
 
     pwaContext = PwaContextTestUtil.createPwaContext();
 
@@ -64,6 +69,7 @@ public class PwaViewTabServiceTest {
     var pipelineStatusFilter = EnumSet.allOf(PipelineStatus.class);
     when(pipelineDetailService.getAllPipelineOverviewsForMasterPwaAndStatus(pwaContext.getMasterPwa(), pipelineStatusFilter))
         .thenReturn(unOrderedPipelineOverviews);
+    when(asBuiltViewerService.getOverviewsWithAsBuiltStatus(unOrderedPipelineOverviews)).thenReturn(unOrderedPipelineOverviews);
 
     var modelMap = pwaViewTabService.getTabContentModelMap(pwaContext, PwaViewTab.PIPELINES);
     var actualPwaPipelineViews = (List<PwaPipelineView>) modelMap.get("pwaPipelineViews");
@@ -72,6 +78,29 @@ public class PwaViewTabServiceTest {
         new PwaPipelineView(unOrderedPipelineOverviews.get(0)),
         new PwaPipelineView(unOrderedPipelineOverviews.get(1)));
 
+  }
+
+  @Test
+  public void getTabContentModelMap_pipelinesTab_modelMapContainsPipelineViews_containsAsBuiltStatus() {
+
+    var overview = PipelineDetailTestUtil.createPipelineOverviewWithAsBuiltStatus(PIPELINE_REF_ID1,
+        PipelineStatus.IN_SERVICE, AsBuiltNotificationStatus.PER_CONSENT);
+
+    var unOrderedPipelineOverviews = List.of(overview);
+
+    var pipelineOverviewWithAsBuiltStatus = PipelineDetailTestUtil
+        .createPipelineOverviewWithAsBuiltStatus(PIPELINE_REF_ID1, overview.getPipelineStatus(),
+            overview.getAsBuiltNotificationStatus());
+
+    var pipelineStatusFilter = EnumSet.allOf(PipelineStatus.class);
+    when(pipelineDetailService.getAllPipelineOverviewsForMasterPwaAndStatus(pwaContext.getMasterPwa(), pipelineStatusFilter))
+        .thenReturn(unOrderedPipelineOverviews);
+    when(asBuiltViewerService.getOverviewsWithAsBuiltStatus(unOrderedPipelineOverviews))
+        .thenReturn(List.of(pipelineOverviewWithAsBuiltStatus));
+
+    var modelMap = pwaViewTabService.getTabContentModelMap(pwaContext, PwaViewTab.PIPELINES);
+    var actualPwaPipelineViews = (List<PwaPipelineView>) modelMap.get("pwaPipelineViews");
+    assertThat(actualPwaPipelineViews).containsExactly(new PwaPipelineView(pipelineOverviewWithAsBuiltStatus));
   }
 
   @Test
@@ -106,11 +135,6 @@ public class PwaViewTabServiceTest {
     var pwaConsentHistoryViews = (List<PwaConsentApplicationDto>) modelMap.get("pwaConsentHistoryViews");
     assertThat(pwaConsentHistoryViews).containsExactly(
         unOrderedConsentAppDtos.get(1), unOrderedConsentAppDtos.get(0));
-
   }
-
-
-
-
 
 }

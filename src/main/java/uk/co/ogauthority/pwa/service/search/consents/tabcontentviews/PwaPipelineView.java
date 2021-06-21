@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Objects;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineStatus;
+import uk.co.ogauthority.pwa.model.enums.aabuilt.AsBuiltNotificationStatus;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview;
 import uk.co.ogauthority.pwa.model.location.CoordinatePair;
 
@@ -12,6 +13,7 @@ public class PwaPipelineView {
   private final Integer pipelineId;
   private final String pipelineNumber;
   private final PipelineStatus status;
+  private final AsBuiltNotificationStatus asBuiltNotificationStatus;
   private final String fromLocation;
   private final CoordinatePair fromCoordinates;
   private final String toLocation;
@@ -28,6 +30,7 @@ public class PwaPipelineView {
     this.toLocation = pipelineOverview.getToLocation();
     this.toCoordinates = pipelineOverview.getToCoordinates();
     this.length = createLengthDisplayString(pipelineOverview.getLength());
+    this.asBuiltNotificationStatus = pipelineOverview.getAsBuiltNotificationStatus();
   }
 
   public Integer getPipelineId() {
@@ -46,6 +49,10 @@ public class PwaPipelineView {
 
   public PipelineStatus getStatus() {
     return status;
+  }
+
+  public AsBuiltNotificationStatus getAsBuiltNotificationStatus() {
+    return asBuiltNotificationStatus;
   }
 
   public String getFromLocation() {
@@ -96,6 +103,5 @@ public class PwaPipelineView {
   public int hashCode() {
     return Objects.hash(pipelineNumber, status, fromLocation, fromCoordinates, toLocation, toCoordinates, length);
   }
-
 
 }

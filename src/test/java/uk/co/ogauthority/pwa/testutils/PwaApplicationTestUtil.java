@@ -55,9 +55,9 @@ public class PwaApplicationTestUtil {
     return createApplicationDetail(masterPwa, applicationType, PwaApplicationStatus.DRAFT, appId, appDetailId, versionNumber);
   }
 
-  public static PwaApplicationDetail createDefaultApplicationDetail(int appId, int appDetailId, int versionNumber, Instant createdTimestamp, PwaApplicationStatus status) {
+  public static PwaApplicationDetail createDefaultApplicationDetail(int appId, int appDetailId, int versionNumber, Instant submittedTimestamp, PwaApplicationStatus status) {
     var detail = createDefaultApplicationDetail(PwaApplicationType.INITIAL, appId, appDetailId, versionNumber);
-    detail.setCreatedTimestamp(createdTimestamp);
+    detail.setSubmittedTimestamp(submittedTimestamp);
     detail.setStatus(status);
     return detail;
   }

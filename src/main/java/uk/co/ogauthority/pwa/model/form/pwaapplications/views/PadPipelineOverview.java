@@ -9,6 +9,7 @@ import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineMaterial;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineStatus;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
+import uk.co.ogauthority.pwa.model.enums.aabuilt.AsBuiltNotificationStatus;
 import uk.co.ogauthority.pwa.model.location.CoordinatePair;
 
 /*
@@ -39,6 +40,7 @@ public class PadPipelineOverview implements PipelineOverview {
   private Boolean trenchedBuriedBackfilled;
   private String trenchingMethodsDescription;
   private PipelineStatus pipelineStatus;
+  private AsBuiltNotificationStatus asBuiltNotificationStatus;
   private String pipelineStatusReason;
 
   // TODO PWA-890. Remove this attribute and refactor.
@@ -217,6 +219,39 @@ public class PadPipelineOverview implements PipelineOverview {
     );
   }
 
+  public static PipelineOverview from(PipelineOverview pipelineOverview, AsBuiltNotificationStatus asBuiltNotificationStatus) {
+    var overview = new PadPipelineOverview(
+        pipelineOverview.getPadPipelineId(),
+        pipelineOverview.getPipelineId(),
+        pipelineOverview.getFromLocation(),
+        pipelineOverview.getFromCoordinates(),
+        pipelineOverview.getToLocation(),
+        pipelineOverview.getToCoordinates(),
+        pipelineOverview.getPipelineNumber(),
+        pipelineOverview.getTemporaryPipelineNumber(),
+        pipelineOverview.getPipelineType(),
+        pipelineOverview.getComponentParts(),
+        pipelineOverview.getLength(),
+        pipelineOverview.getProductsToBeConveyed(),
+        pipelineOverview.getNumberOfIdents(),
+        pipelineOverview.getMaxExternalDiameter(),
+        pipelineOverview.getPipelineInBundle(),
+        pipelineOverview.getBundleName(),
+        pipelineOverview.getPipelineFlexibility(),
+        pipelineOverview.getPipelineMaterial(),
+        pipelineOverview.getOtherPipelineMaterialUsed(),
+        pipelineOverview.getTrenchedBuriedBackfilled(),
+        pipelineOverview.getTrenchingMethodsDescription(),
+        pipelineOverview.getPipelineStatus(),
+        pipelineOverview.getPipelineStatusReason(),
+        false,
+        pipelineOverview.getAlreadyExistsOnSeabed(),
+        pipelineOverview.getPipelineInUse(),
+        pipelineOverview.getFootnote());
+    overview.setAsBuiltNotificationStatus(asBuiltNotificationStatus);
+    return overview;
+  }
+
   @Override
   public Integer getPadPipelineId() {
     return padPipelineId;
@@ -345,6 +380,15 @@ public class PadPipelineOverview implements PipelineOverview {
   @Override
   public String getFootnote() {
     return this.footnote;
+  }
+
+  @Override
+  public AsBuiltNotificationStatus getAsBuiltNotificationStatus() {
+    return this.asBuiltNotificationStatus;
+  }
+
+  public void setAsBuiltNotificationStatus(AsBuiltNotificationStatus asBuiltNotificationStatus) {
+    this.asBuiltNotificationStatus = asBuiltNotificationStatus;
   }
 
   public Boolean getHasTasks() {

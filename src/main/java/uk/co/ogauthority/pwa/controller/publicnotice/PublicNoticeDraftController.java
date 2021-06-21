@@ -30,6 +30,7 @@ import uk.co.ogauthority.pwa.model.form.publicnotice.PublicNoticeDraftForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.AppProcessingBreadcrumbService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
+import uk.co.ogauthority.pwa.service.appprocessing.publicnotice.PublicNoticeDraftService;
 import uk.co.ogauthority.pwa.service.appprocessing.publicnotice.PublicNoticeService;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
@@ -47,6 +48,7 @@ public class PublicNoticeDraftController extends PwaApplicationDataFileUploadAnd
 
   private final AppProcessingBreadcrumbService appProcessingBreadcrumbService;
   private final PublicNoticeService publicNoticeService;
+  private final PublicNoticeDraftService publicNoticeDraftService;
   private final ControllerHelperService controllerHelperService;
 
   @Autowired
@@ -54,11 +56,13 @@ public class PublicNoticeDraftController extends PwaApplicationDataFileUploadAnd
       AppProcessingBreadcrumbService appProcessingBreadcrumbService,
       PublicNoticeService publicNoticeService,
       ControllerHelperService controllerHelperService,
-      AppFileService appFileService) {
+      AppFileService appFileService,
+      PublicNoticeDraftService publicNoticeDraftService) {
     super(appFileService);
     this.appProcessingBreadcrumbService = appProcessingBreadcrumbService;
     this.publicNoticeService = publicNoticeService;
     this.controllerHelperService = controllerHelperService;
+    this.publicNoticeDraftService = publicNoticeDraftService;
   }
 
 
@@ -113,7 +117,7 @@ public class PublicNoticeDraftController extends PwaApplicationDataFileUploadAnd
 
       return controllerHelperService.checkErrorsAndRedirect(validatedBindingResult,
           getDraftPublicNoticeModelAndView(processingContext, form), () -> {
-            publicNoticeService.createPublicNoticeAndStartWorkflow(
+            publicNoticeDraftService.submitPublicNoticeDraft(
                 form, processingContext.getPwaApplication(), authenticatedUserAccount);
             return  ReverseRouter.redirect(on(PublicNoticeOverviewController.class).renderPublicNoticeOverview(
                 applicationId, pwaApplicationType, processingContext, authenticatedUserAccount));

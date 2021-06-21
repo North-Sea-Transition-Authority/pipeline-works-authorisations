@@ -1,7 +1,6 @@
 package uk.co.ogauthority.pwa.service.appprocessing.publicnotice;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.entry;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -24,16 +23,12 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.validation.BeanPropertyBindingResult;
-import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
-import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
 import uk.co.ogauthority.pwa.energyportal.model.entity.PersonTestUtil;
-import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.exception.EntityLatestVersionNotFoundException;
 import uk.co.ogauthority.pwa.model.dto.appprocessing.ApplicationInvolvementDtoTestUtil;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeAction;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeDocumentType;
-import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeRequestStatus;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeStatus;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.TemplateTextType;
 import uk.co.ogauthority.pwa.model.entity.files.AppFile;
@@ -41,17 +36,13 @@ import uk.co.ogauthority.pwa.model.entity.files.AppFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.publicnotice.PublicNotice;
 import uk.co.ogauthority.pwa.model.entity.publicnotice.PublicNoticeDocument;
 import uk.co.ogauthority.pwa.model.entity.publicnotice.PublicNoticeDocumentLink;
-import uk.co.ogauthority.pwa.model.entity.publicnotice.PublicNoticeRequest;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.enums.notify.NotifyTemplate;
 import uk.co.ogauthority.pwa.model.enums.tasklist.TaskState;
 import uk.co.ogauthority.pwa.model.form.files.UploadFileWithDescriptionForm;
 import uk.co.ogauthority.pwa.model.form.files.UploadedFileViewTestUtil;
 import uk.co.ogauthority.pwa.model.form.publicnotice.PublicNoticeDraftForm;
-import uk.co.ogauthority.pwa.model.notify.emailproperties.publicnotices.PublicNoticeApprovalRequestEmailProps;
 import uk.co.ogauthority.pwa.model.tasklist.TaskTag;
-import uk.co.ogauthority.pwa.model.teams.PwaRegulatorRole;
 import uk.co.ogauthority.pwa.repository.publicnotice.PublicNoticeDatesRepository;
 import uk.co.ogauthority.pwa.repository.publicnotice.PublicNoticeDocumentLinkRepository;
 import uk.co.ogauthority.pwa.repository.publicnotice.PublicNoticeDocumentRepository;
@@ -64,12 +55,8 @@ import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingTask;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.TaskStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.fileupload.AppFileService;
-import uk.co.ogauthority.pwa.service.notify.EmailCaseLinkService;
-import uk.co.ogauthority.pwa.service.notify.NotifyService;
 import uk.co.ogauthority.pwa.service.person.PersonService;
-import uk.co.ogauthority.pwa.service.teams.PwaTeamService;
 import uk.co.ogauthority.pwa.service.template.TemplateTextService;
-import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.validators.publicnotice.PublicNoticeDraftValidator;
 
@@ -103,48 +90,20 @@ public class PublicNoticeServiceTest {
   private PublicNoticeDatesRepository publicNoticeDatesRepository;
 
   @Mock
-  private CamundaWorkflowService camundaWorkflowService;
-
-  @Mock
   private Clock clock;
-
-  @Mock
-  private NotifyService notifyService;
-
-  @Mock
-  private EmailCaseLinkService emailCaseLinkService;
-
-  @Mock
-  private PwaTeamService pwaTeamService;
 
   @Mock
   private PersonService personService;
 
-  @Captor
-  private ArgumentCaptor<PublicNoticeApprovalRequestEmailProps> approvalRequestEmailPropsCaptor;
-
-  @Captor
-  private ArgumentCaptor<String> emailAddressCaptor;
-
   private PwaApplication pwaApplication;
   private PwaApplicationDetail pwaApplicationDetail;
-  private AuthenticatedUserAccount user;
   private static AppFilePurpose FILE_PURPOSE = AppFilePurpose.PUBLIC_NOTICE;
-
-  @Captor
-  private ArgumentCaptor<PublicNotice> publicNoticeArgumentCaptor;
 
   @Captor
   private ArgumentCaptor<List<PublicNotice>> publicNoticesArgumentCaptor;
 
   @Captor
   private ArgumentCaptor<PublicNoticeDocument> publicNoticeDocumentArgumentCaptor;
-
-  @Captor
-  private ArgumentCaptor<PublicNoticeDocumentLink> publicNoticeDocumentLinkArgumentCaptor;
-
-  @Captor
-  private ArgumentCaptor<PublicNoticeRequest> publicNoticeRequestArgumentCaptor;
 
   private static Set<PublicNoticeStatus> ENDED_STATUSES;
   private static Set<PublicNoticeStatus> APPLICANT_VIEW_STATUSES;
@@ -162,12 +121,11 @@ public class PublicNoticeServiceTest {
         publicNoticeRequestRepository,
         publicNoticeDocumentRepository,
         publicNoticeDocumentLinkRepository,
-        publicNoticeDatesRepository, camundaWorkflowService,
-        clock, notifyService, emailCaseLinkService, pwaTeamService, personService);
+        publicNoticeDatesRepository,
+        personService);
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     pwaApplication = pwaApplicationDetail.getPwaApplication();
-    user = new AuthenticatedUserAccount(new WebUserAccount(1, PersonTestUtil.createDefaultPerson()), List.of());
     ENDED_STATUSES = Set.of(PublicNoticeStatus.ENDED, PublicNoticeStatus.WITHDRAWN);
     APPLICANT_VIEW_STATUSES = Set.of(PublicNoticeStatus.WAITING, PublicNoticeStatus.PUBLISHED, PublicNoticeStatus.ENDED);
   }
@@ -290,21 +248,24 @@ public class PublicNoticeServiceTest {
   }
 
   @Test
-  public void getTaskListEntry_publicNoticeEnded_taskStatusIsCompleted() {
+  public void getTaskListEntry_publicNoticeHasEndedTypeStatus_taskStatusIsCompleted() {
 
     var appInvolvementDto = ApplicationInvolvementDtoTestUtil.fromInvolvementFlags(
         pwaApplication, Set.of(ApplicationInvolvementDtoTestUtil.InvolvementFlag.AT_LEAST_ONE_SATISFACTORY_VERSION));
     var processingContext = new PwaAppProcessingContext(pwaApplicationDetail, null, Set.of(), null, appInvolvementDto,
         Set.of());
 
-    var publicNotice = PublicNoticeTestUtil.createEndedPublicNotice(pwaApplication);
-    when(publicNoticeRepository.findFirstByPwaApplicationOrderByVersionDesc(processingContext.getPwaApplication()))
-        .thenReturn(Optional.of(publicNotice));
+    ENDED_STATUSES.forEach(status -> {
+      var publicNotice = PublicNoticeTestUtil.createPublicNoticeWithStatus(status);
+      when(publicNoticeRepository.findFirstByPwaApplicationOrderByVersionDesc(processingContext.getPwaApplication()))
+          .thenReturn(Optional.of(publicNotice));
 
-    var taskListEntry = publicNoticeService.getTaskListEntry(PwaAppProcessingTask.PUBLIC_NOTICE, processingContext);
+      var taskListEntry = publicNoticeService.getTaskListEntry(PwaAppProcessingTask.PUBLIC_NOTICE, processingContext);
 
-    assertThat(taskListEntry.getTaskTag()).isEqualTo(TaskTag.from(TaskStatus.COMPLETED));
-    assertThat(taskListEntry.getTaskState()).isEqualTo(TaskState.EDIT);
+      assertThat(taskListEntry.getTaskTag()).isEqualTo(TaskTag.from(TaskStatus.COMPLETED));
+      assertThat(taskListEntry.getTaskState()).isEqualTo(TaskState.EDIT);
+    });
+
   }
 
   @Test
@@ -464,6 +425,18 @@ public class PublicNoticeServiceTest {
     var publicNoticeRequest = PublicNoticeTestUtil.createInitialPublicNoticeRequest(publicNotice, expectedForm);
     when(publicNoticeRequestRepository.findFirstByPublicNoticeOrderByVersionDesc(publicNotice)).thenReturn(Optional.of(publicNoticeRequest));
 
+    var latestPublicNoticeDocument = PublicNoticeTestUtil.createInitialPublicNoticeDocument(publicNotice);
+    when(publicNoticeDocumentRepository.findByPublicNoticeAndDocumentType(publicNotice, PublicNoticeDocumentType.IN_PROGRESS_DOCUMENT))
+        .thenReturn(Optional.of(latestPublicNoticeDocument));
+
+    var publicNoticeAppFile = new AppFile();
+    var publicNoticeDocumentLink = new PublicNoticeDocumentLink(latestPublicNoticeDocument, publicNoticeAppFile);
+    when(publicNoticeDocumentLinkRepository.findByPublicNoticeDocument(latestPublicNoticeDocument)).thenReturn(Optional.of(publicNoticeDocumentLink));
+
+    var appFileView = UploadedFileViewTestUtil.createDefaultFileView();
+    when(appFileService.getUploadedFileView(
+        pwaApplication, publicNoticeDocumentLink.getAppFile().getFileId(), FILE_PURPOSE, ApplicationFileLinkStatus.FULL))
+        .thenReturn(appFileView);
 
     var actualForm = new PublicNoticeDraftForm();
     publicNoticeService.mapPublicNoticeDraftToForm(pwaApplication, actualForm);
@@ -471,7 +444,7 @@ public class PublicNoticeServiceTest {
     assertThat(actualForm.getCoverLetterText()).isEqualTo(expectedForm.getCoverLetterText());
     assertThat(actualForm.getReason()).isEqualTo(expectedForm.getReason());
     assertThat(actualForm.getReasonDescription()).isEqualTo(expectedForm.getReasonDescription());
-    verify(appFileService, times(1)).mapFilesToForm(expectedForm, pwaApplication, FILE_PURPOSE);
+    verify(appFileService).mapFileToForm(expectedForm, appFileView);
   }
 
   @Test
@@ -492,85 +465,6 @@ public class PublicNoticeServiceTest {
     verifyNoInteractions(publicNoticeRequestRepository);
   }
 
-
-
-  @Test
-  public void createPublicNoticeAndStartWorkflow_newEntities_firstVersions() {
-
-    when(publicNoticeRepository.findFirstByPwaApplicationOrderByVersionDesc(pwaApplication)).thenReturn(Optional.empty());
-    var expectedPublicNotice = PublicNoticeTestUtil.createInitialPublicNotice(pwaApplication);
-    when(publicNoticeRepository.save(expectedPublicNotice)).thenReturn(expectedPublicNotice);
-
-    var expectedPublicNoticeDocument = PublicNoticeTestUtil.createInitialPublicNoticeDocument(expectedPublicNotice);
-    when(publicNoticeDocumentRepository.save(expectedPublicNoticeDocument)).thenReturn(expectedPublicNoticeDocument);
-
-    var publicNoticeAppFile = PublicNoticeTestUtil.createAppFileForPublicNotice(pwaApplication);
-    var uploadFileWithDescriptionForm = new UploadFileWithDescriptionForm(
-        publicNoticeAppFile.getFileId(), "desc", clock.instant());
-    when(appFileService.getAppFileByPwaApplicationAndFileId(pwaApplication, publicNoticeAppFile.getFileId()))
-        .thenReturn(publicNoticeAppFile);
-
-    when(publicNoticeRepository.save(expectedPublicNotice)).thenReturn(expectedPublicNotice);
-
-    String caseManagementLink = "case management link url";
-    when(emailCaseLinkService.generateCaseManagementLink(pwaApplication)).thenReturn(caseManagementLink);
-
-    var pwaManager1 = PersonTestUtil.createPersonFrom(new PersonId(1));
-    var pwaManager2 = PersonTestUtil.createPersonFrom(new PersonId(2));
-    var pwaManagers = Set.of(pwaManager1, pwaManager2);
-    when(pwaTeamService.getPeopleWithRegulatorRole(PwaRegulatorRole.PWA_MANAGER)).thenReturn(pwaManagers);
-
-    var publicNoticeDraftForm = PublicNoticeTestUtil.createDefaultPublicNoticeDraftForm(List.of(uploadFileWithDescriptionForm));
-    publicNoticeService.createPublicNoticeAndStartWorkflow(publicNoticeDraftForm, pwaApplication, user);
-
-
-    verify(publicNoticeRepository, times(1)).save(publicNoticeArgumentCaptor.capture());
-    var actualPublicNotice = publicNoticeArgumentCaptor.getValue();
-    assertThat(actualPublicNotice).isEqualTo(expectedPublicNotice);
-
-    verify(publicNoticeDocumentRepository, times(1)).save(publicNoticeDocumentArgumentCaptor.capture());
-    var actualPublicNoticeDocument = publicNoticeDocumentArgumentCaptor.getValue();
-    assertThat(actualPublicNoticeDocument).isEqualTo(expectedPublicNoticeDocument);
-
-    verify(publicNoticeDocumentLinkRepository, times(1)).save(publicNoticeDocumentLinkArgumentCaptor.capture());
-    var actualPublicNoticeDocumentLink = publicNoticeDocumentLinkArgumentCaptor.getValue();
-    assertThat(actualPublicNoticeDocumentLink.getPublicNoticeDocument()).isEqualTo(actualPublicNoticeDocument);
-    assertThat(actualPublicNoticeDocumentLink.getAppFile()).isEqualTo(publicNoticeAppFile);
-
-    verify(publicNoticeRequestRepository, times(1)).save(publicNoticeRequestArgumentCaptor.capture());
-    var publicNoticeRequest = publicNoticeRequestArgumentCaptor.getValue();
-    assertThat(publicNoticeRequest.getPublicNotice()).isEqualTo(actualPublicNotice);
-    assertThat(publicNoticeRequest.getCoverLetterText()).isEqualTo(publicNoticeDraftForm.getCoverLetterText());
-    assertThat(publicNoticeRequest.getStatus()).isEqualTo(PublicNoticeRequestStatus.WAITING_MANAGER_APPROVAL);
-    assertThat(publicNoticeRequest.getReason()).isEqualTo(publicNoticeDraftForm.getReason());
-    assertThat(publicNoticeRequest.getReasonDescription()).isEqualTo(publicNoticeDraftForm.getReasonDescription());
-    assertThat(publicNoticeRequest.getVersion()).isEqualTo(1);
-    assertThat(publicNoticeRequest.getSubmittedTimestamp()).isEqualTo(clock.instant());
-    assertThat(publicNoticeRequest.getCreatedByPersonId()).isEqualTo(user.getLinkedPerson().getId().asInt());
-
-    verify(camundaWorkflowService, times(1)).startWorkflow(expectedPublicNotice);
-
-    verify(notifyService, times(pwaManagers.size())).sendEmail(approvalRequestEmailPropsCaptor.capture(), emailAddressCaptor.capture());
-
-    assertThat(approvalRequestEmailPropsCaptor.getAllValues()).allSatisfy(emailProps -> {
-
-      assertThat(emailProps.getEmailPersonalisation()).contains(
-          entry("APPLICATION_REFERENCE", pwaApplication.getAppReference()),
-          entry("PUBLIC_NOTICE_REASON", publicNoticeDraftForm.getReason().getReasonText()),
-          entry("CASE_MANAGEMENT_LINK", caseManagementLink)
-      );
-
-      assertThat(emailProps.getTemplate()).isEqualTo(NotifyTemplate.PUBLIC_NOTICE_APPROVAL_REQUEST);
-
-    });
-
-    assertThat(approvalRequestEmailPropsCaptor.getAllValues().get(0).getRecipientFullName()).isEqualTo(pwaManager1.getFullName());
-    assertThat(emailAddressCaptor.getAllValues().get(0)).isEqualTo(pwaManager1.getEmailAddress());
-
-    assertThat(approvalRequestEmailPropsCaptor.getAllValues().get(1).getRecipientFullName()).isEqualTo(pwaManager2.getFullName());
-    assertThat(emailAddressCaptor.getAllValues().get(1)).isEqualTo(pwaManager2.getEmailAddress());
-
-  }
 
   @Test
   public void createPublicNoticeDocumentLinkFromForm() {
@@ -600,6 +494,15 @@ public class PublicNoticeServiceTest {
   @Test
   public void canCreatePublicNoticeDraft_latestPublicNoticeEnded_canCreateDraftIsTrue() {
 
+    var publicNotice = PublicNoticeTestUtil.createDraftPublicNotice(pwaApplication);
+    when(publicNoticeRepository.findFirstByPwaApplicationOrderByVersionDesc(pwaApplication)).thenReturn(Optional.of(publicNotice));
+    var canCreateDraft = publicNoticeService.canCreatePublicNoticeDraft(pwaApplication);
+    assertThat(canCreateDraft).isTrue();
+  }
+
+  @Test
+  public void canCreatePublicNoticeDraft_latestPublicNoticeIsDraft_canCreateDraftIsTrue() {
+
     var publicNotice = PublicNoticeTestUtil.createWithdrawnPublicNotice(pwaApplication);
     when(publicNoticeRepository.findFirstByPwaApplicationOrderByVersionDesc(pwaApplication)).thenReturn(Optional.of(publicNotice));
     var canCreateDraft = publicNoticeService.canCreatePublicNoticeDraft(pwaApplication);
@@ -609,7 +512,9 @@ public class PublicNoticeServiceTest {
   @Test
   public void canCreatePublicNoticeDraft_latestPublicNoticeNotEndedStatuses_canCreateDraftIsFalse() {
 
-    EnumSet.complementOf(EnumSet.copyOf(ENDED_STATUSES)).forEach(activeStatus -> {
+    var allowedStatuses = EnumSet.copyOf(ENDED_STATUSES);
+    allowedStatuses.add(PublicNoticeStatus.DRAFT);
+    EnumSet.complementOf(allowedStatuses).forEach(activeStatus -> {
       var publicNotice = new PublicNotice();
       publicNotice.setStatus(activeStatus);
       when(publicNoticeRepository.findFirstByPwaApplicationOrderByVersionDesc(pwaApplication)).thenReturn(Optional.of(publicNotice));

@@ -189,4 +189,8 @@ public class PipelineDetailService {
         );
   }
 
+  public List<PipelineDetail> getLatestPipelineDetailsForIds(List<Integer> pipelineIds) {
+    return pipelineDetailRepository.findAllByPipeline_IdInAndTipFlagIsTrue(pipelineIds);
+  }
+
 }
