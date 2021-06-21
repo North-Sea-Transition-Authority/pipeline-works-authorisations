@@ -32,7 +32,7 @@ errorItems=[]>
     <@genericLayout htmlTitle=htmlTitle htmlAppTitle="OGA Pipelines" errorCheck=errorCheck noIndex=noIndex>
 
     <#--Header-->
-        <@pipelinesHeader.header logoText="OGA" logoProductText="" headerNav=true serviceName="Pipeline Works Authorisations" topNavigation=topNavigation wrapperWidth=wrapperWidth headerIcon=""/>
+        <@pipelinesHeader.header logoText="OGA" logoProductText="" headerNav=true serviceName="Pipeline Works Authorisations" topNavigation=topNavigation wrapperWidth=wrapperWidth/>
 
     <#--Phase banner-->
         <#if phaseBanner>
