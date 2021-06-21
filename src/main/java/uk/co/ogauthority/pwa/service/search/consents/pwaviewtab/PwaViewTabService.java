@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineStatus;
 import uk.co.ogauthority.pwa.repository.pwaconsents.PwaConsentApplicationDto;
 import uk.co.ogauthority.pwa.repository.pwaconsents.PwaConsentDtoRepository;
+import uk.co.ogauthority.pwa.service.asbuilt.view.AsBuiltViewerService;
 import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailService;
 import uk.co.ogauthority.pwa.service.pwacontext.PwaContext;
 import uk.co.ogauthority.pwa.service.search.consents.PwaViewTab;
@@ -21,13 +22,16 @@ public class PwaViewTabService {
 
   private final PipelineDetailService pipelineDetailService;
   private final PwaConsentDtoRepository pwaConsentDtoRepository;
+  private final AsBuiltViewerService asBuiltViewerService;
 
 
   @Autowired
   public PwaViewTabService(PipelineDetailService pipelineDetailService,
-                           PwaConsentDtoRepository pwaConsentDtoRepository) {
+                           PwaConsentDtoRepository pwaConsentDtoRepository,
+                           AsBuiltViewerService asBuiltViewerService) {
     this.pipelineDetailService = pipelineDetailService;
     this.pwaConsentDtoRepository = pwaConsentDtoRepository;
+    this.asBuiltViewerService = asBuiltViewerService;
   }
 
 
@@ -50,10 +54,11 @@ public class PwaViewTabService {
   private List<PwaPipelineView> getPipelineTabContent(PwaContext pwaContext) {
 
     var pipelineStatusFilter = EnumSet.allOf(PipelineStatus.class);
-    var pipelineOverviews = pipelineDetailService.getCompletePipelineOverviewsForMasterPwaAndStatus(
+    var pipelineOverviews = pipelineDetailService.getAllPipelineOverviewsForMasterPwaAndStatus(
         pwaContext.getMasterPwa(), pipelineStatusFilter);
+    var consentedPipelineOverviews = asBuiltViewerService.getOverviewsWithAsBuiltStatus(pipelineOverviews);
 
-    return pipelineOverviews
+    return consentedPipelineOverviews
         .stream().map(PwaPipelineView::new)
         .sorted(Comparator.comparing(PwaPipelineView::getPipelineNumberOnlyFromReference))
         .collect(Collectors.toList());

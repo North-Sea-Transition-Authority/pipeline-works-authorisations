@@ -1,9 +1,13 @@
 package uk.co.ogauthority.pwa.service.asbuilt.view;
 
+import static java.util.stream.Collectors.toList;
+
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.persistence.EntityNotFoundException;
@@ -11,18 +15,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.exception.AsBuiltNotificationGroupNotFoundException;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineDetailId;
+import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationGroup;
 import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationGroupDetail;
 import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationGroupPipeline;
 import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationSubmission;
 import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PadPipelineOverview;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview;
 import uk.co.ogauthority.pwa.model.view.asbuilt.AsBuiltNotificationGroupSummaryView;
 import uk.co.ogauthority.pwa.model.view.asbuilt.AsBuiltNotificationView;
 import uk.co.ogauthority.pwa.repository.asbuilt.AsBuiltNotificationGroupPipelineRepository;
 import uk.co.ogauthority.pwa.repository.asbuilt.AsBuiltNotificationSubmissionRepository;
-import uk.co.ogauthority.pwa.repository.pipelines.PipelineDetailRepository;
 import uk.co.ogauthority.pwa.service.asbuilt.AsBuiltNotificationGroupDetailService;
 import uk.co.ogauthority.pwa.service.asbuilt.AsBuiltNotificationGroupService;
+import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailService;
 
 /**
  * Allows access to view services related to the as-built domain, following Facade pattern.
@@ -36,7 +43,7 @@ public class AsBuiltViewerService {
   private final AsBuiltNotificationGroupDetailService asBuiltNotificationGroupDetailService;
   private final AsBuiltNotificationSubmissionRepository asBuiltNotificationSubmissionRepository;
   private final AsBuiltNotificationGroupPipelineRepository asBuiltNotificationGroupPipelineRepository;
-  private final PipelineDetailRepository pipelineDetailRepository;
+  private final PipelineDetailService pipelineDetailService;
 
   @Autowired
   public AsBuiltViewerService(AsBuiltNotificationViewService asBuiltNotificationViewService,
@@ -45,14 +52,14 @@ public class AsBuiltViewerService {
                               AsBuiltNotificationGroupDetailService asBuiltNotificationGroupDetailService,
                               AsBuiltNotificationSubmissionRepository asBuiltNotificationSubmissionRepository,
                               AsBuiltNotificationGroupPipelineRepository asBuiltNotificationGroupPipelineRepository,
-                              PipelineDetailRepository pipelineDetailRepository) {
+                              PipelineDetailService pipelineDetailService) {
     this.asBuiltNotificationViewService = asBuiltNotificationViewService;
     this.asBuiltNotificationSummaryService = asBuiltNotificationSummaryService;
     this.asBuiltNotificationGroupService = asBuiltNotificationGroupService;
     this.asBuiltNotificationGroupDetailService = asBuiltNotificationGroupDetailService;
     this.asBuiltNotificationSubmissionRepository = asBuiltNotificationSubmissionRepository;
     this.asBuiltNotificationGroupPipelineRepository = asBuiltNotificationGroupPipelineRepository;
-    this.pipelineDetailRepository = pipelineDetailRepository;
+    this.pipelineDetailService = pipelineDetailService;
   }
 
   public AsBuiltNotificationGroupSummaryView getAsBuiltNotificationGroupSummaryView(Integer notificationGroupId) {
@@ -100,15 +107,7 @@ public class AsBuiltViewerService {
     var asBuiltNotificationGroupPipelines = asBuiltNotificationGroupPipelineRepository
         .findAllByPipelineDetailIdIn(pipelineDetailIds);
     var submissionsForAsGroupPipelines = getAsBuiltNotificationSubmissions(asBuiltNotificationGroupPipelines);
-    Map<PipelineDetailId, AsBuiltNotificationSubmission> latestSubmissionsForEachPipelineDetail = new HashMap<>();
-    for (AsBuiltNotificationGroupPipeline asBuiltNotificationGroupPipeline : asBuiltNotificationGroupPipelines) {
-      latestSubmissionsForEachPipelineDetail.put(asBuiltNotificationGroupPipeline.getPipelineDetailId(),
-          submissionsForAsGroupPipelines.stream()
-              .filter(submission -> submission.getAsBuiltNotificationGroupPipeline().getPipelineDetailId()
-                  .equals(asBuiltNotificationGroupPipeline.getPipelineDetailId()))
-              .max(Comparator.comparing(AsBuiltNotificationSubmission::getSubmittedTimestamp)).orElse(null));
-    }
-    return latestSubmissionsForEachPipelineDetail;
+    return getLatestSubmissionsForEachPipeline(asBuiltNotificationGroupPipelines, submissionsForAsGroupPipelines);
   }
 
   private Map<PipelineDetailId, AsBuiltNotificationSubmission> getLatestSubmissionsForEachPipeline(List<AsBuiltNotificationGroupPipeline>
@@ -147,7 +146,7 @@ public class AsBuiltViewerService {
     var asBuiltGroupPipelines =  asBuiltNotificationGroupPipelineRepository
         .findAllByAsBuiltNotificationGroup_Id(notificationGroupId);
     return asBuiltGroupPipelines.stream()
-        .map(ngGroupPipeline -> pipelineDetailRepository.findById(ngGroupPipeline.getPipelineDetailId().asInt()).orElseThrow())
+        .map(ngGroupPipeline -> pipelineDetailService.getByPipelineDetailId(ngGroupPipeline.getPipelineDetailId().asInt()))
         .collect(Collectors.toList());
   }
 
@@ -160,6 +159,28 @@ public class AsBuiltViewerService {
             () -> new EntityNotFoundException(
                 String.format("Pipeline detail with id %s could not be found within as-built pipeline group with id %s",
                     pipelineDetailId.asInt(), asBuiltPipelineGroupId)));
+  }
+
+  public List<PipelineOverview> getOverviewsWithAsBuiltStatus(List<PipelineOverview> pipelineOverviews) {
+    var pipelineIds = pipelineOverviews.stream()
+        .map(PipelineOverview::getPipelineId)
+        .collect(toList());
+    var pipelineIdToDetailMap = pipelineDetailService.getLatestPipelineDetailsForIds(pipelineIds).stream()
+        .collect(Collectors.toMap(PipelineDetail::getPipelineId, PipelineDetail::getPipelineDetailId));
+    var latestSubmissionsForEachPipelineDetailId = getLatestSubmissionsForEachPipelineDetailId(
+        new ArrayList<>(pipelineIdToDetailMap.values()));
+    Map<Integer, AsBuiltNotificationSubmission> pipelineIdToSubmissionMap = new HashMap<>();
+    for (PipelineId pipelineId : pipelineIdToDetailMap.keySet()) {
+      pipelineIdToSubmissionMap.put(pipelineId.asInt(), latestSubmissionsForEachPipelineDetailId
+          .get(pipelineIdToDetailMap.get(pipelineId)));
+    }
+    return pipelineOverviews.stream().map(pipelineOverview -> {
+      var submission = pipelineIdToSubmissionMap.get(pipelineOverview.getPipelineId());
+      if (Objects.nonNull(submission)) {
+        return PadPipelineOverview.from(pipelineOverview, submission.getAsBuiltNotificationStatus());
+      }
+      return pipelineOverview;
+    }).collect(toList());
   }
 
 }
