@@ -280,7 +280,7 @@ public class PadEnvironmentalDecommissioningServiceTest {
   }
 
   @Test
-  public void getAvailableQuestions_notCat2OrDepcon() {
+  public void getAvailableQuestions_notCat2OrDepconOrDecom() {
 
     var detail = new PwaApplicationDetail();
     var app = new PwaApplication();
@@ -288,7 +288,8 @@ public class PadEnvironmentalDecommissioningServiceTest {
 
     PwaApplicationType.stream()
         .filter(applicationType -> applicationType != PwaApplicationType.CAT_2_VARIATION
-            && applicationType != PwaApplicationType.DEPOSIT_CONSENT)
+            && applicationType != PwaApplicationType.DEPOSIT_CONSENT
+            && applicationType != PwaApplicationType.DECOMMISSIONING)
         .forEach(applicationType -> {
 
           app.setApplicationType(applicationType);
@@ -322,6 +323,19 @@ public class PadEnvironmentalDecommissioningServiceTest {
 
     assertThat(padEnvironmentalDecommissioningService.getAvailableQuestions(detail))
         .containsExactly(EnvDecomQuestion.BEIS_EMT_PERMITS);
+
+  }
+
+  @Test
+  public void getAvailableQuestions_decom() {
+
+    var detail = new PwaApplicationDetail();
+    var app = new PwaApplication();
+    app.setApplicationType(PwaApplicationType.DECOMMISSIONING);
+    detail.setPwaApplication(app);
+
+    assertThat(padEnvironmentalDecommissioningService.getAvailableQuestions(detail))
+        .containsExactlyElementsOf(EnumSet.complementOf(EnumSet.of(EnvDecomQuestion.DECOMMISSIONING)));
 
   }
 
