@@ -14,7 +14,7 @@ noIndex=false>
     <@genericLayout htmlTitle=htmlTitle htmlAppTitle="OGA Pipelines" errorCheck=errorCheck noIndex=noIndex>
       <div class="fds-pane fds-pane--enabled" id="top">
           <#--Header goes below me-->
-          <@pipelinesHeader.header logoText="OGA" logoProductText="" headerNav=true serviceName="Pipeline Works Authorisations" topNavigation=topNavigation wrapperWidth=wrapperWidth headerIcon=headerIcon/>
+          <@pipelinesHeader.header logoText="OGA" logoProductText="" headerNav=true serviceName="Pipeline Works Authorisations" topNavigation=topNavigation wrapperWidth=wrapperWidth/>
 
           <#--Phase banner goes below me-->
           <#if phaseBanner>
