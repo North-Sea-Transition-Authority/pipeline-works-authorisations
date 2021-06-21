@@ -31,6 +31,10 @@ public final class PublicNoticeTestUtil {
   private PublicNoticeTestUtil(){}
 
 
+  public static PublicNotice createDraftPublicNotice(PwaApplication pwaApplication) {
+    return new PublicNotice(pwaApplication, PublicNoticeStatus.DRAFT, VERSION1);
+  }
+
   public static PublicNotice createInitialPublicNotice(PwaApplication pwaApplication) {
     return new PublicNotice(pwaApplication, PublicNoticeStatus.MANAGER_APPROVAL, VERSION1);
   }
@@ -70,6 +74,10 @@ public final class PublicNoticeTestUtil {
     publicNotice.setWithdrawalReason(reason);
     publicNotice.setWithdrawalTimestamp(withdrawalTimestamp);
     return publicNotice;
+  }
+
+  public static PublicNoticeDocument createArchivedPublicNoticeDocument(PublicNotice publicNotice) {
+    return new PublicNoticeDocument(publicNotice, VERSION1, PublicNoticeDocumentType.ARCHIVED);
   }
 
   public static PublicNoticeDocument createInitialPublicNoticeDocument(PublicNotice publicNotice) {
