@@ -21,6 +21,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineStatus;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
@@ -181,7 +182,7 @@ public class PipelineDetailServiceTest {
   }
 
   @Test
-  public void getAllPipelineOverviewsForMasterPwa() {
+  public void getAllPipelineOverviewsForMasterPwa_getsOverviewsSuccessfully() {
     var pipelineStatusFilter = EnumSet.allOf(PipelineStatus.class);
     var overview = PipelineDetailTestUtil
         .createPipelineOverview("REF", PipelineStatus.IN_SERVICE);
@@ -192,6 +193,17 @@ public class PipelineDetailServiceTest {
     assertThat(pipelineDetailService.getAllPipelineOverviewsForMasterPwaAndStatus(detail.getMasterPwa(), pipelineStatusFilter))
         .extracting(PipelineOverview::getPipelineId)
         .containsExactly(overview.getPipelineId());
+  }
+
+  @Test
+  public void getLatestPipelineDetailsForIds() {
+    var pipelineDetail = PipelineDetailTestUtil.createPipelineDetail(20, new PipelineId(10), Instant.now());
+
+    when(pipelineDetailRepository.findAllByPipeline_IdInAndTipFlagIsTrue(List.of(pipelineDetail.getPipeline().getId())))
+        .thenReturn(List.of(pipelineDetail));
+
+    assertThat(pipelineDetailService.getLatestPipelineDetailsForIds(List.of(pipelineDetail.getPipeline().getId())))
+        .containsExactly((pipelineDetail));
   }
 
 }
