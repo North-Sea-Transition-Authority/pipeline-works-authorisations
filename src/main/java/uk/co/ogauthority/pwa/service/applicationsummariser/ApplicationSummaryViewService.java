@@ -63,7 +63,7 @@ public class ApplicationSummaryViewService {
 
   private String createAppDetailVersionOption(PwaApplicationDetail appDetail, Integer order) {
     var orderTagDisplay = order != null ? String.format(" (%s)", order) : "";
-    return DateUtils.formatDate(appDetail.getCreatedTimestamp()) + orderTagDisplay;
+    return DateUtils.formatDate(appDetail.getSubmittedTimestamp()) + orderTagDisplay;
   }
 
   public VisibleApplicationVersionOptionsForUser getVisibleApplicationVersionOptionsForUser(PwaApplication pwaApplication,
@@ -79,14 +79,14 @@ public class ApplicationSummaryViewService {
           .collect(Collectors.toList());
     }
 
-    //group all the details by the day they were created (for easier order tagging of updates made on the same day)
+    //group all the details by the day they were submitted (for easier order tagging of updates made on the same day)
     var dateToAppDetailsMap = applicationDetails.stream()
-        .sorted(Comparator.comparing(PwaApplicationDetail::getCreatedTimestamp).reversed())
+        .sorted(Comparator.comparing(PwaApplicationDetail::getSubmittedTimestamp).reversed())
         .collect(groupingBy(appDetail ->
-            DateUtils.instantToLocalDate(appDetail.getCreatedTimestamp()), LinkedHashMap::new, Collectors.toList()));
+            DateUtils.instantToLocalDate(appDetail.getSubmittedTimestamp()), LinkedHashMap::new, Collectors.toList()));
 
     Map<String, String> detailIdToOptionMap = new LinkedHashMap<>();
-    dateToAppDetailsMap.forEach((startDate, appDetailsForDate) -> {
+    dateToAppDetailsMap.forEach((submittedDate, appDetailsForDate) -> {
       //this list of app details are already ordered from newest
       for (var x  = 0; x < appDetailsForDate.size(); x++) {
         var appDetail = appDetailsForDate.get(x);
