@@ -43,6 +43,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationConte
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.PadTechnicalDrawingLinkService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.PadTechnicalDrawingService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.PipelineDrawingUrlFactory;
+import uk.co.ogauthority.pwa.util.FileUploadUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
 @Controller
@@ -156,6 +157,7 @@ public class PipelineDrawingController extends PwaApplicationDetailDataFileUploa
         applicationContext.getApplicationDetail());
     var modelAndView = getDrawingModelAndView(applicationContext.getApplicationDetail(), form);
     return controllerHelperService.checkErrorsAndRedirect(bindingResult, modelAndView, () -> {
+      FileUploadUtils.updateFormToExcludeNullFiles(form);
       padFileService.updateFiles(
           form,
           applicationContext.getApplicationDetail(),
@@ -224,6 +226,7 @@ public class PipelineDrawingController extends PwaApplicationDetailDataFileUploa
     var drawing = padTechnicalDrawingService.getDrawing(applicationContext.getApplicationDetail(), drawingId);
     var modelAndView = getEditDrawingModelAndView(applicationContext.getApplicationDetail(), drawing, form);
     return controllerHelperService.checkErrorsAndRedirect(bindingResult, modelAndView, () -> {
+      FileUploadUtils.updateFormToExcludeNullFiles(form);
       padFileService.updateFiles(
           form,
           applicationContext.getApplicationDetail(),

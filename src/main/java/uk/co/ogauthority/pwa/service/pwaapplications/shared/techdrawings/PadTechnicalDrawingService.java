@@ -36,8 +36,6 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationTyp
 import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
 import uk.co.ogauthority.pwa.util.CleanupUtils;
-import uk.co.ogauthority.pwa.util.validationgroups.FullValidation;
-import uk.co.ogauthority.pwa.util.validationgroups.MandatoryUploadValidation;
 import uk.co.ogauthority.pwa.validators.techdrawings.PipelineDrawingValidator;
 
 @Service
@@ -48,7 +46,6 @@ public class PadTechnicalDrawingService {
   private final PadFileService padFileService;
   private final PadPipelineService padPipelineService;
   private final PipelineDrawingValidator pipelineDrawingValidator;
-  private final SpringValidatorAdapter groupValidator;
 
   private static final ApplicationDetailFilePurpose FILE_PURPOSE = ApplicationDetailFilePurpose.PIPELINE_DRAWINGS;
 
@@ -57,14 +54,12 @@ public class PadTechnicalDrawingService {
       PadTechnicalDrawingRepository padTechnicalDrawingRepository,
       PadTechnicalDrawingLinkService padTechnicalDrawingLinkService,
       PadFileService padFileService, PadPipelineService padPipelineService,
-      PipelineDrawingValidator pipelineDrawingValidator,
-      SpringValidatorAdapter groupValidator) {
+      PipelineDrawingValidator pipelineDrawingValidator) {
     this.padTechnicalDrawingRepository = padTechnicalDrawingRepository;
     this.padTechnicalDrawingLinkService = padTechnicalDrawingLinkService;
     this.padFileService = padFileService;
     this.padPipelineService = padPipelineService;
     this.pipelineDrawingValidator = pipelineDrawingValidator;
-    this.groupValidator = groupValidator;
   }
 
   public List<PadTechnicalDrawing> getDrawings(PwaApplicationDetail detail) {
@@ -258,7 +253,6 @@ public class PadTechnicalDrawingService {
     var validationHints = new PadTechnicalDrawingValidationHints(
         pwaApplicationDetail, null, PipelineDrawingValidationType.ADD);
     pipelineDrawingValidator.validate(form, bindingResult, validationHints);
-    groupValidator.validate(form, bindingResult, FullValidation.class, MandatoryUploadValidation.class);
     return bindingResult;
   }
 
@@ -268,7 +262,6 @@ public class PadTechnicalDrawingService {
     var validationHints = new PadTechnicalDrawingValidationHints(
         pwaApplicationDetail, drawing, PipelineDrawingValidationType.EDIT);
     pipelineDrawingValidator.validate(form, bindingResult, validationHints);
-    groupValidator.validate(form, bindingResult, FullValidation.class, MandatoryUploadValidation.class);
     return bindingResult;
   }
 

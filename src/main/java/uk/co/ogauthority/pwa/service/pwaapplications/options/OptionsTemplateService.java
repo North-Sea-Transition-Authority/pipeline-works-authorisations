@@ -23,15 +23,12 @@ import uk.co.ogauthority.pwa.util.validationgroups.PartialValidation;
 public class OptionsTemplateService implements ApplicationFormSectionService {
 
   private final PadFileService padFileService;
-  private final SpringValidatorAdapter groupValidator;
 
   private static final ApplicationDetailFilePurpose FILE_PURPOSE = ApplicationDetailFilePurpose.OPTIONS_TEMPLATE;
 
   @Autowired
-  public OptionsTemplateService(PadFileService padFileService,
-                                SpringValidatorAdapter groupValidator) {
+  public OptionsTemplateService(PadFileService padFileService) {
     this.padFileService = padFileService;
-    this.groupValidator = groupValidator;
   }
 
   @Override
@@ -56,9 +53,9 @@ public class OptionsTemplateService implements ApplicationFormSectionService {
       validationHints.add(PartialValidation.class);
     }
 
-    groupValidator.validate(form, bindingResult, validationHints.toArray());
+    FileUploadUtils.validateFiles((OptionsTemplateForm) form, bindingResult, validationHints);
 
-    FileUploadUtils.validateMaxFileLimit(
+    FileUploadUtils.validateMaxFileLimitWithFileId(
         (UploadMultipleFilesWithDescriptionForm) form,
         bindingResult,
         1,
