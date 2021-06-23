@@ -99,9 +99,8 @@ public class AsBuiltViewerServiceTest {
 
     when(asBuiltNotificationGroupPipelineRepository.findAllByAsBuiltNotificationGroup_Id(asBuiltNotificationGroup.getId()))
         .thenReturn(List.of(asBuiltNotificationGroupPipeline, asBuiltNotificationGroupPipeline2));
-    when(asBuiltNotificationSubmissionRepository.findAllByAsBuiltNotificationGroupPipelineIn(List.of(asBuiltNotificationGroupPipeline,
-        asBuiltNotificationGroupPipeline2)))
-        .thenReturn(List.of(asBuiltNotificationSubmission));
+    when(asBuiltNotificationSubmissionRepository.findAllByAsBuiltNotificationGroupPipelineInAndTipFlagIsTrue(
+        List.of(asBuiltNotificationGroupPipeline, asBuiltNotificationGroupPipeline2))).thenReturn(List.of(asBuiltNotificationSubmission));
   }
 
   @Test
@@ -134,8 +133,8 @@ public class AsBuiltViewerServiceTest {
         .thenReturn(List.of(pipelineDetailFromOverview));
     when(asBuiltNotificationGroupPipelineRepository.findAllByPipelineDetailIdIn(List.of(pipelineDetailFromOverview.getPipelineDetailId())))
         .thenReturn(List.of(asBuiltNotificationGroupPipeline));
-    when(asBuiltNotificationSubmissionRepository.findAllByAsBuiltNotificationGroupPipelineIn(List.of(asBuiltNotificationGroupPipeline)))
-        .thenReturn(List.of(submission));
+    when(asBuiltNotificationSubmissionRepository.findAllByAsBuiltNotificationGroupPipelineInAndTipFlagIsTrue(
+        List.of(asBuiltNotificationGroupPipeline))).thenReturn(List.of(submission));
 
     assertThat(asBuiltViewerService.getOverviewsWithAsBuiltStatus(List.of(overview)))
         .extracting(PipelineOverview::getPipelineId, PipelineOverview::getAsBuiltNotificationStatus)

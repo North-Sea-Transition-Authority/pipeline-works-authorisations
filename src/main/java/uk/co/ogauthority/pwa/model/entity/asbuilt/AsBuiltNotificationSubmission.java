@@ -46,6 +46,8 @@ public class AsBuiltNotificationSubmission {
 
   private String regulatorSubmissionReason;
 
+  private Boolean tipFlag;
+
   public AsBuiltNotificationSubmission() {
     //hibernate
   }
@@ -54,7 +56,7 @@ public class AsBuiltNotificationSubmission {
                                        AsBuiltNotificationGroupPipeline asBuiltNotificationGroupPipeline,
                                        PersonId submittedByPersonId, Instant submittedTimestamp,
                                        AsBuiltNotificationStatus asBuiltNotificationStatus, LocalDate dateLaid,
-                                       LocalDate datePipelineBroughtIntoUse, String regulatorSubmissionReason) {
+                                       LocalDate datePipelineBroughtIntoUse, String regulatorSubmissionReason, Boolean tipFlag) {
     this.id = id;
     this.asBuiltNotificationGroupPipeline = asBuiltNotificationGroupPipeline;
     this.submittedByPersonId = submittedByPersonId;
@@ -63,6 +65,7 @@ public class AsBuiltNotificationSubmission {
     this.dateLaid = dateLaid;
     this.datePipelineBroughtIntoUse = datePipelineBroughtIntoUse;
     this.regulatorSubmissionReason = regulatorSubmissionReason;
+    this.tipFlag = tipFlag;
   }
 
   public Integer getId() {
@@ -128,6 +131,14 @@ public class AsBuiltNotificationSubmission {
 
   public void setRegulatorSubmissionReason(String regulatorSubmissionReason) {
     this.regulatorSubmissionReason = regulatorSubmissionReason;
+  }
+
+  public Boolean getTipFlag() {
+    return tipFlag;
+  }
+
+  public void setTipFlag(Boolean tipFlag) {
+    this.tipFlag = tipFlag;
   }
 
 }

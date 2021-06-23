@@ -21,6 +21,20 @@ class AsBuiltNotificationGroupStatusService {
     this.asBuiltNotificationGroupStatusHistoryRepository = asBuiltNotificationGroupStatusHistoryRepository;
   }
 
+  void setInitialGroupStatus(AsBuiltNotificationGroup asBuiltNotificationGroup,
+                       Person person) {
+    var statusUpdateInstant = Instant.now();
+    var personId = person.getId();
+    var newStatusHistory = new AsBuiltNotificationGroupStatusHistory(
+        asBuiltNotificationGroup,
+        AsBuiltNotificationGroupStatus.NOT_STARTED,
+        personId,
+        statusUpdateInstant
+    );
+
+    asBuiltNotificationGroupStatusHistoryRepository.save(newStatusHistory);
+  }
+
   void setGroupStatus(AsBuiltNotificationGroup asBuiltNotificationGroup,
                       AsBuiltNotificationGroupStatus asBuiltNotificationGroupStatus,
                       Person person) {
