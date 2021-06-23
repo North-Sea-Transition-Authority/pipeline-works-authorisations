@@ -12,12 +12,9 @@ import uk.co.ogauthority.pwa.controller.WorkAreaController;
 import uk.co.ogauthority.pwa.model.entity.workflow.assignment.Assignment;
 import uk.co.ogauthority.pwa.mvc.PageView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
-import uk.co.ogauthority.pwa.service.appprocessing.publicnotice.PublicNoticeService;
 import uk.co.ogauthority.pwa.service.enums.workflow.WorkflowType;
 import uk.co.ogauthority.pwa.service.workarea.applications.ApplicationWorkAreaSort;
-import uk.co.ogauthority.pwa.service.workarea.applications.IndustryWorkAreaPageService;
 import uk.co.ogauthority.pwa.service.workarea.applications.PwaApplicationWorkAreaItem;
-import uk.co.ogauthority.pwa.service.workarea.applications.RegulatorWorkAreaPageService;
 import uk.co.ogauthority.pwa.service.workarea.asbuilt.AsBuiltWorkAreaPageService;
 import uk.co.ogauthority.pwa.service.workarea.consultations.ConsultationWorkAreaPageService;
 import uk.co.ogauthority.pwa.service.workflow.assignment.AssignmentService;
@@ -29,27 +26,18 @@ public class WorkAreaService {
   public static final int PAGE_SIZE = 10;
 
   private final AsBuiltWorkAreaPageService asBuiltWorkAreaPageService;
-  private final IndustryWorkAreaPageService industryWorkAreaPageService;
   private final ConsultationWorkAreaPageService consultationWorkAreaPageService;
-  private final RegulatorWorkAreaPageService regulatorWorkAreaPageService;
-  private final PublicNoticeService publicNoticeService;
   private final AssignmentService assignmentService;
   private final ApplicationWorkAreaPageService applicationWorkAreaPageService;
 
   @Autowired
   public WorkAreaService(
       AsBuiltWorkAreaPageService asBuiltWorkAreaPageService,
-      IndustryWorkAreaPageService industryWorkAreaPageService,
       ConsultationWorkAreaPageService consultationWorkAreaPageService,
-      RegulatorWorkAreaPageService regulatorWorkAreaPageService,
-      PublicNoticeService publicNoticeService,
       AssignmentService assignmentService,
       ApplicationWorkAreaPageService applicationWorkAreaPageService) {
     this.asBuiltWorkAreaPageService = asBuiltWorkAreaPageService;
-    this.industryWorkAreaPageService = industryWorkAreaPageService;
     this.consultationWorkAreaPageService = consultationWorkAreaPageService;
-    this.regulatorWorkAreaPageService = regulatorWorkAreaPageService;
-    this.publicNoticeService = publicNoticeService;
     this.assignmentService = assignmentService;
     this.applicationWorkAreaPageService = applicationWorkAreaPageService;
   }
@@ -167,12 +155,6 @@ public class WorkAreaService {
         .map(Assignment::getBusinessKey)
         .collect(Collectors.toSet());
 
-  }
-
-  private Set<Integer> getApplicationIdsForOpenPublicNotices() {
-    return publicNoticeService.getOpenPublicNotices()
-        .stream().map(publicNotice -> publicNotice.getPwaApplication().getId())
-        .collect(Collectors.toSet());
   }
 
 }

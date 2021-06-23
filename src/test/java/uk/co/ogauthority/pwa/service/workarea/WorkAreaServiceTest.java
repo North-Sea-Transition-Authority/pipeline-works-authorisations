@@ -14,10 +14,7 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.PersonTestUtil;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.mvc.PageView;
 import uk.co.ogauthority.pwa.repository.asbuilt.AsBuiltNotificationWorkAreaItem;
-import uk.co.ogauthority.pwa.service.appprocessing.publicnotice.PublicNoticeService;
-import uk.co.ogauthority.pwa.service.workarea.applications.IndustryWorkAreaPageService;
 import uk.co.ogauthority.pwa.service.workarea.applications.PwaApplicationWorkAreaItem;
-import uk.co.ogauthority.pwa.service.workarea.applications.RegulatorWorkAreaPageService;
 import uk.co.ogauthority.pwa.service.workarea.asbuilt.AsBuiltWorkAreaPageService;
 import uk.co.ogauthority.pwa.service.workarea.consultations.ConsultationRequestWorkAreaItem;
 import uk.co.ogauthority.pwa.service.workarea.consultations.ConsultationWorkAreaPageService;
@@ -31,16 +28,7 @@ public class WorkAreaServiceTest {
   private AsBuiltWorkAreaPageService asBuiltWorkAreaPageService;
 
   @Mock
-  private IndustryWorkAreaPageService industryWorkAreaPageService;
-
-  @Mock
   private ConsultationWorkAreaPageService consultationWorkAreaPageService;
-
-  @Mock
-  private RegulatorWorkAreaPageService regulatorWorkAreaPageService;
-
-  @Mock
-  private PublicNoticeService publicNoticeService;
 
   @Mock
   private AssignmentService assignmentService;
@@ -61,18 +49,12 @@ public class WorkAreaServiceTest {
   public void setUp() {
 
     this.workAreaService = new WorkAreaService(
-        asBuiltWorkAreaPageService, industryWorkAreaPageService,
+        asBuiltWorkAreaPageService,
         consultationWorkAreaPageService,
-        regulatorWorkAreaPageService,
-        publicNoticeService,
         assignmentService,
         applicationWorkAreaPageService);
 
     appPageView = WorkAreaTestUtils.setUpFakeAppPageView(0);
-    when(industryWorkAreaPageService.getOpenApplicationsPageView(any(), anyInt())).thenReturn(appPageView);
-    when(industryWorkAreaPageService.getSubmittedApplicationsPageView(any(), anyInt())).thenReturn(appPageView);
-    when(regulatorWorkAreaPageService.getRequiresAttentionPageView(any(), any(), anyInt())).thenReturn(appPageView);
-    when(regulatorWorkAreaPageService.getWaitingOnOthersPageView(any(), any(), anyInt())).thenReturn(appPageView);
 
     consultationPageView = WorkAreaTestUtils.setUpFakeConsultationPageView(0);
     when(consultationWorkAreaPageService.getPageView(any(), any(), anyInt())).thenReturn(consultationPageView);
