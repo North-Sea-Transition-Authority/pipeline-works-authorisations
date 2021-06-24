@@ -15,7 +15,7 @@ public final class WorkAreaContextTestUtil {
   public static WorkAreaContext createPwaManagerContext(AuthenticatedUserAccount user) {
     return new WorkAreaContext(
         user,
-        EnumSet.of(ApplicationEventSubscriberType.PWA_MANAGER),
+        EnumSet.of(WorkAreaUserType.PWA_MANAGER),
         List.of(WorkAreaTab.REGULATOR_REQUIRES_ATTENTION, WorkAreaTab.REGULATOR_WAITING_ON_OTHERS)
     );
 
@@ -24,7 +24,7 @@ public final class WorkAreaContextTestUtil {
   public static WorkAreaContext createContextWithZeroUserTabs(AuthenticatedUserAccount user) {
     return new WorkAreaContext(
         user,
-        EnumSet.noneOf(ApplicationEventSubscriberType.class),
+        EnumSet.noneOf(WorkAreaUserType.class),
         List.of()
     );
 

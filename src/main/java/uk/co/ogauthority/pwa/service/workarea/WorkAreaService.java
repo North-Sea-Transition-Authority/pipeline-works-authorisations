@@ -54,15 +54,16 @@ public class WorkAreaService {
 
     String workAreaTabAndPageRoute;
 
+    // Nice to have if time: services per tab to produce result object.
     switch (workAreaTab) {
-      // TODO PWA-1172 decide if we leave this as is or move tab logic into existing WA services or if those can be removed entirely
       case INDUSTRY_OPEN_APPLICATIONS:
         workAreaTabAndPageRoute = ReverseRouter.route(
             on(WorkAreaController.class).renderWorkAreaTab(null, WorkAreaTab.INDUSTRY_OPEN_APPLICATIONS, page));
         return new WorkAreaResult(
             PageView.fromPage(
-                applicationWorkAreaPageService.getUsersWorkAreaTabContentsWhereSubscribedEventsExist(
+                applicationWorkAreaPageService.getUsersWorkAreaTabContents(
                     workAreaContext,
+                    WorkAreaTab.INDUSTRY_OPEN_APPLICATIONS.getWorkAreaTabCategory(),
                     industryPageable
                 ),
                 workAreaTabAndPageRoute,
@@ -76,8 +77,9 @@ public class WorkAreaService {
             on(WorkAreaController.class).renderWorkAreaTab(null, WorkAreaTab.INDUSTRY_SUBMITTED_APPLICATIONS, page));
         return new WorkAreaResult(
             PageView.fromPage(
-                applicationWorkAreaPageService.getUsersWorkAreaTabContentsWhereSubscribedEventsDoNotExist(
+                applicationWorkAreaPageService.getUsersWorkAreaTabContents(
                     workAreaContext,
+                    WorkAreaTab.INDUSTRY_SUBMITTED_APPLICATIONS.getWorkAreaTabCategory(),
                     industryPageable
                 ),
                 workAreaTabAndPageRoute,
@@ -91,8 +93,9 @@ public class WorkAreaService {
             on(WorkAreaController.class).renderWorkAreaTab(null, WorkAreaTab.REGULATOR_REQUIRES_ATTENTION, page));
         return new WorkAreaResult(
             PageView.fromPage(
-                applicationWorkAreaPageService.getUsersWorkAreaTabContentsWhereSubscribedEventsExist(
+                applicationWorkAreaPageService.getUsersWorkAreaTabContents(
                     workAreaContext,
+                    WorkAreaTab.REGULATOR_REQUIRES_ATTENTION.getWorkAreaTabCategory(),
                     regulatorPageable
                 ),
                 workAreaTabAndPageRoute,
@@ -106,8 +109,9 @@ public class WorkAreaService {
             on(WorkAreaController.class).renderWorkAreaTab(null, WorkAreaTab.REGULATOR_WAITING_ON_OTHERS, page));
         return new WorkAreaResult(
             PageView.fromPage(
-                applicationWorkAreaPageService.getUsersWorkAreaTabContentsWhereSubscribedEventsDoNotExist(
+                applicationWorkAreaPageService.getUsersWorkAreaTabContents(
                     workAreaContext,
+                    WorkAreaTab.REGULATOR_WAITING_ON_OTHERS.getWorkAreaTabCategory(),
                     regulatorPageable
                 ),
                 workAreaTabAndPageRoute,

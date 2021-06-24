@@ -55,21 +55,21 @@ public class WorkAreaContextService {
 
   public WorkAreaContext createWorkAreaContext(AuthenticatedUserAccount authenticatedUserAccount) {
 
-    var userAppEventSubscriberTypes = EnumSet.noneOf(ApplicationEventSubscriberType.class);
+    var userAppEventSubscriberTypes = EnumSet.noneOf(WorkAreaUserType.class);
     // if the selected tab is available to the user get it.
     var userTabs = getTabsAvailableToUser(authenticatedUserAccount);
 
     if (authenticatedUserAccount.getUserPrivileges().contains(PwaUserPrivilege.PWA_MANAGER)) {
-      userAppEventSubscriberTypes.add(ApplicationEventSubscriberType.PWA_MANAGER);
+      userAppEventSubscriberTypes.add(WorkAreaUserType.PWA_MANAGER);
     }
 
     if (authenticatedUserAccount.getUserPrivileges().contains(PwaUserPrivilege.PWA_CASE_OFFICER)) {
-      userAppEventSubscriberTypes.add(ApplicationEventSubscriberType.CASE_OFFICER);
+      userAppEventSubscriberTypes.add(WorkAreaUserType.CASE_OFFICER);
     }
 
     var personIsAppContact = pwaContactService.isPersonApplicationContact(authenticatedUserAccount.getLinkedPerson());
     if (personIsAppContact) {
-      userAppEventSubscriberTypes.add(ApplicationEventSubscriberType.APPLICATION_CONTACT);
+      userAppEventSubscriberTypes.add(WorkAreaUserType.APPLICATION_CONTACT);
     }
 
     return new WorkAreaContext(authenticatedUserAccount, userAppEventSubscriberTypes, userTabs);

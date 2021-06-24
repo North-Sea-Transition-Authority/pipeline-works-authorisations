@@ -110,7 +110,7 @@ public class WorkAreaContextServiceTest {
     var context = workAreaContextService.createWorkAreaContext(user);
 
     assertThat(context.getApplicationEventSubscriberTypes())
-        .containsExactlyInAnyOrder(ApplicationEventSubscriberType.PWA_MANAGER);
+        .containsExactlyInAnyOrder(WorkAreaUserType.PWA_MANAGER);
 
   }
 
@@ -121,7 +121,7 @@ public class WorkAreaContextServiceTest {
     var context = workAreaContextService.createWorkAreaContext(user);
 
     assertThat(context.getApplicationEventSubscriberTypes())
-        .containsExactlyInAnyOrder(ApplicationEventSubscriberType.CASE_OFFICER);
+        .containsExactlyInAnyOrder(WorkAreaUserType.CASE_OFFICER);
 
   }
 
@@ -134,7 +134,7 @@ public class WorkAreaContextServiceTest {
     var context = workAreaContextService.createWorkAreaContext(user);
 
     assertThat(context.getApplicationEventSubscriberTypes())
-        .containsExactlyInAnyOrder(ApplicationEventSubscriberType.APPLICATION_CONTACT);
+        .containsExactlyInAnyOrder(WorkAreaUserType.APPLICATION_CONTACT);
 
   }
 
@@ -147,9 +147,9 @@ public class WorkAreaContextServiceTest {
 
     assertThat(context.getApplicationEventSubscriberTypes())
         .containsExactlyInAnyOrder(
-            ApplicationEventSubscriberType.APPLICATION_CONTACT,
-            ApplicationEventSubscriberType.PWA_MANAGER,
-            ApplicationEventSubscriberType.CASE_OFFICER
+            WorkAreaUserType.APPLICATION_CONTACT,
+            WorkAreaUserType.PWA_MANAGER,
+            WorkAreaUserType.CASE_OFFICER
         );
 
   }

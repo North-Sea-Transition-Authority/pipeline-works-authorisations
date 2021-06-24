@@ -15,18 +15,18 @@ public final class WorkAreaContext {
   private final List<WorkAreaTab> sortedUserTabs;
 
   // all the different subscriber types suitable for the context user.
-  private final Set<ApplicationEventSubscriberType> applicationEventSubscriberTypes;
+  private final Set<WorkAreaUserType> workAreaUserTypes;
 
   WorkAreaContext(AuthenticatedUserAccount authenticatedUserAccount,
-                  Set<ApplicationEventSubscriberType> applicationEventSubscriberTypes,
+                  Set<WorkAreaUserType> workAreaUserTypes,
                   List<WorkAreaTab> sortedUserTabs) {
     this.authenticatedUserAccount = authenticatedUserAccount;
-    this.applicationEventSubscriberTypes = Collections.unmodifiableSet(applicationEventSubscriberTypes);
+    this.workAreaUserTypes = Collections.unmodifiableSet(workAreaUserTypes);
     this.sortedUserTabs = Collections.unmodifiableList(sortedUserTabs);
   }
 
-  public Set<ApplicationEventSubscriberType> getApplicationEventSubscriberTypes() {
-    return applicationEventSubscriberTypes;
+  public Set<WorkAreaUserType> getApplicationEventSubscriberTypes() {
+    return workAreaUserTypes;
   }
 
   public PersonId getPersonId() {
@@ -41,8 +41,8 @@ public final class WorkAreaContext {
     return authenticatedUserAccount;
   }
 
-  public boolean containsAppEventSubscriberType(ApplicationEventSubscriberType applicationEventSubscriberType) {
-    return applicationEventSubscriberTypes.contains(applicationEventSubscriberType);
+  public boolean containsWorkAreUserType(WorkAreaUserType workAreaUserType) {
+    return workAreaUserTypes.contains(workAreaUserType);
   }
 
   public List<WorkAreaTab> getSortedUserTabs() {

@@ -21,9 +21,9 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 public class WorkAreaApplicationDetailSearchItem implements ApplicationDetailItemView {
 
   @Id
-  private int pwaApplicationDetailId;
-
   private int pwaApplicationId;
+
+  private int pwaApplicationDetailId;
 
   private int pwaId;
 
