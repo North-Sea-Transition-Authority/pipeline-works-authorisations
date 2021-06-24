@@ -51,6 +51,22 @@ public class AsBuiltNotificationGroupStatusServiceTest {
   }
 
   @Test
+  public void setInitialGroupStatus_createsNotStartedStatus() {
+
+    asBuiltNotificationGroupStatusService.setInitialGroupStatus(asBuiltNotificationGroup, person);
+
+    verify(asBuiltNotificationGroupStatusHistoryRepository).save(asBuiltNotificationGroupStatusHistoryArgumentCaptor.capture());
+
+    assertThat(asBuiltNotificationGroupStatusHistoryArgumentCaptor.getAllValues()).hasOnlyOneElementSatisfying(statusHistory -> {
+      assertThat(statusHistory.getStatus()).isEqualTo(AsBuiltNotificationGroupStatus.NOT_STARTED);
+      assertThat(statusHistory.getCreatedByPersonId()).isEqualTo(person.getId());
+      assertThat(statusHistory.getEndedByPersonId()).isNull();
+      assertThat(statusHistory.getEndedTimestamp()).isNull();
+    });
+
+  }
+
+  @Test
   public void setGroupStatus_alreadyInProgress_statusNotChanged() {
     asBuiltNotificationGroupStatusService.setGroupStatus(asBuiltNotificationGroup, AsBuiltNotificationGroupStatus.IN_PROGRESS, person);
     verify(asBuiltNotificationGroupStatusHistoryRepository, never()).save(any());

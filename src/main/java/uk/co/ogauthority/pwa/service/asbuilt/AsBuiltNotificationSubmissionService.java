@@ -1,10 +1,8 @@
 package uk.co.ogauthority.pwa.service.asbuilt;
 
 import java.time.Instant;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -49,6 +47,7 @@ class AsBuiltNotificationSubmissionService {
     var asBuiltSubmission = new AsBuiltNotificationSubmission();
     asBuiltSubmission.setAsBuiltNotificationGroupPipeline(abngPipeline);
     asBuiltSubmission.setSubmittedByPersonId(user.getLinkedPerson().getId());
+    setLatestSubmissionFlagAndUpdateLastSubmission(asBuiltSubmission);
     mapFormToEntity(form, asBuiltSubmission);
     saveAsBuiltNotificationSubmission(asBuiltSubmission);
     updateAsBuiltGroupStatus(abngPipeline.getAsBuiltNotificationGroup(), user.getLinkedPerson());
@@ -60,35 +59,21 @@ class AsBuiltNotificationSubmissionService {
   }
 
   private void updateAsBuiltGroupStatus(AsBuiltNotificationGroup asBuiltNotificationGroup, Person person) {
-    var asBuiltGroupPipelines = asBuiltPipelineNotificationService
+    var allAsBuiltGroupPipelines = asBuiltPipelineNotificationService
         .getAllAsBuiltNotificationGroupPipelines(asBuiltNotificationGroup.getId());
-    var asBuiltSubmissionsForAsBuiltGroupPipelines = asBuiltNotificationSubmissionRepository
-        .findAllByAsBuiltNotificationGroupPipelineIn(asBuiltGroupPipelines);
-    var uniqueNotificationGroupPipelineDetailIdsWithSubmission = asBuiltSubmissionsForAsBuiltGroupPipelines.stream()
-        .map(asBuiltNotificationSubmission -> asBuiltNotificationSubmission.getAsBuiltNotificationGroupPipeline().getPipelineDetailId())
-        .collect(Collectors.toSet());
-    var noSubmissionsWithStatusNotProvided = allAsBuiltSubmissionsHaveProvidedStatus(asBuiltGroupPipelines,
-        asBuiltSubmissionsForAsBuiltGroupPipelines);
-
-    if (noSubmissionsWithStatusNotProvided
-        && asBuiltGroupPipelines.size() == uniqueNotificationGroupPipelineDetailIdsWithSubmission.size()) {
+    var latestAsBuiltSubmissionsForAsBuiltGroupPipelines = asBuiltNotificationSubmissionRepository
+        .findAllByAsBuiltNotificationGroupPipelineInAndTipFlagIsTrue(allAsBuiltGroupPipelines);
+    var noSubmissionsWithStatusNotProvided = allAsBuiltSubmissionsHaveProvidedValidStatus(latestAsBuiltSubmissionsForAsBuiltGroupPipelines);
+    if (noSubmissionsWithStatusNotProvided && allAsBuiltGroupPipelines.size() == latestAsBuiltSubmissionsForAsBuiltGroupPipelines.size()) {
       asBuiltNotificationGroupStatusService.setGroupStatus(asBuiltNotificationGroup, AsBuiltNotificationGroupStatus.COMPLETE, person);
     } else {
       asBuiltNotificationGroupStatusService.setGroupStatus(asBuiltNotificationGroup, AsBuiltNotificationGroupStatus.IN_PROGRESS, person);
     }
   }
 
-  private boolean allAsBuiltSubmissionsHaveProvidedStatus(List<AsBuiltNotificationGroupPipeline> asBuiltNotificationGroupPipelines,
-                                                          List<AsBuiltNotificationSubmission> asBuiltNotificationSubmissions) {
-    var latestSubmissionsForEachPipeline = asBuiltNotificationGroupPipelines.stream()
-        .map(abngPipeline -> asBuiltNotificationSubmissions.stream()
-            .filter(submission -> submission.getAsBuiltNotificationGroupPipeline().getPipelineDetailId()
-                .equals(abngPipeline.getPipelineDetailId()))
-            .max(Comparator.comparing(AsBuiltNotificationSubmission::getSubmittedTimestamp)))
-        .collect(Collectors.toList());
-    return latestSubmissionsForEachPipeline.stream()
-        .allMatch(submission -> submission.map(latestSubmission ->
-            latestSubmission.getAsBuiltNotificationStatus() != AsBuiltNotificationStatus.NOT_PROVIDED).orElse(false));
+  private boolean allAsBuiltSubmissionsHaveProvidedValidStatus(List<AsBuiltNotificationSubmission> asBuiltNotificationSubmissions) {
+    return asBuiltNotificationSubmissions.stream()
+        .allMatch(submission -> submission.getAsBuiltNotificationStatus() != AsBuiltNotificationStatus.NOT_PROVIDED);
   }
 
   private void saveAsBuiltNotificationSubmission(AsBuiltNotificationSubmission asBuiltNotificationSubmission) {
@@ -140,6 +125,17 @@ class AsBuiltNotificationSubmissionService {
                                                     String pipelineNumber, AsBuiltNotificationStatus asBuiltNotificationStatus) {
     asBuiltNotificationEmailService.sendAsBuiltNotificationNotPerConsentEmail(ogaConsentsEmail,
         "Consents team", asBuiltNotificationGroup, pipelineNumber, asBuiltNotificationStatus);
+  }
+
+  private void setLatestSubmissionFlagAndUpdateLastSubmission(AsBuiltNotificationSubmission submission) {
+    submission.setTipFlag(true);
+    var latestSubmissionOptional = asBuiltNotificationSubmissionRepository
+        .findByAsBuiltNotificationGroupPipelineAndTipFlagIsTrue(submission.getAsBuiltNotificationGroupPipeline());
+    if (latestSubmissionOptional.isPresent()) {
+      var latestSubmission = latestSubmissionOptional.get();
+      latestSubmission.setTipFlag(false);
+      asBuiltNotificationSubmissionRepository.save(latestSubmission);
+    }
   }
 
 }

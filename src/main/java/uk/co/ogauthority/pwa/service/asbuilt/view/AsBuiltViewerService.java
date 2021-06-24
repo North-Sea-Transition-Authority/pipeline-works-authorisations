@@ -3,7 +3,6 @@ package uk.co.ogauthority.pwa.service.asbuilt.view;
 import static java.util.stream.Collectors.toList;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -71,15 +70,10 @@ public class AsBuiltViewerService {
   public List<AsBuiltNotificationView> getAsBuiltPipelineNotificationSubmissionViews(Integer notificationGroupId) {
     var asBuiltGroupPipelines = asBuiltNotificationGroupPipelineRepository
         .findAllByAsBuiltNotificationGroup_Id(notificationGroupId);
-    var submissionsForAsGroupPipelines = getAsBuiltNotificationSubmissions(asBuiltGroupPipelines);
-    var latestSubmissionForEachPipeline = getLatestSubmissionsForEachPipeline(asBuiltGroupPipelines,
-        submissionsForAsGroupPipelines);
-    return getAsBuiltNotificationViewsFromSubmissions(notificationGroupId, asBuiltGroupPipelines, latestSubmissionForEachPipeline);
-  }
-
-  private List<AsBuiltNotificationSubmission> getAsBuiltNotificationSubmissions(List<AsBuiltNotificationGroupPipeline>
-                                                                                   asBuiltNotificationGroupPipelines) {
-    return asBuiltNotificationSubmissionRepository.findAllByAsBuiltNotificationGroupPipelineIn(asBuiltNotificationGroupPipelines);
+    var latestSubmissionForEachPipeline = asBuiltNotificationSubmissionRepository
+        .findAllByAsBuiltNotificationGroupPipelineInAndTipFlagIsTrue(asBuiltGroupPipelines);
+    var pipelineDetailIdAsBuiltSubmissionMap = mapSubmissionsToPipelineDetailIds(latestSubmissionForEachPipeline);
+    return getAsBuiltNotificationViewsFromSubmissions(notificationGroupId, asBuiltGroupPipelines, pipelineDetailIdAsBuiltSubmissionMap);
   }
 
   public Optional<AsBuiltNotificationGroup> getNotificationGroupOptional(Integer notificationGroupId) {
@@ -106,23 +100,18 @@ public class AsBuiltViewerService {
                                                                                                               pipelineDetailIds) {
     var asBuiltNotificationGroupPipelines = asBuiltNotificationGroupPipelineRepository
         .findAllByPipelineDetailIdIn(pipelineDetailIds);
-    var submissionsForAsGroupPipelines = getAsBuiltNotificationSubmissions(asBuiltNotificationGroupPipelines);
-    return getLatestSubmissionsForEachPipeline(asBuiltNotificationGroupPipelines, submissionsForAsGroupPipelines);
+    var latestSubmissions = asBuiltNotificationSubmissionRepository
+        .findAllByAsBuiltNotificationGroupPipelineInAndTipFlagIsTrue(asBuiltNotificationGroupPipelines);
+    return mapSubmissionsToPipelineDetailIds(latestSubmissions);
   }
 
-  private Map<PipelineDetailId, AsBuiltNotificationSubmission> getLatestSubmissionsForEachPipeline(List<AsBuiltNotificationGroupPipeline>
-                                                                                                asBuiltNotificationGroupPipelines,
-                                                                                                   List<AsBuiltNotificationSubmission>
-                                                                                                asBuiltNotificationSubmissions) {
-    Map<PipelineDetailId, AsBuiltNotificationSubmission> latestSubmissionsForEachPipelineDetail = new HashMap<>();
-    for (AsBuiltNotificationGroupPipeline asBuiltNotificationGroupPipeline : asBuiltNotificationGroupPipelines) {
-      latestSubmissionsForEachPipelineDetail.put(asBuiltNotificationGroupPipeline.getPipelineDetailId(),
-          asBuiltNotificationSubmissions.stream()
-          .filter(submission -> submission.getAsBuiltNotificationGroupPipeline().getPipelineDetailId()
-          .equals(asBuiltNotificationGroupPipeline.getPipelineDetailId()))
-          .max(Comparator.comparing(AsBuiltNotificationSubmission::getSubmittedTimestamp)).orElse(null));
+  private Map<PipelineDetailId, AsBuiltNotificationSubmission> mapSubmissionsToPipelineDetailIds(List<AsBuiltNotificationSubmission>
+                                                                                                       latestSubmissions) {
+    Map<PipelineDetailId, AsBuiltNotificationSubmission> pipelineDetailIdToSubmissionMap = new HashMap<>();
+    for (AsBuiltNotificationSubmission submission : latestSubmissions) {
+      pipelineDetailIdToSubmissionMap.put(submission.getAsBuiltNotificationGroupPipeline().getPipelineDetailId(), submission);
     }
-    return latestSubmissionsForEachPipelineDetail;
+    return pipelineDetailIdToSubmissionMap;
   }
 
   private List<AsBuiltNotificationView> getAsBuiltNotificationViewsFromSubmissions(Integer notificationGroupId,
