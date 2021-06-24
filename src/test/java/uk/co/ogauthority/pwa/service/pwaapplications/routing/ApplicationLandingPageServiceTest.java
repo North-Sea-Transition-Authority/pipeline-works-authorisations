@@ -81,10 +81,23 @@ public class ApplicationLandingPageServiceTest {
   }
 
   @Test
-  public void getApplicationLandingPage_whenApplicationContact_firstVersion_andDraft() {
+  public void getApplicationLandingPage_whenApplicationContact_nonPreparer_firstVersion_andDraft() {
     detail.setStatus(PwaApplicationStatus.DRAFT);
     applicationInvolvementDto = ApplicationInvolvementDtoTestUtil.generatePwaContactInvolvement(
-        detail.getPwaApplication(), EnumSet.allOf(PwaContactRole.class));
+        detail.getPwaApplication(), EnumSet.of(PwaContactRole.VIEWER));
+    when(applicationInvolvementService.getApplicationInvolvementDto(detail, authenticatedUserAccount)).thenReturn(applicationInvolvementDto);
+
+    var landingPageInstance = applicationLandingPageService.getApplicationLandingPage(authenticatedUserAccount, APP_ID);
+
+    assertCaseManagementLandingPage(landingPageInstance);
+
+  }
+
+  @Test
+  public void getApplicationLandingPage_whenApplicationContact_preparer_firstVersion_andDraft() {
+    detail.setStatus(PwaApplicationStatus.DRAFT);
+    applicationInvolvementDto = ApplicationInvolvementDtoTestUtil.generatePwaContactInvolvement(
+        detail.getPwaApplication(), EnumSet.of(PwaContactRole.PREPARER));
     when(applicationInvolvementService.getApplicationInvolvementDto(detail, authenticatedUserAccount)).thenReturn(applicationInvolvementDto);
 
     var landingPageInstance = applicationLandingPageService.getApplicationLandingPage(authenticatedUserAccount, APP_ID);

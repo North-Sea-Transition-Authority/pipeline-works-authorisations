@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.service.appprocessing.ApplicationInvolvementService;
+import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.util.CaseManagementUtils;
@@ -50,7 +51,7 @@ public class ApplicationLandingPageService {
     var appInvolvement = applicationInvolvementService.getApplicationInvolvementDto(detail, user);
 
     var urlRoot = pwaUrlBase + contextPath;
-    if (appInvolvement.isUserInAppContactTeam() && detail.isFirstDraft()) {
+    if (appInvolvement.hasAnyOfTheseContactRoles(PwaContactRole.PREPARER) && detail.isFirstDraft()) {
       return new ApplicationLandingPageInstance(
           ApplicationLandingPage.TASK_LIST,
           urlRoot + applicationRedirectService.getTaskListRoute(applicationId, detail.getPwaApplicationType())
