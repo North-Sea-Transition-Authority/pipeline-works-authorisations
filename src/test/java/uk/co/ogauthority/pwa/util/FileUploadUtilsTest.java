@@ -16,11 +16,14 @@ import uk.co.ogauthority.pwa.util.validationgroups.MandatoryUploadValidation;
 
 public class FileUploadUtilsTest {
 
+  private static final UploadFileWithDescriptionForm uploadedFileForm =
+      new UploadFileWithDescriptionForm("1", "description", Instant.now());
+
   @Test
   public void validateMaxFileLimit_aboveLimit_error() {
 
     var form = new OptionsTemplateForm();
-    form.setUploadedFileWithDescriptionForms(List.of(new UploadFileWithDescriptionForm(), new UploadFileWithDescriptionForm()));
+    form.setUploadedFileWithDescriptionForms(List.of(uploadedFileForm, uploadedFileForm));
 
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
@@ -33,10 +36,24 @@ public class FileUploadUtilsTest {
   }
 
   @Test
+  public void validateMaxFileLimit_emptyFileAndValidFile_emptyFileIsExcluded() {
+
+    var form = new OptionsTemplateForm();
+    form.setUploadedFileWithDescriptionForms(List.of(new UploadFileWithDescriptionForm(), uploadedFileForm));
+
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+
+    FileUploadUtils.validateMaxFileLimit(form, bindingResult, 1, "Error message");
+
+    assertThat(bindingResult.hasErrors()).isFalse();
+
+  }
+
+  @Test
   public void validateMaxFileLimit_onLimit_noError() {
 
     var form = new OptionsTemplateForm();
-    form.setUploadedFileWithDescriptionForms(List.of(new UploadFileWithDescriptionForm()));
+    form.setUploadedFileWithDescriptionForms(List.of(uploadedFileForm));
 
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
