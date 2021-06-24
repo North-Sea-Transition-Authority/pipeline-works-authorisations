@@ -58,7 +58,8 @@ public class PadInitialReviewService {
         .stream()
         .collect(Collectors.groupingBy(PadInitialReview::getPwaApplicationDetail, Collectors.toList()));
 
-    //get the latest initial review from each list associated with the details, resulting in a list of initialReviews (latest for each app detail)
+    //get the latest initial review from each list associated with the details,
+    //resulting in a list of initialReviews (latest for each app detail)
     var initialReviews = appDetailToInitialReviewsMap.values().stream()
         .map(initialReviewsForDetail ->
             initialReviewsForDetail.stream().max(Comparator.comparing(PadInitialReview::getInitialReviewApprovedTimestamp)))
