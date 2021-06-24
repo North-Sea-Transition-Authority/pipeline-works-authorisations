@@ -107,12 +107,12 @@ public final class PadInitialReview {
       return false;
     }
     PadInitialReview that = (PadInitialReview) o;
-    return Objects.equals(id, that.id) &&
-        Objects.equals(pwaApplicationDetail, that.pwaApplicationDetail) &&
-        Objects.equals(initialReviewApprovedByWuaId, that.initialReviewApprovedByWuaId) &&
-        Objects.equals(initialReviewApprovedTimestamp, that.initialReviewApprovedTimestamp) &&
-        Objects.equals(approvalRevokedByWuaId, that.approvalRevokedByWuaId) &&
-        Objects.equals(approvalRevokedTimestamp, that.approvalRevokedTimestamp);
+    return Objects.equals(id, that.id)
+        && Objects.equals(pwaApplicationDetail, that.pwaApplicationDetail)
+        && Objects.equals(initialReviewApprovedByWuaId, that.initialReviewApprovedByWuaId)
+        && Objects.equals(initialReviewApprovedTimestamp, that.initialReviewApprovedTimestamp)
+        && Objects.equals(approvalRevokedByWuaId, that.approvalRevokedByWuaId)
+        && Objects.equals(approvalRevokedTimestamp, that.approvalRevokedTimestamp);
   }
 
   @Override
