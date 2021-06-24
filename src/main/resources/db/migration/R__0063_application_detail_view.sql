@@ -42,7 +42,11 @@ SELECT
 , pad.status pad_status
 , pad.created_timestamp pad_created_timestamp
 , pad.submitted_timestamp pad_submitted_timestamp
-, pad.init_review_approved_timestamp pad_init_review_approved_ts
+, (
+    SELECT MAX(pir.init_review_approved_timestamp)
+    FROM ${datasource.user}.pad_initial_review pir
+    WHERE pir.application_detail_id = pad.id
+) pad_init_review_approved_ts
 , pad.confirmed_satisfactory_ts pad_confirmed_satisfactory_ts
 , pad.status_last_modified_timestamp pad_status_timestamp
 , pad.tip_flag

@@ -225,29 +225,6 @@ public class InitialReviewControllerTest extends PwaAppProcessingContextAbstract
 
   }
 
-  @Test
-  public void postInitialReview_alreadyPerformed() throws Exception {
-
-    var approvedTimestamp = Instant.now().minusSeconds(60);
-
-    pwaApplicationDetail.setStatus(PwaApplicationStatus.CASE_OFFICER_REVIEW);
-    pwaApplicationDetail.setInitialReviewApprovedByWuaId(1);
-    pwaApplicationDetail.setInitialReviewApprovedTimestamp(approvedTimestamp);
-
-    doCallRealMethod().when(initialReviewService).acceptApplication(pwaApplicationDetail, new PersonId(5),InitialReviewPaymentDecision.PAYMENT_WAIVED, "REASON", user);
-
-    var permissionsDto = new ProcessingPermissionsDto(null, EnumSet.allOf(PwaAppProcessingPermission.class));
-    when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail, user)).thenReturn(permissionsDto);
-
-    mockMvc.perform(post(ReverseRouter.route(on(InitialReviewController.class).postInitialReview(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null, null)))
-        .with(authenticatedUserAndSession(user))
-        .param("caseOfficerPersonId", "5")
-        .with(csrf()))
-        .andExpect(status().is3xxRedirection());
-
-    assertThat(pwaApplicationDetail.getInitialReviewApprovedTimestamp()).isEqualTo(approvedTimestamp);
-
-  }
 
   @Test
   public void postInitialReview_validationFail() throws Exception {

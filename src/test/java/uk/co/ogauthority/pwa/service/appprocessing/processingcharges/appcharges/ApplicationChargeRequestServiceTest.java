@@ -757,13 +757,7 @@ public class ApplicationChargeRequestServiceTest {
 
     assertThat(cancelOutcome).isEqualTo(CancelAppPaymentOutcome.CANCELLED);
 
-    verify(pwaApplicationDetailService, times(1)).updateStatus(
-        applicationDetailArgumentCaptor.capture(),
-        eq(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW),
-        eq(pwaManagerWua));
-
-    assertThat(applicationDetailArgumentCaptor.getValue().getInitialReviewApprovedByWuaId()).isNull();
-    assertThat(applicationDetailArgumentCaptor.getValue().getInitialReviewApprovedTimestamp()).isNull();
+    verify(pwaApplicationDetailService, times(1)).setInitialReviewRevoked(pwaApplicationDetail, pwaManagerWua);
   }
 
   @Test
