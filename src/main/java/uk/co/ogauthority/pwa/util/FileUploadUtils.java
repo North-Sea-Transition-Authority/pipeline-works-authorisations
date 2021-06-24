@@ -19,19 +19,6 @@ public class FileUploadUtils {
                                           int maxFileCount,
                                           String limitExceededMessage) {
 
-    if (uploadForm.getUploadedFileWithDescriptionForms().size() > maxFileCount) {
-      errors.rejectValue("uploadedFileWithDescriptionForms",
-          "uploadedFileWithDescriptionForms" + FieldValidationErrorCodes.EXCEEDED_MAXIMUM_FILE_UPLOAD_COUNT.getCode(),
-          limitExceededMessage);
-    }
-
-  }
-
-  public static void validateMaxFileLimitWithFileId(UploadMultipleFilesWithDescriptionForm uploadForm,
-                                          Errors errors,
-                                          int maxFileCount,
-                                          String limitExceededMessage) {
-
     if (uploadForm.getFileFormsForValidation().size() > maxFileCount) {
       errors.rejectValue("uploadedFileWithDescriptionForms",
           "uploadedFileWithDescriptionForms" + FieldValidationErrorCodes.EXCEEDED_MAXIMUM_FILE_UPLOAD_COUNT.getCode(),
@@ -39,6 +26,7 @@ public class FileUploadUtils {
     }
 
   }
+
 
   public static void updateFormToExcludeNullFiles(UploadMultipleFilesWithDescriptionForm uploadForm) {
     uploadForm.setUploadedFileWithDescriptionForms(uploadForm.getFileFormsForValidation());

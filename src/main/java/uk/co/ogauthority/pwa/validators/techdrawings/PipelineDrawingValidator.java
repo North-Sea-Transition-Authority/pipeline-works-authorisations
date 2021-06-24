@@ -90,7 +90,7 @@ public class PipelineDrawingValidator implements SmartValidator {
     }
 
     FileUploadUtils.validateFiles(form, errors, List.of(MandatoryUploadValidation.class));
-    FileUploadUtils.validateMaxFileLimitWithFileId(form, errors, 1, "Upload a single drawing only");
+    FileUploadUtils.validateMaxFileLimit(form, errors, 1, "Upload a single drawing only");
 
     var pipelinesRequiringDrawings = pipelineList.stream()
         .filter(padPipeline -> padTechnicalDrawingService.isDrawingRequiredForPipeline(padPipeline.getPipelineStatus()))

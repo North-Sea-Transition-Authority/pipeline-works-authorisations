@@ -113,7 +113,6 @@ public class OptionsTemplateController extends PwaApplicationDetailDataFileUploa
 
     return controllerHelperService.checkErrorsAndRedirect(bindingResult, getModelAndView(applicationContext, form), () -> {
 
-      FileUploadUtils.updateFormToExcludeNullFiles(form);
       padFileService.updateFiles(
           form,
           applicationContext.getApplicationDetail(),

@@ -157,7 +157,6 @@ public class PipelineDrawingController extends PwaApplicationDetailDataFileUploa
         applicationContext.getApplicationDetail());
     var modelAndView = getDrawingModelAndView(applicationContext.getApplicationDetail(), form);
     return controllerHelperService.checkErrorsAndRedirect(bindingResult, modelAndView, () -> {
-      FileUploadUtils.updateFormToExcludeNullFiles(form);
       padFileService.updateFiles(
           form,
           applicationContext.getApplicationDetail(),
@@ -226,7 +225,6 @@ public class PipelineDrawingController extends PwaApplicationDetailDataFileUploa
     var drawing = padTechnicalDrawingService.getDrawing(applicationContext.getApplicationDetail(), drawingId);
     var modelAndView = getEditDrawingModelAndView(applicationContext.getApplicationDetail(), drawing, form);
     return controllerHelperService.checkErrorsAndRedirect(bindingResult, modelAndView, () -> {
-      FileUploadUtils.updateFormToExcludeNullFiles(form);
       padFileService.updateFiles(
           form,
           applicationContext.getApplicationDetail(),
