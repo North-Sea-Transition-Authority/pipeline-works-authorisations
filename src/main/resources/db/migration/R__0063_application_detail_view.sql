@@ -1,34 +1,4 @@
-CREATE OR REPLACE FORCE VIEW ${datasource.user}.application_detail_view (
-  pwa_id
-, pwa_detail_id
-, pwa_application_id
-, pwa_application_detail_id
-, pwa_reference
-, pad_reference
-, application_type
-, pad_status
-, pad_created_timestamp
-, pad_submitted_timestamp
-, pad_init_review_approved_ts
-, pad_confirmed_satisfactory_ts
-, pad_status_timestamp
-, tip_flag
-, version_no
-, submitted_as_fast_track_flag
-, tip_version_satisfactory_flag
-, case_officer_person_id
-, case_officer_name
-, pad_project_name
-, pad_proposed_start_timestamp
-, pad_field_name_list
-, pwa_holder_name_list
-, pad_holder_name_list
-, open_consultation_req_flag
-, public_notice_status
-, open_update_request_flag
-, open_update_deadline_ts
-, open_consent_review_flag
-) AS
+CREATE OR REPLACE FORCE VIEW ${datasource.user}.application_detail_view AS
 SELECT
   p.id pwa_id
 , pd.id pwa_detail_id
@@ -106,3 +76,4 @@ LEFT JOIN ${datasource.user}.pad_project_information ppi ON ppi.application_deta
 LEFT JOIN ${datasource.user}.wa_open_public_notices wopn ON wopn.pwa_application_id = pa.id
 LEFT JOIN ${datasource.user}.wa_open_update_app_details wouad ON wouad.pad_id = pad.id AND (wouad.open_app_update = 1 OR wouad.unresponded_option_approval = 1)
 LEFT JOIN ${datasource.user}.pad_consent_reviews pcr ON pcr.pad_id = pad.id AND pcr.end_timestamp IS NULL;
+/

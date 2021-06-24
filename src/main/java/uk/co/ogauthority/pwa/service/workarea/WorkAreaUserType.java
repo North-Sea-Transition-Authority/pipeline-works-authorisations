@@ -1,7 +1,7 @@
 package uk.co.ogauthority.pwa.service.workarea;
 
 /**
- * Open PWA applications qualify are scoped to various user types and require attention at different points.
+ * Open PWA applications are scoped to various user types and require attention at different points.
  * The enum describes types of high level users interested in open applications.
  */
 enum WorkAreaUserType {

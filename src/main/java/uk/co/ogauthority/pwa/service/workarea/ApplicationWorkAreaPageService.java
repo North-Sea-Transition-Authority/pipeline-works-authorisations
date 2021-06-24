@@ -29,6 +29,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.WorkAreaApplica
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.WorkAreaApplicationDetailSearchItem_;
 import uk.co.ogauthority.pwa.model.entity.workflow.assignment.Assignment;
 import uk.co.ogauthority.pwa.model.entity.workflow.assignment.Assignment_;
+import uk.co.ogauthority.pwa.service.enums.workflow.WorkflowType;
 import uk.co.ogauthority.pwa.service.enums.workflow.assignment.WorkflowAssignment;
 import uk.co.ogauthority.pwa.service.workarea.viewentities.WorkAreaAppUserTab;
 import uk.co.ogauthority.pwa.service.workarea.viewentities.WorkAreaAppUserTab_;
@@ -70,7 +71,7 @@ class ApplicationWorkAreaPageService {
 
     Predicate appContactAppRestriction = cb.isFalse(cb.literal(true));
 
-    if (workAreaContext.containsWorkAreUserType(WorkAreaUserType.APPLICATION_CONTACT)) {
+    if (workAreaContext.containsWorkAreaUserType(WorkAreaUserType.APPLICATION_CONTACT)) {
 
       Subquery<Integer> contactAppIdSubQuery = query.subquery(Integer.class);
 
@@ -100,7 +101,7 @@ class ApplicationWorkAreaPageService {
 
     Predicate caseOfficerAppRestriction = cb.isFalse(cb.literal(true));
 
-    if (workAreaContext.containsWorkAreUserType(WorkAreaUserType.CASE_OFFICER)) {
+    if (workAreaContext.containsWorkAreaUserType(WorkAreaUserType.CASE_OFFICER)) {
       Subquery<Integer> assignmentSubQuery = query.subquery(Integer.class);
       Root<Assignment> assignmentRoot = assignmentSubQuery.from(Assignment.class);
 
@@ -109,6 +110,7 @@ class ApplicationWorkAreaPageService {
       assignmentSubQuery.select(cb.toInteger(appIdPath));
       assignmentSubQuery.where(cb.and(
           cb.equal(assignmentRoot.get(Assignment_.ASSIGNEE_PERSON_ID), workAreaContext.getPersonId())),
+          cb.equal(assignmentRoot.get(Assignment_.WORKFLOW_TYPE), WorkflowType.PWA_APPLICATION),
           cb.equal(assignmentRoot.get(Assignment_.WORKFLOW_ASSIGNMENT), WorkflowAssignment.CASE_OFFICER),
           cb.equal(root.get(WorkAreaAppUserTab_.CASE_OFFICER_WORKAREA_CATEGORY), workAreaTabCategory)
       );
@@ -126,7 +128,7 @@ class ApplicationWorkAreaPageService {
     var cb = entityManager.getCriteriaBuilder();
 
     Predicate pwaManagerAppPredicate = cb.isFalse(cb.literal(true));
-    if (workAreaContext.containsWorkAreUserType(WorkAreaUserType.PWA_MANAGER)) {
+    if (workAreaContext.containsWorkAreaUserType(WorkAreaUserType.PWA_MANAGER)) {
       pwaManagerAppPredicate = cb.equal(root.get(WorkAreaAppUserTab_.PWA_MANAGER_WORKAREA_CATEGORY), workAreaTabCategory);
     }
 

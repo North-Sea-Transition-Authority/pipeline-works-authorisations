@@ -8,7 +8,7 @@ import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
 
 /**
- * Store all relevant required to process a workarea tab for a user.
+ * Store all data required to process a work area tab for a user.
  */
 public final class WorkAreaContext {
   private final AuthenticatedUserAccount authenticatedUserAccount;
@@ -41,7 +41,7 @@ public final class WorkAreaContext {
     return authenticatedUserAccount;
   }
 
-  public boolean containsWorkAreUserType(WorkAreaUserType workAreaUserType) {
+  public boolean containsWorkAreaUserType(WorkAreaUserType workAreaUserType) {
     return workAreaUserTypes.contains(workAreaUserType);
   }
 

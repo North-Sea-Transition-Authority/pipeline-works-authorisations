@@ -1,33 +1,4 @@
-CREATE OR REPLACE FORCE VIEW ${datasource.user}.workarea_search_items (
-  pwa_id
-, pwa_detail_id
-, pwa_application_id
-, pwa_application_detail_id
-, pwa_reference
-, pad_reference
-, application_type
-, pad_status
-, pad_created_timestamp
-, pad_submitted_timestamp
-, pad_init_review_approved_ts
-, pad_status_timestamp
-, tip_flag
-, version_no
-, submitted_as_fast_track_flag
-, tip_version_satisfactory_flag
-, case_officer_person_id
-, case_officer_name
-, pad_project_name
-, pad_proposed_start_timestamp
-, pad_field_name_list
-, pwa_holder_name_list
-, pad_holder_name_list
-, open_consultation_req_flag
-, public_notice_status
-, open_update_request_flag
-, open_update_deadline_ts
-, open_consent_review_flag
-) AS
+CREATE OR REPLACE FORCE VIEW ${datasource.user}.workarea_search_items AS
 SELECT
   adv.pwa_id
 , adv.pwa_detail_id
@@ -58,5 +29,6 @@ SELECT
 , adv.open_update_deadline_ts
 , adv.open_consent_review_flag
 FROM ${datasource.user}.wa_application_flags waf
-JOIN ${datasource.user}.application_detail_view adv ON waf.pwa_application_id = adv.pwa_application_id AND waf.workarea_pad_version_no = adv.version_no
+JOIN ${datasource.user}.application_detail_view adv ON waf.pwa_application_id = adv.pwa_application_id AND waf.workarea_pad_version_no = adv.version_no;
+/
 

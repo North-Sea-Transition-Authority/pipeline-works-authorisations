@@ -12,17 +12,17 @@ import org.junit.Test;
 public class WorkAreaContextTest {
 
   @Test
-  public void containsAppEventSubscriberType_whenDoesContainType() {
+  public void containsWorkAreaUserType_whenDoesContainType() {
 
     var context = new WorkAreaContext(null, EnumSet.of(WorkAreaUserType.PWA_MANAGER), List.of());
-    assertThat(context.containsWorkAreUserType(WorkAreaUserType.PWA_MANAGER)).isTrue();
+    assertThat(context.containsWorkAreaUserType(WorkAreaUserType.PWA_MANAGER)).isTrue();
   }
 
   @Test
-  public void containsAppEventSubscriberType_whenDoesNotContainType() {
+  public void containsWorkAreaUserType_whenDoesNotContainType() {
 
     var context = new WorkAreaContext(null, EnumSet.of(WorkAreaUserType.PWA_MANAGER), List.of());
-    assertThat(context.containsWorkAreUserType(WorkAreaUserType.CASE_OFFICER)).isFalse();
+    assertThat(context.containsWorkAreaUserType(WorkAreaUserType.CASE_OFFICER)).isFalse();
   }
 
   @Test
