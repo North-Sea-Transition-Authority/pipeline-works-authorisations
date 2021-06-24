@@ -109,7 +109,9 @@ CREATE OR REPLACE FORCE VIEW ${datasource.user}.workarea_app_user_tabs AS
 SELECT
   waf.pwa_application_id
 , CASE
-    WHEN waf.workarea_app_status IN ('DRAFT', 'UPDATE_REQUESTED','AWAITING_APPLICATION_PAYMENT') OR waf.public_notice_status = 'APPLICANT_UPDATE'
+    WHEN waf.workarea_app_status IN ('DRAFT','AWAITING_APPLICATION_PAYMENT')
+      OR waf.public_notice_status = 'APPLICANT_UPDATE'
+      OR waf.latest_draft_v_no > waf.latest_submission_v_no
     THEN 'FOR_ATTENTION'
     ELSE 'BACKGROUND'
   END app_user_workarea_category
