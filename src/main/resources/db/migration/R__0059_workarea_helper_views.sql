@@ -35,7 +35,7 @@ FROM ${datasource.user}.public_notices pn
   GROUP BY woal.pwa_application_id
   ) opn ON pn.application_id = opn.pwa_application_id
 WHERE opn.public_notice_version = pn.version
-AND pn.status NOT IN ('WAITING', 'WITHDRAWN', 'ENDED', 'PUBLISHED');
+AND pn.status NOT IN ('WITHDRAWN', 'ENDED');
 
 CREATE OR REPLACE FORCE VIEW ${datasource.user}.wa_open_consultation_count AS
 SELECT
