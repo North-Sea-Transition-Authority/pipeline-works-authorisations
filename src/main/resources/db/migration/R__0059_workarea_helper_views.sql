@@ -28,11 +28,11 @@ FROM ${datasource.user}.public_notices pn
   JOIN (
   -- get the version of the latest open public notice for an application to se get the current status
   SELECT
-  oa.pwa_application_id, MAX (pn.version) public_notice_version
-  FROM ${datasource.user}.open_applications oa
-  JOIN ${datasource.user}.public_notices pn ON oa.pwa_application_id = pn.application_id
+    woal.pwa_application_id, MAX (pn.version) public_notice_version
+  FROM ${datasource.user}.wa_open_app_lookup woal
+  JOIN ${datasource.user}.public_notices pn ON woal.pwa_application_id = pn.application_id
   WHERE pn.withdrawal_timestamp IS NULL
-  GROUP BY oa.pwa_application_id
+  GROUP BY woal.pwa_application_id
   ) opn ON pn.application_id = opn.pwa_application_id
 WHERE opn.public_notice_version = pn.version
 AND pn.status NOT IN ('WAITING', 'WITHDRAWN', 'ENDED', 'PUBLISHED');
