@@ -26,7 +26,7 @@ SELECT
 , pn.status public_notice_status
 FROM ${datasource.user}.public_notices pn
   JOIN (
-  -- get the version of the latest open public notice for an application to se get the current status
+  -- get the version of the latest open public notice for an application to get the current status
   SELECT
     woal.pwa_application_id, MAX (pn.version) public_notice_version
   FROM ${datasource.user}.wa_open_app_lookup woal
@@ -116,7 +116,7 @@ SELECT
 , CASE
     WHEN waf.workarea_app_status = 'CASE_OFFICER_REVIEW'
        AND (
-         -- Zero open consultations brings requires attention when no ongoing public notice or ongoing update
+         -- Zero open consultations requires attention when no ongoing public notice or ongoing update
          (
            waf.open_consultations_count = 0
            AND waf.open_app_update = 0
