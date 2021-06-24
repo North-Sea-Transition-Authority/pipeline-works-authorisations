@@ -15,21 +15,22 @@ public class AsBuiltNotificationSubmissionUtil {
     var asBuiltNotificationGroupPipeline = AsBuiltNotificationGroupPipelineUtil
         .createDefaultAsBuiltNotificationGroupPipeline(pipelineDetail.getPipelineDetailId());
     return new AsBuiltNotificationSubmission(100, asBuiltNotificationGroupPipeline, person.getId(), Instant.now(),
-        asBuiltNotificationStatus, LocalDate.now(), LocalDate.now(), "Regulator submission reason");
+        asBuiltNotificationStatus, LocalDate.now(), LocalDate.now(), "Regulator submission reason", true);
   }
 
   public static AsBuiltNotificationSubmission createAsBuiltNotificationSubmission_withPerson(AsBuiltNotificationGroupPipeline
                                                                                              asBuiltNotificationGroupPipeline,
                                                                                          Person person) {
     return new AsBuiltNotificationSubmission(100, asBuiltNotificationGroupPipeline, person.getId(), Instant.now(),
-        AsBuiltNotificationStatus.PER_CONSENT, LocalDate.now(), LocalDate.now(), "Regulator submission reason");
+        AsBuiltNotificationStatus.PER_CONSENT, LocalDate.now(), LocalDate.now(), "Regulator submission reason", true);
   }
 
-  public static AsBuiltNotificationSubmission createAsBuiltNotificationSubmission_withPerso_withStatus(AsBuiltNotificationGroupPipeline
+  public static AsBuiltNotificationSubmission createAsBuiltNotificationSubmission_withPerson_withStatus(AsBuiltNotificationGroupPipeline
                                                                                                            asBuiltNotificationGroupPipeline,
                                                                                                        Person person,
                                                                                                        AsBuiltNotificationStatus asBuiltNotificationStatus) {
     return new AsBuiltNotificationSubmission(100, asBuiltNotificationGroupPipeline, person.getId(), Instant.now(),
-        asBuiltNotificationStatus, LocalDate.now(), LocalDate.now(), "Regulator submission reason");
+        asBuiltNotificationStatus, LocalDate.now(), LocalDate.now(), "Regulator submission reason", true);
   }
+
 }

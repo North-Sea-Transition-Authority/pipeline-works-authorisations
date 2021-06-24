@@ -24,7 +24,6 @@ import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccountTestUtil;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineDetailId;
 import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationGroup;
 import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationGroupPipeline;
-import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationGroupStatus;
 import uk.co.ogauthority.pwa.model.entity.asbuilt.PipelineChangeCategory;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsentTestUtil;
@@ -41,7 +40,7 @@ public class AsBuiltInteractorServiceTest {
   private AsBuiltNotificationGroupRepository asBuiltNotificationGroupRepository;
 
   @Mock
-  private AsBuiltGroupStatusService asBuiltGroupStatusService;
+  private AsBuiltNotificationGroupStatusService asBuiltNotificationGroupStatusService;
 
   @Mock
   private AsBuiltGroupDeadlineService asBuiltGroupDeadlineService;
@@ -66,7 +65,7 @@ public class AsBuiltInteractorServiceTest {
   private Object[] getAllMockedServices(){
     return new Object[] {
         asBuiltNotificationGroupRepository,
-        asBuiltGroupStatusService,
+        asBuiltNotificationGroupStatusService,
         asBuiltGroupDeadlineService,
         asBuiltPipelineNotificationService
     };
@@ -77,7 +76,7 @@ public class AsBuiltInteractorServiceTest {
 
     asBuiltInteractorService = new AsBuiltInteractorService(
         asBuiltNotificationGroupRepository,
-        asBuiltGroupStatusService,
+        asBuiltNotificationGroupStatusService,
         asBuiltGroupDeadlineService,
         asBuiltPipelineNotificationService,
         asBuiltNotificationSubmissionService, clock
@@ -105,7 +104,7 @@ public class AsBuiltInteractorServiceTest {
     inOrder.verify(asBuiltNotificationGroupRepository).save(notificationGroupArgumentCaptor.capture());
     var newGroup = notificationGroupArgumentCaptor.getValue();
 
-    inOrder.verify(asBuiltGroupStatusService).setNewTipStatus(newGroup, AsBuiltNotificationGroupStatus.NOT_STARTED, user.getLinkedPerson());
+    inOrder.verify(asBuiltNotificationGroupStatusService).setInitialGroupStatus(newGroup, user.getLinkedPerson());
     inOrder.verify(asBuiltGroupDeadlineService).setNewDeadline(newGroup, DEADLINE_DATE, user.getLinkedPerson());
     inOrder.verify(asBuiltPipelineNotificationService).addPipelineDetailsToAsBuiltNotificationGroup(newGroup, pipelineSpecs);
 

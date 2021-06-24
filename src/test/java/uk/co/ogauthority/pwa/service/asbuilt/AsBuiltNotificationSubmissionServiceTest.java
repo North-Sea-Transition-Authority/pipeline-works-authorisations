@@ -4,12 +4,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -75,14 +77,24 @@ public class AsBuiltNotificationSubmissionServiceTest {
         "consents@oga.co.uk");
     when(asBuiltPipelineNotificationService.getAllAsBuiltNotificationGroupPipelines(asBuiltNotificationGroup.getId()))
         .thenReturn(List.of(asBuiltNotificationGroupPipeline));
-    when(asBuiltNotificationSubmissionRepository.findAllByAsBuiltNotificationGroupPipelineIn(List.of(asBuiltNotificationGroupPipeline)))
+    when(asBuiltNotificationSubmissionRepository.findAllByAsBuiltNotificationGroupPipelineInAndTipFlagIsTrue(List.of(asBuiltNotificationGroupPipeline)))
         .thenReturn(List.of(asBuiltNotificationSubmission));
+    when(asBuiltNotificationSubmissionRepository.findByAsBuiltNotificationGroupPipelineAndTipFlagIsTrue(asBuiltNotificationGroupPipeline))
+        .thenReturn(Optional.of(asBuiltNotificationSubmission));
   }
 
   @Test
-  public void submitAsBuiltNotification_submitsSuccessfully_setsInProgressStatus() {
+  public void submitAsBuiltNotification_submitsSuccessfully_noPriorSubmissions_savesCurrent() {
+    when(asBuiltNotificationSubmissionRepository.findByAsBuiltNotificationGroupPipelineAndTipFlagIsTrue(asBuiltNotificationGroupPipeline))
+        .thenReturn(Optional.empty());
     asBuiltNotificationSubmissionService.submitAsBuiltNotification(asBuiltNotificationGroupPipeline, form, user);
     verify(asBuiltNotificationSubmissionRepository).save(asBuiltSubmissionArgumentCaptor.capture());
+  }
+
+  @Test
+  public void submitAsBuiltNotification_submitsSuccessfully_withPriorSubmissions_savesBothLastAndCurrent_setsInProgressStatusToCurrent() {
+    asBuiltNotificationSubmissionService.submitAsBuiltNotification(asBuiltNotificationGroupPipeline, form, user);
+    verify(asBuiltNotificationSubmissionRepository, times(2)).save(asBuiltSubmissionArgumentCaptor.capture());
 
     var asBuiltNotification = asBuiltSubmissionArgumentCaptor.getValue();
     assertThat(asBuiltNotification.getSubmittedByPersonId()).isEqualTo(user.getLinkedPerson().getId());
@@ -102,10 +114,10 @@ public class AsBuiltNotificationSubmissionServiceTest {
   }
 
   @Test
-  public void submitAsBuiltNotification_submitsSuccessfully_setsCompleteStatus() {
+  public void submitAsBuiltNotification_submitsSuccessfully_withPriorSubmissions_savesBothLastAndCurrent_setsCompleteStatusToCurrent() {
     asBuiltNotificationSubmission.setAsBuiltNotificationStatus(AsBuiltNotificationStatus.PER_CONSENT);
     asBuiltNotificationSubmissionService.submitAsBuiltNotification(asBuiltNotificationGroupPipeline, form, user);
-    verify(asBuiltNotificationSubmissionRepository).save(asBuiltSubmissionArgumentCaptor.capture());
+    verify(asBuiltNotificationSubmissionRepository, times(2)).save(asBuiltSubmissionArgumentCaptor.capture());
 
     var asBuiltNotification = asBuiltSubmissionArgumentCaptor.getValue();
     assertThat(asBuiltNotification.getSubmittedByPersonId()).isEqualTo(user.getLinkedPerson().getId());
@@ -126,14 +138,14 @@ public class AsBuiltNotificationSubmissionServiceTest {
 
 
   @Test
-  public void submitAsBuiltNotification_submitsSuccessfully_sendsOgaEmail() {
+  public void submitAsBuiltNotification_submitsSuccessfully_withPriorSubmissions_savesBothLastAndCurrent_sendsOgaEmail() {
     when(asBuiltPipelineNotificationService.getPipelineDetail(pipelineDetail.getPipelineDetailId().asInt()))
         .thenReturn(pipelineDetail);
 
     asBuiltNotificationSubmission.setAsBuiltNotificationStatus(AsBuiltNotificationStatus.NOT_PER_CONSENT);
     var notPerConsentForm = getNotPerConsentAsBuiltNotificationSubmissionForm();
     asBuiltNotificationSubmissionService.submitAsBuiltNotification(asBuiltNotificationGroupPipeline, notPerConsentForm, user);
-    verify(asBuiltNotificationSubmissionRepository).save(asBuiltSubmissionArgumentCaptor.capture());
+    verify(asBuiltNotificationSubmissionRepository, times(2)).save(asBuiltSubmissionArgumentCaptor.capture());
 
     var asBuiltNotification = asBuiltSubmissionArgumentCaptor.getValue();
     assertThat(asBuiltNotification.getSubmittedByPersonId()).isEqualTo(user.getLinkedPerson().getId());
@@ -174,7 +186,7 @@ public class AsBuiltNotificationSubmissionServiceTest {
   private AsBuiltNotificationSubmission getAsBuiltNotificationSubmission() {
     return new AsBuiltNotificationSubmission(1,
         asBuiltNotificationGroupPipeline, user.getLinkedPerson().getId(), Instant.now(), AsBuiltNotificationStatus.NOT_PROVIDED,
-        LocalDate.now(), LocalDate.now(), "");
+        LocalDate.now(), LocalDate.now(), "", true);
   }
 
 }

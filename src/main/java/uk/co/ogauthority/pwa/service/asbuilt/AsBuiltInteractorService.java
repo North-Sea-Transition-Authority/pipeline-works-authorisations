@@ -10,7 +10,6 @@ import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationGroup;
 import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationGroupPipeline;
-import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationGroupStatus;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
 import uk.co.ogauthority.pwa.model.form.asbuilt.AsBuiltNotificationSubmissionForm;
 import uk.co.ogauthority.pwa.model.form.asbuilt.ChangeAsBuiltNotificationGroupDeadlineForm;
@@ -24,7 +23,7 @@ import uk.co.ogauthority.pwa.util.DateUtils;
 public class AsBuiltInteractorService {
 
   private final AsBuiltNotificationGroupRepository asBuiltNotificationGroupRepository;
-  private final AsBuiltGroupStatusService asBuiltGroupStatusService;
+  private final AsBuiltNotificationGroupStatusService asBuiltNotificationGroupStatusService;
   private final AsBuiltGroupDeadlineService asBuiltGroupDeadlineService;
   private final AsBuiltPipelineNotificationService asBuiltPipelineNotificationService;
   private final AsBuiltNotificationSubmissionService asBuiltNotificationSubmissionService;
@@ -33,13 +32,13 @@ public class AsBuiltInteractorService {
   private final Clock clock;
 
   public AsBuiltInteractorService(AsBuiltNotificationGroupRepository asBuiltNotificationGroupRepository,
-                                  AsBuiltGroupStatusService asBuiltGroupStatusService,
+                                  AsBuiltNotificationGroupStatusService asBuiltNotificationGroupStatusService,
                                   AsBuiltGroupDeadlineService asBuiltGroupDeadlineService,
                                   AsBuiltPipelineNotificationService asBuiltPipelineNotificationService,
                                   AsBuiltNotificationSubmissionService asBuiltNotificationSubmissionService,
                                   @Qualifier("utcClock") Clock clock) {
     this.asBuiltNotificationGroupRepository = asBuiltNotificationGroupRepository;
-    this.asBuiltGroupStatusService = asBuiltGroupStatusService;
+    this.asBuiltNotificationGroupStatusService = asBuiltNotificationGroupStatusService;
     this.asBuiltGroupDeadlineService = asBuiltGroupDeadlineService;
     this.asBuiltPipelineNotificationService = asBuiltPipelineNotificationService;
     this.asBuiltNotificationSubmissionService = asBuiltNotificationSubmissionService;
@@ -64,7 +63,7 @@ public class AsBuiltInteractorService {
                                         List<AsBuiltPipelineNotificationSpec> pipelineNotificationSpecs) {
     var asBuiltGroup = createAsBuiltNotificationGroup(pwaConsent, reference);
 
-    asBuiltGroupStatusService.setNewTipStatus(asBuiltGroup, AsBuiltNotificationGroupStatus.NOT_STARTED, person);
+    asBuiltNotificationGroupStatusService.setInitialGroupStatus(asBuiltGroup, person);
     asBuiltGroupDeadlineService.setNewDeadline(asBuiltGroup, deadlineDate, person);
     asBuiltPipelineNotificationService.addPipelineDetailsToAsBuiltNotificationGroup(asBuiltGroup,
         pipelineNotificationSpecs);

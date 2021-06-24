@@ -40,7 +40,8 @@ public class AsBuiltNotificationViewServiceTest {
   private final AsBuiltNotificationGroupPipeline asBuiltNotificationGroupPipeline = AsBuiltNotificationGroupPipelineUtil
       .createDefaultAsBuiltNotificationGroupPipeline(pipelineDetail.getPipelineDetailId());
   private final AsBuiltNotificationSubmission asBuiltNotificationSubmission = AsBuiltNotificationSubmissionUtil
-      .createAsBuiltNotificationSubmission_withPerso_withStatus(asBuiltNotificationGroupPipeline, person, AsBuiltNotificationStatus.PER_CONSENT);
+      .createAsBuiltNotificationSubmission_withPerson_withStatus(asBuiltNotificationGroupPipeline, person,
+          AsBuiltNotificationStatus.PER_CONSENT);
 
   @Before
   public void setup() {
