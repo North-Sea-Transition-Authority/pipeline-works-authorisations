@@ -33,6 +33,10 @@ import uk.co.ogauthority.pwa.service.enums.workflow.assignment.WorkflowAssignmen
 import uk.co.ogauthority.pwa.service.workarea.viewentities.WorkAreaAppUserTab;
 import uk.co.ogauthority.pwa.service.workarea.viewentities.WorkAreaAppUserTab_;
 
+/**
+ * Responsible for querying application data and returning the appropriate page of application work area items
+ * for the person making the request.
+ */
 @Service
 class ApplicationWorkAreaPageService {
 
@@ -58,10 +62,10 @@ class ApplicationWorkAreaPageService {
     );
   }
 
-  private <T_ROOT, T_SELECT> Predicate getAppContactPredicate(Root<T_ROOT> root,
-                                                              CriteriaQuery<T_SELECT> query,
-                                                              WorkAreaContext workAreaContext,
-                                                              WorkAreaTabCategory workAreaTabCategory) {
+  private <T_SELECT> Predicate getAppContactPredicate(Root<WorkAreaAppUserTab> root,
+                                                      CriteriaQuery<T_SELECT> query,
+                                                      WorkAreaContext workAreaContext,
+                                                      WorkAreaTabCategory workAreaTabCategory) {
     var cb = entityManager.getCriteriaBuilder();
 
     Predicate appContactAppRestriction = cb.isFalse(cb.literal(true));
@@ -88,10 +92,10 @@ class ApplicationWorkAreaPageService {
 
   }
 
-  private <T_ROOT, T_SELECT> Predicate getCaseOfficerPredicate(Root<T_ROOT> root,
-                                                               CriteriaQuery<T_SELECT> query,
-                                                               WorkAreaContext workAreaContext,
-                                                               WorkAreaTabCategory workAreaTabCategory) {
+  private <T_SELECT> Predicate getCaseOfficerPredicate(Root<WorkAreaAppUserTab> root,
+                                                       CriteriaQuery<T_SELECT> query,
+                                                       WorkAreaContext workAreaContext,
+                                                       WorkAreaTabCategory workAreaTabCategory) {
     var cb = entityManager.getCriteriaBuilder();
 
     Predicate caseOfficerAppRestriction = cb.isFalse(cb.literal(true));
@@ -115,10 +119,10 @@ class ApplicationWorkAreaPageService {
     return caseOfficerAppRestriction;
   }
 
-  private <T_ROOT, T_SELECT> Predicate getPwaManagerPredicate(Root<T_ROOT> root,
-                                                              CriteriaQuery<T_SELECT> query,
-                                                              WorkAreaContext workAreaContext,
-                                                              WorkAreaTabCategory workAreaTabCategory) {
+  private <T_SELECT> Predicate getPwaManagerPredicate(Root<WorkAreaAppUserTab> root,
+                                                      CriteriaQuery<T_SELECT> query,
+                                                      WorkAreaContext workAreaContext,
+                                                      WorkAreaTabCategory workAreaTabCategory) {
     var cb = entityManager.getCriteriaBuilder();
 
     Predicate pwaManagerAppPredicate = cb.isFalse(cb.literal(true));
@@ -131,7 +135,7 @@ class ApplicationWorkAreaPageService {
 
   // this helper creates the predicate that does all the core heavy lifting so we return the applications for a user
   // T_SELECT is the type of selection used by the core query. Generic to support both the count query and the core results query.
-  private <T_SELECT> Predicate getSubscriptionTypePredicate(
+  private <T_SELECT> Predicate getWorkAreaUserTypeAndTabCategoryTypePredicate(
       Root<WorkAreaAppUserTab> root,
       CriteriaQuery<T_SELECT> query,
       WorkAreaContext workAreaContext,
@@ -151,13 +155,13 @@ class ApplicationWorkAreaPageService {
         root, query, workAreaContext, workAreaTabCategory
     );
 
-    Predicate userAppRestrictionWithAppEventsPredicate = cb.or(
+    Predicate workAreaUserTypeAndTabCategoryPredicate = cb.or(
         pwaManagerAppPredicate,
         appContactAppRestriction,
         caseOfficerAppRestriction
     );
 
-    return userAppRestrictionWithAppEventsPredicate;
+    return workAreaUserTypeAndTabCategoryPredicate;
 
   }
 
@@ -177,7 +181,7 @@ class ApplicationWorkAreaPageService {
     countResultsQuery
         .select(cb.count(countWorkAreaSearchItemJoin))
         .where(
-            getSubscriptionTypePredicate(
+            getWorkAreaUserTypeAndTabCategoryTypePredicate(
                 countResultsRoot,
                 countResultsQuery,
                 workAreaContext,
@@ -194,7 +198,7 @@ class ApplicationWorkAreaPageService {
         .join(WorkAreaAppUserTab_.workAreaApplicationDetailSearchItem);
     searchResultsQuery.select(workAreaSearchItemJoin);
     searchResultsQuery.where(
-        getSubscriptionTypePredicate(
+        getWorkAreaUserTypeAndTabCategoryTypePredicate(
             searchResultsRoot,
             searchResultsQuery,
             workAreaContext,
