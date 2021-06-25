@@ -123,8 +123,7 @@ public class InitialReviewServiceTest {
         applicationUpdateRequestService,
         applicationChargeRequestService,
         applicationFeeService,
-        assignCaseOfficerService
-    );
+        assignCaseOfficerService);
 
   }
 
@@ -317,11 +316,11 @@ public class InitialReviewServiceTest {
   public void getTaskListEntry_initialReviewCompleted_latestDetailReviewed() {
 
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
-    detail.setInitialReviewApprovedTimestamp(Instant.now());
 
     var processingContext = new PwaAppProcessingContext(detail, null, Set.of(), null, null, Set.of());
 
     when(detailService.getAllSubmittedApplicationDetailsForApplication(any())).thenReturn(List.of(detail));
+    when(detailService.isInitialReviewComplete(List.of(detail))).thenReturn(true);
 
     var taskListEntry = initialReviewService.getTaskListEntry(PwaAppProcessingTask.INITIAL_REVIEW, processingContext);
 
@@ -334,20 +333,12 @@ public class InitialReviewServiceTest {
   }
 
   @Test
-  public void getTaskListEntry_initialReviewCompleted_previousDetailReviewed_currentDetailNotReviewed() {
-
-    var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
-    detail.setVersionNo(2);
-    assertThat(detail.getInitialReviewApprovedTimestamp()).isNull();
-  }
-
   public void getTaskListEntry_previousDetailReviewed_currentDetailNotReviewed() {
 
     var processingContext = new PwaAppProcessingContext(detail, null, Set.of(), null, null, Set.of());
     var previousDetailInitialReviewed = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     previousDetailInitialReviewed.setVersionNo(1);
     previousDetailInitialReviewed.setTipFlag(false);
-    previousDetailInitialReviewed.setInitialReviewApprovedTimestamp(Instant.now());
 
     var currentDetailNotReviewed = new PwaApplicationDetail(
         previousDetailInitialReviewed.getPwaApplication(),
@@ -356,6 +347,7 @@ public class InitialReviewServiceTest {
     currentDetailNotReviewed.setVersionNo(2);
 
     when(detailService.getAllSubmittedApplicationDetailsForApplication(any())).thenReturn(List.of(currentDetailNotReviewed, previousDetailInitialReviewed));
+    when(detailService.isInitialReviewComplete(List.of(currentDetailNotReviewed, previousDetailInitialReviewed))).thenReturn(true);
 
     var taskListEntry = initialReviewService.getTaskListEntry(PwaAppProcessingTask.INITIAL_REVIEW, processingContext);
 

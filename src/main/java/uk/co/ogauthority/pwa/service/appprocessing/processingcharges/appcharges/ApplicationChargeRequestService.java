@@ -548,12 +548,7 @@ public class ApplicationChargeRequestService {
         paymentRequestTipDetail.getPwaAppChargeRequest().getPwaApplication()
     );
 
-    // TODO PWA-1168 we need to implement a proper initial review entity now that its possible
-    //  we go through the workflow stage multiple times.
-    pwaApplicationDetail.setInitialReviewApprovedTimestamp(null);
-    pwaApplicationDetail.setInitialReviewApprovedByWuaId(null);
-    pwaApplicationDetailService.updateStatus(pwaApplicationDetail, PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW,
-        webUserAccount);
+    pwaApplicationDetailService.setInitialReviewRevoked(pwaApplicationDetail, webUserAccount);
 
     appChargeEmailService.sendChargeRequestCancelledEmail(pwaApplicationDetail.getPwaApplication());
     return CancelAppPaymentOutcome.CANCELLED;

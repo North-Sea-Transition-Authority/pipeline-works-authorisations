@@ -58,12 +58,6 @@ public final class PwaApplicationDetail implements ParentEntity {
 
   private Instant submittedTimestamp;
 
-  @Column(name = "init_review_approved_by_wua_id")
-  private Integer initialReviewApprovedByWuaId;
-
-  @Column(name = "init_review_approved_timestamp")
-  private Instant initialReviewApprovedTimestamp;
-
   @Basic
   @Convert(converter = PersonIdConverter.class)
   @Column(name = "confirmed_satisfactory_pers_id")
@@ -206,22 +200,6 @@ public final class PwaApplicationDetail implements ParentEntity {
 
   public void setSubmittedTimestamp(Instant submittedTimestamp) {
     this.submittedTimestamp = submittedTimestamp;
-  }
-
-  public Integer getInitialReviewApprovedByWuaId() {
-    return initialReviewApprovedByWuaId;
-  }
-
-  public void setInitialReviewApprovedByWuaId(Integer approvedByWuaId) {
-    this.initialReviewApprovedByWuaId = approvedByWuaId;
-  }
-
-  public Instant getInitialReviewApprovedTimestamp() {
-    return initialReviewApprovedTimestamp;
-  }
-
-  public void setInitialReviewApprovedTimestamp(Instant approvedTimestamp) {
-    this.initialReviewApprovedTimestamp = approvedTimestamp;
   }
 
   public PersonId getConfirmedSatisfactoryByPersonId() {
@@ -445,8 +423,6 @@ public final class PwaApplicationDetail implements ParentEntity {
         && Objects.equals(createdTimestamp, that.createdTimestamp)
         && Objects.equals(submittedByPersonId, that.submittedByPersonId)
         && Objects.equals(submittedTimestamp, that.submittedTimestamp)
-        && Objects.equals(initialReviewApprovedByWuaId, that.initialReviewApprovedByWuaId)
-        && Objects.equals(initialReviewApprovedTimestamp, that.initialReviewApprovedTimestamp)
         && Objects.equals(isLinkedToField, that.isLinkedToField)
         && Objects.equals(notLinkedDescription, that.notLinkedDescription)
         && Objects.equals(pipelinesCrossed, that.pipelinesCrossed)
@@ -470,9 +446,9 @@ public final class PwaApplicationDetail implements ParentEntity {
   public int hashCode() {
     return Objects.hash(id, pwaApplication, tipFlag, versionNo, status, statusLastModifiedTimestamp,
         statusLastModifiedByWuaId, createdByWuaId, createdTimestamp, submittedByPersonId, submittedTimestamp,
-        initialReviewApprovedByWuaId, initialReviewApprovedTimestamp, isLinkedToField, notLinkedDescription,
-        pipelinesCrossed, cablesCrossed, medianLineCrossed, submittedAsFastTrackFlag, numOfHolders,
-        pipelinePhaseProperties, otherPhaseDescription, partnerLettersRequired, partnerLettersConfirmed,
-        supplementaryDocumentsFlag, withdrawalTimestamp, withdrawalReason, withdrawingPersonId, deletedTimestamp, deletingPersonId);
+        isLinkedToField, notLinkedDescription, pipelinesCrossed, cablesCrossed, medianLineCrossed,
+        submittedAsFastTrackFlag, numOfHolders, pipelinePhaseProperties, otherPhaseDescription, partnerLettersRequired,
+        partnerLettersConfirmed, supplementaryDocumentsFlag, withdrawalTimestamp, withdrawalReason,
+        withdrawingPersonId, deletedTimestamp, deletingPersonId);
   }
 }
