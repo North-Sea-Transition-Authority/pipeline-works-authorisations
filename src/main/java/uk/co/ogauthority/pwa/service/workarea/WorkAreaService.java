@@ -1,23 +1,24 @@
 package uk.co.ogauthority.pwa.service.workarea;
 
-import java.util.EnumSet;
+import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
-import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
+import uk.co.ogauthority.pwa.controller.WorkAreaController;
 import uk.co.ogauthority.pwa.model.entity.workflow.assignment.Assignment;
-import uk.co.ogauthority.pwa.service.appprocessing.publicnotice.PublicNoticeService;
+import uk.co.ogauthority.pwa.mvc.PageView;
+import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.workflow.WorkflowType;
-import uk.co.ogauthority.pwa.service.enums.workflow.application.PwaApplicationWorkflowTask;
-import uk.co.ogauthority.pwa.service.workarea.applications.IndustryWorkAreaPageService;
-import uk.co.ogauthority.pwa.service.workarea.applications.RegulatorWorkAreaPageService;
+import uk.co.ogauthority.pwa.service.workarea.applications.ApplicationWorkAreaSort;
+import uk.co.ogauthority.pwa.service.workarea.applications.PwaApplicationWorkAreaItem;
 import uk.co.ogauthority.pwa.service.workarea.asbuilt.AsBuiltWorkAreaPageService;
 import uk.co.ogauthority.pwa.service.workarea.consultations.ConsultationWorkAreaPageService;
 import uk.co.ogauthority.pwa.service.workflow.assignment.AssignmentService;
+import uk.co.ogauthority.pwa.util.WorkAreaUtils;
 
 @Service
 public class WorkAreaService {
@@ -25,90 +26,116 @@ public class WorkAreaService {
   public static final int PAGE_SIZE = 10;
 
   private final AsBuiltWorkAreaPageService asBuiltWorkAreaPageService;
-  private final IndustryWorkAreaPageService industryWorkAreaPageService;
   private final ConsultationWorkAreaPageService consultationWorkAreaPageService;
-  private final RegulatorWorkAreaPageService regulatorWorkAreaPageService;
-  private final PublicNoticeService publicNoticeService;
   private final AssignmentService assignmentService;
+  private final ApplicationWorkAreaPageService applicationWorkAreaPageService;
 
   @Autowired
   public WorkAreaService(
       AsBuiltWorkAreaPageService asBuiltWorkAreaPageService,
-      IndustryWorkAreaPageService industryWorkAreaPageService,
       ConsultationWorkAreaPageService consultationWorkAreaPageService,
-      RegulatorWorkAreaPageService regulatorWorkAreaPageService,
-      PublicNoticeService publicNoticeService,
-      AssignmentService assignmentService) {
+      AssignmentService assignmentService,
+      ApplicationWorkAreaPageService applicationWorkAreaPageService) {
     this.asBuiltWorkAreaPageService = asBuiltWorkAreaPageService;
-    this.industryWorkAreaPageService = industryWorkAreaPageService;
     this.consultationWorkAreaPageService = consultationWorkAreaPageService;
-    this.regulatorWorkAreaPageService = regulatorWorkAreaPageService;
-    this.publicNoticeService = publicNoticeService;
     this.assignmentService = assignmentService;
+    this.applicationWorkAreaPageService = applicationWorkAreaPageService;
   }
 
   /**
    * Get work area items for user.
    */
-  public WorkAreaResult getWorkAreaResult(AuthenticatedUserAccount authenticatedUserAccount,
+  public WorkAreaResult getWorkAreaResult(WorkAreaContext workAreaContext,
                                           WorkAreaTab workAreaTab,
                                           int page) {
 
-    Map<WorkflowType, List<Assignment>> workflowTypeToAssignmentMap = assignmentService.getAssignmentsForPerson(
-        authenticatedUserAccount.getLinkedPerson());
+    var industryPageable = WorkAreaUtils.getWorkAreaPageRequest(page, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC);
+    var regulatorPageable = WorkAreaUtils.getWorkAreaPageRequest(page, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC);
 
-    Set<Integer> businessKeys;
+    String workAreaTabAndPageRoute;
 
+    // Nice to have if time: services per tab to produce result object.
     switch (workAreaTab) {
-
       case INDUSTRY_OPEN_APPLICATIONS:
+        workAreaTabAndPageRoute = ReverseRouter.route(
+            on(WorkAreaController.class).renderWorkAreaTab(null, WorkAreaTab.INDUSTRY_OPEN_APPLICATIONS, page));
         return new WorkAreaResult(
-            industryWorkAreaPageService.getOpenApplicationsPageView(authenticatedUserAccount, page),
-            null,
-            null);
+            PageView.fromPage(
+                applicationWorkAreaPageService.getUsersWorkAreaTabContents(
+                    workAreaContext,
+                    WorkAreaTab.INDUSTRY_OPEN_APPLICATIONS.getWorkAreaTabCategory(),
+                    industryPageable
+                ),
+                workAreaTabAndPageRoute,
+                PwaApplicationWorkAreaItem::new
+            ),
+            null, null
+        );
 
       case INDUSTRY_SUBMITTED_APPLICATIONS:
+        workAreaTabAndPageRoute = ReverseRouter.route(
+            on(WorkAreaController.class).renderWorkAreaTab(null, WorkAreaTab.INDUSTRY_SUBMITTED_APPLICATIONS, page));
         return new WorkAreaResult(
-            industryWorkAreaPageService.getSubmittedApplicationsPageView(authenticatedUserAccount, page),
-            null,
-            null);
+            PageView.fromPage(
+                applicationWorkAreaPageService.getUsersWorkAreaTabContents(
+                    workAreaContext,
+                    WorkAreaTab.INDUSTRY_SUBMITTED_APPLICATIONS.getWorkAreaTabCategory(),
+                    industryPageable
+                ),
+                workAreaTabAndPageRoute,
+                PwaApplicationWorkAreaItem::new
+            ),
+            null, null
+        );
 
       case REGULATOR_REQUIRES_ATTENTION:
-        businessKeys = getBusinessKeysFromWorkflowToTaskMap(workflowTypeToAssignmentMap, WorkflowType.PWA_APPLICATION);
-        if (authenticatedUserAccount.getUserPrivileges().contains(PwaUserPrivilege.PWA_MANAGER)) {
-          businessKeys.addAll(getApplicationIdsForOpenPublicNotices());
-        }
-        if (authenticatedUserAccount.hasPrivilege(PwaUserPrivilege.PWA_INDUSTRY)) {
-          businessKeys.addAll(
-              industryWorkAreaPageService.getBusinessKeysWhereUserIsAppPreparerAndTaskActive(
-                  authenticatedUserAccount,
-                  EnumSet.of(PwaApplicationWorkflowTask.PREPARE_APPLICATION,
-                      PwaApplicationWorkflowTask.UPDATE_APPLICATION))
-          );
-        }
-
+        workAreaTabAndPageRoute = ReverseRouter.route(
+            on(WorkAreaController.class).renderWorkAreaTab(null, WorkAreaTab.REGULATOR_REQUIRES_ATTENTION, page));
         return new WorkAreaResult(
-            regulatorWorkAreaPageService.getRequiresAttentionPageView(authenticatedUserAccount, businessKeys, page),
-            null,
-            null);
+            PageView.fromPage(
+                applicationWorkAreaPageService.getUsersWorkAreaTabContents(
+                    workAreaContext,
+                    WorkAreaTab.REGULATOR_REQUIRES_ATTENTION.getWorkAreaTabCategory(),
+                    regulatorPageable
+                ),
+                workAreaTabAndPageRoute,
+                PwaApplicationWorkAreaItem::new
+            ),
+            null, null
+        );
 
       case REGULATOR_WAITING_ON_OTHERS:
-        businessKeys = getBusinessKeysFromWorkflowToTaskMap(workflowTypeToAssignmentMap, WorkflowType.PWA_APPLICATION);
+        workAreaTabAndPageRoute = ReverseRouter.route(
+            on(WorkAreaController.class).renderWorkAreaTab(null, WorkAreaTab.REGULATOR_WAITING_ON_OTHERS, page));
         return new WorkAreaResult(
-            regulatorWorkAreaPageService.getWaitingOnOthersPageView(authenticatedUserAccount, businessKeys, page),
-            null,
-            null);
+            PageView.fromPage(
+                applicationWorkAreaPageService.getUsersWorkAreaTabContents(
+                    workAreaContext,
+                    WorkAreaTab.REGULATOR_WAITING_ON_OTHERS.getWorkAreaTabCategory(),
+                    regulatorPageable
+                ),
+                workAreaTabAndPageRoute,
+                PwaApplicationWorkAreaItem::new
+            ),
+            null, null
+        );
 
       case OPEN_CONSULTATIONS:
-        businessKeys = getBusinessKeysFromWorkflowToTaskMap(workflowTypeToAssignmentMap, WorkflowType.PWA_APPLICATION_CONSULTATION);
+        Map<WorkflowType, List<Assignment>> workflowTypeToAssignmentMap = assignmentService.getAssignmentsForPerson(
+            workAreaContext.getAuthenticatedUserAccount().getLinkedPerson()
+        );
+        var businessKeys = getBusinessKeysFromWorkflowToTaskMap(workflowTypeToAssignmentMap,
+            WorkflowType.PWA_APPLICATION_CONSULTATION);
         return new WorkAreaResult(null,
-            consultationWorkAreaPageService.getPageView(authenticatedUserAccount, businessKeys, page),
+            consultationWorkAreaPageService.getPageView(workAreaContext.getAuthenticatedUserAccount(), businessKeys,
+                page),
             null);
 
       case AS_BUILT_NOTIFICATIONS:
         return new WorkAreaResult(null,
             null,
-            asBuiltWorkAreaPageService.getAsBuiltNotificationsPageView(authenticatedUserAccount, page));
+            asBuiltWorkAreaPageService.getAsBuiltNotificationsPageView(workAreaContext.getAuthenticatedUserAccount(),
+                page));
 
       default:
         throw new RuntimeException(String.format(
@@ -132,12 +159,6 @@ public class WorkAreaService {
         .map(Assignment::getBusinessKey)
         .collect(Collectors.toSet());
 
-  }
-
-  private Set<Integer> getApplicationIdsForOpenPublicNotices() {
-    return publicNoticeService.getOpenPublicNotices()
-        .stream().map(publicNotice -> publicNotice.getPwaApplication().getId())
-        .collect(Collectors.toSet());
   }
 
 }

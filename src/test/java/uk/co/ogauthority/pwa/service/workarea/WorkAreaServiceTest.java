@@ -3,8 +3,6 @@ package uk.co.ogauthority.pwa.service.workarea;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -16,73 +14,75 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
-import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.energyportal.model.entity.PersonTestUtil;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.WorkAreaApplicationDetailSearchItem;
 import uk.co.ogauthority.pwa.model.entity.workflow.assignment.Assignment;
 import uk.co.ogauthority.pwa.model.workflow.GenericWorkflowSubject;
 import uk.co.ogauthority.pwa.mvc.PageView;
 import uk.co.ogauthority.pwa.repository.asbuilt.AsBuiltNotificationWorkAreaItem;
-import uk.co.ogauthority.pwa.service.appprocessing.publicnotice.PublicNoticeService;
-import uk.co.ogauthority.pwa.service.appprocessing.publicnotice.PublicNoticeTestUtil;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.workflow.WorkflowType;
 import uk.co.ogauthority.pwa.service.enums.workflow.assignment.WorkflowAssignment;
-import uk.co.ogauthority.pwa.service.workarea.applications.IndustryWorkAreaPageService;
-import uk.co.ogauthority.pwa.service.workarea.applications.PwaApplicationWorkAreaItem;
-import uk.co.ogauthority.pwa.service.workarea.applications.RegulatorWorkAreaPageService;
+import uk.co.ogauthority.pwa.service.pwaapplications.search.WorkAreaApplicationSearchTestUtil;
+import uk.co.ogauthority.pwa.service.workarea.applications.ApplicationWorkAreaSort;
+import uk.co.ogauthority.pwa.service.workarea.applications.WorkAreaPageServiceTestUtil;
 import uk.co.ogauthority.pwa.service.workarea.asbuilt.AsBuiltWorkAreaPageService;
 import uk.co.ogauthority.pwa.service.workarea.consultations.ConsultationRequestWorkAreaItem;
 import uk.co.ogauthority.pwa.service.workarea.consultations.ConsultationWorkAreaPageService;
 import uk.co.ogauthority.pwa.service.workflow.assignment.AssignmentService;
 import uk.co.ogauthority.pwa.testutils.WorkAreaTestUtils;
+import uk.co.ogauthority.pwa.util.WorkAreaUtils;
 
 @RunWith(MockitoJUnitRunner.class)
 public class WorkAreaServiceTest {
+
+  private static final int DEFAULT_PAGE = 0;
 
   @Mock
   private AsBuiltWorkAreaPageService asBuiltWorkAreaPageService;
 
   @Mock
-  private IndustryWorkAreaPageService industryWorkAreaPageService;
-
-  @Mock
   private ConsultationWorkAreaPageService consultationWorkAreaPageService;
-
-  @Mock
-  private RegulatorWorkAreaPageService regulatorWorkAreaPageService;
-
-  @Mock
-  private PublicNoticeService publicNoticeService;
 
   @Mock
   private AssignmentService assignmentService;
 
+  @Mock
+  private ApplicationWorkAreaPageService applicationWorkAreaPageService;
+
   private WorkAreaService workAreaService;
 
-  private PageView<PwaApplicationWorkAreaItem> appPageView;
+  private Page<WorkAreaApplicationDetailSearchItem> applicationWorkAreaItemPage;
+
   private PageView<ConsultationRequestWorkAreaItem> consultationPageView;
   private PageView<AsBuiltNotificationWorkAreaItem> asBuiltNotificationPageView;
 
   private AuthenticatedUserAccount authenticatedUserAccount = new AuthenticatedUserAccount(new WebUserAccount(1,
       PersonTestUtil.createDefaultPerson()), List.of());
 
+  private WorkAreaContext workAreaContext;
+  private Pageable regulatorAppTabPageable = WorkAreaUtils.getWorkAreaPageRequest(DEFAULT_PAGE, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC);
+
   @Before
   public void setUp() {
 
     this.workAreaService = new WorkAreaService(
-        asBuiltWorkAreaPageService, industryWorkAreaPageService,
+        asBuiltWorkAreaPageService,
         consultationWorkAreaPageService,
-        regulatorWorkAreaPageService,
-        publicNoticeService,
-        assignmentService);
+        assignmentService,
+        applicationWorkAreaPageService);
 
-    appPageView = WorkAreaTestUtils.setUpFakeAppPageView(0);
-    when(industryWorkAreaPageService.getOpenApplicationsPageView(any(), anyInt())).thenReturn(appPageView);
-    when(industryWorkAreaPageService.getSubmittedApplicationsPageView(any(), anyInt())).thenReturn(appPageView);
-    when(regulatorWorkAreaPageService.getRequiresAttentionPageView(any(), any(), anyInt())).thenReturn(appPageView);
-    when(regulatorWorkAreaPageService.getWaitingOnOthersPageView(any(), any(), anyInt())).thenReturn(appPageView);
+    workAreaContext = WorkAreaContextTestUtil.createContextWithAllTabs(authenticatedUserAccount);
+
+    applicationWorkAreaItemPage = WorkAreaApplicationSearchTestUtil.setupFakeApplicationSearchResultPage(
+        List.of(),
+        PageRequest.of(DEFAULT_PAGE, 10)
+    );
 
     consultationPageView = WorkAreaTestUtils.setUpFakeConsultationPageView(0);
     when(consultationWorkAreaPageService.getPageView(any(), any(), anyInt())).thenReturn(consultationPageView);
@@ -93,184 +93,177 @@ public class WorkAreaServiceTest {
   }
 
   @Test
+  public void getWorkAreaResult_regAttentionTab_noResults() {
+
+    var tab = WorkAreaTab.REGULATOR_REQUIRES_ATTENTION;
+
+    when(applicationWorkAreaPageService.getUsersWorkAreaTabContents(any(), any(), any())).thenReturn(applicationWorkAreaItemPage);
+
+    var workAreaResult = workAreaService.getWorkAreaResult(workAreaContext, tab, DEFAULT_PAGE);
+
+    verify(applicationWorkAreaPageService).getUsersWorkAreaTabContents(workAreaContext, tab.getWorkAreaTabCategory(), regulatorAppTabPageable);
+
+    assertThat(workAreaResult.getApplicationsTabPages().getPageContent()).isEmpty();
+
+    assertThat(workAreaResult.getConsultationsTabPages()).isNull();
+    assertThat(workAreaResult.getAsBuiltNotificationTabPages()).isNull();
+
+  }
+
+  @Test
+  public void getWorkAreaResult_regBackgroundGroundTab_noResults() {
+
+    var tab = WorkAreaTab.REGULATOR_WAITING_ON_OTHERS;
+
+    when(applicationWorkAreaPageService.getUsersWorkAreaTabContents(any(), any(), any())).thenReturn(applicationWorkAreaItemPage);
+
+    var workAreaResult = workAreaService.getWorkAreaResult(workAreaContext, tab, DEFAULT_PAGE);
+
+    verify(applicationWorkAreaPageService).getUsersWorkAreaTabContents(workAreaContext, tab.getWorkAreaTabCategory(), regulatorAppTabPageable);
+
+    assertThat(workAreaResult.getApplicationsTabPages().getPageContent()).isEmpty();
+
+    assertThat(workAreaResult.getConsultationsTabPages()).isNull();
+    assertThat(workAreaResult.getAsBuiltNotificationTabPages()).isNull();
+
+  }
+
+
+  @Test
   public void getWorkAreaResult_regAttentionTab_resultsExist() {
 
-    var appWorkflowSubject = new GenericWorkflowSubject(1, WorkflowType.PWA_APPLICATION);
-    var appWorkflowSubject2 = new GenericWorkflowSubject(2, WorkflowType.PWA_APPLICATION);
-    var consultationWorkflowSubject = new GenericWorkflowSubject(3, WorkflowType.PWA_APPLICATION_CONSULTATION);
+   var workAreaItem = WorkAreaApplicationSearchTestUtil.getSearchDetailItem(PwaApplicationStatus.CASE_OFFICER_REVIEW);
+    var tab = WorkAreaTab.REGULATOR_REQUIRES_ATTENTION;
+    var fakePage = WorkAreaPageServiceTestUtil.getFakeWorkAreaSearchItemPage(List.of(workAreaItem), DEFAULT_PAGE);
+    when(applicationWorkAreaPageService.getUsersWorkAreaTabContents(any(), any(), any()))
+        .thenReturn(fakePage);
 
-    when(assignmentService.getAssignmentsForPerson(authenticatedUserAccount.getLinkedPerson())).thenReturn(Map.of(
-        WorkflowType.PWA_APPLICATION, List.of(
-            new Assignment(appWorkflowSubject.getBusinessKey(), appWorkflowSubject.getWorkflowType(), WorkflowAssignment.CASE_OFFICER, authenticatedUserAccount.getLinkedPerson().getId()),
-            new Assignment(appWorkflowSubject2.getBusinessKey(), appWorkflowSubject2.getWorkflowType(), WorkflowAssignment.CASE_OFFICER, authenticatedUserAccount.getLinkedPerson().getId())
-        ),
-        WorkflowType.PWA_APPLICATION_CONSULTATION, List.of(
-            new Assignment(consultationWorkflowSubject.getBusinessKey(), consultationWorkflowSubject.getWorkflowType(), WorkflowAssignment.CONSULTATION_RESPONDER, authenticatedUserAccount.getLinkedPerson().getId())
-        )));
+    var workAreaResult = workAreaService.getWorkAreaResult(workAreaContext, tab, DEFAULT_PAGE);
 
-    var workAreaResult = workAreaService.getWorkAreaResult(authenticatedUserAccount, WorkAreaTab.REGULATOR_REQUIRES_ATTENTION, 0);
+    verify(applicationWorkAreaPageService).getUsersWorkAreaTabContents(workAreaContext, tab.getWorkAreaTabCategory(), regulatorAppTabPageable);
 
-    verify(regulatorWorkAreaPageService, times(1)).getRequiresAttentionPageView(eq(authenticatedUserAccount), eq(Set.of(1,2)), eq(0));
+    assertThat(workAreaResult.getApplicationsTabPages().getPageContent())
+        .hasOnlyOneElementSatisfying(pwaApplicationWorkAreaItem ->
+            assertThat(pwaApplicationWorkAreaItem.getPwaApplicationId()).isEqualTo(workAreaItem.getPwaApplicationId())
+        );
 
-    assertThat(workAreaResult.getApplicationsTabPages()).isEqualTo(appPageView);
     assertThat(workAreaResult.getConsultationsTabPages()).isNull();
+    assertThat(workAreaResult.getAsBuiltNotificationTabPages()).isNull();
 
   }
 
   @Test
-  public void getWorkAreaResult_regAttentionTab_pwaManagerPrivilege_resultsExist() {
+  public void getWorkAreaResult_regBackgroundTab_resultsExist() {
 
-    authenticatedUserAccount = new AuthenticatedUserAccount(new WebUserAccount(1, PersonTestUtil.createDefaultPerson()), List.of(
-        PwaUserPrivilege.PWA_MANAGER));
+    var workAreaItem = WorkAreaApplicationSearchTestUtil.getSearchDetailItem(PwaApplicationStatus.CASE_OFFICER_REVIEW);
+    var tab = WorkAreaTab.REGULATOR_WAITING_ON_OTHERS;
+    var fakePage = WorkAreaPageServiceTestUtil.getFakeWorkAreaSearchItemPage(List.of(workAreaItem), DEFAULT_PAGE);
+    when(applicationWorkAreaPageService.getUsersWorkAreaTabContents(any(), any(), any()))
+        .thenReturn(fakePage);
 
-    var pwaApplication = new PwaApplication();
-    pwaApplication.setId(1);
-    var publicNotice = PublicNoticeTestUtil.createInitialPublicNotice(pwaApplication);
-    when(publicNoticeService.getOpenPublicNotices()).thenReturn(List.of(publicNotice));
-    var workAreaResult = workAreaService.getWorkAreaResult(authenticatedUserAccount, WorkAreaTab.REGULATOR_REQUIRES_ATTENTION, 0);
+    var workAreaResult = workAreaService.getWorkAreaResult(workAreaContext, tab, DEFAULT_PAGE);
 
-    verify(regulatorWorkAreaPageService, times(1)).getRequiresAttentionPageView(
-        authenticatedUserAccount, Set.of(publicNotice.getPwaApplication().getId()), 0);
+    verify(applicationWorkAreaPageService).getUsersWorkAreaTabContents(workAreaContext, tab.getWorkAreaTabCategory(), regulatorAppTabPageable);
 
-    assertThat(workAreaResult.getApplicationsTabPages()).isEqualTo(appPageView);
+    assertThat(workAreaResult.getApplicationsTabPages().getPageContent())
+        .hasOnlyOneElementSatisfying(pwaApplicationWorkAreaItem ->
+            assertThat(pwaApplicationWorkAreaItem.getPwaApplicationId()).isEqualTo(workAreaItem.getPwaApplicationId())
+        );
+
     assertThat(workAreaResult.getConsultationsTabPages()).isNull();
+    assertThat(workAreaResult.getAsBuiltNotificationTabPages()).isNull();
 
   }
 
   @Test
-  public void getWorkAreaResult_regAttentionTab_pwaIndustryPrivilege_resultsExist() {
+  public void getWorkAreaResult_industryAttentionTab_noResults() {
 
-    authenticatedUserAccount = new AuthenticatedUserAccount(new WebUserAccount(1, PersonTestUtil.createDefaultPerson()), List.of(
-        PwaUserPrivilege.PWA_INDUSTRY));
+    var tab = WorkAreaTab.INDUSTRY_OPEN_APPLICATIONS;
 
-    var appContactAppId = 999;
-    when(industryWorkAreaPageService.getBusinessKeysWhereUserIsAppPreparerAndTaskActive(any(), any()))
-        .thenReturn(Set.of(appContactAppId));
+    when(applicationWorkAreaPageService.getUsersWorkAreaTabContents(any(), any(), any())).thenReturn(applicationWorkAreaItemPage);
 
-    var pwaApplication = new PwaApplication();
-    pwaApplication.setId(1);
-    var workAreaResult = workAreaService.getWorkAreaResult(authenticatedUserAccount, WorkAreaTab.REGULATOR_REQUIRES_ATTENTION, 0);
+    var workAreaResult = workAreaService.getWorkAreaResult(workAreaContext, tab, DEFAULT_PAGE);
 
-    verify(regulatorWorkAreaPageService, times(1)).getRequiresAttentionPageView(
-        eq(authenticatedUserAccount), eq(Set.of(appContactAppId)), eq(0));
+    verify(applicationWorkAreaPageService).getUsersWorkAreaTabContents(workAreaContext, tab.getWorkAreaTabCategory(), regulatorAppTabPageable);
 
-    assertThat(workAreaResult.getApplicationsTabPages()).isEqualTo(appPageView);
+    assertThat(workAreaResult.getApplicationsTabPages().getPageContent()).isEmpty();
+
     assertThat(workAreaResult.getConsultationsTabPages()).isNull();
+    assertThat(workAreaResult.getAsBuiltNotificationTabPages()).isNull();
+
+  }
+
+  @Test
+  public void getWorkAreaResult_industryBackgroundGroundTab_noResults() {
+
+    var tab = WorkAreaTab.INDUSTRY_SUBMITTED_APPLICATIONS;
+
+    when(applicationWorkAreaPageService.getUsersWorkAreaTabContents(any(), any(), any())).thenReturn(applicationWorkAreaItemPage);
+
+    var workAreaResult = workAreaService.getWorkAreaResult(workAreaContext, tab, DEFAULT_PAGE);
+
+    verify(applicationWorkAreaPageService).getUsersWorkAreaTabContents(workAreaContext, tab.getWorkAreaTabCategory(), regulatorAppTabPageable);
+
+    assertThat(workAreaResult.getApplicationsTabPages().getPageContent()).isEmpty();
+
+    assertThat(workAreaResult.getConsultationsTabPages()).isNull();
+    assertThat(workAreaResult.getAsBuiltNotificationTabPages()).isNull();
 
   }
 
 
   @Test
-  public void getWorkAreaResult_regAttentionTab_noAssignedTasks() {
+  public void getWorkAreaResult_industryAttentionTab_resultsExist() {
 
-    when(assignmentService.getAssignmentsForPerson(authenticatedUserAccount.getLinkedPerson())).thenReturn(Map.of());
+    var workAreaItem = WorkAreaApplicationSearchTestUtil.getSearchDetailItem(PwaApplicationStatus.CASE_OFFICER_REVIEW);
+    var tab = WorkAreaTab.INDUSTRY_OPEN_APPLICATIONS;
+    var fakePage = WorkAreaPageServiceTestUtil.getFakeWorkAreaSearchItemPage(List.of(workAreaItem), DEFAULT_PAGE);
+    when(applicationWorkAreaPageService.getUsersWorkAreaTabContents(any(), any(), any()))
+        .thenReturn(fakePage);
 
-    var workAreaResult = workAreaService.getWorkAreaResult(authenticatedUserAccount, WorkAreaTab.REGULATOR_REQUIRES_ATTENTION, 1);
+    var workAreaResult = workAreaService.getWorkAreaResult(workAreaContext, tab, DEFAULT_PAGE);
 
-    verify(regulatorWorkAreaPageService, times(1)).getRequiresAttentionPageView(eq(authenticatedUserAccount), eq(Set.of()), eq(1));
+    verify(applicationWorkAreaPageService).getUsersWorkAreaTabContents(workAreaContext, tab.getWorkAreaTabCategory(), regulatorAppTabPageable);
 
-    assertThat(workAreaResult.getApplicationsTabPages()).isEqualTo(appPageView);
+    assertThat(workAreaResult.getApplicationsTabPages().getPageContent())
+        .hasOnlyOneElementSatisfying(pwaApplicationWorkAreaItem ->
+            assertThat(pwaApplicationWorkAreaItem.getPwaApplicationId()).isEqualTo(workAreaItem.getPwaApplicationId())
+        );
+
     assertThat(workAreaResult.getConsultationsTabPages()).isNull();
+    assertThat(workAreaResult.getAsBuiltNotificationTabPages()).isNull();
 
   }
 
   @Test
-  public void getWorkAreaResult_regWaitingTab_resultsExist() {
+  public void getWorkAreaResult_industryBackgroundTab_resultsExist() {
 
-    var appWorkflowSubject = new GenericWorkflowSubject(1, WorkflowType.PWA_APPLICATION);
-    var appWorkflowSubject2 = new GenericWorkflowSubject(2, WorkflowType.PWA_APPLICATION);
-    var consultationWorkflowSubject = new GenericWorkflowSubject(3, WorkflowType.PWA_APPLICATION_CONSULTATION);
+    var workAreaItem = WorkAreaApplicationSearchTestUtil.getSearchDetailItem(PwaApplicationStatus.CASE_OFFICER_REVIEW);
+    var tab = WorkAreaTab.INDUSTRY_SUBMITTED_APPLICATIONS;
+    var fakePage = WorkAreaPageServiceTestUtil.getFakeWorkAreaSearchItemPage(List.of(workAreaItem), DEFAULT_PAGE);
+    when(applicationWorkAreaPageService.getUsersWorkAreaTabContents(any(), any(), any()))
+        .thenReturn(fakePage);
 
-    when(assignmentService.getAssignmentsForPerson(authenticatedUserAccount.getLinkedPerson())).thenReturn(Map.of(
-        WorkflowType.PWA_APPLICATION, List.of(
-            new Assignment(appWorkflowSubject.getBusinessKey(), appWorkflowSubject.getWorkflowType(), WorkflowAssignment.CASE_OFFICER, authenticatedUserAccount.getLinkedPerson().getId()),
-            new Assignment(appWorkflowSubject2.getBusinessKey(), appWorkflowSubject2.getWorkflowType(), WorkflowAssignment.CASE_OFFICER, authenticatedUserAccount.getLinkedPerson().getId())
-        ),
-        WorkflowType.PWA_APPLICATION_CONSULTATION, List.of(
-            new Assignment(consultationWorkflowSubject.getBusinessKey(), consultationWorkflowSubject.getWorkflowType(), WorkflowAssignment.CONSULTATION_RESPONDER, authenticatedUserAccount.getLinkedPerson().getId())
-        )));
+    var workAreaResult = workAreaService.getWorkAreaResult(workAreaContext, tab, DEFAULT_PAGE);
 
-    var workAreaResult = workAreaService.getWorkAreaResult(authenticatedUserAccount, WorkAreaTab.REGULATOR_WAITING_ON_OTHERS, 0);
+    verify(applicationWorkAreaPageService).getUsersWorkAreaTabContents(workAreaContext, tab.getWorkAreaTabCategory(), regulatorAppTabPageable);
 
-    verify(regulatorWorkAreaPageService, times(1)).getWaitingOnOthersPageView(authenticatedUserAccount, Set.of(1,2), 0);
+    assertThat(workAreaResult.getApplicationsTabPages().getPageContent())
+        .hasOnlyOneElementSatisfying(pwaApplicationWorkAreaItem ->
+            assertThat(pwaApplicationWorkAreaItem.getPwaApplicationId()).isEqualTo(workAreaItem.getPwaApplicationId())
+        );
 
-    assertThat(workAreaResult.getApplicationsTabPages()).isEqualTo(appPageView);
     assertThat(workAreaResult.getConsultationsTabPages()).isNull();
-
-  }
-
-  @Test
-  public void getWorkAreaResult_regWaitingTab_noAssignedTasks() {
-
-    when(assignmentService.getAssignmentsForPerson(authenticatedUserAccount.getLinkedPerson())).thenReturn(Map.of());
-
-    var workAreaResult = workAreaService.getWorkAreaResult(authenticatedUserAccount, WorkAreaTab.REGULATOR_WAITING_ON_OTHERS, 1);
-
-    verify(regulatorWorkAreaPageService, times(1)).getWaitingOnOthersPageView(authenticatedUserAccount, Set.of(), 1);
-
-    assertThat(workAreaResult.getApplicationsTabPages()).isEqualTo(appPageView);
-    assertThat(workAreaResult.getConsultationsTabPages()).isNull();
-
-  }
-
-  @Test
-  public void getWorkAreaResult_openIndustryApplicationsTab_resultsExist() {
-
-    var workAreaResult = workAreaService.getWorkAreaResult(authenticatedUserAccount, WorkAreaTab.INDUSTRY_OPEN_APPLICATIONS, 0);
-
-    verify(industryWorkAreaPageService, times(1)).getOpenApplicationsPageView(eq(authenticatedUserAccount), eq(0));
-
-    assertThat(workAreaResult.getApplicationsTabPages()).isEqualTo(appPageView);
-    assertThat(workAreaResult.getConsultationsTabPages()).isNull();
-
-  }
-
-  @Test
-  public void getWorkAreaResult_openIndustryApplicationsTab_noAssignedTasks() {
-
-    when(assignmentService.getAssignmentsForPerson(authenticatedUserAccount.getLinkedPerson())).thenReturn(Map.of());
-
-    var workAreaResult = workAreaService.getWorkAreaResult(authenticatedUserAccount, WorkAreaTab.INDUSTRY_OPEN_APPLICATIONS, 1);
-
-    verify(industryWorkAreaPageService, times(1)).getOpenApplicationsPageView(eq(authenticatedUserAccount), eq(1));
-
-    assertThat(workAreaResult.getApplicationsTabPages()).isEqualTo(appPageView);
-    assertThat(workAreaResult.getConsultationsTabPages()).isNull();
-
-  }
-
-  @Test
-  public void getWorkAreaResult_industrySubmittedApplicationsTab_resultsExist() {
-
-    var workAreaResult = workAreaService.getWorkAreaResult(authenticatedUserAccount, WorkAreaTab.INDUSTRY_SUBMITTED_APPLICATIONS, 0);
-
-    verify(industryWorkAreaPageService, times(1)).getSubmittedApplicationsPageView(eq(authenticatedUserAccount), eq(0));
-
-    assertThat(workAreaResult.getApplicationsTabPages()).isEqualTo(appPageView);
-    assertThat(workAreaResult.getConsultationsTabPages()).isNull();
-
-  }
-
-  @Test
-  public void getWorkAreaResult_industrySubmittedApplicationsTab_noAssignedTasks() {
-
-    when(assignmentService.getAssignmentsForPerson(authenticatedUserAccount.getLinkedPerson())).thenReturn(Map.of());
-
-    var workAreaResult = workAreaService.getWorkAreaResult(authenticatedUserAccount, WorkAreaTab.INDUSTRY_SUBMITTED_APPLICATIONS, 1);
-
-    verify(industryWorkAreaPageService, times(1)).getSubmittedApplicationsPageView(eq(authenticatedUserAccount), eq(1));
-
-    assertThat(workAreaResult.getApplicationsTabPages()).isEqualTo(appPageView);
-    assertThat(workAreaResult.getConsultationsTabPages()).isNull();
+    assertThat(workAreaResult.getAsBuiltNotificationTabPages()).isNull();
 
   }
 
   @Test
   public void getWorkAreaResult_asBuiltNotificationsTab_resultsExist() {
 
-    var workAreaResult = workAreaService.getWorkAreaResult(authenticatedUserAccount, WorkAreaTab.AS_BUILT_NOTIFICATIONS, 0);
+    var workAreaResult = workAreaService.getWorkAreaResult(workAreaContext, WorkAreaTab.AS_BUILT_NOTIFICATIONS, DEFAULT_PAGE);
 
-    verify(asBuiltWorkAreaPageService).getAsBuiltNotificationsPageView(authenticatedUserAccount, 0);
+    verify(asBuiltWorkAreaPageService).getAsBuiltNotificationsPageView(authenticatedUserAccount, DEFAULT_PAGE);
 
     assertThat(workAreaResult.getApplicationsTabPages()).isNull();
     assertThat(workAreaResult.getConsultationsTabPages()).isNull();
@@ -296,9 +289,9 @@ public class WorkAreaServiceTest {
             new Assignment(consultationWorkflowSubject2.getBusinessKey(), consultationWorkflowSubject2.getWorkflowType(), WorkflowAssignment.CONSULTATION_RESPONDER, authenticatedUserAccount.getLinkedPerson().getId())
         )));
 
-    var workAreaResult = workAreaService.getWorkAreaResult(authenticatedUserAccount, WorkAreaTab.OPEN_CONSULTATIONS, 0);
+    var workAreaResult = workAreaService.getWorkAreaResult(workAreaContext, WorkAreaTab.OPEN_CONSULTATIONS, DEFAULT_PAGE);
 
-    verify(consultationWorkAreaPageService, times(1)).getPageView(authenticatedUserAccount, Set.of(3,4), 0);
+    verify(consultationWorkAreaPageService).getPageView(authenticatedUserAccount, Set.of(3,4), DEFAULT_PAGE);
 
     assertThat(workAreaResult.getApplicationsTabPages()).isNull();
     assertThat(workAreaResult.getConsultationsTabPages()).isEqualTo(consultationPageView);
@@ -310,9 +303,9 @@ public class WorkAreaServiceTest {
 
     when(assignmentService.getAssignmentsForPerson(authenticatedUserAccount.getLinkedPerson())).thenReturn(Map.of());
 
-    var workAreaResult = workAreaService.getWorkAreaResult(authenticatedUserAccount, WorkAreaTab.OPEN_CONSULTATIONS, 1);
+    var workAreaResult = workAreaService.getWorkAreaResult(workAreaContext, WorkAreaTab.OPEN_CONSULTATIONS, DEFAULT_PAGE);
 
-    verify(consultationWorkAreaPageService, times(1)).getPageView(authenticatedUserAccount, Set.of(), 1);
+    verify(consultationWorkAreaPageService).getPageView(authenticatedUserAccount, Set.of(), DEFAULT_PAGE);
 
     assertThat(workAreaResult.getApplicationsTabPages()).isNull();
     assertThat(workAreaResult.getConsultationsTabPages()).isEqualTo(consultationPageView);

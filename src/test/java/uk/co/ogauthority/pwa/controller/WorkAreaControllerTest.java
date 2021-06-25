@@ -13,7 +13,6 @@ import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSe
 
 import java.util.EnumSet;
 import java.util.List;
-import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -30,10 +29,12 @@ import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContextService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
 import uk.co.ogauthority.pwa.service.pwaapplications.search.WorkAreaApplicationSearchTestUtil;
+import uk.co.ogauthority.pwa.service.workarea.WorkAreaContext;
+import uk.co.ogauthority.pwa.service.workarea.WorkAreaContextService;
+import uk.co.ogauthority.pwa.service.workarea.WorkAreaContextTestUtil;
 import uk.co.ogauthority.pwa.service.workarea.WorkAreaResult;
 import uk.co.ogauthority.pwa.service.workarea.WorkAreaService;
 import uk.co.ogauthority.pwa.service.workarea.WorkAreaTab;
-import uk.co.ogauthority.pwa.service.workarea.WorkAreaTabService;
 import uk.co.ogauthority.pwa.service.workarea.applications.PwaApplicationWorkAreaItem;
 
 @RunWith(SpringRunner.class)
@@ -50,19 +51,23 @@ public class WorkAreaControllerTest extends AbstractControllerTest {
   private WorkAreaService workAreaService;
 
   @MockBean
-  private WorkAreaTabService workAreaTabService;
+  private WorkAreaContextService workAreaContextService;
 
-  private AuthenticatedUserAccount authenticatedUserAccount = new AuthenticatedUserAccount(
+  private AuthenticatedUserAccount pwaManagerUser = new AuthenticatedUserAccount(
       new WebUserAccount(1, new Person()),
       EnumSet.of(PwaUserPrivilege.PWA_WORKAREA));
+
+  private WorkAreaContext pwaManagerWorkAreaContext = WorkAreaContextTestUtil.createPwaManagerContext(pwaManagerUser);
 
   @Before
   public void setup() {
 
     var emptyResultPageView = setupFakeWorkAreaResultPageView(0);
-    when(workAreaService.getWorkAreaResult(any(), eq(WorkAreaTab.REGULATOR_REQUIRES_ATTENTION), anyInt())).thenReturn(new WorkAreaResult(emptyResultPageView, null,
-        null));
-    when(workAreaTabService.getTabsAvailableToUser(any())).thenReturn(List.of(WorkAreaTab.values()));
+    when(workAreaService.getWorkAreaResult(any(), eq(WorkAreaTab.REGULATOR_REQUIRES_ATTENTION), anyInt()))
+        .thenReturn(new WorkAreaResult(emptyResultPageView, null, null));
+
+    when(workAreaContextService.createWorkAreaContext(pwaManagerUser))
+        .thenReturn(pwaManagerWorkAreaContext);
 
   }
 
@@ -80,10 +85,11 @@ public class WorkAreaControllerTest extends AbstractControllerTest {
   @Test
   public void renderWorkArea_noDefaultTab() throws Exception {
 
-    when(workAreaTabService.getDefaultTabForUser(authenticatedUserAccount)).thenReturn(Optional.empty());
+    when(workAreaContextService.createWorkAreaContext(pwaManagerUser))
+        .thenReturn(WorkAreaContextTestUtil.createContextWithZeroUserTabs(pwaManagerUser));
 
     mockMvc.perform(get(ReverseRouter.route(on(WorkAreaController.class).renderWorkArea(null, null, null)))
-        .with(authenticatedUserAndSession(authenticatedUserAccount)))
+        .with(authenticatedUserAndSession(pwaManagerUser)))
         .andExpect(status().isForbidden());
 
   }
@@ -91,11 +97,9 @@ public class WorkAreaControllerTest extends AbstractControllerTest {
   @Test
   public void renderWorkArea_defaultTab() throws Exception {
 
-    when(workAreaTabService.getDefaultTabForUser(authenticatedUserAccount)).thenReturn(Optional.of(WorkAreaTab.REGULATOR_REQUIRES_ATTENTION));
-
     mockMvc.perform(get(ReverseRouter.route(on(WorkAreaController.class).renderWorkArea(null, null, null)))
-        .with(authenticatedUserAndSession(authenticatedUserAccount)))
-        .andExpect(status().is3xxRedirection());
+        .with(authenticatedUserAndSession(pwaManagerUser)))
+        .andExpect(status().isOk());
 
   }
 
@@ -112,13 +116,13 @@ public class WorkAreaControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  public void renderWorkAreaTab_WhenNoPageParamProvided_defaultsApplied() throws Exception {
+  public void renderWorkAreaTab_whenNoPageParamProvided_defaultsApplied() throws Exception {
     mockMvc.perform(get(ReverseRouter.route(on(WorkAreaController.class).renderWorkAreaTab(null, WorkAreaTab.REGULATOR_REQUIRES_ATTENTION, null)))
-        .with(authenticatedUserAndSession(authenticatedUserAccount)))
+        .with(authenticatedUserAndSession(pwaManagerUser)))
         .andExpect(status().isOk());
 
     verify(workAreaService, times(1))
-        .getWorkAreaResult(authenticatedUserAccount, WorkAreaTab.REGULATOR_REQUIRES_ATTENTION, 0);
+        .getWorkAreaResult(pwaManagerWorkAreaContext, WorkAreaTab.REGULATOR_REQUIRES_ATTENTION, 0);
   }
 
 
@@ -126,23 +130,23 @@ public class WorkAreaControllerTest extends AbstractControllerTest {
   public void renderWorkAreaTab_whenPageParamProvided() throws Exception {
     mockMvc.perform(get(ReverseRouter.route(on(WorkAreaController.class)
         .renderWorkAreaTab(null, WorkAreaTab.REGULATOR_REQUIRES_ATTENTION, 100)))
-        .with(authenticatedUserAndSession(authenticatedUserAccount)))
+        .with(authenticatedUserAndSession(pwaManagerUser)))
         .andExpect(status().isOk());
 
     verify(workAreaService, times(1))
-        .getWorkAreaResult(authenticatedUserAccount, WorkAreaTab.REGULATOR_REQUIRES_ATTENTION, 100);
+        .getWorkAreaResult(pwaManagerWorkAreaContext, WorkAreaTab.REGULATOR_REQUIRES_ATTENTION, 100);
   }
 
   @Test
   public void renderWorkAreaTab_notAllowedToAccessTab() throws Exception {
 
-    when(workAreaTabService.getTabsAvailableToUser(authenticatedUserAccount)).thenReturn(List.of());
+    when(workAreaContextService.createWorkAreaContext(pwaManagerUser))
+        .thenReturn(WorkAreaContextTestUtil.createContextWithZeroUserTabs(pwaManagerUser));
 
     mockMvc.perform(get(ReverseRouter.route(on(WorkAreaController.class)
         .renderWorkAreaTab(null, WorkAreaTab.REGULATOR_REQUIRES_ATTENTION, null)))
-        .with(authenticatedUserAndSession(authenticatedUserAccount)))
+        .with(authenticatedUserAndSession(pwaManagerUser)))
         .andExpect(status().isForbidden());
-
   }
 
   private PageView<PwaApplicationWorkAreaItem> setupFakeWorkAreaResultPageView(int page) {
@@ -156,7 +160,6 @@ public class WorkAreaControllerTest extends AbstractControllerTest {
         "workAreaUri",
         PwaApplicationWorkAreaItem::new
     );
-
 
   }
 

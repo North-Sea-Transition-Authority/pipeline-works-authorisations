@@ -195,6 +195,10 @@ public class PwaContactService implements ApplicationFormSectionService {
     return appContactRoles;
   }
 
+  public boolean isPersonApplicationContact(Person person) {
+    return pwaContactRepository.existsByPerson(person);
+  }
+
   @Override
   public boolean isComplete(PwaApplicationDetail detail) {
     return true;

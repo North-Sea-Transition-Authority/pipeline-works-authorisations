@@ -1,50 +1,4 @@
-CREATE OR REPLACE FORCE VIEW ${datasource.user}.application_detail_view (
-  pwa_id
-, pwa_detail_id
-, pwa_application_id
-, pwa_application_detail_id
-, pwa_reference
-, pad_reference
-, application_type
-, pad_status
-, pad_created_timestamp
-, pad_submitted_timestamp
-, pad_init_review_approved_ts
-, pad_confirmed_satisfactory_ts
-, pad_status_timestamp
-, tip_flag
-, version_no
-, submitted_as_fast_track_flag
-, tip_version_satisfactory_flag
-, case_officer_person_id
-, case_officer_name
-, pad_project_name
-, pad_proposed_start_timestamp
-, pad_field_name_list
-, pwa_holder_name_list
-, pad_holder_name_list
-, open_consultation_req_flag
-, public_notice_status
-, open_update_request_flag
-, open_update_deadline_ts
-, open_consent_review_flag
-) AS
-WITH open_update_app_details AS (
-  SELECT
-    pad.pwa_application_id
-  , pad.id pad_id
-  , aur.id aur_id
-  , aur.deadline_timestamp deadline_timestamp
-  , oaadh.deadline_date opt_approval_deadline_date
-  , pcoo.id pcoo_id
-  , CASE WHEN aur.id IS NOT NULL THEN 1 ELSE 0 END open_app_update
-  , CASE WHEN oaa.id IS NOT NULL AND pcoo.id IS NULL THEN 1 ELSE 0 END unresponded_option_approval
-  FROM ${datasource.user}.pwa_application_details pad
-  LEFT JOIN ${datasource.user}.application_update_requests aur ON aur.pad_id = pad.id AND aur.status = 'OPEN'
-  LEFT JOIN ${datasource.user}.options_application_approvals oaa ON oaa.pwa_application_id = pad.pwa_application_id
-  LEFT JOIN ${datasource.user}.options_app_appr_deadline_hist oaadh ON oaadh.options_app_approval_id = oaa.id AND oaadh.tip_flag = 1
-  LEFT JOIN ${datasource.user}.pad_confirmation_of_option pcoo ON pcoo.application_detail_id = pad.id
-)
+CREATE OR REPLACE FORCE VIEW ${datasource.user}.application_detail_view AS
 SELECT
   p.id pwa_id
 , pd.id pwa_detail_id
@@ -64,6 +18,7 @@ SELECT
 , pad.tip_flag
 , pad.version_no
 , COALESCE(pad.submitted_as_fast_track_flag, 0) submitted_as_fast_track_flag
+-- TODO: remove this as not required as app search param or as display unit on app workarea/search view
 , CASE WHEN pad.tip_flag = 1 AND pad.confirmed_satisfactory_ts IS NOT NULL THEN 1 ELSE 0 END tip_version_satisfactory_flag
 
 , paa.assignee_person_id case_officer_person_id
@@ -93,7 +48,7 @@ SELECT
   WHERE por.application_detail_id = pad.id
   AND por.role = 'HOLDER'
 ) pad_holder_name_list
-
+-- TODO: remove this as not required as app search param or as display unit on app workarea/search view
 , CASE WHEN (
       SELECT COUNT(*)
       FROM ${datasource.user}.consultation_requests creq
@@ -102,18 +57,19 @@ SELECT
     ) > 0 THEN 1
     ELSE 0
   END open_consultation_req_flag
-, pn.status public_notice_status
-, CASE WHEN ouad.pad_id IS NOT NULL THEN 1 ELSE 0 END open_update_request_flag
-, COALESCE(ouad.deadline_timestamp, ouad.opt_approval_deadline_date) deadline_timestamp
+, wopn.public_notice_status
+, CASE WHEN wouad.pad_id IS NOT NULL THEN 1 ELSE 0 END open_update_request_flag
+, COALESCE(wouad.deadline_timestamp, wouad.opt_approval_deadline_date) open_update_deadline_ts
+-- TODO: remove this as not required as search param or as display unit on app workarea/search view
 , CASE WHEN pcr.id IS NOT NULL THEN 1 ELSE 0 END open_consent_review_flag
 FROM ${datasource.user}.pwa_application_details pad -- want 1 row per detail for maximum query flexibility. intended to be the only introduced cardinality
 JOIN ${datasource.user}.pwa_applications pa ON pad.pwa_application_id = pa.id
 JOIN ${datasource.user}.pad_status_versions psv ON pa.id = psv.pwa_application_id
 JOIN ${datasource.user}.pwas p ON pa.pwa_id = p.id
-JOIN ${datasource.user}.pwa_details pd ON pd.pwa_id = p.id
+JOIN ${datasource.user}.pwa_details pd ON pd.pwa_id = p.id AND pd.end_timestamp IS NULL
 LEFT JOIN ${datasource.user}.pwa_app_assignments paa ON paa.pwa_application_id = pad.pwa_application_id AND paa.assignment = 'CASE_OFFICER'
 LEFT JOIN ${datasource.user}.pad_project_information ppi ON ppi.application_detail_id = pad.id
-LEFT JOIN ${datasource.user}.public_notices pn ON pn.application_id = pa.id AND pn.status NOT IN ('WITHDRAWN', 'PUBLISHED')
-LEFT JOIN open_update_app_details ouad ON ouad.pad_id = pad.id AND (ouad.open_app_update = 1 OR ouad.unresponded_option_approval = 1)
-LEFT JOIN ${datasource.user}.pad_consent_reviews pcr ON pcr.pad_id = pad.id AND pcr.end_timestamp IS NULL
-WHERE pd.end_timestamp IS NULL;
+LEFT JOIN ${datasource.user}.wa_open_public_notices wopn ON wopn.pwa_application_id = pa.id
+LEFT JOIN ${datasource.user}.wa_open_update_app_details wouad ON wouad.pad_id = pad.id AND (wouad.open_app_update = 1 OR wouad.unresponded_option_approval = 1)
+LEFT JOIN ${datasource.user}.pad_consent_reviews pcr ON pcr.pad_id = pad.id AND pcr.end_timestamp IS NULL;
+/

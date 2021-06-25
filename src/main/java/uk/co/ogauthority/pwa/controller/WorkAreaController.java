@@ -2,8 +2,6 @@ package uk.co.ogauthority.pwa.controller;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
-import java.util.Map;
-import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -13,56 +11,53 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import org.springframework.web.servlet.support.RequestContextUtils;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.controller.pwaapplications.start.StartPwaApplicationController;
 import uk.co.ogauthority.pwa.energyportal.service.SystemAreaAccessService;
 import uk.co.ogauthority.pwa.exception.AccessDeniedException;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
+import uk.co.ogauthority.pwa.service.workarea.WorkAreaContext;
+import uk.co.ogauthority.pwa.service.workarea.WorkAreaContextService;
 import uk.co.ogauthority.pwa.service.workarea.WorkAreaService;
 import uk.co.ogauthority.pwa.service.workarea.WorkAreaTab;
-import uk.co.ogauthority.pwa.service.workarea.WorkAreaTabService;
 import uk.co.ogauthority.pwa.service.workarea.WorkAreaTabUrlFactory;
-import uk.co.ogauthority.pwa.util.FlashUtils;
 
 @Controller
 @RequestMapping
 public class WorkAreaController {
 
+  private static final int DEFAULT_PAGE = 0;
+
   private final WorkAreaService workAreaService;
-  private final WorkAreaTabService workAreaTabService;
+  private final WorkAreaContextService workAreaContextService;
   private final SystemAreaAccessService systemAreaAccessService;
 
   @Autowired
   public WorkAreaController(WorkAreaService workAreaService,
-                            WorkAreaTabService workAreaTabService,
+                            WorkAreaContextService workAreaContextService,
                             SystemAreaAccessService systemAreaAccessService) {
     this.workAreaService = workAreaService;
-    this.workAreaTabService = workAreaTabService;
+    this.workAreaContextService = workAreaContextService;
     this.systemAreaAccessService = systemAreaAccessService;
   }
 
   /**
-   * Figures out which tab to select for user and redirect accordingly.
+   * Figures out which tab to select for user and load accordingly.
    */
   @GetMapping("/work-area")
   public ModelAndView renderWorkArea(HttpServletRequest httpServletRequest,
                                      AuthenticatedUserAccount authenticatedUserAccount,
                                      RedirectAttributes redirectAttributes) {
 
-    Optional<WorkAreaTab> tab = workAreaTabService.getDefaultTabForUser(authenticatedUserAccount);
+    var workAreaContext = workAreaContextService.createWorkAreaContext(authenticatedUserAccount);
 
-    if (tab.isPresent()) {
+    var defaultTab = workAreaContext.getDefaultTab()
+        .orElseThrow(() -> new AccessDeniedException(
+            String.format("User with login id [%s] cannot access any work area tabs",
+                authenticatedUserAccount.getLoginId()))
+        );
 
-      Map<String, ?> inputFlashMap = RequestContextUtils.getInputFlashMap(httpServletRequest);
-      FlashUtils.reFlashIfExists(inputFlashMap, redirectAttributes);
-
-      return ReverseRouter.redirect(on(WorkAreaController.class).renderWorkAreaTab(null, tab.get(), null));
-
-    }
-
-    throw new AccessDeniedException(
-        String.format("User with login id [%s] cannot access any work area tabs", authenticatedUserAccount.getLoginId()));
+    return getWorkAreaModelAndView(workAreaContext, defaultTab, DEFAULT_PAGE);
 
   }
 
@@ -76,26 +71,36 @@ public class WorkAreaController {
                                         @PathVariable("tabKey") WorkAreaTab tab,
                                         @RequestParam(defaultValue = "0", name = "page") Integer page) {
 
-    var tabs = workAreaTabService.getTabsAvailableToUser(authenticatedUserAccount);
+    var context = workAreaContextService.createWorkAreaContext(authenticatedUserAccount);
+
+    var tabs = context.getSortedUserTabs();
 
     if (!tabs.contains(tab)) {
-      throw new AccessDeniedException(String.format(
-          "User with login id [%s] cannot access %s work area tab",
-          authenticatedUserAccount.getLoginId(),
-          tab.name()));
+      throw new AccessDeniedException(
+          String.format(
+              "User with wua_id id [%s] cannot access [%s] work area tab",
+              context.getWuaId(),
+              tab
+          )
+      );
     }
 
-    boolean canStartApps = systemAreaAccessService.canStartApplication(authenticatedUserAccount);
+    return getWorkAreaModelAndView(context, tab, page);
+
+  }
+
+  private ModelAndView getWorkAreaModelAndView(WorkAreaContext workareaContext, WorkAreaTab tab, int page) {
+
+    boolean canStartApps = systemAreaAccessService.canStartApplication(workareaContext.getAuthenticatedUserAccount());
 
     return new ModelAndView("workArea")
         .addObject("startPwaApplicationUrl",
             ReverseRouter.route(on(StartPwaApplicationController.class).renderStartApplication(null)))
-        .addObject("workAreaResult", workAreaService.getWorkAreaResult(authenticatedUserAccount, tab, page))
+        .addObject("workAreaResult", workAreaService.getWorkAreaResult(workareaContext, tab, page))
         .addObject("tabUrlFactory", new WorkAreaTabUrlFactory())
         .addObject("currentWorkAreaTab", tab)
-        .addObject("availableTabs", tabs)
+        .addObject("availableTabs", workareaContext.getSortedUserTabs())
         .addObject("showStartButton", canStartApps);
-
   }
 
 }

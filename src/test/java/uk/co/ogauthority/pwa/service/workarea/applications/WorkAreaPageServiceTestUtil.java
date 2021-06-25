@@ -31,7 +31,7 @@ public class WorkAreaPageServiceTestUtil {
         Sort.by(Sort.Direction.ASC, "padProposedStart"));
   }
 
-  public static Page<WorkAreaApplicationDetailSearchItem> getFakeApplicationSearchResultPage(
+  public static Page<WorkAreaApplicationDetailSearchItem> getFakeWorkAreaSearchItemPage(
       List<WorkAreaApplicationDetailSearchItem> results, int page) {
 
     return new PageImpl<>(

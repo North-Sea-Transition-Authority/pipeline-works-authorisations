@@ -16,4 +16,6 @@ public interface PwaContactRepository extends CrudRepository<PwaContact, Integer
 
   Long countByPwaApplication(PwaApplication pwaApplication);
 
+  Boolean existsByPerson(Person person);
+
 }

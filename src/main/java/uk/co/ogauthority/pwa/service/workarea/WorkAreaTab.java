@@ -17,7 +17,8 @@ public enum WorkAreaTab {
       "attentionRegApplications",
       10,
       Set.of(UserType.OGA),
-      Set.of()),
+      Set.of(),
+      WorkAreaTabCategory.FOR_ATTENTION),
 
   REGULATOR_WAITING_ON_OTHERS(
       "Applications waiting on others",
@@ -25,7 +26,8 @@ public enum WorkAreaTab {
       "waitingRegApplications",
       15,
       Set.of(UserType.OGA),
-      Set.of()),
+      Set.of(),
+      WorkAreaTabCategory.BACKGROUND),
 
   INDUSTRY_OPEN_APPLICATIONS(
       "My open applications",
@@ -33,7 +35,8 @@ public enum WorkAreaTab {
       "openIndApplications",
       20,
       Set.of(UserType.INDUSTRY),
-      Set.of()),
+      Set.of(),
+      WorkAreaTabCategory.FOR_ATTENTION),
 
   INDUSTRY_SUBMITTED_APPLICATIONS(
       "My submitted applications",
@@ -41,7 +44,8 @@ public enum WorkAreaTab {
       "submittedIndApplications",
       30,
       Set.of(UserType.INDUSTRY),
-      Set.of()),
+      Set.of(),
+      WorkAreaTabCategory.BACKGROUND),
 
   OPEN_CONSULTATIONS(
       "My open consultations",
@@ -49,7 +53,8 @@ public enum WorkAreaTab {
       "openConsultations",
       40,
       Set.of(UserType.CONSULTEE),
-      Set.of()),
+      Set.of(),
+      WorkAreaTabCategory.FOR_ATTENTION),
 
   AS_BUILT_NOTIFICATIONS(
       "Outstanding as-built notifications",
@@ -57,7 +62,8 @@ public enum WorkAreaTab {
       "asBuiltNotifications",
       50,
       Set.of(),
-      Set.of(PwaUserPrivilege.PWA_ASBUILT_WORKAREA));
+      Set.of(PwaUserPrivilege.PWA_ASBUILT_WORKAREA),
+      WorkAreaTabCategory.FOR_ATTENTION);
 
   private final String label;
   private final String anchor;
@@ -65,18 +71,21 @@ public enum WorkAreaTab {
   private final int displayOrder;
   private final Set<UserType> userTypes;
   private final Set<PwaUserPrivilege> pwaUserPrivileges;
+  private final WorkAreaTabCategory workAreaTabCategory;
 
   WorkAreaTab(String label,
               String anchor,
               String value,
               int displayOrder,
-              Set<UserType> userTypes, Set<PwaUserPrivilege> pwaUserPrivileges) {
+              Set<UserType> userTypes, Set<PwaUserPrivilege> pwaUserPrivileges,
+              WorkAreaTabCategory workAreaTabCategory) {
     this.label = label;
     this.anchor = anchor;
     this.value = value;
     this.displayOrder = displayOrder;
     this.userTypes = userTypes;
     this.pwaUserPrivileges = pwaUserPrivileges;
+    this.workAreaTabCategory = workAreaTabCategory;
   }
 
   public String getLabel() {
@@ -101,6 +110,10 @@ public enum WorkAreaTab {
 
   public Set<PwaUserPrivilege> getPwaUserPrivileges() {
     return pwaUserPrivileges;
+  }
+
+  public WorkAreaTabCategory getWorkAreaTabCategory() {
+    return workAreaTabCategory;
   }
 
   public static Stream<WorkAreaTab> stream() {
