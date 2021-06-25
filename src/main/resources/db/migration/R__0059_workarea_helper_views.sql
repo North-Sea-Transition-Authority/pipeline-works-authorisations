@@ -134,7 +134,10 @@ SELECT
   ELSE 'BACKGROUND'
   END case_officer_workarea_category
 , CASE
-    WHEN waf.workarea_app_status IN ('INITIAL_SUBMISSION_REVIEW', 'CONSENT_REVIEW') OR (COALESCE(waf.public_notice_status, 'NONE') = 'MANAGER_APPROVAL')
+    WHEN waf.workarea_app_status IN ('CONSENT_REVIEW')
+       OR (COALESCE(waf.public_notice_status, 'NONE') = 'MANAGER_APPROVAL')
+       -- not in pwa managers for attention tab if a review is required but waiting on an app to be updated
+       OR (waf.workarea_app_status = 'INITIAL_SUBMISSION_REVIEW' AND waf.latest_draft_v_no IS NULL)
       THEN 'FOR_ATTENTION'
     WHEN waf.latest_draft_v_no = 1 THEN 'NONE' -- first drafts should not be in a PWA_managers tabs at all. Required as managers are not directly associated with cases for filtering.
   ELSE 'BACKGROUND'
