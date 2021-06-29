@@ -6,6 +6,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import java.time.Instant;
+import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -21,7 +22,6 @@ import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationSubmission;
 import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationSubmissionUtil;
 import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
 import uk.co.ogauthority.pwa.model.enums.aabuilt.AsBuiltNotificationStatus;
-import uk.co.ogauthority.pwa.model.view.asbuilt.AsBuiltNotificationView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.person.PersonService;
 import uk.co.ogauthority.pwa.service.pwaconsents.testutil.PipelineDetailTestUtil;
@@ -53,7 +53,9 @@ public class AsBuiltNotificationViewServiceTest {
   @Test
   public void mapToAsBuiltNotificationView_withExistingSubmission() {
     assertThat(asBuiltNotificationViewService.mapToAsBuiltNotificationView(pipelineDetail, asBuiltNotificationSubmission))
-    .extracting(AsBuiltNotificationView::getPipelineNumber,
+    .extracting(
+        AsBuiltNotificationView::getAsBuiltGroupReference,
+        AsBuiltNotificationView::getPipelineNumber,
         AsBuiltNotificationView::getPipelineTypeDisplay,
         AsBuiltNotificationView::getSubmittedByPersonName,
         AsBuiltNotificationView::getSubmittedOnInstant,
@@ -62,17 +64,18 @@ public class AsBuiltNotificationViewServiceTest {
         AsBuiltNotificationView::getDateBroughtIntoUse,
         AsBuiltNotificationView::getSubmissionLink)
         .containsExactly(
-        pipelineDetail.getPipelineNumber(),
-        pipelineDetail.getPipelineType().getDisplayName(),
-        person.getFullName(),
-        asBuiltNotificationSubmission.getSubmittedTimestamp(),
-        asBuiltNotificationSubmission.getAsBuiltNotificationStatus().getDisplayName(),
-        asBuiltNotificationSubmission.getDateLaid(),
-        asBuiltNotificationSubmission.getDatePipelineBroughtIntoUse(),
-        ReverseRouter.route(on(AsBuiltNotificationSubmissionController.class)
-            .renderSubmitAsBuiltNotificationForm(
-                asBuiltNotificationSubmission.getAsBuiltNotificationGroupPipeline().getAsBuiltNotificationGroup().getId(),
-                pipelineDetail.getPipelineDetailId().asInt(), null, null))
+            asBuiltNotificationSubmission.getAsBuiltNotificationGroupPipeline().getAsBuiltNotificationGroup().getReference(),
+            pipelineDetail.getPipelineNumber(),
+            pipelineDetail.getPipelineType().getDisplayName(),
+            person.getFullName(),
+            asBuiltNotificationSubmission.getSubmittedTimestamp(),
+            asBuiltNotificationSubmission.getAsBuiltNotificationStatus().getDisplayName(),
+            asBuiltNotificationSubmission.getDateLaid(),
+            asBuiltNotificationSubmission.getDatePipelineBroughtIntoUse(),
+            ReverseRouter.route(on(AsBuiltNotificationSubmissionController.class)
+                .renderSubmitAsBuiltNotificationForm(
+                    asBuiltNotificationSubmission.getAsBuiltNotificationGroupPipeline().getAsBuiltNotificationGroup().getId(),
+                    pipelineDetail.getPipelineDetailId().asInt(), null, null))
     );
   }
 
@@ -81,7 +84,9 @@ public class AsBuiltNotificationViewServiceTest {
     assertThat(asBuiltNotificationViewService
         .mapToAsBuiltNotificationViewWithNoSubmission(asBuiltNotificationGroupPipeline.getAsBuiltNotificationGroup().getId(),
             pipelineDetail))
-        .extracting(AsBuiltNotificationView::getPipelineNumber,
+        .extracting(
+            AsBuiltNotificationView::getAsBuiltGroupReference,
+            AsBuiltNotificationView::getPipelineNumber,
             AsBuiltNotificationView::getPipelineTypeDisplay,
             AsBuiltNotificationView::getSubmittedByPersonName,
             AsBuiltNotificationView::getSubmittedOnInstant,
@@ -90,6 +95,7 @@ public class AsBuiltNotificationViewServiceTest {
             AsBuiltNotificationView::getDateBroughtIntoUse,
             AsBuiltNotificationView::getSubmissionLink)
         .containsExactly(
+            null,
             pipelineDetail.getPipelineNumber(),
             pipelineDetail.getPipelineType().getDisplayName(),
             null,
@@ -104,5 +110,53 @@ public class AsBuiltNotificationViewServiceTest {
         );
   }
 
+  @Test
+  public void getSubmissionHistoryView_noPreviousHistory() {
+    assertThat(asBuiltNotificationViewService.getSubmissionHistoryView(List.of()))
+        .extracting(AsBuiltSubmissionHistoryView::getLatestSubmissionView, AsBuiltSubmissionHistoryView::getHistoricalSubmissionViews)
+    .containsExactly(null, List.of());
+  }
+
+  @Test
+  public void getSubmissionHistoryView_onlyOneHistory() {
+    var asBuiltNotificationView = AsBuiltNotificationViewUtil
+        .createHistoricAsBuiltNotificationView(asBuiltNotificationSubmission, person);
+    assertThat(asBuiltNotificationViewService.getSubmissionHistoryView(List.of(asBuiltNotificationSubmission)))
+        .extracting(
+            view -> view.getLatestSubmissionView().getAsBuiltGroupReference(),
+            view -> view.getLatestSubmissionView().getAsBuiltNotificationStatusDisplay(),
+            AsBuiltSubmissionHistoryView::getHistoricalSubmissionViews
+        )
+        .containsExactly(asBuiltNotificationView.getAsBuiltGroupReference(), asBuiltNotificationView.getAsBuiltNotificationStatusDisplay(),
+            List.of());
+  }
+
+  @Test
+  public void getSubmissionHistoryView_latestAndPreviousHistory() {
+    var olderSubmission = AsBuiltNotificationSubmissionUtil
+        .createDefaultAsBuiltNotificationSubmission_fromStatusAndDatetime(AsBuiltNotificationStatus.NOT_PER_CONSENT,
+            Instant.now().minusSeconds(100L));
+    var asBuiltNotificationView1 = AsBuiltNotificationViewUtil
+        .createHistoricAsBuiltNotificationView(asBuiltNotificationSubmission, person);
+    var asBuiltNotificationView2 = AsBuiltNotificationViewUtil
+        .createHistoricAsBuiltNotificationView(olderSubmission, person);
+    var history = asBuiltNotificationViewService.getSubmissionHistoryView(List.of(asBuiltNotificationSubmission,
+        olderSubmission));
+    assertThat(history.getLatestSubmissionView())
+        .extracting(
+            AsBuiltNotificationView::getSubmittedOnInstant,
+            AsBuiltNotificationView::getAsBuiltNotificationStatusDisplay
+        )
+        .containsExactly(
+            asBuiltNotificationView1.getSubmittedOnInstant(),
+            asBuiltNotificationView1.getAsBuiltNotificationStatusDisplay());
+    assertThat(history.getHistoricalSubmissionViews().get(0))
+        .extracting(
+            AsBuiltNotificationView::getAsBuiltNotificationStatusDisplay,
+            AsBuiltNotificationView::getSubmittedOnInstant)
+        .containsExactly(
+            asBuiltNotificationView2.getAsBuiltNotificationStatusDisplay(),
+            asBuiltNotificationView2.getSubmittedOnInstant());
+  }
 
 }

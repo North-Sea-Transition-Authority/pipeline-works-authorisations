@@ -2,6 +2,7 @@
 <#import '../consentSearchTopLevelView.ftl' as consentSearchTopLevelView>
 <#import 'tabs/pipelineHistoryTab.ftl' as pipelineHistoryTab>
 <#import 'tabs/huooHistoryTab.ftl' as huooHistoryTab>
+<#import 'tabs/asBuiltSubmissionHistoryTab.ftl' as asBuiltSubmissionHistoryTab>
 
 
 <#-- @ftlvariable name="consentSearchResultView" type="uk.co.ogauthority.pwa.model.view.search.consents.ConsentSearchResultView" -->
@@ -32,8 +33,10 @@
 
       <#if currentProcessingTab == "PIPELINE_HISTORY">
           <@pipelineHistoryTab.tab diffedPipelineSummaryModel/>
-      <#else>
+      <#elseif currentProcessingTab == "HUOO_HISTORY">
           <@huooHistoryTab.tab diffedHuooSummary/>
+      <#elseif currentProcessingTab == "AS_BUILT_NOTIFICATION_HISTORY">
+          <@asBuiltSubmissionHistoryTab.tab submissionHistoryView/>
       </#if>
 
     </@fdsBackendTabs.tabContent>

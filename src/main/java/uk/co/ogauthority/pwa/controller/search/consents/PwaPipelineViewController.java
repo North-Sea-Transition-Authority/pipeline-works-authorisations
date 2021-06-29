@@ -19,6 +19,7 @@ import uk.co.ogauthority.pwa.model.entity.enums.measurements.UnitMeasurement;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.form.pwa.PwaPipelineHistoryForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
+import uk.co.ogauthority.pwa.service.asbuilt.view.AsBuiltViewerService;
 import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailService;
 import uk.co.ogauthority.pwa.service.pwacontext.PwaContext;
 import uk.co.ogauthority.pwa.service.pwacontext.PwaPermission;
@@ -37,16 +38,19 @@ public class PwaPipelineViewController {
   private final PipelineDetailService pipelineDetailService;
   private final PwaPipelineHistoryViewService pwaPipelineHistoryViewService;
   private final ViewablePipelineHuooVersionService viewablePipelineHuooVersionService;
+  private final AsBuiltViewerService asBuiltViewerService;
   private final SearchPwaBreadcrumbService searchPwaBreadcrumbService;
 
   @Autowired
   public PwaPipelineViewController(PipelineDetailService pipelineDetailService,
                                    PwaPipelineHistoryViewService pwaPipelineHistoryViewService,
                                    ViewablePipelineHuooVersionService viewablePipelineHuooVersionService,
+                                   AsBuiltViewerService asBuiltViewerService,
                                    SearchPwaBreadcrumbService searchPwaBreadcrumbService) {
     this.pipelineDetailService = pipelineDetailService;
     this.pwaPipelineHistoryViewService = pwaPipelineHistoryViewService;
     this.viewablePipelineHuooVersionService = viewablePipelineHuooVersionService;
+    this.asBuiltViewerService = asBuiltViewerService;
     this.searchPwaBreadcrumbService = searchPwaBreadcrumbService;
   }
 
@@ -110,7 +114,7 @@ public class PwaPipelineViewController {
 
       setPipelineHistoryDataOnModelAndView(modelAndView, pwaContext, pipelineId, selectedPipelineDetailId);
 
-    } else {
+    } else if (tab.equals(PwaPipelineViewTab.HUOO_HISTORY)) {
       setPipelineHuooHistoryDataOnModelAndView(
           modelAndView,
           pwaContext.getMasterPwa(),
@@ -118,7 +122,8 @@ public class PwaPipelineViewController {
           huooVersionId,
           form
       );
-
+    } else if (tab.equals(PwaPipelineViewTab.AS_BUILT_NOTIFICATION_HISTORY)) {
+      setAsBuiltNotificationSubmissionHistoryDataOnModelAndView(modelAndView, pipelineId);
     }
 
     searchPwaBreadcrumbService.fromPwaPipelineView(
@@ -181,6 +186,12 @@ public class PwaPipelineViewController {
         .addObject("viewPwaPipelineUrl", viewPwaPipelineUrl)
         .addObject("consentVersionSearchSelectorItems", versionSearchSelectorItems);
 
+  }
+
+  private void setAsBuiltNotificationSubmissionHistoryDataOnModelAndView(ModelAndView modelAndView,
+                                                                         Integer pipelineId) {
+    var submissionHistoryView = asBuiltViewerService.getHistoricAsBuiltSubmissionView(pipelineId);
+    modelAndView.addObject("submissionHistoryView", submissionHistoryView);
   }
 
 }

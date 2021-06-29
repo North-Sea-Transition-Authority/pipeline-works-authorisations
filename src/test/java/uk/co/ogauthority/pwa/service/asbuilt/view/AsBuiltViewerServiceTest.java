@@ -64,6 +64,8 @@ public class AsBuiltViewerServiceTest {
   private AsBuiltNotificationGroupPipelineRepository asBuiltNotificationGroupPipelineRepository;
 
   private static final int NOTIFICATION_GROUP_ID = 1;
+  private static final int PIPELINE_ID = 99;
+  private final PipelineId pipelineId = new PipelineId(PIPELINE_ID);
   private final Person person = PersonTestUtil.createDefaultPerson();
   private final PwaConsent pwaConsent = PwaConsentTestUtil.createPwaConsent(40, "CONSENT_REF", Instant.now());
   private final AsBuiltNotificationGroup asBuiltNotificationGroup = new AsBuiltNotificationGroup(pwaConsent, "APP_REF",
@@ -81,6 +83,9 @@ public class AsBuiltViewerServiceTest {
           pipelineDetail2.getPipelineDetailId(), PipelineChangeCategory.NEW_PIPELINE);
   private final AsBuiltNotificationSubmission asBuiltNotificationSubmission = AsBuiltNotificationSubmissionUtil
       .createAsBuiltNotificationSubmission_withPerson(asBuiltNotificationGroupPipeline, person);
+  private final AsBuiltNotificationSubmission olderAsBuiltNotificationSubmission = AsBuiltNotificationSubmissionUtil
+      .createAsBuiltNotificationSubmission_withPersonAndSubmittedDateTime(asBuiltNotificationGroupPipeline, person,
+          Instant.now().minusSeconds(1000L));
 
   @Before
   public void setup() {
@@ -96,9 +101,17 @@ public class AsBuiltViewerServiceTest {
 
     when(pipelineDetailService.getByPipelineDetailId(pipelineDetail.getPipelineDetailId().asInt())).thenReturn(pipelineDetail);
     when(pipelineDetailService.getByPipelineDetailId(pipelineDetail2.getPipelineDetailId().asInt())).thenReturn(pipelineDetail2);
+    when(pipelineDetailService.getAllPipelineDetailsForPipeline(pipelineId)).thenReturn(List.of(pipelineDetail, pipelineDetail2));
 
     when(asBuiltNotificationGroupPipelineRepository.findAllByAsBuiltNotificationGroup_Id(asBuiltNotificationGroup.getId()))
         .thenReturn(List.of(asBuiltNotificationGroupPipeline, asBuiltNotificationGroupPipeline2));
+    when(asBuiltNotificationGroupPipelineRepository.findAllByPipelineDetailIdIn(List.of(pipelineDetail.getPipelineDetailId(),
+        pipelineDetail2.getPipelineDetailId())))
+        .thenReturn(List.of(asBuiltNotificationGroupPipeline, asBuiltNotificationGroupPipeline2));
+
+    when(asBuiltNotificationSubmissionRepository.findAllByAsBuiltNotificationGroupPipelineIn(List.of(asBuiltNotificationGroupPipeline,
+        asBuiltNotificationGroupPipeline2)))
+        .thenReturn(List.of(asBuiltNotificationSubmission, olderAsBuiltNotificationSubmission));
     when(asBuiltNotificationSubmissionRepository.findAllByAsBuiltNotificationGroupPipelineInAndTipFlagIsTrue(
         List.of(asBuiltNotificationGroupPipeline, asBuiltNotificationGroupPipeline2))).thenReturn(List.of(asBuiltNotificationSubmission));
   }
@@ -139,6 +152,13 @@ public class AsBuiltViewerServiceTest {
     assertThat(asBuiltViewerService.getOverviewsWithAsBuiltStatus(List.of(overview)))
         .extracting(PipelineOverview::getPipelineId, PipelineOverview::getAsBuiltNotificationStatus)
         .containsExactly(tuple(overview.getPipelineId(), submission.getAsBuiltNotificationStatus()));
+  }
+
+  @Test
+  public void getHistoricAsBuiltSubmissionView() {
+    asBuiltViewerService.getHistoricAsBuiltSubmissionView(PIPELINE_ID);
+    verify(asBuiltNotificationViewService).getSubmissionHistoryView(List.of(asBuiltNotificationSubmission,
+        olderAsBuiltNotificationSubmission));
   }
 
 }
