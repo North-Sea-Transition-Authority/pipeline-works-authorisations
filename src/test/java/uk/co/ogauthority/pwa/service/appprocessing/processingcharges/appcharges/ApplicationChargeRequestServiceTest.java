@@ -53,6 +53,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.workflow.PwaAwaitPaymentResult;
 import uk.co.ogauthority.pwa.service.enums.workflow.application.PwaApplicationWorkflowTask;
 import uk.co.ogauthority.pwa.service.person.PersonService;
+import uk.co.ogauthority.pwa.service.pwaapplications.PadInitialReviewService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
 import uk.co.ogauthority.pwa.service.workflow.assignment.WorkflowAssignmentService;
@@ -93,6 +94,9 @@ public class ApplicationChargeRequestServiceTest {
 
   @Mock
   private PersonService personService;
+
+  @Mock
+  private PadInitialReviewService padInitialReviewService;
 
   @Captor
   private ArgumentCaptor<PwaAppChargeRequestDetail> requestDetailArgumentCaptor;
@@ -159,8 +163,8 @@ public class ApplicationChargeRequestServiceTest {
         workflowAssignmentService,
         camundaWorkflowService,
         personService,
-        clock
-    );
+        clock,
+        padInitialReviewService);
 
     when(pwaAppChargeRequestRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
     when(pwaAppChargeRequestDetailRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
@@ -757,13 +761,8 @@ public class ApplicationChargeRequestServiceTest {
 
     assertThat(cancelOutcome).isEqualTo(CancelAppPaymentOutcome.CANCELLED);
 
-    verify(pwaApplicationDetailService, times(1)).updateStatus(
-        applicationDetailArgumentCaptor.capture(),
-        eq(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW),
-        eq(pwaManagerWua));
-
-    assertThat(applicationDetailArgumentCaptor.getValue().getInitialReviewApprovedByWuaId()).isNull();
-    assertThat(applicationDetailArgumentCaptor.getValue().getInitialReviewApprovedTimestamp()).isNull();
+    verify(padInitialReviewService).revokeLatestInitialReview(pwaApplicationDetail, pwaManagerWua);
+    verify(pwaApplicationDetailService).updateStatus(pwaApplicationDetail, PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW, pwaManagerWua);
   }
 
   @Test

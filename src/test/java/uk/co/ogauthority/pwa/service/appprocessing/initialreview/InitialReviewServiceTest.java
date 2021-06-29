@@ -9,7 +9,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
-import java.time.Instant;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
@@ -46,6 +45,7 @@ import uk.co.ogauthority.pwa.service.enums.appprocessing.TaskStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.workflow.application.PwaApplicationWorkflowTask;
+import uk.co.ogauthority.pwa.service.pwaapplications.PadInitialReviewService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
 import uk.co.ogauthority.pwa.service.workflow.task.WorkflowTaskInstance;
@@ -78,6 +78,9 @@ public class InitialReviewServiceTest {
 
   @Mock
   private ApplicationFeeService applicationFeeService;
+
+  @Mock
+  private PadInitialReviewService padInitialReviewService;
 
   @Captor
   private ArgumentCaptor<ApplicationChargeRequestSpecification> chargeRequestSpecCaptor;
@@ -123,8 +126,7 @@ public class InitialReviewServiceTest {
         applicationUpdateRequestService,
         applicationChargeRequestService,
         applicationFeeService,
-        assignCaseOfficerService
-    );
+        assignCaseOfficerService, padInitialReviewService);
 
   }
 
@@ -139,6 +141,7 @@ public class InitialReviewServiceTest {
         pwaManagerUser);
 
     verify(detailService, times(1)).setInitialReviewApproved(detail, pwaManagerUser, InitialReviewPaymentDecision.PAYMENT_WAIVED);
+    verify(padInitialReviewService).addApprovedInitialReview(detail, pwaManagerUser);
     verify(camundaWorkflowService, times(1))
         .completeTask(new WorkflowTaskInstance(app, PwaApplicationWorkflowTask.APPLICATION_REVIEW));
     verify(camundaWorkflowService, times(1))
@@ -179,6 +182,7 @@ public class InitialReviewServiceTest {
         pwaManagerUser);
 
     verify(detailService, times(1)).setInitialReviewApproved(detail, pwaManagerUser, InitialReviewPaymentDecision.PAYMENT_REQUIRED);
+    verify(padInitialReviewService).addApprovedInitialReview(detail, pwaManagerUser);
     verify(camundaWorkflowService, times(1))
         .completeTask(eq(new WorkflowTaskInstance(app, PwaApplicationWorkflowTask.APPLICATION_REVIEW)));
     verify(camundaWorkflowService, times(1))
@@ -314,14 +318,11 @@ public class InitialReviewServiceTest {
   }
 
   @Test
-  public void getTaskListEntry_initialReviewCompleted_latestDetailReviewed() {
-
-    var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
-    detail.setInitialReviewApprovedTimestamp(Instant.now());
+  public void getTaskListEntry_initialReviewCompletedCompleted() {
 
     var processingContext = new PwaAppProcessingContext(detail, null, Set.of(), null, null, Set.of());
 
-    when(detailService.getAllSubmittedApplicationDetailsForApplication(any())).thenReturn(List.of(detail));
+    when(padInitialReviewService.isInitialReviewComplete(app)).thenReturn(true);
 
     var taskListEntry = initialReviewService.getTaskListEntry(PwaAppProcessingTask.INITIAL_REVIEW, processingContext);
 
@@ -334,36 +335,20 @@ public class InitialReviewServiceTest {
   }
 
   @Test
-  public void getTaskListEntry_initialReviewCompleted_previousDetailReviewed_currentDetailNotReviewed() {
-
-    var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
-    detail.setVersionNo(2);
-    assertThat(detail.getInitialReviewApprovedTimestamp()).isNull();
-  }
-
-  public void getTaskListEntry_previousDetailReviewed_currentDetailNotReviewed() {
+  public void getTaskListEntry_initialReviewCompletedNotCompleted() {
 
     var processingContext = new PwaAppProcessingContext(detail, null, Set.of(), null, null, Set.of());
-    var previousDetailInitialReviewed = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
-    previousDetailInitialReviewed.setVersionNo(1);
-    previousDetailInitialReviewed.setTipFlag(false);
-    previousDetailInitialReviewed.setInitialReviewApprovedTimestamp(Instant.now());
 
-    var currentDetailNotReviewed = new PwaApplicationDetail(
-        previousDetailInitialReviewed.getPwaApplication(),
-        2,
-        null, null);
-    currentDetailNotReviewed.setVersionNo(2);
-
-    when(detailService.getAllSubmittedApplicationDetailsForApplication(any())).thenReturn(List.of(currentDetailNotReviewed, previousDetailInitialReviewed));
+    when(padInitialReviewService.isInitialReviewComplete(app)).thenReturn(false);
 
     var taskListEntry = initialReviewService.getTaskListEntry(PwaAppProcessingTask.INITIAL_REVIEW, processingContext);
 
     assertThat(taskListEntry.getTaskName()).isEqualTo(PwaAppProcessingTask.INITIAL_REVIEW.getTaskName());
     assertThat(taskListEntry.getRoute()).isEqualTo(PwaAppProcessingTask.INITIAL_REVIEW.getRoute(processingContext));
-    assertThat(taskListEntry.getTaskTag()).isEqualTo(TaskTag.from(TaskStatus.COMPLETED));
+    assertThat(taskListEntry.getTaskTag()).isEqualTo(TaskTag.from(TaskStatus.NOT_STARTED));
     assertThat(taskListEntry.getTaskState()).isEqualTo(TaskState.LOCK);
     assertThat(taskListEntry.getTaskInfoList()).isEmpty();
+
   }
 
   @Test

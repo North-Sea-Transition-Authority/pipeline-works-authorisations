@@ -1,20 +1,19 @@
 package uk.co.ogauthority.pwa.controller.appprocessing.initialreview;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doCallRealMethod;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.flash;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
 
-import java.time.Instant;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
@@ -33,6 +32,7 @@ import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.PwaAppProcessingContextAbstractControllerTest;
 import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
+import uk.co.ogauthority.pwa.exception.ActionAlreadyPerformedException;
 import uk.co.ogauthority.pwa.model.dto.appprocessing.ProcessingPermissionsDto;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
@@ -228,13 +228,10 @@ public class InitialReviewControllerTest extends PwaAppProcessingContextAbstract
   @Test
   public void postInitialReview_alreadyPerformed() throws Exception {
 
-    var approvedTimestamp = Instant.now().minusSeconds(60);
-
     pwaApplicationDetail.setStatus(PwaApplicationStatus.CASE_OFFICER_REVIEW);
-    pwaApplicationDetail.setInitialReviewApprovedByWuaId(1);
-    pwaApplicationDetail.setInitialReviewApprovedTimestamp(approvedTimestamp);
 
-    doCallRealMethod().when(initialReviewService).acceptApplication(pwaApplicationDetail, new PersonId(5),InitialReviewPaymentDecision.PAYMENT_WAIVED, "REASON", user);
+    doThrow(new ActionAlreadyPerformedException("")).when(initialReviewService).acceptApplication(
+        any(), any(), any(), any(), any());
 
     var permissionsDto = new ProcessingPermissionsDto(null, EnumSet.allOf(PwaAppProcessingPermission.class));
     when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail, user)).thenReturn(permissionsDto);
@@ -245,8 +242,7 @@ public class InitialReviewControllerTest extends PwaAppProcessingContextAbstract
         .with(csrf()))
         .andExpect(status().is3xxRedirection());
 
-    assertThat(pwaApplicationDetail.getInitialReviewApprovedTimestamp()).isEqualTo(approvedTimestamp);
-
+    //TODO PWA-1363: Check flash attributes to assert that the error text has been set
   }
 
   @Test

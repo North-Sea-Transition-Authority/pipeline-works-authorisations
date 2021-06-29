@@ -201,8 +201,6 @@ public class PwaApplicationDetailService {
   public void setInitialReviewApproved(PwaApplicationDetail detail,
                                        WebUserAccount acceptingUser,
                                        InitialReviewPaymentDecision initialReviewPaymentDecision) {
-    detail.setInitialReviewApprovedByWuaId(acceptingUser.getWuaId());
-    detail.setInitialReviewApprovedTimestamp(Instant.now(clock));
     updateStatus(detail, initialReviewPaymentDecision.getPostReviewPwaApplicationStatus(), acceptingUser);
     pwaApplicationDetailRepository.save(detail);
   }
@@ -244,10 +242,6 @@ public class PwaApplicationDetailService {
     return appDetail.isTipFlag()
         && appDetail.isFirstVersion()
         && PwaApplicationStatus.DRAFT.equals(appDetail.getStatus());
-  }
-
-  public boolean isInitialReviewApproved(PwaApplicationDetail applicationDetail) {
-    return applicationDetail.getInitialReviewApprovedByWuaId() != null && applicationDetail.getInitialReviewApprovedTimestamp() != null;
   }
 
   public void setSupplementaryDocumentsFlag(PwaApplicationDetail detail, Boolean filesToUpload) {
@@ -347,5 +341,6 @@ public class PwaApplicationDetailService {
         new PwaEntityNotFoundException(String.format("Couldn't find PwaApplicationDetail for PwaApplicationDetail ID: %s", appDetailId))
     );
   }
+
 
 }

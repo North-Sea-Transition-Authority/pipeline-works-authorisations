@@ -102,7 +102,8 @@ public class PwaApplicationDetailServiceTest {
 
     when(applicationDetailRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
-    pwaApplicationDetailService = new PwaApplicationDetailService(applicationDetailRepository, clock, fastTrackService, userTypeService);
+    pwaApplicationDetailService = new PwaApplicationDetailService(applicationDetailRepository, clock, fastTrackService, userTypeService
+        );
   }
 
   @Test
@@ -199,8 +200,6 @@ public class PwaApplicationDetailServiceTest {
 
     verify(applicationDetailRepository, times(2)).save(detail);
 
-    assertThat(detail.getInitialReviewApprovedByWuaId()).isEqualTo(user.getWuaId());
-    assertThat(detail.getInitialReviewApprovedTimestamp()).isEqualTo(clock.instant());
     assertThat(detail.getStatus()).isEqualTo(PwaApplicationStatus.CASE_OFFICER_REVIEW);
 
   }
@@ -215,8 +214,6 @@ public class PwaApplicationDetailServiceTest {
 
     verify(applicationDetailRepository, times(2)).save(detail);
 
-    assertThat(detail.getInitialReviewApprovedByWuaId()).isEqualTo(user.getWuaId());
-    assertThat(detail.getInitialReviewApprovedTimestamp()).isEqualTo(clock.instant());
     assertThat(detail.getStatus()).isEqualTo(PwaApplicationStatus.AWAITING_APPLICATION_PAYMENT);
 
   }
@@ -393,8 +390,6 @@ public class PwaApplicationDetailServiceTest {
     detail.setSubmittedTimestamp(baseTime);
     detail.setStatusLastModifiedByWuaId(wua.getWuaId());
     detail.setStatusLastModifiedTimestamp(baseTime);
-    detail.setInitialReviewApprovedByWuaId(wua.getWuaId());
-    detail.setInitialReviewApprovedTimestamp(baseTime);
     detail.setSupplementaryDocumentsFlag(true);
     detail.setConfirmedSatisfactoryTimestamp(Instant.now());
     detail.setConfirmedSatisfactoryReason("reason");
