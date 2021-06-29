@@ -37,19 +37,16 @@ public class PwaApplicationDetailService {
   private final Clock clock;
   private final PadFastTrackService padFastTrackService;
   private final UserTypeService userTypeService;
-  private final PadInitialReviewService padInitialReviewService;
 
   @Autowired
   public PwaApplicationDetailService(PwaApplicationDetailRepository pwaApplicationDetailRepository,
                                      @Qualifier("utcClock") Clock clock,
                                      PadFastTrackService padFastTrackService,
-                                     UserTypeService userTypeService,
-                                     PadInitialReviewService padInitialReviewService) {
+                                     UserTypeService userTypeService) {
     this.pwaApplicationDetailRepository = pwaApplicationDetailRepository;
     this.clock = clock;
     this.padFastTrackService = padFastTrackService;
     this.userTypeService = userTypeService;
-    this.padInitialReviewService = padInitialReviewService;
   }
 
   public PwaApplicationDetail getTipDetail(PwaApplication pwaApplication) {
@@ -204,17 +201,9 @@ public class PwaApplicationDetailService {
   public void setInitialReviewApproved(PwaApplicationDetail detail,
                                        WebUserAccount acceptingUser,
                                        InitialReviewPaymentDecision initialReviewPaymentDecision) {
-    padInitialReviewService.addApprovedInitialReview(detail, acceptingUser);
     updateStatus(detail, initialReviewPaymentDecision.getPostReviewPwaApplicationStatus(), acceptingUser);
     pwaApplicationDetailRepository.save(detail);
   }
-
-  @Transactional
-  public void setInitialReviewRevoked(PwaApplicationDetail detail, WebUserAccount revokingUser) {
-    padInitialReviewService.revokeLatestInitialReview(detail, revokingUser);
-    updateStatus(detail, PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW, revokingUser);
-  }
-
 
   @Transactional
   public void setPhasesPresent(PwaApplicationDetail pwaApplicationDetail, Set<PropertyPhase> phasesPresent,
@@ -353,8 +342,5 @@ public class PwaApplicationDetailService {
     );
   }
 
-  public boolean isInitialReviewComplete(List<PwaApplicationDetail> pwaApplicationDetails) {
-    return padInitialReviewService.isInitialReviewComplete(pwaApplicationDetails);
-  }
 
 }

@@ -26,6 +26,7 @@ import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingTask;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.TaskStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.workflow.application.PwaApplicationWorkflowTask;
+import uk.co.ogauthority.pwa.service.pwaapplications.PadInitialReviewService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
 import uk.co.ogauthority.pwa.service.workflow.task.WorkflowTaskInstance;
@@ -42,6 +43,7 @@ public class InitialReviewService implements AppProcessingService {
   private final ApplicationChargeRequestService applicationChargeRequestService;
   private final ApplicationFeeService applicationFeeService;
   private final AssignCaseOfficerService assignCaseOfficerService;
+  private final PadInitialReviewService padInitialReviewService;
 
   @Autowired
   public InitialReviewService(PwaApplicationDetailService applicationDetailService,
@@ -49,13 +51,15 @@ public class InitialReviewService implements AppProcessingService {
                               ApplicationUpdateRequestService applicationUpdateRequestService,
                               ApplicationChargeRequestService applicationChargeRequestService,
                               ApplicationFeeService applicationFeeService,
-                              AssignCaseOfficerService assignCaseOfficerService) {
+                              AssignCaseOfficerService assignCaseOfficerService,
+                              PadInitialReviewService padInitialReviewService) {
     this.applicationDetailService = applicationDetailService;
     this.workflowService = workflowService;
     this.applicationUpdateRequestService = applicationUpdateRequestService;
     this.applicationChargeRequestService = applicationChargeRequestService;
     this.applicationFeeService = applicationFeeService;
     this.assignCaseOfficerService = assignCaseOfficerService;
+    this.padInitialReviewService = padInitialReviewService;
   }
 
   @Transactional
@@ -90,6 +94,7 @@ public class InitialReviewService implements AppProcessingService {
         appChargeSpec
     );
 
+    padInitialReviewService.addApprovedInitialReview(detail, acceptingUser);
     applicationDetailService.setInitialReviewApproved(detail, acceptingUser, initialReviewPaymentDecision);
     workflowService.setWorkflowProperty(detail.getPwaApplication(), initialReviewPaymentDecision.getPwaApplicationInitialReviewResult());
     workflowService.completeTask(new WorkflowTaskInstance(detail.getPwaApplication(), PwaApplicationWorkflowTask.APPLICATION_REVIEW));
@@ -123,8 +128,7 @@ public class InitialReviewService implements AppProcessingService {
   @Override
   public TaskListEntry getTaskListEntry(PwaAppProcessingTask task, PwaAppProcessingContext processingContext) {
 
-    boolean initialReviewCompleted = applicationDetailService.isInitialReviewComplete(
-        applicationDetailService.getAllSubmittedApplicationDetailsForApplication(processingContext.getPwaApplication()));
+    boolean initialReviewCompleted = padInitialReviewService.isInitialReviewComplete(processingContext.getPwaApplication());
 
     var taskStatus = initialReviewCompleted ? TaskStatus.COMPLETED : TaskStatus.NOT_STARTED;
 

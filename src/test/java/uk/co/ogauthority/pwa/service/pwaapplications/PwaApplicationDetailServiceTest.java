@@ -73,10 +73,6 @@ public class PwaApplicationDetailServiceTest {
   @Mock
   private UserTypeService userTypeService;
 
-
-  @Mock
-  private PadInitialReviewService padInitialReviewService;
-
   @Captor
   private ArgumentCaptor<PwaApplicationDetail> detailCaptor;
 
@@ -106,8 +102,8 @@ public class PwaApplicationDetailServiceTest {
 
     when(applicationDetailRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
-    pwaApplicationDetailService = new PwaApplicationDetailService(applicationDetailRepository, clock, fastTrackService, userTypeService,
-        padInitialReviewService);
+    pwaApplicationDetailService = new PwaApplicationDetailService(applicationDetailRepository, clock, fastTrackService, userTypeService
+        );
   }
 
   @Test
@@ -202,7 +198,6 @@ public class PwaApplicationDetailServiceTest {
 
     pwaApplicationDetailService.setInitialReviewApproved(detail, user, InitialReviewPaymentDecision.PAYMENT_WAIVED);
 
-    verify(padInitialReviewService).addApprovedInitialReview(detail, user);
     verify(applicationDetailRepository, times(2)).save(detail);
 
     assertThat(detail.getStatus()).isEqualTo(PwaApplicationStatus.CASE_OFFICER_REVIEW);
@@ -217,25 +212,9 @@ public class PwaApplicationDetailServiceTest {
 
     pwaApplicationDetailService.setInitialReviewApproved(detail, user, InitialReviewPaymentDecision.PAYMENT_REQUIRED);
 
-    verify(padInitialReviewService).addApprovedInitialReview(detail, user);
     verify(applicationDetailRepository, times(2)).save(detail);
 
     assertThat(detail.getStatus()).isEqualTo(PwaApplicationStatus.AWAITING_APPLICATION_PAYMENT);
-
-  }
-
-  @Test
-  public void setInitialReviewRevoked_verifyServiceAndRepoInteractions() {
-
-    var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
-    detail.setStatus(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW);
-
-    pwaApplicationDetailService.setInitialReviewRevoked(detail, user);
-
-    verify(padInitialReviewService).revokeLatestInitialReview(detail, user);
-    verify(applicationDetailRepository).save(detail);
-
-    assertThat(detail.getStatus()).isEqualTo(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW);
 
   }
 

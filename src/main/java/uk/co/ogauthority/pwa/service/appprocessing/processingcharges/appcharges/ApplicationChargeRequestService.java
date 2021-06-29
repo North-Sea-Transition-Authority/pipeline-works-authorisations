@@ -42,6 +42,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.workflow.PwaAwaitPaymentResult;
 import uk.co.ogauthority.pwa.service.enums.workflow.application.PwaApplicationWorkflowTask;
 import uk.co.ogauthority.pwa.service.person.PersonService;
+import uk.co.ogauthority.pwa.service.pwaapplications.PadInitialReviewService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
 import uk.co.ogauthority.pwa.service.workflow.assignment.WorkflowAssignmentService;
@@ -69,6 +70,7 @@ public class ApplicationChargeRequestService {
   private final CamundaWorkflowService camundaWorkflowService;
   private final PersonService personService;
   private final Clock clock;
+  private final PadInitialReviewService padInitialReviewService;
 
   @Autowired
   public ApplicationChargeRequestService(AppChargeEmailService appChargeEmailService,
@@ -81,7 +83,8 @@ public class ApplicationChargeRequestService {
                                          WorkflowAssignmentService workflowAssignmentService,
                                          CamundaWorkflowService camundaWorkflowService,
                                          PersonService personService,
-                                         @Qualifier("utcClock") Clock clock) {
+                                         @Qualifier("utcClock") Clock clock,
+                                         PadInitialReviewService padInitialReviewService) {
     this.appChargeEmailService = appChargeEmailService;
     this.pwaAppChargeRequestRepository = pwaAppChargeRequestRepository;
     this.pwaAppChargeRequestDetailRepository = pwaAppChargeRequestDetailRepository;
@@ -93,6 +96,7 @@ public class ApplicationChargeRequestService {
     this.camundaWorkflowService = camundaWorkflowService;
     this.personService = personService;
     this.clock = clock;
+    this.padInitialReviewService = padInitialReviewService;
   }
 
   @Transactional
@@ -548,7 +552,9 @@ public class ApplicationChargeRequestService {
         paymentRequestTipDetail.getPwaAppChargeRequest().getPwaApplication()
     );
 
-    pwaApplicationDetailService.setInitialReviewRevoked(pwaApplicationDetail, webUserAccount);
+
+    padInitialReviewService.revokeLatestInitialReview(pwaApplicationDetail, webUserAccount);
+    pwaApplicationDetailService.updateStatus(pwaApplicationDetail, PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW, webUserAccount);
 
     appChargeEmailService.sendChargeRequestCancelledEmail(pwaApplicationDetail.getPwaApplication());
     return CancelAppPaymentOutcome.CANCELLED;

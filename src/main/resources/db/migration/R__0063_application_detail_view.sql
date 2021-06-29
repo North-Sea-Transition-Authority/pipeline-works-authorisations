@@ -16,6 +16,7 @@ SELECT
     SELECT MAX(pir.init_review_approved_timestamp)
     FROM ${datasource.user}.pad_initial_review pir
     WHERE pir.application_detail_id = pad.id
+    AND pir.approval_revoked_timestamp IS NULL
 ) pad_init_review_approved_ts
 , pad.confirmed_satisfactory_ts pad_confirmed_satisfactory_ts
 , pad.status_last_modified_timestamp pad_status_timestamp
