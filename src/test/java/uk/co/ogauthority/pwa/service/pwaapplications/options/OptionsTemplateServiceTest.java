@@ -31,8 +31,6 @@ public class OptionsTemplateServiceTest {
   @Mock
   private PadFileService padFileService;
 
-  private SpringValidatorAdapter groupValidator;
-
   private OptionsTemplateService optionsTemplateService;
 
   private PwaApplicationDetail pwaApplicationDetail;
@@ -41,9 +39,7 @@ public class OptionsTemplateServiceTest {
   @Before
   public void setUp() {
 
-    groupValidator = new SpringValidatorAdapter(Validation.buildDefaultValidatorFactory().getValidator());
-
-    optionsTemplateService = new OptionsTemplateService(padFileService, groupValidator);
+    optionsTemplateService = new OptionsTemplateService(padFileService);
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.OPTIONS_VARIATION);
 

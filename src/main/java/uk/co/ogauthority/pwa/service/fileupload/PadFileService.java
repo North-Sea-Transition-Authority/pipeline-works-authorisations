@@ -29,6 +29,7 @@ import uk.co.ogauthority.pwa.repository.pwaapplications.shared.file.PadFileRepos
 import uk.co.ogauthority.pwa.service.entitycopier.CopiedEntityIdTuple;
 import uk.co.ogauthority.pwa.service.entitycopier.EntityCopyingService;
 import uk.co.ogauthority.pwa.util.FileServiceUtils;
+import uk.co.ogauthority.pwa.util.FileUploadUtils;
 
 /**
  * Service to handle file management for/linking files to PWA applications.
@@ -145,6 +146,8 @@ public class PadFileService {
                           FileUpdateMode updateMode,
                           WebUserAccount user) {
 
+
+    FileUploadUtils.updateFormToExcludeNullFiles(uploadForm);
     Map<String, UploadFileWithDescriptionForm> uploadedFileIdToFormMap = FileServiceUtils.getFileIdToFormMap(uploadForm);
 
     var existingLinkedFiles = padFileRepository.findAllByPwaApplicationDetailAndPurpose(pwaApplicationDetail, purpose);

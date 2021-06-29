@@ -7,15 +7,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
+import org.springframework.validation.ValidationUtils;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.supplementarydocs.SupplementaryDocumentsForm;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
+import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
+import uk.co.ogauthority.pwa.util.FileUploadUtils;
 import uk.co.ogauthority.pwa.util.validationgroups.MandatoryUploadValidation;
 import uk.co.ogauthority.pwa.util.validationgroups.PartialValidation;
 
@@ -23,17 +25,14 @@ import uk.co.ogauthority.pwa.util.validationgroups.PartialValidation;
 public class SupplementaryDocumentsService implements ApplicationFormSectionService {
 
   private final PadFileService padFileService;
-  private final SpringValidatorAdapter groupValidator;
   private final PwaApplicationDetailService pwaApplicationDetailService;
 
   private static final ApplicationDetailFilePurpose FILE_PURPOSE = ApplicationDetailFilePurpose.SUPPLEMENTARY_DOCUMENTS;
 
   @Autowired
   public SupplementaryDocumentsService(PadFileService padFileService,
-                                       SpringValidatorAdapter groupValidator,
                                        PwaApplicationDetailService pwaApplicationDetailService) {
     this.padFileService = padFileService;
-    this.groupValidator = groupValidator;
     this.pwaApplicationDetailService = pwaApplicationDetailService;
   }
 
@@ -63,7 +62,12 @@ public class SupplementaryDocumentsService implements ApplicationFormSectionServ
       validationHints.add(PartialValidation.class);
     }
 
-    groupValidator.validate(form, bindingResult, validationHints.toArray());
+    if (validationType.equals(ValidationType.FULL)) {
+      ValidationUtils.rejectIfEmpty(bindingResult, "hasFilesToUpload",
+          "hasFilesToUpload" + FieldValidationErrorCodes.REQUIRED.getCode(),
+          "Select yes if you want to upload documents");
+    }
+    FileUploadUtils.validateFiles(castForm, bindingResult, validationHints);
 
     return bindingResult;
 

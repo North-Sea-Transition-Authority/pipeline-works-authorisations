@@ -35,8 +35,6 @@ public class SupplementaryDocumentsServiceTest {
   @Mock
   private PwaApplicationDetailService detailService;
 
-  private SpringValidatorAdapter groupValidator;
-
   private SupplementaryDocumentsService supplementaryDocumentsService;
 
   private PwaApplicationDetail pwaApplicationDetail;
@@ -45,9 +43,7 @@ public class SupplementaryDocumentsServiceTest {
   @Before
   public void setUp() {
 
-    groupValidator = new SpringValidatorAdapter(Validation.buildDefaultValidatorFactory().getValidator());
-
-    supplementaryDocumentsService = new SupplementaryDocumentsService(padFileService, groupValidator, detailService);
+    supplementaryDocumentsService = new SupplementaryDocumentsService(padFileService, detailService);
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.OPTIONS_VARIATION);
 

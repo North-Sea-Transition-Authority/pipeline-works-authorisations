@@ -21,6 +21,8 @@ import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.PadTech
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.PadTechnicalDrawingService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.PadTechnicalDrawingValidationHints;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.PipelineDrawingValidationType;
+import uk.co.ogauthority.pwa.util.FileUploadUtils;
+import uk.co.ogauthority.pwa.util.validationgroups.MandatoryUploadValidation;
 
 @Service
 public class PipelineDrawingValidator implements SmartValidator {
@@ -87,12 +89,8 @@ public class PipelineDrawingValidator implements SmartValidator {
           "The drawing reference is already in use");
     }
 
-    // Ensure that a file has been uploaded, and is limited to a single file.
-    if (ListUtils.emptyIfNull(form.getUploadedFileWithDescriptionForms()).size() > 1) {
-      errors.rejectValue("uploadedFileWithDescriptionForms",
-          "uploadedFileWithDescriptionForms" + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode(),
-          "Upload a single drawing only");
-    }
+    FileUploadUtils.validateFiles(form, errors, List.of(MandatoryUploadValidation.class));
+    FileUploadUtils.validateMaxFileLimit(form, errors, 1, "Upload a single drawing only");
 
     var pipelinesRequiringDrawings = pipelineList.stream()
         .filter(padPipeline -> padTechnicalDrawingService.isDrawingRequiredForPipeline(padPipeline.getPipelineStatus()))

@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.mockito.Mockito.when;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -16,6 +17,7 @@ import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineStatus;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.techdrawings.PadTechnicalDrawing;
+import uk.co.ogauthority.pwa.model.form.files.UploadFileWithDescriptionForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.techdetails.PipelineDrawingForm;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.techdrawings.PadTechnicalDrawingRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
@@ -48,6 +50,7 @@ public class PipelineDrawingValidatorTest {
   private PipelineDrawingForm form;
   private PwaApplicationDetail pwaApplicationDetail;
   private PadPipeline pipeline;
+  private UploadFileWithDescriptionForm fileForm;
 
   @Before
   public void setUp() {
@@ -59,6 +62,8 @@ public class PipelineDrawingValidatorTest {
     pipeline = new PadPipeline();
     pipeline.setId(1);
     pipeline.setPipelineStatus(PipelineStatus.IN_SERVICE);
+
+    fileForm = new UploadFileWithDescriptionForm("1", "desc", Instant.now());
   }
 
   private PadTechnicalDrawingValidationHints getAddDrawingValidationHints() {
@@ -74,12 +79,13 @@ public class PipelineDrawingValidatorTest {
   @Test
   public void validate_emptyForm() {
     var result = ValidatorTestUtils.getFormValidationErrors(validator, form, getAddDrawingValidationHints());
-    assertThat(result).containsOnlyKeys("reference", "padPipelineIds");
+    assertThat(result).containsOnlyKeys("reference", "padPipelineIds", "uploadedFileWithDescriptionForms");
   }
 
   @Test
   public void validate_referenceWhitespace() {
     form.setReference(" ");
+    form.getUploadedFileWithDescriptionForms().add(fileForm);
     var result = ValidatorTestUtils.getFormValidationErrors(validator, form, getAddDrawingValidationHints());
     assertThat(result).containsOnlyKeys("reference", "padPipelineIds");
   }
@@ -97,6 +103,7 @@ public class PipelineDrawingValidatorTest {
 
     form.setPadPipelineIds(List.of(1));
     form.setReference("ref");
+    form.getUploadedFileWithDescriptionForms().add(fileForm);
 
     when(padPipelineService.getByIdList(pwaApplicationDetail, form.getPadPipelineIds()))
         .thenReturn(List.of(pipeline));
@@ -121,6 +128,7 @@ public class PipelineDrawingValidatorTest {
 
     form.setPadPipelineIds(List.of(1));
     form.setReference("Test");
+    form.getUploadedFileWithDescriptionForms().add(fileForm);
 
     when(padPipelineService.getByIdList(pwaApplicationDetail, form.getPadPipelineIds()))
         .thenReturn(List.of(pipeline));
@@ -136,6 +144,7 @@ public class PipelineDrawingValidatorTest {
 
     form.setPadPipelineIds(List.of(1));
     form.setReference("ref");
+    form.getUploadedFileWithDescriptionForms().add(fileForm);
 
     when(padPipelineService.getByIdList(pwaApplicationDetail, form.getPadPipelineIds()))
         .thenReturn(List.of(pipeline));
@@ -160,6 +169,7 @@ public class PipelineDrawingValidatorTest {
 
     form.setPadPipelineIds(List.of(1));
     form.setReference("ref");
+    form.getUploadedFileWithDescriptionForms().add(fileForm);
 
     when(padPipelineService.getByIdList(pwaApplicationDetail, form.getPadPipelineIds()))
         .thenReturn(List.of(pipeline));

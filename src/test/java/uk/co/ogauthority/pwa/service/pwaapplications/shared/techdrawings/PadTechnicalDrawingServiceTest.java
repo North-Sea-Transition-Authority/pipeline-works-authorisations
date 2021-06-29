@@ -67,9 +67,6 @@ public class PadTechnicalDrawingServiceTest {
   @Mock
   private PipelineDrawingValidator pipelineDrawingValidator;
 
-  @Mock
-  private SpringValidatorAdapter springValidatorAdapter;
-
   private PwaApplicationDetail pwaApplicationDetail;
   private PadPipeline padPipelineForAppOverviewA;
   private PadPipeline padPipelineForAppOverviewB;
@@ -78,8 +75,7 @@ public class PadTechnicalDrawingServiceTest {
   @Before
   public void setUp() {
     padTechnicalDrawingService = new PadTechnicalDrawingService(padTechnicalDrawingRepository,
-        padTechnicalDrawingLinkService, padFileService, padPipelineService, pipelineDrawingValidator,
-        springValidatorAdapter);
+        padTechnicalDrawingLinkService, padFileService, padPipelineService, pipelineDrawingValidator);
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL, 100);
 

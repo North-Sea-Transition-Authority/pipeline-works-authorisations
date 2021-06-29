@@ -2,7 +2,6 @@ package uk.co.ogauthority.pwa.util;
 
 import java.util.List;
 import java.util.stream.IntStream;
-import org.springframework.validation.BindingResult;
 import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
 import uk.co.ogauthority.pwa.model.form.files.UploadMultipleFilesWithDescriptionForm;
@@ -20,12 +19,17 @@ public class FileUploadUtils {
                                           int maxFileCount,
                                           String limitExceededMessage) {
 
-    if (uploadForm.getUploadedFileWithDescriptionForms().size() > maxFileCount) {
+    if (uploadForm.getFileFormsForValidation().size() > maxFileCount) {
       errors.rejectValue("uploadedFileWithDescriptionForms",
           "uploadedFileWithDescriptionForms" + FieldValidationErrorCodes.EXCEEDED_MAXIMUM_FILE_UPLOAD_COUNT.getCode(),
           limitExceededMessage);
     }
 
+  }
+
+
+  public static void updateFormToExcludeNullFiles(UploadMultipleFilesWithDescriptionForm uploadForm) {
+    uploadForm.setUploadedFileWithDescriptionForms(uploadForm.getFileFormsForValidation());
   }
 
   public static void validateMinFileLimit(UploadMultipleFilesWithDescriptionForm uploadForm,
@@ -42,7 +46,7 @@ public class FileUploadUtils {
   }
 
   public static void validateFiles(UploadMultipleFilesWithDescriptionForm uploadForm,
-                                   BindingResult bindingResult,
+                                   Errors errors,
                                    List<Object> hints) {
 
     boolean mandatory = hints.stream()
@@ -58,7 +62,7 @@ public class FileUploadUtils {
           String form = "uploadedFileWithDescriptionForms[" + i + "]";
 
           ValidationUtils.rejectIfEmpty(
-              bindingResult,
+              errors,
               String.format("%s.uploadedFileDescription", form),
               FieldValidationErrorCodes.REQUIRED.errorCode(String.format("%s.uploadedFileDescription", form)),
               "File must have a description"
@@ -67,7 +71,7 @@ public class FileUploadUtils {
         });
 
     if (mandatory) {
-      validateMinFileLimit(uploadForm, bindingResult, 1, "Upload at least one file");
+      validateMinFileLimit(uploadForm, errors, 1, "Upload at least one file");
     }
 
   }

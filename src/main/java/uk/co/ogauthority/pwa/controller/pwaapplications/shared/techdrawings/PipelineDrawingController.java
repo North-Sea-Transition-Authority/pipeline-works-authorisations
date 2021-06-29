@@ -43,6 +43,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationConte
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.PadTechnicalDrawingLinkService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.PadTechnicalDrawingService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.PipelineDrawingUrlFactory;
+import uk.co.ogauthority.pwa.util.FileUploadUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
 @Controller
