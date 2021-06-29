@@ -6,6 +6,7 @@
 -- 2. in toad, connect as the base schema for the environment, e.g "PWA".
 -- 3. run first anonymous block to migrate data.
 -- 4. run the second statement to increment the pwa_sequences based on migration data.
+--5 . run third block to create teams for holder org grps created in the new system if required.
 /
 
 /* migrate data */
@@ -231,3 +232,48 @@ WHERE pad_id NOT IN(
 )
 AND mpl.status = 'FAILED'
 GROUP BY ROLLUP(pad_id, status)
+
+/
+
+/*
+ Run this to create holder portal teams if they dont exist.
+ */
+DECLARE
+  l_dryrun BOOLEAN := false;
+BEGIN
+
+  FOR orggrp IN (
+    SELECT DISTINCT cog.id, cog.org_grp_type, cog.name, cog.short_name, cogo.org_grp_id || '++REGORGGRP' uref
+    FROM pwa.pwa_consent_organisation_roles pcor
+    JOIN decmgr.current_org_grp_organisations cogo ON pcor.ou_id = pcor.ou_id
+    JOIN decmgr.current_organisation_groupS cog ON cogo.org_grp_id = cog.id ANd cog.org_grp_type = cogo.org_grp_type AND COG.ORG_GRP_TYPE ='REG'
+    LEFT JOIN decmgr.resource_usages_current ruc ON ruc.uref = cogo.org_grp_id || '++REGORGGRP'
+    LEFT JOIN decmgr.xview_resources xr ON ruc.res_id = xr.res_id AND xr.res_name = 'PWA_ORGANISATION_TEAM'
+    WHERE pcor.role = 'HOLDER'
+    AND pcor.ended_by_pwa_consent_id IS NULL
+    AND ruc.res_id IS NULL
+    ) LOOP
+      DECLARE
+        l_res_id NUMBER;
+      BEGIN
+        dbms_output.put('Creating Missing orggrp team: ' || orggrp.name || '(' || orggrp.id || ')' );
+        IF(NOT l_dryrun) THEN
+          pwa.team_management.create_team(
+              p_resource_type => 'PWA_ORGANISATION_TEAM'
+            , p_resource_name => 'PWA Holder Team for ' || orggrp.short_name
+            , p_resource_description => 'PWA Holder Team for ' || orggrp.name
+            , p_uref => orggrp.uref
+            , p_requesting_wua_id => 1
+            , po_resource_id => l_res_id
+            );
+
+          COMMIT;
+          DBMS_OUTPUT.PUT_LINE('... Committed (res_id: ' || l_res_id || ')');
+        ELSE
+          DBMS_OUTPUT.PUT_LINE('... Skipped');
+        END IF;
+
+      END;
+    END LOOP;
+
+END;
