@@ -48,6 +48,8 @@ public class PadPipelineService {
   private final PipelineMappingService pipelineMappingService;
 
   private static final Set<PipelineStatus> DATA_REQUIRED_STATUSES = Set.of(PipelineStatus.IN_SERVICE, PipelineStatus.OUT_OF_USE_ON_SEABED);
+  private static final Set<PipelineStatus> INACTIVE_STATUSES = Set.of(
+      PipelineStatus.NEVER_LAID, PipelineStatus.RETURNED_TO_SHORE, PipelineStatus.DELETED, PipelineStatus.TRANSFERRED);
 
   @Autowired
   public PadPipelineService(PadPipelineRepository padPipelineRepository,
@@ -337,6 +339,10 @@ public class PadPipelineService {
             padPipeline -> new PadPipelineId(padPipeline.getId()),
             padPipeline -> padPipeline
         ));
+  }
+
+  public Set getPadPipelineInactiveStatuses() {
+    return INACTIVE_STATUSES;
   }
 
 

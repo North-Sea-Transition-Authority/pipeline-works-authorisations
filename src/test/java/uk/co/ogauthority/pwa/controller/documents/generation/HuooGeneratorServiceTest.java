@@ -50,7 +50,7 @@ public class HuooGeneratorServiceTest {
 
   private OrganisationRolePipelineGroupView createOrgRolePipelineGroupView() {
     return new OrganisationRolePipelineGroupView(
-        HuooType.PORTAL_ORG, null, false, null, null, null, null);
+        HuooType.PORTAL_ORG, null, false, null, null, null, List.of());
   }
 
 

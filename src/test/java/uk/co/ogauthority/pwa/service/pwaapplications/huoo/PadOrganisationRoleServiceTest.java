@@ -43,11 +43,13 @@ import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineSection;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooType;
 import uk.co.ogauthority.pwa.model.entity.enums.TreatyAgreement;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineStatus;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinehuoo.PadPipelineOrganisationRoleLink;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipelineTestUtil;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.huoo.PadOrganisationRole;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.huoo.HuooForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PadPipelineOverview;
@@ -57,6 +59,7 @@ import uk.co.ogauthority.pwa.service.entitycopier.EntityCopyingService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.options.PadOptionConfirmedService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.huoosummary.PipelineNumbersAndSplits;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.viewfactories.PipelineAndIdentViewFactory;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
@@ -78,6 +81,9 @@ public class PadOrganisationRoleServiceTest {
 
   @Mock
   private PipelineAndIdentViewFactory pipelineAndIdentViewFactory;
+
+  @Mock
+  private PadPipelineService padPipelineService;;
 
   @Mock
   private EntityManager entityManager;
@@ -107,6 +113,9 @@ public class PadOrganisationRoleServiceTest {
   private PipelineSection pipeline2Section1;
   private PipelineSection pipeline2Section2;
 
+  private static final Set<PipelineStatus> PIPELINE_INACTIVE_STATUSES = Set.of(
+      PipelineStatus.NEVER_LAID, PipelineStatus.RETURNED_TO_SHORE, PipelineStatus.DELETED, PipelineStatus.TRANSFERRED);
+
   @Captor
   private ArgumentCaptor<PadOrganisationRole> roleCaptor;
 
@@ -119,7 +128,9 @@ public class PadOrganisationRoleServiceTest {
   @Before
   public void setUp() {
 
-    pipeline1 = new Pipeline();
+    detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
+
+    pipeline1 = new Pipeline(detail.getPwaApplication());
     pipeline1.setId(pipelineId1.asInt());
 
     when(entityManager.getReference(eq(Pipeline.class), any())).thenAnswer(invocation -> {
@@ -137,11 +148,11 @@ public class PadOrganisationRoleServiceTest {
         portalOrganisationsAccessor,
         pipelineAndIdentViewFactory,
         pipelineNumberAndSplitsService,
+        padPipelineService,
         entityManager,
         entityCopyingService,
         padOptionConfirmedService);
 
-    detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
 
     var orgGroup1 = PortalOrganisationTestUtils.generateOrganisationGroup(1, "Group1", "G1");
     var orgGroup2 = PortalOrganisationTestUtils.generateOrganisationGroup(2, "Group2", "G2");
@@ -931,20 +942,109 @@ public class PadOrganisationRoleServiceTest {
 
   }
 
+
   @Test
-  public void getOrganisationRoleSummary() {
-    var orgPipelineRoleInstanceDto = OrganisationRoleDtoTestUtil.createOrgUnitPipelineRoleInstance(
-        HuooRole.HOLDER,
-        1,
-        1
-    );
+  public void getOrganisationRoleSummary_pipelinesAssignedToRoleAndActive() {
+
+    var orgPipelineRole = OrganisationRoleDtoTestUtil.createOrgUnitPipelineRoleInstance(
+        HuooRole.HOLDER, orgUnit1.getOuId(), pipelineId1.asInt());
+
+    when(padPipelineService.getPadPipelineInactiveStatuses()).thenReturn(PIPELINE_INACTIVE_STATUSES);
+    when(padPipelineService.getPipelines(detail)).thenReturn(List.of(PadPipelineTestUtil.createActivePadPipeline(detail, pipeline1)));
 
     when(padOrganisationRolesRepository.findActiveOrganisationPipelineRolesByPwaApplicationDetail(detail))
-        .thenReturn(List.of(orgPipelineRoleInstanceDto));
+        .thenReturn(List.of(orgPipelineRole));
 
-    var expected = OrganisationRolesSummaryDto.aggregateOrganisationPipelineRoles(List.of(orgPipelineRoleInstanceDto));
-    assertThat(padOrganisationRoleService.getOrganisationRoleSummary(detail)).isEqualTo(expected);
+    when(pipelineNumberAndSplitsService.getAllPipelineNumbersAndSplitsRole(any(), any()))
+        .thenReturn(Map.of(orgPipelineRole.getPipelineIdentifier(), new PipelineNumbersAndSplits(
+            orgPipelineRole.getPipelineIdentifier(), String.valueOf(orgPipelineRole.getPipelineIdentifier()), null)));
+
+
+    var allOrgRolePipelineGroupView = padOrganisationRoleService.getAllOrganisationRolePipelineGroupView(detail);
+
+    assertThat(allOrgRolePipelineGroupView.getOrgRolePipelineGroupView(orgPipelineRole.getHuooRole())).isNotEmpty();
+    var orgRolePipelineGroup = allOrgRolePipelineGroupView.getOrgRolePipelineGroupView(orgPipelineRole.getHuooRole()).get(0);
+    assertThat(orgRolePipelineGroup.getOrganisationRoleOwner().getOrganisationUnitId())
+        .isEqualTo(orgPipelineRole.getOrganisationUnitId());
+
+    assertThat(orgRolePipelineGroup.getPipelineNumbersAndSplits()).isNotEmpty();
+    assertThat(orgRolePipelineGroup.getPipelineNumbersAndSplits().get(0).getPipelineIdentifier())
+        .isEqualTo(orgPipelineRole.getPipelineIdentifier());
   }
+
+  @Test
+  public void getOrganisationRoleSummary_pipelinesAssignedToRoleAndInactive_roleInstancesCreatedWithoutPipeline() {
+
+    var orgPipelineRole = OrganisationRoleDtoTestUtil.createOrgUnitPipelineRoleInstance(
+        HuooRole.HOLDER, orgUnit1.getOuId(), pipelineId1.asInt());
+
+    when(padPipelineService.getPadPipelineInactiveStatuses()).thenReturn(PIPELINE_INACTIVE_STATUSES);
+    when(padPipelineService.getPipelines(detail)).thenReturn(List.of(PadPipelineTestUtil.createInActivePadPipeline(detail, pipeline1)));
+
+    when(padOrganisationRolesRepository.findActiveOrganisationPipelineRolesByPwaApplicationDetail(detail))
+        .thenReturn(List.of(orgPipelineRole));
+
+    var allOrgRolePipelineGroupView = padOrganisationRoleService.getAllOrganisationRolePipelineGroupView(detail);
+
+    assertThat(allOrgRolePipelineGroupView.getOrgRolePipelineGroupView(orgPipelineRole.getHuooRole())).isNotEmpty();
+    var orgRolePipelineGroup = allOrgRolePipelineGroupView.getOrgRolePipelineGroupView(orgPipelineRole.getHuooRole()).get(0);
+    assertThat(orgRolePipelineGroup.getOrganisationRoleOwner().getOrganisationUnitId())
+        .isEqualTo(orgPipelineRole.getOrganisationUnitId());
+
+    assertThat(orgRolePipelineGroup.getPipelineNumbersAndSplits()).isEmpty();
+  }
+
+  @Test
+  public void getOrganisationRoleSummary_orgRoleExistsWithoutAssignedPipelines() {
+
+    var orgPipelineRole = OrganisationRoleDtoTestUtil.createOrgUnitPipelineRoleInstance(
+        HuooRole.HOLDER, orgUnit1.getOuId(), null);
+
+    when(padOrganisationRolesRepository.findActiveOrganisationPipelineRolesByPwaApplicationDetail(detail))
+        .thenReturn(List.of(orgPipelineRole));
+
+    var allOrgRolePipelineGroupView = padOrganisationRoleService.getAllOrganisationRolePipelineGroupView(detail);
+
+    assertThat(allOrgRolePipelineGroupView.getOrgRolePipelineGroupView(orgPipelineRole.getHuooRole())).isNotEmpty();
+    var orgRolePipelineGroup = allOrgRolePipelineGroupView.getOrgRolePipelineGroupView(orgPipelineRole.getHuooRole()).get(0);
+    assertThat(orgRolePipelineGroup.getOrganisationRoleOwner().getOrganisationUnitId())
+        .isEqualTo(orgPipelineRole.getOrganisationUnitId());
+
+    assertThat(orgRolePipelineGroup.getPipelineNumbersAndSplits()).isEmpty();
+  }
+
+  @Test
+  public void getOrganisationRoleSummary_unassignedPipelinesExist_manualRoleInstancesCreated() {
+
+    var orgPipelineRole = OrganisationRoleDtoTestUtil.createOrgUnitPipelineRoleInstance(
+        HuooRole.HOLDER, orgUnit1.getOuId(), null);
+
+    when(padPipelineService.getPadPipelineInactiveStatuses()).thenReturn(PIPELINE_INACTIVE_STATUSES);
+    var padPipeline = PadPipelineTestUtil.createActivePadPipeline(detail, pipeline1);
+    when(padPipelineService.getPipelines(detail)).thenReturn(List.of(padPipeline));
+
+    when(padOrganisationRolesRepository.findActiveOrganisationPipelineRolesByPwaApplicationDetail(detail))
+        .thenReturn(List.of(orgPipelineRole));
+
+    when(pipelineNumberAndSplitsService.getAllPipelineNumbersAndSplitsRole(any(), any()))
+        .thenReturn(Map.of(padPipeline.getPipelineId(), new PipelineNumbersAndSplits(
+            padPipeline.getPipelineId(), String.valueOf(padPipeline.getPipelineId()), null)));
+
+
+    var allOrgRolePipelineGroupView = padOrganisationRoleService.getAllOrganisationRolePipelineGroupView(detail);
+
+    assertThat(allOrgRolePipelineGroupView.getOrgRolePipelineGroupView(orgPipelineRole.getHuooRole())).isNotEmpty();
+    assertThat(allOrgRolePipelineGroupView.getOrgRolePipelineGroupView(orgPipelineRole.getHuooRole())).anySatisfy(
+        orgRolePipelineGroup -> {
+          assertThat(orgRolePipelineGroup.getManuallyEnteredName())
+              .isEqualTo(String.format("Pipelines without assigned %s", orgPipelineRole.getHuooRole().getDisplayText()));
+          assertThat(orgRolePipelineGroup.getPipelineNumbersAndSplits()).isNotEmpty();
+          assertThat(orgRolePipelineGroup.getPipelineNumbersAndSplits().get(0).getPipelineIdentifier())
+              .isEqualTo(padPipeline.getPipelineId());
+        }
+    );
+  }
+
 
   @Test
   public void deletePadPipelineRoleLinksForPipelinesAndRole_verifyServiceInteractions() {

@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.huoosummary;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -33,7 +34,9 @@ public class OrganisationRolePipelineGroupView {
     this.manuallyEnteredName = manuallyEnteredName;
     this.treatyAgreement = treatyAgreement;
     this.organisationRoleOwner = organisationRoleOwner;
-    this.pipelineNumbersAndSplits = pipelineNumbersAndSplits;
+    this.pipelineNumbersAndSplits = pipelineNumbersAndSplits.stream()
+        .sorted(Comparator.comparing(PipelineNumbersAndSplits::toString)).collect(
+        Collectors.toList());
   }
 
   public HuooType getHuooType() {

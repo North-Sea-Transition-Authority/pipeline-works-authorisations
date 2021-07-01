@@ -31,7 +31,7 @@ public class OrganisationRoleDtoTestUtil {
     );
   }
 
-  public static OrganisationPipelineRoleInstanceDto createOrgUnitPipelineRoleInstance(HuooRole huooRole, int ouId, int pipelineId) {
+  public static OrganisationPipelineRoleInstanceDto createOrgUnitPipelineRoleInstance(HuooRole huooRole, int ouId, Integer pipelineId) {
     return new OrganisationPipelineRoleInstanceDto(
         ouId,
         null,
