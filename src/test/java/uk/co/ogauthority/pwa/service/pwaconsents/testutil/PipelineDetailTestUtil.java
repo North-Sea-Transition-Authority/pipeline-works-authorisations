@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineStatus;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
+import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaTestUtil;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
@@ -27,9 +28,10 @@ public class PipelineDetailTestUtil {
 
 
   public static PipelineDetail createPipelineDetail(Integer id, PipelineId pipelineId, Instant startTimestamp) {
-
+    var masterPwa = MasterPwaTestUtil.create(100);
     var pipeline = new Pipeline();
     pipeline.setId(pipelineId.asInt());
+    pipeline.setMasterPwa(masterPwa);
     var pipelineDetail = new PipelineDetail(pipeline);
     pipelineDetail.setId(id);
     pipelineDetail.setStartTimestamp(startTimestamp);
@@ -99,8 +101,5 @@ public class PipelineDetailTestUtil {
     pipelineDetail.setLength(padPipeline.getLength());
     return pipelineDetail;
   }
-
-
-
 
 }

@@ -54,7 +54,7 @@ class AsBuiltNotificationSubmissionService {
     if (doesOgaNeedToBeNotified(form)) {
       var pipelineDetail = getPipelineDetail(abngPipeline.getPipelineDetailId());
       notifyOgaIfNotificationNotPerConsent(asBuiltSubmission.getAsBuiltNotificationGroupPipeline().getAsBuiltNotificationGroup(),
-          pipelineDetail.getPipelineNumber(), form.getAsBuiltNotificationStatus());
+          pipelineDetail, form.getAsBuiltNotificationStatus());
     }
   }
 
@@ -122,9 +122,9 @@ class AsBuiltNotificationSubmissionService {
   }
 
   private void notifyOgaIfNotificationNotPerConsent(AsBuiltNotificationGroup asBuiltNotificationGroup,
-                                                    String pipelineNumber, AsBuiltNotificationStatus asBuiltNotificationStatus) {
+                                                    PipelineDetail pipelineDetail, AsBuiltNotificationStatus asBuiltNotificationStatus) {
     asBuiltNotificationEmailService.sendAsBuiltNotificationNotPerConsentEmail(ogaConsentsEmail,
-        "Consents team", asBuiltNotificationGroup, pipelineNumber, asBuiltNotificationStatus);
+        "Consents team", asBuiltNotificationGroup, pipelineDetail, asBuiltNotificationStatus);
   }
 
   private void setLatestSubmissionFlagAndUpdateLastSubmission(AsBuiltNotificationSubmission submission) {

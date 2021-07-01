@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.service.asbuilt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationGroup;
+import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
 import uk.co.ogauthority.pwa.model.enums.aabuilt.AsBuiltNotificationStatus;
 import uk.co.ogauthority.pwa.model.notify.emailproperties.asbuilt.AsBuiltNotificationNotPerConsentEmailProps;
 import uk.co.ogauthority.pwa.service.notify.EmailCaseLinkService;
@@ -24,14 +25,15 @@ public class AsBuiltNotificationEmailService {
   public void sendAsBuiltNotificationNotPerConsentEmail(String recipientEmail,
                                                         String recipientName,
                                                         AsBuiltNotificationGroup asBuiltNotificationGroup,
-                                                        String pipelineNumber,
+                                                        PipelineDetail pipelineDetail,
                                                         AsBuiltNotificationStatus asBuiltNotificationStatus) {
     var emailProps = new AsBuiltNotificationNotPerConsentEmailProps(
         recipientName,
         asBuiltNotificationGroup.getReference(),
-        pipelineNumber,
+        pipelineDetail.getPipelineNumber(),
         asBuiltNotificationStatus,
-        emailCaseLinkService.generateAsBuiltNotificationDashboardLink(asBuiltNotificationGroup.getId())
+        emailCaseLinkService.generateAsBuiltNotificationSummaryLink(pipelineDetail.getPipeline().getMasterPwa().getId(),
+            pipelineDetail.getPipelineId().asInt(), pipelineDetail.getId())
         );
 
     notifyService.sendEmail(emailProps, recipientEmail);
