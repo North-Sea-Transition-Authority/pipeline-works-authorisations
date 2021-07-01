@@ -3,11 +3,14 @@ package uk.co.ogauthority.pwa.model.location;
 import java.util.Objects;
 import org.apache.commons.lang3.StringUtils;
 import uk.co.ogauthority.pwa.model.diff.DiffableAsString;
+import uk.co.ogauthority.pwa.service.enums.location.LatitudeDirection;
+import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
+import uk.co.ogauthority.pwa.util.geojson.DecimalDegreesPoint;
 
 /**
  * Data class to store a pair of lat/long coordinates.
  */
-public class CoordinatePair implements DiffableAsString {
+public class CoordinatePair implements DiffableAsString, DecimalDegreesPoint {
 
   private LatitudeCoordinate latitude;
 
@@ -50,6 +53,29 @@ public class CoordinatePair implements DiffableAsString {
   @Override
   public String getDiffableString() {
     return this.getDisplayString();
+  }
+
+  @Override
+  public boolean longAndLatHaveValue() {
+    return hasValue();
+  }
+
+  @Override
+  public Double getLongitudeDecimalDegrees() {
+    var value = longitude.convertToDecimalDegrees();
+    if (longitude.getDirection() == LongitudeDirection.WEST) {
+      return value * -1;
+    }
+    return value;
+  }
+
+  @Override
+  public Double getLatitudeDecimalDegrees() {
+    var value = latitude.convertToDecimalDegrees();
+    if (latitude.getDirection() == LatitudeDirection.SOUTH) {
+      return value * -1;
+    }
+    return value;
   }
 
   @Override
