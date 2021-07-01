@@ -96,20 +96,6 @@ public final class OrganisationPipelineRoleInstanceDto {
   }
 
 
-  public OrganisationPipelineRoleInstanceDto(HuooRole huooRole,
-                                             HuooType huooType,
-                                             Integer pipelineId) {
-    this.organisationRoleInstanceDto = new OrganisationRoleInstanceDto(
-        null,
-        "unassigned organisation pipeline",
-        null,
-        huooRole,
-        huooType
-    );
-    pipelineIdentifier = pipelineId != null ? new PipelineId(pipelineId) : null;
-  }
-
-
   public static OrganisationPipelineRoleInstanceDto copyWithoutPipeline(OrganisationPipelineRoleInstanceDto orgPipelineRoleInstanceDto) {
 
     return new OrganisationPipelineRoleInstanceDto(
