@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.service.asbuilt.view;
 import static java.util.stream.Collectors.toList;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,7 +24,6 @@ import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PadPipelineOverview;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview;
 import uk.co.ogauthority.pwa.model.view.asbuilt.AsBuiltNotificationGroupSummaryView;
-import uk.co.ogauthority.pwa.model.view.asbuilt.AsBuiltNotificationView;
 import uk.co.ogauthority.pwa.repository.asbuilt.AsBuiltNotificationGroupPipelineRepository;
 import uk.co.ogauthority.pwa.repository.asbuilt.AsBuiltNotificationSubmissionRepository;
 import uk.co.ogauthority.pwa.service.asbuilt.AsBuiltNotificationGroupDetailService;
@@ -74,6 +74,19 @@ public class AsBuiltViewerService {
         .findAllByAsBuiltNotificationGroupPipelineInAndTipFlagIsTrue(asBuiltGroupPipelines);
     var pipelineDetailIdAsBuiltSubmissionMap = mapSubmissionsToPipelineDetailIds(latestSubmissionForEachPipeline);
     return getAsBuiltNotificationViewsFromSubmissions(notificationGroupId, asBuiltGroupPipelines, pipelineDetailIdAsBuiltSubmissionMap);
+  }
+
+  private List<AsBuiltNotificationSubmission> getAsBuiltNotificationSubmissionsForPipelineId(Integer pipelineId) {
+    var pipelineDetailIds = pipelineDetailService.getAllPipelineDetailsForPipeline(new PipelineId(pipelineId)).stream()
+        .map(PipelineDetail::getPipelineDetailId)
+        .collect(toList());
+    var asBuiltNotificationGroupPipelines = asBuiltNotificationGroupPipelineRepository
+        .findAllByPipelineDetailIdIn(pipelineDetailIds);
+    var allSubmissions = asBuiltNotificationSubmissionRepository
+        .findAllByAsBuiltNotificationGroupPipelineIn(asBuiltNotificationGroupPipelines);
+    return allSubmissions.stream()
+        .sorted(Comparator.comparing(AsBuiltNotificationSubmission::getSubmittedTimestamp).reversed())
+        .collect(Collectors.toList());
   }
 
   public Optional<AsBuiltNotificationGroup> getNotificationGroupOptional(Integer notificationGroupId) {
@@ -170,6 +183,11 @@ public class AsBuiltViewerService {
       }
       return pipelineOverview;
     }).collect(toList());
+  }
+
+  public AsBuiltSubmissionHistoryView getHistoricAsBuiltSubmissionView(Integer pipelineId) {
+    var asBuiltNotificationSubmissions = getAsBuiltNotificationSubmissionsForPipelineId(pipelineId);
+    return asBuiltNotificationViewService.getSubmissionHistoryView(asBuiltNotificationSubmissions);
   }
 
 }

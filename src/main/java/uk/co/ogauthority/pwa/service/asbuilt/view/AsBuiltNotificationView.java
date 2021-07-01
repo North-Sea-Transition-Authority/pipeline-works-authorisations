@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.model.view.asbuilt;
+package uk.co.ogauthority.pwa.service.asbuilt.view;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -9,9 +9,11 @@ import uk.co.ogauthority.pwa.util.DateUtils;
  */
 public class AsBuiltNotificationView {
 
+  private final String asBuiltGroupReference;
   private final String pipelineNumber;
   private final String pipelineTypeDisplay;
   private final String submittedByPersonName;
+  private final String submittedByPersonEmail;
   private final Instant submittedOnInstant;
   private String submittedOnInstantDisplay;
   private final String asBuiltNotificationStatusDisplay;
@@ -23,18 +25,26 @@ public class AsBuiltNotificationView {
   private String dateBroughtIntoUseDisplay;
   private final String submissionLink;
 
-  public AsBuiltNotificationView(String pipelineNumber, String pipelineTypeDisplay, String submittedByPersonName,
-                                 Instant submittedOnInstant, String asBuiltNotificationStatusDisplay, LocalDate dateLaid,
+  AsBuiltNotificationView(String asBuiltGroupReference, String pipelineNumber, String pipelineTypeDisplay,
+                                 String submittedByPersonName,
+                                 String submittedByPersonEmail, Instant submittedOnInstant,
+                                 String asBuiltNotificationStatusDisplay, LocalDate dateLaid,
                                  LocalDate expectedLaidDate, LocalDate dateBroughtIntoUse, String submissionLink) {
+    this.asBuiltGroupReference = asBuiltGroupReference;
     this.pipelineNumber = pipelineNumber;
     this.pipelineTypeDisplay = pipelineTypeDisplay;
     this.submittedByPersonName = submittedByPersonName;
+    this.submittedByPersonEmail = submittedByPersonEmail;
     this.submittedOnInstant = submittedOnInstant;
     this.asBuiltNotificationStatusDisplay = asBuiltNotificationStatusDisplay;
     this.dateLaid = dateLaid;
     this.expectedLaidDate = expectedLaidDate;
     this.dateBroughtIntoUse = dateBroughtIntoUse;
     this.submissionLink = submissionLink;
+  }
+
+  public String getAsBuiltGroupReference() {
+    return asBuiltGroupReference;
   }
 
   public String getPipelineNumber() {
@@ -49,12 +59,16 @@ public class AsBuiltNotificationView {
     return submittedByPersonName;
   }
 
+  public String getSubmittedByPersonEmail() {
+    return submittedByPersonEmail;
+  }
+
   public Instant getSubmittedOnInstant() {
     return submittedOnInstant;
   }
 
   public String getSubmittedOnInstantDisplay() {
-    return DateUtils.formatDate(submittedOnInstant);
+    return DateUtils.formatDateTime(submittedOnInstant);
   }
 
   public String getAsBuiltNotificationStatusDisplay() {

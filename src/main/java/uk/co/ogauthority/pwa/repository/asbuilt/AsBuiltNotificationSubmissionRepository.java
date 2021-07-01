@@ -13,6 +13,9 @@ public interface AsBuiltNotificationSubmissionRepository extends CrudRepository<
   Optional<AsBuiltNotificationSubmission> findByAsBuiltNotificationGroupPipelineAndTipFlagIsTrue(
       AsBuiltNotificationGroupPipeline asBuiltNotificationGroupPipeline);
 
+  List<AsBuiltNotificationSubmission> findAllByAsBuiltNotificationGroupPipelineIn(
+      List<AsBuiltNotificationGroupPipeline> asBuiltNotificationGroupPipelines);
+
   List<AsBuiltNotificationSubmission> findAllByAsBuiltNotificationGroupPipelineInAndTipFlagIsTrue(
       List<AsBuiltNotificationGroupPipeline> asBuiltNotificationGroupPipelines);
 

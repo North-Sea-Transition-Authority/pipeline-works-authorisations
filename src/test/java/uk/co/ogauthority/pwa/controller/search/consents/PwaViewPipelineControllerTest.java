@@ -28,6 +28,9 @@ import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
+import uk.co.ogauthority.pwa.service.asbuilt.view.AsBuiltSubmissionHistoryView;
+import uk.co.ogauthority.pwa.service.asbuilt.view.AsBuiltSubmissionHistoryViewUtil;
+import uk.co.ogauthority.pwa.service.asbuilt.view.AsBuiltViewerService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.huoosummary.DiffedAllOrgRolePipelineGroups;
 import uk.co.ogauthority.pwa.service.pwaconsents.PwaConsentService;
 import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailService;
@@ -64,8 +67,12 @@ public class PwaViewPipelineControllerTest extends PwaContextAbstractControllerT
   @MockBean
   protected ViewablePipelineHuooVersionService viewablePipelineHuooVersionService;
 
+  @MockBean
+  protected AsBuiltViewerService asBuiltViewerService;
+
   private static int PIPELINE_ID = 1;
 
+  private final AsBuiltSubmissionHistoryView historyView = AsBuiltSubmissionHistoryViewUtil.createDefaultAsBuiltSubmissionHistoryView();
 
   @Before
   public void setUp() {
@@ -104,9 +111,10 @@ public class PwaViewPipelineControllerTest extends PwaContextAbstractControllerT
 
     when(viewablePipelineHuooVersionService.getDiffableOrgRolePipelineGroupsFromHuooVersionString(any(), any(), any()))
         .thenReturn(new DiffedAllOrgRolePipelineGroups(List.of(), List.of(), List.of(), List.of()));
+
+    when(asBuiltViewerService.getHistoricAsBuiltSubmissionView(PIPELINE_ID))
+        .thenReturn(historyView);
   }
-
-
 
   @Test
   public void renderViewPwaPipeline_pipelineHistoryTab_processingPermissionSmokeTest() {
@@ -127,6 +135,17 @@ public class PwaViewPipelineControllerTest extends PwaContextAbstractControllerT
         .setEndpointUrlProducer((masterPwa) ->
             ReverseRouter.route(on(PwaPipelineViewController.class)
                 .renderViewPwaPipeline(1, PIPELINE_ID, PwaPipelineViewTab.HUOO_HISTORY, null, null, null, null, null)));
+
+    endpointTester.performProcessingPermissionCheck(status().isOk(), status().isForbidden());
+
+  }
+
+  @Test
+  public void renderViewPwaPipeline_asBuiltSubmissionsTab_processingPermissionSmokeTest() {
+    endpointTester.setRequestMethod(HttpMethod.GET)
+        .setEndpointUrlProducer((masterPwa) ->
+            ReverseRouter.route(on(PwaPipelineViewController.class)
+                .renderViewPwaPipeline(1, PIPELINE_ID, PwaPipelineViewTab.AS_BUILT_NOTIFICATION_HISTORY, null, null, null, null, null)));
 
     endpointTester.performProcessingPermissionCheck(status().isOk(), status().isForbidden());
 
@@ -167,7 +186,6 @@ public class PwaViewPipelineControllerTest extends PwaContextAbstractControllerT
     endpointTester.performProcessingPermissionCheck(status().isOk(), status().isForbidden());
 
   }
-
 
   @Test
   public void postViewPwaPipeline_nullTab() {

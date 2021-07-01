@@ -16,6 +16,12 @@ public enum PwaPipelineViewTab {
       "huoo-history",
       "huooHistory",
       20
+  ),
+  AS_BUILT_NOTIFICATION_HISTORY(
+      "As-built notification history",
+      "as-built-notification-history",
+      "asBuiltNotificationHistory",
+      30
   );
 
   private final String label;
