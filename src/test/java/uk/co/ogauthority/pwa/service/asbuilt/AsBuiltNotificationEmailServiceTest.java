@@ -52,7 +52,7 @@ public class AsBuiltNotificationEmailServiceTest {
 
     asBuiltNotificationEmailService = new AsBuiltNotificationEmailService(notifyService, emailCaseLinkService);
 
-    when(emailCaseLinkService.generateAsBuiltNotificationSummaryLink(any(), any(), any())).thenCallRealMethod();
+    when(emailCaseLinkService.generateAsBuiltNotificationSummaryLink(any(), any())).thenCallRealMethod();
 
   }
 
@@ -68,7 +68,7 @@ public class AsBuiltNotificationEmailServiceTest {
         "PIPELINE_NUMBER", pipelineDetail.getPipelineNumber(),
         "AS_BUILT_NOTIFICATION_STATUS", AS_BUILT_NOTIFICATION_STATUS.getDisplayName(),
         "AS_BUILT_DASHBOARD_LINK", emailCaseLinkService.generateAsBuiltNotificationSummaryLink(
-            pipelineDetail.getPipeline().getMasterPwa().getId(), pipelineDetail.getPipelineId().asInt(), pipelineDetail.getId())
+            pipelineDetail.getPipeline().getMasterPwa().getId(), pipelineDetail.getPipelineId().asInt())
     ));
   }
 }
