@@ -2,7 +2,6 @@ package uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines;
 
 import java.math.BigDecimal;
 import java.util.Set;
-import java.util.logging.Logger;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineCoreType;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineFlexibility;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineMaterial;
