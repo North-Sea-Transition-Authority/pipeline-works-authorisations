@@ -1572,6 +1572,45 @@ public class PwaAppProcessingPermissionServiceTest {
     }
   }
 
+  @Test
+  public void getAppProcessingPermissions_ViewAppPaymentDetails_hasHolderRole() {
+
+      var appInvolvement = ApplicationInvolvementDtoTestUtil.generatePwaHolderTeamInvolvement(
+          application,
+          Set.of(PwaOrganisationRole.FINANCE_ADMIN)
+      );
+      when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
+
+      var permissions = processingPermissionService.getProcessingPermissionsDto(detail, user).getProcessingPermissions();
+      AssertionTestUtils.assertNotEmptyAndContains(permissions, PwaAppProcessingPermission.VIEW_PAYMENT_DETAILS_IF_EXISTS);
+  }
+
+  @Test
+  public void getAppProcessingPermissions_viewAppPaymentDetails_hasAppContactHolderRole() {
+
+    var appInvolvement = ApplicationInvolvementDtoTestUtil.generatePwaContactInvolvement(
+        application,
+        Set.of(PwaContactRole.VIEWER)
+    );
+
+    when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
+
+    var permissions = processingPermissionService.getProcessingPermissionsDto(detail, user).getProcessingPermissions();
+    AssertionTestUtils.assertNotEmptyAndContains(permissions, PwaAppProcessingPermission.VIEW_PAYMENT_DETAILS_IF_EXISTS);
+  }
+
+  @Test
+  public void getAppProcessingPermissions_viewAppPaymentDetails_hasNoHolderOrContactRole() {
+
+    var appInvolvement = ApplicationInvolvementDtoTestUtil.noInvolvementAndNoFlags(
+        application
+    );
+
+    when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
+
+    var permissions = processingPermissionService.getProcessingPermissionsDto(detail, user).getProcessingPermissions();
+    assertThat(permissions).doesNotContain(PwaAppProcessingPermission.VIEW_PAYMENT_DETAILS_IF_EXISTS);
+  }
 
 
   private void clearPrivileges(AuthenticatedUserAccount userArg) {

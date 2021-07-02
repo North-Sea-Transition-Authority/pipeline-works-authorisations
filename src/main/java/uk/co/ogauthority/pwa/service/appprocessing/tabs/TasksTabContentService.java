@@ -20,6 +20,7 @@ import uk.co.ogauthority.pwa.service.appprocessing.applicationupdate.Application
 import uk.co.ogauthority.pwa.service.appprocessing.consentreview.ConsentReviewService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.service.appprocessing.options.ApproveOptionsService;
+import uk.co.ogauthority.pwa.service.appprocessing.processingcharges.appcharges.ApplicationChargeRequestService;
 import uk.co.ogauthority.pwa.service.appprocessing.publicnotice.PublicNoticeDocumentUpdateService;
 import uk.co.ogauthority.pwa.service.appprocessing.publicnotice.PublicNoticeService;
 import uk.co.ogauthority.pwa.service.appprocessing.tasks.PwaAppProcessingTaskListService;
@@ -38,6 +39,7 @@ public class TasksTabContentService implements AppProcessingTabContentService {
   private final PublicNoticeDocumentUpdateService publicNoticeDocumentUpdateService;
   private final PublicNoticeService publicNoticeService;
   private final ConsentReviewService consentReviewService;
+  private final ApplicationChargeRequestService applicationChargeRequestService;
 
   @Autowired
   public TasksTabContentService(PwaAppProcessingTaskListService appProcessingTaskListService,
@@ -46,7 +48,8 @@ public class TasksTabContentService implements AppProcessingTabContentService {
                                 ApproveOptionsService approveOptionsService,
                                 PublicNoticeDocumentUpdateService publicNoticeDocumentUpdateService,
                                 PublicNoticeService publicNoticeService,
-                                ConsentReviewService consentReviewService) {
+                                ConsentReviewService consentReviewService,
+                                ApplicationChargeRequestService applicationChargeRequestService) {
     this.appProcessingTaskListService = appProcessingTaskListService;
     this.applicationUpdateRequestViewService = applicationUpdateRequestViewService;
     this.pwaApplicationRedirectService = pwaApplicationRedirectService;
@@ -54,6 +57,7 @@ public class TasksTabContentService implements AppProcessingTabContentService {
     this.publicNoticeDocumentUpdateService = publicNoticeDocumentUpdateService;
     this.publicNoticeService = publicNoticeService;
     this.consentReviewService = consentReviewService;
+    this.applicationChargeRequestService = applicationChargeRequestService;
   }
 
   @Override
@@ -69,6 +73,7 @@ public class TasksTabContentService implements AppProcessingTabContentService {
     Optional<String> manageAppContactsUrl = Optional.empty();
     Optional<String> viewPublicNoticeUrl = Optional.empty();
     Optional<String> consentHistoryUrl = Optional.empty();
+    Optional<String> viewAppPaymentUrl = Optional.empty();
 
     boolean industryFlag = appProcessingContext.getApplicationInvolvement().hasOnlyIndustryInvolvement();
 
@@ -116,6 +121,12 @@ public class TasksTabContentService implements AppProcessingTabContentService {
         consentHistoryUrl = Optional.of(ReverseRouter.route(on(PwaViewController.class).renderViewPwa(
             appProcessingContext.getPwaApplication().getMasterPwa().getId(), PwaViewTab.CONSENT_HISTORY,  null, null
         )));
+
+      }
+
+      if(appProcessingContext.hasProcessingPermission(PwaAppProcessingPermission.VIEW_PAYMENT_DETAILS_IF_EXISTS)
+          && applicationChargeRequestService.applicationChargeRequestCompleteAndPaid(appProcessingContext.getPwaApplication())) {
+        viewAppPaymentUrl = Optional.of("fake-url");
       }
     }
 
@@ -132,6 +143,7 @@ public class TasksTabContentService implements AppProcessingTabContentService {
     manageAppContactsUrl.ifPresent(s -> modelMap.put("manageAppContactsUrl", s));
     viewPublicNoticeUrl.ifPresent(s -> modelMap.put("viewPublicNoticeUrl", s));
     consentHistoryUrl.ifPresent(s -> modelMap.put("consentHistoryUrl", s));
+    viewAppPaymentUrl.ifPresent(s -> modelMap.put("viewAppPaymentUrl", s));
 
     return modelMap;
 

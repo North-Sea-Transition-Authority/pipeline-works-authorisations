@@ -567,6 +567,13 @@ public class ApplicationChargeRequestService {
     ) > 0L;
   }
 
+  public boolean applicationChargeRequestCompleteAndPaid(PwaApplication pwaApplication) {
+    return pwaAppChargeRequestDetailRepository.countByPwaAppChargeRequest_PwaApplicationAndPwaAppChargeRequestStatusAndTipFlagIsTrue(
+        pwaApplication,
+        PwaAppChargeRequestStatus.PAID
+    ) > 0L;
+  }
+
   private enum CancelActivePaymentAttemptsOutcome {
     SOME_ATTEMPT_ALREADY_PAID,
     NO_ATTEMPT_ALREADY_PAID

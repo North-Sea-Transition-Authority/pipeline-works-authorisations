@@ -10,6 +10,7 @@
 <#-- @ftlvariable name="publicNoticePageBannerView" type="uk.co.ogauthority.pwa.model.view.banner.PageBannerView" -->
 <#-- @ftlvariable name="payForAppUrl" type="java.lang.String" -->
 <#-- @ftlvariable name="manageAppContactsUrl" type="java.lang.String" -->
+<#-- @ftlvariable name="viewAppPaymentUrl" type="java.lang.String" -->
 
 <#-- @ftlvariable name="taskListUrl" type="String" -->
 <#-- @ftlvariable name="processingPermissions" type="java.util.Set<uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission> -->
@@ -51,6 +52,10 @@
 
     <#if consentHistoryUrl?has_content>
         <@fdsAction.link linkText="View consent" linkUrl=springUrl(consentHistoryUrl) linkClass="govuk-button govuk-button--blue" role=true openInNewTab=true/>
+    </#if>
+
+    <#if viewAppPaymentUrl?has_content>
+        <@fdsAction.link linkText="View payment information" linkUrl=springUrl(viewAppPaymentUrl) linkClass="govuk-button govuk-button--blue" role=true openInNewTab=true/>
     </#if>
 
   <@fdsBackendTabs.tabList>
