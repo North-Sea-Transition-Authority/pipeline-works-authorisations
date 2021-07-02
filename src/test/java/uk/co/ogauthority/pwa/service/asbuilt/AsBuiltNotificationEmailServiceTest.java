@@ -68,7 +68,7 @@ public class AsBuiltNotificationEmailServiceTest {
         "PIPELINE_NUMBER", pipelineDetail.getPipelineNumber(),
         "AS_BUILT_NOTIFICATION_STATUS", AS_BUILT_NOTIFICATION_STATUS.getDisplayName(),
         "AS_BUILT_DASHBOARD_LINK", emailCaseLinkService.generateAsBuiltNotificationSummaryLink(
-            pipelineDetail.getPipeline().getMasterPwa().getId(), pipelineDetail.getPipelineId().asInt())
+            asBuiltNotificationGroup.getMasterPwaIdFromGroupConsent(), pipelineDetail.getPipelineId().asInt())
     ));
   }
 }
