@@ -18,6 +18,7 @@ import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermiss
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.person.PersonService;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
+import uk.co.ogauthority.pwa.util.CaseManagementUtils;
 import uk.co.ogauthority.pwa.util.DateUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
@@ -62,6 +63,7 @@ public class ViewApplicationPaymentInformationController {
               .addObject("appRef", processingContext.getCaseSummaryView().getPwaApplicationRef())
               .addObject("appPaymentDisplaySummary", displayableAppCharges)
               .addObject("pageRef", PAGE_REF)
+              .addObject("caseManagementUrl", CaseManagementUtils.routeCaseManagement(processingContext))
               .addObject("requestedInstant", DateUtils.formatDateTime(applicationChargeRequestReport.getRequestedInstant()))
               .addObject("paidByName", paidByPersonView.getName())
               .addObject("paidByEmail", paidByPersonView.getEmail())

@@ -1,6 +1,6 @@
 <#-- @ftlvariable name="errorList" type="java.util.Map<java.lang.String,java.util.List<java.lang.String,java.lang.String>>" -->
 <#-- @ftlvariable name="caseSummaryView" type="uk.co.ogauthority.pwa.service.appprocessing.context.CaseSummaryView" -->
-<#-- @ftlvariable name="cancelUrl" type="java.lang.String" -->
+<#-- @ftlvariable name="caseManagementUrl" type="java.lang.String" -->
 <#-- @ftlvariable name="appRef" type="java.lang.String" -->
 <#-- @ftlvariable name="pageRef" type="java.lang.String" -->
 <#-- @ftlvariable name="appPaymentDisplaySummary" type="uk.co.ogauthority.pwa.service.appprocessing.processingcharges.display.ApplicationPaymentDisplaySummary" -->
@@ -30,6 +30,8 @@
             </@fdsCheckAnswers.checkAnswers>
 
             <@pwaPayment.applicationPaymentDisplaySummary summary=appPaymentDisplaySummary />
+
+            <@fdsAction.link linkText="Go back" linkUrl=springUrl(caseManagementUrl) linkClass="govuk-link govuk-link--stand-alone " linkScreenReaderText="Go back to previous page" role=false start=false/>
 
         </@grid.twoThirdsColumn>
     </@grid.gridRow>

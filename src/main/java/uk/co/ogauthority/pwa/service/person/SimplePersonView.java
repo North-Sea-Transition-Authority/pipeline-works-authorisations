@@ -3,7 +3,7 @@ package uk.co.ogauthority.pwa.service.person;
 import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
 
 /**
- * Basic view of a person useful for View objects
+ * Basic view of a person useful for View objects.
  */
 public class SimplePersonView {
 
