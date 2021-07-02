@@ -4,6 +4,7 @@ import com.google.common.annotations.VisibleForTesting;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -18,6 +19,7 @@ import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PadPipelineId;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PhysicalPipelineState;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineHeaderFormContext;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineMaterial;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineStatus;
@@ -48,8 +50,8 @@ public class PadPipelineService {
   private final PipelineMappingService pipelineMappingService;
 
   private static final Set<PipelineStatus> DATA_REQUIRED_STATUSES = Set.of(PipelineStatus.IN_SERVICE, PipelineStatus.OUT_OF_USE_ON_SEABED);
-  private static final Set<PipelineStatus> INACTIVE_STATUSES = Set.of(
-      PipelineStatus.NEVER_LAID, PipelineStatus.RETURNED_TO_SHORE, PipelineStatus.DELETED, PipelineStatus.TRANSFERRED);
+  private static final Set<PipelineStatus> INACTIVE_STATUSES = EnumSet.complementOf(EnumSet.copyOf(
+      PipelineStatus.getStatusesWithState(PhysicalPipelineState.ON_SEABED)));
 
   @Autowired
   public PadPipelineService(PadPipelineRepository padPipelineRepository,

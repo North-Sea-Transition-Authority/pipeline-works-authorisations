@@ -43,6 +43,7 @@ import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineSection;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooType;
 import uk.co.ogauthority.pwa.model.entity.enums.TreatyAgreement;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PhysicalPipelineState;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineStatus;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
@@ -113,8 +114,8 @@ public class PadOrganisationRoleServiceTest {
   private PipelineSection pipeline2Section1;
   private PipelineSection pipeline2Section2;
 
-  private static final Set<PipelineStatus> PIPELINE_INACTIVE_STATUSES = Set.of(
-      PipelineStatus.NEVER_LAID, PipelineStatus.RETURNED_TO_SHORE, PipelineStatus.DELETED, PipelineStatus.TRANSFERRED);
+  private static final Set<PipelineStatus> PIPELINE_INACTIVE_STATUSES = EnumSet.complementOf(EnumSet.copyOf(
+      PipelineStatus.getStatusesWithState(PhysicalPipelineState.ON_SEABED)));
 
   @Captor
   private ArgumentCaptor<PadOrganisationRole> roleCaptor;
