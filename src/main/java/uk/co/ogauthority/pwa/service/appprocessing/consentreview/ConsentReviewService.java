@@ -168,7 +168,8 @@ public class ConsentReviewService {
     var docInstance = documentInstanceService
         .getDocumentInstanceOrError(pwaApplicationDetail.getPwaApplication(), DocumentTemplateMnem.PWA_CONSENT_DOCUMENT);
 
-    docgenService.scheduleDocumentGeneration(docInstance, DocGenType.FULL, issuingUser.getLinkedPerson());
+    var docgenRun = docgenService.scheduleDocumentGeneration(docInstance, DocGenType.FULL, issuingUser.getLinkedPerson());
+    pwaConsentService.setDocgenRunId(consent, docgenRun);
 
     return new IssuedConsentDto(consent.getReference());
 

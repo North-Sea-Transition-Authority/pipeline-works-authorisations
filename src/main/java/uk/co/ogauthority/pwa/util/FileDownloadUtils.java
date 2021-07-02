@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.util;
 
+import java.io.InputStream;
 import java.sql.Blob;
 import java.sql.SQLException;
 import org.slf4j.Logger;
@@ -85,4 +86,21 @@ public class FileDownloadUtils {
 
     return Math.max(fileSize, 1) + byteUnits[i];
   }
+
+  public static ResponseEntity<Resource> getResourceResponseEntity(Blob blob, InputStream inputStream, String filename) {
+
+    try {
+      return ResponseEntity.ok()
+          .contentType(MediaType.APPLICATION_OCTET_STREAM)
+          .contentLength(blob.length())
+          .header(HttpHeaders.CONTENT_DISPOSITION,
+              String.format("attachment; filename=\"%s\"", filename))
+          .body(new InputStreamResource(inputStream));
+
+    } catch (Exception e) {
+      throw new RuntimeException(String.format("Error serving file '%s'", filename), e);
+    }
+
+  }
+
 }

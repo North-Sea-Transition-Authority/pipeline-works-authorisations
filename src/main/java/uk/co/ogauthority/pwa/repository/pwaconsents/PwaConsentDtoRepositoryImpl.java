@@ -26,10 +26,13 @@ public class PwaConsentDtoRepositoryImpl implements PwaConsentDtoRepository {
         "pc.reference, " +
         "pa.id, " +
         "pa.applicationType, " +
-        "pa.appReference" +
+        "pa.appReference, " +
+        "dr.id, " +
+        "dr.status" +
         ") " +
         "FROM PwaConsent pc " +
-        "LEFT JOIN uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication pa ON pc.sourcePwaApplication = pa " +
+        "LEFT JOIN PwaApplication pa ON pc.sourcePwaApplication = pa " +
+        "LEFT JOIN DocgenRun dr ON dr.id = pc.docgenRunId " +
         "WHERE pc.masterPwa = :master_pwa ",
         PwaConsentApplicationDto.class)
         .setParameter("master_pwa", masterPwa)

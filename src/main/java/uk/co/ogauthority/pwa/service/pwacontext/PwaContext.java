@@ -18,7 +18,6 @@ public class PwaContext {
   private final ConsentSearchResultView consentSearchResultView;
   private Pipeline pipeline;
 
-
   public PwaContext(MasterPwa masterPwa, WebUserAccount user,
                     Set<PwaPermission> pwaPermissions,
                     ConsentSearchResultView consentSearchResultView) {

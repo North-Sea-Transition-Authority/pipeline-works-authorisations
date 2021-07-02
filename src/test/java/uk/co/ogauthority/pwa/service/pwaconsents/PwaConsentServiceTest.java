@@ -17,6 +17,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import uk.co.ogauthority.pwa.model.docgen.DocgenRun;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
@@ -157,6 +158,23 @@ public class PwaConsentServiceTest {
     when(pwaConsentRepository.findBySourcePwaApplication(any())).thenReturn(Optional.empty());
 
     assertThat(pwaConsentService.getConsentByPwaApplication(new PwaApplication())).isEmpty();
+
+  }
+
+  @Test
+  public void setDocgenRunId_idSet() {
+
+    var docgenRun = new DocgenRun();
+    docgenRun.setId(1L);
+
+    var pwaConsent = new PwaConsent();
+
+    pwaConsentService.setDocgenRunId(pwaConsent, docgenRun);
+
+    verify(pwaConsentRepository, times(1)).save(consentCaptor.capture());
+
+    assertThat(consentCaptor.getValue()).satisfies(consent ->
+        assertThat(consent.getDocgenRunId()).isEqualTo(docgenRun.getId()));
 
   }
 

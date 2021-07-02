@@ -1,18 +1,27 @@
 package uk.co.ogauthority.pwa.service.search.consents.pwaviewtab;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.EnumSet;
 import java.util.List;
+import org.apache.commons.lang3.reflect.FieldUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import uk.co.ogauthority.pwa.exception.AccessDeniedException;
+import uk.co.ogauthority.pwa.model.docgen.DocgenRun;
+import uk.co.ogauthority.pwa.model.docgen.DocgenRunStatus;
+import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocGenType;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineStatus;
+import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
 import uk.co.ogauthority.pwa.model.enums.aabuilt.AsBuiltNotificationStatus;
 import uk.co.ogauthority.pwa.repository.pwaconsents.PwaConsentApplicationDto;
 import uk.co.ogauthority.pwa.repository.pwaconsents.PwaConsentDtoRepository;
@@ -121,20 +130,79 @@ public class PwaViewTabServiceTest {
     assertThat(pwaPipelineView.getPipelineNumberOnlyFromReference()).isEqualTo("001");
   }
 
-
   @Test
   public void getTabContentModelMap_consentTab_modelMapContainsConsentHistoryViews_orderedByConsentDateLatestFirst() {
 
     var today = LocalDate.now();
     var unOrderedConsentAppDtos = List.of(
-        PwaViewTabTestUtil.createConsentApplicationDto(today.minusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant()),
-        PwaViewTabTestUtil.createConsentApplicationDto(today.plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant()));
+        PwaViewTabTestUtil.createMigratedConsentApplicationDto(today.minusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant()),
+        PwaViewTabTestUtil.createMigratedConsentApplicationDto(today.plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant()));
     when(pwaConsentDtoRepository.getConsentAndApplicationDtos(pwaContext.getMasterPwa())).thenReturn(unOrderedConsentAppDtos);
 
     var modelMap = pwaViewTabService.getTabContentModelMap(pwaContext, PwaViewTab.CONSENT_HISTORY);
     var pwaConsentHistoryViews = (List<PwaConsentApplicationDto>) modelMap.get("pwaConsentHistoryViews");
     assertThat(pwaConsentHistoryViews).containsExactly(
         unOrderedConsentAppDtos.get(1), unOrderedConsentAppDtos.get(0));
+  }
+
+  @Test
+  public void verifyConsentDocumentDownloadable_allOk() throws IllegalAccessException {
+
+    var docgenRun = new DocgenRun();
+    docgenRun.setId(2L);
+    docgenRun.setStatus(DocgenRunStatus.COMPLETE);
+    docgenRun.setDocGenType(DocGenType.FULL);
+
+    var pwaConsent = new PwaConsent();
+    pwaConsent.setId(3);
+    pwaConsent.setDocgenRunId(docgenRun.getId());
+
+    var dto = PwaViewTabTestUtil.createConsentApplicationDto(Instant.now(), docgenRun);
+    FieldUtils.writeField(dto, "consentId", pwaConsent.getId(), true);
+    var migratedDto = PwaViewTabTestUtil.createMigratedConsentApplicationDto(Instant.now().minus(5, ChronoUnit.HOURS));
+    when(pwaConsentDtoRepository.getConsentAndApplicationDtos(any())).thenReturn(List.of(dto, migratedDto));
+
+    pwaViewTabService.verifyConsentDocumentDownloadable(docgenRun, pwaConsent, PwaContextTestUtil.createPwaContext());
+
+  }
+
+  @Test(expected = AccessDeniedException.class)
+  public void verifyConsentDocumentDownloadable_notFullRun_exception() throws IllegalAccessException {
+
+    var docgenRun = new DocgenRun();
+    docgenRun.setId(2L);
+    docgenRun.setStatus(DocgenRunStatus.COMPLETE);
+    docgenRun.setDocGenType(DocGenType.PREVIEW);
+
+    var pwaConsent = new PwaConsent();
+    pwaConsent.setDocgenRunId(docgenRun.getId());
+    pwaConsent.setId(3);
+
+    var dto = PwaViewTabTestUtil.createConsentApplicationDto(Instant.now(), docgenRun);
+    FieldUtils.writeField(dto, "consentId", pwaConsent.getId(), true);
+    var migratedDto = PwaViewTabTestUtil.createMigratedConsentApplicationDto(Instant.now().minus(5, ChronoUnit.HOURS));
+    when(pwaConsentDtoRepository.getConsentAndApplicationDtos(any())).thenReturn(List.of(dto, migratedDto));
+
+    pwaViewTabService.verifyConsentDocumentDownloadable(docgenRun, pwaConsent, PwaContextTestUtil.createPwaContext());
+
+  }
+
+  @Test(expected = AccessDeniedException.class)
+  public void verifyConsentDocumentDownloadable_notLinkedToPwa_exception() {
+
+    var docgenRun = new DocgenRun();
+    docgenRun.setId(2L);
+    docgenRun.setStatus(DocgenRunStatus.COMPLETE);
+    docgenRun.setDocGenType(DocGenType.FULL);
+
+    var pwaConsent = new PwaConsent();
+    pwaConsent.setDocgenRunId(docgenRun.getId());
+
+    var migratedDto = PwaViewTabTestUtil.createMigratedConsentApplicationDto(Instant.now().minus(5, ChronoUnit.HOURS));
+    when(pwaConsentDtoRepository.getConsentAndApplicationDtos(any())).thenReturn(List.of(migratedDto));
+
+    pwaViewTabService.verifyConsentDocumentDownloadable(docgenRun, pwaConsent, PwaContextTestUtil.createPwaContext());
+
   }
 
 }

@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.exception.EntityLatestVersionNotFoundException;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
+import uk.co.ogauthority.pwa.model.docgen.DocgenRun;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
@@ -71,7 +72,7 @@ public class PwaConsentService {
     return pwaConsentRepository.findByMasterPwa(masterPwa);
   }
 
-  public PwaConsent getConsentsById(Integer consentId) {
+  public PwaConsent getConsentById(Integer consentId) {
     return pwaConsentRepository.findById(consentId).orElseThrow(
         () -> new PwaEntityNotFoundException("Pwa Consent could not be found for consent id: " + consentId));
   }
@@ -92,6 +93,11 @@ public class PwaConsentService {
 
   public Optional<PwaConsent> getConsentByPwaApplication(PwaApplication pwaApplication) {
     return pwaConsentRepository.findBySourcePwaApplication(pwaApplication);
+  }
+
+  public void setDocgenRunId(PwaConsent consent, DocgenRun docgenRun) {
+    consent.setDocgenRunId(docgenRun.getId());
+    pwaConsentRepository.save(consent);
   }
 
 }

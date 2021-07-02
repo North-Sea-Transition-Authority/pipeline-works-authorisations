@@ -2,16 +2,11 @@ package uk.co.ogauthority.pwa.controller.appprocessing.prepareconsent;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
-import java.io.InputStream;
-import java.sql.Blob;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -54,6 +49,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.mailmerge.MailMergeService;
 import uk.co.ogauthority.pwa.service.template.TemplateTextService;
+import uk.co.ogauthority.pwa.util.FileDownloadUtils;
 import uk.co.ogauthority.pwa.util.FlashUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
@@ -255,29 +251,13 @@ public class AppConsentDocController {
             var inputStream = blob.getBinaryStream();
 
             String filename = processingContext.getPwaApplication().getAppReference().replace("/", "-") + " consent preview.pdf";
-            return getResourceResponseEntity(blob, inputStream, filename);
+            return FileDownloadUtils.getResourceResponseEntity(blob, inputStream, filename);
 
           } catch (Exception e) {
             throw new RuntimeException("Error serving document", e);
           }
 
         });
-
-  }
-
-  private ResponseEntity<Resource> getResourceResponseEntity(Blob blob, InputStream inputStream, String filename) {
-
-    try {
-      return ResponseEntity.ok()
-          .contentType(MediaType.APPLICATION_OCTET_STREAM)
-          .contentLength(blob.length())
-          .header(HttpHeaders.CONTENT_DISPOSITION,
-              String.format("attachment; filename=\"%s\"", filename))
-          .body(new InputStreamResource(inputStream));
-
-    } catch (Exception e) {
-      throw new RuntimeException(String.format("Error serving file '%s'", filename), e);
-    }
 
   }
 

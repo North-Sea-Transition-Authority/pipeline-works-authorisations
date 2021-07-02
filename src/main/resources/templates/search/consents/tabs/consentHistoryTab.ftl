@@ -18,12 +18,30 @@
     <#list pwaConsentHistoryViews as pwaConsentHistoryView>
       <tr class="govuk-table__row">
 
+        <#local documentIsDownloadable = pwaConsentHistoryView.consentDocumentDownloadable() />
+        <#local documentStatusDisplay = pwaConsentHistoryView.getDocStatusDisplay() />
+
         <td class="govuk-table__cell">
           <#if pwaConsentHistoryView.pwaApplicationId?has_content>
-            <@fdsAction.link linkText=pwaConsentHistoryView.consentReference linkUrl=springUrl(urlFactory.getConsentDocumentUrl(pwaConsentHistoryView.pwaApplicationId, pwaConsentHistoryView.applicationType)) 
-            linkClass="govuk-link" linkScreenReaderText="Download consent document" role=false start=false openInNewTab=true/> 
+            <#if documentIsDownloadable>
+              <@fdsAction.link
+                linkText=pwaConsentHistoryView.consentReference
+                linkUrl=springUrl(urlFactory.getConsentDocumentUrl(pwaConsentHistoryView.consentId, pwaConsentHistoryView.docgenRunId.get()))
+                linkClass="govuk-link"
+                linkScreenReaderText="Download consent document"
+                role=false
+                start=false
+                openInNewTab=true/>
+            <#else>
+              <span>${pwaConsentHistoryView.consentReference}
+              <#if documentStatusDisplay?has_content>
+                <br/>
+                ${documentStatusDisplay}
+              </#if>
+              </span>
+            </#if>
           <#else>
-            ${pwaConsentHistoryView.consentReference}
+            <span>${pwaConsentHistoryView.consentReference}<span>
           </#if>
         </td>
 
@@ -34,22 +52,22 @@
         <td class="govuk-table__cell">
           <#if pwaConsentHistoryView.appReference?has_content && pwaConsentHistoryView.applicationType?has_content>
             <div>
-              <@fdsAction.link linkText=pwaConsentHistoryView.appReference linkUrl=springUrl(urlFactory.routeCaseManagement(pwaConsentHistoryView.pwaApplicationId, pwaConsentHistoryView.applicationType)) 
-              linkClass="govuk-link" linkScreenReaderText="Go to ${pwaConsentHistoryView.appReference} case management screen" role=false start=false openInNewTab=true/> 
+              <@fdsAction.link linkText=pwaConsentHistoryView.appReference linkUrl=springUrl(urlFactory.routeCaseManagement(pwaConsentHistoryView.pwaApplicationId, pwaConsentHistoryView.applicationType))
+              linkClass="govuk-link" linkScreenReaderText="Go to ${pwaConsentHistoryView.appReference} case management screen" role=false start=false openInNewTab=true/>
               </br>
               ${pwaConsentHistoryView.applicationType.getDisplayName()}
             </div>
           <#else>
             <span> Unknown </span>
           </#if>
-        </td>   
+        </td>
 
       </tr>
-    </#list>    
+    </#list>
     </tbody>
 
   </table>
 
-  
+
 
 </#macro>
