@@ -95,6 +95,30 @@ public final class OrganisationPipelineRoleInstanceDto {
     );
   }
 
+
+  public static OrganisationPipelineRoleInstanceDto copyWithoutPipeline(OrganisationPipelineRoleInstanceDto orgPipelineRoleInstanceDto) {
+
+    return new OrganisationPipelineRoleInstanceDto(
+        orgPipelineRoleInstanceDto.getOrganisationUnitId() != null ? orgPipelineRoleInstanceDto.getOrganisationUnitId().asInt() : null,
+        orgPipelineRoleInstanceDto.getOrganisationRoleOwnerDto().getManualOrganisationName(),
+        orgPipelineRoleInstanceDto.getOrganisationRoleOwnerDto().getTreatyAgreement(),
+        orgPipelineRoleInstanceDto.getHuooRole(),
+        orgPipelineRoleInstanceDto.getHuooType(),
+        null, null, null, null, null, null);
+  }
+
+  public static OrganisationPipelineRoleInstanceDto manualPipelineRoleInstance(PipelineId pipelineId,
+                                                                               HuooRole huooRole,
+                                                                               String manualName) {
+    return new OrganisationPipelineRoleInstanceDto(null,
+        manualName,
+        null,
+        huooRole,
+        HuooType.PORTAL_ORG,
+        pipelineId.asInt(),
+        null, null, null, null, null);
+  }
+
   public OrganisationUnitId getOrganisationUnitId() {
     return this.organisationRoleInstanceDto.getOrganisationUnitId();
   }

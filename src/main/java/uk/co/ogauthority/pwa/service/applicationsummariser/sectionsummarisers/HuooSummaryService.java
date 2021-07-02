@@ -102,8 +102,8 @@ public class HuooSummaryService implements ApplicationSectionSummariser {
       var consentedGroupHasPipelines = huooRolePipelineGroupsConsentedView.getOrgRolePipelineGroupView(role)
           .stream().anyMatch(group -> !group.getPipelineNumbersAndSplits().isEmpty());
 
-      allPipelinesLabelOverride = appGroupShowAllPipelineFlag && consentedGroupShowAllPipelineFlag
-          && appGroupHasPipelines && consentedGroupHasPipelines;
+      allPipelinesLabelOverride = appGroupHasPipelines && appGroupShowAllPipelineFlag
+          && (!consentedGroupHasPipelines || consentedGroupShowAllPipelineFlag);
     }
 
     //for the given role and for the app & consented versions, extract the org pipeline group view and create a diffable view from it
