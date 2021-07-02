@@ -9,6 +9,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.controller.appprocessing.processingcharges.IndustryPaymentController;
+import uk.co.ogauthority.pwa.controller.appprocessing.processingcharges.ViewApplicationPaymentInformationController;
 import uk.co.ogauthority.pwa.controller.masterpwas.contacts.PwaContactController;
 import uk.co.ogauthority.pwa.controller.publicnotice.PublicNoticeApplicantViewController;
 import uk.co.ogauthority.pwa.controller.search.consents.PwaViewController;
@@ -124,9 +125,13 @@ public class TasksTabContentService implements AppProcessingTabContentService {
 
       }
 
-      if(appProcessingContext.hasProcessingPermission(PwaAppProcessingPermission.VIEW_PAYMENT_DETAILS_IF_EXISTS)
+      if (appProcessingContext.hasProcessingPermission(PwaAppProcessingPermission.VIEW_PAYMENT_DETAILS_IF_EXISTS)
           && applicationChargeRequestService.applicationChargeRequestCompleteAndPaid(appProcessingContext.getPwaApplication())) {
-        viewAppPaymentUrl = Optional.of("fake-url");
+        viewAppPaymentUrl = Optional.of(
+            ReverseRouter.route(on(ViewApplicationPaymentInformationController.class).renderPaymentInformation(
+                appProcessingContext.getMasterPwaApplicationId(), appProcessingContext.getApplicationType(), null
+            ))
+        );
       }
     }
 
