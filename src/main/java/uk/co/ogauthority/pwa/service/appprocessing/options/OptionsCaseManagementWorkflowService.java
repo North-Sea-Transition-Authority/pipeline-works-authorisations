@@ -7,8 +7,10 @@ import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.workflow.GenericMessageEvent;
 import uk.co.ogauthority.pwa.service.consultations.ConsultationRequestService;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.workflow.application.PwaApplicationWorkflowMessageEvents;
 import uk.co.ogauthority.pwa.service.enums.workflow.application.PwaApplicationWorkflowTask;
+import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
 import uk.co.ogauthority.pwa.service.workflow.assignment.WorkflowAssignmentService;
 
@@ -21,15 +23,18 @@ public class OptionsCaseManagementWorkflowService {
   private final WorkflowAssignmentService workflowAssignmentService;
   private final CamundaWorkflowService camundaWorkflowService;
   private final ConsultationRequestService consultationRequestService;
+  private final PwaApplicationDetailService pwaApplicationDetailService;
 
 
   @Autowired
   public OptionsCaseManagementWorkflowService(WorkflowAssignmentService workflowAssignmentService,
                                               CamundaWorkflowService camundaWorkflowService,
-                                              ConsultationRequestService consultationRequestService) {
+                                              ConsultationRequestService consultationRequestService,
+                                              PwaApplicationDetailService pwaApplicationDetailService) {
     this.workflowAssignmentService = workflowAssignmentService;
     this.camundaWorkflowService = camundaWorkflowService;
     this.consultationRequestService = consultationRequestService;
+    this.pwaApplicationDetailService = pwaApplicationDetailService;
   }
 
 
@@ -52,6 +57,7 @@ public class OptionsCaseManagementWorkflowService {
         pwaApplicationDetail.getPwaApplication(),
         authenticatedUserAccount
     );
+    pwaApplicationDetailService.updateStatus(pwaApplicationDetail, PwaApplicationStatus.COMPLETE, authenticatedUserAccount);
 
   }
 }
