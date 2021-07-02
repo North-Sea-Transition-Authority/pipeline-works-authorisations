@@ -14,8 +14,10 @@ import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.controller.appprocessing.shared.PwaAppProcessingPermissionCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationStatusCheck;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
+import uk.co.ogauthority.pwa.model.enums.tasklist.TaskState;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.AppProcessingBreadcrumbService;
+import uk.co.ogauthority.pwa.service.appprocessing.consultations.ConsultationService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.service.consultations.ConsultationRequestService;
 import uk.co.ogauthority.pwa.service.consultations.ConsultationViewService;
@@ -36,20 +38,27 @@ public class ConsultationController {
 
   private final ConsultationRequestService consultationRequestService;
   private final ConsultationViewService consultationViewService;
+  private final ConsultationService consultationService;
   private final AppProcessingBreadcrumbService appProcessingBreadcrumbService;
 
   @Autowired
   public ConsultationController(
       ConsultationRequestService consultationRequestService,
       ConsultationViewService consultationViewService,
+      ConsultationService consultationService,
       AppProcessingBreadcrumbService appProcessingBreadcrumbService) {
     this.consultationRequestService = consultationRequestService;
     this.consultationViewService = consultationViewService;
+    this.consultationService = consultationService;
     this.appProcessingBreadcrumbService = appProcessingBreadcrumbService;
   }
 
   //Endpoints
   @GetMapping
+  @PwaApplicationStatusCheck(statuses = {
+      PwaApplicationStatus.CASE_OFFICER_REVIEW,
+      PwaApplicationStatus.CONSENT_REVIEW,
+      PwaApplicationStatus.COMPLETE})
   public ModelAndView renderConsultations(@PathVariable("applicationId") Integer applicationId,
                                           @PathVariable("applicationType")
                                           @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
@@ -117,8 +126,7 @@ public class ConsultationController {
   private ModelAndView getConsultationModelAndView(PwaAppProcessingContext pwaAppProcessingContext) {
 
     var pwaApplicationDetail = pwaAppProcessingContext.getApplicationDetail();
-    boolean canEditConsultations = pwaAppProcessingContext.getAppProcessingPermissions()
-        .contains(PwaAppProcessingPermission.EDIT_CONSULTATIONS);
+    boolean canEditConsultations = consultationService.getTaskState(pwaAppProcessingContext).equals(TaskState.EDIT);
 
     var modelAndView = new ModelAndView("consultation/consultation")
         .addObject("requestConsultationsUrl",

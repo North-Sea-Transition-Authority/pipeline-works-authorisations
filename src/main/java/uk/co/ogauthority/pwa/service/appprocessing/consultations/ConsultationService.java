@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.service.appprocessing.consultations;
 
 import java.util.List;
+import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.model.enums.tasklist.TaskState;
@@ -13,6 +14,7 @@ import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermiss
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingTask;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.TaskStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ConsultationRequestStatus;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 
 @Service
 public class ConsultationService implements AppProcessingService {
@@ -33,6 +35,31 @@ public class ConsultationService implements AppProcessingService {
         || processingContext.getAppProcessingPermissions().contains(PwaAppProcessingPermission.SHOW_ALL_TASKS_AS_PWA_MANAGER_ONLY);
   }
 
+
+  /** Task state is either editable or viewable depending on app state and app permissions for oga users.
+   * Or it will be always locked for industry users
+   */
+  public TaskState getTaskState(PwaAppProcessingContext processingContext) {
+
+    boolean atLeastOneSatisfactoryVersion = processingContext.getApplicationInvolvement().hasAtLeastOneSatisfactoryVersion();
+    var permissions = processingContext.getAppProcessingPermissions();
+    var appStatusesForViewing = Set.of(
+        PwaApplicationStatus.CASE_OFFICER_REVIEW, PwaApplicationStatus.CONSENT_REVIEW, PwaApplicationStatus.COMPLETE);
+
+    var taskState = permissions.contains(PwaAppProcessingPermission.VIEW_ALL_CONSULTATIONS)
+        && appStatusesForViewing.contains(processingContext.getApplicationDetail().getStatus())
+        && atLeastOneSatisfactoryVersion ? TaskState.VIEW : TaskState.LOCK;
+
+    if (atLeastOneSatisfactoryVersion && permissions.contains(PwaAppProcessingPermission.EDIT_CONSULTATIONS)
+        && processingContext.getApplicationDetail().getStatus().equals(PwaApplicationStatus.CASE_OFFICER_REVIEW)) {
+      taskState = TaskState.EDIT;
+    }
+
+    return taskState;
+  }
+
+
+
   @Override
   public TaskListEntry getTaskListEntry(PwaAppProcessingTask task, PwaAppProcessingContext processingContext) {
 
@@ -48,22 +75,16 @@ public class ConsultationService implements AppProcessingService {
           .allMatch(r -> COMPLETED_REQUEST_STATUSES.contains(r.getStatus()));
 
       taskStatus = allRespondedOrWithdrawn ? TaskStatus.COMPLETED : TaskStatus.IN_PROGRESS;
-
     }
 
     boolean atLeastOneSatisfactoryVersion = processingContext.getApplicationInvolvement().hasAtLeastOneSatisfactoryVersion();
-
-    var taskState = TaskState.LOCK;
-    if (!processingContext.getAppProcessingPermissions().contains(PwaAppProcessingPermission.SHOW_ALL_TASKS_AS_PWA_MANAGER_ONLY)) {
-      taskState = atLeastOneSatisfactoryVersion ? TaskState.EDIT : TaskState.LOCK;
-    }
 
     return new TaskListEntry(
         task.getTaskName(),
         task.getRoute(processingContext),
         atLeastOneSatisfactoryVersion ? TaskTag.from(taskStatus) : TaskTag.from(TaskStatus.CANNOT_START_YET),
-        taskState,
+        getTaskState(processingContext),
         task.getDisplayOrder());
-
   }
+
 }

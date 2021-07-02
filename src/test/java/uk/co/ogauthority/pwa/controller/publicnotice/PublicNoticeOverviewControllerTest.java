@@ -58,7 +58,7 @@ public class PublicNoticeOverviewControllerTest extends PwaAppProcessingContextA
   public void setUp() {
 
     endpointTestBuilder = new PwaApplicationEndpointTestBuilder(mockMvc, pwaApplicationDetailService, pwaAppProcessingPermissionService)
-        .setAllowedStatuses(PwaApplicationStatus.CASE_OFFICER_REVIEW)
+        .setAllowedStatuses(PwaApplicationStatus.CASE_OFFICER_REVIEW, PwaApplicationStatus.CONSENT_REVIEW, PwaApplicationStatus.COMPLETE)
         .setAllowedProcessingPermissions(PwaAppProcessingPermission.VIEW_ALL_PUBLIC_NOTICES);
 
     user = new AuthenticatedUserAccount(new WebUserAccount(1), EnumSet.allOf(PwaUserPrivilege.class));

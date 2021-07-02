@@ -88,6 +88,7 @@ public class PwaAppProcessingPermissionService {
               return userPrivileges.contains(PwaUserPrivilege.PWA_MANAGER)
                   && PwaApplicationType.OPTIONS_VARIATION.equals(detail.getPwaApplicationType());
             case VIEW_ALL_PUBLIC_NOTICES:
+            case OGA_EDIT_PUBLIC_NOTICE:
               return (userPrivileges.contains(PwaUserPrivilege.PWA_CASE_OFFICER)
                   || userPrivileges.contains(PwaUserPrivilege.PWA_MANAGER))
                   && (PwaApplicationType.INITIAL.equals(detail.getPwaApplicationType())

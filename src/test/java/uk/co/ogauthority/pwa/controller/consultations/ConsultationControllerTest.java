@@ -27,9 +27,11 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.dto.appprocessing.ProcessingPermissionsDto;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.enums.tasklist.TaskState;
 import uk.co.ogauthority.pwa.model.form.consultation.ConsultationRequestView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.PwaAppProcessingPermissionService;
+import uk.co.ogauthority.pwa.service.appprocessing.consultations.ConsultationService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContextService;
 import uk.co.ogauthority.pwa.service.consultations.ConsultationViewService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
@@ -51,6 +53,9 @@ public class ConsultationControllerTest extends PwaAppProcessingContextAbstractC
   private ConsultationViewService consultationViewService;
 
   @MockBean
+  private ConsultationService consultationService;
+
+  @MockBean
   private PwaAppProcessingPermissionService pwaAppProcessingPermissionService;
 
   private PwaApplicationDetail pwaApplicationDetail;
@@ -60,7 +65,7 @@ public class ConsultationControllerTest extends PwaAppProcessingContextAbstractC
   public void setUp() {
 
     viewAllConsultationsEndpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaApplicationDetailService, pwaAppProcessingPermissionService)
-        .setAllowedStatuses(PwaApplicationStatus.CASE_OFFICER_REVIEW)
+        .setAllowedStatuses(PwaApplicationStatus.CASE_OFFICER_REVIEW, PwaApplicationStatus.CONSENT_REVIEW, PwaApplicationStatus.COMPLETE)
         .setAllowedProcessingPermissions(PwaAppProcessingPermission.VIEW_ALL_CONSULTATIONS);
 
     withdrawConsultationEndpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaApplicationDetailService, pwaAppProcessingPermissionService)
@@ -80,6 +85,7 @@ public class ConsultationControllerTest extends PwaAppProcessingContextAbstractC
         pwaApplicationDetail.getPwaApplication()), EnumSet.allOf(PwaAppProcessingPermission.class));
 
     when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail, user)).thenReturn(permissionsDto);
+    when(consultationService.getTaskState(any())).thenReturn(TaskState.EDIT);
 
   }
 
