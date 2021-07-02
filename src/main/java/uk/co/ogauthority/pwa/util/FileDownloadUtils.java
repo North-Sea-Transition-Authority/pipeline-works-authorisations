@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 
@@ -15,6 +16,25 @@ public class FileDownloadUtils {
   private static final Logger LOGGER = LoggerFactory.getLogger(FileDownloadUtils.class);
 
   private FileDownloadUtils() {
+  }
+
+
+
+  /**
+   * Creates the ResponseEntity object to fully configure the HTTP response to the download request.
+   *
+   * @param resource      the object being downloaded
+   * @param mediaType     the content type of the file
+   * @param filename      the name of the file
+   * @return the ResponseEntity object associated to the required resource
+   */
+  public static <T> ResponseEntity<T> getCustomMediaTypeObjectAsResponse(T resource,
+                                                               String mediaType,
+                                                               String filename) {
+    return ResponseEntity.status(HttpStatus.OK)
+        .header(HttpHeaders.CONTENT_TYPE, mediaType)
+        .header(HttpHeaders.CONTENT_DISPOSITION, String.format("attachment; filename=\"%s\"", filename))
+        .body(resource);
   }
 
   /**

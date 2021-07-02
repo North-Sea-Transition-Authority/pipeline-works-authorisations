@@ -53,6 +53,10 @@ public enum PipelineStatus implements DiffableAsString {
     return physicalPipelineState;
   }
 
+  public boolean hasPhysicalPipelineState(PhysicalPipelineState queryPhysicalPipelineState) {
+    return this.physicalPipelineState == queryPhysicalPipelineState;
+  }
+
   public static Stream<PipelineStatus> stream() {
     return Arrays.stream(PipelineStatus.values());
   }

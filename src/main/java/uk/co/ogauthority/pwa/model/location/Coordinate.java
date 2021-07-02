@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.model.location;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Objects;
 import org.apache.commons.lang3.ObjectUtils;
 
@@ -49,6 +50,10 @@ public abstract class Coordinate {
 
   public boolean degMinSecPresent() {
     return ObjectUtils.allNotNull(degrees, minutes, seconds);
+  }
+
+  public double convertToDecimalDegrees() {
+    return (double) degrees + ((double) minutes / 60) + seconds.divide(BigDecimal.valueOf(3600), RoundingMode.HALF_UP).doubleValue();
   }
 
   @Override
