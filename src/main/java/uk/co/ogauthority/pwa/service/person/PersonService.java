@@ -32,6 +32,18 @@ public class PersonService {
 
   }
 
+  public SimplePersonView getSimplePersonView(PersonId personId) {
+
+    var person = getPersonById(personId);
+    return mapToSimplePersonView(person);
+  }
+
+  private SimplePersonView mapToSimplePersonView(Person person) {
+    return new SimplePersonView(
+        person.getId(), person.getFullName(), person.getEmailAddress()
+    );
+  }
+
   public Person getPersonById(PersonId personId) {
 
     return personRepository.findById(personId.asInt())

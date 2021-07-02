@@ -4,6 +4,11 @@
 <#-- @ftlvariable name="appRef" type="java.lang.String" -->
 <#-- @ftlvariable name="pageRef" type="java.lang.String" -->
 <#-- @ftlvariable name="appPaymentDisplaySummary" type="uk.co.ogauthority.pwa.service.appprocessing.processingcharges.display.ApplicationPaymentDisplaySummary" -->
+<#-- @ftlvariable name="paidByName" type="java.lang.String" -->
+<#-- @ftlvariable name="paidByEmail" type="java.lang.String" -->
+<#-- @ftlvariable name="paidInstant" type="java.lang.String" -->
+<#-- @ftlvariable name="requestedInstant" type="java.lang.String" -->
+<#-- @ftlvariable name="paymentStatus" type="java.lang.String" -->
 
 <#include '../../layout.ftl'>
 
@@ -16,6 +21,13 @@
     <@grid.gridRow>
         <@grid.twoThirdsColumn>
             <h2 class="govuk-heading-l">${pageRef}</h2>
+
+            <@fdsCheckAnswers.checkAnswers >
+                <@fdsCheckAnswers.checkAnswersRowNoAction keyText="Payment status">${paymentStatus}</@fdsCheckAnswers.checkAnswersRowNoAction>
+                <@fdsCheckAnswers.checkAnswersRowNoAction keyText="Payment requested">${requestedInstant}</@fdsCheckAnswers.checkAnswersRowNoAction>
+                <@fdsCheckAnswers.checkAnswersRowNoAction keyText="Paid by">${paidByName} (${paidByEmail})</@fdsCheckAnswers.checkAnswersRowNoAction>
+                <@fdsCheckAnswers.checkAnswersRowNoAction keyText="Paid on">${paidInstant}</@fdsCheckAnswers.checkAnswersRowNoAction>
+            </@fdsCheckAnswers.checkAnswers>
 
             <@pwaPayment.applicationPaymentDisplaySummary summary=appPaymentDisplaySummary />
 

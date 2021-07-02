@@ -92,8 +92,6 @@ public class CancelPaymentRequestController {
     breadcrumbService.fromCaseManagement(processingContext.getPwaApplication(), modelAndView, PAGE_REF);
 
     return modelAndView;
-
-
   }
 
   @PostMapping

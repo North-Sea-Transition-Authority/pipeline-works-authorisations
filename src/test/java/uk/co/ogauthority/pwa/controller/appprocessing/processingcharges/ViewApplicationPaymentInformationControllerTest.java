@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.controller.appprocessing.processingcharges;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
@@ -43,8 +44,12 @@ import uk.co.ogauthority.pwa.service.appprocessing.processingcharges.display.App
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.service.person.PersonService;
+import uk.co.ogauthority.pwa.service.person.SimplePersonView;
+import uk.co.ogauthority.pwa.service.person.SimplePersonViewTestUtil;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
+import uk.co.ogauthority.pwa.util.DateUtils;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(controllers = ViewApplicationPaymentInformationController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {PwaAppProcessingContextService.class}))
@@ -54,7 +59,6 @@ public class ViewApplicationPaymentInformationControllerTest extends PwaAppProce
   private static final int APP_DETAIL_ID = 30;
   private static final PwaApplicationType APP_TYPE = PwaApplicationType.OPTIONS_VARIATION;
 
-
   @MockBean
   private PwaAppProcessingPermissionService pwaAppProcessingPermissionService;
 
@@ -63,6 +67,9 @@ public class ViewApplicationPaymentInformationControllerTest extends PwaAppProce
 
   @MockBean
   private ApplicationPaymentSummariser applicationPaymentSummariser;
+
+  @MockBean
+  private PersonService personService;
 
   private PwaApplicationEndpointTestBuilder endpointTester;
 
@@ -75,9 +82,10 @@ public class ViewApplicationPaymentInformationControllerTest extends PwaAppProce
 
   private Instant requestedInstant, paidInstant;
 
+  private SimplePersonView personView;
+
   @Before
   public void setUp() throws Exception {
-
 
     user = new AuthenticatedUserAccount(new WebUserAccount(1), EnumSet.allOf(PwaUserPrivilege.class));
 
@@ -87,9 +95,11 @@ public class ViewApplicationPaymentInformationControllerTest extends PwaAppProce
     requestedByPersonId = new PersonId(1);
     paidByPersonId = new PersonId(2);
 
+    personView = SimplePersonViewTestUtil.createView(paidByPersonId);
+    when(personService.getSimplePersonView(any())).thenReturn(personView);
+
     requestedInstant = LocalDateTime.of(2021, 1, 1, 12, 0, 0).toInstant(ZoneOffset.UTC);
     paidInstant = LocalDateTime.of(2021, 2, 1, 12, 0, 0).toInstant(ZoneOffset.UTC);
-
 
     applicationChargeRequestReport = ApplicationChargeRequestReportTestUtil.createPaidReport(
         100,
@@ -177,7 +187,14 @@ public class ViewApplicationPaymentInformationControllerTest extends PwaAppProce
         .andExpect(model().attributeExists("caseSummaryView"))
         .andExpect(model().attributeExists("appRef"))
         .andExpect(model().attributeExists("appPaymentDisplaySummary"))
-        .andExpect(model().attributeExists("pageRef"));
+        .andExpect(model().attributeExists("pageRef"))
+        .andExpect(model().attribute("paidByName", personView.getName()))
+        .andExpect(model().attribute("paidByEmail", personView.getEmail()))
+        .andExpect(model().attribute("paidInstant", DateUtils.formatDateTime(paidInstant)))
+        .andExpect(model().attribute("requestedInstant", DateUtils.formatDateTime(requestedInstant)))
+        .andExpect(model().attribute("paymentStatus", applicationChargeRequestReport.getPwaAppChargeRequestStatus().getDispayString()));
+
+    verify(personService).getSimplePersonView(paidByPersonId);
 
   }
 }

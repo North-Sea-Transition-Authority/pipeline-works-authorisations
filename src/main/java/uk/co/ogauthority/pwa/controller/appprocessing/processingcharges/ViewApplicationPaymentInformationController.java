@@ -16,7 +16,9 @@ import uk.co.ogauthority.pwa.service.appprocessing.processingcharges.appcharges.
 import uk.co.ogauthority.pwa.service.appprocessing.processingcharges.display.ApplicationPaymentSummariser;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.service.person.PersonService;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
+import uk.co.ogauthority.pwa.util.DateUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
 @Controller
@@ -24,19 +26,22 @@ import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 @PwaAppProcessingPermissionCheck(permissions = PwaAppProcessingPermission.VIEW_PAYMENT_DETAILS_IF_EXISTS)
 public class ViewApplicationPaymentInformationController {
 
-  private static final String PAGE_REF = "View payment information";
+  private static final String PAGE_REF = "Payment information";
 
   private final ApplicationChargeRequestService applicationChargeRequestService;
   private final ApplicationPaymentSummariser applicationPaymentSummariser;
   private final ApplicationBreadcrumbService breadcrumbService;
+  private final PersonService personService;
 
   @Autowired
   public ViewApplicationPaymentInformationController(ApplicationChargeRequestService applicationChargeRequestService,
                                                      ApplicationPaymentSummariser applicationPaymentSummariser,
-                                                     ApplicationBreadcrumbService breadcrumbService) {
+                                                     ApplicationBreadcrumbService breadcrumbService,
+                                                     PersonService personService) {
     this.applicationChargeRequestService = applicationChargeRequestService;
     this.applicationPaymentSummariser = applicationPaymentSummariser;
     this.breadcrumbService = breadcrumbService;
+    this.personService = personService;
   }
 
 
@@ -50,13 +55,21 @@ public class ViewApplicationPaymentInformationController {
         applicationChargeRequestReport -> {
           var displayableAppCharges = applicationPaymentSummariser.summarise(applicationChargeRequestReport);
 
+          var paidByPersonView = personService.getSimplePersonView(applicationChargeRequestReport.getPaidByPersonId());
+
           var modelAndView = new ModelAndView("appprocessing/processingcharges/viewPaymentDetails")
               .addObject("caseSummaryView", processingContext.getCaseSummaryView())
               .addObject("appRef", processingContext.getCaseSummaryView().getPwaApplicationRef())
               .addObject("appPaymentDisplaySummary", displayableAppCharges)
-              .addObject("pageRef", PAGE_REF);
+              .addObject("pageRef", PAGE_REF)
+              .addObject("requestedInstant", DateUtils.formatDateTime(applicationChargeRequestReport.getRequestedInstant()))
+              .addObject("paidByName", paidByPersonView.getName())
+              .addObject("paidByEmail", paidByPersonView.getEmail())
+              .addObject("paidInstant", DateUtils.formatDateTime(applicationChargeRequestReport.getPaidInstant()))
+              .addObject("paymentStatus", applicationChargeRequestReport.getPwaAppChargeRequestStatus().getDispayString());
 
           breadcrumbService.fromCaseManagement(processingContext.getPwaApplication(), modelAndView, PAGE_REF);
+
           return modelAndView;
         });
   }
