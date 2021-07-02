@@ -32,8 +32,9 @@ public class AsBuiltNotificationEmailService {
         asBuiltNotificationGroup.getReference(),
         pipelineDetail.getPipelineNumber(),
         asBuiltNotificationStatus,
-        emailCaseLinkService.generateAsBuiltNotificationSummaryLink(pipelineDetail.getPipeline().getMasterPwa().getId(),
-            pipelineDetail.getPipelineId().asInt(), pipelineDetail.getId())
+        emailCaseLinkService.generateAsBuiltNotificationSummaryLink(
+            asBuiltNotificationGroup.getMasterPwaIdFromGroupConsent(),
+            pipelineDetail.getPipelineId().asInt())
         );
 
     notifyService.sendEmail(emailProps, recipientEmail);

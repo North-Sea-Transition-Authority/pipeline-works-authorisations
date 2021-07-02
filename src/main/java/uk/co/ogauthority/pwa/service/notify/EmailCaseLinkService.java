@@ -29,10 +29,10 @@ public class EmailCaseLinkService {
         .review(application.getApplicationType(), application.getId(), null, null));
   }
 
-  public String generateAsBuiltNotificationSummaryLink(Integer pwaId, Integer pipelineId, Integer pipelineDetailId) {
+  public String generateAsBuiltNotificationSummaryLink(Integer pwaId, Integer pipelineId) {
     return pwaUrlBase + contextPath + ReverseRouter.route(on(PwaPipelineViewController.class)
     .renderViewPwaPipeline(pwaId, pipelineId, PwaPipelineViewTab.AS_BUILT_NOTIFICATION_HISTORY, null, null,
-        null, pipelineDetailId, null));
+        null, null, null));
   }
 
 }
