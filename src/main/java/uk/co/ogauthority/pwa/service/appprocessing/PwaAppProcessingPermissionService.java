@@ -61,6 +61,9 @@ public class PwaAppProcessingPermissionService {
                     || appInvolvement.hasAnyOfTheseHolderRoles(PwaOrganisationRole.FINANCE_ADMIN)
                 )
             );
+            case VIEW_PAYMENT_DETAILS_IF_EXISTS:
+              return appInvolvement.isUserInAppContactTeam() || appInvolvement.isUserInHolderTeam();
+
             case APPROVE_OPTIONS_VIEW:
               return !appInvolvement.getContactRoles().isEmpty()
                   && PwaApplicationType.OPTIONS_VARIATION.equals(detail.getPwaApplicationType());

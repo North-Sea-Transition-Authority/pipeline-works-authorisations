@@ -36,6 +36,7 @@ import uk.co.ogauthority.pwa.service.appprocessing.applicationupdate.Application
 import uk.co.ogauthority.pwa.service.appprocessing.consentreview.ConsentReviewService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.service.appprocessing.options.ApproveOptionsService;
+import uk.co.ogauthority.pwa.service.appprocessing.processingcharges.appcharges.ApplicationChargeRequestService;
 import uk.co.ogauthority.pwa.service.appprocessing.publicnotice.PublicNoticeDocumentUpdateService;
 import uk.co.ogauthority.pwa.service.appprocessing.publicnotice.PublicNoticeService;
 import uk.co.ogauthority.pwa.service.appprocessing.tasks.PwaAppProcessingTaskListService;
@@ -70,6 +71,9 @@ public class TasksTabContentServiceTest {
   @Mock
   private ConsentReviewService consentReviewService;
 
+  @Mock
+  private ApplicationChargeRequestService applicationChargeRequestService;
+
   private TasksTabContentService taskTabContentService;
 
   private WebUserAccount wua;
@@ -88,7 +92,8 @@ public class TasksTabContentServiceTest {
         approveOptionsService,
         publicNoticeDocumentUpdateService,
         publicNoticeService,
-        consentReviewService);
+        consentReviewService,
+        applicationChargeRequestService);
 
     when(pwaApplicationRedirectService.getTaskListRoute(any())).thenReturn("#");
 
@@ -362,6 +367,38 @@ public class TasksTabContentServiceTest {
         );
   }
 
+  @Test
+  public void getTabContentModelMap_tasksTab_populated_whenUserHasViewPaymentPriv_andAppIsPaidFor() {
+
+    var taskListGroupsList = List.of(new TaskListGroup("test", 10, List.of()));
+
+    var processingContext = createContextFromInvolvementAndPermissions(
+        ApplicationInvolvementDtoTestUtil.generatePwaHolderTeamInvolvement(null, Set.of(PwaOrganisationRole.APPLICATION_SUBMITTER)),
+        PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY, PwaAppProcessingPermission.VIEW_PAYMENT_DETAILS_IF_EXISTS);
+
+    when(taskListService.getTaskListGroups(processingContext)).thenReturn(taskListGroupsList);
+    when(applicationChargeRequestService.applicationChargeRequestCompleteAndPaid(any())).thenReturn(true);
+
+    var modelMap = taskTabContentService.getTabContent(processingContext, AppProcessingTab.TASKS);
+
+    assertThat(modelMap).containsKey("viewAppPaymentUrl");
+  }
+
+  @Test
+  public void getTabContentModelMap_tasksTab_populated_whenUserDoesNotHaveViewPaymentPriv() {
+
+    var taskListGroupsList = List.of(new TaskListGroup("test", 10, List.of()));
+
+    var processingContext = createContextFromInvolvementAndPermissions(
+        ApplicationInvolvementDtoTestUtil.generatePwaHolderTeamInvolvement(null, Set.of(PwaOrganisationRole.APPLICATION_SUBMITTER)),
+        PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY);
+
+    when(taskListService.getTaskListGroups(processingContext)).thenReturn(taskListGroupsList);
+
+    var modelMap = taskTabContentService.getTabContent(processingContext, AppProcessingTab.TASKS);
+
+    assertThat(modelMap).doesNotContainKey("viewAppPaymentUrl");
+  }
 
 
   @Test
