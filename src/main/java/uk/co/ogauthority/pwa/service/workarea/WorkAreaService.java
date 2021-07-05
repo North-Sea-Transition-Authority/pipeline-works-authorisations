@@ -49,7 +49,9 @@ public class WorkAreaService {
                                           WorkAreaTab workAreaTab,
                                           int page) {
 
-    var industryPageable = WorkAreaUtils.getWorkAreaPageRequest(page, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC);
+    var industryPageable = WorkAreaUtils.getWorkAreaPageRequest(
+        page, ApplicationWorkAreaSort.SUBMITTED_APP_START_ASC_THEN_DRAFT_APP_START_ASC
+    );
     var regulatorPageable = WorkAreaUtils.getWorkAreaPageRequest(page, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC);
 
     String workAreaTabAndPageRoute;

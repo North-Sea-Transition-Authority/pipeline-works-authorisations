@@ -22,17 +22,17 @@ public enum ConsultationWorkAreaSort implements WorkAreaSort {
   }
 
   @Override
-  public String getSortAttribute() {
+  public String getPrimarySortAttribute() {
     return sortAttribute;
   }
 
   @Override
-  public Sort.Direction getSortDirection() {
+  public Sort.Direction getPrimarySortDirection() {
     return sortDirection;
   }
 
   @Override
-  public Sort.NullHandling getNullHandling() {
+  public Sort.NullHandling getPrimaryNullHandling() {
     return this.nullHandling;
   }
 

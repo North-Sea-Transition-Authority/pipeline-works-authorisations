@@ -23,7 +23,7 @@ public class ApplicationWorkAreaSortTest {
 
     for (ApplicationWorkAreaSort applicationWorkAreaSort : ApplicationWorkAreaSort.values()) {
       try {
-        assertThat(validFieldsSet.contains(applicationWorkAreaSort.getSortAttribute())).isTrue();
+        assertThat(validFieldsSet.contains(applicationWorkAreaSort.getPrimarySortAttribute())).isTrue();
       } catch (AssertionError e) {
         throw new AssertionError("Fail at sort:" + applicationWorkAreaSort.toString() + "\n" + e.getMessage(), e);
       }
