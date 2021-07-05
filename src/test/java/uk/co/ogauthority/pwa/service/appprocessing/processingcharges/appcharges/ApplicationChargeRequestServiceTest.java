@@ -695,6 +695,28 @@ public class ApplicationChargeRequestServiceTest {
 
   }
 
+  @Test
+  public void applicationChargeRequestCompleteAndPaid_whenNoPaidRequest() {
+
+    when(pwaAppChargeRequestDetailRepository.countByPwaAppChargeRequest_PwaApplicationAndPwaAppChargeRequestStatusAndTipFlagIsTrue(
+        pwaApplication, PwaAppChargeRequestStatus.PAID
+    )).thenReturn(0L);
+
+    assertThat(applicationChargeRequestService.applicationChargeRequestCompleteAndPaid(pwaApplication)).isFalse();
+
+  }
+
+  @Test
+  public void applicationChargeRequestCompleteAndPaid_whenPaidRequest() {
+
+    when(pwaAppChargeRequestDetailRepository.countByPwaAppChargeRequest_PwaApplicationAndPwaAppChargeRequestStatusAndTipFlagIsTrue(
+        pwaApplication, PwaAppChargeRequestStatus.PAID
+    )).thenReturn(1L);
+
+    assertThat(applicationChargeRequestService.applicationChargeRequestCompleteAndPaid(pwaApplication)).isTrue();
+
+  }
+
 
   @Test
   public void cancelAppPaymentOutcome_whenChargeRequestOpen_emailSent(){

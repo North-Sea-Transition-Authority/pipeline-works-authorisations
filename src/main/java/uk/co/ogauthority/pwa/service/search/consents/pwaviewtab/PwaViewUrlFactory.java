@@ -25,8 +25,8 @@ public class PwaViewUrlFactory {
         .renderViewPwa(pwaId, tab, null, null));
   }
 
-  public String getConsentDocumentUrl(Integer pwaApplicationId, PwaApplicationType applicationType) {
-    return ""; //todo pwa-180 fix consent doc downloading
+  public String getConsentDocumentUrl(Integer pwaConsentId, Long docgenRunId) {
+    return ReverseRouter.route(on(PwaViewController.class).downloadConsentDocument(pwaId, null, pwaConsentId, docgenRunId));
   }
 
   public String routeCaseManagement(Integer pwaApplicationId, PwaApplicationType applicationType) {

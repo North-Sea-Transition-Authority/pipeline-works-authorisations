@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.service.appprocessing.prepareconsent;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -24,6 +25,7 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
 import uk.co.ogauthority.pwa.energyportal.model.entity.PersonTestUtil;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.exception.appprocessing.ConsentReviewException;
+import uk.co.ogauthority.pwa.model.docgen.DocgenRun;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.prepareconsent.ConsentReview;
 import uk.co.ogauthority.pwa.model.entity.documents.instances.DocumentInstance;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.DocumentTemplateMnem;
@@ -234,6 +236,9 @@ public class ConsentReviewServiceTest {
     when(documentInstanceService.getDocumentInstanceOrError(detail.getPwaApplication(), DocumentTemplateMnem.PWA_CONSENT_DOCUMENT))
         .thenReturn(docInstance);
 
+    var docgenRun = new DocgenRun();
+    when(docgenService.scheduleDocumentGeneration(any(), any(), any())).thenReturn(docgenRun);
+
     var issuedConsentDto = consentReviewService.issueConsent(detail, returningUser);
 
     verify(pwaConsentService, times(1)).createConsent(detail.getPwaApplication());
@@ -261,6 +266,8 @@ public class ConsentReviewServiceTest {
     verify(workflowAssignmentService, times(1)).clearAssignments(detail.getPwaApplication());
 
     verify(docgenService, times(1)).scheduleDocumentGeneration(docInstance, DocGenType.FULL, returningUser.getLinkedPerson());
+
+    verify(pwaConsentService, times(1)).setDocgenRunId(consent, docgenRun);
 
   }
 

@@ -68,7 +68,7 @@ public class PwaHuooHistoryViewServiceTest {
 
     var selectedConsent = PwaPipelineViewTestUtil.createPwaConsent("19/W/07");
     int consentId = 1;
-    when(pwaConsentService.getConsentsById(consentId)).thenReturn(selectedConsent);
+    when(pwaConsentService.getConsentById(consentId)).thenReturn(selectedConsent);
     var previousConsents = List.of(PwaPipelineViewTestUtil.createPwaConsent("19/W/06"),
         PwaPipelineViewTestUtil.createPwaConsent("19/W/05"));
     when(pwaConsentService.getPwaConsentsWhereConsentInstantBefore(masterPwa, selectedConsent.getConsentInstant())).thenReturn(previousConsents);

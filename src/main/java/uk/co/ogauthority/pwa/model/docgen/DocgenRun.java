@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.model.docgen;
 
 import java.sql.Blob;
 import java.time.Instant;
+import java.util.Objects;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -133,5 +134,28 @@ public class DocgenRun {
 
   public void setGeneratedDocument(Blob generatedDocument) {
     this.generatedDocument = generatedDocument;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    DocgenRun docgenRun = (DocgenRun) o;
+    return id == docgenRun.id && Objects.equals(documentInstance,
+        docgenRun.documentInstance) && docGenType == docgenRun.docGenType && status == docgenRun.status && Objects.equals(
+        scheduledByPerson, docgenRun.scheduledByPerson) && Objects.equals(scheduledOn,
+        docgenRun.scheduledOn) && Objects.equals(startedOn, docgenRun.startedOn) && Objects.equals(
+        completedOn, docgenRun.completedOn) && Objects.equals(generatedDocument, docgenRun.generatedDocument);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(id, documentInstance, docGenType, status, scheduledByPerson, scheduledOn, startedOn,
+        completedOn,
+        generatedDocument);
   }
 }

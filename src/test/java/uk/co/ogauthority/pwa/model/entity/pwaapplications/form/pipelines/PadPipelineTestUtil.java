@@ -19,7 +19,6 @@ public class PadPipelineTestUtil {
 
   // returns lowest level pad pipeline data with all parent relationships mapped up to Pipeline
   public static PadPipelineIdentData createPadPipeline(PwaApplicationDetail pwaApplicationDetail,
-
                                                        PipelineType pipelineType) throws IllegalAccessException {
 
     var pipeline = new Pipeline(pwaApplicationDetail.getPwaApplication());
@@ -28,6 +27,29 @@ public class PadPipelineTestUtil {
     return createPadPipelineIdentData(pipelineIdent);
 
 
+  }
+
+  public static PadPipeline createActivePadPipeline(PwaApplicationDetail pwaApplicationDetail,
+                                              Pipeline pipeline) {
+    var padPipeline = createPadPipeline(pwaApplicationDetail, pipeline);
+    padPipeline.setPipelineStatus(PipelineStatus.IN_SERVICE);
+    return padPipeline;
+  }
+
+  public static PadPipeline createInActivePadPipeline(PwaApplicationDetail pwaApplicationDetail,
+                                                    Pipeline pipeline) {
+    var padPipeline = createPadPipeline(pwaApplicationDetail, pipeline);
+    padPipeline.setPipelineStatus(PipelineStatus.NEVER_LAID);
+    return padPipeline;
+  }
+
+  private static PadPipeline createPadPipeline(PwaApplicationDetail pwaApplicationDetail,
+                                               Pipeline pipeline) {
+    try {
+      return createPadPipeline(pwaApplicationDetail, pipeline, PipelineType.PRODUCTION_FLOWLINE);
+    } catch (IllegalAccessException e) {
+      throw new RuntimeException("Expected to be able to access field!", e.getCause());
+    }
   }
 
   public static PadPipeline createPadPipeline(PwaApplicationDetail pwaApplicationDetail,

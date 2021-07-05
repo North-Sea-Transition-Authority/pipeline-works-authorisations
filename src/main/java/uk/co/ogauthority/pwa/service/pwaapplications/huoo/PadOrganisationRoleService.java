@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.huoo;
 
+import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
@@ -20,6 +21,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.persistence.EntityManager;
 import org.apache.commons.collections4.IterableUtils;
+import org.apache.commons.collections4.SetUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,6 +31,7 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrgan
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnitDetail;
 import uk.co.ogauthority.pwa.energyportal.service.organisations.PortalOrganisationsAccessor;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
+import uk.co.ogauthority.pwa.model.dto.consents.OrganisationPipelineRoleInstanceDto;
 import uk.co.ogauthority.pwa.model.dto.consents.OrganisationRoleInstanceDto;
 import uk.co.ogauthority.pwa.model.dto.huooaggregations.OrganisationRolePipelineGroupDto;
 import uk.co.ogauthority.pwa.model.dto.huooaggregations.OrganisationRolesSummaryDto;
@@ -60,6 +63,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.options.PadOptionConfirmedS
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.huoosummary.AllOrgRolePipelineGroupsView;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.huoosummary.OrganisationRolePipelineGroupView;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.huoosummary.PipelineNumbersAndSplits;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.viewfactories.PipelineAndIdentViewFactory;
 import uk.co.ogauthority.pwa.validators.huoo.HuooValidationView;
 
@@ -71,6 +75,7 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
   private final PortalOrganisationsAccessor portalOrganisationsAccessor;
   private final PipelineAndIdentViewFactory pipelineAndIdentViewFactory;
   private final PipelineNumberAndSplitsService pipelineNumberAndSplitsService;
+  private final PadPipelineService padPipelineService;
   private final EntityManager entityManager;
   private final EntityCopyingService entityCopyingService;
 
@@ -83,6 +88,7 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
       PortalOrganisationsAccessor portalOrganisationsAccessor,
       PipelineAndIdentViewFactory pipelineAndIdentViewFactory,
       PipelineNumberAndSplitsService pipelineNumberAndSplitsService,
+      PadPipelineService padPipelineService,
       EntityManager entityManager,
       EntityCopyingService entityCopyingService,
       PadOptionConfirmedService padOptionConfirmedService) {
@@ -91,6 +97,7 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
     this.portalOrganisationsAccessor = portalOrganisationsAccessor;
     this.pipelineAndIdentViewFactory = pipelineAndIdentViewFactory;
     this.pipelineNumberAndSplitsService = pipelineNumberAndSplitsService;
+    this.padPipelineService = padPipelineService;
     this.entityManager = entityManager;
     this.entityCopyingService = entityCopyingService;
     this.padOptionConfirmedService = padOptionConfirmedService;
@@ -201,10 +208,59 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
 
   }
 
-  public OrganisationRolesSummaryDto getOrganisationRoleSummary(PwaApplicationDetail detail) {
-    var allOrganisationPipelineRoles = padOrganisationRolesRepository.findActiveOrganisationPipelineRolesByPwaApplicationDetail(
-        detail);
-    return OrganisationRolesSummaryDto.aggregateOrganisationPipelineRoles(allOrganisationPipelineRoles);
+  private OrganisationRolesSummaryDto getOrganisationRoleSummary(PwaApplicationDetail detail) {
+
+    //Get active and inactive pipeline ids
+    Set<PipelineId> activeAppPipelineIds = new HashSet<>();
+    Set<PipelineId> inactiveAppPipelineIds = new HashSet<>();
+
+    var pipelineInactiveStatuses = padPipelineService.getPadPipelineInactiveStatuses();
+    padPipelineService.getPipelines(detail).forEach(padPipeline -> {
+      if (pipelineInactiveStatuses.contains(padPipeline.getPipelineStatus())) {
+        inactiveAppPipelineIds.add(padPipeline.getPipelineId());
+      } else {
+        activeAppPipelineIds.add(padPipeline.getPipelineId());
+      }
+    });
+
+
+    //Get active organisation pipeline roles
+    var allOrganisationPipelineRoles = padOrganisationRolesRepository.findActiveOrganisationPipelineRolesByPwaApplicationDetail(detail);
+    var activeOrgPipelineRoles = allOrganisationPipelineRoles.stream()
+        .map(orgPipelineRole -> {
+          //if org role is an inactive pipeline, keep the  role owner but discard pipeline
+          if (orgPipelineRole.getPipelineIdentifier() != null
+              && inactiveAppPipelineIds.contains(orgPipelineRole.getPipelineIdentifier().getPipelineId())) {
+            return OrganisationPipelineRoleInstanceDto.copyWithoutPipeline(orgPipelineRole);
+          }
+          return orgPipelineRole;
+        })
+        .collect(Collectors.toList());
+
+
+
+    //Place unassigned active pipelines in their own "unassigned for role" section
+    Map<HuooRole, Set<PipelineId>> huooRoleToPipelineIds = activeOrgPipelineRoles.stream()
+        .filter(activeOrgPipelineRole -> activeOrgPipelineRole.getPipelineIdentifier() != null)
+        .collect(groupingBy(
+            OrganisationPipelineRoleInstanceDto::getHuooRole,
+            Collectors.mapping(orgPipelineRole -> orgPipelineRole.getPipelineIdentifier().getPipelineId(), Collectors.toSet())
+        ));
+
+    for (HuooRole role : HuooRole.values()) {
+      //Do not add unassigned pipelines when no role owner exists for type
+      if (activeOrgPipelineRoles.stream().anyMatch(orgRole -> orgRole.getHuooRole().equals(role))) {
+
+        var activePipelineIdsForRole = huooRoleToPipelineIds.getOrDefault(role, Set.of());
+        var unassignedPipelinesForRole = SetUtils.difference(activeAppPipelineIds, activePipelineIdsForRole);
+        unassignedPipelinesForRole.forEach(pipelineId -> activeOrgPipelineRoles.add(
+            OrganisationPipelineRoleInstanceDto.manualPipelineRoleInstance(
+                pipelineId, role, String.format("Pipelines without assigned %s", role.getDisplayText()))));
+      }
+    }
+
+
+    return OrganisationRolesSummaryDto.aggregateOrganisationPipelineRoles(activeOrgPipelineRoles);
   }
 
   private String getEditHuooUrl(PwaApplicationDetail detail, PortalOrganisationUnit organisationUnit) {

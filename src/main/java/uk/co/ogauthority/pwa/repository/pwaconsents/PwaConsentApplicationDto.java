@@ -1,11 +1,12 @@
 package uk.co.ogauthority.pwa.repository.pwaconsents;
 
 import java.time.Instant;
+import java.util.Optional;
+import uk.co.ogauthority.pwa.model.docgen.DocgenRunStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.util.DateUtils;
 
 public class PwaConsentApplicationDto {
-
 
   private final Integer consentId;
   private final Instant consentInstant;
@@ -14,19 +15,25 @@ public class PwaConsentApplicationDto {
   private final PwaApplicationType applicationType;
   private final String appReference;
 
+  private final Long docgenRunId;
+  private final DocgenRunStatus docgenRunStatus;
 
   public PwaConsentApplicationDto(Integer consentId,
                                   Instant consentInstant,
                                   String consentReference,
                                   Integer pwaApplicationId,
                                   PwaApplicationType pwaApplicationType,
-                                  String appReference) {
+                                  String appReference,
+                                  Long docgenRunId,
+                                  DocgenRunStatus docgenRunStatus) {
     this.consentId = consentId;
     this.consentInstant = consentInstant;
     this.consentReference = consentReference;
     this.pwaApplicationId = pwaApplicationId;
     this.applicationType = pwaApplicationType;
     this.appReference = appReference;
+    this.docgenRunId = docgenRunId;
+    this.docgenRunStatus = docgenRunStatus;
   }
 
   public Integer getConsentId() {
@@ -56,4 +63,34 @@ public class PwaConsentApplicationDto {
   public String getAppReference() {
     return appReference;
   }
+
+  public Optional<Long> getDocgenRunId() {
+    return Optional.ofNullable(docgenRunId);
+  }
+
+  public Optional<DocgenRunStatus> getDocgenRunStatus() {
+    return Optional.ofNullable(docgenRunStatus);
+  }
+
+  public boolean consentDocumentDownloadable() {
+    return getDocgenRunId().isPresent()
+        && getDocgenRunStatus()
+          .map(status -> status == DocgenRunStatus.COMPLETE)
+          .orElse(false);
+  }
+
+  public String getDocStatusDisplay() {
+    return getDocgenRunStatus()
+        .map(status -> {
+          if (status == DocgenRunStatus.PENDING) {
+            return "Document is generating";
+          } else if (status == DocgenRunStatus.FAILED) {
+            return "Document failed to generate";
+          } else {
+            return "";
+          }
+        })
+        .orElse("");
+  }
+
 }

@@ -56,6 +56,9 @@ public class PwaConsent {
 
   private boolean isMigratedFlag;
 
+  @Column(name = "docgen_run_id")
+  private Long docgenRunId;
+
   public PwaConsent() {
     this.isMigratedFlag = false;
   }
@@ -131,4 +134,13 @@ public class PwaConsent {
   public void setVariationNumber(Integer variationNumber) {
     this.variationNumber = variationNumber;
   }
+
+  public Long getDocgenRunId() {
+    return docgenRunId;
+  }
+
+  public void setDocgenRunId(Long docgenRunId) {
+    this.docgenRunId = docgenRunId;
+  }
+
 }

@@ -45,7 +45,7 @@ public class PwaHuooHistoryViewService {
                                                                                        MasterPwa masterPwa,
                                                                                        PipelineId pipelineId) {
 
-    var selectedConsent = pwaConsentService.getConsentsById(selectedConsentId);
+    var selectedConsent = pwaConsentService.getConsentById(selectedConsentId);
     var selectedAndPreviousConsents = new ArrayList<PwaConsent>();
     selectedAndPreviousConsents.add(selectedConsent);
     selectedAndPreviousConsents.addAll(

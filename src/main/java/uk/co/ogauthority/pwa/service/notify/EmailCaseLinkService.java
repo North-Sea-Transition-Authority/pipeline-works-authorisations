@@ -4,10 +4,11 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import uk.co.ogauthority.pwa.controller.asbuilt.AsBuiltNotificationController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.submission.ReviewAndSubmitController;
+import uk.co.ogauthority.pwa.controller.search.consents.PwaPipelineViewController;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
+import uk.co.ogauthority.pwa.service.search.consents.PwaPipelineViewTab;
 import uk.co.ogauthority.pwa.util.CaseManagementUtils;
 
 @Service
@@ -28,9 +29,10 @@ public class EmailCaseLinkService {
         .review(application.getApplicationType(), application.getId(), null, null));
   }
 
-  public String generateAsBuiltNotificationDashboardLink(Integer notificationGroupId) {
-    return pwaUrlBase + contextPath + ReverseRouter.route(on(AsBuiltNotificationController.class)
-        .getAsBuiltNotificationDashboard(notificationGroupId, null));
+  public String generateAsBuiltNotificationSummaryLink(Integer pwaId, Integer pipelineId) {
+    return pwaUrlBase + contextPath + ReverseRouter.route(on(PwaPipelineViewController.class)
+    .renderViewPwaPipeline(pwaId, pipelineId, PwaPipelineViewTab.AS_BUILT_NOTIFICATION_HISTORY, null, null,
+        null, null, null));
   }
 
 }
