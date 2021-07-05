@@ -169,7 +169,7 @@ public class PublicNoticeDraftService {
     publicNoticeRequest.setReasonDescription(
         PublicNoticeRequestReason.CONSULTEES_NOT_ALL_CONTENT.equals(form.getReason()) ? form.getReasonDescription() : null);
     publicNoticeRequest.setVersion(version);
-    publicNoticeRequest.setSubmittedTimestamp(Instant.now(clock));
+    publicNoticeRequest.setCreatedTimestamp(Instant.now(clock));
     publicNoticeRequest.setCreatedByPersonId(person.getId().asInt());
     return publicNoticeRequest;
   }
