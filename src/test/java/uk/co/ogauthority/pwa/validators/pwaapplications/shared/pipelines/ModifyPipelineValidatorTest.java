@@ -138,4 +138,15 @@ public class ModifyPipelineValidatorTest {
     );
   }
 
+  @Test
+  public void validate_transferStatusSelected_confirmationNull_valid() {
+    when(modifyPipelineService.getSelectableConsentedPipelines(detail)).thenReturn(List.of());
+    var form = new ModifyPipelineForm();
+    form.setPipelineStatus(PipelineStatus.TRANSFERRED);
+    var errors = ValidatorTestUtils.getFormValidationErrors(modifyPipelineValidator, form, detail);
+    assertThat(errors).contains(
+        entry("transferAgreed", Set.of("transferAgreed" + FieldValidationErrorCodes.REQUIRED.getCode()))
+    );
+  }
+
 }

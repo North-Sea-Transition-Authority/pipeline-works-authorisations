@@ -109,8 +109,8 @@ public class ConsentAsBuiltWriterService implements ConsentWriter {
 
     return pipelineIdToDetailMap.entrySet()
         .stream()
-        // never laid pipelines do not require as-built notifications
-        .filter(pd -> !PipelineStatus.NEVER_LAID.equals(pd.getValue().getPipelineStatus()))
+        // never laid & transferred pipelines do not require as-built notifications
+        .filter(pd -> !Set.of(PipelineStatus.NEVER_LAID, PipelineStatus.TRANSFERRED).contains(pd.getValue().getPipelineStatus()))
         .map(entry -> {
           var pipelineId = entry.getKey();
           var pipelineDetail = entry.getValue();

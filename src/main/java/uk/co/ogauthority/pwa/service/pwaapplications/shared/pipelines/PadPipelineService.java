@@ -310,6 +310,9 @@ public class PadPipelineService {
     newPadPipeline.setPipelineStatus(form.getPipelineStatus());
     if (newPadPipeline.getPipelineStatus() == PipelineStatus.OUT_OF_USE_ON_SEABED) {
       newPadPipeline.setPipelineStatusReason(form.getPipelineStatusReason());
+
+    } else if (newPadPipeline.getPipelineStatus() == PipelineStatus.TRANSFERRED) {
+      newPadPipeline.setPipelineTransferAgreed(form.getTransferAgreed());
     }
 
     padPipelineRepository.save(newPadPipeline);

@@ -83,6 +83,7 @@ public class PadPipelineTestUtil {
     padPipeline.setAlreadyExistsOnSeabed(true);
     padPipeline.setPipelineInUse(false);
     padPipeline.setFootnote("Footnote information");
+    padPipeline.setPipelineTransferAgreed(true);
 
 
     ObjectTestUtils.assertAllFieldsNotNull(padPipeline, PadPipeline.class, Set.of(PadPipeline_.ID));

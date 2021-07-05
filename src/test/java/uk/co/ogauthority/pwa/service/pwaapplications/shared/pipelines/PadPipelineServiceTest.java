@@ -521,6 +521,22 @@ public class PadPipelineServiceTest {
 
   }
 
+  @Test
+  public void copyDataToNewPadPipeline_transferredStatus_verifyPadPipelineHasTransferredData() {
+    var pipeline = new Pipeline();
+    pipeline.setId(10);
+    var pipelineDetail = new PipelineDetail(pipeline);
+
+    modifyPipelineForm.setPipelineStatus(PipelineStatus.TRANSFERRED);
+    modifyPipelineForm.setTransferAgreed(true);
+
+    var pipelineWithCopiedData = padPipelineService.copyDataToNewPadPipeline(detail, pipelineDetail, modifyPipelineForm);
+
+    assertThat(pipelineWithCopiedData.getPipelineStatus()).isEqualTo(modifyPipelineForm.getPipelineStatus());
+    assertThat(pipelineWithCopiedData.getPipelineTransferAgreed()).isEqualTo(modifyPipelineForm.getTransferAgreed());
+
+  }
+
 
   @Test
   public void copyDataToNewPadPipeline_noReason_notOnSeabed() {
