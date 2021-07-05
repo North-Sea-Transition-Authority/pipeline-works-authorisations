@@ -66,6 +66,7 @@ public enum PwaAppProcessingTask {
   CONSULTATIONS(
       "Consultations",
       TaskRequirement.REQUIRED,
+      TaskAutoLockable.NO,
       ConsultationService.class, processingContext -> ReverseRouter.route(on(ConsultationController.class)
       .renderConsultations(processingContext.getMasterPwaApplicationId(), processingContext.getApplicationType(), null,
           null)),
@@ -100,6 +101,7 @@ public enum PwaAppProcessingTask {
   PUBLIC_NOTICE(
       "Public notice",
       TaskRequirement.REQUIRED,
+      TaskAutoLockable.NO,
       PublicNoticeService.class, processingContext ->  ReverseRouter.route(on(PublicNoticeOverviewController.class)
       .renderPublicNoticeOverview(processingContext.getMasterPwaApplicationId(),
           processingContext.getApplicationType(), null, null)),

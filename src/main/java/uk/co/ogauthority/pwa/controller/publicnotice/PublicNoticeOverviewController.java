@@ -27,7 +27,10 @@ import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 @Controller
 @RequestMapping("/pwa-application/{applicationType}/{applicationId}/public-notice-overview")
 @PwaAppProcessingPermissionCheck(permissions = {PwaAppProcessingPermission.VIEW_ALL_PUBLIC_NOTICES})
-@PwaApplicationStatusCheck(statuses = PwaApplicationStatus.CASE_OFFICER_REVIEW)
+@PwaApplicationStatusCheck(statuses = {
+    PwaApplicationStatus.CASE_OFFICER_REVIEW,
+    PwaApplicationStatus.CONSENT_REVIEW,
+    PwaApplicationStatus.COMPLETE})
 public class PublicNoticeOverviewController {
 
   private final AppProcessingBreadcrumbService appProcessingBreadcrumbService;

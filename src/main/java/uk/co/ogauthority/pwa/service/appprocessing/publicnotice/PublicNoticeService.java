@@ -47,6 +47,7 @@ import uk.co.ogauthority.pwa.service.appprocessing.tasks.AppProcessingService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingTask;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.TaskStatus;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.fileupload.AppFileService;
 import uk.co.ogauthority.pwa.service.person.PersonService;
@@ -104,6 +105,7 @@ public class PublicNoticeService implements AppProcessingService {
             || processingContext.getAppProcessingPermissions().contains(PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY)
             || processingContext.getAppProcessingPermissions().contains(PwaAppProcessingPermission.APPROVE_PUBLIC_NOTICE)
             || (processingContext.getAppProcessingPermissions().contains(PwaAppProcessingPermission.SHOW_ALL_TASKS_AS_PWA_MANAGER_ONLY))
+            || (processingContext.getAppProcessingPermissions().contains(PwaAppProcessingPermission.VIEW_ALL_PUBLIC_NOTICES))
       )
         && PUBLIC_NOTICE_APP_TYPES.contains(processingContext.getApplicationType());
   }
@@ -133,6 +135,30 @@ public class PublicNoticeService implements AppProcessingService {
     }
   }
 
+
+  /** Task state is either editable or viewable depending on app state and app permissions for oga users.
+   * Or it will be always locked for industry users
+   */
+  private TaskState getTaskState(PwaAppProcessingContext processingContext) {
+
+    boolean atLeastOneSatisfactoryVersion = processingContext.getApplicationInvolvement().hasAtLeastOneSatisfactoryVersion();
+    var permissions = processingContext.getAppProcessingPermissions();
+    var appStatusesForViewing = Set.of(
+        PwaApplicationStatus.CASE_OFFICER_REVIEW, PwaApplicationStatus.CONSENT_REVIEW, PwaApplicationStatus.COMPLETE);
+
+    var taskState = permissions.contains(PwaAppProcessingPermission.VIEW_ALL_PUBLIC_NOTICES)
+        && appStatusesForViewing.contains(processingContext.getApplicationDetail().getStatus())
+        && atLeastOneSatisfactoryVersion ? TaskState.VIEW : TaskState.LOCK;
+
+    if (atLeastOneSatisfactoryVersion && permissions.contains(PwaAppProcessingPermission.OGA_EDIT_PUBLIC_NOTICE)
+        && processingContext.getApplicationDetail().getStatus().equals(PwaApplicationStatus.CASE_OFFICER_REVIEW)) {
+      taskState = TaskState.EDIT;
+    }
+
+    return taskState;
+  }
+
+
   @Override
   public TaskListEntry getTaskListEntry(PwaAppProcessingTask task, PwaAppProcessingContext processingContext) {
 
@@ -142,7 +168,7 @@ public class PublicNoticeService implements AppProcessingService {
         task.getTaskName(),
         task.getRoute(processingContext),
         TaskTag.from(getPublicNoticeTaskStatus(processingContext, atLeastOneSatisfactoryVersion)),
-        atLeastOneSatisfactoryVersion ? TaskState.EDIT : TaskState.LOCK,
+        getTaskState(processingContext),
         task.getDisplayOrder());
   }
 
@@ -313,6 +339,10 @@ public class PublicNoticeService implements AppProcessingService {
   @VisibleForTesting
   Set<PublicNoticeAction> getAvailablePublicNoticeActions(PublicNoticeStatus publicNoticeStatus,
                                                           PwaAppProcessingContext pwaAppProcessingContext) {
+
+    if (!getTaskState(pwaAppProcessingContext).equals(TaskState.EDIT)) {
+      return Set.of();
+    }
 
     var processingPermissions = pwaAppProcessingContext.getAppProcessingPermissions();
     Set<PublicNoticeAction> publicNoticeActions = new HashSet<>();

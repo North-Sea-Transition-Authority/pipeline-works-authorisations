@@ -127,7 +127,9 @@ public class PwaAppProcessingTaskListServiceTest {
               PwaAppProcessingTask.APPROVE_OPTIONS,
               PwaAppProcessingTask.CLOSE_OUT_OPTIONS,
               PwaAppProcessingTask.CHANGE_OPTIONS_APPROVAL_DEADLINE,
-              PwaAppProcessingTask.PREPARE_CONSENT
+              PwaAppProcessingTask.PREPARE_CONSENT,
+              PwaAppProcessingTask.CONSULTATIONS,
+              PwaAppProcessingTask.PUBLIC_NOTICE
           );
 
           if (lockedTasks.contains(resolvedTask)) {
