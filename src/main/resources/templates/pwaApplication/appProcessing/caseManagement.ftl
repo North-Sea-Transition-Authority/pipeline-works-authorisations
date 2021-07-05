@@ -55,7 +55,7 @@
     </#if>
 
     <#if viewAppPaymentUrl?has_content>
-        <@fdsAction.link linkText="View payment information" linkUrl=springUrl(viewAppPaymentUrl) linkClass="govuk-button govuk-button--blue" role=true openInNewTab=true/>
+        <@fdsAction.link linkText="View payment information" linkUrl=springUrl(viewAppPaymentUrl) linkClass="govuk-button govuk-button--blue" role=true/>
     </#if>
 
   <@fdsBackendTabs.tabList>
