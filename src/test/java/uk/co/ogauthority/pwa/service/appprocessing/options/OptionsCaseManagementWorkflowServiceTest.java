@@ -16,9 +16,11 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.workflow.GenericMessageEvent;
 import uk.co.ogauthority.pwa.service.consultations.ConsultationRequestService;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.workflow.application.PwaApplicationWorkflowMessageEvents;
 import uk.co.ogauthority.pwa.service.enums.workflow.application.PwaApplicationWorkflowTask;
+import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
 import uk.co.ogauthority.pwa.service.workflow.assignment.WorkflowAssignmentService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
@@ -34,6 +36,9 @@ public class OptionsCaseManagementWorkflowServiceTest {
 
   @Mock
   private ConsultationRequestService consultationRequestService;
+
+  @Mock
+  private PwaApplicationDetailService pwaApplicationDetailService;
 
   private OptionsCaseManagementWorkflowService optionsCaseManagementWorkflowService;
 
@@ -51,8 +56,8 @@ public class OptionsCaseManagementWorkflowServiceTest {
     optionsCaseManagementWorkflowService = new OptionsCaseManagementWorkflowService(
         workflowAssignmentService,
         camundaWorkflowService,
-        consultationRequestService
-    );
+        consultationRequestService,
+        pwaApplicationDetailService);
   }
 
   @Test
@@ -83,6 +88,7 @@ public class OptionsCaseManagementWorkflowServiceTest {
 
     verify(camundaWorkflowService).deleteProcessInstanceAndThenTasks(pwaApplicationDetail.getPwaApplication());
     verify(consultationRequestService).withdrawAllOpenConsultationRequests(pwaApplicationDetail.getPwaApplication(), authenticatedUserAccount);
+    verify(pwaApplicationDetailService).updateStatus(pwaApplicationDetail, PwaApplicationStatus.COMPLETE, authenticatedUserAccount);
 
   }
 }
