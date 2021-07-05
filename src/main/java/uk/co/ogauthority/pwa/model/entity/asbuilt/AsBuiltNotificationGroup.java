@@ -38,6 +38,10 @@ public class AsBuiltNotificationGroup {
     this.createdTimestamp = createdTimestamp;
   }
 
+  public int getMasterPwaIdFromGroupConsent() {
+    return this.pwaConsent.getMasterPwa().getId();
+  }
+
   public Integer getId() {
     return id;
   }

@@ -42,19 +42,20 @@ class AsBuiltNotificationSubmissionService {
     this.ogaConsentsEmail = ogaConsentsEmail;
   }
 
-  void submitAsBuiltNotification(AsBuiltNotificationGroupPipeline abngPipeline, AsBuiltNotificationSubmissionForm form,
+  void submitAsBuiltNotification(AsBuiltNotificationGroupPipeline asBuiltNotificationGroupPipeline,
+                                 AsBuiltNotificationSubmissionForm form,
                                  AuthenticatedUserAccount user) {
     var asBuiltSubmission = new AsBuiltNotificationSubmission();
-    asBuiltSubmission.setAsBuiltNotificationGroupPipeline(abngPipeline);
+    asBuiltSubmission.setAsBuiltNotificationGroupPipeline(asBuiltNotificationGroupPipeline);
     asBuiltSubmission.setSubmittedByPersonId(user.getLinkedPerson().getId());
     setLatestSubmissionFlagAndUpdateLastSubmission(asBuiltSubmission);
     mapFormToEntity(form, asBuiltSubmission);
     saveAsBuiltNotificationSubmission(asBuiltSubmission);
-    updateAsBuiltGroupStatus(abngPipeline.getAsBuiltNotificationGroup(), user.getLinkedPerson());
+    updateAsBuiltGroupStatus(asBuiltNotificationGroupPipeline.getAsBuiltNotificationGroup(), user.getLinkedPerson());
     if (doesOgaNeedToBeNotified(form)) {
-      var pipelineDetail = getPipelineDetail(abngPipeline.getPipelineDetailId());
+      var pipelineDetail = getPipelineDetail(asBuiltNotificationGroupPipeline.getPipelineDetailId());
       notifyOgaIfNotificationNotPerConsent(asBuiltSubmission.getAsBuiltNotificationGroupPipeline().getAsBuiltNotificationGroup(),
-          pipelineDetail.getPipelineNumber(), form.getAsBuiltNotificationStatus());
+          pipelineDetail, form.getAsBuiltNotificationStatus());
     }
   }
 
@@ -122,9 +123,14 @@ class AsBuiltNotificationSubmissionService {
   }
 
   private void notifyOgaIfNotificationNotPerConsent(AsBuiltNotificationGroup asBuiltNotificationGroup,
-                                                    String pipelineNumber, AsBuiltNotificationStatus asBuiltNotificationStatus) {
-    asBuiltNotificationEmailService.sendAsBuiltNotificationNotPerConsentEmail(ogaConsentsEmail,
-        "Consents team", asBuiltNotificationGroup, pipelineNumber, asBuiltNotificationStatus);
+                                                    PipelineDetail pipelineDetail,
+                                                    AsBuiltNotificationStatus asBuiltNotificationStatus) {
+    asBuiltNotificationEmailService.sendAsBuiltNotificationNotPerConsentEmail(
+        ogaConsentsEmail,
+        "Consents team",
+        asBuiltNotificationGroup,
+        pipelineDetail,
+        asBuiltNotificationStatus);
   }
 
   private void setLatestSubmissionFlagAndUpdateLastSubmission(AsBuiltNotificationSubmission submission) {

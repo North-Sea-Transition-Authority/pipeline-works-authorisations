@@ -162,7 +162,7 @@ public class AsBuiltNotificationSubmissionServiceTest {
     verify(asBuiltNotificationGroupStatusService).setGroupStatus(asBuiltNotificationGroup, AsBuiltNotificationGroupStatus.COMPLETE,
         user.getLinkedPerson());
     verify(asBuiltNotificationEmailService).sendAsBuiltNotificationNotPerConsentEmail(any(), any(), eq(asBuiltNotificationGroup),
-        eq(pipelineDetail.getPipelineNumber()), eq(notPerConsentForm.getAsBuiltNotificationStatus()));
+        eq(pipelineDetail), eq(notPerConsentForm.getAsBuiltNotificationStatus()));
   }
 
   private AsBuiltNotificationSubmissionForm getAsBuiltNotificationSubmissionForm() {
