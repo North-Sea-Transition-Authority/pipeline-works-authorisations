@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.repository.asbuilt;
 
 
+import java.util.List;
 import java.util.Optional;
 import org.springframework.data.repository.CrudRepository;
 import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationGroup;
@@ -10,5 +11,7 @@ public interface AsBuiltNotificationGroupStatusHistoryRepository extends CrudRep
 
   Optional<AsBuiltNotificationGroupStatusHistory> findByAsBuiltNotificationGroupAndEndedTimestampIsNull(
       AsBuiltNotificationGroup asBuiltNotificationGroup);
+
+  List<AsBuiltNotificationGroupStatusHistory> findAllByEndedTimestampIsNull();
 
 }

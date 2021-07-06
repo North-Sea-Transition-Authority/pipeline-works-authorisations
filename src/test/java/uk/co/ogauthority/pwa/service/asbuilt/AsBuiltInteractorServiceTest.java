@@ -141,4 +141,10 @@ public class AsBuiltInteractorServiceTest {
     verify(asBuiltNotificationSubmissionService).submitAsBuiltNotification(abngPipeline, form, user);
   }
 
+  @Test
+  public void notifyHoldersOfAsBuiltGroupDeadlines_callsDeadlineService() {
+    asBuiltInteractorService.notifyHoldersOfAsBuiltGroupDeadlines();
+    verify(asBuiltGroupDeadlineService).notifyHoldersOfAsBuiltGroupDeadlines();
+  }
+
 }

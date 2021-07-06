@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.model.entity.asbuilt;
 
 import java.time.Instant;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
+import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaTestUtil;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsentTestUtil;
 
 public final class AsBuiltNotificationGroupTestUtil {
@@ -11,8 +12,8 @@ public final class AsBuiltNotificationGroupTestUtil {
   }
 
   public static AsBuiltNotificationGroup createDefaultGroupWithConsent(){
-
-    var consent = PwaConsentTestUtil.createInitial(null);
+    var masterPwa = MasterPwaTestUtil.create(10);
+    var consent = PwaConsentTestUtil.createInitial(masterPwa);
     return new AsBuiltNotificationGroup(consent, "DEFAULT_AS_BUILT_REFERENCE", Instant.now());
   }
 

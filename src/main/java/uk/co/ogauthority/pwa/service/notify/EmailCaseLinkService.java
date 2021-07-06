@@ -4,11 +4,13 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import uk.co.ogauthority.pwa.controller.WorkAreaController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.submission.ReviewAndSubmitController;
 import uk.co.ogauthority.pwa.controller.search.consents.PwaPipelineViewController;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.search.consents.PwaPipelineViewTab;
+import uk.co.ogauthority.pwa.service.workarea.WorkAreaTab;
 import uk.co.ogauthority.pwa.util.CaseManagementUtils;
 
 @Service
@@ -31,8 +33,13 @@ public class EmailCaseLinkService {
 
   public String generateAsBuiltNotificationSummaryLink(Integer pwaId, Integer pipelineId) {
     return pwaUrlBase + contextPath + ReverseRouter.route(on(PwaPipelineViewController.class)
-    .renderViewPwaPipeline(pwaId, pipelineId, PwaPipelineViewTab.AS_BUILT_NOTIFICATION_HISTORY, null, null,
-        null, null, null));
+        .renderViewPwaPipeline(pwaId, pipelineId, PwaPipelineViewTab.AS_BUILT_NOTIFICATION_HISTORY, null, null,
+            null, null, null));
+  }
+
+  public String generateAsBuiltNotificationWorkareaLink() {
+    return pwaUrlBase + contextPath + ReverseRouter.route(on(WorkAreaController.class)
+        .renderWorkAreaTab(null, WorkAreaTab.AS_BUILT_NOTIFICATIONS, null));
   }
 
 }

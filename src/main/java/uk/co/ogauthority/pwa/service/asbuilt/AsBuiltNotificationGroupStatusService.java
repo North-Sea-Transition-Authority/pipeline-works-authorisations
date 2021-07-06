@@ -1,6 +1,8 @@
 package uk.co.ogauthority.pwa.service.asbuilt;
 
 import java.time.Instant;
+import java.util.List;
+import java.util.stream.Collectors;
 import javax.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -50,6 +52,14 @@ class AsBuiltNotificationGroupStatusService {
       }
       asBuiltNotificationGroupStatusHistoryRepository.save(statusHistory);
     }
+  }
+
+  List<AsBuiltNotificationGroup> getAllNonCompleteAsBuiltNotificationGroups() {
+    return asBuiltNotificationGroupStatusHistoryRepository
+        .findAllByEndedTimestampIsNull()
+        .stream()
+        .map(AsBuiltNotificationGroupStatusHistory::getAsBuiltNotificationGroup)
+        .collect(Collectors.toList());
   }
 
   private boolean isGroupStatusStillInProgress(AsBuiltNotificationGroupStatusHistory currentStatusHistory,

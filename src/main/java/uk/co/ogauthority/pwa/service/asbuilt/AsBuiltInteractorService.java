@@ -94,4 +94,8 @@ public class AsBuiltInteractorService {
     asBuiltGroupDeadlineService.setNewDeadline(asBuiltNotificationGroup, deadlineDate, user.getLinkedPerson());
   }
 
+  public void notifyHoldersOfAsBuiltGroupDeadlines() {
+    asBuiltGroupDeadlineService.notifyHoldersOfAsBuiltGroupDeadlines();
+  }
+
 }

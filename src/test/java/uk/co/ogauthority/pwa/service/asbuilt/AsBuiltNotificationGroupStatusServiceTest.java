@@ -83,4 +83,10 @@ public class AsBuiltNotificationGroupStatusServiceTest {
     assertThat(savedHistory.getEndedByPersonId()).isEqualTo(person.getId());
   }
 
+  @Test
+  public void getAllNonCompleteAsBuiltNotificationGroups() {
+    asBuiltNotificationGroupStatusService.getAllNonCompleteAsBuiltNotificationGroups();
+    verify(asBuiltNotificationGroupStatusHistoryRepository).findAllByEndedTimestampIsNull();
+  }
+
 }

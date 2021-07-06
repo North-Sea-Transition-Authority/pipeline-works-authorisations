@@ -3,6 +3,8 @@ package uk.co.ogauthority.pwa.service.teams;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
@@ -207,5 +209,16 @@ public class PwaHolderTeamServiceTest {
     assertThat(orgUnits).isEmpty();
   }
 
+  @Test
+  public void getHolderOrgUnitsForMasterPwas_correctlyCreatesMultimap() {
+    when(pwaHolderOrgUnitRepository.findAllByPwaIdIn(Set.of(detail.getMasterPwa().getId())))
+        .thenReturn(Set.of(pwaHolderOrgUnit));
+    when(portalOrganisationsAccessor.getOrganisationGroupsWhereIdIn(List.of(pwaHolderOrgUnit.getOrgGrpId())))
+        .thenReturn(List.of(holderOrgGroup));
+    Multimap<PortalOrganisationGroup, Integer> orgToMasterPwaIdMultimap = ArrayListMultimap.create();
+    orgToMasterPwaIdMultimap.put(holderOrgGroup, detail.getMasterPwa().getId());
+    assertThat(pwaHolderTeamService.getHolderOrgGroupsForMasterPwas(Set.of(detail.getMasterPwa().getId()))).isEqualTo(
+        orgToMasterPwaIdMultimap);
+  }
 
 }
