@@ -5,15 +5,15 @@ import org.springframework.data.domain.Sort;
 
 public interface WorkAreaSort {
 
-  String getSortAttribute();
+  String getPrimarySortAttribute();
 
-  Sort.Direction getSortDirection();
+  Sort.Direction getPrimarySortDirection();
 
-  Sort.NullHandling getNullHandling();
+  Sort.NullHandling getPrimaryNullHandling();
 
   default Sort getSort() {
     return Sort.by(
-        List.of(new Sort.Order(getSortDirection(), getSortAttribute(), getNullHandling()))
+        List.of(new Sort.Order(getPrimarySortDirection(), getPrimarySortAttribute(), getPrimaryNullHandling()))
     );
   }
 

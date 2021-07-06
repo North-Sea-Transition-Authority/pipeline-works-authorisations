@@ -154,7 +154,7 @@ public class PublicNoticeDraftServiceTest {
     assertThat(publicNoticeRequest.getReason()).isEqualTo(publicNoticeDraftForm.getReason());
     assertThat(publicNoticeRequest.getReasonDescription()).isEqualTo(publicNoticeDraftForm.getReasonDescription());
     assertThat(publicNoticeRequest.getVersion()).isEqualTo(1);
-    assertThat(publicNoticeRequest.getSubmittedTimestamp()).isEqualTo(clock.instant());
+    assertThat(publicNoticeRequest.getCreatedTimestamp()).isEqualTo(clock.instant());
     assertThat(publicNoticeRequest.getCreatedByPersonId()).isEqualTo(user.getLinkedPerson().getId().asInt());
 
     verify(camundaWorkflowService).startWorkflow(publicNotice);

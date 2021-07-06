@@ -92,6 +92,9 @@ public class WorkAreaApplicationDetailSearchItem implements ApplicationDetailIte
 
   private boolean openConsentReviewFlag;
 
+  // mapped as int not boolean to predictable number ordering e.g ascending or descending. e.g what would ordering a boolean actually mean?
+  private Integer submittedFlag;
+
   @Override
   public int getPwaApplicationDetailId() {
     return pwaApplicationDetailId;
@@ -377,4 +380,11 @@ public class WorkAreaApplicationDetailSearchItem implements ApplicationDetailIte
     this.openConsentReviewFlag = openConsentReviewFlag;
   }
 
+  public int getSubmittedFlag() {
+    return submittedFlag;
+  }
+
+  public void setSubmittedFlag(int submittedFlag) {
+    this.submittedFlag = submittedFlag;
+  }
 }

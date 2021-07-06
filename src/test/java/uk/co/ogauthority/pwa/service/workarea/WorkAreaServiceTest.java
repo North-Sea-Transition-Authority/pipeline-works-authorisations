@@ -67,6 +67,7 @@ public class WorkAreaServiceTest {
 
   private WorkAreaContext workAreaContext;
   private Pageable regulatorAppTabPageable = WorkAreaUtils.getWorkAreaPageRequest(DEFAULT_PAGE, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC);
+  private Pageable industryAppTabPageable = WorkAreaUtils.getWorkAreaPageRequest(DEFAULT_PAGE, ApplicationWorkAreaSort.SUBMITTED_APP_START_ASC_THEN_DRAFT_APP_START_ASC);
 
   @Before
   public void setUp() {
@@ -184,7 +185,7 @@ public class WorkAreaServiceTest {
 
     var workAreaResult = workAreaService.getWorkAreaResult(workAreaContext, tab, DEFAULT_PAGE);
 
-    verify(applicationWorkAreaPageService).getUsersWorkAreaTabContents(workAreaContext, tab.getWorkAreaTabCategory(), regulatorAppTabPageable);
+    verify(applicationWorkAreaPageService).getUsersWorkAreaTabContents(workAreaContext, tab.getWorkAreaTabCategory(), industryAppTabPageable);
 
     assertThat(workAreaResult.getApplicationsTabPages().getPageContent()).isEmpty();
 
@@ -202,7 +203,7 @@ public class WorkAreaServiceTest {
 
     var workAreaResult = workAreaService.getWorkAreaResult(workAreaContext, tab, DEFAULT_PAGE);
 
-    verify(applicationWorkAreaPageService).getUsersWorkAreaTabContents(workAreaContext, tab.getWorkAreaTabCategory(), regulatorAppTabPageable);
+    verify(applicationWorkAreaPageService).getUsersWorkAreaTabContents(workAreaContext, tab.getWorkAreaTabCategory(), industryAppTabPageable);
 
     assertThat(workAreaResult.getApplicationsTabPages().getPageContent()).isEmpty();
 
@@ -223,7 +224,7 @@ public class WorkAreaServiceTest {
 
     var workAreaResult = workAreaService.getWorkAreaResult(workAreaContext, tab, DEFAULT_PAGE);
 
-    verify(applicationWorkAreaPageService).getUsersWorkAreaTabContents(workAreaContext, tab.getWorkAreaTabCategory(), regulatorAppTabPageable);
+    verify(applicationWorkAreaPageService).getUsersWorkAreaTabContents(workAreaContext, tab.getWorkAreaTabCategory(), industryAppTabPageable);
 
     assertThat(workAreaResult.getApplicationsTabPages().getPageContent())
         .hasOnlyOneElementSatisfying(pwaApplicationWorkAreaItem ->
@@ -246,7 +247,7 @@ public class WorkAreaServiceTest {
 
     var workAreaResult = workAreaService.getWorkAreaResult(workAreaContext, tab, DEFAULT_PAGE);
 
-    verify(applicationWorkAreaPageService).getUsersWorkAreaTabContents(workAreaContext, tab.getWorkAreaTabCategory(), regulatorAppTabPageable);
+    verify(applicationWorkAreaPageService).getUsersWorkAreaTabContents(workAreaContext, tab.getWorkAreaTabCategory(), industryAppTabPageable);
 
     assertThat(workAreaResult.getApplicationsTabPages().getPageContent())
         .hasOnlyOneElementSatisfying(pwaApplicationWorkAreaItem ->

@@ -233,22 +233,14 @@ class ApplicationWorkAreaPageService {
       Order order;
 
       var dataType = orderingJoin.get(springOrder.getProperty()).getJavaType();
-      if (!dataType.equals(Instant.class)) {
-        throw new UnsupportedOperationException("Cannot decode class %s for default value when null");
-      }
 
-      // oh god I'm sorry, hardcode in default sort value when null and limit to just Instant type sorting for now.
-      // out of the box QueryUtils.toOrders() ignores null handling definition and default behaviour is always nulls last
-      if (springOrder.getDirection().isAscending() && springOrder.getNullHandling().equals(
-          Sort.NullHandling.NULLS_FIRST)) {
-        order = cb.asc(cb.coalesce(orderingJoin.get(springOrder.getProperty()), MIN_SORT_INSTANT));
-      } else if (springOrder.getDirection().isAscending()) {
-        order = cb.asc(cb.coalesce(orderingJoin.get(springOrder.getProperty()), MAX_SORT_INSTANT));
-      } else if (springOrder.getDirection().isDescending() && springOrder.getNullHandling().equals(
-          Sort.NullHandling.NULLS_FIRST)) {
-        order = cb.desc(cb.coalesce(orderingJoin.get(springOrder.getProperty()), MAX_SORT_INSTANT));
+      if (dataType.equals(Instant.class)) {
+        order = springOrderToJpaOrder(cb, orderingJoin, springOrder, MIN_SORT_INSTANT, MAX_SORT_INSTANT);
+      } else if (dataType.equals(Integer.class)) {
+        order = springOrderToJpaOrder(cb, orderingJoin, springOrder, 0, 99999);
       } else {
-        order = cb.desc(cb.coalesce(orderingJoin.get(springOrder.getProperty()), MIN_SORT_INSTANT));
+        throw new UnsupportedOperationException(String.format("Cannot decode class %s for default value when null", dataType));
+
       }
 
       orderList.add(order);
@@ -256,6 +248,30 @@ class ApplicationWorkAreaPageService {
     });
 
     return orderList;
+
+  }
+
+  private <T> Order springOrderToJpaOrder(CriteriaBuilder cb,
+                                          Join<WorkAreaAppUserTab, WorkAreaApplicationDetailSearchItem> orderingJoin,
+                                          Sort.Order springOrder,
+                                          T minimumWhenNull,
+                                          T maximumWhenNull) {
+
+    // out of the box QueryUtils.toOrders() ignores null handling definition and default behaviour is always nulls last
+    if (springOrder.getDirection().isAscending()
+        && springOrder.getNullHandling().equals(Sort.NullHandling.NULLS_FIRST)) {
+      return cb.asc(cb.coalesce(orderingJoin.get(springOrder.getProperty()), minimumWhenNull));
+
+    } else if (springOrder.getDirection().isAscending()) {
+      return cb.asc(cb.coalesce(orderingJoin.get(springOrder.getProperty()), maximumWhenNull));
+
+    } else if (springOrder.getDirection().isDescending()
+        && springOrder.getNullHandling().equals(Sort.NullHandling.NULLS_FIRST)) {
+      return cb.desc(cb.coalesce(orderingJoin.get(springOrder.getProperty()), maximumWhenNull));
+
+    } else {
+      return cb.desc(cb.coalesce(orderingJoin.get(springOrder.getProperty()), maximumWhenNull));
+    }
 
   }
 

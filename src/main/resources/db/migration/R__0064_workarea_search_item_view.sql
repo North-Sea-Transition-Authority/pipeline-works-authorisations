@@ -28,6 +28,10 @@ SELECT
 , adv.open_update_request_flag
 , adv.open_update_deadline_ts
 , adv.open_consent_review_flag
+, CASE
+    WHEN adv.pad_submitted_timestamp IS NULL THEN 0
+    ELSE 1
+  END submitted_flag
 FROM ${datasource.user}.wa_application_flags waf
 JOIN ${datasource.user}.application_detail_view adv ON waf.pwa_application_id = adv.pwa_application_id AND waf.workarea_pad_version_no = adv.version_no;
 /

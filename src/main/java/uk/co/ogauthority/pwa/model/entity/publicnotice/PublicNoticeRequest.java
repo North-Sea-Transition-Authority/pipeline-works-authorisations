@@ -42,7 +42,7 @@ public class PublicNoticeRequest {
 
   private Integer version;
 
-  private Instant submittedTimestamp;
+  private Instant createdTimestamp;
 
   private Instant responseTimestamp;
 
@@ -122,12 +122,12 @@ public class PublicNoticeRequest {
     this.version = version;
   }
 
-  public Instant getSubmittedTimestamp() {
-    return submittedTimestamp;
+  public Instant getCreatedTimestamp() {
+    return createdTimestamp;
   }
 
-  public void setSubmittedTimestamp(Instant submittedTimestamp) {
-    this.submittedTimestamp = submittedTimestamp;
+  public void setCreatedTimestamp(Instant createdTimestamp) {
+    this.createdTimestamp = createdTimestamp;
   }
 
   public Instant getResponseTimestamp() {

@@ -25,7 +25,7 @@ public class ConsultationWorkAreaSortTest {
     Stream.of(ConsultationWorkAreaSort.values()).forEach(sort -> {
 
       try {
-        assertThat(validFieldsSet.contains(sort.getSortAttribute())).isTrue();
+        assertThat(validFieldsSet.contains(sort.getPrimarySortAttribute())).isTrue();
       } catch (AssertionError e) {
         throw new AssertionError("Fail at sort:" + sort.toString() + "\n" + e.getMessage(), e);
       }

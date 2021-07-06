@@ -123,7 +123,7 @@ public final class PublicNoticeTestUtil {
     publicNoticeRequest.setReason(publicNoticeDraftForm.getReason());
     publicNoticeRequest.setReasonDescription(publicNoticeDraftForm.getReasonDescription());
     publicNoticeRequest.setVersion(1);
-    publicNoticeRequest.setSubmittedTimestamp(Instant.now());
+    publicNoticeRequest.setCreatedTimestamp(Instant.now());
     publicNoticeRequest.setCreatedByPersonId(1);
     return publicNoticeRequest;
   }
@@ -142,12 +142,12 @@ public final class PublicNoticeTestUtil {
 
   static PublicNoticeView createCommentedPublicNoticeView(PublicNotice publicNotice, PublicNoticeRequest publicNoticeRequest) {
     return new PublicNoticeView(publicNotice.getStatus(),
-        DateUtils.formatDate(publicNoticeRequest.getSubmittedTimestamp()));
+        DateUtils.formatDate(publicNoticeRequest.getCreatedTimestamp()));
   }
 
   static PublicNoticeView createCommentedPublicNoticeView(PublicNotice publicNotice, PublicNoticeRequest publicNoticeRequest, PublicNoticeDocument publicNoticeDocument) {
     return new PublicNoticeView(publicNotice.getStatus(),
-        DateUtils.formatDate(publicNoticeRequest.getSubmittedTimestamp()), publicNoticeDocument.getComments(),
+        DateUtils.formatDate(publicNoticeRequest.getCreatedTimestamp()), publicNoticeDocument.getComments(),
         null, null, null, null, null);
   }
 
@@ -157,7 +157,7 @@ public final class PublicNoticeTestUtil {
                                                           PublicNoticeRequest publicNoticeRequest) {
     return new PublicNoticeView(
         publicNotice.getStatus(),
-        DateUtils.formatDate(publicNoticeRequest.getSubmittedTimestamp()),
+        DateUtils.formatDate(publicNoticeRequest.getCreatedTimestamp()),
         null,
         withdrawingUsername,
         DateUtils.formatDate(publicNotice.getWithdrawalTimestamp()),
@@ -171,7 +171,7 @@ public final class PublicNoticeTestUtil {
                                                           PublicNoticeRequest publicNoticeRequest) {
     return new PublicNoticeView(
         publicNotice.getStatus(),
-        DateUtils.formatDate(publicNoticeRequest.getSubmittedTimestamp()),
+        DateUtils.formatDate(publicNoticeRequest.getCreatedTimestamp()),
         null,
         null,
         null,
