@@ -14,7 +14,7 @@ public enum PipelineStatus implements DiffableAsString {
   RETURNED_TO_SHORE("Returned to shore", 20, false, PhysicalPipelineState.ONSHORE),
   OUT_OF_USE_ON_SEABED("Out of use but left on the seabed", 30, false, PhysicalPipelineState.ON_SEABED),
   NEVER_LAID("Never laid and will not be laid", 40, false, PhysicalPipelineState.NEVER_EXISTED),
-  TRANSFERRED("", 50, false, PhysicalPipelineState.NEVER_EXISTED),
+  TRANSFERRED("Transferred", 50, false, PhysicalPipelineState.NEVER_EXISTED),
 
   DELETED("Deleted (legacy)", 70, true, PhysicalPipelineState.NEVER_EXISTED),
   PENDING("Pending (legacy)", 90, true, PhysicalPipelineState.NEVER_EXISTED);

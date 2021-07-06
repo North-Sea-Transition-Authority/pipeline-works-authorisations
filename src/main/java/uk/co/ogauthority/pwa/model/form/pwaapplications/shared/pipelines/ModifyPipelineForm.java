@@ -7,6 +7,7 @@ public class ModifyPipelineForm {
   private String pipelineId;
   private PipelineStatus pipelineStatus;
   private String pipelineStatusReason;
+  private Boolean transferAgreed;
 
   public String getPipelineId() {
     return pipelineId;
@@ -30,5 +31,13 @@ public class ModifyPipelineForm {
 
   public void setPipelineStatusReason(String pipelineStatusReason) {
     this.pipelineStatusReason = pipelineStatusReason;
+  }
+
+  public Boolean getTransferAgreed() {
+    return transferAgreed;
+  }
+
+  public void setTransferAgreed(Boolean transferAgreed) {
+    this.transferAgreed = transferAgreed;
   }
 }

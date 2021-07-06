@@ -29,20 +29,24 @@ public class ModifyPipelineValidator implements SmartValidator {
     var form = (ModifyPipelineForm) target;
     var detail = (PwaApplicationDetail) validationHints[0];
     var selectablePipelines = modifyPipelineService.getSelectableConsentedPipelines(detail);
+
     boolean isValidPipeline = selectablePipelines.stream()
         .anyMatch(s -> String.valueOf(s.getPipelineId()).equals(form.getPipelineId()));
     if (!isValidPipeline) {
       errors.rejectValue("pipelineId", "pipelineId" + FieldValidationErrorCodes.INVALID.getCode(),
           "Select a valid pipeline");
     }
+
     ValidationUtils.rejectIfEmpty(errors, "pipelineStatus",
         "pipelineStatus" + FieldValidationErrorCodes.REQUIRED.getCode(),
         "Select the status of the pipeline after changes");
+
     if (form.getPipelineStatus() != null && form.getPipelineStatus().isHistorical()) {
       errors.rejectValue("pipelineStatus",
           "pipelineStatus" + FieldValidationErrorCodes.INVALID.getCode(),
           "The selected pipeline status is invalid");
     }
+
     if (form.getPipelineStatus() == PipelineStatus.OUT_OF_USE_ON_SEABED) {
       ValidationUtils.rejectIfEmpty(errors, "pipelineStatusReason",
           "pipelineStatusReason" + FieldValidationErrorCodes.REQUIRED.getCode(),
@@ -52,6 +56,11 @@ public class ModifyPipelineValidator implements SmartValidator {
             "pipelineStatusReason" + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode(),
             "The reason for leaving the pipeline on the seabed must be 4000 characters or less");
       }
+
+    } else if (form.getPipelineStatus() == PipelineStatus.TRANSFERRED) {
+      ValidationUtils.rejectIfEmpty(errors, "transferAgreed",
+          "transferAgreed" + FieldValidationErrorCodes.REQUIRED.getCode(),
+          "Confirm if it has been agreed that this pipeline can be transferred to another PWA");
     }
   }
 

@@ -8,11 +8,13 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
+import java.util.stream.Collectors;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import uk.co.ogauthority.pwa.exception.ActionNotAllowedException;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineStatus;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
@@ -197,4 +199,39 @@ public class ModifyPipelineServiceTest {
     verify(padPipelineService, times(1)).copyDataToNewPadPipeline(detail, pipelineDetail, form);
     verify(pipelineDetailIdentDataImportService, times(1)).importIdentsAndData(eq(pipelineDetail), any());
   }
+
+  @Test(expected = ActionNotAllowedException.class)
+  public void importPipeline_modifyingTransferredPipeline_errorThrown() {
+    var form = new ModifyPipelineForm();
+    form.setPipelineId("1");
+    var pipelineDetail = new PipelineDetail();
+    pipelineDetail.setPipelineStatus(PipelineStatus.TRANSFERRED);
+
+    when(pipelineDetailService.getLatestByPipelineId(1)).thenReturn(pipelineDetail);
+    modifyPipelineService.importPipeline(detail, form);
+  }
+
+  @Test
+  public void getPipelineServiceStatusesForAppType_validAppTypesForTransferredPipelineStatus() {
+
+    var validAppTypesForTransferredPipelineStatus = List.of(
+        PwaApplicationType.CAT_1_VARIATION, PwaApplicationType.CAT_2_VARIATION, PwaApplicationType.DECOMMISSIONING);
+
+    validAppTypesForTransferredPipelineStatus.forEach(appType -> {
+      var actualPipelineStatuses = modifyPipelineService.getPipelineServiceStatusesForAppType(appType);
+      assertThat(actualPipelineStatuses).isEqualTo(PipelineStatus.toOrderedListWithoutHistorical());
+    });
+  }
+
+  @Test
+  public void getPipelineServiceStatusesForAppType_nonValidAppTypesForTransferredPipelineStatus() {
+
+    var actualPipelineStatuses = modifyPipelineService.getPipelineServiceStatusesForAppType(PwaApplicationType.OPTIONS_VARIATION);
+    var expectedPipelineStatuses = PipelineStatus.toOrderedListWithoutHistorical().stream()
+        .filter(pipelineStatus -> !pipelineStatus.equals(PipelineStatus.TRANSFERRED))
+        .collect(Collectors.toList());
+
+    assertThat(actualPipelineStatuses).isEqualTo(expectedPipelineStatuses);
+  }
+
 }

@@ -227,6 +227,25 @@ public class ConsentAsBuiltWriterServiceTest {
   }
 
   @Test
+  public void write_consentWriterHasMappedPipelineDetails_pipelinesTransferred() {
+
+    pipeline1Detail.setPipelineStatus(PipelineStatus.TRANSFERRED);
+    pipeline2Detail.setPipelineStatus(PipelineStatus.TRANSFERRED);
+
+    when(pipelineDetailService.countPipelineDetailsPerPipeline(
+        Set.of(pipeline1Detail.getPipeline(), pipeline2Detail.getPipeline())))
+        .thenReturn(Map.of(
+            PIPELINE_ID_1, 2L,
+            PIPELINE_ID_2, 2L
+        ));
+
+    consentWriterDto = asBuiltWriterService.write(pwaApplicationDetail, pwaConsent, consentWriterDto);
+
+    verifyNoInteractions(asBuiltInteractorService);
+
+  }
+
+  @Test
   public void write_consentWriterHasMappedPipelineDetails_pipelinesOutOfUseOrReturnedToShow_singleDetailExists() {
 
     pipeline1Detail.setPipelineStatus(PipelineStatus.OUT_OF_USE_ON_SEABED);

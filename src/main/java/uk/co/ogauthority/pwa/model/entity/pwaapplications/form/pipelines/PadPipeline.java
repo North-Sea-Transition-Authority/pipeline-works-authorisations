@@ -150,6 +150,7 @@ public class PadPipeline implements PipelineEntity, ParentEntity, ChildEntity<In
   @Enumerated(EnumType.STRING)
   private PipelineStatus pipelineStatus;
   private String pipelineStatusReason;
+  private Boolean pipelineTransferAgreed;
 
   private Boolean alreadyExistsOnSeabed;
   private Boolean pipelineInUse;
@@ -597,6 +598,14 @@ public class PadPipeline implements PipelineEntity, ParentEntity, ChildEntity<In
     this.pipelineStatusReason = pipelineServiceStatusReason;
   }
 
+  public Boolean getPipelineTransferAgreed() {
+    return pipelineTransferAgreed;
+  }
+
+  public void setPipelineTransferAgreed(Boolean pipelineTransferAgreed) {
+    this.pipelineTransferAgreed = pipelineTransferAgreed;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -644,6 +653,7 @@ public class PadPipeline implements PipelineEntity, ParentEntity, ChildEntity<In
         && Objects.equals(bundleName, that.bundleName)
         && Objects.equals(pipelineStatus, that.pipelineStatus)
         && Objects.equals(pipelineStatusReason, that.pipelineStatusReason)
+        && Objects.equals(pipelineTransferAgreed, that.pipelineTransferAgreed)
         && Objects.equals(alreadyExistsOnSeabed, that.alreadyExistsOnSeabed)
         && Objects.equals(pipelineInUse, that.pipelineInUse)
         && Objects.equals(footnote, that.footnote);
@@ -658,7 +668,7 @@ public class PadPipeline implements PipelineEntity, ParentEntity, ChildEntity<In
         toLatitudeDirection, toLongitudeDegrees, toLongitudeMinutes, toLongitudeSeconds, toLongitudeDirection,
         componentPartsDescription, length, productsToBeConveyed, trenchedBuriedBackfilled, trenchingMethodsDescription,
         pipelineRef, fromCoordinates, toCoordinates, pipelineFlexibility, pipelineMaterial, otherPipelineMaterialUsed,
-        pipelineDesignLife, pipelineInBundle, bundleName, pipelineStatus, pipelineStatusReason,
+        pipelineDesignLife, pipelineInBundle, bundleName, pipelineStatus, pipelineStatusReason, pipelineTransferAgreed,
         alreadyExistsOnSeabed, pipelineInUse, footnote);
   }
 }
