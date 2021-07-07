@@ -9,7 +9,7 @@ import uk.co.ogauthority.pwa.service.enums.appprocessing.TaskStatus;
 import uk.co.ogauthority.pwa.util.CaseManagementUtils;
 
 /**
- * A service to check app processing tasks for issues and produce warning information when the tasks should be completed.
+ * A service to check app processing tasks for issues and produce warning information when the tasks should be started.
  */
 @Service
 public class AppProcessingTaskWarningService {

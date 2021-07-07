@@ -43,7 +43,6 @@ import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.PwaAppProcessingPermissionService;
 import uk.co.ogauthority.pwa.service.appprocessing.appprocessingwarning.AppProcessingTaskWarningService;
 import uk.co.ogauthority.pwa.service.appprocessing.appprocessingwarning.AppProcessingTaskWarningTestUtil;
-import uk.co.ogauthority.pwa.service.appprocessing.appprocessingwarning.NonBlockingTasksWarning;
 import uk.co.ogauthority.pwa.service.appprocessing.consentreview.ConsentReviewReturnFormValidator;
 import uk.co.ogauthority.pwa.service.appprocessing.consentreview.ConsentReviewService;
 import uk.co.ogauthority.pwa.service.appprocessing.consentreview.IssuedConsentDtoTestUtil;
