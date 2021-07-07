@@ -153,6 +153,19 @@ public class AsBuiltNotificationSubmissionControllerTest extends AbstractControl
   }
 
   @Test
+  public void postSubmitAsBuiltNotification_unauthorizedUser_forbidden() throws Exception {
+    when(asBuiltNotificationAuthService.canPersonAccessAsbuiltNotificationGroup(user.getLinkedPerson(), NOTIFICATION_GROUP_ID))
+        .thenReturn(false);
+
+    mockMvc.perform(post(
+        ReverseRouter.route(on(AsBuiltNotificationSubmissionController.class)
+            .postSubmitAsBuiltNotification(NOTIFICATION_GROUP_ID, PIPElINE_DETAIL_ID, user, new AsBuiltNotificationSubmissionForm(), null, null)))
+        .with(authenticatedUserAndSession(user))
+        .with(csrf()))
+        .andExpect(status().isForbidden());
+  }
+
+  @Test
   public void postSubmitAsBuiltNotification_failsValidation() throws Exception {
     doAnswer(invocation -> {
       var errors = (Errors) invocation.getArgument(1);

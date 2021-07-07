@@ -58,6 +58,7 @@ public class AsBuiltNotificationDeadlineController {
                                                            @ModelAttribute("form") ChangeAsBuiltNotificationGroupDeadlineForm form,
                                                            AuthenticatedUserAccount authenticatedUserAccount) {
     checkUserCanChangeAsBuiltDeadline(authenticatedUserAccount, notificationGroupId);
+
     var summary = asBuiltViewerService
         .getAsBuiltNotificationGroupSummaryView(notificationGroupId);
     var modelAndView = new ModelAndView("asbuilt/form/changeAsBuiltDeadline")
@@ -75,6 +76,8 @@ public class AsBuiltNotificationDeadlineController {
                                                        BindingResult bindingResult,
                                                        RedirectAttributes redirectAttributes,
                                                        AuthenticatedUserAccount authenticatedUserAccount) {
+    checkUserCanChangeAsBuiltDeadline(authenticatedUserAccount, notificationGroupId);
+
     var asBuiltNotificationGroup = getAsBuiltNotificationGroup(notificationGroupId);
 
     changeAsBuiltNotificationGroupDeadlineValidator.validate(form, bindingResult);

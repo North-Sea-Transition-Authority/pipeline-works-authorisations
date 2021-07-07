@@ -88,6 +88,7 @@ public class AsBuiltNotificationSubmissionController {
                                                     @ModelAttribute("form") AsBuiltNotificationSubmissionForm form,
                                                     BindingResult bindingResult,
                                                     RedirectAttributes redirectAttributes) {
+    checkUserCanAccessAsBuiltNotification(authenticatedUserAccount, notificationGroupId);
     var pipelineDetail = getPipelineDetail(pipelineDetailId);
     var isPersonOgaUser = isPersonOgaUser(authenticatedUserAccount.getLinkedPerson());
     var asBuiltNotificationGroupPipeline = getAsBuiltNotificationGroupPipeline(notificationGroupId,
