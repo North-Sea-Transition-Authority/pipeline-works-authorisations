@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.service.appprocessing.prepareconsent;
 
 import java.time.Instant;
 import java.util.List;
+import uk.co.ogauthority.pwa.service.appprocessing.appprocessingwarning.AppProcessingTaskWarningTestUtil;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 
 public class PreSendForApprovalChecksViewTestUtil {
@@ -11,12 +12,12 @@ public class PreSendForApprovalChecksViewTestUtil {
   }
 
   public static PreSendForApprovalChecksView createNoFailedChecksView() {
-    return new PreSendForApprovalChecksView(List.of(), List.of());
+    return new PreSendForApprovalChecksView(List.of(), List.of(), AppProcessingTaskWarningTestUtil.createWithNoWarning());
   }
 
   public static PreSendForApprovalChecksView createFailedChecksView() {
     var failCheck = FailedSendForApprovalCheckTestUtil.create(SendConsentForApprovalRequirement.DOCUMENT_HAS_CLAUSES);
-    return new PreSendForApprovalChecksView(List.of(failCheck), List.of());
+    return new PreSendForApprovalChecksView(List.of(failCheck), List.of(), AppProcessingTaskWarningTestUtil.createWithNoWarning());
   }
 
   public static PreSendForApprovalChecksView createParallelConsentsChecksView() {
@@ -33,8 +34,8 @@ public class PreSendForApprovalChecksViewTestUtil {
                 Instant.now(),
                 "FormattedDate"
             )
-        )
-    );
+        ),
+        AppProcessingTaskWarningTestUtil.createWithNoWarning());
   }
 
 }

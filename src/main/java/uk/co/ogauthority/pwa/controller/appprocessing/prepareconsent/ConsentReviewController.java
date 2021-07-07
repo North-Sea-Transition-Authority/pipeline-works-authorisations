@@ -25,6 +25,7 @@ import uk.co.ogauthority.pwa.model.form.appprocessing.prepareconsent.ConsentRevi
 import uk.co.ogauthority.pwa.model.teams.PwaRegulatorRole;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.AppProcessingBreadcrumbService;
+import uk.co.ogauthority.pwa.service.appprocessing.appprocessingwarning.AppProcessingTaskWarningService;
 import uk.co.ogauthority.pwa.service.appprocessing.consentreview.ConsentReviewReturnFormValidator;
 import uk.co.ogauthority.pwa.service.appprocessing.consentreview.ConsentReviewService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
@@ -54,6 +55,7 @@ public class ConsentReviewController {
   private final AssignmentService assignmentService;
   private final ConsentReviewReturnFormValidator consentReviewReturnFormValidator;
   private final PersonService personService;
+  private final AppProcessingTaskWarningService appProcessingTaskWarningService;
 
   @Autowired
   public ConsentReviewController(AppProcessingBreadcrumbService breadcrumbService,
@@ -62,7 +64,8 @@ public class ConsentReviewController {
                                  PwaTeamService pwaTeamService,
                                  AssignmentService assignmentService,
                                  ConsentReviewReturnFormValidator consentReviewReturnFormValidator,
-                                 PersonService personService) {
+                                 PersonService personService,
+                                 AppProcessingTaskWarningService appProcessingTaskWarningService) {
     this.breadcrumbService = breadcrumbService;
     this.controllerHelperService = controllerHelperService;
     this.consentReviewService = consentReviewService;
@@ -70,6 +73,7 @@ public class ConsentReviewController {
     this.assignmentService = assignmentService;
     this.consentReviewReturnFormValidator = consentReviewReturnFormValidator;
     this.personService = personService;
+    this.appProcessingTaskWarningService = appProcessingTaskWarningService;
   }
 
   @GetMapping("/return")
@@ -164,7 +168,9 @@ public class ConsentReviewController {
 
     var modelAndView = new ModelAndView("pwaApplication/appProcessing/prepareConsent/issueConsent")
         .addObject("caseSummaryView", processingContext.getCaseSummaryView())
-        .addObject("cancelUrl", cancelUrl);
+        .addObject("cancelUrl", cancelUrl)
+        .addObject("nonBlockingTasksWarning",
+            appProcessingTaskWarningService.getNonBlockingTasksWarning(processingContext.getPwaApplication()));
 
     breadcrumbService.fromPrepareConsent(processingContext.getPwaApplication(), modelAndView, "Issue consent");
 

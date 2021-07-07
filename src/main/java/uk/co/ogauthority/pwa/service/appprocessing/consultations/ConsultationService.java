@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.enums.tasklist.TaskState;
 import uk.co.ogauthority.pwa.model.tasklist.TaskListEntry;
 import uk.co.ogauthority.pwa.model.tasklist.TaskTag;
@@ -15,6 +16,7 @@ import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingTask;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.TaskStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ConsultationRequestStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 
 @Service
 public class ConsultationService implements AppProcessingService {
@@ -58,25 +60,33 @@ public class ConsultationService implements AppProcessingService {
     return taskState;
   }
 
+  public boolean consultationsTaskRequired(PwaApplication pwaApplication) {
+    return Set.of(PwaApplicationType.INITIAL,
+        PwaApplicationType.CAT_1_VARIATION,
+        PwaApplicationType.DECOMMISSIONING,
+        PwaApplicationType.OPTIONS_VARIATION,
+        PwaApplicationType.DEPOSIT_CONSENT).contains(pwaApplication.getApplicationType());
+  }
+
+
+  public TaskStatus getTaskStatus(PwaApplication pwaApplication) {
+
+    var requests = consultationRequestService.getAllRequestsByApplication(pwaApplication);
+    if (requests.isEmpty()) {
+      return TaskStatus.NOT_STARTED;
+    }
+
+    boolean allRespondedOrWithdrawn = requests.stream()
+        .allMatch(r -> COMPLETED_REQUEST_STATUSES.contains(r.getStatus()));
+
+    return allRespondedOrWithdrawn ? TaskStatus.COMPLETED : TaskStatus.IN_PROGRESS;
+  }
 
 
   @Override
   public TaskListEntry getTaskListEntry(PwaAppProcessingTask task, PwaAppProcessingContext processingContext) {
 
-    var requests = consultationRequestService.getAllRequestsByApplication(processingContext.getPwaApplication());
-
-    TaskStatus taskStatus;
-
-    if (requests.isEmpty()) {
-      taskStatus = TaskStatus.NOT_STARTED;
-    } else {
-
-      boolean allRespondedOrWithdrawn = requests.stream()
-          .allMatch(r -> COMPLETED_REQUEST_STATUSES.contains(r.getStatus()));
-
-      taskStatus = allRespondedOrWithdrawn ? TaskStatus.COMPLETED : TaskStatus.IN_PROGRESS;
-    }
-
+    var taskStatus = getTaskStatus(processingContext.getPwaApplication());
     boolean atLeastOneSatisfactoryVersion = processingContext.getApplicationInvolvement().hasAtLeastOneSatisfactoryVersion();
 
     return new TaskListEntry(

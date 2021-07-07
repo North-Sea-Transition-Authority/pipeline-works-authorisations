@@ -41,6 +41,9 @@ import uk.co.ogauthority.pwa.model.entity.workflow.assignment.Assignment;
 import uk.co.ogauthority.pwa.model.teams.PwaRegulatorRole;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.PwaAppProcessingPermissionService;
+import uk.co.ogauthority.pwa.service.appprocessing.appprocessingwarning.AppProcessingTaskWarningService;
+import uk.co.ogauthority.pwa.service.appprocessing.appprocessingwarning.AppProcessingTaskWarningTestUtil;
+import uk.co.ogauthority.pwa.service.appprocessing.appprocessingwarning.NonBlockingTasksWarning;
 import uk.co.ogauthority.pwa.service.appprocessing.consentreview.ConsentReviewReturnFormValidator;
 import uk.co.ogauthority.pwa.service.appprocessing.consentreview.ConsentReviewService;
 import uk.co.ogauthority.pwa.service.appprocessing.consentreview.IssuedConsentDtoTestUtil;
@@ -79,6 +82,9 @@ public class ConsentReviewControllerTest extends PwaAppProcessingContextAbstract
   @MockBean
   private ConsentReviewReturnFormValidator consentReviewReturnFormValidator;
 
+  @MockBean
+  private AppProcessingTaskWarningService appProcessingTaskWarningService;
+
   private PwaApplicationEndpointTestBuilder endpointTester;
 
   private AuthenticatedUserAccount user;
@@ -113,6 +119,9 @@ public class ConsentReviewControllerTest extends PwaAppProcessingContextAbstract
     when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail, user)).thenReturn(permissionsDto);
 
     when(personService.getPersonById(new PersonId(2))).thenReturn(caseOfficerPerson);
+
+    when(appProcessingTaskWarningService.getNonBlockingTasksWarning(any()))
+        .thenReturn(AppProcessingTaskWarningTestUtil.createWithNoWarning());
 
   }
 

@@ -1,11 +1,19 @@
 <#include '../../../layout.ftl'>
+<#import 'nonBlockingWarning.ftl' as nonBlockingWarning>
 
 <#-- @ftlvariable name="caseSummaryView" type="uk.co.ogauthority.pwa.service.appprocessing.context.CaseSummaryView" -->
 <#-- @ftlvariable name="cancelUrl" type="String" -->
+<#-- @ftlvariable name="nonBlockingTasksWarning" type=" uk.co.ogauthority.pwa.service.appprocessing.appprocessingwarning.NonBlockingTasksWarning>" -->
 
 <#assign pageHeading = "${caseSummaryView.pwaApplicationRef} - Issue consent" />
 
 <@defaultPage htmlTitle=pageHeading phaseBanner=false fullWidthColumn=true breadcrumbs=true>
+
+  <@grid.gridRow>
+    <@grid.twoThirdsColumn>
+      <@nonBlockingWarning.nonBlockingWarningBanner nonBlockingTasksWarning/>
+    </@grid.twoThirdsColumn>
+  </@grid.gridRow>
 
   <@pwaCaseSummary.summary caseSummaryView=caseSummaryView />
 

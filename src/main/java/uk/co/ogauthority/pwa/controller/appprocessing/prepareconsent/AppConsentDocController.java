@@ -387,6 +387,7 @@ public class AppConsentDocController {
         .addObject("cancelUrl", ReverseRouter.route(on(AppConsentDocController.class)
             .renderConsentDocEditor(processingContext.getMasterPwaApplicationId(), processingContext.getApplicationType(), null, null)))
         .addObject("parallelConsentViews", preSendForApprovalChecksView.getParallelConsentViews())
+        .addObject("nonBlockingTasksWarning", preSendForApprovalChecksView.getNonBlockingTasksWarning())
         .addObject("urlFactory", urlFactory);
 
 
