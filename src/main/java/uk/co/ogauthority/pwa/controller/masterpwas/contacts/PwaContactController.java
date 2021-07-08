@@ -43,14 +43,13 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermiss
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.users.UserType;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
-import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationHolderService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
+import uk.co.ogauthority.pwa.service.pwaapplications.PwaHolderService;
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.AddPwaContactFormValidator;
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.service.teammanagement.LastAdministratorException;
 import uk.co.ogauthority.pwa.service.teammanagement.TeamManagementService;
-import uk.co.ogauthority.pwa.service.teams.PwaHolderTeamService;
 import uk.co.ogauthority.pwa.util.CaseManagementUtils;
 import uk.co.ogauthority.pwa.util.EnumUtils;
 import uk.co.ogauthority.pwa.util.StreamUtils;
@@ -70,7 +69,7 @@ public class PwaContactController {
   private final TeamManagementService teamManagementService;
   private final AddPwaContactFormValidator addPwaContactFormValidator;
   private final ControllerHelperService controllerHelperService;
-  private final PwaApplicationHolderService pwaApplicationHolderService;
+  private final PwaHolderService pwaHolderService;
   private final PwaApplicationRedirectService pwaApplicationRedirectService;
 
   private final Map<String, String> rolesCheckboxMap;
@@ -83,7 +82,7 @@ public class PwaContactController {
                               TeamManagementService teamManagementService,
                               AddPwaContactFormValidator addPwaContactFormValidator,
                               ControllerHelperService controllerHelperService,
-                              PwaApplicationHolderService pwaApplicationHolderService,
+                              PwaHolderService pwaHolderService,
                               PwaApplicationRedirectService pwaApplicationRedirectService,
                               @Value("${oga.registration.link}") String ogaRegistrationLink) {
     this.pwaContactService = pwaContactService;
@@ -91,7 +90,7 @@ public class PwaContactController {
     this.teamManagementService = teamManagementService;
     this.addPwaContactFormValidator = addPwaContactFormValidator;
     this.controllerHelperService = controllerHelperService;
-    this.pwaApplicationHolderService = pwaApplicationHolderService;
+    this.pwaHolderService = pwaHolderService;
     this.pwaApplicationRedirectService = pwaApplicationRedirectService;
     this.ogaRegistrationLink = ogaRegistrationLink;
 
@@ -121,7 +120,7 @@ public class PwaContactController {
         .sorted(Comparator.comparing(TeamMemberView::getFullName))
         .collect(Collectors.toList());
 
-    Set<String> orgGroupHolders = pwaApplicationHolderService.getApplicationHolders(pwaApplication.getMasterPwa()).stream()
+    Set<String> orgGroupHolders = pwaHolderService.getPwaHolders(pwaApplication.getMasterPwa()).stream()
         .map(PortalOrganisationGroup::getName)
         .collect(Collectors.toSet());
 

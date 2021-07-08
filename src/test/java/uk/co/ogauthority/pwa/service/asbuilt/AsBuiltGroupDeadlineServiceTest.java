@@ -37,6 +37,7 @@ import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationGroupDetail
 import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationGroupTestUtil;
 import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
 import uk.co.ogauthority.pwa.repository.asbuilt.AsBuiltNotificationGroupDetailRepository;
+import uk.co.ogauthority.pwa.service.pwaapplications.PwaHolderService;
 import uk.co.ogauthority.pwa.service.teams.PwaHolderTeamService;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -56,6 +57,9 @@ public class AsBuiltGroupDeadlineServiceTest {
   private PwaHolderTeamService pwaHolderTeamService;
 
   @Mock
+  private PwaHolderService pwaHolderService;
+
+  @Mock
   private AsBuiltNotificationEmailService asBuiltNotificationEmailService;
 
   @Captor
@@ -73,11 +77,11 @@ public class AsBuiltGroupDeadlineServiceTest {
   @Before
   public void setUp() throws Exception {
     asBuiltGroupDeadlineService = new AsBuiltGroupDeadlineService(asBuiltNotificationGroupDetailRepository,
-        asBuiltNotificationGroupStatusService, pwaHolderTeamService, asBuiltNotificationEmailService, clock);
+        asBuiltNotificationGroupStatusService, pwaHolderTeamService, pwaHolderService, asBuiltNotificationEmailService, clock);
 
     orgToMasterPwaIdMultiMap.put(portalOrganisationGroup, asBuiltGroup.getPwaConsent().getMasterPwa().getId());
 
-    when(pwaHolderTeamService.getHolderOrgGroupsForMasterPwas(Set.of(asBuiltGroup.getPwaConsent().getMasterPwa().getId())))
+    when(pwaHolderService.getHolderOrgGroupsForMasterPwaIds(Set.of(asBuiltGroup.getPwaConsent().getMasterPwa().getId())))
         .thenReturn(orgToMasterPwaIdMultiMap);
     when(asBuiltNotificationGroupStatusService.getAllNonCompleteAsBuiltNotificationGroups()).thenReturn(
         List.of(asBuiltGroup));

@@ -24,8 +24,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsentTestUtil;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
-import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationHolderService;
-import uk.co.ogauthority.pwa.service.teams.PwaHolderTeamService;
+import uk.co.ogauthority.pwa.service.pwaapplications.PwaHolderService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.util.DateUtils;
 
@@ -35,7 +34,7 @@ public class AsBuiltNotificationSummaryServiceTest {
   private AsBuiltNotificationSummaryService asBuiltNotificationSummaryService;
 
   @Mock
-  private PwaApplicationHolderService pwaApplicationHolderService;
+  private PwaHolderService pwaHolderService;
 
   private final Person person = PersonTestUtil.createDefaultPerson();
   private final PwaApplicationDetail applicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL, 5);
@@ -48,9 +47,9 @@ public class AsBuiltNotificationSummaryServiceTest {
 
   @Before
   public void setup() {
-    asBuiltNotificationSummaryService = new AsBuiltNotificationSummaryService(pwaApplicationHolderService);
+    asBuiltNotificationSummaryService = new AsBuiltNotificationSummaryService(pwaHolderService);
 
-    when(pwaApplicationHolderService.getApplicationHolders(applicationDetail.getMasterPwa())).thenReturn(Set.of(portalOrganisationGroup));
+    when(pwaHolderService.getPwaHolders(applicationDetail.getMasterPwa())).thenReturn(Set.of(portalOrganisationGroup));
   }
 
   @Test

@@ -11,18 +11,18 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrgan
 import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationGroupDetail;
 import uk.co.ogauthority.pwa.model.view.asbuilt.AsBuiltNotificationGroupSummaryView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
-import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationHolderService;
+import uk.co.ogauthority.pwa.service.pwaapplications.PwaHolderService;
 import uk.co.ogauthority.pwa.util.DateUtils;
 
 @Service
 class AsBuiltNotificationSummaryService {
 
-  private final PwaApplicationHolderService pwaApplicationHolderService;
+  private final PwaHolderService pwaHolderService;
 
   @Autowired
   AsBuiltNotificationSummaryService(
-      PwaApplicationHolderService pwaApplicationHolderService) {
-    this.pwaApplicationHolderService = pwaApplicationHolderService;
+      PwaHolderService pwaHolderService) {
+    this.pwaHolderService = pwaHolderService;
   }
 
 
@@ -36,7 +36,7 @@ class AsBuiltNotificationSummaryService {
     var masterPwa = asBuiltNotificationGroup.getPwaConsent().getMasterPwa();
     var pwaReference = asBuiltNotificationGroup.getPwaConsent().getReference();
     var appReference = asBuiltNotificationGroup.getReference();
-    var holders = pwaApplicationHolderService.getApplicationHolders(masterPwa).stream()
+    var holders = pwaHolderService.getPwaHolders(masterPwa).stream()
         .map(PortalOrganisationGroup::getName).collect(Collectors.joining(", "));
     var deadline = DateUtils.formatDate(asBuiltNotificationGroupDetail.getDeadlineDate());
     var accessLink = ReverseRouter.route(on(ApplicationSummaryController.class).renderSummary(pwaApplication.getId(),

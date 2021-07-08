@@ -3,8 +3,6 @@ package uk.co.ogauthority.pwa.service.teams;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
@@ -22,12 +20,10 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrgan
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.energyportal.service.organisations.PortalOrganisationsAccessor;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.entity.search.consents.PwaHolderOrgUnit;
-import uk.co.ogauthority.pwa.model.entity.search.consents.PwaHolderOrgUnitTestUtil;
 import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
 import uk.co.ogauthority.pwa.model.teams.PwaOrganisationTeam;
-import uk.co.ogauthority.pwa.repository.search.consents.PwaHolderOrgUnitRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.service.pwaapplications.PwaHolderService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.testutils.TeamTestingUtils;
 
@@ -41,12 +37,10 @@ public class PwaHolderTeamServiceTest {
   private PortalOrganisationsAccessor portalOrganisationsAccessor;
 
   @Mock
-  private PwaHolderOrgUnitRepository pwaHolderOrgUnitRepository;
+  private PwaHolderService pwaHolderService;
 
   private PwaHolderTeamService pwaHolderTeamService;
 
-
-  private PwaHolderOrgUnit pwaHolderOrgUnit;
   private PortalOrganisationGroup holderOrgGroup;
   private PortalOrganisationUnit holderOrgUnit;
   private PwaOrganisationTeam holderOrgTeam;
@@ -63,7 +57,7 @@ public class PwaHolderTeamServiceTest {
     pwaHolderTeamService = new PwaHolderTeamService(
         teamService,
         portalOrganisationsAccessor,
-        pwaHolderOrgUnitRepository);
+        pwaHolderService);
 
     person = PersonTestUtil.createDefaultPerson();
     webUserAccount = new WebUserAccount(1, person);
@@ -76,10 +70,7 @@ public class PwaHolderTeamServiceTest {
     when(portalOrganisationsAccessor.getOrganisationUnitsForOrganisationGroupsIn(List.of(holderOrgGroup)))
         .thenReturn(List.of(holderOrgUnit));
 
-    pwaHolderOrgUnit = PwaHolderOrgUnitTestUtil.createPwaHolderOrgUnit("h1", detail.getMasterPwa().getId(), holderOrgUnit);
-    when(pwaHolderOrgUnitRepository.findAllByPwaId(detail.getMasterPwa().getId())).thenReturn(List.of(pwaHolderOrgUnit));
-    when(portalOrganisationsAccessor.getOrganisationGroupsWhereIdIn(List.of(holderOrgGroup.getOrgGrpId())))
-        .thenReturn(List.of(holderOrgGroup));
+    when(pwaHolderService.getPwaHolders(detail.getMasterPwa())).thenReturn(Set.of(holderOrgGroup));
 
     holderOrgTeam = TeamTestingUtils.getOrganisationTeam(holderOrgGroup);
     when(teamService.getOrganisationTeamsPersonIsMemberOf(person)).thenReturn(List.of(holderOrgTeam));
@@ -209,16 +200,5 @@ public class PwaHolderTeamServiceTest {
     assertThat(orgUnits).isEmpty();
   }
 
-  @Test
-  public void getHolderOrgUnitsForMasterPwas_correctlyCreatesMultimap() {
-    when(pwaHolderOrgUnitRepository.findAllByPwaIdIn(Set.of(detail.getMasterPwa().getId())))
-        .thenReturn(Set.of(pwaHolderOrgUnit));
-    when(portalOrganisationsAccessor.getOrganisationGroupsWhereIdIn(List.of(pwaHolderOrgUnit.getOrgGrpId())))
-        .thenReturn(List.of(holderOrgGroup));
-    Multimap<PortalOrganisationGroup, Integer> orgToMasterPwaIdMultimap = ArrayListMultimap.create();
-    orgToMasterPwaIdMultimap.put(holderOrgGroup, detail.getMasterPwa().getId());
-    assertThat(pwaHolderTeamService.getHolderOrgGroupsForMasterPwas(Set.of(detail.getMasterPwa().getId()))).isEqualTo(
-        orgToMasterPwaIdMultimap);
-  }
 
 }

@@ -45,8 +45,7 @@ import uk.co.ogauthority.pwa.service.appprocessing.processingcharges.display.App
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
-import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationHolderService;
-import uk.co.ogauthority.pwa.service.teams.PwaHolderTeamService;
+import uk.co.ogauthority.pwa.service.pwaapplications.PwaHolderService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
@@ -67,7 +66,7 @@ public class IndustryPaymentControllerTest extends PwaAppProcessingContextAbstra
   private ApplicationPaymentSummariser applicationPaymentSummariser;
 
   @MockBean
-  private PwaApplicationHolderService pwaApplicationHolderService;;
+  private PwaHolderService pwaHolderService;;
 
   private PwaApplicationEndpointTestBuilder endpointTester;
 
@@ -84,7 +83,7 @@ public class IndustryPaymentControllerTest extends PwaAppProcessingContextAbstra
 
     orgGroup1 = PortalOrganisationTestUtils.generateOrganisationGroup(1, "GROUP1", "1");
     orgGroup2 = PortalOrganisationTestUtils.generateOrganisationGroup(2, "GROUP2", "2");
-    when(pwaApplicationHolderService.getApplicationHolders(any(MasterPwa.class))).thenReturn(Set.of(orgGroup1, orgGroup2));
+    when(pwaHolderService.getPwaHolders(any(MasterPwa.class))).thenReturn(Set.of(orgGroup1, orgGroup2));
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(APP_TYPE, APP_ID, APP_DETAIL_ID);
     pwaApplicationDetail.setStatus(PwaApplicationStatus.AWAITING_APPLICATION_PAYMENT);
