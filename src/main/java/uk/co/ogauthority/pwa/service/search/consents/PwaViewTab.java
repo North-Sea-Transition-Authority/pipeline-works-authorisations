@@ -11,17 +11,12 @@ public enum PwaViewTab {
       "pipelines",
       10
   ),
+
   CONSENT_HISTORY(
       "Consent history",
       "consent-history",
       "consentHistory",
       20
-  ),
-  CURRENT_HUOO(
-      "Current HUOO",
-      "current-huoo",
-      "currentHuoo",
-      30
   );
 
   private final String label;
