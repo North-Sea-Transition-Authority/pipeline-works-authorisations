@@ -369,4 +369,24 @@ public class PadFileServiceTest {
 
   }
 
+
+  @Test
+  public void deleteTemporaryFilesForDetail_tempPadFilesRemoveSuccessful() {
+
+    var file1 = new PadFile();
+    file1.setPurpose(ApplicationDetailFilePurpose.DEPOSIT_DRAWINGS);
+    file1.setFileId(FILE_ID);
+
+    var file2 = new PadFile();
+    file2.setPurpose(ApplicationDetailFilePurpose.DEPOSIT_DRAWINGS);
+    file2.setFileId(FILE_ID);
+
+    when(padFileRepository.findAllByPwaApplicationDetailAndFileLinkStatus(pwaApplicationDetail, ApplicationFileLinkStatus.TEMPORARY))
+        .thenReturn(List.of(file1, file2));
+
+    padFileService.deleteTemporaryFilesForDetail(pwaApplicationDetail, wua);
+    verify(padFileRepository).deleteAll(List.of(file1, file2));
+  }
+
+
 }

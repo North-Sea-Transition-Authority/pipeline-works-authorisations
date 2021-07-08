@@ -16,8 +16,12 @@ import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
+import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.energyportal.model.entity.PersonTestUtil;
+import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTask;
+import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadOrganisationRoleService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadEnvironmentalDecommissioningService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadFastTrackService;
@@ -99,6 +103,9 @@ public class PwaApplicationDataCleanupServiceTest {
   @MockBean
   private TaskListService taskListService;
 
+  @MockBean
+  private PadFileService padFileService;
+
   @Test
   public void cleanupData() {
 
@@ -110,11 +117,13 @@ public class PwaApplicationDataCleanupServiceTest {
         ApplicationTask.LOCATION_DETAILS
     ));
 
-    pwaApplicationDataCleanupService.cleanupData(detail);
+    var user = new AuthenticatedUserAccount(new WebUserAccount(1, PersonTestUtil.createDefaultPerson()), List.of());
+    pwaApplicationDataCleanupService.cleanupData(detail, user);
 
     verify(projectInformationService, times(1)).cleanupData(detail);
     verify(padPipelineTechInfoService, times(1)).cleanupData(detail);
     verify(padLocationDetailsService, times(1)).cleanupData(detail);
+    verify(padFileService, times(1)).deleteTemporaryFilesForDetail(detail, user);
 
   }
 

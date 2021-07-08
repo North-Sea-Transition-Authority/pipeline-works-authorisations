@@ -54,7 +54,7 @@ public class PwaApplicationSubmissionService {
 
     submissionService.doBeforeSubmit(detail, submittedByUser.getLinkedPerson(), submissionDescription);
 
-    pwaApplicationDataCleanupService.cleanupData(detail);
+    pwaApplicationDataCleanupService.cleanupData(detail, submittedByUser);
 
     submissionService.getSubmissionWorkflowResult().ifPresent(
         pwaApplicationSubmitResult -> setWorkFlowProperty(detail, pwaApplicationSubmitResult)
