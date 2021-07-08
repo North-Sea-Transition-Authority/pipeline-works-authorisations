@@ -81,6 +81,17 @@ public class AsBuiltNotificationDeadlineControllerTest extends AbstractControlle
   }
 
   @Test
+  public void renderAsBuiltGroupUpdateDeadlineForm_authorizedUser_successful() throws Exception {
+    when(asBuiltNotificationAuthService.isPersonAsBuiltNotificationAdmin(user.getLinkedPerson())).thenReturn(true);
+    mockMvc.perform(get(
+        ReverseRouter.route(on(AsBuiltNotificationDeadlineController.class)
+            .renderAsBuiltGroupUpdateDeadlineForm(NOTIFICATION_GROUP_ID, new ChangeAsBuiltNotificationGroupDeadlineForm(), user)))
+        .with(authenticatedUserAndSession(user)))
+        .andExpect(status().is2xxSuccessful())
+        .andExpect(view().name("asbuilt/form/changeAsBuiltDeadline"));
+  }
+
+  @Test
   public void renderAsBuiltGroupUpdateDeadlineForm_unauthorizedUser_forbidden() throws Exception {
     when(asBuiltNotificationAuthService.isPersonAsBuiltNotificationAdmin(user.getLinkedPerson())).thenReturn(false);
     mockMvc.perform(get(
@@ -91,7 +102,20 @@ public class AsBuiltNotificationDeadlineControllerTest extends AbstractControlle
   }
 
   @Test
-  public void postSubmitAsBuiltNotification_failsValidation() throws Exception {
+  public void submitAsBuiltGroupUpdateDeadline_unauthorizedUser_forbidden() throws Exception {
+    when(asBuiltNotificationAuthService.isPersonAsBuiltNotificationAdmin(user.getLinkedPerson())).thenReturn(false);
+
+    mockMvc.perform(post(
+        ReverseRouter.route(on(AsBuiltNotificationDeadlineController.class)
+            .submitAsBuiltGroupUpdateDeadline(NOTIFICATION_GROUP_ID, new ChangeAsBuiltNotificationGroupDeadlineForm(), null,
+                null, null)))
+        .with(authenticatedUserAndSession(user))
+        .with(csrf()))
+        .andExpect(status().isForbidden());
+  }
+
+  @Test
+  public void submitAsBuiltGroupUpdateDeadline_failsValidation() throws Exception {
     doAnswer(invocation -> {
       var errors = (Errors) invocation.getArgument(1);
       errors.rejectValue("newDeadlineDateTimestampStr", BEFORE_TODAY.errorCode("newDeadlineDateTimestampStr"),
@@ -110,7 +134,7 @@ public class AsBuiltNotificationDeadlineControllerTest extends AbstractControlle
   }
 
   @Test
-  public void postSubmitAsBuiltNotification_validationSuccess_returnToDashboard() throws Exception {
+  public void submitAsBuiltGroupUpdateDeadline_validationSuccess_returnToDashboard() throws Exception {
     mockMvc.perform(post(
         ReverseRouter.route(on(AsBuiltNotificationDeadlineController.class)
             .submitAsBuiltGroupUpdateDeadline(NOTIFICATION_GROUP_ID, new ChangeAsBuiltNotificationGroupDeadlineForm(), null,
