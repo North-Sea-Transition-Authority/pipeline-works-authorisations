@@ -28,6 +28,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
 import uk.co.ogauthority.pwa.model.enums.documents.PwaDocumentType;
 import uk.co.ogauthority.pwa.service.appprocessing.applicationupdate.ApplicationUpdateRequestService;
 import uk.co.ogauthority.pwa.service.appprocessing.appprocessingwarning.AppProcessingTaskWarningService;
+import uk.co.ogauthority.pwa.service.appprocessing.appprocessingwarning.AppProcessingTaskWarningTestUtil;
 import uk.co.ogauthority.pwa.service.appprocessing.publicnotice.PublicNoticeService;
 import uk.co.ogauthority.pwa.service.consultations.ConsultationRequestService;
 import uk.co.ogauthority.pwa.service.documents.instances.DocumentInstanceService;
@@ -252,4 +253,27 @@ public class SendForApprovalCheckerServiceTest {
     assertThat(preSendApprovalCheckView.getParallelConsentViews())
         .isEmpty();
   }
+
+  @Test
+  public void getPreSendForApprovalChecksView_containsNonBlockingWarningView() {
+
+    var consent = new PwaConsent();
+    consent.setId(10);
+    consent.setReference("consentReference");
+    consent.setConsentInstant(APP_CREATION_INSTANT.plus(10, ChronoUnit.DAYS));
+    consent.setSourcePwaApplication(detail.getPwaApplication());
+
+    when(pwaConsentService.getPwaConsentsWhereConsentInstantAfter(detail.getMasterPwa(), APP_CREATION_INSTANT))
+        .thenReturn(List.of(consent));
+
+    var warningView = AppProcessingTaskWarningTestUtil.createWithWarning(detail.getPwaApplication());
+    when(appProcessingTaskWarningService.getNonBlockingTasksWarning(detail.getPwaApplication()))
+        .thenReturn(warningView);
+
+    var preSendApprovalCheckView = sendforApprovalCheckerService.getPreSendForApprovalChecksView(detail);
+
+    assertThat(preSendApprovalCheckView.getNonBlockingTasksWarning()).isEqualTo(warningView);
+  }
+
+
 }
