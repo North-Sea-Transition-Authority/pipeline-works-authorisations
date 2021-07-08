@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.service.asbuilt;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,35 +24,37 @@ class AsBuiltNotificationGroupStatusService {
     this.asBuiltNotificationGroupStatusHistoryRepository = asBuiltNotificationGroupStatusHistoryRepository;
   }
 
-  void setInitialGroupStatus(AsBuiltNotificationGroup asBuiltNotificationGroup,
-                       Person person) {
-    var statusUpdateInstant = Instant.now();
-    var personId = person.getId();
-    var newStatusHistory = new AsBuiltNotificationGroupStatusHistory(
-        asBuiltNotificationGroup,
-        AsBuiltNotificationGroupStatus.NOT_STARTED,
-        personId,
-        statusUpdateInstant
-    );
+  /**
+   * Call this to create a new as-built group status history.
+   *
+   * @param asBuiltNotificationGroup   - the as-built notification group object.
+   * @param newGroupStatus    - the new status to set the as-built notification group to
+   * @param person - the person who is creating the new status
+   */
+  void setGroupStatusIfNewOrChanged(AsBuiltNotificationGroup asBuiltNotificationGroup,
+                                    AsBuiltNotificationGroupStatus newGroupStatus,
+                                    Person person) {
+    var latestStatusHistoryOpt = getLatestStatusHistory(asBuiltNotificationGroup);
 
-    asBuiltNotificationGroupStatusHistoryRepository.save(newStatusHistory);
+    var newStatusRequired = latestStatusHistoryOpt.isEmpty()
+        || latestStatusHistoryOpt.filter(statusHistory -> statusHistory.getStatus() != newGroupStatus).isPresent();
+
+    if (newStatusRequired) {
+      checkNewAsBuiltStatusCanBeCreated(asBuiltNotificationGroup, latestStatusHistoryOpt, newGroupStatus);
+
+      latestStatusHistoryOpt.ifPresent(statusHistory -> closeLatestStatusHistory(statusHistory, person));
+      createNewAsBuiltGroupStatusHistory(asBuiltNotificationGroup, newGroupStatus, person);
+    }
+
   }
 
-  void setGroupStatus(AsBuiltNotificationGroup asBuiltNotificationGroup,
-                      AsBuiltNotificationGroupStatus asBuiltNotificationGroupStatus,
-                      Person person) {
-    var latestStatusHistory = getLatestStatusHistory(asBuiltNotificationGroup);
-    if (!isGroupStatusStillInProgress(latestStatusHistory, asBuiltNotificationGroupStatus)) {
-      closeLatestStatusHistory(latestStatusHistory, person);
+  private void createNewAsBuiltGroupStatusHistory(AsBuiltNotificationGroup asBuiltNotificationGroup,
+                                                  AsBuiltNotificationGroupStatus status,
+                                                  Person person) {
+    var statusHistory = new AsBuiltNotificationGroupStatusHistory(asBuiltNotificationGroup, status,
+        person.getId(), Instant.now());
 
-      var statusHistory = new AsBuiltNotificationGroupStatusHistory(asBuiltNotificationGroup, asBuiltNotificationGroupStatus,
-          person.getId(), Instant.now());
-      if (asBuiltNotificationGroupStatus == AsBuiltNotificationGroupStatus.COMPLETE) {
-        statusHistory.setEndedByPersonId(person.getId());
-        statusHistory.setEndedTimestamp(Instant.now());
-      }
-      asBuiltNotificationGroupStatusHistoryRepository.save(statusHistory);
-    }
+    asBuiltNotificationGroupStatusHistoryRepository.save(statusHistory);
   }
 
   List<AsBuiltNotificationGroup> getAllNonCompleteAsBuiltNotificationGroups() {
@@ -62,19 +65,19 @@ class AsBuiltNotificationGroupStatusService {
         .collect(Collectors.toList());
   }
 
-  private boolean isGroupStatusStillInProgress(AsBuiltNotificationGroupStatusHistory currentStatusHistory,
-                                               AsBuiltNotificationGroupStatus status) {
-    return currentStatusHistory.getStatus() == AsBuiltNotificationGroupStatus.IN_PROGRESS
-        && currentStatusHistory.getStatus() == status;
+  private void checkNewAsBuiltStatusCanBeCreated(AsBuiltNotificationGroup asBuiltNotificationGroup,
+                                                 Optional<AsBuiltNotificationGroupStatusHistory> latestStatusHistory,
+                                                 AsBuiltNotificationGroupStatus newStatus) {
+    if (newStatus != AsBuiltNotificationGroupStatus.NOT_STARTED) {
+      latestStatusHistory.ifPresentOrElse(asBuiltNotificationGroupStatusHistory -> { }, () -> {
+        throw new EntityNotFoundException(String.format("No prior status history found for as-built notification group with id %s",
+                  asBuiltNotificationGroup.getId()));
+      });
+    }
   }
 
-  private AsBuiltNotificationGroupStatusHistory getLatestStatusHistory(AsBuiltNotificationGroup asBuiltNotificationGroup) {
-    return asBuiltNotificationGroupStatusHistoryRepository
-        .findByAsBuiltNotificationGroupAndEndedTimestampIsNull(asBuiltNotificationGroup)
-        .orElseThrow(
-            () -> new EntityNotFoundException(
-                String.format("No prior status history found for as-built notification group with id %s",
-                    asBuiltNotificationGroup.getId())));
+  private Optional<AsBuiltNotificationGroupStatusHistory> getLatestStatusHistory(AsBuiltNotificationGroup asBuiltNotificationGroup) {
+    return asBuiltNotificationGroupStatusHistoryRepository.findByAsBuiltNotificationGroupAndEndedTimestampIsNull(asBuiltNotificationGroup);
   }
 
   private void closeLatestStatusHistory(AsBuiltNotificationGroupStatusHistory asBuiltNotificationGroupStatusHistory,
@@ -82,6 +85,11 @@ class AsBuiltNotificationGroupStatusService {
     asBuiltNotificationGroupStatusHistory.setEndedByPersonId(person.getId());
     asBuiltNotificationGroupStatusHistory.setEndedTimestamp(Instant.now());
     asBuiltNotificationGroupStatusHistoryRepository.save(asBuiltNotificationGroupStatusHistory);
+  }
+
+  boolean isGroupStatusComplete(AsBuiltNotificationGroup asBuiltNotificationGroup) {
+    return asBuiltNotificationGroupStatusHistoryRepository.findByAsBuiltNotificationGroupAndStatusAndEndedTimestampIsNull(
+        asBuiltNotificationGroup, AsBuiltNotificationGroupStatus.COMPLETE).isPresent();
   }
 
 }

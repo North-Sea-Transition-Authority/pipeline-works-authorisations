@@ -49,7 +49,7 @@ public class AsBuiltNotificationEmailServiceTest {
   @Captor
   private ArgumentCaptor<AsBuiltNotificationDeadlinePassedEmailProps> asBuiltNotificationDeadlinePassedEmailPropsArgumentCaptor;
 
-  private final AsBuiltNotificationGroup asBuiltNotificationGroup = AsBuiltNotificationGroupTestUtil.createGroupWithConsent_withNgId(10);
+  private final AsBuiltNotificationGroup asBuiltNotificationGroup = AsBuiltNotificationGroupTestUtil.createGroupWithConsent_fromNgId(10);
 
   private final PipelineDetail pipelineDetail = PipelineDetailTestUtil.createPipelineDetail_withDefaultPipelineNumber(10,
       new PipelineId(20), Instant.now());

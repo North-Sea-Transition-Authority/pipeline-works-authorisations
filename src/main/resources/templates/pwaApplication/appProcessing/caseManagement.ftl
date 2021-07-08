@@ -58,6 +58,10 @@
         <@fdsAction.link linkText="View payment information" linkUrl=springUrl(viewAppPaymentUrl) linkClass="govuk-button govuk-button--blue" role=true/>
     </#if>
 
+    <#if reopenAsBuiltGroupUrl?has_content>
+        <@fdsAction.link linkText="Reopen as-built notification group" linkUrl=springUrl(reopenAsBuiltGroupUrl) linkClass="govuk-button govuk-button--blue" role=true/>
+    </#if>
+
   <@fdsBackendTabs.tabList>
       <#list availableTabs as tab>
           <@fdsBackendTabs.tab tabLabel=tab.getLabel(industryFlag) tabUrl=tabUrlFactory.getTabUrl(tab.value) tabAnchor=tab.anchor currentTab=currentProcessingTab.value tabValue=tab.value />

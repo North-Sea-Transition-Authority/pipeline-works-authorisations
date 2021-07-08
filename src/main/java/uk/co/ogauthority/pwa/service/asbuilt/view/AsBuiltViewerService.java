@@ -19,12 +19,15 @@ import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationGroup;
 import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationGroupDetail;
 import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationGroupPipeline;
+import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationGroupStatus;
 import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationSubmission;
 import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
+import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PadPipelineOverview;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview;
 import uk.co.ogauthority.pwa.model.view.asbuilt.AsBuiltNotificationGroupSummaryView;
 import uk.co.ogauthority.pwa.repository.asbuilt.AsBuiltNotificationGroupPipelineRepository;
+import uk.co.ogauthority.pwa.repository.asbuilt.AsBuiltNotificationGroupStatusHistoryRepository;
 import uk.co.ogauthority.pwa.repository.asbuilt.AsBuiltNotificationSubmissionRepository;
 import uk.co.ogauthority.pwa.service.asbuilt.AsBuiltNotificationGroupDetailService;
 import uk.co.ogauthority.pwa.service.asbuilt.AsBuiltNotificationGroupService;
@@ -42,6 +45,7 @@ public class AsBuiltViewerService {
   private final AsBuiltNotificationGroupDetailService asBuiltNotificationGroupDetailService;
   private final AsBuiltNotificationSubmissionRepository asBuiltNotificationSubmissionRepository;
   private final AsBuiltNotificationGroupPipelineRepository asBuiltNotificationGroupPipelineRepository;
+  private final AsBuiltNotificationGroupStatusHistoryRepository asBuiltNotificationGroupStatusHistoryRepository;
   private final PipelineDetailService pipelineDetailService;
 
   @Autowired
@@ -51,6 +55,7 @@ public class AsBuiltViewerService {
                               AsBuiltNotificationGroupDetailService asBuiltNotificationGroupDetailService,
                               AsBuiltNotificationSubmissionRepository asBuiltNotificationSubmissionRepository,
                               AsBuiltNotificationGroupPipelineRepository asBuiltNotificationGroupPipelineRepository,
+                              AsBuiltNotificationGroupStatusHistoryRepository asBuiltNotificationGroupStatusHistoryRepository,
                               PipelineDetailService pipelineDetailService) {
     this.asBuiltNotificationViewService = asBuiltNotificationViewService;
     this.asBuiltNotificationSummaryService = asBuiltNotificationSummaryService;
@@ -58,6 +63,7 @@ public class AsBuiltViewerService {
     this.asBuiltNotificationGroupDetailService = asBuiltNotificationGroupDetailService;
     this.asBuiltNotificationSubmissionRepository = asBuiltNotificationSubmissionRepository;
     this.asBuiltNotificationGroupPipelineRepository = asBuiltNotificationGroupPipelineRepository;
+    this.asBuiltNotificationGroupStatusHistoryRepository = asBuiltNotificationGroupStatusHistoryRepository;
     this.pipelineDetailService = pipelineDetailService;
   }
 
@@ -89,11 +95,11 @@ public class AsBuiltViewerService {
         .collect(Collectors.toList());
   }
 
-  public Optional<AsBuiltNotificationGroup> getNotificationGroupOptional(Integer notificationGroupId) {
-    return asBuiltNotificationGroupService.getAsBuiltNotificationGroup(notificationGroupId);
+  public Optional<AsBuiltNotificationGroup> getNotificationGroupOptionalFromConsent(PwaConsent consent) {
+    return asBuiltNotificationGroupService.getAsBuiltNotificationGroupPerConsent(consent);
   }
 
-  private AsBuiltNotificationGroup getNotificationGroup(Integer notificationGroupId) {
+  public AsBuiltNotificationGroup getNotificationGroup(Integer notificationGroupId) {
     return asBuiltNotificationGroupService
         .getAsBuiltNotificationGroup(notificationGroupId)
         .orElseThrow(() ->
@@ -188,6 +194,17 @@ public class AsBuiltViewerService {
   public AsBuiltSubmissionHistoryView getHistoricAsBuiltSubmissionView(Integer pipelineId) {
     var asBuiltNotificationSubmissions = getAsBuiltNotificationSubmissionsForPipelineId(pipelineId);
     return asBuiltNotificationViewService.getSubmissionHistoryView(asBuiltNotificationSubmissions);
+  }
+
+  public boolean canGroupBeReopened(PwaConsent pwaConsent) {
+    var asBuiltGroupOptional = getNotificationGroupOptionalFromConsent(pwaConsent);
+    return asBuiltGroupOptional.map(this::isGroupStatusComplete)
+        .orElse(false);
+  }
+
+  public boolean isGroupStatusComplete(AsBuiltNotificationGroup asBuiltNotificationGroup) {
+    return asBuiltNotificationGroupStatusHistoryRepository.findByAsBuiltNotificationGroupAndStatusAndEndedTimestampIsNull(
+            asBuiltNotificationGroup, AsBuiltNotificationGroupStatus.COMPLETE).isPresent();
   }
 
 }
