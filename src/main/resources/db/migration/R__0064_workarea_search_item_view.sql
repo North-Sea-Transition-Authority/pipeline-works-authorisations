@@ -36,3 +36,14 @@ FROM ${datasource.user}.wa_application_flags waf
 JOIN ${datasource.user}.application_detail_view adv ON waf.pwa_application_id = adv.pwa_application_id AND waf.workarea_pad_version_no = adv.version_no;
 /
 
+DECLARE
+  l_command VARCHAR2(4000) := 'DROP VIEW ${datasource.user}.pad_search_items';
+BEGIN
+  EXECUTE IMMEDIATE l_command;
+EXCEPTION
+  WHEN OTHERS THEN
+    IF SQLCODE != -942 THEN
+      RAISE;
+    END IF;
+END;
+/
