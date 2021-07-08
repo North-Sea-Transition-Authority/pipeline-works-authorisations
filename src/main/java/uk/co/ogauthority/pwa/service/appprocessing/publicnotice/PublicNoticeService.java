@@ -135,6 +135,14 @@ public class PublicNoticeService implements AppProcessingService {
     }
   }
 
+  public boolean publicNoticeTaskStarted(PwaApplication pwaApplication) {
+    return !publicNoticeRepository.findAllByPwaApplication(pwaApplication).isEmpty();
+  }
+
+  public boolean publicNoticeTaskRequired(PwaApplication pwaApplication) {
+    return PUBLIC_NOTICE_APP_TYPES.contains(pwaApplication.getApplicationType());
+  }
+
 
   /** Task state is either editable or viewable depending on app state and app permissions for oga users.
    * Or it will be always locked for industry users

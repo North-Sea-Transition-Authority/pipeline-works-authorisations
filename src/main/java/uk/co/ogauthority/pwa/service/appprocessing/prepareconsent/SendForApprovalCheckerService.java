@@ -11,6 +11,7 @@ import uk.co.ogauthority.pwa.model.entity.enums.MasterPwaDetailStatus;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.DocumentTemplateMnem;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.appprocessing.applicationupdate.ApplicationUpdateRequestService;
+import uk.co.ogauthority.pwa.service.appprocessing.appprocessingwarning.AppProcessingTaskWarningService;
 import uk.co.ogauthority.pwa.service.appprocessing.publicnotice.PublicNoticeService;
 import uk.co.ogauthority.pwa.service.consultations.ConsultationRequestService;
 import uk.co.ogauthority.pwa.service.documents.instances.DocumentInstanceService;
@@ -28,6 +29,7 @@ public class SendForApprovalCheckerService {
   private final DocumentInstanceService documentInstanceService;
   private final MasterPwaService masterPwaService;
   private final PwaConsentService pwaConsentService;
+  private final AppProcessingTaskWarningService appProcessingTaskWarningService;
 
   @Autowired
   public SendForApprovalCheckerService(ApplicationUpdateRequestService applicationUpdateRequestService,
@@ -35,13 +37,15 @@ public class SendForApprovalCheckerService {
                                        PublicNoticeService publicNoticeService,
                                        DocumentInstanceService documentInstanceService,
                                        MasterPwaService masterPwaService,
-                                       PwaConsentService pwaConsentService) {
+                                       PwaConsentService pwaConsentService,
+                                       AppProcessingTaskWarningService appProcessingTaskWarningService) {
     this.applicationUpdateRequestService = applicationUpdateRequestService;
     this.consultationRequestService = consultationRequestService;
     this.publicNoticeService = publicNoticeService;
     this.documentInstanceService = documentInstanceService;
     this.masterPwaService = masterPwaService;
     this.pwaConsentService = pwaConsentService;
+    this.appProcessingTaskWarningService = appProcessingTaskWarningService;
   }
 
   PreSendForApprovalChecksView getPreSendForApprovalChecksView(PwaApplicationDetail detail) {
@@ -71,13 +75,15 @@ public class SendForApprovalCheckerService {
         .sorted(Comparator.comparing(ParallelConsentView::getConsentInstant))
         .collect(Collectors.toList());
 
+    var nonBlockingTasksWarning = appProcessingTaskWarningService.getNonBlockingTasksWarning(detail.getPwaApplication());
+
     return new PreSendForApprovalChecksView(
         // basic sort to ensure consistency on from view.
         failedChecks.stream()
             .sorted(Comparator.comparing(FailedSendForApprovalCheck::getReason))
             .collect(Collectors.toUnmodifiableList()),
-        parallelConsentViews
-    );
+        parallelConsentViews,
+        nonBlockingTasksWarning);
 
   }
 
