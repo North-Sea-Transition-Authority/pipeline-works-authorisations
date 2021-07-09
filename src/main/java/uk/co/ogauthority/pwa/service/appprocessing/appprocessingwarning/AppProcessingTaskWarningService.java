@@ -40,11 +40,11 @@ public class AppProcessingTaskWarningService {
     if (consultationsMissing || publicNoticesMissing) {
       String incompleteTasksWarningText;
       if (consultationsMissing && publicNoticesMissing) {
-        incompleteTasksWarningText = "The consultations and public notice tasks have not been started.";
+        incompleteTasksWarningText = "The consultations and public notice tasks have not been started";
       } else if (consultationsMissing) {
-        incompleteTasksWarningText = "The consultations task has not been started.";
+        incompleteTasksWarningText = "The consultations task has not been started";
       } else {
-        incompleteTasksWarningText = "The public notice task has not been started.";
+        incompleteTasksWarningText = "The public notice task has not been started";
       }
 
       return NonBlockingTasksWarning.withWarning(

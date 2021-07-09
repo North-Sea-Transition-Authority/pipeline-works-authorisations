@@ -4,6 +4,7 @@
   <#if nonBlockingTasksWarning.tasksHaveWarnings>
     <@fdsNotificationBanner.notificationBannerInfo bannerTitleText="Missing tasks">
       <@fdsNotificationBanner.notificationBannerContent headingText=nonBlockingTasksWarning.incompleteTasksWarningText>
+        ${nonBlockingTasksWarning.incompleteTasksWarningText}.
         <#if nonBlockingTasksWarning.returnMessage?has_content>
           <#assign returnMessage =  nonBlockingTasksWarning.returnMessage/>
           ${returnMessage.messagePrefix}
