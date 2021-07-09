@@ -4,14 +4,23 @@ public class NonBlockingTasksWarning {
 
   private final boolean tasksHaveWarnings;
   private final String incompleteTasksWarningText;
-  private final String returnUrl;
+  private final NonBlockingWarningReturnMessage returnMessage;
 
   public NonBlockingTasksWarning(boolean tasksHaveWarnings,
                                  String incompleteTasksWarningText,
-                                 String returnUrl) {
+                                 NonBlockingWarningReturnMessage returnMessage) {
     this.tasksHaveWarnings = tasksHaveWarnings;
     this.incompleteTasksWarningText = incompleteTasksWarningText;
-    this.returnUrl = returnUrl;
+    this.returnMessage = returnMessage;
+  }
+
+  public static NonBlockingTasksWarning withWarning(String incompleteTasksWarningText,
+                                                    NonBlockingWarningReturnMessage returnMessage) {
+    return new NonBlockingTasksWarning(true, incompleteTasksWarningText, returnMessage);
+  }
+
+  public static NonBlockingTasksWarning withoutWarning() {
+    return new NonBlockingTasksWarning(false, null, null);
   }
 
 
@@ -23,9 +32,8 @@ public class NonBlockingTasksWarning {
     return incompleteTasksWarningText;
   }
 
-  public String getReturnUrl() {
-    return returnUrl;
+  public NonBlockingWarningReturnMessage getReturnMessage() {
+    return returnMessage;
   }
-
 
 }

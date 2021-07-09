@@ -12,7 +12,8 @@ public class AppProcessingTaskWarningTestUtil {
 
   public static NonBlockingTasksWarning createWithWarning(PwaApplication pwaApplication) {
     return new NonBlockingTasksWarning(
-        true, "tasks incomplete", CaseManagementUtils.routeCaseManagement(pwaApplication));
+        true, "tasks incomplete",
+        NonBlockingWarningReturnMessage.withoutSuffixMessage("message", "link", CaseManagementUtils.routeCaseManagement(pwaApplication)));
   }
 
 

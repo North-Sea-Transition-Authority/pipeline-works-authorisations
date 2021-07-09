@@ -21,6 +21,7 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
 import uk.co.ogauthority.pwa.exception.appprocessing.ConsentReviewException;
 import uk.co.ogauthority.pwa.model.entity.workflow.assignment.Assignment;
+import uk.co.ogauthority.pwa.model.enums.appprocessing.NonBlockingWarningPage;
 import uk.co.ogauthority.pwa.model.form.appprocessing.prepareconsent.ConsentReviewReturnForm;
 import uk.co.ogauthority.pwa.model.teams.PwaRegulatorRole;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
@@ -170,7 +171,8 @@ public class ConsentReviewController {
         .addObject("caseSummaryView", processingContext.getCaseSummaryView())
         .addObject("cancelUrl", cancelUrl)
         .addObject("nonBlockingTasksWarning",
-            appProcessingTaskWarningService.getNonBlockingTasksWarning(processingContext.getPwaApplication()));
+            appProcessingTaskWarningService.getNonBlockingTasksWarning(processingContext.getPwaApplication(),
+                NonBlockingWarningPage.ISSUE_CONSENT));
 
     breadcrumbService.fromPrepareConsent(processingContext.getPwaApplication(), modelAndView, "Issue consent");
 

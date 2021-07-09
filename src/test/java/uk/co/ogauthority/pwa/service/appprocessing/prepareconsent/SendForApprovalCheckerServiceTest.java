@@ -25,6 +25,7 @@ import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
+import uk.co.ogauthority.pwa.model.enums.appprocessing.NonBlockingWarningPage;
 import uk.co.ogauthority.pwa.model.enums.documents.PwaDocumentType;
 import uk.co.ogauthority.pwa.service.appprocessing.applicationupdate.ApplicationUpdateRequestService;
 import uk.co.ogauthority.pwa.service.appprocessing.appprocessingwarning.AppProcessingTaskWarningService;
@@ -267,7 +268,7 @@ public class SendForApprovalCheckerServiceTest {
         .thenReturn(List.of(consent));
 
     var warningView = AppProcessingTaskWarningTestUtil.createWithWarning(detail.getPwaApplication());
-    when(appProcessingTaskWarningService.getNonBlockingTasksWarning(detail.getPwaApplication()))
+    when(appProcessingTaskWarningService.getNonBlockingTasksWarning(detail.getPwaApplication(), NonBlockingWarningPage.SEND_FOR_APPROVAL))
         .thenReturn(warningView);
 
     var preSendApprovalCheckView = sendforApprovalCheckerService.getPreSendForApprovalChecksView(detail);

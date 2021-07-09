@@ -119,7 +119,7 @@ public class ConsentReviewControllerTest extends PwaAppProcessingContextAbstract
 
     when(personService.getPersonById(new PersonId(2))).thenReturn(caseOfficerPerson);
 
-    when(appProcessingTaskWarningService.getNonBlockingTasksWarning(any()))
+    when(appProcessingTaskWarningService.getNonBlockingTasksWarning(any(), any()))
         .thenReturn(AppProcessingTaskWarningTestUtil.createWithNoWarning());
 
   }

@@ -3,7 +3,9 @@ package uk.co.ogauthority.pwa.service.appprocessing.appprocessingwarning;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
+import uk.co.ogauthority.pwa.model.enums.appprocessing.NonBlockingWarningPage;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.ConsultationService;
+import uk.co.ogauthority.pwa.service.appprocessing.prepareconsent.ConsentDocumentUrlProvider;
 import uk.co.ogauthority.pwa.service.appprocessing.publicnotice.PublicNoticeService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.TaskStatus;
 import uk.co.ogauthority.pwa.util.CaseManagementUtils;
@@ -27,29 +29,51 @@ public class AppProcessingTaskWarningService {
   }
 
 
-  public NonBlockingTasksWarning getNonBlockingTasksWarning(PwaApplication pwaApplication) {
+  public NonBlockingTasksWarning getNonBlockingTasksWarning(PwaApplication pwaApplication,
+                                                            NonBlockingWarningPage nonBlockingWarningPage) {
 
     var consultationsMissing = consultationService.consultationsTaskRequired(pwaApplication)
         && consultationService.getTaskStatus(pwaApplication).equals(TaskStatus.NOT_STARTED);
     var publicNoticesMissing = publicNoticeService.publicNoticeTaskRequired(pwaApplication)
         && !publicNoticeService.publicNoticeTaskStarted(pwaApplication);
 
-    String incompleteTasksWarningText = null;
-    if (consultationsMissing && publicNoticesMissing) {
-      incompleteTasksWarningText = "The consultations and public notice tasks have not been started";
-    } else if (consultationsMissing) {
-      incompleteTasksWarningText = "The consultations task has not been started";
-    } else if (publicNoticesMissing) {
-      incompleteTasksWarningText = "The public notice task has not been started";
+    if (consultationsMissing || publicNoticesMissing) {
+      String incompleteTasksWarningText;
+      if (consultationsMissing && publicNoticesMissing) {
+        incompleteTasksWarningText = "The consultations and public notice tasks have not been started.";
+      } else if (consultationsMissing) {
+        incompleteTasksWarningText = "The consultations task has not been started.";
+      } else {
+        incompleteTasksWarningText = "The public notice task has not been started.";
+      }
+
+      return NonBlockingTasksWarning.withWarning(
+          incompleteTasksWarningText,
+          constructNonBlockingWarningReturnMessage(pwaApplication, nonBlockingWarningPage));
     }
 
-    return new NonBlockingTasksWarning(consultationsMissing || publicNoticesMissing,
-        incompleteTasksWarningText,
-        CaseManagementUtils.routeCaseManagement(pwaApplication));
-
+    return NonBlockingTasksWarning.withoutWarning();
   }
 
 
+  private NonBlockingWarningReturnMessage constructNonBlockingWarningReturnMessage(PwaApplication pwaApplication,
+                                                                                   NonBlockingWarningPage nonBlockingWarningPage) {
+
+    if (NonBlockingWarningPage.SEND_FOR_APPROVAL.equals(nonBlockingWarningPage)) {
+      return new NonBlockingWarningReturnMessage(
+          "You can continue to send for approval or go back to ",
+          "case management","to start the tasks.",
+          CaseManagementUtils.routeCaseManagement(pwaApplication));
+
+    } else {
+      var urlProvider = new ConsentDocumentUrlProvider(pwaApplication);
+      return NonBlockingWarningReturnMessage.withoutSuffixMessage(
+          "You can continue to issue the consent or ",
+          "return to case officer",
+          urlProvider.getReturnToCaseOfficerUrl());
+    }
+
+  }
 
 
 }
