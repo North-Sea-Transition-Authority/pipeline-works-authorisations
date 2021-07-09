@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
+import uk.co.ogauthority.pwa.controller.appsummary.ApplicationPipelineDataMapGuidanceController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationPermissionCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationStatusCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTypeCheck;
@@ -107,6 +108,8 @@ public class ReviewAndSubmitController {
         .addObject("userPermissions", applicationContext.getPermissions())
         .addObject("submitUrl", ReverseRouter.route(on(ReviewAndSubmitController.class)
             .submit(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null, null, null)))
+        .addObject("mappingGuidanceUrl", ReverseRouter.route(on(ApplicationPipelineDataMapGuidanceController.class)
+            .renderMappingGuidance(detail.getMasterPwaApplicationId(), detail.getPwaApplicationType(), null)))
         .addObject("showDiffCheckbox", true);
 
     // if there's an open update request, include it
