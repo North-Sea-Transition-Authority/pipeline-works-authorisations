@@ -14,12 +14,12 @@ public class NonBlockingTasksWarning {
     this.returnMessage = returnMessage;
   }
 
-  public static NonBlockingTasksWarning withWarning(String incompleteTasksWarningText,
-                                                    NonBlockingWarningReturnMessage returnMessage) {
+  static NonBlockingTasksWarning withWarning(String incompleteTasksWarningText,
+                                             NonBlockingWarningReturnMessage returnMessage) {
     return new NonBlockingTasksWarning(true, incompleteTasksWarningText, returnMessage);
   }
 
-  public static NonBlockingTasksWarning withoutWarning() {
+  static NonBlockingTasksWarning withoutWarning() {
     return new NonBlockingTasksWarning(false, null, null);
   }
 
