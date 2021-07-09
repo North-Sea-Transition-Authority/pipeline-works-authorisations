@@ -62,6 +62,13 @@ public class PwaApplicationDetailService {
         );
   }
 
+  public PwaApplicationDetail getDetailByVersionNo(PwaApplication pwaApplication, int versionNo) {
+    return pwaApplicationDetailRepository.findByPwaApplicationIdAndVersionNo(pwaApplication.getId(), versionNo)
+        .orElseThrow(() -> new PwaEntityNotFoundException(
+            String.format("Could not find version %s for appId: %s", versionNo, pwaApplication.getId())
+        ));
+  }
+
   /**
    * Set attributes related to application being linked to fields.
    *

@@ -1,13 +1,10 @@
 package uk.co.ogauthority.pwa.controller.appsummary;
 
-import static org.hamcrest.CoreMatchers.containsString;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
@@ -21,7 +18,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
@@ -38,19 +34,15 @@ import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermiss
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.ApplicationVersionAccessRequester;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.ApplicationVersionRequestType;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.viewfactories.ApplicationPipelineGeoJsonViewFactory;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 @RunWith(SpringRunner.class)
-@WebMvcTest(controllers = ApplicationPipelineSpatialDataRestController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {PwaAppProcessingContextService.class}))
-public class ApplicationPipelineSpatialDataRestControllerTest extends PwaAppProcessingContextAbstractControllerTest {
+@WebMvcTest(controllers = ApplicationPipelineDataMapGuidanceController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {PwaAppProcessingContextService.class}))
+public class ApplicationPipelineDataMapGuidanceControllerTest extends PwaAppProcessingContextAbstractControllerTest {
 
   @MockBean
   private PwaAppProcessingPermissionService pwaAppProcessingPermissionService;
-
-  @MockBean
-  private ApplicationPipelineGeoJsonViewFactory applicationPipelineGeoJsonViewFactory;
 
   @MockBean
   private ApplicationVersionAccessRequester applicationVersionAccessRequester;
@@ -64,12 +56,16 @@ public class ApplicationPipelineSpatialDataRestControllerTest extends PwaAppProc
   @Before
   public void setUp() throws Exception {
 
-    endpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaApplicationDetailService,
-        pwaAppProcessingPermissionService)
+    endpointTester = new PwaApplicationEndpointTestBuilder(
+        mockMvc,
+        pwaApplicationDetailService,
+        pwaAppProcessingPermissionService
+    )
         .setAllowedProcessingPermissions(PwaAppProcessingPermission.VIEW_APPLICATION_SUMMARY);
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(
         PwaApplicationType.CAT_1_VARIATION, 25, 26);
+
     user = new AuthenticatedUserAccount(
         new WebUserAccount(
             1,
@@ -78,61 +74,45 @@ public class ApplicationPipelineSpatialDataRestControllerTest extends PwaAppProc
         EnumSet.allOf(PwaUserPrivilege.class)
     );
 
-    when(applicationVersionAccessRequester.getPwaApplicationDetailWhenAvailable(any(), any()))
-        .thenReturn(Optional.of(pwaApplicationDetail));
+    when(applicationVersionAccessRequester.getAvailableAppVersionRequestTypesBy(any()))
+        .thenReturn(EnumSet.of(ApplicationVersionRequestType.LAST_SUBMITTED));
 
   }
+
 
   @Test
   public void getLatestAvailableAppPipelinesForUserAsGeoJson_permissionSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
-            ReverseRouter.route(on(ApplicationPipelineSpatialDataRestController.class)
-                .getLatestAvailableAppPipelinesForUserAsGeoJson(applicationDetail.getMasterPwaApplicationId(), type,
-                    null, null)));
+            ReverseRouter.route(on(ApplicationPipelineDataMapGuidanceController.class)
+                .renderMappingGuidance(
+                    applicationDetail.getMasterPwaApplicationId(), type, null)));
 
     endpointTester.performProcessingPermissionCheck(status().isOk(), status().isForbidden());
 
   }
 
   @Test
-  public void getLatestAvailableAppPipelinesForUserAsGeoJson_responseCheck() throws Exception {
+  public void getLatestAvailableAppPipelinesForUserAsGeoJson_modelCheck() throws Exception {
 
     var permissionsDto = new ProcessingPermissionsDto(null, EnumSet.allOf(PwaAppProcessingPermission.class));
     when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail, user)).thenReturn(permissionsDto);
     when(pwaApplicationDetailService.getLatestDetailForUser(eq(25), any())).thenReturn(Optional.of(pwaApplicationDetail));
 
-    mockMvc.perform(get(ReverseRouter.route(on(ApplicationPipelineSpatialDataRestController.class)
-        .getLatestAvailableAppPipelinesForUserAsGeoJson(pwaApplicationDetail.getMasterPwaApplicationId(),
-            pwaApplicationDetail.getPwaApplicationType(), null, null)))
+    mockMvc.perform(get(ReverseRouter.route(on(ApplicationPipelineDataMapGuidanceController.class).renderMappingGuidance(
+            pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null)))
         .with(authenticatedUserAndSession(user))
     )
-        .andExpect(header().string(HttpHeaders.CONTENT_TYPE, "application/geo+json"))
-        .andExpect(header().string(HttpHeaders.CONTENT_DISPOSITION, containsString("attachment; filename=\"APP_REFERENCE-25_v1_")))
-        .andExpect(header().string(HttpHeaders.CONTENT_DISPOSITION, containsString(".geojson")))
-        .andExpect(status().isOk());
+        .andExpect(status().isOk())
+        .andExpect(model().attributeExists("caseSummaryView"))
+        .andExpect(model().attributeExists("pipelineDataDownloadOptionItems"))
+        .andExpect(model().attributeExists("serviceName"))
+        .andExpect(model().attributeExists("regulatorMapsAndToolsUrl"))
+        .andExpect(model().attributeExists("regulatorMapsAndToolsLabel"))
+        .andExpect(model().attributeExists("offshoreMapLabel"));
 
   }
 
-  @Test
-  public void getLatestAvailableAppPipelinesForUserAsGeoJson_pipelineDataUsesRequestedAppDetailVersion() throws Exception {
 
-    var currentDraftDetail = new PwaApplicationDetail();
-    when(applicationVersionAccessRequester.getPwaApplicationDetailWhenAvailable(any(), any())).thenReturn(Optional.of(currentDraftDetail));
-
-    var permissionsDto = new ProcessingPermissionsDto(null, EnumSet.allOf(PwaAppProcessingPermission.class));
-    when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail, user)).thenReturn(permissionsDto);
-    when(pwaApplicationDetailService.getLatestDetailForUser(eq(25), any())).thenReturn(Optional.of(pwaApplicationDetail));
-
-    mockMvc.perform(get(ReverseRouter.route(on(ApplicationPipelineSpatialDataRestController.class)
-        .getLatestAvailableAppPipelinesForUserAsGeoJson(pwaApplicationDetail.getMasterPwaApplicationId(),
-            pwaApplicationDetail.getPwaApplicationType(), ApplicationVersionRequestType.CURRENT_DRAFT, null)))
-        .with(authenticatedUserAndSession(user))
-    );
-
-    verify(applicationPipelineGeoJsonViewFactory).createApplicationPipelinesAsLineFeatures(currentDraftDetail);
-    verifyNoMoreInteractions(applicationPipelineGeoJsonViewFactory);
-
-  }
 }
