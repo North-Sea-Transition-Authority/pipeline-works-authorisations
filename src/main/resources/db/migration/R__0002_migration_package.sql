@@ -142,6 +142,12 @@ AS
     l_master_pwa_id            NUMBER;
     l_latest_consent_id        NUMBER;
     l_count                    NUMBER;
+
+    -- used these to decide if we need to end the huoo link after creating it based on pipeline status in new system
+    l_new_pipeline_status VARCHAR2(4000);
+    l_pipeline_detail_status VARCHAR2(4000);
+    l_pipeline_status VARCHAR2(4000);
+    l_pipeline_number VARCHAR2(4000);
   BEGIN
 
     SAVEPOINT dry_run_safety_net;
@@ -195,20 +201,43 @@ AS
                  OR (cor.migrated_organisation_name IS NULL AND current_pipeline_huoo_roles.org_manual_name IS NULL)
             );
 
-            INSERT INTO ${datasource.user}.pipeline_org_role_links( pipeline_id
-                                                                  , pwa_consent_org_role_id -- this links the pipeline huoo role to the consent huoo role
-                                                                  , added_by_pwa_consent_id -- this links the pipeline huoo role to the consent which added the link
-                                                                  , start_timestamp
-                                                                  )
-            VALUES( p_mig_pipeline_history.pipeline_id
-                  , l_matching_consent_org_role.id
-                  , l_matching_consent_org_role.added_by_pwa_consent_id
-                  , SYSTIMESTAMP
-
-
-            );
-          END;
+          INSERT INTO ${datasource.user}.pipeline_org_role_links( pipeline_id
+                                                                , pwa_consent_org_role_id -- this links the pipeline huoo role to the consent huoo role
+                                                                , added_by_pwa_consent_id -- this links the pipeline huoo role to the consent which added the link
+                                                                , start_timestamp
+                                                                )
+          VALUES( p_mig_pipeline_history.pipeline_id
+                , l_matching_consent_org_role.id
+                , l_matching_consent_org_role.added_by_pwa_consent_id
+                , SYSTIMESTAMP
+          );
+        END;
         END LOOP;
+
+      SELECT mph.pipeline_number, mph.status, mph.pipeline_status
+      INTO l_pipeline_number, l_pipeline_detail_status, l_pipeline_status
+      FROM ${datasource.user}.mig_pipeline_history mph
+      WHERE mph.pipeline_id = p_mig_pipeline_history.pipeline_id
+      AND mph.status_control = 'C';
+
+      l_new_pipeline_status := create_new_pipeline_status(
+          p_detail_status => l_pipeline_detail_status
+        , p_pipeline_status => l_pipeline_status
+        , p_pipeline_number => l_pipeline_number
+        );
+
+      IF(NOT(l_new_pipeline_status IN ('IN_SERVICE', 'OUT_OF_USE_ON_SEABED'))) THEN
+        UPDATE ${datasource.user}.pipeline_org_role_links
+        SET end_timestamp = start_timestamp
+        , ended_by_pwa_consent_id = added_by_pwa_consent_id
+        WHERE pipeline_id = p_mig_pipeline_history.pipeline_id;
+
+        ${datasource.user}.migration_logger.log_pipeline(
+            p_mig_pipeline_history => p_mig_pipeline_history
+          , p_status => 'IN_PROGRESS'
+          , p_message => 'Ended huoo links (' || SQL%ROWCOUNT || ') because new status is ' || l_new_pipeline_status
+        );
+      END IF;
 
       IF(p_dry_run) THEN
         ROLLBACK TO SAVEPOINT dry_run_safety_net;
@@ -257,7 +286,7 @@ AS
 
     SELECT
       CASE
-        WHEN p_pipeline_number LIKE '%RTS' THEN 'RETURNED_TO_SHARE'
+        WHEN p_pipeline_number LIKE '%RTS' THEN 'RETURNED_TO_SHORE'
         WHEN p_pipeline_number LIKE '%NL' THEN 'NEVER_LAID'
         ELSE l_new_status
       END
@@ -669,6 +698,7 @@ AS
       l_last_consented_consent_id NUMBER := get_last_consented_consent_id(l_master_pwa_detail.pwa_id);
       -- temp variable to ensure we can dry run pwa pipeline migration
       l_master_pipeline_row ${datasource.user}.pipelines%ROWTYPE;
+
     BEGIN
       -- because of sanity check before migration
       -- only non HOLDER roles might have a manual org name. This will never be entered as new going forward, only for reference
