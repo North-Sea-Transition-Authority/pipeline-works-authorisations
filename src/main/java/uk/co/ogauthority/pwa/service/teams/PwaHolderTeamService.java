@@ -3,13 +3,10 @@ package uk.co.ogauthority.pwa.service.teams;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
@@ -19,31 +16,30 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrgan
 import uk.co.ogauthority.pwa.energyportal.service.organisations.PortalOrganisationsAccessor;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.entity.search.consents.PwaHolderOrgUnit;
 import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
 import uk.co.ogauthority.pwa.model.teams.PwaOrganisationTeam;
 import uk.co.ogauthority.pwa.model.teams.PwaTeamMember;
-import uk.co.ogauthority.pwa.repository.search.consents.PwaHolderOrgUnitRepository;
+import uk.co.ogauthority.pwa.service.pwaapplications.PwaHolderService;
 
 @Service
 public class PwaHolderTeamService {
 
   private final TeamService teamService;
   private final PortalOrganisationsAccessor portalOrganisationsAccessor;
-  private final PwaHolderOrgUnitRepository pwaHolderOrgUnitRepository;
+  private final PwaHolderService pwaHolderService;
 
   @Autowired
   public PwaHolderTeamService(TeamService teamService,
                               PortalOrganisationsAccessor portalOrganisationsAccessor,
-                              PwaHolderOrgUnitRepository pwaHolderOrgUnitRepository) {
+                              PwaHolderService pwaHolderService) {
     this.teamService = teamService;
     this.portalOrganisationsAccessor = portalOrganisationsAccessor;
-    this.pwaHolderOrgUnitRepository = pwaHolderOrgUnitRepository;
+    this.pwaHolderService = pwaHolderService;
   }
 
   public boolean isPersonInHolderTeam(MasterPwa masterPwa, Person person) {
 
-    var holderOrgGroups = getHolderOrgGroups(masterPwa);
+    var holderOrgGroups = pwaHolderService.getPwaHolders(masterPwa);
 
     return teamService
         .getOrganisationTeamListIfPersonInRole(person, EnumSet.allOf(PwaOrganisationRole.class))
@@ -59,7 +55,7 @@ public class PwaHolderTeamService {
 
   public boolean isPersonInHolderTeamWithRole(MasterPwa masterPwa, Person person, PwaOrganisationRole pwaOrganisationRole) {
 
-    var holderOrgGroups = getHolderOrgGroups(masterPwa);
+    var holderOrgGroups = pwaHolderService.getPwaHolders(masterPwa);
 
     return teamService
         .getOrganisationTeamListIfPersonInRole(person, List.of(pwaOrganisationRole))
@@ -113,7 +109,7 @@ public class PwaHolderTeamService {
    */
   public Set<PwaOrganisationRole> getRolesInHolderTeam(PwaApplicationDetail detail, Person person) {
 
-    var holderOrgGroups = getHolderOrgGroups(detail);
+    var holderOrgGroups = pwaHolderService.getPwaHolders(detail.getMasterPwa());
 
     var orgTeamsUserMemberOf = teamService.getOrganisationTeamsPersonIsMemberOf(person);
 
@@ -132,45 +128,6 @@ public class PwaHolderTeamService {
 
   }
 
-  public Set<PortalOrganisationGroup> getHolderOrgGroups(PwaApplicationDetail detail) {
-    return getHolderOrgGroups(detail.getMasterPwa());
-  }
-
-  public Set<PortalOrganisationGroup> getHolderOrgGroups(MasterPwa masterPwa) {
-
-    // the base view we are querying handles the logic of consented model lookup or application data lookup.
-    // Uses the same logic as the app search so we are consistent across contexts.
-    var holderOrgGrpIdsForMasterPwa = pwaHolderOrgUnitRepository.findAllByPwaId(masterPwa.getId())
-        .stream()
-        .map(PwaHolderOrgUnit::getOrgGrpId)
-        .distinct()
-        .collect(toList());
-
-    return portalOrganisationsAccessor.getOrganisationGroupsWhereIdIn(holderOrgGrpIdsForMasterPwa)
-        .stream()
-        .collect(Collectors.toUnmodifiableSet());
-
-  }
-
-  public Multimap<PortalOrganisationGroup, Integer> getHolderOrgGroupsForMasterPwas(Set<Integer> masterPwaIds) {
-    var allHolderOrgUnitsForMasterPwas = pwaHolderOrgUnitRepository.findAllByPwaIdIn(masterPwaIds);
-    var holderOrgGrpIds = allHolderOrgUnitsForMasterPwas.stream()
-        .map(PwaHolderOrgUnit::getOrgGrpId)
-        .distinct()
-        .collect(toList());
-    var orgGroups = portalOrganisationsAccessor.getOrganisationGroupsWhereIdIn(holderOrgGrpIds)
-        .stream()
-        .collect(Collectors.toUnmodifiableSet());
-
-    Multimap<PortalOrganisationGroup, Integer> holderOrgGroupToMasterPwaIdListMap = ArrayListMultimap.create();
-    allHolderOrgUnitsForMasterPwas.forEach(pwaHolderOrgUnit -> holderOrgGroupToMasterPwaIdListMap.put(
-            orgGroups.stream()
-                .filter(orgGroup -> orgGroup.getOrgGrpId().equals(pwaHolderOrgUnit.getOrgGrpId()))
-                .findFirst().get(),
-            pwaHolderOrgUnit.getPwaId()));
-    return holderOrgGroupToMasterPwaIdListMap;
-  }
-
   public Set<Person> getPeopleWithHolderTeamRole(PwaApplicationDetail detail,
                                                  PwaOrganisationRole role) {
     return getPeopleWithHolderTeamRoleForMasterPwa(detail.getMasterPwa(), role);
@@ -178,7 +135,7 @@ public class PwaHolderTeamService {
 
   public Set<Person> getPeopleWithHolderTeamRoleForMasterPwa(MasterPwa masterPwa,
                                                  PwaOrganisationRole role) {
-    var holderOrgGroups = getHolderOrgGroups(masterPwa);
+    var holderOrgGroups = pwaHolderService.getPwaHolders(masterPwa);
     return getPeopleWithHolderTeamRoleForOrgGroups(holderOrgGroups, role);
   }
 
@@ -202,7 +159,7 @@ public class PwaHolderTeamService {
 
   public Set<Person> getPersonsInHolderTeam(PwaApplicationDetail detail) {
 
-    var holderOrgGroups = getHolderOrgGroups(detail);
+    var holderOrgGroups = pwaHolderService.getPwaHolders(detail.getMasterPwa());
     var orgTeams = teamService.getOrganisationTeamsForOrganisationGroups(holderOrgGroups);
 
     return orgTeams.stream()

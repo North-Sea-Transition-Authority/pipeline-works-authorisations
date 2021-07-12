@@ -20,6 +20,7 @@ import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationGroupDetail
 import uk.co.ogauthority.pwa.model.enums.aabuilt.AsBuiltDeadlineReminderType;
 import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
 import uk.co.ogauthority.pwa.repository.asbuilt.AsBuiltNotificationGroupDetailRepository;
+import uk.co.ogauthority.pwa.service.pwaapplications.PwaHolderService;
 import uk.co.ogauthority.pwa.service.teams.PwaHolderTeamService;
 
 /**
@@ -33,6 +34,7 @@ class AsBuiltGroupDeadlineService {
   private final AsBuiltNotificationGroupDetailRepository asBuiltNotificationGroupDetailRepository;
   private final AsBuiltNotificationGroupStatusService asBuiltNotificationGroupStatusService;
   private final PwaHolderTeamService pwaHolderTeamService;
+  private final PwaHolderService pwaHolderService;
   private final AsBuiltNotificationEmailService asBuiltNotificationEmailService;
   private final Clock clock;
 
@@ -41,11 +43,13 @@ class AsBuiltGroupDeadlineService {
       AsBuiltNotificationGroupDetailRepository asBuiltNotificationGroupDetailRepository,
       AsBuiltNotificationGroupStatusService asBuiltNotificationGroupStatusService,
       PwaHolderTeamService pwaHolderTeamService,
+      PwaHolderService pwaHolderService,
       AsBuiltNotificationEmailService asBuiltNotificationEmailService,
       @Qualifier("utcClock") Clock clock) {
     this.asBuiltNotificationGroupDetailRepository = asBuiltNotificationGroupDetailRepository;
     this.asBuiltNotificationGroupStatusService = asBuiltNotificationGroupStatusService;
     this.pwaHolderTeamService = pwaHolderTeamService;
+    this.pwaHolderService = pwaHolderService;
     this.asBuiltNotificationEmailService = asBuiltNotificationEmailService;
     this.clock = clock;
   }
@@ -97,7 +101,7 @@ class AsBuiltGroupDeadlineService {
                                                                    AsBuiltDeadlineReminderType asBuiltDeadlineReminderType) {
     var masterPwaIdToAsBuiltNotificationGroupMultiMap = getMasterPwaIdToAsBuiltNotificationGroupMultiMap(asBuiltNotificationGroups);
 
-    var holderOrgGroupToMasterPwaIdMultiMap = pwaHolderTeamService.getHolderOrgGroupsForMasterPwas(
+    var holderOrgGroupToMasterPwaIdMultiMap = pwaHolderService.getHolderOrgGroupsForMasterPwaIds(
         masterPwaIdToAsBuiltNotificationGroupMultiMap.keySet());
 
     var holderToAsBuiltNotificationGroupMultiMap = getHolderToAsBuiltNotificationGroupMultiMap(

@@ -30,7 +30,7 @@ import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermiss
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
-import uk.co.ogauthority.pwa.service.teams.PwaHolderTeamService;
+import uk.co.ogauthority.pwa.service.pwaapplications.PwaHolderService;
 import uk.co.ogauthority.pwa.util.CaseManagementUtils;
 import uk.co.ogauthority.pwa.util.FlashUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
@@ -49,8 +49,7 @@ public class IndustryPaymentController {
   private final ApplicationBreadcrumbService breadcrumbService;
   private final ApplicationChargeRequestService applicationChargeRequestService;
   private final ApplicationPaymentSummariser applicationPaymentSummariser;
-  // TODO PWA-1148 - replace with dedicated pwa holder org service
-  private final PwaHolderTeamService pwaHolderTeamService;
+  private final PwaHolderService pwaHolderService;
 
   private final String appBaseUrl;
 
@@ -61,13 +60,13 @@ public class IndustryPaymentController {
   public IndustryPaymentController(ApplicationBreadcrumbService breadcrumbService,
                                    ApplicationChargeRequestService applicationChargeRequestService,
                                    ApplicationPaymentSummariser applicationPaymentSummariser,
-                                   PwaHolderTeamService pwaHolderTeamService,
+                                   PwaHolderService pwaHolderService,
                                    @Value("${pwa.url.base}") String pwaUrlBase,
                                    @Value("${context-path}") String contextPath) {
     this.breadcrumbService = breadcrumbService;
     this.applicationChargeRequestService = applicationChargeRequestService;
     this.applicationPaymentSummariser = applicationPaymentSummariser;
-    this.pwaHolderTeamService = pwaHolderTeamService;
+    this.pwaHolderService = pwaHolderService;
     this.appBaseUrl = pwaUrlBase + contextPath;
   }
 
@@ -124,7 +123,7 @@ public class IndustryPaymentController {
 
     var appPaymentDisplaySummary = applicationPaymentSummariser.summarise(applicationChargeRequestReport);
 
-    var pwaHolderOrgNames = pwaHolderTeamService.getHolderOrgGroups(processingContext.getApplicationDetail())
+    var pwaHolderOrgNames = pwaHolderService.getPwaHolders(processingContext.getPwaApplication().getMasterPwa())
         .stream()
         .map(PortalOrganisationGroup::getName)
         .sorted(Comparator.comparing(String::toLowerCase))

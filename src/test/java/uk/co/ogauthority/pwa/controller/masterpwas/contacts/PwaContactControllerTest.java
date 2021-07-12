@@ -36,6 +36,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermiss
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
+import uk.co.ogauthority.pwa.service.pwaapplications.PwaHolderService;
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.AddPwaContactFormValidator;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
 import uk.co.ogauthority.pwa.service.teammanagement.TeamManagementService;
@@ -54,6 +55,9 @@ public class PwaContactControllerTest extends PwaApplicationContextAbstractContr
 
   @MockBean
   private AddPwaContactFormValidator addPwaContactFormValidator;
+
+  @MockBean
+  private PwaHolderService pwaHolderService;
 
   private AuthenticatedUserAccount user = new AuthenticatedUserAccount(new WebUserAccount(1, PersonTestUtil.createDefaultPerson()), Set.of());
 
@@ -355,7 +359,7 @@ public class PwaContactControllerTest extends PwaApplicationContextAbstractContr
 
     var orgGroup = PortalOrganisationTestUtils.generateOrganisationGroup(1, "ORGGRP", "OG");
 
-    when(pwaHolderTeamService.getHolderOrgGroups(any(MasterPwa.class))).thenReturn(Set.of(orgGroup));
+    when(pwaHolderService.getPwaHolders(any(MasterPwa.class))).thenReturn(Set.of(orgGroup));
 
     mockMvc.perform(get(ReverseRouter.route(on(PwaContactController.class)
         .renderContactsScreen(PwaApplicationType.INITIAL, 1, null, null)))
