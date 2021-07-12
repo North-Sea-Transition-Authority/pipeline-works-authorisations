@@ -3,21 +3,22 @@ package uk.co.ogauthority.pwa.controller;
 import java.util.Map;
 import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.ModelAndView;
-import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.service.markdown.MailMergeContainer;
 import uk.co.ogauthority.pwa.service.markdown.MarkdownService;
 import uk.co.ogauthority.pwa.service.markdown.MarkdownTestForm;
 
 /**
  * Test/debug controller for various session related endpoints.
- * Can be removed before production release.
+ * Not for production.
  */
 @Controller
+@Profile("development")
 public class TestController {
 
   private final MarkdownService markdownService;
@@ -27,15 +28,6 @@ public class TestController {
     this.markdownService = markdownService;
   }
 
-  @GetMapping("/session-info")
-  public ModelAndView sessionInfo(AuthenticatedUserAccount userAccount) {
-    return new ModelAndView("testTemplates/sessionInfo", "user", userAccount);
-  }
-
-  @GetMapping("/requires-auth")
-  public ModelAndView requiresAuth(AuthenticatedUserAccount userAccount) {
-    return new ModelAndView("testTemplates/requiresAuth", "user", userAccount);
-  }
 
   @GetMapping("/maps-test")
   public ModelAndView maps() {
