@@ -1,17 +1,22 @@
 package uk.co.ogauthority.pwa.validators.pwaapplications.shared.submission;
 
 
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.mockito.Mockito.when;
 
+import ch.qos.logback.classic.spi.LoggingEvent;
+import ch.qos.logback.core.Appender;
+import io.micrometer.core.instrument.Timer;
 import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import uk.co.ogauthority.pwa.config.MetricsProvider;
 import uk.co.ogauthority.pwa.energyportal.model.entity.PersonTestUtil;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
@@ -22,6 +27,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermiss
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.service.teams.PwaHolderTeamService;
+import uk.co.ogauthority.pwa.testutils.TimerMetricTestUtils;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -32,6 +38,17 @@ public class ReviewAndSubmitApplicationFormValidatorTest {
 
   @Mock
   private PwaHolderTeamService pwaHolderTeamService;
+
+  @Mock
+  private MetricsProvider metricsProvider;
+
+  @Mock
+  private Appender appender;
+
+  @Captor
+  private ArgumentCaptor<LoggingEvent> loggingEventCaptor;
+
+  private Timer timer;
 
   private ReviewAndSubmitApplicationFormValidator validator;
 
@@ -46,12 +63,16 @@ public class ReviewAndSubmitApplicationFormValidatorTest {
   @Before
   public void setUp() {
 
-    validator = new ReviewAndSubmitApplicationFormValidator(pwaHolderTeamService, applicationUpdateRequestService);
+    validator = new ReviewAndSubmitApplicationFormValidator(pwaHolderTeamService, applicationUpdateRequestService,
+        metricsProvider);
     form = new ReviewAndSubmitApplicationForm();
 
     var detail = new PwaApplicationDetail();
     applicationContext = new PwaApplicationContext(detail, new WebUserAccount(1), Set.of(PwaApplicationPermission.EDIT));
 
+    timer = TimerMetricTestUtils.setupTimerMetric(
+        ReviewAndSubmitApplicationFormValidator.class, "pwa.appValidationTimer", appender);
+    when(metricsProvider.getAppValidationTimer()).thenReturn(timer);
   }
 
   @Test
@@ -66,7 +87,6 @@ public class ReviewAndSubmitApplicationFormValidatorTest {
         entry(MADE_ONLY_REQUESTED_CHANGES, Set.of(FieldValidationErrorCodes.REQUIRED.errorCode(MADE_ONLY_REQUESTED_CHANGES))),
         entry(SUBMITTER_PERSON_ID, Set.of(FieldValidationErrorCodes.REQUIRED.errorCode(SUBMITTER_PERSON_ID)))
     );
-
   }
 
   @Test
@@ -209,6 +229,13 @@ public class ReviewAndSubmitApplicationFormValidatorTest {
 
   private PwaApplicationContext getContextWithPermissions(PwaApplicationPermission... permissions) {
     return new PwaApplicationContext(applicationContext.getApplicationDetail(), applicationContext.getUser(), Set.of(permissions));
+  }
+
+  @Test
+  public void validate_timerMetricStarted_timeRecordedAndLogged() {
+
+    ValidatorTestUtils.getFormValidationErrors(validator, form, applicationContext);
+    TimerMetricTestUtils.assertTimeLogged(loggingEventCaptor, appender, "Application form validated");
   }
 
 }

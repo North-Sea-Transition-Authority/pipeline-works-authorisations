@@ -5,19 +5,28 @@ import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
 import java.io.ByteArrayOutputStream;
 import java.sql.Blob;
 import java.sql.SQLException;
-import java.util.concurrent.TimeUnit;
 import javax.sql.rowset.serial.SerialBlob;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.stereotype.Service;
+import uk.co.ogauthority.pwa.config.MetricsProvider;
+import uk.co.ogauthority.pwa.util.MetricTimerUtils;
 
 @Service
 public class PdfRenderingService {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(PdfRenderingService.class);
+  private final MetricsProvider metricsProvider;
+
+  @Autowired
+  public PdfRenderingService(MetricsProvider metricsProvider) {
+    this.metricsProvider = metricsProvider;
+  }
+
 
   private ByteArrayResource render(String html) {
 
@@ -34,9 +43,7 @@ public class PdfRenderingService {
       builder.toStream(os);
       builder.run();
 
-      var elapsedMs = renderStopwatch.elapsed(TimeUnit.MILLISECONDS);
-
-      LOGGER.info("PDF generated. Took [{}ms]", elapsedMs);
+      MetricTimerUtils.recordTime(renderStopwatch, LOGGER, metricsProvider.getDocumentGenerationTimer(), "PDF generated.");
 
       return new ByteArrayResource(os.toByteArray());
 

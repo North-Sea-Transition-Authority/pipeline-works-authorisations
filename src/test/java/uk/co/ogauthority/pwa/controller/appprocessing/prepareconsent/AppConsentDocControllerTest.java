@@ -19,12 +19,19 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
 
+import ch.qos.logback.classic.spi.LoggingEvent;
+import ch.qos.logback.core.Appender;
+import io.micrometer.core.instrument.Timer;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.Mock;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
@@ -35,6 +42,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.validation.Errors;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
+import uk.co.ogauthority.pwa.config.MetricsProvider;
 import uk.co.ogauthority.pwa.controller.PwaAppProcessingContextAbstractControllerTest;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.docgen.DocgenRun;
@@ -46,12 +54,15 @@ import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocGenType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
+import uk.co.ogauthority.pwa.service.appprocessing.AppProcessingBreadcrumbService;
 import uk.co.ogauthority.pwa.service.appprocessing.PwaAppProcessingPermissionService;
 import uk.co.ogauthority.pwa.service.appprocessing.consentreview.ConsentReviewService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContextService;
+import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContextTestUtil;
 import uk.co.ogauthority.pwa.service.appprocessing.prepareconsent.ConsentDocumentService;
 import uk.co.ogauthority.pwa.service.appprocessing.prepareconsent.PreSendForApprovalChecksViewTestUtil;
 import uk.co.ogauthority.pwa.service.appprocessing.prepareconsent.PrepareConsentTaskService;
+import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.docgen.DocgenService;
 import uk.co.ogauthority.pwa.service.documents.DocumentService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
@@ -62,6 +73,7 @@ import uk.co.ogauthority.pwa.service.template.TemplateTextService;
 import uk.co.ogauthority.pwa.testutils.PwaAppProcessingContextDtoTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
+import uk.co.ogauthority.pwa.testutils.TimerMetricTestUtils;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(controllers = AppConsentDocController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {PwaAppProcessingContextService.class}))
@@ -90,6 +102,18 @@ public class AppConsentDocControllerTest extends PwaAppProcessingContextAbstract
 
   @MockBean
   private DocgenService docgenService;
+
+  @MockBean
+  private MetricsProvider metricsProvider;
+
+  @Mock
+  private Appender appender;
+
+  @Captor
+  private ArgumentCaptor<LoggingEvent> loggingEventCaptor;
+
+
+  private Timer timer;
 
   private PwaApplicationEndpointTestBuilder editDocumentEndpointTester;
   private PwaApplicationEndpointTestBuilder sendForApprovalEndpointTester;
@@ -134,6 +158,10 @@ public class AppConsentDocControllerTest extends PwaAppProcessingContextAbstract
       errors.rejectValue("coverLetterText", "coverLetterText.error", "error message");
       return invocation;
     }).when(consentDocumentService).validateSendConsentFormUsingPreApprovalChecks(any(), any(), any());
+
+    timer = TimerMetricTestUtils.setupTimerMetric(
+        AppConsentDocController.class, "pwa.documentPreviewTimer", appender);
+    when(metricsProvider.getDocumentPreviewTimer()).thenReturn(timer);
 
   }
 
@@ -722,6 +750,24 @@ public class AppConsentDocControllerTest extends PwaAppProcessingContextAbstract
 
     verify(consentDocumentService, never()).sendForApproval(pwaApplicationDetail, "mytext", user, List.of());
 
+  }
+
+
+  @Test
+  public void schedulePreview_timerMetricStarted_timeRecordedAndLogged() {
+
+    when(documentService.getDocumentInstance(any(), any())).thenReturn(Optional.of(new DocumentInstance()));
+
+    var run = new DocgenRun();
+    when(docgenService.scheduleDocumentGeneration(any(), any(), any())).thenReturn(run);
+
+    var controller = new AppConsentDocController(new AppProcessingBreadcrumbService(), documentService, prepareConsentTaskService, new ControllerHelperService(null),
+        templateTextService, consentDocumentService, consentReviewService, mailMergeService, docgenService, metricsProvider);
+
+    controller.schedulePreview(1, null,
+        PwaAppProcessingContextTestUtil.withPermissions(pwaApplicationDetail, Set.of()), user);
+
+    TimerMetricTestUtils.assertTimeLogged(loggingEventCaptor, appender, "Document preview loaded");
   }
 
 

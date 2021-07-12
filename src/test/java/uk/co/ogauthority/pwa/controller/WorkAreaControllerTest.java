@@ -11,19 +11,28 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
 
+import ch.qos.logback.classic.spi.LoggingEvent;
+import ch.qos.logback.core.Appender;
+import io.micrometer.core.instrument.Timer;
 import java.util.EnumSet;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
+import uk.co.ogauthority.pwa.config.MetricsProvider;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
+import uk.co.ogauthority.pwa.energyportal.service.SystemAreaAccessService;
 import uk.co.ogauthority.pwa.mvc.PageView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContextService;
@@ -36,6 +45,7 @@ import uk.co.ogauthority.pwa.service.workarea.WorkAreaResult;
 import uk.co.ogauthority.pwa.service.workarea.WorkAreaService;
 import uk.co.ogauthority.pwa.service.workarea.WorkAreaTab;
 import uk.co.ogauthority.pwa.service.workarea.applications.PwaApplicationWorkAreaItem;
+import uk.co.ogauthority.pwa.testutils.TimerMetricTestUtils;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(WorkAreaController.class)
@@ -53,6 +63,18 @@ public class WorkAreaControllerTest extends AbstractControllerTest {
   @MockBean
   private WorkAreaContextService workAreaContextService;
 
+  @MockBean
+  private MetricsProvider metricsProvider;
+
+  @Mock
+  private Appender appender;
+
+  @Captor
+  private ArgumentCaptor<LoggingEvent> loggingEventCaptor;
+
+
+  private Timer timer;
+
   private AuthenticatedUserAccount pwaManagerUser = new AuthenticatedUserAccount(
       new WebUserAccount(1, new Person()),
       EnumSet.of(PwaUserPrivilege.PWA_WORKAREA));
@@ -68,6 +90,10 @@ public class WorkAreaControllerTest extends AbstractControllerTest {
 
     when(workAreaContextService.createWorkAreaContext(pwaManagerUser))
         .thenReturn(pwaManagerWorkAreaContext);
+
+    timer = TimerMetricTestUtils.setupTimerMetric(
+        WorkAreaController.class, "pwa.workAreaTabTimer", appender);
+    when(metricsProvider.getWorkAreaTabTimer()).thenReturn(timer);
 
   }
 
@@ -161,6 +187,29 @@ public class WorkAreaControllerTest extends AbstractControllerTest {
         PwaApplicationWorkAreaItem::new
     );
 
+  }
+
+
+  @Test
+  public void renderWorkArea_timerMetricStarted_timeRecordedAndLogged() {
+
+    var controller = new WorkAreaController(workAreaService, workAreaContextService,
+        Mockito.mock(SystemAreaAccessService.class), metricsProvider);
+
+    controller.renderWorkArea(null, pwaManagerUser, null);
+
+    TimerMetricTestUtils.assertTimeLogged(loggingEventCaptor, appender, "tab loaded");
+  }
+
+  @Test
+  public void renderWorkAreaTab_timerMetricStarted_timeRecordedAndLogged() {
+
+    var controller = new WorkAreaController(workAreaService, workAreaContextService,
+        Mockito.mock(SystemAreaAccessService.class), metricsProvider);
+
+    controller.renderWorkAreaTab(pwaManagerUser, WorkAreaTab.REGULATOR_REQUIRES_ATTENTION, 100);
+
+    TimerMetricTestUtils.assertTimeLogged(loggingEventCaptor, appender, "tab loaded");
   }
 
 

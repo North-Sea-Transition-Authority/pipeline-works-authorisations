@@ -2,11 +2,14 @@ package uk.co.ogauthority.pwa.controller.pwaapplications.initial;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
+import com.google.common.base.Stopwatch;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import javax.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
@@ -17,6 +20,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.config.MetricsProvider;
 import uk.co.ogauthority.pwa.controller.WorkAreaController;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationGroup;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
@@ -33,6 +37,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectServi
 import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadOrganisationRoleService;
 import uk.co.ogauthority.pwa.service.pwaapplications.workflow.PwaApplicationCreationService;
 import uk.co.ogauthority.pwa.service.teams.TeamService;
+import uk.co.ogauthority.pwa.util.MetricTimerUtils;
 import uk.co.ogauthority.pwa.util.StreamUtils;
 import uk.co.ogauthority.pwa.validators.PwaHolderFormValidator;
 
@@ -49,6 +54,9 @@ public class PwaHolderController {
   private final PadOrganisationRoleService padOrganisationRoleService;
   private final ControllerHelperService controllerHelperService;
   private final String ogaServiceDeskEmail;
+  private final MetricsProvider metricsProvider;
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(PwaHolderController.class);
 
 
   @Autowired
@@ -60,7 +68,8 @@ public class PwaHolderController {
                              PwaHolderFormValidator pwaHolderFormValidator,
                              PadOrganisationRoleService padOrganisationRoleService,
                              ControllerHelperService controllerHelperService,
-                             @Value("${oga.servicedesk.email}") String ogaServiceDeskEmail) {
+                             @Value("${oga.servicedesk.email}") String ogaServiceDeskEmail,
+                             MetricsProvider metricsProvider) {
     this.teamService = teamService;
     this.pwaApplicationCreationService = pwaApplicationCreationService;
     this.pwaApplicationDetailService = pwaApplicationDetailService;
@@ -70,6 +79,7 @@ public class PwaHolderController {
     this.padOrganisationRoleService = padOrganisationRoleService;
     this.controllerHelperService = controllerHelperService;
     this.ogaServiceDeskEmail = ogaServiceDeskEmail;
+    this.metricsProvider = metricsProvider;
   }
 
   /**
@@ -93,9 +103,10 @@ public class PwaHolderController {
       BindingResult bindingResult,
       AuthenticatedUserAccount user) {
 
+    var stopwatch = Stopwatch.createStarted();
     pwaHolderFormValidator.validate(form, bindingResult);
 
-    return controllerHelperService.checkErrorsAndRedirect(bindingResult,
+    var modelAndView =  controllerHelperService.checkErrorsAndRedirect(bindingResult,
         getHolderModelAndView(user, form), () -> {
 
           PwaApplication pwaApplication = pwaApplicationCreationService.createInitialPwaApplication(user).getPwaApplication();
@@ -118,6 +129,10 @@ public class PwaHolderController {
           return pwaApplicationRedirectService.getTaskListRedirect(pwaApplication);
 
         });
+
+    MetricTimerUtils.recordTime(stopwatch, LOGGER, metricsProvider.getStartAppTimer(), "Initial application started.");
+
+    return modelAndView;
   }
 
   private ModelAndView getHolderModelAndView(AuthenticatedUserAccount user,

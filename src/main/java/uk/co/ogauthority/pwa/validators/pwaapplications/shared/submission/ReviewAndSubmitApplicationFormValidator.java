@@ -2,13 +2,17 @@ package uk.co.ogauthority.pwa.validators.pwaapplications.shared.submission;
 
 import static uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes.REQUIRED;
 
+import com.google.common.base.Stopwatch;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.NotImplementedException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import org.springframework.validation.SmartValidator;
 import org.springframework.validation.ValidationUtils;
+import uk.co.ogauthority.pwa.config.MetricsProvider;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.submission.ReviewAndSubmitApplicationForm;
 import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
 import uk.co.ogauthority.pwa.service.appprocessing.applicationupdate.ApplicationUpdateRequestService;
@@ -16,6 +20,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermiss
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.service.teams.PwaHolderTeamService;
+import uk.co.ogauthority.pwa.util.MetricTimerUtils;
 import uk.co.ogauthority.pwa.util.ValidatorUtils;
 
 @Service
@@ -23,12 +28,17 @@ public class ReviewAndSubmitApplicationFormValidator implements SmartValidator {
 
   private final PwaHolderTeamService pwaHolderTeamService;
   private final ApplicationUpdateRequestService applicationUpdateRequestService;
+  private final MetricsProvider metricsProvider;
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(ReviewAndSubmitApplicationFormValidator.class);
 
   @Autowired
   public ReviewAndSubmitApplicationFormValidator(PwaHolderTeamService pwaHolderTeamService,
-                                                 ApplicationUpdateRequestService applicationUpdateRequestService) {
+                                                 ApplicationUpdateRequestService applicationUpdateRequestService,
+                                                 MetricsProvider metricsProvider) {
     this.pwaHolderTeamService = pwaHolderTeamService;
     this.applicationUpdateRequestService = applicationUpdateRequestService;
+    this.metricsProvider = metricsProvider;
   }
 
   @Override
@@ -38,6 +48,8 @@ public class ReviewAndSubmitApplicationFormValidator implements SmartValidator {
 
   @Override
   public void validate(Object target, Errors errors, Object... validationHints) {
+
+    var stopwatch = Stopwatch.createStarted();
 
     var form = (ReviewAndSubmitApplicationForm) target;
     var appContext = (PwaApplicationContext) validationHints[0];
@@ -100,6 +112,9 @@ public class ReviewAndSubmitApplicationFormValidator implements SmartValidator {
       }
 
     }
+
+
+    MetricTimerUtils.recordTime(stopwatch, LOGGER, metricsProvider.getAppValidationTimer(), "Application form validated.");
 
   }
 

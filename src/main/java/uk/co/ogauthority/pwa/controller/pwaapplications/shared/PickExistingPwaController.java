@@ -3,12 +3,15 @@ package uk.co.ogauthority.pwa.controller.pwaapplications.shared;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
+import com.google.common.base.Stopwatch;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -19,6 +22,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.config.MetricsProvider;
 import uk.co.ogauthority.pwa.controller.pwaapplications.start.StartPwaApplicationController;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationGroup;
 import uk.co.ogauthority.pwa.exception.AccessDeniedException;
@@ -33,6 +37,7 @@ import uk.co.ogauthority.pwa.service.pickpwa.PickedPwaRetrievalService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.service.pwaapplications.workflow.PwaApplicationCreationService;
 import uk.co.ogauthority.pwa.service.teams.PwaHolderTeamService;
+import uk.co.ogauthority.pwa.util.MetricTimerUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
 @Controller
@@ -48,13 +53,16 @@ public class PickExistingPwaController {
       PwaApplicationType.DECOMMISSIONING
   );
 
+  private static final Logger LOGGER = LoggerFactory.getLogger(PickExistingPwaController.class);
+
+
   private final PwaApplicationRedirectService pwaApplicationRedirectService;
   private final PickedPwaRetrievalService pickedPwaRetrievalService;
   private final ControllerHelperService controllerHelperService;
   private final PwaHolderTeamService pwaHolderTeamService;
   private final PwaApplicationCreationService pwaApplicationCreationService;
   private final PickPwaFormValidator pickPwaFormValidator;
-
+  private final MetricsProvider metricsProvider;
 
   @Autowired
   public PickExistingPwaController(
@@ -63,13 +71,15 @@ public class PickExistingPwaController {
       ControllerHelperService controllerHelperService,
       PwaHolderTeamService pwaHolderTeamService,
       PwaApplicationCreationService pwaApplicationCreationService,
-      PickPwaFormValidator pickPwaFormValidator) {
+      PickPwaFormValidator pickPwaFormValidator,
+      MetricsProvider metricsProvider) {
     this.pwaApplicationRedirectService = pwaApplicationRedirectService;
     this.pickedPwaRetrievalService = pickPwaService;
     this.controllerHelperService = controllerHelperService;
     this.pwaHolderTeamService = pwaHolderTeamService;
     this.pwaApplicationCreationService = pwaApplicationCreationService;
     this.pickPwaFormValidator = pickPwaFormValidator;
+    this.metricsProvider = metricsProvider;
   }
 
 
@@ -109,10 +119,12 @@ public class PickExistingPwaController {
                                                  @ModelAttribute("form") @Valid PickPwaForm form,
                                                  BindingResult bindingResult,
                                                  AuthenticatedUserAccount user) {
+
+    var stopwatch = Stopwatch.createStarted();
     checkApplicationTypeValid(pwaApplicationType);
 
     pickPwaFormValidator.validate(form, bindingResult, pwaApplicationType);
-    return controllerHelperService.checkErrorsAndRedirect(bindingResult,
+    var modelAndView = controllerHelperService.checkErrorsAndRedirect(bindingResult,
         getPickPwaModelAndView(user, pwaApplicationType), () -> {
           MasterPwa pickedPwa;
           if (form.getConsentedMasterPwaId() != null) {
@@ -127,6 +139,9 @@ public class PickExistingPwaController {
               .getPwaApplication();
           return pwaApplicationRedirectService.getTaskListRedirect(newApplication);
         });
+
+    MetricTimerUtils.recordTime(stopwatch, LOGGER, metricsProvider.getStartAppTimer(), "Variation application started.");
+    return modelAndView;
   }
 
   private void checkApplicationTypeValid(PwaApplicationType pwaApplicationType) {

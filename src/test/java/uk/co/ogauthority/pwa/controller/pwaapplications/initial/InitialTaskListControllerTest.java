@@ -6,16 +6,25 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
+import ch.qos.logback.classic.spi.LoggingEvent;
+import ch.qos.logback.core.Appender;
+import io.micrometer.core.instrument.Timer;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.Mock;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.http.HttpMethod;
 import org.springframework.test.context.junit4.SpringRunner;
+import uk.co.ogauthority.pwa.config.MetricsProvider;
 import uk.co.ogauthority.pwa.controller.TaskListControllerTest;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.tasklist.TaskListEntry;
@@ -24,13 +33,27 @@ import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ApplicationState;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
+import uk.co.ogauthority.pwa.testutils.TimerMetricTestUtils;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(controllers = InitialTaskListController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = PwaApplicationContextService.class))
 public class InitialTaskListControllerTest extends TaskListControllerTest {
+
+  @MockBean
+  private MetricsProvider metricsProvider;
+
+  @Mock
+  private Appender appender;
+
+  @Captor
+  private ArgumentCaptor<LoggingEvent> loggingEventCaptor;
+
+
+  private Timer timer;
 
   private PwaApplicationDetail detail;
 
@@ -57,6 +80,10 @@ public class InitialTaskListControllerTest extends TaskListControllerTest {
         .setAllowedTypes(PwaApplicationType.INITIAL)
         .setAllowedPermissions(PwaApplicationPermission.EDIT)
         .setAllowedStatuses(ApplicationState.INDUSTRY_EDITABLE);
+
+    timer = TimerMetricTestUtils.setupTimerMetric(
+        InitialTaskListController.class, "pwa.taskListTimer", appender);
+    when(metricsProvider.getTaskListTimer()).thenReturn(timer);
   }
 
 
@@ -107,4 +134,15 @@ public class InitialTaskListControllerTest extends TaskListControllerTest {
     endpointTester.performAppPermissionCheck(status().isOk(), status().isForbidden());
 
   }
+
+
+  @Test
+  public void viewTaskList_timerMetricStarted_timeRecordedAndLogged() {
+
+    var controller = new InitialTaskListController(taskListService, taskListControllerModelAndViewCreator, metricsProvider);
+    controller.viewTaskList(1, new PwaApplicationContext(detail, null, Set.of()));
+
+    TimerMetricTestUtils.assertTimeLogged(loggingEventCaptor, appender, "Task list loaded");
+  }
+
 }
