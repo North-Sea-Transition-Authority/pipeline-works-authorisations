@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.model.entity.enums.MasterPwaDetailStatus;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.DocumentTemplateMnem;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.enums.appprocessing.NonBlockingWarningPage;
 import uk.co.ogauthority.pwa.service.appprocessing.applicationupdate.ApplicationUpdateRequestService;
 import uk.co.ogauthority.pwa.service.appprocessing.appprocessingwarning.AppProcessingTaskWarningService;
 import uk.co.ogauthority.pwa.service.appprocessing.publicnotice.PublicNoticeService;
@@ -75,7 +76,8 @@ public class SendForApprovalCheckerService {
         .sorted(Comparator.comparing(ParallelConsentView::getConsentInstant))
         .collect(Collectors.toList());
 
-    var nonBlockingTasksWarning = appProcessingTaskWarningService.getNonBlockingTasksWarning(detail.getPwaApplication());
+    var nonBlockingTasksWarning = appProcessingTaskWarningService.getNonBlockingTasksWarning(
+        detail.getPwaApplication(), NonBlockingWarningPage.SEND_FOR_APPROVAL);
 
     return new PreSendForApprovalChecksView(
         // basic sort to ensure consistency on from view.

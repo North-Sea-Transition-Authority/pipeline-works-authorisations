@@ -4,8 +4,13 @@
   <#if nonBlockingTasksWarning.tasksHaveWarnings>
     <@fdsNotificationBanner.notificationBannerInfo bannerTitleText="Missing tasks">
       <@fdsNotificationBanner.notificationBannerContent headingText=nonBlockingTasksWarning.incompleteTasksWarningText>
-        ${nonBlockingTasksWarning.incompleteTasksWarningText}. You can continue to send for approval or go back to  
-        <@fdsAction.link linkText="case management" linkUrl=springUrl(nonBlockingTasksWarning.returnUrl)/> to start the tasks.
+        ${nonBlockingTasksWarning.incompleteTasksWarningText}.
+        <#if nonBlockingTasksWarning.returnMessage?has_content>
+          <#assign returnMessage =  nonBlockingTasksWarning.returnMessage/>
+          ${returnMessage.messagePrefix}
+          <@fdsAction.link linkText=returnMessage.urlLinkText linkUrl=springUrl(returnMessage.returnUrl)/> 
+          ${returnMessage.messageSuffix!}        
+        </#if>
       </@fdsNotificationBanner.notificationBannerContent>
     </@fdsNotificationBanner.notificationBannerInfo>
   </#if>

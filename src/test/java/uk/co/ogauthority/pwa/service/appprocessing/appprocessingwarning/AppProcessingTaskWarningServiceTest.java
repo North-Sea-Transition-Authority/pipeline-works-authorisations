@@ -10,7 +10,9 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
+import uk.co.ogauthority.pwa.model.enums.appprocessing.NonBlockingWarningPage;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.ConsultationService;
+import uk.co.ogauthority.pwa.service.appprocessing.prepareconsent.ConsentDocumentUrlProvider;
 import uk.co.ogauthority.pwa.service.appprocessing.publicnotice.PublicNoticeService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.TaskStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
@@ -45,10 +47,12 @@ public class AppProcessingTaskWarningServiceTest {
     when(consultationService.consultationsTaskRequired(application)).thenReturn(false);
     when(publicNoticeService.publicNoticeTaskRequired(application)).thenReturn(false);
 
-    var nonBlockingWarning = appProcessingTaskWarningService.getNonBlockingTasksWarning(application);
+    var nonBlockingWarning = appProcessingTaskWarningService.getNonBlockingTasksWarning(
+        application, NonBlockingWarningPage.ISSUE_CONSENT);
 
     assertThat(nonBlockingWarning.getTasksHaveWarnings()).isFalse();
     assertThat(nonBlockingWarning.getIncompleteTasksWarningText()).isNull();
+    assertThat(nonBlockingWarning.getReturnMessage()).isNull();
   }
 
   @Test
@@ -60,12 +64,12 @@ public class AppProcessingTaskWarningServiceTest {
     when(publicNoticeService.publicNoticeTaskRequired(application)).thenReturn(true);
     when(publicNoticeService.publicNoticeTaskStarted(application)).thenReturn(false);
 
-    var nonBlockingWarning = appProcessingTaskWarningService.getNonBlockingTasksWarning(application);
+    var nonBlockingWarning = appProcessingTaskWarningService.getNonBlockingTasksWarning(
+        application, NonBlockingWarningPage.ISSUE_CONSENT);
 
     assertThat(nonBlockingWarning.getTasksHaveWarnings()).isTrue();
     assertThat(nonBlockingWarning.getIncompleteTasksWarningText()).contains("consultations");
     assertThat(nonBlockingWarning.getIncompleteTasksWarningText()).contains("public notice");
-    assertThat(nonBlockingWarning.getReturnUrl()).contains(CaseManagementUtils.routeCaseManagement(application));
   }
 
   @Test
@@ -77,7 +81,8 @@ public class AppProcessingTaskWarningServiceTest {
     when(publicNoticeService.publicNoticeTaskRequired(application)).thenReturn(true);
     when(publicNoticeService.publicNoticeTaskStarted(application)).thenReturn(true);
 
-    var nonBlockingWarning = appProcessingTaskWarningService.getNonBlockingTasksWarning(application);
+    var nonBlockingWarning = appProcessingTaskWarningService.getNonBlockingTasksWarning(
+        application, NonBlockingWarningPage.ISSUE_CONSENT);
 
     assertThat(nonBlockingWarning.getTasksHaveWarnings()).isTrue();
     assertThat(nonBlockingWarning.getIncompleteTasksWarningText()).contains("consultations");
@@ -93,11 +98,46 @@ public class AppProcessingTaskWarningServiceTest {
     when(publicNoticeService.publicNoticeTaskRequired(application)).thenReturn(true);
     when(publicNoticeService.publicNoticeTaskStarted(application)).thenReturn(false);
 
-    var nonBlockingWarning = appProcessingTaskWarningService.getNonBlockingTasksWarning(application);
+    var nonBlockingWarning = appProcessingTaskWarningService.getNonBlockingTasksWarning(
+        application, NonBlockingWarningPage.ISSUE_CONSENT);
 
     assertThat(nonBlockingWarning.getTasksHaveWarnings()).isTrue();
     assertThat(nonBlockingWarning.getIncompleteTasksWarningText()).doesNotContain("consultations");
     assertThat(nonBlockingWarning.getIncompleteTasksWarningText()).contains("public notice");
+  }
+
+  @Test
+  public void getNonBlockingTasksWarning_warningAtSendForApprovalStage_returnMessageLinksToCaseManagement() {
+
+    when(consultationService.consultationsTaskRequired(application)).thenReturn(true);
+    when(consultationService.getTaskStatus(application)).thenReturn(TaskStatus.NOT_STARTED);
+
+    var nonBlockingWarning = appProcessingTaskWarningService.getNonBlockingTasksWarning(
+        application, NonBlockingWarningPage.SEND_FOR_APPROVAL);
+
+    assertThat(nonBlockingWarning.getReturnMessage()).isNotNull();
+    assertThat(nonBlockingWarning.getReturnMessage().getMessagePrefix()).contains("send for approval");
+    assertThat(nonBlockingWarning.getReturnMessage().getUrlLinkText()).isEqualTo("case management");
+    assertThat(nonBlockingWarning.getReturnMessage().getReturnUrl()).isEqualTo(CaseManagementUtils.routeCaseManagement(application));
+    assertThat(nonBlockingWarning.getReturnMessage().getMessageSuffix()).isNotNull();
+  }
+
+  @Test
+  public void getNonBlockingTasksWarning_warningAtIssueConsentStage_returnMessageLinksToReturnToCaseOfficer() {
+
+    when(consultationService.consultationsTaskRequired(application)).thenReturn(true);
+    when(consultationService.getTaskStatus(application)).thenReturn(TaskStatus.NOT_STARTED);
+
+    var nonBlockingWarning = appProcessingTaskWarningService.getNonBlockingTasksWarning(
+        application, NonBlockingWarningPage.ISSUE_CONSENT);
+
+    assertThat(nonBlockingWarning.getReturnMessage()).isNotNull();
+    assertThat(nonBlockingWarning.getReturnMessage().getMessagePrefix()).contains("issue");
+    assertThat(nonBlockingWarning.getReturnMessage().getMessagePrefix()).contains("consent");
+    assertThat(nonBlockingWarning.getReturnMessage().getUrlLinkText()).isEqualTo("return to case officer");
+    var urlProvider = new ConsentDocumentUrlProvider(application);
+    assertThat(nonBlockingWarning.getReturnMessage().getReturnUrl()).isEqualTo(urlProvider.getReturnToCaseOfficerUrl());
+    assertThat(nonBlockingWarning.getReturnMessage().getMessageSuffix()).isNull();
   }
 
 
