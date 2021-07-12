@@ -64,7 +64,10 @@ public class PickableHuooPipelineService {
    */
   private Map<PipelineId, PickableHuooPipelineOption> getWholePipelinePickableOptionsForAppAndMasterPwa(
       PwaApplicationDetail pwaApplicationDetail) {
-    return pipelineAndIdentViewFactory.getAllPipelineOverviewsFromAppAndMasterPwa(pwaApplicationDetail)
+    return pipelineAndIdentViewFactory.getAllPipelineOverviewsFromAppAndMasterPwa(
+        pwaApplicationDetail,
+        PipelineAndIdentViewFactory.ConsentedPipelineFilter.ONLY_ON_SEABED_PIPELINES
+    )
         .entrySet()
         .stream()
         .collect(Collectors.toMap(

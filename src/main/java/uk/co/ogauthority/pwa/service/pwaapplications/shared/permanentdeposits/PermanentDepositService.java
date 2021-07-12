@@ -128,7 +128,8 @@ public class PermanentDepositService implements ApplicationFormSectionService {
 
   public PermanentDepositOverview createViewFromEntity(PadPermanentDeposit padPermanentDeposit) {
     var pipelineIdAndOverviewMap = pipelineAndIdentViewFactory.getAllPipelineOverviewsFromAppAndMasterPwa(
-        padPermanentDeposit.getPwaApplicationDetail());
+        padPermanentDeposit.getPwaApplicationDetail(),
+        PipelineAndIdentViewFactory.ConsentedPipelineFilter.ALL_CURRENT_STATUS_PIPELINES);
     return permanentDepositEntityMappingService.createPermanentDepositOverview(padPermanentDeposit,
         pipelineIdAndOverviewMap);
   }
@@ -263,7 +264,10 @@ public class PermanentDepositService implements ApplicationFormSectionService {
 
   public Map<String, String> getPipelinesMapForDeposits(PwaApplicationDetail pwaApplicationDetail) {
     Map<String, String> pipelinesIdAndNameMap = new LinkedHashMap<>();
-    pipelineAndIdentViewFactory.getAllPipelineOverviewsFromAppAndMasterPwa(pwaApplicationDetail)
+    pipelineAndIdentViewFactory.getAllPipelineOverviewsFromAppAndMasterPwa(
+        pwaApplicationDetail,
+        PipelineAndIdentViewFactory.ConsentedPipelineFilter.ALL_CURRENT_STATUS_PIPELINES
+    )
         .entrySet().stream()
         .filter(entry -> entry.getValue().getPipelineStatus().getPhysicalPipelineState() == PhysicalPipelineState.ON_SEABED)
         .forEach(entry ->

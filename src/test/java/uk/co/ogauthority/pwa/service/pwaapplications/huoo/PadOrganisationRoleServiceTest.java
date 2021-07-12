@@ -1420,65 +1420,6 @@ public class PadOrganisationRoleServiceTest {
   }
 
   @Test
-  public void getUnassignedPipelineIdentifiersForRole_whenAllAssigned() {
-    Map<PipelineIdentifier, PipelineNumbersAndSplits> allPipelineNumbersAndSplitsRole = createPipelineNumberAndSplitMap();
-
-    when(pipelineNumberAndSplitsService.getAllPipelineNumbersAndSplitsRole(any(), any()))
-        .thenReturn(allPipelineNumbersAndSplitsRole);
-
-    when(padPipelineOrganisationRoleLinkRepository.findByPadOrgRole_pwaApplicationDetailAndPadOrgRole_Role(detail,
-        HuooRole.USER))
-        .thenReturn(List.of(
-            PadOrganisationRoleTestUtil.createOrgRolePipelineLink(HuooRole.USER, orgUnit1, pipeline1),
-            PadOrganisationRoleTestUtil.createOrgRolePipelineSplitLink(HuooRole.USER, orgUnit1, pipeline2Section1),
-            PadOrganisationRoleTestUtil.createOrgRolePipelineSplitLink(HuooRole.USER, orgUnit1, pipeline2Section2)
-        ));
-
-    assertThat(padOrganisationRoleService.getUnassignedPipelineIdentifiersForRole(detail, HuooRole.USER)).isEmpty();
-  }
-
-  @Test
-  public void getUnassignedPipelineIdentifiersForRole_whenSplitsAssignedToUnassignedRole() {
-    Map<PipelineIdentifier, PipelineNumbersAndSplits> allPipelineNumbersAndSplitsRole = createPipelineNumberAndSplitMap();
-
-    when(pipelineNumberAndSplitsService.getAllPipelineNumbersAndSplitsRole(any(), any()))
-        .thenReturn(allPipelineNumbersAndSplitsRole);
-
-    when(padPipelineOrganisationRoleLinkRepository.findByPadOrgRole_pwaApplicationDetailAndPadOrgRole_Role(detail,
-        HuooRole.USER))
-        .thenReturn(List.of(
-            PadOrganisationRoleTestUtil.createOrgRolePipelineLink(HuooRole.USER, orgUnit1, pipeline1),
-            PadOrganisationRoleTestUtil.createUnassignedPipelineSplitLink(HuooRole.USER, pipeline2Section1),
-            PadOrganisationRoleTestUtil.createUnassignedPipelineSplitLink(HuooRole.USER, pipeline2Section2)
-        ));
-
-    assertThat(padOrganisationRoleService.getUnassignedPipelineIdentifiersForRole(detail, HuooRole.USER))
-        .containsExactlyInAnyOrder(
-            pipeline2Section1, pipeline2Section2
-        );
-  }
-
-  @Test
-  public void getUnassignedPipelineIdentifiersForRole_whenWholePipelineNotAssignedToRole() {
-    Map<PipelineIdentifier, PipelineNumbersAndSplits> allPipelineNumbersAndSplitsRole = createPipelineNumberAndSplitMap();
-
-    when(pipelineNumberAndSplitsService.getAllPipelineNumbersAndSplitsRole(any(), any()))
-        .thenReturn(allPipelineNumbersAndSplitsRole);
-
-    when(padPipelineOrganisationRoleLinkRepository.findByPadOrgRole_pwaApplicationDetailAndPadOrgRole_Role(detail,
-        HuooRole.USER))
-        .thenReturn(List.of(
-            PadOrganisationRoleTestUtil.createOrgRolePipelineSplitLink(HuooRole.USER, orgUnit1, pipeline2Section1),
-            PadOrganisationRoleTestUtil.createOrgRolePipelineSplitLink(HuooRole.USER, orgUnit1, pipeline2Section2)
-        ));
-
-    assertThat(padOrganisationRoleService.getUnassignedPipelineIdentifiersForRole(detail, HuooRole.USER))
-        .containsExactlyInAnyOrder(
-            pipelineId1
-        );
-  }
-
-  @Test
   public void getAllAssignableAndNonAssignableOrgRolesForDetailByRole_doesNotOutFilterOutUnassignableRoles() {
     var org1HolderRole = PadOrganisationRoleTestUtil.createOrgRole(HuooRole.HOLDER, orgUnit1);
     var org1OwnerRole = PadOrganisationRoleTestUtil.createOrgRole(HuooRole.OWNER, orgUnit1);
