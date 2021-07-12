@@ -29,7 +29,7 @@
     <ol class="govuk-list govuk-list--number">
         <li>Use this page to download application pipeline data in GeoJson format and save the file locally.</li>
         <li>Navigate in your browser to the <a class="govuk-link" href=${regulatorMapsAndToolsUrl}>${regulatorMapsAndToolsLabel}</a> and then click the "${offshoreMapLabel}" link.</li>
-        <li>Once the map has loaded locate the "Add data" menu. This is located in the top right of the map with the following icon:<br>
+        <li>Once the map has loaded locate the "Add data" menu. This is located in the top right of the map with the following icon<br>
             <img class="fds-content-img" src="<@spring.url '/assets/static/images/oga-offshore-map-add-data-icon-highlight.png'/>" alt="Add data menu icon highlighted among OGA offshore map navigation items"/>
         </li>
         <li>Select the "File" data source, and follow the on screen instructions.</li>
@@ -38,7 +38,7 @@
     <h3 class="govuk-heading-m">FAQs</h3>
 
     <h4 class="govuk-heading-s">How can I change the information shown on the map?</h4>
-    <p class="govuk-body">Once the map has loaded locate the "Layers" menu. This is located in the top right of the map with the following icon:<br>
+    <p class="govuk-body">Once the map has loaded locate the "Layers" menu. This is located in the top right of the map with the following icon
         <img class="fds-content-img" src="<@spring.url '/assets/static/images/oga-offshore-map-layers-icon-highlight.png'/>" alt="Layers menu icon highlighted among OGA offshore map navigation items"/>
     </p>
     <p class="govuk-body">If application pipelines have been added to the map, they will appear as their own 'layer' within the Layers menu.</p>
