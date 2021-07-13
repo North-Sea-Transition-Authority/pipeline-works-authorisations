@@ -118,7 +118,7 @@ public class PwaApplicationSubmissionServiceTest {
 
     verifyOrder.verify(applicationSubmissionServiceProvider).getSubmissionService(pwaApplicationDetail);
     verifyOrder.verify(applicationSubmissionService).doBeforeSubmit(pwaApplicationDetail, user.getLinkedPerson(), SUBMISSION_DESC);
-    verifyOrder.verify(dataCleanupService).cleanupData(pwaApplicationDetail);
+    verifyOrder.verify(dataCleanupService).cleanupData(pwaApplicationDetail, user);
 
     verifyOrder.verify(camundaWorkflowService).completeTask(
         new WorkflowTaskInstance(pwaApplicationDetail.getPwaApplication(), DEFAULT_COMPLETE_WORKFLOW_TASK)
@@ -141,7 +141,7 @@ public class PwaApplicationSubmissionServiceTest {
 
     verifyOrder.verify(applicationSubmissionServiceProvider).getSubmissionService(pwaApplicationDetail);
     verifyOrder.verify(applicationSubmissionService).doBeforeSubmit(pwaApplicationDetail, user.getLinkedPerson(), SUBMISSION_DESC);
-    verifyOrder.verify(dataCleanupService).cleanupData(pwaApplicationDetail);
+    verifyOrder.verify(dataCleanupService).cleanupData(pwaApplicationDetail, user);
 
     verifyOrder.verify(camundaWorkflowService).setWorkflowProperty(pwaApplicationDetail.getPwaApplication(), SUBMISSION_RESULT);
     verifyOrder.verify(camundaWorkflowService).completeTask(
