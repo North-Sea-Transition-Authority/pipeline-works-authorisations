@@ -1,7 +1,7 @@
 <#include '../../layout.ftl'>
 <#include '../../pwaLayoutImports.ftl'>
 
-<#macro asBuiltNotificationSummary submission historic summaryListClass="govuk-!-margin-bottom-9">
+<#macro asBuiltNotificationSummary submission historic isOgaUser summaryListClass="govuk-!-margin-bottom-9">
     <@fdsCheckAnswers.checkAnswers summaryListClass>
         <#if historic == false>
             <#if submission.asBuiltGroupReference?hasContent>
@@ -44,6 +44,13 @@
             <@fdsCheckAnswers.checkAnswersRowNoAction keyText="Date pipeline was/will be brought into use">
                 ${submission.dateBroughtIntoUseDisplay}
             </@fdsCheckAnswers.checkAnswersRowNoAction>
+        </#if>
+        <#if isOgaUser == true>
+            <#if submission.ogaSubmissionReason?hasContent>
+                <@fdsCheckAnswers.checkAnswersRowNoAction keyText="OGA submission reason">
+                    ${submission.ogaSubmissionReason}
+                </@fdsCheckAnswers.checkAnswersRowNoAction>
+            </#if>
         </#if>
     </@fdsCheckAnswers.checkAnswers>
 </#macro>

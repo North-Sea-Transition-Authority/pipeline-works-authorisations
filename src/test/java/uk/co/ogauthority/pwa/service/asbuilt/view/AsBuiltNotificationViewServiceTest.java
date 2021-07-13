@@ -62,7 +62,9 @@ public class AsBuiltNotificationViewServiceTest {
         AsBuiltNotificationView::getAsBuiltNotificationStatusDisplay,
         AsBuiltNotificationView::getDateLaid,
         AsBuiltNotificationView::getDateBroughtIntoUse,
-        AsBuiltNotificationView::getSubmissionLink)
+        AsBuiltNotificationView::getOgaSubmissionReason,
+        AsBuiltNotificationView::getSubmissionLink
+        )
         .containsExactly(
             asBuiltNotificationSubmission.getAsBuiltNotificationGroupPipeline().getAsBuiltNotificationGroup().getReference(),
             pipelineDetail.getPipelineNumber(),
@@ -72,6 +74,7 @@ public class AsBuiltNotificationViewServiceTest {
             asBuiltNotificationSubmission.getAsBuiltNotificationStatus().getDisplayName(),
             asBuiltNotificationSubmission.getDateLaid(),
             asBuiltNotificationSubmission.getDatePipelineBroughtIntoUse(),
+            asBuiltNotificationSubmission.getRegulatorSubmissionReason(),
             ReverseRouter.route(on(AsBuiltNotificationSubmissionController.class)
                 .renderSubmitAsBuiltNotificationForm(
                     asBuiltNotificationSubmission.getAsBuiltNotificationGroupPipeline().getAsBuiltNotificationGroup().getId(),
@@ -93,11 +96,13 @@ public class AsBuiltNotificationViewServiceTest {
             AsBuiltNotificationView::getAsBuiltNotificationStatusDisplay,
             AsBuiltNotificationView::getDateLaid,
             AsBuiltNotificationView::getDateBroughtIntoUse,
+            AsBuiltNotificationView::getOgaSubmissionReason,
             AsBuiltNotificationView::getSubmissionLink)
         .containsExactly(
             null,
             pipelineDetail.getPipelineNumber(),
             pipelineDetail.getPipelineType().getDisplayName(),
+            null,
             null,
             null,
             null,

@@ -36,7 +36,7 @@
       <#elseif currentProcessingTab == "HUOO_HISTORY">
           <@huooHistoryTab.tab diffedHuooSummary/>
       <#elseif currentProcessingTab == "AS_BUILT_NOTIFICATION_HISTORY">
-          <@asBuiltSubmissionHistoryTab.tab submissionHistoryView/>
+          <@asBuiltSubmissionHistoryTab.tab submissionHistoryView isOgaUser/>
       </#if>
 
     </@fdsBackendTabs.tabContent>

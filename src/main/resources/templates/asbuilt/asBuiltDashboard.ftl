@@ -10,7 +10,7 @@
       <@fdsAction.link linkText="Change deadline date" linkClass="govuk-link govuk-link--button" linkUrl=springUrl(changeDeadlineUrl)/>
   </#if>
   <#list pipelineAsBuiltSubmissionViews as pipelineAsBuiltSubmissionView>
-      <@asBuiltNotificationCard pipelineAsBuiltSubmissionView/>
+      <@asBuiltNotificationCard pipelineAsBuiltSubmissionView isOgaUser/>
   </#list>
 
 </@defaultPage>

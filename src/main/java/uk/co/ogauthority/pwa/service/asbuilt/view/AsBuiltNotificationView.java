@@ -23,13 +23,21 @@ public class AsBuiltNotificationView {
   private String expectedLaidDateDisplay;
   private final LocalDate dateBroughtIntoUse;
   private String dateBroughtIntoUseDisplay;
+  private final String ogaSubmissionReason;
   private final String submissionLink;
 
-  AsBuiltNotificationView(String asBuiltGroupReference, String pipelineNumber, String pipelineTypeDisplay,
-                                 String submittedByPersonName,
-                                 String submittedByPersonEmail, Instant submittedOnInstant,
-                                 String asBuiltNotificationStatusDisplay, LocalDate dateLaid,
-                                 LocalDate expectedLaidDate, LocalDate dateBroughtIntoUse, String submissionLink) {
+  AsBuiltNotificationView(String asBuiltGroupReference,
+                          String pipelineNumber,
+                          String pipelineTypeDisplay,
+                          String submittedByPersonName,
+                          String submittedByPersonEmail,
+                          Instant submittedOnInstant,
+                          String asBuiltNotificationStatusDisplay,
+                          LocalDate dateLaid,
+                          LocalDate expectedLaidDate,
+                          LocalDate dateBroughtIntoUse,
+                          String ogaSubmissionReason,
+                          String submissionLink) {
     this.asBuiltGroupReference = asBuiltGroupReference;
     this.pipelineNumber = pipelineNumber;
     this.pipelineTypeDisplay = pipelineTypeDisplay;
@@ -40,6 +48,7 @@ public class AsBuiltNotificationView {
     this.dateLaid = dateLaid;
     this.expectedLaidDate = expectedLaidDate;
     this.dateBroughtIntoUse = dateBroughtIntoUse;
+    this.ogaSubmissionReason = ogaSubmissionReason;
     this.submissionLink = submissionLink;
   }
 
@@ -97,6 +106,10 @@ public class AsBuiltNotificationView {
 
   public String getDateBroughtIntoUseDisplay() {
     return DateUtils.formatDate(dateBroughtIntoUse);
+  }
+
+  public String getOgaSubmissionReason() {
+    return ogaSubmissionReason;
   }
 
   public String getSubmissionLink() {
