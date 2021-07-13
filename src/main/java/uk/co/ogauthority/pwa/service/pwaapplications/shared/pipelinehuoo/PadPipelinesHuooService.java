@@ -100,7 +100,9 @@ public class PadPipelinesHuooService implements ApplicationFormSectionService {
 
     return new PipelineHuooValidationResult(
         pipelineAndOrgRoleGroupViewsByRole,
-        pipelineAndIdentViewFactory.getAllAppAndMasterPwaPipelineAndIdentViews(pwaApplicationDetail)
+        pipelineAndIdentViewFactory.getAllAppAndMasterPwaPipelineAndIdentViews(
+            pwaApplicationDetail,
+            PipelineAndIdentViewFactory.ConsentedPipelineFilter.ONLY_ON_SEABED_PIPELINES)
     );
   }
 
@@ -114,7 +116,10 @@ public class PadPipelinesHuooService implements ApplicationFormSectionService {
   }
 
   public List<PipelineOverview> getSplitablePipelinesForAppAndMasterPwa(PwaApplicationDetail pwaApplicationDetail) {
-    return pipelineAndIdentViewFactory.getAllPipelineOverviewsFromAppAndMasterPwa(pwaApplicationDetail)
+    return pipelineAndIdentViewFactory.getAllPipelineOverviewsFromAppAndMasterPwa(
+        pwaApplicationDetail,
+        PipelineAndIdentViewFactory.ConsentedPipelineFilter.ONLY_ON_SEABED_PIPELINES
+    )
         .values()
         .stream()
         .filter(pipelineOverview -> pipelineOverview.getNumberOfIdents() >= 1)

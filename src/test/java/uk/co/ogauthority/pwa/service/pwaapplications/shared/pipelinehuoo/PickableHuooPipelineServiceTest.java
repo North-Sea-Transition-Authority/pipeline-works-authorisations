@@ -98,7 +98,10 @@ public class PickableHuooPipelineServiceTest {
     var allPipelineMap = new HashMap<PipelineId, PipelineOverview>();
     allPipelineMap.put(CONSENTED_PIPELINE_ID, consentedPipelineOverview);
     allPipelineMap.put(APPLICATION_NEW_PIPELINE_ID, applicationOnlyPipelineOverview);
-    when(pipelineAndIdentViewFactory.getAllPipelineOverviewsFromAppAndMasterPwa(pwaApplicationDetail))
+    when(pipelineAndIdentViewFactory.getAllPipelineOverviewsFromAppAndMasterPwa(
+        pwaApplicationDetail,
+        PipelineAndIdentViewFactory.ConsentedPipelineFilter.ONLY_ON_SEABED_PIPELINES
+    ))
         .thenReturn(allPipelineMap);
 
   }
