@@ -20,6 +20,7 @@ import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.form.pwa.PwaPipelineHistoryForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.asbuilt.view.AsBuiltViewerService;
+import uk.co.ogauthority.pwa.service.enums.users.UserType;
 import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailService;
 import uk.co.ogauthority.pwa.service.pwacontext.PwaContext;
 import uk.co.ogauthority.pwa.service.pwacontext.PwaPermission;
@@ -29,6 +30,7 @@ import uk.co.ogauthority.pwa.service.search.consents.SearchPwaBreadcrumbService;
 import uk.co.ogauthority.pwa.service.search.consents.pwapipelineview.PwaPipelineHistoryViewService;
 import uk.co.ogauthority.pwa.service.search.consents.pwapipelineview.ViewablePipelineHuooVersionService;
 import uk.co.ogauthority.pwa.service.search.consents.pwaviewtab.PwaPipelineViewUrlFactory;
+import uk.co.ogauthority.pwa.service.users.UserTypeService;
 
 @Controller
 @RequestMapping("/consents/pwa-view/{pwaId}/pipeline")
@@ -40,18 +42,21 @@ public class PwaPipelineViewController {
   private final ViewablePipelineHuooVersionService viewablePipelineHuooVersionService;
   private final AsBuiltViewerService asBuiltViewerService;
   private final SearchPwaBreadcrumbService searchPwaBreadcrumbService;
+  private final UserTypeService userTypeService;
 
   @Autowired
   public PwaPipelineViewController(PipelineDetailService pipelineDetailService,
                                    PwaPipelineHistoryViewService pwaPipelineHistoryViewService,
                                    ViewablePipelineHuooVersionService viewablePipelineHuooVersionService,
                                    AsBuiltViewerService asBuiltViewerService,
-                                   SearchPwaBreadcrumbService searchPwaBreadcrumbService) {
+                                   SearchPwaBreadcrumbService searchPwaBreadcrumbService,
+                                   UserTypeService userTypeService) {
     this.pipelineDetailService = pipelineDetailService;
     this.pwaPipelineHistoryViewService = pwaPipelineHistoryViewService;
     this.viewablePipelineHuooVersionService = viewablePipelineHuooVersionService;
     this.asBuiltViewerService = asBuiltViewerService;
     this.searchPwaBreadcrumbService = searchPwaBreadcrumbService;
+    this.userTypeService = userTypeService;
   }
 
 
@@ -65,7 +70,7 @@ public class PwaPipelineViewController {
                                             @RequestParam(value = "pipelineDetailId", required = false) Integer pipelineDetailId,
                                             @RequestParam(value = "huooVersionId", required = false) String huooVersionId) {
 
-    return getModelAndView(tab, pwaContext, pipelineId, pipelineDetailId, huooVersionId, form);
+    return getModelAndView(tab, pwaContext, pipelineId, pipelineDetailId, huooVersionId, form, authenticatedUserAccount);
   }
 
   @PostMapping("/{pipelineId}/{tab}")
@@ -92,7 +97,8 @@ public class PwaPipelineViewController {
                                        Integer pipelineId,
                                        Integer pipelineDetailId,
                                        String huooVersionId,
-                                       PwaPipelineHistoryForm form) {
+                                       PwaPipelineHistoryForm form,
+                                       AuthenticatedUserAccount userAccount) {
 
     var latestPipelineDetail = pipelineDetailService.getLatestByPipelineId(pipelineId);
 
@@ -123,7 +129,7 @@ public class PwaPipelineViewController {
           form
       );
     } else if (tab.equals(PwaPipelineViewTab.AS_BUILT_NOTIFICATION_HISTORY)) {
-      setAsBuiltNotificationSubmissionHistoryDataOnModelAndView(modelAndView, pipelineId);
+      setAsBuiltNotificationSubmissionHistoryDataOnModelAndView(modelAndView, pipelineId, userAccount);
     }
 
     searchPwaBreadcrumbService.fromPwaPipelineView(
@@ -189,9 +195,12 @@ public class PwaPipelineViewController {
   }
 
   private void setAsBuiltNotificationSubmissionHistoryDataOnModelAndView(ModelAndView modelAndView,
-                                                                         Integer pipelineId) {
+                                                                         Integer pipelineId,
+                                                                         AuthenticatedUserAccount userAccount) {
     var submissionHistoryView = asBuiltViewerService.getHistoricAsBuiltSubmissionView(pipelineId);
+    var isOgaUser = userTypeService.getUserTypes(userAccount).contains(UserType.OGA);
     modelAndView.addObject("submissionHistoryView", submissionHistoryView);
+    modelAndView.addObject("isOgaUser", isOgaUser);
   }
 
 }

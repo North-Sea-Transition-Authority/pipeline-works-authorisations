@@ -46,6 +46,7 @@ class AsBuiltNotificationViewService {
         asBuiltNotificationSubmission.getAsBuiltNotificationStatus() == AsBuiltNotificationStatus.NOT_LAID_CONSENT_TIMEFRAME
             ? asBuiltNotificationSubmission.getDateLaid() : null,
         asBuiltNotificationSubmission.getDatePipelineBroughtIntoUse(),
+        asBuiltNotificationSubmission.getRegulatorSubmissionReason(),
         accessLink);
   }
 
@@ -64,7 +65,7 @@ class AsBuiltNotificationViewService {
         null,
         null,
         null,
-        accessLink);
+        null, accessLink);
   }
 
   private AsBuiltNotificationView mapToAsBuiltNotificationHistoricView(AsBuiltNotificationSubmission asBuiltNotificationSubmission) {

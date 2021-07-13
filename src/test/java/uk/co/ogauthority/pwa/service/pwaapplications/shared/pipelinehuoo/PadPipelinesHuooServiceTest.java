@@ -203,7 +203,7 @@ public class PadPipelinesHuooServiceTest {
     when(pipeline1Overview.getPipelineNumber()).thenReturn(PIPELINE_1_NUMBER);
     when(pipeline1Overview.getPipelineId()).thenReturn(PIPELINE_1_ID.getPipelineIdAsInt());
     pipeline1AndIdents = new PipelineAndIdentView(pipeline1Overview, List.of(ident1View, ident2View, ident3View));
-    when(pipelineAndIdentViewFactory.getAllAppAndMasterPwaPipelineAndIdentViews(pwaApplicationDetail))
+    when(pipelineAndIdentViewFactory.getAllAppAndMasterPwaPipelineAndIdentViews(pwaApplicationDetail, PipelineAndIdentViewFactory.ConsentedPipelineFilter.ONLY_ON_SEABED_PIPELINES))
         .thenReturn(List.of(pipeline1AndIdents));
 
 
@@ -477,7 +477,10 @@ public class PadPipelinesHuooServiceTest {
     var overviewMap = new HashMap<PipelineId, PipelineOverview>();
     overviewMap.put(new PipelineId(CONSENTED_PIPELINE_ID), consentedPipelineOverview);
 
-    when(pipelineAndIdentViewFactory.getAllPipelineOverviewsFromAppAndMasterPwa(pwaApplicationDetail))
+    when(pipelineAndIdentViewFactory.getAllPipelineOverviewsFromAppAndMasterPwa(
+        pwaApplicationDetail
+        , PipelineAndIdentViewFactory.ConsentedPipelineFilter.ONLY_ON_SEABED_PIPELINES
+    ))
         .thenReturn(overviewMap);
 
 
@@ -498,7 +501,10 @@ public class PadPipelinesHuooServiceTest {
     var overviewMap = new HashMap<PipelineId, PipelineOverview>();
     overviewMap.put(new PipelineId(CONSENTED_PIPELINE_ID), consentedPipelineOverview);
 
-    when(pipelineAndIdentViewFactory.getAllPipelineOverviewsFromAppAndMasterPwa(pwaApplicationDetail))
+    when(pipelineAndIdentViewFactory.getAllPipelineOverviewsFromAppAndMasterPwa(
+        pwaApplicationDetail,
+        PipelineAndIdentViewFactory.ConsentedPipelineFilter.ONLY_ON_SEABED_PIPELINES
+    ))
         .thenReturn(overviewMap);
 
     var overviews = padPipelinesHuooService.getSplitablePipelinesForAppAndMasterPwa(pwaApplicationDetail);
@@ -512,7 +518,10 @@ public class PadPipelinesHuooServiceTest {
     var overviewMap = new HashMap<PipelineId, PipelineOverview>();
     overviewMap.put(new PipelineId(CONSENTED_PIPELINE_ID), consentedPipelineOverview);
 
-    when(pipelineAndIdentViewFactory.getAllPipelineOverviewsFromAppAndMasterPwa(pwaApplicationDetail))
+    when(pipelineAndIdentViewFactory.getAllPipelineOverviewsFromAppAndMasterPwa(
+        pwaApplicationDetail,
+        PipelineAndIdentViewFactory.ConsentedPipelineFilter.ONLY_ON_SEABED_PIPELINES
+    ))
         .thenReturn(overviewMap);
 
     var overviews = padPipelinesHuooService.getSplitablePipelinesForAppAndMasterPwa(pwaApplicationDetail);
@@ -525,7 +534,10 @@ public class PadPipelinesHuooServiceTest {
 
     var overviewMap = new HashMap<PipelineId, PipelineOverview>();
 
-    when(pipelineAndIdentViewFactory.getAllPipelineOverviewsFromAppAndMasterPwa(pwaApplicationDetail))
+    when(pipelineAndIdentViewFactory.getAllPipelineOverviewsFromAppAndMasterPwa(
+        pwaApplicationDetail,
+        PipelineAndIdentViewFactory.ConsentedPipelineFilter.ONLY_ON_SEABED_PIPELINES
+    ))
         .thenReturn(overviewMap);
 
 
@@ -542,7 +554,10 @@ public class PadPipelinesHuooServiceTest {
     var overviewMap = new HashMap<PipelineId, PipelineOverview>();
     overviewMap.put(new PipelineId(CONSENTED_PIPELINE_ID), consentedPipelineOverview);
 
-    when(pipelineAndIdentViewFactory.getAllPipelineOverviewsFromAppAndMasterPwa(pwaApplicationDetail))
+    when(pipelineAndIdentViewFactory.getAllPipelineOverviewsFromAppAndMasterPwa(
+        pwaApplicationDetail,
+        PipelineAndIdentViewFactory.ConsentedPipelineFilter.ONLY_ON_SEABED_PIPELINES
+    ))
         .thenReturn(overviewMap);
 
 

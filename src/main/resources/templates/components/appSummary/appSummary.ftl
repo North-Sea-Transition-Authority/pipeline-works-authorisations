@@ -3,7 +3,7 @@
 <#-- @ftlvariable name="appSummaryView" type="uk.co.ogauthority.pwa.model.view.appsummary.ApplicationSummaryView" -->
 <#-- @ftlvariable name="appDetailVersionSearchSelectorItems" type="java.util.Map<java.lang.String, java.lang.String>" -->
 <#-- @ftlvariable name="viewAppSummaryUrl" type="java.lang.String" -->
-<#-- @ftlvariable name="showDiffCheckbox" type="java.lang.boolean" -->
+<#-- @ftlvariable name="showDiffCheckbox" type="java.lang.Boolean" -->
 
 
 
@@ -41,11 +41,11 @@
 
     <@defaultPagePaneContent pageHeading=pageHeading errorItems=errorList>
 
-        ${aboveSummaryInsert!}
-
         <#if caseSummaryView?has_content>
             <@pwaCaseSummary.summary caseSummaryView=caseSummaryView showAppSummaryLink=false />
         </#if>
+
+        ${aboveSummaryInsert!}
 
         <#if showVersionSelector?has_content && showVersionSelector>
             <@fdsForm.htmlForm actionUrl=springUrl(viewAppSummaryUrl)>

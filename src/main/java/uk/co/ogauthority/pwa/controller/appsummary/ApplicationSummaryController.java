@@ -67,7 +67,9 @@ public class ApplicationSummaryController {
         .addObject("appDetailVersionSearchSelectorItems", visibleApplicationVersionOptionsForUser.getApplicationVersionOptions())
         .addObject("showVersionSelector", true)
         .addObject("viewAppSummaryUrl", viewAppSummaryUrl)
-        .addObject("showDiffCheckbox", !PwaApplicationStatus.COMPLETE.equals(latestAppDetail.getStatus()));
+        .addObject("showDiffCheckbox", !PwaApplicationStatus.COMPLETE.equals(latestAppDetail.getStatus()))
+        .addObject("mappingGuidanceUrl", ReverseRouter.route(on(ApplicationPipelineDataMapGuidanceController.class)
+            .renderMappingGuidance(applicationId, pwaApplicationType, null)));
   }
 
 

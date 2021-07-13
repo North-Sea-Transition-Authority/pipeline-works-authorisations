@@ -8,11 +8,14 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PhysicalPipelineState;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineStatus;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview;
 import uk.co.ogauthority.pwa.model.view.PipelineAndIdentView;
@@ -24,7 +27,7 @@ import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailService
 
 /**
  * Service whose  job to is collect data from both the consented model and applications model in order to give a consistent view
- * of pipelines across PWA within the appropriate application or Master PWA context.
+ * of pipelines across PWA within the appropriate PWA application context.
  */
 @Service
 public class PipelineAndIdentViewFactory {
@@ -55,14 +58,15 @@ public class PipelineAndIdentViewFactory {
    * context of an application's/Master PWA's HUOO roles and pipeline links.</p>
    */
   public List<PipelineAndIdentView> getAllAppAndMasterPwaPipelineAndIdentViews(
-      PwaApplicationDetail pwaApplicationDetail) {
+      PwaApplicationDetail pwaApplicationDetail,
+      ConsentedPipelineFilter consentedPipelineFilter) {
     // 1. get pipeline overviews for the PWA and application prioritising application data for pipelines
     // 2. Get a all Ident Views that we can from the application for every applicable pipeline.
     // 3. Get all Ident Views that we can from the consented model for every applicable pipeline.
     // 4. for every pipelineOverview for app and MasterPwa, combine the IdentView data to create a composite of the full pipeline's data.
 
     var allAppAndMasterPwaPipelineOverviewLookup = getAllPipelineOverviewsFromAppAndMasterPwa(
-        pwaApplicationDetail);
+        pwaApplicationDetail, consentedPipelineFilter);
     var allAppAndMasterPwaPipelineIds = allAppAndMasterPwaPipelineOverviewLookup.keySet();
 
     var applicationPipelineIdToIdentViewListMap = padPipelineIdentService.getApplicationIdentViewsForPipelines(
@@ -107,7 +111,8 @@ public class PipelineAndIdentViewFactory {
    * context of an applications/Master PWA's HUOO roles.</p>
    */
   public Map<PipelineId, PipelineOverview> getAllPipelineOverviewsFromAppAndMasterPwa(
-      PwaApplicationDetail pwaApplicationDetail) {
+      PwaApplicationDetail pwaApplicationDetail,
+      ConsentedPipelineFilter consentedPipelineFilter) {
     // 1. get pipeline overviews from pipelines represented within the application
     // 2. get pipeline overviews from consented model
     // 3. add consented pipelines to return map where the same pipeline does not exist in application
@@ -119,7 +124,10 @@ public class PipelineAndIdentViewFactory {
         .collect(toMap(PipelineId::from, pipelineOverview -> pipelineOverview));
 
     Map<PipelineId, PipelineOverview> consentedPipelineIdentifiers = pipelineDetailService
-        .getAllPipelineOverviewsForMasterPwa(pwaApplicationDetail.getPwaApplication().getMasterPwa())
+        .getAllPipelineOverviewsForMasterPwaAndStatus(
+            pwaApplicationDetail.getPwaApplication().getMasterPwa(),
+            consentedPipelineFilter.getPipelineStatusSet()
+        )
         .stream()
         .collect(toUnmodifiableMap(PipelineId::from, pipelineOverview -> pipelineOverview));
 
@@ -139,7 +147,8 @@ public class PipelineAndIdentViewFactory {
   public Map<PipelineId, PipelineOverview> getAllPipelineOverviewsFromAppAndMasterPwaByPipelineIds(
       PwaApplicationDetail pwaApplicationDetail, List<PipelineId> pipelineIds) {
 
-    var pipelineOverviews = getAllPipelineOverviewsFromAppAndMasterPwa(pwaApplicationDetail);
+    var pipelineOverviews = getAllPipelineOverviewsFromAppAndMasterPwa(
+        pwaApplicationDetail, ConsentedPipelineFilter.ALL_CURRENT_STATUS_PIPELINES);
 
     return pipelineIds.stream()
         .filter(pipelineId -> pipelineOverviews.get(pipelineId) != null)
@@ -162,6 +171,21 @@ public class PipelineAndIdentViewFactory {
     return Collections.unmodifiableList(
         pipelineDetailIdentViewService.getSortedPipelineIdentViewsForPipeline(pipelineId)
     );
+  }
+
+  public enum ConsentedPipelineFilter {
+    ALL_CURRENT_STATUS_PIPELINES(PipelineStatus.currentStatusSet()),
+    ONLY_ON_SEABED_PIPELINES(PipelineStatus.getStatusesWithState(PhysicalPipelineState.ON_SEABED));
+
+    private final Set<PipelineStatus> pipelineStatusSet;
+
+    ConsentedPipelineFilter(Set<PipelineStatus> pipelineStatusSet) {
+      this.pipelineStatusSet = pipelineStatusSet;
+    }
+
+    Set<PipelineStatus> getPipelineStatusSet() {
+      return pipelineStatusSet;
+    }
   }
 
 }

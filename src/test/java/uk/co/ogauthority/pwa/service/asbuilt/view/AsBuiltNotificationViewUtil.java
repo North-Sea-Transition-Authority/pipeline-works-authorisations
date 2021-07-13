@@ -22,6 +22,7 @@ public class AsBuiltNotificationViewUtil {
         submission.getDateLaid(),
         null,
         submission.getDatePipelineBroughtIntoUse(),
+        "submission reason",
         "submission link"
     );
   }
@@ -40,6 +41,7 @@ public class AsBuiltNotificationViewUtil {
         asBuiltNotificationSubmission.getDateLaid(),
         null,
         asBuiltNotificationSubmission.getDatePipelineBroughtIntoUse(),
+        "submission reason",
         null
         );
   }

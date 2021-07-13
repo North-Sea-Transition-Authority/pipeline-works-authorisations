@@ -688,32 +688,11 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
       HuooRole huooRole
   ) {
     return pipelineNumberAndSplitsService.getAllPipelineNumbersAndSplitsRole(
-        () -> pipelineAndIdentViewFactory.getAllPipelineOverviewsFromAppAndMasterPwa(pwaApplicationDetail),
+        () -> pipelineAndIdentViewFactory.getAllPipelineOverviewsFromAppAndMasterPwa(
+            pwaApplicationDetail,
+            PipelineAndIdentViewFactory.ConsentedPipelineFilter.ONLY_ON_SEABED_PIPELINES),
         () -> getPipelineSplitsForRole(pwaApplicationDetail, huooRole)
     );
-  }
-
-  public Set<PipelineIdentifier> getUnassignedPipelineIdentifiersForRole(PwaApplicationDetail pwaApplicationDetail,
-                                                                          HuooRole huooRole) {
-
-    var allPipelineSplitInfoForRole = getAllPipelineNumbersAndSplitsForRole(pwaApplicationDetail, huooRole);
-
-    var pipelineIdentifiersWithAssignedRoles = padPipelineOrganisationRoleLinkRepository
-        .findByPadOrgRole_pwaApplicationDetailAndPadOrgRole_Role(pwaApplicationDetail, huooRole)
-        .stream()
-        .filter(r -> !r.getPadOrgRole().getType().equals(HuooType.UNASSIGNED_PIPELINE_SPLIT))
-        .map(PadPipelineOrganisationRoleLink::getPipelineIdentifier)
-        .collect(toSet());
-
-    var unassignedPipelineIdentifierForRole = new HashSet<PipelineIdentifier>();
-    allPipelineSplitInfoForRole.keySet().forEach(pipelineIdentifier -> {
-      if (!pipelineIdentifiersWithAssignedRoles.contains(pipelineIdentifier)) {
-        unassignedPipelineIdentifierForRole.add(pipelineIdentifier);
-      }
-
-    });
-
-    return unassignedPipelineIdentifierForRole;
   }
 
   public boolean canShowHolderGuidance(PwaApplicationDetail pwaApplicationDetail) {
@@ -846,7 +825,10 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
       Set<OrganisationRolePipelineGroupDto> preComputedOrgRolePipelineGroups) {
 
     var allPipelineSplitInfoForRole = pipelineNumberAndSplitsService.getAllPipelineNumbersAndSplitsRole(
-        () -> pipelineAndIdentViewFactory.getAllPipelineOverviewsFromAppAndMasterPwa(pwaApplicationDetail),
+        () -> pipelineAndIdentViewFactory.getAllPipelineOverviewsFromAppAndMasterPwa(
+            pwaApplicationDetail,
+            PipelineAndIdentViewFactory.ConsentedPipelineFilter.ONLY_ON_SEABED_PIPELINES
+        ),
         () -> getPipelineSplitsForRole(pwaApplicationDetail, huooRole)
     );
 
@@ -888,6 +870,12 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
         .collect(toMap(OrganisationUnitDetailDto::getOrganisationUnitId, Function.identity()));
   }
 
+  /**
+   * <p>Returns an aggregate containing the HUOO associations for pipelines on the specific application detail.</p>
+   *
+   * <p>If the pipeline, does not appear in the application, returns the PWA pipelines from the consented model that are still
+   * on the seabed.</p>
+   */
   public AllOrgRolePipelineGroupsView getAllOrganisationRolePipelineGroupView(PwaApplicationDetail pwaApplicationDetail) {
 
     var orgRolesSummaryDto = getOrganisationRoleSummary(pwaApplicationDetail);

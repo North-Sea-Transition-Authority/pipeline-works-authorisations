@@ -3,7 +3,7 @@
 
 <#-- @ftlvariable name="pipelineAsBuiltSubmissionView" type="uk.co.ogauthority.pwa.service.asbuilt.view.AsBuiltNotificationView"-->
 
-<#macro asBuiltNotificationCard pipelineAsBuiltSubmissionView>
+<#macro asBuiltNotificationCard pipelineAsBuiltSubmissionView isOgaUser>
 
     <#if pipelineAsBuiltSubmissionView.submittedOnInstant?hasContent>
         <#assign submitButtonText = "Update notification"/>
@@ -16,7 +16,7 @@
           <@fdsCard.cardAction cardLinkText=submitButtonText cardLinkUrl=springUrl(pipelineAsBuiltSubmissionView.submissionLink) cardLinkScreenReaderText="${submitButtonText} for ${pipelineAsBuiltSubmissionView.pipelineNumber}"/>
       </@fdsCard.cardHeader>
       <#if pipelineAsBuiltSubmissionView.submittedOnInstant?hasContent>
-          <@asBuiltNotificationSummary submission=pipelineAsBuiltSubmissionView historic=false summaryListClass="govuk-!-margin-bottom-0"/>
+          <@asBuiltNotificationSummary submission=pipelineAsBuiltSubmissionView historic=false summaryListClass="govuk-!-margin-bottom-0" isOgaUser=isOgaUser/>
       <#else>
           <div class="govuk-inset-text govuk-!-margin-bottom-0">
                 This as-built notification has not been submitted

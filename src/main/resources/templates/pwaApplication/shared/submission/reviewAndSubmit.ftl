@@ -9,23 +9,28 @@
 <#-- @ftlvariable name="updateRequestView" type="uk.co.ogauthority.pwa.model.view.appprocessing.applicationupdates.ApplicationUpdateRequestView" -->
 <#-- @ftlvariable name="submitterCandidates" type="java.util.Map<java.lang.Integer, java.lang.String>" -->
 <#-- @ftlvariable name="userPermissions" type="java.util.Set<uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission>" -->
+<#-- @ftlvariable name="mappingGuidanceUrl" type="java.lang.String" -->
 
 <#assign pageHeading="Review and Submit Application ${applicationReference}"/>
 
 <@defaultPagePane htmlTitle=pageHeading phaseBanner=false>
 
-    <#if updateRequestView?has_content>
-        <#assign updateRequestBanner>
-            <@pwaUpdateRequestView.banner view=updateRequestView canUpdate=false taskListUrl=taskListUrl />
-        </#assign>
-    </#if>
+
+    <#assign aboveSummaryInsert>
+        <@fdsAction.link linkText="Download application pipeline map data" linkUrl=springUrl(mappingGuidanceUrl) openInNewTab=true linkClass="govuk-button govuk-button--blue"/>
+        <#if updateRequestView?has_content>
+            <#assign updateRequestBanner>
+                <@pwaUpdateRequestView.banner view=updateRequestView canUpdate=false taskListUrl=taskListUrl />
+            </#assign>
+        </#if>
+    </#assign>
 
     <@pwaAppSummary.summary
     pageHeading=pageHeading
     appSummaryView=appSummaryView
     sidebarHeading="Check your answers for all questions in the application"
     errorList=errorList
-    aboveSummaryInsert=updateRequestBanner!"">
+    aboveSummaryInsert=aboveSummaryInsert>
 
         <@fdsForm.htmlForm actionUrl=springUrl(submitUrl)>
           <!-- Submit button macro not used to allow for hiding of button when application is not valid. -->

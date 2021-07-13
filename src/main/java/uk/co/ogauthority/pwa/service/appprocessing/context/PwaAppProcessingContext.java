@@ -60,15 +60,18 @@ public class PwaAppProcessingContext {
   }
 
   public boolean hasProcessingPermission(PwaAppProcessingPermission pwaAppProcessingPermission) {
-    return appProcessingPermissions.contains(pwaAppProcessingPermission);
+    return this.appProcessingPermissions.contains(pwaAppProcessingPermission);
   }
 
   public boolean hasAnyProcessingPermission(PwaAppProcessingPermission... pwaAppProcessingPermissionsArray) {
-    var searchPermissions = EnumSet.noneOf(PwaAppProcessingPermission.class);
-    searchPermissions.addAll(Arrays.asList(pwaAppProcessingPermissionsArray));
+    var searchPermissionSet = EnumSet.noneOf(PwaAppProcessingPermission.class);
+    searchPermissionSet.addAll(Arrays.asList(pwaAppProcessingPermissionsArray));
 
-    return !SetUtils.intersection(searchPermissions, this.appProcessingPermissions).isEmpty();
+    return hasAnyProcessingPermission(searchPermissionSet);
+  }
 
+  public boolean hasAnyProcessingPermission(Set<PwaAppProcessingPermission> pwaAppProcessingPermissions) {
+    return !SetUtils.intersection(pwaAppProcessingPermissions, this.appProcessingPermissions).isEmpty();
   }
 
   public PwaApplication getPwaApplication() {

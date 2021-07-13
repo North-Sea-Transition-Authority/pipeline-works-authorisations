@@ -339,4 +339,13 @@ public class PadFileService {
 
   }
 
+
+  public void deleteTemporaryFilesForDetail(PwaApplicationDetail pwaApplicationDetail, WebUserAccount userAccount) {
+
+    var tempPadFiles = padFileRepository.findAllByPwaApplicationDetailAndFileLinkStatus(
+        pwaApplicationDetail, ApplicationFileLinkStatus.TEMPORARY);
+
+    deleteAppFileLinksAndUploadedFiles(tempPadFiles, userAccount);
+  }
+
 }

@@ -31,6 +31,7 @@ import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.asbuilt.view.AsBuiltSubmissionHistoryView;
 import uk.co.ogauthority.pwa.service.asbuilt.view.AsBuiltSubmissionHistoryViewUtil;
 import uk.co.ogauthority.pwa.service.asbuilt.view.AsBuiltViewerService;
+import uk.co.ogauthority.pwa.service.enums.users.UserType;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.huoosummary.DiffedAllOrgRolePipelineGroups;
 import uk.co.ogauthority.pwa.service.pwaconsents.PwaConsentService;
 import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailService;
@@ -41,6 +42,7 @@ import uk.co.ogauthority.pwa.service.search.consents.PwaPipelineViewTab;
 import uk.co.ogauthority.pwa.service.search.consents.pwapipelineview.PwaHuooHistoryItemType;
 import uk.co.ogauthority.pwa.service.search.consents.pwapipelineview.PwaPipelineHistoryViewService;
 import uk.co.ogauthority.pwa.service.search.consents.pwapipelineview.ViewablePipelineHuooVersionService;
+import uk.co.ogauthority.pwa.service.users.UserTypeService;
 import uk.co.ogauthority.pwa.testutils.PwaEndpointTestBuilder;
 
 @RunWith(SpringRunner.class)
@@ -69,6 +71,9 @@ public class PwaViewPipelineControllerTest extends PwaContextAbstractControllerT
 
   @MockBean
   protected AsBuiltViewerService asBuiltViewerService;
+
+  @MockBean
+  protected UserTypeService userTypeService;
 
   private static int PIPELINE_ID = 1;
 
@@ -114,6 +119,9 @@ public class PwaViewPipelineControllerTest extends PwaContextAbstractControllerT
 
     when(asBuiltViewerService.getHistoricAsBuiltSubmissionView(PIPELINE_ID))
         .thenReturn(historyView);
+
+    when(userTypeService.getUserTypes(user))
+        .thenReturn(Set.of(UserType.OGA));
   }
 
   @Test

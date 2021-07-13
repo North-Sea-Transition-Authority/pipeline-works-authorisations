@@ -316,8 +316,11 @@ public class PermanentDepositsServiceTest {
     padPipelineNotOnSeabed.setPipelineStatus(PipelineStatus.RETURNED_TO_SHORE);
     var padPipelineOverviewNotOnSeabed = new PadPipelineOverview(padPipelineNotOnSeabed, 1L);
 
-    when(pipelineAndIdentViewFactory.getAllPipelineOverviewsFromAppAndMasterPwa(pwaApplicationDetail))
-    .thenReturn(Map.of(
+    when(pipelineAndIdentViewFactory.getAllPipelineOverviewsFromAppAndMasterPwa(
+        pwaApplicationDetail,
+        PipelineAndIdentViewFactory.ConsentedPipelineFilter.ALL_CURRENT_STATUS_PIPELINES
+    ))
+        .thenReturn(Map.of(
         PipelineId.from(padPipelineOverviewOnSeabed), padPipelineOverviewOnSeabed,
         PipelineId.from(padPipelineOverviewNotOnSeabed), padPipelineOverviewNotOnSeabed));
 
