@@ -59,7 +59,6 @@ public class WorkAreaController {
                                      AuthenticatedUserAccount authenticatedUserAccount,
                                      RedirectAttributes redirectAttributes) {
 
-    var stopwatch = Stopwatch.createStarted();
     var workAreaContext = workAreaContextService.createWorkAreaContext(authenticatedUserAccount);
 
     var defaultTab = workAreaContext.getDefaultTab()
@@ -67,8 +66,6 @@ public class WorkAreaController {
             String.format("User with login id [%s] cannot access any work area tabs",
                 authenticatedUserAccount.getLoginId()))
         );
-
-    MetricTimerUtils.recordTime(stopwatch, LOGGER, metricsProvider.getWorkAreaTabTimer(), defaultTab.getLabel() + " tab loaded.");
 
     return getWorkAreaModelAndView(workAreaContext, defaultTab, DEFAULT_PAGE);
 
@@ -84,7 +81,6 @@ public class WorkAreaController {
                                         @PathVariable("tabKey") WorkAreaTab tab,
                                         @RequestParam(defaultValue = "0", name = "page") Integer page) {
 
-    var stopwatch = Stopwatch.createStarted();
     var context = workAreaContextService.createWorkAreaContext(authenticatedUserAccount);
 
     var tabs = context.getSortedUserTabs();
@@ -99,17 +95,16 @@ public class WorkAreaController {
       );
     }
 
-    MetricTimerUtils.recordTime(stopwatch, LOGGER, metricsProvider.getWorkAreaTabTimer(), tab.getLabel() + " tab loaded.");
-
     return getWorkAreaModelAndView(context, tab, page);
 
   }
 
   private ModelAndView getWorkAreaModelAndView(WorkAreaContext workareaContext, WorkAreaTab tab, int page) {
 
+    var stopwatch = Stopwatch.createStarted();
     boolean canStartApps = systemAreaAccessService.canStartApplication(workareaContext.getAuthenticatedUserAccount());
 
-    return new ModelAndView("workArea")
+    var modelAndView = new ModelAndView("workArea")
         .addObject("startPwaApplicationUrl",
             ReverseRouter.route(on(StartPwaApplicationController.class).renderStartApplication(null)))
         .addObject("workAreaResult", workAreaService.getWorkAreaResult(workareaContext, tab, page))
@@ -117,6 +112,11 @@ public class WorkAreaController {
         .addObject("currentWorkAreaTab", tab)
         .addObject("availableTabs", workareaContext.getSortedUserTabs())
         .addObject("showStartButton", canStartApps);
+
+    MetricTimerUtils.recordTime(
+        stopwatch, LOGGER, metricsProvider.getWorkAreaTabTimer(), tab.getLabel() + " work-area tab processing done.");
+
+    return modelAndView;
   }
 
 }

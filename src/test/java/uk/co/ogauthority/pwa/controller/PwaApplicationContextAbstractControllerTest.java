@@ -5,9 +5,12 @@ import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.when;
 
+import ch.qos.logback.core.Appender;
+import io.micrometer.core.instrument.Timer;
 import java.util.List;
 import java.util.Optional;
 import org.junit.Before;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.CustomScopeConfigurer;
 import org.springframework.boot.test.context.TestConfiguration;
@@ -22,6 +25,7 @@ import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfig
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
+import uk.co.ogauthority.pwa.config.MetricsProvider;
 import uk.co.ogauthority.pwa.config.ServiceProperties;
 import uk.co.ogauthority.pwa.config.fileupload.FileUploadProperties;
 import uk.co.ogauthority.pwa.energyportal.service.SystemAreaAccessService;
@@ -44,6 +48,7 @@ import uk.co.ogauthority.pwa.service.pwacontext.PwaContextService;
 import uk.co.ogauthority.pwa.service.tasklist.CrossingAgreementsTaskListService;
 import uk.co.ogauthority.pwa.service.teams.PwaHolderTeamService;
 import uk.co.ogauthority.pwa.service.teams.TeamService;
+import uk.co.ogauthority.pwa.testutils.TimerMetricTestUtils;
 
 @Import(PwaApplicationContextAbstractControllerTest.AbstractControllerTestConfiguration.class)
 public abstract class PwaApplicationContextAbstractControllerTest {
@@ -110,6 +115,14 @@ public abstract class PwaApplicationContextAbstractControllerTest {
   @SpyBean
   protected FooterService footerServices;
 
+  @MockBean
+  protected MetricsProvider metricsProvider;
+
+  @Mock
+  private Appender appender;
+
+  private Timer timer;
+
   @Before
   public void abstractControllerTestSetup() {
 
@@ -129,6 +142,10 @@ public abstract class PwaApplicationContextAbstractControllerTest {
 
     when(serviceProperties.getCustomerName()).thenReturn("oga");
     when(serviceProperties.getServiceName()).thenReturn("pwa");
+
+    timer = TimerMetricTestUtils.setupTimerMetric(
+        PwaAppProcessingContextService.class, "pwa.appContextTimer", appender);
+    when(metricsProvider.getAppContextTimer()).thenReturn(timer);
 
   }
 

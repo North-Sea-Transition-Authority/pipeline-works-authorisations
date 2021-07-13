@@ -191,26 +191,16 @@ public class WorkAreaControllerTest extends AbstractControllerTest {
 
 
   @Test
-  public void renderWorkArea_timerMetricStarted_timeRecordedAndLogged() {
+  public void getWorkAreaModelAndView_timerMetricStarted_timeRecordedAndLogged() {
 
     var controller = new WorkAreaController(workAreaService, workAreaContextService,
         Mockito.mock(SystemAreaAccessService.class), metricsProvider);
 
     controller.renderWorkArea(null, pwaManagerUser, null);
 
-    TimerMetricTestUtils.assertTimeLogged(loggingEventCaptor, appender, "tab loaded");
+    TimerMetricTestUtils.assertTimeLogged(loggingEventCaptor, appender, "work-area tab");
   }
 
-  @Test
-  public void renderWorkAreaTab_timerMetricStarted_timeRecordedAndLogged() {
-
-    var controller = new WorkAreaController(workAreaService, workAreaContextService,
-        Mockito.mock(SystemAreaAccessService.class), metricsProvider);
-
-    controller.renderWorkAreaTab(pwaManagerUser, WorkAreaTab.REGULATOR_REQUIRES_ATTENTION, 100);
-
-    TimerMetricTestUtils.assertTimeLogged(loggingEventCaptor, appender, "tab loaded");
-  }
 
 
 }

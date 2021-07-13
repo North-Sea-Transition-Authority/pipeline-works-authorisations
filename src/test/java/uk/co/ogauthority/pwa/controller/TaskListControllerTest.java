@@ -5,11 +5,17 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.when;
 
+import ch.qos.logback.classic.spi.LoggingEvent;
+import ch.qos.logback.core.Appender;
+import io.micrometer.core.instrument.Timer;
 import org.junit.Before;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.web.servlet.ModelAndView;
+import uk.co.ogauthority.pwa.config.MetricsProvider;
 import uk.co.ogauthority.pwa.service.appprocessing.applicationupdate.ApplicationUpdateRequestViewService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContextService;
 import uk.co.ogauthority.pwa.service.appprocessing.options.ApproveOptionsService;
@@ -27,6 +33,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskListService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.tasklist.TaskListControllerModelAndViewCreator;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
 import uk.co.ogauthority.pwa.service.teams.PwaHolderTeamService;
+import uk.co.ogauthority.pwa.testutils.TimerMetricTestUtils;
 
 public abstract class TaskListControllerTest extends AbstractControllerTest {
 
@@ -81,6 +88,13 @@ public abstract class TaskListControllerTest extends AbstractControllerTest {
   @Mock
   private ApproveOptionsService approveOptionsService;
 
+  @MockBean
+  protected MetricsProvider metricsProvider;
+
+  @MockBean
+  private Appender appender;
+
+
   @Before
   public void taskListControllerTestSetup() {
 
@@ -96,6 +110,14 @@ public abstract class TaskListControllerTest extends AbstractControllerTest {
         pwaApplicationDetailService);
 
     doCallRealMethod().when(applicationBreadcrumbService).fromWorkArea(any(ModelAndView.class), eq("Task list"));
+
+    var taskListTimer = TimerMetricTestUtils.setupTimerMetric(
+        TaskListService.class, "pwa.taskListTimer", appender);
+    when(metricsProvider.getTaskListTimer()).thenReturn(taskListTimer);
+
+    var appContextTimer = TimerMetricTestUtils.setupTimerMetric(
+        PwaApplicationContextService.class, "pwa.appContextTimer", appender);
+    when(metricsProvider.getAppContextTimer()).thenReturn(appContextTimer);
 
   }
 

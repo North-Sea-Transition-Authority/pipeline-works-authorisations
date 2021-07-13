@@ -1,10 +1,14 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.context;
 
+import com.google.common.base.Stopwatch;
 import java.util.Objects;
 import java.util.Set;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.config.MetricsProvider;
 import uk.co.ogauthority.pwa.exception.AccessDeniedException;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
@@ -12,6 +16,7 @@ import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
 import uk.co.ogauthority.pwa.util.ApplicationContextUtils;
+import uk.co.ogauthority.pwa.util.MetricTimerUtils;
 
 @Service
 public class PwaApplicationContextService {
@@ -20,16 +25,21 @@ public class PwaApplicationContextService {
   private final PadPipelineService padPipelineService;
   private final PadFileService padFileService;
   private final PwaApplicationPermissionService pwaApplicationPermissionService;
+  private final MetricsProvider metricsProvider;
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(PwaApplicationContextService.class);
 
   @Autowired
   public PwaApplicationContextService(PwaApplicationDetailService detailService,
                                       PadPipelineService padPipelineService,
                                       PadFileService padFileService,
-                                      PwaApplicationPermissionService pwaApplicationPermissionService) {
+                                      PwaApplicationPermissionService pwaApplicationPermissionService,
+                                      MetricsProvider metricsProvider) {
     this.detailService = detailService;
     this.padPipelineService = padPipelineService;
     this.padFileService = padFileService;
     this.pwaApplicationPermissionService = pwaApplicationPermissionService;
+    this.metricsProvider = metricsProvider;
   }
 
   /**
@@ -37,6 +47,8 @@ public class PwaApplicationContextService {
    * @return application context if app is in right state and user has right privileges, throw relevant exceptions otherwise
    */
   public PwaApplicationContext validateAndCreate(PwaApplicationContextParams contextParams) {
+
+    var stopwatch = Stopwatch.createStarted();
 
     var applicationId = contextParams.getApplicationId();
     var context = getApplicationContext(applicationId, contextParams.getAuthenticatedUserAccount());
@@ -57,6 +69,7 @@ public class PwaApplicationContextService {
       getAndSetPadFile(context, contextParams.getFileId());
     }
 
+    MetricTimerUtils.recordTime(stopwatch, LOGGER, metricsProvider.getAppContextTimer(), "Application Context created.");
     return context;
 
   }
@@ -67,8 +80,8 @@ public class PwaApplicationContextService {
    * @param authenticatedUser trying to access the PWA application
    * @return application context object with app detail, users roles etc populated
    */
-  public PwaApplicationContext getApplicationContext(Integer applicationId,
-                                                     AuthenticatedUserAccount authenticatedUser) {
+  private PwaApplicationContext getApplicationContext(Integer applicationId,
+                                                      AuthenticatedUserAccount authenticatedUser) {
 
     var detail = detailService.getTipDetail(applicationId);
 

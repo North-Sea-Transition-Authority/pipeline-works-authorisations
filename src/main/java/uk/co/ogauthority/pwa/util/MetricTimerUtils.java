@@ -9,7 +9,7 @@ import org.slf4j.Logger;
 public class MetricTimerUtils {
 
   private MetricTimerUtils() {
-    throw new AssertionError();
+    throw new UnsupportedOperationException();
   }
 
 

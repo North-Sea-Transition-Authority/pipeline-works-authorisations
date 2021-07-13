@@ -2,12 +2,9 @@ package uk.co.ogauthority.pwa.controller.appprocessing.prepareconsent;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
-import com.google.common.base.Stopwatch;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
@@ -22,7 +19,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
-import uk.co.ogauthority.pwa.config.MetricsProvider;
 import uk.co.ogauthority.pwa.controller.WorkAreaController;
 import uk.co.ogauthority.pwa.controller.appprocessing.shared.PwaAppProcessingPermissionCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationStatusCheck;
@@ -55,7 +51,6 @@ import uk.co.ogauthority.pwa.service.mailmerge.MailMergeService;
 import uk.co.ogauthority.pwa.service.template.TemplateTextService;
 import uk.co.ogauthority.pwa.util.FileDownloadUtils;
 import uk.co.ogauthority.pwa.util.FlashUtils;
-import uk.co.ogauthority.pwa.util.MetricTimerUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
 @Controller
@@ -72,9 +67,6 @@ public class AppConsentDocController {
   private final ConsentReviewService consentReviewService;
   private final MailMergeService mailMergeService;
   private final DocgenService docgenService;
-  private final MetricsProvider metricsProvider;
-
-  private static final Logger LOGGER = LoggerFactory.getLogger(AppConsentDocController.class);
 
   @Autowired
   public AppConsentDocController(AppProcessingBreadcrumbService breadcrumbService,
@@ -85,8 +77,7 @@ public class AppConsentDocController {
                                  ConsentDocumentService consentDocumentService,
                                  ConsentReviewService consentReviewService,
                                  MailMergeService mailMergeService,
-                                 DocgenService docgenService,
-                                 MetricsProvider metricsProvider) {
+                                 DocgenService docgenService) {
     this.breadcrumbService = breadcrumbService;
     this.documentService = documentService;
     this.prepareConsentTaskService = prepareConsentTaskService;
@@ -96,7 +87,6 @@ public class AppConsentDocController {
     this.consentReviewService = consentReviewService;
     this.mailMergeService = mailMergeService;
     this.docgenService = docgenService;
-    this.metricsProvider = metricsProvider;
   }
 
   @GetMapping
@@ -172,8 +162,6 @@ public class AppConsentDocController {
                                       PwaAppProcessingContext processingContext,
                                       AuthenticatedUserAccount authenticatedUserAccount) {
 
-    var stopwatch = Stopwatch.createStarted();
-
     return whenPrepareConsentAvailable(processingContext, () -> {
 
       var docInstance = documentService
@@ -183,13 +171,10 @@ public class AppConsentDocController {
 
       var run = docgenService.scheduleDocumentGeneration(docInstance, DocGenType.PREVIEW, authenticatedUserAccount.getLinkedPerson());
 
-      var modelAndView = ReverseRouter.redirect(on(AppConsentDocController.class)
+      return ReverseRouter.redirect(on(AppConsentDocController.class)
           .renderDocumentGenerating(applicationId, pwaApplicationType, run.getId(), null, null));
-
-      MetricTimerUtils.recordTime(stopwatch, LOGGER, metricsProvider.getDocumentPreviewTimer(), "Document preview loaded.");
-
-      return modelAndView;
     });
+
 
   }
 
