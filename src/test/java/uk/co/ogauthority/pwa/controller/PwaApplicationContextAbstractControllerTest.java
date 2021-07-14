@@ -118,7 +118,7 @@ public abstract class PwaApplicationContextAbstractControllerTest {
   @MockBean
   protected MetricsProvider metricsProvider;
 
-  @Mock
+  @MockBean
   private Appender appender;
 
   private Timer timer;

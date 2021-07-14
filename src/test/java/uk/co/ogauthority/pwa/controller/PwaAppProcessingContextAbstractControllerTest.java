@@ -123,7 +123,7 @@ public abstract class PwaAppProcessingContextAbstractControllerTest {
   @MockBean
   protected MetricsProvider metricsProvider;
 
-  @Mock
+  @MockBean
   private Appender appender;
 
   private Timer timer;
