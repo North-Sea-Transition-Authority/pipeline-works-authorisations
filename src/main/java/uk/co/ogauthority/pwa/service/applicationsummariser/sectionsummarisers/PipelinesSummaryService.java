@@ -91,34 +91,35 @@ public class PipelinesSummaryService implements ApplicationSectionSummariser {
   }
 
 
-  public Map<String, Object> produceDiffedPipelineModel(PipelineDiffableSummary fromSummary, PipelineDiffableSummary toSummary) {
+  public Map<String, Object> produceDiffedPipelineModel(PipelineDiffableSummary currentSummaryView,
+                                                        PipelineDiffableSummary previousSummaryView) {
 
     var pipelineDiffMap = new HashMap<String, Object>();
     // we need to ignore the nested complex list of idents so we can do this diff separately
     // the diff service does not handle nested complex properties natively.
-    var currentPipelineHeader = fromSummary.getPipelineHeaderView();
-    var consentedPipelineHeader = toSummary.getPipelineHeaderView();
+    var currentPipelineHeaderView = currentSummaryView.getPipelineHeaderView();
+    var previousPipelineHeaderView = previousSummaryView.getPipelineHeaderView();
     Map<String, Object> pipelineHeaderMap = new HashMap<>(diffService.diff(
-        currentPipelineHeader, consentedPipelineHeader,
+        currentPipelineHeaderView, previousPipelineHeaderView,
         Set.of("identViews", "pipelineStatus", "questionsForPipelineStatus")));
-    pipelineHeaderMap.put("questionsForPipelineStatus", fromSummary.getQuestionsForPipelineStatus());
-    pipelineHeaderMap.put("hasTemporaryPipelineNumber", StringUtils.isNotEmpty(currentPipelineHeader.getTemporaryPipelineNumber()));
-    pipelineHeaderMap.put("canShowAlreadyExistsOnSeabed", currentPipelineHeader.getAlreadyExistsOnSeabed() != null);
-    pipelineHeaderMap.put("canShowPipelineInUse", currentPipelineHeader.getPipelineInUse() != null);
-    pipelineHeaderMap.put("canShowFootnote", currentPipelineHeader.getFootnote() != null || consentedPipelineHeader.getFootnote() != null);
-
+    pipelineHeaderMap.put("questionsForPipelineStatus", currentSummaryView.getQuestionsForPipelineStatus());
+    pipelineHeaderMap.put("hasTemporaryPipelineNumber", StringUtils.isNotEmpty(currentPipelineHeaderView.getTemporaryPipelineNumber()));
+    pipelineHeaderMap.put("canShowAlreadyExistsOnSeabed", currentPipelineHeaderView.getAlreadyExistsOnSeabed() != null);
+    pipelineHeaderMap.put("canShowPipelineInUse", currentPipelineHeaderView.getPipelineInUse() != null);
+    pipelineHeaderMap.put("canShowFootnote",
+        currentPipelineHeaderView.getFootnote() != null || previousPipelineHeaderView.getFootnote() != null);
 
     pipelineDiffMap.put("pipelineHeader", pipelineHeaderMap);
     pipelineDiffMap.put("pipelineIdents",
         diffService.diffComplexLists(
-            fromSummary.getIdentViews(),
-            toSummary.getIdentViews(),
+            currentSummaryView.getIdentViews(),
+            previousSummaryView.getIdentViews(),
             // Simple mapping of idents. If the ident is in the same position, its considered to be the same ident.
             IdentDiffableView::getIdentNumber,
             IdentDiffableView::getIdentNumber
         )
     );
-    pipelineDiffMap.put("drawingSummaryView", fromSummary.getDrawingSummaryView());
+    pipelineDiffMap.put("drawingSummaryView", currentSummaryView.getDrawingSummaryView());
     return pipelineDiffMap;
   }
 
