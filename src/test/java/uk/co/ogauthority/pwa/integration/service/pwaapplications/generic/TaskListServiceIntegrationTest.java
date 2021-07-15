@@ -22,6 +22,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
+import uk.co.ogauthority.pwa.config.MetricsProvider;
 import uk.co.ogauthority.pwa.energyportal.model.entity.PersonTestUtil;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
@@ -68,6 +69,9 @@ public class TaskListServiceIntegrationTest {
   @Autowired
   private ApplicationTaskService applicationTaskService;
 
+  @Autowired
+  private MetricsProvider metricsProvider;
+
   // this needs to be mocked so we dont try increment a sequence that doesnt exist in h2
   @MockBean
   private PwaApplicationReferencingService pwaApplicationReferencingService;
@@ -107,8 +111,8 @@ public class TaskListServiceIntegrationTest {
     taskListService = new TaskListService(
 
         taskListEntryFactory,
-        applicationTaskService
-       );
+        applicationTaskService,
+        metricsProvider);
 
     when(optionsTemplateService.canShowInTaskList(any())).thenReturn(true);
     when(supplementaryDocumentsService.canShowInTaskList(any())).thenReturn(true);

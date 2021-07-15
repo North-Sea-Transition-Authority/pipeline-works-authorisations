@@ -2,10 +2,13 @@ package uk.co.ogauthority.pwa.controller.pwaapplications.shared.submission;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
+import com.google.common.base.Stopwatch;
 import java.util.Comparator;
 import java.util.Map;
 import javax.servlet.http.HttpSession;
 import org.apache.commons.lang3.BooleanUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -15,6 +18,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
+import uk.co.ogauthority.pwa.config.MetricsProvider;
 import uk.co.ogauthority.pwa.controller.appsummary.ApplicationPipelineDataMapGuidanceController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationPermissionCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationStatusCheck;
@@ -35,6 +39,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectServi
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.service.pwaapplications.workflow.PwaApplicationSubmissionService;
 import uk.co.ogauthority.pwa.service.teams.PwaHolderTeamService;
+import uk.co.ogauthority.pwa.util.MetricTimerUtils;
 import uk.co.ogauthority.pwa.util.StreamUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 import uk.co.ogauthority.pwa.validators.pwaapplications.shared.submission.ReviewAndSubmitApplicationFormValidator;
@@ -63,6 +68,9 @@ public class ReviewAndSubmitController {
   private final PwaHolderTeamService pwaHolderTeamService;
   private final SendAppToSubmitterService sendAppToSubmitterService;
   private final PersonService personService;
+  private final MetricsProvider metricsProvider;
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(ReviewAndSubmitController.class);
 
   @Autowired
   public ReviewAndSubmitController(ControllerHelperService controllerHelperService,
@@ -73,7 +81,8 @@ public class ReviewAndSubmitController {
                                    ReviewAndSubmitApplicationFormValidator validator,
                                    PwaHolderTeamService pwaHolderTeamService,
                                    SendAppToSubmitterService sendAppToSubmitterService,
-                                   PersonService personService) {
+                                   PersonService personService,
+                                   MetricsProvider metricsProvider) {
     this.controllerHelperService = controllerHelperService;
     this.pwaApplicationRedirectService = pwaApplicationRedirectService;
     this.pwaApplicationSubmissionService = pwaApplicationSubmissionService;
@@ -83,6 +92,7 @@ public class ReviewAndSubmitController {
     this.pwaHolderTeamService = pwaHolderTeamService;
     this.sendAppToSubmitterService = sendAppToSubmitterService;
     this.personService = personService;
+    this.metricsProvider = metricsProvider;
   }
 
   @GetMapping
@@ -145,9 +155,11 @@ public class ReviewAndSubmitController {
                              @ModelAttribute("form") ReviewAndSubmitApplicationForm form,
                              BindingResult bindingResult) {
 
+    var stopwatch = Stopwatch.createStarted();
+
     validator.validate(form, bindingResult, applicationContext);
 
-    return controllerHelperService.checkErrorsAndRedirect(
+    var modelAndView = controllerHelperService.checkErrorsAndRedirect(
         bindingResult,
         getModelAndView(applicationContext, form),
         () -> {
@@ -165,6 +177,8 @@ public class ReviewAndSubmitController {
 
     );
 
+    MetricTimerUtils.recordTime(stopwatch, LOGGER, metricsProvider.getAppSubmissionTimer(), "Application submitted.");
+    return modelAndView;
   }
 
   @PostMapping("/send-to-submitter")

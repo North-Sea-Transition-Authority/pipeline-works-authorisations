@@ -37,13 +37,13 @@ public class InitialTaskListController {
   public ModelAndView viewTaskList(@PathVariable("applicationId") Integer applicationId,
                                    PwaApplicationContext applicationContext) {
 
+
     var taskGroups = taskListService.getTaskListGroups(applicationContext.getApplicationDetail());
+
     return taskListControllerModelAndViewCreator.getTaskListModelAndView(
         applicationContext.getApplicationDetail(),
         taskGroups
     );
-
-
   }
 
 }

@@ -1,7 +1,6 @@
 package uk.co.ogauthority.pwa.validators.pwaapplications.shared.submission;
 
 
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.mockito.Mockito.when;
@@ -51,7 +50,6 @@ public class ReviewAndSubmitApplicationFormValidatorTest {
 
     var detail = new PwaApplicationDetail();
     applicationContext = new PwaApplicationContext(detail, new WebUserAccount(1), Set.of(PwaApplicationPermission.EDIT));
-
   }
 
   @Test
@@ -66,7 +64,6 @@ public class ReviewAndSubmitApplicationFormValidatorTest {
         entry(MADE_ONLY_REQUESTED_CHANGES, Set.of(FieldValidationErrorCodes.REQUIRED.errorCode(MADE_ONLY_REQUESTED_CHANGES))),
         entry(SUBMITTER_PERSON_ID, Set.of(FieldValidationErrorCodes.REQUIRED.errorCode(SUBMITTER_PERSON_ID)))
     );
-
   }
 
   @Test
@@ -210,5 +207,6 @@ public class ReviewAndSubmitApplicationFormValidatorTest {
   private PwaApplicationContext getContextWithPermissions(PwaApplicationPermission... permissions) {
     return new PwaApplicationContext(applicationContext.getApplicationDetail(), applicationContext.getUser(), Set.of(permissions));
   }
+
 
 }

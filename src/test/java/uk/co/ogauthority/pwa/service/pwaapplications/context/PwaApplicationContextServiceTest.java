@@ -3,14 +3,20 @@ package uk.co.ogauthority.pwa.service.pwaapplications.context;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
+import ch.qos.logback.classic.spi.LoggingEvent;
+import ch.qos.logback.core.Appender;
+import io.micrometer.core.instrument.Timer;
 import java.time.Instant;
 import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.config.MetricsProvider;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.exception.AccessDeniedException;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
@@ -18,12 +24,14 @@ import uk.co.ogauthority.pwa.model.entity.files.PadFile;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
+import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContextService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
+import uk.co.ogauthority.pwa.testutils.TimerMetricTestUtils;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PwaApplicationContextServiceTest {
@@ -39,6 +47,17 @@ public class PwaApplicationContextServiceTest {
 
   @Mock
   private PwaApplicationPermissionService pwaApplicationPermissionService;
+
+  @Mock
+  private MetricsProvider metricsProvider;
+
+  @Mock
+  private Appender appender;
+
+  @Captor
+  private ArgumentCaptor<LoggingEvent> loggingEventCaptor;
+
+  private Timer timer;
 
   private PwaApplicationContextService contextService;
 
@@ -58,7 +77,8 @@ public class PwaApplicationContextServiceTest {
     detail = new PwaApplicationDetail(application, 1, 1, Instant.now());
     detail.setStatus(PwaApplicationStatus.DRAFT);
 
-    contextService = new PwaApplicationContextService(detailService, padPipelineService, padFileService, pwaApplicationPermissionService);
+    contextService = new PwaApplicationContextService(detailService, padPipelineService, padFileService, pwaApplicationPermissionService,
+        metricsProvider);
 
     when(detailService.getTipDetail(1)).thenReturn(detail);
     when(pwaApplicationPermissionService.getPermissions(detail, user.getLinkedPerson())).thenReturn(Set.of(PwaApplicationPermission.EDIT));
@@ -70,6 +90,10 @@ public class PwaApplicationContextServiceTest {
     var padFile = new PadFile();
     padFile.setPwaApplicationDetail(detail);
     when(padFileService.getPadFileByPwaApplicationDetailAndFileId(detail, "valid-file")).thenReturn(padFile);
+
+    timer = TimerMetricTestUtils.setupTimerMetric(
+        PwaApplicationContextService.class, "pwa.appContextTimer", appender);
+    when(metricsProvider.getAppContextTimer()).thenReturn(timer);
 
   }
 
@@ -295,6 +319,17 @@ public class PwaApplicationContextServiceTest {
 
     contextService.validateAndCreate(builder);
 
+  }
+
+  @Test
+  public void validateAndCreate_timerMetricStarted_timeRecordedAndLogged() {
+    var builder = new PwaApplicationContextParams(1, user)
+        .requiredAppStatuses(Set.of(PwaApplicationStatus.DRAFT))
+        .requiredAppTypes(Set.of(PwaApplicationType.INITIAL))
+        .requiredUserPermissions(Set.of(PwaApplicationPermission.EDIT));
+
+    contextService.validateAndCreate(builder);
+    TimerMetricTestUtils.assertTimeLogged(loggingEventCaptor, appender, "Application Context");
   }
 
 }
