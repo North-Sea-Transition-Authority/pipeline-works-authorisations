@@ -19,4 +19,8 @@ public class RouteUtils {
     return ReverseRouter.redirect(on(WorkAreaController.class).renderWorkArea(null, null, null));
   }
 
+  public static String routeWorkArea() {
+    return ReverseRouter.route(on(WorkAreaController.class).renderWorkArea(null, null, null));
+  }
+
 }

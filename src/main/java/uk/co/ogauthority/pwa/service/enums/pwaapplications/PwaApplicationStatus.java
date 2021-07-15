@@ -1,5 +1,7 @@
 package uk.co.ogauthority.pwa.service.enums.pwaapplications;
 
+import java.util.stream.Stream;
+
 /**
  * Enumerates all the states that a PWA application can be in.
  * If you are adding a status you will likely need to add it to the {@link ApplicationState} list.
@@ -24,6 +26,12 @@ public enum PwaApplicationStatus {
 
   public String getDisplayName() {
     return displayName;
+  }
+
+
+
+  public static Stream<PwaApplicationStatus> stream() {
+    return Stream.of(PwaApplicationStatus.values());
   }
 
 }
