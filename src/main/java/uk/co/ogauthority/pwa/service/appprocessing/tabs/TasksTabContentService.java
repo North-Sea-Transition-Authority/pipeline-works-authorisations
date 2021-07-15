@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.controller.appprocessing.processingcharges.IndustryPaymentController;
 import uk.co.ogauthority.pwa.controller.appprocessing.processingcharges.ViewApplicationPaymentInformationController;
+import uk.co.ogauthority.pwa.controller.asbuilt.ReopenAsBuiltNotificationGroupController;
 import uk.co.ogauthority.pwa.controller.masterpwas.contacts.PwaContactController;
 import uk.co.ogauthority.pwa.controller.publicnotice.PublicNoticeApplicantViewController;
 import uk.co.ogauthority.pwa.controller.search.consents.PwaViewController;
@@ -25,9 +26,12 @@ import uk.co.ogauthority.pwa.service.appprocessing.processingcharges.appcharges.
 import uk.co.ogauthority.pwa.service.appprocessing.publicnotice.PublicNoticeDocumentUpdateService;
 import uk.co.ogauthority.pwa.service.appprocessing.publicnotice.PublicNoticeService;
 import uk.co.ogauthority.pwa.service.appprocessing.tasks.PwaAppProcessingTaskListService;
+import uk.co.ogauthority.pwa.service.asbuilt.AsBuiltNotificationAuthService;
+import uk.co.ogauthority.pwa.service.asbuilt.view.AsBuiltViewerService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.users.UserType;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
+import uk.co.ogauthority.pwa.service.pwaconsents.PwaConsentService;
 import uk.co.ogauthority.pwa.service.search.consents.PwaViewTab;
 
 @Service
@@ -41,6 +45,9 @@ public class TasksTabContentService implements AppProcessingTabContentService {
   private final PublicNoticeService publicNoticeService;
   private final ConsentReviewService consentReviewService;
   private final ApplicationChargeRequestService applicationChargeRequestService;
+  private final PwaConsentService pwaConsentService;
+  private final AsBuiltViewerService asBuiltViewerService;
+  private final AsBuiltNotificationAuthService asBuiltNotificationAuthService;
 
   @Autowired
   public TasksTabContentService(PwaAppProcessingTaskListService appProcessingTaskListService,
@@ -50,7 +57,10 @@ public class TasksTabContentService implements AppProcessingTabContentService {
                                 PublicNoticeDocumentUpdateService publicNoticeDocumentUpdateService,
                                 PublicNoticeService publicNoticeService,
                                 ConsentReviewService consentReviewService,
-                                ApplicationChargeRequestService applicationChargeRequestService) {
+                                ApplicationChargeRequestService applicationChargeRequestService,
+                                PwaConsentService pwaConsentService,
+                                AsBuiltViewerService asBuiltViewerService,
+                                AsBuiltNotificationAuthService asBuiltNotificationAuthService) {
     this.appProcessingTaskListService = appProcessingTaskListService;
     this.applicationUpdateRequestViewService = applicationUpdateRequestViewService;
     this.pwaApplicationRedirectService = pwaApplicationRedirectService;
@@ -59,6 +69,9 @@ public class TasksTabContentService implements AppProcessingTabContentService {
     this.publicNoticeService = publicNoticeService;
     this.consentReviewService = consentReviewService;
     this.applicationChargeRequestService = applicationChargeRequestService;
+    this.pwaConsentService = pwaConsentService;
+    this.asBuiltViewerService = asBuiltViewerService;
+    this.asBuiltNotificationAuthService = asBuiltNotificationAuthService;
   }
 
   @Override
@@ -75,6 +88,7 @@ public class TasksTabContentService implements AppProcessingTabContentService {
     Optional<String> viewPublicNoticeUrl = Optional.empty();
     Optional<String> consentHistoryUrl = Optional.empty();
     Optional<String> viewAppPaymentUrl = Optional.empty();
+    Optional<String> reopenAsBuiltGroupUrl = Optional.empty();
 
     boolean industryFlag = appProcessingContext.getApplicationInvolvement().hasOnlyIndustryInvolvement();
 
@@ -105,24 +119,26 @@ public class TasksTabContentService implements AppProcessingTabContentService {
 
       if (appProcessingContext.hasProcessingPermission(PwaAppProcessingPermission.MANAGE_APPLICATION_CONTACTS)) {
         manageAppContactsUrl = Optional.of(ReverseRouter.route(on(PwaContactController.class).renderContactsScreen(
-           appProcessingContext.getApplicationType(),  appProcessingContext.getMasterPwaApplicationId(), null, null
+            appProcessingContext.getApplicationType(), appProcessingContext.getMasterPwaApplicationId(), null, null
         )));
       }
 
       if (appProcessingContext.getAppProcessingPermissions().contains(PwaAppProcessingPermission.VIEW_PUBLIC_NOTICE)
           && publicNoticeService.canApplicantViewLatestPublicNotice(appProcessingContext.getPwaApplication())) {
-        viewPublicNoticeUrl = Optional.of(ReverseRouter.route(on(PublicNoticeApplicantViewController.class).renderViewPublicNotice(
-            appProcessingContext.getMasterPwaApplicationId(), appProcessingContext.getApplicationType(),  null, null
-        )));
+        viewPublicNoticeUrl =
+            Optional.of(ReverseRouter.route(on(PublicNoticeApplicantViewController.class).renderViewPublicNotice(
+                appProcessingContext.getMasterPwaApplicationId(), appProcessingContext.getApplicationType(), null, null
+            )));
       }
 
       if (consentReviewService.isApplicationConsented(appProcessingContext.getApplicationDetail())
           && (appProcessingContext.getUserTypes().contains(UserType.OGA)
           || appProcessingContext.getApplicationInvolvement().isUserInHolderTeam())) {
         consentHistoryUrl = Optional.of(ReverseRouter.route(on(PwaViewController.class).renderViewPwa(
-            appProcessingContext.getPwaApplication().getMasterPwa().getId(), PwaViewTab.CONSENT_HISTORY,  null, null
+            appProcessingContext.getPwaApplication().getMasterPwa().getId(), PwaViewTab.CONSENT_HISTORY, null, null
         )));
 
+        reopenAsBuiltGroupUrl = getReopenAsBuiltNotificationGroupUrl(appProcessingContext);
       }
 
       if (appProcessingContext.hasProcessingPermission(PwaAppProcessingPermission.VIEW_PAYMENT_DETAILS_IF_EXISTS)
@@ -149,9 +165,25 @@ public class TasksTabContentService implements AppProcessingTabContentService {
     viewPublicNoticeUrl.ifPresent(s -> modelMap.put("viewPublicNoticeUrl", s));
     consentHistoryUrl.ifPresent(s -> modelMap.put("consentHistoryUrl", s));
     viewAppPaymentUrl.ifPresent(s -> modelMap.put("viewAppPaymentUrl", s));
+    reopenAsBuiltGroupUrl.ifPresent(s -> modelMap.put("reopenAsBuiltGroupUrl", s));
 
     return modelMap;
 
+  }
+
+  private Optional<String> getReopenAsBuiltNotificationGroupUrl(PwaAppProcessingContext appProcessingContext) {
+    var consentOptional = pwaConsentService.getConsentByPwaApplication(appProcessingContext.getPwaApplication());
+    if (consentOptional.isPresent()) {
+      var consent = consentOptional.get();
+      var isOgaAdmin = asBuiltNotificationAuthService.isPersonAsBuiltNotificationAdmin(
+          appProcessingContext.getUser().getLinkedPerson());
+      if (isOgaAdmin && asBuiltViewerService.canGroupBeReopened(consent)) {
+        return asBuiltViewerService.getNotificationGroupOptionalFromConsent(consent)
+            .map(asBuiltGroup -> ReverseRouter.route(on(ReopenAsBuiltNotificationGroupController.class)
+                .renderReopenAsBuiltNotificationForm(asBuiltGroup.getId(), null)));
+      }
+    }
+    return Optional.empty();
   }
 
 }

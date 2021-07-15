@@ -52,8 +52,10 @@ public class AsBuiltNotificationGroupStatusServiceTest {
 
   @Test
   public void setInitialGroupStatus_createsNotStartedStatus() {
+    when(asBuiltNotificationGroupStatusHistoryRepository.findByAsBuiltNotificationGroupAndEndedTimestampIsNull(asBuiltNotificationGroup))
+        .thenReturn(Optional.empty());
 
-    asBuiltNotificationGroupStatusService.setInitialGroupStatus(asBuiltNotificationGroup, person);
+    asBuiltNotificationGroupStatusService.setGroupStatusIfNewOrChanged(asBuiltNotificationGroup, AsBuiltNotificationGroupStatus.NOT_STARTED, person);
 
     verify(asBuiltNotificationGroupStatusHistoryRepository).save(asBuiltNotificationGroupStatusHistoryArgumentCaptor.capture());
 
@@ -68,25 +70,32 @@ public class AsBuiltNotificationGroupStatusServiceTest {
 
   @Test
   public void setGroupStatus_alreadyInProgress_statusNotChanged() {
-    asBuiltNotificationGroupStatusService.setGroupStatus(asBuiltNotificationGroup, AsBuiltNotificationGroupStatus.IN_PROGRESS, person);
+    asBuiltNotificationGroupStatusService.setGroupStatusIfNewOrChanged(asBuiltNotificationGroup, AsBuiltNotificationGroupStatus.IN_PROGRESS, person);
     verify(asBuiltNotificationGroupStatusHistoryRepository, never()).save(any());
   }
 
   @Test
   public void setGroupStatus_alreadyInProgress_statusToComplete() {
-    asBuiltNotificationGroupStatusService.setGroupStatus(asBuiltNotificationGroup, AsBuiltNotificationGroupStatus.COMPLETE, person);
+    asBuiltNotificationGroupStatusService.setGroupStatusIfNewOrChanged(asBuiltNotificationGroup, AsBuiltNotificationGroupStatus.COMPLETE, person);
     verify(asBuiltNotificationGroupStatusHistoryRepository, times(2)).save(asBuiltNotificationGroupStatusHistoryArgumentCaptor.capture());
     var savedHistory = asBuiltNotificationGroupStatusHistoryArgumentCaptor.getValue();
     assertThat(savedHistory.getAsBuiltNotificationGroup()).isEqualTo(asBuiltNotificationGroup);
     assertThat(savedHistory.getStatus()).isEqualTo(AsBuiltNotificationGroupStatus.COMPLETE);
     assertThat(savedHistory.getCreatedByPersonId()).isEqualTo(person.getId());
-    assertThat(savedHistory.getEndedByPersonId()).isEqualTo(person.getId());
+    assertThat(savedHistory.getEndedByPersonId()).isEqualTo(null);
   }
 
   @Test
-  public void getAllNonCompleteAsBuiltNotificationGroups() {
+  public void getAllNonCompleteAsBuiltNotificationGroups_correctlyCallsRepository() {
     asBuiltNotificationGroupStatusService.getAllNonCompleteAsBuiltNotificationGroups();
     verify(asBuiltNotificationGroupStatusHistoryRepository).findAllByEndedTimestampIsNull();
+  }
+
+  @Test
+  public void isGroupStatusComplete_correctlyCallsRepository() {
+    asBuiltNotificationGroupStatusService.isGroupStatusComplete(asBuiltNotificationGroup);
+    verify(asBuiltNotificationGroupStatusHistoryRepository).findByAsBuiltNotificationGroupAndStatusAndEndedTimestampIsNull(
+        asBuiltNotificationGroup, AsBuiltNotificationGroupStatus.COMPLETE);
   }
 
 }

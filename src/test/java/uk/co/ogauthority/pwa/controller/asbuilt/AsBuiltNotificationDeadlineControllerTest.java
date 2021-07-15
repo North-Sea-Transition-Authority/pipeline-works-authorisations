@@ -15,7 +15,6 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 import static uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes.BEFORE_TODAY;
 import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
 
-import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -69,15 +68,15 @@ public class AsBuiltNotificationDeadlineControllerTest extends AbstractControlle
 
   private static final int NOTIFICATION_GROUP_ID  = 10;
   private final AsBuiltNotificationGroup asBuiltNotificationGroup = AsBuiltNotificationGroupTestUtil
-      .createGroupWithConsent_withNgId(NOTIFICATION_GROUP_ID);
+      .createGroupWithConsent_fromNgId(NOTIFICATION_GROUP_ID);
 
   @Before
   public void setup() {
     when(asBuiltNotificationAuthService.isPersonAsBuiltNotificationAdmin(user.getLinkedPerson())).thenReturn(true);
     when(asBuiltViewerService.getAsBuiltNotificationGroupSummaryView(NOTIFICATION_GROUP_ID)).thenReturn(
         AsBuiltNotificationSummaryTestUtil.getAsBuiltNotificationSummmary());
-    when(asBuiltViewerService.getNotificationGroupOptional(NOTIFICATION_GROUP_ID))
-        .thenReturn(Optional.of(asBuiltNotificationGroup));
+    when(asBuiltViewerService.getNotificationGroup(NOTIFICATION_GROUP_ID))
+        .thenReturn(asBuiltNotificationGroup);
   }
 
   @Test

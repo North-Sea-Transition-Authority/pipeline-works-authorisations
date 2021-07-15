@@ -20,12 +20,15 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.controller.appprocessing.processingcharges.IndustryPaymentController;
+import uk.co.ogauthority.pwa.controller.asbuilt.ReopenAsBuiltNotificationGroupController;
 import uk.co.ogauthority.pwa.controller.masterpwas.contacts.PwaContactController;
 import uk.co.ogauthority.pwa.controller.publicnotice.PublicNoticeApplicantViewController;
 import uk.co.ogauthority.pwa.controller.search.consents.PwaViewController;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.dto.appprocessing.ApplicationInvolvementDto;
 import uk.co.ogauthority.pwa.model.dto.appprocessing.ApplicationInvolvementDtoTestUtil;
+import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationGroup;
+import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationGroupTestUtil;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.tasklist.TaskListGroup;
 import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
@@ -40,10 +43,13 @@ import uk.co.ogauthority.pwa.service.appprocessing.processingcharges.appcharges.
 import uk.co.ogauthority.pwa.service.appprocessing.publicnotice.PublicNoticeDocumentUpdateService;
 import uk.co.ogauthority.pwa.service.appprocessing.publicnotice.PublicNoticeService;
 import uk.co.ogauthority.pwa.service.appprocessing.tasks.PwaAppProcessingTaskListService;
+import uk.co.ogauthority.pwa.service.asbuilt.AsBuiltNotificationAuthService;
+import uk.co.ogauthority.pwa.service.asbuilt.view.AsBuiltViewerService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.users.UserType;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
+import uk.co.ogauthority.pwa.service.pwaconsents.PwaConsentService;
 import uk.co.ogauthority.pwa.service.search.consents.PwaViewTab;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
@@ -74,6 +80,15 @@ public class TasksTabContentServiceTest {
   @Mock
   private ApplicationChargeRequestService applicationChargeRequestService;
 
+  @Mock
+  private PwaConsentService pwaConsentService;
+
+  @Mock
+  private AsBuiltViewerService asBuiltViewerService;
+
+  @Mock
+  private AsBuiltNotificationAuthService asBuiltNotificationAuthService;
+
   private TasksTabContentService taskTabContentService;
 
   private WebUserAccount wua;
@@ -81,6 +96,9 @@ public class TasksTabContentServiceTest {
   private PwaAppProcessingContext processingContext;
 
   private List<TaskListGroup> taskListGroupsList;
+
+  private final AsBuiltNotificationGroup asBuiltNotificationGroup = AsBuiltNotificationGroupTestUtil
+      .createGroupWithConsent_fromNgId(10);
 
   @Before
   public void setUp() {
@@ -93,7 +111,10 @@ public class TasksTabContentServiceTest {
         publicNoticeDocumentUpdateService,
         publicNoticeService,
         consentReviewService,
-        applicationChargeRequestService);
+        applicationChargeRequestService,
+        pwaConsentService,
+        asBuiltViewerService,
+        asBuiltNotificationAuthService);
 
     when(pwaApplicationRedirectService.getTaskListRoute(any())).thenReturn("#");
 
@@ -328,6 +349,7 @@ public class TasksTabContentServiceTest {
 
     when(taskListService.getTaskListGroups(processingContext)).thenReturn(taskListGroupsList);
     when(consentReviewService.isApplicationConsented(any())).thenReturn(true);
+    when(pwaConsentService.getConsentByPwaApplication(processingContext.getPwaApplication())).thenReturn(Optional.empty());
 
     var modelMap = taskTabContentService.getTabContent(processingContext, AppProcessingTab.TASKS);
 
@@ -340,6 +362,7 @@ public class TasksTabContentServiceTest {
                 processingContext.getPwaApplication().getMasterPwa().getId(), PwaViewTab.CONSENT_HISTORY,  null, null
             )))
         );
+    assertThat(modelMap).doesNotContainKeys("reopenAsBuiltGroupUrl");
   }
 
   @Test
@@ -353,6 +376,7 @@ public class TasksTabContentServiceTest {
 
     when(taskListService.getTaskListGroups(processingContext)).thenReturn(taskListGroupsList);
     when(consentReviewService.isApplicationConsented(any())).thenReturn(true);
+    when(pwaConsentService.getConsentByPwaApplication(processingContext.getPwaApplication())).thenReturn(Optional.empty());
 
     var modelMap = taskTabContentService.getTabContent(processingContext, AppProcessingTab.TASKS);
 
@@ -364,6 +388,70 @@ public class TasksTabContentServiceTest {
             tuple("consentHistoryUrl", ReverseRouter.route(on(PwaViewController.class).renderViewPwa(
                 processingContext.getPwaApplication().getMasterPwa().getId(), PwaViewTab.CONSENT_HISTORY,  null, null
             )))
+        );
+
+    assertThat(modelMap).doesNotContainKeys("reopenAsBuiltGroupUrl");
+  }
+
+  @Test
+  public void getTabContentModelMap_tasksTab_populated_whenAppIsConsented_userIsNotAsBuiltAdmin_notificationGroupCannotBeReopened() {
+
+    var taskListGroupsList = List.of(new TaskListGroup("test", 10, List.of()));
+
+    var processingContext = createContextFromInvolvementAndPermissions(
+        ApplicationInvolvementDtoTestUtil.generatePwaHolderTeamInvolvement(null, Set.of(PwaOrganisationRole.APPLICATION_SUBMITTER)),
+        PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY);
+
+    when(taskListService.getTaskListGroups(processingContext)).thenReturn(taskListGroupsList);
+    when(consentReviewService.isApplicationConsented(any())).thenReturn(true);
+    when(pwaConsentService.getConsentByPwaApplication(processingContext.getPwaApplication()))
+        .thenReturn(Optional.of(asBuiltNotificationGroup.getPwaConsent()));
+    when(asBuiltNotificationAuthService.isPersonAsBuiltNotificationAdmin(wua.getLinkedPerson())).thenReturn(false);
+
+    var modelMap = taskTabContentService.getTabContent(processingContext, AppProcessingTab.TASKS);
+
+    verify(taskListService, times(1)).getTaskListGroups(processingContext);
+
+    assertThat(modelMap)
+        .extractingFromEntries(Map.Entry::getKey, Map.Entry::getValue)
+        .contains(
+            tuple("consentHistoryUrl", ReverseRouter.route(on(PwaViewController.class).renderViewPwa(
+                processingContext.getPwaApplication().getMasterPwa().getId(), PwaViewTab.CONSENT_HISTORY,  null, null
+            ))));
+
+    assertThat(modelMap).doesNotContainKeys("reopenAsBuiltGroupUrl");
+  }
+
+  @Test
+  public void getTabContentModelMap_tasksTab_populated_whenAppIsConsented_userIsAsBuiltAdmin_notificationGroupCanBeReopened() {
+
+    var taskListGroupsList = List.of(new TaskListGroup("test", 10, List.of()));
+
+    var processingContext = createContextFromInvolvementAndPermissions(
+        ApplicationInvolvementDtoTestUtil.generatePwaHolderTeamInvolvement(null, Set.of(PwaOrganisationRole.APPLICATION_SUBMITTER)),
+        PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY);
+
+    when(taskListService.getTaskListGroups(processingContext)).thenReturn(taskListGroupsList);
+    when(consentReviewService.isApplicationConsented(any())).thenReturn(true);
+    when(pwaConsentService.getConsentByPwaApplication(processingContext.getPwaApplication()))
+        .thenReturn(Optional.of(asBuiltNotificationGroup.getPwaConsent()));
+    when(asBuiltNotificationAuthService.isPersonAsBuiltNotificationAdmin(wua.getLinkedPerson())).thenReturn(true);
+    when(asBuiltViewerService.canGroupBeReopened(asBuiltNotificationGroup.getPwaConsent())).thenReturn(true);
+    when(asBuiltViewerService.getNotificationGroupOptionalFromConsent(asBuiltNotificationGroup.getPwaConsent()))
+        .thenReturn(Optional.of(asBuiltNotificationGroup));
+
+    var modelMap = taskTabContentService.getTabContent(processingContext, AppProcessingTab.TASKS);
+
+    verify(taskListService, times(1)).getTaskListGroups(processingContext);
+
+    assertThat(modelMap)
+        .extractingFromEntries(Map.Entry::getKey, Map.Entry::getValue)
+        .contains(
+            tuple("consentHistoryUrl", ReverseRouter.route(on(PwaViewController.class).renderViewPwa(
+                processingContext.getPwaApplication().getMasterPwa().getId(), PwaViewTab.CONSENT_HISTORY,  null, null
+            ))),
+            tuple("reopenAsBuiltGroupUrl", ReverseRouter.route(on(ReopenAsBuiltNotificationGroupController.class)
+                .renderReopenAsBuiltNotificationForm(asBuiltNotificationGroup.getId(), null)))
         );
   }
 
@@ -399,7 +487,6 @@ public class TasksTabContentServiceTest {
 
     assertThat(modelMap).doesNotContainKey("viewAppPaymentUrl");
   }
-
 
   @Test
   public void getTabContentModelMap_differentTab_empty() {
