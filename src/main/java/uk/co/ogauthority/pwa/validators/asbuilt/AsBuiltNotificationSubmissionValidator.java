@@ -5,6 +5,7 @@ import org.springframework.validation.Errors;
 import org.springframework.validation.SmartValidator;
 import org.springframework.validation.ValidationUtils;
 import uk.co.ogauthority.pwa.model.entity.asbuilt.PipelineChangeCategory;
+import uk.co.ogauthority.pwa.model.enums.aabuilt.AsBuiltNotificationStatus;
 import uk.co.ogauthority.pwa.model.form.asbuilt.AsBuiltNotificationSubmissionForm;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.util.ValidatorUtils;
@@ -25,6 +26,9 @@ public class AsBuiltNotificationSubmissionValidator implements SmartValidator {
     if (form.getAsBuiltNotificationStatus() == null) {
       errors.rejectValue("asBuiltNotificationStatus",
           "asBuiltNotificationStatus" + FieldValidationErrorCodes.REQUIRED.getCode(), "Select at least one of the options");
+    } else if (!AsBuiltNotificationStatus.getActiveStatusSet().contains(form.getAsBuiltNotificationStatus())) {
+      errors.rejectValue("asBuiltNotificationStatus",
+          "asBuiltNotificationStatus" + FieldValidationErrorCodes.INVALID.getCode(), "Select a valid option");
     } else {
       validateAsBuiltStatuses(form, errors, validationHint);
     }

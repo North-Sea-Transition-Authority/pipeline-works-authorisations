@@ -85,13 +85,35 @@ public class AsBuiltNotificationSubmissionValidatorTest {
     form.setAsBuiltNotificationStatus(AsBuiltNotificationStatus.PER_CONSENT);
     form.setPerConsentDateLaidTimestampStr("abc");
 
-    Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(asBuiltNotificationSubmissionValidator, form,
+    Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(
+        asBuiltNotificationSubmissionValidator, form,
         new AsBuiltNotificationSubmissionValidatorHint(false, PipelineChangeCategory.CONSENT_UPDATE));
 
     assertThat(errorsMap).containsOnly(
         entry("perConsentDateLaidTimestampStr",
             Set.of("perConsentDateLaidTimestampStr" + FieldValidationErrorCodes.INVALID.getCode()))
     );
+
+  }
+
+  @Test
+  public void validate_form_invalidStatus_validationFails() {
+    var form = new AsBuiltNotificationSubmissionForm();
+    form.setAsBuiltNotificationStatus(AsBuiltNotificationStatus.MIGRATION);
+
+    for (PipelineChangeCategory pipelineChangeCategory : PipelineChangeCategory.values()) {
+      var errorsMap = ValidatorTestUtils.getFormValidationErrors(
+          asBuiltNotificationSubmissionValidator,
+          form,
+          new AsBuiltNotificationSubmissionValidatorHint(false, pipelineChangeCategory));
+
+      assertThat(errorsMap).containsOnly(
+          entry("asBuiltNotificationStatus",
+              Set.of("asBuiltNotificationStatus" + FieldValidationErrorCodes.INVALID.getCode()))
+      );
+    }
+
+
   }
 
 }

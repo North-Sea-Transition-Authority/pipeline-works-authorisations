@@ -45,6 +45,9 @@ BEGIN
       
    END LOOP;
    logger.LOG (l_log_prefix || l_done || '/' || l_total, 10);
+
+   PWA.migration.post_core_data_migrations();
+   COMMIT;
 END;
 /
 

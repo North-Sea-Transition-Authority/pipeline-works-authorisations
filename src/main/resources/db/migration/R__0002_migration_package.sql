@@ -18,6 +18,8 @@ AS
 
   PROCEDURE migrate_pipeline_history(p_mig_pipeline_history ${datasource.user}.mig_pipeline_history%ROWTYPE);
 
+  PROCEDURE post_core_data_migrations;
+
 END migration;
 /
 
@@ -757,6 +759,178 @@ AS
       ${datasource.user}.migration_logger.log(p_mig_master_pwa, 'FAILED', SQLERRM || CHR(10) || dbms_utility.format_error_backtrace());
 
   END migrate_master;
+
+  PROCEDURE create_pipeline_as_built_data(p_pipeline_id NUMBER)
+  IS
+    l_as_built_count NUMBER;
+    l_system_person_id NUMBER;
+  BEGIN
+
+    SELECT wuac.person_id
+    INTO l_system_person_id
+    FROM securemgr.web_user_account_current wuac
+    WHERE wuac.wua_id = 1;
+
+    -- if we can find as builts for any pipeline detail we can just skip the migration.
+    SELECT COUNT(*)
+    INTO l_as_built_count
+    FROM ${datasource.user}.pipelines p
+    JOIN ${datasource.user}.pipeline_details pd ON p.id = pd.pipeline_id
+    JOIN ${datasource.user}.as_built_notif_grp_pipelines abngp ON pd.id = abngp.pipeline_detail_id
+    WHERE p.id = p_pipeline_id;
+
+    IF(l_as_built_count != 0) THEN
+      dbms_output.PUT_LINE('SKIPPING as-built migration for pipeline_id: ' || p_pipeline_id);
+      RETURN;
+    ELSE
+      dbms_output.PUT('PROCESSING as-built migration for pipeline_id: ' || p_pipeline_id || ' ');
+    END IF;
+
+    FOR mig_as_built_info IN (
+      WITH mig_as_built_info AS (
+        SELECT
+          pd.pipeline_id
+        , pd.id pd_id
+        , pd.start_timestamp detail_start_timestamp
+        , pwad.reference master_pwa_reference
+        , pd.pipeline_number
+        , pc.id initial_pwa_consent_id
+        , pdmd.abandoned_date
+        , LAG(pdmd.abandoned_date) OVER (PARTITION BY pd.pipeline_id ORDER BY pd.pipeline_id ASC, pd.id DESC) lag_pl_abandoned_date
+        , pdmd.commissioned_date
+        , LAG(pdmd.commissioned_date) OVER (PARTITION BY pd.pipeline_id ORDER BY pd.pipeline_id ASC, pd.id DESC) lag_pl_commisioned_date
+        FROM ${datasource.user}.pipeline_details pd
+        JOIN ${datasource.user}.pipelines p ON pd.pipeline_id = p.id
+        JOIN ${datasource.user}.pwa_details pwad ON pwad.id = p.pwa_id AND pwad.end_timestamp IS NULL
+        JOIN ${datasource.user}.pwa_consents pc ON pwad.pwa_id = pc.pwa_id AND pc.consent_type = 'INITIAL_PWA'
+        JOIN ${datasource.user}.pipeline_detail_migration_data pdmd ON pd.id = pdmd.pipeline_detail_id
+        WHERE (pdmd.abandoned_date IS NOT NULL OR pdmd.commissioned_date IS NOT NULL)
+        AND p.id = p_pipeline_id
+        ORDER BY pd.pipeline_id, pd.id
+      )
+      -- commissioned date as-builts source data
+      SELECT
+        'NEW_PIPELINE' pipeline_change_category
+      , mabi.detail_start_timestamp
+      , mabi.master_pwa_reference || ' - Commissioned date' as_built_group_ref
+      , mabi.initial_pwa_consent_id
+      , mabi.pd_id
+      , NULL date_laid
+      , mabi.commissioned_date date_pipeline_brought_into_use
+      FROM mig_as_built_info mabi
+      -- only return the first commissioned date row or each commissioned date row which is different from the previous detail
+      WHERE mabi.commissioned_date IS NOT NULL AND (
+      mabi.lag_pl_commisioned_date IS NULL
+      OR
+      COALESCE(mabi.lag_pl_commisioned_date, TO_DATE('01-01-0000')) != COALESCE(mabi.commissioned_date, TO_DATE('01-01-0000'))
+      )
+    ) LOOP
+      DECLARE
+        l_group_id NUMBER;
+        l_group_pipeline_id NUMBER;
+      BEGIN
+
+        dbms_output.PUT(' . ');
+
+        INSERT INTO ${datasource.user}.as_built_notification_groups (
+          pwa_consent_id
+        , reference
+        , created_timestamp
+        )
+        VALUES(
+          mig_as_built_info.initial_pwa_consent_id
+        , mig_as_built_info.as_built_group_ref
+        , mig_as_built_info.detail_start_timestamp
+        )
+        RETURNING id INTO l_group_id;
+
+        dbms_output.PUT(' . ');
+
+        INSERT INTO ${datasource.user}.as_built_notif_grp_details (
+          as_built_notification_group_id
+        , deadline_date
+        , created_by_person_id
+        , created_timestamp
+        )
+        VALUES (
+          l_group_id
+        , TO_DATE(TRUNC(mig_as_built_info.detail_start_timestamp))
+        , l_system_person_id
+        , mig_as_built_info.detail_start_timestamp
+        );
+
+        dbms_output.PUT(' . ');
+
+        INSERT INTO ${datasource.user}.as_built_notif_grp_pipelines (
+          as_built_notification_group_id
+        , pipeline_detail_id
+        , pipeline_change_category
+        )
+        VALUES (
+          l_group_id
+        , mig_as_built_info.pd_id
+        , mig_as_built_info.pipeline_change_category
+        )
+        RETURNING id INTO l_group_pipeline_id;
+
+        dbms_output.PUT(' . ');
+
+        INSERT INTO ${datasource.user}.as_built_notif_grp_status_hist (
+          as_built_notification_group_id
+        , status
+        , created_by_person_id
+        , created_timestamp
+        )
+        VALUES (
+          l_group_id
+        , 'COMPLETE'
+        , l_system_person_id
+        , mig_as_built_info.detail_start_timestamp
+        );
+
+        dbms_output.PUT('.');
+
+        INSERT INTO ${datasource.user}.as_built_notif_submissions (
+          as_built_notif_pipeline_id
+        , submitted_by_person_id
+        , submitted_timestamp
+        , as_built_status
+        , date_laid
+        , date_pipeline_brought_into_use
+        , tip_flag
+        )
+        VALUES (
+          l_group_pipeline_id
+        , l_system_person_id
+        , mig_as_built_info.detail_start_timestamp
+        , 'MIGRATION'
+        , mig_as_built_info.date_laid
+        , mig_as_built_info.date_pipeline_brought_into_use
+        , 1
+        );
+
+        dbms_output.PUT('|');
+
+      END;
+    END LOOP;
+
+    dbms_output.PUT_LINE(' COMPLETE');
+
+  END create_pipeline_as_built_data;
+
+  /**
+  Migration steps that rely on already fully migrated pipelines.
+ */
+  PROCEDURE post_core_data_migrations
+    IS
+  BEGIN
+
+    FOR pipeline IN (SELECT * FROM ${datasource.user}.pipelines)
+    LOOP
+      create_pipeline_as_built_data(p_pipeline_id => pipeline.id);
+    END LOOP;
+
+  END post_core_data_migrations;
 
 END migration;
 /
