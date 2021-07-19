@@ -338,6 +338,51 @@ public class PortalTeamAccessorIntegrationTest {
 
   }
 
+
+  @Test
+  @Transactional
+  public void getTeamsWhereRoleMatching_hasSearchForRole_andTeamScoped() {
+    // tests for scoped and unscoped required because construction of team dto is done within method
+    List<PortalTeamDto> foundTeams = portalTeamAccessor.getTeamsWhereRoleMatching(
+        SCOPED_TEAM_PORTAL_TYPE,
+        ExampleTeamRole.getAllRoleNames()
+    );
+
+    assertThat(foundTeams).hasSize(1);
+    assertPortalTeamInstanceDtoMappingAsExpected(
+        foundTeams.get(0),
+        SCOPED_TEAM_UREF,
+        SCOPED_TEAM_RES_ID,
+        SCOPED_TEAM_PORTAL_TYPE,
+        SCOPED_TEAM_NAME,
+        SCOPED_TEAM_DESCRIPTION
+    );
+
+  }
+
+  @Test
+  @Transactional
+  public void getTeamsWhereRoleMatching_hasSearchForRole_andTeamUnscoped() {
+    // tests for scoped and unscoped required because construction of team dto is done within method
+    List<PortalTeamDto> foundTeams = portalTeamAccessor.getTeamsWhereRoleMatching(
+        UNSCOPED_TEAM_PORTAL_TYPE,
+        ExampleTeamRole.getAllRoleNames()
+    );
+
+    assertThat(foundTeams).hasSize(1);
+    assertPortalTeamInstanceDtoMappingAsExpected(
+        foundTeams.get(0),
+        null,
+        UNSCOPED_TEAM_RES_ID,
+        UNSCOPED_TEAM_PORTAL_TYPE,
+        UNSCOPED_TEAM_NAME,
+        UNSCOPED_TEAM_DESCRIPTION
+    );
+
+  }
+
+
+
   @Test
   @Transactional
   public void getAllPortalSystemPrivilegesForPerson_returnsExpectedSystemPrivs_whenPersonIsRoleWithPriv(){

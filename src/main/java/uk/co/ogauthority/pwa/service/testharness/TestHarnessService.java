@@ -16,6 +16,7 @@ import org.quartz.TriggerBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 import uk.co.ogauthority.pwa.energyportal.model.dto.teams.PortalTeamDto;
@@ -32,6 +33,7 @@ import uk.co.ogauthority.pwa.util.StreamUtils;
 import uk.co.ogauthority.pwa.validators.testharness.GenerateApplicationValidator;
 
 @Service
+@Profile("development")
 public class TestHarnessService {
 
 
