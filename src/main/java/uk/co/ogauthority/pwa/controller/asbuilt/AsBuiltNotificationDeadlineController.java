@@ -14,7 +14,6 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.exception.AccessDeniedException;
-import uk.co.ogauthority.pwa.exception.AsBuiltNotificationGroupNotFoundException;
 import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationGroup;
 import uk.co.ogauthority.pwa.model.form.asbuilt.ChangeAsBuiltNotificationGroupDeadlineForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
@@ -102,10 +101,7 @@ public class AsBuiltNotificationDeadlineController {
   }
 
   private AsBuiltNotificationGroup getAsBuiltNotificationGroup(Integer asBuiltNotificationGroupId) {
-    return asBuiltViewerService.getNotificationGroupOptional(asBuiltNotificationGroupId)
-        .orElseThrow(
-            () -> new AsBuiltNotificationGroupNotFoundException(String.format("Could not find as-built notification group with id %s",
-                asBuiltNotificationGroupId)));
+    return asBuiltViewerService.getNotificationGroup(asBuiltNotificationGroupId);
   }
 
 }

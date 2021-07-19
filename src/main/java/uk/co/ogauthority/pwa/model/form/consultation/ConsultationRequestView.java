@@ -19,8 +19,7 @@ public class ConsultationRequestView {
   private final Instant responseDate;
   private final String responseDateDisplay;
   private final ConsultationResponseOption responseType;
-  private final String responseConfirmReason;
-  private final String responseRejectionReason;
+  private final String responseText;
   private final String responseByPerson;
   private final Boolean canWithdraw;
   private final String withdrawnByUser;
@@ -43,8 +42,7 @@ public class ConsultationRequestView {
     this.responseDate = null;
     this.responseDateDisplay = null;
     this.responseType = null;
-    this.responseConfirmReason = null;
-    this.responseRejectionReason = null;
+    this.responseText = null;
     this.responseByPerson = null;
     this.canWithdraw = canWithdraw;
     this.withdrawnByUser = withdrawnByUser;
@@ -60,8 +58,7 @@ public class ConsultationRequestView {
                                  ConsultationResponseOption responseType,
                                  Boolean canWithdraw,
                                  String responseByPerson,
-                                 String responseConfirmReason,
-                                 String responseRejectionReason) {
+                                 String responseText) {
     this.consultationRequestId = consultationRequestId;
     this.consulteeGroupName = consulteeGroupName;
     this.requestDate = requestDate;
@@ -71,8 +68,7 @@ public class ConsultationRequestView {
     this.responseDate = responseDate;
     this.responseDateDisplay =   DateUtils.formatDateTime(responseDate.truncatedTo(ChronoUnit.SECONDS));
     this.responseType = responseType;
-    this.responseConfirmReason = responseConfirmReason;
-    this.responseRejectionReason = responseRejectionReason;
+    this.responseText = responseText;
     this.responseByPerson = responseByPerson;
     this.canWithdraw = canWithdraw;
     this.endTimeStamp = null;
@@ -115,12 +111,8 @@ public class ConsultationRequestView {
     return responseType;
   }
 
-  public String getResponseConfirmReason() {
-    return responseConfirmReason;
-  }
-
-  public String getResponseRejectionReason() {
-    return responseRejectionReason;
+  public String getResponseText() {
+    return responseText;
   }
 
   public String getResponseByPerson() {
@@ -157,8 +149,7 @@ public class ConsultationRequestView {
         && Objects.equals(responseDate, that.responseDate)
         && Objects.equals(responseDateDisplay, that.responseDateDisplay)
         && responseType == that.responseType
-        && Objects.equals(responseConfirmReason, that.responseConfirmReason)
-        && Objects.equals(responseRejectionReason, that.responseRejectionReason)
+        && Objects.equals(responseText, that.responseText)
         && Objects.equals(responseByPerson, that.responseByPerson)
         && Objects.equals(canWithdraw, that.canWithdraw)
         && Objects.equals(withdrawnByUser, that.withdrawnByUser)
@@ -168,7 +159,7 @@ public class ConsultationRequestView {
   @Override
   public int hashCode() {
     return Objects.hash(consultationRequestId, consulteeGroupName, requestDate, requestDateDisplay, status,
-        dueDateDisplay, responseDate, responseDateDisplay, responseType, responseConfirmReason, responseRejectionReason,
-        responseByPerson, canWithdraw, withdrawnByUser, endTimeStamp);
+        dueDateDisplay, responseDate, responseDateDisplay, responseType, responseText, responseByPerson,
+        canWithdraw, withdrawnByUser, endTimeStamp);
   }
 }

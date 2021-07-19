@@ -29,6 +29,7 @@ import org.springframework.validation.Errors;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccountTestUtil;
 import uk.co.ogauthority.pwa.controller.AbstractControllerTest;
+import uk.co.ogauthority.pwa.controller.WorkAreaController;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationGroup;
 import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationGroupPipeline;
@@ -37,6 +38,7 @@ import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationGroupTestUt
 import uk.co.ogauthority.pwa.model.entity.asbuilt.PipelineChangeCategory;
 import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
 import uk.co.ogauthority.pwa.model.enums.aabuilt.AsBuiltNotificationStatus;
+import uk.co.ogauthority.pwa.model.enums.aabuilt.AsBuiltSubmissionResult;
 import uk.co.ogauthority.pwa.model.form.asbuilt.AsBuiltNotificationSubmissionForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContextService;
@@ -45,8 +47,10 @@ import uk.co.ogauthority.pwa.service.asbuilt.AsBuiltInteractorService;
 import uk.co.ogauthority.pwa.service.asbuilt.AsBuiltNotificationAuthService;
 import uk.co.ogauthority.pwa.service.asbuilt.AsBuiltNotificationGroupService;
 import uk.co.ogauthority.pwa.service.asbuilt.AsBuiltPipelineNotificationService;
+import uk.co.ogauthority.pwa.service.asbuilt.view.AsBuiltViewerService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
 import uk.co.ogauthority.pwa.service.pwaconsents.testutil.PipelineDetailTestUtil;
+import uk.co.ogauthority.pwa.service.workarea.WorkAreaTab;
 import uk.co.ogauthority.pwa.validators.asbuilt.AsBuiltNotificationSubmissionValidator;
 
 @RunWith(SpringRunner.class)
@@ -74,6 +78,9 @@ public class AsBuiltNotificationSubmissionControllerTest extends AbstractControl
   @MockBean
   private AsBuiltInteractorService asBuiltInteractorService;
 
+  @MockBean
+  private AsBuiltViewerService asBuiltViewerService;
+
   @SpyBean
   private AsBuiltBreadCrumbService asBuiltBreadCrumbService;
 
@@ -83,7 +90,7 @@ public class AsBuiltNotificationSubmissionControllerTest extends AbstractControl
   private static final int PIPElINE_DETAIL_ID  = 20;
 
   private final AsBuiltNotificationGroup asBuiltNotificationGroup = AsBuiltNotificationGroupTestUtil
-      .createGroupWithConsent_withNgId(NOTIFICATION_GROUP_ID);
+      .createGroupWithConsent_fromNgId(NOTIFICATION_GROUP_ID);
   private final PipelineDetail pipelineDetail = PipelineDetailTestUtil
       .createPipelineDetail_withDefaultPipelineNumber(PIPElINE_DETAIL_ID, new PipelineId(50), Instant.now());
   private final AsBuiltNotificationGroupPipeline asBuiltNotificationGroupPipeline = AsBuiltNotificationGroupPipelineUtil
@@ -183,6 +190,8 @@ public class AsBuiltNotificationSubmissionControllerTest extends AbstractControl
 
   @Test
   public void postSubmitAsBuiltNotification_validationSuccess_returnToDashboard() throws Exception {
+    when(asBuiltInteractorService.submitAsBuiltNotification(any(), any(), any())).thenReturn(AsBuiltSubmissionResult.AS_BUILT_GROUP_IN_PROGRESS);
+
     mockMvc.perform(post(
         ReverseRouter.route(on(AsBuiltNotificationSubmissionController.class)
             .postSubmitAsBuiltNotification(NOTIFICATION_GROUP_ID, PIPElINE_DETAIL_ID, user, new AsBuiltNotificationSubmissionForm(), null, null)))
@@ -190,6 +199,23 @@ public class AsBuiltNotificationSubmissionControllerTest extends AbstractControl
         .with(csrf()))
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl(ReverseRouter.route(on(AsBuiltNotificationController.class).getAsBuiltNotificationDashboard(NOTIFICATION_GROUP_ID, user))));
+
+    verify(asBuiltInteractorService)
+        .submitAsBuiltNotification(eq(asBuiltNotificationGroupPipeline), any(AsBuiltNotificationSubmissionForm.class), eq(user));
+  }
+
+  @Test
+  public void postSubmitAsBuiltNotification_validationSuccess_groupComplete_returnToWorkArea() throws Exception {
+    when(asBuiltInteractorService.submitAsBuiltNotification(any(), any(), any())).thenReturn(AsBuiltSubmissionResult.AS_BUILT_GROUP_COMPLETED);
+
+    mockMvc.perform(post(
+        ReverseRouter.route(on(AsBuiltNotificationSubmissionController.class)
+            .postSubmitAsBuiltNotification(NOTIFICATION_GROUP_ID, PIPElINE_DETAIL_ID, user, new AsBuiltNotificationSubmissionForm(), null, null)))
+        .with(authenticatedUserAndSession(user))
+        .with(csrf()))
+        .andExpect(status().is3xxRedirection())
+        .andExpect(redirectedUrl(ReverseRouter.route(on(WorkAreaController.class).renderWorkAreaTab(null, WorkAreaTab.AS_BUILT_NOTIFICATIONS,
+            null))));
 
     verify(asBuiltInteractorService)
         .submitAsBuiltNotification(eq(asBuiltNotificationGroupPipeline), any(AsBuiltNotificationSubmissionForm.class), eq(user));

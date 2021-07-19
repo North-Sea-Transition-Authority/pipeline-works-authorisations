@@ -2,6 +2,9 @@ package uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultee
 
 import java.time.Instant;
 import java.util.Objects;
+import java.util.Set;
+import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -9,6 +12,8 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import uk.co.ogauthority.pwa.model.entity.converters.ConsultationResponseOptionGroupConverter;
+import uk.co.ogauthority.pwa.model.form.enums.ConsultationResponseOptionGroup;
 
 @Entity
 @Table(name = "consultee_group_details")
@@ -35,6 +40,10 @@ public class ConsulteeGroupDetail {
   private Instant endTimestamp;
 
   private Integer displayOrder;
+
+  @Convert(converter = ConsultationResponseOptionGroupConverter.class)
+  @Column(name = "csv_response_option_group_list")
+  private Set<ConsultationResponseOptionGroup> responseOptionGroups;
 
   public ConsulteeGroupDetail() {
   }
@@ -115,6 +124,14 @@ public class ConsulteeGroupDetail {
     this.displayOrder = displayOrder;
   }
 
+  public Set<ConsultationResponseOptionGroup> getResponseOptionGroups() {
+    return responseOptionGroups;
+  }
+
+  public void setResponseOptionGroups(Set<ConsultationResponseOptionGroup> responseOptionGroups) {
+    this.responseOptionGroups = responseOptionGroups;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -132,11 +149,13 @@ public class ConsulteeGroupDetail {
         && Objects.equals(versionNo, that.versionNo)
         && Objects.equals(startTimestamp, that.startTimestamp)
         && Objects.equals(endTimestamp, that.endTimestamp)
-        && Objects.equals(displayOrder, that.displayOrder);
+        && Objects.equals(displayOrder, that.displayOrder)
+        && Objects.equals(responseOptionGroups, that.responseOptionGroups);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, consulteeGroup, name, abbreviation, tipFlag, versionNo, startTimestamp, endTimestamp, displayOrder);
+    return Objects.hash(id, consulteeGroup, name, abbreviation, tipFlag, versionNo,
+        startTimestamp, endTimestamp, displayOrder, responseOptionGroups);
   }
 }

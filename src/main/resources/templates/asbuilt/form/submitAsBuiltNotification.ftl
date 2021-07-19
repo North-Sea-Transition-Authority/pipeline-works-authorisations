@@ -14,7 +14,7 @@
 
     <@fdsForm.htmlForm>
 
-        <@fdsRadio.radioGroup path="form.asBuiltNotificationStatus" labelText="Describe the status of the pipeline" fieldsetHeadingClass="govuk-fieldset__legend--s" hiddenContent=true hintText="If previously you have submitted an \"As-built\" in error, select 'Not provided'.">
+        <@fdsRadio.radioGroup path="form.asBuiltNotificationStatus" labelText="Describe the status of the pipeline" fieldsetHeadingClass="govuk-fieldset__legend--s" hiddenContent=true hintText="If previously you have submitted an \"as-built\" in error, select 'Not provided'.">
             <#assign firstItem=true/>
             <#list asBuiltStatusOptions as asBuiltStatusOption>
                 <@fdsRadio.radioItem path="form.asBuiltNotificationStatus" itemMap={asBuiltStatusOption : asBuiltStatusOption.getDisplayName()} isFirstItem=firstItem>

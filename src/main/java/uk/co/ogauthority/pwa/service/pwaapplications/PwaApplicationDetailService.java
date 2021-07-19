@@ -260,6 +260,10 @@ public class PwaApplicationDetailService {
     return pwaApplicationDetailRepository.findByPwaApplicationAndSubmittedTimestampIsNotNull(pwaApplication);
   }
 
+  List<PwaApplicationDetail> getLatestDetailsForApplications(List<PwaApplication> pwaApplications) {
+    return pwaApplicationDetailRepository.findByPwaApplicationIsInAndTipFlagIsTrue(pwaApplications);
+  }
+
   public Optional<PwaApplicationDetail> getLatestSubmittedDetail(PwaApplication pwaApplication) {
 
     var submittedDetails = getAllSubmittedApplicationDetailsForApplication(pwaApplication);

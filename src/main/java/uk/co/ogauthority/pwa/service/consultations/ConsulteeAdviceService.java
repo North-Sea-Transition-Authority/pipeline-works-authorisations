@@ -47,7 +47,8 @@ public class ConsulteeAdviceService implements AppProcessingService {
 
     var consultationInvolvement = processingContext.getApplicationInvolvement().getConsultationInvolvement()
         .orElseThrow(() -> new RuntimeException(String.format(
-            "Couldn't find consultation involvement for app with ID: %s", processingContext.getMasterPwaApplicationId())));
+            "Couldn't find consultation involvement for app with ID: %s",
+            processingContext.getMasterPwaApplicationId())));
 
     var requestToResponseMap = consultationResponseService
         .getResponsesByConsultationRequests(consultationInvolvement.getHistoricalRequests())

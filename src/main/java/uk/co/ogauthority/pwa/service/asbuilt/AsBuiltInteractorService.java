@@ -10,7 +10,9 @@ import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationGroup;
 import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationGroupPipeline;
+import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationGroupStatus;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
+import uk.co.ogauthority.pwa.model.enums.aabuilt.AsBuiltSubmissionResult;
 import uk.co.ogauthority.pwa.model.form.asbuilt.AsBuiltNotificationSubmissionForm;
 import uk.co.ogauthority.pwa.model.form.asbuilt.ChangeAsBuiltNotificationGroupDeadlineForm;
 import uk.co.ogauthority.pwa.repository.asbuilt.AsBuiltNotificationGroupRepository;
@@ -63,7 +65,7 @@ public class AsBuiltInteractorService {
                                         List<AsBuiltPipelineNotificationSpec> pipelineNotificationSpecs) {
     var asBuiltGroup = createAsBuiltNotificationGroup(pwaConsent, reference);
 
-    asBuiltNotificationGroupStatusService.setInitialGroupStatus(asBuiltGroup, person);
+    asBuiltNotificationGroupStatusService.setGroupStatusIfNewOrChanged(asBuiltGroup, AsBuiltNotificationGroupStatus.NOT_STARTED, person);
     asBuiltGroupDeadlineService.setNewDeadline(asBuiltGroup, deadlineDate, person);
     asBuiltPipelineNotificationService.addPipelineDetailsToAsBuiltNotificationGroup(asBuiltGroup,
         pipelineNotificationSpecs);
@@ -80,10 +82,13 @@ public class AsBuiltInteractorService {
   }
 
   @Transactional
-  public void submitAsBuiltNotification(AsBuiltNotificationGroupPipeline abngPipeline,
-                                        AsBuiltNotificationSubmissionForm form,
-                                        AuthenticatedUserAccount user) {
+  public AsBuiltSubmissionResult submitAsBuiltNotification(AsBuiltNotificationGroupPipeline abngPipeline,
+                                                           AsBuiltNotificationSubmissionForm form,
+                                                           AuthenticatedUserAccount user) {
     asBuiltNotificationSubmissionService.submitAsBuiltNotification(abngPipeline, form, user);
+    return asBuiltNotificationGroupStatusService.isGroupStatusComplete(abngPipeline.getAsBuiltNotificationGroup())
+        ? AsBuiltSubmissionResult.AS_BUILT_GROUP_COMPLETED
+        : AsBuiltSubmissionResult.AS_BUILT_GROUP_IN_PROGRESS;
   }
 
   @Transactional
@@ -96,6 +101,12 @@ public class AsBuiltInteractorService {
 
   public void notifyHoldersOfAsBuiltGroupDeadlines() {
     asBuiltGroupDeadlineService.notifyHoldersOfAsBuiltGroupDeadlines();
+  }
+
+  @Transactional
+  public void reopenAsBuiltNotificationGroup(AsBuiltNotificationGroup asBuiltNotificationGroup, Person person) {
+    asBuiltNotificationGroupStatusService.setGroupStatusIfNewOrChanged(asBuiltNotificationGroup, AsBuiltNotificationGroupStatus.IN_PROGRESS,
+        person);
   }
 
 }

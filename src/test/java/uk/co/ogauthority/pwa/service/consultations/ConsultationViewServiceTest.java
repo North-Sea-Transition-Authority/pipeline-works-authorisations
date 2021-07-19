@@ -128,7 +128,7 @@ public class ConsultationViewServiceTest {
     assertThat(consultationRequestViews.get(0).getCurrentRequest().getConsulteeGroupName()).isEqualTo("nameA");
     assertThat(consultationRequestViews.get(0).getCurrentRequest().getRequestDateDisplay()).isEqualTo("08 February 2020 10:09");
     assertThat(consultationRequestViews.get(0).getCurrentRequest().getResponseType()).isEqualTo(ConsultationResponseOption.REJECTED);
-    assertThat(consultationRequestViews.get(0).getCurrentRequest().getResponseRejectionReason()).isEqualTo("my reason");
+    assertThat(consultationRequestViews.get(0).getCurrentRequest().getResponseText()).isEqualTo("my reason");
     assertThat(consultationRequestViews.get(0).getCurrentRequest().getResponseByPerson()).isEqualTo("Michael Scott");
     assertThat(consultationRequestViews.get(0).getCurrentRequest().getResponseDateDisplay()).isEqualTo("05 February 2020 10:09");
     assertThat(consultationRequestViews.get(0).getCurrentRequest().getWithdrawnByUser()).isNull();
@@ -136,7 +136,7 @@ public class ConsultationViewServiceTest {
     assertThat(consultationRequestViews.get(1).getCurrentRequest().getConsulteeGroupName()).isEqualTo("nameB");
     assertThat(consultationRequestViews.get(1).getCurrentRequest().getRequestDateDisplay()).isEqualTo("05 February 2020 10:09");
     assertThat(consultationRequestViews.get(1).getCurrentRequest().getResponseType()).isNull();
-    assertThat(consultationRequestViews.get(1).getCurrentRequest().getResponseRejectionReason()).isNull();
+    assertThat(consultationRequestViews.get(1).getCurrentRequest().getResponseText()).isNull();
     assertThat(consultationRequestViews.get(1).getCurrentRequest().getResponseByPerson()).isNull();
     assertThat(consultationRequestViews.get(1).getCurrentRequest().getResponseDateDisplay()).isNull();
     assertThat(consultationRequestViews.get(1).getCurrentRequest().getWithdrawnByUser()).isNull();
@@ -144,7 +144,7 @@ public class ConsultationViewServiceTest {
     assertThat(consultationRequestViews.get(1).getHistoricalRequests().get(0).getConsulteeGroupName()).isEqualTo("nameB");
     assertThat(consultationRequestViews.get(1).getHistoricalRequests().get(0).getRequestDateDisplay()).isEqualTo("04 February 2020 10:09");
     assertThat(consultationRequestViews.get(1).getHistoricalRequests().get(0).getResponseType()).isNull();
-    assertThat(consultationRequestViews.get(1).getHistoricalRequests().get(0).getResponseRejectionReason()).isNull();
+    assertThat(consultationRequestViews.get(1).getHistoricalRequests().get(0).getResponseText()).isNull();
     assertThat(consultationRequestViews.get(1).getHistoricalRequests().get(0).getResponseByPerson()).isNull();
     assertThat(consultationRequestViews.get(1).getHistoricalRequests().get(0).getResponseDateDisplay()).isNull();
     assertThat(consultationRequestViews.get(1).getHistoricalRequests().get(0).getWithdrawnByUser()).isEqualTo("David Henry");
@@ -179,7 +179,7 @@ public class ConsultationViewServiceTest {
     assertThat(requestView.getConsulteeGroupName()).isEqualTo("group name");
     assertThat(requestView.getRequestDateDisplay()).isEqualTo("05 February 2020 10:09");
     assertThat(requestView.getResponseType()).isNull();
-    assertThat(requestView.getResponseRejectionReason()).isNull();
+    assertThat(requestView.getResponseText()).isNull();
     assertThat(requestView.getResponseByPerson()).isNull();
     assertThat(requestView.getResponseDateDisplay()).isNull();
 
@@ -221,7 +221,7 @@ public class ConsultationViewServiceTest {
     assertThat(requestView.getConsulteeGroupName()).isEqualTo("group name");
     assertThat(requestView.getRequestDateDisplay()).isEqualTo("05 February 2020 10:09");
     assertThat(requestView.getResponseType()).isEqualTo(ConsultationResponseOption.REJECTED);
-    assertThat(requestView.getResponseRejectionReason()).isEqualTo("my reason");
+    assertThat(requestView.getResponseText()).isEqualTo("my reason");
     assertThat(requestView.getResponseByPerson()).isEqualTo("Michael Scott");
     assertThat(requestView.getResponseDateDisplay()).isEqualTo("05 February 2020 10:09");
   }
@@ -297,8 +297,7 @@ public class ConsultationViewServiceTest {
     assertThat(consultationRequestViews.get(0).getConsulteeGroupName()).isEqualTo("nameA");
     assertThat(consultationRequestViews.get(0).getRequestDateDisplay()).isEqualTo("08 February 2020 10:09");
     assertThat(consultationRequestViews.get(0).getResponseType()).isEqualTo(ConsultationResponseOption.CONFIRMED);
-    assertThat(consultationRequestViews.get(0).getResponseConfirmReason()).isEqualTo("confirm text");
-    assertThat(consultationRequestViews.get(0).getResponseRejectionReason()).isNull();
+    assertThat(consultationRequestViews.get(0).getResponseText()).isEqualTo("confirm text");
     assertThat(consultationRequestViews.get(0).getResponseByPerson()).isEqualTo("fr2 sr2");
     assertThat(consultationRequestViews.get(0).getResponseDateDisplay()).isEqualTo("11 February 2020 10:09");
     assertThat(consultationRequestViews.get(0).getWithdrawnByUser()).isNull();
@@ -306,7 +305,7 @@ public class ConsultationViewServiceTest {
     assertThat(consultationRequestViews.get(1).getConsulteeGroupName()).isEqualTo("nameA");
     assertThat(consultationRequestViews.get(1).getRequestDateDisplay()).isEqualTo("05 February 2020 10:09");
     assertThat(consultationRequestViews.get(1).getResponseType()).isEqualTo(ConsultationResponseOption.REJECTED);
-    assertThat(consultationRequestViews.get(1).getResponseRejectionReason()).isEqualTo("my reason");
+    assertThat(consultationRequestViews.get(1).getResponseText()).isEqualTo("my reason");
     assertThat(consultationRequestViews.get(1).getResponseByPerson()).isEqualTo("fr1 sr1");
     assertThat(consultationRequestViews.get(1).getResponseDateDisplay()).isEqualTo("05 February 2020 10:09");
     assertThat(consultationRequestViews.get(1).getWithdrawnByUser()).isNull();
@@ -332,7 +331,7 @@ public class ConsultationViewServiceTest {
         instantTime.atZone(ZoneOffset.UTC).withDayOfMonth(5).withMonth(2).withYear(2020).withHour(10).withMinute(9).toInstant().truncatedTo(ChronoUnit.SECONDS),
         null, null,
         instantTime.atZone(ZoneOffset.UTC).withDayOfMonth(6).withMonth(2).withYear(2020).withHour(10).withMinute(9).toInstant().truncatedTo(ChronoUnit.SECONDS),
-        null, null, null, null, null);
+        null, null, null, null);
 
     assertThat(consulationRequest.getRequestDateDisplay()).isEqualTo("05 February 2020 10:09");
   }
@@ -354,7 +353,7 @@ public class ConsultationViewServiceTest {
         instantTime.atZone(ZoneOffset.UTC).withDayOfMonth(5).withMonth(2).withYear(2020).withHour(10).withMinute(9).toInstant().truncatedTo(ChronoUnit.SECONDS),
         null, null,
         instantTime.atZone(ZoneOffset.UTC).withDayOfMonth(6).withMonth(2).withYear(2020).withHour(10).withMinute(9).toInstant().truncatedTo(ChronoUnit.SECONDS),
-        null, null, null, null, null);
+        null, null, null, null);
 
     assertThat(consulationRequest.getResponseDateDisplay()).isEqualTo("06 February 2020 10:09");
   }

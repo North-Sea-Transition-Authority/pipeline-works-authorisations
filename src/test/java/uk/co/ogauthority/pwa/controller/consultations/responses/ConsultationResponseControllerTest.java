@@ -13,6 +13,7 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
 
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
@@ -23,8 +24,6 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.http.HttpMethod;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.validation.BeanPropertyBindingResult;
-import org.springframework.validation.ObjectError;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.PwaAppProcessingContextAbstractControllerTest;
@@ -32,7 +31,6 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.dto.appprocessing.ProcessingPermissionsDto;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.form.consultation.ConsultationResponseForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.PwaAppProcessingPermissionService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContextService;
@@ -40,9 +38,11 @@ import uk.co.ogauthority.pwa.service.consultations.ConsultationResponseService;
 import uk.co.ogauthority.pwa.service.consultations.ConsultationViewService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.testutils.ControllerTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaAppProcessingContextDtoTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
+import uk.co.ogauthority.pwa.validators.consultations.ConsultationResponseValidator;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(controllers = ConsultationResponseController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {PwaAppProcessingContextService.class}))
@@ -56,6 +56,9 @@ public class ConsultationResponseControllerTest extends PwaAppProcessingContextA
 
   @MockBean
   private ConsultationViewService consultationViewService;
+
+  @MockBean
+  private ConsultationResponseValidator consultationResponseValidator;
 
   private PwaApplicationEndpointTestBuilder endpointTester;
 
@@ -108,8 +111,6 @@ public class ConsultationResponseControllerTest extends PwaAppProcessingContextA
   @Test
   public void postResponder_permissionSmokeTest() {
 
-    when(consultationResponseService.validate(any(), any())).thenReturn(new BeanPropertyBindingResult(new ConsultationResponseForm(), "form"));
-
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(ConsultationResponseController.class)
@@ -121,8 +122,6 @@ public class ConsultationResponseControllerTest extends PwaAppProcessingContextA
 
   @Test
   public void postResponder() throws Exception {
-
-    when(consultationResponseService.validate(any(), any())).thenReturn(new BeanPropertyBindingResult(new ConsultationResponseForm(), "form"));
 
     when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail, user)).thenReturn(permissionsDto);
 
@@ -141,9 +140,7 @@ public class ConsultationResponseControllerTest extends PwaAppProcessingContextA
   @Test
   public void postResponder_validationFail() throws Exception {
 
-    var failedBindingResult = new BeanPropertyBindingResult(new ConsultationResponseForm(), "form");
-    failedBindingResult.addError(new ObjectError("fake", "fake"));
-    when(consultationResponseService.validate(any(), any())).thenReturn(failedBindingResult);
+    ControllerTestUtils.mockSmartValidatorErrors(consultationResponseValidator, List.of("consultationResponseOption"));
 
     when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail, user)).thenReturn(permissionsDto);
 

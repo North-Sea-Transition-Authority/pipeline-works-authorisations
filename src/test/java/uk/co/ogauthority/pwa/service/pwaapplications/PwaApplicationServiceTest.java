@@ -1,11 +1,13 @@
 package uk.co.ogauthority.pwa.service.pwaapplications;
 
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.List;
 import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
@@ -52,6 +54,12 @@ public class PwaApplicationServiceTest {
     when(pwaApplicationRepository.findById(any())).thenReturn(Optional.empty());
     pwaApplicationService.getApplicationFromId(1);
 
+  }
+
+  @Test
+  public void getAllApplicationsForMasterPwa() {
+    when(pwaApplicationRepository.findAllByMasterPwa(pwaApplication.getMasterPwa())).thenReturn(List.of(pwaApplication));
+    assertThat(pwaApplicationService.getAllApplicationsForMasterPwa(pwaApplication.getMasterPwa())).isEqualTo(List.of(pwaApplication));
   }
 
 }

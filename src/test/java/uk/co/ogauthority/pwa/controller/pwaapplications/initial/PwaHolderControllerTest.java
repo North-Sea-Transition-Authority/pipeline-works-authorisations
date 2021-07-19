@@ -11,6 +11,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
 
+import ch.qos.logback.classic.spi.LoggingEvent;
+import ch.qos.logback.core.Appender;
+import io.micrometer.core.instrument.Timer;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
@@ -19,18 +22,26 @@ import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
+import uk.co.ogauthority.pwa.config.MetricsProvider;
 import uk.co.ogauthority.pwa.controller.AbstractControllerTest;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.energyportal.service.organisations.PortalOrganisationsAccessor;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.PwaHolderForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContextService;
+import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
@@ -40,6 +51,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.workflow.PwaApplicationCrea
 import uk.co.ogauthority.pwa.testutils.ControllerTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.testutils.TeamTestingUtils;
+import uk.co.ogauthority.pwa.testutils.TimerMetricTestUtils;
 import uk.co.ogauthority.pwa.validators.PwaHolderFormValidator;
 
 @RunWith(SpringRunner.class)
@@ -69,6 +81,18 @@ public class PwaHolderControllerTest extends AbstractControllerTest {
   @MockBean
   private PadOrganisationRoleService padOrganisationRoleService;
 
+  @MockBean
+  private MetricsProvider metricsProvider;
+
+  @Mock
+  private Appender appender;
+
+  @Captor
+  private ArgumentCaptor<LoggingEvent> loggingEventCaptor;
+
+
+  private Timer timer;
+
   private AuthenticatedUserAccount user = new AuthenticatedUserAccount(new WebUserAccount(123),
       Set.of(PwaUserPrivilege.PWA_APPLICATION_CREATE));
 
@@ -92,6 +116,9 @@ public class PwaHolderControllerTest extends AbstractControllerTest {
     when(portalOrganisationsAccessor.getOrganisationUnitById(111)).thenReturn(Optional.of(orgUnit));
     when(portalOrganisationsAccessor.getActiveOrganisationUnitsForOrganisationGroupsIn(any())).thenReturn(List.of(orgUnit));
 
+    timer = TimerMetricTestUtils.setupTimerMetric(
+        PwaHolderController.class, "pwa.startAppTimer", appender);
+    when(metricsProvider.getStartAppTimer()).thenReturn(timer);
   }
 
   @Test
@@ -180,6 +207,25 @@ public class PwaHolderControllerTest extends AbstractControllerTest {
         .param("holderOuId", "44"))
         .andExpect(status().is4xxClientError());
 
+  }
+
+
+  @Test
+  public void postHolderScreen_timerMetricStarted_timeRecordedAndLogged() {
+
+    when(pwaApplicationCreationService.createInitialPwaApplication(user)).thenReturn(detail);
+    when(pwaApplicationDetailService.getTipDetail(detail.getPwaApplication().getId())).thenReturn(detail);
+    when(portalOrganisationsAccessor.getOrganisationUnitById(any())).thenReturn(Optional.of(orgUnit));
+
+    var controller = new PwaHolderController(teamService, pwaApplicationCreationService, pwaApplicationDetailService,
+        portalOrganisationsAccessor, pwaApplicationRedirectService, pwaHolderFormValidator, padOrganisationRoleService,
+        Mockito.mock(ControllerHelperService.class), "", metricsProvider);
+
+    var form = new PwaHolderForm();
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+    controller.postHolderScreen(form, bindingResult, user);
+
+    TimerMetricTestUtils.assertTimeLogged(loggingEventCaptor, appender, "Initial application started");
   }
 
 }

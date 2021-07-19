@@ -4,6 +4,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
+import ch.qos.logback.classic.spi.LoggingEvent;
+import ch.qos.logback.core.Appender;
+import io.micrometer.core.instrument.Timer;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
@@ -11,9 +14,12 @@ import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.config.MetricsProvider;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.exception.AccessDeniedException;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
@@ -35,6 +41,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService
 import uk.co.ogauthority.pwa.service.users.UserTypeService;
 import uk.co.ogauthority.pwa.testutils.ConsulteeGroupTestingUtils;
 import uk.co.ogauthority.pwa.testutils.PwaAppProcessingContextDtoTestUtils;
+import uk.co.ogauthority.pwa.testutils.TimerMetricTestUtils;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PwaAppProcessingContextServiceTest {
@@ -53,6 +60,17 @@ public class PwaAppProcessingContextServiceTest {
 
   @Mock
   private UserTypeService userTypeService;
+
+  @Mock
+  private MetricsProvider metricsProvider;
+
+  @Mock
+  private Appender appender;
+
+  @Captor
+  private ArgumentCaptor<LoggingEvent> loggingEventCaptor;
+
+  private Timer timer;
 
   private PwaAppProcessingContextService contextService;
 
@@ -77,7 +95,7 @@ public class PwaAppProcessingContextServiceTest {
         appProcessingPermissionService,
         caseSummaryViewService,
         appFileService,
-        userTypeService);
+        userTypeService, metricsProvider);
 
     when(detailService.getLatestDetailForUser(detail.getMasterPwaApplicationId(), user))
         .thenReturn(Optional.of(detail));
@@ -88,6 +106,10 @@ public class PwaAppProcessingContextServiceTest {
     var appFile = new AppFile();
     appFile.setPwaApplication(detail.getPwaApplication());
     when(appFileService.getAppFileByPwaApplicationAndFileId(detail.getPwaApplication(), "valid-file")).thenReturn(appFile);
+
+    timer = TimerMetricTestUtils.setupTimerMetric(
+        PwaAppProcessingContextService.class, "pwa.appContextTimer", appender);
+    when(metricsProvider.getAppContextTimer()).thenReturn(timer);
 
   }
 
@@ -342,6 +364,19 @@ public class PwaAppProcessingContextServiceTest {
     var context = contextService.validateAndCreate(builder);
 
     assertThat(context.getActiveConsultationRequest()).isEmpty();
+
+  }
+
+
+
+  @Test
+  public void validateAndCreate_timerMetricStarted_timeRecordedAndLogged() {
+    var builder = new PwaAppProcessingContextParams(1, user)
+        .requiredAppStatuses(Set.of(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW))
+        .requiredProcessingPermissions(Set.of(PwaAppProcessingPermission.ACCEPT_INITIAL_REVIEW));
+
+    contextService.validateAndCreate(builder);
+    TimerMetricTestUtils.assertTimeLogged(loggingEventCaptor, appender, "App Processing Context");
 
   }
 

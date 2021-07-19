@@ -48,8 +48,8 @@
 
     <#if isFirstSection>
         <@fdsInsetText.insetText>${firstSectionStartDescription}</@fdsInsetText.insetText>
-        <@hiddenInput path=identLocationOptionPath />
-        <@hiddenInput path=identLocationIncludedInSectionPath />
+        <@pwaHiddenInput.hiddenInput path=identLocationOptionPath />
+        <@pwaHiddenInput.hiddenInput path=identLocationIncludedInSectionPath />
     <#else>
         <@fdsSearchSelector.searchSelectorEnhanced path=identLocationOptionPath labelText="Where does the section start?" options=pickableIdentOptions />
         <@fdsRadio.radioGroup path=identLocationIncludedInSectionPath
@@ -69,13 +69,4 @@
 
 
 
-</#macro>
-
-<#macro hiddenInput path>
-    <@spring.bind path/>
-    <#local id=spring.status.expression?replace('[','')?replace(']','')>
-    <#local name=spring.status.expression>
-    <#local value=spring.stringStatusValue>
-
-    <input type="hidden" id="${id}" name="${name}" value="${value}">
 </#macro>

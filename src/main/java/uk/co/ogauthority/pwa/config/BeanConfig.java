@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.config;
 
+import io.micrometer.core.instrument.MeterRegistry;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.time.Clock;
@@ -100,6 +101,11 @@ public class BeanConfig {
     messageSource.setBasename("messages");
     messageSource.setDefaultEncoding("UTF-8");
     return messageSource;
+  }
+
+  @Bean
+  public MetricsProvider metricsProvider(MeterRegistry registry) {
+    return new MetricsProvider(registry);
   }
 
 }

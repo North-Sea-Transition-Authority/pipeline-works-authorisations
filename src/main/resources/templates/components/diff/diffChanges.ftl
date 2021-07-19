@@ -140,17 +140,24 @@
   </#if>
 </#macro>
 
-<#macro toggler showDiffOnLoad=false togglerLabel="Show difference from previous version">
-  <div class="govuk-form-group">
-    <div class="govuk-checkboxes">
-      <div class="govuk-checkboxes__item">
-        <input class="govuk-checkboxes__input" id="toggle-diff" type="checkbox" ${showDiffOnLoad?then('checked','')}>
-        <label class="govuk-label govuk-checkboxes__label" for="toggle-diff">
-          ${togglerLabel}
-        </label>
+
+<#-- This macro must be used in when using other diff macros to display information.
+     The styling those macros apply has to be activiated by the embedded javascript in the toggler.    -->
+<#macro toggler showDiffOnLoad=false togglerLabel="Show difference from previous version" showTogglerCheckBox=true>
+
+  <#if showTogglerCheckBox>
+    <div class="govuk-form-group">
+      <div class="govuk-checkboxes">
+        <div class="govuk-checkboxes__item">
+          <input class="govuk-checkboxes__input" id="toggle-diff" type="checkbox" ${showDiffOnLoad?then('checked','')}>
+          <label class="govuk-label govuk-checkboxes__label" for="toggle-diff">
+              ${togglerLabel}
+          </label>
+        </div>
       </div>
     </div>
-  </div>
+  </#if>
+
 
   <script>
     $(document).ready(function() {
@@ -172,6 +179,8 @@
         $('.diff-changes').toggleClass('diff-changes--flex');
       });
 
+      <#-- When the toggler is not shown, param will be 'undefined'.
+           'undefined' is not true which ensure the raw value is shown on screen without diff styling. -->
       toggleDiff($('#toggle-diff').prop("checked"));
 
     });

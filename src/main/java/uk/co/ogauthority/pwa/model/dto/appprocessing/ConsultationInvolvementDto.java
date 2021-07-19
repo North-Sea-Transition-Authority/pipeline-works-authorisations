@@ -51,7 +51,7 @@ public class ConsultationInvolvementDto {
 
   public Optional<ConsultationRequestDto> getActiveRequestDto() {
     return Optional.ofNullable(activeRequest)
-        .map(r -> new ConsultationRequestDto(consulteeGroupDetail.getName(), r));
+        .map(r -> new ConsultationRequestDto(consulteeGroupDetail, r));
   }
 
   @Override

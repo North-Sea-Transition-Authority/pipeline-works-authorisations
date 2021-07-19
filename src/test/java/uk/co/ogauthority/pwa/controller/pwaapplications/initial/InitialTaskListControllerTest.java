@@ -32,6 +32,7 @@ import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 @WebMvcTest(controllers = InitialTaskListController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = PwaApplicationContextService.class))
 public class InitialTaskListControllerTest extends TaskListControllerTest {
 
+
   private PwaApplicationDetail detail;
 
   private PwaApplicationEndpointTestBuilder endpointTester;
@@ -107,4 +108,6 @@ public class InitialTaskListControllerTest extends TaskListControllerTest {
     endpointTester.performAppPermissionCheck(status().isOk(), status().isForbidden());
 
   }
+
+
 }

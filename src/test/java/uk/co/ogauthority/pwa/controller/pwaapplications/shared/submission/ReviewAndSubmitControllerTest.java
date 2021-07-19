@@ -15,10 +15,18 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
 
+import ch.qos.logback.classic.spi.LoggingEvent;
+import ch.qos.logback.core.Appender;
+import io.micrometer.core.instrument.Timer;
 import java.util.EnumSet;
+import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
@@ -27,6 +35,7 @@ import org.springframework.context.annotation.FilterType;
 import org.springframework.http.HttpMethod;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.Errors;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
@@ -34,19 +43,24 @@ import uk.co.ogauthority.pwa.controller.PwaApplicationContextAbstractControllerT
 import uk.co.ogauthority.pwa.energyportal.model.entity.PersonTestUtil;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.submission.ReviewAndSubmitApplicationForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.applicationsummariser.ApplicationSummaryViewService;
 import uk.co.ogauthority.pwa.service.appprocessing.applicationupdate.ApplicationUpdateRequestViewService;
+import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ApplicationState;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.person.PersonService;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
+import uk.co.ogauthority.pwa.service.pwaapplications.PwaAppNotificationBannerService;
+import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
 import uk.co.ogauthority.pwa.service.pwaapplications.workflow.PwaApplicationSubmissionService;
 import uk.co.ogauthority.pwa.testutils.ApplicationSummaryViewTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
+import uk.co.ogauthority.pwa.testutils.TimerMetricTestUtils;
 import uk.co.ogauthority.pwa.validators.pwaapplications.shared.submission.ReviewAndSubmitApplicationFormValidator;
 
 @RunWith(SpringRunner.class)
@@ -76,6 +90,17 @@ public class ReviewAndSubmitControllerTest extends PwaApplicationContextAbstract
 
   @MockBean
   private PersonService personService;
+
+  @Mock
+  private Appender appender;
+
+  @Captor
+  private ArgumentCaptor<LoggingEvent> loggingEventCaptor;
+
+  private Timer timer;
+
+  @MockBean
+  private PwaAppNotificationBannerService pwaAppNotificationBannerService;
 
   private PwaApplicationEndpointTestBuilder editEndpointTester;
   private PwaApplicationEndpointTestBuilder viewEndpointTester;
@@ -108,6 +133,9 @@ public class ReviewAndSubmitControllerTest extends PwaApplicationContextAbstract
 
     when(personService.getPersonById(user.getLinkedPerson().getId())).thenReturn(user.getLinkedPerson());
 
+    timer = TimerMetricTestUtils.setupTimerMetric(
+        ReviewAndSubmitController.class, "pwa.appSubmissionTimer", appender);
+    when(metricsProvider.getAppSubmissionTimer()).thenReturn(timer);
   }
 
   @Test
@@ -373,6 +401,24 @@ public class ReviewAndSubmitControllerTest extends PwaApplicationContextAbstract
         .setAllowedPermissions(permissions)
         .setAllowedStatuses(ApplicationState.INDUSTRY_EDITABLE);
 
+  }
+
+  @Test
+  public void submit_timerMetricStarted_timeRecordedAndLogged() {
+
+    when(pwaApplicationDetailService.getTipDetail(detail.getMasterPwaApplicationId())).thenReturn(detail);
+
+    var controller = new ReviewAndSubmitController(Mockito.mock(ControllerHelperService.class), pwaApplicationRedirectService,
+        pwaApplicationSubmissionService, applicationSummaryViewService, applicationUpdateRequestViewService, validator,
+        pwaHolderTeamService, sendAppToSubmitterService, personService, metricsProvider, pwaAppNotificationBannerService);
+
+    var form = new ReviewAndSubmitApplicationForm();
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+    var applicationContext = new PwaApplicationContext(detail, new WebUserAccount(1), Set.of());
+
+    controller.submit(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), applicationContext, form, bindingResult);
+
+    TimerMetricTestUtils.assertTimeLogged(loggingEventCaptor, appender, "Application submitted");
   }
 
 }
