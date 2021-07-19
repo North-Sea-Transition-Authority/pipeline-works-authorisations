@@ -1,20 +1,25 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.generic;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Stopwatch;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.collections4.SetUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.co.ogauthority.pwa.config.MetricsProvider;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.tasklist.TaskListEntry;
 import uk.co.ogauthority.pwa.model.tasklist.TaskListGroup;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTask;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTaskGroup;
+import uk.co.ogauthority.pwa.util.MetricTimerUtils;
 
 /**
  * Service which is responsible for delivering the task list as a whole for a given application detail.
@@ -24,12 +29,17 @@ public class TaskListService {
 
   private final TaskListEntryFactory taskListEntryFactory;
   private final ApplicationTaskService applicationTaskService;
+  private final MetricsProvider metricsProvider;
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(TaskListService.class);
 
   @Autowired
   public TaskListService(TaskListEntryFactory taskListEntryFactory,
-                         ApplicationTaskService applicationTaskService) {
+                         ApplicationTaskService applicationTaskService,
+                         MetricsProvider metricsProvider) {
     this.applicationTaskService = applicationTaskService;
     this.taskListEntryFactory = taskListEntryFactory;
+    this.metricsProvider = metricsProvider;
   }
 
   /**
@@ -63,8 +73,11 @@ public class TaskListService {
   }
 
   public List<TaskListGroup> getTaskListGroups(PwaApplicationDetail pwaApplicationDetail) {
+
+    var stopwatch = Stopwatch.createStarted();
+
     Set<ApplicationTask> shownApplicationTasks = new HashSet<>(getShownApplicationTasksForDetail(pwaApplicationDetail));
-    return ApplicationTaskGroup.asList()
+    var taskListGroups = ApplicationTaskGroup.asList()
         .stream()
         // filter out groups where no tasks in the group are shown
         .filter(applicationTaskGroup -> !SetUtils.intersection(
@@ -93,7 +106,13 @@ public class TaskListService {
         // sort the groups by their display order
         .sorted(Comparator.comparing(TaskListGroup::getDisplayOrder))
         .collect(Collectors.toList());
+
+    var timerLogMessage = pwaApplicationDetail.getPwaApplicationType().getDisplayName() + " task list groups created.";
+    MetricTimerUtils.recordTime(stopwatch, LOGGER, metricsProvider.getTaskListTimer(), timerLogMessage);
+
+    return taskListGroups;
   }
+
 
   /**
    * Check the application type AND specific information about the detail passed in to determine which tasks are relevant.

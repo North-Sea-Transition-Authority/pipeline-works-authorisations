@@ -1,5 +1,5 @@
 <#-- @ftlvariable name="cancelUrl" type="String" -->
-<#-- @ftlvariable name="responseOptions" type="java.util.List<uk.co.ogauthority.pwa.model.form.enums.ConsultationResponseOption>" -->
+<#-- @ftlvariable name="responseOptionGroupMap" type="java.util.List<uk.co.ogauthority.pwa.model.form.enums.ConsultationResponseOption>" -->
 <#-- @ftlvariable name="appRef" type="String" -->
 <#-- @ftlvariable name="previousResponses" type="java.util.List<uk.co.ogauthority.pwa.model.form.consultation.ConsulteeGroupRequestsView>" -->
 <#-- @ftlvariable name="errorList" type="java.util.List<uk.co.ogauthority.pwa.model.form.fds.ErrorItem>"-->
@@ -33,42 +33,54 @@
 
       <@fdsForm.htmlForm>
 
-        <@fdsRadio.radioGroup path="form.consultationResponseOption" labelText="What is your response on this application?" hiddenContent=true>
-          <#assign firstItem=true/>
-          <#list responseOptions as  responseOption>
-            <@fdsRadio.radioItem path="form.consultationResponseOption" itemMap={responseOption : responseOption.getDisplayText()} isFirstItem=firstItem>
-              <#if responseOption == "CONFIRMED">
-                <@fdsTextarea.textarea path="form.confirmedDescription" labelText="Provide consent conditions if they apply (optional)" nestingPath="form.consultationResponseOption" characterCount=true maxCharacterLength="4000"/>
-              </#if>
-              <#if responseOption == "REJECTED">
-                <@fdsTextarea.textarea path="form.rejectedDescription" labelText="Why are you rejecting this application?" nestingPath="form.consultationResponseOption" characterCount=true maxCharacterLength="4000"/>
+        <#list responseOptionGroupMap as responseOptionGroup, responseOptions>
 
-                <@fdsDetails.summaryDetails summaryTitle="How do I request changes to specific questions on the application?">
-                  <p>State the question(s) and what you want updated in the rejection reason.
-                    Provide the name of the question, application section, pipeline number, ident number, deposit name, schematic/drawing reference, etc as appropriate to ensure the applicant knows which question is being referred to.
-                    Some examples are provided below:</p>
+          <@pwaHiddenInput.hiddenInput path="form.consultationResponseOptionGroup"/>
 
-                  <ul>
-                    <li>provide xxx about the insulation / coating type for ident 5 on PL1234 </li>
-                    <li>provide the reference number of your submitted environmental permit in the environmental section </li>
-                    <li>correct the pipeline schematic reference xxxxx as it doesn’t show the pipeline it is linked to </li>
-                  </ul>
-                </@fdsDetails.summaryDetails>
-              </#if>
-            </@fdsRadio.radioItem>
-            <#assign firstItem=false/>
-          </#list>
-        </@fdsRadio.radioGroup>
+          <@fdsRadio.radioGroup path="form.consultationResponseOption" labelText="What is your response on this application?" hiddenContent=true>
+            <#assign firstItem=true/>
+            <#list responseOptions as responseOption>
+              <@fdsRadio.radioItem path="form.consultationResponseOption" itemMap={responseOption : responseOption.getLabelText()} isFirstItem=firstItem>
+                <#if responseOption == "CONFIRMED">
+                  <@fdsTextarea.textarea path="form.option1Description" labelText=responseOption.textAreaLabelText optionalLabel=true nestingPath="form.consultationResponseOption" characterCount=true maxCharacterLength="4000"/>
+                </#if>
+                <#if responseOption == "REJECTED">
+                  <@fdsTextarea.textarea path="form.option2Description" labelText=responseOption.textAreaLabelText nestingPath="form.consultationResponseOption" characterCount=true maxCharacterLength="4000"/>
 
-        <#if previousResponses?has_content>
-          <@fdsDetails.summaryDetails summaryTitle="Show my previous advice">
+                  <@fdsDetails.summaryDetails summaryTitle="How do I request changes to specific questions on the application?">
+                    <p>State the question(s) and what you want updated in the rejection reason.
+                      Provide the name of the question, application section, pipeline number, ident number, deposit name, schematic/drawing reference, etc as appropriate to ensure the applicant knows which question is being referred to.
+                      Some examples are provided below:</p>
 
-            <#list previousResponses as previousResponse>
-              <@consultationRequestView previousResponse/>
+                    <ul>
+                      <li>provide xxx about the insulation / coating type for ident 5 on PL1234 </li>
+                      <li>provide the reference number of your submitted environmental permit in the environmental section </li>
+                      <li>correct the pipeline schematic reference xxxxx as it doesn’t show the pipeline it is linked to </li>
+                    </ul>
+                  </@fdsDetails.summaryDetails>
+                </#if>
+                <#if responseOption == "PROVIDE_ADVICE">
+                  <@fdsTextarea.textarea path="form.option1Description" labelText=responseOption.textAreaLabelText nestingPath="form.consultationResponseOption" characterCount=true maxCharacterLength="4000"/>
+                </#if>
+                <#if responseOption == "NO_ADVICE">
+                  <@fdsTextarea.textarea path="form.option2Description" labelText=responseOption.textAreaLabelText nestingPath="form.consultationResponseOption" optionalLabel=true characterCount=true maxCharacterLength="4000"/>
+                </#if>
+              </@fdsRadio.radioItem>
+              <#assign firstItem=false/>
             </#list>
+          </@fdsRadio.radioGroup>
 
-          </@fdsDetails.summaryDetails>
-        </#if>
+          <#if previousResponses?has_content>
+            <@fdsDetails.summaryDetails summaryTitle="Show my previous advice">
+
+              <#list previousResponses as previousResponse>
+                <@consultationRequestView previousResponse/>
+              </#list>
+
+            </@fdsDetails.summaryDetails>
+          </#if>
+
+        </#list>
 
         <@fdsAction.submitButtons primaryButtonText="Submit response" linkSecondaryAction=true secondaryLinkText="Back to tasks" linkSecondaryActionUrl=springUrl(cancelUrl)/>
 

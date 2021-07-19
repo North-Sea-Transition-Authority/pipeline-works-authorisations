@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationGroup;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
+import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
 import uk.co.ogauthority.pwa.repository.asbuilt.AsBuiltNotificationGroupRepository;
 
 
@@ -20,6 +21,10 @@ public class AsBuiltNotificationGroupService {
 
   public Optional<AsBuiltNotificationGroup> getAsBuiltNotificationGroup(Integer ngId) {
     return asBuiltNotificationGroupRepository.findById(ngId);
+  }
+
+  public Optional<AsBuiltNotificationGroup> getAsBuiltNotificationGroupPerConsent(PwaConsent pwaConsent) {
+    return asBuiltNotificationGroupRepository.findByPwaConsent(pwaConsent);
   }
 
   MasterPwa getMasterPwaForAsBuiltNotificationGroup(Integer ngId) {

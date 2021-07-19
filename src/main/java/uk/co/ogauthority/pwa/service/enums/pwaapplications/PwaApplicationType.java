@@ -22,7 +22,8 @@ public enum PwaApplicationType {
       DocumentSpec.INITIAL_APP_CONSENT_DOCUMENT,
       TemplateTextType.INITIAL_CONSENT_EMAIL_COVER_LETTER,
       PwaConsentType.INITIAL_PWA,
-      10),
+      10,
+      ParallelApplicationsWarning.NO_WARNING),
 
   CAT_1_VARIATION(
       "Cat. 1 Variation",
@@ -31,7 +32,8 @@ public enum PwaApplicationType {
       Period.ofMonths(6),
       MedianLineImplication.TRUE,
       DocumentSpec.VARIATION_CONSENT_DOCUMENT,
-      20),
+      20,
+      ParallelApplicationsWarning.SHOW_WARNING),
 
   CAT_2_VARIATION(
       "Cat. 2 Variation",
@@ -40,7 +42,8 @@ public enum PwaApplicationType {
       Period.ofWeeks(8),
       MedianLineImplication.TRUE,
       DocumentSpec.VARIATION_CONSENT_DOCUMENT,
-      30),
+      30,
+      ParallelApplicationsWarning.SHOW_WARNING),
 
   HUOO_VARIATION(
       "HUOO Variation",
@@ -49,7 +52,9 @@ public enum PwaApplicationType {
       Period.ofWeeks(8),
       MedianLineImplication.FALSE,
       DocumentSpec.VARIATION_CONSENT_DOCUMENT,
-      40),
+      40,
+
+      ParallelApplicationsWarning.NO_WARNING),
 
   DEPOSIT_CONSENT(
       "Deposit Consent",
@@ -59,7 +64,9 @@ public enum PwaApplicationType {
       MedianLineImplication.FALSE,
       DocumentSpec.DEPOSIT_CONSENT_DOCUMENT,
       PwaConsentType.DEPOSIT_CONSENT,
-      50),
+      50,
+
+      ParallelApplicationsWarning.NO_WARNING),
 
   OPTIONS_VARIATION(
       "Options Variation",
@@ -68,7 +75,8 @@ public enum PwaApplicationType {
       Period.ofWeeks(8),
       MedianLineImplication.FALSE,
       DocumentSpec.VARIATION_CONSENT_DOCUMENT,
-      60),
+      60,
+      ParallelApplicationsWarning.SHOW_WARNING),
 
   DECOMMISSIONING(
       "Decommissioning",
@@ -77,7 +85,8 @@ public enum PwaApplicationType {
       Period.ofMonths(6),
       MedianLineImplication.TRUE,
       DocumentSpec.VARIATION_CONSENT_DOCUMENT,
-      70);
+      70,
+      ParallelApplicationsWarning.SHOW_WARNING);
 
   private final String displayName;
   private final String urlPathString;
@@ -92,13 +101,16 @@ public enum PwaApplicationType {
   private final PwaConsentType pwaConsentType;
   private final int displayOrder;
 
+  private final ParallelApplicationsWarning parallelApplicationsWarning;
+
   PwaApplicationType(String displayName,
                      String urlPathString,
                      Period minProcessingPeriod,
                      Period maxProcessingPeriod,
                      MedianLineImplication medianLineImplication,
                      DocumentSpec consentDocumentSpec,
-                     int displayOrder) {
+                     int displayOrder,
+                     ParallelApplicationsWarning parallelApplicationsWarning) {
     this.displayName = displayName;
     this.urlPathString = urlPathString;
     this.minProcessingPeriod = minProcessingPeriod;
@@ -106,6 +118,7 @@ public enum PwaApplicationType {
     this.medianLineImplication = medianLineImplication;
     this.consentDocumentSpec = consentDocumentSpec;
     this.displayOrder = displayOrder;
+    this.parallelApplicationsWarning = parallelApplicationsWarning;
     this.consentEmailTemplateTextType = TemplateTextType.VARIATION_CONSENT_EMAIL_COVER_LETTER;
     this.pwaConsentType = PwaConsentType.VARIATION;
   }
@@ -118,7 +131,8 @@ public enum PwaApplicationType {
                      DocumentSpec consentDocumentSpec,
                      TemplateTextType consentEmailTemplateTextType,
                      PwaConsentType pwaConsentType,
-                     int displayOrder) {
+                     int displayOrder,
+                     ParallelApplicationsWarning parallelApplicationsWarning) {
     this.displayName = displayName;
     this.urlPathString = urlPathString;
     this.minProcessingPeriod = minProcessingPeriod;
@@ -128,6 +142,7 @@ public enum PwaApplicationType {
     this.consentEmailTemplateTextType = consentEmailTemplateTextType;
     this.pwaConsentType = pwaConsentType;
     this.displayOrder = displayOrder;
+    this.parallelApplicationsWarning = parallelApplicationsWarning;
   }
 
   PwaApplicationType(String displayName,
@@ -137,7 +152,8 @@ public enum PwaApplicationType {
                      MedianLineImplication medianLineImplication,
                      DocumentSpec consentDocumentSpec,
                      PwaConsentType pwaConsentType,
-                     int displayOrder) {
+                     int displayOrder,
+                     ParallelApplicationsWarning parallelApplicationsWarning) {
     this.displayName = displayName;
     this.urlPathString = urlPathString;
     this.minProcessingPeriod = minProcessingPeriod;
@@ -145,6 +161,7 @@ public enum PwaApplicationType {
     this.medianLineImplication = medianLineImplication;
     this.consentDocumentSpec = consentDocumentSpec;
     this.displayOrder = displayOrder;
+    this.parallelApplicationsWarning = parallelApplicationsWarning;
     this.consentEmailTemplateTextType = TemplateTextType.VARIATION_CONSENT_EMAIL_COVER_LETTER;
     this.pwaConsentType = pwaConsentType;
   }
@@ -200,6 +217,10 @@ public enum PwaApplicationType {
 
   public int getDisplayOrder() {
     return displayOrder;
+  }
+
+  public ParallelApplicationsWarning getParallelApplicationsWarning() {
+    return parallelApplicationsWarning;
   }
 
   public static Stream<PwaApplicationType> stream() {

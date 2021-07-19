@@ -7,18 +7,26 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+import ch.qos.logback.classic.spi.LoggingEvent;
+import ch.qos.logback.core.Appender;
+import io.micrometer.core.instrument.Timer;
+import java.util.List;
 import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import uk.co.ogauthority.pwa.config.MetricsProvider;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.tasklist.TaskListEntry;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTask;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTaskGroup;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
+import uk.co.ogauthority.pwa.testutils.TimerMetricTestUtils;
 
 @RunWith(MockitoJUnitRunner.class)
 public class TaskListServiceTest {
@@ -31,6 +39,18 @@ public class TaskListServiceTest {
   @Mock
   private ApplicationTaskService applicationTaskService;
 
+  @Mock
+  private MetricsProvider metricsProvider;
+
+  @Mock
+  private Appender appender;
+
+  @Captor
+  private ArgumentCaptor<LoggingEvent> loggingEventCaptor;
+
+
+  private Timer timer;
+
   private TaskListService taskListService;
 
   private PwaApplicationDetail pwaApplicationDetail;
@@ -41,8 +61,12 @@ public class TaskListServiceTest {
 
     taskListService = new TaskListService(
         taskListEntryFactory,
-        applicationTaskService
-    );
+        applicationTaskService,
+        metricsProvider);
+
+    timer = TimerMetricTestUtils.setupTimerMetric(
+        TaskListService.class, "pwa.taskListTimer", appender);
+    when(metricsProvider.getTaskListTimer()).thenReturn(timer);
   }
 
 
@@ -135,6 +159,19 @@ public class TaskListServiceTest {
       assertThat(taskListGroup.getDisplayOrder()).isEqualTo(DEFAULT_APP_TASK_GROUP.getDisplayOrder());
       assertThat(taskListGroup.getTaskListEntries()).containsExactly(fakeTaskListEntry);
     });
+
+  }
+
+  @Test
+  public void getTaskListGroups_timerMetricStarted_timeRecordedAndLogged() {
+
+    var fakeTaskListEntry = new TaskListEntry("fake name", "fake route", false, 0);
+    when(taskListEntryFactory.createApplicationTaskListEntry(any(), any())).thenReturn(fakeTaskListEntry);
+    when(applicationTaskService.canShowTask(DEFAULT_APP_TASK, pwaApplicationDetail)).thenReturn(true);
+
+    taskListService.getTaskListGroups(pwaApplicationDetail);
+    TimerMetricTestUtils.assertTimeLogged(
+        loggingEventCaptor, appender, List.of(pwaApplicationDetail.getPwaApplicationType().getDisplayName(), "task list groups"));
 
   }
 

@@ -66,9 +66,11 @@ class AsBuiltNotificationSubmissionService {
         .findAllByAsBuiltNotificationGroupPipelineInAndTipFlagIsTrue(allAsBuiltGroupPipelines);
     var noSubmissionsWithStatusNotProvided = allAsBuiltSubmissionsHaveProvidedValidStatus(latestAsBuiltSubmissionsForAsBuiltGroupPipelines);
     if (noSubmissionsWithStatusNotProvided && allAsBuiltGroupPipelines.size() == latestAsBuiltSubmissionsForAsBuiltGroupPipelines.size()) {
-      asBuiltNotificationGroupStatusService.setGroupStatus(asBuiltNotificationGroup, AsBuiltNotificationGroupStatus.COMPLETE, person);
+      asBuiltNotificationGroupStatusService.setGroupStatusIfNewOrChanged(asBuiltNotificationGroup,
+          AsBuiltNotificationGroupStatus.COMPLETE, person);
     } else {
-      asBuiltNotificationGroupStatusService.setGroupStatus(asBuiltNotificationGroup, AsBuiltNotificationGroupStatus.IN_PROGRESS, person);
+      asBuiltNotificationGroupStatusService.setGroupStatusIfNewOrChanged(asBuiltNotificationGroup,
+          AsBuiltNotificationGroupStatus.IN_PROGRESS, person);
     }
   }
 

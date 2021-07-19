@@ -2,8 +2,10 @@ package uk.co.ogauthority.pwa.testutils;
 
 import java.time.Instant;
 import java.util.Random;
+import java.util.Set;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroup;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupDetail;
+import uk.co.ogauthority.pwa.model.form.enums.ConsultationResponseOptionGroup;
 
 public class ConsulteeGroupTestingUtils {
 
@@ -23,6 +25,7 @@ public class ConsulteeGroupTestingUtils {
     detail.setConsulteeGroup(group);
     detail.setStartTimestamp(Instant.now());
     detail.setTipFlag(true);
+    detail.setResponseOptionGroups(Set.of(ConsultationResponseOptionGroup.CONTENT));
 
     return detail;
 

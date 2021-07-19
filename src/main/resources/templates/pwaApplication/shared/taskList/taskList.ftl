@@ -1,4 +1,5 @@
 <#include '../../../layout.ftl'>
+<#include '../../../components/banner/notificationBanner.ftl'>
 
 <#-- @ftlvariable name="applicationTaskGroups" type="java.util.List<uk.co.ogauthority.pwa.model.tasklist.TaskListGroup>" -->
 <#-- @ftlvariable name="submissionTask" type="uk.co.ogauthority.pwa.model.tasklist.TaskListEntry" -->
@@ -12,10 +13,17 @@
 
 <#assign pageCaption=masterPwaReference?has_content?then("${masterPwaReference} ${applicationType} application", "${applicationType} application")  />
 
-<@defaultPage htmlTitle="Pipeline Works Authorisation Submission" pageHeading="Submit a Pipeline Works Authorisation" caption=pageCaption breadcrumbs=true>
+<@defaultPage htmlTitle="Pipeline Works Authorisation Submission" breadcrumbs=true>
+
+    <#if notificationBannerView??>
+        <@notificationBanner.infoNotificationBanner notificationBannerView=notificationBannerView/>
+    </#if>
+
+    <span class="govuk-caption-xl">${pageCaption}</span>
+    <h1 class="govuk-heading-xl">Submit a Pipeline Works Authorisation</h1>
 
     <#if updateRequestView?has_content>
-      <@pwaUpdateRequestView.banner view=updateRequestView />
+        <@pwaUpdateRequestView.banner view=updateRequestView />
     </#if>
 
     <#if optionsApprovalPageBanner?has_content>

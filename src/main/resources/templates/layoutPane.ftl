@@ -73,6 +73,10 @@ errorItems=[]>
 
         <@pwaFlash.flashContent flashTitle=flashTitle flashMessage=flashMessage flashClass=flashClass!"" flashBulletList=flashBulletList![]/>
 
+        <#if notificationBannerView??>
+            <@notificationBanner.infoNotificationBanner notificationBannerView/>
+        </#if>
+
       <div class="fds-content__header">
           <@defaultHeading caption=caption captionClass=captionClass pageHeading=pageHeading pageHeadingClass=pageHeadingClass errorItems=errorItems/>
       </div>

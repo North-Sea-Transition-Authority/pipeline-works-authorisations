@@ -24,7 +24,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
@@ -35,6 +34,7 @@ import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationResponse;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.form.consultation.ConsultationResponseForm;
 import uk.co.ogauthority.pwa.model.form.enums.ConsultationResponseOption;
+import uk.co.ogauthority.pwa.model.form.enums.ConsultationResponseOptionGroup;
 import uk.co.ogauthority.pwa.model.notify.emailproperties.consultations.ConsultationResponseReceivedEmailProps;
 import uk.co.ogauthority.pwa.model.tasklist.TaskTag;
 import uk.co.ogauthority.pwa.repository.consultations.ConsultationResponseRepository;
@@ -54,7 +54,6 @@ import uk.co.ogauthority.pwa.service.workflow.task.WorkflowTaskInstance;
 import uk.co.ogauthority.pwa.testutils.ConsulteeGroupTestingUtils;
 import uk.co.ogauthority.pwa.testutils.PwaAppProcessingContextDtoTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
-import uk.co.ogauthority.pwa.validators.consultations.ConsultationResponseValidator;
 
 
 @RunWith(MockitoJUnitRunner.class)
@@ -64,9 +63,6 @@ public class ConsultationResponseServiceTest {
 
   @Mock
   private ConsultationResponseRepository consultationResponseRepository;
-
-  @Mock
-  private ConsultationResponseValidator validator;
 
   @Mock
   private CamundaWorkflowService camundaWorkflowService;
@@ -116,7 +112,7 @@ public class ConsultationResponseServiceTest {
     when(emailCaseLinkService.generateCaseManagementLink(application)).thenReturn("http://case-link");
 
     consultationResponseService = new ConsultationResponseService(consultationRequestService, consultationResponseRepository,
-        validator, camundaWorkflowService, clock, notifyService, consulteeGroupDetailService, workflowAssignmentService, emailCaseLinkService);
+        camundaWorkflowService, clock, notifyService, consulteeGroupDetailService, workflowAssignmentService, emailCaseLinkService);
   }
 
 
@@ -126,6 +122,7 @@ public class ConsultationResponseServiceTest {
     ConsultationRequest consultationRequest = buildConsultationRequest();
 
     var form = new ConsultationResponseForm();
+    form.setConsultationResponseOptionGroup(ConsultationResponseOptionGroup.CONTENT);
     form.setConsultationResponseOption(ConsultationResponseOption.CONFIRMED);
     var user = new WebUserAccount(1, new Person(1, null, null, null, null));
 
@@ -152,7 +149,7 @@ public class ConsultationResponseServiceTest {
         .contains(
             tuple("APPLICATION_REFERENCE", application.getAppReference()),
             tuple("CONSULTEE_GROUP", groupDetail.getName()),
-            tuple("CONSULTATION_RESPONSE", response.getResponseType().getDisplayText()),
+            tuple("CONSULTATION_RESPONSE", response.getResponseType().getLabelText()),
             tuple("CASE_MANAGEMENT_LINK", "http://case-link"),
             tuple("RECIPIENT_FULL_NAME", caseOfficerPerson.getFullName())
         );
@@ -165,8 +162,9 @@ public class ConsultationResponseServiceTest {
     ConsultationRequest consultationRequest = buildConsultationRequest();
 
     var form = new ConsultationResponseForm();
+    form.setConsultationResponseOptionGroup(ConsultationResponseOptionGroup.CONTENT);
     form.setConsultationResponseOption(ConsultationResponseOption.CONFIRMED);
-    form.setConfirmedDescription("some text");
+    form.setOption1Description("some text");
     var user = new WebUserAccount(1, new Person(1, null, null, null, null));
 
     consultationResponseService.saveResponseAndCompleteWorkflow(form, consultationRequest, user);
@@ -178,6 +176,32 @@ public class ConsultationResponseServiceTest {
 
     var response = responseCaptor.getValue();
 
+    assertThat(response.getResponseType()).isEqualTo(ConsultationResponseOption.CONFIRMED);
+    assertThat(response.getResponseText()).isEqualTo("some text");
+
+  }
+
+  @Test
+  public void saveResponseAndCompleteWorkflow_provideAdvice_adviceProvided() {
+
+    ConsultationRequest consultationRequest = buildConsultationRequest();
+
+    var form = new ConsultationResponseForm();
+    form.setConsultationResponseOptionGroup(ConsultationResponseOptionGroup.ADVICE);
+    form.setConsultationResponseOption(ConsultationResponseOption.PROVIDE_ADVICE);
+    form.setOption1Description("some text");
+    var user = new WebUserAccount(1, new Person(1, null, null, null, null));
+
+    consultationResponseService.saveResponseAndCompleteWorkflow(form, consultationRequest, user);
+
+    verify(camundaWorkflowService, times(1)).completeTask(new WorkflowTaskInstance(consultationRequest, PwaApplicationConsultationWorkflowTask.RESPONSE));
+    verify(consultationResponseRepository, times(1)).save(responseCaptor.capture());
+    verify(consultationRequestService, times(1)).saveConsultationRequest(consultationRequest);
+    verify(workflowAssignmentService, times(1)).clearAssignments(consultationRequest);
+
+    var response = responseCaptor.getValue();
+
+    assertThat(response.getResponseType()).isEqualTo(ConsultationResponseOption.PROVIDE_ADVICE);
     assertThat(response.getResponseText()).isEqualTo("some text");
 
   }
@@ -188,8 +212,9 @@ public class ConsultationResponseServiceTest {
     ConsultationRequest consultationRequest = buildConsultationRequest();
 
     var form = new ConsultationResponseForm();
+    form.setConsultationResponseOptionGroup(ConsultationResponseOptionGroup.CONTENT);
     form.setConsultationResponseOption(ConsultationResponseOption.REJECTED);
-    form.setRejectedDescription("my reason");
+    form.setOption2Description("my reason");
     var user = new WebUserAccount(1, new Person(1, null, null, null, null));
 
     consultationResponseService.saveResponseAndCompleteWorkflow(form, consultationRequest, user);
@@ -216,7 +241,47 @@ public class ConsultationResponseServiceTest {
         .contains(
             tuple("APPLICATION_REFERENCE", application.getAppReference()),
             tuple("CONSULTEE_GROUP", groupDetail.getName()),
-            tuple("CONSULTATION_RESPONSE", response.getResponseType().getDisplayText()),
+            tuple("CONSULTATION_RESPONSE", response.getResponseType().getLabelText()),
+            tuple("CASE_MANAGEMENT_LINK", "http://case-link"),
+            tuple("RECIPIENT_FULL_NAME", caseOfficerPerson.getFullName())
+        );
+
+  }
+
+  @Test
+  public void saveResponseAndCompleteWorkflow_noAdvice() {
+
+    ConsultationRequest consultationRequest = buildConsultationRequest();
+
+    var form = new ConsultationResponseForm();
+    form.setConsultationResponseOptionGroup(ConsultationResponseOptionGroup.ADVICE);
+    form.setConsultationResponseOption(ConsultationResponseOption.NO_ADVICE);
+    var user = new WebUserAccount(1, new Person(1, null, null, null, null));
+
+    consultationResponseService.saveResponseAndCompleteWorkflow(form, consultationRequest, user);
+
+    verify(camundaWorkflowService, times(1)).completeTask(new WorkflowTaskInstance(consultationRequest, PwaApplicationConsultationWorkflowTask.RESPONSE));
+    verify(consultationResponseRepository, times(1)).save(responseCaptor.capture());
+    verify(consultationRequestService, times(1)).saveConsultationRequest(consultationRequest);
+    verify(workflowAssignmentService, times(1)).clearAssignments(consultationRequest);
+    assertThat(consultationRequest.getStatus()).isEqualTo(ConsultationRequestStatus.RESPONDED);
+
+    var response = responseCaptor.getValue();
+    assertThat(response.getConsultationRequest()).isEqualTo(consultationRequest);
+    assertThat(response.getResponseType()).isEqualTo(ConsultationResponseOption.NO_ADVICE);
+    assertThat(response.getResponseTimestamp()).isEqualTo(Instant.now(clock));
+    assertThat(response.getRespondingPersonId()).isEqualTo(1);
+
+    verify(notifyService, times(1)).sendEmail(responseEmailPropsCaptor.capture(), eq(caseOfficerPerson.getEmailAddress()));
+
+    var props = responseEmailPropsCaptor.getValue();
+
+    assertThat(props.getEmailPersonalisation().entrySet())
+        .extracting(Map.Entry::getKey, Map.Entry::getValue)
+        .contains(
+            tuple("APPLICATION_REFERENCE", application.getAppReference()),
+            tuple("CONSULTEE_GROUP", groupDetail.getName()),
+            tuple("CONSULTATION_RESPONSE", response.getResponseType().getLabelText()),
             tuple("CASE_MANAGEMENT_LINK", "http://case-link"),
             tuple("RECIPIENT_FULL_NAME", caseOfficerPerson.getFullName())
         );
@@ -229,8 +294,9 @@ public class ConsultationResponseServiceTest {
     ConsultationRequest consultationRequest = buildConsultationRequest();
 
     var form = new ConsultationResponseForm();
+    form.setConsultationResponseOptionGroup(ConsultationResponseOptionGroup.CONTENT);
     form.setConsultationResponseOption(ConsultationResponseOption.REJECTED);
-    form.setRejectedDescription("my reason");
+    form.setOption2Description("my reason");
     var user = new WebUserAccount(1, new Person(1, null, null, null, null));
 
     when(workflowAssignmentService.getAssignee(any())).thenReturn(Optional.empty());
@@ -238,15 +304,6 @@ public class ConsultationResponseServiceTest {
     consultationResponseService.saveResponseAndCompleteWorkflow(form, consultationRequest, user);
 
   }
-
-
-  @Test
-  public void validate() {
-    var form = new ConsultationResponseForm();
-    consultationResponseService.validate(form, new BeanPropertyBindingResult(form, "form"));
-    verify(validator, times(1)).validate(any(ConsultationResponseForm.class), any(BeanPropertyBindingResult.class));
-  }
-
 
   @Test
   public void isUserAssignedResponderForConsultation_valid() {

@@ -62,7 +62,7 @@ public class AsBuiltNotificationSubmissionServiceTest {
   private static final int PIPElINE_DETAIL_ID  = 20;
 
   private final AsBuiltNotificationGroup asBuiltNotificationGroup = AsBuiltNotificationGroupTestUtil
-      .createGroupWithConsent_withNgId(NOTIFICATION_GROUP_ID);
+      .createGroupWithConsent_fromNgId(NOTIFICATION_GROUP_ID);
   private final PipelineDetail pipelineDetail = PipelineDetailTestUtil
       .createPipelineDetail_withDefaultPipelineNumber(PIPElINE_DETAIL_ID, new PipelineId(50), Instant.now());
   private final AsBuiltNotificationGroupPipeline asBuiltNotificationGroupPipeline = AsBuiltNotificationGroupPipelineUtil
@@ -108,7 +108,7 @@ public class AsBuiltNotificationSubmissionServiceTest {
         .isEqualTo(form.getOgaSubmissionReason());
     assertThat(asBuiltNotification.getSubmittedTimestamp()).isNotNull();
 
-    verify(asBuiltNotificationGroupStatusService).setGroupStatus(asBuiltNotificationGroup, AsBuiltNotificationGroupStatus.IN_PROGRESS,
+    verify(asBuiltNotificationGroupStatusService).setGroupStatusIfNewOrChanged(asBuiltNotificationGroup, AsBuiltNotificationGroupStatus.IN_PROGRESS,
         user.getLinkedPerson());
     verify(asBuiltNotificationEmailService, never()).sendAsBuiltNotificationNotPerConsentEmail(any(), any(), any(), any(), any());
   }
@@ -131,8 +131,8 @@ public class AsBuiltNotificationSubmissionServiceTest {
         .isEqualTo(form.getOgaSubmissionReason());
     assertThat(asBuiltNotification.getSubmittedTimestamp()).isNotNull();
 
-    verify(asBuiltNotificationGroupStatusService).setGroupStatus(asBuiltNotificationGroup, AsBuiltNotificationGroupStatus.COMPLETE,
-        user.getLinkedPerson());
+    verify(asBuiltNotificationGroupStatusService).setGroupStatusIfNewOrChanged(asBuiltNotificationGroup,
+        AsBuiltNotificationGroupStatus.COMPLETE, user.getLinkedPerson());
     verify(asBuiltNotificationEmailService, never()).sendAsBuiltNotificationNotPerConsentEmail(any(), any(), any(), any(), any());
   }
 
@@ -159,8 +159,8 @@ public class AsBuiltNotificationSubmissionServiceTest {
         .isEqualTo(notPerConsentForm.getOgaSubmissionReason());
     assertThat(asBuiltNotification.getSubmittedTimestamp()).isNotNull();
 
-    verify(asBuiltNotificationGroupStatusService).setGroupStatus(asBuiltNotificationGroup, AsBuiltNotificationGroupStatus.COMPLETE,
-        user.getLinkedPerson());
+    verify(asBuiltNotificationGroupStatusService).setGroupStatusIfNewOrChanged(asBuiltNotificationGroup,
+        AsBuiltNotificationGroupStatus.COMPLETE, user.getLinkedPerson());
     verify(asBuiltNotificationEmailService).sendAsBuiltNotificationNotPerConsentEmail(any(), any(), eq(asBuiltNotificationGroup),
         eq(pipelineDetail), eq(notPerConsentForm.getAsBuiltNotificationStatus()));
   }

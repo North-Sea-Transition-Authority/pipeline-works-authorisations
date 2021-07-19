@@ -693,4 +693,14 @@ public class PwaApplicationDetailServiceTest {
     pwaApplicationDetailService.getDetailById(1);
   }
 
+  @Test
+  public void getLatestDetailsForApplications() {
+    when(applicationDetailRepository.findByPwaApplicationIsInAndTipFlagIsTrue(List.of(pwaApplicationDetail.getPwaApplication())))
+        .thenReturn(List.of(pwaApplicationDetail));
+    assertThat(pwaApplicationDetailService.getLatestDetailsForApplications(List.of(pwaApplicationDetail.getPwaApplication())))
+        .isEqualTo(List.of(pwaApplicationDetail));
+
+    verify(applicationDetailRepository).findByPwaApplicationIsInAndTipFlagIsTrue(List.of(pwaApplicationDetail.getPwaApplication()));
+  }
+
 }

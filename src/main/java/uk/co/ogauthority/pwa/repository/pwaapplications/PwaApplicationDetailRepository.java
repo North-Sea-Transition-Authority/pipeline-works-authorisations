@@ -40,4 +40,6 @@ public interface PwaApplicationDetailRepository extends CrudRepository<PwaApplic
 
   List<PwaApplicationDetail> findByPwaApplication(PwaApplication pwaApplication);
 
+  List<PwaApplicationDetail> findByPwaApplicationIsInAndTipFlagIsTrue(List<PwaApplication> pwaApplications);
+
 }

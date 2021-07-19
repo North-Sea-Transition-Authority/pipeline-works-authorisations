@@ -173,8 +173,8 @@ public class AppConsentDocController {
 
       return ReverseRouter.redirect(on(AppConsentDocController.class)
           .renderDocumentGenerating(applicationId, pwaApplicationType, run.getId(), null, null));
-
     });
+
 
   }
 

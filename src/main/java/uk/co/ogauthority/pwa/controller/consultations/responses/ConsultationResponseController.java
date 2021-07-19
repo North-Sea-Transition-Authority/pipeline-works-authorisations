@@ -1,6 +1,8 @@
 package uk.co.ogauthority.pwa.controller.consultations.responses;
 
+import java.util.Comparator;
 import java.util.Objects;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -15,7 +17,7 @@ import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.controller.appprocessing.shared.PwaAppProcessingPermissionCheck;
 import uk.co.ogauthority.pwa.exception.AccessDeniedException;
 import uk.co.ogauthority.pwa.model.form.consultation.ConsultationResponseForm;
-import uk.co.ogauthority.pwa.model.form.enums.ConsultationResponseOption;
+import uk.co.ogauthority.pwa.model.form.enums.ConsultationResponseOptionGroup;
 import uk.co.ogauthority.pwa.service.appprocessing.AppProcessingBreadcrumbService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.service.consultations.ConsultationResponseService;
@@ -24,7 +26,9 @@ import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.util.CaseManagementUtils;
+import uk.co.ogauthority.pwa.util.StreamUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
+import uk.co.ogauthority.pwa.validators.consultations.ConsultationResponseValidator;
 
 @Controller
 @RequestMapping("/pwa-application-processing/{applicationType}/{applicationId}/consultation/{consultationRequestId}/respond")
@@ -35,16 +39,19 @@ public class ConsultationResponseController {
   private final ConsultationViewService consultationViewService;
   private final ControllerHelperService controllerHelperService;
   private final AppProcessingBreadcrumbService breadcrumbService;
+  private ConsultationResponseValidator consultationResponseValidator;
 
   @Autowired
   public ConsultationResponseController(ConsultationResponseService consultationResponseService,
                                         ConsultationViewService consultationViewService,
                                         ControllerHelperService controllerHelperService,
-                                        AppProcessingBreadcrumbService breadcrumbService) {
+                                        AppProcessingBreadcrumbService breadcrumbService,
+                                        ConsultationResponseValidator consultationResponseValidator) {
     this.consultationResponseService = consultationResponseService;
     this.consultationViewService = consultationViewService;
     this.controllerHelperService = controllerHelperService;
     this.breadcrumbService = breadcrumbService;
+    this.consultationResponseValidator = consultationResponseValidator;
   }
 
   @GetMapping
@@ -56,7 +63,7 @@ public class ConsultationResponseController {
                                       @ModelAttribute("form") ConsultationResponseForm form) {
 
     return withAccessibleConsultation(processingContext, consultationRequestId, () ->
-      getResponderModelAndView(processingContext));
+      getResponderModelAndView(processingContext, form));
 
   }
 
@@ -72,12 +79,12 @@ public class ConsultationResponseController {
 
     return withAccessibleConsultation(processingContext, consultationRequestId, () -> {
 
-      var validatedBindingResult = consultationResponseService.validate(form, bindingResult);
+      consultationResponseValidator.validate(form, bindingResult, processingContext.getActiveConsultationRequestOrThrow());
 
       var request = processingContext.getActiveConsultationRequestOrThrow().getConsultationRequest();
 
-      return controllerHelperService.checkErrorsAndRedirect(validatedBindingResult,
-          getResponderModelAndView(processingContext), () -> {
+      return controllerHelperService.checkErrorsAndRedirect(bindingResult,
+          getResponderModelAndView(processingContext, form), () -> {
             consultationResponseService.saveResponseAndCompleteWorkflow(form, request, authenticatedUserAccount);
             return CaseManagementUtils.redirectCaseManagement(processingContext);
           });
@@ -104,14 +111,22 @@ public class ConsultationResponseController {
 
   }
 
-  private ModelAndView getResponderModelAndView(PwaAppProcessingContext processingContext) {
+  private ModelAndView getResponderModelAndView(PwaAppProcessingContext processingContext,
+                                                ConsultationResponseForm consultationResponseForm) {
 
     var application = processingContext.getPwaApplication();
     var requestDto = processingContext.getActiveConsultationRequestOrThrow();
 
+    var responseOptionGroupMap = requestDto.getConsultationResponseOptionGroups().stream()
+        .sorted(Comparator.comparing(ConsultationResponseOptionGroup::getDisplayOrder))
+        .collect(StreamUtils.toLinkedHashMap(Function.identity(), ConsultationResponseOptionGroup::getOptions));
+
+    // todo pwa-1359 update for EMT changes
+    consultationResponseForm.setConsultationResponseOptionGroup(responseOptionGroupMap.entrySet().iterator().next().getKey());
+
     var modelAndView = new ModelAndView("consultation/responses/responderForm")
         .addObject("cancelUrl", CaseManagementUtils.routeCaseManagement(application))
-        .addObject("responseOptions", ConsultationResponseOption.asList())
+        .addObject("responseOptionGroupMap", responseOptionGroupMap)
         .addObject("appRef", processingContext.getPwaApplication().getAppReference())
         .addObject("previousResponses", consultationViewService
             .getConsultationRequestViewsRespondedOnly(application, requestDto.getConsultationRequest()))

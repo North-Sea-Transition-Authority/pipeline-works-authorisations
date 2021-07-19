@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.controller.WorkAreaController;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.exception.AccessDeniedException;
 import uk.co.ogauthority.pwa.exception.AsBuiltNotificationGroupNotFoundException;
@@ -23,6 +24,7 @@ import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationGroupPipeli
 import uk.co.ogauthority.pwa.model.entity.asbuilt.PipelineChangeCategory;
 import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
 import uk.co.ogauthority.pwa.model.enums.aabuilt.AsBuiltNotificationStatus;
+import uk.co.ogauthority.pwa.model.enums.aabuilt.AsBuiltSubmissionResult;
 import uk.co.ogauthority.pwa.model.form.asbuilt.AsBuiltNotificationSubmissionForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.asbuilt.AsBuiltBreadCrumbService;
@@ -30,7 +32,9 @@ import uk.co.ogauthority.pwa.service.asbuilt.AsBuiltInteractorService;
 import uk.co.ogauthority.pwa.service.asbuilt.AsBuiltNotificationAuthService;
 import uk.co.ogauthority.pwa.service.asbuilt.AsBuiltNotificationGroupService;
 import uk.co.ogauthority.pwa.service.asbuilt.AsBuiltPipelineNotificationService;
+import uk.co.ogauthority.pwa.service.asbuilt.view.AsBuiltViewerService;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
+import uk.co.ogauthority.pwa.service.workarea.WorkAreaTab;
 import uk.co.ogauthority.pwa.util.FlashUtils;
 import uk.co.ogauthority.pwa.validators.asbuilt.AsBuiltNotificationSubmissionValidator;
 import uk.co.ogauthority.pwa.validators.asbuilt.AsBuiltNotificationSubmissionValidatorHint;
@@ -43,6 +47,7 @@ public class AsBuiltNotificationSubmissionController {
   private final AsBuiltNotificationGroupService asBuiltNotificationGroupService;
   private final AsBuiltPipelineNotificationService asBuiltPipelineNotificationService;
   private final AsBuiltInteractorService asBuiltInteractorService;
+  private final AsBuiltViewerService asBuiltViewerService;
   private final AsBuiltNotificationSubmissionValidator asBuiltNotificationSubmissionValidator;
   private final ControllerHelperService controllerHelperService;
   private final AsBuiltBreadCrumbService asBuiltBreadCrumbService;
@@ -53,6 +58,7 @@ public class AsBuiltNotificationSubmissionController {
       AsBuiltNotificationGroupService asBuiltNotificationGroupService,
       AsBuiltPipelineNotificationService asBuiltPipelineNotificationService,
       AsBuiltInteractorService asBuiltInteractorService,
+      AsBuiltViewerService asBuiltViewerService,
       AsBuiltNotificationSubmissionValidator asBuiltNotificationSubmissionValidator,
       ControllerHelperService controllerHelperService,
       AsBuiltBreadCrumbService asBuiltBreadCrumbService) {
@@ -61,6 +67,7 @@ public class AsBuiltNotificationSubmissionController {
     this.asBuiltNotificationGroupService = asBuiltNotificationGroupService;
     this.asBuiltPipelineNotificationService = asBuiltPipelineNotificationService;
     this.asBuiltInteractorService = asBuiltInteractorService;
+    this.asBuiltViewerService = asBuiltViewerService;
     this.asBuiltNotificationSubmissionValidator = asBuiltNotificationSubmissionValidator;
     this.controllerHelperService = controllerHelperService;
     this.asBuiltBreadCrumbService = asBuiltBreadCrumbService;
@@ -93,6 +100,11 @@ public class AsBuiltNotificationSubmissionController {
     var isPersonOgaUser = isPersonOgaUser(authenticatedUserAccount.getLinkedPerson());
     var asBuiltNotificationGroupPipeline = getAsBuiltNotificationGroupPipeline(notificationGroupId,
         pipelineDetail.getPipelineDetailId());
+    var asBuiltNotificationGroup = asBuiltNotificationGroupPipeline.getAsBuiltNotificationGroup();
+
+    checkUserCanAccessAsBuiltNotification(authenticatedUserAccount, notificationGroupId);
+    checkAsBuiltNotificationCanBeSubmitted(asBuiltNotificationGroup);
+
     asBuiltNotificationSubmissionValidator.validate(
         form,
         bindingResult,
@@ -101,10 +113,10 @@ public class AsBuiltNotificationSubmissionController {
         bindingResult,
         renderSubmitAsBuiltNotificationForm(notificationGroupId, pipelineDetailId, authenticatedUserAccount, form),
         () -> {
-          asBuiltInteractorService.submitAsBuiltNotification(asBuiltNotificationGroupPipeline, form, authenticatedUserAccount);
-          FlashUtils.success(redirectAttributes, "As-built notification submitted.");
-          return ReverseRouter.redirect(on(AsBuiltNotificationController.class)
-              .getAsBuiltNotificationDashboard(notificationGroupId, null));
+          var submissionResult = asBuiltInteractorService.submitAsBuiltNotification(asBuiltNotificationGroupPipeline,
+              form, authenticatedUserAccount);
+
+          return asBuiltSubmissionSuccessRedirect(asBuiltNotificationGroup, submissionResult, redirectAttributes);
         });
   }
 
@@ -128,6 +140,29 @@ public class AsBuiltNotificationSubmissionController {
     asBuiltBreadCrumbService.fromDashboard(asBuiltNotificationGroup.getId(), asBuiltNotificationGroup.getReference(), modelAndView,
         pipelineDetail.getPipelineNumber() + " notification");
     return modelAndView;
+  }
+
+  private ModelAndView asBuiltSubmissionSuccessRedirect(AsBuiltNotificationGroup asBuiltNotificationGroup,
+                                                        AsBuiltSubmissionResult asBuiltSubmissionResult,
+                                                        RedirectAttributes redirectAttributes) {
+    if (asBuiltSubmissionResult == AsBuiltSubmissionResult.AS_BUILT_GROUP_COMPLETED) {
+      FlashUtils.success(redirectAttributes, String.format("All as-built notifications for application %s have been successfully submitted",
+          asBuiltNotificationGroup.getReference()));
+      return ReverseRouter.redirect(on(WorkAreaController.class).renderWorkAreaTab(null, WorkAreaTab.AS_BUILT_NOTIFICATIONS, null));
+    }
+
+    FlashUtils.success(redirectAttributes, "As-built notification submitted.");
+    return ReverseRouter.redirect(on(AsBuiltNotificationController.class)
+        .getAsBuiltNotificationDashboard(asBuiltNotificationGroup.getId(), null));
+  }
+
+  private void checkAsBuiltNotificationCanBeSubmitted(AsBuiltNotificationGroup asBuiltNotificationGroup) {
+    if (!asBuiltViewerService.isGroupStatusComplete(asBuiltNotificationGroup)) {
+      return;
+    }
+    throw new AccessDeniedException(
+        String.format("Cannot perform any more submissions for as-built notification group with ID %s as the group status is complete",
+            asBuiltNotificationGroup.getId()));
   }
 
   private void checkUserCanAccessAsBuiltNotification(AuthenticatedUserAccount user, Integer notificationGroupId) {

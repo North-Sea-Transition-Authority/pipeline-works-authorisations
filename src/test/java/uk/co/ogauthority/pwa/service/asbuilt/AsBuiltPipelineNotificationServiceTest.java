@@ -49,7 +49,7 @@ public class AsBuiltPipelineNotificationServiceTest {
   @Before
   public void setup() {
 
-    asBuiltNotificationGroup = AsBuiltNotificationGroupTestUtil.createGroupWithConsent_withNgId(30);
+    asBuiltNotificationGroup = AsBuiltNotificationGroupTestUtil.createGroupWithConsent_fromNgId(30);
     asBuiltPipelineNotificationService = new AsBuiltPipelineNotificationService(
         asBuiltNotificationGroupPipelineRepository, pipelineDetailService);
 
