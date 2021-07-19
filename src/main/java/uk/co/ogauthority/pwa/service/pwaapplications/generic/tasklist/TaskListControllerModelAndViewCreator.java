@@ -15,6 +15,7 @@ import uk.co.ogauthority.pwa.service.appprocessing.options.ApproveOptionsService
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaViewService;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
+import uk.co.ogauthority.pwa.service.pwaapplications.PwaAppNotificationBannerService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskListEntryFactory;
 
@@ -34,6 +35,7 @@ public class TaskListControllerModelAndViewCreator {
   private final ApplicationUpdateRequestViewService applicationUpdateRequestViewService;
   private final ApproveOptionsService approveOptionsService;
   private final PwaApplicationDetailService pwaApplicationDetailService;
+  private final PwaAppNotificationBannerService pwaAppNotificationBannerService;
 
   @Autowired
   public TaskListControllerModelAndViewCreator(ApplicationBreadcrumbService breadcrumbService,
@@ -41,13 +43,15 @@ public class TaskListControllerModelAndViewCreator {
                                                MasterPwaViewService masterPwaViewService,
                                                ApplicationUpdateRequestViewService applicationUpdateRequestViewService,
                                                ApproveOptionsService approveOptionsService,
-                                               PwaApplicationDetailService pwaApplicationDetailService) {
+                                               PwaApplicationDetailService pwaApplicationDetailService,
+                                               PwaAppNotificationBannerService pwaAppNotificationBannerService) {
     this.breadcrumbService = breadcrumbService;
     this.taskListEntryFactory = taskListEntryFactory;
     this.masterPwaViewService = masterPwaViewService;
     this.applicationUpdateRequestViewService = applicationUpdateRequestViewService;
     this.approveOptionsService = approveOptionsService;
     this.pwaApplicationDetailService = pwaApplicationDetailService;
+    this.pwaAppNotificationBannerService = pwaAppNotificationBannerService;
   }
 
 
@@ -62,6 +66,9 @@ public class TaskListControllerModelAndViewCreator {
       modelAndView.addObject("masterPwaReference",
           masterPwaViewService.getCurrentMasterPwaView(pwaApplicationDetail.getPwaApplication()).getReference());
     }
+
+    pwaAppNotificationBannerService.addParallelPwaApplicationsWarningBannerIfRequired(pwaApplicationDetail.getPwaApplication(),
+        modelAndView);
 
     var canDeleteApplication = pwaApplicationDetailService.applicationDetailCanBeDeleted(pwaApplicationDetail);
     if (canDeleteApplication) {

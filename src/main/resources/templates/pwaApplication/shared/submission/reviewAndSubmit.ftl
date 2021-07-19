@@ -1,4 +1,5 @@
 <#include '../../../layoutPane.ftl'>
+<#include '../../../components/banner/notificationBanner.ftl'>
 
 <#-- @ftlvariable name="appSummaryView" type="uk.co.ogauthority.pwa.model.view.appsummary.ApplicationSummaryView" -->
 <#-- @ftlvariable name="combinedSummaryHtml" type="java.lang.String" -->
@@ -14,7 +15,6 @@
 <#assign pageHeading="Review and Submit Application ${applicationReference}"/>
 
 <@defaultPagePane htmlTitle=pageHeading phaseBanner=false>
-
 
     <#assign aboveSummaryInsert>
         <@fdsAction.link linkText="Download application pipeline map data" linkUrl=springUrl(mappingGuidanceUrl) openInNewTab=true linkClass="govuk-button govuk-button--blue"/>

@@ -35,6 +35,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermiss
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.person.PersonService;
+import uk.co.ogauthority.pwa.service.pwaapplications.PwaAppNotificationBannerService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.service.pwaapplications.workflow.PwaApplicationSubmissionService;
@@ -69,6 +70,7 @@ public class ReviewAndSubmitController {
   private final SendAppToSubmitterService sendAppToSubmitterService;
   private final PersonService personService;
   private final MetricsProvider metricsProvider;
+  private final PwaAppNotificationBannerService pwaAppNotificationBannerService;
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ReviewAndSubmitController.class);
 
@@ -82,7 +84,8 @@ public class ReviewAndSubmitController {
                                    PwaHolderTeamService pwaHolderTeamService,
                                    SendAppToSubmitterService sendAppToSubmitterService,
                                    PersonService personService,
-                                   MetricsProvider metricsProvider) {
+                                   MetricsProvider metricsProvider,
+                                   PwaAppNotificationBannerService pwaAppNotificationBannerService) {
     this.controllerHelperService = controllerHelperService;
     this.pwaApplicationRedirectService = pwaApplicationRedirectService;
     this.pwaApplicationSubmissionService = pwaApplicationSubmissionService;
@@ -93,6 +96,7 @@ public class ReviewAndSubmitController {
     this.sendAppToSubmitterService = sendAppToSubmitterService;
     this.personService = personService;
     this.metricsProvider = metricsProvider;
+    this.pwaAppNotificationBannerService = pwaAppNotificationBannerService;
   }
 
   @GetMapping
@@ -121,6 +125,9 @@ public class ReviewAndSubmitController {
         .addObject("mappingGuidanceUrl", ReverseRouter.route(on(ApplicationPipelineDataMapGuidanceController.class)
             .renderMappingGuidance(detail.getMasterPwaApplicationId(), detail.getPwaApplicationType(), null)))
         .addObject("showDiffCheckbox", true);
+
+    pwaAppNotificationBannerService.addParallelPwaApplicationsWarningBannerIfRequired(applicationContext.getPwaApplication(),
+        modelAndView);
 
     // if there's an open update request, include it
     applicationUpdateRequestViewService.getOpenRequestView(detail.getPwaApplication())

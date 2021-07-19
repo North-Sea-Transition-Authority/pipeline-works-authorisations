@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.service.enums.pwaapplications;
 import static uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus.AWAITING_APPLICATION_PAYMENT;
 import static uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus.CASE_OFFICER_REVIEW;
 import static uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus.COMPLETE;
+import static uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus.CONSENT_REVIEW;
 import static uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus.DELETED;
 import static uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus.DRAFT;
 import static uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW;
@@ -21,9 +22,9 @@ public enum ApplicationState {
 
   INDUSTRY_EDITABLE(DRAFT, UPDATE_REQUESTED),
 
-  IN_PROGRESS(DRAFT, UPDATE_REQUESTED, INITIAL_SUBMISSION_REVIEW, AWAITING_APPLICATION_PAYMENT, CASE_OFFICER_REVIEW),
+  IN_PROGRESS(DRAFT, UPDATE_REQUESTED, INITIAL_SUBMISSION_REVIEW, AWAITING_APPLICATION_PAYMENT, CASE_OFFICER_REVIEW, CONSENT_REVIEW),
 
-  SUBMITTED(UPDATE_REQUESTED, INITIAL_SUBMISSION_REVIEW, AWAITING_APPLICATION_PAYMENT, CASE_OFFICER_REVIEW),
+  SUBMITTED(UPDATE_REQUESTED, INITIAL_SUBMISSION_REVIEW, AWAITING_APPLICATION_PAYMENT, CASE_OFFICER_REVIEW, CONSENT_REVIEW),
 
   COMPLETED(COMPLETE, WITHDRAWN),
 

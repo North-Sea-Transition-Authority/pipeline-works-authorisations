@@ -53,6 +53,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermiss
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.person.PersonService;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
+import uk.co.ogauthority.pwa.service.pwaapplications.PwaAppNotificationBannerService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
 import uk.co.ogauthority.pwa.service.pwaapplications.workflow.PwaApplicationSubmissionService;
@@ -97,6 +98,9 @@ public class ReviewAndSubmitControllerTest extends PwaApplicationContextAbstract
   private ArgumentCaptor<LoggingEvent> loggingEventCaptor;
 
   private Timer timer;
+
+  @MockBean
+  private PwaAppNotificationBannerService pwaAppNotificationBannerService;
 
   private PwaApplicationEndpointTestBuilder editEndpointTester;
   private PwaApplicationEndpointTestBuilder viewEndpointTester;
@@ -406,7 +410,7 @@ public class ReviewAndSubmitControllerTest extends PwaApplicationContextAbstract
 
     var controller = new ReviewAndSubmitController(Mockito.mock(ControllerHelperService.class), pwaApplicationRedirectService,
         pwaApplicationSubmissionService, applicationSummaryViewService, applicationUpdateRequestViewService, validator,
-        pwaHolderTeamService, sendAppToSubmitterService, personService, metricsProvider);
+        pwaHolderTeamService, sendAppToSubmitterService, personService, metricsProvider, pwaAppNotificationBannerService);
 
     var form = new ReviewAndSubmitApplicationForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");

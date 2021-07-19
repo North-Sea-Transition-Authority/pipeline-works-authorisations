@@ -27,6 +27,7 @@
 <#import 'components/payment/payment.ftl' as pwaPayment>
 <#import 'components/mailMerge/mailMergeFieldList.ftl' as pwaMailMerge>
 <#import 'components/hiddenInput/hiddenInput.ftl' as pwaHiddenInput>
+<#import 'components/banner/notificationBanner.ftl' as notificationBanner>
 
 <#function springUrl url>
     <#local springUrl>

@@ -1,8 +1,10 @@
 package uk.co.ogauthority.pwa.service.pwaapplications;
 
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
+import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.repository.pwaapplications.PwaApplicationRepository;
 
@@ -22,6 +24,10 @@ public class PwaApplicationService {
   public PwaApplication getApplicationFromId(int applicationId) {
     return pwaApplicationRepository.findById(applicationId)
         .orElseThrow(() -> new PwaEntityNotFoundException("Could not find application with id " + applicationId));
+  }
+
+  List<PwaApplication> getAllApplicationsForMasterPwa(MasterPwa masterPwa) {
+    return pwaApplicationRepository.findAllByMasterPwa(masterPwa);
   }
 
 }

@@ -27,6 +27,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaView;
 import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaViewService;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
+import uk.co.ogauthority.pwa.service.pwaapplications.PwaAppNotificationBannerService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskListEntryFactory;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
@@ -50,6 +51,9 @@ public class TaskListControllerModelAndViewCreatorTest {
   private ApproveOptionsService approveOptionsService;
 
   @Mock
+  private PwaAppNotificationBannerService pwaAppNotificationBannerService;
+
+  @Mock
   private PwaApplicationDetailService pwaApplicationDetailService;
 
   private TaskListControllerModelAndViewCreator taskListControllerModelAndViewCreator;
@@ -68,7 +72,8 @@ public class TaskListControllerModelAndViewCreatorTest {
         masterPwaViewService,
         applicationUpdateRequestViewService,
         approveOptionsService,
-        pwaApplicationDetailService);
+        pwaApplicationDetailService,
+        pwaAppNotificationBannerService);
   }
 
 

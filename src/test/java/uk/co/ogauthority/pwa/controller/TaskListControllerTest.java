@@ -5,12 +5,8 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.when;
 
-import ch.qos.logback.classic.spi.LoggingEvent;
 import ch.qos.logback.core.Appender;
-import io.micrometer.core.instrument.Timer;
 import org.junit.Before;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -23,6 +19,7 @@ import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
 import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaView;
 import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaViewService;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
+import uk.co.ogauthority.pwa.service.pwaapplications.PwaAppNotificationBannerService;
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationPermissionService;
@@ -94,6 +91,8 @@ public abstract class TaskListControllerTest extends AbstractControllerTest {
   @MockBean
   private Appender appender;
 
+  @Mock
+  private PwaAppNotificationBannerService pwaAppNotificationBannerService;
 
   @Before
   public void taskListControllerTestSetup() {
@@ -107,7 +106,8 @@ public abstract class TaskListControllerTest extends AbstractControllerTest {
         masterPwaViewService,
         applicationUpdateRequestViewService,
         approveOptionsService,
-        pwaApplicationDetailService);
+        pwaApplicationDetailService,
+        pwaAppNotificationBannerService);
 
     doCallRealMethod().when(applicationBreadcrumbService).fromWorkArea(any(ModelAndView.class), eq("Task list"));
 
