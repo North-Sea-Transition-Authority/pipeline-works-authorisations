@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.service.testharness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.pwaapplications.workflow.PwaApplicationCreationService;
@@ -11,6 +12,7 @@ import uk.co.ogauthority.pwa.service.testharness.appsectiongeneration.PadHuooGen
 import uk.co.ogauthority.pwa.service.testharness.appsectiongeneration.pipelinegenerator.PipelineGeneratorService;
 
 @Service
+@Profile("development")
 public class GenerateApplicationService {
 
   private final PwaApplicationCreationService pwaApplicationCreationService;

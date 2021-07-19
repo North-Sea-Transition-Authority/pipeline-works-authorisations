@@ -5,6 +5,7 @@ import java.math.MathContext;
 import java.util.ArrayList;
 import org.apache.commons.lang3.RandomUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineCoreType;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineFlexibility;
@@ -21,6 +22,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelin
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineService;
 
 @Service
+@Profile("development")
 public class PipelineGeneratorService {
 
   private final PipelineService pipelineService;

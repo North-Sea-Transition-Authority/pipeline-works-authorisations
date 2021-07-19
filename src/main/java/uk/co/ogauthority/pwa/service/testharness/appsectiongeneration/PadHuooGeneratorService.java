@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.service.testharness.appsectiongeneration;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
@@ -18,6 +19,7 @@ import uk.co.ogauthority.pwa.repository.pwaapplications.huoo.PadOrganisationRole
 import uk.co.ogauthority.pwa.service.teams.TeamService;
 
 @Service
+@Profile("development")
 public class PadHuooGeneratorService {
 
 

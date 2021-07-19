@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.service.testharness.appsectiongeneration;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.model.entity.devuk.PadField;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
@@ -9,6 +10,7 @@ import uk.co.ogauthority.pwa.service.devuk.DevukFieldService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 
 @Service
+@Profile("development")
 public class FieldGeneratorService {
 
   private final PwaApplicationDetailService pwaApplicationDetailService;

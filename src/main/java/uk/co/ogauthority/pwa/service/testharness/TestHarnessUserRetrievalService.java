@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.service.testharness;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.energyportal.model.WebUserAccountStatus;
 import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
@@ -10,6 +11,7 @@ import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.service.person.PersonService;
 
 @Service
+@Profile("development")
 public class TestHarnessUserRetrievalService {
 
   private final PersonService personService;
