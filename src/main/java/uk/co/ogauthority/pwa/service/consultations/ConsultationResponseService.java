@@ -1,18 +1,16 @@
 package uk.co.ogauthority.pwa.service.consultations;
 
-import static uk.co.ogauthority.pwa.model.form.enums.ConsultationResponseOption.CONFIRMED;
-
 import java.time.Clock;
 import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import org.springframework.validation.BindingResult;
 import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.exception.WorkflowAssignmentException;
@@ -40,7 +38,6 @@ import uk.co.ogauthority.pwa.service.notify.NotifyService;
 import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
 import uk.co.ogauthority.pwa.service.workflow.assignment.WorkflowAssignmentService;
 import uk.co.ogauthority.pwa.service.workflow.task.WorkflowTaskInstance;
-import uk.co.ogauthority.pwa.validators.consultations.ConsultationResponseValidator;
 
 /*
  A service to  create response /assign response to consultation request
@@ -50,7 +47,6 @@ public class ConsultationResponseService implements AppProcessingService {
 
   private final ConsultationRequestService consultationRequestService;
   private final ConsultationResponseRepository consultationResponseRepository;
-  private final ConsultationResponseValidator consultationResponseValidator;
   private final CamundaWorkflowService camundaWorkflowService;
   private final Clock clock;
   private final NotifyService notifyService;
@@ -61,7 +57,6 @@ public class ConsultationResponseService implements AppProcessingService {
   @Autowired
   public ConsultationResponseService(ConsultationRequestService consultationRequestService,
                                      ConsultationResponseRepository consultationResponseRepository,
-                                     ConsultationResponseValidator consultationResponseValidator,
                                      CamundaWorkflowService camundaWorkflowService,
                                      @Qualifier("utcClock") Clock clock,
                                      NotifyService notifyService,
@@ -70,7 +65,6 @@ public class ConsultationResponseService implements AppProcessingService {
                                      EmailCaseLinkService emailCaseLinkService) {
     this.consultationRequestService = consultationRequestService;
     this.consultationResponseRepository = consultationResponseRepository;
-    this.consultationResponseValidator = consultationResponseValidator;
     this.camundaWorkflowService = camundaWorkflowService;
     this.clock = clock;
     this.notifyService = notifyService;
@@ -106,12 +100,15 @@ public class ConsultationResponseService implements AppProcessingService {
     consultationResponse.setConsultationRequest(consultationRequest);
     consultationResponse.setResponseType(form.getConsultationResponseOption());
 
-    if (form.getConsultationResponseOption().equals(ConsultationResponseOption.CONFIRMED)) {
-      consultationResponse.setResponseText(form.getConfirmedDescription());
+    var response1 = form.getConsultationResponseOptionGroup().getResponseOptionNumber(1);
+    var response2 = form.getConsultationResponseOptionGroup().getResponseOptionNumber(2);
+
+    if (form.getConsultationResponseOption().equals(response1)) {
+      consultationResponse.setResponseText(form.getOption1Description());
     }
 
-    if (form.getConsultationResponseOption().equals(ConsultationResponseOption.REJECTED)) {
-      consultationResponse.setResponseText(form.getRejectedDescription());
+    if (form.getConsultationResponseOption().equals(response2)) {
+      consultationResponse.setResponseText(form.getOption2Description());
     }
 
     consultationResponse.setResponseTimestamp(Instant.now(clock));
@@ -136,11 +133,6 @@ public class ConsultationResponseService implements AppProcessingService {
 
   }
 
-  public BindingResult validate(ConsultationResponseForm form, BindingResult bindingResult) {
-    consultationResponseValidator.validate(form, bindingResult);
-    return bindingResult;
-  }
-
   private void sendResponseNotificationToCaseOfficer(ConsultationRequest consultationRequest, ConsultationResponse response) {
 
     var application = consultationRequest.getPwaApplication();
@@ -162,7 +154,7 @@ public class ConsultationResponseService implements AppProcessingService {
         caseOfficerName,
         application.getAppReference(),
         consulteeGroupName,
-        response.getResponseType().getDisplayText(),
+        response.getResponseType().getLabelText(),
         emailCaseLinkService.generateCaseManagementLink(application)
     );
 
@@ -210,7 +202,10 @@ public class ConsultationResponseService implements AppProcessingService {
         .collect(Collectors.toList());
 
     return latestResponsesByGroup.stream()
-        .anyMatch(consultationResponse -> consultationResponse.getResponseType() == CONFIRMED);
+        .anyMatch(consultationResponse ->
+            Set.of(ConsultationResponseOption.CONFIRMED, ConsultationResponseOption.PROVIDE_ADVICE, ConsultationResponseOption.NO_ADVICE)
+                .contains(consultationResponse.getResponseType()));
+
   }
 
 }

@@ -45,22 +45,15 @@
 
         <#if consultationRequestViewData.responseType?has_content >
             <@fdsCheckAnswers.checkAnswersRow keyText="Response" actionText="" actionUrl="" screenReaderActionText="">
-                ${consultationRequestViewData.responseType.getDisplayText()}
+                ${consultationRequestViewData.responseType.labelText}
             </@fdsCheckAnswers.checkAnswersRow>
         </#if>
 
-        <#if consultationRequestViewData.responseConfirmReason?has_content>
-          <@fdsCheckAnswers.checkAnswersRow keyText="Confirm conditions" actionText="" actionUrl="" screenReaderActionText="">
-            ${consultationRequestViewData.responseConfirmReason}
+        <#if consultationRequestViewData.responseText?has_content>
+          <@fdsCheckAnswers.checkAnswersRow keyText=consultationRequestViewData.responseType.textAreaViewLabelText actionText="" actionUrl="" screenReaderActionText="">
+            ${consultationRequestViewData.responseText}
           </@fdsCheckAnswers.checkAnswersRow>
         </#if>
-
-        <#if consultationRequestViewData.responseRejectionReason?has_content >
-            <@fdsCheckAnswers.checkAnswersRow keyText="Rejection reason" actionText="" actionUrl="" screenReaderActionText="">
-                ${consultationRequestViewData.responseRejectionReason}
-            </@fdsCheckAnswers.checkAnswersRow>
-        </#if>
-
 
         <#if consultationRequestViewData.responseByPerson?has_content >
             <@fdsCheckAnswers.checkAnswersRow keyText="Response by" actionText="" actionUrl="" screenReaderActionText="">
