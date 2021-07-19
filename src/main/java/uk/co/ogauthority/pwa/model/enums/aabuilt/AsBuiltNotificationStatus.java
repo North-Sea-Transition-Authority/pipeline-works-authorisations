@@ -10,7 +10,7 @@ import java.util.stream.Stream;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineStatus;
 
 public enum AsBuiltNotificationStatus {
-  MIGRATION("Migrated", List.of(), false),
+  MIGRATION("Migrated", List.of(), StatusCategory.INACTIVE),
 
   PER_CONSENT("Exactly as per consent", List.of()),
   NOT_PER_CONSENT("Not exactly as per consent", List.of()),
@@ -20,19 +20,19 @@ public enum AsBuiltNotificationStatus {
 
   private final String displayName;
   private final List<PipelineStatus> nonSupportedPipelineStatuses;
-  private final boolean isActive;
+  private final StatusCategory statusCategory;
 
   AsBuiltNotificationStatus(String displayName,
                             List<PipelineStatus> nonSupportedPipelineStatuses,
-                            boolean isActive) {
+                            StatusCategory statusCategory) {
     this.displayName = displayName;
     this.nonSupportedPipelineStatuses = nonSupportedPipelineStatuses;
-    this.isActive = isActive;
+    this.statusCategory = statusCategory;
   }
 
   AsBuiltNotificationStatus(String displayName,
                             List<PipelineStatus> nonSupportedPipelineStatuses) {
-    this(displayName, nonSupportedPipelineStatuses, true);
+    this(displayName, nonSupportedPipelineStatuses, StatusCategory.ACTIVE);
   }
 
   public String getDisplayName() {
@@ -43,9 +43,13 @@ public enum AsBuiltNotificationStatus {
     return nonSupportedPipelineStatuses;
   }
 
+  public StatusCategory getStatusCategory() {
+    return statusCategory;
+  }
+
   private static Stream<AsBuiltNotificationStatus> getActiveStatusesStream() {
     return Arrays.stream(AsBuiltNotificationStatus.values())
-        .filter(asBuiltNotificationStatus -> asBuiltNotificationStatus.isActive);
+        .filter(asBuiltNotificationStatus -> StatusCategory.ACTIVE == asBuiltNotificationStatus.statusCategory);
   }
 
   public static Set<AsBuiltNotificationStatus> getActiveStatusSet() {
@@ -57,6 +61,10 @@ public enum AsBuiltNotificationStatus {
     return getActiveStatusesStream()
         .filter(asBuiltNotificationStatus -> !asBuiltNotificationStatus.nonSupportedPipelineStatuses.contains(pipelineStatus))
         .collect(toList());
+  }
+
+  enum StatusCategory {
+    ACTIVE, INACTIVE
   }
 
 }
