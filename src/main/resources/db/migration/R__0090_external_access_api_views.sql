@@ -1,3 +1,20 @@
+/* This view MUST contain 1 row per pipeline, no duplicates */
+CREATE OR REPLACE VIEW ${datasource.user}.api_vw_pipeline_as_built_data AS
+SELECT *
+FROM (
+  SELECT
+    pd.pipeline_id
+  , abns.date_laid
+  , abns.date_pipeline_brought_into_use
+  FROM ${datasource.user}.as_built_notif_submissions abns
+  JOIN ${datasource.user}.as_built_notif_grp_pipelines abngp ON abngp.id = abns.as_built_notif_pipeline_id
+  JOIN ${datasource.user}.pipeline_details pd ON pd.id = abngp.pipeline_detail_id
+  JOIN ${datasource.user}.as_built_notification_groups abng ON abngp.as_built_notification_group_id = abng.id
+  JOIN ${datasource.user}.pwa_consents pc ON pc.id = abng.pwa_consent_id
+  WHERE abns.tip_flag = 1
+  AND abngp.pipeline_change_category = 'NEW_PIPELINE' -- assumption here is one and only one 'NEW_PIPELINE' as built change per pipeline over its entire lifetime
+);
+
 CREATE OR REPLACE VIEW ${datasource.user}.api_vw_pwa_pipeline_details AS
 SELECT *
 FROM (
@@ -93,6 +110,32 @@ AND pwad.pwa_status = 'CONSENTED'
 -- below condition should remove cardinality as only ever 1 initial consent per PWA.
 AND pc.consent_type = 'INITIAL_PWA';
 
+CREATE OR REPLACE VIEW ${datasource.user}.api_vw_current_pipeline_data AS
+SELECT *
+FROM (
+  SELECT
+    ppd.pipeline_id
+  , ppd.pipeline_number
+  , ppd.from_location
+  , ppd.to_location
+  , ppd.max_external_diameter
+  , ppd.pwa_consent_id pipeline_linked_pwa_consent_id
+  , pabd.date_pipeline_brought_into_use
+  , pp.primary_pwa_reference
+  , pp.primary_pwa_id
+  , pp.initial_pwa_consent_id
+  , pp.initial_pwa_consent_date
+  FROM ${datasource.user}.api_vw_pwa_pipeline_details ppd
+  JOIN ${datasource.user}.api_vw_pwa_consents ppc ON ppd.pwa_consent_id = ppc.pwa_consent_id
+  JOIN ${datasource.user}.api_vw_primary_pwas pp ON pp.primary_pwa_id = ppc.primary_pwa_id
+  LEFT JOIN ${datasource.user}.api_vw_pipeline_as_built_data pabd ON ppd.pipeline_id = pabd.pipeline_id
+  WHERE ppd.status_control = 'C'
+);
+
+
+GRANT SELECT ON ${datasource.user}.api_vw_pipeline_as_built_data TO appenv;
 GRANT SELECT ON ${datasource.user}.api_vw_pwa_pipeline_details TO appenv;
 GRANT SELECT ON ${datasource.user}.api_vw_pwa_consents TO appenv;
 GRANT SELECT ON ${datasource.user}.api_vw_primary_pwas TO appenv;
+
+GRANT SELECT ON ${datasource.user}.api_vw_current_pipeline_data TO appenv;
