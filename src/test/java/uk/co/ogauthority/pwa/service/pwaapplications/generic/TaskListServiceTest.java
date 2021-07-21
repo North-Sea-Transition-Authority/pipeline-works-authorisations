@@ -1,6 +1,8 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.generic;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -164,7 +166,6 @@ public class TaskListServiceTest {
 
   @Test
   public void getTaskListGroups_timerMetricStarted_timeRecordedAndLogged() {
-
     var fakeTaskListEntry = new TaskListEntry("fake name", "fake route", false, 0);
     when(taskListEntryFactory.createApplicationTaskListEntry(any(), any())).thenReturn(fakeTaskListEntry);
     when(applicationTaskService.canShowTask(DEFAULT_APP_TASK, pwaApplicationDetail)).thenReturn(true);
@@ -173,6 +174,25 @@ public class TaskListServiceTest {
     TimerMetricTestUtils.assertTimeLogged(
         loggingEventCaptor, appender, List.of(pwaApplicationDetail.getPwaApplicationType().getDisplayName(), "task list groups"));
 
+  }
+
+  @Test
+  public void areAllApplicationTasksComplete_allTasksComplete() {
+    var fakeTaskListEntry = new TaskListEntry("fake name", "fake route", true, 0);
+    when(taskListEntryFactory.createApplicationTaskListEntry(any(), any())).thenReturn(fakeTaskListEntry);
+    when(applicationTaskService.canShowTask(DEFAULT_APP_TASK, pwaApplicationDetail)).thenReturn(true);
+
+    assertTrue(taskListService.areAllApplicationTasksComplete(pwaApplicationDetail));
+
+  }
+
+  @Test
+  public void areAllApplicationTasksComplete_tasksNotComplete() {
+    var fakeTaskListEntry = new TaskListEntry("fake name", "fake route", false, 0);
+    when(taskListEntryFactory.createApplicationTaskListEntry(any(), any())).thenReturn(fakeTaskListEntry);
+    when(applicationTaskService.canShowTask(DEFAULT_APP_TASK, pwaApplicationDetail)).thenReturn(true);
+
+    assertFalse(taskListService.areAllApplicationTasksComplete(pwaApplicationDetail));
   }
 
 }

@@ -136,4 +136,13 @@ public class TaskListService {
 
   }
 
+  public boolean areAllApplicationTasksComplete(PwaApplicationDetail pwaApplicationDetail) {
+    var taskListGroups = getTaskListGroups(pwaApplicationDetail);
+    var allTaskListEntries = taskListGroups.stream()
+        .flatMap(taskListGroup -> taskListGroup.getTaskListEntries().stream())
+        .collect(Collectors.toList());
+    return allTaskListEntries.stream()
+        .allMatch(TaskListEntry::isCompleted);
+  }
+
 }

@@ -5,6 +5,7 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 import com.google.common.base.Stopwatch;
 import java.util.Comparator;
 import java.util.Map;
+import java.util.function.Supplier;
 import javax.servlet.http.HttpSession;
 import org.apache.commons.lang3.BooleanUtils;
 import org.slf4j.Logger;
@@ -43,6 +44,7 @@ import uk.co.ogauthority.pwa.service.teams.PwaHolderTeamService;
 import uk.co.ogauthority.pwa.util.MetricTimerUtils;
 import uk.co.ogauthority.pwa.util.StreamUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
+import uk.co.ogauthority.pwa.validators.appprocessing.PwaApplicationValidationService;
 import uk.co.ogauthority.pwa.validators.pwaapplications.shared.submission.ReviewAndSubmitApplicationFormValidator;
 
 @Controller
@@ -71,6 +73,7 @@ public class ReviewAndSubmitController {
   private final PersonService personService;
   private final MetricsProvider metricsProvider;
   private final PwaAppNotificationBannerService pwaAppNotificationBannerService;
+  private final PwaApplicationValidationService pwaApplicationValidationService;
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ReviewAndSubmitController.class);
 
@@ -85,7 +88,8 @@ public class ReviewAndSubmitController {
                                    SendAppToSubmitterService sendAppToSubmitterService,
                                    PersonService personService,
                                    MetricsProvider metricsProvider,
-                                   PwaAppNotificationBannerService pwaAppNotificationBannerService) {
+                                   PwaAppNotificationBannerService pwaAppNotificationBannerService,
+                                   PwaApplicationValidationService pwaApplicationValidationService) {
     this.controllerHelperService = controllerHelperService;
     this.pwaApplicationRedirectService = pwaApplicationRedirectService;
     this.pwaApplicationSubmissionService = pwaApplicationSubmissionService;
@@ -97,6 +101,7 @@ public class ReviewAndSubmitController {
     this.personService = personService;
     this.metricsProvider = metricsProvider;
     this.pwaAppNotificationBannerService = pwaAppNotificationBannerService;
+    this.pwaApplicationValidationService = pwaApplicationValidationService;
   }
 
   @GetMapping
@@ -111,6 +116,7 @@ public class ReviewAndSubmitController {
 
     var detail = applicationContext.getApplicationDetail();
     var appSummaryView = applicationSummaryViewService.getApplicationSummaryView(detail);
+    var isApplicationValid = pwaApplicationValidationService.isApplicationValid(detail);
 
     var modelAndView = new ModelAndView("pwaApplication/shared/submission/reviewAndSubmit")
         .addObject("appSummaryView", appSummaryView)
@@ -124,7 +130,8 @@ public class ReviewAndSubmitController {
             .submit(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null, null, null)))
         .addObject("mappingGuidanceUrl", ReverseRouter.route(on(ApplicationPipelineDataMapGuidanceController.class)
             .renderMappingGuidance(detail.getMasterPwaApplicationId(), detail.getPwaApplicationType(), null)))
-        .addObject("showDiffCheckbox", true);
+        .addObject("showDiffCheckbox", true)
+        .addObject("isApplicationValid", isApplicationValid);
 
     pwaAppNotificationBannerService.addParallelPwaApplicationsWarningBannerIfRequired(applicationContext.getPwaApplication(),
         modelAndView);
@@ -164,12 +171,16 @@ public class ReviewAndSubmitController {
 
     var stopwatch = Stopwatch.createStarted();
 
-    validator.validate(form, bindingResult, applicationContext);
-
-    var modelAndView = controllerHelperService.checkErrorsAndRedirect(
+    var modelAndView = whenSubmittableCheckErrorsAndRedirect(
+        applicationContext,
+        form,
         bindingResult,
         getModelAndView(applicationContext, form),
         () -> {
+
+          if (!pwaApplicationValidationService.isApplicationValid(applicationContext.getApplicationDetail())) {
+            return review(applicationType, applicationId, applicationContext, null);
+          }
 
           pwaApplicationSubmissionService.submitApplication(
               applicationContext.getUser(),
@@ -198,9 +209,9 @@ public class ReviewAndSubmitController {
       BindingResult bindingResult,
       HttpSession session) {
 
-    validator.validate(form, bindingResult, applicationContext);
-
-    return controllerHelperService.checkErrorsAndRedirect(
+    return whenSubmittableCheckErrorsAndRedirect(
+        applicationContext,
+        form,
         bindingResult,
         getModelAndView(applicationContext, form),
         () -> {
@@ -224,6 +235,20 @@ public class ReviewAndSubmitController {
 
     );
 
+  }
+
+  private ModelAndView whenSubmittableCheckErrorsAndRedirect(PwaApplicationContext applicationContext,
+                                                             ReviewAndSubmitApplicationForm form,
+                                                             BindingResult bindingResult,
+                                                             ModelAndView modelAndView,
+                                                             Supplier<ModelAndView> ifValid) {
+    if (!pwaApplicationValidationService.isApplicationValid(applicationContext.getApplicationDetail())) {
+      return review(applicationContext.getApplicationType(), applicationContext.getPwaApplication().getId(), applicationContext, null);
+    }
+
+    validator.validate(form, bindingResult, applicationContext);
+
+    return controllerHelperService.checkErrorsAndRedirect(bindingResult, modelAndView, ifValid);
   }
 
 }
