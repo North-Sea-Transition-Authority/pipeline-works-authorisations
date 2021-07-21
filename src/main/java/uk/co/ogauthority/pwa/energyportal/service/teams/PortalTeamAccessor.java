@@ -83,6 +83,14 @@ public class PortalTeamAccessor {
 
   }
 
+  public List<PortalTeamMemberDto> getPortalTeamMembers(List<Integer> resId) {
+    var teams = portalTeamRepository.findAllById(resId);
+    var portalTeamMembers = new ArrayList<PortalTeamMemberDto>();
+
+    teams.forEach(team -> portalTeamMembers.addAll(getPortalTeamMembers(team)));
+    return portalTeamMembers;
+  }
+
   /**
    * Helper which transforms database results for team member roles into a list of PortalTeamMemberDto.
    */
@@ -221,6 +229,43 @@ public class PortalTeamAccessor {
         .getResultList();
 
   }
+
+
+  public List<PortalTeamDto> getTeamsWhereRoleMatching(String portalTeamType, Collection<String> roleNames) {
+
+    List<PortalTeamTypeRole> roles = entityManager.createQuery("" +
+            "SELECT pttr " +
+            "FROM PortalTeamType ptt " +
+            "JOIN PortalTeamTypeRole pttr ON pttr.portalTeamType = ptt " +
+            "WHERE ptt.type = :portalTeamType " +
+            "AND pttr.name IN :roleNames ",
+        PortalTeamTypeRole.class)
+        .setParameter("portalTeamType", portalTeamType)
+        .setParameter("roleNames", roleNames)
+        .getResultList();
+
+    return entityManager.createQuery("" +
+            // Distinct required to remove duplicates caused by using the PortalTeamTypeRole entity as root
+            "SELECT DISTINCT new uk.co.ogauthority.pwa.energyportal.model.dto.teams.PortalTeamDto( " +
+            "  pt.resId, pt.name, pt.description, pt.portalTeamType.type, ptu.uref " +
+            ") " +
+            "FROM PortalTeamTypeRole pttr " +
+            "JOIN PortalTeamType ptt ON ptt = pttr.portalTeamType " +
+            "JOIN PortalTeam pt ON pt.portalTeamType = ptt " +
+            "JOIN PortalTeamMember ptm ON ptm.portalTeam = pt " +
+            "JOIN PortalTeamMemberRole ptmr ON ptmr.portalTeamMember = ptm " +
+            "LEFT JOIN PortalTeamUsage ptu ON ptu.portalTeam = pt " +
+            "WHERE ptt.type = :portalTeamType " +
+            "AND (ptu.purpose = :usagePurpose OR ptu IS NULL) " +
+            "AND ptmr.portalTeamTypeRole IN :portalTeamTypeRoles",
+        PortalTeamDto.class)
+        .setParameter("portalTeamType", portalTeamType)
+        .setParameter("usagePurpose", PortalTeamUsagePurpose.PRIMARY_DATA)
+        .setParameter("portalTeamTypeRoles", roles)
+        .getResultList();
+
+  }
+  
 
   /**
    * Remove a given person from a team.
