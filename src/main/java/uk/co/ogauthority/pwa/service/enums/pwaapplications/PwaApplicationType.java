@@ -51,7 +51,7 @@ public enum PwaApplicationType {
       Period.ofWeeks(6),
       Period.ofWeeks(8),
       MedianLineImplication.FALSE,
-      DocumentSpec.VARIATION_CONSENT_DOCUMENT,
+      DocumentSpec.HUOO_CONSENT_DOCUMENT,
       40,
 
       ParallelApplicationsWarning.NO_WARNING),

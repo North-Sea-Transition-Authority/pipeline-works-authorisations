@@ -11,7 +11,8 @@ public enum DocumentTemplateMnem {
   PWA_CONSENT_DOCUMENT(Set.of(
       DocumentSpec.INITIAL_APP_CONSENT_DOCUMENT,
       DocumentSpec.DEPOSIT_CONSENT_DOCUMENT,
-      DocumentSpec.VARIATION_CONSENT_DOCUMENT)
+      DocumentSpec.VARIATION_CONSENT_DOCUMENT,
+      DocumentSpec.HUOO_CONSENT_DOCUMENT)
   );
 
   private Set<DocumentSpec> documentSpecs;

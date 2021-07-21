@@ -32,13 +32,17 @@ public enum DocumentSpec {
       DocumentSection.DEPOSITS, 40,
       DocumentSection.DEPOSIT_DRAWINGS, 50,
       DocumentSection.ADMIRALTY_CHART, 60
-  ), "Variation consent document");
+  ), "Variation consent document"),
+
+  HUOO_CONSENT_DOCUMENT(Map.of(
+      DocumentSection.HUOO_INTRO, 10,
+      DocumentSection.HUOO, 20
+  ), "HUOO consent document");
 
   private final Map<DocumentSection, Integer> documentSectionDisplayOrderMap;
   private final String displayName;
 
-  DocumentSpec(
-      Map<DocumentSection, Integer> documentSectionDisplayOrderMap, String displayName) {
+  DocumentSpec(Map<DocumentSection, Integer> documentSectionDisplayOrderMap, String displayName) {
     this.documentSectionDisplayOrderMap = documentSectionDisplayOrderMap;
     this.displayName = displayName;
   }

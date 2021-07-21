@@ -6,6 +6,7 @@ import uk.co.ogauthority.pwa.service.documents.generation.DepositDrawingsGenerat
 import uk.co.ogauthority.pwa.service.documents.generation.DepositsGeneratorService;
 import uk.co.ogauthority.pwa.service.documents.generation.DocumentSectionGenerator;
 import uk.co.ogauthority.pwa.service.documents.generation.HuooGeneratorService;
+import uk.co.ogauthority.pwa.service.documents.generation.HuooIntroductionGeneratorService;
 import uk.co.ogauthority.pwa.service.documents.generation.InitialIntroductionGeneratorService;
 import uk.co.ogauthority.pwa.service.documents.generation.TableAGeneratorService;
 import uk.co.ogauthority.pwa.service.documents.generation.VariationIntroductionGeneratorService;
@@ -19,6 +20,8 @@ public enum DocumentSection {
   DEPCON_INTRO("Introduction", DepconIntroductionGeneratorService.class, SectionType.OPENING_PARAGRAPH),
 
   VARIATION_INTRO("Introduction", VariationIntroductionGeneratorService.class, SectionType.OPENING_PARAGRAPH),
+
+  HUOO_INTRO("Introduction", HuooIntroductionGeneratorService.class, SectionType.OPENING_PARAGRAPH),
 
   HUOO("Schedule 1", HuooGeneratorService.class),
 
