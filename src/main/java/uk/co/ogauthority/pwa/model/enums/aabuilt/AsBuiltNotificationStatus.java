@@ -4,9 +4,13 @@ import static java.util.stream.Collectors.toList;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineStatus;
 
 public enum AsBuiltNotificationStatus {
+  MIGRATION("Migrated", List.of(), StatusCategory.INACTIVE),
 
   PER_CONSENT("Exactly as per consent", List.of()),
   NOT_PER_CONSENT("Not exactly as per consent", List.of()),
@@ -16,11 +20,19 @@ public enum AsBuiltNotificationStatus {
 
   private final String displayName;
   private final List<PipelineStatus> nonSupportedPipelineStatuses;
+  private final StatusCategory statusCategory;
+
+  AsBuiltNotificationStatus(String displayName,
+                            List<PipelineStatus> nonSupportedPipelineStatuses,
+                            StatusCategory statusCategory) {
+    this.displayName = displayName;
+    this.nonSupportedPipelineStatuses = nonSupportedPipelineStatuses;
+    this.statusCategory = statusCategory;
+  }
 
   AsBuiltNotificationStatus(String displayName,
                             List<PipelineStatus> nonSupportedPipelineStatuses) {
-    this.displayName = displayName;
-    this.nonSupportedPipelineStatuses = nonSupportedPipelineStatuses;
+    this(displayName, nonSupportedPipelineStatuses, StatusCategory.ACTIVE);
   }
 
   public String getDisplayName() {
@@ -31,10 +43,28 @@ public enum AsBuiltNotificationStatus {
     return nonSupportedPipelineStatuses;
   }
 
-  public static List<AsBuiltNotificationStatus> asList(PipelineStatus pipelineStatus) {
+  public StatusCategory getStatusCategory() {
+    return statusCategory;
+  }
+
+  private static Stream<AsBuiltNotificationStatus> getActiveStatusesStream() {
     return Arrays.stream(AsBuiltNotificationStatus.values())
+        .filter(asBuiltNotificationStatus -> StatusCategory.ACTIVE == asBuiltNotificationStatus.statusCategory);
+  }
+
+  public static Set<AsBuiltNotificationStatus> getActiveStatusSet() {
+    return getActiveStatusesStream()
+        .collect(Collectors.toUnmodifiableSet());
+  }
+
+  public static List<AsBuiltNotificationStatus> asList(PipelineStatus pipelineStatus) {
+    return getActiveStatusesStream()
         .filter(asBuiltNotificationStatus -> !asBuiltNotificationStatus.nonSupportedPipelineStatuses.contains(pipelineStatus))
         .collect(toList());
+  }
+
+  enum StatusCategory {
+    ACTIVE, INACTIVE
   }
 
 }

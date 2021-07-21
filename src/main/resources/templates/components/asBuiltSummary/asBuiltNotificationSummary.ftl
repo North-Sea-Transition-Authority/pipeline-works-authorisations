@@ -2,6 +2,10 @@
 <#include '../../pwaLayoutImports.ftl'>
 
 <#macro asBuiltNotificationSummary submission historic isOgaUser summaryListClass="govuk-!-margin-bottom-9">
+    <#if historic >
+        <h2 class="govuk-heading-m">Submitted ${submission.submittedOnInstantDisplay} - ${submission.asBuiltGroupReference}</h2>
+    </#if>
+
     <@fdsCheckAnswers.checkAnswers summaryListClass>
         <#if historic == false>
             <#if submission.asBuiltGroupReference?hasContent>
@@ -14,8 +18,6 @@
                     ${submission.submittedOnInstantDisplay}
                 </@fdsCheckAnswers.checkAnswersRowNoAction>
             </#if>
-        <#else>
-            <h2 class="govuk-heading-m">Submitted ${submission.submittedOnInstantDisplay} - ${submission.asBuiltGroupReference}</h2>
         </#if>
         <#if submission.submittedByPersonName?hasContent>
             <@fdsCheckAnswers.checkAnswersRowNoAction keyText="Submitted by">
