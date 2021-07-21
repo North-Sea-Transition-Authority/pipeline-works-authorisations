@@ -760,10 +760,16 @@ AS
 
   END migrate_master;
 
-  PROCEDURE create_pipeline_as_built_data(p_pipeline_id NUMBER)
+  PROCEDURE migrate_commissioned_as_built(p_pipeline_id NUMBER)
   IS
+
     l_as_built_count NUMBER;
     l_system_person_id NUMBER;
+
+    l_group_created BOOLEAN := FALSE;
+    l_group_id NUMBER;
+    l_group_pipeline_id NUMBER;
+
   BEGIN
 
     SELECT wuac.person_id
@@ -771,20 +777,8 @@ AS
     FROM securemgr.web_user_account_current wuac
     WHERE wuac.wua_id = 1;
 
-    -- if we can find as builts for any pipeline detail we can just skip the migration.
-    SELECT COUNT(*)
-    INTO l_as_built_count
-    FROM ${datasource.user}.pipelines p
-    JOIN ${datasource.user}.pipeline_details pd ON p.id = pd.pipeline_id
-    JOIN ${datasource.user}.as_built_notif_grp_pipelines abngp ON pd.id = abngp.pipeline_detail_id
-    WHERE p.id = p_pipeline_id;
 
-    IF(l_as_built_count != 0) THEN
-      dbms_output.PUT_LINE('SKIPPING as-built migration for pipeline_id: ' || p_pipeline_id);
-      RETURN;
-    ELSE
-      dbms_output.PUT('PROCESSING as-built migration for pipeline_id: ' || p_pipeline_id || ' ');
-    END IF;
+    dbms_output.PUT('PROCESSING as-built "commissioned date" migration for pipeline_id: ' || p_pipeline_id || ' ');
 
     FOR mig_as_built_info IN (
       WITH mig_as_built_info AS (
@@ -811,26 +805,26 @@ AS
       -- commissioned date as-builts source data
       SELECT
         'NEW_PIPELINE' pipeline_change_category
+      , mabi.pipeline_id
       , mabi.detail_start_timestamp
       , mabi.master_pwa_reference || ' - Commissioned date' as_built_group_ref
       , mabi.initial_pwa_consent_id
       , mabi.pd_id
+      , MAX(mabi.pd_id) OVER(PARTITION BY mabi.pipeline_id) max_pd_id -- ANALYTIC aggregate happens on the WHERE filtered result set.
       , NULL date_laid
       , mabi.commissioned_date date_pipeline_brought_into_use
       FROM mig_as_built_info mabi
       -- only return the first commissioned date row or each commissioned date row which is different from the previous detail
       WHERE mabi.commissioned_date IS NOT NULL AND (
-      mabi.lag_pl_commisioned_date IS NULL
-      OR
-      COALESCE(mabi.lag_pl_commisioned_date, TO_DATE('01-01-0000')) != COALESCE(mabi.commissioned_date, TO_DATE('01-01-0000'))
+        mabi.lag_pl_commisioned_date IS NULL
+        OR
+        COALESCE(mabi.lag_pl_commisioned_date, TO_DATE('01-01-0000')) != COALESCE(mabi.commissioned_date, TO_DATE('01-01-0000'))
       )
     ) LOOP
-      DECLARE
-        l_group_id NUMBER;
-        l_group_pipeline_id NUMBER;
-      BEGIN
 
-        dbms_output.PUT(' . ');
+      IF(NOT(l_group_created)) THEN
+
+        l_group_created := TRUE;
 
         INSERT INTO ${datasource.user}.as_built_notification_groups (
           pwa_consent_id
@@ -844,7 +838,7 @@ AS
         )
         RETURNING id INTO l_group_id;
 
-        dbms_output.PUT(' . ');
+        dbms_output.PUT('.');
 
         INSERT INTO ${datasource.user}.as_built_notif_grp_details (
           as_built_notification_group_id
@@ -859,7 +853,7 @@ AS
         , mig_as_built_info.detail_start_timestamp
         );
 
-        dbms_output.PUT(' . ');
+        dbms_output.PUT('.');
 
         INSERT INTO ${datasource.user}.as_built_notif_grp_pipelines (
           as_built_notification_group_id
@@ -868,12 +862,12 @@ AS
         )
         VALUES (
           l_group_id
-        , mig_as_built_info.pd_id
+        , mig_as_built_info.max_pd_id -- link all submissions to the latest pipeline detail we can
         , mig_as_built_info.pipeline_change_category
         )
         RETURNING id INTO l_group_pipeline_id;
 
-        dbms_output.PUT(' . ');
+        dbms_output.PUT('.');
 
         INSERT INTO ${datasource.user}.as_built_notif_grp_status_hist (
           as_built_notification_group_id
@@ -887,6 +881,10 @@ AS
         , l_system_person_id
         , mig_as_built_info.detail_start_timestamp
         );
+
+        dbms_output.PUT('. Group Created .');
+
+      END IF;
 
         dbms_output.PUT('.');
 
@@ -906,15 +904,34 @@ AS
         , 'MIGRATION'
         , mig_as_built_info.date_laid
         , mig_as_built_info.date_pipeline_brought_into_use
-        , 1
+        , CASE WHEN mig_as_built_info.pd_id = mig_as_built_info.max_pd_id THEN 1 ELSE 0 END
         );
 
-        dbms_output.PUT('|');
-
-      END;
+        dbms_output.PUT('Submission created');
     END LOOP;
 
     dbms_output.PUT_LINE(' COMPLETE');
+  END ;
+
+
+  PROCEDURE create_pipeline_as_built_data(p_pipeline_id NUMBER)
+  AS
+    l_as_built_count NUMBER;
+  BEGIN
+    -- if we can find as builts for any pipeline detail we can just skip the migration.
+    SELECT COUNT(*)
+    INTO l_as_built_count
+    FROM ${datasource.user}.pipelines p
+    JOIN ${datasource.user}.pipeline_details pd ON p.id = pd.pipeline_id
+    JOIN ${datasource.user}.as_built_notif_grp_pipelines abngp ON pd.id = abngp.pipeline_detail_id
+    WHERE p.id = p_pipeline_id;
+
+    IF(l_as_built_count != 0) THEN
+      dbms_output.PUT_LINE('SKIPPING as-built "commissioned date" migration for pipeline_id: ' || p_pipeline_id);
+      RETURN;
+    ELSE
+      migrate_commissioned_as_built(p_pipeline_id);
+    END IF;
 
   END create_pipeline_as_built_data;
 
