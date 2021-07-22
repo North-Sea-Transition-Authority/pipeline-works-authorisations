@@ -14,7 +14,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.users.UserAccountService;
 
 @Profile("development")
-public class TestHarnessBean extends QuartzJobBean {
+class TestHarnessBean extends QuartzJobBean {
 
   private final TestHarnessService testHarnessService;
   private final UserAccountService userAccountService;

@@ -13,7 +13,7 @@ import uk.co.ogauthority.pwa.service.testharness.appsectiongeneration.pipelinege
 
 @Service
 @Profile("development")
-public class GenerateApplicationService {
+class GenerateApplicationService {
 
   private final PwaApplicationCreationService pwaApplicationCreationService;
   private final TestHarnessUserRetrievalService testHarnessUserRetrievalService;

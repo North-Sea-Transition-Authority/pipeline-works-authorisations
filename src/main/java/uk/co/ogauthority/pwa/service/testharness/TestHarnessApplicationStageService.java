@@ -11,7 +11,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
  */
 @Service
 @Profile("development")
-public class ApplicationStatusService {
+class TestHarnessApplicationStageService {
 
 
 
