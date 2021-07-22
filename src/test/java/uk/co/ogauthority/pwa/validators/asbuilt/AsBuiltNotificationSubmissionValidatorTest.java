@@ -58,8 +58,8 @@ public class AsBuiltNotificationSubmissionValidatorTest {
         new AsBuiltNotificationSubmissionValidatorHint(false, PipelineChangeCategory.NEW_PIPELINE));
 
     assertThat(errorsMap).containsOnly(
-        entry("perConsentDateLaidTimestampStr",
-            Set.of("perConsentDateLaidTimestampStr" + FieldValidationErrorCodes.REQUIRED.getCode())),
+        entry("perConsentDateWorkCompletedTimestampStr",
+            Set.of("perConsentDateWorkCompletedTimestampStr" + FieldValidationErrorCodes.REQUIRED.getCode())),
         entry("perConsentDateBroughtIntoUseTimestampStr",
             Set.of("perConsentDateBroughtIntoUseTimestampStr" + FieldValidationErrorCodes.REQUIRED.getCode()))
     );
@@ -74,8 +74,8 @@ public class AsBuiltNotificationSubmissionValidatorTest {
         new AsBuiltNotificationSubmissionValidatorHint(false, PipelineChangeCategory.CONSENT_UPDATE));
 
     assertThat(errorsMap).containsOnly(
-        entry("perConsentDateLaidTimestampStr",
-            Set.of("perConsentDateLaidTimestampStr" + FieldValidationErrorCodes.REQUIRED.getCode()))
+        entry("perConsentDateWorkCompletedTimestampStr",
+            Set.of("perConsentDateWorkCompletedTimestampStr" + FieldValidationErrorCodes.REQUIRED.getCode()))
     );
   }
 
@@ -83,15 +83,15 @@ public class AsBuiltNotificationSubmissionValidatorTest {
   public void validate_form_invalidDate_validationFails() {
     var form = new AsBuiltNotificationSubmissionForm();
     form.setAsBuiltNotificationStatus(AsBuiltNotificationStatus.PER_CONSENT);
-    form.setPerConsentDateLaidTimestampStr("abc");
+    form.setPerConsentDateWorkCompletedTimestampStr("abc");
 
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(
         asBuiltNotificationSubmissionValidator, form,
         new AsBuiltNotificationSubmissionValidatorHint(false, PipelineChangeCategory.CONSENT_UPDATE));
 
     assertThat(errorsMap).containsOnly(
-        entry("perConsentDateLaidTimestampStr",
-            Set.of("perConsentDateLaidTimestampStr" + FieldValidationErrorCodes.INVALID.getCode()))
+        entry("perConsentDateWorkCompletedTimestampStr",
+            Set.of("perConsentDateWorkCompletedTimestampStr" + FieldValidationErrorCodes.INVALID.getCode()))
     );
 
   }

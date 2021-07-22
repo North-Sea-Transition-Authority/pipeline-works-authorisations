@@ -17,10 +17,10 @@ public class AsBuiltNotificationView {
   private final Instant submittedOnInstant;
   private String submittedOnInstantDisplay;
   private final String asBuiltNotificationStatusDisplay;
-  private final LocalDate dateLaid;
-  private String dateLaidDisplay;
-  private final LocalDate expectedLaidDate;
-  private String expectedLaidDateDisplay;
+  private final LocalDate dateWorkCompleted;
+  private String dateWorkCompletedDisplay;
+  private final LocalDate expectedWorkCompletedDate;
+  private String expectedWorkCompletedDateDisplay;
   private final LocalDate dateBroughtIntoUse;
   private String dateBroughtIntoUseDisplay;
   private final String ogaSubmissionReason;
@@ -33,8 +33,8 @@ public class AsBuiltNotificationView {
                           String submittedByPersonEmail,
                           Instant submittedOnInstant,
                           String asBuiltNotificationStatusDisplay,
-                          LocalDate dateLaid,
-                          LocalDate expectedLaidDate,
+                          LocalDate dateWorkCompleted,
+                          LocalDate expectedWorkCompletedDate,
                           LocalDate dateBroughtIntoUse,
                           String ogaSubmissionReason,
                           String submissionLink) {
@@ -45,8 +45,8 @@ public class AsBuiltNotificationView {
     this.submittedByPersonEmail = submittedByPersonEmail;
     this.submittedOnInstant = submittedOnInstant;
     this.asBuiltNotificationStatusDisplay = asBuiltNotificationStatusDisplay;
-    this.dateLaid = dateLaid;
-    this.expectedLaidDate = expectedLaidDate;
+    this.dateWorkCompleted = dateWorkCompleted;
+    this.expectedWorkCompletedDate = expectedWorkCompletedDate;
     this.dateBroughtIntoUse = dateBroughtIntoUse;
     this.ogaSubmissionReason = ogaSubmissionReason;
     this.submissionLink = submissionLink;
@@ -84,20 +84,20 @@ public class AsBuiltNotificationView {
     return asBuiltNotificationStatusDisplay;
   }
 
-  public LocalDate getDateLaid() {
-    return dateLaid;
+  public LocalDate getDateWorkCompleted() {
+    return dateWorkCompleted;
   }
 
-  public String getDateLaidDisplay() {
-    return DateUtils.formatDate(dateLaid);
+  public String getDateWorkCompletedDisplay() {
+    return DateUtils.formatDate(dateWorkCompleted);
   }
 
-  public LocalDate getExpectedLaidDate() {
-    return expectedLaidDate;
+  public LocalDate getExpectedWorkCompletedDate() {
+    return expectedWorkCompletedDate;
   }
 
-  public String getExpectedLaidDateDisplay() {
-    return DateUtils.formatDate(expectedLaidDate);
+  public String getExpectedWorkCompletedDateDisplay() {
+    return DateUtils.formatDate(expectedWorkCompletedDate);
   }
 
   public LocalDate getDateBroughtIntoUse() {
