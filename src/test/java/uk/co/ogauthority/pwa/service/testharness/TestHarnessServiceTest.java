@@ -35,7 +35,7 @@ public class TestHarnessServiceTest {
   private GenerateApplicationService generateApplicationService;
 
   @Mock
-  private ApplicationStatusService applicationStatusService;
+  private TestHarnessApplicationStageService testHarnessApplicationStageService;
 
   private TestHarnessService testHarnessService;
 
@@ -43,7 +43,7 @@ public class TestHarnessServiceTest {
   @Before
   public void setup(){
     testHarnessService = new TestHarnessService(generateApplicationValidator, portalTeamAccessor, personService, scheduler,
-        generateApplicationService, applicationStatusService);
+        generateApplicationService, testHarnessApplicationStageService);
   }
 
   @Test

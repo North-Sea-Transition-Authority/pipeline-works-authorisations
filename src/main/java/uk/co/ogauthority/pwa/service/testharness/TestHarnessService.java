@@ -44,7 +44,7 @@ public class TestHarnessService {
   private final PersonService personService;
   private final Scheduler scheduler;
   private final GenerateApplicationService generateApplicationService;
-  private final ApplicationStatusService applicationStatusService;
+  private final TestHarnessApplicationStageService testHarnessApplicationStageService;
 
   private static final Logger LOGGER = LoggerFactory.getLogger(TestHarnessService.class);
 
@@ -56,13 +56,13 @@ public class TestHarnessService {
       PersonService personService,
       Scheduler scheduler,
       GenerateApplicationService generateApplicationService,
-      ApplicationStatusService applicationStatusService) {
+      TestHarnessApplicationStageService testHarnessApplicationStageService) {
     this.generateApplicationValidator = generateApplicationValidator;
     this.portalTeamAccessor = portalTeamAccessor;
     this.personService = personService;
     this.scheduler = scheduler;
     this.generateApplicationService = generateApplicationService;
-    this.applicationStatusService = applicationStatusService;
+    this.testHarnessApplicationStageService = testHarnessApplicationStageService;
   }
 
 
@@ -122,7 +122,7 @@ public class TestHarnessService {
         throw new RuntimeException("Pwa Application type not recognised for type: " + applicationType.name());
     }
 
-    applicationStatusService.setApplicationStatus(pwaApplicationDetail, applicationStatus, assignedCaseOfficerId);
+    testHarnessApplicationStageService.setApplicationStatus(pwaApplicationDetail, applicationStatus, assignedCaseOfficerId);
 
   }
 

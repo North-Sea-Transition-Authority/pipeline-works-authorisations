@@ -12,7 +12,7 @@ import uk.co.ogauthority.pwa.service.person.PersonService;
 
 @Service
 @Profile("development")
-public class TestHarnessUserRetrievalService {
+class TestHarnessUserRetrievalService {
 
   private final PersonService personService;
   private final WebUserAccountRepository webUserAccountRepository;
