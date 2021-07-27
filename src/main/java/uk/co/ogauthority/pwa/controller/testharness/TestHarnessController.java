@@ -1,7 +1,5 @@
 package uk.co.ogauthority.pwa.controller.testharness;
 
-import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
-
 import java.util.Comparator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
@@ -9,20 +7,16 @@ import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
-import uk.co.ogauthority.pwa.controller.pwaapplications.initial.InitialTaskListController;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.model.form.testharness.GenerateApplicationForm;
 import uk.co.ogauthority.pwa.model.teams.PwaRegulatorRole;
-import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.teams.PwaTeamService;
-import uk.co.ogauthority.pwa.service.testharness.DebugAppFormGenService;
 import uk.co.ogauthority.pwa.service.testharness.TestHarnessService;
 import uk.co.ogauthority.pwa.util.RouteUtils;
 import uk.co.ogauthority.pwa.util.StreamUtils;
@@ -39,17 +33,14 @@ public class TestHarnessController {
   private final TestHarnessService testHarnessService;
   private final PwaTeamService pwaTeamService;
   private final ControllerHelperService controllerHelperService;
-  private final DebugAppFormGenService debugAppFormGenService;//Delete - Testing/Debugging Purposes Only
 
   @Autowired
   public TestHarnessController(TestHarnessService testHarnessService,
                                PwaTeamService pwaTeamService,
-                               ControllerHelperService controllerHelperService,
-                               DebugAppFormGenService debugAppFormGenService) {
+                               ControllerHelperService controllerHelperService) {
     this.testHarnessService = testHarnessService;
     this.pwaTeamService = pwaTeamService;
     this.controllerHelperService = controllerHelperService;
-    this.debugAppFormGenService = debugAppFormGenService;
   }
 
 
@@ -99,16 +90,6 @@ public class TestHarnessController {
   }
 
 
-
-  //Delete - Testing/Debugging Purposes Only
-  @GetMapping("/generate-app-form-section/{detailId}/{userId}/{pipelineQuantity}")
-  public ModelAndView generateAppFormSection(@PathVariable Integer detailId,
-                                             @PathVariable Integer userId,
-                                             @PathVariable Integer pipelineQuantity) {
-
-    var detail = debugAppFormGenService.updateAppForm(detailId, userId, pipelineQuantity);
-    return ReverseRouter.redirect(on(InitialTaskListController.class).viewTaskList(detail.getPwaApplication().getId(), null));
-  }
 
 
 }
