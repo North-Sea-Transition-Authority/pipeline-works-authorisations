@@ -45,24 +45,24 @@ public class AsBuiltNotificationSubmissionValidator implements SmartValidator {
                                        AsBuiltNotificationSubmissionValidatorHint hint) {
     switch (form.getAsBuiltNotificationStatus()) {
       case PER_CONSENT:
-        ValidatorUtils.validateDatePickerDateExistsAndIsValid("perConsentDateLaidTimestampStr", "Date laid",
-            form.getPerConsentDateLaidTimestampStr(), errors);
+        ValidatorUtils.validateDatePickerDateExistsAndIsValid("perConsentDateWorkCompletedTimestampStr", "Date laid",
+            form.getPerConsentDateWorkCompletedTimestampStr(), errors);
         if (hint.getPipelineChangeCategory() == PipelineChangeCategory.NEW_PIPELINE) {
           ValidatorUtils.validateDatePickerDateExistsAndIsValid("perConsentDateBroughtIntoUseTimestampStr",
               "Date pipeline brought into use", form.getPerConsentDateBroughtIntoUseTimestampStr(), errors);
         }
         break;
       case NOT_PER_CONSENT:
-        ValidatorUtils.validateDatePickerDateExistsAndIsValid("notPerConsentDateLaidTimestampStr", "Date laid",
-            form.getNotPerConsentDateLaidTimestampStr(), errors);
+        ValidatorUtils.validateDatePickerDateExistsAndIsValid("notPerConsentDateWorkCompletedTimestampStr", "Date laid",
+            form.getNotPerConsentDateWorkCompletedTimestampStr(), errors);
         if (hint.getPipelineChangeCategory() == PipelineChangeCategory.NEW_PIPELINE) {
           ValidatorUtils.validateDatePickerDateExistsAndIsValid("notPerConsentDateBroughtIntoUseTimestampStr",
               "Date pipeline brought into use", form.getNotPerConsentDateBroughtIntoUseTimestampStr(), errors);
         }
         break;
-      case NOT_LAID_CONSENT_TIMEFRAME:
-        ValidatorUtils.validateDatePickerDateExistsAndIsValid("notInConsentTimeframeDateLaidTimestampStr",
-            "Estimated date pipeline will be laid", form.getNotInConsentTimeframeDateLaidTimestampStr(), errors);
+      case NOT_COMPLETED_IN_CONSENT_TIMEFRAME:
+        ValidatorUtils.validateDatePickerDateExistsAndIsValid("notInConsentTimeframeDateWorkCompletedTimestampStr",
+            "Estimated date pipeline will be laid", form.getNotInConsentTimeframeDateWorkCompletedTimestampStr(), errors);
         break;
       default:
     }

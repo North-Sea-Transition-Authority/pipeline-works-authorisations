@@ -14,8 +14,8 @@ public enum AsBuiltNotificationStatus {
 
   PER_CONSENT("Exactly as per consent", List.of()),
   NOT_PER_CONSENT("Not exactly as per consent", List.of()),
-  NEVER_LAID("Work not completed in the consent timeframe", List.of(PipelineStatus.IN_SERVICE, PipelineStatus.RETURNED_TO_SHORE)),
-  NOT_LAID_CONSENT_TIMEFRAME("Not laid in the consent timeframe", List.of()),
+  NEVER_LAID("Not laid and will not be laid", List.of(PipelineStatus.IN_SERVICE, PipelineStatus.RETURNED_TO_SHORE)),
+  NOT_COMPLETED_IN_CONSENT_TIMEFRAME("Work not completed in the consent timeframe but will be completed at a later date", List.of()),
   NOT_PROVIDED("Not provided", List.of());
 
   private final String displayName;

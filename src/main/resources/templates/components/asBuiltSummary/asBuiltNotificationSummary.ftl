@@ -29,16 +29,16 @@
                 ${submission.asBuiltNotificationStatusDisplay}
             </@fdsCheckAnswers.checkAnswersRowNoAction>
         </#if>
-        <#if submission.dateLaid?hasContent>
+        <#if submission.dateWorkCompleted?hasContent>
             <#if submission.asBuiltNotificationStatusDisplay?hasContent>
-                <@fdsCheckAnswers.checkAnswersRowNoAction keyText="Date laid">
-                    ${submission.dateLaidDisplay}
+                <@fdsCheckAnswers.checkAnswersRowNoAction keyText="Date work completed">
+                    ${submission.dateWorkCompletedDisplay}
                 </@fdsCheckAnswers.checkAnswersRowNoAction>
             </#if>
-        <#elseIf submission.expectedLaidDate?hasContent>
+        <#elseIf submission.expectedWorkCompletedDate?hasContent>
             <#if submission.asBuiltNotificationStatusDisplay?hasContent>
-                <@fdsCheckAnswers.checkAnswersRowNoAction keyText="Expected laid date">
-                    ${submission.expectedLaidDateDisplay}
+                <@fdsCheckAnswers.checkAnswersRowNoAction keyText="Expected date work will be completed">
+                    ${submission.expectedWorkCompletedDateDisplay}
                 </@fdsCheckAnswers.checkAnswersRowNoAction>
             </#if>
         </#if>

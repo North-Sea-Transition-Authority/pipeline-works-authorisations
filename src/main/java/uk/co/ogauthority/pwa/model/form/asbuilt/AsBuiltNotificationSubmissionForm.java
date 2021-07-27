@@ -5,9 +5,9 @@ import uk.co.ogauthority.pwa.model.enums.aabuilt.AsBuiltNotificationStatus;
 public class AsBuiltNotificationSubmissionForm {
 
   private AsBuiltNotificationStatus asBuiltNotificationStatus;
-  private String perConsentDateLaidTimestampStr;
-  private String notPerConsentDateLaidTimestampStr;
-  private String notInConsentTimeframeDateLaidTimestampStr;
+  private String perConsentDateWorkCompletedTimestampStr;
+  private String notPerConsentDateWorkCompletedTimestampStr;
+  private String notInConsentTimeframeDateWorkCompletedTimestampStr;
   private String perConsentDateBroughtIntoUseTimestampStr;
   private String notPerConsentDateBroughtIntoUseTimestampStr;
   private String ogaSubmissionReason;
@@ -23,28 +23,28 @@ public class AsBuiltNotificationSubmissionForm {
     this.asBuiltNotificationStatus = asBuiltNotificationStatus;
   }
 
-  public String getPerConsentDateLaidTimestampStr() {
-    return perConsentDateLaidTimestampStr;
+  public String getPerConsentDateWorkCompletedTimestampStr() {
+    return perConsentDateWorkCompletedTimestampStr;
   }
 
-  public void setPerConsentDateLaidTimestampStr(String perConsentDateLaidTimestampStr) {
-    this.perConsentDateLaidTimestampStr = perConsentDateLaidTimestampStr;
+  public void setPerConsentDateWorkCompletedTimestampStr(String perConsentDateWorkCompletedTimestampStr) {
+    this.perConsentDateWorkCompletedTimestampStr = perConsentDateWorkCompletedTimestampStr;
   }
 
-  public String getNotPerConsentDateLaidTimestampStr() {
-    return notPerConsentDateLaidTimestampStr;
+  public String getNotPerConsentDateWorkCompletedTimestampStr() {
+    return notPerConsentDateWorkCompletedTimestampStr;
   }
 
-  public void setNotPerConsentDateLaidTimestampStr(String notPerConsentDateLaidTimestampStr) {
-    this.notPerConsentDateLaidTimestampStr = notPerConsentDateLaidTimestampStr;
+  public void setNotPerConsentDateWorkCompletedTimestampStr(String notPerConsentDateWorkCompletedTimestampStr) {
+    this.notPerConsentDateWorkCompletedTimestampStr = notPerConsentDateWorkCompletedTimestampStr;
   }
 
-  public String getNotInConsentTimeframeDateLaidTimestampStr() {
-    return notInConsentTimeframeDateLaidTimestampStr;
+  public String getNotInConsentTimeframeDateWorkCompletedTimestampStr() {
+    return notInConsentTimeframeDateWorkCompletedTimestampStr;
   }
 
-  public void setNotInConsentTimeframeDateLaidTimestampStr(String notInConsentTimeframeDateLaidTimestampStr) {
-    this.notInConsentTimeframeDateLaidTimestampStr = notInConsentTimeframeDateLaidTimestampStr;
+  public void setNotInConsentTimeframeDateWorkCompletedTimestampStr(String notInConsentTimeframeDateWorkCompletedTimestampStr) {
+    this.notInConsentTimeframeDateWorkCompletedTimestampStr = notInConsentTimeframeDateWorkCompletedTimestampStr;
   }
 
   public String getPerConsentDateBroughtIntoUseTimestampStr() {

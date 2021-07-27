@@ -40,7 +40,7 @@ public class AsBuiltNotificationSubmission {
   @Enumerated(EnumType.STRING)
   private AsBuiltNotificationStatus asBuiltNotificationStatus;
 
-  private LocalDate dateLaid;
+  private LocalDate dateWorkCompleted;
 
   private LocalDate datePipelineBroughtIntoUse;
 
@@ -55,14 +55,14 @@ public class AsBuiltNotificationSubmission {
   public AsBuiltNotificationSubmission(Integer id,
                                        AsBuiltNotificationGroupPipeline asBuiltNotificationGroupPipeline,
                                        PersonId submittedByPersonId, Instant submittedTimestamp,
-                                       AsBuiltNotificationStatus asBuiltNotificationStatus, LocalDate dateLaid,
+                                       AsBuiltNotificationStatus asBuiltNotificationStatus, LocalDate dateWorkCompleted,
                                        LocalDate datePipelineBroughtIntoUse, String regulatorSubmissionReason, Boolean tipFlag) {
     this.id = id;
     this.asBuiltNotificationGroupPipeline = asBuiltNotificationGroupPipeline;
     this.submittedByPersonId = submittedByPersonId;
     this.submittedTimestamp = submittedTimestamp;
     this.asBuiltNotificationStatus = asBuiltNotificationStatus;
-    this.dateLaid = dateLaid;
+    this.dateWorkCompleted = dateWorkCompleted;
     this.datePipelineBroughtIntoUse = datePipelineBroughtIntoUse;
     this.regulatorSubmissionReason = regulatorSubmissionReason;
     this.tipFlag = tipFlag;
@@ -109,12 +109,12 @@ public class AsBuiltNotificationSubmission {
     this.asBuiltNotificationStatus = asBuiltNotificationStatus;
   }
 
-  public LocalDate getDateLaid() {
-    return dateLaid;
+  public LocalDate getDateWorkCompleted() {
+    return dateWorkCompleted;
   }
 
-  public void setDateLaid(LocalDate dateLaid) {
-    this.dateLaid = dateLaid;
+  public void setDateWorkCompleted(LocalDate dateWorkCompleted) {
+    this.dateWorkCompleted = dateWorkCompleted;
   }
 
   public LocalDate getDatePipelineBroughtIntoUse() {

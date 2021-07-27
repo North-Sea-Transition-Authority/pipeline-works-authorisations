@@ -100,8 +100,8 @@ public class AsBuiltNotificationSubmissionServiceTest {
     assertThat(asBuiltNotification.getSubmittedByPersonId()).isEqualTo(user.getLinkedPerson().getId());
     assertThat(asBuiltNotification.getAsBuiltNotificationStatus())
         .isEqualTo(form.getAsBuiltNotificationStatus());
-    assertThat(asBuiltNotification.getDateLaid())
-        .isEqualTo(DateUtils.datePickerStringToDate(form.getPerConsentDateLaidTimestampStr()));
+    assertThat(asBuiltNotification.getDateWorkCompleted())
+        .isEqualTo(DateUtils.datePickerStringToDate(form.getPerConsentDateWorkCompletedTimestampStr()));
     assertThat(asBuiltNotification.getDatePipelineBroughtIntoUse())
         .isEqualTo(DateUtils.datePickerStringToDate(form.getPerConsentDateBroughtIntoUseTimestampStr()));
     assertThat(asBuiltNotification.getRegulatorSubmissionReason())
@@ -123,8 +123,8 @@ public class AsBuiltNotificationSubmissionServiceTest {
     assertThat(asBuiltNotification.getSubmittedByPersonId()).isEqualTo(user.getLinkedPerson().getId());
     assertThat(asBuiltNotification.getAsBuiltNotificationStatus())
         .isEqualTo(form.getAsBuiltNotificationStatus());
-    assertThat(asBuiltNotification.getDateLaid())
-        .isEqualTo(DateUtils.datePickerStringToDate(form.getPerConsentDateLaidTimestampStr()));
+    assertThat(asBuiltNotification.getDateWorkCompleted())
+        .isEqualTo(DateUtils.datePickerStringToDate(form.getPerConsentDateWorkCompletedTimestampStr()));
     assertThat(asBuiltNotification.getDatePipelineBroughtIntoUse())
         .isEqualTo(DateUtils.datePickerStringToDate(form.getPerConsentDateBroughtIntoUseTimestampStr()));
     assertThat(asBuiltNotification.getRegulatorSubmissionReason())
@@ -151,8 +151,8 @@ public class AsBuiltNotificationSubmissionServiceTest {
     assertThat(asBuiltNotification.getSubmittedByPersonId()).isEqualTo(user.getLinkedPerson().getId());
     assertThat(asBuiltNotification.getAsBuiltNotificationStatus())
         .isEqualTo(notPerConsentForm.getAsBuiltNotificationStatus());
-    assertThat(asBuiltNotification.getDateLaid())
-        .isEqualTo(DateUtils.datePickerStringToDate(notPerConsentForm.getNotPerConsentDateLaidTimestampStr()));
+    assertThat(asBuiltNotification.getDateWorkCompleted())
+        .isEqualTo(DateUtils.datePickerStringToDate(notPerConsentForm.getNotPerConsentDateWorkCompletedTimestampStr()));
     assertThat(asBuiltNotification.getDatePipelineBroughtIntoUse())
         .isEqualTo(DateUtils.datePickerStringToDate(notPerConsentForm.getNotPerConsentDateBroughtIntoUseTimestampStr()));
     assertThat(asBuiltNotification.getRegulatorSubmissionReason())
@@ -167,7 +167,7 @@ public class AsBuiltNotificationSubmissionServiceTest {
 
   private AsBuiltNotificationSubmissionForm getAsBuiltNotificationSubmissionForm() {
     var form = new AsBuiltNotificationSubmissionForm();
-    form.setPerConsentDateLaidTimestampStr("01/01/2010");
+    form.setPerConsentDateWorkCompletedTimestampStr("01/01/2010");
     form.setPerConsentDateBroughtIntoUseTimestampStr("02/02/2020");
     form.setAsBuiltNotificationStatus(AsBuiltNotificationStatus.PER_CONSENT);
     form.setOgaSubmissionReason("Reason");
@@ -176,7 +176,7 @@ public class AsBuiltNotificationSubmissionServiceTest {
 
   private AsBuiltNotificationSubmissionForm getNotPerConsentAsBuiltNotificationSubmissionForm() {
     var form = new AsBuiltNotificationSubmissionForm();
-    form.setNotPerConsentDateLaidTimestampStr("01/01/2010");
+    form.setNotPerConsentDateWorkCompletedTimestampStr("01/01/2010");
     form.setNotPerConsentDateBroughtIntoUseTimestampStr("02/02/2020");
     form.setAsBuiltNotificationStatus(AsBuiltNotificationStatus.NOT_PER_CONSENT);
     form.setOgaSubmissionReason("Reason");

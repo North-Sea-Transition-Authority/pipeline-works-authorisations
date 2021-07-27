@@ -156,7 +156,7 @@ public class AsBuiltNotificationSubmissionControllerTest extends AbstractControl
         .andExpect(model().attribute("isOgaUser", true))
         .andExpect(model().attribute("asBuiltStatusOptions",
             List.of(AsBuiltNotificationStatus.PER_CONSENT, AsBuiltNotificationStatus.NOT_PER_CONSENT,
-                AsBuiltNotificationStatus.NOT_LAID_CONSENT_TIMEFRAME, AsBuiltNotificationStatus.NOT_PROVIDED)));
+                AsBuiltNotificationStatus.NOT_COMPLETED_IN_CONSENT_TIMEFRAME, AsBuiltNotificationStatus.NOT_PROVIDED)));
   }
 
   @Test

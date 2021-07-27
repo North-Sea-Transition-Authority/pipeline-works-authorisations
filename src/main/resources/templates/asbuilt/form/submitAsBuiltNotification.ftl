@@ -19,11 +19,11 @@
             <#list asBuiltStatusOptions as asBuiltStatusOption>
                 <@fdsRadio.radioItem path="form.asBuiltNotificationStatus" itemMap={asBuiltStatusOption : asBuiltStatusOption.getDisplayName()} isFirstItem=firstItem>
                     <#if asBuiltStatusOption == "PER_CONSENT">
-                        <@fdsDatePicker.datePicker path="form.perConsentDateLaidTimestampStr" nestingPath="form.asBuiltNotificationStatus" labelText="Date laid" labelClass="govuk-label--s"/>
+                        <@fdsDatePicker.datePicker path="form.perConsentDateWorkCompletedTimestampStr" nestingPath="form.asBuiltNotificationStatus" labelText="Date work completed" labelClass="govuk-label--s"/>
                     <#elseif asBuiltStatusOption == "NOT_PER_CONSENT">
-                        <@fdsDatePicker.datePicker path="form.notPerConsentDateLaidTimestampStr" nestingPath="form.asBuiltNotificationStatus" labelText="Date laid" labelClass="govuk-label--s"/>
-                    <#elseif asBuiltStatusOption == "NOT_LAID_CONSENT_TIMEFRAME">
-                        <@fdsDatePicker.datePicker path="form.notInConsentTimeframeDateLaidTimestampStr" nestingPath="form.asBuiltNotificationStatus" labelText="Estimated date the pipeline will be laid" labelClass="govuk-label--s"/>
+                        <@fdsDatePicker.datePicker path="form.notPerConsentDateWorkCompletedTimestampStr" nestingPath="form.asBuiltNotificationStatus" labelText="Date work completed" labelClass="govuk-label--s"/>
+                    <#elseif asBuiltStatusOption == "NOT_COMPLETED_IN_CONSENT_TIMEFRAME">
+                        <@fdsDatePicker.datePicker path="form.notInConsentTimeframeDateWorkCompletedTimestampStr" nestingPath="form.asBuiltNotificationStatus" labelText="Estimated date work will be completed" labelClass="govuk-label--s"/>
                     </#if>
                     <#if pipelineChangeCategory == "NEW_PIPELINE">
                         <#if asBuiltStatusOption == "PER_CONSENT">

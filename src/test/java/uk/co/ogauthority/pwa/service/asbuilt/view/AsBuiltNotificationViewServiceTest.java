@@ -60,7 +60,7 @@ public class AsBuiltNotificationViewServiceTest {
         AsBuiltNotificationView::getSubmittedByPersonName,
         AsBuiltNotificationView::getSubmittedOnInstant,
         AsBuiltNotificationView::getAsBuiltNotificationStatusDisplay,
-        AsBuiltNotificationView::getDateLaid,
+        AsBuiltNotificationView::getDateWorkCompleted,
         AsBuiltNotificationView::getDateBroughtIntoUse,
         AsBuiltNotificationView::getOgaSubmissionReason,
         AsBuiltNotificationView::getSubmissionLink
@@ -72,7 +72,7 @@ public class AsBuiltNotificationViewServiceTest {
             person.getFullName(),
             asBuiltNotificationSubmission.getSubmittedTimestamp(),
             asBuiltNotificationSubmission.getAsBuiltNotificationStatus().getDisplayName(),
-            asBuiltNotificationSubmission.getDateLaid(),
+            asBuiltNotificationSubmission.getDateWorkCompleted(),
             asBuiltNotificationSubmission.getDatePipelineBroughtIntoUse(),
             asBuiltNotificationSubmission.getRegulatorSubmissionReason(),
             ReverseRouter.route(on(AsBuiltNotificationSubmissionController.class)
@@ -94,7 +94,7 @@ public class AsBuiltNotificationViewServiceTest {
             AsBuiltNotificationView::getSubmittedByPersonName,
             AsBuiltNotificationView::getSubmittedOnInstant,
             AsBuiltNotificationView::getAsBuiltNotificationStatusDisplay,
-            AsBuiltNotificationView::getDateLaid,
+            AsBuiltNotificationView::getDateWorkCompleted,
             AsBuiltNotificationView::getDateBroughtIntoUse,
             AsBuiltNotificationView::getOgaSubmissionReason,
             AsBuiltNotificationView::getSubmissionLink)

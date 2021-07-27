@@ -41,10 +41,10 @@ class AsBuiltNotificationViewService {
         person.getEmailAddress(),
         asBuiltNotificationSubmission.getSubmittedTimestamp(),
         asBuiltNotificationSubmission.getAsBuiltNotificationStatus().getDisplayName(),
-        asBuiltNotificationSubmission.getAsBuiltNotificationStatus() != AsBuiltNotificationStatus.NOT_LAID_CONSENT_TIMEFRAME
-            ? asBuiltNotificationSubmission.getDateLaid() : null,
-        asBuiltNotificationSubmission.getAsBuiltNotificationStatus() == AsBuiltNotificationStatus.NOT_LAID_CONSENT_TIMEFRAME
-            ? asBuiltNotificationSubmission.getDateLaid() : null,
+        asBuiltNotificationSubmission.getAsBuiltNotificationStatus() != AsBuiltNotificationStatus.NOT_COMPLETED_IN_CONSENT_TIMEFRAME
+            ? asBuiltNotificationSubmission.getDateWorkCompleted() : null,
+        asBuiltNotificationSubmission.getAsBuiltNotificationStatus() == AsBuiltNotificationStatus.NOT_COMPLETED_IN_CONSENT_TIMEFRAME
+            ? asBuiltNotificationSubmission.getDateWorkCompleted() : null,
         asBuiltNotificationSubmission.getDatePipelineBroughtIntoUse(),
         asBuiltNotificationSubmission.getRegulatorSubmissionReason(),
         accessLink);

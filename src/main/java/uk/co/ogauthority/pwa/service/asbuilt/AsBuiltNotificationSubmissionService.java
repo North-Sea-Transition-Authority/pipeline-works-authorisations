@@ -91,25 +91,25 @@ class AsBuiltNotificationSubmissionService {
   }
 
   private void mapAsBuiltStatusToEntity(AsBuiltNotificationSubmission asBuiltSubmission, AsBuiltNotificationSubmissionForm form) {
-    String dateLaidStr = null;
+    String dateWorkCompletedStr = null;
     String dateBroughtIntoUseStr = null;
     switch (form.getAsBuiltNotificationStatus()) {
       case PER_CONSENT:
-        dateLaidStr = form.getPerConsentDateLaidTimestampStr();
+        dateWorkCompletedStr = form.getPerConsentDateWorkCompletedTimestampStr();
         dateBroughtIntoUseStr = form.getPerConsentDateBroughtIntoUseTimestampStr();
         break;
       case NOT_PER_CONSENT:
-        dateLaidStr = form.getNotPerConsentDateLaidTimestampStr();
+        dateWorkCompletedStr = form.getNotPerConsentDateWorkCompletedTimestampStr();
         dateBroughtIntoUseStr = form.getNotPerConsentDateBroughtIntoUseTimestampStr();
         break;
-      case NOT_LAID_CONSENT_TIMEFRAME:
-        dateLaidStr = form.getNotInConsentTimeframeDateLaidTimestampStr();
+      case NOT_COMPLETED_IN_CONSENT_TIMEFRAME:
+        dateWorkCompletedStr = form.getNotInConsentTimeframeDateWorkCompletedTimestampStr();
         break;
       default:
     }
 
-    if (Objects.nonNull(dateLaidStr)) {
-      asBuiltSubmission.setDateLaid(DateUtils.datePickerStringToDate(dateLaidStr));
+    if (Objects.nonNull(dateWorkCompletedStr)) {
+      asBuiltSubmission.setDateWorkCompleted(DateUtils.datePickerStringToDate(dateWorkCompletedStr));
     }
     if (Objects.nonNull(dateBroughtIntoUseStr)) {
       asBuiltSubmission.setDatePipelineBroughtIntoUse(DateUtils.datePickerStringToDate(dateBroughtIntoUseStr));
