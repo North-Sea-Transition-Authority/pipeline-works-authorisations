@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.service.testharness.appsectiongeneration.pipelineg
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
@@ -17,7 +18,7 @@ import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
 
 public class PipelineTestHarnessUtil {
 
-  public static Random random = new Random();
+  public static Random random = new SecureRandom();
 
 
   private static final List<String> PIPELINE_LOCATIONS = Arrays.asList(

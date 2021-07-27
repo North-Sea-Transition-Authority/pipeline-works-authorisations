@@ -33,7 +33,8 @@ public class PipelineHuooGeneratorService {
 
     HuooRole.stream().forEach(huooRole -> {
 
-      var pickedPipelineStrings = padPipelinesHuooService.getSortedPickablePipelineOptionsForApplicationDetail(pwaApplicationDetail, huooRole)
+      var pickedPipelineStrings = padPipelinesHuooService.getSortedPickablePipelineOptionsForApplicationDetail(
+          pwaApplicationDetail, huooRole)
           .stream()
           .map(PickableHuooPipelineOption::getPickableString)
           .collect(Collectors.toSet());
