@@ -31,12 +31,19 @@ public class TestHarnessServiceTest {
   @Mock
   private Scheduler scheduler;
 
+  @Mock
+  private GenerateApplicationService generateApplicationService;
+
+  @Mock
+  private TestHarnessApplicationStageService testHarnessApplicationStageService;
+
   private TestHarnessService testHarnessService;
 
 
   @Before
   public void setup(){
-    testHarnessService = new TestHarnessService(generateApplicationValidator, portalTeamAccessor, personService, scheduler);
+    testHarnessService = new TestHarnessService(generateApplicationValidator, portalTeamAccessor, personService, scheduler,
+        generateApplicationService, testHarnessApplicationStageService);
   }
 
   @Test

@@ -7,6 +7,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import javax.transaction.Transactional;
 import org.quartz.JobDetail;
 import org.quartz.JobKey;
 import org.quartz.Scheduler;
@@ -23,6 +24,7 @@ import uk.co.ogauthority.pwa.energyportal.model.dto.teams.PortalTeamDto;
 import uk.co.ogauthority.pwa.energyportal.model.dto.teams.PortalTeamMemberDto;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.energyportal.service.teams.PortalTeamAccessor;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.testharness.GenerateApplicationForm;
 import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
 import uk.co.ogauthority.pwa.model.teams.PwaTeamType;
@@ -41,6 +43,8 @@ public class TestHarnessService {
   private final PortalTeamAccessor portalTeamAccessor;
   private final PersonService personService;
   private final Scheduler scheduler;
+  private final GenerateApplicationService generateApplicationService;
+  private final TestHarnessApplicationStageService testHarnessApplicationStageService;
 
   private static final Logger LOGGER = LoggerFactory.getLogger(TestHarnessService.class);
 
@@ -50,11 +54,15 @@ public class TestHarnessService {
       GenerateApplicationValidator generateApplicationValidator,
       PortalTeamAccessor portalTeamAccessor,
       PersonService personService,
-      Scheduler scheduler) {
+      Scheduler scheduler,
+      GenerateApplicationService generateApplicationService,
+      TestHarnessApplicationStageService testHarnessApplicationStageService) {
     this.generateApplicationValidator = generateApplicationValidator;
     this.portalTeamAccessor = portalTeamAccessor;
     this.personService = personService;
     this.scheduler = scheduler;
+    this.generateApplicationService = generateApplicationService;
+    this.testHarnessApplicationStageService = testHarnessApplicationStageService;
   }
 
 
@@ -86,7 +94,7 @@ public class TestHarnessService {
   }
 
 
-
+  @Transactional
   void generatePwaApplication(PwaApplicationType applicationType,
                               PwaApplicationStatus applicationStatus,
                               Integer pipelineQuantity,
@@ -95,6 +103,26 @@ public class TestHarnessService {
 
 
     LOGGER.info("Starting application generation");
+
+    PwaApplicationDetail pwaApplicationDetail;
+
+    switch (applicationType) {
+      case INITIAL:
+        pwaApplicationDetail = generateApplicationService.generateInitialPwaApplication(pipelineQuantity, applicantPersonId);
+        break;
+      case HUOO_VARIATION:
+      case CAT_1_VARIATION:
+      case CAT_2_VARIATION:
+      case DEPOSIT_CONSENT:
+      case OPTIONS_VARIATION:
+      case DECOMMISSIONING:
+        pwaApplicationDetail = null; //to do: call variation app generator
+        break;
+      default:
+        throw new RuntimeException("Pwa Application type not recognised for type: " + applicationType.name());
+    }
+
+    testHarnessApplicationStageService.setApplicationStatus(pwaApplicationDetail, applicationStatus, assignedCaseOfficerId);
 
   }
 
