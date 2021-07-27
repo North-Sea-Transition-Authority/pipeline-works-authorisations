@@ -7,11 +7,11 @@
 
 
 
-<#macro summary pageHeading appSummaryView sidebarHeading caseSummaryView=[] errorList="" aboveSummaryInsert="">
+<#macro summary pageHeading appSummaryView sidebarHeading caseSummaryView=[] errorList="" aboveSummaryInsert="" singleErrorMessage="">
 
     <@_summarySideNav appSummaryView=appSummaryView sidebarHeading=sidebarHeading></@_summarySideNav>
 
-    <@_summaryMainContent pageHeading=pageHeading appSummaryView=appSummaryView caseSummaryView=caseSummaryView errorList=errorList aboveSummaryInsert=aboveSummaryInsert>
+    <@_summaryMainContent pageHeading=pageHeading appSummaryView=appSummaryView caseSummaryView=caseSummaryView errorList=errorList aboveSummaryInsert=aboveSummaryInsert singleErrorMessage=singleErrorMessage>
         <#nested>
     </@_summaryMainContent>
 
@@ -37,9 +37,9 @@
 </#macro>
 
 
-<#macro _summaryMainContent pageHeading appSummaryView caseSummaryView=[] errorList="" aboveSummaryInsert="">
+<#macro _summaryMainContent pageHeading appSummaryView caseSummaryView=[] errorList="" aboveSummaryInsert="" singleErrorMessage="">
 
-    <@defaultPagePaneContent pageHeading=pageHeading errorItems=errorList>
+    <@defaultPagePaneContent pageHeading=pageHeading errorItems=errorList singleErrorMessage=singleErrorMessage>
 
         <#if caseSummaryView?has_content>
             <@pwaCaseSummary.summary caseSummaryView=caseSummaryView showAppSummaryLink=false />

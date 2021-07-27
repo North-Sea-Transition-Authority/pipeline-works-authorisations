@@ -57,7 +57,8 @@ backLink=false
 backLinkUrl=""
 backLinkText="Back"
 breadcrumbs=false
-errorItems=[]>
+errorItems=[]
+singleErrorMessage="">
 
   <div class="fds-pane__content">
     <main id="main-content" class="fds-content ${mainClasses}" role="main">
@@ -78,7 +79,7 @@ errorItems=[]>
         </#if>
 
       <div class="fds-content__header">
-          <@defaultHeading caption=caption captionClass=captionClass pageHeading=pageHeading pageHeadingClass=pageHeadingClass errorItems=errorItems/>
+          <@defaultHeading caption=caption captionClass=captionClass pageHeading=pageHeading pageHeadingClass=pageHeadingClass errorItems=errorItems singleErrorMessage=singleErrorMessage/>
       </div>
         <#nested>
     </main>

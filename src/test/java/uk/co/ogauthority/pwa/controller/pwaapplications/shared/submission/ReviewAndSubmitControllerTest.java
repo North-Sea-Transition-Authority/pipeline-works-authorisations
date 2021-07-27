@@ -61,6 +61,7 @@ import uk.co.ogauthority.pwa.testutils.ApplicationSummaryViewTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.testutils.TimerMetricTestUtils;
+import uk.co.ogauthority.pwa.validators.appprocessing.PwaApplicationValidationService;
 import uk.co.ogauthority.pwa.validators.pwaapplications.shared.submission.ReviewAndSubmitApplicationFormValidator;
 
 @RunWith(SpringRunner.class)
@@ -102,6 +103,9 @@ public class ReviewAndSubmitControllerTest extends PwaApplicationContextAbstract
   @MockBean
   private PwaAppNotificationBannerService pwaAppNotificationBannerService;
 
+  @MockBean
+  private PwaApplicationValidationService pwaApplicationValidationService;
+
   private PwaApplicationEndpointTestBuilder editEndpointTester;
   private PwaApplicationEndpointTestBuilder viewEndpointTester;
   private PwaApplicationEndpointTestBuilder submitEndpointTester;
@@ -128,6 +132,7 @@ public class ReviewAndSubmitControllerTest extends PwaApplicationContextAbstract
 
     when(applicationSummaryViewService.getApplicationSummaryView(any())).thenReturn(ApplicationSummaryViewTestUtils.getView());
     when(validator.supports(any())).thenReturn(true);
+    when(pwaApplicationValidationService.isApplicationValid(any())).thenReturn(true);
 
     session = new MockHttpSession();
 
@@ -225,7 +230,6 @@ public class ReviewAndSubmitControllerTest extends PwaApplicationContextAbstract
 
   }
 
-
   @Test
   public void submit_failsValidation_backToReviewScreen() throws Exception {
 
@@ -240,6 +244,22 @@ public class ReviewAndSubmitControllerTest extends PwaApplicationContextAbstract
             .submit(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null, null, null)))
             .with(authenticatedUserAndSession(user))
             .with(csrf()))
+        .andExpect(status().isOk())
+        .andExpect(view().name("pwaApplication/shared/submission/reviewAndSubmit"));
+
+    verifyNoInteractions(pwaApplicationSubmissionService);
+
+  }
+
+  @Test
+  public void submit_validationPass_applicationTasksNotComplete() throws Exception {
+    when(pwaApplicationValidationService.isApplicationValid(detail)).thenReturn(false);
+    when(pwaApplicationDetailService.getTipDetail(detail.getMasterPwaApplicationId())).thenReturn(detail);
+
+    mockMvc.perform(post(ReverseRouter.route(on(ReviewAndSubmitController.class)
+        .submit(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null, null, null)))
+        .with(authenticatedUserAndSession(user))
+        .with(csrf()))
         .andExpect(status().isOk())
         .andExpect(view().name("pwaApplication/shared/submission/reviewAndSubmit"));
 
@@ -366,6 +386,23 @@ public class ReviewAndSubmitControllerTest extends PwaApplicationContextAbstract
   }
 
   @Test
+  public void sendToSubmitter_applicationTasksNotComplete() throws Exception {
+    when(pwaApplicationValidationService.isApplicationValid(detail)).thenReturn(false);
+    when(pwaApplicationDetailService.getTipDetail(detail.getMasterPwaApplicationId())).thenReturn(detail);
+
+    mockMvc.perform(post(ReverseRouter.route(on(ReviewAndSubmitController.class)
+        .sendToSubmitter(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null, null, null, null)))
+        .with(authenticatedUserAndSession(user))
+        .with(csrf())
+        .param("submitterPersonId", String.valueOf(user.getLinkedPerson().getId().asInt())))
+        .andExpect(status().isOk())
+        .andExpect(view().name("pwaApplication/shared/submission/reviewAndSubmit"));
+
+    verifyNoInteractions(sendAppToSubmitterService);
+
+  }
+
+  @Test
   public void sendToSubmitter_failsValidation_backToReviewScreen() throws Exception {
 
     when(pwaApplicationDetailService.getTipDetail(detail.getMasterPwaApplicationId())).thenReturn(detail);
@@ -410,7 +447,8 @@ public class ReviewAndSubmitControllerTest extends PwaApplicationContextAbstract
 
     var controller = new ReviewAndSubmitController(Mockito.mock(ControllerHelperService.class), pwaApplicationRedirectService,
         pwaApplicationSubmissionService, applicationSummaryViewService, applicationUpdateRequestViewService, validator,
-        pwaHolderTeamService, sendAppToSubmitterService, personService, metricsProvider, pwaAppNotificationBannerService);
+        pwaHolderTeamService, sendAppToSubmitterService, personService, metricsProvider, pwaAppNotificationBannerService,
+        pwaApplicationValidationService);
 
     var form = new ReviewAndSubmitApplicationForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");

@@ -30,40 +30,46 @@
     appSummaryView=appSummaryView
     sidebarHeading="Check your answers for all questions in the application"
     errorList=errorList
-    aboveSummaryInsert=aboveSummaryInsert>
+    aboveSummaryInsert=aboveSummaryInsert
+    singleErrorMessage=isApplicationValid?then("", "Check your answers before submitting your application")>
 
         <@fdsForm.htmlForm actionUrl=springUrl(submitUrl)>
           <!-- Submit button macro not used to allow for hiding of button when application is not valid. -->
 
-            <#if openUpdateRequest && userPermissions?seq_contains("EDIT")>
+            <#if isApplicationValid == true>
 
-                <@fdsRadio.radioGroup
-                path="form.madeOnlyRequestedChanges"
-                labelText="Describe the update"
-                hiddenContent=true
-                fieldsetHeadingSize="h2" fieldsetHeadingClass="govuk-fieldset__legend--l">
-                    <@fdsRadio.radioItem path="form.madeOnlyRequestedChanges" itemMap={"true":"Requested changes only"} isFirstItem=true/>
-                    <@fdsRadio.radioItem path="form.madeOnlyRequestedChanges" itemMap={"false":"Other changes"} >
-                        <@fdsTextarea.textarea path="form.otherChangesDescription" labelText="Describe the changes that have been made" nestingPath="form.madeOnlyRequestedChanges" characterCount=true maxCharacterLength="4000"/>
-                    </@fdsRadio.radioItem>
-                </@fdsRadio.radioGroup>
+                <#if openUpdateRequest && userPermissions?seq_contains("EDIT")>
+
+                    <@fdsRadio.radioGroup
+                    path="form.madeOnlyRequestedChanges"
+                    labelText="Describe the update"
+                    hiddenContent=true
+                    fieldsetHeadingSize="h2" fieldsetHeadingClass="govuk-fieldset__legend--l">
+                        <@fdsRadio.radioItem path="form.madeOnlyRequestedChanges" itemMap={"true":"Requested changes only"} isFirstItem=true/>
+                        <@fdsRadio.radioItem path="form.madeOnlyRequestedChanges" itemMap={"false":"Other changes"} >
+                            <@fdsTextarea.textarea path="form.otherChangesDescription" labelText="Describe the changes that have been made" nestingPath="form.madeOnlyRequestedChanges" characterCount=true maxCharacterLength="4000"/>
+                        </@fdsRadio.radioItem>
+                    </@fdsRadio.radioGroup>
+
+                </#if>
+
+                <#if !userPermissions?seq_contains("SUBMIT")>
+
+                    <h2 class="govuk-heading-l">Application submission</h2>
+
+                    <@fdsSearchSelector.searchSelectorEnhanced
+                        path="form.submitterPersonId"
+                        options=submitterCandidates
+                        labelText="Select person to submit the application to the OGA"
+                        hintText="Only people with submission permissions in the holder organisation are allowed to submit this application to the OGA"
+                        formGroupClass="govuk-!-width-two-thirds"/>
+
+                </#if>
+
+                <@fdsAction.button buttonText=submitterCandidates?has_content?then("Send to submitter", "Submit") buttonValue="submit" />
 
             </#if>
 
-            <#if !userPermissions?seq_contains("SUBMIT")>
-
-                <h2 class="govuk-heading-l">Application submission</h2>
-
-                <@fdsSearchSelector.searchSelectorEnhanced
-                    path="form.submitterPersonId"
-                    options=submitterCandidates
-                    labelText="Select person to submit the application to the OGA"
-                    hintText="Only people with submission permissions in the holder organisation are allowed to submit this application to the OGA"
-                    formGroupClass="govuk-!-width-two-thirds"/>
-
-            </#if>
-
-            <@fdsAction.button buttonText=submitterCandidates?has_content?then("Send to submitter", "Submit") buttonValue="submit" />
             <@fdsAction.link linkText="Back to task list" linkClass="govuk-link govuk-link--button" linkUrl=springUrl(taskListUrl)/>
 
         </@fdsForm.htmlForm>
