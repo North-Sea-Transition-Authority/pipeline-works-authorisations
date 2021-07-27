@@ -8,12 +8,10 @@ import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.config.fileupload.FileUploadResult;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.exception.TempFileException;
-import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.files.UploadFileWithDescriptionForm;
 import uk.co.ogauthority.pwa.model.form.files.UploadMultipleFilesWithDescriptionForm;
-import uk.co.ogauthority.pwa.repository.pwaapplications.shared.file.PadFileRepository;
 import uk.co.ogauthority.pwa.service.fileupload.FileUpdateMode;
 import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
 
@@ -22,14 +20,11 @@ import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
 public class TestHarnessFileService {
 
   private final PadFileService padFileService;
-  private final PadFileRepository padFileRepository;
 
 
   @Autowired
-  public TestHarnessFileService(PadFileService padFileService,
-                                PadFileRepository padFileRepository) {
+  public TestHarnessFileService(PadFileService padFileService) {
     this.padFileService = padFileService;
-    this.padFileRepository = padFileRepository;
   }
 
 

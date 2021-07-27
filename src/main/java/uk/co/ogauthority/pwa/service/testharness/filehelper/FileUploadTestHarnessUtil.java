@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 
-public class FileUploadTestHarnessUtil {
+class FileUploadTestHarnessUtil {
 
   private static final String SAMPLE_IMG_HEX =
       "FFD8FFE000104A46494600010101009000900000FFDB0043000201010201010202020202020202030503030303030604040305070607070706070708090B09080" +
