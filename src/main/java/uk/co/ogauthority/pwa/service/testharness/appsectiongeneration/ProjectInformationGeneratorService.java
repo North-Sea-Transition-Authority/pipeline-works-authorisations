@@ -23,7 +23,7 @@ class ProjectInformationGeneratorService implements TestHarnessAppFormService {
   private final PadProjectInformationService padProjectInformationService;
   private final TestHarnessFileService testHarnessFileService;
 
-  private final ApplicationTask linkedAppFormTask = ApplicationTask.PROJECT_INFORMATION;
+  private static final ApplicationTask linkedAppFormTask = ApplicationTask.PROJECT_INFORMATION;
 
   @Autowired
   public ProjectInformationGeneratorService(

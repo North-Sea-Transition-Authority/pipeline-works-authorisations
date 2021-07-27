@@ -20,7 +20,7 @@ class EnvAndDecomGeneratorService implements TestHarnessAppFormService {
 
   private final PadEnvironmentalDecommissioningService padEnvironmentalDecommissioningService;
 
-  private final ApplicationTask linkedAppFormTask = ApplicationTask.ENVIRONMENTAL_DECOMMISSIONING;
+  private static final ApplicationTask linkedAppFormTask = ApplicationTask.ENVIRONMENTAL_DECOMMISSIONING;
 
 
   @Autowired

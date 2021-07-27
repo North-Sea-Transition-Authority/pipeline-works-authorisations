@@ -18,7 +18,7 @@ class PartnerLettersGeneratorService implements TestHarnessAppFormService {
   private final PadPartnerLettersService padPartnerLettersService;
   private final TestHarnessFileService testHarnessFileService;
 
-  private final ApplicationTask linkedAppFormTask = ApplicationTask.PARTNER_LETTERS;
+  private static final ApplicationTask linkedAppFormTask = ApplicationTask.PARTNER_LETTERS;
 
   @Autowired
   public PartnerLettersGeneratorService(

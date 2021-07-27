@@ -21,7 +21,7 @@ class OtherPropertiesGeneratorService implements TestHarnessAppFormService {
 
   private final PadPipelineOtherPropertiesService otherPropertiesService;
 
-  private final ApplicationTask linkedAppFormTask = ApplicationTask.PIPELINE_OTHER_PROPERTIES;
+  private static final ApplicationTask linkedAppFormTask = ApplicationTask.PIPELINE_OTHER_PROPERTIES;
 
 
   @Autowired

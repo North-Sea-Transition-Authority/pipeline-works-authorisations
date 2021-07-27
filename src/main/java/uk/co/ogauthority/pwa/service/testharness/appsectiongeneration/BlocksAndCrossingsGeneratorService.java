@@ -19,7 +19,7 @@ class BlocksAndCrossingsGeneratorService implements TestHarnessAppFormService {
   private final BlockCrossingService blockCrossingService;
   private final PwaApplicationDetailService pwaApplicationDetailService;
 
-  private final ApplicationTask linkedAppFormTask = ApplicationTask.CROSSING_AGREEMENTS;
+  private static final ApplicationTask linkedAppFormTask = ApplicationTask.CROSSING_AGREEMENTS;
 
 
   @Autowired

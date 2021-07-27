@@ -19,7 +19,7 @@ class LocationDetailsGeneratorService implements TestHarnessAppFormService {
 
   private final PadLocationDetailsService padLocationDetailsService;
 
-  private final ApplicationTask linkedAppFormTask = ApplicationTask.LOCATION_DETAILS;
+  private static final ApplicationTask linkedAppFormTask = ApplicationTask.LOCATION_DETAILS;
 
 
   @Autowired

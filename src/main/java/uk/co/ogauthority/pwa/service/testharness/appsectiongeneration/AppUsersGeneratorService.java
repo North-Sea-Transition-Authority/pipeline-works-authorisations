@@ -12,7 +12,7 @@ import uk.co.ogauthority.pwa.service.testharness.TestHarnessAppFormServiceParams
 @Profile("development")
 class AppUsersGeneratorService implements TestHarnessAppFormService {
 
-  private final ApplicationTask linkedAppFormTask = ApplicationTask.APPLICATION_USERS;
+  private static final ApplicationTask linkedAppFormTask = ApplicationTask.APPLICATION_USERS;
   private static final Logger LOGGER = LoggerFactory.getLogger(AppUsersGeneratorService.class);
 
 

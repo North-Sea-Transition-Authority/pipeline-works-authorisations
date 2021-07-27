@@ -15,7 +15,7 @@ class GeneralTechDetailsGeneratorService implements TestHarnessAppFormService {
 
   private final PadPipelineTechInfoService techInfoService;
 
-  private final ApplicationTask linkedAppFormTask = ApplicationTask.GENERAL_TECH_DETAILS;
+  private static final ApplicationTask linkedAppFormTask = ApplicationTask.GENERAL_TECH_DETAILS;
 
 
   @Autowired

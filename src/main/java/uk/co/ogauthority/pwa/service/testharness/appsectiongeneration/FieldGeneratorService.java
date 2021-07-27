@@ -16,7 +16,7 @@ class FieldGeneratorService implements TestHarnessAppFormService {
 
   private final PadFieldService padFieldService;
 
-  private final ApplicationTask linkedAppFormTask = ApplicationTask.FIELD_INFORMATION;
+  private static final ApplicationTask linkedAppFormTask = ApplicationTask.FIELD_INFORMATION;
 
   @Autowired
   public FieldGeneratorService(

@@ -24,7 +24,7 @@ class PipelineSchematicsGeneratorService implements TestHarnessAppFormService {
   private final PadTechnicalDrawingService padTechnicalDrawingService;
   private final TestHarnessFileService testHarnessFileService;
 
-  private final ApplicationTask linkedAppFormTask = ApplicationTask.TECHNICAL_DRAWINGS;
+  private static final ApplicationTask linkedAppFormTask = ApplicationTask.TECHNICAL_DRAWINGS;
 
   @Autowired
   public PipelineSchematicsGeneratorService(

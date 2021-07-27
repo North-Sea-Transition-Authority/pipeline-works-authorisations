@@ -15,7 +15,7 @@ class FastTrackGeneratorService implements TestHarnessAppFormService {
 
   private final PadFastTrackService padFastTrackService;
 
-  private final ApplicationTask linkedAppFormTask = ApplicationTask.FAST_TRACK;
+  private static final ApplicationTask linkedAppFormTask = ApplicationTask.FAST_TRACK;
 
   @Autowired
   public FastTrackGeneratorService(PadFastTrackService padFastTrackService) {

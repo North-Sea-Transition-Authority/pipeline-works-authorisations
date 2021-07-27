@@ -29,7 +29,7 @@ class PadHuooGeneratorService implements TestHarnessAppFormService {
   private final TeamService teamService;
   private final PadOrganisationRoleService padOrganisationRoleService;
 
-  private final ApplicationTask linkedAppFormTask = ApplicationTask.HUOO;
+  private static final ApplicationTask linkedAppFormTask = ApplicationTask.HUOO;
 
   @Autowired
   public PadHuooGeneratorService(

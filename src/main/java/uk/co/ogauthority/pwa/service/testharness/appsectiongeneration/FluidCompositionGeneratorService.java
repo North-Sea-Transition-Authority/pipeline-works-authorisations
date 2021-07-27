@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.service.testharness.appsectiongeneration;
 
 import java.math.BigDecimal;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +23,7 @@ class FluidCompositionGeneratorService implements TestHarnessAppFormService {
 
   private final PadFluidCompositionInfoService padFluidCompositionService;
 
-  private final ApplicationTask linkedAppFormTask = ApplicationTask.FLUID_COMPOSITION;
+  private static final ApplicationTask linkedAppFormTask = ApplicationTask.FLUID_COMPOSITION;
 
 
   @Autowired
@@ -48,7 +49,7 @@ class FluidCompositionGeneratorService implements TestHarnessAppFormService {
 
   private FluidCompositionForm createForm() {
 
-    Map<Chemical, FluidCompositionDataForm> chemicalDataFormMap = new HashMap<>();
+    Map<Chemical, FluidCompositionDataForm> chemicalDataFormMap = new EnumMap<>(Chemical.class);
     Chemical.asList().forEach(chemical -> {
       var dataForm = new FluidCompositionDataForm();
       dataForm.setFluidCompositionOption(FluidCompositionOption.NONE);

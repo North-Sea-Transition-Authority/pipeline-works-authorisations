@@ -16,7 +16,7 @@ class DesignOpConditionsGeneratorService implements TestHarnessAppFormService {
 
   private final PadDesignOpConditionsService padDesignOpConditionsService;
 
-  private final ApplicationTask linkedAppFormTask = ApplicationTask.DESIGN_OP_CONDITIONS;
+  private static final ApplicationTask linkedAppFormTask = ApplicationTask.DESIGN_OP_CONDITIONS;
 
 
   @Autowired

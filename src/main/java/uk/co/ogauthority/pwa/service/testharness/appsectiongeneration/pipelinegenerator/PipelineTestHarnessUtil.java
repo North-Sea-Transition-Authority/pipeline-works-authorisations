@@ -12,8 +12,6 @@ import org.apache.commons.lang3.RandomUtils;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
 import uk.co.ogauthority.pwa.model.form.location.CoordinateForm;
 import uk.co.ogauthority.pwa.model.location.CoordinatePair;
-import uk.co.ogauthority.pwa.model.location.LatitudeCoordinate;
-import uk.co.ogauthority.pwa.model.location.LongitudeCoordinate;
 import uk.co.ogauthority.pwa.service.enums.location.LatitudeDirection;
 import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
 import uk.co.ogauthority.pwa.util.CoordinateUtils;

@@ -7,7 +7,6 @@ import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitDetailDto;
 import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTask;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.PadPipelinesHuooService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.PickableHuooPipelineOption;
@@ -22,7 +21,7 @@ class PipelineHuooGeneratorService implements TestHarnessAppFormService {
   private final PadPipelinesHuooService padPipelinesHuooService;
   private final PickableHuooPipelineService pickableHuooPipelineService;
 
-  private final ApplicationTask linkedAppFormTask = ApplicationTask.PIPELINES_HUOO;
+  private static final ApplicationTask linkedAppFormTask = ApplicationTask.PIPELINES_HUOO;
 
 
   @Autowired
