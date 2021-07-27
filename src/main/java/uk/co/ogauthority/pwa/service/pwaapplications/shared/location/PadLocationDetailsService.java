@@ -76,7 +76,7 @@ public class PadLocationDetailsService implements ApplicationFormSectionService 
         .orElse(locationDetailIfOptionalEmpty);
   }
 
-  private void save(PadLocationDetails padLocationDetails) {
+  public void save(PadLocationDetails padLocationDetails) {
     padLocationDetailsRepository.save(padLocationDetails);
   }
 
