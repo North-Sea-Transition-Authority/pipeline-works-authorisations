@@ -8,16 +8,21 @@ import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitDetailDto;
 import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTask;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.PadPipelinesHuooService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.PickableHuooPipelineOption;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.PickableHuooPipelineService;
+import uk.co.ogauthority.pwa.service.testharness.TestHarnessAppFormService;
+import uk.co.ogauthority.pwa.service.testharness.TestHarnessAppFormServiceParams;
 
 @Service
 @Profile("development")
-public class PipelineHuooGeneratorService {
+class PipelineHuooGeneratorService implements TestHarnessAppFormService {
 
   private final PadPipelinesHuooService padPipelinesHuooService;
   private final PickableHuooPipelineService pickableHuooPipelineService;
+
+  private final ApplicationTask linkedAppFormTask = ApplicationTask.PIPELINES_HUOO;
 
 
   @Autowired
@@ -29,7 +34,16 @@ public class PipelineHuooGeneratorService {
   }
 
 
-  public void generatePipelineHuoos(PwaApplicationDetail pwaApplicationDetail) {
+  @Override
+  public ApplicationTask getLinkedAppFormTask() {
+    return linkedAppFormTask;
+  }
+
+
+  @Override
+  public void generateAppFormData(TestHarnessAppFormServiceParams appFormServiceParams) {
+
+    var pwaApplicationDetail = appFormServiceParams.getApplicationDetail();
 
     HuooRole.stream().forEach(huooRole -> {
 

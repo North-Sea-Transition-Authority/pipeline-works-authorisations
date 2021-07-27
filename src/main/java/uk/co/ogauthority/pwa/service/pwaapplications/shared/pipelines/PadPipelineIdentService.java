@@ -260,13 +260,14 @@ public class PadPipelineIdentService {
   }
 
   @Transactional
-  public void addIdent(PadPipeline pipeline, PipelineIdentForm form) {
+  public PadPipelineIdent addIdent(PadPipeline pipeline, PipelineIdentForm form) {
 
     var numberOfIdents = padPipelineIdentRepository.countAllByPadPipeline(pipeline);
     var ident = new PadPipelineIdent(pipeline, numberOfIdents.intValue() + 1);
 
     saveEntityUsingForm(ident, form);
     padPipelinePersisterService.savePadPipelineAndMaterialiseIdentData(ident.getPadPipeline());
+    return ident;
   }
 
   @Transactional

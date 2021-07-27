@@ -8,16 +8,20 @@ import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelineotherproperties.OtherPipelineProperty;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelineotherproperties.PropertyAvailabilityOption;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelineotherproperties.PropertyPhase;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelinetechinfo.PipelineOtherPropertiesDataForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelinetechinfo.PipelineOtherPropertiesForm;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTask;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinetechinfo.PadPipelineOtherPropertiesService;
+import uk.co.ogauthority.pwa.service.testharness.TestHarnessAppFormService;
+import uk.co.ogauthority.pwa.service.testharness.TestHarnessAppFormServiceParams;
 
 @Service
 @Profile("development")
-public class OtherPropertiesGeneratorService {
+class OtherPropertiesGeneratorService implements TestHarnessAppFormService {
 
   private final PadPipelineOtherPropertiesService otherPropertiesService;
+
+  private final ApplicationTask linkedAppFormTask = ApplicationTask.PIPELINE_OTHER_PROPERTIES;
 
 
   @Autowired
@@ -27,11 +31,18 @@ public class OtherPropertiesGeneratorService {
   }
 
 
-  public void generateOtherProperties(PwaApplicationDetail pwaApplicationDetail) {
+  @Override
+  public ApplicationTask getLinkedAppFormTask() {
+    return linkedAppFormTask;
+  }
+
+
+  @Override
+  public void generateAppFormData(TestHarnessAppFormServiceParams appFormServiceParams) {
 
     var form = createOtherPropertiesForm();
-    otherPropertiesService.saveEntitiesUsingForm(
-        form, otherPropertiesService.getPipelineOtherPropertyEntities(pwaApplicationDetail), pwaApplicationDetail);
+    var entities = otherPropertiesService.getPipelineOtherPropertyEntities(appFormServiceParams.getApplicationDetail());
+    otherPropertiesService.saveEntitiesUsingForm(form, entities, appFormServiceParams.getApplicationDetail());
   }
 
 

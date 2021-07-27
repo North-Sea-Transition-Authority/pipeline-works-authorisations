@@ -1,44 +1,43 @@
 package uk.co.ogauthority.pwa.service.testharness.appsectiongeneration;
 
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
-import uk.co.ogauthority.pwa.model.entity.devuk.PadField;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.repository.devuk.PadFieldRepository;
-import uk.co.ogauthority.pwa.service.devuk.DevukFieldService;
-import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.fields.PwaFieldForm;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTask;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.fieldinformation.PadFieldService;
+import uk.co.ogauthority.pwa.service.testharness.TestHarnessAppFormService;
+import uk.co.ogauthority.pwa.service.testharness.TestHarnessAppFormServiceParams;
 
 @Service
 @Profile("development")
-public class FieldGeneratorService {
+class FieldGeneratorService implements TestHarnessAppFormService {
 
-  private final PwaApplicationDetailService pwaApplicationDetailService;
-  private final PadFieldRepository padFieldRepository;
-  private final DevukFieldService devukFieldService;
+  private final PadFieldService padFieldService;
+
+  private final ApplicationTask linkedAppFormTask = ApplicationTask.FIELD_INFORMATION;
 
   @Autowired
   public FieldGeneratorService(
-      PwaApplicationDetailService pwaApplicationDetailService,
-      PadFieldRepository padFieldRepository, DevukFieldService devukFieldService) {
-    this.pwaApplicationDetailService = pwaApplicationDetailService;
-    this.padFieldRepository = padFieldRepository;
-    this.devukFieldService = devukFieldService;
+      PadFieldService padFieldService) {
+    this.padFieldService = padFieldService;
+  }
+
+  @Override
+  public ApplicationTask getLinkedAppFormTask() {
+    return linkedAppFormTask;
   }
 
 
-  public void generatePadFields(PwaApplicationDetail pwaApplicationDetail) {
+  @Override
+  public void generateAppFormData(TestHarnessAppFormServiceParams appFormServiceParams) {
 
-    pwaApplicationDetailService.setLinkedToFields(pwaApplicationDetail, true);
-    var padField = new PadField();
-    padField.setPwaApplicationDetail(pwaApplicationDetail);
-    var devukFieldId = 2692;
-    padField.setDevukField(devukFieldService.findById(devukFieldId));
-    padFieldRepository.save(padField);
+    var form = new PwaFieldForm();
+    form.setFieldIds(List.of("2692"));
+    form.setLinkedToField(true);
+    padFieldService.updateFieldInformation(appFormServiceParams.getApplicationDetail(), form);
   }
-
-
-
 
 
 }

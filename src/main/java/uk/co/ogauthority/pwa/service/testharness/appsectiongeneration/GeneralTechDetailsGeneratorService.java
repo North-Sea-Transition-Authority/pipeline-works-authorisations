@@ -3,39 +3,50 @@ package uk.co.ogauthority.pwa.service.testharness.appsectiongeneration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinetechinfo.PadPipelineTechInfo;
-import uk.co.ogauthority.pwa.repository.pwaapplications.shared.pipelinetechinfo.PadPipelineTechInfoRepository;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelinetechinfo.PipelineTechInfoForm;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTask;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinetechinfo.PadPipelineTechInfoService;
+import uk.co.ogauthority.pwa.service.testharness.TestHarnessAppFormService;
+import uk.co.ogauthority.pwa.service.testharness.TestHarnessAppFormServiceParams;
 
 @Service
 @Profile("development")
-public class GeneralTechDetailsGeneratorService {
+class GeneralTechDetailsGeneratorService implements TestHarnessAppFormService {
 
-  private final PadPipelineTechInfoRepository padPipelineTechInfoRepository;
+  private final PadPipelineTechInfoService techInfoService;
+
+  private final ApplicationTask linkedAppFormTask = ApplicationTask.GENERAL_TECH_DETAILS;
 
 
   @Autowired
   public GeneralTechDetailsGeneratorService(
-      PadPipelineTechInfoRepository padPipelineTechInfoRepository) {
-    this.padPipelineTechInfoRepository = padPipelineTechInfoRepository;
+      PadPipelineTechInfoService techInfoService) {
+    this.techInfoService = techInfoService;
+  }
+
+  @Override
+  public ApplicationTask getLinkedAppFormTask() {
+    return linkedAppFormTask;
   }
 
 
-  public void generateGeneralTechDetails(PwaApplicationDetail pwaApplicationDetail) {
+  @Override
+  public void generateAppFormData(TestHarnessAppFormServiceParams appFormServiceParams) {
 
-    var generalTechDetails = new PadPipelineTechInfo();
-    setGeneralTechDetailsData(pwaApplicationDetail, generalTechDetails);
-    padPipelineTechInfoRepository.save(generalTechDetails);
+    var form = createForm();
+    var entity = techInfoService.getPipelineTechInfoEntity(appFormServiceParams.getApplicationDetail());
+    techInfoService.saveEntityUsingForm(form, entity);
   }
 
 
-  private void setGeneralTechDetailsData(PwaApplicationDetail pwaApplicationDetail, PadPipelineTechInfo generalTechDetails) {
+  private PipelineTechInfoForm createForm() {
 
-    generalTechDetails.setPwaApplicationDetail(pwaApplicationDetail);
-    generalTechDetails.setEstimatedFieldLife(50);
-    generalTechDetails.setPipelineDesignedToStandards(false);
-    generalTechDetails.setCorrosionDescription("My description of the corrosion management strategy");
-    generalTechDetails.setPlannedPipelineTieInPoints(false);
+    var form = new PipelineTechInfoForm();
+    form.setEstimatedFieldLife(50);
+    form.setPipelineDesignedToStandards(false);
+    form.setCorrosionDescription("My description of the corrosion management strategy");
+    form.setPlannedPipelineTieInPoints(false);
+    return form;
   }
 
 }

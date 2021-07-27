@@ -28,7 +28,7 @@ public class PadPipelineIdentDataService {
   }
 
   @Transactional
-  void addIdentData(PadPipelineIdent ident, PipelineIdentDataForm dataForm) {
+  public void addIdentData(PadPipelineIdent ident, PipelineIdentDataForm dataForm) {
     var identData = new PadPipelineIdentData(ident);
     saveEntityUsingForm(identData, dataForm);
   }

@@ -1,5 +1,7 @@
 package uk.co.ogauthority.pwa.service.testharness.filehelper;
 
+import java.time.Instant;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
@@ -9,7 +11,10 @@ import uk.co.ogauthority.pwa.exception.TempFileException;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.form.files.UploadFileWithDescriptionForm;
+import uk.co.ogauthority.pwa.model.form.files.UploadMultipleFilesWithDescriptionForm;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.file.PadFileRepository;
+import uk.co.ogauthority.pwa.service.fileupload.FileUpdateMode;
 import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
 
 @Service
@@ -39,10 +44,11 @@ public class TestHarnessFileService {
         pwaApplicationDetail,
         filePurpose,
         user);
-    return finaliseAndSavePadFile(fileUploadResult, pwaApplicationDetail);
+
+    return getFileIdFromFileUploadResult(fileUploadResult);
   }
 
-  public void generateInitialUpload(WebUserAccount user,
+  public String generateInitialUpload(WebUserAccount user,
                                     PwaApplicationDetail pwaApplicationDetail,
                                     ApplicationDetailFilePurpose filePurpose) {
 
@@ -52,19 +58,27 @@ public class TestHarnessFileService {
         pwaApplicationDetail,
         filePurpose,
         user);
-    finaliseAndSavePadFile(fileUploadResult, pwaApplicationDetail);
+
+    return getFileIdFromFileUploadResult(fileUploadResult);
   }
 
-
-  private String finaliseAndSavePadFile(FileUploadResult fileUploadResult,
-                                      PwaApplicationDetail pwaApplicationDetail) {
-    var fileId = fileUploadResult.getFileId().orElseThrow(() ->
+  private String getFileIdFromFileUploadResult(FileUploadResult fileUploadResult) {
+    return fileUploadResult.getFileId().orElseThrow(() ->
         new TempFileException("Error getting file id from temporary uploaded file"));
-    var padFile = padFileService.getPadFileByPwaApplicationDetailAndFileId(pwaApplicationDetail, fileId);
-    padFile.setFileLinkStatus(ApplicationFileLinkStatus.FULL);
-    padFile.setDescription("test harness app file");
-    padFileRepository.save(padFile);
-    return fileId;
+  }
+
+  public void updatePadFiles(UploadMultipleFilesWithDescriptionForm form,
+                             WebUserAccount user,
+                             PwaApplicationDetail pwaApplicationDetail,
+                             ApplicationDetailFilePurpose filePurpose,
+                             FileUpdateMode updateMode) {
+    padFileService.updateFiles(
+        form, pwaApplicationDetail, filePurpose, updateMode, user);
+  }
+
+  public void setFileIdOnForm(String fileId, List<UploadFileWithDescriptionForm> forms) {
+    var uploadFileForm = new UploadFileWithDescriptionForm(fileId, FileUploadTestHarnessUtil.getFileDescription(), Instant.now());
+    forms.add(uploadFileForm);
   }
 
 

@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 
-class FileUploadTestHarnessUtil {
+public class FileUploadTestHarnessUtil {
 
   private static final String SAMPLE_IMG_HEX =
       "FFD8FFE000104A46494600010101009000900000FFDB0043000201010201010202020202020202030503030303030604040305070607070706070708090B09080" +
@@ -23,6 +23,8 @@ class FileUploadTestHarnessUtil {
           "B3B4B5B6B7B8B9BAC2C3C4C5C6C7C8C9CAD2D3D4D5D6D7D8D9DAE2E3E4E5E6E7E8E9EAF2F3F4F5F6F7F8F9FAFFDA000C03010002110311003F0028A28A002" +
           "8A28A0028A28A0028A28A0028A28A0028A28A0028A28A0028A28A0028A28A0028A28A0028A28A0028A28A0028A28A0028A28A0028A28A0028A28A0028A28A" +
           "0028A28A0028A28A0028A28A0028A28A0028A28A0028A28A0028A28A0028A28A0028A28A00FFD9";
+
+  private static final String FILE_DESCRIPTION = "test harness app file";
 
   private static final Logger LOGGER = LoggerFactory.getLogger(FileUploadTestHarnessUtil.class);
 
@@ -45,6 +47,7 @@ class FileUploadTestHarnessUtil {
     return new MockMultipartFile(fileName, fileName, "image/jpeg", byteFileData);
   }
 
-
-
+  public static String getFileDescription() {
+    return FILE_DESCRIPTION;
+  }
 }

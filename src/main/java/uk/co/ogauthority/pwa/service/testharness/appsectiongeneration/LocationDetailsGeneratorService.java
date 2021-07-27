@@ -7,14 +7,19 @@ import uk.co.ogauthority.pwa.model.entity.enums.LocationDetailsQuestion;
 import uk.co.ogauthority.pwa.model.entity.enums.locationdetails.HseSafetyZone;
 import uk.co.ogauthority.pwa.model.entity.enums.locationdetails.PsrNotification;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadLocationDetails;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.location.LocationDetailsForm;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTask;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.location.PadLocationDetailsService;
+import uk.co.ogauthority.pwa.service.testharness.TestHarnessAppFormService;
+import uk.co.ogauthority.pwa.service.testharness.TestHarnessAppFormServiceParams;
 
 @Service
 @Profile("development")
-public class LocationDetailsGeneratorService {
+class LocationDetailsGeneratorService implements TestHarnessAppFormService {
 
   private final PadLocationDetailsService padLocationDetailsService;
+
+  private final ApplicationTask linkedAppFormTask = ApplicationTask.LOCATION_DETAILS;
 
 
   @Autowired
@@ -23,59 +28,63 @@ public class LocationDetailsGeneratorService {
     this.padLocationDetailsService = padLocationDetailsService;
   }
 
-
-
-  public void generateLocationDetails(PwaApplicationDetail pwaApplicationDetail) {
-
-    var padLocationDetails = new PadLocationDetails();
-    setLocationDetailsData(pwaApplicationDetail, padLocationDetails);
-    padLocationDetailsService.save(padLocationDetails);
+  @Override
+  public ApplicationTask getLinkedAppFormTask() {
+    return linkedAppFormTask;
   }
 
 
-  private void setLocationDetailsData(PwaApplicationDetail pwaApplicationDetail,
-                                      PadLocationDetails padLocationDetails) {
+  @Override
+  public void generateAppFormData(TestHarnessAppFormServiceParams appFormServiceParams) {
+
+    var form = createForm(appFormServiceParams.getApplicationDetail());
+    var locationDetail = padLocationDetailsService.getLocationDetailsForDraft(appFormServiceParams.getApplicationDetail());
+    padLocationDetailsService.saveEntityUsingForm(locationDetail, form);
+  }
+
+
+  private LocationDetailsForm createForm(PwaApplicationDetail pwaApplicationDetail) {
+
+    var form = new LocationDetailsForm();
 
     var requiredQuestions = padLocationDetailsService.getRequiredQuestions(pwaApplicationDetail.getPwaApplicationType());
 
-    padLocationDetails.setPwaApplicationDetail(pwaApplicationDetail);
-
     if (requiredQuestions.contains(LocationDetailsQuestion.APPROXIMATE_PROJECT_LOCATION_FROM_SHORE)) {
-      padLocationDetails.setApproximateProjectLocationFromShore("50m");
+      form.setApproximateProjectLocationFromShore("50m");
     }
 
     if (requiredQuestions.contains(LocationDetailsQuestion.WITHIN_SAFETY_ZONE)) {
-      padLocationDetails.setWithinSafetyZone(HseSafetyZone.NO);
+      form.setWithinSafetyZone(HseSafetyZone.NO);
     }
 
     if (requiredQuestions.contains(LocationDetailsQuestion.PSR_NOTIFICATION)) {
-      padLocationDetails.setPsrNotificationSubmittedOption(PsrNotification.NOT_REQUIRED);
-      padLocationDetails.setPsrNotificationNotRequiredReason("My reason for why a PSR notification is not required");
+      form.setPsrNotificationSubmittedOption(PsrNotification.NOT_REQUIRED);
+      form.setPsrNotificationNotRequiredReason("My reason for why a PSR notification is not required");
     }
 
 
     if (requiredQuestions.contains(LocationDetailsQuestion.DIVERS_USED)) {
-      padLocationDetails.setDiversUsed(false);
+      form.setDiversUsed(false);
     }
 
     if (requiredQuestions.contains(LocationDetailsQuestion.TRANSPORTS_MATERIALS_TO_SHORE)) {
-      padLocationDetails.setTransportsMaterialsToShore(false);
+      form.setTransportsMaterialsToShore(false);
     }
 
     if (requiredQuestions.contains(LocationDetailsQuestion.FACILITIES_OFFSHORE)) {
-      padLocationDetails.setFacilitiesOffshore(true);
+      form.setFacilitiesOffshore(true);
     }
 
     if (requiredQuestions.contains(LocationDetailsQuestion.ROUTE_SURVEY_UNDERTAKEN)) {
-      padLocationDetails.setRouteSurveyUndertaken(false);
-      padLocationDetails.setRouteSurveyNotUndertakenReason("My reason for why a pipeline route survey has not been undertaken");
+      form.setRouteSurveyUndertaken(false);
+      form.setRouteSurveyNotUndertakenReason("My reason for why a pipeline route survey has not been undertaken");
     }
 
     if (requiredQuestions.contains(LocationDetailsQuestion.WITHIN_LIMITS_OF_DEVIATION)) {
-      padLocationDetails.setWithinLimitsOfDeviation(true);
+      form.setWithinLimitsOfDeviation(true);
     }
 
-
+    return form;
   }
 
 

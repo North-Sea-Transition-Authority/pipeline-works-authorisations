@@ -1,68 +1,66 @@
 package uk.co.ogauthority.pwa.service.testharness.appsectiongeneration;
 
-import java.time.Instant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.CrossedBlockOwner;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.PadCrossedBlock;
-import uk.co.ogauthority.pwa.repository.licence.PadCrossedBlockRepository;
-import uk.co.ogauthority.pwa.repository.pwaapplications.PwaApplicationDetailRepository;
-import uk.co.ogauthority.pwa.service.licence.PearsBlockService;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.crossings.AddBlockCrossingForm;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.crossings.CrossingTypesForm;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTask;
+import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.BlockCrossingService;
+import uk.co.ogauthority.pwa.service.testharness.TestHarnessAppFormService;
+import uk.co.ogauthority.pwa.service.testharness.TestHarnessAppFormServiceParams;
 
 @Service
 @Profile("development")
-public class BlocksAndCrossingsGeneratorService {
+class BlocksAndCrossingsGeneratorService implements TestHarnessAppFormService {
 
-  private final PearsBlockService pearsBlockService;
-  private final PadCrossedBlockRepository padCrossedBlockRepository;
-  private final PwaApplicationDetailRepository pwaApplicationDetailRepository;
+  private final BlockCrossingService blockCrossingService;
+  private final PwaApplicationDetailService pwaApplicationDetailService;
+
+  private final ApplicationTask linkedAppFormTask = ApplicationTask.CROSSING_AGREEMENTS;
 
 
   @Autowired
-  public BlocksAndCrossingsGeneratorService(PearsBlockService pearsBlockService,
-                                            PadCrossedBlockRepository padCrossedBlockRepository,
-                                            PwaApplicationDetailRepository pwaApplicationDetailRepository) {
-    this.pearsBlockService = pearsBlockService;
-    this.padCrossedBlockRepository = padCrossedBlockRepository;
-    this.pwaApplicationDetailRepository = pwaApplicationDetailRepository;
+  public BlocksAndCrossingsGeneratorService(BlockCrossingService blockCrossingService,
+                                            PwaApplicationDetailService pwaApplicationDetailService) {
+    this.blockCrossingService = blockCrossingService;
+    this.pwaApplicationDetailService = pwaApplicationDetailService;
   }
 
 
-  public void generateBlocksAndCrossings(PwaApplicationDetail pwaApplicationDetail) {
-
-    var crossedBlock = new PadCrossedBlock();
-    setCrossedBlockData(pwaApplicationDetail, crossedBlock);
-    padCrossedBlockRepository.save(crossedBlock);
-
-    setCrossingTypes(pwaApplicationDetail);
-    pwaApplicationDetailRepository.save(pwaApplicationDetail);
+  @Override
+  public ApplicationTask getLinkedAppFormTask() {
+    return linkedAppFormTask;
   }
 
 
-  private void setCrossedBlockData(PwaApplicationDetail pwaApplicationDetail, PadCrossedBlock crossedBlock) {
+  @Override
+  public void generateAppFormData(TestHarnessAppFormServiceParams appFormServiceParams) {
 
+    var blockCrossingForm = createBlockCrossingForm();
+    blockCrossingService.createAndSaveBlockCrossingAndOwnersFromForm(appFormServiceParams.getApplicationDetail(), blockCrossingForm);
+
+    var crossingTypesForm = createCrossingTypesForm();
+    pwaApplicationDetailService.updateCrossingTypes(appFormServiceParams.getApplicationDetail(), crossingTypesForm);
+  }
+
+
+  private AddBlockCrossingForm createBlockCrossingForm() {
+
+    var form = new AddBlockCrossingForm();
     var blockRef = "10/1a101a300";
-    var pearsBlock = pearsBlockService.getExtantOrUnlicensedOffshorePearsBlockByCompositeKeyOrError(blockRef);
-
-    crossedBlock.setPwaApplicationDetail(pwaApplicationDetail);
-    crossedBlock.setQuadrantNumber(pearsBlock.getQuadrantNumber());
-    crossedBlock.setBlockNumber(pearsBlock.getBlockNumber());
-    crossedBlock.setSuffix(pearsBlock.getSuffix());
-    crossedBlock.setBlockReference(pearsBlock.getBlockReference());
-    crossedBlock.setLicence(pearsBlock.getPearsLicence());
-    crossedBlock.setLocation(pearsBlock.getBlockLocation());
-    crossedBlock.setCreatedInstant(Instant.now());
-    crossedBlock.setBlockOwner(CrossedBlockOwner.HOLDER);
+    form.setPickedBlock(blockRef);
+    form.setCrossedBlockOwner(CrossedBlockOwner.HOLDER);
+    return form;
   }
 
-  private void setCrossingTypes(PwaApplicationDetail detail) {
-    detail.setCablesCrossed(false);
-    detail.setPipelinesCrossed(false);
-    detail.setMedianLineCrossed(false);
+  private CrossingTypesForm createCrossingTypesForm() {
+    var form = new CrossingTypesForm();
+    form.setCablesCrossed(false);
+    form.setPipelinesCrossed(false);
+    form.setMedianLineCrossed(false);
+    return form;
   }
-
-
-
 }
