@@ -4,7 +4,7 @@ SELECT *
 FROM (
   SELECT
     pd.pipeline_id
-  , abns.date_laid
+  , abns.date_work_completed date_laid
   , abns.date_pipeline_brought_into_use
   FROM ${datasource.user}.as_built_notif_submissions abns
   JOIN ${datasource.user}.as_built_notif_grp_pipelines abngp ON abngp.id = abns.as_built_notif_pipeline_id
