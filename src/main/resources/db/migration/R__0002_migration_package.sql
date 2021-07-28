@@ -795,7 +795,7 @@ AS
         , LAG(pdmd.commissioned_date) OVER (PARTITION BY pd.pipeline_id ORDER BY pd.pipeline_id ASC, pd.id DESC) lag_pl_commisioned_date
         FROM ${datasource.user}.pipeline_details pd
         JOIN ${datasource.user}.pipelines p ON pd.pipeline_id = p.id
-        JOIN ${datasource.user}.pwa_details pwad ON pwad.id = p.pwa_id AND pwad.end_timestamp IS NULL
+        JOIN ${datasource.user}.pwa_details pwad ON pwad.pwa_id = p.pwa_id AND pwad.end_timestamp IS NULL
         JOIN ${datasource.user}.pwa_consents pc ON pwad.pwa_id = pc.pwa_id AND pc.consent_type = 'INITIAL_PWA'
         JOIN ${datasource.user}.pipeline_detail_migration_data pdmd ON pd.id = pdmd.pipeline_detail_id
         WHERE (pdmd.abandoned_date IS NOT NULL OR pdmd.commissioned_date IS NOT NULL)
