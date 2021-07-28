@@ -50,7 +50,7 @@ public class AsBuiltNotificationSubmissionValidatorTest {
   }
 
   @Test
-  public void validate_form_newPipeline_noDateLaid_noDateBrughtIntoUse_validationFails() {
+  public void validate_form_newPipeline_noDateWorkCompleted_noDateBrughtIntoUse_validationFails() {
     var form = new AsBuiltNotificationSubmissionForm();
     form.setAsBuiltNotificationStatus(AsBuiltNotificationStatus.PER_CONSENT);
 
@@ -66,7 +66,7 @@ public class AsBuiltNotificationSubmissionValidatorTest {
   }
 
   @Test
-  public void validate_form_notNewPipeline_noDateLaid_noDateBrughtIntoUse_validationFails() {
+  public void validate_form_notNewPipeline_noDateWorkCompleted_noDateBrughtIntoUse_validationFails() {
     var form = new AsBuiltNotificationSubmissionForm();
     form.setAsBuiltNotificationStatus(AsBuiltNotificationStatus.PER_CONSENT);
 

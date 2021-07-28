@@ -795,7 +795,7 @@ AS
         , LAG(pdmd.commissioned_date) OVER (PARTITION BY pd.pipeline_id ORDER BY pd.pipeline_id ASC, pd.id DESC) lag_pl_commisioned_date
         FROM ${datasource.user}.pipeline_details pd
         JOIN ${datasource.user}.pipelines p ON pd.pipeline_id = p.id
-        JOIN ${datasource.user}.pwa_details pwad ON pwad.id = p.pwa_id AND pwad.end_timestamp IS NULL
+        JOIN ${datasource.user}.pwa_details pwad ON pwad.pwa_id = p.pwa_id AND pwad.end_timestamp IS NULL
         JOIN ${datasource.user}.pwa_consents pc ON pwad.pwa_id = pc.pwa_id AND pc.consent_type = 'INITIAL_PWA'
         JOIN ${datasource.user}.pipeline_detail_migration_data pdmd ON pd.id = pdmd.pipeline_detail_id
         WHERE (pdmd.abandoned_date IS NOT NULL OR pdmd.commissioned_date IS NOT NULL)
@@ -811,7 +811,7 @@ AS
       , mabi.initial_pwa_consent_id
       , mabi.pd_id
       , MAX(mabi.pd_id) OVER(PARTITION BY mabi.pipeline_id) max_pd_id -- ANALYTIC aggregate happens on the WHERE filtered result set.
-      , NULL date_laid
+      , NULL date_work_completed
       , mabi.commissioned_date date_pipeline_brought_into_use
       FROM mig_as_built_info mabi
       -- only return the first commissioned date row or each commissioned date row which is different from the previous detail
@@ -893,7 +893,7 @@ AS
         , submitted_by_person_id
         , submitted_timestamp
         , as_built_status
-        , date_laid
+        , date_work_completed
         , date_pipeline_brought_into_use
         , tip_flag
         )
@@ -902,7 +902,7 @@ AS
         , l_system_person_id
         , mig_as_built_info.detail_start_timestamp
         , 'MIGRATION'
-        , mig_as_built_info.date_laid
+        , mig_as_built_info.date_work_completed
         , mig_as_built_info.date_pipeline_brought_into_use
         , CASE WHEN mig_as_built_info.pd_id = mig_as_built_info.max_pd_id THEN 1 ELSE 0 END
         );
