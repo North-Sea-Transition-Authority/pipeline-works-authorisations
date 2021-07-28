@@ -70,17 +70,22 @@ FROM (
   , CAST(pd.end_timestamp AS DATE) end_date
   , CASE WHEN pd.tip_flag = 1 THEN 'C' END status_control
   , pd.pipeline_number
+  , pd.pipeline_type
+  , CASE WHEN pd.pipeline_type IS NOT NULL THEN pt.type_display END pipeline_type_display
   , pd.pipeline_status -- PENDING, DELETED, NEVER_LAID, TRANSFERRED can all be ignored generally
   , pd.from_location
   , pd.to_location
   , pd.max_external_diameter
-  , COALESCE(pdmd.commissioned_date, NULL) commissioned_date -- we do not map commissioned date in new system
+  , pd.length
   , pd.pipeline_number || ' -' ||
     CASE
       WHEN pt.core_type = 'SINGLE_CORE' AND pd.max_external_diameter IS NOT NULL THEN ' ' || pd.max_external_diameter || ' Millimetre'
     END || ' ' || pt.type_display ||
     CASE WHEN pd.pipeline_in_bundle  = 1 THEN ' (' || pd.bundle_name || ')'
     END pipeline_name
+  , pd.products_to_be_conveyed
+  , pdmd.brown_book_pipeline_type migrated_pipeline_type
+  , pdmd.abandoned_date
   FROM ${datasource.user}.pipeline_details pd
   LEFT JOIN ${datasource.user}.pipeline_detail_migration_data pdmd ON pdmd.pipeline_detail_id = pd.id
   JOIN pipeline_types pt ON COALESCE(pd.pipeline_type, 'UNKNOWN') = pt.type_mnem
@@ -120,6 +125,16 @@ FROM (
   , ppd.to_location
   , ppd.max_external_diameter
   , ppd.pwa_consent_id pipeline_linked_pwa_consent_id
+  , ppd.pipeline_status
+  , ppd.products_to_be_conveyed
+  , ppd.migrated_pipeline_type
+  , ppd.pipeline_type
+  , ppd.pipeline_type_display
+  , ppd.length length_metre
+  , CASE
+      WHEN ppd.length IS NOT NULL THEN ppd.length / 1000
+    END length_kilometre
+  , ppd.abandoned_date
   , pabd.date_pipeline_brought_into_use
   , pp.primary_pwa_reference
   , pp.primary_pwa_id
@@ -138,4 +153,4 @@ GRANT SELECT ON ${datasource.user}.api_vw_pwa_pipeline_details TO appenv;
 GRANT SELECT ON ${datasource.user}.api_vw_pwa_consents TO appenv;
 GRANT SELECT ON ${datasource.user}.api_vw_primary_pwas TO appenv;
 
-GRANT SELECT ON ${datasource.user}.api_vw_current_pipeline_data TO appenv;
+GRANT SELECT ON ${datasource.user}.api_vw_current_pipeline_data TO appenv, decmgr;
