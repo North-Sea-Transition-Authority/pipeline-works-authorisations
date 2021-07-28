@@ -62,7 +62,7 @@ public class PadEnvironmentalDecommissioningService implements ApplicationFormSe
 
   }
 
-  public PadEnvironmentalDecommissioning save(PadEnvironmentalDecommissioning padEnvironmentalDecommissioning) {
+  private PadEnvironmentalDecommissioning save(PadEnvironmentalDecommissioning padEnvironmentalDecommissioning) {
     return padEnvironmentalDecommissioningRepository.save(padEnvironmentalDecommissioning);
   }
 

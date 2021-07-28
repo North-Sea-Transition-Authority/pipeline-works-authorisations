@@ -24,6 +24,8 @@ class FileUploadTestHarnessUtil {
           "8A28A0028A28A0028A28A0028A28A0028A28A0028A28A0028A28A0028A28A0028A28A0028A28A0028A28A0028A28A0028A28A0028A28A0028A28A0028A28A" +
           "0028A28A0028A28A0028A28A0028A28A0028A28A0028A28A0028A28A0028A28A0028A28A00FFD9";
 
+  private static final String FILE_DESCRIPTION = "test harness app file";
+
   private static final Logger LOGGER = LoggerFactory.getLogger(FileUploadTestHarnessUtil.class);
 
 
@@ -45,6 +47,7 @@ class FileUploadTestHarnessUtil {
     return new MockMultipartFile(fileName, fileName, "image/jpeg", byteFileData);
   }
 
-
-
+  public static String getFileDescription() {
+    return FILE_DESCRIPTION;
+  }
 }

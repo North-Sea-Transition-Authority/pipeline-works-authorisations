@@ -1,55 +1,70 @@
 package uk.co.ogauthority.pwa.service.testharness.appsectiongeneration;
 
 import java.math.BigDecimal;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
+import uk.co.ogauthority.pwa.exception.ValueNotFoundException;
 import uk.co.ogauthority.pwa.model.entity.enums.fluidcomposition.Chemical;
 import uk.co.ogauthority.pwa.model.entity.enums.fluidcomposition.FluidCompositionOption;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinetechinfo.PadFluidCompositionInfo;
-import uk.co.ogauthority.pwa.repository.pwaapplications.shared.pipelinetechinfo.PadFluidCompositionInfoRepository;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelinetechinfo.FluidCompositionDataForm;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelinetechinfo.FluidCompositionForm;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTask;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinetechinfo.PadFluidCompositionInfoService;
+import uk.co.ogauthority.pwa.service.testharness.TestHarnessAppFormService;
+import uk.co.ogauthority.pwa.service.testharness.TestHarnessAppFormServiceParams;
 
 @Service
 @Profile("development")
-public class FluidCompositionGeneratorService {
+class FluidCompositionGeneratorService implements TestHarnessAppFormService {
 
-  private final PadFluidCompositionInfoRepository padFluidCompositionInfoRepository;
+  private final PadFluidCompositionInfoService padFluidCompositionService;
+
+  private static final ApplicationTask linkedAppFormTask = ApplicationTask.FLUID_COMPOSITION;
 
 
   @Autowired
   public FluidCompositionGeneratorService(
-      PadFluidCompositionInfoRepository padFluidCompositionInfoRepository) {
-    this.padFluidCompositionInfoRepository = padFluidCompositionInfoRepository;
+      PadFluidCompositionInfoService padFluidCompositionService) {
+    this.padFluidCompositionService = padFluidCompositionService;
+  }
+
+  @Override
+  public ApplicationTask getLinkedAppFormTask() {
+    return linkedAppFormTask;
   }
 
 
-  public void generateFluidComposition(PwaApplicationDetail pwaApplicationDetail) {
+  @Override
+  public void generateAppFormData(TestHarnessAppFormServiceParams appFormServiceParams) {
 
-    var fluidCompositionEntities = createFluidCompositionEntities(pwaApplicationDetail);
-    padFluidCompositionInfoRepository.saveAll(fluidCompositionEntities);
+    var form = createForm();
+    var entities = padFluidCompositionService.getPadFluidCompositionInfoEntities(appFormServiceParams.getApplicationDetail());
+    padFluidCompositionService.saveEntitiesUsingForm(form, entities);
   }
 
 
-  private List<PadFluidCompositionInfo> createFluidCompositionEntities(PwaApplicationDetail pwaApplicationDetail) {
+  private FluidCompositionForm createForm() {
 
-    var fluidCompositionEntities = Chemical.asList().stream()
-        .map(chemical -> {
-          var fluidComposition =  new PadFluidCompositionInfo();
-          fluidComposition.setPwaApplicationDetail(pwaApplicationDetail);
-          fluidComposition.setChemicalName(chemical);
-          fluidComposition.setFluidCompositionOption(FluidCompositionOption.NONE);
-          return fluidComposition;
-        })
-        .collect(Collectors.toList());
+    Map<Chemical, FluidCompositionDataForm> chemicalDataFormMap = new EnumMap<>(Chemical.class);
+    Chemical.asList().forEach(chemical -> {
+      var dataForm = new FluidCompositionDataForm();
+      dataForm.setFluidCompositionOption(FluidCompositionOption.NONE);
+      chemicalDataFormMap.put(chemical, dataForm);
+    });
 
-    var firstFluidComposition = fluidCompositionEntities.get(0);
+    //required to meet validation rule
+    var firstFluidComposition = chemicalDataFormMap.values().stream().findFirst()
+        .orElseThrow(() -> new ValueNotFoundException("No FluidCompositionDataForm found"));
     firstFluidComposition.setFluidCompositionOption(FluidCompositionOption.HIGHER_AMOUNT);
     firstFluidComposition.setMoleValue(BigDecimal.valueOf(99));
 
-    return fluidCompositionEntities;
+    var form = new FluidCompositionForm();
+    form.setChemicalDataFormMap(chemicalDataFormMap);
+    return form;
   }
 
 }

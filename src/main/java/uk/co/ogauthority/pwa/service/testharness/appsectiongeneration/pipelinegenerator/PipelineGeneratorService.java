@@ -2,7 +2,6 @@ package uk.co.ogauthority.pwa.service.testharness.appsectiongeneration.pipelineg
 
 import java.math.BigDecimal;
 import java.math.MathContext;
-import java.util.ArrayList;
 import org.apache.commons.lang3.RandomUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
@@ -10,177 +9,167 @@ import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineCoreType;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineFlexibility;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineMaterial;
-import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineStatus;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipelineIdent;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipelineIdentData;
-import uk.co.ogauthority.pwa.repository.pwaapplications.shared.pipelines.PadPipelineIdentDataRepository;
-import uk.co.ogauthority.pwa.repository.pwaapplications.shared.pipelines.PadPipelineIdentRepository;
-import uk.co.ogauthority.pwa.repository.pwaapplications.shared.pipelines.PadPipelineRepository;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelinePersisterService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineService;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.PipelineHeaderForm;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.PipelineIdentDataForm;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.PipelineIdentForm;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTask;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineIdentDataService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineIdentService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
+import uk.co.ogauthority.pwa.service.testharness.TestHarnessAppFormService;
+import uk.co.ogauthority.pwa.service.testharness.TestHarnessAppFormServiceParams;
 
 @Service
 @Profile("development")
-public class PipelineGeneratorService {
+class PipelineGeneratorService implements TestHarnessAppFormService {
 
-  private final PipelineService pipelineService;
-  private final PadPipelineRepository padPipelineRepository;
-  private final PadPipelinePersisterService padPipelinePersisterService;
-  private final PadPipelineIdentRepository padPipelineIdentRepository;
-  private final PadPipelineIdentDataRepository padPipelineIdentDataRepository;
+  private final PadPipelineService padPipelineService;
+  private final PadPipelineIdentService padPipelineIdentService;
+  private final PadPipelineIdentDataService padPipelineIdentDataService;
+
+  private final ApplicationTask linkedAppFormTask = ApplicationTask.PIPELINES;
 
 
   @Autowired
   public PipelineGeneratorService(
-      PipelineService pipelineService,
-      PadPipelineRepository padPipelineRepository,
-      PadPipelinePersisterService padPipelinePersisterService,
-      PadPipelineIdentRepository padPipelineIdentRepository,
-      PadPipelineIdentDataRepository padPipelineIdentDataRepository) {
-    this.pipelineService = pipelineService;
-    this.padPipelineRepository = padPipelineRepository;
-    this.padPipelinePersisterService = padPipelinePersisterService;
-    this.padPipelineIdentRepository = padPipelineIdentRepository;
-    this.padPipelineIdentDataRepository = padPipelineIdentDataRepository;
+      PadPipelineService padPipelineService,
+      PadPipelineIdentService padPipelineIdentService,
+      PadPipelineIdentDataService padPipelineIdentDataService) {
+    this.padPipelineService = padPipelineService;
+    this.padPipelineIdentService = padPipelineIdentService;
+    this.padPipelineIdentDataService = padPipelineIdentDataService;
   }
 
 
-  public void generatePadPipelinesAndIdents(PwaApplicationDetail pwaApplicationDetail, Integer pipelineQuantity) {
+  @Override
+  public ApplicationTask getLinkedAppFormTask() {
+    return linkedAppFormTask;
+  }
 
-    for (var x = 0; x < pipelineQuantity; x++) {
 
-      var pipeline = pipelineService.createApplicationPipeline(pwaApplicationDetail.getPwaApplication());
-      var padPipeline = new PadPipeline(pwaApplicationDetail);
-      padPipeline.setPipeline(pipeline);
-      padPipeline.setPipelineStatus(PipelineStatus.IN_SERVICE);
+  public void generateAppFormData(TestHarnessAppFormServiceParams appFormServiceParams) {
 
-      Integer maxTemporaryNumber = padPipelineRepository.getMaxTemporaryNumberByPwaApplicationDetail(
-          pwaApplicationDetail);
+    for (var x = 0; x < appFormServiceParams.getPipelineQuantity(); x++) {
 
-      padPipeline.setTemporaryNumber(maxTemporaryNumber + 1);
-      padPipeline.setPipelineRef("TEMPORARY " + padPipeline.getTemporaryNumber());
-      setPadPipelineData(padPipeline);
-      padPipelinePersisterService.savePadPipelineAndMaterialiseIdentData(padPipeline);
+      var pipelineHeaderForm = createPadPipelineForm();
+      var padPipeline = padPipelineService.addPipeline(appFormServiceParams.getApplicationDetail(), pipelineHeaderForm);
 
       generateIdents(padPipeline);
     }
   }
 
-  private void setPadPipelineData(PadPipeline padPipeline) {
-    padPipeline.setPipelineType(PipelineTestHarnessUtil.getRandomPipelineType());
+  private PipelineHeaderForm createPadPipelineForm() {
 
-    padPipeline.setFromLocation(PipelineTestHarnessUtil.getRandomPipelineLocation());
-    padPipeline.setFromCoordinates(PipelineTestHarnessUtil.getRandomCoordinates());
-    padPipeline.setToLocation(PipelineTestHarnessUtil.getRandomPipelineLocation());
-    padPipeline.setToCoordinates(PipelineTestHarnessUtil.getRandomCoordinates());
+    var form = new PipelineHeaderForm();
+    form.setPipelineType(PipelineTestHarnessUtil.getRandomPipelineType());
 
-    padPipeline.setComponentPartsDescription("This is the component parts description");
-    padPipeline.setLength(BigDecimal.valueOf(495));
-    padPipeline.setProductsToBeConveyed("Corrosion Inhibitors");
-    padPipeline.setTrenchedBuriedBackfilled(false);
-    padPipeline.setPipelineFlexibility(PipelineFlexibility.FLEXIBLE);
-    padPipeline.setPipelineMaterial(PipelineMaterial.CARBON_STEEL);
-    padPipeline.setPipelineDesignLife(100);
-    padPipeline.setPipelineInBundle(false);
-    padPipeline.setAlreadyExistsOnSeabed(true);
-    padPipeline.setPipelineInUse(true);
-    padPipeline.setFootnote("This is the footnote description");
+    form.setFromLocation(PipelineTestHarnessUtil.getRandomPipelineLocation());
+    form.setFromCoordinateForm(PipelineTestHarnessUtil.getRandomCoordinatesForm());
+    form.setToLocation(PipelineTestHarnessUtil.getRandomPipelineLocation());
+    form.setToCoordinateForm(PipelineTestHarnessUtil.getRandomCoordinatesForm());
+
+    form.setComponentPartsDescription("This is the component parts description");
+    form.setLength(BigDecimal.valueOf(495));
+    form.setProductsToBeConveyed("Corrosion Inhibitors");
+    form.setTrenchedBuriedBackfilled(false);
+    form.setPipelineFlexibility(PipelineFlexibility.FLEXIBLE);
+    form.setPipelineMaterial(PipelineMaterial.CARBON_STEEL);
+    form.setPipelineDesignLife(100);
+    form.setPipelineInBundle(false);
+    form.setAlreadyExistsOnSeabed(true);
+    form.setPipelineInUse(true);
+    form.setFootnote("This is the footnote description");
+
+    return form;
   }
 
 
   private void generateIdents(PadPipeline padPipeline) {
 
     var totalIdents = RandomUtils.nextInt(1, 11);
-    var idents = new ArrayList<PadPipelineIdent>();
-    var identDataEntities = new ArrayList<PadPipelineIdentData>();
 
     for (var y = 0; y < totalIdents; y++) {
-      var ident = new PadPipelineIdent(padPipeline, y + 1);
-      setIdentBasicData(ident, totalIdents);
-      idents.add(ident);
+      var identForm = createIdentForm(padPipeline, y + 1, totalIdents);
+      var ident = padPipelineIdentService.addIdent(padPipeline, identForm);
 
-      var identData = new PadPipelineIdentData(ident);
-      createIdentData(identData);
-      identDataEntities.add(identData);
+      setIdentDataFormData(padPipeline, identForm.getDataForm());
+      padPipelineIdentDataService.updateIdentData(ident, identForm.getDataForm());
     }
-
-    padPipelineIdentRepository.saveAll(idents);
-    padPipelineIdentDataRepository.saveAll(identDataEntities);
-    padPipelinePersisterService.savePadPipelineAndMaterialiseIdentData(padPipeline);
   }
 
 
-  private void setIdentBasicData(PadPipelineIdent ident, int totalIdents) {
+  private PipelineIdentForm createIdentForm(PadPipeline padPipeline, int identNumber, int totalIdents) {
+
+    var identForm = new PipelineIdentForm();
 
     //complies with validation rule for the first and last ident matching with the header location and coordinates
-    if (ident.getIdentNo() == 1) {
-      ident.setFromLocation(ident.getPadPipeline().getFromLocation());
-      ident.setFromCoordinates(ident.getPadPipeline().getFromCoordinates());
+    if (identNumber == 1) {
+      identForm.setFromLocation(padPipeline.getFromLocation());
+      identForm.setFromCoordinateForm(PipelineTestHarnessUtil.getCoordinateFormFromPair(padPipeline.getFromCoordinates()));
     } else {
-      ident.setFromLocation(PipelineTestHarnessUtil.getRandomPipelineLocation());
-      ident.setFromCoordinates(PipelineTestHarnessUtil.getRandomCoordinates());
+      identForm.setFromLocation(PipelineTestHarnessUtil.getRandomPipelineLocation());
+      identForm.setFromCoordinateForm(PipelineTestHarnessUtil.getRandomCoordinatesForm());
     }
 
-    if (ident.getIdentNo() == totalIdents) {
-      ident.setToLocation(ident.getPadPipeline().getToLocation());
-      ident.setToCoordinates(ident.getPadPipeline().getToCoordinates());
+    if (identNumber == totalIdents) {
+      identForm.setToLocation(padPipeline.getToLocation());
+      identForm.setToCoordinateForm(PipelineTestHarnessUtil.getCoordinateFormFromPair(padPipeline.getToCoordinates()));
     } else {
-      ident.setToLocation(PipelineTestHarnessUtil.getRandomPipelineLocation());
-      ident.setToCoordinates(PipelineTestHarnessUtil.getRandomCoordinates());
+      identForm.setToLocation(PipelineTestHarnessUtil.getRandomPipelineLocation());
+      identForm.setToCoordinateForm(PipelineTestHarnessUtil.getRandomCoordinatesForm());
     }
 
     //complies with validation rule for total ident length matching header length
-    var headerLength = ident.getPadPipeline().getLength();
+    var headerLength = padPipeline.getLength();
     var eachIdentLength = headerLength.divide(BigDecimal.valueOf(totalIdents), new MathContext(2));
     var totalIdentLength = eachIdentLength.multiply(BigDecimal.valueOf(totalIdents));
-    ident.setLength(eachIdentLength);
+    identForm.setLength(eachIdentLength);
 
-    if (ident.getIdentNo() == totalIdents
+    if (identNumber == totalIdents
         && totalIdentLength.compareTo(headerLength) != 0) {
       var remainingLength = headerLength.subtract(totalIdentLength);
-      ident.setLength(eachIdentLength.add(remainingLength));
+      identForm.setLength(eachIdentLength.add(remainingLength));
     }
 
-    ident.setDefiningStructure(false);
+    identForm.setDefiningStructure(false);
+    identForm.setDataForm(new PipelineIdentDataForm());
+
+    return identForm;
   }
 
 
-  private PadPipelineIdentData createIdentData(PadPipelineIdentData identData) {
+  private void setIdentDataFormData(PadPipeline padPipeline, PipelineIdentDataForm identDataForm) {
 
-    identData.setComponentPartsDesc("This is the component parts description");
-    if (identData.getPadPipelineIdent().getPadPipeline().getCoreType().equals(
-        PipelineCoreType.SINGLE_CORE)) {
-      identData.setExternalDiameter(BigDecimal.valueOf(RandomUtils.nextInt(10, 101)));
-      identData.setInternalDiameter(identData.getExternalDiameter().subtract(BigDecimal.ONE));
-      identData.setWallThickness(BigDecimal.TEN);
-      identData.setMaop(BigDecimal.TEN);
-      identData.setInsulationCoatingType("coating type");
-      identData.setProductsToBeConveyed("description");
-      identData.setExternalDiameterMultiCore(null);
-      identData.setInternalDiameterMultiCore(null);
-      identData.setWallThicknessMultiCore(null);
-      identData.setMaopMultiCore(null);
-      identData.setInsulationCoatingTypeMultiCore(null);
-      identData.setProductsToBeConveyedMultiCore(null);
+    identDataForm.setComponentPartsDescription("This is the component parts description");
+    if (padPipeline.getCoreType().equals(PipelineCoreType.SINGLE_CORE)) {
+      identDataForm.setExternalDiameter(BigDecimal.valueOf(RandomUtils.nextInt(10, 101)));
+      identDataForm.setInternalDiameter(identDataForm.getExternalDiameter().subtract(BigDecimal.ONE));
+      identDataForm.setWallThickness(BigDecimal.TEN);
+      identDataForm.setMaop(BigDecimal.TEN);
+      identDataForm.setInsulationCoatingType("coating type");
+      identDataForm.setProductsToBeConveyed("description");
+      identDataForm.setExternalDiameterMultiCore(null);
+      identDataForm.setInternalDiameterMultiCore(null);
+      identDataForm.setWallThicknessMultiCore(null);
+      identDataForm.setMaopMultiCore(null);
+      identDataForm.setInsulationCoatingTypeMultiCore(null);
+      identDataForm.setProductsToBeConveyedMultiCore(null);
 
     } else {
-      identData.setExternalDiameterMultiCore("external diameter");
-      identData.setInternalDiameterMultiCore("internal diameter");
-      identData.setWallThicknessMultiCore("Thickness");
-      identData.setMaopMultiCore("maop");
-      identData.setInsulationCoatingTypeMultiCore("Coating type");
-      identData.setProductsToBeConveyedMultiCore("description");
-      identData.setExternalDiameter(null);
-      identData.setInternalDiameter(null);
-      identData.setWallThickness(null);
-      identData.setMaop(null);
-      identData.setInsulationCoatingType(null);
-      identData.setProductsToBeConveyed(null);
+      identDataForm.setExternalDiameterMultiCore("external diameter");
+      identDataForm.setInternalDiameterMultiCore("internal diameter");
+      identDataForm.setWallThicknessMultiCore("Thickness");
+      identDataForm.setMaopMultiCore("maop");
+      identDataForm.setInsulationCoatingTypeMultiCore("Coating type");
+      identDataForm.setProductsToBeConveyedMultiCore("description");
+      identDataForm.setExternalDiameter(null);
+      identDataForm.setInternalDiameter(null);
+      identDataForm.setWallThickness(null);
+      identDataForm.setMaop(null);
+      identDataForm.setInsulationCoatingType(null);
+      identDataForm.setProductsToBeConveyed(null);
     }
-
-    return identData;
   }
 
 

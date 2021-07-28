@@ -10,11 +10,11 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.RandomUtils;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
+import uk.co.ogauthority.pwa.model.form.location.CoordinateForm;
 import uk.co.ogauthority.pwa.model.location.CoordinatePair;
-import uk.co.ogauthority.pwa.model.location.LatitudeCoordinate;
-import uk.co.ogauthority.pwa.model.location.LongitudeCoordinate;
 import uk.co.ogauthority.pwa.service.enums.location.LatitudeDirection;
 import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
+import uk.co.ogauthority.pwa.util.CoordinateUtils;
 
 public class PipelineTestHarnessUtil {
 
@@ -39,24 +39,29 @@ public class PipelineTestHarnessUtil {
     return PIPELINE_LOCATIONS.get(random.nextInt(PIPELINE_LOCATIONS.size()));
   }
 
-  static CoordinatePair getRandomCoordinates() {
+  static CoordinateForm getRandomCoordinatesForm() {
+
+    var coordinatesForm = new CoordinateForm();
 
     var latitudeDirections = Stream.of(LatitudeDirection.values()).collect(Collectors.toList());
-    var latitudeCoords = new LatitudeCoordinate(
-        RandomUtils.nextInt(45, 65),
-        RandomUtils.nextInt(0, 60),
-        BigDecimal.valueOf(RandomUtils.nextDouble(0, 60)).setScale(2, RoundingMode.HALF_EVEN),
-        latitudeDirections.get(random.nextInt(latitudeDirections.size())));
-
+    coordinatesForm.setLatitudeDegrees(RandomUtils.nextInt(45, 65));
+    coordinatesForm.setLatitudeMinutes(RandomUtils.nextInt(0, 60));
+    coordinatesForm.setLatitudeSeconds(BigDecimal.valueOf(RandomUtils.nextDouble(0, 60)).setScale(2, RoundingMode.HALF_EVEN));
+    coordinatesForm.setLatitudeDirection(latitudeDirections.get(random.nextInt(latitudeDirections.size())));
 
     var longitudeDirections = Stream.of(LongitudeDirection.values()).collect(Collectors.toList());
-    var longitudeCoords = new LongitudeCoordinate(
-        RandomUtils.nextInt(0, 31),
-        RandomUtils.nextInt(0, 60),
-        BigDecimal.valueOf(RandomUtils.nextDouble(0, 60)).setScale(2, RoundingMode.HALF_EVEN),
-        longitudeDirections.get(random.nextInt(longitudeDirections.size())));
+    coordinatesForm.setLongitudeDegrees(RandomUtils.nextInt(0, 31));
+    coordinatesForm.setLongitudeMinutes(RandomUtils.nextInt(0, 60));
+    coordinatesForm.setLongitudeSeconds(BigDecimal.valueOf(RandomUtils.nextDouble(0, 60)).setScale(2, RoundingMode.HALF_EVEN));
+    coordinatesForm.setLongitudeDirection(longitudeDirections.get(random.nextInt(longitudeDirections.size())));
 
-    return new CoordinatePair(latitudeCoords, longitudeCoords);
+    return coordinatesForm;
+  }
+
+  static CoordinateForm getCoordinateFormFromPair(CoordinatePair coordinatePair) {
+    var coordinateForm = new CoordinateForm();
+    CoordinateUtils.mapCoordinatePairToForm(coordinatePair, coordinateForm);
+    return coordinateForm;
   }
 
 

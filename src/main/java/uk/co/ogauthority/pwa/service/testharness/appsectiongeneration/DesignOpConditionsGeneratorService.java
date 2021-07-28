@@ -3,16 +3,20 @@ package uk.co.ogauthority.pwa.service.testharness.appsectiongeneration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelinetechinfo.DesignOpConditionsForm;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTask;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinetechinfo.PadDesignOpConditionsService;
+import uk.co.ogauthority.pwa.service.testharness.TestHarnessAppFormService;
+import uk.co.ogauthority.pwa.service.testharness.TestHarnessAppFormServiceParams;
 import uk.co.ogauthority.pwa.util.forminputs.minmax.MinMaxInput;
 
 @Service
 @Profile("development")
-public class DesignOpConditionsGeneratorService {
+class DesignOpConditionsGeneratorService implements TestHarnessAppFormService {
 
   private final PadDesignOpConditionsService padDesignOpConditionsService;
+
+  private static final ApplicationTask linkedAppFormTask = ApplicationTask.DESIGN_OP_CONDITIONS;
 
 
   @Autowired
@@ -21,13 +25,18 @@ public class DesignOpConditionsGeneratorService {
     this.padDesignOpConditionsService = padDesignOpConditionsService;
   }
 
+  @Override
+  public ApplicationTask getLinkedAppFormTask() {
+    return linkedAppFormTask;
+  }
 
-  public void generateDesignOpConditions(PwaApplicationDetail pwaApplicationDetail) {
 
-    var padDesignOpConditions = padDesignOpConditionsService.getDesignOpConditionsEntity(pwaApplicationDetail);
+  @Override
+  public void generateAppFormData(TestHarnessAppFormServiceParams appFormServiceParams) {
+
     var form = createDesignOpConditionsForm();
-    padDesignOpConditionsService.saveEntityUsingForm(
-        form, padDesignOpConditions);
+    var padDesignOpConditions = padDesignOpConditionsService.getDesignOpConditionsEntity(appFormServiceParams.getApplicationDetail());
+    padDesignOpConditionsService.saveEntityUsingForm(form, padDesignOpConditions);
   }
 
 

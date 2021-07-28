@@ -3,37 +3,45 @@ package uk.co.ogauthority.pwa.service.testharness.appsectiongeneration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadFastTrack;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.FastTrackForm;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTask;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadFastTrackService;
+import uk.co.ogauthority.pwa.service.testharness.TestHarnessAppFormService;
+import uk.co.ogauthority.pwa.service.testharness.TestHarnessAppFormServiceParams;
 
 @Service
 @Profile("development")
-public class FastTrackGeneratorService {
+class FastTrackGeneratorService implements TestHarnessAppFormService {
 
   private final PadFastTrackService padFastTrackService;
+
+  private static final ApplicationTask linkedAppFormTask = ApplicationTask.FAST_TRACK;
 
   @Autowired
   public FastTrackGeneratorService(PadFastTrackService padFastTrackService) {
     this.padFastTrackService = padFastTrackService;
   }
 
-
-
-  public void generateFastTrack(PwaApplicationDetail pwaApplicationDetail) {
-
-    var fastTrack = new PadFastTrack();
-    setFastTrackData(pwaApplicationDetail, fastTrack);
-    padFastTrackService.save(fastTrack);
+  @Override
+  public ApplicationTask getLinkedAppFormTask() {
+    return linkedAppFormTask;
   }
 
 
-  private void setFastTrackData(PwaApplicationDetail pwaApplicationDetail,
-                                PadFastTrack fastTrack) {
+  @Override
+  public void generateAppFormData(TestHarnessAppFormServiceParams appFormServiceParams) {
 
-    fastTrack.setPwaApplicationDetail(pwaApplicationDetail);
-    fastTrack.setAvoidEnvironmentalDisaster(true);
-    fastTrack.setEnvironmentalDisasterReason("My reason for selecting avoiding environmental disaster");
+    var form = createForm();
+    var fastTrack = padFastTrackService.getFastTrackForDraft(appFormServiceParams.getApplicationDetail());
+    padFastTrackService.saveEntityUsingForm(fastTrack, form);
+  }
+
+
+  private FastTrackForm createForm() {
+    var form = new FastTrackForm();
+    form.setAvoidEnvironmentalDisaster(true);
+    form.setEnvironmentalDisasterReason("My reason for selecting avoiding environmental disaster");
+    return form;
   }
 
 
