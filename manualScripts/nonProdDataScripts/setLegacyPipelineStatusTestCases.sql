@@ -1,18 +1,3 @@
-SELECT
-  xph.pipeline_id, xph.pd_id migration_pd_id, xph.pipeline_number, xph.pipeline_status, xph.status record_status
-, pwa_mh.migration.CREATE_NEW_PIPELINE_STATUS(
-   p_detail_status => xph.status
-  , p_pipeline_status => xph.pipeline_status
-  , p_pipeline_number => xph.pipeline_number
-) new_migration_end_status
-, pd.pipeline_status old_migration_end_status
-FROM decmgr.xview_pipelines_history xph
-LEFT JOIN pwa_mh.pipeline_details pd ON xph.pd_id = pd.id
-WHERE XPH.status_control = 'C'
-ORDER BY xph.pipeline_id, xph.pd_id
-/
-
-
 DECLARE
 
   PROCEDURE update_Pipeline_Detail(
