@@ -25,7 +25,7 @@ FROM (
   GROUP BY authd.pa_id, authd.reference
 ) t
 /* PWAs with no org holder */
-WHERE t.text_name IS NULL
+WHERE t.org_name IS NULL
 /
 
 /* 2.
