@@ -1,19 +1,11 @@
 package uk.co.ogauthority.pwa.service.testharness;
 
-import static org.quartz.JobBuilder.newJob;
-import static org.quartz.JobKey.jobKey;
-
-import java.time.Instant;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import javax.transaction.Transactional;
-import org.quartz.JobDetail;
-import org.quartz.JobKey;
-import org.quartz.Scheduler;
-import org.quartz.SchedulerException;
-import org.quartz.Trigger;
-import org.quartz.TriggerBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +18,7 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.energyportal.service.teams.PortalTeamAccessor;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.testharness.GenerateApplicationForm;
+import uk.co.ogauthority.pwa.model.form.testharness.GenerateVariationApplicationForm;
 import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
 import uk.co.ogauthority.pwa.model.teams.PwaTeamType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
@@ -33,73 +26,52 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.person.PersonService;
 import uk.co.ogauthority.pwa.util.StreamUtils;
 import uk.co.ogauthority.pwa.validators.testharness.GenerateApplicationValidator;
+import uk.co.ogauthority.pwa.validators.testharness.GenerateVariationApplicationValidator;
 
 @Service
-@Profile("development")
+@Profile("test-harness")
 public class TestHarnessService {
 
 
   private final GenerateApplicationValidator generateApplicationValidator;
+  private final GenerateVariationApplicationValidator generateVariationApplicationValidator;
   private final PortalTeamAccessor portalTeamAccessor;
   private final PersonService personService;
-  private final Scheduler scheduler;
   private final GenerateApplicationService generateApplicationService;
   private final TestHarnessApplicationStageService testHarnessApplicationStageService;
 
+  private static final Set<PwaApplicationType> APP_TYPES_FOR_PIPELINES =
+      EnumSet.complementOf(EnumSet.of(PwaApplicationType.HUOO_VARIATION, PwaApplicationType.DEPOSIT_CONSENT));
   private static final Logger LOGGER = LoggerFactory.getLogger(TestHarnessService.class);
 
 
   @Autowired
   public TestHarnessService(
       GenerateApplicationValidator generateApplicationValidator,
+      GenerateVariationApplicationValidator generateVariationApplicationValidator,
       PortalTeamAccessor portalTeamAccessor,
       PersonService personService,
-      Scheduler scheduler,
       GenerateApplicationService generateApplicationService,
       TestHarnessApplicationStageService testHarnessApplicationStageService) {
     this.generateApplicationValidator = generateApplicationValidator;
+    this.generateVariationApplicationValidator = generateVariationApplicationValidator;
     this.portalTeamAccessor = portalTeamAccessor;
     this.personService = personService;
-    this.scheduler = scheduler;
     this.generateApplicationService = generateApplicationService;
     this.testHarnessApplicationStageService = testHarnessApplicationStageService;
   }
 
 
-  public void scheduleGenerateApplicationJob(GenerateApplicationForm form) {
-
-    try {
-
-      JobKey jobKey = jobKey("TEST_HARNESS_JOB_" + Instant.now().toString());
-      JobDetail jobDetail = newJob(TestHarnessBean.class)
-          .withIdentity(jobKey)
-          .build();
-
-      jobDetail.getJobDataMap().put("applicationType", form.getApplicationType());
-      jobDetail.getJobDataMap().put("applicationStatus", form.getApplicationStatus());
-      jobDetail.getJobDataMap().put("pipelineQuantity", form.getPipelineQuantity());
-      jobDetail.getJobDataMap().put("assignedCaseOfficerId", form.getAssignedCaseOfficerId());
-      jobDetail.getJobDataMap().put("applicantPersonId", form.getApplicantPersonId());
-
-      Trigger trigger = TriggerBuilder.newTrigger().startNow().build();
-
-      scheduler.scheduleJob(jobDetail, trigger);
-
-      LOGGER.info("Test harness app generation job creation complete");
-
-    } catch (SchedulerException e) {
-      throw new RuntimeException("Error scheduling test harness job", e);
-    }
-
-  }
 
 
   @Transactional
-  void generatePwaApplication(PwaApplicationType applicationType,
-                              PwaApplicationStatus applicationStatus,
-                              Integer pipelineQuantity,
-                              Integer assignedCaseOfficerId,
-                              Integer applicantPersonId) {
+  public void generatePwaApplication(PwaApplicationType applicationType,
+                                    Integer consentedMasterPwaId,
+                                    Integer nonConsentedMasterPwaId,
+                                    PwaApplicationStatus applicationStatus,
+                                    Integer pipelineQuantity,
+                                    Integer assignedCaseOfficerId,
+                                    Integer applicantPersonId) {
 
 
     LOGGER.info("Starting application generation");
@@ -116,10 +88,15 @@ public class TestHarnessService {
       case DEPOSIT_CONSENT:
       case OPTIONS_VARIATION:
       case DECOMMISSIONING:
-        pwaApplicationDetail = null; //to do: call variation app generator
+        pwaApplicationDetail = generateApplicationService.generateVariationPwaApplication(
+            applicationType,
+            consentedMasterPwaId,
+            nonConsentedMasterPwaId,
+            pipelineQuantity,
+            applicantPersonId);
         break;
       default:
-        throw new RuntimeException("Pwa Application type not recognised for type: " + applicationType.name());
+        throw new RuntimeException("Pwa application type not recognised for type: " + applicationType.name());
     }
 
     testHarnessApplicationStageService.setApplicationStatus(pwaApplicationDetail, applicationStatus, assignedCaseOfficerId);
@@ -148,9 +125,16 @@ public class TestHarnessService {
 
 
   public BindingResult validateGenerateApplicationForm(GenerateApplicationForm form, BindingResult bindingResult) {
-    generateApplicationValidator.validate(form, bindingResult);
+    generateApplicationValidator.validate(form, bindingResult, APP_TYPES_FOR_PIPELINES);
     return bindingResult;
   }
 
+  public BindingResult validateGenerateVariationApplicationForm(GenerateVariationApplicationForm form, BindingResult bindingResult) {
+    generateVariationApplicationValidator.validate(form, bindingResult);
+    return bindingResult;
+  }
 
+  public static Set<PwaApplicationType> getAppTypesForPipelines() {
+    return APP_TYPES_FOR_PIPELINES;
+  }
 }

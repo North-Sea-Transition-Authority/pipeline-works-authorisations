@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.service.testharness.appsectiongeneration.pipelinegenerator;
+package uk.co.ogauthority.pwa.service.testharness.appsectiongeneration;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
@@ -21,14 +21,14 @@ import uk.co.ogauthority.pwa.service.testharness.TestHarnessAppFormService;
 import uk.co.ogauthority.pwa.service.testharness.TestHarnessAppFormServiceParams;
 
 @Service
-@Profile("development")
+@Profile("test-harness")
 class PipelineGeneratorService implements TestHarnessAppFormService {
 
   private final PadPipelineService padPipelineService;
   private final PadPipelineIdentService padPipelineIdentService;
   private final PadPipelineIdentDataService padPipelineIdentDataService;
 
-  private final ApplicationTask linkedAppFormTask = ApplicationTask.PIPELINES;
+  private static final ApplicationTask linkedAppFormTask = ApplicationTask.PIPELINES;
 
 
   @Autowired
@@ -62,12 +62,12 @@ class PipelineGeneratorService implements TestHarnessAppFormService {
   private PipelineHeaderForm createPadPipelineForm() {
 
     var form = new PipelineHeaderForm();
-    form.setPipelineType(PipelineTestHarnessUtil.getRandomPipelineType());
+    form.setPipelineType(TestHarnessAppFormUtil.getRandomPipelineType());
 
-    form.setFromLocation(PipelineTestHarnessUtil.getRandomPipelineLocation());
-    form.setFromCoordinateForm(PipelineTestHarnessUtil.getRandomCoordinatesForm());
-    form.setToLocation(PipelineTestHarnessUtil.getRandomPipelineLocation());
-    form.setToCoordinateForm(PipelineTestHarnessUtil.getRandomCoordinatesForm());
+    form.setFromLocation(TestHarnessAppFormUtil.getRandomPipelineLocation());
+    form.setFromCoordinateForm(TestHarnessAppFormUtil.getRandomCoordinatesForm());
+    form.setToLocation(TestHarnessAppFormUtil.getRandomPipelineLocation());
+    form.setToCoordinateForm(TestHarnessAppFormUtil.getRandomCoordinatesForm());
 
     form.setComponentPartsDescription("This is the component parts description");
     form.setLength(BigDecimal.valueOf(495));
@@ -106,18 +106,18 @@ class PipelineGeneratorService implements TestHarnessAppFormService {
     //complies with validation rule for the first and last ident matching with the header location and coordinates
     if (identNumber == 1) {
       identForm.setFromLocation(padPipeline.getFromLocation());
-      identForm.setFromCoordinateForm(PipelineTestHarnessUtil.getCoordinateFormFromPair(padPipeline.getFromCoordinates()));
+      identForm.setFromCoordinateForm(TestHarnessAppFormUtil.getCoordinateFormFromPair(padPipeline.getFromCoordinates()));
     } else {
-      identForm.setFromLocation(PipelineTestHarnessUtil.getRandomPipelineLocation());
-      identForm.setFromCoordinateForm(PipelineTestHarnessUtil.getRandomCoordinatesForm());
+      identForm.setFromLocation(TestHarnessAppFormUtil.getRandomPipelineLocation());
+      identForm.setFromCoordinateForm(TestHarnessAppFormUtil.getRandomCoordinatesForm());
     }
 
     if (identNumber == totalIdents) {
       identForm.setToLocation(padPipeline.getToLocation());
-      identForm.setToCoordinateForm(PipelineTestHarnessUtil.getCoordinateFormFromPair(padPipeline.getToCoordinates()));
+      identForm.setToCoordinateForm(TestHarnessAppFormUtil.getCoordinateFormFromPair(padPipeline.getToCoordinates()));
     } else {
-      identForm.setToLocation(PipelineTestHarnessUtil.getRandomPipelineLocation());
-      identForm.setToCoordinateForm(PipelineTestHarnessUtil.getRandomCoordinatesForm());
+      identForm.setToLocation(TestHarnessAppFormUtil.getRandomPipelineLocation());
+      identForm.setToCoordinateForm(TestHarnessAppFormUtil.getRandomCoordinatesForm());
     }
 
     //complies with validation rule for total ident length matching header length

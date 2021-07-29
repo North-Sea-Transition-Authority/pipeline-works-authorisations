@@ -11,11 +11,11 @@ public class TestHarnessAppFormServiceParams {
 
   private final WebUserAccount user;
   private final PwaApplicationDetail applicationDetail;
-  private final int pipelineQuantity;
+  private final Integer pipelineQuantity;
 
   TestHarnessAppFormServiceParams(WebUserAccount user,
                                   PwaApplicationDetail applicationDetail,
-                                  int pipelineQuantity) {
+                                  Integer pipelineQuantity) {
     this.user = user;
     this.applicationDetail = applicationDetail;
     this.pipelineQuantity = pipelineQuantity;
@@ -30,7 +30,7 @@ public class TestHarnessAppFormServiceParams {
     return applicationDetail;
   }
 
-  public int getPipelineQuantity() {
+  public Integer getPipelineQuantity() {
     return pipelineQuantity;
   }
 

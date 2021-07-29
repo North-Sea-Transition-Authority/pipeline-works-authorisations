@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.service.testharness;
+package uk.co.ogauthority.pwa.service.testharness.quartzjob;
 
 import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
@@ -11,9 +11,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.service.testharness.TestHarnessService;
 import uk.co.ogauthority.pwa.service.users.UserAccountService;
 
-@Profile("development")
+@Profile("test-harness")
 class TestHarnessBean extends QuartzJobBean {
 
   private final TestHarnessService testHarnessService;
@@ -40,6 +41,8 @@ class TestHarnessBean extends QuartzJobBean {
       JobDataMap jobDataMap = context.getJobDetail().getJobDataMap();
       testHarnessService.generatePwaApplication(
           (PwaApplicationType) jobDataMap.get("applicationType"),
+          (Integer) jobDataMap.get("consentedMasterPwaId"),
+          (Integer) jobDataMap.get("nonConsentedMasterPwaId"),
           (PwaApplicationStatus) jobDataMap.get("applicationStatus"),
           (Integer) jobDataMap.get("pipelineQuantity"),
           (Integer) jobDataMap.get("assignedCaseOfficerId"),

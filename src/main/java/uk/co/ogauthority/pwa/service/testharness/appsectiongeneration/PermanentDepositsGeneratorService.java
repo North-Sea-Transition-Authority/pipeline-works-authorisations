@@ -1,0 +1,66 @@
+package uk.co.ogauthority.pwa.service.testharness.appsectiongeneration;
+
+import java.time.LocalDate;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
+import org.springframework.stereotype.Service;
+import uk.co.ogauthority.pwa.model.entity.enums.permanentdeposits.MaterialType;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.PermanentDepositsForm;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTask;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits.PermanentDepositService;
+import uk.co.ogauthority.pwa.service.testharness.TestHarnessAppFormService;
+import uk.co.ogauthority.pwa.service.testharness.TestHarnessAppFormServiceParams;
+import uk.co.ogauthority.pwa.util.forminputs.twofielddate.TwoFieldDateInput;
+
+@Service
+@Profile("test-harness")
+class PermanentDepositsGeneratorService implements TestHarnessAppFormService {
+
+  private final PermanentDepositService permanentDepositService;
+
+  private static final ApplicationTask LINKED_APP_FORM_TASK = ApplicationTask.PERMANENT_DEPOSITS;
+
+  @Autowired
+  public PermanentDepositsGeneratorService(
+      PermanentDepositService permanentDepositService) {
+    this.permanentDepositService = permanentDepositService;
+  }
+
+
+  @Override
+  public ApplicationTask getLinkedAppFormTask() {
+    return LINKED_APP_FORM_TASK;
+  }
+
+
+  @Override
+  public void generateAppFormData(TestHarnessAppFormServiceParams appFormServiceParams) {
+    permanentDepositService.saveEntityUsingForm(appFormServiceParams.getApplicationDetail(), createForm(), appFormServiceParams.getUser());
+  }
+
+
+  private PermanentDepositsForm createForm() {
+    var form = new PermanentDepositsForm();
+    form.setDepositIsForConsentedPipeline(false);
+    form.setDepositReference("Test_Harness_Deposit_Reference");
+    form.setDepositIsForPipelinesOnOtherApp(true);
+    form.setAppRefAndPipelineNum("App Ref X, Pipeline Num PL12345");
+
+    var fromDate = LocalDate.now();
+    form.setFromDate(new TwoFieldDateInput(fromDate));
+    form.setToDate(new TwoFieldDateInput(fromDate.plusMonths(3)));
+
+    form.setMaterialType(MaterialType.ROCK);
+    form.setRocksSize("Large");
+    form.setQuantityRocks("50");
+
+    form.setFromCoordinateForm(TestHarnessAppFormUtil.getRandomCoordinatesForm());
+    form.setToCoordinateForm(TestHarnessAppFormUtil.getRandomCoordinatesForm());
+
+    return form;
+  }
+
+
+
+
+}

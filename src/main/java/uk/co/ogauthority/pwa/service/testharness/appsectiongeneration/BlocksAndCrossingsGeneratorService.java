@@ -13,7 +13,7 @@ import uk.co.ogauthority.pwa.service.testharness.TestHarnessAppFormService;
 import uk.co.ogauthority.pwa.service.testharness.TestHarnessAppFormServiceParams;
 
 @Service
-@Profile("development")
+@Profile("test-harness")
 class BlocksAndCrossingsGeneratorService implements TestHarnessAppFormService {
 
   private final BlockCrossingService blockCrossingService;

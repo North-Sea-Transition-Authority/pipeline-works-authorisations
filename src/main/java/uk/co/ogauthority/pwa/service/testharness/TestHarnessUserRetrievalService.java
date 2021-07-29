@@ -11,8 +11,8 @@ import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.service.person.PersonService;
 
 @Service
-@Profile("development")
-class TestHarnessUserRetrievalService {
+@Profile("test-harness")
+public class TestHarnessUserRetrievalService {
 
   private final PersonService personService;
   private final WebUserAccountRepository webUserAccountRepository;
@@ -30,13 +30,13 @@ class TestHarnessUserRetrievalService {
 
 
 
-  WebUserAccount getWebUserAccount(Integer applicantPersonId) {
+  public WebUserAccount getWebUserAccount(Integer personId) {
 
-    var person = personService.getPersonById(new PersonId(applicantPersonId));
+    var person = personService.getPersonById(new PersonId(personId));
 
     return webUserAccountRepository.findAllByPersonAndAccountStatus(person, WebUserAccountStatus.ACTIVE)
     .stream().findAny().orElseThrow(() -> new PwaEntityNotFoundException(
-        "Could not find web user account for person id: " + applicantPersonId));
+        "Could not find web user account for person id: " + personId));
   }
 
 

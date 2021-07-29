@@ -11,7 +11,7 @@ import uk.co.ogauthority.pwa.service.testharness.TestHarnessAppFormServiceParams
 import uk.co.ogauthority.pwa.util.forminputs.minmax.MinMaxInput;
 
 @Service
-@Profile("development")
+@Profile("test-harness")
 class DesignOpConditionsGeneratorService implements TestHarnessAppFormService {
 
   private final PadDesignOpConditionsService padDesignOpConditionsService;

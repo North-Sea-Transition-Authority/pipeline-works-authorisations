@@ -11,7 +11,7 @@ import uk.co.ogauthority.pwa.service.testharness.TestHarnessAppFormService;
 import uk.co.ogauthority.pwa.service.testharness.TestHarnessAppFormServiceParams;
 
 @Service
-@Profile("development")
+@Profile("test-harness")
 class FieldGeneratorService implements TestHarnessAppFormService {
 
   private final PadFieldService padFieldService;

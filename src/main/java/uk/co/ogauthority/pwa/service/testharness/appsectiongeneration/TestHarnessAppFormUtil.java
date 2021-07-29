@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.service.testharness.appsectiongeneration.pipelinegenerator;
+package uk.co.ogauthority.pwa.service.testharness.appsectiongeneration;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -16,7 +16,7 @@ import uk.co.ogauthority.pwa.service.enums.location.LatitudeDirection;
 import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
 import uk.co.ogauthority.pwa.util.CoordinateUtils;
 
-public class PipelineTestHarnessUtil {
+public class TestHarnessAppFormUtil {
 
   public static Random random = new SecureRandom();
 

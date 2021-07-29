@@ -16,7 +16,7 @@ import uk.co.ogauthority.pwa.service.fileupload.FileUpdateMode;
 import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
 
 @Service
-@Profile("development")
+@Profile("test-harness")
 public class TestHarnessFileService {
 
   private final PadFileService padFileService;
