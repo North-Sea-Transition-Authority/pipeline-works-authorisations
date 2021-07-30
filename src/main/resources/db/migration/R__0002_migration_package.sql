@@ -274,26 +274,38 @@ AS
   AS
     l_new_status VARCHAR2(4000);
   BEGIN
-    -- For deleted or pending pipelines, dont bother trying to post process using pipelines number
-    IF(p_detail_status = 'DELETED' OR p_detail_status = 'PENDING') THEN
+    -- If record deleted, status is deleted
+    IF(p_detail_status = 'DELETED') THEN
       RETURN p_detail_status;
     END IF;
 
-    -- can now ignore detail status and just interpret pipeline status
-    IF(p_pipeline_status = 'OUT_OF_USE') THEN
-      l_new_status := 'OUT_OF_USE_ON_SEABED';
-    ELSE
-      l_new_status := 'IN_SERVICE';
+    -- if pipeline status is Pending, map to pending, essentially ignored in new service.
+    IF (p_pipeline_status = 'PENDING') THEN
+      RETURN p_pipeline_status;
     END IF;
 
+    -- if pipeline number indicates a specific status, use that, else default to in service
     SELECT
       CASE
         WHEN p_pipeline_number LIKE '%RTS' THEN 'RETURNED_TO_SHORE'
         WHEN p_pipeline_number LIKE '%NL' THEN 'NEVER_LAID'
-        ELSE l_new_status
-      END
+        END
     INTO l_new_status
     FROM dual;
+
+    IF (l_new_status IS NOT NULL) THEN
+      RETURN l_new_status;
+    END IF;
+
+    -- can now just interpret pipeline status
+    CASE p_pipeline_status
+      WHEN 'OUT_OF_USE' THEN
+        l_new_status := 'OUT_OF_USE_ON_SEABED';
+      WHEN 'NOT_LAID' THEN
+        l_new_status := 'NEVER_LAID';
+      ELSE
+        l_new_status := 'IN_SERVICE';
+    END CASE;
 
     RETURN l_new_status;
 
@@ -528,11 +540,6 @@ AS
 
     IF(l_count_valid_holders = 0) THEN
       RAISE_APPLICATION_ERROR(-20789, 'Cannot migrate consent where zero valid holder exist!');
-    END IF;
-
-    -- hard error for now to highlight required data fixes
-    IF(l_count_invalid_holders > 0) THEN
-      RAISE_APPLICATION_ERROR(-20789, 'Cannot migrate consent where ' || l_count_invalid_holders || ' invalid holders exist!');
     END IF;
 
   END pwa_huoo_check;
