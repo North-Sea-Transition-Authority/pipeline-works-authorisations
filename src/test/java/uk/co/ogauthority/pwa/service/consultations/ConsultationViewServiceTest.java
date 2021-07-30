@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.service.consultations;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import java.time.Instant;
@@ -19,10 +20,12 @@ import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupDetail;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationResponse;
+import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationResponseData;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.form.consultation.ConsultationRequestView;
 import uk.co.ogauthority.pwa.model.form.consultation.ConsulteeGroupRequestsView;
 import uk.co.ogauthority.pwa.model.form.enums.ConsultationResponseOption;
+import uk.co.ogauthority.pwa.model.form.enums.ConsultationResponseOptionGroup;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupDetailService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ConsultationRequestStatus;
 import uk.co.ogauthority.pwa.service.teammanagement.TeamManagementService;
@@ -35,17 +38,27 @@ public class ConsultationViewServiceTest {
 
   @Mock
   private ConsultationRequestService consultationRequestService;
+
   @Mock
   private ConsultationResponseService consultationResponseService;
+
   @Mock
   private ConsulteeGroupDetailService consulteeGroupDetailService;
+
   @Mock
   private TeamManagementService teamManagementService;
 
+  @Mock
+  private ConsultationResponseDataService consultationResponseDataService;
+
   @Before
   public void setUp() {
-    consultationViewService = new ConsultationViewService(consultationRequestService, consultationResponseService, consulteeGroupDetailService,
-        teamManagementService);
+    consultationViewService = new ConsultationViewService(
+        consultationRequestService,
+        consultationResponseService,
+        consulteeGroupDetailService,
+        teamManagementService,
+        consultationResponseDataService);
   }
 
   //This tests that a list of consultation requests should result in a list of consultation request views grouped by their consultee group..
@@ -85,13 +98,11 @@ public class ConsultationViewServiceTest {
     consultationRequest2.setDeadlineDate(Instant.now());
     consultationRequest2.setStatus(ConsultationRequestStatus.ALLOCATION);
 
-    var consultationResponse = new ConsultationResponse();
-    consultationResponse.setResponseType(ConsultationResponseOption.REJECTED);
-    consultationResponse.setResponseText("my reason");
-    consultationResponse.setResponseTimestamp(instantTime.atZone(ZoneOffset.UTC)
+    var rejectedResponse = new ConsultationResponse();
+    rejectedResponse.setResponseTimestamp(instantTime.atZone(ZoneOffset.UTC)
         .withDayOfMonth(5).withMonth(2).withYear(2020).withHour(10).withMinute(9).toInstant().truncatedTo(ChronoUnit.SECONDS));
-    consultationResponse.setRespondingPersonId(1);
-    consultationResponse.setConsultationRequest(consultationRequest2);
+    rejectedResponse.setRespondingPersonId(1);
+    rejectedResponse.setConsultationRequest(consultationRequest2);
     when(teamManagementService.getPerson(1)).thenReturn(new Person(1, "Michael", "Scott", null, null));
 
 
@@ -108,8 +119,6 @@ public class ConsultationViewServiceTest {
     when(teamManagementService.getPerson(2)).thenReturn(new Person(2, "David", "Henry", null, null));
 
 
-
-
     //consultationRequest1: name - nameB, startDate - 5/02/2020
     //consultationRequest2: name - nameA, startDate 8/02/2020
     //consultationRequest3: name - nameB, startDate 4/02/2020
@@ -118,33 +127,42 @@ public class ConsultationViewServiceTest {
     when(consultationRequestService.getAllRequestsByApplication(pwaApplication))
         .thenReturn(List.of(consultationRequest1, consultationRequest3, consultationRequest2));
 
-    when(consultationResponseService.getResponsesByConsultationRequests(List.of(consultationRequest1, consultationRequest3, consultationRequest2))).thenReturn(List.of(consultationResponse));
+    when(consultationResponseService.getResponsesByConsultationRequests(List.of(consultationRequest1, consultationRequest3, consultationRequest2))).thenReturn(List.of(rejectedResponse));
 
     when(consulteeGroupDetailService.getAllConsulteeGroupDetailsByGroup(Set.of(consulteeGroup1, consulteeGroup2)))
         .thenReturn(List.of(consulteeGroupDetail1, consulteeGroupDetail2));
+
+    var rejectedResponseData = new ConsultationResponseData(rejectedResponse);
+    rejectedResponseData.setResponseGroup(ConsultationResponseOptionGroup.CONTENT);
+    rejectedResponseData.setResponseType(ConsultationResponseOption.REJECTED);
+    rejectedResponseData.setResponseText("my reason");
+
+    when(consultationResponseDataService.findAllByConsultationResponseIn(any()))
+        .thenReturn(List.of(rejectedResponseData));
 
     List<ConsulteeGroupRequestsView> consultationRequestViews = consultationViewService.getConsultationRequestViews(pwaApplication);
 
     assertThat(consultationRequestViews.get(0).getCurrentRequest().getConsulteeGroupName()).isEqualTo("nameA");
     assertThat(consultationRequestViews.get(0).getCurrentRequest().getRequestDateDisplay()).isEqualTo("08 February 2020 10:09");
-    assertThat(consultationRequestViews.get(0).getCurrentRequest().getResponseType()).isEqualTo(ConsultationResponseOption.REJECTED);
-    assertThat(consultationRequestViews.get(0).getCurrentRequest().getResponseText()).isEqualTo("my reason");
+    assertThat(consultationRequestViews.get(0).getCurrentRequest().getDataList()).hasOnlyOneElementSatisfying(dataView -> {
+      assertThat(dataView.getConsultationResponseOption()).isEqualTo(rejectedResponseData.getResponseType());
+      assertThat(dataView.getConsultationResponseOptionGroup()).isEqualTo(rejectedResponseData.getResponseGroup());
+      assertThat(dataView.getResponseText()).isEqualTo(rejectedResponseData.getResponseText());
+    });
     assertThat(consultationRequestViews.get(0).getCurrentRequest().getResponseByPerson()).isEqualTo("Michael Scott");
     assertThat(consultationRequestViews.get(0).getCurrentRequest().getResponseDateDisplay()).isEqualTo("05 February 2020 10:09");
     assertThat(consultationRequestViews.get(0).getCurrentRequest().getWithdrawnByUser()).isNull();
 
     assertThat(consultationRequestViews.get(1).getCurrentRequest().getConsulteeGroupName()).isEqualTo("nameB");
     assertThat(consultationRequestViews.get(1).getCurrentRequest().getRequestDateDisplay()).isEqualTo("05 February 2020 10:09");
-    assertThat(consultationRequestViews.get(1).getCurrentRequest().getResponseType()).isNull();
-    assertThat(consultationRequestViews.get(1).getCurrentRequest().getResponseText()).isNull();
+    assertThat(consultationRequestViews.get(1).getCurrentRequest().getDataList()).isEmpty();
     assertThat(consultationRequestViews.get(1).getCurrentRequest().getResponseByPerson()).isNull();
     assertThat(consultationRequestViews.get(1).getCurrentRequest().getResponseDateDisplay()).isNull();
     assertThat(consultationRequestViews.get(1).getCurrentRequest().getWithdrawnByUser()).isNull();
 
     assertThat(consultationRequestViews.get(1).getHistoricalRequests().get(0).getConsulteeGroupName()).isEqualTo("nameB");
     assertThat(consultationRequestViews.get(1).getHistoricalRequests().get(0).getRequestDateDisplay()).isEqualTo("04 February 2020 10:09");
-    assertThat(consultationRequestViews.get(1).getHistoricalRequests().get(0).getResponseType()).isNull();
-    assertThat(consultationRequestViews.get(1).getHistoricalRequests().get(0).getResponseText()).isNull();
+    assertThat(consultationRequestViews.get(1).getHistoricalRequests().get(0).getDataList()).isEmpty();
     assertThat(consultationRequestViews.get(1).getHistoricalRequests().get(0).getResponseByPerson()).isNull();
     assertThat(consultationRequestViews.get(1).getHistoricalRequests().get(0).getResponseDateDisplay()).isNull();
     assertThat(consultationRequestViews.get(1).getHistoricalRequests().get(0).getWithdrawnByUser()).isEqualTo("David Henry");
@@ -178,8 +196,7 @@ public class ConsultationViewServiceTest {
 
     assertThat(requestView.getConsulteeGroupName()).isEqualTo("group name");
     assertThat(requestView.getRequestDateDisplay()).isEqualTo("05 February 2020 10:09");
-    assertThat(requestView.getResponseType()).isNull();
-    assertThat(requestView.getResponseText()).isNull();
+    assertThat(requestView.getDataList()).isEmpty();
     assertThat(requestView.getResponseByPerson()).isNull();
     assertThat(requestView.getResponseDateDisplay()).isNull();
 
@@ -205,8 +222,6 @@ public class ConsultationViewServiceTest {
     consultationRequest.setStatus(ConsultationRequestStatus.RESPONDED);
 
     var consultationResponse = new ConsultationResponse();
-    consultationResponse.setResponseType(ConsultationResponseOption.REJECTED);
-    consultationResponse.setResponseText("my reason");
     consultationResponse.setResponseTimestamp(instantTime.atZone(ZoneOffset.UTC)
         .withDayOfMonth(5).withMonth(2).withYear(2020).withHour(10).withMinute(9).toInstant().truncatedTo(ChronoUnit.SECONDS));
     consultationResponse.setRespondingPersonId(1);
@@ -216,12 +231,23 @@ public class ConsultationViewServiceTest {
     when(consultationResponseService.getResponseByConsultationRequest(consultationRequest)).thenReturn(Optional.of(consultationResponse));
     when(consulteeGroupDetailService.getConsulteeGroupDetailByGroupAndTipFlagIsTrue(consulteeGroup)).thenReturn(consulteeGroupDetail1);
 
+    var data = new ConsultationResponseData(consultationResponse);
+    data.setResponseGroup(ConsultationResponseOptionGroup.CONTENT);
+    data.setResponseType(ConsultationResponseOption.REJECTED);
+    data.setResponseText("my reason");
+
+    when(consultationResponseDataService.findAllByConsultationResponse(any()))
+        .thenReturn(List.of(data));
+
     ConsultationRequestView requestView = consultationViewService.getConsultationRequestView(consultationRequest);
 
     assertThat(requestView.getConsulteeGroupName()).isEqualTo("group name");
     assertThat(requestView.getRequestDateDisplay()).isEqualTo("05 February 2020 10:09");
-    assertThat(requestView.getResponseType()).isEqualTo(ConsultationResponseOption.REJECTED);
-    assertThat(requestView.getResponseText()).isEqualTo("my reason");
+    assertThat(requestView.getDataList()).hasOnlyOneElementSatisfying(dataView -> {
+      assertThat(dataView.getConsultationResponseOptionGroup()).isEqualTo(data.getResponseGroup());
+      assertThat(dataView.getConsultationResponseOption()).isEqualTo(data.getResponseType());
+      assertThat(dataView.getResponseText()).isEqualTo(data.getResponseText());
+    });
     assertThat(requestView.getResponseByPerson()).isEqualTo("Michael Scott");
     assertThat(requestView.getResponseDateDisplay()).isEqualTo("05 February 2020 10:09");
   }
@@ -247,13 +273,11 @@ public class ConsultationViewServiceTest {
     consultationRequest1.setDeadlineDate(Instant.now());
     consultationRequest1.setStatus(ConsultationRequestStatus.RESPONDED);
 
-    var consultationResponse1 = new ConsultationResponse();
-    consultationResponse1.setResponseType(ConsultationResponseOption.REJECTED);
-    consultationResponse1.setResponseText("my reason");
-    consultationResponse1.setResponseTimestamp(instantTime.atZone(ZoneOffset.UTC)
+    var rejectedResponse = new ConsultationResponse();
+    rejectedResponse.setResponseTimestamp(instantTime.atZone(ZoneOffset.UTC)
         .withDayOfMonth(5).withMonth(2).withYear(2020).withHour(10).withMinute(9).toInstant().truncatedTo(ChronoUnit.SECONDS));
-    consultationResponse1.setRespondingPersonId(1);
-    consultationResponse1.setConsultationRequest(consultationRequest1);
+    rejectedResponse.setRespondingPersonId(1);
+    rejectedResponse.setConsultationRequest(consultationRequest1);
     when(teamManagementService.getPerson(1)).thenReturn(new Person(1, "fr1", "sr1", null, null));
 
 
@@ -267,45 +291,59 @@ public class ConsultationViewServiceTest {
     consultationRequest2.setDeadlineDate(Instant.now());
     consultationRequest2.setStatus(ConsultationRequestStatus.RESPONDED);
 
-    var consultationResponse2 = new ConsultationResponse();
-    consultationResponse2.setResponseType(ConsultationResponseOption.CONFIRMED);
-    consultationResponse2.setResponseText("confirm text");
-    consultationResponse2.setResponseTimestamp(instantTime.atZone(ZoneOffset.UTC)
+    var confirmedResponse = new ConsultationResponse();
+    confirmedResponse.setResponseTimestamp(instantTime.atZone(ZoneOffset.UTC)
         .withDayOfMonth(11).withMonth(2).withYear(2020).withHour(10).withMinute(9).toInstant().truncatedTo(ChronoUnit.SECONDS));
-    consultationResponse2.setRespondingPersonId(2);
-    consultationResponse2.setConsultationRequest(consultationRequest2);
+    confirmedResponse.setRespondingPersonId(2);
+    confirmedResponse.setConsultationRequest(consultationRequest2);
     when(teamManagementService.getPerson(2)).thenReturn(new Person(1, "fr2", "sr2", null, null));
-
-
-
 
     var pwaApplication = new PwaApplication();
     pwaApplication.setId(1);
     when(consultationRequestService.getAllRequestsByAppAndGroupRespondedOnly(pwaApplication, consulteeGroup))
         .thenReturn(List.of(consultationRequest2, consultationRequest1));
 
-    when(consultationResponseService.getResponsesByConsultationRequests(List.of(consultationRequest2, consultationRequest1))).thenReturn(List.of(consultationResponse2, consultationResponse1));
+    when(consultationResponseService.getResponsesByConsultationRequests(List.of(consultationRequest2, consultationRequest1))).thenReturn(List.of(confirmedResponse, rejectedResponse));
 
     when(consulteeGroupDetailService.getConsulteeGroupDetailByGroupAndTipFlagIsTrue(consulteeGroup))
         .thenReturn(consulteeGroupDetail);
 
     var consultationRequestToRespondOn = new ConsultationRequest();
     consultationRequestToRespondOn.setConsulteeGroup(consulteeGroup);
-    List<ConsultationRequestView> consultationRequestViews = consultationViewService.getConsultationRequestViewsRespondedOnly(pwaApplication, consultationRequestToRespondOn);
 
+    var rejectedData = new ConsultationResponseData(rejectedResponse);
+    rejectedData.setResponseGroup(ConsultationResponseOptionGroup.CONTENT);
+    rejectedData.setResponseType(ConsultationResponseOption.REJECTED);
+    rejectedData.setResponseText("reject text");
+
+    var confirmedData = new ConsultationResponseData(confirmedResponse);
+    confirmedData.setResponseGroup(ConsultationResponseOptionGroup.CONTENT);
+    confirmedData.setResponseType(ConsultationResponseOption.CONFIRMED);
+    confirmedData.setResponseText("confirm text");
+
+    when(consultationResponseDataService.findAllByConsultationResponseIn(any()))
+        .thenReturn(List.of(rejectedData, confirmedData));
+
+    List<ConsultationRequestView> consultationRequestViews = consultationViewService.getConsultationRequestViewsRespondedOnly(pwaApplication, consultationRequestToRespondOn);
 
     assertThat(consultationRequestViews.get(0).getConsulteeGroupName()).isEqualTo("nameA");
     assertThat(consultationRequestViews.get(0).getRequestDateDisplay()).isEqualTo("08 February 2020 10:09");
-    assertThat(consultationRequestViews.get(0).getResponseType()).isEqualTo(ConsultationResponseOption.CONFIRMED);
-    assertThat(consultationRequestViews.get(0).getResponseText()).isEqualTo("confirm text");
+    assertThat(consultationRequestViews.get(0).getDataList()).hasOnlyOneElementSatisfying(dataView -> {
+      assertThat(dataView.getConsultationResponseOptionGroup()).isEqualTo(confirmedData.getResponseGroup());
+      assertThat(dataView.getConsultationResponseOption()).isEqualTo(confirmedData.getResponseType());
+      assertThat(dataView.getResponseText()).isEqualTo(confirmedData.getResponseText());
+    });
     assertThat(consultationRequestViews.get(0).getResponseByPerson()).isEqualTo("fr2 sr2");
     assertThat(consultationRequestViews.get(0).getResponseDateDisplay()).isEqualTo("11 February 2020 10:09");
     assertThat(consultationRequestViews.get(0).getWithdrawnByUser()).isNull();
 
     assertThat(consultationRequestViews.get(1).getConsulteeGroupName()).isEqualTo("nameA");
     assertThat(consultationRequestViews.get(1).getRequestDateDisplay()).isEqualTo("05 February 2020 10:09");
-    assertThat(consultationRequestViews.get(1).getResponseType()).isEqualTo(ConsultationResponseOption.REJECTED);
-    assertThat(consultationRequestViews.get(1).getResponseText()).isEqualTo("my reason");
+    assertThat(consultationRequestViews.get(1).getDataList()).hasOnlyOneElementSatisfying(dataView -> {
+      assertThat(dataView.getConsultationResponseOptionGroup()).isEqualTo(rejectedData.getResponseGroup());
+      assertThat(dataView.getConsultationResponseOption()).isEqualTo(rejectedData.getResponseType());
+      assertThat(dataView.getResponseText()).isEqualTo(rejectedData.getResponseText());
+    });
     assertThat(consultationRequestViews.get(1).getResponseByPerson()).isEqualTo("fr1 sr1");
     assertThat(consultationRequestViews.get(1).getResponseDateDisplay()).isEqualTo("05 February 2020 10:09");
     assertThat(consultationRequestViews.get(1).getWithdrawnByUser()).isNull();
@@ -317,45 +355,45 @@ public class ConsultationViewServiceTest {
   @Test
   public void requestViewRequestDateDisplayCreation_noResponseDataConstructor() {
     var instantTime = Instant.now();
-    var consulationRequest = new ConsultationRequestView(null, null,
+    var consultationRequest = new ConsultationRequestView(null, null,
         instantTime.atZone(ZoneOffset.UTC).withDayOfMonth(5).withMonth(2).withYear(2020).withHour(10).withMinute(9).toInstant().truncatedTo(ChronoUnit.SECONDS),
-        null, null, null, null, null);
+        null, null, List.of(), null, null, null);
 
-    assertThat(consulationRequest.getRequestDateDisplay()).isEqualTo("05 February 2020 10:09");
+    assertThat(consultationRequest.getRequestDateDisplay()).isEqualTo("05 February 2020 10:09");
   }
 
   @Test
   public void requestViewRequestDateDisplayCreation_withResponseDataConstructor() {
     var instantTime = Instant.now();
-    var consulationRequest = new ConsultationRequestView(null, null,
+    var consultationRequest = new ConsultationRequestView(null, null,
         instantTime.atZone(ZoneOffset.UTC).withDayOfMonth(5).withMonth(2).withYear(2020).withHour(10).withMinute(9).toInstant().truncatedTo(ChronoUnit.SECONDS),
         null, null,
         instantTime.atZone(ZoneOffset.UTC).withDayOfMonth(6).withMonth(2).withYear(2020).withHour(10).withMinute(9).toInstant().truncatedTo(ChronoUnit.SECONDS),
-        null, null, null, null);
+        List.of(), null, null);
 
-    assertThat(consulationRequest.getRequestDateDisplay()).isEqualTo("05 February 2020 10:09");
+    assertThat(consultationRequest.getRequestDateDisplay()).isEqualTo("05 February 2020 10:09");
   }
 
   @Test
   public void requestViewResponseDateDisplayCreation_noResponseDataConstructor() {
     var instantTime = Instant.now();
-    var consulationRequest = new ConsultationRequestView(null, null,
+    var consultationRequest = new ConsultationRequestView(null, null,
         instantTime.atZone(ZoneOffset.UTC).withDayOfMonth(5).withMonth(2).withYear(2020).withHour(10).withMinute(9).toInstant().truncatedTo(ChronoUnit.SECONDS),
-        null, null, null, null, null);
+        null, null, List.of(), null, null, null);
 
-    assertThat(consulationRequest.getResponseDateDisplay()).isNull();
+    assertThat(consultationRequest.getResponseDateDisplay()).isNull();
   }
 
   @Test
   public void requestViewResponseDateDisplayCreation_withResponseDataConstructor() {
     var instantTime = Instant.now();
-    var consulationRequest = new ConsultationRequestView(null, null,
+    var consultationRequest = new ConsultationRequestView(null, null,
         instantTime.atZone(ZoneOffset.UTC).withDayOfMonth(5).withMonth(2).withYear(2020).withHour(10).withMinute(9).toInstant().truncatedTo(ChronoUnit.SECONDS),
         null, null,
         instantTime.atZone(ZoneOffset.UTC).withDayOfMonth(6).withMonth(2).withYear(2020).withHour(10).withMinute(9).toInstant().truncatedTo(ChronoUnit.SECONDS),
-        null, null, null, null);
+        List.of(), null, null);
 
-    assertThat(consulationRequest.getResponseDateDisplay()).isEqualTo("06 February 2020 10:09");
+    assertThat(consultationRequest.getResponseDateDisplay()).isEqualTo("06 February 2020 10:09");
   }
 
 

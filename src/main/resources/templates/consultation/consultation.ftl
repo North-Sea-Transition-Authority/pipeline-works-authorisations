@@ -19,7 +19,7 @@
 
   <#list consulteeGroupRequestsViews as consultationRequestViewData>
 
-    <@consultationRequestView consultationRequestViewData=consultationRequestViewData.currentRequest>
+    <@consultationRequestView consultationRequestViewData=consultationRequestViewData.currentRequest applicationReference=caseSummaryView.pwaApplicationRef>
       <#if consultationRequestViewData.currentRequest.canWithdraw>
           <@fdsAction.link linkText="Withdraw consultation" linkUrl=springUrl(consultationsUrlFactory.getWithdrawConsultationUrl(consultationRequestViewData.currentRequest.consultationRequestId))
           linkClass="govuk-link" linkScreenReaderText="for ${consultationRequestViewData.currentRequest.consulteeGroupName}" role=false start=false />
@@ -32,7 +32,7 @@
       </#assign>
       <@fdsDetails.summaryDetails summaryTitle="Show previous consultations ${screenreaderTitle}"> 
           <#list consultationRequestViewData.historicalRequests as consultationRequestHistoricalView>
-                <@consultationRequestView consultationRequestViewData=consultationRequestHistoricalView displayAsHistoricalRequest=true/>
+                <@consultationRequestView consultationRequestViewData=consultationRequestHistoricalView applicationReference=caseSummaryView.pwaApplicationRef displayAsHistoricalRequest=true/>
           </#list>
       </@fdsDetails.summaryDetails>
     </#if>

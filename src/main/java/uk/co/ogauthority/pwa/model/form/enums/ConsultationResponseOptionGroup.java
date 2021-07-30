@@ -1,38 +1,77 @@
 package uk.co.ogauthority.pwa.model.form.enums;
 
-import java.util.EnumSet;
-import java.util.Set;
+import java.util.List;
+import java.util.Optional;
 
 public enum ConsultationResponseOptionGroup {
 
-  CONTENT(EnumSet.of(
+  CONTENT(List.of(
       ConsultationResponseOption.CONFIRMED,
       ConsultationResponseOption.REJECTED),
+      "What is your response on this application?",
+      "Response",
       10),
 
-  ADVICE(EnumSet.of(
+  ADVICE(List.of(
       ConsultationResponseOption.PROVIDE_ADVICE,
       ConsultationResponseOption.NO_ADVICE),
-      20);
+      "What is your response on this application?",
+      "Response",
+      20),
 
-  private final Set<ConsultationResponseOption> options;
+  EIA_REGS(List.of(
+      ConsultationResponseOption.EIA_AGREE,
+      ConsultationResponseOption.EIA_DISAGREE,
+      ConsultationResponseOption.EIA_NOT_RELEVANT),
+      "What is your response to the OGA’s grant of consent under the EIA regulations?",
+      "EIA response",
+      30),
+
+  HABITATS_REGS(List.of(
+      ConsultationResponseOption.HABITATS_AGREE,
+      ConsultationResponseOption.HABITATS_DISAGREE,
+      ConsultationResponseOption.HABITATS_NOT_RELEVANT),
+      "What is your response to the OGA’s grant of consent under the Habitats regulations?",
+      "Habitats response",
+      40);
+
+  private final List<ConsultationResponseOption> options;
+  private final String questionText;
+  private final String responseLabel;
   private final int displayOrder;
 
-  ConsultationResponseOptionGroup(Set<ConsultationResponseOption> options,
+  ConsultationResponseOptionGroup(List<ConsultationResponseOption> options,
+                                  String questionText,
+                                  String responseLabel,
                                   int displayOrder) {
     this.options = options;
+    this.questionText = questionText;
+    this.responseLabel = responseLabel;
     this.displayOrder = displayOrder;
   }
 
-  public Set<ConsultationResponseOption> getOptions() {
+  public List<ConsultationResponseOption> getOptions() {
     return options;
+  }
+
+  public String getQuestionText() {
+    return questionText;
+  }
+
+  public String getResponseLabel() {
+    return responseLabel;
   }
 
   public int getDisplayOrder() {
     return displayOrder;
   }
 
-  public ConsultationResponseOption getResponseOptionNumber(int optionNumber) {
-    return (ConsultationResponseOption) getOptions().toArray()[optionNumber - 1];
+  public Optional<ConsultationResponseOption> getResponseOptionNumber(int optionNumber) {
+    try {
+      return Optional.of(options.get(optionNumber - 1));
+    } catch (IndexOutOfBoundsException e) {
+      return Optional.empty();
+    }
   }
+
 }

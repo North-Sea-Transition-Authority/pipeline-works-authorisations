@@ -4,6 +4,7 @@ import java.util.Comparator;
 import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -16,6 +17,7 @@ import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.controller.appprocessing.shared.PwaAppProcessingPermissionCheck;
 import uk.co.ogauthority.pwa.exception.AccessDeniedException;
+import uk.co.ogauthority.pwa.model.form.consultation.ConsultationResponseDataForm;
 import uk.co.ogauthority.pwa.model.form.consultation.ConsultationResponseForm;
 import uk.co.ogauthority.pwa.model.form.enums.ConsultationResponseOptionGroup;
 import uk.co.ogauthority.pwa.service.appprocessing.AppProcessingBreadcrumbService;
@@ -39,7 +41,7 @@ public class ConsultationResponseController {
   private final ConsultationViewService consultationViewService;
   private final ControllerHelperService controllerHelperService;
   private final AppProcessingBreadcrumbService breadcrumbService;
-  private ConsultationResponseValidator consultationResponseValidator;
+  private final ConsultationResponseValidator consultationResponseValidator;
 
   @Autowired
   public ConsultationResponseController(ConsultationResponseService consultationResponseService,
@@ -62,8 +64,18 @@ public class ConsultationResponseController {
                                       PwaAppProcessingContext processingContext,
                                       @ModelAttribute("form") ConsultationResponseForm form) {
 
-    return withAccessibleConsultation(processingContext, consultationRequestId, () ->
-      getResponderModelAndView(processingContext, form));
+    return withAccessibleConsultation(processingContext, consultationRequestId, () -> {
+
+      var formMap = processingContext.getActiveConsultationRequestOrThrow()
+          .getConsultationResponseOptionGroups()
+          .stream()
+          .collect(Collectors.toMap(Function.identity(), g -> new ConsultationResponseDataForm()));
+
+      form.setResponseDataForms(formMap);
+
+      return getResponderModelAndView(processingContext);
+
+    });
 
   }
 
@@ -79,12 +91,12 @@ public class ConsultationResponseController {
 
     return withAccessibleConsultation(processingContext, consultationRequestId, () -> {
 
-      consultationResponseValidator.validate(form, bindingResult, processingContext.getActiveConsultationRequestOrThrow());
+      consultationResponseValidator.validate(form, bindingResult);
 
       var request = processingContext.getActiveConsultationRequestOrThrow().getConsultationRequest();
 
       return controllerHelperService.checkErrorsAndRedirect(bindingResult,
-          getResponderModelAndView(processingContext, form), () -> {
+          getResponderModelAndView(processingContext), () -> {
             consultationResponseService.saveResponseAndCompleteWorkflow(form, request, authenticatedUserAccount);
             return CaseManagementUtils.redirectCaseManagement(processingContext);
           });
@@ -111,8 +123,7 @@ public class ConsultationResponseController {
 
   }
 
-  private ModelAndView getResponderModelAndView(PwaAppProcessingContext processingContext,
-                                                ConsultationResponseForm consultationResponseForm) {
+  private ModelAndView getResponderModelAndView(PwaAppProcessingContext processingContext) {
 
     var application = processingContext.getPwaApplication();
     var requestDto = processingContext.getActiveConsultationRequestOrThrow();
@@ -120,9 +131,6 @@ public class ConsultationResponseController {
     var responseOptionGroupMap = requestDto.getConsultationResponseOptionGroups().stream()
         .sorted(Comparator.comparing(ConsultationResponseOptionGroup::getDisplayOrder))
         .collect(StreamUtils.toLinkedHashMap(Function.identity(), ConsultationResponseOptionGroup::getOptions));
-
-    // todo pwa-1359 update for EMT changes
-    consultationResponseForm.setConsultationResponseOptionGroup(responseOptionGroupMap.entrySet().iterator().next().getKey());
 
     var modelAndView = new ModelAndView("consultation/responses/responderForm")
         .addObject("cancelUrl", CaseManagementUtils.routeCaseManagement(application))

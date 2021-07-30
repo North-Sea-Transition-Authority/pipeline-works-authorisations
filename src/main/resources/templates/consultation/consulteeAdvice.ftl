@@ -12,13 +12,13 @@
   <h2 class="govuk-heading-l">Consultations</h2>
 
   <#if consulteeAdviceView.activeRequestView?has_content>
-    <@consultationRequestView consultationRequestViewData=consulteeAdviceView.activeRequestView displayAsHistoricalRequest=true/>
+    <@consultationRequestView consultationRequestViewData=consulteeAdviceView.activeRequestView applicationReference=caseSummaryView.pwaApplicationRef displayAsHistoricalRequest=true/>
     <hr class="govuk-section-break govuk-section-break--m">
   </#if>
 
   <#list consulteeAdviceView.historicRequestViews as historicRequestView>
 
-    <@consultationRequestView consultationRequestViewData=historicRequestView displayAsHistoricalRequest=true/>
+    <@consultationRequestView consultationRequestViewData=historicRequestView applicationReference=caseSummaryView.pwaApplicationRef displayAsHistoricalRequest=true/>
 
     <hr class="govuk-section-break govuk-section-break--m">
 

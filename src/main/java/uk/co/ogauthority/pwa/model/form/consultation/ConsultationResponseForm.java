@@ -1,50 +1,36 @@
 package uk.co.ogauthority.pwa.model.form.consultation;
 
-
-import uk.co.ogauthority.pwa.model.form.enums.ConsultationResponseOption;
+import java.util.Map;
+import java.util.Objects;
 import uk.co.ogauthority.pwa.model.form.enums.ConsultationResponseOptionGroup;
 
 public class ConsultationResponseForm {
 
-  private ConsultationResponseOptionGroup consultationResponseOptionGroup;
+  private Map<ConsultationResponseOptionGroup, ConsultationResponseDataForm> responseDataForms;
 
-  private ConsultationResponseOption consultationResponseOption;
-
-  private String option1Description;
-
-  private String option2Description;
-
-  public ConsultationResponseOptionGroup getConsultationResponseOptionGroup() {
-    return consultationResponseOptionGroup;
+  public Map<ConsultationResponseOptionGroup, ConsultationResponseDataForm> getResponseDataForms() {
+    return responseDataForms;
   }
 
-  public void setConsultationResponseOptionGroup(
-      ConsultationResponseOptionGroup consultationResponseOptionGroup) {
-    this.consultationResponseOptionGroup = consultationResponseOptionGroup;
+  public void setResponseDataForms(Map<ConsultationResponseOptionGroup, ConsultationResponseDataForm> responseDataForms) {
+    this.responseDataForms = responseDataForms;
   }
 
-  public ConsultationResponseOption getConsultationResponseOption() {
-    return consultationResponseOption;
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    ConsultationResponseForm that = (ConsultationResponseForm) o;
+    return Objects.equals(responseDataForms, that.responseDataForms);
   }
 
-  public void setConsultationResponseOption(ConsultationResponseOption consultationResponseOption) {
-    this.consultationResponseOption = consultationResponseOption;
-  }
-
-  public String getOption1Description() {
-    return option1Description;
-  }
-
-  public void setOption1Description(String option1Description) {
-    this.option1Description = option1Description;
-  }
-
-  public String getOption2Description() {
-    return option2Description;
-  }
-
-  public void setOption2Description(String option2Description) {
-    this.option2Description = option2Description;
+  @Override
+  public int hashCode() {
+    return Objects.hash(responseDataForms);
   }
 
 }

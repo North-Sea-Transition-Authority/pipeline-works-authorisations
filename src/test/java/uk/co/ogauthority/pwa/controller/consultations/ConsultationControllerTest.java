@@ -10,6 +10,7 @@ import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSe
 
 import java.time.Instant;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import org.junit.Before;
@@ -132,7 +133,7 @@ public class ConsultationControllerTest extends PwaAppProcessingContextAbstractC
   public void renderWithdrawConsultation_appStatusSmokeTest() {
 
     ConsultationRequestView consultationRequestView = new ConsultationRequestView(
-        1, "", Instant.now(), ConsultationRequestStatus.ALLOCATION, "", true, null, null);
+        1, "", Instant.now(), ConsultationRequestStatus.ALLOCATION, "", List.of(), true, null, null);
     when(consultationViewService.getConsultationRequestView(any())).thenReturn(consultationRequestView);
     when(consultationRequestService.canWithDrawConsultationRequest(any())).thenReturn(true);
 
@@ -149,7 +150,7 @@ public class ConsultationControllerTest extends PwaAppProcessingContextAbstractC
   public void renderWithdrawConsultation_permissionSmokeTest() {
 
     ConsultationRequestView consultationRequestView = new ConsultationRequestView(
-        1, "", Instant.now(), ConsultationRequestStatus.ALLOCATION, "", true, null, null);
+        1, "", Instant.now(), ConsultationRequestStatus.ALLOCATION, "", List.of(), true, null, null);
     when(consultationViewService.getConsultationRequestView(any())).thenReturn(consultationRequestView);
     when(consultationRequestService.canWithDrawConsultationRequest(any())).thenReturn(true);
 

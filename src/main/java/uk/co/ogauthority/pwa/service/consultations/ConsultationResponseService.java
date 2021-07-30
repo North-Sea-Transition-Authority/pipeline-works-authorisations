@@ -17,6 +17,7 @@ import uk.co.ogauthority.pwa.exception.WorkflowAssignmentException;
 import uk.co.ogauthority.pwa.model.dto.consultations.ConsultationRequestDto;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationResponse;
+import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationResponseData;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.form.consultation.ConsultationResponseForm;
 import uk.co.ogauthority.pwa.model.form.enums.ConsultationResponseOption;
@@ -39,8 +40,8 @@ import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
 import uk.co.ogauthority.pwa.service.workflow.assignment.WorkflowAssignmentService;
 import uk.co.ogauthority.pwa.service.workflow.task.WorkflowTaskInstance;
 
-/*
- A service to  create response /assign response to consultation request
+/**
+ A service to create response/assign response to consultation request.
  */
 @Service
 public class ConsultationResponseService implements AppProcessingService {
@@ -53,6 +54,7 @@ public class ConsultationResponseService implements AppProcessingService {
   private final ConsulteeGroupDetailService consulteeGroupDetailService;
   private final WorkflowAssignmentService workflowAssignmentService;
   private final EmailCaseLinkService emailCaseLinkService;
+  private final ConsultationResponseDataService consultationResponseDataService;
 
   @Autowired
   public ConsultationResponseService(ConsultationRequestService consultationRequestService,
@@ -62,7 +64,8 @@ public class ConsultationResponseService implements AppProcessingService {
                                      NotifyService notifyService,
                                      ConsulteeGroupDetailService consulteeGroupDetailService,
                                      WorkflowAssignmentService workflowAssignmentService,
-                                     EmailCaseLinkService emailCaseLinkService) {
+                                     EmailCaseLinkService emailCaseLinkService,
+                                     ConsultationResponseDataService consultationResponseDataService) {
     this.consultationRequestService = consultationRequestService;
     this.consultationResponseRepository = consultationResponseRepository;
     this.camundaWorkflowService = camundaWorkflowService;
@@ -71,6 +74,7 @@ public class ConsultationResponseService implements AppProcessingService {
     this.consulteeGroupDetailService = consulteeGroupDetailService;
     this.workflowAssignmentService = workflowAssignmentService;
     this.emailCaseLinkService = emailCaseLinkService;
+    this.consultationResponseDataService = consultationResponseDataService;
   }
 
   public List<ConsultationResponse> getResponsesByConsultationRequests(List<ConsultationRequest> consultationRequests) {
@@ -92,48 +96,37 @@ public class ConsultationResponseService implements AppProcessingService {
 
   }
 
-  private ConsultationResponse mapFormToResponse(ConsultationResponseForm form,
-                                                 ConsultationRequest consultationRequest,
-                                                 WebUserAccount user) {
+  private ConsultationResponse createAndSaveResponse(ConsultationRequest consultationRequest,
+                                                     WebUserAccount user) {
 
     ConsultationResponse consultationResponse = new ConsultationResponse();
     consultationResponse.setConsultationRequest(consultationRequest);
-    consultationResponse.setResponseType(form.getConsultationResponseOption());
-
-    var response1 = form.getConsultationResponseOptionGroup().getResponseOptionNumber(1);
-    var response2 = form.getConsultationResponseOptionGroup().getResponseOptionNumber(2);
-
-    if (form.getConsultationResponseOption().equals(response1)) {
-      consultationResponse.setResponseText(form.getOption1Description());
-    }
-
-    if (form.getConsultationResponseOption().equals(response2)) {
-      consultationResponse.setResponseText(form.getOption2Description());
-    }
 
     consultationResponse.setResponseTimestamp(Instant.now(clock));
     consultationResponse.setRespondingPersonId(user.getLinkedPerson().getId().asInt());
 
-    return consultationResponse;
+    return consultationResponseRepository.save(consultationResponse);
 
   }
 
   @Transactional
   public void saveResponseAndCompleteWorkflow(ConsultationResponseForm form, ConsultationRequest consultationRequest, WebUserAccount user) {
 
-    ConsultationResponse consultationResponse = mapFormToResponse(form, consultationRequest, user);
-    consultationResponseRepository.save(consultationResponse);
+    var consultationResponse = createAndSaveResponse(consultationRequest, user);
+    var responseDataList = consultationResponseDataService.createAndSaveResponseData(consultationResponse, form);
+
     camundaWorkflowService.completeTask(new WorkflowTaskInstance(consultationRequest, PwaApplicationConsultationWorkflowTask.RESPONSE));
     consultationRequest.setStatus(ConsultationRequestStatus.RESPONDED);
     consultationRequestService.saveConsultationRequest(consultationRequest);
 
-    sendResponseNotificationToCaseOfficer(consultationRequest, consultationResponse);
+    sendResponseNotificationToCaseOfficer(consultationRequest, responseDataList);
 
     workflowAssignmentService.clearAssignments(consultationRequest);
 
   }
 
-  private void sendResponseNotificationToCaseOfficer(ConsultationRequest consultationRequest, ConsultationResponse response) {
+  private void sendResponseNotificationToCaseOfficer(ConsultationRequest consultationRequest,
+                                                     List<ConsultationResponseData> responseDataList) {
 
     var application = consultationRequest.getPwaApplication();
 
@@ -154,7 +147,8 @@ public class ConsultationResponseService implements AppProcessingService {
         caseOfficerName,
         application.getAppReference(),
         consulteeGroupName,
-        response.getResponseType().getLabelText(),
+        "",
+        // responseData.getResponseType().getLabelText(), // todo PWA-1359 emails
         emailCaseLinkService.generateCaseManagementLink(application)
     );
 
@@ -193,6 +187,7 @@ public class ConsultationResponseService implements AppProcessingService {
   }
 
   public boolean isThereAtLeastOneApprovalFromAnyGroup(PwaApplication pwaApplication) {
+
     var groupRequestMap = consultationRequestService.getAllRequestsByApplication(pwaApplication).stream()
         .filter(consultationRequest -> consultationRequest.getStatus() == ConsultationRequestStatus.RESPONDED)
         .collect(Collectors.groupingBy(ConsultationRequest::getConsulteeGroup));
@@ -201,10 +196,12 @@ public class ConsultationResponseService implements AppProcessingService {
         .map(consulteeGroup -> getLatestResponseForRequests(groupRequestMap.get(consulteeGroup)))
         .collect(Collectors.toList());
 
-    return latestResponsesByGroup.stream()
-        .anyMatch(consultationResponse ->
+    var responseDataList = consultationResponseDataService.findAllByConsultationResponseIn(latestResponsesByGroup);
+
+    return responseDataList.stream()
+        .anyMatch(responseData ->
             Set.of(ConsultationResponseOption.CONFIRMED, ConsultationResponseOption.PROVIDE_ADVICE, ConsultationResponseOption.NO_ADVICE)
-                .contains(consultationResponse.getResponseType()));
+                .contains(responseData.getResponseType()));
 
   }
 

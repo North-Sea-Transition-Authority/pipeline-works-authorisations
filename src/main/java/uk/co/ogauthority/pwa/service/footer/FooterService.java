@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
+import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.util.ControllerUtils;
 
 @Service
@@ -13,6 +14,10 @@ public class FooterService {
 
   public void addFooterUrlsToModel(Model model) {
     getFooterItems().forEach(footerItem -> model.addAttribute(footerItem.getAttributeName(), footerItem.getUrl()));
+  }
+
+  public void addFooterUrlsToModelAndView(ModelAndView modelAndView) {
+    getFooterItems().forEach(footerItem -> modelAndView.addObject(footerItem.getAttributeName(), footerItem.getUrl()));
   }
 
   private List<FooterItem> getFooterItems() {

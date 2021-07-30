@@ -10,14 +10,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.handler.SimpleMappingExceptionResolver;
+import uk.co.ogauthority.pwa.service.footer.FooterService;
 
 @Component
 public class DefaultExceptionResolver extends SimpleMappingExceptionResolver {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(DefaultExceptionResolver.class);
+  private final FooterService footerService;
 
   @Autowired
-  public DefaultExceptionResolver() {
+  public DefaultExceptionResolver(FooterService footerService) {
+    this.footerService = footerService;
     setDefaultErrorView("error");
     setDefaultStatusCode(SC_INTERNAL_SERVER_ERROR);
   }
@@ -25,12 +28,15 @@ public class DefaultExceptionResolver extends SimpleMappingExceptionResolver {
   @Override
   protected ModelAndView getModelAndView(String viewName, Exception ex) {
     if (ex instanceof ClientAbortException) {
+
       //See https://mtyurt.net/post/spring-how-to-handle-ioexception-broken-pipe.html
       //ClientAbortException indicates a broken pipe/network error. Return null so it can be handled by the servlet,
       //otherwise Spring attempts to write to the broken response.
       LOGGER.trace("Suppressed ClientAbortException");
       return null;
+
     } else {
+
       ModelAndView modelAndView = super.getModelAndView(viewName, ex);
 
       String errorRef = RandomStringUtils.randomNumeric(5);
@@ -39,7 +45,10 @@ public class DefaultExceptionResolver extends SimpleMappingExceptionResolver {
 
       modelAndView.addObject("errorRef", errorRef);
 
+      footerService.addFooterUrlsToModelAndView(modelAndView);
+
       return modelAndView;
+
     }
   }
 }

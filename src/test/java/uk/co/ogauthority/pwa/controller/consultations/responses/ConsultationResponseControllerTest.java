@@ -140,7 +140,7 @@ public class ConsultationResponseControllerTest extends PwaAppProcessingContextA
   @Test
   public void postResponder_validationFail() throws Exception {
 
-    ControllerTestUtils.mockSmartValidatorErrors(consultationResponseValidator, List.of("consultationResponseOption"));
+    ControllerTestUtils.mockValidatorErrors(consultationResponseValidator, List.of("responseDataForms[CONTENT].consultationResponseOption"));
 
     when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail, user)).thenReturn(permissionsDto);
 

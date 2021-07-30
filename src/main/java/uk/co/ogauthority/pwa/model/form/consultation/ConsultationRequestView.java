@@ -3,8 +3,9 @@ package uk.co.ogauthority.pwa.model.form.consultation;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 import java.util.Objects;
-import uk.co.ogauthority.pwa.model.form.enums.ConsultationResponseOption;
+import uk.co.ogauthority.pwa.service.consultations.ConsultationResponseDataView;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ConsultationRequestStatus;
 import uk.co.ogauthority.pwa.util.DateUtils;
 
@@ -18,8 +19,7 @@ public class ConsultationRequestView {
   private final String dueDateDisplay;
   private final Instant responseDate;
   private final String responseDateDisplay;
-  private final ConsultationResponseOption responseType;
-  private final String responseText;
+  private final List<ConsultationResponseDataView> dataList;
   private final String responseByPerson;
   private final Boolean canWithdraw;
   private final String withdrawnByUser;
@@ -30,6 +30,7 @@ public class ConsultationRequestView {
                                  Instant requestDate,
                                  ConsultationRequestStatus status,
                                  String dueDateDisplay,
+                                 List<ConsultationResponseDataView> dataList,
                                  Boolean canWithdraw,
                                  String withdrawnByUser,
                                  String endTimeStamp) {
@@ -41,9 +42,8 @@ public class ConsultationRequestView {
     this.dueDateDisplay = dueDateDisplay;
     this.responseDate = null;
     this.responseDateDisplay = null;
-    this.responseType = null;
-    this.responseText = null;
     this.responseByPerson = null;
+    this.dataList = dataList;
     this.canWithdraw = canWithdraw;
     this.withdrawnByUser = withdrawnByUser;
     this.endTimeStamp = endTimeStamp;
@@ -55,10 +55,9 @@ public class ConsultationRequestView {
                                  ConsultationRequestStatus status,
                                  String dueDateDisplay,
                                  Instant responseDate,
-                                 ConsultationResponseOption responseType,
+                                 List<ConsultationResponseDataView> dataList,
                                  Boolean canWithdraw,
-                                 String responseByPerson,
-                                 String responseText) {
+                                 String responseByPerson) {
     this.consultationRequestId = consultationRequestId;
     this.consulteeGroupName = consulteeGroupName;
     this.requestDate = requestDate;
@@ -66,9 +65,8 @@ public class ConsultationRequestView {
     this.status = status;
     this.dueDateDisplay = dueDateDisplay;
     this.responseDate = responseDate;
-    this.responseDateDisplay =   DateUtils.formatDateTime(responseDate.truncatedTo(ChronoUnit.SECONDS));
-    this.responseType = responseType;
-    this.responseText = responseText;
+    this.responseDateDisplay = DateUtils.formatDateTime(responseDate.truncatedTo(ChronoUnit.SECONDS));
+    this.dataList = dataList;
     this.responseByPerson = responseByPerson;
     this.canWithdraw = canWithdraw;
     this.endTimeStamp = null;
@@ -107,12 +105,8 @@ public class ConsultationRequestView {
     return responseDateDisplay;
   }
 
-  public ConsultationResponseOption getResponseType() {
-    return responseType;
-  }
-
-  public String getResponseText() {
-    return responseText;
+  public List<ConsultationResponseDataView> getDataList() {
+    return dataList;
   }
 
   public String getResponseByPerson() {
@@ -148,8 +142,7 @@ public class ConsultationRequestView {
         && Objects.equals(dueDateDisplay, that.dueDateDisplay)
         && Objects.equals(responseDate, that.responseDate)
         && Objects.equals(responseDateDisplay, that.responseDateDisplay)
-        && responseType == that.responseType
-        && Objects.equals(responseText, that.responseText)
+        && Objects.equals(dataList, that.dataList)
         && Objects.equals(responseByPerson, that.responseByPerson)
         && Objects.equals(canWithdraw, that.canWithdraw)
         && Objects.equals(withdrawnByUser, that.withdrawnByUser)
@@ -159,7 +152,8 @@ public class ConsultationRequestView {
   @Override
   public int hashCode() {
     return Objects.hash(consultationRequestId, consulteeGroupName, requestDate, requestDateDisplay, status,
-        dueDateDisplay, responseDate, responseDateDisplay, responseType, responseText, responseByPerson,
+        dueDateDisplay, responseDate, responseDateDisplay, dataList, responseByPerson,
         canWithdraw, withdrawnByUser, endTimeStamp);
   }
+
 }

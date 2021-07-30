@@ -26,7 +26,7 @@ public class DefaultErrorController implements ErrorController {
 
   /**
    * Handles framework-level errors (404s, authorisation failures, filter exceptions) for browser clients. Errors thrown
-   * by app code (controller methods and below) are handled in DefaultExceptionResolver.
+   * by app code (controller methods and below) are handled in {@link DefaultExceptionResolver}.
    */
   @RequestMapping("/error")
   public ModelAndView handleError(HttpServletRequest request) {

@@ -4,8 +4,7 @@
 <#-- @ftlvariable name="consultationRequestViewData" type="uk.co.ogauthority.pwa.model.form.consultation.ConsultationRequestView" -->
 <#-- @ftlvariable name="consultationsUrlFactory" type="uk.co.ogauthority.pwa.service.consultations.ConsultationsUrlFactory" -->
 
-
-<#macro consultationRequestView consultationRequestViewData displayAsHistoricalRequest=false>
+<#macro consultationRequestView consultationRequestViewData applicationReference displayAsHistoricalRequest=false>
 
     <#if displayAsHistoricalRequest>
         <h3 class="govuk-heading-m"> Requested ${consultationRequestViewData.requestDateDisplay} </h3>
@@ -42,18 +41,22 @@
             </@fdsCheckAnswers.checkAnswersRow>
         </#if>
 
+        <#list consultationRequestViewData.dataList as responseData>
 
-        <#if consultationRequestViewData.responseType?has_content >
-            <@fdsCheckAnswers.checkAnswersRow keyText="Response" actionText="" actionUrl="" screenReaderActionText="">
-                ${consultationRequestViewData.responseType.labelText}
+            <@fdsCheckAnswers.checkAnswersRow keyText=responseData.consultationResponseOptionGroup.responseLabel actionText="" actionUrl="" screenReaderActionText="">
+                ${responseData.consultationResponseOption.labelText}
+                <#if responseData.consultationResponseOption.getRadioInsetText(applicationReference)?has_content>
+                  <p>${responseData.consultationResponseOption.getRadioInsetText(applicationReference)}</p>
+                </#if>
             </@fdsCheckAnswers.checkAnswersRow>
-        </#if>
 
-        <#if consultationRequestViewData.responseText?has_content>
-          <@fdsCheckAnswers.checkAnswersRow keyText=consultationRequestViewData.responseType.textAreaViewLabelText actionText="" actionUrl="" screenReaderActionText="">
-            ${consultationRequestViewData.responseText}
-          </@fdsCheckAnswers.checkAnswersRow>
-        </#if>
+            <#if responseData.responseText?has_content>
+                <@fdsCheckAnswers.checkAnswersRow keyText=responseData.consultationResponseOption.textAreaViewLabelText actionText="" actionUrl="" screenReaderActionText="">
+                    ${responseData.responseText}
+                </@fdsCheckAnswers.checkAnswersRow>
+            </#if>
+
+        </#list>
 
         <#if consultationRequestViewData.responseByPerson?has_content >
             <@fdsCheckAnswers.checkAnswersRow keyText="Response by" actionText="" actionUrl="" screenReaderActionText="">
@@ -61,9 +64,7 @@
             </@fdsCheckAnswers.checkAnswersRow>
         </#if>
 
-
     </@fdsCheckAnswers.checkAnswers>
-
 
 </#macro>
 

@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.service.appprocessing.consultations;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 import java.time.Instant;
@@ -18,10 +19,15 @@ import uk.co.ogauthority.pwa.model.dto.appprocessing.ConsultationInvolvementDto;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupDetail;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationResponse;
+import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationResponseData;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.enums.tasklist.TaskState;
 import uk.co.ogauthority.pwa.model.form.consultation.ConsultationRequestView;
+import uk.co.ogauthority.pwa.model.form.enums.ConsultationResponseOption;
+import uk.co.ogauthority.pwa.model.form.enums.ConsultationResponseOptionGroup;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
+import uk.co.ogauthority.pwa.service.consultations.ConsultationResponseDataService;
+import uk.co.ogauthority.pwa.service.consultations.ConsultationResponseDataView;
 import uk.co.ogauthority.pwa.service.consultations.ConsultationResponseService;
 import uk.co.ogauthority.pwa.service.consultations.ConsultationViewService;
 import uk.co.ogauthority.pwa.service.consultations.ConsulteeAdviceService;
@@ -42,6 +48,9 @@ public class ConsulteeAdviceServiceTest {
   @Mock
   private ConsultationViewService consultationViewService;
 
+  @Mock
+  private ConsultationResponseDataService consultationResponseDataService;
+
   private ConsulteeAdviceService consulteeAdviceService;
 
   private PwaApplicationDetail detail;
@@ -52,7 +61,7 @@ public class ConsulteeAdviceServiceTest {
   @Before
   public void setUp() {
 
-    consulteeAdviceService = new ConsulteeAdviceService(consultationResponseService, consultationViewService);
+    consulteeAdviceService = new ConsulteeAdviceService(consultationResponseService, consultationViewService, consultationResponseDataService);
 
     detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     user = new WebUserAccount(1);
@@ -148,11 +157,10 @@ public class ConsulteeAdviceServiceTest {
     when(consultationResponseService.getResponsesByConsultationRequests(any())).thenReturn(List.of(historicalResponse));
 
     var consultationInvolvement = new ConsultationInvolvementDto(consulteeGroupDetail, Set.of(), null, List.of(historicalRequest), false);
-    var appInvolvement = ApplicationInvolvementDtoTestUtil.generateConsulteeInvolvement(
-        detail.getPwaApplication(), consultationInvolvement);
+    var appInvolvement = ApplicationInvolvementDtoTestUtil
+        .generateConsulteeInvolvement(detail.getPwaApplication(), consultationInvolvement);
 
-    var context = new PwaAppProcessingContext(detail, user, Set.of(PwaAppProcessingPermission.CONSULTEE_ADVICE), null, appInvolvement,
-        Set.of());
+    var context = new PwaAppProcessingContext(detail, user, Set.of(PwaAppProcessingPermission.CONSULTEE_ADVICE), null, appInvolvement, Set.of());
 
     var requestView = new ConsultationRequestView(
         null,
@@ -160,11 +168,13 @@ public class ConsulteeAdviceServiceTest {
         Instant.now(),
         null,
         "",
+        List.of(),
         false,
         null,
         null
     );
-    when(consultationViewService.mapConsultationRequestToView(historicalRequest, historicalResponse, consulteeGroupDetail))
+
+    when(consultationViewService.mapConsultationRequestToView(eq(historicalRequest), eq(historicalResponse), any(), eq(consulteeGroupDetail)))
         .thenReturn(requestView);
 
     var consulteeAdviceView = consulteeAdviceService.getConsulteeAdviceView(context);
@@ -197,12 +207,20 @@ public class ConsulteeAdviceServiceTest {
     var context = new PwaAppProcessingContext(detail, user, Set.of(PwaAppProcessingPermission.CONSULTEE_ADVICE), null, appInvolvement,
         Set.of());
 
+    var data = new ConsultationResponseData(historicalResponse);
+    data.setResponseGroup(ConsultationResponseOptionGroup.CONTENT);
+    data.setResponseType(ConsultationResponseOption.CONFIRMED);
+    data.setResponseText("ttt");
+
+    var dataView = ConsultationResponseDataView.from(data);
+
     var historicRequestView = new ConsultationRequestView(
         null,
         null,
         Instant.now(),
         null,
         "",
+        List.of(dataView),
         false,
         null,
         null
@@ -214,15 +232,16 @@ public class ConsulteeAdviceServiceTest {
         Instant.now().minusSeconds(60),
         null,
         "",
+        List.of(),
         false,
         null,
         null
     );
 
-    when(consultationViewService.mapConsultationRequestToView(activeRequest, null, consulteeGroupDetail))
+    when(consultationViewService.mapConsultationRequestToView(activeRequest, null, List.of(), consulteeGroupDetail))
         .thenReturn(activeRequestView);
 
-    when(consultationViewService.mapConsultationRequestToView(historicalRequest, historicalResponse, consulteeGroupDetail))
+    when(consultationViewService.mapConsultationRequestToView(eq(historicalRequest), eq(historicalResponse), any(), eq(consulteeGroupDetail)))
         .thenReturn(historicRequestView);
 
     var consulteeAdviceView = consulteeAdviceService.getConsulteeAdviceView(context);
@@ -231,6 +250,8 @@ public class ConsulteeAdviceServiceTest {
     assertThat(consulteeAdviceView.getActiveRequestView()).isEqualTo(activeRequestView);
     assertThat(consulteeAdviceView.getHistoricRequestViews()).hasSize(1);
     assertThat(consulteeAdviceView.getHistoricRequestViews().get(0)).isEqualTo(historicRequestView);
+    assertThat(consulteeAdviceView.getHistoricRequestViews().get(0))
+        .satisfies(view -> assertThat(view.getDataList()).containsExactly(dataView));
 
   }
 

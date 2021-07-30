@@ -1,11 +1,13 @@
 package uk.co.ogauthority.pwa.service.consultations;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationResponse;
+import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationResponseData;
 import uk.co.ogauthority.pwa.model.form.consultation.ConsulteeAdviceView;
 import uk.co.ogauthority.pwa.model.tasklist.TaskListEntry;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
@@ -17,13 +19,16 @@ import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingTask;
 public class ConsulteeAdviceService implements AppProcessingService {
 
   private final ConsultationResponseService consultationResponseService;
+  private final ConsultationResponseDataService consultationResponseDataService;
   private final ConsultationViewService consultationViewService;
 
   @Autowired
   public ConsulteeAdviceService(ConsultationResponseService consultationResponseService,
-                                ConsultationViewService consultationViewService) {
+                                ConsultationViewService consultationViewService,
+                                ConsultationResponseDataService consultationResponseDataService) {
     this.consultationViewService = consultationViewService;
     this.consultationResponseService = consultationResponseService;
+    this.consultationResponseDataService = consultationResponseDataService;
   }
 
   @Override
@@ -55,15 +60,28 @@ public class ConsulteeAdviceService implements AppProcessingService {
         .stream()
         .collect(Collectors.toMap(ConsultationResponse::getConsultationRequest, Function.identity()));
 
+    var responseToDataMap = consultationResponseDataService
+        .findAllByConsultationResponseIn(requestToResponseMap.values())
+        .stream()
+        .collect(Collectors.groupingBy(ConsultationResponseData::getConsultationResponse));
+
     var historicRequestViews = consultationInvolvement.getHistoricalRequests().stream()
-        .map(request -> consultationViewService.mapConsultationRequestToView(
-            request,
-            requestToResponseMap.getOrDefault(request, null),
-            consultationInvolvement.getConsulteeGroupDetail()))
+        .map(request -> {
+
+          var response = requestToResponseMap.getOrDefault(request, null);
+
+          return consultationViewService.mapConsultationRequestToView(
+              request,
+              response,
+              response != null ? responseToDataMap.get(response) : List.of(),
+              consultationInvolvement.getConsulteeGroupDetail());
+
+        })
         .collect(Collectors.toList());
 
     var activeRequestView = Optional.ofNullable(consultationInvolvement.getActiveRequest())
-        .map(r -> consultationViewService.mapConsultationRequestToView(r, null, consultationInvolvement.getConsulteeGroupDetail()))
+        .map(r -> consultationViewService
+            .mapConsultationRequestToView(r, null, List.of(), consultationInvolvement.getConsulteeGroupDetail()))
         .orElse(null);
 
     return new ConsulteeAdviceView(consultationInvolvement.getConsulteeGroupDetail().getName(), activeRequestView, historicRequestViews);
