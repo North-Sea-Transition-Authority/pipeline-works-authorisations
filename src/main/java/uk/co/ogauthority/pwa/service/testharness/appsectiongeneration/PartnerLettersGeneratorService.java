@@ -9,23 +9,23 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTa
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.partnerletters.PadPartnerLettersService;
 import uk.co.ogauthority.pwa.service.testharness.TestHarnessAppFormService;
 import uk.co.ogauthority.pwa.service.testharness.TestHarnessAppFormServiceParams;
-import uk.co.ogauthority.pwa.service.testharness.filehelper.TestHarnessFileService;
+import uk.co.ogauthority.pwa.service.testharness.filehelper.TestHarnessPadFileService;
 
 @Service
 @Profile("test-harness")
 class PartnerLettersGeneratorService implements TestHarnessAppFormService {
 
   private final PadPartnerLettersService padPartnerLettersService;
-  private final TestHarnessFileService testHarnessFileService;
+  private final TestHarnessPadFileService testHarnessPadFileService;
 
   private static final ApplicationTask linkedAppFormTask = ApplicationTask.PARTNER_LETTERS;
 
   @Autowired
   public PartnerLettersGeneratorService(
       PadPartnerLettersService padPartnerLettersService,
-      TestHarnessFileService testHarnessFileService) {
+      TestHarnessPadFileService testHarnessPadFileService) {
     this.padPartnerLettersService = padPartnerLettersService;
-    this.testHarnessFileService = testHarnessFileService;
+    this.testHarnessPadFileService = testHarnessPadFileService;
   }
 
 
@@ -38,7 +38,7 @@ class PartnerLettersGeneratorService implements TestHarnessAppFormService {
   @Override
   public void generateAppFormData(TestHarnessAppFormServiceParams appFormServiceParams) {
 
-    var uploadedFileId = testHarnessFileService.generateInitialUpload(
+    var uploadedFileId = testHarnessPadFileService.generateInitialUpload(
         appFormServiceParams.getUser(), appFormServiceParams.getApplicationDetail(), ApplicationDetailFilePurpose.PARTNER_LETTERS);
     var form = createForm(uploadedFileId);
     padPartnerLettersService.saveEntityUsingForm(appFormServiceParams.getApplicationDetail(), form, appFormServiceParams.getUser());
@@ -50,7 +50,7 @@ class PartnerLettersGeneratorService implements TestHarnessAppFormService {
     form.setPartnerLettersRequired(true);
     form.setPartnerLettersConfirmed(true);
 
-    testHarnessFileService.setFileIdOnForm(uploadedFileId, form.getUploadedFileWithDescriptionForms());
+    testHarnessPadFileService.setFileIdOnForm(uploadedFileId, form.getUploadedFileWithDescriptionForms());
 
     return form;
   }

@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.transaction.Transactional;
+import org.apache.commons.collections4.SetUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,9 +40,18 @@ public class TestHarnessService {
   private final PersonService personService;
   private final GenerateApplicationService generateApplicationService;
   private final TestHarnessApplicationStageService testHarnessApplicationStageService;
+  private final TestHarnessUserRetrievalService testHarnessUserRetrievalService;
 
   private static final Set<PwaApplicationType> APP_TYPES_FOR_PIPELINES =
       EnumSet.complementOf(EnumSet.of(PwaApplicationType.HUOO_VARIATION, PwaApplicationType.DEPOSIT_CONSENT));
+
+  private static final Set<PwaApplicationStatus> TEST_HARNESS_APP_STATUSES =
+      EnumSet.complementOf(EnumSet.of(PwaApplicationStatus.UPDATE_REQUESTED, PwaApplicationStatus.WITHDRAWN, PwaApplicationStatus.DELETED));
+
+  private static final Set<PwaApplicationStatus> APP_STATUSES_FOR_CASE_OFFICER =
+      SetUtils.difference(TEST_HARNESS_APP_STATUSES, Set.of(PwaApplicationStatus.DRAFT, PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW));
+
+
   private static final Logger LOGGER = LoggerFactory.getLogger(TestHarnessService.class);
 
 
@@ -52,13 +62,15 @@ public class TestHarnessService {
       PortalTeamAccessor portalTeamAccessor,
       PersonService personService,
       GenerateApplicationService generateApplicationService,
-      TestHarnessApplicationStageService testHarnessApplicationStageService) {
+      TestHarnessApplicationStageService testHarnessApplicationStageService,
+      TestHarnessUserRetrievalService testHarnessUserRetrievalService) {
     this.generateApplicationValidator = generateApplicationValidator;
     this.generateVariationApplicationValidator = generateVariationApplicationValidator;
     this.portalTeamAccessor = portalTeamAccessor;
     this.personService = personService;
     this.generateApplicationService = generateApplicationService;
     this.testHarnessApplicationStageService = testHarnessApplicationStageService;
+    this.testHarnessUserRetrievalService = testHarnessUserRetrievalService;
   }
 
 
@@ -68,7 +80,7 @@ public class TestHarnessService {
   public void generatePwaApplication(PwaApplicationType applicationType,
                                     Integer consentedMasterPwaId,
                                     Integer nonConsentedMasterPwaId,
-                                    PwaApplicationStatus applicationStatus,
+                                    PwaApplicationStatus targetAppStatus,
                                     Integer pipelineQuantity,
                                     Integer assignedCaseOfficerId,
                                     Integer applicantPersonId) {
@@ -76,11 +88,12 @@ public class TestHarnessService {
 
     LOGGER.info("Starting application generation");
 
+    var applicantUser = testHarnessUserRetrievalService.getWebUserAccount(applicantPersonId);
     PwaApplicationDetail pwaApplicationDetail;
 
     switch (applicationType) {
       case INITIAL:
-        pwaApplicationDetail = generateApplicationService.generateInitialPwaApplication(pipelineQuantity, applicantPersonId);
+        pwaApplicationDetail = generateApplicationService.generateInitialPwaApplication(pipelineQuantity, applicantUser);
         break;
       case HUOO_VARIATION:
       case CAT_1_VARIATION:
@@ -93,13 +106,16 @@ public class TestHarnessService {
             consentedMasterPwaId,
             nonConsentedMasterPwaId,
             pipelineQuantity,
-            applicantPersonId);
+            applicantUser);
         break;
       default:
         throw new RuntimeException("Pwa application type not recognised for type: " + applicationType.name());
     }
 
-    testHarnessApplicationStageService.setApplicationStatus(pwaApplicationDetail, applicationStatus, assignedCaseOfficerId);
+    if (!PwaApplicationStatus.DRAFT.equals(targetAppStatus)) {
+      testHarnessApplicationStageService.pushApplicationToTargetStage(
+          pwaApplicationDetail, targetAppStatus, applicantUser, assignedCaseOfficerId);
+    }
 
   }
 
@@ -125,7 +141,7 @@ public class TestHarnessService {
 
 
   public BindingResult validateGenerateApplicationForm(GenerateApplicationForm form, BindingResult bindingResult) {
-    generateApplicationValidator.validate(form, bindingResult, APP_TYPES_FOR_PIPELINES);
+    generateApplicationValidator.validate(form, bindingResult);
     return bindingResult;
   }
 
@@ -136,5 +152,13 @@ public class TestHarnessService {
 
   public static Set<PwaApplicationType> getAppTypesForPipelines() {
     return APP_TYPES_FOR_PIPELINES;
+  }
+
+  public static Set<PwaApplicationStatus> getTestHarnessAppStatuses() {
+    return TEST_HARNESS_APP_STATUSES;
+  }
+
+  public static Set<PwaApplicationStatus> getAppStatusesForCaseOfficer() {
+    return APP_STATUSES_FOR_CASE_OFFICER;
   }
 }

@@ -27,7 +27,6 @@ import uk.co.ogauthority.pwa.service.pwaapplications.workflow.PwaApplicationCrea
 class GenerateApplicationService {
 
   private final PwaApplicationCreationService pwaApplicationCreationService;
-  private final TestHarnessUserRetrievalService testHarnessUserRetrievalService;
   private final TaskListService taskListService;
   private final PickedPwaRetrievalService pickedPwaRetrievalService;
   private final Map<ApplicationTask, TestHarnessAppFormService> appTaskAndGeneratorServiceMap;
@@ -38,12 +37,10 @@ class GenerateApplicationService {
   @Autowired
   public GenerateApplicationService(
       PwaApplicationCreationService pwaApplicationCreationService,
-      TestHarnessUserRetrievalService testHarnessUserRetrievalService,
       TaskListService taskListService,
       PickedPwaRetrievalService pickedPwaRetrievalService,
       List<TestHarnessAppFormService> appFormServices) {
     this.pwaApplicationCreationService = pwaApplicationCreationService;
-    this.testHarnessUserRetrievalService = testHarnessUserRetrievalService;
     this.taskListService = taskListService;
     this.pickedPwaRetrievalService = pickedPwaRetrievalService;
 
@@ -52,12 +49,9 @@ class GenerateApplicationService {
   }
 
 
-  PwaApplicationDetail generateInitialPwaApplication(Integer pipelineQuantity, Integer applicantPersonId) {
-
-    var user = testHarnessUserRetrievalService.getWebUserAccount(applicantPersonId);
-    var pwaApplicationDetail = pwaApplicationCreationService.createInitialPwaApplication(user);
-
-    setupAndRunAppTasks(pwaApplicationDetail, user, pipelineQuantity);
+  PwaApplicationDetail generateInitialPwaApplication(Integer pipelineQuantity, WebUserAccount applicantUser) {
+    var pwaApplicationDetail = pwaApplicationCreationService.createInitialPwaApplication(applicantUser);
+    setupAndRunAppTasks(pwaApplicationDetail, applicantUser, pipelineQuantity);
     return pwaApplicationDetail;
   }
 
@@ -66,18 +60,17 @@ class GenerateApplicationService {
                                                        Integer consentedMasterPwaId,
                                                        Integer nonConsentedMasterPwaId,
                                                        Integer pipelineQuantity,
-                                                       Integer applicantPersonId) {
+                                                       WebUserAccount applicantUser) {
 
-    var user = testHarnessUserRetrievalService.getWebUserAccount(applicantPersonId);
     var pickedMasterPwaId = consentedMasterPwaId != null ? consentedMasterPwaId : nonConsentedMasterPwaId;
-    var pickedPwa = pickedPwaRetrievalService.getPickedConsentedPwa(pickedMasterPwaId, user);
+    var pickedPwa = pickedPwaRetrievalService.getPickedConsentedPwa(pickedMasterPwaId, applicantUser);
 
     var pwaApplicationDetail = pwaApplicationCreationService.createVariationPwaApplication(
-        user,
+        applicantUser,
         pickedPwa,
         pwaApplicationType);
 
-    setupAndRunAppTasks(pwaApplicationDetail, user, pipelineQuantity);
+    setupAndRunAppTasks(pwaApplicationDetail, applicantUser, pipelineQuantity);
     return pwaApplicationDetail;
   }
 

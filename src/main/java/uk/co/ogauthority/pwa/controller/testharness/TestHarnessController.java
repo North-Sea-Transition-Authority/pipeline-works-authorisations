@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.controller.testharness;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import java.util.Comparator;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
@@ -102,7 +103,7 @@ public class TestHarnessController {
         .sorted(Comparator.comparing(PwaApplicationType::getDisplayOrder))
         .collect(StreamUtils.toLinkedHashMap(Enum::name, PwaApplicationType::getDisplayName));
 
-    var applicationStatusMap = PwaApplicationStatus.stream()
+    var applicationStatusMap = TestHarnessService.getTestHarnessAppStatuses().stream()
         .collect(StreamUtils.toLinkedHashMap(Enum::name, PwaApplicationStatus::getDisplayName));
 
     var caseOfficerCandidates = pwaTeamService.getPeopleWithRegulatorRole(PwaRegulatorRole.CASE_OFFICER)
@@ -114,13 +115,17 @@ public class TestHarnessController {
     var appTypesForPipelines = TestHarnessService.getAppTypesForPipelines()
         .stream().map(PwaApplicationType::getDisplayName).collect(Collectors.joining(", "));
 
+    var appStatusesForCaseOfficer = TestHarnessService.getAppStatusesForCaseOfficer()
+        .stream().map(PwaApplicationStatus::getDisplayName).collect(Collectors.joining(", "));
+
     return new ModelAndView("testHarness/generateApplication")
         .addObject("cancelUrl", RouteUtils.routeWorkArea())
         .addObject("applicationTypeMap", applicationTypeMap)
         .addObject("applicationStatusMap", applicationStatusMap)
         .addObject("caseOfficerCandidates", caseOfficerCandidates)
         .addObject("applicantUsersMap", testHarnessService.getApplicantsSelectorMap())
-        .addObject("appTypesForPipelines", appTypesForPipelines);
+        .addObject("appTypesForPipelines", appTypesForPipelines)
+        .addObject("appStatusesForCaseOfficer", appStatusesForCaseOfficer);
   }
 
 
