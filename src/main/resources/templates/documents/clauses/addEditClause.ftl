@@ -11,7 +11,7 @@
 
         <@fdsTextInput.textInput path="form.name" labelText="Clause name" hintText="This will be shown in the document sidebar" />
 
-        <@fdsInsetText.insetText>The clause text area below supports <@fdsAction.link linkText="Markdown" linkUrl="#"/> for text formatting.</@fdsInsetText.insetText>
+        <@fdsInsetText.insetText>The clause text area below supports <@fdsAction.link linkText="Markdown" linkUrl=springUrl(markdownGuidanceUrl) openInNewTab=true/> for text formatting.</@fdsInsetText.insetText>
 
         <@fdsTextarea.textarea path="form.text" labelText="Clause text" rows = "12" />
 

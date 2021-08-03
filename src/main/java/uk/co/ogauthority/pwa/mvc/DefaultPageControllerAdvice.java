@@ -1,5 +1,7 @@
 package uk.co.ogauthority.pwa.mvc;
 
+import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
+
 import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.StringTrimmerEditor;
@@ -11,6 +13,7 @@ import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import uk.co.ogauthority.pwa.auth.CurrentUserView;
 import uk.co.ogauthority.pwa.config.ServiceProperties;
+import uk.co.ogauthority.pwa.controller.MarkdownController;
 import uk.co.ogauthority.pwa.energyportal.service.TopMenuService;
 import uk.co.ogauthority.pwa.service.FoxUrlService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
@@ -54,6 +57,7 @@ public class DefaultPageControllerAdvice {
     addLogoutUrl(model);
     addTopMenuItems(model, request);
     addSubmitButtonText(model);
+    addMarkdownGuidanceUrl(model);
     footerService.addFooterUrlsToModel(model);
     model.addAttribute("service", serviceProperties);
   }
@@ -78,6 +82,11 @@ public class DefaultPageControllerAdvice {
   private void addSubmitButtonText(Model model) {
     model.addAttribute("submitPrimaryButtonText", ValidationType.FULL.getButtonText());
     model.addAttribute("submitSecondaryButtonText", ValidationType.PARTIAL.getButtonText());
+  }
+
+  private void addMarkdownGuidanceUrl(Model model) {
+    model.addAttribute("markdownGuidanceUrl",
+        ReverseRouter.route(on(MarkdownController.class).renderMarkdownGuidance(null)));
   }
 
 }
