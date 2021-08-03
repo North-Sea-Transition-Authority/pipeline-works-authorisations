@@ -16,7 +16,7 @@
     <h2 class="govuk-heading-m">PIPELINE WORKS AUTHORISATION</h2>
   </div>
 
-  <p style="text-align: center; padding-top: 25px;">${introParagraph?no_esc}</p>
+  <p class="pwa-intro-paragraph">${introParagraph?no_esc}</p>
 
   <@pwaClauseList.list documentView=docView clauseActionsUrlProvider="" showSectionHeading=false showClauseHeadings=sectionType.clauseDisplay == "SHOW_HEADING" />
 
