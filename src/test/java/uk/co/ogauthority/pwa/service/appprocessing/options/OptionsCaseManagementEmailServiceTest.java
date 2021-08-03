@@ -3,7 +3,9 @@ package uk.co.ogauthority.pwa.service.appprocessing.options;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -29,9 +31,11 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
 import uk.co.ogauthority.pwa.energyportal.model.entity.PersonTestUtil;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationTestUtils;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
+import uk.co.ogauthority.pwa.model.entity.enums.ConfirmedOptionType;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
+import uk.co.ogauthority.pwa.model.notify.emailproperties.applicationworkflow.OptionsVariationClosedWithoutConsentEmailProps;
 import uk.co.ogauthority.pwa.model.notify.emailproperties.optionsapplications.ApplicationOptionsApprovalDeadlineChangedEmailProps;
 import uk.co.ogauthority.pwa.model.notify.emailproperties.optionsapplications.ApplicationOptionsApprovedEmailProps;
 import uk.co.ogauthority.pwa.service.appprocessing.ApplicationInvolvementService;
@@ -40,6 +44,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.notify.EmailCaseLinkService;
 import uk.co.ogauthority.pwa.service.notify.NotifyService;
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
+import uk.co.ogauthority.pwa.service.pwaapplications.options.PadOptionConfirmedService;
 import uk.co.ogauthority.pwa.service.pwaconsents.MasterPwaHolderDto;
 import uk.co.ogauthority.pwa.service.pwaconsents.PwaConsentOrganisationRoleService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
@@ -67,11 +72,17 @@ public class OptionsCaseManagementEmailServiceTest {
   @Mock
   private ApplicationInvolvementService applicationInvolvementService;
 
+  @Mock
+  private PadOptionConfirmedService padOptionConfirmedService;
+
   @Captor
   private ArgumentCaptor<ApplicationOptionsApprovedEmailProps> optionsApprovedEmailCaptor;
 
   @Captor
   private ArgumentCaptor<ApplicationOptionsApprovalDeadlineChangedEmailProps> optionsDeadlineChangedEmailCaptor;
+
+  @Captor
+  private ArgumentCaptor<OptionsVariationClosedWithoutConsentEmailProps> optionsVariationClosedWithoutConsentEmailPropsArgumentCaptor;
 
   private OptionsCaseManagementEmailService optionsCaseManagementEmailService;
 
@@ -116,8 +127,8 @@ public class OptionsCaseManagementEmailServiceTest {
         notifyService,
         pwaContactService,
         pwaConsentOrganisationRoleService,
-        applicationInvolvementService
-    );
+        applicationInvolvementService,
+        padOptionConfirmedService);
   }
 
   @Test
@@ -197,4 +208,45 @@ public class OptionsCaseManagementEmailServiceTest {
         });
 
   }
+
+  @Test
+  public void sendOptionsCloseOutEmailsIfRequired_whenWorkCompletedAsPerOptions_noEmailsSent() {
+    when(padOptionConfirmedService.getConfirmedOptionType(pwaApplicationDetail))
+        .thenReturn(Optional.of(ConfirmedOptionType.WORK_COMPLETE_AS_PER_OPTIONS));
+
+    optionsCaseManagementEmailService.sendOptionsCloseOutEmailsIfRequired(pwaApplicationDetail, caseOfficerPerson);
+
+    verify(notifyService, never()).sendEmail(optionsVariationClosedWithoutConsentEmailPropsArgumentCaptor.capture(), any());
+
+    var emailProps = optionsVariationClosedWithoutConsentEmailPropsArgumentCaptor.getAllValues();
+
+    assertThat(emailProps).isEmpty();
+  }
+
+  @Test
+  public void sendOptionsCloseOutEmailsIfRequired_whenPwaContactsFound_emailsSentSuccessfully() {
+    when(padOptionConfirmedService.getConfirmedOptionType(pwaApplicationDetail))
+        .thenReturn(Optional.of(ConfirmedOptionType.NO_WORK_DONE));
+
+    optionsCaseManagementEmailService.sendOptionsCloseOutEmailsIfRequired(pwaApplicationDetail, caseOfficerPerson);
+
+    verify(notifyService).sendEmail(optionsVariationClosedWithoutConsentEmailPropsArgumentCaptor.capture(),
+        eq(preparerContactPerson.getEmailAddress()));
+
+    var emailProps = optionsVariationClosedWithoutConsentEmailPropsArgumentCaptor.getAllValues();
+
+    assertThat(emailProps)
+        .isNotEmpty()
+        .allSatisfy(optionsVariationClosedWithoutConsentEmailProps -> {
+          assertThat(optionsVariationClosedWithoutConsentEmailProps.getEmailPersonalisation()).containsEntry(
+              "CONFIRMED_OPTION_TYPE", ConfirmedOptionType.NO_WORK_DONE.getDisplayName());
+          assertThat(optionsVariationClosedWithoutConsentEmailProps.getEmailPersonalisation()).containsEntry(
+              "APPLICATION_REFERENCE", pwaApplicationDetail.getPwaApplicationRef());
+          assertThat(optionsVariationClosedWithoutConsentEmailProps.getEmailPersonalisation()).containsEntry(
+              "CLOSING_PERSON_NAME", caseOfficerPerson.getFullName());
+          assertThat(optionsVariationClosedWithoutConsentEmailProps.getEmailPersonalisation()).containsEntry(
+              "CASE_MANAGEMENT_LINK", CASE_LINK);
+        });
+  }
+
 }

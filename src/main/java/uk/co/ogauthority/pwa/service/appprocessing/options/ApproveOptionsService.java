@@ -117,7 +117,7 @@ public class ApproveOptionsService {
 
     optionsCaseManagementWorkflowService.doCloseOutWork(pwaApplicationDetail, closingUser);
 
-    optionsCaseManagementEmailService.sendOptionsCloseOutEmails(pwaApplicationDetail.getPwaApplication());
+    optionsCaseManagementEmailService.sendOptionsCloseOutEmailsIfRequired(pwaApplicationDetail, closingUser.getLinkedPerson());
 
   }
 

@@ -298,7 +298,7 @@ public class ApproveOptionsServiceTest {
    verifyOrder.verify(optionsCaseManagementWorkflowService, times(1))
        .doCloseOutWork(pwaApplicationDetail, user);
    verifyOrder.verify(optionsCaseManagementEmailService, times(1))
-       .sendOptionsCloseOutEmails(pwaApplicationDetail.getPwaApplication());
+       .sendOptionsCloseOutEmailsIfRequired(pwaApplicationDetail, user.getLinkedPerson());
 
     verifyOrder.verifyNoMoreInteractions();
 

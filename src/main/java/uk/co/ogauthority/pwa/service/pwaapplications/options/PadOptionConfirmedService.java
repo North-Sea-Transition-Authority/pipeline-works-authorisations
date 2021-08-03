@@ -33,8 +33,10 @@ public class PadOptionConfirmedService {
   }
 
   public Optional<ConfirmedOptionType> getConfirmedOptionType(PwaApplicationDetail pwaApplicationDetail) {
-    return padConfirmationOfOptionRepository.findByPwaApplicationDetail(pwaApplicationDetail)
-        .map(PadConfirmationOfOption::getConfirmedOptionType);
+    return pwaApplicationDetail.getPwaApplicationType() == PwaApplicationType.OPTIONS_VARIATION
+        ? padConfirmationOfOptionRepository.findByPwaApplicationDetail(pwaApplicationDetail)
+            .map(PadConfirmationOfOption::getConfirmedOptionType)
+        : Optional.empty();
   }
 
 }

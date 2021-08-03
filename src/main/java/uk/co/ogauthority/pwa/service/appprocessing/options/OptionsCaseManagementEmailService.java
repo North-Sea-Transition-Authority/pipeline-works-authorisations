@@ -10,9 +10,12 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
+import uk.co.ogauthority.pwa.model.entity.enums.ConfirmedOptionType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.notify.emailproperties.applicationworkflow.OptionsVariationClosedWithoutConsentEmailProps;
 import uk.co.ogauthority.pwa.model.notify.emailproperties.optionsapplications.ApplicationOptionsApprovalDeadlineChangedEmailProps;
 import uk.co.ogauthority.pwa.model.notify.emailproperties.optionsapplications.ApplicationOptionsApprovedEmailProps;
 import uk.co.ogauthority.pwa.service.appprocessing.ApplicationInvolvementService;
@@ -20,6 +23,7 @@ import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 import uk.co.ogauthority.pwa.service.notify.EmailCaseLinkService;
 import uk.co.ogauthority.pwa.service.notify.NotifyService;
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
+import uk.co.ogauthority.pwa.service.pwaapplications.options.PadOptionConfirmedService;
 import uk.co.ogauthority.pwa.service.pwaconsents.PwaConsentOrganisationRoleService;
 import uk.co.ogauthority.pwa.util.DateUtils;
 
@@ -40,16 +44,20 @@ class OptionsCaseManagementEmailService {
 
   private final ApplicationInvolvementService applicationInvolvementService;
 
+  private final PadOptionConfirmedService padOptionConfirmedService;
+
   public OptionsCaseManagementEmailService(EmailCaseLinkService emailCaseLinkService,
                                            NotifyService notifyService,
                                            PwaContactService pwaContactService,
                                            PwaConsentOrganisationRoleService pwaConsentOrganisationRoleService,
-                                           ApplicationInvolvementService applicationInvolvementService) {
+                                           ApplicationInvolvementService applicationInvolvementService,
+                                           PadOptionConfirmedService padOptionConfirmedService) {
     this.emailCaseLinkService = emailCaseLinkService;
     this.notifyService = notifyService;
     this.pwaContactService = pwaContactService;
     this.pwaConsentOrganisationRoleService = pwaConsentOrganisationRoleService;
     this.applicationInvolvementService = applicationInvolvementService;
+    this.padOptionConfirmedService = padOptionConfirmedService;
   }
 
   public void sendInitialOptionsApprovedEmail(PwaApplicationDetail pwaApplicationDetail, Instant deadlineDate) {
@@ -141,9 +149,33 @@ class OptionsCaseManagementEmailService {
 
   }
 
+  public void sendOptionsCloseOutEmailsIfRequired(PwaApplicationDetail pwaApplicationDetail, Person closingPerson) {
+    var confirmedOptionTypeOptional = padOptionConfirmedService.getConfirmedOptionType(pwaApplicationDetail);
+    confirmedOptionTypeOptional.ifPresent(confirmedOptionType -> {
+      if (confirmedOptionType == ConfirmedOptionType.WORK_DONE_BUT_NOT_PRESENTED_AS_OPTION
+          || confirmedOptionType == ConfirmedOptionType.NO_WORK_DONE) {
+        generateOptionsCloseOutEmailPropsAndSendEmails(pwaApplicationDetail.getPwaApplication(), confirmedOptionType, closingPerson);
+      }
+    });
+  }
 
-  public void sendOptionsCloseOutEmails(PwaApplication pwaApplication){
-    // TODO PWA-1025 fill this in
+  private void generateOptionsCloseOutEmailPropsAndSendEmails(PwaApplication pwaApplication,
+                                                              ConfirmedOptionType confirmedOptionType,
+                                                              Person closingPerson) {
+    var emailRecipients = pwaContactService.getPeopleInRoleForPwaApplication(
+        pwaApplication,
+        PwaContactRole.PREPARER
+    );
+    emailRecipients.forEach(recipient -> {
+      var emailProps = new OptionsVariationClosedWithoutConsentEmailProps(
+          recipient.getFullName(),
+          pwaApplication.getAppReference(),
+          confirmedOptionType,
+          closingPerson.getFullName(),
+          emailCaseLinkService.generateCaseManagementLink(pwaApplication)
+      );
+      notifyService.sendEmail(emailProps, recipient.getEmailAddress());
+    });
   }
 
 }
