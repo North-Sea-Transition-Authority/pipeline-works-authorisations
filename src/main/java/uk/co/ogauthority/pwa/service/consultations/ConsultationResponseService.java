@@ -21,6 +21,8 @@ import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationResponseData
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.form.consultation.ConsultationResponseForm;
 import uk.co.ogauthority.pwa.model.form.enums.ConsultationResponseOption;
+import uk.co.ogauthority.pwa.model.notify.emailproperties.EmailProperties;
+import uk.co.ogauthority.pwa.model.notify.emailproperties.consultations.ConsultationMultiResponseReceivedEmailProps;
 import uk.co.ogauthority.pwa.model.notify.emailproperties.consultations.ConsultationResponseReceivedEmailProps;
 import uk.co.ogauthority.pwa.model.tasklist.TaskListEntry;
 import uk.co.ogauthority.pwa.model.tasklist.TaskTag;
@@ -143,14 +145,34 @@ public class ConsultationResponseService implements AppProcessingService {
 
     String consulteeGroupName = tipGroupDetail.getName();
 
-    var emailProps = new ConsultationResponseReceivedEmailProps(
-        caseOfficerName,
-        application.getAppReference(),
-        consulteeGroupName,
-        "",
-        // responseData.getResponseType().getLabelText(), // todo PWA-1359 emails
-        emailCaseLinkService.generateCaseManagementLink(application)
-    );
+    EmailProperties emailProps;
+    if (responseDataList.size() > 1) {
+
+      var responses = responseDataList.stream()
+          .map(d -> String.format("%s\n\n%s",
+              d.getResponseGroup().getResponseLabel(),
+              d.getResponseType().getRadioInsetText(application.getAppReference())))
+          .collect(Collectors.joining("\n\n"));
+
+      emailProps = new ConsultationMultiResponseReceivedEmailProps(
+          caseOfficerName,
+          application.getAppReference(),
+          consulteeGroupName,
+          responses,
+          emailCaseLinkService.generateCaseManagementLink(application)
+      );
+
+    } else {
+
+      emailProps = new ConsultationResponseReceivedEmailProps(
+          caseOfficerName,
+          application.getAppReference(),
+          consulteeGroupName,
+          responseDataList.get(0).getResponseType().getLabelText(),
+          emailCaseLinkService.generateCaseManagementLink(application)
+      );
+
+    }
 
     notifyService.sendEmail(emailProps, caseOfficerEmail);
 

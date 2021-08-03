@@ -35,7 +35,7 @@ public enum ConsultationResponseOption {
       "Agree",
       "Provide consent conditions if they apply",
       "Consent conditions",
-      "Consent conditions under EIA regulations",
+      "EIA consent conditions",
       "Pursuant to the Offshore Oil and Gas Exploration, Production, Unloading and Storage " +
           "(Environmental Impact Assessment) Regulations 2020 , the Offshore Petroleum Regulator for " +
           "Environment and Decommissioning, acting on behalf of the Secretary of State for Business, " +
@@ -47,7 +47,7 @@ public enum ConsultationResponseOption {
       "Do not agree",
       "Why do you not agree to this application?",
       "Reasons for disagreement",
-      "Reasons for disagreement under EIA regulations",
+      "Why does not agree under EIA regulations",
       "Pursuant to the Offshore Oil and Gas Exploration, Production, Unloading and Storage (Environmental " +
           "Impact Assessment) Regulations 2020 , the Offshore Petroleum Regulator for Environment and " +
           "Decommissioning, acting on behalf of the Secretary of State for Business, Energy and Industrial " +
@@ -58,7 +58,7 @@ public enum ConsultationResponseOption {
       "Agreement to consent not required under the EIA regulations",
       "Why is agreement not required under the EIA regulations?",
       "Reasons for agreement not required",
-      "Reasons for agreement not required under EIA regulations",
+      "Why not required under EIA regulations",
       "Pursuant to the Offshore Oil and Gas Exploration, Production, Unloading and Storage (Environmental " +
           "Impact Assessment) Regulations 2020 , the Offshore Petroleum Regulator for Environment and " +
           "Decommissioning, acting on behalf of the Secretary of State for Business, Energy and Industrial " +
@@ -70,7 +70,7 @@ public enum ConsultationResponseOption {
       "Agree",
       "Provide consent conditions if they apply",
       "Consent conditions",
-      "Consent conditions under Habitats regulations",
+      "Habitats consent conditions",
       "Pursuant to the Offshore Petroleum Activities (Conservation of Habitats) Regulations 2001 (as amended), " +
           "the Offshore Petroleum Regulator for Environment and Decommissioning, acting on behalf of the Secretary " +
           "of State for Business, Energy and Industrial Strategy, agrees to the OGA’s grant of consent for the " +
@@ -81,7 +81,7 @@ public enum ConsultationResponseOption {
       "Do not agree",
       "Why do you not agree to this application?",
       "Reasons for disagreement",
-      "Reasons for disagreement under Habitats regulations",
+      "Why does not agree under Habitats regulations",
       "Pursuant to the Offshore Petroleum Activities (Conservation of Habitats) Regulations 2001 (as amended), " +
           "the Offshore Petroleum Regulator for Environment and Decommissioning, acting on behalf of the Secretary " +
           "of State for Business, Energy and Industrial Strategy, does not agree to the OGA’s grant of consent for " +
@@ -92,7 +92,7 @@ public enum ConsultationResponseOption {
       "Agreement to consent not required under the Habitats regulations",
       "Why is agreement not required under the Habitats regulations?",
       "Reasons for agreement not required",
-      "Reasons for agreement not required under Habitats regulations",
+      "Why not required under Habitats regulations",
       "Pursuant to the Offshore Petroleum Activities (Conservation of Habitats) Regulations 2001 (as amended), the " +
           "Offshore Petroleum Regulator for Environment and Decommissioning, acting on behalf of the Secretary of " +
           "State for Business, Energy and Industrial Strategy, does not consider that the Secretary of State’s " +

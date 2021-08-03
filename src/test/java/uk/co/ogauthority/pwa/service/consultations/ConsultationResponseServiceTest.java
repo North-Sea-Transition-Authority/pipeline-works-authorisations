@@ -37,6 +37,7 @@ import uk.co.ogauthority.pwa.model.form.consultation.ConsultationResponseDataFor
 import uk.co.ogauthority.pwa.model.form.consultation.ConsultationResponseForm;
 import uk.co.ogauthority.pwa.model.form.enums.ConsultationResponseOption;
 import uk.co.ogauthority.pwa.model.form.enums.ConsultationResponseOptionGroup;
+import uk.co.ogauthority.pwa.model.notify.emailproperties.consultations.ConsultationMultiResponseReceivedEmailProps;
 import uk.co.ogauthority.pwa.model.notify.emailproperties.consultations.ConsultationResponseReceivedEmailProps;
 import uk.co.ogauthority.pwa.model.tasklist.TaskTag;
 import uk.co.ogauthority.pwa.repository.consultations.ConsultationResponseRepository;
@@ -56,7 +57,6 @@ import uk.co.ogauthority.pwa.service.workflow.task.WorkflowTaskInstance;
 import uk.co.ogauthority.pwa.testutils.ConsulteeGroupTestingUtils;
 import uk.co.ogauthority.pwa.testutils.PwaAppProcessingContextDtoTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
-
 
 @RunWith(MockitoJUnitRunner.class)
 public class ConsultationResponseServiceTest {
@@ -91,7 +91,10 @@ public class ConsultationResponseServiceTest {
   private ArgumentCaptor<ConsultationResponse> responseCaptor;
 
   @Captor
-  private ArgumentCaptor<ConsultationResponseReceivedEmailProps> responseEmailPropsCaptor;
+  private ArgumentCaptor<ConsultationResponseReceivedEmailProps> singleResponseEmailPropsCaptor;
+
+  @Captor
+  private ArgumentCaptor<ConsultationMultiResponseReceivedEmailProps> multiResponseEmailPropsCaptor;
 
   private Clock clock;
 
@@ -131,11 +134,11 @@ public class ConsultationResponseServiceTest {
   }
 
   @Test
-  public void saveResponseAndCompleteWorkflow_confirmed_confirmedDescriptionNotProvided_caseOfficerAssigned() {
+  public void saveResponseAndCompleteWorkflow_confirmed_confirmedDescriptionNotProvided_caseOfficerAssigned_singleResponseEmailSent() {
 
     ConsultationRequest consultationRequest = buildConsultationRequest();
 
-    var dataForm = buildDataForm();
+    var dataForm = buildDataForm(ConsultationResponseOptionGroup.CONTENT);
 
     var form = new ConsultationResponseForm();
     form.setResponseDataForms(Map.of(ConsultationResponseOptionGroup.CONTENT, dataForm));
@@ -144,6 +147,10 @@ public class ConsultationResponseServiceTest {
 
     var response = new ConsultationResponse();
     when(consultationResponseRepository.save(any())).thenReturn(response);
+
+    var data = new ConsultationResponseData();
+    data.setResponseType(ConsultationResponseOption.CONFIRMED);
+    when(consultationResponseDataService.createAndSaveResponseData(any(), any())).thenReturn(List.of(data));
 
     consultationResponseService.saveResponseAndCompleteWorkflow(form, consultationRequest, user);
 
@@ -159,25 +166,87 @@ public class ConsultationResponseServiceTest {
 
     verify(consultationResponseDataService, times(1)).createAndSaveResponseData(response, form);
 
-    verify(notifyService, times(1)).sendEmail(responseEmailPropsCaptor.capture(), eq(caseOfficerPerson.getEmailAddress()));
+    verify(notifyService, times(1)).sendEmail(singleResponseEmailPropsCaptor.capture(), eq(caseOfficerPerson.getEmailAddress()));
 
-    var props = responseEmailPropsCaptor.getValue();
+    var props = singleResponseEmailPropsCaptor.getValue();
 
     assertThat(props.getEmailPersonalisation().entrySet())
         .extracting(Map.Entry::getKey, Map.Entry::getValue)
         .contains(
             tuple("APPLICATION_REFERENCE", application.getAppReference()),
             tuple("CONSULTEE_GROUP", groupDetail.getName()),
-            tuple("CONSULTATION_RESPONSE", ""), // todo pwa-1405 fix emails response.getResponseType().getLabelText()
+            tuple("CONSULTATION_RESPONSE", data.getResponseType().getLabelText()),
             tuple("CASE_MANAGEMENT_LINK", "http://case-link"),
             tuple("RECIPIENT_FULL_NAME", caseOfficerPerson.getFullName())
         );
 
   }
 
-  private ConsultationResponseDataForm buildDataForm() {
+  @Test
+  public void saveResponseAndCompleteWorkflow_multiResponse_caseOfficerAssigned_multiResponseEmailSent() {
+
+    ConsultationRequest consultationRequest = buildConsultationRequest();
+
+    var eiaDataForm = buildDataForm(ConsultationResponseOptionGroup.EIA_REGS);
+    var habitatsDataForm = buildDataForm(ConsultationResponseOptionGroup.HABITATS_REGS);
+
+    var form = new ConsultationResponseForm();
+    form.setResponseDataForms(Map.of(
+        ConsultationResponseOptionGroup.EIA_REGS, eiaDataForm,
+        ConsultationResponseOptionGroup.HABITATS_REGS, habitatsDataForm
+    ));
+
+    var user = new WebUserAccount(1, new Person(1, null, null, null, null));
+
+    var response = new ConsultationResponse();
+    when(consultationResponseRepository.save(any())).thenReturn(response);
+
+    var eiaData = new ConsultationResponseData();
+    eiaData.setResponseGroup(ConsultationResponseOptionGroup.EIA_REGS);
+    eiaData.setResponseType(ConsultationResponseOption.EIA_AGREE);
+    var habitatsData = new ConsultationResponseData();
+    habitatsData.setResponseGroup(ConsultationResponseOptionGroup.HABITATS_REGS);
+    habitatsData.setResponseType(ConsultationResponseOption.HABITATS_AGREE);
+    when(consultationResponseDataService.createAndSaveResponseData(any(), any())).thenReturn(List.of(eiaData, habitatsData));
+
+    consultationResponseService.saveResponseAndCompleteWorkflow(form, consultationRequest, user);
+
+    verify(camundaWorkflowService, times(1)).completeTask(new WorkflowTaskInstance(consultationRequest, PwaApplicationConsultationWorkflowTask.RESPONSE));
+    verify(consultationResponseRepository, times(1)).save(responseCaptor.capture());
+    verify(consultationRequestService, times(1)).saveConsultationRequest(consultationRequest);
+    assertThat(consultationRequest.getStatus()).isEqualTo(ConsultationRequestStatus.RESPONDED);
+
+    var responseValue = responseCaptor.getValue();
+    assertThat(responseValue.getConsultationRequest()).isEqualTo(consultationRequest);
+    assertThat(responseValue.getResponseTimestamp()).isEqualTo(Instant.now(clock));
+    assertThat(responseValue.getRespondingPersonId()).isEqualTo(1);
+
+    verify(consultationResponseDataService, times(1)).createAndSaveResponseData(response, form);
+
+    verify(notifyService, times(1)).sendEmail(multiResponseEmailPropsCaptor.capture(), eq(caseOfficerPerson.getEmailAddress()));
+
+    var props = multiResponseEmailPropsCaptor.getValue();
+
+    assertThat(props.getEmailPersonalisation().entrySet())
+        .extracting(Map.Entry::getKey, Map.Entry::getValue)
+        .contains(
+            tuple("APPLICATION_REFERENCE", application.getAppReference()),
+            tuple("CONSULTEE_GROUP", groupDetail.getName()),
+            tuple("CASE_MANAGEMENT_LINK", "http://case-link"),
+            tuple("RECIPIENT_FULL_NAME", caseOfficerPerson.getFullName())
+        );
+
+    assertThat(props.getEmailPersonalisation().get("CONSULTATION_RESPONSES"))
+        .contains(eiaData.getResponseGroup().getResponseLabel())
+        .contains(eiaData.getResponseType().getRadioInsetText(application.getAppReference()))
+        .contains(habitatsData.getResponseGroup().getResponseLabel())
+        .contains(habitatsData.getResponseType().getRadioInsetText(application.getAppReference()));
+
+  }
+
+  private ConsultationResponseDataForm buildDataForm(ConsultationResponseOptionGroup responseGroup) {
     var dataForm = new ConsultationResponseDataForm();
-    dataForm.setConsultationResponseOption(ConsultationResponseOption.CONFIRMED);
+    dataForm.setConsultationResponseOption(responseGroup.getResponseOptionNumber(1).orElseThrow());
     return dataForm;
   }
 
@@ -186,7 +255,7 @@ public class ConsultationResponseServiceTest {
 
     ConsultationRequest consultationRequest = buildConsultationRequest();
 
-    var dataForm = buildDataForm();
+    var dataForm = buildDataForm(ConsultationResponseOptionGroup.CONTENT);
 
     var form = new ConsultationResponseForm();
     form.setResponseDataForms(Map.of(ConsultationResponseOptionGroup.CONTENT, dataForm));
