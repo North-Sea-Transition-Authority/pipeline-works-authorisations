@@ -18,7 +18,7 @@ import uk.co.ogauthority.pwa.service.testharness.TestHarnessAppFormServiceParams
 import uk.co.ogauthority.pwa.service.testharness.filehelper.TestHarnessFileService;
 
 @Service
-@Profile("development")
+@Profile("test-harness")
 class PipelineSchematicsGeneratorService implements TestHarnessAppFormService {
 
   private final PadTechnicalDrawingService padTechnicalDrawingService;

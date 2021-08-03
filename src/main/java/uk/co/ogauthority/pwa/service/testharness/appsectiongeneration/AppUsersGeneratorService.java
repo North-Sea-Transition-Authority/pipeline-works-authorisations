@@ -9,7 +9,7 @@ import uk.co.ogauthority.pwa.service.testharness.TestHarnessAppFormService;
 import uk.co.ogauthority.pwa.service.testharness.TestHarnessAppFormServiceParams;
 
 @Service
-@Profile("development")
+@Profile("test-harness")
 class AppUsersGeneratorService implements TestHarnessAppFormService {
 
   private static final ApplicationTask linkedAppFormTask = ApplicationTask.APPLICATION_USERS;

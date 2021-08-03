@@ -17,7 +17,7 @@ import uk.co.ogauthority.pwa.service.testharness.TestHarnessAppFormServiceParams
 import uk.co.ogauthority.pwa.service.testharness.filehelper.TestHarnessFileService;
 
 @Service
-@Profile("development")
+@Profile("test-harness")
 class ProjectInformationGeneratorService implements TestHarnessAppFormService {
 
   private final PadProjectInformationService padProjectInformationService;
@@ -57,7 +57,7 @@ class ProjectInformationGeneratorService implements TestHarnessAppFormService {
         pwaApplicationDetail.getPwaApplicationType());
 
     if (requiredQuestions.contains(ProjectInformationQuestion.PROJECT_NAME)) {
-      form.setProjectName("My test project nName");
+      form.setProjectName("My test project name");
     }
 
     var proposedStartDate = LocalDate.now();

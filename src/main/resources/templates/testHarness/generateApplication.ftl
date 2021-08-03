@@ -1,5 +1,7 @@
 <#-- @ftlvariable name="errorList" type="java.util.Map<java.lang.String,java.util.List<java.lang.String,java.lang.String>>" -->
 <#-- @ftlvariable name="applicationTypeMap" type="java.util.Map<java.lang.String,java.util.List<java.lang.String,java.lang.String>>" -->
+<#-- @ftlvariable name="appTypesForPipelines" type="java.lang.String" -->
+
 
 
 <#include '../layout.ftl'>
@@ -18,7 +20,7 @@
 
         <@fdsSearchSelector.searchSelectorEnhanced path="form.applicationStatus" labelText="Select an application status" options=applicationStatusMap labelHeadingClass="govuk-label--l" />
         
-        <@fdsTextInput.textInput path="form.pipelineQuantity" labelText="How many pipelines do you want to create?" inputClass="govuk-input--width-10"/>
+        <@fdsTextInput.textInput path="form.pipelineQuantity" labelText="How many pipelines do you want to create?" hintText="Only required for: ${appTypesForPipelines}" inputClass="govuk-input--width-10"/>
         
         <@fdsSearchSelector.searchSelectorEnhanced path="form.assignedCaseOfficerId" options=caseOfficerCandidates labelText="Select a case officer" />
         

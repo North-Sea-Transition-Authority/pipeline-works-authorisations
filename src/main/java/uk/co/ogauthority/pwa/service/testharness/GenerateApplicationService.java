@@ -14,18 +14,22 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
+import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTask;
+import uk.co.ogauthority.pwa.service.pickpwa.PickedPwaRetrievalService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskListService;
 import uk.co.ogauthority.pwa.service.pwaapplications.workflow.PwaApplicationCreationService;
 
 @Service
-@Profile("development")
+@Profile("test-harness")
 class GenerateApplicationService {
 
   private final PwaApplicationCreationService pwaApplicationCreationService;
   private final TestHarnessUserRetrievalService testHarnessUserRetrievalService;
   private final TaskListService taskListService;
+  private final PickedPwaRetrievalService pickedPwaRetrievalService;
   private final Map<ApplicationTask, TestHarnessAppFormService> appTaskAndGeneratorServiceMap;
 
   private static final Logger LOGGER = LoggerFactory.getLogger(GenerateApplicationService.class);
@@ -36,10 +40,12 @@ class GenerateApplicationService {
       PwaApplicationCreationService pwaApplicationCreationService,
       TestHarnessUserRetrievalService testHarnessUserRetrievalService,
       TaskListService taskListService,
+      PickedPwaRetrievalService pickedPwaRetrievalService,
       List<TestHarnessAppFormService> appFormServices) {
     this.pwaApplicationCreationService = pwaApplicationCreationService;
     this.testHarnessUserRetrievalService = testHarnessUserRetrievalService;
     this.taskListService = taskListService;
+    this.pickedPwaRetrievalService = pickedPwaRetrievalService;
 
     this.appTaskAndGeneratorServiceMap = appFormServices.stream()
         .collect(Collectors.toMap(TestHarnessAppFormService::getLinkedAppFormTask, Function.identity()));
@@ -51,7 +57,36 @@ class GenerateApplicationService {
     var user = testHarnessUserRetrievalService.getWebUserAccount(applicantPersonId);
     var pwaApplicationDetail = pwaApplicationCreationService.createInitialPwaApplication(user);
 
-    LOGGER.info("Application detail created with id: {} and app ref: {}",
+    setupAndRunAppTasks(pwaApplicationDetail, user, pipelineQuantity);
+    return pwaApplicationDetail;
+  }
+
+
+  PwaApplicationDetail generateVariationPwaApplication(PwaApplicationType pwaApplicationType,
+                                                       Integer consentedMasterPwaId,
+                                                       Integer nonConsentedMasterPwaId,
+                                                       Integer pipelineQuantity,
+                                                       Integer applicantPersonId) {
+
+    var user = testHarnessUserRetrievalService.getWebUserAccount(applicantPersonId);
+    var pickedMasterPwaId = consentedMasterPwaId != null ? consentedMasterPwaId : nonConsentedMasterPwaId;
+    var pickedPwa = pickedPwaRetrievalService.getPickedConsentedPwa(pickedMasterPwaId, user);
+
+    var pwaApplicationDetail = pwaApplicationCreationService.createVariationPwaApplication(
+        user,
+        pickedPwa,
+        pwaApplicationType);
+
+    setupAndRunAppTasks(pwaApplicationDetail, user, pipelineQuantity);
+    return pwaApplicationDetail;
+  }
+
+  private void setupAndRunAppTasks(PwaApplicationDetail pwaApplicationDetail,
+                                   WebUserAccount user,
+                                   Integer pipelineQuantity) {
+
+    LOGGER.info("{} application detail created with id: {} and app ref: {}",
+        pwaApplicationDetail.getPwaApplicationType().getDisplayName(),
         pwaApplicationDetail.getId(), pwaApplicationDetail.getPwaApplicationRef());
 
     var appFormServiceParams = new TestHarnessAppFormServiceParams(user, pwaApplicationDetail, pipelineQuantity);
@@ -65,9 +100,7 @@ class GenerateApplicationService {
     generateAppTasks(uncompletedAppTasks, appFormServiceParams);
 
     LOGGER.info("App form sections generated successfully for detail with id: {}", pwaApplicationDetail.getId());
-    return pwaApplicationDetail;
   }
-
 
   private void generateAppTasks(Collection<ApplicationTask> applicationTasks, TestHarnessAppFormServiceParams appFormServiceParams) {
     applicationTasks.stream().sorted(Comparator.comparing(ApplicationTask::getDisplayOrder))
@@ -76,6 +109,9 @@ class GenerateApplicationService {
           appTaskAndGeneratorServiceMap.get(requiredTask).generateAppFormData(appFormServiceParams);
         });
   }
+
+
+
 
 
 

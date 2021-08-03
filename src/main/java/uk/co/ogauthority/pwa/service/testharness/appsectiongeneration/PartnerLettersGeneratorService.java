@@ -12,7 +12,7 @@ import uk.co.ogauthority.pwa.service.testharness.TestHarnessAppFormServiceParams
 import uk.co.ogauthority.pwa.service.testharness.filehelper.TestHarnessFileService;
 
 @Service
-@Profile("development")
+@Profile("test-harness")
 class PartnerLettersGeneratorService implements TestHarnessAppFormService {
 
   private final PadPartnerLettersService padPartnerLettersService;

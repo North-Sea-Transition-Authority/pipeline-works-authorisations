@@ -10,7 +10,7 @@ import uk.co.ogauthority.pwa.service.testharness.TestHarnessAppFormService;
 import uk.co.ogauthority.pwa.service.testharness.TestHarnessAppFormServiceParams;
 
 @Service
-@Profile("development")
+@Profile("test-harness")
 class FastTrackGeneratorService implements TestHarnessAppFormService {
 
   private final PadFastTrackService padFastTrackService;

@@ -2,7 +2,9 @@ package uk.co.ogauthority.pwa.service.testharness.appsectiongeneration;
 
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
+import org.apache.commons.collections4.SetUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
@@ -11,6 +13,8 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrgan
 import uk.co.ogauthority.pwa.energyportal.service.organisations.PortalOrganisationsAccessor;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooType;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.huoo.PadOrganisationRole;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.huoo.HuooForm;
 import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
 import uk.co.ogauthority.pwa.model.teams.PwaOrganisationTeam;
@@ -21,7 +25,7 @@ import uk.co.ogauthority.pwa.service.testharness.TestHarnessAppFormService;
 import uk.co.ogauthority.pwa.service.testharness.TestHarnessAppFormServiceParams;
 
 @Service
-@Profile("development")
+@Profile("test-harness")
 class PadHuooGeneratorService implements TestHarnessAppFormService {
 
 
@@ -58,13 +62,24 @@ class PadHuooGeneratorService implements TestHarnessAppFormService {
         .findFirst().orElseThrow(() -> new IllegalStateException(String.format(
             "User with WUA ID: %s does not have access to any organisation units", appFormServiceParams.getUser().getWuaId())));
 
-    var form = createForm(orgUnit);
-    padOrganisationRoleService.saveEntityUsingForm(appFormServiceParams.getApplicationDetail(), form);
+    var huooRolesToAdd = getHuooRolesToAdd(appFormServiceParams.getApplicationDetail());
+    if (!huooRolesToAdd.isEmpty()) {
+      var form = createForm(orgUnit, huooRolesToAdd);
+      padOrganisationRoleService.saveEntityUsingForm(appFormServiceParams.getApplicationDetail(), form);
+    }
+
   }
 
-  private HuooForm createForm(PortalOrganisationUnit portalOrganisationUnit) {
+  private Set<HuooRole> getHuooRolesToAdd(PwaApplicationDetail detail) {
+    var existingHuooRolesOnApp = padOrganisationRoleService.getOrgRolesForDetail(detail)
+        .stream().map(PadOrganisationRole::getRole).collect(Collectors.toSet());
+    return SetUtils.difference(EnumSet.allOf(HuooRole.class), existingHuooRolesOnApp);
+  }
+
+
+  private HuooForm createForm(PortalOrganisationUnit portalOrganisationUnit, Set<HuooRole> huooRoles) {
     var form = new HuooForm();
-    form.setHuooRoles(EnumSet.allOf(HuooRole.class));
+    form.setHuooRoles(huooRoles);
     form.setHuooType(HuooType.PORTAL_ORG);
     form.setOrganisationUnitId(portalOrganisationUnit.getOuId());
     return form;

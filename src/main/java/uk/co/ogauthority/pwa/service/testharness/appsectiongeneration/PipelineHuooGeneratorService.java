@@ -15,7 +15,7 @@ import uk.co.ogauthority.pwa.service.testharness.TestHarnessAppFormService;
 import uk.co.ogauthority.pwa.service.testharness.TestHarnessAppFormServiceParams;
 
 @Service
-@Profile("development")
+@Profile("test-harness")
 class PipelineHuooGeneratorService implements TestHarnessAppFormService {
 
   private final PadPipelinesHuooService padPipelinesHuooService;

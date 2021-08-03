@@ -2,7 +2,6 @@ package uk.co.ogauthority.pwa.service.testharness.appsectiongeneration;
 
 import java.math.BigDecimal;
 import java.util.EnumMap;
-import java.util.HashMap;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
@@ -18,7 +17,7 @@ import uk.co.ogauthority.pwa.service.testharness.TestHarnessAppFormService;
 import uk.co.ogauthority.pwa.service.testharness.TestHarnessAppFormServiceParams;
 
 @Service
-@Profile("development")
+@Profile("test-harness")
 class FluidCompositionGeneratorService implements TestHarnessAppFormService {
 
   private final PadFluidCompositionInfoService padFluidCompositionService;
