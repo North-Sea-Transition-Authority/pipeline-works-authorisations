@@ -16,24 +16,27 @@ import uk.co.ogauthority.pwa.service.appprocessing.initialreview.InitialReviewPa
 public class TestHarnessAppProcessingProperties {
 
   private final AuthenticatedUserAccount applicantAua;
-  private final PwaAppProcessingContext applicantProcessingContext;
+  private PwaAppProcessingContext applicantProcessingContext;
   private final AuthenticatedUserAccount caseOfficerAua;
   private PwaAppProcessingContext caseOfficerProcessingContext;
   private final AuthenticatedUserAccount pwaManagerAua;
 
   private final InitialReviewPaymentDecision initialReviewPaymentDecision;
+  private final Integer pipelineQuantity;
 
   public TestHarnessAppProcessingProperties(AuthenticatedUserAccount applicantAua,
                                             PwaAppProcessingContext applicantProcessingContext,
                                             AuthenticatedUserAccount caseOfficerAua,
                                             AuthenticatedUserAccount pwaManagerAua,
-                                            InitialReviewPaymentDecision initialReviewPaymentDecision) {
+                                            InitialReviewPaymentDecision initialReviewPaymentDecision,
+                                            Integer pipelineQuantity) {
     this.applicantAua = applicantAua;
     this.applicantProcessingContext = applicantProcessingContext;
     this.caseOfficerAua = caseOfficerAua;
     this.pwaManagerAua = pwaManagerAua;
     this.caseOfficerProcessingContext = null;
     this.initialReviewPaymentDecision = initialReviewPaymentDecision;
+    this.pipelineQuantity = pipelineQuantity;
   }
 
 
@@ -43,6 +46,11 @@ public class TestHarnessAppProcessingProperties {
 
   public PwaAppProcessingContext getApplicantProcessingContext() {
     return applicantProcessingContext;
+  }
+
+  void setApplicantProcessingContext(
+      PwaAppProcessingContext applicantProcessingContext) {
+    this.applicantProcessingContext = applicantProcessingContext;
   }
 
   public AuthenticatedUserAccount getCaseOfficerAua() {
@@ -69,6 +77,9 @@ public class TestHarnessAppProcessingProperties {
     return initialReviewPaymentDecision;
   }
 
+  public Integer getPipelineQuantity() {
+    return pipelineQuantity;
+  }
 
   public PwaApplicationDetail getPwaApplicationDetail() {
     return applicantProcessingContext.getApplicationDetail();

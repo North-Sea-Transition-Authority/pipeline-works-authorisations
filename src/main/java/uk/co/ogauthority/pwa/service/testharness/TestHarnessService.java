@@ -114,7 +114,7 @@ public class TestHarnessService {
 
     if (!PwaApplicationStatus.DRAFT.equals(targetAppStatus)) {
       testHarnessApplicationStageService.pushApplicationToTargetStage(
-          pwaApplicationDetail, targetAppStatus, applicantUser, assignedCaseOfficerId);
+          pwaApplicationDetail, targetAppStatus, applicantUser, assignedCaseOfficerId, pipelineQuantity);
     }
 
   }
