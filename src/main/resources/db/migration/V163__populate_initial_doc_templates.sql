@@ -10,6 +10,8 @@ WHEN NOT MATCHED THEN
   INSERT(text_type, text)
   VALUES (merge_data.text_type, merge_data.text);
 
+/
+
 DECLARE
   l_do_doc_creation VARCHAR2(100);
 
@@ -756,6 +758,7 @@ BEGIN
 
   COMMIT;
 END;
+/
 
 DECLARE
   l_mm_fields_count NUMBER;
