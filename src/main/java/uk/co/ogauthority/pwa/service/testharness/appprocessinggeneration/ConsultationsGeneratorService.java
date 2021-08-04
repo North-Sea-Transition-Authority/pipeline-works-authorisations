@@ -11,6 +11,7 @@ import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
 import uk.co.ogauthority.pwa.model.form.consultation.AssignResponderForm;
 import uk.co.ogauthority.pwa.model.form.consultation.ConsultationRequestForm;
+import uk.co.ogauthority.pwa.model.form.consultation.ConsultationResponseDataForm;
 import uk.co.ogauthority.pwa.model.form.consultation.ConsultationResponseForm;
 import uk.co.ogauthority.pwa.model.form.enums.ConsultationResponseOption;
 import uk.co.ogauthority.pwa.model.form.enums.ConsultationResponseOptionGroup;
@@ -122,11 +123,14 @@ class ConsultationsGeneratorService implements TestHarnessAppProcessingService {
 
   private void respondOnConsultationRequest(ConsultationRequest consultationRequest, ConsulteeGroupTeamMember consultationResponder) {
 
+    var dataForm = new ConsultationResponseDataForm();
+    dataForm.setConsultationResponseOption(ConsultationResponseOption.CONFIRMED);
+    dataForm.setOption1Description("My response description");
+    dataForm.setOption2Description("My response description");
+    dataForm.setOption3Description("My response description");
+
     var form = new ConsultationResponseForm();
-    form.setConsultationResponseOptionGroup(ConsultationResponseOptionGroup.CONTENT);
-    form.setConsultationResponseOption(ConsultationResponseOption.CONFIRMED);
-    form.setOption1Description("My response description");
-    form.setOption2Description("My response description");
+    form.setResponseDataForms(Map.of(ConsultationResponseOptionGroup.CONTENT, dataForm));
 
     consultationResponseService.saveResponseAndCompleteWorkflow(
         form, consultationRequest, testHarnessUserRetrievalService.getWebUserAccount(consultationResponder.getPerson().getId().asInt()));
