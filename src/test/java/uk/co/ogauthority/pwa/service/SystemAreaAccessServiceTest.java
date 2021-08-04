@@ -8,7 +8,7 @@ import uk.co.ogauthority.pwa.testutils.AuthTestingUtils;
 
 public class SystemAreaAccessServiceTest {
 
-  private final SystemAreaAccessService systemAreaAccessService = new SystemAreaAccessService();
+  private final SystemAreaAccessService systemAreaAccessService = new SystemAreaAccessService(true);
 
   @Test
   public void canAccessTeamManagement() {

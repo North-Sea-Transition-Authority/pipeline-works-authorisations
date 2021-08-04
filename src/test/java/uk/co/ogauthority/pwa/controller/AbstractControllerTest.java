@@ -103,7 +103,7 @@ public abstract class AbstractControllerTest {
 
     @Bean
     public SystemAreaAccessService systemAreaAccessService() {
-      return new SystemAreaAccessService();
+      return new SystemAreaAccessService(true);
     }
 
     @Bean

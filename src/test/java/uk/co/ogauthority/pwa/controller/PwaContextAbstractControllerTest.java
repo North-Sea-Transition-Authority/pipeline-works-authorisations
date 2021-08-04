@@ -124,7 +124,7 @@ public abstract class PwaContextAbstractControllerTest {
   public static class AbstractControllerTestConfiguration {
     @Bean
     public SystemAreaAccessService systemAreaAccessService() {
-      return new SystemAreaAccessService();
+      return new SystemAreaAccessService(true);
     }
 
     @Bean

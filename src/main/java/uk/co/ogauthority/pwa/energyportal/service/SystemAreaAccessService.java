@@ -2,12 +2,16 @@ package uk.co.ogauthority.pwa.energyportal.service;
 
 import java.util.EnumSet;
 import java.util.Set;
+import org.apache.commons.lang3.BooleanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 
 @Service
 public class SystemAreaAccessService {
+
 
   public final Set<PwaUserPrivilege> validWorkAreaPrivs = EnumSet.of(
       PwaUserPrivilege.PWA_WORKAREA);
@@ -21,7 +25,7 @@ public class SystemAreaAccessService {
   public final Set<PwaUserPrivilege> validApplicationSearchPrivileges = EnumSet.of(
       PwaUserPrivilege.PWA_APPLICATION_SEARCH);
 
-  public final Set<PwaUserPrivilege> validStartApplicationPrivileges = Set.of(PwaUserPrivilege.PWA_APPLICATION_CREATE);
+  public final Set<PwaUserPrivilege> validStartApplicationPrivileges;
 
   public final Set<PwaUserPrivilege> validConsentSearchPrivileges = EnumSet.of(
       PwaUserPrivilege.PWA_CONSENT_SEARCH, PwaUserPrivilege.PWA_MANAGER, PwaUserPrivilege.PWA_CASE_OFFICER,
@@ -31,6 +35,16 @@ public class SystemAreaAccessService {
 
   public final Set<PwaUserPrivilege> validCreateOrganisationTeamPrivileges = EnumSet.of(
       PwaUserPrivilege.PWA_REG_ORG_MANAGE);
+
+  @Autowired
+  public SystemAreaAccessService(@Value("${pwa.features.start-application}") Boolean allowStartApplication) {
+    if (!BooleanUtils.isTrue(allowStartApplication)) {
+      validStartApplicationPrivileges = EnumSet.noneOf(PwaUserPrivilege.class);
+    } else {
+      validStartApplicationPrivileges = EnumSet.of(PwaUserPrivilege.PWA_APPLICATION_CREATE);
+    }
+
+  }
 
   /**
    * For use in WebSecurityConfig. In other instances call canAccessTeamManagement
