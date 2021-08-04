@@ -17,6 +17,6 @@ public interface AsBuiltNotificationGroupStatusHistoryRepository extends CrudRep
       AsBuiltNotificationGroup asBuiltNotificationGroup,
       AsBuiltNotificationGroupStatus asBuiltNotificationGroupStatus);
 
-  List<AsBuiltNotificationGroupStatusHistory> findAllByEndedTimestampIsNull();
+  List<AsBuiltNotificationGroupStatusHistory> findAllByEndedTimestampIsNullAndStatusIsNot(AsBuiltNotificationGroupStatus status);
 
 }

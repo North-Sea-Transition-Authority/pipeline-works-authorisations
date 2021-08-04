@@ -76,7 +76,8 @@ class AsBuiltGroupDeadlineService {
    * to people in holder teams that are as-built submitters.
    */
   void notifyHoldersOfAsBuiltGroupDeadlines() {
-    var nonCompleteGroups = asBuiltNotificationGroupStatusService.getAllNonCompleteAsBuiltNotificationGroups();
+    var nonCompleteGroups = asBuiltNotificationGroupStatusService
+        .getAllNonCompleteAsBuiltNotificationGroups();
     notifyHoldersOfUpcomingAsBuiltGroupDeadlines(nonCompleteGroups);
     notifyHoldersOfPastAsBuiltGroupDeadlines(nonCompleteGroups);
   }
