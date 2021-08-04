@@ -67,7 +67,7 @@ WHERE status = 'FAILED'
 /
  -- find migrations where the log message contains
 SELECT mpl.*
-FROM pwa_temp.MIGRATION_PIPELINE_LOGS mpl
+FROM PWA.MIGRATION_PIPELINE_LOGS mpl
 WHERE status = 'FAILED'
 AND log_messages LIKE '%ORA-01722%'
 ORDER BY mpl.pipeline_id, mpl.pipeline_detail_id
@@ -75,8 +75,8 @@ ORDER BY mpl.pipeline_id, mpl.pipeline_detail_id
 
 -- for consents, get the associated migration log
 SELECT mpc.*, ML.LOG_MESSAGES, ML.STATUS
-FROM PWA_TEMP.MIG_PWA_CONSENTS mpc
-LEFT JOIN pwa_temp.migration_master_logs ml ON ML.MIG_MASTER_PA_ID = mpc.pa_id
+FROM PWA.MIG_PWA_CONSENTS mpc
+LEFT JOIN PWA.migration_master_logs ml ON ML.MIG_MASTER_PA_ID = mpc.pa_id
 WHERE  MPC.PAD_ID IN (:pad_id)
 
 
