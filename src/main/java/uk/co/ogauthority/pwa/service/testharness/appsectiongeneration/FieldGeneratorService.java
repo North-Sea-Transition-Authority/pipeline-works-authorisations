@@ -7,8 +7,6 @@ import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.fields.PwaFieldForm;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTask;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.fieldinformation.PadFieldService;
-import uk.co.ogauthority.pwa.service.testharness.TestHarnessAppFormService;
-import uk.co.ogauthority.pwa.service.testharness.TestHarnessAppFormServiceParams;
 
 @Service
 @Profile("test-harness")
