@@ -25,7 +25,6 @@ import uk.co.ogauthority.pwa.model.teams.PwaTeamType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.person.PersonService;
-import uk.co.ogauthority.pwa.service.testharness.applicationstage.TestHarnessApplicationStageService;
 import uk.co.ogauthority.pwa.util.StreamUtils;
 import uk.co.ogauthority.pwa.validators.testharness.GenerateApplicationValidator;
 import uk.co.ogauthority.pwa.validators.testharness.GenerateVariationApplicationValidator;

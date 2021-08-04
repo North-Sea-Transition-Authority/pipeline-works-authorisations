@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.service.testharness.appsectiongeneration;
+package uk.co.ogauthority.pwa.service.testharness;
 
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
