@@ -44,13 +44,13 @@ public class TestHarnessUserRetrievalService {
   }
 
 
-  AuthenticatedUserAccount createAuthenticatedUserAccount(Integer personId) {
+  public AuthenticatedUserAccount createAuthenticatedUserAccount(Integer personId) {
 
     var webUserAccount = getWebUserAccount(personId);
     return createAuthenticatedUserAccount(webUserAccount);
   }
 
-  AuthenticatedUserAccount createAuthenticatedUserAccount(WebUserAccount webUserAccount) {
+  public AuthenticatedUserAccount createAuthenticatedUserAccount(WebUserAccount webUserAccount) {
     var userPrivs = teamService.getAllUserPrivilegesForPerson(webUserAccount.getLinkedPerson());
     return new AuthenticatedUserAccount(webUserAccount, userPrivs);
   }
