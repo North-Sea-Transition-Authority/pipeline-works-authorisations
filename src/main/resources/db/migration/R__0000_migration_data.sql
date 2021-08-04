@@ -36,6 +36,12 @@ CREATE OR REPLACE VIEW ${datasource.user}.mig_pwa_consents AS (
    , xpad.consent_date
    , xpad.reference
    , xpad.pwa_status
+  , (
+      SELECT MIN(xph.start_date)
+      FROM decmgr.xview_pipelines_history xph
+      WHERE xph.pipe_auth_detail_id = xpad.pad_id
+    ) min_pipeline_record_start_date
+  , TO_DATE('01-01-1900', 'DD-MM-YYYY') fallback_date
   FROM decmgr.xview_pipeline_auth_details xpad
   JOIN decmgr.pipeline_authorisations pa ON xpad.pa_id = pa.id
 );
