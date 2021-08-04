@@ -16,9 +16,9 @@ import uk.co.ogauthority.pwa.service.enums.location.LatitudeDirection;
 import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
 import uk.co.ogauthority.pwa.util.CoordinateUtils;
 
-public class TestHarnessAppFormUtil {
+class TestHarnessAppFormUtil {
 
-  public static Random random = new SecureRandom();
+  private static Random random = new SecureRandom();
 
 
   private static final List<String> PIPELINE_LOCATIONS = Arrays.asList(

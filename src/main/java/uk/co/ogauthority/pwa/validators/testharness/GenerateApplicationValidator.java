@@ -1,14 +1,12 @@
 package uk.co.ogauthority.pwa.validators.testharness;
 
-import java.util.Set;
-import org.apache.commons.lang3.NotImplementedException;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import org.springframework.validation.SmartValidator;
 import org.springframework.validation.ValidationUtils;
 import uk.co.ogauthority.pwa.model.form.testharness.GenerateApplicationForm;
-import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
+import uk.co.ogauthority.pwa.service.testharness.TestHarnessService;
 
 @Service
 public class GenerateApplicationValidator implements SmartValidator {
@@ -22,9 +20,14 @@ public class GenerateApplicationValidator implements SmartValidator {
 
   @Override
   public void validate(Object target, Errors errors, Object... validationHints) {
+    validate(target, errors);
+  }
 
+
+
+  @Override
+  public void validate(Object target, Errors errors) {
     var form = (GenerateApplicationForm) target;
-    var appTypesForPipelines = (Set<PwaApplicationType>) validationHints[0];
 
     ValidationUtils.rejectIfEmptyOrWhitespace(errors, "applicationType",
         "applicationType" + FieldValidationErrorCodes.REQUIRED.getCode(), "Select an application type");
@@ -32,23 +35,18 @@ public class GenerateApplicationValidator implements SmartValidator {
     ValidationUtils.rejectIfEmptyOrWhitespace(errors, "applicationStatus",
         "applicationStatus" + FieldValidationErrorCodes.REQUIRED.getCode(), "Select an application status");
 
-    if (appTypesForPipelines.contains(form.getApplicationType())) {
+    if (TestHarnessService.getAppTypesForPipelines().contains(form.getApplicationType())) {
       ValidationUtils.rejectIfEmptyOrWhitespace(errors, "pipelineQuantity",
           "pipelineQuantity" + FieldValidationErrorCodes.REQUIRED.getCode(), "Enter a number of pipelines to generate");
     }
 
-    ValidationUtils.rejectIfEmptyOrWhitespace(errors, "assignedCaseOfficerId",
-        "assignedCaseOfficerId" + FieldValidationErrorCodes.REQUIRED.getCode(), "Select a case officer");
+    if (TestHarnessService.getAppStatusesForCaseOfficer().contains(form.getApplicationStatus())) {
+      ValidationUtils.rejectIfEmptyOrWhitespace(errors, "assignedCaseOfficerId",
+          "assignedCaseOfficerId" + FieldValidationErrorCodes.REQUIRED.getCode(), "Select a case officer");
+    }
 
     ValidationUtils.rejectIfEmptyOrWhitespace(errors, "applicantPersonId",
         "applicantPersonId" + FieldValidationErrorCodes.REQUIRED.getCode(), "Select an applicant");
-  }
-
-
-
-  @Override
-  public void validate(Object target, Errors errors) {
-    throw new NotImplementedException("Validation method with hints must be used");
   }
 
 

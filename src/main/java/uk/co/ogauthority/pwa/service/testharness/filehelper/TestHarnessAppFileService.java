@@ -8,49 +8,33 @@ import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.config.fileupload.FileUploadResult;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.exception.TempFileException;
-import uk.co.ogauthority.pwa.model.entity.files.ApplicationDetailFilePurpose;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.entity.files.AppFilePurpose;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.form.files.UploadFileWithDescriptionForm;
 import uk.co.ogauthority.pwa.model.form.files.UploadMultipleFilesWithDescriptionForm;
+import uk.co.ogauthority.pwa.service.fileupload.AppFileService;
 import uk.co.ogauthority.pwa.service.fileupload.FileUpdateMode;
-import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
 
 @Service
 @Profile("test-harness")
-public class TestHarnessFileService {
+public class TestHarnessAppFileService {
 
-  private final PadFileService padFileService;
+  private final AppFileService appFileService;
 
 
   @Autowired
-  public TestHarnessFileService(PadFileService padFileService) {
-    this.padFileService = padFileService;
+  public TestHarnessAppFileService(AppFileService appFileService) {
+    this.appFileService = appFileService;
   }
 
 
 
-  public String generateImageUpload(WebUserAccount user,
-                                  PwaApplicationDetail pwaApplicationDetail,
-                                  ApplicationDetailFilePurpose filePurpose) {
+  public String generateInitialUpload(WebUserAccount user, PwaApplication pwaApplication, AppFilePurpose filePurpose) {
 
     var multipartFile = FileUploadTestHarnessUtil.getSampleMultipartFile();
-    var fileUploadResult = padFileService.processImageUpload(
+    var fileUploadResult = appFileService.processInitialUpload(
         multipartFile,
-        pwaApplicationDetail,
-        filePurpose,
-        user);
-
-    return getFileIdFromFileUploadResult(fileUploadResult);
-  }
-
-  public String generateInitialUpload(WebUserAccount user,
-                                    PwaApplicationDetail pwaApplicationDetail,
-                                    ApplicationDetailFilePurpose filePurpose) {
-
-    var multipartFile = FileUploadTestHarnessUtil.getSampleMultipartFile();
-    var fileUploadResult = padFileService.processInitialUpload(
-        multipartFile,
-        pwaApplicationDetail,
+        pwaApplication,
         filePurpose,
         user);
 
@@ -62,13 +46,13 @@ public class TestHarnessFileService {
         new TempFileException("Error getting file id from temporary uploaded file"));
   }
 
-  public void updatePadFiles(UploadMultipleFilesWithDescriptionForm form,
+  public void updateAppFiles(UploadMultipleFilesWithDescriptionForm form,
                              WebUserAccount user,
-                             PwaApplicationDetail pwaApplicationDetail,
-                             ApplicationDetailFilePurpose filePurpose,
+                             PwaApplication pwaApplication,
+                             AppFilePurpose filePurpose,
                              FileUpdateMode updateMode) {
-    padFileService.updateFiles(
-        form, pwaApplicationDetail, filePurpose, updateMode, user);
+    appFileService.updateFiles(
+        form, pwaApplication, filePurpose, updateMode, user);
   }
 
   public void setFileIdOnForm(String fileId, List<UploadFileWithDescriptionForm> forms) {

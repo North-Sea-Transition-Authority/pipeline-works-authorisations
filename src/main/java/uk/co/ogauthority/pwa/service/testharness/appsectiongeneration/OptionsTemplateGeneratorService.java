@@ -9,20 +9,20 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTa
 import uk.co.ogauthority.pwa.service.fileupload.FileUpdateMode;
 import uk.co.ogauthority.pwa.service.testharness.TestHarnessAppFormService;
 import uk.co.ogauthority.pwa.service.testharness.TestHarnessAppFormServiceParams;
-import uk.co.ogauthority.pwa.service.testharness.filehelper.TestHarnessFileService;
+import uk.co.ogauthority.pwa.service.testharness.filehelper.TestHarnessPadFileService;
 
 @Service
 @Profile("test-harness")
 class OptionsTemplateGeneratorService implements TestHarnessAppFormService {
 
-  private final TestHarnessFileService testHarnessFileService;
+  private final TestHarnessPadFileService testHarnessPadFileService;
 
   private static final ApplicationTask LINKED_APP_FORM_TASK = ApplicationTask.OPTIONS_TEMPLATE;
 
   @Autowired
   public OptionsTemplateGeneratorService(
-      TestHarnessFileService testHarnessFileService) {
-    this.testHarnessFileService = testHarnessFileService;
+      TestHarnessPadFileService testHarnessPadFileService) {
+    this.testHarnessPadFileService = testHarnessPadFileService;
   }
 
 
@@ -39,10 +39,10 @@ class OptionsTemplateGeneratorService implements TestHarnessAppFormService {
 
     var form = new OptionsTemplateForm();
 
-    var generatedFileId = testHarnessFileService.generateInitialUpload(
+    var generatedFileId = testHarnessPadFileService.generateInitialUpload(
         user, detail, ApplicationDetailFilePurpose.OPTIONS_TEMPLATE);
-    testHarnessFileService.setFileIdOnForm(generatedFileId, form.getUploadedFileWithDescriptionForms());
-    testHarnessFileService.updatePadFiles(
+    testHarnessPadFileService.setFileIdOnForm(generatedFileId, form.getUploadedFileWithDescriptionForms());
+    testHarnessPadFileService.updatePadFiles(
         form, user, detail, ApplicationDetailFilePurpose.OPTIONS_TEMPLATE, FileUpdateMode.DELETE_UNLINKED_FILES);
   }
 

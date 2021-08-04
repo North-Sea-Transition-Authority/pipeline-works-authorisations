@@ -15,23 +15,23 @@ import uk.co.ogauthority.pwa.service.fileupload.FileUpdateMode;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.PadTechnicalDrawingService;
 import uk.co.ogauthority.pwa.service.testharness.TestHarnessAppFormService;
 import uk.co.ogauthority.pwa.service.testharness.TestHarnessAppFormServiceParams;
-import uk.co.ogauthority.pwa.service.testharness.filehelper.TestHarnessFileService;
+import uk.co.ogauthority.pwa.service.testharness.filehelper.TestHarnessPadFileService;
 
 @Service
 @Profile("test-harness")
 class PipelineSchematicsGeneratorService implements TestHarnessAppFormService {
 
   private final PadTechnicalDrawingService padTechnicalDrawingService;
-  private final TestHarnessFileService testHarnessFileService;
+  private final TestHarnessPadFileService testHarnessPadFileService;
 
   private static final ApplicationTask linkedAppFormTask = ApplicationTask.TECHNICAL_DRAWINGS;
 
   @Autowired
   public PipelineSchematicsGeneratorService(
       PadTechnicalDrawingService padTechnicalDrawingService,
-      TestHarnessFileService testHarnessFileService) {
+      TestHarnessPadFileService testHarnessPadFileService) {
     this.padTechnicalDrawingService = padTechnicalDrawingService;
-    this.testHarnessFileService = testHarnessFileService;
+    this.testHarnessPadFileService = testHarnessPadFileService;
   }
 
 
@@ -56,12 +56,12 @@ class PipelineSchematicsGeneratorService implements TestHarnessAppFormService {
 
   private void createAdmiraltyChartDocumentFormAndGenerateUpload(WebUserAccount user, PwaApplicationDetail pwaApplicationDetail) {
 
-    var generatedFileId = testHarnessFileService.generateImageUpload(
+    var generatedFileId = testHarnessPadFileService.generateImageUpload(
         user, pwaApplicationDetail, ApplicationDetailFilePurpose.ADMIRALTY_CHART);
     var admiraltyChartForm = new AdmiraltyChartDocumentForm();
-    testHarnessFileService.setFileIdOnForm(generatedFileId, admiraltyChartForm.getUploadedFileWithDescriptionForms());
+    testHarnessPadFileService.setFileIdOnForm(generatedFileId, admiraltyChartForm.getUploadedFileWithDescriptionForms());
 
-    testHarnessFileService.updatePadFiles(
+    testHarnessPadFileService.updatePadFiles(
         admiraltyChartForm, user, pwaApplicationDetail, ApplicationDetailFilePurpose.ADMIRALTY_CHART, FileUpdateMode.DELETE_UNLINKED_FILES);
   }
 
@@ -72,15 +72,15 @@ class PipelineSchematicsGeneratorService implements TestHarnessAppFormService {
         .map(PipelineOverview::getPadPipelineId)
         .collect(Collectors.toList());
 
-    var generatedFileId = testHarnessFileService.generateImageUpload(
+    var generatedFileId = testHarnessPadFileService.generateImageUpload(
         user, pwaApplicationDetail, ApplicationDetailFilePurpose.PIPELINE_DRAWINGS);
 
     var pipelineDrawingForm = new PipelineDrawingForm();
     pipelineDrawingForm.setReference("My drawing reference");
     pipelineDrawingForm.setPadPipelineIds(pipelineIdsToLink);
 
-    testHarnessFileService.setFileIdOnForm(generatedFileId, pipelineDrawingForm.getUploadedFileWithDescriptionForms());
-    testHarnessFileService.updatePadFiles(pipelineDrawingForm, user, pwaApplicationDetail,
+    testHarnessPadFileService.setFileIdOnForm(generatedFileId, pipelineDrawingForm.getUploadedFileWithDescriptionForms());
+    testHarnessPadFileService.updatePadFiles(pipelineDrawingForm, user, pwaApplicationDetail,
         ApplicationDetailFilePurpose.PIPELINE_DRAWINGS, FileUpdateMode.KEEP_UNLINKED_FILES);
 
     return pipelineDrawingForm;

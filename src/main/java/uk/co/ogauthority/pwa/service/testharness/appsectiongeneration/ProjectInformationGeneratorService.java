@@ -14,23 +14,23 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTa
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation.PadProjectInformationService;
 import uk.co.ogauthority.pwa.service.testharness.TestHarnessAppFormService;
 import uk.co.ogauthority.pwa.service.testharness.TestHarnessAppFormServiceParams;
-import uk.co.ogauthority.pwa.service.testharness.filehelper.TestHarnessFileService;
+import uk.co.ogauthority.pwa.service.testharness.filehelper.TestHarnessPadFileService;
 
 @Service
 @Profile("test-harness")
 class ProjectInformationGeneratorService implements TestHarnessAppFormService {
 
   private final PadProjectInformationService padProjectInformationService;
-  private final TestHarnessFileService testHarnessFileService;
+  private final TestHarnessPadFileService testHarnessPadFileService;
 
   private static final ApplicationTask linkedAppFormTask = ApplicationTask.PROJECT_INFORMATION;
 
   @Autowired
   public ProjectInformationGeneratorService(
       PadProjectInformationService padProjectInformationService,
-      TestHarnessFileService testHarnessFileService) {
+      TestHarnessPadFileService testHarnessPadFileService) {
     this.padProjectInformationService = padProjectInformationService;
-    this.testHarnessFileService = testHarnessFileService;
+    this.testHarnessPadFileService = testHarnessPadFileService;
   }
 
 
@@ -117,9 +117,9 @@ class ProjectInformationGeneratorService implements TestHarnessAppFormService {
     }
 
     if (requiredQuestions.contains(ProjectInformationQuestion.PROJECT_LAYOUT_DIAGRAM)) {
-      var generatedFileId = testHarnessFileService.generateImageUpload(
+      var generatedFileId = testHarnessPadFileService.generateImageUpload(
           user, pwaApplicationDetail, ApplicationDetailFilePurpose.PROJECT_INFORMATION);
-      testHarnessFileService.setFileIdOnForm(generatedFileId, form.getUploadedFileWithDescriptionForms());
+      testHarnessPadFileService.setFileIdOnForm(generatedFileId, form.getUploadedFileWithDescriptionForms());
     }
 
     return form;

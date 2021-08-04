@@ -12,7 +12,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits.De
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits.PermanentDepositService;
 import uk.co.ogauthority.pwa.service.testharness.TestHarnessAppFormService;
 import uk.co.ogauthority.pwa.service.testharness.TestHarnessAppFormServiceParams;
-import uk.co.ogauthority.pwa.service.testharness.filehelper.TestHarnessFileService;
+import uk.co.ogauthority.pwa.service.testharness.filehelper.TestHarnessPadFileService;
 
 @Service
 @Profile("test-harness")
@@ -20,7 +20,7 @@ class PermanentDepositsDrawingGeneratorService implements TestHarnessAppFormServ
 
   private final DepositDrawingsService depositDrawingsService;
   private final PermanentDepositService permanentDepositService;
-  private final TestHarnessFileService testHarnessFileService;
+  private final TestHarnessPadFileService testHarnessPadFileService;
 
   private static final ApplicationTask LINKED_APP_FORM_TASK = ApplicationTask.PERMANENT_DEPOSIT_DRAWINGS;
 
@@ -28,10 +28,10 @@ class PermanentDepositsDrawingGeneratorService implements TestHarnessAppFormServ
   public PermanentDepositsDrawingGeneratorService(
       DepositDrawingsService depositDrawingsService,
       PermanentDepositService permanentDepositService,
-      TestHarnessFileService testHarnessFileService) {
+      TestHarnessPadFileService testHarnessPadFileService) {
     this.depositDrawingsService = depositDrawingsService;
     this.permanentDepositService = permanentDepositService;
-    this.testHarnessFileService = testHarnessFileService;
+    this.testHarnessPadFileService = testHarnessPadFileService;
   }
 
 
@@ -62,10 +62,10 @@ class PermanentDepositsDrawingGeneratorService implements TestHarnessAppFormServ
     form.setSelectedDeposits(selectedDepositIds);
     form.setReference("Test_Harness_Deposit_Drawing_Reference");
 
-    var generatedFileId = testHarnessFileService.generateInitialUpload(
+    var generatedFileId = testHarnessPadFileService.generateInitialUpload(
         user, detail, ApplicationDetailFilePurpose.DEPOSIT_DRAWINGS);
-    testHarnessFileService.setFileIdOnForm(generatedFileId, form.getUploadedFileWithDescriptionForms());
-    testHarnessFileService.updatePadFiles(
+    testHarnessPadFileService.setFileIdOnForm(generatedFileId, form.getUploadedFileWithDescriptionForms());
+    testHarnessPadFileService.updatePadFiles(
         form, user, detail, ApplicationDetailFilePurpose.DEPOSIT_DRAWINGS, FileUpdateMode.KEEP_UNLINKED_FILES);
 
     return form;
