@@ -10,7 +10,6 @@ import io.micrometer.core.instrument.Timer;
 import java.util.List;
 import java.util.Optional;
 import org.junit.Before;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.CustomScopeConfigurer;
 import org.springframework.boot.test.context.TestConfiguration;
@@ -153,7 +152,7 @@ public abstract class PwaApplicationContextAbstractControllerTest {
   public static class AbstractControllerTestConfiguration {
     @Bean
     public SystemAreaAccessService systemAreaAccessService() {
-      return new SystemAreaAccessService();
+      return new SystemAreaAccessService(true);
     }
 
     @Bean

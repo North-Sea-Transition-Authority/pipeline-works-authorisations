@@ -32,20 +32,20 @@
         </td>
         <td class="govuk-table__cell">
           <div>
-            ${pwaPipelineView.fromLocation}
+            ${pwaPipelineView.fromLocation!}
             </br>
             <@pwaCoordinate.display coordinatePair=pwaPipelineView.fromCoordinates />
           </div>
         </td>
         <td class="govuk-table__cell">
           <div>
-            ${pwaPipelineView.toLocation}
+            ${pwaPipelineView.toLocation!}
             </br>
             <@pwaCoordinate.display coordinatePair=pwaPipelineView.toCoordinates />
           </div>
         </td>
         <td class="govuk-table__cell">
-          ${pwaPipelineView.length}
+          ${pwaPipelineView.length!}
         </td>
       </tr>
     </#list>    
