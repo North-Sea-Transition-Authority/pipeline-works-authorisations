@@ -529,7 +529,10 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
    */
   @VisibleForTesting
   public Map<HuooRole, Integer> getRoleCountMap(PwaApplicationDetail pwaApplicationDetail) {
-    var padOrganisationRoleList = getOrgRolesForDetail(pwaApplicationDetail);
+
+    var padOrganisationRoleList = getOrgRolesForDetail(pwaApplicationDetail).stream()
+        .filter(role -> !role.getType().equals(HuooType.UNASSIGNED_PIPELINE_SPLIT))
+        .collect(Collectors.toList());
 
     EnumMap<HuooRole, Integer> map = new EnumMap<>(HuooRole.class);
     HuooRole.stream()
