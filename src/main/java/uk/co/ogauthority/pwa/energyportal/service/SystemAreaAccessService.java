@@ -80,7 +80,6 @@ public class SystemAreaAccessService {
         .anyMatch(validWorkAreaPrivs::contains);
   }
 
-
   /**
    * For use in WebSecurityConfig. In other instances call canStartApplication
    */
