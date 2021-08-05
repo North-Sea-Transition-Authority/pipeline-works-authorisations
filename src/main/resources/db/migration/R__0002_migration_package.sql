@@ -955,6 +955,7 @@ AS
 
   END post_core_data_migrations;
 
+    -- do nothing comment
 END migration;
 /
 
