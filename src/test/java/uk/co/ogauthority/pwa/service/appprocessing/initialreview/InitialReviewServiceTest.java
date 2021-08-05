@@ -372,6 +372,7 @@ public class InitialReviewServiceTest {
   public void getTaskListEntry_initialReviewNotCompleted_whenAcceptInitialReviewPermission() {
 
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
+    detail.setStatus(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW);
 
     var processingContext = new PwaAppProcessingContext(
         detail, null, Set.of(PwaAppProcessingPermission.ACCEPT_INITIAL_REVIEW), null, null, Set.of());
@@ -384,6 +385,48 @@ public class InitialReviewServiceTest {
     assertThat(taskListEntry.getTaskState()).isEqualTo(TaskState.EDIT);
     assertThat(taskListEntry.getTaskInfoList()).isEmpty();
 
+  }
+
+  @Test
+  public void getTaskListEntry_invalidApplicationStatus_taskLocked() {
+
+    var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
+    detail.setStatus(PwaApplicationStatus.DRAFT);
+
+    var processingContext = new PwaAppProcessingContext
+        (detail, null, Set.of(PwaAppProcessingPermission.ACCEPT_INITIAL_REVIEW), null, null, Set.of());
+
+    var taskListEntry = initialReviewService.getTaskListEntry(PwaAppProcessingTask.INITIAL_REVIEW, processingContext);
+
+    assertThat(taskListEntry.getTaskState()).isEqualTo(TaskState.LOCK);
+  }
+
+  @Test
+  public void getTaskListEntry_invalidPermission_taskLocked() {
+
+    var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
+    detail.setStatus(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW);
+
+    var processingContext = new PwaAppProcessingContext
+        (detail, null, Set.of(), null, null, Set.of());
+
+    var taskListEntry = initialReviewService.getTaskListEntry(PwaAppProcessingTask.INITIAL_REVIEW, processingContext);
+
+    assertThat(taskListEntry.getTaskState()).isEqualTo(TaskState.LOCK);
+  }
+
+  @Test
+  public void getTaskListEntry_validPermissionAndAppStatus_taskEditable() {
+
+    var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
+    detail.setStatus(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW);
+
+    var processingContext = new PwaAppProcessingContext
+        (detail, null, Set.of(PwaAppProcessingPermission.ACCEPT_INITIAL_REVIEW), null, null, Set.of());
+
+    var taskListEntry = initialReviewService.getTaskListEntry(PwaAppProcessingTask.INITIAL_REVIEW, processingContext);
+
+    assertThat(taskListEntry.getTaskState()).isEqualTo(TaskState.EDIT);
   }
 
   @Test

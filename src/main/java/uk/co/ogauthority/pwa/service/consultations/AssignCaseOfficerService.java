@@ -8,12 +8,15 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.enums.tasklist.TaskState;
 import uk.co.ogauthority.pwa.model.form.consultation.AssignCaseOfficerForm;
 import uk.co.ogauthority.pwa.model.notify.emailproperties.assignments.ApplicationAssignedToYouEmailProps;
 import uk.co.ogauthority.pwa.model.notify.emailproperties.assignments.CaseOfficerAssignedEmailProps;
+import uk.co.ogauthority.pwa.model.tasklist.TaskListEntry;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.service.appprocessing.tasks.AppProcessingService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
+import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingTask;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.workflow.application.PwaApplicationWorkflowTask;
 import uk.co.ogauthority.pwa.service.notify.EmailCaseLinkService;
@@ -92,7 +95,18 @@ public class AssignCaseOfficerService implements AppProcessingService {
   @Override
   public boolean canShowInTaskList(PwaAppProcessingContext processingContext) {
     return processingContext.getAppProcessingPermissions().contains(PwaAppProcessingPermission.ASSIGN_CASE_OFFICER)
-        && !processingContext.getApplicationDetail().getStatus().equals(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW);
+        && processingContext.getApplicationDetail().getStatus().equals(PwaApplicationStatus.CASE_OFFICER_REVIEW);
+  }
+
+  @Override
+  public TaskListEntry getTaskListEntry(PwaAppProcessingTask task, PwaAppProcessingContext processingContext) {
+
+    return new TaskListEntry(
+        task.getTaskName(),
+        task.getRoute(processingContext),
+        null,
+        canShowInTaskList(processingContext) ? TaskState.EDIT : TaskState.LOCK,
+        task.getDisplayOrder());
   }
 
 }
