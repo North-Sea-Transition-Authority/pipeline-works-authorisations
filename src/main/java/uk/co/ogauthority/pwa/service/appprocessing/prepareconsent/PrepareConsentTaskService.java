@@ -6,6 +6,7 @@ import uk.co.ogauthority.pwa.model.entity.enums.documents.DocumentTemplateMnem;
 import uk.co.ogauthority.pwa.model.enums.tasklist.TaskState;
 import uk.co.ogauthority.pwa.model.tasklist.TaskListEntry;
 import uk.co.ogauthority.pwa.model.tasklist.TaskTag;
+import uk.co.ogauthority.pwa.service.appprocessing.consentreview.ConsentReviewService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.service.appprocessing.options.ApproveOptionsService;
 import uk.co.ogauthority.pwa.service.appprocessing.tasks.AppProcessingService;
@@ -14,6 +15,7 @@ import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermiss
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingTask;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.TaskStatus;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.appinvolvement.OpenConsentReview;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 
 @Service
@@ -21,18 +23,22 @@ public class PrepareConsentTaskService implements AppProcessingService {
 
   private final DocumentService documentService;
   private final ApproveOptionsService approveOptionsService;
+  private final ConsentReviewService consentReviewService;
 
   @Autowired
   public PrepareConsentTaskService(DocumentService documentService,
-                                   ApproveOptionsService approveOptionsService) {
+                                   ApproveOptionsService approveOptionsService,
+                                   ConsentReviewService consentReviewService) {
     this.documentService = documentService;
     this.approveOptionsService = approveOptionsService;
+    this.consentReviewService = consentReviewService;
   }
 
   @Override
   public boolean canShowInTaskList(PwaAppProcessingContext processingContext) {
     return processingContext.getAppProcessingPermissions().contains(PwaAppProcessingPermission.EDIT_CONSENT_DOCUMENT)
-        || processingContext.getAppProcessingPermissions().contains(PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY);
+        || processingContext.getAppProcessingPermissions().contains(PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY)
+        || processingContext.getApplicationDetail().getStatus().equals(PwaApplicationStatus.COMPLETE);
   }
 
 
@@ -49,8 +55,9 @@ public class PrepareConsentTaskService implements AppProcessingService {
 
     var appInvolvement = processingContext.getApplicationInvolvement();
 
-    // locked for industry
-    if (appInvolvement.hasOnlyIndustryInvolvement()) {
+    // locked for industry & completed apps
+    if (appInvolvement.hasOnlyIndustryInvolvement()
+        || processingContext.getApplicationDetail().getStatus().equals(PwaApplicationStatus.COMPLETE)) {
       return TaskState.LOCK;
     }
 
@@ -86,6 +93,10 @@ public class PrepareConsentTaskService implements AppProcessingService {
 
     if (!optionsConfirmedIfApplicableCheck) {
       return TaskStatus.NOT_REQUIRED;
+    }
+
+    if (consentReviewService.isApplicationConsented(processingContext.getApplicationDetail())) {
+      return TaskStatus.COMPLETED;
     }
 
     boolean documentInProgress = documentService
