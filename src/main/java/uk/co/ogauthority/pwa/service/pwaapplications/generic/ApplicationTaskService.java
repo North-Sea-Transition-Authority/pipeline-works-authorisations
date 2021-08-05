@@ -96,7 +96,7 @@ public class ApplicationTaskService {
   /**
    * Return true when all questions answered under a task are valid for an application detail.
    */
-  boolean isTaskComplete(GeneralPurposeApplicationTask applicationTask, PwaApplicationDetail pwaApplicationDetail) {
+  public boolean isTaskComplete(GeneralPurposeApplicationTask applicationTask, PwaApplicationDetail pwaApplicationDetail) {
     return getTaskService(applicationTask).isComplete(pwaApplicationDetail);
   }
 

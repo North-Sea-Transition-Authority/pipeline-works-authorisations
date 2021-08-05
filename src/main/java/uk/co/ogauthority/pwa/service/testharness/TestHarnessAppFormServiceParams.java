@@ -13,9 +13,9 @@ public class TestHarnessAppFormServiceParams {
   private final PwaApplicationDetail applicationDetail;
   private final Integer pipelineQuantity;
 
-  TestHarnessAppFormServiceParams(WebUserAccount user,
-                                  PwaApplicationDetail applicationDetail,
-                                  Integer pipelineQuantity) {
+  public TestHarnessAppFormServiceParams(WebUserAccount user,
+                                         PwaApplicationDetail applicationDetail,
+                                         Integer pipelineQuantity) {
     this.user = user;
     this.applicationDetail = applicationDetail;
     this.pipelineQuantity = pipelineQuantity;

@@ -23,6 +23,7 @@ import uk.co.ogauthority.pwa.service.appprocessing.initialreview.InitialReviewPa
 import uk.co.ogauthority.pwa.service.appprocessing.tasks.PwaAppProcessingTaskService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingTask;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.workflow.PwaApplicationSubmissionService;
 import uk.co.ogauthority.pwa.service.teams.PwaTeamService;
 import uk.co.ogauthority.pwa.service.testharness.appprocessinggeneration.AppProcessingTaskGeneratorService;
@@ -66,7 +67,8 @@ class TestHarnessApplicationStageService {
   void pushApplicationToTargetStage(PwaApplicationDetail pwaApplicationDetail,
                                     PwaApplicationStatus targetAppStatus,
                                     WebUserAccount applicantWua,
-                                    Integer assignedCaseOfficerId) {
+                                    Integer assignedCaseOfficerId,
+                                    Integer pipelineQuantity) {
 
 
     if (PwaApplicationStatus.DRAFT.equals(targetAppStatus)) {
@@ -80,30 +82,34 @@ class TestHarnessApplicationStageService {
 
       case AWAITING_APPLICATION_PAYMENT: {
         var appProcessingProps = createAppProcessingProperties(
-            applicantWua, pwaApplicationDetail.getPwaApplication(), assignedCaseOfficerId, InitialReviewPaymentDecision.PAYMENT_REQUIRED);
+            applicantWua, pwaApplicationDetail.getPwaApplication(), assignedCaseOfficerId,
+            pipelineQuantity, InitialReviewPaymentDecision.PAYMENT_REQUIRED);
         appProcessingTaskGeneratorService.generateAppProcessingTasks(appProcessingProps, List.of(PwaAppProcessingTask.INITIAL_REVIEW));
       }
       break;
 
       case CASE_OFFICER_REVIEW: {
         var appProcessingProps = createAppProcessingProperties(
-            applicantWua, pwaApplicationDetail.getPwaApplication(), assignedCaseOfficerId, InitialReviewPaymentDecision.PAYMENT_WAIVED);
+            applicantWua, pwaApplicationDetail.getPwaApplication(), assignedCaseOfficerId,
+            pipelineQuantity, InitialReviewPaymentDecision.PAYMENT_WAIVED);
         appProcessingTaskGeneratorService.generateAppProcessingTasks(appProcessingProps, List.of(PwaAppProcessingTask.INITIAL_REVIEW));
       }
       break;
 
       case CONSENT_REVIEW: {
         var appProcessingProps = createAppProcessingProperties(
-            applicantWua, pwaApplicationDetail.getPwaApplication(), assignedCaseOfficerId, InitialReviewPaymentDecision.PAYMENT_WAIVED);
+            applicantWua, pwaApplicationDetail.getPwaApplication(), assignedCaseOfficerId,
+            pipelineQuantity, InitialReviewPaymentDecision.PAYMENT_WAIVED);
         generateAppProcessingTasks(appProcessingProps);
       }
       break;
 
       case COMPLETE: {
         var appProcessingProps = createAppProcessingProperties(
-            applicantWua, pwaApplicationDetail.getPwaApplication(), assignedCaseOfficerId, InitialReviewPaymentDecision.PAYMENT_WAIVED);
+            applicantWua, pwaApplicationDetail.getPwaApplication(), assignedCaseOfficerId,
+            pipelineQuantity, InitialReviewPaymentDecision.PAYMENT_WAIVED);
         generateAppProcessingTasks(appProcessingProps);
-        //todo: issue consent
+        //TODO PWA-1367: issue consent
       }
       break;
 
@@ -129,6 +135,11 @@ class TestHarnessApplicationStageService {
 
     var remainingTasks = getShownProcessingTasksForAppContext(caseOfficerProcessingContext);
     remainingTasks.remove(preliminaryTask);
+
+    //Test harness approach for options will not require close out task, will go to prepare consent instead
+    if (appProcessingProps.getPwaApplication().getApplicationType().equals(PwaApplicationType.OPTIONS_VARIATION)) {
+      remainingTasks.remove(PwaAppProcessingTask.CLOSE_OUT_OPTIONS);
+    }
     appProcessingTaskGeneratorService.generateAppProcessingTasks(appProcessingProps, remainingTasks);
   }
 
@@ -136,6 +147,7 @@ class TestHarnessApplicationStageService {
   private TestHarnessAppProcessingProperties createAppProcessingProperties(WebUserAccount applicantWua,
                                                                            PwaApplication pwaApplication,
                                                                            Integer assignedCaseOfficerId,
+                                                                           Integer pipelineQuantity,
                                                                            InitialReviewPaymentDecision paymentDecision) {
 
     var applicantAua = testHarnessUserRetrievalService.createAuthenticatedUserAccount(applicantWua);
@@ -147,7 +159,7 @@ class TestHarnessApplicationStageService {
     var pwaManagerAua = testHarnessUserRetrievalService.createAuthenticatedUserAccount(pwaManagerPerson.getId().asInt());
 
     return new TestHarnessAppProcessingProperties(
-        applicantAua, applicantProcessingContext, caseOfficerAua, pwaManagerAua, paymentDecision);
+        applicantAua, applicantProcessingContext, caseOfficerAua, pwaManagerAua, paymentDecision, pipelineQuantity);
   }
 
 
