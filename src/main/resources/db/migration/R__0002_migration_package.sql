@@ -517,7 +517,7 @@ AS
   PROCEDURE pwa_huoo_check(p_mig_master_pwa ${datasource.user}.mig_master_pwas%ROWTYPE)
   AS
     l_count_valid_holders NUMBER;
-    l_count_invalid_holders NUMBER;
+    l_count_pipelines NUMBER;
   BEGIN
     SELECT COUNT(*)
     INTO l_count_valid_holders
@@ -530,22 +530,24 @@ AS
     AND mphor.role = 'HOLDER';
 
     SELECT COUNT(*)
-    INTO l_count_invalid_holders
-    FROM ${datasource.user}.mig_pipeline_hist_org_roles mphor
-    WHERE mphor.status_control = 'C'
-    AND mphor.pipeline_status != 'DELETED'
-    AND mphor.pipe_auth_detail_id = p_mig_master_pwa.pad_id
-    AND org_manual_name IS NOT NULL
-    AND mphor.role = 'HOLDER';
+    INTO l_count_pipelines
+    FROM ${datasource.user}.mig_pipeline_history mph
+    WHERE mph.status_control = 'C'
+    AND mph.pipe_auth_detail_id IN (
+        SELECT mpc.pad_id
+        FROM ${datasource.user}.mig_pwa_consents mpc
+        JOIN ${datasource.user}.mig_master_pwas mmp ON mpc.pa_id = mmp.pa_id
+        JOIN ${datasource.user}.mig_pwa_consents mpc2 ON mmp.pa_id = mpc2.pa_id
+        WHERE mpc.pad_id = p_mig_master_pwa.pad_id
+    );
 
-    IF(l_count_valid_holders = 0) THEN
-      RAISE_APPLICATION_ERROR(-20789, 'Cannot migrate consent where zero valid holder exist!');
+    IF(l_count_valid_holders = 0 AND l_count_pipelines > 0) THEN
+      RAISE_APPLICATION_ERROR(-20789, 'Cannot migrate consent where zero valid holder exist and pipelines exist!');
     END IF;
 
   END pwa_huoo_check;
 
-
-  FUNCTION create_consent_migration(p_mig_master_pwa ${datasource.user}.mig_master_pwas%ROWTYPE
+  FUNCTION create_consent_migration( p_mig_master_pwa ${datasource.user}.mig_master_pwas%ROWTYPE
                                    , p_mig_consent ${datasource.user}.mig_pwa_consents%ROWTYPE)
     RETURN ${datasource.user}.migrated_pipeline_auths%ROWTYPE
   AS
@@ -569,17 +571,13 @@ AS
       RAISE_APPLICATION_ERROR(-20904, 'Could not determine pad_id:' || p_mig_consent.pad_id || ' concept type:' || l_consent_type);
     END IF;
 
-    IF(p_mig_consent.consent_date IS NULL) THEN
-      RAISE_APPLICATION_ERROR(-20904, 'Cannot create consent when consent date is Null! padId:' || p_mig_consent.pad_id);
-    END IF;
-
     l_new_consent.pwa_id := p_mig_consent.pa_id;
     l_new_consent.id := p_mig_consent.pad_id;
     l_new_consent.reference := p_mig_consent.reference;
     l_new_consent.variation_number := p_mig_consent.variation_number;
     l_new_consent.created_timestamp := l_timestamp;
     l_new_consent.consent_type := l_consent_type;
-    l_new_consent.consent_timestamp := p_mig_consent.consent_date;
+    l_new_consent.consent_timestamp := COALESCE(p_mig_consent.consent_date, p_mig_consent.min_pipeline_record_start_date, p_mig_consent.fallback_date);
     l_new_consent.is_migrated_flag := 1;
 
     INSERT INTO ${datasource.user}.pwa_consents VALUES l_new_consent;
@@ -656,10 +654,11 @@ AS
     *   - pa_id should be set as master_pwa_id to maintain current id relationships to ease system integration.
     * 2. Loop over all the consents related to the migrations master
     *   - pad_id should be set as the pwa_consent id to ease system integration
+    *   - consent dates may be null for old records. Try to set to min associated pipeline record started date, then fallback to 1/1/1900.
     * 3. Add current HUOO data for latest consent only
-        - Dry run migration of top level pipeline to check that we can identify HOLDER, USER, OPERATOR, DATA
-          for every pipeline in the top level pwa.
-          If this is not possible, rollback the consent migration so data can investigated and fixed up.
+        - Dry run migration of top level pipeline to check that we can identify at least 1 valid HOLDER
+          from all pipelines in the top level pwa.
+          If this is not possible, rollback the consent migration so data can be investigated and fixed up.
     * 4. DEFFERRED to pipeline migration step
         - when top level pipelines are created, at that point link pipeline to huoo data for latest consent on PWA.
     */
