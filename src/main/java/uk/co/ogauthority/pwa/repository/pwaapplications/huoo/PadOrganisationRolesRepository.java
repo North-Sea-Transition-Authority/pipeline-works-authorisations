@@ -15,7 +15,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.huoo.PadOrganisationRo
 public interface PadOrganisationRolesRepository extends CrudRepository<PadOrganisationRole, Integer>,
     PadOrganisationRolesDtoRepository {
 
-  @EntityGraph(attributePaths = "organisationUnit")
+  @EntityGraph(attributePaths = {"organisationUnit", "organisationUnit.portalOrganisationGroup"})
   List<PadOrganisationRole> getAllByPwaApplicationDetail(PwaApplicationDetail pwaApplicationDetail);
 
   @EntityGraph(attributePaths = {"organisationUnit", "organisationUnit.portalOrganisationGroup"})
