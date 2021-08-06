@@ -332,8 +332,6 @@ public class PrepareConsentTaskServiceTest {
     var processingContext = new PwaAppProcessingContext(detail, null, Set.of(), null,
         ApplicationInvolvementDtoTestUtil.noInvolvementAndNoFlags(detail.getPwaApplication()), Set.of());
 
-    when(consentReviewService.isApplicationConsented(processingContext.getApplicationDetail())).thenReturn(true);
-
     var taskAccessible = prepareConsentTaskService.taskAccessible(processingContext);
 
     assertThat(taskAccessible).isFalse();
