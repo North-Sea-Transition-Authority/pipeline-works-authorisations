@@ -88,6 +88,11 @@
 
         </#list>
 
+        <@fdsFieldset.fieldset legendHeading="${consultationResponseDocumentType.questionText}" legendHeadingClass="govuk-fieldset__legend--s" legendHeadingSize="h2">
+            <@fdsFileUpload.fileUpload id="doc-upload-file-id" path="form.uploadedFileWithDescriptionForms" uploadUrl=uploadUrl deleteUrl=deleteUrl maxAllowedSize=fileuploadMaxUploadSize allowedExtensions=fileuploadAllowedExtensions downloadUrl=downloadUrl existingFiles=uploadedFileViewList dropzoneText="Drag and drop your documents here" />
+            <p class="govuk-caption-m">${consultationResponseDocumentType.questionGuidance}</p>
+        </@fdsFieldset.fieldset>
+
         <#if previousResponses?has_content>
           <@fdsDetails.summaryDetails summaryTitle="Show my previous advice">
 
