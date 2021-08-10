@@ -21,10 +21,12 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTa
 import uk.co.ogauthority.pwa.service.pickpwa.PickedPwaRetrievalService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskListService;
 import uk.co.ogauthority.pwa.service.pwaapplications.workflow.PwaApplicationCreationService;
+import uk.co.ogauthority.pwa.service.testharness.appsectiongeneration.TestHarnessAppFormService;
+import uk.co.ogauthority.pwa.service.testharness.appsectiongeneration.TestHarnessAppFormServiceParams;
 
 @Service
 @Profile("test-harness")
-class GenerateApplicationService {
+public class GenerateApplicationService {
 
   private final PwaApplicationCreationService pwaApplicationCreationService;
   private final TaskListService taskListService;
@@ -95,7 +97,7 @@ class GenerateApplicationService {
     LOGGER.info("App form sections generated successfully for detail with id: {}", pwaApplicationDetail.getId());
   }
 
-  private void generateAppTasks(Collection<ApplicationTask> applicationTasks, TestHarnessAppFormServiceParams appFormServiceParams) {
+  public void generateAppTasks(Collection<ApplicationTask> applicationTasks, TestHarnessAppFormServiceParams appFormServiceParams) {
     applicationTasks.stream().sorted(Comparator.comparing(ApplicationTask::getDisplayOrder))
         .forEach(requiredTask -> {
           LOGGER.info("Generating app task {}", requiredTask.getDisplayName());

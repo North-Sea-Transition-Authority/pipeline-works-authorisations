@@ -59,7 +59,7 @@ class AsBuiltNotificationGroupStatusService {
 
   List<AsBuiltNotificationGroup> getAllNonCompleteAsBuiltNotificationGroups() {
     return asBuiltNotificationGroupStatusHistoryRepository
-        .findAllByEndedTimestampIsNull()
+        .findAllByEndedTimestampIsNullAndStatusIsNot(AsBuiltNotificationGroupStatus.COMPLETE)
         .stream()
         .map(AsBuiltNotificationGroupStatusHistory::getAsBuiltNotificationGroup)
         .collect(Collectors.toList());

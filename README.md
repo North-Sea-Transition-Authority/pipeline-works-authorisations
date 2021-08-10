@@ -83,20 +83,34 @@ Set the profile to `development` in your run configuration
   
   Note that Checkstyle rules are checked during the build process and any broken rules will fail the build.
     
-#### Proxy routes to enable session sharing (Skip to 7 if you don't need to access authenticated pages)
+#### Proxy routes to enable session sharing
 
-To enable Spring to access the fox session, you must access your local instance under the same hostname and application context (edu-app3.decc.local/engedudev1/).
+To enable Spring to access the fox session, you must access your local instance under the same hostname and application context (itportal.dev.decc.local/engedudev1/).
 
-The easiest way to do this is to add a ProxyPass rule to Apache running on edu-dev-app3.
+The easiest way to do this is to add a ProxyPass rule to Apache running on itportal.dev.decc.local.
  
-Edit the puppet yaml at `//Infrastructure/Puppet/fiv-lemms1/environments/development/hieradata/edu-dev-app3.decc.local.yaml` and add a ProxyPass rule forwarding traffic under your CONTEXT_SUFFIX to your local machine e.g.
+Edit the `nginx` configuration file at https://bitbucket.org/fiviumuk/oga-dev-app/src/master/app/volumes/nginx/nginx.conf and add a ProxyPass rule forwarding traffic under your CONTEXT_SUFFIX to your local machine e.g.
 
-`ProxyPass /engedudev1/jb/ http://fivium-jbarnett.fivium.local:8081/engedudev1/jb/`
+```
+location /engedudev1/da/ {
+  proxy_pass  http://dashworth.fivium.local:8081/engedudev1/da/;
+}
+```
 
-This rule MUST be placed before the Fox proxypass `ProxyPass /engedudev1/ ajp://localhost:8041/engedudev1/`  because the Fox route has a higher scope which
-would capture your local route request.
+Once you have added the ProxyPass rule you will need to increment the version number of the nginx configuration file in https://bitbucket.org/fiviumuk/oga-dev-app/src/master/app/compose/uni.yml. See [OGA Bloomsbury Street infrastructure](https://confluence.fivium.co.uk/pages/viewpage.action?pageId=67733766#EDU/MMO/ETLdev/stBloomsburyStreet(OGA)-HowdoIupdatetheconfigforanapp) for more infomration.
 
-Run `puppet agent -t` on  edu-dev-app3 to apply your change. You can then access your local instance at `http://edu-app3.decc.local/engedudev1/CONTEXT_SUFFIX/session-info`
+For example if the following was included in the `uni.yml` file
+
+`source: nginx_nginx.conf1`
+
+This will need to be updated to
+
+`source: nginx_nginx.conf2`
+
+There are two references to the nginx config version within this file so ensure you update both.
+
+Commit and push the changes to both files and once the build has passed the ProxyPass rule will be ready to use.
+
 
 #### Run the app
 IntelliJ should auto detect the Spring application and create a run configuration.

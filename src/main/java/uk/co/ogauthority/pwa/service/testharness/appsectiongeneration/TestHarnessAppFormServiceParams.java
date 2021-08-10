@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.service.testharness;
+package uk.co.ogauthority.pwa.service.testharness.appsectiongeneration;
 
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
@@ -13,9 +13,9 @@ public class TestHarnessAppFormServiceParams {
   private final PwaApplicationDetail applicationDetail;
   private final Integer pipelineQuantity;
 
-  TestHarnessAppFormServiceParams(WebUserAccount user,
-                                  PwaApplicationDetail applicationDetail,
-                                  Integer pipelineQuantity) {
+  public TestHarnessAppFormServiceParams(WebUserAccount user,
+                                         PwaApplicationDetail applicationDetail,
+                                         Integer pipelineQuantity) {
     this.user = user;
     this.applicationDetail = applicationDetail;
     this.pipelineQuantity = pipelineQuantity;

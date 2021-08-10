@@ -15,6 +15,7 @@ public class PadOrganisationRoleTestUtil {
   public static PadOrganisationRole createOrgRole(HuooRole role) {
     var organisationRole = new PadOrganisationRole();
     organisationRole.setRole(role);
+    organisationRole.setType(HuooType.PORTAL_ORG);
     return organisationRole;
   }
 

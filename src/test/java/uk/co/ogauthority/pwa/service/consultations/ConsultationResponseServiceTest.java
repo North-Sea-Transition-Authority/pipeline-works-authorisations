@@ -268,6 +268,82 @@ public class ConsultationResponseServiceTest {
 
   }
 
+  private void setupEmailTest(ConsultationResponseData data,
+                              ConsultationResponseOptionGroup consultationResponseOptionGroup,
+                              ConsultationResponseOption consultationResponseOption) {
+
+    data.setResponseType(consultationResponseOption);
+    data.setResponseGroup(consultationResponseOptionGroup);
+    when(consultationResponseDataService.createAndSaveResponseData(any(), any())).thenReturn(List.of(data));
+  }
+
+  @Test
+  public void saveResponseAndCompleteWorkflow_responseOptionHasEmailText_includeResponseTextInEmail_emailHasCorrectText() {
+
+    var consultationRequest = buildConsultationRequest();
+    var form = new ConsultationResponseForm();
+    var data = new ConsultationResponseData();
+    data.setResponseText("My response text");
+    setupEmailTest(data, ConsultationResponseOptionGroup.ADVICE, ConsultationResponseOption.PROVIDE_ADVICE);
+
+    var user = new WebUserAccount(1, new Person(1, null, null, null, null));
+    consultationResponseService.saveResponseAndCompleteWorkflow(form, consultationRequest, user);
+
+    verify(notifyService, times(1)).sendEmail(
+        singleResponseEmailPropsCaptor.capture(), eq(caseOfficerPerson.getEmailAddress()));
+    var props = singleResponseEmailPropsCaptor.getValue();
+
+    assertThat(props.getEmailPersonalisation().entrySet())
+        .extracting(Map.Entry::getKey, Map.Entry::getValue)
+        .contains(
+            tuple("CONSULTATION_RESPONSE", ConsultationResponseOption.PROVIDE_ADVICE.getEmailText() + data.getResponseText())
+        );
+  }
+
+  @Test
+  public void saveResponseAndCompleteWorkflow_responseOptionHasEmailText_dontIncludeResponseTextInEmail_emailHasCorrectText() {
+
+    var consultationRequest = buildConsultationRequest();
+    var form = new ConsultationResponseForm();
+    var data = new ConsultationResponseData();
+    setupEmailTest(data, ConsultationResponseOptionGroup.ADVICE, ConsultationResponseOption.NO_ADVICE);
+
+    var user = new WebUserAccount(1, new Person(1, null, null, null, null));
+    consultationResponseService.saveResponseAndCompleteWorkflow(form, consultationRequest, user);
+
+    verify(notifyService, times(1)).sendEmail(
+        singleResponseEmailPropsCaptor.capture(), eq(caseOfficerPerson.getEmailAddress()));
+    var props = singleResponseEmailPropsCaptor.getValue();
+
+    assertThat(props.getEmailPersonalisation().entrySet())
+        .extracting(Map.Entry::getKey, Map.Entry::getValue)
+        .contains(
+            tuple("CONSULTATION_RESPONSE", ConsultationResponseOption.NO_ADVICE.getEmailText())
+        );
+  }
+
+  @Test
+  public void saveResponseAndCompleteWorkflow_responseOptionDoesNotHaveEmailText_defaultTextUsed_emailHasCorrectText() {
+
+    var consultationRequest = buildConsultationRequest();
+    var form = new ConsultationResponseForm();
+    var data = new ConsultationResponseData();
+    setupEmailTest(data, ConsultationResponseOptionGroup.CONTENT, ConsultationResponseOption.CONFIRMED);
+
+    var user = new WebUserAccount(1, new Person(1, null, null, null, null));
+    consultationResponseService.saveResponseAndCompleteWorkflow(form, consultationRequest, user);
+
+    verify(notifyService, times(1)).sendEmail(
+        singleResponseEmailPropsCaptor.capture(), eq(caseOfficerPerson.getEmailAddress()));
+
+    var props = singleResponseEmailPropsCaptor.getValue();
+
+    assertThat(props.getEmailPersonalisation().entrySet())
+        .extracting(Map.Entry::getKey, Map.Entry::getValue)
+        .contains(
+            tuple("CONSULTATION_RESPONSE", ConsultationResponseOption.CONFIRMED.getLabelText()));
+  }
+
   @Test
   public void isUserAssignedResponderForConsultation_valid() {
 

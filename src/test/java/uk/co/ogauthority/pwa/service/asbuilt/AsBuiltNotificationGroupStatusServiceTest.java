@@ -88,7 +88,7 @@ public class AsBuiltNotificationGroupStatusServiceTest {
   @Test
   public void getAllNonCompleteAsBuiltNotificationGroups_correctlyCallsRepository() {
     asBuiltNotificationGroupStatusService.getAllNonCompleteAsBuiltNotificationGroups();
-    verify(asBuiltNotificationGroupStatusHistoryRepository).findAllByEndedTimestampIsNull();
+    verify(asBuiltNotificationGroupStatusHistoryRepository).findAllByEndedTimestampIsNullAndStatusIsNot(AsBuiltNotificationGroupStatus.COMPLETE);
   }
 
   @Test

@@ -18,7 +18,11 @@ public interface PadPipelineOrganisationRoleLinkRepository extends
     CrudRepository<PadPipelineOrganisationRoleLink, Integer>,
     PadPipelineOrganisationRoleLinkDtoRepository {
 
-  @EntityGraph(attributePaths = {"padOrgRole"})
+  @EntityGraph(attributePaths = {
+      "padOrgRole",
+      "padOrgRole.organisationUnit",
+      "padOrgRole.organisationUnit.portalOrganisationGroup",
+      "pipeline"})
   List<PadPipelineOrganisationRoleLink> findByPadOrgRole_pwaApplicationDetailAndPadOrgRole_Role(
       PwaApplicationDetail pwaApplicationDetail,
       HuooRole huooRole

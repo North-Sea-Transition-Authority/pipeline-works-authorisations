@@ -682,11 +682,16 @@ public class PadOrganisationRoleServiceTest {
   }
 
   @Test
-  public void getRoleCountMap() {
+  public void getRoleCountMap_noUnassignedRolesPresent() {
+
+    var unassignedUserRole = PadOrganisationRoleTestUtil.createOrgRole(HuooRole.USER);
+    unassignedUserRole.setType(HuooType.UNASSIGNED_PIPELINE_SPLIT);
+
     when(padOrganisationRoleService.getOrgRolesForDetail(detail)).thenReturn(List.of(
         PadOrganisationRoleTestUtil.createOrgRole(HuooRole.HOLDER),
         PadOrganisationRoleTestUtil.createOrgRole(HuooRole.USER),
         PadOrganisationRoleTestUtil.createOrgRole(HuooRole.USER),
+        unassignedUserRole,
         PadOrganisationRoleTestUtil.createOrgRole(HuooRole.OPERATOR),
         PadOrganisationRoleTestUtil.createOrgRole(HuooRole.OPERATOR),
         PadOrganisationRoleTestUtil.createOrgRole(HuooRole.OPERATOR)

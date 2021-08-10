@@ -1,14 +1,17 @@
 package uk.co.ogauthority.pwa.controller.documents.generation;
 
+import static java.util.Map.entry;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
+import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooType;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocGenType;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocumentSection;
@@ -43,23 +46,25 @@ public class HuooGeneratorServiceTest {
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(
         PwaApplicationType.INITIAL, 1, 1);
     huooGeneratorService = new HuooGeneratorService(padOrganisationRoleService, diffableOrgRolePipelineGroupCreator);
+
+    when(padOrganisationRoleService.getRoleCountMap(pwaApplicationDetail)).thenReturn(Map.of(
+        HuooRole.HOLDER, 1,
+        HuooRole.USER, 2,
+        HuooRole.OPERATOR, 1,
+        HuooRole.OWNER, 1
+    ));
+
   }
-
-
-
 
   private OrganisationRolePipelineGroupView createOrgRolePipelineGroupView() {
     return new OrganisationRolePipelineGroupView(
         HuooType.PORTAL_ORG, null, false, null, null, null, List.of());
   }
 
-
   private DiffableOrgRolePipelineGroup createDiffableOrgRolePipelineGroup() {
     return new DiffableOrgRolePipelineGroup(
         null, null, null, null, false, null, null, false, List.of());
   }
-
-
 
   @Test
   public void getDocumentSectionData_validSectionName_containsGroupViewData() {
@@ -80,6 +85,12 @@ public class HuooGeneratorServiceTest {
     when(diffableOrgRolePipelineGroupCreator.getDiffableViewForAllOrgRolePipelineGroupView(huooRolePipelineGroupsPadView))
         .thenReturn(allRoleDiffablePipelineGroupView);
 
+    var roleNameTextMap = Map.of(
+        "HOLDER", "Holder",
+        "USER", "Users",
+        "OPERATOR", "Operator",
+        "OWNER", "Owner"
+    );
 
     var documentSectionData = huooGeneratorService.getDocumentSectionData(pwaApplicationDetail, null, DocGenType.PREVIEW);
     var allRolePipelineGroupView = (AllRoleDiffablePipelineGroupView) documentSectionData.getTemplateModel().get("allRolePipelineGroupView");
@@ -90,6 +101,9 @@ public class HuooGeneratorServiceTest {
     assertThat(allRolePipelineGroupView.getUserOrgRolePipelineGroups()).hasSize(1);
     assertThat(allRolePipelineGroupView.getOperatorOrgRolePipelineGroups()).hasSize(1);
     assertThat(allRolePipelineGroupView.getOwnerOrgRolePipelineGroups()).hasSize(1);
+
+    assertThat(documentSectionData.getTemplateModel()).contains(entry("orgRoleNameToTextMap", roleNameTextMap));
+
   }
 
 }
