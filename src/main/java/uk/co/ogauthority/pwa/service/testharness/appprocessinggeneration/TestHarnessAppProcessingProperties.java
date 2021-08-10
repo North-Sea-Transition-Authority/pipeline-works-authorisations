@@ -69,7 +69,7 @@ public class TestHarnessAppProcessingProperties {
     this.caseOfficerProcessingContext = caseOfficerProcessingContext;
   }
 
-  AuthenticatedUserAccount getPwaManagerAua() {
+  public AuthenticatedUserAccount getPwaManagerAua() {
     return pwaManagerAua;
   }
 
