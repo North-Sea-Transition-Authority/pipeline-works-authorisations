@@ -12,7 +12,7 @@
 <#-- @ftlvariable name="userPermissions" type="java.util.Set<uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission>" -->
 <#-- @ftlvariable name="mappingGuidanceUrl" type="java.lang.String" -->
 
-<#assign pageHeading="Review and Submit Application ${applicationReference}"/>
+<#assign pageHeading="Check your answers before submitting your application ${applicationReference}"/>
 
 <@defaultPagePane htmlTitle=pageHeading phaseBanner=false>
 
@@ -31,7 +31,7 @@
     sidebarHeading="Check your answers for all questions in the application"
     errorList=errorList
     aboveSummaryInsert=aboveSummaryInsert
-    singleErrorMessage=isApplicationValid?then("", "Check your answers before submitting your application")>
+    singleErrorMessage=isApplicationValid?then("", "You cannot submit your application until all sections shown on the task list are completed")>
 
         <@fdsForm.htmlForm actionUrl=springUrl(submitUrl)>
           <!-- Submit button macro not used to allow for hiding of button when application is not valid. -->
