@@ -150,8 +150,7 @@ public class AssignCaseOfficerServiceTest {
   @Test
   public void canShowInTaskList_hasPermissionWithIncorrectStatus() {
     appDetail.setStatus(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW);
-    var processingContext = new PwaAppProcessingContext(appDetail, null, Set.of(PwaAppProcessingPermission.ASSIGN_CASE_OFFICER), null, null,
-        Set.of());
+    var processingContext = PwaAppProcessingContextTestUtil.withPermissions(appDetail, Set.of(PwaAppProcessingPermission.ASSIGN_CASE_OFFICER));
 
     boolean canShow = assignCaseOfficerService.canShowInTaskList(processingContext);
 
@@ -162,8 +161,7 @@ public class AssignCaseOfficerServiceTest {
   @Test
   public void getTaskListEntry_invalidPermission_taskLocked() {
     appDetail.setStatus(PwaApplicationStatus.CASE_OFFICER_REVIEW);
-    var processingContext = new PwaAppProcessingContext(appDetail, null, Set.of(), null, null,
-        Set.of());
+    var processingContext = PwaAppProcessingContextTestUtil.withoutPermissions(appDetail);
 
     var taskListEntry = assignCaseOfficerService.getTaskListEntry(PwaAppProcessingTask.ALLOCATE_CASE_OFFICER, processingContext);
 
@@ -174,8 +172,7 @@ public class AssignCaseOfficerServiceTest {
   @Test
   public void getTaskListEntry_invalidAppStatus_taskLocked() {
     appDetail.setStatus(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW);
-    var processingContext = new PwaAppProcessingContext(appDetail, null, Set.of(PwaAppProcessingPermission.ASSIGN_CASE_OFFICER), null, null,
-        Set.of());
+    var processingContext = PwaAppProcessingContextTestUtil.withPermissions(appDetail, Set.of(PwaAppProcessingPermission.ASSIGN_CASE_OFFICER));
 
     var taskListEntry = assignCaseOfficerService.getTaskListEntry(PwaAppProcessingTask.ALLOCATE_CASE_OFFICER, processingContext);
 
@@ -186,8 +183,7 @@ public class AssignCaseOfficerServiceTest {
   @Test
   public void getTaskListEntry_validPermissionAndAppStatus_taskEditable() {
     appDetail.setStatus(PwaApplicationStatus.CASE_OFFICER_REVIEW);
-    var processingContext = new PwaAppProcessingContext(appDetail, null, Set.of(PwaAppProcessingPermission.ASSIGN_CASE_OFFICER), null, null,
-        Set.of());
+    var processingContext = PwaAppProcessingContextTestUtil.withPermissions(appDetail, Set.of(PwaAppProcessingPermission.ASSIGN_CASE_OFFICER));
 
     var taskListEntry = assignCaseOfficerService.getTaskListEntry(PwaAppProcessingTask.ALLOCATE_CASE_OFFICER, processingContext);
 

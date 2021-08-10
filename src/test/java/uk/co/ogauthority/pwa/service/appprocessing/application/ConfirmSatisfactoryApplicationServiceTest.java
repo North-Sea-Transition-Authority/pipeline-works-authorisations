@@ -27,6 +27,7 @@ import uk.co.ogauthority.pwa.model.enums.tasklist.TaskState;
 import uk.co.ogauthority.pwa.model.notify.emailproperties.updaterequests.ApplicationUpdateAcceptedEmailProps;
 import uk.co.ogauthority.pwa.model.tasklist.TaskTag;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
+import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContextTestUtil;
 import uk.co.ogauthority.pwa.service.consultations.ConsultationRequestService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingTask;
@@ -166,8 +167,7 @@ public class ConfirmSatisfactoryApplicationServiceTest {
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     detail.setStatus(PwaApplicationStatus.DRAFT);
 
-    var processingContext = new PwaAppProcessingContext(detail, null, Set.of(), null, null,
-        Set.of());
+    var processingContext = PwaAppProcessingContextTestUtil.withoutPermissions(detail);
 
     var taskListEntry = confirmSatisfactoryApplicationService.getTaskListEntry(PwaAppProcessingTask.CONFIRM_SATISFACTORY_APPLICATION, processingContext);
 
@@ -181,8 +181,7 @@ public class ConfirmSatisfactoryApplicationServiceTest {
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     detail.setStatus(PwaApplicationStatus.CASE_OFFICER_REVIEW);
 
-    var processingContext = new PwaAppProcessingContext(detail, null, Set.of(), null, null,
-        Set.of());
+    var processingContext = PwaAppProcessingContextTestUtil.withoutPermissions(detail);
 
     var taskListEntry = confirmSatisfactoryApplicationService.getTaskListEntry(PwaAppProcessingTask.CONFIRM_SATISFACTORY_APPLICATION, processingContext);
 

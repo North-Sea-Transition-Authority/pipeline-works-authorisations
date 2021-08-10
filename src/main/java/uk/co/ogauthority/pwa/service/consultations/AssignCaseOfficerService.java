@@ -94,6 +94,8 @@ public class AssignCaseOfficerService implements AppProcessingService {
 
   @Override
   public boolean canShowInTaskList(PwaAppProcessingContext processingContext) {
+    //We only want to show the task when in 'Case Officer Review' as before this there is no required case officer
+    // and at consent review the user can choose which case officer to send it back to.
     return processingContext.getAppProcessingPermissions().contains(PwaAppProcessingPermission.ASSIGN_CASE_OFFICER)
         && processingContext.getApplicationDetail().getStatus().equals(PwaApplicationStatus.CASE_OFFICER_REVIEW);
   }

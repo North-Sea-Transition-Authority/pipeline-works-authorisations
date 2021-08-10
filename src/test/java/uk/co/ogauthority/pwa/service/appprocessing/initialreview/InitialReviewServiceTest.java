@@ -33,6 +33,7 @@ import uk.co.ogauthority.pwa.model.enums.tasklist.TaskState;
 import uk.co.ogauthority.pwa.model.tasklist.TaskTag;
 import uk.co.ogauthority.pwa.service.appprocessing.applicationupdate.ApplicationUpdateRequestService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
+import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContextTestUtil;
 import uk.co.ogauthority.pwa.service.appprocessing.processingcharges.appcharges.ApplicationChargeRequestService;
 import uk.co.ogauthority.pwa.service.appprocessing.processingcharges.appcharges.ApplicationChargeRequestSpecification;
 import uk.co.ogauthority.pwa.service.appprocessing.processingcharges.appfees.ApplicationFeeReport;
@@ -393,8 +394,7 @@ public class InitialReviewServiceTest {
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     detail.setStatus(PwaApplicationStatus.DRAFT);
 
-    var processingContext = new PwaAppProcessingContext
-        (detail, null, Set.of(PwaAppProcessingPermission.ACCEPT_INITIAL_REVIEW), null, null, Set.of());
+    var processingContext = PwaAppProcessingContextTestUtil.withPermissions(detail, Set.of(PwaAppProcessingPermission.ACCEPT_INITIAL_REVIEW));
 
     var taskListEntry = initialReviewService.getTaskListEntry(PwaAppProcessingTask.INITIAL_REVIEW, processingContext);
 
@@ -407,8 +407,7 @@ public class InitialReviewServiceTest {
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     detail.setStatus(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW);
 
-    var processingContext = new PwaAppProcessingContext
-        (detail, null, Set.of(), null, null, Set.of());
+    var processingContext = PwaAppProcessingContextTestUtil.withoutPermissions(detail);
 
     var taskListEntry = initialReviewService.getTaskListEntry(PwaAppProcessingTask.INITIAL_REVIEW, processingContext);
 
@@ -421,8 +420,7 @@ public class InitialReviewServiceTest {
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     detail.setStatus(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW);
 
-    var processingContext = new PwaAppProcessingContext
-        (detail, null, Set.of(PwaAppProcessingPermission.ACCEPT_INITIAL_REVIEW), null, null, Set.of());
+    var processingContext = PwaAppProcessingContextTestUtil.withPermissions(detail, Set.of(PwaAppProcessingPermission.ACCEPT_INITIAL_REVIEW));
 
     var taskListEntry = initialReviewService.getTaskListEntry(PwaAppProcessingTask.INITIAL_REVIEW, processingContext);
 
