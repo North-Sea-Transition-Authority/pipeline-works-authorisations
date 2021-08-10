@@ -180,12 +180,10 @@ public class ConsultationResponseService implements AppProcessingService {
   }
 
   private String getConsultationResponseEmailText(ConsultationResponseData responseData, String defaultEmailText) {
-
-    var emailText = Optional.ofNullable(responseData.getResponseType().getEmailText())
-        .orElse(defaultEmailText);
-
+    var emailText = responseData.getResponseType().getEmailText().orElse(defaultEmailText);
     return responseData.getResponseType().includeResponseTextInEmail() ? emailText + responseData.getResponseText() : emailText;
   }
+
 
   @Override
   public boolean canShowInTaskList(PwaAppProcessingContext processingContext) {

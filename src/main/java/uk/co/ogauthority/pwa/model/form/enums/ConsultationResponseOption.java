@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.model.form.enums;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 public enum ConsultationResponseOption {
 
@@ -161,8 +162,8 @@ public enum ConsultationResponseOption {
     return String.format(radioInsetText, appReference);
   }
 
-  public String getEmailText() {
-    return emailText;
+  public Optional<String> getEmailText() {
+    return Optional.ofNullable(emailText);
   }
 
   public boolean includeResponseTextInEmail() {
