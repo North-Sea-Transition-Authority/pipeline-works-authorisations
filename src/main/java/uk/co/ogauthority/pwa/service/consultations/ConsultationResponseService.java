@@ -149,9 +149,10 @@ public class ConsultationResponseService implements AppProcessingService {
     if (responseDataList.size() > 1) {
 
       var responses = responseDataList.stream()
-          .map(d -> String.format("%s\n\n%s",
+          .map(d -> getConsultationResponseEmailText(d,
+              String.format("%s\n\n%s",
               d.getResponseGroup().getResponseLabel(),
-              d.getResponseType().getRadioInsetText(application.getAppReference())))
+              d.getResponseType().getRadioInsetText(application.getAppReference()))))
           .collect(Collectors.joining("\n\n"));
 
       emailProps = new ConsultationMultiResponseReceivedEmailProps(
@@ -168,7 +169,7 @@ public class ConsultationResponseService implements AppProcessingService {
           caseOfficerName,
           application.getAppReference(),
           consulteeGroupName,
-          responseDataList.get(0).getResponseType().getLabelText(),
+          getConsultationResponseEmailText(responseDataList.get(0), responseDataList.get(0).getResponseType().getLabelText()),
           emailCaseLinkService.generateCaseManagementLink(application)
       );
 
@@ -176,6 +177,14 @@ public class ConsultationResponseService implements AppProcessingService {
 
     notifyService.sendEmail(emailProps, caseOfficerEmail);
 
+  }
+
+  private String getConsultationResponseEmailText(ConsultationResponseData responseData, String defaultEmailText) {
+
+    var emailText = Optional.ofNullable(responseData.getResponseType().getEmailText())
+        .orElse(defaultEmailText);
+
+    return responseData.getResponseType().includeResponseTextInEmail() ? emailText + responseData.getResponseText() : emailText;
   }
 
   @Override
