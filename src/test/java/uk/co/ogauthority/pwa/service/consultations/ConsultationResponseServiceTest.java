@@ -293,10 +293,11 @@ public class ConsultationResponseServiceTest {
         singleResponseEmailPropsCaptor.capture(), eq(caseOfficerPerson.getEmailAddress()));
     var props = singleResponseEmailPropsCaptor.getValue();
 
+    assertThat(ConsultationResponseOption.PROVIDE_ADVICE.getEmailText()).isPresent();
     assertThat(props.getEmailPersonalisation().entrySet())
         .extracting(Map.Entry::getKey, Map.Entry::getValue)
         .contains(
-            tuple("CONSULTATION_RESPONSE", ConsultationResponseOption.PROVIDE_ADVICE.getEmailText() + data.getResponseText())
+            tuple("CONSULTATION_RESPONSE", ConsultationResponseOption.PROVIDE_ADVICE.getEmailText().get() + data.getResponseText())
         );
   }
 
@@ -315,10 +316,11 @@ public class ConsultationResponseServiceTest {
         singleResponseEmailPropsCaptor.capture(), eq(caseOfficerPerson.getEmailAddress()));
     var props = singleResponseEmailPropsCaptor.getValue();
 
+    assertThat(ConsultationResponseOption.NO_ADVICE.getEmailText()).isPresent();
     assertThat(props.getEmailPersonalisation().entrySet())
         .extracting(Map.Entry::getKey, Map.Entry::getValue)
         .contains(
-            tuple("CONSULTATION_RESPONSE", ConsultationResponseOption.NO_ADVICE.getEmailText())
+            tuple("CONSULTATION_RESPONSE", ConsultationResponseOption.NO_ADVICE.getEmailText().get())
         );
   }
 
