@@ -21,6 +21,7 @@ import uk.co.ogauthority.pwa.model.tasklist.TaskTag;
 import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
 import uk.co.ogauthority.pwa.service.appprocessing.consentreview.ConsentReviewService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
+import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContextTestUtil;
 import uk.co.ogauthority.pwa.service.appprocessing.options.ApproveOptionsService;
 import uk.co.ogauthority.pwa.service.appprocessing.options.OptionsApprovalStatus;
 import uk.co.ogauthority.pwa.service.documents.DocumentService;
@@ -94,7 +95,7 @@ public class PrepareConsentTaskServiceTest {
 
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     detail.setStatus(PwaApplicationStatus.DRAFT);
-    var processingContext = new PwaAppProcessingContext(detail, null, Set.of(), null, null, Set.of());
+    var processingContext = PwaAppProcessingContextTestUtil.withoutPermissions(detail);
 
     boolean canShow = prepareConsentTaskService.canShowInTaskList(processingContext);
 
@@ -107,7 +108,7 @@ public class PrepareConsentTaskServiceTest {
 
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     detail.setStatus(PwaApplicationStatus.COMPLETE);
-    var processingContext = new PwaAppProcessingContext(detail, null, Set.of(), null, null, Set.of());
+    var processingContext = PwaAppProcessingContextTestUtil.withoutPermissions(detail);
 
     boolean canShow = prepareConsentTaskService.canShowInTaskList(processingContext);
 
@@ -283,8 +284,9 @@ public class PrepareConsentTaskServiceTest {
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     detail.setStatus(PwaApplicationStatus.COMPLETE);
 
-    var processingContext = new PwaAppProcessingContext(detail, null, Set.of(), null,
-        PwaAppProcessingContextDtoTestUtils.appInvolvementSatisfactoryVersions(detail.getPwaApplication()), Set.of());
+    var processingContext = PwaAppProcessingContextTestUtil.withAppInvolvement(detail,
+        ApplicationInvolvementDtoTestUtil.fromInvolvementFlags(detail.getPwaApplication(),
+            Set.of(ApplicationInvolvementDtoTestUtil.InvolvementFlag.AT_LEAST_ONE_SATISFACTORY_VERSION)));
 
     when(consentReviewService.isApplicationConsented(processingContext.getApplicationDetail()))
         .thenReturn(true);
@@ -329,8 +331,7 @@ public class PrepareConsentTaskServiceTest {
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     detail.setStatus(PwaApplicationStatus.COMPLETE);
 
-    var processingContext = new PwaAppProcessingContext(detail, null, Set.of(), null,
-        ApplicationInvolvementDtoTestUtil.noInvolvementAndNoFlags(detail.getPwaApplication()), Set.of());
+    var processingContext = PwaAppProcessingContextTestUtil.withoutPermissions(detail);
 
     var taskAccessible = prepareConsentTaskService.taskAccessible(processingContext);
 
