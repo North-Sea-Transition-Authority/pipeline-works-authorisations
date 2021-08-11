@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.service.appprocessing.casehistory;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.Clock;
@@ -10,6 +11,7 @@ import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -118,6 +120,20 @@ public class ConsentReviewCaseHistoryItemServiceTest {
               "Contact email", pwaManagerPerson.getEmailAddress())));
     });
 
+  }
+
+
+  @Test
+  public void getCaseHistoryItemViews_consentReviewNotEnded_historyItemViewStillCreated() {
+
+    var openReview = new ConsentReview(detail, "cover 1", new PersonId(1), clock.instant());
+    openReview.setEndedByPersonId(null);
+
+    when(consentReviewService.findByPwaApplicationDetails(List.of(detail, detail2))).thenReturn(List.of(openReview));
+
+    consentReviewCaseHistoryItemService.getCaseHistoryItemViews(pwaApplication);
+
+    verify(personService).findAllByIdIn(Set.of());
   }
 
 }
