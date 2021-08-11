@@ -39,8 +39,8 @@
 
             <!-- To avoid putting the actions within the summary macro recreate the fds pattern using a standard list with small padding. -->
             <ol class="govuk-list govuk-!-margin-bottom-1">
-                <li class="govuk-list__item govuk-list__item--inline"><@fdsAction.link linkText="Edit" linkUrl=springUrl(editDepositUrls[deposit.entityID?string.number]) linkScreenReaderText="${deposit.depositReference}" linkClass="govuk-link" /></li>
-                <li class="govuk-list__item govuk-list__item--inline"><@fdsAction.link linkText="Remove" linkUrl=springUrl(removeDepositUrls[deposit.entityID?string.number]) linkScreenReaderText="${deposit.depositReference}" linkClass="govuk-link" /></li>
+                <li class="govuk-list__item govuk-list__item--inline"><@fdsAction.link linkText="Edit" linkUrl=springUrl(editDepositUrls[deposit.entityID?c?string]) linkScreenReaderText="${deposit.depositReference}" linkClass="govuk-link" /></li>
+                <li class="govuk-list__item govuk-list__item--inline"><@fdsAction.link linkText="Remove" linkUrl=springUrl(removeDepositUrls[deposit.entityID?c?string]) linkScreenReaderText="${deposit.depositReference}" linkClass="govuk-link" /></li>
             </ol>
 
             <@depositViewSummary deposit=deposit/>
