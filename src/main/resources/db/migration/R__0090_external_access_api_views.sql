@@ -153,4 +153,6 @@ GRANT SELECT ON ${datasource.user}.api_vw_pwa_pipeline_details TO appenv;
 GRANT SELECT ON ${datasource.user}.api_vw_pwa_consents TO appenv;
 GRANT SELECT ON ${datasource.user}.api_vw_primary_pwas TO appenv;
 
-GRANT SELECT ON ${datasource.user}.api_vw_current_pipeline_data TO appenv, decmgr, eemsmgr;
+GRANT SELECT ON ${datasource.user}.api_vw_current_pipeline_data TO appenv, decmgr, eemsmgr, bpmmgr;
+
+GRANT SELECT ON ${datasource.user}.api_vw_current_pipeline_data TO envmgr WITH GRANT OPTION;
