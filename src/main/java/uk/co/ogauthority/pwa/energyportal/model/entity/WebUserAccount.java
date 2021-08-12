@@ -55,10 +55,10 @@ public class WebUserAccount implements Serializable {
 
   @VisibleForTesting
   WebUserAccount(int wuaId,
-                        String emailAddress,
-                        String loginId,
-                        WebUserAccountStatus accountStatus,
-                        Person person) {
+                 String emailAddress,
+                 String loginId,
+                 WebUserAccountStatus accountStatus,
+                 Person person) {
     this.wuaId = wuaId;
     this.emailAddress = emailAddress;
     this.loginId = loginId;
