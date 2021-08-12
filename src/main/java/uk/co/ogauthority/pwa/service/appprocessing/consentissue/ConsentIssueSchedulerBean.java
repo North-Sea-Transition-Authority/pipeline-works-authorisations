@@ -48,7 +48,7 @@ public class ConsentIssueSchedulerBean extends QuartzJobBean {
       try {
         consentIssueService.issueConsent(detail, issuingUser);
       } catch (Exception e) {
-        // todo PWA-1379 what do we do when it fails?
+        // todo PWA-1425 what do we do when it fails?
         throw new ConsentIssueException(String.format("Error issuing consent for PAD with id: %s", detail.getId()), e);
       }
 
@@ -56,7 +56,7 @@ public class ConsentIssueSchedulerBean extends QuartzJobBean {
 
     } catch (Exception e) {
       LOGGER.error("Consent issue job execution failed", e);
-      // todo PWA-1379 what do we do when it fails?
+      // todo PWA-1425 what do we do when it fails?
       throw new JobExecutionException(e);
     }
   }
