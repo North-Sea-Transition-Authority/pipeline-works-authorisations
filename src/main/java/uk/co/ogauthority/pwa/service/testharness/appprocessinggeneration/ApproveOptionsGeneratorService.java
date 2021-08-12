@@ -19,7 +19,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationTaskServ
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskListService;
 import uk.co.ogauthority.pwa.service.pwaapplications.workflow.PwaApplicationSubmissionService;
 import uk.co.ogauthority.pwa.service.testharness.GenerateApplicationService;
-import uk.co.ogauthority.pwa.service.testharness.TestHarnessAppFormServiceParams;
+import uk.co.ogauthority.pwa.service.testharness.appsectiongeneration.TestHarnessAppFormServiceParams;
 
 @Service
 @Profile("test-harness")

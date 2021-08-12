@@ -33,6 +33,7 @@ import uk.co.ogauthority.pwa.model.enums.tasklist.TaskState;
 import uk.co.ogauthority.pwa.model.tasklist.TaskTag;
 import uk.co.ogauthority.pwa.service.appprocessing.applicationupdate.ApplicationUpdateRequestService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
+import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContextTestUtil;
 import uk.co.ogauthority.pwa.service.appprocessing.processingcharges.appcharges.ApplicationChargeRequestService;
 import uk.co.ogauthority.pwa.service.appprocessing.processingcharges.appcharges.ApplicationChargeRequestSpecification;
 import uk.co.ogauthority.pwa.service.appprocessing.processingcharges.appfees.ApplicationFeeReport;
@@ -372,6 +373,7 @@ public class InitialReviewServiceTest {
   public void getTaskListEntry_initialReviewNotCompleted_whenAcceptInitialReviewPermission() {
 
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
+    detail.setStatus(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW);
 
     var processingContext = new PwaAppProcessingContext(
         detail, null, Set.of(PwaAppProcessingPermission.ACCEPT_INITIAL_REVIEW), null, null, Set.of());
@@ -384,6 +386,45 @@ public class InitialReviewServiceTest {
     assertThat(taskListEntry.getTaskState()).isEqualTo(TaskState.EDIT);
     assertThat(taskListEntry.getTaskInfoList()).isEmpty();
 
+  }
+
+  @Test
+  public void getTaskListEntry_invalidApplicationStatus_taskLocked() {
+
+    var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
+    detail.setStatus(PwaApplicationStatus.DRAFT);
+
+    var processingContext = PwaAppProcessingContextTestUtil.withPermissions(detail, Set.of(PwaAppProcessingPermission.ACCEPT_INITIAL_REVIEW));
+
+    var taskListEntry = initialReviewService.getTaskListEntry(PwaAppProcessingTask.INITIAL_REVIEW, processingContext);
+
+    assertThat(taskListEntry.getTaskState()).isEqualTo(TaskState.LOCK);
+  }
+
+  @Test
+  public void getTaskListEntry_invalidPermission_taskLocked() {
+
+    var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
+    detail.setStatus(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW);
+
+    var processingContext = PwaAppProcessingContextTestUtil.withoutPermissions(detail);
+
+    var taskListEntry = initialReviewService.getTaskListEntry(PwaAppProcessingTask.INITIAL_REVIEW, processingContext);
+
+    assertThat(taskListEntry.getTaskState()).isEqualTo(TaskState.LOCK);
+  }
+
+  @Test
+  public void getTaskListEntry_validPermissionAndAppStatus_taskEditable() {
+
+    var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
+    detail.setStatus(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW);
+
+    var processingContext = PwaAppProcessingContextTestUtil.withPermissions(detail, Set.of(PwaAppProcessingPermission.ACCEPT_INITIAL_REVIEW));
+
+    var taskListEntry = initialReviewService.getTaskListEntry(PwaAppProcessingTask.INITIAL_REVIEW, processingContext);
+
+    assertThat(taskListEntry.getTaskState()).isEqualTo(TaskState.EDIT);
   }
 
   @Test

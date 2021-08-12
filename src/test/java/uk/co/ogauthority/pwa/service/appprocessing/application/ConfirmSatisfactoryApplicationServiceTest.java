@@ -27,10 +27,12 @@ import uk.co.ogauthority.pwa.model.enums.tasklist.TaskState;
 import uk.co.ogauthority.pwa.model.notify.emailproperties.updaterequests.ApplicationUpdateAcceptedEmailProps;
 import uk.co.ogauthority.pwa.model.tasklist.TaskTag;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
+import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContextTestUtil;
 import uk.co.ogauthority.pwa.service.consultations.ConsultationRequestService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingTask;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.TaskStatus;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.notify.EmailCaseLinkService;
 import uk.co.ogauthority.pwa.service.notify.NotifyService;
@@ -109,6 +111,7 @@ public class ConfirmSatisfactoryApplicationServiceTest {
   public void getTaskListEntry_confirmSatisfactoryApplicationNotCompleted() {
 
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
+    detail.setStatus(PwaApplicationStatus.CASE_OFFICER_REVIEW);
 
     var processingContext = new PwaAppProcessingContext(detail, null, Set.of(), null, null, Set.of());
 
@@ -155,6 +158,34 @@ public class ConfirmSatisfactoryApplicationServiceTest {
     assertThat(taskListEntry.getTaskState()).isEqualTo(TaskState.LOCK);
     assertThat(taskListEntry.getTaskTag()).isEqualTo(TaskTag.from(TaskStatus.NOT_STARTED));
     assertThat(taskListEntry.getTaskInfoList()).isEmpty();
+
+  }
+
+  @Test
+  public void getTaskListEntry_invalidAppStatus_taskStateLocked() {
+
+    var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
+    detail.setStatus(PwaApplicationStatus.DRAFT);
+
+    var processingContext = PwaAppProcessingContextTestUtil.withoutPermissions(detail);
+
+    var taskListEntry = confirmSatisfactoryApplicationService.getTaskListEntry(PwaAppProcessingTask.CONFIRM_SATISFACTORY_APPLICATION, processingContext);
+
+    assertThat(taskListEntry.getTaskState()).isEqualTo(TaskState.LOCK);
+
+  }
+
+  @Test
+  public void getTaskListEntry_validAppStatus_taskStateEditable() {
+
+    var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
+    detail.setStatus(PwaApplicationStatus.CASE_OFFICER_REVIEW);
+
+    var processingContext = PwaAppProcessingContextTestUtil.withoutPermissions(detail);
+
+    var taskListEntry = confirmSatisfactoryApplicationService.getTaskListEntry(PwaAppProcessingTask.CONFIRM_SATISFACTORY_APPLICATION, processingContext);
+
+    assertThat(taskListEntry.getTaskState()).isEqualTo(TaskState.EDIT);
 
   }
 

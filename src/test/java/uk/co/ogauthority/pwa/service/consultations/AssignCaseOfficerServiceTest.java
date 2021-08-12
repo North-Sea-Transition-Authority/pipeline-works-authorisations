@@ -19,11 +19,14 @@ import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.enums.tasklist.TaskState;
 import uk.co.ogauthority.pwa.model.form.consultation.AssignCaseOfficerForm;
 import uk.co.ogauthority.pwa.model.notify.emailproperties.assignments.ApplicationAssignedToYouEmailProps;
 import uk.co.ogauthority.pwa.model.notify.emailproperties.assignments.CaseOfficerAssignedEmailProps;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
+import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContextTestUtil;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
+import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingTask;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.workflow.application.PwaApplicationWorkflowTask;
@@ -147,14 +150,47 @@ public class AssignCaseOfficerServiceTest {
   @Test
   public void canShowInTaskList_hasPermissionWithIncorrectStatus() {
     appDetail.setStatus(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW);
-    var processingContext = new PwaAppProcessingContext(appDetail, null, Set.of(PwaAppProcessingPermission.ASSIGN_CASE_OFFICER), null, null,
-        Set.of());
+    var processingContext = PwaAppProcessingContextTestUtil.withPermissions(appDetail, Set.of(PwaAppProcessingPermission.ASSIGN_CASE_OFFICER));
 
     boolean canShow = assignCaseOfficerService.canShowInTaskList(processingContext);
 
     assertThat(canShow).isFalse();
 
   }
+
+  @Test
+  public void getTaskListEntry_invalidPermission_taskLocked() {
+    appDetail.setStatus(PwaApplicationStatus.CASE_OFFICER_REVIEW);
+    var processingContext = PwaAppProcessingContextTestUtil.withoutPermissions(appDetail);
+
+    var taskListEntry = assignCaseOfficerService.getTaskListEntry(PwaAppProcessingTask.ALLOCATE_CASE_OFFICER, processingContext);
+
+    assertThat(taskListEntry.getTaskState()).isEqualTo(TaskState.LOCK);
+
+  }
+
+  @Test
+  public void getTaskListEntry_invalidAppStatus_taskLocked() {
+    appDetail.setStatus(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW);
+    var processingContext = PwaAppProcessingContextTestUtil.withPermissions(appDetail, Set.of(PwaAppProcessingPermission.ASSIGN_CASE_OFFICER));
+
+    var taskListEntry = assignCaseOfficerService.getTaskListEntry(PwaAppProcessingTask.ALLOCATE_CASE_OFFICER, processingContext);
+
+    assertThat(taskListEntry.getTaskState()).isEqualTo(TaskState.LOCK);
+
+  }
+
+  @Test
+  public void getTaskListEntry_validPermissionAndAppStatus_taskEditable() {
+    appDetail.setStatus(PwaApplicationStatus.CASE_OFFICER_REVIEW);
+    var processingContext = PwaAppProcessingContextTestUtil.withPermissions(appDetail, Set.of(PwaAppProcessingPermission.ASSIGN_CASE_OFFICER));
+
+    var taskListEntry = assignCaseOfficerService.getTaskListEntry(PwaAppProcessingTask.ALLOCATE_CASE_OFFICER, processingContext);
+
+    assertThat(taskListEntry.getTaskState()).isEqualTo(TaskState.EDIT);
+
+  }
+
 
 }
 
