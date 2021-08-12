@@ -227,7 +227,7 @@ public class AppConsentDocControllerTest extends PwaAppProcessingContextAbstract
     when(documentService.getDocumentInstance(any(), any())).thenReturn(Optional.of(new DocumentInstance()));
     var run = new DocgenRun();
     run.setId(1);
-    when(docgenService.scheduleDocumentGeneration(any(), any(), any())).thenReturn(run);
+    when(docgenService.createDocgenRun(any(), any(), any())).thenReturn(run);
 
     editDocumentEndpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -244,7 +244,7 @@ public class AppConsentDocControllerTest extends PwaAppProcessingContextAbstract
     when(documentService.getDocumentInstance(any(), any())).thenReturn(Optional.of(new DocumentInstance()));
     var run = new DocgenRun();
     run.setId(1);
-    when(docgenService.scheduleDocumentGeneration(any(), any(), any())).thenReturn(run);
+    when(docgenService.createDocgenRun(any(), any(), any())).thenReturn(run);
 
     editDocumentEndpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -262,7 +262,7 @@ public class AppConsentDocControllerTest extends PwaAppProcessingContextAbstract
     when(documentService.getDocumentInstance(any(), any())).thenReturn(Optional.of(instance));
     var run = new DocgenRun();
     run.setId(1);
-    when(docgenService.scheduleDocumentGeneration(any(), any(), any())).thenReturn(run);
+    when(docgenService.createDocgenRun(any(), any(), any())).thenReturn(run);
 
     mockMvc.perform(post(ReverseRouter.route(on(AppConsentDocController.class)
         .schedulePreview(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null)))
@@ -270,7 +270,7 @@ public class AppConsentDocControllerTest extends PwaAppProcessingContextAbstract
         .with(csrf()))
         .andExpect(status().is3xxRedirection());
 
-    verify(docgenService, times(1)).scheduleDocumentGeneration(instance, DocGenType.PREVIEW, user.getLinkedPerson());
+    verify(docgenService, times(1)).scheduleDocumentGeneration(run);
 
   }
 

@@ -169,7 +169,8 @@ public class AppConsentDocController {
           .orElseThrow(() -> new DocumentInstanceException(String.format("Couldn't find doc instance for app with id: %s",
               applicationId)));
 
-      var run = docgenService.scheduleDocumentGeneration(docInstance, DocGenType.PREVIEW, authenticatedUserAccount.getLinkedPerson());
+      var run = docgenService.createDocgenRun(docInstance, DocGenType.PREVIEW, authenticatedUserAccount.getLinkedPerson());
+      docgenService.scheduleDocumentGeneration(run);
 
       return ReverseRouter.redirect(on(AppConsentDocController.class)
           .renderDocumentGenerating(applicationId, pwaApplicationType, run.getId(), null, null));

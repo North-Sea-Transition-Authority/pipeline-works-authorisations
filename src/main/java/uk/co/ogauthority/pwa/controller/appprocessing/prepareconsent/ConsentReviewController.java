@@ -181,27 +181,26 @@ public class ConsentReviewController {
   }
 
   @PostMapping("/issue")
-  public ModelAndView issueConsent(@PathVariable("applicationId") Integer applicationId,
-                                   @PathVariable("applicationType")
-                                   @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
-                                   PwaAppProcessingContext processingContext,
-                                   AuthenticatedUserAccount authenticatedUserAccount,
-                                   RedirectAttributes redirectAttributes) {
+  public ModelAndView scheduleConsentIssue(@PathVariable("applicationId") Integer applicationId,
+                                           @PathVariable("applicationType")
+                                           @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
+                                           PwaAppProcessingContext processingContext,
+                                           AuthenticatedUserAccount authenticatedUserAccount,
+                                           RedirectAttributes redirectAttributes) {
 
     try {
 
-      var issuedConsentDto = consentReviewService.issueConsent(processingContext.getApplicationDetail(), authenticatedUserAccount);
+      consentReviewService.scheduleConsentIssue(processingContext.getApplicationDetail(), authenticatedUserAccount);
 
       FlashUtils.success(redirectAttributes,
           String.format(
-              "Issued consent %s for application %s",
-              issuedConsentDto.getConsentReference(),
+              "Consent issue has been scheduled for application %s",
               processingContext.getPwaApplication().getAppReference())
       );
 
     } catch (ConsentReviewException e) {
 
-      FlashUtils.error(redirectAttributes, processingContext.getPwaApplication().getAppReference() + " consent not issued",
+      FlashUtils.error(redirectAttributes, processingContext.getPwaApplication().getAppReference() + " consent issue not scheduled",
           "Consent review no longer open, someone else may have already performed this action.");
 
     }
