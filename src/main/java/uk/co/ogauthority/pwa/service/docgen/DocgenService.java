@@ -50,7 +50,6 @@ public class DocgenService {
       JobKey jobKey = jobKey(String.valueOf(docgenRun.getId()), "DocGen");
       JobDetail jobDetail = newJob(DocgenSchedulerBean.class)
           .withIdentity(jobKey)
-          .usingJobData("docgenType", docgenRun.getDocGenType().name())
           .requestRecovery()
           .storeDurably()
           .build();

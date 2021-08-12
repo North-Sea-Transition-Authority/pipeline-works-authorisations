@@ -81,7 +81,6 @@ public class DocgenServiceTest {
       assertThat(jobDetail.getKey()).isEqualTo(jobKey(String.valueOf(run.getId()), "DocGen"));
       assertThat(jobDetail.isDurable()).isTrue();
       assertThat(jobDetail.requestsRecovery()).isTrue();
-      assertThat(jobDetail.getJobDataMap()).containsEntry("docgenType", DocGenType.FULL.name());
     });
 
     var jobDetail = jobDetailCaptor.getValue();

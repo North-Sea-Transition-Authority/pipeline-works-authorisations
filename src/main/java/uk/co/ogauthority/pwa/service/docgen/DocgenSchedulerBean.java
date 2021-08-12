@@ -9,7 +9,6 @@ import org.springframework.lang.NonNull;
 import org.springframework.scheduling.quartz.QuartzJobBean;
 import org.springframework.stereotype.Component;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
-import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocGenType;
 import uk.co.ogauthority.pwa.repository.docgen.DocgenRunRepository;
 
 /**
@@ -34,8 +33,6 @@ public class DocgenSchedulerBean extends QuartzJobBean {
     try {
 
       String docgenRunId = context.getJobDetail().getKey().getName();
-
-      var docgenType = DocGenType.valueOf(context.getJobDetail().getJobDataMap().getString("docgenType"));
 
       var docgenRun = docgenRunRepository.findById(Long.valueOf(docgenRunId))
           .orElseThrow(() -> new PwaEntityNotFoundException(String.format("Docgen run with id %s not found", docgenRunId)));
