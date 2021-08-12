@@ -296,16 +296,17 @@ public class TeamManagementService {
    */
   public Optional<Person> getPersonByEmailAddressOrLoginId(String emailOrLoginId) {
 
+    var excludedWuaStatuses = List.of(WebUserAccountStatus.CANCELLED, WebUserAccountStatus.NEW);
+
     List<WebUserAccount> webUserAccounts =
-        webUserAccountRepository.findAllByEmailAddressAndAccountStatusNot(emailOrLoginId,
-            WebUserAccountStatus.CANCELLED);
+        webUserAccountRepository.findAllByEmailAddressAndAccountStatusNotIn(emailOrLoginId, excludedWuaStatuses);
 
     if (webUserAccounts.size() == 1) {
       return Optional.of(webUserAccounts.get(0).getLinkedPerson());
     }
 
     webUserAccounts.addAll(
-        webUserAccountRepository.findAllByLoginIdAndAccountStatusNot(emailOrLoginId, WebUserAccountStatus.CANCELLED));
+        webUserAccountRepository.findAllByLoginIdAndAccountStatusNotIn(emailOrLoginId, excludedWuaStatuses));
 
     if (webUserAccounts.size() == 1) {
       return Optional.of(webUserAccounts.get(0).getLinkedPerson());
