@@ -97,6 +97,33 @@ public class ConfirmSatisfactoryApplicationServiceTest {
   }
 
   @Test
+  public void canShowInTaskList_hasCaseManagementOgaPermission_appCompleted_true() {
+
+    var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
+    detail.setStatus(PwaApplicationStatus.COMPLETE);
+
+    var processingContext = new PwaAppProcessingContext(detail, null, Set.of(PwaAppProcessingPermission.CASE_MANAGEMENT_OGA), null, null,
+        Set.of());
+
+    boolean canShow = confirmSatisfactoryApplicationService.canShowInTaskList(processingContext);
+
+    assertThat(canShow).isTrue();
+  }
+
+  @Test
+  public void canShowInTaskList_hasCaseManagementOgaPermission_appNotCompleted_false() {
+
+    var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
+
+    var processingContext = new PwaAppProcessingContext(detail, null, Set.of(PwaAppProcessingPermission.CASE_MANAGEMENT_OGA), null, null,
+        Set.of());
+
+    boolean canShow = confirmSatisfactoryApplicationService.canShowInTaskList(processingContext);
+
+    assertThat(canShow).isFalse();
+  }
+
+  @Test
   public void canShowInTaskList_noPermissions_false() {
 
     var processingContext = new PwaAppProcessingContext(null, null, Set.of(), null, null, Set.of());
