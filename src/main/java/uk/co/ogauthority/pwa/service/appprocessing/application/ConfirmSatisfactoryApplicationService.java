@@ -44,9 +44,15 @@ public class ConfirmSatisfactoryApplicationService implements AppProcessingServi
 
   @Override
   public boolean canShowInTaskList(PwaAppProcessingContext processingContext) {
+
     return processingContext.getAppProcessingPermissions().contains(PwaAppProcessingPermission.CONFIRM_SATISFACTORY_APPLICATION)
         || processingContext.getAppProcessingPermissions().contains(PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY)
-        || processingContext.getAppProcessingPermissions().contains(PwaAppProcessingPermission.SHOW_ALL_TASKS_AS_PWA_MANAGER_ONLY);
+        || processingContext.getAppProcessingPermissions().contains(PwaAppProcessingPermission.SHOW_ALL_TASKS_AS_PWA_MANAGER_ONLY)
+
+        //completed apps do not have an assigned c.o on the app involvement therefore we're showing the task
+        // for any case officer viewing a completed app as the task will never be accessible for a completed app
+        || (processingContext.getAppProcessingPermissions().contains(PwaAppProcessingPermission.CASE_MANAGEMENT_OGA)
+        && processingContext.getApplicationDetail().getStatus().equals(PwaApplicationStatus.COMPLETE));
   }
 
   @Override
