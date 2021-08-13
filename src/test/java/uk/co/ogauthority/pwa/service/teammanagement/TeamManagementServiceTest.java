@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.service.teammanagement;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.AdditionalMatchers.or;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
@@ -23,8 +24,12 @@ import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.teams.PortalTeamManagementController;
+import uk.co.ogauthority.pwa.energyportal.model.WebUserAccountStatus;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
+import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
+import uk.co.ogauthority.pwa.energyportal.model.entity.PersonTestUtil;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
+import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccountTestUtil;
 import uk.co.ogauthority.pwa.energyportal.repository.PersonRepository;
 import uk.co.ogauthority.pwa.energyportal.repository.WebUserAccountRepository;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
@@ -439,5 +444,92 @@ public class TeamManagementServiceTest {
       var userRoles = teamManagementService.getUserRolesForPwaTeam(pwaTeam);
       assertThat(userRoles).containsAll(PwaOrganisationUserRole.stream().collect(Collectors.toList()));
   }
+
+
+  @Test
+  public void getPersonByEmailAddressOrLoginId_exactly1WuaFoundByEmailSearch_personReturned() {
+
+    var person = PersonTestUtil.createDefaultPerson();
+    var user = WebUserAccountTestUtil.createWebUserAccountMatchingPerson(1, person, WebUserAccountStatus.ACTIVE);
+
+    when(webUserAccountRepository.findAllByEmailAddressAndAccountStatusNotIn(
+        person.getEmailAddress(), List.of(WebUserAccountStatus.CANCELLED, WebUserAccountStatus.NEW))).thenReturn(List.of(user));
+
+    var personOptional = teamManagementService.getPersonByEmailAddressOrLoginId(person.getEmailAddress());
+
+    assertThat(personOptional).isPresent();
+    assertThat(personOptional.get().getEmailAddress()).isEqualTo(person.getEmailAddress());
+  }
+
+  @Test
+  public void getPersonByEmailAddressOrLoginId_exactly1WuaFoundByLoginIdSearch_personReturned() {
+
+    var person = PersonTestUtil.createDefaultPerson();
+    var user = WebUserAccountTestUtil.createWebUserAccount(1, person, "myLoginId", WebUserAccountStatus.ACTIVE);
+
+    when(webUserAccountRepository.findAllByLoginIdAndAccountStatusNotIn(
+        user.getLoginId(), List.of(WebUserAccountStatus.CANCELLED, WebUserAccountStatus.NEW))).thenReturn(List.of(user));
+
+
+    var personOptional = teamManagementService.getPersonByEmailAddressOrLoginId(user.getLoginId());
+
+    assertThat(personOptional).isPresent();
+    assertThat(personOptional.get().getEmailAddress()).isEqualTo(person.getEmailAddress());
+  }
+
+  //An unlikely potential situation where two people have the same email address but with different user accounts that are active causing an error
+  @Test(expected = RuntimeException.class)
+  public void getPersonByEmailAddressOrLoginId_multiplePeopleFoundForSameEmail_exceptionThrown() {
+
+    var emailAddress = "me@email.com";
+    var person1 = PersonTestUtil.createPersonFrom(new PersonId(1), emailAddress);
+    var user1 = WebUserAccountTestUtil.createWebUserAccount(1, person1, "myLoginId1", WebUserAccountStatus.ACTIVE);
+
+    var person2 = PersonTestUtil.createPersonFrom(new PersonId(2), emailAddress);
+    var user2 = WebUserAccountTestUtil.createWebUserAccount(1, person2, "myLoginId2", WebUserAccountStatus.ACTIVE);
+
+    var user3 = WebUserAccountTestUtil.createWebUserAccount(2, person2, emailAddress, WebUserAccountStatus.ACTIVE);
+
+    when(webUserAccountRepository.findAllByEmailAddressAndAccountStatusNotIn(
+        emailAddress, List.of(WebUserAccountStatus.CANCELLED, WebUserAccountStatus.NEW))).thenReturn(new ArrayList<>(List.of(user1, user2)));
+
+    when(webUserAccountRepository.findAllByLoginIdAndAccountStatusNotIn(
+        user3.getLoginId(), List.of(WebUserAccountStatus.CANCELLED, WebUserAccountStatus.NEW))).thenReturn(List.of(user3));
+
+    teamManagementService.getPersonByEmailAddressOrLoginId(person1.getEmailAddress());
+  }
+
+  @Test
+  public void getPersonByEmailAddressOrLoginId_noPersonFoundForEmail_noPersonReturned() {
+
+    when(webUserAccountRepository.findAllByEmailAddressAndAccountStatusNotIn(any(), any())).thenReturn(new ArrayList<>());
+    when(webUserAccountRepository.findAllByLoginIdAndAccountStatusNotIn(any(), any())).thenReturn(List.of());
+
+    var personOptional = teamManagementService.getPersonByEmailAddressOrLoginId("me@email.com");
+    assertThat(personOptional).isEmpty();
+  }
+
+  @Test
+  public void getPersonByEmailAddressOrLoginId_multipleWuaForEmail_exactly1PersonForAccounts_personReturned() {
+
+    var emailAddress = "me@email.com";
+    var person1 = PersonTestUtil.createPersonFrom(new PersonId(1), emailAddress);
+    var user1 = WebUserAccountTestUtil.createWebUserAccount(1, person1, "myLoginId1", WebUserAccountStatus.ACTIVE);
+    var user2 = WebUserAccountTestUtil.createWebUserAccount(1, person1, "myLoginId2", WebUserAccountStatus.ACTIVE);
+
+
+    when(webUserAccountRepository.findAllByEmailAddressAndAccountStatusNotIn(
+        emailAddress, List.of(WebUserAccountStatus.CANCELLED, WebUserAccountStatus.NEW))).thenReturn(new ArrayList<>(List.of(user1, user2)));
+
+    when(webUserAccountRepository.findAllByLoginIdAndAccountStatusNotIn(any(), any())).thenReturn(List.of());
+
+    var personOptional = teamManagementService.getPersonByEmailAddressOrLoginId(emailAddress);
+    assertThat(personOptional).isPresent();
+    assertThat(personOptional.get().getEmailAddress()).isEqualTo(emailAddress);
+  }
+
+
+
+
 
 }
