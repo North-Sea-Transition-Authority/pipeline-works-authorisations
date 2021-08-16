@@ -32,6 +32,10 @@ import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationResponse;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationResponseData;
+import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationResponseFileLink;
+import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
+import uk.co.ogauthority.pwa.model.entity.files.AppFile;
+import uk.co.ogauthority.pwa.model.entity.files.AppFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.form.consultation.ConsultationResponseDataForm;
 import uk.co.ogauthority.pwa.model.form.consultation.ConsultationResponseForm;
@@ -40,6 +44,7 @@ import uk.co.ogauthority.pwa.model.form.enums.ConsultationResponseOptionGroup;
 import uk.co.ogauthority.pwa.model.notify.emailproperties.consultations.ConsultationMultiResponseReceivedEmailProps;
 import uk.co.ogauthority.pwa.model.notify.emailproperties.consultations.ConsultationResponseReceivedEmailProps;
 import uk.co.ogauthority.pwa.model.tasklist.TaskTag;
+import uk.co.ogauthority.pwa.repository.consultations.ConsultationResponseFileLinkRepository;
 import uk.co.ogauthority.pwa.repository.consultations.ConsultationResponseRepository;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupDetailService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
@@ -87,6 +92,9 @@ public class ConsultationResponseServiceTest {
   @Mock
   private ConsultationResponseDataService consultationResponseDataService;
 
+  @Mock
+  private ConsultationResponseFileLinkRepository consultationResponseFileLinkRepository;
+
   @Captor
   private ArgumentCaptor<ConsultationResponse> responseCaptor;
 
@@ -128,8 +136,8 @@ public class ConsultationResponseServiceTest {
         consulteeGroupDetailService,
         workflowAssignmentService,
         emailCaseLinkService,
-        consultationResponseDataService
-    );
+        consultationResponseDataService,
+        consultationResponseFileLinkRepository);
 
   }
 
@@ -508,6 +516,22 @@ public class ConsultationResponseServiceTest {
 
     assertThat(consultationResponseService.isThereAtLeastOneApprovalFromAnyGroup(application)).isTrue();
 
+  }
+
+  @Test
+  public void getConsultationResponseFileLink_successfullyRetrieved() {
+    var appFile = new AppFile(application, "FILE_ID", AppFilePurpose.CONSULTATION_RESPONSE, ApplicationFileLinkStatus.FULL);
+    var fileLink = new ConsultationResponseFileLink(null, appFile);
+    when(consultationResponseFileLinkRepository.findByAppFile_PwaApplicationAndAppFile(application, appFile)).thenReturn(
+        Optional.of(fileLink));
+    assertThat(consultationResponseService.getConsultationResponseFileLink(application, appFile)).isEqualTo(Optional.of(fileLink));
+  }
+
+  @Test
+  public void deleteConsultationResponseFileLink_calledRepositoryMethod() {
+    var fileLink = new ConsultationResponseFileLink(null, null);
+    consultationResponseFileLinkRepository.delete(fileLink);
+    verify(consultationResponseFileLinkRepository).delete(fileLink);
   }
 
   private ConsultationRequest buildConsultationRequest() {

@@ -3,8 +3,9 @@ package uk.co.ogauthority.pwa.model.form.consultation;
 import java.util.Map;
 import java.util.Objects;
 import uk.co.ogauthority.pwa.model.form.enums.ConsultationResponseOptionGroup;
+import uk.co.ogauthority.pwa.model.form.files.UploadMultipleFilesWithDescriptionForm;
 
-public class ConsultationResponseForm {
+public class ConsultationResponseForm extends UploadMultipleFilesWithDescriptionForm {
 
   private Map<ConsultationResponseOptionGroup, ConsultationResponseDataForm> responseDataForms;
 
