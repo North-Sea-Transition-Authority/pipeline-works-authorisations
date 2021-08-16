@@ -17,7 +17,7 @@
         Provide the name of the question, application section, pipeline number, ident number, deposit name, schematic/drawing reference, etc as appropriate to ensure the applicant knows which question is being referred to.
         Some examples are provided below:</p>
 
-      <ul>
+      <ul class="govuk-list govuk-list--bullet">
         <li>provide xxx about the insulation / coating type for ident 5 on PL1234 </li>
         <li>provide the reference number of your submitted environmental permit in the environmental section </li>
         <li>correct the pipeline schematic reference xxxxx as it doesn’t show the pipeline it is linked to </li>
@@ -49,7 +49,7 @@
 
         <#list responseOptionGroupMap as responseOptionGroup, responseOptions>
 
-          <@fdsRadio.radioGroup path="form.responseDataForms[${responseOptionGroup}].consultationResponseOption" labelText=responseOptionGroup.questionText hiddenContent=true>
+          <@fdsRadio.radioGroup path="form.responseDataForms[${responseOptionGroup}].consultationResponseOption" labelText=responseOptionGroup.questionText hiddenContent=true fieldsetHeadingSize="h3">
             <#assign firstItem=true/>
             <#list responseOptions as responseOption>
               <@fdsRadio.radioItem path="form.responseDataForms[${responseOptionGroup}].consultationResponseOption" itemMap={responseOption : responseOption.getLabelText()} isFirstItem=firstItem>
@@ -88,9 +88,8 @@
 
         </#list>
 
-        <@fdsFieldset.fieldset legendHeading="${consultationResponseDocumentType.questionText}" legendHeadingClass="govuk-fieldset__legend--s" legendHeadingSize="h2">
+        <@fdsFieldset.fieldset legendHeading="${consultationResponseDocumentType.questionText}" legendHeadingClass="govuk-fieldset__legend--s" legendHeadingSize="h3" hintText="${consultationResponseDocumentType.questionGuidance}">
             <@fdsFileUpload.fileUpload id="doc-upload-file-id" path="form.uploadedFileWithDescriptionForms" uploadUrl=uploadUrl deleteUrl=deleteUrl maxAllowedSize=fileuploadMaxUploadSize allowedExtensions=fileuploadAllowedExtensions downloadUrl=downloadUrl existingFiles=uploadedFileViewList dropzoneText="Drag and drop your documents here" />
-            <p class="govuk-caption-m">${consultationResponseDocumentType.questionGuidance}</p>
         </@fdsFieldset.fieldset>
 
         <#if previousResponses?has_content>
