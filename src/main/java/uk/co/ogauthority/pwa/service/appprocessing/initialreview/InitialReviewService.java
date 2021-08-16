@@ -122,6 +122,7 @@ public class InitialReviewService implements AppProcessingService {
     return !openUpdateRequest && (
         !TaskStatus.COMPLETED.equals(taskStatus)
         && processingContext.getAppProcessingPermissions().contains(PwaAppProcessingPermission.ACCEPT_INITIAL_REVIEW)
+        && processingContext.getApplicationDetail().getStatus().equals(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW)
       );
   }
 

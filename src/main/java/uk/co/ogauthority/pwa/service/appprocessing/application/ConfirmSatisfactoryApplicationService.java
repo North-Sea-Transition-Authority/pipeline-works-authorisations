@@ -18,6 +18,7 @@ import uk.co.ogauthority.pwa.service.consultations.ConsultationRequestService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingTask;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.TaskStatus;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.notify.EmailCaseLinkService;
 import uk.co.ogauthority.pwa.service.notify.NotifyService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
@@ -43,9 +44,15 @@ public class ConfirmSatisfactoryApplicationService implements AppProcessingServi
 
   @Override
   public boolean canShowInTaskList(PwaAppProcessingContext processingContext) {
+
     return processingContext.getAppProcessingPermissions().contains(PwaAppProcessingPermission.CONFIRM_SATISFACTORY_APPLICATION)
         || processingContext.getAppProcessingPermissions().contains(PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY)
-        || processingContext.getAppProcessingPermissions().contains(PwaAppProcessingPermission.SHOW_ALL_TASKS_AS_PWA_MANAGER_ONLY);
+        || processingContext.getAppProcessingPermissions().contains(PwaAppProcessingPermission.SHOW_ALL_TASKS_AS_PWA_MANAGER_ONLY)
+
+        //completed apps do not have an assigned c.o on the app involvement therefore we're showing the task
+        // for any case officer viewing a completed app as the task will never be accessible for a completed app
+        || (processingContext.getAppProcessingPermissions().contains(PwaAppProcessingPermission.CASE_MANAGEMENT_OGA)
+        && processingContext.getApplicationDetail().getStatus().equals(PwaApplicationStatus.COMPLETE));
   }
 
   @Override
@@ -54,7 +61,9 @@ public class ConfirmSatisfactoryApplicationService implements AppProcessingServi
     boolean isSatisfactory = isSatisfactory(processingContext.getApplicationDetail());
 
     var taskState = TaskState.LOCK;
-    if (!processingContext.getAppProcessingPermissions().contains(PwaAppProcessingPermission.SHOW_ALL_TASKS_AS_PWA_MANAGER_ONLY)) {
+
+    if (processingContext.getApplicationDetail().getStatus().equals(PwaApplicationStatus.CASE_OFFICER_REVIEW)
+        && !processingContext.getAppProcessingPermissions().contains(PwaAppProcessingPermission.SHOW_ALL_TASKS_AS_PWA_MANAGER_ONLY)) {
       taskState = !isSatisfactory ? TaskState.EDIT : TaskState.LOCK;
     }
 

@@ -147,10 +147,30 @@ FROM (
   WHERE ppd.status_control = 'C'
 );
 
+CREATE OR REPLACE VIEW ${datasource.user}.api_vw_current_pipeline_orgs AS
+SELECT *
+FROM (
+  SELECT
+    porl.pipeline_id
+  , pcor.role huoo_role
+  , pcor.type huoo_type
+  , pcor.agreement treaty_agreement
+  , pcor.ou_id
+  , pcor.migrated_organisation_name
+  FROM ${datasource.user}.pipeline_org_role_links porl
+  JOIN ${datasource.user}.pwa_consent_organisation_roles pcor ON porl.pwa_consent_org_role_id = pcor.id
+  WHERE porl.end_timestamp IS NULL
+  AND pcor.end_timestamp IS NULL
+);
+
 
 GRANT SELECT ON ${datasource.user}.api_vw_pipeline_as_built_data TO appenv;
 GRANT SELECT ON ${datasource.user}.api_vw_pwa_pipeline_details TO appenv;
 GRANT SELECT ON ${datasource.user}.api_vw_pwa_consents TO appenv;
 GRANT SELECT ON ${datasource.user}.api_vw_primary_pwas TO appenv;
+GRANT SELECT ON ${datasource.user}.api_vw_current_pipeline_orgs TO appenv;
 
-GRANT SELECT ON ${datasource.user}.api_vw_current_pipeline_data TO appenv, decmgr, eemsmgr;
+GRANT SELECT ON ${datasource.user}.api_vw_current_pipeline_data TO appenv, decmgr, eemsmgr, bpmmgr;
+
+GRANT SELECT ON ${datasource.user}.api_vw_current_pipeline_data TO envmgr WITH GRANT OPTION;
+GRANT SELECT ON ${datasource.user}.api_vw_current_pipeline_orgs TO passmgr WITH GRANT OPTION;

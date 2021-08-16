@@ -6,6 +6,8 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,10 +15,18 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.config.fileupload.FileDeleteResult;
+import uk.co.ogauthority.pwa.config.fileupload.FileUploadResult;
 import uk.co.ogauthority.pwa.controller.appprocessing.shared.PwaAppProcessingPermissionCheck;
+import uk.co.ogauthority.pwa.controller.files.PwaApplicationDataFileUploadAndDownloadController;
 import uk.co.ogauthority.pwa.exception.AccessDeniedException;
+import uk.co.ogauthority.pwa.model.entity.files.AppFilePurpose;
+import uk.co.ogauthority.pwa.model.enums.consultations.ConsultationResponseDocumentType;
 import uk.co.ogauthority.pwa.model.form.consultation.ConsultationResponseDataForm;
 import uk.co.ogauthority.pwa.model.form.consultation.ConsultationResponseForm;
 import uk.co.ogauthority.pwa.model.form.enums.ConsultationResponseOptionGroup;
@@ -27,6 +37,7 @@ import uk.co.ogauthority.pwa.service.consultations.ConsultationViewService;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.service.fileupload.AppFileService;
 import uk.co.ogauthority.pwa.util.CaseManagementUtils;
 import uk.co.ogauthority.pwa.util.StreamUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
@@ -35,7 +46,7 @@ import uk.co.ogauthority.pwa.validators.consultations.ConsultationResponseValida
 @Controller
 @RequestMapping("/pwa-application-processing/{applicationType}/{applicationId}/consultation/{consultationRequestId}/respond")
 @PwaAppProcessingPermissionCheck(permissions = {PwaAppProcessingPermission.CONSULTATION_RESPONDER})
-public class ConsultationResponseController {
+public class ConsultationResponseController extends PwaApplicationDataFileUploadAndDownloadController {
 
   private final ConsultationResponseService consultationResponseService;
   private final ConsultationViewService consultationViewService;
@@ -43,12 +54,16 @@ public class ConsultationResponseController {
   private final AppProcessingBreadcrumbService breadcrumbService;
   private final ConsultationResponseValidator consultationResponseValidator;
 
+  private static final AppFilePurpose FILE_PURPOSE = AppFilePurpose.CONSULTATION_RESPONSE;
+
   @Autowired
   public ConsultationResponseController(ConsultationResponseService consultationResponseService,
                                         ConsultationViewService consultationViewService,
                                         ControllerHelperService controllerHelperService,
                                         AppProcessingBreadcrumbService breadcrumbService,
-                                        ConsultationResponseValidator consultationResponseValidator) {
+                                        ConsultationResponseValidator consultationResponseValidator,
+                                        AppFileService appFileService) {
+    super(appFileService);
     this.consultationResponseService = consultationResponseService;
     this.consultationViewService = consultationViewService;
     this.controllerHelperService = controllerHelperService;
@@ -73,7 +88,7 @@ public class ConsultationResponseController {
 
       form.setResponseDataForms(formMap);
 
-      return getResponderModelAndView(processingContext);
+      return getResponderModelAndView(processingContext, form);
 
     });
 
@@ -96,7 +111,7 @@ public class ConsultationResponseController {
       var request = processingContext.getActiveConsultationRequestOrThrow().getConsultationRequest();
 
       return controllerHelperService.checkErrorsAndRedirect(bindingResult,
-          getResponderModelAndView(processingContext), () -> {
+          getResponderModelAndView(processingContext, form), () -> {
             consultationResponseService.saveResponseAndCompleteWorkflow(form, request, authenticatedUserAccount);
             return CaseManagementUtils.redirectCaseManagement(processingContext);
           });
@@ -123,7 +138,7 @@ public class ConsultationResponseController {
 
   }
 
-  private ModelAndView getResponderModelAndView(PwaAppProcessingContext processingContext) {
+  private ModelAndView getResponderModelAndView(PwaAppProcessingContext processingContext, ConsultationResponseForm form) {
 
     var application = processingContext.getPwaApplication();
     var requestDto = processingContext.getActiveConsultationRequestOrThrow();
@@ -132,19 +147,63 @@ public class ConsultationResponseController {
         .sorted(Comparator.comparing(ConsultationResponseOptionGroup::getDisplayOrder))
         .collect(StreamUtils.toLinkedHashMap(Function.identity(), ConsultationResponseOptionGroup::getOptions));
 
-    var modelAndView = new ModelAndView("consultation/responses/responderForm")
-        .addObject("cancelUrl", CaseManagementUtils.routeCaseManagement(application))
+    var modelAndView = createModelAndView(
+        "consultation/responses/responderForm",
+        processingContext.getPwaApplication(),
+        FILE_PURPOSE,
+        form
+    );
+
+    modelAndView.addObject("cancelUrl", CaseManagementUtils.routeCaseManagement(application))
         .addObject("responseOptionGroupMap", responseOptionGroupMap)
         .addObject("appRef", processingContext.getPwaApplication().getAppReference())
         .addObject("previousResponses", consultationViewService
             .getConsultationRequestViewsRespondedOnly(application, requestDto.getConsultationRequest()))
         .addObject("caseSummaryView", processingContext.getCaseSummaryView())
-        .addObject("consulteeGroupName", requestDto.getConsulteeGroupName());
+        .addObject("consulteeGroupName", requestDto.getConsulteeGroupName())
+        .addObject("consultationResponseDocumentType", ConsultationResponseDocumentType.SECRETARY_OF_STATE_DECISION);
 
     breadcrumbService.fromCaseManagement(processingContext.getPwaApplication(), modelAndView, "Consultation response");
 
     return modelAndView;
 
+  }
+
+  @PostMapping("/file/upload")
+  @ResponseBody
+  public FileUploadResult handleUpload(@PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
+                                       @PathVariable Integer applicationId,
+                                       @RequestParam("file") MultipartFile file,
+                                       PwaAppProcessingContext processingContext) {
+    return appFileService.processInitialUpload(
+        file,
+        processingContext.getPwaApplication(),
+        FILE_PURPOSE,
+        processingContext.getUser());
+  }
+
+  @GetMapping("/files/download/{fileId}")
+  @ResponseBody
+  public ResponseEntity<Resource> handleDownload(@PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
+                                                 @PathVariable Integer applicationId,
+                                                 @PathVariable("fileId") String fileId,
+                                                 PwaAppProcessingContext processingContext) {
+    return serveFile(processingContext.getAppFile());
+  }
+
+  @PostMapping("/file/delete/{fileId}")
+  @ResponseBody
+  public FileDeleteResult handleDelete(@PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
+                                       @PathVariable Integer applicationId,
+                                       @PathVariable("fileId") String fileId,
+                                       PwaAppProcessingContext processingContext) {
+    return appFileService.processFileDeletionWithPreDeleteAction(
+        processingContext.getAppFile(),
+        processingContext.getUser(),
+        appFile -> consultationResponseService.getConsultationResponseFileLink(
+            processingContext.getPwaApplication(),
+            processingContext.getAppFile())
+            .ifPresent(consultationResponseService::deleteConsultationResponseFileLink));
   }
 
 }

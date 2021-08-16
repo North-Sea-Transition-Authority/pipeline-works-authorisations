@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.service.docgen;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
@@ -52,11 +53,14 @@ public class DocgenServiceTest {
   private ArgumentCaptor<JobDetail> jobDetailCaptor;
 
   private final Person person = PersonTestUtil.createDefaultPerson();
+  private DocumentInstance documentInstance;
 
   @Before
   public void setUp() throws Exception {
 
     docgenService = new DocgenService(scheduler, docgenRunRepository, documentCreationService);
+
+    documentInstance = new DocumentInstance();
 
   }
 
@@ -64,34 +68,44 @@ public class DocgenServiceTest {
   public void scheduleDocumentGeneration() throws SchedulerException {
 
     var docInstance = new DocumentInstance();
+    var run = new DocgenRun();
+    run.setDocumentInstance(docInstance);
+    run.setDocGenType(DocGenType.FULL);
+    run.setScheduledByPerson(person);
 
-    docgenService.scheduleDocumentGeneration(docInstance, DocGenType.FULL, person);
-
-    verify(docgenRunRepository, times(1)).save(docgenRunCaptor.capture());
-
-    assertThat(docgenRunCaptor.getValue()).satisfies(docgenRun -> {
-      assertThat(docgenRun.getDocumentInstance()).isEqualTo(docInstance);
-      assertThat(docgenRun.getDocGenType()).isEqualTo(DocGenType.FULL);
-      assertThat(docgenRun.getStatus()).isEqualTo(DocgenRunStatus.PENDING);
-      assertThat(docgenRun.getScheduledOn()).isNotNull();
-      assertThat(docgenRun.getScheduledByPerson()).isEqualTo(person);
-      assertThat(docgenRun.getCompletedOn()).isNull();
-      assertThat(docgenRun.getStartedOn()).isNull();
-      assertThat(docgenRun.getGeneratedDocument()).isNull();
-    });
+    docgenService.scheduleDocumentGeneration(run);
 
     verify(scheduler, times(1)).addJob(jobDetailCaptor.capture(), eq(false));
 
     assertThat(jobDetailCaptor.getValue()).satisfies(jobDetail -> {
-      assertThat(jobDetail.getKey()).isEqualTo(jobKey(String.valueOf(docgenRunCaptor.getValue().getId()), "DocGen"));
+      assertThat(jobDetail.getKey()).isEqualTo(jobKey(String.valueOf(run.getId()), "DocGen"));
       assertThat(jobDetail.isDurable()).isTrue();
       assertThat(jobDetail.requestsRecovery()).isTrue();
-      assertThat(jobDetail.getJobDataMap()).containsEntry("docgenType", DocGenType.FULL.name());
     });
 
     var jobDetail = jobDetailCaptor.getValue();
 
     verify(scheduler, times(1)).triggerJob(jobDetail.getKey());
+
+  }
+
+  @Test
+  public void createDocgenRun() {
+
+    docgenService.createDocgenRun(documentInstance, DocGenType.FULL, person);
+
+    verify(docgenRunRepository, times(1)).save(docgenRunCaptor.capture());
+
+    assertThat(docgenRunCaptor.getValue()).satisfies(run -> {
+      assertThat(run.getDocumentInstance()).isEqualTo(documentInstance);
+      assertThat(run.getDocGenType()).isEqualTo(DocGenType.FULL);
+      assertThat(run.getStatus()).isEqualTo(DocgenRunStatus.PENDING);
+      assertThat(run.getStartedOn()).isNull();
+      assertThat(run.getScheduledOn()).isNotNull();
+      assertThat(run.getScheduledByPerson()).isEqualTo(person);
+      assertThat(run.getCompletedOn()).isNull();
+      assertThat(run.getGeneratedDocument()).isNull();
+    });
 
   }
 
@@ -135,9 +149,10 @@ public class DocgenServiceTest {
   }
 
   @Test
-  public void processAndCompleteRun() throws SQLException {
+  public void processDocgenRun_complete() throws SQLException {
 
     var run = new DocgenRun();
+    run.setDocGenType(DocGenType.FULL);
     var docInstance = new DocumentInstance();
     run.setDocumentInstance(docInstance);
 
@@ -146,7 +161,7 @@ public class DocgenServiceTest {
     when(documentCreationService.createConsentDocument(docInstance, DocGenType.FULL))
         .thenReturn(blob);
 
-    docgenService.processAndCompleteRun(run, DocGenType.FULL);
+    docgenService.processDocgenRun(run);
 
     verify(documentCreationService, times(1))
         .createConsentDocument(docInstance, DocGenType.FULL);
@@ -162,11 +177,22 @@ public class DocgenServiceTest {
   }
 
   @Test
-  public void markRunFailed() {
+  public void processDocgenRun_failed() {
 
     var run = new DocgenRun();
+    var docInstance = new DocumentInstance();
+    run.setDocumentInstance(docInstance);
 
-    docgenService.markRunFailed(run);
+    when(documentCreationService.createConsentDocument(any(), any())).thenThrow(RuntimeException.class);
+
+    boolean exceptionCaught = false;
+    try {
+      docgenService.processDocgenRun(run);
+    } catch (Exception e) {
+      exceptionCaught = true;
+    }
+
+    assertThat(exceptionCaught).isTrue();
 
     verify(docgenRunRepository, times(1)).save(docgenRunCaptor.capture());
 

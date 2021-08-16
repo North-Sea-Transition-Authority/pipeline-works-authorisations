@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
+import uk.co.ogauthority.pwa.exception.documents.DocgenException;
 import uk.co.ogauthority.pwa.model.docgen.DocgenRun;
 import uk.co.ogauthority.pwa.model.docgen.DocgenRunStatus;
 import uk.co.ogauthority.pwa.model.docgen.DocgenRunStatusResult;
@@ -37,28 +38,18 @@ public class DocgenService {
   }
 
   /**
-   * Create a new DocgenRun and schedule a new job to trigger immediately.
-   * @param documentInstance to create the document for
-   * @return A Pending DocgenRun
+   * Schedule a new job to trigger immediately to generate a docgen run.
+   * @param docgenRun to create the document for
    */
   @Transactional
-  public DocgenRun scheduleDocumentGeneration(DocumentInstance documentInstance,
-                                              DocGenType docGenType,
-                                              Person person) {
+  public void scheduleDocumentGeneration(DocgenRun docgenRun) {
 
     try {
-      // create pending docgen run
-      DocgenRun docgenRun = new DocgenRun(documentInstance, docGenType, DocgenRunStatus.PENDING);
-      docgenRun.setScheduledOn(Instant.now());
-      docgenRun.setScheduledByPerson(person);
-
-      docgenRunRepository.save(docgenRun);
 
       // add to scheduler
       JobKey jobKey = jobKey(String.valueOf(docgenRun.getId()), "DocGen");
       JobDetail jobDetail = newJob(DocgenSchedulerBean.class)
           .withIdentity(jobKey)
-          .usingJobData("docgenType", docGenType.name())
           .requestRecovery()
           .storeDurably()
           .build();
@@ -66,11 +57,19 @@ public class DocgenService {
       scheduler.addJob(jobDetail, false);
       scheduler.triggerJob(jobKey);
 
-      return docgenRun;
-
     } catch (Exception e) {
       throw new RuntimeException("Error scheduling docgen run job", e);
     }
+
+  }
+
+  public DocgenRun createDocgenRun(DocumentInstance documentInstance, DocGenType docGenType, Person person) {
+
+    DocgenRun docgenRun = new DocgenRun(documentInstance, docGenType, DocgenRunStatus.PENDING);
+    docgenRun.setScheduledOn(Instant.now());
+    docgenRun.setScheduledByPerson(person);
+
+    return docgenRunRepository.save(docgenRun);
 
   }
 
@@ -89,8 +88,21 @@ public class DocgenService {
         .orElseThrow(() -> new PwaEntityNotFoundException(String.format("Docgen run with id %s not found", docgenRunId)));
   }
 
-  void processAndCompleteRun(DocgenRun docgenRun,
-                             DocGenType docGenType) {
+  public void processDocgenRun(DocgenRun docgenRun) {
+
+    docgenRun.setStartedOn(Instant.now());
+
+    try {
+      processAndCompleteRun(docgenRun, docgenRun.getDocGenType());
+    } catch (Exception e) {
+      markRunFailed(docgenRun);
+      throw new DocgenException("Error generating docgen run Id: " + docgenRun.getId(), e);
+    }
+
+  }
+
+  private void processAndCompleteRun(DocgenRun docgenRun,
+                                     DocGenType docGenType) {
 
     var docBlob = documentCreationService
         .createConsentDocument(docgenRun.getDocumentInstance(), docGenType);
@@ -102,7 +114,7 @@ public class DocgenService {
 
   }
 
-  void markRunFailed(DocgenRun docgenRun) {
+  private void markRunFailed(DocgenRun docgenRun) {
     docgenRun.setStatus(DocgenRunStatus.FAILED);
     docgenRun.setCompletedOn(Instant.now());
     docgenRunRepository.save(docgenRun);

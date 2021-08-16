@@ -18,6 +18,8 @@ import uk.co.ogauthority.pwa.model.dto.consultations.ConsultationRequestDto;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationResponse;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationResponseData;
+import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationResponseFileLink;
+import uk.co.ogauthority.pwa.model.entity.files.AppFile;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.form.consultation.ConsultationResponseForm;
 import uk.co.ogauthority.pwa.model.form.enums.ConsultationResponseOption;
@@ -26,6 +28,7 @@ import uk.co.ogauthority.pwa.model.notify.emailproperties.consultations.Consulta
 import uk.co.ogauthority.pwa.model.notify.emailproperties.consultations.ConsultationResponseReceivedEmailProps;
 import uk.co.ogauthority.pwa.model.tasklist.TaskListEntry;
 import uk.co.ogauthority.pwa.model.tasklist.TaskTag;
+import uk.co.ogauthority.pwa.repository.consultations.ConsultationResponseFileLinkRepository;
 import uk.co.ogauthority.pwa.repository.consultations.ConsultationResponseRepository;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupDetailService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
@@ -57,6 +60,7 @@ public class ConsultationResponseService implements AppProcessingService {
   private final WorkflowAssignmentService workflowAssignmentService;
   private final EmailCaseLinkService emailCaseLinkService;
   private final ConsultationResponseDataService consultationResponseDataService;
+  private final ConsultationResponseFileLinkRepository consultationResponseFileLinkRepository;
 
   @Autowired
   public ConsultationResponseService(ConsultationRequestService consultationRequestService,
@@ -67,7 +71,8 @@ public class ConsultationResponseService implements AppProcessingService {
                                      ConsulteeGroupDetailService consulteeGroupDetailService,
                                      WorkflowAssignmentService workflowAssignmentService,
                                      EmailCaseLinkService emailCaseLinkService,
-                                     ConsultationResponseDataService consultationResponseDataService) {
+                                     ConsultationResponseDataService consultationResponseDataService,
+                                     ConsultationResponseFileLinkRepository consultationResponseFileLinkRepository) {
     this.consultationRequestService = consultationRequestService;
     this.consultationResponseRepository = consultationResponseRepository;
     this.camundaWorkflowService = camundaWorkflowService;
@@ -77,6 +82,7 @@ public class ConsultationResponseService implements AppProcessingService {
     this.workflowAssignmentService = workflowAssignmentService;
     this.emailCaseLinkService = emailCaseLinkService;
     this.consultationResponseDataService = consultationResponseDataService;
+    this.consultationResponseFileLinkRepository = consultationResponseFileLinkRepository;
   }
 
   public List<ConsultationResponse> getResponsesByConsultationRequests(List<ConsultationRequest> consultationRequests) {
@@ -149,9 +155,10 @@ public class ConsultationResponseService implements AppProcessingService {
     if (responseDataList.size() > 1) {
 
       var responses = responseDataList.stream()
-          .map(d -> String.format("%s\n\n%s",
+          .map(d -> getConsultationResponseEmailText(d,
+              String.format("%s\n\n%s",
               d.getResponseGroup().getResponseLabel(),
-              d.getResponseType().getRadioInsetText(application.getAppReference())))
+              d.getResponseType().getRadioInsetText(application.getAppReference()))))
           .collect(Collectors.joining("\n\n"));
 
       emailProps = new ConsultationMultiResponseReceivedEmailProps(
@@ -168,7 +175,7 @@ public class ConsultationResponseService implements AppProcessingService {
           caseOfficerName,
           application.getAppReference(),
           consulteeGroupName,
-          responseDataList.get(0).getResponseType().getLabelText(),
+          getConsultationResponseEmailText(responseDataList.get(0), responseDataList.get(0).getResponseType().getLabelText()),
           emailCaseLinkService.generateCaseManagementLink(application)
       );
 
@@ -177,6 +184,12 @@ public class ConsultationResponseService implements AppProcessingService {
     notifyService.sendEmail(emailProps, caseOfficerEmail);
 
   }
+
+  private String getConsultationResponseEmailText(ConsultationResponseData responseData, String defaultEmailText) {
+    var emailText = responseData.getResponseType().getEmailText().orElse(defaultEmailText);
+    return responseData.getResponseType().includeResponseTextInEmail() ? emailText + responseData.getResponseText() : emailText;
+  }
+
 
   @Override
   public boolean canShowInTaskList(PwaAppProcessingContext processingContext) {
@@ -225,6 +238,15 @@ public class ConsultationResponseService implements AppProcessingService {
             Set.of(ConsultationResponseOption.CONFIRMED, ConsultationResponseOption.PROVIDE_ADVICE, ConsultationResponseOption.NO_ADVICE)
                 .contains(responseData.getResponseType()));
 
+  }
+
+  public Optional<ConsultationResponseFileLink> getConsultationResponseFileLink(PwaApplication pwaApplication, AppFile appFile) {
+    return consultationResponseFileLinkRepository.findByAppFile_PwaApplicationAndAppFile(pwaApplication, appFile);
+  }
+
+  @Transactional
+  public void deleteConsultationResponseFileLink(ConsultationResponseFileLink consultationResponseFileLink) {
+    consultationResponseFileLinkRepository.delete(consultationResponseFileLink);
   }
 
 }

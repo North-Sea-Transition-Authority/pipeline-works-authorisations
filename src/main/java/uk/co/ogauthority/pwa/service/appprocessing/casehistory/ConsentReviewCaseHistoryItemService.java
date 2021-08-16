@@ -43,6 +43,7 @@ public class ConsentReviewCaseHistoryItemService implements CaseHistoryItemServi
         .collect(Collectors.toList());
 
     var reviewerPersonIds = consentReviews.stream()
+        .filter(consentReview -> consentReview.getEndedByPersonId() != null)
         .map(ConsentReview::getEndedByPersonId)
         .collect(Collectors.toSet());
 

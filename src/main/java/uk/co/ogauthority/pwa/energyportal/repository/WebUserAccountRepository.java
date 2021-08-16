@@ -8,9 +8,9 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 
 public interface WebUserAccountRepository extends CrudRepository<WebUserAccount, Integer> {
 
-  List<WebUserAccount> findAllByEmailAddressAndAccountStatusNot(String emailAddress, WebUserAccountStatus accountStatus);
+  List<WebUserAccount> findAllByEmailAddressAndAccountStatusNotIn(String emailAddress, List<WebUserAccountStatus> accountStatuses);
 
-  List<WebUserAccount> findAllByLoginIdAndAccountStatusNot(String loginId, WebUserAccountStatus accountStatus);
+  List<WebUserAccount> findAllByLoginIdAndAccountStatusNotIn(String loginId, List<WebUserAccountStatus> accountStatuses);
 
   List<WebUserAccount> findAllByPersonAndAccountStatusIn(Person person, List<WebUserAccountStatus> accountStatuses);
 }
