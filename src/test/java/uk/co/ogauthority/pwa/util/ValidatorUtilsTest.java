@@ -7,9 +7,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes.REQUIRED;
-import static uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes.INVALID;
 import static uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes.BEFORE_TODAY;
+import static uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes.INVALID;
+import static uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes.REQUIRED;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -544,44 +544,6 @@ public class ValidatorUtilsTest {
     verify(bindingResult, never()).rejectValue(any(), any(), any());
   }
 
-  @Test
-  public void validateDecimalPlaces_tooManyDecimalPlaces_pluralErrorMessage() {
-    var form = new PipelineIdentDataForm();
-    form.setExternalDiameter(new BigDecimal("0.555"));
-    var bindingResult = new BeanPropertyBindingResult(form, "form");
-    ValidatorUtils.validateDecimalPlaces(bindingResult, "externalDiameter", "External diameter", 2);
-    assertThat(bindingResult.getAllErrors())
-        .extracting(DefaultMessageSourceResolvable::getDefaultMessage)
-        .containsExactly("External diameter must be 2 decimal places or fewer");
-  }
 
-  @Test
-  public void validateDecimalPlaces_tooManyDecimalPlaces_singleErrorMessage() {
-    var form = new PipelineIdentDataForm();
-    form.setExternalDiameter(new BigDecimal("0.55"));
-    var bindingResult = new BeanPropertyBindingResult(form, "form");
-    ValidatorUtils.validateDecimalPlaces(bindingResult, "externalDiameter", "External diameter", 1);
-    assertThat(bindingResult.getAllErrors())
-        .extracting(DefaultMessageSourceResolvable::getDefaultMessage)
-        .containsExactly("External diameter must be 1 decimal place or fewer");
-  }
-
-  @Test
-  public void validateDecimalPlaces_exactDecimalPlaces() {
-    var form = new PipelineIdentDataForm();
-    form.setExternalDiameter(new BigDecimal("0.555"));
-    var bindingResult = new BeanPropertyBindingResult(form, "form");
-    ValidatorUtils.validateDecimalPlaces(bindingResult, "externalDiameter", "External diameter", 3);
-    assertThat(bindingResult.getAllErrors()).isEmpty();
-  }
-
-  @Test
-  public void validateDecimalPlaces_fewerDecimalPlaces() {
-    var form = new PipelineIdentDataForm();
-    form.setExternalDiameter(new BigDecimal("0.5"));
-    var bindingResult = new BeanPropertyBindingResult(form, "form");
-    ValidatorUtils.validateDecimalPlaces(bindingResult, "externalDiameter", "External diameter", 3);
-    assertThat(bindingResult.getAllErrors()).isEmpty();
-  }
 
 }

@@ -24,6 +24,8 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipe
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipelineIdentData;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.PipelineIdentDataForm;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.pipelines.PadPipelineIdentDataRepository;
+import uk.co.ogauthority.pwa.util.forminputs.decimal.DecimalInput;
+import uk.co.ogauthority.pwa.util.validation.PipelineValidationUtils;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PadPipelineIdentDataServiceTest {
@@ -50,10 +52,10 @@ public class PadPipelineIdentDataServiceTest {
     form.setInsulationCoatingType("ins");
     form.setComponentPartsDescription("comp");
     form.setProductsToBeConveyed("prod");
-    form.setExternalDiameter(BigDecimal.valueOf(10));
-    form.setInternalDiameter(BigDecimal.valueOf(11));
-    form.setWallThickness(BigDecimal.valueOf(22.22));
-    form.setMaop(BigDecimal.valueOf(500));
+    form.setExternalDiameter(new DecimalInput(BigDecimal.valueOf(10)));
+    form.setInternalDiameter(new DecimalInput(BigDecimal.valueOf(11)));
+    form.setWallThickness(new DecimalInput(BigDecimal.valueOf(22.22)));
+    form.setMaop(new DecimalInput(BigDecimal.valueOf(500)));
 
     form.setExternalDiameterMultiCore("some text");
     form.setInternalDiameterMultiCore("some text");
@@ -76,10 +78,10 @@ public class PadPipelineIdentDataServiceTest {
     assertThat(identData.getComponentPartsDesc()).isEqualTo(form.getComponentPartsDescription());
     assertThat(identData.getInsulationCoatingType()).isEqualTo(form.getInsulationCoatingType());
     assertThat(identData.getProductsToBeConveyed()).isEqualTo(form.getProductsToBeConveyed());
-    assertThat(identData.getExternalDiameter()).isEqualTo(form.getExternalDiameter());
-    assertThat(identData.getInternalDiameter()).isEqualTo(form.getInternalDiameter());
-    assertThat(identData.getWallThickness()).isEqualTo(form.getWallThickness());
-    assertThat(identData.getMaop()).isEqualTo(form.getMaop());
+    assertThat(identData.getExternalDiameter()).isEqualTo(form.getExternalDiameter().createBigDecimalOrNull());
+    assertThat(identData.getInternalDiameter()).isEqualTo(form.getInternalDiameter().createBigDecimalOrNull());
+    assertThat(identData.getWallThickness()).isEqualTo(form.getWallThickness().createBigDecimalOrNull());
+    assertThat(identData.getMaop()).isEqualTo(form.getMaop().createBigDecimalOrNull());
 
   }
 
@@ -149,10 +151,10 @@ public class PadPipelineIdentDataServiceTest {
     form.setInsulationCoatingType("test");
     form.setComponentPartsDescription("test");
     form.setProductsToBeConveyed("test");
-    form.setExternalDiameter(BigDecimal.valueOf(999));
-    form.setInternalDiameter(BigDecimal.valueOf(999));
-    form.setWallThickness(BigDecimal.valueOf(999));
-    form.setMaop(BigDecimal.valueOf(999));
+    form.setExternalDiameter(new DecimalInput(BigDecimal.valueOf(999)));
+    form.setInternalDiameter(new DecimalInput(BigDecimal.valueOf(999)));
+    form.setWallThickness(new DecimalInput(BigDecimal.valueOf(999)));
+    form.setMaop(new DecimalInput(BigDecimal.valueOf(999)));
 
     var identData = new PadPipelineIdentData();
     identData.setInsulationCoatingType("ins");
@@ -181,10 +183,10 @@ public class PadPipelineIdentDataServiceTest {
     assertThat(identData.getComponentPartsDesc()).isEqualTo(form.getComponentPartsDescription());
     assertThat(identData.getInsulationCoatingType()).isEqualTo(form.getInsulationCoatingType());
     assertThat(identData.getProductsToBeConveyed()).isEqualTo(form.getProductsToBeConveyed());
-    assertThat(identData.getExternalDiameter()).isEqualTo(form.getExternalDiameter());
-    assertThat(identData.getInternalDiameter()).isEqualTo(form.getInternalDiameter());
-    assertThat(identData.getWallThickness()).isEqualTo(form.getWallThickness());
-    assertThat(identData.getMaop()).isEqualTo(form.getMaop());
+    assertThat(identData.getExternalDiameter()).isEqualTo(form.getExternalDiameter().createBigDecimalOrNull());
+    assertThat(identData.getInternalDiameter()).isEqualTo(form.getInternalDiameter().createBigDecimalOrNull());
+    assertThat(identData.getWallThickness()).isEqualTo(form.getWallThickness().createBigDecimalOrNull());
+    assertThat(identData.getMaop()).isEqualTo(form.getMaop().createBigDecimalOrNull());
 
     assertThat(identData.getExternalDiameterMultiCore()).isNull();
     assertThat(identData.getInternalDiameterMultiCore()).isNull();
@@ -250,7 +252,7 @@ public class PadPipelineIdentDataServiceTest {
   }
 
   @Test
-  public void updateIdentData_repositoryInteraction() {
+  public void updateIdentData_verifyRepositoryInteraction() {
     var pipeline = new PadPipeline();
     pipeline.setPipelineType(PipelineType.PRODUCTION_FLOWLINE);
     var ident = new PadPipelineIdent();
@@ -258,7 +260,7 @@ public class PadPipelineIdentDataServiceTest {
     var identData = new PadPipelineIdentData();
     identData.setPadPipelineIdent(ident);
 
-    var dataForm = new PipelineIdentDataForm();
+    var dataForm = PipelineValidationUtils.createEmptyPipelineIdentDataForm();
 
     when(repository.getByPadPipelineIdent(ident)).thenReturn(Optional.of(identData));
 

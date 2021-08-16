@@ -55,6 +55,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineId
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineIdentFormValidator;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
+import uk.co.ogauthority.pwa.util.forminputs.decimal.DecimalInputValidator;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PadPipelineTaskListServiceTest {
@@ -85,6 +86,9 @@ public class PadPipelineTaskListServiceTest {
   @Mock
   private RegulatorPipelineNumberTaskService regulatorPipelineNumberTaskService;
 
+  @Mock
+  private DecimalInputValidator decimalInputValidator;
+
   @Captor
   private ArgumentCaptor<List<PadPipeline>> padPipelineListArgCaptor;
 
@@ -106,8 +110,8 @@ public class PadPipelineTaskListServiceTest {
     modifyPipelineForm = new ModifyPipelineForm();
 
     detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
-    pipelineIdentFormValidator = new PipelineIdentFormValidator(new PipelineIdentDataFormValidator(),
-        new CoordinateFormValidator());
+    pipelineIdentFormValidator = new PipelineIdentFormValidator(new PipelineIdentDataFormValidator(decimalInputValidator),
+        new CoordinateFormValidator(), decimalInputValidator);
 
     padPipelineTaskListService = new PadPipelineTaskListService(
         padPipelineService,

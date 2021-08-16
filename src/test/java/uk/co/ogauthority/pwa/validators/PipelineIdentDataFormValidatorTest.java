@@ -8,6 +8,7 @@ import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineCoreType;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.PipelineIdentDataForm;
@@ -15,15 +16,23 @@ import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineIdentDataFormValidator;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineIdentDataValidationRule;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
+import uk.co.ogauthority.pwa.util.forminputs.decimal.DecimalInput;
+import uk.co.ogauthority.pwa.util.forminputs.decimal.DecimalInputValidator;
+import uk.co.ogauthority.pwa.util.validation.PipelineValidationUtils;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PipelineIdentDataFormValidatorTest {
 
   private PipelineIdentDataFormValidator validator;
 
+  @Spy
+  private DecimalInputValidator decimalInputValidator;
+
+  private static final String VALUE_INVALID_CODE = "value" + FieldValidationErrorCodes.INVALID.getCode();
+
   @Before
   public void setUp() {
-    validator = new PipelineIdentDataFormValidator();
+    validator = new PipelineIdentDataFormValidator(decimalInputValidator);
   }
 
   @Test
@@ -81,16 +90,16 @@ public class PipelineIdentDataFormValidatorTest {
   @Test
   public void failed_mandatory_dataNotPresent() {
 
-    var form = new PipelineIdentDataForm();
+    var form = PipelineValidationUtils.createEmptyPipelineIdentDataForm();
     var result = ValidatorTestUtils.getFormValidationErrors(validator, form, (Object) null, PipelineCoreType.SINGLE_CORE, PipelineIdentDataValidationRule.AS_SECTION);
 
     assertThat(result).containsOnly(
         entry("componentPartsDescription", Set.of("componentPartsDescription.required")),
         entry("productsToBeConveyed", Set.of("productsToBeConveyed.required")),
-        entry("maop", Set.of("maop.required")),
-        entry("externalDiameter", Set.of("externalDiameter.required")),
-        entry("internalDiameter", Set.of("internalDiameter.required")),
-        entry("wallThickness", Set.of("wallThickness.required")),
+        entry("maop.value", Set.of("value.required")),
+        entry("externalDiameter.value", Set.of("value.required")),
+        entry("internalDiameter.value", Set.of("value.required")),
+        entry("wallThickness.value", Set.of("value.required")),
         entry("insulationCoatingType", Set.of("insulationCoatingType.required"))
     );
 
@@ -143,15 +152,15 @@ public class PipelineIdentDataFormValidatorTest {
   @Test
   public void failed_singleCore_notDefiningStructure_mandatory_dataNotPresent() {
 
-    var form = new PipelineIdentDataForm();
+    var form = PipelineValidationUtils.createEmptyPipelineIdentDataForm();
     var result = ValidatorTestUtils.getFormValidationErrors(validator, form, (Object) null, PipelineCoreType.SINGLE_CORE, PipelineIdentDataValidationRule.AS_SECTION);
 
     assertThat(result).containsOnly(
         entry("componentPartsDescription", Set.of("componentPartsDescription.required")),
-        entry("externalDiameter", Set.of("externalDiameter.required")),
-        entry("internalDiameter", Set.of("internalDiameter.required")),
-        entry("wallThickness", Set.of("wallThickness.required")),
-        entry("maop", Set.of("maop.required")),
+        entry("externalDiameter.value", Set.of("value.required")),
+        entry("internalDiameter.value", Set.of("value.required")),
+        entry("wallThickness.value", Set.of("value.required")),
+        entry("maop.value", Set.of("value.required")),
         entry("insulationCoatingType", Set.of("insulationCoatingType.required")),
         entry("productsToBeConveyed", Set.of("productsToBeConveyed.required"))
     );
@@ -161,13 +170,13 @@ public class PipelineIdentDataFormValidatorTest {
   @Test
   public void failed_internalDiameterLargerThanExternal() {
 
-    var form = new PipelineIdentDataForm();
-    form.setInternalDiameter(BigDecimal.valueOf(5));
-    form.setExternalDiameter(BigDecimal.valueOf(4));
+    var form = PipelineValidationUtils.createEmptyPipelineIdentDataForm();
+    form.setInternalDiameter(new DecimalInput(BigDecimal.valueOf(5)));
+    form.setExternalDiameter(new DecimalInput(BigDecimal.valueOf(4)));
     var result = ValidatorTestUtils.getFormValidationErrors(validator, form, (Object) null, PipelineCoreType.SINGLE_CORE, PipelineIdentDataValidationRule.AS_SECTION);
 
     assertThat(result).contains(
-        entry("internalDiameter", Set.of(FieldValidationErrorCodes.INVALID.errorCode("internalDiameter")))
+        entry("internalDiameter.value", Set.of(FieldValidationErrorCodes.INVALID.errorCode("value")))
     );
 
   }
@@ -175,13 +184,13 @@ public class PipelineIdentDataFormValidatorTest {
   @Test
   public void failed_internalDiameterEqualsExternal() {
 
-    var form = new PipelineIdentDataForm();
-    form.setInternalDiameter(BigDecimal.valueOf(5));
-    form.setExternalDiameter(BigDecimal.valueOf(5));
+    var form = PipelineValidationUtils.createEmptyPipelineIdentDataForm();
+    form.setInternalDiameter(new DecimalInput(BigDecimal.valueOf(5)));
+    form.setExternalDiameter(new DecimalInput(BigDecimal.valueOf(5)));
     var result = ValidatorTestUtils.getFormValidationErrors(validator, form, (Object) null, PipelineCoreType.SINGLE_CORE, PipelineIdentDataValidationRule.AS_SECTION);
 
     assertThat(result).contains(
-        entry("internalDiameter", Set.of(FieldValidationErrorCodes.INVALID.errorCode("internalDiameter")))
+        entry("internalDiameter.value", Set.of(FieldValidationErrorCodes.INVALID.errorCode("value")))
     );
 
   }
@@ -189,13 +198,32 @@ public class PipelineIdentDataFormValidatorTest {
   @Test
   public void valid_internalDiameterSmallerThanExternal() {
 
-    var form = new PipelineIdentDataForm();
-    form.setInternalDiameter(BigDecimal.valueOf(4));
-    form.setExternalDiameter(BigDecimal.valueOf(5));
+    var form = PipelineValidationUtils.createEmptyPipelineIdentDataForm();
+    form.setInternalDiameter(new DecimalInput(BigDecimal.valueOf(4)));
+    form.setExternalDiameter(new DecimalInput(BigDecimal.valueOf(5)));
     var result = ValidatorTestUtils.getFormValidationErrors(validator, form, (Object) null, PipelineCoreType.SINGLE_CORE, PipelineIdentDataValidationRule.AS_SECTION);
 
     assertThat(result).doesNotContain(
-        entry("internalDiameter", Set.of(FieldValidationErrorCodes.INVALID.errorCode("internalDiameter")))
+        entry("internalDiameter.value", Set.of(FieldValidationErrorCodes.INVALID.errorCode("value")))
+    );
+
+  }
+
+  @Test
+  public void valid_singleCoreAsSectionFieldsAreNonNegative_negativeValues_invalid() {
+
+    var form = PipelineValidationUtils.createEmptyPipelineIdentDataForm();
+    form.setInternalDiameter(new DecimalInput(BigDecimal.valueOf(-4)));
+    form.setExternalDiameter(new DecimalInput(BigDecimal.valueOf(-2)));
+    form.setWallThickness(new DecimalInput(BigDecimal.valueOf(-6)));
+    form.setMaop(new DecimalInput(BigDecimal.valueOf(-5)));
+    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, (Object) null, PipelineCoreType.SINGLE_CORE, PipelineIdentDataValidationRule.AS_SECTION);
+
+    assertThat(result).contains(
+        entry("externalDiameter.value", Set.of(VALUE_INVALID_CODE)),
+        entry("internalDiameter.value", Set.of(VALUE_INVALID_CODE)),
+        entry("wallThickness.value", Set.of(VALUE_INVALID_CODE)),
+        entry("maop.value", Set.of(VALUE_INVALID_CODE))
     );
 
   }
@@ -204,10 +232,10 @@ public class PipelineIdentDataFormValidatorTest {
 
     var form = new PipelineIdentDataForm();
 
-    form.setExternalDiameter(BigDecimal.valueOf(10.1));
-    form.setInternalDiameter(form.getExternalDiameter().subtract(BigDecimal.ONE));
-    form.setWallThickness(BigDecimal.valueOf(12));
-    form.setMaop(BigDecimal.valueOf(400));
+    form.setExternalDiameter(new DecimalInput(BigDecimal.valueOf(10.1)));
+    form.setInternalDiameter(new DecimalInput(form.getExternalDiameter().createBigDecimalOrNull().subtract(BigDecimal.ONE)));
+    form.setWallThickness(new DecimalInput(BigDecimal.valueOf(12)));
+    form.setMaop(new DecimalInput(BigDecimal.valueOf(400)));
     form.setComponentPartsDescription("comp");
     form.setProductsToBeConveyed("prod");
     form.setInsulationCoatingType("insu");
@@ -215,6 +243,7 @@ public class PipelineIdentDataFormValidatorTest {
     return form;
 
   }
+
 
 
 }

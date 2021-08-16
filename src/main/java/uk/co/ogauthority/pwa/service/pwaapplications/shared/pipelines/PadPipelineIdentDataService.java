@@ -16,6 +16,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipe
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.PipelineIdentDataForm;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.pipelines.PadPipelineIdentDataRepository;
 import uk.co.ogauthority.pwa.util.StreamUtils;
+import uk.co.ogauthority.pwa.util.forminputs.decimal.DecimalInput;
 
 @Service
 public class PadPipelineIdentDataService {
@@ -63,10 +64,10 @@ public class PadPipelineIdentDataService {
     identData.setComponentPartsDesc(dataForm.getComponentPartsDescription());
     if (identData.getPadPipelineIdent().getPadPipeline().getPipelineType().getCoreType().equals(
         PipelineCoreType.SINGLE_CORE)) {
-      identData.setExternalDiameter(dataForm.getExternalDiameter());
-      identData.setInternalDiameter(dataForm.getInternalDiameter());
-      identData.setWallThickness(dataForm.getWallThickness());
-      identData.setMaop(dataForm.getMaop());
+      identData.setExternalDiameter(dataForm.getExternalDiameter().createBigDecimalOrNull());
+      identData.setInternalDiameter(dataForm.getInternalDiameter().createBigDecimalOrNull());
+      identData.setWallThickness(dataForm.getWallThickness().createBigDecimalOrNull());
+      identData.setMaop(dataForm.getMaop().createBigDecimalOrNull());
       identData.setInsulationCoatingType(dataForm.getInsulationCoatingType());
       identData.setProductsToBeConveyed(dataForm.getProductsToBeConveyed());
       identData.setExternalDiameterMultiCore(null);
@@ -112,10 +113,10 @@ public class PadPipelineIdentDataService {
     form.setComponentPartsDescription(identData.getComponentPartsDesc());
     if (identData.getPadPipelineIdent().getPadPipeline().getPipelineType().getCoreType().equals(
         PipelineCoreType.SINGLE_CORE)) {
-      form.setExternalDiameter(identData.getExternalDiameter());
-      form.setInternalDiameter(identData.getInternalDiameter());
-      form.setWallThickness(identData.getWallThickness());
-      form.setMaop(identData.getMaop());
+      form.setExternalDiameter(new DecimalInput(identData.getExternalDiameter()));
+      form.setInternalDiameter(new DecimalInput(identData.getInternalDiameter()));
+      form.setWallThickness(new DecimalInput(identData.getWallThickness()));
+      form.setMaop(new DecimalInput(identData.getMaop()));
       form.setInsulationCoatingType(identData.getInsulationCoatingType());
       form.setProductsToBeConveyed(identData.getProductsToBeConveyed());
 

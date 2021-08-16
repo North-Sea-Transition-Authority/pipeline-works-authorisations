@@ -1,15 +1,15 @@
 package uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines;
 
-import java.math.BigDecimal;
+import uk.co.ogauthority.pwa.util.forminputs.decimal.DecimalInput;
 
 public class PipelineIdentDataForm {
 
   private String componentPartsDescription;
-  private BigDecimal externalDiameter;
-  private BigDecimal internalDiameter;
-  private BigDecimal wallThickness;
+  private DecimalInput externalDiameter;
+  private DecimalInput internalDiameter;
+  private DecimalInput wallThickness;
   private String insulationCoatingType;
-  private BigDecimal maop;
+  private DecimalInput maop;
   private String productsToBeConveyed;
 
   private String externalDiameterMultiCore;
@@ -31,27 +31,27 @@ public class PipelineIdentDataForm {
     this.componentPartsDescription = componentPartsDescription;
   }
 
-  public BigDecimal getExternalDiameter() {
+  public DecimalInput getExternalDiameter() {
     return externalDiameter;
   }
 
-  public void setExternalDiameter(BigDecimal externalDiameter) {
+  public void setExternalDiameter(DecimalInput externalDiameter) {
     this.externalDiameter = externalDiameter;
   }
 
-  public BigDecimal getInternalDiameter() {
+  public DecimalInput getInternalDiameter() {
     return internalDiameter;
   }
 
-  public void setInternalDiameter(BigDecimal internalDiameter) {
+  public void setInternalDiameter(DecimalInput internalDiameter) {
     this.internalDiameter = internalDiameter;
   }
 
-  public BigDecimal getWallThickness() {
+  public DecimalInput getWallThickness() {
     return wallThickness;
   }
 
-  public void setWallThickness(BigDecimal wallThickness) {
+  public void setWallThickness(DecimalInput wallThickness) {
     this.wallThickness = wallThickness;
   }
 
@@ -63,11 +63,11 @@ public class PipelineIdentDataForm {
     this.insulationCoatingType = insulationCoatingType;
   }
 
-  public BigDecimal getMaop() {
+  public DecimalInput getMaop() {
     return maop;
   }
 
-  public void setMaop(BigDecimal maop) {
+  public void setMaop(DecimalInput maop) {
     this.maop = maop;
   }
 
