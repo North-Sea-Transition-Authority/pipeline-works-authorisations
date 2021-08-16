@@ -45,7 +45,6 @@ import uk.co.ogauthority.pwa.service.appprocessing.appprocessingwarning.AppProce
 import uk.co.ogauthority.pwa.service.appprocessing.appprocessingwarning.AppProcessingTaskWarningTestUtil;
 import uk.co.ogauthority.pwa.service.appprocessing.consentreview.ConsentReviewReturnFormValidator;
 import uk.co.ogauthority.pwa.service.appprocessing.consentreview.ConsentReviewService;
-import uk.co.ogauthority.pwa.service.appprocessing.consentreview.IssuedConsentDtoTestUtil;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContextService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
@@ -101,9 +100,6 @@ public class ConsentReviewControllerTest extends PwaAppProcessingContextAbstract
     user = new AuthenticatedUserAccount(
         new WebUserAccount(1),
         EnumSet.allOf(PwaUserPrivilege.class));
-
-    var issuedConsentDto = IssuedConsentDtoTestUtil.createDefault();
-    when(consentReviewService.issueConsent(any(), any())).thenReturn(issuedConsentDto);
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     pwaApplicationDetail.getPwaApplication().setId(1);
@@ -275,38 +271,38 @@ public class ConsentReviewControllerTest extends PwaAppProcessingContextAbstract
   }
 
   @Test
-  public void issueConsent_permissionSmokeTest() {
+  public void scheduleConsentIssue_permissionSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(ConsentReviewController.class)
-                .issueConsent(applicationDetail.getMasterPwaApplicationId(), type, null, null, null)));
+                .scheduleConsentIssue(applicationDetail.getMasterPwaApplicationId(), type, null, null, null)));
 
     endpointTester.performProcessingPermissionCheck(status().is3xxRedirection(), status().isForbidden());
 
   }
 
   @Test
-  public void issueConsent_statusSmokeTest() {
+  public void scheduleConsentIssue_statusSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(ConsentReviewController.class)
-                .issueConsent(applicationDetail.getMasterPwaApplicationId(), type, null, null, null)));
+                .scheduleConsentIssue(applicationDetail.getMasterPwaApplicationId(), type, null, null, null)));
 
     endpointTester.performAppStatusChecks(status().is3xxRedirection(), status().isNotFound());
 
   }
 
   @Test
-  public void issueConsent_success() throws Exception {
+  public void scheduleConsentIssue_success() throws Exception {
 
-    mockMvc.perform(post(ReverseRouter.route(on(ConsentReviewController.class).issueConsent(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null)))
+    mockMvc.perform(post(ReverseRouter.route(on(ConsentReviewController.class).scheduleConsentIssue(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null)))
         .with(authenticatedUserAndSession(user))
         .with(csrf()))
         .andExpect(status().is3xxRedirection());
 
-    verify(consentReviewService, times(1)).issueConsent(pwaApplicationDetail, user);
+    verify(consentReviewService, times(1)).scheduleConsentIssue(pwaApplicationDetail, user);
 
   }
 

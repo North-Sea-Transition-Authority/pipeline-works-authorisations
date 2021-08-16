@@ -124,10 +124,9 @@ public class TestHarnessApplicationStageService {
 
 
   private void issueConsent(TestHarnessAppProcessingProperties appProcessingProps) {
-    var issuedConsentDto = consentReviewService.issueConsent(
+    consentReviewService.scheduleConsentIssue(
         appProcessingProps.getPwaApplicationDetail(), appProcessingProps.getPwaManagerAua());
-    LOGGER.info("Issued consent {} for application {}",
-        issuedConsentDto.getConsentReference(),
+    LOGGER.info("Scheduled consent issue for application {}",
         appProcessingProps.getPwaApplication().getAppReference());
   }
 

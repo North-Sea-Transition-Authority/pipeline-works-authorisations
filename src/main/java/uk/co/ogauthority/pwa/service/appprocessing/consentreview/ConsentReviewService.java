@@ -1,10 +1,16 @@
 package uk.co.ogauthority.pwa.service.appprocessing.consentreview;
 
+import static org.quartz.JobBuilder.newJob;
+import static org.quartz.JobKey.jobKey;
+
 import java.time.Clock;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import javax.transaction.Transactional;
+import org.quartz.JobDetail;
+import org.quartz.JobKey;
+import org.quartz.Scheduler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -12,19 +18,14 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.exception.appprocessing.ConsentReviewException;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.prepareconsent.ConsentReview;
-import uk.co.ogauthority.pwa.model.entity.enums.documents.DocumentTemplateMnem;
-import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocGenType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.enums.appprocessing.prepareconsent.ConsentReviewStatus;
 import uk.co.ogauthority.pwa.repository.appprocessing.prepareconsent.ConsentReviewRepository;
-import uk.co.ogauthority.pwa.service.docgen.DocgenService;
-import uk.co.ogauthority.pwa.service.documents.instances.DocumentInstanceService;
+import uk.co.ogauthority.pwa.service.appprocessing.consentissue.ConsentIssueSchedulerBean;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.workflow.application.ConsentReviewDecision;
 import uk.co.ogauthority.pwa.service.enums.workflow.application.PwaApplicationWorkflowTask;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
-import uk.co.ogauthority.pwa.service.pwaconsents.PwaConsentService;
-import uk.co.ogauthority.pwa.service.pwaconsents.consentwriters.ConsentWriterService;
 import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
 import uk.co.ogauthority.pwa.service.workflow.assignment.WorkflowAssignmentService;
 import uk.co.ogauthority.pwa.service.workflow.task.WorkflowTaskInstance;
@@ -37,11 +38,8 @@ public class ConsentReviewService {
   private final PwaApplicationDetailService pwaApplicationDetailService;
   private final WorkflowAssignmentService workflowAssignmentService;
   private final CamundaWorkflowService camundaWorkflowService;
-  private final PwaConsentService pwaConsentService;
-  private final ConsentWriterService consentWriterService;
   private final IssueConsentEmailsService issueConsentEmailsService;
-  private final DocgenService docgenService;
-  private final DocumentInstanceService documentInstanceService;
+  private final Scheduler scheduler;
 
   @Autowired
   public ConsentReviewService(ConsentReviewRepository consentReviewRepository,
@@ -49,21 +47,15 @@ public class ConsentReviewService {
                               PwaApplicationDetailService pwaApplicationDetailService,
                               WorkflowAssignmentService workflowAssignmentService,
                               CamundaWorkflowService camundaWorkflowService,
-                              PwaConsentService pwaConsentService,
-                              ConsentWriterService consentWriterService,
                               IssueConsentEmailsService issueConsentEmailsService,
-                              DocgenService docgenService,
-                              DocumentInstanceService documentInstanceService) {
+                              Scheduler scheduler) {
     this.consentReviewRepository = consentReviewRepository;
     this.clock = clock;
     this.pwaApplicationDetailService = pwaApplicationDetailService;
     this.workflowAssignmentService = workflowAssignmentService;
     this.camundaWorkflowService = camundaWorkflowService;
-    this.pwaConsentService = pwaConsentService;
-    this.consentWriterService = consentWriterService;
     this.issueConsentEmailsService = issueConsentEmailsService;
-    this.docgenService = docgenService;
-    this.documentInstanceService = documentInstanceService;
+    this.scheduler = scheduler;
   }
 
   @Transactional
@@ -139,39 +131,33 @@ public class ConsentReviewService {
   }
 
   @Transactional
-  public IssuedConsentDto issueConsent(PwaApplicationDetail pwaApplicationDetail, WebUserAccount issuingUser) {
+  public void scheduleConsentIssue(PwaApplicationDetail pwaApplicationDetail, WebUserAccount issuingUser) {
 
-    // get open review if exists, error if it doesn't
-    var openReview = consentReviewRepository.findAllByPwaApplicationDetail(pwaApplicationDetail).stream()
-        .filter(review -> ConsentReviewStatus.OPEN.equals(review.getStatus()))
-        .findFirst()
-        .orElseThrow(() -> new ConsentReviewException(String.format(
-            "Can't issue consent as there is no open consent review for PWA detail with id [%s]", pwaApplicationDetail.getId())));
+    if (getOpenConsentReview(pwaApplicationDetail).isEmpty()) {
+      throw new ConsentReviewException(
+          String.format("No open consent review for PAD with id %s", pwaApplicationDetail.getId()));
+    }
 
-    var consent = pwaConsentService.createConsent(pwaApplicationDetail.getPwaApplication());
-    consentWriterService.updateConsentedData(pwaApplicationDetail, consent);
-
-    // end review
-    openReview.setEndTimestamp(clock.instant());
-    openReview.setStatus(ConsentReviewStatus.APPROVED);
-    openReview.setEndedByPersonId(issuingUser.getLinkedPerson().getId());
-    var approvedReview = consentReviewRepository.save(openReview);
-
-    pwaApplicationDetailService.updateStatus(pwaApplicationDetail, PwaApplicationStatus.COMPLETE, issuingUser);
+    pwaApplicationDetailService.updateStatus(pwaApplicationDetail, PwaApplicationStatus.ISSUING_CONSENT, issuingUser);
     completeWorkflowTaskWithDecision(pwaApplicationDetail, ConsentReviewDecision.APPROVE);
 
-    issueConsentEmailsService.sendConsentIssuedEmails(
-        pwaApplicationDetail, approvedReview.getCoverLetterText(), issuingUser.getFullName());
+    // schedule consent issue
+    try {
 
-    workflowAssignmentService.clearAssignments(pwaApplicationDetail.getPwaApplication());
+      JobKey jobKey = jobKey(String.valueOf(pwaApplicationDetail.getId()), "PadConsentIssue");
+      JobDetail jobDetail = newJob(ConsentIssueSchedulerBean.class)
+          .withIdentity(jobKey)
+          .usingJobData("issuingWuaId", issuingUser.getWuaId())
+          .requestRecovery()
+          .storeDurably()
+          .build();
 
-    var docInstance = documentInstanceService
-        .getDocumentInstanceOrError(pwaApplicationDetail.getPwaApplication(), DocumentTemplateMnem.PWA_CONSENT_DOCUMENT);
+      scheduler.addJob(jobDetail, false);
+      scheduler.triggerJob(jobKey);
 
-    var docgenRun = docgenService.scheduleDocumentGeneration(docInstance, DocGenType.FULL, issuingUser.getLinkedPerson());
-    pwaConsentService.setDocgenRunId(consent, docgenRun);
-
-    return new IssuedConsentDto(consent.getReference());
+    } catch (Exception e) {
+      throw new RuntimeException("Error scheduling consent issue job", e);
+    }
 
   }
 
@@ -183,6 +169,25 @@ public class ConsentReviewService {
   public boolean isApplicationConsented(PwaApplicationDetail pwaApplicationDetail) {
     return consentReviewRepository.findAllByPwaApplicationDetail(pwaApplicationDetail).stream()
         .anyMatch(review -> ConsentReviewStatus.APPROVED.equals(review.getStatus()));
+  }
+
+  public ConsentReview approveConsentReview(PwaApplicationDetail pwaApplicationDetail,
+                                            WebUserAccount approvingUser) {
+
+    // get open review if exists, error if it doesn't
+    var openReview = consentReviewRepository.findAllByPwaApplicationDetail(pwaApplicationDetail).stream()
+        .filter(review -> ConsentReviewStatus.OPEN.equals(review.getStatus()))
+        .findFirst()
+        .orElseThrow(() -> new ConsentReviewException(String.format(
+            "Can't issue consent as there is no open consent review for PWA detail with id [%s]", pwaApplicationDetail.getId())));
+
+    // end review
+    openReview.setEndTimestamp(clock.instant());
+    openReview.setStatus(ConsentReviewStatus.APPROVED);
+    openReview.setEndedByPersonId(approvingUser.getLinkedPerson().getId());
+
+    return consentReviewRepository.save(openReview);
+
   }
 
 }

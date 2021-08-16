@@ -16,6 +16,7 @@ public enum PwaApplicationStatus {
   CONSENT_REVIEW("Consent review"),
   WITHDRAWN("Withdrawn"),
   DELETED("Deleted"),
+  ISSUING_CONSENT("Issuing consent"),
   COMPLETE("Complete");
 
   private final String displayName;

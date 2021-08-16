@@ -1,6 +1,5 @@
 package uk.co.ogauthority.pwa.service.docgen;
 
-import java.time.Instant;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
@@ -10,8 +9,6 @@ import org.springframework.lang.NonNull;
 import org.springframework.scheduling.quartz.QuartzJobBean;
 import org.springframework.stereotype.Component;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
-import uk.co.ogauthority.pwa.exception.documents.DocgenException;
-import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocGenType;
 import uk.co.ogauthority.pwa.repository.docgen.DocgenRunRepository;
 
 /**
@@ -37,21 +34,12 @@ public class DocgenSchedulerBean extends QuartzJobBean {
 
       String docgenRunId = context.getJobDetail().getKey().getName();
 
-      var docgenType = DocGenType.valueOf(context.getJobDetail().getJobDataMap().getString("docgenType"));
-
       var docgenRun = docgenRunRepository.findById(Long.valueOf(docgenRunId))
           .orElseThrow(() -> new PwaEntityNotFoundException(String.format("Docgen run with id %s not found", docgenRunId)));
 
-      docgenRun.setStartedOn(Instant.now());
-
       LOGGER.info("Executing job for docgen run {}... [isRecovering = {}]", docgenRun.getId(), context.isRecovering());
 
-      try {
-        docgenService.processAndCompleteRun(docgenRun, docgenType);
-      } catch (Exception e) {
-        docgenService.markRunFailed(docgenRun);
-        throw new DocgenException("Error generating docgen run Id: " + docgenRun.getId(), e);
-      }
+      docgenService.processDocgenRun(docgenRun);
 
       LOGGER.info("Job execution complete for docgen run {}", docgenRun.getId());
 
