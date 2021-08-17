@@ -10,8 +10,8 @@
   <div class="pwa-clause-section-header">
     <h2 class="govuk-heading-m">THE OIL AND GAS AUTHORITY</h2>
     <h2 class="govuk-heading-m">PETROLEUM ACT 1998</h2>
-    <h2 class="govuk-heading-m">CONSENT TO CHANGE THE SPECIFIED ${orgRoleNameToTextMap["HOLDER"]}, ${orgRoleNameToTextMap["USER"]},</h2>
-    <h2 class="govuk-heading-m">${orgRoleNameToTextMap["OPERATOR"]} & ${orgRoleNameToTextMap["OWNER"]}</h2>
+    <h2 class="govuk-heading-m">CONSENT TO CHANGE THE SPECIFIED ${orgRoleNameToTextMap["HOLDER"]}, ${orgRoleNameToTextMap["USER"]}, 
+    ${orgRoleNameToTextMap["OPERATOR"]} & ${orgRoleNameToTextMap["OWNER"]}</h2>
     <h2 class="govuk-heading-m">OF THE</h2>
     <h2 class="govuk-heading-m">PIPELINE WORKS AUTHORISATION</h2>
   </div>
