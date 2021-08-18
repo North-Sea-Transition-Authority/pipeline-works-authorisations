@@ -14,6 +14,7 @@ import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingConte
 import uk.co.ogauthority.pwa.service.appprocessing.tasks.AppProcessingService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingTask;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.ApplicationState;
 
 @Service
 public class ConsulteeAdviceService implements AppProcessingService {
@@ -33,7 +34,8 @@ public class ConsulteeAdviceService implements AppProcessingService {
 
   @Override
   public boolean canShowInTaskList(PwaAppProcessingContext processingContext) {
-    return processingContext.getAppProcessingPermissions().contains(PwaAppProcessingPermission.CONSULTEE_ADVICE);
+    return !ApplicationState.ENDED.includes(processingContext.getApplicationDetailStatus())
+      && processingContext.getAppProcessingPermissions().contains(PwaAppProcessingPermission.CONSULTEE_ADVICE);
   }
 
   @Override

@@ -29,6 +29,7 @@ import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingConte
 import uk.co.ogauthority.pwa.service.consultations.ConsultationRequestService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.notify.EmailCaseLinkService;
 import uk.co.ogauthority.pwa.service.notify.NotifyService;
@@ -117,9 +118,10 @@ public class WithdrawApplicationServiceTest {
   }
 
   @Test
-  public void canShowInTaskList() {
+  public void canShowInTaskList_appNotEnded_hasPermission_true() {
 
-    var processingContext = new PwaAppProcessingContext(null, null, Set.of(PwaAppProcessingPermission.WITHDRAW_APPLICATION), null,
+    pwaApplicationDetail.setStatus(PwaApplicationStatus.CASE_OFFICER_REVIEW);
+    var processingContext = new PwaAppProcessingContext(pwaApplicationDetail, null, Set.of(PwaAppProcessingPermission.WITHDRAW_APPLICATION), null,
         null, Set.of());
 
     boolean canShow = withdrawApplicationService.canShowInTaskList(processingContext);
@@ -129,9 +131,23 @@ public class WithdrawApplicationServiceTest {
   }
 
   @Test
-  public void canShowInTaskList_industry() {
+  public void canShowInTaskList_appNotEnded_doesNotHavePermission_false() {
 
-    var processingContext = new PwaAppProcessingContext(null, null, Set.of(PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY), null,
+    pwaApplicationDetail.setStatus(PwaApplicationStatus.CASE_OFFICER_REVIEW);
+    var processingContext = new PwaAppProcessingContext(pwaApplicationDetail, null, Set.of(PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY), null,
+        null, Set.of());
+
+    boolean canShow = withdrawApplicationService.canShowInTaskList(processingContext);
+
+    assertThat(canShow).isFalse();
+
+  }
+
+  @Test
+  public void canShowInTaskList_appEnded_false() {
+
+    pwaApplicationDetail.setStatus(PwaApplicationStatus.COMPLETE);
+    var processingContext = new PwaAppProcessingContext(pwaApplicationDetail, null, Set.of(PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY), null,
         null, Set.of());
 
     boolean canShow = withdrawApplicationService.canShowInTaskList(processingContext);

@@ -6,6 +6,7 @@ import static org.mockito.Mockito.when;
 import static uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingTask.CHANGE_OPTIONS_APPROVAL_DEADLINE;
 
 import java.util.EnumSet;
+import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -16,6 +17,7 @@ import uk.co.ogauthority.pwa.model.enums.tasklist.TaskState;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContextTestUtil;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
@@ -46,12 +48,32 @@ public class ChangeOptionsApprovalDeadlineTaskServiceTest {
   }
 
   @Test
-  public void canShowInTaskList_hasPermission() {
+  public void canShowInTaskList_appNotEnded_hasPermission_true() {
+
+    pwaApplicationDetail.setStatus(PwaApplicationStatus.CASE_OFFICER_REVIEW);
+    pwaAppProcessingContext = PwaAppProcessingContextTestUtil.withPermissions(
+        pwaApplicationDetail,
+        Set.of(PwaAppProcessingPermission.CHANGE_OPTIONS_APPROVAL_DEADLINE));
+
     assertThat(changeOptionsApprovalDeadlineTaskService.canShowInTaskList(pwaAppProcessingContext)).isTrue();
   }
 
   @Test
-  public void canShowInTaskList_doesNotHavePermission() {
+  public void canShowInTaskList_appNotEnded_doesNotHavePermission_false() {
+
+    pwaApplicationDetail.setStatus(PwaApplicationStatus.CASE_OFFICER_REVIEW);
+    pwaAppProcessingContext = PwaAppProcessingContextTestUtil.withPermissions(
+        pwaApplicationDetail,
+        EnumSet.noneOf(PwaAppProcessingPermission.class)
+    );
+
+    assertThat(changeOptionsApprovalDeadlineTaskService.canShowInTaskList(pwaAppProcessingContext)).isFalse();
+  }
+
+  @Test
+  public void canShowInTaskList_appEnded_false() {
+
+    pwaApplicationDetail.setStatus(PwaApplicationStatus.COMPLETE);
     pwaAppProcessingContext = PwaAppProcessingContextTestUtil.withPermissions(
         pwaApplicationDetail,
         EnumSet.noneOf(PwaAppProcessingPermission.class)
