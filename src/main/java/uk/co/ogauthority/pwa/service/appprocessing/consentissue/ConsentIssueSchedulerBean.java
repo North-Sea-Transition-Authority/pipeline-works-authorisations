@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.service.appprocessing.consentissue;
 
+import java.time.Instant;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
@@ -41,12 +42,13 @@ public class ConsentIssueSchedulerBean extends QuartzJobBean {
       var detail = pwaApplicationDetailService.getDetailById(Integer.valueOf(pwaApplicationDetailId));
 
       int issuingWuaId = context.getJobDetail().getJobDataMap().getInt("issuingWuaId");
+      var approvalTime = (Instant) context.getJobDetail().getJobDataMap().get("approvalTime");
       var issuingUser = userAccountService.getWebUserAccount(issuingWuaId);
 
       LOGGER.info("Executing consent issue job for PAD with id {}... [isRecovering = {}]", detail.getId(), context.isRecovering());
 
       try {
-        consentIssueService.issueConsent(detail, issuingUser);
+        consentIssueService.issueConsent(detail, issuingUser, approvalTime);
       } catch (Exception e) {
         // todo PWA-1425 what do we do when it fails?
         throw new ConsentIssueException(String.format("Error issuing consent for PAD with id: %s", detail.getId()), e);
