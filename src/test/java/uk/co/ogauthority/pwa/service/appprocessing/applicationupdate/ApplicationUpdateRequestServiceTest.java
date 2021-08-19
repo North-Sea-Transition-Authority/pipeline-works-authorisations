@@ -44,6 +44,7 @@ import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermiss
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingTask;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.TaskStatus;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.workflow.WorkflowMessageEvent;
 import uk.co.ogauthority.pwa.service.enums.workflow.application.PwaApplicationWorkflowMessageEvents;
@@ -278,10 +279,12 @@ public class ApplicationUpdateRequestServiceTest {
   }
 
   @Test
-  public void canShowInTaskList_hasPermission() {
+  public void canShowInTaskList_appNotEnded_hasPermission_true() {
+
+    pwaApplicationDetail.setStatus(PwaApplicationStatus.CASE_OFFICER_REVIEW);
 
     var processingContext = new PwaAppProcessingContext(
-        null,
+        pwaApplicationDetail,
         null,
         Set.of(PwaAppProcessingPermission.REQUEST_APPLICATION_UPDATE),
         null,
@@ -295,9 +298,36 @@ public class ApplicationUpdateRequestServiceTest {
   }
 
   @Test
-  public void canShowInTaskList_noPermission() {
+  public void canShowInTaskList_appNotEnded_noPermission_false() {
 
-    var processingContext = new PwaAppProcessingContext(null, null, Set.of(), null, null, Set.of());
+    pwaApplicationDetail.setStatus(PwaApplicationStatus.CASE_OFFICER_REVIEW);
+
+    var processingContext = new PwaAppProcessingContext(
+        pwaApplicationDetail,
+        null,
+        Set.of(),
+        null,
+        null,
+        Set.of());
+
+    boolean canShow = applicationUpdateRequestService.canShowInTaskList(processingContext);
+
+    assertThat(canShow).isFalse();
+
+  }
+
+  @Test
+  public void canShowInTaskList_appEnded_false() {
+
+    pwaApplicationDetail.setStatus(PwaApplicationStatus.COMPLETE);
+
+    var processingContext = new PwaAppProcessingContext(
+        pwaApplicationDetail,
+        null,
+        Set.of(),
+        null,
+        null,
+        Set.of());
 
     boolean canShow = applicationUpdateRequestService.canShowInTaskList(processingContext);
 

@@ -14,6 +14,7 @@ import uk.co.ogauthority.pwa.service.appprocessing.tasks.AppProcessingService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingTask;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.TaskStatus;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.ApplicationState;
 
 @Service
 public class ChangeOptionsApprovalDeadlineTaskService implements AppProcessingService {
@@ -31,7 +32,8 @@ public class ChangeOptionsApprovalDeadlineTaskService implements AppProcessingSe
   }
 
   private boolean hasEditPermissions(PwaAppProcessingContext pwaAppProcessingContext) {
-    return pwaAppProcessingContext.hasProcessingPermission(PwaAppProcessingPermission.CHANGE_OPTIONS_APPROVAL_DEADLINE);
+    return !ApplicationState.ENDED.includes(pwaAppProcessingContext.getApplicationDetailStatus())
+        && pwaAppProcessingContext.hasProcessingPermission(PwaAppProcessingPermission.CHANGE_OPTIONS_APPROVAL_DEADLINE);
   }
 
   @Override
