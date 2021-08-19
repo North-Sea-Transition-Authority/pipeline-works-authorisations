@@ -14,14 +14,18 @@ public class FileUploadUtils {
     throw new AssertionError();
   }
 
+  public static final String UPLOADED_FILE_FIELD_NAME = "uploadedFileWithDescriptionForms";
+  public static final String UPLOADED_FILE_ERROR_ELEMENT_ID = UPLOADED_FILE_FIELD_NAME + "-error";
+
   public static void validateMaxFileLimit(UploadMultipleFilesWithDescriptionForm uploadForm,
                                           Errors errors,
                                           int maxFileCount,
                                           String limitExceededMessage) {
 
     if (uploadForm.getFileFormsForValidation().size() > maxFileCount) {
-      errors.rejectValue("uploadedFileWithDescriptionForms",
-          "uploadedFileWithDescriptionForms" + FieldValidationErrorCodes.EXCEEDED_MAXIMUM_FILE_UPLOAD_COUNT.getCode(),
+
+      errors.rejectValue(UPLOADED_FILE_FIELD_NAME,
+          UPLOADED_FILE_FIELD_NAME + FieldValidationErrorCodes.EXCEEDED_MAXIMUM_FILE_UPLOAD_COUNT.getCode(),
           limitExceededMessage);
     }
 
@@ -38,8 +42,8 @@ public class FileUploadUtils {
                                           String limitNotReachedMessage) {
 
     if (uploadForm.getFileFormsForValidation().size() < minFileLimit) {
-      errors.rejectValue("uploadedFileWithDescriptionForms",
-          FieldValidationErrorCodes.MIN_FILE_COUNT_NOT_REACHED.errorCode("uploadedFileWithDescriptionForms"),
+      errors.rejectValue(UPLOADED_FILE_FIELD_NAME,
+          FieldValidationErrorCodes.MIN_FILE_COUNT_NOT_REACHED.errorCode(UPLOADED_FILE_FIELD_NAME),
           limitNotReachedMessage);
     }
 

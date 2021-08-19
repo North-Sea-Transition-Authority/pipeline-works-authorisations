@@ -2,8 +2,10 @@ package uk.co.ogauthority.pwa.service.controllers;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -15,6 +17,8 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.model.form.fds.ErrorItem;
+import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
+import uk.co.ogauthority.pwa.util.FileUploadUtils;
 
 @Service
 public class ControllerHelperService {
@@ -66,13 +70,35 @@ public class ControllerHelperService {
           fieldError.getDefaultMessage(),
           Locale.getDefault());
 
-      errorList.add(new ErrorItem(index, fieldError.getField(), errorMessage));
+      errorList.add(new ErrorItem(index, getFieldNameForFieldError(fieldError), errorMessage));
 
     });
 
     modelAndView.addObject("errorList", errorList);
 
   }
+
+
+  /*Checks the error codes of the FieldError for a match in the set of override codes and then uses the override field name
+  otherwise just use the field name on the FieldError*/
+  private String getFieldNameForFieldError(FieldError fieldError) {
+
+    var fieldName = fieldError.getField();
+    var errorCodeToFieldNameOverrideMap = Map.of(
+        FieldValidationErrorCodes.EXCEEDED_MAXIMUM_FILE_UPLOAD_COUNT.errorCode(fieldName), FileUploadUtils.UPLOADED_FILE_ERROR_ELEMENT_ID,
+        FieldValidationErrorCodes.MIN_FILE_COUNT_NOT_REACHED.errorCode(fieldName), FileUploadUtils.UPLOADED_FILE_ERROR_ELEMENT_ID);
+
+    if (fieldError.getCodes() == null) {
+      return fieldName;
+    }
+
+    var errorCodes = new HashSet<>(Arrays.asList(fieldError.getCodes()));
+    return errorCodeToFieldNameOverrideMap.keySet().stream()
+        .filter(errorCodes::contains)
+        .map(errorCodeToFieldNameOverrideMap::get)
+        .findFirst().orElse(fieldName);
+  }
+
 
   private Optional<String> getTypeMismatchErrorCode(FieldError fieldError) {
 
