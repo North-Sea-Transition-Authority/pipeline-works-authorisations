@@ -2,6 +2,8 @@ package uk.co.ogauthority.pwa.util.forminputs.decimal;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.math.BigDecimal;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -31,6 +33,7 @@ public class DecimalInputTest {
   public void asBigDecimal_whenValueIsNumber() {
     decimalInput.setValue("56.9935");
     assertThat(decimalInput.asBigDecimal()).isPresent();
+    assertThat(decimalInput.asBigDecimal()).isEqualTo(Optional.of(BigDecimal.valueOf(56.9935)));
   }
 
   @Test

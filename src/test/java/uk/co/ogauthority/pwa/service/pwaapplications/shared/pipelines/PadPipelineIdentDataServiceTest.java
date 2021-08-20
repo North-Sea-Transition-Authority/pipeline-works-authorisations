@@ -52,10 +52,10 @@ public class PadPipelineIdentDataServiceTest {
     form.setInsulationCoatingType("ins");
     form.setComponentPartsDescription("comp");
     form.setProductsToBeConveyed("prod");
-    form.setExternalDiameter(new DecimalInput(BigDecimal.valueOf(10)));
-    form.setInternalDiameter(new DecimalInput(BigDecimal.valueOf(11)));
-    form.setWallThickness(new DecimalInput(BigDecimal.valueOf(22.22)));
-    form.setMaop(new DecimalInput(BigDecimal.valueOf(500)));
+    form.setExternalDiameter(DecimalInput.from(10));
+    form.setInternalDiameter(DecimalInput.from(11));
+    form.setWallThickness(DecimalInput.from(22.22));
+    form.setMaop(DecimalInput.from(500));
 
     form.setExternalDiameterMultiCore("some text");
     form.setInternalDiameterMultiCore("some text");
@@ -151,10 +151,10 @@ public class PadPipelineIdentDataServiceTest {
     form.setInsulationCoatingType("test");
     form.setComponentPartsDescription("test");
     form.setProductsToBeConveyed("test");
-    form.setExternalDiameter(new DecimalInput(BigDecimal.valueOf(999)));
-    form.setInternalDiameter(new DecimalInput(BigDecimal.valueOf(999)));
-    form.setWallThickness(new DecimalInput(BigDecimal.valueOf(999)));
-    form.setMaop(new DecimalInput(BigDecimal.valueOf(999)));
+    form.setExternalDiameter(DecimalInput.from(999));
+    form.setInternalDiameter(DecimalInput.from(999));
+    form.setWallThickness(DecimalInput.from(999));
+    form.setMaop(DecimalInput.from(999));
 
     var identData = new PadPipelineIdentData();
     identData.setInsulationCoatingType("ins");

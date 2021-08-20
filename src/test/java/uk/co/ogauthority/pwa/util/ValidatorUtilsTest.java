@@ -528,22 +528,6 @@ public class ValidatorUtilsTest {
 
   }
 
-  @Test
-  public void validateDecimalPlaces_nullField() {
-    var form = new PipelineIdentDataForm();
-    var bindingResult = new BeanPropertyBindingResult(form, "form");
-    ValidatorUtils.validateDecimalPlaces(bindingResult, "externalDiameter", "External diameter", 2);
-    assertThat(bindingResult.getAllErrors()).isEmpty();
-  }
-
-  @Test
-  public void validateDecimalPlaces_invalidNumber() {
-    var bindingResult = mock(BeanPropertyBindingResult.class);
-    when(bindingResult.getFieldValue("externalDiameter")).thenReturn("12.34Xyz");
-    ValidatorUtils.validateDecimalPlaces(bindingResult, "externalDiameter", "External diameter", 2);
-    verify(bindingResult, never()).rejectValue(any(), any(), any());
-  }
-
 
 
 }

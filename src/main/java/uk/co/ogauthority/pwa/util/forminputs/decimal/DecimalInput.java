@@ -23,7 +23,11 @@ public class DecimalInput {
   }
 
   public DecimalInput(BigDecimal value) {
-    this.value = String.valueOf(value);
+    this.value = value != null ? String.valueOf(value) : "";
+  }
+
+  public static DecimalInput from(double value) {
+    return new DecimalInput(BigDecimal.valueOf(value));
   }
 
 

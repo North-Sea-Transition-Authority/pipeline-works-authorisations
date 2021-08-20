@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.SmartValidator;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
-import uk.co.ogauthority.pwa.util.PwaNumberUtils;
+import uk.co.ogauthority.pwa.util.StringDisplayUtils;
 import uk.co.ogauthority.pwa.util.forminputs.FormInputLabel;
 
 @Component
@@ -101,9 +101,11 @@ public class DecimalInputValidator implements SmartValidator {
                                      FormInputLabel inputLabel,
                                      DecimalPlaceHint decimalPlaceHint) {
 
-    if (PwaNumberUtils.getNumberOfDp(decimalInput.createBigDecimalOrNull()) > decimalPlaceHint.getMaxDp()) {
+    if (decimalInput.createBigDecimalOrNull().stripTrailingZeros().scale() > decimalPlaceHint.getMaxDp()) {
+      var placePluralised = StringDisplayUtils.pluralise("place", decimalPlaceHint.getMaxDp());
       errors.rejectValue(VALUE, FieldValidationErrorCodes.MAX_DP_EXCEEDED.errorCode(VALUE),
-          String.format("%s cannot have more than %sdp", StringUtils.capitalize(inputLabel.getLabel()), decimalPlaceHint.getMaxDp()));
+          String.format("%s cannot have more than %s decimal %s",
+              StringUtils.capitalize(inputLabel.getLabel()), decimalPlaceHint.getMaxDp(), placePluralised));
     }
   }
 

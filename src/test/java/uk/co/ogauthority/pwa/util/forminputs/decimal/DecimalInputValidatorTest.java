@@ -125,6 +125,17 @@ public class DecimalInputValidatorTest {
   }
 
   @Test
+  public void validate_validBigDecimal_decimalPlaceHintProvided_valueActualDpEqualsMaxDp_trailingZeroExceedMaxDp_noError() {
+
+    decimalInput.setValue("1.220");
+    var fieldErrors = getValidationErrors(List.of(new DecimalPlaceHint(2)));
+
+    assertThat(fieldErrors).doesNotContain(
+        entry(VALUE, Set.of(VALUE + FieldValidationErrorCodes.MAX_DP_EXCEEDED.getCode()))
+    );
+  }
+
+  @Test
   public void validate_validBigDecimal_decimalPlaceHintProvided_valueDpLessThanMaxDp_noError() {
 
     decimalInput.setValue("1.2");
