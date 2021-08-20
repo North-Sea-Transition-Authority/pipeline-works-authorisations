@@ -99,7 +99,7 @@ public class IndustryPaymentController {
         processingContext.getPwaApplication(),
         processingContext.getUser());
 
-    if (CreatePaymentAttemptResult.AttemptOutcome.COMPLETED_PAYMENT_EXISTS.equals(startPaymentAttemptResult.getPaymentAttemptOutcome())) {
+    if (CreatePaymentAttemptResult.AttemptOutcome.COMPLETED_PAYMENT_EXISTS == startPaymentAttemptResult.getPaymentAttemptOutcome()) {
       FlashUtils.info(
           redirectAttributes,
           String.format(PAYMENT_ALREADY_COMPLETE_FLASH_TITLE, processingContext.getPwaApplication().getAppReference()),
@@ -108,13 +108,7 @@ public class IndustryPaymentController {
       return CaseManagementUtils.redirectCaseManagement(processingContext);
     }
 
-    return new ModelAndView("redirect:" +
-        applicationChargeRequestService.startChargeRequestPaymentAttempt(
-            processingContext.getPwaApplication(),
-            processingContext.getUser()
-        )
-            .getStartExternalJourneyUrl()
-    );
+    return new ModelAndView("redirect:" + startPaymentAttemptResult.getStartExternalJourneyUrl());
 
   }
 

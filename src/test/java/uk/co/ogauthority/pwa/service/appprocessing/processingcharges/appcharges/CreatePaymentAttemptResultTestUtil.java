@@ -9,4 +9,8 @@ public final class CreatePaymentAttemptResultTestUtil {
   public static CreatePaymentAttemptResult createSuccess(){
     return new CreatePaymentAttemptResult("some Url", CreatePaymentAttemptResult.AttemptOutcome.PAYMENT_CREATED);
   }
+
+  public static CreatePaymentAttemptResult createCompletedPaymentExists(){
+    return new CreatePaymentAttemptResult(null, CreatePaymentAttemptResult.AttemptOutcome.COMPLETED_PAYMENT_EXISTS);
+  }
 }
