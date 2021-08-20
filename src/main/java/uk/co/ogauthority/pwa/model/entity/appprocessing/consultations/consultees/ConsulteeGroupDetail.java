@@ -6,6 +6,8 @@ import java.util.Set;
 import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -13,6 +15,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import uk.co.ogauthority.pwa.model.entity.converters.ConsultationResponseOptionGroupConverter;
+import uk.co.ogauthority.pwa.model.enums.consultations.ConsultationResponseDocumentType;
 import uk.co.ogauthority.pwa.model.form.enums.ConsultationResponseOptionGroup;
 
 @Entity
@@ -44,6 +47,10 @@ public class ConsulteeGroupDetail {
   @Convert(converter = ConsultationResponseOptionGroupConverter.class)
   @Column(name = "csv_response_option_group_list")
   private Set<ConsultationResponseOptionGroup> responseOptionGroups;
+
+  @Column(name = "response_document_type")
+  @Enumerated(EnumType.STRING)
+  private ConsultationResponseDocumentType consultationResponseDocumentType;
 
   public ConsulteeGroupDetail() {
   }
@@ -132,6 +139,14 @@ public class ConsulteeGroupDetail {
     this.responseOptionGroups = responseOptionGroups;
   }
 
+  public ConsultationResponseDocumentType getConsultationResponseDocumentType() {
+    return this.consultationResponseDocumentType;
+  }
+
+  public void setConsultationResponseDocumentType(ConsultationResponseDocumentType consultationResponseDocumentType) {
+    this.consultationResponseDocumentType = consultationResponseDocumentType;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -150,12 +165,13 @@ public class ConsulteeGroupDetail {
         && Objects.equals(startTimestamp, that.startTimestamp)
         && Objects.equals(endTimestamp, that.endTimestamp)
         && Objects.equals(displayOrder, that.displayOrder)
-        && Objects.equals(responseOptionGroups, that.responseOptionGroups);
+        && Objects.equals(responseOptionGroups, that.responseOptionGroups)
+        && Objects.equals(consultationResponseDocumentType, that.consultationResponseDocumentType);
   }
 
   @Override
   public int hashCode() {
     return Objects.hash(id, consulteeGroup, name, abbreviation, tipFlag, versionNo,
-        startTimestamp, endTimestamp, displayOrder, responseOptionGroups);
+        startTimestamp, endTimestamp, displayOrder, responseOptionGroups, consultationResponseDocumentType);
   }
 }

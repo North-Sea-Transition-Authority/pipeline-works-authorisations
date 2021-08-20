@@ -85,7 +85,7 @@ public class ConsultationController {
         PwaAppProcessingTask.CONSULTATIONS,
         () -> {
 
-          var consultationRequest = consultationRequestService.getConsultationRequestById(consultationRequestId);
+          var consultationRequest = consultationRequestService.getConsultationRequestByIdOrThrow(consultationRequestId);
           if (!consultationRequestService.canWithDrawConsultationRequest(consultationRequest)) {
             FlashUtils.error(
                 redirectAttributes, "Error", "The selected consultation request can no longer be withdrawn");
@@ -111,7 +111,7 @@ public class ConsultationController {
         PwaAppProcessingTask.CONSULTATIONS,
         () -> {
 
-          var consultationRequest = consultationRequestService.getConsultationRequestById(consultationRequestId);
+          var consultationRequest = consultationRequestService.getConsultationRequestByIdOrThrow(consultationRequestId);
           if (consultationRequestService.canWithDrawConsultationRequest(consultationRequest)) {
             consultationRequestService.withdrawConsultationRequest(consultationRequest, authenticatedUserAccount);
           }

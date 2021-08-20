@@ -89,7 +89,7 @@ public class WorkflowAssignmentServiceTest {
     consulteeGroupDetail = ConsulteeGroupTestingUtils.createConsulteeGroup("TEST", "T");
     consultationRequest.setConsulteeGroup(consulteeGroupDetail.getConsulteeGroup());
 
-    when(consultationRequestService.getConsultationRequestById(eq(consultationSubject.getBusinessKey()))).thenReturn(
+    when(consultationRequestService.getConsultationRequestByIdOrThrow(eq(consultationSubject.getBusinessKey()))).thenReturn(
         consultationRequest);
 
   }

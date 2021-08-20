@@ -82,7 +82,7 @@ public class ConsultationResponseControllerTest extends PwaAppProcessingContextA
 
     consultationRequest = new ConsultationRequest();
     consultationRequest.setId(1);
-    when(consultationRequestService.getConsultationRequestById(any())).thenReturn(consultationRequest);
+    when(consultationRequestService.getConsultationRequestByIdOrThrow(any())).thenReturn(consultationRequest);
     when(consultationResponseService.isUserAssignedResponderForConsultation(any(), any())).thenReturn(true);
 
     permissionsDto = new ProcessingPermissionsDto(
@@ -152,6 +152,22 @@ public class ConsultationResponseControllerTest extends PwaAppProcessingContextA
         .with(csrf()))
         .andExpect(status().isOk())
         .andExpect(view().name("consultation/responses/responderForm"));
+
+  }
+
+  //TODO: PWA-1372 add file upload tests
+  @Test
+  public void handleUpload_permissionSmokeCheck() throws Exception {
+
+  }
+
+  @Test
+  public void handleDownload_permissionSmokeCheck() throws Exception {
+
+  }
+
+  @Test
+  public void handleDelete_permissionSmokeCheck() throws Exception {
 
   }
 

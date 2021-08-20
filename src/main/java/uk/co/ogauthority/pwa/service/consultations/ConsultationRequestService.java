@@ -259,7 +259,7 @@ public class ConsultationRequestService {
     return !ENDED_STATUSES.contains(consultationRequest.getStatus());
   }
 
-  public ConsultationRequest getConsultationRequestById(Integer consultationRequestId) {
+  public ConsultationRequest getConsultationRequestByIdOrThrow(Integer consultationRequestId) {
     return consultationRequestRepository.findById(consultationRequestId)
         .orElseThrow(() -> new PwaEntityNotFoundException(String.format(
             "Couldn't find consultation request with id: %s",  consultationRequestId)));

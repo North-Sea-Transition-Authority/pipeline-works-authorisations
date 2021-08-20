@@ -69,7 +69,7 @@ public class WorkflowAssignmentService {
         }
 
         // get consultee group from request, then return responders in that group
-        var consulteeGroup = consultationRequestService.getConsultationRequestById(workflowSubject.getBusinessKey())
+        var consulteeGroup = consultationRequestService.getConsultationRequestByIdOrThrow(workflowSubject.getBusinessKey())
             .getConsulteeGroup();
 
         return consulteeGroupTeamService.getTeamMembersForGroup(consulteeGroup).stream()

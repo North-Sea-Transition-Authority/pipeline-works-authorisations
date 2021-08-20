@@ -41,6 +41,7 @@ import uk.co.ogauthority.pwa.model.form.consultation.ConsultationResponseDataFor
 import uk.co.ogauthority.pwa.model.form.consultation.ConsultationResponseForm;
 import uk.co.ogauthority.pwa.model.form.enums.ConsultationResponseOption;
 import uk.co.ogauthority.pwa.model.form.enums.ConsultationResponseOptionGroup;
+import uk.co.ogauthority.pwa.model.form.files.UploadFileWithDescriptionForm;
 import uk.co.ogauthority.pwa.model.notify.emailproperties.consultations.ConsultationMultiResponseReceivedEmailProps;
 import uk.co.ogauthority.pwa.model.notify.emailproperties.consultations.ConsultationResponseReceivedEmailProps;
 import uk.co.ogauthority.pwa.model.tasklist.TaskTag;
@@ -54,6 +55,8 @@ import uk.co.ogauthority.pwa.service.enums.appprocessing.TaskStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ConsultationRequestStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.workflow.consultation.PwaApplicationConsultationWorkflowTask;
+import uk.co.ogauthority.pwa.service.fileupload.AppFileService;
+import uk.co.ogauthority.pwa.service.fileupload.FileUpdateMode;
 import uk.co.ogauthority.pwa.service.notify.EmailCaseLinkService;
 import uk.co.ogauthority.pwa.service.notify.NotifyService;
 import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
@@ -95,6 +98,9 @@ public class ConsultationResponseServiceTest {
   @Mock
   private ConsultationResponseFileLinkRepository consultationResponseFileLinkRepository;
 
+  @Mock
+  private AppFileService appFileService;
+
   @Captor
   private ArgumentCaptor<ConsultationResponse> responseCaptor;
 
@@ -103,6 +109,9 @@ public class ConsultationResponseServiceTest {
 
   @Captor
   private ArgumentCaptor<ConsultationMultiResponseReceivedEmailProps> multiResponseEmailPropsCaptor;
+
+  @Captor
+  private ArgumentCaptor<List<ConsultationResponseFileLink>> consultationResponseFileLinkArgumentCaptor;
 
   private Clock clock;
 
@@ -137,7 +146,8 @@ public class ConsultationResponseServiceTest {
         workflowAssignmentService,
         emailCaseLinkService,
         consultationResponseDataService,
-        consultationResponseFileLinkRepository);
+        consultationResponseFileLinkRepository,
+        appFileService);
 
   }
 
@@ -249,6 +259,49 @@ public class ConsultationResponseServiceTest {
         .contains(eiaData.getResponseType().getRadioInsetText(application.getAppReference()))
         .contains(habitatsData.getResponseGroup().getResponseLabel())
         .contains(habitatsData.getResponseType().getRadioInsetText(application.getAppReference()));
+
+  }
+
+  @Test
+  public void saveResponseAndCompleteWorkflow_confirmed_fileLinksCreated() {
+
+    ConsultationRequest consultationRequest = buildConsultationRequest();
+
+    var dataForm = buildDataForm(ConsultationResponseOptionGroup.CONTENT);
+
+    var form = new ConsultationResponseForm();
+    form.setResponseDataForms(Map.of(ConsultationResponseOptionGroup.CONTENT, dataForm));
+    form.setUploadedFileWithDescriptionForms(List.of(
+        new UploadFileWithDescriptionForm("id", "desc", Instant.now())
+    ));
+
+    var response = new ConsultationResponse();
+    when(consultationResponseRepository.save(any())).thenReturn(response);
+
+    var appFile = new AppFile(consultationRequest.getPwaApplication(), "id", AppFilePurpose.CONSULTATION_RESPONSE,
+        ApplicationFileLinkStatus.FULL);
+    when(appFileService.getFilesByIdIn(eq(appFile.getPwaApplication()), eq(AppFilePurpose.CONSULTATION_RESPONSE), any())).thenReturn(List.of(
+        appFile));
+
+    var user = new WebUserAccount(1, new Person(1, null, null, null, null));
+
+
+    var data = new ConsultationResponseData();
+    data.setResponseType(ConsultationResponseOption.CONFIRMED);
+    when(consultationResponseDataService.createAndSaveResponseData(any(), any())).thenReturn(List.of(data));
+
+    consultationResponseService.saveResponseAndCompleteWorkflow(form, consultationRequest, user);
+
+    verify(consultationResponseFileLinkRepository, times(1)).saveAll(consultationResponseFileLinkArgumentCaptor.capture());
+
+    assertThat(consultationResponseFileLinkArgumentCaptor.getValue())
+        .extracting(ConsultationResponseFileLink::getConsultationResponse, ConsultationResponseFileLink::getAppFile)
+        .containsExactlyInAnyOrder(
+            tuple(response, appFile)
+        );
+
+    verify(appFileService, times(1)).updateFiles(form, consultationRequest.getPwaApplication(), AppFilePurpose.CONSULTATION_RESPONSE, FileUpdateMode.KEEP_UNLINKED_FILES, user);
+    assertThat(consultationRequest.getStatus()).isEqualTo(ConsultationRequestStatus.RESPONDED);
 
   }
 
@@ -524,7 +577,7 @@ public class ConsultationResponseServiceTest {
     var fileLink = new ConsultationResponseFileLink(null, appFile);
     when(consultationResponseFileLinkRepository.findByAppFile_PwaApplicationAndAppFile(application, appFile)).thenReturn(
         Optional.of(fileLink));
-    assertThat(consultationResponseService.getConsultationResponseFileLink(application, appFile)).isEqualTo(Optional.of(fileLink));
+    assertThat(consultationResponseService.getConsultationResponseFileLink(appFile)).isEqualTo(Optional.of(fileLink));
   }
 
   @Test

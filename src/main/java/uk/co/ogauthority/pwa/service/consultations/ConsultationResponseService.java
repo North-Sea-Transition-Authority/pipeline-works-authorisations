@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.service.consultations;
 
 import java.time.Clock;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -20,9 +21,11 @@ import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationResponse;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationResponseData;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationResponseFileLink;
 import uk.co.ogauthority.pwa.model.entity.files.AppFile;
+import uk.co.ogauthority.pwa.model.entity.files.AppFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.form.consultation.ConsultationResponseForm;
 import uk.co.ogauthority.pwa.model.form.enums.ConsultationResponseOption;
+import uk.co.ogauthority.pwa.model.form.files.UploadFileWithDescriptionForm;
 import uk.co.ogauthority.pwa.model.notify.emailproperties.EmailProperties;
 import uk.co.ogauthority.pwa.model.notify.emailproperties.consultations.ConsultationMultiResponseReceivedEmailProps;
 import uk.co.ogauthority.pwa.model.notify.emailproperties.consultations.ConsultationResponseReceivedEmailProps;
@@ -39,6 +42,8 @@ import uk.co.ogauthority.pwa.service.enums.appprocessing.TaskStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ConsultationRequestStatus;
 import uk.co.ogauthority.pwa.service.enums.workflow.application.PwaApplicationWorkflowTask;
 import uk.co.ogauthority.pwa.service.enums.workflow.consultation.PwaApplicationConsultationWorkflowTask;
+import uk.co.ogauthority.pwa.service.fileupload.AppFileService;
+import uk.co.ogauthority.pwa.service.fileupload.FileUpdateMode;
 import uk.co.ogauthority.pwa.service.notify.EmailCaseLinkService;
 import uk.co.ogauthority.pwa.service.notify.NotifyService;
 import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
@@ -61,6 +66,9 @@ public class ConsultationResponseService implements AppProcessingService {
   private final EmailCaseLinkService emailCaseLinkService;
   private final ConsultationResponseDataService consultationResponseDataService;
   private final ConsultationResponseFileLinkRepository consultationResponseFileLinkRepository;
+  private final AppFileService appFileService;
+
+  private static final AppFilePurpose FILE_PURPOSE = AppFilePurpose.CONSULTATION_RESPONSE;
 
   @Autowired
   public ConsultationResponseService(ConsultationRequestService consultationRequestService,
@@ -72,7 +80,8 @@ public class ConsultationResponseService implements AppProcessingService {
                                      WorkflowAssignmentService workflowAssignmentService,
                                      EmailCaseLinkService emailCaseLinkService,
                                      ConsultationResponseDataService consultationResponseDataService,
-                                     ConsultationResponseFileLinkRepository consultationResponseFileLinkRepository) {
+                                     ConsultationResponseFileLinkRepository consultationResponseFileLinkRepository,
+                                     AppFileService appFileService) {
     this.consultationRequestService = consultationRequestService;
     this.consultationResponseRepository = consultationResponseRepository;
     this.camundaWorkflowService = camundaWorkflowService;
@@ -83,6 +92,7 @@ public class ConsultationResponseService implements AppProcessingService {
     this.emailCaseLinkService = emailCaseLinkService;
     this.consultationResponseDataService = consultationResponseDataService;
     this.consultationResponseFileLinkRepository = consultationResponseFileLinkRepository;
+    this.appFileService = appFileService;
   }
 
   public List<ConsultationResponse> getResponsesByConsultationRequests(List<ConsultationRequest> consultationRequests) {
@@ -127,9 +137,38 @@ public class ConsultationResponseService implements AppProcessingService {
     consultationRequest.setStatus(ConsultationRequestStatus.RESPONDED);
     consultationRequestService.saveConsultationRequest(consultationRequest);
 
+    createConsultationResponseFileLinks(form, consultationRequest, consultationResponse, user);
+
     sendResponseNotificationToCaseOfficer(consultationRequest, responseDataList);
 
     workflowAssignmentService.clearAssignments(consultationRequest);
+
+  }
+
+  private void createConsultationResponseFileLinks(ConsultationResponseForm form,
+                                                   ConsultationRequest consultationRequest,
+                                                   ConsultationResponse consultationResponse,
+                                                   WebUserAccount user) {
+    //keep unlinked files to prevent deleting other user's temporary uploaded files when submitting response
+    appFileService.updateFiles(form, consultationRequest.getPwaApplication(), FILE_PURPOSE, FileUpdateMode.KEEP_UNLINKED_FILES, user);
+
+    var fileIds = form.getUploadedFileWithDescriptionForms().stream()
+        .map(UploadFileWithDescriptionForm::getUploadedFileId)
+        .collect(Collectors.toList());
+
+    if (!fileIds.isEmpty()) {
+
+      var files = appFileService.getFilesByIdIn(consultationRequest.getPwaApplication(), FILE_PURPOSE, fileIds);
+
+      var documentLinks = new ArrayList<ConsultationResponseFileLink>();
+      files.forEach(file -> {
+
+        var caseNoteDocumentLink = new ConsultationResponseFileLink(consultationResponse, file);
+        documentLinks.add(caseNoteDocumentLink);
+
+      });
+      consultationResponseFileLinkRepository.saveAll(documentLinks);
+    }
 
   }
 
@@ -240,8 +279,8 @@ public class ConsultationResponseService implements AppProcessingService {
 
   }
 
-  public Optional<ConsultationResponseFileLink> getConsultationResponseFileLink(PwaApplication pwaApplication, AppFile appFile) {
-    return consultationResponseFileLinkRepository.findByAppFile_PwaApplicationAndAppFile(pwaApplication, appFile);
+  public Optional<ConsultationResponseFileLink> getConsultationResponseFileLink(AppFile appFile) {
+    return consultationResponseFileLinkRepository.findByAppFile_PwaApplicationAndAppFile(appFile.getPwaApplication(), appFile);
   }
 
   @Transactional

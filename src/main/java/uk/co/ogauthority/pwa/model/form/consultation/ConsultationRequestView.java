@@ -5,6 +5,8 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Objects;
+import uk.co.ogauthority.pwa.model.enums.consultations.ConsultationResponseDocumentType;
+import uk.co.ogauthority.pwa.model.form.files.UploadedFileView;
 import uk.co.ogauthority.pwa.service.consultations.ConsultationResponseDataView;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ConsultationRequestStatus;
 import uk.co.ogauthority.pwa.util.DateUtils;
@@ -24,6 +26,9 @@ public class ConsultationRequestView {
   private final Boolean canWithdraw;
   private final String withdrawnByUser;
   private final String endTimeStamp;
+  private final List<UploadedFileView> consultationResponseFileViews;
+  private final String downloadFileUrl;
+  private final ConsultationResponseDocumentType consultationResponseDocumentType;
 
   public ConsultationRequestView(Integer consultationRequestId,
                                  String consulteeGroupName,
@@ -33,14 +38,18 @@ public class ConsultationRequestView {
                                  List<ConsultationResponseDataView> dataList,
                                  Boolean canWithdraw,
                                  String withdrawnByUser,
-                                 String endTimeStamp) {
+                                 String endTimeStamp,
+                                 ConsultationResponseDocumentType consultationResponseDocumentType) {
     this.consultationRequestId = consultationRequestId;
     this.consulteeGroupName = consulteeGroupName;
     this.requestDate = requestDate;
     this.requestDateDisplay =  DateUtils.formatDateTime(requestDate.truncatedTo(ChronoUnit.SECONDS));
     this.status = status;
     this.dueDateDisplay = dueDateDisplay;
+    this.consultationResponseDocumentType = consultationResponseDocumentType;
+    this.consultationResponseFileViews = null;
     this.responseDate = null;
+    this.downloadFileUrl = null;
     this.responseDateDisplay = null;
     this.responseByPerson = null;
     this.dataList = dataList;
@@ -57,7 +66,10 @@ public class ConsultationRequestView {
                                  Instant responseDate,
                                  List<ConsultationResponseDataView> dataList,
                                  Boolean canWithdraw,
-                                 String responseByPerson) {
+                                 String responseByPerson,
+                                 List<UploadedFileView> consultationResponseFileViews,
+                                 String downloadFileUrl,
+                                 ConsultationResponseDocumentType consultationResponseDocumentType) {
     this.consultationRequestId = consultationRequestId;
     this.consulteeGroupName = consulteeGroupName;
     this.requestDate = requestDate;
@@ -69,6 +81,9 @@ public class ConsultationRequestView {
     this.dataList = dataList;
     this.responseByPerson = responseByPerson;
     this.canWithdraw = canWithdraw;
+    this.consultationResponseFileViews = consultationResponseFileViews;
+    this.downloadFileUrl = downloadFileUrl;
+    this.consultationResponseDocumentType = consultationResponseDocumentType;
     this.endTimeStamp = null;
     this.withdrawnByUser = null;
   }
@@ -125,6 +140,18 @@ public class ConsultationRequestView {
     return endTimeStamp;
   }
 
+  public List<UploadedFileView> getConsultationResponseFileViews() {
+    return consultationResponseFileViews;
+  }
+
+  public String getDownloadFileUrl() {
+    return downloadFileUrl;
+  }
+
+  public ConsultationResponseDocumentType getConsultationResponseDocumentType() {
+    return consultationResponseDocumentType;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -146,14 +173,17 @@ public class ConsultationRequestView {
         && Objects.equals(responseByPerson, that.responseByPerson)
         && Objects.equals(canWithdraw, that.canWithdraw)
         && Objects.equals(withdrawnByUser, that.withdrawnByUser)
-        && Objects.equals(endTimeStamp, that.endTimeStamp);
+        && Objects.equals(endTimeStamp, that.endTimeStamp)
+        && Objects.equals(consultationResponseFileViews, that.consultationResponseFileViews)
+        && Objects.equals(downloadFileUrl, that.downloadFileUrl)
+        && Objects.equals(consultationResponseDocumentType, that.consultationResponseDocumentType);
   }
 
   @Override
   public int hashCode() {
     return Objects.hash(consultationRequestId, consulteeGroupName, requestDate, requestDateDisplay, status,
-        dueDateDisplay, responseDate, responseDateDisplay, dataList, responseByPerson,
-        canWithdraw, withdrawnByUser, endTimeStamp);
+        dueDateDisplay, responseDate, responseDateDisplay, dataList, responseByPerson, canWithdraw, withdrawnByUser, endTimeStamp,
+        consultationResponseFileViews, downloadFileUrl, consultationResponseDocumentType);
   }
 
 }

@@ -1,6 +1,8 @@
 package uk.co.ogauthority.pwa.service.consultations;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -22,14 +24,17 @@ public class ConsulteeAdviceService implements AppProcessingService {
   private final ConsultationResponseService consultationResponseService;
   private final ConsultationResponseDataService consultationResponseDataService;
   private final ConsultationViewService consultationViewService;
+  private final ConsultationFileService consultationFileService;
 
   @Autowired
   public ConsulteeAdviceService(ConsultationResponseService consultationResponseService,
                                 ConsultationViewService consultationViewService,
-                                ConsultationResponseDataService consultationResponseDataService) {
+                                ConsultationResponseDataService consultationResponseDataService,
+                                ConsultationFileService consultationFileService) {
     this.consultationViewService = consultationViewService;
     this.consultationResponseService = consultationResponseService;
     this.consultationResponseDataService = consultationResponseDataService;
+    this.consultationFileService = consultationFileService;
   }
 
   @Override
@@ -67,23 +72,34 @@ public class ConsulteeAdviceService implements AppProcessingService {
         .stream()
         .collect(Collectors.groupingBy(ConsultationResponseData::getConsultationResponse));
 
+    var consultationResponseIdToFileViewsMap = consultationFileService.getConsultationResponseIdToFileViewsMap(
+        processingContext.getPwaApplication(), new HashSet<>(requestToResponseMap.values()));
+
     var historicRequestViews = consultationInvolvement.getHistoricalRequests().stream()
         .map(request -> {
 
           var response = requestToResponseMap.getOrDefault(request, null);
 
+          var downloadFileUrl = consultationFileService.getConsultationFileViewUrl(request);
+
           return consultationViewService.mapConsultationRequestToView(
               request,
               response,
               response != null ? responseToDataMap.get(response) : List.of(),
-              consultationInvolvement.getConsulteeGroupDetail());
+              consultationInvolvement.getConsulteeGroupDetail(),
+              consultationResponseIdToFileViewsMap.getOrDefault(Objects.nonNull(response) ? response.getId() : null, List.of()),
+              downloadFileUrl);
 
         })
         .collect(Collectors.toList());
 
     var activeRequestView = Optional.ofNullable(consultationInvolvement.getActiveRequest())
-        .map(r -> consultationViewService
-            .mapConsultationRequestToView(r, null, List.of(), consultationInvolvement.getConsulteeGroupDetail()))
+        .map(r -> {
+          var downloadFileUrl = consultationFileService.getConsultationFileViewUrl(r);
+
+          return consultationViewService.mapConsultationRequestToView(r, null, List.of(),
+              consultationInvolvement.getConsulteeGroupDetail(), List.of(), downloadFileUrl);
+        })
         .orElse(null);
 
     return new ConsulteeAdviceView(consultationInvolvement.getConsulteeGroupDetail().getName(), activeRequestView, historicRequestViews);

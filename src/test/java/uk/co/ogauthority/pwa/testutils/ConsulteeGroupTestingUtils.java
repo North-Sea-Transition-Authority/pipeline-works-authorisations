@@ -5,6 +5,7 @@ import java.util.Random;
 import java.util.Set;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroup;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupDetail;
+import uk.co.ogauthority.pwa.model.enums.consultations.ConsultationResponseDocumentType;
 import uk.co.ogauthority.pwa.model.form.enums.ConsultationResponseOptionGroup;
 
 public class ConsulteeGroupTestingUtils {
@@ -26,6 +27,7 @@ public class ConsulteeGroupTestingUtils {
     detail.setStartTimestamp(Instant.now());
     detail.setTipFlag(true);
     detail.setResponseOptionGroups(Set.of(ConsultationResponseOptionGroup.CONTENT));
+    detail.setConsultationResponseDocumentType(ConsultationResponseDocumentType.DEFAULT);
 
     return detail;
 

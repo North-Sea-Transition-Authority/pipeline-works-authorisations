@@ -64,6 +64,12 @@
             </@fdsCheckAnswers.checkAnswersRow>
         </#if>
 
+        <#if consultationRequestViewData.consultationResponseFileViews?has_content>
+            <@fdsCheckAnswers.checkAnswersRowNoAction keyText="${consultationRequestViewData.consultationResponseDocumentType.displayName}">
+                <@pwaFiles.uploadedFileList downloadUrl=springUrl(consultationRequestViewData.downloadFileUrl) existingFiles=consultationRequestViewData.consultationResponseFileViews blockClass="case-history" />
+            </@fdsCheckAnswers.checkAnswersRowNoAction>
+        </#if>
+
     </@fdsCheckAnswers.checkAnswers>
 
 </#macro>
