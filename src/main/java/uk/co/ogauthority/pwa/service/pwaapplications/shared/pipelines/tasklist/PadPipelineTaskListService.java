@@ -36,7 +36,6 @@ import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskInfo;
 import uk.co.ogauthority.pwa.service.pwaapplications.options.PadOptionConfirmedService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineIdentService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineIdentFormValidator;
 import uk.co.ogauthority.pwa.service.validation.SummaryScreenValidationResult;
 
 @Service
@@ -48,7 +47,6 @@ public class PadPipelineTaskListService implements ApplicationFormSectionService
   private final PadPipelineIdentService padPipelineIdentService;
   private final PadOptionConfirmedService padOptionConfirmedService;
   private final PadPipelineRepository padPipelineRepository;
-  private final PipelineIdentFormValidator pipelineIdentFormValidator;
   private final RegulatorPipelineNumberTaskService regulatorPipelineNumberTaskService;
   private final PadPipelineDataCopierService padPipelineDataCopierService;
 
@@ -57,14 +55,12 @@ public class PadPipelineTaskListService implements ApplicationFormSectionService
                                     PadPipelineIdentService padPipelineIdentService,
                                     PadOptionConfirmedService padOptionConfirmedService,
                                     PadPipelineRepository padPipelineRepository,
-                                    PipelineIdentFormValidator pipelineIdentFormValidator,
                                     RegulatorPipelineNumberTaskService regulatorPipelineNumberTaskService,
                                     PadPipelineDataCopierService padPipelineDataCopierService) {
     this.padPipelineService = padPipelineService;
     this.padPipelineIdentService = padPipelineIdentService;
     this.padOptionConfirmedService = padOptionConfirmedService;
     this.padPipelineRepository = padPipelineRepository;
-    this.pipelineIdentFormValidator = pipelineIdentFormValidator;
     this.regulatorPipelineNumberTaskService = regulatorPipelineNumberTaskService;
     this.padPipelineDataCopierService = padPipelineDataCopierService;
   }
