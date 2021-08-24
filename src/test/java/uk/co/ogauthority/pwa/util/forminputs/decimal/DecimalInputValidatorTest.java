@@ -288,6 +288,19 @@ public class DecimalInputValidatorTest {
     );
   }
 
+  @Test
+  public void validate_validBigDecimal_maxAllowedNumberInvalid_noError() {
+
+    var smallerThanNumberHint = new SmallerThanNumberHint(new DecimalInput("invalid number"), "My label");
+    decimalInput.setValue("4");
+
+    var fieldErrors = getValidationErrors(List.of(smallerThanNumberHint));
+
+    assertThat(fieldErrors).doesNotContain(
+        entry(VALUE, Set.of(VALUE + FieldValidationErrorCodes.INVALID.getCode()))
+    );
+  }
+
 
 
 }

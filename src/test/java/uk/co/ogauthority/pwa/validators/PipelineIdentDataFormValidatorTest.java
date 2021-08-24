@@ -168,6 +168,20 @@ public class PipelineIdentDataFormValidatorTest {
   }
 
   @Test
+  public void validate_validInternalDiameterProvided_invalidExternalDiameterProvided_internalNotValidatedAgainstExternal() {
+
+    var form = PipelineValidationUtils.createEmptyPipelineIdentDataForm();
+    form.setInternalDiameter(new DecimalInput(BigDecimal.valueOf(5)));
+    form.setExternalDiameter(new DecimalInput("invalid number"));
+    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, null, PipelineCoreType.SINGLE_CORE, PipelineIdentDataValidationRule.AS_SECTION);
+
+    assertThat(result).doesNotContain(
+        entry("internalDiameter.value", Set.of(FieldValidationErrorCodes.INVALID.errorCode("value")))
+    );
+
+  }
+
+  @Test
   public void failed_internalDiameterLargerThanExternal() {
 
     var form = PipelineValidationUtils.createEmptyPipelineIdentDataForm();

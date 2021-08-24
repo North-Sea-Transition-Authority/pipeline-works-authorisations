@@ -44,7 +44,7 @@ public class DecimalInput {
         .orElse(null);
   }
 
-  Optional<BigDecimal> asBigDecimal() {
+  public Optional<BigDecimal> asBigDecimal() {
 
     try {
       return value != null ? Optional.of(new BigDecimal(value)) : Optional.empty();
