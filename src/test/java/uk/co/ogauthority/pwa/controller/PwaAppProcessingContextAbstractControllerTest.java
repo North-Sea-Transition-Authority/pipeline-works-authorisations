@@ -93,7 +93,7 @@ public abstract class PwaAppProcessingContextAbstractControllerTest {
   private CrossingAgreementsTaskListService crossingAgreementsTaskListService;
 
   @MockBean
-  private ConsulteeGroupTeamService consulteeGroupTeamService;
+  protected ConsulteeGroupTeamService consulteeGroupTeamService;
 
   @SpyBean
   private ControllerHelperService controllerHelperService;
@@ -102,7 +102,7 @@ public abstract class PwaAppProcessingContextAbstractControllerTest {
   private AppProcessingBreadcrumbService appProcessingBreadcrumbService;
 
   @MockBean
-  private AppFileService appFileService;
+  protected AppFileService appFileService;
 
   @SpyBean
   protected UserTypeService userTypeService;

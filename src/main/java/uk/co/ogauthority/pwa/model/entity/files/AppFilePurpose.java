@@ -1,7 +1,7 @@
 package uk.co.ogauthority.pwa.model.entity.files;
 
 import uk.co.ogauthority.pwa.controller.appprocessing.casenotes.CaseNoteController;
-import uk.co.ogauthority.pwa.controller.consultations.responses.ConsultationResponseController;
+import uk.co.ogauthority.pwa.controller.consultations.responses.ConsultationResponseFileController;
 import uk.co.ogauthority.pwa.controller.files.PwaApplicationDataFileUploadAndDownloadController;
 import uk.co.ogauthority.pwa.controller.publicnotice.PublicNoticeDraftController;
 
@@ -12,7 +12,7 @@ public enum AppFilePurpose {
 
   CASE_NOTES(CaseNoteController.class),
   PUBLIC_NOTICE(PublicNoticeDraftController.class),
-  CONSULTATION_RESPONSE(ConsultationResponseController.class);
+  CONSULTATION_RESPONSE(ConsultationResponseFileController.class);
 
   private final Class<? extends PwaApplicationDataFileUploadAndDownloadController> fileControllerClass;
 
