@@ -47,7 +47,7 @@ public class TwoFieldDateInputValidatorTest {
 
     assertThat(fieldErrorMessages).containsExactly(
         entry("month", Set.of("")),
-        entry("year", Set.of("Enter a Date date"))
+        entry("year", Set.of("Enter a Date"))
     );
   }
 
@@ -336,5 +336,41 @@ public class TwoFieldDateInputValidatorTest {
         entry("month", Set.of("")),
         entry("year", Set.of("toDate must be within the range of 12 months of the deposit start date")));
   }
+
+
+  @Test
+  public void dateRequired_formatValidationMessage_messageContainsDateTextTwiceAdjacent_formattedToOnly1DateText() {
+
+    Object[] hints = {new FormInputLabel("Deposit start date")};
+    twoFieldDateInput = new TwoFieldDateInput();
+
+    var errors = new BeanPropertyBindingResult(twoFieldDateInput, "form");
+    ValidationUtils.invokeValidator(validator, twoFieldDateInput, errors, hints);
+    var fieldErrorMessages = ValidatorTestUtils.extractErrorMessages(errors);
+
+    assertThat(fieldErrorMessages).containsExactly(
+        entry("month", Set.of("")),
+        entry("year", Set.of("Enter a Deposit start date"))
+    );
+  }
+
+
+  @Test
+  public void dateRequired_formatValidationMessage_messageDoesNotContainDateTextTwiceAdjacent_noFormattingApplied() {
+
+    Object[] hints = {new FormInputLabel("Deposit start")};
+    twoFieldDateInput = new TwoFieldDateInput();
+
+    var errors = new BeanPropertyBindingResult(twoFieldDateInput, "form");
+    ValidationUtils.invokeValidator(validator, twoFieldDateInput, errors, hints);
+    var fieldErrorMessages = ValidatorTestUtils.extractErrorMessages(errors);
+
+    assertThat(fieldErrorMessages).containsExactly(
+        entry("month", Set.of("")),
+        entry("year", Set.of("Enter a Deposit start date"))
+    );
+  }
+
+
 
 }
