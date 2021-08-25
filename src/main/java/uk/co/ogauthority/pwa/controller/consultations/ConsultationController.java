@@ -22,6 +22,7 @@ import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingConte
 import uk.co.ogauthority.pwa.service.consultations.ConsultationRequestService;
 import uk.co.ogauthority.pwa.service.consultations.ConsultationViewService;
 import uk.co.ogauthority.pwa.service.consultations.ConsultationsUrlFactory;
+import uk.co.ogauthority.pwa.service.consultations.WithdrawConsultationService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingTask;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
@@ -37,6 +38,7 @@ import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 public class ConsultationController {
 
   private final ConsultationRequestService consultationRequestService;
+  private final WithdrawConsultationService withdrawConsultationService;
   private final ConsultationViewService consultationViewService;
   private final ConsultationService consultationService;
   private final AppProcessingBreadcrumbService appProcessingBreadcrumbService;
@@ -44,10 +46,12 @@ public class ConsultationController {
   @Autowired
   public ConsultationController(
       ConsultationRequestService consultationRequestService,
+      WithdrawConsultationService withdrawConsultationService,
       ConsultationViewService consultationViewService,
       ConsultationService consultationService,
       AppProcessingBreadcrumbService appProcessingBreadcrumbService) {
     this.consultationRequestService = consultationRequestService;
+    this.withdrawConsultationService = withdrawConsultationService;
     this.consultationViewService = consultationViewService;
     this.consultationService = consultationService;
     this.appProcessingBreadcrumbService = appProcessingBreadcrumbService;
@@ -86,7 +90,7 @@ public class ConsultationController {
         () -> {
 
           var consultationRequest = consultationRequestService.getConsultationRequestByIdOrThrow(consultationRequestId);
-          if (!consultationRequestService.canWithDrawConsultationRequest(consultationRequest)) {
+          if (!withdrawConsultationService.canWithDrawConsultationRequest(consultationRequest)) {
             FlashUtils.error(
                 redirectAttributes, "Error", "The selected consultation request can no longer be withdrawn");
             return ReverseRouter.redirect(on(ConsultationController.class).renderConsultations(
@@ -112,8 +116,8 @@ public class ConsultationController {
         () -> {
 
           var consultationRequest = consultationRequestService.getConsultationRequestByIdOrThrow(consultationRequestId);
-          if (consultationRequestService.canWithDrawConsultationRequest(consultationRequest)) {
-            consultationRequestService.withdrawConsultationRequest(consultationRequest, authenticatedUserAccount);
+          if (withdrawConsultationService.canWithDrawConsultationRequest(consultationRequest)) {
+            withdrawConsultationService.withdrawConsultationRequest(consultationRequest, authenticatedUserAccount);
           }
           return ReverseRouter.redirect(on(ConsultationController.class).renderConsultations(
               applicationId, pwaApplicationType, null, null));

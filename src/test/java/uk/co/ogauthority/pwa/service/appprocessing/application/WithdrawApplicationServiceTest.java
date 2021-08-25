@@ -26,7 +26,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.withdraw.WithdrawApplicationForm;
 import uk.co.ogauthority.pwa.model.notify.emailproperties.applicationworkflow.ApplicationWithdrawnEmailProps;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
-import uk.co.ogauthority.pwa.service.consultations.ConsultationRequestService;
+import uk.co.ogauthority.pwa.service.consultations.WithdrawConsultationService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
@@ -50,7 +50,7 @@ public class WithdrawApplicationServiceTest {
   @Mock
   private CamundaWorkflowService camundaWorkflowService;
   @Mock
-  private ConsultationRequestService consultationRequestService;
+  private WithdrawConsultationService withdrawConsultationService;
   @Mock
   private NotifyService notifyService;
   @Mock
@@ -76,7 +76,7 @@ public class WithdrawApplicationServiceTest {
         withdrawApplicationValidator,
         pwaApplicationDetailService,
         camundaWorkflowService,
-        consultationRequestService,
+        withdrawConsultationService,
         notifyService,
         pwaContactService,
         emailCaseLinkService);
@@ -111,7 +111,7 @@ public class WithdrawApplicationServiceTest {
 
     verify(pwaApplicationDetailService, times(1)).setWithdrawn(pwaApplicationDetail, withdrawingPerson, form.getWithdrawalReason());
     verify(camundaWorkflowService, times(1)).deleteProcessInstanceAndThenTasks(pwaApplicationDetail.getPwaApplication());
-    verify(consultationRequestService, times(1)).withdrawAllOpenConsultationRequests(pwaApplicationDetail.getPwaApplication(), withdrawingUser);
+    verify(withdrawConsultationService, times(1)).withdrawAllOpenConsultationRequests(pwaApplicationDetail.getPwaApplication(), withdrawingUser);
     verify(notifyService, times(2)).sendEmail(any(), any());
     verify(notifyService, atLeastOnce()).sendEmail(emailProps, appPerson.getEmailAddress());
     verify(notifyService, atLeastOnce()).sendEmail(emailProps, withdrawingPerson.getEmailAddress());
