@@ -155,20 +155,4 @@ public class ConsultationResponseControllerTest extends PwaAppProcessingContextA
 
   }
 
-  //TODO: PWA-1372 add file upload tests
-  @Test
-  public void handleUpload_permissionSmokeCheck() throws Exception {
-
-  }
-
-  @Test
-  public void handleDownload_permissionSmokeCheck() throws Exception {
-
-  }
-
-  @Test
-  public void handleDelete_permissionSmokeCheck() throws Exception {
-
-  }
-
 }

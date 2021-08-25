@@ -50,7 +50,8 @@ public class PwaAppProcessingContextArgumentResolver implements HandlerMethodArg
 
     if (ignoreAllChecks) {
       LOGGER.debug("Ignoring all app processing context checks");
-      return pwaAppProcessingContextService.validateAndCreate(new PwaAppProcessingContextParams(applicationId, authenticatedUser));
+      return pwaAppProcessingContextService.validateAndCreate(new PwaAppProcessingContextParams(applicationId, authenticatedUser)
+          .withFileId(ArgumentResolverUtils.resolveStringFromRequestOrNull(nativeWebRequest, "fileId")));
     }
 
     Set<PwaAppProcessingPermission> requiredPermissions = getProcessingPermissionsCheck(methodParameter);

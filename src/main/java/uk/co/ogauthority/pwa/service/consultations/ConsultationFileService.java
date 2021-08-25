@@ -11,7 +11,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import uk.co.ogauthority.pwa.controller.consultations.responses.ConsultationResponseController;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationResponse;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationResponseFileLink;
@@ -65,8 +64,8 @@ public class ConsultationFileService {
   public String getConsultationFileViewUrl(ConsultationRequest request) {
     var application = request.getPwaApplication();
 
-    return RouteUtils.routeWithUriVariables(on(ConsultationResponseController.class)
-            .handleDownload(application.getApplicationType(), application.getId(), null, null),
+    return RouteUtils.routeWithUriVariables(on(FILE_PURPOSE.getFileControllerClass()).handleDownload(
+        application.getApplicationType(), application.getId(), null, null),
         Map.of("consultationRequestId", request.getId()));
   }
 
