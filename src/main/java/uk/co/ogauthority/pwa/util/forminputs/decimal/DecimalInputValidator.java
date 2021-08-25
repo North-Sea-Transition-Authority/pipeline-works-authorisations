@@ -128,8 +128,7 @@ public class DecimalInputValidator implements SmartValidator {
 
   private void validateSmallerThan(Errors errors, DecimalInput decimalInput, FormInputLabel inputLabel, SmallerThanNumberHint hint) {
 
-    if (hint.getLargerNumber().asBigDecimal().isPresent()
-        && decimalInput.createBigDecimalOrNull().compareTo(hint.getLargerNumber().createBigDecimalOrNull()) > -1) {
+    if (decimalInput.createBigDecimalOrNull().compareTo(hint.getLargerNumber()) > -1) {
       errors.rejectValue(VALUE,
           FieldValidationErrorCodes.INVALID.errorCode(VALUE),
           String.format("The %s must be smaller than the %s", inputLabel.getLabel(), hint.getFormInputLabel()));

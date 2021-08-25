@@ -124,9 +124,11 @@ public class PipelineIdentDataFormValidator implements SmartValidator {
 
         validateDecimal(form.getExternalDiameter(), errors, fieldPrefix + "externalDiameter", "external diameter");
 
-        validateDecimal(form.getInternalDiameter(), errors,
-            fieldPrefix + "internalDiameter", "internal diameter",
-            List.of(new SmallerThanNumberHint(form.getExternalDiameter(), "external diameter")));
+        var internalDiameterHints = new ArrayList<>();
+        if (form.getExternalDiameter().asBigDecimal().isPresent()) {
+          internalDiameterHints.add(new SmallerThanNumberHint(form.getExternalDiameter().createBigDecimalOrNull(), "external diameter"));
+        }
+        validateDecimal(form.getInternalDiameter(), errors, fieldPrefix + "internalDiameter", "internal diameter", internalDiameterHints);
 
         validateDecimal(form.getWallThickness(), errors, fieldPrefix + "wallThickness", "wall thickness");
 

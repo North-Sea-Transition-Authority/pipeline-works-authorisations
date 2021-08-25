@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.util.forminputs.decimal;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -235,7 +236,7 @@ public class DecimalInputValidatorTest {
   @Test
   public void validate_validBigDecimal_smallerThanNumberHintProvided_valueLargerThanMaxAllowed_error() {
 
-    var smallerThanNumberHint = new SmallerThanNumberHint(new DecimalInput("5"), "My label");
+    var smallerThanNumberHint = new SmallerThanNumberHint(new BigDecimal("5"), "My label");
     decimalInput.setValue("6");
 
     var errors = new BeanPropertyBindingResult(decimalInput, "form");
@@ -252,7 +253,7 @@ public class DecimalInputValidatorTest {
   @Test
   public void validate_validBigDecimal_smallerThanNumberHintProvided_valueEqualsMaxAllowed_error() {
 
-    var smallerThanNumberHint = new SmallerThanNumberHint(new DecimalInput("5"), "My label");
+    var smallerThanNumberHint = new SmallerThanNumberHint(new BigDecimal("5"), "My label");
     decimalInput.setValue("5");
 
     var fieldErrors = getValidationErrors(List.of(smallerThanNumberHint));
@@ -265,7 +266,7 @@ public class DecimalInputValidatorTest {
   @Test
   public void validate_validBigDecimal_smallerThanNumberHintProvided_valueLessThanMaxAllowed_noError() {
 
-    var smallerThanNumberHint = new SmallerThanNumberHint(new DecimalInput("5"), "My label");
+    var smallerThanNumberHint = new SmallerThanNumberHint(new BigDecimal("5"), "My label");
     decimalInput.setValue("4");
 
     var fieldErrors = getValidationErrors(List.of(smallerThanNumberHint));
@@ -274,33 +275,6 @@ public class DecimalInputValidatorTest {
         entry(VALUE, Set.of(VALUE + FieldValidationErrorCodes.INVALID.getCode()))
     );
   }
-
-  @Test
-  public void validate_validBigDecimal_smallerThanNumberHintProvided_maxAllowedNumberNotProvided_noError() {
-
-    var smallerThanNumberHint = new SmallerThanNumberHint(new DecimalInput(), "My label");
-    decimalInput.setValue("4");
-
-    var fieldErrors = getValidationErrors(List.of(smallerThanNumberHint));
-
-    assertThat(fieldErrors).doesNotContain(
-        entry(VALUE, Set.of(VALUE + FieldValidationErrorCodes.INVALID.getCode()))
-    );
-  }
-
-  @Test
-  public void validate_validBigDecimal_maxAllowedNumberInvalid_noError() {
-
-    var smallerThanNumberHint = new SmallerThanNumberHint(new DecimalInput("invalid number"), "My label");
-    decimalInput.setValue("4");
-
-    var fieldErrors = getValidationErrors(List.of(smallerThanNumberHint));
-
-    assertThat(fieldErrors).doesNotContain(
-        entry(VALUE, Set.of(VALUE + FieldValidationErrorCodes.INVALID.getCode()))
-    );
-  }
-
 
 
 }

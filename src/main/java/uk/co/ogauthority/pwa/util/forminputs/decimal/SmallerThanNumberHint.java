@@ -1,19 +1,20 @@
 package uk.co.ogauthority.pwa.util.forminputs.decimal;
 
+import java.math.BigDecimal;
 import java.util.Objects;
 
 public final class SmallerThanNumberHint {
 
-  private final DecimalInput largerNumber;
+  private final BigDecimal largerNumber;
   private final String formInputLabel;
 
-  public SmallerThanNumberHint(DecimalInput largerNumber, String formInputLabel) {
+  public SmallerThanNumberHint(BigDecimal largerNumber, String formInputLabel) {
     this.largerNumber = largerNumber;
     this.formInputLabel = formInputLabel;
   }
 
 
-  DecimalInput getLargerNumber() {
+  BigDecimal getLargerNumber() {
     return largerNumber;
   }
 
