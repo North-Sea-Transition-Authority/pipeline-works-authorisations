@@ -164,6 +164,59 @@ FROM (
 );
 
 
+CREATE OR REPLACE VIEW ${datasource.user}.api_vw_applications AS
+SELECT
+  pa.id pwa_application_id
+, pa.pwa_id
+, pa.app_reference
+, ppi.project_name
+, pad_lookup.created_timestamp
+, pad_lookup.last_submitted_timestamp
+FROM ${datasource.user}.pwa_applications pa
+JOIN ${datasource.user}.pwa_application_details pad ON pa.id = pad.pwa_application_id
+LEFT JOIN ${datasource.user}.pad_project_information ppi ON pad.id = ppi.application_detail_id
+JOIN (
+  SELECT
+    pad2.pwa_application_id
+  , MIN(pad2.created_timestamp) created_timestamp
+  , MAX(pad2.submitted_timestamp) last_submitted_timestamp
+  FROM ${datasource.user}.pwa_application_details pad2
+  GROUP BY pad2.pwa_application_id
+) pad_lookup ON pad_lookup.pwa_application_id = pa.id
+WHERE pad.tip_flag = 1;
+
+/**
+  This view cannot be used to determine the HUOO values for specific application pipelines
+ */
+CREATE OR REPLACE VIEW ${datasource.user}.api_vw_app_submitted_huoos AS
+SELECT
+  pa.id pwa_application_id
+, por.ou_id
+, por.agreement treaty_agreement
+, por.role
+FROM ${datasource.user}.pwa_applications pa
+JOIN ${datasource.user}.pwa_application_details pad ON pa.id = pad.pwa_application_id
+JOIN ${datasource.user}.pad_organisation_roles por ON por.application_detail_id = pad.id
+WHERE pad.version_no = (
+  SELECT MAX(version_no)
+  FROM ${datasource.user}.pwa_application_details pad
+  WHERE pad.submitted_timestamp IS NOT NULL
+);
+
+/**
+  This view cannot be used to determine the HUOO values for specific consented pipelines
+ */
+CREATE OR REPLACE VIEW ${datasource.user}.api_vw_master_pwa_huos AS
+SELECT
+  pc.pwa_id
+, pcor.ou_id
+, pcor.agreement treaty_agreement
+, pcor.role
+FROM ${datasource.user}.pwa_consent_organisation_roles pcor
+JOIN ${datasource.user}.pwa_consents pc ON pcor.added_by_pwa_consent_id = pc.id
+WHERE pcor.ended_by_pwa_consent_id IS NULL;
+
+
 GRANT SELECT ON ${datasource.user}.api_vw_pipeline_as_built_data TO appenv;
 GRANT SELECT ON ${datasource.user}.api_vw_pwa_pipeline_details TO appenv;
 GRANT SELECT ON ${datasource.user}.api_vw_pwa_consents TO appenv;
@@ -172,5 +225,16 @@ GRANT SELECT ON ${datasource.user}.api_vw_current_pipeline_orgs TO appenv;
 
 GRANT SELECT ON ${datasource.user}.api_vw_current_pipeline_data TO appenv, decmgr, eemsmgr, bpmmgr;
 
+-- PETS needs specific access and ability to build a view
 GRANT SELECT ON ${datasource.user}.api_vw_current_pipeline_data TO envmgr WITH GRANT OPTION;
+
+-- UKSS needs specific access and ability to build a view
 GRANT SELECT ON ${datasource.user}.api_vw_current_pipeline_orgs TO passmgr WITH GRANT OPTION;
+
+-- time tracker needs specific access and ability to create its own views
+GRANT SELECT ON ${datasource.user}.api_vw_primary_pwas TO btt WITH GRANT OPTION;
+GRANT SELECT ON ${datasource.user}.api_vw_applications TO btt WITH GRANT OPTION;
+GRANT SELECT ON ${datasource.user}.api_vw_app_submitted_huoos TO btt WITH GRANT OPTION;
+GRANT SELECT ON ${datasource.user}.api_vw_master_pwa_huos TO btt WITH GRANT OPTION;
+
+
