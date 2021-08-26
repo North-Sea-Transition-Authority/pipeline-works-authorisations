@@ -15,6 +15,7 @@
     <@fdsInsetText.insetText >
       <p>You may close out this application without processing a consent as the applicant has confirmed that an approved option has not been completed.</p>
       <p>Application update requests may be used to allow the applicant to change their option confirmation.</p>
+      <p>Please inform any consultees that the application has been closed without consent.</p>
     </@fdsInsetText.insetText>
 
     <@optionsConfirmationSummary.summary view=padConfirmationOfOptionView />

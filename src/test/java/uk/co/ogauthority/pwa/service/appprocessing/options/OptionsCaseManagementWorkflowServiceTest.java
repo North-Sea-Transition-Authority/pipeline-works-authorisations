@@ -15,7 +15,7 @@ import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.workflow.GenericMessageEvent;
-import uk.co.ogauthority.pwa.service.consultations.ConsultationRequestService;
+import uk.co.ogauthority.pwa.service.consultations.WithdrawConsultationService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.workflow.application.PwaApplicationWorkflowMessageEvents;
@@ -35,7 +35,7 @@ public class OptionsCaseManagementWorkflowServiceTest {
   private CamundaWorkflowService camundaWorkflowService;
 
   @Mock
-  private ConsultationRequestService consultationRequestService;
+  private WithdrawConsultationService withdrawConsultationService;
 
   @Mock
   private PwaApplicationDetailService pwaApplicationDetailService;
@@ -56,7 +56,7 @@ public class OptionsCaseManagementWorkflowServiceTest {
     optionsCaseManagementWorkflowService = new OptionsCaseManagementWorkflowService(
         workflowAssignmentService,
         camundaWorkflowService,
-        consultationRequestService,
+        withdrawConsultationService,
         pwaApplicationDetailService);
   }
 
@@ -76,7 +76,7 @@ public class OptionsCaseManagementWorkflowServiceTest {
     verifyNoMoreInteractions(
         workflowAssignmentService,
         camundaWorkflowService,
-        consultationRequestService
+        withdrawConsultationService
     );
 
   }
@@ -87,7 +87,7 @@ public class OptionsCaseManagementWorkflowServiceTest {
     optionsCaseManagementWorkflowService.doCloseOutWork(pwaApplicationDetail, authenticatedUserAccount);
 
     verify(camundaWorkflowService).deleteProcessInstanceAndThenTasks(pwaApplicationDetail.getPwaApplication());
-    verify(consultationRequestService).withdrawAllOpenConsultationRequests(pwaApplicationDetail.getPwaApplication(), authenticatedUserAccount);
+    verify(withdrawConsultationService).withdrawAllOpenConsultationRequests(pwaApplicationDetail.getPwaApplication(), authenticatedUserAccount);
     verify(pwaApplicationDetailService).updateStatus(pwaApplicationDetail, PwaApplicationStatus.COMPLETE, authenticatedUserAccount);
 
   }

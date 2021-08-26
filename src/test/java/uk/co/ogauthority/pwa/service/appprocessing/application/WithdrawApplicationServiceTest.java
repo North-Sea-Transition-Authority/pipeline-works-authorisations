@@ -26,9 +26,10 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.withdraw.WithdrawApplicationForm;
 import uk.co.ogauthority.pwa.model.notify.emailproperties.applicationworkflow.ApplicationWithdrawnEmailProps;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
-import uk.co.ogauthority.pwa.service.consultations.ConsultationRequestService;
+import uk.co.ogauthority.pwa.service.consultations.WithdrawConsultationService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.notify.EmailCaseLinkService;
 import uk.co.ogauthority.pwa.service.notify.NotifyService;
@@ -49,7 +50,7 @@ public class WithdrawApplicationServiceTest {
   @Mock
   private CamundaWorkflowService camundaWorkflowService;
   @Mock
-  private ConsultationRequestService consultationRequestService;
+  private WithdrawConsultationService withdrawConsultationService;
   @Mock
   private NotifyService notifyService;
   @Mock
@@ -75,7 +76,7 @@ public class WithdrawApplicationServiceTest {
         withdrawApplicationValidator,
         pwaApplicationDetailService,
         camundaWorkflowService,
-        consultationRequestService,
+        withdrawConsultationService,
         notifyService,
         pwaContactService,
         emailCaseLinkService);
@@ -110,16 +111,17 @@ public class WithdrawApplicationServiceTest {
 
     verify(pwaApplicationDetailService, times(1)).setWithdrawn(pwaApplicationDetail, withdrawingPerson, form.getWithdrawalReason());
     verify(camundaWorkflowService, times(1)).deleteProcessInstanceAndThenTasks(pwaApplicationDetail.getPwaApplication());
-    verify(consultationRequestService, times(1)).withdrawAllOpenConsultationRequests(pwaApplicationDetail.getPwaApplication(), withdrawingUser);
+    verify(withdrawConsultationService, times(1)).withdrawAllOpenConsultationRequests(pwaApplicationDetail.getPwaApplication(), withdrawingUser);
     verify(notifyService, times(2)).sendEmail(any(), any());
     verify(notifyService, atLeastOnce()).sendEmail(emailProps, appPerson.getEmailAddress());
     verify(notifyService, atLeastOnce()).sendEmail(emailProps, withdrawingPerson.getEmailAddress());
   }
 
   @Test
-  public void canShowInTaskList() {
+  public void canShowInTaskList_appNotEnded_hasPermission_true() {
 
-    var processingContext = new PwaAppProcessingContext(null, null, Set.of(PwaAppProcessingPermission.WITHDRAW_APPLICATION), null,
+    pwaApplicationDetail.setStatus(PwaApplicationStatus.CASE_OFFICER_REVIEW);
+    var processingContext = new PwaAppProcessingContext(pwaApplicationDetail, null, Set.of(PwaAppProcessingPermission.WITHDRAW_APPLICATION), null,
         null, Set.of());
 
     boolean canShow = withdrawApplicationService.canShowInTaskList(processingContext);
@@ -129,9 +131,23 @@ public class WithdrawApplicationServiceTest {
   }
 
   @Test
-  public void canShowInTaskList_industry() {
+  public void canShowInTaskList_appNotEnded_doesNotHavePermission_false() {
 
-    var processingContext = new PwaAppProcessingContext(null, null, Set.of(PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY), null,
+    pwaApplicationDetail.setStatus(PwaApplicationStatus.CASE_OFFICER_REVIEW);
+    var processingContext = new PwaAppProcessingContext(pwaApplicationDetail, null, Set.of(PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY), null,
+        null, Set.of());
+
+    boolean canShow = withdrawApplicationService.canShowInTaskList(processingContext);
+
+    assertThat(canShow).isFalse();
+
+  }
+
+  @Test
+  public void canShowInTaskList_appEnded_false() {
+
+    pwaApplicationDetail.setStatus(PwaApplicationStatus.COMPLETE);
+    var processingContext = new PwaAppProcessingContext(pwaApplicationDetail, null, Set.of(PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY), null,
         null, Set.of());
 
     boolean canShow = withdrawApplicationService.canShowInTaskList(processingContext);

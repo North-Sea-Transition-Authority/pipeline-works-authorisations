@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.util;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
+import java.util.Map;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.controller.WorkAreaController;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
@@ -21,6 +22,10 @@ public class RouteUtils {
 
   public static String routeWorkArea() {
     return ReverseRouter.route(on(WorkAreaController.class).renderWorkArea(null, null, null));
+  }
+
+  public static String routeWithUriVariables(Object methodCall, Map<String, Object> uriVariables) {
+    return ReverseRouter.route(methodCall, uriVariables);
   }
 
 }

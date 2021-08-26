@@ -22,10 +22,12 @@ import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationResponse;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationResponseData;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
+import uk.co.ogauthority.pwa.model.enums.consultations.ConsultationResponseDocumentType;
 import uk.co.ogauthority.pwa.model.form.consultation.ConsultationRequestView;
 import uk.co.ogauthority.pwa.model.form.consultation.ConsulteeGroupRequestsView;
 import uk.co.ogauthority.pwa.model.form.enums.ConsultationResponseOption;
 import uk.co.ogauthority.pwa.model.form.enums.ConsultationResponseOptionGroup;
+import uk.co.ogauthority.pwa.model.form.files.UploadedFileView;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupDetailService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ConsultationRequestStatus;
 import uk.co.ogauthority.pwa.service.teammanagement.TeamManagementService;
@@ -51,6 +53,9 @@ public class ConsultationViewServiceTest {
   @Mock
   private ConsultationResponseDataService consultationResponseDataService;
 
+  @Mock
+  private ConsultationFileService consultationFileService;
+
   @Before
   public void setUp() {
     consultationViewService = new ConsultationViewService(
@@ -58,7 +63,8 @@ public class ConsultationViewServiceTest {
         consultationResponseService,
         consulteeGroupDetailService,
         teamManagementService,
-        consultationResponseDataService);
+        consultationResponseDataService,
+        consultationFileService);
   }
 
   //This tests that a list of consultation requests should result in a list of consultation request views grouped by their consultee group..
@@ -350,48 +356,48 @@ public class ConsultationViewServiceTest {
 
   }
 
-
-
   @Test
   public void requestViewRequestDateDisplayCreation_noResponseDataConstructor() {
     var instantTime = Instant.now();
     var consultationRequest = new ConsultationRequestView(null, null,
         instantTime.atZone(ZoneOffset.UTC).withDayOfMonth(5).withMonth(2).withYear(2020).withHour(10).withMinute(9).toInstant().truncatedTo(ChronoUnit.SECONDS),
-        null, null, List.of(), null, null, null);
+        null, null, List.of(), null, null, null, ConsultationResponseDocumentType.DEFAULT);
 
     assertThat(consultationRequest.getRequestDateDisplay()).isEqualTo("05 February 2020 10:09");
   }
 
   @Test
   public void requestViewRequestDateDisplayCreation_withResponseDataConstructor() {
+    var fileView = new UploadedFileView("id", "name", 1L, "desc", Instant.now(), "#id");
     var instantTime = Instant.now();
     var consultationRequest = new ConsultationRequestView(null, null,
         instantTime.atZone(ZoneOffset.UTC).withDayOfMonth(5).withMonth(2).withYear(2020).withHour(10).withMinute(9).toInstant().truncatedTo(ChronoUnit.SECONDS),
         null, null,
         instantTime.atZone(ZoneOffset.UTC).withDayOfMonth(6).withMonth(2).withYear(2020).withHour(10).withMinute(9).toInstant().truncatedTo(ChronoUnit.SECONDS),
-        List.of(), null, null);
+        List.of(), null, null, List.of(fileView), "downloadFileUrl", ConsultationResponseDocumentType.DEFAULT);
 
     assertThat(consultationRequest.getRequestDateDisplay()).isEqualTo("05 February 2020 10:09");
   }
 
   @Test
   public void requestViewResponseDateDisplayCreation_noResponseDataConstructor() {
+    var fileView = new UploadedFileView("id", "name", 1L, "desc", Instant.now(), "#id");
     var instantTime = Instant.now();
     var consultationRequest = new ConsultationRequestView(null, null,
         instantTime.atZone(ZoneOffset.UTC).withDayOfMonth(5).withMonth(2).withYear(2020).withHour(10).withMinute(9).toInstant().truncatedTo(ChronoUnit.SECONDS),
-        null, null, List.of(), null, null, null);
-
+        null, null, List.of(), null, null, null, ConsultationResponseDocumentType.DEFAULT);
     assertThat(consultationRequest.getResponseDateDisplay()).isNull();
   }
 
   @Test
   public void requestViewResponseDateDisplayCreation_withResponseDataConstructor() {
+    var fileView = new UploadedFileView("id", "name", 1L, "desc", Instant.now(), "#id");
     var instantTime = Instant.now();
     var consultationRequest = new ConsultationRequestView(null, null,
         instantTime.atZone(ZoneOffset.UTC).withDayOfMonth(5).withMonth(2).withYear(2020).withHour(10).withMinute(9).toInstant().truncatedTo(ChronoUnit.SECONDS),
         null, null,
         instantTime.atZone(ZoneOffset.UTC).withDayOfMonth(6).withMonth(2).withYear(2020).withHour(10).withMinute(9).toInstant().truncatedTo(ChronoUnit.SECONDS),
-        List.of(), null, null);
+        List.of(), null, null, List.of(fileView), "downloadFileUrl", ConsultationResponseDocumentType.DEFAULT);
 
     assertThat(consultationRequest.getResponseDateDisplay()).isEqualTo("06 February 2020 10:09");
   }

@@ -5,6 +5,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.time.Instant;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -98,15 +99,16 @@ public class ConsentIssueServiceTest {
 
     var approvedReview = new ConsentReview();
     approvedReview.setCoverLetterText("cover letter");
-    when(consentReviewService.approveConsentReview(pwaApplicationDetail, issuingUser)).thenReturn(approvedReview);
+    var approvalTime = Instant.now();
+    when(consentReviewService.approveConsentReview(pwaApplicationDetail, issuingUser, approvalTime)).thenReturn(approvedReview);
 
     var consent = new PwaConsent();
     consent.setReference("exampleRef");
     when(pwaConsentService.createConsent(pwaApplicationDetail.getPwaApplication())).thenReturn(consent);
 
-    consentIssueService.issueConsent(pwaApplicationDetail, issuingUser);
+    consentIssueService.issueConsent(pwaApplicationDetail, issuingUser, approvalTime);
 
-    verify(consentReviewService, times(1)).approveConsentReview(pwaApplicationDetail, issuingUser);
+    verify(consentReviewService, times(1)).approveConsentReview(pwaApplicationDetail, issuingUser, approvalTime);
 
     verify(pwaConsentService, times(1)).createConsent(pwaApplicationDetail.getPwaApplication());
     verify(consentWriterService, times(1)).updateConsentedData(pwaApplicationDetail, consent);

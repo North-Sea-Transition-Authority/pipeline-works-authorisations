@@ -74,7 +74,7 @@ public class AssignResponderControllerTest extends PwaAppProcessingContextAbstra
 
     consultationRequest = new ConsultationRequest();
     consultationRequest.setId(1);
-    when(consultationRequestService.getConsultationRequestById(any())).thenReturn(consultationRequest);
+    when(consultationRequestService.getConsultationRequestByIdOrThrow(any())).thenReturn(consultationRequest);
     when(assignResponderService.isUserMemberOfRequestGroup(any(), any())).thenReturn(true);
 
     permissionsDto = new ProcessingPermissionsDto(

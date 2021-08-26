@@ -204,6 +204,18 @@ public class AppFileService {
   }
 
   /**
+   * Get files for an application with a specified purpose and link status as uploaded file views, .
+   */
+  public List<UploadedFileView> getUploadedFileViewsWithNoUrl(PwaApplication application,
+                                                     AppFilePurpose purpose,
+                                                     ApplicationFileLinkStatus fileLinkStatus) {
+
+    return appFileRepository
+        .findAllAsFileViewByAppAndPurposeAndFileLinkStatus(application, purpose, fileLinkStatus);
+
+  }
+
+  /**
    * Get a file for an application with a specified purpose and link status as an uploaded file view.
    */
   public UploadedFileView getUploadedFileView(PwaApplication application,

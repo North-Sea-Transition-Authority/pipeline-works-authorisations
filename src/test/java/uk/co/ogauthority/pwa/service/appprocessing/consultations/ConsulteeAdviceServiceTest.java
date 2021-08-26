@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
@@ -21,11 +22,14 @@ import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationResponse;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationResponseData;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.enums.consultations.ConsultationResponseDocumentType;
 import uk.co.ogauthority.pwa.model.enums.tasklist.TaskState;
 import uk.co.ogauthority.pwa.model.form.consultation.ConsultationRequestView;
 import uk.co.ogauthority.pwa.model.form.enums.ConsultationResponseOption;
 import uk.co.ogauthority.pwa.model.form.enums.ConsultationResponseOptionGroup;
+import uk.co.ogauthority.pwa.model.form.files.UploadedFileView;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
+import uk.co.ogauthority.pwa.service.consultations.ConsultationFileService;
 import uk.co.ogauthority.pwa.service.consultations.ConsultationResponseDataService;
 import uk.co.ogauthority.pwa.service.consultations.ConsultationResponseDataView;
 import uk.co.ogauthority.pwa.service.consultations.ConsultationResponseService;
@@ -34,6 +38,7 @@ import uk.co.ogauthority.pwa.service.consultations.ConsulteeAdviceService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingTask;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ConsultationRequestStatus;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.testutils.ConsulteeGroupTestingUtils;
 import uk.co.ogauthority.pwa.testutils.PwaAppProcessingContextDtoTestUtils;
@@ -51,6 +56,9 @@ public class ConsulteeAdviceServiceTest {
   @Mock
   private ConsultationResponseDataService consultationResponseDataService;
 
+  @Mock
+  private ConsultationFileService consultationFileService;
+
   private ConsulteeAdviceService consulteeAdviceService;
 
   private PwaApplicationDetail detail;
@@ -58,20 +66,28 @@ public class ConsulteeAdviceServiceTest {
 
   private ConsulteeGroupDetail consulteeGroupDetail;
 
+  private UploadedFileView fileView;
+
+  private final String DOWNLOAD_URL = "/file/download";
+
   @Before
   public void setUp() {
 
-    consulteeAdviceService = new ConsulteeAdviceService(consultationResponseService, consultationViewService, consultationResponseDataService);
+    consulteeAdviceService = new ConsulteeAdviceService(consultationResponseService, consultationViewService, consultationResponseDataService,
+        consultationFileService);
 
     detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     user = new WebUserAccount(1);
     consulteeGroupDetail = ConsulteeGroupTestingUtils.createConsulteeGroup("name", "ab");
 
+    fileView = new UploadedFileView("id", "name", 1L, "desc", Instant.now(), "#id");
+
   }
 
   @Test
-  public void canShowInTaskList_noConsulteeAdvicePermission_hidden() {
+  public void canShowInTaskList_appEnded_hidden() {
 
+    detail.setStatus(PwaApplicationStatus.COMPLETE);
     var consultationInvolvement = new ConsultationInvolvementDto(consulteeGroupDetail, Set.of(), null, List.of(), false);
     var appInvolvement = ApplicationInvolvementDtoTestUtil.generateConsulteeInvolvement(
         detail.getPwaApplication(), consultationInvolvement);
@@ -86,8 +102,26 @@ public class ConsulteeAdviceServiceTest {
   }
 
   @Test
-  public void canShowInTaskList_consulteeAdvicePermission_shown() {
+  public void canShowInTaskList_appNotEnded_noConsulteeAdvicePermission_hidden() {
 
+    detail.setStatus(PwaApplicationStatus.CASE_OFFICER_REVIEW);
+    var consultationInvolvement = new ConsultationInvolvementDto(consulteeGroupDetail, Set.of(), null, List.of(), false);
+    var appInvolvement = ApplicationInvolvementDtoTestUtil.generateConsulteeInvolvement(
+        detail.getPwaApplication(), consultationInvolvement);
+
+    var context = new PwaAppProcessingContext(detail, user, Set.of(PwaAppProcessingPermission.CASE_MANAGEMENT_CONSULTEE), null, appInvolvement,
+        Set.of());
+
+    boolean canShow = consulteeAdviceService.canShowInTaskList(context);
+
+    assertThat(canShow).isFalse();
+
+  }
+
+  @Test
+  public void canShowInTaskList_appNotEnded_consulteeAdvicePermission_shown() {
+
+    detail.setStatus(PwaApplicationStatus.CASE_OFFICER_REVIEW);
     var consultationInvolvement = new ConsultationInvolvementDto(consulteeGroupDetail, Set.of(), null, List.of(new ConsultationRequest()), false);
     var appInvolvement = ApplicationInvolvementDtoTestUtil.generateConsulteeInvolvement(
         detail.getPwaApplication(), consultationInvolvement);
@@ -152,6 +186,7 @@ public class ConsulteeAdviceServiceTest {
     historicalRequest.setStatus(ConsultationRequestStatus.RESPONDED);
 
     var historicalResponse = new ConsultationResponse();
+    historicalResponse.setId(1);
     historicalResponse.setConsultationRequest(historicalRequest);
 
     when(consultationResponseService.getResponsesByConsultationRequests(any())).thenReturn(List.of(historicalResponse));
@@ -171,11 +206,17 @@ public class ConsulteeAdviceServiceTest {
         List.of(),
         false,
         null,
-        null
-    );
+        null,
+        ConsultationResponseDocumentType.DEFAULT);
 
-    when(consultationViewService.mapConsultationRequestToView(eq(historicalRequest), eq(historicalResponse), any(), eq(consulteeGroupDetail)))
+    when(consultationViewService.mapConsultationRequestToView(eq(historicalRequest), eq(historicalResponse), any(), eq(consulteeGroupDetail), eq(List.of(fileView)),
+        eq(DOWNLOAD_URL)))
         .thenReturn(requestView);
+
+    when(consultationFileService.getConsultationResponseIdToFileViewsMap(appInvolvement.getPwaApplication(), Set.of(historicalResponse)))
+        .thenReturn(Map.of(historicalResponse.getId(), List.of(fileView)));
+    when(consultationFileService.getConsultationFileViewUrl(historicalRequest))
+        .thenReturn(DOWNLOAD_URL);
 
     var consulteeAdviceView = consulteeAdviceService.getConsulteeAdviceView(context);
 
@@ -193,9 +234,11 @@ public class ConsulteeAdviceServiceTest {
     historicalRequest.setStatus(ConsultationRequestStatus.RESPONDED);
 
     var historicalResponse = new ConsultationResponse();
+    historicalResponse.setId(10);
     historicalResponse.setConsultationRequest(historicalRequest);
 
     var activeRequest = new ConsultationRequest();
+    activeRequest.setId(11);
     activeRequest.setStatus(ConsultationRequestStatus.ALLOCATION);
 
     when(consultationResponseService.getResponsesByConsultationRequests(any())).thenReturn(List.of(historicalResponse));
@@ -220,11 +263,13 @@ public class ConsulteeAdviceServiceTest {
         Instant.now(),
         null,
         "",
+        Instant.now(),
         List.of(dataView),
-        false,
         null,
-        null
-    );
+        null,
+        List.of(fileView),
+        DOWNLOAD_URL,
+        ConsultationResponseDocumentType.DEFAULT);
 
     var activeRequestView = new ConsultationRequestView(
         null,
@@ -232,17 +277,26 @@ public class ConsulteeAdviceServiceTest {
         Instant.now().minusSeconds(60),
         null,
         "",
+        Instant.now(),
         List.of(),
         false,
         null,
-        null
-    );
+        List.of(fileView),
+        DOWNLOAD_URL,
+        ConsultationResponseDocumentType.DEFAULT);
 
-    when(consultationViewService.mapConsultationRequestToView(activeRequest, null, List.of(), consulteeGroupDetail))
+    when(consultationViewService.mapConsultationRequestToView(activeRequest, null, List.of(), consulteeGroupDetail, List.of(),
+        DOWNLOAD_URL))
         .thenReturn(activeRequestView);
 
-    when(consultationViewService.mapConsultationRequestToView(eq(historicalRequest), eq(historicalResponse), any(), eq(consulteeGroupDetail)))
+    when(consultationViewService.mapConsultationRequestToView(eq(historicalRequest), eq(historicalResponse), any(), eq(consulteeGroupDetail),
+        eq(List.of(fileView)), eq(DOWNLOAD_URL)))
         .thenReturn(historicRequestView);
+
+    when(consultationFileService.getConsultationResponseIdToFileViewsMap(eq(appInvolvement.getPwaApplication()), any()))
+        .thenReturn(Map.of(historicalResponse.getId(), List.of(fileView)));
+    when(consultationFileService.getConsultationFileViewUrl(any()))
+        .thenReturn(DOWNLOAD_URL);
 
     var consulteeAdviceView = consulteeAdviceService.getConsulteeAdviceView(context);
 

@@ -1,6 +1,5 @@
 package uk.co.ogauthority.pwa.service.consultations;
 
-import java.time.Clock;
 import java.time.Instant;
 import java.time.Period;
 import java.util.ArrayList;
@@ -12,7 +11,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
@@ -27,7 +25,6 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.consultation.ConsultationRequestForm;
 import uk.co.ogauthority.pwa.model.notify.emailproperties.consultations.ConsultationRequestReceivedEmailProps;
-import uk.co.ogauthority.pwa.model.notify.emailproperties.consultations.ConsultationWithdrawnEmailProps;
 import uk.co.ogauthority.pwa.repository.consultations.ConsultationRequestRepository;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupDetailService;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupTeamService;
@@ -43,7 +40,7 @@ import uk.co.ogauthority.pwa.validators.consultations.ConsultationRequestValidat
 import uk.co.ogauthority.pwa.validators.consultations.ConsultationRequestValidator;
 
 /**
- * A service to create/withdraw consultation requests from application.
+ * A service to create consultation requests from application.
  */
 @Service
 public class ConsultationRequestService {
@@ -56,7 +53,6 @@ public class ConsultationRequestService {
   private final ConsulteeGroupTeamService consulteeGroupTeamService;
   private final ConsultationsStatusViewFactory consultationsStatusViewFactory;
   private final NotifyService notifyService;
-  private final Clock clock;
   private final EmailCaseLinkService emailCaseLinkService;
 
   private static final Set<ConsultationRequestStatus> ENDED_STATUSES =
@@ -72,7 +68,6 @@ public class ConsultationRequestService {
       ConsulteeGroupTeamService consulteeGroupTeamService,
       ConsultationsStatusViewFactory consultationsStatusViewFactory,
       NotifyService notifyService,
-      @Qualifier("utcClock") Clock clock,
       EmailCaseLinkService emailCaseLinkService) {
     this.consulteeGroupDetailService = consulteeGroupDetailService;
     this.consultationRequestRepository = consultationRequestRepository;
@@ -82,7 +77,6 @@ public class ConsultationRequestService {
     this.consulteeGroupTeamService = consulteeGroupTeamService;
     this.consultationsStatusViewFactory = consultationsStatusViewFactory;
     this.notifyService = notifyService;
-    this.clock = clock;
     this.emailCaseLinkService = emailCaseLinkService;
   }
 
@@ -108,6 +102,7 @@ public class ConsultationRequestService {
 
   }
 
+  @Transactional
   public void saveEntitiesAndStartWorkflow(ConsultationRequestForm form,
                                            PwaApplicationDetail applicationDetail,
                                            AuthenticatedUserAccount user) {
@@ -126,45 +121,6 @@ public class ConsultationRequestService {
       camundaWorkflowService.startWorkflow(consultationRequest);
       sendConsultationRequestReceivedEmail(consultationRequest);
     }
-  }
-
-
-  @Transactional
-  public void withdrawAllOpenConsultationRequests(PwaApplication pwaApplication,
-                                                  AuthenticatedUserAccount withdrawingUser) {
-    var consultationRequests = getAllOpenRequestsByApplication(pwaApplication);
-    for (var consultationRequest : consultationRequests) {
-      withdrawConsultationRequest(consultationRequest, withdrawingUser);
-    }
-  }
-
-  @Transactional
-  public void withdrawConsultationRequest(ConsultationRequest consultationRequest, AuthenticatedUserAccount user) {
-    var userWorkflowTask = consultationRequest.getStatus() == ConsultationRequestStatus.ALLOCATION
-        ? PwaApplicationConsultationWorkflowTask.ALLOCATION : PwaApplicationConsultationWorkflowTask.RESPONSE;
-    var workflowTaskInstance = new WorkflowTaskInstance(consultationRequest, userWorkflowTask);
-
-    var responderPersonOpt = camundaWorkflowService.getAssignedPersonId(workflowTaskInstance);
-    Person responderPerson = null;
-    if (responderPersonOpt.isPresent()) {
-      responderPerson = teamManagementService.getPerson(responderPersonOpt.get().asInt());
-    }
-
-    camundaWorkflowService.deleteProcessAndTask(workflowTaskInstance);
-
-    var originalRequestStatus = consultationRequest.getStatus();
-    consultationRequest.setStatus(ConsultationRequestStatus.WITHDRAWN);
-    consultationRequest.setEndedByPersonId(user.getLinkedPerson().getId().asInt());
-    consultationRequest.setEndTimestamp(Instant.now(clock));
-    saveConsultationRequest(consultationRequest);
-
-    List<Person> emailRecipients = getEmailRecipients(consultationRequest, originalRequestStatus, responderPerson);
-    var consulteeGroupName = consulteeGroupDetailService.getConsulteeGroupDetailByGroupAndTipFlagIsTrue(
-        consultationRequest.getConsulteeGroup()).getName();
-    emailRecipients.forEach(recipient -> {
-      var emailProps = buildWithdrawnEmailProps(recipient, consultationRequest, consulteeGroupName, user.getLinkedPerson());
-      notifyService.sendEmail(emailProps, recipient.getEmailAddress());
-    });
   }
 
 
@@ -208,19 +164,6 @@ public class ConsultationRequestService {
   }
 
 
-
-
-  private ConsultationWithdrawnEmailProps buildWithdrawnEmailProps(Person recipient,
-                                                                   ConsultationRequest consultationRequest,
-                                                                   String consulteeGroupName,
-                                                                   Person withdrawnByUser) {
-    return new ConsultationWithdrawnEmailProps(
-        recipient.getFullName(),
-        consultationRequest.getPwaApplication().getAppReference(),
-        consulteeGroupName,
-        withdrawnByUser.getFullName());
-  }
-
   private ConsultationRequestReceivedEmailProps buildRequestReceivedEmailProps(Person recipient,
                                                                                ConsultationRequest consultationRequest,
                                                                                String consulteeGroupName,
@@ -255,11 +198,7 @@ public class ConsultationRequestService {
         consulteeGroup, pwaApplication, ENDED_STATUSES).isPresent();
   }
 
-  public boolean canWithDrawConsultationRequest(ConsultationRequest consultationRequest) {
-    return !ENDED_STATUSES.contains(consultationRequest.getStatus());
-  }
-
-  public ConsultationRequest getConsultationRequestById(Integer consultationRequestId) {
+  public ConsultationRequest getConsultationRequestByIdOrThrow(Integer consultationRequestId) {
     return consultationRequestRepository.findById(consultationRequestId)
         .orElseThrow(() -> new PwaEntityNotFoundException(String.format(
             "Couldn't find consultation request with id: %s",  consultationRequestId)));
@@ -293,4 +232,7 @@ public class ConsultationRequestService {
     return consultationsStatusViewFactory.getApplicationStatusView(pwaApplication);
   }
 
+  static Set<ConsultationRequestStatus> getEndedStatuses() {
+    return ENDED_STATUSES;
+  }
 }

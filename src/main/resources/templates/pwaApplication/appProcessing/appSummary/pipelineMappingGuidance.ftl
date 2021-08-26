@@ -27,7 +27,7 @@
 
     <h3 class="govuk-heading-m">How do I plot application pipelines on a map?</h3>
     <ol class="govuk-list govuk-list--number">
-        <li>Use this page to download application pipeline data in GeoJson format and save the file locally.</li>
+        <li>Use the "Download" link on this page and save the file. There is no need to open it.</li>
         <li>Navigate in your browser to the <a class="govuk-link" href=${regulatorMapsAndToolsUrl}>${regulatorMapsAndToolsLabel}</a> and then click the "${offshoreMapLabel}" link.</li>
         <li>Once the map has loaded locate the "Add data" menu. This is located in the top right of the map with the following icon<br>
             <img class="fds-content-img" src="<@spring.url '/assets/static/images/oga-offshore-map-add-data-icon-highlight.png'/>" alt="Add data menu icon highlighted among OGA offshore map navigation items"/>

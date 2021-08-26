@@ -255,16 +255,17 @@ public class ConsentReviewServiceTest {
 
     var review = new ConsentReview();
     review.setStatus(ConsentReviewStatus.OPEN);
+    var approvalTime = Instant.now();
 
     when(consentReviewRepository.findAllByPwaApplicationDetail(detail)).thenReturn(List.of(review));
 
-    consentReviewService.approveConsentReview(detail, user);
+    consentReviewService.approveConsentReview(detail, user, approvalTime);
 
     verify(consentReviewRepository, times(1)).save(consentReviewArgumentCaptor.capture());
 
     assertThat(consentReviewArgumentCaptor.getValue()).satisfies(consentReview -> {
       assertThat(consentReview.getEndedByPersonId()).isEqualTo(user.getLinkedPerson().getId());
-      assertThat(consentReview.getEndTimestamp()).isEqualTo(clock.instant());
+      assertThat(consentReview.getEndTimestamp()).isEqualTo(approvalTime);
       assertThat(consentReview.getStatus()).isEqualTo(ConsentReviewStatus.APPROVED);
     });
 
@@ -275,7 +276,7 @@ public class ConsentReviewServiceTest {
 
     when(consentReviewRepository.findAllByPwaApplicationDetail(detail)).thenReturn(List.of());
 
-    consentReviewService.approveConsentReview(detail, user);
+    consentReviewService.approveConsentReview(detail, user, Instant.now());
 
   }
 

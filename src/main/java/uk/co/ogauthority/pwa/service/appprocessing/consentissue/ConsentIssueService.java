@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.service.appprocessing.consentissue;
 
+import java.time.Instant;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -59,9 +60,10 @@ public class ConsentIssueService {
 
   @Transactional
   public void issueConsent(PwaApplicationDetail pwaApplicationDetail,
-                           WebUserAccount issuingUser) {
+                           WebUserAccount issuingUser,
+                           Instant approvalTime) {
 
-    var approvedReview = consentReviewService.approveConsentReview(pwaApplicationDetail, issuingUser);
+    var approvedReview = consentReviewService.approveConsentReview(pwaApplicationDetail, issuingUser, approvalTime);
 
     var consent = pwaConsentService.createConsent(pwaApplicationDetail.getPwaApplication());
     consentWriterService.updateConsentedData(pwaApplicationDetail, consent);

@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.model.dto.consultations;
 import java.util.Set;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupDetail;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
+import uk.co.ogauthority.pwa.model.enums.consultations.ConsultationResponseDocumentType;
 import uk.co.ogauthority.pwa.model.form.enums.ConsultationResponseOptionGroup;
 
 public class ConsultationRequestDto {
@@ -26,6 +27,10 @@ public class ConsultationRequestDto {
 
   public ConsultationRequest getConsultationRequest() {
     return consultationRequest;
+  }
+
+  public ConsultationResponseDocumentType getConsultationResponseDocumentType() {
+    return consulteeGroupDetail.getConsultationResponseDocumentType();
   }
 
 }

@@ -4,6 +4,7 @@ import static org.quartz.JobBuilder.newJob;
 import static org.quartz.JobKey.jobKey;
 
 import java.time.Clock;
+import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -152,6 +153,8 @@ public class ConsentReviewService {
           .storeDurably()
           .build();
 
+      jobDetail.getJobDataMap().put("approvalTime", clock.instant());
+
       scheduler.addJob(jobDetail, false);
       scheduler.triggerJob(jobKey);
 
@@ -172,7 +175,8 @@ public class ConsentReviewService {
   }
 
   public ConsentReview approveConsentReview(PwaApplicationDetail pwaApplicationDetail,
-                                            WebUserAccount approvingUser) {
+                                            WebUserAccount approvingUser,
+                                            Instant approvalTime) {
 
     // get open review if exists, error if it doesn't
     var openReview = consentReviewRepository.findAllByPwaApplicationDetail(pwaApplicationDetail).stream()
@@ -182,7 +186,7 @@ public class ConsentReviewService {
             "Can't issue consent as there is no open consent review for PWA detail with id [%s]", pwaApplicationDetail.getId())));
 
     // end review
-    openReview.setEndTimestamp(clock.instant());
+    openReview.setEndTimestamp(approvalTime);
     openReview.setStatus(ConsentReviewStatus.APPROVED);
     openReview.setEndedByPersonId(approvingUser.getLinkedPerson().getId());
 

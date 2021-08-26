@@ -11,6 +11,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
@@ -25,6 +26,7 @@ import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationResponseData
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.form.consultation.ConsultationRequestView;
 import uk.co.ogauthority.pwa.model.form.consultation.ConsulteeGroupRequestsView;
+import uk.co.ogauthority.pwa.model.form.files.UploadedFileView;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupDetailService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ConsultationRequestStatus;
 import uk.co.ogauthority.pwa.service.teammanagement.TeamManagementService;
@@ -42,6 +44,7 @@ public class ConsultationViewService {
   private final ConsulteeGroupDetailService consulteeGroupDetailService;
   private final TeamManagementService teamManagementService;
   private final ConsultationResponseDataService consultationResponseDataService;
+  private final ConsultationFileService consultationFileService;
 
   @Autowired
   public ConsultationViewService(
@@ -49,12 +52,14 @@ public class ConsultationViewService {
       ConsultationResponseService consultationResponseService,
       ConsulteeGroupDetailService consulteeGroupDetailService,
       TeamManagementService teamManagementService,
-      ConsultationResponseDataService consultationResponseDataService) {
+      ConsultationResponseDataService consultationResponseDataService,
+      ConsultationFileService consultationFileService) {
     this.consultationRequestService = consultationRequestService;
     this.consultationResponseService = consultationResponseService;
     this.consulteeGroupDetailService = consulteeGroupDetailService;
     this.teamManagementService = teamManagementService;
     this.consultationResponseDataService = consultationResponseDataService;
+    this.consultationFileService = consultationFileService;
   }
 
 
@@ -68,7 +73,8 @@ public class ConsultationViewService {
     var groupRequestMap =  getGroupRequestMap(consultationRequests);
 
     groupRequestMap.forEach((group, requestList) ->
-        consulteeGroupRequestsViews.add(createGroupRequestView(requestList, requestResponseMap, responseDataListMap, groupAndDetailMap)));
+        consulteeGroupRequestsViews.add(createGroupRequestView(pwaApplication, requestList, requestResponseMap, responseDataListMap,
+            groupAndDetailMap)));
     consulteeGroupRequestsViews.sort(Comparator.comparing(x -> x.getCurrentRequest().getConsulteeGroupName()));
     return consulteeGroupRequestsViews;
   }
@@ -80,7 +86,16 @@ public class ConsultationViewService {
     var responseDataList = consultationResponseDataService.findAllByConsultationResponse(response);
     var groupDetail = consulteeGroupDetailService.getConsulteeGroupDetailByGroupAndTipFlagIsTrue(consultationRequest.getConsulteeGroup());
 
-    return mapConsultationRequestToView(consultationRequest, response, responseDataList, groupDetail);
+    List<UploadedFileView> uploadedFileViews = new ArrayList<>();
+    if (Objects.nonNull(response)) {
+      var consultationResponseIdToFileViewsMap = consultationFileService
+          .getConsultationResponseIdToFileViewsMap(consultationRequest.getPwaApplication(), Set.of(response));
+      uploadedFileViews = consultationResponseIdToFileViewsMap.getOrDefault(response.getId(), List.of());
+    }
+
+    var downloadFileUrl = consultationFileService.getConsultationFileViewUrl(consultationRequest);
+
+    return mapConsultationRequestToView(consultationRequest, response, responseDataList, groupDetail, uploadedFileViews, downloadFileUrl);
   }
 
   public List<ConsultationRequestView> getConsultationRequestViewsRespondedOnly(PwaApplication pwaApplication,
@@ -96,8 +111,15 @@ public class ConsultationViewService {
 
     var groupDetail = consulteeGroupDetailService.getConsulteeGroupDetailByGroupAndTipFlagIsTrue(consultationRequest.getConsulteeGroup());
 
-    requestResponseMap.forEach((request, response) ->
-        consultationRequestViews.add(mapConsultationRequestToView(request, response, responseDataListMap.get(response), groupDetail)));
+    var consultationResponseIdToFileViewsMap = consultationFileService.getConsultationResponseIdToFileViewsMap(pwaApplication,
+        new HashSet<>(requestResponseMap.values()));
+
+    requestResponseMap.forEach((request, response) -> {
+      var downloadFileUrl = consultationFileService.getConsultationFileViewUrl(request);
+
+      consultationRequestViews.add(mapConsultationRequestToView(request, response, responseDataListMap.get(response), groupDetail,
+            consultationResponseIdToFileViewsMap.getOrDefault(response.getId(), List.of()), downloadFileUrl));
+    });
 
     consultationRequestViews.sort(Comparator.comparing(ConsultationRequestView::getResponseDate).reversed());
 
@@ -110,22 +132,30 @@ public class ConsultationViewService {
         .collect(Collectors.groupingBy(ConsultationResponseData::getConsultationResponse));
   }
 
-  private ConsulteeGroupRequestsView createGroupRequestView(List<ConsultationRequest> requestList,
+  private ConsulteeGroupRequestsView createGroupRequestView(PwaApplication pwaApplication,
+                                                            List<ConsultationRequest> requestList,
                                                             Map<ConsultationRequest, ConsultationResponse> requestResponseMap,
                                                             Map<ConsultationResponse, List<ConsultationResponseData>> responseDataListMap,
                                                             Map<ConsulteeGroup, ConsulteeGroupDetail> groupAndDetailMap) {
     var consulteeGroupRequestsView = new ConsulteeGroupRequestsView();
+
+    var consultationResponseIdToFileViewsMap = consultationFileService.getConsultationResponseIdToFileViewsMap(pwaApplication,
+        new HashSet<>(requestResponseMap.values()));
+
     for (int requestIndex = 0; requestIndex < requestList.size(); requestIndex++) {
 
       var consultationRequest = requestList.get(requestIndex);
       var response = requestResponseMap.get(consultationRequest);
 
+      var downloadFileUrl = consultationFileService.getConsultationFileViewUrl(consultationRequest);
+
       var consultationRequestView = mapConsultationRequestToView(
           consultationRequest,
           response,
           responseDataListMap.get(response),
-          groupAndDetailMap.get(consultationRequest.getConsulteeGroup())
-      );
+          groupAndDetailMap.get(consultationRequest.getConsulteeGroup()),
+          consultationResponseIdToFileViewsMap.getOrDefault(Objects.nonNull(response) ? response.getId() : null, List.of()),
+          downloadFileUrl);
 
       if (requestIndex == 0) {
         consulteeGroupRequestsView.setCurrentRequest(consultationRequestView);
@@ -144,7 +174,9 @@ public class ConsultationViewService {
   public ConsultationRequestView mapConsultationRequestToView(ConsultationRequest consultationRequest,
                                                               ConsultationResponse consultationResponse,
                                                               List<ConsultationResponseData> consultationResponseDataList,
-                                                              ConsulteeGroupDetail consulteeGroupDetail) {
+                                                              ConsulteeGroupDetail consulteeGroupDetail,
+                                                              List<UploadedFileView> consultationResponseFileViews,
+                                                              String downloadFileUrl) {
 
     var responseDataViews = Optional.ofNullable(consultationResponseDataList)
         .orElse(List.of())
@@ -162,7 +194,10 @@ public class ConsultationViewService {
           consultationResponse.getResponseTimestamp(),
           responseDataViews,
           false,
-          teamManagementService.getPerson(consultationResponse.getRespondingPersonId()).getFullName());
+          teamManagementService.getPerson(consultationResponse.getRespondingPersonId()).getFullName(),
+          consultationResponseFileViews,
+          downloadFileUrl,
+          consulteeGroupDetail.getConsultationResponseDocumentType());
 
     } else { //awaiting response or withdrawn
       return new ConsultationRequestView(
@@ -176,7 +211,8 @@ public class ConsultationViewService {
           consultationRequest.getStatus() == ConsultationRequestStatus.WITHDRAWN
               ? teamManagementService.getPerson(consultationRequest.getEndedByPersonId()).getFullName() : null,
           consultationRequest.getStatus() == ConsultationRequestStatus.WITHDRAWN
-              ? DateUtils.formatDateTime(consultationRequest.getEndTimestamp().truncatedTo(ChronoUnit.SECONDS)) : null);
+              ? DateUtils.formatDateTime(consultationRequest.getEndTimestamp().truncatedTo(ChronoUnit.SECONDS)) : null,
+          consulteeGroupDetail.getConsultationResponseDocumentType());
     }
   }
 
@@ -200,6 +236,5 @@ public class ConsultationViewService {
     return  consultationRequests.stream()
         .collect(groupingBy(ConsultationRequest::getConsulteeGroup, toList()));
   }
-
 
 }
