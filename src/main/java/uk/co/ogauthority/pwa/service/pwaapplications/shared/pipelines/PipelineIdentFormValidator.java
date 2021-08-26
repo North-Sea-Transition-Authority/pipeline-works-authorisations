@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines;
 
+import java.util.List;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -11,6 +12,12 @@ import uk.co.ogauthority.pwa.model.form.enums.ValueRequirement;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.PipelineIdentForm;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.service.location.CoordinateFormValidator;
+import uk.co.ogauthority.pwa.util.ValidatorUtils;
+import uk.co.ogauthority.pwa.util.forminputs.FormInputLabel;
+import uk.co.ogauthority.pwa.util.forminputs.decimal.DecimalInputValidator;
+import uk.co.ogauthority.pwa.util.forminputs.decimal.DecimalPlaceHint;
+import uk.co.ogauthority.pwa.util.forminputs.decimal.FieldIsOptionalHint;
+import uk.co.ogauthority.pwa.util.forminputs.decimal.PositiveNumberHint;
 import uk.co.ogauthority.pwa.util.validation.PipelineValidationUtils;
 
 @Service
@@ -18,12 +25,15 @@ public class PipelineIdentFormValidator implements SmartValidator {
 
   private final PipelineIdentDataFormValidator dataFormValidator;
   private final CoordinateFormValidator coordinateFormValidator;
+  private final DecimalInputValidator decimalInputValidator;
 
   @Autowired
   public PipelineIdentFormValidator(PipelineIdentDataFormValidator dataFormValidator,
-                                    CoordinateFormValidator coordinateFormValidator) {
+                                    CoordinateFormValidator coordinateFormValidator,
+                                    DecimalInputValidator decimalInputValidator) {
     this.dataFormValidator = dataFormValidator;
     this.coordinateFormValidator = coordinateFormValidator;
+    this.decimalInputValidator = decimalInputValidator;
   }
 
   @Override
@@ -55,9 +65,16 @@ public class PipelineIdentFormValidator implements SmartValidator {
         "definingStructure" + FieldValidationErrorCodes.REQUIRED.getCode(), "Select 'Yes' if the ident is defining a structure");
 
     if (BooleanUtils.isTrue(form.getDefiningStructure())) {
-      if (form.getLengthOptional() != null) {
-        PipelineValidationUtils.validateLength(form.getLengthOptional(), errors, "lengthOptional", "Ident length");
-      }
+
+      ValidatorUtils.invokeNestedValidator(
+          errors,
+          decimalInputValidator,
+          "lengthOptional",
+          form.getLengthOptional(),
+          List.of(new FormInputLabel("ident length"),
+              new DecimalPlaceHint(PipelineValidationUtils.getMaxIdentLengthDp()),
+              new PositiveNumberHint(),
+              new FieldIsOptionalHint()).toArray());
 
       if (form.getFromCoordinateForm() != null && form.getFromCoordinateForm().areAllFieldsNotNull()
           && form.getToCoordinateForm() != null && form.getToCoordinateForm().areAllFieldsNotNull()) {
@@ -105,13 +122,15 @@ public class PipelineIdentFormValidator implements SmartValidator {
       }
 
     } else if (BooleanUtils.isFalse(form.getDefiningStructure())) {
-      ValidationUtils.rejectIfEmptyOrWhitespace(errors, "length", "length" + FieldValidationErrorCodes.REQUIRED.getCode(),
-          "Enter the ident's length");
 
-      if (form.getLength() != null) {
-        PipelineValidationUtils.validateLength(form.getLength(), errors, "length", "Ident length");
-      }
-
+      ValidatorUtils.invokeNestedValidator(
+          errors,
+          decimalInputValidator,
+          "length",
+          form.getLength(),
+          List.of(new FormInputLabel("ident length"),
+              new DecimalPlaceHint(PipelineValidationUtils.getMaxIdentLengthDp()),
+              new PositiveNumberHint()).toArray());
     }
 
     var coreType = (PipelineCoreType) validationHints[1];

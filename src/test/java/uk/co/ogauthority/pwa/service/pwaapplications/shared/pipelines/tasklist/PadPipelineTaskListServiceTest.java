@@ -45,6 +45,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelin
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
 import uk.co.ogauthority.pwa.service.validation.SummaryScreenValidationResultTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
+import uk.co.ogauthority.pwa.util.forminputs.decimal.DecimalInputValidator;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PadPipelineTaskListServiceTest {
@@ -68,6 +69,9 @@ public class PadPipelineTaskListServiceTest {
 
   @Mock
   private RegulatorPipelineNumberTaskService regulatorPipelineNumberTaskService;
+
+  @Mock
+  private DecimalInputValidator decimalInputValidator;
 
   @Captor
   private ArgumentCaptor<List<PadPipeline>> padPipelineListArgCaptor;

@@ -1,5 +1,8 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines;
 
+import java.util.ArrayList;
+import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import org.springframework.validation.SmartValidator;
@@ -8,9 +11,25 @@ import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineCoreType;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.PipelineIdentDataForm;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.util.ValidatorUtils;
+import uk.co.ogauthority.pwa.util.forminputs.FormInputLabel;
+import uk.co.ogauthority.pwa.util.forminputs.decimal.DecimalInput;
+import uk.co.ogauthority.pwa.util.forminputs.decimal.DecimalInputValidator;
+import uk.co.ogauthority.pwa.util.forminputs.decimal.DecimalPlaceHint;
+import uk.co.ogauthority.pwa.util.forminputs.decimal.NonNegativeNumberHint;
+import uk.co.ogauthority.pwa.util.forminputs.decimal.SmallerThanNumberHint;
+import uk.co.ogauthority.pwa.util.validation.PipelineValidationUtils;
 
 @Service
 public class PipelineIdentDataFormValidator implements SmartValidator {
+
+
+  private final DecimalInputValidator decimalInputValidator;
+
+  @Autowired
+  public PipelineIdentDataFormValidator(
+      DecimalInputValidator decimalInputValidator) {
+    this.decimalInputValidator = decimalInputValidator;
+  }
 
   @Override
   public boolean supports(Class<?> clazz) {
@@ -103,27 +122,17 @@ public class PipelineIdentDataFormValidator implements SmartValidator {
 
       if (isDefiningStructure.equals(PipelineIdentDataValidationRule.AS_SECTION)) {
 
-        ValidationUtils.rejectIfEmptyOrWhitespace(errors, fieldPrefix + "externalDiameter",
-            "externalDiameter" + FieldValidationErrorCodes.REQUIRED.getCode(), "Enter the external diameter");
-        ValidatorUtils.validateDecimalPlaces(errors, fieldPrefix + "externalDiameter", "External diameter", 2);
+        validateDecimal(form.getExternalDiameter(), errors, fieldPrefix + "externalDiameter", "external diameter");
 
-        ValidationUtils.rejectIfEmptyOrWhitespace(errors, fieldPrefix + "internalDiameter", "" +
-            "internalDiameter" + FieldValidationErrorCodes.REQUIRED.getCode(), "Enter the internal diameter");
-        ValidatorUtils.validateDecimalPlaces(errors, fieldPrefix + "internalDiameter", "Internal diameter", 2);
-
-        if ((form.getInternalDiameter() != null && form.getExternalDiameter() != null)
-            && form.getInternalDiameter().compareTo(form.getExternalDiameter()) > -1) {
-          errors.rejectValue(fieldPrefix + "internalDiameter", "internalDiameter" + FieldValidationErrorCodes.INVALID.getCode(),
-              "The internal diameter must be smaller than the external diameter");
+        var internalDiameterHints = new ArrayList<>();
+        if (form.getExternalDiameter().asBigDecimal().isPresent()) {
+          internalDiameterHints.add(new SmallerThanNumberHint(form.getExternalDiameter().createBigDecimalOrNull(), "external diameter"));
         }
+        validateDecimal(form.getInternalDiameter(), errors, fieldPrefix + "internalDiameter", "internal diameter", internalDiameterHints);
 
-        ValidationUtils.rejectIfEmptyOrWhitespace(errors, fieldPrefix + "wallThickness",
-            "wallThickness" + FieldValidationErrorCodes.REQUIRED.getCode(), "Enter the wall thickness");
-        ValidatorUtils.validateDecimalPlaces(errors, fieldPrefix + "wallThickness", "Wall thickness", 2);
+        validateDecimal(form.getWallThickness(), errors, fieldPrefix + "wallThickness", "wall thickness");
 
-        ValidationUtils.rejectIfEmptyOrWhitespace(errors, fieldPrefix + "maop",
-            "maop" + FieldValidationErrorCodes.REQUIRED.getCode(),
-            "Enter the MAOP");
+        validateDecimal(form.getMaop(), errors, fieldPrefix + "maop", "MAOP");
 
         ValidationUtils.rejectIfEmptyOrWhitespace(errors, fieldPrefix + "insulationCoatingType",
             "insulationCoatingType" + FieldValidationErrorCodes.REQUIRED.getCode(),
@@ -137,5 +146,28 @@ public class PipelineIdentDataFormValidator implements SmartValidator {
     }
 
   }
+
+
+  private void validateDecimal(
+      DecimalInput decimalInput, Errors errors, String fieldPath, String formInputLabel, List<Object> additionalHints) {
+
+    var validationHints = new ArrayList<>(List.of(
+        new FormInputLabel(formInputLabel),
+        new DecimalPlaceHint(PipelineValidationUtils.getMaxIdentLengthDp()),
+        new NonNegativeNumberHint()));
+    validationHints.addAll(additionalHints);
+
+    ValidatorUtils.invokeNestedValidator(
+        errors,
+        decimalInputValidator,
+        fieldPath,
+        decimalInput,
+        validationHints.toArray());
+  }
+
+  private void validateDecimal(DecimalInput decimalInput, Errors errors, String fieldPath, String formInputLabel) {
+    validateDecimal(decimalInput, errors, fieldPath, formInputLabel, List.of());
+  }
+
 
 }

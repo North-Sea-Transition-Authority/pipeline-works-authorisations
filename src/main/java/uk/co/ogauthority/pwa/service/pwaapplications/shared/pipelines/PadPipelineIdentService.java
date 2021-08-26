@@ -32,6 +32,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.pipelineda
 import uk.co.ogauthority.pwa.service.validation.SummaryScreenValidationResult;
 import uk.co.ogauthority.pwa.util.CoordinateUtils;
 import uk.co.ogauthority.pwa.util.StringDisplayUtils;
+import uk.co.ogauthority.pwa.util.forminputs.decimal.DecimalInput;
 
 @Service
 public class PadPipelineIdentService {
@@ -303,7 +304,8 @@ public class PadPipelineIdentService {
     ident.setFromCoordinates(CoordinateUtils.coordinatePairFromForm(form.getFromCoordinateForm()));
     ident.setToLocation(form.getToLocation());
     ident.setToCoordinates(CoordinateUtils.coordinatePairFromForm(form.getToCoordinateForm()));
-    ident.setLength(form.getDefiningStructure() ? form.getLengthOptional() : form.getLength());
+    ident.setLength(form.getDefiningStructure()
+        ? form.getLengthOptional().createBigDecimalOrNull() : form.getLength().createBigDecimalOrNull());
     ident.setDefiningStructure(form.getDefiningStructure());
 
     padPipelineIdentRepository.save(ident);
@@ -344,9 +346,9 @@ public class PadPipelineIdentService {
     form.setToLocation(ident.getToLocation());
     form.setDefiningStructure(ident.getIsDefiningStructure());
     if (BooleanUtils.isTrue(ident.getIsDefiningStructure())) {
-      form.setLengthOptional(ident.getLength());
+      form.setLengthOptional(new DecimalInput(ident.getLength()));
     } else {
-      form.setLength(ident.getLength());
+      form.setLength(new DecimalInput(ident.getLength()));
     }
     var dataForm = identDataService.getDataFormOfIdent(ident);
     form.setDataForm(dataForm);
