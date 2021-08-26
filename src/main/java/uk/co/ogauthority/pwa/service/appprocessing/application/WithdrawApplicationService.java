@@ -9,7 +9,7 @@ import uk.co.ogauthority.pwa.model.form.withdraw.WithdrawApplicationForm;
 import uk.co.ogauthority.pwa.model.notify.emailproperties.applicationworkflow.ApplicationWithdrawnEmailProps;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.service.appprocessing.tasks.AppProcessingService;
-import uk.co.ogauthority.pwa.service.consultations.ConsultationRequestService;
+import uk.co.ogauthority.pwa.service.consultations.WithdrawConsultationService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ApplicationState;
@@ -26,7 +26,7 @@ public class WithdrawApplicationService implements AppProcessingService {
   private final WithdrawApplicationValidator withdrawApplicationValidator;
   private final PwaApplicationDetailService pwaApplicationDetailService;
   private final CamundaWorkflowService camundaWorkflowService;
-  private final ConsultationRequestService consultationRequestService;
+  private final WithdrawConsultationService withdrawConsultationService;
   private final NotifyService notifyService;
   private final PwaContactService pwaContactService;
   private final EmailCaseLinkService emailCaseLinkService;
@@ -36,14 +36,14 @@ public class WithdrawApplicationService implements AppProcessingService {
       WithdrawApplicationValidator withdrawApplicationValidator,
       PwaApplicationDetailService pwaApplicationDetailService,
       CamundaWorkflowService camundaWorkflowService,
-      ConsultationRequestService consultationRequestService,
+      WithdrawConsultationService withdrawConsultationService,
       NotifyService notifyService,
       PwaContactService pwaContactService,
       EmailCaseLinkService emailCaseLinkService) {
     this.withdrawApplicationValidator = withdrawApplicationValidator;
     this.pwaApplicationDetailService = pwaApplicationDetailService;
     this.camundaWorkflowService = camundaWorkflowService;
-    this.consultationRequestService = consultationRequestService;
+    this.withdrawConsultationService = withdrawConsultationService;
     this.notifyService = notifyService;
     this.pwaContactService = pwaContactService;
     this.emailCaseLinkService = emailCaseLinkService;
@@ -56,7 +56,7 @@ public class WithdrawApplicationService implements AppProcessingService {
     pwaApplicationDetailService.setWithdrawn(pwaApplicationDetail, withdrawingUser.getLinkedPerson(), form.getWithdrawalReason());
     camundaWorkflowService.deleteProcessInstanceAndThenTasks(pwaApplicationDetail.getPwaApplication());
 
-    consultationRequestService.withdrawAllOpenConsultationRequests(pwaApplicationDetail.getPwaApplication(), withdrawingUser);
+    withdrawConsultationService.withdrawAllOpenConsultationRequests(pwaApplicationDetail.getPwaApplication(), withdrawingUser);
     sendWithdrawalEmails(pwaApplicationDetail, withdrawingUser);
   }
 
