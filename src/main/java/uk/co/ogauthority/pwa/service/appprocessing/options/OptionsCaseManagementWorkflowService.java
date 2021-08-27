@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.workflow.GenericMessageEvent;
-import uk.co.ogauthority.pwa.service.consultations.ConsultationRequestService;
+import uk.co.ogauthority.pwa.service.consultations.WithdrawConsultationService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.workflow.application.PwaApplicationWorkflowMessageEvents;
 import uk.co.ogauthority.pwa.service.enums.workflow.application.PwaApplicationWorkflowTask;
@@ -22,18 +22,18 @@ public class OptionsCaseManagementWorkflowService {
 
   private final WorkflowAssignmentService workflowAssignmentService;
   private final CamundaWorkflowService camundaWorkflowService;
-  private final ConsultationRequestService consultationRequestService;
+  private final WithdrawConsultationService withdrawConsultationService;
   private final PwaApplicationDetailService pwaApplicationDetailService;
 
 
   @Autowired
   public OptionsCaseManagementWorkflowService(WorkflowAssignmentService workflowAssignmentService,
                                               CamundaWorkflowService camundaWorkflowService,
-                                              ConsultationRequestService consultationRequestService,
+                                              WithdrawConsultationService withdrawConsultationService,
                                               PwaApplicationDetailService pwaApplicationDetailService) {
     this.workflowAssignmentService = workflowAssignmentService;
     this.camundaWorkflowService = camundaWorkflowService;
-    this.consultationRequestService = consultationRequestService;
+    this.withdrawConsultationService = withdrawConsultationService;
     this.pwaApplicationDetailService = pwaApplicationDetailService;
   }
 
@@ -53,7 +53,7 @@ public class OptionsCaseManagementWorkflowService {
   public void doCloseOutWork(PwaApplicationDetail pwaApplicationDetail,
                              AuthenticatedUserAccount authenticatedUserAccount) {
     camundaWorkflowService.deleteProcessInstanceAndThenTasks(pwaApplicationDetail.getPwaApplication());
-    consultationRequestService.withdrawAllOpenConsultationRequests(
+    withdrawConsultationService.withdrawAllOpenConsultationRequests(
         pwaApplicationDetail.getPwaApplication(),
         authenticatedUserAccount
     );

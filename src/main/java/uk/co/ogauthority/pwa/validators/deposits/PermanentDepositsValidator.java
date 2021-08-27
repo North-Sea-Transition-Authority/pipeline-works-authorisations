@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.validators;
+package uk.co.ogauthority.pwa.validators.deposits;
 
 import static uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes.MAX_DP_EXCEEDED;
 import static uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes.REQUIRED;
@@ -7,6 +7,7 @@ import io.micrometer.core.instrument.util.StringUtils;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,12 +16,12 @@ import org.springframework.validation.Errors;
 import org.springframework.validation.SmartValidator;
 import org.springframework.validation.ValidationUtils;
 import uk.co.ogauthority.pwa.model.entity.enums.permanentdeposits.MaterialType;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.enums.ValueRequirement;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.PermanentDepositsForm;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.service.location.CoordinateFormValidator;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits.PermanentDepositService;
+import uk.co.ogauthority.pwa.util.DateUtils;
 import uk.co.ogauthority.pwa.util.PwaNumberUtils;
 import uk.co.ogauthority.pwa.util.ValidatorUtils;
 import uk.co.ogauthority.pwa.util.forminputs.FormInputLabel;
@@ -51,12 +52,22 @@ public class PermanentDepositsValidator implements SmartValidator {
 
   @Override
   public void validate(Object target, Errors errors) {
-    validate(target, errors, new Object[0]);
+    throw new UnsupportedOperationException("Not implemented. Validation requires hints to be provided.");
   }
 
   @Override
   public void validate(Object o, Errors errors, Object... validationHints) {
+
     var form = (PermanentDepositsForm) o;
+    PermanentDepositsValidationHints depositValidationHints;
+
+    if (validationHints[0] instanceof PermanentDepositsValidationHints) {
+      depositValidationHints = (PermanentDepositsValidationHints) validationHints[0];
+    } else {
+      throw new UnsupportedOperationException(
+          "Cannot validate Permanent Deposits Form without correct validation hints provided. Expected : " +
+              PermanentDepositsValidationHints.class.toString());
+    }
 
     if (BooleanUtils.isFalse(form.getDepositIsForConsentedPipeline()) && BooleanUtils.isFalse(form.getDepositIsForPipelinesOnOtherApp())) {
       errors.rejectValue("depositIsForConsentedPipeline", "depositIsForConsentedPipeline" + FieldValidationErrorCodes.INVALID.getCode(),
@@ -81,23 +92,15 @@ public class PermanentDepositsValidator implements SmartValidator {
       ValidationUtils.rejectIfEmptyOrWhitespace(errors, "appRefAndPipelineNum",
           "appRefAndPipelineNum" + FieldValidationErrorCodes.REQUIRED.getCode(),
           "Enter the application reference and proposed pipeline number for each pipeline");
+
+      ValidatorUtils.validateDefaultStringLength(
+          errors, "appRefAndPipelineNum", form::getAppRefAndPipelineNum, "Application reference and proposed pipeline numbers");
     }
 
+    validateDepositReference(errors, depositValidationHints, form);
 
-    ValidationUtils.rejectIfEmptyOrWhitespace(errors, "depositReference", "depositReference.required",
-        "Enter a deposit reference");
-
-    if (StringUtils.isNotBlank(form.getDepositReference()) && validationHints[0] instanceof PermanentDepositService) {
-      var permanentDepositsService = (PermanentDepositService) validationHints[0];
-      var pwaApplicationDetail = (PwaApplicationDetail) validationHints[1];
-      ValidatorUtils.validateBooleanTrue(errors, permanentDepositsService.isDepositReferenceUnique(
-          form.getDepositReference(), form.getEntityID(), pwaApplicationDetail),
-          "depositReference", "Deposit reference must be unique, enter a different reference");
-    }
-
-    validateDateIsFutureDate(errors, "deposit start date", "fromDate", form.getFromDate());
-    validateDateIsFutureDate(errors, "deposit end date", "toDate", form.getToDate());
-    validateDateIsWithinRange(errors, "toDate", form.getFromDate(), form.getToDate());
+    validateStartDate(errors, depositValidationHints, form.getFromDate());
+    validateEndDate(errors, depositValidationHints, form.getFromDate(), form.getToDate());
 
     if (form.getMaterialType() == null) {
       errors.rejectValue("materialType", "materialType.required",
@@ -202,39 +205,69 @@ public class PermanentDepositsValidator implements SmartValidator {
   }
 
 
-  public void validateDateIsFutureDate(Errors errors, String formLabel, String targetPath, TwoFieldDateInput formField) {
-    List<Object> toDateHints = new ArrayList<>();
-    toDateHints.add(new FormInputLabel(formLabel));
-    toDateHints.add(new OnOrAfterDateHint(LocalDate.now(), "current date"));
+
+  private void validateStartDate(Errors errors, PermanentDepositsValidationHints validationHints,
+                                 TwoFieldDateInput depositStartDateInput) {
+
+    List<Object> dateValidationHints = new ArrayList<>();
+    dateValidationHints.add(new FormInputLabel("deposit start date"));
+
+    if (Objects.nonNull(validationHints.getProjectInfoProposedStartTimestamp())) {
+      dateValidationHints.add(new OnOrAfterDateHint(
+          DateUtils.instantToLocalDate(validationHints.getProjectInfoProposedStartTimestamp()), "the proposed start of works date"));
+
+    } else {
+      dateValidationHints.add(new OnOrAfterDateHint(LocalDate.now(), "the current date"));
+    }
+
     ValidatorUtils.invokeNestedValidator(
         errors,
         twoFieldDateInputValidator,
-        targetPath,
-        formField,
-        toDateHints.toArray());
+        "fromDate",
+        depositStartDateInput,
+        dateValidationHints.toArray());
   }
 
-  private void validateDateIsWithinRange(
-      Errors errors, String targetPath, TwoFieldDateInput fromTwoFieldDate, TwoFieldDateInput toTwoFieldDate) {
+  private void validateEndDate(Errors errors, PermanentDepositsValidationHints validationHints,
+                               TwoFieldDateInput depositStartDateInput, TwoFieldDateInput depositEndDateInput) {
 
-    var fromDateOpt = fromTwoFieldDate.createDate();
-    var toDateOpt = toTwoFieldDate.createDate();
-    var maxMonthRange = 12;
+    var startDateOpt = depositStartDateInput.createDate();
+    var endDateOpt = depositEndDateInput.createDate();
 
-    if (fromDateOpt.isPresent() && toDateOpt.isPresent()) {
-      List<Object> dateHints = new ArrayList<>();
-      dateHints.add(new FormInputLabel("Deposit end date"));
-      dateHints.add(new DateWithinRangeHint(fromDateOpt.get(),
-          fromDateOpt.get().plusMonths(maxMonthRange), maxMonthRange + " months of the deposit start date"));
+    List<Object> dateValidationHints = new ArrayList<>();
+    dateValidationHints.add(new FormInputLabel("Deposit end date"));
 
-      ValidatorUtils.invokeNestedValidator(
-          errors,
-          twoFieldDateInputValidator,
-          targetPath,
-          toTwoFieldDate,
-          dateHints.toArray());
-
+    if (startDateOpt.isPresent() && endDateOpt.isPresent()) {
+      var maxMonthRange = validationHints.getApplicationDetail().getPwaApplicationType().equals(
+          PwaApplicationType.OPTIONS_VARIATION) ? 6 : 12;
+      dateValidationHints.add(new DateWithinRangeHint(startDateOpt.get(),
+          startDateOpt.get().plusMonths(maxMonthRange), maxMonthRange + " months of the deposit start date"));
     }
+
+    ValidatorUtils.invokeNestedValidator(
+        errors,
+        twoFieldDateInputValidator,
+        "toDate",
+        depositEndDateInput,
+        dateValidationHints.toArray());
+
+  }
+
+
+  private void validateDepositReference(Errors errors, PermanentDepositsValidationHints validationHints, PermanentDepositsForm form) {
+
+    ValidationUtils.rejectIfEmptyOrWhitespace(errors, "depositReference", "depositReference.required",
+        "Enter a deposit reference");
+
+    var depositIsNotUnique = validationHints.getExistingDepositsForApp().stream()
+        .filter(deposit -> !deposit.getId().equals(form.getEntityID()))
+        .anyMatch(deposit -> deposit.getReference().equalsIgnoreCase(form.getDepositReference()));
+
+    if (depositIsNotUnique) {
+      errors.rejectValue("depositReference", FieldValidationErrorCodes.NOT_UNIQUE.errorCode("depositReference"),
+          "Deposit reference must be unique, enter a different reference");
+    }
+
   }
 
 }

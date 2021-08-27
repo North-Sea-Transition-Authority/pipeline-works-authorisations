@@ -15,7 +15,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTypeCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelines.ModifyPipelineController;
@@ -24,7 +23,6 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelines.Pipelin
 import uk.co.ogauthority.pwa.model.dto.pipelines.PadPipelineId;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineMaterial;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.PipelineIdentForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PadPipelineTaskListItem;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview;
 import uk.co.ogauthority.pwa.model.tasklist.TaskListEntry;
@@ -38,7 +36,6 @@ import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskInfo;
 import uk.co.ogauthority.pwa.service.pwaapplications.options.PadOptionConfirmedService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineIdentService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineIdentFormValidator;
 import uk.co.ogauthority.pwa.service.validation.SummaryScreenValidationResult;
 
 @Service
@@ -50,7 +47,6 @@ public class PadPipelineTaskListService implements ApplicationFormSectionService
   private final PadPipelineIdentService padPipelineIdentService;
   private final PadOptionConfirmedService padOptionConfirmedService;
   private final PadPipelineRepository padPipelineRepository;
-  private final PipelineIdentFormValidator pipelineIdentFormValidator;
   private final RegulatorPipelineNumberTaskService regulatorPipelineNumberTaskService;
   private final PadPipelineDataCopierService padPipelineDataCopierService;
 
@@ -59,14 +55,12 @@ public class PadPipelineTaskListService implements ApplicationFormSectionService
                                     PadPipelineIdentService padPipelineIdentService,
                                     PadOptionConfirmedService padOptionConfirmedService,
                                     PadPipelineRepository padPipelineRepository,
-                                    PipelineIdentFormValidator pipelineIdentFormValidator,
                                     RegulatorPipelineNumberTaskService regulatorPipelineNumberTaskService,
                                     PadPipelineDataCopierService padPipelineDataCopierService) {
     this.padPipelineService = padPipelineService;
     this.padPipelineIdentService = padPipelineIdentService;
     this.padOptionConfirmedService = padOptionConfirmedService;
     this.padPipelineRepository = padPipelineRepository;
-    this.pipelineIdentFormValidator = pipelineIdentFormValidator;
     this.regulatorPipelineNumberTaskService = regulatorPipelineNumberTaskService;
     this.padPipelineDataCopierService = padPipelineDataCopierService;
   }
@@ -243,42 +237,29 @@ public class PadPipelineTaskListService implements ApplicationFormSectionService
     var overviews = padPipelineService.getApplicationPipelineOverviews(detail);
     var padPipelineMap = padPipelineService.getPadPipelineMapForOverviews(detail, overviews);
 
-    // get all of the idents for the pipelines on the app, grouped by pad pipeline id
-    var padPipelineIdToIdentListMap = padPipelineIdentService.getAllIdentsByPadPipelineIds(
-        List.copyOf(padPipelineMap.keySet()))
-        .stream()
-        .collect(Collectors.groupingBy(ident -> new PadPipelineId(ident.getPadPipeline().getId())));
-
     overviews.forEach(pipelineOverview -> {
 
       var padPipeline = padPipelineMap.get(new PadPipelineId(pipelineOverview.getPadPipelineId()));
       var padPipelineId = new PadPipelineId(pipelineOverview.getPadPipelineId());
       boolean pipelineComplete = padPipelineService.isPadPipelineValid(padPipeline, detail.getPwaApplicationType());
 
-      var idents = padPipelineIdToIdentListMap.getOrDefault(padPipelineId, List.of());
-
-      // validate each ident on the pipeline, if one is invalid, the whole pipeline is incomplete
+      // validate the ident summary, if incomplete, the whole pipeline is incomplete
       if (padPipelineService.isValidationRequiredByStatus(padPipeline.getPipelineStatus())) {
-        for (var ident : idents) {
-          var identForm = new PipelineIdentForm();
-          padPipelineIdentService.mapEntityToForm(ident, identForm);
-          BindingResult bindingResult = new BeanPropertyBindingResult(identForm, "form");
-          pipelineIdentFormValidator.validate(identForm, bindingResult, detail, pipelineOverview.getCoreType());
-          if (bindingResult.hasErrors()) {
-            pipelineComplete = false;
-          }
+        var summaryValidationResult = padPipelineIdentService.getSummaryScreenValidationResult(padPipeline);
+        if (!summaryValidationResult.isSectionComplete()) {
+          pipelineComplete = false;
         }
       }
 
       // if the pipeline has invalid idents (or no idents), it is invalid
-      if (!pipelineComplete || idents.isEmpty()) {
+      if (!pipelineComplete) {
         invalidPipelines.put(String.valueOf(padPipelineId.asInt()), pipelineOverview.getPipelineName());
       }
 
     });
 
     // section is complete if there's at least 1 pipeline, and no invalid pipelines
-    boolean sectionComplete = !padPipelineIdToIdentListMap.isEmpty() && invalidPipelines.isEmpty();
+    boolean sectionComplete = !padPipelineMap.isEmpty() && invalidPipelines.isEmpty();
 
     String sectionIncompleteError = !sectionComplete
         ? "At least one pipeline must be added with valid header information. Each pipeline must have at least one valid ident." : null;

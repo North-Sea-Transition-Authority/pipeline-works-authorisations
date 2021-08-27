@@ -17,6 +17,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTa
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineIdentDataService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineIdentService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
+import uk.co.ogauthority.pwa.util.forminputs.decimal.DecimalInput;
 
 @Service
 @Profile("test-harness")
@@ -122,12 +123,12 @@ class PipelineGeneratorService implements TestHarnessAppFormService {
     var headerLength = padPipeline.getLength();
     var eachIdentLength = headerLength.divide(BigDecimal.valueOf(totalIdents), new MathContext(2));
     var totalIdentLength = eachIdentLength.multiply(BigDecimal.valueOf(totalIdents));
-    identForm.setLength(eachIdentLength);
+    identForm.setLength(new DecimalInput(eachIdentLength));
 
     if (identNumber == totalIdents
         && totalIdentLength.compareTo(headerLength) != 0) {
       var remainingLength = headerLength.subtract(totalIdentLength);
-      identForm.setLength(eachIdentLength.add(remainingLength));
+      identForm.setLength(new DecimalInput(eachIdentLength.add(remainingLength)));
     }
 
     identForm.setDefiningStructure(false);
@@ -141,10 +142,11 @@ class PipelineGeneratorService implements TestHarnessAppFormService {
 
     identDataForm.setComponentPartsDescription("This is the component parts description");
     if (padPipeline.getCoreType().equals(PipelineCoreType.SINGLE_CORE)) {
-      identDataForm.setExternalDiameter(BigDecimal.valueOf(RandomUtils.nextInt(10, 101)));
-      identDataForm.setInternalDiameter(identDataForm.getExternalDiameter().subtract(BigDecimal.ONE));
-      identDataForm.setWallThickness(BigDecimal.TEN);
-      identDataForm.setMaop(BigDecimal.TEN);
+      identDataForm.setExternalDiameter(new DecimalInput(BigDecimal.valueOf(RandomUtils.nextInt(10, 101))));
+      identDataForm.setInternalDiameter(new DecimalInput(
+          identDataForm.getExternalDiameter().createBigDecimalOrNull().subtract(BigDecimal.ONE)));
+      identDataForm.setWallThickness(new DecimalInput(BigDecimal.TEN));
+      identDataForm.setMaop(new DecimalInput(BigDecimal.TEN));
       identDataForm.setInsulationCoatingType("coating type");
       identDataForm.setProductsToBeConveyed("description");
       identDataForm.setExternalDiameterMultiCore(null);

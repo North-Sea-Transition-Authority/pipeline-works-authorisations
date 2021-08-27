@@ -49,9 +49,8 @@ import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.viewfactor
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation.PadProjectInformationService;
 import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailService;
 import uk.co.ogauthority.pwa.service.validation.SummaryScreenValidationResult;
-import uk.co.ogauthority.pwa.util.validationgroups.FullValidation;
-import uk.co.ogauthority.pwa.util.validationgroups.PartialValidation;
-import uk.co.ogauthority.pwa.validators.PermanentDepositsValidator;
+import uk.co.ogauthority.pwa.validators.deposits.PermanentDepositsValidationHints;
+import uk.co.ogauthority.pwa.validators.deposits.PermanentDepositsValidator;
 
 
 /* Service providing simplified API for Permanent Deposit app form */
@@ -187,12 +186,12 @@ public class PermanentDepositService implements ApplicationFormSectionService {
                                 BindingResult bindingResult,
                                 ValidationType validationType,
                                 PwaApplicationDetail pwaApplicationDetail) {
-    if (validationType.equals(ValidationType.PARTIAL)) {
-      groupValidator.validate(form, bindingResult, PartialValidation.class);
-    } else {
-      groupValidator.validate(form, bindingResult, FullValidation.class);
-      permanentDepositsValidator.validate(form, bindingResult, this, pwaApplicationDetail);
-    }
+
+    var projectInfo = padProjectInformationService.getPadProjectInformationData(pwaApplicationDetail);
+    var existingDeposits = permanentDepositRepository.getAllByPwaApplicationDetail(pwaApplicationDetail);
+    var validationHints = new PermanentDepositsValidationHints(
+        pwaApplicationDetail, projectInfo.getProposedStartTimestamp(), existingDeposits);
+    permanentDepositsValidator.validate(form, bindingResult, validationHints);
 
     return bindingResult;
   }
@@ -314,15 +313,6 @@ public class PermanentDepositService implements ApplicationFormSectionService {
                   permanentDeposit.getId(), null, null)));
     }
     return depositUrls;
-  }
-
-
-  public boolean isDepositReferenceUnique(String depositRef, Integer padDepositId,
-                                          PwaApplicationDetail pwaApplicationDetail) {
-    var existingDeposits = permanentDepositRepository.findByPwaApplicationDetailAndReferenceIgnoreCase(
-        pwaApplicationDetail, depositRef);
-    return existingDeposits.isEmpty() || (existingDeposits.get().getId() != null && existingDeposits.get().getId().equals(
-        padDepositId));
   }
 
   @Override

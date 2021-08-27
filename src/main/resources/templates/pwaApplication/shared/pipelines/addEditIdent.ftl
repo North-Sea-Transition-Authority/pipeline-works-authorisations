@@ -74,17 +74,17 @@
 
             <@fdsRadio.radioGroup path="form.definingStructure" labelText="Is this ident defining a structure?" hiddenContent=true>
                 <@fdsRadio.radioYes path="form.definingStructure">
-                    <@fdsTextInput.textInput path="form.lengthOptional" labelText="Length" suffix="m" inputClass="govuk-input--width-5" optionalLabel=true nestingPath="form.definingStructure"/>
+                    <@fdsTextInput.textInput path="form.lengthOptional.value" labelText="Length" suffix="m" inputClass="govuk-input--width-5" optionalLabel=true nestingPath="form.definingStructure"/>
                 </@fdsRadio.radioYes>
 
                 <@fdsRadio.radioNo path="form.definingStructure">
-                    <@fdsTextInput.textInput path="form.length" labelText="Length" suffix="m" inputClass="govuk-input--width-5" nestingPath="form.definingStructure"/>
-                    <@identDataTextInput coreType=coreType textInputPath="form.dataForm.externalDiameter" textAreaPath="form.dataForm.externalDiameterMultiCore" labelText="External diameter" suffix="mm" suffixScreenReaderPrompt="mm" nestingPath="form.definingStructure"/>
-                    <@identDataTextInput coreType=coreType textInputPath="form.dataForm.internalDiameter" textAreaPath="form.dataForm.internalDiameterMultiCore" nestingPath="form.definingStructure"
+                    <@fdsTextInput.textInput path="form.length.value" labelText="Length" suffix="m" inputClass="govuk-input--width-5" nestingPath="form.definingStructure"/>
+                    <@identDataTextInput coreType=coreType textInputPath="form.dataForm.externalDiameter.value" textAreaPath="form.dataForm.externalDiameterMultiCore" labelText="External diameter" suffix="mm" suffixScreenReaderPrompt="mm" nestingPath="form.definingStructure"/>
+                    <@identDataTextInput coreType=coreType textInputPath="form.dataForm.internalDiameter.value" textAreaPath="form.dataForm.internalDiameterMultiCore" nestingPath="form.definingStructure"
                      labelText="Internal diameter" suffix="mm" suffixScreenReaderPrompt="mm" multiCoreHintText="Provide for each of the cores" nestingPath="form.definingStructure"/>
-                    <@identDataTextInput coreType=coreType textInputPath="form.dataForm.wallThickness" textAreaPath="form.dataForm.wallThicknessMultiCore" nestingPath="form.definingStructure"
+                    <@identDataTextInput coreType=coreType textInputPath="form.dataForm.wallThickness.value" textAreaPath="form.dataForm.wallThicknessMultiCore" nestingPath="form.definingStructure"
                      labelText="Wall thickness" suffix="mm" suffixScreenReaderPrompt="mm" multiCoreHintText="Provide for the outer casing not the internal casings"/>
-                    <@identDataTextInput coreType=coreType textInputPath="form.dataForm.maop" textAreaPath="form.dataForm.maopMultiCore" labelText="MAOP" suffix="barg" nestingPath="form.definingStructure" suffixScreenReaderPrompt="barg" multiCoreHintText="Provide for each of the internal cores"/>
+                    <@identDataTextInput coreType=coreType textInputPath="form.dataForm.maop.value" textAreaPath="form.dataForm.maopMultiCore" labelText="MAOP" suffix="barg" nestingPath="form.definingStructure" suffixScreenReaderPrompt="barg" multiCoreHintText="Provide for each of the internal cores"/>
                     <@identDataTextInput coreType=coreType textInputPath="form.dataForm.insulationCoatingType" textAreaPath="form.dataForm.insulationCoatingTypeMultiCore" nestingPath="form.definingStructure" useTextArea=true labelText="Insulation / coating type" multiCoreHintText="Provide for the outer casing"/>
                 </@fdsRadio.radioNo>
             </@fdsRadio.radioGroup>

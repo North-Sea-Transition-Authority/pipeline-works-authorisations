@@ -54,6 +54,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.tasklist.P
 import uk.co.ogauthority.pwa.testutils.ControllerTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.util.CoordinateUtils;
+import uk.co.ogauthority.pwa.util.forminputs.decimal.DecimalInput;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PadPipelineIdentServiceTest {
@@ -96,6 +97,7 @@ public class PadPipelineIdentServiceTest {
 
   private final static String IDENT_TO_LOCATION_MISMATCH_ERROR_MSG =
       "The to structure and coordinates of the last ident must match the to structure and coordinates in the pipeline header";
+
 
   @Before
   public void setUp() {
@@ -153,14 +155,14 @@ public class PadPipelineIdentServiceTest {
     );
     form.setToCoordinateForm(toCoordinateForm);
 
-    form.setLength(BigDecimal.valueOf(65.5));
+    form.setLength(new DecimalInput(BigDecimal.valueOf(65.5)));
     form.setDefiningStructure(false);
 
     var dataForm = new PipelineIdentDataForm();
-    dataForm.setExternalDiameter(BigDecimal.valueOf(12.1));
-    dataForm.setInternalDiameter(BigDecimal.valueOf(12.1));
-    dataForm.setWallThickness(BigDecimal.valueOf(12.1));
-    dataForm.setMaop(BigDecimal.valueOf(12.1));
+    dataForm.setExternalDiameter(new DecimalInput(BigDecimal.valueOf(12.1)));
+    dataForm.setInternalDiameter(new DecimalInput(BigDecimal.valueOf(12.1)));
+    dataForm.setWallThickness(new DecimalInput(BigDecimal.valueOf(12.1)));
+    dataForm.setMaop(new DecimalInput(BigDecimal.valueOf(12.1)));
     dataForm.setProductsToBeConveyed("prod");
     dataForm.setComponentPartsDescription("component");
     dataForm.setInsulationCoatingType("ins");
@@ -210,7 +212,7 @@ public class PadPipelineIdentServiceTest {
     assertThat(FieldUtils.getFieldValue(newIdent, "toLongitudeDirection")).isEqualTo(
         form.getToCoordinateForm().getLongitudeDirection());
 
-    assertThat(newIdent.getLength()).isEqualTo(form.getLength());
+    assertThat(newIdent.getLength()).isEqualTo(form.getLength().createBigDecimalOrNull());
     assertThat(newIdent.getIsDefiningStructure()).isEqualTo(form.getDefiningStructure());
 
   }
@@ -377,7 +379,7 @@ public class PadPipelineIdentServiceTest {
     var form = new PipelineIdentForm();
     form.setFromLocation("from");
     form.setToLocation("to");
-    form.setLength(BigDecimal.ONE);
+    form.setLength(new DecimalInput(BigDecimal.ONE));
     form.setDefiningStructure(false);
 
     form.setFromCoordinateForm(new CoordinateForm());
@@ -410,7 +412,7 @@ public class PadPipelineIdentServiceTest {
         CoordinateUtils.coordinatePairFromForm(form.getFromCoordinateForm()));
     assertThat(ident.getFromLocation()).isEqualTo(form.getFromLocation());
     assertThat(ident.getToLocation()).isEqualTo(form.getToLocation());
-    assertThat(ident.getLength()).isEqualTo(form.getLength());
+    assertThat(ident.getLength()).isEqualTo(form.getLength().createBigDecimalOrNull());
     assertThat(ident.getIsDefiningStructure()).isEqualTo(form.getDefiningStructure());
   }
 
@@ -445,7 +447,7 @@ public class PadPipelineIdentServiceTest {
 
     assertThat(form.getFromLocation()).isEqualTo(ident.getFromLocation());
     assertThat(form.getToLocation()).isEqualTo(ident.getToLocation());
-    assertThat(form.getLength()).isEqualTo(ident.getLength());
+    assertThat(form.getLength().createBigDecimalOrNull()).isEqualTo(ident.getLength());
     assertThat(form.getDefiningStructure()).isEqualTo(ident.getIsDefiningStructure());
   }
 
@@ -461,7 +463,7 @@ public class PadPipelineIdentServiceTest {
 
     padPipelineIdentService.mapEntityToForm(ident, form);
 
-    assertThat(form.getLengthOptional()).isEqualTo(ident.getLength());
+    assertThat(form.getLengthOptional().createBigDecimalOrNull()).isEqualTo(ident.getLength());
     assertThat(form.getDefiningStructure()).isEqualTo(ident.getIsDefiningStructure());
   }
 
@@ -516,14 +518,14 @@ public class PadPipelineIdentServiceTest {
         ), toCoordinateForm
     );
     form.setToCoordinateForm(toCoordinateForm);
-    form.setLength(BigDecimal.valueOf(65.5));
+    form.setLength(new DecimalInput(BigDecimal.valueOf(65.5)));
     form.setDefiningStructure(false);
 
     var dataForm = new PipelineIdentDataForm();
-    dataForm.setExternalDiameter(BigDecimal.valueOf(12.1));
-    dataForm.setInternalDiameter(BigDecimal.valueOf(12.1));
-    dataForm.setWallThickness(BigDecimal.valueOf(12.1));
-    dataForm.setMaop(BigDecimal.valueOf(12.1));
+    dataForm.setExternalDiameter(new DecimalInput(BigDecimal.valueOf(12.1)));
+    dataForm.setInternalDiameter(new DecimalInput(BigDecimal.valueOf(12.1)));
+    dataForm.setWallThickness(new DecimalInput(BigDecimal.valueOf(12.1)));
+    dataForm.setMaop(new DecimalInput(BigDecimal.valueOf(12.1)));
     dataForm.setProductsToBeConveyed("prod");
     dataForm.setComponentPartsDescription("component");
     dataForm.setInsulationCoatingType("ins");
@@ -584,7 +586,7 @@ public class PadPipelineIdentServiceTest {
     assertThat(FieldUtils.getFieldValue(newIdent, "toLongitudeDirection")).isEqualTo(
         form.getToCoordinateForm().getLongitudeDirection());
 
-    assertThat(newIdent.getLength()).isEqualTo(form.getLength());
+    assertThat(newIdent.getLength()).isEqualTo(form.getLength().createBigDecimalOrNull());
     assertThat(newIdent.getIsDefiningStructure()).isEqualTo(form.getDefiningStructure());
   }
 

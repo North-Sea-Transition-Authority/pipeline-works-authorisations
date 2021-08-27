@@ -2,10 +2,14 @@ package uk.co.ogauthority.pwa.controller.appprocessing.processingcharges;
 
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
 
@@ -13,6 +17,7 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import org.hamcrest.core.StringContains;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -38,6 +43,7 @@ import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingConte
 import uk.co.ogauthority.pwa.service.appprocessing.processingcharges.appcharges.ApplicationChargeRequestReport;
 import uk.co.ogauthority.pwa.service.appprocessing.processingcharges.appcharges.ApplicationChargeRequestReportTestUtil;
 import uk.co.ogauthority.pwa.service.appprocessing.processingcharges.appcharges.ApplicationChargeRequestService;
+import uk.co.ogauthority.pwa.service.appprocessing.processingcharges.appcharges.CreatePaymentAttemptResult;
 import uk.co.ogauthority.pwa.service.appprocessing.processingcharges.appcharges.CreatePaymentAttemptResultTestUtil;
 import uk.co.ogauthority.pwa.service.appprocessing.processingcharges.display.ApplicationPaymentDisplaySummary;
 import uk.co.ogauthority.pwa.service.appprocessing.processingcharges.display.ApplicationPaymentDisplaySummaryTestUtil;
@@ -74,6 +80,7 @@ public class IndustryPaymentControllerTest extends PwaAppProcessingContextAbstra
   private AuthenticatedUserAccount user;
   private ApplicationChargeRequestReport applicationChargeRequestReport;
   private ApplicationPaymentDisplaySummary applicationPaymentDisplaySummary;
+  private CreatePaymentAttemptResult attemptSuccessResult;
 
   private PortalOrganisationGroup orgGroup1, orgGroup2;
 
@@ -104,7 +111,7 @@ public class IndustryPaymentControllerTest extends PwaAppProcessingContextAbstra
     when(pwaApplicationDetailService.getLatestDetailForUser(pwaApplicationDetail.getMasterPwaApplicationId(), user))
         .thenReturn(Optional.of(pwaApplicationDetail));
 
-    var attemptSuccessResult = CreatePaymentAttemptResultTestUtil.createSuccess();
+    attemptSuccessResult = CreatePaymentAttemptResultTestUtil.createSuccess();
     when(applicationChargeRequestService.startChargeRequestPaymentAttempt(any(), any()))
         .thenReturn(attemptSuccessResult);
 
@@ -200,4 +207,41 @@ public class IndustryPaymentControllerTest extends PwaAppProcessingContextAbstra
     endpointTester.performProcessingPermissionCheck(status().is3xxRedirection(), status().isForbidden());
 
   }
+
+  @Test
+  public void startPaymentAttempt_whenPaymentCreated() throws Exception {
+    var permissionsDto = new ProcessingPermissionsDto(null, Set.of(PwaAppProcessingPermission.PAY_FOR_APPLICATION));
+    when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail, user))
+        .thenReturn(permissionsDto);
+
+    mockMvc.perform(post(ReverseRouter.route(on(IndustryPaymentController.class).startPaymentAttempt(APP_ID, APP_TYPE, null, null)))
+        .with(authenticatedUserAndSession(user))
+        .with(csrf()))
+        .andExpect(status().is3xxRedirection())
+        .andExpect(view().name("redirect:" + attemptSuccessResult.getStartExternalJourneyUrl()));
+
+    verify(applicationChargeRequestService).startChargeRequestPaymentAttempt(pwaApplicationDetail.getPwaApplication(), user);
+
+  }
+
+  @Test
+  public void startPaymentAttempt_whenChargeAlreadyPaid() throws Exception {
+    var permissionsDto = new ProcessingPermissionsDto(null, Set.of(PwaAppProcessingPermission.PAY_FOR_APPLICATION));
+    when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail, user))
+        .thenReturn(permissionsDto);
+
+    var alreadyPaidResult = CreatePaymentAttemptResultTestUtil.createCompletedPaymentExists();
+    when(applicationChargeRequestService.startChargeRequestPaymentAttempt(any(), any()))
+        .thenReturn(alreadyPaidResult);
+
+    mockMvc.perform(post(ReverseRouter.route(on(IndustryPaymentController.class).startPaymentAttempt(APP_ID, APP_TYPE, null, null)))
+        .with(authenticatedUserAndSession(user))
+        .with(csrf()))
+        .andExpect(status().is3xxRedirection())
+        .andExpect(view().name(new StringContains(true, "case-management")));
+
+    verify(applicationChargeRequestService).startChargeRequestPaymentAttempt(pwaApplicationDetail.getPwaApplication(), user);
+
+  }
+
 }
