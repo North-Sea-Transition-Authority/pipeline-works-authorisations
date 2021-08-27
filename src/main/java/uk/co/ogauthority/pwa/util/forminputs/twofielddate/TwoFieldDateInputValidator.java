@@ -112,6 +112,8 @@ public class TwoFieldDateInputValidator implements SmartValidator {
 
   /* this validation message formatting covers an edge case where we have the word 'date' duplicated with a space in between
    depending on the input label provided. This method removes the duplicate if exists
+  This 'manual' approach is taken over String.replace() due to variations in how 'date' text may be provided
+  avoiding performing String.replace() multiple times to achieve the result.
    */
   private String formatValidationMessage(String message) {
 
