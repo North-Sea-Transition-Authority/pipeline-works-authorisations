@@ -86,7 +86,7 @@ public class TwoFieldDateInputValidator implements SmartValidator {
       errors.rejectValue(
           YEAR,
           YEAR_REQUIRED_CODE,
-          String.format(ValidatorUtils.DATE_REQUIRED_ERROR_FORMAT, inputLabel.getLabel()));
+          formatValidationMessage(String.format(ValidatorUtils.DATE_REQUIRED_ERROR_FORMAT, inputLabel.getLabel())));
 
     } else if (dateOptional.isEmpty() || dateOptional.filter(date -> ValidatorUtils.isYearValid(date.getYear())).isEmpty()) {
       errors.rejectValue(
@@ -108,6 +108,32 @@ public class TwoFieldDateInputValidator implements SmartValidator {
       dateWithinRangeHint.ifPresent(hint -> validateDateWithinRange(errors, twoFieldDateInput, inputLabel, hint));
     }
 
+  }
+
+  /* this validation message formatting covers an edge case where we have the word 'date' duplicated with a space in between
+   depending on the input label provided. This method removes the duplicate if exists
+  This 'manual' approach is taken over String.replace() due to variations in how 'date' text may be provided
+  avoiding performing String.replace() multiple times to achieve the result.
+   */
+  private String formatValidationMessage(String message) {
+
+    var searchWord = "date";
+    var fromIndex = 0;
+    var searchWordFrequency = 0;
+
+    while ((fromIndex = message.toLowerCase().indexOf(searchWord, fromIndex)) != -1) {
+      searchWordFrequency++;
+
+      //we have found the duplicate word adjacent(inc. space) to the first occurrence, remove second occurrence
+      if (searchWordFrequency == 2) {
+        StringBuilder stringBuilder = new StringBuilder(message);
+        stringBuilder.replace(fromIndex, fromIndex + searchWord.length(), "");
+        return stringBuilder.toString().trim();
+      }
+      fromIndex = fromIndex + searchWord.length() + 1;
+    }
+
+    return message;
   }
 
 

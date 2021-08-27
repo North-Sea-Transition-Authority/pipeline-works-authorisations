@@ -53,7 +53,7 @@ import uk.co.ogauthority.pwa.testutils.ControllerTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.util.CoordinateUtils;
-import uk.co.ogauthority.pwa.validators.PermanentDepositsValidator;
+import uk.co.ogauthority.pwa.validators.deposits.PermanentDepositsValidator;
 
 
 
