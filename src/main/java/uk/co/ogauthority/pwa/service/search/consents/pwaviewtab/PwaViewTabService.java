@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -69,6 +70,9 @@ public class PwaViewTabService {
         .collect(Collectors.toList());
   }
 
+  public Optional<PwaConsentApplicationDto> getConsentHistoryTabContentForConsentId(Integer consentId) {
+    return pwaConsentDtoRepository.getConsentAndApplicationDto(consentId);
+  }
 
   private List<PwaConsentApplicationDto> getConsentHistoryTabContent(PwaContext pwaContext) {
     return pwaConsentDtoRepository.getConsentAndApplicationDtos(pwaContext.getMasterPwa())

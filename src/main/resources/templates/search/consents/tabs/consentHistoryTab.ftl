@@ -26,12 +26,11 @@
             <#if documentIsDownloadable>
               <@fdsAction.link
                 linkText=pwaConsentHistoryView.consentReference
-                linkUrl=springUrl(urlFactory.getConsentDocumentUrl(pwaConsentHistoryView.consentId, pwaConsentHistoryView.docgenRunId.get()))
+                linkUrl=springUrl(urlFactory.getConsentDocumentsUrl(pwaConsentHistoryView.consentId))
                 linkClass="govuk-link"
                 linkScreenReaderText="Download consent document"
                 role=false
-                start=false
-                openInNewTab=true/>
+                start=false/>
             <#else>
               <span>${pwaConsentHistoryView.consentReference}
               <#if documentStatusDisplay?has_content>

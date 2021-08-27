@@ -132,8 +132,11 @@ public class PwaPipelineViewController {
       setAsBuiltNotificationSubmissionHistoryDataOnModelAndView(modelAndView, pipelineId, userAccount);
     }
 
-    searchPwaBreadcrumbService.fromPwaPipelineView(
-        pwaContext.getMasterPwa().getId(), pwaContext.getConsentSearchResultView().getPwaReference(), modelAndView, "View pipeline");
+    searchPwaBreadcrumbService.fromPwaPipelineTab(
+        pwaContext.getMasterPwa().getId(),
+        pwaContext.getConsentSearchResultView().getPwaReference(),
+        modelAndView,
+        latestPipelineDetail.getPipelineNumber());
 
     return modelAndView;
   }

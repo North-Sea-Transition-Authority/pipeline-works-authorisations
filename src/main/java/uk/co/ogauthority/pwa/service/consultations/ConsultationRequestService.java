@@ -224,6 +224,10 @@ public class ConsultationRequestService {
         consulteeGroup, pwaApplication, ConsultationRequestStatus.RESPONDED);
   }
 
+  public List<ConsultationRequest> getAllRequestsByAppRespondedOnly(PwaApplication pwaApplication) {
+    return consultationRequestRepository.findByPwaApplicationAndStatus(pwaApplication, ConsultationRequestStatus.RESPONDED);
+  }
+
   public boolean consultationRequestIsActive(ConsultationRequest consultationRequest) {
     return !ENDED_STATUSES.contains(consultationRequest.getStatus());
   }

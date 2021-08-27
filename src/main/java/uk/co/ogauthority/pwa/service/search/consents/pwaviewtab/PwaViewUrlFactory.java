@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.service.search.consents.pwaviewtab;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import uk.co.ogauthority.pwa.controller.appprocessing.CaseManagementController;
+import uk.co.ogauthority.pwa.controller.search.consents.ConsentFileController;
 import uk.co.ogauthority.pwa.controller.search.consents.PwaPipelineViewController;
 import uk.co.ogauthority.pwa.controller.search.consents.PwaViewController;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
@@ -26,7 +27,11 @@ public class PwaViewUrlFactory {
   }
 
   public String getConsentDocumentUrl(Integer pwaConsentId, Long docgenRunId) {
-    return ReverseRouter.route(on(PwaViewController.class).downloadConsentDocument(pwaId, null, pwaConsentId, docgenRunId));
+    return ReverseRouter.route(on(ConsentFileController.class).downloadConsentDocument(pwaId, null, pwaConsentId, docgenRunId));
+  }
+
+  public String getConsentDocumentsUrl(Integer pwaConsentId) {
+    return ReverseRouter.route(on(ConsentFileController.class).renderViewConsentDocuments(pwaId, pwaConsentId, null, null));
   }
 
   public String routeCaseManagement(Integer pwaApplicationId, PwaApplicationType applicationType) {

@@ -14,17 +14,27 @@ import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 public class SearchPwaBreadcrumbService {
 
 
-  public void fromPwaPipelineView(Integer pwaId, String pwaRef, ModelAndView modelAndView, String thisPage) {
+  public void fromPwaPipelineTab(Integer pwaId, String pwaRef, ModelAndView modelAndView, String thisPage) {
 
     var crumbs = getConsentSearchBreadcrumbs();
     crumbs.put(ReverseRouter.route(on(PwaViewController.class).renderViewPwa(
-        pwaId, PwaViewTab.PIPELINES, null, null)), "View PWA " + pwaRef);
+        pwaId, PwaViewTab.PIPELINES, null, null)), pwaRef);
 
     addAttrs(modelAndView, crumbs, thisPage);
   }
 
   public void fromPwaView(ModelAndView modelAndView, String thisPage) {
     addAttrs(modelAndView, getConsentSearchBreadcrumbs(), thisPage);
+  }
+
+  public void fromPwaConsentTab(Integer pwaId, String pwaRef, ModelAndView modelAndView, String thisPage) {
+
+    var crumbs = getConsentSearchBreadcrumbs();
+    crumbs.put(ReverseRouter.route(on(PwaViewController.class).renderViewPwa(
+        pwaId, PwaViewTab.CONSENT_HISTORY, null, null)), pwaRef);
+
+    addAttrs(modelAndView, crumbs, thisPage);
+
   }
 
   private Map<String, String> getConsentSearchBreadcrumbs() {

@@ -26,12 +26,17 @@ import uk.co.ogauthority.pwa.model.entity.files.AppFile;
 import uk.co.ogauthority.pwa.model.entity.files.AppFilePurpose;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupTeamService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
+import uk.co.ogauthority.pwa.service.consultations.ConsultationFileService;
 import uk.co.ogauthority.pwa.service.consultations.ConsultationResponseService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.fileupload.AppFileService;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
+/**
+ * Dedicated file controller to process consultation-response file requests.
+ * Reason for @PwaApplicationNoChecks is that we opted for more fine-tuned access checks inside the methods.
+ */
 @Controller
 @PwaApplicationNoChecks
 @RequestMapping("/pwa-application-processing/{applicationType}/{applicationId}/consultation/{consultationRequestId}/respond/" +
@@ -42,15 +47,18 @@ public class ConsultationResponseFileController extends PwaApplicationDataFileUp
 
   private final ConsultationResponseService consultationResponseService;
   private final ConsulteeGroupTeamService consulteeGroupTeamService;
+  private final ConsultationFileService consultationFileService;
 
   @Autowired
   public ConsultationResponseFileController(
       ConsultationResponseService consultationResponseService,
       AppFileService appFileService,
-      ConsulteeGroupTeamService consulteeGroupTeamService) {
+      ConsulteeGroupTeamService consulteeGroupTeamService,
+      ConsultationFileService consultationFileService) {
     super(appFileService);
     this.consultationResponseService = consultationResponseService;
     this.consulteeGroupTeamService = consulteeGroupTeamService;
+    this.consultationFileService = consultationFileService;
   }
 
   @PostMapping("/file/upload")
@@ -115,7 +123,8 @@ public class ConsultationResponseFileController extends PwaApplicationDataFileUp
     return whenUserCanAccessFile(
         processingContext,
         () -> isUserInConsulteeTeamForActiveConsultation(processingContext)
-            || processingContext.getAppProcessingPermissions().contains(PwaAppProcessingPermission.VIEW_ALL_CONSULTATIONS),
+            || processingContext.getAppProcessingPermissions().contains(PwaAppProcessingPermission.VIEW_ALL_CONSULTATIONS)
+            || consultationFileService.industryUserCanAccessFile(processingContext),
         () -> serveFile(processingContext.getAppFile())
     );
   }

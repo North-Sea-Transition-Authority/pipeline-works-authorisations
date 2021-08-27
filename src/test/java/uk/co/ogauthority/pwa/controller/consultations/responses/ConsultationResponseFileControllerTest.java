@@ -48,6 +48,7 @@ import uk.co.ogauthority.pwa.model.entity.files.UploadedFile;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.appprocessing.PwaAppProcessingPermissionService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContextService;
+import uk.co.ogauthority.pwa.service.consultations.ConsultationFileService;
 import uk.co.ogauthority.pwa.service.consultations.ConsultationResponseService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
@@ -64,6 +65,9 @@ public class ConsultationResponseFileControllerTest extends PwaAppProcessingCont
 
   @MockBean
   private PwaAppProcessingPermissionService pwaAppProcessingPermissionService;
+
+  @MockBean
+  private ConsultationFileService consultationFileService;
 
   private AuthenticatedUserAccount user;
 
@@ -129,6 +133,8 @@ public class ConsultationResponseFileControllerTest extends PwaAppProcessingCont
         Set.of());
 
     when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail, user)).thenReturn(permissionsDto);
+
+    when(consultationFileService.industryUserCanAccessFile(any())).thenReturn(false);
   }
 
   @Test
@@ -219,6 +225,23 @@ public class ConsultationResponseFileControllerTest extends PwaAppProcessingCont
     when(consultationResponseService.getConsultationResponseFileLink(appFile)).thenReturn(Optional.of(consultationResponseFileLink));
     when(consulteeGroupTeamService.getTeamMemberByGroupAndPerson(consultationRequest.getConsulteeGroup(), user.getLinkedPerson()))
         .thenReturn(Optional.empty());
+
+    mockMvc.perform(get(
+        RouteUtils.routeWithUriVariables(on(ConsultationResponseFileController.class)
+            .handleDownload(pwaApplicationDetail.getPwaApplicationType(), pwaApplicationDetail.getPwaApplication().getId(),
+                FILE_ID, null), Map.of("consultationRequestId", "1")))
+        .with(authenticatedUserAndSession(user)))
+        .andExpect(status().isOk());
+  }
+
+  @Test
+  public void handleDownload_fileLinkNotTemporary_appIsConsented_userInHolderTeam_success() throws Exception {
+    appFile.setFileLinkStatus(ApplicationFileLinkStatus.FULL);
+
+    when(consultationResponseService.getConsultationResponseFileLink(appFile)).thenReturn(Optional.of(consultationResponseFileLink));
+    when(consulteeGroupTeamService.getTeamMemberByGroupAndPerson(consultationRequest.getConsulteeGroup(), user.getLinkedPerson()))
+        .thenReturn(Optional.empty());
+    when(consultationFileService.industryUserCanAccessFile(any())).thenReturn(true);
 
     mockMvc.perform(get(
         RouteUtils.routeWithUriVariables(on(ConsultationResponseFileController.class)

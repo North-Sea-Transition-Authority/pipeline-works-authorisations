@@ -19,7 +19,9 @@ import uk.co.ogauthority.pwa.model.entity.files.AppFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.form.files.UploadedFileView;
 import uk.co.ogauthority.pwa.repository.consultations.ConsultationResponseFileLinkRepository;
+import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.service.fileupload.AppFileService;
+import uk.co.ogauthority.pwa.service.pwaconsents.PwaConsentService;
 import uk.co.ogauthority.pwa.util.RouteUtils;
 
 @Service
@@ -27,14 +29,17 @@ public class ConsultationFileService {
 
   private final AppFileService appFileService;
   private final ConsultationResponseFileLinkRepository consultationResponseFileLinkRepository;
+  private final PwaConsentService pwaConsentService;
 
   private static final AppFilePurpose FILE_PURPOSE = AppFilePurpose.CONSULTATION_RESPONSE;
 
   @Autowired
   public ConsultationFileService(AppFileService appFileService,
-                                 ConsultationResponseFileLinkRepository consultationResponseFileLinkRepository) {
+                                 ConsultationResponseFileLinkRepository consultationResponseFileLinkRepository,
+                                 PwaConsentService pwaConsentService) {
     this.appFileService = appFileService;
     this.consultationResponseFileLinkRepository = consultationResponseFileLinkRepository;
+    this.pwaConsentService = pwaConsentService;
   }
 
   public Map<Integer, List<UploadedFileView>> getConsultationResponseIdToFileViewsMap(PwaApplication pwaApplication,
@@ -59,6 +64,11 @@ public class ConsultationFileService {
                 .collect(toList())
             )
         );
+  }
+
+  public boolean industryUserCanAccessFile(PwaAppProcessingContext processingContext) {
+    return processingContext.getApplicationInvolvement().isUserInHolderTeam()
+        && pwaConsentService.getConsentByPwaApplication(processingContext.getPwaApplication()).isPresent();
   }
 
   public String getConsultationFileViewUrl(ConsultationRequest request) {

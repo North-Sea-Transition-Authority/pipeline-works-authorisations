@@ -12,7 +12,7 @@
 
 
 
-<@defaultPage htmlTitle="View PWA" fullWidthColumn=true topNavigation=true breadcrumbs=true wrapperWidth=true caption="View PWA">
+<@defaultPage htmlTitle=consentSearchResultView.pwaReference! fullWidthColumn=true topNavigation=true breadcrumbs=true wrapperWidth=true caption="View PWA">
 
     <h1 class="govuk-heading-xl">${consentSearchResultView.pwaReference!}</h1>
 

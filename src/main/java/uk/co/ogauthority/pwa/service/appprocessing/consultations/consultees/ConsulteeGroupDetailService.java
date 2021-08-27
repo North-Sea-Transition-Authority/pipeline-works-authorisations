@@ -34,9 +34,8 @@ public class ConsulteeGroupDetailService {
     return groupDetailRepository.findAllByConsulteeGroupInAndTipFlagIsTrue(consulteeGroups);
   }
 
-
   public List<ConsulteeGroupDetail> getAllConsulteeGroupDetails() {
     return groupDetailRepository.findAllByTipFlagIsTrue();
   }
-
+  
 }

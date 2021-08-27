@@ -25,4 +25,6 @@ public interface ConsultationRequestRepository extends CrudRepository<Consultati
   List<ConsultationRequest> findByPwaApplicationAndStatusNotIn(
       PwaApplication pwaApplication, Collection<ConsultationRequestStatus> statuses);
 
+  List<ConsultationRequest> findByPwaApplicationAndStatus(PwaApplication pwaApplication, ConsultationRequestStatus status);
+
 }
