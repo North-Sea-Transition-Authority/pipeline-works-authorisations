@@ -8,6 +8,7 @@ import uk.co.ogauthority.pwa.model.entity.asbuilt.PipelineChangeCategory;
 import uk.co.ogauthority.pwa.model.enums.aabuilt.AsBuiltNotificationStatus;
 import uk.co.ogauthority.pwa.model.form.asbuilt.AsBuiltNotificationSubmissionForm;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
+import uk.co.ogauthority.pwa.util.DateUtils;
 import uk.co.ogauthority.pwa.util.ValidatorUtils;
 
 @Service
@@ -45,19 +46,33 @@ public class AsBuiltNotificationSubmissionValidator implements SmartValidator {
                                        AsBuiltNotificationSubmissionValidatorHint hint) {
     switch (form.getAsBuiltNotificationStatus()) {
       case PER_CONSENT:
-        ValidatorUtils.validateDatePickerDateExistsAndIsValid("perConsentDateWorkCompletedTimestampStr", "Date laid",
+        ValidatorUtils.validateDatePickerDateIsPastOrPresent("perConsentDateWorkCompletedTimestampStr", "Date work completed",
             form.getPerConsentDateWorkCompletedTimestampStr(), errors);
         if (hint.getPipelineChangeCategory() == PipelineChangeCategory.NEW_PIPELINE) {
-          ValidatorUtils.validateDatePickerDateExistsAndIsValid("perConsentDateBroughtIntoUseTimestampStr",
-              "Date pipeline brought into use", form.getPerConsentDateBroughtIntoUseTimestampStr(), errors);
+
+          if (!ValidatorUtils.validateDatePickerDateExistsAndIsValid("perConsentDateBroughtIntoUseTimestampStr", "Date brought into use",
+              form.getPerConsentDateBroughtIntoUseTimestampStr(), errors)) {
+            break;
+          }
+
+          ValidatorUtils.validateDatePickerDateIsOnOrAfterComparisonDate("perConsentDateBroughtIntoUseTimestampStr",
+              "Date pipeline brought into use", form.getPerConsentDateBroughtIntoUseTimestampStr(),
+              DateUtils.datePickerStringToDate(form.getPerConsentDateWorkCompletedTimestampStr()), "date work completed", errors);
         }
         break;
       case NOT_PER_CONSENT:
-        ValidatorUtils.validateDatePickerDateExistsAndIsValid("notPerConsentDateWorkCompletedTimestampStr", "Date laid",
+        ValidatorUtils.validateDatePickerDateIsPastOrPresent("notPerConsentDateWorkCompletedTimestampStr", "Date work completed",
             form.getNotPerConsentDateWorkCompletedTimestampStr(), errors);
         if (hint.getPipelineChangeCategory() == PipelineChangeCategory.NEW_PIPELINE) {
-          ValidatorUtils.validateDatePickerDateExistsAndIsValid("notPerConsentDateBroughtIntoUseTimestampStr",
-              "Date pipeline brought into use", form.getNotPerConsentDateBroughtIntoUseTimestampStr(), errors);
+
+          if (!ValidatorUtils.validateDatePickerDateExistsAndIsValid("notPerConsentDateBroughtIntoUseTimestampStr", "Date brought into use",
+              form.getNotPerConsentDateBroughtIntoUseTimestampStr(), errors)) {
+            break;
+          }
+
+          ValidatorUtils.validateDatePickerDateIsOnOrAfterComparisonDate("notPerConsentDateBroughtIntoUseTimestampStr",
+              "Date pipeline brought into use", form.getNotPerConsentDateBroughtIntoUseTimestampStr(),
+              DateUtils.datePickerStringToDate(form.getNotPerConsentDateWorkCompletedTimestampStr()), "date work completed", errors);
         }
         break;
       case NOT_COMPLETED_IN_CONSENT_TIMEFRAME:

@@ -66,6 +66,95 @@ public class AsBuiltNotificationSubmissionValidatorTest {
   }
 
   @Test
+  public void validate_form_newPipeline_dateWorkCompletedAfterToday_validationFails() {
+    var form = new AsBuiltNotificationSubmissionForm();
+    form.setAsBuiltNotificationStatus(AsBuiltNotificationStatus.PER_CONSENT);
+    form.setPerConsentDateWorkCompletedTimestampStr("10/10/3000");
+
+    Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(asBuiltNotificationSubmissionValidator, form,
+        new AsBuiltNotificationSubmissionValidatorHint(false, PipelineChangeCategory.OUT_OF_USE));
+
+    assertThat(errorsMap).containsOnly(
+        entry("perConsentDateWorkCompletedTimestampStr",
+            Set.of("perConsentDateWorkCompletedTimestampStr" + FieldValidationErrorCodes.AFTER_TODAY.getCode()))
+    );
+  }
+
+  @Test
+  public void validate_form_newPipeline_dateWorkCompletedAfterDateBroughtIntoUse__perConsent_validationFails() {
+    var form = new AsBuiltNotificationSubmissionForm();
+    form.setAsBuiltNotificationStatus(AsBuiltNotificationStatus.PER_CONSENT);
+    form.setPerConsentDateWorkCompletedTimestampStr("10/10/2000");
+    form.setPerConsentDateBroughtIntoUseTimestampStr("10/10/1000");
+
+    Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(asBuiltNotificationSubmissionValidator, form,
+        new AsBuiltNotificationSubmissionValidatorHint(false, PipelineChangeCategory.NEW_PIPELINE));
+
+    assertThat(errorsMap).containsOnly(
+        entry("perConsentDateBroughtIntoUseTimestampStr",
+            Set.of("perConsentDateBroughtIntoUseTimestampStr" + FieldValidationErrorCodes.BEFORE_SOME_DATE.getCode()))
+    );
+  }
+
+  @Test
+  public void validate_form_newPipeline_perConsent_validationPasses() {
+    var form = new AsBuiltNotificationSubmissionForm();
+    form.setAsBuiltNotificationStatus(AsBuiltNotificationStatus.PER_CONSENT);
+    form.setPerConsentDateWorkCompletedTimestampStr("10/10/2000");
+    form.setPerConsentDateBroughtIntoUseTimestampStr("10/10/3000");
+
+    Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(asBuiltNotificationSubmissionValidator, form,
+        new AsBuiltNotificationSubmissionValidatorHint(false, PipelineChangeCategory.NEW_PIPELINE));
+
+    assertThat(errorsMap).isEmpty();
+  }
+
+  @Test
+  public void validate_form_newPipeline_dateWorkCompletedAfterDateBroughtIntoUse__notPerConsent_validationFails() {
+    var form = new AsBuiltNotificationSubmissionForm();
+    form.setAsBuiltNotificationStatus(AsBuiltNotificationStatus.NOT_PER_CONSENT);
+    form.setNotPerConsentDateWorkCompletedTimestampStr("10/10/2000");
+    form.setNotPerConsentDateBroughtIntoUseTimestampStr("10/10/1000");
+
+    Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(asBuiltNotificationSubmissionValidator, form,
+        new AsBuiltNotificationSubmissionValidatorHint(false, PipelineChangeCategory.NEW_PIPELINE));
+
+    assertThat(errorsMap).containsOnly(
+        entry("notPerConsentDateBroughtIntoUseTimestampStr",
+            Set.of("notPerConsentDateBroughtIntoUseTimestampStr" + FieldValidationErrorCodes.BEFORE_SOME_DATE.getCode()))
+    );
+  }
+
+  @Test
+  public void validate_form_newPipeline_notPerConsent_validationPasses() {
+    var form = new AsBuiltNotificationSubmissionForm();
+    form.setAsBuiltNotificationStatus(AsBuiltNotificationStatus.NOT_PER_CONSENT);
+    form.setNotPerConsentDateWorkCompletedTimestampStr("10/10/2000");
+    form.setNotPerConsentDateBroughtIntoUseTimestampStr("10/10/3000");
+
+    Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(asBuiltNotificationSubmissionValidator, form,
+        new AsBuiltNotificationSubmissionValidatorHint(false, PipelineChangeCategory.NEW_PIPELINE));
+
+    assertThat(errorsMap).isEmpty();
+  }
+
+  @Test
+  public void validate_form_newPipeline_invalidDateBroughtIntoUse_validationFails() {
+    var form = new AsBuiltNotificationSubmissionForm();
+    form.setAsBuiltNotificationStatus(AsBuiltNotificationStatus.PER_CONSENT);
+    form.setPerConsentDateWorkCompletedTimestampStr("10/10/2000");
+    form.setPerConsentDateBroughtIntoUseTimestampStr("ABC");
+
+    Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(asBuiltNotificationSubmissionValidator, form,
+        new AsBuiltNotificationSubmissionValidatorHint(false, PipelineChangeCategory.NEW_PIPELINE));
+
+    assertThat(errorsMap).containsOnly(
+        entry("perConsentDateBroughtIntoUseTimestampStr",
+            Set.of("perConsentDateBroughtIntoUseTimestampStr" + FieldValidationErrorCodes.INVALID.getCode()))
+    );
+  }
+
+  @Test
   public void validate_form_notNewPipeline_noDateWorkCompleted_noDateBrughtIntoUse_validationFails() {
     var form = new AsBuiltNotificationSubmissionForm();
     form.setAsBuiltNotificationStatus(AsBuiltNotificationStatus.PER_CONSENT);
@@ -77,6 +166,18 @@ public class AsBuiltNotificationSubmissionValidatorTest {
         entry("perConsentDateWorkCompletedTimestampStr",
             Set.of("perConsentDateWorkCompletedTimestampStr" + FieldValidationErrorCodes.REQUIRED.getCode()))
     );
+  }
+
+  @Test
+  public void validate_form_notNewPipeline_validationPasses() {
+    var form = new AsBuiltNotificationSubmissionForm();
+    form.setAsBuiltNotificationStatus(AsBuiltNotificationStatus.PER_CONSENT);
+    form.setPerConsentDateWorkCompletedTimestampStr("10/10/2000");
+
+    Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(asBuiltNotificationSubmissionValidator, form,
+        new AsBuiltNotificationSubmissionValidatorHint(false, PipelineChangeCategory.OUT_OF_USE));
+
+    assertThat(errorsMap).isEmpty();
   }
 
   @Test

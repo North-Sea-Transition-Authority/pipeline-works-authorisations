@@ -204,6 +204,45 @@ public class ValidatorUtils {
 
   /**
    * Provide standardised error messages to ensure consistent date validation.
+   * Ensures that the date is valid, and the date is either the current day, or is in the past.
+   *
+   * @param fieldName     The name of the field on the form for the error to bind to.
+   * @param displayPrefix The grouped name in the error message. EG: "proposed start".
+   * @param dateStr       The String date to parsed, must be in the format (dd/mm/yyyy) to be successfully parsed
+   * @param errors        Errors object to add rejection codes and messages to.
+   * @return True if date is valid with no errors.
+   */
+  public static boolean validateDatePickerDateIsPastOrPresent(String fieldName,
+                                                                String displayPrefix,
+                                                                String dateStr,
+                                                                Errors errors) {
+    displayPrefix = displayPrefix.toLowerCase();
+    try {
+
+      ValidationUtils.rejectIfEmptyOrWhitespace(errors, fieldName, REQUIRED.errorCode(fieldName), "Enter a " + displayPrefix);
+
+      if (dateStr != null) {
+        var date = DateUtils.datePickerStringToDate(dateStr);
+        if (date.isAfter(LocalDate.now())) {
+          errors.rejectValue(fieldName, FieldValidationErrorCodes.AFTER_TODAY.errorCode(fieldName),
+              StringUtils.capitalize(displayPrefix) + " must be on or before today");
+          return false;
+        }
+        return true;
+      }
+
+      return false;
+
+    } catch (DateTimeParseException e) {
+      errors.rejectValue(fieldName, FieldValidationErrorCodes.INVALID.errorCode(fieldName),
+          StringUtils.capitalize(displayPrefix) + " must be a valid date in the format dd/mm/yyyy");
+      return false;
+    }
+
+  }
+
+  /**
+   * Provide standardised error messages to ensure consistent date validation.
    * Ensures that the date is valid, and the date is either the current day, or is in the future.
    *
    * @param fieldName     The name of the field on the form for the error to bind to.
@@ -222,8 +261,8 @@ public class ValidatorUtils {
       ValidationUtils.rejectIfEmptyOrWhitespace(errors, fieldName, REQUIRED.errorCode(fieldName), "Enter a " + displayPrefix);
 
       if (dateStr != null) {
-        var deadlineDate = DateUtils.datePickerStringToDate(dateStr);
-        if (deadlineDate.isBefore(LocalDate.now())) {
+        var date = DateUtils.datePickerStringToDate(dateStr);
+        if (date.isBefore(LocalDate.now())) {
           errors.rejectValue(fieldName, FieldValidationErrorCodes.BEFORE_TODAY.errorCode(fieldName),
               StringUtils.capitalize(displayPrefix) + " must be on or after today");
           return false;
@@ -236,6 +275,49 @@ public class ValidatorUtils {
     } catch (DateTimeParseException e) {
       errors.rejectValue(fieldName, FieldValidationErrorCodes.INVALID.errorCode(fieldName),
           StringUtils.capitalize(displayPrefix) + " must be a valid date in the format dd/mm/yyyy");
+      return false;
+    }
+
+  }
+
+  /**
+   * Provide standardised error messages to ensure consistent date validation.
+   * Ensures that the date is valid, and the date is on or after the date passed in.
+   *
+   * @param fieldName     The name of the field on the form for the error to bind to.
+   * @param displayName The grouped name in the error message. EG: "proposed start".
+   * @param dateStr       The String date to parse, must be in the format (dd/mm/yyyy) to be successfully parsed.
+   * @param comparisonDate Date we want to compare with.
+   * @param errorSuffix   Text to append to error message.
+   * @param errors        Errors object to add rejection codes and messages to.
+   * @return True if date is valid with no errors.
+   */
+  public static boolean validateDatePickerDateIsOnOrAfterComparisonDate(String fieldName,
+                                                                String displayName,
+                                                                String dateStr,
+                                                                LocalDate comparisonDate,
+                                                                String errorSuffix,
+                                                                Errors errors) {
+    displayName = displayName.toLowerCase();
+    try {
+
+      ValidationUtils.rejectIfEmptyOrWhitespace(errors, fieldName, REQUIRED.errorCode(fieldName), "Enter a " + displayName);
+
+      if (dateStr != null) {
+        var date = DateUtils.datePickerStringToDate(dateStr);
+        if (date.isBefore(comparisonDate)) {
+          errors.rejectValue(fieldName, FieldValidationErrorCodes.BEFORE_SOME_DATE.errorCode(fieldName),
+              String.format("%s must be on or after %s", StringUtils.capitalize(displayName), errorSuffix));
+          return false;
+        }
+        return true;
+      }
+
+      return false;
+
+    } catch (DateTimeParseException e) {
+      errors.rejectValue(fieldName, FieldValidationErrorCodes.INVALID.errorCode(fieldName),
+          StringUtils.capitalize(displayName) + " must be a valid date in the format dd/mm/yyyy");
       return false;
     }
 
