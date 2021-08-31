@@ -8,14 +8,12 @@ import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.format.DateTimeParseException;
-import java.util.Objects;
 import java.util.function.Supplier;
 import javax.annotation.Nullable;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.Range;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.validator.routines.EmailValidator;
 import org.springframework.validation.Errors;
@@ -293,11 +291,11 @@ public class ValidatorUtils {
    * @return True if date is valid with no errors.
    */
   public static boolean validateDatePickerDateIsOnOrAfterComparisonDate(String fieldName,
-                                                                String displayName,
-                                                                String dateStr,
-                                                                LocalDate comparisonDate,
-                                                                String errorSuffix,
-                                                                Errors errors) {
+                                                                        String displayName,
+                                                                        String dateStr,
+                                                                        LocalDate comparisonDate,
+                                                                        String errorSuffix,
+                                                                        Errors errors) {
     displayName = displayName.toLowerCase();
     try {
 

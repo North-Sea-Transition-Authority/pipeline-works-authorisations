@@ -66,6 +66,21 @@ public class AsBuiltNotificationSubmissionValidatorTest {
   }
 
   @Test
+  public void validate_form_newPipeline_noDateWorkCompleted_validationFails() {
+    var form = new AsBuiltNotificationSubmissionForm();
+    form.setPerConsentDateBroughtIntoUseTimestampStr("31/08/2030");
+    form.setAsBuiltNotificationStatus(AsBuiltNotificationStatus.PER_CONSENT);
+
+    Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(asBuiltNotificationSubmissionValidator, form,
+        new AsBuiltNotificationSubmissionValidatorHint(false, PipelineChangeCategory.NEW_PIPELINE));
+
+    assertThat(errorsMap).containsOnly(
+        entry("perConsentDateWorkCompletedTimestampStr",
+            Set.of("perConsentDateWorkCompletedTimestampStr" + FieldValidationErrorCodes.REQUIRED.getCode()))
+    );
+  }
+
+  @Test
   public void validate_form_newPipeline_dateWorkCompletedAfterToday_validationFails() {
     var form = new AsBuiltNotificationSubmissionForm();
     form.setAsBuiltNotificationStatus(AsBuiltNotificationStatus.PER_CONSENT);
@@ -107,6 +122,21 @@ public class AsBuiltNotificationSubmissionValidatorTest {
         new AsBuiltNotificationSubmissionValidatorHint(false, PipelineChangeCategory.NEW_PIPELINE));
 
     assertThat(errorsMap).isEmpty();
+  }
+
+  @Test
+  public void validate_form_newPipeline_notPerConsent_noDateWorkCompleted_validationFails() {
+    var form = new AsBuiltNotificationSubmissionForm();
+    form.setNotPerConsentDateBroughtIntoUseTimestampStr("31/08/2030");
+    form.setAsBuiltNotificationStatus(AsBuiltNotificationStatus.NOT_PER_CONSENT);
+
+    Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(asBuiltNotificationSubmissionValidator, form,
+        new AsBuiltNotificationSubmissionValidatorHint(false, PipelineChangeCategory.NEW_PIPELINE));
+
+    assertThat(errorsMap).containsOnly(
+        entry("notPerConsentDateWorkCompletedTimestampStr",
+            Set.of("notPerConsentDateWorkCompletedTimestampStr" + FieldValidationErrorCodes.REQUIRED.getCode()))
+    );
   }
 
   @Test
