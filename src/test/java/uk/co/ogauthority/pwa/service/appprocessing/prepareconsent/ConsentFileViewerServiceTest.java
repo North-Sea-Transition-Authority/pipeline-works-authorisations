@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.service.appprocessing.prepareconsent;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import java.time.Instant;
@@ -47,8 +48,7 @@ public class ConsentFileViewerServiceTest {
 
   private final PwaApplication pwaApplication = new PwaApplication();
 
-  private final ConsultationRequest consultationRequest = ConsultationRequestTestUtil.createWithStatus(pwaApplication,
-      ConsultationRequestStatus.RESPONDED);
+  private ConsultationRequest consultationRequest;
 
   private ConsultationRequestView consultationRequestView;
 
@@ -63,7 +63,10 @@ public class ConsentFileViewerServiceTest {
 
     consulteeGroupDetail.setConsultationResponseDocumentType(ConsultationResponseDocumentType.SECRETARY_OF_STATE_DECISION);
 
+    consultationRequest = ConsultationRequestTestUtil.createWithStatus(pwaApplication,
+        ConsultationRequestStatus.RESPONDED);
     consultationRequest.setConsulteeGroup(consulteeGroupDetail.getConsulteeGroup());
+    consultationRequest.setStartTimestamp(Instant.now());
 
     consultationRequestView = ConsultationRequestViewUtil.createFromRequest(consultationRequest,
         ConsultationResponseDocumentType.SECRETARY_OF_STATE_DECISION);
@@ -87,6 +90,26 @@ public class ConsentFileViewerServiceTest {
     assertThat(consentFileViewerService.getConsentFileView(pwaApplication, pwaConsentApplicationDto,
         ConsultationResponseDocumentType.SECRETARY_OF_STATE_DECISION))
         .isEqualTo(new ConsentFileView(pwaConsentApplicationDto, null));
+  }
+
+  @Test
+  public void getLatestConsultationRequestForResponseDocType_multipleRespondedRequests() {
+
+    var latestRequest = new ConsultationRequest();
+    latestRequest.setConsulteeGroup(consulteeGroupDetail.getConsulteeGroup());
+    latestRequest.setStartTimestamp(consultationRequest.getStartTimestamp().plusSeconds(5));
+
+    when(consultationRequestService.getAllRequestsByAppRespondedOnly(pwaApplication))
+        .thenReturn(List.of(consultationRequest, latestRequest));
+
+    when(consulteeGroupDetailService.getAllConsulteeGroupDetailsByGroup(any()))
+        .thenReturn(List.of(consulteeGroupDetail));
+
+    var result = consentFileViewerService
+        .getLatestConsultationRequestForResponseDocType(pwaApplication, ConsultationResponseDocumentType.SECRETARY_OF_STATE_DECISION);
+
+    assertThat(result).contains(latestRequest);
+
   }
 
   private DocgenRun getRunWithInfo() {

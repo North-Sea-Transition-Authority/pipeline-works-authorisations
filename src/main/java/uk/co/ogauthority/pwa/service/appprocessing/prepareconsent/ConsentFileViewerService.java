@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.service.appprocessing.prepareconsent;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.util.Comparator;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -46,14 +47,17 @@ public class ConsentFileViewerService {
     return latestRequestOptional.map(consultationViewService::getConsultationRequestView);
   }
 
-  private Optional<ConsultationRequest> getLatestConsultationRequestForResponseDocType(PwaApplication pwaApplication,
+  @VisibleForTesting
+  Optional<ConsultationRequest> getLatestConsultationRequestForResponseDocType(PwaApplication pwaApplication,
                                                                                        ConsultationResponseDocumentType
                                                                                            responseDocumentType) {
+
     var allRespondedRequests = consultationRequestService.getAllRequestsByAppRespondedOnly(pwaApplication);
 
     var allGroups = allRespondedRequests.stream()
         .map(ConsultationRequest::getConsulteeGroup)
         .collect(Collectors.toSet());
+
     var allGroupDetailsForResponseDocType = consulteeGroupDetailService.getAllConsulteeGroupDetailsByGroup(allGroups).stream()
         .filter(groupDetail -> groupDetail.getConsultationResponseDocumentType() == responseDocumentType)
         .collect(Collectors.toList());
@@ -64,7 +68,8 @@ public class ConsentFileViewerService {
         .collect(Collectors.toList());
 
     return allRespondedRequestsForDocType.stream()
-        .max(Comparator.comparing(ConsultationRequest::getEndTimestamp));
+        .max(Comparator.comparing(ConsultationRequest::getStartTimestamp));
+
   }
 
 }

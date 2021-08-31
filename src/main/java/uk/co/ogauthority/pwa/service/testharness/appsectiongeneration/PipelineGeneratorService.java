@@ -90,10 +90,8 @@ class PipelineGeneratorService implements TestHarnessAppFormService {
 
     for (var y = 0; y < totalIdents; y++) {
       var identForm = createIdentForm(padPipeline, y + 1, totalIdents);
-      var ident = padPipelineIdentService.addIdent(padPipeline, identForm);
-
       setIdentDataFormData(padPipeline, identForm.getDataForm());
-      padPipelineIdentDataService.updateIdentData(ident, identForm.getDataForm());
+      padPipelineIdentService.addIdent(padPipeline, identForm);
     }
   }
 
