@@ -163,6 +163,46 @@ FROM (
   AND pcor.end_timestamp IS NULL
 );
 
+/* Use this view to get basic information about submitted PWA applications. */
+CREATE OR REPLACE VIEW ${datasource.user}.api_vw_applications AS
+SELECT
+  pa.id pwa_application_id
+, pa.pwa_id
+, pa.app_reference
+, ppi.project_name
+, pad_lookup.created_timestamp
+, pad_lookup.last_submitted_timestamp
+, pc.id pwa_consent_id -- the consent created after app completed if available. will be null if app not yet consented.
+, NULL application_org_unit_id -- TODO PWA-1440 - update this value to be the actual applicant org
+FROM ${datasource.user}.pwa_applications pa
+JOIN ${datasource.user}.pwa_application_details pad ON pa.id = pad.pwa_application_id
+JOIN (
+  SELECT
+    pad2.pwa_application_id
+  , MIN(pad2.created_timestamp) created_timestamp
+  , MAX(pad2.submitted_timestamp) last_submitted_timestamp
+  FROM ${datasource.user}.pwa_application_details pad2
+  GROUP BY pad2.pwa_application_id
+) pad_lookup ON pad_lookup.pwa_application_id = pa.id
+LEFT JOIN ${datasource.user}.pad_project_information ppi ON pad.id = ppi.application_detail_id
+LEFT JOIN ${datasource.user}.pwa_consents pc ON pc.source_pwa_application_id = pa.id
+WHERE pad.tip_flag = 1;
+
+/**
+  This view gives a snapshot of the current high level HUOOs for each core PWA.
+  This view cannot be used to determine the HUOO values for specific consented pipelines, just the current huoo state of the pwa.
+  Pipeline HUOOs can be looked up with the api_vw_current_pipeline_orgs.
+ */
+CREATE OR REPLACE VIEW ${datasource.user}.api_vw_current_pwa_huoos AS
+SELECT
+  pc.pwa_id
+, pcor.ou_id
+, pcor.agreement treaty_agreement
+, pcor.role
+FROM ${datasource.user}.pwa_consent_organisation_roles pcor
+JOIN ${datasource.user}.pwa_consents pc ON pcor.added_by_pwa_consent_id = pc.id
+WHERE pcor.ended_by_pwa_consent_id IS NULL;
+
 
 GRANT SELECT ON ${datasource.user}.api_vw_pipeline_as_built_data TO appenv;
 GRANT SELECT ON ${datasource.user}.api_vw_pwa_pipeline_details TO appenv;
@@ -172,5 +212,11 @@ GRANT SELECT ON ${datasource.user}.api_vw_current_pipeline_orgs TO appenv;
 
 GRANT SELECT ON ${datasource.user}.api_vw_current_pipeline_data TO appenv, decmgr, eemsmgr, bpmmgr;
 
+-- PETS needs specific access and ability to build a view
 GRANT SELECT ON ${datasource.user}.api_vw_current_pipeline_data TO envmgr WITH GRANT OPTION;
+
+-- UKSS needs specific access and ability to build a view
 GRANT SELECT ON ${datasource.user}.api_vw_current_pipeline_orgs TO passmgr WITH GRANT OPTION;
+
+
+
