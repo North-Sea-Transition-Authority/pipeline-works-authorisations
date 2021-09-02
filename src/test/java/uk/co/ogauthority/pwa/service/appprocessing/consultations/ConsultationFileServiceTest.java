@@ -14,7 +14,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import uk.co.ogauthority.pwa.controller.consultations.responses.ConsultationResponseController;
+import uk.co.ogauthority.pwa.controller.consultations.responses.ConsultationResponseFileController;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequestTestUtil;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationResponse;
@@ -93,7 +93,7 @@ public class ConsultationFileServiceTest {
   @Test
   public void getConsultationFileViewUrl_getsCorrectUrl() {
     assertThat(consultationFileService.getConsultationFileViewUrl(consultationRequest)).isEqualTo(RouteUtils.routeWithUriVariables(on(
-        ConsultationResponseController.class)
+        ConsultationResponseFileController.class)
             .handleDownload(pwaApplication.getApplicationType(), pwaApplication.getId(), null, null),
         Map.of("consultationRequestId", consultationRequest.getId())));
   }

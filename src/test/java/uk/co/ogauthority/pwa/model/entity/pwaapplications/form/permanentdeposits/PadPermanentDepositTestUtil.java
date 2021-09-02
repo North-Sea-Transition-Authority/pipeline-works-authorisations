@@ -1,8 +1,10 @@
 package uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 import org.apache.commons.lang3.RandomUtils;
 import org.junit.platform.commons.util.StringUtils;
@@ -14,9 +16,13 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdepositd
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdepositdrawings.PadDepositDrawingLink;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdepositdrawings.PadDepositDrawingLink_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdepositdrawings.PadDepositDrawing_;
+import uk.co.ogauthority.pwa.model.form.location.CoordinateForm;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.PermanentDepositsForm;
 import uk.co.ogauthority.pwa.model.location.CoordinatePair;
 import uk.co.ogauthority.pwa.model.location.CoordinatePairTestUtil;
 import uk.co.ogauthority.pwa.testutils.ObjectTestUtils;
+import uk.co.ogauthority.pwa.util.forminputs.twofielddate.TwoFieldDateInput;
+import uk.co.ogauthority.pwa.validators.deposits.PermanentDepositsValidationHints;
 
 public final class PadPermanentDepositTestUtil {
 
@@ -216,6 +222,51 @@ public final class PadPermanentDepositTestUtil {
                                                          Pipeline pipeline) {
     var pdp = new PadDepositPipeline(padPermanentDeposit, pipeline);
     return pdp;
+  }
+
+
+  public static PermanentDepositsForm createDefaultDepositForm() {
+    var form = new PermanentDepositsForm();
+    var today = LocalDate.now();
+    form.setFromDate(new TwoFieldDateInput(today.getYear(), today.getMonthValue()));
+    form.setToDate(new TwoFieldDateInput(today.getYear(), today.getMonthValue()));
+    form.setMaterialType(MaterialType.CONCRETE_MATTRESSES);
+    form.setFromCoordinateForm(new CoordinateForm());
+    form.setToCoordinateForm(new CoordinateForm());
+    return form;
+  }
+
+  public static PermanentDepositsForm createFormWithStartDate(int month, int year) {
+    var form = createDefaultDepositForm();
+    form.getFromDate().setMonth(month);
+    form.getFromDate().setYear(year);
+    return form;
+  }
+
+  public static PadPermanentDeposit createDepositsWithReference(int id, String reference) {
+    var deposit = new PadPermanentDeposit();
+    deposit.setId(id);
+    deposit.setReference(reference);
+    return deposit;
+  }
+
+  public static PermanentDepositsForm createDepositFormWithReference(int id, String reference) {
+    var form = createDefaultDepositForm();
+    form.setEntityID(id);
+    form.setDepositReference(reference);
+    return form;
+  }
+
+  public static PermanentDepositsValidationHints createValidationHints(PwaApplicationDetail pwaApplicationDetail) {
+    return new PermanentDepositsValidationHints(pwaApplicationDetail, null, List.of());
+  }
+
+  public static PermanentDepositsValidationHints createValidationHintsWithDeposits(PwaApplicationDetail pwaApplicationDetail, List<PadPermanentDeposit> deposits) {
+    return new PermanentDepositsValidationHints(pwaApplicationDetail, null, deposits);
+  }
+
+  public static PermanentDepositsValidationHints createValidationHintsWithTimestamp(PwaApplicationDetail pwaApplicationDetail, Instant projectInfoProposedStartTimestamp) {
+    return new PermanentDepositsValidationHints(pwaApplicationDetail, projectInfoProposedStartTimestamp, List.of());
   }
 
 

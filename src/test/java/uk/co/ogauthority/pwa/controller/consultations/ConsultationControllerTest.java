@@ -36,6 +36,7 @@ import uk.co.ogauthority.pwa.service.appprocessing.PwaAppProcessingPermissionSer
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.ConsultationService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContextService;
 import uk.co.ogauthority.pwa.service.consultations.ConsultationViewService;
+import uk.co.ogauthority.pwa.service.consultations.WithdrawConsultationService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ConsultationRequestStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
@@ -56,6 +57,9 @@ public class ConsultationControllerTest extends PwaAppProcessingContextAbstractC
 
   @MockBean
   private ConsultationService consultationService;
+
+  @MockBean
+  private WithdrawConsultationService withdrawConsultationService;
 
   @MockBean
   private PwaAppProcessingPermissionService pwaAppProcessingPermissionService;
@@ -136,7 +140,7 @@ public class ConsultationControllerTest extends PwaAppProcessingContextAbstractC
     ConsultationRequestView consultationRequestView = new ConsultationRequestView(
         1, "", Instant.now(), ConsultationRequestStatus.ALLOCATION, "", List.of(), true, null, null, ConsultationResponseDocumentType.DEFAULT);
     when(consultationViewService.getConsultationRequestView(any())).thenReturn(consultationRequestView);
-    when(consultationRequestService.canWithDrawConsultationRequest(any())).thenReturn(true);
+    when(withdrawConsultationService.canWithDrawConsultationRequest(any())).thenReturn(true);
 
     withdrawConsultationEndpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -153,7 +157,7 @@ public class ConsultationControllerTest extends PwaAppProcessingContextAbstractC
     ConsultationRequestView consultationRequestView = new ConsultationRequestView(
         1, "", Instant.now(), ConsultationRequestStatus.ALLOCATION, "", List.of(), true, null, null, ConsultationResponseDocumentType.DEFAULT);
     when(consultationViewService.getConsultationRequestView(any())).thenReturn(consultationRequestView);
-    when(consultationRequestService.canWithDrawConsultationRequest(any())).thenReturn(true);
+    when(withdrawConsultationService.canWithDrawConsultationRequest(any())).thenReturn(true);
 
     withdrawConsultationEndpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->

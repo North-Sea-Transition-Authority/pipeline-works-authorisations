@@ -1,7 +1,7 @@
 package uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines;
 
-import java.math.BigDecimal;
 import uk.co.ogauthority.pwa.model.form.location.CoordinateForm;
+import uk.co.ogauthority.pwa.util.forminputs.decimal.DecimalInput;
 
 public class PipelineIdentForm {
 
@@ -13,8 +13,8 @@ public class PipelineIdentForm {
 
   private CoordinateForm toCoordinateForm;
 
-  private BigDecimal length;
-  private BigDecimal lengthOptional;
+  private DecimalInput length;
+  private DecimalInput lengthOptional;
   private Boolean definingStructure;
 
   private PipelineIdentDataForm dataForm;
@@ -54,11 +54,11 @@ public class PipelineIdentForm {
     this.toCoordinateForm = toCoordinateForm;
   }
 
-  public BigDecimal getLength() {
+  public DecimalInput getLength() {
     return length;
   }
 
-  public void setLength(BigDecimal length) {
+  public void setLength(DecimalInput length) {
     this.length = length;
   }
 
@@ -78,11 +78,11 @@ public class PipelineIdentForm {
     this.definingStructure = definingStructure;
   }
 
-  public BigDecimal getLengthOptional() {
+  public DecimalInput getLengthOptional() {
     return lengthOptional;
   }
 
-  public void setLengthOptional(BigDecimal lengthOptional) {
+  public void setLengthOptional(DecimalInput lengthOptional) {
     this.lengthOptional = lengthOptional;
   }
 }

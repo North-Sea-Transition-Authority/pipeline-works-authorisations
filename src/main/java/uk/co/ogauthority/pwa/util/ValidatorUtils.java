@@ -465,16 +465,4 @@ public class ValidatorUtils {
 
   }
 
-  public static void validateDecimalPlaces(Errors errors, String field, String fieldLabel, int decimalPlaces) {
-    if (!NumberUtils.isCreatable(Objects.toString(errors.getFieldValue(field)))) {
-      return;
-    }
-    var bigDecimal = new BigDecimal(Objects.requireNonNull(errors.getFieldValue(field)).toString());
-    if (bigDecimal.stripTrailingZeros().scale() > decimalPlaces) {
-      var placePluralised = StringDisplayUtils.pluralise("place", decimalPlaces);
-      errors.rejectValue(field, field + INVALID.getCode(),
-          String.format("%s must be %d decimal %s or fewer", fieldLabel, decimalPlaces, placePluralised));
-    }
-  }
-
 }

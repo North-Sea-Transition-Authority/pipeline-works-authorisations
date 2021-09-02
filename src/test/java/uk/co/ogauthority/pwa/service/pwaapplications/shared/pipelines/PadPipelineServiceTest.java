@@ -55,6 +55,7 @@ import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailService
 import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineMappingService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.util.CoordinateUtils;
+import uk.co.ogauthority.pwa.util.forminputs.decimal.DecimalInputValidator;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PadPipelineServiceTest {
@@ -103,6 +104,9 @@ public class PadPipelineServiceTest {
   @Mock
   private PipelineIdentFormValidator mockValidator;
 
+  @Mock
+  private DecimalInputValidator decimalInputValidator;
+
   private PadPipelineService mockValidatorPadPipelineService;
 
   private PadPipeline padPipe1;
@@ -124,8 +128,8 @@ public class PadPipelineServiceTest {
     });
 
     detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
-    pipelineIdentFormValidator = new PipelineIdentFormValidator(new PipelineIdentDataFormValidator(),
-        new CoordinateFormValidator());
+    pipelineIdentFormValidator = new PipelineIdentFormValidator(new PipelineIdentDataFormValidator(decimalInputValidator),
+        new CoordinateFormValidator(), decimalInputValidator);
 
     padPipelineService = new PadPipelineService(padPipelineRepository,
         pipelineService,

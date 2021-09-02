@@ -2,7 +2,6 @@ package uk.co.ogauthority.pwa.controller.consultations.responses;
 
 import java.util.Comparator;
 import java.util.Objects;
-import java.util.function.BooleanSupplier;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -26,19 +25,12 @@ import uk.co.ogauthority.pwa.config.fileupload.FileUploadResult;
 import uk.co.ogauthority.pwa.controller.appprocessing.shared.PwaAppProcessingPermissionCheck;
 import uk.co.ogauthority.pwa.controller.files.PwaApplicationDataFileUploadAndDownloadController;
 import uk.co.ogauthority.pwa.exception.AccessDeniedException;
-import uk.co.ogauthority.pwa.exception.FileLinkNotFoundException;
-import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
-import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationResponseFileLink;
-import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
-import uk.co.ogauthority.pwa.model.entity.files.AppFile;
 import uk.co.ogauthority.pwa.model.entity.files.AppFilePurpose;
 import uk.co.ogauthority.pwa.model.form.consultation.ConsultationResponseDataForm;
 import uk.co.ogauthority.pwa.model.form.consultation.ConsultationResponseForm;
 import uk.co.ogauthority.pwa.model.form.enums.ConsultationResponseOptionGroup;
 import uk.co.ogauthority.pwa.service.appprocessing.AppProcessingBreadcrumbService;
-import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupTeamService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
-import uk.co.ogauthority.pwa.service.consultations.ConsultationRequestService;
 import uk.co.ogauthority.pwa.service.consultations.ConsultationResponseService;
 import uk.co.ogauthority.pwa.service.consultations.ConsultationViewService;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
@@ -51,40 +43,38 @@ import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 import uk.co.ogauthority.pwa.validators.consultations.ConsultationResponseValidator;
 
 @Controller
+@PwaAppProcessingPermissionCheck(permissions = {PwaAppProcessingPermission.CONSULTATION_RESPONDER})
 @RequestMapping("/pwa-application-processing/{applicationType}/{applicationId}/consultation/{consultationRequestId}/respond")
 public class ConsultationResponseController extends PwaApplicationDataFileUploadAndDownloadController {
 
   private final ConsultationResponseService consultationResponseService;
-  private final ConsultationRequestService consultationRequestService;
   private final ConsultationViewService consultationViewService;
   private final ControllerHelperService controllerHelperService;
   private final AppProcessingBreadcrumbService breadcrumbService;
   private final ConsultationResponseValidator consultationResponseValidator;
-  private final ConsulteeGroupTeamService consulteeGroupTeamService;
 
   private static final AppFilePurpose FILE_PURPOSE = AppFilePurpose.CONSULTATION_RESPONSE;
 
+  private static final String FILE_HANDLE_UNSUPPORTED_OPERATION_EXCEPTION_MSG =
+      "File handling is not directly supported within ConsultationResponseController. " +
+          "File handling should be handled in ConsultationResponseFileController";
+
   @Autowired
   public ConsultationResponseController(ConsultationResponseService consultationResponseService,
-                                        ConsultationRequestService consultationRequestService,
                                         ConsultationViewService consultationViewService,
                                         ControllerHelperService controllerHelperService,
                                         AppProcessingBreadcrumbService breadcrumbService,
                                         ConsultationResponseValidator consultationResponseValidator,
-                                        AppFileService appFileService,
-                                        ConsulteeGroupTeamService consulteeGroupTeamService) {
+                                        AppFileService appFileService) {
     super(appFileService);
     this.consultationResponseService = consultationResponseService;
-    this.consultationRequestService = consultationRequestService;
     this.consultationViewService = consultationViewService;
     this.controllerHelperService = controllerHelperService;
     this.breadcrumbService = breadcrumbService;
     this.consultationResponseValidator = consultationResponseValidator;
-    this.consulteeGroupTeamService = consulteeGroupTeamService;
   }
 
   @GetMapping
-  @PwaAppProcessingPermissionCheck(permissions = {PwaAppProcessingPermission.CONSULTATION_RESPONDER})
   public ModelAndView renderResponder(@PathVariable("applicationId") Integer applicationId,
                                       @PathVariable("applicationType")
                                       @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
@@ -101,14 +91,13 @@ public class ConsultationResponseController extends PwaApplicationDataFileUpload
 
       form.setResponseDataForms(formMap);
 
-      return getResponderModelAndView(processingContext, consultationRequestId, form);
+      return getResponderModelAndView(processingContext, form);
 
     });
 
   }
 
   @PostMapping
-  @PwaAppProcessingPermissionCheck(permissions = {PwaAppProcessingPermission.CONSULTATION_RESPONDER})
   public ModelAndView postResponder(@PathVariable("applicationId") Integer applicationId,
                                     @PathVariable("applicationType")
                                     @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
@@ -125,7 +114,7 @@ public class ConsultationResponseController extends PwaApplicationDataFileUpload
       var request = processingContext.getActiveConsultationRequestOrThrow().getConsultationRequest();
 
       return controllerHelperService.checkErrorsAndRedirect(bindingResult,
-          getResponderModelAndView(processingContext, consultationRequestId, form), () -> {
+          getResponderModelAndView(processingContext, form), () -> {
             consultationResponseService.saveResponseAndCompleteWorkflow(form, request, authenticatedUserAccount);
             return CaseManagementUtils.redirectCaseManagement(processingContext);
           });
@@ -152,7 +141,6 @@ public class ConsultationResponseController extends PwaApplicationDataFileUpload
   }
 
   private ModelAndView getResponderModelAndView(PwaAppProcessingContext processingContext,
-                                                Integer consultationRequestId,
                                                 ConsultationResponseForm form) {
 
     var application = processingContext.getPwaApplication();
@@ -184,121 +172,37 @@ public class ConsultationResponseController extends PwaApplicationDataFileUpload
 
   }
 
+  //These file handle methods are not actually used, as the file purpose used in this controller is associated with the
+  // a dedicated consultation response file processing controller which has it's own custom permission checks.
+  // The file methods below are still required to be implemented here as we're extending the abstract class
+  // PwaApplicationDataFileUploadAndDownloadController therefore throwing UnsupportedOperationException.
   @PostMapping("/file/upload")
-  @PwaAppProcessingPermissionCheck(permissions = {PwaAppProcessingPermission.VIEW_APPLICATION_SUMMARY})
   @ResponseBody
   public FileUploadResult handleUpload(@PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
-                                       @PathVariable Integer applicationId,
+                                       @PathVariable("applicationId") Integer applicationId,
                                        @RequestParam("file") MultipartFile file,
                                        PwaAppProcessingContext processingContext) {
-    return withActiveConsultationRequest(
-        processingContext,
-        () -> appFileService.processInitialUpload(
-            file,
-            processingContext.getPwaApplication(),
-            FILE_PURPOSE,
-            processingContext.getUser())
-    );
+    throw new UnsupportedOperationException(FILE_HANDLE_UNSUPPORTED_OPERATION_EXCEPTION_MSG);
   }
 
   @GetMapping("/files/download/{fileId}")
-  @PwaAppProcessingPermissionCheck(permissions = {PwaAppProcessingPermission.VIEW_APPLICATION_SUMMARY})
   @ResponseBody
-  public ResponseEntity<Resource> handleDownload(@PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
-                                                 @PathVariable Integer applicationId,
-                                                 @PathVariable("fileId") String fileId,
-                                                 PwaAppProcessingContext processingContext) {
-    return checkPermissionsAndDownloadFile(processingContext);
+  public ResponseEntity<Resource> handleDownload(
+      @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
+      @PathVariable("applicationId") Integer applicationId,
+      @PathVariable("fileId") String fileId,
+      PwaAppProcessingContext processingContext) {
+    throw new UnsupportedOperationException(FILE_HANDLE_UNSUPPORTED_OPERATION_EXCEPTION_MSG);
   }
 
   @PostMapping("/file/delete/{fileId}")
-  @PwaAppProcessingPermissionCheck(permissions = {PwaAppProcessingPermission.VIEW_APPLICATION_SUMMARY})
   @ResponseBody
-  public FileDeleteResult handleDelete(@PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
-                                       @PathVariable Integer applicationId,
-                                       @PathVariable("fileId") String fileId,
-                                       PwaAppProcessingContext processingContext) {
-    return checkPermissionsAndDeleteFile(processingContext);
-  }
-
-  private FileUploadResult withActiveConsultationRequest(PwaAppProcessingContext processingContext,
-                                                 Supplier<FileUploadResult> supplier) {
-    if (processingContext.getActiveConsultationRequest().isPresent()) {
-      return supplier.get();
-    } else {
-      throw new AccessDeniedException(String.format(
-          "User with wua id %s access files for this consultation request because there is no active consultation request.",
-          processingContext.getUser().getWuaId()));
-    }
-  }
-
-  private FileDeleteResult checkPermissionsAndDeleteFile(PwaAppProcessingContext processingContext) {
-    return whenUserCanAccessFile(
-        processingContext,
-        () -> isUserInConsulteeTeamForActiveConsultation(processingContext),
-        () -> appFileService.processFileDeletionWithPreDeleteAction(
-            processingContext.getAppFile(),
-            processingContext.getUser(),
-            appFile -> consultationResponseService.getConsultationResponseFileLink(appFile)
-                .ifPresent(consultationResponseService::deleteConsultationResponseFileLink)
-        )
-    );
-  }
-
-  private ResponseEntity<Resource> checkPermissionsAndDownloadFile(PwaAppProcessingContext processingContext) {
-    return whenUserCanAccessFile(
-        processingContext,
-        () -> isUserInConsulteeTeamForActiveConsultation(processingContext)
-            || processingContext.getAppProcessingPermissions().contains(PwaAppProcessingPermission.VIEW_ALL_CONSULTATIONS),
-        () -> serveFile(processingContext.getAppFile())
-        );
-  }
-
-  private <T> T whenUserCanAccessFile(PwaAppProcessingContext processingContext,
-                                      BooleanSupplier booleanSupplier,
-                                      Supplier<T> supplier) {
-    //if consultation request hasn't been saved yet we can just check that the user is the original uploader
-    if (isAppFileTemporary(processingContext.getAppFile()) && isUserOriginalUploader(processingContext)) {
-      return supplier.get();
-    }
-
-    var consultationRequest = getConsultationRequestFromProcessingContext(processingContext);
-
-    if (booleanSupplier.getAsBoolean()) {
-      return supplier.get();
-    } else {
-      throw new AccessDeniedException(String.format(
-          "User with wua id %s cannot access files for consultation request %s because they do not have sufficient permissions.",
-          processingContext.getUser().getWuaId(), consultationRequest.getId()));
-    }
-  }
-
-  private boolean isUserInConsulteeTeamForActiveConsultation(PwaAppProcessingContext processingContext) {
-    var consultationRequest = getConsultationRequestFromProcessingContext(processingContext);
-    var consulteeGroup = consultationRequest.getConsulteeGroup();
-    return consulteeGroupTeamService.getTeamMemberByGroupAndPerson(consulteeGroup, processingContext.getUser().getLinkedPerson())
-        .isPresent();
-  }
-
-  private boolean isUserOriginalUploader(PwaAppProcessingContext processingContext) {
-    var uploadedFile = appFileService.getUploadedFileById(processingContext.getAppFile().getFileId());
-    return uploadedFile.getUploadedByWuaId().equals(processingContext.getUser().getWuaId());
-  }
-
-  private boolean isAppFileTemporary(AppFile appFile) {
-    return appFile.getFileLinkStatus() == ApplicationFileLinkStatus.TEMPORARY;
-  }
-
-  private ConsultationRequest getConsultationRequestFromProcessingContext(PwaAppProcessingContext processingContext) {
-    var consultationResponseFileLink = getConsultationResponseFileLinkOrThrow(processingContext);
-    return consultationResponseFileLink.getConsultationResponse().getConsultationRequest();
-  }
-
-  private ConsultationResponseFileLink getConsultationResponseFileLinkOrThrow(PwaAppProcessingContext processingContext) {
-    return consultationResponseService.getConsultationResponseFileLink(processingContext.getAppFile())
-        .orElseThrow(() -> new FileLinkNotFoundException(String.format(
-            "No file link found for file with id %s in pwa app with id %s",
-            processingContext.getAppFile().getFileId(), processingContext.getPwaApplication().getId())));
+  public FileDeleteResult handleDelete(
+      @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
+      @PathVariable("applicationId") Integer applicationId,
+      @PathVariable("fileId") String fileId,
+      PwaAppProcessingContext processingContext) {
+    throw new UnsupportedOperationException(FILE_HANDLE_UNSUPPORTED_OPERATION_EXCEPTION_MSG);
   }
 
 }

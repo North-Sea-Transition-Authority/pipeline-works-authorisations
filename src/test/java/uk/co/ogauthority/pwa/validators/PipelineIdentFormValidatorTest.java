@@ -9,6 +9,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineCoreType;
 import uk.co.ogauthority.pwa.model.form.location.CoordinateForm;
@@ -19,20 +20,28 @@ import uk.co.ogauthority.pwa.model.location.LatitudeCoordinate;
 import uk.co.ogauthority.pwa.model.location.LongitudeCoordinate;
 import uk.co.ogauthority.pwa.service.enums.location.LatitudeDirection;
 import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
+import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.service.location.CoordinateFormValidator;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineIdentDataFormValidator;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineIdentFormValidator;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 import uk.co.ogauthority.pwa.util.CoordinateUtils;
+import uk.co.ogauthority.pwa.util.forminputs.decimal.DecimalInput;
+import uk.co.ogauthority.pwa.util.forminputs.decimal.DecimalInputValidator;
+import uk.co.ogauthority.pwa.util.validation.PipelineValidationUtils;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PipelineIdentFormValidatorTest {
 
   private PipelineIdentFormValidator validator;
 
+  @Spy
+  private DecimalInputValidator decimalInputValidator;
+
   @Before
   public void setUp() {
-    validator = new PipelineIdentFormValidator(new PipelineIdentDataFormValidator(), new CoordinateFormValidator());
+    validator = new PipelineIdentFormValidator(new PipelineIdentDataFormValidator(decimalInputValidator), new CoordinateFormValidator(),
+        decimalInputValidator);
   }
 
   @Test
@@ -60,23 +69,21 @@ public class PipelineIdentFormValidatorTest {
 
   @Test
   public void failed_mandatory_notDefiningStructure() {
-    var form = new PipelineIdentForm();
-    form.setFromCoordinateForm(new CoordinateForm());
-    form.setToCoordinateForm(new CoordinateForm());
+
+    var form = createEmptyForm();
     form.setDefiningStructure(false);
-    form.setDataForm(new PipelineIdentDataForm());
     var result = ValidatorTestUtils.getFormValidationErrors(validator, form, (Object) null, PipelineCoreType.SINGLE_CORE);
 
     assertThat(result).contains(
         entry("fromLocation", Set.of("fromLocation.required")),
         entry("toLocation", Set.of("toLocation.required")),
-        entry("length", Set.of("length.required")),
+        entry("length.value", Set.of("value.required")),
         entry("dataForm.componentPartsDescription", Set.of("componentPartsDescription.required")),
         entry("dataForm.productsToBeConveyed", Set.of("productsToBeConveyed.required")),
-        entry("dataForm.maop", Set.of("maop.required")),
-        entry("dataForm.externalDiameter", Set.of("externalDiameter.required")),
-        entry("dataForm.internalDiameter", Set.of("internalDiameter.required")),
-        entry("dataForm.wallThickness", Set.of("wallThickness.required")),
+        entry("dataForm.maop.value", Set.of("value.required")),
+        entry("dataForm.externalDiameter.value", Set.of("value.required")),
+        entry("dataForm.internalDiameter.value", Set.of("value.required")),
+        entry("dataForm.wallThickness.value", Set.of("value.required")),
         entry("dataForm.insulationCoatingType", Set.of("insulationCoatingType.required"))
     );
   }
@@ -241,11 +248,11 @@ public class PipelineIdentFormValidatorTest {
 
     var form = buildForm();
 
-    form.setLength(BigDecimal.valueOf(-1));
+    form.setLength(new DecimalInput(BigDecimal.valueOf(-1)));
 
     var result = ValidatorTestUtils.getFormValidationErrors(validator, form, (Object) null, PipelineCoreType.SINGLE_CORE);
 
-    assertThat(result).containsOnly(entry("length", Set.of("length.invalid")));
+    assertThat(result).containsOnly(entry("length.value", Set.of("value.invalid")));
 
   }
 
@@ -254,17 +261,32 @@ public class PipelineIdentFormValidatorTest {
 
     var form = buildForm();
 
-    form.setLength(BigDecimal.valueOf(1.323));
+    form.setLength(new DecimalInput(BigDecimal.valueOf(1.323)));
 
     var result = ValidatorTestUtils.getFormValidationErrors(validator, form, (Object) null, PipelineCoreType.SINGLE_CORE);
 
-    assertThat(result).containsOnly(entry("length", Set.of("length.maxDpExceeded")));
+    assertThat(result).containsOnly(entry("length.value", Set.of("value.maxDpExceeded")));
+
+  }
+
+  @Test
+  //covers a unique edge-case where 'defining structure' selected & invalid optional length entered,
+  // switch to 'not defining structure' and submit. We should ignore the invalid length from 'defining structure' nested field
+  public void validate_notDefiningStructureOptionSelected_invalidDefiningStructureLength_noError() {
+
+    var form = buildForm();
+
+    form.setLengthOptional(new DecimalInput("invalid num"));
+
+    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, (Object) null, PipelineCoreType.SINGLE_CORE);
+
+    assertThat(result).doesNotContain(entry("lengthOptional.value", Set.of("value" + FieldValidationErrorCodes.INVALID.getCode())));
 
   }
 
   private PipelineIdentForm buildForm() {
 
-    var form = new PipelineIdentForm();
+    var form = createEmptyForm();
 
     form.setFromLocation("from");
     var fromCoordinateForm = new CoordinateForm();
@@ -286,13 +308,13 @@ public class PipelineIdentFormValidatorTest {
     );
     form.setToCoordinateForm(toCoordinateForm);
     form.setDefiningStructure(false);
-    form.setLength(BigDecimal.valueOf(65.55));
+    form.setLength(new DecimalInput(BigDecimal.valueOf(65.55)));
 
     var dataForm = new PipelineIdentDataForm();
-    dataForm.setExternalDiameter(BigDecimal.valueOf(12.1));
-    dataForm.setInternalDiameter(dataForm.getExternalDiameter().subtract(BigDecimal.ONE));
-    dataForm.setWallThickness(BigDecimal.valueOf(12.1));
-    dataForm.setMaop(BigDecimal.valueOf(12.1));
+    dataForm.setExternalDiameter(new DecimalInput(BigDecimal.valueOf(12.1)));
+    dataForm.setInternalDiameter(new DecimalInput(dataForm.getExternalDiameter().createBigDecimalOrNull().subtract(BigDecimal.ONE)));
+    dataForm.setWallThickness(new DecimalInput(BigDecimal.valueOf(12.1)));
+    dataForm.setMaop(new DecimalInput(BigDecimal.valueOf(12.1)));
     dataForm.setProductsToBeConveyed("prod");
     dataForm.setComponentPartsDescription("component");
     dataForm.setInsulationCoatingType("ins");
@@ -301,5 +323,20 @@ public class PipelineIdentFormValidatorTest {
     return form;
 
   }
+
+  private PipelineIdentForm createEmptyForm() {
+
+    var form = new PipelineIdentForm();
+    form.setFromCoordinateForm(new CoordinateForm());
+    form.setToCoordinateForm(new CoordinateForm());
+    form.setLength(new DecimalInput());
+    form.setLengthOptional(new DecimalInput());
+
+    var dataForm = PipelineValidationUtils.createEmptyPipelineIdentDataForm();
+    form.setDataForm(dataForm);
+
+    return form;
+  }
+
 
 }
