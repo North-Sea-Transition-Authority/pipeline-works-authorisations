@@ -1,13 +1,3 @@
-/* view which isnt part of the public api but whose logic supports other api views */
-CREATE OR REPLACE VIEW ${datasource.user}.internal_api_vw_consents_rank AS
-SELECT
-  pc.id pc_id
-, pc.pwa_id
-, pc.reference consent_reference
-, RANK() OVER (PARTITION BY pc.pwa_id ORDER BY pc.consent_timestamp ASC, pc.id ASC) rank
-FROM ${datasource.user}.pwa_consents pc;
-
-
 /* This view MUST contain 1 row per pipeline, no duplicates */
 CREATE OR REPLACE VIEW ${datasource.user}.api_vw_pipeline_as_built_data AS
 SELECT *
@@ -173,7 +163,7 @@ FROM (
   AND pcor.end_timestamp IS NULL
 );
 
-
+/* Use this view to get basic information about submitted PWA applications. */
 CREATE OR REPLACE VIEW ${datasource.user}.api_vw_applications AS
 SELECT
   pa.id pwa_application_id
@@ -182,9 +172,10 @@ SELECT
 , ppi.project_name
 , pad_lookup.created_timestamp
 , pad_lookup.last_submitted_timestamp
+, pc.id pwa_consent_id -- the consent created after app completed if available. will be null if app not yet consented.
+, NULL application_org_unit_id -- TODO PWA-1440 - update this value to be the actual applicant org
 FROM ${datasource.user}.pwa_applications pa
 JOIN ${datasource.user}.pwa_application_details pad ON pa.id = pad.pwa_application_id
-LEFT JOIN ${datasource.user}.pad_project_information ppi ON pad.id = ppi.application_detail_id
 JOIN (
   SELECT
     pad2.pwa_application_id
@@ -193,41 +184,14 @@ JOIN (
   FROM ${datasource.user}.pwa_application_details pad2
   GROUP BY pad2.pwa_application_id
 ) pad_lookup ON pad_lookup.pwa_application_id = pa.id
+LEFT JOIN ${datasource.user}.pad_project_information ppi ON pad.id = ppi.application_detail_id
+LEFT JOIN ${datasource.user}.pwa_consents pc ON pc.source_pwa_application_id = pa.id
 WHERE pad.tip_flag = 1;
 
 /**
-  This view cannot be used to determine the HUOO values for specific application pipelines
- */
-CREATE OR REPLACE VIEW ${datasource.user}.api_vw_app_submitted_huoos AS
-SELECT
-  pa.id
-, pa.pwa_id
-, pc.id pwa_consent_id -- the consent created after app completed if available
-, (
-    SELECT iacr.pc_id
-    FROM ${datasource.user}.internal_api_vw_consents_rank iacr
-    WHERE iacr.pwa_id = pa.pwa_id
-    AND iacr.rank = (
-      SELECT iacr_nested.rank -1
-      FROM ${datasource.user}.internal_api_vw_consents_rank iacr_nested
-      WHERE iacr_nested.pc_id = pc.id
-    )
-  ) previous_pwa_consent_id -- consent id previous to the one triggered by the app completion. might be null if new PWA app or app not yet consented.
-, por.ou_id
-, por.agreement treaty_agreement
-, por.role
-FROM ${datasource.user}.pwa_applications pa
-JOIN ${datasource.user}.pwa_application_details pad ON pa.id = pad.pwa_application_id
-JOIN ${datasource.user}.pad_organisation_roles por ON por.application_detail_id = pad.id
-LEFT JOIN ${datasource.user}.pwa_consents pc ON pc.source_pwa_application_id = pa.id
-WHERE pad.version_no = (
-  SELECT MAX(version_no)
-  FROM ${datasource.user}.pwa_application_details pad
-  WHERE pad.submitted_timestamp IS NOT NULL
-);
-
-/**
+  This view gives a snapshot of the current high level HUOOs for each core PWA.
   This view cannot be used to determine the HUOO values for specific consented pipelines, just the current huoo state of the pwa.
+  Pipeline HUOOs can be looked up with the api_vw_current_pipeline_orgs.
  */
 CREATE OR REPLACE VIEW ${datasource.user}.api_vw_current_pwa_huoos AS
 SELECT
@@ -238,68 +202,6 @@ SELECT
 FROM ${datasource.user}.pwa_consent_organisation_roles pcor
 JOIN ${datasource.user}.pwa_consents pc ON pcor.added_by_pwa_consent_id = pc.id
 WHERE pcor.ended_by_pwa_consent_id IS NULL;
-
-
-/**
-  This view should be used if you want to know the PWA huoo state at the point of a specific consent taking effect.
-  Note old consents which have been migrated  will have no data as huoo couldn't be mapped to specific consents
-**/
-CREATE OR REPLACE VIEW ${datasource.user}.api_vw_pwa_huoos_after_consent AS
-SELECT *
-FROM (
-  WITH consent_effect_lookup AS (
-    SELECT
-      iavcr1.pwa_id
-    , iavcr1.pc_id search_consent_pc_id
-    , iavcr1.consent_reference
-    , iavcr1.rank search_consent_rank
-    , iavcr2.pc_id pc_id_impacts_search_consent
-    , iavcr2.consent_reference consent_impacts_search_consent
-    FROM internal_api_vw_consents_rank iavcr1
-    -- consents can obviously be impacted by them themselves. a consent can add or end org roles.
-    JOIN internal_api_vw_consents_rank iavcr2 ON iavcr1.pwa_id = iavcr2.pwa_id AND iavcr1.rank >= iavcr2.rank
-    ORDER BY iavcr1.pwa_id, iavcr1.rank, iavcr2.rank
-  )
-  SELECT
-    cel.pwa_id
-  , cel.search_consent_pc_id
-  , cel.consent_reference
-  , pcor.added_by_pwa_consent_id
-  , pcor.ended_by_pwa_consent_id
-  , pcor.role
-  , pcor.ou_id
-  , pcor.agreement
-  , pcor.migrated_organisation_name
-  FROM consent_effect_lookup cel
-  LEFT JOIN ${datasource.user}.pwa_consent_organisation_roles pcor ON
-  -- include rows where the org role added by the search consent and its impacting PWA consents
-  (pcor.added_by_pwa_consent_id = cel.pc_id_impacts_search_consent)
-  -- exclude rows where
-  AND (
-      -- the role has never been ended once added
-      pcor.ended_by_pwa_consent_id IS NULL
-      -- or the role has been ended and the consent that did the ending is one that impacts (is or occurred before) the search consent
-      OR (
-        pcor.ended_by_pwa_consent_id IS NOT NULL
-        AND pcor.ended_by_pwa_consent_id NOT IN (
-          SELECT cel_nested.pc_id_impacts_search_consent
-          FROM consent_effect_lookup cel_nested
-          WHERE cel.search_consent_pc_id = cel_nested.search_consent_pc_id
-        )
-      )
-    )
-
-  -- group by removes duplicates rows introduced by the join using the pc_id_impact_search_consent as the same consent can be impacted by multiple consents
-  GROUP BY cel.pwa_id
-  , cel.search_consent_pc_id
-  , cel.consent_reference
-  , pcor.added_by_pwa_consent_id
-  , pcor.ended_by_pwa_consent_id
-  , pcor.role
-  , pcor.ou_id
-  , pcor.agreement
-  , pcor.migrated_organisation_name
-);
 
 
 GRANT SELECT ON ${datasource.user}.api_vw_pipeline_as_built_data TO appenv;
