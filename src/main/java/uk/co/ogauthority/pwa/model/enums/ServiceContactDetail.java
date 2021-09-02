@@ -2,6 +2,17 @@ package uk.co.ogauthority.pwa.model.enums;
 
 public enum ServiceContactDetail {
 
+
+  BUSINESS_SUPPORT(
+      "Business support",
+      "OGA",
+      "consents@ogauthority.co.uk",
+      "",
+      "https://www.ogauthority.co.uk/licensing-consents/consents/pipeline-works-authorisations/",
+      "For example, questions about filling in your application and the information you need to provide",
+      true,
+      10),
+
   TECHNICAL_SUPPORT(
       "Technical support",
       "UKOP service desk",
@@ -9,8 +20,8 @@ public enum ServiceContactDetail {
       "0300 067 1682",
       "",
       "For example, unexpected problems using the service or system errors being received",
-      true
-  );
+      true,
+      20);
 
   private final String displayName;
 
@@ -26,13 +37,16 @@ public enum ServiceContactDetail {
 
   private final boolean shownOnContactPage;
 
+  private final int displayOrder;
+
   ServiceContactDetail(String displayName,
                        String serviceName,
                        String emailAddress,
                        String phoneNumber,
                        String guidanceUrl,
                        String description,
-                       boolean shownOnContactPage) {
+                       boolean shownOnContactPage,
+                       int displayOrder) {
     this.displayName = displayName;
     this.serviceName = serviceName;
     this.emailAddress = emailAddress;
@@ -40,6 +54,7 @@ public enum ServiceContactDetail {
     this.guidanceUrl = guidanceUrl;
     this.description = description;
     this.shownOnContactPage = shownOnContactPage;
+    this.displayOrder = displayOrder;
   }
 
   public String getDisplayName() {
@@ -70,5 +85,7 @@ public enum ServiceContactDetail {
     return shownOnContactPage;
   }
 
-
+  public int getDisplayOrder() {
+    return displayOrder;
+  }
 }

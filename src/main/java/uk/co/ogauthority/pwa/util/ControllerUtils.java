@@ -5,7 +5,8 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import uk.co.ogauthority.pwa.controller.AccessibilityStatementController;
+import uk.co.ogauthority.pwa.controller.footer.AccessibilityStatementController;
+import uk.co.ogauthority.pwa.controller.footer.ContactInformationController;
 import uk.co.ogauthority.pwa.model.Checkable;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 
@@ -25,6 +26,10 @@ public class ControllerUtils {
 
   public static String getAccessibilityStatementUrl() {
     return ReverseRouter.route(on(AccessibilityStatementController.class).getAccessibilityStatement(null));
+  }
+
+  public static String getContactInformationUrl() {
+    return ReverseRouter.route(on(ContactInformationController.class).getContactInformation(null));
   }
 
 }

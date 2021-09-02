@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.controller;
+package uk.co.ogauthority.pwa.controller.footer;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;

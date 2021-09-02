@@ -137,6 +137,7 @@ errorItems=[]>
     <#local footerMetaContent>
       <@fdsFooter.footerMeta footerMetaHiddenHeading="Support links">
         <@fdsFooter.footerMetaLink linkText="Accessibility statement" linkUrl=springUrl(accessibilityStatementUrl)/>
+        <@fdsFooter.footerMetaLink linkText="Contact" linkUrl=springUrl(contactInformationUrl)/>
       </@fdsFooter.footerMeta>
     </#local>
     <@fdsFooter.footer wrapperWidth=wrapperWidth metaLinks=true footerMetaContent=footerMetaContent/>

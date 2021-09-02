@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.controller;
+package uk.co.ogauthority.pwa.controller.footer;
 
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -8,7 +8,6 @@ import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSe
 
 import java.util.EnumSet;
 import java.util.Set;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -16,6 +15,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
+import uk.co.ogauthority.pwa.controller.AbstractControllerTest;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
@@ -23,8 +23,8 @@ import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingConte
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
 
 @RunWith(SpringRunner.class)
-@WebMvcTest(AccessibilityStatementController.class)
-public class AccessibilityStatementControllerTest extends AbstractControllerTest {
+@WebMvcTest(ContactInformationController.class)
+public class ContactInformationControllerTest extends AbstractControllerTest {
 
   @MockBean
   private PwaApplicationContextService pwaApplicationContextService;
@@ -43,15 +43,15 @@ public class AccessibilityStatementControllerTest extends AbstractControllerTest
 
 
   @Test
-  public void getAccessibilityStatement_whenAuthenticated_thenAccess() throws Exception {
-    mockMvc.perform(get(ReverseRouter.route(on(AccessibilityStatementController.class).getAccessibilityStatement(null)))
+  public void getContactInformation_whenAuthenticated_thenAccess() throws Exception {
+    mockMvc.perform(get(ReverseRouter.route(on(ContactInformationController.class).getContactInformation(null)))
         .with(authenticatedUserAndSession(authenticatedUserAccount)))
         .andExpect(status().isOk());
   }
 
   @Test
-  public void getAccessibilityStatement_whenUnauthenticated_thenAccess() throws Exception {
-    mockMvc.perform(get(ReverseRouter.route(on(AccessibilityStatementController.class).getAccessibilityStatement(null)))
+  public void getContactInformation_whenUnauthenticated_thenAccess() throws Exception {
+    mockMvc.perform(get(ReverseRouter.route(on(ContactInformationController.class).getContactInformation(null)))
         .with(authenticatedUserAndSession(unAuthenticatedUser)))
         .andExpect(status().isOk());
   }

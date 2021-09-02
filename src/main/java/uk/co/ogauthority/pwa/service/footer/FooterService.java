@@ -11,6 +11,7 @@ import uk.co.ogauthority.pwa.util.ControllerUtils;
 public class FooterService {
 
   private static final String ACCESSIBILITY_STATEMENT_URL_ATTR_NAME = "accessibilityStatementUrl";
+  private static final String CONTACT_INFORMATION_URL_ATTR_NAME = "contactInformationUrl";
 
   public void addFooterUrlsToModel(Model model) {
     getFooterItems().forEach(footerItem -> model.addAttribute(footerItem.getAttributeName(), footerItem.getUrl()));
@@ -22,10 +23,15 @@ public class FooterService {
 
   private List<FooterItem> getFooterItems() {
     var footerItems = new ArrayList<FooterItem>();
+
     footerItems.add(new FooterItem(
         ACCESSIBILITY_STATEMENT_URL_ATTR_NAME,
-        ControllerUtils.getAccessibilityStatementUrl())
-    );
+        ControllerUtils.getAccessibilityStatementUrl()));
+
+    footerItems.add(new FooterItem(
+        CONTACT_INFORMATION_URL_ATTR_NAME,
+        ControllerUtils.getContactInformationUrl()));
+
     return footerItems;
   }
 
