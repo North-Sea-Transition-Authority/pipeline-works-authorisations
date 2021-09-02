@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
+import java.util.stream.Collectors;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -15,6 +16,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.enums.appprocessing.DefaultNotificationBannerType;
 import uk.co.ogauthority.pwa.model.view.notificationbanner.NotificationBannerBodyLine;
 import uk.co.ogauthority.pwa.model.view.notificationbanner.NotificationBannerView;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.ParallelApplicationsWarning;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
@@ -79,6 +81,24 @@ public class PwaAppNotificationBannerServiceTest {
     pwaAppNotificationBannerService
         .addParallelPwaApplicationsWarningBannerIfRequired(pwaApplicationDetail.getPwaApplication(), modelAndView);
     assertThat(modelAndView.getModel()).doesNotContainKey("notificationBannerView");
+  }
+
+  @Test
+  public void addParallelPwaApplicationsWarningBannerIfRequired_shownForAllAppTypesThatRequireParallelWarning() {
+
+    var appsRequiringWarning = PwaApplicationType.stream()
+        .filter(appType -> appType.getParallelApplicationsWarning().equals(ParallelApplicationsWarning.SHOW_WARNING))
+        .collect(Collectors.toList());
+
+    appsRequiringWarning.forEach(appType -> {
+      siblingPwaApplication.setApplicationType(appType);
+      var modelAndView = new ModelAndView();
+
+      pwaAppNotificationBannerService
+          .addParallelPwaApplicationsWarningBannerIfRequired(pwaApplicationDetail.getPwaApplication(), modelAndView);
+      assertThat(modelAndView.getModel()).containsKey("notificationBannerView");
+    });
+
   }
 
   @Test

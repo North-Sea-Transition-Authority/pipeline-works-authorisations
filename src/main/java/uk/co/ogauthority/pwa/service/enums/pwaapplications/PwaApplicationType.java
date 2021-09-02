@@ -54,7 +54,7 @@ public enum PwaApplicationType {
       DocumentSpec.HUOO_CONSENT_DOCUMENT,
       40,
 
-      ParallelApplicationsWarning.NO_WARNING),
+      ParallelApplicationsWarning.SHOW_WARNING),
 
   DEPOSIT_CONSENT(
       "Deposit Consent",
