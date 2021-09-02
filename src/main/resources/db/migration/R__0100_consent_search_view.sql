@@ -49,22 +49,34 @@ WITH consents_fragment AS (
   FROM ${datasource.user}.pwa_consents pc
   GROUP BY pc.pwa_id
 )
+
+, field_or_other_ref_csv AS (
+    SELECT LISTAGG(COALESCE(df.field_name, pdf.manual_field_name), ', ')
+        WITHIN GROUP (ORDER BY 1) field_or_other_ref_csv
+         , pd.pwa_id
+    FROM ${datasource.user}.pwa_details pd
+         LEFT JOIN ${datasource.user}.pwa_detail_fields pdf ON pdf.pwa_detail_id = pd.id
+         LEFT JOIN ${datasource.user}.devuk_fields df ON df.field_id = pdf.devuk_field_id
+
+    WHERE pd.end_timestamp IS NULL
+    GROUP BY pd.pwa_id
+)
+
 SELECT
   pd.pwa_id
 , pd.reference
-, LISTAGG(COALESCE(df.field_name, pdf.manual_field_name), ', ') WITHIN GROUP (ORDER BY 1) field_or_other_ref_csv
+, fcsv.field_or_other_ref_csv
 , LISTAGG(phou.ou_name, ', ') WITHIN GROUP (ORDER BY 1) holder_names_csv
 , initial_consent.consent_timestamp first_consent_timestamp
 , latest_consent.reference latest_consent_ref
 , latest_consent.consent_timestamp latest_consent_timestamp
 FROM ${datasource.user}.pwa_details pd
-LEFT JOIN ${datasource.user}.pwa_detail_fields pdf ON pdf.pwa_detail_id = pd.id
-LEFT JOIN ${datasource.user}.devuk_fields df ON df.field_id = pdf.devuk_field_id
 JOIN ${datasource.user}.vw_pwa_holder_org_units phou ON phou.pwa_id = pd.pwa_id
 -- this join is filtering out in-progress initial pwas because they have no linked consent
 JOIN ${datasource.user}.pwa_consents initial_consent ON initial_consent.pwa_id = pd.pwa_id AND initial_consent.variation_number = 0 AND initial_consent.consent_type = 'INITIAL_PWA'
 JOIN consents_fragment cf ON cf.pwa_id = pd.pwa_id
 JOIN ${datasource.user}.pwa_consents latest_consent ON latest_consent.pwa_id = cf.pwa_id AND latest_consent.variation_number = cf.max_variation_number
+LEFT JOIN field_or_other_ref_csv fcsv ON fcsv.pwa_id = pd.pwa_id
 WHERE pd.end_timestamp IS NULL
 GROUP BY
   pd.pwa_id
@@ -72,4 +84,5 @@ GROUP BY
 , initial_consent.consent_timestamp
 , latest_consent.reference
 , latest_consent.consent_timestamp
+, fcsv.field_or_other_ref_csv
 /
