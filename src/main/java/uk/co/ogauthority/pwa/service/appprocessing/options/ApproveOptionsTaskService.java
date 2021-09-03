@@ -77,10 +77,10 @@ public class ApproveOptionsTaskService implements AppProcessingService {
         pwaAppProcessingContext.getApplicationDetail()
     );
 
-    var atLeastOneApprovalFromAnyGroup = consultationResponseService.isThereAtLeastOneApprovalFromAnyGroup(
+    var consultationResponsesValid = consultationResponseService.areConsultationResponsesValidForOptionsApproval(
         pwaAppProcessingContext.getPwaApplication());
 
-    return openCount == 0 && respondedCount > 0 && !updateInProgress && atLeastOneApprovalFromAnyGroup;
+    return openCount == 0 && respondedCount > 0 && !updateInProgress && consultationResponsesValid;
 
   }
 

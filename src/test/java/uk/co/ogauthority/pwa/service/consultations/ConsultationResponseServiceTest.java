@@ -30,6 +30,7 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.exception.WorkflowAssignmentException;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupDetail;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
+import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequestTestUtil;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationResponse;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationResponseData;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationResponseFileLink;
@@ -545,7 +546,7 @@ public class ConsultationResponseServiceTest {
   }
 
   @Test
-  public void isThereAtLeastOneApprovalFromAnyGroup_approvalsPresent() {
+  public void areConsultationResponsesValidForOptionsApproval_approvalsPresent_noEmtDisagreeResponse_valid() {
     var request1 = buildConsultationRequest();
     request1.setId(40);
     request1.setStatus(ConsultationRequestStatus.RESPONDED);
@@ -567,7 +568,106 @@ public class ConsultationResponseServiceTest {
     when(consultationResponseDataService.findAllByConsultationResponseIn(List.of(response)))
         .thenReturn(List.of(data));
 
-    assertThat(consultationResponseService.isThereAtLeastOneApprovalFromAnyGroup(application)).isTrue();
+    assertThat(consultationResponseService.areConsultationResponsesValidForOptionsApproval(application)).isTrue();
+
+  }
+
+  @Test
+  public void areConsultationResponsesValidForOptionsApproval_approvalsPresent_includesEmtDisagreeResponse_invalid() {
+
+    var hseRequest = ConsultationRequestTestUtil.createWithRespondedRequest(
+        application, ConsulteeGroupTestingUtils.createConsulteeGroup("hse", "hse").getConsulteeGroup());
+    var emtRequest = ConsultationRequestTestUtil.createWithRespondedRequest(
+        application, ConsulteeGroupTestingUtils.createConsulteeGroup("emt", "emt").getConsulteeGroup());
+    when(consultationRequestService.getAllRequestsByApplication(application)).thenReturn(List.of(hseRequest, emtRequest));
+
+
+    var hseResponse = new ConsultationResponse();
+    when(consultationResponseRepository.getFirstByConsultationRequestInOrderByResponseTimestampDesc(eq(List.of(hseRequest))))
+        .thenReturn(hseResponse);
+
+    var emtResponse = new ConsultationResponse();
+    when(consultationResponseRepository.getFirstByConsultationRequestInOrderByResponseTimestampDesc(eq(List.of(emtRequest))))
+        .thenReturn(emtResponse);
+
+
+    var hseResponseData = new ConsultationResponseData(hseResponse);
+    hseResponseData.setResponseGroup(ConsultationResponseOptionGroup.ADVICE);
+    hseResponseData.setResponseType(ConsultationResponseOption.PROVIDE_ADVICE);
+
+    var emtResponseData = new ConsultationResponseData(emtResponse);
+    emtResponseData.setResponseGroup(ConsultationResponseOptionGroup.EIA_REGS);
+    emtResponseData.setResponseType(ConsultationResponseOption.EIA_DISAGREE);
+    when(consultationResponseDataService.findAllByConsultationResponseIn(List.of(hseResponse, emtResponse)))
+        .thenReturn(List.of(hseResponseData, emtResponseData));
+
+    assertThat(consultationResponseService.areConsultationResponsesValidForOptionsApproval(application)).isFalse();
+
+  }
+
+  @Test
+  public void areConsultationResponsesValidForOptionsApproval_approvalPresentAndNonApprovalPresent_valid() {
+
+    var hseRequest = ConsultationRequestTestUtil.createWithRespondedRequest(
+        application, ConsulteeGroupTestingUtils.createConsulteeGroup("hse", "hse").getConsulteeGroup());
+    var oduRequest = ConsultationRequestTestUtil.createWithRespondedRequest(
+        application, ConsulteeGroupTestingUtils.createConsulteeGroup("odu", "odu").getConsulteeGroup());
+    when(consultationRequestService.getAllRequestsByApplication(application)).thenReturn(List.of(hseRequest, oduRequest));
+
+
+    var hseResponse = new ConsultationResponse();
+    when(consultationResponseRepository.getFirstByConsultationRequestInOrderByResponseTimestampDesc(eq(List.of(hseRequest))))
+        .thenReturn(hseResponse);
+
+    var oduResponse = new ConsultationResponse();
+    when(consultationResponseRepository.getFirstByConsultationRequestInOrderByResponseTimestampDesc(eq(List.of(oduRequest))))
+        .thenReturn(oduResponse);
+
+
+    var hseResponseData = new ConsultationResponseData(hseResponse);
+    hseResponseData.setResponseGroup(ConsultationResponseOptionGroup.ADVICE);
+    hseResponseData.setResponseType(ConsultationResponseOption.PROVIDE_ADVICE);
+
+    var oduResponseData = new ConsultationResponseData(oduResponse);
+    oduResponseData.setResponseGroup(ConsultationResponseOptionGroup.ADVICE);
+    oduResponseData.setResponseType(ConsultationResponseOption.REJECTED);
+    when(consultationResponseDataService.findAllByConsultationResponseIn(List.of(hseResponse, oduResponse)))
+        .thenReturn(List.of(hseResponseData, oduResponseData));
+
+    assertThat(consultationResponseService.areConsultationResponsesValidForOptionsApproval(application)).isTrue();
+
+  }
+
+
+  @Test
+  public void areConsultationResponsesValidForOptionsApproval_noApprovalsPresent_invalid() {
+
+    var oduRequest = ConsultationRequestTestUtil.createWithRespondedRequest(application, groupDetail.getConsulteeGroup());
+    when(consultationRequestService.getAllRequestsByApplication(application)).thenReturn(List.of(oduRequest));
+
+    var oduResponse = new ConsultationResponse();
+    when(consultationResponseRepository.getFirstByConsultationRequestInOrderByResponseTimestampDesc(eq(List.of(oduRequest))))
+        .thenReturn(oduResponse);
+
+    var oduResponseData = new ConsultationResponseData(oduResponse);
+    oduResponseData.setResponseGroup(ConsultationResponseOptionGroup.CONTENT);
+    oduResponseData.setResponseType(ConsultationResponseOption.REJECTED);
+    when(consultationResponseDataService.findAllByConsultationResponseIn(List.of(oduResponse)))
+        .thenReturn(List.of(oduResponseData));
+
+    assertThat(consultationResponseService.areConsultationResponsesValidForOptionsApproval(application)).isFalse();
+
+  }
+
+  @Test
+  public void areConsultationResponsesValidForOptionsApproval_noResponses_invalid() {
+    var request1 = buildConsultationRequest();
+    request1.setId(40);
+    request1.setStatus(ConsultationRequestStatus.RESPONDED);
+
+    when(consultationRequestService.getAllRequestsByApplication(application)).thenReturn(List.of(request1));
+
+    assertThat(consultationResponseService.areConsultationResponsesValidForOptionsApproval(application)).isFalse();
 
   }
 

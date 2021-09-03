@@ -260,7 +260,7 @@ public class ConsultationResponseService implements AppProcessingService {
     return consultationResponseRepository.getFirstByConsultationRequestInOrderByResponseTimestampDesc(requests);
   }
 
-  public boolean isThereAtLeastOneApprovalFromAnyGroup(PwaApplication pwaApplication) {
+  public boolean areConsultationResponsesValidForOptionsApproval(PwaApplication pwaApplication) {
 
     var groupRequestMap = consultationRequestService.getAllRequestsByApplication(pwaApplication).stream()
         .filter(consultationRequest -> consultationRequest.getStatus() == ConsultationRequestStatus.RESPONDED)
@@ -272,11 +272,25 @@ public class ConsultationResponseService implements AppProcessingService {
 
     var responseDataList = consultationResponseDataService.findAllByConsultationResponseIn(latestResponsesByGroup);
 
-    return responseDataList.stream()
-        .anyMatch(responseData ->
-            Set.of(ConsultationResponseOption.CONFIRMED, ConsultationResponseOption.PROVIDE_ADVICE, ConsultationResponseOption.NO_ADVICE)
-                .contains(responseData.getResponseType()));
+    var validResponseOptions = Set.of(ConsultationResponseOption.CONFIRMED,
+        ConsultationResponseOption.PROVIDE_ADVICE, ConsultationResponseOption.NO_ADVICE,
+        ConsultationResponseOption.EIA_AGREE, ConsultationResponseOption.EIA_NOT_RELEVANT,
+        ConsultationResponseOption.HABITATS_AGREE, ConsultationResponseOption.HABITATS_NOT_RELEVANT);
 
+    var invalidEmtResponseOptions = Set.of(ConsultationResponseOption.EIA_DISAGREE, ConsultationResponseOption.HABITATS_DISAGREE);
+
+    var hasApproval = false;
+    for (var responseData: responseDataList) {
+
+      if (validResponseOptions.contains(responseData.getResponseType())) {
+        hasApproval = true;
+
+      } else if (invalidEmtResponseOptions.contains(responseData.getResponseType())) {
+        return false;
+      }
+    }
+
+    return hasApproval;
   }
 
   public Optional<ConsultationResponseFileLink> getConsultationResponseFileLink(AppFile appFile) {

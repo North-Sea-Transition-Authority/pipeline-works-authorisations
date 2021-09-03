@@ -75,7 +75,7 @@ public class ApproveOptionsTaskServiceTest {
         optionsApplicationApprovalRepository,
         applicationUpdateRequestService, consultationResponseService);
 
-    when(consultationResponseService.isThereAtLeastOneApprovalFromAnyGroup(pwaAppProcessingContext.getPwaApplication()))
+    when(consultationResponseService.areConsultationResponsesValidForOptionsApproval(pwaAppProcessingContext.getPwaApplication()))
         .thenReturn(true);
   }
 
@@ -254,7 +254,7 @@ public class ApproveOptionsTaskServiceTest {
     when(applicationUpdateRequestService.applicationHasOpenUpdateRequest(pwaApplicationDetail))
         .thenReturn(true);
 
-    when(consultationResponseService.isThereAtLeastOneApprovalFromAnyGroup(pwaAppProcessingContext.getPwaApplication()))
+    when(consultationResponseService.areConsultationResponsesValidForOptionsApproval(pwaAppProcessingContext.getPwaApplication()))
         .thenReturn(false);
 
     var taskAccessible = approveOptionsTaskService.taskAccessible(pwaAppProcessingContext);
