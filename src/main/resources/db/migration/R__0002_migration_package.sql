@@ -769,13 +769,13 @@ AS
   PROCEDURE migrate_commissioned_as_built(p_pipeline_id NUMBER)
   IS
 
-    l_as_built_count NUMBER;
     l_system_person_id NUMBER;
 
     l_group_created BOOLEAN := FALSE;
     l_group_id NUMBER;
     l_group_pipeline_id NUMBER;
 
+    l_do_processing VARCHAR2(5);
   BEGIN
 
     SELECT wuac.person_id
@@ -783,8 +783,23 @@ AS
     FROM securemgr.web_user_account_current wuac
     WHERE wuac.wua_id = 1;
 
+    SELECT
+      CASE
+        WHEN COUNT(*) = 0 THEN 'false'
+        ELSE 'true'
+      END
+    INTO l_do_processing
+    FROM  ${datasource.user}.pipelines p
+    JOIN ${datasource.user}.pipeline_details pd ON pd.pipeline_id = p.id
+    JOIN ${datasource.user}.pipeline_detail_migration_data pdmd ON pd.id = pdmd.pipeline_detail_id
+    WHERE p.id = p_pipeline_id
+    AND pdmd.commissioned_date IS NOT NULL;
 
-    dbms_output.PUT('PROCESSING as-built "commissioned date" migration for pipeline_id: ' || p_pipeline_id || ' ');
+    IF(l_do_processing = 'false') THEN
+      RETURN;
+    ELSE
+      dbms_output.PUT('PROCESSING as-built "commissioned date" migration for pipeline_id: ' || p_pipeline_id || ' ');
+    END IF;
 
     FOR mig_as_built_info IN (
       WITH mig_as_built_info AS (
@@ -795,8 +810,6 @@ AS
         , pwad.reference master_pwa_reference
         , pd.pipeline_number
         , pc.id initial_pwa_consent_id
-        , pdmd.abandoned_date
-        , LAG(pdmd.abandoned_date) OVER (PARTITION BY pd.pipeline_id ORDER BY pd.pipeline_id ASC, pd.id DESC) lag_pl_abandoned_date
         , pdmd.commissioned_date
         , LAG(pdmd.commissioned_date) OVER (PARTITION BY pd.pipeline_id ORDER BY pd.pipeline_id ASC, pd.id DESC) lag_pl_commisioned_date
         FROM ${datasource.user}.pipeline_details pd
@@ -804,7 +817,7 @@ AS
         JOIN ${datasource.user}.pwa_details pwad ON pwad.pwa_id = p.pwa_id AND pwad.end_timestamp IS NULL
         JOIN ${datasource.user}.pwa_consents pc ON pwad.pwa_id = pc.pwa_id AND pc.consent_type = 'INITIAL_PWA'
         JOIN ${datasource.user}.pipeline_detail_migration_data pdmd ON pd.id = pdmd.pipeline_detail_id
-        WHERE (pdmd.abandoned_date IS NOT NULL OR pdmd.commissioned_date IS NOT NULL)
+        WHERE (pdmd.commissioned_date IS NOT NULL)
         AND p.id = p_pipeline_id
         ORDER BY pd.pipeline_id, pd.id
       )
@@ -917,8 +930,167 @@ AS
     END LOOP;
 
     dbms_output.PUT_LINE(' COMPLETE');
-  END ;
+  END migrate_commissioned_as_built;
 
+  PROCEDURE migrate_abandoned_as_built(p_pipeline_id NUMBER)
+  IS
+
+    l_system_person_id NUMBER;
+
+    l_group_id NUMBER;
+    l_group_pipeline_id NUMBER;
+
+    l_do_processing VARCHAR2(5);
+  BEGIN
+
+    SELECT wuac.person_id
+    INTO l_system_person_id
+    FROM securemgr.web_user_account_current wuac
+    WHERE wuac.wua_id = 1;
+
+    SELECT
+      CASE
+        WHEN COUNT(*) = 0 THEN 'false'
+        ELSE 'true'
+      END
+    INTO l_do_processing
+    FROM ${datasource.user}.pipelines p
+    JOIN ${datasource.user}.pipeline_details pd ON pd.pipeline_id = p.id
+    JOIN ${datasource.user}.pipeline_detail_migration_data pdmd ON pd.id = pdmd.pipeline_detail_id
+    WHERE p.id = p_pipeline_id
+    AND pd.tip_flag = 1
+    AND pd.pipeline_status IN ('RETURNED_TO_SHORE', 'OUT_OF_USE_ON_SEABED')
+    AND pdmd.abandoned_date IS NOT NULL;
+
+    IF ( l_do_processing = 'false') THEN
+      RETURN;
+    ELSE
+      dbms_output.PUT('PROCESSING as-built "abandoned date" migration for pipeline_id: ' || p_pipeline_id || ' ');
+    END IF;
+
+    FOR mig_as_built_info IN (
+      WITH mig_as_built_info AS (
+        SELECT
+          pd.pipeline_id
+        , pd.id pd_id
+        , pd.start_timestamp detail_start_timestamp
+        , pwad.reference master_pwa_reference
+        , pd.pipeline_number
+        , pc.id initial_pwa_consent_id
+        , pdmd.abandoned_date
+        , LAG(pdmd.abandoned_date) OVER (PARTITION BY pd.pipeline_id ORDER BY pd.pipeline_id ASC, pd.id DESC) lag_pl_abandoned_date
+        FROM ${datasource.user}.pipeline_details pd
+        JOIN ${datasource.user}.pipelines p ON pd.pipeline_id = p.id
+        JOIN ${datasource.user}.pwa_details pwad ON pwad.pwa_id = p.pwa_id AND pwad.end_timestamp IS NULL
+        JOIN ${datasource.user}.pwa_consents pc ON pwad.pwa_id = pc.pwa_id AND pc.consent_type = 'INITIAL_PWA' -- migrated pipelines always attached to initial consent, as can't know exactly which consent.
+        JOIN ${datasource.user}.pipeline_detail_migration_data pdmd ON pd.id = pdmd.pipeline_detail_id
+        WHERE (pdmd.abandoned_date IS NOT NULL)
+        AND p.id = p_pipeline_id
+        ORDER BY pd.pipeline_id, pd.id
+      )
+      -- abandonment date as-builts source data
+      SELECT
+        'OUT_OF_USE' pipeline_change_category
+      , mabi.pipeline_id
+      , mabi.detail_start_timestamp
+      , mabi.master_pwa_reference || ' - Abandonment date' as_built_group_ref
+      , mabi.initial_pwa_consent_id
+      , mabi.pd_id
+      , NULL date_work_completed
+      , mabi.abandoned_date
+      FROM mig_as_built_info mabi
+      -- only return the first abandonment date row or each abandonment date row which is different from the previous detail
+      WHERE mabi.abandoned_date IS NOT NULL AND (
+        mabi.lag_pl_abandoned_date IS NULL
+        OR
+        COALESCE(mabi.lag_pl_abandoned_date, TO_DATE('01-01-0000')) != COALESCE(mabi.abandoned_date, TO_DATE('01-01-0000'))
+      )
+    ) LOOP
+
+       -- put each distinct abandoned date into own group. different approach to commissioned date where all changes are in the same group, as seperate submission.
+       -- for abandoned date, 90% of the time, only 1 distinct abandoned date. if more, put in separate group and attach to relevant pipeline_detail.
+        INSERT INTO ${datasource.user}.as_built_notification_groups (
+          pwa_consent_id
+        , reference
+        , created_timestamp
+        )
+        VALUES(
+          mig_as_built_info.initial_pwa_consent_id
+        , mig_as_built_info.as_built_group_ref
+        , mig_as_built_info.detail_start_timestamp
+        )
+        RETURNING id INTO l_group_id;
+
+        dbms_output.PUT('. New Group .');
+
+        INSERT INTO ${datasource.user}.as_built_notif_grp_details (
+          as_built_notification_group_id
+        , deadline_date
+        , created_by_person_id
+        , created_timestamp
+        )
+        VALUES (
+          l_group_id
+        , TO_DATE(TRUNC(mig_as_built_info.detail_start_timestamp))
+        , l_system_person_id
+        , mig_as_built_info.detail_start_timestamp
+        );
+
+        dbms_output.PUT('.');
+
+        INSERT INTO ${datasource.user}.as_built_notif_grp_pipelines (
+          as_built_notification_group_id
+        , pipeline_detail_id
+        , pipeline_change_category
+        )
+        VALUES (
+          l_group_id
+        , mig_as_built_info.pd_id -- small number of
+        , mig_as_built_info.pipeline_change_category
+        )
+        RETURNING id INTO l_group_pipeline_id;
+
+        dbms_output.PUT('.');
+
+        INSERT INTO ${datasource.user}.as_built_notif_grp_status_hist (
+          as_built_notification_group_id
+        , status
+        , created_by_person_id
+        , created_timestamp
+        )
+        VALUES (
+          l_group_id
+        , 'COMPLETE'
+        , l_system_person_id
+        , mig_as_built_info.detail_start_timestamp
+        );
+
+        dbms_output.PUT('.');
+
+        INSERT INTO ${datasource.user}.as_built_notif_submissions (
+          as_built_notif_pipeline_id
+        , submitted_by_person_id
+        , submitted_timestamp
+        , as_built_status
+        , date_work_completed
+        , date_pipeline_brought_into_use
+        , tip_flag
+        )
+        VALUES (
+          l_group_pipeline_id
+        , l_system_person_id
+        , mig_as_built_info.detail_start_timestamp
+        , 'MIGRATION'
+        , mig_as_built_info.abandoned_date
+        , NULL
+        , 1
+        );
+
+        dbms_output.PUT('. Submission created .');
+    END LOOP;
+
+    dbms_output.PUT_LINE(' COMPLETE');
+  END migrate_abandoned_as_built;
 
   PROCEDURE create_pipeline_as_built_data(p_pipeline_id NUMBER)
   AS
@@ -933,10 +1105,10 @@ AS
     WHERE p.id = p_pipeline_id;
 
     IF(l_as_built_count != 0) THEN
-      dbms_output.PUT_LINE('SKIPPING as-built "commissioned date" migration for pipeline_id: ' || p_pipeline_id);
       RETURN;
     ELSE
       migrate_commissioned_as_built(p_pipeline_id);
+      migrate_abandoned_as_built(p_pipeline_id);
     END IF;
 
   END create_pipeline_as_built_data;

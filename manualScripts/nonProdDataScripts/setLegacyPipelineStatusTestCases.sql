@@ -1,3 +1,5 @@
+-- set statuses / pipeline numbers
+
 DECLARE
 
   PROCEDURE update_Pipeline_Detail(
@@ -141,6 +143,107 @@ BEGIN
         );
 
     END LOOP;
+
+END;
+
+/
+
+-- set pipelines with an abandonment date so the migrated status is RTS or out_of_use so abandoned date gets migrated as as-builts.
+-- 'PL2901', 'PL1621' have RTS added to name
+-- 'PL1229.1', 'PL314A' status set as OUT_OF_USE
+DECLARE
+
+  PROCEDURE update_Pipeline_Detail(
+    p_pipeline_detail_id NUMBER,
+    p_pipeline_number VARCHAR2,
+    p_pipeline_status VARCHAR2
+  )
+  AS
+    l_new_xml XMLTYPE;
+  BEGIN
+
+    SELECT
+      XMLQUERY('
+      copy $dom := $xml_data
+      modify(
+        replace value of node $dom/PIPELINE/PIPELINE_NUMBER with $pipelineNumber
+      , replace value of node $dom/PIPELINE/PIPELINE_STATUS with $pipelineStatus
+      )
+      return $dom
+      '
+        PASSING
+        PD.XML_DATA AS "xml_data"
+        , p_pipeline_number AS "pipelineNumber"
+        , p_pipeline_status AS "pipelineStatus"
+        RETURNING CONTENT
+      ) new_xml_data
+    INTO l_new_xml
+    FROM decmgr.pipeline_details pd
+    WHERE pd.id = p_pipeline_detail_id;
+
+    UPDATE decmgr.pipeline_details pd
+    SET pd.xml_data = l_new_xml
+    WHERE pd.id = p_pipeline_detail_id;
+
+    IF(SQL%ROWCOUNT != 1) THEN
+      RAISE_APPLICATION_ERROR(-20123, 'More than 1 row updated!');
+    END IF;
+  END update_pipeline_detail;
+
+BEGIN
+
+  FOR pl IN (
+    SELECT
+      xph.pipeline_id
+    , xph.pd_id
+    , xph.pipeline_number
+    , xph.pipeline_status
+    , xph.status record_status
+    FROM decmgr.xview_pipelines_history xph
+    WHERE xph.pipeline_number IN ('PL2901', 'PL1621')
+    AND xph.status_control = 'C'
+    ) LOOP
+
+      IF(pl.pipeline_number LIKE '%RTS') THEN
+        RAISE_APPLICATION_ERROR(-20124, 'pipeline number already indicates RETURNED_TO_SHORE');
+      END IF;
+
+      dbms_output.put_line('Updating '|| pl.pipeline_number || ' to expected status RETURNED_TO_SHORE via name change');
+
+      update_pipeline_detail(
+        p_pipeline_detail_id => pl.pd_id
+      , p_pipeline_number => pl.pipeline_number || ' RTS'
+      , p_pipeline_status => pl.pipeline_status
+      );
+
+    END LOOP;
+
+  FOR pl IN (
+    SELECT
+      xph.pipeline_id
+         , xph.pd_id
+         , xph.pipeline_number
+         , xph.pipeline_status
+         , xph.status record_status
+    FROM decmgr.xview_pipelines_history xph
+    WHERE xph.pipeline_number IN ('PL1229.1', 'PL314A')
+        AND xph.status_control = 'C'
+    ) LOOP
+
+      IF(pl.pipeline_status = 'OUT_OF_USE') THEN
+        RAISE_APPLICATION_ERROR(-20124, 'pipeline status already indicates OUT_OF_USE');
+      END IF;
+
+      dbms_output.put_line('Updating '|| pl.pipeline_number || ' to expected status OUT_OF_USE via status change');
+
+      update_pipeline_detail(
+          p_pipeline_detail_id => pl.pd_id
+        , p_pipeline_number => pl.pipeline_number
+        , p_pipeline_status => 'OUT_OF_USE'
+        );
+
+    END LOOP;
+
 
 END;
 
