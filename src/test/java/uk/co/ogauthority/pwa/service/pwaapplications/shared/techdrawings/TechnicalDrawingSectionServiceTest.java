@@ -8,7 +8,11 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -16,7 +20,10 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.ObjectError;
+import uk.co.ogauthority.pwa.model.entity.enums.mailmerge.MailMergeFieldMnem;
+import uk.co.ogauthority.pwa.model.entity.files.PadFile;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.techdrawings.PadTechnicalDrawing;
 import uk.co.ogauthority.pwa.model.form.generic.SummaryForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.techdetails.AdmiraltyChartDocumentForm;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
@@ -161,4 +168,68 @@ public class TechnicalDrawingSectionServiceTest {
     assertThat(technicalDrawingSectionService.canShowInTaskList(detail)).isTrue();
 
   }
+
+  @Test
+  public void getAvailableMailMergeFields() {
+
+    PwaApplicationType.stream().forEach(appType -> {
+
+      var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(appType);
+
+      var mergeFields = technicalDrawingSectionService.getAvailableMailMergeFields(detail.getPwaApplicationType());
+
+      var expectedMergeFields = new ArrayList<MailMergeFieldMnem>();
+
+      if (MailMergeFieldMnem.PL_DRAWING_REF_LIST.appTypeIsSupported(appType)) {
+        expectedMergeFields.add(MailMergeFieldMnem.PL_DRAWING_REF_LIST);
+      }
+
+      if (MailMergeFieldMnem.ADMIRALTY_CHART_REF.appTypeIsSupported(appType)) {
+        expectedMergeFields.add(MailMergeFieldMnem.ADMIRALTY_CHART_REF);
+      }
+
+      assertThat(mergeFields).containsExactlyInAnyOrderElementsOf(expectedMergeFields);
+
+    });
+
+  }
+
+  @Test
+  public void resolveMailMergeFields() {
+
+    var drawing1 = new PadTechnicalDrawing();
+    drawing1.setReference("draw1");
+
+    var drawing2 = new PadTechnicalDrawing();
+    drawing2.setReference("draw2");
+
+    when(padTechnicalDrawingService.getDrawings(any())).thenReturn(List.of(drawing1, drawing2));
+
+    var admiraltyChartFile = new PadFile();
+    admiraltyChartFile.setDescription("admiralty desc");
+
+    when(admiraltyChartFileService.getAdmiraltyChartFile(any())).thenReturn(Optional.of(admiraltyChartFile));
+
+    PwaApplicationType.stream().forEach(appType -> {
+
+      var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(appType);
+
+      var mergeFieldsMap = technicalDrawingSectionService.resolveMailMergeFields(detail);
+
+      var expectedMergeFieldsMap = new HashMap<MailMergeFieldMnem, String>();
+
+      if (MailMergeFieldMnem.PL_DRAWING_REF_LIST.appTypeIsSupported(appType)) {
+        expectedMergeFieldsMap.put(MailMergeFieldMnem.PL_DRAWING_REF_LIST, "draw1, draw2");
+      }
+
+      if (MailMergeFieldMnem.ADMIRALTY_CHART_REF.appTypeIsSupported(appType)) {
+        expectedMergeFieldsMap.put(MailMergeFieldMnem.ADMIRALTY_CHART_REF, admiraltyChartFile.getDescription());
+      }
+
+      assertThat(mergeFieldsMap).containsExactlyInAnyOrderEntriesOf(expectedMergeFieldsMap);
+
+    });
+
+  }
+
 }

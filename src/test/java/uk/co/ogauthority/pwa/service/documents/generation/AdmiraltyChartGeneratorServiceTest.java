@@ -6,8 +6,8 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
@@ -20,13 +20,13 @@ import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocumentSec
 import uk.co.ogauthority.pwa.model.entity.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.files.PadFile;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.AdmiraltyChartFileService;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AdmiraltyChartGeneratorServiceTest {
 
   @Mock
-  private PadFileService padFileService;
+  private AdmiraltyChartFileService admiraltyChartFileService;
 
   @Mock
   private ConsentDocumentImageService consentDocumentImageService;
@@ -40,12 +40,12 @@ public class AdmiraltyChartGeneratorServiceTest {
   @Before
   public void setUp() throws Exception {
 
-    admiraltyChartGeneratorService = new AdmiraltyChartGeneratorService(padFileService, consentDocumentImageService);
+    admiraltyChartGeneratorService = new AdmiraltyChartGeneratorService(admiraltyChartFileService, consentDocumentImageService);
 
     chartFile = new PadFile(detail, "id1", ApplicationDetailFilePurpose.ADMIRALTY_CHART, ApplicationFileLinkStatus.FULL);
 
-    when(padFileService.getAllByPwaApplicationDetailAndPurpose(detail, ApplicationDetailFilePurpose.ADMIRALTY_CHART))
-        .thenReturn(List.of(chartFile));
+    when(admiraltyChartFileService.getAdmiraltyChartFile(detail))
+        .thenReturn(Optional.of(chartFile));
 
     when(consentDocumentImageService.convertFilesToImageSourceMap(Set.of("id1")))
         .thenReturn(Map.of("id1", "fullChartUri"));
@@ -70,8 +70,8 @@ public class AdmiraltyChartGeneratorServiceTest {
   @Test
   public void getDocumentSectionData_noAdmiraltyChart() {
 
-    when(padFileService.getAllByPwaApplicationDetailAndPurpose(detail, ApplicationDetailFilePurpose.ADMIRALTY_CHART))
-        .thenReturn(List.of());
+    when(admiraltyChartFileService.getAdmiraltyChartFile(detail))
+        .thenReturn(Optional.empty());
 
     var docSectionData = admiraltyChartGeneratorService.getDocumentSectionData(detail, null, DocGenType.PREVIEW);
 

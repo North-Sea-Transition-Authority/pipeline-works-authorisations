@@ -1,17 +1,20 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings;
 
 import java.util.Arrays;
+import java.util.EnumMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
+import uk.co.ogauthority.pwa.model.entity.enums.mailmerge.MailMergeFieldMnem;
 import uk.co.ogauthority.pwa.model.entity.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.techdrawings.PadTechnicalDrawing;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.techdetails.AdmiraltyChartDocumentForm;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
@@ -22,13 +25,14 @@ import uk.co.ogauthority.pwa.service.pwaapplications.options.PadOptionConfirmedS
 @Service
 public class TechnicalDrawingSectionService implements ApplicationFormSectionService {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(TechnicalDrawingSectionService.class);
-
   private final AdmiraltyChartFileService admiraltyChartFileService;
   private final PadTechnicalDrawingService padTechnicalDrawingService;
   private final UmbilicalCrossSectionService umbilicalCrossSectionService;
   private final PadFileService padFileService;
   private final PadOptionConfirmedService padOptionConfirmedService;
+
+  private final List<MailMergeFieldMnem> techDrawingMailMergeFields =
+      List.of(MailMergeFieldMnem.PL_DRAWING_REF_LIST, MailMergeFieldMnem.ADMIRALTY_CHART_REF);
 
   @Autowired
   public TechnicalDrawingSectionService(
@@ -118,4 +122,44 @@ public class TechnicalDrawingSectionService implements ApplicationFormSectionSer
   public void cleanupData(PwaApplicationDetail detail) {
     padTechnicalDrawingService.cleanupData(detail);
   }
+
+  @Override
+  public List<MailMergeFieldMnem> getAvailableMailMergeFields(PwaApplicationType pwaApplicationType) {
+
+    return techDrawingMailMergeFields.stream()
+        .filter(mailMergeField -> mailMergeField.appTypeIsSupported(pwaApplicationType))
+        .collect(Collectors.toList());
+
+  }
+
+  @Override
+  public Map<MailMergeFieldMnem, String> resolveMailMergeFields(PwaApplicationDetail pwaApplicationDetail) {
+
+    var availableMergeFields = getAvailableMailMergeFields(pwaApplicationDetail.getPwaApplicationType());
+
+    EnumMap<MailMergeFieldMnem, String> map = new EnumMap<>(MailMergeFieldMnem.class);
+
+    if (availableMergeFields.contains(MailMergeFieldMnem.PL_DRAWING_REF_LIST)) {
+
+      var drawingRefs = padTechnicalDrawingService.getDrawings(pwaApplicationDetail)
+          .stream()
+          .map(PadTechnicalDrawing::getReference)
+          .sorted()
+          .collect(Collectors.joining(", "));
+
+      map.put(MailMergeFieldMnem.PL_DRAWING_REF_LIST, drawingRefs);
+
+    }
+
+    if (availableMergeFields.contains(MailMergeFieldMnem.ADMIRALTY_CHART_REF)) {
+
+      admiraltyChartFileService.getAdmiraltyChartFile(pwaApplicationDetail)
+          .ifPresent(file -> map.put(MailMergeFieldMnem.ADMIRALTY_CHART_REF, file.getDescription()));
+
+    }
+
+    return map;
+
+  }
+
 }

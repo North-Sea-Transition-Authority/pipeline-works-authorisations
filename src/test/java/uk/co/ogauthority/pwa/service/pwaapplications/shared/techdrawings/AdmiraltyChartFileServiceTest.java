@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
 
 import java.time.Instant;
 import java.util.List;
@@ -12,6 +13,9 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
+import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
+import uk.co.ogauthority.pwa.model.entity.files.ApplicationDetailFilePurpose;
+import uk.co.ogauthority.pwa.model.entity.files.PadFile;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.files.UploadFileWithDescriptionForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.techdetails.AdmiraltyChartDocumentForm;
@@ -97,6 +101,42 @@ public class AdmiraltyChartFileServiceTest {
     admiraltyChartFileService.validate(form, bindingResult, ValidationType.PARTIAL, pwaApplicationDetail);
 
     assertThat(bindingResult.hasErrors()).isFalse();
+  }
+
+  @Test
+  public void getAdmiraltyChartFile_present() {
+
+    var fullPadFile = new PadFile();
+    fullPadFile.setFileLinkStatus(ApplicationFileLinkStatus.FULL);
+
+    when(padFileService.getAllByPwaApplicationDetailAndPurpose(pwaApplicationDetail, ApplicationDetailFilePurpose.ADMIRALTY_CHART))
+        .thenReturn(List.of(fullPadFile));
+
+    assertThat(admiraltyChartFileService.getAdmiraltyChartFile(pwaApplicationDetail)).contains(fullPadFile);
+
+  }
+
+  @Test
+  public void getAdmiraltyChartFile_notFull_empty() {
+
+    var tempPadFile = new PadFile();
+    tempPadFile.setFileLinkStatus(ApplicationFileLinkStatus.TEMPORARY);
+
+    when(padFileService.getAllByPwaApplicationDetailAndPurpose(pwaApplicationDetail, ApplicationDetailFilePurpose.ADMIRALTY_CHART))
+        .thenReturn(List.of(tempPadFile));
+
+    assertThat(admiraltyChartFileService.getAdmiraltyChartFile(pwaApplicationDetail)).isEmpty();
+
+  }
+
+  @Test
+  public void getAdmiraltyChartFile_no_empty() {
+
+    when(padFileService.getAllByPwaApplicationDetailAndPurpose(pwaApplicationDetail, ApplicationDetailFilePurpose.ADMIRALTY_CHART))
+        .thenReturn(List.of());
+
+    assertThat(admiraltyChartFileService.getAdmiraltyChartFile(pwaApplicationDetail)).isEmpty();
+
   }
 
 }

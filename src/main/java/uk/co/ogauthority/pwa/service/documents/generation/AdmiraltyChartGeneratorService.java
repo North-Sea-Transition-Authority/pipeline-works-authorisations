@@ -7,24 +7,22 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.model.documents.generation.DocumentSectionData;
 import uk.co.ogauthority.pwa.model.entity.documents.instances.DocumentInstance;
-import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocGenType;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocumentSection;
-import uk.co.ogauthority.pwa.model.entity.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.files.PadFile;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.AdmiraltyChartFileService;
 
 @Service
 public class AdmiraltyChartGeneratorService implements DocumentSectionGenerator {
 
-  private final PadFileService padFileService;
   private final ConsentDocumentImageService consentDocumentImageService;
+  private final AdmiraltyChartFileService admiraltyChartFileService;
 
   @Autowired
-  public AdmiraltyChartGeneratorService(PadFileService padFileService,
+  public AdmiraltyChartGeneratorService(AdmiraltyChartFileService admiraltyChartFileService,
                                         ConsentDocumentImageService consentDocumentImageService) {
-    this.padFileService = padFileService;
+    this.admiraltyChartFileService = admiraltyChartFileService;
     this.consentDocumentImageService = consentDocumentImageService;
   }
 
@@ -33,11 +31,8 @@ public class AdmiraltyChartGeneratorService implements DocumentSectionGenerator 
                                                     DocumentInstance documentInstance,
                                                     DocGenType docGenType) {
 
-    Optional<String> admiraltyChartFileId = padFileService
-        .getAllByPwaApplicationDetailAndPurpose(pwaApplicationDetail, ApplicationDetailFilePurpose.ADMIRALTY_CHART).stream()
-        .filter(pf -> pf.getFileLinkStatus() == ApplicationFileLinkStatus.FULL)
-        .map(PadFile::getFileId)
-        .findFirst();
+    Optional<String> admiraltyChartFileId = admiraltyChartFileService.getAdmiraltyChartFile(pwaApplicationDetail)
+        .map(PadFile::getFileId);
 
     // short-circuit early if no admiralty chart, nothing to show
     if (admiraltyChartFileId.isEmpty()) {

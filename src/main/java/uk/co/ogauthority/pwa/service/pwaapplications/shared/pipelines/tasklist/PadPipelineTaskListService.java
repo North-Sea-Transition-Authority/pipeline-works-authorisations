@@ -5,6 +5,7 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.EnumMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,6 +22,7 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelines.ModifyP
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelines.PipelineIdentsController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelines.PipelinesController;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PadPipelineId;
+import uk.co.ogauthority.pwa.model.entity.enums.mailmerge.MailMergeFieldMnem;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineMaterial;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PadPipelineTaskListItem;
@@ -269,5 +271,38 @@ public class PadPipelineTaskListService implements ApplicationFormSectionService
         sectionIncompleteError);
   }
 
+  @Override
+  public List<MailMergeFieldMnem> getAvailableMailMergeFields(PwaApplicationType pwaApplicationType) {
+
+    if (MailMergeFieldMnem.PL_NUMBER_LIST.appTypeIsSupported(pwaApplicationType)) {
+      return List.of(MailMergeFieldMnem.PL_NUMBER_LIST);
+    }
+
+    return List.of();
+
+  }
+
+  @Override
+  public Map<MailMergeFieldMnem, String> resolveMailMergeFields(PwaApplicationDetail pwaApplicationDetail) {
+
+    var availableMergeFields = getAvailableMailMergeFields(pwaApplicationDetail.getPwaApplicationType());
+
+    EnumMap<MailMergeFieldMnem, String> map = new EnumMap<>(MailMergeFieldMnem.class);
+
+    if (availableMergeFields.contains(MailMergeFieldMnem.PL_NUMBER_LIST)) {
+
+      var plNumbers = padPipelineService.getApplicationPipelineOverviews(pwaApplicationDetail)
+          .stream()
+          .map(PipelineOverview::getPipelineNumber)
+          .sorted()
+          .collect(Collectors.joining(", "));
+
+      map.put(MailMergeFieldMnem.PL_NUMBER_LIST, plNumbers);
+
+    }
+
+    return map;
+
+  }
 
 }

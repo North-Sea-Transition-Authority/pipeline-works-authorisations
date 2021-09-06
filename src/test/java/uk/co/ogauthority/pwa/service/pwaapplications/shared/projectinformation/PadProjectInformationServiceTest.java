@@ -11,7 +11,10 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import org.junit.Before;
@@ -26,6 +29,7 @@ import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.enums.ProjectInformationQuestion;
 import uk.co.ogauthority.pwa.model.entity.enums.mailmerge.MailMergeFieldMnem;
 import uk.co.ogauthority.pwa.model.entity.files.ApplicationDetailFilePurpose;
+import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadProjectInformation;
@@ -37,6 +41,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.fileupload.FileUpdateMode;
 import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
+import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.util.DateUtils;
 import uk.co.ogauthority.pwa.validators.ProjectInformationFormValidationHints;
@@ -45,11 +50,8 @@ import uk.co.ogauthority.pwa.validators.ProjectInformationValidator;
 @RunWith(MockitoJUnitRunner.class)
 public class PadProjectInformationServiceTest {
 
-  private final static String FILE_ID = "1234567u8oplkjmnhbgvfc";
-
   @Mock
   private PadProjectInformationRepository padProjectInformationRepository;
-
 
   @Mock
   private ProjectInformationEntityMappingService projectInformationEntityMappingService;
@@ -62,6 +64,9 @@ public class PadProjectInformationServiceTest {
 
   @Mock
   private EntityCopyingService entityCopyingService;
+
+  @Mock
+  private MasterPwaService masterPwaService;
 
   private PadProjectInformationService service;
   private PadProjectInformation padProjectInformation;
@@ -78,7 +83,8 @@ public class PadProjectInformationServiceTest {
         projectInformationEntityMappingService,
         validator,
         padFileService,
-        entityCopyingService);
+        entityCopyingService,
+        masterPwaService);
 
     date = LocalDate.now();
 
@@ -400,7 +406,14 @@ public class PadProjectInformationServiceTest {
 
       var mergeFields = service.getAvailableMailMergeFields(detail.getPwaApplicationType());
 
-      assertThat(mergeFields).containsExactlyInAnyOrder(MailMergeFieldMnem.PROPOSED_START_OF_WORKS_DATE, MailMergeFieldMnem.PROJECT_NAME);
+      var expectedMergeFields = new ArrayList<>(
+          List.of(MailMergeFieldMnem.PROPOSED_START_OF_WORKS_DATE, MailMergeFieldMnem.PROJECT_NAME));
+
+      if (appType != PwaApplicationType.INITIAL) {
+        expectedMergeFields.add(MailMergeFieldMnem.PWA_REFERENCE);
+      }
+
+      assertThat(mergeFields).containsExactlyInAnyOrderElementsOf(expectedMergeFields);
 
     });
 
@@ -408,6 +421,10 @@ public class PadProjectInformationServiceTest {
 
   @Test
   public void resolveMailMergeFields() {
+
+    var pwaDetail = new MasterPwaDetail();
+    pwaDetail.setReference("1/W/1");
+    when(masterPwaService.getCurrentDetailOrThrow(any())).thenReturn(pwaDetail);
 
     var projectInfoData = new PadProjectInformation();
     projectInfoData.setProjectName("project name");
@@ -421,9 +438,15 @@ public class PadProjectInformationServiceTest {
 
       var mergeFieldsMap = service.resolveMailMergeFields(detail);
 
-      assertThat(mergeFieldsMap).containsExactlyInAnyOrderEntriesOf(Map.of(
+      var expectedMergeFieldsMap = new HashMap<>(Map.of(
           MailMergeFieldMnem.PROPOSED_START_OF_WORKS_DATE, DateUtils.formatDate(projectInfoData.getProposedStartTimestamp()),
           MailMergeFieldMnem.PROJECT_NAME, projectInfoData.getProjectName()));
+
+      if (appType != PwaApplicationType.INITIAL) {
+        expectedMergeFieldsMap.put(MailMergeFieldMnem.PWA_REFERENCE, pwaDetail.getReference());
+      }
+
+      assertThat(mergeFieldsMap).containsExactlyInAnyOrderEntriesOf(expectedMergeFieldsMap);
 
     });
 

@@ -13,8 +13,6 @@ import java.util.Optional;
 import java.util.Set;
 import javax.transaction.Transactional;
 import org.apache.commons.lang3.BooleanUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BeanPropertyBindingResult;
@@ -34,6 +32,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.fileupload.FileUpdateMode;
 import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
+import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
 import uk.co.ogauthority.pwa.util.DateUtils;
 import uk.co.ogauthority.pwa.validators.ProjectInformationFormValidationHints;
@@ -43,13 +42,12 @@ import uk.co.ogauthority.pwa.validators.ProjectInformationValidator;
 @Service
 public class PadProjectInformationService implements ApplicationFormSectionService {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(PadProjectInformationService.class);
-
   private final PadProjectInformationRepository padProjectInformationRepository;
   private final ProjectInformationEntityMappingService projectInformationEntityMappingService;
   private final ProjectInformationValidator projectInformationValidator;
   private final PadFileService padFileService;
   private final EntityCopyingService entityCopyingService;
+  private final MasterPwaService masterPwaService;
 
   private static final ApplicationDetailFilePurpose FILE_PURPOSE = ApplicationDetailFilePurpose.PROJECT_INFORMATION;
 
@@ -59,12 +57,14 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
       ProjectInformationEntityMappingService projectInformationEntityMappingService,
       ProjectInformationValidator projectInformationValidator,
       PadFileService padFileService,
-      EntityCopyingService entityCopyingService) {
+      EntityCopyingService entityCopyingService,
+      MasterPwaService masterPwaService) {
     this.padProjectInformationRepository = padProjectInformationRepository;
     this.projectInformationEntityMappingService = projectInformationEntityMappingService;
     this.projectInformationValidator = projectInformationValidator;
     this.padFileService = padFileService;
     this.entityCopyingService = entityCopyingService;
+    this.masterPwaService = masterPwaService;
   }
 
   public PadProjectInformation getPadProjectInformationData(PwaApplicationDetail pwaApplicationDetail) {
@@ -284,12 +284,18 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
     var questions = getRequiredQuestions(pwaApplicationType);
     var mailMergeFieldList = new ArrayList<MailMergeFieldMnem>();
 
-    if (questions.contains(ProjectInformationQuestion.PROPOSED_START_DATE)) {
+    if (MailMergeFieldMnem.PROPOSED_START_OF_WORKS_DATE.appTypeIsSupported(pwaApplicationType)
+        && questions.contains(ProjectInformationQuestion.PROPOSED_START_DATE)) {
       mailMergeFieldList.add(MailMergeFieldMnem.PROPOSED_START_OF_WORKS_DATE);
     }
 
-    if (questions.contains(ProjectInformationQuestion.PROJECT_NAME)) {
+    if (MailMergeFieldMnem.PROJECT_NAME.appTypeIsSupported(pwaApplicationType)
+        && questions.contains(ProjectInformationQuestion.PROJECT_NAME)) {
       mailMergeFieldList.add(MailMergeFieldMnem.PROJECT_NAME);
+    }
+
+    if (MailMergeFieldMnem.PWA_REFERENCE.appTypeIsSupported(pwaApplicationType)) {
+      mailMergeFieldList.add(MailMergeFieldMnem.PWA_REFERENCE);
     }
 
     return mailMergeFieldList;
@@ -314,6 +320,15 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
 
       if (availableMergeFields.contains(MailMergeFieldMnem.PROJECT_NAME)) {
         map.put(MailMergeFieldMnem.PROJECT_NAME, projectInformation.getProjectName());
+      }
+
+      if (availableMergeFields.contains(MailMergeFieldMnem.PWA_REFERENCE)) {
+
+        var pwaRef = masterPwaService.getCurrentDetailOrThrow(pwaApplicationDetail.getMasterPwa())
+            .getReference();
+
+        map.put(MailMergeFieldMnem.PWA_REFERENCE, pwaRef);
+
       }
 
     }

@@ -8,8 +8,10 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -25,6 +27,7 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTyp
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelines.ModifyPipelineController;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PadPipelineId;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PadPipelineSummaryDtoTestUtils;
+import uk.co.ogauthority.pwa.model.entity.enums.mailmerge.MailMergeFieldMnem;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineMaterial;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineStatus;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
@@ -424,4 +427,57 @@ public class PadPipelineTaskListServiceTest {
         .contains(taskListEntry);
 
   }
+
+  @Test
+  public void getAvailableMailMergeFields() {
+
+    PwaApplicationType.stream().forEach(appType -> {
+
+      var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(appType);
+
+      var mergeFields = padPipelineTaskListService.getAvailableMailMergeFields(detail.getPwaApplicationType());
+
+      var expectedMergeFields = new ArrayList<MailMergeFieldMnem>();
+
+      if (MailMergeFieldMnem.PL_NUMBER_LIST.appTypeIsSupported(appType)) {
+        expectedMergeFields.add(MailMergeFieldMnem.PL_NUMBER_LIST);
+      }
+
+      assertThat(mergeFields).containsExactlyInAnyOrderElementsOf(expectedMergeFields);
+
+    });
+
+  }
+
+  @Test
+  public void resolveMailMergeFields() {
+
+    var pipe1 = new PadPipeline();
+    pipe1.setPipelineNumber("PL889");
+    var overView1 = new PadPipelineOverview(pipe1);
+
+    var pipe2 = new PadPipeline();
+    pipe2.setPipelineNumber("PL13");
+    var overview2 = new PadPipelineOverview(pipe2);
+
+    when(padPipelineService.getApplicationPipelineOverviews(any())).thenReturn(List.of(overView1, overview2));
+
+    PwaApplicationType.stream().forEach(appType -> {
+
+      var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(appType);
+
+      var mergeFieldsMap = padPipelineTaskListService.resolveMailMergeFields(detail);
+
+      var expectedMergeFieldsMap = new HashMap<MailMergeFieldMnem, String>();
+
+      if (MailMergeFieldMnem.PL_NUMBER_LIST.appTypeIsSupported(appType)) {
+        expectedMergeFieldsMap.put(MailMergeFieldMnem.PL_NUMBER_LIST, "PL13, PL889");
+      }
+
+      assertThat(mergeFieldsMap).containsExactlyInAnyOrderEntriesOf(expectedMergeFieldsMap);
+
+    });
+
+  }
+
 }

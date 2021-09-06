@@ -2,12 +2,15 @@ package uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
+import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.files.ApplicationDetailFilePurpose;
+import uk.co.ogauthority.pwa.model.entity.files.PadFile;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.files.UploadMultipleFilesWithDescriptionForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.techdetails.AdmiraltyChartDocumentForm;
@@ -26,7 +29,8 @@ public class AdmiraltyChartFileService {
   private final SpringValidatorAdapter groupValidator;
 
   @Autowired
-  public AdmiraltyChartFileService(PadFileService padFileService, SpringValidatorAdapter groupValidator) {
+  public AdmiraltyChartFileService(PadFileService padFileService,
+                                   SpringValidatorAdapter groupValidator) {
     this.padFileService = padFileService;
     this.groupValidator = groupValidator;
   }
@@ -73,6 +77,13 @@ public class AdmiraltyChartFileService {
       default:
         return false;
     }
+  }
+
+  public Optional<PadFile> getAdmiraltyChartFile(PwaApplicationDetail pwaApplicationDetail) {
+    return padFileService
+        .getAllByPwaApplicationDetailAndPurpose(pwaApplicationDetail, ApplicationDetailFilePurpose.ADMIRALTY_CHART).stream()
+        .filter(pf -> pf.getFileLinkStatus() == ApplicationFileLinkStatus.FULL)
+        .findFirst();
   }
 
 }
