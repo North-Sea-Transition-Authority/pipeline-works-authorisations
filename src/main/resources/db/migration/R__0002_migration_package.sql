@@ -322,6 +322,7 @@ AS
 
     l_length_metre NUMBER;
     l_new_pipeline_status VARCHAR2(4000);
+    l_diameter_as_number NUMBER;
 
   BEGIN
     ${datasource.user}.migration_logger.log_pipeline(
@@ -349,6 +350,22 @@ AS
         , p_message => 'pipeline record length conversion error. length: ' || p_mig_pipeline_history.length
         );
      RAISE;
+    END;
+
+    BEGIN
+      l_diameter_as_number :=  CASE
+        -- handle specific bad data edge case
+        WHEN st.to_number_safe(p_mig_pipeline_history.diameter) IS NULL THEN TO_NUMBER(REPLACE(p_mig_pipeline_history.diameter, 'D'))
+        -- blow up here if theres another error case
+        ELSE TO_NUMBER(p_mig_pipeline_history.diameter)
+      END;
+    EXCEPTION WHEN VALUE_ERROR THEN
+      ${datasource.user}.migration_logger.log_pipeline(
+          p_mig_pipeline_history => p_mig_pipeline_history
+        , p_status => 'FAILED'
+        , p_message => 'pipeline record diameter conversion error. diameter: ' || p_mig_pipeline_history.diameter
+        );
+      RAISE;
     END;
 
     l_new_pipeline_status := create_new_pipeline_status(
@@ -393,8 +410,8 @@ AS
                FROM envmgr.xview_env_mapsets xem
                WHERE xem.ms_domain ='PIPELINE_PROD_CODE'
                AND xem.data = p_mig_pipeline_history.product_code
-             )
-           ,  CASE
+            )
+            , CASE
                 WHEN p_mig_pipeline_history.trenched_y_n = 'Y' THEN 1
                 WHEN p_mig_pipeline_history.trenched_y_n = 'N' THEN 0
                 -- explicit mapping to null so we can blow up on unexpected values
@@ -402,18 +419,18 @@ AS
                 WHEN p_mig_pipeline_history.trenched_y_n IS NULL THEN NULL
                 ELSE 2 -- check constraint prevents insert in this case
               END
-           , p_mig_pipeline_history.diameter
-           , CASE
-               WHEN INSTR(p_mig_pipeline_history.pipeline_number, '.') != 0
-                 THEN SUBSTR(p_mig_pipeline_history.pipeline_number, 0, INSTR(p_mig_pipeline_history.pipeline_number, '.')-1) || ' bundle'
-               ELSE NULL
-             END
-           , CASE
-               WHEN INSTR(p_mig_pipeline_history.pipeline_number, '.') != 0 THEN 1
-               ELSE 0
-             END
-           )
-    RETURNING id INTO l_detail_id;
+            , l_diameter_as_number
+            , CASE
+                WHEN INSTR(p_mig_pipeline_history.pipeline_number, '.') != 0
+                  THEN SUBSTR(p_mig_pipeline_history.pipeline_number, 0, INSTR(p_mig_pipeline_history.pipeline_number, '.')-1) || ' bundle'
+                ELSE NULL
+              END
+            , CASE
+                WHEN INSTR(p_mig_pipeline_history.pipeline_number, '.') != 0 THEN 1
+                ELSE 0
+               END
+            )
+        RETURNING id INTO l_detail_id;
 
     -- identity column
     INSERT INTO ${datasource.user}.pipeline_detail_idents ( pipeline_detail_id
@@ -436,7 +453,7 @@ AS
                                               , wall_thickness
                                               , maop)
     VALUES ( l_detail_ident_id
-           , p_mig_pipeline_history.diameter
+           , l_diameter_as_number
            , p_mig_pipeline_history.wall_thickness_mm
            , p_mig_pipeline_history.maop)
     RETURNING id INTO l_detail_ident_data_id;
@@ -524,7 +541,7 @@ AS
     FROM ${datasource.user}.mig_pipeline_hist_org_roles mphor
     JOIN ${datasource.user}.mig_pipeline_history mph ON mphor.pd_id = mph.pd_id
     WHERE mphor.status_control = 'C'
-    AND mphor.pipeline_status != 'DELETED'
+    AND mph.status != 'DELETED'
     AND mph.pipe_auth_detail_id = p_mig_master_pwa.pad_id
     AND mphor.org_ou_id IS NOT NULL
     AND mphor.role = 'HOLDER';
@@ -533,6 +550,7 @@ AS
     INTO l_count_pipelines
     FROM ${datasource.user}.mig_pipeline_history mph
     WHERE mph.status_control = 'C'
+    AND mph.status != 'DELETED'
     AND mph.pipe_auth_detail_id IN (
         SELECT mpc.pad_id
         FROM ${datasource.user}.mig_pwa_consents mpc
