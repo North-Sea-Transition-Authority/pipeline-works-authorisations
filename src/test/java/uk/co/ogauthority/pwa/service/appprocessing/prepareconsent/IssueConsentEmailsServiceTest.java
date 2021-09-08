@@ -45,14 +45,15 @@ public class IssueConsentEmailsServiceTest {
   private final PwaApplicationDetail pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
   private final AuthenticatedUserAccount issuingUser = new AuthenticatedUserAccount(new WebUserAccount(1, PersonTestUtil.createPersonWithNameFrom(new PersonId(100))), Set.of());
 
+  private final String consentReference = "1/W/89";
+  private final String caseOfficerEmail = "case@officer.com";
 
   @Before
   public void setUp() throws Exception {
 
-    issueConsentEmailsService = new IssueConsentEmailsService
-        (consentEmailService, pwaContactService, pwaHolderTeamService, personService);
-  }
+    issueConsentEmailsService = new IssueConsentEmailsService(consentEmailService, pwaContactService, pwaHolderTeamService, personService);
 
+  }
 
   @Test
   public void sendConsentIssuedEmails_allEmailsSent() {
@@ -71,15 +72,27 @@ public class IssueConsentEmailsServiceTest {
     when(personService.getPersonById(pwaApplicationDetail.getSubmittedByPersonId())).thenReturn(holderTeamContact.getPerson());
 
     issueConsentEmailsService.sendConsentIssuedEmails(
-        pwaApplicationDetail, consentReview.getCoverLetterText(), issuingUser.getFullName());
+        pwaApplicationDetail,
+        consentReference,
+        consentReview.getCoverLetterText(),
+        caseOfficerEmail,
+        issuingUser.getFullName());
 
-    verify(consentEmailService).sendConsentIssuedEmail(pwaApplicationDetail, issuingUser.getFullName());
+    verify(consentEmailService).sendCaseOfficerConsentIssuedEmail(pwaApplicationDetail, issuingUser.getFullName());
 
     verify(consentEmailService).sendHolderAndSubmitterConsentIssuedEmail(
-        pwaApplicationDetail, consentReview.getCoverLetterText(), Set.of(holderTeamContact.getPerson()));
+        pwaApplicationDetail,
+        consentReference,
+        consentReview.getCoverLetterText(),
+        caseOfficerEmail,
+        Set.of(holderTeamContact.getPerson()));
 
     verify(consentEmailService).sendNonHolderConsentIssuedEmail(
-        pwaApplicationDetail, consentReview.getCoverLetterText(), List.of(nonHolderTeamContact.getPerson()));
+        pwaApplicationDetail,
+        consentReference,
+        consentReview.getCoverLetterText(),
+        caseOfficerEmail,
+        List.of(nonHolderTeamContact.getPerson()));
 
   }
 
@@ -100,10 +113,20 @@ public class IssueConsentEmailsServiceTest {
     when(personService.getPersonById(pwaApplicationDetail.getSubmittedByPersonId())).thenReturn(appSubmitterPerson);
 
     issueConsentEmailsService.sendConsentIssuedEmails(
-        pwaApplicationDetail, consentReview.getCoverLetterText(), issuingUser.getFullName());
+        pwaApplicationDetail,
+        consentReference,
+        consentReview.getCoverLetterText(),
+        caseOfficerEmail,
+        issuingUser.getFullName());
 
     verify(consentEmailService).sendHolderAndSubmitterConsentIssuedEmail(
-        pwaApplicationDetail, consentReview.getCoverLetterText(), Set.of(holderTeamContact.getPerson(), appSubmitterPerson));
+        pwaApplicationDetail,
+        consentReference,
+        consentReview.getCoverLetterText(),
+        caseOfficerEmail,
+        Set.of(holderTeamContact.getPerson(),
+        appSubmitterPerson));
+
   }
 
   @Test(expected = ActionNotAllowedException.class)
@@ -112,10 +135,12 @@ public class IssueConsentEmailsServiceTest {
     var consentReview = PwaConsentTestUtil.createApprovedConsentReview(pwaApplicationDetail);
     pwaApplicationDetail.setTipFlag(false);
     issueConsentEmailsService.sendConsentIssuedEmails(
-        pwaApplicationDetail, consentReview.getCoverLetterText(), issuingUser.getFullName());
+        pwaApplicationDetail,
+        consentReference,
+        consentReview.getCoverLetterText(),
+        caseOfficerEmail,
+        issuingUser.getFullName());
+
   }
-
-
-
 
 }

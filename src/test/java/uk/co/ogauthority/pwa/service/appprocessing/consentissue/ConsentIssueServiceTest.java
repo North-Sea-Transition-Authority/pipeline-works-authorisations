@@ -12,6 +12,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
+import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
 import uk.co.ogauthority.pwa.energyportal.model.entity.PersonTestUtil;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.docgen.DocgenRun;
@@ -26,6 +27,7 @@ import uk.co.ogauthority.pwa.service.documents.instances.DocumentInstanceService
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.workflow.application.ConsentIssueStatus;
 import uk.co.ogauthority.pwa.service.enums.workflow.application.PwaApplicationWorkflowTask;
+import uk.co.ogauthority.pwa.service.person.PersonService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaconsents.PwaConsentService;
 import uk.co.ogauthority.pwa.service.pwaconsents.consentwriters.ConsentWriterService;
@@ -63,10 +65,13 @@ public class ConsentIssueServiceTest {
   @Mock
   private CamundaWorkflowService camundaWorkflowService;
 
+  @Mock
+  private PersonService personService;
+
   private ConsentIssueService consentIssueService;
 
   private PwaApplicationDetail pwaApplicationDetail;
-  private Person issuingPerson;
+  private Person issuingPerson, caseOfficerPerson;
   private WebUserAccount issuingUser;
 
   @Before
@@ -77,6 +82,9 @@ public class ConsentIssueServiceTest {
     pwaApplicationDetail.setPwaApplication(app);
     issuingPerson = PersonTestUtil.createDefaultPerson();
     issuingUser = new WebUserAccount(1, issuingPerson);
+    caseOfficerPerson = PersonTestUtil.createPersonWithNameFrom(new PersonId(10));
+
+    when(personService.getPersonById(caseOfficerPerson.getId())).thenReturn(caseOfficerPerson);
 
     consentIssueService = new ConsentIssueService(
         pwaApplicationDetailService,
@@ -87,7 +95,8 @@ public class ConsentIssueServiceTest {
         workflowAssignmentService,
         documentInstanceService,
         docgenService,
-        camundaWorkflowService);
+        camundaWorkflowService,
+        personService);
 
   }
 
@@ -99,6 +108,7 @@ public class ConsentIssueServiceTest {
 
     var approvedReview = new ConsentReview();
     approvedReview.setCoverLetterText("cover letter");
+    approvedReview.setStartedByPersonId(caseOfficerPerson.getId());
     var approvalTime = Instant.now();
     when(consentReviewService.approveConsentReview(pwaApplicationDetail, issuingUser, approvalTime)).thenReturn(approvedReview);
 
@@ -119,7 +129,12 @@ public class ConsentIssueServiceTest {
     var workflowTaskInstance = new WorkflowTaskInstance(pwaApplicationDetail.getPwaApplication(), PwaApplicationWorkflowTask.ISSUING_CONSENT);
     verify(camundaWorkflowService, times(1)).completeTask(workflowTaskInstance);
 
-    verify(issueConsentEmailsService).sendConsentIssuedEmails(pwaApplicationDetail, approvedReview.getCoverLetterText(), issuingUser.getFullName());
+    verify(issueConsentEmailsService).sendConsentIssuedEmails(
+        pwaApplicationDetail,
+        consent.getReference(),
+        approvedReview.getCoverLetterText(),
+        caseOfficerPerson.getEmailAddress(),
+        issuingUser.getFullName());
 
     verify(workflowAssignmentService, times(1)).clearAssignments(pwaApplicationDetail.getPwaApplication());
 

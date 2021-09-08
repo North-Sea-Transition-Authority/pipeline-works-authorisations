@@ -34,11 +34,13 @@ public class IssueConsentEmailsService {
     this.personService = personService;
   }
 
+  public void sendConsentIssuedEmails(PwaApplicationDetail pwaApplicationDetail,
+                                      String consentReference,
+                                      String coverLetterText,
+                                      String caseOfficerEmail,
+                                      String issuingUserName) {
 
-
-  public void sendConsentIssuedEmails(PwaApplicationDetail pwaApplicationDetail, String coverLetterText, String issuingUserName) {
-
-    consentEmailService.sendConsentIssuedEmail(pwaApplicationDetail, issuingUserName);
+    consentEmailService.sendCaseOfficerConsentIssuedEmail(pwaApplicationDetail, issuingUserName);
 
     var holderContactsAndAppSubmitterRecipients = new HashSet<Person>();
     var nonHolderContactsRecipients = new ArrayList<Person>();
@@ -46,8 +48,19 @@ public class IssueConsentEmailsService {
     addLatestAppSubmitterToRecipientsIfDoesntExist(pwaApplicationDetail, holderContactsAndAppSubmitterRecipients);
 
     consentEmailService.sendHolderAndSubmitterConsentIssuedEmail(
-        pwaApplicationDetail, coverLetterText, holderContactsAndAppSubmitterRecipients);
-    consentEmailService.sendNonHolderConsentIssuedEmail(pwaApplicationDetail, coverLetterText, nonHolderContactsRecipients);
+        pwaApplicationDetail,
+        consentReference,
+        coverLetterText,
+        caseOfficerEmail,
+        holderContactsAndAppSubmitterRecipients);
+
+    consentEmailService.sendNonHolderConsentIssuedEmail(
+        pwaApplicationDetail,
+        consentReference,
+        coverLetterText,
+        caseOfficerEmail,
+        nonHolderContactsRecipients);
+
   }
 
   private void setHolderAndNonHolderRecipients(Collection<Person> holderContactsAndAppSubmitterRecipients,
@@ -77,8 +90,8 @@ public class IssueConsentEmailsService {
 
     var latestAppSubmitter = personService.getPersonById(pwaApplicationDetail.getSubmittedByPersonId());
     recipients.add(latestAppSubmitter);
-  }
 
+  }
 
   public void sendConsentReviewReturnedEmail(PwaApplicationDetail pwaApplicationDetail,
                                              Person caseOfficerPerson,

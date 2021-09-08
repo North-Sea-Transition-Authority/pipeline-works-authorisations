@@ -13,6 +13,7 @@ import uk.co.ogauthority.pwa.model.form.documents.ClauseForm;
 import uk.co.ogauthority.pwa.service.documents.DocumentSource;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.service.mailmerge.MailMergeService;
+import uk.co.ogauthority.pwa.util.MailMergeUtils;
 
 @Service
 public class ClauseFormValidator implements SmartValidator {
@@ -47,7 +48,7 @@ public class ClauseFormValidator implements SmartValidator {
                 String.format("Remove invalid mail merge fields: %s", String.join(", ", invalidMergeFields)));
           }
 
-          if (!docSource.manualMergeAllowed() && textContainsManualMergeDelimiters(text)) {
+          if (!docSource.manualMergeAllowed() && MailMergeUtils.textContainsManualMergeDelimiters(text)) {
             errors.rejectValue("text", FieldValidationErrorCodes.INVALID.errorCode("text"),
                 String.format("Remove '%s' from the clause text", MailMergeFieldType.MANUAL.getOpeningDelimiter()));
           }
@@ -59,10 +60,6 @@ public class ClauseFormValidator implements SmartValidator {
   @Override
   public void validate(Object target, Errors errors) {
     throw new NotImplementedException("Use other method.");
-  }
-
-  private boolean textContainsManualMergeDelimiters(String text) {
-    return text.contains(MailMergeFieldType.MANUAL.getOpeningDelimiter()) || text.contains(MailMergeFieldType.MANUAL.getClosingDelimiter());
   }
 
 }

@@ -5,9 +5,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import org.springframework.validation.SmartValidator;
 import org.springframework.validation.ValidationUtils;
+import uk.co.ogauthority.pwa.model.entity.enums.mailmerge.MailMergeFieldType;
 import uk.co.ogauthority.pwa.model.form.appprocessing.prepareconsent.SendConsentForApprovalForm;
 import uk.co.ogauthority.pwa.service.appprocessing.prepareconsent.PreSendForApprovalChecksView;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
+import uk.co.ogauthority.pwa.util.MailMergeUtils;
 
 @Service
 public class SendConsentForApprovalFormValidator implements SmartValidator {
@@ -49,6 +51,12 @@ public class SendConsentForApprovalFormValidator implements SmartValidator {
         COVER_LETTER_ATTR,
         FieldValidationErrorCodes.REQUIRED.errorCode(COVER_LETTER_ATTR),
         "Enter some email cover letter text");
+
+    if (form.getCoverLetterText() != null && MailMergeUtils.textContainsManualMergeDelimiters(form.getCoverLetterText())) {
+      errors.rejectValue(COVER_LETTER_ATTR, FieldValidationErrorCodes.INVALID.errorCode(COVER_LETTER_ATTR),
+          String.format("Remove '%s' from the cover letter text", MailMergeFieldType.MANUAL.getOpeningDelimiter()));
+    }
+
   }
 
 }

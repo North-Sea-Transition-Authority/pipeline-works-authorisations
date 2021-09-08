@@ -67,7 +67,7 @@
             </@fdsCheckbox.checkboxGroup>
         </#if>
 
-        <@fdsTextarea.textarea path="form.coverLetterText" labelText="Consent email cover letter" inputClass="govuk-!-width-full" />
+        <@fdsTextarea.textarea path="form.coverLetterText" labelText="Consent email cover letter" inputClass="govuk-!-width-full" rows="15"/>
 
         <@fdsAction.submitButtons primaryButtonText="Send for approval" linkSecondaryAction=true secondaryLinkText="Cancel" linkSecondaryActionUrl=springUrl(cancelUrl)/>
 
