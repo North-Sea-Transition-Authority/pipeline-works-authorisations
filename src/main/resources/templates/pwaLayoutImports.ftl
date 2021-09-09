@@ -28,6 +28,7 @@
 <#import 'components/mailMerge/mailMergeFieldList.ftl' as pwaMailMerge>
 <#import 'components/hiddenInput/hiddenInput.ftl' as pwaHiddenInput>
 <#import 'components/banner/notificationBanner.ftl' as notificationBanner>
+<#import 'components/markdown/markdownInsetText.ftl' as pwaMarkdownInsetText>
 
 <#function springUrl url>
     <#local springUrl>

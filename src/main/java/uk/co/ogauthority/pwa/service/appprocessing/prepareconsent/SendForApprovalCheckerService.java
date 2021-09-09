@@ -15,6 +15,7 @@ import uk.co.ogauthority.pwa.service.appprocessing.applicationupdate.Application
 import uk.co.ogauthority.pwa.service.appprocessing.appprocessingwarning.AppProcessingTaskWarningService;
 import uk.co.ogauthority.pwa.service.appprocessing.publicnotice.PublicNoticeService;
 import uk.co.ogauthority.pwa.service.consultations.ConsultationRequestService;
+import uk.co.ogauthority.pwa.service.documents.DocumentViewService;
 import uk.co.ogauthority.pwa.service.documents.instances.DocumentInstanceService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaService;
@@ -31,6 +32,7 @@ public class SendForApprovalCheckerService {
   private final MasterPwaService masterPwaService;
   private final PwaConsentService pwaConsentService;
   private final AppProcessingTaskWarningService appProcessingTaskWarningService;
+  private final DocumentViewService documentViewService;
 
   @Autowired
   public SendForApprovalCheckerService(ApplicationUpdateRequestService applicationUpdateRequestService,
@@ -39,7 +41,8 @@ public class SendForApprovalCheckerService {
                                        DocumentInstanceService documentInstanceService,
                                        MasterPwaService masterPwaService,
                                        PwaConsentService pwaConsentService,
-                                       AppProcessingTaskWarningService appProcessingTaskWarningService) {
+                                       AppProcessingTaskWarningService appProcessingTaskWarningService,
+                                       DocumentViewService documentViewService) {
     this.applicationUpdateRequestService = applicationUpdateRequestService;
     this.consultationRequestService = consultationRequestService;
     this.publicNoticeService = publicNoticeService;
@@ -47,6 +50,7 @@ public class SendForApprovalCheckerService {
     this.masterPwaService = masterPwaService;
     this.pwaConsentService = pwaConsentService;
     this.appProcessingTaskWarningService = appProcessingTaskWarningService;
+    this.documentViewService = documentViewService;
   }
 
   PreSendForApprovalChecksView getPreSendForApprovalChecksView(PwaApplicationDetail detail) {
@@ -90,6 +94,7 @@ public class SendForApprovalCheckerService {
   }
 
   private Set<FailedSendForApprovalCheck> getFailedSendForApprovalChecks(PwaApplicationDetail detail) {
+
     var failedChecks = new HashSet<FailedSendForApprovalCheck>();
 
     if (!(detail.isTipFlag() && detail.getConfirmedSatisfactoryTimestamp() != null)) {
@@ -105,22 +110,27 @@ public class SendForApprovalCheckerService {
     if (!consultationRequestService.getAllOpenRequestsByApplication(detail.getPwaApplication()).isEmpty()) {
       failedChecks.add(new FailedSendForApprovalCheck(SendConsentForApprovalRequirement.NO_CONSULTATION_IN_PROGRESS));
     }
+
     if (publicNoticeService.publicNoticeInProgress(detail.getPwaApplication())) {
       failedChecks.add(new FailedSendForApprovalCheck(SendConsentForApprovalRequirement.NO_PUBLIC_NOTICE_IN_PROGRESS));
     }
 
-    boolean documentHasClauses = documentInstanceService
-        .getDocumentInstance(detail.getPwaApplication(), DocumentTemplateMnem.PWA_CONSENT_DOCUMENT)
-        .stream()
-        .flatMap(instance -> documentInstanceService.getDocumentView(instance).getSections().stream())
-        .anyMatch(section -> !section.getClauses().isEmpty());
+    var docInstance = documentInstanceService
+        .getDocumentInstanceOrError(detail.getPwaApplication(), DocumentTemplateMnem.PWA_CONSENT_DOCUMENT);
+    var docView = documentInstanceService.getDocumentView(docInstance);
 
-    if (!documentHasClauses) {
+    if (!documentViewService.documentViewHasClauses(docView)) {
       failedChecks.add(new FailedSendForApprovalCheck(SendConsentForApprovalRequirement.DOCUMENT_HAS_CLAUSES));
     }
 
-    var applicationMasterPwaDetailStatus = masterPwaService.getCurrentDetailOrThrow(
-        detail.getMasterPwa()).getMasterPwaDetailStatus();
+    if (documentViewService.documentViewContainsManualMergeData(docView)) {
+      failedChecks.add(new FailedSendForApprovalCheck(SendConsentForApprovalRequirement.DOCUMENT_HAS_NO_MANUAL_MERGE_DATA));
+    }
+
+    var applicationMasterPwaDetailStatus = masterPwaService
+        .getCurrentDetailOrThrow(detail.getMasterPwa())
+        .getMasterPwaDetailStatus();
+
     if (applicationMasterPwaDetailStatus.equals(MasterPwaDetailStatus.APPLICATION)
         && !detail.getPwaApplicationType().equals(PwaApplicationType.INITIAL)) {
       failedChecks.add(new FailedSendForApprovalCheck(SendConsentForApprovalRequirement.MASTER_PWA_IS_NOT_CONSENTED));

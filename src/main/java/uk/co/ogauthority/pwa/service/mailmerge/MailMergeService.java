@@ -44,10 +44,14 @@ public class MailMergeService {
     return mailMergeFieldRepository.findAllByMnemIn(availableFieldMnems);
   }
 
-  public void mailMerge(DocumentView documentView, DocGenType docGenType) {
+  /**
+   * Resolve merge fields using a document source.
+   * @return a mail merge container storing resolved merge field data
+   */
+  public MailMergeContainer resolveMergeFields(DocumentSource documentSource, DocGenType docGenType) {
 
-    var resolver = getMailMergeResolver(documentView.getDocumentSource());
-    var resolvedMergeFieldNameToValueMap = new HashMap<>(resolver.resolveMergeFields(documentView.getDocumentSource()));
+    var resolver = getMailMergeResolver(documentSource);
+    var resolvedMergeFieldNameToValueMap = new HashMap<>(resolver.resolveMergeFields(documentSource));
 
     var container = new MailMergeContainer();
     container.setMailMergeFields(resolvedMergeFieldNameToValueMap);
@@ -56,6 +60,14 @@ public class MailMergeService {
       container.setAutomaticMailMergeDataHtmlAttributeMap(Map.of("class", getMailMergePreviewClasses(MailMergeFieldType.AUTOMATIC)));
       container.setManualMailMergeDataHtmlAttributeMap(Map.of("class", getMailMergePreviewClasses(MailMergeFieldType.MANUAL)));
     }
+
+    return container;
+
+  }
+
+  public void mailMerge(DocumentView documentView, DocGenType docGenType) {
+
+    var container = resolveMergeFields(documentView.getDocumentSource(), docGenType);
 
     documentView.getSections().forEach(section ->
 

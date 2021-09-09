@@ -4,6 +4,7 @@ import static org.hamcrest.Matchers.hasProperty;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -58,6 +59,8 @@ import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermiss
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.mailmerge.MailMergeService;
+import uk.co.ogauthority.pwa.service.markdown.MailMergeContainer;
+import uk.co.ogauthority.pwa.service.markdown.MarkdownService;
 import uk.co.ogauthority.pwa.service.template.TemplateTextService;
 import uk.co.ogauthority.pwa.testutils.PwaAppProcessingContextDtoTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
@@ -90,6 +93,9 @@ public class AppConsentDocControllerTest extends PwaAppProcessingContextAbstract
 
   @MockBean
   private DocgenService docgenService;
+  
+  @MockBean
+  private MarkdownService markdownService;
 
   private PwaApplicationEndpointTestBuilder editDocumentEndpointTester;
   private PwaApplicationEndpointTestBuilder sendForApprovalEndpointTester;
@@ -130,10 +136,10 @@ public class AppConsentDocControllerTest extends PwaAppProcessingContextAbstract
     when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail, user)).thenReturn(permissionsDto);
 
     doAnswer(invocation -> {
-      var errors = (Errors) invocation.getArgument(1);
+      var errors = (Errors) invocation.getArgument(2);
       errors.rejectValue("coverLetterText", "coverLetterText.error", "error message");
       return invocation;
-    }).when(consentDocumentService).validateSendConsentFormUsingPreApprovalChecks(any(), any(), any());
+    }).when(consentDocumentService).validateSendConsentFormUsingPreApprovalChecks(any(), any(), any(), any());
 
   }
 
@@ -673,9 +679,7 @@ public class AppConsentDocControllerTest extends PwaAppProcessingContextAbstract
   public void sendForApproval_sendAllowed_noParallelConsents() throws Exception {
 
     // dont fail validation
-    doAnswer(invocation -> {
-           return invocation;
-    }).when(consentDocumentService).validateSendConsentFormUsingPreApprovalChecks(any(), any(), any());
+    doAnswer(invocation -> invocation).when(consentDocumentService).validateSendConsentFormUsingPreApprovalChecks(any(), any(), any(), any());
 
     mockMvc.perform(post(ReverseRouter.route(on(AppConsentDocController.class).sendForApproval(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null, null)))
         .with(authenticatedUserAndSession(user))
@@ -691,9 +695,7 @@ public class AppConsentDocControllerTest extends PwaAppProcessingContextAbstract
   public void sendForApproval_sendAllowed_withParallelConsents() throws Exception {
 
     // dont fail validation
-    doAnswer(invocation -> {
-      return invocation;
-    }).when(consentDocumentService).validateSendConsentFormUsingPreApprovalChecks(any(), any(), any());
+    doAnswer(invocation -> invocation).when(consentDocumentService).validateSendConsentFormUsingPreApprovalChecks(any(), any(), any(), any());
 
     var preSendApprovalView = PreSendForApprovalChecksViewTestUtil.createParallelConsentsChecksView();
     when(consentDocumentService.getPreSendForApprovalChecksView(any()))
@@ -724,6 +726,33 @@ public class AppConsentDocControllerTest extends PwaAppProcessingContextAbstract
 
   }
 
+  @Test
+  public void previewCoverLetter() throws Exception {
 
+    // dont fail validation
+    doAnswer(invocation -> invocation).when(consentDocumentService).validateSendConsentFormUsingPreApprovalChecks(any(), any(), any(), any());
+
+    var preSendApprovalView = PreSendForApprovalChecksViewTestUtil.createNoFailedChecksView();
+    when(consentDocumentService.getPreSendForApprovalChecksView(any()))
+        .thenReturn(preSendApprovalView);
+
+    when(markdownService.convertMarkdownToHtml(eq("mytext"), any())).thenReturn("mymarkdownpreview");
+
+    var container = new MailMergeContainer();
+    when(mailMergeService.resolveMergeFields(pwaApplicationDetail.getPwaApplication(), DocGenType.PREVIEW)).thenReturn(container);
+
+    mockMvc.perform(post(ReverseRouter.route(on(AppConsentDocController.class).previewCoverLetter(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null, null)))
+            .with(authenticatedUserAndSession(user))
+            .with(csrf())
+            .param("coverLetterText", "mytext")
+            .param("preview-text-button", "Preview text"))
+        .andExpect(status().isOk())
+        .andExpect(model().attribute("markdownPreviewHtml", "mymarkdownpreview"));
+
+    verify(consentDocumentService, times(0)).sendForApproval(any(), any(), any(), any());
+
+    verify(markdownService, times(1)).convertMarkdownToHtml("mytext", container);
+
+  }
 
 }

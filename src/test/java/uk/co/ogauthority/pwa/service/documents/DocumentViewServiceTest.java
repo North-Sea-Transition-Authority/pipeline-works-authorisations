@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -18,8 +19,11 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.PersonTestUtil;
 import uk.co.ogauthority.pwa.model.documents.SectionClauseVersionDto;
 import uk.co.ogauthority.pwa.model.documents.view.DocumentView;
 import uk.co.ogauthority.pwa.model.documents.view.SectionClauseVersionView;
+import uk.co.ogauthority.pwa.model.documents.view.SectionView;
+import uk.co.ogauthority.pwa.model.entity.enums.documents.DocumentTemplateMnem;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocumentSection;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocumentSpec;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.enums.documents.PwaDocumentType;
 import uk.co.ogauthority.pwa.model.view.sidebarnav.SidebarSectionLink;
 import uk.co.ogauthority.pwa.service.documents.templates.TemplateDocumentSource;
@@ -36,7 +40,7 @@ public class DocumentViewServiceTest {
 
   private DocumentViewService documentViewService;
 
-  private Person person = PersonTestUtil.createDefaultPerson();
+  private final Person person = PersonTestUtil.createDefaultPerson();
 
   @Before
   public void setUp() throws Exception {
@@ -170,6 +174,74 @@ public class DocumentViewServiceTest {
         .flatMap(section -> section.getSidebarSectionLinks().stream())
         .filter(link -> link.getLink().contains(versionDto.getVersionId().toString()))
         .findFirst();
+
+  }
+
+  @Test
+  public void documentViewHasClauses_noDocumentClauses() {
+
+    var emptyDocView = new DocumentView(PwaDocumentType.INSTANCE, new PwaApplication(), DocumentTemplateMnem.PWA_CONSENT_DOCUMENT);
+    emptyDocView.setSections(List.of(new SectionView()));
+
+    boolean hasClauses = documentViewService.documentViewHasClauses(emptyDocView);
+
+    assertThat(hasClauses).isFalse();
+
+  }
+
+  @Test
+  public void documentViewHasClauses_hasDocumentClauses() {
+
+    var docView = new DocumentView(PwaDocumentType.INSTANCE, new PwaApplication(), DocumentTemplateMnem.PWA_CONSENT_DOCUMENT);
+    var sectionView = new SectionView();
+    sectionView.setClauses(List.of(new SectionClauseVersionView()));
+    docView.setSections(List.of(sectionView));
+
+    boolean hasClauses = documentViewService.documentViewHasClauses(docView);
+
+    assertThat(hasClauses).isTrue();
+
+  }
+
+  @Test
+  public void documentViewContainsManualMergeData_hasManualMergeData() {
+
+    var docView = new DocumentView(PwaDocumentType.INSTANCE, new PwaApplication(), DocumentTemplateMnem.PWA_CONSENT_DOCUMENT);
+    var sectionView = new SectionView();
+
+    var clauseView1 = new SectionClauseVersionView();
+    clauseView1.setText("??some manual merge data here??");
+
+    var clauseView2 = new SectionClauseVersionView();
+    clauseView2.setText("no manual merge data here gov");
+
+    sectionView.setClauses(List.of(clauseView1, clauseView2));
+    docView.setSections(List.of(sectionView));
+
+    boolean containsManualMergeData = documentViewService.documentViewContainsManualMergeData(docView);
+
+    assertThat(containsManualMergeData).isTrue();
+
+  }
+
+  @Test
+  public void documentViewContainsManualMergeData_noManualMergeData() {
+
+    var docView = new DocumentView(PwaDocumentType.INSTANCE, new PwaApplication(), DocumentTemplateMnem.PWA_CONSENT_DOCUMENT);
+    var sectionView = new SectionView();
+
+    var clauseView1 = new SectionClauseVersionView();
+    clauseView1.setText("nothing to see here");
+
+    var clauseView2 = new SectionClauseVersionView();
+    clauseView2.setText("no manual merge data here gov");
+
+    sectionView.setClauses(List.of(clauseView1, clauseView2));
+    docView.setSections(List.of(sectionView));
+
+    boolean containsManualMergeData = documentViewService.documentViewContainsManualMergeData(docView);
+
+    assertThat(containsManualMergeData).isFalse();
 
   }
 

@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.service.mailmerge;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
@@ -53,6 +54,14 @@ public class MailMergeServiceTest {
 
   private static final String APPENDED_BY_MERGE = " merged";
 
+  private static final String AUTOMATIC_MAIL_MERGE_CLASSES = "pwa-mail-merge__preview pwa-mail-merge__preview--automatic";
+  private static final String MANUAL_MAIL_MERGE_CLASSES = "pwa-mail-merge__preview pwa-mail-merge__preview--manual";
+
+  private final Map<String, String> resolvedMergeFields = Map.of(
+      MailMergeFieldMnem.PROPOSED_START_OF_WORKS_DATE.name(), DateUtils.formatDate(Instant.now()),
+      MailMergeFieldMnem.PROJECT_NAME.name(), "project name"
+  );
+
   @Before
   public void setUp() throws Exception {
 
@@ -66,6 +75,8 @@ public class MailMergeServiceTest {
       var passedArg = (String) invocation.getArgument(0);
       return passedArg + APPENDED_BY_MERGE;
     }).when(markdownService).convertMarkdownToHtml(any(), any());
+
+    when(pwaApplicationMailMergeResolver.resolveMergeFields(detail.getPwaApplication())).thenReturn(resolvedMergeFields);
 
   }
 
@@ -84,6 +95,37 @@ public class MailMergeServiceTest {
   }
 
   @Test
+  public void resolveMergeFields_preview() {
+
+    var resolvedMergeFields = Map.of(
+        MailMergeFieldMnem.PROPOSED_START_OF_WORKS_DATE.name(), DateUtils.formatDate(Instant.now()),
+        MailMergeFieldMnem.PROJECT_NAME.name(), "project name"
+    );
+
+    when(pwaApplicationMailMergeResolver.resolveMergeFields(detail.getPwaApplication())).thenReturn(resolvedMergeFields);
+
+    var container = mailMergeService.resolveMergeFields(detail.getPwaApplication(), DocGenType.PREVIEW);
+
+    assertThat(container.getMailMergeFields()).containsExactlyInAnyOrderEntriesOf(resolvedMergeFields);
+
+    assertThat(container.getAutomaticMailMergeDataHtmlAttributeMap()).containsOnly(
+        entry("class", AUTOMATIC_MAIL_MERGE_CLASSES));
+
+    assertThat(container.getManualMailMergeDataHtmlAttributeMap()).containsOnly(
+        entry("class", MANUAL_MAIL_MERGE_CLASSES));
+
+  }
+
+  @Test
+  public void resolveMergeFields_full() {
+
+    var container = mailMergeService.resolveMergeFields(detail.getPwaApplication(), DocGenType.FULL);
+
+    assertThat(container.getMailMergeFields()).containsExactlyInAnyOrderEntriesOf(resolvedMergeFields);
+
+  }
+
+  @Test
   public void mailMerge_preview() {
 
     var docView = setupDocView();
@@ -97,8 +139,8 @@ public class MailMergeServiceTest {
 
     var container = new MailMergeContainer();
     container.setMailMergeFields(resolvedMergeFields);
-    container.setAutomaticMailMergeDataHtmlAttributeMap(Map.of("class", "pwa-mail-merge__preview pwa-mail-merge__preview--automatic"));
-    container.setManualMailMergeDataHtmlAttributeMap(Map.of("class", "pwa-mail-merge__preview pwa-mail-merge__preview--manual"));
+    container.setAutomaticMailMergeDataHtmlAttributeMap(Map.of("class", AUTOMATIC_MAIL_MERGE_CLASSES));
+    container.setManualMailMergeDataHtmlAttributeMap(Map.of("class", MANUAL_MAIL_MERGE_CLASSES));
 
     mailMergeService.mailMerge(docView, DocGenType.PREVIEW);
 

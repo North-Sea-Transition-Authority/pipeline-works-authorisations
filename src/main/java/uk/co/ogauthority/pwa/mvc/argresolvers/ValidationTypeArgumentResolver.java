@@ -12,7 +12,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationTyp
 
 /**
  * This class provides a way to transform the results of clicking app form submit buttons (either 'Save and complete later'
- * or 'Save and complete' into the type of validation which should be performed for each.
+ * or 'Save and complete') into the type of validation which should be performed for each.
  * Should only be used when posting a form page that is using the submitButtons macro.
  */
 public class ValidationTypeArgumentResolver implements HandlerMethodArgumentResolver {

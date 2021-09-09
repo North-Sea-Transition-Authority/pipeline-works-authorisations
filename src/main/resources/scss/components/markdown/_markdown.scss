@@ -2,13 +2,17 @@
 //@import '../../../public/assets/govuk-frontend/govuk/core/lists';
 //@import '../../../public/assets/govuk-frontend/govuk/core/typography';
 
-.markdown__input {
+.pwa-markdown__input {
   background: govuk-colour("light-grey");
-  padding: 2rem 2rem 0;
+  padding: govuk-spacing(6);
   margin-bottom: 2rem;
 }
 
-.markdown__preview {
+.pwa-markdown__preview {
+
+  background: govuk-colour("light-grey");
+  padding: govuk-spacing(6);
+  margin-bottom: 2rem;
 
   h1 {
     @extend %govuk-heading-xl;
@@ -87,15 +91,5 @@
     }
   }
 
-  .list-style {
-
-    &--alpha {
-      list-style: lower-alpha;
-    }
-
-    &--roman-numerals {
-      list-style: lower-roman;
-    }
-  }
 }
 

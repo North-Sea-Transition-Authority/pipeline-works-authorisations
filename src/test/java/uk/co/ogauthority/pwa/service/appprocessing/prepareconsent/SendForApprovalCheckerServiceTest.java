@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.service.appprocessing.prepareconsent;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import java.time.Instant;
@@ -8,30 +9,24 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
-import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import uk.co.ogauthority.pwa.model.documents.view.DocumentView;
-import uk.co.ogauthority.pwa.model.documents.view.SectionClauseVersionView;
-import uk.co.ogauthority.pwa.model.documents.view.SectionView;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
-import uk.co.ogauthority.pwa.model.entity.documents.instances.DocumentInstance;
 import uk.co.ogauthority.pwa.model.entity.enums.MasterPwaDetailStatus;
-import uk.co.ogauthority.pwa.model.entity.enums.documents.DocumentTemplateMnem;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
 import uk.co.ogauthority.pwa.model.enums.appprocessing.NonBlockingWarningPage;
-import uk.co.ogauthority.pwa.model.enums.documents.PwaDocumentType;
 import uk.co.ogauthority.pwa.service.appprocessing.applicationupdate.ApplicationUpdateRequestService;
 import uk.co.ogauthority.pwa.service.appprocessing.appprocessingwarning.AppProcessingTaskWarningService;
 import uk.co.ogauthority.pwa.service.appprocessing.appprocessingwarning.AppProcessingTaskWarningTestUtil;
 import uk.co.ogauthority.pwa.service.appprocessing.publicnotice.PublicNoticeService;
 import uk.co.ogauthority.pwa.service.consultations.ConsultationRequestService;
+import uk.co.ogauthority.pwa.service.documents.DocumentViewService;
 import uk.co.ogauthority.pwa.service.documents.instances.DocumentInstanceService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaService;
@@ -65,6 +60,8 @@ public class SendForApprovalCheckerServiceTest {
   @Mock
   private AppProcessingTaskWarningService appProcessingTaskWarningService;
 
+  @Mock
+  private DocumentViewService documentViewService;
 
   private SendForApprovalCheckerService sendforApprovalCheckerService;
 
@@ -81,7 +78,8 @@ public class SendForApprovalCheckerServiceTest {
         documentInstanceService,
         masterPwaService,
         pwaConsentService,
-        appProcessingTaskWarningService);
+        appProcessingTaskWarningService,
+        documentViewService);
     detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     detail.getPwaApplication().setApplicationCreatedTimestamp(APP_CREATION_INSTANT);
 
@@ -98,15 +96,9 @@ public class SendForApprovalCheckerServiceTest {
     // no public notice
     when(publicNoticeService.publicNoticeInProgress(detail.getPwaApplication())).thenReturn(false);
     // doc clauses exist
-    var instance = new DocumentInstance();
-    when(documentInstanceService.getDocumentInstance(detail.getPwaApplication(), DocumentTemplateMnem.PWA_CONSENT_DOCUMENT))
-        .thenReturn(Optional.of(instance));
-
-    var docView = new DocumentView(PwaDocumentType.INSTANCE, detail.getPwaApplication(), DocumentTemplateMnem.PWA_CONSENT_DOCUMENT);
-    var sectionView = new SectionView();
-    sectionView.setClauses(List.of(new SectionClauseVersionView()));
-    docView.setSections(List.of(sectionView));
-    when(documentInstanceService.getDocumentView(instance)).thenReturn(docView);
+    when(documentViewService.documentViewHasClauses(any())).thenReturn(true);
+    // doc clauses don't have manual merge data
+    when(documentViewService.documentViewContainsManualMergeData(any())).thenReturn(false);
 
   }
 
@@ -172,13 +164,7 @@ public class SendForApprovalCheckerServiceTest {
   @Test
   public void getPreSendForApprovalChecksView_noDocumentClauses() {
 
-    var instance = new DocumentInstance();
-    when(documentInstanceService.getDocumentInstance(detail.getPwaApplication(), DocumentTemplateMnem.PWA_CONSENT_DOCUMENT))
-        .thenReturn(Optional.of(instance));
-
-    var emptyDocView = new DocumentView(PwaDocumentType.INSTANCE, detail.getPwaApplication(), DocumentTemplateMnem.PWA_CONSENT_DOCUMENT);
-    emptyDocView.setSections(List.of(new SectionView()));
-    when(documentInstanceService.getDocumentView(instance)).thenReturn(emptyDocView);
+    when(documentViewService.documentViewHasClauses(any())).thenReturn(false);
 
     var preSendApprovalCheckView = sendforApprovalCheckerService.getPreSendForApprovalChecksView(detail);
 
@@ -186,6 +172,21 @@ public class SendForApprovalCheckerServiceTest {
         .hasOnlyOneElementSatisfying(failedSendForApprovalCheck -> {
           assertThat(failedSendForApprovalCheck.getSendConsentForApprovalRequirement()).isEqualTo(SendConsentForApprovalRequirement.DOCUMENT_HAS_CLAUSES);
         });
+
+  }
+
+  @Test
+  public void getPreSendForApprovalChecksView_manualMergeDataPresent() {
+
+    when(documentViewService.documentViewContainsManualMergeData(any())).thenReturn(true);
+
+    var preSendApprovalCheckView = sendforApprovalCheckerService.getPreSendForApprovalChecksView(detail);
+
+    assertThat(preSendApprovalCheckView.getFailedSendForApprovalChecks())
+        .hasOnlyOneElementSatisfying(failedSendForApprovalCheck -> {
+          assertThat(failedSendForApprovalCheck.getSendConsentForApprovalRequirement()).isEqualTo(SendConsentForApprovalRequirement.DOCUMENT_HAS_NO_MANUAL_MERGE_DATA);
+        });
+
   }
 
   @Test

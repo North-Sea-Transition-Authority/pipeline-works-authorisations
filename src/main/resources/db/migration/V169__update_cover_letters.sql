@@ -9,12 +9,11 @@ INSERT INTO ${datasource.user}.template_text (text_type, text) VALUES (
 );
 
 UPDATE ${datasource.user}.template_text
-SET text = '**On completion of the construction of the pipeline, you must** confirm to OGA that you have completed construction and whether the work have been constructed in accordance with ??paragraph 7?? of the PWA issued to you including the details set out in Table "A" attached to the authorisation. This information must be provided in the as-built notifications area of the PWA service.
+SET text = 'On completion of the construction of the pipeline, you must confirm to OGA that you have completed construction and whether the work have been constructed in accordance with ??paragraph 7?? of the PWA issued to you including the details set out in Table "A" attached to the authorisation. This information must be provided in the as-built notifications area of the PWA service.
 
 ??Further you must notify OGA the first time the pipeline(s) are brought into use quoting the pipeline numbers and the relevant PWA number.??
 
-??Additional paragraphs if time tracked or other information required??
-'
+??Additional paragraphs if time tracked or other information required??'
 WHERE text_type = 'VARIATION_CONSENT_EMAIL_COVER_LETTER';
 
 UPDATE ${datasource.user}.template_text

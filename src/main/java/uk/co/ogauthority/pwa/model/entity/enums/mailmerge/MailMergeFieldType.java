@@ -20,4 +20,5 @@ public enum MailMergeFieldType {
   public String getClosingDelimiter() {
     return closingDelimiter;
   }
+
 }

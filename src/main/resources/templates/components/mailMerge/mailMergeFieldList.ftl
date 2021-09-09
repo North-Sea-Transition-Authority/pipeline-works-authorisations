@@ -16,3 +16,8 @@
   </table>
 
 </#macro>
+
+<#macro manualMergeGuidance showHeading=true>
+  <#if showHeading><h3 class="govuk-heading-m">What does '??' mean?</h3></#if>
+  <p class="govuk-body">Phrases starting and ending with '??' indicate that an edit needs to be made to remove text that does not apply to this application or PWA.</p>
+</#macro>

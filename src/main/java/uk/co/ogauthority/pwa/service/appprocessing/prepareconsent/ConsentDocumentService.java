@@ -11,6 +11,7 @@ import org.springframework.validation.BindingResult;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.prepareconsent.ParallelConsentCheckLog;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.prepareconsent.SendConsentForApprovalFormValidator;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.appprocessing.prepareconsent.SendConsentForApprovalForm;
 import uk.co.ogauthority.pwa.repository.appprocessing.prepareconsent.ParallelConsentCheckLogRepository;
@@ -89,11 +90,12 @@ public class ConsentDocumentService {
 
   }
 
-  public void validateSendConsentFormUsingPreApprovalChecks(SendConsentForApprovalForm form,
+  public void validateSendConsentFormUsingPreApprovalChecks(PwaApplication pwaApplication,
+                                                            SendConsentForApprovalForm form,
                                                             BindingResult formBindingResult,
                                                             PreSendForApprovalChecksView preSendForApprovalChecksView) {
 
-    sendConsentForApprovalFormValidator.validate(form, formBindingResult, preSendForApprovalChecksView);
+    sendConsentForApprovalFormValidator.validate(form, formBindingResult, preSendForApprovalChecksView, pwaApplication);
   }
 
 }

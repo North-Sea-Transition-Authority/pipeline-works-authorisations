@@ -150,9 +150,6 @@ public class PublicNoticeDraftController extends PwaApplicationDataFileUploadAnd
     return modelAndView;
   }
 
-
-
-
   @PwaAppProcessingPermissionCheck(permissions = {
       PwaAppProcessingPermission.DRAFT_PUBLIC_NOTICE, PwaAppProcessingPermission.UPDATE_PUBLIC_NOTICE_DOC})
   @PwaApplicationStatusCheck(statuses = PwaApplicationStatus.CASE_OFFICER_REVIEW)

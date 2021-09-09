@@ -24,6 +24,7 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.prepareconsent.ConsentReview;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.prepareconsent.ParallelConsentCheckLog;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.prepareconsent.SendConsentForApprovalFormValidator;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.appprocessing.prepareconsent.SendConsentForApprovalForm;
 import uk.co.ogauthority.pwa.repository.appprocessing.prepareconsent.ParallelConsentCheckLogRepository;
@@ -139,13 +140,15 @@ public class ConsentDocumentServiceTest {
 
   @Test
   public void validate_serviceInteractions(){
+
     var form = new SendConsentForApprovalForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     var preApprovalChecksView = PreSendForApprovalChecksViewTestUtil.createNoFailedChecksView();
+    var app = new PwaApplication();
 
-    consentDocumentService.validateSendConsentFormUsingPreApprovalChecks(form, bindingResult, preApprovalChecksView);
+    consentDocumentService.validateSendConsentFormUsingPreApprovalChecks(app, form, bindingResult, preApprovalChecksView);
 
-    verify(sendConsentForApprovalFormValidator).validate(form, bindingResult, preApprovalChecksView);
+    verify(sendConsentForApprovalFormValidator).validate(form, bindingResult, preApprovalChecksView, app);
 
   }
 

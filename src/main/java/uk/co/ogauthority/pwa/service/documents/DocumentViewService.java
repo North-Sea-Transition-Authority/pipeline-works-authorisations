@@ -18,6 +18,7 @@ import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocumentSpe
 import uk.co.ogauthority.pwa.model.enums.documents.PwaDocumentType;
 import uk.co.ogauthority.pwa.model.enums.documents.SectionClauseVersionStatus;
 import uk.co.ogauthority.pwa.model.view.sidebarnav.SidebarSectionLink;
+import uk.co.ogauthority.pwa.util.MailMergeUtils;
 
 @Service
 public class DocumentViewService {
@@ -119,6 +120,21 @@ public class DocumentViewService {
     });
 
     sectionView.setSidebarSectionLinks(sidebarLinks);
+
+  }
+
+  public boolean documentViewHasClauses(DocumentView docView) {
+
+    return docView.getSections().stream()
+        .anyMatch(section -> !section.getClauses().isEmpty());
+
+  }
+
+  public boolean documentViewContainsManualMergeData(DocumentView docView) {
+
+    return docView.getSections().stream()
+        .flatMap(section -> section.getClauses().stream())
+        .anyMatch(c -> MailMergeUtils.textContainsManualMergeDelimiters(c.getText()));
 
   }
 

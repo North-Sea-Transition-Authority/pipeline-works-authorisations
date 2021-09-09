@@ -8,6 +8,7 @@
 <#-- @ftlvariable name="nonBlockingTasksWarning" type=" uk.co.ogauthority.pwa.service.appprocessing.appprocessingwarning.NonBlockingTasksWarning>" -->
 <#-- @ftlvariable name="cancelUrl" type="String" -->
 <#-- @ftlvariable name="urlFactory" type="uk.co.ogauthority.pwa.controller.appprocessing.prepareconsent.SendForApprovalUrlFactory" -->
+<#-- @ftlvariable name="markdownPreviewHtml" type="String" -->
 
 <#assign pageHeading = "${caseSummaryView.pwaApplicationRef} - Send consent for approval" />
 
@@ -27,7 +28,7 @@
 
   <h2 class="govuk-heading-l">Send consent for approval</h2>
 
-  <div class="govuk-!-width-two-thirds">
+  <div class="govuk-!-width-full">
       <@fdsWarning.warning>
         You will not be able to make any updates to the consent or other tasks for this application while the consent is being reviewed.
       </@fdsWarning.warning>
@@ -67,7 +68,23 @@
             </@fdsCheckbox.checkboxGroup>
         </#if>
 
-        <@fdsTextarea.textarea path="form.coverLetterText" labelText="Consent email cover letter" inputClass="govuk-!-width-full" rows="15"/>
+        <@pwaMarkdownInsetText.text "cover letter text area"/>
+
+        <@fdsTextarea.textarea path="form.coverLetterText" labelText="Consent email cover letter" inputClass="govuk-!-width-two-thirds" rows="15"/>
+
+        <@fdsDetails.summaryDetails summaryTitle="What does '??' mean?">
+          <@pwaMailMerge.manualMergeGuidance showHeading=false/>
+        </@fdsDetails.summaryDetails>
+
+        <@fdsAction.button buttonText="Preview text" buttonName="preview-text-button" buttonClass="govuk-button govuk-button--secondary"/>
+
+        <#if markdownPreviewHtml?has_content>
+          <div class="pwa-markdown__preview">
+              <#noautoesc>
+                  ${markdownPreviewHtml}
+              </#noautoesc>
+          </div>
+        </#if>
 
         <@fdsAction.submitButtons primaryButtonText="Send for approval" linkSecondaryAction=true secondaryLinkText="Cancel" linkSecondaryActionUrl=springUrl(cancelUrl)/>
 

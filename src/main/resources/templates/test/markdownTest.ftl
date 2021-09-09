@@ -1,7 +1,7 @@
 <#include '../layout.ftl'>
 
 <@defaultPage htmlTitle="Markdown test" pageHeading="Markdown test" twoThirdsColumn=false topNavigation=false>
-  <div class="markdown__container">
+  <div class="pwa-markdown__container">
     <p class="govuk-body">
       Markdown functionality ensures:
     </p>
@@ -21,7 +21,7 @@
       </li>
       <li>mail merge data is supported by using ??FORENAME?? or ??SURNAME??</li>
     </ul>
-    <div class="markdown__input">
+    <div class="pwa-markdown__input">
       <@fdsForm.htmlForm>
         <@fdsTextarea.textarea path="form.markdown" labelText="Enter markdown" rows="10" />
         <@fdsDetails.summaryDetails summaryTitle="What is markdown?">
@@ -34,7 +34,7 @@
       </@fdsForm.htmlForm>
     </div>
     <#if html?has_content>
-      <div class="markdown__preview">
+      <div class="pwa-markdown__preview">
         <#noautoesc>
           ${html}
         </#noautoesc>

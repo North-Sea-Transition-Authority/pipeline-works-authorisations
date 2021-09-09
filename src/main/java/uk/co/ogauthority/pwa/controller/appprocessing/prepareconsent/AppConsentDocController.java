@@ -48,6 +48,7 @@ import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingTask;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.mailmerge.MailMergeService;
+import uk.co.ogauthority.pwa.service.markdown.MarkdownService;
 import uk.co.ogauthority.pwa.service.template.TemplateTextService;
 import uk.co.ogauthority.pwa.util.FileDownloadUtils;
 import uk.co.ogauthority.pwa.util.FlashUtils;
@@ -67,6 +68,7 @@ public class AppConsentDocController {
   private final ConsentReviewService consentReviewService;
   private final MailMergeService mailMergeService;
   private final DocgenService docgenService;
+  private final MarkdownService markdownService;
 
   @Autowired
   public AppConsentDocController(AppProcessingBreadcrumbService breadcrumbService,
@@ -77,7 +79,8 @@ public class AppConsentDocController {
                                  ConsentDocumentService consentDocumentService,
                                  ConsentReviewService consentReviewService,
                                  MailMergeService mailMergeService,
-                                 DocgenService docgenService) {
+                                 DocgenService docgenService,
+                                 MarkdownService markdownService) {
     this.breadcrumbService = breadcrumbService;
     this.documentService = documentService;
     this.prepareConsentTaskService = prepareConsentTaskService;
@@ -87,6 +90,7 @@ public class AppConsentDocController {
     this.consentReviewService = consentReviewService;
     this.mailMergeService = mailMergeService;
     this.docgenService = docgenService;
+    this.markdownService = markdownService;
   }
 
   @GetMapping
@@ -398,7 +402,34 @@ public class AppConsentDocController {
 
   }
 
-  @PostMapping("/send-for-approval")
+  @PostMapping(value = "/send-for-approval", params = "preview-text-button")
+  @PwaApplicationStatusCheck(statuses = {PwaApplicationStatus.CASE_OFFICER_REVIEW, PwaApplicationStatus.CONSENT_REVIEW})
+  @PwaAppProcessingPermissionCheck(permissions = PwaAppProcessingPermission.SEND_CONSENT_FOR_APPROVAL)
+  public ModelAndView previewCoverLetter(@PathVariable("applicationId") Integer applicationId,
+                                         @PathVariable("applicationType")
+                                         @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
+                                         PwaAppProcessingContext processingContext,
+                                         @ModelAttribute("form") SendConsentForApprovalForm form,
+                                         BindingResult bindingResult,
+                                         AuthenticatedUserAccount authUser,
+                                         RedirectAttributes redirectAttributes) {
+
+    return whenSendForApprovalAvailable(
+        processingContext,
+        redirectAttributes,
+        (preSendForApprovalChecksView) -> {
+
+            var mergeContainer = mailMergeService.resolveMergeFields(processingContext.getPwaApplication(), DocGenType.PREVIEW);
+            var markdownPreviewHtml = markdownService.convertMarkdownToHtml(form.getCoverLetterText(), mergeContainer);
+
+            return getSendForApprovalModelAndView(processingContext, preSendForApprovalChecksView)
+                .addObject("markdownPreviewHtml", markdownPreviewHtml);
+
+        });
+
+  }
+
+  @PostMapping(value = "/send-for-approval")
   @PwaApplicationStatusCheck(statuses = {PwaApplicationStatus.CASE_OFFICER_REVIEW, PwaApplicationStatus.CONSENT_REVIEW})
   @PwaAppProcessingPermissionCheck(permissions = PwaAppProcessingPermission.SEND_CONSENT_FOR_APPROVAL)
   public ModelAndView sendForApproval(@PathVariable("applicationId") Integer applicationId,
@@ -409,15 +440,18 @@ public class AppConsentDocController {
                                       BindingResult bindingResult,
                                       AuthenticatedUserAccount authUser,
                                       RedirectAttributes redirectAttributes) {
+
     return whenSendForApprovalAvailable(
         processingContext,
         redirectAttributes,
         (preSendForApprovalChecksView) -> {
 
           consentDocumentService.validateSendConsentFormUsingPreApprovalChecks(
+              processingContext.getPwaApplication(),
               form,
               bindingResult,
               preSendForApprovalChecksView);
+
           return controllerHelperService.checkErrorsAndRedirect(
               bindingResult,
               getSendForApprovalModelAndView(processingContext, preSendForApprovalChecksView),
@@ -435,6 +469,7 @@ public class AppConsentDocController {
 
               });
         });
+
   }
 
   public ModelAndView whenPrepareConsentAvailable(PwaAppProcessingContext processingContext,
@@ -451,14 +486,18 @@ public class AppConsentDocController {
   private ModelAndView whenSendForApprovalAvailable(PwaAppProcessingContext processingContext,
                                                     RedirectAttributes redirectAttributes,
                                                     Function<PreSendForApprovalChecksView, ModelAndView> modelAndViewFunction) {
+
     var application = processingContext.getPwaApplication();
+
     if (consentReviewService.areThereAnyOpenReviews(processingContext.getApplicationDetail())) {
+
       FlashUtils.info(redirectAttributes, "Already sent for approval",
           String.format("There is already a consent review open for the application with reference %s", application.getAppReference()));
+
       return ReverseRouter.redirect(on(WorkAreaController.class)
           .renderWorkArea(null, null, null));
-    }
 
+    }
 
     var preSendForApprovalChecksView = consentDocumentService
         .getPreSendForApprovalChecksView(processingContext.getApplicationDetail());
@@ -476,6 +515,7 @@ public class AppConsentDocController {
 
       return ReverseRouter.redirect(on(AppConsentDocController.class)
           .renderConsentDocEditor(processingContext.getMasterPwaApplicationId(), processingContext.getApplicationType(), null, null));
+
     }
 
     return modelAndViewFunction.apply(preSendForApprovalChecksView);
