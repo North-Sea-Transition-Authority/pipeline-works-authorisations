@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.util;
 
+import java.util.Optional;
 import uk.co.ogauthority.pwa.model.entity.enums.mailmerge.MailMergeFieldType;
 
 public class MailMergeUtils {
@@ -9,7 +10,10 @@ public class MailMergeUtils {
   }
 
   public static boolean textContainsManualMergeDelimiters(String text) {
-    return text.contains(MailMergeFieldType.MANUAL.getOpeningDelimiter()) || text.contains(MailMergeFieldType.MANUAL.getClosingDelimiter());
+    return Optional.ofNullable(text)
+        .map(t -> t.contains(MailMergeFieldType.MANUAL.getOpeningDelimiter())
+            || t.contains(MailMergeFieldType.MANUAL.getClosingDelimiter()))
+        .orElse(false);
   }
 
 }
