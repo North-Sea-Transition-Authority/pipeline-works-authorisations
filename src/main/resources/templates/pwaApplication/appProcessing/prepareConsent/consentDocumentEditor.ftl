@@ -10,6 +10,7 @@
 <#-- @ftlvariable name="userProcessingPermissions" type="java.util.Set<uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission>" -->
 <#-- @ftlvariable name="automaticMailMergePreviewClasses" type="String" -->
 <#-- @ftlvariable name="manualMailMergePreviewClasses" type="String" -->
+<#-- @ftlvariable name="sosdConsultationRequestView" type="java.util.List<"uk.co.ogauthority.pwa.model.form.consultation.ConsultationRequestView>" -->
 
 <#assign pageHeading = "${caseSummaryView.pwaApplicationRef} - Prepare consent" />
 
@@ -54,6 +55,16 @@
         </@fdsInsetText.insetText>
 
         <@pwaClauseList.list documentView=docView clauseActionsUrlProvider=clauseActionsUrlProvider/>
+      </#if>
+
+      <#if sosdConsultationRequestView?has_content>      
+        <@fdsCheckAnswers.checkAnswersWrapper summaryListId="" headingText="Consultation Secretary of State’s decision documents" headingSize="h3" headingClass="govuk-heading-m">
+          <@fdsCheckAnswers.checkAnswers summaryListClass="">
+            <@fdsCheckAnswers.checkAnswersRowNoAction keyText=sosdConsultationRequestView.consultationResponseDocumentType.displayName>
+                <@pwaFiles.uploadedFileList downloadUrl=springUrl(sosdConsultationRequestView.downloadFileUrl) existingFiles=sosdConsultationRequestView.consultationResponseFileViews blockClass="case-history" />
+            </@fdsCheckAnswers.checkAnswersRowNoAction>
+          </@fdsCheckAnswers.checkAnswers>
+        </@fdsCheckAnswers.checkAnswersWrapper>
       </#if>
 
     </@defaultPagePaneContent>

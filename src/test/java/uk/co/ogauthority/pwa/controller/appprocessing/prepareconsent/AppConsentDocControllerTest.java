@@ -46,11 +46,13 @@ import uk.co.ogauthority.pwa.model.entity.documents.instances.DocumentInstance;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocGenType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.enums.consultations.ConsultationResponseDocumentType;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.PwaAppProcessingPermissionService;
 import uk.co.ogauthority.pwa.service.appprocessing.consentreview.ConsentReviewService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContextService;
 import uk.co.ogauthority.pwa.service.appprocessing.prepareconsent.ConsentDocumentService;
+import uk.co.ogauthority.pwa.service.appprocessing.prepareconsent.ConsentFileViewerService;
 import uk.co.ogauthority.pwa.service.appprocessing.prepareconsent.PreSendForApprovalChecksViewTestUtil;
 import uk.co.ogauthority.pwa.service.appprocessing.prepareconsent.PrepareConsentTaskService;
 import uk.co.ogauthority.pwa.service.docgen.DocgenService;
@@ -97,6 +99,9 @@ public class AppConsentDocControllerTest extends PwaAppProcessingContextAbstract
   @MockBean
   private MarkdownService markdownService;
 
+  @MockBean
+  private ConsentFileViewerService consentFileViewerService;
+
   private PwaApplicationEndpointTestBuilder editDocumentEndpointTester;
   private PwaApplicationEndpointTestBuilder sendForApprovalEndpointTester;
 
@@ -140,6 +145,9 @@ public class AppConsentDocControllerTest extends PwaAppProcessingContextAbstract
       errors.rejectValue("coverLetterText", "coverLetterText.error", "error message");
       return invocation;
     }).when(consentDocumentService).validateSendConsentFormUsingPreApprovalChecks(any(), any(), any(), any());
+
+    when(consentFileViewerService.getLatestConsultationRequestViewForDocumentType(
+        pwaApplicationDetail.getPwaApplication(), ConsultationResponseDocumentType.SECRETARY_OF_STATE_DECISION)).thenReturn(Optional.empty());
 
   }
 
