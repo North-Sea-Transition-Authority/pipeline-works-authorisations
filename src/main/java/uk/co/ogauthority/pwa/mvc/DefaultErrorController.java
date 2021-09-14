@@ -9,20 +9,28 @@ import java.util.Optional;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.ObjectUtils;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.servlet.error.ErrorController;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.DispatcherServlet;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.util.WebUtils;
+import uk.co.ogauthority.pwa.mvc.error.ErrorService;
 
 @Controller
 public class DefaultErrorController implements ErrorController {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(DefaultErrorController.class);
+
+  private final ErrorService errorService;
+
+  @Autowired
+  public DefaultErrorController(ErrorService errorService) {
+    this.errorService = errorService;
+  }
 
   /**
    * Handles framework-level errors (404s, authorisation failures, filter exceptions) for browser clients. Errors thrown
@@ -39,14 +47,9 @@ public class DefaultErrorController implements ErrorController {
     //Look for the Spring specific exception first, fall back to the Servlet exception if not available
     Object dispatcherException = request.getAttribute(DispatcherServlet.EXCEPTION_ATTRIBUTE);
     Object servletException = request.getAttribute(WebUtils.ERROR_EXCEPTION_ATTRIBUTE);
-    Throwable th = (Throwable) ObjectUtils.defaultIfNull(dispatcherException, servletException);
+    Throwable throwable = (Throwable) ObjectUtils.defaultIfNull(dispatcherException, servletException);
 
-    String errorRef = RandomStringUtils.randomNumeric(5);
-
-    if (th != null) {
-      LOGGER.error("Caught unhandled exception (ref {})", errorRef, th);
-      modelAndView.addObject("errorRef", errorRef);
-    }
+    errorService.addErrorAttributesToModel(modelAndView, throwable);
 
     return modelAndView;
   }

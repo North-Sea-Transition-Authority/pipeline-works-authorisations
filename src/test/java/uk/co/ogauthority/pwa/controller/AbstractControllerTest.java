@@ -24,6 +24,7 @@ import uk.co.ogauthority.pwa.config.fileupload.FileUploadProperties;
 import uk.co.ogauthority.pwa.energyportal.service.SystemAreaAccessService;
 import uk.co.ogauthority.pwa.energyportal.service.TopMenuService;
 import uk.co.ogauthority.pwa.model.entity.UserSession;
+import uk.co.ogauthority.pwa.mvc.error.ErrorService;
 import uk.co.ogauthority.pwa.service.FoxUrlService;
 import uk.co.ogauthority.pwa.service.UserSessionService;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
@@ -72,10 +73,11 @@ public abstract class AbstractControllerTest {
   @MockBean
   protected ServiceProperties serviceProperties;
 
+  @MockBean
+  protected ErrorService errorService;
+
   @SpyBean
   protected FooterService footerServices;
-
-
 
   @Before
   public void abstractControllerTestSetup() {
