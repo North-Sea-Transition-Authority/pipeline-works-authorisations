@@ -17,6 +17,7 @@ import uk.co.ogauthority.pwa.model.form.pwaapplications.views.techdrawings.Pipel
 import uk.co.ogauthority.pwa.service.documents.views.tablea.DrawingForTableAView;
 import uk.co.ogauthority.pwa.service.documents.views.tablea.TableARowView;
 import uk.co.ogauthority.pwa.service.documents.views.tablea.TableAView;
+import uk.co.ogauthority.pwa.service.markdown.MarkdownService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.IdentDiffableView;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineDiffableSummary;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineDiffableSummaryService;
@@ -31,17 +32,20 @@ public class TableAGeneratorService implements DocumentSectionGenerator {
   private final PadProjectInformationService padProjectInformationService;
   private final ConsentDocumentImageService consentDocumentImageService;
   private final PadTechnicalDrawingService padTechnicalDrawingService;
+  private final MarkdownService markdownService;
 
   @Autowired
   public TableAGeneratorService(
       PipelineDiffableSummaryService pipelineDiffableSummaryService,
       PadProjectInformationService padProjectInformationService,
       ConsentDocumentImageService consentDocumentImageService,
-      PadTechnicalDrawingService padTechnicalDrawingService) {
+      PadTechnicalDrawingService padTechnicalDrawingService,
+      MarkdownService markdownService) {
     this.pipelineDiffableSummaryService = pipelineDiffableSummaryService;
     this.padProjectInformationService = padProjectInformationService;
     this.consentDocumentImageService = consentDocumentImageService;
     this.padTechnicalDrawingService = padTechnicalDrawingService;
+    this.markdownService = markdownService;
   }
 
   @Override
@@ -113,11 +117,17 @@ public class TableAGeneratorService implements DocumentSectionGenerator {
 
 
   private TableAView createTableAView(PipelineHeaderView headerView, List<IdentDiffableView> identViews) {
+
     var identTableARowViews = identViews.stream().map(TableARowView::new)
         .sorted(Comparator.comparing(TableARowView::getIdentNumber))
         .collect(Collectors.toList());
+
     var headerTableARowView = new TableARowView(headerView);
-    return new TableAView(headerView.getPipelineName(), headerTableARowView, identTableARowViews, headerView.getFootnote());
+
+    var footnoteText = markdownService.convertMarkdownToHtml(headerView.getFootnote());
+
+    return new TableAView(headerView.getPipelineName(), headerTableARowView, identTableARowViews, footnoteText);
+
   }
 
 }

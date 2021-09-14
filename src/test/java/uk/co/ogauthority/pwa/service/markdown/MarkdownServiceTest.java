@@ -21,6 +21,15 @@ public class MarkdownServiceTest {
   @Test
   public void convertMarkdownToHtml_heading() {
 
+    String html = markdownService.convertMarkdownToHtml("### heading level 3");
+
+    assertThat(html).contains("<h3>heading level 3</h3>");
+
+  }
+
+  @Test
+  public void convertMarkdownToHtml_emptyMergeContainer_heading() {
+
     var container = new MailMergeContainer();
     String html = markdownService.convertMarkdownToHtml("### heading level 3", container);
 

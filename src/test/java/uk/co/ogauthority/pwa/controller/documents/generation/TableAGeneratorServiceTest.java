@@ -1,6 +1,8 @@
 package uk.co.ogauthority.pwa.controller.documents.generation;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
@@ -35,6 +37,7 @@ import uk.co.ogauthority.pwa.service.documents.views.tablea.DrawingForTableAView
 import uk.co.ogauthority.pwa.service.documents.views.tablea.TableARowView;
 import uk.co.ogauthority.pwa.service.documents.views.tablea.TableAView;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.service.markdown.MarkdownService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.IdentView;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineDiffableSummary;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineDiffableSummaryService;
@@ -56,6 +59,9 @@ public class TableAGeneratorServiceTest {
 
   @Mock
   private PadTechnicalDrawingService padTechnicalDrawingService;
+
+  @Mock
+  private MarkdownService markdownService;
 
   private PwaApplicationDetail pwaApplicationDetail;
 
@@ -87,12 +93,21 @@ public class TableAGeneratorServiceTest {
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(
         PwaApplicationType.INITIAL, 1, 1);
-    tableAGeneratorService = new TableAGeneratorService(pipelineDiffableSummaryService, padProjectInformationService,
-        consentDocumentImageService, padTechnicalDrawingService);
+    tableAGeneratorService = new TableAGeneratorService(
+        pipelineDiffableSummaryService,
+        padProjectInformationService,
+        consentDocumentImageService,
+        padTechnicalDrawingService,
+        markdownService);
 
     projectInfo = new PadProjectInformation();
     projectInfo.setProjectName("project name");
     when(padProjectInformationService.getPadProjectInformationData(pwaApplicationDetail)).thenReturn(projectInfo);
+
+    doAnswer(invocation -> {
+      var passedArg = (String) invocation.getArgument(0);
+      return passedArg + "markdownconverted";
+    }).when(markdownService).convertMarkdownToHtml(any());
 
   }
 
@@ -143,7 +158,7 @@ public class TableAGeneratorServiceTest {
           summary.getPipelineHeaderView().getPipelineName(),
           headerRowView,
           identRowViews,
-          summary.getPipelineHeaderView().getFootnote()));
+          markdownService.convertMarkdownToHtml(summary.getPipelineHeaderView().getFootnote())));
     });
 
     return new DrawingForTableAView(

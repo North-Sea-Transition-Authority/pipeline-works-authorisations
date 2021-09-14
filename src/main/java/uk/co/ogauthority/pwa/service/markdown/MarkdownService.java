@@ -15,6 +15,18 @@ import uk.co.ogauthority.pwa.service.markdown.manual.ManualMailMergeExtension;
 @Service
 public class MarkdownService {
 
+  public String convertMarkdownToHtml(String markdown) {
+
+    if (StringUtils.isBlank(markdown)) {
+      return markdown;
+    }
+
+    List<Extension> extensions = List.of(TablesExtension.create());
+
+    return convertMarkdownWithExtensions(markdown, extensions);
+
+  }
+
   public String convertMarkdownToHtml(String markdown,
                                       MailMergeContainer mailMergeContainer) {
 
@@ -26,6 +38,12 @@ public class MarkdownService {
         TablesExtension.create(),
         AutomaticMailMergeExtension.create(mailMergeContainer),
         ManualMailMergeExtension.create(mailMergeContainer));
+
+    return convertMarkdownWithExtensions(markdown, extensions);
+
+  }
+
+  private String convertMarkdownWithExtensions(String markdown, List<Extension> extensions) {
 
     Parser parser = Parser.builder()
         .extensions(extensions)
