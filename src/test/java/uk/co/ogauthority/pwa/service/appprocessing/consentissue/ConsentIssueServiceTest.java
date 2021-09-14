@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.service.appprocessing.consentissue;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -29,6 +30,7 @@ import uk.co.ogauthority.pwa.service.enums.workflow.application.ConsentIssueStat
 import uk.co.ogauthority.pwa.service.enums.workflow.application.PwaApplicationWorkflowTask;
 import uk.co.ogauthority.pwa.service.person.PersonService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
+import uk.co.ogauthority.pwa.service.pwaapplications.events.ConsentIssueFailedEventPublisher;
 import uk.co.ogauthority.pwa.service.pwaconsents.PwaConsentService;
 import uk.co.ogauthority.pwa.service.pwaconsents.consentwriters.ConsentWriterService;
 import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
@@ -68,6 +70,9 @@ public class ConsentIssueServiceTest {
   @Mock
   private PersonService personService;
 
+  @Mock
+  private ConsentIssueFailedEventPublisher consentIssueFailedEventPublisher;
+
   private ConsentIssueService consentIssueService;
 
   private PwaApplicationDetail pwaApplicationDetail;
@@ -96,7 +101,8 @@ public class ConsentIssueServiceTest {
         documentInstanceService,
         docgenService,
         camundaWorkflowService,
-        personService);
+        personService,
+        consentIssueFailedEventPublisher);
 
   }
 
@@ -137,6 +143,24 @@ public class ConsentIssueServiceTest {
         issuingUser.getFullName());
 
     verify(workflowAssignmentService, times(1)).clearAssignments(pwaApplicationDetail.getPwaApplication());
+
+  }
+
+  @Test
+  public void failConsentIssue() {
+
+    var exception = mock(Exception.class);
+    consentIssueService.failConsentIssue(pwaApplicationDetail, exception, issuingUser);
+
+    verify(pwaApplicationDetailService, times(1))
+        .updateStatus(pwaApplicationDetail, PwaApplicationStatus.CONSENT_REVIEW, issuingUser);
+
+    verify(camundaWorkflowService, times(1)).setWorkflowProperty(pwaApplicationDetail.getPwaApplication(), ConsentIssueStatus.FAILED);
+    var workflowTaskInstance = new WorkflowTaskInstance(pwaApplicationDetail.getPwaApplication(), PwaApplicationWorkflowTask.ISSUING_CONSENT);
+    verify(camundaWorkflowService, times(1)).completeTask(workflowTaskInstance);
+
+    verify(consentIssueFailedEventPublisher, times(1))
+        .publishConsentIssueFailedEvent(pwaApplicationDetail, exception, issuingUser);
 
   }
 

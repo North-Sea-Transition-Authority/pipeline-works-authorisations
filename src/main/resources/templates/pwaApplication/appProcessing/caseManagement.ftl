@@ -16,7 +16,6 @@
 <#-- @ftlvariable name="processingPermissions" type="java.util.Set<uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission> -->
 <#-- @ftlvariable name="taskGroupNameWarningMessageMap" type="java.util.Map<java.lang.String, java.lang.String>" -->
 
-
 <#include '../../layout.ftl'>
 <#import 'tabs/tasksTab.ftl' as tasksTab>
 <#import 'tabs/caseHistoryTab.ftl' as caseHistoryTab>
@@ -30,37 +29,37 @@
       <@pwaUpdateRequestView.banner view=updateRequestView canUpdate=processingPermissions?seq_contains("UPDATE_APPLICATION") taskListUrl=taskListUrl />
   </#if>
 
-    <#if optionsApprovalPageBanner?has_content>
-        <@pageBanner.banner view=optionsApprovalPageBanner showBannerLinks=processingPermissions?seq_contains("UPDATE_APPLICATION") />
-    </#if>
+  <#if optionsApprovalPageBanner?has_content>
+      <@pageBanner.banner view=optionsApprovalPageBanner showBannerLinks=processingPermissions?seq_contains("UPDATE_APPLICATION") />
+  </#if>
 
-    <#if publicNoticePageBannerView?has_content>
-        <@pageBanner.banner view=publicNoticePageBannerView showBannerLinks=processingPermissions?seq_contains("UPDATE_PUBLIC_NOTICE_DOC") />
-    </#if>
+  <#if publicNoticePageBannerView?has_content>
+      <@pageBanner.banner view=publicNoticePageBannerView showBannerLinks=processingPermissions?seq_contains("UPDATE_PUBLIC_NOTICE_DOC") />
+  </#if>
 
-    <#if payForAppUrl?has_content>
-        <@fdsAction.link linkText="Pay for application" linkUrl=springUrl(payForAppUrl) linkClass="govuk-button govuk-button--blue" role=true/>
-    </#if>
+  <#if payForAppUrl?has_content>
+      <@fdsAction.link linkText="Pay for application" linkUrl=springUrl(payForAppUrl) linkClass="govuk-button govuk-button--blue" role=true/>
+  </#if>
 
-    <#if manageAppContactsUrl?has_content>
-        <@fdsAction.link linkText="Manage application users" linkUrl=springUrl(manageAppContactsUrl) linkClass="govuk-button govuk-button--blue" role=true/>
-    </#if>
+  <#if manageAppContactsUrl?has_content>
+      <@fdsAction.link linkText="Manage application users" linkUrl=springUrl(manageAppContactsUrl) linkClass="govuk-button govuk-button--blue" role=true/>
+  </#if>
 
-    <#if viewPublicNoticeUrl?has_content>
-        <@fdsAction.link linkText="View public notice" linkUrl=springUrl(viewPublicNoticeUrl) linkClass="govuk-button govuk-button--blue" role=true/>
-    </#if>
+  <#if viewPublicNoticeUrl?has_content>
+      <@fdsAction.link linkText="View public notice" linkUrl=springUrl(viewPublicNoticeUrl) linkClass="govuk-button govuk-button--blue" role=true/>
+  </#if>
 
-    <#if consentHistoryUrl?has_content>
-        <@fdsAction.link linkText="View consent" linkUrl=springUrl(consentHistoryUrl) linkClass="govuk-button govuk-button--blue" role=true openInNewTab=true/>
-    </#if>
+  <#if consentHistoryUrl?has_content>
+      <@fdsAction.link linkText="View consent" linkUrl=springUrl(consentHistoryUrl) linkClass="govuk-button govuk-button--blue" role=true openInNewTab=true/>
+  </#if>
 
-    <#if viewAppPaymentUrl?has_content>
-        <@fdsAction.link linkText="View payment information" linkUrl=springUrl(viewAppPaymentUrl) linkClass="govuk-button govuk-button--blue" role=true/>
-    </#if>
+  <#if viewAppPaymentUrl?has_content>
+      <@fdsAction.link linkText="View payment information" linkUrl=springUrl(viewAppPaymentUrl) linkClass="govuk-button govuk-button--blue" role=true/>
+  </#if>
 
-    <#if reopenAsBuiltGroupUrl?has_content>
-        <@fdsAction.link linkText="Reopen as-built notification group" linkUrl=springUrl(reopenAsBuiltGroupUrl) linkClass="govuk-button govuk-button--blue" role=true/>
-    </#if>
+  <#if reopenAsBuiltGroupUrl?has_content>
+      <@fdsAction.link linkText="Reopen as-built notification group" linkUrl=springUrl(reopenAsBuiltGroupUrl) linkClass="govuk-button govuk-button--blue" role=true/>
+  </#if>
 
   <@fdsBackendTabs.tabList>
       <#list availableTabs as tab>

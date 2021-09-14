@@ -17,6 +17,7 @@ import uk.co.ogauthority.pwa.service.enums.workflow.application.ConsentIssueStat
 import uk.co.ogauthority.pwa.service.enums.workflow.application.PwaApplicationWorkflowTask;
 import uk.co.ogauthority.pwa.service.person.PersonService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
+import uk.co.ogauthority.pwa.service.pwaapplications.events.ConsentIssueFailedEventPublisher;
 import uk.co.ogauthority.pwa.service.pwaconsents.PwaConsentService;
 import uk.co.ogauthority.pwa.service.pwaconsents.consentwriters.ConsentWriterService;
 import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
@@ -36,6 +37,7 @@ public class ConsentIssueService {
   private final DocgenService docgenService;
   private final CamundaWorkflowService camundaWorkflowService;
   private final PersonService personService;
+  private final ConsentIssueFailedEventPublisher consentIssueFailedEventPublisher;
 
   private static final DocGenType DOC_GEN_TYPE = DocGenType.FULL;
 
@@ -49,7 +51,8 @@ public class ConsentIssueService {
                              DocumentInstanceService documentInstanceService,
                              DocgenService docgenService,
                              CamundaWorkflowService camundaWorkflowService,
-                             PersonService personService) {
+                             PersonService personService,
+                             ConsentIssueFailedEventPublisher consentIssueFailedEventPublisher) {
     this.pwaApplicationDetailService = pwaApplicationDetailService;
     this.pwaConsentService = pwaConsentService;
     this.consentWriterService = consentWriterService;
@@ -60,6 +63,7 @@ public class ConsentIssueService {
     this.docgenService = docgenService;
     this.camundaWorkflowService = camundaWorkflowService;
     this.personService = personService;
+    this.consentIssueFailedEventPublisher = consentIssueFailedEventPublisher;
   }
 
   @Transactional
@@ -81,10 +85,7 @@ public class ConsentIssueService {
     pwaConsentService.setDocgenRunId(consent, docgenRun);
     docgenService.processDocgenRun(docgenRun);
 
-    camundaWorkflowService.setWorkflowProperty(pwaApplicationDetail.getPwaApplication(), ConsentIssueStatus.COMPLETE);
-    var workflowTaskInstance = new WorkflowTaskInstance(pwaApplicationDetail.getPwaApplication(),
-        PwaApplicationWorkflowTask.ISSUING_CONSENT);
-    camundaWorkflowService.completeTask(workflowTaskInstance);
+    completeConsentIssueTask(pwaApplicationDetail, ConsentIssueStatus.COMPLETE);
 
     var caseOfficerPerson = personService.getPersonById(approvedReview.getStartedByPersonId());
 
@@ -97,6 +98,28 @@ public class ConsentIssueService {
 
     // have to clear assignments last so that we can email the assigned CO in the previous step
     workflowAssignmentService.clearAssignments(pwaApplicationDetail.getPwaApplication());
+
+  }
+
+  @Transactional
+  public void failConsentIssue(PwaApplicationDetail pwaApplicationDetail,
+                               Exception exception,
+                               WebUserAccount issuingUser) {
+
+    pwaApplicationDetailService.updateStatus(pwaApplicationDetail, PwaApplicationStatus.CONSENT_REVIEW, issuingUser);
+
+    completeConsentIssueTask(pwaApplicationDetail, ConsentIssueStatus.FAILED);
+
+    consentIssueFailedEventPublisher.publishConsentIssueFailedEvent(pwaApplicationDetail, exception, issuingUser);
+
+  }
+
+  private void completeConsentIssueTask(PwaApplicationDetail pwaApplicationDetail, ConsentIssueStatus issueStatus) {
+
+    camundaWorkflowService.setWorkflowProperty(pwaApplicationDetail.getPwaApplication(), issueStatus);
+    var workflowTaskInstance = new WorkflowTaskInstance(pwaApplicationDetail.getPwaApplication(),
+        PwaApplicationWorkflowTask.ISSUING_CONSENT);
+    camundaWorkflowService.completeTask(workflowTaskInstance);
 
   }
 

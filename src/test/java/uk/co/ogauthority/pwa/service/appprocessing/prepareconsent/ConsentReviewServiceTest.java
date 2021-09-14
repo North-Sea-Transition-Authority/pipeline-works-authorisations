@@ -40,6 +40,8 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.workflow.application.ConsentReviewDecision;
 import uk.co.ogauthority.pwa.service.enums.workflow.application.PwaApplicationWorkflowTask;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
+import uk.co.ogauthority.pwa.service.pwaapplications.events.PwaApplicationEventService;
+import uk.co.ogauthority.pwa.service.pwaapplications.events.PwaApplicationEventType;
 import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
 import uk.co.ogauthority.pwa.service.workflow.assignment.WorkflowAssignmentService;
 import uk.co.ogauthority.pwa.service.workflow.task.WorkflowTaskInstance;
@@ -69,6 +71,9 @@ public class ConsentReviewServiceTest {
   @Mock
   private Scheduler scheduler;
 
+  @Mock
+  private PwaApplicationEventService pwaApplicationEventService;
+
   private ConsentReviewService consentReviewService;
 
   @Captor
@@ -95,7 +100,8 @@ public class ConsentReviewServiceTest {
         workflowAssignmentService,
         camundaWorkflowService,
         issueConsentEmailsService,
-        scheduler);
+        scheduler,
+        pwaApplicationEventService);
 
   }
 
@@ -220,6 +226,8 @@ public class ConsentReviewServiceTest {
 
     consentReviewService.scheduleConsentIssue(detail, user);
 
+    verify(pwaApplicationEventService, times(1)).clearEvents(detail.getPwaApplication(), PwaApplicationEventType.CONSENT_ISSUE_FAILED);
+
     verify(pwaApplicationDetailService, times(1)).updateStatus(detail, PwaApplicationStatus.ISSUING_CONSENT, user);
 
     verify(camundaWorkflowService, times(1)).setWorkflowProperty(detail.getPwaApplication(), ConsentReviewDecision.APPROVE);
@@ -228,8 +236,10 @@ public class ConsentReviewServiceTest {
 
     verify(scheduler, times(1)).addJob(jobDetailCaptor.capture(), eq(false));
 
+    var expectedJobKey = detail.getId() + "-" + clock.instant().getEpochSecond();
+
     assertThat(jobDetailCaptor.getValue()).satisfies(jobDetail -> {
-      assertThat(jobDetail.getKey()).isEqualTo(jobKey(String.valueOf(detail.getId()), "PadConsentIssue"));
+      assertThat(jobDetail.getKey()).isEqualTo(jobKey(expectedJobKey, "PadConsentIssue"));
       assertThat(jobDetail.isDurable()).isTrue();
       assertThat(jobDetail.requestsRecovery()).isTrue();
       assertThat(jobDetail.getJobDataMap()).containsEntry("issuingWuaId", user.getWuaId());
@@ -295,6 +305,5 @@ public class ConsentReviewServiceTest {
     when(consentReviewRepository.findAllByPwaApplicationDetail(detail)).thenReturn(List.of(openReview));
     assertTrue(consentReviewService.areThereAnyOpenReviews(detail));
   }
-
 
 }

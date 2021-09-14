@@ -27,6 +27,8 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.workflow.application.ConsentReviewDecision;
 import uk.co.ogauthority.pwa.service.enums.workflow.application.PwaApplicationWorkflowTask;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
+import uk.co.ogauthority.pwa.service.pwaapplications.events.PwaApplicationEventService;
+import uk.co.ogauthority.pwa.service.pwaapplications.events.PwaApplicationEventType;
 import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
 import uk.co.ogauthority.pwa.service.workflow.assignment.WorkflowAssignmentService;
 import uk.co.ogauthority.pwa.service.workflow.task.WorkflowTaskInstance;
@@ -41,6 +43,7 @@ public class ConsentReviewService {
   private final CamundaWorkflowService camundaWorkflowService;
   private final IssueConsentEmailsService issueConsentEmailsService;
   private final Scheduler scheduler;
+  private final PwaApplicationEventService pwaApplicationEventService;
 
   @Autowired
   public ConsentReviewService(ConsentReviewRepository consentReviewRepository,
@@ -49,7 +52,8 @@ public class ConsentReviewService {
                               WorkflowAssignmentService workflowAssignmentService,
                               CamundaWorkflowService camundaWorkflowService,
                               IssueConsentEmailsService issueConsentEmailsService,
-                              Scheduler scheduler) {
+                              Scheduler scheduler,
+                              PwaApplicationEventService pwaApplicationEventService) {
     this.consentReviewRepository = consentReviewRepository;
     this.clock = clock;
     this.pwaApplicationDetailService = pwaApplicationDetailService;
@@ -57,6 +61,7 @@ public class ConsentReviewService {
     this.camundaWorkflowService = camundaWorkflowService;
     this.issueConsentEmailsService = issueConsentEmailsService;
     this.scheduler = scheduler;
+    this.pwaApplicationEventService = pwaApplicationEventService;
   }
 
   @Transactional
@@ -139,13 +144,19 @@ public class ConsentReviewService {
           String.format("No open consent review for PAD with id %s", pwaApplicationDetail.getId()));
     }
 
+    // clear any previous consent issue failure events, we'll get a new one if we fail this time
+    pwaApplicationEventService.clearEvents(pwaApplicationDetail.getPwaApplication(), PwaApplicationEventType.CONSENT_ISSUE_FAILED);
+
     pwaApplicationDetailService.updateStatus(pwaApplicationDetail, PwaApplicationStatus.ISSUING_CONSENT, issuingUser);
     completeWorkflowTaskWithDecision(pwaApplicationDetail, ConsentReviewDecision.APPROVE);
 
     // schedule consent issue
     try {
 
-      JobKey jobKey = jobKey(String.valueOf(pwaApplicationDetail.getId()), "PadConsentIssue");
+      // make the job id unique in case the job fails and we need to create another one later
+      var jobId = pwaApplicationDetail.getId() + "-" + clock.instant().getEpochSecond();
+
+      JobKey jobKey = jobKey(jobId, "PadConsentIssue");
       JobDetail jobDetail = newJob(ConsentIssueSchedulerBean.class)
           .withIdentity(jobKey)
           .usingJobData("issuingWuaId", issuingUser.getWuaId())

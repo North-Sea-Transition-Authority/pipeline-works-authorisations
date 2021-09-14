@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.service.appprocessing.consentissue;
 
 import java.time.Instant;
+import org.apache.commons.lang3.StringUtils;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
@@ -33,13 +34,18 @@ public class ConsentIssueSchedulerBean extends QuartzJobBean {
     this.userAccountService = userAccountService;
   }
 
+  /**
+   * Note: Not using Transactional annotation here as the individual methods define their own transactions to
+   * commit/rollback success or failure independently.
+   */
   @Override
   protected void executeInternal(@NonNull JobExecutionContext context) throws JobExecutionException {
 
     try {
 
-      String pwaApplicationDetailId = context.getJobDetail().getKey().getName();
-      var detail = pwaApplicationDetailService.getDetailById(Integer.valueOf(pwaApplicationDetailId));
+      String jobKeyName = context.getJobDetail().getKey().getName();
+      String pwaApplicationDetailIdString = StringUtils.substringBefore(jobKeyName, "-");
+      var detail = pwaApplicationDetailService.getDetailById(Integer.valueOf(pwaApplicationDetailIdString));
 
       int issuingWuaId = context.getJobDetail().getJobDataMap().getInt("issuingWuaId");
       var approvalTime = (Instant) context.getJobDetail().getJobDataMap().get("approvalTime");
@@ -50,7 +56,7 @@ public class ConsentIssueSchedulerBean extends QuartzJobBean {
       try {
         consentIssueService.issueConsent(detail, issuingUser, approvalTime);
       } catch (Exception e) {
-        // todo PWA-1425 what do we do when it fails?
+        consentIssueService.failConsentIssue(detail, e, issuingUser);
         throw new ConsentIssueException(String.format("Error issuing consent for PAD with id: %s", detail.getId()), e);
       }
 
@@ -58,7 +64,6 @@ public class ConsentIssueSchedulerBean extends QuartzJobBean {
 
     } catch (Exception e) {
       LOGGER.error("Consent issue job execution failed", e);
-      // todo PWA-1425 what do we do when it fails?
       throw new JobExecutionException(e);
     }
   }

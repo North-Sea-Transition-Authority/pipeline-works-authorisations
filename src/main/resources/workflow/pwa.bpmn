@@ -146,10 +146,10 @@
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="Flow_1cfjfpp_di" bpmnElement="Flow_1cfjfpp">
         <di:waypoint x="950" y="1250" />
-        <di:waypoint x="890" y="1250" />
-        <di:waypoint x="890" y="710" />
+        <di:waypoint x="880" y="1250" />
+        <di:waypoint x="880" y="710" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="815" y="1186" width="70" height="27" />
+          <dc:Bounds x="885" y="1006" width="70" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1ouyhk2_di" bpmnElement="Flow_1ouyhk2">

@@ -29,8 +29,6 @@ public enum PwaApplicationStatus {
     return displayName;
   }
 
-
-
   public static Stream<PwaApplicationStatus> stream() {
     return Stream.of(PwaApplicationStatus.values());
   }

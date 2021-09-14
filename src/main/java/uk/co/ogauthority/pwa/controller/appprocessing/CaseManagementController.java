@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.controller.appprocessing;
 
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,6 +21,10 @@ import uk.co.ogauthority.pwa.service.appprocessing.tabs.AppProcessingTabUrlFacto
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.TaskRequirement;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.service.pwaapplications.events.PwaApplicationEvent;
+import uk.co.ogauthority.pwa.service.pwaapplications.events.PwaApplicationEventService;
+import uk.co.ogauthority.pwa.service.pwaapplications.events.PwaApplicationEventType;
+import uk.co.ogauthority.pwa.util.DateUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
 @Controller
@@ -33,12 +38,15 @@ public class CaseManagementController {
 
   private final AppProcessingTabService appProcessingTabService;
   private final ConfirmSatisfactoryApplicationService confirmSatisfactoryApplicationService;
+  private final PwaApplicationEventService pwaApplicationEventService;
 
   @Autowired
   public CaseManagementController(AppProcessingTabService appProcessingTabService,
-                                  ConfirmSatisfactoryApplicationService confirmSatisfactoryApplicationService) {
+                                  ConfirmSatisfactoryApplicationService confirmSatisfactoryApplicationService,
+                                  PwaApplicationEventService pwaApplicationEventService) {
     this.appProcessingTabService = appProcessingTabService;
     this.confirmSatisfactoryApplicationService = confirmSatisfactoryApplicationService;
+    this.pwaApplicationEventService = pwaApplicationEventService;
   }
 
   @GetMapping
@@ -62,7 +70,6 @@ public class CaseManagementController {
 
   }
 
-
   private ModelAndView getCaseManagementModelAndView(PwaAppProcessingContext appProcessingContext,
                                                      AppProcessingTab currentTab,
                                                      List<AppProcessingTab> availableTabs) {
@@ -83,6 +90,7 @@ public class CaseManagementController {
   }
 
   private Map<String, String> getTaskGroupNameWarningMessageMap(PwaAppProcessingContext appProcessingContext) {
+
     var taskGroupNameWarningMessageMap = new HashMap<String, String>();
 
     if (appProcessingContext.getApplicationInvolvement().isUserAssignedCaseOfficer()
@@ -90,8 +98,27 @@ public class CaseManagementController {
       taskGroupNameWarningMessageMap.put(TaskRequirement.REQUIRED.getDisplayName(),
           "This updated application should be confirmed as satisfactory before performing other tasks.");
     }
-    return taskGroupNameWarningMessageMap;
-  }
 
+    var unclearedConsentIssueFailures = pwaApplicationEventService
+        .getUnclearedEventsByApplicationAndType(appProcessingContext.getPwaApplication(), PwaApplicationEventType.CONSENT_ISSUE_FAILED);
+
+    if (appProcessingContext.hasProcessingPermission(PwaAppProcessingPermission.CASE_MANAGEMENT_OGA)
+        && !unclearedConsentIssueFailures.isEmpty()) {
+
+      var failureInstant = unclearedConsentIssueFailures.stream()
+          .max(Comparator.comparing(PwaApplicationEvent::getEventInstant))
+          .map(PwaApplicationEvent::getEventInstant)
+          .orElseThrow(() -> new IllegalStateException("Couldn't find an uncleared consent issue failure event."));
+
+      taskGroupNameWarningMessageMap.put(TaskRequirement.REQUIRED.getDisplayName(),
+          String.format(
+              "The consent issue process failed on %s. Contact Support before attempting to issue the consent again.",
+              DateUtils.formatDateTime(failureInstant)));
+
+    }
+
+    return taskGroupNameWarningMessageMap;
+
+  }
 
 }
