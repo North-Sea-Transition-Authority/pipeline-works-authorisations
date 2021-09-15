@@ -1,5 +1,6 @@
 <#include '../../../layout.ftl'>
 <#import 'nonBlockingWarning.ftl' as nonBlockingWarning>
+<#import '../../../consultation/consultationSosd.ftl' as consultationSosd>
 
 <#-- @ftlvariable name="caseSummaryView" type="uk.co.ogauthority.pwa.service.appprocessing.context.CaseSummaryView" -->
 <#-- @ftlvariable name="cancelUrl" type="String" -->
@@ -24,16 +25,8 @@
     A copy of the consent will be sent to the applicant and interested third parties. The application will be completed and the official pipeline dataset will be updated.
     This action cannot be undone.
   </@fdsWarning.warning>  
-
-  <#if sosdConsultationRequestView?has_content>      
-    <@fdsCheckAnswers.checkAnswersWrapper summaryListId="" headingText="Consultation Secretary of State’s decision documents" headingSize="h3" headingClass="govuk-heading-m">
-      <@fdsCheckAnswers.checkAnswers summaryListClass="">
-        <@fdsCheckAnswers.checkAnswersRowNoAction keyText=sosdConsultationRequestView.consultationResponseDocumentType.displayName>
-            <@pwaFiles.uploadedFileList downloadUrl=springUrl(sosdConsultationRequestView.downloadFileUrl) existingFiles=sosdConsultationRequestView.consultationResponseFileViews blockClass="case-history" />
-        </@fdsCheckAnswers.checkAnswersRowNoAction>
-      </@fdsCheckAnswers.checkAnswers>
-    </@fdsCheckAnswers.checkAnswersWrapper>
-  </#if>
+            
+  <@consultationSosd.sosdFileView consentFileView/>
 
   <@fdsForm.htmlForm>
       <@fdsAction.submitButtons primaryButtonText="Issue consent" linkSecondaryAction=true secondaryLinkText="Go back" linkSecondaryActionUrl=springUrl(cancelUrl) />

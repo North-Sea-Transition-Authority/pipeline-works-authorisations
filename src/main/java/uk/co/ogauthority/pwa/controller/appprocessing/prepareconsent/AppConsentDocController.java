@@ -121,8 +121,8 @@ public class AppConsentDocController {
             mailMergeService.mailMerge(docView, DocGenType.PREVIEW);
           }
 
-          var sosdConsultationRequestView = consentFileViewerService.getLatestConsultationRequestViewForDocumentType(
-              processingContext.getPwaApplication(), ConsultationResponseDocumentType.SECRETARY_OF_STATE_DECISION).orElse(null);
+          var consentFileView = consentFileViewerService.getConsentFileView(processingContext.getPwaApplication(), null,
+              ConsultationResponseDocumentType.SECRETARY_OF_STATE_DECISION);
 
           var modelAndView = new ModelAndView("pwaApplication/appProcessing/prepareConsent/consentDocumentEditor")
               .addObject("caseSummaryView", processingContext.getCaseSummaryView())
@@ -135,7 +135,7 @@ public class AppConsentDocController {
               .addObject("userProcessingPermissions", processingContext.getAppProcessingPermissions())
               .addObject("automaticMailMergePreviewClasses", mailMergeService.getMailMergePreviewClasses(MailMergeFieldType.AUTOMATIC))
               .addObject("manualMailMergePreviewClasses", mailMergeService.getMailMergePreviewClasses(MailMergeFieldType.MANUAL))
-              .addObject("sosdConsultationRequestView", sosdConsultationRequestView);
+              .addObject("consentFileView", consentFileView);
 
           breadcrumbService.fromCaseManagement(processingContext.getPwaApplication(), modelAndView, "Prepare consent");
 

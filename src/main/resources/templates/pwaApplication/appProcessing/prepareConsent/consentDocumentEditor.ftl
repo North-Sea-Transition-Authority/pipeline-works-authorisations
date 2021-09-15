@@ -1,4 +1,5 @@
 <#include '../../../layoutPane.ftl'>
+<#import '../../../consultation/consultationSosd.ftl' as consultationSosd>
 
 <#import 'consentDocumentEditorActions.ftl' as consentActions>
 
@@ -56,16 +57,8 @@
 
         <@pwaClauseList.list documentView=docView clauseActionsUrlProvider=clauseActionsUrlProvider/>
       </#if>
-
-      <#if sosdConsultationRequestView?has_content>      
-        <@fdsCheckAnswers.checkAnswersWrapper summaryListId="" headingText="Consultation Secretary of State’s decision documents" headingSize="h3" headingClass="govuk-heading-m">
-          <@fdsCheckAnswers.checkAnswers summaryListClass="">
-            <@fdsCheckAnswers.checkAnswersRowNoAction keyText=sosdConsultationRequestView.consultationResponseDocumentType.displayName>
-                <@pwaFiles.uploadedFileList downloadUrl=springUrl(sosdConsultationRequestView.downloadFileUrl) existingFiles=sosdConsultationRequestView.consultationResponseFileViews blockClass="case-history" />
-            </@fdsCheckAnswers.checkAnswersRowNoAction>
-          </@fdsCheckAnswers.checkAnswers>
-        </@fdsCheckAnswers.checkAnswersWrapper>
-      </#if>
+            
+      <@consultationSosd.sosdFileView consentFileView/>
 
     </@defaultPagePaneContent>
 

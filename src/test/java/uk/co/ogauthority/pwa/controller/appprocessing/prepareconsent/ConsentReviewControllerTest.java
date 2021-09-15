@@ -38,8 +38,8 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.dto.appprocessing.ProcessingPermissionsDto;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.workflow.assignment.Assignment;
-import uk.co.ogauthority.pwa.model.enums.consultations.ConsultationResponseDocumentType;
 import uk.co.ogauthority.pwa.model.teams.PwaRegulatorRole;
+import uk.co.ogauthority.pwa.model.view.consent.ConsentFileView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.PwaAppProcessingPermissionService;
 import uk.co.ogauthority.pwa.service.appprocessing.appprocessingwarning.AppProcessingTaskWarningService;
@@ -123,8 +123,7 @@ public class ConsentReviewControllerTest extends PwaAppProcessingContextAbstract
     when(appProcessingTaskWarningService.getNonBlockingTasksWarning(any(), any()))
         .thenReturn(AppProcessingTaskWarningTestUtil.createWithNoWarning());
 
-    when(consentFileViewerService.getLatestConsultationRequestViewForDocumentType(
-        pwaApplicationDetail.getPwaApplication(), ConsultationResponseDocumentType.SECRETARY_OF_STATE_DECISION)).thenReturn(Optional.empty());
+    when(consentFileViewerService.getConsentFileView(any(), any(), any())).thenReturn(new ConsentFileView(null, null));
 
   }
 

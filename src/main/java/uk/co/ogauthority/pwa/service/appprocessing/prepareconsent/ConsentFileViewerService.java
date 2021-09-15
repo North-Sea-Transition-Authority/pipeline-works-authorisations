@@ -41,7 +41,7 @@ public class ConsentFileViewerService {
     return new ConsentFileView(consentDto, consultationRequestView.orElse(null));
   }
 
-  public Optional<ConsultationRequestView> getLatestConsultationRequestViewForDocumentType(PwaApplication pwaApplication,
+  private Optional<ConsultationRequestView> getLatestConsultationRequestViewForDocumentType(PwaApplication pwaApplication,
                                                                                             ConsultationResponseDocumentType documentType) {
     var latestRequestOptional = getLatestConsultationRequestForResponseDocType(pwaApplication, documentType);
     return latestRequestOptional.map(consultationViewService::getConsultationRequestView);
