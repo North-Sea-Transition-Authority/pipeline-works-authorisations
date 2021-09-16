@@ -48,6 +48,8 @@
 
       </#if>
 
+      <@consultationSosd.sosdFileView consentFileView/>
+
       <#if docView?has_content>
 
         <@fdsInsetText.insetText>
@@ -58,8 +60,6 @@
         <@pwaClauseList.list documentView=docView clauseActionsUrlProvider=clauseActionsUrlProvider/>
       </#if>
             
-      <@consultationSosd.sosdFileView consentFileView/>
-
     </@defaultPagePaneContent>
 
   <script src="${springUrl("/assets/static/js/pwa/docgenAutoDownloader.js")}"></script>
