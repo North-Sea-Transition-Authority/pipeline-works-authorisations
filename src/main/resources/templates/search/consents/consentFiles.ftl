@@ -21,7 +21,7 @@
                 </#if>
             </@fdsCheckAnswers.checkAnswers>
             
-            <@consultationSosd.sosdFileView consentFileView/>
+            <@consultationSosd.sosdFileView consentFileView.consultationRequestView/>
 
         </@grid.twoThirdsColumn>
     </@grid.gridRow>

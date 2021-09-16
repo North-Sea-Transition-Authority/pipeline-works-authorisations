@@ -46,7 +46,7 @@ import uk.co.ogauthority.pwa.model.entity.documents.instances.DocumentInstance;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocGenType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.view.consent.ConsentFileView;
+import uk.co.ogauthority.pwa.model.enums.consultations.ConsultationResponseDocumentType;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.PwaAppProcessingPermissionService;
 import uk.co.ogauthority.pwa.service.appprocessing.consentreview.ConsentReviewService;
@@ -146,7 +146,8 @@ public class AppConsentDocControllerTest extends PwaAppProcessingContextAbstract
       return invocation;
     }).when(consentDocumentService).validateSendConsentFormUsingPreApprovalChecks(any(), any(), any(), any());
 
-    when(consentFileViewerService.getConsentFileView(any(), any(), any())).thenReturn(new ConsentFileView(null, null));
+    when(consentFileViewerService.getLatestConsultationRequestViewForDocumentType(
+        pwaApplicationDetail.getPwaApplication(), ConsultationResponseDocumentType.SECRETARY_OF_STATE_DECISION)).thenReturn(Optional.empty());
 
   }
 

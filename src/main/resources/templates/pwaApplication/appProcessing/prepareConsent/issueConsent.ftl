@@ -26,7 +26,7 @@
     This action cannot be undone.
   </@fdsWarning.warning>  
             
-  <@consultationSosd.sosdFileView consentFileView/>
+  <@consultationSosd.sosdFileView sosdConsultationRequestView/>
 
   <@fdsForm.htmlForm>
       <@fdsAction.submitButtons primaryButtonText="Issue consent" linkSecondaryAction=true secondaryLinkText="Go back" linkSecondaryActionUrl=springUrl(cancelUrl) />

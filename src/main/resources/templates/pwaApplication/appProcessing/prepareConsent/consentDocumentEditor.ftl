@@ -48,7 +48,7 @@
 
       </#if>
 
-      <@consultationSosd.sosdFileView consentFileView/>
+      <@consultationSosd.sosdFileView sosdConsultationRequestView/>
 
       <#if docView?has_content>
 

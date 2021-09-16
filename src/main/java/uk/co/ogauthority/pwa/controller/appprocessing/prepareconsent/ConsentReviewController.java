@@ -172,8 +172,8 @@ public class ConsentReviewController {
     var cancelUrl = ReverseRouter.route(on(AppConsentDocController.class)
         .renderConsentDocEditor(applicationId, pwaApplicationType, null, null));
 
-    var consentFileView = consentFileViewerService.getConsentFileView(processingContext.getPwaApplication(), null,
-        ConsultationResponseDocumentType.SECRETARY_OF_STATE_DECISION);
+    var sosdConsultationRequestView = consentFileViewerService.getLatestConsultationRequestViewForDocumentType(
+        processingContext.getPwaApplication(), ConsultationResponseDocumentType.SECRETARY_OF_STATE_DECISION).orElse(null);
 
     var modelAndView = new ModelAndView("pwaApplication/appProcessing/prepareConsent/issueConsent")
         .addObject("caseSummaryView", processingContext.getCaseSummaryView())
@@ -181,7 +181,7 @@ public class ConsentReviewController {
         .addObject("nonBlockingTasksWarning",
             appProcessingTaskWarningService.getNonBlockingTasksWarning(processingContext.getPwaApplication(),
                 NonBlockingWarningPage.ISSUE_CONSENT))
-        .addObject("consentFileView", consentFileView);
+        .addObject("sosdConsultationRequestView", sosdConsultationRequestView);
 
     breadcrumbService.fromPrepareConsent(processingContext.getPwaApplication(), modelAndView, "Issue consent");
 
