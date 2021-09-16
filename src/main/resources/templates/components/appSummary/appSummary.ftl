@@ -49,7 +49,7 @@
 
         <#if showVersionSelector?has_content && showVersionSelector>
             <@fdsForm.htmlForm actionUrl=springUrl(viewAppSummaryUrl)>
-                <@fdsSearchSelector.searchSelectorEnhanced path="form.applicationDetailId" options=appDetailVersionSearchSelectorItems labelText="Select version" />
+                <@fdsSearchSelector.searchSelectorEnhanced path="form.applicationDetailId" options=appDetailVersionSearchSelectorItems labelText="Select version" inputClass="govuk-!-width-two-thirds"/>
                 <@fdsAction.button buttonText="Show version"/>
             </@fdsForm.htmlForm>
         </#if>
