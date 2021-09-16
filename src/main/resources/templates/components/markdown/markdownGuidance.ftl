@@ -10,6 +10,8 @@
 
     <@headings />
 
+    <@paragraphs />
+
     <@boldText />
 
     <@italics />
@@ -47,6 +49,36 @@
   </@fdsCodeSample.renderedCodeSample>
 
   <p class="govuk-body">Don’t skip heading levels - in other words, don’t jump straight to an H3. Don’t insert an H1 anywhere.</p>
+
+</#macro>
+
+<#macro paragraphs>
+
+  <#outputformat "HTML">
+      <#assign htmlExample>
+        <p class="govuk-body">An empty line underneath text</p>
+        <p class="govuk-body">will add a paragraph.</p>
+      </#assign>
+  </#outputformat>
+
+  <#assign markdownExample>
+An empty line underneath text
+
+will add a paragraph.
+  </#assign>
+
+  <#assign codeLanguages = {
+    "Markdown": markdownExample
+  }>
+
+  <h3 class="govuk-heading-m">Paragraphs</h3>
+
+  <p class="govuk-body">You can create paragraphs by leaving an empty line between the end of one paragraph and the start of another.</p>
+  <p class="govuk-body">This is how they look:</p>
+
+  <@fdsCodeSample.renderedCodeSample id="paragraphs-markdown-example" languageTabs=codeLanguages>
+      ${htmlExample}
+  </@fdsCodeSample.renderedCodeSample>
 
 </#macro>
 
