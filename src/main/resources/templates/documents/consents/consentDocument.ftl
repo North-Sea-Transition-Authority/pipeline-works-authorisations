@@ -203,6 +203,10 @@
       padding-top: 25px;
     }
 
+    .full-width {
+      width: 1000px;
+    }
+
   </style>
 </head>
 <body>

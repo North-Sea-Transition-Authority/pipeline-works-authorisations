@@ -25,7 +25,9 @@
 
         <@tableA tableAView/>
         <#if tableAView.footnote?has_content>
-          ${tableAView.footnote?no_esc}
+          <div class="full-width">
+            ${tableAView.footnote?no_esc}
+          </div>
         </#if>  
       </div>
     </#list>
