@@ -22,6 +22,7 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
 import uk.co.ogauthority.pwa.exception.appprocessing.ConsentReviewException;
 import uk.co.ogauthority.pwa.model.entity.workflow.assignment.Assignment;
 import uk.co.ogauthority.pwa.model.enums.appprocessing.NonBlockingWarningPage;
+import uk.co.ogauthority.pwa.model.enums.consultations.ConsultationResponseDocumentType;
 import uk.co.ogauthority.pwa.model.form.appprocessing.prepareconsent.ConsentReviewReturnForm;
 import uk.co.ogauthority.pwa.model.teams.PwaRegulatorRole;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
@@ -30,6 +31,7 @@ import uk.co.ogauthority.pwa.service.appprocessing.appprocessingwarning.AppProce
 import uk.co.ogauthority.pwa.service.appprocessing.consentreview.ConsentReviewReturnFormValidator;
 import uk.co.ogauthority.pwa.service.appprocessing.consentreview.ConsentReviewService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
+import uk.co.ogauthority.pwa.service.appprocessing.prepareconsent.ConsentFileViewerService;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
@@ -57,6 +59,7 @@ public class ConsentReviewController {
   private final ConsentReviewReturnFormValidator consentReviewReturnFormValidator;
   private final PersonService personService;
   private final AppProcessingTaskWarningService appProcessingTaskWarningService;
+  private final ConsentFileViewerService consentFileViewerService;
 
   @Autowired
   public ConsentReviewController(AppProcessingBreadcrumbService breadcrumbService,
@@ -66,7 +69,8 @@ public class ConsentReviewController {
                                  AssignmentService assignmentService,
                                  ConsentReviewReturnFormValidator consentReviewReturnFormValidator,
                                  PersonService personService,
-                                 AppProcessingTaskWarningService appProcessingTaskWarningService) {
+                                 AppProcessingTaskWarningService appProcessingTaskWarningService,
+                                 ConsentFileViewerService consentFileViewerService) {
     this.breadcrumbService = breadcrumbService;
     this.controllerHelperService = controllerHelperService;
     this.consentReviewService = consentReviewService;
@@ -75,6 +79,7 @@ public class ConsentReviewController {
     this.consentReviewReturnFormValidator = consentReviewReturnFormValidator;
     this.personService = personService;
     this.appProcessingTaskWarningService = appProcessingTaskWarningService;
+    this.consentFileViewerService = consentFileViewerService;
   }
 
   @GetMapping("/return")
@@ -167,12 +172,16 @@ public class ConsentReviewController {
     var cancelUrl = ReverseRouter.route(on(AppConsentDocController.class)
         .renderConsentDocEditor(applicationId, pwaApplicationType, null, null));
 
+    var sosdConsultationRequestView = consentFileViewerService.getLatestConsultationRequestViewForDocumentType(
+        processingContext.getPwaApplication(), ConsultationResponseDocumentType.SECRETARY_OF_STATE_DECISION).orElse(null);
+
     var modelAndView = new ModelAndView("pwaApplication/appProcessing/prepareConsent/issueConsent")
         .addObject("caseSummaryView", processingContext.getCaseSummaryView())
         .addObject("cancelUrl", cancelUrl)
         .addObject("nonBlockingTasksWarning",
             appProcessingTaskWarningService.getNonBlockingTasksWarning(processingContext.getPwaApplication(),
-                NonBlockingWarningPage.ISSUE_CONSENT));
+                NonBlockingWarningPage.ISSUE_CONSENT))
+        .addObject("sosdConsultationRequestView", sosdConsultationRequestView);
 
     breadcrumbService.fromPrepareConsent(processingContext.getPwaApplication(), modelAndView, "Issue consent");
 

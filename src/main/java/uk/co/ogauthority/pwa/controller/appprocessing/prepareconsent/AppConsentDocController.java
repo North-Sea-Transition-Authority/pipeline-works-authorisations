@@ -29,6 +29,7 @@ import uk.co.ogauthority.pwa.model.docgen.DocgenRunStatusResult;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.DocumentTemplateMnem;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocGenType;
 import uk.co.ogauthority.pwa.model.entity.enums.mailmerge.MailMergeFieldType;
+import uk.co.ogauthority.pwa.model.enums.consultations.ConsultationResponseDocumentType;
 import uk.co.ogauthority.pwa.model.form.appprocessing.prepareconsent.SendConsentForApprovalForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.AppProcessingBreadcrumbService;
@@ -36,6 +37,7 @@ import uk.co.ogauthority.pwa.service.appprocessing.consentreview.ConsentReviewSe
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.service.appprocessing.prepareconsent.ConsentDocumentService;
 import uk.co.ogauthority.pwa.service.appprocessing.prepareconsent.ConsentDocumentUrlProvider;
+import uk.co.ogauthority.pwa.service.appprocessing.prepareconsent.ConsentFileViewerService;
 import uk.co.ogauthority.pwa.service.appprocessing.prepareconsent.FailedSendForApprovalCheck;
 import uk.co.ogauthority.pwa.service.appprocessing.prepareconsent.PreSendForApprovalChecksView;
 import uk.co.ogauthority.pwa.service.appprocessing.prepareconsent.PrepareConsentTaskService;
@@ -69,6 +71,7 @@ public class AppConsentDocController {
   private final MailMergeService mailMergeService;
   private final DocgenService docgenService;
   private final MarkdownService markdownService;
+  private final ConsentFileViewerService consentFileViewerService;
 
   @Autowired
   public AppConsentDocController(AppProcessingBreadcrumbService breadcrumbService,
@@ -80,7 +83,8 @@ public class AppConsentDocController {
                                  ConsentReviewService consentReviewService,
                                  MailMergeService mailMergeService,
                                  DocgenService docgenService,
-                                 MarkdownService markdownService) {
+                                 MarkdownService markdownService,
+                                 ConsentFileViewerService consentFileViewerService) {
     this.breadcrumbService = breadcrumbService;
     this.documentService = documentService;
     this.prepareConsentTaskService = prepareConsentTaskService;
@@ -91,6 +95,7 @@ public class AppConsentDocController {
     this.mailMergeService = mailMergeService;
     this.docgenService = docgenService;
     this.markdownService = markdownService;
+    this.consentFileViewerService = consentFileViewerService;
   }
 
   @GetMapping
@@ -116,6 +121,9 @@ public class AppConsentDocController {
             mailMergeService.mailMerge(docView, DocGenType.PREVIEW);
           }
 
+          var sosdConsultationRequestView = consentFileViewerService.getLatestConsultationRequestViewForDocumentType(
+              processingContext.getPwaApplication(), ConsultationResponseDocumentType.SECRETARY_OF_STATE_DECISION).orElse(null);
+
           var modelAndView = new ModelAndView("pwaApplication/appProcessing/prepareConsent/consentDocumentEditor")
               .addObject("caseSummaryView", processingContext.getCaseSummaryView())
               .addObject("docInstanceExists", docInstanceOpt.isPresent())
@@ -126,7 +134,8 @@ public class AppConsentDocController {
               .addObject("docView", docView)
               .addObject("userProcessingPermissions", processingContext.getAppProcessingPermissions())
               .addObject("automaticMailMergePreviewClasses", mailMergeService.getMailMergePreviewClasses(MailMergeFieldType.AUTOMATIC))
-              .addObject("manualMailMergePreviewClasses", mailMergeService.getMailMergePreviewClasses(MailMergeFieldType.MANUAL));
+              .addObject("manualMailMergePreviewClasses", mailMergeService.getMailMergePreviewClasses(MailMergeFieldType.MANUAL))
+              .addObject("sosdConsultationRequestView", sosdConsultationRequestView);
 
           breadcrumbService.fromCaseManagement(processingContext.getPwaApplication(), modelAndView, "Prepare consent");
 

@@ -1,4 +1,5 @@
 <#include '../../../layoutPane.ftl'>
+<#import '../../../consultation/consultationSosd.ftl' as consultationSosd>
 
 <#import 'consentDocumentEditorActions.ftl' as consentActions>
 
@@ -10,6 +11,7 @@
 <#-- @ftlvariable name="userProcessingPermissions" type="java.util.Set<uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission>" -->
 <#-- @ftlvariable name="automaticMailMergePreviewClasses" type="String" -->
 <#-- @ftlvariable name="manualMailMergePreviewClasses" type="String" -->
+<#-- @ftlvariable name="sosdConsultationRequestView" type="java.util.List<"uk.co.ogauthority.pwa.model.form.consultation.ConsultationRequestView>" -->
 
 <#assign pageHeading = "${caseSummaryView.pwaApplicationRef} - Prepare consent" />
 
@@ -46,6 +48,8 @@
 
       </#if>
 
+      <@consultationSosd.sosdFileView sosdConsultationRequestView/>
+
       <#if docView?has_content>
 
         <@fdsInsetText.insetText>
@@ -55,7 +59,7 @@
 
         <@pwaClauseList.list documentView=docView clauseActionsUrlProvider=clauseActionsUrlProvider/>
       </#if>
-
+            
     </@defaultPagePaneContent>
 
   <script src="${springUrl("/assets/static/js/pwa/docgenAutoDownloader.js")}"></script>

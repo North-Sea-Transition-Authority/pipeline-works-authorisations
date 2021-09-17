@@ -38,6 +38,7 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.dto.appprocessing.ProcessingPermissionsDto;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.workflow.assignment.Assignment;
+import uk.co.ogauthority.pwa.model.enums.consultations.ConsultationResponseDocumentType;
 import uk.co.ogauthority.pwa.model.teams.PwaRegulatorRole;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.PwaAppProcessingPermissionService;
@@ -46,6 +47,7 @@ import uk.co.ogauthority.pwa.service.appprocessing.appprocessingwarning.AppProce
 import uk.co.ogauthority.pwa.service.appprocessing.consentreview.ConsentReviewReturnFormValidator;
 import uk.co.ogauthority.pwa.service.appprocessing.consentreview.ConsentReviewService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContextService;
+import uk.co.ogauthority.pwa.service.appprocessing.prepareconsent.ConsentFileViewerService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
@@ -83,6 +85,9 @@ public class ConsentReviewControllerTest extends PwaAppProcessingContextAbstract
   @MockBean
   private AppProcessingTaskWarningService appProcessingTaskWarningService;
 
+  @MockBean
+  private ConsentFileViewerService consentFileViewerService;
+
   private PwaApplicationEndpointTestBuilder endpointTester;
 
   private AuthenticatedUserAccount user;
@@ -117,6 +122,9 @@ public class ConsentReviewControllerTest extends PwaAppProcessingContextAbstract
 
     when(appProcessingTaskWarningService.getNonBlockingTasksWarning(any(), any()))
         .thenReturn(AppProcessingTaskWarningTestUtil.createWithNoWarning());
+
+    when(consentFileViewerService.getLatestConsultationRequestViewForDocumentType(
+        pwaApplicationDetail.getPwaApplication(), ConsultationResponseDocumentType.SECRETARY_OF_STATE_DECISION)).thenReturn(Optional.empty());
 
   }
 
