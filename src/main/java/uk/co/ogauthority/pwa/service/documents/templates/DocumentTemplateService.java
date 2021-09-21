@@ -41,6 +41,8 @@ public class DocumentTemplateService {
   private final DocumentTemplateSectionClauseRepository documentTemplateSectionClauseRepository;
   private final DocumentClauseService documentClauseService;
 
+  public static final String DOC_TEMPLATE_EDITOR_HEADER_ID = "consent-document-title";
+
   @Autowired
   public DocumentTemplateService(DocumentTemplateSectionRepository sectionRepository,
                                  DocumentTemplateSectionClauseVersionRepository clauseVersionRepository,

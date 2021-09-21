@@ -5,7 +5,7 @@
 <#macro summary caseSummaryView showAppSummaryLink=true showAppVersionNo=false>
 
   <span class="govuk-caption-l">${caseSummaryView.pwaApplicationTypeDisplay}</span>
-  <h1 class="govuk-heading-xl">${caseSummaryView.pwaApplicationRef} ${showAppVersionNo?then(" - Version " + caseSummaryView.versionNo, "")}
+  <h1 id=${caseSummaryView.caseSummaryHeaderId} class="govuk-heading-xl">${caseSummaryView.pwaApplicationRef} ${showAppVersionNo?then(" - Version " + caseSummaryView.versionNo, "")}
     <#if showAppSummaryLink>
       <br/>
       <@fdsAction.link

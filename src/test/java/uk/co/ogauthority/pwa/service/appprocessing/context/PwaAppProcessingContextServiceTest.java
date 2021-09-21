@@ -226,7 +226,7 @@ public class PwaAppProcessingContextServiceTest {
         .requiredAppStatuses(Set.of(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW))
         .requiredProcessingPermissions(Set.of(PwaAppProcessingPermission.ACCEPT_INITIAL_REVIEW));
 
-    var caseSummaryView = CaseSummaryView.from(ApplicationDetailViewTestUtil.createGenericDetailView());
+    var caseSummaryView = CaseSummaryView.from(ApplicationDetailViewTestUtil.createGenericDetailView(), CaseSummaryViewService.CASE_SUMMARY_HEADER_ID);
     when(caseSummaryViewService.getCaseSummaryViewForAppDetail(detail)).thenReturn(Optional.of(caseSummaryView));
 
     var processingContext = contextService.validateAndCreate(builder);

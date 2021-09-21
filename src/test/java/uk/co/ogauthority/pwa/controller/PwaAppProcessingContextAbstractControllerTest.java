@@ -140,7 +140,7 @@ public abstract class PwaAppProcessingContextAbstractControllerTest {
     when(userSessionService.getAndValidateSession(any(), anyBoolean())).thenReturn(Optional.of(new UserSession()));
 
     var appDetailView = ApplicationDetailViewTestUtil.createGenericDetailView();
-    var caseSummaryView = CaseSummaryView.from(appDetailView);
+    var caseSummaryView = CaseSummaryView.from(appDetailView, CaseSummaryViewService.CASE_SUMMARY_HEADER_ID);
     when(caseSummaryViewService.getCaseSummaryViewForAppDetail(any())).thenReturn(Optional.of(caseSummaryView));
 
     when(serviceProperties.getCustomerName()).thenReturn("oga");
