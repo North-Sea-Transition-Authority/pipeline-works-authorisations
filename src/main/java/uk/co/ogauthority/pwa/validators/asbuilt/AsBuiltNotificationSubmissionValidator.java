@@ -26,7 +26,7 @@ public class AsBuiltNotificationSubmissionValidator implements SmartValidator {
 
     if (form.getAsBuiltNotificationStatus() == null) {
       errors.rejectValue("asBuiltNotificationStatus",
-          "asBuiltNotificationStatus" + FieldValidationErrorCodes.REQUIRED.getCode(), "Select at least one of the options");
+          "asBuiltNotificationStatus" + FieldValidationErrorCodes.REQUIRED.getCode(), "Select the status of the pipeline");
     } else if (!AsBuiltNotificationStatus.getActiveStatusSet().contains(form.getAsBuiltNotificationStatus())) {
       errors.rejectValue("asBuiltNotificationStatus",
           "asBuiltNotificationStatus" + FieldValidationErrorCodes.INVALID.getCode(), "Select a valid option");
@@ -37,7 +37,7 @@ public class AsBuiltNotificationSubmissionValidator implements SmartValidator {
     if (validationHint.isOgaUser()) {
       ValidationUtils.rejectIfEmptyOrWhitespace(errors, "ogaSubmissionReason",
           "ogaSubmissionReason" + FieldValidationErrorCodes.REQUIRED.getCode(),
-          "You must provide a reason for submitting the notification on behalf of the Holder");
+          "Enter a reason for submitting the notification on behalf of the Holder");
     }
 
   }
@@ -99,7 +99,7 @@ public class AsBuiltNotificationSubmissionValidator implements SmartValidator {
 
       case NOT_COMPLETED_IN_CONSENT_TIMEFRAME:
         ValidatorUtils.validateDatePickerDateExistsAndIsValid("notInConsentTimeframeDateWorkCompletedTimestampStr",
-            "Estimated date pipeline will be laid", form.getNotInConsentTimeframeDateWorkCompletedTimestampStr(), errors);
+            "Estimated date work will be completed", form.getNotInConsentTimeframeDateWorkCompletedTimestampStr(), errors);
         break;
       default:
     }

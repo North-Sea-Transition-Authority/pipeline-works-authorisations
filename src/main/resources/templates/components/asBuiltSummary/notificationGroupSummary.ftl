@@ -1,9 +1,9 @@
 <#include '../../layout.ftl'>
 
-<#macro summary notificationGroupSummaryView showAppSummaryLink=true showAppVersionNo=false>
+<#macro summary notificationGroupSummaryView showAppSummaryLink=true showAppVersionNo=false titleAddOn="">
 
     <span class="govuk-caption-l">${notificationGroupSummaryView.applicationTypeDisplay}</span>
-    <h1 class="govuk-heading-xl">${notificationGroupSummaryView.appReference} as-built notifications
+    <h1 class="govuk-heading-xl">${notificationGroupSummaryView.appReference} ${titleAddOn}
         <br/>
             <@fdsAction.link
             linkText="View application (in new tab)"

@@ -12,7 +12,11 @@
         <#if submissionHistoryView.historicalSubmissionViews?hasContent>
             <@fdsDetails.summaryDetails summaryTitle="Show previous submitted as-built notifications">
                 <#list submissionHistoryView.historicalSubmissionViews as historicalSubmissionView>
-                    <@asBuiltNotificationSummary submission=historicalSubmissionView historic=true isOgaUser=isOgaUser/>
+                    <#if historicalSubmissionView?hasNext>
+                        <@asBuiltNotificationSummary submission=historicalSubmissionView historic=true isOgaUser=isOgaUser/>
+                    <#else>
+                        <@asBuiltNotificationSummary submission=historicalSubmissionView historic=true isOgaUser=isOgaUser summaryListClass="govuk-!-margin-bottom-0"/>
+                    </#if>
                 </#list>
              </@fdsDetails.summaryDetails>
         <#else>

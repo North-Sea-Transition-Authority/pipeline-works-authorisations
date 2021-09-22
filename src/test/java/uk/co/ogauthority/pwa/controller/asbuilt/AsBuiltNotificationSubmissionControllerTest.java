@@ -51,6 +51,7 @@ import uk.co.ogauthority.pwa.service.asbuilt.view.AsBuiltViewerService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
 import uk.co.ogauthority.pwa.service.pwaconsents.testutil.PipelineDetailTestUtil;
 import uk.co.ogauthority.pwa.service.workarea.WorkAreaTab;
+import uk.co.ogauthority.pwa.testutils.AsBuiltNotificationSummaryTestUtil;
 import uk.co.ogauthority.pwa.validators.asbuilt.AsBuiltNotificationSubmissionValidator;
 
 @RunWith(SpringRunner.class)
@@ -106,6 +107,8 @@ public class AsBuiltNotificationSubmissionControllerTest extends AbstractControl
     when(asBuiltPipelineNotificationService.getPipelineDetail(PIPElINE_DETAIL_ID)).thenReturn(pipelineDetail);
     when(asBuiltPipelineNotificationService.getAsBuiltNotificationGroupPipeline(NOTIFICATION_GROUP_ID,
         pipelineDetail.getPipelineDetailId())).thenReturn(asBuiltNotificationGroupPipeline);
+    when(asBuiltViewerService.getAsBuiltNotificationGroupSummaryView(NOTIFICATION_GROUP_ID)).thenReturn(
+        AsBuiltNotificationSummaryTestUtil.getAsBuiltNotificationSummmary());
   }
 
   @Test

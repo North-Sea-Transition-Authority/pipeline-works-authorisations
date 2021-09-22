@@ -3,9 +3,10 @@
 <#include '../../layout.ftl'>
 <#include '../../components/asBuiltSummary/notificationGroupSummary.ftl'>
 
+<@defaultPage htmlTitle="Change ${asBuiltGroupReference} deadline" topNavigation=true fullWidthColumn=true breadcrumbs=true>
 
-<@defaultPage htmlTitle="Change ${asBuiltGroupReference} deadline" topNavigation=true twoThirdsColumn=true breadcrumbs=true>
-
+    <@fdsError.errorSummary errorItems=errorList />
+    
     <@summary notificationGroupSummaryView />
 
     <br>

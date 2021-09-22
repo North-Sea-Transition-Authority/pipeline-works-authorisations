@@ -184,7 +184,7 @@ public class ValidatorUtils {
     displayPrefix = displayPrefix.toLowerCase();
     try {
 
-      ValidationUtils.rejectIfEmptyOrWhitespace(errors, fieldName, REQUIRED.errorCode(fieldName), "Enter a " + displayPrefix);
+      ValidationUtils.rejectIfEmptyOrWhitespace(errors, fieldName, REQUIRED.errorCode(fieldName), "Enter " + displayPrefix);
 
       if (dateStr != null) {
         DateUtils.datePickerStringToDate(dateStr);
@@ -217,7 +217,7 @@ public class ValidatorUtils {
     displayPrefix = displayPrefix.toLowerCase();
     try {
 
-      ValidationUtils.rejectIfEmptyOrWhitespace(errors, fieldName, REQUIRED.errorCode(fieldName), "Enter a " + displayPrefix);
+      ValidationUtils.rejectIfEmptyOrWhitespace(errors, fieldName, REQUIRED.errorCode(fieldName), "Enter " + displayPrefix);
 
       if (dateStr != null) {
         var date = DateUtils.datePickerStringToDate(dateStr);
