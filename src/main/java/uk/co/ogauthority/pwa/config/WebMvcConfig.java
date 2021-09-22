@@ -14,11 +14,13 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.resource.ResourceUrlEncodingFilter;
 import org.springframework.web.servlet.resource.VersionResourceResolver;
 import uk.co.ogauthority.pwa.mvc.ResponseBufferSizeHandlerInterceptor;
+import uk.co.ogauthority.pwa.mvc.UserPrivReloadInterceptor;
 import uk.co.ogauthority.pwa.mvc.argresolvers.AuthenticatedUserAccountArgumentResolver;
 import uk.co.ogauthority.pwa.mvc.argresolvers.PwaAppProcessingContextArgumentResolver;
 import uk.co.ogauthority.pwa.mvc.argresolvers.PwaApplicationContextArgumentResolver;
 import uk.co.ogauthority.pwa.mvc.argresolvers.PwaContextArgumentResolver;
 import uk.co.ogauthority.pwa.mvc.argresolvers.ValidationTypeArgumentResolver;
+import uk.co.ogauthority.pwa.service.UserSessionService;
 import uk.co.ogauthority.pwa.util.converters.PwaApplicationTypePathVariableConverterEnumToString;
 import uk.co.ogauthority.pwa.util.converters.PwaApplicationTypePathVariableConverterStringToEnum;
 
@@ -28,14 +30,17 @@ public class WebMvcConfig implements WebMvcConfigurer {
   private final PwaApplicationContextArgumentResolver pwaApplicationContextArgumentResolver;
   private final PwaAppProcessingContextArgumentResolver pwaAppProcessingContextArgumentResolver;
   private final PwaContextArgumentResolver pwaContextArgumentResolver;
+  private final UserSessionService userSessionService;
 
   @Autowired
   public WebMvcConfig(PwaApplicationContextArgumentResolver pwaApplicationContextArgumentResolver,
                       PwaAppProcessingContextArgumentResolver pwaAppProcessingContextArgumentResolver,
-                      PwaContextArgumentResolver pwaContextArgumentResolver) {
+                      PwaContextArgumentResolver pwaContextArgumentResolver,
+                      UserSessionService userSessionService) {
     this.pwaApplicationContextArgumentResolver = pwaApplicationContextArgumentResolver;
     this.pwaAppProcessingContextArgumentResolver = pwaAppProcessingContextArgumentResolver;
     this.pwaContextArgumentResolver = pwaContextArgumentResolver;
+    this.userSessionService = userSessionService;
   }
 
   @Override
@@ -51,6 +56,8 @@ public class WebMvcConfig implements WebMvcConfigurer {
   public void addInterceptors(InterceptorRegistry registry) {
     registry.addInterceptor(new ResponseBufferSizeHandlerInterceptor())
         .excludePathPatterns("/assets/**");
+    registry.addInterceptor(new UserPrivReloadInterceptor(userSessionService))
+        .addPathPatterns("/work-area/*", "/work-area");
   }
 
   @Override
