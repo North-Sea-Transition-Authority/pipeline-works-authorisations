@@ -70,7 +70,7 @@ public class PwaHolderTeamServiceTest {
     when(portalOrganisationsAccessor.getOrganisationUnitsForOrganisationGroupsIn(List.of(holderOrgGroup)))
         .thenReturn(List.of(holderOrgUnit));
 
-    when(pwaHolderService.getPwaHolders(detail.getMasterPwa())).thenReturn(Set.of(holderOrgGroup));
+    when(pwaHolderService.getPwaHolderOrgGroups(detail.getMasterPwa())).thenReturn(Set.of(holderOrgGroup));
 
     holderOrgTeam = TeamTestingUtils.getOrganisationTeam(holderOrgGroup);
     when(teamService.getOrganisationTeamsPersonIsMemberOf(person)).thenReturn(List.of(holderOrgTeam));

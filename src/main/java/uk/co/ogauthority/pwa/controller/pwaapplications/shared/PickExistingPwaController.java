@@ -5,9 +5,7 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 
 import com.google.common.base.Stopwatch;
 import java.util.Comparator;
-import java.util.EnumSet;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 import javax.validation.Valid;
 import org.slf4j.Logger;
@@ -25,7 +23,6 @@ import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.config.MetricsProvider;
 import uk.co.ogauthority.pwa.controller.pwaapplications.start.StartPwaApplicationController;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationGroup;
-import uk.co.ogauthority.pwa.exception.AccessDeniedException;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.PickPwaForm;
 import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
@@ -35,23 +32,16 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pickpwa.PickPwaFormValidator;
 import uk.co.ogauthority.pwa.service.pickpwa.PickedPwaRetrievalService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.applicantorganisation.ApplicantOrganisationService;
 import uk.co.ogauthority.pwa.service.pwaapplications.workflow.PwaApplicationCreationService;
 import uk.co.ogauthority.pwa.service.teams.PwaHolderTeamService;
+import uk.co.ogauthority.pwa.util.ControllerUtils;
 import uk.co.ogauthority.pwa.util.MetricTimerUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
 @Controller
 @RequestMapping("/pwa-application/{applicationTypePathUrl}")
 public class PickExistingPwaController {
-
-  private static final Set<PwaApplicationType> VALID_START_APPLICATION_TYPES = EnumSet.of(
-      PwaApplicationType.CAT_1_VARIATION,
-      PwaApplicationType.CAT_2_VARIATION,
-      PwaApplicationType.HUOO_VARIATION,
-      PwaApplicationType.DEPOSIT_CONSENT,
-      PwaApplicationType.OPTIONS_VARIATION,
-      PwaApplicationType.DECOMMISSIONING
-  );
 
   private static final Logger LOGGER = LoggerFactory.getLogger(PickExistingPwaController.class);
 
@@ -63,6 +53,7 @@ public class PickExistingPwaController {
   private final PwaApplicationCreationService pwaApplicationCreationService;
   private final PickPwaFormValidator pickPwaFormValidator;
   private final MetricsProvider metricsProvider;
+  private final ApplicantOrganisationService applicantOrganisationService;
 
   @Autowired
   public PickExistingPwaController(
@@ -72,7 +63,8 @@ public class PickExistingPwaController {
       PwaHolderTeamService pwaHolderTeamService,
       PwaApplicationCreationService pwaApplicationCreationService,
       PickPwaFormValidator pickPwaFormValidator,
-      MetricsProvider metricsProvider) {
+      MetricsProvider metricsProvider,
+      ApplicantOrganisationService applicantOrganisationService) {
     this.pwaApplicationRedirectService = pwaApplicationRedirectService;
     this.pickedPwaRetrievalService = pickPwaService;
     this.controllerHelperService = controllerHelperService;
@@ -80,6 +72,7 @@ public class PickExistingPwaController {
     this.pwaApplicationCreationService = pwaApplicationCreationService;
     this.pickPwaFormValidator = pickPwaFormValidator;
     this.metricsProvider = metricsProvider;
+    this.applicantOrganisationService = applicantOrganisationService;
   }
 
 
@@ -88,7 +81,7 @@ public class PickExistingPwaController {
                                                       @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
                                                       @ModelAttribute("form") PickPwaForm form,
                                                       AuthenticatedUserAccount user) {
-    checkApplicationTypeValid(pwaApplicationType);
+    ControllerUtils.startVariationControllerCheckAppType(pwaApplicationType);
     return getPickPwaModelAndView(user, pwaApplicationType);
   }
 
@@ -121,34 +114,41 @@ public class PickExistingPwaController {
                                                  AuthenticatedUserAccount user) {
 
     var stopwatch = Stopwatch.createStarted();
-    checkApplicationTypeValid(pwaApplicationType);
+    ControllerUtils.startVariationControllerCheckAppType(pwaApplicationType);
 
     pickPwaFormValidator.validate(form, bindingResult, pwaApplicationType);
     var modelAndView = controllerHelperService.checkErrorsAndRedirect(bindingResult,
         getPickPwaModelAndView(user, pwaApplicationType), () -> {
+
           MasterPwa pickedPwa;
           if (form.getConsentedMasterPwaId() != null) {
             pickedPwa = pickedPwaRetrievalService.getPickedConsentedPwa(form.getConsentedMasterPwaId(), user);
           } else {
             pickedPwa = pickedPwaRetrievalService.getPickedNonConsentedPwa(form.getNonConsentedMasterPwaId(), user);
           }
-          var newApplication = pwaApplicationCreationService.createVariationPwaApplication(
-              user,
-              pickedPwa,
-              pwaApplicationType)
-              .getPwaApplication();
-          return pwaApplicationRedirectService.getTaskListRedirect(newApplication);
+
+          var applicantOrganisations = applicantOrganisationService.getPotentialApplicantOrganisations(pickedPwa, user);
+
+          // if there's a single organisation that could be the applicant org, create the app and go to the task list
+          if (applicantOrganisations.size() == 1) {
+
+            var newAppDetail = pwaApplicationCreationService
+                .createVariationPwaApplication(pickedPwa, pwaApplicationType, applicantOrganisations.iterator().next(), user);
+
+            return pwaApplicationRedirectService.getTaskListRedirect(newAppDetail.getPwaApplication());
+
+          }
+
+          // otherwise make the user pick one
+          return ReverseRouter.redirect(on(ApplicantOrganisationController.class)
+              .renderSelectOrganisation(pickedPwa.getId(), pwaApplicationType, null, null));
+
         });
 
     MetricTimerUtils.recordTime(stopwatch, LOGGER, metricsProvider.getStartAppTimer(), "Variation application started.");
+
     return modelAndView;
-  }
 
-  private void checkApplicationTypeValid(PwaApplicationType pwaApplicationType) {
-    if (!VALID_START_APPLICATION_TYPES.contains(pwaApplicationType)) {
-      throw new AccessDeniedException("Unsupported type for pick pwa: " + pwaApplicationType);
-    }
   }
-
 
 }

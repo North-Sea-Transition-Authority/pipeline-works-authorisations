@@ -9,12 +9,14 @@ import org.springframework.scheduling.quartz.QuartzJobBean;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.testharness.TestHarnessService;
 import uk.co.ogauthority.pwa.service.users.UserAccountService;
 
 @Profile("test-harness")
+@Component
 class TestHarnessBean extends QuartzJobBean {
 
   private final TestHarnessService testHarnessService;

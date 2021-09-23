@@ -49,7 +49,7 @@ public class AsBuiltNotificationSummaryServiceTest {
   public void setup() {
     asBuiltNotificationSummaryService = new AsBuiltNotificationSummaryService(pwaHolderService);
 
-    when(pwaHolderService.getPwaHolders(applicationDetail.getMasterPwa())).thenReturn(Set.of(portalOrganisationGroup));
+    when(pwaHolderService.getPwaHolderOrgGroups(applicationDetail.getMasterPwa())).thenReturn(Set.of(portalOrganisationGroup));
   }
 
   @Test

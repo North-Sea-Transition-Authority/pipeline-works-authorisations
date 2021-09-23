@@ -117,7 +117,7 @@ public class IndustryPaymentController {
 
     var appPaymentDisplaySummary = applicationPaymentSummariser.summarise(applicationChargeRequestReport);
 
-    var pwaHolderOrgNames = pwaHolderService.getPwaHolders(processingContext.getPwaApplication().getMasterPwa())
+    var pwaHolderOrgNames = pwaHolderService.getPwaHolderOrgGroups(processingContext.getPwaApplication().getMasterPwa())
         .stream()
         .map(PortalOrganisationGroup::getName)
         .sorted(Comparator.comparing(String::toLowerCase))

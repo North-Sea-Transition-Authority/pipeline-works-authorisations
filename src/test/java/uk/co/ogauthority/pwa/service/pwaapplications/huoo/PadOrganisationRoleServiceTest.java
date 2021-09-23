@@ -7,6 +7,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
@@ -58,6 +59,7 @@ import uk.co.ogauthority.pwa.repository.pwaapplications.huoo.PadOrganisationRole
 import uk.co.ogauthority.pwa.repository.pwaapplications.pipelinehuoo.PadPipelineOrganisationRoleLinkRepository;
 import uk.co.ogauthority.pwa.service.entitycopier.EntityCopyingService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationService;
 import uk.co.ogauthority.pwa.service.pwaapplications.options.PadOptionConfirmedService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.huoosummary.PipelineNumbersAndSplits;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
@@ -97,6 +99,9 @@ public class PadOrganisationRoleServiceTest {
 
   @Mock
   private PadOptionConfirmedService padOptionConfirmedService;
+
+  @Mock
+  private PwaApplicationService pwaApplicationService;
 
   private PadOrganisationRoleService padOrganisationRoleService;
 
@@ -152,7 +157,8 @@ public class PadOrganisationRoleServiceTest {
         padPipelineService,
         entityManager,
         entityCopyingService,
-        padOptionConfirmedService);
+        padOptionConfirmedService,
+        pwaApplicationService);
 
 
     var orgGroup1 = PortalOrganisationTestUtils.generateOrganisationGroup(1, "Group1", "G1");
@@ -368,7 +374,7 @@ public class PadOrganisationRoleServiceTest {
 
 
   @Test
-  public void updateOrgRolesUsingForm_updateAndAddRole_linksUnchanged() {
+  public void updateOrgRolesUsingForm_updateAndAddRole_linksUnchanged_newPwa_applicantOrgUpdated() {
 
     var form = new HuooForm();
     form.setOrganisationUnitId(2);
@@ -403,6 +409,33 @@ public class PadOrganisationRoleServiceTest {
     //verify existing org role deletion
     verify(padOrganisationRolesRepository, times(1)).deleteAll(deletedRoleListCaptor.capture());
     assertThat(deletedRoleListCaptor.getValue()).isEmpty();
+
+    // verify applicant organisation updated
+    verify(pwaApplicationService, times(1)).updateApplicantOrganisationUnitId(detail.getPwaApplication(), orgUnitToAdd);
+
+  }
+
+  @Test
+  public void updateOrgRolesUsingForm_updateAndAddRole_linksUnchanged_variation_applicantOrgNotUpdated() {
+
+    var form = new HuooForm();
+    form.setOrganisationUnitId(2);
+    form.setHuooRoles(Set.of(HuooRole.HOLDER, HuooRole.OPERATOR));
+
+    detail.getPwaApplication().setApplicationType(PwaApplicationType.CAT_1_VARIATION);
+
+    var existingOrgUnit = PortalOrganisationTestUtils.getOrganisationUnitInOrgGroup();
+    var existingOrgRole = PadOrganisationRoleTestUtil.createOrgRole(HuooRole.HOLDER, existingOrgUnit);
+    when(padOrganisationRolesRepository.getAllByPwaApplicationDetailAndOrganisationUnit(detail, existingOrgUnit))
+        .thenReturn(List.of(existingOrgRole));
+
+    var orgUnitToAdd = PortalOrganisationTestUtils.getOrganisationUnitInOrgGroup();
+    when(portalOrganisationsAccessor.getOrganisationUnitById(form.getOrganisationUnitId())).thenReturn(Optional.of(orgUnitToAdd));
+
+    padOrganisationRoleService.updateOrgRolesUsingForm(detail, form, existingOrgUnit);
+
+    // verify applicant organisation not updated
+    verifyNoInteractions(pwaApplicationService);
 
   }
 

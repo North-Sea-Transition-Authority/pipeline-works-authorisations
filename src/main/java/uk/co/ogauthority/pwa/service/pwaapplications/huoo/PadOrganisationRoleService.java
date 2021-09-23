@@ -58,6 +58,7 @@ import uk.co.ogauthority.pwa.service.entitycopier.EntityCopyingService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
+import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
 import uk.co.ogauthority.pwa.service.pwaapplications.options.PadOptionConfirmedService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.huoosummary.AllOrgRolePipelineGroupsView;
@@ -80,6 +81,7 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
   private final EntityCopyingService entityCopyingService;
 
   private final PadOptionConfirmedService padOptionConfirmedService;
+  private final PwaApplicationService pwaApplicationService;
 
   @Autowired
   public PadOrganisationRoleService(
@@ -91,7 +93,8 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
       PadPipelineService padPipelineService,
       EntityManager entityManager,
       EntityCopyingService entityCopyingService,
-      PadOptionConfirmedService padOptionConfirmedService) {
+      PadOptionConfirmedService padOptionConfirmedService,
+      PwaApplicationService pwaApplicationService) {
     this.padOrganisationRolesRepository = padOrganisationRolesRepository;
     this.padPipelineOrganisationRoleLinkRepository = padPipelineOrganisationRoleLinkRepository;
     this.portalOrganisationsAccessor = portalOrganisationsAccessor;
@@ -101,6 +104,7 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
     this.entityManager = entityManager;
     this.entityCopyingService = entityCopyingService;
     this.padOptionConfirmedService = padOptionConfirmedService;
+    this.pwaApplicationService = pwaApplicationService;
   }
 
   public List<PadOrganisationRole> getOrgRolesForDetail(PwaApplicationDetail pwaApplicationDetail) {
@@ -430,6 +434,15 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
     padOrganisationRolesRepository.saveAll(orgRolesToSave);
     removePipelineLinksForOrgsWithRoles(detail, orgRolesToRemove);
     padOrganisationRolesRepository.deleteAll(orgRolesToRemove);
+
+    // if new PWA, update the applicant organisation to ensure it matches the holder for the application
+    if (detail.getPwaApplicationType() == PwaApplicationType.INITIAL) {
+      orgRolesToSave.stream()
+          .filter(r -> r.getRole() == HuooRole.HOLDER)
+          .findFirst()
+          .ifPresent(h -> pwaApplicationService
+              .updateApplicantOrganisationUnitId(detail.getPwaApplication(), h.getOrganisationUnit()));
+    }
 
   }
 

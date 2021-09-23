@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.handler.SimpleMappingExceptionResolver;
+import uk.co.ogauthority.pwa.mvc.error.ErrorService;
 import uk.co.ogauthority.pwa.service.footer.FooterService;
 
 @Component
@@ -17,10 +18,13 @@ public class DefaultExceptionResolver extends SimpleMappingExceptionResolver {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(DefaultExceptionResolver.class);
   private final FooterService footerService;
+  private final ErrorService errorService;
 
   @Autowired
-  public DefaultExceptionResolver(FooterService footerService) {
+  public DefaultExceptionResolver(FooterService footerService,
+                                  ErrorService errorService) {
     this.footerService = footerService;
+    this.errorService = errorService;
     setDefaultErrorView("error");
     setDefaultStatusCode(SC_INTERNAL_SERVER_ERROR);
   }
@@ -46,6 +50,7 @@ public class DefaultExceptionResolver extends SimpleMappingExceptionResolver {
       modelAndView.addObject("errorRef", errorRef);
 
       footerService.addFooterUrlsToModelAndView(modelAndView);
+      errorService.addErrorAttributesToModel(modelAndView, ex);
 
       return modelAndView;
 

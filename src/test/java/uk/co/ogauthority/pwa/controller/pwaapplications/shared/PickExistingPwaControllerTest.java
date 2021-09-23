@@ -5,6 +5,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -20,7 +21,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
@@ -39,6 +39,8 @@ import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.config.MetricsProvider;
 import uk.co.ogauthority.pwa.controller.AbstractControllerTest;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
+import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationTestUtils;
+import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
@@ -51,6 +53,7 @@ import uk.co.ogauthority.pwa.service.pickpwa.PickPwaFormValidator;
 import uk.co.ogauthority.pwa.service.pickpwa.PickableMasterPwaOptions;
 import uk.co.ogauthority.pwa.service.pickpwa.PickedPwaRetrievalService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.applicantorganisation.ApplicantOrganisationService;
 import uk.co.ogauthority.pwa.service.pwaapplications.workflow.PwaApplicationCreationService;
 import uk.co.ogauthority.pwa.service.teams.PwaHolderTeamService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
@@ -85,6 +88,9 @@ public class PickExistingPwaControllerTest extends AbstractControllerTest {
   @MockBean
   private MetricsProvider metricsProvider;
 
+  @MockBean
+  private ApplicantOrganisationService applicantOrganisationService;
+
   @Mock
   private Appender appender;
 
@@ -102,6 +108,8 @@ public class PickExistingPwaControllerTest extends AbstractControllerTest {
 
   private MasterPwa masterPwa;
 
+  private PortalOrganisationUnit applicantOrganisation = PortalOrganisationTestUtils.generateOrganisationUnit(1, "ACME");
+
   @Before
   public void setup() {
 
@@ -116,7 +124,7 @@ public class PickExistingPwaControllerTest extends AbstractControllerTest {
     when(pickedPwaRetrievalService.getPickedConsentedPwa(any(), any())).thenReturn(masterPwa);
     when(pickedPwaRetrievalService.getPickedNonConsentedPwa(any(), any())).thenReturn(masterPwa);
     // fake create application service so we get an app of the requested type back
-    when(pwaApplicationCreationService.createVariationPwaApplication(any(), any(), any())).thenAnswer(invocation -> {
+    when(pwaApplicationCreationService.createVariationPwaApplication(any(), any(), any(), any())).thenAnswer(invocation -> {
           PwaApplicationType appType = Arrays.stream(invocation.getArguments())
               .filter(arg -> arg instanceof PwaApplicationType)
               .map(o -> (PwaApplicationType) o)
@@ -214,6 +222,41 @@ public class PickExistingPwaControllerTest extends AbstractControllerTest {
   }
 
   @Test
+  public void pickPwaAndStartApplication_oneApplicantOrg_appCreated() throws Exception {
+
+    when(applicantOrganisationService.getPotentialApplicantOrganisations(any(), any())).thenReturn(Set.of(applicantOrganisation));
+
+    mockMvc.perform(post(ReverseRouter.route(on(PickExistingPwaController.class)
+            .pickPwaAndStartApplication(PwaApplicationType.CAT_1_VARIATION, null, null, null)))
+            .with(authenticatedUserAndSession(user))
+            .with(csrf())
+            .param("consentedMasterPwaId", String.valueOf(MASTER_PWA_ID)))
+        .andExpect(status().is3xxRedirection());
+
+    verify(pickedPwaRetrievalService, times(1)).getPickedConsentedPwa(MASTER_PWA_ID, user);
+    verify(pwaApplicationCreationService, times(1)).createVariationPwaApplication(masterPwa, PwaApplicationType.CAT_1_VARIATION, applicantOrganisation, user);
+
+  }
+
+  @Test
+  public void pickPwaAndStartApplication_multipleApplicantOrgs_appNotCreated() throws Exception {
+
+    var secondApplicantOrg = PortalOrganisationTestUtils.generateOrganisationUnit(2, "Umbrella");
+    when(applicantOrganisationService.getPotentialApplicantOrganisations(any(), any())).thenReturn(Set.of(applicantOrganisation, secondApplicantOrg));
+
+    mockMvc.perform(post(ReverseRouter.route(on(PickExistingPwaController.class)
+            .pickPwaAndStartApplication(PwaApplicationType.CAT_1_VARIATION, null, null, null)))
+            .with(authenticatedUserAndSession(user))
+            .with(csrf())
+            .param("consentedMasterPwaId", String.valueOf(MASTER_PWA_ID)))
+        .andExpect(status().is3xxRedirection());
+
+    verify(pickedPwaRetrievalService, times(1)).getPickedConsentedPwa(MASTER_PWA_ID, user);
+    verifyNoInteractions(pwaApplicationCreationService);
+
+  }
+
+  @Test
   public void pickPwaAndStartApplication_nonconsentedPwaPicked() throws Exception {
     mockMvc.perform(post(ReverseRouter.route(on(PickExistingPwaController.class)
         .pickPwaAndStartApplication(PwaApplicationType.DEPOSIT_CONSENT, null, null, null)))
@@ -241,9 +284,15 @@ public class PickExistingPwaControllerTest extends AbstractControllerTest {
   @Test
   public void pickPwaAndStartApplication_timerMetricStarted_timeRecordedAndLogged() {
 
-    var controller = new PickExistingPwaController(pwaApplicationRedirectService, pickedPwaRetrievalService,
-        Mockito.mock(ControllerHelperService.class), pwaHolderTeamService, pwaApplicationCreationService,
-        pickPwaFormValidator, metricsProvider);
+    var controller = new PickExistingPwaController(
+        pwaApplicationRedirectService,
+        pickedPwaRetrievalService,
+        Mockito.mock(ControllerHelperService.class),
+        pwaHolderTeamService,
+        pwaApplicationCreationService,
+        pickPwaFormValidator,
+        metricsProvider,
+        applicantOrganisationService);
 
     var form = new PickPwaForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");

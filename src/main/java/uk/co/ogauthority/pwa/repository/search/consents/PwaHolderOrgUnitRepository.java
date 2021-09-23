@@ -1,14 +1,13 @@
 package uk.co.ogauthority.pwa.repository.search.consents;
 
 
-import java.util.List;
 import java.util.Set;
 import org.springframework.data.repository.CrudRepository;
 import uk.co.ogauthority.pwa.model.entity.search.consents.PwaHolderOrgUnit;
 
 public interface PwaHolderOrgUnitRepository extends CrudRepository<PwaHolderOrgUnit, Integer> {
 
-  List<PwaHolderOrgUnit> findAllByPwaId(int pwaId);
+  Set<PwaHolderOrgUnit> findAllByPwaId(int pwaId);
 
   Set<PwaHolderOrgUnit> findAllByPwaIdIn(Set<Integer> pwaIds);
 

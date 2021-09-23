@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
+import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
+import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
 import uk.co.ogauthority.pwa.model.entity.enums.MasterPwaDetailStatus;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaDetail;
@@ -73,11 +75,13 @@ public class PwaApplicationCreationService {
   private PwaApplicationDetail createApplication(MasterPwa masterPwa,
                                                  PwaApplicationType applicationType,
                                                  int variationNo,
-                                                 WebUserAccount createdByUser) {
+                                                 WebUserAccount createdByUser,
+                                                 PortalOrganisationUnit applicantOrganisationUnit) {
 
     var application = new PwaApplication(masterPwa, applicationType, variationNo);
     application.setAppReference(pwaApplicationReferencingService.createAppReference());
     application.setApplicationCreatedTimestamp(clock.instant());
+    application.setApplicantOrganisationUnitId(OrganisationUnitId.from(applicantOrganisationUnit));
     pwaApplicationRepository.save(application);
 
     pwaContactService.updateContact(
@@ -113,7 +117,8 @@ public class PwaApplicationCreationService {
   }
 
   @Transactional
-  public PwaApplicationDetail createInitialPwaApplication(WebUserAccount createdByUser) {
+  public PwaApplicationDetail createInitialPwaApplication(PortalOrganisationUnit applicantOrganisationUnit,
+                                                          WebUserAccount createdByUser) {
 
     MasterPwaDetail masterPwaDetail = masterPwaService.createMasterPwa(
         MasterPwaDetailStatus.APPLICATION,
@@ -123,22 +128,25 @@ public class PwaApplicationCreationService {
 
     var masterPwa = masterPwaDetail.getMasterPwa();
 
-    var newApplication = createApplication(masterPwa, PwaApplicationType.INITIAL, 0, createdByUser);
+    var newApplication = createApplication(masterPwa, PwaApplicationType.INITIAL, 0, createdByUser, applicantOrganisationUnit);
     masterPwaService.updateDetailReference(masterPwaDetail, newApplication.getPwaApplicationRef());
 
     return newApplication;
   }
 
   @Transactional
-  public PwaApplicationDetail createVariationPwaApplication(WebUserAccount createdByUser,
-                                                            MasterPwa masterPwa,
-                                                            PwaApplicationType pwaApplicationType) {
+  public PwaApplicationDetail createVariationPwaApplication(MasterPwa masterPwa,
+                                                            PwaApplicationType pwaApplicationType,
+                                                            PortalOrganisationUnit applicantOrganisationUnit,
+                                                            WebUserAccount createdByUser) {
 
-    var applicationDetail = createApplication(masterPwa, pwaApplicationType, 0, createdByUser);
+    var applicationDetail = createApplication(masterPwa, pwaApplicationType, 0, createdByUser, applicantOrganisationUnit);
 
     var masterPwaDetailFields = masterPwaDetailFieldService.getMasterPwaDetailFields(masterPwa);
+
     padFieldService.createAndSavePadFieldsFromMasterPwa(applicationDetail,
         masterPwaService.getCurrentDetailOrThrow(masterPwa), masterPwaDetailFields);
+
     return applicationDetail;
 
   }

@@ -12,9 +12,13 @@ import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationTestUtils;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
+import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.repository.pwaapplications.PwaApplicationRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
@@ -27,6 +31,9 @@ public class PwaApplicationServiceTest {
   private PwaApplicationRepository pwaApplicationRepository;
 
   private PwaApplicationService pwaApplicationService;
+
+  @Captor
+  private ArgumentCaptor<PwaApplication> pwaApplicationArgumentCaptor;
 
   private PwaApplication pwaApplication;
 
@@ -60,6 +67,19 @@ public class PwaApplicationServiceTest {
   public void getAllApplicationsForMasterPwa() {
     when(pwaApplicationRepository.findAllByMasterPwa(pwaApplication.getMasterPwa())).thenReturn(List.of(pwaApplication));
     assertThat(pwaApplicationService.getAllApplicationsForMasterPwa(pwaApplication.getMasterPwa())).isEqualTo(List.of(pwaApplication));
+  }
+
+  @Test
+  public void updateApplicantOrganisationUnitId() {
+
+    var orgUnit = PortalOrganisationTestUtils.generateOrganisationUnit(1, "Umbrella");
+
+    pwaApplicationService.updateApplicantOrganisationUnitId(pwaApplication, orgUnit);
+
+    verify(pwaApplicationRepository, times(1)).save(pwaApplicationArgumentCaptor.capture());
+
+    assertThat(pwaApplicationArgumentCaptor.getValue().getApplicantOrganisationUnitId()).isEqualTo(OrganisationUnitId.from(orgUnit));
+
   }
 
 }

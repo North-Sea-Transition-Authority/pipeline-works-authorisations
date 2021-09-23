@@ -121,7 +121,7 @@ public class PwaContactController {
         .sorted(Comparator.comparing(TeamMemberView::getFullName))
         .collect(Collectors.toList());
 
-    Set<String> orgGroupHolders = pwaHolderService.getPwaHolders(pwaApplication.getMasterPwa()).stream()
+    Set<String> orgGroupHolders = pwaHolderService.getPwaHolderOrgGroups(pwaApplication.getMasterPwa()).stream()
         .map(PortalOrganisationGroup::getName)
         .collect(Collectors.toSet());
 

@@ -51,6 +51,7 @@ public class PickedPwaRetrievalService {
             StreamUtils.toLinkedHashMap(mpd -> String.valueOf(mpd.getMasterPwaId()), MasterPwaDetail::getReference));
 
     return new PickableMasterPwaOptions(consentedMasterPwaMap, nonConsentedMasterPwaMap);
+
   }
 
   public MasterPwa getPickedConsentedPwa(Integer pickedPwaId, WebUserAccount user) {

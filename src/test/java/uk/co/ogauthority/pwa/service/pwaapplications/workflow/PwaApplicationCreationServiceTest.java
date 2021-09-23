@@ -22,6 +22,9 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
+import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationTestUtils;
+import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
+import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaDetail;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaDetailField;
@@ -89,14 +92,16 @@ public class PwaApplicationCreationServiceTest {
 
   private PwaApplicationCreationService pwaApplicationCreationService;
 
-  private WebUserAccount user = new WebUserAccount(123);
+  private final WebUserAccount user = new WebUserAccount(123);
 
-  private Clock clock = Clock.fixed(LocalDate
+  private final Clock clock = Clock.fixed(LocalDate
       .of(2020, 2, 6)
       .atStartOfDay(ZoneId.systemDefault())
       .toInstant(), ZoneId.systemDefault());
 
-  private Instant fixedInstant = clock.instant();
+  private final Instant fixedInstant = clock.instant();
+
+  private final PortalOrganisationUnit applicantOrganisationUnit = PortalOrganisationTestUtils.generateOrganisationUnit(1, "Umbrella");
 
   @Before
   public void setUp() {
@@ -129,7 +134,7 @@ public class PwaApplicationCreationServiceTest {
     when(masterPwaDetail.getMasterPwa()).thenReturn(masterPwa);
     when(masterPwaService.createMasterPwa(any(), any())).thenReturn(masterPwaDetail);
 
-    PwaApplicationDetail createdApplication = pwaApplicationCreationService.createInitialPwaApplication(user);
+    PwaApplicationDetail createdApplication = pwaApplicationCreationService.createInitialPwaApplication(applicantOrganisationUnit, user);
 
     ArgumentCaptor<PwaApplication> applicationArgumentCaptor = ArgumentCaptor.forClass(PwaApplication.class);
 
@@ -153,6 +158,7 @@ public class PwaApplicationCreationServiceTest {
     assertThat(application.getDecision()).isEmpty();
     assertThat(application.getDecisionTimestamp()).isEmpty();
     assertThat(application.getApplicationCreatedTimestamp()).isEqualTo(clock.instant());
+    assertThat(application.getApplicantOrganisationUnitId()).isEqualTo(OrganisationUnitId.from(applicantOrganisationUnit));
 
     assertThat(createdApplication.getPwaApplication()).isEqualTo(application);
     verify(masterPwaService, times(1)).updateDetailReference(masterPwaDetail, application.getAppReference());
@@ -201,7 +207,7 @@ public class PwaApplicationCreationServiceTest {
   public void createVariationPwaApplication_createsApplicationsAsExpected_noHuooOrgRolesExpectedToBeCreated() {
 
     for(PwaApplicationType appType : EnumSet.complementOf(EXPECTED_HUOO_ROLE_CREATION_TYPES)){
-      pwaApplicationCreationService.createVariationPwaApplication(user, masterPwa, appType);
+      pwaApplicationCreationService.createVariationPwaApplication(masterPwa, appType, applicantOrganisationUnit, user);
     }
 
     verifyNoInteractions(padOrganisationRoleService);
@@ -220,10 +226,10 @@ public class PwaApplicationCreationServiceTest {
     when(masterPwaService.getCurrentDetailOrThrow(masterPwa)).thenReturn(masterPwaDetail);
 
     PwaApplicationDetail createdApplication = pwaApplicationCreationService.createVariationPwaApplication(
-        user,
         masterPwa,
-        pwaApplicationType
-    );
+        pwaApplicationType,
+        applicantOrganisationUnit,
+        user);
 
     ArgumentCaptor<PwaApplication> applicationArgumentCaptor = ArgumentCaptor.forClass(PwaApplication.class);
 
@@ -248,8 +254,10 @@ public class PwaApplicationCreationServiceTest {
     assertThat(application.getVariationNo()).isEqualTo(0);
     assertThat(application.getDecision()).isEmpty();
     assertThat(application.getDecisionTimestamp()).isEmpty();
+    assertThat(application.getApplicantOrganisationUnitId()).isEqualTo(OrganisationUnitId.from(applicantOrganisationUnit));
 
     assertThat(createdApplication.getPwaApplication()).isEqualTo(application);
+
   }
 
 

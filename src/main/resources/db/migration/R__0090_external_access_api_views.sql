@@ -174,7 +174,7 @@ SELECT
 , pad_lookup.created_timestamp
 , pad_lookup.last_submitted_timestamp
 , pc.id pwa_consent_id -- the consent created after app completed if available. will be null if app not yet consented.
-, NULL application_org_unit_id -- TODO PWA-1440 - update this value to be the actual applicant org
+, pa.applicant_ou_id
 FROM ${datasource.user}.pwa_applications pa
 JOIN ${datasource.user}.pwa_application_details pad ON pa.id = pad.pwa_application_id
 JOIN (
@@ -218,6 +218,3 @@ GRANT SELECT ON ${datasource.user}.api_vw_current_pipeline_data TO envmgr WITH G
 
 -- UKSS needs specific access and ability to build a view
 GRANT SELECT ON ${datasource.user}.api_vw_current_pipeline_orgs TO passmgr WITH GRANT OPTION;
-
-
-

@@ -62,4 +62,18 @@ public class PwaHolderServiceTest {
         orgToMasterPwaIdMultimap);
   }
 
+  @Test
+  public void getPwaHolderOrgUnits() {
+
+    var ou = PortalOrganisationTestUtils.generateOrganisationUnit(1, "Umbrella");
+    var holderOu = PwaHolderOrgUnitTestUtil.createPwaHolderOrgUnit("h1", masterPwa.getId(), ou);
+    when(pwaHolderOrgUnitRepository.findAllByPwaId(masterPwa.getId())).thenReturn(Set.of(holderOu));
+    when(portalOrganisationsAccessor.getOrganisationUnitsByIdIn(List.of(ou.getOuId()))).thenReturn(List.of(ou));
+
+    var expectedOus = pwaHolderService.getPwaHolderOrgUnits(masterPwa);
+
+    assertThat(expectedOus).containsExactly(ou);
+
+  }
+
 }

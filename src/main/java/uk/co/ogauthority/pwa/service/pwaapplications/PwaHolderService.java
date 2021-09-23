@@ -9,11 +9,11 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationGroup;
+import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.energyportal.service.organisations.PortalOrganisationsAccessor;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.search.consents.PwaHolderOrgUnit;
 import uk.co.ogauthority.pwa.repository.search.consents.PwaHolderOrgUnitRepository;
-
 
 @Service
 public class PwaHolderService {
@@ -29,8 +29,18 @@ public class PwaHolderService {
     this.pwaHolderOrgUnitRepository = pwaHolderOrgUnitRepository;
   }
 
+  public Set<PortalOrganisationUnit> getPwaHolderOrgUnits(MasterPwa masterPwa) {
 
-  public Set<PortalOrganisationGroup> getPwaHolders(MasterPwa masterPwa) {
+    var holderOuIds = pwaHolderOrgUnitRepository.findAllByPwaId(masterPwa.getId()).stream()
+        .map(PwaHolderOrgUnit::getOuId)
+        .collect(Collectors.toList());
+
+    return portalOrganisationsAccessor.getOrganisationUnitsByIdIn(holderOuIds).stream()
+        .collect(Collectors.toUnmodifiableSet());
+
+  }
+
+  public Set<PortalOrganisationGroup> getPwaHolderOrgGroups(MasterPwa masterPwa) {
     // the base view we are querying handles the logic of consented model lookup or application data lookup.
     // Uses the same logic as the app search so we are consistent across contexts.
     var holderOrgGrpIdsForMasterPwa = pwaHolderOrgUnitRepository.findAllByPwaId(masterPwa.getId())
@@ -43,7 +53,6 @@ public class PwaHolderService {
         .stream()
         .collect(Collectors.toUnmodifiableSet());
   }
-
 
   public Multimap<PortalOrganisationGroup, Integer> getHolderOrgGroupsForMasterPwaIds(Set<Integer> masterPwaIds) {
     var allHolderOrgUnitsForMasterPwas = pwaHolderOrgUnitRepository.findAllByPwaIdIn(masterPwaIds);
@@ -63,6 +72,5 @@ public class PwaHolderService {
         pwaHolderOrgUnit.getPwaId()));
     return holderOrgGroupToMasterPwaIdListMap;
   }
-
 
 }

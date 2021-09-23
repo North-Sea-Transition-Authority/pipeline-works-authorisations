@@ -90,7 +90,6 @@ public class PwaHolderControllerTest extends AbstractControllerTest {
   @Captor
   private ArgumentCaptor<LoggingEvent> loggingEventCaptor;
 
-
   private Timer timer;
 
   private AuthenticatedUserAccount user = new AuthenticatedUserAccount(new WebUserAccount(123),
@@ -144,7 +143,7 @@ public class PwaHolderControllerTest extends AbstractControllerTest {
   @Test
   public void postHolderScreen_withHolderOrgId() throws Exception {
 
-    when(pwaApplicationCreationService.createInitialPwaApplication(user)).thenReturn(detail);
+    when(pwaApplicationCreationService.createInitialPwaApplication(orgUnit, user)).thenReturn(detail);
     when(pwaApplicationDetailService.getTipDetail(detail.getPwaApplication().getId())).thenReturn(detail);
 
     mockMvc.perform(post(ReverseRouter.route(on(PwaHolderController.class)
@@ -159,7 +158,7 @@ public class PwaHolderControllerTest extends AbstractControllerTest {
   @Test
   public void postHolderScreen_withHolderOrgId_noPrivileges() throws Exception {
 
-    when(pwaApplicationCreationService.createInitialPwaApplication(user)).thenReturn(detail);
+    when(pwaApplicationCreationService.createInitialPwaApplication(orgUnit, user)).thenReturn(detail);
     when(pwaApplicationDetailService.getTipDetail(detail.getPwaApplication().getId())).thenReturn(detail);
 
     mockMvc.perform(post(ReverseRouter.route(on(PwaHolderController.class)
@@ -174,7 +173,7 @@ public class PwaHolderControllerTest extends AbstractControllerTest {
   @Test
   public void postHolderScreen_noHolderOrgSelected() throws Exception {
 
-    when(pwaApplicationCreationService.createInitialPwaApplication(user)).thenReturn(detail);
+    when(pwaApplicationCreationService.createInitialPwaApplication(orgUnit, user)).thenReturn(detail);
     when(pwaApplicationDetailService.getTipDetail(detail.getPwaApplication().getId())).thenReturn(detail);
 
     ControllerTestUtils.mockValidatorErrors(pwaHolderFormValidator, List.of("holderOuId"));
@@ -194,7 +193,7 @@ public class PwaHolderControllerTest extends AbstractControllerTest {
   @Test
   public void postHolderScreen_holderOrgExists_andUserDoesntHaveAccessToOrg() throws Exception {
 
-    when(pwaApplicationCreationService.createInitialPwaApplication(user)).thenReturn(detail);
+    when(pwaApplicationCreationService.createInitialPwaApplication(orgUnit, user)).thenReturn(detail);
     when(pwaApplicationDetailService.getTipDetail(detail.getPwaApplication().getId())).thenReturn(detail);
 
     when(portalOrganisationsAccessor.getOrganisationUnitById(44)).thenReturn(Optional.of(orgUnit));
@@ -213,7 +212,7 @@ public class PwaHolderControllerTest extends AbstractControllerTest {
   @Test
   public void postHolderScreen_timerMetricStarted_timeRecordedAndLogged() {
 
-    when(pwaApplicationCreationService.createInitialPwaApplication(user)).thenReturn(detail);
+    when(pwaApplicationCreationService.createInitialPwaApplication(orgUnit, user)).thenReturn(detail);
     when(pwaApplicationDetailService.getTipDetail(detail.getPwaApplication().getId())).thenReturn(detail);
     when(portalOrganisationsAccessor.getOrganisationUnitById(any())).thenReturn(Optional.of(orgUnit));
 

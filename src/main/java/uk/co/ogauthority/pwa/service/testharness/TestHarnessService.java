@@ -74,9 +74,6 @@ public class TestHarnessService {
     this.testHarnessUserRetrievalService = testHarnessUserRetrievalService;
   }
 
-
-
-
   @Transactional
   public void generatePwaApplication(PwaApplicationType applicationType,
                                     Integer consentedMasterPwaId,

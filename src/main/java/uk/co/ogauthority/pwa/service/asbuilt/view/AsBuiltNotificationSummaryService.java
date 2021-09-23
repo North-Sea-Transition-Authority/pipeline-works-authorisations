@@ -36,7 +36,7 @@ class AsBuiltNotificationSummaryService {
     var masterPwa = asBuiltNotificationGroup.getPwaConsent().getMasterPwa();
     var pwaReference = asBuiltNotificationGroup.getPwaConsent().getReference();
     var appReference = asBuiltNotificationGroup.getReference();
-    var holders = pwaHolderService.getPwaHolders(masterPwa).stream()
+    var holders = pwaHolderService.getPwaHolderOrgGroups(masterPwa).stream()
         .map(PortalOrganisationGroup::getName).collect(Collectors.joining(", "));
     var deadline = DateUtils.formatDate(asBuiltNotificationGroupDetail.getDeadlineDate());
     var accessLink = ReverseRouter.route(on(ApplicationSummaryController.class).renderSummary(pwaApplication.getId(),

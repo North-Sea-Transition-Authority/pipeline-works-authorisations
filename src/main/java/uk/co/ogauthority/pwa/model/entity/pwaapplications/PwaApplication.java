@@ -3,7 +3,9 @@ package uk.co.ogauthority.pwa.model.entity.pwaapplications;
 import java.time.Instant;
 import java.util.Objects;
 import java.util.Optional;
+import javax.persistence.Basic;
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -13,6 +15,8 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
+import uk.co.ogauthority.pwa.model.entity.converters.OrganisationUnitIdConverter;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocumentSpec;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.service.documents.DocumentSource;
@@ -50,6 +54,11 @@ public class PwaApplication implements WorkflowSubject, DocumentSource {
   @Column(name = "app_created_timestamp")
   private Instant applicationCreatedTimestamp;
 
+  @Basic // this annotation allows the Jpa metamodel to pick up the field, but leaves default behaviour intact.
+  // Suitable as OrganisationUnitId just wraps a basic class.
+  @Column(name = "applicant_ou_id")
+  @Convert(converter = OrganisationUnitIdConverter.class)
+  private OrganisationUnitId applicantOrganisationUnitId;
 
   public PwaApplication() {
   }
@@ -132,6 +141,14 @@ public class PwaApplication implements WorkflowSubject, DocumentSource {
     this.applicationCreatedTimestamp = applicationCreatedTimestamp;
   }
 
+  public OrganisationUnitId getApplicantOrganisationUnitId() {
+    return applicantOrganisationUnitId;
+  }
+
+  public void setApplicantOrganisationUnitId(OrganisationUnitId applicantOrganisationUnit) {
+    this.applicantOrganisationUnitId = applicantOrganisationUnit;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -148,13 +165,14 @@ public class PwaApplication implements WorkflowSubject, DocumentSource {
         && Objects.equals(consentReference, that.consentReference)
         && Objects.equals(variationNo, that.variationNo)
         && Objects.equals(decision, that.decision)
-        && Objects.equals(decisionTimestamp, that.decisionTimestamp);
+        && Objects.equals(decisionTimestamp, that.decisionTimestamp)
+        && Objects.equals(applicantOrganisationUnitId, that.applicantOrganisationUnitId);
   }
 
   @Override
   public int hashCode() {
     return Objects.hash(id, masterPwa, applicationType, appReference, consentReference, variationNo, decision,
-        decisionTimestamp);
+        decisionTimestamp, applicantOrganisationUnitId);
   }
 
   @Override

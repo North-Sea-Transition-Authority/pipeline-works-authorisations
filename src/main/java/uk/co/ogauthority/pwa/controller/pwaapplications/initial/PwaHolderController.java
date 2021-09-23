@@ -109,8 +109,6 @@ public class PwaHolderController {
     var modelAndView =  controllerHelperService.checkErrorsAndRedirect(bindingResult,
         getHolderModelAndView(user, form), () -> {
 
-          PwaApplication pwaApplication = pwaApplicationCreationService.createInitialPwaApplication(user).getPwaApplication();
-          var applicationDetail = pwaApplicationDetailService.getTipDetail(pwaApplication.getId());
           List<PortalOrganisationUnit> orgUnitsForUser = getOrgUnitsUserCanAccess(user);
 
           // check that selected org is accessible to user
@@ -123,6 +121,11 @@ public class PwaHolderController {
                           "Couldn't find PortalOrganisationUnit with ID: %s accessible to user with WUA ID: %s",
                           form.getHolderOuId(),
                           user.getWuaId())));
+
+          PwaApplication pwaApplication = pwaApplicationCreationService
+              .createInitialPwaApplication(organisationUnit, user).getPwaApplication();
+
+          var applicationDetail = pwaApplicationDetailService.getTipDetail(pwaApplication.getId());
 
           padOrganisationRoleService.addHolder(applicationDetail, organisationUnit);
 

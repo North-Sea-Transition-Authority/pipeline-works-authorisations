@@ -25,6 +25,9 @@ import org.springframework.transaction.annotation.Transactional;
 import uk.co.ogauthority.pwa.config.MetricsProvider;
 import uk.co.ogauthority.pwa.energyportal.model.entity.PersonTestUtil;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
+import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationTestUtils;
+import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
+import uk.co.ogauthority.pwa.energyportal.repository.organisations.PortalOrganisationUnitRepository;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.tasklist.TaskListEntry;
@@ -72,6 +75,9 @@ public class TaskListServiceIntegrationTest {
   @Autowired
   private MetricsProvider metricsProvider;
 
+  @Autowired
+  private PortalOrganisationUnitRepository portalOrganisationUnitRepository;
+
   // this needs to be mocked so we dont try increment a sequence that doesnt exist in h2
   @MockBean
   private PwaApplicationReferencingService pwaApplicationReferencingService;
@@ -97,6 +103,7 @@ public class TaskListServiceIntegrationTest {
   private PwaApplication pwaApplication;
   private PwaApplicationDetail pwaApplicationDetail;
 
+  private PortalOrganisationUnit applicantOrganisationUnit;
 
   @Before
   public void setup() {
@@ -104,12 +111,13 @@ public class TaskListServiceIntegrationTest {
     var person = PersonTestUtil.createDefaultPerson();
     entityManager.persist(person);
     var systemWua = new WebUserAccount(1, person);
+    applicantOrganisationUnit = PortalOrganisationTestUtils.generateOrganisationUnit(1, "Umbrella");
+    portalOrganisationUnitRepository.save(applicantOrganisationUnit);
 
     // by default, conditional app tasks not shown
-    pwaApplicationDetail = pwaApplicationCreationService.createInitialPwaApplication(systemWua);
+    pwaApplicationDetail = pwaApplicationCreationService.createInitialPwaApplication(applicantOrganisationUnit, systemWua);
     pwaApplication = pwaApplicationDetail.getPwaApplication();
     taskListService = new TaskListService(
-
         taskListEntryFactory,
         applicationTaskService,
         metricsProvider);

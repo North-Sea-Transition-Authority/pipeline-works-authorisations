@@ -39,7 +39,7 @@ public class PwaHolderTeamService {
 
   public boolean isPersonInHolderTeam(MasterPwa masterPwa, Person person) {
 
-    var holderOrgGroups = pwaHolderService.getPwaHolders(masterPwa);
+    var holderOrgGroups = pwaHolderService.getPwaHolderOrgGroups(masterPwa);
 
     return teamService
         .getOrganisationTeamListIfPersonInRole(person, EnumSet.allOf(PwaOrganisationRole.class))
@@ -55,7 +55,7 @@ public class PwaHolderTeamService {
 
   public boolean isPersonInHolderTeamWithRole(MasterPwa masterPwa, Person person, PwaOrganisationRole pwaOrganisationRole) {
 
-    var holderOrgGroups = pwaHolderService.getPwaHolders(masterPwa);
+    var holderOrgGroups = pwaHolderService.getPwaHolderOrgGroups(masterPwa);
 
     return teamService
         .getOrganisationTeamListIfPersonInRole(person, List.of(pwaOrganisationRole))
@@ -109,7 +109,7 @@ public class PwaHolderTeamService {
    */
   public Set<PwaOrganisationRole> getRolesInHolderTeam(PwaApplicationDetail detail, Person person) {
 
-    var holderOrgGroups = pwaHolderService.getPwaHolders(detail.getMasterPwa());
+    var holderOrgGroups = pwaHolderService.getPwaHolderOrgGroups(detail.getMasterPwa());
 
     var orgTeamsUserMemberOf = teamService.getOrganisationTeamsPersonIsMemberOf(person);
 
@@ -135,7 +135,7 @@ public class PwaHolderTeamService {
 
   public Set<Person> getPeopleWithHolderTeamRoleForMasterPwa(MasterPwa masterPwa,
                                                  PwaOrganisationRole role) {
-    var holderOrgGroups = pwaHolderService.getPwaHolders(masterPwa);
+    var holderOrgGroups = pwaHolderService.getPwaHolderOrgGroups(masterPwa);
     return getPeopleWithHolderTeamRoleForOrgGroups(holderOrgGroups, role);
   }
 
@@ -159,7 +159,7 @@ public class PwaHolderTeamService {
 
   public Set<Person> getPersonsInHolderTeam(PwaApplicationDetail detail) {
 
-    var holderOrgGroups = pwaHolderService.getPwaHolders(detail.getMasterPwa());
+    var holderOrgGroups = pwaHolderService.getPwaHolderOrgGroups(detail.getMasterPwa());
     var orgTeams = teamService.getOrganisationTeamsForOrganisationGroups(holderOrgGroups);
 
     return orgTeams.stream()
