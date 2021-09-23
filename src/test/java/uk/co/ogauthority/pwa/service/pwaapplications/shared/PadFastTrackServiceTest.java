@@ -324,7 +324,7 @@ public class PadFastTrackServiceTest {
   }
 
   @Test
-  public void validate_full_verifyValidatorInteraction() {
+  public void validate_verifyValidatorInteraction() {
 
     var form = new FastTrackForm();
     form.setEnvironmentalDisasterReason(ValidatorTestUtils.over4000Chars());
@@ -334,7 +334,7 @@ public class PadFastTrackServiceTest {
 
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     padFastTrackService.validate(form, bindingResult, ValidationType.FULL, pwaApplicationDetail);
-    verify(validator, times(1)).validate(form, bindingResult);
+    verify(validator, times(1)).validate(form, bindingResult, ValidationType.FULL);
   }
 
   private PadFastTrack buildEntity() {
