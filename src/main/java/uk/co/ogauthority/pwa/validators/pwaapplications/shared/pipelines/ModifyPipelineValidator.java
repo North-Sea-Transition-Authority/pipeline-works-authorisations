@@ -12,6 +12,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.ModifyPipelineForm;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.ModifyPipelineService;
+import uk.co.ogauthority.pwa.util.ValidatorUtils;
 
 @Service
 public class ModifyPipelineValidator implements SmartValidator {
@@ -51,11 +52,10 @@ public class ModifyPipelineValidator implements SmartValidator {
       ValidationUtils.rejectIfEmpty(errors, "pipelineStatusReason",
           "pipelineStatusReason" + FieldValidationErrorCodes.REQUIRED.getCode(),
           "Enter a reason for leaving the pipeline on the seabed");
-      if (StringUtils.length(form.getPipelineStatusReason()) > 4000) {
-        errors.rejectValue("pipelineStatusReason",
-            "pipelineStatusReason" + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode(),
-            "The reason for leaving the pipeline on the seabed must be 4000 characters or less");
-      }
+
+      ValidatorUtils.validateDefaultStringLength(
+          errors, "pipelineStatusReason", form::getPipelineStatusReason,
+          "The reason for leaving the pipeline on the seabed");
 
     } else if (form.getPipelineStatus() == PipelineStatus.TRANSFERRED) {
       ValidationUtils.rejectIfEmpty(errors, "transferAgreed",

@@ -141,7 +141,7 @@ public class PipelineHeaderFormValidator implements SmartValidator {
 
         ValidatorUtils.validateDefaultStringLength(
             errors, "whyNotReturnedToShore", form::getWhyNotReturnedToShore,
-            "The pipeline not being returned to shore reason must be 4000 characters or fewer");
+            "The pipeline not being returned to shore reason");
       }
     }
 

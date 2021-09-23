@@ -53,16 +53,16 @@ public class FastTrackValidatorTest {
   public void validate_reasonDescriptionFieldsCharLengthOverMax() {
     var form = buildForm();
     form.setAvoidEnvironmentalDisaster(true);
-    form.setEnvironmentalDisasterReason(ValidatorTestUtils.over4000Chars());
+    form.setEnvironmentalDisasterReason(ValidatorTestUtils.overMaxDefaultCharLength());
 
     form.setSavingBarrels(true);
-    form.setSavingBarrelsReason(ValidatorTestUtils.over4000Chars());
+    form.setSavingBarrelsReason(ValidatorTestUtils.overMaxDefaultCharLength());
 
     form.setProjectPlanning(true);
-    form.setProjectPlanningReason(ValidatorTestUtils.over4000Chars());
+    form.setProjectPlanningReason(ValidatorTestUtils.overMaxDefaultCharLength());
 
     form.setHasOtherReason(true);
-    form.setOtherReason(ValidatorTestUtils.over4000Chars());
+    form.setOtherReason(ValidatorTestUtils.overMaxDefaultCharLength());
 
     var errors = ValidatorTestUtils.getFormValidationErrors(validator, form);
     assertThat(errors).containsOnly(

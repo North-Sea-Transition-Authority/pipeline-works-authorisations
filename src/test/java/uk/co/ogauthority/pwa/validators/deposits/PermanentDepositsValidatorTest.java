@@ -115,7 +115,7 @@ public class PermanentDepositsValidatorTest {
   public void validate_otherAppQuestionAnsweredYes_appRefAndNumNotProvided_lengthExceeded() {
     var form = PadPermanentDepositTestUtil.createDefaultDepositForm();
     form.setDepositIsForPipelinesOnOtherApp(true);
-    form.setAppRefAndPipelineNum(ValidatorTestUtils.over4000Chars());
+    form.setAppRefAndPipelineNum(ValidatorTestUtils.overMaxDefaultCharLength());
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, validationHints);
     assertThat(errorsMap).contains(
         entry("appRefAndPipelineNum", Set.of(FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.errorCode("appRefAndPipelineNum"))));
@@ -559,7 +559,7 @@ public class PermanentDepositsValidatorTest {
   @Test
   public void validate_footnote_lengthExceeded() {
     var form = getPermanentDepositsFormWithCoordinates();
-    form.setFootnote(ValidatorTestUtils.over4000Chars());
+    form.setFootnote(ValidatorTestUtils.overMaxDefaultCharLength());
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, validationHints);
     assertThat(errorsMap).contains(
         entry("footnote", Set.of(FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.errorCode("footnote"))));

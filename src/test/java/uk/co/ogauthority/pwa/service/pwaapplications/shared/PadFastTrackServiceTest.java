@@ -327,10 +327,10 @@ public class PadFastTrackServiceTest {
   public void validate_full_verifyValidatorInteraction() {
 
     var form = new FastTrackForm();
-    form.setEnvironmentalDisasterReason(ValidatorTestUtils.over4000Chars());
-    form.setOtherReason(ValidatorTestUtils.over4000Chars());
-    form.setProjectPlanningReason(ValidatorTestUtils.over4000Chars());
-    form.setSavingBarrelsReason(ValidatorTestUtils.over4000Chars());
+    form.setEnvironmentalDisasterReason(ValidatorTestUtils.overMaxDefaultCharLength());
+    form.setOtherReason(ValidatorTestUtils.overMaxDefaultCharLength());
+    form.setProjectPlanningReason(ValidatorTestUtils.overMaxDefaultCharLength());
+    form.setSavingBarrelsReason(ValidatorTestUtils.overMaxDefaultCharLength());
 
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     padFastTrackService.validate(form, bindingResult, ValidationType.FULL, pwaApplicationDetail);

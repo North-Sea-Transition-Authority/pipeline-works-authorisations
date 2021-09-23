@@ -62,7 +62,7 @@ public class InitialReviewFormValidatorTest {
 
     var form = new InitialReviewForm();
     form.setCaseOfficerPersonId(1);
-    form.setPaymentWaivedReason(ValidatorTestUtils.over4000Chars());
+    form.setPaymentWaivedReason(ValidatorTestUtils.overMaxDefaultCharLength());
     form.setInitialReviewPaymentDecision(InitialReviewPaymentDecision.PAYMENT_WAIVED);
 
     var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, new PwaApplication());

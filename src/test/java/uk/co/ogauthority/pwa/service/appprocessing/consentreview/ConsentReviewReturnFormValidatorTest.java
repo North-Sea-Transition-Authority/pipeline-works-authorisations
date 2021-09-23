@@ -86,7 +86,7 @@ public class ConsentReviewReturnFormValidatorTest {
   public void validate_returnReasonTooLong() {
 
     var form = new ConsentReviewReturnForm();
-    form.setReturnReason(ValidatorTestUtils.over4000Chars());
+    form.setReturnReason(ValidatorTestUtils.overMaxDefaultCharLength());
     var result = ValidatorTestUtils.getFormValidationErrors(validator, form, new PwaApplication());
     assertThat(result).contains(
         Map.entry("returnReason", Set.of("returnReason" + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode())));

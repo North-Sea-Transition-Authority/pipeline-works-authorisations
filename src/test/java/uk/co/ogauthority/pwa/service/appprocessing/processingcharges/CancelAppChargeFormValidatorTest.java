@@ -41,16 +41,16 @@ public class CancelAppChargeFormValidatorTest {
   }
 
   @Test
-  public void validate_whenCancelReasonOver4000Chars() {
-    form.setCancellationReason(ValidatorTestUtils.over4000Chars());
+  public void validate_whenCancelReasonOverMaxDefaultCharLength() {
+    form.setCancellationReason(ValidatorTestUtils.overMaxDefaultCharLength());
     var errors = ValidatorTestUtils.getFormValidationErrors(cancelAppChargeFormValidator, form);
     assertThat(errors).contains(
         entry(CANCEL_REASON_ATTR, Set.of(FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.errorCode(CANCEL_REASON_ATTR))));
   }
 
   @Test
-  public void validate_whenCancelReasonExactly4000Chars() {
-    form.setCancellationReason(ValidatorTestUtils.exactly4000chars());
+  public void validate_whenCancelReasonExactlyMaxDefaultCharLength() {
+    form.setCancellationReason(ValidatorTestUtils.exactlyMaxDefaultCharLength());
     var errors = ValidatorTestUtils.getFormValidationErrors(cancelAppChargeFormValidator, form);
     assertThat(errors).isEmpty();
   }

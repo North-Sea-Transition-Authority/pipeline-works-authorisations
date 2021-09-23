@@ -75,7 +75,7 @@ public class ConsultationResponseDataValidatorTest {
 
     var form = new ConsultationResponseDataForm();
     form.setConsultationResponseOption(ConsultationResponseOption.REJECTED);
-    form.setOption2Description(ValidatorTestUtils.over4000Chars());
+    form.setOption2Description(ValidatorTestUtils.overMaxDefaultCharLength());
 
     var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, ConsultationResponseOptionGroup.CONTENT);
 
@@ -94,7 +94,7 @@ public class ConsultationResponseDataValidatorTest {
 
     var form = new ConsultationResponseDataForm();
     form.setConsultationResponseOption(ConsultationResponseOption.CONFIRMED);
-    form.setOption1Description(ValidatorTestUtils.over4000Chars());
+    form.setOption1Description(ValidatorTestUtils.overMaxDefaultCharLength());
 
     var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, ConsultationResponseOptionGroup.CONTENT);
 
@@ -159,7 +159,7 @@ public class ConsultationResponseDataValidatorTest {
 
     var form = new ConsultationResponseDataForm();
     form.setConsultationResponseOption(ConsultationResponseOption.NO_ADVICE);
-    form.setOption2Description(ValidatorTestUtils.over4000Chars());
+    form.setOption2Description(ValidatorTestUtils.overMaxDefaultCharLength());
 
     var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, ConsultationResponseOptionGroup.ADVICE);
 
@@ -178,7 +178,7 @@ public class ConsultationResponseDataValidatorTest {
 
     var form = new ConsultationResponseDataForm();
     form.setConsultationResponseOption(ConsultationResponseOption.PROVIDE_ADVICE);
-    form.setOption1Description(ValidatorTestUtils.over4000Chars());
+    form.setOption1Description(ValidatorTestUtils.overMaxDefaultCharLength());
 
     var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, ConsultationResponseOptionGroup.ADVICE);
 
@@ -197,7 +197,7 @@ public class ConsultationResponseDataValidatorTest {
 
     var form = new ConsultationResponseDataForm();
     form.setConsultationResponseOption(ConsultationResponseOption.EIA_NOT_RELEVANT);
-    form.setOption3Description(ValidatorTestUtils.over4000Chars());
+    form.setOption3Description(ValidatorTestUtils.overMaxDefaultCharLength());
 
     var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, ConsultationResponseOptionGroup.EIA_REGS);
 
@@ -216,7 +216,7 @@ public class ConsultationResponseDataValidatorTest {
 
     var form = new ConsultationResponseDataForm();
     form.setConsultationResponseOption(ConsultationResponseOption.HABITATS_NOT_RELEVANT);
-    form.setOption3Description(ValidatorTestUtils.over4000Chars());
+    form.setOption3Description(ValidatorTestUtils.overMaxDefaultCharLength());
 
     var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, ConsultationResponseOptionGroup.HABITATS_REGS);
 

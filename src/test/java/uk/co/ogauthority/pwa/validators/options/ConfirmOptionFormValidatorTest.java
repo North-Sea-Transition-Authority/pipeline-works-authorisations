@@ -39,7 +39,7 @@ public class ConfirmOptionFormValidatorTest {
   @Test
   public void validate_full_optionWorkComplete_tooLongDesc() {
     form.setConfirmedOptionType(ConfirmedOptionType.WORK_COMPLETE_AS_PER_OPTIONS);
-    form.setOptionCompletedDescription(ValidatorTestUtils.over4000Chars());
+    form.setOptionCompletedDescription(ValidatorTestUtils.overMaxDefaultCharLength());
 
     var results = ValidatorTestUtils.getFormValidationErrors(validator, form, ValidationType.FULL);
 
@@ -52,7 +52,7 @@ public class ConfirmOptionFormValidatorTest {
   @Test
   public void validate_full_otherWorkComplete_tooLongDesc() {
     form.setConfirmedOptionType(ConfirmedOptionType.WORK_DONE_BUT_NOT_PRESENTED_AS_OPTION);
-    form.setOtherWorkDescription(ValidatorTestUtils.over4000Chars());
+    form.setOtherWorkDescription(ValidatorTestUtils.overMaxDefaultCharLength());
 
     var results = ValidatorTestUtils.getFormValidationErrors(validator, form, ValidationType.FULL);
 
@@ -65,7 +65,7 @@ public class ConfirmOptionFormValidatorTest {
   @Test
   public void validate_full_optionWorkComplete() {
     form.setConfirmedOptionType(ConfirmedOptionType.WORK_COMPLETE_AS_PER_OPTIONS);
-    form.setOptionCompletedDescription(ValidatorTestUtils.exactly4000chars());
+    form.setOptionCompletedDescription(ValidatorTestUtils.exactlyMaxDefaultCharLength());
 
     var results = ValidatorTestUtils.getFormValidationErrors(validator, form, ValidationType.FULL);
 
@@ -76,7 +76,7 @@ public class ConfirmOptionFormValidatorTest {
   @Test
   public void validate_full_otherWorkComplete() {
     form.setConfirmedOptionType(ConfirmedOptionType.WORK_DONE_BUT_NOT_PRESENTED_AS_OPTION);
-    form.setOtherWorkDescription(ValidatorTestUtils.exactly4000chars());
+    form.setOtherWorkDescription(ValidatorTestUtils.exactlyMaxDefaultCharLength());
 
     var results = ValidatorTestUtils.getFormValidationErrors(validator, form, ValidationType.FULL);
 
@@ -125,7 +125,7 @@ public class ConfirmOptionFormValidatorTest {
   @Test
   public void validate_partial_workComplete_tooLongDesc() {
     form.setConfirmedOptionType(ConfirmedOptionType.WORK_COMPLETE_AS_PER_OPTIONS);
-    form.setOptionCompletedDescription(ValidatorTestUtils.over4000Chars());
+    form.setOptionCompletedDescription(ValidatorTestUtils.overMaxDefaultCharLength());
 
     var results = ValidatorTestUtils.getFormValidationErrors(validator, form, ValidationType.PARTIAL);
 

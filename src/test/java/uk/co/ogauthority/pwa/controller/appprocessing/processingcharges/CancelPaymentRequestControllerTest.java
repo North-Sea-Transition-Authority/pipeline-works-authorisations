@@ -224,12 +224,12 @@ public class CancelPaymentRequestControllerTest extends PwaAppProcessingContextA
         .cancelPaymentRequest(APP_ID, APP_TYPE, null, null, null, null)))
         .with(authenticatedUserAndSession(user))
         .with(csrf())
-        .param(CANCEL_REASON_ATTR, ValidatorTestUtils.exactly4000chars())
+        .param(CANCEL_REASON_ATTR, ValidatorTestUtils.exactlyMaxDefaultCharLength())
     )
         .andExpect(status().is3xxRedirection());
 
     verify(applicationChargeRequestService, times(1))
-        .cancelPaymentRequest(pwaApplicationDetail.getPwaApplication(), user, ValidatorTestUtils.exactly4000chars());
+        .cancelPaymentRequest(pwaApplicationDetail.getPwaApplication(), user, ValidatorTestUtils.exactlyMaxDefaultCharLength());
   }
 
   @Test
