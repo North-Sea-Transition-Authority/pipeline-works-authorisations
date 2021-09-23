@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.Clock;
@@ -11,11 +12,14 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
+import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
+import uk.co.ogauthority.pwa.energyportal.model.entity.PersonTestUtil;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.energyportal.repository.WebUserAccountRepository;
-import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.model.entity.UserSession;
 import uk.co.ogauthority.pwa.repository.UserSessionRepository;
 import uk.co.ogauthority.pwa.service.teams.TeamService;
@@ -27,6 +31,9 @@ public class UserSessionServiceTest {
   private UserSession validSession;
   private UserSession expiredSession;
   private UserSession loggedOutSession;
+  private TeamService teamService;
+
+  private AuthenticatedUserAccount user;
 
   @Before
   public void setup() {
@@ -34,7 +41,7 @@ public class UserSessionServiceTest {
 
     UserSessionRepository userSessionRepository = mock(UserSessionRepository.class);
     WebUserAccountRepository webUserAccountRepository = mock(WebUserAccountRepository.class);
-    TeamService teamService = mock(TeamService.class);
+    teamService = mock(TeamService.class);
 
     userSessionService = new UserSessionService(userSessionRepository, webUserAccountRepository, teamService, Duration.ofHours(1), fixedClock);
 
@@ -53,6 +60,9 @@ public class UserSessionServiceTest {
     when(webUserAccountRepository.findById(eq(validSession.getWuaId()))).thenReturn(Optional.of(validSession.getAuthenticatedUserAccount()));
     when(webUserAccountRepository.findById(eq(expiredSession.getWuaId()))).thenReturn(Optional.of(expiredSession.getAuthenticatedUserAccount()));
     when(webUserAccountRepository.findById(eq(loggedOutSession.getWuaId()))).thenReturn(Optional.of(loggedOutSession.getAuthenticatedUserAccount()));
+
+    user = new AuthenticatedUserAccount(new WebUserAccount(1, PersonTestUtil.createDefaultPerson()), Set.of(
+        PwaUserPrivilege.PWA_TEMPLATE_CLAUSE_MANAGE, PwaUserPrivilege.PWA_CONSENT_SEARCH));
   }
 
   @Test
@@ -100,5 +110,25 @@ public class UserSessionServiceTest {
     userSession.setAuthenticatedUserAccount(userAccount);
     userSession.setLastAccessTimestamp(lastAccessTimestamp);
     return userSession;
+  }
+
+
+
+  @Test
+  public void populateUserPrivileges_verifyServiceInteractions() {
+
+    userSessionService.populateUserPrivileges(user);
+    verify(teamService).getAllUserPrivilegesForPerson(user.getLinkedPerson());
+  }
+
+  @Test
+  public void populateUserPrivileges_userPrivilegesUpdated_andOrgMembershipUpdated() {
+    var privList = Set.of(PwaUserPrivilege.PWA_MANAGER);
+    when(teamService.getAllUserPrivilegesForPerson(user.getLinkedPerson()))
+        .thenReturn(privList);
+
+    userSessionService.populateUserPrivileges(user);
+
+    assertThat(user.getUserPrivileges()).containsAll(privList);
   }
 }

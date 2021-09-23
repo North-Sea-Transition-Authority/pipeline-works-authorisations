@@ -8,7 +8,7 @@
 <#macro tab diffedHuooSummary>
 
     <@fdsForm.htmlForm actionUrl=springUrl(viewPwaPipelineUrl)>
-        <@fdsSearchSelector.searchSelectorEnhanced path="form.huooVersionId" options=consentVersionSearchSelectorItems labelText="Select consent version" />
+        <@fdsSearchSelector.searchSelectorEnhanced path="form.huooVersionId" options=consentVersionSearchSelectorItems labelText="Select consent version" inputClass="govuk-!-width-one-half"/>
         <@fdsAction.button buttonText="Show version" buttonScreenReaderText="Show HUOO information for the selected consent version"/>
     </@fdsForm.htmlForm>
 

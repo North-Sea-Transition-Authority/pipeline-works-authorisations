@@ -4,10 +4,10 @@
 
 <@defaultPage htmlTitle="${notificationGroupSummaryView.appReference} as-built notifications" topNavigation=true twoThirdsColumn=false breadcrumbs=true>
 
-  <@summary notificationGroupSummaryView />
+  <@summary notificationGroupSummaryView=notificationGroupSummaryView titleAddOn="as-built notifications"/>
 
   <#if isOgaUser = true>
-      <@fdsAction.link linkText="Change deadline date" linkClass="govuk-link govuk-link--button" linkUrl=springUrl(changeDeadlineUrl)/>
+      <@fdsAction.link linkText="Change deadline date" linkUrl=springUrl(changeDeadlineUrl) linkClass="govuk-button govuk-button--blue" />
   </#if>
   <#list pipelineAsBuiltSubmissionViews as pipelineAsBuiltSubmissionView>
       <@asBuiltNotificationCard pipelineAsBuiltSubmissionView isOgaUser/>

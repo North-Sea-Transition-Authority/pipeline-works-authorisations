@@ -127,9 +127,12 @@ public class AsBuiltNotificationSubmissionController {
     var pipelineChangeCategory = getPipelineChangeCategory(asBuiltNotificationGroup.getId(),
         pipelineDetail.getPipelineDetailId());
     var isPersonOgaUser = isPersonOgaUser(person);
-    String cancelUrl = ReverseRouter.route(on(AsBuiltNotificationController.class)
+    var cancelUrl = ReverseRouter.route(on(AsBuiltNotificationController.class)
         .getAsBuiltNotificationDashboard(asBuiltNotificationGroup.getId(), null));
+    var summary = asBuiltViewerService
+        .getAsBuiltNotificationGroupSummaryView(asBuiltNotificationGroup.getId());
     modelAndView
+        .addObject("notificationGroupSummaryView", summary)
         .addObject("pipelineNumber", pipelineDetail.getPipelineNumber())
         .addObject("consentedPipelineStatus", pipelineDetail.getPipelineStatus().getDisplayText())
         .addObject("pipelineChangeCategory", pipelineChangeCategory)

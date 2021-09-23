@@ -81,4 +81,11 @@ public class UserSessionService {
     boolean notTimedOut = userSession.getLastAccessTimestamp().plus(foxSessionTimeout).isAfter(utcSystemClock.instant());
     return userSession.getLogoutTimestamp() == null && notTimedOut;
   }
+
+  /**
+   * For a given user object, update privileges from datasource.
+   */
+  public void populateUserPrivileges(AuthenticatedUserAccount user) {
+    user.setPrivileges(teamService.getAllUserPrivilegesForPerson(user.getLinkedPerson()));
+  }
 }

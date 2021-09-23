@@ -13,7 +13,7 @@
 
   <@fdsCard.card>
       <@fdsCard.cardHeader cardHeadingText="${pipelineAsBuiltSubmissionView.pipelineNumber} - ${pipelineAsBuiltSubmissionView.pipelineTypeDisplay}">
-          <@fdsCard.cardAction cardLinkText=submitButtonText cardLinkUrl=springUrl(pipelineAsBuiltSubmissionView.submissionLink) cardLinkScreenReaderText="${submitButtonText} for ${pipelineAsBuiltSubmissionView.pipelineNumber}"/>
+          <@fdsCard.cardAction cardLinkText=submitButtonText cardLinkUrl=springUrl(pipelineAsBuiltSubmissionView.submissionLink) cardLinkScreenReaderText="for ${pipelineAsBuiltSubmissionView.pipelineNumber}"/>
       </@fdsCard.cardHeader>
       <#if pipelineAsBuiltSubmissionView.submittedOnInstant?hasContent>
           <@asBuiltNotificationSummary submission=pipelineAsBuiltSubmissionView historic=false summaryListClass="govuk-!-margin-bottom-0" isOgaUser=isOgaUser/>

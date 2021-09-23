@@ -141,14 +141,14 @@ public final class PublicNoticeTestUtil {
   }
 
   static PublicNoticeView createCommentedPublicNoticeView(PublicNotice publicNotice, PublicNoticeRequest publicNoticeRequest) {
-    return new PublicNoticeView(publicNotice.getStatus(),
-        DateUtils.formatDate(publicNoticeRequest.getCreatedTimestamp()));
+    return new PublicNoticeView(publicNotice.getStatus(), DateUtils.formatDateTime(publicNoticeRequest.getCreatedTimestamp()),
+        publicNoticeRequest.getStatus());
   }
 
   static PublicNoticeView createCommentedPublicNoticeView(PublicNotice publicNotice, PublicNoticeRequest publicNoticeRequest, PublicNoticeDocument publicNoticeDocument) {
     return new PublicNoticeView(publicNotice.getStatus(),
-        DateUtils.formatDate(publicNoticeRequest.getCreatedTimestamp()), publicNoticeDocument.getComments(),
-        null, null, null, null, null);
+        DateUtils.formatDateTime(publicNoticeRequest.getCreatedTimestamp()), publicNoticeDocument.getComments(),
+        null, null, null, null, null, publicNoticeRequest.getStatus(), publicNoticeRequest.getRejectionReason());
   }
 
   static PublicNoticeView createWithdrawnPublicNoticeView(PublicNotice publicNotice,
@@ -157,12 +157,15 @@ public final class PublicNoticeTestUtil {
                                                           PublicNoticeRequest publicNoticeRequest) {
     return new PublicNoticeView(
         publicNotice.getStatus(),
-        DateUtils.formatDate(publicNoticeRequest.getCreatedTimestamp()),
+        DateUtils.formatDateTime(publicNoticeRequest.getCreatedTimestamp()),
         null,
         withdrawingUsername,
         DateUtils.formatDate(publicNotice.getWithdrawalTimestamp()),
         withdrawalReason,
-        null, null
+        null,
+        null,
+        publicNoticeRequest.getStatus(),
+        publicNoticeRequest.getRejectionReason()
     );
   }
 
@@ -171,13 +174,15 @@ public final class PublicNoticeTestUtil {
                                                           PublicNoticeRequest publicNoticeRequest) {
     return new PublicNoticeView(
         publicNotice.getStatus(),
-        DateUtils.formatDate(publicNoticeRequest.getCreatedTimestamp()),
+        DateUtils.formatDateTime(publicNoticeRequest.getCreatedTimestamp()),
         null,
         null,
         null,
         null,
         DateUtils.formatDate(publicNoticeDate.getPublicationStartTimestamp()),
-        DateUtils.formatDate(publicNoticeDate.getPublicationEndTimestamp())
+        DateUtils.formatDate(publicNoticeDate.getPublicationEndTimestamp()),
+        publicNoticeRequest.getStatus(),
+        publicNoticeRequest.getRejectionReason()
     );
   }
 

@@ -121,6 +121,7 @@ FROM (
   SELECT
     ppd.pipeline_id
   , ppd.pipeline_number
+  , ppd.pipeline_name
   , ppd.from_location
   , ppd.to_location
   , ppd.max_external_diameter

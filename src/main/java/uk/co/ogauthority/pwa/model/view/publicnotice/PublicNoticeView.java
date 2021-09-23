@@ -1,12 +1,14 @@
 package uk.co.ogauthority.pwa.model.view.publicnotice;
 
 import java.util.Objects;
+import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeRequestStatus;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeStatus;
 
 public class PublicNoticeView {
 
 
   private final PublicNoticeStatus status;
+  private final PublicNoticeRequestStatus publicNoticeRequestStatus;
   private final String submittedTimestamp;
   private final String latestDocumentComments;
   private final String withdrawnByPersonName;
@@ -14,10 +16,11 @@ public class PublicNoticeView {
   private final String withdrawalReason;
   private final String publicationStartTimestamp;
   private final String publicationEndTimestamp;
+  private final String rejectionReason;
 
 
   //constructor for only the fields that are required as a minimum for a public notice view
-  public PublicNoticeView(PublicNoticeStatus status, String submittedTimestamp) {
+  public PublicNoticeView(PublicNoticeStatus status, String submittedTimestamp, PublicNoticeRequestStatus requestStatus) {
     this.status = status;
     this.submittedTimestamp = submittedTimestamp;
     this.latestDocumentComments = null;
@@ -26,6 +29,8 @@ public class PublicNoticeView {
     this.withdrawalReason = null;
     this.publicationStartTimestamp = null;
     this.publicationEndTimestamp = null;
+    this.publicNoticeRequestStatus = requestStatus;
+    this.rejectionReason = null;
   }
 
   public PublicNoticeView(PublicNoticeStatus status,
@@ -35,7 +40,9 @@ public class PublicNoticeView {
                           String withdrawnTimestamp,
                           String withdrawalReason,
                           String publicationStartTimestamp,
-                          String publicationEndTimestamp) {
+                          String publicationEndTimestamp,
+                          PublicNoticeRequestStatus publicNoticeRequestStatus,
+                          String rejectionReason) {
     this.status = status;
     this.submittedTimestamp = submittedTimestamp;
     this.latestDocumentComments = latestDocumentComments;
@@ -44,6 +51,8 @@ public class PublicNoticeView {
     this.withdrawalReason = withdrawalReason;
     this.publicationStartTimestamp = publicationStartTimestamp;
     this.publicationEndTimestamp = publicationEndTimestamp;
+    this.publicNoticeRequestStatus = publicNoticeRequestStatus;
+    this.rejectionReason = rejectionReason;
   }
 
 
@@ -79,6 +88,14 @@ public class PublicNoticeView {
     return publicationEndTimestamp;
   }
 
+  public PublicNoticeRequestStatus getPublicNoticeRequestStatus() {
+    return publicNoticeRequestStatus;
+  }
+
+  public String getRejectionReason() {
+    return rejectionReason;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -95,12 +112,15 @@ public class PublicNoticeView {
         && Objects.equals(withdrawnTimestamp, that.withdrawnTimestamp)
         && Objects.equals(withdrawalReason, that.withdrawalReason)
         && Objects.equals(publicationStartTimestamp, that.publicationStartTimestamp)
-        && Objects.equals(publicationEndTimestamp, that.publicationEndTimestamp);
+        && Objects.equals(publicationEndTimestamp, that.publicationEndTimestamp)
+        && publicNoticeRequestStatus == that.publicNoticeRequestStatus
+        && Objects.equals(rejectionReason, that.rejectionReason);
   }
 
   @Override
   public int hashCode() {
     return Objects.hash(status, submittedTimestamp, latestDocumentComments, withdrawnByPersonName,
-        withdrawnTimestamp, withdrawalReason, publicationStartTimestamp, publicationEndTimestamp);
+        withdrawnTimestamp, withdrawalReason, publicationStartTimestamp, publicationEndTimestamp, publicNoticeRequestStatus,
+        rejectionReason);
   }
 }

@@ -34,6 +34,18 @@
                 ${publicNoticeViewData.status.getDisplayText()}
             </@fdsCheckAnswers.checkAnswersRowNoAction>
 
+            <#if publicNoticeViewData.publicNoticeRequestStatus?has_content>
+                <@fdsCheckAnswers.checkAnswersRowNoAction keyText="Public notice request status">
+                    ${publicNoticeViewData.publicNoticeRequestStatus.getDisplayText()}
+                </@fdsCheckAnswers.checkAnswersRowNoAction>
+            </#if>
+
+            <#if publicNoticeViewData.rejectionReason?has_content>
+                <@fdsCheckAnswers.checkAnswersRowNoAction keyText="Rejection reason">
+                    ${publicNoticeViewData.rejectionReason}
+                </@fdsCheckAnswers.checkAnswersRowNoAction>
+            </#if>
+
             <#if publicNoticeViewData.status == "WITHDRAWN">
                 <@fdsCheckAnswers.checkAnswersRowNoAction keyText="Withdrawn by">
                     ${publicNoticeViewData.withdrawnByPersonName}

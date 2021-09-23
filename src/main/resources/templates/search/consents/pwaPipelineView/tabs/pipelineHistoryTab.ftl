@@ -9,7 +9,7 @@
 <#macro tab diffedPipelineSummaryModel>
 
     <@fdsForm.htmlForm actionUrl=springUrl(viewPwaPipelineUrl)>
-        <@fdsSearchSelector.searchSelectorEnhanced path="form.pipelineDetailId" options=pipelinesVersionSearchSelectorItems labelText="Select version" />
+        <@fdsSearchSelector.searchSelectorEnhanced path="form.pipelineDetailId" options=pipelinesVersionSearchSelectorItems labelText="Select version" inputClass="govuk-!-width-one-half"/>
 
         <@fdsAction.button buttonText="Show version"/>
     </@fdsForm.htmlForm>

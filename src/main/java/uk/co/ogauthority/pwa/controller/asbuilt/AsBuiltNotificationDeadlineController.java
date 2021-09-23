@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.controller.asbuilt;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -64,7 +65,9 @@ public class AsBuiltNotificationDeadlineController {
         .addObject("asBuiltGroupReference", summary.getAppReference())
         .addObject("notificationGroupSummaryView", summary)
         .addObject("cancelUrl", ReverseRouter.route(on(AsBuiltNotificationController.class)
-            .getAsBuiltNotificationDashboard(notificationGroupId, null)));
+            .getAsBuiltNotificationDashboard(notificationGroupId, null)))
+        .addObject("errorList", List.of());
+
     asBuiltBreadCrumbService.fromDashboard(notificationGroupId, summary.getAppReference(), modelAndView, "Change deadline");
     return modelAndView;
   }

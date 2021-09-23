@@ -334,13 +334,15 @@ public class PublicNoticeService implements AppProcessingService {
 
     return new PublicNoticeView(
         publicNotice.getStatus(),
-        DateUtils.formatDate(publicNoticeRequest.getCreatedTimestamp()),
+        DateUtils.formatDateTime(publicNoticeRequest.getCreatedTimestamp()),
         latestDocumentComments.map(PublicNoticeDocument::getComments).orElse(null),
         withdrawingPersonName,
         withdrawnTimestamp,
         withdrawalReason,
         publicationStartTimestamp,
-        publicationEndTimestamp
+        publicationEndTimestamp,
+        publicNoticeRequest.getStatus(),
+        publicNoticeRequest.getRejectionReason()
     );
   }
 
