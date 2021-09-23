@@ -32,7 +32,8 @@ public class PwaFieldFormValidatorTest {
 
   @Before
   public void setUp() {
-    validator = new PwaFieldFormValidator(devukFieldService);
+    var serviceNameAcronym = "PWA";
+    validator = new PwaFieldFormValidator(devukFieldService, serviceNameAcronym);
     form = new PwaFieldForm();
   }
 
@@ -174,6 +175,19 @@ public class PwaFieldFormValidatorTest {
     form.setNoLinkedFieldDescription(ValidatorTestUtils.overMaxDefaultCharLength());
 
     var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, ValidationType.FULL);
+
+    assertThat(errors).containsOnly(
+        entry("noLinkedFieldDescription", Set.of(MAX_LENGTH_EXCEEDED.errorCode("noLinkedFieldDescription"))));
+
+  }
+
+  @Test
+  public void partial_linkedToField_false_noLinkedFieldDescriptionOverMaxCharLength_fail() {
+
+    form.setLinkedToField(false);
+    form.setNoLinkedFieldDescription(ValidatorTestUtils.overMaxDefaultCharLength());
+
+    var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, ValidationType.PARTIAL);
 
     assertThat(errors).containsOnly(
         entry("noLinkedFieldDescription", Set.of(MAX_LENGTH_EXCEEDED.errorCode("noLinkedFieldDescription"))));
