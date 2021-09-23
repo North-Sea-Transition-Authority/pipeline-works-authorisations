@@ -97,27 +97,39 @@ public class LocationDetailsValidator implements SmartValidator {
     if (requiredQuestions.contains(LocationDetailsQuestion.TRANSPORTS_MATERIALS_TO_SHORE)) {
       ValidatorUtils.validateDefaultStringLength(
           errors, "transportationMethod", form::getTransportationMethod,
-          "Transportation method must be 4000 characters or fewer");
+          "Transportation method");
     }
 
     if (requiredQuestions.contains(LocationDetailsQuestion.FACILITIES_OFFSHORE)) {
       ValidatorUtils.validateDefaultStringLength(
           errors, "pipelineAshoreLocation", form::getPipelineAshoreLocation,
-          "Pipeline ashore location must be 4000 characters or fewer");
+          "Pipeline ashore location");
     }
 
 
-    if (requiredQuestions.contains(LocationDetailsQuestion.ROUTE_SURVEY_UNDERTAKEN)
-        && BooleanUtils.isTrue(form.getRouteSurveyUndertaken())) {
-      ValidatorUtils.validateDateIsPastOrPresent(
-          "surveyConcluded", "survey concluded",
-          form.getSurveyConcludedDay(),
-          form.getSurveyConcludedMonth(),
-          form.getSurveyConcludedYear(),
-          errors
-      );
+    if (requiredQuestions.contains(LocationDetailsQuestion.ROUTE_SURVEY_UNDERTAKEN)) {
+
+      if (BooleanUtils.isTrue(form.getRouteSurveyUndertaken())) {
+        ValidatorUtils.validateDateIsPastOrPresent(
+            "surveyConcluded", "survey concluded",
+            form.getSurveyConcludedDay(),
+            form.getSurveyConcludedMonth(),
+            form.getSurveyConcludedYear(),
+            errors);
+
+        ValidatorUtils.validateDefaultStringLength(
+            errors, "pipelineRouteDetails", form::getPipelineRouteDetails,
+            "Pipeline route details");
+
+      } else if (BooleanUtils.isFalse(form.getRouteSurveyUndertaken())) {
+        ValidatorUtils.validateDefaultStringLength(
+            errors, "routeSurveyNotUndertakenReason", form::getRouteSurveyNotUndertakenReason,
+            "The reason for why a pipeline route survey has not been undertaken");
+      }
     }
+
   }
+
 
   private void validateFull(LocationDetailsForm form, Errors errors, Set<LocationDetailsQuestion> requiredQuestions) {
 
@@ -203,9 +215,6 @@ public class LocationDetailsValidator implements SmartValidator {
           ValidationUtils.rejectIfEmpty(errors, "routeSurveyNotUndertakenReason",
               "routeSurveyNotUndertakenReason" + FieldValidationErrorCodes.REQUIRED.getCode(),
               "Enter the reason for why a pipeline route survey has not been undertaken");
-          ValidatorUtils.validateDefaultStringLength(
-              errors, "routeSurveyNotUndertakenReason", form::getRouteSurveyNotUndertakenReason,
-              "The reason for why a pipeline route survey has not been undertaken");
         }
       }
     }

@@ -23,7 +23,7 @@
       linkClass="govuk-link" linkScreenReaderText="Download ${publicNoticeDocumentFileView.fileName}" role=false start=false openInNewTab=true/> 
     </p>
 
-    <@fdsTextarea.textarea path="form.comments" labelText="Comments on updates required" characterCount=true maxCharacterLength="4000" inputClass="govuk-!-width-two-thirds"/>
+    <@fdsTextarea.textarea path="form.comments" labelText="Comments on updates required" characterCount=true maxCharacterLength=maxCharacterLength?c inputClass="govuk-!-width-two-thirds"/>
 
     <@fdsAction.submitButtons primaryButtonText="Request update" linkSecondaryAction=true secondaryLinkText="Cancel" linkSecondaryActionUrl=springUrl(cancelUrl)/>
 

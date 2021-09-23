@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.validators;
 
 import static java.util.Map.entry;
 import static org.assertj.core.api.Assertions.assertThat;
+import static uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED;
 
 import java.util.Set;
 import org.junit.Before;
@@ -47,6 +48,32 @@ public class FastTrackValidatorTest {
         entry("otherReason", Set.of("otherReason.required"))
     );
   }
+
+  @Test
+  public void validate_reasonDescriptionFieldsCharLengthOverMax() {
+    var form = buildForm();
+    form.setAvoidEnvironmentalDisaster(true);
+    form.setEnvironmentalDisasterReason(ValidatorTestUtils.over4000Chars());
+
+    form.setSavingBarrels(true);
+    form.setSavingBarrelsReason(ValidatorTestUtils.over4000Chars());
+
+    form.setProjectPlanning(true);
+    form.setProjectPlanningReason(ValidatorTestUtils.over4000Chars());
+
+    form.setHasOtherReason(true);
+    form.setOtherReason(ValidatorTestUtils.over4000Chars());
+
+    var errors = ValidatorTestUtils.getFormValidationErrors(validator, form);
+    assertThat(errors).containsOnly(
+        entry("environmentalDisasterReason", Set.of(MAX_LENGTH_EXCEEDED.errorCode("environmentalDisasterReason"))),
+        entry("savingBarrelsReason", Set.of(MAX_LENGTH_EXCEEDED.errorCode("savingBarrelsReason"))),
+        entry("projectPlanningReason", Set.of(MAX_LENGTH_EXCEEDED.errorCode("projectPlanningReason"))),
+        entry("otherReason", Set.of(MAX_LENGTH_EXCEEDED.errorCode("otherReason")))
+    );
+  }
+
+
 
   private FastTrackForm buildForm() {
     var form = new FastTrackForm();

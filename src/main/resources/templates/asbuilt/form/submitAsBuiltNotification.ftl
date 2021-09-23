@@ -38,7 +38,7 @@
         </@fdsRadio.radioGroup>
 
         <#if isOgaUser = true>
-            <@fdsTextarea.textarea path="form.ogaSubmissionReason" labelText="Why is the OGA submitting on behalf of the Holder?" characterCount=true maxCharacterLength="4000"/>
+            <@fdsTextarea.textarea path="form.ogaSubmissionReason" labelText="Why is the OGA submitting on behalf of the Holder?" characterCount=true maxCharacterLength=maxCharacterLength?c/>
         </#if>
 
         <@fdsAction.submitButtons primaryButtonText="Submit" linkSecondaryAction=true secondaryLinkText="Back to as-built notifications" linkSecondaryActionUrl=springUrl(cancelUrl)/>

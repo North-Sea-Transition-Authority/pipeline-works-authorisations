@@ -185,6 +185,24 @@ public class PipelineHeaderFormValidatorTest {
   }
 
   @Test
+  public void invalid_productsToBeConveyed_tooLong() {
+    var form = buildForm();
+    form.setProductsToBeConveyed(ValidatorTestUtils.over4000Chars());
+    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, validationHints);
+    assertThat(result).containsOnly(
+        entry("productsToBeConveyed", Set.of("productsToBeConveyed" + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode())));
+  }
+
+  @Test
+  public void invalid_componentPartsDescription_tooLong() {
+    var form = buildForm();
+    form.setComponentPartsDescription(ValidatorTestUtils.over4000Chars());
+    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, validationHints);
+    assertThat(result).containsOnly(
+        entry("componentPartsDescription", Set.of("componentPartsDescription" + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode())));
+  }
+
+  @Test
   public void failed_trenchingMethodsRequired() {
 
     var form = buildForm();
@@ -209,6 +227,16 @@ public class PipelineHeaderFormValidatorTest {
   }
 
   @Test
+  public void invalid_trenchingMethods_tooLong() {
+    var form = buildForm();
+    form.setTrenchedBuriedBackfilled(true);
+    form.setTrenchingMethods(ValidatorTestUtils.over4000Chars());
+    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, validationHints);
+    assertThat(result).containsOnly(
+        entry("trenchingMethods", Set.of("trenchingMethods" + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode())));
+  }
+
+  @Test
   public void valid_otherMaterialUsed() {
     var form = buildForm();
     form.setPipelineMaterial(PipelineMaterial.OTHER);
@@ -223,6 +251,16 @@ public class PipelineHeaderFormValidatorTest {
     form.setPipelineMaterial(PipelineMaterial.OTHER);
     var result = ValidatorTestUtils.getFormValidationErrors(validator, form, validationHints);
     assertThat(result).containsOnly(entry("otherPipelineMaterialUsed", Set.of("otherPipelineMaterialUsed.required")));
+  }
+
+  @Test
+  public void invalid_otherMaterialUsed_tooLong() {
+    var form = buildForm();
+    form.setPipelineMaterial(PipelineMaterial.OTHER);
+    form.setOtherPipelineMaterialUsed(ValidatorTestUtils.over4000Chars());
+    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, validationHints);
+    assertThat(result).containsOnly(
+        entry("otherPipelineMaterialUsed", Set.of("otherPipelineMaterialUsed" + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode())));
   }
 
   @Test
@@ -246,7 +284,7 @@ public class PipelineHeaderFormValidatorTest {
   public void invalid_bundleName_tooLong() {
     var form = buildForm();
     form.setPipelineInBundle(true);
-    form.setBundleName("a".repeat(5000));
+    form.setBundleName(ValidatorTestUtils.over4000Chars());
     var result = ValidatorTestUtils.getFormValidationErrors(validator, form, validationHints);
     assertThat(result).containsOnly(
         entry("bundleName", Set.of("bundleName" + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode())));
@@ -267,7 +305,7 @@ public class PipelineHeaderFormValidatorTest {
     validationHints = new PipelineHeaderValidationHints(
         PipelineStatus.OUT_OF_USE_ON_SEABED, DO_NOT_VALIDATE_SEABED_QUESTION);
     var form = buildForm();
-    form.setWhyNotReturnedToShore("a".repeat(5000));
+    form.setWhyNotReturnedToShore(ValidatorTestUtils.over4000Chars());
     var result = ValidatorTestUtils.getFormValidationErrors(validator, form, validationHints);
     assertThat(result).containsOnly(
         entry("whyNotReturnedToShore", Set.of("whyNotReturnedToShore" + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode())));

@@ -161,12 +161,6 @@ public class PadFastTrackService implements ApplicationFormSectionService {
                                 ValidationType validationType,
                                 PwaApplicationDetail pwaApplicationDetail) {
 
-    if (validationType.equals(ValidationType.PARTIAL)) {
-      groupValidator.validate(form, bindingResult, FastTrackForm.Partial.class);
-      return bindingResult;
-    }
-
-    groupValidator.validate(form, bindingResult, FastTrackForm.Full.class);
     fastTrackValidator.validate(form, bindingResult);
     return bindingResult;
 

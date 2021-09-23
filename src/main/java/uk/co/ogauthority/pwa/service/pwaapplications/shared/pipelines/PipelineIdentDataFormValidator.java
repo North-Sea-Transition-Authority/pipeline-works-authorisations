@@ -58,14 +58,14 @@ public class PipelineIdentDataFormValidator implements SmartValidator {
           "Enter a description of the component parts");
 
       ValidatorUtils.validateDefaultStringLength(
-          errors, "componentPartsDescription", form::getComponentPartsDescription, "Description of component part");
+          errors, fieldPrefix + "componentPartsDescription", form::getComponentPartsDescription, "Description of component part");
 
       ValidationUtils.rejectIfEmptyOrWhitespace(errors, fieldPrefix + "productsToBeConveyedMultiCore",
           "productsToBeConveyedMultiCore" + FieldValidationErrorCodes.REQUIRED.getCode(),
           "Enter a description for the products to be conveyed");
 
       ValidatorUtils.validateDefaultStringLength(
-          errors, "productsToBeConveyedMultiCore", form::getProductsToBeConveyedMultiCore, "Products to be conveyed");
+          errors, fieldPrefix + "productsToBeConveyedMultiCore", form::getProductsToBeConveyedMultiCore, "Products to be conveyed");
 
       if (isDefiningStructure.equals(PipelineIdentDataValidationRule.AS_SECTION)) {
         ValidationUtils.rejectIfEmptyOrWhitespace(errors, fieldPrefix + "externalDiameterMultiCore",
@@ -73,34 +73,34 @@ public class PipelineIdentDataFormValidator implements SmartValidator {
             "Enter a description for the external diameter");
 
         ValidatorUtils.validateDefaultStringLength(
-            errors, "externalDiameterMultiCore", form::getExternalDiameterMultiCore, "External diameter");
+            errors, fieldPrefix + "externalDiameterMultiCore", form::getExternalDiameterMultiCore, "External diameter");
 
         ValidationUtils.rejectIfEmptyOrWhitespace(errors, fieldPrefix + "internalDiameterMultiCore",
             "internalDiameterMultiCore" + FieldValidationErrorCodes.REQUIRED.getCode(),
             "Enter a description for the internal diameter");
 
         ValidatorUtils.validateDefaultStringLength(
-            errors, "internalDiameterMultiCore", form::getInternalDiameterMultiCore, "Internal diameter");
+            errors, fieldPrefix + "internalDiameterMultiCore", form::getInternalDiameterMultiCore, "Internal diameter");
 
         ValidationUtils.rejectIfEmptyOrWhitespace(errors, fieldPrefix + "wallThicknessMultiCore",
             "wallThicknessMultiCore" + FieldValidationErrorCodes.REQUIRED.getCode(),
             "Enter a description for the wall thickness");
 
         ValidatorUtils.validateDefaultStringLength(
-            errors, "wallThicknessMultiCore", form::getWallThicknessMultiCore, "Wall thickness");
+            errors, fieldPrefix + "wallThicknessMultiCore", form::getWallThicknessMultiCore, "Wall thickness");
 
         ValidationUtils.rejectIfEmptyOrWhitespace(errors, fieldPrefix + "maopMultiCore",
             "maopMultiCore" + FieldValidationErrorCodes.REQUIRED.getCode(), "Enter a description for the MAOP");
 
         ValidatorUtils.validateDefaultStringLength(
-            errors, "maopMultiCore", form::getMaopMultiCore, "MAOP");
+            errors, fieldPrefix + "maopMultiCore", form::getMaopMultiCore, "MAOP");
 
         ValidationUtils.rejectIfEmptyOrWhitespace(errors, fieldPrefix + "insulationCoatingTypeMultiCore",
             "insulationCoatingTypeMultiCore" + FieldValidationErrorCodes.REQUIRED.getCode(),
             "Enter a description for the insulation / coating type");
 
         ValidatorUtils.validateDefaultStringLength(
-            errors, "insulationCoatingTypeMultiCore", form::getInsulationCoatingTypeMultiCore,
+            errors, fieldPrefix + "insulationCoatingTypeMultiCore", form::getInsulationCoatingTypeMultiCore,
             "Insulation / coating type");
       }
 
@@ -111,14 +111,14 @@ public class PipelineIdentDataFormValidator implements SmartValidator {
           "productsToBeConveyed" + FieldValidationErrorCodes.REQUIRED.getCode(), "Enter the products to be conveyed");
 
       ValidatorUtils.validateDefaultStringLength(
-          errors, "productsToBeConveyed", form::getProductsToBeConveyed, "Products to be conveyed");
+          errors, fieldPrefix + "productsToBeConveyed", form::getProductsToBeConveyed, "Products to be conveyed");
 
       ValidationUtils.rejectIfEmptyOrWhitespace(errors, fieldPrefix + "componentPartsDescription",
           "componentPartsDescription" + FieldValidationErrorCodes.REQUIRED.getCode(),
           "Enter a description of the component parts");
 
       ValidatorUtils.validateDefaultStringLength(
-          errors, "componentPartsDescription", form::getComponentPartsDescription, "Description of component parts");
+          errors, fieldPrefix + "componentPartsDescription", form::getComponentPartsDescription, "Description of component parts");
 
       if (isDefiningStructure.equals(PipelineIdentDataValidationRule.AS_SECTION)) {
 
@@ -139,7 +139,7 @@ public class PipelineIdentDataFormValidator implements SmartValidator {
             "Enter the insulation / coating type");
 
         ValidatorUtils.validateDefaultStringLength(
-            errors, "insulationCoatingType", form::getInsulationCoatingType, "Insulation / coating type");
+            errors, fieldPrefix + "insulationCoatingType", form::getInsulationCoatingType, "Insulation / coating type");
       }
 
 

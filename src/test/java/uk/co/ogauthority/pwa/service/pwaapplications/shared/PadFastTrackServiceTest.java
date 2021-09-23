@@ -1,10 +1,8 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared;
 
-import static java.util.Map.entry;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.time.Instant;
@@ -12,7 +10,6 @@ import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.util.EnumSet;
 import java.util.Optional;
-import java.util.Set;
 import javax.validation.Validation;
 import org.junit.Before;
 import org.junit.Test;
@@ -327,48 +324,7 @@ public class PadFastTrackServiceTest {
   }
 
   @Test
-  public void validate_partial_fail() {
-
-    var form = new FastTrackForm();
-    form.setEnvironmentalDisasterReason(ValidatorTestUtils.over4000Chars());
-    form.setOtherReason(ValidatorTestUtils.over4000Chars());
-    form.setProjectPlanningReason(ValidatorTestUtils.over4000Chars());
-    form.setSavingBarrelsReason(ValidatorTestUtils.over4000Chars());
-
-    var bindingResult = new BeanPropertyBindingResult(form, "form");
-    padFastTrackService.validate(form, bindingResult, ValidationType.PARTIAL, pwaApplicationDetail);
-    var errors = ValidatorTestUtils.extractErrors(bindingResult);
-
-    assertThat(errors).containsOnly(
-        entry("environmentalDisasterReason", Set.of("Length")),
-        entry("otherReason", Set.of("Length")),
-        entry("projectPlanningReason", Set.of("Length")),
-        entry("savingBarrelsReason", Set.of("Length"))
-    );
-
-    verifyNoInteractions(validator);
-
-  }
-
-  @Test
-  public void validate_partial_pass() {
-
-    var form = new FastTrackForm();
-    form.setEnvironmentalDisasterReason(ValidatorTestUtils.exactly4000chars());
-    form.setOtherReason(ValidatorTestUtils.exactly4000chars());
-    form.setProjectPlanningReason(ValidatorTestUtils.exactly4000chars());
-    form.setSavingBarrelsReason(ValidatorTestUtils.exactly4000chars());
-
-    var bindingResult = new BeanPropertyBindingResult(form, "form");
-    padFastTrackService.validate(form, bindingResult, ValidationType.PARTIAL, pwaApplicationDetail);
-    var errors = ValidatorTestUtils.extractErrors(bindingResult);
-
-    assertThat(errors).isEmpty();
-
-  }
-
-  @Test
-  public void validate_full_fail() {
+  public void validate_full_verifyValidatorInteraction() {
 
     var form = new FastTrackForm();
     form.setEnvironmentalDisasterReason(ValidatorTestUtils.over4000Chars());
@@ -378,36 +334,7 @@ public class PadFastTrackServiceTest {
 
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     padFastTrackService.validate(form, bindingResult, ValidationType.FULL, pwaApplicationDetail);
-    var errors = ValidatorTestUtils.extractErrors(bindingResult);
-
-    assertThat(errors).containsOnly(
-        entry("environmentalDisasterReason", Set.of("Length")),
-        entry("otherReason", Set.of("Length")),
-        entry("projectPlanningReason", Set.of("Length")),
-        entry("savingBarrelsReason", Set.of("Length"))
-    );
-
     verify(validator, times(1)).validate(form, bindingResult);
-
-  }
-
-  @Test
-  public void validate_full_pass() {
-
-    var form = new FastTrackForm();
-    form.setEnvironmentalDisasterReason(ValidatorTestUtils.exactly4000chars());
-    form.setOtherReason(ValidatorTestUtils.exactly4000chars());
-    form.setProjectPlanningReason(ValidatorTestUtils.exactly4000chars());
-    form.setSavingBarrelsReason(ValidatorTestUtils.exactly4000chars());
-
-    var bindingResult = new BeanPropertyBindingResult(form, "form");
-    padFastTrackService.validate(form, bindingResult, ValidationType.FULL, pwaApplicationDetail);
-    var errors = ValidatorTestUtils.extractErrors(bindingResult);
-
-    assertThat(errors).isEmpty();
-
-    verify(validator, times(1)).validate(form, bindingResult);
-
   }
 
   private PadFastTrack buildEntity() {

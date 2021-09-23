@@ -2,19 +2,20 @@ package uk.co.ogauthority.pwa.model.form.pwaapplications.shared.crossings;
 
 import javax.validation.constraints.NotNull;
 import org.hibernate.validator.constraints.Length;
+import uk.co.ogauthority.pwa.util.ValidatorUtils;
 
 public class AddCableCrossingForm {
 
   @NotNull(message = "Enter the name of the cable")
-  @Length(max = 4000, message = "Cable name must be 4000 characters or fewer")
+  @Length(max = ValidatorUtils.MAX_DEFAULT_STRING_LENGTH, message = "Cable name" + ValidatorUtils.MAX_DEFAULT_STRING_LENGTH_MESSAGE)
   private String cableName;
 
   @NotNull(message = "Enter cable location information")
-  @Length(max = 4000, message = "Location must be 4000 characters or fewer")
+  @Length(max = ValidatorUtils.MAX_DEFAULT_STRING_LENGTH, message = "Location" + ValidatorUtils.MAX_DEFAULT_STRING_LENGTH_MESSAGE)
   private String location;
 
   @NotNull(message = "State the owner of the cable")
-  @Length(max = 4000, message = "Cable owner must be 4000 characters or fewer")
+  @Length(max = ValidatorUtils.MAX_DEFAULT_STRING_LENGTH, message = "Cable owner" + ValidatorUtils.MAX_DEFAULT_STRING_LENGTH_MESSAGE)
   private String cableOwner;
 
   public String getCableName() {

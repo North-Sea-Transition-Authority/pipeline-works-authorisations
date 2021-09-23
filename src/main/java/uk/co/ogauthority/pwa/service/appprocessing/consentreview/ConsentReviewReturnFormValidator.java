@@ -12,6 +12,7 @@ import uk.co.ogauthority.pwa.model.form.appprocessing.prepareconsent.ConsentRevi
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.service.enums.workflow.application.PwaApplicationWorkflowTask;
 import uk.co.ogauthority.pwa.service.workflow.assignment.WorkflowAssignmentService;
+import uk.co.ogauthority.pwa.util.ValidatorUtils;
 
 @Service
 public class ConsentReviewReturnFormValidator implements SmartValidator {
@@ -63,6 +64,9 @@ public class ConsentReviewReturnFormValidator implements SmartValidator {
         FieldValidationErrorCodes.REQUIRED.errorCode("returnReason"),
         "Enter a reason for sending back to the case officer"
     );
+
+    ValidatorUtils.validateDefaultStringLength(
+        errors, "returnReason", form::getReturnReason, "Reason for sending back to the case officer");
 
   }
 

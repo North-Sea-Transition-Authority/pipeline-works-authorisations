@@ -23,7 +23,7 @@
         <@fdsRadio.radioGroup path="form.depositIsForPipelinesOnOtherApp" labelText="Is the deposit for proposed pipelines on other applications that haven’t yet been consented?"
                 hintText="You can only add pipelines submitted on applications for the same master PWA" hiddenContent=true>
             <@fdsRadio.radioYes path="form.depositIsForPipelinesOnOtherApp">
-                <@fdsTextarea.textarea path="form.appRefAndPipelineNum" labelText="Enter the application reference and proposed pipeline number for each pipeline" characterCount=true maxCharacterLength="4000" nestingPath="form.depositIsForPipelinesOnOtherApp"/>
+                <@fdsTextarea.textarea path="form.appRefAndPipelineNum" labelText="Enter the application reference and proposed pipeline number for each pipeline" characterCount=true maxCharacterLength=maxCharacterLength?c nestingPath="form.depositIsForPipelinesOnOtherApp"/>
             </@fdsRadio.radioYes>
             <@fdsRadio.radioNo path="form.depositIsForPipelinesOnOtherApp"/>
         </@fdsRadio.radioGroup>
@@ -67,7 +67,7 @@
                         <@fdsRadio.radioGroup path="form.groutBagsBioDegradable" nestingPath="form.materialType" labelText="Are the grout bags bio-degradable?" hiddenContent=true>
                             <@fdsRadio.radioYes path="form.groutBagsBioDegradable"/>
                             <@fdsRadio.radioNo path="form.groutBagsBioDegradable">
-                                <@fdsTextInput.textInput path="form.bioGroutBagsNotUsedDescription" nestingPath="form.materialType" labelText="Why are bio-degradable grout bags not being used?" maxCharacterLength="4000"/>
+                                <@fdsTextInput.textInput path="form.bioGroutBagsNotUsedDescription" nestingPath="form.materialType" labelText="Why are bio-degradable grout bags not being used?" maxCharacterLength=maxCharacterLength?c/>
                             </@fdsRadio.radioNo>
                         </@fdsRadio.radioGroup>
                         <@fdsTextInput.textInput path="form.quantityGroutBags" nestingPath="form.materialType" labelText="Quantity of material to be used" inputClass="govuk-input--width-20"/>
@@ -119,7 +119,7 @@
                                         labelText="Finish point longitude"/>
 
         <h2 class="govuk-heading-l">Other information</h2>
-        <@fdsTextarea.textarea path="form.footnote" labelText="Is there any other important information relevant to this deposit?" maxCharacterLength="4000" characterCount=true optionalLabel=true hintText="This will be included on the consent if granted"/>
+        <@fdsTextarea.textarea path="form.footnote" labelText="Is there any other important information relevant to this deposit?" maxCharacterLength=maxCharacterLength?c characterCount=true optionalLabel=true hintText="This will be included on the consent if granted"/>
         <@fdsDetails.summaryDetails summaryTitle="Show some examples of relevant information">
             <ol class="govuk-list govuk-list--number">
                 <li> The above is for a change of date only and was previously consented under XX/D/YY which has now expired. </li>

@@ -25,7 +25,7 @@
                         path="form.optionCompletedDescription"
                         labelText="Describe the work undertaken"
                         characterCount=true
-                        maxCharacterLength="4000"
+                        maxCharacterLength=maxCharacterLength?c
                         nestingPath="form.confirmedOptionType"/>
 
                     <#elseif option == "WORK_DONE_BUT_NOT_PRESENTED_AS_OPTION">
@@ -33,7 +33,7 @@
                         path="form.otherWorkDescription"
                         labelText="Describe the work undertaken"
                         characterCount=true
-                        maxCharacterLength="4000"
+                        maxCharacterLength=maxCharacterLength?c
                         nestingPath="form.confirmedOptionType"/>
                     </#if>
 

@@ -11,7 +11,7 @@
                 <@fdsSearchSelector.searchSelectorRest path="form.fieldIds" restUrl=springUrl(fieldNameRestUrl) labelText="Which fields does this PWA cover?" multiSelect=true nestingPath="form.linkedToField"  preselectedItems=preSelectedItems />
             </@fdsRadio.radioYes>
             <@fdsRadio.radioNo path="form.linkedToField">
-                <@fdsTextarea.textarea path="form.noLinkedFieldDescription" labelText="What is this PWA related to?" hintText="e.g. Scotland/Ireland interconnector" characterCount=true maxCharacterLength="4000"/>
+                <@fdsTextarea.textarea path="form.noLinkedFieldDescription" labelText="What is this PWA related to?" hintText="e.g. Scotland/Ireland interconnector" characterCount=true maxCharacterLength=maxCharacterLength?c/>
             </@fdsRadio.radioNo>
         </@fdsRadio.radioGroup>
 

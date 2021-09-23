@@ -19,6 +19,7 @@ import uk.co.ogauthority.pwa.service.FoxUrlService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.footer.FooterService;
 import uk.co.ogauthority.pwa.util.SecurityUtils;
+import uk.co.ogauthority.pwa.util.ValidatorUtils;
 
 /**
  * Provides common model objects for the default page view.
@@ -60,6 +61,7 @@ public class DefaultPageControllerAdvice {
     addMarkdownGuidanceUrl(model);
     footerService.addFooterUrlsToModel(model);
     model.addAttribute("service", serviceProperties);
+    model.addAttribute("maxCharacterLength", ValidatorUtils.MAX_DEFAULT_STRING_LENGTH);
   }
 
   private void addCurrentUserView(Model model) {

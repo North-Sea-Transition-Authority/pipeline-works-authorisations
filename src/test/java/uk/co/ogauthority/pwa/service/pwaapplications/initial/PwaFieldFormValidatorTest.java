@@ -1,11 +1,14 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.initial;
 
+import static java.util.Map.entry;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 import static uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes.INVALID;
+import static uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED;
 import static uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes.REQUIRED;
 
 import java.util.List;
+import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -34,7 +37,7 @@ public class PwaFieldFormValidatorTest {
   }
 
   @Test
-  public void full_linkedtoField_null_fail() {
+  public void full_linkedToField_null_fail() {
 
     var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, ValidationType.FULL);
 
@@ -161,6 +164,19 @@ public class PwaFieldFormValidatorTest {
     var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, ValidationType.FULL);
 
     assertThat(errors).isEmpty();
+
+  }
+
+  @Test
+  public void full_linkedToField_false_noLinkedFieldDescriptionOverMaxCharLength_fail() {
+
+    form.setLinkedToField(false);
+    form.setNoLinkedFieldDescription(ValidatorTestUtils.over4000Chars());
+
+    var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, ValidationType.FULL);
+
+    assertThat(errors).containsOnly(
+        entry("noLinkedFieldDescription", Set.of(MAX_LENGTH_EXCEEDED.errorCode("noLinkedFieldDescription"))));
 
   }
 

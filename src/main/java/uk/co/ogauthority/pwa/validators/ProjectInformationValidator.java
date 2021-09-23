@@ -119,6 +119,12 @@ public class ProjectInformationValidator implements SmartValidator {
       }
     }
 
+    if (requiredQuestions.contains(ProjectInformationQuestion.TEMPORARY_DEPOSITS_BEING_MADE)) {
+      ValidatorUtils.validateDefaultStringLength(
+          errors, "temporaryDepDescription", form::getTemporaryDepDescription,
+          "Temporary deposits description");
+    }
+
     if (requiredQuestions.contains(ProjectInformationQuestion.PERMANENT_DEPOSITS_BEING_MADE)
         && PermanentDepositMade.LATER_APP.equals(form.getPermanentDepositsMadeType()) && validationType != ValidationType.FULL) {
       List<Object> toDateHints = new ArrayList<>();
@@ -129,6 +135,13 @@ public class ProjectInformationValidator implements SmartValidator {
           "futureSubmissionDate",
           form.getFutureSubmissionDate(),
           toDateHints.toArray());
+    }
+
+    if (requiredQuestions.contains(ProjectInformationQuestion.FIELD_DEVELOPMENT_PLAN)
+        && projectInfoValidationHints.isFdpQuestionRequired()) {
+      ValidatorUtils.validateDefaultStringLength(
+          errors, "fdpNotSelectedReason", form::getFdpNotSelectedReason,
+          "Description for not having an FDP");
     }
 
   }
@@ -326,13 +339,15 @@ public class ProjectInformationValidator implements SmartValidator {
     }
 
     if (requiredQuestions.contains(ProjectInformationQuestion.TEMPORARY_DEPOSITS_BEING_MADE)) {
-      if (form.getTemporaryDepositsMade() == null) {
-        errors.rejectValue("temporaryDepositsMade", "temporaryDepositsMade.notSelected",
-            "Select yes if temporary deposits are being made");
 
-      } else if (form.getTemporaryDepositsMade() && form.getTemporaryDepDescription() == null) {
-        errors.rejectValue("temporaryDepDescription", "temporaryDepDescription.empty",
-            "Enter why temporary deposits are being made.");
+      ValidationUtils.rejectIfEmptyOrWhitespace(errors, "temporaryDepositsMade",
+          "temporaryDepositsMade" + FieldValidationErrorCodes.REQUIRED.getCode(),
+          "Select yes if temporary deposits are being made");
+
+      if (BooleanUtils.isTrue(form.getTemporaryDepositsMade())) {
+        ValidationUtils.rejectIfEmptyOrWhitespace(errors, "temporaryDepDescription",
+            "temporaryDepDescription" + FieldValidationErrorCodes.REQUIRED.getCode(),
+            "Enter why temporary deposits are being made");
       }
     }
 

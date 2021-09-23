@@ -24,6 +24,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
+import uk.co.ogauthority.pwa.util.ValidatorUtils;
 import uk.co.ogauthority.pwa.util.forminputs.twofielddate.TwoFieldDateInput;
 import uk.co.ogauthority.pwa.util.forminputs.twofielddate.TwoFieldDateInputValidator;
 
@@ -826,7 +827,19 @@ public class ProjectInformationValidatorTest {
     Map<String, Set<String>> errorsMap = getErrorMap(form, new ProjectInformationFormValidationHints(
         PwaApplicationType.INITIAL, ValidationType.FULL, Set.of(ProjectInformationQuestion.TEMPORARY_DEPOSITS_BEING_MADE), false));
     assertThat(errorsMap).contains(
-        entry("temporaryDepDescription", Set.of("temporaryDepDescription.empty"))
+        entry("temporaryDepDescription", Set.of(FieldValidationErrorCodes.REQUIRED.errorCode("temporaryDepDescription")))
+    );
+  }
+
+  @Test
+  public void validate_partial_temporaryDepositDescriptionOverMaxLength() {
+    var form = new ProjectInformationForm();
+    form.setTemporaryDepositsMade(true);
+    form.setTemporaryDepDescription(ValidatorTestUtils.over4000Chars());
+    Map<String, Set<String>> errorsMap = getErrorMap(form, new ProjectInformationFormValidationHints(
+        PwaApplicationType.INITIAL, ValidationType.PARTIAL, Set.of(ProjectInformationQuestion.TEMPORARY_DEPOSITS_BEING_MADE), false));
+    assertThat(errorsMap).contains(
+        entry("temporaryDepDescription", Set.of(FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.errorCode("temporaryDepDescription")))
     );
   }
 
@@ -837,7 +850,7 @@ public class ProjectInformationValidatorTest {
     Map<String, Set<String>> errorsMap = getErrorMap(form, new ProjectInformationFormValidationHints(
         PwaApplicationType.INITIAL, ValidationType.FULL, Set.of(ProjectInformationQuestion.TEMPORARY_DEPOSITS_BEING_MADE), false));
     assertThat(errorsMap).contains(
-        entry("temporaryDepositsMade", Set.of("temporaryDepositsMade.notSelected"))
+        entry("temporaryDepositsMade", Set.of(FieldValidationErrorCodes.REQUIRED.errorCode("temporaryDepositsMade")))
     );
   }
 
@@ -899,6 +912,19 @@ public class ProjectInformationValidatorTest {
         entry("fdpNotSelectedReason", Set.of("fdpNotSelectedReason" + FieldValidationErrorCodes.REQUIRED.getCode()))
     );
   }
+
+  @Test
+  public void validate_partial_fdpNotSelectedReasonOverMaxLength() {
+    var form = new ProjectInformationForm();
+    form.setFdpOptionSelected(false);
+    form.setFdpNotSelectedReason(ValidatorTestUtils.over4000Chars());
+    Map<String, Set<String>> errorsMap = getErrorMap(form, new ProjectInformationFormValidationHints(
+        PwaApplicationType.INITIAL, ValidationType.PARTIAL, Set.of(ProjectInformationQuestion.FIELD_DEVELOPMENT_PLAN), true));
+    assertThat(errorsMap).contains(
+        entry("fdpNotSelectedReason", Set.of(FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.errorCode("fdpNotSelectedReason")))
+    );
+  }
+
 
   @Test
   public void validate_oneProjectLayoutDiagramFile() {

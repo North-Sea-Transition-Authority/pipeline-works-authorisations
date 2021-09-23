@@ -63,13 +63,13 @@
 
             <@fdsTextInput.textInput path="form.length" labelText="Length (m)" inputClass="govuk-input--width-5"/>
 
-            <@fdsTextarea.textarea path="form.componentPartsDescription" labelText="Description of component parts of the pipeline" hintText="e.g. 10\" production flowline, electrical lead d B, 2 x 6\" Production Jumper within a Wellhead Bundle, 6\" flexible gas lift flowline, control umbilical etc" characterCount=true maxCharacterLength="4000"/>
+            <@fdsTextarea.textarea path="form.componentPartsDescription" labelText="Description of component parts of the pipeline" hintText="e.g. 10\" production flowline, electrical lead d B, 2 x 6\" Production Jumper within a Wellhead Bundle, 6\" flexible gas lift flowline, control umbilical etc" characterCount=true maxCharacterLength=maxCharacterLength?c/>
 
-            <@fdsTextarea.textarea path="form.productsToBeConveyed" labelText="Products to be conveyed" characterCount=true maxCharacterLength="4000"/>
+            <@fdsTextarea.textarea path="form.productsToBeConveyed" labelText="Products to be conveyed" characterCount=true maxCharacterLength=maxCharacterLength?c/>
 
             <@fdsRadio.radioGroup path="form.trenchedBuriedBackfilled" labelText="Will the pipeline be trenched and/or buried and/or backfilled?" hiddenContent=true>
                 <@fdsRadio.radioYes path="form.trenchedBuriedBackfilled">
-                    <@fdsTextarea.textarea path="form.trenchingMethods" labelText="Describe the methods to be deployed to execute the trenching and the target depth of trench" nestingPath="form.trenchedBuriedBackfilled" characterCount=true maxCharacterLength="4000"/>
+                    <@fdsTextarea.textarea path="form.trenchingMethods" labelText="Describe the methods to be deployed to execute the trenching and the target depth of trench" nestingPath="form.trenchedBuriedBackfilled" characterCount=true maxCharacterLength=maxCharacterLength?c/>
                 </@fdsRadio.radioYes>
                 <@fdsRadio.radioNo path="form.trenchedBuriedBackfilled"/>
             </@fdsRadio.radioGroup>
@@ -89,7 +89,7 @@
                 <#list pipelineMaterialTypes as  pipelineMaterialTypeOption>
                     <@fdsRadio.radioItem path="form.pipelineMaterial" itemMap={pipelineMaterialTypeOption : pipelineMaterialTypeOption.getDisplayText()} isFirstItem=firstItem>
                         <#if pipelineMaterialTypeOption == "OTHER">
-                            <@fdsTextarea.textarea path="form.otherPipelineMaterialUsed" nestingPath="form.pipelineMaterial" labelText="Provide details of other materials used" characterCount=true maxCharacterLength="4000"/>
+                            <@fdsTextarea.textarea path="form.otherPipelineMaterialUsed" nestingPath="form.pipelineMaterial" labelText="Provide details of other materials used" characterCount=true maxCharacterLength=maxCharacterLength?c/>
                         </#if>
                     </@fdsRadio.radioItem>
                     <#assign firstItem=false/>
@@ -112,7 +112,7 @@
         <#if questionsForPipelineStatus?has_content>
             <#list questionsForPipelineStatus as question>
                 <#if question == "OUT_OF_USE_ON_SEABED_REASON">
-                    <@fdsTextarea.textarea path="form.whyNotReturnedToShore" labelText=question.getDisplayText() characterCount=true maxCharacterLength="4000"/>
+                    <@fdsTextarea.textarea path="form.whyNotReturnedToShore" labelText=question.getDisplayText() characterCount=true maxCharacterLength=maxCharacterLength?c/>
                 </#if>
             </#list>
         </#if>
@@ -129,7 +129,7 @@
             </@fdsRadio.radioGroup>
         </#if>
 
-        <@fdsTextarea.textarea path="form.footnote" labelText="Advise of any special features of the pipeline" maxCharacterLength="4000" characterCount=true optionalLabel=true hintText="For example it replaces another pipeline, it can run reverse flow, it was removed from another pipeline, etc"/>
+        <@fdsTextarea.textarea path="form.footnote" labelText="Advise of any special features of the pipeline" maxCharacterLength=maxCharacterLength?c characterCount=true optionalLabel=true hintText="For example it replaces another pipeline, it can run reverse flow, it was removed from another pipeline, etc"/>
         <@fdsDetails.summaryDetails summaryTitle="Show me examples of special features to include">
             <p> The examples below are not an exhaustive list. You should replace the placeholder text identified inside square brackets with the information relevant to your pipeline. </p>
             <ul class="govuk-list govuk-list--bullet">

@@ -282,6 +282,17 @@ public class LocationDetailsValidatorTest {
   }
 
   @Test
+  public void validate_partial_pipelineRouteDetailsText_tooLong() {
+    var form = new LocationDetailsForm();
+    form.setRouteSurveyUndertaken(true);
+    form.setPipelineRouteDetails(ValidatorTestUtils.over4000Chars());
+    var result = ValidatorTestUtils.getFormValidationErrors(locationDetailsValidator, form,
+        getValidationHintsPartial(Set.of(LocationDetailsQuestion.ROUTE_SURVEY_UNDERTAKEN)));
+    assertThat(result).contains(
+        Map.entry("pipelineRouteDetails", Set.of("pipelineRouteDetails" + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode())));
+  }
+
+  @Test
   public void validate_full_routeNotUndertakenReason_null() {
     var form = new LocationDetailsForm();
     form.setRouteSurveyUndertaken(false);
@@ -292,12 +303,12 @@ public class LocationDetailsValidatorTest {
   }
 
   @Test
-  public void validate_full_routeNotUndertakenReason_tooLong() {
+  public void validate_partial_routeNotUndertakenReason_tooLong() {
     var form = new LocationDetailsForm();
     form.setRouteSurveyUndertaken(false);
     form.setRouteSurveyNotUndertakenReason(ValidatorTestUtils.over4000Chars());
     var result = ValidatorTestUtils.getFormValidationErrors(locationDetailsValidator, form,
-        getValidationHintsFull(Set.of(LocationDetailsQuestion.ROUTE_SURVEY_UNDERTAKEN)));
+        getValidationHintsPartial(Set.of(LocationDetailsQuestion.ROUTE_SURVEY_UNDERTAKEN)));
     assertThat(result).contains(
         Map.entry("routeSurveyNotUndertakenReason", Set.of("routeSurveyNotUndertakenReason" + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode())));
   }

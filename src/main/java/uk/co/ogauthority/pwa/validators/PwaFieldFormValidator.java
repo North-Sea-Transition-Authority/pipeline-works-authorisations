@@ -12,6 +12,7 @@ import uk.co.ogauthority.pwa.model.form.pwaapplications.fields.PwaFieldForm;
 import uk.co.ogauthority.pwa.service.devuk.DevukFieldService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
+import uk.co.ogauthority.pwa.util.ValidatorUtils;
 
 @Service
 public class PwaFieldFormValidator implements SmartValidator {
@@ -52,6 +53,10 @@ public class PwaFieldFormValidator implements SmartValidator {
             "noLinkedFieldDescription",
             FieldValidationErrorCodes.REQUIRED.errorCode("noLinkedFieldDescription"),
             "Enter a description");
+
+        ValidatorUtils.validateDefaultStringLength(
+            errors, "noLinkedFieldDescription", fieldForm::getNoLinkedFieldDescription,
+            "Pwa related to description");
 
       }
 

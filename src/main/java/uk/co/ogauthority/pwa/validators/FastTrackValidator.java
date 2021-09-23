@@ -1,11 +1,13 @@
 package uk.co.ogauthority.pwa.validators;
 
 import org.apache.commons.lang3.BooleanUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
+import org.springframework.validation.ValidationUtils;
 import org.springframework.validation.Validator;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.FastTrackForm;
+import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
+import uk.co.ogauthority.pwa.util.ValidatorUtils;
 
 @Service
 public class FastTrackValidator implements Validator {
@@ -24,22 +26,49 @@ public class FastTrackValidator implements Validator {
       errors.rejectValue("avoidEnvironmentalDisaster", "avoidEnvironmentalDisaster.noneSelected",
           "Select at least one reason for fast-tracking the application");
     }
-    if (BooleanUtils.isTrue(form.getAvoidEnvironmentalDisaster())
-        && StringUtils.isBlank(form.getEnvironmentalDisasterReason())) {
-      errors.rejectValue("environmentalDisasterReason", "environmentalDisasterReason.required",
+
+    if (BooleanUtils.isTrue(form.getAvoidEnvironmentalDisaster())) {
+
+      ValidationUtils.rejectIfEmptyOrWhitespace(errors, "environmentalDisasterReason",
+          "environmentalDisasterReason" + FieldValidationErrorCodes.REQUIRED.getCode(),
           "Enter a reason for selecting avoiding environmental disaster");
+
+      ValidatorUtils.validateDefaultStringLength(
+          errors, "environmentalDisasterReason", form::getEnvironmentalDisasterReason,
+          "Reason for selecting avoiding environmental disaster");
     }
-    if (BooleanUtils.isTrue(form.getSavingBarrels()) && StringUtils.isBlank(form.getSavingBarrelsReason())) {
-      errors.rejectValue("savingBarrelsReason", "savingBarrelsReason.required",
+
+    if (BooleanUtils.isTrue(form.getSavingBarrels())) {
+
+      ValidationUtils.rejectIfEmptyOrWhitespace(errors, "savingBarrelsReason",
+          "savingBarrelsReason" + FieldValidationErrorCodes.REQUIRED.getCode(),
           "Enter a reason for selecting saving barrels");
+
+      ValidatorUtils.validateDefaultStringLength(
+          errors, "savingBarrelsReason", form::getSavingBarrelsReason,
+          "Reason for selecting saving barrels");
     }
-    if (BooleanUtils.isTrue(form.getProjectPlanning()) && StringUtils.isBlank(form.getProjectPlanningReason())) {
-      errors.rejectValue("projectPlanningReason", "projectPlanningReason.required",
+
+    if (BooleanUtils.isTrue(form.getProjectPlanning())) {
+
+      ValidationUtils.rejectIfEmptyOrWhitespace(errors, "projectPlanningReason",
+          "projectPlanningReason" + FieldValidationErrorCodes.REQUIRED.getCode(),
           "Enter a reason for selecting project planning");
+
+      ValidatorUtils.validateDefaultStringLength(
+          errors, "projectPlanningReason", form::getProjectPlanningReason,
+          "Reason for selecting project planning");
     }
-    if (BooleanUtils.isTrue(form.getHasOtherReason()) && StringUtils.isBlank(form.getOtherReason())) {
-      errors.rejectValue("otherReason", "otherReason.required",
+
+    if (BooleanUtils.isTrue(form.getHasOtherReason())) {
+
+      ValidationUtils.rejectIfEmptyOrWhitespace(errors, "otherReason",
+          "otherReason" + FieldValidationErrorCodes.REQUIRED.getCode(),
           "Enter a reason for selecting other reasons");
+
+      ValidatorUtils.validateDefaultStringLength(
+          errors, "otherReason", form::getOtherReason,
+          "Reason for selecting other reasons");
     }
   }
 }
