@@ -121,6 +121,7 @@ public class FileUploadService {
         uploadedFile.setScaledImageData(scaledBlob);
         uploadedFileRepository.save(uploadedFile);
         scaledBlob.free();
+        scaledImageBaos.close();
       } else {
         uploadedFileRepository.save(uploadedFile);
       }

@@ -35,35 +35,30 @@ public class ImageScalingService {
 
     try (var baos = new ByteArrayOutputStream()) {
 
-      BufferedImage image;
+      BufferedImage resultImage;
 
       int sizeInKb = (int) uploadedFile.getFileData().length() / 1024;
 
       // read the uploaded file blob into a BufferedImage
-      var buffImage = ImageIO.read(uploadedFile.getFileData().getBinaryStream());
+      var stream = uploadedFile.getFileData().getBinaryStream();
+      resultImage = ImageIO.read(stream);
+      stream.close();
 
       // if the image meets our threshold size, downsize it
       if (sizeInKb >= thresholdKb) {
-        image = Scalr.resize(buffImage, scalingMethod, scaledWidthPx, scaledHeightPx);
-        buffImage.flush();
-      } else {
-        image = buffImage;
+        resultImage = Scalr.resize(resultImage, scalingMethod, scaledWidthPx, scaledHeightPx);
       }
-
-      BufferedImage finale;
 
       // if the image is landscape, rotate it 90 degrees
-      if (image.getWidth() > image.getHeight()) {
-        finale = Scalr.rotate(image, Scalr.Rotation.CW_90);
-      } else {
-        finale = image;
+      if (resultImage.getWidth() > resultImage.getHeight()) {
+        resultImage = Scalr.rotate(resultImage, Scalr.Rotation.CW_90);
       }
 
-      image.flush();
-
       // write the modified image to the output stream to return, using the image type indicated by the file's content type
-      ImageIO.write(finale, uploadedFile.getContentType().replace("image/", ""), baos);
-      finale.flush();
+      ImageIO.write(resultImage, uploadedFile.getContentType().replace("image/", ""), baos);
+      resultImage.flush();
+
+      resultImage = null;
 
       return baos;
 
