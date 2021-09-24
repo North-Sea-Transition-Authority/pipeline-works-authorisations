@@ -16,6 +16,7 @@ import uk.co.ogauthority.pwa.model.documents.view.SectionView;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.DocumentTemplateMnem;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocumentSection;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocumentSpec;
+import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.SectionType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.enums.documents.PwaDocumentType;
 import uk.co.ogauthority.pwa.model.enums.documents.SectionClauseVersionStatus;
@@ -110,7 +111,10 @@ public class DocumentViewService {
 
     var sidebarLinks = new ArrayList<SidebarSectionLink>();
 
-    sidebarLinks.add(buildSidebarTopLink(documentSource));
+    if (sectionView.getSectionType().equals(SectionType.OPENING_PARAGRAPH)) {
+      sidebarLinks.add(buildSidebarTopLink(documentSource));
+    }
+
     sectionView.getClauses().forEach(clause -> {
 
       var link = SidebarSectionLink.createAnchorLink(clause.getName(), "#clauseId-" + clause.getClauseId());

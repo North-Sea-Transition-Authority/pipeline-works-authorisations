@@ -1,13 +1,16 @@
 package uk.co.ogauthority.pwa.testutils;
 
 import java.time.Clock;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.IntStream;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
+import uk.co.ogauthority.pwa.energyportal.model.entity.PersonTestUtil;
 import uk.co.ogauthority.pwa.model.documents.instances.DocumentInstanceSectionClauseVersionDto;
 import uk.co.ogauthority.pwa.model.documents.templates.DocumentTemplateSectionClauseVersionDto;
+import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocumentSection;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocumentSpec;
 import uk.co.ogauthority.pwa.model.enums.documents.SectionClauseVersionStatus;
 
@@ -213,6 +216,41 @@ public class SectionClauseVersionDtoTestUtils {
         clauses.addAll(clauseVersions);
 
       });
+
+    });
+
+    return clauses;
+
+  }
+
+  public static List<DocumentTemplateSectionClauseVersionDto> getDefaultTemplateSectionClauseVersionDto(DocumentSection section,
+                                                                                                        int rootClauseCount) {
+
+    Random random = new Random();
+    List<DocumentTemplateSectionClauseVersionDto> clauses = new ArrayList<>();
+
+    IntStream.rangeClosed(1, rootClauseCount).forEach(rootClauseIdx -> {
+
+      var clauseVersions = new ArrayList<DocumentTemplateSectionClauseVersionDto>();
+
+      var parentClause = new DocumentTemplateSectionClauseVersionDto();
+      parentClause.setSection(section);
+      parentClause.setScvId(random.nextInt());
+      parentClause.setClauseId(parentClause.getScvId()); // use same id for main record as version record
+      parentClause.setDtId(1);
+
+      parentClause.setLevelNumber(1);
+      parentClause.setLevelOrder(rootClauseIdx);
+      parentClause.setName("Clause " + rootClauseIdx);
+      parentClause.setText(String.format("[%s] [%s] [%s]", rootClauseIdx, rootClauseIdx, rootClauseIdx));
+      parentClause.setStatus(SectionClauseVersionStatus.ACTIVE);
+      parentClause.setTipFlag(true);
+      parentClause.setVersionNo(1);
+      parentClause.setCreatedByPersonId(PersonTestUtil.createDefaultPerson().getId());
+      parentClause.setCreatedTimestamp(Instant.now());
+
+      clauseVersions.add(parentClause);
+      clauses.addAll(clauseVersions);
 
     });
 

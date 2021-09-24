@@ -93,7 +93,7 @@ public class DocumentViewServiceTest {
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
 
     var clauseDtos = SectionClauseVersionDtoTestUtils
-        .getTemplateSectionClauseVersionDtoList(1, detail.getPwaApplicationType().getConsentDocumentSpec(), clock, person, 1, 1, 1)
+        .getDefaultTemplateSectionClauseVersionDto(DocumentSection.INITIAL_INTRO, 1)
         .stream()
         .map(SectionClauseVersionDto.class::cast)
         .collect(Collectors.toList());
@@ -118,7 +118,7 @@ public class DocumentViewServiceTest {
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
 
     var clauseDtos = SectionClauseVersionDtoTestUtils
-        .getTemplateSectionClauseVersionDtoList(1, detail.getPwaApplicationType().getConsentDocumentSpec(), clock, person, 1, 1, 1)
+        .getDefaultTemplateSectionClauseVersionDto(DocumentSection.INITIAL_INTRO, 1)
         .stream()
         .map(SectionClauseVersionDto.class::cast)
         .collect(Collectors.toList());
@@ -135,6 +135,46 @@ public class DocumentViewServiceTest {
     assertThat(firstSideBarLink.getIsAnchorLink()).isTrue();
     assertThat(firstSideBarLink.getLink()).isEqualTo("#" + DocumentTemplateService.DOC_TEMPLATE_EDITOR_HEADER_ID);
 
+  }
+
+  @Test
+  public void getDocumentView_buildSidebarTopLink_topLinkOnlyIncludedInFirstSection() {
+
+    var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
+    var docSource = detail.getPwaApplication();
+    var clauseDtos = new ArrayList<SectionClauseVersionDto>();
+
+    var documentSections = List.of(DocumentSection.INITIAL_INTRO,
+        DocumentSection.INITIAL_TERMS_AND_CONDITIONS,
+        DocumentSection.HUOO,
+        DocumentSection.DEPOSITS);
+
+    documentSections.forEach(documentSection -> clauseDtos.addAll(
+        SectionClauseVersionDtoTestUtils
+            .getDefaultTemplateSectionClauseVersionDto(documentSection, 1)
+            .stream()
+            .map(SectionClauseVersionDto.class::cast)
+            .collect(Collectors.toList())));
+
+    var docView = documentViewService.createDocumentView(PwaDocumentType.INSTANCE, docSource, clauseDtos);
+
+
+    //assert first section top link is the app ref link
+    assertThat(docView.getSections()).hasSizeGreaterThan(1);
+    assertThat(docView.getSections().get(0).getSidebarSectionLinks()).isNotEmpty();
+    var firstSectionTopSideBarLink = docView.getSections().get(0).getSidebarSectionLinks().get(0);
+
+    assertThat(firstSectionTopSideBarLink.getDisplayText()).isEqualTo(docSource.getAppReference());
+    assertThat(firstSectionTopSideBarLink.getIsAnchorLink()).isTrue();
+    assertThat(firstSectionTopSideBarLink.getLink()).isEqualTo("#" + CaseSummaryViewService.CASE_SUMMARY_HEADER_ID);
+
+
+    //assert that from the second section onwards there are no appRef links as this should be only in the first section
+    for (var x = 1; x < docView.getSections().size(); x++) {
+      var section = docView.getSections().get(x);
+      assertThat(section.getSidebarSectionLinks()).allSatisfy(link ->
+          assertThat(link.getDisplayText()).isNotEqualTo(docSource.getAppReference()));
+    }
   }
 
 
