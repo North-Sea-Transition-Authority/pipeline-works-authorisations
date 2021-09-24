@@ -180,7 +180,7 @@ public class ReviewAndSubmitApplicationFormValidatorTest {
         .thenReturn(true);
 
     form.setMadeOnlyRequestedChanges(false);
-    form.setOtherChangesDescription(ValidatorTestUtils.over4000Chars());
+    form.setOtherChangesDescription(ValidatorTestUtils.overMaxDefaultCharLength());
 
     var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, applicationContext);
 

@@ -29,14 +29,14 @@
 
               <@fdsRadio.radioGroup path="form.emtHasSubmittedPermits" labelText="Have you submitted any relevant environmental permits to BEIS EMT?" fieldsetHeadingSize="h4" hiddenContent=true>
                   <@fdsRadio.radioYes path="form.emtHasSubmittedPermits">
-                      <@fdsTextarea.textarea path="form.permitsSubmitted" nestingPath="form.permitsSubmitted" labelText="Which permits have you submitted to BEIS?" hintText="Include the date submitted for each permit" characterCount=true maxCharacterLength="4000"/>
+                      <@fdsTextarea.textarea path="form.permitsSubmitted" nestingPath="form.permitsSubmitted" labelText="Which permits have you submitted to BEIS?" hintText="Include the date submitted for each permit" characterCount=true maxCharacterLength=maxCharacterLength?c/>
                   </@fdsRadio.radioYes>
                   <@fdsRadio.radioNo path="form.emtHasSubmittedPermits"/>
               </@fdsRadio.radioGroup>
 
               <@fdsRadio.radioGroup path="form.emtHasOutstandingPermits" labelText="Do you have any environmental permits that have not yet been submitted to BEIS EMT?" fieldsetHeadingSize="h4" hiddenContent=true>
                   <@fdsRadio.radioYes path="form.emtHasOutstandingPermits">
-                      <@fdsTextarea.textarea path="form.permitsPendingSubmission" labelText="Which permits have you not submitted to BEIS?" nestingPath="form.permitsPendingSubmission" characterCount=true maxCharacterLength="4000"/>
+                      <@fdsTextarea.textarea path="form.permitsPendingSubmission" labelText="Which permits have you not submitted to BEIS?" nestingPath="form.permitsPendingSubmission" characterCount=true maxCharacterLength=maxCharacterLength?c/>
                       <@fdsDateInput.dateInput formId="emtSubmissionDay" dayPath="form.emtSubmissionDay" monthPath="form.emtSubmissionMonth" yearPath="form.emtSubmissionYear" labelText="What is the latest date all relevant environmental permits will be submitted to BEIS?" hintText="BEIS will require these permits prior to their assessment of your PWA" fieldsetHeadingSize="h5" defaultHint=false/>
                   </@fdsRadio.radioYes>
                   <@fdsRadio.radioNo path="form.emtHasOutstandingPermits"/>

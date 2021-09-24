@@ -60,7 +60,7 @@ public class ConfirmSatisfactoryApplicationFormValidatorTest {
   @Test
   public void validate_whenReasonProvided_tooBig() {
 
-    form.setReason(ValidatorTestUtils.over4000Chars());
+    form.setReason(ValidatorTestUtils.overMaxDefaultCharLength());
 
     var result = ValidatorTestUtils.getFormValidationErrors(validator, form);
 

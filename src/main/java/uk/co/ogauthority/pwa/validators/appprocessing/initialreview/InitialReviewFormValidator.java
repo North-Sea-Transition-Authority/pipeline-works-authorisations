@@ -13,6 +13,7 @@ import uk.co.ogauthority.pwa.service.appprocessing.initialreview.InitialReviewPa
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.service.enums.workflow.application.PwaApplicationWorkflowTask;
 import uk.co.ogauthority.pwa.service.workflow.assignment.WorkflowAssignmentService;
+import uk.co.ogauthority.pwa.util.ValidatorUtils;
 
 @Service
 public class InitialReviewFormValidator implements SmartValidator {
@@ -49,6 +50,9 @@ public class InitialReviewFormValidator implements SmartValidator {
           FieldValidationErrorCodes.REQUIRED.errorCode("paymentWaivedReason"),
           "Enter a reason for waiving the payment"
       );
+
+      ValidatorUtils.validateDefaultStringLength(
+          errors, "paymentWaivedReason", form::getPaymentWaivedReason, "Reason for waiving the payment");
     }
 
     ValidationUtils.rejectIfEmptyOrWhitespace(

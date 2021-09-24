@@ -18,7 +18,7 @@
             path="form.reason"
             labelText="Reasons for confirming this version of the application is satisfactory"
             optionalLabel=true
-            maxCharacterLength="4000"
+            maxCharacterLength=maxCharacterLength?c
             characterCount=true
             inputClass="govuk-!-width-two-thirds"
         />

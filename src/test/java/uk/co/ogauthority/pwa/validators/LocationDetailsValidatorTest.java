@@ -282,6 +282,17 @@ public class LocationDetailsValidatorTest {
   }
 
   @Test
+  public void validate_partial_pipelineRouteDetailsText_tooLong() {
+    var form = new LocationDetailsForm();
+    form.setRouteSurveyUndertaken(true);
+    form.setPipelineRouteDetails(ValidatorTestUtils.overMaxDefaultCharLength());
+    var result = ValidatorTestUtils.getFormValidationErrors(locationDetailsValidator, form,
+        getValidationHintsPartial(Set.of(LocationDetailsQuestion.ROUTE_SURVEY_UNDERTAKEN)));
+    assertThat(result).contains(
+        Map.entry("pipelineRouteDetails", Set.of("pipelineRouteDetails" + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode())));
+  }
+
+  @Test
   public void validate_full_routeNotUndertakenReason_null() {
     var form = new LocationDetailsForm();
     form.setRouteSurveyUndertaken(false);
@@ -292,12 +303,12 @@ public class LocationDetailsValidatorTest {
   }
 
   @Test
-  public void validate_full_routeNotUndertakenReason_tooLong() {
+  public void validate_partial_routeNotUndertakenReason_tooLong() {
     var form = new LocationDetailsForm();
     form.setRouteSurveyUndertaken(false);
-    form.setRouteSurveyNotUndertakenReason(ValidatorTestUtils.over4000Chars());
+    form.setRouteSurveyNotUndertakenReason(ValidatorTestUtils.overMaxDefaultCharLength());
     var result = ValidatorTestUtils.getFormValidationErrors(locationDetailsValidator, form,
-        getValidationHintsFull(Set.of(LocationDetailsQuestion.ROUTE_SURVEY_UNDERTAKEN)));
+        getValidationHintsPartial(Set.of(LocationDetailsQuestion.ROUTE_SURVEY_UNDERTAKEN)));
     assertThat(result).contains(
         Map.entry("routeSurveyNotUndertakenReason", Set.of("routeSurveyNotUndertakenReason" + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode())));
   }
@@ -325,11 +336,11 @@ public class LocationDetailsValidatorTest {
   @Test
   public void validate_partial_tooManyCharacters() {
     var form = new LocationDetailsForm();
-    form.setApproximateProjectLocationFromShore(ValidatorTestUtils.over4000Chars());
-    form.setTransportationMethod(ValidatorTestUtils.over4000Chars());
-    form.setPipelineAshoreLocation(ValidatorTestUtils.over4000Chars());
+    form.setApproximateProjectLocationFromShore(ValidatorTestUtils.overMaxDefaultCharLength());
+    form.setTransportationMethod(ValidatorTestUtils.overMaxDefaultCharLength());
+    form.setPipelineAshoreLocation(ValidatorTestUtils.overMaxDefaultCharLength());
     form.setPsrNotificationSubmittedOption(PsrNotification.NOT_REQUIRED);
-    form.setPsrNotificationNotRequiredReason(ValidatorTestUtils.over4000Chars());
+    form.setPsrNotificationNotRequiredReason(ValidatorTestUtils.overMaxDefaultCharLength());
 
     var errors = new BeanPropertyBindingResult(form, "form");
     locationDetailsValidator.validate(form, errors,

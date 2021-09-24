@@ -61,25 +61,25 @@
                 </#if>
 
                 <#if responseOption == "CONFIRMED" || responseOption == "EIA_AGREE" || responseOption == "HABITATS_AGREE">
-                  <@fdsTextarea.textarea path="form.responseDataForms[${responseOptionGroup}].option1Description" labelText=responseOption.textAreaLabelText optionalLabel=true nestingPath="form.responseDataForms[${responseOptionGroup}].consultationResponseOption" characterCount=true maxCharacterLength="4000"/>
+                  <@fdsTextarea.textarea path="form.responseDataForms[${responseOptionGroup}].option1Description" labelText=responseOption.textAreaLabelText optionalLabel=true nestingPath="form.responseDataForms[${responseOptionGroup}].consultationResponseOption" characterCount=true maxCharacterLength=maxCharacterLength?c/>
                 </#if>
                 <#if responseOption == "REJECTED">
-                  <@fdsTextarea.textarea path="form.responseDataForms[${responseOptionGroup}].option2Description" labelText=responseOption.textAreaLabelText nestingPath="form.responseDataForms[${responseOptionGroup}].consultationResponseOption" characterCount=true maxCharacterLength="4000"/>
+                  <@fdsTextarea.textarea path="form.responseDataForms[${responseOptionGroup}].option2Description" labelText=responseOption.textAreaLabelText nestingPath="form.responseDataForms[${responseOptionGroup}].consultationResponseOption" characterCount=true maxCharacterLength=maxCharacterLength?c/>
 
                   ${rejectAppSummaryDetails}
                 </#if>
                 <#if responseOption == "PROVIDE_ADVICE">
-                  <@fdsTextarea.textarea path="form.responseDataForms[${responseOptionGroup}].option1Description" labelText=responseOption.textAreaLabelText nestingPath="form.responseDataForms[${responseOptionGroup}].consultationResponseOption" characterCount=true maxCharacterLength="4000"/>
+                  <@fdsTextarea.textarea path="form.responseDataForms[${responseOptionGroup}].option1Description" labelText=responseOption.textAreaLabelText nestingPath="form.responseDataForms[${responseOptionGroup}].consultationResponseOption" characterCount=true maxCharacterLength=maxCharacterLength?c/>
                 </#if>
                 <#if responseOption == "NO_ADVICE">
-                  <@fdsTextarea.textarea path="form.responseDataForms[${responseOptionGroup}].option2Description" labelText=responseOption.textAreaLabelText nestingPath="form.responseDataForms[${responseOptionGroup}].consultationResponseOption" optionalLabel=true characterCount=true maxCharacterLength="4000"/>
+                  <@fdsTextarea.textarea path="form.responseDataForms[${responseOptionGroup}].option2Description" labelText=responseOption.textAreaLabelText nestingPath="form.responseDataForms[${responseOptionGroup}].consultationResponseOption" optionalLabel=true characterCount=true maxCharacterLength=maxCharacterLength?c/>
                 </#if>
                 <#if responseOption == "EIA_DISAGREE" || responseOption == "HABITATS_DISAGREE">
-                  <@fdsTextarea.textarea path="form.responseDataForms[${responseOptionGroup}].option2Description" labelText=responseOption.textAreaLabelText nestingPath="form.responseDataForms[${responseOptionGroup}].consultationResponseOption" characterCount=true maxCharacterLength="4000"/>
+                  <@fdsTextarea.textarea path="form.responseDataForms[${responseOptionGroup}].option2Description" labelText=responseOption.textAreaLabelText nestingPath="form.responseDataForms[${responseOptionGroup}].consultationResponseOption" characterCount=true maxCharacterLength=maxCharacterLength?c/>
                   ${rejectAppSummaryDetails}
                 </#if>
                 <#if responseOption == "EIA_NOT_RELEVANT" || responseOption == "HABITATS_NOT_RELEVANT">
-                  <@fdsTextarea.textarea path="form.responseDataForms[${responseOptionGroup}].option3Description" labelText=responseOption.textAreaLabelText nestingPath="form.responseDataForms[${responseOptionGroup}].consultationResponseOption" characterCount=true maxCharacterLength="4000"/>
+                  <@fdsTextarea.textarea path="form.responseDataForms[${responseOptionGroup}].option3Description" labelText=responseOption.textAreaLabelText nestingPath="form.responseDataForms[${responseOptionGroup}].consultationResponseOption" characterCount=true maxCharacterLength=maxCharacterLength?c/>
                 </#if>
               </@fdsRadio.radioItem>
               <#assign firstItem=false/>

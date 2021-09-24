@@ -17,7 +17,7 @@
   <h2 class="govuk-heading-l">Draft a public notice</h2>
 
   <@fdsForm.htmlForm>
-    <@fdsTextarea.textarea path="form.coverLetterText" labelText="Cover letter text" characterCount=true maxCharacterLength="4000" inputClass="govuk-!-width-full"/>
+    <@fdsTextarea.textarea path="form.coverLetterText" labelText="Cover letter text" characterCount=true maxCharacterLength=maxCharacterLength?c inputClass="govuk-!-width-full"/>
 
     <@grid.gridRow>
       <@grid.twoThirdsColumn>
@@ -32,7 +32,7 @@
       <#list publicNoticeRequestReasons as  requestReasonOption>
           <@fdsRadio.radioItem path="form.reason" itemMap={requestReasonOption : requestReasonOption.getReasonText()} isFirstItem=firstItem>        
             <#if requestReasonOption == "CONSULTEES_NOT_ALL_CONTENT">
-              <@fdsTextarea.textarea path="form.reasonDescription" nestingPath="form.reason" labelText="Why does the public notice need to progress?" characterCount=true maxCharacterLength="4000" inputClass="govuk-!-width-two-thirds"/>
+              <@fdsTextarea.textarea path="form.reasonDescription" nestingPath="form.reason" labelText="Why does the public notice need to progress?" characterCount=true maxCharacterLength=maxCharacterLength?c inputClass="govuk-!-width-two-thirds"/>
             </#if>
           </@fdsRadio.radioItem>
       <#assign firstItem=false/>

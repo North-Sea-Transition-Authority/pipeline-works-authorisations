@@ -35,7 +35,7 @@
             <#list approvalResultOptions as approvalResultOption>
                 <@fdsRadio.radioItem path="form.requestApproved" itemMap={approvalResultOption : approvalResultOption.getDisplayValue()} isFirstItem=firstItem>
                     <#if approvalResultOption == "REQUEST_REJECTED">
-                        <@fdsTextarea.textarea path="form.requestRejectedReason" nestingPath="form.requestApproved" labelText="Rejection reason" characterCount=true maxCharacterLength="4000" inputClass="govuk-!-width-two-thirds"/>
+                        <@fdsTextarea.textarea path="form.requestRejectedReason" nestingPath="form.requestApproved" labelText="Rejection reason" characterCount=true maxCharacterLength=maxCharacterLength?c inputClass="govuk-!-width-two-thirds"/>
                     </#if>
                 </@fdsRadio.radioItem>
             </#list>            

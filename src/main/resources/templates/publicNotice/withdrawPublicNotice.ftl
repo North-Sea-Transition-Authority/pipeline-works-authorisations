@@ -17,7 +17,7 @@
 
 
     <@fdsForm.htmlForm>
-        <@fdsTextarea.textarea path="form.withdrawalReason" labelText="Provide a reason for why you are withdrawing this public notice" characterCount=true maxCharacterLength="4000" inputClass="govuk-!-width-two-thirds"/>
+        <@fdsTextarea.textarea path="form.withdrawalReason" labelText="Provide a reason for why you are withdrawing this public notice" characterCount=true maxCharacterLength=maxCharacterLength?c inputClass="govuk-!-width-two-thirds"/>
 
         <@fdsAction.submitButtons primaryButtonText="Withdraw public notice" linkSecondaryAction=true secondaryLinkText="Do not withdraw" linkSecondaryActionUrl=springUrl(cancelUrl)/>
     </@fdsForm.htmlForm>

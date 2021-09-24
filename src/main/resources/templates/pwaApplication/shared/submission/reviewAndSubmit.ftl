@@ -47,7 +47,7 @@
                     fieldsetHeadingSize="h2" fieldsetHeadingClass="govuk-fieldset__legend--l">
                         <@fdsRadio.radioItem path="form.madeOnlyRequestedChanges" itemMap={"true":"Requested changes only"} isFirstItem=true/>
                         <@fdsRadio.radioItem path="form.madeOnlyRequestedChanges" itemMap={"false":"Other changes"} >
-                            <@fdsTextarea.textarea path="form.otherChangesDescription" labelText="Describe the changes that have been made" nestingPath="form.madeOnlyRequestedChanges" characterCount=true maxCharacterLength="4000"/>
+                            <@fdsTextarea.textarea path="form.otherChangesDescription" labelText="Describe the changes that have been made" nestingPath="form.madeOnlyRequestedChanges" characterCount=true maxCharacterLength=maxCharacterLength?c/>
                         </@fdsRadio.radioItem>
                     </@fdsRadio.radioGroup>
 

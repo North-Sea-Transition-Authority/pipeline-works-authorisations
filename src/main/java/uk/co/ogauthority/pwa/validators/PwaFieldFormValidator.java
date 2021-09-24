@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.validators;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.NotImplementedException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import org.springframework.validation.SmartValidator;
@@ -12,15 +13,19 @@ import uk.co.ogauthority.pwa.model.form.pwaapplications.fields.PwaFieldForm;
 import uk.co.ogauthority.pwa.service.devuk.DevukFieldService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
+import uk.co.ogauthority.pwa.util.ValidatorUtils;
 
 @Service
 public class PwaFieldFormValidator implements SmartValidator {
 
   private final DevukFieldService devukFieldService;
+  private final String serviceNameAcronym;
 
   @Autowired
-  public PwaFieldFormValidator(DevukFieldService devukFieldService) {
+  public PwaFieldFormValidator(DevukFieldService devukFieldService,
+                               @Value("${service.name.acronym}") String serviceNameAcronym) {
     this.devukFieldService = devukFieldService;
+    this.serviceNameAcronym = serviceNameAcronym;
   }
 
   @Override
@@ -52,9 +57,16 @@ public class PwaFieldFormValidator implements SmartValidator {
             "noLinkedFieldDescription",
             FieldValidationErrorCodes.REQUIRED.errorCode("noLinkedFieldDescription"),
             "Enter a description");
-
       }
+    }
 
+
+
+    //Partial validation, always performed regardless
+    if (BooleanUtils.isFalse(fieldForm.getLinkedToField())) {
+      ValidatorUtils.validateDefaultStringLength(
+          errors, "noLinkedFieldDescription", fieldForm::getNoLinkedFieldDescription,
+          String.format("%s related to description", serviceNameAcronym));
     }
 
     // regardless of validation type, make sure that selected field is valid

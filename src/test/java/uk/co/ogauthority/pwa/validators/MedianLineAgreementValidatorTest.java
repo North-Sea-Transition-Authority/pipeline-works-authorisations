@@ -44,10 +44,10 @@ public class MedianLineAgreementValidatorTest {
   @Test
   public void validate_partial_lengthValidation() {
 
-    form.setNegotiatorEmailIfCompleted(ValidatorTestUtils.over4000Chars());
-    form.setNegotiatorNameIfCompleted(ValidatorTestUtils.over4000Chars());
-    form.setNegotiatorEmailIfOngoing(ValidatorTestUtils.over4000Chars());
-    form.setNegotiatorNameIfOngoing(ValidatorTestUtils.over4000Chars());
+    form.setNegotiatorEmailIfCompleted(ValidatorTestUtils.overMaxDefaultCharLength());
+    form.setNegotiatorNameIfCompleted(ValidatorTestUtils.overMaxDefaultCharLength());
+    form.setNegotiatorEmailIfOngoing(ValidatorTestUtils.overMaxDefaultCharLength());
+    form.setNegotiatorNameIfOngoing(ValidatorTestUtils.overMaxDefaultCharLength());
 
     var result = ValidatorTestUtils.getFormValidationErrors(validator, form);
     assertThat(result).satisfies(value -> {
@@ -61,10 +61,10 @@ public class MedianLineAgreementValidatorTest {
   @Test
   public void validate_full_lengthValidation() {
 
-    form.setNegotiatorEmailIfCompleted(ValidatorTestUtils.over4000Chars());
-    form.setNegotiatorNameIfCompleted(ValidatorTestUtils.over4000Chars());
-    form.setNegotiatorEmailIfOngoing(ValidatorTestUtils.over4000Chars());
-    form.setNegotiatorNameIfOngoing(ValidatorTestUtils.over4000Chars());
+    form.setNegotiatorEmailIfCompleted(ValidatorTestUtils.overMaxDefaultCharLength());
+    form.setNegotiatorNameIfCompleted(ValidatorTestUtils.overMaxDefaultCharLength());
+    form.setNegotiatorEmailIfOngoing(ValidatorTestUtils.overMaxDefaultCharLength());
+    form.setNegotiatorNameIfOngoing(ValidatorTestUtils.overMaxDefaultCharLength());
 
     var result = ValidatorTestUtils.getFormValidationErrors(validator, form, FullValidation.class);
     assertThat(result).satisfies(value -> {

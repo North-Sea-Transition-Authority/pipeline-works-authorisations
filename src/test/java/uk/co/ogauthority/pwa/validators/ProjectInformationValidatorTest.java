@@ -98,7 +98,7 @@ public class ProjectInformationValidatorTest {
   @Test
   public void validate_methodOfPipelineDeployment_tooLong_optional() {
     var form = new ProjectInformationForm();
-    form.setMethodOfPipelineDeployment(ValidatorTestUtils.over4000Chars());
+    form.setMethodOfPipelineDeployment(ValidatorTestUtils.overMaxDefaultCharLength());
     var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form,
         new ProjectInformationFormValidationHints(PwaApplicationType.CAT_2_VARIATION, ValidationType.FULL, Set.of(ProjectInformationQuestion.METHOD_OF_PIPELINE_DEPLOYMENT), false));
     assertThat(errorsMap).contains(
@@ -826,7 +826,19 @@ public class ProjectInformationValidatorTest {
     Map<String, Set<String>> errorsMap = getErrorMap(form, new ProjectInformationFormValidationHints(
         PwaApplicationType.INITIAL, ValidationType.FULL, Set.of(ProjectInformationQuestion.TEMPORARY_DEPOSITS_BEING_MADE), false));
     assertThat(errorsMap).contains(
-        entry("temporaryDepDescription", Set.of("temporaryDepDescription.empty"))
+        entry("temporaryDepDescription", Set.of(FieldValidationErrorCodes.REQUIRED.errorCode("temporaryDepDescription")))
+    );
+  }
+
+  @Test
+  public void validate_partial_temporaryDepositDescriptionOverMaxLength() {
+    var form = new ProjectInformationForm();
+    form.setTemporaryDepositsMade(true);
+    form.setTemporaryDepDescription(ValidatorTestUtils.overMaxDefaultCharLength());
+    Map<String, Set<String>> errorsMap = getErrorMap(form, new ProjectInformationFormValidationHints(
+        PwaApplicationType.INITIAL, ValidationType.PARTIAL, Set.of(ProjectInformationQuestion.TEMPORARY_DEPOSITS_BEING_MADE), false));
+    assertThat(errorsMap).contains(
+        entry("temporaryDepDescription", Set.of(FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.errorCode("temporaryDepDescription")))
     );
   }
 
@@ -837,7 +849,7 @@ public class ProjectInformationValidatorTest {
     Map<String, Set<String>> errorsMap = getErrorMap(form, new ProjectInformationFormValidationHints(
         PwaApplicationType.INITIAL, ValidationType.FULL, Set.of(ProjectInformationQuestion.TEMPORARY_DEPOSITS_BEING_MADE), false));
     assertThat(errorsMap).contains(
-        entry("temporaryDepositsMade", Set.of("temporaryDepositsMade.notSelected"))
+        entry("temporaryDepositsMade", Set.of(FieldValidationErrorCodes.REQUIRED.errorCode("temporaryDepositsMade")))
     );
   }
 
@@ -901,6 +913,19 @@ public class ProjectInformationValidatorTest {
   }
 
   @Test
+  public void validate_partial_fdpNotSelectedReasonOverMaxLength() {
+    var form = new ProjectInformationForm();
+    form.setFdpOptionSelected(false);
+    form.setFdpNotSelectedReason(ValidatorTestUtils.overMaxDefaultCharLength());
+    Map<String, Set<String>> errorsMap = getErrorMap(form, new ProjectInformationFormValidationHints(
+        PwaApplicationType.INITIAL, ValidationType.PARTIAL, Set.of(ProjectInformationQuestion.FIELD_DEVELOPMENT_PLAN), true));
+    assertThat(errorsMap).contains(
+        entry("fdpNotSelectedReason", Set.of(FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.errorCode("fdpNotSelectedReason")))
+    );
+  }
+
+
+  @Test
   public void validate_oneProjectLayoutDiagramFile() {
     var form = new ProjectInformationForm();
     form.setUploadedFileWithDescriptionForms(List.of(
@@ -945,10 +970,10 @@ public class ProjectInformationValidatorTest {
   }
 
   @Test
-  public void validate_partialValidation_stringLengthOver4000Chars() {
+  public void validate_partialValidation_stringLengthOverMaxDefaultCharLength() {
     var form = new ProjectInformationForm();
-    form.setMethodOfPipelineDeployment(ValidatorTestUtils.over4000Chars());
-    form.setProjectOverview(ValidatorTestUtils.over4000Chars());
+    form.setMethodOfPipelineDeployment(ValidatorTestUtils.overMaxDefaultCharLength());
+    form.setProjectOverview(ValidatorTestUtils.overMaxDefaultCharLength());
     var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form,
         new ProjectInformationFormValidationHints(PwaApplicationType.INITIAL, ValidationType.PARTIAL, EnumSet.allOf(ProjectInformationQuestion.class), false));
 

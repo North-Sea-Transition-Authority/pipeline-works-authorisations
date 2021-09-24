@@ -52,7 +52,7 @@
                   <#list paymentDecisionOptions as name, displayText>
                       <@fdsRadio.radioItem path="form.initialReviewPaymentDecision" itemMap={name:displayText} isFirstItem=firstItem>
                           <#if name == 'PAYMENT_WAIVED'>
-                              <@fdsTextarea.textarea path="form.paymentWaivedReason" labelText="Why is the payment being waived?" maxCharacterLength="4000" characterCount=true nestingPath="form.initialReviewPaymentDecision"/>
+                              <@fdsTextarea.textarea path="form.paymentWaivedReason" labelText="Why is the payment being waived?" maxCharacterLength=maxCharacterLength?c characterCount=true nestingPath="form.initialReviewPaymentDecision"/>
                           </#if>
                           <#assign firstItem=false/>
                       </@fdsRadio.radioItem>

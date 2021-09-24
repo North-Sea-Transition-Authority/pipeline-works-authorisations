@@ -57,7 +57,7 @@ public class PublicNoticeApprovalValidatorTest {
   public void validate_form_textAreaLengthExceeded() {
     var form = new PublicNoticeApprovalForm();
     form.setRequestApproved(PwaApplicationPublicNoticeApprovalResult.REQUEST_REJECTED);
-    form.setRequestRejectedReason(ValidatorTestUtils.over4000Chars());
+    form.setRequestRejectedReason(ValidatorTestUtils.overMaxDefaultCharLength());
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form);
     assertThat(errorsMap).contains(
         entry("requestRejectedReason", Set.of("requestRejectedReason" + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode()))

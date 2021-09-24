@@ -29,6 +29,9 @@ public class ValidatorUtils {
   private static final String DATE_INVALID_ERROR_FORMAT = "Enter a valid %s date using the format day " +
       "(1-31), month (1-12), year (4 digits)";
 
+  public static final int MAX_DEFAULT_STRING_LENGTH = 3900;
+  public static final String MAX_DEFAULT_STRING_LENGTH_MESSAGE = " must be " + MAX_DEFAULT_STRING_LENGTH + " characters or fewer";
+
   private ValidatorUtils() {
     throw new AssertionError();
   }
@@ -420,7 +423,7 @@ public class ValidatorUtils {
                                                  Supplier<String> stringSupplier,
                                                  String messagePrefix) {
 
-    validateMaxLength(errors, field, stringSupplier, messagePrefix + " must be 4000 characters or fewer", 4000);
+    validateMaxLength(errors, field, stringSupplier, messagePrefix + MAX_DEFAULT_STRING_LENGTH_MESSAGE, MAX_DEFAULT_STRING_LENGTH);
 
   }
 

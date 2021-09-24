@@ -48,7 +48,7 @@ public class WithdrawApplicationValidatorTest {
   @Test
   public void validate_withdrawalReason_invalidLength() {
     var form = new WithdrawApplicationForm();
-    form.setWithdrawalReason(ValidatorTestUtils.over4000Chars());
+    form.setWithdrawalReason(ValidatorTestUtils.overMaxDefaultCharLength());
 
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, pwaApplication);
     assertThat(errorsMap).containsOnly(

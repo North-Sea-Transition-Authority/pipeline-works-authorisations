@@ -47,7 +47,7 @@
                                 <@fdsNumberInput.numberInputItem path="form.psrNotificationExpectedSubmissionDate.year" labelText="Year" inputClass="govuk-input--width-4"/>
                             </@fdsNumberInput.twoNumberInputs>
                         <#else>
-                            <@fdsTextarea.textarea path="form.psrNotificationNotRequiredReason" labelText="Why is a PSR notification not required?" characterCount=true maxCharacterLength="4000" nestingPath="form.psrNotificationSubmittedOption"/>
+                            <@fdsTextarea.textarea path="form.psrNotificationNotRequiredReason" labelText="Why is a PSR notification not required?" characterCount=true maxCharacterLength=maxCharacterLength?c nestingPath="form.psrNotificationSubmittedOption"/>
                         </#if>
                     </@fdsRadio.radioItem>
                     <#assign firstItem = false/>
@@ -66,7 +66,7 @@
             <@fdsRadio.radioGroup path="form.facilitiesOffshore" labelText="Are all facilities wholly offshore and subsea?" hiddenContent=true>
                 <@fdsRadio.radioYes path="form.facilitiesOffshore"/>
                 <@fdsRadio.radioNo path="form.facilitiesOffshore">
-                <@fdsTextarea.textarea path="form.pipelineAshoreLocation" labelText="Where do the pipelines come ashore?" nestingPath="form.facilitiesOffshore" characterCount=true maxCharacterLength="4000"/>
+                <@fdsTextarea.textarea path="form.pipelineAshoreLocation" labelText="Where do the pipelines come ashore?" nestingPath="form.facilitiesOffshore" characterCount=true maxCharacterLength=maxCharacterLength?c/>
                 </@fdsRadio.radioNo>
             </@fdsRadio.radioGroup>
         </#if>
@@ -74,7 +74,7 @@
         <#if requiredQuestions?seq_contains("TRANSPORTS_MATERIALS_TO_SHORE")>
             <@fdsRadio.radioGroup path="form.transportsMaterialsToShore" labelText="Will the pipeline(s) be used to transport products / facilitate the transportation of products to shore?" hiddenContent=true>
                 <@fdsRadio.radioYes path="form.transportsMaterialsToShore">
-                    <@fdsTextarea.textarea path="form.transportationMethod" labelText="State the method of transportation to shore" nestingPath="form.transportsMaterialsToShore" characterCount=true maxCharacterLength="4000" hintText="Processed oil is stored on the FPSO before being exported onshore by tanker. Gas is either exported via a 16\" flowline to Platform and onward to the SAGE system, or used as fuel or lift gas."/>
+                    <@fdsTextarea.textarea path="form.transportationMethod" labelText="State the method of transportation to shore" nestingPath="form.transportsMaterialsToShore" characterCount=true maxCharacterLength=maxCharacterLength?c hintText="Processed oil is stored on the FPSO before being exported onshore by tanker. Gas is either exported via a 16\" flowline to Platform and onward to the SAGE system, or used as fuel or lift gas."/>
                 </@fdsRadio.radioYes>
                 <@fdsRadio.radioNo path="form.transportsMaterialsToShore"/>
             </@fdsRadio.radioGroup>
@@ -84,10 +84,10 @@
             <@fdsRadio.radioGroup path="form.routeSurveyUndertaken" labelText="Has a pipeline route survey been undertaken?" hiddenContent=true>
                 <@fdsRadio.radioYes path="form.routeSurveyUndertaken">
                     <@fdsDateInput.dateInput dayPath="form.surveyConcludedDay" monthPath="form.surveyConcludedMonth" yearPath="form.surveyConcludedYear" labelText="When was the pipeline route survey concluded?" formId="surveyConcludedDate" nestingPath="form.routeSurveyUndertaken"/>
-                    <@fdsTextarea.textarea path="form.pipelineRouteDetails" labelText="Pipeline route details" hintText="Provide pipeline route details, including water depths along the pipeline route, seabed composition, bathymetric data, seabed features, and soil condition details" characterCount=true maxCharacterLength="4000"/>
+                    <@fdsTextarea.textarea path="form.pipelineRouteDetails" labelText="Pipeline route details" hintText="Provide pipeline route details, including water depths along the pipeline route, seabed composition, bathymetric data, seabed features, and soil condition details" characterCount=true maxCharacterLength=maxCharacterLength?c/>
                 </@fdsRadio.radioYes>
                 <@fdsRadio.radioNo path="form.routeSurveyUndertaken">
-                    <@fdsTextarea.textarea path="form.routeSurveyNotUndertakenReason" labelText="Why has a pipeline route survey not been undertaken?" hintText="If you have access to the results of a recent survey, answer Yes to route survey undertaken and provide the information" characterCount=true maxCharacterLength="4000"/>
+                    <@fdsTextarea.textarea path="form.routeSurveyNotUndertakenReason" labelText="Why has a pipeline route survey not been undertaken?" hintText="If you have access to the results of a recent survey, answer Yes to route survey undertaken and provide the information" characterCount=true maxCharacterLength=maxCharacterLength?c/>
                 </@fdsRadio.radioNo>
             </@fdsRadio.radioGroup>
         </#if>

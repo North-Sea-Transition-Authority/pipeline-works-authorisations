@@ -105,9 +105,9 @@ public class PipelineTechInfoValidatorTest {
   public void validate_full_maxLength_invalid() {
 
     var form = getFullForm();
-    form.setCorrosionDescription(ValidatorTestUtils.over4000Chars());
-    form.setPipelineStandardsDescription(ValidatorTestUtils.over4000Chars());
-    form.setTieInPointsDescription(ValidatorTestUtils.over4000Chars());
+    form.setCorrosionDescription(ValidatorTestUtils.overMaxDefaultCharLength());
+    form.setPipelineStandardsDescription(ValidatorTestUtils.overMaxDefaultCharLength());
+    form.setTieInPointsDescription(ValidatorTestUtils.overMaxDefaultCharLength());
 
     var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, ValidationType.FULL);
 
@@ -123,9 +123,9 @@ public class PipelineTechInfoValidatorTest {
   public void validate_partial_maxLength_invalid() {
 
     var form = new PipelineTechInfoForm();
-    form.setCorrosionDescription(ValidatorTestUtils.over4000Chars());
-    form.setPipelineStandardsDescription(ValidatorTestUtils.over4000Chars());
-    form.setTieInPointsDescription(ValidatorTestUtils.over4000Chars());
+    form.setCorrosionDescription(ValidatorTestUtils.overMaxDefaultCharLength());
+    form.setPipelineStandardsDescription(ValidatorTestUtils.overMaxDefaultCharLength());
+    form.setTieInPointsDescription(ValidatorTestUtils.overMaxDefaultCharLength());
 
     var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, ValidationType.PARTIAL);
 

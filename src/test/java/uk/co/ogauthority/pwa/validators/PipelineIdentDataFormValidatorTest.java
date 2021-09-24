@@ -66,13 +66,13 @@ public class PipelineIdentDataFormValidatorTest {
   public void failed_multiCore__mandatory_dataTooBig() {
 
     var form = new PipelineIdentDataForm();
-    form.setComponentPartsDescription(ValidatorTestUtils.over4000Chars());
-    form.setExternalDiameterMultiCore(ValidatorTestUtils.over4000Chars());
-    form.setInternalDiameterMultiCore(ValidatorTestUtils.over4000Chars());
-    form.setWallThicknessMultiCore(ValidatorTestUtils.over4000Chars());
-    form.setMaopMultiCore(ValidatorTestUtils.over4000Chars());
-    form.setInsulationCoatingTypeMultiCore(ValidatorTestUtils.over4000Chars());
-    form.setProductsToBeConveyedMultiCore(ValidatorTestUtils.over4000Chars());
+    form.setComponentPartsDescription(ValidatorTestUtils.overMaxDefaultCharLength());
+    form.setExternalDiameterMultiCore(ValidatorTestUtils.overMaxDefaultCharLength());
+    form.setInternalDiameterMultiCore(ValidatorTestUtils.overMaxDefaultCharLength());
+    form.setWallThicknessMultiCore(ValidatorTestUtils.overMaxDefaultCharLength());
+    form.setMaopMultiCore(ValidatorTestUtils.overMaxDefaultCharLength());
+    form.setInsulationCoatingTypeMultiCore(ValidatorTestUtils.overMaxDefaultCharLength());
+    form.setProductsToBeConveyedMultiCore(ValidatorTestUtils.overMaxDefaultCharLength());
     var result = ValidatorTestUtils.getFormValidationErrors(validator, form, (Object) null, PipelineCoreType.MULTI_CORE, PipelineIdentDataValidationRule.AS_SECTION);
 
     assertThat(result).containsOnly(

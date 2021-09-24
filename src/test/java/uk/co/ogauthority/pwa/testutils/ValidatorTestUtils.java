@@ -9,6 +9,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.ValidationUtils;
 import org.springframework.validation.Validator;
+import uk.co.ogauthority.pwa.util.ValidatorUtils;
 
 /**
  * Provides access to common methods for testing Spring validators.
@@ -67,12 +68,12 @@ public class ValidatorTestUtils {
 
 
 
-  public static String over4000Chars() {
-    return StringUtils.repeat("a", 4001);
+  public static String overMaxDefaultCharLength() {
+    return StringUtils.repeat("a", ValidatorUtils.MAX_DEFAULT_STRING_LENGTH + 1);
   }
 
-  public static String exactly4000chars() {
-    return StringUtils.repeat("a", 4000);
+  public static String exactlyMaxDefaultCharLength() {
+    return StringUtils.repeat("a", ValidatorUtils.MAX_DEFAULT_STRING_LENGTH);
   }
 
 

@@ -77,7 +77,7 @@ public class ChangeOptionsApprovalDeadlineFormValidatorTest {
   @Test
   public void validate_whenNoteTooLong() {
 
-    form.setNote(ValidatorTestUtils.over4000Chars());
+    form.setNote(ValidatorTestUtils.overMaxDefaultCharLength());
 
     var results = ValidatorTestUtils.getFormValidationErrors(changeOptionsApprovalDeadlineFormValidator, form);
 

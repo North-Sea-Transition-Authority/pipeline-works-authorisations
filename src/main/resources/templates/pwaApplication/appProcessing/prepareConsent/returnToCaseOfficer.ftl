@@ -21,7 +21,7 @@
 
       <@fdsSearchSelector.searchSelectorEnhanced path="form.caseOfficerPersonId" options=caseOfficerOptions labelText="Case officer" inputClass="govuk-!-width-two-thirds" />
 
-      <@fdsTextarea.textarea path="form.returnReason" labelText="Enter a reason for sending back to the case officer" characterCount=true maxCharacterLength="4000" inputClass="govuk-!-width-two-thirds" />
+      <@fdsTextarea.textarea path="form.returnReason" labelText="Enter a reason for sending back to the case officer" characterCount=true maxCharacterLength=maxCharacterLength?c inputClass="govuk-!-width-two-thirds" />
 
       <@fdsAction.submitButtons primaryButtonText="Return to case officer" linkSecondaryAction=true secondaryLinkText="Cancel" linkSecondaryActionUrl=springUrl(cancelUrl) />
 

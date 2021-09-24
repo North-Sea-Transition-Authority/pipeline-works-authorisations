@@ -19,11 +19,11 @@
         </#if>
 
         <#if requiredQuestions?seq_contains("PROJECT_OVERVIEW")>
-            <@fdsTextarea.textarea path="form.projectOverview" labelText="Overview of project" characterCount=true maxCharacterLength="4000"/>
+            <@fdsTextarea.textarea path="form.projectOverview" labelText="Overview of project" characterCount=true maxCharacterLength=maxCharacterLength?c/>
         </#if>
 
         <#if requiredQuestions?seq_contains("METHOD_OF_PIPELINE_DEPLOYMENT")>
-            <@fdsTextarea.textarea path="form.methodOfPipelineDeployment" labelText="Pipeline installation method" hintText="Brief overview of method that will be deployed for the pipeline installation(s) of new pipelines that are being installed." characterCount=true maxCharacterLength="4000" optionalLabel=isPipelineDeploymentQuestionOptional/>
+            <@fdsTextarea.textarea path="form.methodOfPipelineDeployment" labelText="Pipeline installation method" hintText="Brief overview of method that will be deployed for the pipeline installation(s) of new pipelines that are being installed." characterCount=true maxCharacterLength=maxCharacterLength?c optionalLabel=isPipelineDeploymentQuestionOptional/>
         </#if>
 
         <#if requiredQuestions?seq_contains("MOBILISATION_DATE")>
@@ -83,7 +83,7 @@
                 <@fdsRadio.radioYes path="form.temporaryDepositsMade">
                     <@fdsDetails.details detailsTitle="What information do I need to provide?"
                         detailsText="Details of the type of deposit; how long it will be on the seabed and whether the deposit will be within or outside a HSE 500m safety zone should be provided. This is for OGA information only and applications for temporary deposits should still be directed to the BEIS Environmental Management Team for consideration."/>
-                    <@fdsTextarea.textarea path="form.temporaryDepDescription" labelText="Description of temporary deposits" characterCount=true maxCharacterLength="4000"/>
+                    <@fdsTextarea.textarea path="form.temporaryDepDescription" labelText="Description of temporary deposits" characterCount=true maxCharacterLength=maxCharacterLength?c/>
                 </@fdsRadio.radioYes>
                 <@fdsRadio.radioNo path="form.temporaryDepositsMade"/>
             </@fdsRadio.radioGroup>
@@ -95,7 +95,7 @@
                     <@fdsCheckbox.checkboxItem path="form.fdpConfirmationFlag" labelText="The proposed works outlined in this application are consistent with the development as described in the FDP" />
                 </@fdsRadio.radioYes>
                 <@fdsRadio.radioNo path="form.fdpOptionSelected">
-                    <@fdsTextarea.textarea path="form.fdpNotSelectedReason" labelText="Explain why" characterCount=true maxCharacterLength="4000"/>
+                    <@fdsTextarea.textarea path="form.fdpNotSelectedReason" labelText="Explain why" characterCount=true maxCharacterLength=maxCharacterLength?c/>
                 </@fdsRadio.radioNo>
             </@fdsRadio.radioGroup>
         </#if>

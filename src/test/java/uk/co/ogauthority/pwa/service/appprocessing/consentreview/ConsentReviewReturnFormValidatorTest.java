@@ -6,6 +6,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
+import java.util.Map;
 import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
@@ -79,6 +80,16 @@ public class ConsentReviewReturnFormValidatorTest {
 
     assertThat(errors).containsOnly(entry("caseOfficerPersonId", Set.of(FieldValidationErrorCodes.INVALID.errorCode("caseOfficerPersonId"))));
 
+  }
+
+  @Test
+  public void validate_returnReasonTooLong() {
+
+    var form = new ConsentReviewReturnForm();
+    form.setReturnReason(ValidatorTestUtils.overMaxDefaultCharLength());
+    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, new PwaApplication());
+    assertThat(result).contains(
+        Map.entry("returnReason", Set.of("returnReason" + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode())));
   }
 
 }

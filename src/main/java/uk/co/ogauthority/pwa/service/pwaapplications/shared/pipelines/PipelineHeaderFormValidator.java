@@ -71,17 +71,28 @@ public class PipelineHeaderFormValidator implements SmartValidator {
     ValidationUtils.rejectIfEmptyOrWhitespace(errors, "productsToBeConveyed", "productsToBeConveyed.required",
         "Enter the products to be conveyed");
 
+    ValidatorUtils.validateDefaultStringLength(
+        errors, "productsToBeConveyed", form::getProductsToBeConveyed, "Products to be conveyed");
+
     ValidationUtils.rejectIfEmptyOrWhitespace(errors, "componentPartsDescription", "componentPartsDescription.required",
         "Enter a description of the component parts");
+
+    ValidatorUtils.validateDefaultStringLength(
+        errors, "componentPartsDescription", form::getComponentPartsDescription,
+        "Description of the component parts");
 
     ValidationUtils.rejectIfEmpty(errors, "trenchedBuriedBackfilled", "trenchedBuriedBackfilled.required",
         "Select yes if the pipeline will be trenched and/or buried and/or backfilled");
 
     Optional.ofNullable(form.getTrenchedBuriedBackfilled())
         .filter(tru -> tru)
-        .ifPresent(
-            t -> ValidationUtils.rejectIfEmptyOrWhitespace(errors, "trenchingMethods", "trenchingMethods.required",
-                "Enter the trenching methods"));
+        .ifPresent(t -> {
+          ValidationUtils.rejectIfEmptyOrWhitespace(errors, "trenchingMethods", "trenchingMethods.required",
+                "Enter the trenching methods");
+
+          ValidatorUtils.validateDefaultStringLength(
+              errors, "trenchingMethods", form::getTrenchingMethods, "Trenching methods");
+        });
 
     ValidationUtils.rejectIfEmptyOrWhitespace(errors, "pipelineFlexibility", "pipelineFlexibility.required",
         "Select an option for the pipeline flexibility");
@@ -93,6 +104,9 @@ public class PipelineHeaderFormValidator implements SmartValidator {
       ValidationUtils.rejectIfEmptyOrWhitespace(errors, "otherPipelineMaterialUsed",
           "otherPipelineMaterialUsed.required",
           "Enter details of other pipeline materials used");
+
+      ValidatorUtils.validateDefaultStringLength(
+          errors, "otherPipelineMaterialUsed", form::getOtherPipelineMaterialUsed, "Other pipeline materials used details");
     }
 
     ValidationUtils.rejectIfEmpty(errors, "pipelineDesignLife", "pipelineDesignLife.required",
@@ -112,11 +126,8 @@ public class PipelineHeaderFormValidator implements SmartValidator {
           "bundleName" + FieldValidationErrorCodes.REQUIRED.getCode(),
           "Enter the bundle name");
 
-      if (StringUtils.length(form.getBundleName()) > 4000) {
-        errors.rejectValue("bundleName",
-            "bundleName" + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode(),
-            "Bundle name must be 4000 characters or fewer");
-      }
+      ValidatorUtils.validateDefaultStringLength(
+          errors, "bundleName", form::getBundleName, "Bundle name");
     }
 
     var pipelineHeaderValidationHints = (PipelineHeaderValidationHints) validationHints[0];
@@ -130,7 +141,7 @@ public class PipelineHeaderFormValidator implements SmartValidator {
 
         ValidatorUtils.validateDefaultStringLength(
             errors, "whyNotReturnedToShore", form::getWhyNotReturnedToShore,
-            "The pipeline not being returned to shore reason must be 4000 characters or fewer");
+            "The pipeline not being returned to shore reason");
       }
     }
 

@@ -30,7 +30,7 @@
                 dayPath="form.deadlineDateDay" monthPath="form.deadlineDateMonth" yearPath="form.deadlineDateYear"
                 formId="form.deadlineDate"/>
 
-                <@fdsTextarea.textarea path="form.note" labelText="Why has the deadline changed?" maxCharacterLength="4000" characterCount=true/>
+                <@fdsTextarea.textarea path="form.note" labelText="Why has the deadline changed?" maxCharacterLength=maxCharacterLength?c characterCount=true/>
 
                 <@fdsAction.submitButtons primaryButtonText="Change confirmation of option deadline" linkSecondaryAction=true secondaryLinkText="Cancel" linkSecondaryActionUrl=springUrl(cancelUrl)/>
             </@fdsForm.htmlForm>

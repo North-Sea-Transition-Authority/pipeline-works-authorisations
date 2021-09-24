@@ -149,7 +149,7 @@ public class PadFastTrackService implements ApplicationFormSectionService {
     var fastTrackForm = new FastTrackForm();
     mapEntityToForm(fastTrack, fastTrackForm);
     BindingResult bindingResult = new BeanPropertyBindingResult(fastTrackForm, "form");
-    fastTrackValidator.validate(fastTrackForm, bindingResult);
+    fastTrackValidator.validate(fastTrackForm, bindingResult, ValidationType.FULL);
 
     return !bindingResult.hasErrors();
 
@@ -161,13 +161,7 @@ public class PadFastTrackService implements ApplicationFormSectionService {
                                 ValidationType validationType,
                                 PwaApplicationDetail pwaApplicationDetail) {
 
-    if (validationType.equals(ValidationType.PARTIAL)) {
-      groupValidator.validate(form, bindingResult, FastTrackForm.Partial.class);
-      return bindingResult;
-    }
-
-    groupValidator.validate(form, bindingResult, FastTrackForm.Full.class);
-    fastTrackValidator.validate(form, bindingResult);
+    fastTrackValidator.validate(form, bindingResult, validationType);
     return bindingResult;
 
   }
