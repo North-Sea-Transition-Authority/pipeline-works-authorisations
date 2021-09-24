@@ -76,9 +76,9 @@ public class PublicNoticeDraftValidatorTest {
   @Test
   public void validate_form_textAreaLengthExceeded() {
     var form = new PublicNoticeDraftForm();
-    form.setCoverLetterText(ValidatorTestUtils.over4000Chars());
+    form.setCoverLetterText(ValidatorTestUtils.overMaxDefaultCharLength());
     form.setReason(PublicNoticeRequestReason.CONSULTEES_NOT_ALL_CONTENT);
-    form.setReasonDescription(ValidatorTestUtils.over4000Chars());
+    form.setReasonDescription(ValidatorTestUtils.overMaxDefaultCharLength());
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form);
     assertThat(errorsMap).contains(
         entry("coverLetterText", Set.of("coverLetterText" + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode())),

@@ -45,7 +45,7 @@ public class PublicNoticeDocumentUpdateRequestValidatorTest {
   @Test
   public void validate_form_textAreaLengthExceeded() {
     var form = new PublicNoticeDocumentUpdateRequestForm();
-    form.setComments(ValidatorTestUtils.over4000Chars());
+    form.setComments(ValidatorTestUtils.overMaxDefaultCharLength());
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form);
     assertThat(errorsMap).contains(
         entry("comments", Set.of("comments" + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode()))

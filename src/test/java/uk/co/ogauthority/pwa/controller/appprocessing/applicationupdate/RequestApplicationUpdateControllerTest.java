@@ -5,7 +5,6 @@ import static java.util.Map.entry;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -30,9 +29,6 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.http.HttpMethod;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.validation.BeanPropertyBindingResult;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.ObjectError;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.PwaAppProcessingContextAbstractControllerTest;
@@ -216,7 +212,7 @@ public class RequestApplicationUpdateControllerTest extends PwaAppProcessingCont
         ))
             .with(authenticatedUserAndSession(user))
             .with(csrf())
-            .param(REQUEST_REASON_ATTR, ValidatorTestUtils.over4000Chars())
+            .param(REQUEST_REASON_ATTR, ValidatorTestUtils.overMaxDefaultCharLength())
 
     ).andExpect(status().is2xxSuccessful())
         .andExpect(model().hasErrors())

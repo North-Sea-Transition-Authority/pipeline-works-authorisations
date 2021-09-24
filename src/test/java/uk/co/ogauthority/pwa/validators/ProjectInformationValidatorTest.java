@@ -24,7 +24,6 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
-import uk.co.ogauthority.pwa.util.ValidatorUtils;
 import uk.co.ogauthority.pwa.util.forminputs.twofielddate.TwoFieldDateInput;
 import uk.co.ogauthority.pwa.util.forminputs.twofielddate.TwoFieldDateInputValidator;
 
@@ -99,7 +98,7 @@ public class ProjectInformationValidatorTest {
   @Test
   public void validate_methodOfPipelineDeployment_tooLong_optional() {
     var form = new ProjectInformationForm();
-    form.setMethodOfPipelineDeployment(ValidatorTestUtils.over4000Chars());
+    form.setMethodOfPipelineDeployment(ValidatorTestUtils.overMaxDefaultCharLength());
     var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form,
         new ProjectInformationFormValidationHints(PwaApplicationType.CAT_2_VARIATION, ValidationType.FULL, Set.of(ProjectInformationQuestion.METHOD_OF_PIPELINE_DEPLOYMENT), false));
     assertThat(errorsMap).contains(
@@ -835,7 +834,7 @@ public class ProjectInformationValidatorTest {
   public void validate_partial_temporaryDepositDescriptionOverMaxLength() {
     var form = new ProjectInformationForm();
     form.setTemporaryDepositsMade(true);
-    form.setTemporaryDepDescription(ValidatorTestUtils.over4000Chars());
+    form.setTemporaryDepDescription(ValidatorTestUtils.overMaxDefaultCharLength());
     Map<String, Set<String>> errorsMap = getErrorMap(form, new ProjectInformationFormValidationHints(
         PwaApplicationType.INITIAL, ValidationType.PARTIAL, Set.of(ProjectInformationQuestion.TEMPORARY_DEPOSITS_BEING_MADE), false));
     assertThat(errorsMap).contains(
@@ -917,7 +916,7 @@ public class ProjectInformationValidatorTest {
   public void validate_partial_fdpNotSelectedReasonOverMaxLength() {
     var form = new ProjectInformationForm();
     form.setFdpOptionSelected(false);
-    form.setFdpNotSelectedReason(ValidatorTestUtils.over4000Chars());
+    form.setFdpNotSelectedReason(ValidatorTestUtils.overMaxDefaultCharLength());
     Map<String, Set<String>> errorsMap = getErrorMap(form, new ProjectInformationFormValidationHints(
         PwaApplicationType.INITIAL, ValidationType.PARTIAL, Set.of(ProjectInformationQuestion.FIELD_DEVELOPMENT_PLAN), true));
     assertThat(errorsMap).contains(
@@ -971,10 +970,10 @@ public class ProjectInformationValidatorTest {
   }
 
   @Test
-  public void validate_partialValidation_stringLengthOver4000Chars() {
+  public void validate_partialValidation_stringLengthOverMaxDefaultCharLength() {
     var form = new ProjectInformationForm();
-    form.setMethodOfPipelineDeployment(ValidatorTestUtils.over4000Chars());
-    form.setProjectOverview(ValidatorTestUtils.over4000Chars());
+    form.setMethodOfPipelineDeployment(ValidatorTestUtils.overMaxDefaultCharLength());
+    form.setProjectOverview(ValidatorTestUtils.overMaxDefaultCharLength());
     var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form,
         new ProjectInformationFormValidationHints(PwaApplicationType.INITIAL, ValidationType.PARTIAL, EnumSet.allOf(ProjectInformationQuestion.class), false));
 

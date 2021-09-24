@@ -64,7 +64,7 @@ public class ApplicationUpdateRequestValidatorTest {
   @Test
   public void validate_whenReasonProvided_tooBig() {
 
-    form.setRequestReason(ValidatorTestUtils.over4000Chars());
+    form.setRequestReason(ValidatorTestUtils.overMaxDefaultCharLength());
     var result = ValidatorTestUtils.getFormValidationErrors(validator, form);
     assertThat(result).contains(entry("requestReason", Set.of(MAX_LENGTH_EXCEEDED.errorCode("requestReason"))));
   }

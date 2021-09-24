@@ -172,7 +172,7 @@ public class PwaFieldFormValidatorTest {
   public void full_linkedToField_false_noLinkedFieldDescriptionOverMaxCharLength_fail() {
 
     form.setLinkedToField(false);
-    form.setNoLinkedFieldDescription(ValidatorTestUtils.over4000Chars());
+    form.setNoLinkedFieldDescription(ValidatorTestUtils.overMaxDefaultCharLength());
 
     var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, ValidationType.FULL);
 
@@ -185,7 +185,7 @@ public class PwaFieldFormValidatorTest {
   public void partial_linkedToField_false_noLinkedFieldDescriptionOverMaxCharLength_fail() {
 
     form.setLinkedToField(false);
-    form.setNoLinkedFieldDescription(ValidatorTestUtils.over4000Chars());
+    form.setNoLinkedFieldDescription(ValidatorTestUtils.overMaxDefaultCharLength());
 
     var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, ValidationType.PARTIAL);
 

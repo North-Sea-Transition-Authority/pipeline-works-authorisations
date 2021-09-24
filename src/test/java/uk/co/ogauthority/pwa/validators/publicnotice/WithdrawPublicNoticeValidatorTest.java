@@ -45,7 +45,7 @@ public class WithdrawPublicNoticeValidatorTest {
   @Test
   public void validate_form_textAreaLengthExceeded() {
     var form = new WithdrawPublicNoticeForm();
-    form.setWithdrawalReason(ValidatorTestUtils.over4000Chars());
+    form.setWithdrawalReason(ValidatorTestUtils.overMaxDefaultCharLength());
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form);
     assertThat(errorsMap).contains(
         entry("withdrawalReason", Set.of("withdrawalReason" + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode()))

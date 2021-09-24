@@ -78,10 +78,10 @@ public class FastTrackValidatorTest {
   @Test
   public void validate_partial_reasonDescriptionFieldsCharLengthOverMax_invalid() {
     var form = buildForm();
-    form.setEnvironmentalDisasterReason(ValidatorTestUtils.over4000Chars());
-    form.setSavingBarrelsReason(ValidatorTestUtils.over4000Chars());
-    form.setProjectPlanningReason(ValidatorTestUtils.over4000Chars());
-    form.setOtherReason(ValidatorTestUtils.over4000Chars());
+    form.setEnvironmentalDisasterReason(ValidatorTestUtils.overMaxDefaultCharLength());
+    form.setSavingBarrelsReason(ValidatorTestUtils.overMaxDefaultCharLength());
+    form.setProjectPlanningReason(ValidatorTestUtils.overMaxDefaultCharLength());
+    form.setOtherReason(ValidatorTestUtils.overMaxDefaultCharLength());
 
     var errors = getPartialValidationErrors(form);
     assertThat(errors).containsOnly(
@@ -95,10 +95,10 @@ public class FastTrackValidatorTest {
   @Test
   public void validate_full_reasonDescriptionFieldsCharLengthOverMax_invalid() {
     var form = buildForm();
-    form.setEnvironmentalDisasterReason(ValidatorTestUtils.over4000Chars());
-    form.setSavingBarrelsReason(ValidatorTestUtils.over4000Chars());
-    form.setProjectPlanningReason(ValidatorTestUtils.over4000Chars());
-    form.setOtherReason(ValidatorTestUtils.over4000Chars());
+    form.setEnvironmentalDisasterReason(ValidatorTestUtils.overMaxDefaultCharLength());
+    form.setSavingBarrelsReason(ValidatorTestUtils.overMaxDefaultCharLength());
+    form.setProjectPlanningReason(ValidatorTestUtils.overMaxDefaultCharLength());
+    form.setOtherReason(ValidatorTestUtils.overMaxDefaultCharLength());
 
     var errors = getFullValidationErrors(form);
     assertThat(errors).containsOnly(

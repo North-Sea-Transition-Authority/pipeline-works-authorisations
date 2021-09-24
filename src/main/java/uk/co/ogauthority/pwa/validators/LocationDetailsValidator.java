@@ -65,7 +65,7 @@ public class LocationDetailsValidator implements SmartValidator {
     if (requiredQuestions.contains(LocationDetailsQuestion.APPROXIMATE_PROJECT_LOCATION_FROM_SHORE)) {
       ValidatorUtils.validateDefaultStringLength(
           errors, "approximateProjectLocationFromShore", form::getApproximateProjectLocationFromShore,
-          "Approximate project location from shore must be 4000 characters or fewer");
+          "Approximate project location from shore");
     }
 
     if (requiredQuestions.contains(LocationDetailsQuestion.WITHIN_SAFETY_ZONE)) {

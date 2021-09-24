@@ -199,7 +199,7 @@ public class EnvironmentalDecommissioningValidatorTest {
 
       var form = new EnvironmentalDecommissioningForm();
       form.setEmtHasSubmittedPermits(true);
-      form.setPermitsSubmitted(ValidatorTestUtils.over4000Chars());
+      form.setPermitsSubmitted(ValidatorTestUtils.overMaxDefaultCharLength());
 
       Arrays.stream(ValidationType.values()).forEach(validationType -> {
 
@@ -297,7 +297,7 @@ public class EnvironmentalDecommissioningValidatorTest {
 
       var form = new EnvironmentalDecommissioningForm();
       form.setEmtHasOutstandingPermits(true);
-      form.setPermitsPendingSubmission(ValidatorTestUtils.over4000Chars());
+      form.setPermitsPendingSubmission(ValidatorTestUtils.overMaxDefaultCharLength());
 
       Arrays.stream(ValidationType.values()).forEach(validationType -> {
 
