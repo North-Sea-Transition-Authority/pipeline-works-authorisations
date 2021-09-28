@@ -29,15 +29,19 @@ public class PadPipelineIdentDataService {
   }
 
   @Transactional
-  public void addIdentData(PadPipelineIdent ident, PipelineIdentDataForm dataForm) {
+  public void addIdentData(PadPipelineIdent ident,
+                           boolean definingStructure,
+                           PipelineIdentDataForm dataForm) {
     var identData = new PadPipelineIdentData(ident);
-    saveEntityUsingForm(identData, dataForm);
+    saveEntityUsingForm(identData, definingStructure, dataForm);
   }
 
   @Transactional
-  public void updateIdentData(PadPipelineIdent ident, PipelineIdentDataForm dataForm) {
+  public void updateIdentData(PadPipelineIdent ident,
+                              boolean definingStructure,
+                              PipelineIdentDataForm dataForm) {
     var identData = getIdentData(ident);
-    saveEntityUsingForm(identData, dataForm);
+    saveEntityUsingForm(identData, definingStructure, dataForm);
   }
 
   public Map<PadPipelineIdent, PadPipelineIdentData> getDataFromIdentList(List<PadPipelineIdent> identList) {
@@ -59,23 +63,30 @@ public class PadPipelineIdentDataService {
         new PwaEntityNotFoundException("Couldn't find data for ident with id: " + ident.getId()));
   }
 
-  void saveEntityUsingForm(PadPipelineIdentData identData, PipelineIdentDataForm dataForm) {
+  void saveEntityUsingForm(PadPipelineIdentData identData,
+                           boolean definingStructure,
+                           PipelineIdentDataForm dataForm) {
 
+    var coreType = identData.getPadPipelineIdent().getPadPipeline().getCoreType();
     identData.setComponentPartsDesc(dataForm.getComponentPartsDescription());
-    if (identData.getPadPipelineIdent().getPadPipeline().getPipelineType().getCoreType().equals(
-        PipelineCoreType.SINGLE_CORE)) {
+
+    if (definingStructure) {
+      setIdentDataMultiCoreFieldsAsNull(identData);
+      setIdentDataSingleCoreFieldsAsNull(identData);
+      if (coreType.equals(PipelineCoreType.SINGLE_CORE)) {
+        identData.setProductsToBeConveyed(dataForm.getProductsToBeConveyed());
+      } else {
+        identData.setProductsToBeConveyedMultiCore(dataForm.getProductsToBeConveyedMultiCore());
+      }
+
+    } else if (coreType.equals(PipelineCoreType.SINGLE_CORE)) {
       identData.setExternalDiameter(dataForm.getExternalDiameter().createBigDecimalOrNull());
       identData.setInternalDiameter(dataForm.getInternalDiameter().createBigDecimalOrNull());
       identData.setWallThickness(dataForm.getWallThickness().createBigDecimalOrNull());
       identData.setMaop(dataForm.getMaop().createBigDecimalOrNull());
       identData.setInsulationCoatingType(dataForm.getInsulationCoatingType());
       identData.setProductsToBeConveyed(dataForm.getProductsToBeConveyed());
-      identData.setExternalDiameterMultiCore(null);
-      identData.setInternalDiameterMultiCore(null);
-      identData.setWallThicknessMultiCore(null);
-      identData.setMaopMultiCore(null);
-      identData.setInsulationCoatingTypeMultiCore(null);
-      identData.setProductsToBeConveyedMultiCore(null);
+      setIdentDataMultiCoreFieldsAsNull(identData);
 
     } else {
       identData.setExternalDiameterMultiCore(dataForm.getExternalDiameterMultiCore());
@@ -84,14 +95,27 @@ public class PadPipelineIdentDataService {
       identData.setMaopMultiCore(dataForm.getMaopMultiCore());
       identData.setInsulationCoatingTypeMultiCore(dataForm.getInsulationCoatingTypeMultiCore());
       identData.setProductsToBeConveyedMultiCore(dataForm.getProductsToBeConveyedMultiCore());
-      identData.setExternalDiameter(null);
-      identData.setInternalDiameter(null);
-      identData.setWallThickness(null);
-      identData.setMaop(null);
-      identData.setInsulationCoatingType(null);
-      identData.setProductsToBeConveyed(null);
+      setIdentDataSingleCoreFieldsAsNull(identData);
     }
     repository.save(identData);
+  }
+
+  private void setIdentDataMultiCoreFieldsAsNull(PadPipelineIdentData identData) {
+    identData.setExternalDiameterMultiCore(null);
+    identData.setInternalDiameterMultiCore(null);
+    identData.setWallThicknessMultiCore(null);
+    identData.setMaopMultiCore(null);
+    identData.setInsulationCoatingTypeMultiCore(null);
+    identData.setProductsToBeConveyedMultiCore(null);
+  }
+
+  private void setIdentDataSingleCoreFieldsAsNull(PadPipelineIdentData identData) {
+    identData.setExternalDiameter(null);
+    identData.setInternalDiameter(null);
+    identData.setWallThickness(null);
+    identData.setMaop(null);
+    identData.setInsulationCoatingType(null);
+    identData.setProductsToBeConveyed(null);
   }
 
   @Transactional

@@ -22,8 +22,11 @@ import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipelineIdent;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipelineIdentData;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipelineTestUtil;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.PipelineIdentDataForm;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.pipelines.PadPipelineIdentDataRepository;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.util.forminputs.decimal.DecimalInput;
 import uk.co.ogauthority.pwa.util.validation.PipelineValidationUtils;
 
@@ -68,7 +71,7 @@ public class PadPipelineIdentDataServiceTest {
     pipeline.setPipelineType(PipelineType.PRODUCTION_FLOWLINE);
     ident.setPadPipeline(pipeline);
 
-    identDataService.addIdentData(ident, form);
+    identDataService.addIdentData(ident, false, form);
 
     verify(repository, times(1)).save(identDataCaptor.capture());
 
@@ -146,6 +149,58 @@ public class PadPipelineIdentDataServiceTest {
   }
 
   @Test
+  public void saveEntityUsingForm_singleCore_isDefiningStructure_singleAndMultiCoreFieldsSetAccordingly() throws IllegalAccessException {
+
+    var form = new PipelineIdentDataForm();
+    form.setProductsToBeConveyed("text");
+
+    var identData = PadPipelineTestUtil.createPadPipeline(
+        PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL), PipelineType.PRODUCTION_FLOWLINE);
+
+    identDataService.saveEntityUsingForm(identData, true, form);
+    assertThat(identData.getProductsToBeConveyed()).isEqualTo(form.getProductsToBeConveyed());
+
+    assertThat(identData.getExternalDiameter()).isNull();
+    assertThat(identData.getInternalDiameter()).isNull();
+    assertThat(identData.getWallThickness()).isNull();
+    assertThat(identData.getMaop()).isNull();
+    assertThat(identData.getInsulationCoatingType()).isNull();
+
+    assertThat(identData.getExternalDiameterMultiCore()).isNull();
+    assertThat(identData.getInternalDiameterMultiCore()).isNull();
+    assertThat(identData.getWallThicknessMultiCore()).isNull();
+    assertThat(identData.getMaopMultiCore()).isNull();
+    assertThat(identData.getInsulationCoatingTypeMultiCore()).isNull();
+    assertThat(identData.getProductsToBeConveyedMultiCore()).isNull();
+  }
+
+  @Test
+  public void saveEntityUsingForm_multiCore_isDefiningStructure_singleAndMultiCoreFieldsSetAccordingly() throws IllegalAccessException {
+
+    var form = new PipelineIdentDataForm();
+    form.setProductsToBeConveyedMultiCore("text");
+
+    var identData = PadPipelineTestUtil.createPadPipeline(
+        PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL), PipelineType.SERVICES_UMBILICAL);
+
+    identDataService.saveEntityUsingForm(identData, true, form);
+    assertThat(identData.getProductsToBeConveyedMultiCore()).isEqualTo(form.getProductsToBeConveyedMultiCore());
+
+    assertThat(identData.getExternalDiameter()).isNull();
+    assertThat(identData.getInternalDiameter()).isNull();
+    assertThat(identData.getWallThickness()).isNull();
+    assertThat(identData.getMaop()).isNull();
+    assertThat(identData.getInsulationCoatingType()).isNull();
+    assertThat(identData.getProductsToBeConveyed()).isNull();
+
+    assertThat(identData.getExternalDiameterMultiCore()).isNull();
+    assertThat(identData.getInternalDiameterMultiCore()).isNull();
+    assertThat(identData.getWallThicknessMultiCore()).isNull();
+    assertThat(identData.getMaopMultiCore()).isNull();
+    assertThat(identData.getInsulationCoatingTypeMultiCore()).isNull();
+  }
+
+  @Test
   public void saveEntityUsingForm_singleCore() {
     var form = new PipelineIdentDataForm();
     form.setInsulationCoatingType("test");
@@ -178,7 +233,7 @@ public class PadPipelineIdentDataServiceTest {
     pipelineIdent.setPadPipeline(pipeline);
     identData.setPadPipelineIdent(pipelineIdent);
 
-    identDataService.saveEntityUsingForm(identData, form);
+    identDataService.saveEntityUsingForm(identData, false, form);
 
     assertThat(identData.getComponentPartsDesc()).isEqualTo(form.getComponentPartsDescription());
     assertThat(identData.getInsulationCoatingType()).isEqualTo(form.getInsulationCoatingType());
@@ -231,7 +286,7 @@ public class PadPipelineIdentDataServiceTest {
     pipelineIdent.setPadPipeline(pipeline);
     identData.setPadPipelineIdent(pipelineIdent);
 
-    identDataService.saveEntityUsingForm(identData, form);
+    identDataService.saveEntityUsingForm(identData, false, form);
 
     assertThat(identData.getComponentPartsDesc()).isEqualTo("comp");
     assertThat(identData.getInsulationCoatingType()).isNull();
@@ -264,7 +319,7 @@ public class PadPipelineIdentDataServiceTest {
 
     when(repository.getByPadPipelineIdent(ident)).thenReturn(Optional.of(identData));
 
-    identDataService.updateIdentData(ident, dataForm);
+    identDataService.updateIdentData(ident, false, dataForm);
     verify(repository, times(1)).save(identData);
   }
 
