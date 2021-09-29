@@ -7,7 +7,7 @@
 
 <#assign pageHeading = documentSpec.displayName />
 
-<@defaultPagePane htmlTitle=pageHeading phaseBanner=false topNavigation=true backTopLink=false>
+<@defaultPagePane htmlTitle=pageHeading phaseBanner=false topNavigation=true backToTopLink=false>
 
     <@defaultPagePaneSubNav>
       <@fdsSubNavigation.subNavigation sticky=true>

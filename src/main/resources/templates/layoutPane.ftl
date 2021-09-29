@@ -10,7 +10,7 @@ phaseBanner=true
 phaseBannerLink="#"
 errorCheck=false
 noIndex=false
-backTopLink=true>
+backToTopLink=true>
 
     <@genericLayout htmlTitle=htmlTitle htmlAppTitle="OGA Pipelines" errorCheck=errorCheck noIndex=noIndex>
       <div class="fds-pane fds-pane--enabled" id="top">
@@ -39,7 +39,7 @@ backTopLink=true>
             <#nested>
 
             <#--Back to top goes below me-->
-            <#if backTopLink>
+            <#if backToTopLink>
               <@fdsBackToTop.backToTop/>
             </#if>
         </div>
