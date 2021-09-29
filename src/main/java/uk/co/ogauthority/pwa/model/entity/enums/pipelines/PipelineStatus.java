@@ -17,7 +17,8 @@ public enum PipelineStatus implements DiffableAsString {
   TRANSFERRED("Transferred", 50, false, PhysicalPipelineState.NEVER_EXISTED),
 
   DELETED("Deleted (legacy)", 70, true, PhysicalPipelineState.NEVER_EXISTED),
-  PENDING("Pending (legacy)", 90, true, PhysicalPipelineState.NEVER_EXISTED);
+  PENDING("Pending (legacy)", 90, true, PhysicalPipelineState.NEVER_EXISTED),
+  LEGACY_RENUMBERED("Renumbered (legacy)", 100, true, PhysicalPipelineState.NEVER_EXISTED);
 
   private final String displayText;
   private final Integer displayOrder;

@@ -289,7 +289,9 @@ AS
       CASE
         WHEN p_pipeline_number LIKE '%RTS' THEN 'RETURNED_TO_SHORE'
         WHEN p_pipeline_number LIKE '%NL' THEN 'NEVER_LAID'
-        END
+        WHEN p_pipeline_number LIKE '%OLD NO' THEN 'LEGACY_RENUMBERED'
+        WHEN p_pipeline_number LIKE '%OLD NO.' THEN 'LEGACY_RENUMBERED'
+      END
     INTO l_new_status
     FROM dual;
 

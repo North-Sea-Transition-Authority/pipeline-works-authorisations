@@ -89,6 +89,7 @@ FROM (
   FROM ${datasource.user}.pipeline_details pd
   LEFT JOIN ${datasource.user}.pipeline_detail_migration_data pdmd ON pdmd.pipeline_detail_id = pd.id
   JOIN pipeline_types pt ON COALESCE(pd.pipeline_type, 'UNKNOWN') = pt.type_mnem
+  WHERE pd.pipeline_status NOT IN ('DELETED', 'PENDING', 'LEGACY_RENUMBERED')
 );
 
 CREATE OR REPLACE VIEW ${datasource.user}.api_vw_pwa_consents AS
