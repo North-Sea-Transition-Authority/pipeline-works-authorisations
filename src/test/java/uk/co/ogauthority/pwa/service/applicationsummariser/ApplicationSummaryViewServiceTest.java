@@ -7,6 +7,7 @@ import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus.CASE_OFFICER_REVIEW;
+import static uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus.DRAFT;
 import static uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus.UPDATE_REQUESTED;
 
 import java.time.Instant;
@@ -154,7 +155,7 @@ public class ApplicationSummaryViewServiceTest {
   }
 
   @Test
-  public void getAppDetailVersionSearchSelectorItems_appHasUpdateRequestAndNonUpdateRequestVersions_updateRequestVersionNotIncludedInSelectorOptions() {
+  public void getAppDetailVersionSearchSelectorItems_appHasUpdateRequestAndNonIndustryEditableVersions_updateRequestVersionNotIncludedInSelectorOptions() {
 
     var appDetailUpdateRequested = PwaApplicationTestUtil.createDefaultApplicationDetail(APP_ID, APP_DETAIL_ID2, VERSION_2, TODAY_MORNING, UPDATE_REQUESTED);
     var appDetailNoUpdateRequested = PwaApplicationTestUtil.createDefaultApplicationDetail(APP_ID, APP_DETAIL_ID1, VERSION_1, YESTERDAY, CASE_OFFICER_REVIEW);
@@ -162,6 +163,27 @@ public class ApplicationSummaryViewServiceTest {
 
     when(pwaApplicationDetailService.getAllDetailsForApplication(pwaApplication)).thenReturn(
         List.of(appDetailNoUpdateRequested, appDetailUpdateRequested));
+
+    var visibleApplicationVersionOptionsForUser =
+        applicationSummaryViewService.getVisibleApplicationVersionOptionsForUser(pwaApplication, user);
+    var visibleApplicationVersionOptionsForUserEntries = visibleApplicationVersionOptionsForUser
+        .getApplicationVersionOptions();
+
+    assertThat(visibleApplicationVersionOptionsForUserEntries).containsOnly(entry(
+        appDetailNoUpdateRequested.getId().toString(),
+        String.format("Latest version (%s)", DateUtils.formatDate(appDetailNoUpdateRequested.getSubmittedTimestamp()))
+    ));
+  }
+
+  @Test
+  public void getAppDetailVersionSearchSelectorItems_appHasDraftAndNonIndustryEditableVersions_draftVersionNotIncludedInSelectorOptions() {
+
+    var appDetailDraft = PwaApplicationTestUtil.createDefaultApplicationDetail(APP_ID, APP_DETAIL_ID2, VERSION_2, TODAY_MORNING, DRAFT);
+    var appDetailNoUpdateRequested = PwaApplicationTestUtil.createDefaultApplicationDetail(APP_ID, APP_DETAIL_ID1, VERSION_1, YESTERDAY, CASE_OFFICER_REVIEW);
+    var pwaApplication = appDetailDraft.getPwaApplication();
+
+    when(pwaApplicationDetailService.getAllDetailsForApplication(pwaApplication)).thenReturn(
+        List.of(appDetailNoUpdateRequested, appDetailDraft));
 
     var visibleApplicationVersionOptionsForUser =
         applicationSummaryViewService.getVisibleApplicationVersionOptionsForUser(pwaApplication, user);

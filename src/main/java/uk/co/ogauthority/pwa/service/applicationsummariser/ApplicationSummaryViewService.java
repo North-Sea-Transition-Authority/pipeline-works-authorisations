@@ -16,7 +16,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.view.appsummary.ApplicationSummaryView;
 import uk.co.ogauthority.pwa.model.view.appsummary.VisibleApplicationVersionOptionsForUser;
 import uk.co.ogauthority.pwa.model.view.sidebarnav.SidebarSectionLink;
-import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.ApplicationState;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.rendering.TemplateRenderingService;
 import uk.co.ogauthority.pwa.util.DateUtils;
@@ -70,7 +70,7 @@ public class ApplicationSummaryViewService {
                                                                                             AuthenticatedUserAccount user) {
 
     var applicationDetails = pwaApplicationDetailService.getAllDetailsForApplication(pwaApplication)
-        .stream().filter(detail -> !PwaApplicationStatus.UPDATE_REQUESTED.equals(detail.getStatus()))
+        .stream().filter(detail -> !ApplicationState.INDUSTRY_EDITABLE.includes(detail.getStatus()))
         .collect(Collectors.toList());
 
     if (user.getUserPrivileges().contains(PwaUserPrivilege.PWA_CONSULTEE)) {
