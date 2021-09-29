@@ -70,7 +70,7 @@ public class ApplicationSummaryViewService {
                                                                                             AuthenticatedUserAccount user) {
 
     var applicationDetails = pwaApplicationDetailService.getAllDetailsForApplication(pwaApplication)
-        .stream().filter(detail -> !ApplicationState.INDUSTRY_EDITABLE.getStatuses().contains(detail.getStatus()))
+        .stream().filter(detail -> !ApplicationState.INDUSTRY_EDITABLE.includes(detail.getStatus()))
         .collect(Collectors.toList());
 
     if (user.getUserPrivileges().contains(PwaUserPrivilege.PWA_CONSULTEE)) {
