@@ -64,7 +64,8 @@ public class DocumentTemplateController {
     var modelAndView = new ModelAndView("documents/templates/documentTemplateEditor")
         .addObject("docView", docView)
         .addObject("clauseActionsUrlProvider", new DocumentTemplateClauseActionsUrlProvider(documentSpec))
-        .addObject("documentSpec", documentSpec);
+        .addObject("documentSpec", documentSpec)
+        .addObject("docTemplateEditorHeaderId", DocumentTemplateService.DOC_TEMPLATE_EDITOR_HEADER_ID);
 
     breadcrumbService.fromDocTemplateSelect(modelAndView, documentSpec);
 

@@ -11,6 +11,8 @@ public class CaseSummaryViewService {
 
   private final ApplicationDetailViewRepository applicationDetailViewRepository;
 
+  public static final String CASE_SUMMARY_HEADER_ID = "pwa-application-reference";
+
   @Autowired
   public CaseSummaryViewService(ApplicationDetailViewRepository applicationDetailViewRepository) {
     this.applicationDetailViewRepository = applicationDetailViewRepository;
@@ -19,7 +21,7 @@ public class CaseSummaryViewService {
   public Optional<CaseSummaryView> getCaseSummaryViewForAppDetail(PwaApplicationDetail detail) {
 
     return applicationDetailViewRepository.findByPwaApplicationDetailId(detail.getId())
-        .map(CaseSummaryView::from);
+        .map(appDetailView -> CaseSummaryView.from(appDetailView, CASE_SUMMARY_HEADER_ID));
 
   }
 

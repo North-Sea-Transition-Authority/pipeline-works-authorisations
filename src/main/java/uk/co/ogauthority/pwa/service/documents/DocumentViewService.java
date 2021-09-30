@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
+import uk.co.ogauthority.pwa.exception.documents.DocumentViewException;
 import uk.co.ogauthority.pwa.model.documents.SectionClauseVersionDto;
 import uk.co.ogauthority.pwa.model.documents.view.DocumentView;
 import uk.co.ogauthority.pwa.model.documents.view.SectionClauseVersionView;
@@ -15,9 +16,14 @@ import uk.co.ogauthority.pwa.model.documents.view.SectionView;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.DocumentTemplateMnem;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocumentSection;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocumentSpec;
+import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.SectionType;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.enums.documents.PwaDocumentType;
 import uk.co.ogauthority.pwa.model.enums.documents.SectionClauseVersionStatus;
 import uk.co.ogauthority.pwa.model.view.sidebarnav.SidebarSectionLink;
+import uk.co.ogauthority.pwa.service.appprocessing.context.CaseSummaryViewService;
+import uk.co.ogauthority.pwa.service.documents.templates.DocumentTemplateService;
+import uk.co.ogauthority.pwa.service.documents.templates.TemplateDocumentSource;
 import uk.co.ogauthority.pwa.util.MailMergeUtils;
 
 @Service
@@ -40,6 +46,7 @@ public class DocumentViewService {
 
     var sections = sectionToClauseVersionMap.entrySet().stream()
         .map(entry -> createSectionView(
+            documentSource,
             documentSource.getDocumentSpec(),
             DocumentSection.valueOf(entry.getKey()),
             entry.getValue()))
@@ -54,7 +61,8 @@ public class DocumentViewService {
 
   }
 
-  private SectionView createSectionView(DocumentSpec documentSpec,
+  private SectionView createSectionView(DocumentSource documentSource,
+                                        DocumentSpec documentSpec,
                                         DocumentSection documentSection,
                                         List<SectionClauseVersionDto> clauseVersionDtos) {
 
@@ -77,7 +85,7 @@ public class DocumentViewService {
     // now we've built the hierarchy, set the top-level clauses (now containing their children) onto the section view
     sectionView.setClauses(clauseViewLevelToViewMap.get(1));
 
-    buildSidebarLinks(sectionView);
+    buildSidebarLinks(documentSource, sectionView);
 
     return sectionView;
 
@@ -99,9 +107,13 @@ public class DocumentViewService {
 
   }
 
-  private void buildSidebarLinks(SectionView sectionView) {
+  private void buildSidebarLinks(DocumentSource documentSource, SectionView sectionView) {
 
     var sidebarLinks = new ArrayList<SidebarSectionLink>();
+
+    if (sectionView.getSectionType().equals(SectionType.OPENING_PARAGRAPH)) {
+      sidebarLinks.add(buildSidebarTopLink(documentSource));
+    }
 
     sectionView.getClauses().forEach(clause -> {
 
@@ -121,6 +133,21 @@ public class DocumentViewService {
 
     sectionView.setSidebarSectionLinks(sidebarLinks);
 
+  }
+
+  private SidebarSectionLink buildSidebarTopLink(DocumentSource documentSource) {
+
+    if (documentSource instanceof PwaApplication) {
+      var pwaApplication = (PwaApplication) documentSource;
+      return SidebarSectionLink.createAnchorLink(pwaApplication.getAppReference(), "#" + CaseSummaryViewService.CASE_SUMMARY_HEADER_ID);
+
+    } else if (documentSource instanceof TemplateDocumentSource) {
+      var templateDocumentSource = (TemplateDocumentSource) documentSource;
+      return SidebarSectionLink.createAnchorLink(templateDocumentSource.getDocumentSpec().getDisplayName(),
+              "#" + DocumentTemplateService.DOC_TEMPLATE_EDITOR_HEADER_ID);
+    }
+
+    throw new DocumentViewException("Unable to produce top side bar link as the DocumentSource could not be recognised");
   }
 
   public boolean documentViewHasClauses(DocumentView docView) {

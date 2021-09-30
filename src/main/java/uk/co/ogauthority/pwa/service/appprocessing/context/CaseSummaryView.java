@@ -25,6 +25,7 @@ public class CaseSummaryView {
   private final boolean fastTrackFlag;
   private final String caseOfficerName;
   private final Integer versionNo;
+  private final String caseSummaryHeaderId;
 
   public CaseSummaryView(Integer pwaApplicationId,
                          PwaApplicationType pwaApplicationType,
@@ -34,7 +35,7 @@ public class CaseSummaryView {
                          String proposedStartDateDisplay,
                          boolean fastTrackFlag,
                          String caseOfficerName,
-                         Integer versionNo) {
+                         Integer versionNo, String caseSummaryHeaderId) {
     this.pwaApplicationId = pwaApplicationId;
     this.pwaApplicationType = pwaApplicationType;
     this.pwaApplicationTypeDisplay = pwaApplicationType.getDisplayName();
@@ -45,9 +46,10 @@ public class CaseSummaryView {
     this.fastTrackFlag = fastTrackFlag;
     this.caseOfficerName = caseOfficerName;
     this.versionNo = versionNo;
+    this.caseSummaryHeaderId = caseSummaryHeaderId;
   }
 
-  public static CaseSummaryView from(ApplicationDetailView detailViewItem) {
+  public static CaseSummaryView from(ApplicationDetailView detailViewItem, String caseSummaryHeaderId) {
 
     var appWorkAreaItem = new PwaApplicationWorkAreaItem(detailViewItem);
 
@@ -73,8 +75,8 @@ public class CaseSummaryView {
         proposedStartDateDisplay,
         appWorkAreaItem.wasSubmittedAsFastTrack(),
         appWorkAreaItem.getCaseOfficerName(),
-        detailViewItem.getVersionNo()
-    );
+        detailViewItem.getVersionNo(),
+        caseSummaryHeaderId);
 
   }
 
@@ -118,6 +120,10 @@ public class CaseSummaryView {
     return versionNo;
   }
 
+  public String getCaseSummaryHeaderId() {
+    return caseSummaryHeaderId;
+  }
+
   @SuppressWarnings("unused")
   // used in ftl template
   public String getAppSummaryUrl() {
@@ -140,12 +146,14 @@ public class CaseSummaryView {
         that.pwaApplicationRef) && Objects.equals(holderNames, that.holderNames) && Objects.equals(
         fieldNames, that.fieldNames) && Objects.equals(proposedStartDateDisplay,
         that.proposedStartDateDisplay) && Objects.equals(caseOfficerName,
-        that.caseOfficerName) && Objects.equals(versionNo, that.versionNo);
+        that.caseOfficerName)
+        && Objects.equals(versionNo, that.versionNo)
+        && Objects.equals(caseSummaryHeaderId, that.caseSummaryHeaderId);
   }
 
   @Override
   public int hashCode() {
     return Objects.hash(pwaApplicationId, pwaApplicationType, pwaApplicationTypeDisplay, pwaApplicationRef, holderNames,
-        fieldNames, proposedStartDateDisplay, fastTrackFlag, caseOfficerName, versionNo);
+        fieldNames, proposedStartDateDisplay, fastTrackFlag, caseOfficerName, versionNo, caseSummaryHeaderId);
   }
 }
